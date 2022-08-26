@@ -1,0 +1,6 @@
+default:
+  dir_data_raw: inst/extdata
+  dir_cache: ../_cache
+  dir_output: _output
+  dir_archive: _archive
+ 
