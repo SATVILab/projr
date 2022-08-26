@@ -41,6 +41,10 @@
 		}
 	},
 
+	"mounts": [
+		"source=/home/${localEnv:USER},target=/home/rstudio,type=bind,consistency=cached"
+	],
+
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 

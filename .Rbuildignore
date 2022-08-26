@@ -1,2 +1,4 @@
-^proj2pkg\.Rproj$
+^projr\.Rproj$
 ^\.Rproj\.user$
+^\.devcontainer
+^\.vscode

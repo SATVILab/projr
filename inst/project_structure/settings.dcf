@@ -1,0 +1,4 @@
+vcs_and_build.ignore.archive: TRUE
+vcs_and_build.ignore.data_raw: TRUE
+vcs_and_build.ignore.output: TRUE
+vcs_and_build.ignore.cache: TRUE
