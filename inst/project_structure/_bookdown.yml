@@ -1,0 +1,9 @@
+book_filename: reportV0-9000
+delete_merged_file: yes
+language:
+  ui:
+    chapter_name: 'Chapter '
+rmd_files: 
+- index.Rmd
+- rmd/appendix.Rmd
+output_dir: docs/report

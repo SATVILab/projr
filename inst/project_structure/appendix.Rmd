@@ -1,0 +1,17 @@
+# Appendix
+
+## Session info
+
+```{r }
+utils::sessionInfo()
+```
+
+## Build package tarball
+
+```{r , results = "hide", message = FALSE, warning = FALSE}
+devtools::build(
+  pkg = here::here(),
+  path = here::here(dir_output),
+  binary = FALSE
+)
+```

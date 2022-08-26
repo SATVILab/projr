@@ -1,3 +1,8 @@
+#' @title Activate project
+#'
+#' @description Activate project
+#'
+#' @export
 prj_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
                          path_yml = "_projr.yml",
                          create_var = TRUE,

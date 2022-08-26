@@ -1,0 +1,66 @@
+### Tasks
+
+- [ ] Assuming you have just cloned this repository, delete the `.git` folder.
+- [ ] If you have not already, allow R to communicate with GitHub following [these instructions](https://satvilab.github.io/WikiSATVI/git-and-github-1.html#git-and-github-1).
+- Edit `_bookdown.yml`
+  - This file primarily defines what Rmd's go into the report and what the report is saved as.
+  - [ ] In line 1, make `book_filename` the name of the repository
+    - Initially: `book_filename: report`
+    - Example change: `book_filename: DataTidy22YngTissue`
+  - [ ] In line 9, replace `report` in `docs/report` with the name of the repository in `output_dir` and a version number afterwards
+    - Initially: `output_dir: docs/report`
+    - Example change: `output_dir: docs/DataTidy22YngTissueV1`.
+- Edit `_output.yml`
+  - This file refines the outputted document.
+  - [ ] In line 7, replace `TODO: ADD SHORT DESCRIPTION` with a short project description
+    - Initially: `<li><a href="./">TODO: ADD SHORT DESCRIPTION</a></li>`
+    - Example change: `<li><a href="./">FAUST analysis of CyTOF tissue data</a></li>`
+  - [ ] In line 9, replace `TODO:_ADD_REPO_NAME` with the repository name on GitHub (twice!)
+    - Initially: ` <li><a href="https://github.com/SATVIlab/TODO:_ADD_REPO_NAME" target="blank">SATVIlab/TODO:_ADD_REPO_NAME</a></li>`
+    - Example change: ` <li><a href="https://github.com/SATVIlab/DataTidy22YngTissue" target="blank">SATVIlab/DataTidy22YngTissue</a></li>`
+- Edit `_project.yml`
+  - This file creates directories to keep raw data in (`dir_data_raw`), save all computed outputs to (`dir_cache`) and save items for sharing (`dir_output`). 
+  - To keep things simple, at present it is assumed that all users of your project will have the same paths. Therefore, they should be relative and not absolute paths, i.e. `cache` rather than something like `C:/Users/migue/Work/Projects/BestProjectEver/cache`.
+  - You can just leave the defaults.
+  - [ ] In line 2, replace `cache` with the relative path to the folder you want to store automatically-generated outputs in (leave it alone if you're happy with cache)
+    - Initially: `dir_cache: cache`
+    - Example change: `dir_cache: tmp`
+  - [ ] In line 3, replace `inst/extdata` with the relative path to the folder where the raw data are kept
+    - Initially: `dir_data_raw: inst/extdata`
+    - Example change: `dir_data_raw: ../DataRaw22YngTissue`
+      - Note that `..` means "up a level" in terms of directories
+  - [ ] In line 4, replace `output` with the relative path to the folder where the project outputs for sharing are to be saved
+    - Initially: `dir_output: output`
+    - Example change: `dir_output: ../Output/OutputDataTidy22YngTissue`
+  - [ ] Add the folders above to `.gitignore`
+  - [ ] Add the folders above to `.Rbuildignore`
+- Edit `DESCRIPTION`
+  - This file gives the metadata for your project (e.g. its name and the authors) and enables it to be built as an R package (which you would probably want to if you processed data in it).
+  - [ ] In line 1, change `templater` to the name of this project.
+    - Initially: `Package: templater`
+    - Example change: `Package: ThisProjectSolvesTB`
+    - Note that there must be no spaces, nothing other than a character or a number, and it must not start with a number.
+  - [ ] In line 2, state briefly what the package does in title case
+    - Initially: `Title: What the Package Does (One Line, Title Case)`
+    - Example change: `Cluster CyTOF tissue data`
+  - [ ] In lines 4-6, fill in the author information. See `?person` for help.
+  - [ ] In lines 7 (and below), provide a brief package description.
+  - Add a license.
+    - [ ] Install `usethis` R package using `install.packages("usethis")`.
+    - [ ] Run `usethis::use_ccby_license()`.
+      - This is probably the best license for projects. See `choosealicense.com` for other options.
+- Edit `README.md`
+  - [ ] In line 1, replace `templater` with the name of your project.
+  - [ ] In line 4, replace all content other than the heading with the purpose of the project, i.e. `The goal of this project is to ...`. 
+  - The README can and should be added to from here, with information such as how to install it, what datasets are available and where the results report is. But that is project-specific, so we leave it up to you.
+- Edit `index.Rmd`
+  - Edit the `title`, `author` and `description` fields.
+- [ ] Run `renv::init()` and wait for it it finish.
+- [ ] Restart R (`Ctrl + Shift + F10` or `Session >> Restart R` in RStudio).
+- Using your Git GUI of choice:
+  - [ ] Create a Git repository here.
+  - [ ] Commit all the files except for `DELETE-AFTER-DOING.md`
+  - [ ] Create a GitHub repository in the SATVILab GitHub organisation, and push the commit there.
+- Start coding and writing! Add new Rmd's to `rmd/` and then list the under `rmd_files` in `_bookdown.yml`.
+- When you make changes, save them frequently to Git and push them to GitHub.
+- Now you can delete `DELETE-AFTER-DOING.md`.
