@@ -2,8 +2,21 @@
 #'
 #' @description Initialise project
 #'
+#' @param renv_force. Logical.
+#' Passed to `renv::init()`.
+#' If \code{FALSE}, then `renv::init()` will not run
+#' if it detects that the working directory
+#' already is registered with renv.
+#' Default is \code{FALSE}.
+#' @param renv_bioconductor. Logical.
+#' Whether \code{renv} should look for packages
+#' on Bioconductor.
+#' Default is \code{TRUE}.
 #' @export
-prj_init <- function(yml_path_from = NULL) {
+projr_init <- function(dir_proj = getwd(),
+                       yml_path_from = NULL,
+                       renv_force = FALSE,
+                       renv_bioconductor = TRUE) {
 
   # create initial _proj.yml
   if (is.null(yml_path_from)) {
@@ -17,17 +30,12 @@ prj_init <- function(yml_path_from = NULL) {
       stop(paste0("yml_path_from does not exist: ", yml_path_from))
     }
   }
+
   file.copy(
     from = yml_path_from,
     to = "_projr.yml"
   )
 
-
-
-  dir_projr <- here::here("projr")
-  if (!dir.exists(dir_projr)) {
-    dir.create(dir_projr, recursive = TRUE)
-  }
 
   if (!file.exists("_bookdown.yml")) {
     file.copy(
@@ -36,9 +44,10 @@ prj_init <- function(yml_path_from = NULL) {
         "_bookdown.yml",
         package = "projr"
       ),
-      here::here()
+      dir_proj
     )
   }
+
   if (!file.exists("_output.yml")) {
     file.copy(
       system.file(
@@ -46,7 +55,7 @@ prj_init <- function(yml_path_from = NULL) {
         "_output.yml",
         package = "projr"
       ),
-      here::here()
+      dir_proj
     )
   }
   file.copy(
@@ -55,7 +64,7 @@ prj_init <- function(yml_path_from = NULL) {
       "DELETE-AFTER-DOING.md",
       package = "projr"
     ),
-    here::here()
+    dir_proj
   )
 
   if (!file.exists("DESCRIPTION")) {
@@ -65,7 +74,7 @@ prj_init <- function(yml_path_from = NULL) {
         "DESCRIPTION",
         package = "projr"
       ),
-      here::here()
+      dir_proj
     )
   }
 
@@ -76,7 +85,7 @@ prj_init <- function(yml_path_from = NULL) {
         "index.Rmd",
         package = "projr"
       ),
-      here::here()
+      dir_proj
     )
   }
 
@@ -87,21 +96,21 @@ prj_init <- function(yml_path_from = NULL) {
         "appendix.Rmd",
         package = "projr"
       ),
-      here::here()
+      dir_proj
     )
   }
 
   usethis::use_git_ignore("DELETE-AFTER-DOING.md")
   usethis::use_build_ignore("DELETE-AFTER-DOING.md")
 
-  if (!dir.exists("renv")) {
-    renv::init()
-  }
-
-  message(
-    "check, and edit if need be, _projr.yml before restarting R session (Ctrl + Shift + F10 in RStudio)" # nolint
+  renv::init(
+    force = renv_force,
+    bioconductor = renv_bioconductor
   )
-  message("Then follow steps in DELETE-AFTER-DOING.md")
+
+  cat("\n")
+  cat("\n")
+  message("Follow steps in DELETE-AFTER-DOING.md")
 
   cat(
     "\n",
