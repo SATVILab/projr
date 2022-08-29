@@ -12,6 +12,12 @@ prj_activate(
   silent = FALSE
 )
 }
+\arguments{
+\item{silent.}{Logical.
+If \code{TRUE}, then messages are suppressed
+(but not warnings or errors).
+Default is \code{FALSE}.}
+}
 \description{
 Activate project
 }

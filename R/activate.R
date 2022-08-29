@@ -2,6 +2,11 @@
 #'
 #' @description Activate project
 #'
+#' @param silent. Logical.
+#' If \code{TRUE}, then messages are suppressed
+#' (but not warnings or errors).
+#' Default is \code{FALSE}.
+#'
 #' @export
 prj_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
                          path_yml = "_projr.yml",
@@ -27,7 +32,6 @@ prj_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
   invisible(yml_active)
 }
 
-
 .get_yml_active <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
                             path_yml,
                             silent) {
@@ -36,25 +40,25 @@ prj_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
   } else {
     wd <- normalizePath(getwd(), winslash = "/")
   }
-
   if (!file.exists(path_yml)) {
-    stop(
-      paste0("specified path to YAML file not found: ", path_yml)
-    )
+    stop(paste0(
+      "specified path to YAML file not found: ",
+      path_yml
+    ))
   }
-
   yml <- yaml::read_yaml(path_yml)
-
   if (wd %in% names(yml)) {
     yml_active <- yml[[wd]]
     if ("default" %in% names(yml)) {
       yml_default <- yml[["default"]]
-      nm_vec <- setdiff(names(yml_default), yml_active)
-      if (nzchar(nm_vec)) {
-        message(paste0(
-          "Adding the following settings to the current wd's dirs: ",
-          paste0(nm_vec, collapse = "; ")
-        ))
+      nm_vec <- setdiff(names(yml_default), names(yml_active))
+      if (length(nm_vec) > 0) {
+        if (!silent) {
+          message(paste0(
+            "Adding the following settings to the current wd's dirs: ",
+            paste0(nm_vec, collapse = "; ")
+          ))
+        }
         yml_active <- append(yml_active, yml_default[nm_vec])
       }
     }
@@ -64,7 +68,6 @@ prj_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
     }
     yml_active <- yml[["default"]]
   }
-
   yml_active
 }
 
