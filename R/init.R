@@ -104,6 +104,4 @@ prj_init <- function(yml_path_from = NULL) {
   message("Then follow steps in DELETE-AFTER-DOING.md")
 
   invisible(TRUE)
-
-  append("projr::proj_")
 }
