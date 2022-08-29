@@ -92,7 +92,7 @@ prj_init <- function(yml_path_from = NULL) {
   }
 
   usethis::use_git_ignore("DELETE-AFTER-DOING.md")
-  usethis::use_build_ignoreGg("DELETE-AFTER-DOING.md")
+  usethis::use_build_ignore("DELETE-AFTER-DOING.md")
 
   if (!dir.exists("renv")) {
     renv::init()
