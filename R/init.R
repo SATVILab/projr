@@ -104,6 +104,7 @@ prj_init <- function(yml_path_from = NULL) {
   message("Then follow steps in DELETE-AFTER-DOING.md")
 
   cat(
+    "\n",
     "projr::prj_activate()",
     file = ".Rprofile",
     append = TRUE
