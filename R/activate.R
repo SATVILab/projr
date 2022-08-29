@@ -76,7 +76,7 @@ prj_set_up_dir <- function(yml_active,
                            env_var) {
   for (i in seq_along(yml_active)) {
     if (!dir.exists(yml_active[[i]])) {
-      dir.create(yml_active, recursive = TRUE)
+      dir.create(yml_active[[i]], recursive = TRUE)
     }
     if (create_var) {
       assign(
