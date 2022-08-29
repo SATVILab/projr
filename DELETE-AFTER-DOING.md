@@ -1,5 +1,6 @@
 ### Tasks
 
+- [ ] Restart R (`Ctrl + Shift + F10` in RStudio).
 - [ ] If you have not already, allow R to communicate with GitHub following [these instructions](https://satvilab.github.io/WikiSATVI/git-and-github-1.html#git-and-github-1).
 - Edit `_bookdown.yml`
   - This file primarily defines what Rmd's go into the report and what the report is saved as.
@@ -54,8 +55,6 @@
   - The README can and should be added to from here, with information such as how to install it, what datasets are available and where the results report is. But that is project-specific, so we leave it up to you.
 - Edit `index.Rmd`
   - Edit the `title`, `author` and `description` fields.
-- [ ] Run `renv::init()` and wait for it it finish.
-- [ ] Restart R (`Ctrl + Shift + F10` or `Session >> Restart R` in RStudio).
 - Using your Git GUI of choice:
   - [ ] Create a Git repository here.
   - [ ] Commit all the files except for `DELETE-AFTER-DOING.md`

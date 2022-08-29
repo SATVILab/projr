@@ -1,0 +1,15 @@
+--- 
+title: "Solving TB with MINIMALLY SENSIBLE reports"
+author: "Sir so and so"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: book
+# bibliography: [book.bib, packages.bib]
+description: "Bubble bubble, toil and trouble, a good report made on the double. Eye of newt and spleen of toad..."
+---
+
+# Introduction
+  
+```{r , include = FALSE}
+
+```

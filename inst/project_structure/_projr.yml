@@ -1,5 +1,21 @@
-default:
-  dir_data_raw: inst/extdata
-  dir_cache: ../_cache
-  dir_output: _output
-  dir_archive: _archive
+directories:
+  data_raw:
+    name: dir_data_raw
+    path: inst/extdata
+    ignore: true
+  cache: 
+    name: dir_cache
+    path: _tmp
+    ignore: true
+  output: 
+    name: dir_output
+    path: _output
+    ignore: true 
+  archive: 
+    name: dir_archive
+    path: _archive
+    ignore: true
+version: "major.minor-dev" # other options: version-dev; major.minor.patch-dev; 
+build:
+  renv: true
+  package_build: false
