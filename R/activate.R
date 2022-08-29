@@ -8,7 +8,7 @@
 #' Default is \code{FALSE}.
 #'
 #' @export
-prj_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
+projr_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
                          path_yml = "_projr.yml",
                          create_var = TRUE,
                          env_var = .GlobalEnv,
@@ -19,13 +19,13 @@ prj_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
     silent = silent
   )
 
-  prj_set_up_dir(
+  projr_set_up_dir(
     yml_active = yml_active,
     create_var = create_var,
     env_var = env_var
   )
 
-  .prj_ignore(yml_active = yml_active)
+  .projr_ignore(yml_active = yml_active)
 
   renv::init()
 
@@ -71,7 +71,7 @@ prj_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
   yml_active
 }
 
-prj_set_up_dir <- function(yml_active,
+projr_set_up_dir <- function(yml_active,
                            create_var,
                            env_var) {
   for (i in seq_along(yml_active)) {
@@ -89,7 +89,7 @@ prj_set_up_dir <- function(yml_active,
   invisible(TRUE)
 }
 
-.prj_ignore <- function(yml_active,
+.projr_ignore <- function(yml_active,
                         wd_var = "LOCAL_WORKSPACE_FOLDER") {
   dcf <- read.dcf("projr/settings.dcf")
 
