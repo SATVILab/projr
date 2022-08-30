@@ -1,5 +1,5 @@
-# Directories
-default:
+# default directory settings:
+directories-default:
   data_raw:
     name: dir_data_raw
     path: inst/extdata
@@ -16,8 +16,13 @@ default:
     name: dir_archive
     path: _archive
     ignore: true
-# version
+# actions on development built
+build-dev:
+  bump_version: false # whether to bump the dev version up before this build (i.e. to build to a new directory, really)
+  rmd: # if specified, subset of Rmd's to build. no need to mention index.Rmd, it's always included
+# version:
 version: "major.minor-dev" # other options: version-dev; major.minor.patch-dev; 
-# on-build settings
-renv: true
-package_build: false
+# on-build settings:
+renv: true # whether to snapshot or not 
+package_build: false # whether to build package or not
+# user-specific directories:

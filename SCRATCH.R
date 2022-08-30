@@ -1,5 +1,5 @@
 library(testthat)
-setwd("/workspaces//projr")
+# setwd("/workspaces//projr")
 
 devtools::load_all()
 devtools::test()

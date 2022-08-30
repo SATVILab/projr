@@ -22,7 +22,8 @@ projr_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
   projr_set_up_dir(
     yml_active = yml_active,
     create_var = create_var,
-    env_var = env_var
+    env = env_var,
+    silent = silent
   )
 
   .projr_ignore(yml_active = yml_active)
@@ -32,44 +33,53 @@ projr_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
   invisible(yml_active)
 }
 
-.get_yml_active <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
-                            path_yml,
-                            silent) {
+
+projr_get_yml_active <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
+                                 path_yml,
+                                 silent) {
   if (nzchar(Sys.getenv(wd_var))) {
     wd <- Sys.getenv(wd_var)
   } else {
     wd <- normalizePath(getwd(), winslash = "/")
   }
+
   if (!file.exists(path_yml)) {
-    stop(paste0(
-      "specified path to YAML file not found: ",
-      path_yml
-    ))
+    stop(
+      paste0("specified path to YAML file not found: ", path_yml)
+    )
   }
+
   yml <- yaml::read_yaml(path_yml)
-  if (wd %in% names(yml)) {
-    yml_active <- yml[[wd]]
-    if ("default" %in% names(yml)) {
-      yml_default <- yml[["default"]]
-      nm_vec <- setdiff(names(yml_default), names(yml_active))
-      if (length(nm_vec) > 0) {
-        if (!silent) {
-          message(paste0(
-            "Adding the following settings to the current wd's dirs: ",
-            paste0(nm_vec, collapse = "; ")
-          ))
-        }
-        yml_active <- append(yml_active, yml_default[nm_vec])
+
+  # get directories done correctly
+  if (paste0("directories-", wd) %in% names(yml)) {
+    yml_dir <- yml[[paste0("directories-", wd)]]
+    if ("directories-default" %in% names(yml)) {
+      yml_default <- yml[["directories-default"]]
+      nm_vec <- setdiff(names(yml_default), yml_dir)
+      if (nzchar(nm_vec)) {
+        message(paste0(
+          "Adding the following settings to the current wd's dirs: ",
+          paste0(nm_vec, collapse = "; ")
+        ))
+        yml_dir <- append(yml_dir, yml_default[nm_vec])
       }
     }
   } else {
-    if (!"default" %in% names(yml)) {
+    if (!"directories-default" %in% names(yml)) {
       stop("Current working directory not in path_yml and there is no default")
+    } else {
+      yml_dir <- yml["directories-default"]
     }
-    yml_active <- yml[["default"]]
   }
+  yml_active <- setNames(yml_dir, "directories") |>
+    append(
+      yml[!grepl("^directories", names(yml))]
+    )
+
   yml_active
 }
+
 
 projr_set_up_dir <- function(yml_active,
                              create_var,
