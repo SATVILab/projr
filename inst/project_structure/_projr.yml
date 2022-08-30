@@ -1,4 +1,5 @@
-directories:
+# Directories
+default:
   data_raw:
     name: dir_data_raw
     path: inst/extdata
@@ -15,7 +16,8 @@ directories:
     name: dir_archive
     path: _archive
     ignore: true
+# version
 version: "major.minor-dev" # other options: version-dev; major.minor.patch-dev; 
-build:
-  renv: true
-  package_build: false
+# on-build settings
+renv: true
+package_build: false

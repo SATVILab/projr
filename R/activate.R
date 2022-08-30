@@ -9,10 +9,10 @@
 #'
 #' @export
 projr_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
-                         path_yml = "_projr.yml",
-                         create_var = TRUE,
-                         env_var = .GlobalEnv,
-                         silent = FALSE) {
+                           path_yml = "_projr.yml",
+                           create_var = TRUE,
+                           env_var = .GlobalEnv,
+                           silent = FALSE) {
   yml_active <- .get_yml_active(
     wd_var = wd_var,
     path_yml = path_yml,
@@ -72,62 +72,67 @@ projr_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
 }
 
 projr_set_up_dir <- function(yml_active,
-                           create_var,
-                           env_var) {
+                             create_var,
+                             env,
+                             dir_proj = getwd()) {
+  gitignore <- suppressWarnings(read.table(".gitignore"))
+  rbuildignore <- suppressWarnings(read.table(".Rbuildignore"))
   for (i in seq_along(yml_active)) {
-    if (!dir.exists(yml_active[[i]])) {
-      dir.create(yml_active[[i]], recursive = TRUE)
+    yml_curr <- yml_active[[i]]
+    if (!dir.exists(yml_curr[["path"]])) {
+      dir.create(yml_curr$path, recursive = TRUE)
     }
     if (create_var) {
       assign(
-        names(yml_active)[i],
-        yml_active[[i]],
-        envir = env_var
+        yml_curr[["name"]],
+        yml_curr[["path"]],
+        envir = env
       )
     }
-  }
-  invisible(TRUE)
-}
 
-.projr_ignore <- function(yml_active,
-                        wd_var = "LOCAL_WORKSPACE_FOLDER") {
-  dcf <- read.dcf("projr/settings.dcf")
-
-  if (missing(yml_active)) {
-    yml_active <- .get_yml_active(
-      wd_var = wd_var,
-      path_yml = "_projr.yml",
-      silent = silent
+    within_wd <- fs::path_has_parent(
+      yml_curr[["path"]],
+      dir_proj
     )
-  }
+    if (!within_wd) next
 
-  for (i in seq_along(dcf)) {
-    ignore <- dcf[1, i][[1]]
-    nm <- colnames(dcf)[i]
-    dir_nm <- paste0("dir_", gsub("vcs_and_build\\.ignore\\.", "", nm))
-    gitignore <- readLines(system.file(
-      "_project_structure",
-      ".gitignore",
-      package = "projr"
-    ))
-    if (dir_nm %in% names(yml_active)) {
-      dir_path <- yml_active[[dir_nm]]
-      within_wd <- fs::path_has_parent(
-        dir_path,
-        here::here()
-      )
-      if (!within_wd) next
+    dir_path <- fs::path_rel(yml_curr[["path"]], dir_proj)
 
-      dir_path <- fs::path_rel(normalizePath(dir_path), here::here())
-
-      if (ignore) {
-        usethis::use_git_ignore(paste0(dir_path, "/*"))
-        usethis::use_build_ignore(
-          paste0("^", Hmisc::escapeRegex(dir_path)),
-          escape = FALSE
+    txt_gitignore <- paste0("\n", gsub("/*$", "", dir_path), "/**/*")
+    txt_rbuildignore <- paste0("\n^", Hmisc::escapeRegex(dir_path))
+    if (yml_curr[["ignore"]]) {
+      if (!txt_gitignore %in% gitignore[["V1"]]) {
+        cat(
+          txt_gitignore,
+          file = ".gitignore",
+          append = TRUE
         )
-      } else {
-        # #102
+        cat(
+          txt_rbuildignore,
+          file = ".Rbuildignore",
+          append = TRUE
+        )
+      }
+    } else {
+      if (txt_gitignore %in% gitignore[["V1"]]) {
+        gitignore <- gitignore[
+          -which(gitignore[["V1"]] == txt_gitignore),
+        ]
+        cat(
+          gitignore,
+          file = ".gitignore",
+          append = FALSE
+        )
+      }
+      if (txt_rbuildignore %in% rbuildignore[["V1"]]) {
+        rbuildignore <- rbuildignore[
+          -which(rbuildignore[["V1"]] == txt_rbuildignore),
+        ]
+        cat(
+          rbuildignore,
+          file = ".Rbuildignore",
+          append = FALSE
+        )
       }
     }
   }
