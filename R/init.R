@@ -100,8 +100,37 @@ projr_init <- function(dir_proj = getwd(),
     )
   }
 
-  usethis::use_git_ignore("DELETE-AFTER-DOING.md")
-  usethis::use_build_ignore("DELETE-AFTER-DOING.md")
+  if (!file.exists(".gitignore")) {
+    file.copy(
+      system.file(
+        "project_structure",
+        ".gitignore",
+        package = "projr"
+      ),
+      dir_proj
+    )
+  }
+  if (!file.exists(".Rbuildignore")) {
+    file.copy(
+      system.file(
+        "project_structure",
+        ".Rbuildignore",
+        package = "projr"
+      ),
+      dir_proj
+    )
+  }
+
+  cat(
+    "\nDELETE-AFTER-DOING.md",
+    file = ".gitignore",
+    append = TRUE
+  )
+  cat(
+    "\n^DELETE-AFTER-DOING\\.md$",
+    file = ".Rbuildignore",
+    append = TRUE
+  )
 
   renv::init(
     force = renv_force,
