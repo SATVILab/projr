@@ -29,6 +29,10 @@ test_that("projr_init works", {
     ) |>
       sort()
   )
+
   expect_true(file.exists(".gitignore"))
+
   expect_true(file.exists(".Rbuildignore"))
+  rprofile <- readLines(".Rprofile")
+  expect_true(sum(grepl("^\\s*projr::projr_activate", rprofile)) >= 1)
 })

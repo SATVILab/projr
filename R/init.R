@@ -122,13 +122,9 @@ projr_init <- function(dir_proj = getwd(),
   }
 
   cat(
-    "\nDELETE-AFTER-DOING.md",
-    file = ".gitignore",
-    append = TRUE
-  )
-  cat(
     "\n^DELETE-AFTER-DOING\\.md$",
     file = ".Rbuildignore",
+    sep = "",
     append = TRUE
   )
 
@@ -143,8 +139,10 @@ projr_init <- function(dir_proj = getwd(),
 
   cat(
     "\n",
-    "projr::prj_activate()",
+    "projr::projr_activate()",
+    "\n",
     file = ".Rprofile",
+    sep = "",
     append = TRUE
   )
 

@@ -13,7 +13,7 @@ projr_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
                            create_var = TRUE,
                            env_var = .GlobalEnv,
                            silent = FALSE) {
-  yml_active <- .get_yml_active(
+  yml_active <- projr_get_yml_active(
     wd_var = wd_var,
     path_yml = path_yml,
     silent = silent
@@ -22,13 +22,8 @@ projr_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
   projr_set_up_dir(
     yml_active = yml_active,
     create_var = create_var,
-    env = env_var,
-    silent = silent
+    env = env_var
   )
-
-  .projr_ignore(yml_active = yml_active)
-
-  renv::init()
 
   invisible(yml_active)
 }
@@ -51,13 +46,14 @@ projr_get_yml_active <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
 
   yml <- yaml::read_yaml(path_yml)
 
+
   # get directories done correctly
   if (paste0("directories-", wd) %in% names(yml)) {
     yml_dir <- yml[[paste0("directories-", wd)]]
     if ("directories-default" %in% names(yml)) {
       yml_default <- yml[["directories-default"]]
       nm_vec <- setdiff(names(yml_default), yml_dir)
-      if (nzchar(nm_vec)) {
+      if (length(nm_vec) > 0) {
         message(paste0(
           "Adding the following settings to the current wd's dirs: ",
           paste0(nm_vec, collapse = "; ")
@@ -85,10 +81,11 @@ projr_set_up_dir <- function(yml_active,
                              create_var,
                              env,
                              dir_proj = getwd()) {
-  gitignore <- suppressWarnings(read.table(".gitignore"))
-  rbuildignore <- suppressWarnings(read.table(".Rbuildignore"))
-  for (i in seq_along(yml_active)) {
-    yml_curr <- yml_active[[i]]
+  gitignore <- suppressWarnings(readLines(".gitignore"))
+  rbuildignore <- suppressWarnings(readLines(".Rbuildignore"))
+  yml_active_dir <- yml_active[["directories"]]
+  for (i in seq_along(yml_active_dir)) {
+    yml_curr <- yml_active_dir[[i]]
     if (!dir.exists(yml_curr[["path"]])) {
       dir.create(yml_curr$path, recursive = TRUE)
     }
@@ -110,37 +107,46 @@ projr_set_up_dir <- function(yml_active,
 
     txt_gitignore <- paste0("\n", gsub("/*$", "", dir_path), "/**/*")
     txt_rbuildignore <- paste0("\n^", Hmisc::escapeRegex(dir_path))
+    if (!is.logical(yml_curr[["ignore"]])) next
     if (yml_curr[["ignore"]]) {
-      if (!txt_gitignore %in% gitignore[["V1"]]) {
+      if (!txt_gitignore %in% gitignore) {
         cat(
           txt_gitignore,
+          "\n",
           file = ".gitignore",
+          sep = "",
           append = TRUE
         )
+      }
+      if (!txt_rbuildignore %in% rbuildignore) {
         cat(
           txt_rbuildignore,
+          "\n",
           file = ".Rbuildignore",
+          sep = "",
           append = TRUE
         )
       }
     } else {
-      if (txt_gitignore %in% gitignore[["V1"]]) {
+      if (txt_gitignore %in% gitignore) {
         gitignore <- gitignore[
-          -which(gitignore[["V1"]] == txt_gitignore),
+          -which(gitignore == txt_gitignore),
         ]
         cat(
           gitignore,
           file = ".gitignore",
+          sep = "",
           append = FALSE
         )
       }
-      if (txt_rbuildignore %in% rbuildignore[["V1"]]) {
+      if (txt_rbuildignore %in% rbuildignore) {
         rbuildignore <- rbuildignore[
-          -which(rbuildignore[["V1"]] == txt_rbuildignore),
+          -which(rbuildignore == txt_rbuildignore),
         ]
         cat(
           rbuildignore,
           file = ".Rbuildignore",
+          sep = "",
           append = FALSE
         )
       }

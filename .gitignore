@@ -1,3 +1,11 @@
 .Rproj.user
 ../tmp/tmp/*
 inst/extdata/**/*_tmp/**/*_output/**/*_archive/**/*
+inst/extdata/**/*
+_tmp/**/*
+_output/**/*
+_archive/**/*
+inst/extdata/**/*
+_tmp/**/*
+_output/**/*
+_archive/**/*

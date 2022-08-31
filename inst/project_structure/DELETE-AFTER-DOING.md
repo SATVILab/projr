@@ -31,12 +31,10 @@
   - [ ] In line 4, replace `output` with the relative path to the folder where the project outputs for sharing are to be saved
     - Initially: `dir_output: output`
     - Example change: `dir_output: ../Output/OutputDataTidy22YngTissue`
-  - [ ] Add the folders above to `.gitignore`
-  - [ ] Add the folders above to `.Rbuildignore`
 - Edit `DESCRIPTION`
   - This file gives the metadata for your project (e.g. its name and the authors) and enables it to be built as an R package (which you would probably want to if you processed data in it).
-  - [ ] In line 1, change `templater` to the name of this project.
-    - Initially: `Package: templater`
+  - [ ] In line 1, change `projr` to the name of this project.
+    - Initially: `Package: projr`
     - Example change: `Package: ThisProjectSolvesTB`
     - Note that there must be no spaces, nothing other than a character or a number, and it must not start with a number.
   - [ ] In line 2, state briefly what the package does in title case
@@ -49,7 +47,7 @@
     - [ ] Run `usethis::use_ccby_license()`.
       - This is probably the best license for projects. See `choosealicense.com` for other options.
 - Edit `README.md`
-  - [ ] In line 1, replace `templater` with the name of your project.
+  - [ ] In line 1, replace `projr` with the name of your project.
   - [ ] In line 4, replace all content other than the heading with the purpose of the project, i.e. `The goal of this project is to ...`. 
   - The README can and should be added to from here, with information such as how to install it, what datasets are available and where the results report is. But that is project-specific, so we leave it up to you.
 - Edit `index.Rmd`
