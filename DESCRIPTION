@@ -1,9 +1,7 @@
 Package: projr
 Title: Facilitate reproducible and archived projects
-Version: 0.0.0.9004
-Authors@R: 
-    person("Miguel", "Rodo", , "rdxmig002@myuct.ac.za", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-2036-4878"))
+Version: 0.0.0.9005
+Authors@R: person("Miguel", "Rodo", , "rdxmig002@myuct.ac.za", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2036-4878"))
 Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -11,12 +9,13 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Imports: 
     fs,
-    here,
     Hmisc,
     usethis,
     yaml,
     renv,
-    bookdown
+    bookdown,
+    rprojroot
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    withr
 Config/testthat/edition: 3

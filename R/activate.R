@@ -79,10 +79,14 @@ projr_get_yml_active <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
 
 projr_set_up_dir <- function(yml_active,
                              create_var,
-                             env,
-                             dir_proj = getwd()) {
-  gitignore <- suppressWarnings(readLines(".gitignore"))
-  rbuildignore <- suppressWarnings(readLines(".Rbuildignore"))
+                             env) {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  gitignore <- suppressWarnings(readLines(
+    file.path(dir_proj, ".gitignore")
+  ))
+  rbuildignore <- suppressWarnings(readLines(
+    file.path(dir_proj, ".Rbuildignore")
+  ))
   yml_active_dir <- yml_active[["directories"]]
   for (i in seq_along(yml_active_dir)) {
     yml_curr <- yml_active_dir[[i]]
@@ -113,7 +117,7 @@ projr_set_up_dir <- function(yml_active,
         cat(
           txt_gitignore,
           "\n",
-          file = ".gitignore",
+          file = file.path(dir_proj, ".gitignore"),
           sep = "",
           append = TRUE
         )
@@ -122,7 +126,7 @@ projr_set_up_dir <- function(yml_active,
         cat(
           txt_rbuildignore,
           "\n",
-          file = ".Rbuildignore",
+          file = file.path(dir_proj, ".Rbuildignore"),
           sep = "",
           append = TRUE
         )
@@ -134,7 +138,7 @@ projr_set_up_dir <- function(yml_active,
         ]
         cat(
           gitignore,
-          file = ".gitignore",
+          file = file.path(dir_proj, ".gitignore"),
           sep = "",
           append = FALSE
         )
@@ -145,7 +149,7 @@ projr_set_up_dir <- function(yml_active,
         ]
         cat(
           rbuildignore,
-          file = ".Rbuildignore",
+          file = file.path(dir_proj, ".Rbuildignore"),
           sep = "",
           append = FALSE
         )

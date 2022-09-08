@@ -4,12 +4,3 @@
 ^\.vscode
 ^LICENSE\.md$
 ^SCRATCH\.R$
-^inst/extdata^_tmp^_output^_archive
-^inst/extdata
-^_tmp
-^_output
-^_archive
-^inst/extdata
-^_tmp
-^_output
-^_archive

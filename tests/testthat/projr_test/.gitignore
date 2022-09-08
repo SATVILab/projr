@@ -1,0 +1,13 @@
+# R
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# docs
+docs/*
+
+# files in home directory
+*html
+*png
+*jpg
