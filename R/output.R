@@ -20,7 +20,7 @@
   )
 
   # save built package to output and copy to archive
-  if (yml_projr$build_pkg) {
+  if (yml_projr$build_pkg && bump_component != "dev") {
     devtools::build(
       pkg = rprojroot::is_r_package$find_file(),
       path = dir_output,
