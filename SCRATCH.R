@@ -1,13 +1,22 @@
 library(testthat)
 devtools::load_all()
 
-yml_projr <- yaml::read_yaml(
-  "/workspaces//projr/inst/project_structure/_projr.yml"
-)
-yml_bd_orig <- yaml::read_yaml(
-  "/workspaces/projr/inst/project_structure/_bookdown.yml"
-)
+dir_test <- file.path(tempdir(), paste0("test_projr"))
 
+if (!dir.exists(dir_test)) dir.create(dir_test)
+fn_vec <- list.files(testthat::test_path("./projr_test"))
+fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
+for (x in fn_vec) {
+  file.copy(
+    file.path(testthat::test_path("./projr_test"), x),
+    file.path(dir_test, x),
+    overwrite = TRUE
+  )
+}
+
+usethis::proj_set(dir_test)
+setwd(dir_test)
+wd_var <- "LOCAL_WORKSPACE_FOLDER"
 bump_component <- "major"
 
 .get_version_updated <-

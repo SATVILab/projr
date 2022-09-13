@@ -1,11 +1,23 @@
 fn_base <- "abc2k1l432jda:12dk[[2314-ak34129V19"
 fn_mmp <- paste0(fn_base, "V6.9.9-2")
+v_mmp_e <- "6.9.9-2"
+v_mmp_l1 <- "7.9.9-2"
+v_mmp_l2 <- "7.9.9"
+v_mmp_s <- "6.9.4"
 vf_mmpd <- "major.minor.patch-dev"
 vf_mmpp <- "major.minor.patch.dev"
 fn_mm <- paste0(fn_base, "V10.95-0")
+v_mm_e <- "10.95"
+v_mm_l1 <- "11.95-3"
+v_mm_l2 <- "11.95"
+v_mm_s <- "0.95-12"
 vf_mmd <- "major.minor-dev"
 vf_mmp <- "major.minor.dev"
 fn_m <- paste0(fn_base, "V0-12")
+v_m_e <- "0-12"
+v_m_l1 <- "11-3"
+v_m_l2 <- "11"
+v_m_s <- "0-3"
 vf_md <- "major-dev"
 vf_mp <- "major.dev"
 version_format <- vf_mmd
@@ -74,79 +86,190 @@ test_that("get_proj_nm works", {
   )
 })
 
-test_that(".get_version_current works", {
+test_that(".get_version_orig_vec works", {
+  # mmp
   expect_identical(
-    .get_version_current(
+    .get_version_orig_vec(
       fn = fn_mmp,
+      version_desc = v_mmp_e,
       proj_nm = fn_base
     ),
     c(6L, 9L, 9L, 2L)
   )
   expect_identical(
-    .get_version_current(
+    .get_version_orig_vec(
+      fn = fn_mmp,
+      version_desc = v_mmp_l1,
+      proj_nm = fn_base
+    ),
+    c(7L, 9L, 9L, 2L)
+  )
+  expect_identical(
+    .get_version_orig_vec(
+      fn = fn_mmp,
+      version_desc = v_mmp_l2,
+      proj_nm = fn_base
+    ),
+    c(7L, 9L, 9L, 1L)
+  )
+  expect_identical(
+    .get_version_orig_vec(
+      fn = gsub("\\-2$", "-10005", fn_mmp),
+      version_desc = v_mmp_l2,
+      proj_nm = fn_base
+    ),
+    c(7L, 9L, 9L, 9000L)
+  )
+  # mm
+  expect_identical(
+    .get_version_orig_vec(
       fn = fn_mm,
+      version_desc = v_mm_e,
       proj_nm = fn_base
     ),
     c(10L, 95L, 0L)
   )
   expect_identical(
-    .get_version_current(
+    .get_version_orig_vec(
+      fn = fn_mm,
+      version_desc = v_mm_l1,
+      proj_nm = fn_base
+    ),
+    c(11L, 95L, 3L)
+  )
+  expect_identical(
+    .get_version_orig_vec(
+      fn = fn_mm,
+      version_desc = v_mm_l2,
+      proj_nm = fn_base
+    ),
+    c(11L, 95L, 1L)
+  )
+  expect_identical(
+    .get_version_orig_vec(
+      fn = gsub("\\-0$", "-9000", fn_mm),
+      version_desc = v_mm_l2,
+      proj_nm = fn_base
+    ),
+    c(11L, 95L, 9000L)
+  )
+  # m
+  expect_identical(
+    .get_version_orig_vec(
       fn = fn_m,
+      version_desc = v_m_e,
       proj_nm = fn_base
     ),
     c(0L, 12L)
   )
-})
-
-test_that(".get_version_final works", {
   expect_identical(
-    .get_version_final(
-      version_orig = c(0, 42, 33, 1),
-      bump_component = "minor",
-      version_format_list = list(
-        components = cv,
-        sep = svd
-      )
+    .get_version_orig_vec(
+      fn = fn_m,
+      version_desc = v_m_l1,
+      proj_nm = fn_base
     ),
-    c("dev" = "0.43.0-0", "no_dev" = "0.43.0")
+    c(11L, 3L)
   )
-
   expect_identical(
-    .get_version_final(
-      version_orig = c(0, 42, 33, 1),
-      bump_component = "major",
-      version_format_list = list(
-        components = cv,
-        sep = svd
-      )
+    .get_version_orig_vec(
+      fn = fn_m,
+      version_desc = v_m_l2,
+      proj_nm = fn_base
     ),
-    c("dev" = "1.0.0-0", "no_dev" = "1.0.0")
+    c(11L, 1L)
   )
-
   expect_identical(
-    .get_version_final(
-      version_orig = c(0, 42, 33, 1),
-      bump_component = "patch",
-      version_format_list = list(
-        components = cv,
-        sep = svp
-      )
+    .get_version_orig_vec(
+      fn = gsub("\\-12$", "-9003", fn_m),
+      version_desc = v_m_l2,
+      proj_nm = fn_base
     ),
-    c("dev" = "0.42.34.0", "no_dev" = "0.42.34")
+    c(11L, 9000L)
   )
 })
 
-test_that(".get_version_and_fn_final works", {
+test_that(".get_version_run_on works", {
   expect_identical(
-    .get_version_and_fn_final(
-      version_format = "major.minor-dev",
-      fn_orig = "acbV10.1-1",
-      bump_component = "minor"
-    ),
-    c(fn = "acbV10.2-0", version = "10.2-0")
+    {
+      .get_version_run_on(
+        version_orig_vec = c(0, 42, 33, 1),
+        bump_component = "major",
+        version_format_list = list(
+          components = cv,
+          sep = svd
+        )
+      )
+    },
+    list(
+      desc = c(
+        run = "1.0.0", failure = "0.42.33-1", success = "1.0.0"
+      ),
+      bd = c(
+        run = "1.0.0", failure = "0.42.33-1", success = "1.0.0-1"
+      )
+    )
+  )
+  expect_identical(
+    {
+      .get_version_run_on(
+        version_orig_vec = c(0, 42, 33, 9001),
+        bump_component = "major",
+        version_format_list = list(
+          components = cv,
+          sep = svd
+        )
+      )
+    },
+    list(
+      desc = c(
+        run = "1.0.0", failure = "0.42.33-9001", success = "1.0.0"
+      ),
+      bd = c(
+        run = "1.0.0", failure = "0.42.33-9001", success = "1.0.0-9000"
+      )
+    )
+  )
+  expect_identical(
+    {
+      .get_version_run_on(
+        version_orig_vec = c(0, 42, 33, 1),
+        bump_component = "dev",
+        version_format_list = list(
+          components = cv,
+          sep = svd
+        )
+      )
+    },
+    list(
+      desc = c(
+        run = "0.42.33-2", failure = "0.42.33-2", success = "0.42.33-2"
+      ),
+      bd = c(
+        run = "0.42.33-2", failure = "0.42.33-2", success = "0.42.33-2"
+      )
+    )
+  )
+  expect_identical(
+    {
+      .get_version_run_on(
+        version_orig_vec = c(0, 42, 33, 1),
+        bump_component = NULL,
+        version_format_list = list(
+          components = cv,
+          sep = svd
+        )
+      )
+    },
+    list(
+      desc = c(
+        run = "0.42.33-1", failure = "0.42.33-1", success = "0.42.33-1"
+      ),
+      bd = c(
+        run = "0.42.33-1", failure = "0.42.33-1", success = "0.42.33-1"
+      )
+    )
   )
 })
-
 
 
 test_that("projr_version_set works", {

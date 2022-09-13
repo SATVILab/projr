@@ -93,67 +93,145 @@ projr_version_set <- function(version, where = c("bookdown", "DESCRIPTION")) {
   gsub(str_regex, "", fn)
 }
 
-.get_version_current <- function(fn, proj_nm) {
-  version_list <- substr(
+.get_version_orig_vec <- function(fn, version_desc, proj_nm) {
+  version_bd <- substr(
     fn,
     start = nchar(proj_nm) + 2,
     stop = nchar(fn)
-  ) |>
-    strsplit(
-      split = "\\-|\\."
-    )
-  version_list[[1]] |>
-    as.integer()
+  )
+  version_bd_vec <- strsplit(
+    version_bd,
+    split = "\\-|\\."
+  )[[1]]
+  version_bd_vec <- as.numeric(version_bd_vec)
+  version_desc_vec <- strsplit(
+    version_desc,
+    split = "\\-|\\."
+  )[[1]]
+  version_desc_vec <- as.numeric(version_desc_vec)
+  version_orig_vec <- rep("", length(version_bd))
+  diff_ind_vec <- which(
+    version_bd_vec[seq_len(length(version_desc_vec))] != version_desc_vec
+  )
+  if (length(diff_ind_vec) == 0) {
+    use_bd_vec <- TRUE
+  } else {
+    diff_ind_min <- min(diff_ind_vec)
+    use_bd_vec <- version_bd_vec[diff_ind_min] > version_desc_vec[diff_ind_min]
+  }
+  if (use_bd_vec) {
+    version_orig_vec <- version_bd_vec
+  } else {
+    if (length(version_desc_vec) < length(version_bd_vec)) {
+      if (version_bd_vec[length(version_bd_vec)] >= 9000) {
+        version_desc_vec <- c(version_desc_vec, 9000)
+      } else {
+        version_desc_vec <- c(version_desc_vec, 1)
+      }
+    }
+    version_orig_vec <- version_desc_vec
+  }
+
+  version_orig_vec |> as.integer()
 }
 
-.get_version_final <- function(version_orig,
-                               bump_component,
-                               version_format_list) {
+.get_version_run_on <- function(version_orig_vec,
+                                bump_component,
+                                version_format_list) {
   if (!is.null(bump_component)) {
     comp_to_update_ind <- which(
       version_format_list$components == bump_component
     )
-    version_update <- version_orig
-    version_update[comp_to_update_ind] <- version_update[comp_to_update_ind] + 1
-    if (comp_to_update_ind < length(version_update)) {
-      version_update[seq(comp_to_update_ind + 1, length(version_orig))] <- 0
+    version_bd_update_vec <- version_orig_vec
+    version_bd_update_vec[comp_to_update_ind] <- version_bd_update_vec[
+      comp_to_update_ind
+    ] + 1
+    if (comp_to_update_ind < length(version_bd_update_vec)) {
+      version_bd_update_vec[
+        seq(comp_to_update_ind + 1, length(version_orig_vec))
+      ] <- 0
+    }
+    if (bump_component %in% c("major", "minor", "patch")) {
+      version_desc_failure <- version_bd_failure <- paste0(
+        paste0(
+          version_orig_vec[-length(version_orig_vec)],
+          version_format_list$sep,
+          collapse = ""
+        ),
+        version_orig_vec[length(version_orig_vec)]
+      )
+      version_bd_run <- version_desc_run <- version_desc_success <- paste0(
+        paste0(
+          version_bd_update_vec[-length(version_bd_update_vec)],
+          collapse =  version_format_list$sep[1]
+        )
+      )
+
+      if (version_orig_vec[length(version_orig_vec)] >= 9000) {
+        version_bd_dev_success <- 9000
+      } else {
+        version_bd_dev_success <- 1
+      }
+      version_bd_success <- paste0(
+        version_bd_run,
+        version_format_list$sep[length(version_format_list$sep)],
+        version_bd_dev_success
+      )
+    } else {
+      version_desc_run <- version_desc_failure <- version_desc_success <-
+        version_bd_run <- version_bd_failure <- version_bd_success <- paste0(
+          paste0(
+            version_bd_update_vec[-length(version_bd_update_vec)],
+            version_format_list$sep,
+            collapse = ""
+          ),
+          version_bd_update_vec[length(version_bd_update_vec)]
+        )
     }
   } else {
-    version_update <- version_orig
+    version_desc_run <- version_desc_failure <- version_desc_success <-
+      version_bd_run <- version_bd_failure <- version_bd_success <- paste0(
+        paste0(
+          version_orig_vec[-length(version_orig_vec)],
+          version_format_list$sep,
+          collapse = ""
+        ),
+        version_orig_vec[length(version_orig_vec)]
+      )
   }
-
-  version_final_dev <- paste0(
-    paste0(
-      version_update[-length(version_update)],
-      version_format_list$sep,
-      collapse = ""
+  list(
+    "desc" = c(
+      "run" = version_desc_run,
+      "failure" = version_desc_failure,
+      "success" = version_desc_success
     ),
-    version_update[length(version_update)]
-  )
-
-  c(
-    "dev" = version_final_dev,
-    "no_dev" = gsub("\\-\\d+$|\\.\\d+$", "", version_final_dev)
+    "bd" = c(
+      "run" = version_bd_run,
+      "failure" = version_bd_failure,
+      "success" = version_bd_success
+    )
   )
 }
-.get_version_and_fn_final <- function(version_format,
-                                      fn_orig,
-                                      bump_component) {
+
+.get_version_and_fn <- function(version_format,
+                                fn_orig,
+                                bump_component) {
   proj_nm <- .get_proj_nm(
     fn = fn_orig, version_format = version_format
   )
-  version_orig <- .get_version_current(
+  version_orig <- .get_version_orig(
     fn = fn_orig, proj_nm = proj_nm
   )
   version_format_list <- .get_version_format_list(
     version_format
   )
 
-  version_final_vec <- .get_version_final(
+  version_final_vec <- .get_version_all(
     version_orig = version_orig,
     bump_component = bump_component,
     version_format_list = version_format_list
   )
+
   fn_final_dev <- paste0(
     proj_nm, "V", version_final_vec["dev"]
   )

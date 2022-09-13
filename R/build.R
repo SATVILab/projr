@@ -6,43 +6,49 @@
 #' version component in the `version` key of `_projr.yml`
 #' is used.
 #' Default is \code{NULL}.
-.projr_build <- function(bump_component, wd_var) {
+.projr_build <- function(bump_component, wd_var = "LOCAL_WORKSPACE_FOLDER") {
   dir_proj <- rprojroot::is_r_package$find_file()
+
   # read in settings
   yml_projr <- projr_get_yml_active(
-    wd_var = "LOCAL_WORKSPACE_FOLDER",
-    path_yml = rprojroot::is_r_package$find_file("_projr.yml"),
+    wd_var = wd_var,
+    path_yml = file.path(dir_proj, "_projr.yml"),
     silent = TRUE
   )
   yml_bd_orig <- yaml::read_yaml(
-    rprojroot::is_r_package$find_file("_bookdown.yml")
+    file.path(dir_proj, "_bookdown.yml")
+  )
+
+  desc_orig <- read.dcf(file.path(dir_proj, "DESCRIPTION"))
+
+  version_format_list <- .get_version_format_list(
+    version_format = yml_projr[["version"]]
+  )
+  proj_nm <- .get_proj_nm(
+    fn = yml_bd_orig$book_filename,
+    version_format = yml_projr[["version"]]
   )
 
   dir_output_orig <- yml_bd_orig$output_dir
 
-  # get final version
-  version_and_fn_final_vec <- .get_version_and_fn_final(
-    version_format = yml_projr$version,
-    fn_orig = yml_bd_orig$book_filename,
-    bump_component = bump_component
+  # get version for DESCRIPTION and bookdown from run onwards
+
+  version_orig_vec <- .get_version_orig_vec(
+    fn = yml_bd_orig$book_filename,
+    version_desc = desc_orig[1, "Version"][[1]],
+    proj_nm = proj_nm
+  )
+  version_run_on_list <- .get_version_run_on(
+    version_orig_vec = version_orig_vec,
+    bump_component = bump_component,
+    version_format_list = version_format_list
   )
 
-  yml_bd_run <- yml_bd_orig
-  yml_bd_run$book_filename <- version_and_fn_final_vec[["fn"]]
-
-  yml_bd_run$output_dir <- gsub(
-    yml_bd_orig$book_filename,
-    version_and_fn_final_vec[["fn"]],
-    yml_bd_orig$output_dir
+  projr_version_set(
+    version_run_on_list$desc[["run"]], "DESCRIPTION"
   )
-
-  desc_file_orig <- read.dcf(file.path(dir_proj, "DESCRIPTION"))
-  desc_file_update <- desc_file_orig
-  desc_file_update[1, "Version"] <- version_and_fn_final_vec["version"]
-
-  yaml::write_yaml(
-    yml_bd_run,
-    rprojroot::is_r_package$find_file("_bookdown.yml")
+  projr_version_set(
+    version_run_on_list$bd[["run"]], "bookdown"
   )
 
   # snapshot if need be
@@ -56,24 +62,31 @@
 
   bd_status <- try(bookdown::render_book())
   if (identical(class(bd_status), "try-error")) {
-    yaml::write_yaml(
-      yml_bd_orig, rprojroot::is_r_package$find_file("_bookdown.yml")
+    projr_version_set(
+      version_run_on_list$desc[["failure"]], "DESCRIPTION"
+    )
+    projr_version_set(
+      version_run_on_list$bd[["failure"]], "bookdown"
     )
     stop(bd_status)
-    # check if version in DESCRIPTION isn't dev, and update if it is
-    desc_file_orig[1, "Version"]
   }
-  # update DESCRIPTION file
-  write.dcf(desc_file_update, file = file.path(dir_proj, "DESCRIPTION"))
-  browser()
+
+  projr_version_set(
+    version_run_on_list$desc[["success"]], "DESCRIPTION"
+  )
+  projr_version_set(
+    version_run_on_list$bd[["success"]], "bookdown"
+  )
+
+  # browser()
   if (yml_projr[["build-bump_version"]]$package_build) {
     # START HERE
     yml_projr_active <- projr_get_yml_active(
       wd_var = wd_var,
-      path_yml = file.path(dir_proj, "_bookdown.yml"),
+      path_yml = file.path(dir_proj, "_projr.yml"),
       silent = TRUE
     )
-    dir_output <- yml_bd_active[["directories"]]$output$path
+    dir_output <- yml_projr_active[["directories"]]$output$path
     if (fs::is_absolute_path(dir_output)) {
       dir_output_pkg_tarball <- dir_output
     } else {
@@ -88,16 +101,25 @@
   invisible(TRUE)
 }
 
-projr_build_output <- function(bump_component, wd_var) {
+#' @export
+projr_build_output <- function(bump_component, wd_var = "LOCAL_WORKSPACE_FOLDER") {
+  if (missing(bump_component)) {
+    yml_projr <- yaml::read_yaml(
+      rprojroot::is_r_package$find_file("_projr.yml")
+    )
+    version <- yml_projr$version
+    version_vec <- strsplit(version, split = "\\.|\\-")[[1]]
+    bump_component <- version_vec[length(version_vec) - 1]
+  }
   .projr_build(bump_component = bump_component, wd_var = wd_var)
 }
 
-projr_build_dev <- function(bump = FALSE, wd_var) {
+#' @export
+projr_build_dev <- function(bump = FALSE, wd_var = "LOCAL_WORKSPACE_FOLDER") {
   .projr_build(bump_component = switch(bump,
     "dev"
   ), wd_var = wd_var)
 }
-projr_bd <- projr_build_dev
 
 projr_bump_version_dev <- function() {
   yml_bd <- yaml::read_yaml(
@@ -121,5 +143,3 @@ projr_bump_version_dev <- function() {
   )
   invisible(TRUE)
 }
-
-projr_bvd <- projr_bump_version_dev

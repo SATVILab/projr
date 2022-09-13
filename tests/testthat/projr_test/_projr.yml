@@ -21,7 +21,7 @@ build-dev:
   bump_version: false # whether to bump the dev version up before this build (i.e. to build to a new directory, really)
   rmd: # if specified, subset of Rmd's to build. no need to mention index.Rmd, it's always included
 # version:
-version: "major.minor-dev" # other options: version-dev; major.minor.patch-dev; 
+version: "major.minor.patch-dev" # other options: version-dev; major.minor.patch-dev; 
 # build settings when bumping the version up
 build-bump_version:
   renv: true # whether to snapshot or not 

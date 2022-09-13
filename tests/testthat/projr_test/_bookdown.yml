@@ -1,4 +1,4 @@
-book_filename: reportV0.0-9000
+book_filename: reportV0.0.0-9000
 delete_merged_file: yes
 language:
   ui:
@@ -6,4 +6,4 @@ language:
 rmd_files: 
 - index.Rmd
 - appendix.Rmd
-output_dir: docs/reportV0.0-9000
+output_dir: docs/reportV0.0.0-9000
