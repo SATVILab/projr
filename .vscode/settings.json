@@ -1,7 +1,0 @@
-{
-  "r.rterm.option": [
-    "--no-save",
-    "--no-restore",
-    "radian"
-  ]
-}
