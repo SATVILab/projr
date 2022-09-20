@@ -98,6 +98,29 @@
       binary = FALSE
     )
   }
+
+  # delete old dev versions
+  if (!is.null(bump_component)) {
+    if (bump_component %in% c("major", "minor", "patch")) {
+      match_regex <- paste0(
+        "^",
+        proj_nm,
+        "V\\d+",
+        paste0("\\", version_format_list[["sep"]], "\\d+", collapse = ""),
+        "$"
+      )
+      dir_report <- basename(
+        list.dirs(dirname(dir_output_orig), recursive = FALSE)
+      )
+      dir_report_rm <- dir_report[grepl(match_regex, dir_report)]
+      for (i in seq_along(dir_report_rm)) {
+        unlink(file.path(
+          dirname(dir_output_orig), dir_report_rm
+        ), recursive = TRUE)
+      }
+    }
+  }
+
   invisible(TRUE)
 }
 

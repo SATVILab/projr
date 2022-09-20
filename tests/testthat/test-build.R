@@ -79,12 +79,21 @@ test_that("projr_build_output works", {
     path = dir_test,
     code = {
       projr_init(renv_force = FALSE)
-      # debugonce(.projr_build)
       projr_build_output()
       yml_bd <- yaml::read_yaml(file.path(dir_test, "_bookdown.yml"))
       expect_identical(basename(yml_bd$output_dir), "reportV0.0.1-9000")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
+      dir.create(file.path(dir_test, "docs/reportV0.0.1-9000"))
+      dir.create(file.path(dir_test, "docs/reportV0.0.1-1"))
+      projr_build_output()
+      browser()
+      expect_true(!dir.exists(file.path(
+        dir_test, "docs/reportV0.0.1-9000"
+      )))
+      expect_true(!dir.exists(file.path(
+        dir_test, "docs/reportV0.0.1-1"
+      )))
     },
     quiet = TRUE,
     force = TRUE
