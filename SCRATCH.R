@@ -16,15 +16,22 @@ for (x in fn_vec) {
 
 usethis::proj_set(dir_test)
 setwd(dir_test)
-wd_var <- "LOCAL_WORKSPACE_FOLDER"
+wd_var <- "PROJR_WORKING_DIRECTORY"
 bump_component <- "major"
+
+dir.create(dir_output_orig)
+
+# cache from container radian:
+# /tmp/RtmpSUi8pC/renv/cache/v5/linux-ubuntu-focal/R-4.2/x86_64-pc-linux-gnu
+# cache from system radian:
+# /tmp/RtmpuaWI9P/renv/cache/v5/R-4.2/x86_64-pc-linux-gnu
 
 .get_version_updated <-
   .projr_build <- function(bump_component, wd_var) {
     dir_proj <- rprojroot::is_r_package$find_file()
     # read in settings
     yml_projr <- projr_get_yml_active(
-      wd_var = "LOCAL_WORKSPACE_FOLDER",
+      wd_var = "PROJR_WORKING_DIRECTORY",
       path_yml = rprojroot::is_r_package$find_file("_projr.yml"),
       silent = TRUE
     )
@@ -93,7 +100,7 @@ projr_build_dev <- function(bump, wd_var) {
 }
 
 
-projr_build_output <- function(bump_component, wd_var = "LOCAL_WORKSPACE_FOLDER") {
+projr_build_output <- function(bump_component, wd_var = "PROJR_WORKING_DIRECTORY") {
 
   # read in settings
   yml_projr <- projr_get_yml_active(
@@ -146,12 +153,12 @@ projr_build_output <- function(bump_component, wd_var = "LOCAL_WORKSPACE_FOLDER"
 projr_bo <- projr_build_output
 
 projr_build_dev <- function(bump = FALSE,
-                            wd_var = "LOCAL_WORKSPACE_FOLDER") {
+                            wd_var = "PROJR_WORKING_DIRECTORY") {
   dir_proj <- rprojroot::is_r_package$find_file()
 
   # read in settings
   yml_projr <- projr_get_yml_active(
-    wd_var = "LOCAL_WORKSPACE_FOLDER",
+    wd_var = "PROJR_WORKING_DIRECTORY",
     path_yml = file.path(dir_proj, "_projr.yml"),
     silent = TRUE
   )
