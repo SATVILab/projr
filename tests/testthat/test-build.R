@@ -86,11 +86,14 @@ test_that("projr_build_output copy works", {
       yaml::write_yaml(yml_projr, file.path(dir_test, "_projr.yml"))
       # debugonce(.projr_build)
       dir_output <- yml_projr[["directories-default"]][["output"]][["path"]]
+      dir_archive <- yml_projr[["directories-default"]][["archive"]][["path"]]
       if (dir.exists(dir_output)) unlink(dir_output, recursive = TRUE)
+      if (dir.exists(dir_archive)) unlink(dir_archive, recursive = TRUE)
       projr_build_output()
       expect_true(
         length(list.dirs(dir_output)) == 0
       )
+      expect_true(!dir.exists(dir_archive))
       # test that everything is copied
       yml_projr <- yaml::read_yaml(file.path(dir_test, "_projr.yml"))
       yml_projr[["build_output"]][["copy_to_output"]] <- lapply(
@@ -113,6 +116,8 @@ test_that("projr_build_output copy works", {
       expect_identical(
         length(list.dirs(dir_output)), 5L
       )
+      expect_true(dir.exists(dir_archive))
+      expect_true(file.exists(file.path(dir_archive, "V0.0.2.zip")))
       expect_identical(
         list.files(file.path(dir_output, "bookdown")),
         "reportV0.0.2.zip"

@@ -100,6 +100,34 @@
       # copy to archive
       # ----------------
 
+      dir_output <- yml_projr[["directories"]][["output"]][["path"]]
+      dir_archive <- yml_projr[["directories"]][["archive"]][["path"]]
+      if (!fs::is_absolute_path(dir_output)) {
+        dir_output <- file.path(dir_proj, dir_output)
+      }
+      if (!fs::is_absolute_path(dir_archive)) {
+        dir_archive <- file.path(dir_proj, dir_archive)
+      }
+      if (dir.exists(dir_output)) {
+        fn_vec <- list.files(
+          dir_output,
+          recursive = TRUE, all.files = TRUE, full.names = TRUE
+        )
+        if (length(list.dirs(dir_output)) > 0) {
+          path_archive_zip <- file.path(dir_archive, paste0(
+            "V", version_run_on_list$desc[["success"]],
+            ".zip"
+          ))
+          if (file.exists(path_archive_zip)) {
+            unlink(path_archive_zip, recursive = TRUE)
+          }
+          if (!dir.exists(dirname(path_archive_zip))) {
+            dir.create(dirname(path_archive_zip), recursive = TRUE)
+          }
+          zip(path_archive_zip, files = fn_vec)
+        }
+      }
+
 
       # clear old dev versions
       # ------------------------
