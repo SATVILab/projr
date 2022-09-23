@@ -6,7 +6,7 @@
 #' version component in the `version` key of `_projr.yml`
 #' is used.
 #' Default is \code{NULL}.
-.projr_build <- function(bump_component, wd_var = "LOCAL_WORKSPACE_FOLDER") {
+.projr_build <- function(bump_component, wd_var = "PROJR_WORKING_DIRECTORY") {
   dir_proj <- rprojroot::is_r_package$find_file()
 
   # read in settings
@@ -29,7 +29,7 @@
     version_format = yml_projr[["version"]]
   )
 
-  dir_output_orig <- yml_bd_orig$output_dir
+  dir_bookdown_orig <- yml_bd_orig$output_dir
 
   # get version for DESCRIPTION and bookdown from run onwards
 
@@ -51,8 +51,10 @@
     version_run_on_list$bd[["run"]], "bookdown"
   )
 
+  dir_bookdown_run <- yaml::read_yaml("_bookdown.yml")[["output_dir"]]
+
   # snapshot if need be
-  if (yml_projr[["build-bump_version"]]$renv) {
+  if (yml_projr[["build_output"]][["renv"]]) {
     if (!is.null(bump_component)) {
       if (bump_component != "dev") {
         renv::snapshot(prompt = FALSE)
@@ -68,6 +70,7 @@
     projr_version_set(
       version_run_on_list$bd[["failure"]], "bookdown"
     )
+    # TODO: #156 delet
     stop(bd_status)
   }
 
@@ -78,30 +81,29 @@
     version_run_on_list$bd[["success"]], "bookdown"
   )
 
-  # browser()
-  if (yml_projr[["build-bump_version"]]$package_build) {
-    # START HERE
-    yml_projr_active <- projr_get_yml_active(
-      wd_var = wd_var,
-      path_yml = file.path(dir_proj, "_projr.yml"),
-      silent = TRUE
-    )
-    dir_output <- yml_projr_active[["directories"]]$output$path
-    if (fs::is_absolute_path(dir_output)) {
-      dir_output_pkg_tarball <- dir_output
-    } else {
-      dir_output_pkg_tarball <- file.path(dir_proj, dir_output)
-    }
-    devtools::build(
-      pkg = dir_proj,
-      path = dir_output_pkg_tarball,
-      binary = FALSE
-    )
-  }
-
   # delete old dev versions
   if (!is.null(bump_component)) {
     if (bump_component %in% c("major", "minor", "patch")) {
+
+      # copy to output
+      # ----------------
+      projr_copy_to_output(
+        yml_projr = yml_projr,
+        version_current = paste0(
+          "V", version_run_on_list$desc[["success"]]
+        ),
+        proj_nm = proj_nm,
+        dir_proj = dir_proj,
+        dir_bookdown = dir_bookdown_run
+      )
+
+      # copy to archive
+      # ----------------
+
+
+      # clear old dev versions
+      # ------------------------
+      # from the report directory
       match_regex <- paste0(
         "^",
         proj_nm,
@@ -110,22 +112,24 @@
         "$"
       )
       dir_report <- basename(
-        list.dirs(dirname(dir_output_orig), recursive = FALSE)
+        list.dirs(dirname(dir_bookdown_orig), recursive = FALSE)
       )
       dir_report_rm <- dir_report[grepl(match_regex, dir_report)]
       for (i in seq_along(dir_report_rm)) {
         unlink(file.path(
-          dirname(dir_output_orig), dir_report_rm
+          dirname(dir_bookdown_orig), dir_report_rm
         ), recursive = TRUE)
       }
     }
+    # from the output directory
   }
 
   invisible(TRUE)
 }
 
 #' @export
-projr_build_output <- function(bump_component, wd_var = "LOCAL_WORKSPACE_FOLDER") {
+projr_build_output <- function(bump_component,
+                               wd_var = "PROJR_WORKING_DIRECTORY") {
   if (missing(bump_component)) {
     yml_projr <- yaml::read_yaml(
       rprojroot::is_r_package$find_file("_projr.yml")
@@ -138,7 +142,8 @@ projr_build_output <- function(bump_component, wd_var = "LOCAL_WORKSPACE_FOLDER"
 }
 
 #' @export
-projr_build_dev <- function(bump = FALSE, wd_var = "LOCAL_WORKSPACE_FOLDER") {
+projr_build_dev <- function(bump = FALSE,
+                            wd_var = "PROJR_WORKING_DIRECTORY") {
   .projr_build(bump_component = switch(bump,
     "dev"
   ), wd_var = wd_var)
@@ -164,5 +169,91 @@ projr_bump_version_dev <- function() {
   yaml::write_yaml(
     yml_bd, rprojroot::is_r_package$find_file("_bookdown.yml")
   )
+  invisible(TRUE)
+}
+
+projr_copy_to_output <- function(yml_projr,
+                                 version_current,
+                                 proj_nm,
+                                 dir_proj,
+                                 dir_bookdown) {
+  yml_projr_dir <- yml_projr[["directories"]]
+  dir_output <- yml_projr_dir[["output"]][["path"]]
+  copy_to_output_list <- yml_projr[["build_output"]][["copy_to_output"]]
+  # make it an absolute path, stuck onto dir_proj,
+  # only if it isn't already an absolute path
+  if (!fs::is_absolute_path(dir_output)) {
+    dir_output <- file.path(dir_proj, dir_output)
+  }
+
+  # copy data_raw and cache across, if desireds
+  for (type in c("data_raw", "cache")) {
+    copy <- copy_to_output_list[[type]]
+    if (is.logical(copy)) {
+      if (!copy) next
+    } else {
+      stop("non-logical versions of copy not supported yet")
+    }
+    yml_projr_dir_type <- yml_projr_dir[names(yml_projr_dir) == type]
+    for (i in seq_along(yml_projr_dir_type)) {
+      dir_input <- yml_projr_dir_type[[i]][["path"]]
+      if (!fs::is_absolute_path(dir_input)) {
+        dir_input <- file.path(dir_proj, dir_input)
+      }
+      fn_vec <- list.files(
+        dir_input,
+        recursive = TRUE, all.files = TRUE,
+        full.names = TRUE
+      )
+      if (length(fn_vec) == 0) next
+      path_save <- file.path(
+        dir_output,
+        type,
+        paste0(yml_projr_dir_type[[i]][["name"]], ".zip")
+      )
+      if (file.exists(path_save)) unlink(path_save, recursive = TRUE)
+      if (!dir.exists(dirname(path_save))) {
+        dir.create(dirname(path_save), recursive = TRUE)
+      }
+      zip(path_save, files = fn_vec)
+    }
+  }
+
+  # copy generated report
+  copy_bookdown <- copy_to_output_list[["bookdown"]]
+  if (is.logical(copy_bookdown)) {
+    if (copy_bookdown) {
+      dir_input <- dir_bookdown
+      path_zip <- file.path(
+        dir_output, "bookdown", paste0(basename(dir_bookdown), ".zip")
+      )
+      if (dir.exists(dirname(path_zip))) unlink(path_zip, recursive = TRUE)
+      if (!dir.exists(dirname(path_zip))) {
+        dir.create(dirname(path_zip), recursive = TRUE)
+      }
+      zip(
+        path_zip,
+        files = list.files(
+          dir_bookdown,
+          recursive = TRUE, full.names = TRUE
+        )
+      )
+    }
+  } else {
+    stop("copy not being logical for bookdown not supported yet")
+  }
+
+  # build package
+  if (yml_projr[["build_output"]][["copy_to_output"]][["package"]]) {
+    dir_pkg <- file.path(dir_output, "pkg")
+    if (!dir.exists(dir_pkg)) dir.create(dir_pkg)
+
+    devtools::build(
+      pkg = dir_proj,
+      path = dir_pkg,
+      binary = FALSE,
+      quiet = TRUE
+    )
+  }
   invisible(TRUE)
 }

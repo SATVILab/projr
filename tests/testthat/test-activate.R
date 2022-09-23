@@ -15,7 +15,7 @@ test_that("projr_get_yml_active works", {
     path = dir_test,
     code = {
       yml_active <- projr_get_yml_active(
-        wd_var = "LOCAL_WORKSPACE_FOLDER",
+        wd_var = "PROJR_WORKING_DIRECTORY",
         path_yml = system.file(
           "project_structure", "_projr.yml",
           package = "projr"
@@ -56,11 +56,26 @@ test_that("projr_set_up_dir works", {
       names(yml_active) <- gsub(
         "directories\\-default", "directories", names(yml_active)
       )
+      version_format_list <- .get_version_format_list(
+        version_format = yml_active[["version"]]
+      )
+      yml_bd <- yaml::read_yaml(
+        system.file("project_structure", "_bookdown.yml", package = "projr")
+      )
+      proj_nm <- .get_proj_nm(
+        fn = yml_bd$book_filename,
+        version_format = yml_active[["version"]]
+      )
+      version_current <- gsub(
+        paste0("^", proj_nm), "", yml_bd$book_filename
+      )
       projr_set_up_dir(
         yml_active = yml_active,
+        version_current = version_current,
         create_var = TRUE,
         env = .GlobalEnv
       )
+
       expect_true(dir.exists("_archive"))
       expect_true(dir.exists("_output"))
       expect_true(dir.exists("inst/extdata"))
@@ -103,6 +118,7 @@ test_that("projr_set_up_dir works", {
   )
   unlink(dir_test, recursive = TRUE)
 })
+
 
 test_that("projr_activate runs", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))

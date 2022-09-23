@@ -1,4 +1,4 @@
-projr_usr_add <- function(wd_var = "LOCAL_WORKSPACE_FOLDER") {
+projr_usr_add <- function(wd_var = "PROJR_WORKING_DIRECTORY") {
   if (nzchar(Sys.getenv(wd_var))) {
     wd <- Sys.getenv(wd_var)
   } else {

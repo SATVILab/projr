@@ -15,15 +15,19 @@ directories-default:
   archive: 
     name: dir_archive
     path: _archive
-    ignore: true
+    ignore: true 
+version: "major.minor.patch-dev" # other options: major-dev; major.minor-dev; can
+# build settings when bumping the version up
 # actions on development built
-build-dev:
+build_dev:
   bump_version: false # whether to bump the dev version up before this build (i.e. to build to a new directory, really)
   rmd: # if specified, subset of Rmd's to build. no need to mention index.Rmd, it's always included
 # version:
-version: "major.minor.patch-dev" # other options: version-dev; major.minor.patch-dev; 
-# build settings when bumping the version up
-build-bump_version:
+build_output:
   renv: true # whether to snapshot or not 
-  package_build: false # whether to build package or not
+  copy_to_output:
+    data_raw: false # whether to copy `data_raw` across
+    cache: false # whether to copy `dir_cache` folders across
+    bookdown: true # whether to copy bookdown output crosss
+    package: false # whether to build package or not
 # user-specific directories:

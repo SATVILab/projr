@@ -5,7 +5,7 @@
 \title{Activate project}
 \usage{
 projr_activate(
-  wd_var = "LOCAL_WORKSPACE_FOLDER",
+  wd_var = "PROJR_WORKING_DIRECTORY",
   path_yml = "_projr.yml",
   create_var = TRUE,
   env_var = .GlobalEnv,

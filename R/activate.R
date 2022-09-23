@@ -8,19 +8,40 @@
 #' Default is \code{FALSE}.
 #'
 #' @export
-projr_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
+projr_activate <- function(wd_var = "PROJR_WORKING_DIRECTORY",
                            path_yml = "_projr.yml",
                            create_var = TRUE,
                            env_var = .GlobalEnv,
                            silent = FALSE) {
+  dir_proj <- rprojroot::is_r_package$find_file()
+
+  # get active directories
   yml_active <- projr_get_yml_active(
     wd_var = wd_var,
-    path_yml = path_yml,
+    path_yml = file.path(dir_proj, "_projr.yml"),
     silent = silent
   )
 
+  # get current version
+  version_format_list <- .get_version_format_list(
+    version_format = yml_active[["version"]]
+  )
+  yml_bd <- yaml::read_yaml(
+    file.path(dir_proj, "_bookdown.yml")
+  )
+  proj_nm <- .get_proj_nm(
+    fn = yml_bd$book_filename,
+    version_format = yml_active[["version"]]
+  )
+  version_current <- gsub(
+    paste0("^", proj_nm), "", yml_bd$book_filename
+  )
+
+  # create directories and add variables
+  # to global directory
   projr_set_up_dir(
     yml_active = yml_active,
+    version_current = version_current,
     create_var = create_var,
     env = env_var
   )
@@ -29,7 +50,7 @@ projr_activate <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
 }
 
 
-projr_get_yml_active <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
+projr_get_yml_active <- function(wd_var = "PROJR_WORKING_DIRECTORY",
                                  path_yml,
                                  silent) {
   if (nzchar(Sys.getenv(wd_var))) {
@@ -45,7 +66,6 @@ projr_get_yml_active <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
   }
 
   yml <- yaml::read_yaml(path_yml)
-
 
   # get directories done correctly
   if (paste0("directories-", wd) %in% names(yml)) {
@@ -79,6 +99,7 @@ projr_get_yml_active <- function(wd_var = "LOCAL_WORKSPACE_FOLDER",
 
 projr_set_up_dir <- function(yml_active,
                              create_var,
+                             version_current,
                              env) {
   dir_proj <- rprojroot::is_r_package$find_file()
   gitignore <- suppressWarnings(readLines(
@@ -89,30 +110,40 @@ projr_set_up_dir <- function(yml_active,
   ))
   yml_active_dir <- yml_active[["directories"]]
   for (i in seq_along(yml_active_dir)) {
-    yml_curr <- yml_active_dir[[i]]
-    if (!dir.exists(yml_curr[["path"]])) {
-      dir.create(yml_curr$path, recursive = TRUE)
+    yml_curr_orig <- yml_active_dir[[i]]
+    # create one where the output and archive
+    # directories are versioned.
+    # separate, original one kept for
+    # git versioning
+    yml_curr_versioned <- yml_curr_orig
+    if (names(yml_active_dir)[i] %in% c("output", "archive")) {
+      yml_curr_versioned[["path"]] <- file.path(
+        yml_curr_versioned[["path"]], version_current
+      )
+    }
+    if (!dir.exists(yml_curr_versioned[["path"]])) {
+      dir.create(yml_curr_versioned[["path"]], recursive = TRUE)
     }
     if (create_var) {
       assign(
-        yml_curr[["name"]],
-        yml_curr[["path"]],
+        yml_curr_versioned[["name"]],
+        yml_curr_versioned[["path"]],
         envir = env
       )
     }
 
     within_wd <- fs::path_has_parent(
-      yml_curr[["path"]],
+      yml_curr_orig[["path"]],
       dir_proj
     )
     if (!within_wd) next
 
-    dir_path <- fs::path_rel(yml_curr[["path"]], dir_proj)
+    dir_path <- fs::path_rel(yml_curr_orig[["path"]], dir_proj)
 
     txt_gitignore <- paste0("\n", gsub("/*$", "", dir_path), "/**/*")
     txt_rbuildignore <- paste0("\n^", Hmisc::escapeRegex(dir_path))
-    if (!is.logical(yml_curr[["ignore"]])) next
-    if (yml_curr[["ignore"]]) {
+    if (!is.logical(yml_curr_orig[["ignore"]])) next
+    if (yml_curr_orig[["ignore"]]) {
       if (!txt_gitignore %in% gitignore) {
         cat(
           txt_gitignore,

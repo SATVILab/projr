@@ -23,7 +23,7 @@ build-dev:
 # version:
 version: "major.minor-dev" # other options: version-dev; major.minor.patch-dev; 
 # build settings when bumping the version up
-build-bump_version:
+build-output:
   renv: true # whether to snapshot or not 
   package_build: false # whether to build package or not
 # user-specific directories:
