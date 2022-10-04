@@ -16,7 +16,7 @@ projr_usr_add <- function(wd_var = "PROJR_WORKING_DIRECTORY") {
   yml <- yml |>
     append(
       list(yml_dir) |>
-        setNames(paste0("directories-", wd))
+        stats::setNames(paste0("directories-", wd))
     )
 
   yaml::write_yaml(yml, "_projr.yml")

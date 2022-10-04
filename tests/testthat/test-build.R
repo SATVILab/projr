@@ -82,7 +82,7 @@ test_that("projr_build_output copy works", {
         seq_along(yml_projr[["build_output"]][["copy_to_output"]]),
         function(i) FALSE
       ) |>
-        setNames(names(yml_projr[["build_output"]][["copy_to_output"]]))
+        stats::setNames(names(yml_projr[["build_output"]][["copy_to_output"]]))
       yaml::write_yaml(yml_projr, file.path(dir_test, "_projr.yml"))
       # debugonce(.projr_build)
       dir_output <- yml_projr[["directories-default"]][["output"]][["path"]]
@@ -100,7 +100,7 @@ test_that("projr_build_output copy works", {
         seq_along(yml_projr[["build_output"]][["copy_to_output"]]),
         function(i) TRUE
       ) |>
-        setNames(names(yml_projr[["build_output"]][["copy_to_output"]]))
+        stats::setNames(names(yml_projr[["build_output"]][["copy_to_output"]]))
       yaml::write_yaml(yml_projr, file.path(dir_test, "_projr.yml"))
       dir_data_raw <- yml_projr[["directories-default"]][["data_raw"]][["path"]]
       if (!dir.exists(dir_data_raw)) {

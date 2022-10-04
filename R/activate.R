@@ -88,7 +88,7 @@ projr_get_yml_active <- function(wd_var = "PROJR_WORKING_DIRECTORY",
       yml_dir <- yml["directories-default"]
     }
   }
-  yml_active <- setNames(yml_dir, "directories") |>
+  yml_active <- stats::setNames(yml_dir, "directories") |>
     append(
       yml[!grepl("^directories", names(yml))]
     )
