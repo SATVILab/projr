@@ -128,15 +128,6 @@ projr_init <- function(dir_proj = getwd(),
     append = TRUE
   )
 
-  renv::init(
-    force = renv_force,
-    bioconductor = renv_bioconductor
-  )
-
-  cat("\n")
-  cat("\n")
-  message("Follow steps in DELETE-AFTER-DOING.md")
-
   cat(
     "\n",
     "projr::projr_activate()",
@@ -145,6 +136,15 @@ projr_init <- function(dir_proj = getwd(),
     sep = "",
     append = TRUE
   )
+
+  renv::init(
+    force = renv_force,
+    bioconductor = renv_bioconductor
+  )
+
+  cat("\n")
+  cat("\n")
+  message("Follow steps in DELETE-AFTER-DOING.md")
 
   invisible(TRUE)
 }
