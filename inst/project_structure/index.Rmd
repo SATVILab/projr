@@ -11,5 +11,5 @@ description: "Bubble bubble, toil and trouble, a good report made on the double.
 # Introduction
   
 ```{r , include = FALSE}
-
+projr::projr_init()
 ```
