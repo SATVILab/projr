@@ -67,7 +67,6 @@ test_that("projr_set_up_dir works", {
     )
   }
 
-
   usethis::with_project(
     path = dir_test,
     code = {

@@ -120,10 +120,10 @@ projr_get_yml_active <- function(wd_var = "PROJR_WORKING_DIRECTORY",
           stop("Current working directory not in path_yml and there is no default")
       }
       else {
-          yml_dir <- yml["directories-default"]
+          yml_dir <- yml[["directories-default"]]
       }
   }
-  yml_active <- append(stats::setNames(yml_dir, "directories"), 
+  yml_active <- append(stats::setNames(list(yml_dir), "directories"), 
       yml[!grepl("^directories", names(yml))])
   yml_active
 }
