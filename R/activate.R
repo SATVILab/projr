@@ -105,7 +105,7 @@ projr_get_yml_active <- function(wd_var = "PROJR_WORKING_DIRECTORY",
           if (!rep_val) next
 
           nm_ind <- which(nm_vec_default == nm_vec_dir[i])[[1]]
-          yml_dir[[i]][["path"]] <- yml_default[nm_ind][["path"]]
+          yml_dir[[i]][["path"]] <- yml_default[[nm_ind]][["path"]]
         }
         # add ignore settings, as they are not present
         for (i in seq_along(nm_vec_dir)) {
