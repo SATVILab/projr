@@ -1,4 +1,6 @@
 test_that("projr_get_yml_active works", {
+
+  # using directories-default
   dir_test <- file.path(tempdir(), paste0("test_projr"))
   if (!dir.exists(dir_test)) dir.create(dir_test)
   fn_vec <- list.files(testthat::test_path("./projr_test"))
@@ -11,6 +13,7 @@ test_that("projr_get_yml_active works", {
       overwrite = TRUE
     )
   }
+  
   usethis::with_project(
     path = dir_test,
     code = {
@@ -26,6 +29,23 @@ test_that("projr_get_yml_active works", {
       projr_usr_add()
       yml <- yaml::read_yaml("_projr.yml")
       expect_true(sum(grepl("^directories", names(yml))) == 2)
+      yml_active <- projr_get_yml_active(
+        wd_var = "PROJR_WORKING_DIRECTORY",
+        path_yml = system.file(
+          "project_structure", "_projr.yml",
+          package = "projr"
+        ),
+        silent = TRUE
+      )
+      yml_active_dir <- yml_active[["directories"]]
+      # ignore is imputed
+      expect_true(
+        sapply(yml_active_dir, function(x) "ignore" %in% names(x)) |> all()
+      )
+      # empty path is imputed
+      expect_true(
+        sapply(yml_active_dir, function(x) nzchar(x[["path"]])) |> all()
+      )
     },
     force = TRUE,
     quiet = TRUE
@@ -46,6 +66,7 @@ test_that("projr_set_up_dir works", {
       overwrite = TRUE
     )
   }
+
 
   usethis::with_project(
     path = dir_test,

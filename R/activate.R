@@ -67,22 +67,34 @@ projr_get_yml_active <- function(wd_var = "PROJR_WORKING_DIRECTORY",
   if (paste0("directories-", wd) %in% names(yml)) {
       yml_dir <- yml[[paste0("directories-", wd)]]
       if ("directories-default" %in% names(yml)) {
-          yml_default <- yml[["directories-default"]]
-          # need to allow for multiple directories of the 
-          # same type
-          nm_vec_default <- sapply(seq_along(yml_default), function(i) {
-            paste0(names(yml_default)[i], "_", yml_default[[i]][["name"]])
-          })
-          nm_vec_dir <- sapply(seq_along(yml_dir), function(i) {
-            paste0(names(yml_dir)[i], "_", yml_dir[[i]][["name"]])
-          })
-          nm_vec <- setdiff(nm_vec_default, nm_vec_dir)
-          nm_vec_ind <- which(nm_vec_default %in% nm_vec)
-          if (length(nm_vec) > 0) {
-              message(paste0("Adding the following settings to the current wd's dirs: ", 
-                paste0(nm_vec, collapse = "; ")))
-              yml_dir <- append(yml_dir, yml_default[nm_vec_ind])
-          }
+        yml_default <- yml[["directories-default"]]
+        # need to allow for multiple directories of the 
+        # same type
+        nm_vec_default <- sapply(seq_along(yml_default), function(i) {
+          paste0(names(yml_default)[i], "_", yml_default[[i]][["name"]])
+        })
+        nm_vec_dir <- sapply(seq_along(yml_dir), function(i) {
+          paste0(names(yml_dir)[i], "_", yml_dir[[i]][["name"]])
+        })
+        nm_vec <- setdiff(nm_vec_default, nm_vec_dir)
+        nm_vec_ind <- which(nm_vec_default %in% nm_vec)
+        if (length(nm_vec) > 0) {
+            message(paste0("Adding the following settings to the current wd's dirs: ", 
+              paste0(nm_vec, collapse = "; ")))
+            yml_dir <- append(yml_dir, yml_default[nm_vec_ind])
+        }
+        # add ignore settings, as they are not present
+        nm_vec_default <- sapply(seq_along(yml_default), function(i) {
+          paste0(names(yml_default)[i], "_", yml_default[[i]][["name"]])
+        })
+        nm_vec_dir <- sapply(seq_along(yml_dir), function(i) {
+          paste0(names(yml_dir)[i], "_", yml_dir[[i]][["name"]])
+        })
+        for (i in seq_along(nm_vec_dir)) {
+          #163
+          nm_ind <- which(nm_vec_default == nm_vec_dir[i])[[1]]
+          yml_dir[i][["ignore"]] <- yml_default[nm_ind][["ignore"]]
+        }
       }
   }
   else {
@@ -112,40 +124,41 @@ projr_set_up_dir <- function(yml_active,
   ))
   yml_active_dir <- yml_active[["directories"]]
   for (i in seq_along(yml_active_dir)) {
-    yml_curr_orig <- yml_active_dir[[i]]
+    
+    yml_curr_orig <- yml_active_dir[i]
     # create one where the output and archive
     # directories are versioned.
     # separate, original one kept for
     # git versioning
     yml_curr_versioned <- yml_curr_orig
-    if (names(yml_active_dir)[i] %in% c("output", "archive")) {
-      yml_curr_versioned[["path"]] <- file.path(
-        yml_curr_versioned[["path"]], version_current
+    if (names(yml_curr_orig) %in% c("output", "archive")) {
+      yml_curr_versioned[[1]][["path"]] <- file.path(
+        yml_curr_versioned[[1]][["path"]], version_current
       )
     }
-    if (!dir.exists(yml_curr_versioned[["path"]])) {
-      dir.create(yml_curr_versioned[["path"]], recursive = TRUE)
+    if (!dir.exists(yml_curr_versioned[[1]][["path"]])) {
+      dir.create(yml_curr_versioned[[1]][["path"]], recursive = TRUE)
     }
     if (create_var) {
       assign(
-        yml_curr_versioned[["name"]],
-        yml_curr_versioned[["path"]],
+        yml_curr_versioned[[1]][["name"]],
+        yml_curr_versioned[[1]][["path"]],
         envir = env
       )
     }
 
     within_wd <- fs::path_has_parent(
-      yml_curr_orig[["path"]],
+      yml_curr_orig[[1]][["path"]],
       dir_proj
     )
     if (!within_wd) next
 
-    dir_path <- fs::path_rel(yml_curr_orig[["path"]], dir_proj)
+    dir_path <- fs::path_rel(yml_curr_orig[[1]][["path"]], dir_proj)
 
     txt_gitignore <- paste0("\n", gsub("/*$", "", dir_path), "/**/*")
     txt_rbuildignore <- paste0("\n^", Hmisc::escapeRegex(dir_path))
-    if (!is.logical(yml_curr_orig[["ignore"]])) next
-    if (yml_curr_orig[["ignore"]]) {
+    if (!is.logical(yml_curr_orig[[1]][["ignore"]])) next
+    if (yml_curr_orig[[1]][["ignore"]]) {
       if (!txt_gitignore %in% gitignore) {
         cat(
           txt_gitignore,

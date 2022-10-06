@@ -1,26 +1,11 @@
 library(testthat)
 devtools::load_all()
 
-dir_test <- file.path(tempdir(), paste0("test_projr"))
+devtools::test()
 
-if (!dir.exists(dir_test)) dir.create(dir_test)
-fn_vec <- list.files(testthat::test_path("./projr_test"))
-fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
-for (x in fn_vec) {
-  file.copy(
-    file.path(testthat::test_path("./projr_test"), x),
-    file.path(dir_test, x),
-    overwrite = TRUE
-  )
-}
-
-usethis::proj_set(dir_test)
-setwd(dir_test)
-wd_var <- "PROJR_WORKING_DIRECTORY"
-bump_component <- "major"
-
-dir.create(dir_output_orig)
-
+names(yml_active)
+names(yml_active_dir)
+expect_true(all())
 # cache from container radian:
 # /tmp/RtmpSUi8pC/renv/cache/v5/linux-ubuntu-focal/R-4.2/x86_64-pc-linux-gnu
 # cache from system radian:
