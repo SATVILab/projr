@@ -156,7 +156,7 @@ projr_set_up_dir <- function(yml_active,
     if (!dir.exists(yml_curr_versioned[[1]][["path"]])) {
       dir.create(yml_curr_versioned[[1]][["path"]], recursive = TRUE)
     }
-    if (create_var) {
+    if (create_var && !names(yml_curr_orig) %in% "archive") {
       assign(
         yml_curr_versioned[[1]][["name"]],
         yml_curr_versioned[[1]][["path"]],
