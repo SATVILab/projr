@@ -1,5 +1,6 @@
 library(testthat)
 devtools::load_all()
+devtools::test_active_file("R/activate.R")
 
 devtools::test()
 
