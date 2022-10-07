@@ -130,6 +130,16 @@ projr_init <- function(dir_proj = getwd(),
 
   cat(
     "\n",
+    'if (!requireNamespace("projr", quietly = TRUE))',
+    "\n",
+    '  renv::install("SATVILab/projr")',
+    "\n",
+    file = ".Rprofile",
+    sep = "",
+    append = TRUE
+  )
+  cat(
+    "\n",
     "projr::projr_activate()",
     "\n",
     file = ".Rprofile",
