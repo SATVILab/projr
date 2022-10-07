@@ -104,7 +104,7 @@ test_that("projr_set_up_dir works", {
       expect_true(exists("dir_data_raw", envir = .GlobalEnv))
       expect_true(exists("dir_cache", envir = .GlobalEnv))
       expect_true(exists("dir_output", envir = .GlobalEnv))
-      expect_true(exists("dir_archive", envir = .GlobalEnv))
+      expect_true(!exists("dir_archive", envir = .GlobalEnv))
       gitignore <- readLines(".gitignore")
       expect_identical(
         length(which(gitignore == "_output/**/*")), 1L
