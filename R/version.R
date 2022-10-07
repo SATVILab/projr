@@ -16,6 +16,7 @@
 #' of \code{_bookdown.yml}.
 #' If it includes \code{"DESCRIPTION"}
 #' Default is \code{c("bookdown", "DESCRIPTION")}.
+#' @export
 projr_version_set <- function(version, where = c("bookdown", "DESCRIPTION")) {
   if (missing(version)) stop("version must be supplied")
   stopifnot(is.character(version))

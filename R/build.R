@@ -155,6 +155,13 @@
   invisible(TRUE)
 }
 
+#' @title Build project to output
+#'
+#' @description Builds project to output, which
+#' means recording the input and output data hashes,
+#' building the actual bookdown document and
+#' saving and archiving selected output.
+#'
 #' @export
 projr_build_output <- function(bump_component,
                                wd_var = "PROJR_WORKING_DIRECTORY") {
@@ -169,6 +176,14 @@ projr_build_output <- function(bump_component,
   .projr_build(bump_component = bump_component, wd_var = wd_var)
 }
 
+#' @title Build dev project
+#'
+#' @description Builds project to output, which
+#' means recording the input and output data hashes,
+#' building the actual bookdown document and
+#' saving and archiving selected output.
+#'
+#' @export
 #' @export
 projr_build_dev <- function(bump = FALSE,
                             wd_var = "PROJR_WORKING_DIRECTORY") {
@@ -177,6 +192,17 @@ projr_build_dev <- function(bump = FALSE,
   ), wd_var = wd_var)
 }
 
+
+#' @title Bump dev version
+#'
+#' @description Increments development version component
+#' in project version by 1.
+#' Note that this only increments the version
+#' in `_bookdown.yml` and not DESCRIPTION.
+#' The version in DESCRIPTION will be incremented once
+#' the project is built.
+#'
+#' @export
 projr_bump_version_dev <- function() {
   yml_bd <- yaml::read_yaml(
     rprojroot::is_r_package$find_file("_bookdown.yml")

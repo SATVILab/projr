@@ -1,4 +1,17 @@
-projr_usr_add <- function(wd_var = "PROJR_WORKING_DIRECTORY") {
+#' @title Add current working directory
+#'
+#' @param wd_var character.
+#' Name of environment variable to determine
+#' the current user/computer.
+#' If this variable exists, then it determines
+#' the user/computer.
+#' If it does not, then the project root
+#' determins the user/computer (which is
+#' the directory containing DESCRIPTION).
+#'
+#' @return Invisibly returns the working directory.
+projr_usr_add <- function(wd_var = "PROJR_WORKING_DIRECTORY",
+                          silent = FALSE) {
   if (nzchar(Sys.getenv(wd_var))) {
     wd <- Sys.getenv(wd_var)
   } else {
@@ -20,4 +33,9 @@ projr_usr_add <- function(wd_var = "PROJR_WORKING_DIRECTORY") {
     )
 
   yaml::write_yaml(yml, "_projr.yml")
+  if (!silent) {
+    message(paste0("Added the following user to _projr.yml: ", wd))
+  }
+
+  invisible(wd)
 }
