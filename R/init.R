@@ -71,22 +71,22 @@ projr_init <- function(dir_proj = getwd(),
   }
 
   # please provide the GitHub user name
-  cat("Please provide the GitHub user name.\n")
+  cat("Please provide the GitHub user/organisation name for this project.\n")
   nm_gh <- readline(prompt = ">> ")
   answer_gh <- menu(
     c("Yes", "No", "Complete later"),
-    title = paste0("Is the  GitHub user name `", nm_gh, "` correct?")
+    title = paste0("Is the GitHub user/organisation name `", nm_gh, "` correct?")
   )
   while (answer_gh == 2) {
-    cat("Please provide the GitHub user name.\n")
+    cat("Please provide the GitHub user/organisation name.\n")
     nm_gh <- readline(prompt = ">> ")
     answer_gh <- menu(
       c("Yes", "No", "Complete later"),
-      title = paste0("Is the  GitHub user name `", nm_gh, "` correct?")
+      title = paste0("Is the GitHub user/organisation name `", nm_gh, "` correct?")
     )
   }
   if (answer_gh == 3) {
-    nm_gh <- "{{ GitHub user name }}"
+    nm_gh <- "{{ GitHub user/organisation name }}"
   }
 
   # personal details: first name
@@ -315,6 +315,9 @@ projr_init <- function(dir_proj = getwd(),
       dir_proj
     )
   }
+
+  # README
+  # ------------------------
 
   # License
   # ----------------------
