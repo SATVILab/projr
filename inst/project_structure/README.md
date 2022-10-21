@@ -1,4 +1,3 @@
-
 # projr
 
 The goal of templater is to provide a standard R project structure with reasonable defaults.
