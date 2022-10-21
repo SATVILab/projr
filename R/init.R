@@ -264,14 +264,7 @@ projr_init <- function(dir_proj = getwd(),
   desc::desc_normalize(file.path(dir_proj, "DESCRIPTION"))
   usethis::use_roxygen_md()
 
-  # README
-  readme <- readLines(system.file(
-    "project_structure", "README.md",
-    package = "projr"
-  ))
 
-  readme[1] <- paste0("# ", nm_pkg)
-  writeLines(readme, file.path(dir_proj, "README.md"))
 
   # index.Rmd
   index <- readLines(system.file(
@@ -318,6 +311,65 @@ projr_init <- function(dir_proj = getwd(),
 
   # README
   # ------------------------
+
+  #
+  answer_readme <- menu(
+    c("Yes - RMarkdown format (can run R code)", "Yes - Markdown format (cannot run R code)", "No"),
+    title =
+      paste0(
+        "Do you want to create a README now?"
+      )
+  )
+  switch(as.character(answer_readme),
+    "1" = {
+      usethis::use_readme_rmd()
+      readme <- readLines("README.Rmd")
+    },
+    "2" = {
+      usethis::use_readme_md()
+      readme <- readLines("README.md")
+    }
+  )
+
+  switch(as.character(answer_readme),
+    "1" = ,
+    "2" = {
+      readme_ind_example <- which(grepl("^## Example", readme))
+      readme <- readme[seq_len(readme_ind_example - 1)]
+      cat(
+        "Please finish the following sentence:\n",
+        paste0("The purpose of ", nm_pkg, " is to...")
+      )
+      nm_readme <- readline(prompt = ">> ")
+      readme_ind <- which(grepl("^The goal of ", readme))
+      readme_rep <- paste0("The goal of ", nm_pkg, " is to ", nm_readme)
+      answer_readme <- menu(
+        c("Yes", "No", "Complete later"),
+        title =
+          paste0(
+            "Is the following completed sentence/paragraph correct:\n`",
+            readme_rep
+          )
+      )
+      while (answer_readme == 2) {
+        cat(
+          "Please finish the following sentence/paragraph:\n",
+          paste0("The purpose of ", nm_pkg, " is to...")
+        )
+        nm_readme <- readline(prompt = ">> ")
+        readme_ind <- which(grepl("^The goal of ", readme))
+        readme_rep <- paste0("The goal of ", nm_pkg, " is to ", nm_readme)
+        answer_readme <- menu(
+          c("Yes", "No", "Complete later"),
+          title =
+            paste0(
+              "Is the following completed sentence/paragraph correct:\n`",
+              readme_rep
+            )
+        )
+      }
+    }
+  )
 
   # License
   # ----------------------
@@ -396,10 +448,10 @@ projr_init <- function(dir_proj = getwd(),
     c("Yes", "No"),
     title =
       paste0(
-        "Do you want to initialise a Git repo now?`"
+        "Do you want to initialise a Git repo now?"
       )
   )
-  if (answer_git == "no") {
+  if (answer_git == 2) {
     file.copy(
       system.file(
         "project_structure",
@@ -411,6 +463,14 @@ projr_init <- function(dir_proj = getwd(),
     cat("\n")
     cat("\n")
     message("Follow steps in DELETE-AFTER-DOING.md")
+    if (answer_readme %in% c(1, 2)) {
+      writeLines(
+        readme,
+        file.path(
+          dir_proj, "README.", ifelse(answer_readme == 1, "Rmd", "md")
+        )
+      )
+    }
     return(TRUE)
   }
 
@@ -423,7 +483,7 @@ projr_init <- function(dir_proj = getwd(),
         "Default settings for usethis::use_github (with supplied GitHub user name) will be used." # nolint
       )
   )
-  if (answer_gh == "no") {
+  if (answer_gh == 2) {
     file.copy(
       system.file(
         "project_structure",
@@ -435,6 +495,15 @@ projr_init <- function(dir_proj = getwd(),
     cat("\n")
     cat("\n")
     message("Follow steps in DELETE-AFTER-DOING.md")
+
+    if (answer_readme %in% c(1, 2)) {
+      writeLines(
+        readme,
+        file.path(
+          dir_proj, "README.", ifelse(answer_readme == 1, "Rmd", "md")
+        )
+      )
+    }
     return(TRUE)
   }
 
@@ -442,6 +511,25 @@ projr_init <- function(dir_proj = getwd(),
     organisation = nm_gh,
     private = TRUE
   )
+
+  if (answer_readme %in% c(1, 2)) {
+    readme_ind_install <- which(grepl("^You can install", readme))
+    readme_install_devtools <-
+      'if (!requireNamespace("devtools")) install.packages("devtools"))'
+    readme_install_pkg <-
+      paste0('devtools::install_github("', nm_gh, "/", nm_pkg, '")')
+
+    readme[readme_ind_install + 3] <- readme_install_devtools
+    readme[readme_ind_install + 5] <- readme[readme_ind_install + 4]
+    readme[readme_ind_install + 4] <- readme_install_pkg
+    writeLines(
+      readme,
+      file.path(
+        dir_proj, "README.", ifelse(answer_readme == 1, "Rmd", "md")
+      )
+    )
+  }
+
 
 
   invisible(TRUE)
