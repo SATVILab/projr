@@ -128,27 +128,6 @@ projr_init <- function(dir_proj = getwd(),
     append = TRUE
   )
 
-  cat(
-    "\n",
-    'if (!requireNamespace("projr", quietly = TRUE)) {',
-    "\n",
-    '  renv::install("SATVILab/projr")',
-    "\n",
-    "}",
-    "\n",
-    file = ".Rprofile",
-    sep = "",
-    append = TRUE
-  )
-  cat(
-    "\n",
-    "projr::projr_activate()",
-    "\n",
-    file = ".Rprofile",
-    sep = "",
-    append = TRUE
-  )
-
   renv::init(
     force = renv_force,
     bioconductor = renv_bioconductor
