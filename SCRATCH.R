@@ -1,4 +1,5 @@
 library(testthat)
 devtools::load_all()
 
-.projr_init_prompt("zzzz")
+dir_temp <- file.path(tempdir(), "test")
+.projr_init_prompt(dir_temp)

@@ -262,6 +262,7 @@ projr_init <- function(dir_proj = getwd(),
   descrptn$set("Description", nm_desc)
   descrptn$write(file = file.path(dir_proj, "DESCRIPTION"))
   desc::desc_normalize(file.path(dir_proj, "DESCRIPTION"))
+  usethis::use_roxygen_md()
 
   # README
   readme <- readLines(system.file(
@@ -387,7 +388,7 @@ projr_init <- function(dir_proj = getwd(),
   # Git and GitHub
   # -------------------
 
-  # project title
+  # Git
   answer_git <- menu(
     c("Yes", "No"),
     title =
@@ -410,25 +411,35 @@ projr_init <- function(dir_proj = getwd(),
     message("Follow steps in DELETE-AFTER-DOING.md")
     return(TRUE)
   }
-  browser()
-  usethis::use_git()
 
-  while (answer_desc == 2) {
-    cat("Please provide a sentence or two describing the project.\n")
-    nm_desc <- readline(prompt = ">> ")
-    answer_desc <- menu(
-      c("Yes", "No", "Complete later"),
-      title =
-        paste0(
-          "Is the following project description correct:\n`",
-          nm_desc,
-          "`"
-        )
+  # GitHub
+  answer_gh <- menu(
+    c("Yes", "No"),
+    title =
+      paste0(
+        "Do you want to create a GitHub remote and synchronise?\n`",
+        nm_desc
+      )
+  )
+  if (answer_gh == "no") {
+    file.copy(
+      system.file(
+        "project_structure",
+        "DELETE-AFTER-DOING.md",
+        package = "projr"
+      ),
+      dir_proj
     )
+    cat("\n")
+    cat("\n")
+    message("Follow steps in DELETE-AFTER-DOING.md")
+    return(TRUE)
   }
-  if (answer_desc == 3) {
-    nm_desc <- "{{ Description }}"
-  }
+
+  usethis::use_github(
+    organisation = nm_gh,
+    private = TRUE
+  )
 
 
   invisible(TRUE)
