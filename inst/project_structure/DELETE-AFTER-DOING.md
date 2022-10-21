@@ -1,59 +1,24 @@
 ### Tasks
 
-- [ ] If you have not already, allow R to communicate with GitHub following [these instructions](https://satvilab.github.io/WikiSATVI/git-and-github-1.html#git-and-github-1).
-- Edit `_bookdown.yml`
-  - This file primarily defines what Rmd's go into the report and what the report is saved as.
-  - [ ] In line 1, make `book_filename` the name of the repository
-    - Initially: `book_filename: report`
-    - Example change: `book_filename: DataTidy22YngTissue`
-  - [ ] In line 9, replace `report` in `docs/report` with the name of the repository in `output_dir` and a version number afterwards
-    - Initially: `output_dir: docs/report`
-    - Example change: `output_dir: docs/DataTidy22YngTissueV1`.
-- Edit `_output.yml`
-  - This file refines the outputted document.
-  - [ ] In line 7, replace `TODO: ADD SHORT DESCRIPTION` with a short project description
-    - Initially: `<li><a href="./">TODO: ADD SHORT DESCRIPTION</a></li>`
-    - Example change: `<li><a href="./">FAUST analysis of CyTOF tissue data</a></li>`
-  - [ ] In line 9, replace `TODO:_ADD_REPO_NAME` with the repository name on GitHub (twice!)
-    - Initially: ` <li><a href="https://github.com/SATVIlab/TODO:_ADD_REPO_NAME" target="blank">SATVIlab/TODO:_ADD_REPO_NAME</a></li>`
-    - Example change: ` <li><a href="https://github.com/SATVIlab/DataTidy22YngTissue" target="blank">SATVIlab/DataTidy22YngTissue</a></li>`
 - Edit `_project.yml`
-  - This file creates directories to keep raw data in (`dir_data_raw`), save all computed outputs to (`dir_cache`) and save items for sharing (`dir_output`). 
-  - To keep things simple, at present it is assumed that all users of your project will have the same paths. Therefore, they should be relative and not absolute paths, i.e. `cache` rather than something like `C:/Users/migue/Work/Projects/BestProjectEver/cache`.
-  - You can just leave the defaults.
-  - [ ] In line 2, replace `cache` with the relative path to the folder you want to store automatically-generated outputs in (leave it alone if you're happy with cache)
-    - Initially: `dir_cache: cache`
-    - Example change: `dir_cache: tmp`
-  - [ ] In line 3, replace `inst/extdata` with the relative path to the folder where the raw data are kept
-    - Initially: `dir_data_raw: inst/extdata`
-    - Example change: `dir_data_raw: ../DataRaw22YngTissue`
-      - Note that `..` means "up a level" in terms of directories
-  - [ ] In line 4, replace `output` with the relative path to the folder where the project outputs for sharing are to be saved
-    - Initially: `dir_output: output`
-    - Example change: `dir_output: ../Output/OutputDataTidy22YngTissue`
-- Edit `DESCRIPTION`
-  - This file gives the metadata for your project (e.g. its name and the authors) and enables it to be built as an R package (which you would probably want to if you processed data in it).
-  - [ ] In line 1, change `projr` to the name of this project.
-    - Initially: `Package: projr`
-    - Example change: `Package: ThisProjectSolvesTB`
-    - Note that there must be no spaces, nothing other than a character or a number, and it must not start with a number.
-  - [ ] In line 2, state briefly what the package does in title case
-    - Initially: `Title: What the Package Does (One Line, Title Case)`
-    - Example change: `Cluster CyTOF tissue data`
-  - [ ] In lines 4-6, fill in the author information. See `?person` for help.
-  - [ ] In lines 7 (and below), provide a brief package description.
-  - Add a license.
-    - [ ] Install `usethis` R package using `install.packages("usethis")`.
-    - [ ] Run `usethis::use_ccby_license()`.
-      - This is probably the best license for projects. See `choosealicense.com` for other options.
+  - This file specifies the paths to directories to keep raw data in, save all computed outputs to and save items for sharing and archiving.
+  - These paths are referred to with the following syntax:
+    - `projr_dir_get("<directory_type>)`, e.g. `projr_dir_get("data_raw")` returns `inst/extdata` by default.
+  - Such paths may be system-dependent.
+    - The first set, under `directories-default`, specifies the default directories. If you are happy with them, then you don't need to do anything further.
+    - However, paths are allowed to system, i.e they may be differ from your computer to another person's, or your local computer to a remote.
+      - There are several scenarios in which this is convenient, for example:
+        - The code is to be run in an high-performance computinge environment (HPC), which stores large data in a folder outside the user's home directory, e.g. `/scratch/$USER`.
+        - The raw data and outputs but not the code are shared amongst members using a mounted virtual drive, e.g. Google Drive or OneDrive, whose path may vary (across operating systems and even within operating systems).
+        - Raw data are kept in an external hard drive whose prefix may vary by system.
+  - To add your current system as having its own directory structure, run `projr_usr_add()`.
+    - This will create the entry `directories-<working_directory>` where `<working_directory>` is the absolute path to the project root directory on your system.
+    - Entries for all the directories under `directories-default` are copied there.
+    - You just fill in the blanks.
+    - Where you are happy with the default, then just leave that blank and the default will automiatcally be used.
 - Edit `README.md`
-  - [ ] In line 1, replace `projr` with the name of your project.
-  - [ ] In line 4, replace all content other than the heading with the purpose of the project, i.e. `The goal of this project is to ...`. 
+  - [ ] In line 4, replace all content other than the heading with the purpose of the project, i.e. `The goal of this project is to ...`.
   - The README can and should be added to from here, with information such as how to install it, what datasets are available and where the results report is. But that is project-specific, so we leave it up to you.
-- Edit `index.Rmd`
-  - Edit the `title`, `author` and `description` fields.
-- [ ] Run `renv::init()` and wait for it it finish.
-- [ ] Restart R (`Ctrl + Shift + F10` or `Session >> Restart R` in RStudio).
 - Using your Git GUI of choice:
   - [ ] Create a Git repository here.
   - [ ] Commit all the files except for `DELETE-AFTER-DOING.md`

@@ -1,0 +1,8 @@
+# Appendix
+
+## Session info
+
+```{r }
+utils::sessionInfo()
+```
+

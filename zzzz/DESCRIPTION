@@ -1,0 +1,11 @@
+Package: DataTidyGit
+Title: This is a good project
+Version: 0.0.0-1
+Authors@R: 
+    person("Miguel", "Rodo", , "rdxmig002@myuct.ac.za")
+Maintainer: Miguel Rodo <rdxmig002@myuct.ac.za>
+Description: This is an even better description of it, though.
+License: CC BY 4.0
+URL: https://github.com/MiguelRodo/DataTidyGit/#readme
+BugReports: https://github.com/MiguelRodo/DataTidyGit/issues
+Encoding: UTF-8
