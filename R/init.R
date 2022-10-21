@@ -393,8 +393,7 @@ projr_init <- function(dir_proj = getwd(),
     c("Yes", "No"),
     title =
       paste0(
-        "Do you want to initialise a Git repo now?\n`",
-        nm_desc
+        "Do you want to initialise a Git repo now?\n`"
       )
   )
   if (answer_git == "no") {
@@ -418,7 +417,7 @@ projr_init <- function(dir_proj = getwd(),
     title =
       paste0(
         "Do you want to create a GitHub remote and synchronise?\n`",
-        nm_desc
+        "Default settings for usethis::use_github (with supplied GitHub user name) will be used." # nolint
       )
   )
   if (answer_gh == "no") {
