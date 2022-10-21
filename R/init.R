@@ -333,7 +333,7 @@ projr_init <- function(dir_proj = getwd(),
     answer_license <- menu(
       c("Yes", "No", "Complete later"),
       title = paste0(
-        "Is the lisence `",
+        "Is the licence `",
         switch(as.character(nm_license),
           "1" = "CC-BY",
           "2" = "Apache 2.0",
@@ -393,7 +393,7 @@ projr_init <- function(dir_proj = getwd(),
     c("Yes", "No"),
     title =
       paste0(
-        "Do you want to initialise a Git repo now?\n`"
+        "Do you want to initialise a Git repo now?`"
       )
   )
   if (answer_git == "no") {
