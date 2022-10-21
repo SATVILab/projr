@@ -14,7 +14,8 @@ Imports:
     Hmisc,
     yaml,
     bookdown,
-    rprojroot
+    rprojroot,
+    desc
 Suggests: 
     testthat (>= 3.0.0),
     withr
