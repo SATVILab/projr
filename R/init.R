@@ -315,10 +315,10 @@ projr_init <- function(dir_proj = getwd(),
 
   #
   answer_readme <- menu(
-    c("Yes - RMarkdown format (can run R code)", "Yes - Markdown format (cannot run R code)", "No"),
+    c("Yes (can run R code)", "No (cannot run R code)"),
     title =
       paste0(
-        "Do you want to create a README now?"
+        "Do you want use RMarkdown to create the README?"
       )
   )
   switch(as.character(answer_readme),
