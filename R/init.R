@@ -344,7 +344,7 @@ projr_init <- function(dir_proj = getwd(),
       nm_readme <- readline(prompt = ">> ")
       readme_ind <- which(grepl("^The goal of ", readme))
       readme_rep <- paste0("The goal of ", nm_pkg, " is to ", nm_readme)
-      answer_readme <- menu(
+      answer_goal <- menu(
         c("Yes", "No", "Complete later"),
         title =
           paste0(
@@ -352,7 +352,7 @@ projr_init <- function(dir_proj = getwd(),
             readme_rep
           )
       )
-      while (answer_readme == 2) {
+      while (answer_goal == 2) {
         cat(
           "Please finish the following sentence/paragraph:\n",
           paste0("The purpose of ", nm_pkg, " is to...")
@@ -360,7 +360,7 @@ projr_init <- function(dir_proj = getwd(),
         nm_readme <- readline(prompt = ">> ")
         readme_ind <- which(grepl("^The goal of ", readme))
         readme_rep <- paste0("The goal of ", nm_pkg, " is to ", nm_readme)
-        answer_readme <- menu(
+        answer_goal <- menu(
           c("Yes", "No", "Complete later"),
           title =
             paste0(
@@ -464,6 +464,7 @@ projr_init <- function(dir_proj = getwd(),
     cat("\n")
     cat("\n")
     message("Follow steps in DELETE-AFTER-DOING.md")
+
     if (answer_readme %in% c(1, 2)) {
       writeLines(
         readme,
@@ -526,7 +527,9 @@ projr_init <- function(dir_proj = getwd(),
         dir_proj, "README.", ifelse(answer_readme == 1, "Rmd", "md")
       )
     )
-    rmarkdown::render(file.path(dir_proj, "README.Rmd"))
+    if (answer_readme == 1) {
+      rmarkdown::render(file.path(dir_proj, "README.Rmd"))
+    }
   }
 
   usethis::use_git()
