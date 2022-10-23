@@ -17,7 +17,8 @@ Imports:
     bookdown,
     rprojroot,
     desc,
-    rmarkdown
+    rmarkdown,
+    gert
 Suggests: 
     testthat (>= 3.0.0),
     withr

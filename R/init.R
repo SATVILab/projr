@@ -501,6 +501,8 @@ projr_init <- function(dir_proj = getwd(),
     cat("\n")
     message("Follow steps in DELETE-AFTER-DOING.md")
 
+
+
     if (answer_readme %in% c(1, 2)) {
       writeLines(
         readme,
@@ -512,6 +514,11 @@ projr_init <- function(dir_proj = getwd(),
         rmarkdown::render(file.path(dir_proj, "README.Rmd"))
       }
     }
+
+    # taken from usethis::use_git
+    gert::git_init(path = dir_proj)
+    gert::git_add(list.files(dir_proj))
+    gert::git_commit_all(message = "Initial commit")
     return(TRUE)
   }
 
@@ -536,7 +543,11 @@ projr_init <- function(dir_proj = getwd(),
     }
   }
 
-  usethis::use_git()
+
+  # taken from usethis::use_git
+  gert::git_init(path = dir_proj)
+  gert::git_add(list.files(dir_proj))
+  gert::git_commit_all(message = "Initial commit")
 
   try(usethis::use_github(
     organisation = nm_gh,
