@@ -17,7 +17,7 @@ projr_init <- function(dir_proj = getwd(),
                        yml_path_from = NULL,
                        renv_force = FALSE,
                        renv_bioconductor = TRUE) {
-  usethis::proj_activate(getwd())
+
 
   # create initial _proj.yml
   if (is.null(yml_path_from)) {
@@ -262,6 +262,7 @@ projr_init <- function(dir_proj = getwd(),
   descrptn$set("Description", nm_desc)
   descrptn$write(file = file.path(dir_proj, "DESCRIPTION"))
   desc::desc_normalize(file.path(dir_proj, "DESCRIPTION"))
+  usethis::proj_activate(dir_proj)
   usethis::use_roxygen_md()
 
 
