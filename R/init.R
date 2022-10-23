@@ -471,11 +471,10 @@ projr_init <- function(dir_proj = getwd(),
           dir_proj, "README.", ifelse(answer_readme == 1, "Rmd", "md")
         )
       )
+      rmarkdown::render(file.path(dir_proj, "README.Rmd"))
     }
     return(TRUE)
   }
-
-  usethis::use_git()
 
   # GitHub
   answer_gh <- menu(
@@ -506,6 +505,7 @@ projr_init <- function(dir_proj = getwd(),
           dir_proj, "README.", ifelse(answer_readme == 1, "Rmd", "md")
         )
       )
+      rmarkdown::render(file.path(dir_proj, "README.Rmd"))
     }
     return(TRUE)
   }
@@ -526,7 +526,10 @@ projr_init <- function(dir_proj = getwd(),
         dir_proj, "README.", ifelse(answer_readme == 1, "Rmd", "md")
       )
     )
+    rmarkdown::render(file.path(dir_proj, "README.Rmd"))
   }
+
+  usethis::use_git()
 
   try(usethis::use_github(
     organisation = nm_gh,
