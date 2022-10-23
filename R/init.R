@@ -472,7 +472,9 @@ projr_init <- function(dir_proj = getwd(),
           dir_proj, "README.", ifelse(answer_readme == 1, "Rmd", "md")
         )
       )
-      rmarkdown::render(file.path(dir_proj, "README.Rmd"))
+      if (answer_readme == 1) {
+        rmarkdown::render(file.path(dir_proj, "README.Rmd"))
+      }
     }
     return(TRUE)
   }
@@ -506,7 +508,9 @@ projr_init <- function(dir_proj = getwd(),
           dir_proj, "README.", ifelse(answer_readme == 1, "Rmd", "md")
         )
       )
-      rmarkdown::render(file.path(dir_proj, "README.Rmd"))
+      if (answer_readme == 1) {
+        rmarkdown::render(file.path(dir_proj, "README.Rmd"))
+      }
     }
     return(TRUE)
   }
