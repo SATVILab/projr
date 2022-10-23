@@ -475,12 +475,14 @@ projr_init <- function(dir_proj = getwd(),
     return(TRUE)
   }
 
+  usethis::use_git()
+
   # GitHub
   answer_gh <- menu(
     c("Yes", "No"),
     title =
       paste0(
-        "Do you want to create a GitHub remote and synchronise?\n`",
+        "Do you want to create a GitHub remote and synchronise?\n",
         "Default settings for usethis::use_github (with supplied GitHub user name) will be used." # nolint
       )
   )
