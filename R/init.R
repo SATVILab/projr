@@ -173,7 +173,7 @@ projr_init <- function(dir_proj = getwd(),
     c("Yes", "No", "Complete later"),
     title =
       paste0(
-        "Is the following project description correct:\n`",
+        "Is the following project description correct:\n",
         nm_desc
       )
   )
@@ -184,7 +184,7 @@ projr_init <- function(dir_proj = getwd(),
       c("Yes", "No", "Complete later"),
       title =
         paste0(
-          "Is the following project description correct:\n`",
+          "Is the following project description correct:\n",
           nm_desc,
           "`"
         )
@@ -348,7 +348,7 @@ projr_init <- function(dir_proj = getwd(),
         c("Yes", "No", "Complete later"),
         title =
           paste0(
-            "Is the following completed sentence/paragraph correct:\n`",
+            "Is the following completed sentence/paragraph correct:\n",
             readme_rep
           )
       )
@@ -364,7 +364,7 @@ projr_init <- function(dir_proj = getwd(),
           c("Yes", "No", "Complete later"),
           title =
             paste0(
-              "Is the following completed sentence/paragraph correct:\n`",
+              "Is the following completed sentence/paragraph correct:\n",
               readme_rep
             )
         )
@@ -510,11 +510,6 @@ projr_init <- function(dir_proj = getwd(),
     return(TRUE)
   }
 
-  usethis::use_github(
-    organisation = nm_gh,
-    private = TRUE
-  )
-
   if (answer_readme %in% c(1, 2)) {
     readme_ind_install <- which(grepl("^You can install", readme))
     readme_install_devtools <-
@@ -532,6 +527,12 @@ projr_init <- function(dir_proj = getwd(),
       )
     )
   }
+
+  usethis::use_github(
+    organisation = nm_gh,
+    private = TRUE
+  )
+
 
 
 
