@@ -323,11 +323,11 @@ projr_init <- function(dir_proj = getwd(),
   )
   switch(as.character(answer_readme),
     "1" = {
-      usethis::use_readme_rmd()
+      usethis::use_readme_rmd(open = FALSE)
       readme <- readLines("README.Rmd")
     },
     "2" = {
-      usethis::use_readme_md()
+      usethis::use_readme_md(open = FALSE)
       readme <- readLines("README.md")
     }
   )
@@ -528,13 +528,10 @@ projr_init <- function(dir_proj = getwd(),
     )
   }
 
-  usethis::use_github(
+  try(usethis::use_github(
     organisation = nm_gh,
     private = TRUE
-  )
-
-
-
+  ))
 
   invisible(TRUE)
 }
