@@ -278,14 +278,14 @@ projr_init <- function(dir_proj = getwd(),
   }
 
   # project title
-  cat("Please provide a short project title (<30 characters).\n")
+  cat("Please provide a short project title (<30 characters, initial capital and no full stop).\n")
   nm_title <- readline(prompt = ">> ")
   answer_title <- menu(
     c("Yes", "No", "Complete later"),
     title = paste0("Is the project title `", nm_title, "` correct?")
   )
   while (answer_title == 2) {
-    cat("Please provide a short project title (<30 characters).\n")
+    cat("Please provide a short project title (<30 characters, initial capital and no full stop).\n")
     nm_title <- readline(prompt = ">> ")
     answer_title <- menu(
       c("Yes", "No", "Complete later"),
@@ -297,7 +297,7 @@ projr_init <- function(dir_proj = getwd(),
   }
 
   # project title
-  cat("Please provide a sentence or two describing the project.\n")
+  cat("Please provide a sentence or two describing the project (initial capital and a full stop).\n")
   nm_desc <- readline(prompt = ">> ")
   answer_desc <- menu(
     c("Yes", "No", "Complete later"),
@@ -308,7 +308,7 @@ projr_init <- function(dir_proj = getwd(),
       )
   )
   while (answer_desc == 2) {
-    cat("Please provide a sentence or two describing the project.\n")
+    cat("Please provide a sentence or two describing the project (initial capital and a full stop).\n")
     nm_desc <- readline(prompt = ">> ")
     answer_desc <- menu(
       c("Yes", "No", "Complete later"),
@@ -451,16 +451,14 @@ projr_init <- function(dir_proj = getwd(),
         "Do you want use RMarkdown to create the README?"
       )
   )
-  switch(as.character(answer_readme),
-    "1" = {
-      usethis::use_readme_rmd(open = FALSE)
-      readme <- readLines("README.Rmd")
-    },
-    "2" = {
-      usethis::use_readme_md(open = FALSE)
-      readme <- readLines("README.md")
-    }
-  )
+  if (answer_readme == 1) {
+    usethis::use_readme_rmd(open = FALSE)
+  } else if (answer_readme == 2) {
+    usethis::use_readme_md(open = FALSE)
+  }
+  fn_readme <- paste0("README.", ifelse(answer_readme == 1, "Rmd", "md"))
+  path_readme <- file.path(dir_proj, fn_readme)
+  readme <- readLines(path_readme)
 
   switch(as.character(answer_readme),
     "1" = ,
@@ -499,6 +497,9 @@ projr_init <- function(dir_proj = getwd(),
             )
         )
       }
+      readme[readme_ind] <- readme_rep
+
+      readme_ind_example
     }
   )
 
@@ -596,14 +597,15 @@ projr_init <- function(dir_proj = getwd(),
     message("Follow steps in DELETE-AFTER-DOING.md")
 
     if (answer_readme %in% c(1, 2)) {
-      writeLines(
-        readme,
-        file.path(
-          dir_proj, "README.", ifelse(answer_readme == 1, "Rmd", "md")
-        )
-      )
+      if (file.exists(path_readme)) unlink(path_readme)
+      if (!identical(readme[length(readme)], "")) readme <- c(readme, "")
+      writeLines(text = readme, con = path_readme)
       if (answer_readme == 1) {
-        rmarkdown::render(file.path(dir_proj, "README.Rmd"))
+        try(rmarkdown::render(
+          file.path(dir_proj, "README.Rmd"),
+          output_format = "md_document",
+          quiet = TRUE
+        ))
       }
     }
     return(TRUE)
@@ -631,17 +633,18 @@ projr_init <- function(dir_proj = getwd(),
     cat("\n")
     message("Follow steps in DELETE-AFTER-DOING.md")
 
-
-
     if (answer_readme %in% c(1, 2)) {
-      writeLines(
-        readme,
-        file.path(
-          dir_proj, "README.", ifelse(answer_readme == 1, "Rmd", "md")
-        )
-      )
+      if (file.exists(path_readme)) unlink(path_readme)
+      if (!identical(readme[length(readme)], "")) readme <- c(readme, "")
+      writeLines(text = readme, con = path_readme)
       if (answer_readme == 1) {
-        rmarkdown::render(file.path(dir_proj, "README.Rmd"))
+        try(
+          rmarkdown::render(
+            file.path(dir_proj, "README.Rmd"),
+            output_format = "md_document",
+            quiet = TRUE
+          )
+        )
       }
     }
 
@@ -653,6 +656,7 @@ projr_init <- function(dir_proj = getwd(),
   }
 
   if (answer_readme %in% c(1, 2)) {
+    if (file.exists(path_readme)) unlink(path_readme)
     readme_ind_install <- which(grepl("^You can install", readme))
     readme_install_devtools <-
       'if (!requireNamespace("devtools")) install.packages("devtools"))'
@@ -662,21 +666,24 @@ projr_init <- function(dir_proj = getwd(),
     readme[readme_ind_install + 3] <- readme_install_devtools
     readme[readme_ind_install + 5] <- readme[readme_ind_install + 4]
     readme[readme_ind_install + 4] <- readme_install_pkg
-    writeLines(
-      readme,
-      file.path(
-        dir_proj, "README.", ifelse(answer_readme == 1, "Rmd", "md")
-      )
-    )
+    if (!identical(readme[length(readme)], "")) readme <- c(readme, "")
+    writeLines(text = readme, con = path_readme)
+
     if (answer_readme == 1) {
-      rmarkdown::render(file.path(dir_proj, "README.Rmd"))
+      try(
+        rmarkdown::render(
+          file.path(dir_proj, "README.Rmd"),
+          output_format = "md_document",
+          quiet = TRUE
+        )
+      )
     }
   }
 
 
   # taken from usethis::use_git
   gert::git_init(path = dir_proj)
-  gert::git_add(list.files(dir_proj))
+  gert::git_add(setdiff(list.files(dir_proj, all.files = TRUE), c(".", "..")))
   gert::git_commit_all(message = "Initial commit")
 
   try(usethis::use_github(
