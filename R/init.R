@@ -278,14 +278,14 @@ projr_init <- function(dir_proj = getwd(),
   }
 
   # project title
-  cat("Please provide a short project title (<30 characters, initial capital and no full stop).\n")
+  cat("Please provide a short project title (<30 characters, initial capital and no full stop).\n") # nolint
   nm_title <- readline(prompt = ">> ")
   answer_title <- menu(
     c("Yes", "No", "Complete later"),
     title = paste0("Is the project title `", nm_title, "` correct?")
   )
   while (answer_title == 2) {
-    cat("Please provide a short project title (<30 characters, initial capital and no full stop).\n")
+    cat("Please provide a short project title (<30 characters, initial capital and no full stop).\n") # nolint
     nm_title <- readline(prompt = ">> ")
     answer_title <- menu(
       c("Yes", "No", "Complete later"),
@@ -429,6 +429,7 @@ projr_init <- function(dir_proj = getwd(),
       dir_proj
     )
   }
+
   if (!file.exists(file.path(dir_proj, ".Rbuildignore"))) {
     file.copy(
       system.file(
