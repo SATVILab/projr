@@ -55,20 +55,8 @@ projr_init <- function(dir_proj = getwd(),
   # ----------------------
 
   # package name
-  cat("Please provide a name for the project.\n")
-  nm_pkg <- readline(prompt = ">> ")
-  answer_pkg <- menu(
-    c("Yes", "No"),
-    title = paste0("Is the project name `", nm_pkg, "` correct?")
-  )
-  while (answer_pkg == 2) {
-    cat("Please provide a name for the project.\n")
-    nm_pkg <- readline(prompt = ">> ")
-    answer_pkg <- menu(
-      c("Yes", "No"),
-      title = paste0("Is the project name `", nm_pkg, "` correct?")
-    )
-  }
+  nm_pkg <- basename(dir_proj)
+  cat("Project name is", paste0("`", nm_pkg, "`"), "\n")
 
   # please provide the GitHub user name
   cat("Please provide the GitHub user/organisation name for this project.\n")
