@@ -78,11 +78,11 @@ test_that("projr_build_output copy works", {
       # test that nothing is copied
       projr_init(renv_force = FALSE)
       yml_projr <- yaml::read_yaml(file.path(dir_test, "_projr.yml"))
-      yml_projr[["build_output"]][["copy_to_output"]] <- lapply(
-        seq_along(yml_projr[["build_output"]][["copy_to_output"]]),
+      yml_projr[["build-output"]][["copy_to_output"]] <- lapply(
+        seq_along(yml_projr[["build-output"]][["copy_to_output"]]),
         function(i) FALSE
       ) |>
-        stats::setNames(names(yml_projr[["build_output"]][["copy_to_output"]]))
+        stats::setNames(names(yml_projr[["build-output"]][["copy_to_output"]]))
       yaml::write_yaml(yml_projr, file.path(dir_test, "_projr.yml"))
       # debugonce(.projr_build)
       dir_output <- yml_projr[["directories-default"]][["output"]][["path"]]
@@ -96,11 +96,11 @@ test_that("projr_build_output copy works", {
       expect_true(!dir.exists(dir_archive))
       # test that everything is copied
       yml_projr <- yaml::read_yaml(file.path(dir_test, "_projr.yml"))
-      yml_projr[["build_output"]][["copy_to_output"]] <- lapply(
-        seq_along(yml_projr[["build_output"]][["copy_to_output"]]),
+      yml_projr[["build-output"]][["copy_to_output"]] <- lapply(
+        seq_along(yml_projr[["build-output"]][["copy_to_output"]]),
         function(i) TRUE
       ) |>
-        stats::setNames(names(yml_projr[["build_output"]][["copy_to_output"]]))
+        stats::setNames(names(yml_projr[["build-output"]][["copy_to_output"]]))
       yaml::write_yaml(yml_projr, file.path(dir_test, "_projr.yml"))
       dir_data_raw <- yml_projr[["directories-default"]][["data_raw"]][["path"]]
       if (!dir.exists(dir_data_raw)) {

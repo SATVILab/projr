@@ -34,7 +34,7 @@ projr_init <- function(dir_proj = getwd(),
 
   file.copy(
     from = yml_path_from,
-    to = "_projr.yml"
+    to = file.path(dir_proj, "_projr.yml")
   )
 
   .projr_init_prompt(dir_proj = dir_proj)
