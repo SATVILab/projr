@@ -54,7 +54,7 @@
   dir_bookdown_run <- yaml::read_yaml("_bookdown.yml")[["output_dir"]]
 
   # snapshot if need be
-  if (yml_projr[["build_output"]][["renv"]]) {
+  if (yml_projr[["build-output"]][["renv"]]) {
     if (!is.null(bump_component)) {
       if (bump_component != "dev") {
         renv::snapshot(prompt = FALSE)
@@ -233,7 +233,7 @@ projr_copy_to_output <- function(yml_projr,
                                  dir_bookdown) {
   yml_projr_dir <- yml_projr[["directories"]]
   dir_output <- yml_projr_dir[["output"]][["path"]]
-  copy_to_output_list <- yml_projr[["build_output"]][["copy_to_output"]]
+  copy_to_output_list <- yml_projr[["build-output"]][["copy_to_output"]]
   # make it an absolute path, stuck onto dir_proj,
   # only if it isn't already an absolute path
   if (!fs::is_absolute_path(dir_output)) {
@@ -298,7 +298,7 @@ projr_copy_to_output <- function(yml_projr,
   }
 
   # build package
-  if (yml_projr[["build_output"]][["copy_to_output"]][["package"]]) {
+  if (yml_projr[["build-output"]][["copy_to_output"]][["package"]]) {
     dir_pkg <- file.path(dir_output, "pkg")
     if (!dir.exists(dir_pkg)) dir.create(dir_pkg)
 
