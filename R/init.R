@@ -59,81 +59,223 @@ projr_init <- function(dir_proj = getwd(),
   cat("Project name is", paste0("`", nm_pkg, "`"), "\n")
 
   # please provide the GitHub user name
-  cat("Please provide the GitHub user/organisation name for this project.\n")
-  nm_gh <- readline(prompt = ">> ")
-  answer_gh <- menu(
-    c("Yes", "No", "Complete later"),
-    title = paste0("Is the GitHub user/organisation name `", nm_gh, "` correct?")
-  )
-  while (answer_gh == 2) {
+  if (nzchar(Sys.getenv("PROJR_GITHUB_USERNAME"))) {
+    nm_gh <- strsplit(Sys.getenv("PROJR_GITHUB_USERNAME"), ";")[[1]]
+    answer_gh <- menu(
+      c(nm_gh, "Specify other", "Complete later"),
+      title = "Please select GitHub user/organisation name for this project"
+    )
+    cat("\n")
+    if (answer_gh %in% seq_along(nm_gh)) {
+      nm_gh <- nm_gh[answer_gh]
+      ask_gh <- FALSE
+      completed_gh <- TRUE
+    } else if (answer_gh == length(nm_gh) + 1) {
+      cat("Please provide the GitHub user/organisation name for this project.\n") # nolint
+      nm_gh <- readline(prompt = ">> ")
+      cat("\n")
+      ask_gh <- TRUE
+    } else {
+      ask_gh <- FALSE
+      completed_gh <- FALSE
+    }
+  } else {
+    cat("Please provide the GitHub user/organisation name for this project.\n")
+    nm_gh <- readline(prompt = ">> ")
+    cat("\n")
+    ask_gh <- TRUE
+  }
+
+  if (ask_gh) {
+    answer_gh <- menu(
+      c("Yes", "No", "Complete later"),
+      title = paste0(
+        "Is the GitHub user/organisation name `", nm_gh, "` correct?"
+      )
+    )
+    cat("\n")
+    ask_gh <- answer_gh == 2
+    completed_gh <- answer_gh != 3
+  }
+
+  while (ask_gh) {
     cat("Please provide the GitHub user/organisation name.\n")
     nm_gh <- readline(prompt = ">> ")
     answer_gh <- menu(
       c("Yes", "No", "Complete later"),
-      title = paste0("Is the GitHub user/organisation name `", nm_gh, "` correct?")
+      title = paste0(
+        "Is the GitHub user/organisation name `", nm_gh, "` correct?"
+      )
     )
+    cat("\n")
+    ask_gh <- answer_gh == 2
+    completed_gh <- answer_gh != 3
   }
-  if (answer_gh == 3) {
+  if (!completed_gh) {
     nm_gh <- "{{ GitHub user/organisation name }}"
   }
 
-  # personal details: first name
-  cat("Please provide your first name.\n")
-  nm_first <- readline(prompt = ">> ")
-  answer_first <- menu(
-    c("Yes", "No", "Complete later"),
-    title = paste0("Is the first name `", nm_first, "` correct?")
-  )
-  while (answer_first == 2) {
+  # first name
+  if (nzchar(Sys.getenv("PROJR_FIRST_NAME"))) {
+    nm_first <- strsplit(Sys.getenv("PROJR_FIRST_NAME"), ";")[[1]]
+    answer_first <- menu(
+      c(nm_first, "Specify other", "Complete later"),
+      title = "Please select your first name."
+    )
+    cat("\n")
+    if (answer_first %in% seq_along(nm_first)) {
+      nm_first <- nm_first[answer_first]
+      ask_first <- FALSE
+      completed_first <- TRUE
+    } else if (answer_first == length(nm_first) + 1) {
+      cat("Please provide your first name.\n") # nolint
+      nm_first <- readline(prompt = ">> ")
+      cat("\n")
+      ask_first <- TRUE
+    } else {
+      ask_first <- FALSE
+      completed_first <- FALSE
+    }
+  } else {
+    cat("Please provide your first name.\n")
+    nm_first <- readline(prompt = ">> ")
+    cat("\n")
+    ask_first <- TRUE
+  }
+
+  if (ask_first) {
+    answer_first <- menu(
+      c("Yes", "No", "Complete later"),
+      title = paste0("Is the first name `", nm_first, "` correct?")
+    )
+    cat("\n")
+    ask_first <- answer_first == 2
+    completed_first <- answer_first != 3
+  }
+
+  while (ask_first) {
     cat("Please provide your first name.\n")
     nm_first <- readline(prompt = ">> ")
     answer_first <- menu(
       c("Yes", "No", "Complete later"),
       title = paste0("Is the first name `", nm_first, "` correct?")
     )
+    cat("\n")
+    ask_first <- answer_first == 2
+    completed_first <- answer_first != 3
   }
-  if (answer_first == 3) {
+
+  if (!completed_first) {
     nm_first <- "{{ First name }}"
   }
 
-  # personal details: surname
-  cat("Please provide your surname (last/family name).\n")
-  nm_last <- readline(prompt = ">> ")
-  answer_last <- menu(
-    c("Yes", "No", "Complete later"),
-    title = paste0("Is the surname `", nm_last, "` correct?")
-  )
-  while (answer_last == 2) {
+  # last name
+  if (nzchar(Sys.getenv("PROJR_LAST_NAME"))) {
+    nm_last <- strsplit(Sys.getenv("PROJR_LAST_NAME"), ";")[[1]]
+    answer_last <- menu(
+      c(nm_last, "Specify other", "Complete later"),
+      title = "Please select your surname (last/family name)."
+    )
+    cat("\n")
+    if (answer_last %in% seq_along(nm_last)) {
+      nm_last <- nm_last[answer_last]
+      ask_last <- FALSE
+      completed_last <- TRUE
+    } else if (answer_last == length(nm_last) + 1) {
+      cat("Please provide your surname.\n") # nolint
+      nm_last <- readline(prompt = ">> ")
+      cat("\n")
+      ask_last <- TRUE
+    } else {
+      ask_last <- FALSE
+      completed_last <- FALSE
+    }
+  } else {
     cat("Please provide your surname (last/family name).\n")
+    nm_last <- readline(prompt = ">> ")
+    cat("\n")
+    ask_last <- TRUE
+  }
+
+  if (ask_last) {
+    answer_last <- menu(
+      c("Yes", "No", "Complete later"),
+      title = paste0("Is the surname `", nm_last, "` correct?")
+    )
+    cat("\n")
+    ask_last <- answer_last == 2
+    completed_last <- answer_last != 3
+  }
+
+  while (ask_last) {
+    cat("Please provide your surname.\n")
     nm_last <- readline(prompt = ">> ")
     answer_last <- menu(
       c("Yes", "No", "Complete later"),
       title = paste0("Is the surname `", nm_last, "` correct?")
     )
+    cat("\n")
+    ask_last <- answer_last == 2
+    completed_last <- answer_last != 3
   }
-  if (answer_last == 3) {
+
+  if (!completed_last) {
     nm_last <- "{{ Surname }}"
   }
 
-  # personal details: email address
-  cat("Please provide your email address.\n")
-  nm_email <- readline(prompt = ">> ")
-  answer_email <- menu(
-    c("Yes", "No", "Complete later"),
-    title = paste0("Is the email address `", nm_email, "` correct?")
-  )
-  while (answer_email == 2) {
+  # email
+  if (nzchar(Sys.getenv("PROJR_EMAIL"))) {
+    nm_email <- strsplit(Sys.getenv("PROJR_EMAIL"), ";")[[1]]
+    answer_email <- menu(
+      c(nm_email, "Specify other", "Complete later"),
+      title = "Please select your email address."
+    )
+    cat("\n")
+    if (answer_email %in% seq_along(nm_email)) {
+      nm_email <- nm_email[answer_email]
+      ask_email <- FALSE
+      completed_email <- TRUE
+    } else if (answer_email == length(nm_email) + 1) {
+      cat("Please provide your email address.\n") # nolint
+      nm_email <- readline(prompt = ">> ")
+      cat("\n")
+      ask_email <- TRUE
+    } else {
+      ask_email <- FALSE
+      completed_email <- FALSE
+    }
+  } else {
+    cat("Please provide your email address.\n")
+    nm_email <- readline(prompt = ">> ")
+    cat("\n")
+    ask_email <- TRUE
+  }
+
+  if (ask_email) {
+    answer_email <- menu(
+      c("Yes", "No", "Complete later"),
+      title = paste0("Is the email address `", nm_email, "` correct?")
+    )
+    cat("\n")
+    ask_email <- answer_email == 2
+    completed_email <- answer_email != 3
+  }
+
+  while (ask_email) {
     cat("Please provide your email address.\n")
     nm_email <- readline(prompt = ">> ")
     answer_email <- menu(
       c("Yes", "No", "Complete later"),
       title = paste0("Is the email address `", nm_email, "` correct?")
     )
-  }
-  if (answer_email == 3) {
-    nm_email <- "{{ Surname }}"
+    cat("\n")
+    ask_email <- answer_email == 2
+    completed_email <- answer_email != 3
   }
 
+  if (!completed_email) {
+    nm_email <- "{{ Email address }}"
+  }
 
   # project title
   cat("Please provide a short project title (<30 characters).\n")
