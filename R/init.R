@@ -660,7 +660,7 @@ projr_init <- function(dir_proj = getwd(),
     if (file.exists(path_readme)) unlink(path_readme)
     readme_ind_install <- which(grepl("^You can install", readme))
     readme_install_devtools <-
-      'if (!requireNamespace("devtools")) install.packages("devtools"))'
+      'if (!requireNamespace("devtools")) install.packages("devtools")'
     readme_install_pkg <-
       paste0('devtools::install_github("', nm_gh, "/", nm_pkg, '")')
 
