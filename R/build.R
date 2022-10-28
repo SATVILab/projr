@@ -76,6 +76,14 @@
   # update any docs
   roxygen2::roxygenise(package.dir = dir_proj)
 
+  # update README.Rmd, if found
+  if (file.exists(file.path(dir_proj, "README.Rmd"))) {
+    rmarkdown::render(
+      file.path(dir_proj, "README.Rmd"),
+      output_format = "md_document"
+      )
+  }
+
   projr_version_set(
     version_run_on_list$desc[["success"]], "DESCRIPTION"
   )
