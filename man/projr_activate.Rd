@@ -4,12 +4,7 @@
 \alias{projr_activate}
 \title{Activate project}
 \usage{
-projr_activate(
-  path_yml = "_projr.yml",
-  create_var = TRUE,
-  env_var = .GlobalEnv,
-  silent = FALSE
-)
+projr_activate(create_var = TRUE, env_var = .GlobalEnv, silent = FALSE)
 }
 \arguments{
 \item{silent.}{Logical.

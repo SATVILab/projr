@@ -1,4 +1,22 @@
-#' @title Get directory for current profile
+#' @title Return path to profile-specific directory
+#' @description Returns path to profile-specific directory.
+#' Also creates the directory if it does not exist, and
+#' ignores it if requested by `_projr.yml`.
+#' @param type character.
+#' Class of directory to return.
+#' @param ... Specifies sub-directory of directory returned.
+#' Passed to `file.path`.
+#' @return Character.
+#' Path to directory requested
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if (interactive()) {
+#'   # EXAMPLE1
+#' }
+#' }
+#' @rdname projr_dir_get
+#' @export
 projr_dir_get <- function(type, ...) {
   if (!type %in% c("data_raw", "cache", "output", "archive")) {
     stop(paste0("type ", type, " not recognised."))
@@ -35,5 +53,9 @@ projr_dir_get <- function(type, ...) {
     create_var = FALSE, env = .GlobalEnv
   )
 
-  file.path(dir_active[[type]]$path, ...)
+  path_final <- file.path(dir_active[[type]]$path, ...)
+  if (!dir.exists(path_final)) {
+    dir.create(path_final, recursive = TRUE)
+  }
+  path_final
 }
