@@ -73,6 +73,9 @@
     stop(bd_status)
   }
 
+  # update any docs
+  roxygen2::roxygenise(package.dir = dir_proj)
+
   projr_version_set(
     version_run_on_list$desc[["success"]], "DESCRIPTION"
   )
