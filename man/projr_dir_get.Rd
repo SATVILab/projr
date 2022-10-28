@@ -8,7 +8,13 @@ projr_dir_get(type, ...)
 }
 \arguments{
 \item{type}{character.
-Class of directory to return.}
+One of \code{"data_raw"}, \code{"cache"},\code{"output"},
+\code{"archive"} and \code{"bookdown"}.
+Class of directory to return.
+The \code{"bookdown"} option returns the path to
+the output directory from \code{bookdown::render_book}
+(as specified in \code{"_bookdown.yml"}),
+whereas the others returns paths as specified in \code{"_projr.yml"}.}
 
 \item{...}{Specifies sub-directory of directory returned.
 Passed to \code{file.path}.}
@@ -18,7 +24,7 @@ Character.
 Path to directory requested.
 }
 \description{
-Returns path to profile-specific directory.
+Returns path to \code{projr} profile-specific directory.
 Also creates the directory if it does not exist, and
 ignores it if requested by \verb{_projr.yml}.
 }
