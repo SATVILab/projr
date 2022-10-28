@@ -1,6 +1,7 @@
 #' @title Add current working directory
 #'
 #' @return Invisibly returns the working directory.
+#' @export
 projr_profile_add <- function(silent = FALSE) {
   if (nzchar(Sys.getenv("PROJR_PROFILE"))) {
     wd <- Sys.getenv("PROJR_PROFILE")
