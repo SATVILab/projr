@@ -76,10 +76,10 @@ projr_get_yml_active <- function(path_yml,
       nm_vec_ind <- which(nm_vec_default %in% nm_vec)
       # add any settings that are missing entirely
       if (length(nm_vec) > 0) {
-        message(paste0(
-          "Adding the following settings to the current wd's dirs: ",
-          paste0(nm_vec, collapse = "; ")
-        ))
+        # message(paste0(
+        #  "Adding the following settings to the current wd's dirs: ",
+        #  paste0(nm_vec, collapse = "; ")
+        # ))
         yml_dir <- append(yml_dir, yml_default[nm_vec_ind])
       }
       # replace paths with defaults if they are not present at all
