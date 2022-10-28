@@ -4,7 +4,7 @@
 \alias{.projr_build}
 \title{Build project}
 \usage{
-.projr_build(bump_component, wd_var = "PROJR_WORKING_DIRECTORY")
+.projr_build(bump_component)
 }
 \arguments{
 \item{version}{"major", "minor", "patch".

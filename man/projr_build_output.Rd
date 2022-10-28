@@ -4,7 +4,7 @@
 \alias{projr_build_output}
 \title{Build project to output}
 \usage{
-projr_build_output(bump_component, wd_var = "PROJR_WORKING_DIRECTORY")
+projr_build_output(bump_component)
 }
 \description{
 Builds project to output, which

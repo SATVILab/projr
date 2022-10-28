@@ -18,7 +18,6 @@ test_that("projr_get_yml_active works", {
     path = dir_test,
     code = {
       yml_active <- projr_get_yml_active(
-        wd_var = "PROJR_WORKING_DIRECTORY",
         path_yml = system.file(
           "project_structure", "_projr.yml",
           package = "projr"
@@ -30,7 +29,6 @@ test_that("projr_get_yml_active works", {
       yml <- yaml::read_yaml("_projr.yml")
       expect_true(sum(grepl("^directories", names(yml))) == 2)
       yml_active <- projr_get_yml_active(
-        wd_var = "PROJR_WORKING_DIRECTORY",
         path_yml = system.file(
           "project_structure", "_projr.yml",
           package = "projr"

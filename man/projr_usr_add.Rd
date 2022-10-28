@@ -4,17 +4,7 @@
 \alias{projr_usr_add}
 \title{Add current working directory}
 \usage{
-projr_usr_add(wd_var = "PROJR_WORKING_DIRECTORY", silent = FALSE)
-}
-\arguments{
-\item{wd_var}{character.
-Name of environment variable to determine
-the current user/computer.
-If this variable exists, then it determines
-the user/computer.
-If it does not, then the project root
-determins the user/computer (which is
-the directory containing DESCRIPTION).}
+projr_usr_add(silent = FALSE)
 }
 \value{
 Invisibly returns the working directory.

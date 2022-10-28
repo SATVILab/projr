@@ -4,7 +4,7 @@
 \alias{projr_build_dev}
 \title{Build dev project}
 \usage{
-projr_build_dev(bump = FALSE, wd_var = "PROJR_WORKING_DIRECTORY")
+projr_build_dev(bump = FALSE)
 }
 \description{
 Builds project to output, which

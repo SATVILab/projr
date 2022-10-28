@@ -1,19 +1,9 @@
 #' @title Add current working directory
 #'
-#' @param wd_var character.
-#' Name of environment variable to determine
-#' the current user/computer.
-#' If this variable exists, then it determines
-#' the user/computer.
-#' If it does not, then the project root
-#' determins the user/computer (which is
-#' the directory containing DESCRIPTION).
-#'
 #' @return Invisibly returns the working directory.
-projr_usr_add <- function(wd_var = "PROJR_WORKING_DIRECTORY",
-                          silent = FALSE) {
-  if (nzchar(Sys.getenv(wd_var))) {
-    wd <- Sys.getenv(wd_var)
+projr_usr_add <- function(silent = FALSE) {
+  if (nzchar(Sys.getenv("PROJR_PROFILE"))) {
+    wd <- Sys.getenv("PROJR_PROFILE")
   } else {
     wd <- normalizePath(getwd(), winslash = "/")
   }

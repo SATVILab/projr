@@ -6,12 +6,11 @@
 #' version component in the `version` key of `_projr.yml`
 #' is used.
 #' Default is \code{NULL}.
-.projr_build <- function(bump_component, wd_var = "PROJR_WORKING_DIRECTORY") {
+.projr_build <- function(bump_component) {
   dir_proj <- rprojroot::is_r_package$find_file()
 
   # read in settings
   yml_projr <- projr_get_yml_active(
-    wd_var = wd_var,
     path_yml = file.path(dir_proj, "_projr.yml"),
     silent = TRUE
   )
@@ -84,7 +83,6 @@
   # delete old dev versions
   if (!is.null(bump_component)) {
     if (bump_component %in% c("major", "minor", "patch")) {
-
       # copy to output
       # ----------------
       projr_copy_to_output(
@@ -163,8 +161,7 @@
 #' saving and archiving selected output.
 #'
 #' @export
-projr_build_output <- function(bump_component,
-                               wd_var = "PROJR_WORKING_DIRECTORY") {
+projr_build_output <- function(bump_component) {
   if (missing(bump_component)) {
     yml_projr <- yaml::read_yaml(
       rprojroot::is_r_package$find_file("_projr.yml")
@@ -173,7 +170,7 @@ projr_build_output <- function(bump_component,
     version_vec <- strsplit(version, split = "\\.|\\-")[[1]]
     bump_component <- version_vec[length(version_vec) - 1]
   }
-  .projr_build(bump_component = bump_component, wd_var = wd_var)
+  .projr_build(bump_component = bump_component)
 }
 
 #' @title Build dev project
@@ -185,11 +182,10 @@ projr_build_output <- function(bump_component,
 #'
 #' @export
 #' @export
-projr_build_dev <- function(bump = FALSE,
-                            wd_var = "PROJR_WORKING_DIRECTORY") {
+projr_build_dev <- function(bump = FALSE) {
   .projr_build(bump_component = switch(bump,
     "dev"
-  ), wd_var = wd_var)
+  ))
 }
 
 

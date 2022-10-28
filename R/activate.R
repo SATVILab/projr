@@ -8,8 +8,7 @@
 #' Default is \code{FALSE}.
 #'
 #' @export
-projr_activate <- function(wd_var = "PROJR_WORKING_DIRECTORY",
-                           path_yml = "_projr.yml",
+projr_activate <- function(path_yml = "_projr.yml",
                            create_var = TRUE,
                            env_var = .GlobalEnv,
                            silent = FALSE) {
@@ -17,7 +16,6 @@ projr_activate <- function(wd_var = "PROJR_WORKING_DIRECTORY",
 
   # get active directories
   yml_active <- projr_get_yml_active(
-    wd_var = wd_var,
     path_yml = file.path(dir_proj, "_projr.yml"),
     silent = silent
   )
@@ -49,82 +47,84 @@ projr_activate <- function(wd_var = "PROJR_WORKING_DIRECTORY",
   invisible(yml_active)
 }
 
-
-projr_get_yml_active <- function(wd_var = "PROJR_WORKING_DIRECTORY",
-                                 path_yml,
+projr_get_yml_active <- function(path_yml,
                                  silent) {
-  if (nzchar(Sys.getenv(wd_var))) {
-      wd <- Sys.getenv(wd_var)
-  }
-  else {
-      wd <- normalizePath(getwd(), winslash = "/")
+  if (nzchar(Sys.getenv("PROJR_PROFILE"))) {
+    wd <- Sys.getenv("PROJR_PROFILE")
+  } else {
+    wd <- normalizePath(getwd(), winslash = "/")
   }
   if (!file.exists(path_yml)) {
-      stop(paste0("specified path to YAML file not found: ", 
-          path_yml))
+    stop(paste0(
+      "specified path to YAML file not found: ",
+      path_yml
+    ))
   }
   yml <- yaml::read_yaml(path_yml)
   if (paste0("directories-", wd) %in% names(yml)) {
-      yml_dir <- yml[[paste0("directories-", wd)]]
-      if ("directories-default" %in% names(yml)) {
-        yml_default <- yml[["directories-default"]]
-        # need to allow for multiple directories of the 
-        # same type
-        nm_vec_default <- sapply(seq_along(yml_default), function(i) {
-          paste0(names(yml_default)[i], "_", yml_default[[i]][["name"]])
-        })
-        nm_vec_dir <- sapply(seq_along(yml_dir), function(i) {
-          paste0(names(yml_dir)[i], "_", yml_dir[[i]][["name"]])
-        })
-        nm_vec <- setdiff(nm_vec_default, nm_vec_dir)
-        nm_vec_ind <- which(nm_vec_default %in% nm_vec)
-        # add any settings that are missing entirely
-        if (length(nm_vec) > 0) {
-            message(paste0("Adding the following settings to the current wd's dirs: ", 
-              paste0(nm_vec, collapse = "; ")))
-            yml_dir <- append(yml_dir, yml_default[nm_vec_ind])
-        }
-        # replace paths with defaults if they are not present at all
-        # (I think I deleted this previously)
+    yml_dir <- yml[[paste0("directories-", wd)]]
+    if ("directories-default" %in% names(yml)) {
+      yml_default <- yml[["directories-default"]]
+      # need to allow for multiple directories of the
+      # same type
+      nm_vec_default <- sapply(seq_along(yml_default), function(i) {
+        paste0(names(yml_default)[i], "_", yml_default[[i]][["name"]])
+      })
+      nm_vec_dir <- sapply(seq_along(yml_dir), function(i) {
+        paste0(names(yml_dir)[i], "_", yml_dir[[i]][["name"]])
+      })
+      nm_vec <- setdiff(nm_vec_default, nm_vec_dir)
+      nm_vec_ind <- which(nm_vec_default %in% nm_vec)
+      # add any settings that are missing entirely
+      if (length(nm_vec) > 0) {
+        message(paste0(
+          "Adding the following settings to the current wd's dirs: ",
+          paste0(nm_vec, collapse = "; ")
+        ))
+        yml_dir <- append(yml_dir, yml_default[nm_vec_ind])
+      }
+      # replace paths with defaults if they are not present at all
+      # (I think I deleted this previously)
 
-        nm_vec_default <- sapply(seq_along(yml_default), function(i) {
-          paste0(names(yml_default)[i], "_", yml_default[[i]][["name"]])
-        })
-        nm_vec_dir <- sapply(seq_along(yml_dir), function(i) {
-          paste0(names(yml_dir)[i], "_", yml_dir[[i]][["name"]])
-        })
-        # use default path settings if path
-        # not specified
-        for (i in seq_along(nm_vec_dir)) {
-          # replace it if it's either NULL
-          # or it is zero characters long
-          rep_val <- is.null(yml_dir[[i]][["path"]])
-          if (!rep_val) {
-            rep_val <- !nzchar(yml_dir[[i]][["path"]])
-          } else rep_val <- rep_val
-          if (!rep_val) next
+      nm_vec_default <- sapply(seq_along(yml_default), function(i) {
+        paste0(names(yml_default)[i], "_", yml_default[[i]][["name"]])
+      })
+      nm_vec_dir <- sapply(seq_along(yml_dir), function(i) {
+        paste0(names(yml_dir)[i], "_", yml_dir[[i]][["name"]])
+      })
+      # use default path settings if path
+      # not specified
+      for (i in seq_along(nm_vec_dir)) {
+        # replace it if it's either NULL
+        # or it is zero characters long
+        rep_val <- is.null(yml_dir[[i]][["path"]])
+        if (!rep_val) {
+          rep_val <- !nzchar(yml_dir[[i]][["path"]])
+        } else {
+          rep_val <- rep_val
+        }
+        if (!rep_val) next
 
-          nm_ind <- which(nm_vec_default == nm_vec_dir[i])[[1]]
-          yml_dir[[i]][["path"]] <- yml_default[[nm_ind]][["path"]]
-        }
-        # add ignore settings, as they are not present
-        for (i in seq_along(nm_vec_dir)) {
-  
-          nm_ind <- which(nm_vec_default == nm_vec_dir[i])[[1]]
-          yml_dir[[i]][["ignore"]] <- yml_default[[nm_ind]][["ignore"]]
-        }
+        nm_ind <- which(nm_vec_default == nm_vec_dir[i])[[1]]
+        yml_dir[[i]][["path"]] <- yml_default[[nm_ind]][["path"]]
       }
+      # add ignore settings, as they are not present
+      for (i in seq_along(nm_vec_dir)) {
+        nm_ind <- which(nm_vec_default == nm_vec_dir[i])[[1]]
+        yml_dir[[i]][["ignore"]] <- yml_default[[nm_ind]][["ignore"]]
+      }
+    }
+  } else {
+    if (!"directories-default" %in% names(yml)) {
+      stop("Current working directory not in path_yml and there is no default")
+    } else {
+      yml_dir <- yml[["directories-default"]]
+    }
   }
-  else {
-      if (!"directories-default" %in% names(yml)) {
-          stop("Current working directory not in path_yml and there is no default")
-      }
-      else {
-          yml_dir <- yml[["directories-default"]]
-      }
-  }
-  yml_active <- append(stats::setNames(list(yml_dir), "directories"), 
-      yml[!grepl("^directories", names(yml))])
+  yml_active <- append(
+    stats::setNames(list(yml_dir), "directories"),
+    yml[!grepl("^directories", names(yml))]
+  )
   yml_active
 }
 
@@ -141,7 +141,6 @@ projr_set_up_dir <- function(yml_active,
   ))
   yml_active_dir <- yml_active[["directories"]]
   for (i in seq_along(yml_active_dir)) {
-    
     yml_curr_orig <- yml_active_dir[i]
     # create one where the output and archive
     # directories are versioned.
