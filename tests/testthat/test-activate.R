@@ -1,5 +1,4 @@
 test_that("projr_get_yml_active works", {
-
   # using directories-default
   dir_test <- file.path(tempdir(), paste0("test_projr"))
   if (!dir.exists(dir_test)) dir.create(dir_test)
@@ -13,7 +12,7 @@ test_that("projr_get_yml_active works", {
       overwrite = TRUE
     )
   }
-  
+
   usethis::with_project(
     path = dir_test,
     code = {
@@ -24,6 +23,7 @@ test_that("projr_get_yml_active works", {
         ),
         silent = TRUE
       )
+      browser()
       expect_true(sum(grepl("^directories", names(yml_active))) == 1)
       projr_usr_add()
       yml <- yaml::read_yaml("_projr.yml")

@@ -8,8 +8,7 @@
 #' Default is \code{FALSE}.
 #'
 #' @export
-projr_activate <- function(path_yml = "_projr.yml",
-                           create_var = TRUE,
+projr_activate <- function(create_var = TRUE,
                            env_var = .GlobalEnv,
                            silent = FALSE) {
   dir_proj <- rprojroot::is_r_package$find_file()
@@ -171,12 +170,14 @@ projr_set_up_dir <- function(yml_active,
 
     dir_path <- fs::path_rel(yml_curr_orig[[1]][["path"]], dir_proj)
 
-    txt_gitignore <- paste0("\n", gsub("/*$", "", dir_path), "/**/*")
-    txt_rbuildignore <- paste0("\n^", Hmisc::escapeRegex(dir_path))
+    txt_gitignore <- paste0(gsub("/*$", "", dir_path), "/**/*")
+    txt_rbuildignore <- paste0("^", Hmisc::escapeRegex(dir_path))
+
     if (!is.logical(yml_curr_orig[[1]][["ignore"]])) next
     if (yml_curr_orig[[1]][["ignore"]]) {
       if (!txt_gitignore %in% gitignore) {
         cat(
+          "\n",
           txt_gitignore,
           "\n",
           file = file.path(dir_proj, ".gitignore"),
@@ -186,6 +187,7 @@ projr_set_up_dir <- function(yml_active,
       }
       if (!txt_rbuildignore %in% rbuildignore) {
         cat(
+          "\n",
           txt_rbuildignore,
           "\n",
           file = file.path(dir_proj, ".Rbuildignore"),

@@ -1,4 +1,39 @@
-#
+#' @title Get directory for current profile
 projr_dir_get <- function(type, ...) {
+  if (!type %in% c("data_raw", "cache", "output", "archive")) {
+    stop(paste0("type ", type, " not recognised."))
+  }
+  dir_proj <- rprojroot::is_r_package$find_file()
 
+  # get active directories
+  yml_active <- projr_get_yml_active(
+    path_yml = file.path(dir_proj, "_projr.yml"),
+    silent = TRUE
+  )
+
+  # get current version
+  version_format_list <- .get_version_format_list(
+    version_format = yml_active[["version"]]
+  )
+  yml_bd <- yaml::read_yaml(
+    file.path(dir_proj, "_bookdown.yml")
+  )
+  proj_nm <- .get_proj_nm(
+    fn = yml_bd$book_filename,
+    version_format = yml_active[["version"]]
+  )
+  version_current <- gsub(
+    paste0("^", proj_nm), "", yml_bd$book_filename
+  )
+
+  dir_active <- yml_active[["directories"]]
+  yml_active_dir_curr <- yml_active[["directories"]][type]
+  yml_active[["directories"]] <- yml_active_dir_curr
+  projr_set_up_dir(
+    yml_active,
+    version_current = version_current,
+    create_var = FALSE, env = .GlobalEnv
+  )
+
+  file.path(dir_active[[type]]$path, ...)
 }
