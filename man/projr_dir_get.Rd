@@ -15,7 +15,7 @@ Passed to \code{file.path}.}
 }
 \value{
 Character.
-Path to directory requested
+Path to directory requested.
 }
 \description{
 Returns path to profile-specific directory.

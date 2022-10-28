@@ -7,7 +7,7 @@
 #' @param ... Specifies sub-directory of directory returned.
 #' Passed to `file.path`.
 #' @return Character.
-#' Path to directory requested
+#' Path to directory requested.
 #' @details DETAILS
 #' @examples
 #' \dontrun{

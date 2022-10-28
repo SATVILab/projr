@@ -2,7 +2,7 @@
 directories-default:
   data_raw:
     name: dir_data_raw
-    path: inst/extdata
+    path: _data_raw
     ignore: true
   cache: 
     name: dir_cache

@@ -418,6 +418,15 @@ projr_init <- function(dir_proj = getwd(),
     ),
     dir_proj
   )
+  # _dependencies.R
+  file.copy(
+    system.file(
+      "project_structure",
+      "_dependencies.R",
+      package = "projr"
+    ),
+    dir_proj
+  )
 
   if (!file.exists(file.path(dir_proj, ".gitignore"))) {
     file.copy(
