@@ -11,7 +11,7 @@
         - The code is to be run in an high-performance computinge environment (HPC), which stores large data in a folder outside the user's home directory, e.g. `/scratch/$USER`.
         - The raw data and outputs but not the code are shared amongst members using a mounted virtual drive, e.g. Google Drive or OneDrive, whose path may vary (across operating systems and even within operating systems).
         - Raw data are kept in an external hard drive whose prefix may vary by system.
-  - To add your current system as having its own directory structure, run `projr_usr_add()`.
+  - To add your current system as having its own directory structure, run `projr_profile_add()`.
     - This will create the entry `directories-<working_directory>` where `<working_directory>` is the absolute path to the project root directory on your system.
     - Entries for all the directories under `directories-default` are copied there.
     - You just fill in the blanks.
