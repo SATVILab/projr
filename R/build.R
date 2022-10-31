@@ -81,7 +81,7 @@
     rmarkdown::render(
       file.path(dir_proj, "README.Rmd"),
       output_format = "md_document"
-      )
+    )
   }
 
   projr_version_set(
@@ -109,7 +109,11 @@
       # copy to archive
       # ----------------
 
-      dir_output <- yml_projr[["directories"]][["output"]][["path"]]
+      dir_output <- projr_dir_get(
+        type = "output",
+        safe_output = FALSE
+      )
+
       dir_archive <- yml_projr[["directories"]][["archive"]][["path"]]
       if (!fs::is_absolute_path(dir_output)) {
         dir_output <- file.path(dir_proj, dir_output)

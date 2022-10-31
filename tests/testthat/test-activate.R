@@ -23,6 +23,7 @@ test_that("projr_get_yml_active works", {
         ),
         silent = TRUE
       )
+      browser()
       expect_true(sum(grepl("^directories", names(yml_active))) == 1)
       projr_profile_add()
       yml <- yaml::read_yaml("_projr.yml")
