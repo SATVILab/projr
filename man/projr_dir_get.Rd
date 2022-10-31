@@ -4,7 +4,7 @@
 \alias{projr_dir_get}
 \title{Return path to profile-specific directory}
 \usage{
-projr_dir_get(type, ...)
+projr_dir_get(type, ..., rel = TRUE)
 }
 \arguments{
 \item{type}{character.
@@ -18,6 +18,11 @@ whereas the others returns paths as specified in \code{"_projr.yml"}.}
 
 \item{...}{Specifies sub-directory of directory returned.
 Passed to \code{file.path}.}
+
+\item{force_relative}{logical.
+If \code{TRUE}, then forces that the returned
+path is relative to the project root.
+Default is \code{FALSE}.}
 }
 \value{
 Character.

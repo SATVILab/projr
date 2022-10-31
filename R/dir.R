@@ -12,6 +12,10 @@
 #' whereas the others returns paths as specified in \code{"_projr.yml"}.
 #' @param ... Specifies sub-directory of directory returned.
 #' Passed to `file.path`.
+#' @param force_relative logical.
+#' If \code{TRUE}, then forces that the returned
+#' path is relative to the project root.
+#' Default is \code{FALSE}.
 #' @return Character.
 #' Path to directory requested.
 #' @details DETAILS
@@ -23,7 +27,7 @@
 #' }
 #' @rdname projr_dir_get
 #' @export
-projr_dir_get <- function(type, ...) {
+projr_dir_get <- function(type, ..., rel = TRUE) {
   if (!type %in% c("data_raw", "cache", "output", "archive", "bookdown")) {
     stop(paste0("type `", type, "` not recognised."))
   }
@@ -71,6 +75,12 @@ projr_dir_get <- function(type, ...) {
   path_final <- file.path(dir_active[[type]]$path, ...)
   if (!dir.exists(path_final)) {
     dir.create(path_final, recursive = TRUE)
+  }
+  if (force_relative) {
+    path_final <- fs::path_rel(
+      path_final,
+      start = rprojroot::is_r_package$find_file()
+    )
   }
   path_final
 }
