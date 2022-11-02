@@ -1,51 +1,3 @@
-#' @title Activate project
-#'
-#' @description Activate project
-#'
-#' @param silent. Logical.
-#' If \code{TRUE}, then messages are suppressed
-#' (but not warnings or errors).
-#' Default is \code{FALSE}.
-#'
-#' @export
-projr_activate <- function(create_var = TRUE,
-                           env_var = .GlobalEnv,
-                           silent = FALSE) {
-  dir_proj <- rprojroot::is_r_package$find_file()
-
-  # get active directories
-  yml_active <- projr_get_yml_active(
-    path_yml = file.path(dir_proj, "_projr.yml"),
-    silent = silent
-  )
-
-  # get current version
-  version_format_list <- .get_version_format_list(
-    version_format = yml_active[["version"]]
-  )
-  yml_bd <- yaml::read_yaml(
-    file.path(dir_proj, "_bookdown.yml")
-  )
-  proj_nm <- .get_proj_nm(
-    fn = yml_bd$book_filename,
-    version_format = yml_active[["version"]]
-  )
-  version_current <- gsub(
-    paste0("^", proj_nm), "", yml_bd$book_filename
-  )
-
-  # create directories and add variables
-  # to global directory
-  projr_set_up_dir(
-    yml_active = yml_active,
-    version_current = version_current,
-    create_var = create_var,
-    env = env_var
-  )
-
-  invisible(yml_active)
-}
-
 projr_get_yml_active <- function(path_yml,
                                  silent) {
   if (nzchar(Sys.getenv("PROJR_PROFILE"))) {
@@ -127,10 +79,8 @@ projr_get_yml_active <- function(path_yml,
   yml_active
 }
 
-projr_set_up_dir <- function(yml_active,
-                             create_var,
-                             version_current,
-                             env) {
+projr_dir_create <- function(yml_active,
+                             version_current) {
   dir_proj <- rprojroot::is_r_package$find_file()
   gitignore <- suppressWarnings(readLines(
     file.path(dir_proj, ".gitignore")
@@ -153,13 +103,6 @@ projr_set_up_dir <- function(yml_active,
     }
     if (!dir.exists(yml_curr_versioned[[1]][["path"]])) {
       dir.create(yml_curr_versioned[[1]][["path"]], recursive = TRUE)
-    }
-    if (create_var && !names(yml_curr_orig) %in% "archive") {
-      assign(
-        yml_curr_versioned[[1]][["name"]],
-        yml_curr_versioned[[1]][["path"]],
-        envir = env
-      )
     }
 
     within_wd <- fs::path_has_parent(
