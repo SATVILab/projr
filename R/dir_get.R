@@ -49,10 +49,8 @@ projr_dir_get <- function(type, ...,
                           safe_output = TRUE) {
   dir_proj <- rprojroot::is_r_package$find_file()
   # get active directories
-  yml_active <- projr_yml_get(
-    path_yml = file.path(dir_proj, "_projr.yml"),
-    silent = TRUE
-  )
+  yml_active <- projr_yml_get()
+
   dir_active <- yml_active[["directories"]]
 
   if (!type %in% names(dir_active)) {
