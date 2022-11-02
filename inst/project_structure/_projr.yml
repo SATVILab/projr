@@ -1,19 +1,15 @@
 # default directory settings:
 directories-default:
   data_raw:
-    name: dir_data_raw
     path: _data_raw
     ignore: true
   cache: 
-    name: dir_cache
     path: _tmp
     ignore: true
   output: 
-    name: dir_output
     path: _output
     ignore: true 
   archive: 
-    name: dir_archive
     path: _archive
     ignore: true
 version: "major.minor.patch-dev" # other options: version-dev; major.minor.patch-dev; 
