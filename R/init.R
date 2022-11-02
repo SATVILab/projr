@@ -338,7 +338,7 @@ projr_init <- function(dir_proj = getwd(),
   version_init <- "V0.0.0-1"
   bd$book_filename <- paste0(nm_pkg, version_init)
   bd$output_dir <- paste0("docs/", nm_pkg, version_init)
-  yaml::write_yaml(bd, file.path(dir_proj, "_bookdown.yml"))
+  projr_yml_bd_set(bd)
 
   # output.yml
   o_yml <- yaml::read_yaml(system.file(

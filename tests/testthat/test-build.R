@@ -18,7 +18,7 @@ test_that("projr_build_dev works", {
       projr_init(renv_force = FALSE)
       # debugonce(.projr_build)
       projr_build_dev()
-      yml_bd <- yaml::read_yaml(file.path(dir_test, "_bookdown.yml"))
+      yml_bd <- .projr_yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "reportV0.0.0-9000")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.0-9000")
@@ -47,7 +47,7 @@ test_that("projr_build_output works", {
     code = {
       projr_init(renv_force = FALSE)
       projr_build_output()
-      yml_bd <- yaml::read_yaml(file.path(dir_test, "_bookdown.yml"))
+      yml_bd <- .projr_yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "reportV0.0.1-9000")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
@@ -77,13 +77,13 @@ test_that("projr_build_output copy works", {
       # browser()
       # test that nothing is copied
       projr_init(renv_force = FALSE)
-      yml_projr <- yaml::read_yaml(file.path(dir_test, "_projr.yml"))
+      yml_projr <- projr_yml_get()
       yml_projr[["build-output"]][["copy_to_output"]] <- lapply(
         seq_along(yml_projr[["build-output"]][["copy_to_output"]]),
         function(i) FALSE
       ) |>
         stats::setNames(names(yml_projr[["build-output"]][["copy_to_output"]]))
-      yaml::write_yaml(yml_projr, file.path(dir_test, "_projr.yml"))
+      projr_yml_set(yml_projr)
       # debugonce(.projr_build)
       dir_output <- yml_projr[["directories-default"]][["output"]][["path"]]
       dir_archive <- yml_projr[["directories-default"]][["archive"]][["path"]]
@@ -95,7 +95,7 @@ test_that("projr_build_output copy works", {
       )
       expect_true(!dir.exists(dir_archive))
       # test that everything is copied
-      yml_projr <- yaml::read_yaml(file.path(dir_test, "_projr.yml"))
+      yml_projr <- projr_yml_get()
       yml_projr[["build-output"]][["copy_to_output"]] <- lapply(
         seq_along(yml_projr[["build-output"]][["copy_to_output"]]),
         function(i) TRUE

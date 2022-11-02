@@ -30,7 +30,6 @@ svp <- c(".", ".", ".")
 fn <- fn_mmp
 
 test_that(".get_version_format_list works", {
-
   # check that .get_version works
   expect_identical(
     .get_version_format_list(vf_mmpd),
@@ -298,9 +297,7 @@ test_that("projr_version_set works", {
     path = dir_test,
     code = {
       projr_version_set("1.2")
-      yml_bd <- yaml::read_yaml(
-        rprojroot::is_r_package$find_file("_bookdown.yml")
-      )
+      yml_bd <- .projr_yml_bd_get()
       desc_file <- read.dcf(
         rprojroot::is_r_package$find_file("DESCRIPTION")
       )
@@ -309,9 +306,7 @@ test_that("projr_version_set works", {
       expect_identical(desc_file[1, "Version"][[1]], "1.2")
 
       projr_version_set("1.3", where = "DESCRIPTION")
-      yml_bd <- yaml::read_yaml(
-        rprojroot::is_r_package$find_file("_bookdown.yml")
-      )
+      yml_bd <- .projr_yml_bd_get()
       desc_file <- read.dcf(
         rprojroot::is_r_package$find_file("DESCRIPTION")
       )
@@ -320,9 +315,7 @@ test_that("projr_version_set works", {
       expect_identical(desc_file[1, "Version"][[1]], "1.3")
       projr_version_set("1.4", where = "bookdown")
       desc_file <- read.dcf("DESCRIPTION")
-      yml_bd <- yaml::read_yaml(
-        rprojroot::is_r_package$find_file("_bookdown.yml")
-      )
+      yml_bd <- .projr_yml_bd_get()
       desc_file <- read.dcf(
         rprojroot::is_r_package$find_file("DESCRIPTION")
       )

@@ -7,7 +7,7 @@
 #'
 #' @return A named list.
 projr_yml_get <- function() {
-  projr_profile <- .projr_profile_get()
+  projr_profile <- projr_profile_get()
   yml <- .projr_yml_get()
   dir_profile <- paste0("directories-", projr_profile)
   if (projr_profile == "default") {
@@ -69,27 +69,27 @@ projr_yml_get <- function() {
     nm_ind <- which(nm_vec_default == nm_vec_dir[i])[[1]]
     yml_dir[[i]][["ignore"]] <- yml_default[[nm_ind]][["ignore"]]
   }
+
+  yml_active <- append(
+    stats::setNames(list(yml_dir), "directories"),
+    yml[!grepl("^directories", names(yml))]
+  )
+  yml_active
 }
-yml_active <- append(
-  stats::setNames(list(yml_dir), "directories"),
-  yml[!grepl("^directories", names(yml))]
-)
-yml_active
+
 
 
 .projr_yml_get <- function() {
   dir_proj <- rprojroot::is_r_package$find_file()
   path_yml <- file.path(dir_proj, "_projr.yml")
   if (!file.exists(path_yml)) {
-    stop(paste0(
-      "_projr.yml",
-      path_yml
-    ))
+    stop(paste0("_projr.yml not found at ", path_yml))
   }
-  if (!"default-directories" %in% names(projr_yml)) {
+  projr_yml <- yaml::read_yaml(path_yml)
+  if (!"directories-default" %in% names(projr_yml)) {
     stop("default directories not set in _projr.yml.")
   }
-  yaml::read_yaml(path_yaml)
+  projr_yml
 }
 
 .projr_yml_set <- function(list_save) {
@@ -108,7 +108,7 @@ yml_active
       path_yml
     ))
   }
-  yaml::read_yaml(path_yaml)
+  yaml::read_yaml(path_yml)
 }
 
 .projr_yml_bd_set <- function(list_save) {
@@ -116,4 +116,10 @@ yml_active
   path_yml <- file.path(dir_proj, "_bookdown.yml")
   yaml::write_yaml(list_save, path_yml)
   invisible(TRUE)
+}
+
+.projr_desc_get <- function() {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  path_desc <- file.path(dir_proj, "DESCRIPTION")
+  read.dcf(path_desc)
 }

@@ -20,7 +20,7 @@ test_that("projr_yml_get works", {
       browser()
       expect_true(sum(grepl("^directories", names(yml_active))) == 1)
       projr_profile_add()
-      yml <- yaml::read_yaml("_projr.yml")
+      yml <- projr_yml_get()
       expect_true(sum(grepl("^directories", names(yml))) == 2)
       yml_active <- projr_yml_get(
         path_yml = system.file(
@@ -62,6 +62,7 @@ test_that("projr_dir_create works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      browser()
       yml_active <- yaml::read_yaml(
         system.file("project_structure", "_projr.yml", package = "projr")
       )

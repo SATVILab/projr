@@ -8,3 +8,10 @@ projr_dir_get("data_raw", "abc")
 projr_dir_get("output", "abc")
 projr_dir_get("archive", "abc")
 projr_dir_get("cache", "abc")
+
+
+# using directories-default
+if (testthat::is_testing()) {
+  dir_test <- file.path(tempdir(), paste0("test_projr"))
+} else {
+}

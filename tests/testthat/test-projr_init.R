@@ -20,10 +20,7 @@ test_that("projr_init works", {
       )
 
       expect_true(file.exists(".gitignore"))
-
       expect_true(file.exists(".Rbuildignore"))
-      rprofile <- readLines(".Rprofile")
-      expect_true(sum(grepl("^\\s*projr::projr_activate", rprofile)) >= 1)
     }
   )
 
@@ -56,7 +53,6 @@ test_that("projr_init prompted initiation works", {
 
       expect_true(file.exists(".Rbuildignore"))
       rprofile <- readLines(".Rprofile")
-      expect_true(sum(grepl("^\\s*projr::projr_activate", rprofile)) >= 1)
     }
   )
 

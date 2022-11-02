@@ -59,7 +59,7 @@ projr_dir_get <- function(type, ...,
   yml_active <- yml_active[type]
 
   if (type == "bookdown") {
-    yml_bd <- yaml::read_yaml(file.path(dir_proj, "_bookdown.yml"))
+    yml_bd <- .projr_yml_bd_get()
     path_final <- file.path(yml_bd[["output_dir"]], ...)
     if (!dir.exists(path_final)) {
       dir.create(path_final, recursive = TRUE)
@@ -68,36 +68,21 @@ projr_dir_get <- function(type, ...,
   }
 
   # get current version
-  version_format_list <- .get_version_format_list(
-    version_format = yml_active[["version"]]
-  )
-  yml_bd <- yaml::read_yaml(
-    file.path(dir_proj, "_bookdown.yml")
-  )
-  proj_nm <- .get_proj_nm(
-    fn = yml_bd$book_filename,
-    version_format = yml_active[["version"]]
-  )
-  version_current <- gsub(
-    paste0("^", proj_nm), "", yml_bd$book_filename
-  )
 
-  if (type == "output" && safe_output) {
-    type <- "cache"
-    yml_active_dir_curr <- dir_active[type]
-    path_final_root <- file.path(dir_active[[type]]$path, "projr_output")
-    yml_active_dir_curr[["cache"]][["path"]] <- path_final_root
-  } else {
-    yml_active_dir_curr <- dir_active[type]
-    path_final_root <- dir_active[[type]]$path
-  }
+  version_current <-
+    if (type == "output" && safe_output) {
+      type <- "cache"
+      yml_active_dir_curr <- dir_active[type]
+      path_final_root <- file.path(dir_active[[type]]$path, "projr_output")
+      yml_active_dir_curr[["cache"]][["path"]] <- path_final_root
+    } else {
+      yml_active_dir_curr <- dir_active[type]
+      path_final_root <- dir_active[[type]]$path
+    }
   dir_active <- yml_active_dir_curr
 
   if (create) {
-    projr_dir_create(
-      yml_active,
-      version_current = version_current
-    )
+    projr_dir_create(type = type)
   }
 
   path_final <- file.path(path_final_root, ...)

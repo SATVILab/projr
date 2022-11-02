@@ -7,8 +7,6 @@
 #' to manually increase your version
 #' (rather than merging their changes in first).
 #'
-#'
-#'
 #' @param where "bookdown" and/or "DESCRIPTION"/
 #' Where to set the version.
 #' If it includes `"bookdown"`, then the version is updated
@@ -30,12 +28,8 @@ projr_version_set <- function(version, where = c("bookdown", "DESCRIPTION")) {
     write.dcf(desc_file, file = "DESCRIPTION")
   }
   if ("bookdown" %in% where) {
-    yml_bd <- yaml::read_yaml(
-      rprojroot::is_r_package$find_file("_bookdown.yml")
-    )
-    yml_projr <- yaml::read_yaml(
-      rprojroot::is_r_package$find_file("_projr.yml")
-    )
+    yml_bd <- .projr_yml_bd_get()
+    yml_projr <- projr_yml_get()
     proj_nm <- .get_proj_nm(
       fn = yml_bd$book_filename,
       version_format = yml_projr$version
@@ -53,15 +47,8 @@ projr_version_set <- function(version, where = c("bookdown", "DESCRIPTION")) {
   invisible(TRUE)
 }
 
-.get_version_and_output_nm <- function() {
-  yml_bd <- yaml::read_yaml(rprojroot::is_r_package$find_file("_bookdown.yml"))
-  yml_projr <- yaml::read_yaml(rprojroot::is_r_package$find_file("_projr.yml"))
-  version_format <- yml_projr$version
-  version_sep <- strsplit(version_format, "major|minor|patch|dev")[[1]][-1]
-  version_format_vec <- strsplit(version_format, "\\-|\\.")[[1]]
-}
-
-.get_version_format_list <- function(version_format) {
+.get_version_format_list <- function() {
+  version_format <- projr_yml_get()[["version"]]
   version_format_vec_sep <- strsplit(
     version_format, "major|minor|patch|dev"
   )[[1]][-1]
@@ -94,11 +81,15 @@ projr_version_set <- function(version, where = c("bookdown", "DESCRIPTION")) {
   gsub(str_regex, "", fn)
 }
 
-.get_version_orig_vec <- function(fn, version_desc, proj_nm) {
+.projr_version_orig_vec_get <- function() {
+  yml_bd <- .projr_yml_bd_get()
+  yml_projr <- projr_yml_get()
+  desc <- .projr_desc_get()
+  proj_nm <- .get_proj_nm(yml_bd$book_filename, yml_projr[["version"]])
   version_bd <- substr(
-    fn,
+    yml_bd$book_filename,
     start = nchar(proj_nm) + 2,
-    stop = nchar(fn)
+    stop = nchar(yml_bd$book_filename)
   )
   version_bd_vec <- strsplit(
     version_bd,
@@ -106,7 +97,7 @@ projr_version_set <- function(version, where = c("bookdown", "DESCRIPTION")) {
   )[[1]]
   version_bd_vec <- as.numeric(version_bd_vec)
   version_desc_vec <- strsplit(
-    version_desc,
+    desc[1, "Version"][[1]],
     split = "\\-|\\."
   )[[1]]
   version_desc_vec <- as.numeric(version_desc_vec)
@@ -136,9 +127,9 @@ projr_version_set <- function(version, where = c("bookdown", "DESCRIPTION")) {
   version_orig_vec |> as.integer()
 }
 
-.get_version_run_on <- function(version_orig_vec,
-                                bump_component,
-                                version_format_list) {
+.projr_version_run_onwards_get <- function(bump_component) {
+  version_orig_vec <- .projr_version_orig_vec_get()
+  version_format_list <- .get_version_format_list()
   if (!is.null(bump_component)) {
     comp_to_update_ind <- which(
       version_format_list$components == bump_component
@@ -164,7 +155,7 @@ projr_version_set <- function(version, where = c("bookdown", "DESCRIPTION")) {
       version_bd_run <- version_desc_run <- version_desc_success <- paste0(
         paste0(
           version_bd_update_vec[-length(version_bd_update_vec)],
-          collapse =  version_format_list$sep[1]
+          collapse = version_format_list$sep[1]
         )
       )
 
@@ -214,30 +205,27 @@ projr_version_set <- function(version, where = c("bookdown", "DESCRIPTION")) {
   )
 }
 
-.get_version_and_fn <- function(version_format,
-                                fn_orig,
-                                bump_component) {
+.projr_version_current_get <- function() {
+  fn <- .projr_yml_bd_get()$book_filename
   proj_nm <- .get_proj_nm(
-    fn = fn_orig, version_format = version_format
+    fn = fn,
+    version_format = projr_yml_get()[["version"]]
   )
-  version_orig <- .get_version_orig(
-    fn = fn_orig, proj_nm = proj_nm
-  )
-  version_format_list <- .get_version_format_list(
-    version_format
-  )
+  gsub(paste0("^", proj_nm), "", fn)
+}
 
-  version_final_vec <- .get_version_all(
-    version_orig = version_orig,
-    bump_component = bump_component,
-    version_format_list = version_format_list
-  )
-
-  fn_final_dev <- paste0(
-    proj_nm, "V", version_final_vec["dev"]
-  )
-  c(
-    "fn" = fn_final_dev,
-    "version" = version_final_vec[["dev"]]
-  )
+.projr_version_chr_get <- function(version) {
+  version_str <- version[[1]]
+  version_format_sep_vec <- .get_version_format_list()[["sep"]]
+  if (length(version) == version_format_sep_vec) {
+    version_format_sep_vec <- version_format_sep_vec[
+      -length(version_format_sep_vec)
+    ]
+  }
+  for (i in seq_along(version_format_sep_vec)) {
+    version_str <- paste0(
+      version_str, version_format_sep_vec[[i]], version[[i + 1]]
+    )
+  }
+  version_str
 }
