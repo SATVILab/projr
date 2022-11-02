@@ -12,6 +12,13 @@
 #' whereas the others returns paths as specified in \code{"_projr.yml"}.
 #' @param ... Specifies sub-directory of directory returned.
 #' Passed to `file.path`.
+#' @param create logical.
+#' If \code{TRUE}, then the directory
+#' is created if it does not exist and
+#' it is ignored (or not) from \code{.gitignore}
+#' and \code{.Rbuildignore} as specified
+#' in \code{_projr.yml}.
+#' Default is \code{TRUE}.
 #' @param force_relative logical.
 #' If \code{TRUE}, then forces that the returned
 #' path is relative to the project root.
@@ -37,12 +44,21 @@
 #' @rdname projr_dir_get
 #' @export
 projr_dir_get <- function(type, ...,
+                          create = TRUE,
                           force_relative = TRUE,
                           safe_output = TRUE) {
-  if (!type %in% c("data_raw", "cache", "output", "archive", "bookdown")) {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  # get active directories
+  yml_active <- projr_yml_get(
+    path_yml = file.path(dir_proj, "_projr.yml"),
+    silent = TRUE
+  )
+  dir_active <- yml_active[["directories"]]
+
+  if (!type %in% names(dir_active)) {
     stop(paste0("type `", type, "` not recognised."))
   }
-  dir_proj <- rprojroot::is_r_package$find_file()
+  yml_active <- yml_active[type]
 
   if (type == "bookdown") {
     yml_bd <- yaml::read_yaml(file.path(dir_proj, "_bookdown.yml"))
@@ -52,12 +68,6 @@ projr_dir_get <- function(type, ...,
     }
     return(path_final)
   }
-
-  # get active directories
-  yml_active <- projr_get_yml_active(
-    path_yml = file.path(dir_proj, "_projr.yml"),
-    silent = TRUE
-  )
 
   # get current version
   version_format_list <- .get_version_format_list(
@@ -74,22 +84,23 @@ projr_dir_get <- function(type, ...,
     paste0("^", proj_nm), "", yml_bd$book_filename
   )
 
-  dir_active <- yml_active[["directories"]]
   if (type == "output" && safe_output) {
     type <- "cache"
-    yml_active_dir_curr <- yml_active[["directories"]][type]
+    yml_active_dir_curr <- dir_active[type]
     path_final_root <- file.path(dir_active[[type]]$path, "projr_output")
     yml_active_dir_curr[["cache"]][["path"]] <- path_final_root
   } else {
-    yml_active_dir_curr <- yml_active[["directories"]][type]
+    yml_active_dir_curr <- dir_active[type]
     path_final_root <- dir_active[[type]]$path
   }
-  yml_active[["directories"]] <- yml_active_dir_curr
-  projr_set_up_dir(
-    yml_active,
-    version_current = version_current,
-    create_var = FALSE, env = .GlobalEnv
-  )
+  dir_active <- yml_active_dir_curr
+
+  if (create) {
+    projr_dir_create(
+      yml_active,
+      version_current = version_current
+    )
+  }
 
   path_final <- file.path(path_final_root, ...)
   if (!dir.exists(path_final)) {
