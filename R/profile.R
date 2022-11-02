@@ -3,7 +3,6 @@
 #' @return Invisibly returns the working directory.
 #' @export
 projr_profile_create <- function(silent = FALSE) {
-
   projr_profile <- projr_profile_get()
 
   if (!projr_profile == "default") {
@@ -28,13 +27,13 @@ projr_profile_create <- function(silent = FALSE) {
         stats::setNames(paste0("directories-", projr_profile))
     )
 
-  .projr_yml_set(yml) {
+  .projr_yml_set(yml)
 
   if (!silent) {
     message(paste0("Added the following profile: ", projr_profile))
   }
 
-  invisible(wd)
+  invisible(projr_profile)
 }
 
 #' @title
