@@ -13,7 +13,7 @@ projr_dir_create <- function(type) {
     path <- yml_active_dir[[i]]$path
     if (names(yml_active_dir)[i] == "archive") {
       path <- file.path(
-        path, .projr_version_current_get()
+        path, paste0("v", projr_version_get())
       )
     }
     if (!dir.exists(path)) {

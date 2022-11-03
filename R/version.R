@@ -15,10 +15,12 @@
 #' If it includes \code{"DESCRIPTION"}
 #' Default is \code{c("bookdown", "DESCRIPTION")}.
 #' @export
-projr_version_set <- function(version, where = c("bookdown", "DESCRIPTION")) {
-  if (missing(version)) stop("version must be supplied")
+projr_version_set <- function(version,
+                              where = c("bookdown", "DESCRIPTION")) {
+  .projr_version_format_check(version)
   stopifnot(is.character(version))
   # check that version is in correct format
+  if (missing(version)) stop("version must be supplied")
   stopifnot(length(where) %in% 1:2)
   stopifnot(length(setdiff(where, c("bookdown", "DESCRIPTION"))) == 0)
   stopifnot(all(where %in% c("bookdown", "DESCRIPTION")))
@@ -30,25 +32,62 @@ projr_version_set <- function(version, where = c("bookdown", "DESCRIPTION")) {
   if ("bookdown" %in% where) {
     yml_bd <- .projr_yml_bd_get()
     yml_projr <- projr_yml_get()
-    proj_nm <- .get_proj_nm(
-      fn = yml_bd$book_filename,
-      version_format = yml_projr$version
-    )
+    proj_nm <- projr_name_get()
     fn_new <- paste0(proj_nm, "V", version)
     yml_bd$book_filename <- fn_new
     yml_bd$output_dir <- file.path(dirname(yml_bd$output_dir), fn_new) |>
       normalizePath(winslash = "/", mustWork = FALSE)
-    yaml::write_yaml(
-      yml_bd,
-      file = rprojroot::is_r_package$find_file("_bookdown.yml")
-    )
+    .projr_yml_bd_set(yml_bd)
   }
 
   invisible(TRUE)
 }
 
-.get_version_format_list <- function() {
-  version_format <- projr_yml_get()[["version"]]
+projr_version_format_set <- function(version_format) {
+  if (missing(version_format)) {
+    stop("version_format must be supplied")
+  }
+  if (!length(version_format) == 1) {
+    stop("version format must be of length 1")
+  }
+  if (!is.character(version_format)) {
+    stop("version format must be of type character")
+  }
+  version_valid_vec <- c(
+    "major.minor.patch-dev",
+    "major.minor.patch.dev",
+    "major.minor-dev",
+    "major.minor.dev",
+    "major-dev",
+    "major.dev"
+  )
+  if (!version_format %in% version_valid_vec) {
+    stop("version format not valid")
+  }
+  yml_projr <- .projr_yml_get()
+  yml_projr[["version_format"]] <- version_format
+  .projr_yml_set(yml_projr)
+  invisible(TRUE)
+}
+
+projr_version_format_get <- function() {
+  version_format <- .projr_yml_get()[["version_format"]]
+  version_valid_vec <- c(
+    "major.minor.patch-dev",
+    "major.minor.patch.dev",
+    "major.minor-dev",
+    "major.minor.dev",
+    "major-dev",
+    "major.dev"
+  )
+  if (!version_format %in% version_valid_vec) {
+    stop(paste0("Current version format not valid: ", version_format))
+  }
+  version_format
+}
+
+.projr_version_format_list_get <- function() {
+  version_format <- projr_yml_get()[["version_format"]]
   version_format_vec_sep <- strsplit(
     version_format, "major|minor|patch|dev"
   )[[1]][-1]
@@ -67,25 +106,34 @@ projr_version_set <- function(version, where = c("bookdown", "DESCRIPTION")) {
   )
 }
 
-.get_proj_nm <- function(fn, version_format) {
-  str_regex <- switch(version_format,
-    "major.minor.patch-dev" =
-      "V\\d+\\.\\d+\\.\\d+\\-\\d+$|V\\d+\\.\\d+\\.\\d+$",
-    "major.minor.patch-dev" =
-      "V\\d+\\.\\d+\\.\\d+\\.\\d+$|V\\d+\\.\\d+\\.\\d+$",
-    "major.minor-dev" = "V\\d+\\.\\d+\\-\\d+$|V\\d+\\.\\d+$",
-    "major.minor.dev" = "V\\d+\\.\\d+\\.\\d+$|V\\d+\\.\\d+$",
-    "major-dev" = "V\\d+\\-\\d+$|V\\d+$",
-    "major.dev" = "V\\d+\\.\\d+$|V\\d+$"
-  )
-  gsub(str_regex, "", fn)
+projr_name_get <- function() {
+  basename(rprojroot::is_r_package$find_file())
 }
 
-.projr_version_orig_vec_get <- function() {
+.projr_version_format_check <- function(version) {
+  version_format_list <- .projr_version_format_list_get()
+  version_format <- projr_version_format_get()
+  version_format_regex <- gsub("major", "\\\\d\\+", version_format)
+  version_format_regex <- gsub("minor", "\\\\d\\+", version_format_regex)
+  version_format_regex <- gsub("patch", "\\\\d\\+", version_format_regex)
+  version_format_regex <- gsub("dev", "\\\\d\\+", version_format_regex)
+  version_format_regex <- gsub("\\.", "\\\\.", version_format_regex)
+  version_format_regex <- gsub("\\-", "\\\\-", version_format_regex)
+  if (!grepl(version_format_regex, version)) {
+    stop("version does not match version format in _projr.yml")
+  }
+  invisible(TRUE)
+}
+
+.projr_version_current_vec_get <- function() {
+  # basically, the idea
+  # is to choose whichever is greater of
+  # the _bookdown.yml and the
+  # DESCRIPTION versions
   yml_bd <- .projr_yml_bd_get()
   yml_projr <- projr_yml_get()
   desc <- .projr_desc_get()
-  proj_nm <- .get_proj_nm(yml_bd$book_filename, yml_projr[["version"]])
+  proj_nm <- projr_name_get()
   version_bd <- substr(
     yml_bd$book_filename,
     start = nchar(proj_nm) + 2,
@@ -128,8 +176,8 @@ projr_version_set <- function(version, where = c("bookdown", "DESCRIPTION")) {
 }
 
 .projr_version_run_onwards_get <- function(bump_component) {
-  version_orig_vec <- .projr_version_orig_vec_get()
-  version_format_list <- .get_version_format_list()
+  version_orig_vec <- .projr_version_current_vec_get()
+  version_format_list <- .projr_version_format_list_get()
   if (!is.null(bump_component)) {
     comp_to_update_ind <- which(
       version_format_list$components == bump_component
@@ -205,19 +253,27 @@ projr_version_set <- function(version, where = c("bookdown", "DESCRIPTION")) {
   )
 }
 
-.projr_version_current_get <- function() {
-  fn <- .projr_yml_bd_get()$book_filename
-  proj_nm <- .get_proj_nm(
-    fn = fn,
-    version_format = projr_yml_get()[["version"]]
-  )
-  gsub(paste0("^", proj_nm), "", fn)
+#' @title Return the next version to be built
+#'
+#' @description
+#' Returns version of project currently being worked on,
+#' which is defined as whichever version is later
+#' between DESCRIPTION and _bookdown.yml.
+#' Typically this will simply be the version in
+#' \code{_bookdown.yml}.
+#'
+#' @return Character.
+#'
+#' @export
+projr_version_get <- function() {
+  .projr_version_current_vec_get() |>
+    .projr_version_chr_get()
 }
 
 .projr_version_chr_get <- function(version) {
   version_str <- version[[1]]
-  version_format_sep_vec <- .get_version_format_list()[["sep"]]
-  if (length(version) == version_format_sep_vec) {
+  version_format_sep_vec <- .projr_version_format_list_get()[["sep"]]
+  if (length(version) == length(version_format_sep_vec)) {
     version_format_sep_vec <- version_format_sep_vec[
       -length(version_format_sep_vec)
     ]

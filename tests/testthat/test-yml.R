@@ -59,7 +59,7 @@ test_that("getting active yml file works", {
           output = list(path = "_output", ignore = TRUE), archive = list(
             path = "_archive", ignore = TRUE
           )
-        ), version = "major.minor.patch-dev",
+        ), version_format = "major.minor.patch-dev",
         `build-dev` = list(bump_version = FALSE, rmd = NULL),
         `build-output` = list(
           renv = TRUE, copy_to_output = list(
@@ -68,7 +68,6 @@ test_that("getting active yml file works", {
           )
         )
       )
-      yml_projr <- projr_yml_get()
       expect_identical(projr_yml_get(), yml_projr_default)
       projr_profile_create()
       yml_projr <- .projr_yml_get()

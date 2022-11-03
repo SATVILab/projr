@@ -12,7 +12,7 @@ directories-default:
   archive: 
     path: _archive
     ignore: true
-version: "major.minor.patch-dev" # other options: version-dev; major.minor.patch-dev; 
+version_format: "major.minor.patch-dev" # other options: version-dev; major.minor.patch-dev; 
 # actions on development built
 build-dev:
   bump_version: false # whether to bump the dev version up before this build (i.e. to build to a new directory, really)

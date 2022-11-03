@@ -1,5 +1,5 @@
 test_that("projr_dir_create works", {
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
+  dir_test <- file.path(tempdir(), paste0("report"))
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
@@ -24,7 +24,7 @@ test_that("projr_dir_create works", {
       expect_true(dir.exists("_data_raw"))
       projr_dir_create("archive")
       expect_true(dir.exists("_archive"))
-      expect_true(dir.exists(file.path("_archive", "V0.0.0-1")))
+      expect_true(dir.exists(file.path("_archive", "v0.0.0-1")))
       projr_dir_create("output")
       expect_true(dir.exists("_output"))
       projr_dir_create("cache")

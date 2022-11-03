@@ -79,6 +79,13 @@ projr_yml_get <- function() {
 }
 
 
+projr_yml_set <- function(version) {
+
+}
+
+
+
+
 
 .projr_yml_get <- function() {
   dir_proj <- rprojroot::is_r_package$find_file()

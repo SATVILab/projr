@@ -2,13 +2,16 @@
 % Please edit documentation in R/profile.R
 \name{projr_profile_create}
 \alias{projr_profile_create}
-\title{Add current working directory}
+\title{Add projr profile}
 \usage{
 projr_profile_create(silent = FALSE)
 }
 \value{
-Invisibly returns the working directory.
+Invisibly returns the new projr profile.
 }
 \description{
-Add current working directory
+Adds either the environment variable "PROJR_PROFILE"
+(if set) or the current project directory (i.e.
+where the DESCRIPTION file is)
+as a new projr profile.
 }
