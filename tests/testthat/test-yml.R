@@ -32,3 +32,66 @@ test_that("getting and setting metadata files works", {
   )
   unlink(dir_test, recursive = TRUE)
 })
+
+test_that("getting active yml file works", {
+  dir_test <- file.path(tempdir(), paste0("test_projr"))
+
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  fn_vec <- list.files(testthat::test_path("./project_structure"))
+  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
+
+  for (x in fn_vec) {
+    file.copy(
+      file.path(testthat::test_path("./project_structure"), x),
+      file.path(dir_test, x),
+      overwrite = TRUE
+    )
+  }
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      yml_projr_default <- list(
+        `directories` = list(
+          data_raw = list(
+            path = "_data_raw",
+            ignore = TRUE
+          ), cache = list(path = "_tmp", ignore = TRUE),
+          output = list(path = "_output", ignore = TRUE), archive = list(
+            path = "_archive", ignore = TRUE
+          )
+        ), version = "major.minor.patch-dev",
+        `build-dev` = list(bump_version = FALSE, rmd = NULL),
+        `build-output` = list(
+          renv = TRUE, copy_to_output = list(
+            data_raw = FALSE,
+            cache = FALSE, bookdown = TRUE, package = FALSE
+          )
+        )
+      )
+      yml_projr <- projr_yml_get()
+      expect_identical(projr_yml_get(), yml_projr_default)
+      projr_profile_create()
+      yml_projr <- .projr_yml_get()
+      list_non_default <- list(
+        data_raw = list(path = "abc"),
+        cache = list(path = "def"),
+        output = list(path = "ghi"),
+        archive = list(path = "jkl")
+      )
+      yml_projr[[paste0("directories-", projr_profile_get())]] <-
+        list_non_default
+      .projr_yml_set(yml_projr)
+      dir_active <- projr_yml_get()[["directories"]]
+      expected_dirs_list <- list(
+        data_raw = list(path = "abc", ignore = TRUE),
+        cache = list(path = "def", ignore = TRUE),
+        output = list(path = "ghi", ignore = TRUE),
+        archive = list(path = "jkl", ignore = TRUE)
+      )
+      expect_identical(projr_yml_get()[["directories"]], expected_dirs_list)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+  unlink(dir_test, recursive = TRUE)
+})

@@ -12,9 +12,10 @@ projr_yml_get <- function() {
   dir_profile <- paste0("directories-", projr_profile)
   if (projr_profile == "default") {
     if (!"directories-default" %in% names(yml)) {
-      stop("Default projr profile active without default directories set.")
+      stop("Default projr profile active but has no directories in _projr.profile.")
     }
     yml_dir <- yml[dir_profile]
+    names(yml_dir) <- "directories"
     yml <- yml[!grepl("directories", names(yml))]
     return(yml_dir |> append(yml))
   }
