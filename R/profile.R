@@ -1,6 +1,12 @@
-#' @title Add current working directory
+#' @title Add projr profile
 #'
-#' @return Invisibly returns the working directory.
+#' @description
+#' Adds either the environment variable "PROJR_PROFILE"
+#' (if set) or the current project directory (i.e.
+#' where the DESCRIPTION file is)
+#' as a new projr profile.
+#'
+#' @return Invisibly returns the new projr profile.
 #' @export
 projr_profile_create <- function(silent = FALSE) {
   if (nzchar(Sys.getenv("PROJR_PROFILE"))) {
@@ -41,13 +47,14 @@ projr_profile_create <- function(silent = FALSE) {
   invisible(projr_profile)
 }
 
-#' @title
+#' @title Get active projr profile
 #'
 #' @description
 #' Get active \code{projr} profile.
 #' First looks for `\code{Sys.getenv("PROJR_PROFILE")}`
 #' and then, if that is empty, takes the current
-#' project directory (as returned by \code{rprojroot::is_r_package()$find_file())},
+#' project directory
+#' (as returned by \code{rprojroot::is_r_package()$find_file())},
 #' i.e. the folder containing the file \code{DESCRIPTION}.
 #' If there is no entry in \code{_projr.yml} matching the above selected
 #' profile, then the profile \code{"default"} is returned.

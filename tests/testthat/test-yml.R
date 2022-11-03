@@ -95,3 +95,43 @@ test_that("getting active yml file works", {
   )
   unlink(dir_test, recursive = TRUE)
 })
+
+test_that("Further tests for projr_yml_get", {
+  dir_test <- file.path(tempdir(), paste0("test_projr"))
+
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  fn_vec <- list.files(testthat::test_path("./project_structure"))
+  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
+
+  for (x in fn_vec) {
+    file.copy(
+      file.path(testthat::test_path("./project_structure"), x),
+      file.path(dir_test, x),
+      overwrite = TRUE
+    )
+  }
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      yml_active <- projr_yml_get()
+      expect_true(sum(grepl("^directories", names(yml_active))) == 1)
+      projr_profile_create()
+      yml <- .projr_yml_get()
+      expect_true(sum(grepl("^directories", names(yml))) == 2)
+      yml_active <- projr_yml_get()
+      yml_active_dir <- yml_active[["directories"]]
+      # ignore is imputed
+      expect_true(
+        sapply(yml_active_dir, function(x) "ignore" %in% names(x)) |> all()
+      )
+      # empty path is imputed
+      expect_true(
+        sapply(yml_active_dir, function(x) nzchar(x[["path"]])) |> all()
+      )
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test, recursive = TRUE)
+})
