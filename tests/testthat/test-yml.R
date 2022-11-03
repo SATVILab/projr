@@ -1,5 +1,4 @@
-
-test_that("getting and setting metadat files works works", {
+test_that("getting and setting metadata files works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
