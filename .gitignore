@@ -1,1 +1,4 @@
 .Rproj.user
+SCRATCH.R
+lib/**/*
+report.html

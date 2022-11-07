@@ -132,7 +132,6 @@ test_that("projr_dir_ignore works", {
         yml_projr[["directories-default"]][[i]][["path"]] <- dir_out
       }
       .projr_yml_set(yml_projr)
-      .projr_dir_ignore("data_raw")
       gitignore <- .projr_gitignore_get()
       expect_identical(length(
         which(gitignore == "/tmp/RtmpkdBxQ9/test_2/**/*")
@@ -144,14 +143,17 @@ test_that("projr_dir_ignore works", {
       buildignore <- .projr_buildignore_get()
 
       # test errors
-      expect_error(projr_dir_ignore(c("abc", "def")))
-      expect_error(projr_dir_ignore(1))
+      expect_error(.projr_dir_ignore(c("abc", "def")))
+      expect_error(.projr_dir_ignore(1))
       yml_projr <- .projr_yml_get()
       for (i in seq_along(yml_projr[["directories-default"]])) {
-        yml_projr[["directories-default"]][[i]][["ignore"]] <- "abnc"
+        yml_projr[["directories-default"]][[i]][["ignore"]] <- 1
       }
+      names(yml_projr[["directories-default"]]) <- rep("data_raw", 4)
       .projr_yml_set(yml_projr)
-      expect_error(projr_dir_ignore("data_raw"))
+      # browser()
+      # debugonce(.projr_dir_ignore)
+      expect_error(.projr_dir_ignore("data_raw"))
     },
     force = TRUE,
     quiet = TRUE

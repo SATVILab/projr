@@ -1,62 +1,29 @@
 test_that("projr_init works", {
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
+  dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   if (!dir.exists(dir_test)) dir.create(dir_test)
   if (!requireNamespace("withr", quietly = TRUE)) {
     install.packages("withr")
   }
-  withr::with_dir(
-    dir_test,
-    {
-      projr::projr_init(dir_proj = dir_test, renv_force = FALSE)
-      expect_identical(
-        list.files() |> sort(),
-        c(
-          "_bookdown.yml", "_output.yml", "_projr.yml", "appendix.Rmd",
-          "DELETE-AFTER-DOING.md", "DESCRIPTION", "index.Rmd", "renv",
-          "renv.lock"
-        ) |>
-          sort()
-      )
-
+  Sys.setenv("PROJR_INTERACTIVE" = "FALSE")
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      expect_true(projr_init())
+      expect_true(file.exists("_bookdown.yml"))
+      expect_true(file.exists("_output.yml"))
+      expect_true(file.exists("_projr.yml"))
+      expect_true(file.exists(".git"))
       expect_true(file.exists(".gitignore"))
       expect_true(file.exists(".Rbuildignore"))
-    }
+      expect_true(file.exists("DESCRIPTION"))
+      expect_true(file.exists("index.Rmd"))
+      expect_true(file.exists("appendix.Rmd"))
+    },
+    force = TRUE,
+    quiet = TRUE
   )
 
-  # check that files are correct
-
-  unlink(dir_test, recursive = TRUE)
-})
-test_that("projr_init prompted initiation works", {
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
-  if (!requireNamespace("withr", quietly = TRUE)) {
-    install.packages("withr")
-  }
-  withr::with_dir(
-    dir_test,
-    {
-      projr::projr_init(dir_proj = dir_test, renv_force = FALSE)
-      expect_identical(
-        list.files() |> sort(),
-        c(
-          "_bookdown.yml", "_output.yml", "_projr.yml", "appendix.Rmd",
-          "DELETE-AFTER-DOING.md", "DESCRIPTION", "index.Rmd", "renv",
-          "renv.lock"
-        ) |>
-          sort()
-      )
-
-      expect_true(file.exists(".gitignore"))
-
-      expect_true(file.exists(".Rbuildignore"))
-      rprofile <- readLines(".Rprofile")
-    }
-  )
-
-  # check that files are correct
-
+  Sys.unsetenv("PROJR_INTERACTIVE")
   unlink(dir_test, recursive = TRUE)
 })

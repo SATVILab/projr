@@ -47,13 +47,10 @@ projr_build_dev <- function(bump = FALSE) {
   yml_projr <- projr_yml_get()
   yml_bd_orig <- projr_yml_bed_get()
 
-  version_format_list <- .get_version_format_list(
-    version_format = yml_projr[["version"]]
+  version_format_list <- .projr_version_format_list_get(
+    version_format = yml_projr[["version_format"]]
   )
-  proj_nm <- .get_proj_nm(
-    fn = yml_bd_orig$book_filename,
-    version_format = yml_projr[["version"]]
-  )
+  proj_nm <- projr_name_get()
 
   dir_bookdown_orig <- projr_yml_bed_get()$output_dir
 

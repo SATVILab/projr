@@ -33,12 +33,12 @@ projr_dir_create <- function(type) {
   if (length(type) > 1) stop("type must be length 1")
   if (!is.character(type)) stop("type must be o type character")
   dir_proj <- rprojroot::is_r_package$find_file()
-  yml_active_dir <- projr_yml_get()[["directories"]]
+  yml_active_dir <- try(projr_yml_get()[["directories"]])
+  if (identical(class(yml_active_dir), "try-error")) {
+    stop("_projr.yml not valid YAML")
+  }
   match_ind <-
     which(vapply(names(yml_active_dir), function(x) type == x, logical(1)))
-  if (length(match_ind) > 1) {
-    stop(paste0("More than one element has label ", type))
-  }
   dir_label <- names(yml_active_dir)[[match_ind]]
   yml_active_dir <- yml_active_dir[[match_ind]]
   dir_path <- yml_active_dir[["path"]]

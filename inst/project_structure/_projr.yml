@@ -1,0 +1,28 @@
+# default directory settings:
+directories-default:
+  data_raw:
+    path: _data_raw
+    ignore: true
+  cache: 
+    path: _tmp
+    ignore: true
+  output: 
+    path: _output
+    ignore: true 
+  archive: 
+    path: _archive
+    ignore: true
+version_format: "major.minor.patch-dev" # other options: version-dev; major.minor.patch-dev; 
+# actions on development built
+build-dev:
+  bump_version: false # whether to bump the dev version up before this build (i.e. to build to a new directory, really)
+  rmd: # if specified, subset of Rmd's to build. no need to mention index.Rmd, it's always included
+# build settings when bumping the version up
+build-output:
+  renv: true # whether to snapshot or not 
+  copy_to_output:
+    data_raw: false
+    cache: false
+    bookdown: true
+    package: false
+# user-specific directories:

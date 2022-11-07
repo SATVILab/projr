@@ -88,6 +88,9 @@ test_that("getting active yml file works", {
         archive = list(path = "jkl", ignore = TRUE)
       )
       expect_identical(projr_yml_get()[["directories"]], expected_dirs_list)
+      yml_projr <- yml_projr[-which(names(yml_projr) == "directories-default")]
+      .projr_yml_set(yml_projr)
+      expect_error(.projr_yml_get())
     },
     quiet = TRUE,
     force = TRUE

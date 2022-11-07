@@ -68,17 +68,15 @@ projr_dir_get <- function(type, ...,
   }
 
   # get current version
-
-  version_current <-
-    if (type == "output" && safe_output) {
-      type <- "cache"
-      yml_active_dir_curr <- dir_active[type]
-      path_final_root <- file.path(dir_active[[type]]$path, "projr_output")
-      yml_active_dir_curr[["cache"]][["path"]] <- path_final_root
-    } else {
-      yml_active_dir_curr <- dir_active[type]
-      path_final_root <- dir_active[[type]]$path
-    }
+  if (type == "output" && safe_output) {
+    type <- "cache"
+    yml_active_dir_curr <- dir_active[type]
+    path_final_root <- file.path(dir_active[[type]]$path, "projr_output")
+    yml_active_dir_curr[["cache"]][["path"]] <- path_final_root
+  } else {
+    yml_active_dir_curr <- dir_active[type]
+    path_final_root <- dir_active[[type]]$path
+  }
   dir_active <- yml_active_dir_curr
 
   if (create) {
