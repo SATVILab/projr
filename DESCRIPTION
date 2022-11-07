@@ -1,15 +1,26 @@
 Package: projr
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0-9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+Title: Facilitate reproducible and archived projects
+Version: 0.0.2.9029
+Authors@R: person("Miguel", "Rodo", , "rdxmig002@myuct.ac.za", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2036-4878"))
+Maintainer: Miguel Rodo <rdxmig002@myuct.ac.za>
 Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
+Imports: 
+    renv,
+    fs,
+    usethis,
+    Hmisc,
+    yaml,
+    bookdown,
+    rprojroot,
+    desc,
+    rmarkdown,
+    gert,
+    roxygen2
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    withr
 Config/testthat/edition: 3
