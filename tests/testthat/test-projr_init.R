@@ -5,7 +5,7 @@ test_that("projr_init works", {
   if (!requireNamespace("withr", quietly = TRUE)) {
     install.packages("withr")
   }
-  Sys.setenv("PROJR_INTERACTIVE" = "FALSE")
+  Sys.setenv("PROJR_TEST" = "FALSE")
   usethis::with_project(
     path = dir_test,
     code = {
@@ -24,6 +24,6 @@ test_that("projr_init works", {
     quiet = TRUE
   )
 
-  Sys.unsetenv("PROJR_INTERACTIVE")
+  Sys.unsetenv("PROJR_TEST")
   unlink(dir_test, recursive = TRUE)
 })

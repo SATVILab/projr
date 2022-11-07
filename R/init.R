@@ -39,7 +39,7 @@ projr_init <- function(dir_proj = getwd(),
   .projr_init_prompt(dir_proj = dir_proj)
 
 
-  if (!Sys.getenv("PROJR_INTERACTIVE") == "FALSE") {
+  if (!Sys.getenv("PROJR_TEST") == "FALSE") {
     renv::init(
       force = renv_force,
       bioconductor = renv_bioconductor
@@ -57,7 +57,7 @@ projr_init <- function(dir_proj = getwd(),
   nm_pkg <- basename(dir_proj)
   cat("Project name is", paste0("`", nm_pkg, "`"), "\n")
 
-  if (Sys.getenv("PROJR_INTERACTIVE") == "FALSE") {
+  if (Sys.getenv("PROJR_TEST") == "FALSE") {
     nm_pkg <-
       # please provide the GitHub user name
       nm_gh <- "{{ GitHub user/organisation name }}"
@@ -486,7 +486,7 @@ projr_init <- function(dir_proj = getwd(),
   # README
   # ------------------------
 
-  if (Sys.getenv("PROJR_INTERACTIVE") == "FALSE") {
+  if (Sys.getenv("PROJR_TEST") == "FALSE") {
     usethis::use_readme_md(open = FALSE)
   } else {
     answer_readme <- menu(
@@ -552,7 +552,7 @@ projr_init <- function(dir_proj = getwd(),
   # License
   # ----------------------
 
-  if (Sys.getenv("PROJR_INTERACTIVE") == "FALSE") {
+  if (Sys.getenv("PROJR_TEST") == "FALSE") {
     usethis::use_ccby_license()
   } else {
     # project description
@@ -629,7 +629,7 @@ projr_init <- function(dir_proj = getwd(),
   # -------------------
 
   # Git
-  if (Sys.getenv("PROJR_INTERACTIVE") == "FALSE") {
+  if (Sys.getenv("PROJR_TEST") == "FALSE") {
     # taken from usethis::use_git
     .projr_init_git(dir_proj)
     return(TRUE)
