@@ -13,14 +13,14 @@
 #' in the \code{book_filename} and \code{output_dir} fields
 #' of \code{_bookdown.yml}.
 #' If it includes \code{"DESCRIPTION"}
-#' Default is \code{c("bookdown", "DESCRIPTION")}.
+#' Default is \code{c("bookdown")}.
 #' @export
 projr_version_set <- function(version,
-                              where = c("bookdown", "DESCRIPTION")) {
+                              where = "bookdown") {
+  if (missing(version)) stop("version must be supplied")
   .projr_version_format_check(version)
   stopifnot(is.character(version))
   # check that version is in correct format
-  if (missing(version)) stop("version must be supplied")
   stopifnot(length(where) %in% 1:2)
   stopifnot(length(setdiff(where, c("bookdown", "DESCRIPTION"))) == 0)
   stopifnot(all(where %in% c("bookdown", "DESCRIPTION")))
@@ -116,9 +116,17 @@ projr_name_get <- function() {
   version_format_regex <- gsub("major", "\\\\d\\+", version_format)
   version_format_regex <- gsub("minor", "\\\\d\\+", version_format_regex)
   version_format_regex <- gsub("patch", "\\\\d\\+", version_format_regex)
-  version_format_regex <- gsub("dev", "\\\\d\\+", version_format_regex)
-  version_format_regex <- gsub("\\.", "\\\\.", version_format_regex)
-  version_format_regex <- gsub("\\-", "\\\\-", version_format_regex)
+  version_format_regex_dev_n <- gsub("\\.dev$|\\-dev", "", version_format_regex)
+  version_format_regex_dev <- gsub("dev", "\\\\d\\+", version_format_regex)
+  version_format_regex_dev <- gsub("\\.", "\\\\.", version_format_regex_dev)
+  version_format_regex_dev <- gsub("\\-", "\\\\-", version_format_regex_dev)
+  version_format_regex_dev <- paste0("^", version_format_regex_dev, "$")
+  version_format_regex_dev_n <- gsub("\\.", "\\\\.", version_format_regex_dev_n)
+  version_format_regex_dev_n <- gsub("\\-", "\\\\-", version_format_regex_dev_n)
+  version_format_regex_dev_n <- paste0("^", version_format_regex_dev_n, "$")
+  version_format_regex <- paste0(
+    version_format_regex_dev_n, "|", version_format_regex_dev
+  )
   if (!grepl(version_format_regex, version)) {
     stop("version does not match version format in _projr.yml")
   }
@@ -284,4 +292,60 @@ projr_version_get <- function() {
     )
   }
   version_str
+}
+
+
+#' @title Bump version
+#'
+#' @description Increase a component of the version.
+#' By default, only increments the dev version
+#' in _bookdown.yml (and not in DESCRIPTION as well).
+#' This is because this function is intended primarily
+#' to increase only the dev version in anticipation of the next build.
+#' Non-dev versions should be bumped implicitly during runs of
+#' \code{projr_build_output}.
+#'
+#' @param component character.
+#' Component in version to bump.
+#' Default is \code{"dev"}.
+#' @inheritParams projr_version_set
+#' @param onto_dev logical.
+#' If \code{TRUE}, then the bumped version
+#' will always have be a development version, i.e.
+#' will end with the dev component specified.
+#' Default is \code{TRUE}.
+#'
+#' @export
+#'
+#' @return Invisibly returns the new version.
+projr_version_bump <- function(component = "dev",
+                               where = "bookdown",
+                               onto_dev = TRUE) {
+  version_current_vec <- .projr_version_current_vec_get()
+  version_format_list <- .projr_version_format_list_get()
+  if (!component %in% version_format_list$components) {
+    stop(paste0(
+      "Component ", component, "
+      not a part of version format in _projr.yml"
+    ))
+  }
+  ind_to_bump <- which(version_format_list$components == component)
+  version_current_vec[ind_to_bump] <- version_current_vec[ind_to_bump] + 1
+  if (ind_to_bump < length(version_format_list$components)) {
+    if (version_current_vec[length(version_current_vec)] >= 9000) {
+      version_dev_base <- 9000
+    } else {
+      version_dev_base <- 1
+    }
+    version_current_vec[
+      seq(ind_to_bump + 1, length(version_format_list$components))
+    ] <- 0
+    version_current_vec[length(version_current_vec)] <- version_dev_base
+  }
+  if (!onto_dev) {
+    version_current_vec <- version_current_vec[-length(version_current_vec)]
+  }
+  version_new <- .projr_version_chr_get(version_current_vec)
+  projr_version_set(version = version_new, where = where)
+  version_new
 }

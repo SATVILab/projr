@@ -5,7 +5,7 @@ test_that("projr_init works", {
   if (!requireNamespace("withr", quietly = TRUE)) {
     install.packages("withr")
   }
-  Sys.setenv("PROJR_TEST" = "FALSE")
+  Sys.setenv("PROJR_TEST" = "TRUE")
   usethis::with_project(
     path = dir_test,
     code = {
@@ -19,6 +19,7 @@ test_that("projr_init works", {
       expect_true(file.exists("DESCRIPTION"))
       expect_true(file.exists("index.Rmd"))
       expect_true(file.exists("appendix.Rmd"))
+      expect_error(projr_init(yml_path_from = "abcsadfkasdflkda"))
     },
     force = TRUE,
     quiet = TRUE

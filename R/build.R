@@ -45,31 +45,25 @@ projr_build_dev <- function(bump = FALSE) {
 
   # read in settings
   yml_projr <- projr_yml_get()
-  yml_bd_orig <- projr_yml_bed_get()
 
-  version_format_list <- .projr_version_format_list_get(
-    version_format = yml_projr[["version_format"]]
-  )
+  version_format_list <- .projr_version_format_list_get()
   proj_nm <- projr_name_get()
 
-  dir_bookdown_orig <- projr_yml_bed_get()$output_dir
+  dir_bookdown_orig <- .projr_yml_bd_get()$output_dir
 
   # get version for DESCRIPTION and bookdown from run onwards
   version_run_on_list <- .projr_version_run_onwards_get(
     bump_component = bump_component
   )
 
-  projr_version_set(
-    version_run_on_list$desc[["run"]], "DESCRIPTION"
-  )
-  projr_version_set(
-    version_run_on_list$bd[["run"]], "bookdown"
-  )
+  projr_version_set(version_run_on_list$desc[["run"]], "DESCRIPTION")
+  projr_version_set(version_run_on_list$bd[["run"]], "bookdown")
 
   dir_bookdown_run <- .projr_yml_bd_get()[["output_dir"]]
 
   # snapshot if need be
-  if (yml_projr[["build-output"]][["renv"]]) {
+  if (yml_projr[["build-output"]][["renv"]] &&
+    !Sys.getenv("PROJR_TEST") == "TRUE") {
     if (!is.null(bump_component)) {
       if (bump_component != "dev") {
         renv::snapshot(prompt = FALSE)
@@ -79,12 +73,8 @@ projr_build_dev <- function(bump = FALSE) {
 
   bd_status <- try(bookdown::render_book())
   if (identical(class(bd_status), "try-error")) {
-    projr_version_set(
-      version_run_on_list$desc[["failure"]], "DESCRIPTION"
-    )
-    projr_version_set(
-      version_run_on_list$bd[["failure"]], "bookdown"
-    )
+    projr_version_set(version_run_on_list$desc[["failure"]], "DESCRIPTION")
+    projr_version_set(version_run_on_list$bd[["failure"]], "bookdown")
     # TODO: #156 delet
     stop(bd_status)
   }
@@ -100,38 +90,19 @@ projr_build_dev <- function(bump = FALSE) {
     )
   }
 
-  projr_version_set(
-    version_run_on_list$desc[["success"]], "DESCRIPTION"
-  )
-  projr_version_set(
-    version_run_on_list$bd[["success"]], "bookdown"
-  )
-
-  # delete old dev versions
-  if (!(is.null(bump_component) || bump_component == "dev")) {
+  # copy
+  dev_run_n <- !(is.null(bump_component) || bump_component == "dev")
+  copy_to_output <- projr_yml_get()[["build-dev"]][["copy_to_output"]] ||
+    dev_run_n
+  if (copy_to_output) {
     # copy to output
     # ----------------
-    projr_copy_to_output(
-      yml_projr = yml_projr,
-      version_current = paste0(
-        "V", version_run_on_list$desc[["success"]]
-      ),
-      proj_nm = proj_nm,
-      dir_proj = dir_proj,
-      dir_bookdown = dir_bookdown_run,
-      bump_component = bump_component
-    )
+    .projr_output_copy(bump_component = bump_component)
 
     # copy to archive
     # ----------------
-
-    dir_output <- projr_dir_get(
-      type = "output",
-      safe_output = FALSE
-    )
-    dir_archive <- projr_dir_get(
-      type = "archive"
-    )
+    dir_output <- projr_dir_get(type = "output", output_safe = FALSE)
+    dir_archive <- projr_dir_get(type = "archive")
     if (!fs::is_absolute_path(dir_output)) {
       dir_output <- file.path(dir_proj, dir_output)
     }
@@ -149,9 +120,6 @@ projr_build_dev <- function(bump = FALSE) {
       ))
       if (file.exists(path_archive_zip)) {
         unlink(path_archive_zip, recursive = TRUE)
-      }
-      if (!dir.exists(dirname(path_archive_zip))) {
-        dir.create(dirname(path_archive_zip), recursive = TRUE)
       }
       zip(path_archive_zip, files = fn_vec)
     }
@@ -179,47 +147,18 @@ projr_build_dev <- function(bump = FALSE) {
     # from the output directory
   }
 
+  projr_version_set(version_run_on_list$desc[["success"]], "DESCRIPTION")
+  projr_version_set(version_run_on_list$bd[["success"]], "bookdown")
+
+
   invisible(TRUE)
 }
 
 
-
-
-#' @title Bump dev version
-#'
-#' @description Increments development version component
-#' in project version by 1.
-#' Note that this only increments the version
-#' in `_bookdown.yml` and not DESCRIPTION.
-#' The version in DESCRIPTION will be incremented once
-#' the project is built.
-#'
-#' @export
-projr_bump_version_dev <- function() {
-  yml_bd <- .projr_yml_bd_get()
-  book_fn <- yml_bd$book_filename
-  string_version_regex <- "V\\d+$"
-  pos_match <- regexpr(string_version_regex, book_fn_dev_n)[[1]]
-  book_fn <- substr(book_fn_dev_n, start = 1, stop = pos_match - 1)
-  version_location <- stringr::str_locate(book_fn, "-9\\d+")
-  version_new <- as.numeric(
-    substr(book_fn, version_location[1, "start"] + 1, nchar(book_fn))
-  ) + 1
-  book_fn <- gsub("-9\\d+", "", book_fn)
-  book_fn <- paste0(book_fn, "-", version_new)
-  dir_output <- file.path(dirname(yml_bd$output_dir), book_fn)
-  yml_bd$output_dir <- dir_output
-  yml_bd$book_filename <- book_fn
-  projr:yml_bd_set(yml_bd)
-  invisible(TRUE)
-}
-
-projr_copy_to_output <- function(yml_projr,
-                                 version_current,
-                                 proj_nm,
-                                 dir_proj,
-                                 dir_bookdown,
-                                 bump_component) {
+.projr_output_copy <- function(bump_component) {
+  yml_projr <- projr_yml_get()
+  dir_proj <- rprojroot::is_r_package$find_file()
+  dir_bookdown <- .projr_yml_bd_get()[["output_dir"]]
   yml_projr_dir <- yml_projr[["directories"]]
   output_safe <- is.null(bump_component) || bump_component == "dev"
   dir_output <- projr_dir_get("output", output_safe = output_safe)
@@ -230,7 +169,7 @@ projr_copy_to_output <- function(yml_projr,
     dir_output <- file.path(dir_proj, dir_output)
   }
 
-  # copy data_raw and cache across, if desireds
+  # copy data_raw and cache across, if desired
   for (type in c("data_raw", "cache")) {
     copy <- copy_to_output_list[[type]]
     if (is.logical(copy)) {
@@ -267,7 +206,6 @@ projr_copy_to_output <- function(yml_projr,
   copy_bookdown <- copy_to_output_list[["bookdown"]]
   if (is.logical(copy_bookdown)) {
     if (copy_bookdown) {
-      dir_input <- dir_bookdown
       path_zip <- file.path(
         dir_output, "bookdown", paste0(basename(dir_bookdown), ".zip")
       )

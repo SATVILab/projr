@@ -4,7 +4,7 @@
 \alias{projr_version_set}
 \title{Set project version}
 \usage{
-projr_version_set(version, where = c("bookdown", "DESCRIPTION"))
+projr_version_set(version, where = "bookdown")
 }
 \arguments{
 \item{where}{"bookdown" and/or "DESCRIPTION"/
@@ -13,7 +13,7 @@ If it includes \code{"bookdown"}, then the version is updated
 in the \code{book_filename} and \code{output_dir} fields
 of \code{_bookdown.yml}.
 If it includes \code{"DESCRIPTION"}
-Default is \code{c("bookdown", "DESCRIPTION")}.}
+Default is \code{c("bookdown")}.}
 }
 \description{
 Set project version manually.

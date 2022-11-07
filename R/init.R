@@ -39,7 +39,7 @@ projr_init <- function(dir_proj = getwd(),
   .projr_init_prompt(dir_proj = dir_proj)
 
 
-  if (!Sys.getenv("PROJR_TEST") == "FALSE") {
+  if (!Sys.getenv("PROJR_TEST") == "TRUE") {
     renv::init(
       force = renv_force,
       bioconductor = renv_bioconductor
@@ -57,10 +57,9 @@ projr_init <- function(dir_proj = getwd(),
   nm_pkg <- basename(dir_proj)
   cat("Project name is", paste0("`", nm_pkg, "`"), "\n")
 
-  if (Sys.getenv("PROJR_TEST") == "FALSE") {
-    nm_pkg <-
-      # please provide the GitHub user name
-      nm_gh <- "{{ GitHub user/organisation name }}"
+  if (Sys.getenv("PROJR_TEST") == "TRUE") {
+    # please provide the GitHub user name
+    nm_gh <- "{{ GitHub user/organisation name }}"
 
     # first name
     nm_first <- "{{ First name }}"
@@ -358,9 +357,6 @@ projr_init <- function(dir_proj = getwd(),
 
   # writing
   # ----------------------
-  if (!dir.exists(dir_proj)) {
-    dir.create(dir_proj, recursive = TRUE)
-  }
 
   # bookdown.yml
   bd <- yaml::read_yaml(system.file(
@@ -437,8 +433,24 @@ projr_init <- function(dir_proj = getwd(),
   ))
   index[2] <- paste0("title: ", nm_pkg)
   author_ind <- which(grepl("^author", index))
-  index[author_ind] <- paste0("author: ", nm_first, " ", nm_last)
+  nm_first <- "{{ First name }}"
+
+  # last name
+  if (nm_first == "{{ First name }}" || nm_last == "{{ Surname }}") {
+    nm_first <- gsub("\\{|\\}", "", nm_first)
+    nm_first <- gsub("^ | $", "", nm_first)
+    nm_last <- gsub("\\{|\\}", "", nm_last)
+    nm_last <- gsub("^ | $", "", nm_last)
+    nm_author <- paste0("{", nm_first, " ", nm_last, "}")
+    nm_author <- paste0("author: ", nm_author)
+  } else {
+    nm_author <- paste0("author: ", nm_first, " ", nm_last)
+  }
+  index[author_ind] <- nm_author
   description_ind <- which(grepl("^description", index))
+  if (nm_desc == "{{ Description }}") {
+    nm_desc <- "{Description}"
+  }
   index[description_ind] <- paste0("description: ", nm_desc)
   writeLines(index, file.path(dir_proj, "index.Rmd"))
 
@@ -486,8 +498,8 @@ projr_init <- function(dir_proj = getwd(),
   # README
   # ------------------------
 
-  if (Sys.getenv("PROJR_TEST") == "FALSE") {
-    usethis::use_readme_md(open = FALSE)
+  if (Sys.getenv("PROJR_TEST") == "TRUE") {
+    usethis::use_readme_rmd(open = FALSE)
   } else {
     answer_readme <- menu(
       c("Yes (can run R code)", "No (cannot run R code)"),
@@ -552,7 +564,7 @@ projr_init <- function(dir_proj = getwd(),
   # License
   # ----------------------
 
-  if (Sys.getenv("PROJR_TEST") == "FALSE") {
+  if (Sys.getenv("PROJR_TEST") == "TRUE") {
     usethis::use_ccby_license()
   } else {
     # project description
@@ -629,7 +641,7 @@ projr_init <- function(dir_proj = getwd(),
   # -------------------
 
   # Git
-  if (Sys.getenv("PROJR_TEST") == "FALSE") {
+  if (Sys.getenv("PROJR_TEST") == "TRUE") {
     # taken from usethis::use_git
     .projr_init_git(dir_proj)
     return(TRUE)

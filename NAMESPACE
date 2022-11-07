@@ -2,11 +2,11 @@
 
 export(projr_build_dev)
 export(projr_build_output)
-export(projr_bump_version_dev)
 export(projr_dir_get)
 export(projr_init)
 export(projr_profile_create)
 export(projr_profile_delete)
 export(projr_profile_get)
+export(projr_version_bump)
 export(projr_version_get)
 export(projr_version_set)

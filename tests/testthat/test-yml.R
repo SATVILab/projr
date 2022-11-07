@@ -60,7 +60,7 @@ test_that("getting active yml file works", {
             path = "_archive", ignore = TRUE
           )
         ), version_format = "major.minor.patch-dev",
-        `build-dev` = list(bump_version = FALSE, rmd = NULL),
+        `build-dev` = list(bump_version = FALSE, rmd = NULL, copy_to_output = FALSE),
         `build-output` = list(
           renv = TRUE, copy_to_output = list(
             data_raw = FALSE,

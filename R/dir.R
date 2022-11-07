@@ -1,3 +1,113 @@
+#' @title Return path to profile-specific directory
+#' @description Returns path to \code{projr} profile-specific directory.
+#' Also creates the directory if it does not exist, and
+#' ignores it if requested by `_projr.yml`.
+#' @param type character.
+#' One of \code{"data_raw"}, \code{"cache"},\code{"output"},
+#' \code{"archive"} and \code{"bookdown"}.
+#' Class of directory to return.
+#' The \code{"bookdown"} option returns the path to
+#' the output directory from \code{bookdown::render_book}
+#' (as specified in \code{"_bookdown.yml"}),
+#' whereas the others returns paths as specified in \code{"_projr.yml"}.
+#' @param ... Specifies sub-directory of directory returned.
+#' Passed to `file.path`.
+#' @param create logical.
+#' If \code{TRUE}, then the directory
+#' is created if it does not exist and
+#' it is ignored (or not) from \code{.gitignore}
+#' and \code{.Rbuildignore} as specified
+#' in \code{_projr.yml}.
+#' Default is \code{TRUE}.
+#' @param path_relative_force logical.
+#' If \code{TRUE}, then forces that the returned
+#' path is relative to the project root.
+#' Default is \code{FALSE}.
+#' @param output_safe logical.
+#' If \code{TRUE}, then the output directory
+#' is set to be \code{"<path_to_cache>/projr_output"}
+#' instead of \code{<path_to_output>} (as specified in \code{_projr.yml}).
+#' The only time that this should be set to \code{TRUE}
+#' should be when `projr_build_output` is being run, as otherwise
+#' "development" or test runs will add to, delete or overwrite files
+#' from the previous run of `projr_build_output`.
+#' Default is \code{TRUE}.
+#' @return Character.
+#' Path to directory requested.
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if (interactive()) {
+#'   # EXAMPLE1
+#' }
+#' }
+#' @rdname projr_dir_get
+#' @export
+projr_dir_get <- function(type, ...,
+                          create = TRUE,
+                          path_relative_force = FALSE,
+                          output_safe = TRUE) {
+  # get active directories
+  yml_active <- projr_yml_get()
+
+  dir_active <- yml_active[["directories"]]
+
+  if (!type %in% names(dir_active)) {
+    stop(paste0("type `", type, "` not recognised."))
+  }
+
+  if (type == "bookdown") {
+    yml_bd <- .projr_yml_bd_get()
+    path_final <- file.path(yml_bd[["output_dir"]], ...)
+    if (!dir.exists(path_final)) {
+      dir.create(path_final, recursive = TRUE)
+    }
+    return(as.character(path_final))
+  }
+
+  # get current version
+  if (type == "output" && output_safe) {
+    type <- "cache"
+    yml_active_dir_curr <- dir_active[type]
+    path_final_root <- file.path(
+      dir_active[[type]]$path, "projr_output",
+      .projr_version_current_vec_get() |> .projr_version_chr_get()
+    )
+    yml_active_dir_curr[["output"]][["path"]] <- path_final_root
+  } else {
+    yml_active_dir_curr <- dir_active[type]
+    path_final_root <- dir_active[[type]]$path
+  }
+  dir_active <- yml_active_dir_curr
+  create_lgl <- create
+  path_relative_force_lgl <- path_relative_force
+  path_append <- list(...)
+  path_append <- path_append[
+    -which(names(path_append) == "path_relative_force")
+  ]
+  path_append <- path_append[-which(names(path_append) == "create")]
+  path_final <- do.call(
+    "file.path",
+    args = list(path_final_root) |> append(path_append)
+  )
+
+  if (create_lgl) {
+    projr_dir_create(type = type)
+    if (!dir.exists(path_final)) {
+      dir.create(path_final, recursive = TRUE)
+    }
+  }
+
+  if (path_relative_force_lgl) {
+    path_final <- fs::path_rel(
+      path_final,
+      start = rprojroot::is_r_package$find_file()
+    )
+  }
+  as.character(path_final)
+}
+
+
 projr_dir_create <- function(type) {
   if (missing(type)) stop("type must be specified")
   if (!is.character(type)) stop("type must be of type character")
