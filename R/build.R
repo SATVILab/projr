@@ -5,15 +5,17 @@
 #' building the actual bookdown document and
 #' saving and archiving selected output.
 #'
+#' @param ... Arguments passed to \code{bookdown::render}.
+#'
 #' @export
-projr_build_output <- function(bump_component) {
+projr_build_output <- function(bump_component, ...) {
   if (missing(bump_component)) {
     yml_projr <- projr_yml_get()
     version <- yml_projr$version
     version_vec <- strsplit(version, split = "\\.|\\-")[[1]]
     bump_component <- version_vec[length(version_vec) - 1]
   }
-  .projr_build(bump_component = bump_component)
+  .projr_build(bump_component = bump_component, ...)
 }
 
 #' @title Build dev project
@@ -23,24 +25,18 @@ projr_build_output <- function(bump_component) {
 #' building the actual bookdown document and
 #' saving and archiving selected output.
 #'
+#' @param ... Arguments passed to \code{bookdown::render}.
+#'
 #' @export
 #' @export
-projr_build_dev <- function(bump = FALSE) {
+projr_build_dev <- function(bump = FALSE, ...) {
   # NULL if FALSE and "dev" if TRUE
   .projr_build(bump_component = switch(bump,
     "dev"
-  ))
+  ), ...)
 }
 
-#' @title Build project
-#'
-#' @param version "major", "minor", "patch".
-#' Version to bump.
-#' If \code{NULL}, then the lowest available
-#' version component in the `version` key of `_projr.yml`
-#' is used.
-#' Default is \code{NULL}.
-.projr_build <- function(bump_component) {
+.projr_build <- function(bump_component, ...) {
   dir_proj <- rprojroot::is_r_package$find_file()
 
   # read in settings
@@ -59,8 +55,6 @@ projr_build_dev <- function(bump = FALSE) {
   projr_version_set(version_run_on_list$desc[["run"]], "DESCRIPTION")
   projr_version_set(version_run_on_list$bd[["run"]], "bookdown")
 
-  dir_bookdown_run <- .projr_yml_bd_get()[["output_dir"]]
-
   # snapshot if need be
   if (yml_projr[["build-output"]][["renv"]] &&
     !Sys.getenv("PROJR_TEST") == "TRUE") {
@@ -71,7 +65,7 @@ projr_build_dev <- function(bump = FALSE) {
     }
   }
 
-  bd_status <- try(bookdown::render_book())
+  bd_status <- try(bookdown::render_book(...))
   if (identical(class(bd_status), "try-error")) {
     projr_version_set(version_run_on_list$desc[["failure"]], "DESCRIPTION")
     projr_version_set(version_run_on_list$bd[["failure"]], "bookdown")
@@ -121,7 +115,9 @@ projr_build_dev <- function(bump = FALSE) {
       if (file.exists(path_archive_zip)) {
         unlink(path_archive_zip, recursive = TRUE)
       }
-      zip(path_archive_zip, files = fn_vec)
+      sink(file.path(tempdir(), "zip123"))
+      zip(path_archive_zip, files = fn_vec, flags = "-r9Xq")
+      sink(NULL)
     }
 
 
@@ -199,7 +195,7 @@ projr_build_dev <- function(bump = FALSE) {
     if (!dir.exists(dirname(path_save))) {
       dir.create(dirname(path_save), recursive = TRUE)
     }
-    zip(path_save, files = fn_vec)
+    zip(path_save, files = fn_vec, flags = "-r9Xq")
   }
 
   # copy generated report
@@ -218,7 +214,8 @@ projr_build_dev <- function(bump = FALSE) {
         files = list.files(
           dir_bookdown,
           recursive = TRUE, full.names = TRUE
-        )
+        ),
+        flags = "-r9Xq"
       )
     }
   } else {

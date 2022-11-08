@@ -299,45 +299,45 @@ test_that("projr_version_set works", {
       expect_identical(yml_bd$book_filename, "reportV1.4")
       expect_identical(basename(yml_bd$output_dir), "reportV1.4")
       expect_identical(desc[1, "Version"][[1]], "1.3")
-      projr_version_bump()
+      invisible(projr_version_bump())
       yml_bd <- .projr_yml_bd_get()
       desc <- .projr_desc_get()
       expect_identical(basename(yml_bd$output_dir), "reportV1.5")
       expect_identical(desc[1, "Version"][[1]], "1.3")
-      projr_version_bump(
+      invisible(projr_version_bump(
         component = "major", where = c("bookdown", "DESCRIPTION")
-      )
+      ))
       yml_bd <- .projr_yml_bd_get()
       desc <- .projr_desc_get()
-      expect_identical(basename(yml_bd$output_dir), "reportV2.0")
-      expect_identical(desc[1, "Version"][[1]], "2.0")
+      expect_identical(basename(yml_bd$output_dir), "reportV2.1")
+      expect_identical(desc[1, "Version"][[1]], "2.1")
       projr_version_set("0.9291", where = c("bookdown", "DESCRIPTION"))
-      projr_version_bump(
+      invisible(projr_version_bump(
         component = "major", where = c("bookdown", "DESCRIPTION")
-      )
+      ))
       yml_bd <- .projr_yml_bd_get()
       desc <- .projr_desc_get()
       expect_identical(basename(yml_bd$output_dir), "reportV1.9000")
       expect_identical(desc[1, "Version"][[1]], "1.9000")
       projr_version_format_set("major.minor-dev")
       projr_version_set("1.2-3", where = c("bookdown", "DESCRIPTION"))
-      projr_version_bump(
+      invisible(projr_version_bump(
         component = "major", where = c("bookdown", "DESCRIPTION")
-      )
+      ))
       yml_bd <- .projr_yml_bd_get()
       desc <- .projr_desc_get()
       expect_identical(basename(yml_bd$output_dir), "reportV2.0-1")
       expect_identical(desc[1, "Version"][[1]], "2.0-1")
       projr_version_set("1.2-3", where = c("bookdown", "DESCRIPTION"))
-      projr_version_bump(
+      invisible(projr_version_bump(
         component = "major", where = c("bookdown", "DESCRIPTION"),
         onto_dev = FALSE
-      )
+      ))
       yml_bd <- .projr_yml_bd_get()
       desc <- .projr_desc_get()
       expect_identical(basename(yml_bd$output_dir), "reportV2.0")
       expect_identical(desc[1, "Version"][[1]], "2.0")
-      expect_error(projr_version_bump("does_not_exist"))
+      expect_error(invisible(projr_version_bump("does_not_exist")))
     },
     force = TRUE,
     quiet = TRUE
