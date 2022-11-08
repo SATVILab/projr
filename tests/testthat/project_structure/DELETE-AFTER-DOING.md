@@ -3,7 +3,7 @@
 - Edit `_project.yml`
   - This file specifies the paths to directories to keep raw data in, save all computed outputs to and save items for sharing and archiving.
   - These paths are referred to with the following syntax:
-    - `projr_dir_get("<directory_type>)`, e.g. `projr_dir_get("data_raw")` returns `inst/extdata` by default.
+    - `projr_dir_get("<directory_label>)`, e.g. `projr_dir_get("data_raw")` returns `inst/extdata` by default.
   - Such paths may be system-dependent.
     - The first set, under `directories-default`, specifies the default directories. If you are happy with them, then you don't need to do anything further.
     - However, paths are allowed to system, i.e they may be differ from your computer to another person's, or your local computer to a remote.

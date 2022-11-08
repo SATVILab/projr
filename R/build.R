@@ -101,8 +101,8 @@ projr_build_dev <- function(bump = FALSE) {
 
     # copy to archive
     # ----------------
-    dir_output <- projr_dir_get(type = "output", output_safe = FALSE)
-    dir_archive <- projr_dir_get(type = "archive")
+    dir_output <- projr_dir_get(label = "output", output_safe = FALSE)
+    dir_archive <- projr_dir_get(label = "archive")
     if (!fs::is_absolute_path(dir_output)) {
       dir_output <- file.path(dir_proj, dir_output)
     }
@@ -170,36 +170,36 @@ projr_build_dev <- function(bump = FALSE) {
   }
 
   # copy data_raw and cache across, if desired
-  for (type in c("data_raw", "cache")) {
-    copy <- copy_to_output_list[[type]]
+  data_raw_or_cache_ind <- grepl("^data_raw|^cache", names(copy_to_output_list))
+  label_vec <- names(copy_to_output_list)[data_raw_or_cache_ind]
+  label <- label_vec[1]
+  for (label in label_vec) {
+    copy <- copy_to_output_list[[label]]
     if (is.logical(copy)) {
       if (!copy) next
     } else {
       stop("non-logical versions of copy not supported yet")
     }
-    yml_projr_dir_type <- yml_projr_dir[names(yml_projr_dir) == type]
-    for (i in seq_along(yml_projr_dir_type)) {
-      dir_input <- yml_projr_dir_type[[i]][["path"]]
-      if (!fs::is_absolute_path(dir_input)) {
-        dir_input <- file.path(dir_proj, dir_input)
-      }
-      fn_vec <- list.files(
-        dir_input,
-        recursive = TRUE, all.files = TRUE,
-        full.names = TRUE
-      )
-      if (length(fn_vec) == 0) next
-      path_save <- file.path(
-        dir_output,
-        type,
-        paste0(yml_projr_dir_type[[i]][["name"]], ".zip")
-      )
-      if (file.exists(path_save)) unlink(path_save, recursive = TRUE)
-      if (!dir.exists(dirname(path_save))) {
-        dir.create(dirname(path_save), recursive = TRUE)
-      }
-      zip(path_save, files = fn_vec)
+    dir_input <- yml_projr_dir[[label]][["path"]]
+    if (!fs::is_absolute_path(dir_input)) {
+      dir_input <- file.path(dir_proj, dir_input)
     }
+    fn_vec <- list.files(
+      dir_input,
+      recursive = TRUE, all.files = TRUE,
+      full.names = TRUE
+    )
+    if (length(fn_vec) == 0) next
+    path_save <- file.path(
+      dir_output,
+      label,
+      paste0(yml_projr_dir[[label]][["name"]], ".zip")
+    )
+    if (file.exists(path_save)) unlink(path_save, recursive = TRUE)
+    if (!dir.exists(dirname(path_save))) {
+      dir.create(dirname(path_save), recursive = TRUE)
+    }
+    zip(path_save, files = fn_vec)
   }
 
   # copy generated report

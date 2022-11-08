@@ -2,7 +2,7 @@
 #' @description Returns path to \code{projr} profile-specific directory.
 #' Also creates the directory if it does not exist, and
 #' ignores it if requested by `_projr.yml`.
-#' @param type character.
+#' @param label character.
 #' One of \code{"data_raw"}, \code{"cache"},\code{"output"},
 #' \code{"archive"} and \code{"bookdown"}.
 #' Class of directory to return.
@@ -43,7 +43,7 @@
 #' }
 #' @rdname projr_dir_get
 #' @export
-projr_dir_get <- function(type, ...,
+projr_dir_get <- function(label, ...,
                           create = TRUE,
                           path_relative_force = FALSE,
                           output_safe = TRUE) {
@@ -52,11 +52,11 @@ projr_dir_get <- function(type, ...,
 
   dir_active <- yml_active[["directories"]]
 
-  if (!type %in% names(dir_active)) {
-    stop(paste0("type `", type, "` not recognised."))
+  if (!label %in% names(dir_active)) {
+    stop(paste0("label `", label, "` not recognised."))
   }
 
-  if (type == "bookdown") {
+  if (label == "bookdown") {
     yml_bd <- .projr_yml_bd_get()
     path_final <- file.path(yml_bd[["output_dir"]], ...)
     if (!dir.exists(path_final)) {
@@ -66,17 +66,17 @@ projr_dir_get <- function(type, ...,
   }
 
   # get current version
-  if (type == "output" && output_safe) {
-    type <- "cache"
-    yml_active_dir_curr <- dir_active[type]
+  if (label == "output" && output_safe) {
+    label <- "cache"
+    yml_active_dir_curr <- dir_active[label]
     path_final_root <- file.path(
-      dir_active[[type]]$path, "projr_output",
+      dir_active[[label]]$path, "projr_output",
       .projr_version_current_vec_get() |> .projr_version_chr_get()
     )
     yml_active_dir_curr[["output"]][["path"]] <- path_final_root
   } else {
-    yml_active_dir_curr <- dir_active[type]
-    path_final_root <- dir_active[[type]]$path
+    yml_active_dir_curr <- dir_active[label]
+    path_final_root <- dir_active[[label]]$path
   }
   dir_active <- yml_active_dir_curr
   create_lgl <- create
@@ -92,7 +92,7 @@ projr_dir_get <- function(type, ...,
   )
 
   if (create_lgl) {
-    projr_dir_create(type = type)
+    projr_dir_create(label = label)
     if (!dir.exists(path_final)) {
       dir.create(path_final, recursive = TRUE)
     }
@@ -108,15 +108,15 @@ projr_dir_get <- function(type, ...,
 }
 
 
-projr_dir_create <- function(type) {
-  if (missing(type)) stop("type must be specified")
-  if (!is.character(type)) stop("type must be of type character")
+projr_dir_create <- function(label) {
+  if (missing(label)) stop("label must be specified")
+  if (!is.character(label)) stop("label must be of label character")
   yml_active_dir <- projr_yml_get()[["directories"]]
   yml_active_dir <- yml_active_dir[
-    vapply(names(yml_active_dir), function(x) any(type %in% x), logical(1))
+    vapply(names(yml_active_dir), function(x) any(label %in% x), logical(1))
   ]
   if (length(yml_active_dir) == 0) {
-    stop("type does not match any directory type")
+    stop("label does not match any directory label")
   }
   # create
   for (i in seq_along(yml_active_dir)) {
@@ -134,21 +134,21 @@ projr_dir_create <- function(type) {
   # directories are versioned.
   # separate, original one kept for
   # git versioning
-  for (x in type) .projr_dir_ignore(x)
+  for (x in label) .projr_dir_ignore(x)
 
   invisible(TRUE)
 }
 
-.projr_dir_ignore <- function(type) {
-  if (length(type) > 1) stop("type must be length 1")
-  if (!is.character(type)) stop("type must be o type character")
+.projr_dir_ignore <- function(label) {
+  if (length(label) > 1) stop("label must be length 1")
+  if (!is.character(label)) stop("label must be o label character")
   dir_proj <- rprojroot::is_r_package$find_file()
   yml_active_dir <- try(projr_yml_get()[["directories"]])
   if (identical(class(yml_active_dir), "try-error")) {
     stop("_projr.yml not valid YAML")
   }
   match_ind <-
-    which(vapply(names(yml_active_dir), function(x) type == x, logical(1)))
+    which(vapply(names(yml_active_dir), function(x) label == x, logical(1)))
   dir_label <- names(yml_active_dir)[[match_ind]]
   yml_active_dir <- yml_active_dir[[match_ind]]
   dir_path <- yml_active_dir[["path"]]
