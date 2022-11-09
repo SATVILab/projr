@@ -84,17 +84,12 @@ projr_dir_get <- function(label, ...,
     "file.path",
     args = list(path_final_root) |> append(path_append)
   )
+  path_final <- as.character(path_final)
 
   if (create) {
     projr_dir_create(label = label)
-    if (!file.exists(path_final)) {
-      if (fs::is_file(path_final)) {
-        if (!dir.exists(dirname(path_final))) {
-          dir.create(dirname(path_final), recursive = TRUE)
-        }
-      } else {
-        dir.create(path_final, recursive = TRUE)
-      }
+    if (!dir.exists(dirname(path_final))) {
+      dir.create(dirname(path_final), recursive = TRUE)
     }
   }
 

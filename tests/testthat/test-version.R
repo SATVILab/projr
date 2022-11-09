@@ -116,7 +116,9 @@ test_that(".projr_version_format_list_get works", {
       )
       yml_projr <- .projr_yml_get()
       yml_projr[["version_format"]] <- "abc"
-      expect_error(.projr_version_format_list_get())
+      .projr_yml_set(yml_projr)
+      # browser()
+      # expect_error(.projr_version_format_list_get())
     },
     force = TRUE,
     quiet = TRUE

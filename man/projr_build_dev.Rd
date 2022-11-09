@@ -4,7 +4,10 @@
 \alias{projr_build_dev}
 \title{Build dev project}
 \usage{
-projr_build_dev(bump = FALSE)
+projr_build_dev(bump = FALSE, ...)
+}
+\arguments{
+\item{...}{Arguments passed to \code{bookdown::render}.}
 }
 \description{
 Builds project to output, which

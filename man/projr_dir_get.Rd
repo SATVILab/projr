@@ -5,7 +5,7 @@
 \title{Return path to profile-specific directory}
 \usage{
 projr_dir_get(
-  type,
+  label,
   ...,
   create = TRUE,
   path_relative_force = FALSE,
@@ -13,7 +13,7 @@ projr_dir_get(
 )
 }
 \arguments{
-\item{type}{character.
+\item{label}{character.
 One of \code{"data_raw"}, \code{"cache"},\code{"output"},
 \code{"archive"} and \code{"bookdown"}.
 Class of directory to return.

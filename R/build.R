@@ -78,18 +78,20 @@ projr_build_dev <- function(bump = FALSE, ...) {
   }
 
   # update any docs
-  roxygen2::roxygenise(package.dir = dir_proj)
+  suppressMessages(suppressWarnings(invisible(
+    roxygen2::roxygenise(package.dir = dir_proj)
+  )))
 
   # update README.Rmd, if found
   if (file.exists(file.path(dir_proj, "README.Rmd"))) {
     rmarkdown::render(
       file.path(dir_proj, "README.Rmd"),
-      output_format = "md_document"
+      output_format = "md_document",
+      quiet = TRUE
     )
   }
 
   # copy
-
   copy_to_output <- projr_yml_get()[["build-dev"]][["copy_to_output"]] ||
     dev_run_n
   if (copy_to_output) {
@@ -147,8 +149,13 @@ projr_build_dev <- function(bump = FALSE, ...) {
     # from the output directory
   }
 
+  dir_version <- projr_dir_get("output", output_safe = FALSE)
+  version_fn <- paste0("VERSION - ", projr_version_get())
+  file.create(file.path(dir_version, version_fn))
+
   projr_version_set(version_run_on_list$desc[["success"]], "DESCRIPTION")
   projr_version_set(version_run_on_list$bd[["success"]], "bookdown")
+
 
   invisible(TRUE)
 }
@@ -160,11 +167,27 @@ projr_build_dev <- function(bump = FALSE, ...) {
   yml_projr_dir <- yml_projr[["directories"]]
   output_safe <- is.null(bump_component) || bump_component == "dev"
   dir_output <- projr_dir_get("output", output_safe = output_safe)
+
   copy_to_output_list <- yml_projr[["build-output"]][["copy_to_output"]]
   # make it an absolute path, stuck onto dir_proj,
   # only if it isn't already an absolute path
   if (!fs::is_absolute_path(dir_output)) {
     dir_output <- file.path(dir_proj, dir_output)
+  }
+
+  # attempt package build first if required
+  if (yml_projr[["build-output"]][["copy_to_output"]][["package"]]) {
+    dir_pkg <- file.path(dir_output)
+    if (!dir.exists(dir_pkg)) dir.create(dir_pkg)
+    version_pkg <- .projr_desc_get()[, "Version"][[1]]
+    fn_pkg <- paste0(projr_name_get(), "_", version_pkg, ".tar.gz")
+    path_pkg <- file.path(dir_pkg, fn_pkg)
+    devtools::build(
+      pkg = dir_proj,
+      path = path_pkg,
+      binary = FALSE,
+      quiet = TRUE
+    )
   }
 
   # copy data_raw and cache across, if desired
@@ -234,19 +257,37 @@ projr_build_dev <- function(bump = FALSE, ...) {
     stop("copy not being logical for bookdown not supported yet")
   }
 
-  # build package
-  if (yml_projr[["build-output"]][["copy_to_output"]][["package"]]) {
-    dir_pkg <- file.path(dir_output)
-    if (!dir.exists(dir_pkg)) dir.create(dir_pkg)
-    version_pkg <- .projr_desc_get()[, "Version"][[1]]
-    fn_pkg <- paste0(projr_name_get(), "_", version_pkg, ".tar.gz")
-    path_pkg <- file.path(dir_pkg, fn_pkg)
-    devtools::build(
-      pkg = dir_proj,
-      path = path_pkg,
-      binary = FALSE,
-      quiet = TRUE
-    )
+  # copy output across at end because it's the least error prone
+  # and is the only one that moves and doesn't just copy
+  dir_output_safe <- projr_dir_get(
+    "output",
+    output_safe = TRUE
+  )
+  if (!fs::is_absolute_path(dir_output_safe)) {
+    dir_output_safe <- fs::path_abs(dir_output_safe)
   }
+  fn_vec_output_safe <- list.files(
+    dir_output_safe,
+    recursive = TRUE, full.names = FALSE
+  )
+  if (length(fn_vec_output_safe) > 0) {
+    if (!fs::is_absolute_path(dir_output)) {
+      dir_output <- file.path(dir_proj, dir_output)
+    }
+    fn_vec_output <- file.path(dir_output, fn_vec_output_safe)
+    dir_vec <- unique(dirname(fn_vec_output))
+    for (x in dir_vec) {
+      if (!dir.exists(x)) {
+        dir.create(x, recursive = TRUE)
+      }
+    }
+    copy_success <- all(file.rename(
+      file.path(dir_output_safe, fn_vec_output_safe), fn_vec_output
+    ))
+    if (copy_success) {
+      unlink(dir_output_safe, recursive = TRUE)
+    }
+  }
+
   invisible(TRUE)
 }

@@ -4,7 +4,10 @@
 \alias{projr_build_output}
 \title{Build project to output}
 \usage{
-projr_build_output(bump_component)
+projr_build_output(bump_component, ...)
+}
+\arguments{
+\item{...}{Arguments passed to \code{bookdown::render}.}
 }
 \description{
 Builds project to output, which
