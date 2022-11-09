@@ -59,22 +59,22 @@ projr_init <- function(dir_proj = getwd(),
 
   if (Sys.getenv("PROJR_TEST") == "TRUE") {
     # please provide the GitHub user name
-    nm_gh <- "{{ GitHub user/organisation name }}"
+    nm_gh <- "GITHUB_USER_NAME"
 
     # first name
-    nm_first <- "{{ First name }}"
+    nm_first <- "FIRST_NAME"
 
     # last name
-    nm_last <- "{{ Surname }}"
+    nm_last <- "LAST_NAME"
 
     # email
-    nm_email <- "{{ Email address }}"
+    nm_email <- "USER@DOMAIN.COM"
 
     # project title
-    nm_title <- "{{ Project title }}"
+    nm_title <- "PROJECT_TITLE"
 
     # project title
-    nm_desc <- "{{ Description }}"
+    nm_desc <- "DESCRIPTION"
   } else {
     # please provide the GitHub user name
     if (nzchar(Sys.getenv("PROJR_GITHUB_USERNAME"))) {
@@ -134,7 +134,7 @@ projr_init <- function(dir_proj = getwd(),
       completed_gh <- answer_gh != 3
     }
     if (!completed_gh) {
-      nm_gh <- "{{ GitHub user/organisation name }}"
+      nm_gh <- "GITHUB_USER_NAME"
     }
 
     # first name
@@ -188,7 +188,7 @@ projr_init <- function(dir_proj = getwd(),
     }
 
     if (!completed_first) {
-      nm_first <- "{{ First name }}"
+      nm_first <- "FIRST_NAME"
     }
 
     # last name
@@ -242,7 +242,7 @@ projr_init <- function(dir_proj = getwd(),
     }
 
     if (!completed_last) {
-      nm_last <- "{{ Surname }}"
+      nm_last <- "LAST_NAME"
     }
 
     # email
@@ -296,7 +296,7 @@ projr_init <- function(dir_proj = getwd(),
     }
 
     if (!completed_email) {
-      nm_email <- "{{ Email address }}"
+      nm_email <- "USER@DOMAIN.COM"
     }
 
     # project title
@@ -317,7 +317,7 @@ projr_init <- function(dir_proj = getwd(),
       )
     }
     if (answer_title == 3) {
-      nm_title <- "{{ Project title }}"
+      nm_title <- "PROJECT_TITLE"
     }
 
     # project title
@@ -349,7 +349,7 @@ projr_init <- function(dir_proj = getwd(),
       )
     }
     if (answer_desc == 3) {
-      nm_desc <- "{{ Description }}"
+      nm_desc <- "DESCRIPTION"
     }
   }
 
@@ -407,6 +407,7 @@ projr_init <- function(dir_proj = getwd(),
   suppressWarnings(descrptn$add_author(
     nm_first,
     nm_last,
+    role = c("aut", "cre"),
     email = nm_email
   ))
 
@@ -433,24 +434,11 @@ projr_init <- function(dir_proj = getwd(),
   ))
   index[2] <- paste0("title: ", nm_pkg)
   author_ind <- which(grepl("^author", index))
-  nm_first <- "{{ First name }}"
 
   # last name
-  if (nm_first == "{{ First name }}" || nm_last == "{{ Surname }}") {
-    nm_first <- gsub("\\{|\\}", "", nm_first)
-    nm_first <- gsub("^ | $", "", nm_first)
-    nm_last <- gsub("\\{|\\}", "", nm_last)
-    nm_last <- gsub("^ | $", "", nm_last)
-    nm_author <- paste0("{", nm_first, " ", nm_last, "}")
-    nm_author <- paste0("author: ", nm_author)
-  } else {
-    nm_author <- paste0("author: ", nm_first, " ", nm_last)
-  }
+  nm_author <- paste0("author: ", nm_first, " ", nm_last)
   index[author_ind] <- nm_author
   description_ind <- which(grepl("^description", index))
-  if (nm_desc == "{{ Description }}") {
-    nm_desc <- "{Description}"
-  }
   index[description_ind] <- paste0("description: ", nm_desc)
   writeLines(index, file.path(dir_proj, "index.Rmd"))
 

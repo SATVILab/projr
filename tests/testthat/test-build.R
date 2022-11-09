@@ -42,6 +42,39 @@ test_that("projr_build_output works", {
       expect_identical(
         list.files(projr_dir_get("output", output_safe = FALSE)), "bookdown"
       )
+
+      # test copying to other directories
+      yml_projr <- projr_yml_get()
+      dir.create("_archive")
+      file.create("_archive/V0.0.1.zip")
+      yml_projr <- .projr_yml_get()
+      # check that copying non-default directories works as well
+      copy_list <- list(
+        data_raw = TRUE, cache = TRUE, bookdown = FALSE, package = TRUE
+      )
+      yml_projr[["build-output"]][["copy_to_output"]] <- copy_list
+      print(yml_projr)
+      .projr_yml_set(list_save = yml_projr)
+      # debugonce(.projr_output_copy)
+      if (!dir.exists("_data_raw")) {
+        dir.create("_data_raw")
+      }
+      invisible(file.create("_data_raw/test.txt"))
+      if (!dir.exists("_tmp")) {
+        dir.create("_tmp")
+      }
+      invisible(file.create("_tmp/test.txt"))
+
+
+      projr_build_output(quiet = TRUE)
+      # browser()
+      list.files("_tmp")
+      list.files("_data_raw")
+      list.files("_output")
+      expect_identical(
+        list.files("_output", recursive = FALSE),
+        c("cache", "data_raw", "pkg")
+      )
       # test that it runs correctly when there is an error
       yml_bd <- .projr_yml_bd_get()
       writeLines(
@@ -56,21 +89,6 @@ test_that("projr_build_output works", {
       file.remove("error.Rmd")
       yml_bd[["rmd_files"]] <- c("index.Rmd", "appendix.Rmd")
       .projr_yml_bd_set(yml_bd)
-
-      # test copying to other directories
-      yml_projr <- projr_yml_get()
-      dir.create("_archive")
-      file.create("_archive/V0.0.1.zip")
-      yml_projr <- .projr_yml_get()
-      # check that copying non-default directories works as well
-      copy_list <- list(
-        data_raw = TRUE, cache = TRUE, bookdown = FALSE, package = TRUE
-      )
-      yml_projr[["build-output"]][["copy_to_output"]] <- copy_list
-      print(yml_projr)
-      .projr_yml_set(list_save = yml_projr)
-      debugonce(.projr_output_copy)
-      projr_build_output(quiet = TRUE)
     },
     quiet = TRUE,
     force = TRUE

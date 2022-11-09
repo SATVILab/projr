@@ -52,7 +52,7 @@ projr_dir_get <- function(label, ...,
 
   dir_active <- yml_active[["directories"]]
 
-  if (!label %in% names(dir_active)) {
+  if (!label %in% c(names(dir_active), "bookdown")) {
     stop(paste0("label `", label, "` not recognised."))
   }
 
@@ -78,27 +78,27 @@ projr_dir_get <- function(label, ...,
     yml_active_dir_curr <- dir_active[label]
     path_final_root <- dir_active[[label]]$path
   }
-  dir_active <- yml_active_dir_curr
-  create_lgl <- create
-  path_relative_force_lgl <- path_relative_force
   path_append <- list(...)
-  path_append <- path_append[
-    -which(names(path_append) == "path_relative_force")
-  ]
-  path_append <- path_append[-which(names(path_append) == "create")]
+  dir_active <- yml_active_dir_curr
   path_final <- do.call(
     "file.path",
     args = list(path_final_root) |> append(path_append)
   )
 
-  if (create_lgl) {
+  if (create) {
     projr_dir_create(label = label)
-    if (!dir.exists(path_final)) {
-      dir.create(path_final, recursive = TRUE)
+    if (!file.exists(path_final)) {
+      if (fs::is_file(path_final)) {
+        if (!dir.exists(dirname(path_final))) {
+          dir.create(dirname(path_final), recursive = TRUE)
+        }
+      } else {
+        dir.create(path_final, recursive = TRUE)
+      }
     }
   }
 
-  if (path_relative_force_lgl) {
+  if (path_relative_force) {
     path_final <- fs::path_rel(
       path_final,
       start = rprojroot::is_r_package$find_file()

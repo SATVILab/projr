@@ -12,7 +12,6 @@ cd /tmp; rm -rf testProjr; mkdir testProjr; cd testProjr; radian
 testthat::test_file("tests/testthat/test-dir_create.R")
 testthat::test_file("tests/testthat/test-build.R")
 
-
 # code coverage
 covr::report(file = "report.html", browse = FALSE)
 cp $projr/report.html $w_dnld/

@@ -43,6 +43,22 @@ test_that("projr_dir_get works", {
         projr_dir_get("data_raw", path_relative_force = TRUE),
         "../../testDataRawABC1902"
       )
+      expect_identical(
+        projr_dir_get("bookdown", "abc"), "docs/reportV0.0.0-1/abc"
+      )
+      expect_identical(
+        projr_dir_get("data_raw", "abc"), "/tmp/testDataRawABC1902/abc"
+      )
+      expect_identical(
+        projr_dir_get("cache", "abc"), "_tmp/abc"
+      )
+      expect_identical(
+        projr_dir_get("archive", "abc"), "_archive/abc"
+      )
+      expect_identical(
+        projr_dir_get("output", "abc", output_safe = TRUE),
+        "_tmp/projr_output/0.0.0-1/abc"
+      )
     },
     force = TRUE,
     quiet = TRUE
@@ -204,8 +220,6 @@ test_that("projr_dir_ignore works", {
       }
       names(yml_projr[["directories-default"]]) <- rep("data_raw", 4)
       .projr_yml_set(yml_projr)
-      # browser()
-      # debugonce(.projr_dir_ignore)
       expect_error(.projr_dir_ignore("data_raw"))
     },
     force = TRUE,

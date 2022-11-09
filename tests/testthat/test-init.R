@@ -2,9 +2,6 @@ test_that("projr_init works", {
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   if (!dir.exists(dir_test)) dir.create(dir_test)
-  if (!requireNamespace("withr", quietly = TRUE)) {
-    install.packages("withr")
-  }
   Sys.setenv("PROJR_TEST" = "TRUE")
   usethis::with_project(
     path = dir_test,

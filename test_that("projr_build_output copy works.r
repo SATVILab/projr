@@ -14,7 +14,6 @@ test_that("projr_build_output copy works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      # browser()
       # test that nothing is copied
       projr_init(renv_force = FALSE)
       yml_projr <- projr_yml_get()

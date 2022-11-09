@@ -65,10 +65,14 @@ projr_build_dev <- function(bump = FALSE, ...) {
     }
   }
 
+  # empty output directory
+  dev_run_n <- !(is.null(bump_component) || bump_component == "dev")
+  unlink(projr_dir_get("output", output_safe = !dev_run_n), recursive = TRUE)
   bd_status <- try(bookdown::render_book(...))
   if (identical(class(bd_status), "try-error")) {
     projr_version_set(version_run_on_list$desc[["failure"]], "DESCRIPTION")
     projr_version_set(version_run_on_list$bd[["failure"]], "bookdown")
+
     # TODO: #156 delet
     stop(bd_status)
   }
@@ -85,7 +89,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
   }
 
   # copy
-  dev_run_n <- !(is.null(bump_component) || bump_component == "dev")
+
   copy_to_output <- projr_yml_get()[["build-dev"]][["copy_to_output"]] ||
     dev_run_n
   if (copy_to_output) {
@@ -146,10 +150,8 @@ projr_build_dev <- function(bump = FALSE, ...) {
   projr_version_set(version_run_on_list$desc[["success"]], "DESCRIPTION")
   projr_version_set(version_run_on_list$bd[["success"]], "bookdown")
 
-
   invisible(TRUE)
 }
-
 
 .projr_output_copy <- function(bump_component) {
   yml_projr <- projr_yml_get()
@@ -185,11 +187,21 @@ projr_build_dev <- function(bump = FALSE, ...) {
       recursive = TRUE, all.files = TRUE,
       full.names = TRUE
     )
+    remove_projr_output <- label == "cache" &&
+      paste0(dir_input, "/", "projr_output") %in%
+        list.dirs(dir_input, recursive = FALSE)
+    if (remove_projr_output) {
+      fn_vec_rem <- list.files(
+        file.path(dir_input, "projr_output"),
+        recursive = TRUE, all.files = TRUE,
+        full.names = TRUE
+      )
+      fn_vec <- setdiff(fn_vec, fn_vec_rem)
+    }
     if (length(fn_vec) == 0) next
     path_save <- file.path(
       dir_output,
-      label,
-      paste0(yml_projr_dir[[label]][["name"]], ".zip")
+      paste0(label, ".zip")
     )
     if (file.exists(path_save)) unlink(path_save, recursive = TRUE)
     if (!dir.exists(dirname(path_save))) {
@@ -224,12 +236,14 @@ projr_build_dev <- function(bump = FALSE, ...) {
 
   # build package
   if (yml_projr[["build-output"]][["copy_to_output"]][["package"]]) {
-    dir_pkg <- file.path(dir_output, "pkg")
+    dir_pkg <- file.path(dir_output)
     if (!dir.exists(dir_pkg)) dir.create(dir_pkg)
-
+    version_pkg <- .projr_desc_get()[, "Version"][[1]]
+    fn_pkg <- paste0(projr_name_get(), "_", version_pkg, ".tar.gz")
+    path_pkg <- file.path(dir_pkg, fn_pkg)
     devtools::build(
       pkg = dir_proj,
-      path = dir_pkg,
+      path = path_pkg,
       binary = FALSE,
       quiet = TRUE
     )
