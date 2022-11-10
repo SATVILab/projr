@@ -16,7 +16,7 @@
 #' Default is \code{c("bookdown")}.
 #' @export
 projr_version_set <- function(version,
-                              where = "bookdown") {
+                              where = c("bookdown", "DESCRIPTION")) {
   if (missing(version)) stop("version must be supplied")
   .projr_version_format_check(version)
   stopifnot(is.character(version))
@@ -199,7 +199,7 @@ projr_name_get <- function() {
       )
     )
   }
-  
+
   if (!is.null(bump_component)) {
     comp_to_update_ind <- which(
       version_format_list$components == bump_component

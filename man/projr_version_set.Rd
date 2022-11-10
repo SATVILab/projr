@@ -4,7 +4,7 @@
 \alias{projr_version_set}
 \title{Set project version}
 \usage{
-projr_version_set(version, where = "bookdown")
+projr_version_set(version, where = c("bookdown", "DESCRIPTION"))
 }
 \arguments{
 \item{where}{"bookdown" and/or "DESCRIPTION"/
