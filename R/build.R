@@ -320,7 +320,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
     copy_success <- all(file.rename(
       file.path(dir_output_safe, fn_vec_output_safe), fn_vec_output
     ))
-    if (copy_success) {
+    if (copy_success && output_safe) {
       unlink(dir_output_safe, recursive = TRUE)
     }
   }
