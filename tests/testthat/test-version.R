@@ -255,6 +255,30 @@ test_that(".projr_version_run_onwards_get works", {
           )
         )
       )
+      projr_version_set("0.42.33", where = c("bookdown", "DESCRIPTION"))
+      expect_identical(
+        .projr_version_run_onwards_get(NULL),
+        list(
+          desc = c(
+            run = "0.42.33-1", failure = "0.42.33-1", success = "0.42.33-1"
+          ),
+          bd = c(
+            run = "0.42.33-1", failure = "0.42.33-1", success = "0.42.33-1"
+          )
+        )
+      )
+      projr_version_set("0.42.33", where = c("bookdown", "DESCRIPTION"))
+      expect_identical(
+        .projr_version_run_onwards_get("patch"),
+        list(
+          desc = c(
+            run = "0.42.34", failure = "0.42.33-1", success = "0.42.34"
+          ),
+          bd = c(
+            run = "0.42.34", failure = "0.42.33-1", success = "0.42.34-1"
+          )
+        )
+      )
     },
     force = TRUE,
     quiet = TRUE

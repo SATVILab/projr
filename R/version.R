@@ -186,11 +186,26 @@ projr_name_get <- function() {
 .projr_version_run_onwards_get <- function(bump_component) {
   version_orig_vec <- .projr_version_current_vec_get()
   version_format_list <- .projr_version_format_list_get()
+  if (length(version_orig_vec) < length(version_format_list$components)) {
+    dev_format <- version_format_list$components[[
+      length(version_format_list$components)
+    ]]
+    version_orig_vec <- switch(dev_format,
+      "dev" = ,
+      "1" = c(version_orig_vec, 1),
+      "9000" = c(version_orig_vec, 9000),
+      stop(
+        "development version format in _projr.yml$version_format not recognised" # nolint
+      )
+    )
+  }
+  
   if (!is.null(bump_component)) {
     comp_to_update_ind <- which(
       version_format_list$components == bump_component
     )
     version_bd_update_vec <- version_orig_vec
+
     version_bd_update_vec[comp_to_update_ind] <- version_bd_update_vec[
       comp_to_update_ind
     ] + 1
