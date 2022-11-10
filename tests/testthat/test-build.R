@@ -50,7 +50,7 @@ test_that("projr_build_output works", {
       expect_identical(list.files(projr_dir_get("output")), character(0))
       expect_identical(
         list.files(projr_dir_get("output", output_safe = FALSE)),
-        c("VERSION - 0.0.1", "bookdown")
+        c("VERSION - 0.0.1", "reportV0.0.1.zip")
       )
 
       # test copying to other directories

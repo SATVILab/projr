@@ -248,21 +248,33 @@ projr_build_dev <- function(bump = FALSE, ...) {
   copy_bookdown <- copy_to_output_list[["bookdown"]]
   if (is.logical(copy_bookdown)) {
     if (copy_bookdown) {
+      # browser()
       path_zip <- file.path(
-        dir_output, "bookdown", paste0(basename(dir_bookdown), ".zip")
+        dirname(dir_bookdown), "bookdown.zip"
       )
-      if (dir.exists(dirname(path_zip))) unlink(path_zip, recursive = TRUE)
-      if (!dir.exists(dirname(path_zip))) {
-        dir.create(dirname(path_zip), recursive = TRUE)
+      if (file.exists(path_zip)) {
+        file.remove(path_zip)
       }
+      if (!dir.exists(dirname(path_zip))) {
+        dir.create(dirname(path_zip))
+      }
+      setwd(dir_bookdown)
+      path_zip <- paste0(basename(dir_bookdown), ".zip")
       zip(
         path_zip,
-        files = list.files(
-          dir_bookdown,
-          recursive = TRUE, full.names = TRUE
-        ),
+        files = list.files(getwd(), recursive = TRUE, full.names = FALSE),
         flags = "-r9Xq"
       )
+      setwd(dir_proj)
+      path_copy <- file.path(
+        projr_dir_get("output", output_safe = output_safe), path_zip
+      )
+      if (file.exists(path_copy)) file.remove(path_copy)
+      file.copy(file.path(dir_bookdown, path_zip), path_copy)
+      # unzip(
+      #  path_copy,
+      #  exdir = projr_dir_get("output", "test", output_safe = output_safe)
+      # )
     }
   } else {
     stop("copy not being logical for bookdown not supported yet")
