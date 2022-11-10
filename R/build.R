@@ -37,8 +37,6 @@ projr_build_dev <- function(bump = FALSE, ...) {
 }
 
 .projr_build <- function(bump_component, ...) {
-  dir_proj <- rprojroot::is_r_package$find_file()
-
   # read in settings
   yml_projr <- projr_yml_get()
 
@@ -77,6 +75,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
     stop(bd_status)
   }
 
+  dir_proj <- rprojroot::is_r_package$find_file()
   # update any docs
   suppressMessages(suppressWarnings(invisible(
     roxygen2::roxygenise(package.dir = dir_proj)
