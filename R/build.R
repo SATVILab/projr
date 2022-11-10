@@ -40,11 +40,6 @@ projr_build_dev <- function(bump = FALSE, ...) {
   # read in settings
   yml_projr <- projr_yml_get()
 
-  version_format_list <- .projr_version_format_list_get()
-  proj_nm <- projr_name_get()
-
-  dir_bookdown_orig <- .projr_yml_bd_get()$output_dir
-
   # get version for DESCRIPTION and bookdown from run onwards
   version_run_on_list <- .projr_version_run_onwards_get(
     bump_component = bump_component
@@ -76,6 +71,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
   }
 
   dir_proj <- rprojroot::is_r_package$find_file()
+
   # update any docs
   suppressMessages(suppressWarnings(invisible(
     roxygen2::roxygenise(package.dir = dir_proj)
@@ -126,24 +122,26 @@ projr_build_dev <- function(bump = FALSE, ...) {
     }
 
 
-    # clear old dev versions
-    # ------------------------
-    # from the report directory
-    match_regex <- paste0(
-      "^",
-      proj_nm,
-      "V\\d+",
-      paste0("\\", version_format_list[["sep"]], "\\d+", collapse = ""),
-      "$"
-    )
-    dir_report <- basename(
-      list.dirs(dirname(dir_bookdown_orig), recursive = FALSE)
-    )
-    dir_report_rm <- dir_report[grepl(match_regex, dir_report)]
-    for (i in seq_along(dir_report_rm)) {
-      unlink(file.path(
-        dirname(dir_bookdown_orig), dir_report_rm
-      ), recursive = TRUE)
+    # clear old dev version from docs if not a dev run itself
+    if (dev_run_n) {
+      proj_nm <- projr_name_get()
+      version_format_list <- .projr_version_format_list_get()
+      match_regex <- paste0(
+        "^",
+        proj_nm,
+        "V\\d+",
+        paste0("\\", version_format_list[["sep"]], "\\d+", collapse = ""),
+        "$"
+      )
+      dir_report <- basename(
+        list.dirs(dirname(projr_dir_get("bookdown")), recursive = FALSE)
+      )
+      dir_report_rm <- dir_report[grepl(match_regex, dir_report)]
+      for (i in seq_along(dir_report_rm)) {
+        unlink(file.path(
+          dirname(projr_dir_get("bookdown")), dir_report_rm[[i]]
+        ), recursive = TRUE)
+      }
     }
     # from the output directory
   }
@@ -151,6 +149,15 @@ projr_build_dev <- function(bump = FALSE, ...) {
   dir_version <- projr_dir_get("output", output_safe = FALSE)
   version_fn <- paste0("VERSION - ", projr_version_get())
   file.create(file.path(dir_version, version_fn))
+
+  dir_tmp_vec_output <- list.dirs(
+    projr_dir_get("cache", "projr_output"),
+    recursive = FALSE
+  )
+
+  for (x in dir_tmp_vec_output) {
+    unlink(x, recursive = TRUE)
+  }
 
   projr_version_set(version_run_on_list$desc[["success"]], "DESCRIPTION")
   projr_version_set(version_run_on_list$bd[["success"]], "bookdown")

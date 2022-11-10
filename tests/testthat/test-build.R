@@ -38,7 +38,11 @@ test_that("projr_build_output works", {
       if (!file.exists("_archive/V0.0.1.zip")) {
         file.create("_archive/V0.0.1.zip")
       }
+      dir.create("docs/reportV0.0.0-1", recursive = TRUE)
+      dir.create("docs/reportV0.0.0-9000", recursive = TRUE)
       projr_build_output(quiet = TRUE)
+      expect_true(!dir.exists("docs/reportV0.0.0-1"))
+      expect_true(!dir.exists("docs/reportV0.0.0-9000"))
       yml_bd <- .projr_yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "reportV0.0.1-1")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
