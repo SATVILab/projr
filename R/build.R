@@ -138,12 +138,12 @@ projr_build_dev <- function(bump = FALSE, ...) {
       "$"
     )
     dir_report <- basename(
-      list.dirs(dirname(projr_dir_get("bookdown")), recursive = FALSE)
+      list.dirs(dirname(projr_dir_get("bookdown", create = FALSE)), recursive = FALSE)
     )
     dir_report_rm <- dir_report[grepl(match_regex, dir_report)]
     for (i in seq_along(dir_report_rm)) {
       unlink(file.path(
-        dirname(projr_dir_get("bookdown")), dir_report_rm[[i]]
+        dirname(projr_dir_get("bookdown", create = FALSE)), dir_report_rm[[i]]
       ), recursive = TRUE)
     }
   }
