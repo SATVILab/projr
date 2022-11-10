@@ -94,69 +94,74 @@ projr_build_dev <- function(bump = FALSE, ...) {
     # ----------------
     .projr_output_copy(bump_component = bump_component)
 
-    # copy to archive
-    # ----------------
-    dir_output <- projr_dir_get(label = "output", output_safe = FALSE)
-    dir_archive <- projr_dir_get(label = "archive")
-    if (!fs::is_absolute_path(dir_output)) {
-      dir_output <- file.path(dir_proj, dir_output)
-    }
-    if (!fs::is_absolute_path(dir_archive)) {
-      dir_archive <- file.path(dir_proj, dir_archive)
-    }
-    fn_vec <- list.files(
-      dir_output,
-      recursive = TRUE, all.files = TRUE, full.names = TRUE
-    )
-    if (length(list.dirs(dir_output)) > 0) {
-      path_archive_zip <- file.path(dir_archive, paste0(
-        "V", version_run_on_list$desc[["success"]],
-        ".zip"
-      ))
-      if (file.exists(path_archive_zip)) {
-        unlink(path_archive_zip, recursive = TRUE)
-      }
-      sink(file.path(tempdir(), "zip123"))
-      zip(path_archive_zip, files = fn_vec, flags = "-r9Xq")
-      sink(NULL)
-    }
-
-
-    # clear old dev version from docs if not a dev run itself
     if (dev_run_n) {
-      proj_nm <- projr_name_get()
-      version_format_list <- .projr_version_format_list_get()
-      match_regex <- paste0(
-        "^",
-        proj_nm,
-        "V\\d+",
-        paste0("\\", version_format_list[["sep"]], "\\d+", collapse = ""),
-        "$"
+      # copy to archive
+      # ----------------
+      dir_output <- projr_dir_get(label = "output", output_safe = FALSE)
+      dir_archive <- projr_dir_get(label = "archive")
+      if (!fs::is_absolute_path(dir_output)) {
+        dir_output <- file.path(dir_proj, dir_output)
+      }
+      if (!fs::is_absolute_path(dir_archive)) {
+        dir_archive <- file.path(dir_proj, dir_archive)
+      }
+      fn_vec <- list.files(
+        dir_output,
+        recursive = TRUE, all.files = TRUE, full.names = TRUE
       )
-      dir_report <- basename(
-        list.dirs(dirname(projr_dir_get("bookdown")), recursive = FALSE)
-      )
-      dir_report_rm <- dir_report[grepl(match_regex, dir_report)]
-      for (i in seq_along(dir_report_rm)) {
-        unlink(file.path(
-          dirname(projr_dir_get("bookdown")), dir_report_rm[[i]]
-        ), recursive = TRUE)
+      if (length(list.dirs(dir_output)) > 0) {
+        path_archive_zip <- file.path(dir_archive, paste0(
+          "V", version_run_on_list$desc[["success"]],
+          ".zip"
+        ))
+        if (file.exists(path_archive_zip)) {
+          unlink(path_archive_zip, recursive = TRUE)
+        }
+        sink(file.path(tempdir(), "zip123"))
+        zip(path_archive_zip, files = fn_vec, flags = "-r9Xq")
+        sink(NULL)
       }
     }
+
     # from the output directory
   }
 
-  dir_version <- projr_dir_get("output", output_safe = FALSE)
-  version_fn <- paste0("VERSION - ", projr_version_get())
-  file.create(file.path(dir_version, version_fn))
+  # clear old dev version from docs if not a dev run itself
+  if (dev_run_n) {
+    proj_nm <- projr_name_get()
+    version_format_list <- .projr_version_format_list_get()
+    match_regex <- paste0(
+      "^",
+      proj_nm,
+      "V\\d+",
+      paste0("\\", version_format_list[["sep"]], "\\d+", collapse = ""),
+      "$"
+    )
+    dir_report <- basename(
+      list.dirs(dirname(projr_dir_get("bookdown")), recursive = FALSE)
+    )
+    dir_report_rm <- dir_report[grepl(match_regex, dir_report)]
+    for (i in seq_along(dir_report_rm)) {
+      unlink(file.path(
+        dirname(projr_dir_get("bookdown")), dir_report_rm[[i]]
+      ), recursive = TRUE)
+    }
+  }
 
-  dir_tmp_vec_output <- list.dirs(
-    projr_dir_get("cache", "projr_output"),
-    recursive = FALSE
-  )
+  # clear old output from projr_version_get
+  if (dev_run_n) {
+    dir_version <- projr_dir_get("output", output_safe = FALSE)
+    version_fn <- paste0("VERSION - ", projr_version_get())
+    file.create(file.path(dir_version, version_fn))
 
-  for (x in dir_tmp_vec_output) {
-    unlink(x, recursive = TRUE)
+    dir_tmp_vec_output <- list.dirs(
+      projr_dir_get("cache", "projr_output"),
+      recursive = FALSE
+    )
+
+    for (x in dir_tmp_vec_output) {
+      unlink(x, recursive = TRUE)
+    }
   }
 
   projr_version_set(version_run_on_list$desc[["success"]], "DESCRIPTION")
