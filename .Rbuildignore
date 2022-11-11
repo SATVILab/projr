@@ -4,3 +4,5 @@
 ^\.vscode
 ^LICENSE\.md$
 ^SCRATCH\.R$
+^\.devcontainer
+^\.gitpod
