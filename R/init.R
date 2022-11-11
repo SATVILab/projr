@@ -631,7 +631,7 @@ projr_init <- function(dir_proj = getwd(),
   # Git
   if (Sys.getenv("PROJR_TEST") == "TRUE") {
     # taken from usethis::use_git
-    .projr_init_git(dir_proj)
+    # .projr_init_git(dir_proj)
     return(TRUE)
   } else {
     answer_git <- menu(

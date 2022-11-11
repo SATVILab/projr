@@ -10,7 +10,7 @@ test_that("projr_init works", {
       expect_true(file.exists("_bookdown.yml"))
       expect_true(file.exists("_output.yml"))
       expect_true(file.exists("_projr.yml"))
-      expect_true(file.exists(".git"))
+      # expect_true(file.exists(".git"))
       expect_true(file.exists(".gitignore"))
       expect_true(file.exists(".Rbuildignore"))
       expect_true(file.exists("DESCRIPTION"))
