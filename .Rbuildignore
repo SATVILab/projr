@@ -7,4 +7,6 @@
 ^\.devcontainer
 ^\.gitpod
 ^\.github$
-
+^lib
+^codecov\.yml$
+^report\.html$

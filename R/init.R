@@ -47,14 +47,9 @@ projr_init <- function(dir_proj = getwd(),
 
   .projr_init_prompt(dir_proj = dir_proj)
 
-
   if (!Sys.getenv("PROJR_TEST") == "TRUE") {
-    renv::init(
-      force = renv_force,
-      bioconductor = renv_bioconductor
-    )
+    renv::init(force = renv_force, bioconductor = renv_bioconductor)
   }
-
 
   invisible(TRUE)
 }
@@ -66,301 +61,50 @@ projr_init <- function(dir_proj = getwd(),
   nm_pkg <- basename(dir_proj)
   cat("Project name is", paste0("`", nm_pkg, "`"), "\n")
 
-  if (Sys.getenv("PROJR_TEST") == "TRUE") {
-    # please provide the GitHub user name
-    nm_gh <- "GITHUB_USER_NAME"
+  nm_gh <- .projr_init_prompt_ind(
+    .var = "GITHUB_USER_NAME",
+    nm_item_long = "GitHub user/organisation name",
+    option_other = c("Specify other", "Complete later"),
+    option_check = c("Yes", "No", "Complete later"),
+    answer_auto = "GITHUB_USER_NAME"
+  )
 
-    # first name
-    nm_first <- "FIRST_NAME"
+  nm_first <- .projr_init_prompt_ind(
+    .var = "FIRST_NAME",
+    nm_item_long = "your first name",
+    option_other = c("Specify other", "Complete later"),
+    option_check = c("Yes", "No", "Complete later"),
+    answer_auto = "FIRST_NAME"
+  )
 
-    # last name
-    nm_last <- "LAST_NAME"
-
-    # email
-    nm_email <- "USER@DOMAIN.COM"
-
-    # project title
-    nm_title <- "PROJECT_TITLE"
-
-    # project title
-    nm_desc <- "DESCRIPTION"
-  } else {
-    # please provide the GitHub user name
-    if (nzchar(Sys.getenv("PROJR_GITHUB_USERNAME"))) {
-      nm_gh <- strsplit(Sys.getenv("PROJR_GITHUB_USERNAME"), ";")[[1]]
-      answer_gh <- utils::menu(
-        c(nm_gh, "Specify other", "Complete later"),
-        title = "Please select GitHub user/organisation name for this project"
-      )
-      cat("\n")
-      if (answer_gh %in% seq_along(nm_gh)) {
-        nm_gh <- nm_gh[answer_gh]
-        ask_gh <- FALSE
-        completed_gh <- TRUE
-      } else if (answer_gh == length(nm_gh) + 1) {
-        cat(
-          "Please provide the GitHub user/organisation name for this project.\n"
-        ) # nolint
-        nm_gh <- readline(prompt = ">> ")
-        cat("\n")
-        ask_gh <- TRUE
-      } else {
-        ask_gh <- FALSE
-        completed_gh <- FALSE
-      }
-    } else {
-      cat(
-        "Please provide the GitHub user/organisation name for this project.\n"
-      )
-      nm_gh <- readline(prompt = ">> ")
-      cat("\n")
-      ask_gh <- TRUE
-    }
-
-    if (ask_gh) {
-      answer_gh <- utils::menu(
-        c("Yes", "No", "Complete later"),
-        title = paste0(
-          "Is the GitHub user/organisation name `", nm_gh, "` correct?"
-        )
-      )
-      cat("\n")
-      ask_gh <- answer_gh == 2
-      completed_gh <- answer_gh != 3
-    }
-
-    while (ask_gh) {
-      cat("Please provide the GitHub user/organisation name.\n")
-      nm_gh <- readline(prompt = ">> ")
-      answer_gh <- utils::menu(
-        c("Yes", "No", "Complete later"),
-        title = paste0(
-          "Is the GitHub user/organisation name `", nm_gh, "` correct?"
-        )
-      )
-      cat("\n")
-      ask_gh <- answer_gh == 2
-      completed_gh <- answer_gh != 3
-    }
-    if (!completed_gh) {
-      nm_gh <- "GITHUB_USER_NAME"
-    }
-
-    # first name
-    if (nzchar(Sys.getenv("PROJR_FIRST_NAME"))) {
-      nm_first <- strsplit(Sys.getenv("PROJR_FIRST_NAME"), ";")[[1]]
-      answer_first <- utils::menu(
-        c(nm_first, "Specify other", "Complete later"),
-        title = "Please select your first name."
-      )
-      cat("\n")
-      if (answer_first %in% seq_along(nm_first)) {
-        nm_first <- nm_first[answer_first]
-        ask_first <- FALSE
-        completed_first <- TRUE
-      } else if (answer_first == length(nm_first) + 1) {
-        cat("Please provide your first name.\n") # nolint
-        nm_first <- readline(prompt = ">> ")
-        cat("\n")
-        ask_first <- TRUE
-      } else {
-        ask_first <- FALSE
-        completed_first <- FALSE
-      }
-    } else {
-      cat("Please provide your first name.\n")
-      nm_first <- readline(prompt = ">> ")
-      cat("\n")
-      ask_first <- TRUE
-    }
-
-    if (ask_first) {
-      answer_first <- utils::menu(
-        c("Yes", "No", "Complete later"),
-        title = paste0("Is the first name `", nm_first, "` correct?")
-      )
-      cat("\n")
-      ask_first <- answer_first == 2
-      completed_first <- answer_first != 3
-    }
-
-    while (ask_first) {
-      cat("Please provide your first name.\n")
-      nm_first <- readline(prompt = ">> ")
-      answer_first <- utils::menu(
-        c("Yes", "No", "Complete later"),
-        title = paste0("Is the first name `", nm_first, "` correct?")
-      )
-      cat("\n")
-      ask_first <- answer_first == 2
-      completed_first <- answer_first != 3
-    }
-
-    if (!completed_first) {
-      nm_first <- "FIRST_NAME"
-    }
-
-    # last name
-    if (nzchar(Sys.getenv("PROJR_LAST_NAME"))) {
-      nm_last <- strsplit(Sys.getenv("PROJR_LAST_NAME"), ";")[[1]]
-      answer_last <- utils::menu(
-        c(nm_last, "Specify other", "Complete later"),
-        title = "Please select your surname (last/family name)."
-      )
-      cat("\n")
-      if (answer_last %in% seq_along(nm_last)) {
-        nm_last <- nm_last[answer_last]
-        ask_last <- FALSE
-        completed_last <- TRUE
-      } else if (answer_last == length(nm_last) + 1) {
-        cat("Please provide your surname.\n") # nolint
-        nm_last <- readline(prompt = ">> ")
-        cat("\n")
-        ask_last <- TRUE
-      } else {
-        ask_last <- FALSE
-        completed_last <- FALSE
-      }
-    } else {
-      cat("Please provide your surname (last/family name).\n")
-      nm_last <- readline(prompt = ">> ")
-      cat("\n")
-      ask_last <- TRUE
-    }
-
-    if (ask_last) {
-      answer_last <- utils::menu(
-        c("Yes", "No", "Complete later"),
-        title = paste0("Is the surname `", nm_last, "` correct?")
-      )
-      cat("\n")
-      ask_last <- answer_last == 2
-      completed_last <- answer_last != 3
-    }
-
-    while (ask_last) {
-      cat("Please provide your surname.\n")
-      nm_last <- readline(prompt = ">> ")
-      answer_last <- utils::menu(
-        c("Yes", "No", "Complete later"),
-        title = paste0("Is the surname `", nm_last, "` correct?")
-      )
-      cat("\n")
-      ask_last <- answer_last == 2
-      completed_last <- answer_last != 3
-    }
-
-    if (!completed_last) {
-      nm_last <- "LAST_NAME"
-    }
-
-    # email
-    if (nzchar(Sys.getenv("PROJR_EMAIL"))) {
-      nm_email <- strsplit(Sys.getenv("PROJR_EMAIL"), ";")[[1]]
-      answer_email <- utils::menu(
-        c(nm_email, "Specify other", "Complete later"),
-        title = "Please select your email address."
-      )
-      cat("\n")
-      if (answer_email %in% seq_along(nm_email)) {
-        nm_email <- nm_email[answer_email]
-        ask_email <- FALSE
-        completed_email <- TRUE
-      } else if (answer_email == length(nm_email) + 1) {
-        cat("Please provide your email address.\n") # nolint
-        nm_email <- readline(prompt = ">> ")
-        cat("\n")
-        ask_email <- TRUE
-      } else {
-        ask_email <- FALSE
-        completed_email <- FALSE
-      }
-    } else {
-      cat("Please provide your email address.\n")
-      nm_email <- readline(prompt = ">> ")
-      cat("\n")
-      ask_email <- TRUE
-    }
-
-    if (ask_email) {
-      answer_email <- utils::menu(
-        c("Yes", "No", "Complete later"),
-        title = paste0("Is the email address `", nm_email, "` correct?")
-      )
-      cat("\n")
-      ask_email <- answer_email == 2
-      completed_email <- answer_email != 3
-    }
-
-    while (ask_email) {
-      cat("Please provide your email address.\n")
-      nm_email <- readline(prompt = ">> ")
-      answer_email <- utils::menu(
-        c("Yes", "No", "Complete later"),
-        title = paste0("Is the email address `", nm_email, "` correct?")
-      )
-      cat("\n")
-      ask_email <- answer_email == 2
-      completed_email <- answer_email != 3
-    }
-
-    if (!completed_email) {
-      nm_email <- "USER@DOMAIN.COM"
-    }
-
-    # project title
-    cat(
-      "Please provide a short project title (<30 characters, initial capital and no full stop).\n" # nolint
-    ) # nolint
-    nm_title <- readline(prompt = ">> ")
-    answer_title <- utils::menu(
-      c("Yes", "No", "Complete later"),
-      title = paste0("Is the project title `", nm_title, "` correct?")
-    )
-    while (answer_title == 2) {
-      cat("Please provide a short project title (<30 characters, initial capital and no full stop).\n") # nolint
-      nm_title <- readline(prompt = ">> ")
-      answer_title <- utils::menu(
-        c("Yes", "No", "Complete later"),
-        title = paste0("Is the project title `", nm_title, "` correct?")
-      )
-    }
-    if (answer_title == 3) {
-      nm_title <- "PROJECT_TITLE"
-    }
-
-    # project title
-    cat(
-      "Please provide a sentence or two describing the project (initial capital and a full stop).\n" # nolint
-    )
-    nm_desc <- readline(prompt = ">> ")
-    answer_desc <- utils::menu(
-      c("Yes", "No", "Complete later"),
-      title =
-        paste0(
-          "Is the following project description correct:\n",
-          nm_desc
-        )
-    )
-    while (answer_desc == 2) {
-      cat(
-        "Please provide a sentence or two describing the project (initial capital and a full stop).\n" # nolint
-      )
-      nm_desc <- readline(prompt = ">> ")
-      answer_desc <- utils::menu(
-        c("Yes", "No", "Complete later"),
-        title =
-          paste0(
-            "Is the following project description correct:\n",
-            nm_desc,
-            "`"
-          )
-      )
-    }
-    if (answer_desc == 3) {
-      nm_desc <- "DESCRIPTION"
-    }
-  }
+  nm_last <- .projr_init_prompt_ind(
+    .var = "LAST_NAME",
+    nm_item_long = "your last name",
+    option_other = c("Specify other", "Complete later"),
+    option_check = c("Yes", "No", "Complete later"),
+    answer_auto = "LAST_NAME"
+  )
+  nm_email <- .projr_init_prompt_ind(
+    .var = "EMAIL",
+    nm_item_long = "your email address",
+    option_other = c("Specify other", "Complete later"),
+    option_check = c("Yes", "No", "Complete later"),
+    answer_auto = "USER@DOMAIN.COM"
+  )
+  nm_title <- .projr_init_prompt_ind(
+    .var = "TITLE",
+    nm_item_long = "the project title",
+    option_other = NULL,
+    option_check = c("Yes", "No", "Complete later"),
+    answer_auto = "TITLE"
+  )
+  nm_desc <- .projr_init_prompt_ind(
+    .var = "DESCRIPTION",
+    nm_item_long = "a project description",
+    option_other = NULL,
+    option_check = c("Yes", "No", "Complete later"),
+    answer_auto = "DESCRIPTION"
+  )
 
 
 
@@ -434,8 +178,6 @@ projr_init <- function(dir_proj = getwd(),
   usethis::proj_activate(dir_proj)
   usethis::use_roxygen_md()
 
-
-
   # index.Rmd
   index <- readLines(system.file(
     "project_structure", "index.Rmd",
@@ -453,40 +195,44 @@ projr_init <- function(dir_proj = getwd(),
 
   # appendix.Rmd
   file.copy(
-    system.file(
-      "project_structure",
-      "appendix.Rmd",
-      package = "projr"
-    ),
+    system.file("project_structure", "appendix.Rmd", package = "projr"),
     dir_proj
   )
   # _dependencies.R
   file.copy(
-    system.file(
-      "project_structure",
-      "_dependencies.R",
-      package = "projr"
-    ),
+    system.file("project_structure", "_dependencies.R", package = "projr"),
     dir_proj
   )
 
   if (!file.exists(file.path(dir_proj, ".gitignore"))) {
+    file.copy(
+      system.file("project_structure", ".gitignore", package = "projr"),
+      dir_proj
+    )
     gitignore <- c(
       "# R", ".Rproj.user", ".Rhistory", ".RData",
-      ".Ruserdata", "", "# docs", "docs/*")
+      ".Ruserdata", "", "# docs", "docs/*"
+    )
     writeLines(gitignore, file.path(dir_proj, ".gitignore"))
   }
 
   if (!file.exists(file.path(dir_proj, ".Rbuildignore"))) {
+    file.copy(
+      system.file("project_structure", ".Rbuildignore", package = "projr"),
+      dir_proj
+    )
     rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
     writeLines(rbuildignore, file.path(dir_proj, ".Rbuildignore"))
   }
 
   # README
   # ------------------------
-
   if (Sys.getenv("PROJR_TEST") == "TRUE") {
-    usethis::use_readme_rmd(open = FALSE)
+    usethis::use_readme_md(open = FALSE)
+    answer_readme <- 2
+    fn_readme <- paste0("README.", ifelse(answer_readme == 1, "Rmd", "md"))
+    path_readme <- file.path(dir_proj, fn_readme)
+    readme <- readLines(path_readme)
   } else {
     answer_readme <- utils::menu(
       c("Yes (can run R code)", "No (cannot run R code)"),
@@ -551,186 +297,70 @@ projr_init <- function(dir_proj = getwd(),
   # License
   # ----------------------
 
-  if (Sys.getenv("PROJR_TEST") == "TRUE") {
-    usethis::use_ccby_license()
-  } else {
-    # project description
-    nm_license <- utils::menu(
-      c(
-        "CC-BY (good for data and analysis projects - permissive, but requires attribution)", # nolint
-        "Apache 2.0 (good for function packages - permissive with patent protection)", # nolint
-        "CC0 (dedicates to public domain)",
-        "Proprietary (private code, i.e. no-one may use, share or change it)",
-        "Complete later"
-      ),
-      title = paste0("Please select a license.")
-    )
-    if (!nm_license == 5) {
-      answer_license <- utils::menu(
-        c("Yes", "No", "Complete later"),
-        title = paste0(
-          "Is the licence `",
-          switch(as.character(nm_license),
-            "1" = "CC-BY",
-            "2" = "Apache 2.0",
-            "3" = "CC0",
-            "4" = "Proprietary"
-          ),
-          "` correct?"
-        )
-      )
-      if (answer_license == 3) {
-        nm_license == 5
-      }
-      while (answer_license == 2) {
-        nm_license <- utils::menu(
-          c(
-            "CC-BY (good for data and analysis projects - permissive, but requires attribution)", # nolint
-            "Apache 2.0 (good for function packages - permissive with patent protection)", # nolint
-            "CC0 (dedicates to public domain)",
-            "Proprietary (private code, i.e. no-one may use, share or change it)", # nolint
-            "Complete later"
-          ),
-          title = paste0("Please select a license.")
-        )
-        if (nm_license == 5) {
-          answer_license <- 3
-        } else {
-          answer_license <- utils::menu(
-            c("Yes", "No", "Complete later"),
-            title = paste0(
-              "Is the licence `",
-              switch(as.character(nm_license),
-                "1" = "CC-BY",
-                "2" = "Apache 2.0",
-                "3" = "CC0",
-                "4" = "Proprietary"
-              ),
-              "` correct?"
-            )
-          )
-        }
-      }
-      if (answer_license == 1) {
-        switch(as.character(nm_license),
-          "1" = usethis::use_ccby_license(),
-          "2" = usethis::use_apache_license(),
-          "3" = usethis::use_cc0_license(),
-          "4" = usethis::use_proprietary_license(
-            paste0(nm_first, " ", nm_last)
-          )
-        )
-      }
-    }
-  }
+  option_license_vec <- c(
+    "CC-BY (good for data and analysis projects - permissive, but requires attribution)", # nolint
+    "Apache 2.0 (good for function packages - permissive with patent protection)", # nolint
+    "CC0 (dedicates to public domain)",
+    "Proprietary (private code, i.e. no-one may use, share or change it)"
+  )
+  long_to_short_license_vec <- stats::setNames(c(
+    "CC-BY", "Apache 2.0", "CC0", "Proprietary"
+  ), option_license_vec)
+
+  nm_license <- .projr_init_prompt_ind(
+    .var = "LICENSE",
+    nm_item_long = "license",
+    option_default = option_license_vec,
+    option_other = c("Complete later"),
+    option_check = c("Complete later"),
+    answer_translate = long_to_short_license_vec,
+    answer_auto = "0"
+  )
+
+  .projr_license_create(x = nm_license, nm_first = nm_first, nm_last = nm_last)
+
+
+
 
   # Git and GitHub
   # -------------------
 
   # Git
-  if (Sys.getenv("PROJR_TEST") == "TRUE") {
-    # taken from usethis::use_git
-    # .projr_init_git(dir_proj)
-    return(TRUE)
-  } else {
-    answer_git <- utils::menu(
-      c("Yes", "No"),
-      title = "Do you want to initialise a Git repo now?"
-    )
-    if (answer_git == 2) {
-      file.copy(
-        system.file(
-          "project_structure", "DELETE-AFTER-DOING.md",
-          package = "projr"
-        ),
-        dir_proj
-      )
-      cat("\n")
-      cat("\n")
-      message("Follow steps in DELETE-AFTER-DOING.md")
-
-      if (answer_readme %in% c(1, 2)) {
-        if (file.exists(path_readme)) unlink(path_readme)
-        if (!identical(readme[length(readme)], "")) readme <- c(readme, "")
-        writeLines(text = readme, con = path_readme)
-        if (answer_readme == 1) {
-          try(rmarkdown::render(
-            file.path(dir_proj, "README.Rmd"),
-            output_format = "md_document",
-            quiet = TRUE
-          ))
-        }
-      }
-      return(TRUE)
-    }
-  }
-
   # GitHub
-  answer_gh <- utils::menu(
-    c("Yes", "No"),
-    title =
-      paste0(
-        "Do you want to create a GitHub remote and synchronise?\n",
-        "Default settings for usethis::use_github (with supplied GitHub user name) will be used." # nolint
-      )
+  answer_git <- .projr_init_prompt_yn(
+    question = "Do you want to initialise a Git repo now?"
   )
-  if (answer_gh == 2) {
-    file.copy(
-      system.file(
-        "project_structure",
-        "DELETE-AFTER-DOING.md",
-        package = "projr"
-      ),
-      dir_proj
+
+  if (answer_git == 2) {
+    # DELETE-AFTER-DOING
+    .projr_init_readme_write(
+      readme = readme,
+      path_readme = path_readme, gh = FALSE,
+      nm_pkg = nm_pkg, nm_gh = nm_gh
     )
-    cat("\n")
-    cat("\n")
-    message("Follow steps in DELETE-AFTER-DOING.md")
+    .projr_init_git(dir_proj)
+    return(TRUE)
+  }
+  answer_gh <- .projr_init_prompt_yn(
+    question = paste0(
+      "Do you want to create a GitHub remote and synchronise?\n",
+      "Default settings for usethis::use_github (with supplied GitHub user name) will be used." # nolint
+    )
+  )
 
-    if (answer_readme %in% c(1, 2)) {
-      if (file.exists(path_readme)) unlink(path_readme)
-      if (!identical(readme[length(readme)], "")) readme <- c(readme, "")
-      writeLines(text = readme, con = path_readme)
-      if (answer_readme == 1) {
-        try(
-          rmarkdown::render(
-            file.path(dir_proj, "README.Rmd"),
-            output_format = "md_document",
-            quiet = TRUE
-          )
-        )
-      }
-    }
-
-    # taken from usethis::use_git
+  if (answer_gh == 2) {
+    .projr_init_readme_write(
+      readme = readme, path_readme = path_readme, gh = FALSE,
+      nm_pkg = nm_pkg, nm_gh = nm_gh
+    )
     .projr_init_git(dir_proj)
     return(TRUE)
   }
 
-  if (answer_readme %in% c(1, 2)) {
-    if (file.exists(path_readme)) unlink(path_readme)
-    readme_ind_install <- which(grepl("^You can install", readme))
-    readme_install_devtools <-
-      'if (!requireNamespace("devtools")) install.packages("devtools")'
-    readme_install_pkg <-
-      paste0('devtools::install_github("', nm_gh, "/", nm_pkg, '")')
-
-    readme[readme_ind_install + 3] <- readme_install_devtools
-    readme[readme_ind_install + 5] <- readme[readme_ind_install + 4]
-    readme[readme_ind_install + 4] <- readme_install_pkg
-    if (!identical(readme[length(readme)], "")) readme <- c(readme, "")
-    writeLines(text = readme, con = path_readme)
-
-    if (answer_readme == 1) {
-      try(
-        rmarkdown::render(
-          file.path(dir_proj, "README.Rmd"),
-          output_format = "md_document",
-          quiet = TRUE
-        )
-      )
-    }
-  }
+  .projr_init_readme_write(
+    readme = readme, path_readme = path_readme, gh = TRUE,
+    nm_pkg = nm_pkg, nm_gh = nm_gh
+  )
 
   # taken from usethis::use_git
   .projr_init_git(dir_proj)
@@ -743,6 +373,137 @@ projr_init <- function(dir_proj = getwd(),
   invisible(TRUE)
 }
 
+.projr_init_readme_write <- function(readme,
+                                     path_readme,
+                                     gh,
+                                     nm_gh,
+                                     nm_pkg) {
+  readme_ind_install <- which(grepl("^You can install", readme))
+  if (gh) {
+    readme_install_devtools <-
+      'if (!requireNamespace("devtools")) install.packages("devtools")'
+    readme_install_pkg <-
+      paste0('devtools::install_github("', nm_gh, "/", nm_pkg, '")')
+    readme[readme_ind_install + 3] <- readme_install_devtools
+    readme[readme_ind_install + 5] <- readme[readme_ind_install + 4]
+    readme[readme_ind_install + 4] <- readme_install_pkg
+  }
+
+  if (!identical(readme[length(readme)], "")) readme <- c(readme, "")
+  if (file.exists(path_readme)) unlink(path_readme)
+  writeLines(text = readme, con = path_readme)
+
+  if (grepl("\\.Rmd", path_readme)) {
+    try(
+      rmarkdown::render(
+        path_readme,
+        output_format = "md_document",
+        quiet = TRUE
+      )
+    )
+  }
+  invisible(TRUE)
+}
+
+.projr_init_prompt_ind <- function(.var,
+                                   nm_item_long,
+                                   option_default = NULL,
+                                   option_other =
+                                     c("Specify other", "Complete later"),
+                                   option_check =
+                                     c("Yes", "No", "Complete later"),
+                                   answer_translate = NULL,
+                                   answer_auto) {
+  request_default <- paste0("Please select ", nm_item_long, ".")
+  request_default_n <- paste0("Please specify the ", nm_item_long, ".")
+
+  if (Sys.getenv("PROJR_TEST") == "TRUE") {
+    return(answer_auto)
+  }
+
+  if (nzchar(Sys.getenv(paste0("PROJR_", .var))) || !is.null(option_other)) {
+    nm_item <- c(
+      strsplit(Sys.getenv(paste0("PROJR_", .var)), ";")[[1]],
+      option_default
+    )
+    answer_item <- utils::menu(c(nm_item, option_other), title = request_default)
+    cat("\n")
+    if (answer_item %in% seq_along(nm_item)) {
+      nm_item <- nm_item[answer_item]
+      ask_item <- FALSE
+      completed_item <- TRUE
+    } else if (answer_item == length(nm_item) + 1) {
+      cat(paste0(request_default_n, "\n"))
+      nm_item <- readline(prompt = ">> ")
+      cat("\n")
+      ask_item <- TRUE
+    } else {
+      ask_item <- FALSE
+      completed_item <- FALSE
+    }
+  } else {
+    cat(paste0(request_default_n, "\n"))
+    nm_item <- readline(prompt = ">> ")
+    cat("\n")
+    ask_item <- TRUE
+  }
+
+  if (!is.null(answer_translate)) {
+    nm_item_check <- answer_translate[[nm_item]]
+  } else {
+    nm_item_check <- nm_item
+  }
+
+  check_init <- paste0("Is the ", nm_item_long, " `", nm_item_check, "` correct?") # nolint
+
+  if (ask_item) {
+    answer_item <- utils::menu(option_check, title = check_init)
+    cat("\n")
+    ask_item <- answer_item == 2
+    completed_item <- answer_item != 3
+  }
+
+  while (ask_item) {
+    cat(paste0(request_default_n, "\n"))
+    nm_item <- readline(prompt = ">> ")
+    if (!is.null(answer_translate)) {
+      nm_item_check <- answer_translate[[nm_item]]
+    } else {
+      nm_item_check <- nm_item
+    }
+    check_init <- paste0("Is the ", nm_item_long, " `", nm_item_check, "` correct?") # nolint
+    answer_item <- utils::menu(option_check, title = check_init)
+    cat("\n")
+    ask_item <- answer_item == 2
+    completed_item <- answer_item != 3
+  }
+  if (!completed_item) {
+    nm_item_check <- .var
+  }
+  nm_item_check
+}
+
+.projr_init_prompt_yn <- function(question,
+                                  answer_auto = 2) {
+  yn_vec <- c("Yes", "No")
+  if (Sys.getenv("PROJR_TEST") == "TRUE") {
+    return(answer_auto)
+  }
+  utils::menu(yn_vec, title = question)
+}
+
+.projr_license_create <- function(x, nm_first, nm_last) {
+  switch(x,
+    "CC-BY" = usethis::use_ccby_license(),
+    "Apache 2.0" = usethis::use_apache_license(),
+    "CC0" = usethis::use_cc0_license(),
+    "Proprietary" = usethis::use_proprietary_license(
+      paste0(nm_first, " ", nm_last)
+    ),
+    "Complete later" = NULL
+  )
+  invisible(x)
+}
 
 .projr_init_git <- function(dir_proj) {
   gert::git_init(path = dir_proj)
@@ -751,25 +512,4 @@ projr_init <- function(dir_proj = getwd(),
   )
   gert::git_commit_all(message = "Initial commit")
   invisible(TRUE)
-}
-
-.projr_init_readme_write <- function(dir_proj,
-                                     answer_readme,
-                                     path_readme,
-                                     readme,
-                                     gh) {
-  if (answer_readme %in% c(1, 2)) {
-    if (file.exists(path_readme)) unlink(path_readme)
-    if (!identical(readme[length(readme)], "")) readme <- c(readme, "")
-    writeLines(text = readme, con = path_readme)
-    if (answer_readme == 1) {
-      try(
-        rmarkdown::render(
-          file.path(dir_proj, "README.Rmd"),
-          output_format = "md_document",
-          quiet = TRUE
-        )
-      )
-    }
-  }
 }
