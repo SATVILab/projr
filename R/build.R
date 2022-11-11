@@ -202,8 +202,8 @@ projr_build_dev <- function(bump = FALSE, ...) {
     fn_pkg <- paste0(projr_name_get(), "_", version_pkg, ".tar.gz")
     path_pkg <- file.path(dir_pkg, fn_pkg)
     pkgbuild::build(
-      pkg = dir_proj,
-      path = path_pkg,
+      path = dir_proj,
+      dest_path = path_pkg,
       binary = FALSE,
       quiet = TRUE
     )
