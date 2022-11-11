@@ -193,7 +193,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
     version_pkg <- .projr_desc_get()[, "Version"][[1]]
     fn_pkg <- paste0(projr_name_get(), "_", version_pkg, ".tar.gz")
     path_pkg <- file.path(dir_pkg, fn_pkg)
-    devtools::build(
+    pkgbuild::build(
       pkg = dir_proj,
       path = path_pkg,
       binary = FALSE,

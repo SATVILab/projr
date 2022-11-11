@@ -1,6 +1,6 @@
 Package: projr
 Title: Facilitate reproducible and archived projects
-Version: 0.0.3.9012
+Version: 0.0.3.9013
 Authors@R: person("Miguel", "Rodo", , "rdxmig002@myuct.ac.za", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2036-4878"))
 Maintainer: Miguel Rodo <rdxmig002@myuct.ac.za>
 Description: Facilitate reproducible and archived projects.
@@ -19,7 +19,8 @@ Imports:
     desc,
     rmarkdown,
     gert,
-    roxygen2
+    roxygen2,
+    pkgbuild
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
