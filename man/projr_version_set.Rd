@@ -7,6 +7,10 @@
 projr_version_set(version, where = c("bookdown", "DESCRIPTION"))
 }
 \arguments{
+\item{version}{character.
+Version to set.
+May be dev version (i.e. include the dev component) or not.}
+
 \item{where}{"bookdown" and/or "DESCRIPTION"/
 Where to set the version.
 If it includes \code{"bookdown"}, then the version is updated

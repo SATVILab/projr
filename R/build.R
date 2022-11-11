@@ -5,6 +5,12 @@
 #' building the actual bookdown document and
 #' saving and archiving selected output.
 #'
+#' @param bump_component "major", "minor", "patch" or missing.
+#' Specifies version component to increment.
+#' If missing, then is set equal to the lowest version component
+#' in used version format.
+#' No default (i.e. is missing by default).
+#'
 #' @param ... Arguments passed to \code{bookdown::render}.
 #'
 #' @export
@@ -25,9 +31,11 @@ projr_build_output <- function(bump_component, ...) {
 #' building the actual bookdown document and
 #' saving and archiving selected output.
 #'
+#' @param bump logical.
+#' Whether to increment dev version for build.
+#' Default is \code{FALSE}.
 #' @param ... Arguments passed to \code{bookdown::render}.
 #'
-#' @export
 #' @export
 projr_build_dev <- function(bump = FALSE, ...) {
   # NULL if FALSE and "dev" if TRUE
