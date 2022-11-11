@@ -41,9 +41,7 @@ projr_profile_create <- function() {
 
   .projr_yml_set(yml_projr)
 
-  if (!silent) {
-    message(paste0("Added the following profile: ", projr_profile))
-  }
+  message(paste0("Added the following profile: ", projr_profile))
 
   invisible(projr_profile)
 }

@@ -126,7 +126,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
           unlink(path_archive_zip, recursive = TRUE)
         }
         sink(file.path(tempdir(), "zip123"))
-        zip(path_archive_zip, files = fn_vec, flags = "-r9Xq")
+        utils::zip(path_archive_zip, files = fn_vec, flags = "-r9Xq")
         sink(NULL)
       }
     }
@@ -247,7 +247,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
     if (file.exists(path_zip)) {
       file.remove(path_zip)
     }
-    zip(
+    utils::zip(
       path_zip,
       files = list.files(getwd(), recursive = TRUE, full.names = FALSE),
       flags = "-r9Xq"
@@ -259,10 +259,6 @@ projr_build_dev <- function(bump = FALSE, ...) {
     if (file.exists(path_copy)) file.remove(path_copy)
     file.copy(file.path(yml_projr_dir[[label]][["path"]], path_zip), path_copy)
     file.remove(file.path(yml_projr_dir[[label]][["path"]], path_zip))
-    # unzip(
-    #  path_copy,
-    #  exdir = projr_dir_get("output", "test", output_safe = output_safe)
-    # )
   }
 
   # copy generated report
@@ -280,7 +276,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
       }
       setwd(dir_bookdown)
       path_zip <- paste0(basename(dir_bookdown), ".zip")
-      zip(
+      utils::zip(
         path_zip,
         files = list.files(getwd(), recursive = TRUE, full.names = FALSE),
         flags = "-r9Xq"
