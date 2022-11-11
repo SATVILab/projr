@@ -404,6 +404,7 @@ vapply(fn_vec[2:3], function(fn) {
 time_end <- proc.time()[3]
 (time_end - time_start) / 60
 
+g
 # vdigest and with a different algorithm
 path_dir <- file.path(
   Sys.getenv("w_gdrive"), "ProjectILC", "DataRawILC",
