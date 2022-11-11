@@ -5,6 +5,12 @@
 #' building the actual bookdown document and
 #' saving and archiving selected output.
 #'
+#' @param bump_component "major", "minor", "patch" or missing.
+#' Specifies version component to increment.
+#' If missing, then is set equal to the lowest version component
+#' in used version format.
+#' No default (i.e. is missing by default).
+#'
 #' @param ... Arguments passed to \code{bookdown::render}.
 #'
 #' @export
@@ -25,9 +31,11 @@ projr_build_output <- function(bump_component, ...) {
 #' building the actual bookdown document and
 #' saving and archiving selected output.
 #'
+#' @param bump logical.
+#' Whether to increment dev version for build.
+#' Default is \code{FALSE}.
 #' @param ... Arguments passed to \code{bookdown::render}.
 #'
-#' @export
 #' @export
 projr_build_dev <- function(bump = FALSE, ...) {
   # NULL if FALSE and "dev" if TRUE
@@ -118,7 +126,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
           unlink(path_archive_zip, recursive = TRUE)
         }
         sink(file.path(tempdir(), "zip123"))
-        zip(path_archive_zip, files = fn_vec, flags = "-r9Xq")
+        utils::zip(path_archive_zip, files = fn_vec, flags = "-r9Xq")
         sink(NULL)
       }
     }
@@ -193,9 +201,9 @@ projr_build_dev <- function(bump = FALSE, ...) {
     version_pkg <- .projr_desc_get()[, "Version"][[1]]
     fn_pkg <- paste0(projr_name_get(), "_", version_pkg, ".tar.gz")
     path_pkg <- file.path(dir_pkg, fn_pkg)
-    devtools::build(
-      pkg = dir_proj,
-      path = path_pkg,
+    pkgbuild::build(
+      path = dir_proj,
+      dest_path = path_pkg,
       binary = FALSE,
       quiet = TRUE
     )
@@ -239,7 +247,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
     if (file.exists(path_zip)) {
       file.remove(path_zip)
     }
-    zip(
+    utils::zip(
       path_zip,
       files = list.files(getwd(), recursive = TRUE, full.names = FALSE),
       flags = "-r9Xq"
@@ -251,10 +259,6 @@ projr_build_dev <- function(bump = FALSE, ...) {
     if (file.exists(path_copy)) file.remove(path_copy)
     file.copy(file.path(yml_projr_dir[[label]][["path"]], path_zip), path_copy)
     file.remove(file.path(yml_projr_dir[[label]][["path"]], path_zip))
-    # unzip(
-    #  path_copy,
-    #  exdir = projr_dir_get("output", "test", output_safe = output_safe)
-    # )
   }
 
   # copy generated report
@@ -272,7 +276,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
       }
       setwd(dir_bookdown)
       path_zip <- paste0(basename(dir_bookdown), ".zip")
-      zip(
+      utils::zip(
         path_zip,
         files = list.files(getwd(), recursive = TRUE, full.names = FALSE),
         flags = "-r9Xq"

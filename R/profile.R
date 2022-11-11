@@ -6,9 +6,10 @@
 #' where the DESCRIPTION file is)
 #' as a new projr profile.
 #'
+#'
 #' @return Invisibly returns the new projr profile.
 #' @export
-projr_profile_create <- function(silent = FALSE) {
+projr_profile_create <- function() {
   if (nzchar(Sys.getenv("PROJR_PROFILE"))) {
     projr_profile <- Sys.getenv("PROJR_PROFILE")
   } else {
@@ -40,9 +41,7 @@ projr_profile_create <- function(silent = FALSE) {
 
   .projr_yml_set(yml_projr)
 
-  if (!silent) {
-    message(paste0("Added the following profile: ", projr_profile))
-  }
+  message(paste0("Added the following profile: ", projr_profile))
 
   invisible(projr_profile)
 }

@@ -6,3 +6,5 @@
 ^SCRATCH\.R$
 ^\.devcontainer
 ^\.gitpod
+^\.github$
+

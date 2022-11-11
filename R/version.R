@@ -7,6 +7,10 @@
 #' to manually increase your version
 #' (rather than merging their changes in first).
 #'
+#' @param version character.
+#' Version to set.
+#' May be dev version (i.e. include the dev component) or not.
+#'
 #' @param where "bookdown" and/or "DESCRIPTION"/
 #' Where to set the version.
 #' If it includes `"bookdown"`, then the version is updated

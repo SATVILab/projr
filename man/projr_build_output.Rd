@@ -7,6 +7,12 @@
 projr_build_output(bump_component, ...)
 }
 \arguments{
+\item{bump_component}{"major", "minor", "patch" or missing.
+Specifies version component to increment.
+If missing, then is set equal to the lowest version component
+in used version format.
+No default (i.e. is missing by default).}
+
 \item{...}{Arguments passed to \code{bookdown::render}.}
 }
 \description{

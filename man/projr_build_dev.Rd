@@ -7,6 +7,10 @@
 projr_build_dev(bump = FALSE, ...)
 }
 \arguments{
+\item{bump}{logical.
+Whether to increment dev version for build.
+Default is \code{FALSE}.}
+
 \item{...}{Arguments passed to \code{bookdown::render}.}
 }
 \description{

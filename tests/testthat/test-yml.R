@@ -3,7 +3,7 @@ test_that("getting and setting metadata files works", {
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
+  fn_vec <- fn_vec
 
   for (x in fn_vec) {
     file.copy(
@@ -12,6 +12,15 @@ test_that("getting and setting metadata files works", {
       overwrite = TRUE
     )
   }
+
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
   usethis::with_project(
     path = dir_test,
     code = {
@@ -38,7 +47,6 @@ test_that("getting active yml file works", {
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
   for (x in fn_vec) {
     file.copy(
@@ -47,6 +55,15 @@ test_that("getting active yml file works", {
       overwrite = TRUE
     )
   }
+
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
   usethis::with_project(
     path = dir_test,
     code = {
@@ -103,7 +120,6 @@ test_that("Further tests for projr_yml_get", {
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
   for (x in fn_vec) {
     file.copy(
@@ -112,6 +128,15 @@ test_that("Further tests for projr_yml_get", {
       overwrite = TRUE
     )
   }
+
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
 
   usethis::with_project(
     path = dir_test,

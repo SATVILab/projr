@@ -4,7 +4,7 @@
 \alias{projr_profile_create}
 \title{Add projr profile}
 \usage{
-projr_profile_create(silent = FALSE)
+projr_profile_create()
 }
 \value{
 Invisibly returns the new projr profile.

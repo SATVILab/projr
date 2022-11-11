@@ -3,7 +3,6 @@ test_that("projr_profile_get, _set and _create work", {
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
   for (x in fn_vec) {
     file.copy(
@@ -12,6 +11,14 @@ test_that("projr_profile_get, _set and _create work", {
       overwrite = TRUE
     )
   }
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
   usethis::with_project(
     path = dir_test,
     code = {

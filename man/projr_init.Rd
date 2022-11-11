@@ -12,14 +12,23 @@ projr_init(
 )
 }
 \arguments{
-\item{renv_force.}{Logical.
+\item{dir_proj}{character.
+Project directory.
+Default is \code{getwd()}.}
+
+\item{yml_path_from}{character.
+Path to YAML file to use as \verb{_projr.yml}.
+If not supplied, then default \verb{_projr.yml}
+file is used.}
+
+\item{renv_force}{Logical.
 Passed to \code{renv::init()}.
 If \code{FALSE}, then \code{renv::init()} will not run
 if it detects that the working directory
 already is registered with renv.
 Default is \code{FALSE}.}
 
-\item{renv_bioconductor.}{Logical.
+\item{renv_bioconductor}{Logical.
 Whether \code{renv} should look for packages
 on Bioconductor.
 Default is \code{TRUE}.}

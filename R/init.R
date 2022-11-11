@@ -2,13 +2,22 @@
 #'
 #' @description Initialise project
 #'
-#' @param renv_force. Logical.
+#' @param dir_proj character.
+#' Project directory.
+#' Default is \code{getwd()}.
+#'
+#' @param yml_path_from character.
+#' Path to YAML file to use as `_projr.yml`.
+#' If not supplied, then default `_projr.yml`
+#' file is used.
+#'
+#' @param renv_force Logical.
 #' Passed to `renv::init()`.
 #' If \code{FALSE}, then `renv::init()` will not run
 #' if it detects that the working directory
 #' already is registered with renv.
 #' Default is \code{FALSE}.
-#' @param renv_bioconductor. Logical.
+#' @param renv_bioconductor Logical.
 #' Whether \code{renv} should look for packages
 #' on Bioconductor.
 #' Default is \code{TRUE}.
@@ -79,7 +88,7 @@ projr_init <- function(dir_proj = getwd(),
     # please provide the GitHub user name
     if (nzchar(Sys.getenv("PROJR_GITHUB_USERNAME"))) {
       nm_gh <- strsplit(Sys.getenv("PROJR_GITHUB_USERNAME"), ";")[[1]]
-      answer_gh <- menu(
+      answer_gh <- utils::menu(
         c(nm_gh, "Specify other", "Complete later"),
         title = "Please select GitHub user/organisation name for this project"
       )
@@ -109,7 +118,7 @@ projr_init <- function(dir_proj = getwd(),
     }
 
     if (ask_gh) {
-      answer_gh <- menu(
+      answer_gh <- utils::menu(
         c("Yes", "No", "Complete later"),
         title = paste0(
           "Is the GitHub user/organisation name `", nm_gh, "` correct?"
@@ -123,7 +132,7 @@ projr_init <- function(dir_proj = getwd(),
     while (ask_gh) {
       cat("Please provide the GitHub user/organisation name.\n")
       nm_gh <- readline(prompt = ">> ")
-      answer_gh <- menu(
+      answer_gh <- utils::menu(
         c("Yes", "No", "Complete later"),
         title = paste0(
           "Is the GitHub user/organisation name `", nm_gh, "` correct?"
@@ -140,7 +149,7 @@ projr_init <- function(dir_proj = getwd(),
     # first name
     if (nzchar(Sys.getenv("PROJR_FIRST_NAME"))) {
       nm_first <- strsplit(Sys.getenv("PROJR_FIRST_NAME"), ";")[[1]]
-      answer_first <- menu(
+      answer_first <- utils::menu(
         c(nm_first, "Specify other", "Complete later"),
         title = "Please select your first name."
       )
@@ -166,7 +175,7 @@ projr_init <- function(dir_proj = getwd(),
     }
 
     if (ask_first) {
-      answer_first <- menu(
+      answer_first <- utils::menu(
         c("Yes", "No", "Complete later"),
         title = paste0("Is the first name `", nm_first, "` correct?")
       )
@@ -178,7 +187,7 @@ projr_init <- function(dir_proj = getwd(),
     while (ask_first) {
       cat("Please provide your first name.\n")
       nm_first <- readline(prompt = ">> ")
-      answer_first <- menu(
+      answer_first <- utils::menu(
         c("Yes", "No", "Complete later"),
         title = paste0("Is the first name `", nm_first, "` correct?")
       )
@@ -194,7 +203,7 @@ projr_init <- function(dir_proj = getwd(),
     # last name
     if (nzchar(Sys.getenv("PROJR_LAST_NAME"))) {
       nm_last <- strsplit(Sys.getenv("PROJR_LAST_NAME"), ";")[[1]]
-      answer_last <- menu(
+      answer_last <- utils::menu(
         c(nm_last, "Specify other", "Complete later"),
         title = "Please select your surname (last/family name)."
       )
@@ -220,7 +229,7 @@ projr_init <- function(dir_proj = getwd(),
     }
 
     if (ask_last) {
-      answer_last <- menu(
+      answer_last <- utils::menu(
         c("Yes", "No", "Complete later"),
         title = paste0("Is the surname `", nm_last, "` correct?")
       )
@@ -232,7 +241,7 @@ projr_init <- function(dir_proj = getwd(),
     while (ask_last) {
       cat("Please provide your surname.\n")
       nm_last <- readline(prompt = ">> ")
-      answer_last <- menu(
+      answer_last <- utils::menu(
         c("Yes", "No", "Complete later"),
         title = paste0("Is the surname `", nm_last, "` correct?")
       )
@@ -248,7 +257,7 @@ projr_init <- function(dir_proj = getwd(),
     # email
     if (nzchar(Sys.getenv("PROJR_EMAIL"))) {
       nm_email <- strsplit(Sys.getenv("PROJR_EMAIL"), ";")[[1]]
-      answer_email <- menu(
+      answer_email <- utils::menu(
         c(nm_email, "Specify other", "Complete later"),
         title = "Please select your email address."
       )
@@ -274,7 +283,7 @@ projr_init <- function(dir_proj = getwd(),
     }
 
     if (ask_email) {
-      answer_email <- menu(
+      answer_email <- utils::menu(
         c("Yes", "No", "Complete later"),
         title = paste0("Is the email address `", nm_email, "` correct?")
       )
@@ -286,7 +295,7 @@ projr_init <- function(dir_proj = getwd(),
     while (ask_email) {
       cat("Please provide your email address.\n")
       nm_email <- readline(prompt = ">> ")
-      answer_email <- menu(
+      answer_email <- utils::menu(
         c("Yes", "No", "Complete later"),
         title = paste0("Is the email address `", nm_email, "` correct?")
       )
@@ -304,14 +313,14 @@ projr_init <- function(dir_proj = getwd(),
       "Please provide a short project title (<30 characters, initial capital and no full stop).\n" # nolint
     ) # nolint
     nm_title <- readline(prompt = ">> ")
-    answer_title <- menu(
+    answer_title <- utils::menu(
       c("Yes", "No", "Complete later"),
       title = paste0("Is the project title `", nm_title, "` correct?")
     )
     while (answer_title == 2) {
       cat("Please provide a short project title (<30 characters, initial capital and no full stop).\n") # nolint
       nm_title <- readline(prompt = ">> ")
-      answer_title <- menu(
+      answer_title <- utils::menu(
         c("Yes", "No", "Complete later"),
         title = paste0("Is the project title `", nm_title, "` correct?")
       )
@@ -325,7 +334,7 @@ projr_init <- function(dir_proj = getwd(),
       "Please provide a sentence or two describing the project (initial capital and a full stop).\n" # nolint
     )
     nm_desc <- readline(prompt = ">> ")
-    answer_desc <- menu(
+    answer_desc <- utils::menu(
       c("Yes", "No", "Complete later"),
       title =
         paste0(
@@ -338,7 +347,7 @@ projr_init <- function(dir_proj = getwd(),
         "Please provide a sentence or two describing the project (initial capital and a full stop).\n" # nolint
       )
       nm_desc <- readline(prompt = ">> ")
-      answer_desc <- menu(
+      answer_desc <- utils::menu(
         c("Yes", "No", "Complete later"),
         title =
           paste0(
@@ -462,25 +471,15 @@ projr_init <- function(dir_proj = getwd(),
   )
 
   if (!file.exists(file.path(dir_proj, ".gitignore"))) {
-    file.copy(
-      system.file(
-        "project_structure",
-        ".gitignore",
-        package = "projr"
-      ),
-      dir_proj
-    )
+    gitignore <- c(
+      "# R", ".Rproj.user", ".Rhistory", ".RData",
+      ".Ruserdata", "", "# docs", "docs/*")
+    writeLines(gitignore, file.path(dir_proj, ".gitignore"))
   }
 
   if (!file.exists(file.path(dir_proj, ".Rbuildignore"))) {
-    file.copy(
-      system.file(
-        "project_structure",
-        ".Rbuildignore",
-        package = "projr"
-      ),
-      dir_proj
-    )
+    rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+    writeLines(rbuildignore, file.path(dir_proj, ".Rbuildignore"))
   }
 
   # README
@@ -489,7 +488,7 @@ projr_init <- function(dir_proj = getwd(),
   if (Sys.getenv("PROJR_TEST") == "TRUE") {
     usethis::use_readme_rmd(open = FALSE)
   } else {
-    answer_readme <- menu(
+    answer_readme <- utils::menu(
       c("Yes (can run R code)", "No (cannot run R code)"),
       title =
         paste0(
@@ -517,7 +516,7 @@ projr_init <- function(dir_proj = getwd(),
         nm_readme <- readline(prompt = ">> ")
         readme_ind <- which(grepl("^The goal of ", readme))
         readme_rep <- paste0("The goal of ", nm_pkg, " is to ", nm_readme)
-        answer_goal <- menu(
+        answer_goal <- utils::menu(
           c("Yes", "No", "Complete later"),
           title =
             paste0(
@@ -533,7 +532,7 @@ projr_init <- function(dir_proj = getwd(),
           nm_readme <- readline(prompt = ">> ")
           readme_ind <- which(grepl("^The goal of ", readme))
           readme_rep <- paste0("The goal of ", nm_pkg, " is to ", nm_readme)
-          answer_goal <- menu(
+          answer_goal <- utils::menu(
             c("Yes", "No", "Complete later"),
             title =
               paste0(
@@ -556,7 +555,7 @@ projr_init <- function(dir_proj = getwd(),
     usethis::use_ccby_license()
   } else {
     # project description
-    nm_license <- menu(
+    nm_license <- utils::menu(
       c(
         "CC-BY (good for data and analysis projects - permissive, but requires attribution)", # nolint
         "Apache 2.0 (good for function packages - permissive with patent protection)", # nolint
@@ -567,7 +566,7 @@ projr_init <- function(dir_proj = getwd(),
       title = paste0("Please select a license.")
     )
     if (!nm_license == 5) {
-      answer_license <- menu(
+      answer_license <- utils::menu(
         c("Yes", "No", "Complete later"),
         title = paste0(
           "Is the licence `",
@@ -584,7 +583,7 @@ projr_init <- function(dir_proj = getwd(),
         nm_license == 5
       }
       while (answer_license == 2) {
-        nm_license <- menu(
+        nm_license <- utils::menu(
           c(
             "CC-BY (good for data and analysis projects - permissive, but requires attribution)", # nolint
             "Apache 2.0 (good for function packages - permissive with patent protection)", # nolint
@@ -597,7 +596,7 @@ projr_init <- function(dir_proj = getwd(),
         if (nm_license == 5) {
           answer_license <- 3
         } else {
-          answer_license <- menu(
+          answer_license <- utils::menu(
             c("Yes", "No", "Complete later"),
             title = paste0(
               "Is the licence `",
@@ -631,10 +630,10 @@ projr_init <- function(dir_proj = getwd(),
   # Git
   if (Sys.getenv("PROJR_TEST") == "TRUE") {
     # taken from usethis::use_git
-    .projr_init_git(dir_proj)
+    # .projr_init_git(dir_proj)
     return(TRUE)
   } else {
-    answer_git <- menu(
+    answer_git <- utils::menu(
       c("Yes", "No"),
       title = "Do you want to initialise a Git repo now?"
     )
@@ -667,7 +666,7 @@ projr_init <- function(dir_proj = getwd(),
   }
 
   # GitHub
-  answer_gh <- menu(
+  answer_gh <- utils::menu(
     c("Yes", "No"),
     title =
       paste0(

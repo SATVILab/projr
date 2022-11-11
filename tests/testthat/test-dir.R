@@ -13,6 +13,16 @@ test_that("projr_dir_get works", {
       overwrite = TRUE
     )
   }
+  
+
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
 
   usethis::with_project(
     path = dir_test,
@@ -38,10 +48,11 @@ test_that("projr_dir_get works", {
         path = "/tmp/testDataRawABC1902", ignore = TRUE
       )
       .projr_yml_set(yml_projr)
+      
       expect_identical(projr_dir_get("data_raw"), "/tmp/testDataRawABC1902")
       expect_identical(
         projr_dir_get("data_raw", path_relative_force = TRUE),
-        "../../testDataRawABC1902"
+        as.character(fs::path_rel("/tmp/testDataRawABC1902", dir_test))
       )
       expect_identical(
         projr_dir_get("bookdown", "abc"), "docs/reportV0.0.0-1/abc"
@@ -81,6 +92,14 @@ test_that("projr_dir_create works", {
       overwrite = TRUE
     )
   }
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
 
   usethis::with_project(
     path = dir_test,
@@ -128,6 +147,16 @@ test_that("projr_dir_ignore works", {
       overwrite = TRUE
     )
   }
+
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+
 
   usethis::with_project(
     path = dir_test,
