@@ -43,15 +43,7 @@ jobs:
         shell: bash
 
       - name: Upload test results
-        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: coverage-test-failures
           path: ${{ runner.temp }}/package
-      
-      - name: Upload again
-        run: /
-          curl -Os https://uploader.codecov.io/latest/linux/codecov
-          chmod +x codecov
-          ./codecov
-        shell: bash
