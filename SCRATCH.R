@@ -380,12 +380,13 @@ testthat::test_file("tests/testthat/test-build.R")
 
 # code coverage
 covr::report(file = "report.html", browse = FALSE)
-cp $projr/report.html $w_dnld/
+cp$projr / report.html$w_dnld /
 
-path_dir <- file.path(
+  path_dir <- file.path(
   Sys.getenv("w_gdrive"), "ProjectILC", "DataRawILC",
   "2022_02", "sun", "version_1"
 )
+
 fn_vec <- list.files(path_dir, full.names = TRUE)
 x <- readChar(fn_vec[1], file.info(fn_vec[1])$size)
 digest::digest(x)
