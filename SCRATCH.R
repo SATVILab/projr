@@ -387,6 +387,7 @@ cp$projr / report.html$w_dnld /
   "2022_02", "sun", "version_1"
 )
 
+
 fn_vec <- list.files(path_dir, full.names = TRUE)
 x <- readChar(fn_vec[1], file.info(fn_vec[1])$size)
 digest::digest(x)
