@@ -338,7 +338,6 @@ projr_init <- function(dir_proj = getwd(),
       path_readme = path_readme, gh = FALSE,
       nm_pkg = nm_pkg, nm_gh = nm_gh
     )
-    .projr_init_git(dir_proj)
     return(TRUE)
   }
   answer_gh <- .projr_init_prompt_yn(
