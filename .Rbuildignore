@@ -4,3 +4,4 @@
 ^\.vscode
 ^LICENSE\.md$
 ^SCRATCH\.R$
+^\.github$
