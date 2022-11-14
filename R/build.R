@@ -17,7 +17,7 @@
 projr_build_output <- function(bump_component, ...) {
   if (missing(bump_component)) {
     yml_projr <- projr_yml_get()
-    version <- yml_projr$version
+    version <- yml_projr[["version-format"]]
     version_vec <- strsplit(version, split = "\\.|\\-")[[1]]
     bump_component <- version_vec[length(version_vec) - 1]
   }
@@ -96,7 +96,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
   }
 
   # copy
-  copy_to_output <- projr_yml_get()[["build-dev"]][["copy_to_output"]] ||
+  copy_to_output <- projr_yml_get()[["build-dev"]][["copy-to-output"]] ||
     dev_run_n
   if (copy_to_output) {
     # copy to output
@@ -188,7 +188,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
   output_safe <- is.null(bump_component) || bump_component == "dev"
   dir_output <- projr_dir_get("output", output_safe = output_safe)
 
-  copy_to_output_list <- yml_projr[["build-output"]][["copy_to_output"]]
+  copy_to_output_list <- yml_projr[["build-output"]][["copy-to-output"]]
   # make it an absolute path, stuck onto dir_proj,
   # only if it isn't already an absolute path
   if (!fs::is_absolute_path(dir_output)) {
@@ -196,7 +196,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
   }
 
   # attempt package build first if required
-  if (yml_projr[["build-output"]][["copy_to_output"]][["package"]]) {
+  if (yml_projr[["build-output"]][["copy-to-output"]][["package"]]) {
     dir_pkg <- file.path(dir_output)
     if (!dir.exists(dir_pkg)) dir.create(dir_pkg)
     version_pkg <- .projr_desc_get()[, "Version"][[1]]

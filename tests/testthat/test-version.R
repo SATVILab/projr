@@ -27,7 +27,7 @@ test_that("projr_version_format_get and _set", {
     code = {
       expect_identical(projr_version_format_get(), "major.minor.patch-dev")
       yml_projr <- .projr_yml_get()
-      yml_projr[["version_format"]] <- "abc"
+      yml_projr[["version-format"]] <- "abc"
       .projr_yml_set(yml_projr)
       expect_error(projr_version_format_get())
       projr_version_format_set("major.dev")
@@ -65,7 +65,7 @@ v_m_l2 <- "11"
 v_m_s <- "0-3"
 vf_md <- "major-dev"
 vf_mp <- "major.dev"
-version_format <- vf_mmd
+"version-format" <- vf_mmd
 fn <- fn_mm
 
 cv <- c("major", "minor", "patch", "dev")

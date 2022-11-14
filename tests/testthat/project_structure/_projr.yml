@@ -12,17 +12,17 @@ directories-default:
   archive: 
     path: _archive
     ignore: true
-version_format: "major.minor.patch-dev" # other options: version-dev; major.minor.patch-dev; 
+version-format: "major.minor.patch-dev" # other options: version-dev; major.minor.patch-dev; 
 # actions on development built
 build-dev:
-  bump_version: false # whether to bump the dev version up before this build (i.e. to build to a new directory, really)
+  bump-version: false # whether to bump the dev version up before this build (i.e. to build to a new directory, really)
   rmd: # if specified, subset of Rmd's to build. no need to mention index.Rmd, it's always included
 # build settings when bumping the version up
-  copy_to_output: false # whether to copy output across as done for
+  copy-to-output: false # whether to copy output across as done for
   # build-output
 build-output:
   renv: true # whether to snapshot or not 
-  copy_to_output:
+  copy-to-output:
     data_raw: false
     cache: false
     bookdown: true

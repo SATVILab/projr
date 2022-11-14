@@ -76,10 +76,12 @@ test_that("getting active yml file works", {
           output = list(path = "_output", ignore = TRUE), archive = list(
             path = "_archive", ignore = TRUE
           )
-        ), version_format = "major.minor.patch-dev",
-        `build-dev` = list(bump_version = FALSE, rmd = NULL, copy_to_output = FALSE),
+        ), `version-format` = "major.minor.patch-dev",
+        `build-dev` = list(
+          `bump-version` = FALSE, rmd = NULL, `copy-to-output` = FALSE
+        ),
         `build-output` = list(
-          renv = TRUE, copy_to_output = list(
+          renv = TRUE, `copy-to-output` = list(
             data_raw = FALSE,
             cache = FALSE, bookdown = TRUE, package = FALSE
           )

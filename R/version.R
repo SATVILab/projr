@@ -69,13 +69,13 @@ projr_version_format_set <- function(version_format) {
     stop("version format not valid")
   }
   yml_projr <- .projr_yml_get()
-  yml_projr[["version_format"]] <- version_format
+  yml_projr[["version-format"]] <- version_format
   .projr_yml_set(yml_projr)
   invisible(TRUE)
 }
 
 projr_version_format_get <- function() {
-  version_format <- .projr_yml_get()[["version_format"]]
+  version_format <- .projr_yml_get()[["version-format"]]
   version_valid_vec <- c(
     "major.minor.patch-dev",
     "major.minor.patch.dev",
@@ -91,7 +91,7 @@ projr_version_format_get <- function() {
 }
 
 .projr_version_format_list_get <- function() {
-  version_format <- projr_yml_get()[["version_format"]]
+  version_format <- projr_yml_get()[["version-format"]]
   version_format_vec_sep <- strsplit(
     version_format, "major|minor|patch|dev"
   )[[1]][-1]

@@ -83,7 +83,7 @@ test_that("projr_build_output works", {
       copy_list <- list(
         data_raw = TRUE, cache = TRUE, bookdown = FALSE, package = TRUE
       )
-      yml_projr[["build-output"]][["copy_to_output"]] <- copy_list
+      yml_projr[["build-output"]][["copy-to-output"]] <- copy_list
 
       .projr_yml_set(list_save = yml_projr)
       if (!dir.exists("_data_raw")) {
