@@ -39,9 +39,10 @@ projr_build_output <- function(bump_component, ...) {
 #' @export
 projr_build_dev <- function(bump = FALSE, ...) {
   # NULL if FALSE and "dev" if TRUE
-  .projr_build(bump_component = switch(bump,
+  bump_component <- switch(bump,
     "dev"
-  ), ...)
+  )
+  .projr_build(bump_component = bump_component, ...)
 }
 
 .projr_build <- function(bump_component, ...) {
