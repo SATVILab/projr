@@ -39,8 +39,7 @@ projr_version_set <- function(version,
     proj_nm <- projr_name_get()
     fn_new <- paste0(proj_nm, "V", version)
     yml_bd$book_filename <- fn_new
-    yml_bd$output_dir <- file.path(dirname(yml_bd$output_dir), fn_new) |>
-      normalizePath(winslash = "/", mustWork = FALSE)
+    yml_bd$output_dir <- file.path(dirname(yml_bd$output_dir), fn_new)
     .projr_yml_bd_set(yml_bd)
   }
 
