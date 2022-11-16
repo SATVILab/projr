@@ -103,6 +103,14 @@ projr_dir_get <- function(label, ...,
 }
 
 
+#' @title Create a directory in _projr.yml
+#'
+#' @description Creates a directory that is
+#' listed in _projr.yml for the current projr profile.
+#' Will add to \code{.gitignore} and \code{.Rbuildignore}
+#' as well if required.
+#'
+#' @export
 projr_dir_create <- function(label) {
   if (missing(label)) stop("label must be specified")
   if (!is.character(label)) stop("label must be of label character")

@@ -2,6 +2,7 @@
 
 export(projr_build_dev)
 export(projr_build_output)
+export(projr_dir_create)
 export(projr_dir_get)
 export(projr_init)
 export(projr_profile_create)
