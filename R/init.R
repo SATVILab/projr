@@ -50,6 +50,9 @@ projr_init <- function(dir_proj = getwd(),
   if (!Sys.getenv("PROJR_TEST") == "TRUE") {
     renv::init(force = renv_force, bioconductor = renv_bioconductor)
   }
+  if (!dir.exists(file.path(dir_proj, "R"))) {
+    dir.create(file.path(dir_proj, "R"))
+  }
 
   invisible(TRUE)
 }

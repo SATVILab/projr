@@ -16,6 +16,7 @@ test_that("projr_init works", {
       expect_true(file.exists("DESCRIPTION"))
       expect_true(file.exists("index.Rmd"))
       expect_true(file.exists("appendix.Rmd"))
+      expect_true(dir.exists("R"))
       expect_error(projr_init(yml_path_from = "abcsadfkasdflkda"))
     },
     force = TRUE,
