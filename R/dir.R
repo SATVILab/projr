@@ -109,6 +109,7 @@ projr_dir_get <- function(label, ...,
 #' listed in _projr.yml for the current projr profile.
 #' Will add to \code{.gitignore} and \code{.Rbuildignore}
 #' as well if required.
+#' @inheritParams projr_dir_get
 #'
 #' @export
 projr_dir_create <- function(label) {

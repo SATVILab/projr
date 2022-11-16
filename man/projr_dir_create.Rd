@@ -6,6 +6,16 @@
 \usage{
 projr_dir_create(label)
 }
+\arguments{
+\item{label}{character.
+One of \code{"data_raw"}, \code{"cache"},\code{"output"},
+\code{"archive"} and \code{"bookdown"}.
+Class of directory to return.
+The \code{"bookdown"} option returns the path to
+the output directory from \code{bookdown::render_book}
+(as specified in \code{"_bookdown.yml"}),
+whereas the others returns paths as specified in \code{"_projr.yml"}.}
+}
 \description{
 Creates a directory that is
 listed in _projr.yml for the current projr profile.
