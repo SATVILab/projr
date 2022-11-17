@@ -14,14 +14,24 @@
 #' @param ... Arguments passed to \code{bookdown::render}.
 #'
 #' @export
-projr_build_output <- function(bump_component, ...) {
+projr_build_output <- function(bump_component, msg, ...) {
   if (missing(bump_component)) {
     yml_projr <- projr_yml_get()
     version <- yml_projr[["version-format"]]
     version_vec <- strsplit(version, split = "\\.|\\-")[[1]]
     bump_component <- version_vec[length(version_vec) - 1]
   }
-  .projr_build(bump_component = bump_component, ...)
+  if (!Sys.getenv("PROJR_TEST") == "TRUE") {
+    if (interactive()) {
+      cat("Please enter a one-line description of change", "\n")
+      msg <- readline(prompt = ">> ")
+    } else {
+      msg <- ""
+    }
+  } else {
+    msg <- ""
+  }
+  .projr_build(bump_component = bump_component, msg = msg, ...)
 }
 
 #' @title Build dev project
@@ -45,18 +55,11 @@ projr_build_dev <- function(bump = FALSE, ...) {
   .projr_build(bump_component = bump_component, ...)
 }
 
-.projr_build <- function(bump_component, ...) {
+.projr_build <- function(bump_component, msg = "", ...) {
   # read in settings
   yml_projr <- projr_yml_get()
 
   # get version for DESCRIPTION and bookdown from run onwards
-  version_run_on_list <- .projr_version_run_onwards_get(
-    bump_component = bump_component
-  )
-
-  projr_version_set(version_run_on_list$desc[["run"]], "DESCRIPTION")
-  projr_version_set(version_run_on_list$bd[["run"]], "bookdown")
-
   # snapshot if need be
   if (yml_projr[["build-output"]][["renv"]] &&
     !Sys.getenv("PROJR_TEST") == "TRUE") {
@@ -70,6 +73,51 @@ projr_build_dev <- function(bump = FALSE, ...) {
   # empty output directory
   dev_run_n <- !(is.null(bump_component) || bump_component == "dev")
   unlink(projr_dir_get("output", output_safe = !dev_run_n), recursive = TRUE)
+
+  version_run_on_list <- .projr_version_run_onwards_get(
+    bump_component = bump_component
+  )
+
+  if (dev_run_n && yml_projr[["build-output"]][["git"]][["commit"]]) {
+    if (!dir.exists(".git")) {
+      stop("Git commits requested but no Git directory found")
+    }
+    # make sure everything is ignored that should be ignored
+    for (x in names(yml_projr[["directories"]])) {
+      .projr_dir_ignore(label = x)
+    }
+    msg_pre <- paste0(
+      "State before ",
+      bump_component,
+      " bump to ",
+      version_run_on_list[["desc"]][["success"]]
+    )
+    if (nzchar(msg)) {
+      msg_pre <- paste0(msg_pre, ": ", msg)
+    }
+    git_tbl_status <- gert::git_status()
+    if (nrow(git_tbl_status) > 0) {
+      if (yml_projr[["build-output"]][["git"]][["add_untracked"]]) {
+        git_tbl_status <- gert::git_status()
+        fn_vec <- git_tbl_status[["file"]][!git_tbl_status[["staged"]]]
+        if (length(fn_vec) > 0) {
+          gert::git_add(fn_vec, repo = rprojroot::is_r_package$find_file())
+        }
+        gert::git_commit(message = msg_pre)
+      } else {
+        gert::git_commit_all(
+          message = msg_pre,
+          repo = rprojroot::is_r_package$find_file()
+        )
+      }
+    }
+  }
+
+
+  projr_version_set(version_run_on_list$desc[["run"]], "DESCRIPTION")
+  projr_version_set(version_run_on_list$bd[["run"]], "bookdown")
+
+
   bd_status <- try(bookdown::render_book(...))
   if (identical(class(bd_status), "try-error")) {
     projr_version_set(version_run_on_list$desc[["failure"]], "DESCRIPTION")
@@ -78,6 +126,17 @@ projr_build_dev <- function(bump = FALSE, ...) {
     # TODO: #156 delet
     stop(bd_status)
   }
+  # get version for DESCRIPTION and bookdown from run onwards
+  # snapshot if need be
+  if (yml_projr[["build-output"]][["renv"]] &&
+    !Sys.getenv("PROJR_TEST") == "TRUE") {
+    if (!is.null(bump_component)) {
+      if (bump_component != "dev") {
+        renv::snapshot(prompt = FALSE)
+      }
+    }
+  }
+
 
   dir_proj <- rprojroot::is_r_package$find_file()
 
@@ -175,9 +234,56 @@ projr_build_dev <- function(bump = FALSE, ...) {
     }
   }
 
+  if (dev_run_n && yml_projr[["build-output"]][["git"]][["commit"]]) {
+    if (!dir.exists(".git")) {
+      stop("Git commits requested but no Git directory found")
+    }
+    # make sure everything is ignored that should be ignored
+    for (x in names(yml_projr[["directories"]])) {
+      .projr_dir_ignore(label = x)
+    }
+    msg_post <- paste0(
+      paste0(
+        toupper(substr(bump_component, 1, 1)),
+        substr(bump_component, 2, nchar(bump_component))
+      ),
+      " bump to ",
+      version_run_on_list[["desc"]][["success"]]
+    )
+    if (nzchar(msg)) {
+      msg_post <- paste0(msg_post, ": ", msg)
+    }
+    git_tbl_status <- gert::git_status()
+    if (nrow(git_tbl_status) > 0) {
+      if (yml_projr[["build-output"]][["git"]][["add_untracked"]]) {
+        git_tbl_status <- gert::git_status()
+        fn_vec <- git_tbl_status[["file"]][!git_tbl_status[["staged"]]]
+        if (length(fn_vec) > 0) {
+          gert::git_add(fn_vec, repo = rprojroot::is_r_package$find_file())
+        }
+        gert::git_commit(message = msg_post)
+      } else {
+        gert::git_commit_all(
+          message = msg_post,
+          repo = rprojroot::is_r_package$find_file()
+        )
+      }
+    }
+  }
+
   projr_version_set(version_run_on_list$desc[["success"]], "DESCRIPTION")
   projr_version_set(version_run_on_list$bd[["success"]], "bookdown")
 
+  if (yml_projr[["build-output"]][["git"]][["commit"]] && dev_run_n) {
+    gert::git_commit_all(
+      message = paste0(
+        "Begin dev version ", version_run_on_list$bd[["success"]]
+      )
+    )
+    if (yml_projr[["build-output"]][["git"]][["push"]]) {
+      gert::git_push()
+    }
+  }
 
   invisible(TRUE)
 }
@@ -213,9 +319,13 @@ projr_build_dev <- function(bump = FALSE, ...) {
   }
 
   # copy data_raw and cache across, if desired
-  data_raw_or_cache_ind <- grepl("^data_raw|^cache", names(copy_to_output_list))
+  data_raw_or_cache_ind <- grepl(
+    "^data\\-raw|^cache|^data_raw",
+    names(copy_to_output_list)
+  )
   label_vec <- names(copy_to_output_list)[data_raw_or_cache_ind]
   label <- label_vec[1]
+
   for (label in label_vec) {
     copy <- copy_to_output_list[[label]]
     if (is.logical(copy)) {

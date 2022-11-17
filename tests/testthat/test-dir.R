@@ -14,7 +14,6 @@ test_that("projr_dir_get works", {
     )
   }
 
-
   gitignore <- c(
     "# R", ".Rproj.user", ".Rhistory", ".RData",
     ".Ruserdata", "", "# docs", "docs/*"
@@ -27,6 +26,7 @@ test_that("projr_dir_get works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      yml_projr <- .projr_yml_get()
       expect_error(projr_dir_get("abc"))
       expect_identical(projr_dir_get("data-raw"), "_data_raw")
       expect_identical(projr_dir_get("output"), "_tmp/projr_output/0.0.0-1")

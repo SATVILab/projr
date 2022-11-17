@@ -68,8 +68,8 @@ test_that("getting active yml file works", {
     path = dir_test,
     code = {
       yml_projr_default <- list(
-        `directories` = list(
-          data_raw = list(
+        directories = list(
+          `data-raw` = list(
             path = "_data_raw",
             ignore = TRUE
           ), cache = list(path = "_tmp", ignore = TRUE),
@@ -82,8 +82,32 @@ test_that("getting active yml file works", {
         ),
         `build-output` = list(
           renv = TRUE, `copy-to-output` = list(
-            data_raw = FALSE,
-            cache = FALSE, bookdown = TRUE, package = FALSE
+            `data-raw` = FALSE, cache = FALSE, bookdown = TRUE, package = FALSE
+          ),
+          git = list(
+            commit = TRUE,
+            add_untracked = TRUE,
+            push = FALSE
+          ), `github-release` = list(
+            `source-code` = list(
+              add = TRUE, name = "latest",
+              `version-component-bumped` = "any"
+            ), `data-raw` = list(
+              add = FALSE, name = "artefacts", zip = TRUE,
+              `version-component-bumped` = "any"
+            ), cache = list(
+              add = FALSE, name = "artefacts", zip = TRUE,
+              `version-component-bumped` = "any"
+            ), bookdown = list(
+              add = FALSE, name = "artefacts", zip = TRUE,
+              `version-component-bumped` = "any"
+            ), package = list(
+              add = FALSE, name = "artefacts", zip = TRUE,
+              `version-component-bumped` = "any"
+            ), output = list(
+              add = FALSE, name = "artefacts", zip = TRUE,
+              `version-component-bumped` = "any"
+            )
           )
         )
       )
@@ -91,7 +115,7 @@ test_that("getting active yml file works", {
       projr_profile_create()
       yml_projr <- .projr_yml_get()
       list_non_default <- list(
-        data_raw = list(path = "abc"),
+        `data-raw` = list(path = "abc"),
         cache = list(path = "def"),
         output = list(path = "ghi"),
         archive = list(path = "jkl")
@@ -101,7 +125,7 @@ test_that("getting active yml file works", {
       .projr_yml_set(yml_projr)
       dir_active <- projr_yml_get()[["directories"]]
       expected_dirs_list <- list(
-        data_raw = list(path = "abc", ignore = TRUE),
+        `data-raw` = list(path = "abc", ignore = TRUE),
         cache = list(path = "def", ignore = TRUE),
         output = list(path = "ghi", ignore = TRUE),
         archive = list(path = "jkl", ignore = TRUE)

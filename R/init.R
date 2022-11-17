@@ -331,7 +331,8 @@ projr_init <- function(dir_proj = getwd(),
   # Git
   # GitHub
   answer_git <- .projr_init_prompt_yn(
-    question = "Do you want to initialise a Git repo now?"
+    question = "Do you want to initialise a Git repo now?",
+    answer_auto = 1
   )
 
   if (answer_git == 2) {
@@ -355,6 +356,10 @@ projr_init <- function(dir_proj = getwd(),
       readme = readme, path_readme = path_readme, gh = FALSE,
       nm_pkg = nm_pkg, nm_gh = nm_gh
     )
+    if (Sys.getenv("PROJR_TEST") == "TRUE") {
+      gert::git_config_set("user.name", "Darth Vader")
+      gert::git_config_set("user.email", "secret_fan@tellytubbies.com")
+    }
     .projr_init_git(dir_proj)
     return(TRUE)
   }
@@ -428,7 +433,10 @@ projr_init <- function(dir_proj = getwd(),
       strsplit(Sys.getenv(paste0("PROJR_", .var)), ";")[[1]],
       option_default
     )
-    answer_item <- utils::menu(c(nm_item, option_other), title = request_default)
+    answer_item <- utils::menu(
+      c(nm_item, option_other),
+      title = request_default
+    )
     cat("\n")
     if (answer_item %in% seq_along(nm_item)) {
       nm_item <- nm_item[answer_item]
@@ -509,9 +517,13 @@ projr_init <- function(dir_proj = getwd(),
 
 .projr_init_git <- function(dir_proj) {
   gert::git_init(path = dir_proj)
-  gert::git_add(
-    setdiff(list.files(dir_proj, all.files = TRUE), c(".", ".."))
-  )
-  gert::git_commit_all(message = "Initial commit")
+  git_tbl_status <- gert::git_status()
+  if (nrow(git_tbl_status) > 0) {
+    fn_vec <- git_tbl_status[["file"]][git_tbl_status[["staged"]]]
+    if (length(fn_vec) > 0) {
+      gert::git_add(fn_vec)
+      gert::git_commit(message = "Initial commit")
+    }
+  }
   invisible(TRUE)
 }

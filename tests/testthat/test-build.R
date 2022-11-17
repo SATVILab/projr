@@ -81,7 +81,7 @@ test_that("projr_build_output works", {
       yml_projr <- .projr_yml_get()
       # check that copying non-default directories works as well
       copy_list <- list(
-        data_raw = TRUE, cache = TRUE, bookdown = FALSE, package = TRUE
+        `data-raw` = TRUE, cache = TRUE, bookdown = FALSE, package = TRUE
       )
       yml_projr[["build-output"]][["copy-to-output"]] <- copy_list
 
@@ -104,8 +104,6 @@ test_that("projr_build_output works", {
 
       invisible(file.create("_tmp/test.txt"))
 
-      # debugonce(.projr_output_copy)
-
       projr_build_output(quiet = TRUE)
       expect_identical(
         list.files("_tmp/projr_output/0.0.2"),
@@ -115,7 +113,7 @@ test_that("projr_build_output works", {
         list.files("_output", recursive = TRUE),
         c(
           "VERSION - 0.0.2", "abc.txt", "cache.zip",
-          "data_raw.zip", "report_0.0.2.tar.gz",
+          "data-raw.zip", "report_0.0.2.tar.gz",
           "test_dir/def.txt"
         )
       )

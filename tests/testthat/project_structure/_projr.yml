@@ -27,6 +27,10 @@ build-output:
     cache: false
     bookdown: true
     package: false
+  git:
+    commit: true
+    add_untracked: true
+    push: false
   github-release:
     source-code:
       add: true
