@@ -147,7 +147,9 @@ projr_build_dev <- function(bump = FALSE, ...) {
       "$"
     )
     dir_report <- basename(
-      list.dirs(dirname(projr_dir_get("bookdown", create = FALSE)), recursive = FALSE)
+      list.dirs(dirname(
+        projr_dir_get("bookdown", create = FALSE)
+      ), recursive = FALSE)
     )
     dir_report_rm <- dir_report[grepl(match_regex, dir_report)]
     for (i in seq_along(dir_report_rm)) {
@@ -288,9 +290,9 @@ projr_build_dev <- function(bump = FALSE, ...) {
       )
       if (file.exists(path_copy)) {
         file.remove(path_copy)
-        if (!dir.exists(dirname(path_copy))) {
-          dir.create(path_copy, recursive = TRUE)
-        }
+      }
+      if (!dir.exists(dirname(path_copy))) {
+        dir.create(path_copy, recursive = TRUE)
       }
       file.copy(file.path(dir_bookdown, path_zip), path_copy)
       file.remove(file.path(dir_bookdown, path_zip))
