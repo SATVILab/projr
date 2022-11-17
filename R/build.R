@@ -260,6 +260,9 @@ projr_build_dev <- function(bump = FALSE, ...) {
       projr_dir_get("output", output_safe = output_safe), path_zip
     )
     if (file.exists(path_copy)) file.remove(path_copy)
+    if (!dir.exists(dirname(path_copy))) {
+      dir.create(dirname(path_copy), recursive = TRUE)
+    }
     file.copy(file.path(yml_projr_dir[[label]][["path"]], path_zip), path_copy)
     file.remove(file.path(yml_projr_dir[[label]][["path"]], path_zip))
   }
