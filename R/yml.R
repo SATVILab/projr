@@ -111,6 +111,7 @@ projr_yml_get <- function() {
   yaml::read_yaml(path_yml)
 }
 
+
 .projr_yml_bd_set <- function(list_save) {
   dir_proj <- rprojroot::is_r_package$find_file()
   path_yml <- file.path(dir_proj, "_bookdown.yml")

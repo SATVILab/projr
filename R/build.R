@@ -97,6 +97,11 @@ projr_build_dev <- function(bump = FALSE, ...) {
   }
   .projr_dir_ignore("bookdown")
 
+  # set the output directory to that in "_projr.yml"
+  yml_bd <- .projr_yml_bd_get()
+  yml_bd[["output_dir"]] <- projr_dir_get("bookdown")
+  .projr_yml_bd_set(yml_bd)
+
   if (dev_run_n && yml_projr[["build-output"]][["git"]][["commit"]]) {
     if (!dir.exists(".git")) {
       stop("Git commits requested but no Git directory found")

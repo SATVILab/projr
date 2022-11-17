@@ -58,7 +58,12 @@ projr_dir_get <- function(label, ...,
 
   if (label == "bookdown") {
     yml_bd <- .projr_yml_bd_get()
-    path_final <- file.path(yml_bd[["output_dir"]], ...)
+    dir_base <- dir_active[["bookdown"]][["path"]]
+    fn <- basename(yml_bd[["output_dir"]])
+    path_bd <- file.path(dir_base, fn)
+    yml_bd[["output_dir"]] <- path_bd
+    .projr_yml_bd_set(yml_bd)
+    path_final <- file.path(dir_base, fn, ...)
     if (!fs::is_absolute_path(path_final)) {
       path_final <- fs::path_rel(
         file.path(rprojroot::is_r_package$find_file(), path_final),
