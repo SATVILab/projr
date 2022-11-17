@@ -91,13 +91,15 @@ projr_build_dev <- function(bump = FALSE, ...) {
     bump_component = bump_component
   )
 
+  # make sure everything is ignored that should be ignored
+  for (x in names(yml_projr[["directories"]])) {
+    .projr_dir_ignore(label = x)
+  }
+  .projr_dir_ignore("bookdown")
+
   if (dev_run_n && yml_projr[["build-output"]][["git"]][["commit"]]) {
     if (!dir.exists(".git")) {
       stop("Git commits requested but no Git directory found")
-    }
-    # make sure everything is ignored that should be ignored
-    for (x in names(yml_projr[["directories"]])) {
-      .projr_dir_ignore(label = x)
     }
     msg_pre <- paste0(
       "State before ",

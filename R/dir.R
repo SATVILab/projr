@@ -237,23 +237,30 @@ projr_dir_create <- function(label) {
   if (length(label) > 1) stop("label must be length 1")
   if (!is.character(label)) stop("label must be o label character")
   dir_proj <- rprojroot::is_r_package$find_file()
-  yml_active_dir <- try(projr_yml_get()[["directories"]])
-  if (identical(class(yml_active_dir), "try-error")) {
-    stop("_projr.yml not valid YAML")
+  if (label == "bookdown") {
+    yml_bd <- try(.projr_yml_bd_get())
+    if (identical(class(yml_bd), "try-error")) {
+      stop("_bookdown.yml not valid YAML")
+    }
+    dir_path <- yml_bd[["output_dir"]]
+  } else {
+    yml_active_dir <- try(projr_yml_get()[["directories"]])
+    if (identical(class(yml_active_dir), "try-error")) {
+      stop("_projr.yml not valid YAML")
+    }
+    match_ind <-
+      which(vapply(names(yml_active_dir), function(x) label == x, logical(1)))
+    dir_label <- names(yml_active_dir)[[match_ind]]
+    yml_active_dir <- yml_active_dir[[match_ind]]
+    # ignore
+    if (!is.logical(yml_active_dir[["ignore"]])) {
+      stop(paste0("ignore not of typical logical for directory ", dir_label))
+    }
+    dir_path <- yml_active_dir[["path"]]
   }
-  match_ind <-
-    which(vapply(names(yml_active_dir), function(x) label == x, logical(1)))
-  dir_label <- names(yml_active_dir)[[match_ind]]
-  yml_active_dir <- yml_active_dir[[match_ind]]
-  dir_path <- yml_active_dir[["path"]]
   within_wd <- fs::path_has_parent(dir_path, dir_proj)
   if (!within_wd) {
     return(invisible(TRUE))
-  }
-
-  # ignore
-  if (!is.logical(yml_active_dir[["ignore"]])) {
-    stop(paste0("ignore not of typical logical for directory ", dir_label))
   }
 
   gitignore <- .projr_gitignore_get()
@@ -262,9 +269,15 @@ projr_dir_create <- function(label) {
   dir_path <- fs::path_rel(dir_path, dir_proj)
 
   txt_gitignore <- paste0(gsub("/*$", "", dir_path), "/**/*")
-  txt_rbuildignore <- paste0("^", Hmisc::escapeRegex(dir_path))
+  txt_rbuildignore <- paste0("^", gsub("\\.", "\\\\.", dir_path))
 
-  if (yml_active_dir[["ignore"]]) {
+  if (label == "bookdown") {
+    ignore <- TRUE
+  } else {
+    ignore <- yml_active_dir[["ignore"]]
+  }
+
+  if (ignore) {
     if (!txt_gitignore %in% gitignore) {
       .projr_gitignore_set(txt_gitignore, append = TRUE)
       .projr_gitignore_set("\n", append = TRUE)

@@ -245,6 +245,15 @@ test_that("projr_dir_ignore works", {
       # test adding to gitignore and buildignore
       gitignore_orig <- .projr_gitignore_get()
       buildignore_orig <- .projr_buildignore_get()
+      .projr_dir_ignore("bookdown")
+      gitignore <- .projr_gitignore_get()
+      expect_identical(length(which(
+        gitignore == "docs/reportV0.0.0-1/**/*"
+      )), 1L)
+      buildignore <- .projr_buildignore_get()
+      expect_identical(length(which(
+        buildignore == "^docs/reportV0\\.0\\.0-1"
+      )), 1L)
       .projr_dir_ignore("data-raw")
       gitignore <- .projr_gitignore_get()
       expect_identical(length(which(gitignore == "_data_raw/**/*")), 1L)
