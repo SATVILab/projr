@@ -356,11 +356,7 @@ projr_init <- function(dir_proj = getwd(),
       readme = readme, path_readme = path_readme, gh = FALSE,
       nm_pkg = nm_pkg, nm_gh = nm_gh
     )
-    if (Sys.getenv("PROJR_TEST") == "TRUE") {
-      gert::git_config_set("user.name", "Darth Vader")
-      gert::git_config_set("user.email", "secret_fan@tellytubbies.com")
-    }
-    .projr_init_git(dir_proj)
+    .projr_git_init(dir_proj)
     return(TRUE)
   }
 
@@ -370,7 +366,7 @@ projr_init <- function(dir_proj = getwd(),
   )
 
   # taken from usethis::use_git
-  .projr_init_git(dir_proj)
+  .projr_git_init(dir_proj)
 
   try(usethis::use_github(
     organisation = nm_gh,
@@ -515,11 +511,15 @@ projr_init <- function(dir_proj = getwd(),
   invisible(x)
 }
 
-.projr_init_git <- function(dir_proj) {
+.projr_git_init <- function(dir_proj) {
   gert::git_init(path = dir_proj)
+  if (Sys.getenv("PROJR_TEST") == "TRUE") {
+    gert::git_config_set("user.name", "Darth Vader")
+    gert::git_config_set("user.email", "secret_fan@tellytubbies.com")
+  }
   git_tbl_status <- gert::git_status()
   if (nrow(git_tbl_status) > 0) {
-    fn_vec <- git_tbl_status[["file"]][git_tbl_status[["staged"]]]
+    fn_vec <- git_tbl_status[["file"]][!git_tbl_status[["staged"]]]
     if (length(fn_vec) > 0) {
       gert::git_add(fn_vec)
       gert::git_commit(message = "Initial commit")
