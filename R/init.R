@@ -214,7 +214,7 @@ projr_init <- function(dir_proj = getwd(),
     )
     gitignore <- c(
       "# R", ".Rproj.user", ".Rhistory", ".RData",
-      ".Ruserdata", "", "# docs", "docs/*"
+      ".Ruserdata", "", "# docs", "docs/**/*", "_bookdown_files/**/*", ""
     )
     writeLines(gitignore, file.path(dir_proj, ".gitignore"))
   }
@@ -224,7 +224,10 @@ projr_init <- function(dir_proj = getwd(),
       system.file("project_structure", ".Rbuildignore", package = "projr"),
       dir_proj
     )
-    rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+    rbuildignore <- c(
+      "^.*\\.Rproj$", "^\\.Rproj\\.user$",
+      "^docs", "^_bookdown_files", ""
+    )
     writeLines(rbuildignore, file.path(dir_proj, ".Rbuildignore"))
   }
 
