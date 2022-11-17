@@ -167,6 +167,17 @@ projr_build_dev <- function(bump = FALSE, ...) {
 
   # update README.Rmd, if found
   if (file.exists(file.path(dir_proj, "README.Rmd"))) {
+    if (!requireNamespace("devtools", quietly = TRUE)) {
+      install.packages("devtools")
+      renv_dep_file <- readLines(
+        file.path(dir_proj, "_dependencies.R")
+        )
+      if (!"library(devtools)" %in% renv_dep_file) {
+        renv_dep_file <- c(renv_dep_file, "library(devtools)", "")
+        writeLines(renv_dep_file, file.path(dir_proj, "_dependencies.R"))
+      }
+    }
+    devtools::install()
     rmarkdown::render(
       file.path(dir_proj, "README.Rmd"),
       output_format = "md_document",
