@@ -286,10 +286,13 @@ projr_build_dev <- function(bump = FALSE, ...) {
       )
       setwd(dir_proj)
       path_copy <- file.path(
-        projr_dir_get("output", output_safe = output_safe)
+        projr_dir_get("output", output_safe = output_safe), path_zip
       )
+      if (file.exists(path_copy)) {
+        file.remove(path_copy)
+      }
       if (!dir.exists(dirname(path_copy))) {
-        dir.create(path_copy, recursive = TRUE)
+        dir.create(dirname(path_copy), recursive = TRUE)
       }
       file.copy(file.path(dir_bookdown, path_zip), path_copy)
       file.remove(file.path(dir_bookdown, path_zip))
