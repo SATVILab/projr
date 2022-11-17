@@ -1,6 +1,6 @@
 # default directory settings:
 directories-default:
-  data_raw:
+  data-raw:
     path: _data_raw
     ignore: true
   cache: 
@@ -23,8 +23,38 @@ build-dev:
 build-output:
   renv: true # whether to snapshot or not 
   copy-to-output:
-    data_raw: false
+    data-raw: false
     cache: false
     bookdown: true
     package: false
+  github-release:
+    source-code:
+      add: true
+      name: latest
+      version-component-bumped: any
+    data-raw:
+      add: false
+      name: artefacts
+      zip: true
+      version-component-bumped: any
+    cache:
+      add: false
+      name: artefacts
+      zip: true
+      version-component-bumped: any
+    bookdown:
+      add: false
+      name: artefacts
+      zip: true
+      version-component-bumped: any
+    package:
+      add: false
+      name: artefacts
+      zip: true
+      version-component-bumped: any
+    output: 
+      add: false
+      name: artefacts
+      zip: true
+      version-component-bumped: any
 # user-specific directories:

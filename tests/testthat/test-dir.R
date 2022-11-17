@@ -28,7 +28,7 @@ test_that("projr_dir_get works", {
     path = dir_test,
     code = {
       expect_error(projr_dir_get("abc"))
-      expect_identical(projr_dir_get("data_raw"), "_data_raw")
+      expect_identical(projr_dir_get("data-raw"), "_data_raw")
       expect_identical(projr_dir_get("output"), "_tmp/projr_output/0.0.0-1")
       expect_identical(projr_dir_get(
         "output",
@@ -44,21 +44,21 @@ test_that("projr_dir_get works", {
       projr_dir_get("cache", create = TRUE)
       expect_true(dir.exists("_tmp"))
       yml_projr <- .projr_yml_get()
-      yml_projr[["directories-default"]][["data_raw"]] <- list(
+      yml_projr[["directories-default"]][["data-raw"]] <- list(
         path = "/tmp/testDataRawABC1902", ignore = TRUE
       )
       .projr_yml_set(yml_projr)
 
-      expect_identical(projr_dir_get("data_raw"), "/tmp/testDataRawABC1902")
+      expect_identical(projr_dir_get("data-raw"), "/tmp/testDataRawABC1902")
       expect_identical(
-        projr_dir_get("data_raw", path_relative_force = TRUE),
+        projr_dir_get("data-raw", path_relative_force = TRUE),
         as.character(fs::path_rel("/tmp/testDataRawABC1902", dir_test))
       )
       expect_identical(
         projr_dir_get("bookdown", "abc"), "docs/reportV0.0.0-1/abc"
       )
       expect_identical(
-        projr_dir_get("data_raw", "abc"), "/tmp/testDataRawABC1902/abc"
+        projr_dir_get("data-raw", "abc"), "/tmp/testDataRawABC1902/abc"
       )
       expect_identical(
         projr_dir_get("cache", "abc"), "_tmp/abc"
@@ -106,7 +106,7 @@ test_that("projr_path_get works", {
     path = dir_test,
     code = {
       expect_error(projr_path_get("abc"))
-      expect_identical(projr_path_get("data_raw"), "_data_raw")
+      expect_identical(projr_path_get("data-raw"), "_data_raw")
       expect_identical(projr_path_get("output"), "_tmp/projr_output/0.0.0-1")
       expect_identical(projr_path_get(
         "output",
@@ -122,21 +122,21 @@ test_that("projr_path_get works", {
       projr_path_get("cache", create = TRUE)
       expect_true(dir.exists("_tmp"))
       yml_projr <- .projr_yml_get()
-      yml_projr[["directories-default"]][["data_raw"]] <- list(
+      yml_projr[["directories-default"]][["data-raw"]] <- list(
         path = "/tmp/testDataRawABC1902", ignore = TRUE
       )
       .projr_yml_set(yml_projr)
 
-      expect_identical(projr_path_get("data_raw"), "/tmp/testDataRawABC1902")
+      expect_identical(projr_path_get("data-raw"), "/tmp/testDataRawABC1902")
       expect_identical(
-        projr_path_get("data_raw", path_relative_force = TRUE),
+        projr_path_get("data-raw", path_relative_force = TRUE),
         as.character(fs::path_rel("/tmp/testDataRawABC1902", dir_test))
       )
       expect_identical(
         projr_path_get("bookdown", "abc"), "docs/reportV0.0.0-1/abc"
       )
       expect_identical(
-        projr_path_get("data_raw", "abc"), "/tmp/testDataRawABC1902/abc"
+        projr_path_get("data-raw", "abc"), "/tmp/testDataRawABC1902/abc"
       )
       expect_identical(
         projr_path_get("cache", "abc"), "_tmp/abc"
@@ -189,7 +189,7 @@ test_that("projr_dir_create works", {
       expect_error(projr_dir_create("abc"))
       expect_error(projr_dir_create(TRUE))
 
-      projr_dir_create("data_raw")
+      projr_dir_create("data-raw")
       expect_true(dir.exists("_data_raw"))
       projr_dir_create("archive")
       expect_true(dir.exists("_archive"))
@@ -245,12 +245,12 @@ test_that("projr_dir_ignore works", {
       # test adding to gitignore and buildignore
       gitignore_orig <- .projr_gitignore_get()
       buildignore_orig <- .projr_buildignore_get()
-      .projr_dir_ignore("data_raw")
+      .projr_dir_ignore("data-raw")
       gitignore <- .projr_gitignore_get()
       expect_identical(length(which(gitignore == "_data_raw/**/*")), 1L)
       buildignore <- .projr_buildignore_get()
       expect_identical(length(which(buildignore == "^_data_raw")), 1L)
-      .projr_dir_ignore("data_raw")
+      .projr_dir_ignore("data-raw")
       gitignore <- .projr_gitignore_get()
       expect_identical(length(which(gitignore == "_data_raw/**/*")), 1L)
       buildignore <- .projr_buildignore_get()
@@ -260,7 +260,7 @@ test_that("projr_dir_ignore works", {
       expect_identical(length(which(gitignore == "_output/**/*")), 1L)
       buildignore <- .projr_buildignore_get()
       expect_identical(length(which(buildignore == "^_output")), 1L)
-      .projr_dir_ignore("data_raw")
+      .projr_dir_ignore("data-raw")
       gitignore <- .projr_gitignore_get()
       expect_identical(length(which(gitignore == "_output/**/*")), 1L)
       buildignore <- .projr_buildignore_get()
@@ -270,7 +270,7 @@ test_that("projr_dir_ignore works", {
       expect_identical(length(which(gitignore == "_archive/**/*")), 1L)
       buildignore <- .projr_buildignore_get()
       expect_identical(length(which(buildignore == "^_archive")), 1L)
-      .projr_dir_ignore("data_raw")
+      .projr_dir_ignore("data-raw")
       gitignore <- .projr_gitignore_get()
       expect_identical(length(which(gitignore == "_archive/**/*")), 1L)
       buildignore <- .projr_buildignore_get()
@@ -280,7 +280,7 @@ test_that("projr_dir_ignore works", {
       expect_identical(length(which(gitignore == "_tmp/**/*")), 1L)
       buildignore <- .projr_buildignore_get()
       expect_identical(length(which(buildignore == "^_tmp")), 1L)
-      .projr_dir_ignore("data_raw")
+      .projr_dir_ignore("data-raw")
       gitignore <- .projr_gitignore_get()
       expect_identical(length(which(gitignore == "_tmp/**/*")), 1L)
       buildignore <- .projr_buildignore_get()
@@ -293,7 +293,7 @@ test_that("projr_dir_ignore works", {
       .projr_yml_set(yml_projr)
       # test taking away from gitignore and buildignore
 
-      .projr_dir_ignore("data_raw")
+      .projr_dir_ignore("data-raw")
       gitignore <- .projr_gitignore_get()
       expect_identical(length(which(gitignore == "_data_raw/**/*")), 0L)
       buildignore <- .projr_buildignore_get()
@@ -328,9 +328,9 @@ test_that("projr_dir_ignore works", {
       for (i in seq_along(yml_projr[["directories-default"]])) {
         yml_projr[["directories-default"]][[i]][["ignore"]] <- 1
       }
-      names(yml_projr[["directories-default"]]) <- rep("data_raw", 4)
+      names(yml_projr[["directories-default"]]) <- rep("data-raw", 4)
       .projr_yml_set(yml_projr)
-      expect_error(.projr_dir_ignore("data_raw"))
+      expect_error(.projr_dir_ignore("data-raw"))
     },
     force = TRUE,
     quiet = TRUE
