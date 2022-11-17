@@ -4,7 +4,7 @@
 \alias{projr_build_output}
 \title{Build project to output}
 \usage{
-projr_build_output(bump_component, ...)
+projr_build_output(bump_component, msg = NULL, ...)
 }
 \arguments{
 \item{bump_component}{"major", "minor", "patch" or missing.
@@ -12,6 +12,18 @@ Specifies version component to increment.
 If missing, then is set equal to the lowest version component
 in used version format.
 No default (i.e. is missing by default).}
+
+\item{msg}{character.
+Message to append to Git commit messages.
+Default is \code{NULL}, in which
+case the user is prompted for a message or,
+if the session is not interactive, it is
+left empty.
+Default is \code{NULL}.
+Note that the Git messages in this case would not be blank -
+they would simply consist of details as to the version
+being bumped to and the stage in the build process
+at which the commit was made.}
 
 \item{...}{Arguments passed to \code{bookdown::render}.}
 }

@@ -10,26 +10,39 @@
 #' If missing, then is set equal to the lowest version component
 #' in used version format.
 #' No default (i.e. is missing by default).
+#' @param msg character.
+#' Message to append to Git commit messages.
+#' Default is \code{NULL}, in which
+#' case the user is prompted for a message or,
+#' if the session is not interactive, it is
+#' left empty.
+#' Default is \code{NULL}.
+#' Note that the Git messages in this case would not be blank -
+#' they would simply consist of details as to the version
+#' being bumped to and the stage in the build process
+#' at which the commit was made.
 #'
 #' @param ... Arguments passed to \code{bookdown::render}.
 #'
 #' @export
-projr_build_output <- function(bump_component, msg, ...) {
+projr_build_output <- function(bump_component, msg = NULL, ...) {
   if (missing(bump_component)) {
     yml_projr <- projr_yml_get()
     version <- yml_projr[["version-format"]]
     version_vec <- strsplit(version, split = "\\.|\\-")[[1]]
     bump_component <- version_vec[length(version_vec) - 1]
   }
-  if (!Sys.getenv("PROJR_TEST") == "TRUE") {
-    if (interactive()) {
-      cat("Please enter a one-line description of change", "\n")
-      msg <- readline(prompt = ">> ")
+  if (is.null(msg)) {
+    if (!Sys.getenv("PROJR_TEST") == "TRUE") {
+      if (interactive()) {
+        cat("Please enter a one-line description of change", "\n")
+        msg <- readline(prompt = ">> ")
+      } else {
+        msg <- ""
+      }
     } else {
       msg <- ""
     }
-  } else {
-    msg <- ""
   }
   .projr_build(bump_component = bump_component, msg = msg, ...)
 }
