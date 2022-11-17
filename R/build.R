@@ -86,6 +86,12 @@ projr_build_dev <- function(bump = FALSE, ...) {
   # empty output directory
   dev_run_n <- !(is.null(bump_component) || bump_component == "dev")
   unlink(projr_dir_get("output", output_safe = !dev_run_n), recursive = TRUE)
+  if (dev_run_n) {
+    dir_data_r <- file.path(rprojroot::is_r_package$find_file(), "data")
+    if (dir.exists(dir_data_r)) {
+      unlink(dir_data_r, recursive = TRUE)
+    }
+  }
 
   version_run_on_list <- .projr_version_run_onwards_get(
     bump_component = bump_component
