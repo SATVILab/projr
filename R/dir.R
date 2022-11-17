@@ -59,6 +59,13 @@ projr_dir_get <- function(label, ...,
   if (label == "bookdown") {
     yml_bd <- .projr_yml_bd_get()
     path_final <- file.path(yml_bd[["output_dir"]], ...)
+    if (!fs::is_absolute_path(path_final)) {
+      path_final <- fs::path_rel(
+        file.path(rprojroot::is_r_package$find_file(), path_final),
+        start = getwd()
+      ) |>
+        as.character()
+    }
     if (!dir.exists(path_final)) {
       dir.create(path_final, recursive = TRUE)
     }
@@ -102,6 +109,82 @@ projr_dir_get <- function(label, ...,
   as.character(path_final)
 }
 
+#' @title Return path
+#'
+#' @description Returns path to \code{projr} profile-specific directory.
+#' Differs from \code{projr_dir_get} in that it does not assume
+#' that the path is to a directory.
+#'
+#' Will create the parent directory of the specified
+#' path if it does not exist, and ignore it
+#' if requested by `_projr.yml`.
+#'
+#' @param label character.
+#' One of \code{"data_raw"}, \code{"cache"},\code{"output"},
+#' \code{"archive"} and \code{"bookdown"}.
+#' Class of directory to return.
+#' The \code{"bookdown"} option returns the path to
+#' the output directory from \code{bookdown::render_book}
+#' (as specified in \code{"_bookdown.yml"}),
+#' whereas the others returns paths as specified in \code{"_projr.yml"}.
+#' @param ... Specifies sub-path of directory returned.
+#' @param create logical.
+#' If \code{TRUE}, then the parent directory
+#' is created if it does not exist and
+#' it is ignored (or not) from \code{.gitignore}
+#' and \code{.Rbuildignore} as specified
+#' in \code{_projr.yml}.
+#' Default is \code{TRUE}.
+#' @inheritParams projr_dir_get
+#'
+#' @return Character.
+#' Path to directory requested.
+#'
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if (interactive()) {
+#'   # EXAMPLE1
+#' }
+#' }
+#' @rdname projr_path_get
+#' @export
+projr_path_get <- function(label, ...,
+                           create = TRUE,
+                           path_relative_force = FALSE,
+                           output_safe = TRUE) {
+  args_dotted <- list(...)
+  if (length(args_dotted) == 0) {
+    path_dir <- projr_dir_get(
+      label = label,
+      create = create,
+      path_relative_force = path_relative_force,
+      output_safe = output_safe
+    )
+    return(path_dir)
+  }
+  if (length(args_dotted) > 1) {
+    path_dir <- do.call(
+      what = "projr_dir_get",
+      args = list(
+        label = label,
+        args_dotted[-length(args_dotted)],
+        create = create,
+        path_relative_force = path_relative_force,
+        output_safe = output_safe
+      )
+    )
+  } else {
+    path_dir <- projr_dir_get(
+      label = label,
+      create = create,
+      path_relative_force = path_relative_force,
+      output_safe = output_safe
+    )
+  }
+  file.path(path_dir, args_dotted[length(args_dotted)])
+}
+
 
 #' @title Create a directory in _projr.yml
 #'
@@ -129,6 +212,13 @@ projr_dir_create <- function(label) {
       path <- file.path(
         path, paste0("v", projr_version_get())
       )
+    }
+    if (!fs::is_absolute_path(path)) {
+      path <- fs::path_rel(
+        file.path(rprojroot::is_r_package$find_file(), path),
+        start = getwd()
+      ) |>
+        as.character()
     }
     if (!dir.exists(path)) {
       dir.create(path, recursive = TRUE)

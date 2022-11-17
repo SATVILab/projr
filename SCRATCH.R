@@ -2,6 +2,47 @@ library(testthat)
 devtools::load_all(path = file.path(Sys.getenv("pkg"), "projr"))
 
 ############
+## projr_path_get
+############
+
+
+projr_path_get(
+  label = "data_raw",
+  "abc", "def",
+  create = TRUE,
+  path_relative_force = FALSE,
+  output_safe = TRUE
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############
 ## INIT
 ############
 

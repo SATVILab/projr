@@ -13,7 +13,7 @@ test_that("projr_dir_get works", {
       overwrite = TRUE
     )
   }
-  
+
 
   gitignore <- c(
     "# R", ".Rproj.user", ".Rhistory", ".RData",
@@ -48,7 +48,7 @@ test_that("projr_dir_get works", {
         path = "/tmp/testDataRawABC1902", ignore = TRUE
       )
       .projr_yml_set(yml_projr)
-      
+
       expect_identical(projr_dir_get("data_raw"), "/tmp/testDataRawABC1902")
       expect_identical(
         projr_dir_get("data_raw", path_relative_force = TRUE),
@@ -68,6 +68,87 @@ test_that("projr_dir_get works", {
       )
       expect_identical(
         projr_dir_get("output", "abc", output_safe = TRUE),
+        "_tmp/projr_output/0.0.0-1/abc"
+      )
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that("projr_path_get works", {
+  dir_test <- file.path(tempdir(), paste0("report"))
+
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  fn_vec <- list.files(testthat::test_path("./project_structure"))
+  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
+
+  for (x in fn_vec) {
+    file.copy(
+      file.path(testthat::test_path("./project_structure"), x),
+      file.path(dir_test, x),
+      overwrite = TRUE
+    )
+  }
+
+
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      expect_error(projr_path_get("abc"))
+      expect_identical(projr_path_get("data_raw"), "_data_raw")
+      expect_identical(projr_path_get("output"), "_tmp/projr_output/0.0.0-1")
+      expect_identical(projr_path_get(
+        "output",
+        output_safe = TRUE,
+        create = FALSE,
+        path_relative_force = FALSE
+      ), "_tmp/projr_output/0.0.0-1")
+      expect_identical(projr_path_get("output", output_safe = FALSE), "_output")
+      expect_identical(projr_path_get("archive"), "_archive")
+      if (dir.exists("_tmp")) unlink("_tmp", recursive = TRUE)
+      expect_identical(projr_path_get("cache", create = FALSE), "_tmp")
+      expect_true(!dir.exists("_tmp"))
+      projr_path_get("cache", create = TRUE)
+      expect_true(dir.exists("_tmp"))
+      yml_projr <- .projr_yml_get()
+      yml_projr[["directories-default"]][["data_raw"]] <- list(
+        path = "/tmp/testDataRawABC1902", ignore = TRUE
+      )
+      .projr_yml_set(yml_projr)
+
+      expect_identical(projr_path_get("data_raw"), "/tmp/testDataRawABC1902")
+      expect_identical(
+        projr_path_get("data_raw", path_relative_force = TRUE),
+        as.character(fs::path_rel("/tmp/testDataRawABC1902", dir_test))
+      )
+      expect_identical(
+        projr_path_get("bookdown", "abc"), "docs/reportV0.0.0-1/abc"
+      )
+      expect_identical(
+        projr_path_get("data_raw", "abc"), "/tmp/testDataRawABC1902/abc"
+      )
+      expect_identical(
+        projr_path_get("cache", "abc"), "_tmp/abc"
+      )
+      expect_identical(
+        projr_path_get("archive", "abc"), "_archive/abc"
+      )
+      expect_true(fs::is_dir(dirname((projr_path_get("archive", "abc")))))
+      expect_true(dir.exists(dirname(projr_path_get("archive", "abc"))))
+      expect_true(!file.exists(projr_path_get("archive", "abc")))
+      expect_identical(
+        projr_path_get("output", "abc", output_safe = TRUE),
         "_tmp/projr_output/0.0.0-1/abc"
       )
     },
