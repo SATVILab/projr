@@ -87,7 +87,7 @@ test_that("getting active yml file works", {
           renv = TRUE, `copy-to-output` = list(
             `data-raw` = FALSE, cache = FALSE, bookdown = TRUE, package = FALSE
           ),
-          git = list(commit = TRUE, add_untracked = TRUE, push = FALSE),
+          git = list(commit = TRUE, `add-untracked` = TRUE, push = FALSE),
           `github-release` = list(
             `source-code` = list(
               add = TRUE,

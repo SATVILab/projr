@@ -123,7 +123,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
     }
     git_tbl_status <- gert::git_status()
     if (nrow(git_tbl_status) > 0) {
-      if (yml_projr[["build-output"]][["git"]][["add_untracked"]]) {
+      if (yml_projr[["build-output"]][["git"]][["add-untracked"]]) {
         git_tbl_status <- gert::git_status()
         fn_vec <- git_tbl_status[["file"]][!git_tbl_status[["staged"]]]
         if (length(fn_vec) > 0) {
@@ -292,7 +292,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
     }
     git_tbl_status <- gert::git_status()
     if (nrow(git_tbl_status) > 0) {
-      if (yml_projr[["build-output"]][["git"]][["add_untracked"]]) {
+      if (yml_projr[["build-output"]][["git"]][["add-untracked"]]) {
         git_tbl_status <- gert::git_status()
         fn_vec <- git_tbl_status[["file"]][!git_tbl_status[["staged"]]]
         if (length(fn_vec) > 0) {

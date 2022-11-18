@@ -32,7 +32,7 @@ build-output:
     package: false
   git:
     commit: true
-    add_untracked: true
+    add-untracked: true
     push: false
   github-release:
     source-code:
