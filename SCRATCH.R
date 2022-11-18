@@ -14,12 +14,6 @@ projr_path_get(
   output_safe = TRUE
 )
 
-
-
-
-
-
-
 library(testthat)
 devtools::load_all()
 debugonce(.projr_git_init)

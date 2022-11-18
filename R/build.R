@@ -135,7 +135,13 @@ projr_build_dev <- function(bump = FALSE, ...) {
   projr_version_set(version_run_on_list$bd[["run"]], "bookdown")
 
   # empty output directory
-  unlink(projr_dir_get("output", output_safe = !dev_run_n), recursive = TRUE)
+  dir_data_output <- projr_dir_get("output", output_safe = !dev_run_n)
+  if (dir.exists(dir_data_output)) {
+    fn_vec <- list.files(dir_data_output, recursive = TRUE, full.names = TRUE)
+    for (i in seq_along(fn_vec)) {
+      unlink(fn_vec[i])
+    }
+  }
   if (dev_run_n) {
     dir_data_r <- file.path(rprojroot::is_r_package$find_file(), "data")
     if (dir.exists(dir_data_r)) {
@@ -178,17 +184,35 @@ projr_build_dev <- function(bump = FALSE, ...) {
 
   # update README.Rmd, if found and an output run
   if (file.exists(file.path(dir_proj, "README.Rmd")) && dev_run_n) {
-    if (!requireNamespace("devtools", quietly = TRUE)) {
-      install.packages("devtools")
-      renv_dep_file <- readLines(
-        file.path(dir_proj, "_dependencies.R")
-      )
-      if (!"library(devtools)" %in% renv_dep_file) {
-        renv_dep_file <- c(renv_dep_file, "library(devtools)", "")
-        writeLines(renv_dep_file, file.path(dir_proj, "_dependencies.R"))
+    readme_rmd <- readLines(file.path(dir_proj, "README.Rmd"))
+    pkg_use_detected_lib <- grepl(
+      paste0(
+        "library\\(", projr_name_get(), "\\)|",
+        'library\\("', projr_name_get(), '"\\)|',
+        "library\\('", projr_name_get(), "'\\)"
+      ),
+      readme_rmd
+    ) |>
+      any()
+    pkg_use_detected_dots <- grepl(
+      paste0(projr_name_get(), "::"),
+      readme_rmd
+    ) |>
+      any()
+    pkg_use_detected <- pkg_use_detected_lib | pkg_use_detected_dots
+    if (pkg_use_detected) {
+      if (!requireNamespace("devtools", quietly = TRUE)) {
+        install.packages("devtools")
+        renv_dep_file <- readLines(
+          file.path(dir_proj, "_dependencies.R")
+        )
+        if (!"library(devtools)" %in% renv_dep_file) {
+          renv_dep_file <- c(renv_dep_file, "library(devtools)", "")
+          writeLines(renv_dep_file, file.path(dir_proj, "_dependencies.R"))
+        }
       }
+      devtools::install()
     }
-    devtools::install()
     rmarkdown::render(
       file.path(dir_proj, "README.Rmd"),
       output_format = "md_document",
