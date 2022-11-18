@@ -163,21 +163,22 @@ projr_build_dev <- function(bump = FALSE, ...) {
     }
   }
 
-
   dir_proj <- rprojroot::is_r_package$find_file()
 
   # update any docs
-  suppressMessages(suppressWarnings(invisible(
-    roxygen2::roxygenise(package.dir = dir_proj)
-  )))
+  if (dev_run_n) {
+    suppressMessages(suppressWarnings(invisible(
+      roxygen2::roxygenise(package.dir = dir_proj)
+    )))
+  }
 
-  # update README.Rmd, if found
-  if (file.exists(file.path(dir_proj, "README.Rmd"))) {
+  # update README.Rmd, if found and an output run
+  if (file.exists(file.path(dir_proj, "README.Rmd")) && dev_run_n) {
     if (!requireNamespace("devtools", quietly = TRUE)) {
       install.packages("devtools")
       renv_dep_file <- readLines(
         file.path(dir_proj, "_dependencies.R")
-        )
+      )
       if (!"library(devtools)" %in% renv_dep_file) {
         renv_dep_file <- c(renv_dep_file, "library(devtools)", "")
         writeLines(renv_dep_file, file.path(dir_proj, "_dependencies.R"))
