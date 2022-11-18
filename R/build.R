@@ -69,6 +69,8 @@ projr_build_dev <- function(bump = FALSE, ...) {
 }
 
 .projr_build <- function(bump_component, msg = "", ...) {
+  # whether it's an output run  or not
+  dev_run_n <- !(is.null(bump_component) || bump_component == "dev")
   # read in settings
   yml_projr <- projr_yml_get()
 
@@ -83,20 +85,6 @@ projr_build_dev <- function(bump = FALSE, ...) {
     }
   }
 
-  # empty output directory
-  dev_run_n <- !(is.null(bump_component) || bump_component == "dev")
-  unlink(projr_dir_get("output", output_safe = !dev_run_n), recursive = TRUE)
-  if (dev_run_n) {
-    dir_data_r <- file.path(rprojroot::is_r_package$find_file(), "data")
-    if (dir.exists(dir_data_r)) {
-      unlink(dir_data_r, recursive = TRUE)
-    }
-  }
-
-  version_run_on_list <- .projr_version_run_onwards_get(
-    bump_component = bump_component
-  )
-
   # make sure everything is ignored that should be ignored
   for (x in names(yml_projr[["directories"]])) {
     .projr_dir_ignore(label = x)
@@ -107,6 +95,10 @@ projr_build_dev <- function(bump = FALSE, ...) {
   yml_bd <- .projr_yml_bd_get()
   yml_bd[["output_dir"]] <- projr_dir_get("bookdown")
   .projr_yml_bd_set(yml_bd)
+
+  version_run_on_list <- .projr_version_run_onwards_get(
+    bump_component = bump_component
+  )
 
   if (dev_run_n && yml_projr[["build-output"]][["git"]][["commit"]]) {
     if (!dir.exists(".git")) {
@@ -139,9 +131,21 @@ projr_build_dev <- function(bump = FALSE, ...) {
     }
   }
 
-
   projr_version_set(version_run_on_list$desc[["run"]], "DESCRIPTION")
   projr_version_set(version_run_on_list$bd[["run"]], "bookdown")
+
+  # empty output directory
+  unlink(projr_dir_get("output", output_safe = !dev_run_n), recursive = TRUE)
+  if (dev_run_n) {
+    dir_data_r <- file.path(rprojroot::is_r_package$find_file(), "data")
+    if (dir.exists(dir_data_r)) {
+      fn_vec <- list.files(dir_data_r, recursive = TRUE, full.names = TRUE)
+      for (i in seq_along(fn_vec)) {
+        unlink(fn_vec[i])
+      }
+    }
+  }
+
 
 
   bd_status <- try(bookdown::render_book(...))
