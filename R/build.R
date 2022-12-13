@@ -152,8 +152,6 @@ projr_build_dev <- function(bump = FALSE, ...) {
     }
   }
 
-
-
   bd_status <- try(bookdown::render_book(...))
   if (identical(class(bd_status), "try-error")) {
     projr_version_set(version_run_on_list$desc[["failure"]], "DESCRIPTION")
@@ -337,7 +335,31 @@ projr_build_dev <- function(bump = FALSE, ...) {
     }
   }
 
-  projr_version_set(version_run_on_list$desc[["success"]], "DESCRIPTION")
+  # browser()
+  if (dev_run_n && "github-release" %in% names(yml_projr[["build-output"]])) {
+    version_comp_vec <- version_format_list[["components"]] |>
+      setdiff("dev")
+    version_comp_vec <- version_comp_vec[
+      seq_len(which(version_comp_vec == bump_component))
+    ]
+    gh_list <- yml_projr[["build-output"]][["github-release"]]
+    for (i in seq_along(gh_list)) {
+      nm <- names(gh_list)[i]
+      item_list <- gh_list[[i]]
+      item_version <- item_list[["version-component-bumped"]]
+      if (item_version != "any") {
+        if (!item_version %in% version_comp_vec) next
+      }
+      if (!exists("gh_releases_list")) {
+        gh_releases_list <- piggyback::pb_releases()
+      }
+      if (nm == "source-code") {
+        piggyback::pb_
+      }
+    }
+  }
+
+
   projr_version_set(version_run_on_list$bd[["success"]], "bookdown")
 
   if (yml_projr[["build-output"]][["git"]][["commit"]] && dev_run_n) {
@@ -517,4 +539,8 @@ projr_build_dev <- function(bump = FALSE, ...) {
   }
 
   invisible(TRUE)
+}
+
+.projr_gh_upload <- function() {
+
 }

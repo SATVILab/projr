@@ -100,8 +100,8 @@ projr_dir_get <- function(label, ...,
 
   if (create) {
     projr_dir_create(label = label)
-    if (!dir.exists(dirname(path_final))) {
-      dir.create(dirname(path_final), recursive = TRUE)
+    if (!dir.exists(path_final)) {
+      dir.create(path_final, recursive = TRUE)
     }
   }
 

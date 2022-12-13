@@ -144,9 +144,11 @@ test_that("projr_path_get works", {
       expect_identical(
         projr_path_get("archive", "abc"), "_archive/abc"
       )
-      expect_true(fs::is_dir(dirname((projr_path_get("archive", "abc")))))
+      expect_true(
+        fs::is_dir(dirname((projr_path_get("archive", "abc", "def"))))
+      )
       expect_true(dir.exists(dirname(projr_path_get("archive", "abc"))))
-      expect_true(!file.exists(projr_path_get("archive", "abc")))
+      expect_true(!file.exists(projr_path_get("archive", "abc", "def")))
       expect_identical(
         projr_path_get("output", "abc", output_safe = TRUE),
         "_tmp/projr_output/0.0.0-1/abc"

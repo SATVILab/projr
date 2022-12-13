@@ -1,5 +1,8 @@
 # default directory settings:
 directories-default:
+  bookdown:
+    path: docs
+    ignore: true
   data-raw:
     path: _data_raw
     ignore: true
@@ -11,9 +14,6 @@ directories-default:
     ignore: true 
   archive: 
     path: _archive
-    ignore: true
-  bookdown:
-    path: docs
     ignore: true
 version-format: "major.minor.patch-dev" # other options: version-dev; major.minor.patch-dev; 
 # actions on development built
@@ -29,7 +29,6 @@ build-output:
     data-raw: false
     cache: false
     bookdown: true
-    package: false
   git:
     commit: true
     add-untracked: true
@@ -37,31 +36,23 @@ build-output:
   github-release:
     source-code:
       add: true
-      name: latest
       version-component-bumped: any
     data-raw:
       add: false
-      name: artefacts
+      name: input
       zip: true
       version-component-bumped: any
     cache:
       add: false
-      name: artefacts
+      name: input
       zip: true
       version-component-bumped: any
     bookdown:
       add: false
-      name: artefacts
-      zip: true
-      version-component-bumped: any
-    package:
-      add: false
-      name: artefacts
-      zip: true
+      name: output
       version-component-bumped: any
     output: 
       add: false
-      name: artefacts
-      zip: true
+      name: output
       version-component-bumped: any
 # user-specific directories:

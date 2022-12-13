@@ -58,6 +58,11 @@ test_that("projr_build_output works", {
       }
       dir.create("docs/reportV0.0.0-1", recursive = TRUE)
       dir.create("docs/reportV0.0.0-9000", recursive = TRUE)
+      yml_projr <- .projr_yml_get()
+      yml_projr[["build-output"]] <- yml_projr[["build-output"]][
+        !names(yml_projr[["build-output"]]) == "github-release"
+      ]
+      .projr_yml_set(list_save = yml_projr)
       projr_build_output(quiet = TRUE)
       expect_true(!dir.exists("docs/reportV0.0.0-1"))
       expect_true(!dir.exists("docs/reportV0.0.0-9000"))
@@ -84,7 +89,9 @@ test_that("projr_build_output works", {
         `data-raw` = TRUE, cache = TRUE, bookdown = FALSE, package = TRUE
       )
       yml_projr[["build-output"]][["copy-to-output"]] <- copy_list
-
+      yml_projr[["build-output"]] <- yml_projr[["build-output"]][
+        !names(yml_projr[["build-output"]]) == "github-release"
+      ]
       .projr_yml_set(list_save = yml_projr)
       if (!dir.exists("_data_raw")) {
         dir.create("_data_raw")
