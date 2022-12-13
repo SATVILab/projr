@@ -142,6 +142,21 @@ projr_build_dev <- function(bump = FALSE, ...) {
       unlink(fn_vec[i])
     }
   }
+  # empty safe output directory even if running actual build
+  # so that people can copy to here and
+  # then save out
+  if (dev_run_n) {
+    dir_data_output_n <- projr_dir_get("output", output_safe = !dev_run_n)
+    if (dir.exists(dir_data_output_n)) {
+      fn_vec <- list.files(
+        dir_data_output_n,
+        recursive = TRUE, full.names = TRUE
+      )
+      for (i in seq_along(fn_vec)) {
+        unlink(fn_vec[i])
+      }
+    }
+  }
   if (dev_run_n) {
     dir_data_r <- file.path(rprojroot::is_r_package$find_file(), "data")
     if (dir.exists(dir_data_r)) {
@@ -199,15 +214,15 @@ projr_build_dev <- function(bump = FALSE, ...) {
       any()
     pkg_use_detected <- pkg_use_detected_lib | pkg_use_detected_dots
     if (pkg_use_detected) {
+      renv_dep_file <- readLines(
+        file.path(dir_proj, "_dependencies.R")
+      )
+      if (!"library(devtools)" %in% renv_dep_file) {
+        renv_dep_file <- c(renv_dep_file, "library(devtools)", "")
+        writeLines(renv_dep_file, file.path(dir_proj, "_dependencies.R"))
+      }
       if (!requireNamespace("devtools", quietly = TRUE)) {
         install.packages("devtools")
-        renv_dep_file <- readLines(
-          file.path(dir_proj, "_dependencies.R")
-        )
-        if (!"library(devtools)" %in% renv_dep_file) {
-          renv_dep_file <- c(renv_dep_file, "library(devtools)", "")
-          writeLines(renv_dep_file, file.path(dir_proj, "_dependencies.R"))
-        }
       }
       devtools::install()
     }
@@ -222,6 +237,27 @@ projr_build_dev <- function(bump = FALSE, ...) {
   copy_to_output <- projr_yml_get()[["build-dev"]][["copy-to-output"]] ||
     dev_run_n
   if (copy_to_output) {
+    # copy any objects copied across from safe
+    # output directory.
+    # but do this by renaming
+    if (dev_run_n) {
+      dir_data_output_n <- projr_dir_get("output", output_safe = !dev_run_n)
+      dir_data_output <- projr_dir_get("output", output_safe = dev_run_n)
+      if (dir.exists(dir_data_output_n)) {
+        fn_vec <- list.files(
+          dir_data_output_n,
+          recursive = TRUE, full.names = TRUE
+        )
+        fn_vec_rel <- fs::path_rel(fn_vec, start = dir_data_output_n)
+
+        for (i in seq_along(fn_vec)) {
+          file.rename(
+            from = fn_vec[i],
+            to = file.path(dir_data_output, fn_vec_rel)
+          )
+        }
+      }
+    }
     # copy to output
     # ----------------
     .projr_output_copy(bump_component = bump_component)
@@ -351,10 +387,20 @@ projr_build_dev <- function(bump = FALSE, ...) {
         if (!item_version %in% version_comp_vec) next
       }
       if (!exists("gh_releases_list")) {
+        renv_dep_file <- readLines(
+          file.path(dir_proj, "_dependencies.R")
+        )
+        if (!"library(piggyback)" %in% renv_dep_file) {
+          renv_dep_file <- c(renv_dep_file, "library(piggyback)", "")
+          writeLines(renv_dep_file, file.path(dir_proj, "_dependencies.R"))
+        }
+        if (!requireNamespace("piggyback", quietly = TRUE)) {
+          renv::install("piggyback")
+        }
         gh_releases_list <- piggyback::pb_releases()
       }
       if (nm == "source-code") {
-        piggyback::pb_
+        #  piggyback::pb_
       }
     }
   }

@@ -30,6 +30,9 @@ if (dev_run_n && "github-release" %in% names(yml_projr[["build-output"]])) {
     ]
     gh_list <- yml_projr[["build-output"]][["github-release"]]
     version_current <- projr_version_get()
+    if (!requireNamespace("piggyback", quietly = TRUE)) {
+        renv::install("piggyback")
+    }
     gh_tbl_releases <- piggyback::pb_releases()
     if ("source_code" %in% names(gh_list)) {
         item_list <- gh_list[[which(names(gh_list) == "source-code")]]
