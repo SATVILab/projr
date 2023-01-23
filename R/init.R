@@ -372,13 +372,11 @@ projr_init <- function(dir_proj = getwd(),
   .projr_git_init(dir_proj)
 
   try({
-    nm_gh_org <- switch(!identical(nm_gh, gh::gh_whoami()$login),
-      nm_gh
-    )
-    usethis::use_github(
-      organisation = nm_gh_org,
-      private = TRUE
-    )
+    if (identical(nm_gh, gh::gh_whoami()$login)) {
+      usethis::use_github(private = TRUE)
+    } else {
+      usethis::use_github(organisation = nm_gh, private = TRUE)
+    }
   })
 
   invisible(TRUE)
