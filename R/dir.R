@@ -90,7 +90,7 @@ projr_dir_get <- function(label, ...,
     yml_active_dir_curr <- dir_active[label]
     path_final_root <- dir_active[[label]]$path
   }
-  path_append <- list(...)
+  path_append <- list(...) |> unlist()
   dir_active <- yml_active_dir_curr
   path_final <- do.call(
     "file.path",

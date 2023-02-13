@@ -61,6 +61,10 @@ test_that("projr_dir_get works", {
         projr_dir_get("data-raw", "abc"), "/tmp/testDataRawABC1902/abc"
       )
       expect_identical(
+        projr_dir_get("data-raw", "abc", "def", "ghi"),
+        "/tmp/testDataRawABC1902/abc/def/ghi"
+      )
+      expect_identical(
         projr_dir_get("cache", "abc"), "_tmp/abc"
       )
       expect_identical(
@@ -143,6 +147,10 @@ test_that("projr_path_get works", {
       )
       expect_identical(
         projr_path_get("archive", "abc"), "_archive/abc"
+      )
+      expect_identical(
+        projr_path_get("data-raw", "abc", "def", "ghi"),
+        "/tmp/testDataRawABC1902/abc/def/ghi"
       )
       expect_true(
         fs::is_dir(dirname((projr_path_get("archive", "abc", "def"))))
