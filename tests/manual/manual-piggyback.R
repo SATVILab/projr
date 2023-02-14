@@ -1,10 +1,52 @@
 # what do I need to do?
-# - Set up a repo as before
-Sys.unsetenv("PROJR_TEST")
-# initialise, choosing some other repo name
-projr::projr_init()
-projr::projr_version_set("0.0.1")
 
+
+# initialise, choosing some other repo name
+# remove any pre-existing repo
+
+# ==================
+# Set-up
+# ==================
+
+# arbitrary repo name
+repo_name <- "TestProjr123"
+
+# GitHub 
+# -------------
+
+# check that we've got a GitHub PAT available
+(gh_account <- gh::gh_whoami())
+(me <- gh_account$login)
+# delete repo if it exists
+gh::gh(
+  "DELETE /repos/:username/:pkg",
+  username = me, pkg = repo_name
+)
+
+# local directory
+# --------------------
+
+# empty and create project directory
+dir_test <- file.path(tempdir(), "..", repo_name)
+if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+dir.create(dir_test, recursive = TRUE)
+setwd(dir_test)
+
+# initialise project
+projr_init()
+
+projr_build_output()
+projr_version_set("0.0.1-1")
+
+
+# ==================
+# 
+# ==================
+
+
+
+dir_test <- file.path(tempdir(), "projrTest")
+setwd(dir_test)
 
 # check that a GitHub PAT is configured
 (gh_account <- gh::gh_whoami())
@@ -22,7 +64,7 @@ version_format_list <- .projr_version_format_list_get()
 bump_component <- "minor"
 version_current <- "0.1.0"
 yml_projr_dir <- projr_yml_get()[["directories"]]
-if (dev_run_n && "github-release" %in% names(yml_projr[["build-output"]])) {
+if (output_run && "github-release" %in% names(yml_projr[["build-output"]])) {
     version_comp_vec <- version_format_list[["components"]] |>
         setdiff("dev")
     version_comp_vec <- version_comp_vec[
@@ -37,7 +79,7 @@ if (dev_run_n && "github-release" %in% names(yml_projr[["build-output"]])) {
     if ("source_code" %in% names(gh_list)) {
         item_list <- gh_list[[which(names(gh_list) == "source-code")]]
         if (!item_list[["add"]]) next
-        item_version <- item_list[["version-component-bumped"]]
+        item_version <- item_list[["version-component-min"]]
         if (item_version != "any" && !item_version %in% version_comp_vec) {
             next
         }

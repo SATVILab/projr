@@ -367,3 +367,18 @@ projr_version_bump <- function(component = "dev",
   projr_version_set(version = version_new, where = where)
   version_new
 }
+
+
+.projr_version_comp_min_check <- function(bump_component,
+                                          version_min) {
+  version_comp_vec_min <- .projr_version_comp_vec_min_get(version_min)
+  bump_component %in% version_comp_vec_min
+}
+
+.projr_version_comp_vec_min_get <- function(version_min) {
+  version_vec_possible <- c("major", "minor", "patch")
+  switch(version_min,
+    "any" = version_vec_possible,
+    version_vec_possible[seq_len(which(version_vec_possible == version_min))]
+  )
+}

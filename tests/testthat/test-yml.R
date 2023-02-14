@@ -69,39 +69,32 @@ test_that("getting active yml file works", {
     code = {
       yml_projr_default <- list(
         directories = list(
-          bookdown = list(path = "docs", ignore = TRUE),
-          `data-raw` = list(path = "_data_raw", ignore = TRUE), cache = list(
-            path = "_tmp", ignore = TRUE
-          ), output = list(
-            path = "_output",
+          `data-raw` = list(
+            path = "_data_raw",
             ignore = TRUE
-          ), archive = list(path = "_archive", ignore = TRUE)
-        ),
-        `version-format` = "major.minor.patch-dev", `build-dev` = list(
-          `bump-version` = FALSE, rmd = NULL, `copy-to-output` = FALSE
-        ),
-        `build-output` = list(
-          renv = TRUE, `copy-to-output` = list(
-            `data-raw` = FALSE, cache = FALSE, bookdown = TRUE
-          ),
-          git = list(commit = TRUE, `add-untracked` = TRUE, push = FALSE),
-          `github-release` = list(
-            `source-code` = list(
-              add = TRUE,
-              `version-component-bumped` = "any"
-            ), `data-raw` = list(
-              add = FALSE, name = "input", zip = TRUE,
-              `version-component-bumped` = "any"
-            ),
-            cache = list(
-              add = FALSE, name = "input", zip = TRUE,
-              `version-component-bumped` = "any"
-            ), bookdown = list(
-              add = FALSE, name = "output", `version-component-bumped` = "any"
-            ),
+          ), cache = list(path = "_tmp", ignore = TRUE),
+          output = list(path = "_output", ignore = TRUE), archive = list(
+            path = "_archive", ignore = TRUE
+          ), bookdown = list(
+            path = "docs",
+            ignore = TRUE
+          )
+        ), `version-format` = "major.minor.patch-dev",
+        `build-dev` = list(
+          clear_output = FALSE, `bump-version` = FALSE,
+          rmd = NULL, `copy-to-output` = FALSE
+        ), `build-output` = list(
+          `copy-to-output` = list(
+            `data-raw` = FALSE, cache = FALSE,
+            bookdown = TRUE, package = FALSE
+          ), git = list(
+            commit = TRUE,
+            `add-untracked` = TRUE, push = FALSE
+          ), `github-release` = list(
+            `@version` = list(contents = "code", body = "Latest source code."),
             output = list(
-              add = FALSE, name = "output",
-              `version-component-bumped` = "any"
+              contents = c("output", "bookdown"),
+              body = "Project outputs"
             )
           )
         )

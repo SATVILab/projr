@@ -419,3 +419,56 @@ test_that("projr_version_set works", {
   )
   unlink(dir_test, recursive = TRUE)
 })
+
+
+test_that("checking min version works", {
+  expect_identical(
+    .projr_version_comp_vec_min_get(version_min = "patch"),
+    .projr_version_comp_vec_min_get(version_min = "any")
+  )
+  expect_identical(
+    .projr_version_comp_vec_min_get(version_min = "major"),
+    "major"
+  )
+  expect_identical(
+    .projr_version_comp_vec_min_get(version_min = "minor"),
+    c("major", "minor")
+  )
+  expect_false(
+    .projr_version_comp_min_check(
+      bump_component = "patch",
+      version_min = "major"
+    )
+  )
+  expect_false(
+    .projr_version_comp_min_check(
+      bump_component = "patch",
+      version_min = "minor"
+    )
+  )
+  expect_true(
+    .projr_version_comp_min_check(
+      bump_component = "patch",
+      version_min = "patch"
+    )
+  )
+  expect_true(
+    .projr_version_comp_min_check(
+      bump_component = "major",
+      version_min = "major"
+    )
+  )
+  expect_true(
+    .projr_version_comp_min_check(
+      bump_component = "minor",
+      version_min = "minor"
+    )
+  )
+  expect_false(
+    .projr_version_comp_min_check(
+      bump_component = "minor",
+      version_min = "major"
+    )
+  )
+  
+})

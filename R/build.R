@@ -69,524 +69,121 @@ projr_build_dev <- function(bump = FALSE, ...) {
 }
 
 .projr_build <- function(bump_component, msg = "", ...) {
+  # ========================
+  # SET-UP
+  # ========================
+
   # whether it's an output run  or not
-  dev_run_n <- !(is.null(bump_component) || bump_component == "dev")
+  output_run <- !(is.null(bump_component) || bump_component == "dev")
   # read in settings
   yml_projr <- projr_yml_get()
 
   # get version for DESCRIPTION and bookdown from run onwards
   # snapshot if need be
-  if (yml_projr[["build-output"]][["renv"]] &&
-    !Sys.getenv("PROJR_TEST") == "TRUE") {
-    if (!is.null(bump_component)) {
-      if (bump_component != "dev") {
-        renv::snapshot(prompt = FALSE)
-      }
-    }
-  }
+  .projr_build_renv_snapshot(output_run)
 
   # make sure everything is ignored that should be ignored
-  for (x in names(yml_projr[["directories"]])) {
-    .projr_dir_ignore(label = x)
-  }
-  .projr_dir_ignore("bookdown")
+  .projr_build_ignore()
 
   # set the output directory to that in "_projr.yml"
-  yml_bd <- .projr_yml_bd_get()
-  yml_bd[["output_dir"]] <- projr_dir_get("bookdown")
-  .projr_yml_bd_set(yml_bd)
+  .projr_build_doc_output_dir_update()
 
+  # get DESCRIPTION and build versions under all
+  # build outcomes
   version_run_on_list <- .projr_version_run_onwards_get(
     bump_component = bump_component
   )
 
-  if (dev_run_n && yml_projr[["build-output"]][["git"]][["commit"]]) {
-    if (!dir.exists(".git")) {
-      stop("Git commits requested but no Git directory found")
-    }
-    msg_pre <- paste0(
-      "State before ",
-      bump_component,
-      " bump to ",
-      version_run_on_list[["desc"]][["success"]]
-    )
-    if (nzchar(msg)) {
-      msg_pre <- paste0(msg_pre, ": ", msg)
-    }
-    git_tbl_status <- gert::git_status()
-    if (nrow(git_tbl_status) > 0) {
-      if (yml_projr[["build-output"]][["git"]][["add-untracked"]]) {
-        git_tbl_status <- gert::git_status()
-        fn_vec <- git_tbl_status[["file"]][!git_tbl_status[["staged"]]]
-        if (length(fn_vec) > 0) {
-          gert::git_add(fn_vec, repo = rprojroot::is_r_package$find_file())
-        }
-        gert::git_commit(message = msg_pre)
-      } else {
-        gert::git_commit_all(
-          message = msg_pre,
-          repo = rprojroot::is_r_package$find_file()
-        )
-      }
-    }
-  }
+  # commit any unstaged files pre-run
+  .projr_build_git_commit(
+    output_run = output_run,
+    bump_component = bump_component,
+    version_run_on_list = version_run_on_list,
+    stage = "pre",
+    msg = msg
+  )
 
-  projr_version_set(version_run_on_list$desc[["run"]], "DESCRIPTION")
-  projr_version_set(version_run_on_list$bd[["run"]], "bookdown")
+  # set the version pre-run
+  .projr_build_version_set_pre(version_run_on_list)
 
-  # empty output directory
-  dir_data_output <- projr_dir_get("output", output_safe = !dev_run_n)
-  if (dir.exists(dir_data_output)) {
-    fn_vec <- list.files(dir_data_output, recursive = TRUE, full.names = TRUE)
-    for (i in seq_along(fn_vec)) {
-      unlink(fn_vec[i])
-    }
-  }
-  # empty safe output directory even if running actual build
-  # so that people can copy to here and
-  # then save out
-  if (dev_run_n) {
-    dir_data_output_n <- projr_dir_get("output", output_safe = !dev_run_n)
-    if (dir.exists(dir_data_output_n)) {
-      fn_vec <- list.files(
-        dir_data_output_n,
-        recursive = TRUE, full.names = TRUE
-      )
-      for (i in seq_along(fn_vec)) {
-        unlink(fn_vec[i])
-      }
-    }
-  }
-  if (dev_run_n) {
-    dir_data_r <- file.path(rprojroot::is_r_package$find_file(), "data")
-    if (dir.exists(dir_data_r)) {
-      fn_vec <- list.files(dir_data_r, recursive = TRUE, full.names = TRUE)
-      for (i in seq_along(fn_vec)) {
-        unlink(fn_vec[i])
-      }
-    }
-  }
+  # empty output directories
+  # (bookdown, output and data)
+  .projr_build_output_clear(output_run)
+
+  # ========================
+  # RUN
+  # ========================
 
   bd_status <- try(bookdown::render_book(...))
   if (identical(class(bd_status), "try-error")) {
-    projr_version_set(version_run_on_list$desc[["failure"]], "DESCRIPTION")
-    projr_version_set(version_run_on_list$bd[["failure"]], "bookdown")
-
+    .projr_build_version_set_post(
+      version_run_on_list = version_run_on_list,
+      success = FALSE
+    )
     # TODO: #156 delet
     stop(bd_status)
   }
+
+  # ========================
+  # HANDLE OUTPUTS
+  # ========================
+
   # get version for DESCRIPTION and bookdown from run onwards
-  # snapshot if need be
-  if (yml_projr[["build-output"]][["renv"]] &&
-    !Sys.getenv("PROJR_TEST") == "TRUE") {
-    if (!is.null(bump_component)) {
-      if (bump_component != "dev") {
-        renv::snapshot(prompt = FALSE)
-      }
-    }
-  }
 
-  dir_proj <- rprojroot::is_r_package$find_file()
+  # update lock file, help files and README
+  .projr_build_renv_snapshot(output_run)
+  .projr_build_roxygenise(output_run)
+  .projr_build_readme_rmd_render(output_run)
 
-  # update any docs
-  if (dev_run_n) {
-    suppressMessages(suppressWarnings(invisible(
-      roxygen2::roxygenise(package.dir = dir_proj)
-    )))
-  }
+  # copy outputs to (final) output directory and archive
+  .projr_build_output(output_run, bump_component, version_run_on_list)
 
-  # update README.Rmd, if found and an output run
-  if (file.exists(file.path(dir_proj, "README.Rmd")) && dev_run_n) {
-    readme_rmd <- readLines(file.path(dir_proj, "README.Rmd"))
-    pkg_use_detected_lib <- grepl(
-      paste0(
-        "library\\(", projr_name_get(), "\\)|",
-        'library\\("', projr_name_get(), '"\\)|',
-        "library\\('", projr_name_get(), "'\\)"
-      ),
-      readme_rmd
-    ) |>
-      any()
-    pkg_use_detected_dots <- grepl(
-      paste0(projr_name_get(), "::"),
-      readme_rmd
-    ) |>
-      any()
-    pkg_use_detected <- pkg_use_detected_lib | pkg_use_detected_dots
-    if (pkg_use_detected) {
-      renv_dep_file <- readLines(
-        file.path(dir_proj, "_dependencies.R")
-      )
-      if (!"library(devtools)" %in% renv_dep_file) {
-        renv_dep_file <- c(renv_dep_file, "library(devtools)", "")
-        writeLines(renv_dep_file, file.path(dir_proj, "_dependencies.R"))
-      }
-      if (!requireNamespace("devtools", quietly = TRUE)) {
-        install.packages("devtools")
-      }
-      devtools::install()
-    }
-    rmarkdown::render(
-      file.path(dir_proj, "README.Rmd"),
-      output_format = "md_document",
-      quiet = TRUE
-    )
-  }
-
-  # copy
-  copy_to_output <- projr_yml_get()[["build-dev"]][["copy-to-output"]] ||
-    dev_run_n
-  if (copy_to_output) {
-    # copy any objects copied across from safe
-    # output directory.
-    # but do this by renaming
-    if (dev_run_n) {
-      dir_data_output_n <- projr_dir_get("output", output_safe = !dev_run_n)
-      dir_data_output <- projr_dir_get("output", output_safe = dev_run_n)
-      if (dir.exists(dir_data_output_n)) {
-        fn_vec <- list.files(
-          dir_data_output_n,
-          recursive = TRUE, full.names = TRUE
-        )
-        fn_vec_rel <- fs::path_rel(fn_vec, start = dir_data_output_n)
-
-        for (i in seq_along(fn_vec)) {
-          file.rename(
-            from = fn_vec[i],
-            to = file.path(dir_data_output, fn_vec_rel)
-          )
-        }
-      }
-    }
-    # copy to output
-    # ----------------
-    .projr_output_copy(bump_component = bump_component)
-
-    if (dev_run_n) {
-      # copy to archive
-      # ----------------
-      dir_output <- projr_dir_get(label = "output", output_safe = FALSE)
-      dir_archive <- projr_dir_get(label = "archive")
-      if (!fs::is_absolute_path(dir_output)) {
-        dir_output <- file.path(dir_proj, dir_output)
-      }
-      if (!fs::is_absolute_path(dir_archive)) {
-        dir_archive <- file.path(dir_proj, dir_archive)
-      }
-      fn_vec <- list.files(
-        dir_output,
-        recursive = TRUE, all.files = TRUE, full.names = TRUE
-      )
-      if (length(list.dirs(dir_output)) > 0) {
-        path_archive_zip <- file.path(dir_archive, paste0(
-          "V", version_run_on_list$desc[["success"]],
-          ".zip"
-        ))
-        if (file.exists(path_archive_zip)) {
-          unlink(path_archive_zip, recursive = TRUE)
-        }
-        sink(file.path(tempdir(), "zip123"))
-        utils::zip(path_archive_zip, files = fn_vec, flags = "-r9Xq")
-        sink(NULL)
-      }
-    }
-
-    # from the output directory
-  }
+  # archive whatever is in output
+  .projr_build_archive(output_run, version_run_on_list)
 
   # clear old dev version from docs if not a dev run itself
-  if (dev_run_n) {
-    proj_nm <- projr_name_get()
-    version_format_list <- .projr_version_format_list_get()
-    match_regex <- paste0(
-      "^",
-      proj_nm,
-      "V\\d+",
-      paste0("\\", version_format_list[["sep"]], "\\d+", collapse = ""),
-      "$"
+  .projr_build_clear_dev(output_run)
+
+  # commit any files generated by run
+  .projr_build_git_commit(
+    output_run = output_run,
+    bump_component = bump_component,
+    version_run_on_list = version_run_on_list,
+    stage = "post",
+    msg = msg
+  )
+
+  # upload via piggyback
+  if (FALSE) {
+    .projr_pb_upload(
+      output_run = output_run,
+      bump_component = bump_component
     )
-    dir_report <- basename(
-      list.dirs(dirname(
-        projr_dir_get("bookdown", create = FALSE)
-      ), recursive = FALSE)
-    )
-    dir_report_rm <- dir_report[grepl(match_regex, dir_report)]
-    for (i in seq_along(dir_report_rm)) {
-      unlink(file.path(
-        dirname(projr_dir_get("bookdown", create = FALSE)), dir_report_rm[[i]]
-      ), recursive = TRUE)
-    }
   }
 
-  # clear old output from projr_version_get
-  if (dev_run_n) {
-    dir_version <- projr_dir_get("output", output_safe = FALSE)
-    version_fn <- paste0("VERSION - ", projr_version_get())
-    file.create(file.path(dir_version, version_fn))
+  # initate dev version
+  # ------------------
 
-    dir_tmp_vec_output <- list.dirs(
-      projr_dir_get("cache", "projr_output"),
-      recursive = FALSE
-    )
+  # set version
+  .projr_build_version_set_post(
+    version_run_on_list = version_run_on_list,
+    success = TRUE
+  )
 
-    for (x in dir_tmp_vec_output) {
-      unlink(x, recursive = TRUE)
-    }
-  }
+  # commit dev version
+  .projr_build_git_commit(
+    output_run = output_run,
+    bump_component = bump_component,
+    version_run_on_list = version_run_on_list,
+    stage = "dev",
+    msg = msg
+  )
 
-  if (dev_run_n && yml_projr[["build-output"]][["git"]][["commit"]]) {
-    if (!dir.exists(".git")) {
-      stop("Git commits requested but no Git directory found")
-    }
-    # make sure everything is ignored that should be ignored
-    for (x in names(yml_projr[["directories"]])) {
-      .projr_dir_ignore(label = x)
-    }
-    msg_post <- paste0(
-      paste0(
-        toupper(substr(bump_component, 1, 1)),
-        substr(bump_component, 2, nchar(bump_component))
-      ),
-      " bump to ",
-      version_run_on_list[["desc"]][["success"]]
-    )
-    if (nzchar(msg)) {
-      msg_post <- paste0(msg_post, ": ", msg)
-    }
-    git_tbl_status <- gert::git_status()
-    if (nrow(git_tbl_status) > 0) {
-      if (yml_projr[["build-output"]][["git"]][["add-untracked"]]) {
-        git_tbl_status <- gert::git_status()
-        fn_vec <- git_tbl_status[["file"]][!git_tbl_status[["staged"]]]
-        if (length(fn_vec) > 0) {
-          gert::git_add(fn_vec, repo = rprojroot::is_r_package$find_file())
-        }
-        gert::git_commit(message = msg_post)
-      } else {
-        gert::git_commit_all(
-          message = msg_post,
-          repo = rprojroot::is_r_package$find_file()
-        )
-      }
-    }
-  }
+  # push
+  # --------------------
 
-  # browser()
-  if (dev_run_n && "github-release" %in% names(yml_projr[["build-output"]])) {
-    version_comp_vec <- version_format_list[["components"]] |>
-      setdiff("dev")
-    version_comp_vec <- version_comp_vec[
-      seq_len(which(version_comp_vec == bump_component))
-    ]
-    gh_list <- yml_projr[["build-output"]][["github-release"]]
-    for (i in seq_along(gh_list)) {
-      nm <- names(gh_list)[i]
-      item_list <- gh_list[[i]]
-      item_version <- item_list[["version-component-bumped"]]
-      if (item_version != "any") {
-        if (!item_version %in% version_comp_vec) next
-      }
-      if (!exists("gh_releases_list")) {
-        renv_dep_file <- readLines(
-          file.path(dir_proj, "_dependencies.R")
-        )
-        if (!"library(piggyback)" %in% renv_dep_file) {
-          renv_dep_file <- c(renv_dep_file, "library(piggyback)", "")
-          writeLines(renv_dep_file, file.path(dir_proj, "_dependencies.R"))
-        }
-        if (!requireNamespace("piggyback", quietly = TRUE)) {
-          renv::install("piggyback")
-        }
-        gh_releases_list <- piggyback::pb_releases()
-      }
-      if (nm == "source-code") {
-        #  piggyback::pb_
-      }
-    }
-  }
-
-
-  projr_version_set(version_run_on_list$bd[["success"]], "bookdown")
-
-  if (yml_projr[["build-output"]][["git"]][["commit"]] && dev_run_n) {
-    gert::git_commit_all(
-      message = paste0(
-        "Begin dev version ", version_run_on_list$bd[["success"]]
-      )
-    )
-    if (yml_projr[["build-output"]][["git"]][["push"]]) {
-      gert::git_push()
-    }
-  }
+  # push to GitHub
+  .projr_build_git_push()
 
   invisible(TRUE)
-}
-
-.projr_output_copy <- function(bump_component) {
-  yml_projr <- projr_yml_get()
-  dir_proj <- rprojroot::is_r_package$find_file()
-  dir_bookdown <- .projr_yml_bd_get()[["output_dir"]]
-  yml_projr_dir <- yml_projr[["directories"]]
-  output_safe <- is.null(bump_component) || bump_component == "dev"
-  dir_output <- projr_dir_get("output", output_safe = output_safe)
-
-  copy_to_output_list <- yml_projr[["build-output"]][["copy-to-output"]]
-  # make it an absolute path, stuck onto dir_proj,
-  # only if it isn't already an absolute path
-  if (!fs::is_absolute_path(dir_output)) {
-    dir_output <- file.path(dir_proj, dir_output)
-  }
-
-  # attempt package build first if required
-  if (yml_projr[["build-output"]][["copy-to-output"]][["package"]]) {
-    dir_pkg <- file.path(dir_output)
-    if (!dir.exists(dir_pkg)) dir.create(dir_pkg)
-    version_pkg <- .projr_desc_get()[, "Version"][[1]]
-    fn_pkg <- paste0(projr_name_get(), "_", version_pkg, ".tar.gz")
-    path_pkg <- file.path(dir_pkg, fn_pkg)
-    pkgbuild::build(
-      path = dir_proj,
-      dest_path = path_pkg,
-      binary = FALSE,
-      quiet = TRUE
-    )
-  }
-
-  # copy data_raw and cache across, if desired
-  data_raw_or_cache_ind <- grepl(
-    "^data\\-raw|^cache|^data_raw",
-    names(copy_to_output_list)
-  )
-  label_vec <- names(copy_to_output_list)[data_raw_or_cache_ind]
-  label <- label_vec[1]
-
-  for (label in label_vec) {
-    copy <- copy_to_output_list[[label]]
-    if (is.logical(copy)) {
-      if (!copy) next
-    } else {
-      stop("non-logical versions of copy not supported yet")
-    }
-    dir_input <- yml_projr_dir[[label]][["path"]]
-    if (!fs::is_absolute_path(dir_input)) {
-      dir_input <- file.path(dir_proj, dir_input)
-    }
-    fn_vec <- list.files(
-      dir_input,
-      recursive = TRUE, all.files = TRUE,
-      full.names = TRUE
-    )
-    remove_projr_output <- label == "cache" &&
-      paste0(dir_input, "/", "projr_output") %in%
-        list.dirs(dir_input, recursive = FALSE)
-    if (remove_projr_output) {
-      fn_vec_rem <- list.files(
-        file.path(dir_input, "projr_output"),
-        recursive = TRUE, all.files = TRUE,
-        full.names = TRUE
-      )
-      fn_vec <- setdiff(fn_vec, fn_vec_rem)
-    }
-    if (length(fn_vec) == 0) next
-
-    setwd(yml_projr_dir[[label]][["path"]])
-    path_zip <- paste0(label, ".zip")
-    if (file.exists(path_zip)) {
-      file.remove(path_zip)
-    }
-    utils::zip(
-      path_zip,
-      files = list.files(getwd(), recursive = TRUE, full.names = FALSE),
-      flags = "-r9Xq"
-    )
-    setwd(dir_proj)
-    path_copy <- file.path(
-      projr_dir_get("output", output_safe = output_safe), path_zip
-    )
-    if (file.exists(path_copy)) file.remove(path_copy)
-    if (!dir.exists(dirname(path_copy))) {
-      dir.create(dirname(path_copy), recursive = TRUE)
-    }
-    file.copy(file.path(yml_projr_dir[[label]][["path"]], path_zip), path_copy)
-    file.remove(file.path(yml_projr_dir[[label]][["path"]], path_zip))
-  }
-
-  # copy generated report
-  copy_bookdown <- copy_to_output_list[["bookdown"]]
-  if (is.logical(copy_bookdown)) {
-    if (copy_bookdown) {
-      path_zip <- file.path(
-        dirname(dir_bookdown), "bookdown.zip"
-      )
-      if (file.exists(path_zip)) {
-        file.remove(path_zip)
-      }
-      if (!dir.exists(dirname(path_zip))) {
-        dir.create(dirname(path_zip))
-      }
-      setwd(dir_bookdown)
-      path_zip <- paste0(basename(dir_bookdown), ".zip")
-      utils::zip(
-        path_zip,
-        files = list.files(getwd(), recursive = TRUE, full.names = FALSE),
-        flags = "-r9Xq"
-      )
-      setwd(dir_proj)
-      path_copy <- file.path(
-        projr_dir_get("output", output_safe = output_safe), path_zip
-      )
-      if (file.exists(path_copy)) {
-        file.remove(path_copy)
-      }
-      if (!dir.exists(dirname(path_copy))) {
-        dir.create(dirname(path_copy), recursive = TRUE)
-      }
-      file.copy(file.path(dir_bookdown, path_zip), path_copy)
-      file.remove(file.path(dir_bookdown, path_zip))
-      # unzip(
-      #  path_copy,
-      #  exdir = projr_dir_get("output", "test", output_safe = output_safe)
-      # )
-    }
-  } else {
-    stop("copy not being logical for bookdown not supported yet")
-  }
-
-  # copy output across at end because it's the least error prone
-  # and is the only one that moves and doesn't just copy
-  dir_output_safe <- projr_dir_get(
-    "output",
-    output_safe = TRUE
-  )
-  if (!fs::is_absolute_path(dir_output_safe)) {
-    dir_output_safe <- fs::path_abs(dir_output_safe)
-  }
-  fn_vec_output_safe <- list.files(
-    dir_output_safe,
-    recursive = TRUE, full.names = FALSE
-  )
-  if (length(fn_vec_output_safe) > 0) {
-    if (!fs::is_absolute_path(dir_output)) {
-      dir_output <- file.path(dir_proj, dir_output)
-    }
-    fn_vec_output <- file.path(dir_output, fn_vec_output_safe)
-    dir_vec <- unique(dirname(fn_vec_output))
-    for (x in dir_vec) {
-      if (!dir.exists(x)) {
-        dir.create(x, recursive = TRUE)
-      }
-    }
-    copy_success <- all(file.rename(
-      file.path(dir_output_safe, fn_vec_output_safe), fn_vec_output
-    ))
-    if (copy_success && !output_safe) {
-      unlink(dir_output_safe, recursive = TRUE)
-    }
-  }
-
-  invisible(TRUE)
-}
-
-.projr_gh_upload <- function() {
-
 }
