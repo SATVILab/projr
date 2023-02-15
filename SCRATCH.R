@@ -2,6 +2,10 @@ library(testthat)
 devtools::load_all(path = file.path(Sys.getenv("pkg"), "projr"))
 
 
+debugonce(projr:::.projr_pb_upload)
+projr::projr_build_output()
+
+
 # QUITE DEVELOPED PIGGYBACK STUFF
 # ====================================
 

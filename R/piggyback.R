@@ -1,4 +1,9 @@
 .projr_pb_upload <- function(output_run, bump_component) {
+  if (Sys.getenv("PROJR_TEST") == "TRUE") {
+    browser()
+  } else {
+    return(invisible(FALSE))
+  }
   yml_projr <- .projr_yml_get()
   # consider early exit
   # ------------------

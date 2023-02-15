@@ -154,12 +154,10 @@ projr_build_dev <- function(bump = FALSE, ...) {
   )
 
   # upload via piggyback
-  if (FALSE) {
-    .projr_pb_upload(
-      output_run = output_run,
-      bump_component = bump_component
-    )
-  }
+  .projr_pb_upload(
+    output_run = output_run,
+    bump_component = bump_component
+  )
 
   # initate dev version
   # ------------------
