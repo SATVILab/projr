@@ -1,95 +1,509 @@
-#' @title Get settings for active profile profile
+#' @title Get active `projr` settings and checks for validity
 #'
 #' @description
-#' Reads in \code{_projr.yml} and returns
-#' it after setting the directories to the directories
-#' of the currently active profile.
+#' Gets active `projr` settings, which merges settings and resolves conflicts
+#' between local (`_projr-local.yml`), profile (`_projr-<projr>.yml` or as
+#' <key>-<profile> keys in `_projr.yml`)
+#' and default (`_projr.yml`) settings.
+#' Where there are conflicts, local settings has highest precedence
+#' (i.e. are always preferred) and default settings have lowest precedence
+#' (i.e. are never preferred).
 #'
-#' @return A named list.
+#' Note that an error is thrown if the active settings
+#' are invalid.
+#'
+#' @seealso projr_yml_get_unchecked,projr_yml_check
+#'
+#' @return A named list, if the settings are valid.
 projr_yml_get <- function() {
-  projr_profile <- projr_profile_get()
-  yml <- .projr_yml_get()
-  dir_profile <- paste0("directories-", projr_profile)
-  if (projr_profile == "default") {
-    if (!"directories-default" %in% names(yml)) {
-      stop("Default projr profile active but has no directories in _projr.profile.")
-    }
-    yml_dir <- yml[dir_profile]
-    names(yml_dir) <- "directories"
-    yml <- yml[!grepl("directories", names(yml))]
-    return(yml_dir |> append(yml))
-  }
-
-  yml_dir <- yml[[dir_profile]]
-  yml_default <- yml[["directories-default"]]
-  # need to allow for multiple directories of the
-  # same type
-  nm_vec_default <- sapply(seq_along(yml_default), function(i) {
-    paste0(names(yml_default)[i], "_", yml_default[[i]][["name"]])
-  })
-  nm_vec_dir <- sapply(seq_along(yml_dir), function(i) {
-    paste0(names(yml_dir)[i], "_", yml_dir[[i]][["name"]])
-  })
-  nm_vec <- setdiff(nm_vec_default, nm_vec_dir)
-  nm_vec_ind <- which(nm_vec_default %in% nm_vec)
-  # add any settings that are missing entirely
-  if (length(nm_vec) > 0) {
-    # message(paste0(
-    #  "Adding the following settings to the current projr_profile's dirs: ",
-    #  paste0(nm_vec, collapse = "; ")
-    # ))
-    yml_dir <- append(yml_dir, yml_default[nm_vec_ind])
-  }
-  # replace paths with defaults if they are not present at all
-  # (I think I deleted this previously)
-
-  nm_vec_default <- sapply(seq_along(yml_default), function(i) {
-    paste0(names(yml_default)[i], "_", yml_default[[i]][["name"]])
-  })
-  nm_vec_dir <- sapply(seq_along(yml_dir), function(i) {
-    paste0(names(yml_dir)[i], "_", yml_dir[[i]][["name"]])
-  })
-  # use default path settings if path
-  # not specified
-  for (i in seq_along(nm_vec_dir)) {
-    # replace it if it's either NULL
-    # or it is zero characters long
-    rep_val <- is.null(yml_dir[[i]][["path"]])
-    if (!rep_val) {
-      rep_val <- !nzchar(yml_dir[[i]][["path"]])
-    } else {
-      rep_val <- rep_val
-    }
-    if (!rep_val) next
-
-    nm_ind <- which(nm_vec_default == nm_vec_dir[i])[[1]]
-    yml_dir[[i]][["path"]] <- yml_default[[nm_ind]][["path"]]
-  }
-  # add ignore settings, as they are not present
-  for (i in seq_along(nm_vec_dir)) {
-    nm_ind <- which(nm_vec_default == nm_vec_dir[i])[[1]]
-    yml_dir[[i]][["ignore"]] <- yml_default[[nm_ind]][["ignore"]]
-  }
-
-  yml_active <- append(
-    stats::setNames(list(yml_dir), "directories"),
-    yml[!grepl("^directories", names(yml))]
-  )
-  yml_active
+  yml_projr <- projr_yml_get_unchecked()
+  projr_yml_check(yml_projr)
+  yml_projr
 }
 
+#' @title Get active `projr` settings and do no check
+#'
+#' @description A list of the active `projr` settings,
+#' without doing any error checking.
+#' Gets active `projr` settings, which merges settings and resolves conflicts
+#' between local (`_projr-local.yml`), profile (`_projr-<projr>.yml` or as
+#' <key>-<profile> keys in `_projr.yml`)
+#' and default (`_projr.yml`) settings.
+#' Where there are conflicts, local settings has highest precedence
+#' (i.e. are always preferred) and default settings have lowest precedence
+#' (i.e. are never preferred).
+#'
+#' @return A named list.
+#'
+#' @seealso projr_yml_get,projr_yml_check
+#' @export
+projr_yml_get_unchecked <- function() {
+  yml_projr_root <- .projr_yml_get_root_default()
+  yml_projr_profile <- .projr_yml_get_profile()
+  yml_projr_local <- .projr_yml_get_local()
 
-.projr_yml_get <- function() {
+  .projr_yml_merge(
+    yml_projr_root, yml_projr_profile, yml_projr_local
+  )
+}
+
+.projr_yml_merge <- function(yml_projr_root_default,
+                             yml_projr_profile,
+                             yml_projr_local) {
+  nm_vec <- names(yml_projr_root_default) |>
+    c(names(yml_projr_profile), names(yml_projr_local)) |>
+    unique()
+  lapply(nm_vec, function(nm) {
+    elem_default <- yml_projr_root_default[[nm]]
+    elem_profile <- yml_projr_profile[[nm]]
+    elem_local <- yml_projr_local[[nm]]
+    # return early if highest-precedence element
+    # is not a list.
+    # Otherwise, make any lower-precedence elements
+    # NULL.
+    # if local is a list, then make others
+    # empty lists if not lists
+    if (is.list(elem_local)) {
+      if (!is.list(elem_profile)) {
+        elem_profile <- list()
+      }
+      if (!is.list(elem_default)) {
+        elem_default <- list()
+      }
+    } else {
+      # if elem_local is not a list and is not NULL,
+      # then simply return elem_local
+      if (!is.null(elem_local)) {
+        return(elem_local)
+      } else {
+        # if elem_local is not a list and is NULL,
+        # then consider what elem_profile is
+        if (is.list(elem_profile)) {
+          if (!is.list(elem_default)) {
+            elem_default <- list()
+          }
+        } else {
+          # if elem_profile is not a list and is not NULL,
+          # then simply return elem_profile
+          if (!is.null(elem_profile)) {
+            return(elem_profile)
+          } else {
+            # if elem_profile is not a list and is NULL,
+            # then it must be that elem_default is not NULL
+            # (otherwise we would not have a name entry here)
+            if (!is.list(elem_default)) {
+              return(elem_default)
+            }
+          }
+        }
+      }
+    }
+    # carry on if no return has been made
+    # because the highest-precedence element was not a list
+    .projr_yml_merge(elem_default, elem_profile, elem_local)
+  }) |>
+    setNames(nm_vec)
+}
+
+.projr_yml_get_root_full <- function() {
   dir_proj <- rprojroot::is_r_package$find_file()
   path_yml <- file.path(dir_proj, "_projr.yml")
   if (!file.exists(path_yml)) {
     stop(paste0("_projr.yml not found at ", path_yml))
   }
-  projr_yml <- yaml::read_yaml(path_yml)
-  if (!"directories-default" %in% names(projr_yml)) {
+  yaml::read_yaml(path_yml)
+}
+
+.projr_yml_get_root_default <- function() {
+  yml_projr_root_full <- .projr_yml_get_root_full()
+  nm_vec <- c("directories", "build")
+  if ("version-format" %in% names(yml_projr_root_full)) {
+    nm_vec <- c(nm_vec, "version-format")
+  }
+  yml_projr_root_full[nm_vec]
+}
+
+.projr_yml_get_profile <- function() {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  profile <- projr_profile_get()
+  if (profile == "default") {
+    return(list())
+  }
+  yml_projr_root_full <- .projr_yml_get_root_full()
+  key_root_dir <- paste0("directories-", profile)
+  key_root_build <- paste0("build-", profile)
+  root_dir_ind <- key_root_dir %in% names(yml_projr_root_full)
+  root_build_ind <- key_root_build %in% names(yml_projr_root_full)
+  path_yml_projr_profile <- file.path(
+    dir_proj, paste0("_projr-", profile, ".yml")
+  )
+  path_projr_profile_root <- file.exists(path_yml_projr_profile)
+  if ((root_build_ind || root_dir_ind) && path_projr_profile_root) {
+    stop(paste0(
+      "Settings for profile ", profile,
+      " found in both _projr.yml and _projr-", profile,
+      ".yml. Please either delete _projr-", profile,
+      ".yml, or remove the profile's settings in _projr.yml"
+    ))
+  }
+  if (root_build_ind || root_dir_ind) {
+    pos_dir <- which(names(yml_projr_root_full) == key_root_dir)
+    pos_build <- which(names(yml_projr_root_full) == key_root_build)
+    pos_either <- c(pos_dir, pos_build)
+    yml_projr_profile <- yml_projr_root_full[pos_either]
+    return(yml_projr_profile)
+  }
+  if (!file.exists(path_yml_projr_profile)) {
+    return(list())
+  }
+  yml_projr_init <- yaml::read_yaml(path_yml_projr_profile)
+  pos_dir <- which(names(yml_projr_init) == key_root_dir)
+  pos_build <- which(names(yml_projr_init) == key_root_build)
+  pos_either <- c(pos_dir, pos_build)
+  yml_projr_init[pos_either]
+}
+
+.projr_yml_get_local <- function() {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  path_yml <- file.path(dir_proj, "_projr-local.yml")
+  if (!file.exists(path_yml)) {
+    return(list())
+  }
+
+  yml_projr_init <- yaml::read_yaml(path_yml)
+  pos_dir <- which(names(yml_projr_init) == key_root_dir)
+  pos_build <- which(names(yml_projr_init) == key_root_build)
+  pos_either <- c(pos_dir, pos_build)
+  yml_projr_init[pos_either]
+}
+
+#' @title Check active `projr` settings.
+#'
+#' @description
+#' Checks correctness of active `projr` settings.
+#' @param path_yml character.
+#' Path to YAML file.
+#' If \code{NULL} (the default), then
+#' checks the
+#'
+#' @return
+#' Returns `TRUE` if all checks pass.
+#' Otherwise throws an error.
+#'
+#' @export
+projr_yml_check <- function(yml_projr = NULL) {
+  if (is.null(yml_projr)) {
+    yml_projr <- projr_yml_get_unchecked()
+  }
+  .projr_yml_check_merged(yml_projr)
+}
+
+.projr_yml_check_merged <- function(yml_projr) {
+  if (!"directories" %in% names(yml_projr)) {
     stop("default directories not set in _projr.yml.")
   }
-  projr_yml
+  if (!"build" %in% names(yml_projr)) {
+    stop('_projr.yml must include "build" element')
+  }
+
+  # directories section
+  # ----------------------
+  yml_projr_dir <- yml_projr[["directories"]]
+  nm_vec_dir <- names(yml_projr_dir)[nzchar(names(yml_projr_dir))]
+  if (!length(nm_vec_dir) == length(yml_projr_dir)) {
+    stop("Directories must be named in projr settings")
+  }
+  nm_vec_dir_uni <- unique(nm_vec_dir)
+  if (!length(nm_vec_dir_uni) == length(nm_vec_dir)) {
+    stop("Directory names must be unique in projr settings")
+  }
+  if (!length(names(yml_projr_dir)) == length(yml_projr_dir)) {
+    stop("no directories set in _projr.yml")
+  }
+  nm_vec_dir <- names(yml_projr_dir)
+  # required repositories
+  nm_vec_dir_match <- .projr_dir_label_strip(nm_vec_dir)
+  if (!any(grepl("^dataraw", nm_vec_dir_match))) {
+    stop("No data-raw directory specified in projr settings")
+  }
+  if (!"cache" %in% nm_vec_dir_match) {
+    stop("No cache directory specified in projr settings")
+  }
+  if (!any(grepl("^output", nm_vec_dir_match))) {
+    stop("No output directory specified in projr settings")
+  }
+  if (!any(grepl("^archive", nm_vec_dir_match))) {
+    stop("No archive directory specified in projr settings")
+  }
+
+  .projr_yml_check_dir(yml_projr_dir)
+
+
+  # build section
+  # -------------------------
+  yml_projr_build <- yml_projr[["build"]]
+
+  # dev-output
+  if (!"dev-output" %in% names(yml_projr_build)) {
+    stop("dev-output section missing from projr settings in build key")
+  }
+  if (!is.logical(yml_projr_build[["dev-output"]])) {
+    stop("dev-output must be logical in projr settings in build key")
+  }
+  nm_vec_extra <- setdiff(
+    names(yml_projr_build),
+    c("dev-output", "git", "github-release", "package")
+  )
+  if (length(nm_vec_extra) > 0) {
+    stop(paste0(
+      "The following key(s) are unknown
+      in the build section of projr settings: ",
+      paste0(nm_vec_extra, collapse = ", ")
+    ))
+  }
+  .projr_yml_check_build_git(yml_projr_build[["git"]])
+  .projr_yml_check_build_gh_release(yml_projr_build[["github-release"]])
+
+  TRUE
+}
+
+.projr_yml_check_dir <- function(yml_projr_dir) {
+  for (i in seq_along(yml_projr_dir)) {
+    .projr_yml_check_dir_elem(
+      yml_projr_dir[[i]],
+      names(yml_projr_dir)[i],
+      names(yml_projr_dir)
+    )
+  }
+  invisible(TRUE)
+}
+
+.projr_yml_check_dir_elem <- function(elem, key, keys) {
+  nm_vec_actual <- names(elem)
+  nm_vec_valid <- c("path", "ignore", "output", "archive")
+  nm_vec_extra <- setdiff(nm_vec_actual, nm_vec_valid)
+  if (length(nm_vec_extra) > 0) {
+    stop(paste0(
+      "The following name(s) are invalid for
+      directories as projr settings:",
+      paste0(nm_vec_extra, collapse = ", ")
+    ))
+  }
+  if (length(nm_vec_actual) > length(unique(nm_vec_actual))) {
+    stop(paste0(
+      "Directory settings must be unique"
+    ))
+  }
+  # path
+  # -------------------
+  if (!"path" %in% nm_vec_actual) {
+    stop(paste0(
+      "Path must be specified for directories in `projr` settings"
+    ))
+  }
+  if (!all(is.character(elem[["path"]]))) {
+    stop(paste0(
+      "Path must be of type character for directories in `projr` settings"
+    ))
+  }
+  if (!length(elem[["path"]]) == 1) {
+    stop(paste0(
+      "Path must be of length one for directories in `projr` settings"
+    ))
+  }
+  # ignore
+  # ------------
+  if ("ignore" %in% names(elem)) {
+    # must be length 1
+    if (!length(elem[["ignore"]]) == 1) {
+      stop(paste0(
+        "`ignore` must be of length 1 for for directories in `projr` settings"
+      ))
+    }
+    # must be logical
+    ignore_logical <- is.logical(elem[["ignore"]])
+    if (is.character(elem[["ignore"]])) {
+      ignore_chr_correct <- elem[["ignore"]] %in% c("git", "build")
+    } else {
+      ignore_chr_correct <- FALSE
+    }
+    if (!(ignore_logical || ignore_chr_correct)) {
+      stop(paste0(
+        "`ignore` must be of type logical or
+        `git` or `build` for directories in `projr` settings"
+      ))
+    }
+  }
+
+  # output
+  # ------------
+  # must be logical or character
+  if ("output" %in% names(elem)) {
+    if (!is.logical(elem[["output"]])) {
+      if (!all(is.character(elem[["output"]]))) {
+        stop(paste0(
+          "`output` must be of type character
+          for directories in `projr` settings"
+        ))
+      }
+    }
+  }
+  # archive
+  # ------------
+  # must be logical or character
+  if ("archive" %in% names(elem)) {
+    if (!is.logical(elem[["archive"]])) {
+      if (!is.character(elem[["archive"]])) {
+        stop(paste0(
+          "`archive` must be of type character
+          for directories in `projr` settings"
+        ))
+      }
+    }
+  }
+
+  # key-specific
+  # ==================
+
+  key_match <- .projr_dir_label_strip(key)
+
+  # path not invalid
+  # -------------------
+  dir_vec_restricted <- c(
+    "data", "man", "R", "tests"
+  )
+  if (grepl("^dataraw|^cache|^archive|^output", key_match)) {
+    within_ind <- fs::path_has_parent(
+      elem[["path"]], dir_vec_restricted
+    ) |>
+      any()
+    if (within_ind) {
+      stop(paste0(
+        "Paths in dataraw, cache, archive and output directories cannot
+        be to the following (or sub-directories thereof): ",
+        paste0(dir_vec_restricted, collapse = ", ")
+      ))
+    }
+  }
+
+  # sending to output
+  # -------------------
+  if (grepl("^dataraw|^cache", key_match)) {
+    if ("output" %in% names(elem)) {
+      if (is.character(elem[["output"]])) {
+        if (any(!elem[["output"]] %in% keys)) {
+          stop(paste0(
+            "Output location for projr directory ", key, " misspecified"
+          ))
+        }
+      }
+    }
+  } else if (grepl("^output|^archive", key_match)) {
+    if ("output" %in% names(elem)) {
+      stop(paste0(
+        "Output location for projr directory ", key,
+        " should not be specified"
+      ))
+    }
+  }
+
+  # sending to archive
+  # -----------------
+  if (grepl("^output|^dataraw|^cache", key_match)) {
+    if ("archive" %in% names(elem)) {
+      if (is.character(elem[["archive"]])) {
+        if (any(!elem[["archive"]] %in% keys)) {
+          stop(paste0(
+            "Archive location for projr directory ", key, " misspecified"
+          ))
+        }
+      }
+    }
+  } else if (grepl("^archive", key_match)) {
+    if ("archive" %in% names(elem)) {
+      stop(paste0(
+        "Archive location for projr directory ", key,
+        " should not be specified"
+      ))
+    }
+  }
+
+
+  invisible(TRUE)
+}
+
+.projr_yml_check_build_git <- function(yml_git) {
+  if (is.null(yml_git)) {
+    return(FALSE)
+  }
+  nm_vec_permitted <- c("commit", "add-untracked", "push")
+  nm_vec_actual <- names(yml_git)
+  nm_vec_extra <- setdiff(nm_vec_actual, nm_vec_permitted)
+  if (length(nm_vec_extra) > 0) {
+    stop(paste0(
+      "The following are extra setting(s)
+      in the Git section of the projr build key: ",
+      paste0(nm_vec_extra, collapse = ", ")
+    ))
+  }
+  if (!"commit" %in% names(yml_git)) {
+    stop("The commit key is required in the
+    Git section of the projr build key")
+  }
+  for (i in seq_along(yml_git)) {
+    if (!is.logical(yml_git[[i]])) {
+      stop(paste0(
+        "The key ", names(yml_git)[i],
+        " in the git section of the projr build key must be logical"
+      ))
+    }
+  }
+}
+
+.projr_yml_check_build_gh_release <- function(yml_gh) {
+  if (is.null(yml_gh)) {
+    return(FALSE)
+  }
+  dir_vec <- names(projr_yml_get_unchecked()[["directories"]])
+  for (i in seq_along(yml_gh)) {
+    .projr_yml_check_gh_release_ind(
+      tag = names(yml_gh)[i],
+      elem = yml_gh[[i]],
+      directories = dir_vec
+    )
+  }
+  invisible(TRUE)
+}
+
+.projr_yml_check_gh_release_ind <- function(tag = NULL,
+                                            elem = NULL,
+                                            directories = NULL) {
+  if (is.null(tag)) {
+    stop("tag must be specified for GitHub releases in projr settings")
+  }
+  if (is.null(elem)) {
+    stop("`content` and `body` must be specified
+    for GitHub releases in projr settings")
+  }
+  nm_vec_permitted <- c("contents", "body") |> sort()
+  nm_vec_actual <- names(elem) |> sort()
+  if (!all(nm_vec_permitted == nm_vec_actual)) {
+    stop(
+      "GitHub releases specified in projr settings
+      require `contents` and `body` keys"
+    )
+  }
+  directories <- c(directories, "code")
+  directories_extra <- setdiff(elem[["contents"]], directories)
+  if (length(directories_extra) > 0) {
+    stop(paste0(
+      "In GitHub release with tag ", tag,
+      ", the following entries in content are not found
+      in the directories key:",
+      directories_extra
+    ))
+  }
+  invisible(TRUE)
 }
 
 .projr_yml_set <- function(list_save) {
@@ -110,7 +524,6 @@ projr_yml_get <- function() {
   }
   yaml::read_yaml(path_yml)
 }
-
 
 .projr_yml_bd_set <- function(list_save) {
   dir_proj <- rprojroot::is_r_package$find_file()

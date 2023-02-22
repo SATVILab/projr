@@ -11,7 +11,7 @@
 # arbitrary repo name
 repo_name <- "TestProjr123"
 
-# GitHub 
+# GitHub
 # -------------
 
 # check that we've got a GitHub PAT available
@@ -19,8 +19,8 @@ repo_name <- "TestProjr123"
 (me <- gh_account$login)
 # delete repo if it exists
 gh::gh(
-  "DELETE /repos/:username/:pkg",
-  username = me, pkg = repo_name
+    "DELETE /repos/:username/:pkg",
+    username = me, pkg = repo_name
 )
 
 # local directory
@@ -40,7 +40,7 @@ projr_version_set("0.0.1-1")
 
 
 # ==================
-# 
+#
 # ==================
 
 
@@ -64,13 +64,13 @@ version_format_list <- .projr_version_format_list_get()
 bump_component <- "minor"
 version_current <- "0.1.0"
 yml_projr_dir <- projr_yml_get()[["directories"]]
-if (output_run && "github-release" %in% names(yml_projr[["build-output"]])) {
+if (output_run && "github-release" %in% names(yml_projr[["build"]])) {
     version_comp_vec <- version_format_list[["components"]] |>
         setdiff("dev")
     version_comp_vec <- version_comp_vec[
         seq_len(which(version_comp_vec == bump_component))
     ]
-    gh_list <- yml_projr[["build-output"]][["github-release"]]
+    gh_list <- yml_projr[["build"]][["github-release"]]
     version_current <- projr_version_get()
     if (!requireNamespace("piggyback", quietly = TRUE)) {
         renv::install("piggyback")
@@ -115,8 +115,8 @@ if (output_run && "github-release" %in% names(yml_projr[["build-output"]])) {
         # uploading report
         # ============================
 
-        if (label == "bookdown") {
-            dir_bookdown <- projr_dir_get("bookdown")
+        if (label == "docs") {
+            dir_bookdown <- projr_dir_get("docs")
             path_zip <- file.path(
                 dirname(dir_bookdown), "bookdown.zip"
             )
@@ -175,7 +175,7 @@ if (output_run && "github-release" %in% names(yml_projr[["build-output"]])) {
                     !basename(fn_vec) %in% paste0(nm_rem_vec, ".zip")
                 ]
             }
-            dir_bookdown <- projr_dir_get("bookdown")
+            dir_bookdown <- projr_dir_get("docs")
             fn_vec <- fn_vec[
                 !basename(fn_vec) == paste0(basename(dir_bookdown), ".zip")
             ]

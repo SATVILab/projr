@@ -1,30 +1,15 @@
 .projr_pb_upload <- function(output_run, bump_component) {
-  if (Sys.getenv("PROJR_TEST") == "TRUE") {
-    browser()
-  } else {
-    return(invisible(FALSE))
-  }
-  yml_projr <- .projr_yml_get()
+  return(invisible(TRUE))
+  yml_projr <- projr_yml_get()
+
   # consider early exit
   # ------------------
 
-  # either a dev run or else no github-release specified
-  if ((!output_run) ||
-    (!"github-release" %in% names(yml_projr[["build-output"]]))) {
+  if (!.projr_pb_check_run(output_run, bump_component)) {
     return(invisible(FALSE))
   }
 
-  # if no item wants to be uploaded given the version bumped
-  yml_projr_gh <- .projr_yml_get()[["build-output"]][["github-release"]]
-  upload_vec_check <- vapply(yml_projr_gh, function(x) {
-    .projr_version_comp_min_check(
-      bump_component = bump_component,
-      x[["version-component-min"]]
-    )
-  }, logical(1))
-  if (!any(upload_vec_check)) {
-    return(invisible(FALSE))
-  }
+
 
   # uploads
   # ------------------
@@ -40,6 +25,46 @@
   .projr_pb_upload_doc(bump_component = bump_component)
 
   #
+}
+
+.projr_pb_check_run <- function(output_run, bump_component) {
+  yml_projr <- projr_yml_get()
+  # either a dev run or else no github-release specified
+  if ((!output_run) ||
+    (!"github-release" %in% names(yml_projr[["build"]]))) {
+    return(invisible(FALSE))
+  }
+
+  # if no item wants to be uploaded given the version bumped
+  yml_projr_gh <- projr_yml_get()[["build"]][["github-release"]]
+  if (length(yml_projr_gh) == 0) {
+    return(invisible(FALSE))
+  }
+
+  upload_vec_check <- vapply(yml_projr_gh, function(x) {
+    if (!"cue" %in% names(x)) {
+      return(FALSE)
+    }
+    if (is.logical(x[["cue"]])) {
+      return(x[["cue"]])
+    }
+    if (is.null(names(x[["cue"]]))) {
+      if (x[["cue"]] == "never") {
+        return(FALSE)
+      } else if (x[["cue"]] == "always") {
+        return(TRUE)
+      }
+      .projr_version_comp_min_check(
+        bump_component = bump_component,
+        x[["cue"]]
+      )
+    }
+  }, logical(1))
+  if (!any(upload_vec_check)) {
+    return(invisible(FALSE))
+  }
+
+  invisible(TRUE)
 }
 
 .projr_pb_upload_code <- function(bump_component) {
@@ -113,8 +138,8 @@
 
 .projr_pb_upload_doc <- function(bump_component) {
   # get settings
-  yml_projr_gh <- .projr_yml_get()[["build-output"]][["github-release"]]
-  yml_projr_gh_doc <- yml_projr_gh[["bookdown"]]
+  yml_projr_gh <- projr_yml_get()[["build"]][["github-release"]]
+  yml_projr_gh_doc <- yml_projr_gh[["docs"]]
 
   # consider not uploading
   # ----------------------------
@@ -131,7 +156,7 @@
 
   # zip
   # --------------------------
-  dir_doc <- projr_dir_get("bookdown")
+  dir_doc <- projr_dir_get("docs")
   path_zip <- file.path(dirname(dir_doc), "doc.zip")
   if (file.exists(path_zip)) {
     file.remove(path_zip)

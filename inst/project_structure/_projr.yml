@@ -1,35 +1,21 @@
 # default directory settings:
-directories-default:
+directories:
   data-raw:
     path: _data_raw
-    ignore: true
+    output: true
   cache: 
     path: _tmp
-    ignore: true
   output: 
     path: _output
-    ignore: true 
   archive: 
     path: _archive
-    ignore: true
-  bookdown:
+  docs:
     path: docs
-    ignore: true
-version-format: "major.minor.patch-dev" # other options: version-dev; major.minor.patch-dev; 
-# actions on development built
-build-dev:
-  clear_output: false # whether ot clear outputs
-  bump-version: false # whether to bump the dev version up before this build (i.e. to build to a new directory, really)
-  rmd: # if specified, subset of Rmd's to build. no need to mention index.Rmd, it's always included
-# build settings when bumping the version up
-  copy-to-output: false # whether to copy output across as done for
-  # build-output
-build-output:
-  copy-to-output:
-    data-raw: false
-    cache: false
-    bookdown: true
-    package: false
+    output: true
+
+build:
+  dev-output: true
+  package: false
   git:
     commit: true
     add-untracked: true
@@ -37,7 +23,7 @@ build-output:
   github-release:
     '@version':
       contents: code
-      body: "Latest source code."
+      body: "Latest source code"
     output:
-      contents: [output, bookdown]
+      contents: [output, docs]
       body: "Project outputs"

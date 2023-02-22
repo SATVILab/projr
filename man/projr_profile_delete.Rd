@@ -8,12 +8,14 @@ projr_profile_delete(profile)
 }
 \arguments{
 \item{profile}{character.
-\code{projr} profile to delete.
-If not supplied, then no profile is deleted.}
+\code{projr} profile to delete.}
+
+\item{where}{"key" or "file"}
 }
 \value{
 \code{invisible(TRUE)}.
 }
 \description{
-Deletes a \code{projr} profile from \code{_projr.yml}.
+Deletes a \code{projr} profile from \code{_projr.yml}
+and/or its corresponding \verb{_projr-<profile>.yml} file.
 }

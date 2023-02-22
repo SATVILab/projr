@@ -10,3 +10,5 @@
 ^lib
 ^codecov\.yml$
 ^report\.html$
+^_projr-local\.yml$
+^_projr-local\.yml$

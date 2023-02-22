@@ -4,9 +4,9 @@
 #' ignores it if requested by `_projr.yml`.
 #' @param label character.
 #' One of \code{"data_raw"}, \code{"cache"},\code{"output"},
-#' \code{"archive"} and \code{"bookdown"}.
+#' \code{"archive"} and \code{"docs"}.
 #' Class of directory to return.
-#' The \code{"bookdown"} option returns the path to
+#' The \code{"docs"} option returns the path to
 #' the output directory from \code{bookdown::render_book}
 #' (as specified in \code{"_bookdown.yml"}),
 #' whereas the others returns paths as specified in \code{"_projr.yml"}.
@@ -52,46 +52,32 @@ projr_dir_get <- function(label, ...,
 
   dir_active <- yml_active[["directories"]]
 
-  if (!label %in% c(names(dir_active), "bookdown")) {
+  if (!label %in% c(names(dir_active), "docs")) {
     stop(paste0("label `", label, "` not recognised."))
   }
+  # use the appropriate specification doc
+  # if "docs" is the label
+  if (label == "docs") {
+    dir_proj <- rprojroot::is_r_package$find_file()
 
-  if (label == "bookdown") {
-    yml_bd <- .projr_yml_bd_get()
-    dir_base <- dir_active[["bookdown"]][["path"]]
-    fn <- basename(yml_bd[["output_dir"]])
-    path_bd <- file.path(dir_base, fn)
-    yml_bd[["output_dir"]] <- path_bd
-    .projr_yml_bd_set(yml_bd)
-    path_final <- file.path(dir_base, fn, ...)
-    if (!fs::is_absolute_path(path_final)) {
-      path_final <- fs::path_rel(
-        file.path(rprojroot::is_r_package$find_file(), path_final),
-        start = getwd()
-      ) |>
-        as.character()
+    if (file.exists(file.path(dir_proj, "_bookdown.yml"))) {
+      path_final_root <- .projr_yml_bd_get()[["output_dir"]]
+    } else {
+      # quarto stuff
     }
-    if (!dir.exists(path_final)) {
-      dir.create(path_final, recursive = TRUE)
-    }
-    return(as.character(path_final))
-  }
-
-  # get current version
-  if (label == "output" && output_safe) {
-    label <- "cache"
-    yml_active_dir_curr <- dir_active[label]
+    # exception for output when it's safe
+  } else if (grepl("^output", .projr_dir_label_strip(label)) && output_safe) {
+    cache_ind <- which(
+      .projr_dir_label_strip(names(dir_active)) == "cache"
+    )[1]
     path_final_root <- file.path(
-      dir_active[[label]]$path, "projr_output",
+      dir_active[[cache_ind]]$path, paste0("projr-", label),
       .projr_version_current_vec_get() |> .projr_version_chr_get()
     )
-    yml_active_dir_curr[["output"]][["path"]] <- path_final_root
   } else {
-    yml_active_dir_curr <- dir_active[label]
-    path_final_root <- dir_active[[label]]$path
+    path_final_root <- dir_active[[label]][["path"]]
   }
   path_append <- list(...) |> unlist()
-  dir_active <- yml_active_dir_curr
   path_final <- do.call(
     "file.path",
     args = list(path_final_root) |> append(path_append)
@@ -126,9 +112,9 @@ projr_dir_get <- function(label, ...,
 #'
 #' @param label character.
 #' One of \code{"data_raw"}, \code{"cache"},\code{"output"},
-#' \code{"archive"} and \code{"bookdown"}.
+#' \code{"archive"} and \code{"docs"}.
 #' Class of directory to return.
-#' The \code{"bookdown"} option returns the path to
+#' The \code{"docs"} option returns the path to
 #' the output directory from \code{bookdown::render_book}
 #' (as specified in \code{"_bookdown.yml"}),
 #' whereas the others returns paths as specified in \code{"_projr.yml"}.
@@ -242,14 +228,14 @@ projr_dir_create <- function(label) {
   if (length(label) > 1) stop("label must be length 1")
   if (!is.character(label)) stop("label must be o label character")
   dir_proj <- rprojroot::is_r_package$find_file()
-  if (label == "bookdown") {
+  yml_active_dir <- try(projr_yml_get()[["directories"]])
+  if (label == "docs") {
     yml_bd <- try(.projr_yml_bd_get())
     if (identical(class(yml_bd), "try-error")) {
       stop("_bookdown.yml not valid YAML")
     }
     dir_path <- yml_bd[["output_dir"]]
   } else {
-    yml_active_dir <- try(projr_yml_get()[["directories"]])
     if (identical(class(yml_active_dir), "try-error")) {
       stop("_projr.yml not valid YAML")
     }
@@ -259,7 +245,9 @@ projr_dir_create <- function(label) {
     yml_active_dir <- yml_active_dir[[match_ind]]
     # ignore
     if (!is.logical(yml_active_dir[["ignore"]])) {
-      stop(paste0("ignore not of typical logical for directory ", dir_label))
+      if (!is.null(yml_active_dir[["ignore"]])) {
+        stop(paste0("ignore not of typical logical for directory ", dir_label))
+      }
     }
     dir_path <- yml_active_dir[["path"]]
   }
@@ -276,32 +264,57 @@ projr_dir_create <- function(label) {
   txt_gitignore <- paste0(gsub("/*$", "", dir_path), "/**/*")
   txt_rbuildignore <- paste0("^", gsub("\\.", "\\\\.", dir_path))
 
-  if (label == "bookdown") {
+  ignore <- yml_active_dir[["ignore"]]
+  if (is.null(ignore)) {
     ignore <- TRUE
-  } else {
-    ignore <- yml_active_dir[["ignore"]]
   }
 
-  if (ignore) {
-    if (!txt_gitignore %in% gitignore) {
-      .projr_gitignore_set(txt_gitignore, append = TRUE)
-      .projr_gitignore_set("\n", append = TRUE)
+  if (is.logical(ignore)) {
+    if (ignore) {
+      if (!txt_gitignore %in% gitignore) {
+        .projr_gitignore_set(txt_gitignore, append = TRUE)
+        .projr_gitignore_set("\n", append = TRUE)
+      }
+      if (!txt_rbuildignore %in% rbuildignore) {
+        .projr_buildignore_set(txt_rbuildignore, append = TRUE)
+        .projr_buildignore_set("\n", append = TRUE)
+      }
+      return(invisible(TRUE))
+    } else {
+      if (txt_gitignore %in% gitignore) {
+        gitignore <- gitignore[!(gitignore == txt_gitignore)]
+        .projr_gitignore_set(gitignore, append = FALSE)
+      }
+      if (txt_rbuildignore %in% rbuildignore) {
+        rbuildignore <- rbuildignore[!(rbuildignore == txt_rbuildignore)]
+        .projr_buildignore_set(rbuildignore, append = FALSE)
+      }
+    }
+  } else if (is.character(ignore)) {
+    if ("git" %in% ignore) {
+      if (!txt_gitignore %in% gitignore) {
+        .projr_gitignore_set(txt_gitignore, append = TRUE)
+        .projr_gitignore_set("\n", append = TRUE)
+      }
+    } else {
+      if (txt_gitignore %in% gitignore) {
+        gitignore <- gitignore[!(gitignore == txt_gitignore)]
+        .projr_gitignore_set(gitignore, append = FALSE)
+      }
     }
     if (!txt_rbuildignore %in% rbuildignore) {
       .projr_buildignore_set(txt_rbuildignore, append = TRUE)
       .projr_buildignore_set("\n", append = TRUE)
+    } else {
+      if (txt_rbuildignore %in% rbuildignore) {
+        rbuildignore <- rbuildignore[!(rbuildignore == txt_rbuildignore)]
+        .projr_buildignore_set(rbuildignore, append = FALSE)
+      }
     }
-    return(invisible(TRUE))
   }
 
-  if (txt_gitignore %in% gitignore) {
-    gitignore <- gitignore[!(gitignore == txt_gitignore)]
-    .projr_gitignore_set(gitignore, append = FALSE)
-  }
-  if (txt_rbuildignore %in% rbuildignore) {
-    rbuildignore <- rbuildignore[!(rbuildignore == txt_rbuildignore)]
-    .projr_buildignore_set(rbuildignore, append = FALSE)
-  }
+
+
   invisible(TRUE)
 }
 
@@ -339,4 +352,9 @@ projr_dir_create <- function(label) {
     append = append
   )
   invisible(file.path(dir_proj, ".Rbuildignore"))
+}
+
+.projr_dir_label_strip <- function(x) {
+  gsub("_", "", gsub("-", "", x)) |>
+    tolower()
 }

@@ -1,19 +1,295 @@
 library(testthat)
 devtools::load_all(path = file.path(Sys.getenv("pkg"), "projr"))
 
-
 debugonce(projr:::.projr_pb_upload)
-projr::projr_build_output()
+Sys.setenv("PROJR_TEST" = "TRUE")
+library(testthat)
+projr::projr_build_output() |>
+
+# new new old archive
+# ====================
+
+
+            # so now, this is the confusing one as archive is character.
+            # we specifically want to archive to particular directories, I guess
+            # (over and above any archiving done via output to other directories).
+            # so we do this only if we do not archive to *these* directories.
+
+            # clearly this does not happen if output is not specified
+            if (!output_present) {
+              continue_archive <- TRUE
+              # output is now logical.
+              # so, we will not archive to these directories
+              # indirectly if output is FALSE.
+              # We will archive to these directories if
+              # output is TRUE and archive is TRUE for any (though in this case
+              # we will not archive to all; if you want to archive to all, you
+              # need to specify specifically where you want to archive).
+              # actually, no, we need to make `archive: TRUE` behave 
+              # like `output: TRUE` and archive to every output directory.
+              # we just don't if all the outputs also do.
+            } else if (output_logical) {
+              if (!all(output_val)) {
+                continue_archive <- TRUE
+              } else {
+                # saved to all outputs, so check if any are
+                # archived
+                output_key_ind <- grepl(
+                  "^output",
+                  .projr_dir_label_strip(names(yml_projr_dir))
+                )
+                output_key_vec <- names(yml_projr_dir)[output_key_ind]
+                archived_via_output_vec <- vapply(
+                  output_key_vec, function(x) {
+                  yml_projr_dir_output <- yml_projr_dir[[x]]
+                  if (all(is.logical(yml_projr_dir_output[["archive"]]))) {
+                    return(all(yml_projr_dir_output[["archive"]]))
+                  }
+                  TRUE
+                }, logical(1))
+                continue_archive <- !any(archived_via_output_vec)
+              }
+          }
+        output_false <- "archive" %in% names(yml_projr_dir[[label]])
+        if (!output_specified_ind || ()) {
+          # archive is specified and is logical, continue only
+          # if archive is TRUE
+          if (all(is.logical(yml_projr_dir[[label]][["archive"]]))) {
+            continue_archive <- all(yml_projr_dir[[label]][["archive"]])
+            # archive character
+          } else if (all(is.character(yml_projr_dir[[label]][["archive"]]))) {
+            continue_archive <- TRUE
+            # archive not specified, don't archive
+          } else {
+            continue_archive <- FALSE
+          }
+          # output is specified
+        } else {
+          # - output is FALSE and archive is specified
+          if (all(is.logical(yml_projr_dir[[label]][["output"]]))) {
+            if (all(!yml_projr_dir[[label]][["output"]])) {
+              continue_archive_output_false <- TRUE
+            } else {
+              continue_ <- FALSE
+            }
+            # - output is character, and none of those outputs
+            # correspond to this archive
+          } else if (all(is.character(yml_projr_dir[[label]][["output"]]))) {
+            continue_archive_output_archive_else <- !(
+              label %in% yml_projr_dir[[label]][["output"]]
+            )
+          }
+          continue_archive <- continue_archive_output_missing ||
+            continue_archive_output_false ||
+            continue_archive_output_archive_else
+        }
+      }
+      if (!continue_archive) {
+        next
+      }
+  
+# new old archive
+# =====================
+
+    yml_projr_dir_output <- yml_projr_dir[[x]]
+    # archive not specified, it will be
+    # archived there
+    if (!"archive" %in% names(yml_projr_dir_output)) {
+      return(TRUE)
+    }
+    # archive is logical, so will be archived
+    # there
+    if (all(is.logical(yml_projr_dir_output[["archive"]]))) {
+      return(all(yml_projr_dir_output[["archive"]]))
+    }
+    # archive is character, so will be archived somewhere
+    if (all(is.character(yml_projr_dir_output[["archive"]]))) {
+      return(TRUE)
+    }
+
+# old archive
+# =====================
+
+test_that("projr_build_copy_dir works when archiving", {
+  dir_test <- file.path(tempdir(), paste0("report"))
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  Sys.setenv("PROJR_TEST" = "TRUE")
+
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      projr_init()
+      yml_projr_init <- .projr_yml_get_root_full()
+      # do nothing when not output
+      expect_false(.projr_build_archive(output_run = FALSE))
+      version_run_on_list <- .projr_version_run_onwards_get(
+        bump_component = "patch"
+      )
+      # do nothing when nothing saved
+      expect_false(.projr_build_archive(
+        output_run = FALSE,
+        version_run_on_list = version_run_on_list
+      ))
+
+      # save files to output
+      invisible({
+        file.create(
+          projr_path_get("output", "a.txt", output_safe = FALSE)
+        )
+        file.create(
+          projr_path_get("output", "b.txt", output_safe = FALSE)
+        )
+        file.create(
+          projr_path_get("output", "dir_c", "c.txt", output_safe = FALSE)
+        )
+        file.create(
+          projr_path_get("output", "dir_d", "d.txt", output_safe = FALSE)
+        )
+      })
+
+      .projr_build_archive(
+        output_run = TRUE,
+        version_run_on_list = version_run_on_list
+      )
+
+      dir_archive <- projr_dir_get(
+        label = "archive",
+        paste0("v", version_run_on_list$desc[["success"]])
+      )
+      expect_true(file.exists(file.path(dir_archive, "a.txt")))
+      expect_true(file.exists(file.path(dir_archive, "b.txt")))
+      expect_true(file.exists(file.path(dir_archive, "dir_c.zip")))
+      expect_true(file.exists(file.path(dir_archive, "dir_d.zip")))
+      expect_false(dir.exists(file.path(dir_archive, "dir_c")))
+      expect_false(dir.exists(file.path(dir_archive, "dir_d")))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+  Sys.unsetenv("PROJR_TEST")
+  unlink(dir_test, recursive = TRUE)
+})
+
+
+.projr_build_archive <- function(output_run, version_run_on_list) {
+  # How is this supposed to work?
+
+  # consider not archiving
+  if (!output_run) {
+    return(invisible(FALSE))
+  }
+
+  # what do we archive, and to where?
+  # well, if we consider data-raw and cache and output,
+  # then:
+  dir_proj <- rprojroot::is_r_package$find_file()
+
+  # set up paths
+  dir_output <- projr_dir_get(label = "output", output_safe = FALSE)
+  dir_archive <- projr_dir_get(
+    label = "archive",
+    paste0("v", version_run_on_list$desc[["success"]])
+  )
+  if (!fs::is_absolute_path(dir_output)) {
+    dir_output <- file.path(dir_proj, dir_output)
+  }
+  if (!fs::is_absolute_path(dir_archive)) {
+    dir_archive <- file.path(dir_proj, dir_archive)
+  }
+
+  # check if there is anything to copy
+  fn_vec <- list.files(
+    dir_output,
+    recursive = FALSE, all.files = TRUE, full.names = TRUE
+  )
+  if (length(fn_vec) == 0) {
+    return(invisible(FALSE))
+  }
+
+  # copy individual files across
+  fn_vec_fn <- fn_vec[fs::is_file(fn_vec)]
+  if (length(fn_vec_fn) > 0) {
+    file.copy(
+      from = fn_vec_fn,
+      to = file.path(dir_archive, basename(fn_vec_fn))
+    )
+  }
+
+  # zip and copy directories across
+  dir_vec <- list.dirs(dir_output, recursive = FALSE, full.names = TRUE)
+  for (i in seq_along(dir_vec)) {
+    path_dir <- dir_vec[i]
+    path_zip <- file.path(dir_archive, paste0(basename(path_dir), ".zip"))
+    .projr_zip_dir(
+      path_dir = path_dir,
+      path_zip = path_zip
+    )
+  }
+
+  invisible(TRUE)
+}
+
+# old docs projr_dir_get settings
+# =====================
+  if (label == "docs") {
+    dir_proj <- rprojroot::is_r_package$find_file()
+
+    if (file.exists(file.path(dir_proj, "_bookdown.yml"))) {
+      yml_bd <- .projr_yml_bd_get()
+      dir_base <- dir_active[["docs"]][["path"]]
+      fn <- basename(yml_bd[["output_dir"]])
+      path_bd <- file.path(dir_base, fn)
+      yml_bd[["output_dir"]] <- path_bd
+      .projr_yml_bd_set(yml_bd)
+      path_final <- file.path(dir_base, fn, ...)
+    } else {
+      # quarto stuff
+    }
+    if (!fs::is_absolute_path(path_final)) {
+      path_final <- fs::path_rel(
+        file.path(rprojroot::is_r_package$find_file(), path_final),
+        start = getwd()
+      ) |>
+        as.character()
+    }
+    if (!dir.exists(path_final)) {
+      dir.create(path_final, recursive = TRUE)
+    }
+    return(as.character(path_final))
+  }
+
+# Archiving stuf
+# =================
+
+    # archive package (to all archives)
+    dir_vec_match <- tolower(
+      gsub("_", "", gsub("-", "", names(yml_projr[["directories"]])))
+    )
+    archive_vec_ind <- which(grepl("^archive", dir_vec_match))
+    archive_vec <- names(yml_projr[["directories"]])[archive_vec_ind]
+    for (x in archive_vec) {
+      file.copy(
+        from = path_pkg,
+        to = projr_path_get(x, fn_pkg, output_safe = !output_run)
+      )
+    }
 
 
 # QUITE DEVELOPED PIGGYBACK STUFF
 # ====================================
 
-
 version_format_list <- .projr_version_format_list_get()
 bump_component <- "minor"
 version_current <- "0.1.0"
-
 
 yml_projr_dir <- projr_yml_get()[["directories"]]
   if (output_run && "github-release" %in% names(yml_projr[["build-output"]])) {
@@ -88,11 +364,13 @@ yml_projr_dir <- projr_yml_get()[["directories"]]
             if (!tag %in% gh_tbl_releases[["release_name"]]) {
                 piggyback::pb_release_create(tag = tag, body = body)
                 piggyback::pb_upload(
-                    file = file.path(dir_bookdown, path_zip), overwrite = TRUE, tag = tag
+                    file = file.path(dir_bookdown, path_zip),
+                    overwrite = TRUE, tag = tag
                 )
             } else {
                 piggyback::pb_upload(
-                    file = file.path(dir_bookdown, path_zip), overwrite = TRUE, tag = tag
+                    file = file.path(dir_bookdown, path_zip),
+                    overwrite = TRUE, tag = tag
                 )
             }
             next

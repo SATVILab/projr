@@ -11,29 +11,29 @@
 #' Version to set.
 #' May be dev version (i.e. include the dev component) or not.
 #'
-#' @param where "bookdown" and/or "DESCRIPTION"/
+#' @param where "docs" and/or "DESCRIPTION"/
 #' Where to set the version.
-#' If it includes `"bookdown"`, then the version is updated
+#' If it includes `"docs"`, then the version is updated
 #' in the \code{book_filename} and \code{output_dir} fields
-#' of \code{_bookdown.yml}.
-#' If it includes \code{"DESCRIPTION"}
-#' Default is \code{c("bookdown")}.
+#' of \"docs"{_bookdown.yml}.
+#' If it includes \"docs"{"DESCRIPTION"}
+#' Default is \code{c("docs")}.
 #' @export
 projr_version_set <- function(version,
-                              where = c("bookdown", "DESCRIPTION")) {
+                              where = c("docs", "DESCRIPTION")) {
   if (missing(version)) stop("version must be supplied")
   .projr_version_format_check(version)
   stopifnot(is.character(version))
   # check that version is in correct format
   stopifnot(length(where) %in% 1:2)
-  stopifnot(length(setdiff(where, c("bookdown", "DESCRIPTION"))) == 0)
-  stopifnot(all(where %in% c("bookdown", "DESCRIPTION")))
+  stopifnot(length(setdiff(where, c("docs", "DESCRIPTION"))) == 0)
+  stopifnot(all(where %in% c("docs", "DESCRIPTION")))
   if ("DESCRIPTION" %in% where) {
     desc_file <- read.dcf("DESCRIPTION")
     desc_file[, "Version"] <- version
     write.dcf(desc_file, file = "DESCRIPTION")
   }
-  if ("bookdown" %in% where) {
+  if ("docs" %in% where) {
     yml_bd <- .projr_yml_bd_get()
     yml_projr <- projr_yml_get()
     proj_nm <- projr_name_get()
@@ -67,14 +67,17 @@ projr_version_format_set <- function(version_format) {
   if (!version_format %in% version_valid_vec) {
     stop("version format not valid")
   }
-  yml_projr <- .projr_yml_get()
+  yml_projr <- projr_yml_get()
   yml_projr[["version-format"]] <- version_format
   .projr_yml_set(yml_projr)
   invisible(TRUE)
 }
 
 projr_version_format_get <- function() {
-  version_format <- .projr_yml_get()[["version-format"]]
+  version_format <- projr_yml_get()[["version-format"]]
+  if (length(version_format) == 0) {
+    version_format <- "major.minor.patch-dev"
+  }
   version_valid_vec <- c(
     "major.minor.patch-dev",
     "major.minor.patch.dev",
@@ -91,6 +94,9 @@ projr_version_format_get <- function() {
 
 .projr_version_format_list_get <- function() {
   version_format <- projr_yml_get()[["version-format"]]
+  if (is.null(version_format)) {
+    version_format <- "major.minor.patch-dev"
+  }
   version_format_vec_sep <- strsplit(
     version_format, "major|minor|patch|dev"
   )[[1]][-1]
@@ -337,7 +343,7 @@ projr_version_get <- function() {
 #'
 #' @return Invisibly returns the new version.
 projr_version_bump <- function(component = "dev",
-                               where = "bookdown",
+                               where = "docs",
                                onto_dev = TRUE) {
   version_current_vec <- .projr_version_current_vec_get()
   version_format_list <- .projr_version_format_list_get()

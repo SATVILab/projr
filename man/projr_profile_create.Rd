@@ -4,14 +4,54 @@
 \alias{projr_profile_create}
 \title{Add projr profile}
 \usage{
-projr_profile_create()
+projr_profile_create(
+  profile = NULL,
+  method = "key",
+  silent = Sys.getenv("PROJR_TEST") == "TRUE"
+)
+}
+\arguments{
+\item{profile}{character.
+If not \code{NULL}, then this is the name of the profile.
+If \code{NULL} and the environment variable \code{PROJR_PROFILE} is set,
+then made equal to its value. If the variable is not set,
+then made equal to the working directory.}
+
+\item{method}{"key" or "file".
+Specifies where the \code{projr} profile is specified.
+If "key" (default), then the additional profile is added
+as new keys in \verb{_projr.yml} in the form \verb{directories-<profile>} and
+\verb{build-<profile>}.
+If "file", then the file \verb{_projr-<profile>.yml} is created
+with all-null values for the sub-keys of the \code{build} and \code{directories}
+keys in \verb{_projr.yml}.
+
+Default is \code{NULL}.}
+
+\item{silent}{logical.
+If \code{TRUE}, then any messages are suppressed.
+Default is \code{TRUE} is the environment
+variable \code{PROJR_TEST} is \code{"TRUE"}.}
 }
 \value{
 Invisibly returns the new projr profile.
 }
 \description{
-Adds either the environment variable "PROJR_PROFILE"
-(if set) or the current project directory (i.e.
-where the DESCRIPTION file is)
-as a new projr profile.
+Creates a new \code{projr} profile that overrides
+settings in \verb{_projr.yml}.
+The profile becomes active when either the working directory
+(\code{rprojroot::is_r_package$find_file()}) or
+\code{Sys.getenv("PROJR_PROFILE")} is equal to \code{profile}.
+}
+\details{
+Note that if any setting in \code{projr} profile-specific setting
+is empty (indicated by \code{~} in the YAML file by default), then
+the corresponding setting in \verb{_projr.yml} is used.
+
+If using \code{method = "file"}, then the profile
+cannot be automatically specified from the working directory
+but must be specified by either \code{PROJR_PROFILE} or the \code{profile} argument.
+}
+\seealso{
+projr_profile_create_local,projr_yml_get
 }

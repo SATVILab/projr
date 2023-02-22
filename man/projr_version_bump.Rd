@@ -4,20 +4,20 @@
 \alias{projr_version_bump}
 \title{Bump version}
 \usage{
-projr_version_bump(component = "dev", where = "bookdown", onto_dev = TRUE)
+projr_version_bump(component = "dev", where = "docs", onto_dev = TRUE)
 }
 \arguments{
 \item{component}{character.
 Component in version to bump.
 Default is \code{"dev"}.}
 
-\item{where}{"bookdown" and/or "DESCRIPTION"/
+\item{where}{"docs" and/or "DESCRIPTION"/
 Where to set the version.
-If it includes \code{"bookdown"}, then the version is updated
+If it includes \code{"docs"}, then the version is updated
 in the \code{book_filename} and \code{output_dir} fields
-of \code{_bookdown.yml}.
-If it includes \code{"DESCRIPTION"}
-Default is \code{c("bookdown")}.}
+of \"docs"{_bookdown.yml}.
+If it includes \"docs"{"DESCRIPTION"}
+Default is \code{c("docs")}.}
 
 \item{onto_dev}{logical.
 If \code{TRUE}, then the bumped version

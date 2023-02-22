@@ -7,9 +7,9 @@
   if ((!output_run) || (Sys.getenv("PROJR_TEST") == "TRUE")) {
     return(invisible(FALSE))
   }
-  yml_projr <- .projr_yml_get()
-  if ("renv" %in% names(yml_projr[["build-output"]])) {
-    if (!yml_projr[["build-output"]][["renv"]]) {
+  yml_projr <- projr_yml_get()
+  if ("renv" %in% names(yml_projr[["build"]])) {
+    if (!yml_projr[["build"]][["renv"]]) {
       return(invisible(FALSE))
     }
   }
@@ -23,17 +23,17 @@
                                     version_run_on_list,
                                     stage,
                                     msg) {
-  yml_projr <- .projr_yml_get()
+  yml_projr <- projr_yml_get()
 
   # exit early if required
   # ------------------------
   if (!output_run) {
     return(invisible(FALSE))
   }
-  if (!"git" %in% names(yml_projr[["build-output"]])) {
+  if (!"git" %in% names(yml_projr[["build"]])) {
     return(invisible(FALSE))
   }
-  if (!yml_projr[["build-output"]][["git"]][["commit"]]) {
+  if (!yml_projr[["build"]][["git"]][["commit"]]) {
     return(invisible(FALSE))
   }
   if (!dir.exists(".git")) {
@@ -61,7 +61,7 @@
     return(invisible(FALSE))
   }
 
-  if (yml_projr[["build-output"]][["git"]][["add-untracked"]]) {
+  if (yml_projr[["build"]][["git"]][["add-untracked"]]) {
     git_tbl_status <- gert::git_status()
     fn_vec <- git_tbl_status[["file"]][!git_tbl_status[["staged"]]]
     if (length(fn_vec) > 0) {
@@ -119,38 +119,24 @@
   for (x in names(yml_projr[["directories"]])) {
     .projr_dir_ignore(label = x)
   }
-  .projr_dir_ignore("bookdown")
+  .projr_dir_ignore("docs")
   invisible(TRUE)
 }
 
 .projr_build_version_set_pre <- function(version_run_on_list) {
   projr_version_set(version_run_on_list$desc[["run"]], "DESCRIPTION")
-  projr_version_set(version_run_on_list$bd[["run"]], "bookdown")
+  projr_version_set(version_run_on_list$bd[["run"]], "docs")
   invisible(TRUE)
 }
 
 .projr_build_doc_output_dir_update <- function() {
   yml_bd <- .projr_yml_bd_get()
-  yml_bd[["output_dir"]] <- projr_dir_get("bookdown")
+  yml_bd[["output_dir"]] <- projr_dir_get("docs")
   .projr_yml_bd_set(yml_bd)
-  invisible(projr_dir_get("bookdown"))
+  invisible(projr_dir_get("docs"))
 }
 
 .projr_build_output_clear <- function(output_run) {
-  # consider not clearing if not dev
-  # --------------------------
-  if (!output_run) {
-    yml_projr <- .projr_yml_get()
-    # don't clear if nothing specific said
-    if (!"clear_output" %in% names(yml_projr[["build-dev"]])) {
-      return(invisible(FALSE))
-    }
-    # clear if specifically told said to clear
-    if (!yml_projr[["build-dev"]][["copy-to-output"]]) {
-      return(invisible(FALSE))
-    }
-  }
-
   # clear
   # -----------------
 
@@ -163,7 +149,7 @@
     }
   }
   # clear docs folder
-  dir_data_output <- projr_dir_get("bookdown")
+  dir_data_output <- projr_dir_get("docs")
   if (dir.exists(dir_data_output)) {
     fn_vec <- list.files(dir_data_output, recursive = TRUE, full.names = TRUE)
     for (i in seq_along(fn_vec)) {
@@ -258,13 +244,13 @@
   )
   dir_report <- basename(
     list.dirs(dirname(
-      projr_dir_get("bookdown", create = FALSE)
+      projr_dir_get("docs", create = FALSE)
     ), recursive = FALSE)
   )
   dir_report_rm <- dir_report[grepl(match_regex, dir_report)]
   for (i in seq_along(dir_report_rm)) {
     unlink(file.path(
-      dirname(projr_dir_get("bookdown", create = FALSE)), dir_report_rm[[i]]
+      dirname(projr_dir_get("docs", create = FALSE)), dir_report_rm[[i]]
     ), recursive = TRUE)
   }
 
@@ -287,26 +273,27 @@
   invisible(TRUE)
 }
 
-.projr_build_output <- function(output_run,
-                                bump_component,
-                                version_run_on_list) {
-  yml_projr <- .projr_yml_get()
+
+.projr_build_copy <- function(output_run,
+                              bump_component,
+                              version_run_on_list) {
+  yml_projr <- projr_yml_get()
 
   # consider not copying
   # -------------------
 
   # considerations for dev runs
   if (!output_run) {
-    if (!"copy-to-output" %in% names(yml_projr[["build-dev"]])) {
+    if (!"dev-output" %in% names(yml_projr[["build"]])) {
       return(invisible(FALSE))
     }
-    if (!yml_projr[["build-dev"]][["copy-to-output"]]) {
+    if (yml_projr[["build"]][["dev-output"]]) {
       return(invisible(FALSE))
     }
   }
 
   # exit if nothing is to be copied
-  if (all(!unlist(yml_projr[["build-output"]][["copy-to-output"]]))) {
+  if (all(!unlist(yml_projr[["build"]][["copy-to-output"]]))) {
     return(invisible(FALSE))
   }
 
@@ -319,8 +306,11 @@
   # package
   .projr_build_copy_pkg(output_run = output_run)
 
-  # items in projr directories
-  .projr_build_copy_dir(bump_component, output_run)
+  # save to outpu
+  .projr_build_copy_dir(bump_component, output_run, dest_type = "output")
+
+  # archive
+  .projr_build_copy_dir(bump_component, output_run, dest_type = "archive")
 
   invisible(TRUE)
 }
@@ -382,103 +372,158 @@
 # at this point, we don't need to check for
 # whether it's a dev run or not
 # as that's already been done.
-# we copy if it says we do in build-output$copy-to-output$package
+# we copy if it says we do in build$copy-to-output$package
 .projr_build_copy_pkg <- function(output_run) {
-  yml_projr <- .projr_yml_get()
+  yml_projr <- projr_yml_get()
   # exit early if need be
   # ------------------------
-  yml_projr_output <- yml_projr$`build-output`$`copy-to-output`
+  yml_projr_output <- yml_projr[["build"]]
   if (!"package" %in% names(yml_projr_output)) {
     return(invisible(FALSE))
   }
-  if (!yml_projr_output[["package"]]) {
-    return(invisible(FALSE))
+  pkg <- yml_projr_output[["package"]]
+  # pkg is logical
+  if (all(is.logical(pkg)) && length(pkg) == 1) {
+    if (!yml_projr_output[["package"]]) {
+      return(invisible(FALSE))
+    }
+    # build package
+    # ------------------------
+    dir_pkg <- projr_dir_get("output", output_safe = !output_run)
+    version_pkg <- .projr_desc_get()[, "Version"][[1]]
+    fn_pkg <- paste0(projr_name_get(), "_", version_pkg, ".tar.gz")
+    path_pkg <- file.path(dir_pkg, fn_pkg)
+    pkgbuild::build(
+      path = rprojroot::is_r_package$find_file(),
+      dest_path = path_pkg,
+      binary = FALSE,
+      quiet = TRUE
+    )
+    # pkg is character
+  } else if (all(is.character(pkg))) {
+    # check that it corresponds to a directory
+    if (!all(pkg %in% names(yml_projr[["directories"]]))) {
+      stop("Invalid value (non-existent projr director(ies))
+      for build$package key in projr settings")
+    }
+    # check for cache, dataraw or archive
+    for (x in pkg) {
+      x_match <- .projr_dir_label_strip(x)
+      if (grepl("^cache|^dataraw|^archive", x_match)) {
+        stop("Invalid value (cache, dataraw or archive directory)
+    for package in projr build settings")
+      }
+    }
+    # build package, then copy afterwards
+    dir_pkg <- projr_dir_get("cache")
+    version_pkg <- .projr_desc_get()[, "Version"][[1]]
+    fn_pkg <- paste0(projr_name_get(), "_", version_pkg, ".tar.gz")
+    if (file.exists(fn_pkg)) {
+      invisible(file.remove(fn_pkg))
+    }
+    path_pkg <- file.path(dir_pkg, fn_pkg)
+    pkgbuild::build(
+      path = rprojroot::is_r_package$find_file(),
+      dest_path = path_pkg,
+      binary = FALSE,
+      quiet = TRUE
+    )
+    # copy package to outputs
+    for (x in pkg) {
+      file.copy(
+        from = path_pkg,
+        to = projr_path_get(x, fn_pkg, output_safe = !output_run)
+      )
+    }
+    # archiving to be handled by individual outputs' settings
+  } else {
+    stop("Invalid value (incorrect type)
+    for build$package key in projr settings")
   }
 
-  # build package
-  # ------------------------
-  dir_pkg <- projr_dir_get("output", output_safe = !output_run)
-  version_pkg <- .projr_desc_get()[, "Version"][[1]]
-  fn_pkg <- paste0(projr_name_get(), "_", version_pkg, ".tar.gz")
-  path_pkg <- file.path(dir_pkg, fn_pkg)
-  pkgbuild::build(
-    path = rprojroot::is_r_package$find_file(),
-    dest_path = path_pkg,
-    binary = FALSE,
-    quiet = TRUE
-  )
   invisible(TRUE)
 }
 
-.projr_build_copy_dir <- function(bump_component,
-                                  output_run) {
+.projr_build_copy_dir <- function(output_run,
+                                  dest_type = "output") {
   dir_proj <- rprojroot::is_r_package$find_file()
   yml_projr <- projr_yml_get()
   yml_projr_dir <- yml_projr[["directories"]]
-  yml_projr_copy <- yml_projr[["build-output"]][["copy-to-output"]]
   # copy data_raw and cache across, if desired
-  data_raw_or_cache_ind <- grepl(
-    "^data\\-raw|^cache|^data_raw|^dataraw|^bookdown|^quarto|^docs", # nolint
-    tolower(names(yml_projr_copy))
+  match_str <- switch(dest_type,
+    "output" = "^cache|^dataraw|^docs",
+    "archive" = "^cache|^dataraw|^docs|^output"
   )
-  label_vec <- names(yml_projr_copy)[data_raw_or_cache_ind]
+  dir_copy_ind <- grepl(
+    match_str, # nolint
+    .projr_dir_label_strip(names(yml_projr_dir))
+  )
+  label_vec <- names(yml_projr_dir)[dir_copy_ind]
+  label_vec_output_n <- label_vec[
+    !grepl("^output", .projr_dir_label_strip(names(yml_projr_dir)))
+  ]
+  label_vec_output_n <- label_vec_output_n[!is.na(label_vec_output_n)]
+  label_vec_output <- label_vec[
+    grepl("^output", .projr_dir_label_strip(names(yml_projr_dir)))
+  ]
+  label_vec_output <- label_vec_output[!is.na(label_vec_output)]
+  label_vec <- c(label_vec_output_n, label_vec_output)
 
   for (i in seq_along(label_vec)) {
     label <- label_vec[i]
-    copy_item <- yml_projr_copy[[label]]
 
-    # consider not copying
-    # ---------------------
+    # get keys to copy to (skip early if none)
+    # ----------------------------------------
 
-    # if copying is always done or not done
-    if (is.logical(copy_item)) {
-      if (!copy_item) {
-        next
-      }
-    } else {
-      # if copying is dependent on version component bumped
-      version_min_check <- .projr_version_comp_min_check(
-        bump_component = bump_component,
-        version_min = as.character(copy_item)
-      )
-      if (!version_min_check) {
-        next
-      }
+    if (dest_type == "output") {
+      key_copy_vec <- .projr_dir_copy_dir_check_output(label, yml_projr_dir)
+    } else if (dest_type == "archive") {
+      key_copy_vec <- .projr_dir_copy_dir_check_archive(label, yml_projr_dir)
+    }
+    if (!all(nzchar(key_copy_vec))) {
+      next
     }
 
     # zip
     # ------------------------
 
     # paths
-    path_dir <- yml_projr_dir[[label]][["path"]]
+    # get path to copy from
+    path_dir <- projr_dir_get(label, output_safe = !output_run)
     if (!fs::is_absolute_path(path_dir)) {
       path_dir <- file.path(dir_proj, path_dir)
     }
-    path_zip <- projr_path_get(
-      "output", paste0(label, ".zip"),
-      output_safe = !output_run
-    )
+
+    dir_output_init <- key_copy_vec[1]
+    if (dest_type == "output") {
+      path_zip <- projr_path_get(
+        dir_output_init, paste0(label, ".zip"),
+        output_safe = !output_run
+      )
+    } else {
+      path_zip <- projr_path_get(
+        dir_output_init,
+        paste0("v", projr_version_get()),
+        paste0(label, ".zip"),
+        output_safe = !output_run
+      )
+    }
     if (!fs::is_absolute_path(path_zip)) {
       path_zip <- file.path(dir_proj, path_zip)
     }
 
-
     # exclude special folders
     # projr_output from cache folder(s)
     if (grepl("^cache", label)) {
-      dir_exc <- "projr_output"
+      key_vec_match_cache <- .projr_dir_label_strip(names(yml_projr_dir))
+      key_copy_vec_cache_ind <- which(grepl("^output", key_vec_match_cache))
+      key_copy_vec_cache <- names(yml_projr_dir)[key_copy_vec_cache_ind]
+      dir_exc <- paste0("projr-", key_copy_vec_cache)
     } else {
       dir_exc <- NULL
     }
-    if (grepl("^bookdown|^quarto|^docs", tolower(label))) {
-      dir_inc <- paste0(
-        projr_name_get(),
-        "V",
-        projr_version_get()
-      )
-    } else {
-      dir_inc <- NULL
-    }
+
+    dir_inc <- NULL
 
     # zip
     .projr_zip_dir(
@@ -487,61 +532,234 @@
       dir_exc = dir_exc,
       dir_inc = dir_inc
     )
+    # copy zip to any extra directories
+    key_output_extra <- key_copy_vec[-1]
+    for (j in seq_along(key_output_extra)) {
+      file.copy(
+        from = path_zip,
+        to = projr_path_get(
+          key_output_extra[j], paste0(label, ".zip"),
+          output_safe = !output_run
+        )
+      )
+    }
   }
   invisible(TRUE)
 }
 
-
-.projr_build_archive <- function(output_run, version_run_on_list) {
-  # exit early if a dev run always
-  if (!output_run) {
-    return(invisible(FALSE))
+.projr_dir_copy_dir_check_output <- function(label, yml_projr_dir) {
+  if (!"output" %in% names(yml_projr_dir[[label]])) {
+    return(character(1))
   }
-  dir_proj <- rprojroot::is_r_package$find_file()
+  if (is.logical(yml_projr_dir[[label]][["output"]])) {
+    if (!yml_projr_dir[[label]][["output"]]) {
+      return(character(1))
+    }
+  }
+  if (all(is.logical(yml_projr_dir[[label]][["output"]]))) {
+    key_vec_match <- .projr_dir_label_strip(names(yml_projr_dir))
+    key_copy_vec_ind <- which(grepl(
+      paste0("^", "output"), key_vec_match
+    ))
+    key_copy_vec <- names(yml_projr_dir)[key_copy_vec_ind]
+  } else {
+    # save to those specified
+    key_copy_vec <- yml_projr_dir[[label]][["output"]]
+  }
+  key_copy_vec
+}
 
-  # set up paths
-  dir_output <- projr_dir_get(label = "output", output_safe = FALSE)
-  dir_archive <- projr_dir_get(
-    label = "archive",
-    paste0("v", version_run_on_list$desc[["success"]])
+.projr_dir_copy_dir_check_archive <- function(label, yml_projr_dir) {
+  # useful calculations
+  # ===================
+
+  # all possible archive directories
+  # --------------------------------
+  archive_key_ind <- grepl(
+    "^archive",
+    .projr_dir_label_strip(names(yml_projr_dir))
   )
-  if (!fs::is_absolute_path(dir_output)) {
-    dir_output <- file.path(dir_proj, dir_output)
-  }
-  if (!fs::is_absolute_path(dir_archive)) {
-    dir_archive <- file.path(dir_proj, dir_archive)
-  }
+  archive_key_vec <- names(yml_projr_dir)[archive_key_ind]
 
-  # check if there is anything to copy
-  fn_vec <- list.files(
-    dir_output,
-    recursive = FALSE, all.files = TRUE, full.names = TRUE
+  # all possible output directories
+  # --------------------------------
+  output_key_ind <- grepl(
+    "^output",
+    .projr_dir_label_strip(names(yml_projr_dir))
   )
-  if (length(fn_vec) == 0) {
-    return(invisible(FALSE))
+  output_key_vec <- names(yml_projr_dir)[output_key_ind]
+
+  # which archives are saved to via which outputs
+  # ---------------------------------------------
+  output_to_archive_list <- lapply(output_key_vec, function(output_key) {
+    # if archive is not specified, then it's saved to all archives
+    if (!"archive" %in% names(yml_projr_dir[[output_key]])) {
+      return(archive_key_vec)
+    }
+    # if archive is specified:
+    # if it's logical:
+    if (is.logical(yml_projr_dir[[output_key]][["archive"]])) {
+      # if it's true, then return all archives
+      if (all(yml_projr_dir[[output_key]][["archive"]])) {
+        return(all(yml_projr_dir[[output_key]][["archive"]]))
+      }
+      # if it's FALSE, then return no archives
+      return(NULL)
+    }
+    # if it's character, then just return the archives specified
+    yml_projr_dir[[output_key]][["archive"]]
+  }) |>
+    setNames(output_key_vec)
+
+  # which archives can only be saved to directly
+  # --------------------------------------------
+  archive_vec_direct_only <- setdiff(
+    archive_key_vec,
+    unlist(output_to_archive_list)
+  )
+
+  # directory considered for copy is output
+  # =====================================
+
+  # easy case: output is the label type
+  # -------------------------
+
+  # just return whatever the output is
+  if (grepl("^output", .projr_dir_label_strip(label))) {
+    key_copy_vec <- output_to_archive_list[[label]]
+    if (is.null(key_copy_vec)) {
+      return(character(1))
+    } else {
+      return(key_copy_vec)
+    }
   }
 
-  # copy individual files across
-  fn_vec_fn <- fn_vec[fs::is_file(fn_vec)]
-  if (length(fn_vec_fn) > 0) {
-    file.copy(
-      from = fn_vec_fn,
-      to = file.path(dir_archive, basename(fn_vec_fn))
-    )
+  # directory considered for copy is not an output directory
+  # ========================================================
+
+  # - output is not specified
+  output_present <- "output" %in% names(yml_projr_dir[[label]])
+  output_val <- yml_projr_dir[[label]][["output"]]
+  output_logical <- all(is.logical(output_val))
+
+  archive_present <- "archive" %in% names(yml_projr_dir[[label]])
+  archive_val <- yml_projr_dir[[label]][["archive"]]
+  archive_logical <- all(is.logical(archive_val))
+
+  # easy case: archive not specified, so do nothing
+  # --------------------------------------------------
+  if (!archive_present) {
+    return(character(1))
   }
 
-  # zip and copy directories across
-  dir_vec <- list.dirs(dir_output, recursive = FALSE, full.names = TRUE)
-  for (i in seq_along(dir_vec)) {
-    path_dir <- dir_vec[i]
-    path_zip <- file.path(dir_archive, paste0(basename(path_dir), ".zip"))
-    .projr_zip_dir(
-      path_dir = path_dir,
-      path_zip = path_zip
-    )
-  }
+  # useful calculations
+  # -----------------
 
-  invisible(TRUE)
+
+  # hard case: archive logical
+  # ---------------------------
+  if (all(archive_logical)) {
+    # easy sub-case: skip if archive is just false
+    if (!all(archive_val)) {
+      return(character(1))
+    } else {
+      # hard sub-case: only save
+      # to those that are not archived via output.
+      # easy sub-sub-case 1: never saved via output
+      if (!output_present) {
+        # archive directly to all
+        archive_vec_copy <- archive_key_vec
+        # we will archive everywhere directly
+        # as this is not archived via output at all
+      } else if (output_logical) {
+        # easy sub-sub-case 2: never saved via output
+        if (!all(output_val)) {
+          # archive directly to all
+          archive_vec_copy <- archive_key_vec
+        } else {
+          # easy sub-sub-case 3:
+          # outputted everywhere and no direct-only archives
+          if (length(archive_vec_direct_only) == 0) {
+            return(character(1))
+          } else {
+            # easy sub-sub-case 4: outputted everwhere, so
+            # archive directly only to direct-only archives
+            archive_vec_copy <- archive_vec_direct_only
+          }
+        }
+        # output is now character.
+        # so not every output directory counts.
+      } else {
+        # hard sub-sub-case 1: only certain outputs are saved to,
+        # but we want all.
+
+        # so check which are saved to
+        archive_vec_via_output <- output_to_archive_list[
+          output_val
+        ] |>
+          unlist() |>
+          unique()
+
+        # archive to the rest
+        archive_vec_copy <- setdiff(
+          archive_key_vec, archive_vec_via_output
+        )
+        # nothing that is needed to be archived to is missed,
+        # so return early
+        if (length(archive_vec_copy) == 0) {
+          return(character(1))
+        }
+      }
+    }
+  } else {
+    # now we know that we want it to be archived only in some places,
+    # so let's just check if it's already saved there by output
+    # so we need to check if it's archived via output.
+
+    # easy sub-case 1: never saved via output
+    if (!output_present) {
+      archive_vec_copy <- yml_projr_dir[[label]][["archive"]]
+      # output is now logical
+    } else if (output_logical) {
+      # easy sub-case 1: never saved via output
+      if (!all(output_val)) {
+        # archive directly to all
+        archive_vec_copy <- yml_projr_dir[[label]][["archive"]]
+      } else {
+        # easy sub-case 2: outputted everwhere,
+        # so save only to direct-only places
+        if (length(archive_vec_direct_only) == 0) {
+          return(character(1))
+        } else {
+          # skip those that are archived via output
+          archive_vec_copy <- intersect(
+            archive_vec_direct_only,
+            yml_projr_dir[[label]][["archive"]]
+          )
+        }
+      }
+      # output is now character.
+      # so not every output directory counts.
+    } else {
+      # now we find out which archives are saved to via output,
+      # given that we don't do every output
+      archive_vec_via_output <- output_to_archive_list[
+        output_val
+      ] |>
+        unlist() |>
+        unique()
+      # archive to those projr directories
+      # that aren't actually copied to via these outputs
+      archive_vec_copy <- setdiff(
+        yml_projr_dir[[label]][["archive"]], archive_vec_via_output
+      )
+      # if all is handled via actually-used outputs, then skip
+      if (length(archive_vec_copy) == 0) {
+        return(character(1))
+      }
+    }
+  }
+  archive_vec_copy
 }
 
 .projr_zip_dir <- function(path_dir,
@@ -550,7 +768,7 @@
                            dir_inc = NULL,
                            fn_exc = NULL) {
   if (file.exists(path_zip)) {
-    file.remove(path_zip)
+    invisible(file.remove(path_zip))
   }
   if (!dir.exists(dirname(path_zip))) {
     dir.create(dirname(path_zip), recursive = TRUE)
@@ -595,24 +813,24 @@
 .projr_build_version_set_post <- function(version_run_on_list,
                                           success) {
   if (success) {
-    projr_version_set(version_run_on_list$bd[["success"]], "bookdown")
+    projr_version_set(version_run_on_list$bd[["success"]], "docs")
   } else {
     projr_version_set(version_run_on_list$desc[["failure"]], "DESCRIPTION")
-    projr_version_set(version_run_on_list$bd[["failure"]], "bookdown")
+    projr_version_set(version_run_on_list$bd[["failure"]], "docs")
   }
   invisible(TRUE)
 }
 
 # commit
 .projr_build_git_push <- function() {
-  yml_projr <- .projr_yml_get()
-  if (!"git" %in% names(yml_projr[["build-output"]])) {
+  yml_projr <- projr_yml_get()
+  if (!"git" %in% names(yml_projr[["build"]])) {
     return(invisible(FALSE))
   }
-  if (!"push" %in% names(yml_projr[["build-output"]][["git"]])) {
+  if (!"push" %in% names(yml_projr[["build"]][["git"]])) {
     return(invisible(FALSE))
   }
-  if (!yml_projr[["build-output"]][["git"]][["push"]]) {
+  if (!yml_projr[["build"]][["git"]][["push"]]) {
     return(invisible(FALSE))
   }
   gert::git_push()

@@ -49,7 +49,7 @@ test_that("projr_build_copy_output_direct works", {
     path = dir_test,
     code = {
       projr_init()
-      yml_projr_init <- .projr_yml_get()
+      yml_projr_init <- .projr_yml_get_root_full()
       yml_bd_init <- .projr_yml_bd_get()
       # run when there are no files in dir_output
       expect_true(.projr_build_copy_output_direct(output_run = TRUE))
@@ -98,7 +98,7 @@ test_that("projr_build_copy_output_direct works", {
 
       .projr_build_copy_output_direct(output_run = FALSE)
 
-      expect_false(.projr_build_output(output_run = FALSE))
+      expect_false(.projr_build_copy(output_run = FALSE))
     },
     quiet = TRUE,
     force = TRUE
@@ -125,23 +125,64 @@ test_that("projr_build_copy_pkg works", {
     path = dir_test,
     code = {
       projr_init()
-      yml_projr_init <- .projr_yml_get()
+      yml_projr_init <- .projr_yml_get_root_full()
 
       # don't build
       # ---------------------
-      expect_false(.projr_build_copy_pkg())
-      yml_projr <- yml_projr_init
-      yml_projr[["build-output"]][["copy-to-output"]] <- list()
-      .projr_yml_set(yml_projr)
-      expect_false(.projr_build_copy_pkg())
+      yml_projr_error <- yml_projr_init
+      yml_projr_error[["build"]][["package"]] <- FALSE
+      .projr_yml_set(yml_projr_error)
+      expect_false(.projr_build_copy_pkg(TRUE))
+      .projr_yml_set(yml_projr_init)
+
+      # errors
+      # ---------------------
+      # numeric value
+      yml_projr_error <- yml_projr_init
+      yml_projr_error[["build"]][["package"]] <- 1
+      .projr_yml_set(yml_projr_error)
+      expect_error(.projr_build_copy_pkg(TRUE))
+      .projr_yml_set(yml_projr_init)
+      # double-logical
+      yml_projr_error <- yml_projr_init
+      yml_projr_error[["build"]][["package"]] <- list(TRUE, TRUE)
+      .projr_yml_set(yml_projr_error)
+      expect_error(.projr_build_copy_pkg(TRUE))
+      .projr_yml_set(yml_projr_init)
+      # directory missing
+      yml_projr_error <- yml_projr_init
+      yml_projr_error[["build"]][["package"]] <- "abc"
+      .projr_yml_set(yml_projr_error)
+      expect_error(.projr_build_copy_pkg(TRUE))
+      .projr_yml_set(yml_projr_init)
+      # directory invalid (doesn't begin with output, basically)
+      yml_projr_error <- yml_projr_init
+      yml_projr_error[["build"]][["package"]] <- "data-raw"
+      .projr_yml_set(yml_projr_error)
+      expect_error(.projr_build_copy_pkg(TRUE))
       .projr_yml_set(yml_projr_init)
 
       # build
       # ----------------------
-      yml_projr[["build-output"]][["copy-to-output"]] <- list(package = TRUE)
-      .projr_yml_set(yml_projr)
+      # package: TRUE
+      yml_projr_run <- yml_projr_init
+      yml_projr_run[["build"]][["package"]] <- TRUE
+      .projr_yml_set(yml_projr_run)
       expect_true(.projr_build_copy_pkg(TRUE))
       expect_true(file.exists("_output/report_0.0.0-1.tar.gz"))
+      .projr_yml_set(yml_projr_init)
+      # package: character
+      yml_projr_run[["build"]][["package"]] <- c("outputPkg", "outputPkg2")
+      yml_projr_run[["directories"]][["outputPkg"]] <-
+        list(path = "_outputPkg")
+      yml_projr_run[["directories"]][["outputPkg2"]] <-
+        list(path = "_outputPkg2")
+      .projr_yml_set(yml_projr_run)
+      dir.create("_outputPkg")
+      file.create("_outputPkg/report_0.0.0-1.tar.gz")
+      expect_true(.projr_build_copy_pkg(TRUE))
+      expect_true(file.exists("_outputPkg/report_0.0.0-1.tar.gz"))
+      expect_true(file.exists("_outputPkg2/report_0.0.0-1.tar.gz"))
     },
     quiet = TRUE,
     force = TRUE
@@ -150,7 +191,7 @@ test_that("projr_build_copy_pkg works", {
   unlink(dir_test, recursive = TRUE)
 })
 
-test_that("projr_build_copy_dir works", {
+test_that("projr_build_copy_dir works when outputting", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   if (!dir.exists(dir_test)) dir.create(dir_test)
@@ -168,7 +209,7 @@ test_that("projr_build_copy_dir works", {
     path = dir_test,
     code = {
       projr_init()
-      yml_projr_init <- .projr_yml_get()
+      yml_projr_init <- .projr_yml_get_root_full()
       invisible({
         file.create(
           projr_path_get("data-raw", "a.txt", output_safe = TRUE)
@@ -199,39 +240,48 @@ test_that("projr_build_copy_dir works", {
       })
       invisible({
         file.create(
-          projr_path_get("bookdown", "a.txt", output_safe = TRUE)
+          projr_path_get("docs", "a.txt", output_safe = TRUE)
         )
         file.create(
-          projr_path_get("bookdown", "b.txt", output_safe = TRUE)
+          projr_path_get("docs", "b.txt", output_safe = TRUE)
         )
         file.create(
-          projr_path_get("bookdown", "dir_c", "c.txt", output_safe = TRUE)
+          projr_path_get("docs", "dir_c", "c.txt", output_safe = TRUE)
         )
         file.create(
-          projr_path_get("bookdown", "dir_d", "d.txt", output_safe = TRUE)
+          projr_path_get("docs", "dir_d", "d.txt", output_safe = TRUE)
         )
         file.create(
           projr_path_get(
-            "bookdown",
+            "docs",
             paste0(projr_name_get(), "V", projr_version_get()),
             "c.txt",
             output_safe = TRUE
           )
         )
         file.create(
-          projr_path_get("bookdown", "dir_d", "d.txt", output_safe = TRUE)
+          projr_path_get("docs", "dir_d", "d.txt", output_safe = TRUE)
         )
       })
 
       # check that nothing is copied across when FALSE
       # -------------------
 
+      unlink(projr_dir_get("output", output_safe = TRUE), recursive = TRUE)
+      unlink(projr_dir_get("output", output_safe = FALSE), recursive = TRUE)
+
       yml_projr <- yml_projr_init
-      yml_projr[["build-output"]][["copy-to-output"]] <- list(
-        `data-raw` = FALSE
+      yml_projr[["directories"]][["data-raw"]] <- list(
+        path = "_data_raw", output = FALSE
+      )
+      yml_projr[["directories"]][["docs"]] <- list(
+        path = "docs", output = FALSE
+      )
+      yml_projr[["directories"]][["cache"]] <- list(
+        path = "_tmp", output = FALSE
       )
       .projr_yml_set(yml_projr)
-      expect_true(.projr_build_copy_dir())
+      expect_true(.projr_build_copy_dir(output_run = TRUE))
       expect_false(file.exists(
         projr_path_get("output", "data-raw.zip", output_safe = TRUE)
       ))
@@ -239,7 +289,7 @@ test_that("projr_build_copy_dir works", {
         projr_path_get("output", "data-raw.zip", output_safe = FALSE)
       ))
       expect_false(file.exists(
-        projr_path_get("output", "bookdown.zip", output_safe = FALSE)
+        projr_path_get("output", "docs.zip", output_safe = FALSE)
       ))
       expect_false(file.exists(
         projr_path_get("output", "cache.zip", output_safe = FALSE)
@@ -248,10 +298,16 @@ test_that("projr_build_copy_dir works", {
 
       # check that they're copied across correctly when true
       # -------------------
-      yml_projr[["build-output"]][["copy-to-output"]] <- list(
-        `data-raw` = TRUE,
-        cache = TRUE,
-        bookdown = TRUE
+
+      yml_projr <- yml_projr_init
+      yml_projr[["directories"]][["data-raw"]] <- list(
+        path = "_data_raw", output = TRUE
+      )
+      yml_projr[["directories"]][["docs"]] <- list(
+        path = "docs", output = TRUE
+      )
+      yml_projr[["directories"]][["cache"]] <- list(
+        path = "_tmp", output = TRUE
       )
       .projr_yml_set(yml_projr)
       expect_true(.projr_build_copy_dir(output_run = TRUE))
@@ -259,7 +315,7 @@ test_that("projr_build_copy_dir works", {
         projr_path_get("output", "data-raw.zip", output_safe = FALSE)
       ))
       expect_true(file.exists(
-        projr_path_get("output", "bookdown.zip", output_safe = FALSE)
+        projr_path_get("output", "docs.zip", output_safe = FALSE)
       ))
       expect_true(file.exists(
         projr_path_get("output", "cache.zip", output_safe = FALSE)
@@ -268,7 +324,7 @@ test_that("projr_build_copy_dir works", {
         projr_path_get("output", "data-raw.zip", output_safe = TRUE)
       ))
       expect_false(file.exists(
-        projr_path_get("output", "bookdown.zip", output_safe = TRUE)
+        projr_path_get("output", "docs.zip", output_safe = TRUE)
       ))
       expect_false(file.exists(
         projr_path_get("output", "cache.zip", output_safe = TRUE)
@@ -280,7 +336,7 @@ test_that("projr_build_copy_dir works", {
         projr_path_get("output", "data-raw.zip", output_safe = TRUE)
       ))
       expect_true(file.exists(
-        projr_path_get("output", "bookdown.zip", output_safe = TRUE)
+        projr_path_get("output", "docs.zip", output_safe = TRUE)
       ))
       expect_true(file.exists(
         projr_path_get("output", "cache.zip", output_safe = TRUE)
@@ -289,7 +345,7 @@ test_that("projr_build_copy_dir works", {
         projr_path_get("output", "data-raw.zip", output_safe = FALSE)
       ))
       expect_false(file.exists(
-        projr_path_get("output", "bookdown.zip", output_safe = FALSE)
+        projr_path_get("output", "docs.zip", output_safe = FALSE)
       ))
       expect_false(file.exists(
         projr_path_get("output", "cache.zip", output_safe = FALSE)
@@ -300,38 +356,44 @@ test_that("projr_build_copy_dir works", {
           file.path(Sys.getenv("HOME"), "data-raw.zip")
         )
         file.copy(
-          projr_path_get("output", "bookdown.zip", output_safe = TRUE),
-          file.path(Sys.getenv("HOME"), "bookdown.zip")
+          projr_path_get("output", "docs.zip", output_safe = TRUE),
+          file.path(Sys.getenv("HOME"), "docs.zip")
         )
       }
 
-      # check that they're copied across correctly when version-dependent
+      # check that they're copied across correctly when
+      # to different folders
       # -------------------
+
       unlink(projr_dir_get("output", output_safe = TRUE), recursive = TRUE)
       unlink(projr_dir_get("output", output_safe = FALSE), recursive = TRUE)
-      yml_projr[["build-output"]][["copy-to-output"]] <- list(
-        `data-raw` = TRUE,
-        cache = "patch",
-        bookdown = "minor"
+      yml_projr[["directories"]] <- list(
+        `data-raw` = list("path" = "_data_raw", output = "output"),
+        cache = list("path" = "_tmp", output = c("output", "output2")),
+        docs = list("path" = "docs", output = FALSE),
+        output = list("path" = "_output"),
+        output2 = list("path" = "_output2"),
+        archive = list("path" = "_archive")
       )
       .projr_yml_set(yml_projr)
-      expect_true(
-        .projr_build_copy_dir(output_run = TRUE, bump_component = "patch")
-      )
+      expect_true(.projr_build_copy_dir(output_run = TRUE))
       expect_true(file.exists(
         projr_path_get("output", "data-raw.zip", output_safe = FALSE)
       ))
       expect_false(file.exists(
-        projr_path_get("output", "bookdown.zip", output_safe = FALSE)
+        projr_path_get("output", "docs.zip", output_safe = FALSE)
       ))
       expect_true(file.exists(
         projr_path_get("output", "cache.zip", output_safe = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output2", "cache.zip", output_safe = FALSE)
       ))
       expect_false(file.exists(
         projr_path_get("output", "data-raw.zip", output_safe = TRUE)
       ))
       expect_false(file.exists(
-        projr_path_get("output", "bookdown.zip", output_safe = TRUE)
+        projr_path_get("output", "docs.zip", output_safe = TRUE)
       ))
       expect_false(file.exists(
         projr_path_get("output", "cache.zip", output_safe = TRUE)
@@ -344,7 +406,7 @@ test_that("projr_build_copy_dir works", {
   unlink(dir_test, recursive = TRUE)
 })
 
-test_that("projr_build_archive works", {
+test_that("projr_build_copy_dir works when archiving", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   if (!dir.exists(dir_test)) dir.create(dir_test)
@@ -362,49 +424,267 @@ test_that("projr_build_archive works", {
     path = dir_test,
     code = {
       projr_init()
-      yml_projr_init <- .projr_yml_get()
-      # do nothing when not output
-      expect_false(.projr_build_archive(output_run = FALSE))
-      version_run_on_list <- .projr_version_run_onwards_get(
-        bump_component = "patch"
-      )
-      # do nothing when nothing saved
-      expect_false(.projr_build_archive(
-        output_run = FALSE,
-        version_run_on_list = version_run_on_list
-      ))
-
-      # save files to output
+      yml_projr_init <- .projr_yml_get_root_full()
       invisible({
         file.create(
-          projr_path_get("output", "a.txt", output_safe = FALSE)
+          projr_path_get("data-raw", "a.txt", output_safe = TRUE)
         )
         file.create(
-          projr_path_get("output", "b.txt", output_safe = FALSE)
+          projr_path_get("data-raw", "b.txt", output_safe = TRUE)
         )
         file.create(
-          projr_path_get("output", "dir_c", "c.txt", output_safe = FALSE)
+          projr_path_get("data-raw", "dir_c", "c.txt", output_safe = TRUE)
         )
         file.create(
-          projr_path_get("output", "dir_d", "d.txt", output_safe = FALSE)
+          projr_path_get("data-raw", "dir_d", "d.txt", output_safe = TRUE)
+        )
+      })
+      invisible({
+        file.create(
+          projr_path_get("cache", "a.txt", output_safe = TRUE)
+        )
+        file.create(
+          projr_path_get("cache", "b.txt", output_safe = TRUE)
+        )
+        file.create(
+          projr_path_get("cache", "dir_c", "c.txt", output_safe = TRUE)
+        )
+        file.create(
+          projr_path_get("cache", "dir_d", "d.txt", output_safe = TRUE)
+        )
+      })
+      invisible({
+        file.create(
+          projr_path_get("docs", "a.txt", output_safe = TRUE)
+        )
+        file.create(
+          projr_path_get("docs", "b.txt", output_safe = TRUE)
+        )
+        file.create(
+          projr_path_get("docs", "dir_c", "c.txt", output_safe = TRUE)
+        )
+        file.create(
+          projr_path_get("docs", "dir_d", "d.txt", output_safe = TRUE)
+        )
+        file.create(
+          projr_path_get(
+            "docs",
+            paste0(projr_name_get(), "V", projr_version_get()),
+            "c.txt",
+            output_safe = TRUE
+          )
+        )
+        file.create(
+          projr_path_get("docs", "dir_d", "d.txt", output_safe = TRUE)
+        )
+      })
+      invisible({
+        file.create(
+          projr_path_get("output", "x.txt", output_safe = TRUE)
+        )
+        file.create(
+          projr_path_get("output", "y.txt", output_safe = TRUE)
+        )
+        file.create(
+          projr_path_get("output", "dir_z", "v.txt", output_safe = TRUE)
+        )
+        file.create(
+          projr_path_get("output", "dir_q", "w.txt", output_safe = TRUE)
         )
       })
 
-      .projr_build_archive(
-        output_run = TRUE,
-        version_run_on_list = version_run_on_list
-      )
+      # check that nothing is copied across when FALSE
+      # -------------------
+      
+      unlink(projr_dir_get("output", output_safe = TRUE), recursive = TRUE)
+      unlink(projr_dir_get("output", output_safe = FALSE), recursive = TRUE)
+      unlink(projr_dir_get("archive"), recursive = TRUE)
 
-      dir_archive <- projr_dir_get(
-        label = "archive",
-        paste0("v", version_run_on_list$desc[["success"]])
+      yml_projr <- yml_projr_init
+      yml_projr[["directories"]][["data-raw"]] <- list(
+        path = "_data_raw", output = TRUE, archive = FALSE
       )
-      expect_true(file.exists(file.path(dir_archive, "a.txt")))
-      expect_true(file.exists(file.path(dir_archive, "b.txt")))
-      expect_true(file.exists(file.path(dir_archive, "dir_c.zip")))
-      expect_true(file.exists(file.path(dir_archive, "dir_d.zip")))
-      expect_false(dir.exists(file.path(dir_archive, "dir_c")))
-      expect_false(dir.exists(file.path(dir_archive, "dir_d")))
+      yml_projr[["directories"]][["docs"]] <- list(
+        path = "docs", output = TRUE, archive = FALSE
+      )
+      yml_projr[["directories"]][["cache"]] <- list(
+        path = "_tmp", output = TRUE, archive = FALSE
+      )
+      yml_projr[["directories"]][["output"]] <- list(
+        path = "_output", archive = FALSE
+      )
+      .projr_yml_set(yml_projr)
+      expect_true(.projr_build_copy_dir(
+        output_run = TRUE, dest_type = "output"
+      ))
+      expect_true(.projr_build_copy_dir(
+        output_run = TRUE, dest_type = "archive"
+      ))
+      version <- paste0("v", projr_version_get())
+      expect_true(file.exists(
+        projr_path_get("output", "data-raw.zip", output_safe = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "docs.zip", output_safe = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "cache.zip", output_safe = FALSE)
+      ))
+      expect_false(file.exists(
+        projr_path_get("archive", version, "data-raw.zip", output_safe = FALSE)
+      ))
+      expect_false(file.exists(
+        projr_path_get("archive", version, "docs.zip", output_safe = FALSE)
+      ))
+      expect_false(file.exists(
+        projr_path_get("archive", version, "cache.zip", output_safe = FALSE)
+      ))
+      expect_false(file.exists(
+        projr_path_get("archive", version, "output.zip", output_safe = FALSE)
+      ))
+      .projr_yml_set(yml_projr_init)
+
+      # check that only output is copied across correctly
+      # when everything is saved there
+      # -------------------
+
+      unlink(projr_dir_get("output", output_safe = TRUE), recursive = TRUE)
+      unlink(projr_dir_get("output", output_safe = FALSE), recursive = TRUE)
+      unlink(projr_dir_get("archive"), recursive = TRUE)
+
+      yml_projr <- yml_projr_init
+      yml_projr[["directories"]][["data-raw"]] <- list(
+        path = "_data_raw", output = TRUE, archive = TRUE
+      )
+      yml_projr[["directories"]][["docs"]] <- list(
+        path = "docs", output = TRUE, archive = TRUE
+      )
+      yml_projr[["directories"]][["cache"]] <- list(
+        path = "_tmp", output = TRUE, archive = TRUE
+      )
+      .projr_yml_set(yml_projr)
+      expect_true(.projr_build_copy_dir(output_run = TRUE))
+      expect_true(.projr_build_copy_dir(
+        output_run = TRUE, dest_type = "archive"
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "data-raw.zip", output_safe = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "docs.zip", output_safe = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "cache.zip", output_safe = FALSE)
+      ))
+      expect_false(file.exists(
+        projr_path_get("archive", version, "data-raw.zip", output_safe = TRUE)
+      ))
+      expect_false(file.exists(
+        projr_path_get("output", version, "docs.zip", output_safe = TRUE)
+      ))
+      expect_false(file.exists(
+        projr_path_get("output", version, "cache.zip", output_safe = TRUE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("archive", version, "output.zip", output_safe = TRUE)
+      ))
+      
+      
+      # check that we can archive directly when output is FALSE and archive = TRUE
+      # -------------------
+      unlink(projr_dir_get("output", output_safe = TRUE), recursive = TRUE)
+      unlink(projr_dir_get("output", output_safe = FALSE), recursive = TRUE)
+      unlink(projr_dir_get("archive"), recursive = TRUE)
+
+      yml_projr <- yml_projr_init
+      yml_projr[["directories"]][["data-raw"]] <- list(
+        path = "_data_raw", output = FALSE, archive = TRUE
+      )
+      yml_projr[["directories"]][["docs"]] <- list(
+        path = "docs", output = TRUE, archive = TRUE
+      )
+      yml_projr[["directories"]][["cache"]] <- list(
+        path = "_tmp", output = TRUE, archive = TRUE
+      )
+      .projr_yml_set(yml_projr)
+      expect_true(.projr_build_copy_dir(output_run = TRUE))
+      expect_true(.projr_build_copy_dir(
+        output_run = TRUE, dest_type = "archive"
+      ))
+      expect_false(file.exists(
+        projr_path_get("output", "data-raw.zip", output_safe = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "docs.zip", output_safe = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "cache.zip", output_safe = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("archive", version, "data-raw.zip")
+      ))
+      expect_false(file.exists(
+        projr_path_get("output", version, "docs.zip")
+      ))
+      expect_false(file.exists(
+        projr_path_get("output", version, "cache.zip")
+      ))
+      expect_true(file.exists(
+        projr_path_get("archive", version, "output.zip", output_safe = TRUE)
+      ))
+
+      # check that we can archive directly when output is character
+      # and archive is a different character
+      # -------------------
+      unlink(projr_dir_get("output", output_safe = TRUE), recursive = TRUE)
+      unlink(projr_dir_get("output", output_safe = FALSE), recursive = TRUE)
+      unlink(projr_dir_get("archive"), recursive = TRUE)
+
+      yml_projr <- yml_projr_init
+      yml_projr[["directories"]][["data-raw"]] <- list(
+        path = "_data_raw", output = "output2", archive = "archive"
+      )
+      yml_projr[["directories"]][["docs"]] <- list(
+        path = "docs", output = TRUE, archive = TRUE
+      )
+      yml_projr[["directories"]][["cache"]] <- list(
+        path = "_tmp", output = TRUE, archive = TRUE
+      )
+      yml_projr[["directories"]][["output2"]] <- list(
+        path = "_output2", archive = FALSE
+      )
+      .projr_yml_set(yml_projr)
+      expect_true(.projr_build_copy_dir(output_run = TRUE))
+      expect_true(.projr_build_copy_dir(
+        output_run = TRUE, dest_type = "archive"
+      ))
+      expect_false(file.exists(
+        projr_path_get("output", "data-raw.zip", output_safe = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output2", "data-raw.zip", output_safe = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "docs.zip", output_safe = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "cache.zip", output_safe = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("archive", version, "data-raw.zip")
+      ))
+      expect_false(file.exists(
+        projr_path_get("output", version, "docs.zip")
+      ))
+      expect_false(file.exists(
+        projr_path_get("output", version, "cache.zip")
+      ))
+      expect_true(file.exists(
+        projr_path_get("archive", version, "output.zip", output_safe = TRUE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("archive", version, "data-raw.zip", output_safe = TRUE)
+      ))
     },
     quiet = TRUE,
     force = TRUE

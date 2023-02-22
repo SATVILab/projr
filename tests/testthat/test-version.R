@@ -25,8 +25,14 @@ test_that("projr_version_format_get and _set", {
   usethis::with_project(
     path = dir_test,
     code = {
+      yml_projr_init <- .projr_yml_get_root_full()
       expect_identical(projr_version_format_get(), "major.minor.patch-dev")
-      yml_projr <- .projr_yml_get()
+      yml_projr <- yml_projr_init
+      yml_projr[["version-format"]] <- "major.minor-dev"
+      .projr_yml_set(yml_projr)
+      expect_identical(projr_version_format_get(), "major.minor-dev")
+      .projr_yml_set(yml_projr_init)
+      yml_projr <- .projr_yml_get_root_full()
       yml_projr[["version-format"]] <- "abc"
       .projr_yml_set(yml_projr)
       expect_error(projr_version_format_get())
@@ -130,7 +136,7 @@ test_that(".projr_version_format_list_get works", {
         .projr_version_format_list_get(),
         list("components" = cv[-c(2:3)], "sep" = svp[-c(1:2)])
       )
-      yml_projr <- .projr_yml_get()
+      yml_projr <- .projr_yml_get_root_full()
       yml_projr[["version_format"]] <- "abc"
       .projr_yml_set(yml_projr)
       # expect_error(.projr_version_format_list_get())
@@ -207,11 +213,11 @@ test_that("projr_version_get works", {
       expect_identical(.projr_version_current_vec_get(), c(rep(0L, 3), 1L))
       projr_version_set("7.9.2-1", "DESCRIPTION")
       expect_identical(projr_version_get(), "7.9.2-1")
-      projr_version_set("8.0.0-1", "bookdown")
+      projr_version_set("8.0.0-1", "docs")
       expect_identical(projr_version_get(), "8.0.0-1")
       projr_version_format_set("major.dev")
       projr_version_set("0.1", "DESCRIPTION")
-      projr_version_set("1.2", "bookdown")
+      projr_version_set("1.2", "docs")
       expect_identical(projr_version_get(), "1.2")
       expect_error(projr_version_set())
     },
@@ -295,7 +301,7 @@ test_that(".projr_version_run_onwards_get works", {
           )
         )
       )
-      projr_version_set("0.42.33", where = c("bookdown", "DESCRIPTION"))
+      projr_version_set("0.42.33", where = c("docs", "DESCRIPTION"))
       expect_identical(
         .projr_version_run_onwards_get(NULL),
         list(
@@ -307,7 +313,7 @@ test_that(".projr_version_run_onwards_get works", {
           )
         )
       )
-      projr_version_set("0.42.33", where = c("bookdown", "DESCRIPTION"))
+      projr_version_set("0.42.33", where = c("docs", "DESCRIPTION"))
       expect_identical(
         .projr_version_run_onwards_get("patch"),
         list(
@@ -355,7 +361,7 @@ test_that("projr_version_set works", {
     path = dir_test,
     code = {
       projr_version_format_set("major.dev")
-      projr_version_set("1.2", where = c("bookdown", "DESCRIPTION"))
+      projr_version_set("1.2", where = c("docs", "DESCRIPTION"))
       yml_bd <- .projr_yml_bd_get()
       desc <- .projr_desc_get()
       expect_identical(yml_bd$book_filename, "reportV1.2")
@@ -368,7 +374,7 @@ test_that("projr_version_set works", {
       expect_identical(yml_bd$book_filename, "reportV1.2")
       expect_identical(basename(yml_bd$output_dir), "reportV1.2")
       expect_identical(desc[1, "Version"][[1]], "1.3")
-      projr_version_set("1.4", where = "bookdown")
+      projr_version_set("1.4", where = "docs")
       yml_bd <- .projr_yml_bd_get()
       desc <- .projr_desc_get()
       expect_identical(yml_bd$book_filename, "reportV1.4")
@@ -380,32 +386,32 @@ test_that("projr_version_set works", {
       expect_identical(basename(yml_bd$output_dir), "reportV1.5")
       expect_identical(desc[1, "Version"][[1]], "1.3")
       invisible(projr_version_bump(
-        component = "major", where = c("bookdown", "DESCRIPTION")
+        component = "major", where = c("docs", "DESCRIPTION")
       ))
       yml_bd <- .projr_yml_bd_get()
       desc <- .projr_desc_get()
       expect_identical(basename(yml_bd$output_dir), "reportV2.1")
       expect_identical(desc[1, "Version"][[1]], "2.1")
-      projr_version_set("0.9291", where = c("bookdown", "DESCRIPTION"))
+      projr_version_set("0.9291", where = c("docs", "DESCRIPTION"))
       invisible(projr_version_bump(
-        component = "major", where = c("bookdown", "DESCRIPTION")
+        component = "major", where = c("docs", "DESCRIPTION")
       ))
       yml_bd <- .projr_yml_bd_get()
       desc <- .projr_desc_get()
       expect_identical(basename(yml_bd$output_dir), "reportV1.9000")
       expect_identical(desc[1, "Version"][[1]], "1.9000")
       projr_version_format_set("major.minor-dev")
-      projr_version_set("1.2-3", where = c("bookdown", "DESCRIPTION"))
+      projr_version_set("1.2-3", where = c("docs", "DESCRIPTION"))
       invisible(projr_version_bump(
-        component = "major", where = c("bookdown", "DESCRIPTION")
+        component = "major", where = c("docs", "DESCRIPTION")
       ))
       yml_bd <- .projr_yml_bd_get()
       desc <- .projr_desc_get()
       expect_identical(basename(yml_bd$output_dir), "reportV2.0-1")
       expect_identical(desc[1, "Version"][[1]], "2.0-1")
-      projr_version_set("1.2-3", where = c("bookdown", "DESCRIPTION"))
+      projr_version_set("1.2-3", where = c("docs", "DESCRIPTION"))
       invisible(projr_version_bump(
-        component = "major", where = c("bookdown", "DESCRIPTION"),
+        component = "major", where = c("docs", "DESCRIPTION"),
         onto_dev = FALSE
       ))
       yml_bd <- .projr_yml_bd_get()
@@ -470,5 +476,4 @@ test_that("checking min version works", {
       version_min = "major"
     )
   )
-  
 })

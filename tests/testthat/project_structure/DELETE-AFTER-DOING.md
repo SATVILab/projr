@@ -5,7 +5,7 @@
   - These paths are referred to with the following syntax:
     - `projr_dir_get("<directory_label>)`, e.g. `projr_dir_get("data_raw")` returns `inst/extdata` by default.
   - Such paths may be system-dependent.
-    - The first set, under `directories-default`, specifies the default directories. If you are happy with them, then you don't need to do anything further.
+    - The first set, under `directories`, specifies the default directories. If you are happy with them, then you don't need to do anything further.
     - However, paths are allowed to system, i.e they may be differ from your computer to another person's, or your local computer to a remote.
       - There are several scenarios in which this is convenient, for example:
         - The code is to be run in an high-performance computinge environment (HPC), which stores large data in a folder outside the user's home directory, e.g. `/scratch/$USER`.
@@ -13,7 +13,7 @@
         - Raw data are kept in an external hard drive whose prefix may vary by system.
   - To add your current system as having its own directory structure, run `projr_profile_add()`.
     - This will create the entry `directories-<working_directory>` where `<working_directory>` is the absolute path to the project root directory on your system.
-    - Entries for all the directories under `directories-default` are copied there.
+    - Entries for all the directories under `directories` are copied there.
     - You just fill in the blanks.
     - Where you are happy with the default, then just leave that blank and the default will automiatcally be used.
 - Edit `README.md`

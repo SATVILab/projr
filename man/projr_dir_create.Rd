@@ -9,9 +9,9 @@ projr_dir_create(label)
 \arguments{
 \item{label}{character.
 One of \code{"data_raw"}, \code{"cache"},\code{"output"},
-\code{"archive"} and \code{"bookdown"}.
+\code{"archive"} and \code{"docs"}.
 Class of directory to return.
-The \code{"bookdown"} option returns the path to
+The \code{"docs"} option returns the path to
 the output directory from \code{bookdown::render_book}
 (as specified in \code{"_bookdown.yml"}),
 whereas the others returns paths as specified in \code{"_projr.yml"}.}

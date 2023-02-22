@@ -75,8 +75,6 @@ projr_build_dev <- function(bump = FALSE, ...) {
 
   # whether it's an output run  or not
   output_run <- !(is.null(bump_component) || bump_component == "dev")
-  # read in settings
-  yml_projr <- projr_yml_get()
 
   # get version for DESCRIPTION and bookdown from run onwards
   # snapshot if need be
@@ -136,10 +134,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
   .projr_build_readme_rmd_render(output_run)
 
   # copy outputs to (final) output directory and archive
-  .projr_build_output(output_run, bump_component, version_run_on_list)
-
-  # archive whatever is in output
-  .projr_build_archive(output_run, version_run_on_list)
+  .projr_build_copy(output_run, bump_component, version_run_on_list)
 
   # clear old dev version from docs if not a dev run itself
   .projr_build_clear_dev(output_run)
