@@ -249,8 +249,6 @@ projr_profile_get <- function() {
 #' @param profile character.
 #' \code{projr} profile to delete.
 #'
-#' @param where "key" or "file"
-#'
 #' @return \code{invisible(TRUE)}.
 #'
 #' @export

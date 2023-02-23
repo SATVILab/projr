@@ -181,10 +181,9 @@ projr_yml_get_unchecked <- function() {
 #'
 #' @description
 #' Checks correctness of active `projr` settings.
-#' @param path_yml character.
-#' Path to YAML file.
-#' If \code{NULL} (the default), then
-#' checks the
+#' @param yml_projr list.
+#' Projr settings. If not supplied,
+#' then the results of `projr_yml_get_unchecked` is used.
 #'
 #' @return
 #' Returns `TRUE` if all checks pass.

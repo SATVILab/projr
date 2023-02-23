@@ -307,10 +307,10 @@
   .projr_build_copy_pkg(output_run = output_run)
 
   # save to outpu
-  .projr_build_copy_dir(bump_component, output_run, dest_type = "output")
+  .projr_build_copy_dir(output_run, dest_type = "output")
 
   # archive
-  .projr_build_copy_dir(bump_component, output_run, dest_type = "archive")
+  .projr_build_copy_dir(output_run, dest_type = "archive")
 
   invisible(TRUE)
 }
