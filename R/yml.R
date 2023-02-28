@@ -98,11 +98,12 @@ projr_yml_get_unchecked <- function() {
         }
       }
     }
+    x <- 1
     # carry on if no return has been made
     # because the highest-precedence element was not a list
     .projr_yml_merge(elem_default, elem_profile, elem_local)
   }) |>
-    setNames(nm_vec)
+    stats::setNames(nm_vec)
 }
 
 .projr_yml_get_root_full <- function() {
@@ -484,16 +485,16 @@ projr_yml_check <- function(yml_projr = NULL) {
     stop("`content` and `body` must be specified
     for GitHub releases in projr settings")
   }
-  nm_vec_permitted <- c("contents", "body") |> sort()
+  nm_vec_permitted <- c("content", "body") |> sort()
   nm_vec_actual <- names(elem) |> sort()
   if (!all(nm_vec_permitted == nm_vec_actual)) {
     stop(
       "GitHub releases specified in projr settings
-      require `contents` and `body` keys"
+      require `content` and `body` keys"
     )
   }
   directories <- c(directories, "code")
-  directories_extra <- setdiff(elem[["contents"]], directories)
+  directories_extra <- setdiff(elem[["content"]], directories)
   if (length(directories_extra) > 0) {
     stop(paste0(
       "In GitHub release with tag ", tag,

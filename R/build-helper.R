@@ -124,8 +124,7 @@
 }
 
 .projr_build_version_set_pre <- function(version_run_on_list) {
-  projr_version_set(version_run_on_list$desc[["run"]], "DESCRIPTION")
-  projr_version_set(version_run_on_list$bd[["run"]], "docs")
+  projr_version_set(version_run_on_list$desc[["run"]])
   invisible(TRUE)
 }
 
@@ -514,7 +513,7 @@
 
     # exclude special folders
     # projr_output from cache folder(s)
-    if (grepl("^cache", label)) {
+    if (grepl("^cache", .projr_dir_label_strip(label))) {
       key_vec_match_cache <- .projr_dir_label_strip(names(yml_projr_dir))
       key_copy_vec_cache_ind <- which(grepl("^output", key_vec_match_cache))
       key_copy_vec_cache <- names(yml_projr_dir)[key_copy_vec_cache_ind]
@@ -522,6 +521,7 @@
     } else {
       dir_exc <- NULL
     }
+    dir_exc <- c(dir_exc, "projr_gh_release")
 
     dir_inc <- NULL
 
@@ -609,7 +609,7 @@
     # if it's character, then just return the archives specified
     yml_projr_dir[[output_key]][["archive"]]
   }) |>
-    setNames(output_key_vec)
+    stats::setNames(output_key_vec)
 
   # which archives can only be saved to directly
   # --------------------------------------------
@@ -813,11 +813,11 @@
 .projr_build_version_set_post <- function(version_run_on_list,
                                           success) {
   if (success) {
-    projr_version_set(version_run_on_list$bd[["success"]], "docs")
-  } else {
-    projr_version_set(version_run_on_list$desc[["failure"]], "DESCRIPTION")
-    projr_version_set(version_run_on_list$bd[["failure"]], "docs")
+    return(invisible(FALSE))
   }
+
+  projr_version_set(version_run_on_list$desc[["failure"]])
+
   invisible(TRUE)
 }
 

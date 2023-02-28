@@ -7,10 +7,9 @@
 projr_yml_check(yml_projr = NULL)
 }
 \arguments{
-\item{path_yml}{character.
-Path to YAML file.
-If \code{NULL} (the default), then
-checks the}
+\item{yml_projr}{list.
+Projr settings. If not supplied,
+then the results of \code{projr_yml_get_unchecked} is used.}
 }
 \value{
 Returns \code{TRUE} if all checks pass.

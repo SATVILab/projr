@@ -15,14 +15,18 @@ directories:
 
 build:
   dev-output: true
+  package: false
   git:
     commit: true
     add-untracked: true
     push: false
   github-release:
     '@version':
-      contents: code
+      content: code
       body: "Latest source code"
+    input:
+      content: data-raw
+      body: "Project inputs"
     output:
-      contents: [output, docs]
+      content: [output, docs]
       body: "Project outputs"

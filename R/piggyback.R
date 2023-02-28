@@ -1,15 +1,10 @@
-.projr_pb_upload <- function(output_run, bump_component) {
-  return(invisible(TRUE))
-  yml_projr <- projr_yml_get()
-
+.projr_pb_upload <- function(output_run) {
   # consider early exit
   # ------------------
 
-  if (!.projr_pb_check_run(output_run, bump_component)) {
+  if (!.projr_pb_check_run(output_run)) {
     return(invisible(FALSE))
   }
-
-
 
   # uploads
   # ------------------
@@ -18,186 +13,110 @@
     renv::install("piggyback")
   }
 
-  # source code
-  .projr_pb_upload_code(bump_component = bump_component)
+  for (i in seq_along(projr_yml_get()[["build"]][["github-release"]])) {
+    gh_tbl_release <- suppressWarnings(suppressMessages(
+      piggyback::pb_releases()
+    ))
+    yml_projr_gh_ind <- projr_yml_get()[["build"]][["github-release"]][[i]]
+    tag <- names(projr_yml_get()[["build"]][["github-release"]])[i]
+    tag <- switch(tag,
+      "@version" = paste0("v", projr_version_get()),
+      tag
+    )
+    body <- yml_projr_gh_ind[["body"]]
+    if (!tag %in% gh_tbl_release[["release_name"]]) {
+      piggyback::pb_release_create(tag = tag, body = body)
+      # code not updated unless release is new
+    } else if ("code" %in% yml_projr_gh_ind[["content"]]) {
+      piggyback::pb_release_delete(tag = tag)
+      piggyback::pb_release_create(tag = tag, body = body)
+    }
+    Sys.sleep(3)
+    # if only uploading code, then already done when release is created
+    if (identical("code", yml_projr_gh_ind[["code"]])) {
+      next
+    }
+    # zip
+    # ------------------------
 
-  # doc
-  .projr_pb_upload_doc(bump_component = bump_component)
-
+    for (label in setdiff(yml_projr_gh_ind[["content"]], "code")) {
+      path_zip <- .projr_zip_dir_pb(
+        tag = tag, label = label, output_run = output_run
+      )
+      # upload
+      piggyback::pb_upload(file = path_zip, tag = tag)
+    }
+  }
   #
+  invisible(TRUE)
 }
 
-.projr_pb_check_run <- function(output_run, bump_component) {
+.projr_pb_check_run <- function(output_run) {
   yml_projr <- projr_yml_get()
   # either a dev run or else no github-release specified
   if ((!output_run) ||
     (!"github-release" %in% names(yml_projr[["build"]]))) {
     return(invisible(FALSE))
   }
-
-  # if no item wants to be uploaded given the version bumped
-  yml_projr_gh <- projr_yml_get()[["build"]][["github-release"]]
-  if (length(yml_projr_gh) == 0) {
-    return(invisible(FALSE))
-  }
-
-  upload_vec_check <- vapply(yml_projr_gh, function(x) {
-    if (!"cue" %in% names(x)) {
-      return(FALSE)
-    }
-    if (is.logical(x[["cue"]])) {
-      return(x[["cue"]])
-    }
-    if (is.null(names(x[["cue"]]))) {
-      if (x[["cue"]] == "never") {
-        return(FALSE)
-      } else if (x[["cue"]] == "always") {
-        return(TRUE)
-      }
-      .projr_version_comp_min_check(
-        bump_component = bump_component,
-        x[["cue"]]
-      )
-    }
-  }, logical(1))
-  if (!any(upload_vec_check)) {
-    return(invisible(FALSE))
-  }
-
   invisible(TRUE)
 }
 
-.projr_pb_upload_code <- function(bump_component) {
-  yml_projr_gh <- projr_yml_get()[["github-release"]]
-  if (!"source-code" %in% names(yml_projr_gh)) {
-    return(invisible(FALSE))
-  }
-
-  gh_tbl_release <- suppressWarnings(suppressMessages(
-    piggyback::pb_releases()
-  ))
-
-  # consider exiting
-  # ------------------
-
-  upload <- .projr_pb_upload_consider(
-    yml_projr_gh_item = yml_projr_gh[[
-      which(names(yml_projr_gh) == "source-code")
-    ]],
-    gh_tbl_release = gh_tbl_release,
-    bump_component = bump_component
+.projr_zip_dir_pb <- function(tag, label, output_run) {
+  # paths
+  # get path to copy from
+  path_dir <- .projr_pb_path_get_dir(
+    label = label, output_run = output_run
   )
-  if (!upload) {
-    return(invisible(FALSE))
-  }
+  # path to zip to
+  path_zip <- .projr_pb_path_get_zip(tag = tag, label = label)
 
-  # upload
-  # ------------------
+  # exclude special folders
+  # projr_output from cache folder(s)
+  dir_exc <- .projr_pb_path_get_dir_exc(label = label)
 
-  tag <- paste0("v", projr_version_get())
-  body <- "Project source code, inputs and/or outputs"
-
-  # remove if already uploaded, as source is always latest
-  if (tag %in% gh_tbl_release[["release_name"]]) {
-    piggyback::pb_release_delete(tag = tag)
-  }
-
-  # always create new source code update
-  # (and source code always first to be updated)
-  piggyback::pb_release_create(tag = tag, body = body)
-  invisible(TRUE)
-}
-
-.projr_pb_upload_consider <- function(yml_projr_gh_item,
-                                      gh_tbl_release,
-                                      bump_component) {
-  # exit immediately if not to release
-  .projr_version_comp_min_check(
-    bump_component = bump_component,
-    version_min =
-    )
-  if (!yml_projr_gh_item[["add"]]) {
-    return(invisible(FALSE))
-  }
-  version_upload_min <- yml_projr_gh_item[["version-component-min"]]
-  # upload if not wanted (at all or for this version component)
-  version_vec_possible <- c("major", "minor", "patch")
-  version_vec_upload <- switch(version_upload_min,
-    "any" = version_vec_possible,
-    version_vec_possible[
-      seq_len(which(version_vec_possible == version_upload_min))
-    ]
-  )
-  # exit immediately if not a high enough release level
-  if (!bump_component %in% version_vec_upload) {
-    return(invisible(FALSE))
-  }
-
-  invisible(TRUE)
-}
-
-.projr_pb_upload_doc <- function(bump_component) {
-  # get settings
-  yml_projr_gh <- projr_yml_get()[["build"]][["github-release"]]
-  yml_projr_gh_doc <- yml_projr_gh[["docs"]]
-
-  # consider not uploading
-  # ----------------------------
-  if (!yml_projr_gh_doc[["add"]]) {
-    return(invisible(FALSE))
-  }
-  if (!.projr_version_comp_min_check(
-    bump_component = bump_component,
-    version_min = yml_projr_gh_doc[["version-component-min"]]
-  )
-  ) {
-    return(invisible(FALSE))
-  }
+  dir_inc <- NULL
 
   # zip
-  # --------------------------
-  dir_doc <- projr_dir_get("docs")
-  path_zip <- file.path(dirname(dir_doc), "doc.zip")
+  .projr_zip_dir(
+    path_dir = path_dir,
+    path_zip = path_zip,
+    dir_exc = dir_exc,
+    dir_inc = dir_inc
+  )
+  path_zip
+}
+
+.projr_pb_path_get_dir <- function(label, output_run) {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  path_dir <- projr_dir_get(label, output_safe = !output_run)
+  if (!fs::is_absolute_path(path_dir)) {
+    path_dir <- file.path(dir_proj, path_dir)
+  }
+  path_dir
+}
+
+.projr_pb_path_get_zip <- function(tag, label) {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  path_zip <- projr_path_get(
+    "cache", "projr_gh_release", tag, paste0(label, ".zip")
+  )
+  if (!fs::is_absolute_path(path_zip)) {
+    path_zip <- file.path(dir_proj, path_zip)
+  }
   if (file.exists(path_zip)) {
     file.remove(path_zip)
   }
-  if (!dir.exists(dirname(path_zip))) {
-    dir.create(dirname(path_zip))
-  }
-  setwd(dir_doc)
-  path_zip <- paste0(basename(dir_doc), ".zip")
-  utils::zip(
-    path_zip,
-    files = list.files(
-      getwd(),
-      recursive = TRUE, full.names = FALSE, all.files = TRUE
-    ),
-    flags = "-r9Xq"
-  )
+  path_zip
+}
 
-  # upload
-  # --------------------------
-  setwd(dir_proj)
-  gh_tbl_release <- suppressWarnings(suppressMessages(
-    piggyback::pb_releases()
-  ))
-  tag <- switch(item_list[["name"]],
-    "@version" = paste0("v", version_current),
-    item_list[["name"]]
-  )
-  body <- switch(item_list[["name"]],
-    "@version" = paste0("Version-linked source code, project inputs and/or outputs"),
-    "Project source code, inputs and/or outputs"
-  )
-  if (!tag %in% gh_tbl_releases[["release_name"]]) {
-    piggyback::pb_release_create(tag = tag, body = body)
-    piggyback::pb_upload(
-      file = file.path(dir_doc, path_zip), overwrite = TRUE, tag = tag
-    )
-  } else {
-    piggyback::pb_upload(
-      file = file.path(dir_doc, path_zip), overwrite = TRUE, tag = tag
-    )
+.projr_pb_path_get_dir_exc <- function(label) {
+  if (!grepl("^cache", .projr_dir_label_strip(label))) {
+    return("projr_gh_release")
   }
-  invisible(TRUE)
+  yml_projr_dir <- projr_yml_get()[["directories"]]
+  key_vec_match_cache <- .projr_dir_label_strip(names(yml_projr_dir))
+  key_copy_vec_cache_ind <- which(grepl("^output", key_vec_match_cache))
+  key_copy_vec_cache <- names(yml_projr_dir)[key_copy_vec_cache_ind]
+  dir_exc <- paste0("projr-", key_copy_vec_cache)
+  c(dir_exc, "projr_gh_release")
 }

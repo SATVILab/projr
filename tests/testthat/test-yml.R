@@ -422,13 +422,13 @@ test_that("Check that .projr_yml_check_build_gh_release works", {
   expect_error(.projr_yml_check_gh_release_ind(tag, elem = list()))
   expect_error(.projr_yml_check_gh_release_ind(tag = "abc"))
   expect_error(.projr_yml_check_gh_release_ind(
-    tag = "abc", elem = list("contents" = 1)
+    tag = "abc", elem = list("content" = 1)
   ))
   expect_error(.projr_yml_check_gh_release_ind(
     tag = "abc", elem = list("body" = 1)
   ))
   expect_error(.projr_yml_check_gh_release_ind(
-    tag = "abc", elem = list("contents" = c("schmoogle"), "body" = "abc"),
+    tag = "abc", elem = list("content" = c("schmoogle"), "body" = "abc"),
     directories = "anti-schmoogle"
   ))
 })

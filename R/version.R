@@ -11,37 +11,15 @@
 #' Version to set.
 #' May be dev version (i.e. include the dev component) or not.
 #'
-#' @param where "docs" and/or "DESCRIPTION"/
-#' Where to set the version.
-#' If it includes `"docs"`, then the version is updated
-#' in the \code{book_filename} and \code{output_dir} fields
-#' of \"docs"{_bookdown.yml}.
-#' If it includes \"docs"{"DESCRIPTION"}
-#' Default is \code{c("docs")}.
 #' @export
-projr_version_set <- function(version,
-                              where = c("docs", "DESCRIPTION")) {
+projr_version_set <- function(version) {
   if (missing(version)) stop("version must be supplied")
   .projr_version_format_check(version)
   stopifnot(is.character(version))
   # check that version is in correct format
-  stopifnot(length(where) %in% 1:2)
-  stopifnot(length(setdiff(where, c("docs", "DESCRIPTION"))) == 0)
-  stopifnot(all(where %in% c("docs", "DESCRIPTION")))
-  if ("DESCRIPTION" %in% where) {
-    desc_file <- read.dcf("DESCRIPTION")
-    desc_file[, "Version"] <- version
-    write.dcf(desc_file, file = "DESCRIPTION")
-  }
-  if ("docs" %in% where) {
-    yml_bd <- .projr_yml_bd_get()
-    yml_projr <- projr_yml_get()
-    proj_nm <- projr_name_get()
-    fn_new <- paste0(proj_nm, "V", version)
-    yml_bd$book_filename <- fn_new
-    yml_bd$output_dir <- file.path(dirname(yml_bd$output_dir), fn_new)
-    .projr_yml_bd_set(yml_bd)
-  }
+  desc_file <- read.dcf("DESCRIPTION")
+  desc_file[, "Version"] <- version
+  write.dcf(desc_file, file = "DESCRIPTION")
 
   invisible(TRUE)
 }
@@ -147,84 +125,48 @@ projr_name_get <- function() {
   # is to choose whichever is greater of
   # the _bookdown.yml and the
   # DESCRIPTION versions
-  yml_bd <- .projr_yml_bd_get()
-  yml_projr <- projr_yml_get()
   desc <- .projr_desc_get()
-  proj_nm <- projr_name_get()
-  version_bd <- substr(
-    yml_bd$book_filename,
-    start = nchar(proj_nm) + 2,
-    stop = nchar(yml_bd$book_filename)
-  )
-  version_bd_vec <- strsplit(
-    version_bd,
-    split = "\\-|\\."
-  )[[1]]
-  version_bd_vec <- as.numeric(version_bd_vec)
   version_desc_vec <- strsplit(
     desc[1, "Version"][[1]],
     split = "\\-|\\."
   )[[1]]
-  version_desc_vec <- as.numeric(version_desc_vec)
-  version_orig_vec <- rep("", length(version_bd))
-  diff_ind_vec <- which(
-    version_bd_vec[seq_len(length(version_desc_vec))] != version_desc_vec
-  )
-  if (length(diff_ind_vec) == 0) {
-    use_bd_vec <- TRUE
-  } else {
-    diff_ind_min <- min(diff_ind_vec)
-    use_bd_vec <- version_bd_vec[diff_ind_min] > version_desc_vec[diff_ind_min]
+  version_format <- .projr_version_format_list_get()$components
+  if (length(version_format) == length(version_desc_vec)) {
+    return(version_desc_vec |> as.integer())
   }
-  if (use_bd_vec) {
-    version_orig_vec <- version_bd_vec
+  if ("dev" %in% version_format) {
+    version_desc_vec <- c(version_desc_vec, "1")
   } else {
-    if (length(version_desc_vec) < length(version_bd_vec)) {
-      if (version_bd_vec[length(version_bd_vec)] >= 9000) {
-        version_desc_vec <- c(version_desc_vec, 9000)
-      } else {
-        version_desc_vec <- c(version_desc_vec, 1)
-      }
-    }
-    version_orig_vec <- version_desc_vec
+    version_desc_vec <- c(
+      version_desc_vec, version_format[length(version_format)]
+    )
   }
+  if (!length(version_format) == length(version_desc_vec)) {
 
-  version_orig_vec |> as.integer()
+  }
+  version_desc_vec |> as.integer()
 }
 
 .projr_version_run_onwards_get <- function(bump_component) {
   version_orig_vec <- .projr_version_current_vec_get()
   version_format_list <- .projr_version_format_list_get()
-  if (length(version_orig_vec) < length(version_format_list$components)) {
-    dev_format <- version_format_list$components[[
-      length(version_format_list$components)
-    ]]
-    version_orig_vec <- switch(dev_format,
-      "dev" = ,
-      "1" = c(version_orig_vec, 1),
-      "9000" = c(version_orig_vec, 9000),
-      stop(
-        "development version format in _projr.yml$version_format not recognised" # nolint
-      )
-    )
-  }
 
   if (!is.null(bump_component)) {
     comp_to_update_ind <- which(
       version_format_list$components == bump_component
     )
-    version_bd_update_vec <- version_orig_vec
+    version_update_vec <- version_orig_vec
 
-    version_bd_update_vec[comp_to_update_ind] <- version_bd_update_vec[
+    version_update_vec[comp_to_update_ind] <- version_update_vec[
       comp_to_update_ind
     ] + 1
-    if (comp_to_update_ind < length(version_bd_update_vec)) {
-      version_bd_update_vec[
+    if (comp_to_update_ind < length(version_update_vec)) {
+      version_update_vec[
         seq(comp_to_update_ind + 1, length(version_orig_vec))
       ] <- 0
     }
     if (bump_component %in% c("major", "minor", "patch")) {
-      version_desc_failure <- version_bd_failure <- paste0(
+      version_desc_failure <- paste0(
         paste0(
           version_orig_vec[-length(version_orig_vec)],
           version_format_list$sep,
@@ -232,37 +174,26 @@ projr_name_get <- function() {
         ),
         version_orig_vec[length(version_orig_vec)]
       )
-      version_bd_run <- version_desc_run <- version_desc_success <- paste0(
+      version_desc_run <- version_desc_success <- paste0(
         paste0(
-          version_bd_update_vec[-length(version_bd_update_vec)],
+          version_update_vec[-length(version_update_vec)],
           collapse = version_format_list$sep[1]
         )
       )
-
-      if (version_orig_vec[length(version_orig_vec)] >= 9000) {
-        version_bd_dev_success <- 9000
-      } else {
-        version_bd_dev_success <- 1
-      }
-      version_bd_success <- paste0(
-        version_bd_run,
-        version_format_list$sep[length(version_format_list$sep)],
-        version_bd_dev_success
-      )
     } else {
       version_desc_run <- version_desc_failure <- version_desc_success <-
-        version_bd_run <- version_bd_failure <- version_bd_success <- paste0(
+        paste0(
           paste0(
-            version_bd_update_vec[-length(version_bd_update_vec)],
+            version_update_vec[-length(version_update_vec)],
             version_format_list$sep,
             collapse = ""
           ),
-          version_bd_update_vec[length(version_bd_update_vec)]
+          version_update_vec[length(version_update_vec)]
         )
     }
   } else {
     version_desc_run <- version_desc_failure <- version_desc_success <-
-      version_bd_run <- version_bd_failure <- version_bd_success <- paste0(
+      paste0(
         paste0(
           version_orig_vec[-length(version_orig_vec)],
           version_format_list$sep,
@@ -276,11 +207,6 @@ projr_name_get <- function() {
       "run" = version_desc_run,
       "failure" = version_desc_failure,
       "success" = version_desc_success
-    ),
-    "bd" = c(
-      "run" = version_bd_run,
-      "failure" = version_bd_failure,
-      "success" = version_bd_success
     )
   )
 }
@@ -319,58 +245,20 @@ projr_version_get <- function() {
 }
 
 
-#' @title Bump version
+#' @title Bump development version
 #'
-#' @description Increase a component of the version.
-#' By default, only increments the dev version
-#' in _bookdown.yml (and not in DESCRIPTION as well).
-#' This is because this function is intended primarily
-#' to increase only the dev version in anticipation of the next build.
-#' Non-dev versions should be bumped implicitly during runs of
-#' \code{projr_build_output}.
-#'
-#' @param component character.
-#' Component in version to bump.
-#' Default is \code{"dev"}.
-#' @inheritParams projr_version_set
-#' @param onto_dev logical.
-#' If \code{TRUE}, then the bumped version
-#' will always have be a development version, i.e.
-#' will end with the dev component specified.
-#' Default is \code{TRUE}.
+#' @description Increase development component of version.
 #'
 #' @export
 #'
 #' @return Invisibly returns the new version.
-projr_version_bump <- function(component = "dev",
-                               where = "docs",
-                               onto_dev = TRUE) {
+projr_version_dev_bump <- function() {
   version_current_vec <- .projr_version_current_vec_get()
   version_format_list <- .projr_version_format_list_get()
-  if (!component %in% version_format_list$components) {
-    stop(paste0(
-      "Component ", component, "
-      not a part of version format in _projr.yml"
-    ))
-  }
-  ind_to_bump <- which(version_format_list$components == component)
+  ind_to_bump <- length(version_format_list$components)
   version_current_vec[ind_to_bump] <- version_current_vec[ind_to_bump] + 1
-  if (ind_to_bump < length(version_format_list$components)) {
-    if (version_current_vec[length(version_current_vec)] >= 9000) {
-      version_dev_base <- 9000
-    } else {
-      version_dev_base <- 1
-    }
-    version_current_vec[
-      seq(ind_to_bump + 1, length(version_format_list$components))
-    ] <- 0
-    version_current_vec[length(version_current_vec)] <- version_dev_base
-  }
-  if (!onto_dev) {
-    version_current_vec <- version_current_vec[-length(version_current_vec)]
-  }
   version_new <- .projr_version_chr_get(version_current_vec)
-  projr_version_set(version = version_new, where = where)
+  projr_version_set(version = version_new)
   version_new
 }
 

@@ -9,8 +9,6 @@ projr_profile_delete(profile)
 \arguments{
 \item{profile}{character.
 \code{projr} profile to delete.}
-
-\item{where}{"key" or "file"}
 }
 \value{
 \code{invisible(TRUE)}.

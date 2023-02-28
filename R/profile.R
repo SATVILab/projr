@@ -105,7 +105,7 @@ projr_profile_create <- function(profile = NULL,
       append({
         yml_projr_add <- .projr_list_elem_as_null(yml_projr_root_default)
         yml_projr_add |>
-          setNames(paste0(names(yml_projr_add), "-", profile))
+          stats::setNames(paste0(names(yml_projr_add), "-", profile))
       })
     yaml::write_yaml(
       yml_final,
@@ -185,7 +185,7 @@ projr_profile_create_local <- function() {
     }
     .projr_list_elem_as_null(elem)
   }) |>
-    setNames(names(x))
+    stats::setNames(names(x))
 }
 
 .projr_profile_check <- function(x) {

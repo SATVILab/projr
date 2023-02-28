@@ -22,8 +22,11 @@ build:
     push: false
   github-release:
     '@version':
-      contents: code
+      content: code
       body: "Latest source code"
+    input:
+      content: [data-raw]
+      body: "Project inputs"
     output:
-      contents: [output, docs]
+      content: [output, docs]
       body: "Project outputs"

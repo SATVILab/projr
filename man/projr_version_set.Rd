@@ -4,20 +4,12 @@
 \alias{projr_version_set}
 \title{Set project version}
 \usage{
-projr_version_set(version, where = c("docs", "DESCRIPTION"))
+projr_version_set(version)
 }
 \arguments{
 \item{version}{character.
 Version to set.
 May be dev version (i.e. include the dev component) or not.}
-
-\item{where}{"docs" and/or "DESCRIPTION"/
-Where to set the version.
-If it includes \code{"docs"}, then the version is updated
-in the \code{book_filename} and \code{output_dir} fields
-of \"docs"{_bookdown.yml}.
-If it includes \"docs"{"DESCRIPTION"}
-Default is \code{c("docs")}.}
 }
 \description{
 Set project version manually.
