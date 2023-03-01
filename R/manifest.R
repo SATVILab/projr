@@ -48,7 +48,10 @@
 .projr_build_manifest_hash_post <- function() {
   yml_projr_dir <- projr_yml_get()[["directories"]]
   label_vec <- names(yml_projr_dir)[
-    grepl("^dataraw|^output|^docs", .projr_dir_label_strip(names(yml_projr_dir)))
+    grepl(
+      "^dataraw|^output|^docs",
+      .projr_dir_label_strip(names(yml_projr_dir))
+    )
   ]
   if (!"docs" %in% label_vec) {
     label_vec <- c(label_vec, "docs")
@@ -82,6 +85,13 @@
 .projr_manifest_hash_label <- function(label) {
   path_dir <- projr::projr_dir_get(label, output_safe = TRUE)
   fn_vec <- list.files(path_dir, full.names = TRUE, recursive = TRUE)
+  if (length(fn_vec) == 0) {
+    return(data.frame(
+      label = character(0),
+      fn = character(0),
+      hash = character(0)
+    ))
+  }
   fn_to_hash_vec <- vapply(fn_vec, function(fn) {
     digest::digest(fn, serialize = FALSE, file = TRUE)
   }, character(1))
