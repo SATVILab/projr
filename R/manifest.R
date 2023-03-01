@@ -36,7 +36,7 @@
   }
   if (length(cache_vec) == 0) {
     return(
-      tibble::tibble(
+      data.frame(
         label = character(0), fn = character(0), hash = character(0)
       )
     )
@@ -70,7 +70,7 @@
   }
   if (length(label_vec) == 0) {
     return(
-      tibble::tibble(
+      data.frame(
         label = character(0), fn = character(0), hash = character(0)
       )
     )
@@ -85,7 +85,7 @@
   fn_to_hash_vec <- vapply(fn_vec, function(fn) {
     digest::digest(fn, serialize = FALSE, file = TRUE)
   }, character(1))
-  tibble::tibble(
+  data.frame(
     label = label,
     fn = fs::path_rel(fn_vec, path_dir) |> as.character(),
     hash = fn_to_hash_vec

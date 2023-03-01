@@ -86,7 +86,7 @@ test_that("projr_manifest_hash_dir works", {
 
       # test saving manifest
       # -------------------------
-      manifest_tbl <- tibble::tibble(x = 1)
+      manifest_tbl <- data.frame(x = 1)
       .projr_build_manifest_save(manifest_tbl)
       expect_true(file.exists("_output/manifest.csv"))
       expect_true(file.exists("_archive/manifest.csv"))
