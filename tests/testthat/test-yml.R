@@ -172,6 +172,7 @@ test_that("projr_yml_check works", {
 test_that(".projr_yml_check_dir_elem works", {
   # each element is correctly specified
   # --------------------------
+  key_vec <- c("data-raw", "cache", "output", "archive")
   # invalid element
   yml_projr_dir_elem <- list(
     "smg" = "b",
@@ -180,7 +181,13 @@ test_that(".projr_yml_check_dir_elem works", {
     "output" = TRUE,
     "archive" = TRUE
   )
-  expect_error(.projr_yml_check_dir_elem(yml_projr_dir_elem))
+  expect_error(
+    .projr_yml_check_dir_elem(
+      yml_projr_dir_elem,
+      key_vec[1],
+      key_vec
+    )
+  )
   # doubled-up element
   yml_projr_dir_elem <- list(
     "path" = "abc",
@@ -189,20 +196,40 @@ test_that(".projr_yml_check_dir_elem works", {
     "output" = TRUE,
     "archive" = TRUE
   )
-  expect_error(.projr_yml_check_dir_elem(yml_projr_dir_elem))
+  expect_error(
+    .projr_yml_check_dir_elem(
+      yml_projr_dir_elem,
+      key_vec[1],
+      key_vec
+    )
+  )
   # path: missing
   yml_projr_dir_elem <- list(
     "ignore" = TRUE,
     "output" = TRUE,
     "archive" = TRUE
   )
-  expect_error(.projr_yml_check_dir_elem(yml_projr_dir_elem))
+  expect_error(
+    .projr_yml_check_dir_elem(
+      yml_projr_dir_elem,
+      key_vec[1],
+      key_vec
+    )
+  )
+  key_vec <- c("data-raw", "cache", "output", "archive")
   # path: to a restricted folder
   yml_projr_dir_elem <- list(
     "path" = "R",
     "ignore" = TRUE,
     "output" = TRUE,
     "archive" = TRUE
+  )
+  expect_error(
+    .projr_yml_check_dir_elem(
+      yml_projr_dir_elem,
+      key_vec[1],
+      key_vec
+    )
   )
   # path: to a restricted sub-folder
   yml_projr_dir_elem <- list(
@@ -211,7 +238,11 @@ test_that(".projr_yml_check_dir_elem works", {
     "output" = TRUE,
     "archive" = TRUE
   )
-  expect_error(.projr_yml_check_dir_elem(yml_projr_dir_elem))
+  expect_error(.projr_yml_check_dir_elem(
+    yml_projr_dir_elem,
+    key = "data-raw",
+    keys = key_vec
+  ))
   # path: length greater than 1
   yml_projr_dir_elem <- list(
     "path" = c("abc", "def"),
@@ -219,7 +250,11 @@ test_that(".projr_yml_check_dir_elem works", {
     "output" = TRUE,
     "archive" = TRUE
   )
-  expect_error(.projr_yml_check_dir_elem(yml_projr_dir_elem))
+  expect_error(.projr_yml_check_dir_elem(
+    yml_projr_dir_elem,
+    key = "data-raw",
+    keys = key_vec
+  ))
   # path: not character
   yml_projr_dir_elem <- list(
     "path" = 1,
@@ -227,7 +262,11 @@ test_that(".projr_yml_check_dir_elem works", {
     "output" = TRUE,
     "archive" = TRUE
   )
-  expect_error(.projr_yml_check_dir_elem(yml_projr_dir_elem))
+  expect_error(.projr_yml_check_dir_elem(
+    yml_projr_dir_elem,
+    key = "data-raw",
+    keys = key_vec
+  ))
   # ignore: not logical or character
   yml_projr_dir_elem <- list(
     "path" = "abc",
@@ -235,6 +274,11 @@ test_that(".projr_yml_check_dir_elem works", {
     "output" = TRUE,
     "archive" = TRUE
   )
+  expect_error(.projr_yml_check_dir_elem(
+    yml_projr_dir_elem,
+    key = "data-raw",
+    keys = key_vec
+  ))
   # ignore: not correct character type
   yml_projr_dir_elem <- list(
     "path" = "abc",
@@ -242,7 +286,11 @@ test_that(".projr_yml_check_dir_elem works", {
     "output" = TRUE,
     "archive" = TRUE
   )
-  expect_error(.projr_yml_check_dir_elem(yml_projr_dir_elem))
+  expect_error(.projr_yml_check_dir_elem(
+    yml_projr_dir_elem,
+    key = "data-raw",
+    keys = key_vec
+  ))
   # ignore: length greater than one
   yml_projr_dir_elem <- list(
     "path" = "abc",
@@ -250,7 +298,11 @@ test_that(".projr_yml_check_dir_elem works", {
     "output" = TRUE,
     "archive" = TRUE
   )
-  expect_error(.projr_yml_check_dir_elem(yml_projr_dir_elem))
+  expect_error(.projr_yml_check_dir_elem(
+    yml_projr_dir_elem,
+    key = "data-raw",
+    keys = key_vec
+  ))
   # output: either logical or character
   yml_projr_dir_elem <- list(
     "path" = "abc",
@@ -258,7 +310,11 @@ test_that(".projr_yml_check_dir_elem works", {
     "output" = 1,
     "archive" = TRUE
   )
-  expect_error(.projr_yml_check_dir_elem(yml_projr_dir_elem))
+  expect_error(.projr_yml_check_dir_elem(
+    yml_projr_dir_elem,
+    key = "data-raw",
+    keys = key_vec
+  ))
   # archive: either logical or character
   yml_projr_dir_elem <- list(
     "path" = "abc",
@@ -266,7 +322,11 @@ test_that(".projr_yml_check_dir_elem works", {
     "output" = TRUE,
     "archive" = 1
   )
-  expect_error(.projr_yml_check_dir_elem(yml_projr_dir_elem))
+  expect_error(.projr_yml_check_dir_elem(
+    yml_projr_dir_elem,
+    key = "data-raw",
+    keys = key_vec
+  ))
   # data-raw and cache: output and archive not found
   # output
   yml_projr_dir_elem <- list(
@@ -397,6 +457,35 @@ test_that(".projr_yml_check_dir_elem works", {
       key_vec
     )
   )
+  # manifest to data-raw or cache
+  yml_projr_dir_elem <- list(
+    "path" = "abc",
+    "ignore" = TRUE,
+    "output" = "output",
+    "archive" = "archive",
+    "manifest" = TRUE
+  )
+  expect_error(.projr_yml_check_dir_elem(
+    yml_projr_dir_elem,
+    key = "data-raw",
+    keys = key_vec
+  ))
+  expect_error(.projr_yml_check_dir_elem(
+    yml_projr_dir_elem,
+    key = "cache",
+    keys = key_vec
+  ))
+  # hash to archive
+  yml_projr_dir_elem <- list(
+    "path" = "abc",
+    "ignore" = TRUE,
+    "hash" = TRUE
+  )
+  expect_error(.projr_yml_check_dir_elem(
+    yml_projr_dir_elem,
+    key = "archive",
+    keys = key_vec
+  ))
 })
 
 test_that("Check that .projr_yml_check_build_git works", {

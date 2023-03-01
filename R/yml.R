@@ -279,8 +279,9 @@ projr_yml_check <- function(yml_projr = NULL) {
 }
 
 .projr_yml_check_dir_elem <- function(elem, key, keys) {
+  key_match <- .projr_dir_label_strip(key)
   nm_vec_actual <- names(elem)
-  nm_vec_valid <- c("path", "ignore", "output", "archive")
+  nm_vec_valid <- c("path", "ignore", "output", "archive", "manifest", "hash")
   nm_vec_extra <- setdiff(nm_vec_actual, nm_vec_valid)
   if (length(nm_vec_extra) > 0) {
     stop(paste0(
@@ -296,21 +297,27 @@ projr_yml_check <- function(yml_projr = NULL) {
   }
   # path
   # -------------------
-  if (!"path" %in% nm_vec_actual) {
-    stop(paste0(
-      "Path must be specified for directories in `projr` settings"
-    ))
+
+  if (!grepl("^docs", key_match)) {
+    if (!"path" %in% nm_vec_actual) {
+      stop(paste0(
+        "Path must be specified for directories in `projr` settings"
+      ))
+    }
   }
-  if (!all(is.character(elem[["path"]]))) {
-    stop(paste0(
-      "Path must be of type character for directories in `projr` settings"
-    ))
+  if ("path" %in% nm_vec_actual) {
+    if (!all(is.character(elem[["path"]]))) {
+      stop(paste0(
+        "Path must be of type character for directories in `projr` settings"
+      ))
+    }
+    if (!length(elem[["path"]]) == 1) {
+      stop(paste0(
+        "Path must be of length one for directories in `projr` settings"
+      ))
+    }
   }
-  if (!length(elem[["path"]]) == 1) {
-    stop(paste0(
-      "Path must be of length one for directories in `projr` settings"
-    ))
-  }
+  
   # ignore
   # ------------
   if ("ignore" %in% names(elem)) {
@@ -348,6 +355,7 @@ projr_yml_check <- function(yml_projr = NULL) {
       }
     }
   }
+
   # archive
   # ------------
   # must be logical or character
@@ -362,10 +370,34 @@ projr_yml_check <- function(yml_projr = NULL) {
     }
   }
 
+  # hash
+  # ------------
+  # must be logical or character
+  if ("hash" %in% names(elem)) {
+    if (!is.logical(elem[["hash"]])) {
+      stop(paste0(
+        "`hash` must be of type logical
+        for directories in `projr` settings"
+      ))
+    }
+  }
+
+  # manifest
+  # ------------
+  # must be logical or character
+  if ("manifest" %in% names(elem)) {
+    if (!is.logical(elem[["manifest"]])) {
+      stop(paste0(
+        "`manifest` must be of type logical
+        for directories in `projr` settings"
+      ))
+    }
+  }
+
   # key-specific
   # ==================
 
-  key_match <- .projr_dir_label_strip(key)
+  
 
   # path not invalid
   # -------------------
@@ -424,6 +456,28 @@ projr_yml_check <- function(yml_projr = NULL) {
       stop(paste0(
         "Archive location for projr directory ", key,
         " should not be specified"
+      ))
+    }
+  }
+
+  # sending manifest to cache or data-raw
+  # -----------------
+  if (grepl("^dataraw|^cache", key_match)) {
+    if ("manifest" %in% names(elem)) {
+      stop(paste0(
+        "Cannot save manifest to the following
+        `projr` directory (data-raw or cache): ",
+        key
+      ))
+    }
+  }
+
+  # hashing archive
+  # -----------------
+  if (grepl("^archive", key_match)) {
+    if ("hash" %in% names(elem)) {
+      stop(paste0(
+        "Cannot hash `projr` archive directories: ", key
       ))
     }
   }

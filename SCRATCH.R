@@ -4,7 +4,7 @@ devtools::load_all(path = file.path(Sys.getenv("pkg"), "projr"))
 debugonce(projr:::.projr_pb_upload)
 Sys.setenv("PROJR_TEST" = "TRUE")
 library(testthat)
-projr::projr_build_output() |>|>
+projr::projr_build_output()
 
 # old version getting stuff
 # =========================

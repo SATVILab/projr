@@ -108,6 +108,9 @@ projr_build_dev <- function(bump = FALSE, ...) {
   # (bookdown, output and data)
   .projr_build_output_clear(output_run)
 
+  # hash cache
+  manifest_tbl_pre <- .projr_build_manifest_hash_pre()
+
   # ========================
   # RUN
   # ========================
@@ -133,6 +136,10 @@ projr_build_dev <- function(bump = FALSE, ...) {
   .projr_build_roxygenise(output_run)
   .projr_build_readme_rmd_render(output_run)
 
+  # hash data-raw and outputs
+  manifest_tbl <- manifest_tbl_pre |>
+    rbind(.projr_build_manifest_hash_post())
+
   # copy outputs to (final) output directory and archive
   .projr_build_copy(output_run, bump_component, version_run_on_list)
 
@@ -147,6 +154,9 @@ projr_build_dev <- function(bump = FALSE, ...) {
     stage = "post",
     msg = msg
   )
+
+  # save manifest table
+  .projr_build_manifest_save(manifest_tbl)
 
   # upload via piggyback
   .projr_pb_upload(

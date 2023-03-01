@@ -10,7 +10,6 @@ directories:
   archive: 
     path: _archive
   docs:
-    path: docs
     output: true
 
 build:
@@ -25,7 +24,7 @@ build:
       content: code
       body: "Latest source code"
     input:
-      content: data-raw
+      content: [data-raw]
       body: "Project inputs"
     output:
       content: [output, docs]

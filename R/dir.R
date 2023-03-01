@@ -58,14 +58,7 @@ projr_dir_get <- function(label, ...,
   # use the appropriate specification doc
   # if "docs" is the label
   if (label == "docs") {
-    dir_proj <- rprojroot::is_r_package$find_file()
-
-    if (file.exists(file.path(dir_proj, "_bookdown.yml"))) {
-      path_final_root <- .projr_yml_bd_get()[["output_dir"]]
-    } else {
-      # quarto stuff
-    }
-    # exception for output when it's safe
+    path_final_root <- .projr_dir_get_docs()
   } else if (grepl("^output", .projr_dir_label_strip(label)) && output_safe) {
     cache_ind <- which(
       .projr_dir_label_strip(names(dir_active)) == "cache"
@@ -98,6 +91,20 @@ projr_dir_get <- function(label, ...,
     )
   }
   as.character(path_final)
+}
+
+.projr_dir_get_docs <- function() {
+  dir_proj <- rprojroot::is_r_package$find_file()
+
+  if (file.exists(file.path(dir_proj, "_bookdown.yml"))) {
+    path <- .projr_yml_bd_get()[["output_dir"]]
+    if (is.null(path)) {
+      path <- "_book"
+    }
+  } else {
+    # quarto stuff
+  }
+  path
 }
 
 #' @title Return path
@@ -191,18 +198,22 @@ projr_dir_create <- function(label) {
   if (!is.character(label)) stop("label must be of label character")
   yml_active_dir <- projr_yml_get()[["directories"]]
   yml_active_dir <- yml_active_dir[
-    vapply(names(yml_active_dir), function(x) any(label %in% x), logical(1))
+    vapply(names(yml_active_dir), function(x) any(x == label), logical(1))
   ]
-  if (length(yml_active_dir) == 0) {
+  if (length(yml_active_dir) == 0 && !label == "docs") {
     stop("label does not match any directory label")
   }
   # create
-  for (i in seq_along(yml_active_dir)) {
-    path <- yml_active_dir[[i]]$path
-    if (names(yml_active_dir)[i] == "archive") {
-      path <- file.path(
-        path, paste0("v", projr_version_get())
-      )
+  for (x in label) {
+    if (x == "docs") {
+      path <- .projr_dir_get_docs()
+    } else {
+      path <- yml_active_dir[[x]]$path
+      if (grepl("^archive", .projr_dir_label_strip(x))) {
+        path <- file.path(
+          path, paste0("v", projr_version_get())
+        )
+      }
     }
     if (!fs::is_absolute_path(path)) {
       path <- fs::path_rel(
@@ -226,19 +237,12 @@ projr_dir_create <- function(label) {
 
 .projr_dir_ignore <- function(label) {
   if (length(label) > 1) stop("label must be length 1")
-  if (!is.character(label)) stop("label must be o label character")
+  if (!is.character(label)) stop("label must be of type character")
   dir_proj <- rprojroot::is_r_package$find_file()
   yml_active_dir <- try(projr_yml_get()[["directories"]])
   if (label == "docs") {
-    yml_bd <- try(.projr_yml_bd_get())
-    if (identical(class(yml_bd), "try-error")) {
-      stop("_bookdown.yml not valid YAML")
-    }
-    dir_path <- yml_bd[["output_dir"]]
+    dir_path <- .projr_dir_get_docs()
   } else {
-    if (identical(class(yml_active_dir), "try-error")) {
-      stop("_projr.yml not valid YAML")
-    }
     match_ind <-
       which(vapply(names(yml_active_dir), function(x) label == x, logical(1)))
     dir_label <- names(yml_active_dir)[[match_ind]]

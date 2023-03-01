@@ -10,7 +10,6 @@ directories:
   archive: 
     path: _archive
   docs:
-    path: docs
     output: true
 
 build:
