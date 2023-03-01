@@ -12,7 +12,7 @@
     saveRDS(
       manifest, projr_path_get(x, "manifest.rds", output_safe = FALSE)
     )
-    write.csv(
+    utils::write.csv(
       manifest, projr_path_get(x, "manifest.csv", output_safe = FALSE)
     )
   }

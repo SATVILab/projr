@@ -172,8 +172,8 @@ projr_yml_get_unchecked <- function() {
   }
 
   yml_projr_init <- yaml::read_yaml(path_yml)
-  pos_dir <- which(names(yml_projr_init) == key_root_dir)
-  pos_build <- which(names(yml_projr_init) == key_root_build)
+  pos_dir <- which(names(yml_projr_init) == "directories")
+  pos_build <- which(names(yml_projr_init) == "build")
   pos_either <- c(pos_dir, pos_build)
   yml_projr_init[pos_either]
 }

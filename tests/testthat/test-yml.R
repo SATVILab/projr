@@ -160,6 +160,10 @@ test_that("projr_yml_check works", {
       unlink(file.path(dir_test, "_bookdown.yml"))
       expect_error(.projr_yml_get_root_full())
       expect_error(.projr_yml_bd_get())
+      browser()
+      yml_projr_local <- list("directories" = "bleh", "acd" = "WRONG")
+      yaml::write_yaml(yml_projr_local, file.path(dir_test, "_projr-local.yml"))
+      expect_identical(.projr_yml_get_local(), list("directories" = "bleh"))
     },
     quiet = TRUE,
     force = TRUE
