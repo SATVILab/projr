@@ -495,7 +495,7 @@ test_that("projr_build_copy_dir works when archiving", {
 
       # check that nothing is copied across when FALSE
       # -------------------
-      
+
       unlink(projr_dir_get("output", output_safe = TRUE), recursive = TRUE)
       unlink(projr_dir_get("output", output_safe = FALSE), recursive = TRUE)
       unlink(projr_dir_get("archive"), recursive = TRUE)
@@ -588,8 +588,8 @@ test_that("projr_build_copy_dir works when archiving", {
       expect_true(file.exists(
         projr_path_get("archive", version, "output.zip", output_safe = TRUE)
       ))
-      
-      
+
+
       # check that we can archive directly when output is FALSE and archive = TRUE
       # -------------------
       unlink(projr_dir_get("output", output_safe = TRUE), recursive = TRUE)
@@ -690,5 +690,407 @@ test_that("projr_build_copy_dir works when archiving", {
     force = TRUE
   )
   Sys.unsetenv("PROJR_TEST")
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that("projr_build_frontmatter_get works", {
+  dir_test <- file.path(tempdir(), paste0("test_projr"))
+
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  fn_vec <- list.files(testthat::test_path("./project_structure"))
+  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
+
+  for (x in fn_vec) {
+    file.copy(
+      file.path(testthat::test_path("./project_structure"), x),
+      file.path(dir_test, x),
+      overwrite = TRUE
+    )
+  }
+
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # no frontmatter
+      writeLines(c("# Introduction", "abc"), con = "test.qmd")
+      expect_identical(.projr_build_frontmatter_get("test.qmd"), list())
+      writeLines(
+        c(
+          "---",
+          "title: abc",
+          "---",
+          "# Introduction", "abc"
+        ),
+        con = "test.qmd"
+      )
+      expect_identical(
+        .projr_build_frontmatter_get("test.qmd"),
+        list(title = "abc")
+      )
+      writeLines(
+        c(
+          "---",
+          "title: abc",
+          "engine: knitr",
+          "format:",
+          "  pdf: default",
+          "  docx: default",
+          "---",
+          "# Introduction", "abc"
+        ),
+        con = "test.qmd"
+      )
+      expect_identical(
+        .projr_build_frontmatter_get("test.qmd"),
+        list(
+          title = "abc",
+          engine = "knitr",
+          format = list(
+            pdf = "default",
+            docx = "default"
+          )
+        )
+      )
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that(".projr_build_copy_docs_quarto_format_get works", {
+  dir_test <- file.path(tempdir(), paste0("test_projr"))
+
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  fn_vec <- list.files(testthat::test_path("./project_structure"))
+  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
+
+  for (x in fn_vec) {
+    file.copy(
+      file.path(testthat::test_path("./project_structure"), x),
+      file.path(dir_test, x),
+      overwrite = TRUE
+    )
+  }
+
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      expect_identical(
+        .projr_build_copy_docs_quarto_format_get(list()),
+        "html"
+      )
+      expect_identical(
+        .projr_build_copy_docs_quarto_format_get(list("title" = "abc")),
+        "html"
+      )
+      yml_frontmatter <- list(
+        title = "abc",
+        engine = "knitr",
+        format = list(
+          pdf = "default",
+          docx = "default"
+        )
+      )
+      expect_identical(
+        .projr_build_copy_docs_quarto_format_get(yml_frontmatter),
+        "pdf"
+      )
+      yml_frontmatter <- list(
+        title = "abc",
+        engine = "knitr",
+        format = "pdf"
+      )
+      expect_identical(
+        .projr_build_copy_docs_quarto_format_get(yml_frontmatter),
+        "pdf"
+      )
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that(".projr_build_copy_docs_quarto_fn_prefix/suffix/path_get works", {
+  dir_test <- file.path(tempdir(), paste0("test_projr"))
+
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # prefix
+      expect_identical(
+        .projr_build_copy_docs_quarto_fn_prefix_get(list(), "test.qmd"),
+        "test"
+      )
+      expect_identical(
+        .projr_build_copy_docs_quarto_fn_prefix_get(
+          list(title = "abc"), "test.qmd"
+        ),
+        "test"
+      )
+      expect_identical(
+        .projr_build_copy_docs_quarto_fn_prefix_get(
+          list(title = "abc", `output-file` = "def"),
+          "test.qmd"
+        ),
+        "def"
+      )
+      expect_identical(
+        .projr_build_copy_docs_quarto_fn_prefix_get(
+          list(title = "abc", `output-file` = "def"),
+          "test.qmd"
+        ),
+        "def"
+      )
+      # suffix
+      expect_identical(
+        .projr_build_copy_docs_quarto_fn_suffix_get("html"), "html"
+      )
+      expect_identical(
+        .projr_build_copy_docs_quarto_fn_suffix_get("revealjs"), "html"
+      )
+      expect_identical(
+        .projr_build_copy_docs_quarto_fn_suffix_get("beamer"), "pdf"
+      )
+      # paths
+      expect_identical(
+        .projr_build_copy_docs_quarto_path_get("html", "abc"),
+        c("abc_files", "abc.html")
+      )
+      expect_identical(
+        .projr_build_copy_docs_quarto_path_get("revealjs", "abc"),
+        c("abc_files", "abc.html")
+      )
+      expect_identical(
+        .projr_build_copy_docs_quarto_path_get("pdf", "def"),
+        "def.pdf"
+      )
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test, recursive = TRUE)
+})
+
+
+test_that(".projr_build_copy_docs_quarto_format_get works", {
+  dir_test <- file.path(tempdir(), paste0("test_projr"))
+
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  fn_vec <- list.files(testthat::test_path("./project_structure"))
+  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
+
+  for (x in fn_vec) {
+    file.copy(
+      file.path(testthat::test_path("./project_structure"), x),
+      file.path(dir_test, x),
+      overwrite = TRUE
+    )
+  }
+
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      writeLines(c("# Introduction", "abc"), con = "test.qmd")
+      invisible(file.create("test.html"))
+      dir.create("test_files")
+      invisible(file.create("test_files/abc.txt"))
+      dir_docs <- projr_dir_get("docs")
+      invisible(file.create(file.path(dir_docs, "test.html")))
+      .projr_build_copy_docs_quarto()
+      expect_true(file.exists(file.path(dir_docs, "test.html")))
+      expect_true(file.exists(file.path(dir_docs, "test_files/abc.txt")))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that(".projr_build_copy_docs_rmd_format_get works", {
+  dir_test <- file.path(tempdir(), paste0("test_projr"))
+
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  fn_vec <- list.files(testthat::test_path("./project_structure"))
+  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
+
+  for (x in fn_vec) {
+    file.copy(
+      file.path(testthat::test_path("./project_structure"), x),
+      file.path(dir_test, x),
+      overwrite = TRUE
+    )
+  }
+
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      expect_identical(
+        .projr_build_copy_docs_rmd_format_get(list()),
+        "html_document"
+      )
+      expect_identical(
+        .projr_build_copy_docs_rmd_format_get(list("title" = "abc")),
+        "html_document"
+      )
+      yml_frontmatter <- list(
+        title = "abc",
+        output = list(
+          pdf_document = "default",
+          word_document = "default"
+        )
+      )
+      expect_identical(
+        .projr_build_copy_docs_rmd_format_get(yml_frontmatter),
+        "pdf_document"
+      )
+      yml_frontmatter <- list(
+        title = "abc",
+        engine = "knitr",
+        output = "pdf_document"
+      )
+      expect_identical(
+        .projr_build_copy_docs_rmd_format_get(yml_frontmatter),
+        "pdf_document"
+      )
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that(".projr_build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
+  dir_test <- file.path(tempdir(), paste0("test_projr"))
+
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # prefix
+      expect_identical(
+        .projr_build_copy_docs_rmd_fn_prefix_get("test.Rmd"),
+        "test"
+      )
+      expect_identical(
+        .projr_build_copy_docs_rmd_fn_prefix_get(
+          "test.Rmd"
+        ),
+        "test"
+      )
+
+      # suffix
+      expect_identical(
+        .projr_build_copy_docs_rmd_fn_suffix_get("html"), "html"
+      )
+      expect_identical(
+        .projr_build_copy_docs_rmd_fn_suffix_get("html_document"), "html"
+      )
+      expect_identical(
+        .projr_build_copy_docs_rmd_fn_suffix_get("tufte::tufte_handout"), "pdf"
+      )
+
+      # paths
+      expect_identical(
+        .projr_build_copy_docs_rmd_path_get("html", "abc"),
+        "abc.html"
+      )
+      expect_identical(
+        .projr_build_copy_docs_rmd_path_get("pdf", "abc"),
+        "abc.pdf"
+      )
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test, recursive = TRUE)
+})
+
+
+test_that(".projr_build_copy_docs_rmd_format_get works", {
+  dir_test <- file.path(tempdir(), paste0("test_projr"))
+
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  fn_vec <- list.files(testthat::test_path("./project_structure"))
+  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
+
+  for (x in fn_vec) {
+    file.copy(
+      file.path(testthat::test_path("./project_structure"), x),
+      file.path(dir_test, x),
+      overwrite = TRUE
+    )
+  }
+
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      writeLines(c("# Introduction", "abc"), con = "test.Rmd")
+      invisible(file.create("test.html"))
+      dir.create("test_files")
+      invisible(file.create("test_files/abc.txt"))
+      dir_docs <- projr_dir_get("docs")
+      invisible(file.create(file.path(dir_docs, "test.html")))
+      .projr_build_copy_docs_rmd()
+      expect_true(file.exists(file.path(dir_docs, "test.html")))
+      expect_false(file.exists(file.path(dir_docs, "test_files/abc.txt")))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
   unlink(dir_test, recursive = TRUE)
 })

@@ -168,7 +168,6 @@ test_that("projr_path_get works", {
   unlink(dir_test, recursive = TRUE)
 })
 
-
 test_that("projr_dir_create works", {
   dir_test <- file.path(tempdir(), paste0("report"))
 
@@ -264,6 +263,22 @@ test_that("projr_dir_ignore works", {
       expect_identical(length(which(
         buildignore == "^docs/reportV0\\.0\\.0-1"
       )), 1L)
+      .projr_dir_ignore("data-raw")
+      # test that nothing is done when directory is equal to working directory
+      .projr_gitignore_set(gitignore_orig, append = FALSE)
+      yml_bd_init <- .projr_yml_bd_get()
+      yml_bd <- yml_bd_init
+      yml_bd[["output_dir"]] <- "."
+      .projr_yml_bd_set(yml_bd)
+      .projr_dir_ignore("docs")
+      gitignore <- .projr_gitignore_get()
+      expect_identical(length(which(
+        gitignore == "."
+      )), 0L)
+      buildignore <- .projr_buildignore_get()
+      expect_identical(length(which(
+        buildignore == "^\\."
+      )), 0L)
       .projr_dir_ignore("data-raw")
       gitignore <- .projr_gitignore_get()
       expect_identical(length(which(gitignore == "_data_raw/**/*")), 1L)

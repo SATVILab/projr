@@ -115,15 +115,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
   # RUN
   # ========================
 
-  bd_status <- try(bookdown::render_book(...))
-  if (identical(class(bd_status), "try-error")) {
-    .projr_build_version_set_post(
-      version_run_on_list = version_run_on_list,
-      success = FALSE
-    )
-    # TODO: #156 delet
-    stop(bd_status)
-  }
+  .projr_build_engine(version_run_on_list, ...)
 
   # ========================
   # HANDLE OUTPUTS
@@ -187,5 +179,36 @@ projr_build_dev <- function(bump = FALSE, ...) {
   # push to GitHub
   .projr_build_git_push()
 
+  invisible(TRUE)
+}
+
+.projr_build_engine <- function(version_run_on_list, ...) {
+  build_status <- switch(.projr_engine_get(),
+    "bookdown" = try(bookdown::render_book(...)),
+    "quarto_project" = try(quarto::quart_render(...)),
+    "quarto_document" = {
+      try(
+        for (x in list.files(pattern = "\\.qmd$")) {
+          quarto::quart_render(x, ...)
+        }
+      )
+    },
+    "rmd" = {
+      try(
+        for (x in list.files(pattern = "\\.Rmd$|\\.rmd$")) {
+          rmarkdown::render(x, ...)
+        }
+      )
+    }
+  )
+
+  if (identical(class(build_status), "try-error")) {
+    .projr_build_version_set_post(
+      version_run_on_list = version_run_on_list,
+      success = FALSE
+    )
+    # TODO: #156 delet
+    stop(build_status)
+  }
   invisible(TRUE)
 }

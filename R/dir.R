@@ -94,17 +94,72 @@ projr_dir_get <- function(label, ...,
 }
 
 .projr_dir_get_docs <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
+  switch(.projr_engine_get(),
+    "quarto_project" = .projr_dir_get_docs_quarto_project(),
+    "quarto_document" = .projr_dir_get_docs_md(),
+    "bookdown" = .projr_dir_get_docs_bookdown(),
+    "rmd" = .projr_dir_get_docs_md()
+  )
+}
 
-  if (file.exists(file.path(dir_proj, "_bookdown.yml"))) {
-    path <- .projr_yml_bd_get()[["output_dir"]]
-    if (is.null(path)) {
-      path <- "_book"
-    }
-  } else {
-    # quarto stuff
+
+.projr_dir_get_docs_md <- function() {
+  yml_projr <- projr_yml_get()
+  # use `_projr.yml` if specified
+  path <- yml_projr[["directories"]][["docs"]][["path"]]
+  if (!is.null(path)) {
+    return(path)
   }
-  path
+  # if not specified, add to `_projr.yml`
+  yml_projr[["directories"]][["docs"]][["path"]] <- "docs"
+  if (!"output" %in% names(yml_projr[["directories"]][["docs"]])) {
+    yml_projr[["directories"]][["docs"]][["output"]] <- TRUE
+  }
+  .projr_yml_set(yml_projr)
+  "docs"
+}
+
+.projr_dir_get_docs_quarto_project <- function() {
+  yml_projr <- projr_yml_get()
+  yml_quarto <- .projr_yml_quarto_get()
+
+  # override with `docs/path` if it existsd
+  path <- yml_projr[["directories"]][["docs"]][["path"]]
+  if (!is.null(path)) {
+    yml_quarto[["project"]][["output-dir"]] <- path
+    .projr_yml_quarto_set(yml_quarto)
+    return(path)
+  }
+  # use `_quarto.yml` if specified
+  path <- yml_quarto[["output-dir"]]
+  if (!is.null(path)) {
+    return(path)
+  }
+  # set equal to defaults if nothing specified
+  switch(yml_quarto[["project"]][["type"]],
+    "book" = "_book",
+    "site" = "_site",
+    stop("Quarto project type not recognised.")
+  )
+}
+
+.projr_dir_get_docs_bookdown <- function() {
+  yml_projr <- projr_yml_get()
+  yml_bd <- .projr_yml_bd_get()
+  # use what's in `_projr.yml` if specified
+  path <- yml_projr[["directories"]][["docs"]][["path"]]
+  if (!is.null(path)) {
+    yml_bd[["project"]][["output_dir"]] <- path
+    .projr_yml_bd_set(yml_bd)
+    return(path)
+  }
+  # use what's in `_bookdown.yml` if specified
+  path <- yml_bd[["output_dir"]]
+  if (!is.null(path)) {
+    return(path)
+  }
+  # use default if nothing pre-specified
+  "_book"
 }
 
 #' @title Return path
@@ -255,6 +310,11 @@ projr_dir_create <- function(label) {
     }
     dir_path <- yml_active_dir[["path"]]
   }
+
+  if (identical(dir_path, ".")) {
+    return(invisible(TRUE))
+  }
+
   within_wd <- fs::path_has_parent(dir_path, dir_proj)
   if (!within_wd) {
     return(invisible(TRUE))

@@ -317,7 +317,7 @@ projr_yml_check <- function(yml_projr = NULL) {
       ))
     }
   }
-  
+
   # ignore
   # ------------
   if ("ignore" %in% names(elem)) {
@@ -397,7 +397,7 @@ projr_yml_check <- function(yml_projr = NULL) {
   # key-specific
   # ==================
 
-  
+
 
   # path not invalid
   # -------------------
@@ -571,10 +571,16 @@ projr_yml_check <- function(yml_projr = NULL) {
   dir_proj <- rprojroot::is_r_package$find_file()
   path_yml <- file.path(dir_proj, "_bookdown.yml")
   if (!file.exists(path_yml)) {
-    stop(paste0(
-      "_bookdown.yml",
-      path_yml
-    ))
+    return(list())
+  }
+  yaml::read_yaml(path_yml)
+}
+
+.projr_yml_quarto_get <- function() {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  path_yml <- file.path(dir_proj, "_quarto.yml")
+  if (!file.exists(path_yml)) {
+    return(list())
   }
   yaml::read_yaml(path_yml)
 }
@@ -582,6 +588,13 @@ projr_yml_check <- function(yml_projr = NULL) {
 .projr_yml_bd_set <- function(list_save) {
   dir_proj <- rprojroot::is_r_package$find_file()
   path_yml <- file.path(dir_proj, "_bookdown.yml")
+  yaml::write_yaml(list_save, path_yml)
+  invisible(TRUE)
+}
+
+.projr_yml_quarto_set <- function(list_save) {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  path_yml <- file.path(dir_proj, "_quarto.yml")
   yaml::write_yaml(list_save, path_yml)
   invisible(TRUE)
 }

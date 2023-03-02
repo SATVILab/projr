@@ -115,92 +115,69 @@ projr_init <- function(dir_proj = getwd(),
   # ----------------------
 
   # bookdown.yml
-  bd <- yaml::read_yaml(system.file(
-    "project_structure", "_bookdown.yml",
-    package = "projr"
-  ))
-  version_init <- "V0.0.0-1"
-  bd$book_filename <- paste0(nm_pkg, version_init)
-  bd$output_dir <- paste0("docs/", nm_pkg, version_init)
-  yaml::write_yaml(bd, file.path(dir_proj, "_bookdown.yml"))
-
-  # output.yml
-  o_yml <- yaml::read_yaml(system.file(
-    "project_structure", "_output.yml",
-    package = "projr"
-  ))
-
-  o_yml$`bookdown::gitbook`$config$toc$after <- paste0(
-    '<li><a href="https://github.com/',
-    nm_gh, "/",
-    nm_pkg,
-    '" target="blank">',
-    nm_gh, "/",
-    nm_pkg,
-    "</a></li>\n"
-  )
-
-  o_yml$`bookdown::gitbook`$config$toc$before <-
-    paste0(
-      '<li><a href=\"./\">',
-      nm_title,
-      "</a></li>\n"
+  .projr_init_engine <- function(nm_engine,
+                                 nm_sub,
+                                 nm_gh,
+                                 nm_pkg,
+                                 nm_title,
+                                 nm_first,
+                                 nm_last) {
+    switch(nm_engine,
+      "bookdown" = .projr_init_engine_bookdown(
+        nm_gh = nm_gh, nm_pkg = nm_pkg, nm_title = nm_title,
+        nm_desc = nm_desc, nm_first = nm_first, nm_last = nm_last
+      ),
+      "quarto_project" =
+        .projr_init_engine_quarto_project(nm_sub, nm_gh, nm_pkg, nm_title),
     )
+  }
 
-  yaml::write_yaml(o_yml, file.path(dir_proj, "_output.yml"))
+  # ===========================
+  # START HERE
+  # ===========================
+
+
+  .projr_init_engine_quarto_project <- function(nm_sub) {
+    q_proj <- yaml::read_yaml(system.file(
+      "project_structure", "_quarto.yml",
+      package = "projr"
+    ))
+  }
 
   # DESCRIPTION
-  descrptn <- desc::description$new("!new")
-  suppressWarnings(descrptn$set("Package", nm_pkg))
-  nm_title <- gsub("\\.$", "", nm_title)
-  suppressWarnings(descrptn$set("Title", nm_title))
-  descrptn$set("Version", "0.0.0-1")
-  suppressWarnings(descrptn$set(
-    "Maintainer",
-    paste0(nm_first, " ", nm_last, " <", nm_email, ">")
-  ))
-  descrptn$del("Authors@R")
-  suppressWarnings(descrptn$add_author(
-    nm_first,
-    nm_last,
-    role = c("aut", "cre"),
-    email = nm_email
-  ))
+  .projr_init_description <- function() {
+    descrptn <- desc::description$new("!new")
+    suppressWarnings(descrptn$set("Package", nm_pkg))
+    nm_title <- gsub("\\.$", "", nm_title)
+    suppressWarnings(descrptn$set("Title", nm_title))
+    descrptn$set("Version", "0.0.0-1")
+    suppressWarnings(descrptn$set(
+      "Maintainer",
+      paste0(nm_first, " ", nm_last, " <", nm_email, ">")
+    ))
+    descrptn$del("Authors@R")
+    suppressWarnings(descrptn$add_author(
+      nm_first,
+      nm_last,
+      role = c("aut", "cre"),
+      email = nm_email
+    ))
 
-  suppressWarnings(descrptn$set(
-    "BugReports",
-    paste0("https://github.com/", nm_gh, "/", nm_pkg, "/issues")
-  ))
-  suppressWarnings(descrptn$set(
-    "URL",
-    paste0("https://github.com/", nm_gh, "/", nm_pkg, "/#readme")
-  ))
-  suppressWarnings(descrptn$set("Description", nm_desc))
-  descrptn$write(file = file.path(dir_proj, "DESCRIPTION"))
-  desc::desc_normalize(file.path(dir_proj, "DESCRIPTION"))
-  usethis::proj_activate(dir_proj)
-  usethis::use_roxygen_md()
+    suppressWarnings(descrptn$set(
+      "BugReports",
+      paste0("https://github.com/", nm_gh, "/", nm_pkg, "/issues")
+    ))
+    suppressWarnings(descrptn$set(
+      "URL",
+      paste0("https://github.com/", nm_gh, "/", nm_pkg, "/#readme")
+    ))
+    suppressWarnings(descrptn$set("Description", nm_desc))
+    descrptn$write(file = file.path(dir_proj, "DESCRIPTION"))
+    desc::desc_normalize(file.path(dir_proj, "DESCRIPTION"))
+    usethis::proj_activate(dir_proj)
+    usethis::use_roxygen_md()
+  }
 
-  # index.Rmd
-  index <- readLines(system.file(
-    "project_structure", "index.Rmd",
-    package = "projr"
-  ))
-  index[2] <- paste0("title: ", nm_pkg)
-  author_ind <- which(grepl("^author", index))
-
-  # last name
-  nm_author <- paste0("author: ", nm_first, " ", nm_last)
-  index[author_ind] <- nm_author
-  description_ind <- which(grepl("^description", index))
-  index[description_ind] <- paste0("description: ", nm_desc)
-  writeLines(index, file.path(dir_proj, "index.Rmd"))
-
-  # appendix.Rmd
-  file.copy(
-    system.file("project_structure", "appendix.Rmd", package = "projr"),
-    dir_proj
-  )
   # _dependencies.R
   file.copy(
     system.file("project_structure", "_dependencies.R", package = "projr"),
@@ -516,6 +493,80 @@ projr_init <- function(dir_proj = getwd(),
   )
   invisible(x)
 }
+
+.projr_init_engine_bookdown <- function(nm_gh,
+                                        nm_pkg,
+                                        nm_title,
+                                        nm_desc,
+                                        nm_first,
+                                        nm_last) {
+  .projr_init_engine_bookdown_bookdown(
+    nm_gh = nm_gh, nm_pkg = nm_pkg, nm_title = nm_title
+  )
+  .projr_init_engine_bookdown_output(
+    nm_gh = nm_gh, nm_pkg = nm_pkg, nm_title = nm_title
+  )
+  .projr_init_engine_bookdown_index(
+    nm_pkg = nm_pkg, nm_first = nm_first, nm_last = nm_first, nm_desc = nm_desc
+  )
+  invisible(TRUE)
+}
+
+.projr_init_engine_bookdown_bookdown <- function(nm_gh, nm_pkg, nm_title) {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  yml_bd <- yaml::read_yaml(system.file(
+    "project_structure", "_bookdown.yml",
+    package = "projr"
+  ))
+  .projr_yml_bd_set(yml_bd)
+}
+
+.projr_init_engine_bookdown_output <- function(nm_gh, nm_pkg, nm_title) {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  # output.yml
+  o_yml <- yaml::read_yaml(system.file(
+    "project_structure", "_output.yml",
+    package = "projr"
+  ))
+
+  o_yml$`bookdown::gitbook`$config$toc$after <- paste0(
+    '<li><a href="https://github.com/',
+    nm_gh, "/",
+    nm_pkg,
+    '" target="blank">',
+    nm_gh, "/",
+    nm_pkg,
+    "</a></li>\n"
+  )
+
+  o_yml$`bookdown::gitbook`$config$toc$before <-
+    paste0(
+      '<li><a href=\"./\">',
+      nm_title,
+      "</a></li>\n"
+    )
+  yaml::write_yaml(o_yml, file.path(dir_proj, "_output.yml"))
+  invisible(TRUE)
+}
+
+.projr_init_engine_bookdown_index <- function(nm_pkg, nm_first, nm_last, nm_desc) {
+  # index.Rmd
+  index <- readLines(system.file(
+    "project_structure", "index.Rmd",
+    package = "projr"
+  ))
+  index[2] <- paste0("title: ", nm_pkg)
+  author_ind <- which(grepl("^author", index))
+  # last name
+  nm_author <- paste0("author: ", nm_first, " ", nm_last)
+  index[author_ind] <- nm_author
+  description_ind <- which(grepl("^description", index))
+  index[description_ind] <- paste0("description: ", nm_desc)
+  dir_proj <- rprojroot::is_r_package$find_file()
+  writeLines(index, file.path(dir_proj, "index.Rmd"))
+  invisible(TRUE)
+}
+
 
 .projr_git_init <- function(dir_proj) {
   gert::git_init(path = dir_proj)

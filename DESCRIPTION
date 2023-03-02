@@ -25,6 +25,9 @@ Imports:
 Suggests:
     covr,
     devtools,
+    knitr,
     piggyback,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+URL: https://satvilab.github.io/projr/
+VignetteBuilder: knitr
