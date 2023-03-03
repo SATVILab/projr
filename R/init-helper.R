@@ -316,7 +316,7 @@
     .projr_init_readme_auto()
     return(.projr_init_readme_auto())
   }
-  .projr_init_readme_prompt()
+  .projr_init_readme_prompt(nm_list)
 }
 
 .projr_init_readme_auto <- function() {
@@ -329,7 +329,7 @@
   list(readme = readme, path_readme = path_readme)
 }
 
-.projr_init_readme_prompt <- function() {
+.projr_init_readme_prompt <- function(nm_list) {
   dir_proj <- rprojroot::is_r_package$find_file()
   answer_readme <- utils::menu(
     c("Yes (can run R code)", "No (cannot run R code)"),
@@ -354,11 +354,13 @@
       readme <- readme[seq_len(readme_ind_example - 1)]
       cat(
         "Please finish the following sentence:\n",
-        paste0("The purpose of ", nm_pkg, " is to...")
+        paste0("The purpose of ", nm_list[["pkg"]], " is to...")
       )
       nm_readme <- readline(prompt = ">> ")
       readme_ind <- which(grepl("^The goal of ", readme))
-      readme_rep <- paste0("The goal of ", nm_pkg, " is to ", nm_readme)
+      readme_rep <- paste0(
+        "The goal of ", nm_list[["pkg"]], " is to ", nm_readme
+      )
       answer_goal <- utils::menu(
         c("Yes", "No", "Complete later"),
         title =
@@ -370,11 +372,13 @@
       while (answer_goal == 2) {
         cat(
           "Please finish the following sentence/paragraph:\n",
-          paste0("The purpose of ", nm_pkg, " is to...")
+          paste0("The purpose of ", nm_list[["pkg"]], " is to...")
         )
         nm_readme <- readline(prompt = ">> ")
         readme_ind <- which(grepl("^The goal of ", readme))
-        readme_rep <- paste0("The goal of ", nm_pkg, " is to ", nm_readme)
+        readme_rep <- paste0(
+          "The goal of ", nm_list[["pkg"]], " is to ", nm_readme
+        )
         answer_goal <- utils::menu(
           c("Yes", "No", "Complete later"),
           title =
@@ -484,7 +488,7 @@
     readme_install_devtools <-
       'if (!requireNamespace("devtools")) install.packages("devtools")'
     readme_install_pkg <-
-      paste0('devtools::install_github("', nm_gh, "/", nm_list[["pkg"]], '")')
+      paste0('devtools::install_github("', gh, "/", nm_list[["pkg"]], '")')
     readme[readme_ind_install + 3] <- readme_install_devtools
     readme[readme_ind_install + 5] <- readme[readme_ind_install + 4]
     readme[readme_ind_install + 4] <- readme_install_pkg

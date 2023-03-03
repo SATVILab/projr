@@ -207,6 +207,7 @@ test_that(".projr_init_readme works", {
         email = "fruit@palm_tree.am.zn",
         title = "Urgh"
       )
+      .projr_init_description(dir_test, nm_list)
       .projr_init_readme(nm_list)
       expect_true(file.exists("README.md"))
     },
