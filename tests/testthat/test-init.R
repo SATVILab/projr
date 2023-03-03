@@ -10,14 +10,205 @@ test_that("projr_init works", {
       expect_true(file.exists("_bookdown.yml"))
       expect_true(file.exists("_output.yml"))
       expect_true(file.exists("_projr.yml"))
-      # expect_true(file.exists(".git"))
+      expect_true(dir.exists(".git"))
       expect_true(file.exists(".gitignore"))
       expect_true(file.exists(".Rbuildignore"))
       expect_true(file.exists("DESCRIPTION"))
       expect_true(file.exists("index.Rmd"))
-      expect_true(file.exists("appendix.Rmd"))
       expect_true(dir.exists("R"))
       expect_error(projr_init(yml_path_from = "abcsadfkasdflkda"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  Sys.unsetenv("PROJR_TEST")
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that(".projr_init_yml works", {
+  dir_test <- file.path(tempdir(), paste0("testProjr2"))
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  Sys.setenv("PROJR_TEST" = "TRUE")
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      expect_true(.projr_init_yml(dir_test, NULL))
+      expect_true(file.exists("_projr.yml"))
+      invisible(file.remove("_projr.yml"))
+      path_yml <- file.path(tempdir(), "_projr.yml")
+      yaml::write_yaml(list("abc" = 1), path_yml)
+      Sys.setenv("PROJR_PATH_YML" = path_yml)
+      expect_true(.projr_init_yml(dir_test, NULL))
+      expect_true(file.exists("_projr.yml"))
+      expect_identical(yaml::read_yaml("_projr.yml"), list("abc" = 1))
+      invisible(file.remove("_projr.yml"))
+
+      path_yml_2 <- file.path(tempdir(), "_projr2.yml")
+      yaml::write_yaml(list("abc" = 2), path_yml_2)
+      expect_true(.projr_init_yml(dir_test, path_yml_2))
+      expect_true(file.exists("_projr.yml"))
+      expect_identical(yaml::read_yaml("_projr.yml"), list("abc" = 2))
+      invisible(file.remove("_projr.yml"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  Sys.unsetenv("PROJR_TEST")
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that(".projr_init_description works", {
+  dir_test <- file.path(tempdir(), paste0("testProjr2"))
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  Sys.setenv("PROJR_TEST" = "TRUE")
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      nm_list <- list(
+        pkg = "testProjr2",
+        gh = "MiguelRodo",
+        first = "Tarzan",
+        last = "Climber",
+        email = "fruit@palm_tree.am.zn",
+        title = "Urgh"
+      )
+      expect_true(.projr_init_description(dir_test, nm_list))
+      expect_true(file.exists("DESCRIPTION"))
+      desc <- read.dcf("DESCRIPTION")
+      expect_identical(desc[[1]], "testProjr2")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  Sys.unsetenv("PROJR_TEST")
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that(".projr_init_dep works", {
+  dir_test <- file.path(tempdir(), paste0("testProjr2"))
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  Sys.setenv("PROJR_TEST" = "TRUE")
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      nm_list <- list(
+        pkg = "testProjr2",
+        gh = "MiguelRodo",
+        first = "Tarzan",
+        last = "Climber",
+        email = "fruit@palm_tree.am.zn",
+        title = "Urgh"
+      )
+      .projr_init_description(dir_test, nm_list)
+      expect_true(.projr_init_dep())
+      expect_true(file.exists("_dependencies.R"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  Sys.unsetenv("PROJR_TEST")
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that(".projr_init_ignore works", {
+  dir_test <- file.path(tempdir(), paste0("testProjr2"))
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  Sys.setenv("PROJR_TEST" = "TRUE")
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      nm_list <- list(
+        pkg = "testProjr2",
+        gh = "MiguelRodo",
+        first = "Tarzan",
+        last = "Climber",
+        email = "fruit@palm_tree.am.zn",
+        title = "Urgh"
+      )
+      .projr_init_description(dir_test, nm_list)
+      expect_true(.projr_init_ignore())
+      expect_true(file.exists(".gitignore"))
+      expect_true(file.exists(".Rbuildignore"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  Sys.unsetenv("PROJR_TEST")
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that(".projr_init_renv works", {
+  dir_test <- file.path(tempdir(), paste0("testProjr2"))
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  Sys.setenv("PROJR_TEST" = "TRUE")
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      expect_true(.projr_init_renv(FALSE, FALSE))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  Sys.unsetenv("PROJR_TEST")
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that(".projr_init_license works", {
+  dir_test <- file.path(tempdir(), paste0("testProjr2"))
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  Sys.setenv("PROJR_TEST" = "TRUE")
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      nm_list <- list(
+        pkg = "testProjr2",
+        gh = "MiguelRodo",
+        first = "Tarzan",
+        last = "Climber",
+        email = "fruit@palm_tree.am.zn",
+        title = "Urgh"
+      )
+      .projr_init_description(dir_test, nm_list)
+      expect_true(.projr_init_license(nm_list))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  Sys.unsetenv("PROJR_TEST")
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that(".projr_init_readme works", {
+  dir_test <- file.path(tempdir(), paste0("testProjr2"))
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  Sys.setenv("PROJR_TEST" = "TRUE")
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      nm_list <- list(
+        pkg = "testProjr2",
+        gh = "MiguelRodo",
+        first = "Tarzan",
+        last = "Climber",
+        email = "fruit@palm_tree.am.zn",
+        title = "Urgh"
+      )
+      .projr_init_readme(nm_list)
+      expect_true(file.exists("README.md"))
     },
     force = TRUE,
     quiet = TRUE
@@ -35,15 +226,125 @@ test_that("projr_init_bookdown works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      descrptn <- desc::description$new("!new")
-      descrptn$write(file = file.path(dir_test, "DESCRIPTION"))
-      expect_true(.projr_init_engine_bookdown("a", "b", "c", "d", "e", "f"))
+      nm_list <- list(
+        engine = "bookdown",
+        format = NULL,
+        pkg = "testProjr2",
+        gh = "MiguelRodo",
+        first = "Tarzan",
+        last = "Climber",
+        email = "fruit@palm_tree.am.zn",
+        title = "Urgh",
+        filename = NULL
+      )
+      .projr_init_description(dir_test, nm_list)
+      expect_true(.projr_init_engine_bookdown(nm_list))
       expect_true(file.exists("_bookdown.yml"))
       expect_true(file.exists("_output.yml"))
       expect_true(file.exists("index.Rmd"))
-      invisible(file.remove("_bookdown.yml"))
-      invisible(file.remove("_output.yml"))
-      invisible(file.remove("index.Rmd"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  Sys.unsetenv("PROJR_TEST")
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that("projr_init_quarto_project works", {
+  dir_test <- file.path(tempdir(), paste0("testProjr2"))
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  Sys.setenv("PROJR_TEST" = "TRUE")
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      nm_list <- list(
+        engine = "quarto_project",
+        format = "book",
+        pkg = "testProjr2",
+        gh = "MiguelRodo",
+        first = "Tarzan",
+        last = "Climber",
+        email = "fruit@palm_tree.am.zn",
+        title = "Urgh",
+        filename = NULL
+      )
+      .projr_init_description(dir_test, nm_list)
+      expect_true(.projr_init_engine_quarto_project(nm_list))
+      expect_true(file.exists("_quarto.yml"))
+      expect_true(file.exists("index.qmd"))
+      invisible(file.remove("_quarto.yml"))
+      invisible(file.remove("index.qmd"))
+      nm_list[["format"]] <- "website"
+      .projr_init_description(dir_test, nm_list)
+      expect_true(.projr_init_engine_quarto_project(nm_list))
+      expect_true(file.exists("_quarto.yml"))
+      expect_true(file.exists("index.qmd"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  Sys.unsetenv("PROJR_TEST")
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that("projr_init_quarto_document works", {
+  dir_test <- file.path(tempdir(), paste0("testProjr2"))
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  Sys.setenv("PROJR_TEST" = "TRUE")
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      nm_list <- list(
+        engine = "quarto_document",
+        format = "book",
+        pkg = "testProjr2",
+        gh = "MiguelRodo",
+        first = "Tarzan",
+        last = "Climber",
+        email = "fruit@palm_tree.am.zn",
+        title = "Urgh",
+        filename = "test"
+      )
+      .projr_init_description(dir_test, nm_list)
+      expect_true(.projr_init_engine_quarto_document(nm_list))
+      expect_true(!file.exists("_quarto.yml"))
+      expect_true(file.exists("test.qmd"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  Sys.unsetenv("PROJR_TEST")
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that("projr_init_rmd works", {
+  dir_test <- file.path(tempdir(), paste0("testProjr2"))
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  Sys.setenv("PROJR_TEST" = "TRUE")
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      nm_list <- list(
+        engine = "quarto_document",
+        format = "book",
+        pkg = "testProjr2",
+        gh = "MiguelRodo",
+        first = "Tarzan",
+        last = "Climber",
+        email = "fruit@palm_tree.am.zn",
+        title = "Urgh",
+        filename = "abc"
+      )
+      .projr_init_description(dir_test, nm_list)
+      expect_true(.projr_init_engine_rmd(nm_list))
+      expect_true(!file.exists("_bookdown.yml"))
+      expect_true(file.exists("abc.Rmd"))
     },
     force = TRUE,
     quiet = TRUE

@@ -507,6 +507,7 @@
     "tufte_handout" = ,
     "tufte::tufte_book" = ,
     "tufte_book" = ,
+    "context_document" = ,
     "beamer_presentation" = "pdf",
     "powerpoint_presentation" = "pptx",
     "revealjs::revealjs_presentation" = ,

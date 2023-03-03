@@ -1,10 +1,70 @@
 library(testthat)
 devtools::load_all(path = file.path(Sys.getenv("pkg"), "projr"))
 
-debugonce(projr:::.projr_pb_upload)
+debugonce(.projr_init_prompt_init)
+
 Sys.setenv("PROJR_TEST" = "TRUE")
 library(testthat)
 projr::projr_build_output()
+
+x <- 1
+while (x < 10) {
+  print(x)
+  x <- x + 1
+  break
+}
+
+# old initial question prompt stuff
+# ================================
+
+# initial question
+answer_list <- .projr_init_prompt_ind_question(
+  default_given = default_given,
+  .var = .var,
+  nm_item_long = nm_item_long,
+  option_default = option_default,
+  option_other = option_other
+)
+
+# gave no answer, want to complete later
+if (!answer_list[["completed"]]) {
+  return(.var)
+}
+
+check_correct <- .projr_init_prompt_ind_check(
+  nm_long = nm_item_long,
+  nm_item = answer_list[["nm"]],
+  answer_translate = answer_translate,
+  option_check = option_check
+)
+
+# old prompt stuff
+# =======================
+
+
+  while (ask_item) {
+    if (!is.null(option_default)) {
+
+    }
+    cat(paste0(request_default_n, "\n"))
+    nm_item <- readline(prompt = ">> ")
+    if (!is.null(answer_translate)) {
+      nm_item_check <- answer_translate[[nm_item]]
+    } else {
+      nm_item_check <- nm_item
+    }
+    check_init <- paste0("Is the ", nm_item_long, " `", nm_item_check, "` correct?") # nolint
+    answer_item <- utils::menu(option_check, title = check_init)
+    cat("\n")
+    ask_item <- answer_item == 2
+    completed_item <- answer_item != 3
+  }
+  if (!completed_item) {
+    nm_item_check <- .var
+  }
+  nm_item_check
+}
+
 
 # old version getting stuff
 # =========================

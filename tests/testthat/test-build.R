@@ -19,7 +19,7 @@ test_that("projr_build_dev works", {
       projr_build_dev(quiet = TRUE)
       projr_version_get()
       yml_bd <- .projr_yml_bd_get()
-      expect_identical(basename(yml_bd$output_dir), "reportV0.0.0-1")
+      expect_identical(basename(yml_bd$output_dir), "docs")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.0-1")
     },
@@ -721,6 +721,18 @@ test_that("projr_build_frontmatter_get works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      nm_list <- list(
+        engine = "quarto_document",
+        format = "book",
+        pkg = "testProjr2",
+        gh = "MiguelRodo",
+        first = "Tarzan",
+        last = "Climber",
+        email = "fruit@palm_tree.am.zn",
+        title = "Urgh",
+        filename = "test"
+      )
+      .projr_init_description(dir_test, nm_list)
       # no frontmatter
       writeLines(c("# Introduction", "abc"), con = "test.qmd")
       expect_identical(.projr_build_frontmatter_get("test.qmd"), list())
@@ -796,6 +808,18 @@ test_that(".projr_build_copy_docs_quarto_format_get works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      nm_list <- list(
+        engine = "quarto_document",
+        format = "book",
+        pkg = "testProjr2",
+        gh = "MiguelRodo",
+        first = "Tarzan",
+        last = "Climber",
+        email = "fruit@palm_tree.am.zn",
+        title = "Urgh",
+        filename = "test"
+      )
+      .projr_init_description(dir_test, nm_list)
       expect_identical(
         .projr_build_copy_docs_quarto_format_get(list()),
         "html"
@@ -924,6 +948,18 @@ test_that(".projr_build_copy_docs_quarto_format_get works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      nm_list <- list(
+        engine = "quarto_document",
+        format = "book",
+        pkg = "testProjr2",
+        gh = "MiguelRodo",
+        first = "Tarzan",
+        last = "Climber",
+        email = "fruit@palm_tree.am.zn",
+        title = "Urgh",
+        filename = "test"
+      )
+      .projr_init_description(dir_test, nm_list)
       writeLines(c("# Introduction", "abc"), con = "test.qmd")
       invisible(file.create("test.html"))
       dir.create("test_files")
@@ -963,11 +999,36 @@ test_that(".projr_build_copy_docs_rmd_format_get works", {
 
   rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
   writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
-
+  # nm_list <- list(
+  #   engine = "quarto_document",
+  #   format = "book",
+  #   pkg = "testProjr2",
+  #   gh = "MiguelRodo",
+  #   first = "Tarzan",
+  #   last = "Climber",
+  #   email = "fruit@palm_tree.am.zn",
+  #   title = "Urgh",
+  #   filename = "test"
+  # )
+  # .projr_init_description(dir_test, nm_list)
 
   usethis::with_project(
     path = dir_test,
     code = {
+      
+
+      nm_list <- list(
+        engine = "quarto_document",
+        format = "book",
+        pkg = "testProjr2",
+        gh = "MiguelRodo",
+        first = "Tarzan",
+        last = "Climber",
+        email = "fruit@palm_tree.am.zn",
+        title = "Urgh",
+        filename = "test"
+      )
+      .projr_init_description(dir_test, nm_list)
       expect_identical(
         .projr_build_copy_docs_rmd_format_get(list()),
         "html_document"
@@ -1011,6 +1072,18 @@ test_that(".projr_build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      nm_list <- list(
+        engine = "quarto_document",
+        format = "book",
+        pkg = "testProjr2",
+        gh = "MiguelRodo",
+        first = "Tarzan",
+        last = "Climber",
+        email = "fruit@palm_tree.am.zn",
+        title = "Urgh",
+        filename = "test"
+      )
+      .projr_init_description(dir_test, nm_list)
       # prefix
       expect_identical(
         .projr_build_copy_docs_rmd_fn_prefix_get("test.Rmd"),
@@ -1079,6 +1152,18 @@ test_that(".projr_build_copy_docs_rmd_format_get works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      nm_list <- list(
+        engine = "quarto_document",
+        format = "book",
+        pkg = "testProjr2",
+        gh = "MiguelRodo",
+        first = "Tarzan",
+        last = "Climber",
+        email = "fruit@palm_tree.am.zn",
+        title = "Urgh",
+        filename = "test"
+      )
+      .projr_init_description(dir_test, nm_list)
       writeLines(c("# Introduction", "abc"), con = "test.Rmd")
       invisible(file.create("test.html"))
       dir.create("test_files")

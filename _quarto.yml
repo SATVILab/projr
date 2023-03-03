@@ -1,0 +1,12 @@
+project:
+  type: book
+book:
+  title: c
+  author: 'author: a b'
+  date: 2023/03/03
+  chapters: index.qmd
+format:
+  html:
+    theme: cosmo
+  pdf:
+    documentclass: scrreprt
