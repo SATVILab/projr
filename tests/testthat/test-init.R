@@ -154,6 +154,17 @@ test_that(".projr_init_renv works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      nm_list <- list(
+        pkg = "testProjr2",
+        gh = "MiguelRodo",
+        first = "Tarzan",
+        last = "Climber",
+        email = "fruit@palm_tree.am.zn",
+        title = "Urgh"
+      )
+      .projr_init_description(dir_test, nm_list)
+      file.create(file.path(dir_test, ".Rprofile"))
+      writeLines('source("renv/activate.R")', file.path(dir_test, ".Rprofile"))
       expect_true(.projr_init_renv(FALSE, FALSE))
     },
     force = TRUE,

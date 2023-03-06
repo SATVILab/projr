@@ -149,9 +149,14 @@
     ""
   )
   dir_proj <- rprojroot::is_r_package$find_file()
-  writeLines(
-    txt, paste0(file.path(dir_proj, nm_list[["filename"]]), ".qmd")
+  path_qmd <- file.path(
+    dir_proj,
+    paste0(
+      gsub("\\.qmd$", "", nm_list[["filename"]]),
+      ".qmd"
+    )
   )
+  writeLines(txt, path_qmd)
   invisible(TRUE)
 }
 
@@ -185,9 +190,13 @@
     ""
   )
   dir_proj <- rprojroot::is_r_package$find_file()
-  writeLines(
-    txt,
-    paste0(file.path(dir_proj, nm_list[["filename"]]), ".Rmd")
+  path_rmd <- file.path(
+    dir_proj,
+    paste0(
+      gsub("\\.Rmd|\\.rmd$", "", nm_list[["filename"]]),
+      ".Rmd"
+    )
   )
+  writeLines(txt, path_rmd)
   invisible(TRUE)
 }

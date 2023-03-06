@@ -132,17 +132,6 @@
 
   nm_gh <- .projr_init_prompt_ind(
     .var = "GITHUB_USER_NAME",
-    nm_item_long = "Quarto project type",
-    option_default = c(
-      "Website", "Book"
-    ),
-    allow_specify_other = FALSE,
-    allow_complete_later = FALSE,
-    answer_auto = "Book"
-  )
-
-  nm_gh <- .projr_init_prompt_ind(
-    .var = "GITHUB_USER_NAME",
     nm_item_long = "GitHub user/organisation name",
     allow_specify_other = TRUE,
     allow_complete_later = TRUE,
@@ -278,6 +267,14 @@
   if (!Sys.getenv("PROJR_TEST") == "TRUE") {
     renv::init(force = force, bioconductor = bioc)
   }
+  dir_proj <- rprojroot::is_r_package$find_file()
+  renv_repos_txt <- readLines(
+    system.file("project_structure", "renv_repos.R", package = "projr")
+  )
+  r_profile_txt <- readLines(file.path(dir_proj, ".Rprofile"))
+  r_profile_txt <- c(r_profile_txt, "", renv_repos_txt)
+  writeLines(r_profile_txt, file.path(dir_proj, ".Rprofile"))
+
   invisible(TRUE)
 }
 
