@@ -15,6 +15,8 @@
 #' @seealso projr_yml_get_unchecked,projr_yml_check
 #'
 #' @return A named list, if the settings are valid.
+#'
+#' @export
 projr_yml_get <- function() {
   yml_projr <- projr_yml_get_unchecked()
   projr_yml_check(yml_projr)
