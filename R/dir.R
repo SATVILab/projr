@@ -57,16 +57,10 @@ projr_dir_get <- function(label, ...,
     stop(paste0("label `", label, "` not recognised."))
   }
   if (label == "project") {
-    if (path_absolute_force) {
-      return(rprojroot::is_r_package$find_file())
-    } else {
-      return(".")
-    }
-  }
-
-  # use the appropriate specification doc
-  # if "docs" is the label
-  if (label == "docs") {
+    path_final_root <- "."
+  } else if (label == "docs") {
+    # use the appropriate specification doc
+    # if "docs" is the label
     path_final_root <- .projr_dir_get_docs()
   } else if (grepl("^output", .projr_dir_label_strip(label)) && output_safe) {
     cache_ind <- which(
