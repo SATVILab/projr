@@ -131,7 +131,7 @@
 .projr_build_doc_output_dir_update <- function() {
   switch(.projr_engine_get(),
     "bookdown" = .projr_build_bookdown_output_dir_update(),
-    "quarto_project",
+    "quarto_project" = .projr_build_doc_output_dir_update_quarto_project(),
     TRUE
   )
 
