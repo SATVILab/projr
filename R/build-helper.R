@@ -667,6 +667,14 @@
       invisible(file.rename(from = fn_vec_from, to = fn_vec_to))
     }
   }
+  for (x in path) {
+    if (file.exists(x)) {
+      if (fs::is_dir(x)) {
+        invisible(unlink(x, recursive = TRUE))
+      }
+    }
+  }
+  invisible(TRUE)
 }
 
 # copy all requested items to out and archive
