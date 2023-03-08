@@ -46,15 +46,24 @@
 projr_dir_get <- function(label, ...,
                           create = TRUE,
                           path_relative_force = FALSE,
-                          output_safe = TRUE) {
+                          output_safe = TRUE,
+                          path_absolute_force = FALSE) {
   # get active directories
   yml_active <- projr_yml_get()
 
   dir_active <- yml_active[["directories"]]
 
-  if (!label %in% c(names(dir_active), "docs")) {
+  if (!label %in% c(names(dir_active), "docs", "project")) {
     stop(paste0("label `", label, "` not recognised."))
   }
+  if (label == "project") {
+    if (path_absolute_force) {
+      return(rprojroot::is_r_package$find_file())
+    } else {
+      return(".")
+    }
+  }
+
   # use the appropriate specification doc
   # if "docs" is the label
   if (label == "docs") {
@@ -100,6 +109,10 @@ projr_dir_get <- function(label, ...,
     "bookdown" = .projr_dir_get_docs_bookdown(),
     "rmd" = .projr_dir_get_docs_md()
   )
+}
+
+.projr_dir_get_project <- function() {
+
 }
 
 
