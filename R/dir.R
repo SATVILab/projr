@@ -262,7 +262,7 @@ projr_dir_create <- function(label) {
   yml_active_dir <- yml_active_dir[
     vapply(names(yml_active_dir), function(x) any(x == label), logical(1))
   ]
-  if (length(yml_active_dir) == 0 && !label == "docs") {
+  if (length(yml_active_dir) == 0 && !label %in% c("docs", "project")) {
     stop("label does not match any directory label")
   }
   # create
