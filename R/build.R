@@ -185,11 +185,11 @@ projr_build_dev <- function(bump = FALSE, ...) {
 .projr_build_engine <- function(version_run_on_list, ...) {
   build_status <- switch(.projr_engine_get(),
     "bookdown" = try(bookdown::render_book(...)),
-    "quarto_project" = try(quarto::quart_render(...)),
+    "quarto_project" = try(quarto::quarto_render(...)),
     "quarto_document" = {
       try(
         for (x in list.files(pattern = "\\.qmd$")) {
-          quarto::quart_render(x, ...)
+          quarto::quarto_render(x, ...)
         }
       )
     },
