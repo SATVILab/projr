@@ -26,8 +26,9 @@ test_that("projr_dir_get works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      projr_dir_get("project")
       yml_projr <- .projr_yml_get_root_full()
-      expect_error(projr_dir_get("abc"))
+      expect_error(projr_dir_get("ailc"))
       expect_identical(projr_dir_get("data-raw"), "_data_raw")
       expect_identical(projr_dir_get("output"), "_tmp/projr-output/0.0.0-1")
       expect_identical(projr_dir_get(

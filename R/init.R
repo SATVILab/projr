@@ -31,7 +31,9 @@ projr_init <- function(dir_proj = getwd(),
 
   # package name
   nm_pkg <- basename(dir_proj)
-  cat("Project name is", paste0("`", nm_pkg, "`"), "\n")
+  if (!Sys.getenv("PROJR_TEST") == "TRUE") {
+    cat("Project name is", paste0("`", nm_pkg, "`"), "\n")
+  }
 
   nm_list_init <- .projr_init_prompt_init(nm_pkg)
 

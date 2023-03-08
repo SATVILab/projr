@@ -56,7 +56,7 @@ projr_dir_get <- function(label, ...,
   if (!label %in% c(names(dir_active), "docs", "project")) {
     stop(paste0("label `", label, "` not recognised."))
   }
-  if (label == "project") {
+  if (identical(label, "project")) {
     path_final_root <- "."
   } else if (label == "docs") {
     # use the appropriate specification doc
@@ -103,10 +103,6 @@ projr_dir_get <- function(label, ...,
     "bookdown" = .projr_dir_get_docs_bookdown(),
     "rmd" = .projr_dir_get_docs_md()
   )
-}
-
-.projr_dir_get_project <- function() {
-
 }
 
 
@@ -257,7 +253,10 @@ projr_path_get <- function(label, ...,
 #' @export
 projr_dir_create <- function(label) {
   if (missing(label)) stop("label must be specified")
-  if (!is.character(label)) stop("label must be of label character")
+  if (!all(is.character(label))) stop("label must be of label character")
+  if (identical(label, "project")) {
+    return(invisible(TRUE))
+  }
   yml_active_dir <- projr_yml_get()[["directories"]]
   yml_active_dir <- yml_active_dir[
     vapply(names(yml_active_dir), function(x) any(x == label), logical(1))
