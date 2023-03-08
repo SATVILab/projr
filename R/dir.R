@@ -23,6 +23,10 @@
 #' If \code{TRUE}, then forces that the returned
 #' path is relative to the project root.
 #' Default is \code{FALSE}.
+#' @param path_absolute_force logical.
+#' If `TRUE`, then forces the returned path
+#' to be absolute.
+#' Default is `FALSE`.
 #' @param output_safe logical.
 #' If \code{TRUE}, then the output directory
 #' is set to be \code{"<path_to_cache>/projr_output"}

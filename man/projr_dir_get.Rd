@@ -9,7 +9,8 @@ projr_dir_get(
   ...,
   create = TRUE,
   path_relative_force = FALSE,
-  output_safe = TRUE
+  output_safe = TRUE,
+  path_absolute_force = FALSE
 )
 }
 \arguments{
@@ -47,6 +48,11 @@ should be when \code{projr_build_output} is being run, as otherwise
 "development" or test runs will add to, delete or overwrite files
 from the previous run of \code{projr_build_output}.
 Default is \code{TRUE}.}
+
+\item{path_absolute_force}{logical.
+If \code{TRUE}, then forces the returned path
+to be absolute.
+Default is \code{FALSE}.}
 }
 \value{
 Character.
