@@ -129,10 +129,39 @@
 }
 
 .projr_build_doc_output_dir_update <- function() {
-  yml_bd <- .projr_yml_bd_get()
-  yml_bd[["output_dir"]] <- projr_dir_get("docs")
-  .projr_yml_bd_set(yml_bd)
+  switch(.projr_engine_get(),
+    "bookdown" = .projr_build_bookdown_output_dir_update(),
+    "quarto_project",
+    TRUE
+  )
+
   invisible(projr_dir_get("docs"))
+}
+
+.projr_build_doc_output_dir_update_bookdown <- function() {
+  yml_bd <- .projr_yml_bd_get()
+  yml_projr_dir <- projr_yml_get()[["directories"]]
+  if ("docs" %in% names(yml_projr_dir)) {
+    yml_projr_dir_docs <- yml_projr_dir[["docs"]]
+    if ("path" %in% names(yml_projr_dir_docs)) {
+      yml_bd[["output_dir"]] <- yml_projr_dir_docs[["path"]]
+      .projr_yml_bd_set(yml_bd)
+    }
+  }
+  invisible(TRUE)
+}
+
+.projr_build_doc_output_dir_update_quarto_project <- function() {
+  yml_quarto <- .projr_yml_quarto_get()
+  yml_projr_dir <- projr_yml_get()[["directories"]]
+  if ("docs" %in% names(yml_projr_dir)) {
+    yml_projr_dir_docs <- yml_projr_dir[["docs"]]
+    if ("path" %in% names(yml_projr_dir_docs)) {
+      yml_quarto[["project"]][["output-dir"]] <- yml_projr_dir_docs[["path"]]
+      .projr_yml_quarto_set(yml_quarto)
+    }
+  }
+  invisible(TRUE)
 }
 
 .projr_build_output_clear <- function(output_run) {
