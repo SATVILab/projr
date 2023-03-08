@@ -264,16 +264,19 @@
 }
 
 .projr_init_renv <- function(force, bioc) {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  path_rprofile <- file.path(dir_proj, ".Rprofile")
   if (!Sys.getenv("PROJR_TEST") == "TRUE") {
     renv::init(force = force, bioconductor = bioc)
+  } else if (!file.exists(path_rprofile)) {
+    file.create(path_rprofile)
   }
-  dir_proj <- rprojroot::is_r_package$find_file()
   renv_repos_txt <- readLines(
     system.file("project_structure", "renv_repos.R", package = "projr")
   )
-  r_profile_txt <- readLines(file.path(dir_proj, ".Rprofile"))
+  r_profile_txt <- readLines(path_rprofile)
   r_profile_txt <- c(r_profile_txt, "", renv_repos_txt)
-  writeLines(r_profile_txt, file.path(dir_proj, ".Rprofile"))
+  writeLines(r_profile_txt, path_rprofile)
 
   invisible(TRUE)
 }

@@ -221,7 +221,7 @@ projr_path_get <- function(label, ...,
       what = "projr_dir_get",
       args = list(
         label = label,
-        args_dotted[-length(args_dotted)],
+        args_dotted[-length(args_dotted)] |> unlist(),
         create = create,
         path_relative_force = path_relative_force,
         output_safe = output_safe

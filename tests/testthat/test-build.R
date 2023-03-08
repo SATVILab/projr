@@ -1015,8 +1015,6 @@ test_that(".projr_build_copy_docs_rmd_format_get works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      
-
       nm_list <- list(
         engine = "quarto_document",
         format = "book",

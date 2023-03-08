@@ -74,6 +74,15 @@ test_that("projr_dir_get works", {
         projr_dir_get("output", "abc", output_safe = TRUE),
         "_tmp/projr-output/0.0.0-1/abc"
       )
+      expect_identical(
+        projr_dir_get("cache", "fig", "intro", "p"),
+        "_tmp/fig/intro/p"
+      )
+      # many levels
+      expect_identical(
+        projr_dir_get("cache", "fig", "intro", "a", "b", "c", "d", "e", "f"),
+        "_tmp/fig/intro/a/b/c/d/e/f"
+      )
     },
     force = TRUE,
     quiet = TRUE
@@ -109,6 +118,11 @@ test_that("projr_path_get works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      expect_identical(
+        projr_path_get("cache", "fig", "intro", "p.png"),
+        "_tmp/fig/intro/p.png"
+      )
+
       expect_error(projr_path_get("abc"))
       expect_identical(projr_path_get("data-raw"), "_data_raw")
       expect_identical(projr_path_get("output"), "_tmp/projr-output/0.0.0-1")
