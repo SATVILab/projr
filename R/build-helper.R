@@ -181,31 +181,36 @@
       unlink(fn_vec[i])
     }
   }
+
   # clear docs folder
-  dir_data_docs <- projr_dir_get("docs")
-  fn_vec <- list.files(
-    dir_data_docs,
-    recursive = FALSE, all.files = TRUE,
-    full.names = TRUE
-  )
-  for (i in seq_along(fn_vec)) {
-    if (fs::is_dir(fn_vec[i])) {
-      unlink(fn_vec[i], recursive = TRUE)
-      next
+  dir_data_docs <- projr_dir_get("docs") |>
+    normalizePath(winslash = "/")
+  docs_is_wd <- identical(dir_data_docs, getwd())
+  if (docs_is_wd) {
+  } else {
+    fn_vec <- list.files(
+      dir_data_docs,
+      recursive = FALSE, all.files = TRUE,
+      full.names = TRUE
+    )
+    for (i in seq_along(fn_vec)) {
+      if (fs::is_dir(fn_vec[i])) {
+        unlink(fn_vec[i], recursive = TRUE)
+        next
+      }
+      invisible(file.remove(fn_vec[i]))
     }
-    invisible(file.remove(fn_vec[i]))
   }
 
   # clear data folder
-  if (output_run) {
-    dir_data_r <- file.path(rprojroot::is_r_package$find_file(), "data")
-    if (dir.exists(dir_data_r)) {
-      fn_vec <- list.files(dir_data_r, recursive = TRUE, full.names = TRUE)
-      for (i in seq_along(fn_vec)) {
-        unlink(fn_vec[i])
-      }
+  dir_data_r <- file.path(rprojroot::is_r_package$find_file(), "data")
+  if (dir.exists(dir_data_r)) {
+    fn_vec <- list.files(dir_data_r, recursive = TRUE, full.names = TRUE)
+    for (i in seq_along(fn_vec)) {
+      unlink(fn_vec[i])
     }
   }
+
   invisible(TRUE)
 }
 
