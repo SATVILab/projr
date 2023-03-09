@@ -176,9 +176,14 @@
   ]
   for (x in label_vec_output) {
     dir_data_output <- projr_dir_get(x, output_safe = !output_run)
-    fn_vec <- list.files(dir_data_output, recursive = TRUE, full.names = TRUE)
+    fn_vec <- list.files(
+      dir_data_output,
+      recursive = TRUE, full.names = TRUE, all.files = TRUE
+    )
+    fn_vec <- setdiff(fn_vec, c(".", ".."))
     for (i in seq_along(fn_vec)) {
-      unlink(fn_vec[i])
+      if (!file.exists(fn_vec[i])) next
+      unlink(fn_vec[i], recursive = TRUE)
     }
   }
 
@@ -194,7 +199,9 @@
       recursive = FALSE, all.files = TRUE,
       full.names = TRUE
     )
+    fn_vec <- setdiff(fn_vec, c(".", ".."))
     for (i in seq_along(fn_vec)) {
+      if (!file.exists(fn_vec[i])) next
       if (fs::is_dir(fn_vec[i])) {
         unlink(fn_vec[i], recursive = TRUE)
         next
@@ -206,9 +213,14 @@
   # clear data folder
   dir_data_r <- file.path(rprojroot::is_r_package$find_file(), "data")
   if (dir.exists(dir_data_r)) {
-    fn_vec <- list.files(dir_data_r, recursive = TRUE, full.names = TRUE)
+    fn_vec <- list.files(
+      dir_data_r,
+      recursive = TRUE, full.names = TRUE, all.files = TRUE
+    )
+    fn_vec <- setdiff(fn_vec, c(".", ".."))
     for (i in seq_along(fn_vec)) {
-      unlink(fn_vec[i])
+      if (!file.exists(fn_vec[i])) next
+      unlink(fn_vec[i], recursive = TRUE)
     }
   }
 
