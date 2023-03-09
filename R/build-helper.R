@@ -164,13 +164,18 @@
   invisible(TRUE)
 }
 
-.projr_build_output_clear <- function(output_run) {
+.projr_build_clear_pre <- function(output_run) {
   # clear
   # -----------------
 
   # clear output directory
-  dir_data_output <- projr_dir_get("output", output_safe = !output_run)
-  if (dir.exists(dir_data_output)) {
+  yml_projr_dir <- projr_yml_get()[["directories"]]
+  label_vec <- names(yml_projr_dir)
+  label_vec_output <- label_vec[
+    grepl("^output", .projr_dir_label_strip(label_vec))
+  ]
+  for (x in label_vec_output) {
+    dir_data_output <- projr_dir_get(x, output_safe = !output_run)
     fn_vec <- list.files(dir_data_output, recursive = TRUE, full.names = TRUE)
     for (i in seq_along(fn_vec)) {
       unlink(fn_vec[i])
@@ -179,10 +184,7 @@
   # clear docs folder
   dir_data_output <- projr_dir_get("docs")
   if (dir.exists(dir_data_output)) {
-    fn_vec <- list.files(dir_data_output, recursive = TRUE, full.names = TRUE)
-    for (i in seq_along(fn_vec)) {
-      unlink(fn_vec[i])
-    }
+    unlink(dir_data_output, recursive = TRUE)
   }
   # clear data folder
   if (output_run) {
@@ -194,6 +196,26 @@
       }
     }
   }
+  invisible(TRUE)
+}
+
+.projr_build_clear_post <- function(output_run) {
+  if (!output_run) {
+    return(invisible(TRUE))
+  }
+  # clear
+  # -----------------
+
+  # clear projr cache directories
+  dir_cache <- projr_dir_get("cache")
+  dir_vec <- c("projr_output", "projr_cache", "projr_gh_release")
+  for (x in dir_vec) {
+    path_dir <- file.path(dir_cache, dir_vec)
+    if (dir.exists(path_dir)) {
+      unlink(path_dir, recursive = TRUE)
+    }
+  }
+
   invisible(TRUE)
 }
 
@@ -251,53 +273,6 @@
     output_format = "md_document",
     quiet = TRUE
   )
-  invisible(TRUE)
-}
-
-.projr_build_clear_dev <- function(output_run) {
-  if (!output_run) {
-    return(invisible(FALSE))
-  }
-  proj_nm <- projr_name_get()
-  version_format_list <- .projr_version_format_list_get()
-
-  # clear old docs
-  # -----------------------
-  match_regex <- paste0(
-    "^",
-    proj_nm,
-    "V\\d+",
-    paste0("\\", version_format_list[["sep"]], "\\d+", collapse = ""),
-    "$"
-  )
-  dir_report <- basename(
-    list.dirs(dirname(
-      projr_dir_get("docs", create = FALSE)
-    ), recursive = FALSE)
-  )
-  dir_report_rm <- dir_report[grepl(match_regex, dir_report)]
-  for (i in seq_along(dir_report_rm)) {
-    unlink(file.path(
-      dirname(projr_dir_get("docs", create = FALSE)), dir_report_rm[[i]]
-    ), recursive = TRUE)
-  }
-
-  # clear old output
-  # --------------------
-
-  dir_version <- projr_dir_get("output", output_safe = FALSE)
-  version_fn <- paste0("VERSION - ", projr_version_get())
-  file.create(file.path(dir_version, version_fn))
-
-  dir_tmp_vec_output <- list.dirs(
-    projr_dir_get("cache", "projr_output"),
-    recursive = FALSE
-  )
-
-  for (x in dir_tmp_vec_output) {
-    unlink(x, recursive = TRUE)
-  }
-
   invisible(TRUE)
 }
 
