@@ -47,7 +47,10 @@
       nm_list[["title"]],
       "</a></li>\n"
     )
-  yaml::write_yaml(o_yml, file.path(dir_proj, "_output.yml"))
+  path_yml <- file.path(dir_proj, "_output.yml")
+  yaml::write_yaml(o_yml, path_yml)
+  .projr_newline_append(path_yml)
+
   invisible(TRUE)
 }
 

@@ -566,6 +566,7 @@ projr_yml_check <- function(yml_projr = NULL) {
   dir_proj <- rprojroot::is_r_package$find_file()
   path_yml <- file.path(dir_proj, "_projr.yml")
   yaml::write_yaml(list_save, path_yml)
+  .projr_newline_append(path_yml)
   invisible(TRUE)
 }
 
@@ -591,6 +592,7 @@ projr_yml_check <- function(yml_projr = NULL) {
   dir_proj <- rprojroot::is_r_package$find_file()
   path_yml <- file.path(dir_proj, "_bookdown.yml")
   yaml::write_yaml(list_save, path_yml)
+  .projr_newline_append(path_yml)
   invisible(TRUE)
 }
 
@@ -598,6 +600,7 @@ projr_yml_check <- function(yml_projr = NULL) {
   dir_proj <- rprojroot::is_r_package$find_file()
   path_yml <- file.path(dir_proj, "_quarto.yml")
   yaml::write_yaml(list_save, path_yml)
+
   invisible(TRUE)
 }
 

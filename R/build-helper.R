@@ -182,10 +182,20 @@
     }
   }
   # clear docs folder
-  dir_data_output <- projr_dir_get("docs")
-  if (dir.exists(dir_data_output)) {
-    unlink(dir_data_output, recursive = TRUE)
+  dir_data_docs <- projr_dir_get("docs")
+  fn_vec <- list.files(
+    dir_data_docs,
+    recursive = FALSE, all.files = TRUE,
+    full.names = TRUE
+  )
+  for (i in seq_along(fn_vec)) {
+    if (fs::is_dir(fn_vec[i])) {
+      unlink(fn_vec[i], recursive = TRUE)
+      next
+    }
+    invisible(file.remove(fn_vec[i]))
   }
+
   # clear data folder
   if (output_run) {
     dir_data_r <- file.path(rprojroot::is_r_package$find_file(), "data")

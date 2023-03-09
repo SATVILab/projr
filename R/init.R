@@ -64,3 +64,12 @@ projr_init <- function(dir_proj = getwd(),
 
   invisible(TRUE)
 }
+
+.projr_newline_append <- function(path) {
+  txt <- readLines(path)
+  if (!identical(txt[[length(txt)]], "")) {
+    txt <- c(txt, "")
+    writeLines(txt, path)
+  }
+  invisible(TRUE)
+}
