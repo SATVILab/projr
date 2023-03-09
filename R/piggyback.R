@@ -43,6 +43,11 @@
       path_zip <- .projr_zip_dir_pb(
         tag = tag, label = label, output_run = output_run
       )
+      # not zipped if there were zero files to zip
+      if (!file.exists(path_zip)) {
+        next
+      }
+      
       # upload
       piggyback::pb_upload(file = path_zip, tag = tag)
     }
@@ -77,13 +82,17 @@
   dir_inc <- NULL
 
   # zip
-  .projr_zip_dir(
+  zip_outcome <- .projr_zip_dir(
     path_dir = path_dir,
     path_zip = path_zip,
     dir_exc = dir_exc,
     dir_inc = dir_inc
   )
-  path_zip
+  switch(
+    as.character(zip_outcome),
+    "TRUE" = path_zip,
+    "FALSE" = character(1)
+  )
 }
 
 .projr_pb_path_get_dir <- function(label, output_run) {

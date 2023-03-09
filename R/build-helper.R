@@ -744,6 +744,9 @@
     # copy zip to any extra directories
     key_output_extra <- key_copy_vec[-1]
     for (j in seq_along(key_output_extra)) {
+      if (!file.exists(path_zip)) {
+        next
+      }
       file.copy(
         from = path_zip,
         to = projr_path_get(
@@ -976,6 +979,7 @@
                            dir_exc = NULL,
                            dir_inc = NULL,
                            fn_exc = NULL) {
+
   if (file.exists(path_zip)) {
     invisible(file.remove(path_zip))
   }
@@ -1001,6 +1005,9 @@
   }
   if (!is.null(fn_exc)) {
     fn_vec <- fn_vec[!fn_vec %in% fn_exc]
+  }
+  if (length(fn_vec) == 0) {
+    return(invisible(FALSE))
   }
   path_zip_temp <- basename(path_zip)
   utils::zip(
