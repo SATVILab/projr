@@ -181,9 +181,12 @@
       recursive = TRUE, full.names = TRUE, all.files = TRUE
     ) |>
       normalizePath(winslash = "/")
-    wd <- getwd() |>
-      normalizePath(winslash = "/")
-    fn_vec <- setdiff(fn_vec, c(".", "..", wd, dirname(wd)))
+    wd <- normalizePath(getwd(), winslash = "/")
+    exc_vec <- c(
+      ".", "..", wd, dirname(wd), normalizePath(dir_data_docs, winslash = "/")
+    )
+    fn_vec <- setdiff(fn_vec, exc_vec)
+
     for (i in seq_along(fn_vec)) {
       if (!file.exists(fn_vec[i])) next
       unlink(fn_vec[i], recursive = TRUE)
@@ -203,9 +206,12 @@
       full.names = TRUE
     ) |>
       normalizePath(winslash = "/")
-    wd <- getwd() |>
-      normalizePath(winslash = "/")
-    fn_vec <- setdiff(fn_vec, c(".", "..", wd, dirname(wd)))
+    wd <- normalizePath(getwd(), winslash = "/")
+    exc_vec <- c(
+      ".", "..", wd,
+      dirname(wd), normalizePath(dir_data_docs, winslash = "/")
+    )
+    fn_vec <- setdiff(fn_vec, exc_vec)
     for (i in seq_along(fn_vec)) {
       if (!file.exists(fn_vec[i])) next
       if (fs::is_dir(fn_vec[i])) {
@@ -224,9 +230,11 @@
       recursive = TRUE, full.names = TRUE, all.files = TRUE
     ) |>
       normalizePath(winslash = "/")
-    wd <- getwd() |>
-      normalizePath(winslash = "/")
-    fn_vec <- setdiff(fn_vec, c(".", "..", wd, dirname(wd)))
+    wd <- normalizePath(getwd(), winslash = "/")
+    exc_vec <- c(
+      ".", "..", wd, dirname(wd), normalizePath(dir_data_docs, winslash = "/")
+    )
+    fn_vec <- setdiff(fn_vec, exc_vec)
     for (i in seq_along(fn_vec)) {
       if (!file.exists(fn_vec[i])) next
       unlink(fn_vec[i], recursive = TRUE)
