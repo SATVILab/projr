@@ -87,7 +87,7 @@
           "author: ", nm_list[["first"]], " ", nm_list[["last"]]
         ),
         "date" = format(Sys.time(), "%Y/%m/%d"),
-        "chapters" = "index.qmd"
+        "chapters" = list("index.qmd")
       ),
       "format" = list(
         "html" = list("theme" = "cosmo"),
@@ -100,8 +100,7 @@
         title = nm_list[["title"]],
         navbar = list(
           left = list(
-            list(href = "index.qmd", text = "Home"),
-            "about.qmd"
+            list(href = "index.qmd", text = "Home")Gg
           )
         )
       ),
