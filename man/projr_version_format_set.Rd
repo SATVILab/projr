@@ -7,8 +7,15 @@
 projr_version_format_set(version_format)
 }
 \arguments{
-\item{character.}{The version format.
-Exampl}
+\item{version_format}{character.
+The version format.
+Specifies the version components ("major" and/or "minor" and/or "patch", and "dev"/"1"/"9000"),
+as well as the separators between them.
+If "1" is used instead of "dev", then "dev" component resets at "1".
+If "9000" is used instead of "dev", then "dev" component resets at "9000".
+If "dev" is used, then "dev" component resets at "9000".
+Examples: "major.minor-1", "major-minor-patch-dev", "major.9000".
+Default is "major.minor.patch.dev".}
 }
 \description{
 Returns the version format,
