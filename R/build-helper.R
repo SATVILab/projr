@@ -301,11 +301,6 @@
     }
   }
 
-  # exit if nothing is to be copied
-  if (all(!unlist(yml_projr[["build"]][["copy-to-output"]]))) {
-    return(invisible(FALSE))
-  }
-
   # copy
   # -------------------
 
