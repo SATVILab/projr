@@ -183,7 +183,7 @@
       normalizePath(winslash = "/")
     wd <- normalizePath(getwd(), winslash = "/")
     exc_vec <- c(
-      ".", "..", wd, dirname(wd), normalizePath(dir_data_docs, winslash = "/")
+      ".", "..", wd, dirname(wd), normalizePath(dir_data_output, winslash = "/")
     )
     fn_vec <- setdiff(fn_vec, exc_vec)
 
@@ -232,7 +232,7 @@
       normalizePath(winslash = "/")
     wd <- normalizePath(getwd(), winslash = "/")
     exc_vec <- c(
-      ".", "..", wd, dirname(wd), normalizePath(dir_data_docs, winslash = "/")
+      ".", "..", wd, dirname(wd), normalizePath(dir_data_r, winslash = "/")
     )
     fn_vec <- setdiff(fn_vec, exc_vec)
     for (i in seq_along(fn_vec)) {
