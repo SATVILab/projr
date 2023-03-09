@@ -386,9 +386,59 @@ projr_dir_create <- function(label) {
       }
     }
   }
+  invisible(TRUE)
+}
 
-
-
+.projr_dir_clear <- function(path_dir, delete_directories = TRUE) {
+  if (!file.exists(path_dir)) {
+    return(invisible(TRUE))
+  }
+  path_dir <- path_dir |> normalizePath(winslash = "/", mustWork = FALSE)
+  dir_proj <- rprojroot::is_r_package$find_file() |>
+    normalizePath(winslash = "/")
+  if (identical(path_dir, dir_proj)) {
+    stop("Attempting to delete entire project directory")
+  }
+  # delete directories
+  if (delete_directories) {
+    path_vec_dir <- list.dirs(
+      path_dir,
+      recursive = FALSE, full.names = TRUE
+    )
+    for (i in seq_along(path_vec_dir)) {
+      unlink(path_vec_dir[i], recursive = TRUE)
+    }
+    # delete files
+    fn_vec <- list.files(
+      path_dir,
+      recursive = FALSE, full.names = TRUE, all.files = TRUE
+    )
+    fn_vec <- fn_vec |>
+      normalizePath(winslash = "/")
+    exc_vec <- c(
+      ".", "..", path_dir, dirname(path_dir)
+    )
+    fn_vec <- setdiff(fn_vec, exc_vec)
+    invisible(file.remove(fn_vec))
+  } else {
+    fn_vec <- list.files(
+      path = path_dir,
+      recursive = TRUE, full.names = TRUE, all.files = TRUE
+    )
+    if (length(fn_vec) == 0) {
+      return(invisible(TRUE))
+    }
+    fn_vec <- fn_vec |>
+      normalizePath(winslash = "/")
+    wd <- normalizePath(projr_dir_get("project"), winslash = "/")
+    exc_vec <- c(
+      ".", "..", wd, dirname(wd), normalizePath(path_dir, winslash = "/")
+    )
+    fn_vec <- setdiff(fn_vec, exc_vec)
+    if (length(fn_vec) > 0) {
+      invisible(file.remove(fn_vec))
+    }
+  }
   invisible(TRUE)
 }
 

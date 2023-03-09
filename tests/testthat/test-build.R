@@ -31,6 +31,50 @@ test_that("projr_build_dev works", {
 })
 
 
+test_that(".projr_build_clear_pre and _post works", {
+  dir_test <- file.path(tempdir(), paste0("report"))
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  Sys.setenv("PROJR_TEST" = "TRUE")
+
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      projr_init()
+      # pre
+      # ------------------------
+      path_output <- projr_dir_get("output", "a", output_safe = FALSE)
+      path_docs <- projr_dir_get("docs", "b")
+      path_data <- projr_dir_get("project", "data", "c")
+      .projr_build_clear_pre(TRUE)
+      expect_false(dir.exists(path_output))
+      expect_false(dir.exists(path_docs))
+      expect_false(dir.exists(path_data))
+
+      # post
+      # ------------------------
+      path_dir <- projr_dir_get("cache", "projr_output")
+      .projr_build_clear_post(FALSE)
+      expect_true(dir.exists(path_dir))
+      .projr_build_clear_post(TRUE)
+      expect_false(dir.exists(path_dir))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+  Sys.unsetenv("PROJR_TEST")
+  unlink(dir_test, recursive = TRUE)
+})
+
+
 test_that("projr_build_copy_output_direct works", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)

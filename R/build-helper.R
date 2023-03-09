@@ -164,6 +164,8 @@
   invisible(TRUE)
 }
 
+
+
 .projr_build_clear_pre <- function(output_run) {
   # clear
   # -----------------
@@ -176,93 +178,29 @@
   ]
   for (x in label_vec_output) {
     dir_data_output <- projr_dir_get(x, output_safe = !output_run)
-    fn_vec <- list.files(
-      dir_data_output,
-      recursive = TRUE, full.names = TRUE, all.files = TRUE
-    ) |>
-      normalizePath(winslash = "/")
-    wd <- normalizePath(getwd(), winslash = "/")
-    exc_vec <- c(
-      ".", "..", wd, dirname(wd), normalizePath(dir_data_output, winslash = "/")
-    )
-    fn_vec <- setdiff(fn_vec, exc_vec)
-
-    for (i in seq_along(fn_vec)) {
-      if (!file.exists(fn_vec[i])) next
-      unlink(fn_vec[i], recursive = TRUE)
-    }
+    .projr_dir_clear(dir_data_output)
   }
 
   # clear docs folder
   dir_data_docs <- projr_dir_get("docs") |>
     normalizePath(winslash = "/")
-  docs_is_wd <- identical(dir_data_docs, getwd())
+  wd <- getwd() |> normalizePath(winslash = "/")
+  docs_is_wd <- identical(dir_data_docs, wd)
   if (docs_is_wd) {
 
   } else {
-    fn_vec <- list.files(
-      dir_data_docs,
-      recursive = FALSE, all.files = TRUE,
-      full.names = TRUE
-    ) |>
-      normalizePath(winslash = "/")
-    wd <- normalizePath(getwd(), winslash = "/")
-    exc_vec <- c(
-      ".", "..", wd,
-      dirname(wd), normalizePath(dir_data_docs, winslash = "/")
-    )
-    fn_vec <- setdiff(fn_vec, exc_vec)
-    for (i in seq_along(fn_vec)) {
-      if (!file.exists(fn_vec[i])) next
-      if (fs::is_dir(fn_vec[i])) {
-        unlink(fn_vec[i], recursive = TRUE)
-        next
-      }
-      invisible(file.remove(fn_vec[i]))
-    }
+    .projr_dir_clear(dir_data_docs)
   }
 
   # clear data folder
-  dir_data_r <- file.path(rprojroot::is_r_package$find_file(), "data")
-  if (dir.exists(dir_data_r)) {
-    fn_vec <- list.files(
-      dir_data_r,
-      recursive = TRUE, full.names = TRUE, all.files = TRUE
-    ) |>
-      normalizePath(winslash = "/")
-    wd <- normalizePath(getwd(), winslash = "/")
-    exc_vec <- c(
-      ".", "..", wd, dirname(wd), normalizePath(dir_data_r, winslash = "/")
-    )
-    fn_vec <- setdiff(fn_vec, exc_vec)
-    for (i in seq_along(fn_vec)) {
-      if (!file.exists(fn_vec[i])) next
-      unlink(fn_vec[i], recursive = TRUE)
-    }
-  }
+  .projr_dir_clear(
+    file.path(rprojroot::is_r_package$find_file(), "data")
+  )
 
   invisible(TRUE)
 }
 
-.projr_build_clear_post <- function(output_run) {
-  if (!output_run) {
-    return(invisible(TRUE))
-  }
-  # clear
-  # -----------------
 
-  # clear projr cache directories
-  dir_cache <- projr_dir_get("cache")
-  dir_vec <- c("projr_output", "projr_cache", "projr_gh_release")
-  for (x in dir_vec) {
-    path_dir <- file.path(dir_cache, dir_vec)
-    if (dir.exists(path_dir)) {
-      unlink(path_dir, recursive = TRUE)
-    }
-  }
-
-  invisible(TRUE)
-}
 
 # ==========================
 # Post-build
@@ -321,6 +259,25 @@
   invisible(TRUE)
 }
 
+.projr_build_clear_post <- function(output_run) {
+  if (!output_run) {
+    return(invisible(TRUE))
+  }
+  # clear
+  # -----------------
+
+  # clear projr cache directories
+  dir_cache <- projr_dir_get("cache")
+  dir_vec <- c("projr_output", "projr_cache", "projr_gh_release")
+  for (x in dir_vec) {
+    path_dir <- file.path(dir_cache, x)
+    if (dir.exists(path_dir)) {
+      unlink(path_dir, recursive = TRUE)
+    }
+  }
+
+  invisible(TRUE)
+}
 
 .projr_build_copy <- function(output_run,
                               bump_component,
