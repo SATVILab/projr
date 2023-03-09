@@ -187,6 +187,7 @@
     normalizePath(winslash = "/")
   docs_is_wd <- identical(dir_data_docs, getwd())
   if (docs_is_wd) {
+
   } else {
     fn_vec <- list.files(
       dir_data_docs,
