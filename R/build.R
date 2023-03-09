@@ -28,7 +28,7 @@
 projr_build_output <- function(bump_component, msg = NULL, ...) {
   if (missing(bump_component)) {
     yml_projr <- projr_yml_get()
-    version <- yml_projr[["version-format"]]
+    version_f <- yml_projr[["version-format"]]
     version_vec <- strsplit(version, split = "\\.|\\-")[[1]]
     bump_component <- version_vec[length(version_vec) - 1]
   }

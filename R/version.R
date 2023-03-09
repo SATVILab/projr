@@ -24,6 +24,25 @@ projr_version_set <- function(version) {
   invisible(TRUE)
 }
 
+#' @title Get version format
+#'
+#' @description
+#' Returns the version format,
+#' which species the depth of semantic
+#' versioning levels used (e.g. major or major, minor and patch)
+#' as well as the separators between the versions (periods or dashes).
+#'
+#' @param character.
+#' The version format.
+#' Exampl
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' projr_version_format_set("major.minor-dev")
+#' projr_version_format_set("major.minor.patch-1")
+#' }
 projr_version_format_set <- function(version_format) {
   if (missing(version_format)) {
     stop("version_format must be supplied")
@@ -51,6 +70,15 @@ projr_version_format_set <- function(version_format) {
   invisible(TRUE)
 }
 
+#' @title Get version format
+#'
+#' @description
+#' Returns the version format,
+#' which species the depth of semantic
+#' versioning levels used (e.g. major or major, minor and patch)
+#' as well as the separators between the versions (periods or dashes).
+#'
+#' @export
 projr_version_format_get <- function() {
   version_format <- projr_yml_get()[["version-format"]]
   if (length(version_format) == 0) {
