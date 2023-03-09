@@ -1007,6 +1007,7 @@
     fn_vec <- fn_vec[!fn_vec %in% fn_exc]
   }
   if (length(fn_vec) == 0) {
+    setwd(wd_orig)
     return(invisible(FALSE))
   }
   path_zip_temp <- basename(path_zip)
