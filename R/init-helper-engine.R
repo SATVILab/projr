@@ -144,7 +144,9 @@
   txt <- c(
     "---",
     paste0("title: ", nm_list[["title"]]),
-    paste0("format: ", format),
+    "format:",
+    paste0("  ", format, ":"),
+    "    embed-resources: false",
     "---",
     "",
     "# Introduction",
