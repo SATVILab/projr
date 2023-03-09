@@ -103,7 +103,7 @@
         title = nm_list[["title"]],
         navbar = list(
           left = list(
-            list(href = "index.qmd", text = "Home")Gg
+            list(href = "index.qmd", text = "Home")
           )
         )
       ),
