@@ -47,7 +47,7 @@ test_that("projr_dir_get works", {
       projr_dir_get("cache", create = TRUE)
       expect_true(dir.exists("_tmp"))
       yml_projr <- .projr_yml_get_root_full()
-      path_tmp_data_raw <- file.path(tempdir(), "/testDataRawABC1902")
+      path_tmp_data_raw <- file.path(tempdir(), "testDataRawABC1902")
       yml_projr[["directories"]][["data-raw"]] <- list(
         path = path_tmp_data_raw,
         ignore = TRUE

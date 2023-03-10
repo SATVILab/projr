@@ -98,7 +98,8 @@ projr_dir_get <- function(label, ...,
     )
   }
   as.character(path_final) |>
-    normalizePath(winslash = "/", mustWork = FALSE)
+    fs::path_norm() |>
+    as.character()
 }
 
 .projr_dir_get_docs <- function() {
@@ -244,7 +245,8 @@ projr_path_get <- function(label, ...,
     )
   }
   file.path(path_dir, args_dotted[length(args_dotted)]) |>
-    normalizePath(winslash = "/", mustWork = FALSE)
+    fs::path_norm() |>
+    as.character()
 }
 
 
@@ -395,9 +397,10 @@ projr_dir_create <- function(label) {
   if (!file.exists(path_dir)) {
     return(invisible(TRUE))
   }
-  path_dir <- path_dir |> normalizePath(winslash = "/", mustWork = FALSE)
+  path_dir <- path_dir |> fs::path_norm() |> as.character()
   dir_proj <- rprojroot::is_r_package$find_file() |>
-    normalizePath(winslash = "/")
+    fs::path_norm() |>
+    as.character()
   if (identical(path_dir, dir_proj)) {
     stop("Attempting to delete entire project directory")
   }
@@ -416,7 +419,8 @@ projr_dir_create <- function(label) {
       recursive = FALSE, full.names = TRUE, all.files = TRUE
     )
     fn_vec <- fn_vec |>
-      normalizePath(winslash = "/")
+      fs::path_norm() |>
+      as.character()
     exc_vec <- c(
       ".", "..", path_dir, dirname(path_dir)
     )
@@ -431,7 +435,8 @@ projr_dir_create <- function(label) {
       return(invisible(TRUE))
     }
     fn_vec <- fn_vec |>
-      normalizePath(winslash = "/")
+      fs::path_norm() |>
+      as.character()
     wd <- normalizePath(projr_dir_get("project"), winslash = "/")
     exc_vec <- c(
       ".", "..", wd, dirname(wd), normalizePath(path_dir, winslash = "/")
