@@ -70,7 +70,7 @@ projr_profile_create <- function(profile = NULL,
     }
     profile <- rprojroot::is_r_package$find_file()
   }
-  if (!method %in% c("key", "file")) {
+  if (!all(method %in% c("key", "file"))) {
     stop("method must be either 'key' or 'file'")
   }
   if (identical(sort(as.character(method)), sort(c("key", "file")))) {

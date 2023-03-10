@@ -45,25 +45,35 @@ test_that("projr_dir_get works", {
       projr_dir_get("cache", create = TRUE)
       expect_true(dir.exists("_tmp"))
       yml_projr <- .projr_yml_get_root_full()
+      path_tmp_data_raw <- file.path(tempdir(), "/testDataRawABC1902")
       yml_projr[["directories"]][["data-raw"]] <- list(
-        path = "/tmp/testDataRawABC1902", ignore = TRUE
+        path = path_tmp_data_raw,
+        ignore = TRUE
       )
-      .projr_yml_set(yml_projr)
-
-      expect_identical(projr_dir_get("data-raw"), "/tmp/testDataRawABC1902")
+      .projr_yml_set(yml_projr)      
+      expect_identical(
+        projr_dir_get("data-raw"),
+        path_tmp_data_raw
+      )
       expect_identical(
         projr_dir_get("data-raw", path_relative_force = TRUE),
-        as.character(fs::path_rel("/tmp/testDataRawABC1902", dir_test))
+        as.character(
+          fs::path_rel(
+            path_tmp_data_raw,
+            dir_test
+          )
+        )
       )
       expect_identical(
         projr_dir_get("docs", "abc"), "docs/reportV0.0.0-1/abc"
       )
       expect_identical(
-        projr_dir_get("data-raw", "abc"), "/tmp/testDataRawABC1902/abc"
+        projr_dir_get("data-raw", "abc"),
+        file.path(path_tmp_data_raw, "abc")
       )
       expect_identical(
         projr_dir_get("data-raw", "abc", "def", "ghi"),
-        "/tmp/testDataRawABC1902/abc/def/ghi"
+        file.path(path_tmp_data_raw, "abc/def/ghi")
       )
       expect_identical(
         projr_dir_get("cache", "abc"), "_tmp/abc"
