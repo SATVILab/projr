@@ -57,6 +57,7 @@ test_that("projr_dir_get works", {
         projr_dir_get("data-raw"),
         path_tmp_data_raw
       )
+
       expect_identical(
         projr_dir_get("data-raw", path_relative_force = TRUE),
         as.character(
@@ -75,7 +76,9 @@ test_that("projr_dir_get works", {
       )
       expect_identical(
         projr_dir_get("data-raw", "abc", "def", "ghi"),
-        file.path(path_tmp_data_raw, "abc/def/ghi")
+        file.path(path_tmp_data_raw, "abc/def/ghi") |>
+          fs::path_norm() |>
+          as.character()
       )
       expect_identical(
         projr_dir_get("cache", "abc"), "_tmp/abc"
@@ -163,7 +166,10 @@ test_that("projr_path_get works", {
       expect_identical(projr_path_get("data-raw"), path_data_raw_abs)
       expect_identical(
         projr_path_get("data-raw", path_relative_force = TRUE),
-        as.character(fs::path_rel(path_data_raw_abs, dir_test))
+        as.character(
+          fs::path_rel(path_data_raw_abs, dir_test) |>
+          fs::path_norm()
+          )
       )
       expect_identical(
         projr_path_get("docs", "abc"), "docs/reportV0.0.0-1/abc"
@@ -180,7 +186,9 @@ test_that("projr_path_get works", {
       )
       expect_identical(
         projr_path_get("data-raw", "abc", "def", "ghi"),
-        file.path(path_data_raw_abs, "abc/def/ghi")
+        file.path(path_data_raw_abs, "abc/def/ghi") |>
+          fs::path_norm() |>
+          as.character()
       )
       expect_true(
         fs::is_dir(dirname((projr_path_get("archive", "abc", "def"))))
@@ -424,10 +432,12 @@ test_that(".projr_dir_clear works", {
 
   rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
   writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  Sys.setenv("PROJR_TEST" = "TRUE")
 
   usethis::with_project(
     path = dir_test,
     code = {
+      projr_init()
       expect_error(.projr_dir_clear(dir_test))
       expect_true(.projr_dir_clear(file.path(dir_test, "abc")))
 
