@@ -1,7 +1,12 @@
 library(testthat)
 devtools::load_all(path = file.path(Sys.getenv("pkg"), "projr"))
 
-debugonce(.projr_init_prompt_init)
+dir_test <- file.path(tempdir(), "report")
+dir_proj <- "C:/Users/runneradmin/AppData/Local/Temp/RtmpKyvNbf/working_dir/RtmpgPdcYA/report"
+
+
+fs::path_abs(dir_proj)
+
 
 Sys.setenv("PROJR_TEST" = "TRUE")
 library(testthat)
