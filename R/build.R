@@ -147,7 +147,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
   )
 
   # save manifest table
-  .projr_build_manifest_save(manifest_tbl)
+  .projr_build_manifest_save(manifest_tbl, output_run = output_run)
 
   # upload via piggyback
   .projr_pb_upload(

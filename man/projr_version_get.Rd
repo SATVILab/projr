@@ -4,7 +4,13 @@
 \alias{projr_version_get}
 \title{Return the next version to be built}
 \usage{
-projr_version_get()
+projr_version_get(dev_force = FALSE)
+}
+\arguments{
+\item{dev_force}{logical.
+If \code{TRUE}, then the returned version
+will necessarily have a \code{dev} component.
+Default is \code{FALSE}.}
 }
 \value{
 Character.

@@ -1,4 +1,4 @@
-.projr_build_manifest_save <- function(manifest) {
+.projr_build_manifest_save <- function(manifest, output_run) {
   yml_projr_dir <- projr_yml_get()[["directories"]]
   label_vec <- names(yml_projr_dir)[
     grepl("^archive|^output", .projr_dir_label_strip(names(yml_projr_dir)))
@@ -9,12 +9,13 @@
         next
       }
     }
-    saveRDS(
-      manifest, projr_path_get(x, "manifest.rds", output_safe = FALSE)
+    archive_ind <- grepl("^archive", .projr_dir_label_strip(x))
+    dir_save <- switch(as.character(archive_ind),
+      "TRUE" = projr_dir_get(x, paste0("v", projr_version_get())),
+      "FALSE" = projr_dir_get(x, output_safe = FALSE)
     )
-    utils::write.csv(
-      manifest, projr_path_get(x, "manifest.csv", output_safe = FALSE)
-    )
+    saveRDS(manifest, file.path(dir_save, "manifest.rds"))
+    utils::write.csv(manifest, file.path(dir_save, "manifest.csv"))
   }
   invisible(TRUE)
 }
@@ -83,6 +84,8 @@
 }
 
 .projr_manifest_hash_label <- function(label) {
+  # output is always in safe directory
+  # as hashing is done before copying over to final directory
   path_dir <- projr::projr_dir_get(label, output_safe = TRUE)
   fn_vec <- list.files(path_dir, full.names = TRUE, recursive = TRUE)
   if (length(fn_vec) == 0) {

@@ -154,7 +154,7 @@ projr_name_get <- function() {
   invisible(TRUE)
 }
 
-.projr_version_current_vec_get <- function() {
+.projr_version_current_vec_get <- function(dev_force = FALSE) {
   # basically, the idea
   # is to choose whichever is greater of
   # the _bookdown.yml and the
@@ -165,6 +165,10 @@ projr_name_get <- function() {
     split = "\\-|\\."
   )[[1]]
   version_format <- .projr_version_format_list_get()$components
+  # if not forcing there to be a dev version
+  if (!dev_force) {
+    return(version_desc_vec |> as.integer())
+  }
   if (length(version_format) == length(version_desc_vec)) {
     return(version_desc_vec |> as.integer())
   }
@@ -175,14 +179,11 @@ projr_name_get <- function() {
       version_desc_vec, version_format[length(version_format)]
     )
   }
-  if (!length(version_format) == length(version_desc_vec)) {
-
-  }
   version_desc_vec |> as.integer()
 }
 
 .projr_version_run_onwards_get <- function(bump_component) {
-  version_orig_vec <- .projr_version_current_vec_get()
+  version_orig_vec <- .projr_version_current_vec_get(dev_force = TRUE)
   version_format_list <- .projr_version_format_list_get()
 
   if (!is.null(bump_component)) {
@@ -254,11 +255,16 @@ projr_name_get <- function() {
 #' Typically this will simply be the version in
 #' \code{_bookdown.yml}.
 #'
+#' @param dev_force logical.
+#' If `TRUE`, then the returned version
+#' will necessarily have a `dev` component.
+#' Default is `FALSE`.
+#'
 #' @return Character.
 #'
 #' @export
-projr_version_get <- function() {
-  .projr_version_current_vec_get() |>
+projr_version_get <- function(dev_force = FALSE) {
+  .projr_version_current_vec_get(dev_force = dev_force) |>
     .projr_version_chr_get()
 }
 

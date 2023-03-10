@@ -210,10 +210,16 @@ test_that("projr_version_get works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      expect_identical(.projr_version_current_vec_get(), c(rep(0L, 3), 1L))
+      expect_identical(
+        .projr_version_current_vec_get(), c(rep(0L, 3), 1L)
+      )
       projr_version_set("7.9.2-1")
       expect_identical(projr_version_get(), "7.9.2-1")
+      projr_version_set("7.9.2")
+      expect_identical(projr_version_get(), "7.9.2")
+      expect_identical(projr_version_get(dev_force = TRUE), "7.9.2-1")
       projr_version_format_set("major.dev")
+
       projr_version_set("0.1")
       expect_identical(projr_version_get(), "0.1")
       expect_error(projr_version_set())
