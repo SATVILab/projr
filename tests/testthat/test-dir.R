@@ -22,10 +22,12 @@ test_that("projr_dir_get works", {
 
   rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
   writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  Sys.setenv("PROJR_TEST" = "TRUE")
 
   usethis::with_project(
     path = dir_test,
     code = {
+      projr_init()
       projr_dir_get("project")
       yml_projr <- .projr_yml_get_root_full()
       expect_error(projr_dir_get("ailc"))
@@ -50,7 +52,7 @@ test_that("projr_dir_get works", {
         path = path_tmp_data_raw,
         ignore = TRUE
       )
-      .projr_yml_set(yml_projr)      
+      .projr_yml_set(yml_projr)
       expect_identical(
         projr_dir_get("data-raw"),
         path_tmp_data_raw
@@ -65,7 +67,7 @@ test_that("projr_dir_get works", {
         )
       )
       expect_identical(
-        projr_dir_get("docs", "abc"), "docs/reportV0.0.0-1/abc"
+        projr_dir_get("docs", "abc"), "docs/abc"
       )
       expect_identical(
         projr_dir_get("data-raw", "abc"),
@@ -151,21 +153,24 @@ test_that("projr_path_get works", {
       projr_path_get("cache", create = TRUE)
       expect_true(dir.exists("_tmp"))
       yml_projr <- .projr_yml_get_root_full()
+      path_data_raw_abs <- fs::path_abs(dirname(dirname(getwd()))) |>
+        as.character()
       yml_projr[["directories"]][["data-raw"]] <- list(
-        path = "/tmp/testDataRawABC1902", ignore = TRUE
+        path = path_data_raw_abs, ignore = TRUE
       )
       .projr_yml_set(yml_projr)
 
-      expect_identical(projr_path_get("data-raw"), "/tmp/testDataRawABC1902")
+      expect_identical(projr_path_get("data-raw"), path_data_raw_abs)
       expect_identical(
         projr_path_get("data-raw", path_relative_force = TRUE),
-        as.character(fs::path_rel("/tmp/testDataRawABC1902", dir_test))
+        as.character(fs::path_rel(path_data_raw_abs, dir_test))
       )
       expect_identical(
         projr_path_get("docs", "abc"), "docs/reportV0.0.0-1/abc"
       )
       expect_identical(
-        projr_path_get("data-raw", "abc"), "/tmp/testDataRawABC1902/abc"
+        projr_path_get("data-raw", "abc"),
+        file.path(path_data_raw_abs, "abc")
       )
       expect_identical(
         projr_path_get("cache", "abc"), "_tmp/abc"
@@ -175,7 +180,7 @@ test_that("projr_path_get works", {
       )
       expect_identical(
         projr_path_get("data-raw", "abc", "def", "ghi"),
-        "/tmp/testDataRawABC1902/abc/def/ghi"
+        file.path(path_data_raw_abs, "abc/def/ghi")
       )
       expect_true(
         fs::is_dir(dirname((projr_path_get("archive", "abc", "def"))))
