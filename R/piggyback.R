@@ -27,10 +27,11 @@
     if (!tag %in% gh_tbl_release[["release_name"]]) {
       piggyback::pb_release_create(tag = tag, body = body)
       # code not updated unless release is new
-    } else if ("code" %in% yml_projr_gh_ind[["content"]]) {
+    } else {
       piggyback::pb_release_delete(tag = tag)
       piggyback::pb_release_create(tag = tag, body = body)
     }
+
     Sys.sleep(3)
     # if only uploading code, then already done when release is created
     if (identical("code", yml_projr_gh_ind[["code"]])) {
@@ -47,7 +48,7 @@
       if (!file.exists(path_zip)) {
         next
       }
-      
+
       # upload
       piggyback::pb_upload(file = path_zip, tag = tag)
     }
@@ -88,8 +89,7 @@
     dir_exc = dir_exc,
     dir_inc = dir_inc
   )
-  switch(
-    as.character(zip_outcome),
+  switch(as.character(zip_outcome),
     "TRUE" = path_zip,
     "FALSE" = character(1)
   )
