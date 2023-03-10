@@ -97,7 +97,8 @@ projr_dir_get <- function(label, ...,
       start = rprojroot::is_r_package$find_file()
     )
   }
-  as.character(path_final)
+  as.character(path_final) |>
+    normalizePath(winslash = "/", mustWork = FALSE)
 }
 
 .projr_dir_get_docs <- function() {
@@ -242,7 +243,8 @@ projr_path_get <- function(label, ...,
       output_safe = output_safe
     )
   }
-  file.path(path_dir, args_dotted[length(args_dotted)])
+  file.path(path_dir, args_dotted[length(args_dotted)]) |>
+    normalizePath(winslash = "/", mustWork = FALSE)
 }
 
 
