@@ -401,7 +401,7 @@ projr_dir_create <- function(label) {
   dir_proj <- rprojroot::is_r_package$find_file() |>
     fs::path_norm() |>
     as.character()
-  if (identical(path_dir, dir_proj)) {
+  if (identical(fs::path_abs(path_dir), fs::path_abs(dir_proj))) {
     stop("Attempting to delete entire project directory")
   }
   # delete directories
