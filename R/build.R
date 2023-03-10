@@ -105,7 +105,7 @@ projr_build_dev <- function(bump = FALSE, ...) {
 
   # empty output directories
   # (bookdown, output and data)
-  .projr_build_clear_pre(output_run)
+  .projr_build_clear_pre()
 
   # hash cache
   manifest_tbl_pre <- .projr_build_manifest_hash_pre()

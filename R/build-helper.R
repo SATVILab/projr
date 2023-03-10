@@ -166,7 +166,7 @@
 
 
 
-.projr_build_clear_pre <- function(output_run) {
+.projr_build_clear_pre <- function() {
   # clear
   # -----------------
 
@@ -177,7 +177,7 @@
     grepl("^output", .projr_dir_label_strip(label_vec))
   ]
   for (x in label_vec_output) {
-    dir_data_output <- projr_dir_get(x, output_safe = !output_run)
+    dir_data_output <- projr_dir_get(x, output_safe = TRUE)
     .projr_dir_clear(dir_data_output)
   }
 
@@ -274,6 +274,17 @@
     if (dir.exists(path_dir)) {
       unlink(path_dir, recursive = TRUE)
     }
+  }
+
+  # clear safe output direcotry
+  yml_projr_dir <- projr_yml_get()[["directories"]]
+  label_vec <- names(yml_projr_dir)
+  label_vec_output <- label_vec[
+    grepl("^output", .projr_dir_label_strip(label_vec))
+  ]
+  for (x in label_vec_output) {
+    dir_data_output <- projr_dir_get(x, output_safe = FALSE)
+    .projr_dir_clear(dir_data_output)
   }
 
   invisible(TRUE)
@@ -979,7 +990,6 @@
                            dir_exc = NULL,
                            dir_inc = NULL,
                            fn_exc = NULL) {
-
   if (file.exists(path_zip)) {
     invisible(file.remove(path_zip))
   }

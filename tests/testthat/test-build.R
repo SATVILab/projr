@@ -51,21 +51,30 @@ test_that(".projr_build_clear_pre and _post works", {
       projr_init()
       # pre
       # ------------------------
-      path_output <- projr_dir_get("output", "a", output_safe = FALSE)
+      path_output_safe <- projr_dir_get("output", "a", output_safe = TRUE)
+      path_output_final <- projr_dir_get("output", "a", output_safe = FALSE)
       path_docs <- projr_dir_get("docs", "b")
       path_data <- projr_dir_get("project", "data", "c")
-      .projr_build_clear_pre(TRUE)
-      expect_false(dir.exists(path_output))
+      .projr_build_clear_pre()
+      expect_false(dir.exists(path_output_safe))
+      expect_true(dir.exists(path_output_final))
       expect_false(dir.exists(path_docs))
       expect_false(dir.exists(path_data))
 
       # post
       # ------------------------
+      # cache
       path_dir <- projr_dir_get("cache", "projr_output")
       .projr_build_clear_post(FALSE)
       expect_true(dir.exists(path_dir))
       .projr_build_clear_post(TRUE)
       expect_false(dir.exists(path_dir))
+      # cache
+      path_output_safe <- projr_dir_get("output", "a", output_safe = TRUE)
+      path_output_final <- projr_dir_get("output", "a", output_safe = FALSE)
+      .projr_build_clear_post(TRUE)
+      expect_true(dir.exists(path_output_safe))
+      expect_false(dir.exists(path_output_final))
     },
     quiet = TRUE,
     force = TRUE
