@@ -1,8 +1,12 @@
 library(testthat)
 devtools::load_all(path = file.path(Sys.getenv("pkg"), "projr"))
 
-dir_test <- file.path(tempdir(), "report")
-dir_proj <- "C:/Users/runneradmin/AppData/Local/Temp/RtmpKyvNbf/working_dir/RtmpgPdcYA/report"
+# path_dir
+"C:\Users\RUNNER~1\AppData\Local\Temp\RtmpuUR6PU/working_dir\RtmpgBf9hB/report"
+# path_dir 
+"C:/Users/RUNNER~1/AppData/Local/Temp/RtmpuUR6PU/working_dir/RtmpgBf9hB/report"
+# dir_proj
+"C:/Users/runneradmin/AppData/Local/Temp/RtmpuUR6PU/working_dir/RtmpgBf9hB/report"
 
 
 fs::path_abs(dir_proj)

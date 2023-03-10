@@ -399,17 +399,35 @@ projr_dir_create <- function(label) {
   if (!file.exists(path_dir)) {
     return(invisible(TRUE))
   }
-  warning("path_dir")
-  warning(path_dir)
+  if (FALSE) {
+    if (dir.exists(file.path(path_dir, ".git"))) {
+      stop("Attempting to remove a .git folder")
+    }
+    warning("path_dir")
+    warning(path_dir)
+  }
   path_dir <- path_dir |> fs::path_norm() |> as.character()
   dir_proj <- rprojroot::is_r_package$find_file() |>
     fs::path_norm() |>
     as.character()
-  warning("path_dir")
-  warning(path_dir)
-  warning("dir_proj")
-  warning(dir_proj)
-  if (identical(fs::path_abs(path_dir), fs::path_abs(dir_proj))) {
+  if (FALSE) {
+    warning("path_dir")
+    warning(path_dir)
+    warning("dir_proj")
+    warning(dir_proj)
+  }
+  path_desc_dir <- file.path(path_dir, "DESCRIPTION")
+  fn_vec_dir <- list.files(
+    path_dir, recursive = TRUE, all.files = TRUE,
+    full.names = FALSE
+    ) |>
+    sort()
+  fn_vec_proj <- list.files(
+    dir_proj, recursive = TRUE, all.files = TRUE,
+    full.names = FALSE
+    ) |>
+    sort()
+  if (identical(fn_vec_dir, fn_vec_proj)) {
     stop("Attempting to delete entire project directory")
   }
   # delete directories
