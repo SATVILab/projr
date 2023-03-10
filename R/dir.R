@@ -401,16 +401,14 @@ projr_dir_create <- function(label) {
   }
   warning("path_dir")
   warning(path_dir)
-  warning("dir_test")
-  warning(dir_test)
   path_dir <- path_dir |> fs::path_norm() |> as.character()
   dir_proj <- rprojroot::is_r_package$find_file() |>
     fs::path_norm() |>
     as.character()
   warning("path_dir")
   warning(path_dir)
-  warning("dir_test")
-  warning(dir_test)
+  warning("dir_proj")
+  warning(dir_proj)
   if (identical(fs::path_abs(path_dir), fs::path_abs(dir_proj))) {
     stop("Attempting to delete entire project directory")
   }
