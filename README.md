@@ -3,7 +3,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/SATVILab/projr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/SATVILab/projr/actions/workflows/R-CMD-check.yaml)
-[![codecov](https://codecov.io/gh/SATVILab/projr/branch/main/graph/badge.svg?token=P5UA237XXK)](https://codecov.io/gh/SATVILab/projr)
+[![test-coverage](https://github.com/SATVILab/projr/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/SATVILab/projr/actions/workflows/test-coverage.yaml)
 <!-- badges: end -->
 
 The goal of projr is to ...
