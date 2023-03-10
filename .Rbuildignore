@@ -9,9 +9,6 @@
 ^\.github$
 ^lib
 ^codecov\.yml$
-^report\.html$
-^_projr-local\.yml$
-^_projr-local\.yml$
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
