@@ -47,7 +47,8 @@ test_that("projr_dir_get works", {
       projr_dir_get("cache", create = TRUE)
       expect_true(dir.exists("_tmp"))
       yml_projr <- .projr_yml_get_root_full()
-      path_tmp_data_raw <- file.path(tempdir(), "testDataRawABC1902")
+      path_tmp_data_raw <- fs::path_abs(dirname(dirname(getwd()))) |>
+        as.character()
       yml_projr[["directories"]][["data-raw"]] <- list(
         path = path_tmp_data_raw,
         ignore = TRUE
@@ -60,12 +61,7 @@ test_that("projr_dir_get works", {
 
       expect_identical(
         projr_dir_get("data-raw", path_relative_force = TRUE),
-        as.character(
-          fs::path_rel(
-            path_tmp_data_raw,
-            dir_test
-          )
-        )
+        "../.."
       )
       expect_identical(
         projr_dir_get("docs", "abc"), "docs/abc"
@@ -166,10 +162,7 @@ test_that("projr_path_get works", {
       expect_identical(projr_path_get("data-raw"), path_data_raw_abs)
       expect_identical(
         projr_path_get("data-raw", path_relative_force = TRUE),
-        as.character(
-          fs::path_rel(path_data_raw_abs, dir_test) |>
-          fs::path_norm()
-          )
+        "../.."
       )
       expect_identical(
         projr_path_get("docs", "abc"), "docs/reportV0.0.0-1/abc"
