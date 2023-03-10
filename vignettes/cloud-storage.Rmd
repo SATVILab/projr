@@ -1,0 +1,21 @@
+---
+title: Storing and downloading project artefacts on the cloud
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{cloud-storage}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+## GitHub releases
+
+GitHub releases are available because they are 
