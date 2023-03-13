@@ -2,7 +2,7 @@
 directories:
   data-raw:
     path: _data_raw
-    output: true
+    archive: true
   cache: 
     path: _tmp
   output: 
@@ -10,7 +10,7 @@ directories:
   archive: 
     path: _archive
   docs:
-    output: true
+    archive: true
 
 build:
   dev-output: true
