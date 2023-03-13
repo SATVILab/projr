@@ -244,6 +244,7 @@
       ".Ruserdata", ""
     )
     writeLines(gitignore, file.path(dir_proj, ".gitignore"))
+    .projr_newline_append(file.path(dir_proj, ".gitignore"))
   }
 
   if (!file.exists(file.path(dir_proj, ".Rbuildignore"))) {
@@ -251,6 +252,7 @@
       "^.*\\.Rproj$", "^\\.Rproj\\.user$"
     )
     writeLines(rbuildignore, file.path(dir_proj, ".Rbuildignore"))
+    .projr_newline_append(file.path(dir_proj, ".Rbuildignore"))
   }
   invisible(TRUE)
 }
@@ -277,7 +279,7 @@
   r_profile_txt <- readLines(path_rprofile)
   r_profile_txt <- c(r_profile_txt, "", renv_repos_txt)
   writeLines(r_profile_txt, path_rprofile)
-
+  .projr_newline_append(path_rprofile)
   invisible(TRUE)
 }
 
