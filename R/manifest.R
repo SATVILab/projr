@@ -4,6 +4,9 @@
     grepl("^archive|^output", .projr_dir_label_strip(names(yml_projr_dir)))
   ]
   for (x in label_vec) {
+    if ((!output_run) && grepl("^archive", .projr_dir_label_strip(x))) {
+      next
+    }
     if ("manifest" %in% names(yml_projr_dir[[x]])) {
       if (!yml_projr_dir[[x]][["manifest"]]) {
         next
