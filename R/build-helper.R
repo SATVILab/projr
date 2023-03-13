@@ -321,7 +321,7 @@
   # package
   .projr_build_copy_pkg(output_run = output_run)
 
-  # save to outpu
+  # save to output
   .projr_build_copy_dir(output_run, dest_type = "output")
 
   # archive
@@ -558,7 +558,6 @@
   invisible(TRUE)
 }
 
-
 .projr_build_copy_docs_quarto_format_get <- function(frontmatter) {
   if (length(frontmatter) == 0) {
     return("html")
@@ -665,6 +664,9 @@
 
 .projr_build_copy_dir <- function(output_run,
                                   dest_type = "output") {
+  if (!output_run && dest_type == "archive") {
+    return(invisible(TRUE))
+  }
   dir_proj <- rprojroot::is_r_package$find_file()
   yml_projr <- projr_yml_get()
   yml_projr_dir <- yml_projr[["directories"]]
