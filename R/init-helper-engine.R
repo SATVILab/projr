@@ -146,7 +146,7 @@
     paste0("title: ", nm_list[["title"]]),
     "format:",
     paste0("  ", format, ":"),
-    "    embed-resources: false",
+    "    embed-resources: true",
     "---",
     "",
     "# Introduction",
