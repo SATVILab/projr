@@ -1,21 +1,21 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/rocker-org/devcontainer-templates/tree/main/src/r-ver
 {
 	"name": "R (rocker/r-ver base)",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "ghcr.io/rocker-org/devcontainer/geospatial:4.2",
 	"features": {
-		"ghcr.io/devcontainers/features/node:1": {
-			"version": "18"
-		},
-		"ghcr.io/devcontainers/features/git:1": {},
-		"ghcr.io/devcontainers/features/github-cli:1": {},
-		"ghcr.io/rocker-org/devcontainer-features/pandoc:1": {},
 		"ghcr.io/rocker-org/devcontainer-features/quarto-cli:1": {}
-	}
+	},
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "R --version",
+	// "postCreateCommand": "R -q -e 'renv::install()'",
 
 	// Configure tool-specific properties.
 	// "customizations": {},
