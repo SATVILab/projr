@@ -14,43 +14,98 @@
   }
 
   for (i in seq_along(projr_yml_get()[["build"]][["github-release"]])) {
-    gh_tbl_release <- suppressWarnings(suppressMessages(
-      piggyback::pb_releases()
-    ))
+    gh_tbl_release <- try(
+      suppressWarnings(suppressMessages(piggyback::pb_releases()))
+    )
+    if (identical(class(gh_tbl_release), "try-error")) {
+      Sys.sleep(3)
+      gh_tbl_release <- try(
+        suppressWarnings(suppressMessages(piggyback::pb_releases()))
+      )
+      if (identical(class(gh_tbl_release), "try-error")) {
+        warning("Could not upload to GitHub release.")
+        break
+      }
+    }
     yml_projr_gh_ind <- projr_yml_get()[["build"]][["github-release"]][[i]]
     tag <- names(projr_yml_get()[["build"]][["github-release"]])[i]
     tag <- switch(tag,
-      "@version" = paste0("v", projr_version_get()),
+      `@version` = paste0("v", projr_version_get()),
       tag
     )
+    tag <- gsub("^ +", "", tag)
+    tag < gsub(" +$", "", tag)
+    tag <- gsub(" ", "-", tag)
     body <- yml_projr_gh_ind[["body"]]
     if (!tag %in% gh_tbl_release[["release_name"]]) {
-      piggyback::pb_release_create(tag = tag, body = body)
-      # code not updated unless release is new
+      pb_release_create <- try(
+        piggyback::pb_release_create(tag = tag, body = body)
+      )
+      if (identical(class(pb_release_create), "try-error")) {
+        Sys.sleep(3)
+        pb_release_create <- try(
+          piggyback::pb_release_create(tag = tag, body = body)
+        )
+        if (identical(class(pb_release_create), "try-error")) {
+          warning(paste0("Could not create a GitHub release with tag ", tag))
+          next
+        }
+      }
     } else {
-      piggyback::pb_release_delete(tag = tag)
-      piggyback::pb_release_create(tag = tag, body = body)
+      pb_release_delete <- try(piggyback::pb_release_delete(tag = tag))
+      if (identical(class(pb_release_delete), "try-error")) {
+        Sys.sleep(2)
+        pb_release_delete <- try(piggyback::pb_release_delete(tag = tag))
+        if (identical(class(pb_release_delete), "try-error")) {
+          warning(paste0(
+            "Could not delete prior GitHub release with tag ", tag
+          ))
+          next
+        }
+      }
+      pb_release_create <- try(
+        piggyback::pb_release_create(tag = tag, body = body)
+      )
+      if (identical(class(pb_release_create), "try-error")) {
+        Sys.sleep(2)
+        pb_release_create <- try(
+          piggyback::pb_release_create(tag = tag, body = body)
+        )
+        if (identical(class(pb_release_create), "try-error")) {
+          warning(paste0("Could not re-create a GitHub release with tag ", tag))
+          next
+        }
+      }
     }
-
-    Sys.sleep(3)
-    # if only uploading code, then already done when release is created
-    if (identical("code", yml_projr_gh_ind[["code"]])) {
+    # no need to upload anything more if a code-only release
+    if (identical("code", yml_projr_gh_ind[["content"]])) {
       next
     }
-    # zip
-    # ------------------------
 
-    for (label in setdiff(yml_projr_gh_ind[["content"]], "code")) {
+    label_vec <- setdiff(yml_projr_gh_ind[["content"]], "code")
+
+    for (j in seq_along(label_vec)) {
+      label <- label_vec[j]
       path_zip <- .projr_zip_dir_pb(
-        tag = tag, label = label, output_run = output_run
+        tag = tag, label = label,
+        output_run = output_run
       )
-      # not zipped if there were zero files to zip
       if (!file.exists(path_zip)) {
         next
       }
-
-      # upload
-      piggyback::pb_upload(file = path_zip, tag = tag)
+      pb_release_upload <- try(piggyback::pb_upload(file = path_zip, tag = tag))
+      if (identical(class(pb_release_upload), "try-error")) {
+        Sys.sleep(2)
+        pb_release_upload <- try(
+          piggyback::pb_upload(file = path_zip, tag = tag)
+        )
+        if (identical(class(pb_release_upload), "try-error")) {
+          warning(paste0(
+            "Could not upload ", label, " to GitHub release with tag ", tag
+          ))
+          next
+        }
+      }
     }
   }
   #
