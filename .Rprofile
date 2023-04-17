@@ -1,3 +1,4 @@
+source("renv/activate.R")
 if (!nzchar(Sys.getenv("GITHUB_PAT"))) {
   if (!requireNamespace("gitcreds", quietly = TRUE)) {
     utils::install.packages("gitcreds")
