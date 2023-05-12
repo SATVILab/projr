@@ -52,28 +52,30 @@
         }
       }
     } else {
-      pb_release_delete <- try(piggyback::pb_release_delete(tag = tag))
-      if (identical(class(pb_release_delete), "try-error")) {
-        Sys.sleep(2)
+      if (FALSE) {
         pb_release_delete <- try(piggyback::pb_release_delete(tag = tag))
         if (identical(class(pb_release_delete), "try-error")) {
-          warning(paste0(
-            "Could not delete prior GitHub release with tag ", tag
-          ))
-          next
+          Sys.sleep(2)
+          pb_release_delete <- try(piggyback::pb_release_delete(tag = tag))
+          if (identical(class(pb_release_delete), "try-error")) {
+            warning(paste0(
+              "Could not delete prior GitHub release with tag ", tag
+            ))
+            next
+          }
         }
-      }
-      pb_release_create <- try(
-        piggyback::pb_release_create(tag = tag, body = body)
-      )
-      if (identical(class(pb_release_create), "try-error")) {
-        Sys.sleep(2)
         pb_release_create <- try(
           piggyback::pb_release_create(tag = tag, body = body)
         )
         if (identical(class(pb_release_create), "try-error")) {
-          warning(paste0("Could not re-create a GitHub release with tag ", tag))
-          next
+          Sys.sleep(2)
+          pb_release_create <- try(
+            piggyback::pb_release_create(tag = tag, body = body)
+          )
+          if (identical(class(pb_release_create), "try-error")) {
+            warning(paste0("Could not re-create a GitHub release with tag ", tag))
+            next
+          }
         }
       }
     }
