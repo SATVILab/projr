@@ -49,7 +49,11 @@
         if (identical(class(pb_release_create), "try-error")) {
           warning(paste0("Could not create a GitHub release with tag ", tag))
           next
+        } else {
+          Sys.sleep(1.5)
         }
+      } else {
+        Sys.sleep(1.5)
       }
     } else {
       if (FALSE) {
