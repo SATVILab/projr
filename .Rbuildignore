@@ -15,3 +15,6 @@
 ^docs$
 ^pkgdown$
 ^scripts$
+^bin$
+^scripts$
+^run\-apptainer\.sh$

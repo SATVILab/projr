@@ -1,0 +1,9 @@
+image: gitpod/workspace-base
+
+tasks:
+  - name: Set-up
+    command: |
+        ./scripts/ubuntu/install_apptainer.sh
+        ./scripts/ubuntu/install_gh.sh
+        ./scripts/all/setup_r.sh 
+        ./clone-repos.sh
