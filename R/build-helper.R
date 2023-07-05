@@ -472,7 +472,7 @@
 # ------------------
 
 .projr_build_copy_docs_rmd <- function() {
-  fn_vec_qmd <- list.files(pattern = "\\.qmd$")
+  fn_vec_qmd <- list.files(pattern = "\\.Rmd$|\\.rmd$")
   for (fn in fn_vec_qmd) {
     .projr_build_copy_docs_rmd_ind(fn)
   }
