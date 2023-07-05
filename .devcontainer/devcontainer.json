@@ -8,16 +8,19 @@
 	"image": "mcr.microsoft.com/devcontainers/universal:2.4-focal",
 	"features": {
 		"ghcr.io/rocker-org/devcontainer-features/r-rig:1": {
-			"version": "4.3.0",
-			"VSCODE_R_SUPPORT": "full",
 			"installDevTools": true,
 			"installREnv": true,
 			"installRMarkdown": true,
-			"installJupyterlab": false,
-			"installRadian": true
+			"installRadian": true,
+			"installVscDebugger": true,
+			"version": "release",
+			"pakVersion": "auto",
+			"vscodeRSupport": "full",
+			"pandocVersion": "auto"
 		},
 		"ghcr.io/rocker-org/devcontainer-features/quarto-cli:1": {
-			"installTinyTex": true
+			"installTinyTex": true,
+			"version": "latest"
 		}
 	},
 	"postCreateCommand": "bash scripts/all/setup_r.sh"
