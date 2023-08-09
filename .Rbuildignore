@@ -18,3 +18,10 @@
 ^bin$
 ^scripts$
 ^run\-apptainer\.sh$
+^\.Renviron$
+^repos-to-clone\.list$
+^clone-repos\.sh$
+^run-sif\.sh$
+^run-vsc\.sh$
+^\.vscode$
+^\.devcontainer$
