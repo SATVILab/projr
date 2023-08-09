@@ -1,9 +1,15 @@
+#' @rdname projr_build_output
 #' @title Build project to output
 #'
-#' @description Builds project to output, which
+#' @description `projr_build_output` Builds project to output, which
 #' means recording the input and output data hashes,
 #' building the actual bookdown document and
 #' saving and archiving selected output.
+#' 
+#' `projr_build_major`, `projr_build_minor` and `projr_build_patch`
+#' are wrappers around `projr_build_output` with the version component
+#' bumped set automatically, e.g. `projr_build_major()` is equivalent
+#' `projr_build_output(bump_component = "major")`.
 #'
 #' @param bump_component "major", "minor", "patch" or missing.
 #' Specifies version component to increment.
@@ -44,6 +50,21 @@ projr_build_output <- function(bump_component, msg = NULL, ...) {
     }
   }
   .projr_build(bump_component = bump_component, msg = msg, ...)
+}
+
+#' @rdname projr_build_output
+projr_build_major <- function(msg = NULL, ...) {
+  projr_build_output(bump_component = "major", msg = msg, ...)
+}
+
+#' @rdname projr_build_output
+projr_build_minor <- function(msg = NULL, ...) {
+  projr_build_output(bump_component = "minor", msg = msg, ...)
+}
+
+#' @rdname projr_build_output
+projr_build_patch <- function(msg = NULL, ...) {
+  projr_build_output(bump_component = "patch", msg = msg, ...)
 }
 
 #' @title Build dev project
