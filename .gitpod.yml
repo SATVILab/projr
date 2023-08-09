@@ -1,9 +1,13 @@
 image: gitpod/workspace-base
 
 tasks:
-  - name: Set-up
+  - name: Set-up R, apptainer
     command: |
-        ./scripts/ubuntu/install_apptainer.sh
-        ./scripts/ubuntu/install_gh.sh
-        ./scripts/all/setup_r.sh 
-        ./clone-repos.sh
+        ./scripts/all/post_create_command.sh 
+
+vscode:
+  extensions:
+    - sourcegraph.cody-ai
+    - quarto.quarto
+    - REditorSupport.r
+    - bierner.markdown-preview-github-styles

@@ -1,0 +1,18 @@
+Bootstrap: docker
+From: rocker/verse:3.6.3
+
+%environment
+    export APPTAINER_BUILD_DATE=date
+
+%files
+    scripts/apptainer/ubuntu/R/add_r_libs-select.sh
+    scripts/apptainer/ubuntu/R/add_radian-363.sh
+    scripts/apptainer/ubuntu/install_vscode.sh
+
+%post
+    apt-get update && export DEBIAN_FRONTEND=noninteractive
+    apt-get upgrade -y
+    sh scripts/apptainer/ubuntu/R/add_r_libs-select.sh
+    sh scripts/apptainer/ubuntu/R/add_radian-363.sh
+    sh scripts/apptainer/ubuntu/install_vscode.sh
+    apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
