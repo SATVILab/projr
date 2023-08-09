@@ -9,11 +9,8 @@
 	"features": {
 		"ghcr.io/rocker-org/devcontainer-features/r-rig:1": {
 			"installDevTools": true,
-			"installREnv": true,
-			"installRMarkdown": true,
 			"installRadian": true,
-			"installVscDebugger": false,
-			"version": "release",
+			"version": "4",
 			"pakVersion": "auto",
 			"vscodeRSupport": "full",
 			"pandocVersion": "auto"
