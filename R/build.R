@@ -53,16 +53,19 @@ projr_build_output <- function(bump_component, msg = NULL, ...) {
 }
 
 #' @rdname projr_build_output
+#' @export
 projr_build_major <- function(msg = NULL, ...) {
   projr_build_output(bump_component = "major", msg = msg, ...)
 }
 
 #' @rdname projr_build_output
+#' @export
 projr_build_minor <- function(msg = NULL, ...) {
   projr_build_output(bump_component = "minor", msg = msg, ...)
 }
 
 #' @rdname projr_build_output
+#' @export
 projr_build_patch <- function(msg = NULL, ...) {
   projr_build_output(bump_component = "patch", msg = msg, ...)
 }
