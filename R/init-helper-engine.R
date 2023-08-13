@@ -3,7 +3,8 @@
     "bookdown" = .projr_init_engine_bookdown(nm_list),
     "quarto_project" = .projr_init_engine_quarto_project(nm_list),
     "quarto_document" = .projr_init_engine_quarto_document(nm_list),
-    "rmd_document" = .projr_init_engine_rmd(nm_list),
+    "rmd" = .projr_init_engine_rmd(nm_list),
+    stop("Document engine not recognised")
   )
 }
 
