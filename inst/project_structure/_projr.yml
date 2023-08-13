@@ -2,7 +2,7 @@
 directories:
   data-raw:
     path: _data_raw
-    archive: true
+    archive: yes
   cache: 
     path: _tmp
   output: 
@@ -10,15 +10,15 @@ directories:
   archive: 
     path: _archive
   docs:
-    archive: true
+    archive: yes
 
 build:
-  dev-output: true
-  package: false
+  dev-output: yes
+  package: no
   git:
-    commit: true
-    add-untracked: true
-    push: false
+    commit: yes
+    add-untracked: yes
+    push: yes
   github-release:
     '@version':
       content: code
@@ -27,5 +27,5 @@ build:
       content: [data-raw]
       body: "Project inputs"
     output:
-      content: [output]
+      content: [output, docs]
       body: "Project outputs"

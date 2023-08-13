@@ -27,5 +27,5 @@ build:
       content: [data-raw]
       body: "Project inputs"
     output:
-      content: [output]
+      content: [output, docs]
       body: "Project outputs"
