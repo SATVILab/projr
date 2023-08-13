@@ -4,9 +4,14 @@
 \alias{projr_build_dev}
 \title{Build dev project}
 \usage{
-projr_build_dev(bump = FALSE, ...)
+projr_build_dev(file = NULL, bump = FALSE, ...)
 }
 \arguments{
+\item{file}{character vector.
+Paths to files to build.
+Paths may be relative to project root, or absolute.
+Default is NULL, in which case all files are built.}
+
 \item{bump}{logical.
 Whether to increment dev version for build.
 Default is \code{FALSE}.}

@@ -1,5 +1,3 @@
-
-
 # non-engine config files
 # -----------------------
 .projr_init_yml <- function(dir_proj, yml_path_from) {
@@ -22,10 +20,11 @@
   }
 
   # copy path
-  file.copy(
-    from = yml_path_from,
-    to = file.path(dir_proj, "_projr.yml")
-  )
+  yml_path_to <- file.path(dir_proj, "_projr.yml")
+  if (file.exists(yml_path_to)) {
+    unlink(yml_path_to)
+  }
+  file.copy(from = yml_path_from, to = yml_path_to)
 
   invisible(TRUE)
 }

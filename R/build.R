@@ -5,7 +5,7 @@
 #' means recording the input and output data hashes,
 #' building the actual bookdown document and
 #' saving and archiving selected output.
-#' 
+#'
 #' `projr_build_major`, `projr_build_minor` and `projr_build_patch`
 #' are wrappers around `projr_build_output` with the version component
 #' bumped set automatically, e.g. `projr_build_major()` is equivalent
@@ -77,21 +77,25 @@ projr_build_patch <- function(msg = NULL, ...) {
 #' building the actual bookdown document and
 #' saving and archiving selected output.
 #'
+#' @param file character vector.
+#' Paths to files to build.
+#' Paths may be relative to project root, or absolute.
+#' Default is NULL, in which case all files are built.
 #' @param bump logical.
 #' Whether to increment dev version for build.
 #' Default is \code{FALSE}.
 #' @param ... Arguments passed to \code{bookdown::render}.
 #'
 #' @export
-projr_build_dev <- function(bump = FALSE, ...) {
+projr_build_dev <- function(file = NULL, bump = FALSE, ...) {
   # NULL if FALSE and "dev" if TRUE
   bump_component <- switch(bump,
     "dev"
   )
-  .projr_build(bump_component = bump_component, ...)
+  .projr_build(file = file, bump_component = bump_component, ...)
 }
 
-.projr_build <- function(bump_component, msg = "", ...) {
+.projr_build <- function(file = NULL, bump_component, msg = "", ...) {
   # ========================
   # SET-UP
   # ========================
@@ -138,7 +142,11 @@ projr_build_dev <- function(bump = FALSE, ...) {
   # RUN
   # ========================
 
-  .projr_build_engine(version_run_on_list, ...)
+  .projr_build_engine(
+    file = file,
+    version_run_on_list = version_run_on_list,
+    ...
+  )
 
   # ========================
   # HANDLE OUTPUTS
@@ -205,33 +213,90 @@ projr_build_dev <- function(bump = FALSE, ...) {
   invisible(TRUE)
 }
 
-.projr_build_engine <- function(version_run_on_list, ...) {
-  build_status <- switch(.projr_engine_get(),
-    "bookdown" = try(bookdown::render_book(...)),
-    "quarto_project" = try(quarto::quarto_render(...)),
+.projr_build_engine <- function(file, version_run_on_list, ...) {
+  build_error <- switch(.projr_engine_get(),
+    "bookdown" = {
+      x_return <- try(bookdown::render_book(...))
+      err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
+      if (is.null(err_msg)) {
+        return(NULL)
+      }
+      paste0("Error rendering bookdown project ", err_msg)
+    },
+    "quarto_project" = {
+      x_return <- try(quarto::quarto_render(...))
+      err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
+      if (is.null(err_msg)) {
+        return(NULL)
+      }
+      paste0("Error rendering Quarto project ", err_msg)
+    },
     "quarto_document" = {
-      try(
-        for (x in list.files(pattern = "\\.qmd$")) {
-          quarto::quarto_render(x, ...)
+      fn_vec <- .projr_build_engine_doc_fn_get(file = file, type = "qmd")
+      for (x in fn_vec) {
+        x_return <- try(quarto::quarto_render(x, ...))
+        if (inherits(x_return, "try-error")) {
+          break
         }
-      )
+      }
+      err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
+      if (is.null(err_msg)) {
+        return(NULL)
+      }
+      paste0("Error rendering Quarto document ", x, ": ", err_msg)
     },
     "rmd" = {
-      try(
-        for (x in list.files(pattern = "\\.Rmd$|\\.rmd$")) {
-          rmarkdown::render(x, ...)
+      fn_vec <- .projr_build_engine_doc_fn_get(file = file, type = "rmd")
+      for (x in fn_vec) {
+        x_return <- try(rmarkdown::render(x, ...))
+        if (inherits(x_return, "try-error")) {
+          break
         }
-      )
+      }
+      err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
+      if (is.null(err_msg)) {
+        return(NULL)
+      }
+      paste0("Error rendering RMarkdown document ", x, ": ", err_msg)
     }
   )
 
-  if (identical(class(build_status), "try-error")) {
+  if (!is.null(build_error)) {
     .projr_build_version_set_post(
       version_run_on_list = version_run_on_list,
       success = FALSE
     )
     # TODO: #156 delet
-    stop(build_status)
+    stop(build_error)
   }
   invisible(TRUE)
+}
+
+.projr_build_engine_doc_fn_get <- function(file, type) {
+  detect_str <- switch(tolower(type),
+    "qmd" = "\\.qmd$",
+    "rmd" = "\\.Rmd$|\\.rmd$"
+  )
+  fn_vec <- switch(as.character(is.null(file)),
+    "TRUE" = list.files(pattern = detect_str),
+    "FALSE" = {
+      fn_vec_type <- file[grepl("\\.qmd$", file)]
+      fn_vec_type[file.exists(fn_vec_type)]
+    }
+  )
+  if (length(fn_vec) == 0) {
+    document_type <- switch(tolower(type),
+      "qmd" = "Quarto",
+      "rmd" = "RMarkdown"
+    )
+    stop(
+      paste0("No ", document_type,
+        " documents found that match any files specified: ",
+        paste0(file, collapse = ", "),
+        sep = ""
+      )
+    )
+  }
+
+  fn_vec
 }
