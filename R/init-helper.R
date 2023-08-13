@@ -26,6 +26,15 @@
   }
   file.copy(from = yml_path_from, to = yml_path_to)
 
+  if (Sys.getenv("PROJR_TEST") == "TRUE") {
+    path_yml <- file.path(dir_proj, "_projr.yml")
+    yml_projr <- yaml::read_yaml(path_yml)
+    if ("build" %in% names(yml_projr)) {
+      yml_projr[["build"]][["git"]][["push"]] <- FALSE
+      yaml::write_yaml(yml_projr, path_yml)
+    }
+  }
+
   invisible(TRUE)
 }
 

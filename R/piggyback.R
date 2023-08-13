@@ -26,7 +26,7 @@
     )
     if (identical(class(gh_tbl_release), "try-error")) {
       Sys.sleep(3)
-      gh_tbl_release <- try(q()
+      gh_tbl_release <- try(
         suppressWarnings(suppressMessages(piggyback::pb_releases()))
       )
       if (identical(class(gh_tbl_release), "try-error")) {
