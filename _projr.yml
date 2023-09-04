@@ -1,0 +1,31 @@
+directories:
+  data-raw:
+    path: _data_raw
+    archive: yes
+  cache:
+    path: _tmp
+  output:
+    path: _output
+  archive:
+    path: _archive
+  docs:
+    archive: yes
+build:
+  dev-output: yes
+  package: no
+  git:
+    commit: yes
+    add-untracked: yes
+    push: no
+  github-release:
+    '@version':
+      content: code
+      body: Latest source code
+    input:
+      content: data-raw
+      body: Project inputs
+    output:
+      content:
+      - output
+      - docs
+      body: Project outputs

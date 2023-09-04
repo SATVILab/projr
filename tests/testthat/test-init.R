@@ -235,6 +235,8 @@ test_that("projr_init_bookdown works", {
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   if (!dir.exists(dir_test)) dir.create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
+  file.create(file.path(dir_test, "_dependencies.R"))
+
   usethis::with_project(
     path = dir_test,
     code = {
@@ -268,6 +270,8 @@ test_that("projr_init_quarto_project works", {
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   if (!dir.exists(dir_test)) dir.create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
+  file.create(file.path(dir_test, "_dependencies.R"))
+
   usethis::with_project(
     path = dir_test,
     code = {
@@ -307,6 +311,8 @@ test_that("projr_init_quarto_document works", {
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   if (!dir.exists(dir_test)) dir.create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
+  file.create(file.path(dir_test, "_dependencies.R"))
+
   usethis::with_project(
     path = dir_test,
     code = {
@@ -339,6 +345,8 @@ test_that("projr_init_rmd works", {
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   if (!dir.exists(dir_test)) dir.create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
+  file.create(file.path(dir_test, "_dependencies.R"))
+
   usethis::with_project(
     path = dir_test,
     code = {

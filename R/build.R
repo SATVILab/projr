@@ -108,10 +108,12 @@ projr_build_dev <- function(file = NULL, bump = FALSE, ...) {
   .projr_build_renv_snapshot(output_run)
 
   # make sure everything is ignored that should be ignored
+  # (including docs directory)
   .projr_build_ignore()
 
-  # set the output directory to that in "_projr.yml"
-  .projr_build_doc_output_dir_update()
+  # ensure that docs directory is the unsafe directory.
+  # will copy docs across upon success.
+  .projr_build_doc_output_dir_update(FALSE)
 
   # get DESCRIPTION and build versions under all
   # build outcomes
@@ -133,7 +135,7 @@ projr_build_dev <- function(file = NULL, bump = FALSE, ...) {
 
   # empty output directories
   # (bookdown, output and data)
-  .projr_build_clear_pre()
+  .projr_build_clear_pre(output_run)
 
   # hash cache
   manifest_tbl_pre <- .projr_build_manifest_hash_pre()
@@ -182,9 +184,10 @@ projr_build_dev <- function(file = NULL, bump = FALSE, ...) {
   .projr_build_manifest_save(manifest_tbl, output_run = output_run)
 
   # upload via piggyback
-  .projr_pb_upload(
-    output_run = output_run
-  )
+  .projr_pb_upload(output_run = output_run)
+
+  # upload via osf
+  .projr_osf_upload(output_run = output_run)
 
   # initate dev version
   # ------------------
@@ -216,7 +219,7 @@ projr_build_dev <- function(file = NULL, bump = FALSE, ...) {
 .projr_build_engine <- function(file, version_run_on_list, ...) {
   build_error <- switch(.projr_engine_get(),
     "bookdown" = {
-      .projr_init_dep("bookdown")
+      .projr_dep_add("bookdown")
       if (!requireNamespace("bookdown", quietly = TRUE)) {
         renv::install("bookdown")
       }
@@ -228,7 +231,7 @@ projr_build_dev <- function(file = NULL, bump = FALSE, ...) {
       paste0("Error rendering bookdown project ", err_msg)
     },
     "quarto_project" = {
-      .projr_init_dep("quarto")
+      .projr_dep_add("quarto")
       if (!requireNamespace("quarto", quietly = TRUE)) {
         renv::install("quarto")
       }
@@ -240,7 +243,7 @@ projr_build_dev <- function(file = NULL, bump = FALSE, ...) {
       paste0("Error rendering Quarto project ", err_msg)
     },
     "quarto_document" = {
-      .projr_init_dep("quarto")
+      .projr_dep_add("quarto")
       if (!requireNamespace("quarto", quietly = TRUE)) {
         renv::install("quarto")
       }
@@ -258,7 +261,7 @@ projr_build_dev <- function(file = NULL, bump = FALSE, ...) {
       paste0("Error rendering Quarto document ", x, ": ", err_msg)
     },
     "rmd" = {
-      .projr_init_dep("rmarkdown")
+      .projr_dep_add("rmarkdown")
       if (!requireNamespace("rmarkdown", quietly = TRUE)) {
         renv::install("rmarkdown")
       }
