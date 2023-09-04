@@ -12,14 +12,7 @@
   for (i in seq_along(projr_yml_get()[["build"]][["github-release"]])) {
     if (!requireNamespace("piggyback", quietly = TRUE)) {
       renv::install("piggyback", prompt = FALSE)
-      if (!file.exists("_dependencies.R")) {
-        file.create("_dependencies.R")
-      }
-      txt_vec_dep <- readLines("_dependencies.R")
-      if (!any(grepl("library\\(piggyback\\)", txt_vec_dep))) {
-        writeLines(c(txt_vec_dep, "library(piggyback)", ""), "_dependencies.R")
-        .projr_newline_append("_dependencies.R")
-      }
+      .projr_init_dep("piggyback")
     }
     gh_tbl_release <- try(
       suppressWarnings(suppressMessages(piggyback::pb_releases()))
