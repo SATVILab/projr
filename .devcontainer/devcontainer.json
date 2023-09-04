@@ -20,5 +20,5 @@
 			"version": "latest"
 		}
 	},
-	"postCreateCommand": "bash scripts/all/setup_r.sh"
+	"postCreateCommand": "bash scripts/all/config_r.sh"
 }
