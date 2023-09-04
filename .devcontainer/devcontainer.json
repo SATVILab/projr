@@ -1,24 +1,20 @@
-/**
- * This JSON file contains the configuration for the development container used in the ProjectACSCyTOFTCells project.
- * It specifies the Docker image to use, as well as the features to install in the container.
- * The "ghcr.io/rocker-org/devcontainer-features/r-rig:1" feature installs R and related tools, while the "ghcr.io/rocker-org/devcontainer-features/quarto-cli:1" feature installs Quarto and TinyTeX.
- * The "postCreateCommand" property specifies the commands to run after the container is created, which includes setting up R and cloning repositories.
- */
 {
-	"image": "mcr.microsoft.com/devcontainers/universal:2.5-focal",
+	"image": "mcr.microsoft.com/devcontainers/universal:2",
 	"features": {
+		"ghcr.io/rocker-org/devcontainer-features/quarto-cli:1": {
+			"installTinyTex": true,
+			"version": "latest"
+		},
 		"ghcr.io/rocker-org/devcontainer-features/r-rig:1": {
 			"installDevTools": true,
+			"installREnv": true,
+			"installRMarkdown": true,
 			"installRadian": true,
 			"version": "4",
 			"pakVersion": "auto",
 			"vscodeRSupport": "full",
 			"pandocVersion": "auto"
-		},
-		"ghcr.io/rocker-org/devcontainer-features/quarto-cli:1": {
-			"installTinyTex": true,
-			"version": "latest"
 		}
 	},
-	"postCreateCommand": "bash scripts/all/config_r.sh"
+	"postCreateCommand": "./scripts/all/config_r.sh"
 }
