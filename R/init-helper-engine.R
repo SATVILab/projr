@@ -11,6 +11,7 @@
 # bookdown
 # ------------------------
 .projr_init_engine_bookdown <- function(nm_list) {
+  .projr_init_dep("bookdown")
   .projr_init_engine_bookdown_bookdown()
   .projr_init_engine_bookdown_output(nm_list)
   .projr_init_engine_bookdown_index(nm_list)
@@ -77,6 +78,7 @@
 # ---------------------
 
 .projr_init_engine_quarto_project <- function(nm_list) {
+  .projr_init_dep("quarto")
   .projr_init_engine_quarto_project_yml(nm_list)
   .projr_init_engine_quarto_project_index()
 }
@@ -132,6 +134,7 @@
 # ---------------------
 
 .projr_init_engine_quarto_document <- function(nm_list) {
+  .projr_init_dep("quarto")
   .projr_init_engine_quarto_document_doc(nm_list)
 }
 
@@ -169,6 +172,7 @@
 # ---------------------
 
 .projr_init_engine_rmd <- function(nm_list) {
+  .projr_init_dep("rmarkdown")
   .projr_init_engine_rmd_doc(nm_list)
 }
 

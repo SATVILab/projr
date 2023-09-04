@@ -393,6 +393,10 @@
     if (!yml_projr_output[["package"]]) {
       return(invisible(FALSE))
     }
+    if (!requireNamespace("pkgbuild", quietly = TRUE)) {
+      renv::install("pkgbuild")
+    }
+    .projr_init_dep("pkgbuild")
     # build package
     # ------------------------
     dir_pkg <- projr_dir_get("output", output_safe = !output_run)
