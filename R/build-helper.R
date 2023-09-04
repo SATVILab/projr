@@ -239,16 +239,7 @@
     any()
   pkg_use_detected <- pkg_use_detected_lib | pkg_use_detected_dots
   if (pkg_use_detected) {
-    renv_dep_file <- readLines(
-      file.path(dir_proj, "_dependencies.R")
-    )
-    if (!"library(devtools)" %in% renv_dep_file) {
-      renv_dep_file <- c(renv_dep_file, "library(devtools)", "")
-      writeLines(renv_dep_file, file.path(dir_proj, "_dependencies.R"))
-    }
-    if (!requireNamespace("devtools", quietly = TRUE)) {
-      renv::install("devtools")
-    }
+    .projr_init_dep("devtools")
     devtools::install()
   }
   rmarkdown::render(
