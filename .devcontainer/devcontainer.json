@@ -5,7 +5,7 @@
  * The "postCreateCommand" property specifies the commands to run after the container is created, which includes setting up R and cloning repositories.
  */
 {
-	"image": "mcr.microsoft.com/devcontainers/universal:2.4.2-focal",
+	"image": "mcr.microsoft.com/devcontainers/universal:2.5-focal",
 	"features": {
 		"ghcr.io/rocker-org/devcontainer-features/r-rig:1": {
 			"installDevTools": true,
