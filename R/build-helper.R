@@ -751,10 +751,10 @@
     )
     # copy zip to any extra directories
     key_output_extra <- key_copy_vec[-1]
+    if (!file.exists(path_zip)) {
+      next
+    }
     for (j in seq_along(key_output_extra)) {
-      if (!file.exists(path_zip)) {
-        next
-      }
       file.copy(
         from = path_zip,
         to = projr_path_get(
