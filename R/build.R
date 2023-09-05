@@ -186,6 +186,11 @@ projr_build_dev <- function(file = NULL, bump = FALSE, ...) {
     output_run = output_run
   )
 
+  # upload via osf
+  .projr_osf_upload(
+    output_run = output_run
+  )
+
   # initate dev version
   # ------------------
 
