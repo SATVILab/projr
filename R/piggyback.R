@@ -14,6 +14,10 @@
     .projr_dep_add("piggyback")
   }
   for (i in seq_along(projr_yml_get()[["build"]][["github-release"]])) {
+    if (!requireNamespace("piggyback", quietly = TRUE)) {
+      renv::install("piggyback", prompt = FALSE)
+      .projr_init_dep("piggyback")
+    }
     gh_tbl_release <- try(
       suppressWarnings(suppressMessages(piggyback::pb_releases()))
     )
