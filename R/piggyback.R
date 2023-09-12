@@ -9,6 +9,10 @@
   # uploads
   # ------------------
 
+  if (!requireNamespace("piggyback", quietly = TRUE)) {
+    renv::install("piggyback", prompt = FALSE)
+    .projr_dep_add("piggyback")
+  }
   for (i in seq_along(projr_yml_get()[["build"]][["github-release"]])) {
     if (!requireNamespace("piggyback", quietly = TRUE)) {
       renv::install("piggyback", prompt = FALSE)
@@ -168,7 +172,7 @@
 .projr_pb_path_get_zip <- function(tag, label) {
   dir_proj <- rprojroot::is_r_package$find_file()
   path_zip <- projr_path_get(
-    "cache", "projr_gh_release", tag, paste0(label, ".zip")
+    "cache", "projr", "gh_release", tag, paste0(label, ".zip")
   )
   if (!fs::is_absolute_path(path_zip)) {
     path_zip <- file.path(dir_proj, path_zip)

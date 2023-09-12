@@ -52,6 +52,7 @@
   # commit
   # ------------------
   if (!requireNamespace("gert", quietly = TRUE)) {
+    .projr_dep_add("gert")
     renv::install("gert")
   }
   git_tbl_status <- gert::git_status()
@@ -115,11 +116,8 @@
 
 # ignore
 .projr_build_ignore <- function() {
-  yml_projr <- projr_yml_get()
-  for (x in names(yml_projr[["directories"]])) {
-    .projr_dir_ignore(label = x)
-  }
-  .projr_dir_ignore("docs")
+  projr_dir_get("docs")
+  projr_dir_ignore()
   invisible(TRUE)
 }
 
@@ -128,45 +126,12 @@
   invisible(TRUE)
 }
 
-.projr_build_doc_output_dir_update <- function() {
-  switch(.projr_engine_get(),
-    "bookdown" = .projr_build_doc_output_dir_update_bookdown(),
-    "quarto_project" = .projr_build_doc_output_dir_update_quarto_project(),
-    TRUE
-  )
-
-  invisible(projr_dir_get("docs"))
+.projr_build_doc_output_dir_update <- function(output_run) {
+  # sets docs directory correctly whenever called
+  invisible(.projr_dir_get_label("docs", output_safe = !output_run))
 }
 
-.projr_build_doc_output_dir_update_bookdown <- function() {
-  yml_bd <- .projr_yml_bd_get()
-  yml_projr_dir <- projr_yml_get()[["directories"]]
-  if ("docs" %in% names(yml_projr_dir)) {
-    yml_projr_dir_docs <- yml_projr_dir[["docs"]]
-    if ("path" %in% names(yml_projr_dir_docs)) {
-      yml_bd[["output_dir"]] <- yml_projr_dir_docs[["path"]]
-      .projr_yml_bd_set(yml_bd)
-    }
-  }
-  invisible(TRUE)
-}
-
-.projr_build_doc_output_dir_update_quarto_project <- function() {
-  yml_quarto <- .projr_yml_quarto_get()
-  yml_projr_dir <- projr_yml_get()[["directories"]]
-  if ("docs" %in% names(yml_projr_dir)) {
-    yml_projr_dir_docs <- yml_projr_dir[["docs"]]
-    if ("path" %in% names(yml_projr_dir_docs)) {
-      yml_quarto[["project"]][["output-dir"]] <- yml_projr_dir_docs[["path"]]
-      .projr_yml_quarto_set(yml_quarto)
-    }
-  }
-  invisible(TRUE)
-}
-
-
-
-.projr_build_clear_pre <- function() {
+.projr_build_clear_pre <- function(output_run) {
   # clear
   # -----------------
 
@@ -182,7 +147,10 @@
   }
 
   # clear docs folder
-  dir_data_docs <- projr_dir_get("docs") |>
+  dir_data_docs <- projr_dir_get(
+    "docs",
+    output_safe = !output_run
+  ) |>
     normalizePath(winslash = "/")
   wd <- getwd() |> normalizePath(winslash = "/")
   docs_is_wd <- identical(dir_data_docs, wd)
@@ -199,8 +167,6 @@
 
   invisible(TRUE)
 }
-
-
 
 # ==========================
 # Post-build
@@ -239,7 +205,7 @@
     any()
   pkg_use_detected <- pkg_use_detected_lib | pkg_use_detected_dots
   if (pkg_use_detected) {
-    .projr_init_dep("devtools")
+    .projr_dep_add("devtools")
     devtools::install()
   }
   rmarkdown::render(
@@ -258,8 +224,8 @@
   # -----------------
 
   # clear projr cache directories
-  dir_cache <- projr_dir_get("cache")
-  dir_vec <- c("projr_output", "projr_cache", "projr_gh_release")
+  dir_cache <- .projr_dir_get_cache_auto()
+  dir_vec <- "projr"
   for (x in dir_vec) {
     path_dir <- file.path(dir_cache, x)
     if (dir.exists(path_dir)) {
@@ -267,8 +233,8 @@
     }
   }
 
-  # clear safe output direcotry
-  yml_projr_dir <- projr_yml_get()[["directories"]]
+  # clear safe output directory
+  yml_projr_dir <- projr_yml_get_unchecked()[["directories"]]
   label_vec <- names(yml_projr_dir)
   label_vec_output <- label_vec[
     grepl("^output", .projr_dir_label_strip(label_vec))
@@ -396,7 +362,7 @@
     if (!requireNamespace("pkgbuild", quietly = TRUE)) {
       renv::install("pkgbuild")
     }
-    .projr_init_dep("pkgbuild")
+    .projr_dep_add("pkgbuild")
     # build package
     # ------------------------
     dir_pkg <- projr_dir_get("output", output_safe = !output_run)
@@ -687,7 +653,7 @@
 
   for (i in seq_along(label_vec)) {
     label <- label_vec[i]
-
+    label_strip <- .projr_dir_label_strip(label)
     # get keys to copy to (skip early if none)
     # ----------------------------------------
 
@@ -705,7 +671,12 @@
 
     # paths
     # get path to copy from
-    path_dir <- projr_dir_get(label, output_safe = !output_run)
+    path_dir_from_safe <- switch(dest_type,
+      "output" = grepl("^output|^docs", label_strip),
+      "archive" = FALSE,
+      stop(paste0("Invalid dest_type: ", dest_type))
+    )
+    path_dir <- projr_dir_get(label, output_safe = path_dir_from_safe)
     if (!fs::is_absolute_path(path_dir)) {
       path_dir <- file.path(dir_proj, path_dir)
     }
@@ -719,7 +690,6 @@
     } else {
       path_zip <- projr_path_get(
         dir_output_init,
-        paste0("v", projr_version_get()),
         paste0(label, ".zip"),
         output_safe = !output_run
       )
@@ -734,11 +704,10 @@
       key_vec_match_cache <- .projr_dir_label_strip(names(yml_projr_dir))
       key_copy_vec_cache_ind <- which(grepl("^output", key_vec_match_cache))
       key_copy_vec_cache <- names(yml_projr_dir)[key_copy_vec_cache_ind]
-      dir_exc <- paste0("projr-", key_copy_vec_cache)
+      dir_exc <- "projr"
     } else {
       dir_exc <- NULL
     }
-    dir_exc <- c(dir_exc, "projr_gh_release")
 
     dir_inc <- NULL
 

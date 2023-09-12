@@ -16,6 +16,7 @@ test_that("projr_build_dev works", {
     path = dir_test,
     code = {
       projr_init()
+      # debugonce(projr:::projr_dir_ignore)
 
       projr_build_dev(quiet = TRUE)
       projr_version_get()
@@ -56,7 +57,7 @@ test_that(".projr_build_clear_pre and _post works", {
       path_output_final <- projr_dir_get("output", "a", output_safe = FALSE)
       path_docs <- projr_dir_get("docs", "b")
       path_data <- projr_dir_get("project", "data", "c")
-      .projr_build_clear_pre()
+      .projr_build_clear_pre(FALSE)
       expect_false(dir.exists(path_output_safe))
       expect_true(dir.exists(path_output_final))
       expect_false(dir.exists(path_docs))
@@ -65,7 +66,7 @@ test_that(".projr_build_clear_pre and _post works", {
       # post
       # ------------------------
       # cache
-      path_dir <- projr_dir_get("cache", "projr_output")
+      path_dir <- projr_dir_get("cache", "projr")
       .projr_build_clear_post(FALSE)
       expect_true(dir.exists(path_dir))
       .projr_build_clear_post(TRUE)
@@ -74,7 +75,7 @@ test_that(".projr_build_clear_pre and _post works", {
       path_output_safe <- projr_dir_get("output", "a", output_safe = TRUE)
       path_output_final <- projr_dir_get("output", "a", output_safe = FALSE)
       .projr_build_clear_post(TRUE)
-      expect_true(dir.exists(path_output_safe))
+      expect_false(dir.exists(path_output_safe))
       expect_false(dir.exists(path_output_final))
     },
     quiet = TRUE,
@@ -83,7 +84,6 @@ test_that(".projr_build_clear_pre and _post works", {
   Sys.unsetenv("PROJR_TEST")
   unlink(dir_test, recursive = TRUE)
 })
-
 
 test_that("projr_build_copy_output_direct works", {
   dir_test <- file.path(tempdir(), paste0("report"))
@@ -364,6 +364,7 @@ test_that("projr_build_copy_dir works when outputting", {
         path = "_tmp", output = TRUE
       )
       .projr_yml_set(yml_projr)
+      projr:::.projr_build_copy_dir(output_run = TRUE)
       expect_true(.projr_build_copy_dir(output_run = TRUE))
       expect_true(file.exists(
         projr_path_get("output", "data-raw.zip", output_safe = FALSE)
@@ -404,16 +405,7 @@ test_that("projr_build_copy_dir works when outputting", {
       expect_false(file.exists(
         projr_path_get("output", "cache.zip", output_safe = FALSE)
       ))
-      if (FALSE) {
-        file.copy(
-          projr_path_get("output", "data-raw.zip", output_safe = TRUE),
-          file.path(Sys.getenv("HOME"), "data-raw.zip")
-        )
-        file.copy(
-          projr_path_get("output", "docs.zip", output_safe = TRUE),
-          file.path(Sys.getenv("HOME"), "docs.zip")
-        )
-      }
+
 
       # check that they're copied across correctly when
       # to different folders
@@ -585,16 +577,16 @@ test_that("projr_build_copy_dir works when archiving", {
         projr_path_get("output", "cache.zip", output_safe = FALSE)
       ))
       expect_false(file.exists(
-        projr_path_get("archive", version, "data-raw.zip", output_safe = FALSE)
+        projr_path_get("archive", "data-raw.zip", output_safe = FALSE)
       ))
       expect_false(file.exists(
-        projr_path_get("archive", version, "docs.zip", output_safe = FALSE)
+        projr_path_get("archive", "docs.zip", output_safe = FALSE)
       ))
       expect_false(file.exists(
-        projr_path_get("archive", version, "cache.zip", output_safe = FALSE)
+        projr_path_get("archive", "cache.zip", output_safe = FALSE)
       ))
       expect_false(file.exists(
-        projr_path_get("archive", version, "output.zip", output_safe = FALSE)
+        projr_path_get("archive", "output.zip", output_safe = FALSE)
       ))
       .projr_yml_set(yml_projr_init)
 
@@ -631,20 +623,20 @@ test_that("projr_build_copy_dir works when archiving", {
         projr_path_get("output", "cache.zip", output_safe = FALSE)
       ))
       expect_false(file.exists(
-        projr_path_get("archive", version, "data-raw.zip", output_safe = TRUE)
+        projr_path_get("archive", "data-raw.zip", output_safe = TRUE)
       ))
       expect_false(file.exists(
-        projr_path_get("output", version, "docs.zip", output_safe = TRUE)
+        projr_path_get("output", "docs.zip", output_safe = TRUE)
       ))
       expect_false(file.exists(
-        projr_path_get("output", version, "cache.zip", output_safe = TRUE)
+        projr_path_get("output", "cache.zip", output_safe = TRUE)
       ))
       expect_true(file.exists(
-        projr_path_get("archive", version, "output.zip", output_safe = TRUE)
+        projr_path_get("archive", "output.zip", output_safe = FALSE)
       ))
 
-
-      # check that we can archive directly when output is FALSE and archive = TRUE
+      # check that we can archive directly when output is
+      # FALSE and archive = TRUE
       # -------------------
       unlink(projr_dir_get("output", output_safe = TRUE), recursive = TRUE)
       unlink(projr_dir_get("output", output_safe = FALSE), recursive = TRUE)
@@ -674,17 +666,17 @@ test_that("projr_build_copy_dir works when archiving", {
       expect_true(file.exists(
         projr_path_get("output", "cache.zip", output_safe = FALSE)
       ))
-      expect_true(file.exists(
-        projr_path_get("archive", version, "data-raw.zip")
+      expect_false(file.exists(
+        projr_path_get("archive", "data-raw.zip")
       ))
       expect_false(file.exists(
-        projr_path_get("output", version, "docs.zip")
+        projr_path_get("output", "docs.zip")
       ))
       expect_false(file.exists(
-        projr_path_get("output", version, "cache.zip")
+        projr_path_get("output", "cache.zip")
       ))
       expect_true(file.exists(
-        projr_path_get("archive", version, "output.zip", output_safe = TRUE)
+        projr_path_get("archive", "output.zip", output_safe = FALSE)
       ))
 
       # check that we can archive directly when output is character
@@ -724,20 +716,20 @@ test_that("projr_build_copy_dir works when archiving", {
       expect_true(file.exists(
         projr_path_get("output", "cache.zip", output_safe = FALSE)
       ))
-      expect_true(file.exists(
-        projr_path_get("archive", version, "data-raw.zip")
+      expect_false(file.exists(
+        projr_path_get("archive", "data-raw.zip")
       ))
       expect_false(file.exists(
-        projr_path_get("output", version, "docs.zip")
+        projr_path_get("output", "docs.zip")
       ))
       expect_false(file.exists(
-        projr_path_get("output", version, "cache.zip")
+        projr_path_get("output", "cache.zip")
+      ))
+      expect_false(file.exists(
+        projr_path_get("archive", "output.zip", output_safe = TRUE)
       ))
       expect_true(file.exists(
-        projr_path_get("archive", version, "output.zip", output_safe = TRUE)
-      ))
-      expect_true(file.exists(
-        projr_path_get("archive", version, "data-raw.zip", output_safe = TRUE)
+        projr_path_get("archive", "data-raw.zip", output_safe = FALSE)
       ))
     },
     quiet = TRUE,

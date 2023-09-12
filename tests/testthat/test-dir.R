@@ -1,4 +1,3 @@
-
 test_that("projr_dir_get works", {
   dir_test <- file.path(tempdir(), paste0("report"))
 
@@ -23,6 +22,7 @@ test_that("projr_dir_get works", {
   rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
   writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
   Sys.setenv("PROJR_TEST" = "TRUE")
+  gert::git_init(path = dir_test)
 
   usethis::with_project(
     path = dir_test,
@@ -32,15 +32,15 @@ test_that("projr_dir_get works", {
       yml_projr <- .projr_yml_get_root_full()
       expect_error(projr_dir_get("ailc"))
       expect_identical(projr_dir_get("data-raw"), "_data_raw")
-      expect_identical(projr_dir_get("output"), "_tmp/projr-output/0.0.0-1")
+      expect_identical(projr_dir_get("output"), "_tmp/projr/v0.0.0-1/output")
       expect_identical(projr_dir_get(
         "output",
         output_safe = TRUE,
         create = FALSE,
         path_relative_force = FALSE
-      ), "_tmp/projr-output/0.0.0-1")
+      ), "_tmp/projr/v0.0.0-1/output")
       expect_identical(projr_dir_get("output", output_safe = FALSE), "_output")
-      expect_identical(projr_dir_get("archive"), "_archive")
+      expect_identical(projr_dir_get("archive"), "_tmp/projr/v0.0.0-1/archive")
       if (dir.exists("_tmp")) unlink("_tmp", recursive = TRUE)
       expect_identical(projr_dir_get("cache", create = FALSE), "_tmp")
       expect_true(!dir.exists("_tmp"))
@@ -51,7 +51,7 @@ test_that("projr_dir_get works", {
         as.character()
       yml_projr[["directories"]][["data-raw"]] <- list(
         path = path_tmp_data_raw,
-        ignore = TRUE
+        ignore_git = TRUE
       )
       .projr_yml_set(yml_projr)
       expect_identical(
@@ -64,7 +64,10 @@ test_that("projr_dir_get works", {
         "../.."
       )
       expect_identical(
-        projr_dir_get("docs", "abc"), "docs/abc"
+        projr_dir_get("docs", "abc"), "_tmp/projr/v0.0.0-1/docs/abc"
+      )
+      expect_identical(
+        projr_dir_get("docs", "abc", output_safe = FALSE), "docs/abc"
       )
       expect_identical(
         projr_dir_get("data-raw", "abc"),
@@ -80,11 +83,15 @@ test_that("projr_dir_get works", {
         projr_dir_get("cache", "abc"), "_tmp/abc"
       )
       expect_identical(
-        projr_dir_get("archive", "abc"), "_archive/abc"
+        projr_dir_get("archive", "abc"), "_tmp/projr/v0.0.0-1/archive/abc"
+      )
+      expect_identical(
+        projr_dir_get("archive", "abc", output_safe = FALSE),
+        "_archive/v0.0.0-1/abc"
       )
       expect_identical(
         projr_dir_get("output", "abc", output_safe = TRUE),
-        "_tmp/projr-output/0.0.0-1/abc"
+        "_tmp/projr/v0.0.0-1/output/abc"
       )
       expect_identical(
         projr_dir_get("cache", "fig", "intro", "p"),
@@ -127,6 +134,8 @@ test_that("projr_path_get works", {
   rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
   writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
 
+  gert::git_init(path = dir_test)
+
   usethis::with_project(
     path = dir_test,
     code = {
@@ -137,15 +146,17 @@ test_that("projr_path_get works", {
 
       expect_error(projr_path_get("abc"))
       expect_identical(projr_path_get("data-raw"), "_data_raw")
-      expect_identical(projr_path_get("output"), "_tmp/projr-output/0.0.0-1")
+      expect_identical(projr_path_get("output"), "_tmp/projr/v0.0.0-1/output")
       expect_identical(projr_path_get(
         "output",
         output_safe = TRUE,
         create = FALSE,
         path_relative_force = FALSE
-      ), "_tmp/projr-output/0.0.0-1")
+      ), "_tmp/projr/v0.0.0-1/output")
       expect_identical(projr_path_get("output", output_safe = FALSE), "_output")
-      expect_identical(projr_path_get("archive"), "_archive")
+      expect_identical(
+        projr_path_get("archive", output_safe = FALSE), "_archive/v0.0.0-1"
+      )
       if (dir.exists("_tmp")) unlink("_tmp", recursive = TRUE)
       expect_identical(projr_path_get("cache", create = FALSE), "_tmp")
       expect_true(!dir.exists("_tmp"))
@@ -155,7 +166,7 @@ test_that("projr_path_get works", {
       path_data_raw_abs <- fs::path_abs(dirname(dirname(getwd()))) |>
         as.character()
       yml_projr[["directories"]][["data-raw"]] <- list(
-        path = path_data_raw_abs, ignore = TRUE
+        path = path_data_raw_abs, ignore_git = TRUE
       )
       .projr_yml_set(yml_projr)
 
@@ -164,8 +175,13 @@ test_that("projr_path_get works", {
         projr_path_get("data-raw", path_relative_force = TRUE),
         "../.."
       )
+      # debugonce(.projr_dir_get_label_safe)
       expect_identical(
-        projr_path_get("docs", "abc"), "docs/reportV0.0.0-1/abc"
+        projr_path_get("docs", "abc", output_safe = TRUE),
+        "_tmp/projr/v0.0.0-1/docs/reportV0.0.0-1/abc"
+      )
+      expect_identical(
+        projr_path_get("docs", "abc", output_safe = FALSE), "docs/reportV0.0.0-1/abc"
       )
       expect_identical(
         projr_path_get("data-raw", "abc"),
@@ -175,7 +191,12 @@ test_that("projr_path_get works", {
         projr_path_get("cache", "abc"), "_tmp/abc"
       )
       expect_identical(
-        projr_path_get("archive", "abc"), "_archive/abc"
+        projr_path_get("archive", "abc", output_safe = TRUE),
+        "_tmp/projr/v0.0.0-1/archive/abc"
+      )
+      expect_identical(
+        projr_path_get("archive", "abc", output_safe = FALSE),
+        "_archive/v0.0.0-1/abc"
       )
       expect_identical(
         projr_path_get("data-raw", "abc", "def", "ghi"),
@@ -190,7 +211,7 @@ test_that("projr_path_get works", {
       expect_true(!file.exists(projr_path_get("archive", "abc", "def")))
       expect_identical(
         projr_path_get("output", "abc", output_safe = TRUE),
-        "_tmp/projr-output/0.0.0-1/abc"
+        "_tmp/projr/v0.0.0-1/output/abc"
       )
     },
     force = TRUE,
@@ -221,6 +242,7 @@ test_that("projr_dir_create works", {
 
   rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
   writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  gert::git_init(path = dir_test)
 
   usethis::with_project(
     path = dir_test,
@@ -231,22 +253,24 @@ test_that("projr_dir_create works", {
 
       projr_dir_create("data-raw")
       expect_true(dir.exists("_data_raw"))
-      projr_dir_create("archive")
+      projr_dir_create("archive", output_safe = FALSE)
       expect_true(dir.exists("_archive"))
       expect_true(dir.exists(file.path("_archive", "v0.0.0-1")))
       projr_dir_create("output")
+      expect_false(dir.exists("_output"))
+      expect_true(dir.exists("_tmp/projr/v0.0.0-1/output"))
+      projr_dir_create("output", output_safe = FALSE)
       expect_true(dir.exists("_output"))
       projr_dir_create("cache")
       expect_true(dir.exists("_tmp"))
 
       unlink("_tmp", recursive = TRUE)
       unlink("_output", recursive = TRUE)
-      projr_dir_create(c("cache", "output"))
+      projr_dir_create(c("cache", "output"), output_safe = FALSE)
       expect_true(dir.exists("_tmp"))
       expect_true(dir.exists("_output"))
-
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_data_raw/**/*")), 1L)
+      gitignore <- .projr_ignore_git_read()
+      expect_identical(length(which(gitignore == "_data_raw/**")), 0L)
     },
     force = TRUE,
     quiet = TRUE
@@ -278,92 +302,76 @@ test_that("projr_dir_ignore works", {
   rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
   writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
 
+  gert::git_init(path = dir_test)
 
   usethis::with_project(
     path = dir_test,
     code = {
       # test adding to gitignore and buildignore
-      gitignore_orig <- .projr_gitignore_get()
-      buildignore_orig <- .projr_buildignore_get()
-      .projr_dir_ignore("docs")
-      gitignore <- .projr_gitignore_get()
+      gitignore_orig <- .projr_ignore_git_read()
+      buildignore_orig <- .projr_ignore_rbuild_read()
+      .projr_ignore_label_set("docs")
+      gitignore <- .projr_ignore_git_read()
       expect_identical(length(which(
-        gitignore == "docs/reportV0.0.0-1/**/*"
+        gitignore == "docs/reportV0.0.0-1/**"
       )), 1L)
-      buildignore <- .projr_buildignore_get()
+      buildignore <- .projr_ignore_rbuild_read()
       expect_identical(length(which(
-        buildignore == "^docs/reportV0\\.0\\.0-1"
+        buildignore == "^docs/reportV0\\.0\\.0-1/"
       )), 1L)
-      .projr_dir_ignore("data-raw")
+      expect_identical(length(which(
+        buildignore == "^docs/reportV0\\.0\\.0-1$"
+      )), 1L)
+      .projr_ignore_label_set("data-raw")
       # test that nothing is done when directory is equal to working directory
-      .projr_gitignore_set(gitignore_orig, append = FALSE)
+      .projr_ignore_git_write(gitignore_orig, append = FALSE)
       yml_bd_init <- .projr_yml_bd_get()
       yml_bd <- yml_bd_init
       yml_bd[["output_dir"]] <- "."
       .projr_yml_bd_set(yml_bd)
-      .projr_dir_ignore("docs")
-      gitignore <- .projr_gitignore_get()
+      .projr_ignore_label_set("docs")
+      gitignore <- .projr_ignore_git_read()
       expect_identical(length(which(
         gitignore == "."
       )), 0L)
-      buildignore <- .projr_buildignore_get()
+      buildignore <- .projr_ignore_rbuild_read()
       expect_identical(length(which(
         buildignore == "^\\."
       )), 0L)
-      .projr_dir_ignore("data-raw")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_data_raw/**/*")), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_data_raw")), 1L)
-      .projr_dir_ignore("data-raw")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_data_raw/**/*")), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_data_raw")), 1L)
-      .projr_dir_ignore("output")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_output/**/*")), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_output")), 1L)
-      .projr_dir_ignore("data-raw")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_output/**/*")), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_output")), 1L)
-      .projr_dir_ignore("archive")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_archive/**/*")), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_archive")), 1L)
-      .projr_dir_ignore("data-raw")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_archive/**/*")), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_archive")), 1L)
-      .projr_dir_ignore("cache")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_tmp/**/*")), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_tmp")), 1L)
-      .projr_dir_ignore("data-raw")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_tmp/**/*")), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_tmp")), 1L)
+      .projr_ignore_label_set("data-raw")
+      gitignore <- .projr_ignore_git_read()
+      expect_identical(length(which(gitignore == "_data_raw/**")), 1L)
+      buildignore <- .projr_ignore_rbuild_read()
+      expect_identical(length(which(buildignore == "^_data_raw/")), 1L)
+      expect_identical(length(which(buildignore == "^_data_raw$")), 1L)
+      .projr_ignore_label_set("output")
+      gitignore <- .projr_ignore_git_read()
+      expect_identical(length(which(gitignore == "_output/**")), 1L)
+      buildignore <- .projr_ignore_rbuild_read()
+      expect_identical(length(which(buildignore == "^_output$")), 1L)
+      expect_identical(length(which(buildignore == "^_output/")), 1L)
+      .projr_ignore_label_set("archive")
+      .projr_ignore_label_set("archive")
+      gitignore <- .projr_ignore_git_read()
+      expect_identical(length(which(gitignore == "_archive/**")), 1L)
+      buildignore <- .projr_ignore_rbuild_read()
+      expect_identical(length(which(buildignore == "^_archive/")), 1L)
+      expect_identical(length(which(buildignore == "^_archive$")), 1L)
 
       yml_projr <- .projr_yml_get_root_full()
       for (i in seq_along(yml_projr[["directories"]])) {
-        yml_projr[["directories"]][[i]][["ignore"]] <- FALSE
+        yml_projr[["directories"]][[i]][["ignore_git"]] <- FALSE
+        yml_projr[["directories"]][[i]][["ignore_rbuild"]] <- FALSE
       }
       .projr_yml_set(yml_projr)
       # test taking away from gitignore and buildignore
 
-      .projr_dir_ignore("data-raw")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_data_raw/**/*")), 0L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_data_raw")), 0L)
-      buildignore <- .projr_buildignore_get()
+      .projr_ignore_label_set("data-raw")
+      yml_gitignore <- .projr_ignore_git_read()
+      expect_identical(length(which(gitignore == "^_data_raw/**")), 0L)
+      buildignore <- .projr_ignore_rbuild_read()
+      expect_identical(length(which(buildignore == "^_data_raw/")), 0L)
+      expect_identical(length(which(buildignore == "^_data_raw$")), 0L)
 
       # test not adding when the directory is not in wd
       yml_projr <- .projr_yml_get_root_full()
@@ -376,26 +384,23 @@ test_that("projr_dir_ignore works", {
         yml_projr[["directories"]][[i]][["path"]] <- dir_out
       }
       .projr_yml_set(yml_projr)
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(
-        which(gitignore == "/tmp/RtmpkdBxQ9/test_2/**/*")
-      ), 0L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(
-        which(buildignore == "^/tmp/RtmpkdBxQ9/test_2")
-      ), 0L)
-      buildignore <- .projr_buildignore_get()
+      gitignore <- .projr_ignore_git_read()
+      expect_identical(length(which(grepl("test_2", gitignore))), 0L)
+      buildignore <- .projr_ignore_rbuild_read()
+      expect_identical(length(which(grepl("test_2", buildignore))), 0L)
+      buildignore <- .projr_ignore_rbuild_read()
 
       # test errors
-      expect_error(.projr_dir_ignore(c("abc", "def")))
-      expect_error(.projr_dir_ignore(1))
+      expect_error(.projr_ignore_label_set(c("abc", "def")))
+      expect_error(.projr_ignore_label_set(1))
       yml_projr <- .projr_yml_get_root_full()
       for (i in seq_along(yml_projr[["directories"]])) {
-        yml_projr[["directories"]][[i]][["ignore"]] <- 1
+        yml_projr[["directories"]][[i]][["ignore_git"]] <- 1
+        yml_projr[["directories"]][[i]][["ignore_rbuild"]] <- 1
       }
       names(yml_projr[["directories"]]) <- rep("data-raw", 4)
       .projr_yml_set(yml_projr)
-      expect_error(.projr_dir_ignore("data-raw"))
+      expect_error(.projr_ignore_label_set("data-raw"))
     },
     force = TRUE,
     quiet = TRUE
@@ -426,6 +431,7 @@ test_that(".projr_dir_clear works", {
   rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
   writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
   Sys.setenv("PROJR_TEST" = "TRUE")
+  gert::git_init(path = dir_test)
 
   usethis::with_project(
     path = dir_test,
@@ -459,155 +465,6 @@ test_that(".projr_dir_clear works", {
       expect_true(dir.exists(dirname(dir_cache_sub)))
       expect_false(file.exists(path_cache_sub_fn))
       expect_false(file.exists(path_cache_fn))
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-  unlink(dir_test, recursive = TRUE)
-})
-
-test_that("projr_dir_ignore works", {
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
-
-  if (!dir.exists(dir_test)) dir.create(dir_test)
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
-
-  for (x in fn_vec) {
-    file.copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
-
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # test adding to gitignore and buildignore
-      gitignore_orig <- .projr_gitignore_get()
-      buildignore_orig <- .projr_buildignore_get()
-      .projr_dir_ignore("docs")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(
-        gitignore == "docs/reportV0.0.0-1/**/*"
-      )), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(
-        buildignore == "^docs/reportV0\\.0\\.0-1"
-      )), 1L)
-      .projr_dir_ignore("data-raw")
-      # test that nothing is done when directory is equal to working directory
-      .projr_gitignore_set(gitignore_orig, append = FALSE)
-      yml_bd_init <- .projr_yml_bd_get()
-      yml_bd <- yml_bd_init
-      yml_bd[["output_dir"]] <- "."
-      .projr_yml_bd_set(yml_bd)
-      .projr_dir_ignore("docs")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(
-        gitignore == "."
-      )), 0L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(
-        buildignore == "^\\."
-      )), 0L)
-      .projr_dir_ignore("data-raw")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_data_raw/**/*")), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_data_raw")), 1L)
-      .projr_dir_ignore("data-raw")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_data_raw/**/*")), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_data_raw")), 1L)
-      .projr_dir_ignore("output")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_output/**/*")), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_output")), 1L)
-      .projr_dir_ignore("data-raw")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_output/**/*")), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_output")), 1L)
-      .projr_dir_ignore("archive")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_archive/**/*")), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_archive")), 1L)
-      .projr_dir_ignore("data-raw")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_archive/**/*")), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_archive")), 1L)
-      .projr_dir_ignore("cache")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_tmp/**/*")), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_tmp")), 1L)
-      .projr_dir_ignore("data-raw")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_tmp/**/*")), 1L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_tmp")), 1L)
-
-      yml_projr <- .projr_yml_get_root_full()
-      for (i in seq_along(yml_projr[["directories"]])) {
-        yml_projr[["directories"]][[i]][["ignore"]] <- FALSE
-      }
-      .projr_yml_set(yml_projr)
-      # test taking away from gitignore and buildignore
-
-      .projr_dir_ignore("data-raw")
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(which(gitignore == "_data_raw/**/*")), 0L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(which(buildignore == "^_data_raw")), 0L)
-      buildignore <- .projr_buildignore_get()
-
-      # test not adding when the directory is not in wd
-      yml_projr <- .projr_yml_get_root_full()
-      dir_out <- file.path(
-        dirname(rprojroot::is_r_package$find_file()), "test_2"
-      )
-      if (!dir.exists(dir_out)) dir.create(dir_out, recursive = TRUE)
-
-      for (i in seq_along(yml_projr[["directories"]])) {
-        yml_projr[["directories"]][[i]][["path"]] <- dir_out
-      }
-      .projr_yml_set(yml_projr)
-      gitignore <- .projr_gitignore_get()
-      expect_identical(length(
-        which(gitignore == "/tmp/RtmpkdBxQ9/test_2/**/*")
-      ), 0L)
-      buildignore <- .projr_buildignore_get()
-      expect_identical(length(
-        which(buildignore == "^/tmp/RtmpkdBxQ9/test_2")
-      ), 0L)
-      buildignore <- .projr_buildignore_get()
-
-      # test errors
-      expect_error(.projr_dir_ignore(c("abc", "def")))
-      expect_error(.projr_dir_ignore(1))
-      yml_projr <- .projr_yml_get_root_full()
-      for (i in seq_along(yml_projr[["directories"]])) {
-        yml_projr[["directories"]][[i]][["ignore"]] <- 1
-      }
-      names(yml_projr[["directories"]]) <- rep("data-raw", 4)
-      .projr_yml_set(yml_projr)
-      expect_error(.projr_dir_ignore("data-raw"))
     },
     force = TRUE,
     quiet = TRUE

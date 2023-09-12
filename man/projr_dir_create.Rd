@@ -4,7 +4,7 @@
 \alias{projr_dir_create}
 \title{Create a directory in _projr.yml}
 \usage{
-projr_dir_create(label)
+projr_dir_create(label, ..., output_safe = TRUE)
 }
 \arguments{
 \item{label}{character.
@@ -15,6 +15,19 @@ The \code{"docs"} option returns the path to
 the output directory from \code{bookdown::render_book}
 (as specified in \code{"_bookdown.yml"}),
 whereas the others returns paths as specified in \code{"_projr.yml"}.}
+
+\item{...}{Specifies sub-directory of directory returned.
+Passed to \code{file.path}.}
+
+\item{output_safe}{logical.
+If \code{TRUE}, then the output directory
+is set to be \code{"<path_to_cache>/projr_output"}
+instead of \code{<path_to_output>} (as specified in \code{_projr.yml}).
+The only time that this should be set to \code{TRUE}
+should be when \code{projr_build_output} is being run, as otherwise
+"development" or test runs will add to, delete or overwrite files
+from the previous run of \code{projr_build_output}.
+Default is \code{TRUE}.}
 }
 \description{
 Creates a directory that is

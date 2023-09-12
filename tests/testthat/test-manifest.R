@@ -63,9 +63,9 @@ test_that("projr_manifest_hash_dir works", {
       if (dir.exists("_tmp")) {
         unlink("_tmp", recursive = TRUE)
       }
-      dir.create("_tmp/projr-output/0.0.0-1/abc", recursive = TRUE)
-      invisible(file.create("_tmp/projr-output/0.0.0-1/test.txt"))
-      invisible(file.create("_tmp/projr-output/0.0.0-1/abc/test.txt"))
+      dir.create("_tmp/projr/v0.0.0-1/output/abc", recursive = TRUE)
+      invisible(file.create("_tmp/projr/v0.0.0-1/output/test.txt"))
+      invisible(file.create("_tmp/projr/v0.0.0-1/output/abc/test.txt"))
       dir.create("_data_raw/abc", recursive = TRUE)
       invisible(file.create("_data_raw/test.txt"))
       invisible(file.create("_data_raw/abc/test.txt"))
@@ -107,10 +107,8 @@ test_that("projr_manifest_hash_dir works", {
       invisible(file.remove("_archive/v0.0.1/manifest.csv"))
       invisible(file.remove("_archive/v0.0.1/manifest.rds"))
       .projr_build_manifest_save(manifest_tbl, output_run = FALSE)
-      expect_true(file.exists("_output/manifest.csv"))
+      expect_false(file.exists("_output/manifest.csv"))
       expect_false(file.exists("_archive/v0.0.1/manifest.csv"))
-      invisible(file.remove("_output/manifest.csv"))
-      invisible(file.remove("_output/manifest.rds"))
       yml_projr <- yml_projr_init
       yml_projr[["directories"]][["archive"]][["manifest"]] <- FALSE
       .projr_yml_set(yml_projr)
