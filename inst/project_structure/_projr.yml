@@ -20,7 +20,7 @@ build:
     add-untracked: yes
     push: yes
   github-release:
-    '@version':
+    "@version":
       content: code
       body: "Latest source code"
     input:
