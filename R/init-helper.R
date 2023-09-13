@@ -249,7 +249,7 @@
   if (!file.exists(file.path(dir_proj, ".gitignore"))) {
     gitignore <- c(
       "# R", ".Rproj.user", ".Rhistory", ".RData",
-      ".Ruserdata", ""
+      ".Ruserdata", "_projr-local.yml", ""
     )
     writeLines(gitignore, file.path(dir_proj, ".gitignore"))
     .projr_newline_append(file.path(dir_proj, ".gitignore"))
@@ -257,7 +257,7 @@
 
   if (!file.exists(file.path(dir_proj, ".Rbuildignore"))) {
     rbuildignore <- c(
-      "^.*\\.Rproj$", "^\\.Rproj\\.user$"
+      "^.*\\.Rproj$", "^\\.Rproj\\.user$", "^_projr-local\\.yml$"
     )
     writeLines(rbuildignore, file.path(dir_proj, ".Rbuildignore"))
     .projr_newline_append(file.path(dir_proj, ".Rbuildignore"))

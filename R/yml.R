@@ -283,7 +283,12 @@ projr_yml_check <- function(yml_projr = NULL) {
 .projr_yml_check_dir_elem <- function(elem, key, keys) {
   key_match <- .projr_dir_label_strip(key)
   nm_vec_actual <- names(elem)
-  nm_vec_valid <- c("path", "ignore", "output", "archive", "manifest", "hash")
+  nm_vec_valid <- c(
+    "path", "ignore_git", "ignore_rbuild", "git_track_adjust",
+    "output", "archive",
+    "manifest",
+    "hash"
+  )
   nm_vec_extra <- setdiff(nm_vec_actual, nm_vec_valid)
   if (length(nm_vec_extra) > 0) {
     stop(paste0(
@@ -322,24 +327,57 @@ projr_yml_check <- function(yml_projr = NULL) {
 
   # ignore
   # ------------
-  if ("ignore" %in% names(elem)) {
+  if ("ignore_git" %in% names(elem)) {
     # must be length 1
-    if (!length(elem[["ignore"]]) == 1) {
+    if (!length(elem[["ignore_git"]]) == 1) {
       stop(paste0(
-        "`ignore` must be of length 1 for for directories in `projr` settings"
+        "`ignore_git` must be of length 1 for for directories in `projr` settings" # nolint
       ))
     }
-    # must be logical
-    ignore_logical <- is.logical(elem[["ignore"]])
-    if (is.character(elem[["ignore"]])) {
-      ignore_chr_correct <- elem[["ignore"]] %in% c("git", "build")
+    # must be logical, or else character of certain types
+    ignore_logical <- is.logical(elem[["ignore_git"]])
+    if (is.character(elem[["ignore_git"]])) {
+      ignore_chr_correct <- elem[["ignore_git"]] %in%
+        c("manual", "ignore", "no_ignore")
     } else {
       ignore_chr_correct <- FALSE
     }
     if (!(ignore_logical || ignore_chr_correct)) {
       stop(paste0(
-        "`ignore` must be of type logical or
-        `git` or `build` for directories in `projr` settings"
+        '`ignore_git` must be of type logical or `"manual"`, `"ignore"` or `"no_ignore"` # nolint
+        for directories in `projr` settings'
+      ))
+    }
+  }
+  if ("ignore_rbuild" %in% names(elem)) {
+    # must be length 1
+    if (!length(elem[["ignore_rbuild"]]) == 1) {
+      stop(paste0(
+        "`ignore_rbuild` must be of length 1 for for directories in `projr` settings" # nolint
+      ))
+    }
+    # must be logical, or else character of certain types
+    ignore_logical <- is.logical(elem[["ignore_rbuild"]])
+    if (is.character(elem[["ignore_rbuild"]])) {
+      ignore_chr_correct <- elem[["ignore_rbuild"]] %in%
+        c("manual", "ignore", "no_ignore")
+    } else {
+      ignore_chr_correct <- FALSE
+    }
+    if (!(ignore_logical || ignore_chr_correct)) {
+      stop(paste0(
+        '`ignore_rbuild` must be of type logical or `"manual"`, `"ignore"` or `"no_ignore"` # nolint
+        for directories in `projr` settings'
+      ))
+    }
+  }
+
+  # must be logical or character
+  if ("git_track_adjust" %in% names(elem)) {
+    if (!is.logical(elem[["output"]])) {
+      stop(paste0(
+        "`git_track_adjust` must be of type character
+      for directories in `projr` settings"
       ))
     }
   }

@@ -40,13 +40,13 @@ test_that(".projr_pb_check_run works", {
         file.path(
           getwd(),
           projr_path_get(
-            "cache", "projr_gh_release", "v1.0.0", "cache.zip"
+            "cache", "projr/gh_release", "v1.0.0", "cache.zip"
           )
         ) |>
           normalizePath(winslash = "/", mustWork = FALSE)
       )
       expect_true(file.exists(projr_path_get(
-        "cache", "projr_gh_release", "v1.0.0", "cache.zip"
+        "cache", "projr/gh_release", "v1.0.0", "cache.zip"
       )))
     },
     quiet = TRUE,

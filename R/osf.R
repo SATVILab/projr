@@ -11,7 +11,7 @@
 
   if (!requireNamespace("osfr", quietly = TRUE)) {
     renv::install("osfr", prompt = FALSE)
-    .projr_init_dep("osfr")
+    .projr_dep_add("osfr")
   }
   for (i in seq_along(projr_yml_get()[["build"]][["github-release"]])) {
 

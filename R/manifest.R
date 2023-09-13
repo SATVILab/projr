@@ -12,11 +12,7 @@
         next
       }
     }
-    archive_ind <- grepl("^archive", .projr_dir_label_strip(x))
-    dir_save <- switch(as.character(archive_ind),
-      "TRUE" = projr_dir_get(x, paste0("v", projr_version_get())),
-      "FALSE" = projr_dir_get(x, output_safe = FALSE)
-    )
+    dir_save <- projr_dir_get(x, output_safe = !output_run)
     saveRDS(manifest, file.path(dir_save, "manifest.rds"))
     utils::write.csv(manifest, file.path(dir_save, "manifest.csv"))
   }
