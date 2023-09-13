@@ -13,8 +13,8 @@
     renv::install("osfr", prompt = FALSE)
     .projr_dep_add("osfr")
   }
-  for (i in seq_along(projr_yml_get()[["build"]][["github-release"]])) {
-
+  for (i in seq_along(projr_yml_get()[["build"]][["osf"]])) {
+    
   }
 }
 
