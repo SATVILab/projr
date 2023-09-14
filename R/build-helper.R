@@ -254,7 +254,7 @@
 
   # copy document across to correct directories
   # -------------------
-  .projr_build_copy_docs()
+  .projr_build_copy_docs(output_run)
 
   # consider not copying
   # -------------------
@@ -420,32 +420,32 @@
   invisible(TRUE)
 }
 
-.projr_build_copy_docs <- function() {
+.projr_build_copy_docs <- function(output_run) {
   switch(.projr_engine_get(),
     "bookdown" = NULL,
     "quarto_project" = NULL,
-    "quarto_document" = .projr_build_copy_docs_quarto(),
-    "rmd" = .projr_build_copy_docs_rmd()
+    "quarto_document" = .projr_build_copy_docs_quarto(output_run),
+    "rmd" = .projr_build_copy_docs_rmd(output_run)
   )
 }
 
 # copy docs - rmd
 # ------------------
 
-.projr_build_copy_docs_rmd <- function() {
+.projr_build_copy_docs_rmd <- function(output_run) {
   fn_vec_qmd <- list.files(pattern = "\\.Rmd$|\\.rmd$")
   for (fn in fn_vec_qmd) {
-    .projr_build_copy_docs_rmd_ind(fn)
+    .projr_build_copy_docs_rmd_ind(fn, output_run)
   }
   invisible(TRUE)
 }
 
-.projr_build_copy_docs_rmd_ind <- function(fn) {
+.projr_build_copy_docs_rmd_ind <- function(fn, output_run) {
   frontmatter_vec <- .projr_build_frontmatter_get(fn)
   format <- .projr_build_copy_docs_rmd_format_get(frontmatter_vec)
   fn_output_prefix <- .projr_build_copy_docs_rmd_fn_prefix_get(fn)
   path_vec <- .projr_build_copy_docs_rmd_path_get(format, fn_output_prefix)
-  .projr_build_copy_docs_paths(path_vec)
+  .projr_build_copy_docs_paths(path_vec, output_run)
   invisible(TRUE)
 }
 
@@ -500,22 +500,22 @@
 # copy docs - quarto
 # ------------------
 
-.projr_build_copy_docs_quarto <- function() {
+.projr_build_copy_docs_quarto <- function(output_run) {
   fn_vec_qmd <- list.files(pattern = "\\.qmd$")
   for (fn in fn_vec_qmd) {
-    .projr_build_copy_docs_quarto_ind(fn)
+    .projr_build_copy_docs_quarto_ind(fn, output_run)
   }
   invisible(TRUE)
 }
 
-.projr_build_copy_docs_quarto_ind <- function(fn) {
+.projr_build_copy_docs_quarto_ind <- function(fn, output_run) {
   frontmatter_vec <- .projr_build_frontmatter_get(fn)
   format <- .projr_build_copy_docs_quarto_format_get(frontmatter_vec)
   fn_output_prefix <- .projr_build_copy_docs_quarto_fn_prefix_get(
     frontmatter_vec, fn
   )
   path_vec <- .projr_build_copy_docs_quarto_path_get(format, fn_output_prefix)
-  .projr_build_copy_docs_paths(path_vec)
+  .projr_build_copy_docs_paths(path_vec, output_run)
   invisible(TRUE)
 }
 
@@ -584,11 +584,11 @@
   yml_frontmatter
 }
 
-.projr_build_copy_docs_paths <- function(path) {
+.projr_build_copy_docs_paths <- function(path, output_run) {
   dir_proj <- rprojroot::is_r_package$find_file()
   for (x in path) {
     if (fs::is_file(x)) {
-      file_to <- projr_path_get("docs", basename(x))
+      file_to <- projr_path_get("docs", basename(x), output_safe = !output_run)
       if (file.exists(file_to)) {
         invisible(file.remove(file_to))
       }
@@ -600,7 +600,9 @@
         all.files = TRUE
       )
       fn_vec_from <- file.path(dir_proj, x, fn_vec)
-      fn_vec_to <- file.path(projr_dir_get("docs"), x, fn_vec)
+      fn_vec_to <- file.path(
+        projr_dir_get("docs", output_safe = !output_run), x, fn_vec
+      )
       dir_vec_to <- dirname(fn_vec_to) |> unique()
       for (i in seq_along(dir_vec_to)) {
         if (!dir.exists(dir_vec_to[i])) {
