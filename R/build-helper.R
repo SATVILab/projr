@@ -160,6 +160,14 @@
     .projr_dir_clear(dir_data_docs)
   }
 
+  # clear projr directory corresponding to current version
+  dir_cache_projr_version <- file.path(
+    .projr_dir_get_cache_auto(), "projr", paste0("v", projr_version_get())
+  )
+  if (dir.exists(dir_cache_projr_version)) {
+    unlink(dir_cache_projr_version, recursive = TRUE)
+  }
+
   # clear data folder
   .projr_dir_clear(
     file.path(rprojroot::is_r_package$find_file(), "data")
@@ -244,6 +252,22 @@
     .projr_dir_clear(dir_data_output)
   }
 
+  invisible(TRUE)
+}
+
+.projr_build_clear_old_dev <- function(output_run, remove_old_dev) {
+  if (output_run) {
+    return(invisible(FALSE))
+  }
+  dir_cache_auto_projr <- file.path(.projr_dir_get_cache_auto(), "projr")
+  dir_vec <- list.dirs(
+    dir_cache_auto_projr,
+    full.names = FALSE, recursive = FALSE
+  )
+  dir_vec <- setdiff(dir_vec, paste0("v", projr_version_get()))
+  for (x in dir_vec) {
+    unlink(file.path(dir_cache_auto_projr, x), recursive = TRUE)
+  }
   invisible(TRUE)
 }
 
