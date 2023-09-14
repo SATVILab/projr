@@ -13,10 +13,60 @@
     renv::install("osfr", prompt = FALSE)
     .projr_dep_add("osfr")
   }
-  for (i in seq_along(projr_yml_get()[["build"]][["osf"]])) {
 
+  yml_projr_osf <- projr_yml_get()[["build"]][["osf"]]
+  for (i in seq_along(yml_projr_osf)) {
+    yml_projr_osf_curr <- yml_projr_osf[i]
+    .projr_osf_upload_node(
+      title = names(yml_projr_osf)[[i]], yml_projr_osf_curr, parent_id = NULL
+    )
   }
 }
+
+.projr_osf_upload_node <- function(title, yml_param, parent_id = NULL) {
+  # try get the node
+  if (!is.null(yml_param[["id"]])) {
+    osf_node <- tryCatch(
+      osfr::osf_retrieve_node(paste0("https://osf.io/", id)),
+      error = function(e) {
+        stop(paste0(
+          "Could not retrieve OSF node (project/component):", id
+        ))
+      }
+    )
+  } else {
+    #  if it's supposed to be a project, create it
+    if (yml_param[["category"]] == "project") {
+      osf_tbl <- osfr::osf_create_project(
+        title = title,
+        description = yml_param[["body"]],
+        public = yml_param[["public"]]
+      )
+      # add ID to _projr.yml
+      # now I needq
+    }
+    # will need to check that the parent exists
+    if (is.null(parent_id)) {
+      parent_id <- yml_param[["parent_id"]]
+    }
+    if (!is.null(parent_id)) {
+      # RESTART HERE.
+      # Trying to figure out how far we've come.
+      osf_node_parent <- tryCatch(
+        osfr::osf_retrieve_node(paste0("https://osf.io/", parent_id)),
+        error = function(e) {
+          stop(paste0(
+            "Could not retrieve OSF node (project/component):", parent_id
+          ))
+        }
+      )
+    } else {
+      osf_node_parent <- NULL
+    }
+    osf_node <- osfr::osf_retrieve_node(yml_osf[["title"]])
+  }
+}
+
 
 .projr_osf_check_run <- function(output_run) {
   yml_projr <- projr_yml_get()
@@ -33,17 +83,17 @@
 #' @description
 #' Add a project or component to the _projr.yml
 #' specification for OSF.
-#' 
+#'
 #' @param title character. The title of the project or component.
 #' Must be supplied.
 #' @param create logical. Whether to create the project or component on OSF.
 #' Default is `FALSE`.
 #' @param body character. Description on OSF. Default is `NULL`.
 #' @param content character vector. Keys to include in the OSF upload.
-#' @param public logical. Whether the project or component is public on OSF. 
+#' @param public logical. Whether the project or component is public on OSF.
 #' Default is `FALSE`.
 #' @param category character. The category of the project or component.
-#' The following are valid options: `"project"`, `"analysis"`, 
+#' The following are valid options: `"project"`, `"analysis"`,
 #' `"communication"`, `"data"`, `"hypothesis"`, `"instrumentation"`,
 #' `"methods and measures"`, `"procedure"`, `"project"`, `"software"` and other
 #' `"other"`. Default is `NULL.`
@@ -53,16 +103,23 @@
 #' Must be five characters. Default is `NULL`.
 #' @param parent_title character. The title of the parent project or component.
 #' Default is `NULL`.
+#' @param overwrite logical. If `TRUE`, then the project or component
+#' will be overwitten if it exists.
+#' Note that any components of the project/component
+#' will be deleted from the YAML file. If `FALSE`, then an error will be thrown.
+#' Default is `FALSE`.
+#' element in
 #' @export
-projr_osf_add <- function(title,
-                          create = TRUE,
-                          body = NULL,
-                          content = NULL,
-                          public = FALSE,
-                          category = NULL,
-                          id = NULL,
-                          parent_id = NULL,
-                          parent_title = NULL) {
+projr_osf_yml_up_add <- function(title,
+                                 create = TRUE,
+                                 body = NULL,
+                                 content = NULL,
+                                 public = FALSE,
+                                 category = NULL,
+                                 id = NULL,
+                                 parent_id = NULL,
+                                 parent_title = NULL,
+                                 overwrite = FALSE) {
   # check inputs
   # ------------
   if (missing(title)) {
@@ -80,8 +137,7 @@ projr_osf_add <- function(title,
     stop("content must match a directory key in _projr.yml")
   }
   body_invalid <- (!is.null(body)) &&
-    !all(is.character(body))
-  body_invalid <- body_invalid || length(body) != 1
+    (!all(is.character(body)) || length(body) != 1)
   if (body_invalid) {
     stop("body must be a character of length one")
   }
@@ -103,24 +159,24 @@ projr_osf_add <- function(title,
     stop("category must match a valid category")
   }
   id_invalid <- (!is.null(id)) &&
-    !all(is.character(id))
-  id_invalid <- id_invalid || all(nchar(id) == 5L) || length(id) != 1
+    (!all(is.character(id)) || all(nchar(id) == 5L) || length(id) != 1)
   if (id_invalid) {
     stop("id must be a string with five characters")
   }
   parent_id_invalid <- (!is.null(parent_id)) &&
-    !all(is.character(parent_id))
-  parent_id_invalid <- parent_id_invalid ||
-    all(nchar(parent_id) == 5L) ||
-    length(parent_id) != 1
+    (!all(is.character(parent_id)) || all(nchar(parent_id) == 5L))
   if (parent_id_invalid) {
     stop("parent_id must be a string with five characters")
   }
   parent_title_invalid <- (!is.null(parent_title)) &&
-    !all(is.character(parent_title))
-  parent_title_invalid <- parent_title_invalid || length(parent_title) != 1
+    (!all(is.character(parent_title)) || length(parent_title) != 1)
   if (parent_title_invalid) {
     stop("parent_title must be a character of length one")
+  }
+  project_with_parent <- ((!is.null(category)) && category == "project") &&
+    ((!is.null(parent_id)) || (!is.null(parent_title)))
+  if (project_with_parent) {
+    stop("project cannot have a parent")
   }
 
   # create list to add
@@ -133,8 +189,7 @@ projr_osf_add <- function(title,
     category = category,
     public = public,
     id = id
-  ) |>
-    utils::setNames(title)
+  )
   yml_projr_osf <- yml_projr[["build"]][["osf"]]
 
   # find where to add list, and add it
@@ -144,7 +199,7 @@ projr_osf_add <- function(title,
   if (is.null(category) || category != "project") {
     # find if the parent is specified anywhere
     if ((!is.null(parent_id)) || (!is.null(parent_title))) {
-      parent_vec <- .projr_osf_find_parent(
+      parent_vec <- .projr_osf_yml_find_parent(
         parent_id = parent_id,
         parent_title = parent_title,
         yml_projr_osf = yml_projr_osf
@@ -154,7 +209,20 @@ projr_osf_add <- function(title,
     }
 
     # if not specified, then add to top level
-    if (!nzchar(parent_vec)) {
+    if (length(parent_vec) == 0) {
+      # check if it's already there
+      if (!is.null(yml_projr_osf)) {
+        if (title %in% names(yml_projr_osf)) {
+          if (!overwrite) {
+            stop("title already exists in _projr.yml")
+          } else {
+            title_present <- TRUE
+          }
+        } else {
+          title_present <- FALSE
+        }
+      }
+
       list_add <- list_add |>
         append(
           list(
@@ -162,10 +230,16 @@ projr_osf_add <- function(title,
             parent_title = parent_title
           )
         )
-      yml_projr_osf <- yml_projr_osf |>
-        append(
-          list(list_add) |> utils::setNames(title)
-        )
+      list_add <- list(list_add) |> stats::setNames(title)
+      if (is.null(yml_projr_osf)) {
+        yml_projr_osf <- list_add
+      } else {
+        if (title_present) {
+          yml_projr_osf[[title]] <- list_add[[title]]
+        } else {
+          yml_projr_osf <- yml_projr_osf |> append(list_add)
+        }
+      }
     } else {
       # if specified, add to parent
       yml_projr_osf_parent_chr <-
@@ -174,41 +248,53 @@ projr_osf_add <- function(title,
           paste0(paste0('"', parent_vec, '"'), collapse = "]][["),
           "]]"
         )
-      eval(parse(text = paste0(yml_projr_osf_parent_chr, " <- list_add")))
+      eval(parse(
+        text = paste0("yml_projr_osf_parent <- ", yml_projr_osf_parent_chr)
+      ))
+      if (!"component" %in% names(yml_projr_osf_parent)) {
+        yml_projr_osf_parent[["component"]] <- list()
+      }
+      list_add <- list(list_add) |> stats::setNames(title)
+      if (title %in% names(yml_projr_osf_parent[["component"]])) {
+        if (!overwrite) {
+          stop("title already exists in _projr.yml")
+        } else {
+          yml_projr_osf_parent[["component"]][[title]] <- list_add[[title]]
+        }
+      } else {
+        yml_projr_osf_parent[["component"]] <-
+          yml_projr_osf_parent[["component"]] |> append(list_add)
+      }
+
+      yml_projr_osf_chr <-
+        paste0(
+          "yml_projr_osf[[",
+          paste0(paste0('"', parent_vec, '"'), collapse = "]][["),
+          "]]"
+        )
+      eval(parse(text = paste0(yml_projr_osf_chr, " <- yml_projr_osf_parent")))
     }
   } else {
     # if project, then add to top level
-    yml_projr_osf <- yml_projr_osf |>
-      append(
-        list(list_add) |> utils::setNames(title)
-      )
+    list_add <- list(list_add) |> stats::setNames(title)
+    if (is.null(yml_projr_osf)) {
+      yml_projr_osf <- list_add
+    } else {
+      if (title %in% names(yml_projr_osf) && !overwrite) {
+        stop("title already exists in _projr.yml")
+      }
+      yml_projr_osf[[title]] <- list_add[[title]]
+    }
   }
   yml_projr[["build"]][["osf"]] <- yml_projr_osf
   .projr_yml_set(yml_projr)
 }
 
-yml_projr_osf <- list(
-  "abc" = list(
-    "component" = list(
-      "ghi" = list(
-        id = "12345"
-      )
-    )
-  ),
-  "def" = list()
-)
-
-.projr_osf_find_parent(
-  parent_id = "1235",
-  yml_projr_osf = yml_projr_osf
-) |>
-  unlist()
-
-.projr_osf_find_parent <- function(parent_id = NULL,
-                                   parent_title = NULL,
-                                   yml_projr_osf = NULL,
-                                   parent_search = NULL) {
-  .projr_osf_find_parent_rec(
+.projr_osf_yml_find_parent <- function(parent_id = NULL,
+                                       parent_title = NULL,
+                                       yml_projr_osf = NULL,
+                                       parent_search = NULL) {
+  .projr_osf_yml_find_parent_rec(
     parent_id = parent_id,
     parent_title = parent_title,
     yml_projr_osf = yml_projr_osf,
@@ -217,10 +303,10 @@ yml_projr_osf <- list(
     unlist()
 }
 
-.projr_osf_find_parent_rec <- function(parent_id = NULL,
-                                       parent_title = NULL,
-                                       yml_projr_osf = NULL,
-                                       parent_search = NULL) {
+.projr_osf_yml_find_parent_rec <- function(parent_id = NULL,
+                                           parent_title = NULL,
+                                           yml_projr_osf = NULL,
+                                           parent_search = NULL) {
   # return NULL for no parent found
 
   # no parent found if no parent info provided
@@ -239,48 +325,37 @@ yml_projr_osf <- list(
   lapply(
     names(yml_projr_osf),
     function(x) {
-      if (identical(x, parent_title)) {
-        return(invisible(c(parent_search, x)))
+      if (!is.null(parent_title)) {
+        if (identical(x, parent_title)) {
+          return(invisible(c(parent_search, x)))
+        }
       }
-      if (identical(parent_id, yml_projr_osf[[x]][["id"]])) {
-        return(invisible(c(parent_search, x)))
+      if (!is.null(parent_id)) {
+        if (identical(yml_projr_osf[[x]][["id"]], parent_id)) {
+          return(invisible(c(parent_search, x)))
+        }
       }
       if (!"component" %in% names(yml_projr_osf[[x]])) {
         return(invisible(character()))
       }
-      .projr_osf_find_parent_rec(
+      .projr_osf_yml_find_parent_rec(
         parent_id = parent_id,
         parent_title = parent_title,
         yml_projr_osf = yml_projr_osf[[x]][["component"]],
-        parent_search = c(parent_search, x, "component")
+        parent_search = c(x, "component")
       )
     }
   )
 }
 
-  parent_id <- yml_projr_osf[["parent_id"]]
-  parent_title <- yml_projr_osf[["parent_title"]]
-  if (is.null(parent_id) && is.null(parent_title)) {
-    return(invisible(NULL))
-  }
-  if (!is.null(parent_id)) {
-    parent_id <- parent_id[[1]]
-  }
-  if (!is.null(parent_title)) {
-    parent_title <- parent_title[[1]]
-  }
-  if (is.null(parent_id) && is.null(parent_title)) {
-    return(invisible(NULL))
-  }
-  invisible(list(parent_id = parent_id, parent_title = parent_title))
-}
-
-projr_osf_add_project <- function(title,
-                                  body = NULL,
-                                  content = NULL,
-                                  public = FALSE,
-                                  id = NULL) {
-  projr_osf_add(
+#' @rdname projr_osf_yml_up_add
+#' @export
+projr_osf_yml_up_add_proj <- function(title,
+                                      body = NULL,
+                                      content = NULL,
+                                      public = FALSE,
+                                      id = NULL) {
+  projr_osf_yml_up_add(
     title = title,
     body = body,
     content = content,
@@ -290,18 +365,20 @@ projr_osf_add_project <- function(title,
   )
 }
 
-projr_osf_add_component <- function(title,
-                                    body = NULL,
-                                    content = NULL,
-                                    public = FALSE,
-                                    category = NULL,
-                                    parent_title = NULL,
-                                    parent_id = NULL,
-                                    id = NULL) {
-  if (missing(parent_id)) {
-    stop("parent_id must be specified")
+#' @rdname projr_osf_yml_up_add
+#' @export
+projr_osf_yml_up_add_comp <- function(title,
+                                      body = NULL,
+                                      content = NULL,
+                                      public = FALSE,
+                                      category = NULL,
+                                      parent_title = NULL,
+                                      parent_id = NULL,
+                                      id = NULL) {
+  if (missing(parent_id) && missing(parent_title)) {
+    stop("either parent_id or parent_title must be specified")
   }
-  projr_osf_add(
+  projr_osf_yml_up_add(
     title = title,
     body = body,
     content = content,
@@ -309,6 +386,6 @@ projr_osf_add_component <- function(title,
     category = category,
     parent_id = parent_id,
     parent_title = parent_title,
-    node_id = node_id
+    id = id
   )
 }

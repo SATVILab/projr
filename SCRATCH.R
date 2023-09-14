@@ -1,4 +1,4 @@
 library(testthat)
-devtools::load_all(path = file.path(Sys.getenv("pkg"), "projr"))
-
-path_yml <- 
+# devtools::load_all(path = file.path(Sys.getenv("pkg"), "projr"))
+devtools::load_all()
+devtools::test_active_file("tests/testthat/test-osf.R")
