@@ -68,9 +68,11 @@ Must be five characters. Default is \code{NULL}.}
 Default is \code{NULL}.}
 
 \item{overwrite}{logical. If \code{TRUE}, then the project or component
-will be overwitten as specified.
+will be overwitten if it exists.
 Note that any components of the project/component
-will be deleted from the YAML file. Default is \code{FALSE}.}
+will be deleted from the YAML file. If \code{FALSE}, then an error will be thrown.
+Default is \code{FALSE}.
+element in}
 }
 \description{
 Add a project or component to the _projr.yml

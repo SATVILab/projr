@@ -4,7 +4,7 @@
 \alias{projr_build_dev}
 \title{Build dev project}
 \usage{
-projr_build_dev(file = NULL, bump = FALSE, ...)
+projr_build_dev(file = NULL, bump = FALSE, remove_old_dev = TRUE, ...)
 }
 \arguments{
 \item{file}{character vector.
@@ -15,6 +15,10 @@ Default is NULL, in which case all files are built.}
 \item{bump}{logical.
 Whether to increment dev version for build.
 Default is \code{FALSE}.}
+
+\item{remove_old_dev}{logical.
+If \code{TRUE}, then previous development builds are deleted
+after a successful run.}
 
 \item{...}{Arguments passed to \code{bookdown::render}.}
 }
