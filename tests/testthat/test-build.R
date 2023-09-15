@@ -16,8 +16,6 @@ test_that("projr_build_dev works", {
     path = dir_test,
     code = {
       projr_init()
-      # debugonce(projr:::projr_dir_ignore)
-
       projr_build_dev(quiet = TRUE)
       projr_version_get()
       yml_bd <- .projr_yml_bd_get()
@@ -31,7 +29,6 @@ test_that("projr_build_dev works", {
   Sys.unsetenv("PROJR_TEST")
   unlink(dir_test, recursive = TRUE)
 })
-
 
 test_that(".projr_build_clear_pre and _post works", {
   dir_test <- file.path(tempdir(), paste0("report"))
@@ -1010,9 +1007,19 @@ test_that(".projr_build_copy_docs_quarto_format_get works", {
       invisible(file.create("test.html"))
       dir.create("test_files")
       invisible(file.create("test_files/abc.txt"))
-      dir_docs <- projr_dir_get("docs")
-      invisible(file.create(file.path(dir_docs, "test.html")))
-      .projr_build_copy_docs_quarto()
+      dir_docs <- projr_dir_get("docs", output_safe = TRUE)
+      unlink(dir_docs, recursive = TRUE)
+      dir_docs <- projr_dir_get("docs", output_safe = TRUE)
+      # invisible(file.create(file.path(dir_docs, "test.html")))
+      .projr_build_copy_docs_quarto(FALSE)
+      expect_true(file.exists(file.path(dir_docs, "test.html")))
+      expect_true(file.exists(file.path(dir_docs, "test_files/abc.txt")))
+      # safe output
+      dir_docs <- projr_dir_get("docs", output_safe = FALSE)
+      invisible(file.create("test.html"))
+      dir.create("test_files")
+      invisible(file.create("test_files/abc.txt"))
+      .projr_build_copy_docs_quarto(TRUE)
       expect_true(file.exists(file.path(dir_docs, "test.html")))
       expect_true(file.exists(file.path(dir_docs, "test_files/abc.txt")))
     },
@@ -1212,9 +1219,14 @@ test_that(".projr_build_copy_docs_rmd_format_get works", {
       invisible(file.create("test.html"))
       dir.create("test_files")
       invisible(file.create("test_files/abc.txt"))
-      dir_docs <- projr_dir_get("docs")
+      dir_docs <- projr_dir_get("docs", output_safe = TRUE)
       invisible(file.create(file.path(dir_docs, "test.html")))
-      .projr_build_copy_docs_rmd()
+      .projr_build_copy_docs_rmd(FALSE)
+      expect_true(file.exists(file.path(dir_docs, "test.html")))
+      expect_false(file.exists(file.path(dir_docs, "test_files/abc.txt")))
+      dir_docs <- projr_dir_get("docs", output_safe = FALSE)
+      invisible(file.create(file.path(dir_docs, "test.html")))
+      .projr_build_copy_docs_rmd(TRUE)
       expect_true(file.exists(file.path(dir_docs, "test.html")))
       expect_false(file.exists(file.path(dir_docs, "test_files/abc.txt")))
     },

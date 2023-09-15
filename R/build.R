@@ -84,18 +84,21 @@ projr_build_patch <- function(msg = NULL, ...) {
 #' @param bump logical.
 #' Whether to increment dev version for build.
 #' Default is \code{FALSE}.
+#' @param remove_old_dev logical.
+#' If `TRUE`, then previous development builds are deleted
+#' after a successful run.
 #' @param ... Arguments passed to \code{bookdown::render}.
 #'
 #' @export
-projr_build_dev <- function(file = NULL, bump = FALSE, ...) {
+projr_build_dev <- function(file = NULL, bump = FALSE, remove_old_dev = TRUE, ...) {
   # NULL if FALSE and "dev" if TRUE
   bump_component <- switch(bump,
     "dev"
   )
-  .projr_build(file = file, bump_component = bump_component, ...)
+  .projr_build(file = file, bump_component = bump_component, remove_old_dev = TRUE, ...)
 }
 
-.projr_build <- function(file = NULL, bump_component, msg = "", ...) {
+.projr_build <- function(file = NULL, bump_component, remove_old_dev = TRUE, msg = "", ...) {
   # ========================
   # SET-UP
   # ========================
@@ -186,12 +189,14 @@ projr_build_dev <- function(file = NULL, bump = FALSE, ...) {
   # upload via piggyback
   .projr_pb_upload(output_run = output_run)
 
-  # upload via osf
+  # upload to osf
   .projr_osf_upload(output_run = output_run)
+
+  # clear projr cache
+  .projr_build_clear_old_dev(output_run, remove_old_dev)
 
   # initate dev version
   # ------------------
-
   # set version
   .projr_build_version_set_post(
     version_run_on_list = version_run_on_list,

@@ -3,7 +3,7 @@ local({
 
   # the requested version of renv
   version <- "1.0.2.9000"
-  attr(version, "sha") <- "07d800d98f4b286db3844540d485c1c81791e510"
+  attr(version, "sha") <- "76c0d19120ed6c0e8f35d0069d9bd99a624f020b"
 
   # the project directory
   project <- getwd()

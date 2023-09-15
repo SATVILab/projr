@@ -29,3 +29,11 @@ build:
       - output
       - docs
       body: Project outputs
+  osf:
+    Test:
+      content: ~
+      body: ~
+      category: project
+      public: no
+      id: ~
+

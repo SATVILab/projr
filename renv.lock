@@ -4,11 +4,11 @@
     "Repositories": [
       {
         "Name": "RSPM",
-        "URL": "https://packagemanager.posit.co/cran/latest"
+        "URL": "https://packagemanager.rstudio.com/all/latest"
       },
       {
         "Name": "CRAN",
-        "URL": "https://cloud.r-project.org"
+        "URL": "https://cran.rstudio.com"
       }
     ]
   },
@@ -1138,7 +1138,11 @@
       "RemoteUsername": "rstudio",
       "RemoteRepo": "renv",
       "RemoteRef": "main",
-      "RemoteSha": "07d800d98f4b286db3844540d485c1c81791e510"
+      "RemoteSha": "76c0d19120ed6c0e8f35d0069d9bd99a624f020b",
+      "Requirements": [
+        "utils"
+      ],
+      "Hash": "7f61c98acdd5f986469e7e38df27ac34"
     },
     "rex": {
       "Package": "rex",
