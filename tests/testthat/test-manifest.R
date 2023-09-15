@@ -87,7 +87,7 @@ test_that("projr_manifest_hash_dir works", {
       # test saving manifest
       # -------------------------
       manifest_tbl <- data.frame(x = 1)
-      .projr_build_manifest_save(manifest_tbl, output_run = TRUE)
+      .projr_build_manifest_write(manifest_tbl, output_run = TRUE)
       expect_true(file.exists("_output/manifest.csv"))
       expect_true(file.exists("_archive/v0.0.0-1/manifest.csv"))
       expect_true(file.exists("_output/manifest.rds"))
@@ -97,7 +97,7 @@ test_that("projr_manifest_hash_dir works", {
       invisible(file.remove("_archive/v0.0.0-1/manifest.csv"))
       invisible(file.remove("_archive/v0.0.0-1/manifest.rds"))
       projr_version_set("0.0.1")
-      .projr_build_manifest_save(manifest_tbl, output_run = TRUE)
+      .projr_build_manifest_write(manifest_tbl, output_run = TRUE)
       expect_true(file.exists("_output/manifest.csv"))
       expect_true(file.exists("_output/manifest.rds"))
       expect_true(file.exists("_archive/v0.0.1/manifest.csv"))
@@ -106,13 +106,13 @@ test_that("projr_manifest_hash_dir works", {
       invisible(file.remove("_output/manifest.rds"))
       invisible(file.remove("_archive/v0.0.1/manifest.csv"))
       invisible(file.remove("_archive/v0.0.1/manifest.rds"))
-      .projr_build_manifest_save(manifest_tbl, output_run = FALSE)
+      .projr_build_manifest_write(manifest_tbl, output_run = FALSE)
       expect_false(file.exists("_output/manifest.csv"))
       expect_false(file.exists("_archive/v0.0.1/manifest.csv"))
       yml_projr <- yml_projr_init
       yml_projr[["directories"]][["archive"]][["manifest"]] <- FALSE
       .projr_yml_set(yml_projr)
-      .projr_build_manifest_save(manifest_tbl, output_run = TRUE)
+      .projr_build_manifest_write(manifest_tbl, output_run = TRUE)
       expect_true(file.exists("_output/manifest.csv"))
       expect_false(file.exists("_archive/v0.0.1/manifest.csv"))
       expect_true(file.exists("_output/manifest.rds"))
