@@ -16,57 +16,11 @@
 
   yml_projr_osf <- projr_yml_get()[["build"]][["osf"]]
   for (i in seq_along(yml_projr_osf)) {
-    yml_projr_osf_curr <- yml_projr_osf[i]
     .projr_osf_upload_node(
-      title = names(yml_projr_osf)[[i]], yml_projr_osf_curr, parent_id = NULL
+      title = names(yml_projr_osf)[i], yml_projr_osf[[i]], parent_id = NULL
     )
   }
 }
-
-.projr_osf_upload_node <- function(title, yml_param, parent_id = NULL) {
-  # try get the node
-  if (!is.null(yml_param[["id"]])) {
-    osf_node <- tryCatch(
-      osfr::osf_retrieve_node(paste0("https://osf.io/", id)),
-      error = function(e) {
-        stop(paste0(
-          "Could not retrieve OSF node (project/component):", id
-        ))
-      }
-    )
-  } else {
-    #  if it's supposed to be a project, create it
-    if (yml_param[["category"]] == "project") {
-      osf_tbl <- osfr::osf_create_project(
-        title = title,
-        description = yml_param[["body"]],
-        public = yml_param[["public"]]
-      )
-      # add ID to _projr.yml
-      # now I needq
-    }
-    # will need to check that the parent exists
-    if (is.null(parent_id)) {
-      parent_id <- yml_param[["parent_id"]]
-    }
-    if (!is.null(parent_id)) {
-      # RESTART HERE.
-      # Trying to figure out how far we've come.
-      osf_node_parent <- tryCatch(
-        osfr::osf_retrieve_node(paste0("https://osf.io/", parent_id)),
-        error = function(e) {
-          stop(paste0(
-            "Could not retrieve OSF node (project/component):", parent_id
-          ))
-        }
-      )
-    } else {
-      osf_node_parent <- NULL
-    }
-    osf_node <- osfr::osf_retrieve_node(yml_osf[["title"]])
-  }
-}
-
 
 .projr_osf_check_run <- function(output_run) {
   yml_projr <- projr_yml_get()
@@ -76,6 +30,184 @@
     return(invisible(FALSE))
   }
   invisible(TRUE)
+}
+
+
+.projr_osf_upload_node <- function(title, yml_param, parent_id = NULL) {
+  osf_tbl <- .projr_osf_get_node(
+    title = title, yml_param = yml_param, parent_id = parent_id
+  )
+  for (x in yml_param[["content"]]) {
+    .projr_osf_upload_node_label(
+      osf_tbl = osf_tbl, label = x
+    )
+  }
+}
+
+.projr_osf_get_node <- function(title, yml_param, parent_id) {
+  # get node from id
+  osf_tbl <- .projr_osf_get_node_id(yml_param[["id"]])
+  if (!is.null(osf_tbl)) {
+    return(osf_tbl)
+  }
+
+  # get node from parent_id and title
+  osf_tbl <- .projr_osf_get_node_id_parent(title, yml_param, parent_id)
+  if (!is.null(osf_tbl)) {
+    return(osf_tbl)
+  }
+
+  # create node
+  .projr_osf_create_node(title, yml_param, parent_id)
+}
+
+.projr_osf_get_node_id <- function(id) {
+  if (is.null(id)) {
+    return(NULL)
+  }
+
+  tryCatch(
+    osfr::osf_retrieve_node(paste0("https://osf.io/", id)),
+    error = function(e) {
+      stop(paste0(
+        "Could not retrieve OSF node (project/component):", id
+      ))
+    }
+  )
+}
+
+
+.projr_osf_get_parent_id <- function(yml_param, parent_id) {
+  # actually, what matters is the parent
+  parent_id_yml <- yml_param[["parent_id"]]
+  if ((!is.null(parent_id_yml)) && (!is.null(parent_id))) {
+    stop(
+      "parent_id cannot be specified in both _projr.yml and function call"
+    )
+  }
+  if (!is.null(parent_id_yml)) {
+    parent_id <- parent_id_yml
+  }
+  parent_id
+}
+
+.projr_osf_get_node_id_parent <- function(title, yml_param, parent_id) {
+  parent_id <- .projr_osf_get_parent_id(
+    yml_param = yml_param, parent_id = parent_id
+  )
+  if (is.null(parent_id)) {
+    return(NULL)
+  }
+  osf_tbl_parent <- .projr_osf_get_node_id(parent_id)
+  osf_tbl_parent_comp <- osf_tbl_parent |>
+    osfr::osf_ls_nodes()
+  if (nrow(osf_tbl_parent_comp) == 0L) {
+    return(NULL)
+  }
+  id <- osf_tbl_parent_comp[["id"]][
+    osf_tbl_parent_comp[["name"]] == title
+  ]
+  if (length(id) == 0L) {
+    return(NULL)
+  }
+  .projr_osf_get_node_id(id)
+}
+
+.projr_osf_create_node <- function(title, yml_param, parent_id = NULL) {
+  if (is.null(parent_id)) {
+    if (yml_param[["category"]] != "project") {
+      stop("parent_id must be specified for components")
+    }
+    osf_tbl <- try(osfr::osf_create_project(
+      title = title,
+      description = yml_param[["body"]],
+      public = yml_param[["public"]],
+      category = yml_param[["category"]]
+    ))
+  } else {
+    osf_tbl <- try(osfr::osf_create_component(
+      title = title,
+      description = yml_param[["body"]],
+      public = yml_param[["public"]],
+      category = yml_param[["category"]],
+      x = .projr_osf_get_node_id(parent_id)
+    ))
+  }
+  if (inherits(osf_tbl, "try-error")) {
+    stop("Could not create OSF node (project/component):", title)
+  }
+  osf_tbl
+}
+
+.projr_osf_upload_node_label <- function(osf_tbl,
+                                         label) {
+  # upload all files if directory not present
+  upload_complete <- .projr_osf_upload_node_label_new(
+    osf_tbl = osf_tbl, label = label
+  )
+  if (upload_complete) {
+    return(invisible(TRUE))
+  }
+
+  # upload files if hash different
+  manifest_tbl_local <- .projr_manifest_read()
+  manifest_tbl_osf <- .projr_osf_get_manifest(osf_tbl)
+  # TODO: Start here
+  # questions:
+  # sync-style:
+  # - Do we rely on the manifests?
+  #   - We could. Will have to download their manifest, merge
+  #     it with the local manifest (choosing which one to choose if
+  #     there is a version difference).
+  # - Do we just download, hash what's been downloaded,
+  #   and upload what's been downloaded and delete what's not?
+  #   - This seems the least error prone, but obviously will take more time.
+  # - Will have to figure out how to upload individual files to particular directories
+  #   - Not that straightforward, as `osfr` doesn't allow you to specify that exactly
+  # -
+  manifest_list_diff <- .projr_manifest_compare(
+    manifest_tbl_local,
+    manifest_tbl_osf,
+    paste0("v", projr_version_get())
+  )
+}
+
+.projr_osf_upload_node_label_new <- function(osf_tbl,
+                                             label) {
+  dir_label <- projr_dir_get("label", output_safe = FALSE)
+  osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
+  label_present <- label %in% osf_tbl_file[["name"]]
+  if (label_present) {
+    return(FALSE)
+  }
+  if (!label_present) {
+    osfr::osf_upload(
+      x = osf_tbl, file = dir_label, conflicts = "overwrite"
+    )
+  }
+  TRUE
+}
+
+.projr_osf_get_manifest <- function(osf_tbl) {
+  osf_tbl_files <- osf_tbl |> osfr::osf_ls_files()
+  osf_tbl_manifest <- osf_tbl_files[
+    osf_tbl_files[["name"]] == "manifest.csv",
+  ]
+  if (nrow(osf_tbl_manifest) == 0L) {
+    return(data.frame(
+      label = character(0),
+      fn = character(0),
+      version = character(0),
+      hash = character(0)
+    ))
+  }
+  path_save <- file.path(tempdir(), "manifest.csv")
+  osfr::osf_download(
+    osf_tbl_manifest,
+    path = file.path(tempdir(), "manifest.csv"),
+    conflicts = "overwrite"
+  )
+  utils::read.csv(path_save)
 }
 
 #' @title Add an OSF node
