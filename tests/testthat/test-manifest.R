@@ -30,8 +30,12 @@ test_that("projr_manifest_hash_dir works", {
       invisible(file.create("_data_raw/abc.csv"))
       invisible(file.create("_data_raw/sub/def.csv"))
       dir.create("_tmp")
-      expect_identical(nrow(.projr_manifest_hash_label("cache")), 0L)
-      expect_identical(ncol(.projr_manifest_hash_label("cache")), 3L)
+      expect_identical(
+        nrow(.projr_manifest_hash_label("cache", output_run = TRUE)), 0L
+      )
+      expect_identical(
+        ncol(.projr_manifest_hash_label("cache", output_run = TRUE)), 4L
+      )
       invisible(file.create("_data_raw/sub/def.csv"))
 
       # test getting manifest
@@ -42,19 +46,19 @@ test_that("projr_manifest_hash_dir works", {
       file.create("_tmp/test.txt")
       file.create("_tmp/abc/test.txt")
 
-      manifest <- .projr_build_manifest_hash_pre()
+      manifest <- .projr_build_manifest_hash_pre(TRUE)
       expect_identical(nrow(manifest), 0L)
       yml_projr <- yml_projr_init
       yml_projr[["directories"]][["cache"]][["hash"]] <- FALSE
       .projr_yml_set(yml_projr)
-      manifest <- .projr_build_manifest_hash_pre()
+      manifest <- .projr_build_manifest_hash_pre(TRUE)
       expect_identical(nrow(manifest), 0L)
       yml_projr <- yml_projr_init
       yml_projr[["directories"]][["cache"]][["hash"]] <- TRUE
       .projr_yml_set(yml_projr)
-      manifest <- .projr_build_manifest_hash_pre()
+      manifest <- .projr_build_manifest_hash_pre(TRUE)
       expect_identical(nrow(manifest), 2L)
-      expect_identical(colnames(manifest), c("label", "fn", "hash"))
+      expect_identical(colnames(manifest), c("label", "fn", "version", "hash"))
 
       # post:
       if (dir.exists("_data_raw")) {
@@ -69,56 +73,116 @@ test_that("projr_manifest_hash_dir works", {
       dir.create("_data_raw/abc", recursive = TRUE)
       invisible(file.create("_data_raw/test.txt"))
       invisible(file.create("_data_raw/abc/test.txt"))
+      # to fix:
+      # - why did data-raw sub-directory not appear?
+      # - what is going on with the output directory? It seems
+      #   like the test is assuming the files will be in the cache directory,
+      #   but they should actually be in the unsafe directory.
+      #   well, I guess it doesn't matter.
+      # seems like both are now fixed
 
-      manifest <- .projr_build_manifest_hash_post()
+      manifest <- .projr_build_manifest_hash_post(FALSE)
       expect_identical(nrow(manifest), 4L)
-      expect_identical(colnames(manifest), c("label", "fn", "hash"))
+      expect_identical(colnames(manifest), c("label", "fn", "version", "hash"))
       yml_projr <- yml_projr_init
       yml_projr[["directories"]][["data-raw"]][["hash"]] <- FALSE
       .projr_yml_set(yml_projr)
-      manifest <- .projr_build_manifest_hash_post()
+      manifest <- .projr_build_manifest_hash_post(FALSE)
       expect_identical(nrow(manifest), 2L)
       yml_projr[["directories"]][["output"]][["hash"]] <- FALSE
       .projr_yml_set(yml_projr)
-      manifest <- .projr_build_manifest_hash_post()
+      manifest <- .projr_build_manifest_hash_post(FALSE)
       expect_identical(nrow(manifest), 0L)
-      expect_identical(colnames(manifest), c("label", "fn", "hash"))
+      expect_identical(colnames(manifest), c("label", "fn", "version", "hash"))
 
       # test saving manifest
       # -------------------------
       manifest_tbl <- data.frame(x = 1)
-      .projr_build_manifest_write(manifest_tbl, output_run = TRUE)
-      expect_true(file.exists("_output/manifest.csv"))
-      expect_true(file.exists("_archive/v0.0.0-1/manifest.csv"))
-      expect_true(file.exists("_output/manifest.rds"))
-      expect_true(file.exists("_archive/v0.0.0-1/manifest.rds"))
-      invisible(file.remove("_output/manifest.csv"))
-      invisible(file.remove("_output/manifest.rds"))
-      invisible(file.remove("_archive/v0.0.0-1/manifest.csv"))
-      invisible(file.remove("_archive/v0.0.0-1/manifest.rds"))
-      projr_version_set("0.0.1")
-      .projr_build_manifest_write(manifest_tbl, output_run = TRUE)
-      expect_true(file.exists("_output/manifest.csv"))
-      expect_true(file.exists("_output/manifest.rds"))
-      expect_true(file.exists("_archive/v0.0.1/manifest.csv"))
-      expect_true(file.exists("_archive/v0.0.1/manifest.rds"))
-      invisible(file.remove("_output/manifest.csv"))
-      invisible(file.remove("_output/manifest.rds"))
-      invisible(file.remove("_archive/v0.0.1/manifest.csv"))
-      invisible(file.remove("_archive/v0.0.1/manifest.rds"))
-      .projr_build_manifest_write(manifest_tbl, output_run = FALSE)
-      expect_false(file.exists("_output/manifest.csv"))
-      expect_false(file.exists("_archive/v0.0.1/manifest.csv"))
-      yml_projr <- yml_projr_init
-      yml_projr[["directories"]][["archive"]][["manifest"]] <- FALSE
-      .projr_yml_set(yml_projr)
-      .projr_build_manifest_write(manifest_tbl, output_run = TRUE)
-      expect_true(file.exists("_output/manifest.csv"))
-      expect_false(file.exists("_archive/v0.0.1/manifest.csv"))
-      expect_true(file.exists("_output/manifest.rds"))
-      expect_false(file.exists("_archive/v0.0.1/manifest.rds"))
-      invisible(file.remove("_output/manifest.csv"))
-      invisible(file.remove("_output/manifest.rds"))
+      .projr_manifest_write(manifest_tbl, output_run = TRUE)
+      expect_true(file.exists("manifest.csv"))
+      .projr_manifest_write(manifest_tbl, output_run = FALSE)
+      expect_true(
+        file.exists(projr_dir_get("output", "manifest.csv", output_run = FALSE))
+      )
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that("projr_manifest_compare works", {
+  dir_test <- file.path(tempdir(), paste0("test_projr"))
+
+  if (!dir.exists(dir_test)) dir.create(dir_test)
+  fn_vec <- list.files(testthat::test_path("./project_structure"))
+  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
+
+  for (x in fn_vec) {
+    file.copy(
+      file.path(testthat::test_path("./project_structure"), x),
+      file.path(dir_test, x),
+      overwrite = TRUE
+    )
+  }
+
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  gert::git_init(dir_test)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # clean up
+      if (dir.exists(projr_dir_get("data-raw"))) {
+        unlink(projr_dir_get("data-raw"), recursive = TRUE)
+      }
+      # create files
+      path_output_kept_unchanged <- projr_path_get(
+        "output", "kept_unchanged.txt",
+        output_safe = FALSE
+      )
+      path_output_kept_changed <- projr_path_get(
+        "output", "kept_changed.txt",
+        output_safe = FALSE
+      )
+      path_output_removed <- projr_path_get(
+        "output", "removed.txt",
+        output_safe = FALSE
+      )
+      invisible(file.create(path_output_kept_unchanged))
+      invisible(file.create(path_output_kept_changed))
+      invisible(file.create(path_output_removed))
+      # get manifest beforehand
+      manifest_tbl_init <- .projr_build_manifest_hash_post(output_run = TRUE)
+      # add a file, and change a file
+      path_output_add <- projr_path_get(
+        "output", "added.txt",
+        output_safe = FALSE
+      )
+      invisible(file.create(path_output_add))
+      cat("add", file = path_output_kept_changed, append = TRUE)
+      unlink(path_output_removed)
+      # get manifest afterwards
+      manifest_tbl_add <- .projr_build_manifest_hash_post(output_run = TRUE)
+      .projr_manifest_compare(manifest_tbl_init, manifest_tbl_add)
+      manifest_compare_list <- .projr_manifest_compare(
+        manifest_tbl_init, manifest_tbl_add
+      )
+      expect_identical(
+        "kept_unchanged.txt", manifest_compare_list$kept_unchanged$fn
+      )
+      expect_identical(
+        "kept_changed.txt", manifest_compare_list$kept_changed$fn
+      )
+      expect_identical("removed.txt", manifest_compare_list$removed$fn)
+      expect_identical("added.txt", manifest_compare_list$added$fn)
     },
     force = TRUE,
     quiet = TRUE

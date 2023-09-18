@@ -164,7 +164,6 @@
   #   - This seems the least error prone, but obviously will take more time.
   # - Will have to figure out how to upload individual files to particular directories
   #   - Not that straightforward, as `osfr` doesn't allow you to specify that exactly
-  # -
   manifest_list_diff <- .projr_manifest_compare(
     manifest_tbl_local,
     manifest_tbl_osf,

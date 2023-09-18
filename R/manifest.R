@@ -16,7 +16,8 @@
   if (length(cache_vec) == 0) {
     return(
       data.frame(
-        label = character(0), fn = character(0), hash = character(0)
+        label = character(0), fn = character(0),
+        version = character(0), hash = character(0)
       )
     )
   }
@@ -56,7 +57,8 @@
   if (length(label_vec) == 0) {
     return(
       data.frame(
-        label = character(0), fn = character(0), hash = character(0)
+        label = character(0), fn = character(0),
+        version = character(0), hash = character(0)
       )
     )
   }
@@ -76,6 +78,7 @@
     return(data.frame(
       label = character(0),
       fn = character(0),
+      version = character(0),
       hash = character(0)
     ))
   }
@@ -90,7 +93,7 @@
   )
 }
 
-.projr_manifest_write <- function(manifest, output_run) {
+.projr_manifest_write <- function(manifest, output_run, append = TRUE) {
   if (!output_run) {
     dir_cache_auto <- .projr_dir_get_cache_auto()
     dir_write <- file.path(
@@ -102,10 +105,14 @@
   } else {
     dir_write <- projr_dir_get("project")
   }
-  utils::write.csv(
-    manifest, file.path(dir_write, "manifest.csv"),
-    append = TRUE
-  )
+  if (append) {
+    path_manifest <- file.path(dir_write, "manifest.csv")
+    if (file.exists(path_manifest)) {
+      manifest_orig <- .projr_manifest_read()
+      manifest <- manifest_orig |> rbind(manifest)
+    }
+  }
+  utils::write.csv(manifest, file.path(dir_write, "manifest.csv"))
 }
 
 .projr_manifest_read <- function() {
@@ -115,6 +122,24 @@
   )
 }
 
-.projr_manifest_compare <- function(manifest_add, manifest2) {
-
+.projr_manifest_compare <- function(manifest_pre, manifest_post) {
+  # get all files that have been added
+  fn_vec_pre_lgl_removed <- !manifest_pre[["fn"]] %in% manifest_post[["fn"]]
+  fn_vec_post_lgl_kept <- manifest_post[["fn"]] %in% manifest_pre[["fn"]]
+  fn_vec_post_lgl_add <- !manifest_post[["fn"]] %in% manifest_pre[["fn"]]
+  manifest_post_kept <- manifest_post[fn_vec_post_lgl_kept, ]
+  manifest_post_add <- manifest_post[fn_vec_post_lgl_add, ]
+  hash_from_fn_pre <- setNames(
+    manifest_pre[["hash"]], manifest_pre[["fn"]]
+  )
+  hash_vec_post_match <- manifest_post_kept[["hash"]] ==
+    hash_from_fn_pre[manifest_post_kept[["fn"]]]
+  manifest_post_kept_unchanged <- manifest_post_kept[hash_vec_post_match, ]
+  manifest_post_kept_changed <- manifest_post_kept[!hash_vec_post_match, ]
+  list(
+    "removed" = manifest_pre[fn_vec_pre_lgl_removed, ],
+    "kept_unchanged" = manifest_post_kept_unchanged,
+    "kept_changed" = manifest_post_kept_changed,
+    "added" = manifest_post_add
+  )
 }
