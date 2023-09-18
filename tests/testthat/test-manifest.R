@@ -160,7 +160,7 @@ test_that("projr_manifest_compare works", {
       invisible(file.create(path_output_kept_changed))
       invisible(file.create(path_output_removed))
       # get manifest beforehand
-      manifest_tbl_init <- .projr_build_manifest_hash_post(output_run = TRUE)
+      manifest_tbl_pre <- .projr_build_manifest_hash_post(output_run = TRUE)
       # add a file, and change a file
       path_output_add <- projr_path_get(
         "output", "added.txt",
@@ -170,10 +170,10 @@ test_that("projr_manifest_compare works", {
       cat("add", file = path_output_kept_changed, append = TRUE)
       unlink(path_output_removed)
       # get manifest afterwards
-      manifest_tbl_add <- .projr_build_manifest_hash_post(output_run = TRUE)
-      .projr_manifest_compare(manifest_tbl_init, manifest_tbl_add)
+      manifest_tbl_post <- .projr_build_manifest_hash_post(output_run = TRUE)
+      .projr_manifest_compare(manifest_tbl_pre, manifest_tbl_post)
       manifest_compare_list <- .projr_manifest_compare(
-        manifest_tbl_init, manifest_tbl_add
+        manifest_tbl_pre, manifest_tbl_post
       )
       expect_identical(
         "kept_unchanged.txt", manifest_compare_list$kept_unchanged$fn
@@ -183,6 +183,24 @@ test_that("projr_manifest_compare works", {
       )
       expect_identical("removed.txt", manifest_compare_list$removed$fn)
       expect_identical("added.txt", manifest_compare_list$added$fn)
+      manifest_compare_list <- .projr_manifest_compare(
+        manifest_tbl_pre[rep(FALSE, nrow(manifest_tbl_pre))], manifest_tbl_post
+      )
+      zero_row_tbl <- data.frame(
+        label = character(0),
+        fn = character(0),
+        version = character(0),
+        hash = character(0)
+      )
+      attr(zero_row_tbl, "row.names") <- character(0)
+      expect_identical(manifest_compare_list$kept_unchanged, zero_row_tbl)
+      expect_identical(manifest_compare_list$added, manifest_tbl_post)
+      manifest_compare_list <- .projr_manifest_compare(
+        manifest_tbl_pre,
+        manifest_tbl_post[rep(FALSE, nrow(manifest_tbl_pre)), ]
+      )
+      expect_identical(manifest_compare_list$kept_unchanged, zero_row_tbl)
+      expect_identical(manifest_compare_list$removed, manifest_tbl_pre)
     },
     force = TRUE,
     quiet = TRUE

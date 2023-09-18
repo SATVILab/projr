@@ -123,23 +123,58 @@
 }
 
 .projr_manifest_compare <- function(manifest_pre, manifest_post) {
+  zero_row_tbl <- data.frame(
+    label = character(0),
+    fn = character(0),
+    version = character(0),
+    hash = character(0)
+  )
+  attr(zero_row_tbl, "row.names") <- character(0)
+  # get last version uploaded
+  # get version that is being uploaded to
+  # get list of whatever is in the OSF registry
   # get all files that have been added
+  version_previous <- .projr_manifest_get_version_latest(manifest_pre)
+  manifest_pre <- manifest_pre[
+    manifest_pre[["version"]] == version_previous,
+  ]
+  manifest_post <- manifest_post[
+    manifest_post[["version"]] == paste0("v", projr_version_get()),
+  ]
   fn_vec_pre_lgl_removed <- !manifest_pre[["fn"]] %in% manifest_post[["fn"]]
   fn_vec_post_lgl_kept <- manifest_post[["fn"]] %in% manifest_pre[["fn"]]
   fn_vec_post_lgl_add <- !manifest_post[["fn"]] %in% manifest_pre[["fn"]]
   manifest_post_kept <- manifest_post[fn_vec_post_lgl_kept, ]
-  manifest_post_add <- manifest_post[fn_vec_post_lgl_add, ]
   hash_from_fn_pre <- setNames(
     manifest_pre[["hash"]], manifest_pre[["fn"]]
   )
   hash_vec_post_match <- manifest_post_kept[["hash"]] ==
     hash_from_fn_pre[manifest_post_kept[["fn"]]]
-  manifest_post_kept_unchanged <- manifest_post_kept[hash_vec_post_match, ]
-  manifest_post_kept_changed <- manifest_post_kept[!hash_vec_post_match, ]
+  if (nrow(manifest_post) == 0L) {
+    manifest_post_kept_unchanged <- zero_row_tbl
+    manifest_post_kept_changed <- zero_row_tbl
+    manifest_post_add <- zero_row_tbl
+  } else {
+    manifest_post_add <- manifest_post[fn_vec_post_lgl_add, ]
+    manifest_post_kept_unchanged <- manifest_post_kept[hash_vec_post_match, ]
+    manifest_post_kept_changed <- manifest_post_kept[!hash_vec_post_match, ]
+  }
+  if (nrow(manifest_pre) == 0L) {
+    manifest_removed <- zero_row_tbl
+  } else {
+    manifest_removed <- manifest_pre[fn_vec_pre_lgl_removed, ]
+  }
   list(
-    "removed" = manifest_pre[fn_vec_pre_lgl_removed, ],
+    "removed" = manifest_removed,
     "kept_unchanged" = manifest_post_kept_unchanged,
     "kept_changed" = manifest_post_kept_changed,
     "added" = manifest_post_add
   )
+}
+
+.projr_manifest_get_version_latest <- function(manifest) {
+  manifest[["version"]] |>
+    unique() |>
+    sort() |>
+    utils::tail(1)
 }
