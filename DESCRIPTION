@@ -17,10 +17,10 @@ Imports:
     desc,
     gert,
     roxygen2,
-    gh,
     digest
 Suggests:
     pkgbuild,
+    gh,
     rmarkdown,
     bookdown,
     quarto,
