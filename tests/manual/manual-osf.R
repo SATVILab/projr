@@ -1,6 +1,3 @@
-devtools::load_all()
-library(testthat)
-
 test_that(".projr_osf_get_node works", {
   usethis::with_project(
     path = dir_test,
