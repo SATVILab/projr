@@ -1,49 +1,3 @@
-.projr_osf_upload <- function(output_run) {
-  # consider early exit
-  # ------------------
-
-  if (!.projr_osf_check_run(output_run)) {
-    return(invisible(FALSE))
-  }
-
-  # uploads
-  # ------------------
-
-  if (!requireNamespace("osfr", quietly = TRUE)) {
-    renv::install("osfr", prompt = FALSE)
-    .projr_dep_add("osfr")
-  }
-
-  yml_projr_osf <- projr_yml_get()[["build"]][["osf"]]
-  for (i in seq_along(yml_projr_osf)) {
-    .projr_osf_upload_node(
-      title = names(yml_projr_osf)[i], yml_projr_osf[[i]], parent_id = NULL
-    )
-  }
-}
-
-.projr_osf_check_run <- function(output_run) {
-  yml_projr <- projr_yml_get()
-  # either a dev run or else no osf upload specified
-  if ((!output_run) ||
-    (!"osf" %in% names(yml_projr[["build"]]))) {
-    return(invisible(FALSE))
-  }
-  invisible(TRUE)
-}
-
-
-.projr_osf_upload_node <- function(title, yml_param, parent_id = NULL) {
-  osf_tbl <- .projr_osf_get_node(
-    title = title, yml_param = yml_param, parent_id = parent_id
-  )
-  for (x in yml_param[["content"]]) {
-    .projr_osf_upload_node_label(
-      osf_tbl = osf_tbl, label = x
-    )
-  }
-}
-
 .projr_osf_get_node <- function(title, yml_param, parent_id) {
   # get node from id
   osf_tbl <- .projr_osf_get_node_id(yml_param[["id"]])
@@ -75,7 +29,6 @@
     }
   )
 }
-
 
 .projr_osf_get_parent_id <- function(yml_param, parent_id) {
   # actually, what matters is the parent
@@ -139,75 +92,6 @@
   osf_tbl
 }
 
-.projr_osf_upload_node_label <- function(osf_tbl,
-                                         label) {
-  # upload all files if directory not present
-  upload_complete <- .projr_osf_upload_node_label_new(
-    osf_tbl = osf_tbl, label = label
-  )
-  if (upload_complete) {
-    return(invisible(TRUE))
-  }
-
-  # upload files if hash different
-  manifest_tbl_local <- .projr_manifest_read()
-  manifest_tbl_osf <- .projr_osf_get_manifest(osf_tbl)
-  # TODO: Start here
-  # questions:
-  # sync-style:
-  # - Do we rely on the manifests?
-  #   - We could. Will have to download their manifest, merge
-  #     it with the local manifest (choosing which one to choose if
-  #     there is a version difference).
-  # - Do we just download, hash what's been downloaded,
-  #   and upload what's been downloaded and delete what's not?
-  #   - This seems the least error prone, but obviously will take more time.
-  # - Will have to figure out how to upload individual files to particular directories
-  #   - Not that straightforward, as `osfr` doesn't allow you to specify that exactly
-  manifest_list_diff <- .projr_manifest_compare(
-    manifest_tbl_local,
-    manifest_tbl_osf,
-    paste0("v", projr_version_get())
-  )
-}
-
-.projr_osf_upload_node_label_new <- function(osf_tbl,
-                                             label) {
-  dir_label <- projr_dir_get("label", output_safe = FALSE)
-  osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
-  label_present <- label %in% osf_tbl_file[["name"]]
-  if (label_present) {
-    return(FALSE)
-  }
-  if (!label_present) {
-    osfr::osf_upload(
-      x = osf_tbl, file = dir_label, conflicts = "overwrite"
-    )
-  }
-  TRUE
-}
-
-.projr_osf_get_manifest <- function(osf_tbl) {
-  osf_tbl_files <- osf_tbl |> osfr::osf_ls_files()
-  osf_tbl_manifest <- osf_tbl_files[
-    osf_tbl_files[["name"]] == "manifest.csv",
-  ]
-  if (nrow(osf_tbl_manifest) == 0L) {
-    return(data.frame(
-      label = character(0),
-      fn = character(0),
-      version = character(0),
-      hash = character(0)
-    ))
-  }
-  path_save <- file.path(tempdir(), "manifest.csv")
-  osfr::osf_download(
-    osf_tbl_manifest,
-    path = file.path(tempdir(), "manifest.csv"),
-    conflicts = "overwrite"
-  )
-  utils::read.csv(path_save)
-}
 
 #' @title Add an OSF node
 #'
@@ -476,47 +360,5 @@ projr_osf_yml_up_add <- function(title,
         parent_search = c(x, "component")
       )
     }
-  )
-}
-
-#' @rdname projr_osf_yml_up_add
-#' @export
-projr_osf_yml_up_add_proj <- function(title,
-                                      body = NULL,
-                                      content = NULL,
-                                      public = FALSE,
-                                      id = NULL) {
-  projr_osf_yml_up_add(
-    title = title,
-    body = body,
-    content = content,
-    public = public,
-    category = "project",
-    id = id
-  )
-}
-
-#' @rdname projr_osf_yml_up_add
-#' @export
-projr_osf_yml_up_add_comp <- function(title,
-                                      body = NULL,
-                                      content = NULL,
-                                      public = FALSE,
-                                      category = NULL,
-                                      parent_title = NULL,
-                                      parent_id = NULL,
-                                      id = NULL) {
-  if (missing(parent_id) && missing(parent_title)) {
-    stop("either parent_id or parent_title must be specified")
-  }
-  projr_osf_yml_up_add(
-    title = title,
-    body = body,
-    content = content,
-    public = public,
-    category = category,
-    parent_id = parent_id,
-    parent_title = parent_title,
-    id = id
   )
 }
