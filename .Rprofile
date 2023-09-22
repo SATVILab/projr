@@ -1,3 +1,6 @@
+if (Sys.getenv("GITHUB_ACTIONS") == "true") {
+  Sys.setenv("RENV_CONFIG_PAK_ENABLED" = "FALSE")
+}
 source("renv/activate.R")
 
 options(
@@ -21,4 +24,3 @@ if (Sys.info()[["sysname"]] %in% c("Darwin", "Windows")) {
     INLA = "https://inla.r-inla-download.org/R/testing"
   ))
 }
-
