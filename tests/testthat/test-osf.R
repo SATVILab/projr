@@ -72,7 +72,7 @@ test_that("projr_osf_yml_up_add works", {
   unlink(dir_test, recursive = TRUE)
 })
 
-test_that("projr_osf_upload works", {
+test_that(".projr_osf_get_node works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
@@ -98,47 +98,23 @@ test_that("projr_osf_upload works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      yml_projr_orig <- projr_yml_get_unchecked()
-      # test basic, top-level add
-      projr_osf_yml_up_add(title = "Test", create = FALSE)
-      yml_projr <- projr_yml_get_unchecked()
-      expect_true("osf" %in% names(yml_projr[["build"]]))
-      expect_true("Test" %in% names(yml_projr[["build"]][["osf"]]))
-      # test overwrite
-      expect_error(projr_osf_yml_up_add(title = "Test", create = FALSE))
-      expect_no_error(
-        projr_osf_yml_up_add(title = "Test", create = FALSE, overwrite = TRUE)
-      )
-      # test add of an addition at top-level
-      projr_osf_yml_up_add(
-        title = "Test2",
-        create = FALSE
-      )
-      yml_projr <- projr_yml_get_unchecked()
-      expect_true(
-        identical(c("Test", "Test2"), names(yml_projr[["build"]][["osf"]]))
-      )
-      expect_error(projr_osf_yml_up_add(title = "Test2", create = FALSE))
-
-      # test adding a project with a parent
-      expect_error(projr_osf_yml_up_add(
-        title = "Test3", create = FALSE,
-        category = "project", parent_id = "123"
+      # get node id directly
+      # --------------------
+      expect_null(.projr_osf_get_node_id(NULL))
+      expect_error(.projr_osf_get_node_id("aawkjlera"))
+      # get node id from parent
+      # -----------------------
+      yml_param <- list(parent_id = NULL)
+      expect_null(.projr_osf_get_node_id_parent(
+        "TestSub",
+        yml_param = yml_param, NULL
       ))
-
-      # now add a sub-category
-      projr_osf_yml_up_add(
-        title = "Test3", create = FALSE, parent_title = "Test"
-      )
-      yml_projr_osf <- projr_yml_get_unchecked()[["build"]][["osf"]]
-      expect_true("Test3" %in%
-        names(yml_projr_osf[["Test"]][["component"]]))
-      projr_osf_yml_up_add(
-        title = "Test4", create = FALSE, parent_title = "Test3"
-      )
-      yml_projr_osf <- projr_yml_get_unchecked()[["build"]][["osf"]]
-      expect_true("Test4" %in%
-        names(yml_projr_osf[["Test"]][["component"]][["Test3"]][["component"]]))
+      # create node because not found
+      # -----------------------------
+      expect_error(.projr_osf_create_node(
+        "abc",
+        yml_param = list(category = "comp"), parent_id = NULL
+      ))
     },
     quiet = TRUE,
     force = TRUE
