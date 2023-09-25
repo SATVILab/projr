@@ -129,3 +129,16 @@
   osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
   label_present <- label %in% osf_tbl_file[["name"]]
 }
+
+.projr_osf_upload_node_manifest <- function(title,
+                                            yml_param,
+                                            parent_id) {
+  osf_tbl <- .projr_osf_get_node(
+    title = title, yml_param = yml_param, parent_id = parent_id
+  )
+  osfr::osf_upload(
+    x = osf_tbl,
+    file = projr_path_get("project", "manifest.csv"),
+    conflicts = "overwrite"
+  )
+}

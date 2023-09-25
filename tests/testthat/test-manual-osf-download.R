@@ -1,4 +1,9 @@
-test_that(".projr_osf_upload_node_add", {
+test_that(".projr_osf_download_node_manifest", {
+  # skips
+  skip_if_offline()
+  skip_if(TRUE)
+
+  # setup
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
@@ -21,10 +26,10 @@ test_that(".projr_osf_upload_node_add", {
   writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
   gert::git_init(dir_test)
 
+  # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
-      browser()
       # create previous upload
       # ---------------------------
 
@@ -50,33 +55,29 @@ test_that(".projr_osf_upload_node_add", {
         manifest,
         output_run = TRUE
       )
-
-      # configure osf upload
-      yml_projr <- yml_projr_orig
-      yml_projr[["osf"]] <- (
-        list(public = FALSE, category = "project")
-      ) |>
-        stats::setNames("Test")
-      .projr_yml_set(yml_projr)
-
       # upload
-      .projr_osf_upload(output_run = TRUE)
-    },
-    quiet = TRUE,
-    force = TRUE
+      osf_tbl <- .projr_osf_get_node(
+        title = "Test",
+        yml_param = list(public = FALSE, category = NULL),
+        parent_id = "q26c9"
+      )
+      osfr::osf_upload(
+        x = osf_tbl, path = projr_path_get("project", "manifest.csv")
+      )
+      expect_identical(
+        .projr_osf_download_node_manifest(osf_tbl),
+        manifest
+      )
+    }
   )
-  unlink(dir_test, recursive = TRUE)
-})
 
-.projr_osf_upload_node_manifest <- function(title,
-                                            yml_param,
-                                            parent_id) {
-  osf_tbl <- .projr_osf_get_node(
-    title = title, yml_param = yml_param, parent_id = parent_id
-  )
-  osfr::osf_upload(
-    x = osf_tbl,
-    file = projr_path_get("project", "manifest.csv"),
-    conflicts = "overwrite"
-  )
-}
+  # teardown
+  unlink(dir_test, recursive = TRUE)
+  tryCatch({
+    osf_tbl <- .projr_osf_get_node(
+      "Test",
+      yml_param = list(), parent_id = "q26c9"
+    )
+    osfr::osf_rm(osf_tbl, check = FALSE, recurse = TRUE)
+  })
+})

@@ -78,13 +78,25 @@
       category = yml_param[["category"]]
     ))
   } else {
+    osf_tbl_parent <- tryCatch(
+      .projr_osf_get_node_id(parent_id),
+      error = function(e) {
+        stop(paste0("Could not get OSF node for id: ", parent_id))
+      }
+    )
+    if (sum(osf_tbl_parent[["name"]] == title) > 0) {
+      stop(paste0(
+        "OSF node already exists for title: ", title,
+        " in node ", parent_id
+      ))
+    }
     osf_tbl <- try(osfr::osf_create_component(
       title = title,
       description = yml_param[["body"]],
       public = yml_param[["public"]],
       category = yml_param[["category"]],
-      x = .projr_osf_get_node_id(parent_id)
-    ))
+      x = osf_tbl_parent
+      ))
   }
   if (inherits(osf_tbl, "try-error")) {
     stop("Could not create OSF node (project/component):", title)
