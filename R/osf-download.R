@@ -1,4 +1,4 @@
-.projr_osf_download_manifest <- function(osf_tbl) {
+.projr_osf_download_node_manifest <- function(osf_tbl) {
   osf_tbl_files <- osf_tbl |> osfr::osf_ls_files()
   osf_tbl_manifest <- osf_tbl_files[
     osf_tbl_files[["name"]] == "manifest.csv",
@@ -14,27 +14,47 @@
   path_save <- file.path(tempdir(), "manifest.csv")
   osfr::osf_download(
     osf_tbl_manifest,
-    path = file.path(tempdir(), "manifest.csv"),
-    conflicts = "overwrite"
+    path = tempdir(), conflicts = "overwrite"
   )
   utils::read.csv(path_save)
 }
 
-.projr_osf_download <- function() {
-  if (!.projr_osf_upload_check_run()) {
+# so, we need functions to restore downloads,
+# we also need functions to download
+# outputs.
+# should both be called restored?
+projr_osf_restore <- function() {
+
+}
+
+.projr_osf_download_dir <- function() {
+  if (!.projr_osf_download_dir_check_run()) {
     return(invisible(FALSE))
   }
   yml_projr_dir <- projr_yml_get()[["directories"]]
   for (i in seq_along(yml_projr_dir)) {
-    .projr_osf_download_label(
+    .projr_osf_download_dir_label(
       label = names(yml_projr_dir)[i],
     )
   }
 }
 
-.projr_osf_download_check_run <- function() {
+.projr_osf_download_build <- function(output_safe) {
+  if (!.projr_osf_download_build_check_run()) {
+    return(invisible(FALSE))
+  }
+  yml_projr_build_osf <- projr_yml_get()[["build"]][["osf"]]
+  for (i in seq_along(yml_projr_build_osf)) {
+    .projr_osf_download_build_node(
+      title = names(yml_projr_build_osf)[i],
+      parent_id = NULL,
+      output_safe = output_safe
+    )
+  }
+}
+
+.projr_osf_download_dir_check_run <- function() {
   yml_projr <- projr_yml_get()
-  # either a dev run or else no osf upload specified
   osf_is_source <- vapply(
     yml_projr[["directories"]], function(x) "osf" %in% names(x), logical(1)
   ) |>
@@ -45,13 +65,30 @@
   invisible(TRUE)
 }
 
-.projr_osf_download_label <- function(label) {
+.projr_osf_download_build_check_run <- function() {
+  yml_projr <- projr_yml_get()
+  osf_is_dest <- "osf" %in% names(yml_projr[["build"]])
+  if (!osf_is_dest) {
+    return(invisible(FALSE))
+  }
+  invisible(TRUE)
+}
+
+.projr_osf_download_dir_label <- function(label) {
   yml_param <- projr_yml_get_unchecked()[["directories"]][[label]]
   if (!"osf" %in% names(yml_param)) {
     return(invisible(FALSE))
   }
   yml_param_osf <- yml_param[["osf"]]
-  osf_tbl <- .projr_osf_get_node_id(yml_param_osf)
+  # allowed to just specify id
+  if (is.character(yml_param_osf)) {
+    osf_tbl <- .projr_osf_get_node_id(yml_param_osf)
+  } else {
+    osf_tbl <- .projr_osf_get_node_id(yml_param_osf[["id"]])
+  }
+  if (is.null(osf_tbl)) {
+    stop(paste0("osf node id not specified for label ", label))
+  }
   osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
   if (nrow(osf_tbl_file) == 0L) {
     return(invisible(FALSE))
@@ -98,22 +135,53 @@
       conflicts <- yml_param_osf[["conflicts"]]
     }
   }
-  for (i in seq_len(nrow(osf_tbl_file))) {
-    osfr::osf_download(
-      x = osf_tbl_file[i, ],
-      path = projr_dir_get(label, output_safe = TRUE),
-      recurse = TRUE,
+  .projr_osf_download_osf_tbl(
+    osf_tbl = osf_tbl_file,
+    dir_save = projr_dir_get(label, output_safe = TRUE),
+    is_file = TRUE,
+    conflicts = "overwrite"
+  )
+  invisible(TRUE)
+}
+
+.projr_osf_download_build_node <- function(title,
+                                           parent_id = NULL,
+                                           output_safe) {
+  yml_param <- projr_yml_get_unchecked()[["build"]][["osf"]][[title]]
+  parent_id <- .projr_osf_get_parent_id(
+    yml_param = yml_param, parent_id = parent_id
+  )
+  id <- yml_param[["id"]]
+  if (!is.null(id)) {
+    osf_tbl <- .projr_osf_get_node_id(id)
+  } else {
+    osf_tbl <- .projr_osf_get_node_id_parent(title, parent_id)
+  }
+  if (is.null(osf_tbl)) {
+    stop(paste0("osf node id not found for title ", title))
+  }
+  if (is.null(yml_param[["conflicts"]])) {
+    conflicts <- "overwrite"
+  } else {
+    conflicts <- yml_param[["conflicts"]]
+  }
+  for (i in seq_along(yml_param[["content"]])) {
+    .projr_osf_download_osf_tbl(
+      osf_tbl = osf_tbl,
+      dir_save = projr_dir_get(yml_param[["content"]][i], output_safe = TRUE),
+      file = FALSE,
       conflicts = conflicts
     )
   }
-  invisible(TRUE)
 }
 
 .projr_osf_download_osf_tbl <- function(osf_tbl,
                                         dir_save,
+                                        is_file,
                                         conflicts = "overwrite") {
-  osf_tbl <- .projr_osf_get_node_id(yml_param_osf)
-  osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
+  if (!is_file) {
+    osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
+  }
   if (nrow(osf_tbl_file) == 0L) {
     return(invisible(FALSE))
   }

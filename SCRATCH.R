@@ -1,7 +1,16 @@
 library(testthat)
 # devtools::load_all(path = file.path(Sys.getenv("pkg"), "projr"))
 devtools::load_all()
-devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
+# devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
+devtools::test_active_file("tests/testthat/test-osf-download-manual.R")
+
+for (i in seq_len(nrow(osf_tbl_parent))) {
+  osfr::osf_rm(osf_tbl_parent[i, ], check = FALSE, recurse = TRUE)
+}
+
+debugonce(.projr_osf_create_node)
+osf_tbl <- .projr_osf_get_node("Test", yml_param = list(), parent_id = "q26c9")
+
 
 # what are the upload methods again?
 # well, we always want the `<node>/<label>` directory

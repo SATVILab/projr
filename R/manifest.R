@@ -25,7 +25,9 @@
     cache_vec, .projr_manifest_hash_label,
     output_run = output_run
   )
-  Reduce(rbind, hash_tbl_list)
+  out_tbl <- Reduce(rbind, hash_tbl_list)
+  rownames(out_tbl) <- NULL
+  out_tbl
 }
 
 .projr_build_manifest_hash_post <- function(output_run) {
@@ -66,7 +68,9 @@
     label_vec, .projr_manifest_hash_label,
     output_run = output_run
   )
-  Reduce(rbind, hash_tbl_list)
+  out_tbl <- Reduce(rbind, hash_tbl_list)
+  rownames(out_tbl) <- NULL
+  out_tbl
 }
 
 .projr_manifest_hash_label <- function(label, output_run) {
@@ -85,12 +89,14 @@
   fn_to_hash_vec <- vapply(fn_vec, function(fn) {
     digest::digest(fn, serialize = FALSE, file = TRUE)
   }, character(1))
-  data.frame(
+  out_tbl <- data.frame(
     label = label,
     fn = fs::path_rel(fn_vec, path_dir) |> as.character(),
     version = paste0("v", projr_version_get()),
     hash = fn_to_hash_vec
   )
+  rownames(out_tbl) <- NULL
+  out_tbl
 }
 
 .projr_manifest_write <- function(manifest, output_run, append = TRUE) {
@@ -105,21 +111,29 @@
   } else {
     dir_write <- projr_dir_get("project")
   }
+  rownames(manifest) <- NULL
   if (append) {
     path_manifest <- file.path(dir_write, "manifest.csv")
     if (file.exists(path_manifest)) {
       manifest_orig <- .projr_manifest_read()
+      rownames(manifest_orig) <- NULL
       manifest <- manifest_orig |> rbind(manifest)
+      rownames(manifest) <- NULL
     }
   }
-  utils::write.csv(manifest, file.path(dir_write, "manifest.csv"))
+  utils::write.csv(
+    manifest, file.path(dir_write, "manifest.csv"),
+    row.names = FALSE
+  )
 }
 
 .projr_manifest_read <- function() {
-  utils::read.csv(
+  out_tbl <- utils::read.csv(
     projr_path_get("project", "manifest.csv"),
     stringsAsFactors = FALSE
   )
+  rownames(out_tbl) <- NULL
+  out_tbl
 }
 
 .projr_manifest_compare <- function(manifest_pre, manifest_post) {
