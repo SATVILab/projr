@@ -2,7 +2,7 @@ library(testthat)
 # devtools::load_all(path = file.path(Sys.getenv("pkg"), "projr"))
 devtools::load_all()
 # devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
-devtools::test_active_file("tests/testthat/test-osf-download-manual.R")
+devtools::test_active_file("tests/testthat/test-manual-osf-download.R")
 
 for (i in seq_len(nrow(osf_tbl_parent))) {
   osfr::osf_rm(osf_tbl_parent[i, ], check = FALSE, recurse = TRUE)

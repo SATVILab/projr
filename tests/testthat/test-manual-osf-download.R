@@ -1,7 +1,7 @@
 test_that(".projr_osf_download_node_manifest", {
   # skips
   skip_if_offline()
-  skip_if(FALSE)
+  skip_if(TRUE)
 
   # setup
   dir_test <- file.path(tempdir(), paste0("test_projr"))
