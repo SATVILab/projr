@@ -1,7 +1,7 @@
 test_that(".projr_osf_download_node_manifest", {
   # skips
   skip_if_offline()
-  skip_if(TRUE)
+  skip_if(FALSE)
 
   # setup
   dir_test <- file.path(tempdir(), paste0("test_projr"))
@@ -68,7 +68,9 @@ test_that(".projr_osf_download_node_manifest", {
         .projr_osf_download_node_manifest(osf_tbl),
         manifest
       )
-    }
+    },
+    quiet = TRUE,
+    force = TRUE
   )
 
   # teardown
