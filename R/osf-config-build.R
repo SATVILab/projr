@@ -30,16 +30,16 @@
 #' Default is `FALSE`.
 #' element in
 #' @export
-projr_osf_yml_up_add <- function(title,
-                                 create = TRUE,
-                                 body = NULL,
-                                 content = NULL,
-                                 public = FALSE,
-                                 category = NULL,
-                                 id = NULL,
-                                 parent_id = NULL,
-                                 parent_title = NULL,
-                                 overwrite = FALSE) {
+projr_osf_dest_add <- function(title,
+                               create = TRUE,
+                               body = NULL,
+                               content = NULL,
+                               public = FALSE,
+                               category = NULL,
+                               id = NULL,
+                               parent_id = NULL,
+                               parent_title = NULL,
+                               overwrite = FALSE) {
   # check inputs
   # ------------
   if (missing(title)) {
@@ -212,14 +212,14 @@ projr_osf_yml_up_add <- function(title,
 
 
 
-#' @rdname projr_osf_yml_up_add
+#' @rdname projr_osf_dest_add
 #' @export
-projr_osf_yml_up_add_proj <- function(title,
-                                      body = NULL,
-                                      content = NULL,
-                                      public = FALSE,
-                                      id = NULL) {
-  projr_osf_yml_up_add(
+projr_osf_dest_add_proj <- function(title,
+                                    body = NULL,
+                                    content = NULL,
+                                    public = FALSE,
+                                    id = NULL) {
+  projr_osf_dest_add(
     title = title,
     body = body,
     content = content,
@@ -229,20 +229,20 @@ projr_osf_yml_up_add_proj <- function(title,
   )
 }
 
-#' @rdname projr_osf_yml_up_add
+#' @rdname projr_osf_dest_add
 #' @export
-projr_osf_yml_up_add_comp <- function(title,
-                                      body = NULL,
-                                      content = NULL,
-                                      public = FALSE,
-                                      category = NULL,
-                                      parent_title = NULL,
-                                      parent_id = NULL,
-                                      id = NULL) {
+projr_osf_dest_add_comp <- function(title,
+                                    body = NULL,
+                                    content = NULL,
+                                    public = FALSE,
+                                    category = NULL,
+                                    parent_title = NULL,
+                                    parent_id = NULL,
+                                    id = NULL) {
   if (missing(parent_id) && missing(parent_title)) {
     stop("either parent_id or parent_title must be specified")
   }
-  projr_osf_yml_up_add(
+  projr_osf_dest_add(
     title = title,
     body = body,
     content = content,
