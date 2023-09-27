@@ -5,7 +5,6 @@ test_that(".projr_restore_osf works", {
 
   # setup
   dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = FALSE)
-
   # run from within project
   usethis::with_project(
     path = dir_test,
@@ -108,6 +107,10 @@ test_that(".projr_osf_download_node_label works", {
         path = "data-raw",
         conflicts = "overwrite"
       )
+
+      # next steps:
+      # 1. do some files
+      # 2. make changes, check that they happen as expected
     },
     quiet = TRUE,
     force = TRUE

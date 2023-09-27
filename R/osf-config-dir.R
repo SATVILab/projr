@@ -58,6 +58,7 @@
 #' If `FALSE`, then a pre-existing source will throw an error.
 #' Default is `FALSE`.
 #'
+#'
 #' @return
 #' Invisibly returns the OSF id.
 #'
