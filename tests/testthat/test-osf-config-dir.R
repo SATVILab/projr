@@ -1,5 +1,9 @@
 test_that("projr_osf_source_add works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
+  withr::defer(unlink(dir_test))
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
@@ -25,49 +29,25 @@ test_that("projr_osf_source_add works", {
     path = dir_test,
     code = {
       yml_projr_orig <- projr_yml_get_unchecked()
-      # test basic, top-level add
-      projr_osf_yml_up_add(title = "Test", create = FALSE)
-      yml_projr <- projr_yml_get_unchecked()
-      expect_true("osf" %in% names(yml_projr[["build"]]))
-      expect_true("Test" %in% names(yml_projr[["build"]][["osf"]]))
-      # test overwrite
-      expect_error(projr_osf_yml_up_add(title = "Test", create = FALSE))
-      expect_no_error(
-        projr_osf_yml_up_add(title = "Test", create = FALSE, overwrite = TRUE)
-      )
-      # test add of an addition at top-level
-      projr_osf_yml_up_add(
-        title = "Test2",
-        create = FALSE
+      suffix <- rnorm(1) |>
+        signif(4) |>
+        as.character()
+      yml_projr_orig[["directories"]][
+        [paste0("DataRawOSFTest", suffix)
+        ]] <- list()
+      projr_osf_source_add(label = "data-raw", category = "project")
+      expect_error(
+        projr_osf_source_add(label = "data-raw", category = "project")
       )
       yml_projr <- projr_yml_get_unchecked()
-      expect_true(
-        identical(c("Test", "Test2"), names(yml_projr[["build"]][["osf"]]))
-      )
-      expect_error(projr_osf_yml_up_add(title = "Test2", create = FALSE))
-
-      # test adding a project with a parent
-      expect_error(projr_osf_yml_up_add(
-        title = "Test3", create = FALSE,
-        category = "project", parent_id = "123"
-      ))
-
-      # now add a sub-category
-      projr_osf_yml_up_add(
-        title = "Test3", create = FALSE, parent_title = "Test"
-      )
-      yml_projr_osf <- projr_yml_get_unchecked()[["build"]][["osf"]]
-      expect_true("Test3" %in%
-        names(yml_projr_osf[["Test"]][["component"]]))
-      projr_osf_yml_up_add(
-        title = "Test4", create = FALSE, parent_title = "Test3"
-      )
-      yml_projr_osf <- projr_yml_get_unchecked()[["build"]][["osf"]]
-      expect_true("Test4" %in%
-        names(yml_projr_osf[["Test"]][["component"]][["Test3"]][["component"]]))
+      yml_projr_dir_data_raw <-
+        yml_projr[["directories"]][["data-raw"]]
+      id_proj <- yml_projr_dir_data_raw[["osf"]][["data-raw"]][["id"]]
+      expect_true(is.character(id_proj))
+      projr_osf_source_add(label = "data-raw", category = "project")
+      .projr_osf_rm_node_id(id_proj)
     },
     quiet = TRUE,
     force = TRUE
   )
-  unlink(dir_test, recursive = TRUE)
 })

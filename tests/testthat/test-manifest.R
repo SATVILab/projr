@@ -2,6 +2,7 @@ test_that("projr_manifest_hash_dir works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
+  withr::defer(unlink(dir_test, recursive = TRUE))
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
@@ -108,13 +109,13 @@ test_that("projr_manifest_hash_dir works", {
     force = TRUE,
     quiet = TRUE
   )
-  unlink(dir_test, recursive = TRUE)
 })
 
 test_that("projr_manifest_compare works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
+  withr::defer(unlink(dir_test, recursive = TRUE))
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
@@ -205,5 +206,4 @@ test_that("projr_manifest_compare works", {
     force = TRUE,
     quiet = TRUE
   )
-  unlink(dir_test, recursive = TRUE)
 })

@@ -1,6 +1,6 @@
 test_that("projr_osf_dest_add works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
-
+  withr::defer(unlink(dir_test, recursive = TRUE))
   if (!dir.exists(dir_test)) dir.create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
@@ -69,11 +69,11 @@ test_that("projr_osf_dest_add works", {
     quiet = TRUE,
     force = TRUE
   )
-  unlink(dir_test, recursive = TRUE)
 })
 
 test_that(".projr_osf_get_node works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
+  withr::defer(unlink(dir_test, recursive = TRUE))
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
@@ -119,5 +119,4 @@ test_that(".projr_osf_get_node works", {
     quiet = TRUE,
     force = TRUE
   )
-  unlink(dir_test, recursive = TRUE)
 })

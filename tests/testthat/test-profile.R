@@ -1,7 +1,8 @@
 test_that("projr_profile_get, _set and _create work", {
   Sys.setenv("PROJR_TEST" = "TRUE")
   dir_test <- file.path(tempdir(), paste0("test_projr"))
-
+  withr::defer(Sys.unsetenv("PROJR_TEST"))
+  withr::defer(unlink(dir_test, recursive = TRUE))
   if (!dir.exists(dir_test)) dir.create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
@@ -165,11 +166,11 @@ test_that("projr_profile_get, _set and _create work", {
     quiet = TRUE,
     force = TRUE
   )
-  unlink(dir_test, recursive = TRUE)
 })
 
 test_that("projr_profile_create_local works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
+  withr::defer(unlink(dir_test, recursive = TRUE))
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
@@ -212,5 +213,4 @@ test_that("projr_profile_create_local works", {
     quiet = TRUE,
     force = TRUE
   )
-  unlink(dir_test, recursive = TRUE)
 })
