@@ -23,8 +23,95 @@
 # we also need functions to download
 # outputs.
 # should both be called restored?
-projr_osf_restore <- function() {
+.projr_restore_osf <- function(label = NULL) {
+  if (is.null(label)) {
+    label <- projr_yml_get_unchecked()[["directories"]]
+  }
+  label <- label[grepl("^cache|^dataraw", .projr_dir_label_strip(label))]
+  for (i in seq_along(label)) {
+    .projr_restore_osf_label(label[[i]])
+  }
+}
 
+.projr_restore_osf_label <- function(label) {
+  yml_projr_dir_lbl <-
+    projr_yml_get_unchecked()[["directories"]][[label]]
+  if (!"osf" %in% names(yml_projr_dir_lbl)) {
+    return(invisible(FALSE))
+  }
+  title <- names(yml_projr_dir_lbl[["osf"]])
+  yml_projr_osf <- yml_projr_dir_lbl[["osf"]][[1]]
+  osf_tbl <- .projr_osf_get_node(
+    title = title,
+    yml_param = yml_projr_osf,
+    parent_id = NULL
+  )
+  # set up subdirectories
+  append_label <- (
+    !"path_append_label" %in% names(yml_projr_osf)
+  ) ||
+    yml_projr_osf[["path_append_label"]]
+  path_pre <- !is.null(yml_projr_osf[["path"]])
+  if (append_label && path_pre) {
+    path_dir_sub <- file.path(path_pre, label)
+  } else if (append_label) {
+    path_dir_sub <- label
+  } else {
+    path_dir_sub <- path_pre
+  }
+  if (append_label || path_pre) {
+    osf_tbl <- osfr::osf_mkdir(
+      x = osf_tbl, path = path_dir_sub
+    )
+  }
+  # can try the fancy method stuff here
+  # all about that `download_sync_approach`,
+  # `download_version_source` and `download_conflict`.
+  yml_projr_osf_dnld <- yml_projr_osf[["download"]]
+  if (!is.null(yml_projr_osf_dnld)) {
+    if (!is.null(yml_projr_osf_dnld[["conflict"]])) {
+      conflict <- yml_projr_osf_dnld[["conflict"]]
+    } else {
+      conflict <- "overwrite"
+    }
+    if (!is.null(yml_projr_osf_dnld[["sync_approach"]])) {
+      sync_approach <- yml_projr_osf_dnld[["sync_approach"]]
+    } else {
+      sync_approach <- "download_all"
+    }
+  } else {
+    conflict <- "overwrite"
+    sync_approach <- "download_all"
+  }
+  if (sync_approach == "delete_then_download_all") {
+    unlink(yml_projr_dir_lbl[["path"]], recursive = TRUE)
+  }
+  osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
+  if (nrow(osf_tbl_file) == 0L) {
+    return(invisible(FALSE))
+  }
+  path_dir_save <- yml_projr_dir_lbl[["path"]]
+  if (!dir.exists(path_dir_save)) {
+    dir.create(path_dir_save, recursive = TRUE)
+  }
+  if (append_label || path_pre) {
+    for (i in seq_len(nrow(osf_tbl_file))) {
+      osfr::osf_download(
+        x = osf_tbl_file[i, ],
+        path = path_dir_save,
+        recurse = TRUE,
+        conflicts = conflict
+      )
+    }
+  } else {
+    osfr::osf_download(
+      x = osf_tbl_file,
+      path = path_dir_save,
+      recurse = TRUE,
+      conflicts = conflict
+    )
+  }
+  osf_tbl
 }
 
 .projr_osf_download_dir <- function() {

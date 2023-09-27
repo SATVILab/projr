@@ -46,7 +46,7 @@
   osf_tbl <- .projr_osf_get_node(
     title = title, yml_param = yml_param, parent_id = parent_id
   )
-  # okay, so I can actually need to perform recursive uploads
+  # okay, so I actually need to perform recursive uploads
   for (x in yml_param[["content"]]) {
     osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
     .projr_osf_upload_node_label(
@@ -57,12 +57,12 @@
 }
 
 #'
-#'
 .projr_osf_upload_node_label <- function(osf_tbl,
                                          osf_tbl_file,
                                          label,
                                          manifest_source = "manifest") {
   # upload all files if directory not present
+  # need to adjust for path_append_label and path_sub
   upload_complete <- .projr_osf_upload_node_label_new(
     osf_tbl = osf_tbl, osf_tbl_file = osf_tbl_file, label = label
   )
@@ -141,4 +141,33 @@
     file = projr_path_get("project", "manifest.csv"),
     conflicts = "overwrite"
   )
+}
+
+# add option to create and upload a node
+.projr_osf_upload_dir <- function(osf_tbl,
+                                  path_dir = ".",
+                                  method) {
+  if (path_dir != ".") {
+    osf_tbl_upload <- osfr::osf_mkdir(x = osf_tbl, path = path_dir)
+  } else {
+    osf_tbl_upload <- osf_tbl
+  }
+  # upload files in root to root
+  fn_vec <- list.files(path_dir, full.names = TRUE)
+  fn_vec <- fn_vec[fs::is_file(fn_vec)]
+
+  if (length(fn_vec) > 0) {
+    osfr::osf_upload(x = osf_tbl_upload, path = fn_vec, conflicts = "overwrite")
+  }
+
+  path_dir_vec_sub <- list.dirs(path_dir, recursive = FALSE, full.names = FALSE)
+
+  for (i in seq_along(path_dir_vec_sub)) {
+    .projr_osf_upload_dir(
+      osf_tbl = osf_tbl,
+      path_dir = file.path(path_dir, path_dir_vec_sub[[i]]),
+      method = method
+    )
+  }
+  invisible(osf_tbl_upload)
 }
