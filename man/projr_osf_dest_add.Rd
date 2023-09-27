@@ -4,7 +4,7 @@
 \alias{projr_osf_dest_add}
 \alias{projr_osf_dest_add_proj}
 \alias{projr_osf_dest_add_comp}
-\title{Add an OSF node}
+\title{Add an OSF node as a destination}
 \usage{
 projr_osf_dest_add(
   title,
