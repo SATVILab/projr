@@ -1,51 +1,62 @@
 test_that("projr_osf_source_add works", {
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
-  if (dir.exists(dir_test)) {
-    unlink(dir_test, recursive = TRUE)
-  }
-  withr::defer(unlink(dir_test))
-
-  if (!dir.exists(dir_test)) dir.create(dir_test)
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-
-  for (x in fn_vec) {
-    file.copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
-  gert::git_init(dir_test)
-
+  skip_if_offline()
+  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
   usethis::with_project(
     path = dir_test,
     code = {
       yml_projr_orig <- projr_yml_get_unchecked()
-      suffix <- rnorm(1) |>
-        signif(4) |>
-        as.character()
-      yml_projr_orig[["directories"]][
-        [paste0("DataRawOSFTest", suffix)
-        ]] <- list()
-      projr_osf_source_add(label = "data-raw", category = "project")
-      expect_error(
-        projr_osf_source_add(label = "data-raw", category = "project")
-      )
-      yml_projr <- projr_yml_get_unchecked()
-      yml_projr_dir_data_raw <-
-        yml_projr[["directories"]][["data-raw"]]
-      id_proj <- yml_projr_dir_data_raw[["osf"]][["data-raw"]][["id"]]
+      label <- .projr_osf_label_get_random("DataRawProjrOSFTest")
+
+      # create a new project as a source
+      id_proj <- projr_osf_source_add(label = label, category = "project")
+      # extract id, defer the node's deletion and test id
+      .projr_osf_rm_node_id_defer(id_proj)
       expect_true(is.character(id_proj))
-      projr_osf_source_add(label = "data-raw", category = "project")
-      .projr_osf_rm_node_id(id_proj)
+      expect_true(nchar(id_proj) == 5L)
+
+      # check that duplication throws an error
+      expect_error(projr_osf_source_add(label = label, category))
+
+      # check ID added
+      expect_error(projr_osf_source_add(label = "data-raw"))
+      expect_error(
+        projr_osf_source_add(label = "data-raw", category = "analysis")
+      )
+      id_comp <- projr_osf_source_add(
+        label = "data-raw", category = "data", parent_id = id_proj
+      )
+      expect_true(is.character(id_comp))
+      expect_true(nchar(id_comp) == 5L)
+
+      # add with more things
+      id_comp_overwrite <- projr_osf_source_add(
+        label = "data-raw",
+        overwrite = TRUE,
+        id = NULL,
+        title = "Titular",
+        body = "Lavish",
+        public = FALSE,
+        category = "communication",
+        parent_id = id_proj,
+        path = "sub-dir",
+        path_append_label = FALSE,
+        download_cue = "build",
+        download_sync_approach = "upload_all",
+        download_version_source = "manifest",
+        download_conflict = "overwrite",
+        upload_cue = "major",
+        upload_sync_approach = "upload_all",
+        upload_version_source = "manifest",
+        upload_conflict = "overwrite",
+        upload_archive = "all"
+      )
+      yml_proj <- projr_yml_get_unchecked()
+      yml_projr_dr_osf <- yml_proj[["directories"]][["data-raw"]][["osf"]]
+      expect_true(names(yml_projr_dr_osf) == "Titular")
+      expect_true(
+        all(c("id", "path", "path_append_label", "download", "upload") %in%
+          names(yml_projr_dr_osf[[1]]))
+      )
     },
     quiet = TRUE,
     force = TRUE

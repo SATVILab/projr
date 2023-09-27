@@ -2,19 +2,28 @@
 % Please edit documentation in R/osf-config-dir.R
 \name{projr_osf_source_add}
 \alias{projr_osf_source_add}
-\title{Add an OSF node}
+\title{Add an OSF node as a source}
 \usage{
 projr_osf_source_add(
   label,
+  overwrite = FALSE,
   id = NULL,
   title = NULL,
-  create = TRUE,
   body = NULL,
   public = FALSE,
   category = NULL,
   parent_id = NULL,
-  parent_title = NULL,
-  overwrite = TRUE
+  path = NULL,
+  path_append_label = NULL,
+  download_cue = NULL,
+  download_sync_approach = NULL,
+  download_version_source = NULL,
+  download_conflict = NULL,
+  upload_cue = NULL,
+  upload_sync_approach = NULL,
+  upload_version_source = NULL,
+  upload_conflict = NULL,
+  upload_archive = NULL
 )
 }
 \arguments{
@@ -22,43 +31,83 @@ projr_osf_source_add(
 The directory label.
 Must be supplied.}
 
-\item{id}{character. The id of the project or component. Must be five
-characters. Default is \code{NULL}, in which case a new component
-is generated if \code{create} is \code{TRUE}.}
+\item{overwrite}{logical.
+If \code{TRUE}, then any pre-existing OSF source will be overwritten
+in the YAML file.
+If \code{FALSE}, then a pre-existing source will throw an error.
+Default is \code{FALSE}.}
+
+\item{id}{character. The id of the project or component.
+Must be five characters.
+If not \code{NULL}, then it checks that the OSF
+node exists and throws an error if it does not.
+If \code{NULL}, then an OSF node is created, with
+appropriate structure as specified by other parameters.}
 
 \item{title}{character.
 The title of the project or component.
-If not supplied, then will be set to \code{label}.}
-
-\item{create}{logical.
-Whether to create the project or component on OSF if the \code{id} is
-not provided.
-Default is \code{FALSE}.}
+If not supplied, then will be set to \code{label}.
+Only used if \code{id} is \code{NULL}.}
 
 \item{body}{character vector.
-Description on OSF. Default is \code{NULL}.}
+Description on OSF.
+Only used if \code{id} is \code{NULL}.
+Default is \code{NULL}.}
 
 \item{public}{logical.
 Whether the project or component is public on OSF.
+Only used if \code{id} is \code{NULL}.
 Default is \code{FALSE}.}
 
 \item{category}{character.
 The category of the project or component.
-The following are valid options: \code{"project"}, \code{"analysis"},
+If \code{NULL}, then it is assumed that the node
+is a component and will have category \code{"uncategorised"}.
+If not \code{NULL}, then the following are valid options:
+\code{"project"}, \code{"analysis"},
 \code{"communication"}, \code{"data"}, \code{"hypothesis"}, \code{"instrumentation"},
 \code{"methods and measures"}, \code{"procedure"}, \code{"project"}, \code{"software"} and other
-\code{"other"}. Default is \code{NULL.}}
+\code{"other"}.
+Only used if \code{id} is \code{NULL}.
+Default is \code{NULL.}}
 
-\item{parent_id}{character. The id of the parent project or component.
-Must be five characters (if supplied). Default is \code{NULL}.}
+\item{parent_id}{character.
+The id of the parent project or component.
+Must be five characters (if supplied).
+Only used if \code{id} is \code{NULL}.
+Default is \code{NULL}.}
 
-\item{overwrite}{logical.
-If \code{TRUE}, then any pre-existing source will be overwritten
-in the YAML file.
-If \code{FALSE}, then a pre-existing source will throw an error.
-Default is \code{TRUE}.}
+\item{path}{character.
+Path to the sub-directory within the OSF node
+to which the contents will be saved.}
+
+\item{path_append_label}{Whether to append the label to the path.
+For example, if \code{label} is \code{data-raw} and \code{path} is \code{Study234},
+then the path to the directory under which
+the contents will be saved is be \code{data-raw}.
+Default is \code{FALSE} if \code{path} is \code{NULL}, and \code{FALSE} otherwise.}
+
+\item{prefer}{}
+}
+\value{
+Invisibly returns the OSF id.
 }
 \description{
 Add a project or component to the _projr.yml
 specification for OSF.
+Will create the node if it does not exist already.
+}
+\examples{
+
+# add a project as source:
+projr_osf_source_add(
+  label = "data-raw",
+  category = "project"
+)
+# add a component as source:
+projr_osf_source_add(
+  label = "data-raw",
+  category = "data",
+  parent_id = "y235k"
+)
 }

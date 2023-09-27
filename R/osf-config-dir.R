@@ -10,8 +10,21 @@
 #' Must be supplied.
 #' @param id character. The id of the project or component.
 #' Must be five characters.
-#' If not `NULL`, then it assumed that an OSF node withthis ID exists.
-#' If `NULL`, then an OSF node is created.
+#' If not `NULL`, then it checks that the OSF
+#' node exists and throws an error if it does not.
+#' If `NULL`, then an OSF node is created, with
+#' appropriate structure as specified by other parameters.
+#' @param category character.
+#' The category of the project or component.
+#' If `NULL`, then it is assumed that the node
+#' is a component and will have category `"uncategorised"`.
+#' If not `NULL`, then the following are valid options:
+#' `"project"`, `"analysis"`,
+#' `"communication"`, `"data"`, `"hypothesis"`, `"instrumentation"`,
+#' `"methods and measures"`, `"procedure"`, `"project"`, `"software"` and other
+#' `"other"`.
+#' Only used if `id` is `NULL`.
+#' Default is `NULL.`
 #' @param parent_id character.
 #' The id of the parent project or component.
 #' Must be five characters (if supplied).
@@ -29,14 +42,7 @@
 #' Whether the project or component is public on OSF.
 #' Only used if `id` is `NULL`.
 #' Default is `FALSE`.
-#' @param category character.
-#' The category of the project or component.
-#' The following are valid options: `"project"`, `"analysis"`,
-#' `"communication"`, `"data"`, `"hypothesis"`, `"instrumentation"`,
-#' `"methods and measures"`, `"procedure"`, `"project"`, `"software"` and other
-#' `"other"`.
-#' Only used if `id` is `NULL`.
-#' Default is `NULL.`
+
 #' @param path character.
 #' Path to the sub-directory within the OSF node
 #' to which the contents will be saved.
@@ -46,25 +52,39 @@
 #' then the path to the directory under which
 #' the contents will be saved is be `data-raw`.
 #' Default is `FALSE` if `path` is `NULL`, and `FALSE` otherwise.
-#' @
 #' @param overwrite logical.
 #' If `TRUE`, then any pre-existing OSF source will be overwritten
 #' in the YAML file.
 #' If `FALSE`, then a pre-existing source will throw an error.
-#' Default is `TRUE`.
+#' Default is `FALSE`.
 #' @param prefer
+#'
+#'
+#' @return
+#' Invisibly returns the OSF id.
 #'
 #' @export
 #' @examples
+#'
+#' # add a project as source:
+#' projr_osf_source_add(
+#'   label = "data-raw",
+#'   category = "project"
+#' )
+#' # add a component as source:
+#' projr_osf_source_add(
+#'   label = "data-raw",
+#'   category = "data",
+#'   parent_id = "y235k"
+#' )
 projr_osf_source_add <- function(label,
-                                 overwrite = TRUE,
+                                 overwrite = FALSE,
                                  id = NULL,
                                  title = NULL,
                                  body = NULL,
                                  public = FALSE,
                                  category = NULL,
                                  parent_id = NULL,
-                                 parent_title = NULL,
                                  path = NULL,
                                  path_append_label = NULL,
                                  download_cue = NULL,
@@ -80,6 +100,13 @@ projr_osf_source_add <- function(label,
   if (is.null(title)) {
     title <- label
   }
+  yml_param <- list(
+    category = category,
+    description = body,
+    public = public,
+    category = category
+  )
+  yml_projr <- projr_yml_get_unchecked()
 
   download_list <- .projr_osf_yml_add_load_get_list(
     cue = download_cue,
@@ -96,25 +123,17 @@ projr_osf_source_add <- function(label,
     archive = upload_archive
   )
 
-  yml_param <- list(
-    category = category,
-    description = body,
-    public = public,
-    category = category
-  )
-  yml_projr <- projr_yml_get_unchecked()
-
   # check inputs
   .projr_osf_source_add_check(
     label = label, id = id, title = title, body = body,
     public = public, category = category, parent_id = parent_id,
-    parent_title = parent_title, overwrite = overwrite,
+    overwrite = overwrite,
     upload = upload_list, download = download_list
   )
 
   # check if going to overwrite
   if (!overwrite) {
-    yml_projr_dir_label <- yml_projr()[["directories"]][[label]]
+    yml_projr_dir_label <- yml_projr[["directories"]][[label]]
     if ("osf" %in% names(yml_projr_dir_label)) {
       stop(paste0(
         "OSF source for label ", label, " already exists in _projr.yml"
@@ -144,8 +163,10 @@ projr_osf_source_add <- function(label,
 
   # add list
   # ----------------------------------
-  yml_projr()[["directories"]][[label]][["osf"]] <- list_add
+  yml_projr[["directories"]][[label]][["osf"]] <- list_add
   .projr_yml_set(yml_projr)
+
+  id
 }
 
 .projr_osf_yml_add_load_get_list <- function(cue = NULL,
@@ -170,7 +191,6 @@ projr_osf_source_add <- function(label,
                                         public,
                                         category,
                                         parent_id,
-                                        parent_title,
                                         overwrite,
                                         download,
                                         upload) {
@@ -178,6 +198,16 @@ projr_osf_source_add <- function(label,
   # ------------
   if (missing(label)) {
     stop("label must be supplied")
+  }
+  if (!grepl("^cache|^dataraw", .projr_dir_label_strip(label))) {
+    stop(paste0(
+      "label ", label, " must start with cache or data-raw"
+    ))
+  }
+  if (!label %in% names(projr_yml_get_unchecked()[["directories"]])) {
+    stop(paste0(
+      "label ", label, " not found in _projr.yml directories"
+    ))
   }
   if (!is.logical(public)) {
     stop("public must be logical")
@@ -210,17 +240,12 @@ projr_osf_source_add <- function(label,
     stop("id must be a string with five characters")
   }
   parent_id_invalid <- (!is.null(parent_id)) &&
-    (!all(is.character(parent_id)) || all(nchar(parent_id) == 5L))
+    (!all(is.character(parent_id)) || any(nchar(parent_id) != 5L))
   if (parent_id_invalid) {
     stop("parent_id must be a string with five characters")
   }
-  parent_title_invalid <- (!is.null(parent_title)) &&
-    (!all(is.character(parent_title)) || length(parent_title) != 1)
-  if (parent_title_invalid) {
-    stop("parent_title must be a character of length one")
-  }
   project_with_parent <- ((!is.null(category)) && category == "project") &&
-    ((!is.null(parent_id)) || (!is.null(parent_title)))
+    ((!is.null(parent_id)))
   if (project_with_parent) {
     stop("OSF project cannot have a parent")
   }
@@ -288,15 +313,15 @@ projr_osf_source_add <- function(label,
       }
     }
   }
-  if ("manifest_source" %in% names(download)) {
-    if (!is.null(download[["manifest_source"]])) {
-      manifest_source_diff_vec <- setdiff(
-        download[["manifest_source"]], c("manifest", "download")
+  if ("version_source" %in% names(download)) {
+    if (!is.null(download[["version_source"]])) {
+      version_source_diff_vec <- setdiff(
+        download[["version_source"]], c("manifest", "download")
       )
-      if (length(manifest_source_diff_vec) > 0) {
+      if (length(version_source_diff_vec) > 0) {
         stop(paste0(
-          "download$manifest_source contains invalid names: ",
-          paste0(manifest_source_diff_vec, collapse = ", ")
+          "download$version_source contains invalid names: ",
+          paste0(version_source_diff_vec, collapse = ", ")
         ))
       }
     }
@@ -348,11 +373,17 @@ projr_osf_source_add <- function(label,
                                          title,
                                          yml_param) {
   if (!is.null(id)) {
+    osf_tbl <- .projr_osf_get_node_id(id)
+    if (!inherits(osf_tbl, "osf_tbl_node")) {
+      stop(paste0(
+        "OSF node not found for id ", id
+      ))
+    }
     return(id)
   }
   # attempt to get node if it is already there
   osf_tbl <- .projr_osf_get_node_id_parent(
-    title = title, parent_id = parent_id
+    title = title, yml_param = yml_param, parent_id = parent_id
   )
   if (!is.null(osf_tbl)) {
     return(osf_tbl[["id"]][[1]])
@@ -360,5 +391,5 @@ projr_osf_source_add <- function(label,
   # create node if it isn't
   .projr_osf_create_node(
     title = title, yml_param = yml_param, parent_id = parent_id
-  )[["title"]]
+  )[["id"]]
 }

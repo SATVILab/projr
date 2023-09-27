@@ -68,6 +68,9 @@
 
 .projr_osf_create_node <- function(title, yml_param, parent_id = NULL) {
   if (is.null(parent_id)) {
+    if (is.null(yml_param[["category"]])) {
+      stop("parent_id must be specified for components")
+    }
     if (yml_param[["category"]] != "project") {
       stop("parent_id must be specified for components")
     }
@@ -102,4 +105,35 @@
     stop("Could not create OSF node (project/component):", title)
   }
   osf_tbl
+}
+
+projr_osf_create_project <- function(title,
+                                     body = NULL,
+                                     public = FALSE) {
+  if (!length(title) == 1L && is.character(title)) {
+    stop(paste0("title must be a character string"))
+  }
+  if (!length(body) == 1L && is.character(body)) {
+    stop(paste0("body must be a character vector of length one"))
+  }
+  if (!length(public) == 1L && is.logical(public)) {
+    stop(paste0("public must be a logical vector of length one"))
+  }
+
+  osfr::osf_create_project(
+    title = title,
+    description = body,
+    public = public
+  )
+}
+
+.projr_osf_rm_node_id <- function(id) {
+  try(
+    {
+      osfr::osf_rm(
+        x = .projr_osf_get_node_id(id), recurse = TRUE, check = FALSE
+      )
+    },
+    silent = TRUE
+  )
 }
