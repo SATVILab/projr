@@ -287,7 +287,8 @@ projr_yml_check <- function(yml_projr = NULL) {
     "path", "ignore-git", "ignore-rbuild", "git-track-adjust",
     "output", "archive",
     "manifest",
-    "hash"
+    "hash",
+    "osf"
   )
   nm_vec_extra <- setdiff(nm_vec_actual, nm_vec_valid)
   if (length(nm_vec_extra) > 0) {

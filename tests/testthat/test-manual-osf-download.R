@@ -1,31 +1,10 @@
-test_that(".projr_osf_download_node_manifest", {
+test_that(".projr_restore_osf works", {
   # skips
   skip_if_offline()
-  skip_if(TRUE)
+  skip_if(FALSE)
 
   # setup
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
-  withr::defer(unlink(dir_test, recursive = TRUE))
-
-  if (!dir.exists(dir_test)) dir.create(dir_test)
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-
-  for (x in fn_vec) {
-    file.copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
-  gert::git_init(dir_test)
+  dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = FALSE)
 
   # run from within project
   usethis::with_project(
@@ -34,52 +13,103 @@ test_that(".projr_osf_download_node_manifest", {
       # create previous upload
       # ---------------------------
 
-      yml_projr_orig <- projr_yml_get_unchecked()
-
       # create files
-      file.create(
-        projr_path_get("output", "abc", output_safe = FALSE)
-      )
-      file.create(
-        projr_path_get("output", "subdir", "def.txt", output_safe = FALSE)
-      )
-      file.create(
-        projr_path_get(
-          "output", "subdir", "subdir2", "ghi.txt",
-          output_safe = FALSE
-        )
-      )
+      .projr_test_setup_content("data-raw")
 
       # create manifest
-      manifest <- .projr_build_manifest_hash_post(TRUE)
-      .projr_manifest_write(
-        manifest,
-        output_run = TRUE
+      manifest <- .projr_test_manifest_create()
+
+      # create project
+      osf_tbl_proj <- .projr_osf_create_project("ProjectDownloadManifest")
+      .projr_osf_rm_node_id_defer(osf_tbl_proj[["id"]])
+
+      # upload to OSF
+      osf_tbl_upload <- osfr::osf_mkdir(x = osf_tbl_proj, path = "data-raw")
+      osf_tbl_dir <- with_dir(
+        "_data_raw",
+        {
+          .projr_osf_upload_dir(
+            osf_tbl = osf_tbl_upload, path_dir = "."
+          )
+        }
       )
-      # upload
-      osf_tbl <- .projr_osf_get_node(
-        title = "Test",
-        yml_param = list(public = FALSE, category = NULL),
-        parent_id = "q26c9"
+      # add to YAML config
+      projr_osf_source_add(
+        label = "data-raw", id = osf_tbl_proj[["id"]]
       )
-      osfr::osf_upload(
-        x = osf_tbl, path = projr_path_get("project", "manifest.csv")
+
+      # remove to test restore
+      unlink("_data_raw", recursive = TRUE)
+      dir.create("_data_raw")
+      # restore
+      .projr_restore_osf("data-raw")
+      # check files there
+      expect_identical(
+        list.files(file.path("_data_raw")), c("abc.txt", "subdir1")
       )
       expect_identical(
-        .projr_osf_download_node_manifest(osf_tbl),
-        manifest
+        list.files(file.path("_data_raw", "subdir1")), c("def.txt", "subdir2")
+      )
+      expect_identical(
+        list.files(file.path("_data_raw", "subdir1", "subdir2")), c("ghi.txt")
       )
     },
     quiet = TRUE,
     force = TRUE
   )
+})
 
-  # teardown
-  tryCatch({
-    osf_tbl <- .projr_osf_get_node(
-      "Test",
-      yml_param = list(), parent_id = "q26c9"
-    )
-    osfr::osf_rm(osf_tbl, check = FALSE, recurse = TRUE)
-  })
+test_that(".projr_osf_download_node_label works", {
+  # skips
+  skip_if_offline()
+  skip_if(TRUE)
+
+  # setup
+  dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = FALSE)
+  # run from within project
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # create previous upload
+      # ---------------------------
+
+      # create files
+      .projr_test_setup_content("data-raw")
+
+      # create manifest
+      manifest <- .projr_test_manifest_create()
+
+      # upload
+      osf_tbl_proj <- .projr_osf_create_project("ProjectDownloadManifest")
+      .projr_osf_rm_node_id_defer(osf_tbl_proj[["id"]])
+
+      # add source directory
+      id_source <- projr_osf_source_add(
+        label = "data-raw",
+        parent_id = osf_tbl_proj[["id"]],
+        path_append_label = FALSE
+      )
+
+      # get source node
+      osf_tbl_source <- .projr_osf_get_node_id(id_source)
+
+      # upload manifest
+      osfr::osf_upload(x = osf_tbl_proj, path = "manifest.csv")
+
+      # add source
+      osf_tbl_source <- .projr_osf_create_node(
+        title = "data-raw",
+        parent_id = osf_tbl_proj[["id"]]
+      )
+
+      # upload files
+      osfr::osf_upload(
+        x = osf_tbl_proj,
+        path = "data-raw",
+        conflicts = "overwrite"
+      )
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
 })

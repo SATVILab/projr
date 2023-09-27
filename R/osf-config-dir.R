@@ -14,6 +14,15 @@
 #' node exists and throws an error if it does not.
 #' If `NULL`, then an OSF node is created, with
 #' appropriate structure as specified by other parameters.
+#' @param path character.
+#' Path to the sub-directory within the OSF node
+#' to which the contents will be saved.
+#' @param path_append_label
+#' Whether to append the label to the path.
+#' For example, if `label` is `data-raw` and `path` is `Study234`,
+#' then the path to the directory under which
+#' the contents will be saved is be `data-raw`.
+#' Default is `FALSE` if `path` is `NULL`, and `FALSE` otherwise.
 #' @param category character.
 #' The category of the project or component.
 #' If `NULL`, then it is assumed that the node
@@ -43,22 +52,11 @@
 #' Only used if `id` is `NULL`.
 #' Default is `FALSE`.
 
-#' @param path character.
-#' Path to the sub-directory within the OSF node
-#' to which the contents will be saved.
-#' @param path_append_label
-#' Whether to append the label to the path.
-#' For example, if `label` is `data-raw` and `path` is `Study234`,
-#' then the path to the directory under which
-#' the contents will be saved is be `data-raw`.
-#' Default is `FALSE` if `path` is `NULL`, and `FALSE` otherwise.
 #' @param overwrite logical.
 #' If `TRUE`, then any pre-existing OSF source will be overwritten
 #' in the YAML file.
 #' If `FALSE`, then a pre-existing source will throw an error.
 #' Default is `FALSE`.
-#' @param prefer
-#'
 #'
 #' @return
 #' Invisibly returns the OSF id.
@@ -235,7 +233,7 @@ projr_osf_source_add <- function(label,
     stop("category must match a valid category")
   }
   id_invalid <- (!is.null(id)) &&
-    (!all(is.character(id)) || all(nchar(id) == 5L) || length(id) != 1)
+    (!all(is.character(id)) || any(nchar(id) != 5L) || length(id) != 1)
   if (id_invalid) {
     stop("id must be a string with five characters")
   }
@@ -289,7 +287,9 @@ projr_osf_source_add <- function(label,
       selection_method_diff_vec <- setdiff(
         download[["sync_approach"]],
         c(
-          "upload_all", "delete_then_upload_all", "upload_change"
+          "download_all",
+          "delete_then_download_all",
+          "download_missing" # haven't implemented this one yet
         )
       )
       if (length(selection_method_diff_vec) > 0) {
@@ -343,7 +343,6 @@ projr_osf_source_add <- function(label,
     stop("upload must be a list")
   }
 }
-
 
 .projr_osf_source_get_list_add <- function(title,
                                            id,

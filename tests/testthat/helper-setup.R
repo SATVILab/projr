@@ -41,3 +41,54 @@
   }
   dir_test
 }
+
+.projr_test_setup_content <- function(label,
+                                      output_safe = FALSE,
+                                      dir_sub_lvl = 2,
+                                      dir_sub_prefix = "subdir") {
+  for (x in label) {
+    # create files
+    file.create(
+      projr_path_get(label, "abc.txt", output_safe = output_safe)
+    )
+    if (dir_sub_lvl > 0) {
+      file.create(
+        projr_path_get(
+          label, paste0(dir_sub_prefix, "1"), "def.txt",
+          output_safe = output_safe
+        )
+      )
+    }
+    if (dir_sub_lvl > 1) {
+      file.create(
+        projr_path_get(
+          label, paste0(dir_sub_prefix, "1"),
+          paste0(dir_sub_prefix, "2"), "ghi.txt",
+          output_safe = FALSE
+        )
+      )
+    }
+  }
+}
+
+.projr_test_manifest_create <- function(pre = TRUE,
+                                        post = TRUE,
+                                        write = TRUE,
+                                        output_run = TRUE) {
+  if (pre && !post) {
+    manifest <- .projr_build_manifest_hash_pre(output_run)
+  } else if (!pre && post) {
+    manifest <- .projr_build_manifest_hash_post(output_run)
+  } else {
+    manifest <- .projr_build_manifest_hash_pre(output_run) |>
+      rbind(.projr_build_manifest_hash_post(output_run))
+  }
+  .projr_manifest_write(manifest, output_run = output_run)
+  manifest
+}
+
+.projr_test_manifest_create_pre <- function(output_run = TRUE) {
+  manifest <- .projr_build_manifest_hash_pre(output_run)
+  .projr_manifest_write(manifest, output_run = output_run)
+  manifest
+}

@@ -24,3 +24,10 @@
   .projr_newline_append(path_dep)
   invisible(TRUE)
 }
+
+# taken from withr::with_dir
+with_dir <- function(new, code) {
+  old <- setwd(dir = new)
+  on.exit(setwd(old))
+  force(code)
+}

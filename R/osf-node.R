@@ -12,7 +12,9 @@
   }
 
   # create node
-  .projr_osf_create_node(title, yml_param, parent_id)
+  .projr_osf_create_node(
+    title = title, yml_param = yml_param, parent_id = parent_id
+  )
 }
 
 .projr_osf_get_node_id <- function(id) {
