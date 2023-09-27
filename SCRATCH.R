@@ -2,8 +2,7 @@ library(testthat)
 # devtools::load_all(path = file.path(Sys.getenv("pkg"), "projr"))
 devtools::load_all()
 # devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
-devtools::test_active_file("tests/testthat/test-manual-osf-download.R")
-devtools::test_active_file("tests/testthat/test-osf.R")
+devtools::test_active_file("tests/testthat/test-osf-config-dir.R")
 
 for (i in seq_len(nrow(osf_tbl_parent))) {
   osfr::osf_rm(osf_tbl_parent[i, ], check = FALSE, recurse = TRUE)
@@ -46,3 +45,19 @@ osf_tbl <- .projr_osf_get_node("Test", yml_param = list(), parent_id = "q26c9")
 # so, we know that the manifest basically always needs to be uploaded
 # to whatever not it's supposed to be uploaded to.
 # and it's always a node, right? Good.
+
+download = list(
+  cue = NULL,
+  sync_approach = NULL,
+  version_source = NULL,
+  conflict = NULL
+),
+upload = list(
+  cue = NULL,
+  sync_approach = NULL,
+  version_source = NULL,
+  conflict = NULL,
+  archive = NULL
+)
+
+
