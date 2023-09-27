@@ -5,6 +5,7 @@ test_that(".projr_osf_download_node_manifest", {
 
   # setup
   dir_test <- file.path(tempdir(), paste0("test_projr"))
+  withr::defer(unlink(dir_test, recursive = TRUE))
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
@@ -74,7 +75,6 @@ test_that(".projr_osf_download_node_manifest", {
   )
 
   # teardown
-  unlink(dir_test, recursive = TRUE)
   tryCatch({
     osf_tbl <- .projr_osf_get_node(
       "Test",
