@@ -57,7 +57,6 @@
 #' in the YAML file.
 #' If `FALSE`, then a pre-existing source will throw an error.
 #' Default is `FALSE`.
-#' @param prefer
 #'
 #'
 #' @return
@@ -343,7 +342,6 @@ projr_osf_source_add <- function(label,
     stop("upload must be a list")
   }
 }
-
 
 .projr_osf_source_get_list_add <- function(title,
                                            id,

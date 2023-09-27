@@ -4,29 +4,7 @@ test_that(".projr_osf_download_node_manifest", {
   skip_if(TRUE)
 
   # setup
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
-  withr::defer(unlink(dir_test, recursive = TRUE))
-
-  if (!dir.exists(dir_test)) dir.create(dir_test)
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-
-  for (x in fn_vec) {
-    file.copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
-  gert::git_init(dir_test)
-
+  dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = FALSE)
   # run from within project
   usethis::with_project(
     path = dir_test,
@@ -69,6 +47,10 @@ test_that(".projr_osf_download_node_manifest", {
         .projr_osf_download_node_manifest(osf_tbl),
         manifest
       )
+
+      # next steps:
+      # 1. do some files
+      # 2. make changes, check that they happen as expected
     },
     quiet = TRUE,
     force = TRUE
