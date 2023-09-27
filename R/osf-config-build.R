@@ -1,4 +1,4 @@
-#' @title Add an OSF node
+#' @title Add an OSF node as a destination
 #'
 #' @description
 #' Add a project or component to the _projr.yml

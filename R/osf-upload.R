@@ -61,7 +61,7 @@
 .projr_osf_upload_node_label <- function(osf_tbl,
                                          osf_tbl_file,
                                          label,
-                                         source_manifest = "manifest") {
+                                         manifest_source = "manifest") {
   # upload all files if directory not present
   upload_complete <- .projr_osf_upload_node_label_new(
     osf_tbl = osf_tbl, osf_tbl_file = osf_tbl_file, label = label
@@ -70,7 +70,7 @@
     return(invisible(TRUE))
   }
 
-  if (source_manifest == "manifest") {
+  if (manifest_source == "manifest") {
     # upload files if hash different
     manifest_tbl_local <- .projr_manifest_read()
     manifest_tbl_osf <- .projr_osf_download_manifest(osf_tbl)
@@ -82,7 +82,7 @@
       manifest_tbl_local,
       manifest_tbl_osf
     )
-  } else if (source_manifest == "download") {
+  } else if (manifest_source == "download") {
     # download files and compare
     # (this is slower, but more accurate)
     dir_save <- file.path(tempdir, "manifest", label)
@@ -92,7 +92,7 @@
     )
     # need to generate the manifest
   } else {
-    stop("source_manifest must be either 'manifest' or 'download'")
+    stop("manifest_source must be either 'manifest' or 'download'")
   }
   manifest_tbl_added <- manifest_list_compare[["added"]]
   if (nrow(manifest_tbl_added) > 0) {
