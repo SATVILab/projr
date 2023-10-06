@@ -108,6 +108,10 @@ test_that(".projr_osf_download_node_label works", {
         path = "data-raw",
         conflicts = "overwrite"
       )
+
+      # next steps:
+      # 1. do some files
+      # 2. make changes, check that they happen as expected
     },
     quiet = TRUE,
     force = TRUE
