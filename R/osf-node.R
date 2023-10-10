@@ -29,37 +29,6 @@
   )
 }
 
-.projr_osf_get_node_sub_dir <- function(osf_tbl,
-                                        label,
-                                        path_append_label,
-                                        path) {
-  path_dir_sub <- .projr_osf_get_path_dir_sub(
-    label = label, path_append_label = path_append_label, path = path
-  )
-  if (is.null(path_dir_sub)) {
-    return(osf_tbl)
-  }
-  osfr::osf_mkdir(
-    x = osf_tbl, path = path_dir_sub
-  )
-}
-
-.projr_osf_get_path_dir_sub <- function(label, path_append_label, path) {
-  # set up subdirectories
-  append_label <- !is.null(path_append_label) && path_append_label
-  path_pre <- !is.null(path)
-  if (!append_label && !path_pre) {
-    return(NULL)
-  }
-  if (append_label && path_pre) {
-    path_dir_sub <- file.path(path, label)
-  } else if (append_label) {
-    path_dir_sub <- label
-  } else {
-    path_dir_sub <- path
-  }
-  path_dir_sub
-}
 
 .projr_osf_get_parent_id <- function(yml_param, parent_id) {
   # actually, what matters is the parent
@@ -137,6 +106,40 @@
   }
   osf_tbl
 }
+
+.projr_osf_get_node_sub_dir <- function(osf_tbl,
+                                        label,
+                                        path_append_label,
+                                        path) {
+  path_dir_sub <- .projr_osf_get_path_dir_sub(
+    label = label, path_append_label = path_append_label, path = path
+  )
+  if (is.null(path_dir_sub)) {
+    return(osf_tbl)
+  }
+  osfr::osf_mkdir(
+    x = osf_tbl, path = path_dir_sub
+  )
+}
+
+.projr_osf_get_path_dir_sub <- function(label, path_append_label, path) {
+  # set up subdirectories
+  append_label <- is.null(path_append_label) ||
+    path_append_label
+  path_pre <- !is.null(path)
+  if (!append_label && !path_pre) {
+    return(NULL)
+  }
+  if (append_label && path_pre) {
+    path_dir_sub <- file.path(path, label)
+  } else if (append_label) {
+    path_dir_sub <- label
+  } else {
+    path_dir_sub <- path
+  }
+  path_dir_sub
+}
+
 
 projr_osf_create_project <- function(title,
                                      body = NULL,

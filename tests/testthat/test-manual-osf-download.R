@@ -41,7 +41,7 @@ test_that(".projr_restore_osf works", {
       # remove to test restore
       unlink("_data_raw", recursive = TRUE)
       dir.create("_data_raw")
-      # restore
+      # restore2
       .projr_restore_osf("data-raw")
       # check files there
       expect_identical(
