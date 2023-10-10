@@ -184,7 +184,7 @@ projr_build_dev <- function(file = NULL, bump = FALSE, remove_old_dev = TRUE, ..
   )
 
   # save manifest table
-  .projr_build_manifest_write(manifest_tbl, output_run = output_run)
+  .projr_manifest_write(manifest_tbl, output_run = output_run)
 
   # upload via piggyback
   .projr_pb_upload(output_run = output_run)
