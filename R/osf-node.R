@@ -1,4 +1,16 @@
-.projr_osf_get_node <- function(title, yml_param, parent_id) {
+.projr_osf_get_node <- function(title, label, yml_param, parent_id) {
+  osf_tbl <- .projr_osf_get_node_as_node(
+    title = title, yml_param = yml_param, parent_id = parent_id
+  )
+  .projr_osf_get_node_sub_dir(
+    osf_tbl = osf_tbl,
+    label = label,
+    path_append_label = yml_param[["path_append_label"]],
+    path = yml_param[["path"]]
+  )
+}
+
+.projr_osf_get_node_as_node <- function(title, yml_param, parent_id) {
   # get node from id
   osf_tbl <- .projr_osf_get_node_id(yml_param[["id"]])
   if (!is.null(osf_tbl)) {
@@ -17,19 +29,36 @@
   )
 }
 
-.projr_osf_get_node_id <- function(id) {
-  if (is.null(id)) {
+.projr_osf_get_node_sub_dir <- function(osf_tbl,
+                                        label,
+                                        path_append_label,
+                                        path) {
+  path_dir_sub <- .projr_osf_get_path_dir_sub(
+    label = label, path_append_label = path_append_label, path = path
+  )
+  if (is.null(path_dir_sub)) {
+    return(osf_tbl)
+  }
+  osfr::osf_mkdir(
+    x = osf_tbl, path = path_dir_sub
+  )
+}
+
+.projr_osf_get_path_dir_sub <- function(label, path_append_label, path) {
+  # set up subdirectories
+  append_label <- !is.null(path_append_label) && path_append_label
+  path_pre <- !is.null(path)
+  if (!append_label && !path_pre) {
     return(NULL)
   }
-
-  tryCatch(
-    osfr::osf_retrieve_node(paste0("https://osf.io/", id)),
-    error = function(e) {
-      stop(paste0(
-        "Could not retrieve OSF node (project/component):", id
-      ))
-    }
-  )
+  if (append_label && path_pre) {
+    path_dir_sub <- file.path(path, label)
+  } else if (append_label) {
+    path_dir_sub <- label
+  } else {
+    path_dir_sub <- path
+  }
+  path_dir_sub
 }
 
 .projr_osf_get_parent_id <- function(yml_param, parent_id) {
