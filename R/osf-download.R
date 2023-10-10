@@ -39,66 +39,55 @@
   if (!"osf" %in% names(yml_projr_dir_lbl)) {
     return(invisible(FALSE))
   }
-  title <- names(yml_projr_dir_lbl[["osf"]])
   yml_projr_osf <- yml_projr_dir_lbl[["osf"]][[1]]
   osf_tbl <- .projr_osf_get_node(
-    title = title,
+    title = names(yml_projr_dir_lbl[["osf"]]),
+    label = label,
     yml_param = yml_projr_osf,
     parent_id = NULL
   )
-  # set up subdirectories
-  append_label <- (
-    !"path_append_label" %in% names(yml_projr_osf)
-  ) ||
-    yml_projr_osf[["path_append_label"]]
-  path_pre <- !is.null(yml_projr_osf[["path"]])
-  if (append_label && path_pre) {
-    path_dir_sub <- file.path(path_pre, label)
-  } else if (append_label) {
-    path_dir_sub <- label
-  } else {
-    path_dir_sub <- path_pre
-  }
-  if (append_label || path_pre) {
-    osf_tbl <- osfr::osf_mkdir(
-      x = osf_tbl, path = path_dir_sub
-    )
-  }
+
   # can try the fancy method stuff here
   # all about that `download_sync_approach`,
   # `download_version_source` and `download_conflict`.
-  yml_projr_osf_dnld <- yml_projr_osf[["download"]]
-  if (!is.null(yml_projr_osf_dnld)) {
-    if (!is.null(yml_projr_osf_dnld[["conflict"]])) {
-      conflict <- yml_projr_osf_dnld[["conflict"]]
-    } else {
-      conflict <- "overwrite"
-    }
-    if (!is.null(yml_projr_osf_dnld[["sync_approach"]])) {
-      sync_approach <- yml_projr_osf_dnld[["sync_approach"]]
-    } else {
-      sync_approach <- "download_all"
-    }
-  } else {
-    conflict <- "overwrite"
-    sync_approach <- "download_all"
-  }
-  if (sync_approach == "delete_then_download_all") {
-    unlink(yml_projr_dir_lbl[["path"]], recursive = TRUE)
-  }
+  # get download settings
+  yml_dnld <- .projr_osf_complete_dnld_list(
+    yml_projr_osf[["download"]]
+  )
+  # get whether we're saving to an OSF sub-dir or not
+  append_label <- is.null(yml_dnld[["path_append_label"]]) ||
+    yml_dnld[["path_append_label"]]
+  path_pre <- !is.null(path)
+  .projr_osf_dnld_to_dir(
+    osf_tbl = osf_tbl,
+    sub_dir = append_label || path_pre,
+    path_save = yml_projr_dir_lbl[["path"]],
+    sync_approach = yml_dnld[["sync_approach"]],
+    conflict = yml_dnld[["conflict"]]
+  )
+  osf_tbl
+}
+
+.projr_osf_dnld_to_dir <- function(osf_tbl,
+                                   sub_dir,
+                                   path_save,
+                                   sync_approach,
+                                   conflict) {
   osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
   if (nrow(osf_tbl_file) == 0L) {
     return(invisible(FALSE))
   }
-  path_dir_save <- yml_projr_dir_lbl[["path"]]
-  if (!dir.exists(path_dir_save)) {
-    dir.create(path_dir_save, recursive = TRUE)
+  if (!dir.exists(path_save)) {
+    dir.create(path_save, recursive = TRUE)
   }
-  if (append_label || path_pre) {
+  if (sync_approach == "delete_then_download_all") {
+    unlink(path_save, recursive = TRUE)
+  }
+  if (sub_dir) {
     for (i in seq_len(nrow(osf_tbl_file))) {
       osfr::osf_download(
         x = osf_tbl_file[i, ],
-        path = path_dir_save,
+        path = path_save,
         recurse = TRUE,
         conflicts = conflict
       )
@@ -106,12 +95,27 @@
   } else {
     osfr::osf_download(
       x = osf_tbl_file,
-      path = path_dir_save,
+      path = path_save,
       recurse = TRUE,
       conflicts = conflict
     )
   }
-  osf_tbl
+  invisible(TRUE)
+}
+
+.projr_osf_complete_dnld_list <- function(yml_projr) {
+  if (!is.null(yml_projr)) {
+    if (is.null(yml_projr[["conflict"]])) {
+      yml_projr[["conflict"]] <- "overwrite"
+    }
+    if (is.null(yml_projr[["sync_approach"]])) {
+      yml_projr[["sync_approach"]] <- "download_all"
+    }
+  } else {
+    yml_projr[["conflict"]] <- "overwrite"
+    yml_projr[["sync_approach"]] <- "download_all"
+  }
+  yml_projr[c("conflict", "sync_approach")]
 }
 
 .projr_osf_download_dir <- function() {
