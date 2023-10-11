@@ -85,15 +85,14 @@ projr_osf_source_add <- function(label,
                                  parent_id = NULL,
                                  path = NULL,
                                  path_append_label = NULL,
+                                 osf_structure = NULL,
                                  download_cue = NULL,
                                  download_sync_approach = NULL,
-                                 download_version_source = NULL,
                                  download_conflict = NULL,
                                  upload_cue = NULL,
                                  upload_sync_approach = NULL,
                                  upload_version_source = NULL,
-                                 upload_conflict = NULL,
-                                 upload_archive = NULL) {
+                                 upload_conflict = NULL) {
   # format inputs
   if (is.null(title)) {
     title <- label
@@ -109,7 +108,6 @@ projr_osf_source_add <- function(label,
   download_list <- .projr_osf_yml_add_load_get_list(
     cue = download_cue,
     sync_approach = download_sync_approach,
-    version_source = download_version_source,
     conflict = download_conflict
   )
 
@@ -117,8 +115,7 @@ projr_osf_source_add <- function(label,
     cue = upload_cue,
     sync_approach = upload_sync_approach,
     version_source = upload_version_source,
-    conflict = upload_conflict,
-    archive = upload_archive
+    conflict = upload_conflict
   )
 
   # check inputs
@@ -142,10 +139,14 @@ projr_osf_source_add <- function(label,
   # get id
   # ------------------
 
-  id <- .projr_osf_source_add_get_id(
-    id = id, parent_id = parent_id,
-    title = title, yml_param = yml_param
-  )
+  id <- .projr_osf_get_node_as_node(
+    title = title,
+    id = id,
+    parent_id = parent_id,
+    category = category,
+    body = body,
+    public = public
+  )[["id"]][[1]]
 
   # create list to add
   # ------------------
@@ -170,8 +171,7 @@ projr_osf_source_add <- function(label,
 .projr_osf_yml_add_load_get_list <- function(cue = NULL,
                                              sync_approach = NULL,
                                              version_source = NULL,
-                                             conflict = NULL,
-                                             archive = NULL) {
+                                             conflict = NULL) {
   out_list <- list()
   param_vec <- c("cue", "sync_approach", "version_source", "conflict")
   for (x in param_vec) {
@@ -260,7 +260,7 @@ projr_osf_source_add <- function(label,
   }
   dnld_diff_vec <- setdiff(
     names(download),
-    c("cue", "sync_approach", "version_source", "conflict")
+    c("cue", "sync_approach", "conflict")
   )
   if (length(dnld_diff_vec) > 0) {
     stop(paste0(
@@ -309,19 +309,6 @@ projr_osf_source_add <- function(label,
         stop(paste0(
           "download$conflict contains invalid names: ",
           paste0(conflict_diff_vec, collapse = ", ")
-        ))
-      }
-    }
-  }
-  if ("version_source" %in% names(download)) {
-    if (!is.null(download[["version_source"]])) {
-      version_source_diff_vec <- setdiff(
-        download[["version_source"]], c("manifest", "download")
-      )
-      if (length(version_source_diff_vec) > 0) {
-        stop(paste0(
-          "download$version_source contains invalid names: ",
-          paste0(version_source_diff_vec, collapse = ", ")
         ))
       }
     }
@@ -382,7 +369,7 @@ projr_osf_source_add <- function(label,
   }
   # attempt to get node if it is already there
   osf_tbl <- .projr_osf_get_node_id_parent(
-    title = title, yml_param = yml_param, parent_id = parent_id
+    title = title, parent_id = parent_id, parent_id_force = parent_id
   )
   if (!is.null(osf_tbl)) {
     return(osf_tbl[["id"]][[1]])

@@ -22,7 +22,7 @@ test_that(".projr_osf_upload_dir works", {
       manifest <- .projr_test_manifest_create()
 
       # create project
-      osf_tbl_proj <- .projr_osf_create_project("ProjectUpload")
+      osf_tbl_proj <- .projr_test_osf_create_project("ProjectUpload")
       .projr_osf_rm_node_id_defer(osf_tbl_proj[["id"]])
 
       # upload to OSF

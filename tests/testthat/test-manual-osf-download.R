@@ -12,6 +12,7 @@ test_that(".projr_restore_osf works", {
     code = {
       # create previous upload
       # ---------------------------
+      browser()
 
       # create files
       .projr_test_setup_content("data-raw")
@@ -20,7 +21,7 @@ test_that(".projr_restore_osf works", {
       manifest <- .projr_test_manifest_create()
 
       # create project
-      osf_tbl_proj <- .projr_osf_create_project("ProjectDownloadManifest")
+      osf_tbl_proj <- .projr_test_osf_create_project("ProjectDownloadManifest")
       .projr_osf_rm_node_id_defer(osf_tbl_proj[["id"]])
 
       # upload to OSF
@@ -41,7 +42,8 @@ test_that(".projr_restore_osf works", {
       # remove to test restore
       unlink("_data_raw", recursive = TRUE)
       dir.create("_data_raw")
-      # restore2
+      # restore
+      browser()
       .projr_restore_osf("data-raw")
       # check files there
       expect_identical(
@@ -62,7 +64,7 @@ test_that(".projr_restore_osf works", {
 test_that(".projr_osf_download_node_label works", {
   # skips
   skip_if_offline()
-  skip_if(TRUE)
+  skip_if(FALSE)
 
   # setup
   dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = FALSE)
@@ -80,7 +82,7 @@ test_that(".projr_osf_download_node_label works", {
       manifest <- .projr_test_manifest_create()
 
       # upload
-      osf_tbl_proj <- .projr_osf_create_project("ProjectDownloadManifest")
+      osf_tbl_proj <- .projr_test_osf_create_project("ProjectDownloadManifest")
       .projr_osf_rm_node_id_defer(osf_tbl_proj[["id"]])
 
       # add source directory
@@ -97,6 +99,8 @@ test_that(".projr_osf_download_node_label works", {
       osfr::osf_upload(x = osf_tbl_proj, path = "manifest.csv")
 
       # add source
+      browser()
+      debugonce(.projr_osf_create_node)
       osf_tbl_source <- .projr_osf_create_node(
         title = "data-raw",
         parent_id = osf_tbl_proj[["id"]]

@@ -15,15 +15,14 @@ projr_osf_source_add(
   parent_id = NULL,
   path = NULL,
   path_append_label = NULL,
+  osf_structure = NULL,
   download_cue = NULL,
   download_sync_approach = NULL,
-  download_version_source = NULL,
   download_conflict = NULL,
   upload_cue = NULL,
   upload_sync_approach = NULL,
   upload_version_source = NULL,
-  upload_conflict = NULL,
-  upload_archive = NULL
+  upload_conflict = NULL
 )
 }
 \arguments{
@@ -86,8 +85,6 @@ For example, if \code{label} is \code{data-raw} and \code{path} is \code{Study23
 then the path to the directory under which
 the contents will be saved is be \code{data-raw}.
 Default is \code{FALSE} if \code{path} is \code{NULL}, and \code{FALSE} otherwise.}
-
-\item{prefer}{}
 }
 \value{
 Invisibly returns the OSF id.
