@@ -40,22 +40,21 @@ test_that("projr_osf_source_add works", {
         parent_id = id_proj,
         path = "sub-dir",
         path_append_label = FALSE,
+        osf_structure = "latest",
         download_cue = "build",
-        download_sync_approach = "upload_all",
-        download_version_source = "manifest",
+        download_sync_approach = "download_all",
         download_conflict = "overwrite",
         upload_cue = "major",
         upload_sync_approach = "upload_all",
         upload_version_source = "manifest",
-        upload_conflict = "overwrite",
-        upload_archive = "all"
+        upload_conflict = "overwrite"
       )
       yml_proj <- projr_yml_get_unchecked()
       yml_projr_dr_osf <- yml_proj[["directories"]][["data-raw"]][["osf"]]
       expect_true(names(yml_projr_dr_osf) == "Titular")
       expect_true(
         all(c("id", "path", "path_append_label", "download", "upload") %in%
-          names(yml_projr_dr_osf[[1]]))
+              names(yml_projr_dr_osf[[1]]))
       )
     },
     quiet = TRUE,

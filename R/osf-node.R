@@ -1,53 +1,89 @@
-.projr_osf_get_node <- function(title, label, yml_param, parent_id) {
-  osf_tbl <- .projr_osf_get_node_as_node(
-    title = title, yml_param = yml_param, parent_id = parent_id
+.projr_osf_get_node <- function(title = NULL,
+                                label = NULL,
+                                id = NULL,
+                                parent_id = NULL,
+                                parent_id_force = NULL,
+                                category = NULL,
+                                body = NULL,
+                                public = FALSE,
+                                path_append_label = NULL,
+                                path = NULL) {
+  parent_id <- .projr_osf_get_parent_id(
+    parent_id_force = parent_id_force, parent_id = parent_id
   )
+  osf_tbl <- .projr_osf_get_node_as_node(
+    title = title, id = id, parent_id = parent_id,
+    category = category,
+    body = body,
+    public = public
+  )
+  if (is.null(label)) {
+    return(osf_tbl)
+  }
   .projr_osf_get_node_sub_dir(
     osf_tbl = osf_tbl,
     label = label,
-    path_append_label = yml_param[["path_append_label"]],
-    path = yml_param[["path"]]
+    path_append_label = path_append_label,
+    path = path
   )
 }
 
-.projr_osf_get_node_as_node <- function(title, yml_param, parent_id) {
+.projr_osf_get_node_as_node <- function(title = NULL,
+                                        id = NULL,
+                                        parent_id = NULL,
+                                        category = NULL,
+                                        body = NULL,
+                                        public = FALSE) {
   # get node from id
-  osf_tbl <- .projr_osf_get_node_id(yml_param[["id"]])
+  osf_tbl <- .projr_osf_get_node_id(id = id)
   if (!is.null(osf_tbl)) {
     return(osf_tbl)
   }
 
   # get node from parent_id and title
-  osf_tbl <- .projr_osf_get_node_id_parent(title, yml_param, parent_id)
+  osf_tbl <- .projr_osf_get_node_id_parent(
+    title = title, parent_id = parent_id
+  )
   if (!is.null(osf_tbl)) {
     return(osf_tbl)
   }
 
   # create node
   .projr_osf_create_node(
-    title = title, yml_param = yml_param, parent_id = parent_id
+    title = title, parent_id = parent_id,
+    category = category, body = body, public = public
+  )
+}
+
+.projr_osf_get_node_id <- function(id) {
+  if (is.null(id)) {
+    return(NULL)
+  }
+  tryCatch(
+    osfr::osf_retrieve_node(paste0("https://osf.io/", id)),
+    error = function(e) {
+      stop(paste0(
+        "Could not retrieve OSF node (project/component):", id
+      ))
+    }
   )
 }
 
 
-.projr_osf_get_parent_id <- function(yml_param, parent_id) {
+.projr_osf_get_parent_id <- function(parent_id_force, parent_id) {
   # actually, what matters is the parent
-  parent_id_yml <- yml_param[["parent_id"]]
-  if ((!is.null(parent_id_yml)) && (!is.null(parent_id))) {
+  if ((!is.null(parent_id_force)) && (!is.null(parent_id))) {
     stop(
       "parent_id cannot be specified in both _projr.yml and function call"
     )
   }
-  if (!is.null(parent_id_yml)) {
-    parent_id <- parent_id_yml
+  if (!is.null(parent_id_force)) {
+    parent_id <- parent_id_force
   }
   parent_id
 }
 
-.projr_osf_get_node_id_parent <- function(title, yml_param, parent_id) {
-  parent_id <- .projr_osf_get_parent_id(
-    yml_param = yml_param, parent_id = parent_id
-  )
+.projr_osf_get_node_id_parent <- function(title, parent_id) {
   if (is.null(parent_id)) {
     return(NULL)
   }
@@ -66,19 +102,24 @@
   .projr_osf_get_node_id(id)
 }
 
-.projr_osf_create_node <- function(title, yml_param, parent_id = NULL) {
+.projr_osf_create_node <- function(title = NULL,
+                                   parent_id_force = NULL,
+                                   parent_id = NULL,
+                                   category = NULL,
+                                   body = NULL,
+                                   public = FALSE) {
   if (is.null(parent_id)) {
-    if (is.null(yml_param[["category"]])) {
+    if (is.null(category)) {
       stop("parent_id must be specified for components")
     }
-    if (yml_param[["category"]] != "project") {
+    if (category != "project") {
       stop("parent_id must be specified for components")
     }
     osf_tbl <- try(osfr::osf_create_project(
       title = title,
-      description = yml_param[["body"]],
-      public = yml_param[["public"]],
-      category = yml_param[["category"]]
+      description = body,
+      public = public,
+      category = category
     ))
   } else {
     osf_tbl_parent <- tryCatch(
@@ -95,9 +136,9 @@
     }
     osf_tbl <- try(osfr::osf_create_component(
       title = title,
-      description = yml_param[["body"]],
-      public = yml_param[["public"]],
-      category = yml_param[["category"]],
+      description = body,
+      public = public,
+      category = category,
       x = osf_tbl_parent
     ))
   }

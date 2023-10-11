@@ -11,13 +11,14 @@
   label
 }
 
-.projr_osf_create_project <- function(prefix) {
+.projr_test_osf_create_project <- function(prefix) {
   project <- paste0(
     prefix, "ProjrOSFTest", rnorm(1) |> signif(4) |> as.character()
   )
   .projr_osf_get_node(
     title = project,
-    yml_param = list(public = FALSE, category = "project"),
+    category = "project",
+    public = FALSE,
     parent_id = NULL
   )
 }
