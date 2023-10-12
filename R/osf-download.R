@@ -15,11 +15,11 @@
   }
   label <- label[grepl(match_str, .projr_dir_label_strip(label))]
   for (i in seq_along(label)) {
-    .projr_restore_osf_label(label[[i]])
+    .projr_checkout_osf_label(label[[i]])
   }
 }
 
-.projr_restore_osf_label <- function(label, parent_id_force = NULL) {
+.projr_checkout_osf_label <- function(label, parent_id_force = NULL) {
   if (missing(label)) {
     stop("label must be specified")
   }
@@ -29,43 +29,45 @@
       paste0(class(label), collapse = "; ")
     ))
   }
-  yml_label <-
-    projr_yml_get_unchecked()[["directories"]][[label]]
+  yml_label <- projr_yml_get_unchecked()[["directories"]][[label]]
   if (!"osf" %in% names(yml_label)) {
     return(invisible(FALSE))
   }
+  # configure with defaults (need to turn this into a function)
+  yml_label[["osf"]][[1]][["remote-structure"]] <-
+    yml_label[["osf"]][[1]][["remote-structure"]] %||% "latest"
+  yml_label[["osf"]][[1]][["path-append-label"]] <-
+    yml_label[["osf"]][[1]][["path-append-label"]] %||% TRUE
   yml_osf <- yml_label[["osf"]][[1]]
-  yml_osf[["remote-structure"]] <- yml_osf[["remote-structure"]] %||% "latest"
   # do not create as we're restoring.
   # do not append label or path as
   # we need to know that for the `download_to_dir`
   # function below
   osf_tbl <- .projr_osf_get_node(
     title = names(yml_label[["osf"]]),
-    label = yml_osf[["label"]],
+    label = label,
     id = yml_osf[["id"]],
     create = FALSE
   )
 
-  # can try the fancy method stuff here
-  # all about that `download_sync_approach`,
-  # `download_version_source` and `download_conflict`.
   # get download settings
-  yml_dnld <- .projr_osf_complete_dnld_list(
-    yml_osf[["download"]]
-  )
-  # get whether we're saving to an OSF sub-dir or not
-  append_label <- is.null(yml_dnld[["path-append-label"]]) ||
-    yml_dnld[["path-append-label"]]
-  path_pre <- !is.null(yml_label[["path"]])
+  yml_osf[["download"]] <- projr_osf_complete_dnld_list(yml_osf[["download"]])
+
+  # actually download! whoohoo
   .projr_osf_dnld_to_dir(
     osf_tbl = osf_tbl,
-    sub_dir = append_label || path_pre,
+    # path to save to locally
     path_save = yml_label[["path"]],
-    remote_structure = yml_label[["remote-structure"]],
-    sync_approach = yml_dnld[["sync-approach"]],
-    conflict = yml_dnld[["conflict"]]
+    # whether we're downloading from an OSF sub-directory or the node itself
+    sub_dir = yml_osf[["path-append-label"]] || !is.null(yml_osf[["path"]]),
+    # type of OSF directory (latest, version or content)
+    remote_structure = yml_osf[["remote-structure"]],
+    # how to choose what to delete (locally) and what to download
+    sync_approach = yml_osf[["download"]][["sync-approach"]],
+    conflict = yml_osf[["download"]][["conflict"]]
   )
+
+  # return table you downloaded to
   osf_tbl
 }
 
@@ -88,7 +90,7 @@
   if (nrow(osf_tbl_file) == 0L) {
     return(invisible(FALSE))
   }
-  if (grepl("download_all$", sync_approach)) {
+  if (grepl("download\\-all$", sync_approach)) {
     .projr_osf_dnld_to_dir_all(
       osf_tbl_file = osf_tbl_file,
       remote_structure = remote_structure,
@@ -97,7 +99,7 @@
       conflict = conflict
     )
   }
-  if (grepl("^download_missing$", sync_approach)) {
+  if (grepl("^download-missing$", sync_approach)) {
     stop("download_missing not implemented yet")
   }
   invisible(TRUE)

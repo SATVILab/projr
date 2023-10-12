@@ -174,7 +174,7 @@ projr_osf_source_add <- function(label,
                                              version_source = NULL,
                                              conflict = NULL) {
   out_list <- list()
-  param_vec <- c("cue", "sync-approach", "version-source", "conflict")
+  param_vec <- c("cue", "sync_approach", "version_source", "conflict")
   for (x in param_vec) {
     if (!is.null(eval(parse(text = x)))) {
       out_list[[x]] <- eval(parse(text = x))

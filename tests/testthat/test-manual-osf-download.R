@@ -42,6 +42,7 @@ test_that(".projr_checkout_osf works", {
       dir.create("_data_raw")
       # restore
       browser()
+      debugonce(.projr_restore_osf_label)
       .projr_checkout_osf("data-raw")
       # check files there
       expect_identical(
