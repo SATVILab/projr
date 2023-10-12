@@ -361,8 +361,8 @@ test_that("projr_dir_ignore works", {
 
       yml_projr <- .projr_yml_get_root_full()
       for (i in seq_along(yml_projr[["directories"]])) {
-        yml_projr[["directories"]][[i]][["ignore_git"]] <- FALSE
-        yml_projr[["directories"]][[i]][["ignore_rbuild"]] <- FALSE
+        yml_projr[["directories"]][[i]][["ignore-git"]] <- FALSE
+        yml_projr[["directories"]][[i]][["ignore-rbuild"]] <- FALSE
       }
       .projr_yml_set(yml_projr)
       # test taking away from gitignore and buildignore
@@ -396,8 +396,8 @@ test_that("projr_dir_ignore works", {
       expect_error(.projr_ignore_label_set(1))
       yml_projr <- .projr_yml_get_root_full()
       for (i in seq_along(yml_projr[["directories"]])) {
-        yml_projr[["directories"]][[i]][["ignore_git"]] <- 1
-        yml_projr[["directories"]][[i]][["ignore_rbuild"]] <- 1
+        yml_projr[["directories"]][[i]][["ignore-git"]] <- 1
+        yml_projr[["directories"]][[i]][["ignore-rbuild"]] <- 1
       }
       names(yml_projr[["directories"]]) <- rep("data-raw", 4)
       .projr_yml_set(yml_projr)

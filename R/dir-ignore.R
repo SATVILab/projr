@@ -45,7 +45,7 @@
 
 .projr_ignore_get_git <- function(label) {
   yml_projr <- projr_yml_get_unchecked()
-  ignore_git <- yml_projr[["directories"]][[label]][["ignore_git"]]
+  ignore_git <- yml_projr[["directories"]][[label]][["ignore-git"]]
   if (is.null(ignore_git)) {
     return("ignore")
   }
@@ -53,7 +53,7 @@
     if (ignore_git) {
       return("ignore")
     } else {
-      return("no_ignore")
+      return("no-ignore")
     }
   }
   if (!is.character(ignore_git)) {
@@ -64,10 +64,10 @@
   }
   ignore_git <- gsub("^//s", "", ignore_git) |>
     gsub("//s$", "", x = _)
-  extra_vec <- setdiff(ignore_git, c("no_ignore", "ignore", "manual"))
+  extra_vec <- setdiff(ignore_git, c("no-ignore", "ignore", "manual"))
   if (length(extra_vec) > 0) {
     stop(paste0(
-      'if of type character, then ignore_git must be "ignore", "no_ignore" or "manual"', # nolint
+      'if of type character, then ignore_git must be "ignore", "no-ignore" or "manual"', # nolint
       ": problem with label `", label, "` in _projr.yml",
       collapse = ""
     ))
@@ -330,7 +330,7 @@
 
 .projr_ignore_get_rbuild <- function(label) {
   yml_projr <- projr_yml_get_unchecked()
-  ignore_rbuild <- yml_projr[["directories"]][[label]][["ignore_rbuild"]]
+  ignore_rbuild <- yml_projr[["directories"]][[label]][["ignore-rbuild"]]
   if (is.null(ignore_rbuild)) {
     return("ignore")
   }
@@ -338,7 +338,7 @@
     if (ignore_rbuild) {
       return("ignore")
     } else {
-      return("no_ignore")
+      return("no-ignore")
     }
   }
   if (!is.character(ignore_rbuild)) {
@@ -349,10 +349,10 @@
   }
   ignore_rbuild <- gsub("^//s", "", ignore_rbuild) |>
     gsub("//s$", "", x = _)
-  extra_vec <- setdiff(ignore_rbuild, c("no_ignore", "ignore", "manual"))
+  extra_vec <- setdiff(ignore_rbuild, c("no-ignore", "ignore", "manual"))
   if (length(extra_vec) > 0) {
     stop(paste0(
-      'if of type character, then ignore_rbuild must be "ignore", "no_ignore" or "manual"', # nolint
+      'if of type character, then ignore_rbuild must be "ignore", "no-ignore" or "manual"', # nolint
       ": problem with label `", label, "` in _projr.yml",
       collapse = ""
     ))

@@ -85,7 +85,7 @@ projr_osf_source_add <- function(label,
                                  parent_id = NULL,
                                  path = NULL,
                                  path_append_label = NULL,
-                                 osf_structure = NULL,
+                                 remote_structure = NULL,
                                  download_cue = NULL,
                                  download_sync_approach = NULL,
                                  download_conflict = NULL,
@@ -173,7 +173,7 @@ projr_osf_source_add <- function(label,
                                              version_source = NULL,
                                              conflict = NULL) {
   out_list <- list()
-  param_vec <- c("cue", "sync_approach", "version_source", "conflict")
+  param_vec <- c("cue", "sync-approach", "version-source", "conflict")
   for (x in param_vec) {
     if (!is.null(eval(parse(text = x)))) {
       out_list[[x]] <- eval(parse(text = x))
@@ -260,7 +260,7 @@ projr_osf_source_add <- function(label,
   }
   dnld_diff_vec <- setdiff(
     names(download),
-    c("cue", "sync_approach", "conflict")
+    c("cue", "sync-approach", "conflict")
   )
   if (length(dnld_diff_vec) > 0) {
     stop(paste0(
@@ -282,14 +282,14 @@ projr_osf_source_add <- function(label,
       }
     }
   }
-  if ("sync_approach" %in% names(download)) {
-    if (!is.null(download[["sync_approach"]])) {
+  if ("sync-approach" %in% names(download)) {
+    if (!is.null(download[["sync-approach"]])) {
       selection_method_diff_vec <- setdiff(
-        download[["sync_approach"]],
+        download[["sync-approach"]],
         c(
-          "download_all",
-          "delete_then_download_all",
-          "download_missing" # haven't implemented this one yet
+          "download-all",
+          "delete-then-download-all",
+          "download-missing" # haven't implemented this one yet
         )
       )
       if (length(selection_method_diff_vec) > 0) {
@@ -318,7 +318,7 @@ projr_osf_source_add <- function(label,
   # --------------------------------
   upld_diff_vec <- setdiff(
     names(upload),
-    c("cue", "sync_approach", "version_source", "conflict", "archive")
+    c("cue", "sync-approach", "version-source", "conflict", "archive")
   )
   if (length(upld_diff_vec) > 0) {
     stop(paste0(
@@ -342,7 +342,7 @@ projr_osf_source_add <- function(label,
     list_add[["path"]] <- path
   }
   if (!is.null(path_append_label)) {
-    list_add[["path_append_label"]] <- path_append_label
+    list_add[["path-append-label"]] <- path_append_label
   }
   if (!length(download_list) == 0) {
     list_add <- list_add |> append(list(download = download_list))

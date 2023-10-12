@@ -179,7 +179,7 @@ test_that(".projr_yml_check_dir_elem works", {
   yml_projr_dir_elem <- list(
     "smg" = "b",
     "path" = "abc",
-    "ignore_git" = TRUE,
+    "ignore-git" = TRUE,
     "output" = TRUE,
     "archive" = TRUE
   )
@@ -194,7 +194,7 @@ test_that(".projr_yml_check_dir_elem works", {
   yml_projr_dir_elem <- list(
     "path" = "abc",
     "path" = "abc",
-    "ignore_git" = TRUE,
+    "ignore-git" = TRUE,
     "output" = TRUE,
     "archive" = TRUE
   )
@@ -207,7 +207,7 @@ test_that(".projr_yml_check_dir_elem works", {
   )
   # path: missing
   yml_projr_dir_elem <- list(
-    "ignore_git" = TRUE,
+    "ignore-git" = TRUE,
     "output" = TRUE,
     "archive" = TRUE
   )
@@ -222,7 +222,7 @@ test_that(".projr_yml_check_dir_elem works", {
   # path: to a restricted folder
   yml_projr_dir_elem <- list(
     "path" = "R",
-    "ignore_git" = TRUE,
+    "ignore-git" = TRUE,
     "output" = TRUE,
     "archive" = TRUE
   )
@@ -236,7 +236,7 @@ test_that(".projr_yml_check_dir_elem works", {
   # path: to a restricted sub-folder
   yml_projr_dir_elem <- list(
     "path" = "data/abc",
-    "ignore_git" = TRUE,
+    "ignore-git" = TRUE,
     "output" = TRUE,
     "archive" = TRUE
   )
@@ -248,7 +248,7 @@ test_that(".projr_yml_check_dir_elem works", {
   # path: length greater than 1
   yml_projr_dir_elem <- list(
     "path" = c("abc", "def"),
-    "ignore_git" = TRUE,
+    "ignore-git" = TRUE,
     "output" = TRUE,
     "archive" = TRUE
   )
@@ -260,7 +260,7 @@ test_that(".projr_yml_check_dir_elem works", {
   # path: not character
   yml_projr_dir_elem <- list(
     "path" = 1,
-    "ignore_git" = TRUE,
+    "ignore-git" = TRUE,
     "output" = TRUE,
     "archive" = TRUE
   )
@@ -272,7 +272,7 @@ test_that(".projr_yml_check_dir_elem works", {
   # ignore: not logical or character
   yml_projr_dir_elem <- list(
     "path" = "abc",
-    "ignore_git" = 1,
+    "ignore-git" = 1,
     "output" = TRUE,
     "archive" = TRUE
   )
@@ -284,7 +284,7 @@ test_that(".projr_yml_check_dir_elem works", {
   # ignore: not correct character type
   yml_projr_dir_elem <- list(
     "path" = "abc",
-    "ignore_git" = "def",
+    "ignore-git" = "def",
     "output" = TRUE,
     "archive" = TRUE
   )
@@ -296,7 +296,7 @@ test_that(".projr_yml_check_dir_elem works", {
   # ignore: length greater than one
   yml_projr_dir_elem <- list(
     "path" = "abc",
-    "ignore_git" = c(TRUE, FALSE),
+    "ignore-git" = c(TRUE, FALSE),
     "output" = TRUE,
     "archive" = TRUE
   )
@@ -308,7 +308,7 @@ test_that(".projr_yml_check_dir_elem works", {
   # output: either logical or character
   yml_projr_dir_elem <- list(
     "path" = "abc",
-    "ignore_git" = TRUE,
+    "ignore-git" = TRUE,
     "output" = 1,
     "archive" = TRUE
   )
@@ -320,7 +320,7 @@ test_that(".projr_yml_check_dir_elem works", {
   # archive: either logical or character
   yml_projr_dir_elem <- list(
     "path" = "abc",
-    "ignore_git" = TRUE,
+    "ignore-git" = TRUE,
     "output" = TRUE,
     "archive" = 1
   )
@@ -333,7 +333,7 @@ test_that(".projr_yml_check_dir_elem works", {
   # output
   yml_projr_dir_elem <- list(
     "path" = "abc",
-    "ignore_git" = TRUE,
+    "ignore-git" = TRUE,
     "output" = "output-share",
     "archive" = "archive"
   )
@@ -370,7 +370,7 @@ test_that(".projr_yml_check_dir_elem works", {
   # archive
   yml_projr_dir_elem <- list(
     "path" = "abc",
-    "ignore_git" = TRUE,
+    "ignore-git" = TRUE,
     "output" = "outputting",
     "archive" = "archivist"
   )
@@ -413,7 +413,7 @@ test_that(".projr_yml_check_dir_elem works", {
   )
   yml_projr_dir_elem <- list(
     "path" = "abc",
-    "ignore_git" = TRUE,
+    "ignore-git" = TRUE,
     "archive" = "archival"
   )
   expect_true(
@@ -426,7 +426,7 @@ test_that(".projr_yml_check_dir_elem works", {
   # outputting from output and archive
   yml_projr_dir_elem <- list(
     "path" = "abc",
-    "ignore_git" = TRUE,
+    "ignore-git" = TRUE,
     "output" = "output"
   )
   key_vec <- c("data-raw", "cache", "output", "archive")
@@ -447,7 +447,7 @@ test_that(".projr_yml_check_dir_elem works", {
   # archiving
   yml_projr_dir_elem <- list(
     "path" = "abc",
-    "ignore_git" = TRUE,
+    "ignore-git" = TRUE,
     "output" = "output",
     "archive" = "archive"
   )
@@ -462,7 +462,7 @@ test_that(".projr_yml_check_dir_elem works", {
   # manifest to data-raw or cache
   yml_projr_dir_elem <- list(
     "path" = "abc",
-    "ignore_git" = TRUE,
+    "ignore-git" = TRUE,
     "output" = "output",
     "archive" = "archive",
     "manifest" = TRUE
@@ -480,7 +480,7 @@ test_that(".projr_yml_check_dir_elem works", {
   # hash to archive
   yml_projr_dir_elem <- list(
     "path" = "abc",
-    "ignore_git" = TRUE,
+    "ignore-git" = TRUE,
     "hash" = TRUE
   )
   expect_error(.projr_yml_check_dir_elem(

@@ -1,33 +1,19 @@
-.projr_osf_download_node_manifest <- function(osf_tbl) {
-  osf_tbl_files <- osf_tbl |> osfr::osf_ls_files()
-  osf_tbl_manifest <- osf_tbl_files[
-    osf_tbl_files[["name"]] == "manifest.csv",
-  ]
-  if (nrow(osf_tbl_manifest) == 0L) {
-    return(data.frame(
-      label = character(0),
-      fn = character(0),
-      version = character(0),
-      hash = character(0)
-    ))
-  }
-  path_save <- file.path(tempdir(), "manifest.csv")
-  osfr::osf_download(
-    osf_tbl_manifest,
-    path = tempdir(), conflicts = "overwrite"
-  )
-  utils::read.csv(path_save)
-}
-
 # so, we need functions to restore downloads,
 # we also need functions to download
 # outputs.
 # should both be called restored?
-.projr_restore_osf <- function(label = NULL) {
+.projr_checkout_osf <- function(label = NULL,
+                                version = NULL,
+                                input_only = TRUE) {
   if (is.null(label)) {
     label <- projr_yml_get_unchecked()[["directories"]]
   }
-  label <- label[grepl("^cache|^dataraw", .projr_dir_label_strip(label))]
+  if (input_only) {
+    match_str <- "^cache|^dataraw"
+  } else {
+    match_str <- "^cache|^dataraw|^output"
+  }
+  label <- label[grepl(match_str, .projr_dir_label_strip(label))]
   for (i in seq_along(label)) {
     .projr_restore_osf_label(label[[i]])
   }
@@ -49,17 +35,16 @@
     return(invisible(FALSE))
   }
   yml_osf <- yml_label[["osf"]][[1]]
+  yml_osf[["remote-structure"]] <- "version"
+  # do not create as we're restoring.
+  # do not append label or path as
+  # we need to know that for the `download_to_dir`
+  # function below
   osf_tbl <- .projr_osf_get_node(
-    title = yml_osf[["title"]],
+    title = names(yml_label[["osf"]]),
     label = yml_osf[["label"]],
     id = yml_osf[["id"]],
-    parent_id = yml_osf[["parent_id"]],
-    parent_id_force = parent_id_force,
-    category = yml_osf[["category"]],
-    body = yml_osf[["body"]],
-    public = yml_osf[["public"]],
-    path_append_label = yml_osf[["path_append_label"]],
-    path = yml_osf[["path"]]
+    create = FALSE
   )
 
   # can try the fancy method stuff here
@@ -70,14 +55,15 @@
     yml_osf[["download"]]
   )
   # get whether we're saving to an OSF sub-dir or not
-  append_label <- is.null(yml_dnld[["path_append_label"]]) ||
-    yml_dnld[["path_append_label"]]
+  append_label <- is.null(yml_dnld[["path-append-label"]]) ||
+    yml_dnld[["path-append-label"]]
   path_pre <- !is.null(yml_label[["path"]])
   .projr_osf_dnld_to_dir(
     osf_tbl = osf_tbl,
     sub_dir = append_label || path_pre,
     path_save = yml_label[["path"]],
-    sync_approach = yml_dnld[["sync_approach"]],
+    remote_structure = yml_label[["remote-structure"]],
+    sync_approach = yml_dnld[["sync-approach"]],
     conflict = yml_dnld[["conflict"]]
   )
   osf_tbl
@@ -86,33 +72,59 @@
 .projr_osf_dnld_to_dir <- function(osf_tbl,
                                    sub_dir,
                                    path_save,
+                                   remote_structure,
                                    sync_approach,
                                    conflict) {
-  osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
-  if (nrow(osf_tbl_file) == 0L) {
-    return(invisible(FALSE))
+  # ensure we clear it before checking
+  # so that it's empty to match the remote
+  # before leaving
+  if (sync_approach == "delete-then-download-all") {
+    unlink(path_save, recursive = TRUE)
   }
   if (!dir.exists(path_save)) {
     dir.create(path_save, recursive = TRUE)
   }
-  if (sync_approach == "delete_then_download_all") {
-    unlink(path_save, recursive = TRUE)
+  osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
+  if (nrow(osf_tbl_file) == 0L) {
+    return(invisible(FALSE))
   }
   if (grepl("download_all$", sync_approach)) {
     .projr_osf_dnld_to_dir_all(
       osf_tbl_file = osf_tbl_file,
+      remote_structure = remote_structure,
       path_save = path_save,
       sub_dir = sub_dir,
       conflict = conflict
     )
   }
+  if (grepl("^download_missing$", sync_approach)) {
+    stop("download_missing not implemented yet")
+  }
   invisible(TRUE)
 }
 
 .projr_osf_dnld_to_dir_all <- function(osf_tbl_file,
+                                       remote_structure,
                                        path_save,
                                        sub_dir,
                                        conflict) {
+  if (remote_structure == "content") {
+    stop("content-addressable remote structure not yet supported")
+  } else if (remote_structure == "version") {
+    # choose the latest type
+    osf_tbl_file <- osf_tbl_file[
+      grepl("^v\\d+", osf_tbl_file[["name"]]),
+    ]
+    osf_tbl_file <- osf_tbl_file[
+      osf_tbl_file[["name"]] == max(osf_tbl_file[["name"]]),
+    ]
+    if (nrow(osf_tbl_file) == 0L) {
+      stop("No versions found in OSF")
+    }
+    osf_tbl_file <- osf_tbl_file[1, ]
+    osf_tbl_file <- osf_tbl_file |> osfr::osf_ls_files()
+    # START HERE
+  }
   if (sub_dir) {
     for (i in seq_len(nrow(osf_tbl_file))) {
       osfr::osf_download(
@@ -138,14 +150,14 @@
     if (is.null(yml_projr[["conflict"]])) {
       yml_projr[["conflict"]] <- "overwrite"
     }
-    if (is.null(yml_projr[["sync_approach"]])) {
-      yml_projr[["sync_approach"]] <- "download_all"
+    if (is.null(yml_projr[["sync-approach"]])) {
+      yml_projr[["sync-approach"]] <- "download-all"
     }
   } else {
     yml_projr[["conflict"]] <- "overwrite"
-    yml_projr[["sync_approach"]] <- "download_all"
+    yml_projr[["sync-approach"]] <- "download-all"
   }
-  yml_projr[c("conflict", "sync_approach")]
+  yml_projr[c("conflict", "sync-approach")]
 }
 
 .projr_osf_download_dir <- function() {

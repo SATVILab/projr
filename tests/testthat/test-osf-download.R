@@ -51,21 +51,21 @@ test_that(".projr_osf_complete_dnld_list works", {
     code = {
       expect_identical(
         .projr_osf_complete_dnld_list(NULL),
-        list("conflict" = "overwrite", "sync_approach" = "download_all")
+        list("conflict" = "overwrite", "sync-approach" = "download-all")
       )
       expect_identical(
         .projr_osf_complete_dnld_list(list("conflict" = "abc")),
-        list("conflict" = "abc", "sync_approach" = "download_all")
+        list("conflict" = "abc", "sync-approach" = "download-all")
       )
       expect_identical(
         .projr_osf_complete_dnld_list(
-          list("conflict" = "abc", "sync_approach" = "def")
+          list("conflict" = "abc", "sync-approach" = "def")
         ),
-        list("conflict" = "abc", "sync_approach" = "def")
+        list("conflict" = "abc", "sync-approach" = "def")
       )
       expect_identical(
-        .projr_osf_complete_dnld_list(list("sync_approach" = "def")),
-        list("conflict" = "overwrite", "sync_approach" = "def")
+        .projr_osf_complete_dnld_list(list("sync-approach" = "def")),
+        list("conflict" = "overwrite", "sync-approach" = "def")
       )
     },
     quiet = TRUE,
