@@ -47,7 +47,6 @@
   ind_vec <- grepl("ProjrOSFTest", osf_tbl[["name"]])
   id_vec <- osf_tbl[ind_vec, ][["id"]]
   name_vec <- osf_tbl[ind_vec, ][["name"]]
-  browser()
   cat(name_vec, sep = "\n")
   opt_vec <- c("Yes", "No", "Definitely not")[sample(1:3, size = 3)]
   yes_ind <- which(opt_vec == "Yes")
