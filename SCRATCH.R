@@ -5,23 +5,38 @@ devtools::load_all()
 devtools::test_active_file(
   "tests/testthat/test-manual-osf-download.R"
 )
-# devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
-devtools::test_active_file(
-  "tests/testthat/test-manual-osf-download.R"
-)
-osfr::osf_download(
-  x = osf_tbl, path = yml_projr_dir_lbl[["path"]],
-  recurse = TRUE, conflicts = conflict
-)
-osfr::osf_download(
-  x = osf_tbl, path = "_data_raw",
-  recurse = TRUE, conflicts = "overwrite"
-)
 
-osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
+# scratch code
+yml_projr_dir <- projr_yml_get_unchecked()[["directories"]][["data-raw"]]
 
+# ==========================================
 
+# =========================================
+# osf_download_to_dir_all
+# =========================================
+
+if (sub_dir) {
+  for (i in seq_len(nrow(osf_tbl_file))) {
+    osfr::osf_download(
+      x = osf_tbl_file[i, ],
+      path = path_save,
+      recurse = TRUE,
+      conflicts = conflict
+    )
+  }
+} else {
+  osfr::osf_download(
+    x = osf_tbl_file,
+    path = path_save,
+    recurse = TRUE,
+    conflicts = conflict
+  )
+}
+
+# =========================================
 # manifest download stuff
+# =========================================
+
 .projr_osf_download_node_manifest <- function(osf_tbl) {
   osf_tbl_files <- osf_tbl |> osfr::osf_ls_files()
   osf_tbl_manifest <- osf_tbl_files[

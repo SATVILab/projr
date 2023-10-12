@@ -15,11 +15,11 @@
   }
   label <- label[grepl(match_str, .projr_dir_label_strip(label))]
   for (i in seq_along(label)) {
-    .projr_checkout_osf_label(label[[i]])
+    .projr_checkout_osf_label(label[[i]], version = version)
   }
 }
 
-.projr_checkout_osf_label <- function(label, parent_id_force = NULL) {
+.projr_checkout_osf_label <- function(label, version, parent_id_force = NULL) {
   if (missing(label)) {
     stop("label must be specified")
   }
@@ -39,6 +39,16 @@
   yml_label[["osf"]][[1]][["path-append-label"]] <-
     yml_label[["osf"]][[1]][["path-append-label"]] %||% TRUE
   yml_osf <- yml_label[["osf"]][[1]]
+
+  # if remote is latest only, then cannot specify the version
+  version <- version %||% "latest"
+  version_incompat_with_remote_str <- !(version == "latest") && # nolint
+    yml_label[["osf"]][[1]][["remote-structure"]] == "latest"
+  if (version_incompat_with_remote_str) {
+    stop(paste0(
+      "Cannot specify the version as something other than `latest` when the remote structure is `latest` for label ", label # nolint
+    ))
+  }
   # do not create as we're restoring.
   # do not append label or path as
   # we need to know that for the `download_to_dir`
@@ -51,11 +61,12 @@
   )
 
   # get download settings
-  yml_osf[["download"]] <- projr_osf_complete_dnld_list(yml_osf[["download"]])
+  yml_osf[["download"]] <- .projr_osf_complete_dnld_list(yml_osf[["download"]])
 
-  # actually download! whoohoo
+  # actually download
   .projr_osf_dnld_to_dir(
     osf_tbl = osf_tbl,
+    version = version,
     # path to save to locally
     path_save = yml_label[["path"]],
     # whether we're downloading from an OSF sub-directory or the node itself
@@ -72,6 +83,7 @@
 }
 
 .projr_osf_dnld_to_dir <- function(osf_tbl,
+                                   version,
                                    sub_dir,
                                    path_save,
                                    remote_structure,
@@ -93,6 +105,7 @@
   if (grepl("download\\-all$", sync_approach)) {
     .projr_osf_dnld_to_dir_all(
       osf_tbl_file = osf_tbl_file,
+      version = version,
       remote_structure = remote_structure,
       path_save = path_save,
       sub_dir = sub_dir,
@@ -106,6 +119,7 @@
 }
 
 .projr_osf_dnld_to_dir_all <- function(osf_tbl_file,
+                                       version,
                                        remote_structure,
                                        path_save,
                                        sub_dir,
@@ -113,32 +127,43 @@
   if (remote_structure == "content") {
     stop("content-addressable remote structure not yet supported")
   } else if (remote_structure == "version") {
-    # choose the latest type
     osf_tbl_file <- osf_tbl_file[
       grepl("^v\\d+", osf_tbl_file[["name"]]),
     ]
-    osf_tbl_file <- osf_tbl_file[
-      osf_tbl_file[["name"]] == max(osf_tbl_file[["name"]]),
-    ]
+    if (version == "latest") {
+      osf_tbl_file <- osf_tbl_file[
+        osf_tbl_file[["name"]] == max(osf_tbl_file[["name"]]),
+      ]
+    } else {
+      # choose the previous version closest
+      # to the request version as the requested
+      # version is in fact this version
+      # as if the nearest previous version is not the same
+      # then that means that there are no updates since then
+      osf_tbl_file <- osf_tbl_file[
+        gsub("$v", "", osf_tbl_file[["name"]]) >= version,
+      ]
+      osf_tbl_file <- osf_tbl_file[
+        osf_tbl_file[["name"]] == min(osf_tbl_file[["name"]]),
+      ]
+    }
     if (nrow(osf_tbl_file) == 0L) {
-      stop("No versions found in OSF")
+      stop("No compatible version found in OSF")
     }
     osf_tbl_file <- osf_tbl_file[1, ]
     osf_tbl_file <- osf_tbl_file |> osfr::osf_ls_files()
     # START HERE
   }
-  if (sub_dir) {
-    for (i in seq_len(nrow(osf_tbl_file))) {
-      osfr::osf_download(
-        x = osf_tbl_file[i, ],
-        path = path_save,
-        recurse = TRUE,
-        conflicts = conflict
-      )
-    }
-  } else {
+  # what is the point of all of this?
+  # this just seems like we're just obeying
+  # that we must only download one thing at a time
+  # in the first instance.
+  # I suppose the idea is
+  # that the second is just a node.
+  # but it's not a node.
+  for (i in seq_len(nrow(osf_tbl_file))) {
     osfr::osf_download(
-      x = osf_tbl_file,
+      x = osf_tbl_file[i, ],
       path = path_save,
       recurse = TRUE,
       conflicts = conflict

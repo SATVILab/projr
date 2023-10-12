@@ -44,9 +44,31 @@
 .projr_osf_rm_project_all <- function() {
   osf_tbl <- osfr::osf_retrieve_user("me") |>
     osfr::osf_ls_nodes()
-  id_vec <- osf_tbl[grepl("ProjrOSFTest", osf_tbl[["name"]]), ][["id"]]
-  if (length(id_vec) > 5) {
-    stop(paste0("Potentially deleting many things"))
+  ind_vec <- grepl("ProjrOSFTest", osf_tbl[["name"]])
+  id_vec <- osf_tbl[ind_vec, ][["id"]]
+  name_vec <- osf_tbl[ind_vec, ][["name"]]
+  browser()
+  cat(name_vec, sep = "\n")
+  opt_vec <- c("Yes", "No", "Definitely not")[sample(1:3, size = 3)]
+  yes_ind <- which(opt_vec == "Yes")
+  delete_opt <- utils::menu(
+    choices = opt_vec,
+    title = "Do you want to delete all the above OSF projects?"
+  )
+  if (delete_opt != yes_ind) {
+    return(invisible(FALSE))
+  }
+  if (length(name_vec) > 5) {
+    cat(name_vec, sep = "\n")
+    opt_vec <- c("Yes", "No", "Actually - no")[sample(1:3, size = 3)]
+    yes_ind <- which(opt_vec == "Yes")
+    delete_opt <- utils::menu(
+      choices = opt_vec,
+      title = "Are you SURE you want to delete all the above OSF projects?"
+    )
+    if (delete_opt != yes_ind) {
+      return(invisible(FALSE))
+    }
   }
   for (id in id_vec) {
     osfr::osf_rm(x = osfr::osf_retrieve_node(id), check = FALSE, recurse = TRUE)
