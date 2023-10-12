@@ -7,7 +7,8 @@
                                 body = NULL,
                                 public = FALSE,
                                 path_append_label = NULL,
-                                path = NULL) {
+                                path = NULL,
+                                create = TRUE) {
   parent_id <- .projr_osf_get_parent_id(
     parent_id_force = parent_id_force, parent_id = parent_id
   )
@@ -15,7 +16,8 @@
     title = title, id = id, parent_id = parent_id,
     category = category,
     body = body,
-    public = public
+    public = public,
+    create = create
   )
   if (is.null(label)) {
     return(osf_tbl)
@@ -33,7 +35,8 @@
                                         parent_id = NULL,
                                         category = NULL,
                                         body = NULL,
-                                        public = FALSE) {
+                                        public = FALSE,
+                                        create = TRUE) {
   # get node from id
   osf_tbl <- .projr_osf_get_node_id(id = id)
   if (!is.null(osf_tbl)) {
@@ -46,6 +49,8 @@
   )
   if (!is.null(osf_tbl)) {
     return(osf_tbl)
+  } else if (!create) {
+    stop("OSF table not found and set to do not create")
   }
 
   # create node

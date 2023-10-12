@@ -345,7 +345,7 @@ projr_yml_check <- function(yml_projr = NULL) {
     }
     if (!(ignore_logical || ignore_chr_correct)) {
       stop(paste0(
-        '`ignore-git` must be of type logical or `"manual"`, `"ignore"` or `"no-ignore"` # nolint
+        '`ignore_git` must be of type logical or `"manual"`, `"ignore"` or `"no_ignore"` # nolint
         for directories in `projr` settings'
       ))
     }
@@ -367,7 +367,7 @@ projr_yml_check <- function(yml_projr = NULL) {
     }
     if (!(ignore_logical || ignore_chr_correct)) {
       stop(paste0(
-        '`ignore-rbuild` must be of type logical or `"manual"`, `"ignore"` or `"no-ignore"` # nolint
+        '`ignore_rbuild` must be of type logical or `"manual"`, `"ignore"` or `"no_ignore"` # nolint
         for directories in `projr` settings'
       ))
     }

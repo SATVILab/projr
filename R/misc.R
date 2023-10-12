@@ -1,3 +1,10 @@
+# taken from rstudio/renv (which
+# presumably took it from elsewhere or
+# Hadley Wickham's brain directly)
+`%||%` <- function(x, y) {
+  if (is.null(x)) y else x
+}
+
 .try_err_msg_get <- function(x, require_try_error = TRUE) {
   if (!inherits(x, "try-error")) {
     if (require_try_error) {

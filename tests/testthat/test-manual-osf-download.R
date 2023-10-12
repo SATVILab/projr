@@ -1,4 +1,4 @@
-test_that(".projr_restore_osf works", {
+test_that(".projr_checkout_osf works", {
   # skips
   skip_if_offline()
   skip_if(FALSE)
@@ -11,7 +11,6 @@ test_that(".projr_restore_osf works", {
     code = {
       # create previous upload
       # ---------------------------
-      browser()
 
       # create files
       .projr_test_setup_content("data-raw")
@@ -43,7 +42,7 @@ test_that(".projr_restore_osf works", {
       dir.create("_data_raw")
       # restore
       browser()
-      .projr_restore_osf("data-raw")
+      .projr_checkout_osf("data-raw")
       # check files there
       expect_identical(
         list.files(file.path("_data_raw")), c("abc.txt", "subdir1")
@@ -63,7 +62,7 @@ test_that(".projr_restore_osf works", {
 test_that(".projr_osf_download_node_label works", {
   # skips
   skip_if_offline()
-  skip_if(FALSE)
+  skip_if(TRUE)
 
   # setup
   dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = FALSE)

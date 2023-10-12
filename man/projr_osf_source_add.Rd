@@ -15,7 +15,7 @@ projr_osf_source_add(
   parent_id = NULL,
   path = NULL,
   path_append_label = NULL,
-  osf_structure = NULL,
+  remote_structure = NULL,
   download_cue = NULL,
   download_sync_approach = NULL,
   download_conflict = NULL,
