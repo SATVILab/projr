@@ -40,10 +40,81 @@ test_that(".projr_checkout_osf works", {
       # remove to test restore
       unlink("_data_raw", recursive = TRUE)
       dir.create("_data_raw")
-      # restore
-      browser()
-      debugonce(.projr_restore_osf_label)
+
+      # restore from a `latest` folder
+      # ------------------------
       .projr_checkout_osf("data-raw")
+      # check files there
+      expect_identical(
+        list.files(file.path("_data_raw")), c("abc.txt", "subdir1")
+      )
+      expect_identical(
+        list.files(file.path("_data_raw", "subdir1")), c("def.txt", "subdir2")
+      )
+      expect_identical(
+        list.files(file.path("_data_raw", "subdir1", "subdir2")), c("ghi.txt")
+      )
+
+      # restore from a versioned folder
+      # ------------------------
+      osfr::osf_rm(osf_tbl_upload, recurse = TRUE, check = FALSE)
+      osf_tbl_upload <- osfr::osf_mkdir(
+        x = osf_tbl_proj, path = "data-raw/v1.0.1"
+      )
+      osf_tbl_dir <- with_dir(
+        "_data_raw",
+        .projr_osf_upload_dir(osf_tbl = osf_tbl_upload, path_dir = ".")
+      )
+      # remove downloaded files
+      unlink("_data_raw", recursive = TRUE)
+      dir.create("_data_raw")
+
+      # add to YAML config
+      projr_osf_source_add(
+        label = "data-raw", id = osf_tbl_proj[["id"]],
+        remote_structure = "version", overwrite = TRUE
+      )
+
+      # remove to test restore
+      unlink("_data_raw", recursive = TRUE)
+      dir.create("_data_raw")
+      .projr_checkout_osf("data-raw", )
+      # check files there
+      expect_identical(
+        list.files(file.path("_data_raw")), c("abc.txt", "subdir1")
+      )
+      expect_identical(
+        list.files(file.path("_data_raw", "subdir1")), c("def.txt", "subdir2")
+      )
+      expect_identical(
+        list.files(file.path("_data_raw", "subdir1", "subdir2")), c("ghi.txt")
+      )
+
+      # remove downloaded files
+      if (dir.exists("_data_raw")) unlink("_data_raw", recursive = TRUE)
+      dir.create("_data_raw")
+
+      # restore from a versioned folder but not the latest
+      # -----------------------------
+
+      # create files
+      .projr_test_setup_content("data-raw")
+      file.create("_data_raw/add.txt")
+
+      # add a new version
+      osf_tbl_upload <- osfr::osf_mkdir(
+        x = osf_tbl_proj, path = "data-raw/v2.0.1"
+      )
+      osf_tbl_dir <- with_dir(
+        "_data_raw",
+        .projr_osf_upload_dir(osf_tbl = osf_tbl_upload, path_dir = ".")
+      )
+
+      # remove downloaded files
+      unlink("_data_raw", recursive = TRUE)
+      dir.create("_data_raw")
+      # checkout
+      .projr_checkout_osf("data-raw", version = "1.5")
       # check files there
       expect_identical(
         list.files(file.path("_data_raw")), c("abc.txt", "subdir1")
@@ -98,8 +169,6 @@ test_that(".projr_osf_download_node_label works", {
       osfr::osf_upload(x = osf_tbl_proj, path = "manifest.csv")
 
       # add source
-      browser()
-      debugonce(.projr_osf_create_node)
       osf_tbl_source <- .projr_osf_create_node(
         title = "data-raw",
         parent_id = osf_tbl_proj[["id"]]

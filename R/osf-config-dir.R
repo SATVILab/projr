@@ -98,12 +98,6 @@ projr_osf_source_add <- function(label,
   if (is.null(title)) {
     title <- label
   }
-  yml_param <- list(
-    category = category,
-    description = body,
-    public = public,
-    category = category
-  )
   yml_projr <- projr_yml_get_unchecked()
 
   download_list <- .projr_osf_yml_add_load_get_list(
@@ -156,6 +150,7 @@ projr_osf_source_add <- function(label,
     title = title,
     id = id,
     path = path,
+    remote_structure = remote_structure,
     path_append_label = path_append_label,
     download_list = download_list,
     upload_list = upload_list
@@ -335,10 +330,14 @@ projr_osf_source_add <- function(label,
 .projr_osf_source_get_list_add <- function(title,
                                            id,
                                            path,
+                                           remote_structure,
                                            path_append_label,
                                            download_list,
                                            upload_list) {
   list_add <- list(id = id)
+  if (!is.null(remote_structure)) {
+    list_add[["remote-structure"]] <- remote_structure
+  }
   if (!is.null(path)) {
     list_add[["path"]] <- path
   }
