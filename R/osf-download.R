@@ -35,7 +35,7 @@
     return(invisible(FALSE))
   }
   yml_osf <- yml_label[["osf"]][[1]]
-  yml_osf[["remote-structure"]] <- "version"
+  yml_osf[["remote-structure"]] <- yml_osf[["remote-structure"]] || "latest"
   # do not create as we're restoring.
   # do not append label or path as
   # we need to know that for the `download_to_dir`
