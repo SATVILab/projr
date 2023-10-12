@@ -31,14 +31,22 @@
 #' element in
 #' @export
 projr_osf_dest_add <- function(title,
-                               create = TRUE,
-                               body = NULL,
                                content = NULL,
+                               id = NULL,
+                               body = NULL,
                                public = FALSE,
                                category = NULL,
-                               id = NULL,
                                parent_id = NULL,
                                parent_title = NULL,
+                               path = NULL,
+                               path_append_label = NULL,
+                               remote_structure = NULL,
+                               download_sync_approach = NULL,
+                               download_conflict = NULL,
+                               upload_cue = NULL,
+                               upload_sync_approach = NULL,
+                               upload_version_source = NULL,
+                               upload_conflict = NULL,
                                overwrite = FALSE) {
   # check inputs
   # ------------
