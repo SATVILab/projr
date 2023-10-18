@@ -3,8 +3,14 @@ library(testthat)
 devtools::load_all()
 # devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
 devtools::test_active_file(
-  "tests/testthat/test-osf-yml.R"
+  "tests/testthat/test-osf-download.R"
 )
+
+list.dirs(recursive = FALSE)
+# tests passing:
+# - test-osf-download.R
+# - test-osf-yml.R
+# - test-manual-osf-upload.R
 
 # scratch code
 yml_projr_dir <- projr_yml_get_unchecked()[["directories"]][["data-raw"]]

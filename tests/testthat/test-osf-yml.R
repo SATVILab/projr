@@ -1,6 +1,6 @@
 test_that("projr_osf_source_add works", {
   skip_if_offline()
-  skip_if(TRUE)
+  skip_if(FALSE)
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
   usethis::with_project(
     path = dir_test,
