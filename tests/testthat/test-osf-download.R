@@ -1,7 +1,7 @@
 test_that(".projr_checkout_osf works", {
   # skips
   skip_if_offline()
-  skip_if(TRUE)
+  skip_if(FALSE)
 
   # setup
   dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = FALSE)
