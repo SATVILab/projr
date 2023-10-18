@@ -3,7 +3,7 @@ library(testthat)
 devtools::load_all()
 # devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
 devtools::test_active_file(
-  "tests/testthat/test-osf-yml.R"
+  "tests/testthat/test-osf-download.R"
 )
 # devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
 devtools::test_active_file(
@@ -19,7 +19,6 @@ osfr::osf_download(
 )
 
 osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
-=======
 # scratch code
 yml_projr_dir <- projr_yml_get_unchecked()[["directories"]][["data-raw"]]
 
