@@ -3,10 +3,10 @@ library(testthat)
 devtools::load_all()
 # devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
 devtools::test_active_file(
-  "tests/testthat/test-osf-download.R"
+  "tests/testthat/test-dir.R"
 )
 
-list.dirs(recursive = FALSE)
+list.dirs(dir_test, recursive = FALSE)
 # tests passing:
 # - test-osf-download.R
 # - test-osf-yml.R

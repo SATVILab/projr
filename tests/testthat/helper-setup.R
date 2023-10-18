@@ -1,17 +1,18 @@
 .projr_test_setup_project <- function(git = TRUE,
                                       set_env_var = TRUE,
-                                      base_name = "test_projr") {
+                                      base_name = "test_projr",
+                                      env = rlang::caller_env()) {
   # set up directory
   dir_test <- file.path(tempdir(), paste0(base_name))
   if (dir.exists(dir_test)) {
     unlink(dir_test, recursive = TRUE)
   }
-  withr::defer(unlink(dir_test, recursive = TRUE))
-  dir.create(dir_test)
+  withr::defer(unlink(dir_test, recursive = TRUE), envir = env)
+  dir.create(dir_test, recursive = TRUE)
 
   if (set_env_var) {
     Sys.setenv("PROJR_TEST" = "TRUE")
-    withr::defer(Sys.unsetenv("PROJR_TEST"))
+    withr::defer(Sys.unsetenv("PROJR_TEST"), envir = env)
   }
 
   # copy files
