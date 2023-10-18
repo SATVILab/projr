@@ -6,7 +6,7 @@
   if (dir.exists(dir_test)) {
     unlink(dir_test, recursive = TRUE)
   }
-  withr::defer(unlink(dir_test))
+  withr::defer(unlink(dir_test, recursive = TRUE))
   dir.create(dir_test)
 
   if (set_env_var) {
