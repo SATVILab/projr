@@ -143,7 +143,6 @@
     version = character(0),
     hash = character(0)
   )
-  attr(zero_row_tbl, "row.names") <- character(0)
   # get last version uploaded
   # get version that is being uploaded to
   # get list of whatever is in the OSF registry
