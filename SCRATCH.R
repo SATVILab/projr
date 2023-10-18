@@ -3,7 +3,7 @@ library(testthat)
 devtools::load_all()
 # devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
 devtools::test_active_file(
-  "tests/testthat/test-dir.R"
+  "tests/testthat/test-osf.R"
 )
 
 list.dirs(dir_test, recursive = FALSE)
