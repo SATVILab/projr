@@ -27,6 +27,7 @@ Suggests:
     covr,
     devtools,
     knitr,
+    osfr,
     piggyback,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
