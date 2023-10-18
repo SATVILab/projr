@@ -1,30 +1,12 @@
 test_that("projr_dir_get works", {
-  dir_test <- file.path(tempdir(), paste0("report"))
+  # skips
+  skip_if_offline()
+  skip_if(FALSE)
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
+  # setup
+  dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = TRUE)
 
-  for (x in fn_vec) {
-    file.copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
-  Sys.setenv("PROJR_TEST" = "TRUE")
-  gert::git_init(path = dir_test)
-
+  # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
@@ -52,7 +34,7 @@ test_that("projr_dir_get works", {
         as.character()
       yml_projr[["directories"]][["data-raw"]] <- list(
         path = path_tmp_data_raw,
-        ignore_git = TRUE
+        "ignore-git" = TRUE
       )
       .projr_yml_set(yml_projr)
       expect_identical(
@@ -167,7 +149,7 @@ test_that("projr_path_get works", {
       path_data_raw_abs <- fs::path_abs(dirname(dirname(getwd()))) |>
         as.character()
       yml_projr[["directories"]][["data-raw"]] <- list(
-        path = path_data_raw_abs, ignore_git = TRUE
+        path = path_data_raw_abs, "ignore-git" = TRUE
       )
       .projr_yml_set(yml_projr)
 
@@ -176,7 +158,7 @@ test_that("projr_path_get works", {
         projr_path_get("data-raw", path_relative_force = TRUE),
         "../.."
       )
-      # debugonce(.projr_dir_get_label_safe)
+
       expect_identical(
         projr_path_get("docs", "abc", output_safe = TRUE),
         "_tmp/projr/v0.0.0-1/docs/reportV0.0.0-1/abc"
