@@ -1,6 +1,5 @@
 test_that("projr_dir_get works", {
   # skips
-  skip_if_offline()
   skip_if(FALSE)
 
   # setup
