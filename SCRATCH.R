@@ -3,22 +3,15 @@ library(testthat)
 devtools::load_all()
 # devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
 devtools::test_active_file(
-  "tests/testthat/test-osf-download.R"
-)
-# devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
-devtools::test_active_file(
-  "tests/testthat/test-manual-osf-download.R"
-)
-osfr::osf_download(
-  x = osf_tbl, path = yml_projr_dir_lbl[["path"]],
-  recurse = TRUE, conflicts = conflict
-)
-osfr::osf_download(
-  x = osf_tbl, path = "_data_raw",
-  recurse = TRUE, conflicts = "overwrite"
+  "tests/testthat/test-dir.R"
 )
 
-osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
+list.dirs(dir_test, recursive = FALSE)
+# tests passing:
+# - test-osf-download.R
+# - test-osf-yml.R
+# - test-manual-osf-upload.R
+
 # scratch code
 yml_projr_dir <- projr_yml_get_unchecked()[["directories"]][["data-raw"]]
 
