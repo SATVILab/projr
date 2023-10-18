@@ -187,13 +187,14 @@ test_that("projr_manifest_compare works", {
       manifest_compare_list <- .projr_manifest_compare(
         manifest_tbl_pre[rep(FALSE, nrow(manifest_tbl_pre))], manifest_tbl_post
       )
+
       zero_row_tbl <- data.frame(
         label = character(0),
         fn = character(0),
         version = character(0),
         hash = character(0)
       )
-      attr(zero_row_tbl, "row.names") <- character(0)
+      attr(zero_row_tbl, "row.names") <- integer(0)
       expect_identical(manifest_compare_list$kept_unchanged, zero_row_tbl)
       expect_identical(manifest_compare_list$added, manifest_tbl_post)
       manifest_compare_list <- .projr_manifest_compare(
