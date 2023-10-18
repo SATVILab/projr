@@ -118,6 +118,8 @@ projr_osf_source_add <- function(label,
     label = label, id = id, title = title, body = body,
     public = public, category = category, parent_id = parent_id,
     overwrite = overwrite,
+    path = path, path_append_label = path_append_label,
+    remote_structure = remote_structure,
     upload = upload_list, download = download_list
   )
 
@@ -172,7 +174,12 @@ projr_osf_source_add <- function(label,
   param_vec <- c("cue", "sync_approach", "version_source", "conflict")
   for (x in param_vec) {
     if (!is.null(eval(parse(text = x)))) {
-      out_list[[x]] <- eval(parse(text = x))
+      nm_list <- switch(x,
+        "sync_approach" = "sync-approach",
+        "version_source" = "version-source",
+        x
+      )
+      out_list[[nm_list]] <- eval(parse(text = x))
     }
   }
   out_list
@@ -184,154 +191,86 @@ projr_osf_source_add <- function(label,
                                         body,
                                         public,
                                         category,
+                                        path,
+                                        path_append_label,
+                                        remote_structure,
                                         parent_id,
                                         overwrite,
                                         download,
                                         upload) {
   # check inputs
   # ------------
-  if (missing(label)) {
-    stop("label must be supplied")
-  }
-  if (!grepl("^cache|^dataraw", .projr_dir_label_strip(label))) {
-    stop(paste0(
-      "label ", label, " must start with cache or data-raw"
-    ))
-  }
-  if (!label %in% names(projr_yml_get_unchecked()[["directories"]])) {
-    stop(paste0(
-      "label ", label, " not found in _projr.yml directories"
-    ))
-  }
-  if (!is.logical(public)) {
-    stop("public must be logical")
-  }
-  body_invalid <- (!is.null(body)) &&
-    (!all(is.character(body)) || length(body) != 1)
-  if (body_invalid) {
-    stop("body must be a character vector (with one element)")
-  }
-  category_vec_valid <- c(
-    "analysis",
-    "communication",
-    "data",
-    "hypothesis",
-    "instrumentation",
-    "methods and measures",
-    "procedure",
-    "project",
-    "software",
-    "other"
+  .projr_osf_yml_check_label(
+    label = label, type_opt = c("data-raw", "cache")
   )
-  category_invalid <- (!is.null(category)) &&
-    !all(category %in% category_vec_valid)
-  if (category_invalid) {
-    stop("category must match a valid category")
-  }
-  id_invalid <- (!is.null(id)) &&
-    (!all(is.character(id)) || any(nchar(id) != 5L) || length(id) != 1)
-  if (id_invalid) {
-    stop("id must be a string with five characters")
-  }
-  parent_id_invalid <- (!is.null(parent_id)) &&
-    (!all(is.character(parent_id)) || any(nchar(parent_id) != 5L))
-  if (parent_id_invalid) {
-    stop("parent_id must be a string with five characters")
-  }
-  project_with_parent <- ((!is.null(category)) && category == "project") &&
-    ((!is.null(parent_id)))
-  if (project_with_parent) {
-    stop("OSF project cannot have a parent")
-  }
+  .projr_osf_yml_check_body(body = body)
 
-  if (!is.logical(overwrite)) {
-    stop("overwrite must be logical")
-  }
+  .projr_osf_yml_check_id(id = id)
+  .projr_osf_yml_check_parent_id(parent_id = parent_id)
+  .projr_osf_yml_check_proj_with_parent(
+    parent_id = parent_id, category = category
+  )
+  .projr_osf_yml_check_overwrite(overwrite = overwrite)
+  .projr_osf_yml_check_path(path = path)
+  .projr_osf_yml_check_path_append_label(
+    path_append_label = path_append_label
+  )
+  .projr_osf_yml_check_remote_structure(
+    remote_structure = remote_structure,
+    nm_opt = c("latest", "version", "content")
+  )
 
   # download element
   # -------------------------
 
-  if (!is.list(download)) {
-    stop("download must be a list")
-  }
-  dnld_diff_vec <- setdiff(
-    names(download),
-    c("cue", "sync-approach", "conflict")
+  .projr_osf_yml_check_trans_list(trans_list = download)
+  .projr_osf_yml_check_trans_names(
+    trans_list = download,
+    nm_opt = c("cue", "sync-approach", "conflict")
   )
-  if (length(dnld_diff_vec) > 0) {
-    stop(paste0(
-      "download contains invalid names: ",
-      paste0(dnld_diff_vec, collapse = ", ")
-    ))
-  }
-  if ("cue" %in% names(download)) {
-    if (!is.null(download[["cue"]])) {
-      cue_diff_vec <- setdiff(
-        download[["cue"]],
-        c("none", "build", "major", "minor", "patch")
-      )
-      if (length(cue_diff_vec) > 0) {
-        stop(paste0(
-          "download$cue contains invalid names: ",
-          paste0(cue_diff_vec, collapse = ", ")
-        ))
-      }
-    }
-  }
-  if ("sync-approach" %in% names(download)) {
-    if (!is.null(download[["sync-approach"]])) {
-      selection_method_diff_vec <- setdiff(
-        download[["sync-approach"]],
-        c(
-          "download-all",
-          "delete-then-download-all",
-          "download-missing" # haven't implemented this one yet
-        )
-      )
-      if (length(selection_method_diff_vec) > 0) {
-        stop(paste0(
-          "download$selection_method contains invalid names: ",
-          paste0(selection_method_diff_vec, collapse = ", ")
-        ))
-      }
-    }
-  }
-  if ("conflict" %in% names(download)) {
-    if (!is.null(download[["conflict"]])) {
-      conflict_diff_vec <- setdiff(
-        download[["conflict"]], c("error", "overwrite", "skip")
-      )
-      if (length(conflict_diff_vec) > 0) {
-        stop(paste0(
-          "download$conflict contains invalid names: ",
-          paste0(conflict_diff_vec, collapse = ", ")
-        ))
-      }
-    }
-  }
+  .projr_osf_yml_check_cue(
+    trans_list = download,
+    nm_opt = c("none", "build", "major", "minor", "patch")
+  )
+  .projr_osf_yml_check_sync_approach(
+    trans_list = download,
+    nm_opt = c(
+      "download-all",
+      "delete-then-download-all",
+      "download-missing" # haven't implemented this one yet
+    )
+  )
+
+  .projr_osf_yml_check_conflict(trans_list = download)
 
   # upload element
   # --------------------------------
-  upld_diff_vec <- setdiff(
-    names(upload),
-    c("cue", "sync-approach", "version-source", "conflict", "archive")
+  .projr_osf_yml_check_trans_list(trans_list = upload)
+  .projr_osf_yml_check_trans_names(
+    trans_list = upload,
+    nm_opt = c("cue", "sync-approach", "version-source", "conflict")
   )
-  if (length(upld_diff_vec) > 0) {
-    stop(paste0(
-      "upload contains invalid names: ",
-      paste0(upld_diff_vec, collapse = ", ")
-    ))
-  }
-  if (!is.list(upload)) {
-    stop("upload must be a list")
-  }
+  .projr_osf_yml_check_cue(
+    trans_list = upload,
+    nm_opt = c("none", "build", "major", "minor", "patch")
+  )
+  .projr_osf_yml_check_sync_approach(
+    trans_list = upload,
+    nm_opt = c(
+      "upload-all",
+      "delete-then-upload-all",
+      "upload-missing", # haven't implemented this one yet
+      "upload-changed" # haven't implemented this one yet
+    )
+  )
+  .projr_osf_yml_check_conflict(trans_list = upload)
 }
 
 .projr_osf_source_get_list_add <- function(title,
                                            id,
                                            path,
-                                           remote_structure,
                                            path_append_label,
+                                           remote_structure,
                                            download_list,
                                            upload_list) {
   list_add <- list(id = id)
