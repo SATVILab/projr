@@ -195,8 +195,8 @@ test_that("projr_osf_dest_add works", {
       # parent_id specified
       # debugonce(projr_osf_dest_add)
       # debugonce(.projr_osf_yml_get_parent_vec)
-      debugonce(.projr_osf_yml_find_parent)
-      debugonce(.projr_osf_yml_find_parent_rec)
+      # debugonce(.projr_osf_yml_find_parent)
+      # debugonce(.projr_osf_yml_find_parent_rec)
       id_comp_sub_sub <- projr_osf_dest_add(
         title = "TestSubSubId", content = "data-raw",
         category = "data", parent_id = id_comp_sub
@@ -206,6 +206,18 @@ test_that("projr_osf_dest_add works", {
       yml_projr <- projr_yml_get_unchecked()
       expect_identical(
         yml_projr[["build"]][["osf"]][[title]][["component"]][["Test2"]][["component"]][["TestSubTitle"]][["component"]][["TestSubSubId"]][["id"]], # nolint
+        id_comp_sub_sub
+      )
+
+      id_comp_sub_sub <- projr_osf_dest_add(
+        title = "TestSubSubTitle", content = "data-raw",
+        category = "data", parent_title = "TestSubTitle"
+      )
+      expect_true(is.character(id_comp))
+      expect_true(nchar(id_comp) == 5L)
+      yml_projr <- projr_yml_get_unchecked()
+      expect_identical(
+        yml_projr[["build"]][["osf"]][[title]][["component"]][["Test2"]][["component"]][["TestSubTitle"]][["component"]][["TestSubSubTitle"]][["id"]], # nolint
         id_comp_sub_sub
       )
     },

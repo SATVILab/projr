@@ -332,6 +332,16 @@ projr_osf_dest_add <- function(title,
                                            parent_title = NULL,
                                            yml_projr_osf = NULL,
                                            parent_search = NULL) {
+  if (is.null(parent_search)) {
+    yml_projr_osf_lvl <- yml_projr_osf
+  } else {
+    yml_projr_osf_lvl_chr <- paste0(
+      "yml_projr_osf[[",
+      paste0(paste0('"', parent_search, '"'), collapse = "]][["),
+      "]]"
+    )
+    yml_projr_osf_lvl <- eval(parse(text = yml_projr_osf_lvl_chr))
+  }
   # return NULL for no parent found
 
   # no parent found if no parent info provided
@@ -351,11 +361,11 @@ projr_osf_dest_add <- function(title,
   # check that names are globally unique
 
   lapply(
-    names(yml_projr_osf),
+    names(yml_projr_osf_lvl),
     function(x) {
       # look within this level
       if (!is.null(parent_id)) {
-        if (identical(yml_projr_osf[[x]][["id"]], parent_id)) {
+        if (identical(yml_projr_osf_lvl[[x]][["id"]], parent_id)) {
           return(invisible(c(parent_search, x)))
         }
       }
@@ -365,15 +375,15 @@ projr_osf_dest_add <- function(title,
         }
       }
       # if there are no components, then return nothing
-      if (!"component" %in% names(yml_projr_osf[[x]])) {
+      if (!"component" %in% names(yml_projr_osf_lvl[[x]])) {
         return(invisible(character()))
       }
 
       .projr_osf_yml_find_parent_rec(
         parent_id = parent_id,
         parent_title = parent_title,
-        yml_projr_osf = yml_projr_osf[[x]][["component"]],
-        parent_search = c(x, "component")
+        yml_projr_osf = yml_projr_osf,
+        parent_search = c(parent_search, x, "component")
       )
     }
   )
