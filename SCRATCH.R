@@ -3,13 +3,28 @@ library(testthat)
 devtools::load_all()
 # devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
 devtools::test_active_file(
-  "tests/testthat/test-manual-osf-download.R"
+  "tests/testthat/test-osf-yml.R"
 )
 
 # scratch code
 yml_projr_dir <- projr_yml_get_unchecked()[["directories"]][["data-raw"]]
 
 # ==========================================
+
+# ==========================================
+# debugging projr_osf_dest_add
+# ==========================================
+
+browser()
+
+# debugonce(.projr_osf_yml_get_parent_vec)
+# debugonce(.projr_osf_yml_find_parent)
+# debugonce(.projr_osf_yml_find_parent_rec)
+# debugonce(projr_osf_dest_add)
+# debugonce(.projr_osf_yml_dest_add_comp_parent)
+browser()
+
+# debugonce(.projr_osf_yml_get_parent_vec)
 
 # =========================================
 # osf_download_to_dir_all
