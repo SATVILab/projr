@@ -1,4 +1,3 @@
-
 #' @title Set project version
 #'
 #' @description Set project version manually.

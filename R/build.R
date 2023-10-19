@@ -90,7 +90,9 @@ projr_build_patch <- function(msg = NULL, ...) {
 #' @param ... Arguments passed to \code{bookdown::render}.
 #'
 #' @export
-projr_build_dev <- function(file = NULL, bump = FALSE, remove_old_dev = TRUE, ...) {
+projr_build_dev <- function(file = NULL,
+                            bump = FALSE,
+                            remove_old_dev = TRUE, ...) {
   # NULL if FALSE and "dev" if TRUE
   bump_component <- switch(bump,
     "dev"
