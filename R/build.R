@@ -203,7 +203,7 @@ projr_build_dev <- function(file = NULL,
   .projr_pb_upload(output_run = output_run)
 
   # upload to osf
-  .projr_osf_upload(output_run = output_run)
+  .projr_osf_dest_upload(output_run = output_run)
 
   # clear projr cache
   .projr_build_clear_old_dev(output_run, remove_old_dev)
