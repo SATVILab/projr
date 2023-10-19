@@ -230,7 +230,7 @@ projr_osf_source_add <- function(label,
   )
   .projr_osf_yml_check_cue(
     trans_list = download,
-    nm_opt = c("none", "build", "major", "minor", "patch")
+    nm_opt = c("none", "build", "major", "minor", "patch", "change")
   )
   .projr_osf_yml_check_sync_approach(
     trans_list = download,
@@ -252,7 +252,7 @@ projr_osf_source_add <- function(label,
   )
   .projr_osf_yml_check_cue(
     trans_list = upload,
-    nm_opt = c("none", "build", "major", "minor", "patch")
+    nm_opt = c("none", "build", "major", "minor", "patch", "change")
   )
   .projr_osf_yml_check_sync_approach(
     trans_list = upload,

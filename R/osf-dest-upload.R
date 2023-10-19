@@ -1,4 +1,4 @@
-.projr_osf_upload <- function(output_run) {
+.projr_osf_dest_upload <- function(output_run) {
   # consider early exit
   # ------------------
 
