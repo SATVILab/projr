@@ -31,7 +31,9 @@
 #' @param ... Arguments passed to \code{bookdown::render}.
 #'
 #' @export
-projr_build_output <- function(bump_component, msg = NULL, ...) {
+projr_build_output <- function(bump_component,
+                               msg = NULL,
+                               ...) {
   if (missing(bump_component)) {
     version <- projr_version_format_get()
     version_vec <- strsplit(version, split = "\\.|\\-")[[1]]
@@ -97,10 +99,19 @@ projr_build_dev <- function(file = NULL,
   bump_component <- switch(bump,
     "dev"
   )
-  .projr_build(file = file, bump_component = bump_component, remove_old_dev = TRUE, ...)
+  .projr_build(
+    file = file,
+    bump_component = bump_component,
+    remove_old_dev = TRUE,
+    ...
+  )
 }
 
-.projr_build <- function(file = NULL, bump_component, remove_old_dev = TRUE, msg = "", ...) {
+.projr_build <- function(file = NULL,
+                         bump_component,
+                         remove_old_dev = TRUE,
+                         msg = "",
+                         ...) {
   # ========================
   # SET-UP
   # ========================
@@ -223,7 +234,9 @@ projr_build_dev <- function(file = NULL,
   invisible(TRUE)
 }
 
-.projr_build_engine <- function(file, version_run_on_list, ...) {
+.projr_build_engine <- function(file,
+                                version_run_on_list,
+                                ...) {
   build_error <- switch(.projr_engine_get(),
     "bookdown" = {
       .projr_dep_add("bookdown")
@@ -298,7 +311,8 @@ projr_build_dev <- function(file = NULL,
   invisible(TRUE)
 }
 
-.projr_build_engine_doc_fn_get <- function(file, type) {
+.projr_build_engine_doc_fn_get <- function(file,
+                                           type) {
   detect_str <- switch(tolower(type),
     "qmd" = "\\.qmd$",
     "rmd" = "\\.Rmd$|\\.rmd$"
