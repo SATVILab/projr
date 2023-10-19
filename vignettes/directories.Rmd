@@ -19,7 +19,6 @@ library(projr)
 ```
 
 ```{r}
-
 ```
 
 - During dev builds:
