@@ -14,6 +14,7 @@
                                     remote_structure,
                                     version = NULL) {
   path_osf <- .projr_osf_path_get(
+    osf_tbl = osf_tbl,
     path = path,
     path_append_label = path_append_label,
     label = label,
@@ -26,12 +27,13 @@
   osfr::osf_mkdir(x = osf_tbl, path = path_osf)
 }
 
-.projr_osf_path_get <- function(path,
+.projr_osf_path_get <- function(osf_tbl,
+                                path,
                                 path_append_label,
                                 label,
                                 remote_structure,
                                 version = NULL) {
-  path_base <- .prorj_osf_path_get_base(
+  path_base <- .projr_osf_path_get_base(
     path = path,
     path_append_label = path_append_label,
     label = label
@@ -40,11 +42,24 @@
     return(path_base)
   }
   if (remote_structure == "version") {
+    if (!is.null(version) && version == "latest") {
+      osf_tbl_file <- osfr::osf_mkdir(x = osf_tbl, path = path_base)
+      osf_tbl_file <- osf_tbl_file |> osfr::osf_ls_files(n_max = Inf)
+      version_vec <- osf_tbl_file[["name"]]
+      if (length(version_vec) == 0L) {
+        return(NULL)
+      }
+      max_version <- max(gsub("^v", "", version_vec))
+      version <- version_vec[version_vec == paste0("v", max_version)]
+      if (length(version) == 0L) {
+        return(NULL)
+      }
+    }
     version <- version %||% projr_version_get()
     if (path_base == ".") {
       return(version)
     } else {
-      return(file.path(path_base, version))
+      return(file.path(path_base, paste0("v", version)))
     }
   }
 }

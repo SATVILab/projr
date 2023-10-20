@@ -146,7 +146,7 @@ test_that(".projr_osf_upload_node_label works", {
       browser()
       osf_tbl <- .projr_osf_get_node_id("q26c9")
       file.create(projr_path_get("output", "test.txt", output_safe = FALSE))
-      osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
+      osf_tbl_file <- osf_tbl |> osfr::osf_ls_files(n_max = Inf)
 
       .projr_osf_upload_node_label(
         osf_tbl = osf_tbl, label = "output"

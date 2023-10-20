@@ -33,6 +33,7 @@
 projr_osf_dest_add <- function(title,
                                content = NULL,
                                id = NULL,
+                               remote_structure = NULL,
                                body = NULL,
                                public = FALSE,
                                category = NULL,
@@ -40,7 +41,6 @@ projr_osf_dest_add <- function(title,
                                parent_title = NULL,
                                path = NULL,
                                path_append_label = NULL,
-                               remote_structure = NULL,
                                download_sync_approach = NULL,
                                download_conflict = NULL,
                                # download_cue has to be manual
@@ -256,10 +256,10 @@ projr_osf_dest_add <- function(title,
   .projr_osf_yml_check_sync_approach(
     trans_list = upload,
     nm_opt = c(
+      "upload-missing",
       "upload-all",
-      "delete-then-upload-all",
-      "upload-missing", # haven't implemented this one yet
-      "upload-changed" # haven't implemented this one yet
+      "sync-using-deletion",
+      "sync-using-version" # haven't implemented this one yet
     )
   )
   .projr_osf_yml_check_conflict(trans_list = upload)

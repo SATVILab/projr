@@ -147,9 +147,9 @@
   # get version that is being uploaded to
   # get list of whatever is in the OSF registry
   # get all files that have been added
-  version_previous <- .projr_manifest_get_version_latest(manifest_pre)
+  version_pre <- .projr_manifest_get_version_latest(manifest_pre)
   manifest_pre <- manifest_pre[
-    manifest_pre[["version"]] == version_previous,
+    manifest_pre[["version"]] == version_pre,
   ]
   manifest_post <- manifest_post[
     manifest_post[["version"]] == paste0("v", projr_version_get()),
@@ -190,4 +190,51 @@
     unique() |>
     sort() |>
     utils::tail(1)
+}
+
+.projr_manifest_compare_version <- function(version_post = NULL,
+                                            version_pre = NULL,
+                                            label = NULL) {
+  # get manifests from previous version and current version
+  manifest <- .projr_manifest_read()
+
+  if (nrow(manifest) == 0L) {
+    return(.projr_manifest_compare(
+      manifest_pre = manifest, manifest_post = manifest
+    ))
+  }
+
+  if (is.null(version_post)) {
+    version_post <- paste0("v", projr_version_get())
+  } else {
+    if (!grepl("^v", version_post)) {
+      version_post <- paste0("v", version_post)
+    }
+  }
+
+  if (is.null(version_pre)) {
+    manifest_pre_all <- manifest[manifest[["version"]] < version_post, ]
+    if (nrow(manifest_pre_all) == 0L) {
+      version_pre <- "nothing_to_match"
+    }
+    version_pre <- .projr_manifest_get_version_latest(manifest_pre_all)
+  } else {
+    if (!grepl("^v", version_pre)) {
+      version_pre <- paste0("v", version_pre)
+    }
+  }
+
+  if (!is.null(label)) {
+    manifest <- manifest[manifest[["label"]] == label, ]
+  }
+
+  manifest_pre <- manifest[manifest[["version"]] == version_pre, ]
+
+  manifest_post <- manifest[manifest[["version"]] == version_post, ]
+
+  # compare
+  # -----------------
+  .projr_manifest_compare(
+    manifest_pre = manifest_pre, manifest_post = manifest_post
+  )
 }

@@ -217,3 +217,13 @@ projr_osf_create_project <- function(title,
     silent = TRUE
   )
 }
+
+.projr_osf_node_empty <- function(osf_tbl) {
+  osf_tbl_file <- osf_tbl |> osfr::osf_ls_files(n_max = Inf)
+  if (nrow(osf_tbl_file) == 0L) {
+    return(invisible(FALSE))
+  }
+  for (i in seq_len(nrow(osf_tbl_file))) {
+    osfr::osf_rm(x = osf_tbl_file[i, ], recurse = TRUE, check = FALSE)
+  }
+}

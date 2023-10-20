@@ -16,10 +16,26 @@
 
   yml_projr_osf <- projr_yml_get()[["build"]][["osf"]]
   for (i in seq_along(yml_projr_osf)) {
-    # need to make this recursive
-    .projr_osf_upload_node(
-      title = names(yml_projr_osf)[i], yml_projr_osf[[i]], parent_id = NULL
+    yml_projr_osf_ind <- yml_projr_osf[[i]]
+    yml_projr_osf_ind_upload <- yml_projr_osf_ind[["upload"]]
+    .projr_osf_upload_yml_content(
+      id = yml_projr_osf_ind[["id"]],
+      remote_structure = yml_projr_osf_ind[["remote-structure"]],
+      content = yml_projr_osf_ind[["content"]],
+      path = yml_projr_osf_ind[["path"]], ,
+      path_append_label = yml_projr_osf_ind[["path_append_label"]], ,
+      cue = yml_projr_osf_ind_upload[["cue"]],
+      sync_approach = yml_projr_osf_ind_upload[["sync-approach"]],
+      version_source = yml_projr_osf_ind_upload[["version-source"]],
+      conflict = yml_projr_osf_ind_upload[["conflict"]],
+      component = yml_projr_osf_ind[["component"]]
     )
+    # old function call:
+    # .projr_osf_upload_node(
+    #   title = names(yml_projr_osf)[i],
+    #   yml_projr_osf[[i]],
+    #   parent_id = NULL
+    # )
   }
 
   # upload manifest right at the end,
@@ -48,7 +64,7 @@
   )
   # okay, so I actually need to perform recursive uploads
   for (x in yml_param[["content"]]) {
-    osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
+    osf_tbl_file <- osf_tbl |> osfr::osf_ls_files(n_max = Inf)
     .projr_osf_upload_node_label(
       osf_tbl = osf_tbl, osf_tbl_file = osf_tbl_file,
       label = x, method = yml_param[["method"]]
@@ -126,7 +142,7 @@
                                              manifest_added,
                                              manifest_tbl_osf) {
   dir_label <- projr_dir_get("label", output_safe = FALSE)
-  osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
+  osf_tbl_file <- osf_tbl |> osfr::osf_ls_files(n_max = Inf)
   label_present <- label %in% osf_tbl_file[["name"]]
 }
 
@@ -141,33 +157,4 @@
     file = projr_path_get("project", "manifest.csv"),
     conflicts = "overwrite"
   )
-}
-
-# add option to create and upload a node
-.projr_osf_upload_dir <- function(osf_tbl,
-                                  path_dir = ".",
-                                  method) {
-  if (path_dir != ".") {
-    osf_tbl_upload <- osfr::osf_mkdir(x = osf_tbl, path = path_dir)
-  } else {
-    osf_tbl_upload <- osf_tbl
-  }
-  # upload files in root to root
-  fn_vec <- list.files(path_dir, full.names = TRUE)
-  fn_vec <- fn_vec[fs::is_file(fn_vec)]
-
-  if (length(fn_vec) > 0) {
-    osfr::osf_upload(x = osf_tbl_upload, path = fn_vec, conflicts = "overwrite")
-  }
-
-  path_dir_vec_sub <- list.dirs(path_dir, recursive = FALSE, full.names = FALSE)
-
-  for (i in seq_along(path_dir_vec_sub)) {
-    .projr_osf_upload_dir(
-      osf_tbl = osf_tbl,
-      path_dir = file.path(path_dir, path_dir_vec_sub[[i]]),
-      method = method
-    )
-  }
-  invisible(osf_tbl_upload)
 }

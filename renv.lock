@@ -1138,7 +1138,11 @@
       "RemoteUsername": "rstudio",
       "RemoteRepo": "renv",
       "RemoteRef": "main",
-      "RemoteSha": "36e1b5192fbc9f380dd4fffc6ee837856d5d3e75"
+      "RemoteSha": "36e1b5192fbc9f380dd4fffc6ee837856d5d3e75",
+      "Requirements": [
+        "utils"
+      ],
+      "Hash": "5a15a60d89c07bf56bfd736c1ba57e27"
     },
     "rex": {
       "Package": "rex",
@@ -1365,7 +1369,7 @@
     },
     "styler": {
       "Package": "styler",
-      "Version": "1.10.1",
+      "Version": "1.10.2",
       "Source": "Repository",
       "Repository": "RSPM",
       "Requirements": [
@@ -1380,7 +1384,7 @@
         "vctrs",
         "withr"
       ],
-      "Hash": "b0911fdb2c682f526f6e9c131fd40a1f"
+      "Hash": "d61238fd44fc63c8adf4565efe8eb682"
     },
     "sys": {
       "Package": "sys",
@@ -1562,7 +1566,7 @@
     },
     "vctrs": {
       "Package": "vctrs",
-      "Version": "0.6.3",
+      "Version": "0.6.4",
       "Source": "Repository",
       "Repository": "RSPM",
       "Requirements": [
@@ -1572,7 +1576,7 @@
         "lifecycle",
         "rlang"
       ],
-      "Hash": "d0ef2856b83dc33ea6e255caf6229ee2"
+      "Hash": "266c1ca411266ba8f365fcc726444b87"
     },
     "waldo": {
       "Package": "waldo",
