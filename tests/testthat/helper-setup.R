@@ -84,6 +84,14 @@
     manifest <- .projr_build_manifest_hash_pre(output_run) |>
       rbind(.projr_build_manifest_hash_post(output_run))
   }
+  if (file.exists("manifest.csv")) {
+    manifest_old <- utils::read.csv("manifest.csv")
+    if (nrow(manifest_old) > 0L) {
+      manifest <- manifest_old |>
+        rbind(manifest)
+    }
+  }
+
   .projr_manifest_write(manifest, output_run = output_run)
   manifest
 }

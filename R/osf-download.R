@@ -98,7 +98,7 @@
   if (!dir.exists(path_save)) {
     dir.create(path_save, recursive = TRUE)
   }
-  osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
+  osf_tbl_file <- osf_tbl |> osfr::osf_ls_files(n_max = Inf)
   if (nrow(osf_tbl_file) == 0L) {
     return(invisible(FALSE))
   }
@@ -151,7 +151,7 @@
       stop("No compatible version found in OSF")
     }
     osf_tbl_file <- osf_tbl_file[1, ]
-    osf_tbl_file <- osf_tbl_file |> osfr::osf_ls_files()
+    osf_tbl_file <- osf_tbl_file |> osfr::osf_ls_files(n_max = Inf)
     # START HERE
   }
   # what is the point of all of this?
@@ -249,7 +249,7 @@
   if (is.null(osf_tbl)) {
     stop(paste0("osf node id not specified for label ", label))
   }
-  osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
+  osf_tbl_file <- osf_tbl |> osfr::osf_ls_files(n_max = Inf)
   if (nrow(osf_tbl_file) == 0L) {
     return(invisible(FALSE))
   }
@@ -276,7 +276,7 @@
           osf_tbl_file_dir[["name"]] == x,
         ]
         osf_tbl_file_dir <- osf_tbl_file_dir_sub |>
-          osfr::osf_ls_files() |>
+          osfr::osf_ls_files(n_max = Inf) |>
           .projr_osf_filter_dir()
       }
       if (nrow(osf_tbl_file_dir) > 0L) {
@@ -297,8 +297,7 @@
   }
   .projr_osf_download_osf_tbl(
     osf_tbl = osf_tbl_file,
-    dir_save = projr_dir_get(label, output_safe = TRUE),
-    is_file = TRUE,
+    path_dir_save_local = projr_dir_get(label, output_safe = TRUE),
     conflicts = "overwrite"
   )
   invisible(TRUE)
@@ -328,27 +327,26 @@
   for (i in seq_along(yml_param[["content"]])) {
     .projr_osf_download_osf_tbl(
       osf_tbl = osf_tbl,
-      dir_save = projr_dir_get(yml_param[["content"]][i], output_safe = TRUE),
-      file = FALSE,
+      path_dir_save_local = projr_dir_get(yml_param[["content"]][i], output_safe = TRUE),
       conflicts = conflicts
     )
   }
 }
 
 .projr_osf_download_osf_tbl <- function(osf_tbl,
-                                        dir_save,
-                                        is_file,
+                                        path_dir_save_local,
                                         conflicts = "overwrite") {
-  if (!is_file) {
-    osf_tbl_file <- osf_tbl |> osfr::osf_ls_files()
-  }
-  if (nrow(osf_tbl_file) == 0L) {
+  # regardless of osf_tbl being a node or a sub-directory,
+  # we always want to downloads its contents rather than
+  # the node/folder itself
+  osf_tbl <- osf_tbl |> osfr::osf_ls_files(n_max = Inf)
+  if (nrow(osf_tbl) == 0L) {
     return(invisible(FALSE))
   }
-  for (i in seq_len(nrow(osf_tbl_file))) {
+  for (i in seq_len(nrow(osf_tbl))) {
     osfr::osf_download(
-      x = osf_tbl_file[i, ],
-      path = dir_save,
+      x = osf_tbl[i, ],
+      path = path_dir_save_local,
       recurse = TRUE,
       conflicts = conflicts
     )

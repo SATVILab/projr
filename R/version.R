@@ -13,8 +13,16 @@
 #' @export
 projr_version_set <- function(version) {
   if (missing(version)) stop("version must be supplied")
+  if (!length(version) == 1L) {
+    stop("version must be a character vector with one element")
+  }
+  if (!is.character(version)) {
+    stop("version must be of type character")
+  }
+  if (grepl("^v", version)) {
+    version <- gsub("^v", "", version)
+  }
   .projr_version_format_check(version)
-  stopifnot(is.character(version))
   # check that version is in correct format
   desc_file <- read.dcf("DESCRIPTION")
   desc_file[, "Version"] <- version
