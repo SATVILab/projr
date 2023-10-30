@@ -77,6 +77,7 @@
       conflict = conflict
     )
   )
+  # TODO: add in code to make this recursive
   invisible(TRUE)
 }
 
@@ -174,8 +175,6 @@
     )
   )
 }
-
-
 
 .projr_osf_upload_missing <- function(path_dir_local,
                                       osf_tbl,
