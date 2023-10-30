@@ -65,17 +65,17 @@
 #' @examples
 #'
 #' # add a project as source:
-#' projr_osf_source_add(
+#' projr_source_add_osf(
 #'   label = "data-raw",
 #'   category = "project"
 #' )
 #' # add a component as source:
-#' projr_osf_source_add(
+#' projr_source_add_osf(
 #'   label = "data-raw",
 #'   category = "data",
 #'   parent_id = "y235k"
 #' )
-projr_osf_source_add <- function(label,
+projr_source_add_osf <- function(label,
                                  overwrite = FALSE,
                                  id = NULL,
                                  title = NULL,
@@ -113,7 +113,7 @@ projr_osf_source_add <- function(label,
   )
 
   # check inputs
-  .projr_osf_source_add_check(
+  .projr_source_add_osf_check(
     label = label, id = id, title = title, body = body,
     public = public, category = category, parent_id = parent_id,
     overwrite = overwrite,
@@ -184,7 +184,7 @@ projr_osf_source_add <- function(label,
   out_list
 }
 
-.projr_osf_source_add_check <- function(label,
+.projr_source_add_osf_check <- function(label,
                                         id,
                                         title,
                                         body,
@@ -292,7 +292,7 @@ projr_osf_source_add <- function(label,
 }
 
 
-.projr_osf_source_add_get_id <- function(id,
+.projr_source_add_osf_get_id <- function(id,
                                          parent_id,
                                          title,
                                          yml_param) {

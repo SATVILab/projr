@@ -30,7 +30,7 @@
 #' Default is `FALSE`.
 #' element in
 #' @export
-projr_osf_dest_add <- function(title,
+projr_dest_add_osf <- function(title,
                                content = NULL,
                                id = NULL,
                                remote_structure = NULL,
@@ -73,7 +73,7 @@ projr_osf_dest_add <- function(title,
     conflict = upload_conflict
   )
 
-  .projr_osf_dest_add_check( # nolint
+  .projr_dest_add_osf_check( # nolint
     id = id,
     title = title,
     parent_id = parent_id,
@@ -119,7 +119,7 @@ projr_osf_dest_add <- function(title,
       yml_projr_osf = yml_projr_osf
     )
     # get the parent's id
-    parent_id <- .projr_osf_dest_add_get_parent_id(
+    parent_id <- .projr_dest_add_osf_get_parent_id(
       parent_id = parent_id,
       parent_vec = parent_vec,
       yml_projr_osf = yml_projr_osf
@@ -176,7 +176,7 @@ projr_osf_dest_add <- function(title,
   id
 }
 
-.projr_osf_dest_add_check <- function(id,
+.projr_dest_add_osf_check <- function(id,
                                       title,
                                       parent_id,
                                       parent_title,
@@ -403,14 +403,14 @@ projr_osf_dest_add <- function(title,
   }
 }
 
-#' @rdname projr_osf_dest_add
+#' @rdname projr_dest_add_osf
 #' @export
-projr_osf_dest_add_proj <- function(title,
+projr_dest_add_osf_proj <- function(title,
                                     body = NULL,
                                     content = NULL,
                                     public = FALSE,
                                     id = NULL) {
-  projr_osf_dest_add(
+  projr_dest_add_osf(
     title = title,
     body = body,
     content = content,
@@ -420,9 +420,9 @@ projr_osf_dest_add_proj <- function(title,
   )
 }
 
-#' @rdname projr_osf_dest_add
+#' @rdname projr_dest_add_osf
 #' @export
-projr_osf_dest_add_comp <- function(title,
+projr_dest_add_osf_comp <- function(title,
                                     body = NULL,
                                     content = NULL,
                                     public = FALSE,
@@ -433,7 +433,7 @@ projr_osf_dest_add_comp <- function(title,
   if (missing(parent_id) && missing(parent_title)) {
     stop("either parent_id or parent_title must be specified")
   }
-  projr_osf_dest_add(
+  projr_dest_add_osf(
     title = title,
     body = body,
     content = content,
@@ -508,7 +508,7 @@ projr_osf_dest_add_comp <- function(title,
 }
 
 # get the parent_id, I think
-.projr_osf_dest_add_get_parent_id <- function(parent_id,
+.projr_dest_add_osf_get_parent_id <- function(parent_id,
                                               parent_vec,
                                               yml_projr_osf) {
   if (!is.null(parent_id)) {

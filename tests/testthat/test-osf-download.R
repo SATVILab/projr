@@ -34,7 +34,7 @@ test_that(".projr_checkout_osf works", {
         }
       )
       # add to YAML config
-      projr_osf_source_add(
+      projr_source_add_osf(
         label = "data-raw", id = osf_tbl_proj[["id"]]
       )
 
@@ -71,7 +71,7 @@ test_that(".projr_checkout_osf works", {
       dir.create("_data_raw")
 
       # add to YAML config
-      projr_osf_source_add(
+      projr_source_add_osf(
         label = "data-raw", id = osf_tbl_proj[["id"]],
         remote_structure = "version", overwrite = TRUE
       )
