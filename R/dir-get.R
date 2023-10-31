@@ -155,7 +155,7 @@
     "TRUE" = {
       switch(yml_quarto[["project"]][["type"]],
         "book" = "_book",
-        "website" =,
+        "website" = ,
         "site" = "_site",
         stop("Quarto project type not recognised.")
       )
