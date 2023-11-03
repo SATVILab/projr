@@ -108,32 +108,32 @@ test_that(".projr_version_format_list_get works", {
       projr_version_format_set("major.minor.patch-dev")
       expect_identical(
         .projr_version_format_list_get(),
-        list("components" = cv, "sep" = svd)
+        list("component" = cv, "sep" = svd)
       )
       projr_version_format_set("major.minor.patch.dev")
       expect_identical(
         .projr_version_format_list_get(),
-        list("components" = cv, "sep" = svp)
+        list("component" = cv, "sep" = svp)
       )
       projr_version_format_set("major.minor-dev")
       expect_identical(
         .projr_version_format_list_get(),
-        list("components" = cv[-3], "sep" = svd[-2])
+        list("component" = cv[-3], "sep" = svd[-2])
       )
       projr_version_format_set("major.minor.dev")
       expect_identical(
         .projr_version_format_list_get(),
-        list("components" = cv[-3], "sep" = svp[-2])
+        list("component" = cv[-3], "sep" = svp[-2])
       )
       projr_version_format_set("major-dev")
       expect_identical(
         .projr_version_format_list_get(),
-        list("components" = cv[-c(2:3)], "sep" = svd[-c(1:2)])
+        list("component" = cv[-c(2:3)], "sep" = svd[-c(1:2)])
       )
       projr_version_format_set("major.dev")
       expect_identical(
         .projr_version_format_list_get(),
-        list("components" = cv[-c(2:3)], "sep" = svp[-c(1:2)])
+        list("component" = cv[-c(2:3)], "sep" = svp[-c(1:2)])
       )
       yml_projr <- .projr_yml_get_root_full()
       yml_projr[["version_format"]] <- "abc"

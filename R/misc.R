@@ -38,3 +38,19 @@ with_dir <- function(new, code) {
   on.exit(setwd(old))
   force(code)
 }
+
+.projr_run_output_check <- function(output_run = NULL, bump_component) {
+  if (!is.null(output_run)) {
+    return(output_run)
+  }
+  if (missing(bump_component)) {
+    stop(paste0("bump_component must be specified if output_run is NULL"))
+  }
+  output_opt_vec <- c("patch", "minor", "major")
+  .projr_bump_component_get(bump_component) %in% output_opt_vec
+}
+
+.projr_bump_component_get <- function(bump_component) {
+  bump_component <- bump_component %||% "dev"
+  if (is.logical(bump_component)) "dev" else bump_component
+}

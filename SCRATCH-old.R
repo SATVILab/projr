@@ -788,7 +788,7 @@ yml_projr_dir <- projr_yml_get()[["directories"]]
     # GitHub releases settings
     gh_list_settings <- yml_projr[["build-output"]][["github-release"]]
     # version information
-    version_comp_vec <- version_format_list[["components"]] |>
+    version_comp_vec <- version_format_list[["component"]] |>
         setdiff("dev")
     version_comp_vec <- rev(version_comp_vec)[
         seq_len(which(rev(version_comp_vec == item_version)))
@@ -966,7 +966,7 @@ yml_projr_dir <- projr_yml_get()[["directories"]]
 # ===================================
 
   if (output_run && "github-release" %in% names(yml_projr[["build-output"]])) {
-    version_comp_vec <- version_format_list[["components"]] |>
+    version_comp_vec <- version_format_list[["component"]] |>
       setdiff("dev")
     version_comp_vec <- version_comp_vec[
       seq_len(which(version_comp_vec == bump_component))
@@ -1005,7 +1005,7 @@ yml_projr_dir <- projr_yml_get()[["directories"]]
 ## projr_path_get
 ############
 
-    version_comp_vec <- version_format_list[["components"]] |>
+    version_comp_vec <- version_format_list[["component"]] |>
       setdiff("dev")
     version_comp_vec <- version_comp_vec[
       seq_len(which(version_comp_vec == bump_component))

@@ -129,7 +129,7 @@ projr_version_format_get <- function() {
     version_format, "\\-|\\."
   )[[1]]
   list(
-    "components" = version_format_vec_comp,
+    "component" = version_format_vec_comp,
     "sep" = version_format_vec_sep
   )
 }

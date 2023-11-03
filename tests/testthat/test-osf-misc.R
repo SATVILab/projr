@@ -1,4 +1,4 @@
-test_that(".projr_osf_upload_fn works", {
+test_that(".projr_osf_send_fn works", {
   # skips
   skip_if_offline()
   skip_if(FALSE)
@@ -32,7 +32,7 @@ test_that(".projr_osf_upload_fn works", {
       # --------------------
 
       # upload
-      .projr_osf_upload_fn(
+      .projr_osf_send_fn(
         fn_rel = fn_vec, path_dir_local = path_dir_fn,
         osf_tbl = osf_tbl_proj, conflict = "overwrite"
       )

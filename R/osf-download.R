@@ -336,6 +336,9 @@
 .projr_osf_download_osf_tbl <- function(osf_tbl,
                                         path_dir_save_local,
                                         conflicts = "overwrite") {
+  if (!dir.exists(path_dir_save_local)) {
+    dir.create(path_dir_save_local, recursive = TRUE)
+  }
   # regardless of osf_tbl being a node or a sub-directory,
   # we always want to downloads its contents rather than
   # the node/folder itself
