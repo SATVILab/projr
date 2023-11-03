@@ -229,3 +229,13 @@
   )
   dir_active[[cache_ind]]$path
 }
+
+.projr_dir_get_cache_auto_version <- function() {
+  dir_cache_projr_version <- file.path(
+    .projr_dir_get_cache_auto(), "projr", paste0("v", projr_version_get())
+  )
+  if (!dir.exists(dir_cache_projr_version)) {
+    dir.create(dir_cache_projr_version, recursive = TRUE)
+  }
+  dir_cache_projr_version
+}

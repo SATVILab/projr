@@ -154,7 +154,7 @@ projr_build_dev <- function(file = NULL,
   .projr_build_clear_pre(output_run)
 
   # hash cache
-  manifest_tbl_pre <- .projr_build_manifest_hash_pre(output_run = output_run)
+  manifest_tbl_pre <- .projr_build_hash_pre(output_run = output_run)
 
   # ========================
   # RUN
@@ -179,7 +179,7 @@ projr_build_dev <- function(file = NULL,
 
   # hash data-raw and outputs
   manifest_tbl <- manifest_tbl_pre |>
-    rbind(.projr_build_manifest_hash_post(output_run = output_run))
+    rbind(.projr_build_hash_post(output_run = output_run))
 
   # remove dev output files
   .projr_build_clear_post(output_run)

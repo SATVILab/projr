@@ -117,7 +117,7 @@ test_that(".projr_osf_get_node works", {
 })
 
 
-test_that(".projr_osf_upload_node_label works", {
+test_that(".projr_osf_send_node_label works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
@@ -148,7 +148,7 @@ test_that(".projr_osf_upload_node_label works", {
       file.create(projr_path_get("output", "test.txt", output_safe = FALSE))
       osf_tbl_file <- osf_tbl |> osfr::osf_ls_files(n_max = Inf)
 
-      .projr_osf_upload_node_label(
+      .projr_osf_send_node_label(
         osf_tbl = osf_tbl, label = "output"
       )
     },

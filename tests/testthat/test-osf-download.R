@@ -28,7 +28,7 @@ test_that(".projr_checkout_osf works", {
       osf_tbl_dir <- with_dir(
         "_data_raw",
         {
-          .projr_osf_upload_dir(
+          .projr_osf_send_dir(
             osf_tbl = osf_tbl_upload, path_dir = "."
           )
         }
@@ -64,7 +64,7 @@ test_that(".projr_checkout_osf works", {
       )
       osf_tbl_dir <- with_dir(
         "_data_raw",
-        .projr_osf_upload_dir(osf_tbl = osf_tbl_upload, path_dir = ".")
+        .projr_osf_send_dir(osf_tbl = osf_tbl_upload, path_dir = ".")
       )
       # remove downloaded files
       unlink("_data_raw", recursive = TRUE)
@@ -108,7 +108,7 @@ test_that(".projr_checkout_osf works", {
       )
       osf_tbl_dir <- with_dir(
         "_data_raw",
-        .projr_osf_upload_dir(osf_tbl = osf_tbl_upload, path_dir = ".")
+        .projr_osf_send_dir(osf_tbl = osf_tbl_upload, path_dir = ".")
       )
 
       # remove downloaded files

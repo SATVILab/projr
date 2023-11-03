@@ -3,6 +3,9 @@ library(testthat)
 devtools::load_all()
 # devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
 devtools::test_active_file(
+  "tests/testthat/test-misc.R"
+)
+devtools::test_active_file(
   "tests/testthat/test-osf-upload.R"
 )
 
@@ -16,6 +19,28 @@ list.dirs(dir_test, recursive = FALSE)
 yml_projr_dir <- projr_yml_get_unchecked()[["directories"]][["data-raw"]]
 
 # ==========================================
+
+# ==========================================
+# old manifest_compare
+# ==========================================
+
+.projr_manifest_compare <- function(manifest_pre, manifest_post) {
+  # get last version uploaded
+  # get version that is being uploaded to
+  # get list of whatever is in the OSF registry
+  # get all files that have been added
+  version_pre <- .projr_manifest_version_get_latest(manifest_pre)
+  manifest_pre <- manifest_pre[
+    manifest_pre[["version"]] == version_pre,
+  ]
+  manifest_post <- manifest_post[
+    manifest_post[["version"]] == paste0("v", projr_version_get()),
+  ]
+  .projr_change_get_hash(
+    hash_pre = manifest_pre,
+    hash_post = manifest_post
+  )
+}
 
 # ==========================================
 # debugging projr_osf_dest_add
