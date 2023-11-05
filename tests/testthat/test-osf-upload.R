@@ -279,8 +279,7 @@ test_that(".projr_osf_send_dir and _missing work", {
       expect_identical(nrow(osf_tbl_dir |> osfr::osf_ls_files()), 1L)
       expect_identical(osfr::osf_ls_files(osf_tbl_dir)[["name"]], "v0.0.1")
 
-      # now remove a file, add a file and change a file
-      # RESTART HERE - SHOULD WORK
+
       file.remove(projr_path_get("data-raw", "extra.txt"))
       unlink(projr_dir_get("data-raw", "altdir1"), recursive = TRUE)
 

@@ -152,7 +152,6 @@
     }
     osf_tbl_file <- osf_tbl_file[1, ]
     osf_tbl_file <- osf_tbl_file |> osfr::osf_ls_files(n_max = Inf)
-    # START HERE
   }
   # what is the point of all of this?
   # this just seems like we're just obeying

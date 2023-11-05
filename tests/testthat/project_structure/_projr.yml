@@ -19,7 +19,7 @@ build:
     commit: true
     add-untracked: true
     push: false
-  github-release:
+  github:
     '@version':
       content: code
       body: "Latest source code"

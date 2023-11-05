@@ -298,7 +298,7 @@ projr_version_get <- function(dev_force = FALSE) {
 #'
 #' @export
 #'
-#' @return Invisibly returns the new version.
+#' @return Returns the new version.
 projr_version_dev_bump <- function() {
   version_current_vec <- .projr_version_current_vec_get()
   version_format_list <- .projr_version_format_list_get()
