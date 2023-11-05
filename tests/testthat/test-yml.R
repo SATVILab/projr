@@ -129,7 +129,7 @@ test_that("projr_yml_check works", {
       yml_projr_error <- yml_projr_correct
       yml_projr_build_correct <- yml_projr_correct[["build"]]
       yml_projr_error[["build"]] <- yml_projr_build_correct[
-        c("git", "github-release")
+        c("git", "github")
       ]
       expect_error(projr_yml_check(yml_projr_error))
       yml_projr_error[["build"]] <- yml_projr_correct[["build"]]

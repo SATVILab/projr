@@ -28,7 +28,7 @@
 
 .projr_dest_send_get <- function() {
   yml_projr_build <- projr_yml_get_unchecked()[["build"]]
-  dest_vec <- c("github-release", "local", "osf")
+  dest_vec <- c("github", "local", "osf")
   dest_vec[dest_vec %in% names(yml_projr_build)]
 }
 
@@ -55,10 +55,16 @@
                                       bump_component,
                                       remote_name,
                                       yml_remote) {
+  # set defaults if not set for yml_remote
+  yml_remote <- .projr_dest_send_yml_remote_complete(
+    yml_remote = yml_remote, remote_type = remote_type
+  )
+
   # consider early exit
   cue_met <- .projr_cue_check(
     cue = yml_remote[["cue"]], bump_component = bump_component
   )
+
   if (!cue_met) {
     # recurse over components for OSF,
     # as their cue might not be unmet
@@ -146,6 +152,9 @@
                                          version_source) {
   # this will assume that the manifest knows
   # about what's online
+  # TODO: make this function differently dependening
+  # on what sync-approach and remote-structure are
+  # (in addition to version source)
   switch(version_source,
     "manifest" = .projr_change_get_manifest(label = label),
     "file" = .projr_change_get_file(
@@ -178,7 +187,7 @@
   # okay, so what's the story.
   # so, so, what do we know now:
   # - what files have been removed, added or changed since last upload
-  # - remote type (local, osf, github-release)
+  # - remote type (local, osf, github)
   # - remote name (e.g. "My OSF project" or "Project inputs")
   # - remote structure (e.g. "latest" or "version")
   #   - Question: does this matter for GitHub?
@@ -191,13 +200,21 @@
   #   - in that case, presumably the change_list should be empty - don't
   #     bother getting it
   # - OSF-specific:
-  #  - {remote_base, path and path_append_label} OR path_final
+  #  - {remote_base (id), path and path_append_label} OR path_final
   #    (probably the former only)
   # - GitHub-specific:
   #   - body
   # - local-specific:
   #   - nothing
-  #
+  # okay, so it seems to depend a lot on the remote_structure,
+  # the sync approach and the version_source
+  # ya, when doing this for OSF the first thing I did
+  # was to get the remote structure
+  # then I deleted things if we used sync-using-deletion
+  # so, we actually only get the change list if the
+  # version-source is sync-using-version. Otherwise,
+  # we just either upload everything or delete everything.
+  # Okay, so now we just focus on the process for adding
 }
 
 # for a single label
@@ -207,18 +224,130 @@
                                    remote_name,
                                    yml_remote,
                                    label,
+                                   output_run,
                                    change_list) {
+  # get place where files are taken from and
+  # where they should go to
+  path_dir_local <- projr_dir_get(label, output_safe = !output_run)
+  remote_final <- .projr_remote_final_get(
+    remote_type = remote_type,
+    remote_name = remote_name,
+    label = label,
+    output_run = output_run,
+    yml_remote = yml_remote
+  )
 
+  # empty remote_final if we're using sync-using-deletion
+  .projr_remote_empty_sync_using_deletion <- function() {
+    if (yml_remote[["upload"]][["sync-approach"]] != "sync-using-deletion") {
+      return(invisible(NULL))
+    }
+    .projr_remote_empty(
+      remote_final = remote_final,
+      remote_type = remote_type,
+      remote_structure = yml_remote[["remote-structure"]]
+    )
+  }
+
+  # delete unused versioned remote directories if creatd
+  .projr_remote_rm_final_empty(
+    remote_final = remote_final,
+    remote_type = remote_type,
+    remote_structure = yml_remote[["remote-structure"]]
+  )
 }
 
 # ================================
 # clear function
 # ================================
 
-.projr_dest_send_content_clear <- function(remote_type,
-                                           remote_name,
-                                           yml_remote,
-                                           change_list) {
-  # may have to consider what to delete before uploading
-  # all at once
+# delete the remote if it's empty and it's versioned
+.projr_dest_send_label_clear <- function(remote,
+                                         label,
+                                         remote_structure,
+                                         sync_approach,
+                                         remote_type) {
+  if (!sync_approach == "sync-using-deletion") {
+    return(invisible(FALSE))
+  }
+  switch(remote_type,
+    "local" = .projr_dest_send_label_clear_local(
+      remote = remote,
+      label = label,
+      remote_structure = remote_structure
+    ),
+  )
+}
+
+# ================================
+# complete yml_remote
+# ================================
+
+# main function
+.projr_dest_send_yml_remote_complete <- function(yml_remote,
+                                                 remote_type) {
+  yml_remote[["remote_structure"]] <-
+    yml_remote[["remote_structure"]] %||% "version"
+  yml_remote[["upload"]][["cue"]] <-
+    yml_remote[["upload"]][["cue"]] %||% "patch"
+  yml_remote[["upload"]][["version_source"]] <-
+    yml_remote[["upload"]][["version_source"]] %||% "manifest"
+  # default will depend on remote type, as GitHub
+  # uses sync-using-deletion by default
+  yml_remote[["upload"]][["sync-approach"]] <-
+    .projr_dest_send_par_get_sync_approach(
+      sync_approach = yml_remote[["upload"]][["sync-approach"]],
+      version_source = yml_remote[["upload"]][["version_source"]],
+      remote_type = remote_type
+    )
+  yml_remote[["upload"]][["conflict"]] <- "overwrite"
+  yml_remote
+}
+
+# ----------------------
+# individual parameters
+# ----------------------
+
+# sync-approach
+.projr_dest_send_par_get_sync_approach <- function(sync_approach,
+                                                   version_source,
+                                                   remote_type) {
+  switch(remote_type,
+    "local" = ,
+    "osf" = .projr_dest_send_par_get_sync_approach_hierarchy(
+      sync_approach = sync_approach,
+      version_source = version_source
+    ),
+    "github" =
+      .projr_dest_send_par_get_sync_approach_github(
+        sync_approach = sync_approach,
+        version_source = version_source
+      )
+  )
+}
+
+.projr_dest_send_par_get_sync_approach_hierarchy <- function(sync_approach,
+                                                             version_source) {
+  # default is sync-using-version
+  sync_approach <- sync_approach %||% "sync-using-version"
+  version_source <- version_source %||% "manifest"
+  # if we cannot use versioning but must sync, the only option is
+  # sync-using-deletion
+  if (version_source == "none" && sync_approach == "sync-using-version") {
+    return("sync-using-deletion")
+  }
+  sync_approach
+}
+
+.projr_dest_send_par_get_sync_approach_github <- function(sync_approach,
+                                                          version_source) {
+  # default is sync-using-version, for speeds
+  sync_approach <- sync_approach %||% "sync-using-version"
+  version_source <- version_source %||% "manifest"
+  # only if we're allowed to use versioning and we're syncing
+  # do we use sync-using-version. Otherwise, we use sync-using-deletion
+  if (sync_approach == "sync-using-version" && version_source != "none") {
+    return("sync-using-version")
+  }
+  "sync-using-deletion"
 }

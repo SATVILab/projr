@@ -13,7 +13,7 @@
     renv::install("piggyback", prompt = FALSE)
     .projr_dep_add("piggyback")
   }
-  for (i in seq_along(projr_yml_get()[["build"]][["github-release"]])) {
+  for (i in seq_along(projr_yml_get()[["build"]][["github"]])) {
     gh_tbl_release <- try(
       suppressWarnings(suppressMessages(piggyback::pb_releases()))
     )
@@ -27,8 +27,8 @@
         break
       }
     }
-    yml_projr_gh_ind <- projr_yml_get()[["build"]][["github-release"]][[i]]
-    tag <- names(projr_yml_get()[["build"]][["github-release"]])[i]
+    yml_projr_gh_ind <- projr_yml_get()[["build"]][["github"]][[i]]
+    tag <- names(projr_yml_get()[["build"]][["github"]])[i]
     tag <- switch(tag,
       `@version` = paste0("v", projr_version_get()),
       tag
@@ -120,9 +120,9 @@
 
 .projr_pb_check_run <- function(output_run) {
   yml_projr <- projr_yml_get()
-  # either a dev run or else no github-release specified
+  # either a dev run or else no github release specified
   if ((!output_run) ||
-    (!"github-release" %in% names(yml_projr[["build"]]))) {
+    (!"github" %in% names(yml_projr[["build"]]))) {
     return(invisible(FALSE))
   }
   invisible(TRUE)

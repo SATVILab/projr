@@ -254,7 +254,7 @@ projr_yml_check <- function(yml_projr = NULL) {
   }
   nm_vec_extra <- setdiff(
     names(yml_projr_build),
-    c("dev-output", "git", "github-release", "package")
+    c("dev-output", "git", "github", "package", "local", "osf")
   )
   if (length(nm_vec_extra) > 0) {
     stop(paste0(
@@ -264,7 +264,7 @@ projr_yml_check <- function(yml_projr = NULL) {
     ))
   }
   .projr_yml_check_build_git(yml_projr_build[["git"]])
-  .projr_yml_check_build_gh_release(yml_projr_build[["github-release"]])
+  .projr_yml_check_build_gh_release(yml_projr_build[["github"]])
 
   TRUE
 }
