@@ -57,13 +57,7 @@
   # -----------------
 
   # can't assume there's only one label
-  label_vec <- unique(c(manifest_pre[["label"]], manifest_post[["label"]]))
-  lapply(
-    label_vec, .projr_change_get_hash,
-    hash_pre = manifest_pre,
-    hash_post = manifest_post
-  ) |>
-    stats::setNames(label_vec)
+  .projr_change_get_hash(hash_pre = manifest_pre, hash_post = manifest_post)
 }
 
 .projr_change_get_manifest_version_to_compare <- function(version_post = NULL,

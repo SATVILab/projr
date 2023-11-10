@@ -32,6 +32,18 @@
   invisible(TRUE)
 }
 
+if (!requireNamespace("piggyback", quietly = TRUE)) {
+}
+.projr_dep_install <- function(dep) {
+  for (x in dep) {
+    if (requireNamespace(x, quietly = TRUE)) {
+      next
+    }
+    renv::install(x, prompt = FALSE)
+    .projr_dep_add(x)
+  }
+}
+
 # taken from withr::with_dir
 with_dir <- function(new, code) {
   old <- setwd(dir = new)
@@ -53,4 +65,32 @@ with_dir <- function(new, code) {
 .projr_bump_component_get <- function(bump_component) {
   bump_component <- bump_component %||% "dev"
   if (is.logical(bump_component)) "dev" else bump_component
+}
+
+.projr_zip_file <- function(fn_rel,
+                            path_dir_fn_rel,
+                            fn_rel_zip,
+                            path_dir_fn_rel_zip = NULL) {
+  if (length(fn_rel) == 0L) {
+    return(character())
+  }
+  if (is.null(path_dir_fn_rel_zip)) {
+    path_dir_fn_rel_zip <- file.path(tempdir(), "zip", signif(rnorm(1)))
+  }
+  if (!dir.exists(path_dir_fn_rel_zip)) {
+    dir.create(path_dir_fn_rel_zip, recursive = TRUE)
+  }
+  path_zip <- file.path(path_dir_fn_rel_zip, fn_rel_zip)
+  with_dir(
+    path_dir_fn_rel,
+    {
+      sink(file.path(tempdir(), "zip123"))
+      fn_rel <- fn_rel[file.exists(fn_rel)]
+      if (length(fn_rel) == 0L) {
+        return(character())
+      }
+      utils::zip(zipfile = path_zip, files = fn_rel, flags = "-r9Xq")
+    }
+  )
+  invisible(TRUE)
 }

@@ -1,4 +1,5 @@
 .projr_test_setup_project <- function(git = TRUE,
+                                      github = FALSE,
                                       set_env_var = TRUE,
                                       base_name = "test_projr",
                                       env = rlang::caller_env()) {
@@ -37,9 +38,19 @@
   writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
 
   # create git repo
+  git <- if (github) TRUE else git
   if (git) {
     gert::git_init(dir_test)
+    gert::git_add(".")
+    gert::git_commit_all(message = "Initial commit")
   }
+  # create github repo if required
+  if (github) {
+    with_dir(dir_test, {
+      try(usethis::use_github(private = TRUE))
+    })
+  }
+
   dir_test
 }
 
@@ -100,4 +111,21 @@
   manifest <- .projr_build_manifest_hash_pre(output_run)
   .projr_manifest_write(manifest, output_run = output_run)
   manifest
+}
+
+.projr_test_dir_create_random <- function(base = tempdir(), create = TRUE) {
+  suffix <- .projr_test_random_string_get()
+  path_dir <- file.path(base, "test", suffix)
+  if (dir.exists(path_dir)) {
+    unlink(path_dir, recursive = TRUE)
+  }
+  if (create) {
+    dir.create(path_dir, recursive = TRUE)
+  }
+  path_dir
+}
+
+.projr_test_random_string_get <- function(prefix = "TestProjr") {
+  random_chr <- signif(rnorm(1))
+  if (is.null(prefix)) random_chr else paste0(prefix, random_chr)
 }

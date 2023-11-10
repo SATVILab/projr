@@ -3,17 +3,18 @@ library(testthat)
 devtools::load_all()
 # devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
 devtools::test_active_file(
-  "tests/testthat/test-misc.R"
+  "tests/testthat/test-remote.R"
 )
 devtools::test_active_file(
   "tests/testthat/test-osf-upload.R"
 )
 
+id <- try(osfr::osf_create_component(
+  x = .projr_remote_get_osf(id = parent_id),
+  title = title, description = body, public = public, category = category
+)[["id"]])
+
 list.dirs(dir_test, recursive = FALSE)
-# tests passing:
-# - test-osf-download.R
-# - test-osf-yml.R
-# - test-manual-osf-upload.R
 
 # scratch code
 yml_projr_dir <- projr_yml_get_unchecked()[["directories"]][["data-raw"]]

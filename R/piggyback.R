@@ -14,28 +14,12 @@
     .projr_dep_add("piggyback")
   }
   for (i in seq_along(projr_yml_get()[["build"]][["github"]])) {
-    gh_tbl_release <- try(
-      suppressWarnings(suppressMessages(piggyback::pb_releases()))
-    )
-    if (identical(class(gh_tbl_release), "try-error")) {
-      Sys.sleep(3)
-      gh_tbl_release <- try(
-        suppressWarnings(suppressMessages(piggyback::pb_releases()))
-      )
-      if (identical(class(gh_tbl_release), "try-error")) {
-        warning("Could not upload to GitHub release.")
-        break
-      }
+    gh_tbl_release <- .projr_pb_get_release_tbl()
+    if (inherits(gh_tbl_release, "try-error")) {
+      break
     }
     yml_projr_gh_ind <- projr_yml_get()[["build"]][["github"]][[i]]
-    tag <- names(projr_yml_get()[["build"]][["github"]])[i]
-    tag <- switch(tag,
-      `@version` = paste0("v", projr_version_get()),
-      tag
-    )
-    tag <- gsub("^ +", "", tag)
-    tag < gsub(" +$", "", tag)
-    tag <- gsub(" ", "-", tag)
+
     body <- yml_projr_gh_ind[["body"]]
     if (!tag %in% gh_tbl_release[["release_name"]]) {
       pb_release_create <- try(
@@ -77,7 +61,9 @@
             piggyback::pb_release_create(tag = tag, body = body)
           )
           if (identical(class(pb_release_create), "try-error")) {
-            warning(paste0("Could not re-create a GitHub release with tag ", tag))
+            warning(paste0(
+              "Could not re-create a GitHub release with tag ", tag
+            ))
             next
           }
         }
@@ -190,4 +176,78 @@
   key_copy_vec_cache <- names(yml_projr_dir)[key_copy_vec_cache_ind]
   dir_exc <- paste0("projr-", key_copy_vec_cache)
   c(dir_exc, "projr_gh_release")
+}
+
+# ========================
+# New stuff for use in integrated uploads
+# ========================
+
+.projr_pb_get_release_tbl <- function(pause_second = 3) {
+  gh_tbl_release <- .projr_pb_get_release_tbl_attempt()
+  if (!inherits(gh_tbl_release, "try-error")) {
+    return(gh_tbl_release)
+  }
+  Sys.sleep(pause_second)
+  .projr_pb_get_release_tbl_attempt()
+}
+
+.projr_pb_get_release_tbl_attempt <- function() {
+  try(suppressWarnings(suppressMessages(piggyback::pb_releases())))
+}
+
+.projr_pb_tag_format <- function(tag) {
+  tag <- switch(tag,
+    `@version` = paste0("v", projr_version_get()),
+    tag
+  )
+  tag <- gsub("^ +", "", tag)
+  tag < gsub(" +$", "", tag)
+  gsub(" ", "-", tag)
+}
+
+.projr_pb_get_release <- function(tag) {
+  gh_tbl_release <- .projr_pb_get_release_tbl()
+  if (inherits(gh_tbl_release, "try-error")) {
+    return(invisible(FALSE))
+  }
+  if (!tag %in% gh_tbl_release[["release_name"]]) {
+    if (!.projr_pb_create_release(tag = tag)) {
+      return(invisible(FALSE))
+    }
+  }
+}
+
+.projr_pb_create_release <- function(tag, pause_second = 3) {
+  pb_release_create <- .projr_pb_create_release_attempt(tag = tag)
+  if (!inherits(pb_release_create, "try-error")) {
+    return(invisible(TRUE))
+  }
+  Sys.sleep(pause_second)
+  pb_release_create <- .projr_pb_create_release_attempt(tag = tag)
+  !inherits(pb_release_create, "try-error")
+}
+
+.projr_pb_create_release_attempt <- function(tag) {
+  try(suppressWarnings(suppressMessages(piggyback::pb_release_create(tag = tag))))
+}
+
+.projr_pb_upload <- function(path_zip, tag, pause_second = 3) {
+  pb_upload <- .projr_pb_upload_attempt(path_zip = path_zip, tag = tag)
+  if (!inherits(pb_upload, "try-error")) {
+    return(invisible(TRUE))
+  }
+  Sys.sleep(pause_second)
+  pb_upload <- .projr_pb_upload_attempt(path_zip = path_zip, tag = tag)
+  if (!inherits(pb_upload, "try-error")) {
+    return(invisible(TRUE))
+  }
+  warning(paste0(
+    "Could not upload ", basename(path_zip), " to GitHub release with tag ", tag
+  ))
+  invisible(FALSE)
+}
+.projr_pb_upload_attempt <- function(path_zip, tag) {
+  try(suppressWarnings(suppressMessages(
+    piggyback::pb_upload(file = path_zip, tag = tag)
+  )))
 }

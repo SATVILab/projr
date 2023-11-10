@@ -15,7 +15,8 @@
   project <- paste0(
     prefix, "ProjrOSFTest", rnorm(1) |> signif(4) |> as.character()
   )
-  .projr_osf_get_node(
+  .projr_remote_create(
+    remote_type = "osf",
     title = project,
     category = "project",
     public = FALSE,
