@@ -40,8 +40,10 @@
   # create git repo
   git <- if (github) TRUE else git
   if (git) {
+    browser()
     gert::git_init(dir_test)
     gert::git_add(".")
+    gert::git_commit(message = "Initial commit")
     gert::git_commit_all(message = "Initial commit")
   }
   # create github repo if required
