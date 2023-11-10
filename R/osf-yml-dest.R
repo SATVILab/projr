@@ -190,51 +190,51 @@ projr_dest_add_osf <- function(title,
                                       download,
                                       upload,
                                       overwrite) {
-  .projr_osf_yml_check_title(title = title)
+  .projr_remote_check_osf_base(
+    title = title,
+    id = id,
+    parent_id = parent_id,
+    category = category,
+    body = body,
+    public = public,
+    parent_title = parent_title,
+    path = path,
+    path_append_label = path_append_label
+  )
+  .projr_remote_check_osf_overwrite(overwrite = overwrite)
+
+  # structure
+  # --------------------
+  .projr_remote_check_osf_remote_structure(
+    remote_structure = remote_structure,
+    nm_opt = c("latest", "version", "content")
+  )
   # no requirement that there is content
   # if it's a project
   if (category != "project") {
-    .projr_osf_yml_check_label(
+    .projr_remote_check_osf_label(
       label = content,
       type_opt = c("data-raw", "cache", "output", "archive", "docs")
     )
   } else if (!is.null(content)) {
-    .projr_osf_yml_check_label(
+    .projr_remote_check_osf_label(
       label = content,
       type_opt = c("data-raw", "cache", "output", "archive", "docs")
     )
   }
 
-  .projr_osf_yml_check_public(public = public)
-  .projr_osf_yml_check_body(body = body)
-  .projr_osf_yml_check_category(category = category)
-  .projr_osf_yml_check_parent_id(parent_id = parent_id)
-  .projr_osf_yml_check_parent_title(parent_title = parent_title)
-  .projr_osf_yml_check_proj_with_parent(
-    parent_id = parent_id, parent_title = parent_title, category = category
-  )
-  .projr_osf_yml_check_overwrite(overwrite = overwrite)
-  .projr_osf_yml_check_path(path = path)
-  .projr_osf_yml_check_path_append_label(
-    path_append_label = path_append_label
-  )
-  .projr_osf_yml_check_remote_structure(
-    remote_structure = remote_structure,
-    nm_opt = c("latest", "version", "content")
-  )
-
   # download
   # ---------------------
-  .projr_osf_yml_check_trans_list(trans_list = download)
-  .projr_osf_yml_check_trans_names(
+  .projr_remote_check_osf_trans_list(trans_list = download)
+  .projr_remote_check_osf_trans_names(
     trans_list = download,
     nm_opt = c("sync_approach", "conflict")
   )
-  .projr_osf_yml_check_cue(
+  .projr_remote_check_osf_cue(
     trans_list = download,
     nm_opt = c("none", "build", "major", "minor", "patch")
   )
-  .projr_osf_yml_check_sync_approach(
+  .projr_remote_check_osf_sync_approach(
     trans_list = download,
     nm_opt = c(
       "download-all",
@@ -244,16 +244,16 @@ projr_dest_add_osf <- function(title,
   )
   # upload
   # -----------------------
-  .projr_osf_yml_check_trans_list(trans_list = upload)
-  .projr_osf_yml_check_trans_names(
+  .projr_remote_check_osf_trans_list(trans_list = upload)
+  .projr_remote_check_osf_trans_names(
     trans_list = upload,
     nm_opt = c("cue", "sync-approach", "version-source", "conflict")
   )
-  .projr_osf_yml_check_cue(
+  .projr_remote_check_osf_cue(
     trans_list = upload,
     nm_opt = c("none", "build", "major", "minor", "patch", "change")
   )
-  .projr_osf_yml_check_sync_approach(
+  .projr_remote_check_osf_sync_approach(
     trans_list = upload,
     nm_opt = c(
       "upload-missing",
@@ -262,7 +262,7 @@ projr_dest_add_osf <- function(title,
       "sync-using-version" # haven't implemented this one yet
     )
   )
-  .projr_osf_yml_check_conflict(trans_list = upload)
+  .projr_remote_check_osf_conflict(trans_list = upload)
 }
 
 .projr_osf_dest_get_list_add <- function(title,

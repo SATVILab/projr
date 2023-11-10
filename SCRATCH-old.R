@@ -1,3 +1,172 @@
+  # may have to consider what to delete before uploading
+  # all at once
+  # okay, so, I'm stuck because I don't actually have an idea yet.
+  # all right, let's start talking.
+  # okay, so what's the story.
+  # so, so, what do we know now:
+  # - what files have been removed, added or changed since last upload
+  # - remote type (local, osf, github)
+  # - remote name (e.g. "My OSF project" or "Project inputs")
+  # - remote structure (e.g. "latest" or "version")
+  #   - Question: does this matter for GitHub?
+  # - sync approach (upload-all, upload-missing, sync-using-deletion or
+  #   sync-using version)
+  # - conflict
+  #   - what to do about file conflicts
+  # - version source does not matter now, as we already have decided
+  #   - well, wait - what if we just want to send everything?
+  #   - in that case, presumably the change_list should be empty - don't
+  #     bother getting it
+  # - OSF-specific:
+  #  - {remote_base (id), path and path_append_label} OR path_final
+  #    (probably the former only)
+  # - GitHub-specific:
+  #   - body
+  # - local-specific:
+  #   - nothing
+  # okay, so it seems to depend a lot on the remote_structure,
+  # the sync approach and the version_source
+  # ya, when doing this for OSF the first thing I did
+  # was to get the remote structure
+  # then I deleted things if we used sync-using-deletion
+  # so, we actually only get the change list if the
+  # version-source is sync-using-version. Otherwise,
+  # we just either upload everything or delete everything.
+  # Okay, so now we just focus on the process for adding
+  # decide what to do
+  
+# ==================================
+# actually send
+# ==================================
+
+# send to a remote
+
+.projr_dest_send_label_send <- function(path_dir_local,
+                                        remote_final,
+                                        change_list,
+                                        remote_structure) {
+  # okay, so what variants do I have here?
+  # okay, so the main thing is just figuring out
+  # based on sync-structure what to upload
+  # it would be nice if change list had everything.
+  # I suppose, though, that that involves hashing.
+  # maybe we should make it more general, and make
+  # "action_list", as we don't actually need to
+  # use hashes if we're using upload-all,
+  # upload-missing or upload-using-deletion.
+  # what do we need for upload-all?
+  # well, we need to know what's in the local directory
+  # - what do we need for upload-missing?
+  # we need to know what's not on the remote
+  # - what do we need for sync-using-deletion?
+  # we need to know what's in the local directory
+  # - what do we need for sync-using-version?
+  # we need to know what's changed since the last version
+  # - okay, so the change_list can be made more general.
+  # no problem with it, really, and it kind of simplifies my thinking here.
+  # doesn't this also depend on the remote structure?
+  # well, let's see.
+  # latest:
+  # - upload-all: list of files locally
+  # - upload-missing: list of files locally not on remote
+  # - sync-using-deletion: list of files locally
+  # - sync-using-version: list of files locally that have changed
+  # (added, removed or changed)
+  # version:
+  # - upload-all: list of files locally
+  # - upload-missing: list of files locally not on remote
+  # - sync-using-deletion: list of files locally
+  # - sync-using-version: list of files locally that have changed
+  # how does version source affect the above?
+  # if none:
+  # - latest:
+  #   - sync-using-deletion and upload-all need all files to upload
+  #   - upload-missing will simply upload all files (so, it'll
+  #     be different)
+  #   - sync-using-version will upload all files (so, it'll be different)
+  #   - In all cases, we basically upload everything.
+  #   - The only difference is that for sync-using-deletiong
+  #     we actually delete everything.
+  #   - I suppose we also say that sync-using-version becomes
+  #     sync-using-deletion
+  # - version:
+  #  - you know, it's the same, except that we know automatically
+  #    that upload-missing is upload-all and sync-using-version
+  #    is sync-using-deletion
+  # if manifest/file:
+  # - latest:
+  #   - upload-all and sync-using-deletion need
+  #     all files that are in local directory (same)
+  #   - upload-missing just needs files
+  #     that are not on remote (same)
+  #   - sync-using-version will need files to add and files to remove,
+  #     and will determine this by comparing hashes
+  #     (different way of getting changes)
+  # - version:
+  #   - upload-all and sync-using-deletion upload everything
+  #   - upload-missing uploads everything
+  #   - sync-using-version uploads everything if anything has changed,
+  #     so we need to check if anything has changed. If it has,
+  #     we upload everything.
+  # - how does vary for local vs osf vs github:
+  # - osf & local:
+  #   - as above
+  # - github:
+  #   -
+  .projr_dest_send_label_
+}
+
+
+# ================================
+# change functions
+# ================================
+
+# for multiple labels
+# ------------------------
+.projr_dest_change_get_content <- function(content,
+                                           output_run,
+                                           remote_type,
+                                           remote_name,
+                                           yml_remote) {
+  args_list <- list(
+    output_run = output_run, remote_type = remote_type,
+    remote_name = remote_name, yml_remote = yml_remote
+  )
+  lapply(content, function(x) {
+    do.call(.projr_dest_change_get_label, list(label = x) |> append(args_list))
+  }) |>
+    stats::setNames(content)
+}
+
+# for a single label
+# ------------------------
+
+.projr_dest_change_get_label <- function(label,
+                                         output_run,
+                                         remote_type,
+                                         remote_base,
+                                         remote_final,
+                                         path_remote_rel,
+                                         version_source) {
+  # this will assume that the manifest knows
+  # about what's online
+  # TODO: make this function differently dependening
+  # on what sync-approach and remote-structure are
+  # (in addition to version source)
+  switch(version_source,
+    "manifest" = .projr_change_get_manifest(label = label),
+    "file" = .projr_change_get_file(
+      output_run = output_run,
+      remote_type_pre = remote_type,
+      remote_base_pre = remote_base,
+      remote_final_pre = remote_final,
+      path_remote_rel_pre = path_remote_rel,
+      label_post = label
+    ),
+    stop(paste0("version_source '", version_source, "' not recognized"))
+  )
+}
+
 # old test-dir.R code (seems to be a repeat of earlier, but with bugs not fixed)
 
 test_that("projr_dir_ignore works", {

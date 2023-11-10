@@ -2,8 +2,22 @@
 # ===========================================================================
 
 .projr_dir_get <- function(label, ..., output_safe) {
+  if (label == "code") {
+    # useful for uploading source code to github,
+    # as code is the label but we don't actually
+    # want to upload anything in the code directory
+    return(.projr_dir_get_code())
+  }
   dir_label <- .projr_dir_get_label(label, output_safe)
   .projr_dir_get_full(dir_label, ...)
+}
+
+.projr_dir_get_code <- function() {
+  dir_out <- file.path(tempdir(), "projr", signif(rnorm(1)), "code")
+  if (dir.exists(dir_out)) {
+    unlink(dir_out, recursive = TRUE)
+  }
+  dir_out
 }
 
 .projr_dir_get_full <- function(dir_label, ...) {
