@@ -34,7 +34,7 @@
 #' `"other"`.
 #' Only used if `id` is `NULL`.
 #' Default is `NULL.`
-#' @param parent_id character.
+#' @param id_parent character.
 #' The id of the parent project or component.
 #' Must be five characters (if supplied).
 #' Only used if `id` is `NULL`.
@@ -74,7 +74,7 @@
 #' projr_source_add_osf(
 #'   label = "data-raw",
 #'   category = "data",
-#'   parent_id = "y235k"
+#'   id_parent = "y235k"
 #' )
 projr_source_add_osf <- function(label,
                                  overwrite = FALSE,
@@ -83,7 +83,7 @@ projr_source_add_osf <- function(label,
                                  body = NULL,
                                  public = FALSE,
                                  category = NULL,
-                                 parent_id = NULL,
+                                 id_parent = NULL,
                                  path = NULL,
                                  path_append_label = NULL,
                                  remote_structure = NULL,
@@ -116,7 +116,7 @@ projr_source_add_osf <- function(label,
   # check inputs
   .projr_source_add_osf_check(
     label = label, id = id, title = title, body = body,
-    public = public, category = category, parent_id = parent_id,
+    public = public, category = category, id_parent = id_parent,
     overwrite = overwrite,
     path = path, path_append_label = path_append_label,
     remote_structure = remote_structure,
@@ -139,7 +139,7 @@ projr_source_add_osf <- function(label,
   id <- .projr_osf_get_node_as_node(
     title = title,
     id = id,
-    parent_id = parent_id,
+    id_parent = id_parent,
     category = category,
     body = body,
     public = public
@@ -194,7 +194,7 @@ projr_source_add_osf <- function(label,
                                         path,
                                         path_append_label,
                                         remote_structure,
-                                        parent_id,
+                                        id_parent,
                                         overwrite,
                                         download,
                                         upload) {
@@ -206,9 +206,9 @@ projr_source_add_osf <- function(label,
   .projr_osf_yml_check_body(body = body)
 
   .projr_osf_yml_check_id(id = id)
-  .projr_osf_yml_check_parent_id(parent_id = parent_id)
+  .projr_osf_yml_check_id_parent(id_parent = id_parent)
   .projr_osf_yml_check_proj_with_parent(
-    parent_id = parent_id, category = category
+    id_parent = id_parent, category = category
   )
   .projr_osf_yml_check_overwrite(overwrite = overwrite)
   .projr_osf_yml_check_path(path = path)
@@ -294,7 +294,7 @@ projr_source_add_osf <- function(label,
 
 
 .projr_source_add_osf_get_id <- function(id,
-                                         parent_id,
+                                         id_parent,
                                          title,
                                          yml_param) {
   if (!is.null(id)) {
@@ -308,13 +308,13 @@ projr_source_add_osf <- function(label,
   }
   # attempt to get node if it is already there
   osf_tbl <- .projr_osf_get_node_id_parent(
-    title = title, parent_id = parent_id, parent_id_force = parent_id
+    title = title, id_parent = id_parent, id_parent_force = id_parent
   )
   if (!is.null(osf_tbl)) {
     return(osf_tbl[["id"]][[1]])
   }
   # create node if it isn't
   .projr_osf_create_node(
-    title = title, yml_param = yml_param, parent_id = parent_id
+    title = title, yml_param = yml_param, id_parent = id_parent
   )[["id"]]
 }

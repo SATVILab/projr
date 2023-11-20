@@ -5,9 +5,10 @@ devtools::load_all()
 devtools::test_active_file(
   "tests/testthat/test-remote.R"
 )
-devtools::test_active_file(
-  "tests/testthat/test-osf-upload.R"
-)
+
+try(suppressWarnings(suppressMessages(piggyback::pb_releases(
+  repo = "MiguelRodo/ProjrGitHubTesttest_projr-0.7355"
+)))) -> out
 
 id <- try(osfr::osf_create_component(
   x = .projr_remote_get_osf(id = parent_id),
@@ -20,6 +21,23 @@ list.dirs(dir_test, recursive = FALSE)
 yml_projr_dir <- projr_yml_get_unchecked()[["directories"]][["data-raw"]]
 
 # ==========================================
+
+# ==========================================
+# GitHub setup for testing
+# ==========================================
+
+# Define the URL of the remote repository
+user <- "MiguelRodo"
+repo <- basename(dir_test)
+url <- paste0("https://github.com/", user, "/", repo, ".git")
+
+# Call the 'git' command to add the remote repository
+system2("git", args = c("remote", "add", "origin", url))
+if (inherits(create_repo, "try-error")) {
+  gert::git_remote_add(
+    repo = paste0(gh::gh_whoami()$user, "/", basename(dir_test))
+  )
+}
 
 # ==========================================
 # old manifest_compare

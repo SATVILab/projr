@@ -30,16 +30,16 @@ build:
       content: [output, docs]
       body: "Project outputs"
   osf:
-    `data-raw`:
+    "data-raw":
       content: data-raw
       id: 128f2
       component:
         name: output
         id: 1k28d
-    `output`:
+    "output":
       content: output
       id: 128l5
   local:
-    `archive-data-raw`:
+    "archive-data-raw":
       content: data-raw
       path: _archive

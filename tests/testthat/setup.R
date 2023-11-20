@@ -1,18 +1,36 @@
-# if any nodes are created during tests
-# and have not yet been removed, remove them
-temp_path_dir_osf_rm <- file.path(tempdir(), "osf_node_to_remove")
+# remove any nodes and repos that were created
+
+# directories to record them in
+
+
+# function to delete them
+.projr_test_osf_rm <- function() {
+  fn_vec <- list.files(.projr_test_osf_remote_dir_get_tmp())
+  for (i in seq_along(fn_vec)) {
+    try(
+      .projr_remote_host_rm(remote_type = "osf", fn_vec[i]),
+      silent = TRUE
+    )
+  }
+  unlink(.projr_test_osf_remote_dir_get_tmp(), recursive = TRUE)
+}
+.projr_test_github_rm <- function() {
+  fn_vec <- list.files(.projr_test_git_remote_dir_get_tmp())
+  fn_vec <- setdiff(fn_vec, "projr")
+  for (i in seq_along(fn_vec)) {
+    try(
+      .projr_remote_host_rm(remote_type = "github", fn_vec[i]),
+      silent = TRUE
+    )
+  }
+  unlink(.projr_test_git_remote_dir_get_tmp(), recursive = TRUE)
+}
+
+# instruct deletion upon completion of all tests
 withr::defer(
   {
-    if (dir.exists(temp_path_dir_osf_rm)) {
-      fn_vec <- list.files(temp_path_dir_osf_rm)
-      for (i in seq_along(fn_vec)) {
-        try(
-          .projr_osf_rm_node_id(fn_vec[i]),
-          silent = TRUE
-        )
-      }
-      unlink(path_dir_rm, recursive = TRUE)
-    }
+    .projr_test_osf_rm()
+    .projr_test_github_rm()
   },
   envir = teardown_env()
 )

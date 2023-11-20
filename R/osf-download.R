@@ -19,7 +19,7 @@
   }
 }
 
-.projr_checkout_osf_label <- function(label, version, parent_id_force = NULL) {
+.projr_checkout_osf_label <- function(label, version, id_parent_force = NULL) {
   if (missing(label)) {
     stop("label must be specified")
   }
@@ -206,7 +206,7 @@
   for (i in seq_along(yml_projr_build_osf)) {
     .projr_osf_download_build_node(
       title = names(yml_projr_build_osf)[i],
-      parent_id = NULL,
+      id_parent = NULL,
       output_safe = output_safe
     )
   }
@@ -303,17 +303,17 @@
 }
 
 .projr_osf_download_build_node <- function(title,
-                                           parent_id = NULL,
+                                           id_parent = NULL,
                                            output_safe) {
   yml_param <- projr_yml_get_unchecked()[["build"]][["osf"]][[title]]
-  parent_id <- .projr_osf_get_parent_id(
-    yml_param = yml_param, parent_id = parent_id
+  id_parent <- .projr_osf_get_id_parent(
+    yml_param = yml_param, id_parent = id_parent
   )
   id <- yml_param[["id"]]
   if (!is.null(id)) {
     osf_tbl <- .projr_osf_get_node_id(id)
   } else {
-    osf_tbl <- .projr_osf_get_node_id_parent(title, parent_id)
+    osf_tbl <- .projr_osf_get_node_id_parent(title, id_parent)
   }
   if (is.null(osf_tbl)) {
     stop(paste0("osf node id not found for title ", title))

@@ -20,13 +20,13 @@
     title = project,
     category = "project",
     public = FALSE,
-    parent_id = NULL
+    id_parent = NULL
   )
 }
 
 .projr_osf_rm_node_id_defer <- function(id, env = parent.frame()) {
   # store label in tempdir() to be removed later
-  path_file_rm <- file.path(temp_path_dir_osf_rm, id)
+  path_file_rm <- file.path(.projr_test_osf_remote_dir_get_tmp(), id)
   invisible(file.create(path_file_rm, showWarnings = FALSE))
   withr::defer(
     {
@@ -42,7 +42,7 @@
 # SHOULD WORK JUST FINE.
 # DO NOT CHANGE WITHOUT THINKING HARD ABOUT
 # WHAT YOU ARE DOING.
-.projr_osf_rm_project_all <- function() {
+.projr_remote_host_rm_all_osf <- function() {
   osf_tbl <- osfr::osf_retrieve_user("me") |>
     osfr::osf_ls_nodes()
   ind_vec <- grepl("ProjrOSFTest", osf_tbl[["name"]])
@@ -71,6 +71,14 @@
     }
   }
   for (id in id_vec) {
-    osfr::osf_rm(x = osfr::osf_retrieve_node(id), check = FALSE, recurse = TRUE)
+    .projr_remote_host_rm_osf(remote_host = id)
   }
+}
+
+.projr_test_osf_remote_dir_get_tmp <- function() {
+  path_dir <- file.path(tempdir(), "osf_node_to_remove")
+  if (!dir.exists(path_dir)) {
+    dir.create(path_dir, recursive = TRUE)
+  }
+  path_dir
 }

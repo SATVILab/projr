@@ -40,19 +40,30 @@
   # create git repo
   git <- if (github) TRUE else git
   if (git) {
-    browser()
     gert::git_init(dir_test)
-    gert::git_add(".")
-    gert::git_commit(message = "Initial commit")
-    gert::git_commit_all(message = "Initial commit")
+    gert::git_add(".", repo = dir_test)
+    gert::git_commit(message = "Initial commit", repo = dir_test)
   }
   # create github repo if required
   if (github) {
     with_dir(dir_test, {
-      try(usethis::use_github(private = TRUE))
+      remote_vec <- .projr_test_git_remote_get()
+      if (length(remote_vec) == 0L) {
+        repo <- .projr_test_github_repo_create(
+          repo = basename(dir_test), env = env
+        ) |>
+          basename()
+        .projr_test_github_repo_remote_add(repo = repo)
+        remote_vec <- .projr_test_git_remote_get()
+        if (length(remote_vec) == 0L) {
+          stop("No remotes found")
+        }
+        invisible(.projr_test_git_set_upstream_and_force_push())
+      } else {
+        # should really check that the remote exists
+      }
     })
   }
-
   dir_test
 }
 
@@ -127,7 +138,7 @@
   path_dir
 }
 
-.projr_test_random_string_get <- function(prefix = "TestProjr") {
+.projr_test_random_string_get <- function(prefix = "ProjrOSFTest") {
   random_chr <- signif(rnorm(1))
   if (is.null(prefix)) random_chr else paste0(prefix, random_chr)
 }

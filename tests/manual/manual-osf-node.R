@@ -29,7 +29,7 @@ test_that(".projr_osf_get_node works", {
         category = "project", description = "desc", public = FALSE
       )
       osf_tbl <- try(.projr_osf_create_node(
-        title = "abc", yml_param = yml_param, parent_id = NULL
+        title = "abc", yml_param = yml_param, id_parent = NULL
       ))
       expect_true(inherits(osf_tbl, "osf_tbl_node"))
       try(osfr::osf_rm(osf_tbl, check = FALSE, recurse = TRUE))
@@ -39,14 +39,14 @@ test_that(".projr_osf_get_node works", {
         category = "data", description = "desc", public = FALSE
       )
       osf_tbl <- try(.projr_osf_create_node(
-        title = "abc", yml_param = yml_param, parent_id = "q26c9"
+        title = "abc", yml_param = yml_param, id_parent = "q26c9"
       ))
       expect_true(inherits(osf_tbl, "osf_tbl_node"))
       try(osfr::osf_rm(osf_tbl, check = FALSE, recurse = TRUE))
 
       # test end to end
       osf_tbl <- try(.projr_osf_get_node(
-        title = "Test", yml_param = yml_param, parent_id = "q26c9"
+        title = "Test", yml_param = yml_param, id_parent = "q26c9"
       ))
       expect_true(inherits(osf_tbl, "osf_tbl_node"))
       try(osfr::osf_rm(osf_tbl, check = FALSE, recurse = TRUE))
@@ -88,7 +88,7 @@ test_that(".projr_osf_get_node works", {
         category = "project", description = "desc", public = FALSE
       )
       osf_tbl <- try(.projr_osf_create_node(
-        title = "abc", yml_param = yml_param, parent_id = NULL
+        title = "abc", yml_param = yml_param, id_parent = NULL
       ))
       expect_true(inherits(osf_tbl, "osf_tbl_node"))
       try(osfr::osf_rm(osf_tbl, check = FALSE, recurse = TRUE))
@@ -98,14 +98,14 @@ test_that(".projr_osf_get_node works", {
         category = "data", description = "desc", public = FALSE
       )
       osf_tbl <- try(.projr_osf_create_node(
-        title = "abc", yml_param = yml_param, parent_id = "q26c9"
+        title = "abc", yml_param = yml_param, id_parent = "q26c9"
       ))
       expect_true(inherits(osf_tbl, "osf_tbl_node"))
       try(osfr::osf_rm(osf_tbl, check = FALSE, recurse = TRUE))
 
       # test end to end
       osf_tbl <- try(.projr_osf_get_node(
-        title = "Test", yml_param = yml_param, parent_id = "q26c9"
+        title = "Test", yml_param = yml_param, id_parent = "q26c9"
       ))
       expect_true(inherits(osf_tbl, "osf_tbl_node"))
       try(osfr::osf_rm(osf_tbl, check = FALSE, recurse = TRUE))

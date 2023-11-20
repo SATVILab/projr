@@ -19,7 +19,7 @@
 #' `"other"`. Default is `NULL.`
 #' @param id character. The id of the project or component. Must be five
 #' characters. Default is `NULL`.
-#' @param parent_id character. The id of the parent project or component.
+#' @param id_parent character. The id of the parent project or component.
 #' Must be five characters. Default is `NULL`.
 #' @param parent_title character. The title of the parent project or component.
 #' Default is `NULL`.
@@ -37,7 +37,7 @@ projr_dest_add_osf <- function(title,
                                body = NULL,
                                public = FALSE,
                                category = NULL,
-                               parent_id = NULL,
+                               id_parent = NULL,
                                parent_title = NULL,
                                path = NULL,
                                path_append_label = NULL,
@@ -76,7 +76,7 @@ projr_dest_add_osf <- function(title,
   .projr_dest_add_osf_check( # nolint
     id = id,
     title = title,
-    parent_id = parent_id,
+    id_parent = id_parent,
     parent_title = parent_title,
     content = content,
     body = body,
@@ -114,13 +114,13 @@ projr_dest_add_osf <- function(title,
   if (is_component) {
     # get what its parent is
     parent_vec <- .projr_osf_yml_get_parent_vec(
-      parent_id = parent_id,
+      id_parent = id_parent,
       parent_title = parent_title,
       yml_projr_osf = yml_projr_osf
     )
     # get the parent's id
-    parent_id <- .projr_dest_add_osf_get_parent_id(
-      parent_id = parent_id,
+    id_parent <- .projr_dest_add_osf_get_id_parent(
+      id_parent = id_parent,
       parent_vec = parent_vec,
       yml_projr_osf = yml_projr_osf
     )
@@ -128,7 +128,7 @@ projr_dest_add_osf <- function(title,
     id <- .projr_osf_get_node_as_node(
       title = title,
       id = id,
-      parent_id = parent_id,
+      id_parent = id_parent,
       category = category,
       body = body,
       public = public
@@ -142,7 +142,7 @@ projr_dest_add_osf <- function(title,
         overwrite = overwrite,
         title = title,
         list_add = list_add,
-        parent_id = parent_id
+        id_parent = id_parent
       )
     } else {
       # if specified, add to parent
@@ -178,7 +178,7 @@ projr_dest_add_osf <- function(title,
 
 .projr_dest_add_osf_check <- function(id,
                                       title,
-                                      parent_id,
+                                      id_parent,
                                       parent_title,
                                       content,
                                       body,
@@ -193,7 +193,7 @@ projr_dest_add_osf <- function(title,
   .projr_remote_check_osf_base(
     title = title,
     id = id,
-    parent_id = parent_id,
+    id_parent = id_parent,
     category = category,
     body = body,
     public = public,
@@ -295,32 +295,32 @@ projr_dest_add_osf <- function(title,
   list(list_add) |> stats::setNames(title)
 }
 
-.projr_osf_yml_get_parent_vec <- function(parent_id,
+.projr_osf_yml_get_parent_vec <- function(id_parent,
                                           parent_title,
                                           yml_projr_osf) {
-  parent_specified <- !is.null(parent_id) || !is.null(parent_title)
+  parent_specified <- !is.null(id_parent) || !is.null(parent_title)
   if (!parent_specified) {
     return(character())
   }
   parent_vec <- .projr_osf_yml_find_parent(
-    parent_id = parent_id,
+    id_parent = id_parent,
     parent_title = parent_title,
     yml_projr_osf = yml_projr_osf
   )
-  if (is.null(parent_id) && length(parent_vec) == 0L) {
+  if (is.null(id_parent) && length(parent_vec) == 0L) {
     stop(paste0(
-      "parent_id must be specified for components with no parent in build OSF hierarchy" # nolint
+      "id_parent must be specified for components with no parent in build OSF hierarchy" # nolint
     ))
   }
   parent_vec
 }
 
-.projr_osf_yml_find_parent <- function(parent_id = NULL,
+.projr_osf_yml_find_parent <- function(id_parent = NULL,
                                        parent_title = NULL,
                                        yml_projr_osf = NULL,
                                        parent_search = NULL) {
   .projr_osf_yml_find_parent_rec(
-    parent_id = parent_id,
+    id_parent = id_parent,
     parent_title = parent_title,
     yml_projr_osf = yml_projr_osf,
     parent_search = parent_search
@@ -328,7 +328,7 @@ projr_dest_add_osf <- function(title,
     unlist()
 }
 
-.projr_osf_yml_find_parent_rec <- function(parent_id = NULL,
+.projr_osf_yml_find_parent_rec <- function(id_parent = NULL,
                                            parent_title = NULL,
                                            yml_projr_osf = NULL,
                                            parent_search = NULL) {
@@ -345,7 +345,7 @@ projr_dest_add_osf <- function(title,
   # return NULL for no parent found
 
   # no parent found if no parent info provided
-  if (is.null(parent_id) && is.null(parent_title)) {
+  if (is.null(id_parent) && is.null(parent_title)) {
     return(invisible(character()))
   }
 
@@ -364,8 +364,8 @@ projr_dest_add_osf <- function(title,
     names(yml_projr_osf_lvl),
     function(x) {
       # look within this level
-      if (!is.null(parent_id)) {
-        if (identical(yml_projr_osf_lvl[[x]][["id"]], parent_id)) {
+      if (!is.null(id_parent)) {
+        if (identical(yml_projr_osf_lvl[[x]][["id"]], id_parent)) {
           return(invisible(c(parent_search, x)))
         }
       }
@@ -380,7 +380,7 @@ projr_dest_add_osf <- function(title,
       }
 
       .projr_osf_yml_find_parent_rec(
-        parent_id = parent_id,
+        id_parent = id_parent,
         parent_title = parent_title,
         yml_projr_osf = yml_projr_osf,
         parent_search = c(parent_search, x, "component")
@@ -428,10 +428,10 @@ projr_dest_add_osf_comp <- function(title,
                                     public = FALSE,
                                     category = NULL,
                                     parent_title = NULL,
-                                    parent_id = NULL,
+                                    id_parent = NULL,
                                     id = NULL) {
-  if (missing(parent_id) && missing(parent_title)) {
-    stop("either parent_id or parent_title must be specified")
+  if (missing(id_parent) && missing(parent_title)) {
+    stop("either id_parent or parent_title must be specified")
   }
   projr_dest_add_osf(
     title = title,
@@ -439,7 +439,7 @@ projr_dest_add_osf_comp <- function(title,
     content = content,
     public = public,
     category = category,
-    parent_id = parent_id,
+    id_parent = id_parent,
     parent_title = parent_title,
     id = id
   )
@@ -449,7 +449,7 @@ projr_dest_add_osf_comp <- function(title,
                                               overwrite,
                                               title,
                                               list_add,
-                                              parent_id) {
+                                              id_parent) {
   # need to know if parent is already
   # there with the title so that we
   # can overwrite it
@@ -507,12 +507,12 @@ projr_dest_add_osf_comp <- function(title,
   yml_projr_osf
 }
 
-# get the parent_id, I think
-.projr_dest_add_osf_get_parent_id <- function(parent_id,
+# get the id_parent, I think
+.projr_dest_add_osf_get_id_parent <- function(id_parent,
                                               parent_vec,
                                               yml_projr_osf) {
-  if (!is.null(parent_id)) {
-    return(parent_id)
+  if (!is.null(id_parent)) {
+    return(id_parent)
   }
   if (length(parent_vec) == 0L) {
     return(NULL)

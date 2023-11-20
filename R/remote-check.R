@@ -2,8 +2,8 @@
 # base checks
 # =================
 
-.projr_remote_check_base <- function(remote_type, ...) {
-  switch(remote_type,
+.projr_remote_check_base <- function(type, ...) {
+  switch(type,
     local = .projr_remote_check_base_local(...),
     osf = .projr_remote_check_base_osf(...)
   )
@@ -23,7 +23,7 @@
 # osf
 .projr_remote_check_base_osf <- function(title,
                                          id,
-                                         parent_id,
+                                         id_parent,
                                          category,
                                          body,
                                          public,
@@ -34,10 +34,10 @@
   .projr_remote_check_osf_public(public = public)
   .projr_remote_check_osf_body(body = body)
   .projr_remote_check_osf_category(category = category)
-  .projr_remote_check_osf_parent_id(parent_id = parent_id)
+  .projr_remote_check_osf_id_parent(id_parent = id_parent)
   .projr_remote_check_osf_parent_title(parent_title = parent_title)
   .projr_remote_check_osf_proj_with_parent(
-    parent_id = parent_id, parent_title = parent_title, category = category
+    id_parent = id_parent, parent_title = parent_title, category = category
   )
   .projr_remote_check_osf_path(path = path)
   .projr_remote_check_osf_path_append_label(
@@ -171,18 +171,18 @@
   }
   invisible(TRUE)
 }
-.projr_remote_check_osf_parent_id <- function(parent_id) {
-  if (is.null(parent_id)) {
+.projr_remote_check_osf_id_parent <- function(id_parent) {
+  if (is.null(id_parent)) {
     return(invisible(FALSE))
   }
-  if (!length(parent_id) == 1L) {
-    stop("parent_id must be a character vector of length 1")
+  if (!length(id_parent) == 1L) {
+    stop("id_parent must be a character vector of length 1")
   }
-  if (!is.character(parent_id)) {
-    stop("parent_id must be a character vector")
+  if (!is.character(id_parent)) {
+    stop("id_parent must be a character vector")
   }
-  if (!nchar(parent_id) == 5L) {
-    stop("parent_id must have five characters") # nolint
+  if (!nchar(id_parent) == 5L) {
+    stop("id_parent must have five characters") # nolint
   }
   invisible(TRUE)
 }
@@ -201,7 +201,7 @@
   }
   invisible(TRUE)
 }
-.projr_remote_check_osf_proj_with_parent <- function(parent_id = NULL,
+.projr_remote_check_osf_proj_with_parent <- function(id_parent = NULL,
                                                      parent_title = NULL,
                                                      category) {
   if (is.null(category)) {
@@ -211,9 +211,9 @@
     return(invisible(FALSE))
   }
 
-  if (!is.null(parent_id) || !is.null(parent_title)) {
+  if (!is.null(id_parent) || !is.null(parent_title)) {
     stop(paste0(
-      "parent_id and parent_title must be NULL when category is project"
+      "id_parent and parent_title must be NULL when category is project"
     ))
   }
   invisible(TRUE)
