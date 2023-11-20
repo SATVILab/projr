@@ -1,19 +1,19 @@
 .projr_osf_get_node <- function(title = NULL,
                                 label = NULL,
                                 id = NULL,
-                                parent_id = NULL,
-                                parent_id_force = NULL,
+                                id_parent = NULL,
+                                id_parent_force = NULL,
                                 category = NULL,
                                 body = NULL,
                                 public = FALSE,
                                 path_append_label = NULL,
                                 path = NULL,
                                 create = TRUE) {
-  parent_id <- .projr_osf_get_parent_id(
-    parent_id_force = parent_id_force, parent_id = parent_id
+  id_parent <- .projr_osf_get_id_parent(
+    id_parent_force = id_parent_force, id_parent = id_parent
   )
   osf_tbl <- .projr_osf_get_node_as_node(
-    title = title, id = id, parent_id = parent_id,
+    title = title, id = id, id_parent = id_parent,
     category = category,
     body = body,
     public = public,
@@ -32,7 +32,7 @@
 
 .projr_osf_get_node_as_node <- function(title = NULL,
                                         id = NULL,
-                                        parent_id = NULL,
+                                        id_parent = NULL,
                                         category = NULL,
                                         body = NULL,
                                         public = FALSE,
@@ -43,9 +43,9 @@
     return(osf_tbl)
   }
 
-  # get node from parent_id and title
+  # get node from id_parent and title
   osf_tbl <- .projr_osf_get_node_id_parent(
-    title = title, parent_id = parent_id
+    title = title, id_parent = id_parent
   )
   if (!is.null(osf_tbl)) {
     return(osf_tbl)
@@ -55,7 +55,7 @@
 
   # create node
   .projr_osf_create_node(
-    title = title, parent_id = parent_id,
+    title = title, id_parent = id_parent,
     category = category, body = body, public = public
   )
 }
@@ -75,24 +75,24 @@
 }
 
 
-.projr_osf_get_parent_id <- function(parent_id_force, parent_id) {
+.projr_osf_get_id_parent <- function(id_parent_force, id_parent) {
   # actually, what matters is the parent
-  if ((!is.null(parent_id_force)) && (!is.null(parent_id))) {
+  if ((!is.null(id_parent_force)) && (!is.null(id_parent))) {
     stop(
-      "parent_id cannot be specified in both _projr.yml and function call"
+      "id_parent cannot be specified in both _projr.yml and function call"
     )
   }
-  if (!is.null(parent_id_force)) {
-    parent_id <- parent_id_force
+  if (!is.null(id_parent_force)) {
+    id_parent <- id_parent_force
   }
-  parent_id
+  id_parent
 }
 
-.projr_osf_get_node_id_parent <- function(title, parent_id) {
-  if (is.null(parent_id)) {
+.projr_osf_get_node_id_parent <- function(title, id_parent) {
+  if (is.null(id_parent)) {
     return(NULL)
   }
-  osf_tbl_parent <- .projr_osf_get_node_id(parent_id)
+  osf_tbl_parent <- .projr_osf_get_node_id(id_parent)
   osf_tbl_parent_comp <- osf_tbl_parent |>
     osfr::osf_ls_nodes()
   if (nrow(osf_tbl_parent_comp) == 0L) {
@@ -108,17 +108,17 @@
 }
 
 .projr_osf_create_node <- function(title = NULL,
-                                   parent_id_force = NULL,
-                                   parent_id = NULL,
+                                   id_parent_force = NULL,
+                                   id_parent = NULL,
                                    category = NULL,
                                    body = NULL,
                                    public = FALSE) {
-  if (is.null(parent_id)) {
+  if (is.null(id_parent)) {
     if (is.null(category)) {
-      stop("parent_id must be specified for components")
+      stop("id_parent must be specified for components")
     }
     if (category != "project") {
-      stop("parent_id must be specified for components")
+      stop("id_parent must be specified for components")
     }
     osf_tbl <- try(osfr::osf_create_project(
       title = title,
@@ -128,15 +128,15 @@
     ))
   } else {
     osf_tbl_parent <- tryCatch(
-      .projr_osf_get_node_id(parent_id),
+      .projr_osf_get_node_id(id_parent),
       error = function(e) {
-        stop(paste0("Could not get OSF node for id: ", parent_id))
+        stop(paste0("Could not get OSF node for id: ", id_parent))
       }
     )
     if (sum(osf_tbl_parent[["name"]] == title) > 0) {
       stop(paste0(
         "OSF node already exists for title: ", title,
-        " in node ", parent_id
+        " in node ", id_parent
       ))
     }
     osf_tbl <- try(osfr::osf_create_component(

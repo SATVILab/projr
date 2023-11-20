@@ -29,7 +29,8 @@ Suggests:
     knitr,
     osfr,
     piggyback,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    httr
 Config/testthat/edition: 3
 URL: https://satvilab.github.io/projr/
 VignetteBuilder: knitr

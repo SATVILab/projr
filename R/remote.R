@@ -5,19 +5,20 @@
 # return a character giving us the key information to
 # find the remote again
 
-.projr_remote_create <- function(remote_type,
-                                 remote_id,
+.projr_remote_create <- function(type,
+                                 id,
+                                 name,
                                  ...) {
-  switch(remote_type,
-    "local" = .projr_remote_create_local(path = remote_id),
-    "osf" = .projr_remote_create_osf(title = remote_id, ...),
-    "github" = .projr_remote_create_github(tag = remote_id, ...)
+  switch(type,
+    "local" = .projr_remote_create_local(path = id),
+    "osf" = .projr_remote_create_osf(title = name, ...),
+    "github" = .projr_remote_create_github(tag = id, ...)
   )
 }
 
 # local
 .projr_remote_create_local <- function(path) {
-  .projr_remote_check_base(remote_type = "local", path = path)
+  .projr_remote_check_base(type = "local", path = path)
   if (!dir.exists(path)) {
     dir.create(path, recursive = TRUE)
   }
@@ -27,7 +28,7 @@
 # osf
 .projr_remote_create_osf <- function(title,
                                      id = NULL,
-                                     parent_id = NULL,
+                                     id_parent = NULL,
                                      category = NULL,
                                      body = NULL,
                                      public = FALSE) {
@@ -38,7 +39,7 @@
   .projr_remote_check_base_osf(
     title = title,
     id = id,
-    parent_id = parent_id,
+    id_parent = id_parent,
     category = category,
     body = body,
     public = public,
@@ -48,7 +49,7 @@
   )
   .projr_remote_create_osf_node(
     title = title,
-    parent_id = parent_id,
+    id_parent = id_parent,
     category = category,
     body = body,
     public = public
@@ -56,7 +57,7 @@
 }
 
 .projr_remote_create_osf_node <- function(title,
-                                          parent_id,
+                                          id_parent,
                                           category,
                                           body,
                                           public) {
@@ -68,7 +69,7 @@
     ),
     .projr_remote_create_osf_component(
       title = title,
-      parent_id = parent_id,
+      id_parent = id_parent,
       category = category,
       body = body,
       public = public
@@ -89,12 +90,12 @@
 }
 
 .projr_remote_create_osf_component <- function(title,
-                                               parent_id,
+                                               id_parent,
                                                category,
                                                body,
                                                public) {
   id <- try(osfr::osf_create_component(
-    x = .projr_remote_get_osf(id = parent_id),
+    x = .projr_remote_get_osf(id = id_parent),
     title = title,
     description = body,
     public = public,
@@ -109,6 +110,9 @@
                                         body = NULL,
                                         pause_second = 3) {
   .projr_dep_install("piggyback")
+  if (is.null(body)) {
+    body <- "Release created automatically by `projr`"
+  }
   pb_release_create <- projr_remote_create_github_attempt(
     tag = tag, body = body
   )
@@ -135,12 +139,12 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # check existence
 # ========================
 
-.projr_remote_check_exists <- function(remote_type,
-                                       remote_id) {
-  switch(remote_type,
-    "local" = .projr_remote_check_exists_local(path = remote_id),
-    "osf" = .projr_remote_check_exists_osf(id = remote_id),
-    "github" = .projr_remote_check_exists_github(tag = remote_id)
+.projr_remote_check_exists <- function(type,
+                                       id) {
+  switch(type,
+    "local" = .projr_remote_check_exists_local(path = id),
+    "osf" = .projr_remote_check_exists_osf(id = id),
+    "github" = .projr_remote_check_exists_github(tag = id)
   )
 }
 
@@ -152,7 +156,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # osf
 .projr_remote_check_exists_osf <- function(id) {
   !inherits(
-    .projr_remote_get(remote_type = "osf", id = id),
+    .projr_remote_get(type = "osf", id = id),
     "try-error"
   )
 }
@@ -163,7 +167,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
   if (inherits(release_tbl, "try-error")) {
     stop("Could not get GitHub release table")
   }
-  "tag" %in% release_tbl[["release_name"]]
+  tag %in% release_tbl[["release_name"]]
 }
 
 # =====================
@@ -173,13 +177,13 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # does not create remotes either.
 # =====================
 
-.projr_remote_get <- function(remote_type,
+.projr_remote_get <- function(type,
                               id) {
-  switch(remote_type,
-    "local" = .projr_remote_get_local(path = id),
+  switch(type,
+    "local" = .projr_remote_get_local(id = id),
     "osf" = .projr_remote_get_osf(id = id),
     "github" = .projr_remote_get_github(id),
-    stop(paste0("remote_type '", remote_type, "' not recognized"))
+    stop(paste0("type '", type, "' not recognized"))
   )
 }
 
@@ -214,14 +218,13 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # i.e. including any sub-directories for
 # specifying the version and so on for
 # hierarchical remotes (like "local" and "OSF")
-.projr_remote_get_final <- function(remote_type,
-                                    remote_name,
+.projr_remote_get_final <- function(type,
                                     id,
-                                    path,
-                                    path_append_label,
+                                    path = NULL,
+                                    path_append_label = TRUE,
                                     label,
                                     remote_structure) {
-  switch(remote_type,
+  switch(type,
     "local" = .projr_remote_get_final_local(
       path = path,
       path_append_label = path_append_label,
@@ -236,9 +239,9 @@ projr_remote_create_github_attempt <- function(tag, body) {
       remote_structure = remote_structure
     ),
     "github" = .projr_remote_get_final_github(
-      remote_name = remote_name, label = label
+      id = id, label = label
     ),
-    stop(paste0("remote_type '", remote_type, "' not recognized"))
+    stop(paste0("type '", type, "' not recognized"))
   )
 }
 
@@ -263,7 +266,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
     path_append_label = path_append_label,
     label = label,
     remote_structure = remote_structure,
-    remote_type = "local"
+    type = "local"
   )
 }
 
@@ -276,13 +279,21 @@ projr_remote_create_github_attempt <- function(tag, body) {
                                         path_append_label,
                                         label,
                                         remote_structure) {
+  if (missing(label)) {
+    if (!path_append_label) {
+      label <- "abc"
+    } else {
+      stop(paste0("label must be supplied if to be appended"))
+    }
+  }
   path_rel <- .projr_remote_get_path_rel(
     path = path,
     path_append_label = path_append_label,
     label = label,
-    remote_structure = remote_structure
+    remote_structure = remote_structure,
+    type = "osf"
   )
-  osf_tbl <- .projr_remote_get(id = id, remote_type = "osf")
+  osf_tbl <- .projr_remote_get(id = id, type = "osf")
   if (length(path_rel) > 0L) {
     osf_tbl <- osfr::osf_mkdir(osf_tbl, path_rel)
   }
@@ -293,7 +304,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # github
 # ---------------------
 
-.projr_remote_get_final_github <- function(remote_name, label) {
+.projr_remote_get_final_github <- function(id, label) {
   # everything uploaded to a gh release
   # is a single file, and all other remotes
   # are just directories where files can
@@ -301,8 +312,8 @@ projr_remote_create_github_attempt <- function(tag, body) {
   # but giithub releases don't do that), so
   # the remote for github release is just the
   # name of the tag
-  # (given generally as the remote_name here)
-  c("tag" = remote_name, "fn" = paste0(label, ".zip"))
+  # (given generally as the id here)
+  c("tag" = id, "fn" = paste0(label, ".zip"))
 }
 
 
@@ -319,18 +330,19 @@ projr_remote_create_github_attempt <- function(tag, body) {
                                        path_append_label,
                                        label,
                                        remote_structure,
-                                       remote_type) {
-  fn <- switch(remote_type,
+                                       type) {
+  fn <- switch(type,
     "osf" = , # same as local
     "local" = .projr_remote_get_path_rel_hierarchy,
     "github" = .projr_remote_get_path_rel_flat
   )
-  do.call(fn, list(
+  args_list <- list(
     path = path,
     path_append_label = path_append_label,
     label = label,
     remote_structure = remote_structure
-  ))
+  )
+  do.call(what = fn, args = args_list)
 }
 
 # hierarchical remotes
@@ -338,13 +350,20 @@ projr_remote_create_github_attempt <- function(tag, body) {
                                                  path_append_label,
                                                  label,
                                                  remote_structure) {
-  args_list <- path
+  args_list <- list()
+  if (!is.null(path)) {
+    args_list <- list(path)
+  }
   if (path_append_label) {
-    args_list <- args_list |> append(label)
+    args_list <- args_list |> append(list(label))
   }
   if (remote_structure == "version") {
-    args_list <- args_list |> append(projr_version_get())
+    args_list <- args_list |> append(list(paste0("v", projr_version_get())))
   }
+  if (length(args_list) == 0L) {
+    return(character())
+  }
+
   do.call(file.path, args_list)
 }
 
@@ -356,27 +375,27 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # delete an unused empty remote directory
 # ========================
 
-.projr_remote_rm_final_empty <- function(remote_final,
-                                         remote_type,
-                                         remote_structure) {
+.projr_remote_rm_final_if_empty <- function(type,
+                                            remote_final,
+                                            remote_structure) {
   if (!remote_structure == "version") {
     return(invisible(FALSE))
   }
-  switch(remote_type,
-    "local" = .projr_remote_rm_final_empty_local(
+  switch(type,
+    "local" = .projr_remote_rm_final_if_empty_local(
       remote_final = remote_final
     ),
-    "osf" = .projr_remote_rm_final_empty_osf(
+    "osf" = .projr_remote_rm_final_if_empty_osf(
       remote_final = remote_final
     ),
-    "github" = .projr_remote_rm_final_empty_github(
+    "github" = .projr_remote_rm_final_if_empty_github(
       remote_final = remote_final
     )
   )
 }
 
 # local
-.projr_remote_rm_final_empty_local <- function(remote_final) {
+.projr_remote_rm_final_if_empty_local <- function(remote_final) {
   if (!dir.exists(remote_final)) {
     return(invisible(FALSE))
   }
@@ -384,7 +403,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 }
 
 # osf
-.projr_remote_rm_final_empty_osf <- function(remote_final) {
+.projr_remote_rm_final_if_empty_osf <- function(remote_final) {
   if (!inherits(remote_final, "osf_tbl_file")) {
     return(invisible(FALSE))
   }
@@ -395,10 +414,81 @@ projr_remote_create_github_attempt <- function(tag, body) {
 }
 
 # github
-.projr_remote_rm_final_empty_github <- function(remote_final) {
+.projr_remote_rm_final_if_empty_github <- function(remote_final) {
   # never any need to, as the release is only
   # created if it's to be uploaded to
   invisible(FALSE)
+}
+
+# ========================
+# delete a remote host
+# ========================
+
+# this is different to deleting a remote,
+# at least for GitHub as we don't in that case
+# delete the release itself - we actually delete the repo.
+
+.projr_remote_host_rm <- function(type,
+                                  remote_host) {
+  switch(type,
+    "local" = .projr_remote_host_rm_local(remote_host = remote_host),
+    "osf" = .projr_remote_host_rm_osf(remote_host = remote_host),
+    "github" = .projr_remote_host_rm_github(remote_host = remote_host)
+  )
+}
+
+# local
+.projr_remote_host_rm_local <- function(remote_host) {
+  if (!dir.exists(remote_host)) {
+    return(invisible(FALSE))
+  }
+  unlink(remote_host, recursive = TRUE)
+  invisible(TRUE)
+}
+
+# osf
+.projr_remote_host_rm_osf <- function(remote_host) {
+  osfr::osf_rm(
+    x = osfr::osf_retrieve_node(remote_host), check = FALSE, recurse = TRUE
+  )
+  invisible(TRUE)
+}
+
+# github
+.projr_remote_host_rm_github <- function(remote_host) {
+  # set up
+  # ----------
+  if (!requireNamespace("gh", quietly = TRUE)) {
+    utils::install.packages("gh")
+  }
+  if (!requireNamespace("httr", quietly = TRUE)) {
+    utils::install.packages("httr")
+  }
+
+  # defaults
+  user <- if ("user" %in% names(remote_host)) remote_host[["user"]] else NULL
+  user <- user %||% gh::gh_whoami()[["login"]]
+  if (!nzchar(user)) stop("No GitHub user found")
+  token <- if ("token" %in% names(remote_host)) remote_host[["token"]] else NULL # nolint
+  token <- token %||% Sys.getenv("GITHUB_PAT")
+  token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
+  if (!nzchar(token)) stop("No GitHub token found")
+  repo <- if ("repo" %in% names(remote_host)) remote_host[["repo"]] else NULL
+  if (!nzchar(repo)) stop("No GitHub repo specified")
+  # Define the URL of the GitHub API
+  # take basename in case we've accidentally specified
+  # the user as well in the repo specification
+  repo <- basename(repo)
+  if (repo == "projr") stop("Cannot delete the projr repo")
+
+  try(
+    gh::gh(
+      "DELETE /repos/{username}/{pkg}",
+      username = user,
+      pkg = repo
+    ),
+    silent = TRUE
+  )
 }
 
 # ========================
@@ -410,9 +500,9 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # the remote directory itself (also,
 # the above will only delete the remote if
 # it's actually got nothing, so it's very different)
-.projr_remote_file_rm_all <- function(remote,
-                                      remote_type) {
-  switch(remote_type,
+.projr_remote_file_rm_all <- function(type,
+                                      remote) {
+  switch(type,
     "local" = .projr_remote_file_rm_all_local(remote = remote),
     "osf" = .projr_remote_file_rm_all_osf(remote = remote),
     "github" = .projr_remote_file_rm_all_github(remote = remote)
@@ -461,13 +551,13 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # ========================
 
 # return the path to which it's downloaded
-.projr_remote_file_get_all <- function(remote,
-                                       remote_type,
+.projr_remote_file_get_all <- function(type,
+                                       remote,
                                        path_dir_save_local) {
   if (!dir.exists(path_dir_save_local)) {
     dir.create(path_dir_save_local, recursive = TRUE)
   }
-  switch(remote_type,
+  switch(type,
     "local" = .projr_remote_file_get_all_local(
       remote = remote,
       path_dir_save_local = path_dir_save_local
@@ -551,13 +641,13 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # list all contents of a remote
 # ========================
 
-.projr_remote_file_ls <- function(remote_type,
+.projr_remote_file_ls <- function(type,
                                   remote,
                                   path_dir_save_local) {
   if (!dir.exists(path_dir_save_local)) {
     dir.create(path_dir_save_local, recursive = TRUE)
   }
-  switch(remote_type,
+  switch(type,
     "local" = .projr_remote_file_ls_local(remote = remote),
     "osf" = .projr_remote_file_ls_osf(remote = remote),
     "github" = .projr_remote_file_ls_github(
@@ -627,10 +717,10 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # ========================
 
 # pre-specified files
-.projr_remote_file_rm <- function(fn,
-                                  remote,
-                                  remote_type) {
-  switch(remote_type,
+.projr_remote_file_rm <- function(type,
+                                  fn,
+                                  remote) {
+  switch(type,
     "local" = .projr_remote_file_rm_local(fn = fn, remote = remote),
     "osf" = .projr_remote_file_rm_osf(fn = fn, remote = remote),
     "github" = .projr_remote_file_rm_github(fn = fn, remote = remote)
@@ -701,12 +791,12 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # add individual files to a remote
 # ========================
 
-.projr_remote_file_add <- function(fn,
+.projr_remote_file_add <- function(type,
+                                   fn,
                                    label,
                                    path_dir_local,
-                                   remote,
-                                   remote_type) {
-  switch(remote_type,
+                                   remote) {
+  switch(type,
     "local" = .projr_remote_file_add_local(
       fn = fn, path_dir_local = path_dir_local, remote = remote
     ),

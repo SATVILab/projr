@@ -24,7 +24,7 @@ test_that("projr_source_add_osf works", {
         projr_source_add_osf(label = "data-raw", category = "analysis")
       )
       id_comp <- projr_source_add_osf(
-        label = "data-raw", category = "data", parent_id = id_proj
+        label = "data-raw", category = "data", id_parent = id_proj
       )
       expect_true(is.character(id_comp))
       expect_true(nchar(id_comp) == 5L)
@@ -38,7 +38,7 @@ test_that("projr_source_add_osf works", {
         body = "Lavish",
         public = FALSE,
         category = "communication",
-        parent_id = id_proj,
+        id_parent = id_proj,
         path = "sub-dir",
         path_append_label = FALSE,
         remote_structure = "latest",
@@ -125,15 +125,15 @@ test_that("projr_dest_add_osf works", {
       # ----------------------------
 
 
-      # error when parent_id not specified
+      # error when id_parent not specified
       expect_error(
         projr_dest_add_osf(content = "data-raw", category = "data")
       )
 
-      # parent_id specified
+      # id_parent specified
       id_comp <- projr_dest_add_osf(
         title = "Test", content = "data-raw",
-        category = "data", parent_id = id_proj
+        category = "data", id_parent = id_proj
       )
       expect_true(is.character(id_comp))
       expect_true(nchar(id_comp) == 5L)
@@ -159,10 +159,10 @@ test_that("projr_dest_add_osf works", {
       # test adding a component to a project
       # ----------------------------
 
-      # parent_id specified
+      # id_parent specified
       id_comp_sub <- projr_dest_add_osf(
         title = "TestSub", content = "data-raw",
-        category = "data", parent_id = id_comp
+        category = "data", id_parent = id_comp
       )
       expect_true(is.character(id_comp))
       expect_true(nchar(id_comp) == 5L)
@@ -192,14 +192,14 @@ test_that("projr_dest_add_osf works", {
       # test adding a component to a sub-component
       # ----------------------------
 
-      # parent_id specified
+      # id_parent specified
       # debugonce(projr_dest_add_osf)
       # debugonce(.projr_osf_yml_get_parent_vec)
       # debugonce(.projr_osf_yml_find_parent)
       # debugonce(.projr_osf_yml_find_parent_rec)
       id_comp_sub_sub <- projr_dest_add_osf(
         title = "TestSubSubId", content = "data-raw",
-        category = "data", parent_id = id_comp_sub
+        category = "data", id_parent = id_comp_sub
       )
       expect_true(is.character(id_comp))
       expect_true(nchar(id_comp) == 5L)

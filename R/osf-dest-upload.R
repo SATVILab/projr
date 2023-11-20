@@ -32,7 +32,7 @@
   # when comparing
   for (i in seq_along(yml_projr_osf)) {
     .projr_osf_send_node_manifest(
-      title = names(yml_projr_osf)[i], yml_projr_osf[[i]], parent_id = NULL
+      title = names(yml_projr_osf)[i], yml_projr_osf[[i]], id_parent = NULL
     )
   }
 }
@@ -47,9 +47,9 @@
   invisible(TRUE)
 }
 
-.projr_osf_send_node <- function(title, yml_param, parent_id = NULL) {
+.projr_osf_send_node <- function(title, yml_param, id_parent = NULL) {
   osf_tbl <- .projr_osf_get_node(
-    title = title, yml_param = yml_param, parent_id = parent_id
+    title = title, yml_param = yml_param, id_parent = id_parent
   )
   # okay, so I actually need to perform recursive uploads
   for (x in yml_param[["content"]]) {
@@ -138,9 +138,9 @@
 
 .projr_osf_send_node_manifest <- function(title,
                                           yml_param,
-                                          parent_id) {
+                                          id_parent) {
   osf_tbl <- .projr_osf_get_node(
-    title = title, yml_param = yml_param, parent_id = parent_id
+    title = title, yml_param = yml_param, id_parent = id_parent
   )
   osfr::osf_upload(
     x = osf_tbl,

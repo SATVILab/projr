@@ -182,17 +182,37 @@
 # New stuff for use in integrated uploads
 # ========================
 
+
 .projr_pb_get_release_tbl <- function(pause_second = 3) {
   gh_tbl_release <- .projr_pb_get_release_tbl_attempt()
-  if (!inherits(gh_tbl_release, "try-error")) {
+  error_lgl <- inherits(gh_tbl_release, "try-error")
+  zero_row_lgl <- nrow(gh_tbl_release) == 0L
+  redo <- error_lgl || zero_row_lgl
+  if (!redo) {
     return(gh_tbl_release)
   }
+  piggyback::.pb_cache_clear()
+  Sys.sleep(pause_second)
+  gh_tbl_release <- .projr_pb_get_release_tbl_attempt()
+  zero_row_lgl <- nrow(gh_tbl_release) == 0L
+  redo <- error_lgl || zero_row_lgl
+  if (!redo) {
+    return(gh_tbl_release)
+  }
+  piggyback::.pb_cache_clear()
   Sys.sleep(pause_second)
   .projr_pb_get_release_tbl_attempt()
 }
 
 .projr_pb_get_release_tbl_attempt <- function() {
   try(suppressWarnings(suppressMessages(piggyback::pb_releases())))
+}
+
+.pb_cache_clear <- function() {
+  # the ones memoised in zzz.R
+  memoised_functions <- c(pb_info, pb_releases)
+  try(lapply(memoised_functions, memoise::forget), silent = TRUE)
+  invisible(TRUE)
 }
 
 .projr_pb_tag_format <- function(tag) {
@@ -228,7 +248,9 @@
 }
 
 .projr_pb_create_release_attempt <- function(tag) {
-  try(suppressWarnings(suppressMessages(piggyback::pb_release_create(tag = tag))))
+  try(suppressWarnings(suppressMessages(
+    piggyback::pb_release_create(tag = tag)
+  )))
 }
 
 .projr_pb_upload <- function(path_zip, tag, pause_second = 3) {
@@ -242,10 +264,14 @@
     return(invisible(TRUE))
   }
   warning(paste0(
-    "Could not upload ", basename(path_zip), " to GitHub release with tag ", tag
+    "Could not upload ", # nolint
+    basename(path_zip),
+    " to GitHub release with tag ", # nolint
+    tag
   ))
   invisible(FALSE)
 }
+
 .projr_pb_upload_attempt <- function(path_zip, tag) {
   try(suppressWarnings(suppressMessages(
     piggyback::pb_upload(file = path_zip, tag = tag)
