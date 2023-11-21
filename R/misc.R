@@ -94,3 +94,47 @@ with_dir <- function(new, code) {
   )
   path_zip
 }
+
+.projr_dir_tmp_random_get <- function() {
+  path_dir <- file.path(tempdir(), "projr", signif(rnorm(1), 6))
+  while (dir.exists(path_dir)) {
+    if (dir.exists(path_dir)) {
+      path_dir <- file.path(
+        tempdir(), "projr", signif(rnorm(1), 6)
+      )
+    }
+  }
+  if (!dir.exists(path_dir)) {
+    dir.create(path_dir, recursive = TRUE)
+  }
+  path_dir
+}
+
+.projr_dir_tmp_random_get_if_needed <- function(path_dir) {
+  if (missing(path_dir) || is.null(path_dir)) {
+    path_dir <- .projr_dir_tmp_random_get()
+  } else {
+    if (!dir.exists(path_dir)) {
+      dir.create(path_dir, recursive = TRUE)
+    }
+  }
+  path_dir
+}
+
+.projr_dir_tree_copy <- function(path_dir_from, path_dir_to) {
+  path_dir_from_vec_tree <- list.dirs(
+    path_dir_from,
+    recursive = TRUE, full.names = FALSE
+  ) |>
+    setdiff("")
+  path_dir_to_vec_tree <- file.path(path_dir_to, path_dir_from_vec_tree)
+  if (!dir.exists(path_dir_to)) {
+    dir.create(path_dir_to, recursive = TRUE)
+  }
+  for (i in seq_along(path_dir_to_vec_tree)) {
+    if (!dir.exists(path_dir_to_vec_tree[[i]])) {
+      dir.create(path_dir_to_vec_tree[[i]], recursive = TRUE)
+    }
+  }
+  invisible(TRUE)
+}

@@ -267,8 +267,6 @@
   )
 
   # add any files that need to be added
-  # START HERE: fix arguments (doesn't match what .projr_remote_add_file
-  # is defined to use as parameters)
   .projr_remote_add_file(
     fn = plan_detail[["add"]],
     path_dir_local = path_dir_local,

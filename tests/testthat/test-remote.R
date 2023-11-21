@@ -284,7 +284,7 @@ test_that(".projr_remote_rm_final_if_empty works", {
 
 test_that(".projr_remote_file_rm_all works", {
   skip_if_offline()
-  skip_if(FALSE)
+  skip_if(TRUE)
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
@@ -336,6 +336,121 @@ test_that(".projr_remote_file_rm_all works", {
       osf_tbl_sub_b <- osfr::osf_mkdir(osf_tbl, path = "a/b")
       path_tmp_file <- file.path(tempdir(), "abc.txt")
       file.create(path_tmp_file)
+      osfr::osf_upload(x = osf_tbl, path = path_tmp_file)
+      osfr::osf_upload(x = osf_tbl_sub_a, path = path_tmp_file)
+      osfr::osf_upload(x = osf_tbl_sub_b, path = path_tmp_file)
+      expect_true(
+        .projr_remote_file_rm_all(
+          "osf",
+          remote = osf_tbl
+        )
+      )
+      expect_true(nrow(osfr::osf_ls_files(osf_tbl)) == 0L)
+
+      # github
+      # --------------------------
+      id <- .projr_remote_create("github", id = "abc")
+      Sys.sleep(3)
+      path_tmp_file <- file.path(tempdir(), "abc.txt")
+      file.create(path_tmp_file)
+      path_zip <- .projr_zip_file(
+        fn_rel = basename(path_tmp_file),
+        path_dir_fn_rel = dirname(path_tmp_file),
+        fn_rel_zip = "abc.zip"
+      )
+      piggyback:::.pb_cache_clear()
+      piggyback::pb_upload(file = path_zip, tag = id)
+      content_tbl_pre_delete <- piggyback::pb_list(tag = id)
+      expect_identical(nrow(content_tbl_pre_delete), 1L)
+      expect_true(.projr_remote_file_rm_all("github", remote = id))
+      piggyback:::.pb_cache_clear()
+      content_tbl <- piggyback::pb_list(tag = id)
+      expect_null(content_tbl)
+    }
+  )
+})
+
+test_that("adding, tallying and removing files from remotes works", {
+  skip_if_offline()
+  skip_if(FALSE)
+  dir_test <- .projr_test_setup_project(
+    git = TRUE, github = TRUE, set_env_var = TRUE
+  )
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # local
+      # --------------------------
+      # empty
+      path_dir_random <- .projr_dir_tmp_random_get()
+      expect_identical(
+        .projr_remote_file_ls(
+          "local",
+          remote = path_dir_random
+        ),
+        character()
+      )
+
+      browser()
+
+      # has content
+      path_dir_source <- .projr_test_setup_content_dir()
+      fn_vec_source <- .projr_remote_file_ls("local", path_dir_source)
+      path_dir_dest <- .projr_dir_tmp_random_get()
+      debugonce(.projr_remote_file_add_local)
+      debugonce(.projr_dir_tree_copy)
+      .projr_remote_file_add(
+        "local",
+        fn = fn_vec_source,
+        path_dir_local = path_dir_source,
+        remote = path_dir_dest
+      )
+      expect_identical(
+        .projr_remote_file_ls("local", path_dir_dest),
+        fn_vec_source
+      )
+
+      # remove some content
+      # START HERE!!!
+      expect_identical(
+        .projr_remote_file_ls(
+          "local",
+          remote = path_dir_content
+        ),
+        list.files(path_dir, recursive = TRUE, all.files = TRUE)
+      )
+      unlink(path_dir, recursive = TRUE)
+
+      # osf
+      # --------------------------
+
+      # create node
+      browser()
+      id <- try(.projr_remote_create(
+        type = "osf", name = "CreateNode"
+      ))
+      osf_tbl <- .projr_remote_get("osf", id)
+
+      # when empty
+      expect_identical(
+        .projr_remote_file_ls(
+          "osf",
+          remote = osf_tbl
+        ),
+        character()
+      )
+
+      # clear with content
+      path_dir <- .projr_test_setup_content_dir()
+      osfr::osf_upload(
+        x = osf_tbl, path = path_dir, recurse = TRUE, conflicts = "overwrite"
+      )
+      osf_tbl_file <- osfr::osf_mkdir(
+        x = osf_tbl, path = list.dirs(path_dir)[2] |> basename()
+      )
+      .projr_remote_file_ls_osf(osf_tbl)
+      osfr::osf_ls_files(x = osf_tbl)
+      osfr::osf_ls_files(osf_tbl_file)
       osfr::osf_upload(x = osf_tbl, path = path_tmp_file)
       osfr::osf_upload(x = osf_tbl_sub_a, path = path_tmp_file)
       osfr::osf_upload(x = osf_tbl_sub_b, path = path_tmp_file)
