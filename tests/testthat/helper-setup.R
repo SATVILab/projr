@@ -96,6 +96,32 @@
   }
 }
 
+.projr_test_setup_content_dir <- function(path_dir = NULL,
+                                          output_safe = FALSE,
+                                          dir_sub_lvl = 2,
+                                          dir_sub_prefix = "subdir") {
+  if (is.null(path_dir)) {
+    path_dir <- file.path(tempdir(), signif(rnorm(1), 6))
+  }
+  if (dir.exists(path_dir)) {
+    unlink(path_dir, recursive = TRUE)
+  }
+  dir.create(path_dir, recursive = TRUE)
+  # create files
+  file.create(file.path(path_dir, "abc.txt"))
+  if (dir_sub_lvl > 0) {
+    path_dir_sub1 <- file.path(path_dir, paste0(dir_sub_prefix, "1"))
+    dir.create(path_dir_sub1)
+    file.create(file.path(path_dir_sub1, "def.txt"))
+  }
+  if (dir_sub_lvl > 1) {
+    path_dir_sub2 <- file.path(path_dir_sub1, paste0(dir_sub_prefix, "2"))
+    dir.create(path_dir_sub2)
+    file.create(file.path(path_dir_sub2, "ghi.txt"))
+  }
+  path_dir
+}
+
 .projr_test_manifest_create <- function(pre = TRUE,
                                         post = TRUE,
                                         write = TRUE,

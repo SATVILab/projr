@@ -1,7 +1,7 @@
 # =====================
 # make plan
 # =====================
-.projr_dest_send_get_plan <- function(remote_structure,
+.projr_dest_send_get_plan <- function(structure,
                                       remote_type,
                                       version_source,
                                       sync_approach) {
@@ -11,7 +11,7 @@
     ),
     "manifest" = ,
     "file" = .projr_dest_send_get_plan_man_file(
-      remote_structure = remote_structure,
+      structure = structure,
       remote_type = remote_type,
       sync_approach = sync_approach
     )
@@ -33,7 +33,7 @@
 }
 
 # more complex if using one
-.projr_dest_send_get_plan_man_file <- function(remote_structure,
+.projr_dest_send_get_plan_man_file <- function(structure,
                                                remote_type,
                                                sync_approach) {
   switch(remote_type,
@@ -42,7 +42,7 @@
     ),
     "local" = ,
     "osf" = .projr_dest_send_get_plan_hier(
-      remote_structure = remote_structure,
+      structure = structure,
       sync_approach = sync_approach
     )
   )
@@ -63,16 +63,16 @@
 }
 
 # hierarchical remotes
-.projr_dest_send_get_plan_hier <- function(remote_structure,
+.projr_dest_send_get_plan_hier <- function(structure,
                                            sync_approach) {
   switch(sync_approach,
     "upload-all" = "add_all",
     "upload-missing" = .projr_dest_send_get_plan_hier_missing(
-      remote_structure = remote_structure
+      structure = structure
     ),
     "sync-using-deletion" = "delete_add_all",
     "sync-using-version" = .projr_dest_send_get_plan_hier_version(
-      remote_structure = remote_structure
+      structure = structure
     )
   )
 }
@@ -81,15 +81,15 @@
 # remote structure
 # ------------------------
 
-.projr_dest_send_get_plan_hier_missing <- function(remote_structure) {
-  switch(remote_structure,
+.projr_dest_send_get_plan_hier_missing <- function(structure) {
+  switch(structure,
     "latest" = "add_missing",
     "version" = "add_all"
   )
 }
 
-.projr_dest_send_get_plan_hier_version <- function(remote_structure) {
-  switch(remote_structure,
+.projr_dest_send_get_plan_hier_version <- function(structure) {
+  switch(structure,
     "latest" = "change",
     "version" = "delete_add_all_if_change"
   )
@@ -113,7 +113,7 @@
                                              remote_final,
                                              remote_type,
                                              version_source,
-                                             remote_structure,
+                                             structure,
                                              sync_approach) {
   switch(plan,
     "add_all" = ,

@@ -24,7 +24,7 @@
   #   - body
   # - local-specific:
   #   - nothing
-  # okay, so it seems to depend a lot on the remote_structure,
+  # okay, so it seems to depend a lot on the structure,
   # the sync approach and the version_source
   # ya, when doing this for OSF the first thing I did
   # was to get the remote structure
@@ -44,7 +44,7 @@
 .projr_dest_send_label_send <- function(path_dir_local,
                                         remote_final,
                                         change_list,
-                                        remote_structure) {
+                                        structure) {
   # okay, so what variants do I have here?
   # okay, so the main thing is just figuring out
   # based on sync-structure what to upload

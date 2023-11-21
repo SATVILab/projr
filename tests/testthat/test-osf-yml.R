@@ -41,7 +41,7 @@ test_that("projr_source_add_osf works", {
         id_parent = id_proj,
         path = "sub-dir",
         path_append_label = FALSE,
-        remote_structure = "latest",
+        structure = "latest",
         download_cue = "build",
         download_sync_approach = "download-all",
         download_conflict = "overwrite",

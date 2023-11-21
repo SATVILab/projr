@@ -148,12 +148,12 @@
     id = yml_remote[["id"]],
     path = yml_remote[["path"]],
     path_append_label = yml_remote[["path-append-label"]],
-    remote_structure = yml_remote[["remote-structure"]]
+    structure = yml_remote[["remote-structure"]]
   )
 
   # get overall type of plan
   plan <- .projr_dest_send_get_plan(
-    remote_structure = yml_remote[["remote-structure"]],
+    structure = yml_remote[["remote-structure"]],
     remote_type = remote_type,
     version_source = yml_remote[["version-source"]],
     sync_approach = yml_remote[["upload"]][["sync-approach"]]
@@ -167,7 +167,7 @@
     remote_final = remote_final,
     remote_type = remote_type,
     version_source = yml_remote[["version-source"]],
-    remote_structure = yml_remote[["remote-structure"]],
+    structure = yml_remote[["remote-structure"]],
     sync_approach = yml_remote[["upload"]][["sync-approach"]]
   )
 
@@ -187,7 +187,7 @@
 # delete the remote if it's empty and it's versioned
 .projr_dest_send_label_clear <- function(remote,
                                          label,
-                                         remote_structure,
+                                         structure,
                                          sync_approach,
                                          remote_type) {
   if (!sync_approach == "sync-using-deletion") {
@@ -197,7 +197,7 @@
     "local" = .projr_dest_send_label_clear_local(
       remote = remote,
       label = label,
-      remote_structure = remote_structure
+      structure = structure
     ),
   )
 }
@@ -209,8 +209,8 @@
 # main function
 .projr_dest_send_yml_remote_complete <- function(yml_remote,
                                                  remote_type) {
-  yml_remote[["remote_structure"]] <-
-    yml_remote[["remote_structure"]] %||% "version"
+  yml_remote[["structure"]] <-
+    yml_remote[["structure"]] %||% "version"
   yml_remote[["upload"]][["cue"]] <-
     yml_remote[["upload"]][["cue"]] %||% "patch"
   yml_remote[["upload"]][["version-source"]] <-

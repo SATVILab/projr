@@ -1,6 +1,6 @@
 .projr_send <- function(bump_component,
                         id,
-                        remote_structure,
+                        structure,
                         content,
                         path,
                         path_append_label,
