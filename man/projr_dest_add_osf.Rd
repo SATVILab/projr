@@ -10,7 +10,7 @@ projr_dest_add_osf(
   title,
   content = NULL,
   id = NULL,
-  remote_structure = NULL,
+  structure = NULL,
   body = NULL,
   public = FALSE,
   category = NULL,

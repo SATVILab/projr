@@ -33,7 +33,7 @@
 projr_dest_add_osf <- function(title,
                                content = NULL,
                                id = NULL,
-                               remote_structure = NULL,
+                               structure = NULL,
                                body = NULL,
                                public = FALSE,
                                category = NULL,
@@ -84,7 +84,7 @@ projr_dest_add_osf <- function(title,
     category = category,
     path = path,
     path_append_label = path_append_label,
-    remote_structure = remote_structure,
+    structure = structure,
     download = download_list,
     upload = upload_list,
     overwrite = overwrite
@@ -96,7 +96,7 @@ projr_dest_add_osf <- function(title,
   list_add <- .projr_osf_dest_get_list_add(
     title = title,
     id = id,
-    remote_structure = remote_structure,
+    structure = structure,
     path = path,
     path_append_label = path_append_label,
     download_list = download_list,
@@ -186,7 +186,7 @@ projr_dest_add_osf <- function(title,
                                       category,
                                       path = NULL,
                                       path_append_label = NULL,
-                                      remote_structure = NULL,
+                                      structure = NULL,
                                       download,
                                       upload,
                                       overwrite) {
@@ -205,8 +205,8 @@ projr_dest_add_osf <- function(title,
 
   # structure
   # --------------------
-  .projr_remote_check_osf_remote_structure(
-    remote_structure = remote_structure,
+  .projr_remote_check_osf_structure(
+    structure = structure,
     nm_opt = c("latest", "version", "content")
   )
   # no requirement that there is content
@@ -269,7 +269,7 @@ projr_dest_add_osf <- function(title,
                                          id,
                                          path,
                                          path_append_label,
-                                         remote_structure,
+                                         structure,
                                          download_list,
                                          upload_list) {
   list_add <- list()
@@ -282,8 +282,8 @@ projr_dest_add_osf <- function(title,
   if (!is.null(path_append_label)) {
     list_add[["path_append_label"]] <- path_append_label
   }
-  if (!is.null(remote_structure)) {
-    list_add[["remote_structure"]] <- remote_structure
+  if (!is.null(structure)) {
+    list_add[["structure"]] <- structure
   }
   if (!length(download_list) == 0L) {
     list_add[["download"]] <- download_list

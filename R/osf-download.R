@@ -72,7 +72,7 @@
     # whether we're downloading from an OSF sub-directory or the node itself
     sub_dir = yml_osf[["path-append-label"]] || !is.null(yml_osf[["path"]]),
     # type of OSF directory (latest, version or content)
-    remote_structure = yml_osf[["remote-structure"]],
+    structure = yml_osf[["remote-structure"]],
     # how to choose what to delete (locally) and what to download
     sync_approach = yml_osf[["download"]][["sync-approach"]],
     conflict = yml_osf[["download"]][["conflict"]]
@@ -86,7 +86,7 @@
                                    version,
                                    sub_dir,
                                    path_save,
-                                   remote_structure,
+                                   structure,
                                    sync_approach,
                                    conflict) {
   # ensure we clear it before checking
@@ -106,7 +106,7 @@
     .projr_osf_dnld_to_dir_all(
       osf_tbl_file = osf_tbl_file,
       version = version,
-      remote_structure = remote_structure,
+      structure = structure,
       path_save = path_save,
       sub_dir = sub_dir,
       conflict = conflict
@@ -120,13 +120,13 @@
 
 .projr_osf_dnld_to_dir_all <- function(osf_tbl_file,
                                        version,
-                                       remote_structure,
+                                       structure,
                                        path_save,
                                        sub_dir,
                                        conflict) {
-  if (remote_structure == "content") {
+  if (structure == "content") {
     stop("content-addressable remote structure not yet supported")
-  } else if (remote_structure == "version") {
+  } else if (structure == "version") {
     osf_tbl_file <- osf_tbl_file[
       grepl("^v\\d+", osf_tbl_file[["name"]]),
     ]

@@ -5,22 +5,39 @@ devtools::load_all()
 devtools::test_active_file(
   "tests/testthat/test-remote.R"
 )
+.projr_test_debug_read_rds(repo)
+.projr_test_debug_read_rds(wd)
+.projr_test_debug_read_rds(content_tbl_pre_delete)
+.projr_test_debug_read_rds(content_tbl)
+.projr_test_debug_read_rds(id)
+.projr_test_debug_read_rds(opt)
+.projr_test_debug_read_rds(is_memoised)
 
-try(suppressWarnings(suppressMessages(piggyback::pb_releases(
-  repo = "MiguelRodo/ProjrGitHubTesttest_projr-0.7355"
-)))) -> out
 
-id <- try(osfr::osf_create_component(
-  x = .projr_remote_get_osf(id = parent_id),
-  title = title, description = body, public = public, category = category
-)[["id"]])
-
-list.dirs(dir_test, recursive = FALSE)
-
-# scratch code
-yml_projr_dir <- projr_yml_get_unchecked()[["directories"]][["data-raw"]]
 
 # ==========================================
+
+# ==========================================
+# GitHub release debug
+# ==========================================
+
+# stop here
+.projr_test_debug_save_rds(content_tbl_pre_delete)
+Sys.sleep(2)
+expect_true(.projr_remote_file_rm_all("github", remote = id))
+piggyback:::.pb_cache_clear()
+content_tbl <- piggyback::pb_list(tag = id)
+wd <- getwd()
+repo <- piggyback:::guess_repo()
+is_memoised <- memoise::is.memoised(piggyback::pb_list)
+.projr_test_debug_save_rds(is_memoised)
+.projr_test_debug_save_rds(repo)
+.projr_test_debug_save_rds(id)
+.projr_test_debug_save_rds(wd)
+.projr_test_debug_save_rds(content_tbl)
+pb_info_sv <- piggyback:::pb_info
+.projr_test_debug_save_rds(pb_info_sv)
+expect_true(nrow(content_tbl) == 0L)
 
 # ==========================================
 # GitHub setup for testing

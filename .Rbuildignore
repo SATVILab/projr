@@ -29,3 +29,4 @@
 # Start of projr section: do not edit by hand (until `# End of projr section`)
 # End of projr section
 ^_scratch$
+^tmp$

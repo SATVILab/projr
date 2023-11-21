@@ -253,18 +253,18 @@
   }
   invisible(TRUE)
 }
-.projr_remote_check_osf_remote_structure <- function(remote_structure,
+.projr_remote_check_osf_structure <- function(structure,
                                                      nm_opt = NULL) {
-  if (is.null(remote_structure)) {
+  if (is.null(structure)) {
     return(invisible(FALSE))
   }
   if (is.null(nm_opt)) {
     nm_opt <- c("latest", "version", "content")
   }
-  diff_vec <- setdiff(remote_structure, nm_opt)
+  diff_vec <- setdiff(structure, nm_opt)
   if (length(diff_vec) > 0) {
     stop(paste0(
-      "remote_structure options must be one of: ",
+      "structure options must be one of: ",
       paste0('"', nm_opt, '"', collapse = ", ")
     ))
   }

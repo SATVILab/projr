@@ -92,5 +92,5 @@ with_dir <- function(new, code) {
       utils::zip(zipfile = path_zip, files = fn_rel, flags = "-r9Xq")
     }
   )
-  invisible(TRUE)
+  path_zip
 }

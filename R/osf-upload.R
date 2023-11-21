@@ -1,6 +1,6 @@
 .projr_osf_send_yml_content <- function(output_run,
                                         id,
-                                        remote_structure,
+                                        structure,
                                         content,
                                         path,
                                         path_append_label,
@@ -19,7 +19,7 @@
       osf_tbl_file,
       path,
       path_append_label,
-      remote_structure,
+      structure,
       sync_approach,
       version_source
     )
@@ -30,7 +30,7 @@
     # need to make this recursive
     .projr_osf_send_yml_content(
       id = yml_projr_osf_ind[["id"]],
-      remote_structure = yml_projr_osf_ind[["remote-structure"]],
+      structure = yml_projr_osf_ind[["remote-structure"]],
       content = yml_projr_osf_ind[["content"]],
       path = yml_projr_osf_ind[["path"]], ,
       path_append_label = yml_projr_osf_ind[["path_append_label"]], ,
@@ -48,14 +48,14 @@
                                       osf_tbl,
                                       path,
                                       path_append_label,
-                                      remote_structure,
+                                      structure,
                                       sync_approach,
                                       version_source,
                                       conflict) {
   # get what must be transferred and where
   # ----------------------------
 
-  switch(remote_structure,
+  switch(structure,
     "latest" = .projr_osf_send_yml_latest(
       label = label,
       output_run = output_run,
@@ -96,7 +96,7 @@
       path = path,
       path_append_label = path_append_label,
       label = label,
-      remote_structure = "latest"
+      structure = "latest"
     )
   }
 
@@ -157,7 +157,7 @@
     path = path,
     path_append_label = path_append_label,
     label = label,
-    remote_structure = "version",
+    structure = "version",
     version = NULL
   )
   # get local directory to upload from

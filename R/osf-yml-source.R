@@ -86,7 +86,7 @@ projr_source_add_osf <- function(label,
                                  id_parent = NULL,
                                  path = NULL,
                                  path_append_label = NULL,
-                                 remote_structure = NULL,
+                                 structure = NULL,
                                  download_cue = NULL,
                                  download_sync_approach = NULL,
                                  download_conflict = NULL,
@@ -119,7 +119,7 @@ projr_source_add_osf <- function(label,
     public = public, category = category, id_parent = id_parent,
     overwrite = overwrite,
     path = path, path_append_label = path_append_label,
-    remote_structure = remote_structure,
+    structure = structure,
     upload = upload_list, download = download_list
   )
 
@@ -152,7 +152,7 @@ projr_source_add_osf <- function(label,
     title = title,
     id = id,
     path = path,
-    remote_structure = remote_structure,
+    structure = structure,
     path_append_label = path_append_label,
     download_list = download_list,
     upload_list = upload_list
@@ -193,7 +193,7 @@ projr_source_add_osf <- function(label,
                                         category,
                                         path,
                                         path_append_label,
-                                        remote_structure,
+                                        structure,
                                         id_parent,
                                         overwrite,
                                         download,
@@ -215,8 +215,8 @@ projr_source_add_osf <- function(label,
   .projr_osf_yml_check_path_append_label(
     path_append_label = path_append_label
   )
-  .projr_osf_yml_check_remote_structure(
-    remote_structure = remote_structure,
+  .projr_osf_yml_check_structure(
+    structure = structure,
     nm_opt = c("latest", "version", "content")
   )
 
@@ -270,12 +270,12 @@ projr_source_add_osf <- function(label,
                                            id,
                                            path,
                                            path_append_label,
-                                           remote_structure,
+                                           structure,
                                            download_list,
                                            upload_list) {
   list_add <- list(id = id)
-  if (!is.null(remote_structure)) {
-    list_add[["remote-structure"]] <- remote_structure
+  if (!is.null(structure)) {
+    list_add[["remote-structure"]] <- structure
   }
   if (!is.null(path)) {
     list_add[["path"]] <- path

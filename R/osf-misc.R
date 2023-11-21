@@ -11,14 +11,14 @@
                                     label,
                                     path,
                                     path_append_label,
-                                    remote_structure,
+                                    structure,
                                     version = NULL) {
   path_osf <- .projr_osf_path_get(
     osf_tbl = osf_tbl,
     path = path,
     path_append_label = path_append_label,
     label = label,
-    remote_structure = remote_structure,
+    structure = structure,
     version = version
   )
   if (path_osf == ".") {
@@ -31,17 +31,17 @@
                                 path,
                                 path_append_label,
                                 label,
-                                remote_structure,
+                                structure,
                                 version = NULL) {
   path_base <- .projr_osf_path_get_base(
     path = path,
     path_append_label = path_append_label,
     label = label
   )
-  if (remote_structure == "latest") {
+  if (structure == "latest") {
     return(path_base)
   }
-  if (remote_structure == "version") {
+  if (structure == "version") {
     if (!is.null(version) && version == "latest") {
       osf_tbl_file <- osfr::osf_mkdir(x = osf_tbl, path = path_base)
       osf_tbl_file <- osf_tbl_file |> osfr::osf_ls_files(n_max = Inf)

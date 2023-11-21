@@ -15,7 +15,7 @@
     yml_projr_osf_ind_upload <- yml_projr_osf_ind[["upload"]]
     .projr_osf_send_yml_content(
       id = yml_projr_osf_ind[["id"]],
-      remote_structure = yml_projr_osf_ind[["remote-structure"]],
+      structure = yml_projr_osf_ind[["remote-structure"]],
       content = yml_projr_osf_ind[["content"]],
       path = yml_projr_osf_ind[["path"]], ,
       path_append_label = yml_projr_osf_ind[["path_append_label"]],
