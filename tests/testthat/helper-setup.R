@@ -109,6 +109,7 @@
   dir.create(path_dir, recursive = TRUE)
   # create files
   file.create(file.path(path_dir, "abc.txt"))
+  file.create(file.path(path_dir, ".hidden.txt"))
   if (dir_sub_lvl > 0) {
     path_dir_sub1 <- file.path(path_dir, paste0(dir_sub_prefix, "1"))
     dir.create(path_dir_sub1)

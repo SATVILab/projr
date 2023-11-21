@@ -669,15 +669,11 @@ projr_remote_create_github_attempt <- function(tag, body) {
 }
 
 # ========================
-# list all contents of a remote
+# list all contents of a remote (without versioning)
 # ========================
 
 .projr_remote_file_ls <- function(type,
-                                  remote,
-                                  path_dir_save_local) {
-  if (!dir.exists(path_dir_save_local)) {
-    dir.create(path_dir_save_local, recursive = TRUE)
-  }
+                                  remote) {
   switch(type,
     "local" = .projr_remote_file_ls_local(remote = remote),
     "osf" = .projr_remote_file_ls_osf(remote = remote),
@@ -689,7 +685,8 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # local
 .projr_remote_file_ls_local <- function(remote) {
-  list.files(remote, recursive = TRUE)
+  out <- list.files(remote, recursive = TRUE, all.files = TRUE)
+  if (length(out) == 0L) character() else out
 }
 
 # osf
@@ -721,7 +718,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
         path_dir_parent_curr <- path_dir_osf
       }
       fn_vec_dir_ind <- .projr_osf_ls_files(
-        osf_tbl = osfr::osf_mkdir(x = osf_tbl, path = path_dir_osf),
+        osf_tbl = osfr::osf_mkdir(x = remote, path = path_dir_osf),
         path_dir_parent = path_dir_parent_curr
       )
       if (length(fn_vec_dir_ind > 0L)) {
@@ -733,8 +730,8 @@ projr_remote_create_github_attempt <- function(tag, body) {
 }
 
 # github
-.projr_remote_file_ls_github <- function(remote,
-                                         path_dir_save_local) {
+.projr_remote_file_ls_github <- function(remote) {
+  path_dir_save_local <- .projr_dir_tmp_random_get()
   .projr_remote_file_get_all_github(
     remote = remote, path_dir_save_local = path_dir_save_local
   )
@@ -849,16 +846,16 @@ projr_remote_create_github_attempt <- function(tag, body) {
     return(invisible(FALSE))
   }
   remote <- fs::path_abs(remote)
-  withr::with_dir(
-    path_dir_local,
-    {
-      fn <- fn[file.exists(fn)]
-      if (length(fn_vec) == 0L) {
-        return(invisible(FALSE))
-      }
-      suppressWarnings(file.copy(fn_vec, remote, recursive = TRUE))
-      invisible(TRUE)
-    }
+  fn_vec_abs_source <- file.path(path_dir_local, fn)
+  fn_vec_abs_source <- fn_vec_abs_source[file.exists(fn_vec_abs_source)]
+  if (length(fn_vec_abs_source) == 0L) {
+    return(invisible(FALSE))
+  }
+  fn_vec_abs_dest <- file.path(remote, fn)
+  .projr_dir_tree_copy(path_dir_from = path_dir_local, path_dir_to = remote)
+  file.copy(
+    fn_vec_abs_source, fn_vec_abs_dest,
+    overwrite = TRUE
   )
 }
 

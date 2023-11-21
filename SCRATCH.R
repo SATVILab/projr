@@ -5,14 +5,6 @@ devtools::load_all()
 devtools::test_active_file(
   "tests/testthat/test-remote.R"
 )
-.projr_test_debug_read_rds(repo)
-.projr_test_debug_read_rds(wd)
-.projr_test_debug_read_rds(content_tbl_pre_delete)
-.projr_test_debug_read_rds(content_tbl)
-.projr_test_debug_read_rds(id)
-.projr_test_debug_read_rds(opt)
-.projr_test_debug_read_rds(is_memoised)
-
 
 
 # ==========================================
@@ -38,6 +30,14 @@ is_memoised <- memoise::is.memoised(piggyback::pb_list)
 pb_info_sv <- piggyback:::pb_info
 .projr_test_debug_save_rds(pb_info_sv)
 expect_true(nrow(content_tbl) == 0L)
+
+.projr_test_debug_read_rds(repo)
+.projr_test_debug_read_rds(wd)
+.projr_test_debug_read_rds(content_tbl_pre_delete)
+.projr_test_debug_read_rds(content_tbl)
+.projr_test_debug_read_rds(id)
+.projr_test_debug_read_rds(opt)
+.projr_test_debug_read_rds(is_memoised)
 
 # ==========================================
 # GitHub setup for testing
