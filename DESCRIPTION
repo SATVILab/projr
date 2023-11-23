@@ -8,7 +8,6 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-Depends: piggyback
 Imports:
     renv,
     fs,
@@ -21,6 +20,7 @@ Imports:
     gh,
     digest
 Suggests:
+    piggyback,
     pkgbuild,
     rmarkdown,
     bookdown,
@@ -30,7 +30,8 @@ Suggests:
     knitr,
     osfr,
     testthat (>= 3.0.0),
-    httr
+    httr,
+    rlang
 Config/testthat/edition: 3
 URL: https://satvilab.github.io/projr/
 VignetteBuilder: knitr

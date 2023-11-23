@@ -1,13 +1,12 @@
-image: gitpod/workspace-base
+image: ghcr.io/rocker-org/devcontainer/geospatial:4
 
 tasks:
-  - name: Set-up R, apptainer
+  - name: Minor config for R to work in cloud dev env's
     command: |
-        ./scripts/all/post_create_command.sh 
+        ./scripts/setup/post_create_command.sh 
 
 vscode:
   extensions:
-    - sourcegraph.cody-ai
     - quarto.quarto
     - REditorSupport.r
     - bierner.markdown-preview-github-styles

@@ -27,6 +27,9 @@ if [ -n "$(env | grep -E "^GITPOD|^CODESPACE")" ]; then
   if [ -z "$(cat "$HOME/.radian_profile" | grep -E 'options\(\s*radian\.editing_mode')" ]; then 
     echo 'options(radian.editing_mode = "vi")' >> "$HOME/.radian_profile"
   fi
+  if [ -z "$(cat "$HOME/.radian_profile" | grep -E 'options\(\s*radian\.auto_match')" ]; then 
+    echo 'options(radian.auto_match = FALSE)' >> "$HOME/.radian_profile"
+  fi
 fi
 
 # ensure R_LIBS is set and created (so

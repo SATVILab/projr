@@ -27,9 +27,7 @@ test_that(".projr_remote_create works", {
       # --------------------------
 
       # project
-      id_parent <- try(.projr_remote_create(
-        type = "osf", name = "CreateParent"
-      ))
+      id <- .projr_test_osf_create_project("ProjectParent")
       expect_true(.projr_remote_check_exists("osf", id_parent))
       .projr_osf_rm_node_id_defer(id_parent)
 
@@ -70,9 +68,7 @@ test_that(".projr_remote_get works", {
 
       # osf
       # --------------------------
-      id <- try(.projr_remote_create(
-        type = "osf", name = "CreateParent"
-      ))
+      id <- .projr_test_osf_create_project("ProjectParent")
       expect_identical(
         .projr_remote_get("osf", id)[["id"]],
         id
@@ -124,9 +120,7 @@ test_that(".projr_remote_get_final works", {
       # --------------------------
 
       # no sub-directory
-      id <- try(.projr_remote_create(
-        type = "osf", name = "CreateParent"
-      ))
+      id <- .projr_test_osf_create_project("ProjectParent")
       expect_error(
         .projr_remote_get_final(
           "osf",
@@ -228,9 +222,7 @@ test_that(".projr_remote_rm_final_if_empty works", {
       # --------------------------
 
       # create node
-      id <- try(.projr_remote_create(
-        type = "osf", name = "CreateNode"
-      ))
+      id <- .projr_test_osf_create_project("Project")
       osf_tbl <- .projr_remote_get("osf", id)
 
       # when we pass the node rather than sub-dir
@@ -318,9 +310,7 @@ test_that(".projr_remote_file_rm_all works", {
       # --------------------------
 
       # create node
-      id <- try(.projr_remote_create(
-        type = "osf", name = "CreateNode"
-      ))
+      id <- .projr_test_osf_create_project("Project")
       osf_tbl <- .projr_remote_get("osf", id)
 
       # when empty
@@ -391,14 +381,11 @@ test_that("adding, tallying and removing files from remotes works", {
         character()
       )
 
-      browser()
 
       # has content
       path_dir_source <- .projr_test_setup_content_dir()
       fn_vec_source <- .projr_remote_file_ls("local", path_dir_source)
       path_dir_dest <- .projr_dir_tmp_random_get()
-      debugonce(.projr_remote_file_add_local)
-      debugonce(.projr_dir_tree_copy)
       .projr_remote_file_add(
         "local",
         fn = fn_vec_source,
@@ -411,76 +398,128 @@ test_that("adding, tallying and removing files from remotes works", {
       )
 
       # remove some content
-      # START HERE!!!
+      fn_vec_dest_orig <- .projr_remote_file_ls("local", path_dir_dest)
+      fn_vec_rm <- c("abc.txt", "subdir1/def.txt")
+      .projr_remote_file_rm("local", fn = fn_vec_rm, remote = path_dir_dest)
       expect_identical(
         .projr_remote_file_ls(
           "local",
-          remote = path_dir_content
+          remote = path_dir_dest
         ),
-        list.files(path_dir, recursive = TRUE, all.files = TRUE)
+        fn_vec_dest_orig |> setdiff(fn_vec_rm)
       )
-      unlink(path_dir, recursive = TRUE)
+      unlink(path_dir_dest, recursive = TRUE)
+      unlink(path_dir_source, recursive = TRUE)
 
       # osf
       # --------------------------
 
-      # create node
+      if (FALSE) {
+        # create node
+        id <- .projr_test_osf_create_project("Project")
+        osf_tbl <- .projr_remote_get("osf", id)
+
+        # when empty
+        expect_identical(
+          .projr_remote_file_ls(
+            "osf",
+            remote = osf_tbl
+          ),
+          character()
+        )
+
+        # with content
+        path_dir_source <- .projr_test_setup_content_dir()
+        fn_vec_source <- .projr_remote_file_ls("local", path_dir_source)
+        path_dir_dest <- .projr_dir_tmp_random_get()
+        .projr_remote_file_add(
+          "osf",
+          fn = fn_vec_source,
+          path_dir_local = path_dir_source,
+          remote = osf_tbl
+        )
+        expect_identical(
+          .projr_remote_file_ls("osf", osf_tbl),
+          fn_vec_source
+        )
+
+        # remove some content
+        fn_vec_orig_osf <- .projr_remote_file_ls("osf", osf_tbl)
+        fn_vec_rm <- c("abc.txt", "subdir1/def.txt")
+        expect_true(
+          .projr_remote_file_rm("osf", fn = fn_vec_rm, remote = osf_tbl)
+        )
+        expect_identical(
+          .projr_remote_file_ls(
+            "osf",
+            remote = osf_tbl
+          ),
+          fn_vec_dest_orig |> setdiff(fn_vec_rm)
+        )
+        unlink(path_dir_source, recursive = TRUE)
+      }
+
+
+      # github
+      # --------------------------
       browser()
-      id <- try(.projr_remote_create(
-        type = "osf", name = "CreateNode"
-      ))
-      osf_tbl <- .projr_remote_get("osf", id)
+      # create release
+      id <- .projr_test_random_string_get()
+      remote <- .projr_remote_get_final("github", id = id, label = "data-raw")
+      .projr_remote_create("github", remote[["tag"]])
 
       # when empty
+      expect_identical(
+        .projr_remote_file_ls(
+          "github",
+          remote = remote
+        ),
+        character()
+      )
+
+      # with content
+      # START HERE!!!! (or maybe from the browser() above, not sure that works either)
+      path_dir_source <- .projr_test_setup_content_dir()
+      remote <- stats::setNames(.projr_test_random_string_get(), "tag")
+      fn_vec <- .projr_remote_file_ls("local", path_dir_source)
+      .projr_remote_file_add(
+        "github",
+        fn = fn_vec, path_dir_local = path_dir_source, remote = remote
+      )
+      path_zip <- .projr_zip_file(
+        fn_rel = .projr_remote_file_ls("local", path_dir_source),
+        path_dir_fn_rel = path_dir_source,
+        fn_rel_zip = remote[["fn"]]
+      )
+      piggyback:::.pb_cache_clear()
+      piggyback::pb_upload(file = path_zip, tag = id)
+      fn_vec_source <- .projr_remote_file_ls("local", path_dir_source)
+      path_dir_dest <- .projr_dir_tmp_random_get()
+      .projr_remote_file_add(
+        "github",
+        fn = fn_vec_source,
+        path_dir_local = path_dir_source,
+        remote = remote
+      )
+      expect_identical(
+        .projr_remote_file_ls("osf", osf_tbl),
+        fn_vec_source
+      )
+
+      # remove some content
+      fn_vec_orig_osf <- .projr_remote_file_ls("osf", osf_tbl)
+      fn_vec_rm <- c("abc.txt", "subdir1/def.txt")
+      expect_true(
+        .projr_remote_file_rm("osf", fn = fn_vec_rm, remote = osf_tbl)
+      )
       expect_identical(
         .projr_remote_file_ls(
           "osf",
           remote = osf_tbl
         ),
-        character()
+        fn_vec_dest_orig |> setdiff(fn_vec_rm)
       )
-
-      # clear with content
-      path_dir <- .projr_test_setup_content_dir()
-      osfr::osf_upload(
-        x = osf_tbl, path = path_dir, recurse = TRUE, conflicts = "overwrite"
-      )
-      osf_tbl_file <- osfr::osf_mkdir(
-        x = osf_tbl, path = list.dirs(path_dir)[2] |> basename()
-      )
-      .projr_remote_file_ls_osf(osf_tbl)
-      osfr::osf_ls_files(x = osf_tbl)
-      osfr::osf_ls_files(osf_tbl_file)
-      osfr::osf_upload(x = osf_tbl, path = path_tmp_file)
-      osfr::osf_upload(x = osf_tbl_sub_a, path = path_tmp_file)
-      osfr::osf_upload(x = osf_tbl_sub_b, path = path_tmp_file)
-      expect_true(
-        .projr_remote_file_rm_all(
-          "osf",
-          remote = osf_tbl
-        )
-      )
-      expect_true(nrow(osfr::osf_ls_files(osf_tbl)) == 0L)
-
-      # github
-      # --------------------------
-      id <- .projr_remote_create("github", id = "abc")
-      Sys.sleep(3)
-      path_tmp_file <- file.path(tempdir(), "abc.txt")
-      file.create(path_tmp_file)
-      path_zip <- .projr_zip_file(
-        fn_rel = basename(path_tmp_file),
-        path_dir_fn_rel = dirname(path_tmp_file),
-        fn_rel_zip = "abc.zip"
-      )
-      piggyback:::.pb_cache_clear()
-      piggyback::pb_upload(file = path_zip, tag = id)
-      content_tbl_pre_delete <- piggyback::pb_list(tag = id)
-      expect_identical(nrow(content_tbl_pre_delete), 1L)
-      expect_true(.projr_remote_file_rm_all("github", remote = id))
-      piggyback:::.pb_cache_clear()
-      content_tbl <- piggyback::pb_list(tag = id)
-      expect_null(content_tbl)
+      unlink(path_dir_source, recursive = TRUE)
     }
   )
 })
