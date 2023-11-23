@@ -462,7 +462,6 @@ test_that("adding, tallying and removing files from remotes works", {
 
       # github
       # --------------------------
-      browser()
       # create release
       id <- .projr_test_random_string_get()
       remote <- .projr_remote_get_final("github", id = id, label = "data-raw")
@@ -478,48 +477,35 @@ test_that("adding, tallying and removing files from remotes works", {
       )
 
       # with content
-      # START HERE!!!! (or maybe from the browser() above, not sure that works either)
       path_dir_source <- .projr_test_setup_content_dir()
       remote <- stats::setNames(.projr_test_random_string_get(), "tag")
+      remote <- remote |> c(c("fn" = "data-raw.zip"))
       fn_vec <- .projr_remote_file_ls("local", path_dir_source)
       .projr_remote_file_add(
         "github",
         fn = fn_vec, path_dir_local = path_dir_source, remote = remote
       )
-      path_zip <- .projr_zip_file(
-        fn_rel = .projr_remote_file_ls("local", path_dir_source),
-        path_dir_fn_rel = path_dir_source,
-        fn_rel_zip = remote[["fn"]]
-      )
-      piggyback:::.pb_cache_clear()
-      piggyback::pb_upload(file = path_zip, tag = id)
-      fn_vec_source <- .projr_remote_file_ls("local", path_dir_source)
-      path_dir_dest <- .projr_dir_tmp_random_get()
-      .projr_remote_file_add(
+      path_dir_save <- .projr_dir_tmp_random_get()
+      .projr_remote_file_get_all(
         "github",
-        fn = fn_vec_source,
-        path_dir_local = path_dir_source,
-        remote = remote
+        remote = remote, path_dir_save_local = path_dir_save
       )
       expect_identical(
-        .projr_remote_file_ls("osf", osf_tbl),
-        fn_vec_source
+        .projr_remote_file_ls("local", path_dir_save),
+        fn_vec
       )
 
       # remove some content
-      fn_vec_orig_osf <- .projr_remote_file_ls("osf", osf_tbl)
+      browser()
+      fn_vec_orig_github <- .projr_remote_file_ls("github", remote)
       fn_vec_rm <- c("abc.txt", "subdir1/def.txt")
       expect_true(
-        .projr_remote_file_rm("osf", fn = fn_vec_rm, remote = osf_tbl)
+        .projr_remote_file_rm("github", fn = fn_vec_rm, remote = remote)
       )
       expect_identical(
-        .projr_remote_file_ls(
-          "osf",
-          remote = osf_tbl
-        ),
-        fn_vec_dest_orig |> setdiff(fn_vec_rm)
+        .projr_remote_file_ls("github", remote),
+        setdiff(fn_vec_orig_github, fn_vec_rm)
       )
-      unlink(path_dir_source, recursive = TRUE)
     }
   )
 })
