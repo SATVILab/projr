@@ -10,6 +10,41 @@ devtools::test_active_file(
 
 # ==========================================
 
+path_zip <- .projr_zip_file(
+  fn_rel = .projr_remote_file_ls("local", path_dir_source),
+  path_dir_fn_rel = path_dir_source,
+  fn_rel_zip = remote[["fn"]]
+)
+piggyback:::.pb_cache_clear()
+piggyback::pb_upload(file = path_zip, tag = id)
+fn_vec_source <- .projr_remote_file_ls("local", path_dir_source)
+path_dir_dest <- .projr_dir_tmp_random_get()
+.projr_remote_file_add(
+  "github",
+  fn = fn_vec_source,
+  path_dir_local = path_dir_source,
+  remote = remote
+)
+expect_identical(
+  .projr_remote_file_ls("osf", osf_tbl),
+  fn_vec_source
+)
+
+# remove some content
+fn_vec_orig_osf <- .projr_remote_file_ls("osf", osf_tbl)
+fn_vec_rm <- c("abc.txt", "subdir1/def.txt")
+expect_true(
+  .projr_remote_file_rm("osf", fn = fn_vec_rm, remote = osf_tbl)
+)
+expect_identical(
+  .projr_remote_file_ls(
+    "osf",
+    remote = osf_tbl
+  ),
+  fn_vec_dest_orig |> setdiff(fn_vec_rm)
+)
+unlink(path_dir_source, recursive = TRUE)
+
 # ==========================================
 # GitHub release debug
 # ==========================================

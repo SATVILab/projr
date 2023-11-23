@@ -609,7 +609,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 .projr_remote_file_get_all_local <- function(remote,
                                              path_dir_save_local) {
-  remote <- normalizePath(remote, winsslash = "/")
+  remote <- normalizePath(remote, winslash = "/")
   path_dir_save_local <- normalizePath(path_dir_save_local, winslash = "/")
   if (identical(remote, path_dir_save_local)) {
     return(path_dir_save_local)
@@ -646,24 +646,32 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # ---------------------
 
 .projr_remote_file_get_all_github <- function(remote, path_dir_save_local) {
-  fn <- remote[["fn"]]
-  release_tbl <- .projr_pb_release_tbl_get()
-  if (!fn %in% piggyback::pb_list(tag = remote[["tag"]])) {
-    return(invisible(path_dir_save_local))
+  if (!.projr_remote_check_exists("github", remote[["tag"]])) {
+    return(invisible(FALSE))
   }
+  .projr_remote_file_get_all_github_file(
+    remote = remote, path_dir_save_local = path_dir_save_local
+  )
 }
 
-.projr_remote_file_get_all_github_file <- function(tag, file, path_dir_save_local) {
+.projr_remote_file_get_all_github_file <- function(remote, path_dir_save_local) {
   piggyback::.pb_cache_clear()
+  path_dir_save_init <- .projr_dir_tmp_random_get()
+  if (!remote[["fn"]] %in% piggyback::pb_list(tag = remote[["tag"]])) {
+    return(invisible(path_dir_save_local))
+  }
   piggyback::pb_download(
     file = remote[["fn"]],
-    dest = path_file_save_init,
+    dest = path_dir_save_init,
     tag = remote[["tag"]],
     overwrite = TRUE,
     use_timestamps = FALSE
   )
-  unzip(path_file_save_init, exdir = path_dir_save_local)
-  file.remove(path_file_save_init)
+  utils::unzip(
+    file.path(path_dir_save_init, remote[["fn"]]),
+    exdir = path_dir_save_local
+  )
+  file.remove(file.path(path_dir_save_init, remote[["fn"]]))
   invisible(path_dir_save_local)
 }
 
@@ -729,10 +737,11 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # github
 .projr_remote_file_ls_github <- function(remote) {
   path_dir_save_local <- .projr_dir_tmp_random_get()
-  .projr_remote_file_get_all_github(
+  .projr_remote_file_get_all(
+    "github",
     remote = remote, path_dir_save_local = path_dir_save_local
   )
-  fn_vec <- list.files(path_dir_save_local, recursive = TRUE)
+  fn_vec <- .projr_remote_file_ls("local", path_dir_save_local)
   unlink(path_dir_save_local, recursive = TRUE)
   fn_vec
 }
@@ -844,7 +853,28 @@ projr_remote_create_github_attempt <- function(tag, body) {
     return(invisible(FALSE))
   }
   piggyback::.pb_cache_clear()
-  piggyback::pb_delete(file = fn, remote = remote[["tag"]])
+  path_dir_save_local <- .projr_dir_tmp_random_get()
+  .projr_remote_file_get_all(
+    "github",
+    remote = remote, path_dir_save_local = path_dir_save_local
+  )
+  fn_vec <- .projr_remote_file_ls("local", path_dir_save_local)
+  fn_vec_to_rm <- fn_vec[fn_vec %in% fn]
+  if (length(fn_vec_to_rm) == 0L) {
+    return(invisible(FALSE))
+  }
+  .projr_remote_file_rm(
+    "local",
+    fn = fn_vec_to_rm, remote = path_dir_save_local
+  )
+  fn_vec_to_upload <- setdiff(fn_vec, fn_vec_to_rm)
+  .projr_remote_file_add(
+    "github",
+    fn = fn_vec_to_upload,
+    path_dir_local = path_dir_save_local,
+    remote = remote
+  )
+  unlink(path_dir_save_local, recursive = TRUE)
   invisible(TRUE)
 }
 
@@ -889,6 +919,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
     fn_vec_abs_source, fn_vec_abs_dest,
     overwrite = TRUE
   )
+  invisible(TRUE)
 }
 
 # osf
@@ -938,6 +969,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
   release_tbl <- .projr_pb_release_tbl_get()
   if (!tag %in% release_tbl[["release_name"]]) {
     .projr_remote_create("github", id = tag)
+    Sys.sleep(3)
   }
   # if only needing code uploaded, then it's done already
   # by creating the release
