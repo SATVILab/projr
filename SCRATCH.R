@@ -6,6 +6,7 @@ devtools::test_active_file(
   "tests/testthat/test-remote.R"
 )
 
+.projr_test_debug_read_rds(pb_tbl)
 
 # ==========================================
 

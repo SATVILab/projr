@@ -10,6 +10,9 @@
   if (!requireNamespace("httr", quietly = TRUE)) {
     utils::install.packages("httr")
   }
+  if (is.null(env)) {
+    env <- rlang::caller_env()
+  }
 
   # defaults
   user <- user %||% gh::gh_whoami()[["login"]]
@@ -64,8 +67,8 @@
         try(
           {
             .projr_remote_host_rm(
-              remote_type = "github",
-              remote_host = c("repo" = basename(repo))
+              type = "github",
+              host = c("repo" = basename(repo))
             )
           },
           silent = TRUE
@@ -236,7 +239,7 @@
       return(invisible(FALSE))
     }
     for (repo in name_vec) {
-      .projr_remote_host_rm_github(remote_host = c("repo" = repo))
+      .projr_remote_host_rm_github(host = c("repo" = repo))
     }
   }
 }

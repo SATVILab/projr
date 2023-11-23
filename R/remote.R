@@ -164,7 +164,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # github
 .projr_remote_check_exists_github <- function(tag) {
-  release_tbl <- .projr_pb_get_release_tbl()
+  release_tbl <- .projr_pb_release_tbl_get()
   if (inherits(release_tbl, "try-error")) {
     stop("Could not get GitHub release table")
   }
@@ -456,33 +456,33 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # delete the release itself - we actually delete the repo.
 
 .projr_remote_host_rm <- function(type,
-                                  remote_host) {
+                                  host) {
   switch(type,
-    "local" = .projr_remote_host_rm_local(remote_host = remote_host),
-    "osf" = .projr_remote_host_rm_osf(remote_host = remote_host),
-    "github" = .projr_remote_host_rm_github(remote_host = remote_host)
+    "local" = .projr_remote_host_rm_local(host = host),
+    "osf" = .projr_remote_host_rm_osf(host = host),
+    "github" = .projr_remote_host_rm_github(host = host)
   )
 }
 
 # local
-.projr_remote_host_rm_local <- function(remote_host) {
-  if (!dir.exists(remote_host)) {
+.projr_remote_host_rm_local <- function(host) {
+  if (!dir.exists(host)) {
     return(invisible(FALSE))
   }
-  unlink(remote_host, recursive = TRUE)
+  unlink(host, recursive = TRUE)
   invisible(TRUE)
 }
 
 # osf
-.projr_remote_host_rm_osf <- function(remote_host) {
+.projr_remote_host_rm_osf <- function(host) {
   osfr::osf_rm(
-    x = osfr::osf_retrieve_node(remote_host), check = FALSE, recurse = TRUE
+    x = osfr::osf_retrieve_node(host), check = FALSE, recurse = TRUE
   )
   invisible(TRUE)
 }
 
 # github
-.projr_remote_host_rm_github <- function(remote_host) {
+.projr_remote_host_rm_github <- function(host) {
   # set up
   # ----------
   if (!requireNamespace("gh", quietly = TRUE)) {
@@ -493,14 +493,14 @@ projr_remote_create_github_attempt <- function(tag, body) {
   }
 
   # defaults
-  user <- if ("user" %in% names(remote_host)) remote_host[["user"]] else NULL
+  user <- if ("user" %in% names(host)) host[["user"]] else NULL
   user <- user %||% gh::gh_whoami()[["login"]]
   if (!nzchar(user)) stop("No GitHub user found")
-  token <- if ("token" %in% names(remote_host)) remote_host[["token"]] else NULL # nolint
+  token <- if ("token" %in% names(host)) host[["token"]] else NULL # nolint
   token <- token %||% Sys.getenv("GITHUB_PAT")
   token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
   if (!nzchar(token)) stop("No GitHub token found")
-  repo <- if ("repo" %in% names(remote_host)) remote_host[["repo"]] else NULL
+  repo <- if ("repo" %in% names(host)) host[["repo"]] else NULL
   if (!nzchar(repo)) stop("No GitHub repo specified")
   # Define the URL of the GitHub API
   # take basename in case we've accidentally specified
@@ -646,15 +646,14 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # ---------------------
 
 .projr_remote_file_get_all_github <- function(remote, path_dir_save_local) {
-  path_file_save_init <- file.path(
-    tempdir(), "github", signif(rnorm(1)), remote[["fn"]]
-  )
-  if (!dir.exists(dirname(path_file_save_init))) {
-    dir.create(dirname(path_file_save_init), recursive = TRUE)
-  }
-  if (!remote[["fn"]] %in% piggyback::pb_list(tag = remote[["tag"]])) {
+  fn <- remote[["fn"]]
+  release_tbl <- .projr_pb_release_tbl_get()
+  if (!fn %in% piggyback::pb_list(tag = remote[["tag"]])) {
     return(invisible(path_dir_save_local))
   }
+}
+
+.projr_remote_file_get_all_github_file <- function(tag, file, path_dir_save_local) {
   piggyback::.pb_cache_clear()
   piggyback::pb_download(
     file = remote[["fn"]],
@@ -677,9 +676,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
   switch(type,
     "local" = .projr_remote_file_ls_local(remote = remote),
     "osf" = .projr_remote_file_ls_osf(remote = remote),
-    "github" = .projr_remote_file_ls_github(
-      remote = remote, path_dir_save_local = path_dir_save_local
-    )
+    "github" = .projr_remote_file_ls_github(remote = remote)
   )
 }
 
@@ -776,33 +773,68 @@ projr_remote_create_github_attempt <- function(tag, body) {
   if (length(fn) == 0) {
     return(invisible(FALSE))
   }
-  plot_df <- data.frame(fn = fn, dir = dirname(fn))
-  dir_vec <- unique(plot_df[["dir"]])
-  for (x in dir_vec) {
-    if (x != ".") {
-      osf_tbl_rm <- osfr::osf_mkdir(x = remote, path = x)
-    } else {
-      osf_tbl_rm <- remote
-    }
-    osf_tbl_file <- osf_tbl_rm |> osfr::osf_ls_files()
-    fn_vec <- plot_df[["fn"]][plot_df[["dir"]] == x]
-    osf_tbl_file_rm <- osf_tbl_file[osf_tbl_file[["name"]] %in% fn_vec, ]
-
-    # delete entire directory if it's a directory and
-    # all files are being deleted
-    if (nrow(osf_tbl_file_rm) == nrow(osf_tbl_file)) {
-      if (inherits(osf_tbl_rm, "osf_tbl_file")) {
-        osfr::osf_rm(x = osf_tbl_rm, check = FALSE, recurse = FALSE)
-      }
-      return(invisible(TRUE))
-    }
-    # delete files one by one if it's a node or if
-    # not all files are deleted in directory
-    for (i in seq_along(fn_vec)) {
-      osfr::osf_rm(x = osf_tbl_file_rm[i, ], check = FALSE, recurse = FALSE)
-    }
-  }
+  # osfr requires doing deletions directory by directory
+  dir_vec <- unique(dirname(fn))
+  # do deeper directories first, to give a
+  # chance to delete entire directories in one go later,
+  # which may be faster
+  dir_vec <- dir_vec[order(.projr_dir_count_lvl(dir_vec), decreasing = TRUE)]
+  vapply(
+    dir_vec, .projr_remote_file_rm_osf_dir, logical(1),
+    osf_tbl = remote, fn = fn
+  )
   invisible(TRUE)
+}
+
+.projr_remote_file_rm_osf_dir <- function(dir, fn, osf_tbl) {
+  osf_tbl_rm <- .projr_remote_file_rm_osf_rm_get(
+    path = dir, node = osf_tbl
+  )
+  osf_tbl_rm_file <- osf_tbl_rm |> osfr::osf_ls_files(n_max = Inf)
+  fn_vec_dir <- basename(fn)[dirname(fn) == dir]
+  .projr_remote_file_rm_osf_detailed(
+    fn_dir = fn_vec_dir, osf_tbl = osf_tbl_rm, osf_tbl_file = osf_tbl_rm_file
+  )
+}
+
+.projr_remote_file_rm_osf_rm_get <- function(path,
+                                             node) {
+  if (path != ".") {
+    node <- osfr::osf_mkdir(x = node, path = path)
+  }
+  node
+}
+
+.projr_remote_file_rm_osf_detailed <- function(fn_dir,
+                                               osf_tbl,
+                                               osf_tbl_file) {
+  fn_vec_osf <- osf_tbl_file[["name"]]
+  # might be faster to just delete the whole directory
+  remove_dir <- setequal(fn_dir, fn_vec_osf) &&
+    inherits(osf_tbl, "osf_tbl_file")
+  if (remove_dir) {
+    osfr::osf_rm(x = osf_tbl, check = FALSE, recurse = FALSE)
+    return(invisible(TRUE))
+  }
+  fn_vec_to_rm <- fn_vec_osf[fn_vec_osf %in% fn_dir]
+  if (length(fn_vec_to_rm) == 0L) {
+    return(invisible(FALSE))
+  }
+  .projr_remote_file_rm_osf_fn(
+    fn_rm = fn_vec_to_rm, osf_tbl_file = osf_tbl_file
+  )
+  invisible(TRUE)
+}
+
+.projr_remote_file_rm_osf_fn <- function(fn_rm, osf_tbl_file) {
+  # osfr requires deleting individual files one-by-one
+  # by passing a table
+  for (i in seq_along(fn_rm)) {
+    osf_tbl_file_ind <- osf_tbl_file[
+      osf_tbl_file[["name"]] == fn_rm[[i]],
+    ]
+    osfr::osf_rm(x = osf_tbl_file_ind, check = FALSE, recurse = FALSE)
+  }
 }
 
 # github
@@ -867,8 +899,8 @@ projr_remote_create_github_attempt <- function(tag, body) {
     return(invisible(FALSE))
   }
   .projr_dep_install("osfr")
-  plot_df <- data.frame(fn = fn, dir = dirname(fn))
-  dir_vec <- unique(plot_df[["dir"]])
+  plot_tbl <- data.frame(fn = fn, dir = dirname(fn))
+  dir_vec <- unique(plot_tbl[["dir"]])
   for (x in dir_vec) {
     if (x != ".") {
       osf_tbl_upload <- osfr::osf_mkdir(x = remote, path = x)
@@ -877,7 +909,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
     }
     osfr::osf_upload(
       x = osf_tbl_upload,
-      path = file.path(path_dir_local, plot_df[["fn"]][plot_df[["dir"]] == x]),
+      path = file.path(path_dir_local, plot_tbl[["fn"]][plot_tbl[["dir"]] == x]),
       conflicts = "overwrite"
     )
   }
@@ -903,12 +935,43 @@ projr_remote_create_github_attempt <- function(tag, body) {
     return(invisible(FALSE))
   }
   tag <- .projr_pb_tag_format(remote[["tag"]])
-  if (!.projr_pb_create_release(tag = tag)) {
-    warning(paste0("Could not create release with tag ", tag))
-    return(invisible(FALSE))
+  release_tbl <- .projr_pb_release_tbl_get()
+  if (!tag %in% release_tbl[["release_name"]]) {
+    .projr_remote_create("github", id = tag)
   }
+  # if only needing code uploaded, then it's done already
+  # by creating the release
   if (length(path_zip) == 0L && label == "code") {
     return(invisible(TRUE))
   }
-  .projr_pb_upload(path_zip = path_zip, tag = tag)
+  .projr_remote_file_add_github_zip(path_zip = path_zip, tag = tag)
+}
+
+.projr_remote_file_add_github_zip <- function(path_zip, tag, pause_second = 3) {
+  pb_upload <- .projr_remote_file_add_github_zip_attempt(
+    path_zip = path_zip, tag = tag
+  )
+  if (!inherits(pb_upload, "try-error")) {
+    return(invisible(TRUE))
+  }
+  Sys.sleep(pause_second)
+  pb_upload <- .projr_remote_file_add_github_zip_attempt(
+    path_zip = path_zip, tag = tag
+  )
+  if (!inherits(pb_upload, "try-error")) {
+    return(invisible(TRUE))
+  }
+  warning(paste0(
+    "Could not upload ", # nolint
+    basename(path_zip),
+    " to GitHub release with tag ", # nolint
+    tag
+  ))
+  invisible(FALSE)
+}
+
+.projr_remote_file_add_github_zip_attempt <- function(path_zip, tag) {
+  try(suppressWarnings(suppressMessages(
+    piggyback::pb_upload(file = path_zip, tag = tag)
+  )))
 }

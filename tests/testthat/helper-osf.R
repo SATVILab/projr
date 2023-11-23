@@ -13,11 +13,11 @@
 
 .projr_test_osf_create_project <- function(prefix) {
   project <- paste0(
-    prefix, "ProjrOSFTest", rnorm(1) |> signif(4) |> as.character()
+    prefix, "ProjrOSFTest", rnorm(1) |> signif(6) |> as.character()
   )
   .projr_remote_create(
-    remote_type = "osf",
-    title = project,
+    type = "osf",
+    name = project,
     category = "project",
     public = FALSE,
     id_parent = NULL
@@ -44,10 +44,14 @@
 # WHAT YOU ARE DOING.
 .projr_remote_host_rm_all_osf <- function() {
   osf_tbl <- osfr::osf_retrieve_user("me") |>
-    osfr::osf_ls_nodes()
+    osfr::osf_ls_nodes(n_max = Inf)
   ind_vec <- grepl("ProjrOSFTest", osf_tbl[["name"]])
   id_vec <- osf_tbl[ind_vec, ][["id"]]
   name_vec <- osf_tbl[ind_vec, ][["name"]]
+  if (length(name_vec) == 0L) {
+    message("No OSF projects to delete.")
+    return(invisible(FALSE))
+  }
   cat(name_vec, sep = "\n")
   opt_vec <- c("Yes", "No", "Definitely not")[sample(1:3, size = 3)]
   yes_ind <- which(opt_vec == "Yes")
@@ -71,7 +75,7 @@
     }
   }
   for (id in id_vec) {
-    .projr_remote_host_rm_osf(remote_host = id)
+    .projr_remote_host_rm("osf", host = id)
   }
 }
 

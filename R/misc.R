@@ -80,6 +80,8 @@ with_dir <- function(new, code) {
   if (!dir.exists(path_dir_fn_rel_zip)) {
     dir.create(path_dir_fn_rel_zip, recursive = TRUE)
   }
+  fn_rel_zip <- gsub("\\.zip$", "", fn_rel_zip)
+  fn_rel_zip <- paste0(fn_rel_zip, ".zip")
   path_zip <- file.path(path_dir_fn_rel_zip, fn_rel_zip)
   with_dir(
     path_dir_fn_rel,
@@ -90,6 +92,7 @@ with_dir <- function(new, code) {
         return(character())
       }
       utils::zip(zipfile = path_zip, files = fn_rel, flags = "-r9Xq")
+      sink(NULL)
     }
   )
   path_zip
@@ -137,4 +140,14 @@ with_dir <- function(new, code) {
     }
   }
   invisible(TRUE)
+}
+
+.projr_dir_count_lvl <- function(path_dir) {
+  vapply(path_dir, function(x) {
+    x <- gsub("^/|/$", "", x)
+    if (x == ".") {
+      return(0L)
+    }
+    strsplit(x, "/")[[1]] |> length()
+  }, integer(1))
 }
