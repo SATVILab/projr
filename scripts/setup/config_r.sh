@@ -1,4 +1,4 @@
-#!|usr/bin/env bash
+#!/usr/bin/env bash
 # github token
 if [ -n "$GH_TOKEN" ]; then 
   export GITHUB_PAT="${GITHUB_PAT:-"$GH_TOKEN"}"
