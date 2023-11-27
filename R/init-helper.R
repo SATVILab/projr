@@ -246,22 +246,33 @@
 
 .projr_init_ignore <- function() {
   dir_proj <- rprojroot::is_r_package$find_file()
-  if (!file.exists(file.path(dir_proj, ".gitignore"))) {
-    gitignore <- c(
-      "# R", ".Rproj.user", ".Rhistory", ".RData",
-      ".Ruserdata", "_projr-local.yml", ""
-    )
-    writeLines(gitignore, file.path(dir_proj, ".gitignore"))
-    .projr_newline_append(file.path(dir_proj, ".gitignore"))
+  if (file.exists(file.path(dir_proj, ".gitignore"))) {
+    gitignore <- readLines(file.path(dir_proj, ".gitignore"))
+  } else {
+    gitignore <- NULL
   }
+  gitignore <- c(
+    gitignore,
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "_projr-local.yml", ""
+  ) |>
+    unique()
+  writeLines(gitignore, file.path(dir_proj, ".gitignore"))
+  .projr_newline_append(file.path(dir_proj, ".gitignore"))
 
-  if (!file.exists(file.path(dir_proj, ".Rbuildignore"))) {
-    rbuildignore <- c(
-      "^.*\\.Rproj$", "^\\.Rproj\\.user$", "^_projr-local\\.yml$"
-    )
-    writeLines(rbuildignore, file.path(dir_proj, ".Rbuildignore"))
-    .projr_newline_append(file.path(dir_proj, ".Rbuildignore"))
+  if (file.exists(file.path(dir_proj, ".Rbuildignore"))) {
+    rbuildignore <- readLines(file.path(dir_proj, ".Rbuildignore"))
+  else {
+    rbuildignore <- NULL
   }
+  rbuildignore <- c(
+    rbuildignore,
+    "^.*\\.Rproj$", "^\\.Rproj\\.user$", "^_projr-local\\.yml$"
+  ) |>
+    unique()
+  writeLines(rbuildignore, file.path(dir_proj, ".Rbuildignore"))
+  .projr_newline_append(file.path(dir_proj, ".Rbuildignore"))
+
   invisible(TRUE)
 }
 
