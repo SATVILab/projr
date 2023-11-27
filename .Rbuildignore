@@ -14,18 +14,12 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
-^scripts$
-^bin$
-^scripts$
-^run\-apptainer\.sh$
-^\.Renviron$
-^repos-to-clone\.list$
-^clone-repos\.sh$
-^run-sif\.sh$
-^run-vsc\.sh$
-^\.vscode$
 ^\.devcontainer$
-^SCRATCH-old\.R$
+^\.devcontainer/
+^repos-to-clone\.list$
+^\.gitpod\.yml$
+^\.Renviron$
+^EntireProject\.code-workspace$
 # Start of projr section: do not edit by hand (until `# End of projr section`)
 # End of projr section
 ^_scratch$
