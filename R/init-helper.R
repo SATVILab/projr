@@ -38,158 +38,199 @@
   invisible(TRUE)
 }
 
-.projr_init_prompt_init <- function(nm_pkg) {
+.projr_init_prompt_init <- function(dir_proj) {
+  # package name
+  nm_pkg <- basename(dir_proj)
+  if (!Sys.getenv("PROJR_TEST") == "TRUE") {
+    cat("Project name is", paste0("`", nm_pkg, "`"), "\n")
+  }
   # document engine
-  nm_engine <- .projr_init_prompt_ind(
-    .var = NULL,
-    nm_item_long = "document engine",
-    option_default = c(
-      "Quarto project", "Quarto document",
-      "Bookdown project", "RMarkdown document"
-    ),
-    allow_specify_other = FALSE,
-    allow_complete_later = FALSE,
-    answer_translate = NULL,
-    answer_auto = "Bookdown project"
-  )
-
-  long_to_short_vec_engine <- c(
-    `Quarto project` = "quarto_project",
-    `Quarto document` = "quarto_document",
-    `Bookdown project` = "bookdown",
-    `RMarkdown document` = "rmd"
-  )
-  nm_engine <- long_to_short_vec_engine[[nm_engine]]
-
-  # document format
-
-  nm_format <- switch(nm_engine,
-    "quarto_project" = .projr_init_prompt_ind(
+  if (!.projr_init_engine_check_exists()) {
+    nm_engine <- .projr_init_prompt_ind(
       .var = NULL,
-      nm_item_long = "Quarto project type",
+      nm_item_long = "document engine",
       option_default = c(
-        "Website", "Book"
+        "Quarto project", "Quarto document",
+        "Bookdown project", "RMarkdown document"
       ),
       allow_specify_other = FALSE,
       allow_complete_later = FALSE,
-      answer_auto = "Book"
-    ) |>
-      tolower(),
-    "quarto_document" = .projr_init_prompt_ind(
-      .var = NULL,
-      nm_item_long = "Quarto output format",
-      option_default = c(
-        "HTML",
-        "PDF",
-        "Word",
-        "Beamer",
-        "PowerPoint",
-        "RevealJS"
-      ),
-      allow_specify_other = FALSE,
-      allow_complete_later = FALSE,
-      answer_auto = "HTML"
-    ) |>
-      tolower(),
-    "rmd" = .projr_init_prompt_ind(
-      .var = NULL,
-      nm_item_long = "RMarkdown output format",
-      option_default = c(
-        "HTML",
-        "PDF",
-        "Word",
-        "Notebook",
-        "Beamer",
-        "PowerPoint",
-        "IOSlides",
-        "RevealJS",
-        "Slidy"
-      ),
-      allow_specify_other = FALSE,
-      allow_complete_later = FALSE,
-      answer_auto = "HTML"
-    ) |>
-      tolower()
-  )
+      answer_translate = NULL,
+      answer_auto = "Bookdown project"
+    )
 
-  nm_filename <- switch(nm_engine,
-    "quarto_document" = .projr_init_prompt_ind(
-      .var = NULL,
-      nm_item_long = "initial qmd file name",
-      option_default = .projr_init_prompt_ind(
+    long_to_short_vec_engine <- c(
+      `Quarto project` = "quarto_project",
+      `Quarto document` = "quarto_document",
+      `Bookdown project` = "bookdown",
+      `RMarkdown document` = "rmd"
+    )
+    nm_engine <- long_to_short_vec_engine[[nm_engine]]
+
+    nm_format <- switch(nm_engine,
+      "quarto_project" = .projr_init_prompt_ind(
+        .var = NULL,
+        nm_item_long = "Quarto project type",
+        option_default = c(
+          "Website", "Book"
+        ),
+        allow_specify_other = FALSE,
+        allow_complete_later = FALSE,
+        answer_auto = "Book"
+      ) |>
+        tolower(),
+      "quarto_document" = .projr_init_prompt_ind(
+        .var = NULL,
+        nm_item_long = "Quarto output format",
+        option_default = c(
+          "HTML",
+          "PDF",
+          "Word",
+          "Beamer",
+          "PowerPoint",
+          "RevealJS"
+        ),
+        allow_specify_other = FALSE,
+        allow_complete_later = FALSE,
+        answer_auto = "HTML"
+      ) |>
+        tolower(),
+      "rmd" = .projr_init_prompt_ind(
+        .var = NULL,
+        nm_item_long = "RMarkdown output format",
+        option_default = c(
+          "HTML",
+          "PDF",
+          "Word",
+          "Notebook",
+          "Beamer",
+          "PowerPoint",
+          "IOSlides",
+          "RevealJS",
+          "Slidy"
+        ),
+        allow_specify_other = FALSE,
+        allow_complete_later = FALSE,
+        answer_auto = "HTML"
+      ) |>
+        tolower()
+    )
+
+    nm_filename <- switch(nm_engine,
+      "quarto_document" = .projr_init_prompt_ind(
         .var = NULL,
         nm_item_long = "initial qmd file name",
+        option_default = .projr_init_prompt_ind(
+          .var = NULL,
+          nm_item_long = "initial qmd file name",
+          option_default = NULL,
+          allow_specify_other = TRUE,
+          allow_complete_later = FALSE,
+          answer_auto = "HTML"
+        ),
+        allow_specify_other = FALSE,
+        allow_complete_later = FALSE,
+        answer_auto = "HTML"
+      ),
+      "rmd" = .projr_init_prompt_ind(
+        .var = NULL,
+        nm_item_long = "initial Rmd file name",
         option_default = NULL,
         allow_specify_other = TRUE,
         allow_complete_later = FALSE,
         answer_auto = "HTML"
-      ),
-      allow_specify_other = FALSE,
-      allow_complete_later = FALSE,
-      answer_auto = "HTML"
-    ),
-    "rmd" = .projr_init_prompt_ind(
-      .var = NULL,
-      nm_item_long = "initial Rmd file name",
-      option_default = NULL,
-      allow_specify_other = TRUE,
-      allow_complete_later = FALSE,
-      answer_auto = "HTML"
+      )
     )
-  )
+  } else {
+    nm_engine <- NULL
+    nm_format <- NULL
+    nm_filename <- NULL
+  }
 
-  nm_gh <- .projr_init_prompt_ind(
-    .var = "GITHUB_USER_NAME",
-    nm_item_long = "GitHub user/organisation name",
-    allow_specify_other = TRUE,
-    allow_complete_later = TRUE,
-    answer_auto = "GITHUB_USER_NAME"
-  )
+  desc_exists <- .projr_init_description_check_exists()
 
-  nm_first <- .projr_init_prompt_ind(
-    .var = "FIRST_NAME",
-    nm_item_long = "your first name",
-    allow_specify_other = TRUE,
-    allow_complete_later = TRUE,
-    answer_auto = "FIRST_NAME"
-  )
+  # get these data if either exist
 
-  nm_last <- .projr_init_prompt_ind(
-    .var = "LAST_NAME",
-    nm_item_long = "your last name",
-    allow_specify_other = TRUE,
-    allow_complete_later = TRUE,
-    answer_auto = "LAST_NAME"
-  )
-  nm_email <- .projr_init_prompt_ind(
-    .var = "EMAIL",
-    nm_item_long = "your email address",
-    allow_specify_other = TRUE,
-    allow_complete_later = TRUE,
-    answer_auto = "USER@DOMAIN.COM"
-  )
-  nm_title <- .projr_init_prompt_ind(
-    .var = "TITLE",
-    nm_item_long = "the project title",
-    allow_specify_other = TRUE,
-    allow_complete_later = TRUE,
-    answer_auto = "TITLE"
-  )
+  if (!desc_exists) {
+    nm_first <- .projr_init_prompt_ind(
+      .var = "FIRST_NAME",
+      nm_item_long = "your first name",
+      allow_specify_other = TRUE,
+      allow_complete_later = TRUE,
+      answer_auto = "FIRST_NAME"
+    )
+
+    nm_last <- .projr_init_prompt_ind(
+      .var = "LAST_NAME",
+      nm_item_long = "your last name",
+      allow_specify_other = TRUE,
+      allow_complete_later = TRUE,
+      answer_auto = "LAST_NAME"
+    )
+    nm_email <- .projr_init_prompt_ind(
+      .var = "EMAIL",
+      nm_item_long = "your email address",
+      allow_specify_other = TRUE,
+      allow_complete_later = TRUE,
+      answer_auto = "USER@DOMAIN.COM"
+    )
+    nm_title <- .projr_init_prompt_ind(
+      .var = "TITLE",
+      nm_item_long = "the project title",
+      allow_specify_other = TRUE,
+      allow_complete_later = TRUE,
+      answer_auto = "TITLE"
+    )
+  } else {
+    nm_first <- NULL
+    nm_last <- NULL
+    nm_email <- NULL
+    nm_title <- NULL
+  }
+
+  if (.projr_init_git_check_exists()) {
+    gh_exists <- .projr_init_gh_check_exists()
+  } else {
+    gh_exists <- FALSE
+  }
+
+  # need the GitHub user name if either
+  # the DESCRIPTION didn't exist or
+  # there was no GitHub remote
+  if (!desc_exists || !gh_exists) {
+    nm_gh <- .projr_init_prompt_ind(
+      .var = "GITHUB_USER_NAME",
+      nm_item_long = "GitHub user/organisation name",
+      allow_specify_other = TRUE,
+      allow_complete_later = TRUE,
+      answer_auto = "GITHUB_USER_NAME"
+    )
+  } else {
+    nm_gh <- NULL
+  }
 
   list(
+    pkg = nm_pkg,
     engine = nm_engine,
     format = nm_format,
-    pkg = nm_pkg,
+    filename = nm_filename,
     gh = nm_gh,
     first = nm_first,
     last = nm_last,
     email = nm_email,
-    title = nm_title,
-    filename = nm_filename
+    title = nm_title
   )
 }
 
+.projr_init_description_check_exists <- function() {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  file.exists(file.path(dir_proj, "DESCRIPTION"))
+}
+
 .projr_init_description <- function(dir_proj, nm_list) {
+  if (.projr_init_description_check_exists()) {
+    return(invisible(FALSE))
+  }
   descrptn <- desc::description$new("!new")
   suppressWarnings(descrptn$set("Package", nm_list[["pkg"]]))
   nm_title <- gsub("\\.$", "", nm_list[["title"]])
@@ -235,12 +276,17 @@
 
 .projr_init_dep <- function() {
   dir_proj <- rprojroot::is_r_package$find_file()
-  if (!file.exists(file.path(dir_proj, "_dependencies.R"))) {
-    dep <- c(
-      "library(projr)", ""
-    )
-    writeLines(dep, file.path(dir_proj, "_dependencies.R"))
+  if (file.exists(file.path(dir_proj, "_dependencies.R"))) {
+    dep <- readLines(file.path(dir_proj, "_dependencies.R"))
+  } else {
+    dep <- NULL
   }
+  dep <- c(
+    dep,
+    "library(projr)", ""
+  ) |>
+    unique()
+  writeLines(dep, file.path(dir_proj, "_dependencies.R"))
   invisible(TRUE)
 }
 
@@ -262,7 +308,7 @@
 
   if (file.exists(file.path(dir_proj, ".Rbuildignore"))) {
     rbuildignore <- readLines(file.path(dir_proj, ".Rbuildignore"))
-  else {
+  } else {
     rbuildignore <- NULL
   }
   rbuildignore <- c(
@@ -287,7 +333,9 @@
 .projr_init_renv <- function(force, bioc) {
   dir_proj <- rprojroot::is_r_package$find_file()
   path_rprofile <- file.path(dir_proj, ".Rprofile")
-  if (!Sys.getenv("PROJR_TEST") == "TRUE") {
+  renv_init_env_var_lgl <- !Sys.getenv("PROJR_TEST") == "TRUE"
+  renv_init_exists_lgl <- !file.exists(file.path(dir_proj, "renv.lock"))
+  if (renv_init_env_var_lgl && renv_init_exists_lgl) {
     renv::init(force = force, bioconductor = bioc)
   } else if (!file.exists(path_rprofile)) {
     file.create(path_rprofile)
@@ -303,6 +351,9 @@
 }
 
 .projr_init_license <- function(nm_list) {
+  if (file.exists("LICENSE.md")) {
+    return(invisible(FALSE))
+  }
   option_license_vec <- c(
     "CC-BY (good for data and analysis projects - permissive, but requires attribution)", # nolint
     "Apache 2.0 (good for function packages - permissive with patent protection)", # nolint
@@ -333,9 +384,23 @@
 }
 
 .projr_init_readme <- function(nm_list) {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  fn_vec <- list.files(
+    rprojr::is_r_package$find_file()
+  )
   if (Sys.getenv("PROJR_TEST") == "TRUE") {
     .projr_init_readme_auto()
     return(.projr_init_readme_auto())
+  } else if (any(grepl("^README\\.md$", fn_vec))) {
+    fn_readme <- "README.md"
+    path_readme <- file.path(dir_proj, fn_readme)
+    readme <- readLines(path_readme)
+    return(list(readme = readme, path_readme = path_readme))
+  } else if (any(grepl("^README\\.Rmd$", fn_vec))) {
+    fn_readme <- "README.Rmd"
+    path_readme <- file.path(dir_proj, fn_readme)
+    readme <- readLines(path_readme)
+    return(list(readme = readme, path_readme = path_readme))
   }
   .projr_init_readme_prompt(nm_list)
 }
@@ -438,10 +503,15 @@
                                         path_readme,
                                         nm_list) {
   # check re git
-  answer_git <- .projr_init_prompt_yn(
-    question = "Do you want to initialise a Git repo now?",
-    answer_auto = 1
-  )
+  dir_proj <- rprojroot::is_r_package$find_file()
+  if (.projr_init_git_check_exists()) {
+    answer_git <- 3
+  } else {
+    answer_git <- .projr_init_prompt_yn(
+      question = "Do you want to initialise a Git repo now?",
+      answer_auto = 1
+    )
+  }
 
   # finalise readme immediately if no git
   if (answer_git == 2) {
@@ -455,47 +525,44 @@
     return(TRUE)
   }
 
-  # check re github as it's now an option
-  answer_gh <- .projr_init_prompt_yn(
-    question = paste0(
-      "Do you want to create a GitHub remote and synchronise?\n",
-      "Default settings for usethis::use_github (with supplied GitHub user name) will be used." # nolint
-    )
-  )
+  remote_exists <- .projr_init_gh_check_exists()
 
-  dir_proj <- rprojroot::is_r_package$find_file()
-
-  # finalise readme and git if no github
-  if (answer_gh == 2) {
-    .projr_init_readme_finalise(
-      readme = readme,
-      path_readme = path_readme,
-      nm_list = nm_list,
-      gh = FALSE
+  # give option to create a GitHub remote if
+  # there is no remote already
+  if (!remote_exists) {
+    answer_gh <- .projr_init_prompt_yn(
+      question = paste0(
+        "Do you want to create a GitHub remote and synchronise?\n",
+        "Default settings for usethis::use_github (with supplied GitHub user name) will be used." # nolint
+      )
     )
-    .projr_git_init(dir_proj)
-    return(TRUE)
+  } else {
+    answer_gh <- 3
   }
 
-  # readme
+  # initialise the README
   .projr_init_readme_finalise(
     readme = readme,
     path_readme = path_readme,
     nm_list = nm_list,
-    gh = TRUE
+    gh = FALSE
   )
 
-  # initalise git
-  .projr_git_init(dir_proj)
+  # finalise readme and git if no github
+  if (answer_git == 1) {
+    .projr_git_init(dir_proj)
+  }
 
   # create github remote
-  try({
-    if (identical(nm_list[["gh"]], gh::gh_whoami()$login)) {
-      usethis::use_github(private = TRUE)
-    } else {
-      usethis::use_github(organisation = nm_list[["gh"]], private = TRUE)
-    }
-  })
+  if (answer_gh == 1) {
+    try({
+      if (identical(nm_list[["gh"]], gh::gh_whoami()$login)) {
+        usethis::use_github(private = TRUE)
+      } else {
+        usethis::use_github(organisation = nm_list[["gh"]], private = TRUE)
+      }
+    })
+  }
 
   invisible(TRUE)
 }
@@ -546,4 +613,24 @@
     }
   }
   invisible(TRUE)
+}
+
+.projr_init_gh_check_exists <- function() {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  if (file.exists(file.path(dir_proj, ".git"))) {
+    remotes <- system2("git", args = "remote", stdout = TRUE)
+    if (length(remotes) > 0) {
+      return(TRUE)
+    }
+  }
+  invisible(FALSE)
+}
+
+.projr_init_git_check_exists <- function() {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  dir.exists(file.path(dir_proj, ".git"))
+}
+
+.projr_init_gh_check_exists <- function() {
+  length(system2("git", args = "remote", stdout = TRUE)) == 0L
 }
