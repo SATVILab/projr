@@ -3,6 +3,4 @@ if (Sys.getenv("GITHUB_ACTIONS") == "true") {
 }
 source("renv/activate.R")
 
-options(
-  renv.config.auto.snapshot = TRUE
-)
+options(renv.config.auto.snapshot = TRUE)
