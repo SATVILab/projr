@@ -336,6 +336,8 @@
   renv_init_env_var_lgl <- Sys.getenv("PROJR_TEST") == "TRUE"
   renv_init_exists_lgl <- file.exists(file.path(dir_proj, "renv.lock"))
   if (!renv_init_env_var_lgl && !renv_init_exists_lgl) {
+    # initialise in a separate `R` process to avoid
+    # any prompts
     path_rscript <- file.path(R.home("bin"), "Rscript")
     cmd_txt <- paste0(
       "-e '",
@@ -348,15 +350,12 @@
       path_rscript,
       args = cmd_txt, stdout = FALSE
     )
-
-    renv::init(
-      force = force, bioconductor = bioc,
-      # try to avoid prompt from `renv`
-      settings = list(
-        "snapshot.type" = "implicit"
-      )
-    )
   }
+  # activate `renv`.
+  # wrapped in `try` in case something goes wrong.
+  # User can just restart `R` to activate `renv`
+  # if it goes wrong, so no error-handling attempted.
+  try(source("renv/activate.R"), silent = TRUE)
   invisible(TRUE)
 }
 
