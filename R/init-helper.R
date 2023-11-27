@@ -333,20 +333,30 @@
 .projr_init_renv <- function(force, bioc) {
   dir_proj <- rprojroot::is_r_package$find_file()
   path_rprofile <- file.path(dir_proj, ".Rprofile")
-  renv_init_env_var_lgl <- !Sys.getenv("PROJR_TEST") == "TRUE"
-  renv_init_exists_lgl <- !file.exists(file.path(dir_proj, "renv.lock"))
-  if (renv_init_env_var_lgl && renv_init_exists_lgl) {
-    renv::init(force = force, bioconductor = bioc)
-  } else if (!file.exists(path_rprofile)) {
-    file.create(path_rprofile)
+  renv_init_env_var_lgl <- Sys.getenv("PROJR_TEST") == "TRUE"
+  renv_init_exists_lgl <- file.exists(file.path(dir_proj, "renv.lock"))
+  if (!renv_init_env_var_lgl && !renv_init_exists_lgl) {
+    path_rscript <- file.path(R.home("bin"), "Rscript")
+    cmd_txt <- paste0(
+      "-e '",
+      "renv::init(",
+      "force = ", force, ", ",
+      "bioconductor = ", bioc,
+      ")'"
+    )
+    system2(
+      path_rscript,
+      args = cmd_txt, stdout = FALSE
+    )
+
+    renv::init(
+      force = force, bioconductor = bioc,
+      # try to avoid prompt from `renv`
+      settings = list(
+        "snapshot.type" = "implicit"
+      )
+    )
   }
-  renv_repos_txt <- readLines(
-    system.file("project_structure", "renv_repos.R", package = "projr")
-  )
-  r_profile_txt <- readLines(path_rprofile)
-  r_profile_txt <- c(r_profile_txt, "", renv_repos_txt)
-  writeLines(r_profile_txt, path_rprofile)
-  .projr_newline_append(path_rprofile)
   invisible(TRUE)
 }
 
