@@ -1,4 +1,7 @@
 .projr_init_engine <- function(nm_list) {
+  if (.projr_init_engine_check_exists()) {
+    return(invisible(FALSE))
+  }
   switch(nm_list[["engine"]],
     "bookdown" = .projr_init_engine_bookdown(nm_list),
     "quarto_project" = .projr_init_engine_quarto_project(nm_list),
@@ -6,6 +9,16 @@
     "rmd" = .projr_init_engine_rmd(nm_list),
     stop("Document engine not recognised")
   )
+}
+
+.projr_init_engine_check_exists <- function() {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  bookdown_exists_lgl <- file.exists(file.path(dir_proj, "_bookdown.yml"))
+  quarto_project_exists_lgl <- file.exists(
+    file.path(dir_proj, "_quarto.yml")
+  )
+  qmd_rmd_exists_lgl <- any(grepl("\\.qmd|\\.Rmd|\\.rmd", list.files(dir_proj)))
+  bookdown_exists_lgl || quarto_project_exists_lgl || qmd_rmd_exists_lgl
 }
 
 # bookdown
