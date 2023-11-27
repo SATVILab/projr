@@ -496,7 +496,6 @@ test_that("adding, tallying and removing files from remotes works", {
       )
 
       # remove some content
-      browser()
       fn_vec_orig_github <- .projr_remote_file_ls("github", remote)
       fn_vec_rm <- c("abc.txt", "subdir1/def.txt")
       expect_true(
