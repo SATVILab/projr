@@ -33,6 +33,7 @@
 #' Default is `FALSE`.
 #' element in
 #' @export
+#' @rdname projr_dest_add
 projr_dest_add_osf <- function(title = NULL,
                                content = NULL,
                                structure = NULL,
@@ -166,6 +167,7 @@ projr_dest_add_osf_comp <- function(title,
 #' When to cue the upload.
 #'
 #' @export
+#' @rdname projr_dest_add
 projr_dest_add_local <- function(title = NULL,
                                  content = NULL,
                                  path = NULL,
