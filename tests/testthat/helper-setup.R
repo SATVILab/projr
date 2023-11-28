@@ -169,3 +169,15 @@
   random_chr <- signif(rnorm(1))
   if (is.null(prefix)) random_chr else paste0(prefix, random_chr)
 }
+
+.projr_test_yml_dest_remote_rm <- function() {
+  yml_projr <- projr_yml_get_unchecked()
+  type_vec <- c("local", "github", "osf")
+  type_vec <- type_vec[type_vec %in% names(yml_projr[["build"]])]
+  for (i in seq_along(type_vec)) {
+    yml_projr[["build"]] <- yml_projr[["build"]][
+      -which(names(yml_projr[["build"]]) == type_vec[i])
+    ]
+  }
+  .projr_yml_set(yml_projr)
+}

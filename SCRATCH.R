@@ -3,10 +3,376 @@ library(testthat)
 devtools::load_all()
 # devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
 devtools::test_active_file(
-  "tests/testthat/test-remote.R"
+  "tests/testthat/test-dest-send.R"
 )
 
 .projr_test_debug_read_rds(pb_tbl)
+
+# ====================
+# osf-specific stuff
+# =====================
+
+# from inside .projr_dest_add_osf
+title <- .projr_remote_title_get(title = title, content = content)
+yml_projr_orig_root <- .projr_yml_get_root_default()
+yml_projr <- projr_yml_get_unchecked()
+
+get_list <- ..projr_dest_add_list_get_osf_add_load_get_list(
+  sync_approach = get_sync_approach,
+  conflict = get_conflict
+)
+
+send_list <- ..projr_dest_add_list_get_osf_add_load_get_list(
+  cue = send_cue,
+  sync_approach = send_sync_approach,
+  version_source = send_version_source,
+  conflict = send_conflict
+)
+
+.projr_dest_add_osf_check( # nolint
+  id = id,
+  title = title,
+  id_parent = id_parent,
+  title_parent = title_parent,
+  content = content,
+  body = body,
+  public = public,
+  category = category,
+  path = path,
+  path_append_label = path_append_label,
+  structure = structure,
+  download = get_list,
+  upload = send_list,
+  overwrite = overwrite
+)
+
+# create list to add
+# ------------------
+list_add <- .projr_osf_dest_get_list_add(
+  title = title,
+  id = id,
+  structure = structure,
+  path = path,
+  path_append_label = path_append_label,
+  get_list = get_list,
+  send_list = send_list
+)
+
+# find where to add list, and add it
+# ----------------------------------
+
+.projr_dest_add_osf_check <- function(id,
+                                      title,
+                                      id_parent,
+                                      parent_title,
+                                      content,
+                                      body,
+                                      public,
+                                      category,
+                                      path = NULL,
+                                      path_append_label = NULL,
+                                      structure = NULL,
+                                      download,
+                                      upload,
+                                      overwrite) {
+  .projr_remote_check_osf_base(
+    title = title,
+    id = id,
+    id_parent = id_parent,
+    category = category,
+    body = body,
+    public = public,
+    parent_title = parent_title,
+    path = path,
+    path_append_label = path_append_label
+  )
+  .projr_remote_check_osf_overwrite(
+    overwrite = overwrite
+  )
+
+  # structure
+  # --------------------
+  .projr_remote_check_osf_structure(
+    structure = structure,
+    nm_opt = c("latest", "version", "content")
+  )
+  # no requirement that there is content
+  # if it's a project
+  if (category != "project") {
+    .projr_remote_check_osf_label(
+      label = content,
+      type_opt = c("data-raw", "cache", "output", "archive", "docs")
+    )
+  } else if (!is.null(content)) {
+    .projr_remote_check_osf_label(
+      label = content,
+      type_opt = c("data-raw", "cache", "output", "archive", "docs")
+    )
+  }
+
+  # download
+  # ---------------------
+  .projr_remote_check_osf_trans_list(trans_list = download)
+  .projr_remote_check_osf_trans_names(
+    trans_list = download,
+    nm_opt = c("sync_approach", "conflict")
+  )
+  .projr_remote_check_osf_cue(
+    trans_list = download,
+    nm_opt = c("none", "build", "major", "minor", "patch")
+  )
+  .projr_remote_check_osf_sync_approach(
+    trans_list = download,
+    nm_opt = c(
+      "download-all",
+      "delete-then-download-all",
+      "download-missing" # haven't implemented this one yet
+    )
+  )
+
+  # upload
+  # -----------------------
+  .projr_remote_check_osf_trans_list(
+    trans_list = upload
+  )
+  .projr_remote_check_osf_trans_names(
+    trans_list = upload,
+    nm_opt = c("cue", "sync-approach", "version-source", "conflict")
+  )
+  .projr_remote_check_osf_cue(
+    trans_list = upload,
+    nm_opt = c("none", "build", "major", "minor", "patch", "change")
+  )
+  .projr_remote_check_osf_sync_approach(
+    trans_list = upload,
+    nm_opt = c(
+      "upload-missing",
+      "upload-all",
+      "sync-using-deletion",
+      "sync-using-version" # haven't implemented this one yet
+    )
+  )
+  .projr_remote_check_osf_conflict(trans_list = upload)
+}
+
+
+.projr_osf_dest_get_list_add <- function(title,
+                                         id,
+                                         path,
+                                         path_append_label,
+                                         structure,
+                                         get_list,
+                                         send_list) {
+  list_add <- list()
+  if (!is.null(id)) {
+    list_add[["id"]] <- id
+  }
+  if (!is.null(path)) {
+    list_add[["path"]] <- path
+  }
+  if (!is.null(path_append_label)) {
+    list_add[["path_append_label"]] <- path_append_label
+  }
+  if (!is.null(structure)) {
+    list_add[["structure"]] <- structure
+  }
+  if (!length(get_list) == 0L) {
+    list_add[["download"]] <- get_list
+  }
+  if (!length(send_list) == 0L) {
+    list_add[["upload"]] <- send_list
+  }
+
+  list(list_add) |> stats::setNames(title)
+}
+
+# =================
+# base checks for ymls
+# =================
+
+.projr_yml_remote_check_base <- function(type, ...) {
+  switch(type,
+    local = .projr_yml_remote_check_base_local(...),
+    osf = .projr_yml_remote_check_base_osf(...)
+  )
+  invisible(TRUE)
+}
+
+# local
+.projr_yml_remote_check_base_local <- function(path) {
+  if (missing(path)) {
+    stop("path must be supplied")
+  }
+  if (!is.character(path)) {
+    stop("path must be a character vector")
+  }
+  invisible(TRUE)
+}
+# osf
+.projr_yml_remote_check_base_osf <- function(title,
+                                             id,
+                                             id_parent,
+                                             category,
+                                             body,
+                                             public,
+                                             title_parent,
+                                             path,
+                                             path_append_label) {
+  .projr_yml_remote_check_osf_title(title = title)
+  .projr_yml_remote_check_osf_public(public = public)
+  .projr_yml_remote_check_osf_body(body = body)
+  .projr_yml_remote_check_osf_category(category = category)
+  .projr_yml_remote_check_osf_id_parent(id_parent = id_parent)
+  .projr_yml_remote_check_osf_title_parent(title_parent = title_parent)
+  .projr_yml_remote_check_osf_proj_with_parent(
+    id_parent = id_parent, title_parent = title_parent, category = category
+  )
+  .projr_yml_remote_check_osf_path(path = path)
+  .projr_yml_remote_check_osf_path_append_label(
+    path_append_label = path_append_label
+  )
+}
+
+# ==============================
+# further remote check stuff
+# ==============================
+
+.projr_yml_remote_add_check(
+  type = type,
+  id = id,
+  title = title,
+  id_parent = id_parent,
+  parent_title = parent_title,
+  content = content,
+  body = body,
+  public = public,
+  category = category,
+  path = path,
+  path_append_label = path_append_label,
+  structure = structure,
+  download = get_list,
+  upload = send_list,
+  overwrite = overwrite
+)
+
+.projr_dest_add_osf_check( # nolint
+  id = id,
+  title = title,
+  id_parent = id_parent,
+  parent_title = parent_title,
+  content = content,
+  body = body,
+  public = public,
+  category = category,
+  path = path,
+  path_append_label = path_append_label,
+  structure = structure,
+  download = get_list,
+  upload = send_list,
+  overwrite = overwrite
+)
+
+
+# ==============================
+# remote get stuff
+# ==============================
+
+role <- "dest"
+
+title <- .projr_remote_check_title(title = title, content = content)
+
+content <- .projr_yml_remote_content_get(
+  role = role, type = type, content = content
+)
+
+# ==============================
+# remote check stuff
+# ==============================
+
+.projr_remote_check_osf_label <- function(label, type_opt) {
+  label_nm <- deparse(substitute(label))
+  # check supplied
+  if (missing(label)) {
+    stop(paste0(
+      label_nn, " must be supplied"
+    ))
+  }
+  if (is.null(label)) {
+    stop(paste0(
+      label_nn, " must be a character vector"
+    ))
+  }
+  # check it only matches restricted types
+  short_to_match_type <- c(
+    "cache" = "^cache",
+    "data-raw" = "^dataraw",
+    "output" = "^output",
+    "archive" = "^archive",
+    "docs" = "^docs"
+  )
+  match_str <- paste0(
+    short_to_match_type[type_opt],
+    collapse = "|"
+  )
+  if (!grepl(match_str, .projr_dir_label_strip(label))) {
+    stop(paste0(
+      label_nm, " entries must match the following: ",
+      match_str
+    ))
+  }
+
+  # check that it's actually found
+  label_vec <- unique(c(
+    names(projr_yml_get_unchecked()[["directories"]]),
+    "docs"
+  ))
+  if (!all(label %in% label_vec)) {
+    diff_vec <- setdiff(content, label_vec)
+    stop(paste0(
+      "content must match a directory key in _projr.yml. ",
+      "The following do not: ",
+      paste0('"', diff_vec, '"', collapse = ", ")
+    ))
+  }
+  invisible(TRUE)
+}
+
+
+.projr_remote_check_osf_overwrite <- function(overwrite) {
+  if (!is.logical(overwrite)) {
+    stop("overwrite must be logical")
+  }
+  invisible(TRUE)
+}
+.projr_remote_check_osf_path <- function(path) {
+  if (is.null(path)) {
+    return(invisible(FALSE))
+  }
+  if (!length(path) == 1L) {
+    stop("path must be a character vector of length 1")
+  }
+  if (!is.character(path)) {
+    stop("path must be a character vector")
+  }
+  if (!nchar(path) > 0L) {
+    stop("path must have at least one character") # nolint
+  }
+  invisible(TRUE)
+}
+
+.projr_remote_check_osf_path_append_label <- function(path_append_label) {
+  if (is.null(path_append_label)) {
+    return(invisible(FALSE))
+  }
+  if (!length(path_append_label) == 1L) {
+    stop("path_append_label must be a logical vector of length 1")
+  }
+  if (!is.logical(path_append_label)) {
+    stop("path_append_label must be a logical vector")
+  }
+  invisible(TRUE)
+}
+
 
 # ==========================================
 

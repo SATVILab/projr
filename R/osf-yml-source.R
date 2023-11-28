@@ -165,24 +165,6 @@ projr_source_add_osf <- function(label,
   id
 }
 
-.projr_osf_yml_add_load_get_list <- function(cue = NULL,
-                                             sync_approach = NULL,
-                                             version_source = NULL,
-                                             conflict = NULL) {
-  out_list <- list()
-  param_vec <- c("cue", "sync_approach", "version_source", "conflict")
-  for (x in param_vec) {
-    if (!is.null(eval(parse(text = x)))) {
-      nm_list <- switch(x,
-        "sync_approach" = "sync-approach",
-        "version_source" = "version-source",
-        x
-      )
-      out_list[[nm_list]] <- eval(parse(text = x))
-    }
-  }
-  out_list
-}
 
 .projr_source_add_osf_check <- function(label,
                                         id,

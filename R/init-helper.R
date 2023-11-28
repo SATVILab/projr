@@ -395,7 +395,7 @@
 .projr_init_readme <- function(nm_list) {
   dir_proj <- rprojroot::is_r_package$find_file()
   fn_vec <- list.files(
-    rprojr::is_r_package$find_file()
+    rprojroot::is_r_package$find_file()
   )
   if (Sys.getenv("PROJR_TEST") == "TRUE") {
     .projr_init_readme_auto()
