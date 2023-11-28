@@ -609,6 +609,14 @@ projr_yml_check <- function(yml_projr = NULL) {
   invisible(TRUE)
 }
 
+.projr_yml_set_root <- function(list_save) {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  path_yml <- file.path(dir_proj, "_projr.yml")
+  yaml::write_yaml(list_save, path_yml)
+  .projr_newline_append(path_yml)
+  invisible(TRUE)
+}
+
 .projr_yml_bd_get <- function() {
   dir_proj <- rprojroot::is_r_package$find_file()
   path_yml <- file.path(dir_proj, "_bookdown.yml")
