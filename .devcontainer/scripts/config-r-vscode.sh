@@ -36,15 +36,41 @@ r_version=$(R --version | grep 'R version' | awk '{print $3}' | sed 's/^/\//')
 # Define the new key and value you want to add
 new_key="r.libPaths"
 
-# Function to check if a string is in the form of a version number
-contains_version() {
-    [[ $1 =~ [0-9]+\.[0-9]+\.[0-9]+ ]]
+# Define a regular expression for matching version strings
+version_regex="[0-9]+\.[0-9]+\.[0-9]+"
+
+# Function to process and check the JSON file
+update_json_if_needed() {
+    local has_version_path=false
+    local paths=( $(jq -r ".\"$new_key\"[]?" "$path_file_json") )
+
+    for path in "${paths[@]}"; do
+        if [[ "$path" =~ $version_regex ]]; then
+            has_version_path=true
+            if [[ "$path" =~ $r_version ]]; then
+                # The current version is already in the paths, no need to update
+                return 0
+            fi
+            break
+        fi
+    done
+
+    if [[ "$has_version_path" == true ]]; then
+        echo "Update r.libPaths key"
+        update_json
+    fi
+}
+
+update_json() {
+    local new_array=$(Rscript --vanilla -e "cat(.libPaths(), sep = '\n')" | sed ':a;N;$!ba;s/\n/", "/g' | sed 's/^/["/' | sed 's/$/"]/')
+    jq --arg key "$new_key" --argjson value "$new_array" '. + {($key): $value}' $path_file_json > temp.json && mv temp.json $path_file_json
 }
 
 # Check if r.libPaths exists and if the current R version is not in its values
-if ! jq -e ". | select(has(\"$new_key\")) | .\"$new_key\"[] | contains(\"$r_version\") and (contains_version | test(\"$r_version\"))" "$path_file_json" > /dev/null; then
-    # get the value(s) to add
-    new_array=$(Rscript --vanilla -e "cat(.libPaths(), sep = '\n')" | sed ':a;N;$!ba;s/\n/", "/g' | sed 's/^/["/' | sed 's/$/"]/')
-    # Add or update the key-value pair in the JSON file
-    jq --arg key "$new_key" --argjson value "$new_array" '. + {($key): $value}' $path_file_json > temp.json && mv temp.json $path_file_json
+if jq -e ". | has(\"$new_key\")" "$path_file_json" > /dev/null; then
+    update_json_if_needed
+else
+    echo "Add r.libPaths key"
+    # r.libPaths key doesn't exist, so proceed to add it
+    update_json
 fi
