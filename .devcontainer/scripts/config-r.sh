@@ -12,7 +12,6 @@
 # - Configures R_LIBS directory for package installations
 #   outside of container environments.
 
-# ... [rest of your script]
 #!/usr/bin/env bash
 # github token
 if [ -n "$GH_TOKEN" ]; then 
