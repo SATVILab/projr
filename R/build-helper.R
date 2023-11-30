@@ -229,6 +229,14 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   }
 }
 
+# check we are not missing upstream commits
+.projr_exit_if_behind_upstream <- function(output_run) {
+  if (!output_run) {
+    return(invisible(FALSE))
+  }
+
+}
+
 # ignore
 .projr_build_ignore <- function() {
   projr_dir_get("docs")

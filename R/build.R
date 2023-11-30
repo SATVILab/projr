@@ -124,6 +124,9 @@ projr_build_dev <- function(file = NULL,
   projr_env_file_activate(env)
   .projr_build_check_auth(bump_component)
 
+  # check we are not missing upstream variables
+  .projr_exit_if_behind_upstream()
+
   # get version for DESCRIPTION and bookdown from run onwards
   # snapshot if need be
   .projr_build_renv_snapshot(output_run)
