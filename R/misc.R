@@ -17,7 +17,25 @@
     gsub(pattern = "\\n\\s*$", replacement = "")
 }
 
+if (!requireNamespace("piggyback", quietly = TRUE)) {
+}
+
+.projr_dep_install <- function(dep) {
+  for (x in dep) {
+    if (requireNamespace(x, quietly = TRUE)) {
+      next
+    }
+    .projr_dep_add(x)
+    renv::install(x, prompt = FALSE)
+  }
+}
+
 .projr_dep_add <- function(dep) {
+  # don't add to _dependencies
+  # if renv already picks it up as a dependency
+  if (.projr_dep_in_renv(dep)) {
+    return(invisible(FALSE))
+  }
   dir_proj <- rprojroot::is_r_package$find_file()
   path_dep <- file.path(dir_proj, "_dependencies.R")
   dep_vec <- readLines(path_dep)
@@ -32,17 +50,23 @@
   invisible(TRUE)
 }
 
-if (!requireNamespace("piggyback", quietly = TRUE)) {
-}
-.projr_dep_install <- function(dep) {
-  for (x in dep) {
-    if (requireNamespace(x, quietly = TRUE)) {
-      next
-    }
-    renv::install(x, prompt = FALSE)
-    .projr_dep_add(x)
+.projr_dep_rm <- function(dep) {
+  dir_proj <- rprojroot::is_r_package$find_file()
+  path_dep <- file.path(dir_proj, "_dependencies.R")
+  dep_vec <- readLines(path_dep)
+  for (i in seq_along(dep)) {
+    dep_txt <- paste0("library(", dep[[i]], ")", collapse = "")
+    dep_vec <- dep_vec[!grepl(dep_txt, dep_vec)]
   }
+  writeLines(dep_vec, path_dep)
+  .projr_newline_append(path_dep)
+  invisible(TRUE)
 }
+
+.projr_dep_in_renv <- function(dep) {
+  dep %in% names(renv::lockfile_read()$Packages)
+}
+
 
 # taken from withr::with_dir
 with_dir <- function(new, code) {
@@ -150,4 +174,40 @@ with_dir <- function(new, code) {
     }
     strsplit(x, "/")[[1]] |> length()
   }, integer(1))
+}
+
+.projr_newline_append <- function(path) {
+  txt <- readLines(path)
+  if (!identical(txt[[length(txt)]], "")) {
+    txt <- c(txt, "")
+    writeLines(txt, path)
+  }
+  invisible(TRUE)
+}
+
+.projr_env_var_unset_on_exit <- function(nm, env) {
+  eval(
+    parse(text = paste0(
+      "on.exit(",
+      "Sys.unsetenv('", nm, "'), ",
+      "add = TRUE, after = TRUE)",
+      ")"
+    )),
+    envir = env
+  )
+}
+
+.projr_env_var_set <- function(nm, val) {
+  do.call(
+    Sys.setenv,
+    args = list(val) |> stats::setNames(nm)
+  )
+}
+
+.projr_env_var_nm_get <- function(line) {
+  sub("=.*", "", line) |> trimws()
+}
+
+.projr_env_var_val_get <- function(line) {
+  sub("^.*=", "", line) |> trimws()
 }

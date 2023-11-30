@@ -21,50 +21,53 @@
 #' Whether \code{renv} should look for packages
 #' on Bioconductor.
 #' Default is \code{TRUE}.
+#' @param public logical.
+#' Whether the GitHub repo created (if any)
+#' is public or not.
+#' Default is `FALSE`.
 #' @export
 projr_init <- function(dir_proj = getwd(),
                        yml_path_from = NULL,
                        renv_force = FALSE,
-                       renv_bioconductor = TRUE) {
+                       renv_bioconductor = TRUE,
+                       public = FALSE) {
   # create initial _proj.yml
   .projr_init_yml(dir_proj, yml_path_from)
 
   # get metadata from user
-  nm_list_init <- .projr_init_prompt_init(dir_proj)
+  nm_list_init <- .projr_init_prompt_init(dir_proj = dir_proj)
 
   # DESCRIPTION file
-  .projr_init_description(dir_proj, nm_list_init)
+  .projr_init_description(
+    dir_proj = dir_proj, nm_list = nm_list_init
+  )
 
   # add various files
   .projr_init_dep() # _dependencies.R
   .projr_init_ignore() # ignore files
   .projr_init_r() # R folder
-  .projr_init_license(nm_list_init) # license
+  .projr_init_license(nm_list = nm_list_init) # license
 
   # add readme
-  readme_list <- .projr_init_readme(nm_list_init)
+  readme_list <- .projr_init_readme(
+    nm_list = nm_list_init
+  )
 
   # add document-engine docs
-  .projr_init_engine(nm_list_init)
+  .projr_init_engine(nm_list = nm_list_init)
 
   # renv
-  .projr_init_renv(renv_force, renv_bioconductor)
+  .projr_init_renv(
+    renv_force = renv_force, renv_bioconductor = renv_bioconductor
+  )
 
   # git and github
   .projr_init_git_rdme_and_gh(
     readme = readme_list[["readme"]],
     path_readme = readme_list[["path_readme"]],
-    nm_list = nm_list_init
+    nm_list = nm_list_init,
+    public = public
   )
 
-  invisible(TRUE)
-}
-
-.projr_newline_append <- function(path) {
-  txt <- readLines(path)
-  if (!identical(txt[[length(txt)]], "")) {
-    txt <- c(txt, "")
-    writeLines(txt, path)
-  }
   invisible(TRUE)
 }

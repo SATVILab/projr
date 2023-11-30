@@ -119,6 +119,11 @@ projr_build_dev <- function(file = NULL,
   # whether it's an output run  or not
   output_run <- !(is.null(bump_component) || bump_component == "dev")
 
+  # set and check authorisation is available
+  env <- environment()
+  projr_env_file_activate(env)
+  .projr_build_check_auth(bump_component)
+
   # get version for DESCRIPTION and bookdown from run onwards
   # snapshot if need be
   .projr_build_renv_snapshot(output_run)

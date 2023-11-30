@@ -10,15 +10,15 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Imports:
     renv,
-    fs,
-    usethis,
     yaml,
+    gert,
+    gh,
+    usethis,
     rprojroot,
     desc,
-    gert,
-    roxygen2,
-    gh,
-    digest
+    fs,
+    digest,
+    roxygen2
 Suggests:
     piggyback,
     pkgbuild,
@@ -31,7 +31,8 @@ Suggests:
     osfr,
     testthat (>= 3.0.0),
     httr,
-    rlang
+    rlang,
+    gitcreds
 Config/testthat/edition: 3
 URL: https://satvilab.github.io/projr/
 VignetteBuilder: knitr

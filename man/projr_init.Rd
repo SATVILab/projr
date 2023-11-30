@@ -8,7 +8,8 @@ projr_init(
   dir_proj = getwd(),
   yml_path_from = NULL,
   renv_force = FALSE,
-  renv_bioconductor = TRUE
+  renv_bioconductor = TRUE,
+  public = FALSE
 )
 }
 \arguments{
@@ -32,6 +33,11 @@ Default is \code{FALSE}.}
 Whether \code{renv} should look for packages
 on Bioconductor.
 Default is \code{TRUE}.}
+
+\item{public}{logical.
+Whether the GitHub repo created (if any)
+is public or not.
+Default is \code{FALSE}.}
 }
 \description{
 Initialise project

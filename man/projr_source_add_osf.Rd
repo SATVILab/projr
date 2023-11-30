@@ -12,10 +12,10 @@ projr_source_add_osf(
   body = NULL,
   public = FALSE,
   category = NULL,
-  parent_id = NULL,
+  id_parent = NULL,
   path = NULL,
   path_append_label = NULL,
-  remote_structure = NULL,
+  structure = NULL,
   download_cue = NULL,
   download_sync_approach = NULL,
   download_conflict = NULL,
@@ -70,7 +70,7 @@ If not \code{NULL}, then the following are valid options:
 Only used if \code{id} is \code{NULL}.
 Default is \code{NULL.}}
 
-\item{parent_id}{character.
+\item{id_parent}{character.
 The id of the parent project or component.
 Must be five characters (if supplied).
 Only used if \code{id} is \code{NULL}.
@@ -105,6 +105,6 @@ projr_source_add_osf(
 projr_source_add_osf(
   label = "data-raw",
   category = "data",
-  parent_id = "y235k"
+  id_parent = "y235k"
 )
 }

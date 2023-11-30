@@ -1007,3 +1007,39 @@ projr_remote_create_github_attempt <- function(tag, body) {
     piggyback::pb_upload(file = path_zip, tag = tag)
   )))
 }
+
+# ===================================
+# Miscellaneous
+# ===================================
+
+.projr_remote_ls <- function() {
+  remote_vec <- c(
+    .projr_remote_ls_source(),
+    .projr_remote_ls_dest(),
+    "github"[.projr_git_push_check()]
+  ) |>
+    unique()
+  remote_vec[nzchar(remote_vec)]
+}
+
+.projr_remote_ls_source <- function() {
+  yml_projr_dir <- projr_yml_get_unchecked()[["directories"]]
+  lapply(yml_projr_dir, function(x) {
+    remote_vec <- c("github", "osf")
+    remote_vec[remote_vec %in% names(x)]
+  }) |>
+    unlist() |>
+    unique()
+}
+
+.projr_remote_ls_dest <- function() {
+  yml_projr_build <- projr_yml_get_unchecked()[["build"]]
+  remote_vec <- c("github", "osf")
+  remote_vec[remote_vec %in% names(yml_projr_build)]
+}
+
+.projr_git_push_check <- function() {
+  setting_push_explicit <-
+    projr_yml_get_unchecked()[["build"]][["git"]][["push"]]
+  if (is.null(setting_push_explicit)) TRUE else setting_push_explicit
+}
