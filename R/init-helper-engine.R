@@ -11,8 +11,10 @@
   )
 }
 
-.projr_init_engine_check_exists <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
+.projr_init_engine_check_exists <- function(dir_proj = NULL) {
+  if (is.null(dir_proj)) {
+    dir_proj <- rprojroot::is_r_package$find_file()
+  }
   bookdown_exists_lgl <- file.exists(file.path(dir_proj, "_bookdown.yml"))
   quarto_project_exists_lgl <- file.exists(
     file.path(dir_proj, "_quarto.yml")

@@ -8,6 +8,25 @@ devtools::test_active_file(
 
 .projr_test_debug_read_rds(pb_tbl)
 
+# =====================
+# GitHub authentication 
+# =====================
+
+  if (nzchar(Sys.getenv("GH_TOKEN"))) {
+    Sys.setenv("GITHUB_PAT" = Sys.getenv("GH_TOKEN"))
+    eval(
+      on.exit(Sys.unsetenv("GITHUB_PAT"), after = TRUE, add = TRUE),
+      envir = env
+    )
+    return(invisible(TRUE))
+  } else if (nzchar(Sys.getenv("GITHUB_TOKEN"))) {
+    Sys.setenv("GITHUB_PAT" = Sys.getenv("GITHUB_TOKEN"))
+    eval(
+      on.exit(Sys.unsetenv("GITHUB_PAT"), after = TRUE, add = TRUE),
+      envir = env
+    )
+    return(invisible(TRUE))
+
 # ====================
 # osf-specific stuff
 # =====================

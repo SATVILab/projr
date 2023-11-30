@@ -38,14 +38,14 @@
   invisible(TRUE)
 }
 
-.projr_init_prompt_init <- function(dir_proj) {
+.projr_init_prompt_init <- function(dir_proj = NULL) {
   # package name
   nm_pkg <- basename(dir_proj)
   if (!Sys.getenv("PROJR_TEST") == "TRUE") {
     cat("Project name is", paste0("`", nm_pkg, "`"), "\n")
   }
   # document engine
-  if (!.projr_init_engine_check_exists()) {
+  if (!.projr_init_engine_check_exists(dir_proj = dir_proj)) {
     nm_engine <- .projr_init_prompt_ind(
       .var = NULL,
       nm_item_long = "document engine",
@@ -222,13 +222,18 @@
   )
 }
 
-.projr_init_description_check_exists <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
+.projr_init_description_check_exists <- function(dir_proj = NULL) {
+  if (is.null(dir_proj)) {
+    dir_proj <- rprojroot::is_r_package$find_file()
+  }
   file.exists(file.path(dir_proj, "DESCRIPTION"))
 }
 
-.projr_init_description <- function(dir_proj, nm_list) {
-  if (.projr_init_description_check_exists()) {
+.projr_init_description <- function(dir_proj = NULL, nm_list) {
+  if (is.null(dir_proj)) {
+    dir_proj <- rprojroot::is_r_package$find_file()
+  }
+  if (.projr_init_description_check_exists(dir_proj = dir_proj)) {
     return(invisible(FALSE))
   }
   descrptn <- desc::description$new("!new")
@@ -300,7 +305,7 @@
   gitignore <- c(
     gitignore,
     "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "_projr-local.yml", ""
+    ".Ruserdata", "_projr-local.yml", "_environment.local"
   ) |>
     unique()
   writeLines(gitignore, file.path(dir_proj, ".gitignore"))
@@ -510,7 +515,8 @@
 # git and github, with readme finalisation
 .projr_init_git_rdme_and_gh <- function(readme,
                                         path_readme,
-                                        nm_list) {
+                                        nm_list,
+                                        public) {
   # check re git
   dir_proj <- rprojroot::is_r_package$find_file()
   if (.projr_init_git_check_exists()) {
@@ -559,20 +565,23 @@
 
   # finalise readme and git if no github
   if (answer_git == 1) {
-    .projr_git_init(dir_proj)
+    git_success <- .projr_git_init(dir_proj)
+  } else {
+    git_success <- TRUE
   }
 
   # create github remote
-  if (answer_gh == 1) {
-    try({
-      if (identical(nm_list[["gh"]], gh::gh_whoami()$login)) {
-        usethis::use_github(private = TRUE)
-      } else {
-        usethis::use_github(organisation = nm_list[["gh"]], private = TRUE)
-      }
-    })
+  if (answer_gh == 1 && git_success) {
+    if (.projr_git_gh_check_auth(nm_list[["gh"]])) {
+      try({
+        if (identical(nm_list[["gh"]], gh::gh_whoami()$login)) {
+          usethis::use_github(private = !public)
+        } else {
+          usethis::use_github(organisation = nm_list[["gh"]], private = !public)
+        }
+      })
+    }
   }
-
   invisible(TRUE)
 }
 
@@ -607,11 +616,18 @@
   invisible(TRUE)
 }
 
-.projr_git_init <- function(dir_proj) {
+.projr_git_init <- function(dir_proj = NULL) {
+  git_available <- .projr_git_init_check()
+  if (!git_available) {
+    return(invisible(FALSE))
+  }
+  if (is.null(dir_proj)) {
+    dir_proj <- rprojroot::is_r_package$find_file()
+  }
   gert::git_init(path = dir_proj)
   if (Sys.getenv("PROJR_TEST") == "TRUE") {
     gert::git_config_set("user.name", "Darth Vader")
-    gert::git_config_set("user.email", "secret_fan@tellytubbies.com")
+    gert::git_config_set("user.email", "number_one_fan@tellytubbies.com")
   }
   git_tbl_status <- gert::git_status()
   if (nrow(git_tbl_status) > 0) {
@@ -622,6 +638,24 @@
     }
   }
   invisible(TRUE)
+}
+
+.projr_git_init_check <- function() {
+  git_version_try <- try(system2("git", args = "--version"), silent = TRUE)
+  git_available <- inherits(git_version_try, "try-error")
+  if (git_available) {
+    return(invisible(TRUE))
+  }
+  warning(
+    "
+    Git not found.
+    To allow setting up a Git repo, please install Git.
+    It's easy - instructions here: https://happygitwithr.com/install-git
+    After doing that:
+    1. In R, rerun projr::projr_init()
+    It will skip what's been done already and try set up Git again."
+  )
+  invisible(FALSE)
 }
 
 .projr_init_gh_check_exists <- function() {
@@ -642,4 +676,27 @@
 
 .projr_init_gh_check_exists <- function() {
   length(system2("git", args = "remote", stdout = TRUE)) == 0L
+}
+
+.projr_git_gh_check_auth <- function() {
+  if (!nzchar(.projr_auth_get_github_pat())) {
+    return(invisible(TRUE))
+  }
+  warning(
+    paste0(
+      "
+      GITHUB_PAT environment variable not found.
+      To allow creating a GitHub repository, please set it.
+      To easily set it in less than two minutes, do the following:
+      1. If you do not have a GitHub account, create one here: https://github.com
+      2. In R, run usethis::create_github_token()
+      3. In R, run gitcreds::gitcreds_set()
+      4. Paste the token from step 1 into the R command line (terminal), and press enter
+      For more details, see https://happygitwithr.com/https-pat#tldr
+      After doing the above:
+      1. In R, rerun projr::projr_init()
+      It will skip what's been done already and try set up GitHub again."
+    )
+  )
+  invisible(FALSE)
 }

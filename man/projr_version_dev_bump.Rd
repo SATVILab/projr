@@ -7,7 +7,7 @@
 projr_version_dev_bump()
 }
 \value{
-Invisibly returns the new version.
+Returns the new version.
 }
 \description{
 Increase development component of version.
