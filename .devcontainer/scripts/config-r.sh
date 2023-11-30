@@ -18,12 +18,12 @@
 if [ -n "$GH_TOKEN" ]; then 
   export GITHUB_PAT="${GITHUB_PAT:-"$GH_TOKEN"}"
   export GITHUB_TOKEN="${GITHUB_PAT:-"$GH_TOKEN"}"
-elif [ -n "$GITHUB_TOKEN" ]; then 
-  export GH_TOKEN="${GH_TOKEN:-"$GITHUB_TOKEN"}"
-  export GITHUB_PAT="${GITHUB_PAT:-"$GITHUB_TOKEN"}"
 elif [ -n "$GITHUB_PAT" ]; then 
   export GH_TOKEN="${GH_TOKEN:-"$GITHUB_PAT"}"
   export GITHUB_TOKEN="${GITHUB_TOKEN:-"$GITHUB_PAT"}"
+elif [ -n "$GITHUB_TOKEN" ]; then 
+  export GH_TOKEN="${GH_TOKEN:-"$GITHUB_TOKEN"}"
+  export GITHUB_PAT="${GITHUB_PAT:-"$GITHUB_TOKEN"}"
 fi
 
 # save all R packages to /workspace directories.
