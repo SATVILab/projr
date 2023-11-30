@@ -124,8 +124,8 @@ projr_build_dev <- function(file = NULL,
   projr_env_file_activate(env)
   .projr_build_check_auth(bump_component)
 
-  # check we are not missing upstream variables
-  .projr_exit_if_behind_upstream()
+  # check we are not missing upstream commits
+  .projr_build_exit_if_behind_upstream()
 
   # get version for DESCRIPTION and bookdown from run onwards
   # snapshot if need be
@@ -153,6 +153,9 @@ projr_build_dev <- function(file = NULL,
     stage = "pre",
     msg = msg
   )
+
+  # push files pre-run to notify others of build
+  .projr_build_git_push(output_run = output_run)
 
   # set the version pre-run
   .projr_build_version_set_pre(version_run_on_list)
@@ -237,7 +240,7 @@ projr_build_dev <- function(file = NULL,
   # --------------------
 
   # push to GitHub
-  .projr_build_git_push()
+  .projr_build_git_push(output_run = output_run)
 
   invisible(TRUE)
 }

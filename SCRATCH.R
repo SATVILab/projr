@@ -6,7 +6,54 @@ devtools::test_active_file(
   "tests/testthat/test-dest-send.R"
 )
 
-.projr_test_debug_read_rds(pb_tbl)
+# =======================
+# Excessive README code
+# =======================
+
+  readme <- readme_list[["readme"]]
+  path_readme <- readme_list[["path_readme"]]
+  readme_ind_install <- which(grepl("^You can install", readme))
+  if (!is.null(nm_list[["gh"]])) {
+    readme_install_devtools <-
+      'if (!requireNamespace("devtools")) install.packages("devtools")'
+    readme_install_pkg <-
+      paste0(
+        'devtools::install_github("',
+        nm_list[["gh"]], "/", nm_list[["pkg"]], '")'
+      )
+    readme[readme_ind_install + 3] <- readme_install_devtools
+    readme[readme_ind_install + 5] <- readme[readme_ind_install + 4]
+    readme[readme_ind_install + 4] <- readme_install_pkg
+  }
+
+  if (!identical(readme[length(readme)], "")) readme <- c(readme, "")
+  if (file.exists(path_readme)) unlink(path_readme)
+  writeLines(text = readme, con = path_readme)
+
+# =====================
+# Git improvements
+# =====================
+
+git_tbl_status <- gert::git_status()
+
+# exit now if nothing to commit
+if (nrow(git_tbl_status) == 0) {
+  return(invisible(FALSE))
+}
+
+if (yml_projr[["build"]][["git"]][["add-untracked"]]) {
+  git_tbl_status <- gert::git_status()
+  fn_vec <- git_tbl_status[["file"]][!git_tbl_status[["staged"]]]
+  if (length(fn_vec) > 0) {
+    gert::git_add(fn_vec, repo = rprojroot::is_r_package$find_file())
+  }
+  gert::git_commit(message = msg_commit)
+} else {
+  gert::git_commit_all(
+    message = msg_commit,
+    repo = rprojroot::is_r_package$find_file()
+  )
+}
 
 # =====================
 # GitHub authentication 

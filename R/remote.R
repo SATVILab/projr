@@ -483,13 +483,11 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # github
 .projr_remote_host_rm_github <- function(host) {
+  s
   # set up
   # ----------
   if (!requireNamespace("gh", quietly = TRUE)) {
-    utils::install.packages("gh")
-  }
-  if (!requireNamespace("httr", quietly = TRUE)) {
-    utils::install.packages("httr")
+    .projr_dep_install("gh")
   }
 
   # defaults

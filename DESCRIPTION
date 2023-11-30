@@ -11,8 +11,6 @@ RoxygenNote: 7.2.3
 Imports:
     renv,
     yaml,
-    gert,
-    gh,
     usethis,
     rprojroot,
     desc,
@@ -20,6 +18,8 @@ Imports:
     digest,
     roxygen2
 Suggests:
+    gh,
+    gert,
     piggyback,
     pkgbuild,
     gh,
