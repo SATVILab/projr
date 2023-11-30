@@ -23,59 +23,40 @@
                                     version_run_on_list,
                                     stage,
                                     msg) {
-  yml_projr <- projr_yml_get()
-
   # exit early if required
   # ------------------------
-  if (!output_run) {
+
+  if (!.projr_build_git_commit_check(output_run)) {
     return(invisible(FALSE))
   }
-  if (!"git" %in% names(yml_projr[["build"]])) {
-    return(invisible(FALSE))
-  }
-  if (!yml_projr[["build"]][["git"]][["commit"]]) {
-    return(invisible(FALSE))
-  }
-  if (!dir.exists(".git")) {
+  if (!.projr_git_check_repo()) {
     stop("Git commits requested but no Git directory found")
   }
 
-  # get commit message
-  # ------------------
-  msg_commit <- .projr_build_git_msg_get(
-    stage = stage,
-    version_run_on_list = version_run_on_list,
-    bump_component = bump_component,
-    msg = msg
-  )
-
   # commit
   # ------------------
-  if (!requireNamespace("gert", quietly = TRUE)) {
-    .projr_dep_add("gert")
-    renv::install("gert")
-  }
-  git_tbl_status <- gert::git_status()
+  yml_add_untracked <- .projr_yml_git_get_untracked()
+  .projr_git_commit_all(add_untracked = yml_add_untracked)
 
-  # exit now if nothing to commit
-  if (nrow(git_tbl_status) == 0) {
+  invisible(TRUE)
+}
+
+.projr_build_git_commit_check <- function(output_run) {
+  if (!output_run) {
     return(invisible(FALSE))
   }
+  yml_projr <- projr_yml_get_unchecked()
+  specified_lgl <- !is.null(yml_projr[["build"]][["git"]][["commit"]])
+  run_lgl <- isTRUE(yml_projr[["build"]][["git"]][["commit"]])
+  invisible(specified_lgl && run_lgl)
+}
 
-  if (yml_projr[["build"]][["git"]][["add-untracked"]]) {
-    git_tbl_status <- gert::git_status()
-    fn_vec <- git_tbl_status[["file"]][!git_tbl_status[["staged"]]]
-    if (length(fn_vec) > 0) {
-      gert::git_add(fn_vec, repo = rprojroot::is_r_package$find_file())
-    }
-    gert::git_commit(message = msg_commit)
-  } else {
-    gert::git_commit_all(
-      message = msg_commit,
-      repo = rprojroot::is_r_package$find_file()
-    )
+.projr_yml_git_get_untracked <- function() {
+  add <- projr_yml_get_unchecked()[["build"]][["git"]][["add-untracked"]]
+  if (is.null(add)) {
+    add <- FALSE
   }
-  invisible(TRUE)
+  add
 }
 
 # commit messages
@@ -208,7 +189,6 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   invisible(TRUE)
 }
 
-
 .projr_build_check_auth_remote <- function() {
   remote_vec <- .projr_remote_ls()
   if (length(remote_vec) == 0L) {
@@ -230,11 +210,62 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
 }
 
 # check we are not missing upstream commits
-.projr_exit_if_behind_upstream <- function(output_run) {
+.projr_build_exit_if_behind_upstream <- function(output_run) {
   if (!output_run) {
     return(invisible(FALSE))
   }
+  commit_vec_local <- .projr_git_helper_get_commit_hash_local()
+  commit_vec_remote <- .projr_git_helper_get_commit_hash_remote()
+  extra_vec <- setdiff(commit_vec_remote, commit_vec_local)
+  if (length(extra_vec) > 0L) {
+    stop(paste0(
+      "Remote is ahead of local. Merge remote changes before proceeding (`git fetch`, then `git merge`).",)
+    ))
+  }
+  invisible(TRUE)
+}
 
+.projr_git_helper_get_upstream_remote_branch <- function() {
+  system2(
+    "git",
+    args = c("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"),
+    stdout = TRUE
+  )
+}
+
+.projr_git_helper_get_commit_hash_local <- function() {
+  system2("git", args = c("log", "--pretty=format:'%H'"), stdout = TRUE)
+}
+
+.projr_git_helper_get_commit_hash_remote <- function() {
+  system2("git", args = c("fetch"))
+  remote_branch_name <- system2(
+    "git",
+    args = c("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"),
+    stdout = TRUE
+    )
+  remote_commit_hashes <- system2(
+    "git",
+    args = c("log", "--pretty=format:'%H'", remote_branch_name),
+    stdout = TRUE
+  )
+}
+
+
+
+.projr_git_helper_diff_from_HEAD <- function(comp = NULL) {
+  if (is.null(comp)) {
+    comp <- .projr_git_helper_get_upstream_remote_branch()
+  }
+  system2(
+    "git",
+    args = c("diff", paste0("HEAD..", comp)),
+    stdout = TRUE
+  )
+}
+
+.projr_git_helper_fetch <- function() {
+  system2("git", args = c("fetch"))
 }
 
 # ignore
@@ -1164,7 +1195,22 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
 }
 
 # commit
-.projr_build_git_push <- function() {
+.projr_build_git_push <- function(output_run) {
+  if (!output_run) {
+    return(invisible(FALSE))
+  }
+  if (!.projr_yml_git_push_check()) {
+    return(invisible(FALSE))
+  }
+  if (!requireNamespace("gert", quietly = TRUE)) {
+    .projr_dep_install("gert")
+  }
+  .projr_git_helper_check_setup()
+  gert::git_push()
+  invisible(TRUE)
+}
+
+.projr_yml_git_push_check <- function() {
   yml_projr <- projr_yml_get()
   if (!"git" %in% names(yml_projr[["build"]])) {
     return(invisible(FALSE))
@@ -1175,6 +1221,32 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   if (!yml_projr[["build"]][["git"]][["push"]]) {
     return(invisible(FALSE))
   }
-  gert::git_push()
   invisible(TRUE)
+}
+
+.projr_git_helper_check_setup <- function() {
+  .projr_git_helper_check_setup_repo()
+  .projr_git_helper_check_setup_upstream()
+}
+
+.projr_git_helper_check_setup_repo <- function() {
+  git_repo_lgl <- dir.exists(file.path(dir_proj, ".git"))
+  if (!git_repo_lgl) {
+    stop("Not a git repository")
+  }
+}
+
+.projr_git_helper_check_remote <- function() {
+  remotes <- system2("git", args = c("remote", "-v"), stdout = TRUE)
+  if (length(remotes) == 0) {
+    stop("No remotes configured")
+  }
+}
+
+.projr_git_helper_check_setup_upstream <- function() {
+  .projr_git_helper_check_remote()
+  remotes <- system2("git", args = c("remote", "-v"), stdout = TRUE)
+  if (!any(grepl("upstream", remotes))) {
+    stop("No upstream remote configured")
+  }
 }

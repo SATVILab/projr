@@ -115,6 +115,9 @@ test_that("projr_path_get works", {
 
   rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
   writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  if (!requireNamespace("gert", quietly = TRUE)) {
+    utils::install.packages("gert")
+  }
 
   gert::git_init(path = dir_test)
 

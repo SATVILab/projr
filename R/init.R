@@ -26,48 +26,43 @@
 #' is public or not.
 #' Default is `FALSE`.
 #' @export
-projr_init <- function(dir_proj = getwd(),
-                       yml_path_from = NULL,
+projr_init <- function(yml_path_from = NULL,
                        renv_force = FALSE,
                        renv_bioconductor = TRUE,
                        public = FALSE) {
   # create initial _proj.yml
-  .projr_init_yml(dir_proj, yml_path_from)
+  .projr_init_yml(yml_path_from)
 
   # get metadata from user
-  nm_list_init <- .projr_init_prompt_init(dir_proj = dir_proj)
+  nm_list <- .projr_init_prompt_init()
 
   # DESCRIPTION file
-  .projr_init_description(
-    dir_proj = dir_proj, nm_list = nm_list_init
-  )
+  .projr_init_description(nm_list)
 
   # add various files
   .projr_init_dep() # _dependencies.R
   .projr_init_ignore() # ignore files
   .projr_init_r() # R folder
-  .projr_init_license(nm_list = nm_list_init) # license
+  .projr_init_license(nm_list) # license
 
-  # add readme
-  readme_list <- .projr_init_readme(
-    nm_list = nm_list_init
-  )
+  # initialise readme
+  readme_list <- .projr_init_readme(nm_list)
 
   # add document-engine docs
-  .projr_init_engine(nm_list = nm_list_init)
+  .projr_init_engine(nm_list)
 
   # renv
-  .projr_init_renv(
-    renv_force = renv_force, renv_bioconductor = renv_bioconductor
-  )
+  .projr_init_renv(force = renv_force, bioc = renv_bioconductor)
 
-  # git and github
-  .projr_init_git_rdme_and_gh(
-    readme = readme_list[["readme"]],
-    path_readme = readme_list[["path_readme"]],
-    nm_list = nm_list_init,
-    public = public
-  )
+  # finalise README
+  .projr_init_readme_finalise(readme_list = readme_list, nm_list = nm_list)
 
+  # initialise Git repo
+  .projr_init_git_init(nm_list[["answer_git"]])
+
+  # create GitHub remote
+  .projr_git_gh_init(username = nm_list[["gh"]], public = public)
+
+  # create github remote
   invisible(TRUE)
 }

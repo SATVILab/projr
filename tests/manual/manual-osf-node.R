@@ -138,6 +138,9 @@ test_that(".projr_osf_send_node_label works", {
 
   rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
   writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  if (!requireNamespace("gert", quietly = TRUE)) {
+    utils::install.packages("gert")
+  }
   gert::git_init(dir_test)
 
   usethis::with_project(

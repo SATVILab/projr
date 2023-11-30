@@ -5,6 +5,23 @@
   if (is.null(x)) y else x
 }
 
+.projr_dir_proj_get <- function(...) {
+  if (is.null(dir_proj)) {
+    dir_proj <- tryCatch(
+      rprojroot::is_r_package$find_file(),
+      error = function(e) getwd()
+    )
+  }
+  list_sub <- list(...)
+  if (length(list_sub) == 0L) {
+    return(dir_proj)
+  }
+  do.call(
+    file.path,
+    args = list(dir_proj) |> append(list_sub)
+  )
+}
+
 .try_err_msg_get <- function(x, require_try_error = TRUE) {
   if (!inherits(x, "try-error")) {
     if (require_try_error) {

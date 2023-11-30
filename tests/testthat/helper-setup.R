@@ -40,6 +40,9 @@
   # create git repo
   git <- if (github) TRUE else git
   if (git) {
+    if (!requireNamespace("gert", quietly = TRUE)) {
+      utils::install.packages("gert")
+    }
     gert::git_init(dir_test)
     gert::git_add(".", repo = dir_test)
     gert::git_commit(message = "Initial commit", repo = dir_test)
