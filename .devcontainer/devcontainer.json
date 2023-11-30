@@ -9,7 +9,6 @@
  */
 {
 	"image": "ghcr.io/rocker-org/devcontainer/geospatial:4",
-	"postCreateCommand": "chmod 755 .devcontainer/scripts/*sh && .devcontainer/scripts/post-create-command.sh",
 	"postStartCommand": "chmod 755 .devcontainer/scripts/*sh && .devcontainer/scripts/post-start-command.sh",
 	"customizations": {
 		"vscode": {

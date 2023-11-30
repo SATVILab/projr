@@ -49,4 +49,7 @@ copy_and_set_644_permissions "$TEMPLATE_REPO_PATH/.devcontainer/devcontainer.jso
 # Update .gitpod.yml
 copy_and_set_644_permissions "$TEMPLATE_REPO_PATH/.gitpod.yml" "$TARGET_REPO_PATH"
 
+# update R settings files in ~/.bashrc.d
+.devcontainer/scripts/post-start-command.sh
+
 echo "Update complete."
