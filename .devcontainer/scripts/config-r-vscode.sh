@@ -36,10 +36,15 @@ r_version=$(R --version | grep 'R version' | awk '{print $3}' | sed 's/^/\//')
 # Define the new key and value you want to add
 new_key="r.libPaths"
 
+# Function to check if a string is in the form of a version number
+contains_version() {
+    [[ $1 =~ [0-9]+\.[0-9]+\.[0-9]+ ]]
+}
+
 # Check if r.libPaths exists and if the current R version is not in its values
-if ! jq -e ". | select(has(\"$new_key\")) | .\"$new_key\"[] | contains(\"$r_version\")" "$path_file_json" > /dev/null; then
+if ! jq -e ". | select(has(\"$new_key\")) | .\"$new_key\"[] | contains(\"$r_version\") and (contains_version | test(\"$r_version\"))" "$path_file_json" > /dev/null; then
     # get the value(s) to add
-    new_array=$(Rscript --vanilla -e "setwd(tempdir()); cat(.libPaths(), sep = '\n')" | sed ':a;N;$!ba;s/\n/", "/g' | sed 's/^/["/' | sed 's/$/"]/')
+    new_array=$(Rscript --vanilla -e "cat(.libPaths(), sep = '\n')" | sed ':a;N;$!ba;s/\n/", "/g' | sed 's/^/["/' | sed 's/$/"]/')
     # Add or update the key-value pair in the JSON file
     jq --arg key "$new_key" --argjson value "$new_array" '. + {($key): $value}' $path_file_json > temp.json && mv temp.json $path_file_json
 fi

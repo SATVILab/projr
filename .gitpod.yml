@@ -16,7 +16,6 @@ tasks:
   - name: Config R and VS Code workspace
     command: |
       chmod 755 .devcontainer/scripts/*sh
-      .devcontainer/scripts/post-create-command.sh 
       .devcontainer/scripts/post-start-command.sh 
 
 vscode:
