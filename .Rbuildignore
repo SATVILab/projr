@@ -6,7 +6,6 @@
 ^\.vscode
 ^LICENSE\.md$
 ^SCRATCH\.R$
-^\.devcontainer
 ^\.gitpod
 ^\.github$
 ^lib
@@ -24,3 +23,5 @@
 # End of projr section
 ^_scratch$
 ^tmp$
+^codemeta\.json$
+^CITATION\.cff$

@@ -1,9 +1,3 @@
-# START HERE:
-# Do a full-project search for
-# all instances of system2("git",
-# so that you can create gert replacements
-# (thinking of checking if there's a remote, for example)
-
 .projr_git_init <- function() {
   switch(.projr_git_system_get(),
     "git" = .projr_git_init_git(),
@@ -141,13 +135,7 @@
 
 # check if setup
 .projr_init_gh_check_exists <- function() {
-  if (file.exists(.projr_dir_proj_get(".git"))) {
-    remotes <- system2("git", args = "remote", stdout = TRUE)
-    if (length(remotes) > 0) {
-      return(TRUE)
-    }
-  }
-  invisible(FALSE)
+  .projr_git_helper_check_remote()
 }
 
 .projr_init_git_check_exists <- function() {
@@ -163,20 +151,21 @@
     return(invisible(TRUE))
   }
   warning(
-    paste0(
-      "
-      GITHUB_PAT environment variable not found.
-      To allow creating a GitHub repository, please set it.
-      To easily set it in less than two minutes, do the following:
-      1. If you do not have a GitHub account, create one here: https://github.com
-      2. In R, run usethis::create_github_token()
-      3. In R, run gitcreds::gitcreds_set()
-      4. Paste the token from step 1 into the R command line (terminal), and press enter
-      For more details, see https://happygitwithr.com/https-pat#tldr
-      After doing the above:
-      1. In R, rerun projr::projr_init()
-      It will skip what's been done already and try set up GitHub again."
-    )
+    "GITHUB_PAT environment variable not found.\n",
+    "\n",
+    "To allow creating a GitHub repository, please set it.\n",
+    "\n",
+    "To easily set it in less than two minutes, do the following:\n",
+    "1. If you do not have a GitHub account, create one here: https://github.com\n",
+    "2. In R, run usethis::create_github_token()\n",
+    "3. In R, run gitcreds::gitcreds_set()\n",
+    "4. Paste the token from step 1 into the R command line (terminal), and press enter\n",
+    "For more details, see https://happygitwithr.com/https-pat#tldr\n",
+    "\n",
+    "After doing the above:\n",
+    "1. In R, rerun projr::projr_init()\n",
+    "It will skip what's been done already and try set up GitHub again.\n",
+    call. = FALSE
   )
   invisible(FALSE)
 }
@@ -191,8 +180,10 @@
 .projr_git_gh_init_actual <- function(username, public) {
   try({
     if (identical(username, gh::gh_whoami()$login)) {
+      .projr_dep_install_only("usethis")
       usethis::use_github(private = !public)
     } else {
+      .projr_dep_install_only("usethis")
       usethis::use_github(organisation = username, private = !public)
     }
   })

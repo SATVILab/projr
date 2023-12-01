@@ -37,13 +37,14 @@
 if (!requireNamespace("piggyback", quietly = TRUE)) {
 }
 
+
+
 .projr_dep_install <- function(dep) {
   for (x in dep) {
-    if (requireNamespace(x, quietly = TRUE)) {
-      next
-    }
     .projr_dep_add(x)
-    renv::install(x, prompt = FALSE)
+    if (!requireNamespace(x, quietly = TRUE)) {
+      .projr_dep_install_only(dep)
+    }
   }
 }
 
@@ -65,6 +66,15 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
   writeLines(dep_vec, path_dep)
   .projr_newline_append(path_dep)
   invisible(TRUE)
+}
+
+.projr_dep_install_only <- function(dep) {
+  for (x in dep) {
+    if (requireNamespace(x, quietly = TRUE)) {
+      next
+    }
+    renv::install(x, prompt = FALSE)
+  }
 }
 
 .projr_dep_rm <- function(dep) {
