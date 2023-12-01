@@ -120,14 +120,28 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   if (!file.exists(path_env)) {
     return(invisible(FALSE))
   }
-  if (file == "_environment.local") {
-    usethis::use_git_ignore(path_env)
-    usethis::use_build_ignore(path_env)
-  }
+  .projr_build_env_file_activate_ind_ignore(file)
   fn_vec_local <- readLines(path_env)
   for (i in seq_along(fn_vec_local)) {
     .projr_build_env_var_set_line(fn_vec_local[[i]], env)
   }
+}
+
+.projr_build_env_file_activate_ind_ignore <- function(file) {
+  if (!fs::path_has_parent(file, .projr_dir_proj_get())) {
+    return(invisible(FALSE))
+  }
+  if (file == "_environment.local") {
+    gitignore <- .projr_ignore_git_read()
+    if (!file %in% gitignore) {
+      return(invisible(FALSE))
+    }
+    gitignore <- c(gitignore, file)
+    .projr_ignore_git_write(gitignore, append = FALSE)
+  }
+  rbuildignore <- .projr_ignore_rbuild_read()
+  rbuildignore <- c(rbuildignore, utils::glob2rx(file))
+  .projr_ignore_rbuild_write(rbuildignore, append = FALSE)
 }
 
 .projr_build_env_var_set_line <- function(line, env) {
@@ -214,15 +228,32 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   if (!output_run) {
     return(invisible(FALSE))
   }
-  commit_vec_local <- .projr_git_helper_get_commit_hash_local()
-  commit_vec_remote <- .projr_git_helper_get_commit_hash_remote()
-  extra_vec <- setdiff(commit_vec_remote, commit_vec_local)
-  if (length(extra_vec) > 0L) {
-    stop(paste0(
-      "Remote is ahead of local. Merge remote changes before proceeding (`git fetch`, then `git merge`).",)
-    ))
+  if (.projr_git_check_behind()) {
+    stop(
+      "Remote is ahead of local.\n",
+      "Merge remote changes before proceeding\n",
+      "(e.g by running `git fetch`, then `git merge`)."
+    )
   }
   invisible(TRUE)
+}
+
+.projr_git_check_behind <- function() {
+  switch(.projr_git_system_get(),
+    "git" = .projr_git_check_behind_git(),
+    "gert" = .projr_git_check_behind_gert()
+  )
+}
+
+.projr_git_check_behind_git <- function() {
+  commit_vec_local <- .projr_git_helper_get_commit_hash_local()
+  commit_vec_remote <- .projr_git_helper_get_commit_hash_remote()
+  setdiff(commit_vec_remote, commit_vec_local) > 0L
+}
+
+.projr_git_check_behind_gert <- function() {
+  gert::git_fetch()
+  gert::git_ahead_behind()$behind != 0L
 }
 
 .projr_git_helper_get_upstream_remote_branch <- function() {
@@ -243,7 +274,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
     "git",
     args = c("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"),
     stdout = TRUE
-    )
+  )
   remote_commit_hashes <- system2(
     "git",
     args = c("log", "--pretty=format:'%H'", remote_branch_name),
@@ -335,14 +366,41 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
 # ==========================
 
 .projr_build_roxygenise <- function(output_run) {
+  if (!.projr_build_roxygenise_check(output_run)) {
+    return(invisible(FALSE))
+  }
+  .projr_dep_install("roxygen2")
+  suppressMessages(suppressWarnings(invisible(
+    roxygen2::roxygenise(package.dir = .projr_dir_proj_get())
+  )))
+  invisible(TRUE)
+}
+
+.projr_build_roxygenise_check <- function(output_run) {
   if (!output_run) {
     return(invisible(FALSE))
   }
-  dir_proj <- rprojroot::is_r_package$find_file()
-  suppressMessages(suppressWarnings(invisible(
-    roxygen2::roxygenise(package.dir = dir_proj)
-  )))
-  invisible(TRUE)
+  if (!dir.exists("R")) {
+    return(invisible(FALSE))
+  }
+  fn_vec <- list.files("R", full.names = TRUE)
+  for (i in seq_along(fn_vec)) {
+    if (.projr_build_roxygen_check_fn(fn_vec[[i]])) {
+      return(invisible(TRUE))
+    }
+  }
+  invisible(FALSE)
+}
+
+.projr_build_roxygen_check_fn <- function(fn) {
+  if (!file.exists(fn)) {
+    return(invisible(FALSE))
+  }
+  txt <- readLines(fn)
+  if (length(txt) == 0) {
+    return(invisible(FALSE))
+  }
+  any(grepl("^#'\\s+@", txt))
 }
 
 .projr_build_readme_rmd_render <- function(output_run) {
@@ -1237,14 +1295,35 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
 }
 
 .projr_git_helper_check_remote <- function() {
-  remotes <- system2("git", args = c("remote", "-v"), stdout = TRUE)
-  if (length(remotes) == 0) {
-    stop("No remotes configured")
-  }
+  switch(.projr_git_system_get(),
+    "git" = .projr_git_helper_check_remote_git(),
+    "gert" = .projr_git_helper_check_remote_gert()
+  )
+}
+
+.projr_git_helper_check_remote_git <- function() {
+  length(system2("git", args = c("remote", "-v"), stdout = TRUE)) > 0L
+}
+.projr_git_helper_check_remote_gert <- function() {
+  !inherits(try(gert::git_remote_ls(), silent = TRUE), "try-error")
 }
 
 .projr_git_helper_check_setup_upstream <- function() {
   .projr_git_helper_check_remote()
+  switch(.projr_git_system_get(),
+    "git" = {
+      if (.projr_git_helper_check_setup_upstream_git()) {
+        stop("No upstream remote detected")
+      }
+      invisible(TRUE)
+    },
+    # I think `gert` automatically sets to origin if none found
+    "gert" = invisible(TRUE)
+  )
+  invisible(TRUE)
+}
+
+.projr_git_helper_check_setup_upstream_git <- function() {
   remotes <- system2("git", args = c("remote", "-v"), stdout = TRUE)
   if (!any(grepl("upstream", remotes))) {
     stop("No upstream remote configured")

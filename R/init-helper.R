@@ -104,6 +104,7 @@
   suppressWarnings(descrptn$set("Description", nm_list[["title"]]))
   descrptn$write(file = .projr_dir_proj_get("DESCRIPTION"))
   desc::desc_normalize(.projr_dir_proj_get("DESCRIPTION"))
+  .projr_dep_install_only("usethis")
   usethis::proj_activate(.projr_dir_proj_get())
   usethis::use_roxygen_md()
   invisible(TRUE)
@@ -609,6 +610,7 @@
 }
 
 .projr_init_readme_auto <- function() {
+  .projr_dep_install_only("usethis")
   usethis::use_readme_md(open = FALSE)
   answer_readme <- 2
   fn_readme <- paste0("README.", ifelse(answer_readme == 1, "Rmd", "md"))
@@ -635,13 +637,18 @@
 
 .projr_init_readme_create <- function(answer_readme) {
   if (answer_readme == 1) {
+    .projr_dep_install_only("usethis")
     usethis::use_readme_rmd(open = FALSE)
   } else if (answer_readme == 2) {
+    .projr_dep_install_only("usethis")
     usethis::use_readme_md(open = FALSE)
   }
 }
 
 .projr_init_license_create <- function(x, nm_first, nm_last) {
+  if (!is.null(x)) {
+    .projr_dep_install_only("usethis")
+  }
   switch(x,
     "CC-BY" = usethis::use_ccby_license(),
     "Apache 2.0" = usethis::use_apache_license(),

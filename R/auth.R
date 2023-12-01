@@ -32,53 +32,51 @@
 }
 .projr_auth_get_github_pat_warn <- function(init = FALSE) {
   warning(
-    paste0(
-      "
-      GITHUB_PAT environment variable not found.",
-      "
-      ",
-      .projr_auth_get_github_pat_instr(),
-      "
-      ",
-      .projr_auth_get_github_pat_instr_init(init)
-    )
+    "GITHUB_PAT environment variable not found.\n", # nolint
+    "\n", # nolint
+    .projr_auth_get_github_pat_instr(),
+    "\n", # nolint
+    .projr_auth_get_github_pat_instr_init(init),
+    call. = FALSE
   )
 }
 
 .projr_auth_get_github_pat_instr <- function() {
-  "
-  GITHUB_PAT is needed to create a GitHub repository.
-  Please set it (in less than two minutes) by doing the following:
-  1. If you do not have a GitHub account, create one here: https://github.com
-  2. In R, run usethis::create_github_token()
-  3. In R, run gitcreds::gitcreds_set()
-  4. Paste the token from step 1 into the R command line (terminal), and press enter
-  For more details, see https://happygitwithr.com/https-pat#tldr"
+  c(
+    "GITHUB_PAT is needed to create a GitHub repository.\n", # nolint
+    "\n", # nolint
+    "Please set it (in less than two minutes) by doing the following:\n", # nolint
+    "1. If you do not have a GitHub account, create one here: https://github.com\n", # nolint
+    "2. In R, run usethis::create_github_token()\n", # nolint
+    "3. In R, run gitcreds::gitcreds_set()\n", # nolint
+    "4. Paste the token from step 1 into the R command line (terminal), and press enter\n", # nolint
+    "For more details, see https://happygitwithr.com/https-pat#tldr\n" # nolint
+  )
 }
 
 .projr_auth_get_github_pat_instr_init <- function(init = TRUE) {
   if (!init) {
-    NULL
-  } else {
-    "
-    After doing the above:
-    1. In R, rerun projr::projr_init()
-    It will skip what's been done already and try set up GitHub again."
+    return(NULL)
   }
+  c(
+    "After doing the above:\n", # nolint
+    "1. In R, rerun projr::projr_init()\n", # nolint
+    "It will skip what's been done already and try set up GitHub again." # nolint
+  )
 }
 
 # osf
 .projr_auth_get_osf_pat <- function() {
   pat <- .projr_auth_get_osf_pat_find()
+  if (nzchar(pat)) {
+    return(invisible(pat))
+  }
   warning(
-    paste0(
-      "
-      ",
-      paste0(
-        "OSF_PAT environment variable not set",
-        .projr_auth_get_osf_pat_instr()
-      )
-    )
+    "\n",
+    "OSF_PAT environment variable not set", # nolint
+    "\n",
+    .projr_auth_get_osf_pat_instr(),
+    call. = FALSE
   )
   invisible(character())
 }
@@ -88,36 +86,41 @@
 }
 
 .projr_auth_get_osf_pat_warn <- function() {
-  warning(paste0(
-    "
-    OSF_PAT environment variable not found.",
-    "
-    ",
-    .projr_auth_get_osf_pat_instr()
-  ))
+  warning(
+    "OSF_PAT environment variable not found.\n",
+    "\n",
+    .projr_auth_get_osf_pat_instr(),
+    call. = FALSE
+  )
 }
 
 .projr_auth_get_osf_pat_instr <- function() {
-  "
-  OSF_PAT is needed to transfer to and from OSF.
-  Please set it (in less than two minutes) by doing the following:
-  1. If you do not have an OSF account, create one here: https://osf.io
-  2. Create a token:
-    i. Go to https://osf.io/settings/tokens/
-    ii. Click the blue `Create token` button
-    iii. Name the token (can be anything)
-    iv. Choose scopes (choose all to be sure you can authenticate properly)
-    v. Click the blue `Create token` button
-    vi. Copy token (the really long code)
-  3. In R:
-    - Run usethis::edit_r_environ()
-    - Paste the following in there: OSF_PAT=<your_copied_pat>
-      - For example, paste OSF_PAT=adsfjk3r930923kkrf923kjdskf203i23rj23ri23j93j2r
-    - Leave an empty line after OSF_PAT (IMPORTANT!)
-  4. Restart R (open and close RStudio, if you're using that)
-  Note that this is one method, chosen because OSF_PAT
-  will be automatically detected afterwards.
-  "
+  c(
+    "OSF_PAT is needed to transfer to and from OSF.\n",
+    "\n",
+    "Please set it (in less than two minutes) by doing the following:\n",
+    "\n",
+    "1. If you do not have an OSF account, create one here: https://osf.io\n",
+    "\n",
+    "2. Create a token:\n",
+    "  i. Go to https://osf.io/settings/tokens/\n",
+    "  ii. Click the blue `Create token` button\n",
+    "  iii. Name the token (can be anything)\n",
+    "  iv. Choose scopes (choose all to be sure you can authenticate properly)\n", # nolint
+    "  v. Click the blue `Create token` button\n",
+    "  vi. Copy token (the really long code)\n",
+    "\n",
+    "3. In R:\n",
+    "  - Run usethis::edit_r_environ()\n",
+    "  - Paste the following in there: OSF_PAT=<your_copied_pat>\n",
+    "    - For example, paste OSF_PAT=adsfjk3r930923kkrf923kjdskf203i23rj23ri23j93j2r\n", # nolint
+    "  - Leave an empty line after OSF_PAT (IMPORTANT!)\n",
+    "\n",
+    "4. Restart R (open and close RStudio, if you're using that)\n",
+    "\n",
+    "Note that this is one method, chosen because OSF_PAT\n",
+    "will be automatically detected afterwards."
+  )
 }
 
 #' @title Two-minutes or less authorisation instructions

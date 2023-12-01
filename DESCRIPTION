@@ -11,13 +11,13 @@ RoxygenNote: 7.2.3
 Imports:
     renv,
     yaml,
-    usethis,
     rprojroot,
     desc,
     fs,
-    digest,
-    roxygen2
+    digest
 Suggests:
+    roxygen2,
+    usethis,
     gh,
     gert,
     piggyback,
