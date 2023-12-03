@@ -61,3 +61,14 @@ fi
 # into a singularity/apptainer container)
 R_LIBS=${R_LIBS:="$HOME/.local/lib/R"}
 mkdir -p "$R_LIBS"
+
+# set linting settings
+# light: just don't warn about snake case / camel case
+# (which it often gets wrong) and object name
+# length (which I often want to make very long)
+if [ ! -f "$HOME/.lintr" ]; then
+  echo "linters: with_defaults(
+  object_length_linter = NULL,
+  object_name_linter = NULL
+)" > "$HOME/.lintr"
+fi
