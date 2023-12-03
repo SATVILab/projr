@@ -18,7 +18,8 @@
 				"GitHub.copilot-chat",
 				"REditorSupport.r",
 				"bierner.markdown-preview-github-styles",
-				"eamodio.gitlens"
+				"eamodio.gitlens",
+				"mathematic.vscode-pdf"
 			]
 		}
 	}
