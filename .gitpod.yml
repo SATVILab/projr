@@ -24,3 +24,4 @@ vscode:
     - REditorSupport.r
     - bierner.markdown-preview-github-styles
     - eamodio.gitlens
+    - mathematic.vscode-pdf

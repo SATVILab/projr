@@ -69,6 +69,6 @@ mkdir -p "$R_LIBS"
 if [ ! -f "$HOME/.lintr" ]; then
   echo "linters: with_defaults(
   object_length_linter = NULL,
-  object_name_linter = NULL
-)" > "$HOME/.lintr"
+  object_name_linter = NULL)
+" > "$HOME/.lintr"
 fi
