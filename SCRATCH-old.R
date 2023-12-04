@@ -852,7 +852,6 @@ test_that("projr_build_copy_dir works when archiving", {
   # what do we archive, and to where?
   # well, if we consider data-raw and cache and output,
   # then:
-  dir_proj <- rprojroot::is_r_package$find_file()
 
   # set up paths
   dir_output <- projr_dir_get(label = "output", output_safe = FALSE)
@@ -902,7 +901,6 @@ test_that("projr_build_copy_dir works when archiving", {
 # old docs projr_dir_get settings
 # =====================
   if (label == "docs") {
-    dir_proj <- rprojroot::is_r_package$find_file()
 
     if (file.exists(file.path(dir_proj, "_bookdown.yml"))) {
       yml_bd <- .projr_yml_bd_get()

@@ -11,7 +11,6 @@ directories:
     path: _archive
   docs:
     archive: true
-
 build:
   dev-output: true
   package: false

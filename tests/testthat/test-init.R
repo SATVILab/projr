@@ -35,20 +35,20 @@ test_that(".projr_init_yml works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      expect_true(.projr_init_yml(dir_test, NULL))
+      expect_true(.projr_init_yml())
       expect_true(file.exists("_projr.yml"))
       invisible(file.remove("_projr.yml"))
       path_yml <- file.path(tempdir(), "_projr.yml")
       yaml::write_yaml(list("abc" = 1), path_yml)
       Sys.setenv("PROJR_PATH_YML" = path_yml)
-      expect_true(.projr_init_yml(dir_test, NULL))
+      expect_true(.projr_init_yml(NULL))
       expect_true(file.exists("_projr.yml"))
       expect_identical(yaml::read_yaml("_projr.yml"), list("abc" = 1))
       invisible(file.remove("_projr.yml"))
 
       path_yml_2 <- file.path(tempdir(), "_projr2.yml")
       yaml::write_yaml(list("abc" = 2), path_yml_2)
-      expect_true(.projr_init_yml(dir_test, path_yml_2))
+      expect_true(.projr_init_yml(path_yml_2))
       expect_true(file.exists("_projr.yml"))
       expect_identical(yaml::read_yaml("_projr.yml"), list("abc" = 2))
       invisible(file.remove("_projr.yml"))
@@ -76,7 +76,7 @@ test_that(".projr_init_description works", {
         email = "fruit@palm_tree.am.zn",
         title = "Urgh"
       )
-      expect_true(.projr_init_description(dir_test, nm_list))
+      expect_true(.projr_init_description(nm_list))
       expect_true(file.exists("DESCRIPTION"))
       desc <- read.dcf("DESCRIPTION")
       expect_identical(desc[[1]], "testProjr2")
@@ -104,7 +104,7 @@ test_that(".projr_init_dep works", {
         email = "fruit@palm_tree.am.zn",
         title = "Urgh"
       )
-      .projr_init_description(dir_test, nm_list)
+      .projr_init_description(nm_list)
       expect_true(.projr_init_dep())
       expect_true(file.exists("_dependencies.R"))
     },
@@ -131,7 +131,7 @@ test_that(".projr_init_ignore works", {
         email = "fruit@palm_tree.am.zn",
         title = "Urgh"
       )
-      .projr_init_description(dir_test, nm_list)
+      .projr_init_description(nm_list)
       expect_true(.projr_init_ignore())
       expect_true(file.exists(".gitignore"))
       expect_true(file.exists(".Rbuildignore"))
@@ -159,7 +159,7 @@ test_that(".projr_init_renv works", {
         email = "fruit@palm_tree.am.zn",
         title = "Urgh"
       )
-      .projr_init_description(dir_test, nm_list)
+      .projr_init_description(nm_list)
       file.create(file.path(dir_test, ".Rprofile"))
       writeLines('source("renv/activate.R")', file.path(dir_test, ".Rprofile"))
       expect_true(.projr_init_renv(FALSE, FALSE))
@@ -187,7 +187,7 @@ test_that(".projr_init_license works", {
         email = "fruit@palm_tree.am.zn",
         title = "Urgh"
       )
-      .projr_init_description(dir_test, nm_list)
+      .projr_init_description(nm_list)
       expect_true(.projr_init_license(nm_list))
     },
     force = TRUE,
@@ -213,7 +213,7 @@ test_that(".projr_init_readme works", {
         email = "fruit@palm_tree.am.zn",
         title = "Urgh"
       )
-      .projr_init_description(dir_test, nm_list)
+      .projr_init_description(nm_list)
       .projr_init_readme(nm_list)
       expect_true(file.exists("README.md"))
     },
@@ -245,7 +245,7 @@ test_that("projr_init_bookdown works", {
         title = "Urgh",
         filename = NULL
       )
-      .projr_init_description(dir_test, nm_list)
+      .projr_init_description(nm_list)
       expect_true(.projr_init_engine_bookdown(nm_list))
       expect_true(file.exists("_bookdown.yml"))
       expect_true(file.exists("_output.yml"))
@@ -279,14 +279,14 @@ test_that("projr_init_quarto_project works", {
         title = "Urgh",
         filename = NULL
       )
-      .projr_init_description(dir_test, nm_list)
+      .projr_init_description(nm_list)
       expect_true(.projr_init_engine_quarto_project(nm_list))
       expect_true(file.exists("_quarto.yml"))
       expect_true(file.exists("index.qmd"))
       invisible(file.remove("_quarto.yml"))
       invisible(file.remove("index.qmd"))
       nm_list[["format"]] <- "website"
-      .projr_init_description(dir_test, nm_list)
+      .projr_init_description(nm_list)
       expect_true(.projr_init_engine_quarto_project(nm_list))
       expect_true(file.exists("_quarto.yml"))
       expect_true(file.exists("index.qmd"))
@@ -319,7 +319,7 @@ test_that("projr_init_quarto_document works", {
         title = "Urgh",
         filename = "test"
       )
-      .projr_init_description(dir_test, nm_list)
+      .projr_init_description(nm_list)
       expect_true(.projr_init_engine_quarto_document(nm_list))
       expect_true(!file.exists("_quarto.yml"))
       expect_true(file.exists("test.qmd"))
@@ -352,7 +352,7 @@ test_that("projr_init_rmd works", {
         title = "Urgh",
         filename = "abc"
       )
-      .projr_init_description(dir_test, nm_list)
+      .projr_init_description(nm_list)
       expect_true(.projr_init_engine_rmd(nm_list))
       expect_true(!file.exists("_bookdown.yml"))
       expect_true(file.exists("abc.Rmd"))

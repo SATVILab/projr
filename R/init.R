@@ -25,13 +25,14 @@
 #' Whether the GitHub repo created (if any)
 #' is public or not.
 #' Default is `FALSE`.
+#' @seealso projr_init_renviron
 #' @export
 projr_init <- function(yml_path_from = NULL,
                        renv_force = FALSE,
                        renv_bioconductor = TRUE,
                        public = FALSE) {
   # create initial _proj.yml
-  .projr_init_yml(yml_path_from)
+  .projr_init_yml(yml_path_from) # nolint: object_usage_linter.
 
   # get metadata from user
   nm_list <- .projr_init_prompt_init()
@@ -46,7 +47,7 @@ projr_init <- function(yml_path_from = NULL,
   .projr_init_license(nm_list) # license
 
   # initialise readme
-  readme_list <- .projr_init_readme(nm_list)
+  .projr_init_readme(nm_list)
 
   # add document-engine docs
   .projr_init_engine(nm_list)
@@ -55,13 +56,16 @@ projr_init <- function(yml_path_from = NULL,
   .projr_init_renv(force = renv_force, bioc = renv_bioconductor)
 
   # finalise README
-  .projr_init_readme_finalise(readme_list = readme_list, nm_list = nm_list)
+  .projr_init_readme_finalise()
 
   # initialise Git repo
   .projr_init_git_init(nm_list[["answer_git"]])
 
   # create GitHub remote
-  .projr_git_gh_init(username = nm_list[["gh"]], public = public)
+  .projr_init_github(username = nm_list[["gh"]], public = public)
+
+  # add citation files
+  .projr_init_cite(nm_list[["answer_readme"]])
 
   # create github remote
   invisible(TRUE)

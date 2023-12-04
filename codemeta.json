@@ -4,7 +4,7 @@
   "identifier": "projr",
   "description": "Facilitate reproducible and archived projects.",
   "name": "projr: Facilitate reproducible and archived projects",
-  "codeRepository": "https://github.com/SATVILab/projr",
+  "codeRepository": "https://satvilab.github.io/projr/",
   "license": "https://spdx.org/licenses/MIT",
   "version": "0.0.9.10",
   "programmingLanguage": {
@@ -32,6 +32,42 @@
     }
   ],
   "softwareSuggestions": [
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "roxygen2",
+      "name": "roxygen2",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=roxygen2"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "cffr",
+      "name": "cffr",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=cffr"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "usethis",
+      "name": "usethis",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=usethis"
+    },
     {
       "@type": "SoftwareApplication",
       "identifier": "gh",
@@ -241,18 +277,6 @@
     },
     "3": {
       "@type": "SoftwareApplication",
-      "identifier": "usethis",
-      "name": "usethis",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=usethis"
-    },
-    "4": {
-      "@type": "SoftwareApplication",
       "identifier": "rprojroot",
       "name": "rprojroot",
       "provider": {
@@ -263,7 +287,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=rprojroot"
     },
-    "5": {
+    "4": {
       "@type": "SoftwareApplication",
       "identifier": "desc",
       "name": "desc",
@@ -275,7 +299,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=desc"
     },
-    "6": {
+    "5": {
       "@type": "SoftwareApplication",
       "identifier": "fs",
       "name": "fs",
@@ -287,7 +311,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=fs"
     },
-    "7": {
+    "6": {
       "@type": "SoftwareApplication",
       "identifier": "digest",
       "name": "digest",
@@ -299,22 +323,21 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=digest"
     },
-    "8": {
-      "@type": "SoftwareApplication",
-      "identifier": "roxygen2",
-      "name": "roxygen2",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=roxygen2"
-    },
     "SystemRequirements": null
   },
-  "fileSize": "600.638KB",
-  "relatedLink": "https://satvilab.github.io/projr/",
-  "releaseNotes": "https://github.com/SATVILab/projr/blob/master/NEWS.md",
-  "readme": "https://github.com/SATVILab/projr/blob/main/README.md"
+  "fileSize": "748.43KB",
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "author": [
+        {
+          "@type": "Person",
+          "givenName": "Miguel",
+          "familyName": "Rodo"
+        }
+      ],
+      "name": "projr: Facilitate reproducible and archived projects",
+      "url": "https://satvilab.github.io/projr/"
+    }
+  ]
 }

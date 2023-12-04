@@ -1,12 +1,15 @@
 .projr_engine_get <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  if (file.exists(file.path(dir_proj, "_quarto.yml"))) {
+  if (file.exists(.projr_dir_proj_get("_quarto.yml"))) {
     return("quarto_project")
-  } else if (file.exists(file.path(dir_proj, "_bookdown.yml"))) {
+  } else if (file.exists(.projr_dir_proj_get("_bookdown.yml"))) {
     return("bookdown")
-  } else if (length(list.files(pattern = "\\.qmd$")) > 0) {
+  } else if (
+    length(list.files(.projr_dir_proj_get(), pattern = "\\.qmd$")) > 0
+    ) {
     return("quarto_document")
-  } else if (length(list.files(pattern = "\\.Rmd$|\\.rmd$")) > 0) {
+  } else if (
+    length(list.files(.projr_dir_proj_get(), pattern = "\\.Rmd$|\\.rmd$")) > 0
+  ) {
     return("rmd")
   } else {
     stop(

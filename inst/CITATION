@@ -1,8 +1,14 @@
-bibentry(bibtype = "Misc",
-         key = "rodo",
-         title = "projr: Facilitate reproducible and archived projects",
-         author = person(given = "Miguel",
-                         family = "Rodo"),
-         url = "https://satvilab.github.io/projr/",
-         abstract = "Facilitate reproducible and archived projects.",
-         version = "0.0.9-10")
+citHeader("To cite projr in publications use:")
+
+bibentry(
+  bibtype = "Misc",
+  key = "rodo",
+  title = "projr: Facilitate reproducible and archived projects",
+  author = person(
+    given = "Miguel",
+    family = "Rodo"
+  ),
+  url = "https://satvilab.github.io/projr/",
+  abstract = "Facilitate reproducible and archived projects.",
+  version = "0.0.9-10"
+)

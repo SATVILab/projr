@@ -15,6 +15,17 @@ authors:
   given-names: Miguel
   email: rdxmig002@myuct.ac.za
   orcid: https://orcid.org/0000-0002-2036-4878
+preferred-citation:
+  type: generic
+  title: 'projr: Facilitate reproducible and archived projects'
+  authors:
+  - family-names: Rodo
+    given-names: Miguel
+    email: rdxmig002@myuct.ac.za
+    orcid: https://orcid.org/0000-0002-2036-4878
+  url: https://satvilab.github.io/projr/
+  abstract: Facilitate reproducible and archived projects.
+  version: 0.0.9-10
 url: https://satvilab.github.io/projr/
 contact:
 - family-names: Rodo
@@ -70,30 +81,6 @@ references:
     given-names: Michael
   - family-names: Kamvar
     given-names: Zhian N.
-  year: '2023'
-- type: software
-  title: usethis
-  abstract: 'usethis: Automate Package and Project Setup'
-  notes: Imports
-  url: https://usethis.r-lib.org
-  repository: https://CRAN.R-project.org/package=usethis
-  authors:
-  - family-names: Wickham
-    given-names: Hadley
-    email: hadley@posit.co
-    orcid: https://orcid.org/0000-0003-4757-117X
-  - family-names: Bryan
-    given-names: Jennifer
-    email: jenny@posit.co
-    orcid: https://orcid.org/0000-0002-6983-2759
-  - family-names: Barrett
-    given-names: Malcolm
-    email: malcolmbarrett@gmail.com
-    orcid: https://orcid.org/0000-0003-0299-5825
-  - family-names: Teucher
-    given-names: Andy
-    email: andy.teucher@posit.co
-    orcid: https://orcid.org/0000-0002-7840-692X
   year: '2023'
 - type: software
   title: rprojroot
@@ -199,7 +186,7 @@ references:
 - type: software
   title: roxygen2
   abstract: 'roxygen2: In-Line Documentation for R'
-  notes: Imports
+  notes: Suggests
   url: https://roxygen2.r-lib.org/
   repository: https://CRAN.R-project.org/package=roxygen2
   authors:
@@ -215,6 +202,42 @@ references:
     email: csardi.gabor@gmail.com
   - family-names: Eugster
     given-names: Manuel
+  year: '2023'
+- type: software
+  title: cffr
+  abstract: 'cffr: Generate Citation File Format (''cff'') Metadata for R Packages'
+  notes: Suggests
+  url: https://docs.ropensci.org/cffr/
+  repository: https://CRAN.R-project.org/package=cffr
+  authors:
+  - family-names: Hernangómez
+    given-names: Diego
+    email: diego.hernangomezherrero@gmail.com
+    orcid: https://orcid.org/0000-0001-8457-4658
+  year: '2023'
+- type: software
+  title: usethis
+  abstract: 'usethis: Automate Package and Project Setup'
+  notes: Suggests
+  url: https://usethis.r-lib.org
+  repository: https://CRAN.R-project.org/package=usethis
+  authors:
+  - family-names: Wickham
+    given-names: Hadley
+    email: hadley@posit.co
+    orcid: https://orcid.org/0000-0003-4757-117X
+  - family-names: Bryan
+    given-names: Jennifer
+    email: jenny@posit.co
+    orcid: https://orcid.org/0000-0002-6983-2759
+  - family-names: Barrett
+    given-names: Malcolm
+    email: malcolmbarrett@gmail.com
+    orcid: https://orcid.org/0000-0003-0299-5825
+  - family-names: Teucher
+    given-names: Andy
+    email: andy.teucher@posit.co
+    orcid: https://orcid.org/0000-0002-7840-692X
   year: '2023'
 - type: software
   title: gh

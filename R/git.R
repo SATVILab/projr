@@ -6,18 +6,48 @@
   )
 
   if (Sys.getenv("PROJR_TEST") == "TRUE") {
+    .projr_dep_install_only("gert")
     gert::git_config_set("user.name", "Darth Vader")
     gert::git_config_set("user.email", "number_one_fan@tellytubbies.com")
   }
 }
 
-.projr_git_check_repo <- function() {
+.projr_git_repo_check_exists <- function() {
   dir.exists(.projr_dir_proj_get(".git"))
 }
 
 .projr_git_commit_file <- function(file, msg = NULL) {
+  if (length(file) == 0L) {
+    return(invisible(FALSE))
+  }
   msg <- .projr_git_msg_get(msg = msg)
-  .projr_git_commit(file, msg)
+  switch(.projr_git_system_get(),
+    "git" = .projr_git_commit_file_git(file, msg),
+    "gert" = .projr_git_commit_file_gert(file, msg),
+    stop(paste0(.projr_git_system_get(), " not recognised"))
+  )
+}
+
+.projr_git_commit_file_git <- function(file, msg) {
+  .projr_git_add_file_git(file)
+  system2(
+    "git",
+    args = paste0("commit -m '", msg, "' ", paste0(file, collapse = " ")),
+    stdout = TRUE
+  )
+}
+
+.projr_git_add_file_git <- function(file) {
+  system2(
+    "git",
+    args = paste0("add ", paste0(file, collapse = " ")),
+    stdout = TRUE
+  )
+}
+
+.projr_git_commit_file_gert <- function(file, msg) {
+  gert::git_add(file)
+  gert::git_commit(msg)
 }
 
 .projr_git_commit_all <- function(msg = NULL, add_untracked = TRUE) {
@@ -26,8 +56,9 @@
     add_vec <- c(add_vec, .projr_git_new_get())
   }
   msg <- .projr_git_msg_get(msg = msg)
-  .projr_git_commit(add_vec, msg)
+  .projr_git_commit_file(add_vec, msg)
 }
+
 
 # modified files
 .projr_git_modified_get <- function() {
@@ -76,7 +107,10 @@
 }
 
 # message
-.projr_git_msg_get <- function() {
+.projr_git_msg_get <- function(msg) {
+  if (!is.null(msg)) {
+    return(msg)
+  }
   cat("Please enter a one-line description of change", "\n")
   msg <- readline(prompt = ">> ")
   msg
@@ -101,7 +135,10 @@
 
 # checking if git cli is available
 .projr_git_system_check_git <- function() {
-  git_version_try <- try(system2("git", args = "--version"), silent = TRUE)
+  git_version_try <- try(
+    system2("git", args = "--version", stdout = TRUE),
+    silent = TRUE
+  )
   if (!inherits(git_version_try, "try-error")) {
     return(TRUE)
   }
@@ -130,61 +167,60 @@
   requireNamespace("gert", quietly = TRUE)
 }
 
-# github
-# -----------------
-
-# check if setup
-.projr_init_gh_check_exists <- function() {
-  .projr_git_helper_check_remote()
-}
-
-.projr_init_git_check_exists <- function() {
-  dir.exists(.projr_dir_proj_get(".git"))
-}
-
-.projr_init_gh_check_exists <- function() {
-  length(system2("git", args = "remote", stdout = TRUE)) == 0L
-}
-
-.projr_git_gh_check_auth <- function() {
-  if (!nzchar(.projr_auth_get_github_pat())) {
-    return(invisible(TRUE))
+# check if there's a remote
+.projr_git_remote_check_exists <- function() {
+  if (!.projr_git_repo_check_exists()) {
+    return(invisible(FALSE))
   }
-  warning(
-    "GITHUB_PAT environment variable not found.\n",
-    "\n",
-    "To allow creating a GitHub repository, please set it.\n",
-    "\n",
-    "To easily set it in less than two minutes, do the following:\n",
-    "1. If you do not have a GitHub account, create one here: https://github.com\n",
-    "2. In R, run usethis::create_github_token()\n",
-    "3. In R, run gitcreds::gitcreds_set()\n",
-    "4. Paste the token from step 1 into the R command line (terminal), and press enter\n",
-    "For more details, see https://happygitwithr.com/https-pat#tldr\n",
-    "\n",
-    "After doing the above:\n",
-    "1. In R, rerun projr::projr_init()\n",
-    "It will skip what's been done already and try set up GitHub again.\n",
-    call. = FALSE
+  switch(.projr_git_system_get(),
+    "git" = .projr_git_remote_check_exists_git(),
+    "gert" = .projr_git_remote_check_exists_gert()
   )
-  invisible(FALSE)
 }
 
-.projr_git_gh_init <- function(username, public) {
-  if (!is.null(username)) {
-    if (.projr_git_gh_check_auth(username)) {
-    }
+.projr_git_remote_check_exists_git <- function() {
+  length(system2("git", args = c("remote", "-v"), stdout = TRUE)) > 0L
+}
+.projr_git_remote_check_exists_gert <- function() {
+  !inherits(try(gert::git_remote_ls(), silent = TRUE), "try-error")
+}
+
+.projr_git_remote_check_upstream <- function() {
+  .projr_git_remote_check_exists()
+  switch(.projr_git_system_get(),
+    "git" = {
+      if (.projr_git_remote_check_upstream_git()) {
+        stop("No upstream remote detected")
+      }
+      invisible(TRUE)
+    },
+    # I think `gert` automatically sets to origin if none found
+    "gert" = invisible(TRUE)
+  )
+  invisible(TRUE)
+}
+
+.projr_git_remote_check_upstream_git <- function() {
+  remotes <- system2("git", args = c("remote", "-v"), stdout = TRUE)
+  if (!any(grepl("upstream", remotes))) {
+    stop("No upstream remote configured")
   }
 }
 
-.projr_git_gh_init_actual <- function(username, public) {
-  try({
-    if (identical(username, gh::gh_whoami()$login)) {
-      .projr_dep_install_only("usethis")
-      usethis::use_github(private = !public)
-    } else {
-      .projr_dep_install_only("usethis")
-      usethis::use_github(organisation = username, private = !public)
-    }
-  })
+# push
+.projr_git_push <- function() {
+  switch(.projr_git_system_get(),
+    "git" = .projr_git_push_git(),
+    "gert" = .projr_git_push_gert(),
+    stop(paste0(.projr_git_system_get(), " not recognised"))
+  )
+  invisible(TRUE)
+}
+
+.projr_git_push_git <- function() {
+  system2("git", args = "push")
+}
+
+.projr_git_push_gert <- function() {
+  gert::git_push()
 }
