@@ -1,5 +1,5 @@
 # ============================
-# Pre/post
+# Pre/post # nolint: commented_code_linter.
 # ============================
 
 # renv
@@ -24,39 +24,19 @@
                                     stage,
                                     msg) {
   # exit early if required
-  # ------------------------
-
   if (!.projr_build_git_commit_check(output_run)) {
     return(invisible(FALSE))
   }
-  if (!.projr_git_check_repo()) {
+  if (!.projr_git_repo_check_exists()) {
     stop("Git commits requested but no Git directory found")
   }
 
   # commit
-  # ------------------
-  yml_add_untracked <- .projr_yml_git_get_untracked()
-  .projr_git_commit_all(add_untracked = yml_add_untracked)
-
-  invisible(TRUE)
+  .projr_git_commit_all(add_untracked = .projr_yml_get_git_add_untracked())
 }
 
 .projr_build_git_commit_check <- function(output_run) {
-  if (!output_run) {
-    return(invisible(FALSE))
-  }
-  yml_projr <- projr_yml_get_unchecked()
-  specified_lgl <- !is.null(yml_projr[["build"]][["git"]][["commit"]])
-  run_lgl <- isTRUE(yml_projr[["build"]][["git"]][["commit"]])
-  invisible(specified_lgl && run_lgl)
-}
-
-.projr_yml_git_get_untracked <- function() {
-  add <- projr_yml_get_unchecked()[["build"]][["git"]][["add-untracked"]]
-  if (is.null(add)) {
-    add <- FALSE
-  }
-  add
+  output_run && .projr_yml_get_git_commit()
 }
 
 # commit messages
@@ -115,8 +95,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
 }
 
 .projr_build_env_file_activate_ind <- function(env, file) {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_env <- file.path(dir_proj, file)
+  path_env <- .projr_dir_proj_get(file)
   if (!file.exists(path_env)) {
     return(invisible(FALSE))
   }
@@ -180,8 +159,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
 }
 
 .projr_build_env_file_required_check <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_required <- file.path(dir_proj, "_environment.required")
+  path_required <- .projr_dir_proj_get("_environment.required")
   if (!file.exists(path_required)) {
     return(invisible(FALSE))
   }
@@ -275,7 +253,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
     args = c("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"),
     stdout = TRUE
   )
-  remote_commit_hashes <- system2(
+  system2(
     "git",
     args = c("log", "--pretty=format:'%H'", remote_branch_name),
     stdout = TRUE
@@ -403,12 +381,26 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   any(grepl("^#'\\s+@", txt))
 }
 
-.projr_build_readme_rmd_render <- function(output_run) {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  if ((!file.exists(file.path(dir_proj, "README.Rmd"))) || (!output_run)) {
+.projr_build_cite <- function(output_run) {
+  if (!output_run) {
     return(invisible(FALSE))
   }
-  readme_rmd <- readLines(file.path(dir_proj, "README.Rmd"))
+  cite_vec <- .projr_yml_cite_get()
+  for (i in seq_along(cite_vec)) {
+    switch(cite_vec[[i]],
+      "cff" = .projr_cite_cff_set(),
+      "codemeta" = .projr_cite_codemeta_set(),
+      "inst-citation" = .projr_cite_citation_set()
+    )
+  }
+  invisible(TRUE)
+}
+
+.projr_build_readme_rmd_render <- function(output_run) {
+  if ((!file.exists(.projr_dir_proj_get("README.Rmd"))) || (!output_run)) {
+    return(invisible(FALSE))
+  }
+  readme_rmd <- readLines(.projr_dir_proj_get("README.Rmd"))
   pkg_use_detected_lib <- grepl(
     paste0(
       "library\\(", projr_name_get(), "\\)|",
@@ -429,7 +421,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
     devtools::install()
   }
   rmarkdown::render(
-    file.path(dir_proj, "README.Rmd"),
+    .projr_dir_proj_get("README.Rmd"),
     output_format = "md_document",
     quiet = TRUE
   )
@@ -524,8 +516,6 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
 }
 
 .projr_build_copy_output_direct <- function(output_run) {
-  dir_proj <- rprojroot::is_r_package$find_file()
-
   # zip and then unlink any directories
   # -------------------------
   dir_data_output_safe <- projr_dir_get("output", output_safe = TRUE)
@@ -538,14 +528,14 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   for (i in seq_along(dir_vec)) {
     path_dir <- dir_vec[i]
     if (!fs::is_absolute_path(path_dir)) {
-      path_dir <- file.path(dir_proj, path_dir)
+      path_dir <- .projr_dir_proj_get(path_dir)
     }
     path_zip <- file.path(
       dir_data_output_safe,
       paste0(basename(dir_vec[i]), ".zip")
     )
     if (!fs::is_absolute_path(path_zip)) {
-      path_zip <- file.path(dir_proj, path_zip)
+      path_zip <- path_dir(path_zip)
     }
     .projr_zip_dir(
       path_dir = path_dir,
@@ -821,7 +811,6 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
 }
 
 .projr_build_copy_docs_paths <- function(path, output_run) {
-  dir_proj <- rprojroot::is_r_package$find_file()
   for (x in path) {
     if (fs::is_file(x)) {
       file_to <- projr_path_get("docs", basename(x), output_safe = !output_run)
@@ -831,11 +820,11 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
       file.rename(from = x, to = file_to)
     } else if (fs::is_dir(x)) {
       fn_vec <- list.files(
-        file.path(dir_proj, x),
+        .projr_dir_proj_get(x),
         recursive = TRUE,
         all.files = TRUE
       )
-      fn_vec_from <- file.path(dir_proj, x, fn_vec)
+      fn_vec_from <- .projr_dir_proj_get(x, fn_vec)
       fn_vec_to <- file.path(
         projr_dir_get("docs", output_safe = !output_run), x, fn_vec
       )
@@ -866,7 +855,6 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   if (!output_run && dest_type == "archive") {
     return(invisible(TRUE))
   }
-  dir_proj <- rprojroot::is_r_package$find_file()
   yml_projr <- projr_yml_get()
   yml_projr_dir <- yml_projr[["directories"]]
   # copy data_raw and cache across, if desired
@@ -916,7 +904,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
     )
     path_dir <- projr_dir_get(label, output_safe = path_dir_from_safe)
     if (!fs::is_absolute_path(path_dir)) {
-      path_dir <- file.path(dir_proj, path_dir)
+      path_dir <- .projr_dir_proj_get(path_dir)
     }
 
     dir_output_init <- key_copy_vec[1]
@@ -933,7 +921,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
       )
     }
     if (!fs::is_absolute_path(path_zip)) {
-      path_zip <- file.path(dir_proj, path_zip)
+      path_zip <- .projr_dir_proj_get(path_zip)
     }
 
     # exclude special folders
@@ -1246,86 +1234,19 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   if (success) {
     return(invisible(FALSE))
   }
-
   projr_version_set(version_run_on_list$desc[["failure"]])
-
   invisible(TRUE)
 }
 
 # commit
 .projr_build_git_push <- function(output_run) {
-  if (!output_run) {
+  .projr_git_repo_check_exists()
+  if (!output_run || !.projr_yml_get_git_push()) {
     return(invisible(FALSE))
   }
-  if (!.projr_yml_git_push_check()) {
-    return(invisible(FALSE))
+  if (!.projr_git_remote_check_upstream()) {
+    warning("No upstream remote detected")
   }
-  if (!requireNamespace("gert", quietly = TRUE)) {
-    .projr_dep_install("gert")
-  }
-  .projr_git_helper_check_setup()
-  gert::git_push()
+  .projr_git_push()
   invisible(TRUE)
-}
-
-.projr_yml_git_push_check <- function() {
-  yml_projr <- projr_yml_get()
-  if (!"git" %in% names(yml_projr[["build"]])) {
-    return(invisible(FALSE))
-  }
-  if (!"push" %in% names(yml_projr[["build"]][["git"]])) {
-    return(invisible(FALSE))
-  }
-  if (!yml_projr[["build"]][["git"]][["push"]]) {
-    return(invisible(FALSE))
-  }
-  invisible(TRUE)
-}
-
-.projr_git_helper_check_setup <- function() {
-  .projr_git_helper_check_setup_repo()
-  .projr_git_helper_check_setup_upstream()
-}
-
-.projr_git_helper_check_setup_repo <- function() {
-  git_repo_lgl <- dir.exists(file.path(dir_proj, ".git"))
-  if (!git_repo_lgl) {
-    stop("Not a git repository")
-  }
-}
-
-.projr_git_helper_check_remote <- function() {
-  switch(.projr_git_system_get(),
-    "git" = .projr_git_helper_check_remote_git(),
-    "gert" = .projr_git_helper_check_remote_gert()
-  )
-}
-
-.projr_git_helper_check_remote_git <- function() {
-  length(system2("git", args = c("remote", "-v"), stdout = TRUE)) > 0L
-}
-.projr_git_helper_check_remote_gert <- function() {
-  !inherits(try(gert::git_remote_ls(), silent = TRUE), "try-error")
-}
-
-.projr_git_helper_check_setup_upstream <- function() {
-  .projr_git_helper_check_remote()
-  switch(.projr_git_system_get(),
-    "git" = {
-      if (.projr_git_helper_check_setup_upstream_git()) {
-        stop("No upstream remote detected")
-      }
-      invisible(TRUE)
-    },
-    # I think `gert` automatically sets to origin if none found
-    "gert" = invisible(TRUE)
-  )
-  invisible(TRUE)
-}
-
-.projr_git_helper_check_setup_upstream_git <- function() {
-  remotes <- system2("git", args = c("remote", "-v"), stdout = TRUE)
-  if (!any(grepl("upstream", remotes))) {
-    stop("No upstream remote configured")
-  }
 }

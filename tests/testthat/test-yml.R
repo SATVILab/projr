@@ -143,8 +143,7 @@ test_that("projr_yml_check works", {
 
       # basic checks
       yml <- list("directories" = list("data-raw" = list("path")))
-      dir_proj <- rprojroot::is_r_package$find_file()
-      path_yml <- file.path(dir_proj, "_projr.yml")
+      path_yml <- .projr_dir_proj_get("_projr.yml")
       yml_projr_init <- yaml::read_yaml(path_yml)
       unlink(path_yml)
       expect_error(projr_yml_check())

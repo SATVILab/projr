@@ -17,6 +17,7 @@ Imports:
     digest
 Suggests:
     roxygen2,
+    cffr,
     usethis,
     gh,
     gert,

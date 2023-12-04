@@ -3,8 +3,34 @@ library(testthat)
 devtools::load_all()
 # devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
 devtools::test_active_file(
-  "tests/testthat/test-dest-send.R"
+  "tests/testthat/test-init.R"
 )
+
+# =======================
+# Citation files
+# =======================
+
+# okay, so what do I need to run?
+
+- create citation.cff file:
+  - Add it to project directory?
+  - Add it to `inst/`?
+    - cffr::write_citation()
+- Add codemeta.json file to projet directory?
+- Add plain-text citation to README:
+  - Markdown README:
+    - Initially?
+      - Write it to an R object, or temp file
+      - Then add result to end of README
+    - Update it upon builds?
+      - Cannot do this
+  - Rmd README:
+    - Initially?
+      - Add the function call
+    - Update it upon builds?
+- Add BibTeX citation to README?
+  - Initially?
+  - Update it upon builds?
 
 # =======================
 # Excessive README code

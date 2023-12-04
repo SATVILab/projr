@@ -1,43 +1,63 @@
-# non-engine config files
+# _projr.yml
 # -----------------------
-.projr_init_yml <- function(yml_path_from) {
-  # get path
-  if (is.null(yml_path_from)) {
-    if (nzchar(Sys.getenv("PROJR_PATH_YML"))) {
-      yml_path_from <- Sys.getenv("PROJR_PATH_YML")
-    } else {
-      yml_path_from <- system.file(
-        "project_structure",
-        "_projr.yml",
-        package = "projr"
-      )
-    }
-  }
 
-  # check path
-  if (!file.exists(yml_path_from)) {
-    stop(paste0("yml_path_from does not exist: ", yml_path_from))
-  }
-
-  # copy path
-  yml_path_to <- .projr_dir_proj_get("_projr.yml")
-  if (file.exists(yml_path_to)) {
-    unlink(yml_path_to)
-  }
-  file.copy(from = yml_path_from, to = yml_path_to)
-
-  if (Sys.getenv("PROJR_TEST") == "TRUE") {
-    path_yml <- .projr_dir_proj_get("_projr.yml")
-    yml_projr <- yaml::read_yaml(path_yml)
-    if ("build" %in% names(yml_projr)) {
-      yml_projr[["build"]][["git"]][["push"]] <- FALSE
-      yaml::write_yaml(yml_projr, path_yml)
-    }
-  }
-
+# set _projr.yml
+.projr_init_yml <- function(yml_path_from = NULL) {
+  .projr_init_yml_copy(.projr_init_yml_get_path_from(yml_path_from))
+  .projr_init_yml_test_unset_push()
   invisible(TRUE)
 }
 
+.projr_init_yml_get_path_from <- function(yml_path_from) {
+  # get path
+  yml_path_from <- yml_path_from %||%
+    .projr_init_yml_get_path_from_auto()
+  # check path
+  .projr_init_yml_check_path_from(yml_path_from)
+  yml_path_from
+}
+
+.projr_init_yml_get_path_from_auto <- function() {
+  if (nzchar(Sys.getenv("PROJR_PATH_YML"))) {
+    return(Sys.getenv("PROJR_PATH_YML"))
+  }
+  system.file("project_structure", "_projr.yml", package = "projr")
+}
+
+.projr_init_yml_check_path_from <- function(path) {
+  if (!file.exists(path)) {
+    stop(paste0("yml_path_from does not exist: ", path))
+  }
+  if (inherits(try(yaml::read_yaml(path), silent = TRUE), "try-error")) {
+    stop(paste0("yml_path_from is not a valid YAML file: ", path))
+  }
+  invisible(TRUE)
+}
+
+.projr_init_yml_copy <- function(path) {
+  if (file.exists(.projr_dir_proj_get("_projr.yml"))) {
+    return(invisible(FALSE))
+  }
+  file.copy(from = path, to = .projr_dir_proj_get("_projr.yml"))
+  invisible(TRUE)
+}
+
+.projr_init_yml_test_unset_push <- function() {
+  if (!Sys.getenv("PROJR_TEST") == "TRUE") {
+    return(invisible(FALSE))
+  }
+  path_yml <- .projr_dir_proj_get("_projr.yml")
+  yml_projr <- yaml::read_yaml(path_yml)
+  if (!"build" %in% names(yml_projr)) {
+    return(invisible(FALSE))
+  }
+  yml_projr[["build"]][["git"]][["push"]] <- FALSE
+  yaml::write_yaml(yml_projr, path_yml)
+  invisible(TRUE)
+}
+
+# gather metadata and tool selection
+# ----------------------------
 .projr_init_prompt_init <- function() {
   # package name
   # document engine and related
@@ -157,9 +177,10 @@
 }
 
 .projr_init_r <- function() {
-  if (!dir.exists(.projr_dir_proj_get("R"))) {
-    dir.create(.projr_dir_proj_get("R"))
+  if (dir.exists(.projr_dir_proj_get("R"))) {
+    return(invisible(FALSE))
   }
+  dir.create(.projr_dir_proj_get("R"))
   invisible(TRUE)
 }
 
@@ -167,27 +188,31 @@
   renv_init_env_var_lgl <- Sys.getenv("PROJR_TEST") == "TRUE"
   renv_init_exists_lgl <- file.exists(.projr_dir_proj_get("renv.lock"))
   if (!renv_init_env_var_lgl && !renv_init_exists_lgl) {
-    # initialise in a separate `R` process to avoid
-    # any prompts
-    path_rscript <- file.path(R.home("bin"), "Rscript")
-    cmd_txt <- paste0(
-      "-e '",
-      "renv::init(",
-      "force = ", force, ", ",
-      "bioconductor = ", bioc,
-      ")'"
-    )
-    system2(
-      path_rscript,
-      args = cmd_txt, stdout = FALSE
-    )
+    .projr_renv_init_rscript(force = force, bioc = bioc)
+    try(source("renv/activate.R"), silent = TRUE)
   }
   # activate `renv`.
   # wrapped in `try` in case something goes wrong.
   # User can just restart `R` to activate `renv`
   # if it goes wrong, so no error-handling attempted.
-  try(source("renv/activate.R"), silent = TRUE)
   invisible(TRUE)
+}
+
+.projr_renv_init_rscript <- function(force, bioc) {
+  # initialise in a separate `R` process to avoid
+  # any prompts
+  path_rscript <- file.path(R.home("bin"), "Rscript")
+  cmd_txt <- paste0(
+    "-e '",
+    "renv::init(",
+    "force = ", force, ", ",
+    "bioconductor = ", bioc,
+    ")'"
+  )
+  system2(
+    path_rscript,
+    args = cmd_txt, stdout = FALSE
+  )
 }
 
 # engine
@@ -207,7 +232,7 @@
   if (.projr_init_engine_check_exists()) {
     return(NULL)
   }
-  .projr_init_prompt_ind(
+  nm_engine <- .projr_init_prompt_ind(
     .var = NULL,
     nm_item_long = "document engine",
     option_default = c(
@@ -411,13 +436,16 @@
     allow_specify_other = FALSE,
     allow_complete_later = TRUE,
     answer_translate = long_to_short_license_vec,
-    answer_auto = "0"
+    answer_auto = "1"
   )
 }
 
 # readme
 .projr_init_prompt_readme <- function(nm_list_metadata) {
   answer_readme <- .projr_init_prompt_readme_create()
+  path_desc_lgl_init <- .projr_desc_tmp_create()
+  .projr_init_readme_create(answer_readme)
+  .projr_desc_tmp_remove(path_desc_lgl_init)
   readme <- .projr_init_prompt_readme_description(
     answer_readme,
     nm_list_metadata
@@ -426,6 +454,22 @@
     answer_readme = answer_readme,
     readme = readme
   )
+}
+
+.projr_desc_tmp_create <- function() {
+  path_desc <- .projr_dir_proj_get("DESCRIPTION")
+  path_desc_lgl_init <- file.exists(path_desc)
+  if (!path_desc_lgl_init) {
+    desc::description$new("!new")$write(file = path_desc)
+    return(path_desc)
+  }
+  character()
+}
+
+.projr_desc_tmp_remove <- function(path_desc) {
+  if (nzchar(path_desc)) {
+    unlink(path_desc)
+  }
 }
 
 .projr_init_prompt_readme_create <- function() {
@@ -451,7 +495,7 @@
                                                   nm_list_metadata) {
   # no changes if README already exists
   if (answer_readme == 3) {
-    return(.projr_init_prompt_readme_finalise())
+    return(.projr_init_readme_finalise())
   }
 
   # get fn_readme and path_readme
@@ -479,7 +523,7 @@
   }
 
   if (answer_readme_correct == 3) {
-    return(.projr_init_prompt_readme_finalise())
+    return(.projr_init_readme_finalise())
   }
 
   readme[readme_ind_example - 1] <- readme_rep
@@ -496,11 +540,17 @@
     "Please finish the following sentence:\n",
     paste0("The purpose of ", pkg, " is to...")
   )
+  if (Sys.getenv("PROJR_TEST") == "TRUE") {
+    return("The purpose of projr is to facilitate reproducible and archived projects") # nolint
+  }
   readme_add <- readline(prompt = ">> ")
   paste0("The purpose of ", pkg, " is to ", readme_add)
 }
 
 .projr_init_prompt_readme_description_check <- function(readme_rep) {
+  if (Sys.getenv("PROJR_TEST") == "TRUE") {
+    return(1)
+  }
   utils::menu(
     c("Yes", "No", "Complete later"),
     title =
@@ -510,7 +560,7 @@
       )
   )
 }
-.projr_init_prompt_readme_finalise <- function() {
+.projr_init_readme_finalise <- function() {
   if (!file.exists(.projr_dir_proj_get("README.Rmd"))) {
     return(invisible(FALSE))
   }
@@ -527,7 +577,7 @@
   # whether to include Git
   answer_git <- .projr_init_prompt_git_gh_answer_git()
   # whether a Git remote is defined already
-  gh_exists <- .projr_init_projt_git_gh_gh_exists(answer_git)
+  gh_exists <- .projr_git_remote_check_exists()
   # get username
   nm_gh <- .projr_init_prompt_git_gh_username(answer_git, gh_exists)
   list(
@@ -549,8 +599,8 @@
   if (answer_git == 2) {
     return(invisible(FALSE))
   }
-  if (.projr_init_git_check_exists()) {
-    gh_exists <- .projr_init_gh_check_exists()
+  if (.projr_git_repo_check_exists()) {
+    gh_exists <- .projr_git_remote_check_exists()
   } else {
     gh_exists <- FALSE
   }
@@ -578,6 +628,81 @@
     allow_complete_later = TRUE,
     answer_auto = "GITHUB_USER_NAME"
   )
+}
+
+# ============================
+# convenience environment variables
+# ============================
+
+#' @title Set environment variables for projr_init
+#'
+#' @description
+#' Set environment variables for `projr_init.`
+#' When set, `projr_init` will use these variables
+#' to provide options to populate the metadata.
+#' This function creates the `.Renviron` file
+#' for the user if it does not exist.
+#' It then adds the variables to the `.Renviron` file
+#' without any values set.
+#' @export
+projr_init_renviron <- function() {
+  .projr_init_renviron_create()
+  .projr_init_renviron_set()
+}
+
+.projr_init_renviron_create <- function() {
+  .projr_dep_install_only("usethis")
+  path <- usethis:::scoped_path_r(
+    scope = "user", ".Renviron", envvar = "R_ENVIRON_USER"
+  )
+  if (!file.exists(path)) {
+    file.create(path)
+  }
+  invisible(path)
+}
+
+.projr_init_renviron_add <- function(path) {
+  renviron_txt <- readLines(path)
+  renviron_txt <- .projr_init_renviront_txt_update(renviron_txt)
+  writeLines(renviron_txt, path)
+  .projr_newline_append(path)
+  message(
+    paste0(
+      "Edit the .Renviron file at ", path,
+      "to have default options for projr_init setup metadata.\n"
+    ),
+    "The following variables are availabe:\n",
+    paste0(
+      "  - PROJR_PATH_YML\n",
+      "  - PROJR_FIRST_NAME\n",
+      "  - PROJR_LAST_NAME\n",
+      "  - PROJR_EMAIL\n",
+      "  - PROJR_GITHUB_USER_NAME\n"
+    ),
+    "There must be no white space in the line.\n",
+    "For example, `PROJR_FIRST_NAME=Mogley` is valid,\n",
+    "but `PROJR_FIRST_NAME = Mogley` is not.\n",
+    "Restart R once they are set to use them.\n",
+    "They should be available for all new projects for this user."
+  )
+}
+
+.projr_init_renviront_txt_update <- function(txt) {
+  nm_vec <- c(
+    "PROJR_PATH_YML", "PROJR_FIRST_NAME", "PROJR_LAST_NAME",
+    "PROJR_EMAIL", "PROJR_GITHUB_USER_NAME"
+  )
+  for (x in nm_vec) {
+    txt <- .projr_init_renviron_add_ind(x, txt)
+  }
+  txt
+}
+
+.projr_init_renviron_add_ind <- function(nm, txt) {
+  if (!any(grepl(paste0("^", nm), txt))) {
+    txt <- c(txt, paste0(nm, "="))
+  }
+  txt
 }
 
 # ============================
@@ -646,9 +771,10 @@
 }
 
 .projr_init_license_create <- function(x, nm_first, nm_last) {
-  if (!is.null(x)) {
-    .projr_dep_install_only("usethis")
+  if (is.null(x)) {
+    return(invisible(FALSE))
   }
+  .projr_dep_install_only("usethis")
   switch(x,
     "CC-BY" = usethis::use_ccby_license(),
     "Apache 2.0" = usethis::use_apache_license(),
@@ -660,12 +786,13 @@
   invisible(x)
 }
 
-
-
 # git
 .projr_init_git_init <- function(answer_git) {
   if (answer_git %in% c(2, 3)) {
     .projr_init_git_suggest_git()
+    if (answer_git == 2) {
+      .projr_yml_set_git(all = FALSE)
+    }
     return(invisible(FALSE))
   }
   .projr_git_system_setup()
@@ -673,6 +800,10 @@
   .projr_init_git_commit()
   .projr_init_git_suggest_git()
   invisible(TRUE)
+}
+
+.projr_init_git_check_exists <- function() {
+  dir.exists(.projr_dir_proj_get(".git"))
 }
 
 .projr_init_git_commit <- function() {
@@ -689,7 +820,7 @@
     ".Rbuildignore",
     ".gitignore",
     "_dependencies.R",
-    list.files("renv", recursive = TRUE),
+    list.files("renv", recursive = TRUE, full.names = TRUE),
     "renv.lock",
     ".Rprofile",
     "_projr.yml",
@@ -698,9 +829,7 @@
     "README.md",
     "README.Rmd"
   )
-  fn_vec <- fn_vec[file.exists(
-    vapply(fn_vec, .projr_dir_proj_get, FUN.VALUE = logical(1))
-  )]
+  fn_vec <- fn_vec[file.exists(.projr_dir_proj_get(fn_vec))]
   fn_vec[
     fn_vec %in% c(.projr_git_modified_get(), .projr_git_new_get())
   ]
@@ -710,10 +839,149 @@
   if (.projr_git_system_get() == "git") {
     return(invisible(FALSE))
   }
-  message("
-    You can use `projr` without the program git
-    (and setup is going fine!),
-    but RStudio (and VS Code) like it.
-    It's easy to install, instructions here:
-    https://happygitwithr.com/install-git")
+  message(
+    "You can use `projr` without the program git\n",
+    "(and setup is going fine!),\n",
+    "but RStudio (and VS Code) like it.\n",
+    "It's easy to install, instructions here:\n",
+    "https://happygitwithr.com/install-git"
+  )
+}
+
+# github
+# --------------------------
+.projr_init_github <- function(username,
+                               public) {
+  if (!.projr_git_repo_check_exists()) {
+    .projr_yml_unset_github_dest()
+    return(invisible(FALSE))
+  }
+  if (.projr_git_remote_check_exists() || is.null(username)) {
+    return(invisible(FALSE))
+  }
+  .projr_init_github_actual(username, public)
+}
+
+.projr_init_github_actual <- function(username, public) {
+  .projr_dep_install_only("usethis")
+  try({
+    if (identical(username, gh::gh_whoami()$login)) {
+      usethis::use_github(private = !public)
+    } else {
+      usethis::use_github(organisation = username, private = !public)
+    }
+  })
+  invisible(TRUE)
+}
+
+.projr_git_gh_check_auth <- function() {
+  if (!nzchar(.projr_auth_get_github_pat())) {
+    return(invisible(TRUE))
+  }
+  warning(
+    "GITHUB_PAT environment variable not found.\n",
+    "\n",
+    "To allow creating a GitHub repository, please set it.\n",
+    "\n",
+    "To easily set it in less than two minutes, do the following:\n",
+    "1. If you do not have a GitHub account, create one here: https://github.com\n", # nolint: line_length_linter.
+    "2. In R, run usethis::create_github_token()\n",
+    "3. In R, run gitcreds::gitcreds_set()\n",
+    "4. Paste the token from step 1 into the R command line (terminal), and press enter\n", # nolint: line_length_linter.
+    "For more details, see https://happygitwithr.com/https-pat#tldr\n",
+    "\n",
+    "After doing the above:\n",
+    "1. In R, rerun projr::projr_init()\n",
+    "It will skip what's been done already and try set up GitHub again.\n",
+    call. = FALSE
+  )
+  invisible(FALSE)
+}
+
+
+# citations
+# --------------------------
+.projr_init_cite <- function(answer_readme) {
+  .projr_init_cite_citation(answer_readme)
+  .projr_init_cite_cff()
+  .projr_init_cite_codemeta()
+}
+
+.projr_init_cite_citation <- function(answer_readme) {
+  .projr_init_cite_inst_citation()
+  .projr_init_cite_citation_readme(answer_readme)
+}
+
+.projr_init_cite_inst_citation <- function() {
+  if (file.exists(.projr_dir_proj_get("inst", "CITATION"))) {
+    return(invisible(FALSE))
+  }
+  .projr_yml_set_cite(inst_citation = TRUE)
+  .projr_dep_install("cffr")
+  .projr_cite_citation_set()
+}
+
+
+.projr_init_cite_citation_readme <- function(answer_readme) {
+  switch(as.character(answer_readme),
+    "1" = .projr_init_cite_citation_readme_add_file(
+      .projr_dir_proj_get("README.Rmd")
+    ),
+    "2" = .projr_init_cite_citation_readme_add_file(
+      .projr_dir_proj_get("README.md")
+    ),
+    "3" = invisible(FALSE)
+  )
+}
+
+.projr_init_cite_citation_readme_add_rmd <- function() {
+  .projr_dep_add("cffr")
+  path_readme <- .projr_dir_proj_get("README.Rmd")
+  readme_vec <- readLines(path_readme)
+  writeLines(
+    c(
+      readme_vec,
+      .projr_init_cite_citation_readme_add_rmd_get_txt()
+    ),
+    path_readme
+  )
+}
+
+.projr_init_cite_citation_readme_add_rmd_get_txt <- function() {
+  c(
+    "",
+    "## Citation",
+    "```{r, warning = FALSE}",
+    paste0("citation(\"", .projr_pkg_nm_get(), "\")"),
+    "```"
+  )
+}
+
+.projr_init_cite_citation_readme_add_file <- function(path_readme) {
+  readme_vec <- readLines(path_readme)
+  writeLines(
+    c(readme_vec, "", "## Citation", "", .projr_cite_bibtex_get()),
+    path_readme
+  )
+  invisible(TRUE)
+}
+
+.projr_init_cite_cff <- function() {
+  path_cff <- .projr_dir_proj_get("CITATION")
+  if (file.exists(path_cff)) {
+    return(invisible(FALSE))
+  }
+  .projr_dep_install("cffr")
+  .projr_yml_set_cite(cff = TRUE)
+  .projr_cite_cff_set()
+}
+
+.projr_init_cite_codemeta <- function() {
+  path_codemeta <- .projr_dir_proj_get("codemeta.json")
+  if (file.exists(path_codemeta)) {
+    return(invisible(FALSE))
+  }
+  .projr_yml_set_cite(codemeta = TRUE)
+  .projr_dep_install("cboettig/codemeta")
+  .projr_cite_codemeta_set()
 }

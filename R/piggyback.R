@@ -143,22 +143,20 @@
 }
 
 .projr_pb_path_get_dir <- function(label, output_run) {
-  dir_proj <- rprojroot::is_r_package$find_file()
   path_dir <- projr_dir_get(label, output_safe = !output_run)
   if (!fs::is_absolute_path(path_dir)) {
-    path_dir <- file.path(dir_proj, path_dir)
+    path_dir <- .projr_dir_proj_get(path_dir)
   }
   path_dir
 }
 
 .projr_pb_path_get_zip <- function(tag, label) {
-  dir_proj <- rprojroot::is_r_package$find_file()
   path_zip <- projr_path_get(
     "cache", "projr", paste0("v", projr_version_get()),
     "gh_release", tag, paste0(label, ".zip")
   )
   if (!fs::is_absolute_path(path_zip)) {
-    path_zip <- file.path(dir_proj, path_zip)
+    path_zip <- .projr_dir_proj_get(path_zip)
   }
   if (file.exists(path_zip)) {
     file.remove(path_zip)

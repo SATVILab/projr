@@ -100,7 +100,6 @@ projr_yml_get_unchecked <- function() {
         }
       }
     }
-    x <- 1
     # carry on if no return has been made
     # because the highest-precedence element was not a list
     .projr_yml_merge(elem_default, elem_profile, elem_local)
@@ -109,8 +108,7 @@ projr_yml_get_unchecked <- function() {
 }
 
 .projr_yml_get_root_full <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_yml <- file.path(dir_proj, "_projr.yml")
+  path_yml <- .projr_dir_proj_get("_projr.yml")
   if (!file.exists(path_yml)) {
     stop(paste0("_projr.yml not found at ", path_yml))
   }
@@ -127,7 +125,6 @@ projr_yml_get_unchecked <- function() {
 }
 
 .projr_yml_get_profile <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
   profile <- projr_profile_get()
   if (profile == "default") {
     return(list())
@@ -137,8 +134,8 @@ projr_yml_get_unchecked <- function() {
   key_root_build <- paste0("build-", profile)
   root_dir_ind <- key_root_dir %in% names(yml_projr_root_full)
   root_build_ind <- key_root_build %in% names(yml_projr_root_full)
-  path_yml_projr_profile <- file.path(
-    dir_proj, paste0("_projr-", profile, ".yml")
+  path_yml_projr_profile <- .projr_dir_proj_get(
+    paste0("_projr-", profile, ".yml")
   )
   path_projr_profile_root <- file.exists(path_yml_projr_profile)
   if ((root_build_ind || root_dir_ind) && path_projr_profile_root) {
@@ -167,8 +164,7 @@ projr_yml_get_unchecked <- function() {
 }
 
 .projr_yml_get_local <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_yml <- file.path(dir_proj, "_projr-local.yml")
+  path_yml <- .projr_dir_proj_get("_projr-local.yml")
   if (!file.exists(path_yml)) {
     return(list())
   }
@@ -602,24 +598,21 @@ projr_yml_check <- function(yml_projr = NULL) {
 }
 
 .projr_yml_set <- function(list_save) {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_yml <- file.path(dir_proj, "_projr.yml")
+  path_yml <- .projr_dir_proj_get("_projr.yml")
   yaml::write_yaml(list_save, path_yml)
   .projr_newline_append(path_yml)
   invisible(TRUE)
 }
 
 .projr_yml_set_root <- function(list_save) {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_yml <- file.path(dir_proj, "_projr.yml")
+  path_yml <- .projr_dir_proj_get("_projr.yml")
   yaml::write_yaml(list_save, path_yml)
   .projr_newline_append(path_yml)
   invisible(TRUE)
 }
 
 .projr_yml_bd_get <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_yml <- file.path(dir_proj, "_bookdown.yml")
+  path_yml <- .projr_dir_proj_get("_bookdown.yml")
   if (!file.exists(path_yml)) {
     return(list())
   }
@@ -627,8 +620,7 @@ projr_yml_check <- function(yml_projr = NULL) {
 }
 
 .projr_yml_quarto_get <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_yml <- file.path(dir_proj, "_quarto.yml")
+  path_yml <- .projr_dir_proj_get("_quarto.yml")
   if (!file.exists(path_yml)) {
     return(list())
   }
@@ -636,23 +628,311 @@ projr_yml_check <- function(yml_projr = NULL) {
 }
 
 .projr_yml_bd_set <- function(list_save) {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_yml <- file.path(dir_proj, "_bookdown.yml")
+  path_yml <- .projr_dir_proj_get("_bookdown.yml")
   yaml::write_yaml(list_save, path_yml)
   .projr_newline_append(path_yml)
   invisible(TRUE)
 }
 
 .projr_yml_quarto_set <- function(list_save) {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_yml <- file.path(dir_proj, "_quarto.yml")
+  path_yml <- .projr_dir_proj_get("_quarto.yml")
   yaml::write_yaml(list_save, path_yml)
   .projr_newline_append(path_yml)
   invisible(TRUE)
 }
 
 .projr_desc_get <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_desc <- file.path(dir_proj, "DESCRIPTION")
+  path_desc <- .projr_dir_proj_get("DESCRIPTION")
   read.dcf(path_desc)
+}
+
+# cite
+# -----------------
+
+.projr_yml_set_cite <- function(all_three = FALSE,
+                                codemeta = FALSE,
+                                cff = FALSE,
+                                inst_citation = FALSE) {
+  # Note: codemeta, cff and inst_citation
+  # being FALSE does not set the corresponding yml
+  # values to FALSE.
+  # The function never sets such values to FALSE,
+  # it's only for making such values TRUE.
+  # So, FALSE just means "don't force to TRUE".
+
+  # set all three
+  set_all_three <- .projr_yml_set_cite_all_three(
+    force_all_three = all_three,
+    code_meta = codemeta,
+    cff = cff,
+    inst_citation = inst_citation
+  )
+  if (set_all_three) {
+    return(invisible(TRUE))
+  }
+  .projr_yml_cite_add_ind(
+    codemeta = codemeta,
+    cff = cff,
+    inst_citation = inst_citation
+  )
+}
+
+.projr_yml_unset_cite <- function() {
+  .projr_yml_set_cite(all_three = FALSE)
+}
+
+.projr_yml_cite_check_all_three <- function(force_all_three = FALSE,
+                                            code_meta = FALSE,
+                                            cff = FALSE,
+                                            inst_citation = FALSE) {
+  if (force_all_three) {
+    return(TRUE)
+  }
+  yml_projr_cite <- .projr_yml_get_root_default()[["build"]][["cite"]]
+  missing_vec <- setdiff(
+    c("codemeta", "cff", "inst-citation"),
+    c(
+      yml_projr_cite,
+      "code_meta"[code_meta],
+      "cff"[cff],
+      "inst_citation"[inst_citation]
+    )
+  )
+  identical(missing_vec, character())
+}
+
+.projr_yml_set_cite_all_three <- function(force_all_three,
+                                          code_meta,
+                                          cff,
+                                          inst_citation) {
+  all_three_lgl <- .projr_yml_cite_check_all_three(
+    force_all_three = force_all_three,
+    code_meta = code_meta,
+    cff = cff,
+    inst_citation = inst_citation
+  )
+  if (!all_three_lgl) {
+    return(TRUE)
+  }
+  yml_projr_root <- .projr_yml_get_root_default()
+  yml_projr_root[["build"]][["cite"]] <- TRUE
+  .projr_yml_set_root(yml_projr_root)
+  invisible(TRUE)
+}
+
+.projr_yml_cite_add_ind <- function(codemeta = FALSE,
+                                    cff = FALSE,
+                                    inst_citation = FALSE) {
+  # setup
+  yml_projr_root <- .projr_yml_get_root_default()
+
+  yml_cite <- .projr_yml_cite_add_ind_yml(
+    yml_cite = yml_projr_root[["build"]][["cite"]],
+    codemeta = codemeta,
+    cff = cff,
+    inst_citation = inst_citation
+  )
+
+  if (isFALSE(yml_cite)) {
+    yml_projr_root[["build"]] <- yml_projr_root[["build"]][
+      -which(names(yml_projr_root[["build"]]) == "cite")
+    ]
+  } else {
+    yml_projr_root[["build"]] <- yml_cite
+  }
+
+  .projr_yml_set_root(yml_projr_root)
+  invisible(TRUE)
+}
+
+.projr_yml_cite_add_ind_yml <- function(yml_cite = character(),
+                                        codemeta = FALSE,
+                                        cff = FALSE,
+                                        inst_citation = FALSE) {
+  if (isTRUE(yml_cite)) {
+    return(invisible(TRUE))
+  }
+  if (isFALSE(yml_cite)) {
+    yml_cite <- character()
+  }
+  yml_cite <- yml_cite |>
+    c("codemeta"[codemeta], "cff"[cff], "inst-citation"[inst_citation]) |>
+    unique()
+  if (length(setdiff(c("codemeta", "cff", "inst-citation"), yml_cite)) == 0L) {
+    yml_cite <- TRUE
+  }
+  if (length(yml_cite) == 0L) {
+    yml_cite <- FALSE
+  }
+  yml_cite
+}
+
+.projr_yml_cite_get <- function(method) {
+  yml_cite <- .projr_yml_get_root_default()[["build"]][["cite"]]
+  cite_vec <- c("codemeta", "cff", "inst-citation")
+  if (isTRUE(yml_cite)) {
+    return(cite_vec)
+  }
+  if (is.null(yml_cite) || isFALSE(yml_cite)) {
+    return(character())
+  }
+  cite_vec
+}
+
+# git
+# -----------------
+
+.projr_yml_set_git <- function(all = NULL,
+                               commit = NULL,
+                               add_untracked = NULL,
+                               push = NULL) {
+  if (!is.null(all)) {
+    commit <- all
+    add_untracked <- all
+    push <- all
+  }
+  if (!is.null(commit)) {
+    .projr_yml_set_git_commit(commit)
+  }
+  if (!is.null(add_untracked)) {
+    .projr_yml_set_git_add_untracked(add_untracked)
+  }
+  if (!is.null(push)) {
+    .projr_yml_set_git_push(push)
+  }
+}
+
+.projr_yml_unset_git <- function() {
+  .projr_yml_set_git(all = FALSE)
+}
+
+.projr_yml_set_git_commit <- function(commit = TRUE) {
+  commit_pre <- .projr_yml_get_git_commit()
+  if (identical(commit_pre, commit)) {
+    return(invisible(FALSE))
+  }
+  push <- .projr_yml_get_git_push()
+  add_untracked <- .projr_yml_get_git_add_untracked()
+  combn_vec <- c(commit, push, add_untracked) |>
+    stats::setNames(c("commit", "add_untracked", "push"))
+  if (all(combn_vec)) {
+    .projr_yml_set_git_true()
+  } else if (!any(combn_vec)) {
+    .projr_yml_set_git_false()
+  } else {
+    .projr_yml_set_git_mix(as.list(combn_vec), "commit")
+  }
+  invisible(TRUE)
+}
+
+.projr_yml_get_git_commit <- function() {
+  yml_git <- .projr_yml_get_root_default()[["build"]][["git"]]
+  if (is.null(yml_git) || isTRUE(yml_git)) {
+    return(TRUE)
+  }
+  if (isFALSE(yml_git)) {
+    return(FALSE)
+  }
+  yml_git[["commit"]]
+}
+
+.projr_yml_set_git_true <- function() {
+  yml_projr_root <- .projr_yml_get_root_default()
+  yml_git_orig <- yml_projr_root[["build"]][["git"]]
+  if (!is.null(yml_git_orig)) {
+    yml_projr_root[["build"]][["git"]] <- TRUE
+    .projr_yml_set_root(yml_projr_root)
+  }
+  return(invisible(TRUE))
+}
+
+.projr_yml_set_git_false <- function() {
+  yml_projr_root <- .projr_yml_get_root_default()
+  yml_projr_root[["build"]][["git"]] <- FALSE
+  .projr_yml_set_root(yml_projr_root)
+  return(invisible(TRUE))
+}
+
+.projr_yml_set_git_mix <- function(yml_git_full, nm) {
+  yml_projr_root <- .projr_yml_get_root_default()
+  yml_git_orig <- yml_projr_root[["build"]][["git"]]
+  nm_vec_sel <- factor(
+    c(nm, names(yml_git_orig)) |> unique(),
+    levels = c("commit", "add-untracked", "push")
+  ) |>
+    sort() |>
+    as.character()
+  yml_git <- yml_git_full[nm_vec_sel]
+  yml_projr_root[["build"]][["git"]] <- yml_git
+  .projr_yml_set_root(yml_projr_root)
+  invisible(TRUE)
+}
+
+.projr_yml_set_git_add_untracked <- function(add_untracked = TRUE) {
+  add_untracked_pre <- .projr_yml_get_git_add_untracked()
+  if (identical(add_untracked_pre, add_untracked)) {
+    return(invisible(FALSE))
+  }
+  push <- .projr_yml_get_git_push()
+  commit <- .projr_yml_get_git_commit()
+  combn_vec <- c(commit, push, add_untracked) |>
+    stats::setNames(c("commit", "add_untracked", "push"))
+  if (all(combn_vec)) {
+    .projr_yml_set_git_true()
+  } else if (!any(combn_vec)) {
+    .projr_yml_set_git_false()
+  } else {
+    .projr_yml_set_git_mix(as.list(combn_vec), "add-untracked")
+  }
+}
+
+.projr_yml_get_git_add_untracked <- function() {
+  yml_git <- .projr_yml_get_root_default()[["build"]][["git"]]
+  if (is.null(yml_git) || isTRUE(yml_git)) {
+    return(TRUE)
+  }
+  if (isFALSE(yml_git)) {
+    return(FALSE)
+  }
+  yml_git[["add-untracked"]]
+}
+
+.projr_yml_set_git_push <- function(push = TRUE) {
+  push_pre <- .projr_yml_get_git_push()
+  if (identical(push_pre, push)) {
+    return(invisible(FALSE))
+  }
+  commit <- .projr_yml_get_git_commit()
+  add_untracked <- .projr_yml_get_git_add_untracked()
+  combn_vec <- c(commit, push, add_untracked) |>
+    stats::setNames(c("commit", "add_untracked", "push"))
+  if (all(combn_vec)) {
+    .projr_yml_set_git_true()
+  } else if (!any(combn_vec)) {
+    .projr_yml_set_git_false()
+  } else {
+    .projr_yml_set_git_mix(as.list(combn_vec), "push")
+  }
+  invisible(TRUE)
+}
+
+.projr_yml_get_git_push <- function() {
+  yml_git <- .projr_yml_get_root_default()[["build"]][["git"]]
+  if (is.null(yml_git) || isTRUE(yml_git)) {
+    return(TRUE)
+  }
+  if (isFALSE(yml_git)) {
+    return(FALSE)
+  }
+  yml_git[["push"]]
+}
+
+# github
+# --------------------
+
+.projr_yml_unset_github_dest <- function() {
+  yml_projr_root <- .projr_yml_get_root_default()
+  yml_projr_root[["build"]][["github"]] <- NULL
+  .projr_yml_set_root(yml_projr_root)
+  invisible(TRUE)
 }

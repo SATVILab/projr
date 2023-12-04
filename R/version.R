@@ -41,7 +41,7 @@ projr_version_set <- function(version) {
 #'
 #' @param version_format character.
 #' The version format.
-#' Specifies the version components ("major" and/or "minor" and/or "patch", and "dev"/"1"/"9000"),
+#' Specifies the version components ("major" and/or "minor" and/or "patch", and "dev"/"1"/"9000"), # nolint: line_length_linter.
 #' as well as the separators between them.
 #' If "1" is used instead of "dev", then "dev" component resets at "1".
 #' If "9000" is used instead of "dev", then "dev" component resets at "9000".
@@ -139,7 +139,6 @@ projr_name_get <- function() {
 }
 
 .projr_version_format_check <- function(version) {
-  version_format_list <- .projr_version_format_list_get()
   version_format <- projr_version_format_get()
   version_format_regex <- gsub("major", "\\\\d\\+", version_format)
   version_format_regex <- gsub("minor", "\\\\d\\+", version_format_regex)

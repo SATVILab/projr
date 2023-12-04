@@ -120,9 +120,7 @@ projr_build_dev <- function(file = NULL,
   output_run <- !(is.null(bump_component) || bump_component == "dev")
 
   # set and check authorisation is available
-  env <- environment()
-  projr_env_file_activate(env)
-  .projr_build_check_auth(bump_component)
+  .projr_build_check_env(output_run)
 
   # check we are not missing upstream commits
   .projr_build_exit_if_behind_upstream()
@@ -183,9 +181,10 @@ projr_build_dev <- function(file = NULL,
 
   # get version for DESCRIPTION and bookdown from run onwards
 
-  # update lock file, help files and README
+  # update lock file, help files, citation files and README
   .projr_build_renv_snapshot(output_run)
   .projr_build_roxygenise(output_run)
+  .projr_build_cite(output_run)
   .projr_build_readme_rmd_render(output_run)
 
   # hash data-raw and outputs

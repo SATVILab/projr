@@ -6,12 +6,10 @@
 }
 
 .projr_dir_proj_get <- function(...) {
-  if (is.null(dir_proj)) {
-    dir_proj <- tryCatch(
-      rprojroot::is_r_package$find_file(),
-      error = function(e) getwd()
-    )
-  }
+  dir_proj <- tryCatch(
+    rprojroot::is_r_package$find_file(),
+    error = function(e) getwd()
+  )
   list_sub <- list(...)
   if (length(list_sub) == 0L) {
     return(dir_proj)
@@ -54,8 +52,7 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
   if (.projr_dep_in_renv(dep)) {
     return(invisible(FALSE))
   }
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_dep <- file.path(dir_proj, "_dependencies.R")
+  path_dep <- .projr_dir_proj_get("_dependencies.R")
   dep_vec <- readLines(path_dep)
   for (i in seq_along(dep)) {
     dep_txt <- paste0("library(", dep[[i]], ")", collapse = "")
@@ -73,13 +70,26 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
     if (requireNamespace(x, quietly = TRUE)) {
       next
     }
-    renv::install(x, prompt = FALSE)
+    .projr_dep_install_only_rscript(x)
   }
 }
 
+.projr_dep_install_only_rscript <- function(dep) {
+  path_rscript <- file.path(R.home("bin"), "Rscript")
+  cmd_txt <- paste0(
+    "-e '",
+    "renv::install(",
+    paste0('"', dep, '"'),
+    ", prompt = FALSE)'"
+  )
+  system2(
+    path_rscript,
+    args = cmd_txt, stdout = FALSE
+  )
+}
+
 .projr_dep_rm <- function(dep) {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_dep <- file.path(dir_proj, "_dependencies.R")
+  path_dep <- .projr_dir_proj_get("_dependencies.R")
   dep_vec <- readLines(path_dep)
   for (i in seq_along(dep)) {
     dep_txt <- paste0("library(", dep[[i]], ")", collapse = "")
@@ -237,4 +247,11 @@ with_dir <- function(new, code) {
 
 .projr_env_var_val_get <- function(line) {
   sub("^.*=", "", line) |> trimws()
+}
+
+.projr_pkg_nm_get <- function() {
+  desc::desc_get_field(
+    "Package",
+    file = .projr_dir_proj_get("DESCRIPTION")
+  )
 }

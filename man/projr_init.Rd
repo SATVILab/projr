@@ -5,7 +5,6 @@
 \title{Initialise project}
 \usage{
 projr_init(
-  dir_proj = getwd(),
   yml_path_from = NULL,
   renv_force = FALSE,
   renv_bioconductor = TRUE,
@@ -13,10 +12,6 @@ projr_init(
 )
 }
 \arguments{
-\item{dir_proj}{character.
-Project directory.
-Default is \code{getwd()}.}
-
 \item{yml_path_from}{character.
 Path to YAML file to use as \verb{_projr.yml}.
 If not supplied, then default \verb{_projr.yml}
@@ -38,7 +33,14 @@ Default is \code{TRUE}.}
 Whether the GitHub repo created (if any)
 is public or not.
 Default is \code{FALSE}.}
+
+\item{dir_proj}{character.
+Project directory.
+Default is \code{getwd()}.}
 }
 \description{
 Initialise project
+}
+\seealso{
+projr_init_renviron
 }

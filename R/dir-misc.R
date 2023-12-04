@@ -14,16 +14,6 @@
   path_dir <- path_dir |>
     fs::path_norm() |>
     as.character()
-  dir_proj <- rprojroot::is_r_package$find_file() |>
-    fs::path_norm() |>
-    as.character()
-  if (FALSE) {
-    warning("path_dir")
-    warning(path_dir)
-    warning("dir_proj")
-    warning(dir_proj)
-  }
-  path_desc_dir <- file.path(path_dir, "DESCRIPTION")
   fn_vec_dir <- list.files(
     path_dir,
     recursive = TRUE, all.files = TRUE,
@@ -31,7 +21,7 @@
   ) |>
     sort()
   fn_vec_proj <- list.files(
-    dir_proj,
+    .projr_dir_proj_get(),
     recursive = TRUE, all.files = TRUE,
     full.names = FALSE
   ) |>

@@ -487,7 +487,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
   # set up
   # ----------
   if (!requireNamespace("gh", quietly = TRUE)) {
-    .projr_dep_install("gh")
+    .projr_dep_install_only("gh")
   }
 
   # defaults

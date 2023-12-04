@@ -1,0 +1,44 @@
+---
+title: "Environment variables"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{environment-variables}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(projr)
+```
+
+## Initialisation
+
+The environment variables make custom setup of the project easier.
+
+| Name | Value(s) | Action |
+|------|----------|----------|--------|
+| `PROJR_PATH_YML` | `<path>` | Use file at `<path>` instead of default `_projr.yml` |
+| `PROJR_FIRST_NAME` | `<name>` | Offer `<name>` as first name option |
+| `PROJR_LAST_NAME` | `<name>` | Offer `<name>` as last name option |
+| `PROJR_EMAIL` | `<email>` | Offer `<email>` as email option |
+| `PROJR_GITHUB_USER_NAME` | `<username>` | Offer `<username>` as GitHub username option |
+
+
+If set, `PROJR_PATH_YML` specifies the default location for the `_projr.yml` file.
+It may be overriden in `projr_init` by setting the `yml_path_from` parameter.
+If neither are specified, the default `_projr.yml` file is used.
+
+The remaining environment variables are used to pre-populate the interactive
+setup prompts.  If set, the user will be given these as options, but may
+choose to manually enter an option instead.
+Multiple options may be provided by placing a semi-colon between them, e.g.
+"John;JohnnyBoy" yields two options: "John" and "JohnnyBoy".
+
+## 
