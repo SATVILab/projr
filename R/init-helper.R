@@ -595,18 +595,6 @@
   )
 }
 
-.projr_init_projt_git_gh_gh_exists <- function(answer_git) {
-  if (answer_git == 2) {
-    return(invisible(FALSE))
-  }
-  if (.projr_git_repo_check_exists()) {
-    gh_exists <- .projr_git_remote_check_exists()
-  } else {
-    gh_exists <- FALSE
-  }
-  gh_exists
-}
-
 .projr_init_prompt_git_gh_username <- function(answer_git, gh_exists) {
   ask <- !gh_exists & answer_git %in% c(1, 3)
   if (!ask) {
@@ -646,8 +634,8 @@
 #' without any values set.
 #' @export
 projr_init_renviron <- function() {
-  .projr_init_renviron_create()
-  .projr_init_renviron_set()
+  .projr_init_renviron_create() |>
+    .projr_init_renviron_add()
 }
 
 .projr_init_renviron_create <- function() {
@@ -792,6 +780,14 @@ projr_init_renviron <- function() {
     .projr_init_git_suggest_git()
     if (answer_git == 2) {
       .projr_yml_set_git(all = FALSE)
+    } else if (answer_git == 3) {
+      answer_ignore <- .projr_init_prompt_yn(
+        question = "Do you want to apply ignore settings as per `_projr.yml`?",
+        answer_auto = 1
+      )
+      if (answer_ignore == 1) {
+        projr_dir_ignore()
+      }
     }
     return(invisible(FALSE))
   }
