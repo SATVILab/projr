@@ -9,13 +9,22 @@ projr_test_renv <- function() {
   cmd_txt <- .projr_test_renv_cmd_get(path_dir_test)
   # set up logging files
   path_vec_log <- .projr_test_renv_file_log_get()
-  system2(
+  out <- suppressWarnings(system2(
     .projr_path_rscript_get(),
     args = cmd_txt, stdout = path_vec_log[1], stderr = path_vec_log[2]
-  )
+  ))
+  # notify user of success or failure
+  if (x == 0) {
+    print("renv restore successful")
+  } else {
+    stop("renv restore failed")
+  }
+  invisible(TRUE)
 }
 
 .projr_test_renv_dir_setup <- function() {
+  # may need to add in stuff about setting up environment
+  # variables automatically
   fn_vec <- c(
     "renv.lock",
     file.path("renv", list.files(.projr_dir_proj_get("renv"), recursive = TRUE)),
