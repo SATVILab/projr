@@ -44,31 +44,38 @@
                                      version_run_on_list,
                                      bump_component,
                                      msg) {
-  msg_init <- switch(stage,
-    "pre" = paste0(
-      "State before ",
-      bump_component,
-      " bump to ",
-      version_run_on_list[["desc"]][["success"]]
+  switch(stage,
+    "pre" = .projr_build_git_msg_get_pre(bump_component),
+    "post" = .projr_build_git_msg_get_post(
+      bump_component = bump_component,
+      version_run_on_list = version_run_on_list,
+      msg = msg
     ),
-    "post" = paste0(
-      paste0(
-        toupper(substr(bump_component, 1, 1)),
-        substr(bump_component, 2, nchar(bump_component))
-      ),
-      " bump to ",
-      version_run_on_list[["desc"]][["success"]]
-    ),
-    "dev" = paste0(
-      "Begin dev version ", version_run_on_list$bd[["success"]]
-    )
+    "dev" = .projr_build_git_msg_get_dev(version_run_on_list)
   )
-  if (nzchar(msg)) {
-    msg_final <- paste0(msg_init, ": ", msg)
-  } else {
-    msg_final <- msg_init
-  }
-  msg_final
+}
+
+.projr_build_git_msg_get_pre <- function(bump_component) {
+  paste0("Snapshot pre-", bump_component, " build")
+}
+
+.projr_build_git_msg_get_post <- function(bump_component,
+                                          version_run_on_list,
+                                          msg) {
+  msg_append <- ifelse(
+    nzchar(msg),
+    paste0(": ", msg),
+    ""
+  )
+  paste0(
+    "Record ", bump_component,
+    " v", version_run_on_list[["desc"]][["success"]], " build",
+    msg_append
+  )
+}
+
+.projr_build_git_msg_get_dev <- function(version_run_on_list) {
+  paste0("Begin v", version_run_on_list$bd[["success"]])
 }
 
 # ==========================
@@ -203,6 +210,9 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
 
 # check we are not missing upstream commits
 .projr_build_exit_if_behind_upstream <- function(output_run) {
+  if (!.projr_git_repo_check_exists()) {
+    return(invisible(FALSE))
+  }
   if (!output_run) {
     return(invisible(FALSE))
   }
@@ -1240,9 +1250,11 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
 
 # commit
 .projr_build_git_push <- function(output_run) {
-  .projr_git_repo_check_exists()
   if (!output_run || !.projr_yml_get_git_push()) {
     return(invisible(FALSE))
+  }
+  if (!.projr_git_repo_check_exists()) {
+    stop("No git repository detected but needed based on settings")
   }
   if (!.projr_git_remote_check_upstream()) {
     warning("No upstream remote detected")
