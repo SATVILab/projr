@@ -201,7 +201,6 @@
 .projr_renv_init_rscript <- function(force, bioc) {
   # initialise in a separate `R` process to avoid
   # any prompts
-  path_rscript <- file.path(R.home("bin"), "Rscript")
   cmd_txt <- paste0(
     "-e '",
     "renv::init(",
@@ -210,7 +209,7 @@
     ")'"
   )
   system2(
-    path_rscript,
+    .projr_path_rscript_get(),
     args = cmd_txt, stdout = FALSE
   )
 }

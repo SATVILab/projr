@@ -75,7 +75,6 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
 }
 
 .projr_dep_install_only_rscript <- function(dep) {
-  path_rscript <- file.path(R.home("bin"), "Rscript")
   cmd_txt <- paste0(
     "-e '",
     "renv::install(",
@@ -83,7 +82,7 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
     ", prompt = FALSE)'"
   )
   system2(
-    path_rscript,
+    .projr_path_rscript_get(),
     args = cmd_txt, stdout = FALSE
   )
 }
@@ -254,4 +253,8 @@ with_dir <- function(new, code) {
     "Package",
     file = .projr_dir_proj_get("DESCRIPTION")
   )
+}
+
+.projr_path_rscript_get <- function() {
+  file.path(R.home("bin"), "Rscript")
 }

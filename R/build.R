@@ -34,11 +34,24 @@
 projr_build_output <- function(bump_component,
                                msg = NULL,
                                ...) {
+  bump_component <- .projr_build_output_get_bump_component(
+    bump_component
+  )
+  msg <- .projr_build_output_get_msg(msg)
+
+  .projr_build(bump_component = bump_component, msg = msg, ...)
+}
+
+.projr_build_output_get_bump_component <- function(bump_component) {
   if (missing(bump_component)) {
     version <- projr_version_format_get()
     version_vec <- strsplit(version, split = "\\.|\\-")[[1]]
     bump_component <- version_vec[length(version_vec) - 1]
   }
+  bump_component
+}
+
+.projr_build_output_get_msg <- function(msg) {
   if (is.null(msg)) {
     if (!Sys.getenv("PROJR_TEST") == "TRUE") {
       if (interactive()) {
@@ -51,7 +64,7 @@ projr_build_output <- function(bump_component,
       msg <- ""
     }
   }
-  .projr_build(bump_component = bump_component, msg = msg, ...)
+  msg
 }
 
 #' @rdname projr_build_output
@@ -96,14 +109,18 @@ projr_build_dev <- function(file = NULL,
                             bump = FALSE,
                             remove_old_dev = TRUE, ...) {
   # NULL if FALSE and "dev" if TRUE
-  bump_component <- switch(bump,
-    "dev"
-  )
+  bump_component <- .projr_build_dev_get_bump_component(bump)
   .projr_build(
     file = file,
     bump_component = bump_component,
     remove_old_dev = TRUE,
     ...
+  )
+}
+
+.projr_build_dev_get_bump_component <- function(bump) {
+  switch(bump,
+    "dev"
   )
 }
 
@@ -117,7 +134,7 @@ projr_build_dev <- function(file = NULL,
   # ========================
 
   # whether it's an output run  or not
-  output_run <- !(is.null(bump_component) || bump_component == "dev")
+  output_run <- .projr_build_get_output_run(bump_component)
 
   # set and check authorisation is available
   .projr_build_check_env(output_run)
@@ -242,6 +259,10 @@ projr_build_dev <- function(file = NULL,
   .projr_build_git_push(output_run = output_run)
 
   invisible(TRUE)
+}
+
+.projr_build_get_output_run <- function(bump_component) {
+  !(is.null(bump_component) || bump_component == "dev")
 }
 
 .projr_build_engine <- function(file,
