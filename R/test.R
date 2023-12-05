@@ -1,6 +1,30 @@
-projr_test_renv <- function() {
+# Document this function:
+#' @title Test renv restore
+#'
+#' @description
+#' Tests renv restore without using the current project library.
+#' Useful for testing renv restore in a clean environment
+#' without using the cache.
+#'
+#' @param file character.
+#' Additional files to copy across to the new directory
+#' before restoring.
+#' May be useful, for example, to copy across an `.Renviron` file
+#' to ensure that certain environment variables (such
+#' as authentication tokens) are set.
+#'
+#' @return
+#' `TRUE`` for successful restores and `FALSE`` for failed restores.
+#'
+#' @details
+#' Copies the renv.lock file and renv directory to a temporary directory,
+#' along with .Rprofile and any files specified by the user.
+#' Then runs renv::restore() on the temporary directory, without
+#' using the first library used by the project to which
+#' renv has been installing packages.
+projr_test_renv <- function(file = NULL) {
   # set up project (to be deleted afterwards as well)
-  path_dir_test <- .projr_test_renv_dir_setup()
+  path_dir_test <- .projr_test_renv_dir_setup(file)
   on.exit(
     unlink(path_dir_test, recursive = TRUE),
     add = TRUE, after = TRUE
@@ -16,20 +40,22 @@ projr_test_renv <- function() {
   # notify user of success or failure
   if (x == 0) {
     print("renv restore successful")
-  } else {
-    stop("renv restore failed")
+    return(invisible(TRUE))
   }
-  invisible(TRUE)
+  stop("renv restore failed")
+  return(invisible(FALSE))
 }
 
-.projr_test_renv_dir_setup <- function() {
+.projr_test_renv_dir_setup <- function(file) {
   # may need to add in stuff about setting up environment
   # variables automatically
   fn_vec <- c(
     "renv.lock",
+    file,
     file.path("renv", list.files(.projr_dir_proj_get("renv"), recursive = TRUE)),
     ".Rprofile"
   )
+  fn_vec <- fn_vec[file.exists(fn_vec)]
   dir_test <- file.path(
     tempdir(), "test_renv", "renv", signif(abs(rnorm(1)), 5)
   )
