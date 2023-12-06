@@ -24,7 +24,7 @@
                                     stage,
                                     msg) {
   # exit early if required
-  if (!.projr_build_git_commit_check(output_run)) {
+  if (!.projr_build_git_check(output_run)) {
     return(invisible(FALSE))
   }
   if (!.projr_git_repo_check_exists()) {
@@ -35,7 +35,7 @@
   .projr_git_commit_all(add_untracked = .projr_yml_get_git_add_untracked())
 }
 
-.projr_build_git_commit_check <- function(output_run) {
+.projr_build_git_check <- function(output_run) {
   output_run && .projr_yml_get_git_commit()
 }
 
@@ -304,7 +304,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   invisible(.projr_dir_get_label("docs", output_safe = !output_run))
 }
 
-.projr_build_clear_pre <- function(output_run) {
+.projr_build_clear_pre <- function(output_run, cache = FALSE) {
   # clear
   # -----------------
 
@@ -316,7 +316,14 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   ]
   for (x in label_vec_output) {
     dir_data_output <- projr_dir_get(x, output_safe = TRUE)
-    .projr_dir_clear(dir_data_output)
+    if (cache) {
+      .projr_dir_move(
+        .projr_dir_get(x, output_safe = TRUE),
+        .projr_dir_get("cache", "projr", x)
+      )
+    } else {
+      .projr_dir_mimick(dir_data_output)
+    }
   }
 
   # clear docs folder
@@ -357,7 +364,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   if (!.projr_build_roxygenise_check(output_run)) {
     return(invisible(FALSE))
   }
-  .projr_dep_install("roxygen2")
+  .projr_dep_install_only("roxygen2")
   suppressMessages(suppressWarnings(invisible(
     roxygen2::roxygenise(package.dir = .projr_dir_proj_get())
   )))
@@ -469,7 +476,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   invisible(TRUE)
 }
 
-.projr_build_clear_old_dev <- function(output_run, remove_old_dev) {
+.projr_build_clear_old_dev <- function(output_run, old_dev_remove) {
   if (output_run) {
     return(invisible(FALSE))
   }
@@ -840,9 +847,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
       )
       dir_vec_to <- dirname(fn_vec_to) |> unique()
       for (i in seq_along(dir_vec_to)) {
-        if (!dir.exists(dir_vec_to[i])) {
-          dir.create(dir_vec_to[i], recursive = TRUE)
-        }
+        .projr_dir_create(dir_vec_to[i])
       }
       invisible(file.rename(from = fn_vec_from, to = fn_vec_to))
     }
@@ -1192,19 +1197,12 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
                            dir_exc = NULL,
                            dir_inc = NULL,
                            fn_exc = NULL) {
-  if (file.exists(path_zip)) {
-    invisible(file.remove(path_zip))
-  }
-  if (!dir.exists(dirname(path_zip))) {
-    dir.create(dirname(path_zip), recursive = TRUE)
-  }
+  .projr_file_rm(path_zip)
+  .projr_dir_create(dirname(path_zip))
   wd_orig <- getwd()
   setwd(path_dir)
   sink(file.path(tempdir(), "zip123"))
-  fn_vec <- list.files(
-    getwd(),
-    recursive = TRUE, full.names = FALSE, all.files = TRUE
-  )
+  fn_vec <- .projr_dir_ls(getwd())
   if (!is.null(dir_exc)) {
     for (x in dir_exc) {
       fn_vec <- fn_vec[!grepl(paste0("^", x, "/"), fn_vec)]

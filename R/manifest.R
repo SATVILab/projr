@@ -118,9 +118,7 @@
     dir_write <- file.path(
       dir_cache_auto, "projr", paste0("v", projr_version_get())
     )
-    if (!dir.exists(dir_write)) {
-      dir.create(dir_write, recursive = TRUE)
-    }
+    .projr_dir_create(dir_write)
   } else {
     dir_write <- projr_dir_get("project")
   }

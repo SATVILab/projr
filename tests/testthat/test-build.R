@@ -1,7 +1,7 @@
 test_that("projr_build_dev works", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -33,7 +33,7 @@ test_that("projr_build_dev works", {
 test_that(".projr_build_clear_pre and _post works", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -85,7 +85,7 @@ test_that(".projr_build_clear_pre and _post works", {
 test_that("projr_build_copy_output_direct works", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -161,7 +161,7 @@ test_that("projr_build_copy_output_direct works", {
 test_that("projr_build_copy_pkg works", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -245,7 +245,7 @@ test_that("projr_build_copy_pkg works", {
 test_that("projr_build_copy_dir works when outputting", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -452,7 +452,7 @@ test_that("projr_build_copy_dir works when outputting", {
 test_that("projr_build_copy_dir works when archiving", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -739,7 +739,7 @@ test_that("projr_build_copy_dir works when archiving", {
 test_that("projr_build_frontmatter_get works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
   fn_vec <- list.files(testthat::test_path("./project_structure"))
@@ -827,7 +827,7 @@ test_that("projr_build_frontmatter_get works", {
 test_that(".projr_build_copy_docs_quarto_format_get works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
@@ -904,7 +904,7 @@ test_that(".projr_build_copy_docs_quarto_format_get works", {
 test_that(".projr_build_copy_docs_quarto_fn_prefix/suffix/path_get works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   usethis::with_project(
@@ -968,7 +968,7 @@ test_that(".projr_build_copy_docs_quarto_fn_prefix/suffix/path_get works", {
 test_that(".projr_build_copy_docs_quarto_format_get works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   fn_vec <- list.files(testthat::test_path("./project_structure"))
@@ -1036,7 +1036,7 @@ test_that(".projr_build_copy_docs_quarto_format_get works", {
 test_that(".projr_build_copy_docs_rmd_format_get works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   fn_vec <- list.files(testthat::test_path("./project_structure"))
@@ -1123,7 +1123,7 @@ test_that(".projr_build_copy_docs_rmd_format_get works", {
 test_that(".projr_build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
 
   withr::defer(unlink(dir_test, recursive = TRUE))
   usethis::with_project(
@@ -1182,7 +1182,7 @@ test_that(".projr_build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
 test_that(".projr_build_copy_docs_rmd_format_get works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")

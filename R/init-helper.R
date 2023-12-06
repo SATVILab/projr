@@ -824,7 +824,7 @@ projr_init_renviron <- function() {
     "README.md",
     "README.Rmd"
   )
-  fn_vec <- fn_vec[file.exists(.projr_dir_proj_get(fn_vec))]
+  fn_vec <- .projr_file_get_exists(.projr_dir_proj_get(fn_vec))
   fn_vec[
     fn_vec %in% c(.projr_git_modified_get(), .projr_git_new_get())
   ]

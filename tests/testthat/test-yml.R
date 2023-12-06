@@ -1,7 +1,7 @@
 test_that("getting and setting metadata files works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
   withr::defer(unlink(dir_test, recursive = TRUE))
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- fn_vec
 
@@ -47,7 +47,7 @@ test_that("projr_yml_check works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
   withr::defer(unlink(dir_test, recursive = TRUE))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- fn_vec
 

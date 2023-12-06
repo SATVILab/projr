@@ -93,7 +93,7 @@ test_that("projr_dir_get works", {
 test_that("projr_path_get works", {
   dir_test <- file.path(tempdir(), paste0("report"))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
@@ -207,7 +207,7 @@ test_that("projr_path_get works", {
 test_that("projr_dir_create works", {
   dir_test <- file.path(tempdir(), paste0("report"))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
@@ -265,7 +265,7 @@ test_that("projr_dir_create works", {
 test_that("projr_dir_ignore works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
@@ -363,7 +363,7 @@ test_that("projr_dir_ignore works", {
       dir_out <- file.path(
         dirname(rprojroot::is_r_package$find_file()), "test_2"
       )
-      if (!dir.exists(dir_out)) dir.create(dir_out, recursive = TRUE)
+      .projr_dir_create(dir_out)
 
       for (i in seq_along(yml_projr[["directories"]])) {
         yml_projr[["directories"]][[i]][["path"]] <- dir_out
@@ -395,7 +395,7 @@ test_that("projr_dir_ignore works", {
 test_that(".projr_dir_clear works", {
   dir_test <- file.path(tempdir(), paste0("report"))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   fn_vec <- list.files(testthat::test_path("./project_structure"))

@@ -54,8 +54,8 @@ projr_test_renv <- function(file = NULL) {
     file,
     file.path("renv", list.files(.projr_dir_proj_get("renv"), recursive = TRUE)),
     ".Rprofile"
-  )
-  fn_vec <- fn_vec[file.exists(fn_vec)]
+  ) |>
+    .projr_file_get_exists()
   dir_test <- file.path(
     tempdir(), "test_renv", "renv", signif(abs(rnorm(1)), 5)
   )
@@ -70,11 +70,7 @@ projr_test_renv <- function(file = NULL) {
 }
 .projr_test_renv_cmd_get <- function(path_dir_test) {
   lib_paths <- c(file.path(path_dir_test, "renv_lib_check"), .libPaths()[-1])
-  for (x in lib_paths) {
-    if (!dir.exists(x)) {
-      dir.create(x, recursive = TRUE)
-    }
-  }
+  .projr_dir_create(lib_paths)
 
   # Convert the library paths to a string that can be used in the Rscript command
   lib_paths_str <- paste(sapply(lib_paths, function(x) paste0("\"", x, "\"")), collapse = ", ")
@@ -108,9 +104,7 @@ projr_test_renv <- function(file = NULL) {
 
 .projr_test_renv_file_log_prepare_path <- function(path) {
   for (i in seq_along(path)) {
-    if (!dir.exists(dirname(path[[i]]))) {
-      dir.create(dirname(path[[i]]), recursive = TRUE)
-    }
+    .projr_dir_create(dirname(path[[i]]))
     if (file.exists(path[[i]])) {
       file.remove(path[[i]])
     }

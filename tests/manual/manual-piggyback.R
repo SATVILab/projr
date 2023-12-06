@@ -21,7 +21,7 @@ repo_name <- "report"
 dir_test <- file.path(tempdir(), repo_name)
 if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
 
-if (!dir.exists(dir_test)) dir.create(dir_test)
+.projr_dir_create(dir_test)
 fn_vec <- list.files(testthat::test_path("./project_structure"))
 
 for (x in fn_vec) {

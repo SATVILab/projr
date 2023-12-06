@@ -1,19 +1,10 @@
 .projr_dir_clear <- function(path_dir,
                              delete_directories = TRUE,
                              delete_hidden = TRUE) {
-  if (!file.exists(path_dir)) {
-    return(invisible(TRUE))
+  if (!.projr_dir_clear_check(path_dir)) {
+    return(invisible(FALSE))
   }
-  if (FALSE) {
-    if (dir.exists(file.path(path_dir, ".git"))) {
-      stop("Attempting to remove a .git folder")
-    }
-    warning("path_dir")
-    warning(path_dir)
-  }
-  path_dir <- path_dir |>
-    fs::path_norm() |>
-    as.character()
+
   fn_vec_dir <- list.files(
     path_dir,
     recursive = TRUE, all.files = TRUE,
@@ -74,7 +65,134 @@
   invisible(TRUE)
 }
 
+.projr_dir_clear_check <- function(path_dir) {
+  path_dir <- path_dir |>
+    fs::path_norm() |>
+    as.character()
+  # nothing to do if it doesn't exist
+  if (!dir.exists(path_dir)) {
+    return(invisible(FALSE))
+  }
+  # don't do if it it's the project directory
+  !.projr_dir_check_identical_proj(path_dir)
+}
+
+.projr_dir_check_identical <- function(path_dir_one, path_dir_two) {
+  identical(
+    .projr_dir_ls(path_dir_one) |> sort(),
+    .projr_dir_ls(path_dir_two) |> sort()
+  )
+}
+.projr_dir_check_identical_proj <- function(path_dir) {
+  .projr_dir_check_identical(path_dir, .projr_dir_proj_get())
+}
+
+.projr_dir_ls <- function(path_dir, full_names = FALSE) {
+  out <- list.files(path_dir, recursive = TRUE, all.files = TRUE, full.names = full_names)
+  if (length(out) == 0L) character() else out
+}
+
+.projr_dir_mimick <- function(path_dir_from,
+                              path_dir_to) {
+  .projr_dir_clear(path_dir_to)
+  .projr_dir_copy(path_dir_from, path_dir_to)
+}
+
+.projr_dir_copy <- function(path_dir_from,
+                            path_dir_to) {
+  fn_vec <- .projr_dir_ls(path_dir_from)
+  .projr_dir_copy_file(fn_vec, path_dir_from, path_dir_to)
+  .projr_dir_copy_tree(path_dir_from = path_dir_from, path_dir_to = path_dir_to)
+}
+
+.projr_dir_mimick_file <- function(fn,
+                                   path_dir_from,
+                                   path_dir_to) {
+  .projr_dir_clear(path_dir_to)
+  .projr_dir_copy_file(fn, path_dir_from, path_dir_to)
+}
+
+.projr_dir_copy_file <- function(fn,
+                                 path_dir_from,
+                                 path_dir_to) {
+  if (!.projr_dir_copy_check(fn, path_dir_from)) {
+    return(invisible(FALSE))
+  }
+  .projr_dir_copy_tree(path_dir_from = path_dir_from, path_dir_to = path_dir_to)
+  fs::file_copy(
+    projr_file_get_abs_exists(path_dir_from), .projr_dir_fn_get_abs(fn_vec_abs_dest),
+    overwrite = TRUE
+  )
+  invisible(TRUE)
+}
+
+.projr_dir_create
+
+.projr_dir_copy_check <- function(fn, path_dir_from) {
+  if (length(fn) == 0L) {
+    return(invisible(FALSE))
+  }
+  fn_vec_source_exists <- projr_file_get_abs_exists(fn, path_dir_from)
+  length(fn_vec_source_exists) > 0L
+}
+
+projr_file_get_abs_exists <- function(fn, path_dir) {
+  projr_file_get_abs(fn, path_dir) |>
+    .projr_file_get_exists()
+}
+
+projr_file_get_abs <- function(fn, path_dir) {
+  projr_file_get_full(fn, path_dir) |>
+    fs::path_abs() |>
+    as.character()
+}
+
+.projr_file_get_exists <- function(fn) {
+  fn[file.exists(fn)]
+}
+
+projr_file_get_full <- function(fn, path_dir) {
+  file.path(path_dir, fn)
+}
+
+projr_file_get_full_exists <- function(fn, path_dir) {
+  projr_file_get_full(fn, path_dir) |>
+    .projr_file_get_exists()
+}
+
+.projr_dir_move <- function(path_dir_from,
+                            path_dir_to) {
+  .projr_dir_copy_tree(path_dir_from = path_dir_from, path_dir_to = path_dir_to)
+  .projr_dir_move_file(
+    fn = .projr_dir_ls(path_dir_from),
+    path_dir_from = path_dir_from,
+    path_dir_to = path_dir_to
+  )
+  .projr_dir_clear(path_dir_from)
+}
+
+.projr_dir_move_file <- function(fn,
+                                 path_dir_from,
+                                 path_dir_to) {
+  if (!.projr_dir_copy_check(fn, path_dir_from)) {
+    return(invisible(FALSE))
+  }
+  .projr_dir_copy_tree(path_dir_from = path_dir_from, path_dir_to = path_dir_to)
+  fs::file_move(
+    projr_file_get_abs_exists(path_dir_from), .projr_dir_fn_get_abs(fn_vec_abs_dest),
+    overwrite = TRUE
+  )
+  invisible(TRUE)
+}
+
 .projr_dir_label_strip <- function(x) {
   gsub("_", "", gsub("-", "", x)) |>
     tolower()
+}
+
+.projr_file_rm <- function(fn) {
+  if (file.exists(fn)) {
+    file.remove(fn)
+  }
+  invisible(TRUE)
 }

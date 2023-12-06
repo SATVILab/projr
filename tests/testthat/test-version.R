@@ -1,7 +1,7 @@
 test_that("projr_version_format_get and _set", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
   withr::defer(unlink(dir_test, recursive = TRUE))
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
@@ -82,7 +82,7 @@ test_that(".projr_version_format_list_get works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
   withr::defer(unlink(dir_test, recursive = TRUE))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
@@ -149,7 +149,7 @@ test_that(".projr_version_format_check works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
   withr::defer(unlink(dir_test, recursive = TRUE))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
@@ -187,7 +187,7 @@ test_that("projr_version_get works", {
   dir_test <- file.path(tempdir(), paste0("report"))
   withr::defer(unlink(dir_test, recursive = TRUE))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
@@ -233,7 +233,7 @@ test_that(".projr_version_run_onwards_get works", {
   dir_test <- file.path(tempdir(), paste0("report"))
   withr::defer(unlink(dir_test, recursive = TRUE))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
@@ -320,7 +320,7 @@ test_that("projr_version_set works", {
   dir_test <- file.path(tempdir(), paste0("report"))
   withr::defer(unlink(dir_test, recursive = TRUE))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
