@@ -224,3 +224,20 @@
 .projr_git_push_gert <- function() {
   gert::git_push()
 }
+
+# author
+.projr_git_config_get_name <- function() {
+  switch(.projr_git_system_get(),
+    "git" = .projr_git_config_get_name_git(),
+    "gert" = .projr_git_config_get_name_gert(),
+    stop(paste0(.projr_git_system_get(), " not recognised"))
+  )
+}
+
+.projr_git_config_get_name_git <- function() {
+  system2("git", args = "config user.name", stdout = TRUE)
+}
+.projr_git_config_get_name_gert <- function() {
+  config_tbl <- gert::git_config()
+  config_tbl[config_tbl[["name"]] == "user.name", ][["value"]][[1]]
+}
