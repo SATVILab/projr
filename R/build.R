@@ -229,12 +229,12 @@ projr_build_dev <- function(file = NULL,
   .projr_build_renv_snapshot(output_run)
   .projr_build_roxygenise(output_run)
   .projr_build_cite(output_run)
-  .projr_build_readme_rmd_render(output_run)
   .projr_build_changelog_add(
     msg = msg,
     bump_component = bump_component,
     version_run_on_list = version_run_on_list
   )
+  .projr_build_readme_rmd_render(output_run)
 
   # hash data-raw and outputs
   manifest_tbl <- manifest_tbl_pre |>
