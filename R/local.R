@@ -64,10 +64,7 @@
 .projr_local_dir_create <- function(fn) {
   dir_vec <- unique(dirname(fn))
   for (i in seq_along(dir_vec)) {
-    dir <- dir_vec[i]
-    if (!dir.exists(dir)) {
-      dir.create(dir, recursive = TRUE)
-    }
+    .projr_dir_create(dir_vec[i])
   }
   invisible(TRUE)
 }

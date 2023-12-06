@@ -19,9 +19,7 @@
 # local
 .projr_remote_create_local <- function(path) {
   .projr_remote_check_base(type = "local", path = path)
-  if (!dir.exists(path)) {
-    dir.create(path, recursive = TRUE)
-  }
+  .projr_dir_create(path)
   invisible(path)
 }
 
@@ -272,9 +270,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
   # create this, as we create the OSF sub-directory
   # if specified. Needs to be automated
   # due to versioning
-  if (!dir.exists(path_dir)) {
-    dir.create(path_dir, recursive = TRUE)
-  }
+  .projr_dir_create(path_dir)
   path_dir
 }
 
@@ -582,9 +578,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 .projr_remote_file_get_all <- function(type,
                                        remote,
                                        path_dir_save_local) {
-  if (!dir.exists(path_dir_save_local)) {
-    dir.create(path_dir_save_local, recursive = TRUE)
-  }
+  .projr_dir_create(path_dir_save_local)
   switch(type,
     "local" = .projr_remote_file_get_all_local(
       remote = remote,
@@ -688,8 +682,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # local
 .projr_remote_file_ls_local <- function(remote) {
-  out <- list.files(remote, recursive = TRUE, all.files = TRUE)
-  if (length(out) == 0L) character() else out
+  .projr_dir_ls(path_dir = remote)
 }
 
 # osf
@@ -765,8 +758,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
   if (length(fn) == 0L) {
     return(invisible(FALSE))
   }
-  fn_vec <- file.path(remote, fn)
-  fn_vec <- fn_vec[file.exists(fn_vec)]
+  fn_vec <- .projr_file_get_exists(file.path(remote, fn))
   if (length(fn_vec) == 0L) {
     return(invisible(FALSE))
   }
@@ -902,22 +894,11 @@ projr_remote_create_github_attempt <- function(tag, body) {
 .projr_remote_file_add_local <- function(fn,
                                          path_dir_local,
                                          remote) {
-  if (length(fn) == 0L) {
-    return(invisible(FALSE))
-  }
-  remote <- fs::path_abs(remote)
-  fn_vec_abs_source <- file.path(path_dir_local, fn)
-  fn_vec_abs_source <- fn_vec_abs_source[file.exists(fn_vec_abs_source)]
-  if (length(fn_vec_abs_source) == 0L) {
-    return(invisible(FALSE))
-  }
-  fn_vec_abs_dest <- file.path(remote, fn)
-  .projr_dir_tree_copy(path_dir_from = path_dir_local, path_dir_to = remote)
-  file.copy(
-    fn_vec_abs_source, fn_vec_abs_dest,
-    overwrite = TRUE
+  .projr_dir_copy(
+    fn = fn,
+    path_dir_from = path_dir_local,
+    path_dir_to = remote
   )
-  invisible(TRUE)
 }
 
 # osf

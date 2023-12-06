@@ -51,7 +51,7 @@
 #' }
 #' @rdname projr_dir_get
 #' @export
-#'
+#' @seealso projr_dir_create_all
 projr_dir_get <- function(label, ...,
                           create = TRUE,
                           path_relative_force = FALSE,
@@ -73,6 +73,21 @@ projr_dir_get <- function(label, ...,
   as.character(path_dir) |>
     fs::path_norm() |>
     as.character()
+}
+
+#' @title Create all directories in _projr.yml
+#'
+#' @description
+#' Convenience function to create all directories
+#' listed in \code{_projr.yml} for the current projr profile.
+#' @seealso projr_dir_get
+projr_dir_create_all <- function() {
+  label_vec <- projr_yml_get_unchecked()[["directories"]] |>
+    names()
+  for (i in seq_along(label_vec)) {
+    projr_dir_create(label_vec[[i]], create = TRUE)
+  }
+  invisible(TRUE)
 }
 
 #' @title Return path

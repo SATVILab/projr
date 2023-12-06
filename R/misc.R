@@ -137,9 +137,7 @@ with_dir <- function(new, code) {
   if (is.null(path_dir_fn_rel_zip)) {
     path_dir_fn_rel_zip <- file.path(tempdir(), "zip", signif(rnorm(1)))
   }
-  if (!dir.exists(path_dir_fn_rel_zip)) {
-    dir.create(path_dir_fn_rel_zip, recursive = TRUE)
-  }
+  .projr_dir_create(path_dir_fn_rel_zip)
   fn_rel_zip <- gsub("\\.zip$", "", fn_rel_zip)
   fn_rel_zip <- paste0(fn_rel_zip, ".zip")
   path_zip <- file.path(path_dir_fn_rel_zip, fn_rel_zip)
@@ -147,7 +145,7 @@ with_dir <- function(new, code) {
     path_dir_fn_rel,
     {
       sink(file.path(tempdir(), "zip123"))
-      fn_rel <- fn_rel[file.exists(fn_rel)]
+      fn_rel <- .projr_file_get_exists(fn_rel)
       if (length(fn_rel) == 0L) {
         return(character())
       }
@@ -167,9 +165,7 @@ with_dir <- function(new, code) {
       )
     }
   }
-  if (!dir.exists(path_dir)) {
-    dir.create(path_dir, recursive = TRUE)
-  }
+  .projr_dir_create(path_dir)
   path_dir
 }
 
@@ -177,27 +173,21 @@ with_dir <- function(new, code) {
   if (missing(path_dir) || is.null(path_dir)) {
     path_dir <- .projr_dir_tmp_random_get()
   } else {
-    if (!dir.exists(path_dir)) {
-      dir.create(path_dir, recursive = TRUE)
-    }
+    .projr_dir_create(path_dir)
   }
   path_dir
 }
 
-.projr_dir_tree_copy <- function(path_dir_from, path_dir_to) {
+.projr_dir_copy_tree <- function(path_dir_from, path_dir_to) {
   path_dir_from_vec_tree <- list.dirs(
     path_dir_from,
     recursive = TRUE, full.names = FALSE
   ) |>
     setdiff("")
   path_dir_to_vec_tree <- file.path(path_dir_to, path_dir_from_vec_tree)
-  if (!dir.exists(path_dir_to)) {
-    dir.create(path_dir_to, recursive = TRUE)
-  }
+  .projr_dir_create(path_dir_to_vec_tree)
   for (i in seq_along(path_dir_to_vec_tree)) {
-    if (!dir.exists(path_dir_to_vec_tree[[i]])) {
-      dir.create(path_dir_to_vec_tree[[i]], recursive = TRUE)
-    }
+    .projr_dir_create(path_dir_to_vec_tree[[i]])
   }
   invisible(TRUE)
 }
@@ -257,4 +247,101 @@ with_dir <- function(new, code) {
 
 .projr_path_rscript_get <- function() {
   file.path(R.home("bin"), "Rscript")
+}
+
+
+#' @title `projr` drop-in replacement for usethis::use_data
+#'
+#' @description
+#' usethis::use_data always saves data to `data/`, which
+#' conflicts with the temporary directories used by `projr_build_dev`
+#' and makes it difficult to restore after failed output builds.
+#'
+projr_use_data <- function(...,
+                           internal = FALSE,
+                           overwrite = FALSE,
+                           compress = "bzip2",
+                           version = 2,
+                           ascii = FALSE,
+                           output_safe = TRUE) {
+  # copied across from usethis::use_data,
+  # except that we adjust output directory
+  # based on whether it's an output run or not
+  objs <- .projr_usethis_get_objs_from_dots(.projr_usethis_dots(...))
+  # not going to add dependency as `projr` will only
+  # work for R > 3.5.0
+  if (!output_safe) {
+    if (internal) {
+      .projr_dir_create("R")
+      paths <- fs:::path("R", "sysdata.rda")
+      objs <- list(objs)
+    } else {
+      .projr_dir_create("data")
+      paths <- fs::path("data", objs, ext = "rda")
+      desc <- .projr_usethis_proj_desc()
+      if (!desc$has_fields("LazyData")) {
+        desc$set(LazyData = "true")
+        desc$write()
+      }
+    }
+  } else {
+    path_tmp_base <- .projr_dir_get_cache_auto()
+    if (internal) {
+      .projr_dir_create(file.path(path_tmp_base, "R"))
+      paths <- fs:::path(file.path(path_tmp_base, "R"), "sysdata.rda")
+      objs <- list(objs)
+    } else {
+      .projr_dir_create(file.path(path_tmp_base, "data"))
+      paths <- fs::path(file.path(path_tmp_base, "data"), objs, ext = "rda")
+      desc <- .projr_usethis_proj_desc()
+      # don't set the lazy data entry as this is a dev build
+    }
+  }
+  if (!overwrite) {
+    fn_vec_existing <- .projr_file_get_exists(.projr_dir_proj_get(paths))
+    if (length(fn_vec_existing) > 0L) {
+      stop(
+        "The following files already exist:\n",
+        paste0("  ", fn_vec_existing, collapse = "\n"),
+        call. = FALSE
+      )
+    }
+  }
+  envir <- parent.frame()
+  mapply(save, list = objs, file = .projr_dir_proj_get(paths), MoreArgs = list(
+    envir = envir,
+    compress = compress, version = version, ascii = ascii
+  ))
+  invisible()
+}
+
+.projr_usethis_get_objs_from_dots <- function(.dots) {
+  if (length(.dots) == 0L) {
+    stop("Nothing to save", call. = FALSE)
+  }
+  is_name <- vapply(.dots, is.symbol, logical(1))
+  if (any(!is_name)) {
+    stop("Can only save existing named objects.", call. = FALSE)
+  }
+  objs <- vapply(.dots, as.character, character(1))
+  duplicated_objs <- which(stats::setNames(
+    duplicated(objs),
+    objs
+  ))
+  if (length(duplicated_objs) > 0L) {
+    objs <- unique(objs)
+    warning(
+      "Saving duplicates only once: {ui_value(names(duplicated_objs))}",
+      call. = FALSE
+    )
+  }
+  objs
+}
+
+.projr_usethis_dots <- function(...) {
+  eval(substitute(alist(...)))
+}
+
+.projr_usethis_proj_desc <- function(path = .projr_dir_proj_get()) {
+  desc::desc(file = path)
 }

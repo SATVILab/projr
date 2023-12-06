@@ -73,3 +73,6 @@ if (interactive()) {
 }
 }
 }
+\seealso{
+projr_dir_create_all
+}

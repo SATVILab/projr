@@ -1,7 +1,7 @@
 test_that("projr_init works", {
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -28,7 +28,7 @@ test_that("projr_init works", {
 test_that(".projr_init_yml works", {
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -61,7 +61,7 @@ test_that(".projr_init_yml works", {
 test_that(".projr_init_description works", {
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -89,7 +89,7 @@ test_that(".projr_init_description works", {
 test_that(".projr_init_dep works", {
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -116,7 +116,7 @@ test_that(".projr_init_dep works", {
 test_that(".projr_init_ignore works", {
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -144,7 +144,7 @@ test_that(".projr_init_ignore works", {
 test_that(".projr_init_renv works", {
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -172,7 +172,7 @@ test_that(".projr_init_renv works", {
 test_that(".projr_init_license works", {
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -198,7 +198,7 @@ test_that(".projr_init_license works", {
 test_that(".projr_init_readme works", {
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -225,7 +225,7 @@ test_that(".projr_init_readme works", {
 test_that("projr_init_bookdown works", {
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -259,7 +259,7 @@ test_that("projr_init_bookdown works", {
 test_that("projr_init_quarto_project works", {
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -299,7 +299,7 @@ test_that("projr_init_quarto_project works", {
 test_that("projr_init_quarto_document works", {
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -332,7 +332,7 @@ test_that("projr_init_quarto_document works", {
 test_that("projr_init_rmd works", {
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   Sys.setenv("PROJR_TEST" = "TRUE")
   withr::defer(Sys.unsetenv("PROJR_TEST"))
   withr::defer(unlink(dir_test, recursive = TRUE))

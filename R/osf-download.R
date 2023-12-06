@@ -95,9 +95,7 @@
   if (sync_approach == "delete-then-download-all") {
     unlink(path_save, recursive = TRUE)
   }
-  if (!dir.exists(path_save)) {
-    dir.create(path_save, recursive = TRUE)
-  }
+  .projr_dir_create(path_save)
   osf_tbl_file <- osf_tbl |> osfr::osf_ls_files(n_max = Inf)
   if (nrow(osf_tbl_file) == 0L) {
     return(invisible(FALSE))
@@ -335,9 +333,7 @@
 .projr_osf_download_osf_tbl <- function(osf_tbl,
                                         path_dir_save_local,
                                         conflicts = "overwrite") {
-  if (!dir.exists(path_dir_save_local)) {
-    dir.create(path_dir_save_local, recursive = TRUE)
-  }
+  .projr_dir_create(path_dir_save_local)
   # regardless of osf_tbl being a node or a sub-directory,
   # we always want to downloads its contents rather than
   # the node/folder itself

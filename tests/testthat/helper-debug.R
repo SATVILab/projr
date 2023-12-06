@@ -1,8 +1,6 @@
 .projr_test_debug_copy_projr_yml <- function() {
   path_dir_to <- file.path("/workspaces/projr/_tmp")
-  if (!dir.exists(path_dir_to)) {
-    dir.create(path_dir_to, recursive = TRUE)
-  }
+  .projr_dir_create(path_dir_to)
   file.copy(
     from = "_projr.yml",
     to = file.path(path_dir_to, "_projr.yml")
@@ -12,9 +10,7 @@
 .projr_test_debug_save_rds <- function(x) {
   nm <- deparse(substitute(x))
   path_dir_to <- file.path("/workspaces/projr/_tmp")
-  if (!dir.exists(path_dir_to)) {
-    dir.create(path_dir_to, recursive = TRUE)
-  }
+  .projr_dir_create(path_dir_to)
   saveRDS(x, file.path("/workspaces/projr/_tmp", paste0(nm, ".rds")))
 }
 

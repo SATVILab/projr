@@ -119,8 +119,8 @@ test_that(".projr_osf_get_node works", {
 
 test_that(".projr_osf_send_node_label works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
+  .projr_dir_create(dir_test)
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {

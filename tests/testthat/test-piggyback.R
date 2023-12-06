@@ -1,7 +1,7 @@
 test_that(".projr_pb_check_run works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .projr_dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 

@@ -1,8 +1,6 @@
 .projr_cite_citation_set <- function() {
   path_inst_citation <- file.path("inst", "CITATION")
-  if (file.exists(path_inst_citation)) {
-    invisible(file.remove(path_inst_citation))
-  }
+  .projr_file_rm(path_inst_citation)
   .projr_cite_citation_inst_write()
   .projr_cite_citation_inst_add_header()
 }

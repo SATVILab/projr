@@ -81,8 +81,6 @@
 
 .projr_test_osf_remote_dir_get_tmp <- function() {
   path_dir <- file.path(tempdir(), "osf_node_to_remove")
-  if (!dir.exists(path_dir)) {
-    dir.create(path_dir, recursive = TRUE)
-  }
+  .projr_dir_create(path_dir)
   path_dir
 }

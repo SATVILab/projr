@@ -98,6 +98,13 @@
 
 # create
 .projr_dir_create <- function(path_dir) {
+  for (i in seq_along(path_dir)) {
+    .projr_dir_create_single(path_dir[i])
+  }
+  invisible(TRUE)
+}
+
+.projr_dir_create_single <- function(path_dir) {
   if (dir.exists(path_dir)) {
     return(invisible())
   }
@@ -248,8 +255,6 @@
   dir_cache_projr_version <- file.path(
     .projr_dir_get_cache_auto(), "projr", paste0("v", projr_version_get())
   )
-  if (!dir.exists(dir_cache_projr_version)) {
-    dir.create(dir_cache_projr_version, recursive = TRUE)
-  }
+  .projr_dir_create(dir_cache_projr_version)
   dir_cache_projr_version
 }
