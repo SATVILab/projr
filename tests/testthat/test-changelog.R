@@ -34,12 +34,14 @@ test_that(".projr_cue_check works", {
         )
       )
       expect_identical(
-        .projr_changelog_get(),
+        .projr_changelog_read() |> sub("\\):.*$", "\\)", x = _),
         c(
-          "# CHANGELOG", "", "- **major** (v1.0.0): Test", "",
-          "- *minor* (v0.1.0): Test",
-          "- patch (v0.0.1): Test", ""
-        )
+          "# CHANGELOG", "", "- **Major** (v1.0.0): Miguel Julio Rodo (14:39:59)",
+          "  - Test", "", "___", "", "- *Minor* (v0.1.0): Miguel Julio Rodo (14:39:59)",
+          "  - Test", "", "- Patch (v0.0.1): Miguel Julio Rodo (14:39:59)",
+          "  - Test", ""
+        ) |>
+          sub("\\):.*$", "\\)", x = _)
       )
     }
   )
