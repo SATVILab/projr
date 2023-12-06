@@ -4,7 +4,11 @@
 \alias{projr_cat_changelog}
 \title{Cat useful information}
 \usage{
-projr_cat_changelog()
+projr_cat_changelog(n_row = 10)
+}
+\arguments{
+\item{n_row}{integer.
+Number of rows to cat.}
 }
 \description{
 Cat useful information.
