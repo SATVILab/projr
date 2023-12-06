@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 library(projr)
 ```
 
-## Initialisation
+## Project initialisation
 
 The environment variables make custom setup of the project easier.
 
@@ -41,4 +41,27 @@ choose to manually enter an option instead.
 Multiple options may be provided by placing a semi-colon between them, e.g.
 "John;JohnnyBoy" yields two options: "John" and "JohnnyBoy".
 
-## 
+## Project builds
+
+During `projr` builds, `projr` mimicks the treatment of environment variables by `Quarto` projects.
+Various files, prefixed with `_environment`, specify default values
+for environment variables that are used if the variables are not already set.
+Any variables not originally set are unset after the build.
+
+Environment files are searched for in the following order:
+
+- `_environment.local`
+  - Intended to store user-specific, and possibly private, environment variables, such as access tokens.
+  - This file should not be checked into Git, and is automatically ignored by `projr`.
+- `_environment.<QUARTO_PROFILE>`, where `QUARTO_PROFILE` is the value of the
+  `QUARTO_PROFILE` environment variable
+    - Intended to store environment variables specific to a particular profile.
+    - If `QUARTO_PROFILE` contains commas, then 
+  the strings between commas are treated as separate profiles loaded in the order
+  found in `QUARTO_PROFILE`.
+- `_environment`
+  - Intended to store environment variables common to all profiles.
+
+In addition, if an `_environment.required` file is set, then the environment variables
+specified inside are checked for existence.
+If they are not set, warnings are printed (but the build is not aborted).

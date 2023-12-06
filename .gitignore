@@ -7,3 +7,5 @@ _projr.yml
 _tmp/**/*
 _tmp/*
 _tmp
+/doc/
+/Meta/
