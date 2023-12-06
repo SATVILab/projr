@@ -32,6 +32,7 @@
 #'
 #' @export
 projr_build_output <- function(bump_component,
+                               old_output_cache = FALSE,
                                msg = NULL,
                                ...) {
   bump_component <- .projr_build_output_get_bump_component(
@@ -39,7 +40,11 @@ projr_build_output <- function(bump_component,
   )
   msg <- .projr_build_output_get_msg(msg)
 
-  .projr_build(bump_component = bump_component, msg = msg, ...)
+  .projr_build(
+    bump_component = bump_component,
+    old_output_cache = old_output_cache,
+    msg = msg, ...
+  )
 }
 
 .projr_build_output_get_bump_component <- function(bump_component) {
@@ -69,20 +74,41 @@ projr_build_output <- function(bump_component,
 
 #' @rdname projr_build_output
 #' @export
-projr_build_major <- function(msg = NULL, ...) {
-  projr_build_output(bump_component = "major", msg = msg, ...)
+projr_build_major <- function(msg = NULL,
+                              old_output_cache = FALSE,
+                              ...) {
+  projr_build_output(
+    bump_component = "major",
+    msg = msg,
+    old_output_cache = old_output_cache,
+    ...
+  )
 }
 
 #' @rdname projr_build_output
 #' @export
-projr_build_minor <- function(msg = NULL, ...) {
-  projr_build_output(bump_component = "minor", msg = msg, ...)
+projr_build_minor <- function(msg = NULL,
+                              old_output_cache = FALSE,
+                              ...) {
+  projr_build_output(
+    bump_component = "minor",
+    msg = msg,
+    old_output_cache = old_output_cache,
+    ...
+  )
 }
 
 #' @rdname projr_build_output
 #' @export
-projr_build_patch <- function(msg = NULL, ...) {
-  projr_build_output(bump_component = "patch", msg = msg, ...)
+projr_build_patch <- function(msg = NULL,
+                              old_output_cache = FALSE,
+                              ...) {
+  projr_build_output(
+    bump_component = "patch",
+    msg = msg,
+    old_output_cache = old_output_cache,
+    ...
+  )
 }
 
 #' @title Build dev project
@@ -99,7 +125,7 @@ projr_build_patch <- function(msg = NULL, ...) {
 #' @param bump logical.
 #' Whether to increment dev version for build.
 #' Default is \code{FALSE}.
-#' @param remove_old_dev logical.
+#' @param old_dev_remove logical.
 #' If `TRUE`, then previous development builds are deleted
 #' after a successful run.
 #' @param ... Arguments passed to \code{bookdown::render}.
@@ -107,13 +133,13 @@ projr_build_patch <- function(msg = NULL, ...) {
 #' @export
 projr_build_dev <- function(file = NULL,
                             bump = FALSE,
-                            remove_old_dev = TRUE, ...) {
+                            old_dev_remove = TRUE, ...) {
   # NULL if FALSE and "dev" if TRUE
   bump_component <- .projr_build_dev_get_bump_component(bump)
   .projr_build(
     file = file,
     bump_component = bump_component,
-    remove_old_dev = TRUE,
+    old_dev_remove = TRUE,
     ...
   )
 }
@@ -126,7 +152,7 @@ projr_build_dev <- function(file = NULL,
 
 .projr_build <- function(file = NULL,
                          bump_component,
-                         remove_old_dev = TRUE,
+                         old_dev_remove = TRUE,
                          msg = "",
                          ...) {
   # ========================
@@ -198,11 +224,17 @@ projr_build_dev <- function(file = NULL,
 
   # get version for DESCRIPTION and bookdown from run onwards
 
-  # update lock file, help files, citation files and README
+  # update lock file, help files, citation files, README
+  # and CHANGELOG
   .projr_build_renv_snapshot(output_run)
   .projr_build_roxygenise(output_run)
   .projr_build_cite(output_run)
   .projr_build_readme_rmd_render(output_run)
+  .projr_build_changelog_add(
+    msg = msg,
+    bump_component = bump_component,
+    version_run_on_list = version_run_on_list
+  )
 
   # hash data-raw and outputs
   manifest_tbl <- manifest_tbl_pre |>
@@ -233,7 +265,7 @@ projr_build_dev <- function(file = NULL,
   .projr_osf_dest_upload(output_run = output_run)
 
   # clear projr cache
-  .projr_build_clear_old_dev(output_run, remove_old_dev)
+  .projr_build_clear_old_dev(output_run, old_dev_remove)
 
   # initate dev version
   # ------------------
@@ -352,7 +384,7 @@ projr_build_dev <- function(file = NULL,
     "TRUE" = list.files(pattern = detect_str),
     "FALSE" = {
       fn_vec_type <- file[grepl("\\.qmd$", file)]
-      fn_vec_type[file.exists(fn_vec_type)]
+      .projr_file_get_exists(fn_vec_type)
     }
   )
   if (length(fn_vec) == 0) {
