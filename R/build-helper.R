@@ -82,6 +82,31 @@
 # Pre-build
 # ==========================
 
+.projr_build_output_get_bump_component <- function(bump_component) {
+  if (missing(bump_component)) {
+    version <- projr_version_format_get()
+    version_vec <- strsplit(version, split = "\\.|\\-")[[1]]
+    bump_component <- version_vec[length(version_vec) - 1]
+  }
+  bump_component
+}
+
+.projr_build_output_get_msg <- function(msg) {
+  if (is.null(msg)) {
+    if (!Sys.getenv("PROJR_TEST") == "TRUE") {
+      if (interactive()) {
+        cat("Please enter a one-line description of change", "\n")
+        msg <- readline(prompt = ">> ")
+      } else {
+        msg <- ""
+      }
+    } else {
+      msg <- ""
+    }
+  }
+  msg
+}
+
 #' @title Activate environment variables in files
 #' @export
 projr_env_file_activate <- function(file = NULL, env = NULL) {
@@ -304,7 +329,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   invisible(.projr_dir_get_label("docs", output_safe = !output_run))
 }
 
-.projr_build_clear_pre <- function(output_run, cache = FALSE) {
+.projr_build_clear_pre <- function(output_run, cache = TRUE) {
   # clear
   # -----------------
 
@@ -314,12 +339,16 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   label_vec_output <- label_vec[
     grepl("^output", .projr_dir_label_strip(label_vec))
   ]
+  label_vec <- c(label_vec, "data", "docs") |> unique()
   for (x in label_vec_output) {
-    dir_data_output <- projr_dir_get(x, output_safe = TRUE)
+    dir_data_output <- projr_dir_get(
+      x,
+      output_safe = TRUE, create = FALSE
+    )
     if (cache) {
       .projr_dir_move(
         .projr_dir_get(x, output_safe = TRUE),
-        .projr_dir_get("cache", "projr", x)
+        .projr_dir_get("cache", "projr", "cleared_output", x)
       )
     } else {
       .projr_dir_mimick(dir_data_output)

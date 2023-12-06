@@ -7,6 +7,8 @@
     # as code is the label but we don't actually
     # want to upload anything in the code directory
     return(.projr_dir_get_code())
+  } else if (label == "data") {
+    return(.projr_dir_proj_get("data"))
   }
   dir_label <- .projr_dir_get_label(label, output_safe)
   .projr_dir_get_full(dir_label, ...)
