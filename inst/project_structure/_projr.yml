@@ -21,10 +21,10 @@ build:
   github:
     "@version":
       content: code
-      body: "Latest source code"
+      description: "Latest source code"
     input:
       content: [data-raw]
-      body: "Project inputs"
+      description: "Project inputs"
     output:
       content: [output, docs]
-      body: "Project outputs"
+      description: "Project outputs"
