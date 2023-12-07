@@ -4,7 +4,7 @@
 \alias{projr_yml_get}
 \title{Get active \code{projr} settings and checks for validity}
 \usage{
-projr_yml_get()
+projr_yml_get(profile = NULL)
 }
 \value{
 A named list, if the settings are valid.

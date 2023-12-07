@@ -146,6 +146,10 @@
   yml_git[["push"]]
 }
 
+.projr_yml_get_git <- function(profile = NULL) {
+
+}
+
 # github
 # --------------------
 

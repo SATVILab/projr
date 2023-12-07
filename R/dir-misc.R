@@ -120,7 +120,7 @@
   }
   .projr_dir_copy_tree(path_dir_from = path_dir_from, path_dir_to = path_dir_to)
   fs::file_copy(
-    projr_file_get_abs_exists(path_dir_from), .projr_dir_fn_get_abs(fn_vec_abs_dest),
+    .projr_file_get_abs_exists(path_dir_from), .projr_dir_fn_get_abs(fn_vec_abs_dest),
     overwrite = TRUE
   )
   invisible(TRUE)
@@ -132,32 +132,60 @@
   if (length(fn) == 0L) {
     return(invisible(FALSE))
   }
-  fn_vec_source_exists <- projr_file_get_abs_exists(fn, path_dir_from)
+  fn_vec_source_exists <- .projr_file_get_abs_exists(fn, path_dir_from)
   length(fn_vec_source_exists) > 0L
 }
 
-projr_file_get_abs_exists <- function(fn, path_dir) {
-  projr_file_get_abs(fn, path_dir) |>
-    .projr_file_get_exists()
+.projr_file_get_abs_exists <- function(fn, path_dir) {
+  .projr_file_get_abs(fn, path_dir) |>
+    .projr_file_filter_exists()
 }
 
-projr_file_get_abs <- function(fn, path_dir) {
-  projr_file_get_full(fn, path_dir) |>
-    fs::path_abs() |>
+.projr_file_get_abs <- function(fn, path_dir = NULL) {
+  .projr_file_get_abs_check(fn = fn, path_dir = path_dir)
+  if (.projr_state_abs(fn)) {
+    return(fn)
+  }
+  if (.projr_state_null(path_dir)) {
+    path_dir <- .projr_dir_get_proj()
+  }
+  .projr_file_get_full(fn, path_dir) |>
+    .projr_file_get_abs_single()
+}
+
+.projr_file_get_abs_single <- function(x) {
+  .projr_check_chr_single(x, "x")
+  fs::path_abs(x) |>
     as.character()
 }
 
-.projr_file_get_exists <- function(fn) {
-  fn[file.exists(fn)]
+.projr_file_get_abs_check <- function(fn, path_dir) {
+  .projr_check_chr_nz(fn, "fn", required = TRUE)
+  .projr_check_chr_nz(path_dir, "path_dir")
+  if (.projr_state_abs(fn) && !.projr_state_null(path_dir)) {
+    stop(paste0(
+      "fn is absolute, but path_dir is not NULL:\n",
+      paste0("  - fn ", fn, "\n"),
+      paste0("  - path_dir, ", path_dir, "\n")
+    ))
+  }
 }
 
-projr_file_get_full <- function(fn, path_dir) {
+.projr_file_filter_exists <- function(fn) {
+  fn[.projr_file_state_exists(fn)]
+}
+
+.projr_file_state_exists <- function(fn) {
+  file.exists(fn)
+}
+
+.projr_file_get_full <- function(fn, path_dir) {
   file.path(path_dir, fn)
 }
 
-projr_file_get_full_exists <- function(fn, path_dir) {
-  projr_file_get_full(fn, path_dir) |>
-    .projr_file_get_exists()
+.projr_file_get_full_exists <- function(fn, path_dir) {
+  .projr_file_get_full(fn, path_dir) |>
+    .projr_file_state_exists()
 }
 
 .projr_dir_move <- function(path_dir_from,
@@ -179,7 +207,7 @@ projr_file_get_full_exists <- function(fn, path_dir) {
   }
   .projr_dir_copy_tree(path_dir_from = path_dir_from, path_dir_to = path_dir_to)
   fs::file_move(
-    projr_file_get_abs_exists(path_dir_from), .projr_dir_fn_get_abs(fn_vec_abs_dest),
+    .projr_file_get_abs_exists(path_dir_from), .projr_dir_fn_get_abs(fn_vec_abs_dest),
     overwrite = TRUE
   )
   invisible(TRUE)

@@ -55,7 +55,7 @@ projr_test_renv <- function(file = NULL) {
     file.path("renv", list.files(.projr_dir_proj_get("renv"), recursive = TRUE)),
     ".Rprofile"
   ) |>
-    .projr_file_get_exists()
+    .projr_file_filter_exists()
   dir_test <- file.path(
     tempdir(), "test_renv", "renv", signif(abs(rnorm(1)), 5)
   )

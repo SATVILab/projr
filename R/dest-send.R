@@ -61,7 +61,7 @@
   )
 
   # consider early exit
-  cue_met <- .projr_cue_check(
+  cue_met <- .projr_state_cue(
     cue = yml_remote[["cue"]], bump_component = bump_component
   )
 

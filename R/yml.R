@@ -17,10 +17,8 @@
 #' @return A named list, if the settings are valid.
 #'
 #' @export
-projr_yml_get <- function() {
-  yml_projr <- projr_yml_get_unchecked()
-  projr_yml_check(yml_projr)
-  yml_projr
+projr_yml_get <- function(profile = NULL) {
+  projr_yml_get_unchecked(profile)
 }
 
 #' @title Get active `projr` settings and do no check
@@ -39,7 +37,23 @@ projr_yml_get <- function() {
 #'
 #' @seealso projr_yml_get,projr_yml_check
 #' @export
-projr_yml_get_unchecked <- function() {
+projr_yml_get_unchecked <- function(profile = NULL) {
+  if (!.projr_state_null(profile)) {
+    return(.projr_yml_get_unchecked_profile(profile))
+  }
+  .projr_yml_get_unchecked_null()
+}
+
+.projr_yml_get_unchecked_profile <- function(profile) {
+  .projr_check_chr_single(profile, "profile")
+  switch(profile,
+    "local" = .projr_yml_get_local(),
+    "default" = .projr_yml_get_root_default(),
+    .projr_yml_get_profile()
+  )
+}
+
+.projr_yml_get_unchecked_null <- function() {
   yml_projr_root <- .projr_yml_get_root_default()
   yml_projr_profile <- .projr_yml_get_profile()
   yml_projr_local <- .projr_yml_get_local()
@@ -157,8 +171,8 @@ projr_yml_get_unchecked <- function() {
     return(list())
   }
   yml_projr_init <- yaml::read_yaml(path_yml_projr_profile)
-  pos_dir <- which(names(yml_projr_init) == key_root_dir)
-  pos_build <- which(names(yml_projr_init) == key_root_build)
+  pos_dir <- which(names(yml_projr_init) == "directories")
+  pos_build <- which(names(yml_projr_init) == "build")
   pos_either <- c(pos_dir, pos_build)
   yml_projr_init[pos_either]
 }
@@ -597,11 +611,18 @@ projr_yml_check <- function(yml_projr = NULL) {
   invisible(TRUE)
 }
 
-.projr_yml_set <- function(list_save) {
-  path_yml <- .projr_dir_proj_get("_projr.yml")
+.projr_yml_set <- function(list_save, profile = "default") {
+  path_yml <- .projr_yml_get_path(profile)
   yaml::write_yaml(list_save, path_yml)
   .projr_newline_append(path_yml)
   invisible(TRUE)
+}
+
+.projr_yml_get_path <- function(profile) {
+  if (!.projr_state_given(profile) || profile == "default") {
+    return(.projr_dir_proj_get("_projr.yml"))
+  }
+  .projr_dir_proj_get(paste0("_projr-", profile, ".yml"))
 }
 
 .projr_yml_set_root <- function(list_save) {
