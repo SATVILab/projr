@@ -14,6 +14,9 @@ directories:
 build:
   dev-output: true
   package: false
+  script:
+    pre: 
+      - 
   git:
     commit: true
     add-untracked: true
