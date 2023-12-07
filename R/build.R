@@ -161,6 +161,9 @@ projr_build_dev <- function(file = NULL,
     bump_component = bump_component
   )
 
+  # run any scripts
+  .projr_build_script_run_pre(bump_component)
+
   # commit any unstaged files pre-run
   .projr_build_git_commit(
     output_run = output_run,
@@ -219,7 +222,6 @@ projr_build_dev <- function(file = NULL,
     .projr_manifest_write(output_run = output_run)
 
   .projr_build_clear_post(output_run)
-``
   # hash data-raw and outputs
 
   # save manifest table
@@ -242,6 +244,9 @@ projr_build_dev <- function(file = NULL,
 
   # clear projr cache
   .projr_build_clear_old_dev(output_run, old_dev_remove)
+
+  # run post-build scripts
+  .projr_build_script_run_post(bump_component)
 
   # initate dev version
   # ------------------
