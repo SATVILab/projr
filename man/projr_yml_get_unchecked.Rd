@@ -4,7 +4,7 @@
 \alias{projr_yml_get_unchecked}
 \title{Get active \code{projr} settings and do no check}
 \usage{
-projr_yml_get_unchecked()
+projr_yml_get_unchecked(profile = NULL)
 }
 \value{
 A named list.

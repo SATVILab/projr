@@ -4,13 +4,13 @@
                         content,
                         path,
                         path_append_label,
-                        cue = is.null(),
+                        cue = NULL,
                         sync_approach,
                         version_source,
                         conflict,
                         component) {
   # whether to run or not
-  if (!.projr_cue_check(bump_component = bump_component)) {
+  if (!.projr_state_cue(cue, bump_component = bump_component)) {
     return(invisible(FALSE))
   }
   switch(remote_type,

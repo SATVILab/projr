@@ -758,7 +758,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
   if (length(fn) == 0L) {
     return(invisible(FALSE))
   }
-  fn_vec <- .projr_file_get_exists(file.path(remote, fn))
+  fn_vec <- .projr_file_filter_exists(file.path(remote, fn))
   if (length(fn_vec) == 0L) {
     return(invisible(FALSE))
   }

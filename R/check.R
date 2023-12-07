@@ -112,6 +112,14 @@
   all(is.logical(x))
 }
 
+.projr_state_lgl_single <- function(x) {
+  .projr_state_lgl(x) %% .projr_state_single(x)
+}
+
+.projr_state_single <- function(x) {
+  .projr_state_len(x, 1)
+}
+
 .projr_check_len <- function(x, nm, len, required = FALSE) {
   if (required) {
     .projr_check_given(x = x, nm = nm)
@@ -146,4 +154,58 @@
     return(FALSE)
   }
   TRUE
+}
+
+.projr_state_abs <- function(x) {
+  fs::is_absolute_path(x)
+}
+
+.projr_state_null <- function(x) {
+  is.null(x)
+}
+
+.projr_state_cue <- function(cue, bump_component) {
+  .projr_state_cue_check(cue, bump_component)
+
+  if (.projr_state_null(cue)) {
+    return(TRUE)
+  }
+  if (.projr_state_lgl_single(bump_component)) {
+    return(.projr_state_opt(cue, c("build", "dev")))
+  }
+  # if cue is none, then we're saying nothing
+  # must happen
+  if (.projr_state_opt(cue, "none")) {
+    return(FALSE)
+  }
+  if (.projr_state_opt(cue, c("build", "dev"))) {
+    return(TRUE)
+  }
+  if (.projr_state_opt(cue, "major")) {
+    return(.projr_state_opt(cue, bump_component))
+  }
+  if (.projr_state_opt(cue, "minor")) {
+    return(.projr_state_opt(cue, c("major", "minor")))
+  }
+  .projr_state_opt(cue, c("major", "minor", "patch"))
+}
+
+.projr_state_cue_check <- function(cue, bump_component) {
+  if (.projr_state_null(cue)) {
+    return(invisble(TRUE))
+  }
+  .projr_check_len(cue, "cue", 1L)
+  .projr_check_len(bump_component, "bump_component", 1L)
+  if (.projr_state_null(bump_component)) {
+    if (.projr_state_opt(cue, c("major", "minor", "patch"))) {
+      stop("bump_component must be supplied if cue is major, minor or patch")
+    }
+  }
+  if (!.projr_state_lgl(bump_component)) {
+    .projr_check_opt(
+      bump_component, "bump_component",
+      c("major", "minor", "patch", "dev", "none")
+    )
+  }
+  invisible(TRUE)
 }

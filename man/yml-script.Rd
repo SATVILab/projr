@@ -8,15 +8,22 @@
 \alias{projr_yml_script_add_post}
 \title{Build script-related functions}
 \usage{
-projr_yml_script_add(path, title, stage, cue = NULL, overwrite = TRUE)
+projr_yml_script_add(
+  path,
+  title,
+  stage,
+  cue = NULL,
+  overwrite = TRUE,
+  profile = "default"
+)
 
-projr_yml_script_rm(title, path = NULL)
+projr_yml_script_rm(title, path = NULL, profile = "default")
 
-projr_yml_script_rm_all()
+projr_yml_script_rm_all(profile = "default")
 
-projr_yml_script_add_pre(path, title, cue)
+projr_yml_script_add_pre(path, title, cue, profile)
 
-projr_yml_script_add_post(path, title, cue)
+projr_yml_script_add_post(path, title, cue, profile)
 }
 \arguments{
 \item{path}{character vector.
@@ -32,6 +39,10 @@ Whether to run the script before or after the build.}
 Which minimum build level triggers the scripts.
 "build" and "dev" are equivalent, and
 always trigger the scripts.}
+
+\item{profile}{character.
+Profile to add the script to.
+If \verb{"default"`` (the default), the script is added to the default profile, which is }_projr.yml`.}
 }
 \description{
 Convenience functions to add or remove scripts

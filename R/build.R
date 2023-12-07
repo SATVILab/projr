@@ -162,7 +162,7 @@ projr_build_dev <- function(file = NULL,
   )
 
   # run any scripts
-  .projr_build_script_run_pre(bump_component)
+  .projr_build_script_run(bump_component, "pre")
 
   # commit any unstaged files pre-run
   .projr_build_git_commit(
@@ -246,7 +246,7 @@ projr_build_dev <- function(file = NULL,
   .projr_build_clear_old_dev(output_run, old_dev_remove)
 
   # run post-build scripts
-  .projr_build_script_run_post(bump_component)
+  .projr_build_script_run(bump_component, "post")
 
   # initate dev version
   # ------------------
@@ -365,7 +365,7 @@ projr_build_dev <- function(file = NULL,
     "TRUE" = list.files(pattern = detect_str),
     "FALSE" = {
       fn_vec_type <- file[grepl("\\.qmd$", file)]
-      .projr_file_get_exists(fn_vec_type)
+      .projr_file_filter_exists(fn_vec_type)
     }
   )
   if (length(fn_vec) == 0) {

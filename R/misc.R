@@ -145,7 +145,7 @@ with_dir <- function(new, code) {
     path_dir_fn_rel,
     {
       sink(file.path(tempdir(), "zip123"))
-      fn_rel <- .projr_file_get_exists(fn_rel)
+      fn_rel <- .projr_file_filter_exists(fn_rel)
       if (length(fn_rel) == 0L) {
         return(character())
       }
@@ -298,7 +298,7 @@ projr_use_data <- function(...,
     }
   }
   if (!overwrite) {
-    fn_vec_existing <- .projr_file_get_exists(.projr_dir_proj_get(paths))
+    fn_vec_existing <- .projr_file_filter_exists(.projr_dir_proj_get(paths))
     if (length(fn_vec_existing) > 0L) {
       stop(
         "The following files already exist:\n",
