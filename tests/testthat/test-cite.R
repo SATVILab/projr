@@ -1,4 +1,4 @@
-test_that(".projr_yml_cite_ functions work works", {
+test_that("projr_yml_cite_ functions work works", {
   # setup
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -54,6 +54,29 @@ test_that(".projr_yml_cite_ functions work works", {
         .projr_yml_cite_get("default"),
         NULL
       )
+    }
+  )
+})
+
+test_that(".projr_cite_ functions work works", {
+  # setup
+  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
+
+  # run from within project
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .projr_cite_citation_set()
+      expect_true(
+        file.exists(
+          file.path("inst", "CITATION")
+        )
+      )
+      .projr_cite_codemeta_set()
+      expect_true(file.exists("codemeta.json"))
+      expect_true(is.character(.projr_cite_bibtex_get()))
+      .projr_cite_cff_set()
+      expect_true(file.exists("CITATION.cff"))
     }
   )
 })
