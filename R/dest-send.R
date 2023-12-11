@@ -140,7 +140,7 @@
                                    output_run) {
   # get place where files are taken from and
   # where they should go to
-  path_dir_local <- projr_dir_get(label, output_safe = !output_run)
+  path_dir_local <- projr_dir_get(label, safe = !output_run)
   remote_final <- .projr_remote_final_get(
     remote_type = remote_type,
     remote_name = remote_name,

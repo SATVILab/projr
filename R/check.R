@@ -80,6 +80,38 @@
   invisible(TRUE)
 }
 
+.projr_state_true <- function(x) {
+  isTRUE(x)
+}
+
+.projr_check_true <- function(x, nm, required = FALSE) {
+  if (required) {
+    .projr_check_given(x = x, nm = nm)
+  } else if (!.projr_state_given(x)) {
+    return(invisible(TRUE))
+  }
+  if (!.projr_state_true(x)) {
+    stop(paste0(nm, " must be TRUE"))
+  }
+  invisible(TRUE)
+}
+
+.projr_state_false <- function(x) {
+  isFALSE(x)
+}
+
+.projr_check_false <- function(x, nm, required = FALSE) {
+  if (required) {
+    .projr_check_given(x = x, nm = nm)
+  } else if (!.projr_state_given(x)) {
+    return(invisible(TRUE))
+  }
+  if (!.projr_state_false(x)) {
+    stop(paste0(nm, " must be FALSE"))
+  }
+  invisible(TRUE)
+}
+
 .projr_state_opt <- function(x, opt) {
   x %in% opt
 }

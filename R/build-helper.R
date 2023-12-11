@@ -326,7 +326,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
 
 .projr_build_doc_output_dir_update <- function(output_run) {
   # sets docs directory correctly whenever called
-  invisible(.projr_dir_get_label("docs", output_safe = !output_run))
+  invisible(.projr_dir_get_label("docs", safe = !output_run))
 }
 
 .projr_build_clear_pre <- function(output_run, cache = TRUE) {
@@ -343,11 +343,11 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   for (x in label_vec_output) {
     dir_data_output <- projr_dir_get(
       x,
-      output_safe = TRUE, create = FALSE
+      safe = TRUE, create = FALSE
     )
     if (cache) {
       .projr_dir_move(
-        .projr_dir_get(x, output_safe = TRUE),
+        .projr_dir_get(x, safe = TRUE),
         .projr_dir_get("cache", "projr", "cleared_output", x)
       )
     } else {
@@ -358,7 +358,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   # clear docs folder
   dir_data_docs <- projr_dir_get(
     "docs",
-    output_safe = !output_run
+    safe = !output_run
   ) |>
     normalizePath(winslash = "/")
   wd <- getwd() |> normalizePath(winslash = "/")
@@ -498,7 +498,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
     grepl("^output", .projr_dir_label_strip(label_vec))
   ]
   for (x in label_vec_output) {
-    dir_data_output <- projr_dir_get(x, output_safe = FALSE)
+    dir_data_output <- projr_dir_get(x, safe = FALSE)
     .projr_dir_clear(dir_data_output)
   }
 
@@ -564,10 +564,10 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
 .projr_build_copy_output_direct <- function(output_run) {
   # zip and then unlink any directories
   # -------------------------
-  dir_data_output_safe <- projr_dir_get("output", output_safe = TRUE)
+  dir_data_safe <- projr_dir_get("output", safe = TRUE)
 
   dir_vec <- list.dirs(
-    dir_data_output_safe,
+    dir_data_safe,
     recursive = FALSE,
     full.names = TRUE
   )
@@ -577,7 +577,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
       path_dir <- .projr_dir_proj_get(path_dir)
     }
     path_zip <- file.path(
-      dir_data_output_safe,
+      dir_data_safe,
       paste0(basename(dir_vec[i]), ".zip")
     )
     if (!fs::is_absolute_path(path_zip)) {
@@ -595,16 +595,16 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   if (!output_run) {
     return(invisible(TRUE))
   }
-  dir_data_output_final <- projr_dir_get("output", output_safe = FALSE)
+  dir_data_output_final <- projr_dir_get("output", safe = FALSE)
 
   fn_vec <- list.files(
-    dir_data_output_safe,
+    dir_data_safe,
     recursive = TRUE, full.names = TRUE
   )
   if (length(fn_vec) == 0) {
     return(invisible(TRUE))
   }
-  fn_vec_rel <- fs::path_rel(fn_vec, start = dir_data_output_safe)
+  fn_vec_rel <- fs::path_rel(fn_vec, start = dir_data_safe)
   file.rename(
     from = fn_vec,
     to = file.path(dir_data_output_final, fn_vec_rel)
@@ -637,7 +637,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
     .projr_dep_add("pkgbuild")
     # build package
     # ------------------------
-    dir_pkg <- projr_dir_get("output", output_safe = !output_run)
+    dir_pkg <- projr_dir_get("output", safe = !output_run)
     version_pkg <- .projr_desc_get()[, "Version"][[1]]
     fn_pkg <- paste0(projr_name_get(), "_", version_pkg, ".tar.gz")
     path_pkg <- file.path(dir_pkg, fn_pkg)
@@ -680,7 +680,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
     for (x in pkg) {
       file.copy(
         from = path_pkg,
-        to = projr_path_get(x, fn_pkg, output_safe = !output_run)
+        to = projr_path_get(x, fn_pkg, safe = !output_run)
       )
     }
     # archiving to be handled by individual outputs' settings
@@ -859,7 +859,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
 .projr_build_copy_docs_paths <- function(path, output_run) {
   for (x in path) {
     if (fs::is_file(x)) {
-      file_to <- projr_path_get("docs", basename(x), output_safe = !output_run)
+      file_to <- projr_path_get("docs", basename(x), safe = !output_run)
       if (file.exists(file_to)) {
         invisible(file.remove(file_to))
       }
@@ -872,7 +872,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
       )
       fn_vec_from <- .projr_dir_proj_get(x, fn_vec)
       fn_vec_to <- file.path(
-        projr_dir_get("docs", output_safe = !output_run), x, fn_vec
+        projr_dir_get("docs", safe = !output_run), x, fn_vec
       )
       dir_vec_to <- dirname(fn_vec_to) |> unique()
       for (i in seq_along(dir_vec_to)) {
@@ -946,7 +946,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
       "archive" = FALSE,
       stop(paste0("Invalid dest_type: ", dest_type))
     )
-    path_dir <- projr_dir_get(label, output_safe = path_dir_from_safe)
+    path_dir <- projr_dir_get(label, safe = path_dir_from_safe)
     if (!fs::is_absolute_path(path_dir)) {
       path_dir <- .projr_dir_proj_get(path_dir)
     }
@@ -955,13 +955,13 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
     if (dest_type == "output") {
       path_zip <- projr_path_get(
         dir_output_init, paste0(label, ".zip"),
-        output_safe = !output_run
+        safe = !output_run
       )
     } else {
       path_zip <- projr_path_get(
         dir_output_init,
         paste0(label, ".zip"),
-        output_safe = !output_run
+        safe = !output_run
       )
     }
     if (!fs::is_absolute_path(path_zip)) {
@@ -998,7 +998,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
         from = path_zip,
         to = projr_path_get(
           key_output_extra[j], paste0(label, ".zip"),
-          output_safe = !output_run
+          safe = !output_run
         )
       )
     }

@@ -1,7 +1,7 @@
 # Helper functions - getting paths
 # ===========================================================================
 
-.projr_dir_get <- function(label, ..., output_safe) {
+.projr_dir_get <- function(label, ..., safe) {
   if (label == "code") {
     # useful for uploading source code to github,
     # as code is the label but we don't actually
@@ -10,7 +10,7 @@
   } else if (label == "data") {
     return(.projr_dir_proj_get("data"))
   }
-  dir_label <- .projr_dir_get_label(label, output_safe)
+  dir_label <- .projr_dir_get_label(label, safe)
   .projr_dir_get_full(dir_label, ...)
 }
 
@@ -31,7 +31,7 @@
     as.character()
 }
 
-.projr_dir_get_label <- function(label, output_safe) {
+.projr_dir_get_label <- function(label, safe) {
   if (missing(label)) stop("label must be specified")
   if (length(label) != 1L) stop("label must be length 1")
   label_strip <- .projr_dir_label_strip(label)
@@ -43,7 +43,7 @@
   if (!label_recognised) {
     stop(paste0("label `", label, "` not recognised."))
   }
-  switch(as.character(output_safe),
+  switch(as.character(safe),
     "TRUE" = .projr_dir_get_label_safe(label),
     "FALSE" = .projr_dir_get_label_unsafe(label)
   )

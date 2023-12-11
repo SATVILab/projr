@@ -23,15 +23,15 @@
 #' and \code{.Rbuildignore} as specified
 #' in \code{_projr.yml}.
 #' Default is \code{TRUE}.
-#' @param path_relative_force logical.
+#' @param relative logical.
 #' If \code{TRUE}, then forces that the returned
 #' path is relative to the project root.
 #' Default is \code{FALSE}.
-#' @param path_absolute_force logical.
+#' @param absolute logical.
 #' If `TRUE`, then forces the returned path
 #' to be absolute.
 #' Default is `FALSE`.
-#' @param output_safe logical.
+#' @param safe logical.
 #' If \code{TRUE}, then the output directory
 #' is set to be \code{"<path_to_cache>/projr_output"}
 #' instead of \code{<path_to_output>} (as specified in \code{_projr.yml}).
@@ -54,25 +54,50 @@
 #' @seealso projr_dir_create_all
 projr_dir_get <- function(label, ...,
                           create = TRUE,
-                          path_relative_force = FALSE,
-                          output_safe = TRUE,
-                          path_absolute_force = FALSE) {
+                          relative = FALSE,
+                          absolute = FALSE,
+                          safe = TRUE) {
+  dots_list <- as.list(...)
+  .projr_dir_get_check(label, dots_list, relative, absolute, safe)
   # get path
-  path_dir <- .projr_dir_get(label = label, ..., output_safe = output_safe)
+  path_dir <- .projr_dir_get(label = label, ..., safe = safe)
 
   if (create) {
     .projr_dir_create(path_dir)
   }
 
-  if (path_relative_force) {
+  if (relative) {
     path_dir <- fs::path_rel(
       path_dir,
       start = rprojroot::is_r_package$find_file()
     )
   }
+  if (absolute) {
+    path_dir <- fs::path_abs(path_dir)
+  }
   as.character(path_dir) |>
     fs::path_norm() |>
     as.character()
+}
+
+.projr_dir_get_check <- function(label, dots_list, relative, absolute, safe) {
+  if (.projr_state_nz(dots_list)) {
+    sapply(dots_list, .projr_check_chr_single)
+  }
+  if (label %in% c("data_raw", "cache", "output", "archive")) {
+    if (label == "output" && safe) {
+      stop("projr_dir_get does not accept safe = TRUE for label = 'output'")
+    }
+  } else if (label == "docs") {
+    if (safe) {
+      stop("projr_dir_get does not accept safe = TRUE for label = 'docs'")
+    }
+  } else {
+    stop("label must be one of 'data_raw', 'cache', 'output', 'archive' or 'docs'")
+  }
+  if (relative && absolute) {
+    stop("relative and absolute cannot both be TRUE")
+  }
 }
 
 #' @title Create all directories in _projr.yml
@@ -132,15 +157,15 @@ projr_dir_create_all <- function() {
 #' @export
 projr_path_get <- function(label, ...,
                            create = TRUE,
-                           path_relative_force = FALSE,
-                           output_safe = TRUE) {
+                           relative = FALSE,
+                           safe = TRUE) {
   args_dotted <- list(...)
   if (length(args_dotted) == 0) {
     path_dir <- projr_dir_get(
       label = label,
       create = create,
-      path_relative_force = path_relative_force,
-      output_safe = output_safe
+      relative = relative,
+      safe = safe
     )
     return(path_dir)
   }
@@ -151,16 +176,16 @@ projr_path_get <- function(label, ...,
         label = label,
         args_dotted[-length(args_dotted)] |> unlist(),
         create = create,
-        path_relative_force = path_relative_force,
-        output_safe = output_safe
+        relative = relative,
+        safe = safe
       )
     )
   } else {
     path_dir <- projr_dir_get(
       label = label,
       create = create,
-      path_relative_force = path_relative_force,
-      output_safe = output_safe
+      relative = relative,
+      safe = safe
     )
   }
   file.path(path_dir, args_dotted[length(args_dotted)]) |>
@@ -178,13 +203,13 @@ projr_path_get <- function(label, ...,
 #' @inheritParams projr_dir_get
 #'
 #' @export
-projr_dir_create <- function(label, ..., output_safe = TRUE) {
+projr_dir_create <- function(label, ..., safe = TRUE) {
   for (x in label) {
     projr_dir_get(
       label = x,
       ...,
       create = TRUE,
-      output_safe = output_safe
+      safe = safe
     )
   }
 }

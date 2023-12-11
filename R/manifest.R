@@ -86,7 +86,7 @@
   # output is always in safe directory
   # as hashing is done before copying over to final directory
   hash_tbl <- .projr_hash_dir(
-    path_dir = projr_dir_get(label, output_safe = !output_run)
+    path_dir = projr_dir_get(label, safe = !output_run)
   )
   cbind(
     data.frame(label = rep(label, nrow(hash_tbl))),
