@@ -165,11 +165,11 @@ projr_yml_script_rm_all <- function(profile = "default") {
 }
 
 .projr_yml_script_get <- function(profile) {
-  init_list <- projr_yml_get_unchecked(profile)[["build"]][["script"]]
-  if (length(init_list) == 0L) {
+  yml_script <- projr_yml_get_unchecked(profile)[["build"]][["script"]]
+  if (length(yml_script) == 0L) {
     return(list())
   }
-  init_list
+  yml_script
 }
 
 .projr_yml_script_set <- function(yml_script, profile = NULL) {
