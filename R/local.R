@@ -77,6 +77,6 @@
 .projr_get_dir_local <- function(label, bump_component) {
   projr_dir_get(
     label = label,
-    output_safe = !.projr_run_output_check(bump_component = bump_component)
+    safe = !.projr_run_output_check(bump_component = bump_component)
   )
 }

@@ -330,10 +330,6 @@ projr_use_data <- function(...,
   ))
   if (length(duplicated_objs) > 0L) {
     objs <- unique(objs)
-    warning(
-      "Saving duplicates only once: {ui_value(names(duplicated_objs))}",
-      call. = FALSE
-    )
   }
   objs
 }

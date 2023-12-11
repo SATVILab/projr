@@ -8,3 +8,10 @@ devtools::test_active_file(
 devtools::test_active_file(
   "tests/testthat/test-remote.R"
 )
+
+test_fn <- function(...) {
+  dots_list <- as.list(...)
+}
+
+debugonce(test_fn)
+test_fn()

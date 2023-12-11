@@ -178,7 +178,7 @@
   if (!is.null(path_dir_local)) {
     return(path_dir_local)
   }
-  projr_dir_get(label, output_safe = !output_run)
+  projr_dir_get(label, safe = !output_run)
 }
 
 .projr_change_get_file_get_osf <- function(remote_base,

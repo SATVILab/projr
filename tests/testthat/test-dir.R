@@ -19,7 +19,7 @@ test_that("projr_dir_get works", {
         "output",
         output_safe = TRUE,
         create = FALSE,
-        path_relative_force = FALSE
+        relative = FALSE
       ), "_tmp/projr/v0.0.0-1/output")
       expect_identical(projr_dir_get("output", output_safe = FALSE), "_output")
       expect_identical(projr_dir_get("archive"), "_tmp/projr/v0.0.0-1/archive")
@@ -42,7 +42,7 @@ test_that("projr_dir_get works", {
       )
 
       expect_identical(
-        projr_dir_get("data-raw", path_relative_force = TRUE),
+        projr_dir_get("data-raw", relative = TRUE),
         "../.."
       )
       expect_identical(
@@ -136,7 +136,7 @@ test_that("projr_path_get works", {
         "output",
         output_safe = TRUE,
         create = FALSE,
-        path_relative_force = FALSE
+        relative = FALSE
       ), "_tmp/projr/v0.0.0-1/output")
       expect_identical(projr_path_get("output", output_safe = FALSE), "_output")
       expect_identical(
@@ -157,7 +157,7 @@ test_that("projr_path_get works", {
 
       expect_identical(projr_path_get("data-raw"), path_data_raw_abs)
       expect_identical(
-        projr_path_get("data-raw", path_relative_force = TRUE),
+        projr_path_get("data-raw", relative = TRUE),
         "../.."
       )
 

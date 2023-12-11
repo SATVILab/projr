@@ -1,5 +1,5 @@
 .projr_ignore_label_set <- function(label, git_skip_adjust = TRUE) {
-  dir_path <- .projr_dir_get(label, output_safe = FALSE)
+  dir_path <- .projr_dir_get(label, safe = FALSE)
   if (grepl("^archive", .projr_dir_label_strip(label))) {
     dir_path <- dirname(dir_path)
   }
