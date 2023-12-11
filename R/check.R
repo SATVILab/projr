@@ -164,6 +164,7 @@
   is.null(x)
 }
 
+
 .projr_state_cue <- function(cue, bump_component) {
   .projr_state_cue_check(cue, bump_component)
 

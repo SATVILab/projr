@@ -911,7 +911,7 @@ projr_init_renviron <- function() {
   if (file.exists(.projr_dir_proj_get("inst", "CITATION"))) {
     return(invisible(FALSE))
   }
-  .projr_yml_set_cite(inst_citation = TRUE)
+  projr_yml_cite_set(inst_citation = TRUE)
   .projr_dep_install("cffr")
   .projr_cite_citation_set()
 }
@@ -967,7 +967,7 @@ projr_init_renviron <- function() {
     return(invisible(FALSE))
   }
   .projr_dep_install("cffr")
-  .projr_yml_set_cite(cff = TRUE)
+  projr_yml_cite_set(cff = TRUE)
   .projr_cite_cff_set()
 }
 
@@ -976,7 +976,7 @@ projr_init_renviron <- function() {
   if (file.exists(path_codemeta)) {
     return(invisible(FALSE))
   }
-  .projr_yml_set_cite(codemeta = TRUE)
+  projr_yml_cite_set(codemeta = TRUE)
   .projr_dep_install("cboettig/codemeta")
   .projr_cite_codemeta_set()
 }
