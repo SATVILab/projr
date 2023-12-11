@@ -17,11 +17,11 @@ test_that("projr_dir_get works", {
       expect_identical(projr_dir_get("output"), "_tmp/projr/v0.0.0-1/output")
       expect_identical(projr_dir_get(
         "output",
-        output_safe = TRUE,
+        safe = TRUE,
         create = FALSE,
         relative = FALSE
       ), "_tmp/projr/v0.0.0-1/output")
-      expect_identical(projr_dir_get("output", output_safe = FALSE), "_output")
+      expect_identical(projr_dir_get("output", safe = FALSE), "_output")
       expect_identical(projr_dir_get("archive"), "_tmp/projr/v0.0.0-1/archive")
       if (dir.exists("_tmp")) unlink("_tmp", recursive = TRUE)
       expect_identical(projr_dir_get("cache", create = FALSE), "_tmp")
@@ -49,7 +49,7 @@ test_that("projr_dir_get works", {
         projr_dir_get("docs", "abc"), "_tmp/projr/v0.0.0-1/docs/abc"
       )
       expect_identical(
-        projr_dir_get("docs", "abc", output_safe = FALSE), "docs/abc"
+        projr_dir_get("docs", "abc", safe = FALSE), "docs/abc"
       )
       expect_identical(
         projr_dir_get("data-raw", "abc"),
@@ -68,11 +68,11 @@ test_that("projr_dir_get works", {
         projr_dir_get("archive", "abc"), "_tmp/projr/v0.0.0-1/archive/abc"
       )
       expect_identical(
-        projr_dir_get("archive", "abc", output_safe = FALSE),
+        projr_dir_get("archive", "abc", safe = FALSE),
         "_archive/v0.0.0-1/abc"
       )
       expect_identical(
-        projr_dir_get("output", "abc", output_safe = TRUE),
+        projr_dir_get("output", "abc", safe = TRUE),
         "_tmp/projr/v0.0.0-1/output/abc"
       )
       expect_identical(
@@ -134,13 +134,13 @@ test_that("projr_path_get works", {
       expect_identical(projr_path_get("output"), "_tmp/projr/v0.0.0-1/output")
       expect_identical(projr_path_get(
         "output",
-        output_safe = TRUE,
+        safe = TRUE,
         create = FALSE,
         relative = FALSE
       ), "_tmp/projr/v0.0.0-1/output")
-      expect_identical(projr_path_get("output", output_safe = FALSE), "_output")
+      expect_identical(projr_path_get("output", safe = FALSE), "_output")
       expect_identical(
-        projr_path_get("archive", output_safe = FALSE), "_archive/v0.0.0-1"
+        projr_path_get("archive", safe = FALSE), "_archive/v0.0.0-1"
       )
       if (dir.exists("_tmp")) unlink("_tmp", recursive = TRUE)
       expect_identical(projr_path_get("cache", create = FALSE), "_tmp")
@@ -162,11 +162,11 @@ test_that("projr_path_get works", {
       )
 
       expect_identical(
-        projr_path_get("docs", "abc", output_safe = TRUE),
+        projr_path_get("docs", "abc", safe = TRUE),
         "_tmp/projr/v0.0.0-1/docs/reportV0.0.0-1/abc"
       )
       expect_identical(
-        projr_path_get("docs", "abc", output_safe = FALSE), "docs/reportV0.0.0-1/abc"
+        projr_path_get("docs", "abc", safe = FALSE), "docs/reportV0.0.0-1/abc"
       )
       expect_identical(
         projr_path_get("data-raw", "abc"),
@@ -176,11 +176,11 @@ test_that("projr_path_get works", {
         projr_path_get("cache", "abc"), "_tmp/abc"
       )
       expect_identical(
-        projr_path_get("archive", "abc", output_safe = TRUE),
+        projr_path_get("archive", "abc", safe = TRUE),
         "_tmp/projr/v0.0.0-1/archive/abc"
       )
       expect_identical(
-        projr_path_get("archive", "abc", output_safe = FALSE),
+        projr_path_get("archive", "abc", safe = FALSE),
         "_archive/v0.0.0-1/abc"
       )
       expect_identical(
@@ -195,7 +195,7 @@ test_that("projr_path_get works", {
       expect_true(dir.exists(dirname(projr_path_get("archive", "abc"))))
       expect_true(!file.exists(projr_path_get("archive", "abc", "def")))
       expect_identical(
-        projr_path_get("output", "abc", output_safe = TRUE),
+        projr_path_get("output", "abc", safe = TRUE),
         "_tmp/projr/v0.0.0-1/output/abc"
       )
     },
@@ -238,20 +238,20 @@ test_that("projr_dir_create works", {
 
       projr_dir_create("data-raw")
       expect_true(dir.exists("_data_raw"))
-      projr_dir_create("archive", output_safe = FALSE)
+      projr_dir_create("archive", safe = FALSE)
       expect_true(dir.exists("_archive"))
       expect_true(dir.exists(file.path("_archive", "v0.0.0-1")))
       projr_dir_create("output")
       expect_false(dir.exists("_output"))
       expect_true(dir.exists("_tmp/projr/v0.0.0-1/output"))
-      projr_dir_create("output", output_safe = FALSE)
+      projr_dir_create("output", safe = FALSE)
       expect_true(dir.exists("_output"))
       projr_dir_create("cache")
       expect_true(dir.exists("_tmp"))
 
       unlink("_tmp", recursive = TRUE)
       unlink("_output", recursive = TRUE)
-      projr_dir_create(c("cache", "output"), output_safe = FALSE)
+      projr_dir_create(c("cache", "output"), safe = FALSE)
       expect_true(dir.exists("_tmp"))
       expect_true(dir.exists("_output"))
       gitignore <- .projr_ignore_git_read()

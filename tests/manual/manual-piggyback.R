@@ -65,7 +65,7 @@ usethis::use_github()
 # initialise project
 file.create(projr::projr_path_get("data-raw", "test_data_raw.txt"))
 file.create(projr_path_get("cache", "test_cache.txt"))
-file.create(projr_path_get("output", "test_output.txt", output_safe = FALSE))
+file.create(projr_path_get("output", "test_output.txt", safe = FALSE))
 file.create(projr_path_get("docs", "test_docs.txt"))
 
 .projr_pb_upload(TRUE)
