@@ -22,11 +22,11 @@
 #' If these settings are not setting in `_projr.yml`,
 #' then the default is to commit, add untracked files and push.
 #'
-#' `projr_yml_git_set_default` sets all Git options to default.
+#' `projr_yml_git_set_default` sets all Git options to default (`TRUE`).
 #'
 #' @param all logical.
 #' Whether to set all the options
-#' to a `TRUE` or `FALSE` value.
+#' to `TRUE` or `FALSE`.
 #' If `NULL`, then `commit`, `add_untracked` and `push` are used.
 #' Default is `NULL`.
 #' @param commit logical.
@@ -44,6 +44,16 @@
 #' project builds.
 #' If `NULL`, then setting is not changed.
 #' Default is `NULL`.
+#' @param simplify_identical logical.
+#' If `TRUE`, then if all the settings are the same
+#' (for `commit`, `push` and `add_untracked`),
+#' then only `git: TRUE` or `git: FALSE` is written to `_projr.yml`.
+#' Default is `TRUE`.
+#' @param simplify_default logical.
+#' If `TRUE`, then if the settings are the same as the default
+#' (which is TRUE),
+#' then the settings are removed from `_projr.yml`.
+#' Default is `TRUE`.
 #' @param profile character.
 #' Profile to add the script to.
 #' If `"default"`` (the default),
@@ -54,15 +64,6 @@
 #' and `_projr.yml`) and written to `_projr.yml`.
 #' If another character vector, then the corresponding profile is used
 #' and written to `_projr-<profile>.yml`.
-#' @param simplify_identical logical.
-#' If `TRUE`, then if all the settings are the same
-#' (for `commit`, `push` and `add_untracked`),
-#' then only `git: TRUE` or `git: FALSE` is written to `_projr.yml`.
-#' Default is `FALSE`.
-#' @param simplify_default logical.
-#' If `TRUE`, then if the settings are the same as the default,
-#' then the settings are removed from `_projr.yml`.
-#' Default is `TRUE`.
 #'
 #' @examples
 #' \dontrun{
@@ -74,6 +75,9 @@
 #'
 #' # set only add_untracked to FALSE
 #' projr_yml_git_set(add_untracked = FALSE)
+#'
+#' # revert to defaults
+#' projr_yml_git_set_default()
 #' }
 #' @export
 projr_yml_git_set <- function(all = NULL,
@@ -85,24 +89,21 @@ projr_yml_git_set <- function(all = NULL,
                               profile = "default") {
   .projr_yml_git_set_check(
     all = all, commit = commit, add_untracked = add_untracked,
-    push = push, simplify_default = simplify_default, profile = profile
+    push = push, simplify_default = simplify_default,
+    simplify_identical = simplify_identical, profile = profile
   )
   if (!.projr_state_null(all)) {
-    .projr_check_lgl_single(all)
     commit <- all
     add_untracked <- all
     push <- all
   }
-  if (!.projr_state_null(commit)) {
-    .projr_yml_git_set_commit(commit, simplify_default, profile)
-  }
-  if (!.projr_state_null(add_untracked)) {
-    .projr_yml_git_set_add_untracked(add_untracked, simplify_default, profile)
-  }
-  if (!.projr_state_null(push)) {
-    .projr_yml_git_set_push(push, simplify_default, profile)
-  }
-  .projr_yml_git_simplify(simplify_default, simplify_identical, profile)
+  .projr_yml_git_set_ind(
+    commit = commit, add_untracked = add_untracked,
+    push = push, simplify_default = simplify_default,
+    profile = profile
+  )
+
+  .projr_yml_git_simplify(simplify_identical, simplify_default, profile)
 }
 
 .projr_yml_git_set_check <- function(all,
@@ -113,22 +114,30 @@ projr_yml_git_set <- function(all = NULL,
                                      simplify_default,
                                      profile) {
   if (!.projr_state_null(all)) {
-    .projr_check_lgl_single(all)
+    .projr_check_lgl_single(all, "all")
   } else {
-    if (!.projr_state_null(commit)) {
-      .projr_check_lgl_single(commit)
-    }
-    if (!.projr_state_null(add_untracked)) {
-      .projr_check_lgl_single(add_untracked)
-    }
-    if (!.projr_state_null(push)) {
-      .projr_check_lgl_single(push)
-    }
+    .projr_check_lgl_single(commit, "commit")
+    .projr_check_lgl_single(add_untracked, "add_untracked")
+    .projr_check_lgl_single(push, "push")
   }
-  .projr_check_lgl_single(simplify_identical)
-  .projr_check_lgl_single(simplify_default)
-  if (!.projr_state_null(profile)) {
-    .projr_check_chr_single(profile)
+  .projr_check_lgl_single(simplify_identical, "simplify_identical", required = TRUE)
+  .projr_check_lgl_single(simplify_default, "simplify_default", required = TRUE)
+  .projr_check_chr_single(profile, "profile")
+}
+
+.projr_yml_git_set_ind <- function(commit,
+                                   add_untracked,
+                                   push,
+                                   simplify_default,
+                                   profile) {
+  if (!.projr_state_null(commit)) {
+    .projr_yml_git_set_commit(commit, simplify_default, profile)
+  }
+  if (!.projr_state_null(add_untracked)) {
+    .projr_yml_git_set_add_untracked(add_untracked, simplify_default, profile)
+  }
+  if (!.projr_state_null(push)) {
+    .projr_yml_git_set_push(push, simplify_default, profile)
   }
 }
 
@@ -183,15 +192,12 @@ projr_yml_git_set_default <- function(profile = "default",
   )
 }
 
-
-
 .projr_yml_git_get_ordered <- function(yml_git) {
   nm_vec_actual <- names(yml_git)
   nm_vec_possible <- c("commit", "add-untracked", "push")
   nm_vec_ordered <- nm_vec_possible[nm_vec_possible %in% nm_vec_actual]
   yml_git[nm_vec_ordered]
 }
-
 
 .projr_yml_git_set_add_untracked <- function(add_untracked,
                                              simplify_default,
@@ -257,23 +263,8 @@ projr_yml_git_set_default <- function(profile = "default",
   .projr_yml_set(yml_projr, profile)
 }
 
-.projr_yml_git_simplify <- function(simplify_default, profile) {
-  if (!simplify_default) {
-    return(invisible(FALSE))
-  }
-
-  commit <- .projr_yml_git_get_commit(profile)
-  push <- .projr_yml_git_get_push(profile)
-  add_untracked <- .projr_yml_git_get_add_untracked(profile)
-  if (all(c(commit, push, add_untracked))) {
-    .projr_yml_git_set(NULL, profile)
-  }
-
-  invisible(TRUE)
-}
-
-.projr_yml_git_simplify <- function(simplify_default,
-                                    simplify_identical,
+.projr_yml_git_simplify <- function(simplify_identical,
+                                    simplify_default,
                                     profile) {
   .projr_yml_git_simplify_identical(simplify_identical, profile)
   .projr_yml_git_simplify_default(simplify_default, profile)

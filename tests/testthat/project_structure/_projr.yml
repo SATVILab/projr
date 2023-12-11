@@ -13,12 +13,6 @@ directories:
     archive: true
 
 build:
-  dev-output: true
-  package: false
-  git:
-    commit: true
-    add-untracked: true
-    push: false
   github:
     '@version':
       content: code
