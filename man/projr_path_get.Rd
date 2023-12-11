@@ -4,13 +4,7 @@
 \alias{projr_path_get}
 \title{Return path}
 \usage{
-projr_path_get(
-  label,
-  ...,
-  create = TRUE,
-  path_relative_force = FALSE,
-  output_safe = TRUE
-)
+projr_path_get(label, ..., create = TRUE, relative = FALSE, safe = TRUE)
 }
 \arguments{
 \item{label}{character.
@@ -32,12 +26,12 @@ and \code{.Rbuildignore} as specified
 in \code{_projr.yml}.
 Default is \code{TRUE}.}
 
-\item{path_relative_force}{logical.
+\item{relative}{logical.
 If \code{TRUE}, then forces that the returned
 path is relative to the project root.
 Default is \code{FALSE}.}
 
-\item{output_safe}{logical.
+\item{safe}{logical.
 If \code{TRUE}, then the output directory
 is set to be \code{"<path_to_cache>/projr_output"}
 instead of \code{<path_to_output>} (as specified in \code{_projr.yml}).

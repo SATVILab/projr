@@ -71,19 +71,19 @@
 }
 
 .projr_test_setup_content <- function(label,
-                                      output_safe = FALSE,
+                                      safe = FALSE,
                                       dir_sub_lvl = 2,
                                       dir_sub_prefix = "subdir") {
   for (x in label) {
     # create files
     file.create(
-      projr_path_get(label, "abc.txt", output_safe = output_safe)
+      projr_path_get(label, "abc.txt", safe = safe)
     )
     if (dir_sub_lvl > 0) {
       file.create(
         projr_path_get(
           label, paste0(dir_sub_prefix, "1"), "def.txt",
-          output_safe = output_safe
+          safe = safe
         )
       )
     }
@@ -92,7 +92,7 @@
         projr_path_get(
           label, paste0(dir_sub_prefix, "1"),
           paste0(dir_sub_prefix, "2"), "ghi.txt",
-          output_safe = FALSE
+          safe = FALSE
         )
       )
     }
@@ -100,7 +100,7 @@
 }
 
 .projr_test_setup_content_dir <- function(path_dir = NULL,
-                                          output_safe = FALSE,
+                                          safe = FALSE,
                                           dir_sub_lvl = 2,
                                           dir_sub_prefix = "subdir") {
   if (is.null(path_dir)) {

@@ -225,7 +225,7 @@
   if (length(plan_list[["add"]]) == 0L && length(plan_list[["rm"]]) == 0L) {
     return(plan_list)
   }
-  path_dir_local <- projr_dir_get(label, output_safe = !output_run)
+  path_dir_local <- projr_dir_get(label, safe = !output_run)
   list("add" = list.files(path_dir_local, recursive = TRUE), rm = character())
 }
 

@@ -25,7 +25,7 @@ test_that(".projr_osf_send_fn works", {
       osf_tbl_proj <- .projr_test_osf_create_project("ProjectUploadFn")
       .projr_osf_rm_node_id_defer(osf_tbl_proj[["id"]])
 
-      path_dir_fn <- projr_dir_get("output", output_safe = FALSE)
+      path_dir_fn <- projr_dir_get("output", safe = FALSE)
       fn_vec <- list.files(path_dir_fn, recursive = TRUE)
 
       # upload to node
@@ -96,7 +96,7 @@ test_that(".projr_osf_send_dir and _missing work", {
       osf_tbl_proj <- .projr_test_osf_create_project("ProjectUploadFn")
       .projr_osf_rm_node_id_defer(osf_tbl_proj[["id"]])
 
-      path_dir_fn <- projr_dir_get("data-raw", output_safe = FALSE)
+      path_dir_fn <- projr_dir_get("data-raw", safe = FALSE)
       fn_vec <- list.files(path_dir_fn, recursive = TRUE)
 
       # upload to node
@@ -185,7 +185,7 @@ test_that(".projr_osf_send_dir and _missing work", {
       # create files
       browser()
       .projr_test_setup_content("output")
-      path_dir_fn_output <- projr_dir_get("output", output_safe = FALSE)
+      path_dir_fn_output <- projr_dir_get("output", safe = FALSE)
       fn_vec <- list.files(path_dir_fn_output, recursive = TRUE)
       osf_tbl_file_output <- osfr::osf_mkdir(osf_tbl_proj, "output")
       osfr::osf_rm(osf_tbl_file_output, check = FALSE, recurse = TRUE)
@@ -390,7 +390,7 @@ test_that(".projr_osf_send_yml_label works", {
       # test
       osf_tbl_file <- osf_tbl_projr |> osfr::osf_ls_files(n_max = Inf)
       path_osf <- NULL
-      path_local <- projr_dir_get("output", output_safe = FALSE)
+      path_local <- projr_dir_get("output", safe = FALSE)
 
       .projr_osf_send_yml_label(
         osf_tbl = osf_tbl,

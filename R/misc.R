@@ -263,14 +263,14 @@ projr_use_data <- function(...,
                            compress = "bzip2",
                            version = 2,
                            ascii = FALSE,
-                           output_safe = TRUE) {
+                           safe = TRUE) {
   # copied across from usethis::use_data,
   # except that we adjust output directory
   # based on whether it's an output run or not
   objs <- .projr_usethis_get_objs_from_dots(.projr_usethis_dots(...))
   # not going to add dependency as `projr` will only
   # work for R > 3.5.0
-  if (!output_safe) {
+  if (!safe) {
     if (internal) {
       .projr_dir_create("R")
       paths <- fs:::path("R", "sysdata.rda")

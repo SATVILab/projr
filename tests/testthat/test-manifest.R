@@ -147,15 +147,15 @@ test_that("projr_manifest_compare works", {
       # create files
       path_output_kept_unchanged <- projr_path_get(
         "output", "kept_unchanged.txt",
-        output_safe = FALSE
+        safe = FALSE
       )
       path_output_kept_changed <- projr_path_get(
         "output", "kept_changed.txt",
-        output_safe = FALSE
+        safe = FALSE
       )
       path_output_removed <- projr_path_get(
         "output", "removed.txt",
-        output_safe = FALSE
+        safe = FALSE
       )
       invisible(file.create(path_output_kept_unchanged))
       invisible(file.create(path_output_kept_changed))
@@ -165,7 +165,7 @@ test_that("projr_manifest_compare works", {
       # add a file, and change a file
       path_output_add <- projr_path_get(
         "output", "added.txt",
-        output_safe = FALSE
+        safe = FALSE
       )
       invisible(file.create(path_output_add))
       cat("add", file = path_output_kept_changed, append = TRUE)

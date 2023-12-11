@@ -143,7 +143,7 @@
 }
 
 .projr_pb_path_get_dir <- function(label, output_run) {
-  path_dir <- projr_dir_get(label, output_safe = !output_run)
+  path_dir <- projr_dir_get(label, safe = !output_run)
   if (!fs::is_absolute_path(path_dir)) {
     path_dir <- .projr_dir_proj_get(path_dir)
   }

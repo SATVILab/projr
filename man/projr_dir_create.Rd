@@ -4,7 +4,7 @@
 \alias{projr_dir_create}
 \title{Create a directory in _projr.yml}
 \usage{
-projr_dir_create(label, ..., output_safe = TRUE)
+projr_dir_create(label, ..., safe = TRUE)
 }
 \arguments{
 \item{label}{character.
@@ -19,7 +19,7 @@ whereas the others returns paths as specified in \code{"_projr.yml"}.}
 \item{...}{Specifies sub-directory of directory returned.
 Passed to \code{file.path}.}
 
-\item{output_safe}{logical.
+\item{safe}{logical.
 If \code{TRUE}, then the output directory
 is set to be \code{"<path_to_cache>/projr_output"}
 instead of \code{<path_to_output>} (as specified in \code{_projr.yml}).

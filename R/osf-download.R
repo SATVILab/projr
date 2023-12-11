@@ -196,7 +196,7 @@
   }
 }
 
-.projr_osf_download_build <- function(output_safe) {
+.projr_osf_download_build <- function(safe) {
   if (!.projr_osf_download_build_check_run()) {
     return(invisible(FALSE))
   }
@@ -205,7 +205,7 @@
     .projr_osf_download_build_node(
       title = names(yml_projr_build_osf)[i],
       id_parent = NULL,
-      output_safe = output_safe
+      safe = safe
     )
   }
 }
@@ -294,7 +294,7 @@
   }
   .projr_osf_download_osf_tbl(
     osf_tbl = osf_tbl_file,
-    path_dir_save_local = projr_dir_get(label, output_safe = TRUE),
+    path_dir_save_local = projr_dir_get(label, safe = TRUE),
     conflicts = "overwrite"
   )
   invisible(TRUE)
@@ -302,7 +302,7 @@
 
 .projr_osf_download_build_node <- function(title,
                                            id_parent = NULL,
-                                           output_safe) {
+                                           safe) {
   yml_param <- projr_yml_get_unchecked()[["build"]][["osf"]][[title]]
   id_parent <- .projr_osf_get_id_parent(
     yml_param = yml_param, id_parent = id_parent
@@ -324,7 +324,7 @@
   for (i in seq_along(yml_param[["content"]])) {
     .projr_osf_download_osf_tbl(
       osf_tbl = osf_tbl,
-      path_dir_save_local = projr_dir_get(yml_param[["content"]][i], output_safe = TRUE),
+      path_dir_save_local = projr_dir_get(yml_param[["content"]][i], safe = TRUE),
       conflicts = conflicts
     )
   }
