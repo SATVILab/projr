@@ -232,9 +232,7 @@ projr_yml_cite_set_default <- function(profile = "default",
 }
 
 .projr_yml_cite_set <- function(yml_cite, profile = NULL) {
-  yml_projr <- projr_yml_get_unchecked(profile)
-  yml_projr[["build"]][["cite"]] <- yml_cite
-  .projr_yml_set(yml_projr, profile)
+  .projr_yml_build_set_nm(yml_git, "cite", profile)
 }
 
 .projr_yml_cite_simplify <- function(simplify_identical,

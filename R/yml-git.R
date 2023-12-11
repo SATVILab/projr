@@ -250,17 +250,11 @@ projr_yml_git_set_default <- function(profile = "default",
 }
 
 .projr_yml_git_get <- function(profile) {
-  init_list <- projr_yml_get_unchecked(profile)[["build"]][["git"]]
-  if (length(init_list) == 0L) {
-    return(NULL)
-  }
-  init_list
+  projr_yml_get_unchecked(profile)[["build"]][["git"]]
 }
 
 .projr_yml_git_set <- function(yml_git, profile) {
-  yml_projr <- projr_yml_get_unchecked(profile)
-  yml_projr[["build"]][["git"]] <- yml_git
-  .projr_yml_set(yml_projr, profile)
+  .projr_yml_build_set_nm(yml_git, "git", profile)
 }
 
 .projr_yml_git_simplify <- function(simplify_identical,

@@ -839,7 +839,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # github
 .projr_remote_file_rm_github <- function(fn,
                                          remote) {
-  if (length(fn) == 0L) {
+  if (.projr_state_z(fn)) {
     return(invisible(FALSE))
   }
   piggyback::.pb_cache_clear()
@@ -894,7 +894,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 .projr_remote_file_add_local <- function(fn,
                                          path_dir_local,
                                          remote) {
-  .projr_dir_copy(
+  .projr_dir_copy_file(
     fn = fn,
     path_dir_from = path_dir_local,
     path_dir_to = remote

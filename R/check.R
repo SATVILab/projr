@@ -39,7 +39,11 @@
 }
 
 .projr_state_nz <- function(x) {
-  length(x) != 0L
+  !.projr_state_z(x)
+}
+
+.projr_state_z <- function(x) {
+  .projr_state_len(x, 0L)
 }
 
 .projr_check_chr_single <- function(x, nm, required = FALSE) {

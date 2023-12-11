@@ -129,7 +129,7 @@
 .projr_dir_create
 
 .projr_dir_copy_check <- function(fn, path_dir_from) {
-  if (length(fn) == 0L) {
+  if (.projr_state_z(fn)) {
     return(invisible(FALSE))
   }
   fn_vec_source_exists <- .projr_file_get_abs_exists(fn, path_dir_from)

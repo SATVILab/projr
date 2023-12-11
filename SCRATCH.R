@@ -3,5 +3,8 @@ library(testthat)
 devtools::load_all()
 # devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
 devtools::test_active_file(
-  "tests/testthat/test-cite.R"
+  "tests/testthat/test-script.R"
+)
+devtools::test_active_file(
+  "tests/testthat/test-remote.R"
 )

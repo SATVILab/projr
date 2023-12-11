@@ -23,11 +23,14 @@ test_that(".projr_yml_script_ functions work works", {
       )
 
       # test projr_yml_script_rm_path
+      browser()
+      debugonce(projr_yml_script_rm)
       projr_yml_script_rm(title = "test-script", profile = "default")
       expect_identical(
         .projr_yml_script_get("default"),
         list()
       )
+      browser()
 
       # test projr_yml_script_rm_title
       projr_yml_script_add(
@@ -41,7 +44,7 @@ test_that(".projr_yml_script_ functions work works", {
       )
       expect_identical(
         .projr_yml_script_get("default"),
-        list()
+        NULL
       )
 
       # test projr_yml_script_rm_all
@@ -54,7 +57,7 @@ test_that(".projr_yml_script_ functions work works", {
       projr_yml_script_rm_all(profile = "default")
       expect_identical(
         .projr_yml_script_get("default"),
-        list()
+        NULL
       )
 
       # test projr_yml_script_rm
@@ -137,7 +140,7 @@ test_that(".projr_yml_script_ functions work works with other profile", {
       projr_yml_script_rm(title = "test-script", profile = "test")
       expect_identical(
         .projr_yml_script_get("test"),
-        list()
+        NULL
       )
 
       # test projr_yml_script_rm_title
@@ -153,7 +156,7 @@ test_that(".projr_yml_script_ functions work works with other profile", {
       )
       expect_identical(
         .projr_yml_script_get("test"),
-        list()
+        NULL
       )
 
       # test projr_yml_script_rm_all
@@ -168,7 +171,7 @@ test_that(".projr_yml_script_ functions work works with other profile", {
       projr_yml_script_rm_all(profile = "test")
       expect_identical(
         .projr_yml_script_get("test"),
-        list()
+        NULL
       )
 
       # test projr_yml_script_rm

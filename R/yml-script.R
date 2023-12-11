@@ -165,17 +165,11 @@ projr_yml_script_rm_all <- function(profile = "default") {
 }
 
 .projr_yml_script_get <- function(profile) {
-  yml_script <- projr_yml_get_unchecked(profile)[["build"]][["script"]]
-  if (length(yml_script) == 0L) {
-    return(list())
-  }
-  yml_script
+  projr_yml_get_unchecked(profile)[["build"]][["script"]]
 }
 
 .projr_yml_script_set <- function(yml_script, profile = NULL) {
-  yml_projr <- projr_yml_get_unchecked(profile)
-  yml_projr[["build"]][["script"]] <- yml_script
-  .projr_yml_set(yml_projr, profile)
+  .projr_yml_build_set_nm(yml_script, "script", profile)
 }
 
 #' @rdname yml-script
