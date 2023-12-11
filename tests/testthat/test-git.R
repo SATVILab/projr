@@ -48,6 +48,13 @@ test_that(".projr_yml_git_ functions work", {
         .projr_yml_git_get("default"),
         NULL
       )
+      # use meaningful default
+      projr_yml_git_set(commit = FALSE)
+      projr_yml_git_set_default()
+      expect_identical(
+        .projr_yml_git_get("default"),
+        NULL
+      )
     }
   )
 })
@@ -144,9 +151,6 @@ test_that(".projr_git_ functions work", { # setup
       status_tbl <- gert::git_status()
       .projr_git_commit_file("def.txt", msg = "def")
       expect_true(.projr_git_push_gert())
-
-
-
       .projr_git_config_get_name()
     }
   )

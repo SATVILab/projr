@@ -24,7 +24,7 @@ projr_yml_git_set_default(
 \arguments{
 \item{all}{logical.
 Whether to set all the options
-to a \code{TRUE} or \code{FALSE} value.
+to \code{TRUE} or \code{FALSE}.
 If \code{NULL}, then \code{commit}, \code{add_untracked} and \code{push} are used.
 Default is \code{NULL}.}
 
@@ -50,10 +50,11 @@ Default is \code{NULL}.}
 If \code{TRUE}, then if all the settings are the same
 (for \code{commit}, \code{push} and \code{add_untracked}),
 then only \code{git: TRUE} or \code{git: FALSE} is written to \verb{_projr.yml}.
-Default is \code{FALSE}.}
+Default is \code{TRUE}.}
 
 \item{simplify_default}{logical.
-If \code{TRUE}, then if the settings are the same as the default,
+If \code{TRUE}, then if the settings are the same as the default
+(which is TRUE),
 then the settings are removed from \verb{_projr.yml}.
 Default is \code{TRUE}.}
 
@@ -78,7 +79,7 @@ The default is to leave all the settings unchanged.
 If these settings are not setting in \verb{_projr.yml},
 then the default is to commit, add untracked files and push.
 
-\code{projr_yml_git_set_default} sets all Git options to default.
+\code{projr_yml_git_set_default} sets all Git options to default (\code{TRUE}).
 }
 \examples{
 \dontrun{
@@ -90,5 +91,8 @@ projr_yml_git_set(all = FALSE)
 
 # set only add_untracked to FALSE
 projr_yml_git_set(add_untracked = FALSE)
+
+# revert to defaults
+projr_yml_git_set_default()
 }
 }

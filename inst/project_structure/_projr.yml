@@ -10,9 +10,6 @@ directories:
     path: docs
 
 build:
-  dev-output: yes
-  package: no
-  git: yes
   local:
     "archive":
       path: _archive
