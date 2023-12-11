@@ -16,6 +16,12 @@
   dir.exists(.projr_dir_proj_get(".git"))
 }
 
+.projr_git_repo_rm <- function() {
+  if (dir.exists(.projr_dir_proj_get(".git"))) {
+    unlink(.projr_dir_proj_get(".git"), recursive = TRUE)
+  }
+}
+
 .projr_git_commit_file <- function(file, msg = NULL) {
   if (length(file) == 0L) {
     return(invisible(FALSE))
@@ -186,25 +192,27 @@
 }
 
 .projr_git_remote_check_upstream <- function() {
-  .projr_git_remote_check_exists()
+  if (!.projr_git_remote_check_exists()) {
+    return(FALSE)
+  }
   switch(.projr_git_system_get(),
     "git" = {
-      if (.projr_git_remote_check_upstream_git()) {
-        stop("No upstream remote detected")
+      if (!.projr_git_remote_check_upstream_git()) {
+        warning("No upstream remote detected")
+        return(FALSE)
       }
       invisible(TRUE)
     },
     # I think `gert` automatically sets to origin if none found
     "gert" = invisible(TRUE)
   )
-  invisible(TRUE)
 }
 
 .projr_git_remote_check_upstream_git <- function() {
-  remotes <- system2("git", args = c("remote", "-v"), stdout = TRUE)
-  if (!any(grepl("upstream", remotes))) {
-    stop("No upstream remote configured")
-  }
+  upstream_branch <- system2("git", args = c(
+    "rev-parse", "--abbrev-ref", "--symbolic-full-name", paste0("HEAD", "@{upstream}")
+  ), stdout = TRUE, stderr = TRUE)
+  !grepl("no upstream configured", upstream_branch)
 }
 
 # push
@@ -219,10 +227,12 @@
 
 .projr_git_push_git <- function() {
   system2("git", args = "push")
+  invisible(TRUE)
 }
 
 .projr_git_push_gert <- function() {
   gert::git_push()
+  invisible(TRUE)
 }
 
 # author
@@ -235,9 +245,28 @@
 }
 
 .projr_git_config_get_name_git <- function() {
-  system2("git", args = "config user.name", stdout = TRUE)
+  nm <- system2("git", args = "config user.name", stdout = TRUE)
+  if (nzchar(nm)) {
+    return(nm)
+  }
+  nm <- system2("git", args = "config --global user.name", stdout = TRUE)
+  if (nzchar(nm)) {
+    return(nm)
+  }
+  system2("git", args = "config --system user.name", stdout = TRUE)
 }
 .projr_git_config_get_name_gert <- function() {
   config_tbl <- gert::git_config()
-  config_tbl[config_tbl[["name"]] == "user.name", ][["value"]][[1]]
+  local_vec_ind <- config_tbl[["level"]] == "local"
+  global_vec_ind <- config_tbl[["level"]] == "global"
+  system_vec_ind <- config_tbl[["level"]] == "system"
+  nm <- config_tbl[config_tbl[["name"]] == "user.name" & local_vec_ind, ][["value"]]
+  if (nzchar(nm)) {
+    return(nm)
+  }
+  nm <- config_tbl[config_tbl[["name"]] == "user.name" & global_vec_ind, ][["value"]]
+  if (nzchar(nm)) {
+    return(nm)
+  }
+  config_tbl[config_tbl[["name"]] == "user.name" & system_vec_ind, ][["value"]]
 }
