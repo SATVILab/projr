@@ -33,7 +33,7 @@
     return(invisible(TRUE))
   }
   if (!.projr_state_len_nz(x)) {
-    stop(paste0(nm, " must be non-zero length"))
+    stop(paste0(nm, " must be non-zero length"), call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -45,7 +45,7 @@
     return(invisible(TRUE))
   }
   if (!.projr_state_nz(x)) {
-    stop(paste0(nm, " must be non-zero"))
+    stop(paste0(nm, " must be non-zero"), call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -57,7 +57,7 @@
     return(invisible(TRUE))
   }
   if (!.projr_state_z(x)) {
-    stop(paste0(nm, " must be zero"))
+    stop(paste0(nm, " must be zero"), call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -70,7 +70,7 @@
 }
 
 .projr_state_len_nz <- function(x) {
-  !.projr_state_z(x)
+  !.projr_state_len_z(x)
 }
 
 .projr_state_len_z <- function(x) {
@@ -106,13 +106,30 @@
     return(invisible(TRUE))
   }
   if (!.projr_state_opt(x = x, opt = opt)) {
-    stop(paste0(nm, " must be one of ", paste0(opt, collapse = ", ")))
+    stop(
+      paste0(nm, " must be one of ", paste0(opt, collapse = ", ")),
+      call. = FALSE
+    )
   }
   invisible(TRUE)
 }
 
 .projr_state_true <- function(x) {
   isTRUE(x)
+}
+
+.projr_check_dir_exists <- function(x, nm, required = FALSE) {
+  if (required) {
+    .projr_check_given(x = x, nm = nm)
+  }
+  if (!.projr_state_dir_exists(x)) {
+    stop(paste0(nm, " must exist"), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.projr_state_dir_exists <- function(x) {
+  dir.exists(x)
 }
 
 .projr_check_true <- function(x, nm, required = FALSE) {
@@ -122,7 +139,7 @@
     return(invisible(TRUE))
   }
   if (!.projr_state_true(x)) {
-    stop(paste0(nm, " must be TRUE"))
+    stop(paste0(nm, " must be TRUE"), call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -138,7 +155,7 @@
     return(invisible(TRUE))
   }
   if (!.projr_state_false(x)) {
-    stop(paste0(nm, " must be FALSE"))
+    stop(paste0(nm, " must be FALSE"), call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -154,7 +171,7 @@
     return(invisible(TRUE))
   }
   if (!.projr_state_chr(x)) {
-    stop(paste0(nm, " must be character"))
+    stop(paste0(nm, " must be character"), call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -170,7 +187,7 @@
     return(invisible(TRUE))
   }
   if (!.projr_state_lgl(x)) {
-    stop(paste0(nm, " must be logical"))
+    stop(paste0(nm, " must be logical"), call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -194,7 +211,7 @@
     return(invisible(TRUE))
   }
   if (!.projr_state_len(x = x, len = len)) {
-    stop(paste0(nm, " must be length ", len))
+    stop(paste0(nm, " must be length ", len), call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -205,7 +222,7 @@
 
 .projr_check_given <- function(x, nm) {
   if (!.projr_state_given(x)) {
-    stop(paste0(nm, " must be given"))
+    stop(paste0(nm, " must be given"), call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -266,7 +283,10 @@
   .projr_check_len(bump_component, "bump_component", 1L)
   if (.projr_state_null(bump_component)) {
     if (.projr_state_opt(cue, c("major", "minor", "patch"))) {
-      stop("bump_component must be supplied if cue is major, minor or patch")
+      stop(
+        "bump_component must be supplied if cue is major, minor or patch",
+        call. = FALSE
+      )
     }
   }
   if (!.projr_state_lgl(bump_component)) {

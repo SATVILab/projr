@@ -2,68 +2,67 @@
                                 version_run_on_list,
                                 ...) {
   build_error <- switch(.projr_engine_get(),
-    "bookdown" = {
-      .projr_dep_add("bookdown")
-      if (!requireNamespace("bookdown", quietly = TRUE)) {
-        renv::install("bookdown")
-      }
-      x_return <- try(bookdown::render_book(...))
-      err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
-      if (is.null(err_msg)) {
-        return(NULL)
-      }
-      paste0("Error rendering bookdown project ", err_msg)
-    },
-    "quarto_project" = {
-      .projr_dep_add("quarto")
-      if (!requireNamespace("quarto", quietly = TRUE)) {
-        renv::install("quarto")
-      }
-      x_return <- try(quarto::quarto_render(...))
-      err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
-      if (is.null(err_msg)) {
-        return(NULL)
-      }
-      paste0("Error rendering Quarto project ", err_msg)
-    },
-    "quarto_document" = {
-      .projr_dep_add("quarto")
-      if (!requireNamespace("quarto", quietly = TRUE)) {
-        renv::install("quarto")
-      }
-      fn_vec <- .projr_build_engine_doc_fn_get(file = file, type = "qmd")
-      for (x in fn_vec) {
-        x_return <- try(quarto::quarto_render(x, ...))
-        if (inherits(x_return, "try-error")) {
-          break
-        }
-      }
-      err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
-      if (is.null(err_msg)) {
-        return(NULL)
-      }
-      paste0("Error rendering Quarto document ", x, ": ", err_msg)
-    },
-    "rmd" = {
-      .projr_dep_add("rmarkdown")
-      if (!requireNamespace("rmarkdown", quietly = TRUE)) {
-        renv::install("rmarkdown")
-      }
-      fn_vec <- .projr_build_engine_doc_fn_get(file = file, type = "rmd")
-      for (x in fn_vec) {
-        x_return <- try(rmarkdown::render(x, ...))
-        if (inherits(x_return, "try-error")) {
-          break
-        }
-      }
-      err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
-      if (is.null(err_msg)) {
-        return(NULL)
-      }
-      paste0("Error rendering RMarkdown document ", x, ": ", err_msg)
-    }
+    "bookdown" = .projr_build_engine_bookdown(),
+    "quarto_project" = .projr_build_engine_quarto_project(),
+    "quarto_document" = .projr_build_engine_qmd(),
+    "rmd" = .projr_build_engine_rmd()
   )
+  .projr_build_engine_error(build_error, version_run_on_list)
+}
 
+.projr_build_engine_bookdown <- function() {
+  .projr_dep_install("bookdown")
+  x_return <- try(bookdown::render_book(...)) # nolint
+  err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
+  if (is.null(err_msg)) {
+    return(NULL)
+  }
+  paste0("Error rendering bookdown project ", err_msg)
+}
+
+.projr_build_engine_quarto_project <- function() {
+  .projr_dep_install("quarto")
+  x_return <- try(quarto::quarto_render(...))
+  err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
+  if (is.null(err_msg)) {
+    return(NULL)
+  }
+  paste0("Error rendering Quarto project ", err_msg)
+}
+
+.projr_build_engine_qmd <- function() {
+  .projr_dep_install("quarto")
+  fn_vec <- .projr_build_engine_doc_fn_get(file = file, type = "qmd")
+  for (x in fn_vec) {
+    x_return <- try(quarto::quarto_render(x, ...))
+    if (inherits(x_return, "try-error")) {
+      break
+    }
+  }
+  err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
+  if (is.null(err_msg)) {
+    return(NULL)
+  }
+  paste0("Error rendering Quarto document ", x, ": ", err_msg)
+}
+
+.projr_build_engine_rmd <- function() {
+  .projr_dep_install("rmarkdown")
+  fn_vec <- .projr_build_engine_doc_fn_get(file = file, type = "rmd")
+  for (x in fn_vec) {
+    x_return <- try(rmarkdown::render(x, ...))
+    if (inherits(x_return, "try-error")) {
+      break
+    }
+  }
+  err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
+  if (is.null(err_msg)) {
+    return(NULL)
+  }
+  paste0("Error rendering RMarkdown document ", x, ": ", err_msg)
+}
+
+.projr_build_engine_error <- function(build_error, version_run_on_lsit) {
   if (!is.null(build_error)) {
     .projr_build_version_set_post(
       version_run_on_list = version_run_on_list,
@@ -85,13 +84,14 @@
     "TRUE" = list.files(.projr_dir_proj_get(), pattern = detect_str),
     "FALSE" = file[grepl(detect_str, file)] |> .projr_file_filter_exists()
   )
-  if (.projr_state_len_z(fn_vec)) {
-    .projr_build_engine_doc_fn_get_error(type)
-  }
+  .projr_build_engine_doc_fn_get_error(fn_vec, type)
   fn_vec
 }
 
-.projr_build_engine_doc_fn_get_error <- function(type) {
+.projr_build_engine_doc_fn_get_error <- function(fn, type) {
+  if (.projr_state_len_nz(fn)) {
+    return(invisible(TRUE))
+  }
   document_type <- switch(tolower(type),
     "qmd" = "Quarto",
     "rmd" = "RMarkdown"

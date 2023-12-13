@@ -69,9 +69,13 @@
   }
   invisible(fn)
 }
-.projr_file_get_rel <- function(path) {
+.projr_file_get_rel <- function(path, path_dir = NULL) {
   path |>
-    fs::path_rel(.projr_dir_proj_get())
+    fs::path_rel(.projr_path_get_default(path_dir))
+}
+
+.projr_path_get_default <- function(path) {
+  path %||% .projr_dir_proj_get()
 }
 
 .projr_file_append_version <- function(path) {

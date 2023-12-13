@@ -1,30 +1,60 @@
-test_that("projr_manifest_hash_dir works", {
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
-
-  .projr_dir_create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
-
-  for (x in fn_vec) {
-    file.copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+test_that("projr_hash_dir works", {
+  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
+      # test hashing empty directory
+      path_dir_empty <- file.path(tempdir(), "abc")
+      .projr_dir_rm(path_dir_empty)
+      dir.create(path_dir_empty)
+      hash_tbl <- .projr_hash_dir(path_dir_empty)
+      expect_identical(nrow(hash_tbl), 0L)
+      # test hashing empty directory with a sub-directory
+      dir.create(file.path(path_dir_empty, "def"))
+      hash_tbl <- .projr_hash_dir(path_dir_empty)
+      expect_identical(nrow(hash_tbl), 0L)
+
+      # test hashing non-empty directories
+      path_dir <- .projr_test_setup_content_dir()
+      hash_tbl <- .projr_hash_dir(path_dir)
+      expect_identical(nrow(hash_tbl), 3L)
+      expect_identical(length(unique(hash_tbl$hash)), 1L)
+    }
+  )
+})
+
+test_that("projr_hash_label works", {
+  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      browser()
+      # test hashing empty directory
+      path_dir_empty <- projr_dir_get("data-raw")
+      .projr_dir_rm(path_dir_empty)
+      dir.create(path_dir_empty)
+      hash_tbl <- .projr_hash_dir(path_dir_empty)
+      expect_identical(nrow(hash_tbl), 0L)
+      # test hashing empty directory with a sub-directory
+      dir.create(file.path(path_dir_empty, "def"))
+      hash_tbl <- .projr_hash_dir(path_dir_empty)
+      expect_identical(nrow(hash_tbl), 0L)
+
+      # test hashing non-empty directories
+      path_dir <- .projr_test_setup_content_dir()
+      hash_tbl <- .projr_hash_dir(path_dir)
+      expect_identical(nrow(hash_tbl), 3L)
+      expect_identical(length(unique(hash_tbl$hash)), 1L)
+    }
+  )
+})
+
+test_that("projr_manifest_hash_dir works", {
+  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      browser()
       yml_projr_init <- .projr_yml_get_root_full()
       # test getting hashes
       dir.create("_data_raw/sub", recursive = TRUE)
