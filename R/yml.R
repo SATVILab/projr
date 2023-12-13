@@ -211,36 +211,6 @@ projr_yml_get_unchecked <- function(profile = NULL) {
   invisible(TRUE)
 }
 
-.projr_yml_bd_get <- function() {
-  path_yml <- .projr_dir_proj_get("_bookdown.yml")
-  if (!file.exists(path_yml)) {
-    return(list())
-  }
-  yaml::read_yaml(path_yml)
-}
-
-.projr_yml_quarto_get <- function() {
-  path_yml <- .projr_dir_proj_get("_quarto.yml")
-  if (!file.exists(path_yml)) {
-    return(list())
-  }
-  yaml::read_yaml(path_yml)
-}
-
-.projr_yml_bd_set <- function(list_save) {
-  path_yml <- .projr_dir_proj_get("_bookdown.yml")
-  yaml::write_yaml(list_save, path_yml)
-  .projr_newline_append(path_yml)
-  invisible(TRUE)
-}
-
-.projr_yml_quarto_set <- function(list_save) {
-  path_yml <- .projr_dir_proj_get("_quarto.yml")
-  yaml::write_yaml(list_save, path_yml)
-  .projr_newline_append(path_yml)
-  invisible(TRUE)
-}
-
 .projr_desc_get <- function() {
   path_desc <- .projr_dir_proj_get("DESCRIPTION")
   read.dcf(path_desc)

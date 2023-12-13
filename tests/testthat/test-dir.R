@@ -360,9 +360,7 @@ test_that("projr_dir_ignore works", {
 
       # test not adding when the directory is not in wd
       yml_projr <- .projr_yml_get_root_full()
-      dir_out <- file.path(
-        dirname(rprojroot::is_r_package$find_file()), "test_2"
-      )
+      dir_out <- .projr_dir_proj_get("test_2")
       .projr_dir_create(dir_out)
 
       for (i in seq_along(yml_projr[["directories"]])) {

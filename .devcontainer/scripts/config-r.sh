@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Last modified: 2023 Nov 24
+# Last modified: 2023 Dec 13
 
 # Script for configuring the R environment in GitHub Codespaces or GitPod
 # - Ensures GH_TOKEN, GITHUB_TOKEN and GITHUB_PAT are all set
@@ -11,6 +11,9 @@
 #   correctly)
 # - Configures R_LIBS directory for package installations
 #   outside of container environments.
+# - Making linting less aggressive
+#   - Ignore object length and snake/camel case
+# - Ensure key R packages up to date
 
 #!/usr/bin/env bash
 # github token
@@ -40,7 +43,14 @@ if [ -n "$(env | grep -E "^GITPOD|^CODESPACE")" ]; then
     export RENV_PATHS_LIBRARY=${RENV_PATHS_LIBRARY:="$workspace_dir/.local/.cache/R/renv"}
     export RENV_PREFIX_AUTO=${RENV_PREFIX_AUTO:=TRUE}
     export RENV_CONFIG_PAK_ENABLED=${RENV_CONFIG_PAK_ENABLED:=TRUE}
+else
+    export R_LIBS=${R_LIBS:="$HOME/.local/lib/R"}
 fi
+
+# ensure R_LIBS is created (so
+# that one never tries to install packages
+# into a singularity/apptainer container)
+mkdir -p "$R_LIBS"
 
 # ensure that radian works (at least on ephemeral dev
 # environments)
@@ -55,12 +65,6 @@ if [ -n "$(env | grep -E "^GITPOD|^CODESPACE")" ]; then
     echo 'options(radian.auto_match = FALSE)' >> "$HOME/.radian_profile"
   fi
 fi
-
-# ensure R_LIBS is set and created (so
-# that one never tries to install packages
-# into a singularity/apptainer container)
-R_LIBS=${R_LIBS:="$HOME/.local/lib/R"}
-mkdir -p "$R_LIBS"
 
 # set linting settings
 # light: just don't warn about snake case / camel case

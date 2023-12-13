@@ -27,7 +27,7 @@
 }
 
 .projr_dest_send_get <- function() {
-  yml_projr_build <- projr_yml_get_unchecked()[["build"]]
+  yml_projr_build <- .projr_yml_build_get(NULL)
   dest_vec <- c("github", "local", "osf")
   dest_vec[dest_vec %in% names(yml_projr_build)]
 }
@@ -37,7 +37,7 @@
 
 .projr_dest_send_remote <- function(remote_type,
                                     bump_component) {
-  yml_projr_remote <- projr_yml_get_unchecked()[["build"]][[remote_type]]
+  yml_projr_remote <- .projr_yml_build_get(NULL)[[remote_type]]
   for (x in names(yml_projr_remote)) {
     .projr_dest_send_instance(
       remote_type = remote_type,
@@ -61,21 +61,16 @@
   )
 
   # consider early exit
-  cue_met <- .projr_state_cue(
-    cue = yml_remote[["cue"]], bump_component = bump_component
-  )
-
-  if (!cue_met) {
+  if (!.projr_state_cue(yml_remote[["cue"]], bump_component)) {
     # recurse over components for OSF,
     # as their cue might not be unmet
-    yml_component <- yml_remote[["component"]]
-    if (!is.null(yml_component)) {
+    if (.projr_state_null(yml_remote[["component"]])) {
       return(
         .projr_dest_send_instance(
           remote_type = remote_type,
           bump_component = bump_component,
           remote_name = remote_name,
-          yml_remote = yml_component
+          yml_remote = yml_remote[["component"]]
         )
       )
     } else {
@@ -94,13 +89,12 @@
 
   # send changes
   # recurse over components for OSF
-  yml_component <- yml_remote[["component"]]
-  if (!is.null(yml_component)) {
+  if (!.projr_state_null(yml_remote[["component"]])) {
     .projr_dest_send_instance(
       remote_type = remote_type,
       output_run = output_run,
       remote_name = remote_name,
-      yml_remote = yml_component
+      yml_remote = yml_remote[["component"]]
     )
   }
   invisible(TRUE)

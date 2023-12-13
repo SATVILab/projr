@@ -130,15 +130,21 @@ projr_build_dev <- function(file = NULL,
                          old_dev_remove = TRUE,
                          msg = "",
                          ...) {
-  # ========================
-  # SET-UP
-  # ========================
+  .projr_build_pre(bump_component, msg) |>
+    .projr_build_actual(file) |>
+    .projr_build_post(bump_component, msg, old_dev_remove)
+}
 
+.projr_build_get_output_run <- function(bump_component) {
+  !(is.null(bump_component) || bump_component == "dev")
+}
+
+.projr_build_pre <- function(bump_component, msg) {
   # whether it's an output run  or not
   output_run <- .projr_build_get_output_run(bump_component)
 
   # set and check authorisation is available
-  .projr_build_check_env(output_run)
+  .projr_build_env_check(output_run)
 
   # check we are not missing upstream commits
   .projr_build_exit_if_behind_upstream()
@@ -157,9 +163,7 @@ projr_build_dev <- function(file = NULL,
 
   # get DESCRIPTION and build versions under all
   # build outcomes
-  version_run_on_list <- .projr_version_run_onwards_get(
-    bump_component = bump_component
-  )
+  version_run_on_list <- .projr_version_run_onwards_get(bump_component)
 
   # run any scripts
   .projr_build_script_run(bump_component, "pre")
@@ -174,36 +178,60 @@ projr_build_dev <- function(file = NULL,
   )
 
   # push files pre-run to notify others of build
-  .projr_build_git_push(output_run = output_run)
+  .projr_build_git_push(output_run)
 
   # set the version pre-run
   .projr_build_version_set_pre(version_run_on_list)
 
   # empty output directories
-  # (bookdown, output and data)
+  # (docs, output and data)
   .projr_build_clear_pre(output_run)
 
   # hash cache
-  manifest_tbl_pre <- .projr_build_hash_pre(output_run = output_run)
+  .projr_build_hash_pre(output_run)
 
-  # ========================
-  # RUN
-  # ========================
+  # return version_run_on_list
+  invisible(version_run_on_list)
+}
 
+.projr_build_actual <- function(version_run_on_list, file) {
   .projr_build_engine(
     file = file,
     version_run_on_list = version_run_on_list,
     ...
   )
+  invisible(version_run_on_list)
+}
 
-  # ========================
-  # HANDLE OUTPUTS
-  # ========================
+.projr_build_post <- function(version_run_on_list, bump_component, msg, old_dev_remove) {
+  output_run <- .projr_build_get_output_run(bump_component)
+  # update documentation
+  .projr_build_post_docs(bump_component, version_run_on_list, msg)
 
-  # get version for DESCRIPTION and bookdown from run onwards
+  # organise files and folders (clear and copy)
+  .projr_build_post_order(bump_component)
 
+  # record (version, rmd, git)
+  .projr_build_post_record(bump_component, version_run_on_list, msg)
+
+  .projr_build_dest_send(bump_component)
+
+  # run post-build scripts
+  .projr_build_script_run(bump_component, "post")
+
+  # initate dev version
+  .projr_build_post_dev(bump_component, version_run_on_list, msg)
+
+  # push
+  .projr_build_git_push(output_run = output_run)
+
+  invisible(TRUE)
+}
+
+.projr_build_post_docs <- function(bump_component, version_run_on_list, msg) {
   # update lock file, help files, citation files, README
   # and CHANGELOG
+  output_run <- .projr_build_get_output_run(bump_component)
   .projr_build_renv_snapshot(output_run)
   .projr_build_roxygenise(output_run)
   .projr_build_cite(output_run)
@@ -212,19 +240,43 @@ projr_build_dev <- function(file = NULL,
     bump_component = bump_component,
     version_run_on_list = version_run_on_list
   )
+}
 
-  # copy outputs to (final) output directory and archive
+.projr_build_post_dev <- function(bump_component,
+                                  version_run_on_list,
+                                  msg) {
+  # set version
+  .projr_build_version_set_post(
+    version_run_on_list = version_run_on_list,
+    success = TRUE
+  )
+
+  # commit dev version
+  .projr_build_git_commit(
+    output_run = .projr_build_get_output_run(bump_component),
+    bump_component = bump_component,
+    version_run_on_list = version_run_on_list,
+    stage = "dev",
+    msg = msg
+  )
+}
+
+.projr_build_post_order <- function(bump_component) {
+  output_run <- .projr_build_get_output_run(bump_component)
+  .projr_build_clear_post(output_run)
+
+  # copy outputs to (final) output and data directories
   .projr_build_copy(output_run, bump_component, version_run_on_list)
+}
+
+.projr_build_post_record <- function(bump_component,
+                                     version_run_on_list,
+                                     msg) {
+  output_run <- .projr_build_get_output_run(bump_component)
+  # hash data-raw and outputs, then save manifest table
+  .projr_build_hash_post(output_run)
 
   # remove dev output files
-  manifest_tbl_pre |>
-    rbind(.projr_build_hash_post(output_run = output_run)) |>
-    .projr_manifest_write(output_run = output_run)
-
-  .projr_build_clear_post(output_run)
-  # hash data-raw and outputs
-
-  # save manifest table
   .projr_build_readme_rmd_render(output_run)
 
   # commit any files generated by run
@@ -235,152 +287,11 @@ projr_build_dev <- function(file = NULL,
     stage = "post",
     msg = msg
   )
-
-  # upload via piggyback
-  .projr_pb_upload(output_run = output_run)
-
-  # upload to osf
-  .projr_osf_dest_upload(output_run = output_run)
-
-  # clear projr cache
-  .projr_build_clear_old_dev(output_run, old_dev_remove)
-
-  # run post-build scripts
-  .projr_build_script_run(bump_component, "post")
-
-  # initate dev version
-  # ------------------
-  # set version
-  .projr_build_version_set_post(
-    version_run_on_list = version_run_on_list,
-    success = TRUE
-  )
-
-  # commit dev version
-  .projr_build_git_commit(
-    output_run = output_run,
-    bump_component = bump_component,
-    version_run_on_list = version_run_on_list,
-    stage = "dev",
-    msg = msg
-  )
-
-  # push
-  # --------------------
-
-  # push to GitHub
-  .projr_build_git_push(output_run = output_run)
-
-  invisible(TRUE)
 }
 
-.projr_build_get_output_run <- function(bump_component) {
-  !(is.null(bump_component) || bump_component == "dev")
-}
-
-.projr_build_engine <- function(file,
-                                version_run_on_list,
-                                ...) {
-  build_error <- switch(.projr_engine_get(),
-    "bookdown" = {
-      .projr_dep_add("bookdown")
-      if (!requireNamespace("bookdown", quietly = TRUE)) {
-        renv::install("bookdown")
-      }
-      x_return <- try(bookdown::render_book(...))
-      err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
-      if (is.null(err_msg)) {
-        return(NULL)
-      }
-      paste0("Error rendering bookdown project ", err_msg)
-    },
-    "quarto_project" = {
-      .projr_dep_add("quarto")
-      if (!requireNamespace("quarto", quietly = TRUE)) {
-        renv::install("quarto")
-      }
-      x_return <- try(quarto::quarto_render(...))
-      err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
-      if (is.null(err_msg)) {
-        return(NULL)
-      }
-      paste0("Error rendering Quarto project ", err_msg)
-    },
-    "quarto_document" = {
-      .projr_dep_add("quarto")
-      if (!requireNamespace("quarto", quietly = TRUE)) {
-        renv::install("quarto")
-      }
-      fn_vec <- .projr_build_engine_doc_fn_get(file = file, type = "qmd")
-      for (x in fn_vec) {
-        x_return <- try(quarto::quarto_render(x, ...))
-        if (inherits(x_return, "try-error")) {
-          break
-        }
-      }
-      err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
-      if (is.null(err_msg)) {
-        return(NULL)
-      }
-      paste0("Error rendering Quarto document ", x, ": ", err_msg)
-    },
-    "rmd" = {
-      .projr_dep_add("rmarkdown")
-      if (!requireNamespace("rmarkdown", quietly = TRUE)) {
-        renv::install("rmarkdown")
-      }
-      fn_vec <- .projr_build_engine_doc_fn_get(file = file, type = "rmd")
-      for (x in fn_vec) {
-        x_return <- try(rmarkdown::render(x, ...))
-        if (inherits(x_return, "try-error")) {
-          break
-        }
-      }
-      err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
-      if (is.null(err_msg)) {
-        return(NULL)
-      }
-      paste0("Error rendering RMarkdown document ", x, ": ", err_msg)
-    }
+.projr_build_dest_send <- function(bump_component) {
+  .projr_dest_send(bump_component)
+  .projr_build_clear_old(
+    .projr_build_get_output_run(bump_component), old_dev_remove
   )
-
-  if (!is.null(build_error)) {
-    .projr_build_version_set_post(
-      version_run_on_list = version_run_on_list,
-      success = FALSE
-    )
-    # TODO: #156 delet
-    stop(build_error)
-  }
-  invisible(TRUE)
-}
-
-.projr_build_engine_doc_fn_get <- function(file,
-                                           type) {
-  detect_str <- switch(tolower(type),
-    "qmd" = "\\.qmd$",
-    "rmd" = "\\.Rmd$|\\.rmd$"
-  )
-  fn_vec <- switch(as.character(is.null(file)),
-    "TRUE" = list.files(pattern = detect_str),
-    "FALSE" = {
-      fn_vec_type <- file[grepl("\\.qmd$", file)]
-      .projr_file_filter_exists(fn_vec_type)
-    }
-  )
-  if (length(fn_vec) == 0) {
-    document_type <- switch(tolower(type),
-      "qmd" = "Quarto",
-      "rmd" = "RMarkdown"
-    )
-    stop(
-      paste0("No ", document_type,
-        " documents found that match any files specified: ",
-        paste0(file, collapse = ", "),
-        sep = ""
-      )
-    )
-  }
-
-  fn_vec
 }

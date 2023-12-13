@@ -134,9 +134,7 @@ projr_version_format_get <- function() {
   )
 }
 
-projr_name_get <- function() {
-  basename(rprojroot::is_r_package$find_file())
-}
+projr_name_get <- function() basename(.projr_dir_proj_get())
 
 .projr_version_format_check <- function(version) {
   version_format <- projr_version_format_get()

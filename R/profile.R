@@ -68,7 +68,7 @@ projr_profile_create <- function(profile = NULL,
       stop("The projr profile cannot be the working directory
       if settings method = `file`.")
     }
-    profile <- rprojroot::is_r_package$find_file()
+    profile <- .projr_dir_proj_get()
   }
   if (!all(method %in% c("key", "file"))) {
     stop("method must be either 'key' or 'file'")
@@ -83,10 +83,7 @@ projr_profile_create <- function(profile = NULL,
   key_ind_dir <- paste0("directories-", profile) %in% names(yml_projr_root)
   key_ind_build <- paste0("build-", profile) %in% names(yml_projr_root)
   file_ind <- file.exists(
-    file.path(
-      rprojroot::is_r_package$find_file(),
-      paste0("_projr-", profile, ".yml")
-    )
+    .projr_dir_proj_get(paste0("_projr-", profile, ".yml"))
   )
   if (any(key_ind_dir, key_ind_build, file_ind)) {
     if (!silent) {
@@ -107,17 +104,11 @@ projr_profile_create <- function(profile = NULL,
         yml_projr_add |>
           stats::setNames(paste0(names(yml_projr_add), "-", profile))
       })
-    yaml::write_yaml(
-      yml_final,
-      file.path(rprojroot::is_r_package$find_file(), "_projr.yml")
-    )
+    yaml::write_yaml(yml_final, .projr_dir_proj_get("_projr.yml"))
   } else {
     yaml::write_yaml(
       .projr_list_elem_as_null(yml_projr_root_default),
-      file = file.path(
-        rprojroot::is_r_package$find_file(),
-        paste0("_projr-", profile, ".yml")
-      )
+      file = .projr_dir_proj_get(paste0("_projr-", profile, ".yml"))
     )
   }
 
@@ -146,9 +137,7 @@ projr_profile_create <- function(profile = NULL,
 #' Empty settings are by default indicated by `~`.
 #' @seealso projr_profile_create_local,projr_yml_get
 projr_profile_create_local <- function() {
-  path_fn <- file.path(
-    rprojroot::is_r_package$find_file(), "_projr-local.yml"
-  )
+  path_fn <- .projr_dir_proj_get("_projr-local.yml")
   if (file.exists(path_fn)) {
     stop("_projr-local.yml already exists")
   }
@@ -156,22 +145,20 @@ projr_profile_create_local <- function() {
   yml_projr_local <- yml_projr_root_default[c("directories", "build")]
   yml_projr_local <- .projr_list_elem_as_null(yml_projr_local)
   yaml::write_yaml(yml_projr_local, file = path_fn)
-  gitignore <- readLines(
-    file.path(rprojroot::is_r_package$find_file(), ".gitignore")
-  )
+  gitignore <- readLines(.projr_dir_proj_get(".gitignore"))
   if (!"_projr-local.yml" %in% gitignore) {
     writeLines(
       c(gitignore, "_projr-local.yml"),
-      file.path(rprojroot::is_r_package$find_file(), ".gitignore")
+      .projr_dir_proj_get(".gitignore")
     )
   }
   rbuildignore <- readLines(
-    file.path(rprojroot::is_r_package$find_file(), ".Rbuildignore")
+    .projr_dir_proj_get(".Rbuildignore")
   )
   if (!"^_projr-local\\.yml$" %in% rbuildignore) {
     writeLines(
       c(rbuildignore, "^_projr-local\\.yml$"),
-      file.path(rprojroot::is_r_package$find_file(), ".Rbuildignore")
+      .projr_dir_proj_get(".Rbuildignore")
     )
   }
 
@@ -231,7 +218,7 @@ projr_profile_get <- function() {
       return(projr_profile)
     }
   }
-  projr_profile <- rprojroot::is_r_package$find_file()
+  projr_profile <- .projr_dir_proj_get()
   key_ind_dir <- paste0("directories-", projr_profile) %in% names(yml_projr)
   key_ind_build <- paste0("build-", projr_profile) %in% names(yml_projr)
   if (key_ind_dir || key_ind_build) {
@@ -283,10 +270,7 @@ projr_profile_delete <- function(profile) {
   .projr_yml_set(yml_projr_root)
 
   # file
-  path_fn <- file.path(
-    rprojroot::is_r_package$find_file(),
-    paste0("_projr-", profile, ".yml")
-  )
+  path_fn <- .projr_dir_proj_get(paste0("_projr-", profile, ".yml"))
   if (file.exists(path_fn)) {
     file.remove(path_fn)
   }
@@ -298,10 +282,7 @@ projr_profile_delete <- function(profile) {
 #'
 #' @description Deletes `_projr-local.yml` file.
 projr_profile_delete_local <- function() {
-  path_fn <- file.path(
-    rprojroot::is_r_package$find_file(),
-    paste0("_projr-local.yml")
-  )
+  path_fn <- .projr_dir_proj_get(paste0("_projr-local.yml"))
   if (file.exists(path_fn)) {
     file.remove(path_fn)
   }

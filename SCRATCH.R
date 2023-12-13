@@ -11,7 +11,10 @@ devtools::test_active_file(
 
 test_fn <- function(...) {
   dots_list <- as.list(...)
+  x <- 1
+  y <- "abc"
 }
 
 debugonce(test_fn)
+test_fn("a")
 test_fn()

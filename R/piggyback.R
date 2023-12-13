@@ -151,8 +151,7 @@
 }
 
 .projr_pb_path_get_zip <- function(tag, label) {
-  path_zip <- projr_path_get(
-    "cache", "projr", paste0("v", projr_version_get()),
+  path_zip <- .projr_dir_get_cache_auto_version(
     "gh_release", tag, paste0(label, ".zip")
   )
   if (!fs::is_absolute_path(path_zip)) {

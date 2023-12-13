@@ -2,47 +2,30 @@
 # ===========================================================================
 
 .projr_dir_get <- function(label, ..., safe) {
-  if (label == "code") {
+  switch(label,
     # useful for uploading source code to github,
     # as code is the label but we don't actually
     # want to upload anything in the code directory
-    return(.projr_dir_get_code())
-  } else if (label == "data") {
-    return(.projr_dir_proj_get("data"))
-  }
-  dir_label <- .projr_dir_get_label(label, safe)
-  .projr_dir_get_full(dir_label, ...)
+    "code" = .projr_dir_get_code(),
+    "data" = .projr_dir_proj_get("data"),
+    .projr_dir_get_label(label, safe)
+  )
+  .projr_dir_get_label(label, safe) |>
+    .projr_file_get_full_dots(...)
 }
 
 .projr_dir_get_code <- function() {
-  dir_out <- file.path(tempdir(), "projr", signif(rnorm(1)), "code")
-  if (dir.exists(dir_out)) {
-    unlink(dir_out, recursive = TRUE)
-  }
+  dir_out <- .projr_dir_get_tmp_random("code")
+  .projr_dir_rm(dir_out)
   dir_out
 }
 
-.projr_dir_get_full <- function(dir_label, ...) {
-  path_append <- list(...) |> unlist()
-  do.call(
-    "file.path",
-    args = list(dir_label) |> append(path_append)
-  ) |>
-    as.character()
+.projr_dir_get_tmp_random <- function(...) {
+  file.path(tempdir(), "projr", signif(rnorm(1))) |>
+    .projr_file_get_full_dots(...)
 }
 
 .projr_dir_get_label <- function(label, safe) {
-  if (missing(label)) stop("label must be specified")
-  if (length(label) != 1L) stop("label must be length 1")
-  label_strip <- .projr_dir_label_strip(label)
-  label_vec_valid <- c(
-    .projr_dir_label_strip(names(projr_yml_get()[["directories"]])),
-    "docs", "project"
-  )
-  label_recognised <- label_strip %in% label_vec_valid
-  if (!label_recognised) {
-    stop(paste0("label `", label, "` not recognised."))
-  }
   switch(as.character(safe),
     "TRUE" = .projr_dir_get_label_safe(label),
     "FALSE" = .projr_dir_get_label_unsafe(label)
@@ -50,52 +33,48 @@
 }
 
 .projr_dir_get_label_safe <- function(label) {
-  # only output, archive and docs directories
-  # need to be "safe"
-  label_strip <- .projr_dir_label_strip(label)
-  use_cache_subdir <- grepl("^output|^archive|^docs$", label_strip)
-  if (!use_cache_subdir) {
+  # ouput, archive and docs directories
+  # need to be "safe", so
+  # if it's not one of them use the unsafe function
+  if (!.projr_dir_get_label_safe_check_unsafe(label)) {
     return(.projr_dir_get_label_unsafe(label))
   }
 
-  dir_cache_safe <- .projr_dir_get_cache_auto()
-
-  # get final directory
-  dir_label_safe <- file.path(
-    dir_cache_safe,
-    "projr",
-    paste0("v", projr_version_get()),
-    switch(label,
-      "docs" = .projr_dir_get_docs_unsafe(),
-      label
-    )
-  )
+  path_dir <- .projr_dir_get_label_safe_path(label)
 
   # set _bookdown.yml and _quarto.yml
-  if (label_strip == "docs") {
-    .projr_dir_set_docs_safe(dir_label_safe)
-  }
+  .projr_dir_set_docs_safe(path_dir, label)
 
-  # no need to append version if archiving, as already done
+  path_dir
+}
 
-  dir_label_safe
+.projr_dir_get_label_safe_check_unsafe <- function(label) {
+  .projr_dir_label_strip(label) |>
+    grepl("^output|^archive|^docs$", x = _)
+}
+
+.projr_dir_get_label_safe_path <- function(label) {
+  .projr_dir_get_cache_auto_auto_version() |>
+    .projr_file_get_full_dots(
+      .projr_dir_get_label_safe_path_get_label(label)
+    )
+}
+
+.projr_dir_get_label_safe_path_get_label <- function(label) {
+  switch(label,
+    "docs" = .projr_dir_get_docs_unsafe(),
+    label
+  )
 }
 
 .projr_dir_get_label_unsafe <- function(label) {
-  dir_active <- projr_yml_get_unchecked()[["directories"]]
-  label_strip <- .projr_dir_label_strip(label)
-  dir_label_unsafe <- switch(label_strip,
+  switch(.projr_dir_label_strip(label),
     "docs" = .projr_dir_get_docs_unsafe(),
     "project" = ".",
-    dir_active[[label]][["path"]]
+    "archive" = .projr_yml_dir_get_path(label, NULL) |>
+      .projr_file_append_version(),
+    .projr_yml_dir_get_path(label, NULL)
   )
-  # append version if archiving
-  if (grepl("^archive", label_strip)) {
-    dir_label_unsafe <- file.path(
-      dir_label_unsafe, paste0("v", projr_version_get())
-    )
-  }
-  dir_label_unsafe
 }
 
 # create
@@ -116,27 +95,37 @@
 # docs
 .projr_dir_get_docs_unsafe <- function() {
   # get the path
-  engine <- .projr_engine_get()
-  path <- switch(engine,
+  .projr_dir_get_docs_unsafe_path() |>
+    .projr_dir_set_docs_unsafe_path()
+}
+
+.projr_dir_get_docs_unsafe_path <- function() {
+  switch(.projr_engine_get(),
     "quarto_project" = .projr_dir_get_docs_quarto_project(),
     "quarto_document" = .projr_dir_get_docs_md(),
     "bookdown" = .projr_dir_get_docs_bookdown(),
     "rmd" = .projr_dir_get_docs_md()
   )
+}
+
+.projr_dir_set_docs_unsafe_path <- function(path) {
   # ensure it's set in _projr.yml, and quarto.yml/_bookdown.yml if need be
-  switch(engine,
+  switch(.projr_engine_get(),
     "quarto_project" = .projr_dir_set_docs_quarto_project(path),
     "quarto_document" = .projr_yml_dir_set_docs(path),
     "bookdown" = .projr_dir_set_docs_bookdown(path),
     "rmd" = .projr_yml_dir_set_docs(path)
   )
-  path
+  invisible(path)
 }
 
-.projr_dir_set_docs_safe <- function(path) {
+.projr_dir_set_docs_safe <- function(path, label) {
   # don't do anything for quarto and rmd projects,
   # as we only manipulate the _quarto.yml and _bookdown.yml
   # here (_projr.yml manipulated only for unsafe ones)
+  if (!.projr_dir_set_docs_safe_check(label)) {
+    return(invisible(FALSE))
+  }
   switch(.projr_engine_get(),
     "quarto_project" = .projr_dir_set_docs_quarto_project_safe(path),
     "bookdown" = .projr_dir_set_docs_bookdown(path)
@@ -144,71 +133,69 @@
   invisible(TRUE)
 }
 
+.projr_dir_set_docs_safe_check <- function(label) {
+  .projr_dir_label_strip(label) |>
+    grepl("^docs$", x = _)
+}
+
 # all
 .projr_yml_dir_set_docs <- function(path) {
-  yml_projr <- projr_yml_get_unchecked()
-  within_cache <- fs::path_has_parent(
-    path,
-    projr::projr_dir_get("cache", "projr", paste0("v", projr_version_get()))
-  )
-  if (within_cache) {
-    path <- fs::path_rel(
-      path,
-      projr::projr_dir_get("cache", "projr", paste0("v", projr_version_get()))
-    )
-  }
+  .projr_yml_dir_get_docs_rel_if_within_cache(path) |>
+    .projr_yml_dir_set_path("docs", NULL)
+}
 
-  yml_projr[["directories"]][["docs"]][["path"]] <- path
-  .projr_yml_set(yml_projr)
+.projr_yml_dir_get_docs_rel_if_within_cache <- function(path) {
+  within_cache <- fs::path_has_parent(
+    path, .projr_dir_get_cache_auto_version()
+  )
+  if (!within_cache) {
+    return(path)
+  }
+  fs::path_rel(path, .projr_dir_get_cache_auto_version())
 }
 
 # quarto
 .projr_dir_get_docs_quarto_project <- function() {
   # use docs$path if it is set
-  yml_projr <- projr_yml_get_unchecked()
-  path <- yml_projr[["directories"]][["docs"]][["path"]]
-  if (!is.null(path)) {
+  path <- .projr_yml_dir_get_path("docs", NULL)
+  if (!.projr_state_null(path)) {
     return(path)
   }
+  .projr_dir_get_docs_quarto_project_unset()
+}
 
+.projr_dir_get_docs_quarto_project_unset <- function() {
   # use `_quarto.yml` if specified, otherwise defaults
-  yml_quarto <- .projr_yml_quarto_get()
-  switch(as.character(is.null(yml_quarto[["output-dir"]])),
-    "FALSE" = yml_quarto[["output-dir"]],
-    "TRUE" = {
-      switch(yml_quarto[["project"]][["type"]],
-        "book" = "_book",
-        "website" = ,
-        "site" = "_site",
-        stop("Quarto project type not recognised.")
-      )
-    }
+  switch(as.character(.projr_state_null(.projr_yml_quarto_get_output_dir())),
+    "FALSE" = .projr_yml_quarto_get_output_dir(),
+    "TRUE" = .projr_dir_get_docs_quarto_project_unset_default()
+  )
+}
+
+.projr_dir_get_docs_quarto_project_unset_default <- function() {
+  switch(.projr_yml_quarto_get_project_type(),
+    "book" = "_book",
+    "website" = ,
+    "site" = "_site",
+    stop("Quarto project type not recognised.")
   )
 }
 
 .projr_dir_set_docs_quarto_project <- function(path) {
-  .projr_dir_set_docs_quarto_project_safe(path)
+  .projr_yml_quarto_set_output_dir(path)
   .projr_yml_dir_set_docs(path)
   return(invisible(TRUE))
 }
 
-.projr_dir_set_docs_quarto_project_safe <- function(path) {
-  yml_quarto <- .projr_yml_quarto_get()
-  yml_quarto[["project"]][["output-dir"]] <- path
-  .projr_yml_quarto_set(yml_quarto)
-}
-
 # bookdown
 .projr_dir_get_docs_bookdown <- function() {
-  yml_projr <- projr_yml_get_unchecked()
   # use what's in `_projr.yml` if specified
-  path <- yml_projr[["directories"]][["docs"]][["path"]]
+  path <- .projr_yml_dir_get_path("docs", NULL)
   if (!is.null(path)) {
     return(path)
   }
   # use what's in `_bookdown.yml` if specified
-  yml_bd <- .projr_yml_bd_get()
-  path <- yml_bd[["output_dir"]]
+  path <- .projr_yml_bd_get_output_dir()
   if (!is.null(path)) {
     return(path)
   }
@@ -217,20 +204,14 @@
 }
 
 .projr_dir_set_docs_bookdown <- function(path) {
-  .projr_dir_set_docs_bookdown_safe(path)
+  .projr_yml_bd_set_output_dir(path)
   .projr_yml_dir_set_docs(path)
-}
-
-.projr_dir_set_docs_bookdown_safe <- function(path) {
-  yml_bd <- .projr_yml_bd_get()
-  yml_bd[["project"]][["output_dir"]] <- path
-  .projr_yml_bd_set(yml_bd)
 }
 
 # Rmd/qmd (no other yml file of concern)
 .projr_dir_get_docs_md <- function() {
   yml_projr <- projr_yml_get_unchecked()
-  dir_docs_yml <- yml_projr[["directories"]][["docs"]][["path"]]
+  dir_docs_yml <- .projr_yml_dir_get_path("docs", NULL)
   if (!is.null(dir_docs_yml)) {
     return(dir_docs_yml)
   }
@@ -238,25 +219,52 @@
 }
 
 # get cache directory to save to
-.projr_dir_get_cache_auto <- function() {
+.projr_dir_get_cache_auto <- function(..., create = FALSE) {
+  .projr_dir_get_cache_auto_check()
+  .projr_file_get_full_dots(dir_active[[cache_ind]]$path, ...) |>
+    .projr_dir_get_create(create)
+}
+
+.projr_path_get_cache_auto <- function(..., create = FALSE) {
+  .projr_dir_get_cache_auto_check()
+  .projr_dir_get_cache_auto_path() |>
+    .projr_file_get_full_dots(...) |>
+    .projr_dir_get_create(create)
+}
+
+.projr_dir_get_cache_auto_version <- function(..., create = TRUE) {
+  .projr_dir_get_cache_auto_check()
+  .projr_dir_get_cache_auto_path() |>
+    .projr_file_get_full("projr") |>
+    .projr_file_append_version() |>
+    .projr_file_get_full_dots(...) |>
+    .projr_dir_get_create(create)
+}
+
+.projr_dir_get_cache_auto_path <- function() {
+  .projr_yml_dir_get(NULL)[[.projr_dir_get_cache_auto_ind()]][["path"]]
+}
+
+.projr_dir_get_cache_auto_check <- function() {
   # find cache directory to save to
-  dir_active <- projr_yml_get_unchecked()[["directories"]]
-  dir_active_vec_names_strip <- .projr_dir_label_strip(names(dir_active))
-  cache_ind <- which(dir_active_vec_names_strip == "cache")[1]
-  if (length(cache_ind) == 0) {
-    cache_ind <- which(grepl("^cache", dir_active_vec_names_strip))[1]
-  }
+  cache_ind <- .projr_dir_get_cache_auto_ind()
   stopifnot(
     "No cache directory specified, but required for projr builds." =
       length(cache_ind) > 0
   )
-  dir_active[[cache_ind]]$path
 }
 
-.projr_dir_get_cache_auto_version <- function() {
-  dir_cache_projr_version <- file.path(
-    .projr_dir_get_cache_auto(), "projr", paste0("v", projr_version_get())
-  )
-  .projr_dir_create(dir_cache_projr_version)
-  dir_cache_projr_version
+.projr_dir_get_cache_auto_ind <- function() {
+  which(
+    grepl("^cache", .projr_dir_label_strip(names(.projr_yml_dir_get(NULL))))
+  )[1]
+}
+
+.projr_dir_get_cache_auto_version_old <- function(..., create = TRUE) {
+  .projr_dir_get_cache_auto_check()
+  .projr_dir_get_cache_auto_path() |>
+    .projr_file_get_full("projr") |>
+    .projr_file_append_version() |>
+    .projr_file_get_full_dots("old", ...) |>
+    .projr_dir_get_create(create)
 }
