@@ -245,28 +245,108 @@
 }
 
 .projr_git_config_get_name_git <- function() {
-  nm <- system2("git", args = "config user.name", stdout = TRUE)
+  nm <- .projr_git_config_get_name_git_local()
   if (nzchar(nm)) {
     return(nm)
   }
-  nm <- system2("git", args = "config --global user.name", stdout = TRUE)
+  nm <- .projr_git_config_get_name_git_global()
   if (nzchar(nm)) {
     return(nm)
   }
+  .projr_git_config_get_name_git_system()
+}
+
+.projr_git_config_get_name_git_local <- function() {
+  system2("git", args = "config user.name", stdout = TRUE)
+}
+.projr_git_config_get_name_git_global <- function() {
+  system2("git", args = "config --global user.name", stdout = TRUE)
+}
+.projr_git_config_get_name_git_system <- function() {
   system2("git", args = "config --system user.name", stdout = TRUE)
 }
+
 .projr_git_config_get_name_gert <- function() {
+  nm <- .projr_git_config_get_name_gert_local()
+  if (.projr_state_chr_nz(nm)) {
+    return(nm)
+  }
+  nm <- .projr_git_config_get_name_gert_global()
+  if (.projr_state_chr_nz(nm)) {
+    return(nm)
+  }
+  .projr_git_config_get_name_gert_system()
+}
+
+.projr_git_config_get_name_gert_local <- function() {
   config_tbl <- gert::git_config()
   local_vec_ind <- config_tbl[["level"]] == "local"
+  config_tbl[
+    config_tbl[["name"]] == "user.name" & local_vec_ind,
+  ][["value"]]
+}
+
+.projr_git_config_get_name_gert_global <- function() {
+  config_tbl <- gert::git_config()
   global_vec_ind <- config_tbl[["level"]] == "global"
+  config_tbl[
+    config_tbl[["name"]] == "user.name" & global_vec_ind,
+  ][["value"]]
+}
+.projr_git_config_get_name_gert_system <- function() {
+  config_tbl <- gert::git_config()
   system_vec_ind <- config_tbl[["level"]] == "system"
-  nm <- config_tbl[config_tbl[["name"]] == "user.name" & local_vec_ind, ][["value"]]
-  if (nzchar(nm)) {
-    return(nm)
-  }
-  nm <- config_tbl[config_tbl[["name"]] == "user.name" & global_vec_ind, ][["value"]]
-  if (nzchar(nm)) {
-    return(nm)
-  }
-  config_tbl[config_tbl[["name"]] == "user.name" & system_vec_ind, ][["value"]]
+  config_tbl[
+    config_tbl[["name"]] == "user.name" & system_vec_ind,
+  ][["value"]]
+}
+
+.projr_git_check_behind <- function() {
+  switch(.projr_git_system_get(),
+    "git" = .projr_git_check_behind_git(),
+    "gert" = .projr_git_check_behind_gert()
+  )
+}
+
+.projr_git_check_behind_git <- function() {
+  commit_vec_local <- .projr_git_get_commit_hash_local()
+  commit_vec_remote <- .projr_git_get_commit_hash_remote()
+  setdiff(commit_vec_remote, commit_vec_local) > 0L
+}
+
+.projr_git_check_behind_gert <- function() {
+  .projr_git_fetch()
+  gert::git_ahead_behind()$behind != 0L
+}
+
+.projr_git_get_commit_hash_local <- function() {
+  system2("git", args = c("log", "--pretty=format:'%H'"), stdout = TRUE)
+}
+
+.projr_git_fetch <- function() {
+  switch(.projr_git_system_get(),
+    "git" = .projr_git_fetch_git(),
+    "gert" = .projr_git_fetch_gert()
+  )
+}
+
+.projr_git_fetch_git <- function() {
+  system2("git", args = c("fetch"))
+}
+.projr_git_fetch_gert <- function() {
+  gert::git_fetch()
+}
+
+.projr_git_get_commit_hash_remote <- function() {
+  .projr_git_fetch()
+  remote_branch_name <- system2(
+    "git",
+    args = c("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"),
+    stdout = TRUE
+  )
+  system2(
+    "git",
+    args = c("log", "--pretty=format:'%H'", remote_branch_name),
+    stdout = TRUE
+  )
 }

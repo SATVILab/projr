@@ -1,6 +1,6 @@
 .projr_build_script_run <- function(bump_component, stage) {
   yml_script <- .projr_yml_script_get(NULL)
-  if (!.projr_state_nz(yml_script)) {
+  if (.projr_state_len_z(yml_script)) {
     return(invisible(FALSE))
   }
   for (x in yml_script) {

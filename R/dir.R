@@ -40,14 +40,13 @@
 #' "development" or test runs will add to, delete or overwrite files
 #' from the previous run of `projr_build_output`.
 #' Default is \code{TRUE}.
+#' Do not change this unless you know what you are doing.
 #' @return Character.
 #' Path to directory requested.
 #' @details DETAILS
 #' @examples
 #' \dontrun{
-#' if (interactive()) {
-#'   # EXAMPLE1
-#' }
+#'
 #' }
 #' @rdname projr_dir_get
 #' @export
@@ -57,47 +56,89 @@ projr_dir_get <- function(label, ...,
                           relative = FALSE,
                           absolute = FALSE,
                           safe = TRUE) {
-  dots_list <- as.list(...)
-  .projr_dir_get_check(label, dots_list, relative, absolute, safe)
-  # get path
-  path_dir <- .projr_dir_get(label = label, ..., safe = safe)
+  dots_vec <- .projr_dots_get_chr_vec(...)
+  .projr_dir_get_check(label, dots_vec, relative, absolute, safe)
 
-  if (create) {
-    .projr_dir_create(path_dir)
-  }
-
-  if (relative) {
-    path_dir <- fs::path_rel(
-      path_dir,
-      start = rprojroot::is_r_package$find_file()
-    )
-  }
-  if (absolute) {
-    path_dir <- fs::path_abs(path_dir)
-  }
-  as.character(path_dir) |>
-    fs::path_norm() |>
-    as.character()
+  .projr_dir_get(label = label, ..., safe = safe) |>
+    .projr_dir_get_create(create) |>
+    .projr_dir_get_rel(relative) |>
+    .projr_dir_get_absolute(absolute)
 }
 
 .projr_dir_get_check <- function(label, dots_list, relative, absolute, safe) {
-  if (.projr_state_nz(dots_list)) {
+  if (.projr_state_len_nz(dots_list)) {
     sapply(dots_list, .projr_check_chr_single)
   }
-  if (label %in% c("data_raw", "cache", "output", "archive")) {
-    if (label == "output" && safe) {
-      stop("projr_dir_get does not accept safe = TRUE for label = 'output'")
-    }
-  } else if (label == "docs") {
-    if (safe) {
-      stop("projr_dir_get does not accept safe = TRUE for label = 'docs'")
-    }
-  } else {
-    stop("label must be one of 'data_raw', 'cache', 'output', 'archive' or 'docs'")
-  }
+  .projr_dir_check_label(label)
+  .projr_check_lgl_single(relative)
+  .projr_check_lgl_single(absolute)
+  .projr_check_lgl_single(safe)
   if (relative && absolute) {
     stop("relative and absolute cannot both be TRUE")
   }
+}
+
+.projr_dir_check_label <- function(label) {
+  .projr_check_chr_nz(label)
+  .projr_dir_check_label_found(label)
+  .projr_dir_check_label_valid(label)
+}
+
+.projr_dir_check_label_found <- function(label) {
+  opt_vec <- c(
+    names(.projr_yml_dir_get()),
+    "docs",
+    "project"
+  )
+  label_found <- label %in% opt_vec
+  if (!label_found) {
+    stop("label '", label, "' not found in _projr.yml", call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.projr_dir_check_label_strip <- function(label) {
+  label_strip <- .projr_dir_label_strip(label)
+  label_valid <- grepl("^docs|^data-raw|^cache|^output|^archive", label_strip)
+  if (!label_valid) {
+    stop(
+      paste0("label '", label, "' not valid.\n"),
+      "Must begin with 'docs', 'data-raw', 'cache', 'output' or 'archive'\n",
+      "However, it can:\n",
+      " - be capitalised any which way, e.g. DATA-RAW or dAtA-rAw)\n",
+      " - have any suffix, e.g. 'data-raw-foo' or 'data-raw-foo-bar'\n",
+      " - use a hyphen, underscore or neither, e.g. 'data_raw', 'data-raw' or dataraw.\n",
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+.projr_dir_label_strip <- function(x) {
+  gsub("_", "", gsub("-", "", x)) |>
+    tolower()
+}
+
+
+.projr_dir_get_create <- function(path, create) {
+  if (create) {
+    .projr_dir_create(path)
+  }
+  invisible(path)
+}
+
+.projr_dir_get_rel <- function(path, relative) {
+  if (!relative) {
+    return(path)
+  }
+  .projr_file_get_rel(path)
+}
+
+.projr_dir_get_abs <- function(path, absolute) {
+  if (!absolute) {
+    return(path)
+  }
+  .projr_file_get_abs(path)
 }
 
 #' @title Create all directories in _projr.yml
@@ -107,7 +148,7 @@ projr_dir_get <- function(label, ...,
 #' listed in \code{_projr.yml} for the current projr profile.
 #' @seealso projr_dir_get
 projr_dir_create_all <- function() {
-  label_vec <- projr_yml_get_unchecked()[["directories"]] |>
+  label_vec <- projr_yml_get_unchecked(NULL)[["directories"]] |>
     names()
   for (i in seq_along(label_vec)) {
     projr_dir_create(label_vec[[i]], create = TRUE)
@@ -158,6 +199,7 @@ projr_dir_create_all <- function() {
 projr_path_get <- function(label, ...,
                            create = TRUE,
                            relative = FALSE,
+                           absolute = FALSE,
                            safe = TRUE) {
   args_dotted <- list(...)
   if (length(args_dotted) == 0) {
@@ -165,6 +207,7 @@ projr_path_get <- function(label, ...,
       label = label,
       create = create,
       relative = relative,
+      absolute = absolute,
       safe = safe
     )
     return(path_dir)
@@ -177,6 +220,7 @@ projr_path_get <- function(label, ...,
         args_dotted[-length(args_dotted)] |> unlist(),
         create = create,
         relative = relative,
+        absolute = absolute,
         safe = safe
       )
     )
@@ -241,5 +285,3 @@ projr_dir_ignore <- function(git_skip_adjust = NULL) {
   }
   invisible(TRUE)
 }
-
-# Start of projr section: do not edit by hand (until `# End of projr section`)

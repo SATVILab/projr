@@ -17,8 +17,10 @@
 #' @return A named list, if the settings are valid.
 #'
 #' @export
-projr_yml_get <- function(profile = NULL) {
-  projr_yml_get_unchecked(profile)
+projr_yml_get <- function() {
+  yml_projr <- projr_yml_get_unchecked()
+  projr_yml_check(yml_projr)
+  yml_projr
 }
 
 #' @title Get active `projr` settings and do no check
@@ -611,8 +613,8 @@ projr_yml_check <- function(yml_projr = NULL) {
   invisible(TRUE)
 }
 
-.projr_yml_set <- function(list_save, profile = "default") {
-  path_yml <- .projr_yml_get_path(profile)
+.projr_yml_set <- function(list_save) {
+  path_yml <- .projr_dir_proj_get("_projr.yml")
   yaml::write_yaml(list_save, path_yml)
   .projr_newline_append(path_yml)
   invisible(TRUE)
@@ -632,6 +634,7 @@ projr_yml_check <- function(yml_projr = NULL) {
   invisible(TRUE)
 }
 
+<<<<<<< HEAD
 .projr_yml_bd_get <- function() {
   path_yml <- .projr_dir_proj_get("_bookdown.yml")
   if (!file.exists(path_yml)) {
@@ -669,6 +672,8 @@ projr_yml_check <- function(yml_projr = NULL) {
   invisible(TRUE)
 }
 
+=======
+>>>>>>> bf11267 (Add many updates)
 .projr_desc_get <- function() {
   path_desc <- .projr_dir_proj_get("DESCRIPTION")
   read.dcf(path_desc)

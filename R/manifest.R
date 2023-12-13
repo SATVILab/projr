@@ -15,7 +15,9 @@
   ) |>
     Reduce(f = rbind, x = _)
   rownames(out_tbl) <- NULL
-  out_tbl
+  path_file <- .projr_dir_get_cache_auto_version("manifest.csv")
+  saveRDS(out_tbl, path_file)
+  invisible(path_file)
 }
 
 .projr_build_hash_pre_get_label <- function() {
@@ -37,6 +39,17 @@
 }
 
 .projr_build_hash_post <- function(output_run) {
+  .projr_build_hash_pre_read() |>
+    rbind(.projr_build_hash_post_get(output_run)) |>
+    .projr_manifest_write(output_run)
+}
+
+.projr_build_hash_pre_read <- function() {
+  .projr_dir_get_cache_auto_version("manifest.csv") |>
+    readRDS()
+}
+
+.projr_build_hash_post_get <- function(output_run) {
   label_vec <- .projr_build_hash_post_get_label()
   if (length(label_vec) == 0) {
     return(.projr_zero_tbl_get_manifest())

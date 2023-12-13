@@ -26,23 +26,30 @@
   invisible(TRUE)
 }
 
-.projr_check_nz <- function(x, nm, required = FALSE) {
+.projr_check_len_nz <- function(x, nm, required = FALSE, msg = NULL, msg_append = TRUE) {
   if (required) {
     .projr_check_given(x = x, nm = nm)
   } else if (!.projr_state_given(x)) {
     return(invisible(TRUE))
   }
-  if (!.projr_state_nz(x)) {
+  if (!.projr_state_len_nz(x)) {
     stop(paste0(nm, " must be non-zero length"))
   }
   invisible(TRUE)
 }
 
 .projr_state_nz <- function(x) {
+  nzchar(x)
+}
+.projr_state_z <- function(x) {
+  !.projr_state_nz(x)
+}
+
+.projr_state_len_nz <- function(x) {
   !.projr_state_z(x)
 }
 
-.projr_state_z <- function(x) {
+.projr_state_len_z <- function(x) {
   .projr_state_len(x, 0L)
 }
 
@@ -245,4 +252,8 @@
     )
   }
   invisible(TRUE)
+}
+
+.projr_state_rel <- function(x) {
+  !.projr_state_abs(x)
 }

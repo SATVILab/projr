@@ -249,6 +249,29 @@ with_dir <- function(new, code) {
   file.path(R.home("bin"), "Rscript")
 }
 
+.projr_dots_get <- function(...) {
+  tryCatch(as.list(...),
+    error = function(e) list()
+  )
+}
+
+.projr_dots_get_chr <- function(...) {
+  dots_list <- .projr_dots_get(...)
+  if (.projr_state_len_nz(dots_list)) {
+    dots_list <- vapply(dots_list, as.character, character(1))
+  }
+  dots_list
+}
+
+.projr_dots_get_chr_vec <- function(...) {
+  dots_list_chr <- .projr_dots_get_chr(...)
+  if (.projr_state_len_nz(dots_list_chr)) {
+    dots_vec_chr <- unlist(dots_list_chr)
+  } else {
+    dots_vec_chr <- character()
+  }
+  dots_vec_chr
+}
 
 #' @title `projr` drop-in replacement for usethis::use_data
 #'
@@ -340,4 +363,53 @@ projr_use_data <- function(...,
 
 .projr_usethis_proj_desc <- function(path = .projr_dir_proj_get()) {
   desc::desc(file = path)
+}
+
+.projr_zip_dir <- function(path_dir,
+                           path_zip,
+                           dir_exc = NULL,
+                           dir_inc = NULL,
+                           fn_exc = NULL) {
+  .projr_file_rm(path_zip)
+  .projr_dir_create(dirname(path_zip))
+  wd_orig <- getwd()
+  setwd(path_dir)
+  sink(file.path(tempdir(), "zip123"))
+  fn_vec <- .projr_dir_ls(getwd())
+  if (!is.null(dir_exc)) {
+    for (x in dir_exc) {
+      fn_vec <- fn_vec[!grepl(paste0("^", x, "/"), fn_vec)]
+    }
+  }
+  if (!is.null(dir_inc)) {
+    for (x in dir_inc) {
+      fn_vec <- fn_vec[grepl(paste0("^", x, "/"), fn_vec)]
+    }
+  }
+  if (!is.null(fn_exc)) {
+    fn_vec <- fn_vec[!fn_vec %in% fn_exc]
+  }
+  if (length(fn_vec) == 0) {
+    setwd(wd_orig)
+    return(invisible(FALSE))
+  }
+  path_zip_temp <- basename(path_zip)
+  utils::zip(
+    path_zip_temp,
+    files = fn_vec,
+    flags = "-r9Xq"
+  )
+  sink(NULL)
+  if (!identical(path_zip_temp, path_zip)) {
+    file.rename(
+      from = path_zip_temp,
+      to = path_zip
+    )
+  }
+  setwd(wd_orig)
+  invisible(TRUE)
+}
+
+.projr_check_test <- function() {
+  Sys.getenv("PROJR_TEST") == "TRUE"
 }
