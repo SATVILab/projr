@@ -370,7 +370,7 @@
     nm_opt <- c("manifest", "osf")
   }
   diff_vec <- setdiff(version_source_vec, nm_opt)
-  if (length(diff_vec) > 0) {
+  if (.projr_state_len_nz(diff_vec)) {
     stop(paste0(
       direction,
       " version_source options must be one of: ",

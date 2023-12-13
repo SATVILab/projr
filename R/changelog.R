@@ -31,7 +31,7 @@
 
 .projr_changelog_get_add <- function(msg, bump_component, version_run_on_list) {
   .projr_changelog_get_line(msg, bump_component, version_run_on_list) |>
-    .projr_changelog_get_entry(bump_component = bump_component)
+    .projr_changelog_get_entry(bump_component)
 }
 
 

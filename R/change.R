@@ -208,8 +208,8 @@
 # between two directories
 .projr_change_get_dir <- function(dir_pre,
                                   dir_post) {
-  hash_tbl_pre <- .projr_hash_dir(path_dir = dir_pre)
-  hash_tbl_post <- .projr_hash_dir(path_dir = dir_post)
+  hash_tbl_pre <- .projr_hash_dir(dir_pre)
+  hash_tbl_post <- .projr_hash_dir(dir_post)
   .projr_change_get_hash(hash_pre = hash_tbl_pre, hash_post = hash_tbl_post)
 }
 

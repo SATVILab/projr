@@ -454,9 +454,9 @@ projr_remote_create_github_attempt <- function(tag, body) {
 .projr_remote_host_rm <- function(type,
                                   host) {
   switch(type,
-    "local" = .projr_remote_host_rm_local(host = host),
-    "osf" = .projr_remote_host_rm_osf(host = host),
-    "github" = .projr_remote_host_rm_github(host = host)
+    "local" = .projr_remote_host_rm_local(host),
+    "osf" = .projr_remote_host_rm_osf(host),
+    "github" = .projr_remote_host_rm_github(host)
   )
 }
 
@@ -524,9 +524,9 @@ projr_remote_create_github_attempt <- function(tag, body) {
 .projr_remote_file_rm_all <- function(type,
                                       remote) {
   switch(type,
-    "local" = .projr_remote_file_rm_all_local(remote = remote),
-    "osf" = .projr_remote_file_rm_all_osf(remote = remote),
-    "github" = .projr_remote_file_rm_all_github(remote = remote)
+    "local" = .projr_remote_file_rm_all_local(remote),
+    "osf" = .projr_remote_file_rm_all_osf(remote),
+    "github" = .projr_remote_file_rm_all_github(remote)
   )
 }
 
@@ -674,9 +674,9 @@ projr_remote_create_github_attempt <- function(tag, body) {
 .projr_remote_file_ls <- function(type,
                                   remote) {
   switch(type,
-    "local" = .projr_remote_file_ls_local(remote = remote),
-    "osf" = .projr_remote_file_ls_osf(remote = remote),
-    "github" = .projr_remote_file_ls_github(remote = remote)
+    "local" = .projr_remote_file_ls_local(remote),
+    "osf" = .projr_remote_file_ls_osf(remote),
+    "github" = .projr_remote_file_ls_github(remote)
   )
 }
 

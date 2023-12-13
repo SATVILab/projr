@@ -4,7 +4,7 @@
   if (nzchar(pat)) {
     return(invisible(pat))
   }
-  .projr_auth_get_github_pat_warn(init = init)
+  .projr_auth_get_github_pat_warn(init)
   pat
 }
 
@@ -30,6 +30,7 @@
     }
   )
 }
+
 .projr_auth_get_github_pat_warn <- function(init = FALSE) {
   warning(
     "GITHUB_PAT environment variable not found.\n", # nolint

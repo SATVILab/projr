@@ -1,7 +1,7 @@
 .projr_source_get <- function(bump_component) {
   # consider early exit
   # ------------------
-  if (!.projr_source_get_check(bump_component = bump_component)) {
+  if (!.projr_source_get_check(bump_component)) {
     return(invisible(FALSE))
   }
 
@@ -21,7 +21,7 @@
 
 .projr_source_get_check <- function(bump_component) {
   # output_run
-  output_run <- .projr_run_type_check(bump_component = bump_component)
+  output_run <- .projr_build_get_output_run(bump_component)
   if (!output_run) {
     return(invisible(FALSE))
   }
