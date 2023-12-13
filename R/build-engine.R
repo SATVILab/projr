@@ -78,13 +78,12 @@
                                            type) {
   detect_str <- switch(tolower(type),
     "qmd" = "\\.qmd$",
-    "rmd" = "\\.Rmd$|\\.rmd$"
+    "rmd" = "\\.Rmd$|\\.rmd$",
+    stop(paste0("Unknown document type: ", type), call. = FALSE)
   )
   fn_vec <- switch(as.character(is.null(file)),
     "TRUE" = list.files(.projr_dir_proj_get(), pattern = detect_str),
-    "FALSE" = {
-      file[grepl("\\.qmd$", file)] |> .projr_file_filter_exists()
-    }
+    "FALSE" = file[grepl(detect_str, file)] |> .projr_file_filter_exists()
   )
   if (.projr_state_len_z(fn_vec)) {
     .projr_build_engine_doc_fn_get_error(type)
