@@ -18,3 +18,6 @@ test_fn <- function(...) {
 debugonce(test_fn)
 test_fn("a")
 test_fn()
+
+
+(?<!<- function)\(\w+ = \w+\)

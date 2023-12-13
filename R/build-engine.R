@@ -81,25 +81,27 @@
     "rmd" = "\\.Rmd$|\\.rmd$"
   )
   fn_vec <- switch(as.character(is.null(file)),
-    "TRUE" = list.files(pattern = detect_str),
+    "TRUE" = list.files(.projr_dir_proj_get(), pattern = detect_str),
     "FALSE" = {
-      fn_vec_type <- file[grepl("\\.qmd$", file)]
-      .projr_file_filter_exists(fn_vec_type)
+      file[grepl("\\.qmd$", file)] |> .projr_file_filter_exists()
     }
   )
-  if (length(fn_vec) == 0) {
-    document_type <- switch(tolower(type),
-      "qmd" = "Quarto",
-      "rmd" = "RMarkdown"
-    )
-    stop(
-      paste0("No ", document_type,
-        " documents found that match any files specified: ",
-        paste0(file, collapse = ", "),
-        sep = ""
-      )
-    )
+  if (.projr_state_len_z(fn_vec)) {
+    .projr_build_engine_doc_fn_get_error(type)
   }
-
   fn_vec
+}
+
+.projr_build_engine_doc_fn_get_error <- function(type) {
+  document_type <- switch(tolower(type),
+    "qmd" = "Quarto",
+    "rmd" = "RMarkdown"
+  )
+  stop(
+    paste0("No ", document_type,
+      " documents found that match any files specified: ",
+      paste0(file, collapse = ", "),
+      sep = ""
+    )
+  )
 }

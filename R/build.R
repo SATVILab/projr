@@ -203,7 +203,10 @@ projr_build_dev <- function(file = NULL,
   invisible(version_run_on_list)
 }
 
-.projr_build_post <- function(version_run_on_list, bump_component, msg, old_dev_remove) {
+.projr_build_post <- function(version_run_on_list,
+                              bump_component,
+                              msg,
+                              old_dev_remove) {
   output_run <- .projr_build_get_output_run(bump_component)
   # update documentation
   .projr_build_post_docs(bump_component, version_run_on_list, msg)
@@ -223,7 +226,7 @@ projr_build_dev <- function(file = NULL,
   .projr_build_post_dev(bump_component, version_run_on_list, msg)
 
   # push
-  .projr_build_git_push(output_run = output_run)
+  .projr_build_git_push(output_run)
 
   invisible(TRUE)
 }

@@ -39,7 +39,7 @@
                                 remote_final = NULL,
                                 path_remote_rel = NULL,
                                 version_source) {
-  output_run <- .projr_run_output_check(bump_component = bump_component)
+  output_run <- .projr_run_output_check(bump_component)
   change_list <- .projr_change_get(
     label = label,
     remote_base = remote_base,

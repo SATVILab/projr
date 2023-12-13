@@ -13,10 +13,10 @@
   }
 
   # copy to unsafe directories
-  .projr_build_copy_to_unsafe(output_run = output_run)
+  .projr_build_copy_to_unsafe(output_run)
 
   # package
-  .projr_build_copy_pkg(output_run = output_run)
+  .projr_build_copy_pkg(output_run)
 
   # save to output
   .projr_build_copy_dir(output_run, dest_type = "output")

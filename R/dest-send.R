@@ -4,7 +4,7 @@
 .projr_dest_send <- function(bump_component) {
   # consider early exit
   # ------------------
-  if (!.projr_dest_send_check(bump_component = bump_component)) {
+  if (!.projr_dest_send_check(bump_component)) {
     return(invisible(FALSE))
   }
 
@@ -19,7 +19,7 @@
 
 .projr_dest_send_check <- function(bump_component) {
   # output_run
-  output_run <- .projr_run_type_check(bump_component = bump_component)
+  output_run <- .projr_build_get_output_run(bump_component)
   if (!output_run) {
     return(invisible(FALSE))
   }
@@ -78,7 +78,7 @@
     }
   }
 
-  output_run <- .projr_run_type_check(bump_component = bump_component)
+  output_run <- .projr_build_get_output_run(bump_component)
 
   .projr_dest_send_content(
     remote_type = remote_type,
@@ -281,5 +281,7 @@
   if (sync_approach != "sync-using-deletion") {
     return(invisible(FALSE))
   }
-  .projr_remote_file_rm_all(remote = remote_final, remote_type = remote_type)
+  .projr_remote_file_rm_all(
+    remote = remote_final, remote_type = remote_type
+  )
 }

@@ -26,7 +26,7 @@
   if (length(file) == 0L) {
     return(invisible(FALSE))
   }
-  msg <- .projr_git_msg_get(msg = msg)
+  msg <- .projr_git_msg_get(msg)
   switch(.projr_git_system_get(),
     "git" = .projr_git_commit_file_git(file, msg),
     "gert" = .projr_git_commit_file_gert(file, msg),
@@ -61,7 +61,7 @@
   if (add_untracked) {
     add_vec <- c(add_vec, .projr_git_new_get())
   }
-  msg <- .projr_git_msg_get(msg = msg)
+  msg <- .projr_git_msg_get(msg)
   .projr_git_commit_file(add_vec, msg)
 }
 
