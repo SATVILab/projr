@@ -82,7 +82,7 @@
   for (i in seq_along(path_dir)) {
     .projr_dir_create_single(path_dir[i])
   }
-  invisible(TRUE)
+  invisible(path_dir)
 }
 
 .projr_dir_create_single <- function(path_dir) {
@@ -219,44 +219,47 @@
 }
 
 # get cache directory to save to
-.projr_dir_get_cache_auto <- function(..., create = FALSE) {
+.projr_dir_get_cache_auto <- function(..., create = FALSE, profile) {
   .projr_dir_get_cache_auto_check()
-  .projr_file_get_full_dots(dir_active[[cache_ind]]$path, ...) |>
-    .projr_dir_get_create(create)
-}
-
-.projr_path_get_cache_auto <- function(..., create = FALSE) {
-  .projr_dir_get_cache_auto_check()
-  .projr_dir_get_cache_auto_path() |>
+  .projr_dir_get_cache_auto_path(profile) |>
     .projr_file_get_full_dots(...) |>
     .projr_dir_get_create(create)
 }
 
-.projr_dir_get_cache_auto_version <- function(..., create = TRUE) {
+.projr_path_get_cache_auto <- function(..., create = FALSE, profile) {
   .projr_dir_get_cache_auto_check()
-  .projr_dir_get_cache_auto_path() |>
+  path_dir <- .projr_dir_get_cache_auto_path(profile) |>
+    .projr_file_get_full_dots(...)
+  .projr_dir_get_create(dirname(path_dir), create)
+  path_dir
+}
+
+.projr_dir_get_cache_auto_version <- function(..., create = FALSE, profile) {
+  .projr_dir_get_cache_auto_check()
+  .projr_dir_get_cache_auto_path(profile) |>
     .projr_file_get_full("projr") |>
     .projr_file_append_version() |>
     .projr_file_get_full_dots(...) |>
     .projr_dir_get_create(create)
 }
 
-.projr_dir_get_cache_auto_path <- function() {
-  .projr_yml_dir_get(NULL)[[.projr_dir_get_cache_auto_ind()]][["path"]]
+.projr_dir_get_cache_auto_path <- function(profile) {
+  .projr_yml_dir_get(profile)[[
+    .projr_dir_get_cache_auto_ind(profile)
+  ]][["path"]]
 }
 
-.projr_dir_get_cache_auto_check <- function() {
+.projr_dir_get_cache_auto_check <- function(profile) {
   # find cache directory to save to
-  cache_ind <- .projr_dir_get_cache_auto_ind()
   stopifnot(
     "No cache directory specified, but required for projr builds." =
-      length(cache_ind) > 0
+      length(.projr_dir_get_cache_auto_ind(profile)) > 0
   )
 }
 
-.projr_dir_get_cache_auto_ind <- function() {
+.projr_dir_get_cache_auto_ind <- function(profile) {
   which(
-    grepl("^cache", .projr_dir_label_strip(names(.projr_yml_dir_get(NULL))))
+    grepl("^cache", .projr_dir_label_strip(names(.projr_yml_dir_get(profile))))
   )[1]
 }
 

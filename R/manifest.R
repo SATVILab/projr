@@ -1,99 +1,3 @@
-# hashed beforehand
-.projr_build_hash_pre <- function(output_run) {
-  # get labels
-  label_vec <- .projr_build_hash_pre_get_label()
-
-  # return early if need be
-  if (length(label_vec) == 0) {
-    return(.projr_zero_tbl_get_manifest())
-  }
-
-  # hash and return
-  out_tbl <- lapply(
-    label_vec, .projr_hash_label,
-    output_run = output_run
-  ) |>
-    Reduce(f = rbind, x = _)
-  rownames(out_tbl) <- NULL
-  path_file <- .projr_dir_get_cache_auto_version("manifest.csv")
-  saveRDS(out_tbl, path_file)
-  invisible(path_file)
-}
-
-.projr_build_hash_pre_get_label <- function() {
-  yml_projr_dir <- projr_yml_get()[["directories"]]
-  cache_vec <- names(yml_projr_dir)[
-    grepl("^cache", .projr_dir_label_strip(names(yml_projr_dir)))
-  ]
-  # decide whether to hash or not - default is to not
-  for (x in cache_vec) {
-    if (!"hash" %in% names(yml_projr_dir[[x]])) {
-      cache_vec <- cache_vec[!cache_vec == x]
-      next
-    }
-    if (!yml_projr_dir[[x]][["hash"]]) {
-      cache_vec <- cache_vec[!cache_vec == x]
-    }
-  }
-  cache_vec
-}
-
-.projr_build_hash_post <- function(output_run) {
-  .projr_build_hash_pre_read() |>
-    rbind(.projr_build_hash_post_get(output_run)) |>
-    .projr_manifest_write(output_run)
-}
-
-.projr_build_hash_pre_read <- function() {
-  .projr_dir_get_cache_auto_version("manifest.csv") |>
-    readRDS()
-}
-
-.projr_build_hash_post_get <- function(output_run) {
-  label_vec <- .projr_build_hash_post_get_label()
-  if (length(label_vec) == 0) {
-    return(.projr_zero_tbl_get_manifest())
-  }
-  hash_tbl_list <- lapply(
-    label_vec, .projr_hash_label,
-    output_run = output_run
-  ) |>
-    Reduce(f = rbind, x = _)
-  out_tbl <- Reduce(rbind, hash_tbl_list)
-  rownames(out_tbl) <- NULL
-  out_tbl
-}
-
-.projr_build_hash_post_get_label <- function() {
-  yml_projr_dir <- projr_yml_get()[["directories"]]
-  label_vec <- names(yml_projr_dir)[
-    grepl(
-      "^dataraw|^output|^docs",
-      .projr_dir_label_strip(names(yml_projr_dir))
-    )
-  ]
-  if (!"docs" %in% label_vec) {
-    label_vec <- c(label_vec, "docs")
-  }
-  # decide whether to include for hashing or not
-  for (x in label_vec) {
-    if (grepl("^docs", .projr_dir_label_strip(x))) {
-      if (!"hash" %in% names(yml_projr_dir[[x]])) {
-        label_vec <- label_vec[!label_vec == x]
-        next
-      }
-      if (!yml_projr_dir[[x]][["hash"]]) {
-        label_vec <- label_vec[!label_vec == x]
-      }
-    } else if ("hash" %in% names(yml_projr_dir[[x]])) {
-      if (!yml_projr_dir[[x]][["hash"]]) {
-        label_vec <- label_vec[!label_vec == x]
-      }
-    }
-  }
-  label_vec
-}
-
 .projr_hash_label <- function(label,
                               output_run = NULL) {
   # output is always in safe directory
@@ -108,55 +12,81 @@
 }
 
 .projr_hash_dir <- function(path_dir, version = NULL) {
-  fn_vec <- list.files(path_dir, full.names = TRUE, recursive = TRUE)
-  version <- version %||% projr_version_get()
-  if (length(fn_vec) == 0L) {
+  .projr_check_given(path_dir, "path_dir")
+  fn_vec <- .projr_dir_ls(path_dir, full.names = TRUE)
+  if (.projr_state_len_z(fn_vec)) {
     return(.projr_zero_tbl_get_hash())
   }
-  fn_to_hash_vec <- vapply(fn_vec, function(fn) {
-    digest::digest(fn, serialize = FALSE, file = TRUE)
-  }, character(1))
   out_tbl <- data.frame(
-    fn = fs::path_rel(fn_vec, path_dir) |> as.character(),
-    version = paste0("v", projr_version_get()),
-    hash = fn_to_hash_vec
+    fn = .projr_file_get_rel(fn_vec, path_dir),
+    version = paste0("v", version %||% projr_version_get()),
+    hash = .projr_hash_file(fn_vec)
   )
   rownames(out_tbl) <- NULL
   out_tbl
 }
 
+.projr_hash_file <- function(fn) {
+  vapply(fn, .projr_hash_file_single, character(1))
+}
+
+.projr_hash_file_single <- function(fn) {
+  digest::digest(fn, serialize = FALSE, file = TRUE)
+}
+
+
 .projr_manifest_write <- function(manifest, output_run, append = TRUE) {
-  if (!output_run) {
-    dir_cache_auto <- .projr_dir_get_cache_auto()
-    dir_write <- file.path(
-      dir_cache_auto, "projr", paste0("v", projr_version_get())
-    )
-    .projr_dir_create(dir_write)
-  } else {
-    dir_write <- projr_dir_get("project")
-  }
+  path_dir_write <- .projr_manifest_write_get_path(output_run)
   rownames(manifest) <- NULL
-  if (append) {
-    path_manifest <- file.path(dir_write, "manifest.csv")
-    if (file.exists(path_manifest)) {
-      manifest_orig <- .projr_manifest_read()
-      rownames(manifest_orig) <- NULL
-      manifest <- manifest_orig |> rbind(manifest)
-      rownames(manifest) <- NULL
-    }
+  .projr_manifest_write_append_previous(manifest) |>
+    .projr_manifest_write_append_previous(append) |>
+    .projr_manifest_remove_duplicate() |>
+    .projr_manifest_write_actual(path_dir_write)
+}
+
+.projr_manifest_write_get_path <- function(output_run) {
+  if (output_run) {
+    return(.projr_dir_proj_get())
   }
+  .projr_dir_get_cache_auto_version() |>
+    .projr_dir_create()
+}
+
+.projr_manifest_write_append_previous <- function(manifest, append) {
+  if (!append) {
+    return(manifest)
+  }
+  path_manifest <- .projr_dir_proj_get("manifest.csv")
+  if (!file.exists(path_manifest)) {
+    return(manifest)
+  }
+  manifest_orig <- .projr_manifest_read(NULL)
+  rownames(manifest_orig) <- NULL
+  manifest <- manifest_orig |> rbind(manifest)
+  rownames(manifest) <- NULL
+  manifest
+}
+
+.projr_manifest_remove_duplicate <- function(manifest) {
   manifest[["string"]] <- Reduce(paste0, manifest)
   manifest <- manifest[!duplicated(manifest[["string"]]), ]
   manifest[["string"]] <- NULL
+  manifest
+}
+
+.projr_manifest_write_actual <- function(manifest, path_dir) {
   utils::write.csv(
-    manifest, file.path(dir_write, "manifest.csv"),
+    manifest, file.path(path_dir, "manifest.csv"),
     row.names = FALSE
   )
 }
 
-.projr_manifest_read <- function() {
+.projr_manifest_read <- function(path_dir = NULL) {
+  if (.projr_state_null(path_dir)) {
+    path_dir <- .projr_dir_proj_get()
+  }
   out_tbl <- utils::read.csv(
-    projr_path_get("project", "manifest.csv"),
+    file.path(path_dir, "manifest.csv"),
     stringsAsFactors = FALSE
   )
   rownames(out_tbl) <- NULL

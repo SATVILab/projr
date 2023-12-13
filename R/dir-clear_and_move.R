@@ -158,6 +158,7 @@
 }
 
 .projr_dir_ls <- function(path_dir, recursive = TRUE, full.names = FALSE) {
+  .projr_check_dir_exists(path_dir, "path_dir", required = TRUE)
   list.files(
     path_dir,
     recursive = recursive, full.names = full.names

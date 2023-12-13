@@ -195,7 +195,7 @@
                                                     output_run) {
   change_list <- .projr_change_get(
     label = label,
-    outptut_run = output_run,
+    output_run = output_run,
     remote_final = remote_final,
     remote_type = remote_type,
     version_source = version_source
@@ -210,24 +210,25 @@
 # get plan details: delete and add all if change
 # ------------------------
 
-.projr_dest_send_get_plan_detail_delete_add_all_if_change <- function(remote_final,
-                                                                      remote_type,
-                                                                      version_source,
-                                                                      label,
-                                                                      output_run) {
-  plan_list <- .projr_dest_send_get_plan_detail_change(
-    remote_final = remote_final,
-    remote_type = remote_type,
-    version_source = version_source,
-    label = label,
-    output_run = output_run
-  )
-  if (length(plan_list[["add"]]) == 0L && length(plan_list[["rm"]]) == 0L) {
-    return(plan_list)
+.projr_dest_send_get_plan_detail_delete_add_all_if_change <-
+  function(remote_final,
+           remote_type,
+           version_source,
+           label,
+           output_run) {
+    plan_list <- .projr_dest_send_get_plan_detail_change(
+      remote_final = remote_final,
+      remote_type = remote_type,
+      version_source = version_source,
+      label = label,
+      output_run = output_run
+    )
+    if (length(plan_list[["add"]]) == 0L && length(plan_list[["rm"]]) == 0L) {
+      return(plan_list)
+    }
+    path_dir_local <- projr_dir_get(label, safe = !output_run)
+    list("add" = list.files(path_dir_local, recursive = TRUE), rm = character())
   }
-  path_dir_local <- projr_dir_get(label, safe = !output_run)
-  list("add" = list.files(path_dir_local, recursive = TRUE), rm = character())
-}
 
 # ========================
 # remote files from remote
@@ -237,10 +238,14 @@
 .projr_remote_file_rm_all_if_plan <- function(plan,
                                               remote_final,
                                               remote_type) {
-  if (!plan %in% c("delete_add_all", "delete_add_all_if_change")) {
+  if (!.projr_remote_file_rm_all_if_plan_check(plan)) {
     return(invisible(FALSE))
   }
   .projr_remote_file_rm_all(remote = remote_final, remote_type = remote_type)
+}
+
+.projr_remote_file_rm_all_if_plan_check <- function(plan) {
+  plan %in% c("delete_add_all", "delete_add_all_if_change")
 }
 
 # ========================

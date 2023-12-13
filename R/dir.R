@@ -62,14 +62,14 @@ projr_dir_get <- function(label, ...,
   .projr_dir_get(label = label, ..., safe = safe) |>
     .projr_dir_get_create(create) |>
     .projr_dir_get_rel(relative) |>
-    .projr_dir_get_absolute(absolute)
+    .projr_dir_get_abs(absolute)
 }
 
 .projr_dir_get_check <- function(label, dots_list, relative, absolute, safe) {
   if (.projr_state_len_nz(dots_list)) {
     sapply(dots_list, .projr_check_chr_single)
   }
-  .projr_dir_check_label(label)
+  .projr_dir_check_label(label, NULL)
   .projr_check_lgl_single(relative)
   .projr_check_lgl_single(absolute)
   .projr_check_lgl_single(safe)
@@ -78,17 +78,14 @@ projr_dir_get <- function(label, ...,
   }
 }
 
-.projr_dir_check_label <- function(label) {
+.projr_dir_check_label <- function(label, profile) {
   .projr_check_chr_nz(label)
-  .projr_dir_check_label_found(label)
-  .projr_dir_check_label_valid(label)
+  .projr_dir_check_label_found(label, profile)
 }
 
-.projr_dir_check_label_found <- function(label) {
+.projr_dir_check_label_found <- function(label, profile) {
   opt_vec <- c(
-    names(.projr_yml_dir_get()),
-    "docs",
-    "project"
+    names(.projr_yml_dir_get(profile)), "docs", "data", "project", "code"
   )
   label_found <- label %in% opt_vec
   if (!label_found) {
