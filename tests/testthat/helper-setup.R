@@ -77,26 +77,27 @@
   for (x in label) {
     # create files
     file.create(
-      projr_path_get(label, "abc.txt", safe = safe)
+      projr_path_get_file(x, "abc.txt", safe = safe)
     )
     if (dir_sub_lvl > 0) {
       file.create(
-        projr_path_get(
-          label, paste0(dir_sub_prefix, "1"), "def.txt",
+        projr_path_get_file(
+          x, paste0(dir_sub_prefix, "1"), "def.txt",
           safe = safe
         )
       )
     }
     if (dir_sub_lvl > 1) {
       file.create(
-        projr_path_get(
-          label, paste0(dir_sub_prefix, "1"),
+        projr_path_get_file(
+          x, paste0(dir_sub_prefix, "1"),
           paste0(dir_sub_prefix, "2"), "ghi.txt",
-          safe = FALSE
+          safe = safe
         )
       )
     }
   }
+  vapply(x, projr_path_get_dir, character(1), safe = safe)
 }
 
 .projr_test_setup_content_dir <- function(path_dir = NULL,

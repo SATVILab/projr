@@ -5,6 +5,10 @@
   if (is.null(x)) y else x
 }
 
+`%@@%` <- function(x, y) {
+  tryCatch(x, error = function(e) y)
+}
+
 .projr_dir_proj_get <- function(...) {
   dir_proj <- tryCatch(
     rprojroot::is_r_package$find_file(),

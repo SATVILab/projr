@@ -49,7 +49,7 @@
   path_append <- list(...) |> unlist()
   do.call(
     "file.path",
-    args = list(dir_label) |> append(path_append)
+    args = list(path_dir) |> append(path_append)
   ) |>
     as.character()
 }
@@ -61,13 +61,14 @@
 
 .projr_file_rm <- function(fn) {
   vapply(fn, .projr_file_rm_single, logical(1))
+  invisible(fn)
 }
 
 .projr_file_rm_single <- function(fn) {
   if (!file.exists(fn)) {
     return(invisible(FALSE))
   }
-  invisible(fn)
+  invisible(file.remove(fn))
 }
 .projr_file_get_rel <- function(path, path_dir = NULL) {
   path |>
@@ -91,4 +92,13 @@
     ".", "..", wd, dirname(wd), normalizePath(path_dir, winslash = "/")
   )
   setdiff(fn_vec, exc_vec)
+}
+
+.projr_file_dir_exc <- function(fn, exc) {
+  if (is.null(exc)) {
+    return(fn)
+  }
+  fn[
+    !grepl(paste0("^", gsub("/+$", "", exc), "/", collapse = "|"), fn)
+  ]
 }

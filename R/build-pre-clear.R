@@ -14,7 +14,7 @@
 }
 
 .projr_dir_clear_pre_cache_version <- function() {
-  .projr_dir_get_cache_auto_version() |>
+  .projr_dir_get_cache_auto_version(profile = NULL) |>
     .projr_dir_clear_dir(recursive = FALSE, dir_exc = "old")
 }
 
@@ -41,7 +41,7 @@
 .projr_build_clear_pre_output_label_cache <- function(label) {
   .projr_dir_mimick(
     .projr_dir_get(label, safe = TRUE),
-    .projr_dir_get_cache_auto_version_old(label)
+    .projr_dir_get_cache_auto_version_old(label, profile = NULL)
   )
 }
 

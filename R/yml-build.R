@@ -14,7 +14,7 @@
 }
 
 .projr_yml_build_get_nm <- function(nm, profile) {
-  .projr_yml_build_get(profile)[[nm]]
+  .projr_yml_build_get(profile)[[nm]] %@@% NULL
 }
 
 .projr_yml_build_set_nm <- function(yml, nm, profile) {
