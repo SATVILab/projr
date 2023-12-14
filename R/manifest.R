@@ -1,9 +1,13 @@
-.projr_hash_label <- function(label,
-                              output_run = NULL) {
+# hashing
+# ---------------------------
+
+.projr_manifest_hash_label <- function(label,
+                                       output_run) {
   # output is always in safe directory
   # as hashing is done before copying over to final directory
   hash_tbl <- .projr_hash_dir(
-    path_dir = projr_dir_get(label, safe = !output_run)
+    path_dir = projr_dir_get(label, safe = !output_run),
+    dir_exc = .projr_build_label_get_dir_exc(label)
   )
   cbind(
     data.frame(label = rep(label, nrow(hash_tbl))),
@@ -11,58 +15,39 @@
   )
 }
 
-.projr_hash_dir <- function(path_dir, version = NULL) {
-  .projr_check_given(path_dir, "path_dir")
-  fn_vec <- .projr_dir_ls(path_dir, full.names = TRUE)
-  if (.projr_state_len_z(fn_vec)) {
-    return(.projr_zero_tbl_get_hash())
-  }
-  out_tbl <- data.frame(
-    fn = .projr_file_get_rel(fn_vec, path_dir),
-    version = paste0("v", version %||% projr_version_get()),
-    hash = .projr_hash_file(fn_vec)
+.projr_build_label_get_dir_exc <- function(label) {
+  switch(.projr_yml_dir_label_class_get(label),
+    "cache" = "projr"
   )
-  rownames(out_tbl) <- NULL
-  out_tbl
 }
 
-.projr_hash_file <- function(fn) {
-  vapply(fn, .projr_hash_file_single, character(1))
-}
+# writing, reading and merging
+# ---------------------------
 
-.projr_hash_file_single <- function(fn) {
-  digest::digest(fn, serialize = FALSE, file = TRUE)
-}
-
-
-.projr_manifest_write <- function(manifest, output_run, append = TRUE) {
-  path_dir_write <- .projr_manifest_write_get_path(output_run)
+.projr_manifest_write <- function(manifest, path, overwrite = TRUE) {
   rownames(manifest) <- NULL
-  .projr_manifest_write_append_previous(manifest) |>
-    .projr_manifest_write_append_previous(append) |>
+  manifest |>
     .projr_manifest_remove_duplicate() |>
-    .projr_manifest_write_actual(path_dir_write)
+    .projr_manifest_write_actual(path, overwrite)
 }
 
-.projr_manifest_write_get_path <- function(output_run) {
-  if (output_run) {
-    return(.projr_dir_proj_get())
-  }
-  .projr_dir_get_cache_auto_version() |>
-    .projr_dir_create()
-}
-
-.projr_manifest_write_append_previous <- function(manifest, append) {
+.projr_manifest_append_previous <- function(manifest, append, path_previous) {
   if (!append) {
     return(manifest)
   }
-  path_manifest <- .projr_dir_proj_get("manifest.csv")
-  if (!file.exists(path_manifest)) {
+  if (is.null(path_previous)) {
+    path_previous <- .projr_manifest_get_path_file("NULL")
+  }
+  if (!file.exists(path_previous)) {
     return(manifest)
   }
-  manifest_orig <- .projr_manifest_read(NULL)
-  rownames(manifest_orig) <- NULL
-  manifest <- manifest_orig |> rbind(manifest)
+  manifest_pre <- .projr_manifest_read(path_previous)
+  manifest |> .projr_manifest_append_previous_actual(manifest_pre)
+}
+
+.projr_manifest_append_previous_actual <- function(manifest, manifest_pre) {
+  rownames(manifest_pre) <- NULL
+  manifest <- manifest_pre |> rbind(manifest)
   rownames(manifest) <- NULL
   manifest
 }
@@ -74,25 +59,42 @@
   manifest
 }
 
-.projr_manifest_write_actual <- function(manifest, path_dir) {
+.projr_manifest_write_actual <- function(manifest, path, overwrite) {
+  rownames(manifest) <- NULL
+  if (file.exists(path)) {
+    if (!overwrite) {
+      stop("file '", path, "' already exists", call. = FALSE)
+    }
+    invisible(file.remove(path))
+  }
   utils::write.csv(
-    manifest, file.path(path_dir, "manifest.csv"),
+    manifest, path,
     row.names = FALSE
   )
+  invisible(path)
 }
 
-.projr_manifest_read <- function(path_dir = NULL) {
-  if (.projr_state_null(path_dir)) {
-    path_dir <- .projr_dir_proj_get()
-  }
+.projr_manifest_read <- function(path = NULL) {
   out_tbl <- utils::read.csv(
-    file.path(path_dir, "manifest.csv"),
+    path,
     stringsAsFactors = FALSE
   )
   rownames(out_tbl) <- NULL
   out_tbl
 }
 
+.projr_manifest_get_path_dir <- function(path_dir) {
+  if (.projr_state_null(path_dir)) {
+    path_dir <- .projr_dir_proj_get()
+  }
+  .projr_dir_create(path_dir)
+}
+
+.projr_manifest_get_path_file <- function(path_dir) {
+  path_dir |>
+    .projr_manifest_get_path_dir() |>
+    .projr_file_get_full_dots("manifest.csv")
+}
 
 .projr_manifest_version_get_latest <- function(manifest) {
   manifest[["version"]] |>
@@ -101,20 +103,9 @@
     utils::tail(1)
 }
 
-
 .projr_zero_tbl_get_manifest <- function() {
   out_df <- data.frame(
     label = character(0),
-    fn = character(0),
-    version = character(0),
-    hash = character(0)
-  )
-  rownames(out_df) <- NULL
-  out_df
-}
-
-.projr_zero_tbl_get_hash <- function() {
-  out_df <- data.frame(
     fn = character(0),
     version = character(0),
     hash = character(0)

@@ -111,13 +111,13 @@
 # ===========================================
 
 .projr_build_copy_dir <- function(output_run) {
-  label_vec <- .projr_build_copy_dir_get_label()
-  for (x in label_vec) {
+  for (x in .projr_build_copy_dir_get_label()) {
     output_vec <- .projr_yml_dir_get_output_nm_complete(x, NULL)
     for (i in seq_along(output_vec)) {
       projr::projr_dir_mimick(
         projr_dir_get(x, safe = !output_run),
-        projr_dir_get(output_vec[[i]], x, safe = !output_run)
+        projr_dir_get(output_vec[[i]], x, safe = !output_run),
+        dir_exc = .projr_build_label_get_dir_exc(x)
       )
     }
   }
@@ -125,8 +125,9 @@
 }
 
 .projr_build_copy_dir_get_label <- function() {
-  .projr_yml_dir_get_label_output() |>
-    .projr_yml_dir_get_label_data_raw() |>
-    .projr_yml_dir_get_label_cache() |>
-    c("data")
+  c(
+    .projr_yml_dir_get_label_output(NULL),
+    .projr_yml_dir_get_label_data_raw(NULL),
+    .projr_yml_dir_get_label_cache(NULL)
+  )
 }

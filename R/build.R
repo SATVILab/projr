@@ -188,7 +188,7 @@ projr_build_dev <- function(file = NULL,
   .projr_build_clear_pre(output_run)
 
   # hash cache
-  .projr_build_hash_pre(output_run)
+  .projr_build_manifest_pre(output_run)
 
   # return version_run_on_list
   invisible(version_run_on_list)
@@ -277,7 +277,7 @@ projr_build_dev <- function(file = NULL,
                                      msg) {
   output_run <- .projr_build_get_output_run(bump_component)
   # hash data-raw and outputs, then save manifest table
-  .projr_build_hash_post(output_run)
+  .projr_build_manifest_post(output_run)
 
   # remove dev output files
   .projr_build_readme_rmd_render(output_run)

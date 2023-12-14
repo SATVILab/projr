@@ -65,6 +65,10 @@ projr_dir_get <- function(label, ...,
     .projr_dir_get_abs(absolute)
 }
 
+#' @rdname projr_dir_get
+#' @export
+projr_path_get_dir <- projr_dir_get
+
 .projr_dir_get_check <- function(label, dots_list, relative, absolute, safe) {
   if (.projr_state_len_nz(dots_list)) {
     sapply(dots_list, .projr_check_chr_single)
@@ -234,6 +238,9 @@ projr_path_get <- function(label, ...,
     as.character()
 }
 
+#' @rdname
+#' @export
+projr_path_get_file <- projr_path_get
 
 #' @title Create a directory in _projr.yml
 #'

@@ -43,7 +43,7 @@ projr_yml_check <- function(yml_projr = NULL) {
   nm_vec_dir <- names(yml_projr_dir)
   # required repositories
   nm_vec_dir_match <- .projr_dir_label_strip(nm_vec_dir)
-  if (!any(grepl("^dataraw", nm_vec_dir_match))) {
+  if (!any(.projr_yml_dir_label_class_detect_data_raw(nm_vec_dir_match))) {
     stop("No data-raw directory specified in projr settings")
   }
   if (!"cache" %in% nm_vec_dir_match) {

@@ -83,15 +83,18 @@
 # move
 # ----------------------
 .projr_dir_mimick <- function(path_dir_from,
-                              path_dir_to) {
+                              path_dir_to,
+                              dir_exc = NULL) {
   .projr_dir_clear(path_dir_to)
-  .projr_dir_copy(path_dir_from, path_dir_to)
+  .projr_dir_copy(path_dir_from, path_dir_to, dir_exc = dir_exc)
 }
 
 .projr_dir_copy <- function(path_dir_from,
-                            path_dir_to) {
-  fn_vec <- .projr_dir_ls(path_dir_from)
-  .projr_dir_copy_file(fn_vec, path_dir_from, path_dir_to)
+                            path_dir_to,
+                            dir_exc = NULL) {
+  projr_dir_ls(path_dir_from) |>
+    .projr_file_dir_exc(dir_exc) |>
+    .projr_dir_copy_file(path_dir_from, path_dir_to)
   .projr_dir_copy_tree(path_dir_from = path_dir_from, path_dir_to = path_dir_to)
 }
 

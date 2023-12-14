@@ -54,7 +54,7 @@
 }
 
 .projr_dir_get_label_safe_path <- function(label) {
-  .projr_dir_get_cache_auto_auto_version() |>
+  .projr_dir_get_cache_auto_version(profile = NULL) |>
     .projr_file_get_full_dots(
       .projr_dir_get_label_safe_path_get_label(label)
     )
@@ -112,7 +112,7 @@
   # ensure it's set in _projr.yml, and quarto.yml/_bookdown.yml if need be
   switch(.projr_engine_get(),
     "quarto_project" = .projr_dir_set_docs_quarto_project(path),
-    "quarto_document" = .projr_yml_dir_set_docs(path),
+    "quarto_document" = .projr_yml_dir_set_docs(path, NULL),
     "bookdown" = .projr_dir_set_docs_bookdown(path),
     "rmd" = .projr_yml_dir_set_docs(path)
   )
@@ -127,7 +127,8 @@
     return(invisible(FALSE))
   }
   switch(.projr_engine_get(),
-    "quarto_project" = .projr_dir_set_docs_quarto_project_safe(path),
+    "quarto_project" =
+      .projr_dir_set_docs_quarto_project_safe(path),
     "bookdown" = .projr_dir_set_docs_bookdown(path)
   )
   invisible(TRUE)
@@ -138,21 +139,6 @@
     grepl("^docs$", x = _)
 }
 
-# all
-.projr_yml_dir_set_docs <- function(path) {
-  .projr_yml_dir_get_docs_rel_if_within_cache(path) |>
-    .projr_yml_dir_set_path("docs", NULL)
-}
-
-.projr_yml_dir_get_docs_rel_if_within_cache <- function(path) {
-  within_cache <- fs::path_has_parent(
-    path, .projr_dir_get_cache_auto_version()
-  )
-  if (!within_cache) {
-    return(path)
-  }
-  fs::path_rel(path, .projr_dir_get_cache_auto_version())
-}
 
 # quarto
 .projr_dir_get_docs_quarto_project <- function() {
@@ -183,7 +169,7 @@
 
 .projr_dir_set_docs_quarto_project <- function(path) {
   .projr_yml_quarto_set_output_dir(path)
-  .projr_yml_dir_set_docs(path)
+  .projr_yml_dir_set_docs(path, NULL)
   return(invisible(TRUE))
 }
 
@@ -205,7 +191,7 @@
 
 .projr_dir_set_docs_bookdown <- function(path) {
   .projr_yml_bd_set_output_dir(path)
-  .projr_yml_dir_set_docs(path)
+  .projr_yml_dir_set_docs(path, NULL)
 }
 
 # Rmd/qmd (no other yml file of concern)
@@ -220,14 +206,14 @@
 
 # get cache directory to save to
 .projr_dir_get_cache_auto <- function(..., create = FALSE, profile) {
-  .projr_dir_get_cache_auto_check()
+  .projr_dir_get_cache_auto_check(profile = profile)
   .projr_dir_get_cache_auto_path(profile) |>
     .projr_file_get_full_dots(...) |>
     .projr_dir_get_create(create)
 }
 
 .projr_path_get_cache_auto <- function(..., create = FALSE, profile) {
-  .projr_dir_get_cache_auto_check()
+  .projr_dir_get_cache_auto_check(profile = profile)
   path_dir <- .projr_dir_get_cache_auto_path(profile) |>
     .projr_file_get_full_dots(...)
   .projr_dir_get_create(dirname(path_dir), create)
@@ -235,7 +221,7 @@
 }
 
 .projr_dir_get_cache_auto_version <- function(..., create = FALSE, profile) {
-  .projr_dir_get_cache_auto_check()
+  .projr_dir_get_cache_auto_check(profile = profile)
   .projr_dir_get_cache_auto_path(profile) |>
     .projr_file_get_full("projr") |>
     .projr_file_append_version() |>
@@ -263,8 +249,8 @@
   )[1]
 }
 
-.projr_dir_get_cache_auto_version_old <- function(..., create = TRUE) {
-  .projr_dir_get_cache_auto_check()
+.projr_dir_get_cache_auto_version_old <- function(..., create = TRUE, profile) {
+  .projr_dir_get_cache_auto_check(profile = profile)
   .projr_dir_get_cache_auto_path() |>
     .projr_file_get_full("projr") |>
     .projr_file_append_version() |>
