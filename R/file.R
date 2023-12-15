@@ -5,14 +5,14 @@
 
 .projr_file_get_abs <- function(fn, path_dir = NULL) {
   .projr_file_get_abs_check(fn = fn, path_dir = path_dir)
-  if (.projr_state_abs(fn)) {
+  if (all(.projr_state_abs(fn))) {
     return(fn)
   }
   if (.projr_state_null(path_dir)) {
-    path_dir <- .projr_dir_get_proj()
+    path_dir <- .projr_dir_proj_get()
   }
   .projr_file_get_full(path_dir, fn) |>
-    .projr_file_get_abs_single()
+    vapply(.projr_file_get_abs_single, character(1))
 }
 
 .projr_file_get_abs_single <- function(x) {
@@ -24,7 +24,8 @@
 .projr_file_get_abs_check <- function(fn, path_dir) {
   .projr_check_chr_nz(fn, "fn", required = TRUE)
   .projr_check_chr_nz(path_dir, "path_dir")
-  if (.projr_state_abs(fn) && !.projr_state_null(path_dir)) {
+  .projr_check_chr_single(path_dir, "path_dir")
+  if (all(.projr_state_abs(fn)) && !.projr_state_null(path_dir)) {
     stop(paste0(
       "fn is absolute, but path_dir is not NULL:\n",
       paste0("  - fn ", fn, "\n"),

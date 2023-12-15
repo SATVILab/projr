@@ -27,7 +27,8 @@ The only time that this should be set to \code{TRUE}
 should be when \code{projr_build_output} is being run, as otherwise
 "development" or test runs will add to, delete or overwrite files
 from the previous run of \code{projr_build_output}.
-Default is \code{TRUE}.}
+Default is \code{TRUE}.
+Do not change this unless you know what you are doing.}
 }
 \description{
 Creates a directory that is

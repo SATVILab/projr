@@ -11,7 +11,7 @@ projr_use_data(
   compress = "bzip2",
   version = 2,
   ascii = FALSE,
-  output_safe = TRUE
+  safe = TRUE
 )
 }
 \description{

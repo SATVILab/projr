@@ -600,16 +600,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 .projr_remote_file_get_all_local <- function(remote,
                                              path_dir_save_local) {
-  remote <- normalizePath(remote, winslash = "/")
-  path_dir_save_local <- normalizePath(path_dir_save_local, winslash = "/")
-  if (identical(remote, path_dir_save_local)) {
-    return(path_dir_save_local)
-  }
-  fn_vec <- list.files(remote, recursive = TRUE)
-  with_dir(remote, {
-    file.copy(fn_vec, path_dir_save_local, recursive = TRUE)
-  })
-  invisible(path_dir_save_local)
+  .projr_dir_copy(remote, path_dir_save_local)
 }
 
 # ---------------------
@@ -623,7 +614,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
     return(invisible(path_dir_save_local))
   }
   for (i in seq_len(nrow(osf_tbl_file))) {
-    osfr::osf_get(
+    osfr::osf_download(
       x = osf_tbl_file[i, ],
       path = path_dir_save_local,
       check = FALSE

@@ -2,9 +2,19 @@
 % Please edit documentation in R/dir.R
 \name{projr_dir_get}
 \alias{projr_dir_get}
+\alias{projr_path_get_dir}
 \title{Return path to profile-specific directory}
 \usage{
 projr_dir_get(
+  label,
+  ...,
+  create = TRUE,
+  relative = FALSE,
+  absolute = FALSE,
+  safe = TRUE
+)
+
+projr_path_get_dir(
   label,
   ...,
   create = TRUE,
@@ -52,7 +62,8 @@ The only time that this should be set to \code{TRUE}
 should be when \code{projr_build_output} is being run, as otherwise
 "development" or test runs will add to, delete or overwrite files
 from the previous run of \code{projr_build_output}.
-Default is \code{TRUE}.}
+Default is \code{TRUE}.
+Do not change this unless you know what you are doing.}
 }
 \value{
 Character.
@@ -68,9 +79,7 @@ DETAILS
 }
 \examples{
 \dontrun{
-if (interactive()) {
-  # EXAMPLE1
-}
+
 }
 }
 \seealso{

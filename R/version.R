@@ -289,23 +289,35 @@ projr_version_get <- function(dev_force = FALSE) {
 }
 
 
-#' @title Bump development version
-#'
-#' @description Increase development component of version.
-#'
-#' @export
-#'
-#' @return Returns the new version.
-projr_version_dev_bump <- function() {
+
+.projr_version_bump_dev <- function() {
+  .projr_version_bump("dev")
+}
+
+.projr_version_bump_major <- function() {
+  .projr_version_bump("major")
+}
+.projr_version_bump_minor <- function() {
+  .projr_version_bump("minor")
+}
+.projr_version_bump_patch <- function() {
+  .projr_version_bump("patch")
+}
+
+.projr_version_bump <- function(bump_component) {
   version_current_vec <- .projr_version_current_vec_get()
   version_format_list <- .projr_version_format_list_get()
-  ind_to_bump <- length(version_format_list$components)
+  ind_to_bump <- which(version_format_list$component == bump_component)
   version_current_vec[ind_to_bump] <- version_current_vec[ind_to_bump] + 1
+  for (i in seq_along(version_current_vec)) {
+    if (i > ind_to_bump) {
+      version_current_vec[i] <- 0
+    }
+  }
   version_new <- .projr_version_chr_get(version_current_vec)
   projr_version_set(version = version_new)
   version_new
 }
-
 
 .projr_version_comp_min_check <- function(bump_component,
                                           version_min) {
@@ -319,4 +331,21 @@ projr_version_dev_bump <- function() {
     "any" = version_vec_possible,
     version_vec_possible[seq_len(which(version_vec_possible == version_min))]
   )
+}
+
+.projr_version_v_rm <- function(x) {
+  gsub("^v+", "", x)
+}
+
+.projr_version_v_add <- function(x) {
+  x_rm <- .projr_version_v_rm(x)
+  paste0("v", x_rm)
+}
+
+.projr_version_get_earliest <- function(x) {
+  x |>
+    .projr_version_v_rm() |>
+    unique() |>
+    sort() |>
+    utils::tail(1)
 }

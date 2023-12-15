@@ -67,6 +67,7 @@
     }
     invisible(file.remove(path))
   }
+  .projr_dir_create(dirname(path))
   utils::write.csv(
     manifest, path,
     row.names = FALSE
@@ -97,10 +98,7 @@
 }
 
 .projr_manifest_version_get_latest <- function(manifest) {
-  manifest[["version"]] |>
-    unique() |>
-    sort() |>
-    utils::tail(1)
+  manifest[["version"]] |> .projr_version_get_earliest()
 }
 
 .projr_zero_tbl_get_manifest <- function() {

@@ -4,7 +4,14 @@
 \alias{projr_path_get}
 \title{Return path}
 \usage{
-projr_path_get(label, ..., create = TRUE, relative = FALSE, safe = TRUE)
+projr_path_get(
+  label,
+  ...,
+  create = TRUE,
+  relative = FALSE,
+  absolute = FALSE,
+  safe = TRUE
+)
 }
 \arguments{
 \item{label}{character.
@@ -31,6 +38,11 @@ If \code{TRUE}, then forces that the returned
 path is relative to the project root.
 Default is \code{FALSE}.}
 
+\item{absolute}{logical.
+If \code{TRUE}, then forces the returned path
+to be absolute.
+Default is \code{FALSE}.}
+
 \item{safe}{logical.
 If \code{TRUE}, then the output directory
 is set to be \code{"<path_to_cache>/projr_output"}
@@ -39,7 +51,8 @@ The only time that this should be set to \code{TRUE}
 should be when \code{projr_build_output} is being run, as otherwise
 "development" or test runs will add to, delete or overwrite files
 from the previous run of \code{projr_build_output}.
-Default is \code{TRUE}.}
+Default is \code{TRUE}.
+Do not change this unless you know what you are doing.}
 }
 \value{
 Character.
