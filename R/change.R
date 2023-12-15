@@ -148,7 +148,8 @@
   # so that we can hash
   switch(remote_type,
     "local" = .projr_change_get_file_dir_local(remote_final),
-    "osf" = .projr_change_get_file_dir_osf(remote_final)
+    "osf" = .projr_change_get_file_dir_osf(remote_final),
+    "github" = .projr_change_get_file_dir_github(remote_final)
   )
 }
 
@@ -158,6 +159,12 @@
 
 .projr_change_get_file_dir_osf <- function(remote_final) {
   .projr_remote_file_get_all("osf", remote_final, .projr_dir_tmp_random_get())
+}
+
+.projr_change_get_file_dir_github <- function(remote_final) {
+  .projr_remote_file_get_all(
+    "github", remote_final, .projr_dir_tmp_random_get()
+  )
 }
 
 # compare hashes
