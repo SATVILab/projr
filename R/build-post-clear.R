@@ -3,7 +3,7 @@
     return(invisible(FALSE))
   }
   for (x in .projr_yml_dir_get_label_output()) {
-    projr_dir_get(x, safe = FALSE) |> .projr_dir_clear()
+    projr_path_get_dir(x, safe = FALSE) |> .projr_dir_clear()
   }
   invisible(TRUE)
 }

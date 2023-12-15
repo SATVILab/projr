@@ -1058,7 +1058,7 @@ while (x < 10) {
   )
   dir_report <- basename(
     list.dirs(dirname(
-      projr_dir_get("docs", create = FALSE)
+      projr_path_get_dir("docs", create = FALSE)
     ), recursive = FALSE)
   )
   dir_report_rm <- dir_report[grepl(match_regex, dir_report)]
@@ -1071,12 +1071,12 @@ while (x < 10) {
   # clear old output
   # --------------------
 
-  dir_version <- projr_dir_get("output", output_safe = FALSE)
+  dir_version <- projr_path_get_dir("output", output_safe = FALSE)
   version_fn <- paste0("VERSION - ", projr_version_get())
   file.create(file.path(dir_version, version_fn))
 
   dir_tmp_vec_output <- list.dirs(
-    projr_dir_get("cache", "projr_output"),
+    projr_path_get_dir("cache", "projr_output"),
     recursive = FALSE
   )
 
@@ -1204,7 +1204,7 @@ if (use_bd_vec) {
 
   # zip
   # --------------------------
-  dir_doc <- projr_dir_get("docs")
+  dir_doc <- projr_path_get_dir("docs")
   path_zip <- file.path(dirname(dir_doc), "doc.zip")
   if (file.exists(path_zip)) {
     file.remove(path_zip)
@@ -1452,7 +1452,7 @@ test_that("projr_build_copy_dir works when archiving", {
         version_run_on_list = version_run_on_list
       )
 
-      dir_archive <- projr_dir_get(
+      dir_archive <- projr_path_get_dir(
         label = "archive",
         paste0("v", version_run_on_list$desc[["success"]])
       )
@@ -1484,8 +1484,8 @@ test_that("projr_build_copy_dir works when archiving", {
   # then:
 
   # set up paths
-  dir_output <- projr_dir_get(label = "output", output_safe = FALSE)
-  dir_archive <- projr_dir_get(
+  dir_output <- projr_path_get_dir(label = "output", output_safe = FALSE)
+  dir_archive <- projr_path_get_dir(
     label = "archive",
     paste0("v", version_run_on_list$desc[["success"]])
   )
@@ -1631,7 +1631,7 @@ yml_projr_dir <- projr_yml_get()[["directories"]]
         # ============================
 
         if (label == "bookdown") {
-            dir_bookdown <- projr_dir_get("bookdown")
+            dir_bookdown <- projr_path_get_dir("bookdown")
             path_zip <- file.path(dirname(dir_bookdown), "doc.zip")
             if (file.exists(path_zip)) {
               file.remove(path_zip)
@@ -1669,7 +1669,7 @@ yml_projr_dir <- projr_yml_get()[["directories"]]
         # uploading non-report and non-source-code items
         # ======================================
 
-        dir_input <- projr_dir_get("label", output_safe = FALSE)
+        dir_input <- projr_path_get_dir("label", output_safe = FALSE)
         if (!fs::is_absolute_path(dir_input)) {
             dir_input <- file.path(dir_proj, dir_input)
         }
@@ -1690,7 +1690,7 @@ yml_projr_dir <- projr_yml_get()[["directories"]]
                     !basename(fn_vec) %in% paste0(nm_rem_vec, ".zip")
                 ]
             }
-            dir_bookdown <- projr_dir_get("bookdown")
+            dir_bookdown <- projr_path_get_dir("bookdown")
             fn_vec <- fn_vec[
                 !basename(fn_vec) == paste0(basename(dir_bookdown), ".zip")
             ]

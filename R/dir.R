@@ -204,7 +204,7 @@ projr_path_get <- function(label, ...,
                            safe = TRUE) {
   args_dotted <- list(...)
   if (length(args_dotted) == 0) {
-    path_dir <- projr_dir_get(
+    path_dir <- projr_path_get_dir(
       label = label,
       create = create,
       relative = relative,
@@ -226,7 +226,7 @@ projr_path_get <- function(label, ...,
       )
     )
   } else {
-    path_dir <- projr_dir_get(
+    path_dir <- projr_path_get_dir(
       label = label,
       create = create,
       relative = relative,
@@ -253,7 +253,7 @@ projr_path_get_file <- projr_path_get
 #' @export
 projr_dir_create <- function(label, ..., safe = TRUE) {
   for (x in label) {
-    projr_dir_get(
+    projr_path_get_dir(
       label = x,
       ...,
       create = TRUE,

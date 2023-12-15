@@ -294,7 +294,7 @@
   }
   .projr_osf_download_osf_tbl(
     osf_tbl = osf_tbl_file,
-    path_dir_save_local = projr_dir_get(label, safe = TRUE),
+    path_dir_save_local = projr_path_get_dir(label, safe = TRUE),
     conflicts = "overwrite"
   )
   invisible(TRUE)
@@ -324,7 +324,7 @@
   for (i in seq_along(yml_param[["content"]])) {
     .projr_osf_download_osf_tbl(
       osf_tbl = osf_tbl,
-      path_dir_save_local = projr_dir_get(yml_param[["content"]][i], safe = TRUE),
+      path_dir_save_local = projr_path_get_dir(yml_param[["content"]][i], safe = TRUE),
       conflicts = conflicts
     )
   }

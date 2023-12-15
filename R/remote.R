@@ -863,10 +863,9 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # ========================
 
 .projr_remote_file_add <- function(type,
-                                   fn,
-                                   label,
+                                   remote,
                                    path_dir_local,
-                                   remote) {
+                                   fn) {
   switch(type,
     "local" = .projr_remote_file_add_local(
       fn = fn, path_dir_local = path_dir_local, remote = remote

@@ -114,7 +114,7 @@
 .projr_osf_send_node_label_new <- function(osf_tbl,
                                            osf_tbl_file,
                                            label) {
-  dir_label <- projr_dir_get("label", safe = FALSE)
+  dir_label <- projr_path_get_dir("label", safe = FALSE)
   label_present <- label %in% osf_tbl_file[["name"]]
   if (label_present) {
     return(FALSE)
@@ -131,7 +131,7 @@
                                            osf_tbl_file,
                                            manifest_added,
                                            manifest_tbl_osf) {
-  dir_label <- projr_dir_get("label", safe = FALSE)
+  dir_label <- projr_path_get_dir("label", safe = FALSE)
   osf_tbl_file <- osf_tbl |> osfr::osf_ls_files(n_max = Inf)
   label_present <- label %in% osf_tbl_file[["name"]]
 }
