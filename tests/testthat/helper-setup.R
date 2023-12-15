@@ -67,7 +67,7 @@
       }
     })
   }
-  dir_test
+  invisible(dir_test)
 }
 
 .projr_test_setup_content <- function(label,
@@ -97,7 +97,7 @@
       )
     }
   }
-  vapply(x, projr_path_get_dir, character(1), safe = safe)
+  vapply(x, projr_path_get_dir, character(1), safe = safe) |> invisible()
 }
 
 .projr_test_setup_content_dir <- function(path_dir = NULL,
@@ -124,7 +124,7 @@
     dir.create(path_dir_sub2)
     file.create(file.path(path_dir_sub2, "ghi.txt"))
   }
-  path_dir
+  path_dir |> invisible()
 }
 
 .projr_test_manifest_create <- function(pre = TRUE,

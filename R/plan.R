@@ -195,10 +195,10 @@
                                                     output_run) {
   change_list <- .projr_change_get(
     label = label,
-    output_run = output_run,
-    remote_final = remote_final,
+    outtput_run = output_run,
+    version_source = version_source,
     remote_type = remote_type,
-    version_source = version_source
+    remote_final = remote_final
   )
   list(
     "add" = c(change_list[["kept_changed"]], change_list[["added"]]),

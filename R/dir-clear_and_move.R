@@ -92,7 +92,7 @@
 .projr_dir_copy <- function(path_dir_from,
                             path_dir_to,
                             dir_exc = NULL) {
-  projr_dir_ls(path_dir_from) |>
+  .projr_dir_ls(path_dir_from) |>
     .projr_file_dir_exc(dir_exc) |>
     .projr_dir_copy_file(path_dir_from, path_dir_to)
   .projr_dir_copy_tree(path_dir_from = path_dir_from, path_dir_to = path_dir_to)
@@ -113,7 +113,8 @@
   }
   .projr_dir_copy_tree(path_dir_from = path_dir_from, path_dir_to = path_dir_to)
   fs::file_copy(
-    .projr_file_get_abs_exists(path_dir_from), .projr_dir_fn_get_abs(fn_vec_abs_dest),
+    file.path(path_dir_from, fn) |> .projr_file_get_abs(),
+    file.path(path_dir_to, fn) |> .projr_file_get_abs(),
     overwrite = TRUE
   )
   invisible(TRUE)
@@ -123,8 +124,8 @@
   if (.projr_state_len_z(fn)) {
     return(invisible(FALSE))
   }
-  fn_vec_source_exists <- .projr_file_get_abs_exists(fn, path_dir_from)
-  length(fn_vec_source_exists) > 0L
+  .projr_file_get_abs_exists(fn, path_dir_from) |>
+    .projr_state_len_nz()
 }
 
 .projr_dir_move <- function(path_dir_from,

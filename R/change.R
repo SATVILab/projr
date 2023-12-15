@@ -1,28 +1,33 @@
-# ------------------------
-# overall function
-# ------------------------
-
 .projr_change_get <- function(label,
                               output_run,
-                              remote_base,
-                              remote_final,
-                              path_remote_rel,
+                              version_source,
                               remote_type,
-                              version_source) {
+                              remote_final) {
+  .projr_change_get_check(label, version_source)
   switch(version_source,
     "manifest" = .projr_change_get_manifest(label = label),
     "file" = .projr_change_get_file(
-      label = label,
-      remote_base = remote_base,
-      path_remote_rel = path_remote_rel
+      remote_type_pre = remote_type,
+      remote_final_pre = remote_final,
+      remote_type_post = "local",
+      remote_final_post = projr_dir_get(label, safe = !output_run)
     ),
     stop(paste0("version_source '", version_source, "' not recognized"))
   )
 }
 
-# ------------------------
+.projr_change_get_check <- function(label,
+                                    version_source) {
+  .projr_check_given(label, "label")
+  .projr_check_chr_single(label, "label")
+  .projr_check_nz(label, "label")
+  .projr_check_given(version_source, "version_source")
+  .projr_check_chr_single(version_source, "version_source")
+}
+
 # manifest-based
 # ------------------------
+
 .projr_change_get_manifest <- function(version_post = NULL,
                                        version_pre = NULL,
                                        label = NULL) {
@@ -30,7 +35,7 @@
   # as it will filter on version and does
   # not assume there is only one label
   # get manifests from previous version and current version
-  manifest <- .projr_manifest_read()
+  manifest <- .projr_manifest_read(.projr_dir_proj_get("manifest.csv"))
 
   if (nrow(manifest) == 0L) {
     return(.projr_zero_list_manifest_get())
@@ -49,7 +54,9 @@
     manifest <- manifest[manifest[["label"]] == label, ]
   }
 
-  manifest_pre <- manifest[manifest[["version"]] == version_vec[["pre"]], ]
+  # use zero table if version_pre not found
+  manifest_pre <- manifest[manifest[["version"]] == version_vec[["pre"]], ] %@@%
+    .projr_zero_tbl_get_manifest()
 
   manifest_post <- manifest[manifest[["version"]] == version_vec[["post"]], ]
 
@@ -67,35 +74,38 @@
     version_post = version_post
   )
   version_pre <- .projr_change_get_manifest_version_pre(
-    version_pre = version_pre, manifest = manifest
+    version_pre, version_post, manifest
   )
   c("post" = version_post, "pre" = version_pre)
 }
 
 .projr_change_get_manifest_version_post <- function(version_post = NULL) {
-  if (is.null(version_post)) {
-    version_post <- paste0("v", projr_version_get())
-  } else {
-    if (!grepl("^v", version_post)) {
-      version_post <- paste0("v", version_post)
-    }
-  }
-  version_post
+  (version_post %||% projr_version_get()) |>
+    .projr_version_v_add()
 }
+
 .projr_change_get_manifest_version_pre <- function(version_pre = NULL,
+                                                   version_post,
                                                    manifest) {
   if (is.null(version_pre)) {
-    manifest_pre_all <- manifest[manifest[["version"]] < version_post, ]
-    if (nrow(manifest_pre_all) == 0L) {
-      version_pre <- "nothing_to_match"
-    }
-    version_pre <- .projr_manifest_version_get_latest(manifest_pre_all)
-  } else {
-    if (!grepl("^v", version_pre)) {
-      version_pre <- paste0("v", version_pre)
-    }
+    return(.projr_change_get_manifest_version_pre_null(
+      manifest = manifest,
+      version_post = version_post
+    ))
   }
-  version_pre
+  version_pre |> .projr_version_v_rm()
+}
+
+.projr_change_get_manifest_version_pre_null <- function(manifest, version_post) {
+  version_vec_manifest <- manifest[["version"]] |> .projr_version_v_rm()
+  version_post <- version_post |> .projr_version_v_rm()
+  manifest_pre_all <- manifest[version_vec_manifest < version_post, , drop = FALSE]
+  if (nrow(manifest_pre_all) == 0L) {
+    return(character())
+  }
+  manifest_pre_all |>
+    .projr_manifest_version_get_latest() |>
+    .projr_version_v_add()
 }
 
 .projr_zero_list_manifest_get <- function() {
@@ -107,109 +117,57 @@
   )
 }
 
-# ------------------------
 # file-based
 # ------------------------
 
-.projr_change_get_file <- function(label_pre = NULL,
-                                   output_run = NULL,
-                                   path_dir_local_pre = NULL,
-                                   remote_type_pre = NULL,
-                                   remote_base_pre = NULL,
+.projr_change_get_file <- function(remote_type_pre = NULL,
                                    remote_final_pre = NULL,
-                                   path_remote_rel_pre = NULL,
-                                   label_post = NULL,
                                    remote_type_post = NULL,
-                                   remote_base_post = NULL,
-                                   remote_final_post = NULL,
-                                   path_remote_rel_post = NULL,
-                                   path_dir_local_post = NULL) {
+                                   remote_final_post = NULL) {
   # get directories where files are found or saved to,
   # downloading them to there if necessary
-  path_dir_local_pre <- .projr_change_get_file_get(
-    label = label_pre,
-    output_run = output_run,
-    path_dir_local = path_dir_local_pre,
+  # remote_type_: remote type (local, osf, github)
+  # remote_final_: exactly where the data are on the remote
+  path_dir_local_pre <- .projr_change_get_file_dir(
     remote_type = remote_type_pre,
-    remote_base = remote_base_pre,
-    remote_final = remote_final_pre,
-    path_remote_rel = path_remote_rel_pre
+    remote_final = remote_final_pre
   )
-  path_dir_local_post <- .projr_change_get_file_get(
-    label = label_post,
-    output_run = output_run,
-    path_dir_local = path_dir_local_post,
+  path_dir_local_post <- .projr_change_get_file_dir(
     remote_type = remote_type_post,
-    remote_base = remote_base_post,
-    remote_final = remote_final_post,
-    path_remote_rel = path_remote_rel_post
+    remote_final = remote_final_post
   )
   # get hashes
   .projr_change_get_dir(
-    dir_pre = path_dir_local_pre, dir_post = path_dir_local_post
+    path_dir_pre = path_dir_local_pre, path_dir_post = path_dir_local_post
   )
 }
 
-.projr_change_get_file_get <- function(label,
-                                       output_run,
-                                       path_dir_local,
-                                       remote_type,
-                                       remote_base,
-                                       remote_final,
-                                       path_remote_rel) {
+.projr_change_get_file_dir <- function(remote_type,
+                                       remote_final) {
+  # to download the data to a local directory,
+  # so that we can hash
   switch(remote_type,
-    "local" = .projr_change_get_file_get_local(
-      label = label,
-      output_run = output_run,
-      path_dir_local = path_dir_local
-    ),
-    "osf" = .projr_change_get_file_get_osf(
-      label = label,
-      remote_base = remote_base,
-      remote_final = remote_final,
-      path_remote_rel = path_remote_rel
-    )
+    "local" = .projr_change_get_file_dir_local(remote_final),
+    "osf" = .projr_change_get_file_dir_osf(remote_final)
   )
 }
 
-.projr_change_get_file_get_local <- function(label,
-                                             output_run,
-                                             path_dir_local = NULL) {
-  if (!is.null(path_dir_local)) {
-    return(path_dir_local)
-  }
-  projr_dir_get(label, safe = !output_run)
+.projr_change_get_file_dir_local <- function(remote_final) {
+  remote_final
 }
 
-.projr_change_get_file_get_osf <- function(remote_base,
-                                           remote_final = NULL,
-                                           path_remote_rel) {
-  if (is.null(remote_final)) {
-    remote_final <- remote_base |> osfr::osf_mkdir(path = path_remote_rel)
-  }
-  path_dir_save_local <- file.path(tempdir(), "osf", signif(rnorm(1)))
-  if (dir.exists(path_dir_save_local)) {
-    unlink(path_dir_save_local, recursive = TRUE)
-  }
-  dir.create(path_dir_save_local, recursive = TRUE)
-
-  path_dir_save_local <- .projr_osf_download(
-    osf_tbl = remote_final,
-    path_dir_save_local = path_dir_save_local,
-    conflicts = "overwrite"
-  )
-  path_dir_save_local
+.projr_change_get_file_dir_osf <- function(remote_final) {
+  .projr_remote_file_get_all("osf", remote_final, .projr_dir_tmp_random_get())
 }
 
-# ------------------------
-# just compare the hashes
+# compare hashes
 # ------------------------
 
 # between two directories
-.projr_change_get_dir <- function(dir_pre,
-                                  dir_post) {
-  hash_tbl_pre <- .projr_hash_dir(dir_pre)
-  hash_tbl_post <- .projr_hash_dir(dir_post)
+.projr_change_get_dir <- function(path_dir_pre,
+                                  path_dir_post) {
+  hash_tbl_pre <- .projr_hash_dir(path_dir_pre)
+  hash_tbl_post <- .projr_hash_dir(path_dir_post)
   .projr_change_get_hash(hash_pre = hash_tbl_pre, hash_post = hash_tbl_post)
 }
 

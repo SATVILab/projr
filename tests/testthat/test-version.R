@@ -351,10 +351,10 @@ test_that("projr_version_set works", {
       projr_version_set("1.4")
       desc <- .projr_desc_get()
       expect_identical(desc[1, "Version"][[1]], "1.4")
-      invisible(projr_version_dev_bump())
+      invisible(.projr_version_bump_dev())
       desc <- .projr_desc_get()
       expect_identical(desc[1, "Version"][[1]], "1.5")
-      expect_error(invisible(projr_version_dev_bump("does_not_exist")))
+      expect_error(invisible(.projr_version_bump_dev("does_not_exist")))
     },
     force = TRUE,
     quiet = TRUE

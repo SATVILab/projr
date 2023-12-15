@@ -16,7 +16,7 @@
     return(invisible(TRUE))
   }
   .projr_check_chr(x = x, nm = nm)
-  .projr_check_nz(x = x, nm = nm)
+  vapply(x, .projr_check_nz, FUN.VALUE = logical(1), nm = nm)
   invisible(TRUE)
 }
 
