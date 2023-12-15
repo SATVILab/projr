@@ -1,26 +1,31 @@
 .projr_change_get <- function(label,
                               output_run,
+                              path_dir_local = NULL,
                               version_source,
-                              remote_type,
-                              remote_final) {
-  .projr_change_get_check(label, version_source)
+                              type,
+                              remote) {
+  .projr_change_get_check(label, path_dir_local, version_source)
   switch(version_source,
     "manifest" = .projr_change_get_manifest(label = label),
     "file" = .projr_change_get_file(
-      remote_type_pre = remote_type,
-      remote_final_pre = remote_final,
-      remote_type_post = "local",
-      remote_final_post = projr_dir_get(label, safe = !output_run)
+      type_pre = type,
+      remote_pre = remote,
+      type_post = "local",
+      remote_post = path_dir_local %||%
+        projr_path_get_dir(label, safe = !output_run)
     ),
     stop(paste0("version_source '", version_source, "' not recognized"))
   )
 }
 
 .projr_change_get_check <- function(label,
+                                    path_dir_local,
                                     version_source) {
-  .projr_check_given(label, "label")
-  .projr_check_chr_single(label, "label")
-  .projr_check_nz(label, "label")
+  if (.projr_state_null(path_dir_local)) {
+    .projr_check_given(label, "label")
+    .projr_check_chr_single(label, "label")
+    .projr_check_nz(label, "label")
+  }
   .projr_check_given(version_source, "version_source")
   .projr_check_chr_single(version_source, "version_source")
 }
@@ -120,21 +125,21 @@
 # file-based
 # ------------------------
 
-.projr_change_get_file <- function(remote_type_pre = NULL,
-                                   remote_final_pre = NULL,
-                                   remote_type_post = NULL,
-                                   remote_final_post = NULL) {
+.projr_change_get_file <- function(type_pre = NULL,
+                                   remote_pre = NULL,
+                                   type_post = NULL,
+                                   remote_post = NULL) {
   # get directories where files are found or saved to,
   # downloading them to there if necessary
-  # remote_type_: remote type (local, osf, github)
-  # remote_final_: exactly where the data are on the remote
+  # type_: remote type (local, osf, github)
+  # remote_: exactly where the data are on the remote
   path_dir_local_pre <- .projr_change_get_file_dir(
-    remote_type = remote_type_pre,
-    remote_final = remote_final_pre
+    type = type_pre,
+    remote = remote_pre
   )
   path_dir_local_post <- .projr_change_get_file_dir(
-    remote_type = remote_type_post,
-    remote_final = remote_final_post
+    type = type_post,
+    remote = remote_post
   )
   # get hashes
   .projr_change_get_dir(
@@ -142,28 +147,28 @@
   )
 }
 
-.projr_change_get_file_dir <- function(remote_type,
-                                       remote_final) {
+.projr_change_get_file_dir <- function(type,
+                                       remote) {
   # to download the data to a local directory,
   # so that we can hash
-  switch(remote_type,
-    "local" = .projr_change_get_file_dir_local(remote_final),
-    "osf" = .projr_change_get_file_dir_osf(remote_final),
-    "github" = .projr_change_get_file_dir_github(remote_final)
+  switch(type,
+    "local" = .projr_change_get_file_dir_local(remote),
+    "osf" = .projr_change_get_file_dir_osf(remote),
+    "github" = .projr_change_get_file_dir_github(remote)
   )
 }
 
-.projr_change_get_file_dir_local <- function(remote_final) {
-  remote_final
+.projr_change_get_file_dir_local <- function(remote) {
+  remote
 }
 
-.projr_change_get_file_dir_osf <- function(remote_final) {
-  .projr_remote_file_get_all("osf", remote_final, .projr_dir_tmp_random_get())
+.projr_change_get_file_dir_osf <- function(remote) {
+  .projr_remote_file_get_all("osf", remote, .projr_dir_tmp_random_get())
 }
 
-.projr_change_get_file_dir_github <- function(remote_final) {
+.projr_change_get_file_dir_github <- function(remote) {
   .projr_remote_file_get_all(
-    "github", remote_final, .projr_dir_tmp_random_get()
+    "github", remote, .projr_dir_tmp_random_get()
   )
 }
 

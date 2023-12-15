@@ -85,14 +85,10 @@
 }
 
 .projr_file_exclude_essential <- function(fn_vec) {
-  fn_vec <- fn_vec |>
+  fn_vec |>
     fs::path_norm() |>
-    as.character()
-  wd <- normalizePath(projr_dir_get("project"), winslash = "/")
-  exc_vec <- c(
-    ".", "..", wd, dirname(wd), normalizePath(path_dir, winslash = "/")
-  )
-  setdiff(fn_vec, exc_vec)
+    as.character() |>
+    setdiff(.projr_dir_ls_get_exc_auto())
 }
 
 .projr_file_dir_exc <- function(fn, exc) {

@@ -5,7 +5,10 @@ devtools::load_all()
 
 # devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
 devtools::test_active_file(
-  "tests/testthat/test-change.R"
+  "tests/testthat/test-plan.R"
 )
 
-.projr_manifest_read(.projr_dir_proj_get("manifest.csv"))
+.projr_dir_copy_file(.projr_file_dir_exc(
+  .projr_dir_ls(path_dir_from),
+  dir_exc
+), path_dir_from, path_dir_to)

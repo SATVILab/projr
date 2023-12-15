@@ -4,7 +4,7 @@ test_that(".projr_manifest_hash_label works", {
     path = dir_test,
     code = {
       # test hashing empty directory
-      path_dir_empty <- projr_dir_get("data-raw")
+      path_dir_empty <- projr_path_get_dir("data-raw")
       .projr_dir_rm(path_dir_empty)
       dir.create(path_dir_empty)
       manifest <- .projr_manifest_hash_label("data-raw", FALSE)

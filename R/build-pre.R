@@ -76,7 +76,7 @@
 
 # ignore
 .projr_build_ignore <- function() {
-  projr_dir_get("docs")
+  projr_path_get_dir("docs")
   projr_dir_ignore()
   invisible(TRUE)
 }

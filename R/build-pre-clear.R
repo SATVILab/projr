@@ -40,13 +40,13 @@
 
 .projr_build_clear_pre_output_label_cache <- function(label) {
   .projr_dir_mimick(
-    .projr_dir_get(label, safe = TRUE),
+    .projr_path_get_dir(label, safe = TRUE),
     .projr_dir_get_cache_auto_version_old(label, profile = NULL)
   )
 }
 
 .projr_build_clear_pre_output_label_no_cache <- function(label) {
-  .projr_dir_get(label, safe = TRUE) |>
+  .projr_path_get_dir(label, safe = TRUE) |>
     .projr_dir_clear()
 }
 
@@ -71,7 +71,7 @@
 }
 
 .projr_build_clear_pre_docs_check <- function(output_run) {
-  path_docs <- projr_dir_get("docs", safe = !output_run) |>
+  path_docs <- projr_path_get_dir("docs", safe = !output_run) |>
     normalizePath(winslash = "/")
   path_proj_root <- .projr_dir_proj_get() |> normalizePath(winslash = "/")
   identical(path_docs, path_proj_root)
@@ -79,12 +79,12 @@
 
 .projr_build_clear_pre_docs_cache <- function(output_run) {
   .projr_dir_mimick(
-    .projr_dir_get("docs", safe = !output_run),
+    .projr_path_get_dir("docs", safe = !output_run),
     .projr_dir_get_cache_auto("projr", "cleared_docs")
   )
 }
 
 .projr_build_clear_pre_docs_no_cache <- function(output_run) {
-  .projr_dir_get("docs", safe = !output_run) |>
+  .projr_path_get_dir("docs", safe = !output_run) |>
     .projr_dir_clear()
 }

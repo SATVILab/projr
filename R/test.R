@@ -90,8 +90,8 @@ projr_test_renv <- function(file = NULL) {
 .projr_test_renv_file_log_get_path <- function() {
   tryCatch(
     c(
-      projr_dir_get("cache", "projr", "log-renv_restore-output.txt"),
-      projr_dir_get("cache", "projr", "log-renv_restore-error.txt")
+      projr_path_get_dir("cache", "projr", "log-renv_restore-output.txt"),
+      projr_path_get_dir("cache", "projr", "log-renv_restore-error.txt")
     ),
     error = function(e) {
       c(

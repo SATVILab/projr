@@ -37,7 +37,7 @@
   label_vec_output <- .projr_yml_dir_get_label_output() |> c("data")
   for (x in label_vec_output) {
     .projr_dir_move(
-      projr_dir_get(x, safe = TRUE), projr_dir_get(x, safe = FALSE)
+      projr_path_get_dir(x, safe = TRUE), projr_path_get_dir(x, safe = FALSE)
     )
   }
   invisible(TRUE)
@@ -60,7 +60,7 @@
   for (x in .projr_build_copy_pkg_get_label()) {
     .projr_file_copy(
       .projr_build_copy_pkg_build_path_get(),
-      projr_dir_get(x, "pkg", safe = !output_run)
+      projr_path_get_dir(x, "pkg", safe = !output_run)
     )
   }
   invisible(TRUE)
@@ -115,8 +115,8 @@
     output_vec <- .projr_yml_dir_get_output_nm_complete(x, NULL)
     for (i in seq_along(output_vec)) {
       projr::projr_dir_mimick(
-        projr_dir_get(x, safe = !output_run),
-        projr_dir_get(output_vec[[i]], x, safe = !output_run),
+        projr_path_get_dir(x, safe = !output_run),
+        projr_path_get_dir(output_vec[[i]], x, safe = !output_run),
         dir_exc = .projr_build_label_get_dir_exc(x)
       )
     }

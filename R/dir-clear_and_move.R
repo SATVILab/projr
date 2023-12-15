@@ -8,7 +8,10 @@
     return(invisible(FALSE))
   }
 
-  .projr_dir_clear_file(path_dir, delete_hidden = delete_hidden, recursive = FALSE)
+  .projr_dir_clear_file(
+    path_dir,
+    delete_hidden = delete_hidden, recursive = FALSE
+  )
   .projr_dir_clear_dir(path_dir, recursive = FALSE)
   invisible(TRUE)
 }
@@ -35,8 +38,10 @@
   .projr_dir_check_identical(path_dir, .projr_dir_proj_get())
 }
 
-.projr_dir_clear_file <- function(path, delete_hidden = TRUE, recursive = TRUE) {
-  if (!.projr_dir_clear_file_check()) {
+.projr_dir_clear_file <- function(path,
+                                  delete_hidden = TRUE,
+                                  recursive = TRUE) {
+  if (!.projr_dir_clear_file_check(path)) {
     return(invisible(FALSE))
   }
   .projr_dir_clear_file_ls(path, delete_hidden, recursive) |>
@@ -49,7 +54,36 @@
   list.files(
     path = path_dir,
     recursive = recursive, full.names = TRUE, all.files = delete_hidden
+  ) |>
+    fs::path_norm() |>
+    as.character() |>
+    .projr_file_filter_essential_non() |>
+    .projr_file_filter_dir_non()
+}
+
+.projr_file_filter_essential_non <- function(fn, path_dir = NULL) {
+  fn |> setdiff(.projr_file_filter_essential_non_get_essential(path_dir))
+}
+
+.projr_file_filter_essential_non_get_essential <- function(path_dir) {
+  fn_vec_rel <- c(
+    ".", "..", .projr_dir_proj_get(),
+    dirname(.projr_dir_proj_get()), path_dir
   )
+  fn_vec_abs <- fn_vec_rel |> .projr_file_get_abs()
+  c(fn_vec_rel, fn_vec_abs) |>
+    unique() |>
+    fs::path_norm() |>
+    as.character() |>
+    unique()
+}
+
+.projr_file_filter_dir <- function(x) {
+  x[fs::is_dir(x)]
+}
+
+.projr_file_filter_dir_non <- function(x) {
+  x[!fs::is_dir(x)]
 }
 
 .projr_dir_clear_dir <- function(path, recursive = FALSE, dir_exc = NULL) {
@@ -70,7 +104,6 @@
     recursive = recursive, full.names = TRUE
   )
 }
-
 
 .projr_dir_clear_file_check <- function(path_dir, delete_hidden = TRUE) {
   if (!.projr_dir_clear_check(path_dir)) {
@@ -161,10 +194,25 @@
   invisible(TRUE)
 }
 
-.projr_dir_ls <- function(path_dir, recursive = TRUE, full.names = FALSE) {
+.projr_dir_ls <- function(path_dir,
+                          recursive = TRUE,
+                          full.names = FALSE,
+                          all.files = TRUE) {
   .projr_check_dir_exists(path_dir, "path_dir", required = TRUE)
   list.files(
     path_dir,
-    recursive = recursive, full.names = full.names
-  )
+    recursive = recursive, full.names = full.names, all.files = all.files
+  ) |>
+    fs::path_norm() |>
+    as.character() |>
+    .projr_file_filter_essential_non(path_dir)
+}
+
+.projr_dir_ls_get_exc_auto <- function(path_dir = NULL) {
+  c(
+    ".", "..", .projr_dir_proj_get(),
+    dirname(.projr_dir_proj_get()), path_dir
+  ) |>
+    fs::path_norm() |>
+    as.character()
 }

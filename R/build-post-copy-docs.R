@@ -178,7 +178,7 @@
       )
       fn_vec_from <- .projr_dir_proj_get(x, fn_vec)
       fn_vec_to <- file.path(
-        projr_dir_get("docs", safe = !output_run), x, fn_vec
+        projr_path_get_dir("docs", safe = !output_run), x, fn_vec
       )
       dir_vec_to <- dirname(fn_vec_to) |> unique()
       for (i in seq_along(dir_vec_to)) {

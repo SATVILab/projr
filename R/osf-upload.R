@@ -101,7 +101,7 @@
   }
 
   # get local directory to upload from
-  path_dir_local <- projr_dir_get(label, safe = !output_run)
+  path_dir_local <- projr_path_get_dir(label, safe = !output_run)
 
   # this is effectively just wiping out what's there
   convert_to_sync_using_deletion <- sync_approach == "sync-using-version" &&
@@ -161,7 +161,7 @@
     version = NULL
   )
   # get local directory to upload from
-  path_dir_local <- projr_dir_get(label, safe = !output_run)
+  path_dir_local <- projr_path_get_dir(label, safe = !output_run)
 
   switch(version_source,
     "none" = {
