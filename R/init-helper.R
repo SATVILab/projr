@@ -78,12 +78,10 @@
     append(nm_list_git_gh)
 }
 
-.projr_init_description_check_exists <- function() {
-  file.exists(.projr_dir_proj_get("DESCRIPTION"))
-}
+
 
 .projr_init_description <- function(nm_list) {
-  if (.projr_init_description_check_exists()) {
+  if (!.projr_init_description_check()) {
     return(invisible(FALSE))
   }
   descrptn <- desc::description$new("!new")
@@ -128,6 +126,10 @@
   usethis::proj_activate(.projr_dir_proj_get())
   usethis::use_roxygen_md()
   invisible(TRUE)
+}
+
+.projr_init_description_check <- function() {
+  !.projr_description_state_exists()
 }
 
 .projr_init_dep <- function() {
@@ -343,14 +345,14 @@
   if (!Sys.getenv("PROJR_TEST") == "TRUE") {
     cat("Project name is", paste0("`", nm_pkg, "`"), "\n")
   }
-  if (!.projr_init_description_check_exists()) {
+  if (!.projr_description_state_exists()) {
     nm_first <- .projr_init_prompt_ind_first()
     nm_last <- .projr_init_prompt_ind_last()
     nm_email <- .projr_init_prompt_ind_email()
     nm_title <- .projr_init_prompt_ind_title()
     nm_license <- .projr_init_prompt_ind_license()
   } else {
-    nm_license <- .projr_init_prompt_ind_license(.projr_dir_proj_get())
+    nm_license <- .projr_init_prompt_ind_license()
     nm_license_detail <- !is.null(nm_license) && nm_license == "Proprietary"
     if (nm_license_detail) {
       # if extra details neede
@@ -372,6 +374,7 @@
     license = nm_license
   )
 }
+
 
 .projr_init_prompt_ind_first <- function() {
   .projr_init_prompt_ind(
@@ -442,9 +445,9 @@
 # readme
 .projr_init_prompt_readme <- function(nm_list_metadata) {
   answer_readme <- .projr_init_prompt_readme_create()
-  path_desc_lgl_init <- .projr_desc_tmp_create()
+  desc_exists_pre <- .projr_desc_tmp_create()
   .projr_init_readme_create(answer_readme)
-  .projr_desc_tmp_remove(path_desc_lgl_init)
+  .projr_desc_tmp_remove(desc_exists_pre)
   readme <- .projr_init_prompt_readme_description(
     answer_readme,
     nm_list_metadata
@@ -457,17 +460,17 @@
 
 .projr_desc_tmp_create <- function() {
   path_desc <- .projr_dir_proj_get("DESCRIPTION")
-  path_desc_lgl_init <- file.exists(path_desc)
-  if (!path_desc_lgl_init) {
+  desc_exists_pre <- file.exists(path_desc)
+  if (!desc_exists_pre) {
     desc::description$new("!new")$write(file = path_desc)
     return(path_desc)
   }
-  character()
+  desc_exists_pre
 }
 
-.projr_desc_tmp_remove <- function(path_desc) {
-  if (nzchar(path_desc)) {
-    unlink(path_desc)
+.projr_desc_tmp_remove <- function(desc_exists_pre) {
+  if (!desc_exists_pre) {
+    .projr_file_rm(.projr_dir_proj_get("DESCRIPTION"))
   }
 }
 
@@ -897,6 +900,9 @@ projr_init_renviron <- function() {
 # citations
 # --------------------------
 .projr_init_cite <- function(answer_readme) {
+  if (Sys.getenv("PROJR_TEST") == "TRUE") {
+    return(invisible(FALSE))
+  }
   .projr_init_cite_citation(answer_readme)
   .projr_init_cite_cff()
   .projr_init_cite_codemeta()

@@ -35,7 +35,9 @@
 }
 
 
-.projr_changelog_get_line <- function(msg, bump_component, version_run_on_list) {
+.projr_changelog_get_line <- function(msg,
+                                      bump_component,
+                                      version_run_on_list) {
   version_txt <- .projr_changelog_get_version(version_run_on_list)
   bump_txt <- .projr_changelog_get_bump_component(bump_component)
   .projr_change_get_line_final(bump_txt, version_txt, msg)
@@ -72,7 +74,7 @@
   paste0("", author, " (", time, ")")
 }
 
-.projr_changelog_get_entry <- function(bump_component, line) {
+.projr_changelog_get_entry <- function(line, bump_component) {
   switch(bump_component,
     "patch" = line,
     "minor" = c(line, ""),

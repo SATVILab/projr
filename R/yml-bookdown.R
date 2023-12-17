@@ -3,7 +3,7 @@
 
 .projr_yml_bd_set_output_dir <- function(path) {
   yml_bd <- .projr_yml_bd_get()
-  yml_bd[["project"]][["output_dir"]] <- path
+  yml_bd[["output_dir"]] <- path
   .projr_yml_bd_set(yml_bd)
 }
 

@@ -1,7 +1,4 @@
 test_that("projr_dir_get works", {
-  # skips
-  skip_if(FALSE)
-
   # setup
   dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = TRUE)
 
@@ -9,6 +6,14 @@ test_that("projr_dir_get works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      # ensure a docs bug is fixed
+      expect_identical(
+        projr_path_get_dir("docs"), "_tmp/projr/v0.0.0-1/_book"
+      )
+      expect_identical(
+        .projr_yml_bd_get()[["output_dir"]], "_tmp/projr/v0.0.0-1/_book"
+      )
+
       projr_init()
       projr_path_get_dir("project")
       yml_projr <- .projr_yml_get_root_full()
@@ -45,11 +50,12 @@ test_that("projr_dir_get works", {
         projr_path_get_dir("data-raw", relative = TRUE),
         "../.."
       )
+
       expect_identical(
-        projr_path_get_dir("docs", "abc"), "_tmp/projr/v0.0.0-1/docs/abc"
+        projr_path_get_dir("docs", "abc"), "_tmp/projr/v0.0.0-1/_book/abc"
       )
       expect_identical(
-        projr_path_get_dir("docs", "abc", safe = FALSE), "docs/abc"
+        projr_path_get_dir("docs", "abc", safe = FALSE), "_book/abc"
       )
       expect_identical(
         projr_path_get_dir("data-raw", "abc"),
@@ -81,7 +87,9 @@ test_that("projr_dir_get works", {
       )
       # many levels
       expect_identical(
-        projr_path_get_dir("cache", "fig", "intro", "a", "b", "c", "d", "e", "f"),
+        projr_path_get_dir(
+          "cache", "fig", "intro", "a", "b", "c", "d", "e", "f"
+        ),
         "_tmp/fig/intro/a/b/c/d/e/f"
       )
     },
@@ -163,10 +171,10 @@ test_that("projr_path_get works", {
 
       expect_identical(
         projr_path_get("docs", "abc", safe = TRUE),
-        "_tmp/projr/v0.0.0-1/docs/reportV0.0.0-1/abc"
+        "_tmp/projr/v0.0.0-1/_book/abc"
       )
       expect_identical(
-        projr_path_get("docs", "abc", safe = FALSE), "docs/reportV0.0.0-1/abc"
+        projr_path_get("docs", "abc", safe = FALSE), "_book/abc"
       )
       expect_identical(
         projr_path_get("data-raw", "abc"),
@@ -298,14 +306,14 @@ test_that("projr_dir_ignore works", {
       .projr_ignore_label_set("docs")
       gitignore <- .projr_ignore_git_read()
       expect_identical(length(which(
-        gitignore == "docs/reportV0.0.0-1/**"
+        gitignore == "_book/**"
       )), 1L)
       buildignore <- .projr_ignore_rbuild_read()
       expect_identical(length(which(
-        buildignore == "^docs/reportV0\\.0\\.0-1/"
+        buildignore == "^_book/"
       )), 1L)
       expect_identical(length(which(
-        buildignore == "^docs/reportV0\\.0\\.0-1$"
+        buildignore == "^_book$"
       )), 1L)
       .projr_ignore_label_set("data-raw")
       # test that nothing is done when directory is equal to working directory
@@ -422,18 +430,21 @@ test_that(".projr_dir_clear works", {
     code = {
       projr_init()
       expect_error(.projr_dir_clear(dir_test))
-      expect_true(.projr_dir_clear(file.path(dir_test, "abc")))
+      expect_false(.projr_dir_clear(file.path(dir_test, "abc")))
 
       # not deleting directories
       dir_cache_sub <- projr_path_get_dir("cache", "sub")
       path_cache_sub_fn <- file.path(dir_cache_sub, "test.txt")
       invisible(file.create(path_cache_sub_fn))
-      .projr_dir_clear(
-        path_dir = projr_path_get_dir("cache"),
-        delete_directories = FALSE
-      )
+      .projr_dir_clear_file(path = projr_path_get_dir("cache"))
       expect_true(dir.exists((dir_cache_sub)))
       expect_false(file.exists(path_cache_sub_fn))
+      .projr_dir_clear(
+        path_dir = projr_path_get_dir("cache"),
+      )
+      expect_false(dir.exists((dir_cache_sub)))
+      expect_false(file.exists(path_cache_sub_fn))
+      expect_true(dir.exists(projr_path_get_dir("cache")))
 
 
       dir_cache_sub <- projr_path_get_dir("cache", "sub")
@@ -442,8 +453,7 @@ test_that(".projr_dir_clear works", {
       path_cache_fn <- projr_path_get("cache", "test2.txt")
       invisible(file.create(path_cache_fn))
       .projr_dir_clear(
-        path_dir = projr_path_get_dir("cache"),
-        delete_directories = TRUE
+        path_dir = projr_path_get_dir("cache")
       )
       expect_false(dir.exists((dir_cache_sub)))
       expect_true(dir.exists(dirname(dir_cache_sub)))

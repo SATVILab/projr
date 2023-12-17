@@ -65,6 +65,7 @@ test_that(".projr_build_manifest_* works", {
 
       # post
       # --------------------------
+      browser()
       expect_false(.projr_build_manifest_post(FALSE))
       path_manifest <- .projr_build_manifest_post(TRUE)
       expect_identical(nrow(.projr_manifest_read(path_manifest)), 6L)
@@ -83,6 +84,7 @@ test_that(".projr_build_manifest_* works", {
       invisible(.projr_file_rm(.projr_build_manifest_pre_path_get()))
       .projr_dir_rm(projr_dir_get("docs", safe = FALSE))
       .projr_dir_rm(projr_dir_get("output", safe = FALSE))
+      .projr_file_rm(.projr_dir_proj_get("manifest.csv"))
       path_manifest <- .projr_build_manifest_post(TRUE)
       expect_identical(nrow(.projr_manifest_read(path_manifest)), 0L)
     }

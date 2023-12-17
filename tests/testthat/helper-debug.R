@@ -21,3 +21,11 @@
   path_dir_from <- file.path("/workspaces/projr/_tmp")
   readRDS(file.path(path_dir_from, nm))
 }
+
+.projr_test_debug_copy_file <- function(path) {
+  file.copy(
+    from = path,
+    to = file.path("/workspaces/projr/_tmp", basename(path)),
+    overwrite = TRUE
+  )
+}
