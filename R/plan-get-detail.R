@@ -33,13 +33,15 @@
       path_dir_local = path_dir_local,
       remote = remote,
       type = type,
+      label = label,
       version_source = version_source
     ),
     "delete_add_all_if_change" = .projr_dest_send_get_plan_detail_delete_add_all_if_change( # nolint
       path_dir_local = path_dir_local,
       remote = remote,
       type = type,
-      version_source = version_source
+      version_source = version_source,
+      label = label
     ),
     stop(paste0("plan '", plan, "' not supported"), call. = FALSE)
   )
@@ -92,18 +94,23 @@
 
 .projr_dest_send_get_plan_detail_change <- function(remote,
                                                     type,
+                                                    label,
                                                     version_source,
                                                     path_dir_local) {
   change_list <- .projr_change_get(
+    label = label,
     path_dir_local = path_dir_local,
     version_source = version_source,
     type = type,
     remote = remote
   )
   list(
-    "add" = c(change_list[["kept_changed"]][["fn"]], change_list[["added"]][["fn"]]) |>
+    "add" = c(
+      change_list[["kept_changed"]][["fn"]] %@@% character(),
+      change_list[["added"]][["fn"]] %@@% character()
+    ) |>
       as.character(),
-    "rm" = change_list[["removed"]][["fn"]] |> as.character()
+    "rm" = change_list[["removed"]][["fn"]] %@@% character() |> as.character()
   )
 }
 
@@ -115,12 +122,14 @@
   function(remote,
            type,
            version_source,
-           path_dir_local) {
+           path_dir_local,
+           label) {
     plan_list <- .projr_dest_send_get_plan_detail_change(
       remote = remote,
       type = type,
       version_source = version_source,
-      path_dir_local = path_dir_local
+      path_dir_local = path_dir_local,
+      label = label
     )
     if (
       !.projr_dest_send_get_plan_detail_delete_add_all_if_change_check(plan_list) # nolint

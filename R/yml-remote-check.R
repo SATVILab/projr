@@ -102,19 +102,7 @@
 .projr_yml_remote_check_content <- function(type,
                                             category,
                                             content) {
-  if (is.null(content)) {
-    switch(type,
-      # osf can have empty content for projects
-      "osf" = switch(category,
-        "project" = return(invisible(FALSE)),
-        stop("content must be supplied for non-project OSF uploads")
-      ),
-      stop("content must be specified")
-    )
-  }
-  if (!length(content) > 0L) {
-    stop("content must be a character vector of length > 0")
-  }
+  .projr_check_chr_nz(content, TRUE)
   if (!all(is.character(content))) {
     stop("content must be a character vector")
   }

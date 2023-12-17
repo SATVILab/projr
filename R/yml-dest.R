@@ -40,7 +40,6 @@
                                 description = NULL,
                                 id = NULL,
                                 id_parent = NULL,
-                                title_parent = NULL,
                                 get_sync_approach = NULL,
                                 get_conflict = NULL,
                                 send_cue = NULL,
@@ -78,7 +77,6 @@
     description = description,
     id = id,
     id_parent = id_parent,
-    title_parent = title_parent,
     get_list = get_list,
     send_list = send_list
   )
@@ -100,7 +98,6 @@
     description = description,
     id = id,
     id_parent = id_parent,
-    title_parent = title_parent,
     profile = profile
   )
 }
@@ -130,9 +127,13 @@
     get_list = get_list,
     send_list = send_list
   ) |>
-    .projr_yml_dest_add_get_list_add_extra() |>
+    .projr_yml_dest_add_get_list_add_extra(
+      type = type, id = id, id_parent = id_parent,
+      category = category, public = public, description = description
+    ) |>
     .projr_yml_dest_set_title(
-      title = title, type = type, profile = profile
+      title = title, type = type,
+      overwrite = overwrite, profile = profile
     )
 }
 
@@ -215,25 +216,136 @@
                                                                category,
                                                                description,
                                                                public) {
-  id <- .projr_remote_create(
+  .projr_remote_create(
     type = "osf",
     name = title,
     id_parent = id_parent,
     category = category,
     public = public,
     description = description
-  )
-  if (.projr_state_z(id)) {
-    stop(
-      "Failed to create OSF node",
-      call. = FALSE
-    )
+  ) |>
+    .projr_yml_dest_add_get_list_add_extra_osf_id_null_check_success() |>
+    .projr_list_add(list_base = list_add, x = _, nm = "id")
+}
+
+.projr_yml_dest_add_get_list_add_extra_osf_id_null_check_success <-
+  function(id, list_add) {
+    if (.projr_state_z(id)) {
+      stop(
+        "Failed to create OSF node",
+        call. = FALSE
+      )
+    }
+    id
   }
-  list_add |>
-    .projr_list_add(id)
+
+# -----------------
+# complete
+# -----------------
+
+# main function
+.projr_yml_dest_get_title_complete <- function(title, type, profile) {
+  force(title)
+  force(profile)
+  .projr_yml_dest_get_title(title, type, profile) |>
+    .projr_yml_dest_complete_title(type)
 }
 
 
+.projr_yml_dest_complete_title <- function(yml_title, type) {
+  yml_title |>
+    .projr_yml_dest_complete_title_structure(type) |>
+    .projr_yml_dest_complete_title_cue(type) |>
+    .projr_yml_dest_complete_title_upload(type) |>
+    .projr_yml_dest_complete_title_path_append_label(type) |>
+    .projr_yml_dest_complete_title_path(type) |>
+    .projr_yml_dest_complete_title_id(type)
+}
+
+.projr_yml_dest_complete_title_structure <- function(yml, type) {
+  .projr_yml_complete(yml, "structure", "version")
+}
+
+.projr_yml_dest_complete_title_cue <- function(yml, type) {
+  .projr_yml_complete(yml, "cue", "patch")
+}
+
+.projr_yml_dest_complete_title_upload <- function(yml, type) {
+  yml[["upload"]] <- yml[["upload"]] |>
+    .projr_yml_dest_complete_title_upload_version_source(type) |>
+    .projr_yml_dest_complete_title_upload_sync_approach(type) |>
+    .projr_yml_dest_complete_title_upload_conflict(type)
+  yml
+}
+
+.projr_yml_dest_complete_title_upload_version_source <- function(yml, type) {
+  .projr_yml_complete(yml, "version-source", "manifest")
+}
+
+# sync-approach
+.projr_yml_dest_complete_title_upload_sync_approach <- function(yml, type) {
+  yml[["sync-approach"]] <- switch(type,
+    "local" = ,
+    "osf" = .projr_yml_dest_complete_title_sync_approach_hierarchy(
+      yml[["sync-approach"]], yml[["version-source"]]
+    ),
+    "github" = .projr_yml_dest_complete_title_sync_approach_github(
+      yml[["sync-approach"]], yml[["version-source"]]
+    )
+  )
+  yml
+}
+
+.projr_yml_dest_complete_title_sync_approach_hierarchy <-
+  function(sync_approach, version_source) {
+    # default is sync-using-version
+    sync_approach <- sync_approach %||% "sync-using-version"
+    version_source <- version_source %||% "manifest"
+    # if we cannot use versioning but must sync, the only option is
+    # sync-using-deletion
+    if (version_source == "none" && sync_approach == "sync-using-version") {
+      return("sync-using-deletion")
+    }
+    sync_approach
+  }
+
+.projr_yml_dest_complete_title_sync_approach_github <-
+  function(sync_approach, version_source) {
+    # default is sync-using-version, for speeds
+    sync_approach <- sync_approach %||% "sync-using-version"
+    version_source <- version_source %||% "manifest"
+    # only if we're allowed to use versioning and we're syncing
+    # do we use sync-using-version (which is the default).
+    # Otherwise, we use sync-using-deletion
+    if (sync_approach == "sync-using-version" && version_source != "none") {
+      return("sync-using-version")
+    }
+    "sync-using-deletion"
+  }
+
+.projr_yml_dest_complete_title_upload_conflict <- function(yml, type) {
+  .projr_yml_complete(yml, "conflict", "overwrite")
+}
+
+.projr_yml_dest_complete_title_path_append_label <- function(yml, type) {
+  .projr_yml_complete(yml, "path-append-label", TRUE)
+}
+
+.projr_yml_dest_complete_title_path <- function(yml, type) {
+  .projr_yml_complete(yml, "path", NULL)
+}
+
+.projr_yml_dest_complete_title_id <- function(yml, type) {
+  switch(type,
+    "local" = .projr_yml_dest_complete_title_id_local(yml),
+    yml
+  )
+}
+
+.projr_yml_dest_complete_title_id_local <- function(yml) {
+  yml[["id"]] <- yml[["path"]]
+  yml
+}
 
 # -----------------
 # default
@@ -283,14 +395,27 @@
 # -----------------
 
 # title
-.projr_yml_dest_set_title <- function(yml, title, type, profile) {
+.projr_yml_dest_set_title <- function(yml, title, type, overwrite, profile) {
+  .projr_yml_dest_set_title_check(type, title, overwrite, profile)
   yml_type <- .projr_yml_dest_get_type(type, profile) %||%
-    (list(NULL) |> stats::setNames(type))
+    (list())
   yml_type[[title]] <- yml
   .projr_yml_dest_set_type(yml_type, type, profile)
 }
 
-.projr_yml_dest_get_title <- function(type, title, profile) {
+.projr_yml_dest_set_title_check <- function(type, title, overwrite, profile) {
+  if (!overwrite) {
+    yml_type <- .projr_yml_dest_get_type(type, profile)
+    if (title %in% names(yml_type)) {
+      stop(
+        paste0("Title ", title, " already exists"),
+        call. = FALSE
+      )
+    }
+  }
+}
+
+.projr_yml_dest_get_title <- function(title, type, profile) {
   .projr_yml_dest_get_type(type, profile)[[title]] %@@% NULL
 }
 
