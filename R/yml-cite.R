@@ -49,7 +49,7 @@
 #' If `TRUE`, then if all the settings are the same
 #' then only `cite: TRUE` or `cite: FALSE` is written to `_projr.yml`.
 #' Default is `TRUE`.
-#' @inheritParams projr_yml_git_set
+#' @inheritParams projr_yml_cite_set
 #'
 #' @examples
 #' \dontrun{
@@ -232,7 +232,7 @@ projr_yml_cite_set_default <- function(profile = "default",
 }
 
 .projr_yml_cite_set <- function(yml_cite, profile = NULL) {
-  .projr_yml_build_set_nm(yml_git, "cite", profile)
+  .projr_yml_build_set_nm(yml_cite, "cite", profile)
 }
 
 .projr_yml_cite_simplify <- function(simplify_identical,

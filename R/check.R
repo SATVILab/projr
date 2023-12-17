@@ -243,7 +243,7 @@
 }
 
 .projr_state_lgl_single <- function(x) {
-  .projr_state_lgl(x) %% .projr_state_single(x)
+  is.logical(x) && .projr_state_len(x, 1L) && !is.na(x)
 }
 
 .projr_state_single <- function(x) {
@@ -323,12 +323,12 @@
     return(TRUE)
   }
   if (.projr_state_opt(cue, "major")) {
-    return(.projr_state_opt(cue, bump_component))
+    return(.projr_state_opt(bump_component, "major"))
   }
   if (.projr_state_opt(cue, "minor")) {
-    return(.projr_state_opt(cue, c("major", "minor")))
+    return(.projr_state_opt(bump_component, c("major", "minor")))
   }
-  .projr_state_opt(cue, c("major", "minor", "patch"))
+  .projr_state_opt(bump_component, c("major", "minor", "patch"))
 }
 
 .projr_state_cue_check <- function(cue, bump_component) {
@@ -356,4 +356,8 @@
 
 .projr_state_rel <- function(x) {
   !.projr_state_abs(x)
+}
+
+.projr_description_state_exists <- function() {
+  file.exists(.projr_dir_proj_get("DESCRIPTION"))
 }

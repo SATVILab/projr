@@ -2,7 +2,8 @@
 # ----------------------
 
 .projr_dir_clear <- function(path_dir,
-                             delete_directories = TRUE,
+                             recursive_file = FALSE,
+                             recursive_dir = FALSE,
                              delete_hidden = TRUE) {
   if (!.projr_dir_clear_check(path_dir)) {
     return(invisible(FALSE))
@@ -10,9 +11,9 @@
 
   .projr_dir_clear_file(
     path_dir,
-    delete_hidden = delete_hidden, recursive = FALSE
+    delete_hidden = delete_hidden, recursive = recursive_file
   )
-  .projr_dir_clear_dir(path_dir, recursive = FALSE)
+  .projr_dir_clear_dir(path_dir, recursive = recursive_dir)
   invisible(TRUE)
 }
 
@@ -25,7 +26,10 @@
     return(invisible(FALSE))
   }
   # don't do if it it's the project directory
-  !.projr_dir_check_identical_proj(path_dir)
+  if (.projr_dir_check_identical_proj(path_dir)) {
+    stop("Cannot clear the entire project", call. = FALSE)
+  }
+  invisible(TRUE)
 }
 
 .projr_dir_check_identical <- function(path_dir_one, path_dir_two) {
@@ -91,7 +95,9 @@
     return(invisible(FALSE))
   }
   path_vec_dir <- .projr_dir_clear_dir_ls(path, recursive) |>
-    setdiff(dir_exc)
+    setdiff(dir_exc) |>
+    .projr_file_filter_essential_non() |>
+    .projr_file_filter_dir()
   for (i in seq_along(path_vec_dir)) {
     unlink(path_vec_dir[i], recursive = TRUE)
   }
