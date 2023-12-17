@@ -1,4 +1,7 @@
-.projr_check_chr_single_opt <- function(x, nm, opt, required = FALSE) {
+.projr_check_chr_single_opt <- function(x, nm = NULL, opt, required = FALSE) {
+  if (.projr_state_null(nm)) {
+    nm <- deparse(substitute(x))
+  }
   if (required) {
     .projr_check_given(x = x, nm = nm)
   } else if (!.projr_state_given(x)) {
@@ -9,7 +12,10 @@
   .projr_check_opt(x = x, nm = nm, opt = opt)
 }
 
-.projr_check_chr_nz <- function(x, nm, required = FALSE) {
+.projr_check_chr_nz <- function(x, nm = NULL, required = FALSE) {
+  if (.projr_state_null(nm)) {
+    nm <- deparse(substitute(x))
+  }
   if (required) {
     .projr_check_given(x = x, nm = nm)
   } else if (!.projr_state_given(x)) {
@@ -21,12 +27,22 @@
 }
 
 .projr_state_chr_nz <- function(x, nm) {
+  if (.projr_state_null(nm)) {
+    nm <- deparse(substitute(x))
+  }
   .projr_check_chr(x = x, nm = nm)
   .projr_check_nz(x = x, nm = nm)
   invisible(TRUE)
 }
 
-.projr_check_len_nz <- function(x, nm, required = FALSE, msg = NULL, msg_append = TRUE) {
+.projr_check_len_nz <- function(x,
+                                nm,
+                                required = FALSE,
+                                msg = NULL,
+                                msg_append = TRUE) {
+  if (.projr_state_null(nm)) {
+    nm <- deparse(substitute(x))
+  }
   if (required) {
     .projr_check_given(x = x, nm = nm)
   } else if (!.projr_state_given(x)) {
@@ -38,7 +54,10 @@
   invisible(TRUE)
 }
 
-.projr_check_nz <- function(x, nm, required = FALSE) {
+.projr_check_nz <- function(x, nm = NULL, required = FALSE) {
+  if (.projr_state_null(nm)) {
+    nm <- deparse(substitute(x))
+  }
   if (required) {
     .projr_check_given(x = x, nm = nm)
   } else if (!.projr_state_given(x)) {
@@ -50,7 +69,10 @@
   invisible(TRUE)
 }
 
-.projr_check_z <- function(x, nm, required = FALSE) {
+.projr_check_z <- function(x, nm = NULL, required = FALSE) {
+  if (.projr_state_null(nm)) {
+    nm <- deparse(substitute(x))
+  }
   if (required) {
     .projr_check_given(x = x, nm = nm)
   } else if (!.projr_state_given(x)) {
@@ -77,7 +99,10 @@
   .projr_state_len(x, 0L)
 }
 
-.projr_check_chr_single <- function(x, nm, required = FALSE) {
+.projr_check_chr_single <- function(x, nm = NULL, required = FALSE) {
+  if (.projr_state_null(nm)) {
+    nm <- deparse(substitute(x))
+  }
   if (required) {
     .projr_check_given(x = x, nm = nm)
   } else if (!.projr_state_given(x)) {
@@ -88,7 +113,10 @@
   invisible(TRUE)
 }
 
-.projr_check_lgl_single <- function(x, nm, required = FALSE) {
+.projr_check_lgl_single <- function(x, nm = NULL, required = FALSE) {
+  if (.projr_state_null(nm)) {
+    nm <- deparse(substitute(x))
+  }
   if (required) {
     .projr_check_given(x = x, nm = nm)
   } else if (!.projr_state_given(x)) {
@@ -99,7 +127,10 @@
   invisible(TRUE)
 }
 
-.projr_check_opt <- function(x, nm, opt, required = FALSE) {
+.projr_check_opt <- function(x, nm = NULL, opt, required = FALSE) {
+  if (.projr_state_null(nm)) {
+    nm <- deparse(substitute(x))
+  }
   if (required) {
     .projr_check_given(x = x, nm = nm)
   } else if (!.projr_state_given(x)) {
@@ -118,7 +149,10 @@
   isTRUE(x)
 }
 
-.projr_check_dir_exists <- function(x, nm, required = FALSE) {
+.projr_check_dir_exists <- function(x, nm = NULL, required = FALSE) {
+  if (.projr_state_null(nm)) {
+    nm <- deparse(substitute(x))
+  }
   if (required) {
     .projr_check_given(x = x, nm = nm)
   }
@@ -132,7 +166,10 @@
   dir.exists(x)
 }
 
-.projr_check_true <- function(x, nm, required = FALSE) {
+.projr_check_true <- function(x, nm = NULL, required = FALSE) {
+  if (.projr_state_null(nm)) {
+    nm <- deparse(substitute(x))
+  }
   if (required) {
     .projr_check_given(x = x, nm = nm)
   } else if (!.projr_state_given(x)) {
@@ -148,7 +185,10 @@
   isFALSE(x)
 }
 
-.projr_check_false <- function(x, nm, required = FALSE) {
+.projr_check_false <- function(x, nm = NULL, required = FALSE) {
+  if (.projr_state_null(nm)) {
+    nm <- deparse(substitute(x))
+  }
   if (required) {
     .projr_check_given(x = x, nm = nm)
   } else if (!.projr_state_given(x)) {
@@ -164,7 +204,10 @@
   x %in% opt
 }
 
-.projr_check_chr <- function(x, nm, required = FALSE) {
+.projr_check_chr <- function(x, nm = NULL, required = FALSE) {
+  if (.projr_state_null(nm)) {
+    nm <- deparse(substitute(x))
+  }
   if (required) {
     .projr_check_given(x = x, nm = nm)
   } else if (!.projr_state_given(x)) {
@@ -180,7 +223,10 @@
   all(is.character(x))
 }
 
-.projr_check_lgl <- function(x, nm, required = FALSE) {
+.projr_check_lgl <- function(x, nm = NULL, required = FALSE) {
+  if (.projr_state_null(nm)) {
+    nm <- deparse(substitute(x))
+  }
   if (required) {
     .projr_check_given(x = x, nm = nm)
   } else if (!.projr_state_given(x)) {
@@ -204,7 +250,10 @@
   .projr_state_len(x, 1)
 }
 
-.projr_check_len <- function(x, nm, len, required = FALSE) {
+.projr_check_len <- function(x, nm = NULL, len, required = FALSE) {
+  if (.projr_state_null(nm)) {
+    nm <- deparse(substitute(x))
+  }
   if (required) {
     .projr_check_given(x = x, nm = nm)
   } else if (!.projr_state_given(x)) {
@@ -221,6 +270,9 @@
 }
 
 .projr_check_given <- function(x, nm) {
+  if (.projr_state_null(nm)) {
+    nm <- deparse(substitute(x))
+  }
   if (!.projr_state_given(x)) {
     stop(paste0(nm, " must be given"), call. = FALSE)
   }
@@ -233,6 +285,10 @@
   }
   if (is.null(x)) {
     return(FALSE)
+  }
+  # for if it's length zero (e.g. logical())
+  if (identical(is.na(x), logical())) {
+    return(TRUE)
   }
   if (all(is.na(x))) {
     return(FALSE)
@@ -277,7 +333,7 @@
 
 .projr_state_cue_check <- function(cue, bump_component) {
   if (.projr_state_null(cue)) {
-    return(invisble(TRUE))
+    return(invisible(TRUE))
   }
   .projr_check_len(cue, "cue", 1L)
   .projr_check_len(bump_component, "bump_component", 1L)

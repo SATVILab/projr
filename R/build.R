@@ -139,6 +139,8 @@ projr_build_dev <- function(file = NULL,
   !(is.null(bump_component) || bump_component == "dev")
 }
 
+# pre
+# ------------------------
 .projr_build_pre <- function(bump_component, msg) {
   # whether it's an output run  or not
   output_run <- .projr_build_get_output_run(bump_component)
@@ -194,6 +196,8 @@ projr_build_dev <- function(file = NULL,
   invisible(version_run_on_list)
 }
 
+# actual
+# ------------------------
 .projr_build_actual <- function(version_run_on_list, file) {
   .projr_build_engine(
     file = file,
@@ -203,6 +207,8 @@ projr_build_dev <- function(file = NULL,
   invisible(version_run_on_list)
 }
 
+# post
+# ------------------------
 .projr_build_post <- function(version_run_on_list,
                               bump_component,
                               msg,
@@ -217,6 +223,7 @@ projr_build_dev <- function(file = NULL,
   # record (version, rmd, git)
   .projr_build_post_record(bump_component, version_run_on_list, msg)
 
+  # send to remotes
   .projr_build_dest_send(bump_component)
 
   # run post-build scripts
@@ -231,9 +238,9 @@ projr_build_dev <- function(file = NULL,
   invisible(TRUE)
 }
 
+# update lock file, help files, citation files, README
+# and CHANGELOG
 .projr_build_post_docs <- function(bump_component, version_run_on_list, msg) {
-  # update lock file, help files, citation files, README
-  # and CHANGELOG
   output_run <- .projr_build_get_output_run(bump_component)
   .projr_build_renv_snapshot(output_run)
   .projr_build_roxygenise(output_run)
@@ -245,25 +252,8 @@ projr_build_dev <- function(file = NULL,
   )
 }
 
-.projr_build_post_dev <- function(bump_component,
-                                  version_run_on_list,
-                                  msg) {
-  # set version
-  .projr_build_version_set_post(
-    version_run_on_list = version_run_on_list,
-    success = TRUE
-  )
 
-  # commit dev version
-  .projr_build_git_commit(
-    output_run = .projr_build_get_output_run(bump_component),
-    bump_component = bump_component,
-    version_run_on_list = version_run_on_list,
-    stage = "dev",
-    msg = msg
-  )
-}
-
+# organise files and folders (clear and copy)
 .projr_build_post_order <- function(bump_component) {
   output_run <- .projr_build_get_output_run(bump_component)
   .projr_build_clear_post(output_run)
@@ -272,6 +262,7 @@ projr_build_dev <- function(file = NULL,
   .projr_build_copy(output_run, bump_component, version_run_on_list)
 }
 
+# record (version, rmd, git)
 .projr_build_post_record <- function(bump_component,
                                      version_run_on_list,
                                      msg) {
@@ -292,9 +283,30 @@ projr_build_dev <- function(file = NULL,
   )
 }
 
+# send to remotes
 .projr_build_dest_send <- function(bump_component) {
   .projr_dest_send(bump_component)
   .projr_build_clear_old(
     .projr_build_get_output_run(bump_component), old_dev_remove
+  )
+}
+
+# bump to dev
+.projr_build_post_dev <- function(bump_component,
+                                  version_run_on_list,
+                                  msg) {
+  # set version
+  .projr_build_version_set_post(
+    version_run_on_list = version_run_on_list,
+    success = TRUE
+  )
+
+  # commit dev version
+  .projr_build_git_commit(
+    output_run = .projr_build_get_output_run(bump_component),
+    bump_component = bump_component,
+    version_run_on_list = version_run_on_list,
+    stage = "dev",
+    msg = msg
   )
 }

@@ -215,3 +215,23 @@ projr_yml_get_unchecked <- function(profile = NULL) {
   path_desc <- .projr_dir_proj_get("DESCRIPTION")
   read.dcf(path_desc)
 }
+
+
+.projr_yml_complete <- function(yml, nm, default) {
+  switch(class(default)[[1]],
+    "NULL" = .projr_yml_complete_null(yml, nm),
+    .projr_yml_complete_default(yml, nm, default)
+  )
+}
+
+.projr_yml_complete_default <- function(yml, nm, default) {
+  yml[[nm]] <- yml[[nm]] %||% default
+  yml
+}
+
+.projr_yml_complete_null <- function(yml, nm) {
+  if (!nm %in% names(yml)) {
+    yml <- yml |> append(list(NULL) |> stats::setNames(nm))
+  }
+  yml
+}

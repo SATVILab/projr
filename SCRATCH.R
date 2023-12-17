@@ -7,8 +7,3 @@ devtools::load_all()
 devtools::test_active_file(
   "tests/testthat/test-dest-send.R"
 )
-
-.projr_dir_copy_file(.projr_file_dir_exc(
-  .projr_dir_ls(path_dir_from),
-  dir_exc
-), path_dir_from, path_dir_to)
