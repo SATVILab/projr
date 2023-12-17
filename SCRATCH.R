@@ -5,7 +5,7 @@ devtools::load_all()
 
 # devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
 devtools::test_active_file(
-  "tests/testthat/test-plan.R"
+  "tests/testthat/test-dest-send.R"
 )
 
 .projr_dir_copy_file(.projr_file_dir_exc(

@@ -1,5 +1,6 @@
 test_that(".projr_remote_create works", {
-  skip_if(TRUE)
+  # POSSIBLY VERY OUT OF DATE
+  skip()
   dir_test <- .projr_test_setup_project(
     git = FALSE, github = FALSE, set_env_var = FALSE
   )
@@ -60,8 +61,8 @@ test_that(".projr_remote_create works", {
 })
 
 test_that(".projr_remote_create works", {
-  skip_if_offline()
-  skip_if(FALSE)
+  # POSSIBLY (LIKELY) OUT OF DATE
+  skip()
   dir_test <- .projr_test_setup_project(
     git = FALSE, github = FALSE, set_env_var = FALSE
   )
@@ -87,6 +88,65 @@ test_that(".projr_remote_create works", {
         identical(
           yml_projr_build[["local"]][["Archive"]],
           list(
+            content = "data-raw",
+            path = "_archive"
+          )
+        )
+      )
+    }
+  )
+})
+
+test_that("projr_yml_dest_add* functions work", {
+  dir_test <- .projr_test_setup_project(
+    git = FALSE, github = FALSE, set_env_var = TRUE
+  )
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      browser()
+      .projr_yml_dest_rm_type_all("default")
+      # add one
+      projr_yml_dest_add_local(
+        title = "archive",
+        content = "data-raw",
+        path = "_archive"
+      )
+      expect_identical(
+        .projr_yml_dest_get_type("local", "default"),
+        list(
+          archive = list(
+            content = "data-raw",
+            path = "_archive"
+          )
+        )
+      )
+      # add two
+      projr_yml_dest_add_local(
+        title = "archive second",
+        content = "output",
+        path = "_archive/second"
+      )
+      expect_identical(
+        .projr_yml_dest_get_type("local", "default"),
+        list(
+          archive = list(
+            content = "data-raw",
+            path = "_archive"
+          ),
+          "archive second" = list(
+            content = "output",
+            path = "_archive/second"
+          )
+        )
+      )
+      # remove just one
+      debugonce(.projr_yml_dest_rm_title)
+      .projr_yml_dest_rm_title("archive second", "local", "default")
+      expect_identical(
+        .projr_yml_dest_get_type("local", "default"),
+        list(
+          archive = list(
             content = "data-raw",
             path = "_archive"
           )

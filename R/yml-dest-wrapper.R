@@ -33,26 +33,26 @@
 #' Default is `FALSE`.
 #' element in
 #' @export
-#' @rdname projr_dest_add
-projr_dest_add_osf <- function(title = NULL,
-                               content = NULL,
-                               structure = NULL,
-                               path = NULL,
-                               path_append_label = NULL,
-                               overwrite = FALSE,
-                               public = FALSE,
-                               category = NULL,
-                               description = NULL,
-                               id = NULL,
-                               id_parent = NULL,
-                               title_parent = NULL,
-                               get_sync_approach = NULL,
-                               get_conflict = NULL,
-                               send_cue = NULL,
-                               send_sync_approach = NULL,
-                               send_version_source = NULL,
-                               send_conflict = NULL) {
-  .projr_dest_add(
+#' @rdname projr_yml_dest_add
+projr_yml_dest_add_osf <- function(title = NULL,
+                                   content = NULL,
+                                   structure = NULL,
+                                   path = NULL,
+                                   path_append_label = NULL,
+                                   overwrite = FALSE,
+                                   public = FALSE,
+                                   category = NULL,
+                                   description = NULL,
+                                   id = NULL,
+                                   id_parent = NULL,
+                                   title_parent = NULL,
+                                   get_sync_approach = NULL,
+                                   get_conflict = NULL,
+                                   send_cue = NULL,
+                                   send_sync_approach = NULL,
+                                   send_version_source = NULL,
+                                   send_conflict = NULL) {
+  .projr_yml_dest_add(
     role = "destination",
     type = "osf",
     title = title,
@@ -76,14 +76,14 @@ projr_dest_add_osf <- function(title = NULL,
   )
 }
 
-#' @rdname projr_dest_add_osf
+#' @rdname projr_yml_dest_add_osf
 #' @export
-projr_dest_add_osf_proj <- function(title,
-                                    body = NULL,
-                                    content = NULL,
-                                    public = FALSE,
-                                    id = NULL) {
-  projr_dest_add_osf(
+projr_yml_dest_add_osf_proj <- function(title,
+                                        body = NULL,
+                                        content = NULL,
+                                        public = FALSE,
+                                        id = NULL) {
+  projr_yml_dest_add_osf(
     title = title,
     body = body,
     content = content,
@@ -93,20 +93,20 @@ projr_dest_add_osf_proj <- function(title,
   )
 }
 
-#' @rdname projr_dest_add_osf
+#' @rdname projr_yml_dest_add_osf
 #' @export
-projr_dest_add_osf_comp <- function(title,
-                                    body = NULL,
-                                    content = NULL,
-                                    public = FALSE,
-                                    category = NULL,
-                                    title_parent = NULL,
-                                    id_parent = NULL,
-                                    id = NULL) {
+projr_yml_dest_add_osf_comp <- function(title,
+                                        body = NULL,
+                                        content = NULL,
+                                        public = FALSE,
+                                        category = NULL,
+                                        title_parent = NULL,
+                                        id_parent = NULL,
+                                        id = NULL) {
   if (missing(id_parent) && missing(title_parent)) {
     stop("either id_parent or title_parent must be specified")
   }
-  projr_dest_add_osf(
+  projr_yml_dest_add_osf(
     title = title,
     body = body,
     content = content,
@@ -167,20 +167,27 @@ projr_dest_add_osf_comp <- function(title,
 #' When to cue the upload.
 #'
 #' @export
-#' @rdname projr_dest_add
-projr_dest_add_local <- function(title = NULL,
-                                 content = NULL,
-                                 path = NULL,
-                                 path_append_label = NULL,
-                                 structure = NULL,
-                                 get_sync_approach = NULL,
-                                 get_conflict = NULL,
-                                 send_cue = NULL,
-                                 send_sync_approach = NULL,
-                                 send_version_source = NULL,
-                                 send_conflict = NULL,
-                                 overwrite = TRUE) {
-  .projr_dest_add(
+#' @rdname projr_yml_dest_add
+projr_yml_dest_add_local <- function(title,
+                                     content,
+                                     path,
+                                     path_append_label = NULL,
+                                     structure = NULL,
+                                     get_sync_approach = NULL,
+                                     get_conflict = NULL,
+                                     send_cue = NULL,
+                                     send_sync_approach = NULL,
+                                     send_version_source = NULL,
+                                     send_conflict = NULL,
+                                     overwrite = TRUE,
+                                     profile = "default") {
+  .projr_check_chr_nz(title, "title", required = TRUE)
+  .projr_check_len(title, "title", 1L)
+  .projr_check_chr_nz(content, "content", required = TRUE)
+  .projr_check_opt(content, "content", .projr_yml_dir_get(profile) |> names())
+  .projr_check_chr(path, "path", required = TRUE)
+
+  .projr_yml_dest_add(
     role = "destination",
     type = "local",
     title = title,
@@ -193,6 +200,7 @@ projr_dest_add_local <- function(title = NULL,
     send_cue = send_cue,
     send_sync_approach = send_sync_approach,
     send_version_source = send_version_source,
-    send_conflict = send_conflict
+    send_conflict = send_conflict,
+    profile = profile
   )
 }
