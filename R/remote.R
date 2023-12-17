@@ -25,10 +25,9 @@
 
 # osf
 .projr_remote_create_osf <- function(title,
-                                     id = NULL,
                                      id_parent = NULL,
                                      category = NULL,
-                                     body = NULL,
+                                     description = NULL,
                                      public = FALSE) {
   .projr_dep_install("osfr")
   category <- .projr_remote_complete_osf_category(
@@ -36,7 +35,7 @@
   )
   .projr_remote_check_base_osf(
     title = title,
-    id = id,
+    id = NULL,
     id_parent = id_parent,
     category = category,
     body = body,

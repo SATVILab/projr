@@ -21,7 +21,7 @@
   if (.projr_state_null(yml) || .projr_state_len_z(yml)) {
     .projr_yml_build_set_nm_empty(nm, profile)
   } else {
-    .projr_yml_build_set_nm_non_empty(yml, profile)
+    .projr_yml_build_set_nm_non_empty(yml, nm, profile)
   }
 }
 
