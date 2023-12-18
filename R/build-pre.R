@@ -15,7 +15,7 @@
 
 .projr_build_output_get_msg <- function(msg) {
   if (is.null(msg)) {
-    if (!Sys.getenv("PROJR_TEST") == "TRUE") {
+    if (!.is_testing()) {
       if (interactive()) {
         cat("Please enter a one-line description of change", "\n")
         msg <- readline(prompt = ">> ")

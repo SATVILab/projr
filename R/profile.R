@@ -31,7 +31,7 @@ projr_profile_create <- function(profile = NULL,
   # get and validate profile
   # --------------------------
 
-  if (Sys.getenv("PROJR_TEST") == "TRUE") {
+  if () {
     silent <- TRUE
   }
   .assert_flag_full(silent, required = TRUE)
