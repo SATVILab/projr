@@ -31,13 +31,13 @@ projr_profile_create <- function(profile = NULL,
   # get and validate profile
   # --------------------------
 
-  if () {
+  if (.is_testing()) {
     silent <- TRUE
   }
   .assert_flag_full(silent, required = TRUE)
   profile <- profile %||% Sys.getenv("PROJR_PROFILE")
   .assert_string(profile, required = TRUE)
-  .assert_opt_not_single(profile, opt = c("default", "local"), required = TRUE)
+  .assert_opt_single_not(profile, opt = c("default", "local"), required = TRUE)
   .projr_profile_check(profile)
   file_ind <- file.exists(
     .projr_dir_proj_get(paste0("_projr-", profile, ".yml"))
@@ -47,15 +47,10 @@ projr_profile_create <- function(profile = NULL,
     return(invisible(FALSE))
   }
 
-  yml_projr_root <- .projr_yml_get_root_full()
-  key_ind_dir <- paste0("directories-", profile) %in% names(yml_projr_root)
-  key_ind_build <- paste0("build-", profile) %in% names(yml_projr_root)
-
   # create profile settings
   # -------------------------
 
   yml_projr_root_default <- .projr_yml_get_root_default()
-  yml_projr_root_full <- .projr_yml_get_root_full()
 
   yaml::write_yaml(
     .projr_list_elem_as_null(yml_projr_root_default),
