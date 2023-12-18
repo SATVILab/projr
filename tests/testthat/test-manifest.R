@@ -65,7 +65,6 @@ test_that(".projr_build_manifest_* works", {
 
       # post
       # --------------------------
-      browser()
       expect_false(.projr_build_manifest_post(FALSE))
       path_manifest <- .projr_build_manifest_post(TRUE)
       expect_identical(nrow(.projr_manifest_read(path_manifest)), 6L)

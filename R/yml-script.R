@@ -65,21 +65,21 @@ projr_yml_script_add <- function(path,
                                     cue,
                                     overwrite,
                                     profile) {
-  .projr_check_chr_nz(path, "path", required = TRUE)
-  .projr_check_chr_single(title, "title", required = TRUE)
-  .projr_check_chr_single_opt(
+  .assert_string(path, "path", required = TRUE)
+  .assert_string(title, "title", required = TRUE)
+  .assert_opt_single(
     stage, "stage",
     required = TRUE, opt = c("pre", "post")
   )
-  if (.projr_state_given(profile)) {
-    .projr_check_chr_single(profile, "profile")
+  if (.is_given(profile)) {
+    .assert_string(profile, "profile")
   }
-  .projr_check_chr_single_opt(
+  .assert_opt_single(
     cue, "cue",
     required = FALSE,
     opt = c("build", "dev", "patch", "minor", "major")
   )
-  .projr_check_lgl_single(overwrite, "overwrite", required = TRUE)
+  .assert_flag_full(overwrite, "overwrite", required = TRUE)
 }
 
 .projr_yml_script_add <- function(path,
@@ -106,10 +106,10 @@ projr_yml_script_add <- function(path,
 #' @rdname yml-script
 #' @export
 projr_yml_script_rm <- function(title, path = NULL, profile = "default") {
-  .projr_check_chr_single(title, "title", required = TRUE)
-  .projr_check_chr(path, "path")
-  if (.projr_state_given(profile)) {
-    .projr_check_chr_nz(profile)
+  .assert_string(title, "title", required = TRUE)
+  .assert_string(path, "path")
+  if (.is_given(profile)) {
+    .assert_string(profile)
   }
   yml_script <- .projr_yml_script_get(profile)
   if (!is.null(path)) {
@@ -185,7 +185,7 @@ projr_yml_script_add_post <- function(path, title, cue, profile) {
 }
 
 .projr_yml_script_complete_cue <- function(x) {
-  if (.projr_state_null(x)) {
+  if (is.null(x)) {
     return(invisible("dev"))
   }
   invisible(x)

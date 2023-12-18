@@ -1,6 +1,5 @@
 test_that(".projr_local_dir_create works", {
   # skips
-  skip_if(FALSE)
 
   # setup
   dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = FALSE)
@@ -26,7 +25,6 @@ test_that(".projr_local_dir_create works", {
 
 test_that("projr_use_data works", {
   # skips
-  skip_if(FALSE)
 
   # setup
   dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = FALSE)
@@ -35,7 +33,6 @@ test_that("projr_use_data works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      browser()
       x <- "1"
       projr_use_data(x)
       expect_false(.projr_run_output_check(bump_component = NULL))

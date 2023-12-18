@@ -7,7 +7,8 @@
 .projr_yml_dest_add(
   role,
   type,
-  title = NULL,
+  title,
+  profile,
   content = NULL,
   structure = NULL,
   path = NULL,
@@ -18,7 +19,6 @@
   description = NULL,
   id = NULL,
   id_parent = NULL,
-  title_parent = NULL,
   get_sync_approach = NULL,
   get_conflict = NULL,
   send_cue = NULL,

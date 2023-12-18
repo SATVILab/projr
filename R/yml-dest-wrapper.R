@@ -181,11 +181,11 @@ projr_yml_dest_add_local <- function(title,
                                      send_conflict = NULL,
                                      overwrite = TRUE,
                                      profile = "default") {
-  .projr_check_chr_nz(title, "title", required = TRUE)
-  .projr_check_len(title, "title", 1L)
-  .projr_check_chr_nz(content, "content", required = TRUE)
-  .projr_check_opt(content, "content", .projr_yml_dir_get(profile) |> names())
-  .projr_check_chr(path, "path", required = TRUE)
+  .assert_string(title, "title", required = TRUE)
+  .assert_len(title, "title", 1L)
+  ..assert_chr(content, "content", required = TRUE)
+  .assert_opt(content, "content", .projr_yml_dir_get(profile) |> names())
+  .assert_string(path, "path", required = TRUE)
 
   .projr_yml_dest_add(
     role = "destination",

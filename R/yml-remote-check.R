@@ -102,7 +102,7 @@
 .projr_yml_remote_check_content <- function(type,
                                             category,
                                             content) {
-  .projr_check_chr_nz(content, TRUE)
+  ..assert_chr(content, TRUE)
   if (!all(is.character(content))) {
     stop("content must be a character vector")
   }
@@ -358,7 +358,7 @@
     nm_opt <- c("manifest", "osf")
   }
   diff_vec <- setdiff(version_source_vec, nm_opt)
-  if (.projr_state_len_nz(diff_vec)) {
+  if (.is_len_pos(diff_vec)) {
     stop(paste0(
       direction,
       " version_source options must be one of: ",

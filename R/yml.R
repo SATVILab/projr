@@ -38,14 +38,14 @@ projr_yml_get <- function(profile = NULL) {
 #' @seealso projr_yml_get,projr_yml_check
 #' @export
 projr_yml_get_unchecked <- function(profile = NULL) {
-  if (!.projr_state_null(profile)) {
+  if (!is.null(profile)) {
     return(.projr_yml_get_unchecked_profile(profile))
   }
   .projr_yml_get_unchecked_null()
 }
 
 .projr_yml_get_unchecked_profile <- function(profile) {
-  .projr_check_chr_single(profile, "profile")
+  .assert_string(profile, "profile")
   switch(profile,
     "local" = .projr_yml_get_local(),
     "default" = .projr_yml_get_root_default(),
@@ -198,7 +198,7 @@ projr_yml_get_unchecked <- function(profile = NULL) {
 }
 
 .projr_yml_get_path <- function(profile) {
-  if (!.projr_state_given(profile) || profile == "default") {
+  if (!.is_given(profile) || profile == "default") {
     return(.projr_dir_proj_get("_projr.yml"))
   }
   .projr_dir_proj_get(paste0("_projr-", profile, ".yml"))

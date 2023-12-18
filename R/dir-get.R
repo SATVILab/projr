@@ -144,7 +144,7 @@
 .projr_dir_get_docs_quarto_project <- function() {
   # use docs$path if it is set
   path <- .projr_yml_dir_get_path("docs", NULL)
-  if (!.projr_state_null(path)) {
+  if (!is.null(path)) {
     return(path)
   }
   .projr_dir_get_docs_quarto_project_unset()
@@ -152,7 +152,7 @@
 
 .projr_dir_get_docs_quarto_project_unset <- function() {
   # use `_quarto.yml` if specified, otherwise defaults
-  switch(as.character(.projr_state_null(.projr_yml_quarto_get_output_dir())),
+  switch(as.character(is.null(.projr_yml_quarto_get_output_dir())),
     "FALSE" = .projr_yml_quarto_get_output_dir(),
     "TRUE" = .projr_dir_get_docs_quarto_project_unset_default()
   )

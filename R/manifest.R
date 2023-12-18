@@ -85,7 +85,7 @@
 }
 
 .projr_manifest_get_path_dir <- function(path_dir) {
-  if (.projr_state_null(path_dir)) {
+  if (is.null(path_dir)) {
     path_dir <- .projr_dir_proj_get()
   }
   .projr_dir_create(path_dir)

@@ -230,7 +230,7 @@
 
 .projr_yml_dest_add_get_list_add_extra_osf_id_null_check_success <-
   function(id, list_add) {
-    if (.projr_state_z(id)) {
+    if (!nzchar(id)) {
       stop(
         "Failed to create OSF node",
         call. = FALSE
@@ -424,12 +424,12 @@
 
 # type
 .projr_yml_dest_set_type <- function(yml_type, type, profile) {
-  .projr_state_opt(type, c("osf", "local", "github"))
+  .is_opt(type, c("osf", "local", "github"))
   .projr_yml_build_set_nm(yml_type, type, profile)
 }
 
 .projr_yml_dest_get_type <- function(type, profile) {
-  .projr_state_opt(type, c("osf", "local", "github"))
+  .is_opt(type, c("osf", "local", "github"))
   init_list <- projr_yml_get_unchecked(profile)[["build"]][[type]]
   if (length(init_list) == 0L) {
     return(NULL)

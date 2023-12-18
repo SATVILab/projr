@@ -1,142 +1,109 @@
-.projr_check_chr_single_opt <- function(x, nm = NULL, opt, required = FALSE) {
-  if (.projr_state_null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  if (required) {
-    .projr_check_given(x = x, nm = nm)
-  } else if (!.projr_state_given(x)) {
+# directories
+# -----------
+
+.assert_dir_exists_single <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  .projr_check_chr(x = x, nm = nm)
-  .projr_check_len(x = x, nm = nm, len = 1)
-  .projr_check_opt(x = x, nm = nm, opt = opt)
+  .assert_len_1(x = x, nm = nm)
+  if (!dir.exists(x)) {
+    stop(paste0("The directory ", nm, " must exist"), call. = FALSE)
+  }
 }
 
-.projr_check_chr_nz <- function(x, nm = NULL, required = FALSE) {
-  if (.projr_state_null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  if (required) {
-    .projr_check_given(x = x, nm = nm)
-  } else if (!.projr_state_given(x)) {
+.assert_dir_exists <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get()
+  if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  .projr_check_chr(x = x, nm = nm)
-  vapply(x, .projr_check_nz, FUN.VALUE = logical(1), nm = nm)
-  invisible(TRUE)
+  if (!all(dir.exists(x))) {
+    stop(paste0("The ", nm, " directories must exist"), call. = FALSE)
+  }
 }
 
-.projr_state_chr_nz <- function(x, nm) {
-  if (.projr_state_null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  .projr_check_chr(x = x, nm = nm)
-  .projr_check_nz(x = x, nm = nm)
-  invisible(TRUE)
+.is_dir <- fs::is_dir
+
+# path
+# --------------
+
+.is_path_abs <- fs::is_absolute_path
+
+# files
+# -----
+
+.assert_file_abs <- function(x) {
+
 }
 
-.projr_check_len_nz <- function(x,
-                                nm,
-                                required = FALSE,
-                                msg = NULL,
-                                msg_append = TRUE) {
-  if (.projr_state_null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  if (required) {
-    .projr_check_given(x = x, nm = nm)
-  } else if (!.projr_state_given(x)) {
+
+.is_file_abs <- function(x) {
+  file.exists(x)
+}
+
+.is_file <- fs::is_file
+
+
+# options
+# ---------------
+
+.assert_opt_not_single <- function(x, opt, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  # check that it's neither missing nor NULL
+  # if required
+  if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  if (!.projr_state_len_nz(x)) {
-    stop(paste0(nm, " must be non-zero length"), call. = FALSE)
-  }
-  invisible(TRUE)
-}
-
-.projr_check_nz <- function(x, nm = NULL, required = FALSE) {
-  if (.projr_state_null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  if (required) {
-    .projr_check_given(x = x, nm = nm)
-  } else if (!.projr_state_given(x)) {
-    return(invisible(TRUE))
-  }
-  if (!.projr_state_nz(x)) {
-    stop(paste0(nm, " must be non-zero"), call. = FALSE)
+  .assert_len_1(x = x, nm = nm)
+  if (!all(.is_opt_not(x, opt))) {
+    stop(
+      paste0(nm, " must not be one of ", paste0(opt, collapse = ", ")),
+      call. = FALSE
+    )
   }
   invisible(TRUE)
 }
 
-.projr_check_z <- function(x, nm = NULL, required = FALSE) {
-  if (.projr_state_null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  if (required) {
-    .projr_check_given(x = x, nm = nm)
-  } else if (!.projr_state_given(x)) {
+
+.assert_opt_not <- function(x, opt, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  # check that it's neither missing nor NULL
+  # if required
+  if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  if (!.projr_state_z(x)) {
-    stop(paste0(nm, " must be zero"), call. = FALSE)
+  .assert_len_pos(x = x, nm = nm)
+  if (!all(.is_opt_not(x, opt))) {
+    stop(
+      paste0(nm, " must not be one of ", paste0(opt, collapse = ", ")),
+      call. = FALSE
+    )
   }
   invisible(TRUE)
 }
 
-.projr_state_nz <- function(x) {
-  nzchar(x)
-}
-.projr_state_z <- function(x) {
-  !.projr_state_nz(x)
+.is_opt_not <- function(x, opt) {
+  !.is_opt(x, opt)
 }
 
-.projr_state_len_nz <- function(x) {
-  !.projr_state_len_z(x)
-}
-
-.projr_state_len_z <- function(x) {
-  .projr_state_len(x, 0L)
-}
-
-.projr_check_chr_single <- function(x, nm = NULL, required = FALSE) {
-  if (.projr_state_null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  if (required) {
-    .projr_check_given(x = x, nm = nm)
-  } else if (!.projr_state_given(x)) {
+.assert_opt_single <- function(x, opt, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  .projr_check_chr(x = x, nm = nm)
-  .projr_check_len(x = x, nm = nm, len = 1)
-  invisible(TRUE)
+  .assert_len_1(x = x, nm = nm)
+  .assert_opt(x = x, nm = nm, opt = opt)
 }
 
-.projr_check_lgl_single <- function(x, nm = NULL, required = FALSE) {
-  if (.projr_state_null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  if (required) {
-    .projr_check_given(x = x, nm = nm)
-  } else if (!.projr_state_given(x)) {
+.assert_opt <- function(x, opt, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  # check that it's neither missing nor NULL
+  # if required
+  if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  .projr_check_lgl(x = x, nm = nm)
-  .projr_check_len(x = x, nm = nm, len = 1)
-  invisible(TRUE)
-}
-
-.projr_check_opt <- function(x, nm = NULL, opt, required = FALSE) {
-  if (.projr_state_null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  if (required) {
-    .projr_check_given(x = x, nm = nm)
-  } else if (!.projr_state_given(x)) {
-    return(invisible(TRUE))
-  }
-  if (!.projr_state_opt(x = x, opt = opt)) {
+  .assert_len_pos(x = x, nm = nm)
+  if (!all(.is_opt(x, opt))) {
     stop(
       paste0(nm, " must be one of ", paste0(opt, collapse = ", ")),
       call. = FALSE
@@ -145,219 +112,351 @@
   invisible(TRUE)
 }
 
-.projr_state_true <- function(x) {
-  isTRUE(x)
+.is_opt <- function(x, opt) {
+  .is_opt_min(x, opt) && .is_len_pos(x) && all(!is.na(x))
 }
 
-.projr_check_dir_exists <- function(x, nm = NULL, required = FALSE) {
-  if (.projr_state_null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  if (required) {
-    .projr_check_given(x = x, nm = nm)
-  }
-  if (!.projr_state_dir_exists(x)) {
-    stop(paste0(nm, " must exist"), call. = FALSE)
-  }
-  invisible(TRUE)
-}
-
-.projr_state_dir_exists <- function(x) {
-  dir.exists(x)
-}
-
-.projr_check_true <- function(x, nm = NULL, required = FALSE) {
-  if (.projr_state_null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  if (required) {
-    .projr_check_given(x = x, nm = nm)
-  } else if (!.projr_state_given(x)) {
-    return(invisible(TRUE))
-  }
-  if (!.projr_state_true(x)) {
-    stop(paste0(nm, " must be TRUE"), call. = FALSE)
-  }
-  invisible(TRUE)
-}
-
-.projr_state_false <- function(x) {
-  isFALSE(x)
-}
-
-.projr_check_false <- function(x, nm = NULL, required = FALSE) {
-  if (.projr_state_null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  if (required) {
-    .projr_check_given(x = x, nm = nm)
-  } else if (!.projr_state_given(x)) {
-    return(invisible(TRUE))
-  }
-  if (!.projr_state_false(x)) {
-    stop(paste0(nm, " must be FALSE"), call. = FALSE)
-  }
-  invisible(TRUE)
-}
-
-.projr_state_opt <- function(x, opt) {
+.is_opt_min <- function(x, opt) {
   x %in% opt
 }
 
-.projr_check_chr <- function(x, nm = NULL, required = FALSE) {
-  if (.projr_state_null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  if (required) {
-    .projr_check_given(x = x, nm = nm)
-  } else if (!.projr_state_given(x)) {
+
+# logical
+# -----------------
+
+.assert_lgl <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  if (!.projr_state_chr(x)) {
-    stop(paste0(nm, " must be character"), call. = FALSE)
-  }
-  invisible(TRUE)
-}
-
-.projr_state_chr <- function(x) {
-  all(is.character(x))
-}
-
-.projr_check_lgl <- function(x, nm = NULL, required = FALSE) {
-  if (.projr_state_null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  if (required) {
-    .projr_check_given(x = x, nm = nm)
-  } else if (!.projr_state_given(x)) {
-    return(invisible(TRUE))
-  }
-  if (!.projr_state_lgl(x)) {
-    stop(paste0(nm, " must be logical"), call. = FALSE)
-  }
-  invisible(TRUE)
-}
-
-.projr_state_lgl <- function(x) {
-  all(is.logical(x))
-}
-
-.projr_state_lgl_single <- function(x) {
-  is.logical(x) && .projr_state_len(x, 1L) && !is.na(x)
-}
-
-.projr_state_single <- function(x) {
-  .projr_state_len(x, 1)
-}
-
-.projr_check_len <- function(x, nm = NULL, len, required = FALSE) {
-  if (.projr_state_null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  if (required) {
-    .projr_check_given(x = x, nm = nm)
-  } else if (!.projr_state_given(x)) {
-    return(invisible(TRUE))
-  }
-  if (!.projr_state_len(x = x, len = len)) {
-    stop(paste0(nm, " must be length ", len), call. = FALSE)
-  }
-  invisible(TRUE)
-}
-
-.projr_state_len <- function(x, len) {
-  length(x) == len
-}
-
-.projr_check_given <- function(x, nm) {
-  if (.projr_state_null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  if (!.projr_state_given(x)) {
-    stop(paste0(nm, " must be given"), call. = FALSE)
-  }
-  invisible(TRUE)
-}
-
-.projr_state_given <- function(x) {
-  if (missing(x)) {
-    return(FALSE)
-  }
-  if (is.null(x)) {
-    return(FALSE)
-  }
-  # for if it's length zero (e.g. logical())
-  if (identical(is.na(x), logical())) {
-    return(TRUE)
-  }
-  if (all(is.na(x))) {
-    return(FALSE)
-  }
-  TRUE
-}
-
-.projr_state_abs <- function(x) {
-  fs::is_absolute_path(x)
-}
-
-.projr_state_null <- function(x) {
-  is.null(x)
-}
-
-
-.projr_state_cue <- function(cue, bump_component) {
-  .projr_state_cue_check(cue, bump_component)
-
-  if (.projr_state_null(cue)) {
-    return(TRUE)
-  }
-  if (.projr_state_lgl_single(bump_component)) {
-    return(.projr_state_opt(cue, c("build", "dev")))
-  }
-  # if cue is none, then we're saying nothing
-  # must happen
-  if (.projr_state_opt(cue, "none")) {
-    return(FALSE)
-  }
-  if (.projr_state_opt(cue, c("build", "dev"))) {
-    return(TRUE)
-  }
-  if (.projr_state_opt(cue, "major")) {
-    return(.projr_state_opt(bump_component, "major"))
-  }
-  if (.projr_state_opt(cue, "minor")) {
-    return(.projr_state_opt(bump_component, c("major", "minor")))
-  }
-  .projr_state_opt(bump_component, c("major", "minor", "patch"))
-}
-
-.projr_state_cue_check <- function(cue, bump_component) {
-  if (.projr_state_null(cue)) {
-    return(invisible(TRUE))
-  }
-  .projr_check_len(cue, "cue", 1L)
-  .projr_check_len(bump_component, "bump_component", 1L)
-  if (.projr_state_null(bump_component)) {
-    if (.projr_state_opt(cue, c("major", "minor", "patch"))) {
-      stop(
-        "bump_component must be supplied if cue is major, minor or patch",
-        call. = FALSE
-      )
-    }
-  }
-  if (!.projr_state_lgl(bump_component)) {
-    .projr_check_opt(
-      bump_component, "bump_component",
-      c("major", "minor", "patch", "dev", "none")
+  if (!.is_lgl_full(x)) {
+    stop(
+      paste0(nm, " must be a non-NA logical vector with positive length"),
+      call. = FALSE
     )
   }
   invisible(TRUE)
 }
 
-.projr_state_rel <- function(x) {
-  !.projr_state_abs(x)
+.is_lgl <- function(x) {
+  is.logical(x) && .is_len_pos(x) && all(!is.na(x))
 }
 
-.projr_description_state_exists <- function() {
-  file.exists(.projr_dir_proj_get("DESCRIPTION"))
+.assert_lgl_min <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!is.logical(x)) {
+    stop(paste0(nm, " must be a logical vector"), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.assert_flag <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!.is_flag(x)) {
+    stop(
+      paste0(nm, " must be a non-NA flag (TRUE or FALSE)"),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+.is_flag <- function(x) {
+  .is_flag_min(x) && all(!is.na(x))
+}
+
+.assert_flag_min <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!.is_flag_min(x)) {
+    stop(paste0(nm, " must be a flag (TRUE or FALSE)"), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.is_flag_min <- function(x) {
+  is.logical(x) && .is_len_1(x)
+}
+
+# numeric
+# -----------------
+
+.assert_num <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!.is_num(x)) {
+    stop(
+      paste0(nm, " must be a non-NA numeric vector with positive length"),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+.is_num <- function(x) {
+  is.numeric(x) && .is_len_pos(x) && all(!is.na(x))
+}
+
+.assert_num_min <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!is.numeric(x)) {
+    stop(paste0(nm, " must be a numeric vector"), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.assert_number <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!.is_number(x)) {
+    stop(
+      paste0(nm, " must be a non-NA number (a numeric vector of length one)"),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+.assert_number_min <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!.is_number_min(x)) {
+    stop(paste0(nm, " must be a number (a numeric vector of length one)"), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+# character
+# -----------------
+
+.assert_chr_full <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!.is_chr_full(x)) {
+    stop(
+      paste0(nm, " must be a non-empty character vector with no NA entries"),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+.is_chr_full <- function(x) {
+  is.character(x) && .is_len_pos(x) && all(!is.na(x)) && all(nzchar(x))
+}
+
+.assert_chr <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!is.character(x)) {
+    stop(paste0(nm, " must be character"), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.assert_string <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!.is_string(x)) {
+    stop(
+      paste0(nm, " must be a non-empty string"),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+.assert_string_min <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!.is_string_min(x)) {
+    stop(
+      paste0(nm, " must be a string (a length-one character vector)"),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+# scalars
+# -------
+
+# is
+.is_string <- function(x) {
+  .is_string_min(x) && nzchar(x) && !is.na(x)
+}
+
+.is_string_min <- function(x) {
+  .is_len_1(x) && is.character(x)
+}
+
+.is_number_min <- function(x) {
+  .is_len_1(x) && is.numeric(x)
+}
+
+.is_number <- function(x) {
+  .is_number_min(x) && !is.na(x)
+}
+
+.is_lgl_full <- function(x) {
+  .is_len_1(x) && .is_len(x, 1L) && !is.na(x)
+}
+
+# length
+# -----------------
+
+.assert_len_1 <- function(x, nm = NULL, required = FALSE) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!.is_len_1(x)) {
+    stop(paste0(nm, " must have length one"), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.assert_len_pos <- function(x, nm = NULL, required = FALSE) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!.is_len_pos(x)) {
+    stop(paste0(nm, " must have positive length"), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+
+# assert
+.assert_len <- function(x, nm = NULL, len, required = FALSE) {
+  if (is.null(nm)) {
+    nm <- deparse(substitute(x))
+  }
+  if (required) {
+    .assert_given(x = x, nm = nm)
+  } else if (!.is_given(x)) {
+    return(invisible(TRUE))
+  }
+  if (!.is_len(x = x, len = len)) {
+    stop(paste0(nm, " must be length ", len), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+# is
+.is_len <- function(x, len) {
+  length(x) == len
+}
+.is_len_1 <- function(x) {
+  .is_len(x, 1L)
+}
+
+.is_len_0 <- function(x) {
+  .is_len(x, 0L)
+}
+
+.is_len_pos <- function(x) {
+  length(x) > 0L
+}
+
+# basic functions
+# ---------------
+
+# automatically get name
+.assert_nm_get <- function(x, nm) {
+  if (!is.null(nm)) {
+    if (!.is_string(nm)) {
+      stop("`nm` must be a string", call. = FALSE)
+    }
+    return(nm)
+  }
+  tryCatch(
+    deparse(substitute(x, env = parent.frame())),
+    error = function(e) "`unknown_name`"
+  )
+}
+
+# check that it's given
+.assert_check <- function(x, required, nm) {
+  nm <- .assert_nm_get(x, nm)
+  if (required) {
+    .assert_given_mid(x = x, nm = nm)
+  } else if (!.is_given_mid(x)) {
+    return(invisible(FALSE))
+  }
+  invisible(TRUE)
+}
+
+.assert_opt_single <- function(x, opt, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  .assert_len_1(x = x, nm = nm)
+  .assert_opt(x = x, nm = nm, opt = opt)
+}
+
+.assert_given_full <- function(x, nm) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.is_given_full(x)) {
+    stop(paste0(nm, " must be given"), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.is_given_full <- function(x) {
+  .is_given(x) && !is.null(x) && all(!is.na(x))
+}
+
+.assert_given_mid <- function(x, nm) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.is_given_mid(x)) {
+    stop(paste0(nm, " must be given"), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.is_given_mid <- function(x) {
+  .is_given(x) && !is.null(x)
+}
+
+.assert_given <- function(x, nm) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.is_given(x)) {
+    stop(paste0(nm, " must be given"), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.is_given <- function(x) {
+  if (missing(x)) {
+    return(FALSE)
+  }
+  TRUE
 }

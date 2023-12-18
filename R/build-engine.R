@@ -89,7 +89,7 @@
 }
 
 .projr_build_engine_doc_fn_get_error <- function(fn, type) {
-  if (.projr_state_len_nz(fn)) {
+  if (.is_len_pos(fn)) {
     return(invisible(TRUE))
   }
   document_type <- switch(tolower(type),

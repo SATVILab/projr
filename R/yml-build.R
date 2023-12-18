@@ -18,7 +18,7 @@
 }
 
 .projr_yml_build_set_nm <- function(yml, nm, profile) {
-  if (.projr_state_null(yml) || .projr_state_len_z(yml)) {
+  if (is.null(yml) || .is_len_0(yml)) {
     .projr_yml_build_set_nm_empty(nm, profile)
   } else {
     .projr_yml_build_set_nm_non_empty(yml, nm, profile)

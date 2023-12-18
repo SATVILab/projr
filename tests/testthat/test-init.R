@@ -18,7 +18,16 @@ test_that("projr_init works", {
       expect_true(file.exists("DESCRIPTION"))
       expect_true(file.exists("index.Rmd"))
       expect_true(dir.exists("R"))
-      expect_error(projr_init(yml_path_from = "abcsadfkasdflkda"))
+      projr_init()
+      expect_true(file.exists("_bookdown.yml"))
+      expect_true(file.exists("_output.yml"))
+      expect_true(file.exists("_projr.yml"))
+      expect_true(dir.exists(".git"))
+      expect_true(file.exists(".gitignore"))
+      expect_true(file.exists(".Rbuildignore"))
+      expect_true(file.exists("DESCRIPTION"))
+      expect_true(file.exists("index.Rmd"))
+      expect_true(dir.exists("R"))
     },
     force = TRUE,
     quiet = TRUE

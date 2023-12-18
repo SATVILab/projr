@@ -56,7 +56,7 @@ projr_init <- function(yml_path_from = NULL,
   .projr_init_renv(force = renv_force, bioc = renv_bioconductor)
 
   # finalise README
-  .projr_init_readme_finalise()
+  .projr_readme_render()
 
   # initialise Git repo
   .projr_init_git_init(nm_list[["answer_git"]])

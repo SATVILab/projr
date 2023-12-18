@@ -10,7 +10,7 @@
                         conflict,
                         component) {
   # whether to run or not
-  if (!.projr_state_cue(cue, bump_component = bump_component)) {
+  if (!.is_cue(cue, bump_component = bump_component)) {
     return(invisible(FALSE))
   }
   switch(remote_type,

@@ -828,7 +828,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # github
 .projr_remote_file_rm_github <- function(fn,
                                          remote) {
-  if (.projr_state_len_z(fn)) {
+  if (.is_len_0(fn)) {
     return(invisible(FALSE))
   }
   piggyback::.pb_cache_clear()

@@ -21,13 +21,11 @@
 .projr_change_get_check <- function(label,
                                     path_dir_local,
                                     version_source) {
-  if (.projr_state_null(path_dir_local)) {
-    .projr_check_given(label, "label")
-    .projr_check_chr_single(label, "label")
-    .projr_check_nz(label, "label")
+  if (is.null(path_dir_local)) {
+    .assert_string(label, required = TRUE)
   }
-  .projr_check_given(version_source, "version_source")
-  .projr_check_chr_single(version_source, "version_source")
+  .assert_given(version_source, "version_source")
+  .assert_string(version_source, "version_source")
 }
 
 # manifest-based

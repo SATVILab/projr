@@ -14,7 +14,7 @@
 
 .projr_build_manifest_pre_get_manifest <- function() {
   label_vec <- .projr_build_manifest_pre_get_label()
-  if (.projr_state_len_z(label_vec)) {
+  if (.is_len_0(label_vec)) {
     return(.projr_zero_tbl_get_manifest())
   }
   out_tbl <- lapply(
@@ -83,7 +83,7 @@
 }
 
 .projr_build_manifest_reduce <- function(manifest_list) {
-  if (.projr_state_len(manifest_list, 1L)) {
+  if (.is_len(manifest_list, 1L)) {
     return(manifest_list[[1]])
   }
   Reduce(rbind, manifest_list)

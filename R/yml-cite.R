@@ -80,7 +80,7 @@ projr_yml_cite_set <- function(all = NULL,
     simplify_default = simplify_default
   )
 
-  if (!.projr_state_null(all)) {
+  if (!is.null(all)) {
     codemeta <- all
     cff <- all
     inst_citation <- all
@@ -101,16 +101,16 @@ projr_yml_cite_set <- function(all = NULL,
                                       profile,
                                       simplify_identical,
                                       simplify_default) {
-  if (!.projr_state_null(all)) {
-    .projr_check_lgl_single(all, "all")
+  if (!is.null(all)) {
+    .assert_flag_full(all, "all")
   } else {
-    .projr_check_lgl_single(codemeta, "codemeta")
-    .projr_check_lgl_single(cff, "cff")
-    .projr_check_lgl_single(inst_citation, "inst-citation")
+    .assert_flag_full(codemeta, "codemeta")
+    .assert_flag_full(cff, "cff")
+    .assert_flag_full(inst_citation, "inst-citation")
   }
-  .projr_check_lgl_single(simplify_identical, "simplify_identical", required = TRUE)
-  .projr_check_lgl_single(simplify_default, "simplify_default", required = TRUE)
-  .projr_check_chr_single(profile, "profile")
+  .assert_flag_full(simplify_identical, "simplify_identical", required = TRUE)
+  .assert_flag_full(simplify_default, "simplify_default", required = TRUE)
+  .assert_string(profile, "profile")
 }
 
 .projr_yml_cite_set_ind <- function(codemeta,
@@ -118,13 +118,13 @@ projr_yml_cite_set <- function(all = NULL,
                                     inst_citation,
                                     profile,
                                     simplify_default) {
-  if (!.projr_state_null(codemeta)) {
+  if (!is.null(codemeta)) {
     .projr_yml_cite_set_codemeta(codemeta, simplify_default, profile)
   }
-  if (!.projr_state_null(cff)) {
+  if (!is.null(cff)) {
     .projr_yml_cite_set_cff(cff, simplify_default, profile)
   }
-  if (!.projr_state_null(inst_citation)) {
+  if (!is.null(inst_citation)) {
     .projr_yml_cite_set_inst_citation(inst_citation, simplify_default, profile)
   }
 }
@@ -202,7 +202,7 @@ projr_yml_cite_set_default <- function(profile = "default",
   if (isFALSE(yml_cite)) {
     return(FALSE)
   }
-  if (.projr_state_null(yml_cite[[opt]])) {
+  if (is.null(yml_cite[[opt]])) {
     return(TRUE)
   }
   yml_cite[[opt]]
