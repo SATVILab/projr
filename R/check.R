@@ -47,7 +47,7 @@
 # options
 # ---------------
 
-.assert_opt_not_single <- function(x, opt, required = FALSE, nm = NULL) {
+.assert_opt_single_not <- function(x, opt, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   # check that it's neither missing nor NULL
   # if required
