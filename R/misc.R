@@ -415,5 +415,5 @@ projr_use_data <- function(...,
 }
 
 .assert_test <- function() {
-  Sys.getenv("PROJR_TEST") == "TRUE"
+  .is_testing()
 }

@@ -32,7 +32,7 @@
   # return auto answer
   # -------------------
 
-  if (Sys.getenv("PROJR_TEST") == "TRUE") {
+  if (.is_testing()) {
     return(answer_auto)
   }
 
@@ -179,7 +179,7 @@
 .projr_init_prompt_yn <- function(question,
                                   answer_auto = 2) {
   yn_vec <- c("Yes", "No")
-  if (Sys.getenv("PROJR_TEST") == "TRUE") {
+  if (.is_testing()) {
     return(answer_auto)
   }
   utils::menu(yn_vec, title = question)
