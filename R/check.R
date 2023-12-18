@@ -10,16 +10,18 @@
   if (!dir.exists(x)) {
     stop(paste0("The directory ", nm, " must exist"), call. = FALSE)
   }
+  invisible(TRUE)
 }
 
 .assert_dir_exists <- function(x, required = FALSE, nm = NULL) {
-  nm <- .assert_nm_get()
+  nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
   if (!all(dir.exists(x))) {
     stop(paste0("The ", nm, " directories must exist"), call. = FALSE)
   }
+  invisible(TRUE)
 }
 
 .is_dir <- fs::is_dir
@@ -28,6 +30,43 @@
 # --------------
 
 .is_path_abs <- fs::is_absolute_path
+
+.assert_path_not_file <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!.is_path_not_file(x)) {
+    stop(paste0(nm, " must not be a pre-existing file"), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.is_path_not_file <- function(x) {
+  !(file.exists(x) && !dir.exists(x))
+}
+
+# files: package
+# --------------
+
+.is_file_exists_description <- function() {
+  file.exists(.path_get_proj("DESCRIPTION"))
+}
+
+.path_get_proj <- function(...) {
+  dir_proj <- tryCatch(
+    rprojroot::is_r_package$find_file(),
+    error = function(e) getwd()
+  )
+  list_sub <- list(...)
+  if (length(list_sub) == 0L) {
+    return(dir_proj)
+  }
+  do.call(
+    file.path,
+    args = list(dir_proj) |> append(list_sub)
+  )
+}
 
 # files
 # -----
@@ -63,7 +102,6 @@
   }
   invisible(TRUE)
 }
-
 
 .assert_opt_not <- function(x, opt, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
@@ -129,7 +167,7 @@
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  if (!.is_lgl_full(x)) {
+  if (!.is_lgl(x)) {
     stop(
       paste0(nm, " must be a non-NA logical vector with positive length"),
       call. = FALSE
@@ -167,9 +205,6 @@
   invisible(TRUE)
 }
 
-.is_flag <- function(x) {
-  .is_flag_min(x) && all(!is.na(x))
-}
 
 .assert_flag_min <- function(x, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
@@ -182,9 +217,7 @@
   invisible(TRUE)
 }
 
-.is_flag_min <- function(x) {
-  is.logical(x) && .is_len_1(x)
-}
+
 
 # numeric
 # -----------------
@@ -251,7 +284,7 @@
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  if (!.is_chr_full(x)) {
+  if (!.is_chr(x)) {
     stop(
       paste0(nm, " must be a non-empty character vector with no NA entries"),
       call. = FALSE
@@ -260,7 +293,7 @@
   invisible(TRUE)
 }
 
-.is_chr_full <- function(x) {
+.is_chr <- function(x) {
   is.character(x) && .is_len_pos(x) && all(!is.na(x)) && all(nzchar(x))
 }
 
@@ -303,6 +336,43 @@
   invisible(TRUE)
 }
 
+.assert_nz <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(FALSE))
+  }
+
+  if (!.is_len_pos(x) || !all(nzchar(x))) {
+    stop(paste0(nm, " must be non-empty"), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.assert_nchar_single <- function(x, nchar, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(FALSE))
+  }
+
+  if (!.is_len_1(x) || nchar(x) != nchar) {
+    stop(paste0(nm, " must be ", nchar, " characters long"), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.assert_nchar <- function(x, nchar, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(FALSE))
+  }
+
+  if (!is.character(x) || any(nchar(x) != nchar)) {
+    stop(paste0(nm, " must be non-empty"), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+
 # scalars
 # -------
 
@@ -323,14 +393,18 @@
   .is_number_min(x) && !is.na(x)
 }
 
-.is_lgl_full <- function(x) {
-  .is_len_1(x) && .is_len(x, 1L) && !is.na(x)
+.is_flag <- function(x) {
+  .is_flag_min(x) && all(!is.na(x))
+}
+
+.is_flag_min <- function(x) {
+  is.logical(x) && .is_len_1(x)
 }
 
 # length
 # -----------------
 
-.assert_len_1 <- function(x, nm = NULL, required = FALSE) {
+.assert_len_1 <- function(x, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
@@ -341,7 +415,7 @@
   invisible(TRUE)
 }
 
-.assert_len_pos <- function(x, nm = NULL, required = FALSE) {
+.assert_len_pos <- function(x, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
@@ -354,13 +428,13 @@
 
 
 # assert
-.assert_len <- function(x, nm = NULL, len, required = FALSE) {
+.assert_len <- function(x, len, required = FALSE, nm = NULL) {
   if (is.null(nm)) {
     nm <- deparse(substitute(x))
   }
   if (required) {
     .assert_given(x = x, nm = nm)
-  } else if (!.is_given(x)) {
+  } else if (!.is_given_mid(x)) {
     return(invisible(TRUE))
   }
   if (!.is_len(x = x, len = len)) {
@@ -385,21 +459,31 @@
   length(x) > 0L
 }
 
+# miscellaneous checks
+# --------------------
+
+.is_try_error <- function(x) {
+  inherits(x, "try-error")
+}
+
 # basic functions
 # ---------------
 
 # automatically get name
-.assert_nm_get <- function(x, nm) {
+.assert_nm_get <- function(x, nm = NULL) {
   if (!is.null(nm)) {
     if (!.is_string(nm)) {
       stop("`nm` must be a string", call. = FALSE)
     }
     return(nm)
   }
-  tryCatch(
+  out <- tryCatch(
     deparse(substitute(x, env = parent.frame())),
     error = function(e) "`unknown_name`"
-  )
+  ) |>
+    paste0(collapse = "_")
+  n_char_out <- nchar(out)
+  substr(out, start = 1, min(n_char_out, 20))
 }
 
 # check that it's given
@@ -422,7 +506,7 @@
   .assert_opt(x = x, nm = nm, opt = opt)
 }
 
-.assert_given_full <- function(x, nm) {
+.assert_given_full <- function(x, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.is_given_full(x)) {
     stop(paste0(nm, " must be given"), call. = FALSE)
@@ -431,10 +515,10 @@
 }
 
 .is_given_full <- function(x) {
-  .is_given(x) && !is.null(x) && all(!is.na(x))
+  .is_given_mid(x) && all(!is.na(x))
 }
 
-.assert_given_mid <- function(x, nm) {
+.assert_given_mid <- function(x, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.is_given_mid(x)) {
     stop(paste0(nm, " must be given"), call. = FALSE)
@@ -446,9 +530,9 @@
   .is_given(x) && !is.null(x)
 }
 
-.assert_given <- function(x, nm) {
+.assert_given <- function(x, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
-  if (!.is_given(x)) {
+  if (!.is_given_mid(x)) {
     stop(paste0(nm, " must be given"), call. = FALSE)
   }
   invisible(TRUE)

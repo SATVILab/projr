@@ -102,7 +102,7 @@
 .projr_yml_remote_check_content <- function(type,
                                             category,
                                             content) {
-  ..assert_chr(content, TRUE)
+  .assert_chr(content, TRUE)
   if (!all(is.character(content))) {
     stop("content must be a character vector")
   }

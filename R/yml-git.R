@@ -114,15 +114,15 @@ projr_yml_git_set <- function(all = NULL,
                                      simplify_default,
                                      profile) {
   if (!is.null(all)) {
-    .assert_flag_full(all, "all")
+    .assert_flag(all)
   } else {
-    .assert_flag_full(commit, "commit")
-    .assert_flag_full(add_untracked, "add_untracked")
-    .assert_flag_full(push, "push")
+    .assert_flag(commit)
+    .assert_flag(add_untracked)
+    .assert_flag(push)
   }
-  .assert_flag_full(simplify_identical, "simplify_identical", required = TRUE)
-  .assert_flag_full(simplify_default, "simplify_default", required = TRUE)
-  .assert_string(profile, "profile")
+  .assert_flag(simplify_identical, TRUE)
+  .assert_flag(simplify_default, TRUE)
+  .assert_string(profile)
 }
 
 .projr_yml_git_set_ind <- function(commit,

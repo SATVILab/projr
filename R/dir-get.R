@@ -86,6 +86,7 @@
 }
 
 .projr_dir_create_single <- function(path_dir) {
+  .assert_path_not_file(path_dir)
   if (dir.exists(path_dir)) {
     return(invisible())
   }

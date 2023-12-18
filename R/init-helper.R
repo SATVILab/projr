@@ -129,7 +129,7 @@
 }
 
 .projr_init_description_check <- function() {
-  !.projr_description_state_exists()
+  !.is_file_exists_description()
 }
 
 .projr_init_dep <- function() {
@@ -345,7 +345,7 @@
   if (!.is_testing()) {
     cat("Project name is", paste0("`", nm_pkg, "`"), "\n")
   }
-  if (!.projr_description_state_exists()) {
+  if (!.is_file_exists_description()) {
     nm_first <- .projr_init_prompt_ind_first()
     nm_last <- .projr_init_prompt_ind_last()
     nm_email <- .projr_init_prompt_ind_email()

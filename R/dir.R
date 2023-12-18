@@ -73,12 +73,12 @@ projr_path_get_dir <- projr_dir_get
   if (.is_len_pos(dots_list)) {
     dots_list |>
       unlist() |>
-      ..assert_chr()
+      .assert_chr()
   }
   .projr_dir_check_label(label, NULL)
-  .assert_flag_full(relative)
-  .assert_flag_full(absolute)
-  .assert_flag_full(safe)
+  .assert_flag(relative)
+  .assert_flag(absolute)
+  .assert_flag(safe)
   if (relative && absolute) {
     stop("relative and absolute cannot both be TRUE")
   }

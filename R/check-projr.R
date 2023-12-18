@@ -29,8 +29,7 @@
   if (is.null(cue)) {
     return(invisible(TRUE))
   }
-  .assert_len(cue, "cue", 1L)
-  .assert_len(bump_component, "bump_component", 1L)
+  .assert_len_1(cue)
   if (is.null(bump_component)) {
     if (.is_opt(cue, c("major", "minor", "patch"))) {
       stop(
@@ -39,11 +38,11 @@
       )
     }
   }
-  if (!.is_flag(bump_component)) {
-    .assert_opt(
-      bump_component, "bump_component",
-      c("major", "minor", "patch", "dev", "none")
-    )
+  .assert_len_1(bump_component)
+  if (.is_string(bump_component)) {
+    .assert_opt(bump_component, c("major", "minor", "patch", "dev", "none"))
+  } else {
+    .assert_flag(bump_component)
   }
   invisible(TRUE)
 }

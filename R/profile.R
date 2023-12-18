@@ -34,7 +34,7 @@ projr_profile_create <- function(profile = NULL,
   if (.is_testing()) {
     silent <- TRUE
   }
-  .assert_flag_full(silent, required = TRUE)
+  .assert_flag(silent, required = TRUE)
   profile <- profile %||% Sys.getenv("PROJR_PROFILE")
   .assert_string(profile, required = TRUE)
   .assert_opt_single_not(profile, opt = c("default", "local"), required = TRUE)
@@ -196,8 +196,7 @@ projr_profile_delete <- function(profile) {
 }
 
 .projr_profile_delete_check <- function(profile) {
-  .assert_given(profile, "profile")
-  .assert_string(profile, "profile")
+  .assert_string(profile, TRUE)
   if (.is_opt(profile, "default")) {
     stop("Cannot delete profile named 'default' as it is used internally.")
   }

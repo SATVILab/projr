@@ -204,7 +204,7 @@
                           recursive = TRUE,
                           full.names = FALSE,
                           all.files = TRUE) {
-  .assert_dir_exists(path_dir, "path_dir", required = TRUE)
+  .assert_dir_exists(path_dir, TRUE)
   list.files(
     path_dir,
     recursive = recursive, full.names = full.names, all.files = all.files
