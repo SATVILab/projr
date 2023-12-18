@@ -1,4 +1,4 @@
-test_that(".projr_state_cue works", {
+test_that(".is_cue works", {
   # skips
   skip_if(FALSE)
 
@@ -9,17 +9,17 @@ test_that(".projr_state_cue works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      expect_true(.projr_state_cue(cue = NULL))
-      expect_true(.projr_state_cue(cue = "dev", bump_component = FALSE))
-      expect_false(.projr_state_cue(cue = "patch", bump_component = FALSE))
-      expect_false(.projr_state_cue(cue = "none", bump_component = "dev"))
-      expect_true(.projr_state_cue(cue = "dev", bump_component = "major"))
-      expect_false(.projr_state_cue(cue = "major", bump_component = "dev"))
-      expect_false(.projr_state_cue(cue = "minor", bump_component = "dev"))
-      expect_false(.projr_state_cue(cue = "patch", bump_component = "dev"))
-      expect_true(.projr_state_cue(cue = "patch", bump_component = "patch"))
-      expect_true(.projr_state_cue(cue = "minor", bump_component = "minor"))
-      expect_true(.projr_state_cue(cue = "major", bump_component = "major"))
+      expect_true(.is_cue(cue = NULL))
+      expect_true(.is_cue(cue = "dev", bump_component = FALSE))
+      expect_false(.is_cue(cue = "patch", bump_component = FALSE))
+      expect_false(.is_cue(cue = "none", bump_component = "dev"))
+      expect_true(.is_cue(cue = "dev", bump_component = "major"))
+      expect_false(.is_cue(cue = "major", bump_component = "dev"))
+      expect_false(.is_cue(cue = "minor", bump_component = "dev"))
+      expect_false(.is_cue(cue = "patch", bump_component = "dev"))
+      expect_true(.is_cue(cue = "patch", bump_component = "patch"))
+      expect_true(.is_cue(cue = "minor", bump_component = "minor"))
+      expect_true(.is_cue(cue = "major", bump_component = "major"))
     }
   )
 })

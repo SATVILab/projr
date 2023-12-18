@@ -65,21 +65,14 @@ projr_yml_script_add <- function(path,
                                     cue,
                                     overwrite,
                                     profile) {
-  .assert_string(path, "path", required = TRUE)
-  .assert_string(title, "title", required = TRUE)
-  .assert_opt_single(
-    stage, "stage",
-    required = TRUE, opt = c("pre", "post")
-  )
-  if (.is_given(profile)) {
-    .assert_string(profile, "profile")
+  .assert_string(path, TRUE)
+  .assert_string(title, TRUE)
+  .assert_opt_single(stage, c("pre", "post"), TRUE)
+  if (.is_given_mid(profile)) {
+    .assert_string(profile)
   }
-  .assert_opt_single(
-    cue, "cue",
-    required = FALSE,
-    opt = c("build", "dev", "patch", "minor", "major")
-  )
-  .assert_flag_full(overwrite, "overwrite", required = TRUE)
+  .assert_opt_single(cue, c("build", "dev", "patch", "minor", "major"))
+  .assert_flag(overwrite, TRUE)
 }
 
 .projr_yml_script_add <- function(path,
@@ -106,9 +99,9 @@ projr_yml_script_add <- function(path,
 #' @rdname yml-script
 #' @export
 projr_yml_script_rm <- function(title, path = NULL, profile = "default") {
-  .assert_string(title, "title", required = TRUE)
-  .assert_string(path, "path")
-  if (.is_given(profile)) {
+  .assert_string(title, TRUE)
+  .assert_string(path)
+  if (.is_given_mid(profile)) {
     .assert_string(profile)
   }
   yml_script <- .projr_yml_script_get(profile)

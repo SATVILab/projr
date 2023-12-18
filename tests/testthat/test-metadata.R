@@ -10,11 +10,11 @@ test_that(".projr_local_dir_create works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      expect_true(.projr_state_chr(.projr_metadata_get_author_host()))
-      expect_true(.projr_state_chr(.projr_metadata_get_author_host_env()))
-      expect_true(.projr_state_chr(.projr_metadata_get_author_sys_info()))
-      expect_true(.projr_state_chr(.projr_metadata_get_host()))
-      expect_true(.projr_state_chr(.projr_metadata_get_time()))
+      expect_true(.is_chr(.projr_metadata_get_author_host()))
+      expect_true(.is_chr(.projr_metadata_get_author_host_env()))
+      expect_true(.is_chr(.projr_metadata_get_author_sys_info()))
+      expect_true(.is_chr(.projr_metadata_get_host()))
+      expect_true(.is_chr(.projr_metadata_get_time()))
     }
   )
 })

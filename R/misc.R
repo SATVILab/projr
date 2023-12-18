@@ -414,6 +414,37 @@ projr_use_data <- function(...,
   invisible(TRUE)
 }
 
-.assert_test <- function() {
-  .is_testing()
+# options
+# -------
+
+.projr_opt_remote_get_osf_cat <- function() {
+  c(
+    "analysis", "communication", "data", "hypothesis", "methods",
+    "procedure", "project", "question", "other"
+  )
+}
+
+.projr_opt_remote_get_structure <- function() {
+  c("version", "latest")
+}
+
+.projr_opt_remote_get_type <- function() {
+  c("local", "osf", "structure")
+}
+
+.projr_opt_dir_get_label <- function(profile) {
+  c(
+    .projr_yml_dir_get(profile) |> names(),
+    "data",
+    "code",
+    "project"
+  )
+}
+
+.projr_opt_dir_get_label_send <- function(profile) {
+  .projr_opt_dir_get_label(profile) |> setdiff("project")
+}
+
+.projr_opt_dir_get_label_get <- function(profile) {
+  .projr_opt_dir_get_label(profile) |> setdiff(c("code", "project"))
 }

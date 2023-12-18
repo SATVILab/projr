@@ -208,15 +208,13 @@
 
 .projr_yml_dir_get_nm <- function(nm, profile) {
   .assert_opt(
-    nm, deparse(substitute(nm)), names(.projr_yml_dir_get(profile))
+    nm, names(.projr_yml_dir_get(profile))
   )
   .projr_yml_dir_get(profile)[[nm]]
 }
 
 .projr_yml_dir_set_nm <- function(yml, nm, profile) {
-  .assert_opt(
-    nm, deparse(substitute(nm)), names(.projr_yml_dir_get(profile))
-  )
+  .assert_opt(nm, names(.projr_yml_dir_get(profile)))
   yml_projr <- projr_yml_get_unchecked(profile)
   yml_projr[["directories"]][[nm]] <- yml
   .projr_yml_set(yml_projr, profile)

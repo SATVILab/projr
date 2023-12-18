@@ -14,7 +14,7 @@
 }
 
 .projr_build_renv_snapshot_check <- function(output_run) {
-  output_run && !.assert_test()
+  output_run && !.is_test()
 }
 
 # commit

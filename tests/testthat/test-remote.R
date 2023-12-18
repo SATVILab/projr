@@ -6,7 +6,6 @@ test_that(".projr_remote_create works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      browser()
       # local
       # --------------------------
       path_dir_tmp_random <- .projr_test_dir_create_random(create = FALSE)

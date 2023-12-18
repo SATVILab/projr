@@ -47,7 +47,7 @@ projr_yml_get_unchecked <- function(profile = NULL) {
 }
 
 .projr_yml_get_unchecked_profile <- function(profile) {
-  .assert_string(profile, "profile")
+  .assert_string(profile)
   switch(profile,
     "local" = .projr_yml_get_local(),
     "default" = .projr_yml_get_root_default(),
@@ -621,7 +621,7 @@ projr_yml_check <- function(yml_projr = NULL) {
 }
 
 .projr_yml_get_path <- function(profile) {
-  if (!.is_given(profile) || profile == "default") {
+  if (!.is_given_mid(profile) || profile == "default") {
     return(.projr_dir_proj_get("_projr.yml"))
   }
   .projr_dir_proj_get(paste0("_projr-", profile, ".yml"))

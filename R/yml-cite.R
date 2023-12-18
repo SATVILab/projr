@@ -102,15 +102,15 @@ projr_yml_cite_set <- function(all = NULL,
                                       simplify_identical,
                                       simplify_default) {
   if (!is.null(all)) {
-    .assert_flag_full(all, "all")
+    .assert_flag(all)
   } else {
-    .assert_flag_full(codemeta, "codemeta")
-    .assert_flag_full(cff, "cff")
-    .assert_flag_full(inst_citation, "inst-citation")
+    .assert_flag(codemeta)
+    .assert_flag(cff)
+    .assert_flag(inst_citation)
   }
-  .assert_flag_full(simplify_identical, "simplify_identical", required = TRUE)
-  .assert_flag_full(simplify_default, "simplify_default", required = TRUE)
-  .assert_string(profile, "profile")
+  .assert_flag(simplify_identical, TRUE)
+  .assert_flag(simplify_default, TRUE)
+  .assert_string(profile)
 }
 
 .projr_yml_cite_set_ind <- function(codemeta,

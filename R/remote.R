@@ -18,7 +18,7 @@
 
 # local
 .projr_remote_create_local <- function(path) {
-  .projr_remote_check_base(type = "local", path = path)
+  .assert_string(path)
   .projr_dir_create(path)
   invisible(path)
 }
@@ -33,17 +33,13 @@
   category <- .projr_remote_complete_osf_category(
     category = category
   )
-  .projr_remote_check_base_osf(
-    title = title,
-    id = NULL,
-    id_parent = id_parent,
-    category = category,
-    body = body,
-    public = public,
-    parent_title = NULL,
-    path = NULL,
-    path_append_label = NULL
-  )
+  .assert_string(title, TRUE)
+  .assert_string(id_parent)
+  .assert_nchar(id_parent, 5L)
+  .assert_opt(category, .projr_opt_remote_get_osf_cat())
+  .assert_string(description)
+  .assert_flag(public, TRUE)
+
   .projr_remote_create_osf_node(
     title = title,
     id_parent = id_parent,
@@ -107,26 +103,29 @@
                                         body = NULL,
                                         pause_second = 3) {
   .projr_dep_install("piggyback")
+  .assert_string(tag, TRUE)
+  .assert_string(body)
+  .assert_number(pause_second, TRUE)
   if (is.null(body)) {
     body <- "Release created automatically by `projr`"
   }
-  pb_release_create <- projr_remote_create_github_attempt(
+  pb_release_create <- .projr_remote_create_github_attempt(
     tag = tag, body = body
   )
-  if (!inherits(pb_release_create, "try-error")) {
+  if (!.is_try_error(pb_release_create)) {
     return(invisible(tag))
   }
   Sys.sleep(pause_second)
-  pb_release_create <- projr_remote_create_github_attempt(
+  pb_release_create <- .projr_remote_create_github_attempt(
     tag = tag, body = body
   )
-  if (!inherits(pb_release_create, "try-error")) {
+  if (!.is_try_error(pb_release_create)) {
     return(invisible(tag))
   }
   invisible(character())
 }
 
-projr_remote_create_github_attempt <- function(tag, body) {
+.projr_remote_create_github_attempt <- function(tag, body) {
   piggyback::.pb_cache_clear()
   try(suppressWarnings(suppressMessages(
     piggyback::pb_release_create(tag = tag, body = body)
@@ -139,6 +138,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 .projr_remote_check_exists <- function(type,
                                        id) {
+  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_check_exists_local(path = id),
     "osf" = .projr_remote_check_exists_osf(id = id),
@@ -148,21 +148,21 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # local
 .projr_remote_check_exists_local <- function(path) {
+  .assert_path_not_file(path)
   dir.exists(path)
 }
 
 # osf
 .projr_remote_check_exists_osf <- function(id) {
-  !inherits(
-    .projr_remote_get(type = "osf", id = id),
-    "try-error"
-  )
+  .assert_nchar_single(id, 5L, TRUE)
+  !.is_try_error(projr_remote_get(type = "osf", id = id))
 }
 
 # github
 .projr_remote_check_exists_github <- function(tag) {
+  .assert_string(tag, TRUE)
   release_tbl <- .projr_pb_release_tbl_get()
-  if (inherits(release_tbl, "try-error")) {
+  if (.is_try_error(release_tbl)) {
     stop("Could not get GitHub release table")
   }
   tag %in% release_tbl[["release_name"]]
@@ -177,6 +177,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 .projr_remote_get <- function(type,
                               id) {
+  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_get_local(id = id),
     "osf" = .projr_remote_get_osf(id = id),
@@ -187,11 +188,13 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # local
 .projr_remote_get_local <- function(id) {
+  .assert_string(id, TRUE)
   id
 }
 
 # osf
 .projr_remote_get_osf <- function(id) {
+  .assert_nchar_single(id, 5L, TRUE)
   tryCatch(
     osfr::osf_retrieve_node(paste0("https://osf.io/", id)),
     error = function(e) {
@@ -204,6 +207,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # github
 .projr_remote_get_github <- function(id) {
+  .assert_string(id, TRUE)
   c("tag" = id)
 }
 
@@ -251,6 +255,12 @@ projr_remote_create_github_attempt <- function(tag, body) {
                                           path_append_label,
                                           label,
                                           structure) {
+  .assert_string(path, TRUE)
+  .assert_path_not_file(path)
+  .assert_flag(path_append_label)
+  .assert_opt(label, .projr_dir_label_get())
+  .assert_opt_single(structure, .projr_opt_remote_get_structure())
+
   # the local destination is just the
   # local directory where files are get, so
   # it is just the path.
@@ -282,13 +292,14 @@ projr_remote_create_github_attempt <- function(tag, body) {
                                         path_append_label,
                                         label,
                                         structure) {
-  if (missing(label)) {
-    if (!path_append_label) {
-      label <- "abc"
-    } else {
-      stop(paste0("label must be supplied if to be appended"))
-    }
-  }
+  .assert_nchar_single(id, 5L, TRUE)
+  .assert_string(path)
+  .assert_flag(path_append_label)
+  .assert_opt(label, .projr_dir_label_get())
+  .assert_opt_single(structure, .projr_opt_remote_get_structure())
+  label <- .projr_remote_get_final_osf_get_label(
+    label, path_append_label
+  )
   path_rel <- .projr_remote_get_path_rel(
     path = path,
     path_append_label = path_append_label,
@@ -303,11 +314,24 @@ projr_remote_create_github_attempt <- function(tag, body) {
   osf_tbl
 }
 
+.projr_remote_get_final_osf_get_label <- function(label, path_append_label) {
+  if (missing(label)) {
+    if (!path_append_label) {
+      label <- "abc"
+    } else {
+      stop(paste0("label must be supplied if to be appended"))
+    }
+  }
+  label
+}
+
 # ---------------------
 # github
 # ---------------------
 
 .projr_remote_get_final_github <- function(id, label) {
+  .assert_string(id, TRUE)
+  .assert_opt(label, .projr_opt_dir_get_label_send(), TRUE)
   # everything uploaded to a gh release
   # is a single file, and all other remotes
   # are just directories where files can
@@ -341,19 +365,14 @@ projr_remote_create_github_attempt <- function(tag, body) {
     path = path,
     path_append_label = path_append_label
   )
-  if (missing(structure)) {
-    stop("structure must be supplied")
-  }
-  if (missing(path_append_label)) {
-    stop("path_append_label must be supplied")
-  }
+  
   args_list <- list(
     structure = structure, path_append_label = path_append_label
   )
   if (!missing(label)) {
     args_list <- args_list |> append(list(label = label))
   }
-  if (missing(path) || is.null(path)) {
+  if (!.is_given_mid(path)) {
     path <- NULL
   }
   args_list <- args_list |> append(list(path = path))
@@ -365,6 +384,11 @@ projr_remote_create_github_attempt <- function(tag, body) {
                                                  path_append_label,
                                                  label,
                                                  structure) {
+  .assert_string(path)
+  .assert_flag(path_append_label, TRUE)
+  .assert_opt_single(structure, .projr_opt_remote_get_structure(), TRUE)
+  .assert_opt(label, .projr_dir_label_send(), TRUE)
+
   args_list <- list()
   if (!is.null(path)) {
     args_list <- list(path)
@@ -393,6 +417,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 .projr_remote_rm_final_if_empty <- function(type,
                                             remote,
                                             structure) {
+  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_rm_final_if_empty_local(
       remote = remote, structure = structure
@@ -406,6 +431,8 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # local
 .projr_remote_rm_final_if_empty_local <- function(remote, structure) {
+  .assert_opt(structure, .projr_opt_remote_get_structure(), TRUE)
+  .assert_string(remote, TRUE)
   # only do this for versioned ones
   if (!structure == "version") {
     return(invisible(FALSE))
@@ -422,6 +449,8 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # osf
 .projr_remote_rm_final_if_empty_osf <- function(remote, structure) {
+  .assert_opt(structure, .projr_opt_remote_get_structure(), TRUE)
+  .assert_given_full(remote)
   if (!structure == "version") {
     return(invisible(FALSE))
   }
@@ -452,6 +481,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 .projr_remote_host_rm <- function(type,
                                   host) {
+  .assert_type(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_host_rm_local(host),
     "osf" = .projr_remote_host_rm_osf(host),
@@ -461,6 +491,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # local
 .projr_remote_host_rm_local <- function(host) {
+  .assert_string(host, TRUE)
   if (!dir.exists(host)) {
     return(invisible(FALSE))
   }
@@ -470,6 +501,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # osf
 .projr_remote_host_rm_osf <- function(host) {
+  .assert_given_full(host)
   osfr::osf_rm(
     x = osfr::osf_retrieve_node(host), check = FALSE, recurse = TRUE
   )
@@ -478,6 +510,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # github
 .projr_remote_host_rm_github <- function(host) {
+  .assert_given_full(host)
   # set up
   # ----------
   if (!requireNamespace("gh", quietly = TRUE)) {
@@ -521,6 +554,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # it's actually got nothing, so it's very different)
 .projr_remote_file_rm_all <- function(type,
                                       remote) {
+  .assert_type(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_file_rm_all_local(remote),
     "osf" = .projr_remote_file_rm_all_osf(remote),
@@ -530,6 +564,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # local
 .projr_remote_file_rm_all_local <- function(remote) {
+  .assert_string(remote, TRUE)
   if (!dir.exists(remote)) {
     return(invisible(FALSE))
   }
@@ -547,6 +582,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # osf
 .projr_remote_file_rm_all_osf <- function(remote) {
+  .assert_given_full(remote)
   osf_tbl_file <- remote |> osfr::osf_ls_files(n_max = Inf)
   if (nrow(osf_tbl_file) == 0L) {
     return(invisible(FALSE))
@@ -559,6 +595,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # github
 .projr_remote_file_rm_all_github <- function(remote) {
+  .assert_string(remote, TRUE)
   # the `piggyback::pb_delete` function
   # deletes all files by default and
   # pb_release_delete deletes the release itself,
@@ -576,6 +613,8 @@ projr_remote_create_github_attempt <- function(tag, body) {
 .projr_remote_file_get_all <- function(type,
                                        remote,
                                        path_dir_save_local) {
+  .assert_string(path_dir_save_local, TRUE)
+  .assert_type(type, .projr_opt_remote_get_type(), TRUE)
   .projr_dir_create(path_dir_save_local)
   switch(type,
     "local" = .projr_remote_file_get_all_local(
@@ -599,6 +638,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 .projr_remote_file_get_all_local <- function(remote,
                                              path_dir_save_local) {
+  .assert_string(remote, TRUE)
   .projr_dir_copy(remote, path_dir_save_local)
 }
 
@@ -608,6 +648,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 .projr_remote_file_get_all_osf <- function(remote,
                                            path_dir_save_local) {
+  .assert_given_full(remote)
   osf_tbl_file <- remote |> osfr::osf_ls_files(n_max = Inf)
   if (nrow(osf_tbl_file) == 0L) {
     return(invisible(path_dir_save_local))
@@ -627,6 +668,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # ---------------------
 
 .projr_remote_file_get_all_github <- function(remote, path_dir_save_local) {
+  assert_given_full(remote)
   if (!.projr_remote_check_exists("github", remote[["tag"]])) {
     return(invisible(FALSE))
   }
@@ -662,6 +704,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 .projr_remote_file_ls <- function(type,
                                   remote) {
+  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_file_ls_local(remote),
     "osf" = .projr_remote_file_ls_osf(remote),
@@ -671,12 +714,15 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # local
 .projr_remote_file_ls_local <- function(remote) {
+  .assert_string(remote, TRUE)
   .projr_dir_ls(path_dir = remote)
 }
 
 # osf
 .projr_remote_file_ls_osf <- function(remote,
                                       path_dir_parent = NULL) {
+  .assert_given_full(remote)
+  .assert_chr_full(path_dir_parent)
   osf_tbl_file <- remote |> osfr::osf_ls_files(n_max = Inf)
   if (nrow(osf_tbl_file) == 0L) {
     return(character())
@@ -716,6 +762,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 # github
 .projr_remote_file_ls_github <- function(remote) {
+  .assert_given_full(remote)
   path_dir_save_local <- .projr_dir_tmp_random_get()
   .projr_remote_file_get_all(
     "github",
@@ -734,6 +781,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
 .projr_remote_file_rm <- function(type,
                                   fn,
                                   remote) {
+  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_file_rm_local(fn = fn, remote = remote),
     "osf" = .projr_remote_file_rm_osf(fn = fn, remote = remote),
@@ -744,9 +792,11 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # local
 .projr_remote_file_rm_local <- function(fn,
                                         remote) {
+  .assert_chr(fn, TRUE)
   if (length(fn) == 0L) {
     return(invisible(FALSE))
   }
+  .assert_string(remote, TRUE)
   fn_vec <- .projr_file_filter_exists(file.path(remote, fn))
   if (length(fn_vec) == 0L) {
     return(invisible(FALSE))
@@ -758,9 +808,11 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # osf
 .projr_remote_file_rm_osf <- function(fn,
                                       remote) {
+  .assert_chr(fn, TRUE)
   if (length(fn) == 0) {
     return(invisible(FALSE))
   }
+  .assert_given_full(remote)
   # osfr requires doing deletions directory by directory
   dir_vec <- unique(dirname(fn))
   # do deeper directories first, to give a
@@ -787,6 +839,8 @@ projr_remote_create_github_attempt <- function(tag, body) {
 
 .projr_remote_file_rm_osf_rm_get <- function(path,
                                              node) {
+  .assert_string(path, TRUE)
+  .assert_given_full(node)
   if (path != ".") {
     node <- osfr::osf_mkdir(x = node, path = path)
   }
@@ -796,6 +850,9 @@ projr_remote_create_github_attempt <- function(tag, body) {
 .projr_remote_file_rm_osf_detailed <- function(fn_dir,
                                                osf_tbl,
                                                osf_tbl_file) {
+  .assert_chr(fn_dir, TRUE)
+  .assert_given_full(osf_tbl)
+  
   fn_vec_osf <- osf_tbl_file[["name"]]
   # might be faster to just delete the whole directory
   remove_dir <- setequal(fn_dir, fn_vec_osf) &&
@@ -808,6 +865,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
   if (length(fn_vec_to_rm) == 0L) {
     return(invisible(FALSE))
   }
+  .assert_given_full(osf_tbl_file)
   .projr_remote_file_rm_osf_fn(
     fn_rm = fn_vec_to_rm, osf_tbl_file = osf_tbl_file
   )
@@ -815,6 +873,8 @@ projr_remote_create_github_attempt <- function(tag, body) {
 }
 
 .projr_remote_file_rm_osf_fn <- function(fn_rm, osf_tbl_file) {
+  .assert_chr(fn_rm, TRUE)
+  .assert_given_full(osf_tbl_file)
   # osfr requires deleting individual files one-by-one
   # by passing a table
   for (i in seq_along(fn_rm)) {
@@ -828,9 +888,11 @@ projr_remote_create_github_attempt <- function(tag, body) {
 # github
 .projr_remote_file_rm_github <- function(fn,
                                          remote) {
+  .assert_chr(fn, TRUE)
   if (.is_len_0(fn)) {
     return(invisible(FALSE))
   }
+  .assert_given_full(remote)
   piggyback::.pb_cache_clear()
   path_dir_save_local <- .projr_dir_tmp_random_get()
   .projr_remote_file_get_all(
@@ -865,6 +927,7 @@ projr_remote_create_github_attempt <- function(tag, body) {
                                    remote,
                                    path_dir_local,
                                    fn) {
+  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_file_add_local(
       fn = fn, path_dir_local = path_dir_local, remote = remote
@@ -882,6 +945,10 @@ projr_remote_create_github_attempt <- function(tag, body) {
 .projr_remote_file_add_local <- function(fn,
                                          path_dir_local,
                                          remote) {
+  .assert_chr(fn, TRUE)
+  .assert_string(path_dir_local, TRUE)
+  .assert_path_not_file(path_dir_local)
+  .assert_string(remote, TRUE)
   .projr_dir_copy_file(
     fn = fn,
     path_dir_from = path_dir_local,
@@ -893,9 +960,13 @@ projr_remote_create_github_attempt <- function(tag, body) {
 .projr_remote_file_add_osf <- function(fn,
                                        path_dir_local,
                                        remote) {
+  .assert_chr(fn, TRUE)
   if (length(fn) == 0) {
     return(invisible(FALSE))
   }
+  .assert_string(path_dir_local, TRUE)
+  .assert_path_not_file(path_dir_local)
+  .assert_given_full(remote)
   .projr_dep_install("osfr")
   plot_tbl <- data.frame(fn = fn, dir = dirname(fn))
   dir_vec <- unique(plot_tbl[["dir"]])
@@ -918,11 +989,15 @@ projr_remote_create_github_attempt <- function(tag, body) {
 .projr_remote_file_add_github <- function(fn,
                                           path_dir_local,
                                           remote) {
+  .assert_given_full(remote)
+  .assert_chr(fn, TRUE)
   label <- gsub("\\.zip", "", remote[["fn"]])
   if (length(fn) == 0L && label != "code") {
     return(invisible(FALSE))
   }
   .projr_dep_install("piggyback")
+  .assert_string(path_dir_local, TRUE)
+  .assert_path_not_file(path_dir_local)
 
   path_zip <- .projr_zip_file(
     fn_rel = fn,
@@ -1009,4 +1084,11 @@ projr_remote_create_github_attempt <- function(tag, body) {
   setting_push_explicit <-
     projr_yml_get_unchecked()[["build"]][["git"]][["push"]]
   if (is.null(setting_push_explicit)) TRUE else setting_push_explicit
+}
+
+.projr_remote_osf_get_cat <- function() {
+  c(
+    "analysis", "communication", "data", "hypothesis", "methods",
+    "procedure", "project", "question", "other"
+  )
 }

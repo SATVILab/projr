@@ -24,8 +24,8 @@
   if (is.null(path_dir_local)) {
     .assert_string(label, required = TRUE)
   }
-  .assert_given(version_source, "version_source")
-  .assert_string(version_source, "version_source")
+  .assert_given(version_source)
+  .assert_string(version_source)
 }
 
 # manifest-based

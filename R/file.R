@@ -16,15 +16,14 @@
 }
 
 .projr_file_get_abs_single <- function(x) {
-  .assert_string(x, "x")
+  .assert_string(x)
   fs::path_abs(x) |>
     as.character()
 }
 
 .projr_file_get_abs_check <- function(fn, path_dir) {
-  ..assert_chr(fn, "fn", required = TRUE)
-  ..assert_chr(path_dir, "path_dir")
-  .assert_string(path_dir, "path_dir")
+  .assert_chr(fn, TRUE)
+  .assert_string(path_dir)
   if (all(.is_path_abs(fn)) && !is.null(path_dir)) {
     stop(paste0(
       "fn is absolute, but path_dir is not NULL:\n",
