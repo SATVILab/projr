@@ -64,7 +64,7 @@
 .projr_dest_send_title_check <- function(title, type, bump_component) {
   force(title)
   .projr_yml_dest_get_title_complete(title, type, NULL)[["cue"]] |>
-    .projr_state_cue(bump_component)
+    .is_cue(bump_component)
 }
 
 # ================================
@@ -129,7 +129,7 @@
                                          type,
                                          remote,
                                          structure) {
-  if (!.projr_state_opt(sync_approach, "sync-using-deletion")) {
+  if (!.is_opt(sync_approach, "sync-using-deletion")) {
     return(invisible(FALSE))
   }
   .projr_remote_rm_final_if_empty(type, remote, structure)

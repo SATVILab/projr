@@ -463,7 +463,6 @@
   desc_exists_pre <- file.exists(path_desc)
   if (!desc_exists_pre) {
     desc::description$new("!new")$write(file = path_desc)
-    return(path_desc)
   }
   desc_exists_pre
 }
@@ -494,47 +493,73 @@
 }
 
 .projr_init_prompt_readme_description <- function(answer_readme,
-                                                  nm_list_metadata) {
+                                                  nm_list) {
   # no changes if README already exists
   if (answer_readme == 3) {
-    return(.projr_init_readme_finalise())
+    return(.projr_readme_render())
   }
 
   # get fn_readme and path_readme
-  fn_readme <- paste0("README.", ifelse(answer_readme == 1, "Rmd", "md"))
-  path_readme <- .projr_dir_proj_get(fn_readme)
-  readme <- readLines(path_readme)
+  readme <- .projr_readme_read() |>
+    .projr_readme_filter_example() |>
+    .projr_readme_add_description(answer_readme, nm_list[["pkg"]])
+  readme |> .projr_readme_write()
+  .projr_readme_render()
+  readme
+}
 
+.projr_readme_filter_example <- function(readme) {
   # get where to add to
   readme_ind_example <- which(grepl("^## Example", readme))
+  if (.is_len_0(readme_ind_example)) {
+    return(readme)
+  }
   # exclude the example section
-  readme <- readme[seq_len(readme_ind_example - 1)]
+  readme[seq_len(readme_ind_example - 1)]
+}
 
-  readme_rep <- .projr_init_prompt_readme_description_get(
-    nm_list_metadata[["pkg"]], answer_readme
+.projr_readme_read <- function() {
+  .projr_readme_get_path() |>
+    readLines()
+}
+
+.projr_readme_get_path <- function() {
+  switch(.projr_readme_get_type(),
+    "md" = .projr_dir_proj_get("README.md"),
+    "Rmd" = .projr_dir_proj_get("README.Rmd")
   )
+}
+
+.projr_readme_add_description <- function(readme, answer_readme, pkg) {
+  readme_rep <- .projr_init_prompt_readme_description_get(pkg, answer_readme)
   answer_readme_correct <-
     .projr_init_prompt_readme_description_check(readme_rep)
 
   while (answer_readme_correct == 2) {
     readme_rep <- .projr_init_prompt_readme_description_get(
-      nm_list_metadata[["pkg"]], answer_readme
+      pkg, answer_readme
     )
     answer_readme_correct <-
       .projr_init_prompt_readme_description_check(readme_rep)
   }
 
-  if (answer_readme_correct == 3) {
-    return(.projr_init_readme_finalise())
+  if (answer_readme_correct != 3) {
+    readme[length(readme)] <- readme_rep
+    readme <- c(readme, "")
   }
-
-  readme[readme_ind_example - 1] <- readme_rep
-  readme <- c(readme, "")
-  writeLines(readme, path_readme)
-
-  .projr_init_readme_finalise()
-
   readme
+}
+
+.projr_readme_get_type <- function() {
+  c("md", "Rmd")[.projr_readme_detect_type() + 1]
+}
+
+.projr_readme_detect_type <- function() {
+  grepl("README\\.Rmd", list.files(.projr_dir_proj_get())) |>
+    any()
+}
+.projr_readme_write <- function(readme) {
+  readme |> writeLines(.projr_readme_get_path())
 }
 
 .projr_init_prompt_readme_description_get <- function(pkg, answer_readme) {
@@ -562,7 +587,7 @@
       )
   )
 }
-.projr_init_readme_finalise <- function() {
+.projr_readme_render <- function() {
   if (!file.exists(.projr_dir_proj_get("README.Rmd"))) {
     return(invisible(FALSE))
   }

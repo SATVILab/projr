@@ -116,7 +116,7 @@
     return(invisible(FALSE))
   }
   .projr_dir_clear_file_ls(path_dir, delete_hidden, recursive = TRUE) |>
-    .projr_state_len_nz()
+    .is_len_pos()
 }
 
 # move
@@ -160,11 +160,11 @@
 }
 
 .projr_dir_copy_check <- function(fn, path_dir_from) {
-  if (.projr_state_len_z(fn)) {
+  if (.is_len_0(fn)) {
     return(invisible(FALSE))
   }
   .projr_file_get_abs_exists(fn, path_dir_from) |>
-    .projr_state_len_nz()
+    .is_len_pos()
 }
 
 .projr_dir_move <- function(path_dir_from,
@@ -204,7 +204,7 @@
                           recursive = TRUE,
                           full.names = FALSE,
                           all.files = TRUE) {
-  .projr_check_dir_exists(path_dir, "path_dir", required = TRUE)
+  .assert_dir_exists(path_dir, "path_dir", required = TRUE)
   list.files(
     path_dir,
     recursive = recursive, full.names = full.names, all.files = all.files

@@ -44,16 +44,6 @@ If \code{NULL}, then setting is not changed.}
 If \code{TRUE}, then if all the settings are the same
 then only \code{cite: TRUE} or \code{cite: FALSE} is written to \verb{_projr.yml}.
 Default is \code{TRUE}.}
-
-\item{simplify_default}{logical.
-If \code{TRUE}, then if the settings are the same as the default
-(which is TRUE),
-then the settings are removed from \verb{_projr.yml}.
-Default is \code{TRUE}.}
-
-\item{profile}{character.
-Profile to add the script to.
-If \verb{"default"`` (the default), the script is added to the default profile, which is }_projr.yml\verb{. If }NULL\verb{, then the active profile is used (i.e the merge of }_projr-local.yml\verb{, }_projr-\if{html}{\out{<profile>}}.yml\code{and}_projr.yml\verb{) and written to }_projr.yml\verb{. If another character vector, then the corresponding profile is used and written to }_projr-\if{html}{\out{<profile>}}.yml`.}
 }
 \description{
 \code{projr_yml_cite_set} sets the citation options in \verb{_projr.yml}.

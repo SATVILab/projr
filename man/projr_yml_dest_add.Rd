@@ -27,9 +27,9 @@ projr_yml_dest_add_osf(
 )
 
 projr_yml_dest_add_local(
-  title = NULL,
-  content = NULL,
-  path = NULL,
+  title,
+  content,
+  path,
   path_append_label = NULL,
   structure = NULL,
   get_sync_approach = NULL,
@@ -38,7 +38,8 @@ projr_yml_dest_add_local(
   send_sync_approach = NULL,
   send_version_source = NULL,
   send_conflict = NULL,
-  overwrite = TRUE
+  overwrite = TRUE,
+  profile = "default"
 )
 }
 \arguments{

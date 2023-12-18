@@ -268,11 +268,11 @@
 
 .projr_git_config_get_name_gert <- function() {
   nm <- .projr_git_config_get_name_gert_local()
-  if (.projr_state_chr_nz(nm)) {
+  if (.is_string_full(nm)) {
     return(nm)
   }
   nm <- .projr_git_config_get_name_gert_global()
-  if (.projr_state_chr_nz(nm)) {
+  if (.is_string_full(nm)) {
     return(nm)
   }
   .projr_git_config_get_name_gert_system()

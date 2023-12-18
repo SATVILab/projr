@@ -92,7 +92,7 @@ projr_yml_git_set <- function(all = NULL,
     push = push, simplify_default = simplify_default,
     simplify_identical = simplify_identical, profile = profile
   )
-  if (!.projr_state_null(all)) {
+  if (!is.null(all)) {
     commit <- all
     add_untracked <- all
     push <- all
@@ -113,16 +113,16 @@ projr_yml_git_set <- function(all = NULL,
                                      simplify_identical,
                                      simplify_default,
                                      profile) {
-  if (!.projr_state_null(all)) {
-    .projr_check_lgl_single(all, "all")
+  if (!is.null(all)) {
+    .assert_flag_full(all, "all")
   } else {
-    .projr_check_lgl_single(commit, "commit")
-    .projr_check_lgl_single(add_untracked, "add_untracked")
-    .projr_check_lgl_single(push, "push")
+    .assert_flag_full(commit, "commit")
+    .assert_flag_full(add_untracked, "add_untracked")
+    .assert_flag_full(push, "push")
   }
-  .projr_check_lgl_single(simplify_identical, "simplify_identical", required = TRUE)
-  .projr_check_lgl_single(simplify_default, "simplify_default", required = TRUE)
-  .projr_check_chr_single(profile, "profile")
+  .assert_flag_full(simplify_identical, "simplify_identical", required = TRUE)
+  .assert_flag_full(simplify_default, "simplify_default", required = TRUE)
+  .assert_string(profile, "profile")
 }
 
 .projr_yml_git_set_ind <- function(commit,
@@ -130,13 +130,13 @@ projr_yml_git_set <- function(all = NULL,
                                    push,
                                    simplify_default,
                                    profile) {
-  if (!.projr_state_null(commit)) {
+  if (!is.null(commit)) {
     .projr_yml_git_set_commit(commit, simplify_default, profile)
   }
-  if (!.projr_state_null(add_untracked)) {
+  if (!is.null(add_untracked)) {
     .projr_yml_git_set_add_untracked(add_untracked, simplify_default, profile)
   }
-  if (!.projr_state_null(push)) {
+  if (!is.null(push)) {
     .projr_yml_git_set_push(push, simplify_default, profile)
   }
 }
@@ -171,7 +171,7 @@ projr_yml_git_set_default <- function(profile = "default",
   if (isFALSE(yml_git)) {
     return(FALSE)
   }
-  if (.projr_state_null(yml_git[["commit"]])) {
+  if (is.null(yml_git[["commit"]])) {
     return(TRUE)
   }
   yml_git[["commit"]]
@@ -218,7 +218,7 @@ projr_yml_git_set_default <- function(profile = "default",
   if (isFALSE(yml_git)) {
     return(FALSE)
   }
-  if (.projr_state_null(yml_git[["add-untracked"]])) {
+  if (is.null(yml_git[["add-untracked"]])) {
     return(TRUE)
   }
   yml_git[["add-untracked"]]
@@ -243,7 +243,7 @@ projr_yml_git_set_default <- function(profile = "default",
   if (isFALSE(yml_git)) {
     return(FALSE)
   }
-  if (.projr_state_null(yml_git[["push"]])) {
+  if (is.null(yml_git[["push"]])) {
     return(TRUE)
   }
   yml_git[["push"]]

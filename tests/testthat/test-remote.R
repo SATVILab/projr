@@ -1,12 +1,12 @@
 test_that(".projr_remote_create works", {
   skip_if_offline()
-  skip_if(TRUE)
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
     code = {
+      browser()
       # local
       # --------------------------
       path_dir_tmp_random <- .projr_test_dir_create_random(create = FALSE)
@@ -51,8 +51,7 @@ test_that(".projr_remote_create works", {
 })
 
 test_that(".projr_remote_get works", {
-  skip_if_offline()
-  skip_if(TRUE)
+  skip_ifk_offline()
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
@@ -86,7 +85,6 @@ test_that(".projr_remote_get works", {
 
 test_that(".projr_remote_get_final works", {
   skip_if_offline()
-  skip_if(TRUE)
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
@@ -162,7 +160,6 @@ test_that(".projr_remote_get_final works", {
 
 test_that(".projr_remote_rm_final_if_empty works", {
   skip_if_offline()
-  skip_if(TRUE)
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
@@ -276,7 +273,6 @@ test_that(".projr_remote_rm_final_if_empty works", {
 
 test_that(".projr_remote_file_rm_all works", {
   skip_if_offline()
-  skip_if(TRUE)
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
@@ -362,7 +358,6 @@ test_that(".projr_remote_file_rm_all works", {
 
 test_that("adding, tallying and removing files from remotes works", {
   skip_if_offline()
-  skip_if(FALSE)
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )

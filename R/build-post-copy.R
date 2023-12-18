@@ -68,7 +68,7 @@
 
 .projr_build_copy_pkg_check <- function() {
   .projr_build_copy_pkg_get_label() |>
-    .projr_state_nz() |>
+    nzchar() |>
     all()
 }
 

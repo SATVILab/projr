@@ -70,20 +70,22 @@ projr_dir_get <- function(label, ...,
 projr_path_get_dir <- projr_dir_get
 
 .projr_dir_get_check <- function(label, dots_list, relative, absolute, safe) {
-  if (.projr_state_len_nz(dots_list)) {
-    sapply(dots_list, .projr_check_chr_single)
+  if (.is_len_pos(dots_list)) {
+    dots_list |>
+      unlist() |>
+      ..assert_chr()
   }
   .projr_dir_check_label(label, NULL)
-  .projr_check_lgl_single(relative)
-  .projr_check_lgl_single(absolute)
-  .projr_check_lgl_single(safe)
+  .assert_flag_full(relative)
+  .assert_flag_full(absolute)
+  .assert_flag_full(safe)
   if (relative && absolute) {
     stop("relative and absolute cannot both be TRUE")
   }
 }
 
 .projr_dir_check_label <- function(label, profile) {
-  .projr_check_chr_nz(label)
+  .assert_string(label)
   .projr_dir_check_label_found(label, profile)
 }
 

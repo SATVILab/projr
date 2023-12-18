@@ -17,7 +17,7 @@ test_that("projr_hash_dir works", {
       # test hashing non-empty directories
       path_dir <- .projr_test_setup_content_dir()
       hash_tbl <- .projr_hash_dir(path_dir)
-      expect_identical(nrow(hash_tbl), 3L)
+      expect_identical(nrow(hash_tbl), 4L)
       expect_identical(length(unique(hash_tbl$hash)), 1L)
     }
   )

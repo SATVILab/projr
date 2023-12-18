@@ -261,7 +261,7 @@ with_dir <- function(new, code) {
 
 .projr_dots_get_chr <- function(...) {
   dots_list <- .projr_dots_get(...)
-  if (.projr_state_len_nz(dots_list)) {
+  if (.is_len_pos(dots_list)) {
     dots_list <- vapply(dots_list, as.character, character(1))
   }
   dots_list
@@ -269,7 +269,7 @@ with_dir <- function(new, code) {
 
 .projr_dots_get_chr_vec <- function(...) {
   dots_list_chr <- .projr_dots_get_chr(...)
-  if (.projr_state_len_nz(dots_list_chr)) {
+  if (.is_len_pos(dots_list_chr)) {
     dots_vec_chr <- unlist(dots_list_chr)
   } else {
     dots_vec_chr <- character()
@@ -312,7 +312,7 @@ projr_use_data <- function(...,
       }
     }
   } else {
-    path_tmp_base <- .projr_dir_get_cache_auto()
+    path_tmp_base <- .projr_dir_get_cache_auto(profile = NULL)
     if (internal) {
       .projr_dir_create(file.path(path_tmp_base, "R"))
       paths <- fs:::path(file.path(path_tmp_base, "R"), "sysdata.rda")
@@ -414,6 +414,6 @@ projr_use_data <- function(...,
   invisible(TRUE)
 }
 
-.projr_check_test <- function() {
+.assert_test <- function() {
   Sys.getenv("PROJR_TEST") == "TRUE"
 }

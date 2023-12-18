@@ -10,18 +10,7 @@
 #' @param profile character.
 #' If not `NULL`, then this is the name of the profile.
 #' If `NULL` and the environment variable `PROJR_PROFILE` is set,
-#' then made equal to its value. If the variable is not set,
-#' then made equal to the working directory.
-#' @param method "key" or "file".
-#' Specifies where the `projr` profile is specified.
-#' If "key" (default), then the additional profile is added
-#' as new keys in `_projr.yml` in the form `directories-<profile>` and
-#' `build-<profile>`.
-#' If "file", then the file `_projr-<profile>.yml` is created
-#' with all-null values for the sub-keys of the `build` and `directories`
-#' keys in `_projr.yml`.
-#'
-#' Default is `NULL`.
+#' then made equal to its value.
 #'
 #' @param silent logical.
 #' If `TRUE`, then any messages are suppressed.
@@ -33,84 +22,45 @@
 #' is empty (indicated by `~` in the YAML file by default), then
 #' the corresponding setting in `_projr.yml` is used.
 #'
-#' If using `method = "file"`, then the profile
-#' cannot be automatically specified from the working directory
-#' but must be specified by either `PROJR_PROFILE` or the `profile` argument.
-#'
 #' @return Invisibly returns the new projr profile.
 #' @seealso projr_profile_create_local,projr_yml_get
 #' @export
 #'
 projr_profile_create <- function(profile = NULL,
-                                 method = "key",
-                                 silent = Sys.getenv("PROJR_TEST") == "TRUE") {
+                                 silent = FALSE) {
   # get and validate profile
   # --------------------------
 
-  if (!is.logical(silent)) {
-    stop("`silent` parameter must be of type local.")
+  if (Sys.getenv("PROJR_TEST") == "TRUE") {
+    silent <- TRUE
   }
-
-  if (!is.null(profile)) {
-    if (profile == "local") {
-      stop(
-        "Cannot create profile named 'local' in this way.
-        Use `projr_profile_create_local()` instead."
-      )
-    }
-    if (profile == "default") {
-      stop("Cannot create profile named 'default' as it is used internally.")
-    }
-  } else if (nzchar(Sys.getenv("PROJR_PROFILE"))) {
-    profile <- Sys.getenv("PROJR_PROFILE")
-  } else {
-    if (method == "file") {
-      stop("The projr profile cannot be the working directory
-      if settings method = `file`.")
-    }
-    profile <- .projr_dir_proj_get()
-  }
-  if (!all(method %in% c("key", "file"))) {
-    stop("method must be either 'key' or 'file'")
-  }
-  if (identical(sort(as.character(method)), sort(c("key", "file")))) {
-    stop("method must be either 'key' or 'file' and not both")
-  }
-  if (method == "file") {
-    .projr_profile_check(profile)
-  }
-  yml_projr_root <- .projr_yml_get_root_full()
-  key_ind_dir <- paste0("directories-", profile) %in% names(yml_projr_root)
-  key_ind_build <- paste0("build-", profile) %in% names(yml_projr_root)
+  .assert_flag_full(silent, required = TRUE)
+  profile <- profile %||% Sys.getenv("PROJR_PROFILE")
+  .assert_string(profile, required = TRUE)
+  .assert_opt_not_single(profile, opt = c("default", "local"), required = TRUE)
+  .projr_profile_check(profile)
   file_ind <- file.exists(
     .projr_dir_proj_get(paste0("_projr-", profile, ".yml"))
   )
-  if (any(key_ind_dir, key_ind_build, file_ind)) {
-    if (!silent) {
-      message("projr profile ", profile, " already exists")
-    }
+  if (file_ind) {
+    message(paste0("projr profile ", profile, " already exists"))
     return(invisible(FALSE))
   }
+
+  yml_projr_root <- .projr_yml_get_root_full()
+  key_ind_dir <- paste0("directories-", profile) %in% names(yml_projr_root)
+  key_ind_build <- paste0("build-", profile) %in% names(yml_projr_root)
 
   # create profile settings
   # -------------------------
 
   yml_projr_root_default <- .projr_yml_get_root_default()
   yml_projr_root_full <- .projr_yml_get_root_full()
-  if (method == "key") {
-    yml_final <- yml_projr_root_full |>
-      append({
-        yml_projr_add <- .projr_list_elem_as_null(yml_projr_root_default)
-        yml_projr_add |>
-          stats::setNames(paste0(names(yml_projr_add), "-", profile))
-      })
-    yaml::write_yaml(yml_final, .projr_dir_proj_get("_projr.yml"))
-  } else {
-    yaml::write_yaml(
-      .projr_list_elem_as_null(yml_projr_root_default),
-      file = .projr_dir_proj_get(paste0("_projr-", profile, ".yml"))
-    )
-  }
+
+  yaml::write_yaml(
+    .projr_list_elem_as_null(yml_projr_root_default),
+    file = .projr_dir_proj_get(paste0("_projr-", profile, ".yml"))
+  )
 
   if (!silent) {
     message(paste0("Added the following profile: ", profile))
@@ -141,7 +91,7 @@ projr_profile_create <- function(profile = NULL,
 #' Empty settings are by default indicated by `~`.
 #' @seealso projr_profile_create_local,projr_yml_get
 projr_profile_create_local <- function(overwrite = FALSE) {
-  projr_profile_create_local_check()
+  projr_profile_create_local_check(overwrite)
   .projr_profile_create_local_actual()
   .projr_profile_create_local_ignore()
   invisible(TRUE)
@@ -158,7 +108,7 @@ projr_profile_create_local_check <- function(overwrite) {
   yml_projr_root_default <- .projr_yml_get_root_default()
   yml_projr_local <- yml_projr_root_default[c("directories", "build")]
   yml_projr_local <- .projr_list_elem_as_null(yml_projr_local)
-  yaml::write_yaml(yml_projr_local, file = path_fn)
+  yaml::write_yaml(yml_projr_local, file = .projr_dir_proj_get("_projr-local.yml"))
 }
 
 .projr_list_elem_as_null <- function(x) {
@@ -199,9 +149,7 @@ projr_profile_create_local_check <- function(overwrite) {
 }
 
 .projr_profile_check <- function(x) {
-  x <- gsub("\\w", "", x)
-  x <- gsub("-", "", x)
-  if (nzchar(x)) {
+  if (nzchar(gsub("\\w|-|_", "", x))) {
     stop("If projr profile settings are kept in a file,
     then the profile can only use alphumeric characters,
     the underscore and the hyphen.")
@@ -248,14 +196,14 @@ projr_profile_get <- function() {
 #'
 #' @export
 projr_profile_delete <- function(profile) {
-  .projr_profile_delete_check()
+  .projr_profile_delete_check(profile)
   .projr_profile_delete_actual(profile)
 }
 
 .projr_profile_delete_check <- function(profile) {
-  .projr_check_given(profile, "profile")
-  .projr_check_chr_single(profile, "profile")
-  if (.projr_state_opt(profile, "default")) {
+  .assert_given(profile, "profile")
+  .assert_string(profile, "profile")
+  if (.is_opt(profile, "default")) {
     stop("Cannot delete profile named 'default' as it is used internally.")
   }
 }

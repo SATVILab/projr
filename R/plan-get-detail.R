@@ -82,7 +82,7 @@
     remote = remote,
     type = type
   )[["add"]]
-  if (.projr_state_len_nz(fn_vec_add)) {
+  if (.is_len_pos(fn_vec_add)) {
     fn_vec_add <- .projr_dir_ls(path_dir_local)
   }
   list("add" = fn_vec_add, "rm" = character())

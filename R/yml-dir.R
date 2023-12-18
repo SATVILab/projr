@@ -207,14 +207,14 @@
 }
 
 .projr_yml_dir_get_nm <- function(nm, profile) {
-  .projr_check_opt(
+  .assert_opt(
     nm, deparse(substitute(nm)), names(.projr_yml_dir_get(profile))
   )
   .projr_yml_dir_get(profile)[[nm]]
 }
 
 .projr_yml_dir_set_nm <- function(yml, nm, profile) {
-  .projr_check_opt(
+  .assert_opt(
     nm, deparse(substitute(nm)), names(.projr_yml_dir_get(profile))
   )
   yml_projr <- projr_yml_get_unchecked(profile)
@@ -250,7 +250,7 @@
 }
 
 .projr_yml_dir_set_nm <- function(yml, nm, profile) {
-  if (.projr_state_null(yml) || .projr_state_len_z(yml)) {
+  if (is.null(yml) || .is_len_0(yml)) {
     .projr_yml_dir_set_nm_empty(nm, profile)
   } else {
     .projr_yml_dir_set_nm_non_empty(yml, nm, profile)

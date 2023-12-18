@@ -10,7 +10,7 @@
 }
 
 .projr_list_add_list <- function(x, nm, list_base) {
-  if (.projr_state_len_z(x)) {
+  if (.is_len_0(x)) {
     return(list_base)
   }
   list_base[[nm]] <- x
