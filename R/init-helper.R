@@ -43,7 +43,7 @@
 }
 
 .projr_init_yml_test_unset_push <- function() {
-  if (!.is_testing()) {
+  if (!.is_test()) {
     return(invisible(FALSE))
   }
   path_yml <- .projr_dir_proj_get("_projr.yml")
@@ -187,7 +187,7 @@
 }
 
 .projr_init_renv <- function(force, bioc) {
-  renv_init_env_var_lgl <- .is_testing()
+  renv_init_env_var_lgl <- .is_test()
   renv_init_exists_lgl <- file.exists(.projr_dir_proj_get("renv.lock"))
   if (!renv_init_env_var_lgl && !renv_init_exists_lgl) {
     .projr_renv_init_rscript(force = force, bioc = bioc)
@@ -342,7 +342,7 @@
 # metadata
 .projr_init_prompt_metadata <- function() {
   nm_pkg <- basename(.projr_dir_proj_get())
-  if (!.is_testing()) {
+  if (!.is_test()) {
     cat("Project name is", paste0("`", nm_pkg, "`"), "\n")
   }
   if (!.is_file_exists_description()) {
@@ -474,7 +474,7 @@
 }
 
 .projr_init_prompt_readme_create <- function() {
-  if (.is_testing()) {
+  if (.is_test()) {
     return(list("answer_readme" = 2))
   }
   if (.projr_init_prompt_readme_check_exists()) {
@@ -567,7 +567,7 @@
     "Please finish the following sentence:\n",
     paste0("The purpose of ", pkg, " is to...")
   )
-  if (.is_testing()) {
+  if (.is_test()) {
     return("The purpose of projr is to facilitate reproducible and archived projects") # nolint
   }
   readme_add <- readline(prompt = ">> ")
@@ -575,7 +575,7 @@
 }
 
 .projr_init_prompt_readme_description_check <- function(readme_rep) {
-  if (.is_testing()) {
+  if (.is_test()) {
     return(1)
   }
   utils::menu(
@@ -736,7 +736,7 @@ projr_init_renviron <- function() {
 
 .projr_init_readme <- function(nm_list) {
   # automatic for testing
-  if (.is_testing()) {
+  if (.is_test()) {
     .projr_init_readme_auto()
     return(.projr_init_readme_auto())
   }
@@ -925,7 +925,7 @@ projr_init_renviron <- function() {
 # citations
 # --------------------------
 .projr_init_cite <- function(answer_readme) {
-  if (.is_testing()) {
+  if (.is_test()) {
     return(invisible(FALSE))
   }
   .projr_init_cite_citation(answer_readme)

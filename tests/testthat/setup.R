@@ -26,11 +26,16 @@
   unlink(.projr_test_git_remote_dir_get_tmp(), recursive = TRUE)
 }
 
+.test_set()
+
 # instruct deletion upon completion of all tests
 withr::defer(
   {
     .projr_test_osf_rm()
     .projr_test_github_rm()
+    .test_unset()
+    .test_unset_fast()
+    .test_unset_select()
   },
   envir = teardown_env()
 )

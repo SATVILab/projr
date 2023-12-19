@@ -429,7 +429,7 @@ projr_use_data <- function(...,
 }
 
 .projr_opt_remote_get_type <- function() {
-  c("local", "osf", "structure")
+  c("local", "osf", "github")
 }
 
 .projr_opt_dir_get_label <- function(profile) {

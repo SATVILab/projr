@@ -46,7 +46,3 @@
   }
   invisible(TRUE)
 }
-
-.is_testing <- function() {
-  Sys.getenv("PROJR_TEST") == "TRUE"
-}
