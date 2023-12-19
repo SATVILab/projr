@@ -65,7 +65,7 @@ projr_yml_script_add <- function(path,
                                     cue,
                                     overwrite,
                                     profile) {
-  .assert_string(path, TRUE)
+  .assert_chr(path, TRUE)
   .assert_string(title, TRUE)
   .assert_opt_single(stage, c("pre", "post"), TRUE)
   if (.is_given_mid(profile)) {
