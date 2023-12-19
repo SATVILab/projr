@@ -100,6 +100,8 @@
     id_parent = id_parent,
     profile = profile
   )
+
+  invisible(TRUE)
 }
 
 # add now
@@ -424,12 +426,12 @@
 
 # type
 .projr_yml_dest_set_type <- function(yml_type, type, profile) {
-  .is_opt(type, c("osf", "local", "github"))
+  .assert_opt(type, c("osf", "local", "github"), TRUE)
   .projr_yml_build_set_nm(yml_type, type, profile)
 }
 
 .projr_yml_dest_get_type <- function(type, profile) {
-  .is_opt(type, c("osf", "local", "github"))
+  .assert_opt(type, c("osf", "local", "github"), TRUE)
   init_list <- projr_yml_get_unchecked(profile)[["build"]][[type]]
   if (length(init_list) == 0L) {
     return(NULL)

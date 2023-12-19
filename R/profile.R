@@ -31,7 +31,7 @@ projr_profile_create <- function(profile = NULL,
   # get and validate profile
   # --------------------------
 
-  if (.is_testing()) {
+  if (.is_test()) {
     silent <- TRUE
   }
   .assert_flag(silent, required = TRUE)

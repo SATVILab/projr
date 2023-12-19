@@ -12,7 +12,7 @@ if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
 .projr_dir_create(dir_test)
 
 setwd(dir_test)
-Sys.unsetenv("PROJR_TEST")
+.test_unset()
 
 # GitHub
 # ---------------

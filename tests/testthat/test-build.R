@@ -2,8 +2,8 @@ test_that("projr_build_dev works", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .projr_dir_create(dir_test)
-  Sys.setenv("PROJR_TEST" = "TRUE")
-  withr::defer(Sys.unsetenv("PROJR_TEST"))
+  .test_set()
+  withr::defer(.test_unset())
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   gitignore <- c(
@@ -34,8 +34,8 @@ test_that(".projr_build_clear_pre and _post works", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .projr_dir_create(dir_test)
-  Sys.setenv("PROJR_TEST" = "TRUE")
-  withr::defer(Sys.unsetenv("PROJR_TEST"))
+  .test_set()
+  withr::defer(.test_unset())
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   gitignore <- c(
@@ -86,8 +86,8 @@ test_that("projr_build_copy_output_direct works", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .projr_dir_create(dir_test)
-  Sys.setenv("PROJR_TEST" = "TRUE")
-  withr::defer(Sys.unsetenv("PROJR_TEST"))
+  .test_set()
+  withr::defer(.test_unset())
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   gitignore <- c(
@@ -162,8 +162,8 @@ test_that("projr_build_copy_pkg works", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .projr_dir_create(dir_test)
-  Sys.setenv("PROJR_TEST" = "TRUE")
-  withr::defer(Sys.unsetenv("PROJR_TEST"))
+  .test_set()
+  withr::defer(.test_unset())
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   gitignore <- c(
@@ -246,8 +246,8 @@ test_that("projr_build_copy_dir works when outputting", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .projr_dir_create(dir_test)
-  Sys.setenv("PROJR_TEST" = "TRUE")
-  withr::defer(Sys.unsetenv("PROJR_TEST"))
+  .test_set()
+  withr::defer(.test_unset())
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   gitignore <- c(
@@ -453,8 +453,8 @@ test_that("projr_build_copy_dir works when archiving", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .projr_dir_create(dir_test)
-  Sys.setenv("PROJR_TEST" = "TRUE")
-  withr::defer(Sys.unsetenv("PROJR_TEST"))
+  .test_set()
+  withr::defer(.test_unset())
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   gitignore <- c(
@@ -740,7 +740,7 @@ test_that("projr_build_frontmatter_get works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   .projr_dir_create(dir_test)
-  withr::defer(Sys.unsetenv("PROJR_TEST"))
+  withr::defer(.test_unset())
   withr::defer(unlink(dir_test, recursive = TRUE))
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")

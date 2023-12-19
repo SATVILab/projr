@@ -422,7 +422,7 @@ test_that(".projr_dir_clear works", {
 
   rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
   writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
-  Sys.setenv("PROJR_TEST" = "TRUE")
+  .test_set()
   gert::git_init(path = dir_test)
 
   usethis::with_project(

@@ -1,7 +1,7 @@
 test_that("projr_profile_get, _set and _create work", {
-  Sys.setenv("PROJR_TEST" = "TRUE")
+  .test_set()
   dir_test <- file.path(tempdir(), paste0("test_projr"))
-  withr::defer(Sys.unsetenv("PROJR_TEST"))
+  withr::defer(.test_unset())
   withr::defer(unlink(dir_test, recursive = TRUE))
   .projr_dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
@@ -41,7 +41,7 @@ test_that("projr_profile_get, _set and _create work", {
       expect_error(projr_profile_create())
       expect_error(projr_profile_create(profile = "!"))
 
-      Sys.setenv("PROJR_TEST" = "FALSE")
+      .test_unset()
       suppressMessages(
         expect_message(
           projr_profile_create(
@@ -63,7 +63,7 @@ test_that("projr_profile_get, _set and _create work", {
           projr_profile_create(profile = "test_a-bc")
         )
       )
-      Sys.setenv("PROJR_TEST" = "TRUE")
+      .test_set()
 
       # test creating profile
       # -----------------------
@@ -116,7 +116,7 @@ test_that("projr_profile_get, _set and _create work", {
       projr_profile_delete(projr_profile_get())
       expect_false(file.exists("_projr-xyz.yml"))
       Sys.unsetenv("PROJR_PROFILE")
-      Sys.unsetenv("PROJR_TEST")
+      .test_unset()
     },
     quiet = TRUE,
     force = TRUE

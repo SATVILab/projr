@@ -44,7 +44,7 @@
     title = title,
     id_parent = id_parent,
     category = category,
-    body = body,
+    description = description,
     public = public
   )
 }
@@ -52,30 +52,30 @@
 .projr_remote_create_osf_node <- function(title,
                                           id_parent,
                                           category,
-                                          body,
+                                          description,
                                           public) {
   switch(category,
     "project" = .projr_remote_create_osf_project(
       title = title,
-      body = body,
+      description = description,
       public = public
     ),
     .projr_remote_create_osf_component(
       title = title,
       id_parent = id_parent,
       category = category,
-      body = body,
+      description = description,
       public = public
     )
   )
 }
 
 .projr_remote_create_osf_project <- function(title,
-                                             body,
+                                             description,
                                              public) {
   id <- try(osfr::osf_create_project(
     title = title,
-    description = body,
+    description = description,
     public = public,
     category = "project"
   )[["id"]])
@@ -85,12 +85,12 @@
 .projr_remote_create_osf_component <- function(title,
                                                id_parent,
                                                category,
-                                               body,
+                                               description,
                                                public) {
   id <- try(osfr::osf_create_component(
     x = .projr_remote_get_osf(id = id_parent),
     title = title,
-    description = body,
+    description = description,
     public = public,
     category = category
   )[["id"]])
@@ -100,24 +100,24 @@
 
 # github
 .projr_remote_create_github <- function(tag,
-                                        body = NULL,
+                                        description = NULL,
                                         pause_second = 3) {
   .projr_dep_install("piggyback")
   .assert_string(tag, TRUE)
-  .assert_string(body)
+  .assert_string(description)
   .assert_number(pause_second, TRUE)
-  if (is.null(body)) {
-    body <- "Release created automatically by `projr`"
+  if (is.null(description)) {
+    description <- "Release created automatically by `projr`"
   }
   pb_release_create <- .projr_remote_create_github_attempt(
-    tag = tag, body = body
+    tag = tag, description = description
   )
   if (!.is_try_error(pb_release_create)) {
     return(invisible(tag))
   }
   Sys.sleep(pause_second)
   pb_release_create <- .projr_remote_create_github_attempt(
-    tag = tag, body = body
+    tag = tag, description = description
   )
   if (!.is_try_error(pb_release_create)) {
     return(invisible(tag))
@@ -125,10 +125,10 @@
   invisible(character())
 }
 
-.projr_remote_create_github_attempt <- function(tag, body) {
+.projr_remote_create_github_attempt <- function(tag, description) {
   piggyback::.pb_cache_clear()
   try(suppressWarnings(suppressMessages(
-    piggyback::pb_release_create(tag = tag, body = body)
+    piggyback::pb_release_create(tag = tag, body = description)
   )))
 }
 
@@ -155,7 +155,7 @@
 # osf
 .projr_remote_check_exists_osf <- function(id) {
   .assert_nchar_single(id, 5L, TRUE)
-  !.is_try_error(projr_remote_get(type = "osf", id = id))
+  !.is_try_error(.projr_remote_get(type = "osf", id = id))
 }
 
 # github
@@ -258,7 +258,7 @@
   .assert_string(path, TRUE)
   .assert_path_not_file(path)
   .assert_flag(path_append_label)
-  .assert_opt(label, .projr_dir_label_get())
+  .assert_opt(label, .projr_opt_dir_get_label_send(NULL))
   .assert_opt_single(structure, .projr_opt_remote_get_structure())
 
   # the local destination is just the
@@ -295,17 +295,17 @@
   .assert_nchar_single(id, 5L, TRUE)
   .assert_string(path)
   .assert_flag(path_append_label)
-  .assert_opt(label, .projr_dir_label_get())
+  .assert_opt(label, .projr_opt_dir_get_label_send(NULL))
   .assert_opt_single(structure, .projr_opt_remote_get_structure())
   label <- .projr_remote_get_final_osf_get_label(
     label, path_append_label
   )
   path_rel <- .projr_remote_get_path_rel(
+    type = "osf",
     path = path,
     path_append_label = path_append_label,
     label = label,
-    structure = structure,
-    type = "osf"
+    structure = structure
   )
   osf_tbl <- .projr_remote_get(id = id, type = "osf")
   if (length(path_rel) > 0L) {
@@ -331,7 +331,7 @@
 
 .projr_remote_get_final_github <- function(id, label) {
   .assert_string(id, TRUE)
-  .assert_opt(label, .projr_opt_dir_get_label_send(), TRUE)
+  .assert_opt(label, .projr_opt_dir_get_label_send(NULL), TRUE)
   # everything uploaded to a gh release
   # is a single file, and all other remotes
   # are just directories where files can
@@ -387,7 +387,9 @@
   .assert_string(path)
   .assert_flag(path_append_label, TRUE)
   .assert_opt_single(structure, .projr_opt_remote_get_structure(), TRUE)
-  .assert_opt(label, .projr_dir_label_send(), TRUE)
+  if (path_append_label) {
+    .assert_opt(label, .projr_opt_dir_get_label_send(NULL), TRUE)
+  }
 
   args_list <- list()
   if (!is.null(path)) {
@@ -481,7 +483,7 @@
 
 .projr_remote_host_rm <- function(type,
                                   host) {
-  .assert_type(type, .projr_opt_remote_get_type(), TRUE)
+  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_host_rm_local(host),
     "osf" = .projr_remote_host_rm_osf(host),
@@ -554,7 +556,7 @@
 # it's actually got nothing, so it's very different)
 .projr_remote_file_rm_all <- function(type,
                                       remote) {
-  .assert_type(type, .projr_opt_remote_get_type(), TRUE)
+  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_file_rm_all_local(remote),
     "osf" = .projr_remote_file_rm_all_osf(remote),
@@ -614,7 +616,7 @@
                                        remote,
                                        path_dir_save_local) {
   .assert_string(path_dir_save_local, TRUE)
-  .assert_type(type, .projr_opt_remote_get_type(), TRUE)
+  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
   .projr_dir_create(path_dir_save_local)
   switch(type,
     "local" = .projr_remote_file_get_all_local(
@@ -668,7 +670,7 @@
 # ---------------------
 
 .projr_remote_file_get_all_github <- function(remote, path_dir_save_local) {
-  assert_given_full(remote)
+  .assert_given_full(remote)
   if (!.projr_remote_check_exists("github", remote[["tag"]])) {
     return(invisible(FALSE))
   }
@@ -1088,11 +1090,4 @@
   setting_push_explicit <-
     projr_yml_get_unchecked()[["build"]][["git"]][["push"]]
   if (is.null(setting_push_explicit)) TRUE else setting_push_explicit
-}
-
-.projr_remote_osf_get_cat <- function() {
-  c(
-    "analysis", "communication", "data", "hypothesis", "methods",
-    "procedure", "project", "question", "other"
-  )
 }

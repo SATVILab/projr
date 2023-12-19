@@ -1405,7 +1405,7 @@ invisible(TRUE)
 fs::path_abs(dir_proj)
 
 
-Sys.setenv("PROJR_TEST" = "TRUE")
+.test_set()
 library(testthat)
 projr::projr_build_output()
 
@@ -1784,7 +1784,7 @@ test_that("projr_build_copy_dir works when archiving", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   if (!dir.exists(dir_test)) dir.create(dir_test)
-  Sys.setenv("PROJR_TEST" = "TRUE")
+  .test_set()
 
   gitignore <- c(
     "# R", ".Rproj.user", ".Rhistory", ".RData",
@@ -1845,7 +1845,7 @@ test_that("projr_build_copy_dir works when archiving", {
     quiet = TRUE,
     force = TRUE
   )
-  Sys.unsetenv("PROJR_TEST")
+  .test_unset()
   unlink(dir_test, recursive = TRUE)
 })
 
@@ -2222,7 +2222,7 @@ devtools::load_all()
 # options(error = recover, warn = 2)
 # dir_temp <- file.path(tempdir(), "test")
 # debugonce(".projr_init_prompt")
-Sys.setenv("PROJR_TEST" = "TRUE")
+.test_set()
 projr_init()
 
 cd /tmp; rm -rf testProjr; mkdir testProjr; cd testProjr; radian
@@ -2394,7 +2394,7 @@ test_that("projr_build_output works", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   if (!dir.exists(dir_test)) dir.create(dir_test)
-  Sys.setenv("PROJR_TEST" = "TRUE")
+  .test_set()
 
   gitignore <- c(
     "# R", ".Rproj.user", ".Rhistory", ".RData",
@@ -2518,6 +2518,6 @@ test_that("projr_build_output works", {
     quiet = TRUE,
     force = TRUE
   )
-  Sys.unsetenv("PROJR_TEST")
+  .test_unset()
   unlink(dir_test, recursive = TRUE)
 })

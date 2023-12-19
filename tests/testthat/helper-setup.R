@@ -12,8 +12,8 @@
   dir.create(dir_test, recursive = TRUE)
 
   if (set_env_var) {
-    Sys.setenv("PROJR_TEST" = "TRUE")
-    withr::defer(Sys.unsetenv("PROJR_TEST"), envir = env)
+    .test_set()
+    withr::defer(.test_unset(), envir = env)
   }
 
   # copy files

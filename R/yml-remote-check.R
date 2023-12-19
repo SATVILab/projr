@@ -16,7 +16,7 @@
   .assert_string(title)
   .assert_string(role, TRUE)
   .assert_string(type, TRUE)
-  .assert_opt(content, .projr_opt_dir_get_label_send(), TRUE)
+  .assert_opt(content, .projr_opt_dir_get_label_send(NULL), TRUE)
   .assert_opt(structure, .projr_opt_remote_get_structure())
   .assert_string(path)
   .assert_flag(path_append_label)
