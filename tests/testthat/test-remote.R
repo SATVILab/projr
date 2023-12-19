@@ -31,7 +31,7 @@ test_that(".projr_remote_create works - local", {
 test_that(".projr_remote_create works - remote", {
   skip_if_offline()
   skip_on_cran()
-  # skip_if(.is_test_fast())
+  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE

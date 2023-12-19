@@ -111,28 +111,6 @@ projr_version_format_get <- function() {
   version_format
 }
 
-.projr_version_format_list_get <- function() {
-  version_format <- projr_yml_get()[["version-format"]]
-  if (is.null(version_format)) {
-    version_format <- "major.minor.patch-dev"
-  }
-  version_format_vec_sep <- strsplit(
-    version_format, "major|minor|patch|dev"
-  )[[1]][-1]
-  if (any(!grepl("^[[:punct:]]$", version_format_vec_sep))) {
-    stop(paste(
-      "version_format of ", version_format,
-      " in _projr.yml is not valid"
-    ))
-  }
-  version_format_vec_comp <- strsplit(
-    version_format, "\\-|\\."
-  )[[1]]
-  list(
-    "component" = version_format_vec_comp,
-    "sep" = version_format_vec_sep
-  )
-}
 
 projr_name_get <- function() basename(.projr_dir_proj_get())
 
@@ -168,7 +146,7 @@ projr_name_get <- function() basename(.projr_dir_proj_get())
     desc[1, "Version"][[1]],
     split = "\\-|\\."
   )[[1]]
-  version_format <- .projr_version_format_list_get()$components
+  version_format <- .projr_version_format_list_get(NULL)[["component"]]
   # if not forcing there to be a dev version
   if (!dev_force) {
     return(version_desc_vec |> as.integer())
@@ -188,11 +166,11 @@ projr_name_get <- function() basename(.projr_dir_proj_get())
 
 .projr_version_run_onwards_get <- function(bump_component) {
   version_orig_vec <- .projr_version_current_vec_get(dev_force = TRUE)
-  version_format_list <- .projr_version_format_list_get()
+  version_format_list <- .projr_version_format_list_get(NULL)
 
   if (!is.null(bump_component)) {
     comp_to_update_ind <- which(
-      version_format_list$components == bump_component
+      version_format_list[["component"]] == bump_component
     )
     version_update_vec <- version_orig_vec
 
@@ -274,7 +252,7 @@ projr_version_get <- function(dev_force = FALSE) {
 
 .projr_version_chr_get <- function(version) {
   version_str <- version[[1]]
-  version_format_sep_vec <- .projr_version_format_list_get()[["sep"]]
+  version_format_sep_vec <- .projr_version_format_list_get(NULL)[["sep"]]
   if (length(version) == length(version_format_sep_vec)) {
     version_format_sep_vec <- version_format_sep_vec[
       -length(version_format_sep_vec)
@@ -306,7 +284,7 @@ projr_version_get <- function(dev_force = FALSE) {
 
 .projr_version_bump <- function(bump_component) {
   version_current_vec <- .projr_version_current_vec_get()
-  version_format_list <- .projr_version_format_list_get()
+  version_format_list <- .projr_version_format_list_get(NULL)
   ind_to_bump <- which(version_format_list$component == bump_component)
   version_current_vec[ind_to_bump] <- version_current_vec[ind_to_bump] + 1
   for (i in seq_along(version_current_vec)) {

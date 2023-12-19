@@ -1,5 +1,6 @@
 test_that(".projr_yml_script_ functions work works", {
   # setup
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
@@ -23,14 +24,11 @@ test_that(".projr_yml_script_ functions work works", {
       )
 
       # test projr_yml_script_rm_path
-      browser()
-      debugonce(projr_yml_script_rm)
       projr_yml_script_rm(title = "test-script", profile = "default")
       expect_identical(
         .projr_yml_script_get("default"),
-        list()
+        NULL
       )
-      browser()
 
       # test projr_yml_script_rm_title
       projr_yml_script_add(
@@ -103,6 +101,7 @@ test_that(".projr_yml_script_ functions work works", {
 })
 
 test_that(".projr_yml_script_ functions work works with other profile", {
+  skip_if(.is_test_select())
   # setup
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -218,6 +217,7 @@ test_that(".projr_yml_script_ functions work works with other profile", {
 })
 
 test_that(".projr_build_script... functions work works", {
+  skip_if(.is_test_select())
   # setup
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 

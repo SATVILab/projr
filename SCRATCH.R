@@ -4,12 +4,8 @@ devtools::load_all()
 
 .test_set()
 .test_set_fast()
-.test_unset_fast()
-
-# devtools::test_active_file("tests/testthat/test-osf-to_manual.R")
+.test_set_select()
+.test_unset_select()
 devtools::test_active_file(
-  "tests/testthat/test-remote.R"
-)
-devtools::test_active_file(
-  "tests/testthat/test-script.R"
+  "tests/testthat/test-version.R"
 )
