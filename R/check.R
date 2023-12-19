@@ -1,3 +1,85 @@
+# attributes
+# ------------
+
+.assert_attr_value <- function(x, attr, value, required = TRUE, nm = NULL) {
+  .assert_given_mid(attr)
+  .assert_given(value)
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+
+  if (!identical(value, attr(x, attr))) {
+    stop(
+      paste0(
+        nm, " must have attribute ", attr, " with value ",
+        paste0(value, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+.assert_attr_exact <- function(x, attr, required = TRUE, nm = NULL) {
+  .assert_given_mid(attr)
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+
+  if (!identical(attr |> sort(), attributes(x) |> names() |> sort())) {
+    stop(
+      paste0(nm, " must have the following attribute(s): \n"),
+      paste0(attr, collapse = "\n"),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+.assert_attr <- function(x, attr, required = FALSE, nm = NULL) {
+  .assert_given_mid(attr)
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+
+  if (is.null(attr(x, attr))) {
+    stop(paste0(nm, " must have attribute ", attr), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+
+
+# class
+# -----------
+
+.assert_class_exact <- function(x, class, required = TRUE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!identical(class |> sort(), class(x) |> sort())) {
+    stop(paste0(nm, " must be a ", paste0(class, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+.assert_class <- function(x, class, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!inherits(x, class)) {
+    stop(paste0(nm, " must be a ", class), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
 # directories
 # -----------
 
