@@ -13,9 +13,6 @@
                                     id_parent = NULL,
                                     get_list = NULL,
                                     send_list = NULL) {
-  # checks
-  # ----------
-
   .assert_string(title)
   .assert_string(role, TRUE)
   .assert_string(type, TRUE)
@@ -49,4 +46,5 @@
   .assert_opt(
     send_list[["version-source"]], .projr_opt_remote_version_source_get()
   )
+  invisible(TRUE)
 }
