@@ -448,3 +448,28 @@ projr_use_data <- function(...,
 .projr_opt_dir_get_label_get <- function(profile) {
   .projr_opt_dir_get_label(profile) |> setdiff(c("code", "project"))
 }
+
+.projr_opt_cue_get <- function() {
+  c("build", "dev", "patch", "minor", "major")
+}
+
+.projr_opt_remote_sync_approach_get <- function() {
+  c(
+    "upload-missing",
+    "upload-all",
+    "sync-using-deletion",
+    "sync-using-version"
+  )
+}
+
+.projr_opt_remote_conflict_get <- function() {
+  c("overwrite", "skip", "error")
+}
+
+.projr_opt_remote_version_source_get <- function() {
+  c("file", "manifest", "none")
+}
+
+.projr_opt_remote_transfer_names_get <- function() {
+  c("cue", "sync-approach", "conflict", "version-source")
+}

@@ -365,7 +365,7 @@
     path = path,
     path_append_label = path_append_label
   )
-  
+
   args_list <- list(
     structure = structure, path_append_label = path_append_label
   )
@@ -852,7 +852,7 @@
                                                osf_tbl_file) {
   .assert_chr(fn_dir, TRUE)
   .assert_given_full(osf_tbl)
-  
+
   fn_vec_osf <- osf_tbl_file[["name"]]
   # might be faster to just delete the whole directory
   remove_dir <- setequal(fn_dir, fn_vec_osf) &&
@@ -978,7 +978,9 @@
     }
     osfr::osf_upload(
       x = osf_tbl_upload,
-      path = file.path(path_dir_local, plot_tbl[["fn"]][plot_tbl[["dir"]] == x]),
+      path = file.path(
+        path_dir_local, plot_tbl[["fn"]][plot_tbl[["dir"]] == x]
+      ),
       conflicts = "overwrite"
     )
   }
@@ -1021,7 +1023,9 @@
   .projr_remote_file_add_github_zip(path_zip = path_zip, tag = tag)
 }
 
-.projr_remote_file_add_github_zip <- function(path_zip, tag, pause_second = 3) {
+.projr_remote_file_add_github_zip <- function(path_zip,
+                                              tag,
+                                              pause_second = 3) {
   pb_upload <- .projr_remote_file_add_github_zip_attempt(
     path_zip = path_zip, tag = tag
   )
