@@ -51,6 +51,7 @@ test_that(".projr_init_yml works", {
       yaml::write_yaml(list("abc" = 1), path_yml)
       Sys.setenv("PROJR_PATH_YML" = path_yml)
       expect_true(.projr_init_yml(NULL))
+      Sys.unsetenv("PROJR_PATH_YML")
       expect_true(file.exists("_projr.yml"))
       expect_identical(yaml::read_yaml("_projr.yml"), list("abc" = 1))
       invisible(file.remove("_projr.yml"))
