@@ -1,5 +1,5 @@
 test_that("projr_build_dev works", {
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .dir_create(dir_test)
@@ -109,8 +109,6 @@ test_that(".projr_build_copy_to_unsafe works", {
       yml_projr_init <- .projr_yml_get_root_full()
       yml_bd_init <- .projr_yml_bd_get()
       # run when there are no files in dir_output
-      debugonce(.projr_build_copy_to_unsafe)
-      debugonce(.dir_copy_tree)
       expect_true(.projr_build_copy_to_unsafe(output_run = TRUE))
       invisible({
         file.create(
@@ -166,6 +164,7 @@ test_that(".projr_build_copy_to_unsafe works", {
 })
 
 test_that("projr_build_copy_pkg works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .dir_create(dir_test)
@@ -250,6 +249,7 @@ test_that("projr_build_copy_pkg works", {
 })
 
 test_that("projr_build_copy_dir works when outputting", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .dir_create(dir_test)
@@ -457,6 +457,7 @@ test_that("projr_build_copy_dir works when outputting", {
 })
 
 test_that("projr_build_frontmatter_get works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   .dir_create(dir_test)
@@ -545,6 +546,7 @@ test_that("projr_build_frontmatter_get works", {
 })
 
 test_that(".projr_build_copy_docs_quarto_format_get works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   .dir_create(dir_test)
@@ -622,6 +624,7 @@ test_that(".projr_build_copy_docs_quarto_format_get works", {
 })
 
 test_that(".projr_build_copy_docs_quarto_fn_prefix/suffix/path_get works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   .dir_create(dir_test)
@@ -686,6 +689,7 @@ test_that(".projr_build_copy_docs_quarto_fn_prefix/suffix/path_get works", {
 
 
 test_that(".projr_build_copy_docs_quarto_format_get works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   .dir_create(dir_test)
@@ -754,6 +758,7 @@ test_that(".projr_build_copy_docs_quarto_format_get works", {
 })
 
 test_that(".projr_build_copy_docs_rmd_format_get works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   .dir_create(dir_test)
@@ -841,6 +846,7 @@ test_that(".projr_build_copy_docs_rmd_format_get works", {
 })
 
 test_that(".projr_build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   .dir_create(dir_test)
@@ -900,6 +906,7 @@ test_that(".projr_build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
 })
 
 test_that(".projr_build_copy_docs_rmd_format_get works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   .dir_create(dir_test)

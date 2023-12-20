@@ -32,15 +32,23 @@
 }
 
 .projr_build_clear_old_dev <- function() {
-  .projr_dir_get_cache_auto_version() |>
-    dirname() |>
-    .file_ls() |>
-    setdiff(projr_version_get()) |>
-    vapply(.dir_rm, logical(1))
+  path_dir <- .projr_dir_get_cache_auto_version(profile = NULL) |>
+    dirname()
+  if (!dir.exists(path_dir)) {
+    return(invisible(FALSE))
+  }
+  path_dir_vec <- path_dir |>
+    .dir_ls() |>
+    setdiff(.projr_version_get_v())
+  if (.is_len_0(path_dir_vec)) {
+    return(invisible(FALSE))
+  }
+  .dir_rm(path_dir_vec)
+  invisible(TRUE)
 }
 
 .projr_build_clear_old_output <- function() {
-  .projr_dir_get_cache_auto_version() |>
+  .projr_dir_get_cache_auto_version(profile = NULL) |>
     dirname() |>
     .dir_clear()
 }
