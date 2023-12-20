@@ -9,7 +9,7 @@
     "code" = .projr_dir_get_code(),
     .projr_dir_get_label(label, safe)
   ) |>
-    file.path(...)
+    .path_get_full(...)
 }
 
 .projr_dir_get_code <- function() {
@@ -20,7 +20,7 @@
 
 .projr_dir_get_tmp_random <- function(...) {
   file.path(tempdir(), "projr", signif(rnorm(1))) |>
-    file.path(...)
+    .path_get_full(...)
 }
 
 .projr_dir_get_label <- function(label, safe) {
@@ -190,14 +190,14 @@
 .projr_dir_get_cache_auto <- function(..., create = FALSE, profile) {
   .projr_dir_get_cache_auto_check(profile = profile)
   .projr_dir_get_cache_auto_path(profile) |>
-    file.path(...) |>
+    .path_get_full(...) |>
     .projr_dir_get_create(create)
 }
 
 .projr_path_get_cache_auto <- function(..., create = FALSE, profile) {
   .projr_dir_get_cache_auto_check(profile = profile)
   path_dir <- .projr_dir_get_cache_auto_path(profile) |>
-    file.path(...)
+    .path_get_full(...)
   .projr_dir_get_create(dirname(path_dir), create)
   path_dir
 }
@@ -207,7 +207,7 @@
   .projr_dir_get_cache_auto_path(profile) |>
     file.path("projr") |>
     .projr_version_append() |>
-    file.path(...) |>
+    .path_get_full(...) |>
     .projr_dir_get_create(create)
 }
 

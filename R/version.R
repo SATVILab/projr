@@ -332,5 +332,5 @@ projr_version_get <- function(dev_force = FALSE) {
   file.path(path, .projr_version_get_v())
 }
 .projr_version_get_v <- function() {
-  .projr_version_get_v()
+  paste0("v", projr_version_get())
 }

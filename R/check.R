@@ -13,7 +13,7 @@
     stop(
       paste0(
         nm, " must have attribute ", attr, " with value ",
-        paste0(value, collapse = ", ")
+        value |> .string_create()
       ),
       call. = FALSE
     )
@@ -30,8 +30,10 @@
 
   if (!identical(attr |> sort(), attributes(x) |> names() |> sort())) {
     stop(
-      paste0(nm, " must have the following attribute(s): \n"),
-      paste0(attr, collapse = "\n"),
+      paste0(
+        nm, " must have exactly the following attribute(s): \n",
+        attr |> .string_create()
+      ),
       call. = FALSE
     )
   }
@@ -45,9 +47,12 @@
     return(invisible(TRUE))
   }
 
-  if (is.null(attr(x, attr))) {
-    stop(paste0(nm, " must have attribute ", attr), call. = FALSE)
-  }
+  stop(
+    paste0(
+      nm, " must have attribute ", attr
+    ),
+    call. = FALSE
+  )
   invisible(TRUE)
 }
 
@@ -61,8 +66,8 @@
   if (any(value %in% x)) {
     stop(
       paste0(
-        nm, " must not contain any value(s) ",
-        paste0(value, collapse = ",")
+        nm, " must not contain any of the following value(s):\n",
+        .string_create(value, sep = "\n")
       ),
       call. = FALSE
     )
@@ -80,8 +85,8 @@
   if (all(value %in% x)) {
     stop(
       paste0(
-        nm, " must contain all value(s) ",
-        paste0(value, collapse = ",")
+        nm, " must contain all the following value(s):\n",
+        .string_create(value, sep = "\n")
       ),
       call. = FALSE
     )
@@ -154,7 +159,11 @@
     return(invisible(TRUE))
   }
   if (!identical(class, class(x))) {
-    stop(paste0(nm, " must be a ", paste0(class, collapse = ", ")),
+    stop(
+      paste0(
+        nm, " must have exactly the following class(es) (without any sorting to help): ",
+        .string_create(class, sep = "\n")
+      ),
       call. = FALSE
     )
   }
@@ -168,7 +177,11 @@
     return(invisible(TRUE))
   }
   if (!identical(class |> sort(), class(x) |> sort())) {
-    stop(paste0(nm, " must be a ", paste0(class, collapse = ", ")),
+    stop(
+      paste0(
+        nm, " must have exactly the following class(es) (after sorting to help): ",
+        .string_create(class, sep = "\n")
+      ),
       call. = FALSE
     )
   }
@@ -183,10 +196,13 @@
     return(invisible(TRUE))
   }
   if (!all(vapply(class, function(cls) inherits(x, cls), logical(1)))) {
-    stop(paste0(
-      nm, " must have all of the following clas(es):\n",
-      paset0(class, sep = ", ")
-    ), call. = FALSE)
+    stop(
+      paste0(
+        nm, " must have all of the following class(es): ",
+        .string_create(class, sep = "\n")
+      ),
+      call. = FALSE
+    )
   }
   invisible(TRUE)
 }
@@ -200,10 +216,13 @@
     return(invisible(TRUE))
   }
   if (!any(vapply(class, function(cls) inherits(x, cls), logical(1)))) {
-    stop(paste0(
-      nm, " must have at least one of the following class(es):\n",
-      paset0(class, sep = ", ")
-    ), call. = FALSE)
+    stop(
+      paste0(
+        nm, " must have at least one of the following class(es): ",
+        .string_create(class, sep = "\n")
+      ),
+      call. = FALSE
+    )
   }
   invisible(TRUE)
 }
@@ -291,21 +310,6 @@
   )
 }
 
-# files
-# -----
-
-.assert_file_abs <- function(x) {
-
-}
-
-
-.is_file_abs <- function(x) {
-  file.exists(x)
-}
-
-.is_file <- fs::is_file
-
-
 # options
 # ---------------
 
@@ -319,7 +323,11 @@
   .assert_len_1(x = x, nm = nm)
   if (!all(.is_in_not(x, opt))) {
     stop(
-      paste0(nm, " must not be one of ", paste0(opt, collapse = ", ")),
+      paste0(
+        nm, " must not be one of ", paste0(opt, collapse = ", "),
+        "but is the following:\n",
+        .string_create(x, sep = "\n")
+      ),
       call. = FALSE
     )
   }
@@ -336,7 +344,11 @@
   .assert_len_pos(x = x, nm = nm)
   if (!all(.is_in_not(x, opt))) {
     stop(
-      paste0(nm, " must not be one of ", paste0(opt, collapse = ", ")),
+      paste0(
+        nm, " must not be one of ", paste0(opt, collapse = ", "),
+        "but is the following:\n",
+        .string_create(x, sep = "\n")
+      ),
       call. = FALSE
     )
   }
@@ -347,7 +359,7 @@
   !.is_opt(x, opt)
 }
 
-.assert_opt_single <- function(x, opt, required = FALSE, nm = NULL) {
+.assert_in_single <- function(x, opt, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
@@ -366,7 +378,10 @@
   .assert_len_pos(x = x, nm = nm)
   if (!all(.is_opt(x, opt))) {
     stop(
-      paste0(nm, " must be one of ", paste0(opt, collapse = ", ")),
+      paste0(
+        nm, " must be one of ", paste0(opt, collapse = ", "), ",\n",
+        "and not:\n", .string_create(x, sep = "\n")
+      ),
       call. = FALSE
     )
   }
@@ -698,7 +713,13 @@
     return(invisible(TRUE))
   }
   if (!.is_len(x = x, len = len)) {
-    stop(paste0(nm, " must be length ", len), call. = FALSE)
+    stop(
+      paste0(
+        nm, " must be length ", len, ",\n",
+        "and not length ", length(x)
+      ),
+      call. = FALSE
+    )
   }
   invisible(TRUE)
 }
@@ -737,13 +758,11 @@
     }
     return(nm)
   }
-  out <- tryCatch(
+  tryCatch(
     deparse(substitute(x, env = parent.frame())),
     error = function(e) "`unknown_name`"
   ) |>
-    paste0(collapse = "_")
-  n_char_out <- nchar(out)
-  substr(out, start = 1, min(n_char_out, 20))
+    .string_create()
 }
 
 # check that it's given
@@ -803,4 +822,18 @@
     return(FALSE)
   }
   TRUE
+}
+
+.string_create <- function(x, n_char = 20, sep = ", ") {
+  x |>
+    paste0(collapse = ", ") |>
+    substr(start = 1, stop = n_char)
+}
+
+.string_cap <- function(x, n = 20) {
+  x |> substr(start = 1, stop = min(nchar(x), n))
+}
+
+.chr_cap <- function(x, n = 20) {
+  x |> substr(start = 1, stop = pmin(nchar(x), n))
 }

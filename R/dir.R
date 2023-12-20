@@ -282,8 +282,9 @@ projr_dir_create <- function(label, ..., safe = TRUE) {
 #'
 #' @export
 projr_dir_ignore <- function(git_skip_adjust = NULL) {
-  label_vec <- names(projr_yml_get()[["directories"]])
+  label_vec <- .projr_yml_dir_get(NULL) |> names()
   for (i in seq_along(label_vec)) {
+    print(label_vec[[i]])
     .projr_ignore_label_set(
       label = label_vec[[i]],
       git_skip_adjust = git_skip_adjust

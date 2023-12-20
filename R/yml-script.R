@@ -67,11 +67,11 @@ projr_yml_script_add <- function(path,
                                     profile) {
   .assert_chr(path, TRUE)
   .assert_string(title, TRUE)
-  .assert_opt_single(stage, c("pre", "post"), TRUE)
+  .assert_in_single(stage, c("pre", "post"), TRUE)
   if (.is_given_mid(profile)) {
     .assert_string(profile)
   }
-  .assert_opt_single(cue, c("build", "dev", "patch", "minor", "major"))
+  .assert_in_single(cue, c("build", "dev", "patch", "minor", "major"))
   .assert_flag(overwrite, TRUE)
 }
 

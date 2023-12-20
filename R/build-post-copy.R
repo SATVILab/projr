@@ -59,7 +59,7 @@
   }
   .projr_build_copy_pkg_build()
   for (x in .projr_build_copy_pkg_get_label()) {
-    .file_copy(
+    file.copy(
       .projr_build_copy_pkg_build_path_get(),
       projr_path_get_dir(x, "pkg", safe = !output_run)
     )
