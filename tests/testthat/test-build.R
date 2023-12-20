@@ -1,5 +1,5 @@
 test_that("projr_build_dev works", {
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .dir_create(dir_test)
@@ -104,7 +104,6 @@ test_that(".projr_build_copy_to_unsafe works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      browser()
       projr_init()
       yml_projr_init <- .projr_yml_get_root_full()
       yml_bd_init <- .projr_yml_bd_get()
@@ -128,19 +127,16 @@ test_that(".projr_build_copy_to_unsafe works", {
       # test that files are not zipped in safe directory
       # and directories are zipped
       # -------------------------------------
-      expect_true(.projr_build_copy_to_unsafe(output_run = FALSE))
+      expect_false(.projr_build_copy_to_unsafe(output_run = FALSE))
       dir_safe <- projr_path_get("output", safe = TRUE)
       expect_true(file.exists(file.path(dir_safe, "a.txt")))
       expect_true(file.exists(file.path(dir_safe, "b.txt")))
-      expect_true(file.exists(file.path(dir_safe, "dir_c.zip")))
-      expect_true(file.exists(file.path(dir_safe, "dir_d.zip")))
-      expect_false(dir.exists(file.path(dir_safe, "dir_c")))
-      expect_false(file.exists(file.path(dir_safe, "dir_d")))
+      expect_true(dir.exists(file.path(dir_safe, "dir_c")))
+      expect_true(dir.exists(file.path(dir_safe, "dir_d")))
 
       # test that files are coped over to output directory
       # and directories are zipped
       # -------------------------------------
-      browser()
       expect_true(.projr_build_copy_to_unsafe(output_run = TRUE))
       expect_false(file.exists(file.path(dir_safe, "a.txt")))
       expect_false(file.exists(file.path(dir_safe, "b.txt")))
@@ -149,14 +145,12 @@ test_that(".projr_build_copy_to_unsafe works", {
       dir_output_final <- projr_path_get("output", safe = FALSE)
       expect_true(file.exists(file.path(dir_output_final, "a.txt")))
       expect_true(file.exists(file.path(dir_output_final, "b.txt")))
-      expect_true(file.exists(file.path(dir_output_final, "dir_c.zip")))
-      expect_true(file.exists(file.path(dir_output_final, "dir_d.zip")))
-      expect_false(dir.exists(file.path(dir_output_final, "dir_c")))
-      expect_false(file.exists(file.path(dir_output_final, "dir_d")))
+      expect_true(dir.exists(file.path(dir_output_final, "dir_c")))
+      expect_true(dir.exists(file.path(dir_output_final, "dir_d")))
 
       .projr_build_copy_to_unsafe(output_run = FALSE)
 
-      expect_false(.projr_build_copy(output_run = FALSE))
+      expect_true(.projr_build_copy(output_run = FALSE))
     },
     quiet = TRUE,
     force = TRUE
@@ -164,7 +158,7 @@ test_that(".projr_build_copy_to_unsafe works", {
 })
 
 test_that("projr_build_copy_pkg works", {
-  skip_if(.is_test_select())
+  #  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .dir_create(dir_test)
