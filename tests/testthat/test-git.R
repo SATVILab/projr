@@ -1,5 +1,6 @@
 test_that(".projr_yml_git_ functions work", {
   # setup
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
@@ -60,6 +61,7 @@ test_that(".projr_yml_git_ functions work", {
 })
 
 test_that(".projr_git_ functions work", { # setup
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
@@ -124,6 +126,7 @@ test_that(".projr_git_ functions work", { # setup
 
 
 test_that(".projr_git_ functions work", { # setup
+  # skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = FALSE
   )
@@ -139,6 +142,9 @@ test_that(".projr_git_ functions work", { # setup
       expect_true(.projr_git_remote_check_exists())
       # check there's an upstream remote
       # ---------------------
+      browser()
+      debugonce(.projr_git_remote_check_upstream_git())
+      # no upstream branch created for some reason
       expect_true(suppressWarnings(.projr_git_remote_check_upstream_git()))
       expect_true(suppressWarnings(.projr_git_remote_check_upstream()))
       # push
