@@ -143,12 +143,12 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
                                         write = TRUE,
                                         output_run = TRUE) {
   if (pre && !post) {
-    manifest <- .projr_build_manifest_hash_pre(output_run)
+    manifest <- .projr_build_manifest_pre(output_run)
   } else if (!pre && post) {
-    manifest <- .projr_build_manifest_hash_post(output_run)
+    manifest <- .projr_build_manifest_post(output_run)
   } else {
-    manifest <- .projr_build_manifest_hash_pre(output_run) |>
-      rbind(.projr_build_manifest_hash_post(output_run))
+    manifest <- .projr_build_manifest_pre(output_run) |>
+      rbind(.projr_build_manifest_post(output_run))
   }
   if (file.exists("manifest.csv")) {
     manifest_old <- utils::read.csv("manifest.csv")
@@ -163,7 +163,7 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
 }
 
 .projr_test_manifest_create_pre <- function(output_run = TRUE) {
-  manifest <- .projr_build_manifest_hash_pre(output_run)
+  manifest <- .projr_build_manifest_pre(output_run)
   .projr_manifest_write(manifest, output_run = output_run)
   manifest
 }
