@@ -7,12 +7,12 @@
     return(invisible(TRUE))
   }
 
-  within_wd <- fs::path_has_parent(dir_path, .projr_dir_proj_get())
+  within_wd <- fs::path_has_parent(dir_path, .dir_proj_get())
   if (!within_wd) {
     return(invisible(TRUE))
   }
 
-  dir_path_rel <- fs::path_rel(dir_path, .projr_dir_proj_get())
+  dir_path_rel <- fs::path_rel(dir_path, .dir_proj_get())
   dir_path_rel <- gsub("\\s*/*\\s*$", "", dir_path_rel) # nolint
 
   # rbuildignore
@@ -43,7 +43,7 @@
 # ========================================
 
 .projr_ignore_get_git <- function(label) {
-  yml_projr <- projr_yml_get_unchecked()
+  yml_projr <- .projr_yml_get(NULL)
   ignore_git <- yml_projr[["directories"]][[label]][["ignore-git"]]
   if (is.null(ignore_git)) {
     return("ignore")
@@ -82,7 +82,7 @@
     }
     return(git_skip_adjust)
   }
-  yml_projr <- projr_yml_get_unchecked()
+  yml_projr <- .projr_yml_get(NULL)
   yml_projr_skip <- yml_projr[["directories"]][["label"]][["git_skip_adjust"]]
   if (is.null(yml_projr_skip)) {
     return(TRUE)
@@ -307,26 +307,26 @@
 # --------------------------------
 .projr_ignore_git_read <- function() {
   suppressWarnings(readLines(
-    .projr_dir_proj_get(".gitignore")
+    .dir_proj_get(".gitignore")
   ))
 }
 
 .projr_ignore_git_write <- function(gitignore, append) {
   cat(
     gitignore,
-    file = .projr_dir_proj_get(".gitignore"),
+    file = .dir_proj_get(".gitignore"),
     sep = "\n",
     append = append
   )
-  .projr_newline_append(.projr_dir_proj_get(".gitignore"))
-  invisible(.projr_dir_proj_get(".gitignore"))
+  .projr_newline_append(.dir_proj_get(".gitignore"))
+  invisible(.dir_proj_get(".gitignore"))
 }
 
 # Rbuildignore
 # ========================================
 
 .projr_ignore_get_rbuild <- function(label) {
-  yml_projr <- projr_yml_get_unchecked()
+  yml_projr <- .projr_yml_get(NULL)
   ignore_rbuild <- yml_projr[["directories"]][[label]][["ignore-rbuild"]]
   if (is.null(ignore_rbuild)) {
     return("ignore")
@@ -441,17 +441,17 @@
 
 .projr_ignore_rbuild_read <- function() {
   suppressWarnings(readLines(
-    .projr_dir_proj_get(".Rbuildignore")
+    .dir_proj_get(".Rbuildignore")
   ))
 }
 
 .projr_ignore_rbuild_write <- function(buildignore, append) {
   cat(
     buildignore,
-    file = .projr_dir_proj_get(".Rbuildignore"),
+    file = .dir_proj_get(".Rbuildignore"),
     sep = "\n",
     append = append
   )
-  .projr_newline_append(.projr_dir_proj_get(".Rbuildignore"))
-  invisible(.projr_dir_proj_get(".Rbuildignore"))
+  .projr_newline_append(.dir_proj_get(".Rbuildignore"))
+  invisible(.dir_proj_get(".Rbuildignore"))
 }

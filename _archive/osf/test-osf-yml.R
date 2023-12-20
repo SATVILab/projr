@@ -5,7 +5,7 @@ test_that("projr_source_add_osf works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      yml_projr_orig <- projr_yml_get_unchecked()
+      yml_projr_orig <- .projr_yml_get()
       label <- .projr_osf_label_get_random("DataRawProjrOSFTest")
 
       # create a new project as a source
@@ -50,7 +50,7 @@ test_that("projr_source_add_osf works", {
         upload_version_source = "manifest",
         upload_conflict = "overwrite"
       )
-      yml_proj <- projr_yml_get_unchecked()
+      yml_proj <- .projr_yml_get()
       yml_projr_dr_osf <- yml_proj[["directories"]][["data-raw"]][["osf"]]
       expect_true(names(yml_projr_dr_osf) == "Titular")
       expect_true(
@@ -70,7 +70,7 @@ test_that("projr_dest_add_osf works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      yml_projr_orig <- projr_yml_get_unchecked()
+      yml_projr_orig <- .projr_yml_get()
       title <- .projr_osf_label_get_random("ProjectProjrOSFTest")
 
       # setup
@@ -92,7 +92,7 @@ test_that("projr_dest_add_osf works", {
       expect_true(is.character(id_proj))
       expect_true(nchar(id_proj) == 5L)
 
-      yml_projr <- projr_yml_get_unchecked()
+      yml_projr <- .projr_yml_get()
 
       # test basic, top-level add
       expect_true("osf" %in% names(yml_projr[["build"]]))
@@ -114,7 +114,7 @@ test_that("projr_dest_add_osf works", {
           title = title, overwrite = TRUE, category = "project"
         )
       )
-      yml_projr <- projr_yml_get_unchecked()
+      yml_projr <- .projr_yml_get()
       expect_true(title %in% names(yml_projr[["build"]][["osf"]]))
       expect_identical(
         id_proj,
@@ -137,7 +137,7 @@ test_that("projr_dest_add_osf works", {
       )
       expect_true(is.character(id_comp))
       expect_true(nchar(id_comp) == 5L)
-      yml_projr <- projr_yml_get_unchecked()
+      yml_projr <- .projr_yml_get()
       expect_identical(
         id_comp,
         yml_projr[["build"]][["osf"]][[title]][["component"]][["Test"]][["id"]]
@@ -150,7 +150,7 @@ test_that("projr_dest_add_osf works", {
       )
       expect_true(is.character(id_comp))
       expect_true(nchar(id_comp) == 5L)
-      yml_projr <- projr_yml_get_unchecked()
+      yml_projr <- .projr_yml_get()
       expect_identical(
         id_comp,
         yml_projr[["build"]][["osf"]][[title]][["component"]][["Test2"]][["id"]]
@@ -166,7 +166,7 @@ test_that("projr_dest_add_osf works", {
       )
       expect_true(is.character(id_comp))
       expect_true(nchar(id_comp) == 5L)
-      yml_projr <- projr_yml_get_unchecked()
+      yml_projr <- .projr_yml_get()
       expect_identical(
         id_comp_sub,
         yml_projr[["build"]][["osf"]][[title]][["component"]][["Test2"]][["component"]][["TestSub"]][["id"]] # nolint
@@ -179,7 +179,7 @@ test_that("projr_dest_add_osf works", {
       )
       expect_true(is.character(id_comp))
       expect_true(nchar(id_comp) == 5L)
-      yml_projr <- projr_yml_get_unchecked()
+      yml_projr <- .projr_yml_get()
       expect_identical(
         id_comp_sub,
         yml_projr[["build"]][["osf"]][[title]][["component"]][["Test2"]][["component"]][["TestSubTitle"]][["id"]] # nolint
@@ -203,7 +203,7 @@ test_that("projr_dest_add_osf works", {
       )
       expect_true(is.character(id_comp))
       expect_true(nchar(id_comp) == 5L)
-      yml_projr <- projr_yml_get_unchecked()
+      yml_projr <- .projr_yml_get()
       expect_identical(
         yml_projr[["build"]][["osf"]][[title]][["component"]][["Test2"]][["component"]][["TestSubTitle"]][["component"]][["TestSubSubId"]][["id"]], # nolint
         id_comp_sub_sub
@@ -215,7 +215,7 @@ test_that("projr_dest_add_osf works", {
       )
       expect_true(is.character(id_comp))
       expect_true(nchar(id_comp) == 5L)
-      yml_projr <- projr_yml_get_unchecked()
+      yml_projr <- .projr_yml_get()
       expect_identical(
         yml_projr[["build"]][["osf"]][[title]][["component"]][["Test2"]][["component"]][["TestSubTitle"]][["component"]][["TestSubSubTitle"]][["id"]], # nolint
         id_comp_sub_sub

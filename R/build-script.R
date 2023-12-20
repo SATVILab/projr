@@ -22,7 +22,7 @@
 }
 
 .projr_script_run <- function(path) {
-  if (!.projr_file_state_exists(path)) {
+  if (!file.exists(path)) {
     stop(paste0("Script '", path, "' does not exist."))
   }
   source(path)

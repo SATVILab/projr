@@ -5,7 +5,7 @@ test_that("projr_hash_dir works", {
     code = {
       # test hashing empty directory
       path_dir_empty <- file.path(tempdir(), "abc")
-      .projr_dir_rm(path_dir_empty)
+      .dir_rm(path_dir_empty)
       dir.create(path_dir_empty)
       hash_tbl <- .projr_hash_dir(path_dir_empty)
       expect_identical(nrow(hash_tbl), 0L)

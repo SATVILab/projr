@@ -112,7 +112,7 @@ test_that(".projr_change_get works for files", {
         output_run = FALSE,
         version_source = "file",
         type = "local",
-        remote = .projr_dir_tmp_random_get()
+        remote = .dir_create_tmp_random()
       )
       expect_identical(length(change_list), 4L)
       expect_identical(nrow(change_list[["kept_unchanged"]]), 0L)
@@ -129,7 +129,7 @@ test_that(".projr_change_get works for files", {
         output_run = TRUE,
         version_source = "file",
         type = "local",
-        remote = .projr_dir_tmp_random_get()
+        remote = .dir_create_tmp_random()
       )
 
       expect_identical(length(change_list), 4L)
@@ -142,7 +142,7 @@ test_that(".projr_change_get works for files", {
         output_run = TRUE,
         version_source = "file",
         type = "local",
-        remote = .projr_dir_tmp_random_get()
+        remote = .dir_create_tmp_random()
       )
 
       expect_identical(length(change_list), 4L)
@@ -153,7 +153,7 @@ test_that(".projr_change_get works for files", {
 
       # remove and change
       .projr_version_bump_major()
-      .projr_dir_copy(
+      .dir_copy(
         path_dir_from = "_output", path_dir_to = "_output2"
       )
       cat("abc", file = "_output/abc.txt")

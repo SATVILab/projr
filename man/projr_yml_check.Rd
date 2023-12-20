@@ -4,12 +4,13 @@
 \alias{projr_yml_check}
 \title{Check active \code{projr} settings.}
 \usage{
-projr_yml_check(yml_projr = NULL)
+projr_yml_check(profile = NULL)
 }
 \arguments{
-\item{yml_projr}{list.
-Projr settings. If not supplied,
-then the results of \code{projr_yml_get_unchecked} is used.}
+\item{profile}{character().
+Profile whose file needs to be checked.
+If not supplied, then the merged profile is used.
+Default is NULL.}
 }
 \value{
 Returns \code{TRUE} if all checks pass.

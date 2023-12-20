@@ -67,7 +67,7 @@
     }
     invisible(file.remove(path))
   }
-  .projr_dir_create(dirname(path))
+  .dir_create(dirname(path))
   utils::write.csv(
     manifest, path,
     row.names = FALSE
@@ -86,15 +86,15 @@
 
 .projr_manifest_get_path_dir <- function(path_dir) {
   if (is.null(path_dir)) {
-    path_dir <- .projr_dir_proj_get()
+    path_dir <- .dir_proj_get()
   }
-  .projr_dir_create(path_dir)
+  .dir_create(path_dir)
 }
 
 .projr_manifest_get_path_file <- function(path_dir) {
   path_dir |>
     .projr_manifest_get_path_dir() |>
-    .projr_file_get_full_dots("manifest.csv")
+    file.path("manifest.csv")
 }
 
 .projr_manifest_version_get_latest <- function(manifest) {

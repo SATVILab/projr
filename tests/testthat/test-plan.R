@@ -105,7 +105,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
       plan_list_detail_zero <- list("add" = character(), "rm" = character())
       plan_list_detail <- .projr_dest_send_get_plan_detail(
         plan = "add_all",
-        path_dir_local = .projr_dir_tmp_random_get()
+        path_dir_local = .dir_create_tmp_random()
       )
       expect_identical(plan_list_detail, plan_list_detail_zero)
       dir_tmp <- .projr_test_setup_content_dir()
@@ -114,11 +114,11 @@ test_that(".projr_dest_send_get_plan_detail works", {
           plan = "delete_add_all",
           path_dir_local = dir_tmp
         ),
-        list("add" = .projr_dir_ls(dir_tmp), rm = character())
+        list("add" = .file_ls(dir_tmp), rm = character())
       )
       # add what's missing:
       # all missing
-      dir_tmp_2 <- .projr_dir_tmp_random_get()
+      dir_tmp_2 <- .dir_create_tmp_random()
       plan_list_detail <- .projr_dest_send_get_plan_detail(
         plan = "add_missing",
         path_dir_local = dir_tmp,
@@ -126,11 +126,11 @@ test_that(".projr_dest_send_get_plan_detail works", {
         remote = dir_tmp_2
       )
       plan_list_detail_full <- list(
-        "add" = .projr_dir_ls(dir_tmp), "rm" = character()
+        "add" = .file_ls(dir_tmp), "rm" = character()
       )
       expect_identical(plan_list_detail, plan_list_detail_full)
       # nothing missing
-      .projr_dir_copy(dir_tmp, dir_tmp_2)
+      .dir_copy(dir_tmp, dir_tmp_2)
       plan_list_detail <- .projr_dest_send_get_plan_detail(
         plan = "add_missing",
         path_dir_local = dir_tmp,
@@ -139,7 +139,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
       )
       expect_identical(plan_list_detail, plan_list_detail_zero)
       # only extra in remote
-      .projr_dir_clear(dir_tmp)
+      .dir_clear(dir_tmp)
       plan_list_detail <- .projr_dest_send_get_plan_detail(
         plan = "add_missing",
         path_dir_local = dir_tmp,
@@ -179,7 +179,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
       )
       expect_identical(
         plan_list_detail,
-        list("add" = "file_1.txt", rm = .projr_dir_ls(dir_tmp_2))
+        list("add" = "file_1.txt", rm = .file_ls(dir_tmp_2))
       )
       # all if any change
       # only add missing
@@ -195,7 +195,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
         list("add" = "file_1.txt", rm = character())
       )
       # add even if present on remote
-      .projr_dir_copy(dir_tmp_2, dir_tmp)
+      .dir_copy(dir_tmp_2, dir_tmp)
       plan_list_detail <- .projr_dest_send_get_plan_detail(
         plan = "delete_add_all_if_change",
         path_dir_local = dir_tmp,
@@ -205,7 +205,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
       )
       expect_identical(
         plan_list_detail,
-        list("add" = .projr_dir_ls(dir_tmp), rm = character())
+        list("add" = .file_ls(dir_tmp), rm = character())
       )
     }
   )
@@ -218,8 +218,8 @@ test_that(".projr_plan_implement works", {
     code = {
       plan_list_detail_zero <- list("add" = character(), "rm" = character())
       # do nothing
-      dir_tmp <- .projr_dir_tmp_random_get()
-      dir_tmp_2 <- .projr_dir_tmp_random_get()
+      dir_tmp <- .dir_create_tmp_random()
+      dir_tmp_2 <- .dir_create_tmp_random()
       .projr_plan_implement(
         plan = "delete_add_all",
         plan_detail = plan_list_detail_zero,
@@ -228,7 +228,7 @@ test_that(".projr_plan_implement works", {
         type = "local",
         structure = "latest"
       )
-      expect_identical(.projr_dir_ls(dir_tmp_2) |> length(), 0L)
+      expect_identical(.file_ls(dir_tmp_2) |> length(), 0L)
       expect_true(dir.exists(dir_tmp_2))
       # add content, but still do nothing
       .projr_test_setup_content_dir(dir_tmp)
@@ -240,11 +240,11 @@ test_that(".projr_plan_implement works", {
         type = "local",
         structure = "latest"
       )
-      expect_identical(.projr_dir_ls(dir_tmp_2) |> length(), 0L)
+      expect_identical(.file_ls(dir_tmp_2) |> length(), 0L)
       expect_true(dir.exists(dir_tmp_2))
       # check that we're emptying remote if needed
       .projr_test_setup_content_dir(dir_tmp_2)
-      expect_true(.projr_dir_ls(dir_tmp_2) |> length() > 0L)
+      expect_true(.file_ls(dir_tmp_2) |> length() > 0L)
       .projr_test_setup_content_dir(dir_tmp)
       .projr_plan_implement(
         plan = "delete_add_all",
@@ -254,14 +254,14 @@ test_that(".projr_plan_implement works", {
         type = "local",
         structure = "latest"
       )
-      expect_identical(.projr_dir_ls(dir_tmp_2) |> length(), 0L)
+      expect_identical(.file_ls(dir_tmp_2) |> length(), 0L)
       expect_true(dir.exists(dir_tmp_2))
       # check it's deleted when an empty versioned remote
-      .projr_dir_clear(dir_tmp_2)
-      expect_true(.projr_dir_ls(dir_tmp_2) |> length() == 0L)
+      .dir_clear(dir_tmp_2)
+      expect_true(.file_ls(dir_tmp_2) |> length() == 0L)
       .projr_test_setup_content_dir(dir_tmp)
       dir_tmp_2_version <- file.path(dir_tmp_2, "v0.0.1") |>
-        .projr_dir_create()
+        .dir_create()
       .projr_plan_implement(
         plan = "delete_add_all",
         plan_detail = plan_list_detail_zero,
@@ -270,7 +270,7 @@ test_that(".projr_plan_implement works", {
         type = "local",
         structure = "version"
       )
-      expect_identical(.projr_dir_ls(dir_tmp_2) |> length(), 0L)
+      expect_identical(.file_ls(dir_tmp_2) |> length(), 0L)
       expect_true(dir.exists(dir_tmp_2))
       expect_true(!dir.exists(dir_tmp_2_version))
       # check that files are copied across and deleted as required

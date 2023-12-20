@@ -3,7 +3,7 @@
     prefix, rnorm(1) |> signif(15) |> as.character()
   )
   # add it to yml_projr
-  yml_projr <- projr_yml_get_unchecked()
+  yml_projr <- .projr_yml_get()
   yml_projr[["directories"]][[label]] <- list(
     path = "_some_random_path"
   )
@@ -81,6 +81,6 @@
 
 .projr_test_osf_remote_dir_get_tmp <- function() {
   path_dir <- file.path(tempdir(), "osf_node_to_remove")
-  .projr_dir_create(path_dir)
+  .dir_create(path_dir)
   path_dir
 }

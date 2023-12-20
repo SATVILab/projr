@@ -51,12 +51,118 @@
   invisible(TRUE)
 }
 
+.assert_has_not <- function(x, value, required = FALSE, nm = NULL) {
+  .assert_given(value)
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
 
+  if (any(value %in% x)) {
+    stop(
+      paste0(
+        nm, " must not contain any value(s) ",
+        paste0(value, collapse = ",")
+      ),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+.assert_has <- function(x, value, required = FALSE, nm = NULL) {
+  .assert_given(value)
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+
+  if (all(value %in% x)) {
+    stop(
+      paste0(
+        nm, " must contain all value(s) ",
+        paste0(value, collapse = ",")
+      ),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+.assert_detect <- function(x, pattern, required = FALSE, nm = NULL) {
+  .assert_given(pattern)
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+
+  if (!all(grepl(pattern, x))) {
+    stop(
+      paste0(
+        nm, " must all match ",
+        pattern
+      ),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+.assert_detect_any <- function(x, pattern, required = FALSE, nm = NULL) {
+  .assert_given(pattern)
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+
+  if (!any(grepl(pattern, x))) {
+    stop(
+      paste0(
+        nm, " must contain at least one match for ",
+        pattern
+      ),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+.assert_detect_single <- function(x, pattern, required = FALSE, nm = NULL) {
+  .assert_given(pattern)
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  .assert_len_1(x = x, nm = nm, required = required)
+
+  if (!grepl(pattern, x)) {
+    stop(
+      paste0(nm, " must match ", pattern),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
 
 # class
 # -----------
 
+.assert_class_exact_unsorted <- function(x, class, required = TRUE, nm = NULL) {
+  .assert_chr(class, TRUE)
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!identical(class, class(x))) {
+    stop(paste0(nm, " must be a ", paste0(class, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
 .assert_class_exact <- function(x, class, required = TRUE, nm = NULL) {
+  .assert_chr(class, TRUE)
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
@@ -69,13 +175,35 @@
   invisible(TRUE)
 }
 
-.assert_class <- function(x, class, required = FALSE, nm = NULL) {
+
+.assert_class_all <- function(x, class, required = FALSE, nm = NULL) {
+  .assert_chr(class, TRUE)
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  if (!inherits(x, class)) {
-    stop(paste0(nm, " must be a ", class), call. = FALSE)
+  if (!all(vapply(class, function(cls) inherits(x, cls), logical(1)))) {
+    stop(paste0(
+      nm, " must have all of the following clas(es):\n",
+      paset0(class, sep = ", ")
+    ), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.assert_class <- .assert_class_all
+
+.assert_class_any <- function(x, class, required = FALSE, nm = NULL) {
+  .assert_chr(class, TRUE)
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!any(vapply(class, function(cls) inherits(x, cls), logical(1)))) {
+    stop(paste0(
+      nm, " must have at least one of the following class(es):\n",
+      paset0(class, sep = ", ")
+    ), call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -111,7 +239,20 @@
 # path
 # --------------
 
-.is_path_abs <- fs::is_absolute_path
+.assert_path_not_sub <- function(x, sub, required = FALSE, nm = TRUE) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (!requireNamespace("fs", quietly = TRUE)) {
+    utils::install.packages("fs")
+  }
+
+  if (!fs::path_has_parent(x, sub)) {
+    stop(paste0(nm, " must not be a subdirectory of ", sub), call. = FALSE)
+  }
+  invisible(TRUE)
+}
 
 .assert_path_not_file <- function(x, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
@@ -168,7 +309,7 @@
 # options
 # ---------------
 
-.assert_opt_single_not <- function(x, opt, required = FALSE, nm = NULL) {
+.assert_in_single_not <- function(x, opt, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   # check that it's neither missing nor NULL
   # if required
@@ -176,7 +317,7 @@
     return(invisible(TRUE))
   }
   .assert_len_1(x = x, nm = nm)
-  if (!all(.is_opt_not(x, opt))) {
+  if (!all(.is_in_not(x, opt))) {
     stop(
       paste0(nm, " must not be one of ", paste0(opt, collapse = ", ")),
       call. = FALSE
@@ -185,7 +326,7 @@
   invisible(TRUE)
 }
 
-.assert_opt_not <- function(x, opt, required = FALSE, nm = NULL) {
+.assert_in_not <- function(x, opt, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   # check that it's neither missing nor NULL
   # if required
@@ -193,7 +334,7 @@
     return(invisible(TRUE))
   }
   .assert_len_pos(x = x, nm = nm)
-  if (!all(.is_opt_not(x, opt))) {
+  if (!all(.is_in_not(x, opt))) {
     stop(
       paste0(nm, " must not be one of ", paste0(opt, collapse = ", ")),
       call. = FALSE
@@ -202,7 +343,7 @@
   invisible(TRUE)
 }
 
-.is_opt_not <- function(x, opt) {
+.is_in_not <- function(x, opt) {
   !.is_opt(x, opt)
 }
 
@@ -212,10 +353,10 @@
     return(invisible(TRUE))
   }
   .assert_len_1(x = x, nm = nm)
-  .assert_opt(x = x, nm = nm, opt = opt)
+  .assert_in(x = x, nm = nm, opt = opt)
 }
 
-.assert_opt <- function(x, opt, required = FALSE, nm = NULL) {
+.assert_in <- function(x, opt, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   # check that it's neither missing nor NULL
   # if required
@@ -361,12 +502,30 @@
 # character
 # -----------------
 
-.assert_chr_full <- function(x, required = FALSE, nm = NULL) {
+.assert_chr <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(FALSE))
+  }
+  if (!.is_chr(x)) {
+    stop(
+      paste0(nm, " must be a non-empty character vector"),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+.is_chr <- function(x) {
+  .is_chr_mid(x) & all(nzchar(x))
+}
+
+.assert_chr_mid <- function(x, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  if (!.is_chr(x)) {
+  if (!.is_chr_mid(x)) {
     stop(
       paste0(nm, " must be a non-empty character vector with no NA entries"),
       call. = FALSE
@@ -375,11 +534,11 @@
   invisible(TRUE)
 }
 
-.is_chr <- function(x) {
-  is.character(x) && .is_len_pos(x) && all(!is.na(x)) && all(nzchar(x))
+.is_chr_mid <- function(x) {
+  is.character(x) && .is_len_pos(x) && all(!is.na(x))
 }
 
-.assert_chr <- function(x, required = FALSE, nm = NULL) {
+.assert_chr_min <- function(x, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
@@ -393,9 +552,28 @@
 .assert_string <- function(x, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
+    return(invisible(FALSE))
+  }
+
+  if (!.is_string(x)) {
+    stop(
+      paste0(nm, " must be a non-empty string"),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+.is_string <- function(x) {
+  .is_string_mid(x) && nzchar(x)
+}
+
+.assert_string_mid <- function(x, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  if (!.is_string(x)) {
+  if (!.is_string_mid(x)) {
     stop(
       paste0(nm, " must be a non-empty string"),
       call. = FALSE
@@ -459,7 +637,7 @@
 # -------
 
 # is
-.is_string <- function(x) {
+.is_string_mid <- function(x) {
   .is_string_min(x) && nzchar(x) && !is.na(x)
 }
 
@@ -554,7 +732,7 @@
 # automatically get name
 .assert_nm_get <- function(x, nm = NULL) {
   if (!is.null(nm)) {
-    if (!.is_string(nm)) {
+    if (!.is_string_mid(nm)) {
       stop("`nm` must be a string", call. = FALSE)
     }
     return(nm)
@@ -585,7 +763,7 @@
     return(invisible(TRUE))
   }
   .assert_len_1(x = x, nm = nm)
-  .assert_opt(x = x, nm = nm, opt = opt)
+  .assert_in(x = x, nm = nm, opt = opt)
 }
 
 .assert_given_full <- function(x, nm = NULL) {

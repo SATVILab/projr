@@ -97,7 +97,7 @@ projr_source_add_osf <- function(label,
   if (is.null(title)) {
     title <- label
   }
-  yml_projr <- projr_yml_get_unchecked()
+  yml_projr <- .projr_yml_get()
 
   download_list <- .projr_osf_yml_add_load_get_list(
     cue = download_cue,

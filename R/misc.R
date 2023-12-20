@@ -9,21 +9,6 @@
   tryCatch(x, error = function(e) y)
 }
 
-.projr_dir_proj_get <- function(...) {
-  dir_proj <- tryCatch(
-    rprojroot::is_r_package$find_file(),
-    error = function(e) getwd()
-  )
-  list_sub <- list(...)
-  if (length(list_sub) == 0L) {
-    return(dir_proj)
-  }
-  do.call(
-    file.path,
-    args = list(dir_proj) |> append(list_sub)
-  )
-}
-
 .try_err_msg_get <- function(x, require_try_error = TRUE) {
   if (!inherits(x, "try-error")) {
     if (require_try_error) {
@@ -39,7 +24,9 @@
 if (!requireNamespace("piggyback", quietly = TRUE)) {
 }
 
-
+# ------------
+# dependencies
+# ------------
 
 .projr_dep_install <- function(dep) {
   for (x in dep) {
@@ -56,7 +43,7 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
   if (.projr_dep_in_renv(dep)) {
     return(invisible(FALSE))
   }
-  path_dep <- .projr_dir_proj_get("_dependencies.R")
+  path_dep <- .dir_proj_get("_dependencies.R")
   dep_vec <- readLines(path_dep)
   for (i in seq_along(dep)) {
     dep_txt <- paste0("library(", dep[[i]], ")", collapse = "")
@@ -92,7 +79,7 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
 }
 
 .projr_dep_rm <- function(dep) {
-  path_dep <- .projr_dir_proj_get("_dependencies.R")
+  path_dep <- .dir_proj_get("_dependencies.R")
   dep_vec <- readLines(path_dep)
   for (i in seq_along(dep)) {
     dep_txt <- paste0("library(", dep[[i]], ")", collapse = "")
@@ -141,7 +128,7 @@ with_dir <- function(new, code) {
   if (is.null(path_dir_fn_rel_zip)) {
     path_dir_fn_rel_zip <- file.path(tempdir(), "zip", signif(rnorm(1)))
   }
-  .projr_dir_create(path_dir_fn_rel_zip)
+  .dir_create(path_dir_fn_rel_zip)
   fn_rel_zip <- gsub("\\.zip$", "", fn_rel_zip)
   fn_rel_zip <- paste0(fn_rel_zip, ".zip")
   path_zip <- file.path(path_dir_fn_rel_zip, fn_rel_zip)
@@ -149,7 +136,7 @@ with_dir <- function(new, code) {
     path_dir_fn_rel,
     {
       sink(file.path(tempdir(), "zip123"))
-      fn_rel <- .projr_file_filter_exists(fn_rel)
+      fn_rel <- .file_filter_exists(fn_rel)
       if (length(fn_rel) == 0L) {
         return(character())
       }
@@ -158,42 +145,6 @@ with_dir <- function(new, code) {
     }
   )
   path_zip
-}
-
-.projr_dir_tmp_random_get <- function() {
-  path_dir <- file.path(tempdir(), "projr", signif(rnorm(1), 6))
-  while (dir.exists(path_dir)) {
-    if (dir.exists(path_dir)) {
-      path_dir <- file.path(
-        tempdir(), "projr", signif(rnorm(1), 6)
-      )
-    }
-  }
-  .projr_dir_create(path_dir)
-  path_dir
-}
-
-.projr_dir_tmp_random_get_if_needed <- function(path_dir) {
-  if (missing(path_dir) || is.null(path_dir)) {
-    path_dir <- .projr_dir_tmp_random_get()
-  } else {
-    .projr_dir_create(path_dir)
-  }
-  path_dir
-}
-
-.projr_dir_copy_tree <- function(path_dir_from, path_dir_to) {
-  path_dir_from_vec_tree <- list.dirs(
-    path_dir_from,
-    recursive = TRUE, full.names = FALSE
-  ) |>
-    setdiff("")
-  path_dir_to_vec_tree <- file.path(path_dir_to, path_dir_from_vec_tree)
-  .projr_dir_create(path_dir_to_vec_tree)
-  for (i in seq_along(path_dir_to_vec_tree)) {
-    .projr_dir_create(path_dir_to_vec_tree[[i]])
-  }
-  invisible(TRUE)
 }
 
 .projr_dir_count_lvl <- function(path_dir) {
@@ -245,7 +196,7 @@ with_dir <- function(new, code) {
 .projr_pkg_nm_get <- function() {
   desc::desc_get_field(
     "Package",
-    file = .projr_dir_proj_get("DESCRIPTION")
+    file = .dir_proj_get("DESCRIPTION")
   )
 }
 
@@ -299,11 +250,11 @@ projr_use_data <- function(...,
   # work for R > 3.5.0
   if (!safe) {
     if (internal) {
-      .projr_dir_create("R")
+      .dir_create("R")
       paths <- fs:::path("R", "sysdata.rda")
       objs <- list(objs)
     } else {
-      .projr_dir_create("data")
+      .dir_create("data")
       paths <- fs::path("data", objs, ext = "rda")
       desc <- .projr_usethis_proj_desc()
       if (!desc$has_fields("LazyData")) {
@@ -314,18 +265,18 @@ projr_use_data <- function(...,
   } else {
     path_tmp_base <- .projr_dir_get_cache_auto(profile = NULL)
     if (internal) {
-      .projr_dir_create(file.path(path_tmp_base, "R"))
+      .dir_create(file.path(path_tmp_base, "R"))
       paths <- fs:::path(file.path(path_tmp_base, "R"), "sysdata.rda")
       objs <- list(objs)
     } else {
-      .projr_dir_create(file.path(path_tmp_base, "data"))
+      .dir_create(file.path(path_tmp_base, "data"))
       paths <- fs::path(file.path(path_tmp_base, "data"), objs, ext = "rda")
       desc <- .projr_usethis_proj_desc()
       # don't set the lazy data entry as this is a dev build
     }
   }
   if (!overwrite) {
-    fn_vec_existing <- .projr_file_filter_exists(.projr_dir_proj_get(paths))
+    fn_vec_existing <- .file_filter_exists(.dir_proj_get(paths))
     if (length(fn_vec_existing) > 0L) {
       stop(
         "The following files already exist:\n",
@@ -335,7 +286,7 @@ projr_use_data <- function(...,
     }
   }
   envir <- parent.frame()
-  mapply(save, list = objs, file = .projr_dir_proj_get(paths), MoreArgs = list(
+  mapply(save, list = objs, file = .dir_proj_get(paths), MoreArgs = list(
     envir = envir,
     compress = compress, version = version, ascii = ascii
   ))
@@ -365,7 +316,7 @@ projr_use_data <- function(...,
   eval(substitute(alist(...)))
 }
 
-.projr_usethis_proj_desc <- function(path = .projr_dir_proj_get()) {
+.projr_usethis_proj_desc <- function(path = .dir_proj_get()) {
   desc::desc(file = path)
 }
 
@@ -374,12 +325,12 @@ projr_use_data <- function(...,
                            dir_exc = NULL,
                            dir_inc = NULL,
                            fn_exc = NULL) {
-  .projr_file_rm(path_zip)
-  .projr_dir_create(dirname(path_zip))
+  .file_rm(path_zip)
+  .dir_create(dirname(path_zip))
   wd_orig <- getwd()
   setwd(path_dir)
   sink(file.path(tempdir(), "zip123"))
-  fn_vec <- .projr_dir_ls(getwd())
+  fn_vec <- .file_ls(getwd())
   if (!is.null(dir_exc)) {
     for (x in dir_exc) {
       fn_vec <- fn_vec[!grepl(paste0("^", x, "/"), fn_vec)]
@@ -435,6 +386,7 @@ projr_use_data <- function(...,
 .projr_opt_dir_get_label <- function(profile) {
   c(
     .projr_yml_dir_get(profile) |> names(),
+    "docs",
     "data",
     "code",
     "project"

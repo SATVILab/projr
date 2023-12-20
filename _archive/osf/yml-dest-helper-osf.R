@@ -6,7 +6,7 @@
                                         public,
                                         overwrite) {
   # extract pre-existing osf config
-  yml_projr_osf <- projr_yml_get_unchecked()[["build"]][["osf"]]
+  yml_projr_osf <- .projr_yml_get()[["build"]][["osf"]]
 
   # if category is not explicitly a project, then find parent
   is_component <- is.null(category) || category != "project"
@@ -138,7 +138,7 @@
 
   # no parent found if there are no previous osf entries
   if (is.null(yml_projr_osf)) {
-    yml_projr_osf <- projr_yml_get_unchecked()[["build"]][["osf"]]
+    yml_projr_osf <- .projr_yml_get()[["build"]][["osf"]]
     if (is.null(yml_projr_osf)) {
       return(invisible(character()))
     }

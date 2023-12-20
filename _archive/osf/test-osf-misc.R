@@ -13,7 +13,7 @@ test_that(".projr_osf_send_fn works", {
       # setup
       # ----------------
 
-      yml_projr_orig <- projr_yml_get_unchecked()
+      yml_projr_orig <- .projr_yml_get()
 
       # create files
       .projr_test_setup_content("output")

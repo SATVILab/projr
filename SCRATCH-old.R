@@ -68,7 +68,7 @@
 .projr_local_dir_create <- function(fn) {
   dir_vec <- unique(dirname(fn))
   for (i in seq_along(dir_vec)) {
-    .projr_dir_create(dir_vec[i])
+    .dir_create(dir_vec[i])
   }
   invisible(TRUE)
 }
@@ -185,7 +185,7 @@ test_that("projr_manifest_hash_dir works", {
 test_that("projr_manifest_compare works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
-  .projr_dir_create(dir_test)
+  .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
@@ -479,7 +479,7 @@ if (yml_projr[["build"]][["git"]][["add-untracked"]]) {
 # from inside .projr_dest_add_osf
 title <- .projr_remote_title_get(title = title, content = content)
 yml_projr_orig_root <- .projr_yml_get_root_default()
-yml_projr <- projr_yml_get_unchecked()
+yml_projr <- .projr_yml_get()
 
 get_list <- ..projr_dest_add_list_get_osf_add_load_get_list(
   sync_approach = get_sync_approach,
@@ -787,7 +787,7 @@ content <- .projr_yml_remote_content_get(
 
   # check that it's actually found
   label_vec <- unique(c(
-    names(projr_yml_get_unchecked()[["directories"]]),
+    names(.projr_yml_get()[["directories"]]),
     "docs"
   ))
   if (!all(label %in% label_vec)) {
@@ -848,7 +848,7 @@ path_zip <- .projr_zip_file(
 piggyback:::.pb_cache_clear()
 piggyback::pb_upload(file = path_zip, tag = id)
 fn_vec_source <- .projr_remote_file_ls("local", path_dir_source)
-path_dir_dest <- .projr_dir_tmp_random_get()
+path_dir_dest <- .dir_create_tmp_random()
 .projr_remote_file_add(
   "github",
   fn = fn_vec_source,
@@ -936,7 +936,7 @@ if (inherits(create_repo, "try-error")) {
     manifest_pre[["version"]] == version_pre,
   ]
   manifest_post <- manifest_post[
-    manifest_post[["version"]] == paste0("v", projr_version_get()),
+    manifest_post[["version"]] == .projr_version_get_v(),
   ]
   .projr_change_get_hash(
     hash_pre = manifest_pre,
@@ -1660,7 +1660,7 @@ if (use_bd_vec) {
   # upload
   # ------------------
 
-  tag <- paste0("v", projr_version_get())
+  tag <- .projr_version_get_v()
   body <- "Project source code, inputs and/or outputs"
 
 

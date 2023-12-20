@@ -458,7 +458,7 @@ test_that("adding, tallying and removing files from remotes works - local", {
       # local
       # --------------------------
       # empty
-      path_dir_random <- .projr_dir_tmp_random_get()
+      path_dir_random <- .dir_create_tmp_random()
       expect_identical(
         .projr_remote_file_ls(
           "local",
@@ -471,7 +471,7 @@ test_that("adding, tallying and removing files from remotes works - local", {
       # has content
       path_dir_source <- .projr_test_setup_content_dir()
       fn_vec_source <- .projr_remote_file_ls("local", path_dir_source)
-      path_dir_dest <- .projr_dir_tmp_random_get()
+      path_dir_dest <- .dir_create_tmp_random()
       .projr_remote_file_add(
         "local",
         fn = fn_vec_source,
@@ -530,7 +530,7 @@ test_that("adding, tallying and removing files from remotes works - osf", {
       # with content
       path_dir_source <- .projr_test_setup_content_dir()
       fn_vec_source <- .projr_remote_file_ls("local", path_dir_source)
-      path_dir_dest <- .projr_dir_tmp_random_get()
+      path_dir_dest <- .dir_create_tmp_random()
       .projr_remote_file_add(
         "osf",
         fn = fn_vec_source,
@@ -596,7 +596,7 @@ test_that("adding, tallying and removing files from remotes works - github", {
         "github",
         fn = fn_vec, path_dir_local = path_dir_source, remote = remote
       )
-      path_dir_save <- .projr_dir_tmp_random_get()
+      path_dir_save <- .dir_create_tmp_random()
       .projr_remote_file_get_all(
         "github",
         remote = remote, path_dir_save_local = path_dir_save

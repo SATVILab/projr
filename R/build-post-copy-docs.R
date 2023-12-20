@@ -172,17 +172,17 @@
       file.rename(from = x, to = file_to)
     } else if (fs::is_dir(x)) {
       fn_vec <- list.files(
-        .projr_dir_proj_get(x),
+        .dir_proj_get(x),
         recursive = TRUE,
         all.files = TRUE
       )
-      fn_vec_from <- .projr_dir_proj_get(x, fn_vec)
+      fn_vec_from <- .dir_proj_get(x, fn_vec)
       fn_vec_to <- file.path(
         projr_path_get_dir("docs", safe = !output_run), x, fn_vec
       )
       dir_vec_to <- dirname(fn_vec_to) |> unique()
       for (i in seq_along(dir_vec_to)) {
-        .projr_dir_create(dir_vec_to[i])
+        .dir_create(dir_vec_to[i])
       }
       invisible(file.rename(from = fn_vec_from, to = fn_vec_to))
     }

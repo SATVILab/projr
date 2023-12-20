@@ -250,7 +250,7 @@ projr_yml_git_set_default <- function(profile = "default",
 }
 
 .projr_yml_git_get <- function(profile) {
-  projr_yml_get_unchecked(profile)[["build"]][["git"]]
+  .projr_yml_get(profile)[["build"]][["git"]]
 }
 
 .projr_yml_git_set <- function(yml_git, profile) {

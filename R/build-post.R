@@ -6,7 +6,7 @@
   }
   .projr_dep_install_only("roxygen2")
   suppressMessages(suppressWarnings(invisible(
-    roxygen2::roxygenise(package.dir = .projr_dir_proj_get())
+    roxygen2::roxygenise(package.dir = .dir_proj_get())
   )))
   invisible(TRUE)
 }
@@ -66,13 +66,13 @@
 }
 
 .projr_build_readme_rmd_render_check <- function(output_run) {
-  if ((!file.exists(.projr_dir_proj_get("README.Rmd"))) || (!output_run)) {
+  if ((!file.exists(.dir_proj_get("README.Rmd"))) || (!output_run)) {
     return(invisible(FALSE))
   }
 }
 
 .projr_build_readme_rmd_render_detect_pkg_use <- function() {
-  readme_rmd <- readLines(.projr_dir_proj_get("README.Rmd"))
+  readme_rmd <- readLines(.dir_proj_get("README.Rmd"))
   pkg_use_detected_lib <- grepl(
     paste0(
       "library\\(", projr_name_get(), "\\)|",
@@ -99,7 +99,7 @@
 
 .projr_build_readme_rmd_render_actual <- function() {
   rmarkdown::render(
-    .projr_dir_proj_get("README.Rmd"),
+    .dir_proj_get("README.Rmd"),
     output_format = "md_document", quiet = TRUE
   )
   invisible(TRUE)

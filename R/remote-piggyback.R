@@ -25,7 +25,7 @@
 
 .projr_pb_tag_format <- function(tag) {
   tag <- switch(tag,
-    `@version` = paste0("v", projr_version_get()),
+    `@version` = .projr_version_get_v(),
     tag
   )
   tag <- gsub("^ +", "", tag)

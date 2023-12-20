@@ -2,8 +2,11 @@
   if (!.projr_build_clear_post_check(output_run)) {
     return(invisible(FALSE))
   }
-  for (x in .projr_yml_dir_get_label_output()) {
-    projr_path_get_dir(x, safe = FALSE) |> .projr_dir_clear()
+  # clear the output folders (output and data),
+  # as these would still contain output from
+  # previous runs as they're not cleared pre-run
+  for (x in c(.projr_yml_dir_get_label_output(NULL), "data")) {
+    projr_path_get_dir(x, safe = FALSE) |> .dir_clear()
   }
   invisible(TRUE)
 }
@@ -12,12 +15,8 @@
   invisible(output_run)
 }
 
-.projr_build_clear_post_cache <- function(output_run) {
-  # clear projr cache directories
-  .projr_dir_get_cache_auto_version() |>
-    .projr_dir_clear()
-}
-
+# clear old temporary output directories
+# ---------------------------------------
 .projr_build_clear_old <- function(output_run, old_dev_remove) {
   if (!.projr_build_clear_old_check(old_dev_remove)) {
     return(invisible(FALSE))
@@ -35,13 +34,13 @@
 .projr_build_clear_old_dev <- function() {
   .projr_dir_get_cache_auto_version() |>
     dirname() |>
-    .projr_dir_ls() |>
+    .file_ls() |>
     setdiff(projr_version_get()) |>
-    vapply(.projr_dir_rm, logical(1))
+    vapply(.dir_rm, logical(1))
 }
 
 .projr_build_clear_old_output <- function() {
   .projr_dir_get_cache_auto_version() |>
     dirname() |>
-    .projr_dir_clear()
+    .dir_clear()
 }

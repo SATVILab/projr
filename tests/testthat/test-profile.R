@@ -3,7 +3,7 @@ test_that("projr_profile_get, _set and _create work", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
   withr::defer(.test_unset())
   withr::defer(unlink(dir_test, recursive = TRUE))
-  .projr_dir_create(dir_test)
+  .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
@@ -127,7 +127,7 @@ test_that("projr_profile_create_local works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
   withr::defer(unlink(dir_test, recursive = TRUE))
 
-  .projr_dir_create(dir_test)
+  .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
@@ -156,9 +156,9 @@ test_that("projr_profile_create_local works", {
         is.null(yml_projr_local[["directories"]][["data-raw"]][["path"]])
       )
       expect_true(all(names(yml_projr_local) == c("directories", "build")))
-      rbuildignore <- readLines(.projr_dir_proj_get(".Rbuildignore"))
+      rbuildignore <- readLines(.dir_proj_get(".Rbuildignore"))
       expect_true("^_projr-local\\.yml$" %in% rbuildignore)
-      gitignore <- readLines(.projr_dir_proj_get(".gitignore"))
+      gitignore <- readLines(.dir_proj_get(".gitignore"))
       expect_true("_projr-local.yml" %in% gitignore)
     },
     quiet = TRUE,

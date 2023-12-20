@@ -7,22 +7,20 @@
     # as code is the label but we don't actually
     # want to upload anything in the code directory
     "code" = .projr_dir_get_code(),
-    "data" = .projr_dir_proj_get("data"),
     .projr_dir_get_label(label, safe)
-  )
-  .projr_dir_get_label(label, safe) |>
-    .projr_file_get_full_dots(...)
+  ) |>
+    file.path(...)
 }
 
 .projr_dir_get_code <- function() {
   dir_out <- .projr_dir_get_tmp_random("code")
-  .projr_dir_rm(dir_out)
+  .dir_rm(dir_out)
   dir_out
 }
 
 .projr_dir_get_tmp_random <- function(...) {
   file.path(tempdir(), "projr", signif(rnorm(1))) |>
-    .projr_file_get_full_dots(...)
+    file.path(...)
 }
 
 .projr_dir_get_label <- function(label, safe) {
@@ -33,7 +31,7 @@
 }
 
 .projr_dir_get_label_safe <- function(label) {
-  # ouput, archive and docs directories
+  # ouput, data and docs directories
   # need to be "safe", so
   # if it's not one of them use the unsafe function
   if (!.projr_dir_get_label_safe_check_unsafe(label)) {
@@ -50,12 +48,12 @@
 
 .projr_dir_get_label_safe_check_unsafe <- function(label) {
   .projr_dir_label_strip(label) |>
-    grepl("^output|^archive|^docs$", x = _)
+    grepl("^output|^docs$|^data$", x = _)
 }
 
 .projr_dir_get_label_safe_path <- function(label) {
   .projr_dir_get_cache_auto_version(profile = NULL) |>
-    .projr_file_get_full_dots(
+    file.path(
       .projr_dir_get_label_safe_path_get_label(label)
     )
 }
@@ -71,26 +69,9 @@
   switch(.projr_dir_label_strip(label),
     "docs" = .projr_dir_get_docs_unsafe(),
     "project" = ".",
-    "archive" = .projr_yml_dir_get_path(label, NULL) |>
-      .projr_file_append_version(),
+    "data" = "data",
     .projr_yml_dir_get_path(label, NULL)
   )
-}
-
-# create
-.projr_dir_create <- function(path_dir) {
-  for (i in seq_along(path_dir)) {
-    .projr_dir_create_single(path_dir[i])
-  }
-  invisible(path_dir)
-}
-
-.projr_dir_create_single <- function(path_dir) {
-  .assert_path_not_file(path_dir)
-  if (dir.exists(path_dir)) {
-    return(invisible())
-  }
-  dir.create(path_dir, recursive = TRUE)
 }
 
 # docs
@@ -197,7 +178,7 @@
 
 # Rmd/qmd (no other yml file of concern)
 .projr_dir_get_docs_md <- function() {
-  yml_projr <- projr_yml_get_unchecked()
+  yml_projr <- .projr_yml_get(NULL)
   dir_docs_yml <- .projr_yml_dir_get_path("docs", NULL)
   if (!is.null(dir_docs_yml)) {
     return(dir_docs_yml)
@@ -209,14 +190,14 @@
 .projr_dir_get_cache_auto <- function(..., create = FALSE, profile) {
   .projr_dir_get_cache_auto_check(profile = profile)
   .projr_dir_get_cache_auto_path(profile) |>
-    .projr_file_get_full_dots(...) |>
+    file.path(...) |>
     .projr_dir_get_create(create)
 }
 
 .projr_path_get_cache_auto <- function(..., create = FALSE, profile) {
   .projr_dir_get_cache_auto_check(profile = profile)
   path_dir <- .projr_dir_get_cache_auto_path(profile) |>
-    .projr_file_get_full_dots(...)
+    file.path(...)
   .projr_dir_get_create(dirname(path_dir), create)
   path_dir
 }
@@ -224,9 +205,9 @@
 .projr_dir_get_cache_auto_version <- function(..., create = FALSE, profile) {
   .projr_dir_get_cache_auto_check(profile = profile)
   .projr_dir_get_cache_auto_path(profile) |>
-    .projr_file_get_full("projr") |>
-    .projr_file_append_version() |>
-    .projr_file_get_full_dots(...) |>
+    file.path("projr") |>
+    .projr_version_append() |>
+    file.path(...) |>
     .projr_dir_get_create(create)
 }
 
@@ -253,8 +234,8 @@
 .projr_dir_get_cache_auto_version_old <- function(..., create = TRUE, profile) {
   .projr_dir_get_cache_auto_check(profile = profile)
   .projr_dir_get_cache_auto_path() |>
-    .projr_file_get_full("projr") |>
-    .projr_file_append_version() |>
-    .projr_file_get_full_dots("old", ...) |>
+    file.path("projr") |>
+    .projr_version_append() |>
+    file.path("old", ...) |>
     .projr_dir_get_create(create)
 }

@@ -12,7 +12,7 @@ projr_par_get <- function(...) {
 }
 
 .projr_par_get_list <- function() {
-  yml_projr <- projr_yml_get_unchecked()
+  yml_projr <- .projr_yml_get(NULL)
   par_nm <- names(yml_projr)[grepl("^par", names(yml_projr))][[1]]
   yml_projr[[par_nm]]
 }

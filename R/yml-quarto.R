@@ -23,7 +23,7 @@
 # ---------------------------
 
 .projr_yml_quarto_get <- function() {
-  path_yml <- .projr_dir_proj_get("_quarto.yml")
+  path_yml <- .dir_proj_get("_quarto.yml")
   if (!file.exists(path_yml)) {
     return(list())
   }
@@ -31,7 +31,7 @@
 }
 
 .projr_yml_quarto_set <- function(list_save) {
-  path_yml <- .projr_dir_proj_get("_quarto.yml")
+  path_yml <- .dir_proj_get("_quarto.yml")
   yaml::write_yaml(list_save, path_yml)
   .projr_newline_append(path_yml)
   invisible(TRUE)

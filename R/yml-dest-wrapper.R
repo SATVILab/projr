@@ -184,7 +184,7 @@ projr_yml_dest_add_local <- function(title,
   .assert_string(title, TRUE)
   .assert_len_1(title, TRUE)
   .assert_chr(content, TRUE)
-  .assert_opt(content, .projr_yml_dir_get(profile) |> names())
+  .assert_in(content, .projr_yml_dir_get(profile) |> names())
   .assert_string(path, TRUE)
 
   .projr_yml_dest_add(

@@ -52,7 +52,7 @@
 # ------------------------
 
 .projr_dest_send_get_plan_detail_add_all <- function(path_dir_local) {
-  list("add" = .projr_dir_ls(path_dir_local), rm = character())
+  list("add" = .file_ls(path_dir_local), rm = character())
 }
 
 # ------------------------
@@ -62,11 +62,11 @@
 .projr_dest_send_get_plan_detail_add_missing <- function(path_dir_local,
                                                          remote,
                                                          type) {
-  path_dir_local_remote <- .projr_dir_tmp_random_get()
+  path_dir_local_remote <- .dir_create_tmp_random()
   fn_vec_remote <- .projr_remote_file_ls(type, remote)
-  fn_vec_local <- .projr_dir_ls(path_dir_local)
+  fn_vec_local <- .file_ls(path_dir_local)
   fn_vec_add <- setdiff(fn_vec_local, fn_vec_remote)
-  .projr_dir_rm(path_dir_local_remote)
+  .dir_rm(path_dir_local_remote)
   list("add" = fn_vec_add, "rm" = character())
 }
 
@@ -83,7 +83,7 @@
     type = type
   )[["add"]]
   if (.is_len_pos(fn_vec_add)) {
-    fn_vec_add <- .projr_dir_ls(path_dir_local)
+    fn_vec_add <- .file_ls(path_dir_local)
   }
   list("add" = fn_vec_add, "rm" = character())
 }
@@ -136,7 +136,7 @@
     ) {
       return(plan_list)
     }
-    list("add" = .projr_dir_ls(path_dir_local), rm = character())
+    list("add" = .file_ls(path_dir_local), rm = character())
   }
 
 .projr_dest_send_get_plan_detail_delete_add_all_if_change_check <-

@@ -127,6 +127,17 @@
   path_dir |> invisible()
 }
 
+content_vec_test_file <- c(
+  ".hidden.txt", "abc.txt",
+  "subdir1/def.txt", "subdir1/subdir2/ghi.txt"
+)
+
+content_vec_test_dir <- c(
+  "subdir1", "subdir1/subdir2"
+)
+
+content_vec <- c(content_vec_test_file, content_vec_test_dir)
+
 .projr_test_manifest_create <- function(pre = TRUE,
                                         post = TRUE,
                                         write = TRUE,
@@ -175,7 +186,7 @@
 }
 
 .projr_test_yml_dest_remote_rm <- function() {
-  yml_projr <- projr_yml_get_unchecked()
+  yml_projr <- .projr_yml_get()
   type_vec <- c("local", "github", "osf")
   type_vec <- type_vec[type_vec %in% names(yml_projr[["build"]])]
   for (i in seq_along(type_vec)) {

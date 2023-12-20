@@ -125,7 +125,7 @@ projr_path_get_dir <- projr_dir_get
 
 .projr_dir_get_create <- function(path, create) {
   if (create) {
-    .projr_dir_create(path)
+    .dir_create(path)
   }
   invisible(path)
 }
@@ -134,14 +134,14 @@ projr_path_get_dir <- projr_dir_get
   if (!relative) {
     return(path)
   }
-  .projr_file_get_rel(path)
+  .path_force_rel(path)
 }
 
 .projr_dir_get_abs <- function(path, absolute) {
   if (!absolute) {
     return(path)
   }
-  .projr_file_get_abs(path)
+  .path_force_abs(path)
 }
 
 #' @title Create all directories in _projr.yml
@@ -151,7 +151,7 @@ projr_path_get_dir <- projr_dir_get
 #' listed in \code{_projr.yml} for the current projr profile.
 #' @seealso projr_dir_get
 projr_dir_create_all <- function() {
-  label_vec <- projr_yml_get_unchecked(NULL)[["directories"]] |>
+  label_vec <- .projr_yml_dir_get(NULL) |>
     names()
   for (i in seq_along(label_vec)) {
     projr_dir_create(label_vec[[i]], create = TRUE)
