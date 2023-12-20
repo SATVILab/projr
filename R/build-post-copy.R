@@ -19,7 +19,7 @@
   .projr_build_copy_pkg(output_run)
 
   # save to output
-  .projr_build_copy_dir(output_run, dest_type = "output")
+  .projr_build_copy_dir(output_run)
 
   invisible(TRUE)
 }
@@ -57,10 +57,10 @@
   if (!.projr_build_copy_pkg_check()) {
     return(invisible(FALSE))
   }
-  .projr_build_copy_pkg_build()
+  path_pkg <- .projr_build_copy_pkg_build()
   for (x in .projr_build_copy_pkg_get_label()) {
     file.copy(
-      .projr_build_copy_pkg_build_path_get(),
+      .projr_build_copy_pkg_build_get_path(),
       projr_path_get_dir(x, "pkg", safe = !output_run)
     )
   }
@@ -69,8 +69,9 @@
 
 .projr_build_copy_pkg_check <- function() {
   .projr_build_copy_pkg_get_label() |>
-    nzchar() |>
-    all()
+    unlist() |>
+    stats::setNames(NULL) |>
+    .is_len_pos()
 }
 
 .projr_build_copy_pkg_get_label <- function() {
@@ -82,17 +83,22 @@
 }
 
 .projr_build_copy_pkg_build <- function() {
-  path_dir_pkg <- .projr_build_copy_pkg_build_path_setup()
-  version_pkg <- .projr_desc_get()[, "Version"][[1]]
-  fn_pkg <- paste0(projr_name_get(), "_", version_pkg, ".tar.gz")
-  path_pkg <- file.path(path_dir_pkg, fn_pkg)
+  path_pkg <- .projr_build_copy_pkg_build_get_path()
   .projr_dep_install("pkgbuild")
   pkgbuild::build(
     path = .dir_proj_get(),
     dest_path = path_pkg,
     binary = FALSE,
     quiet = TRUE
-  )
+  ) |>
+    invisible()
+}
+
+.projr_build_copy_pkg_build_get_path <- function() {
+  path_dir_pkg <- .projr_build_copy_pkg_build_path_setup()
+  version_pkg <- .projr_desc_get()[, "Version"][[1]]
+  fn_pkg <- paste0(projr_name_get(), "_", version_pkg, ".tar.gz")
+  file.path(path_dir_pkg, fn_pkg)
 }
 
 .projr_build_copy_pkg_build_path_setup <- function() {

@@ -219,13 +219,13 @@ projr_build_dev <- function(file = NULL,
   .projr_build_post_docs(bump_component, version_run_on_list, msg)
 
   # organise files and folders (clear and copy)
-  .projr_build_post_order(bump_component)
+  .projr_build_post_order(bump_component, version_run_on_list)
 
   # record (version, rmd, git)
   .projr_build_post_record(bump_component, version_run_on_list, msg)
 
   # send to remotes
-  .projr_build_dest_send(bump_component)
+  .projr_build_dest_send(bump_component, old_dev_remove)
 
   # run post-build scripts
   .projr_build_script_run(bump_component, "post")
@@ -255,7 +255,7 @@ projr_build_dev <- function(file = NULL,
 
 
 # organise files and folders (clear and copy)
-.projr_build_post_order <- function(bump_component) {
+.projr_build_post_order <- function(bump_component, version_run_on_list) {
   output_run <- .projr_build_get_output_run(bump_component)
   .projr_build_clear_post(output_run)
 
@@ -285,7 +285,7 @@ projr_build_dev <- function(file = NULL,
 }
 
 # send to remotes
-.projr_build_dest_send <- function(bump_component) {
+.projr_build_dest_send <- function(bump_component, old_dev_remove) {
   .projr_dest_send(bump_component)
   .projr_build_clear_old(
     .projr_build_get_output_run(bump_component), old_dev_remove
