@@ -6,7 +6,7 @@
                                 version = NULL,
                                 input_only = TRUE) {
   if (is.null(label)) {
-    label <- projr_yml_get_unchecked()[["directories"]]
+    label <- .projr_yml_get()[["directories"]]
   }
   if (input_only) {
     match_str <- "^cache|^dataraw"
@@ -29,7 +29,7 @@
       paste0(class(label), collapse = "; ")
     ))
   }
-  yml_label <- projr_yml_get_unchecked()[["directories"]][[label]]
+  yml_label <- .projr_yml_get()[["directories"]][[label]]
   if (!"osf" %in% names(yml_label)) {
     return(invisible(FALSE))
   }
@@ -95,7 +95,7 @@
   if (sync_approach == "delete-then-download-all") {
     unlink(path_save, recursive = TRUE)
   }
-  .projr_dir_create(path_save)
+  .dir_create(path_save)
   osf_tbl_file <- osf_tbl |> osfr::osf_ls_files(n_max = Inf)
   if (nrow(osf_tbl_file) == 0L) {
     return(invisible(FALSE))
@@ -232,7 +232,7 @@
 }
 
 .projr_osf_download_dir_label <- function(label) {
-  yml_param <- projr_yml_get_unchecked()[["directories"]][[label]]
+  yml_param <- .projr_yml_get()[["directories"]][[label]]
   if (!"osf" %in% names(yml_param)) {
     return(invisible(FALSE))
   }
@@ -303,7 +303,7 @@
 .projr_osf_download_build_node <- function(title,
                                            id_parent = NULL,
                                            safe) {
-  yml_param <- projr_yml_get_unchecked()[["build"]][["osf"]][[title]]
+  yml_param <- .projr_yml_get()[["build"]][["osf"]][[title]]
   id_parent <- .projr_osf_get_id_parent(
     yml_param = yml_param, id_parent = id_parent
   )
@@ -333,7 +333,7 @@
 .projr_osf_download_osf_tbl <- function(osf_tbl,
                                         path_dir_save_local,
                                         conflicts = "overwrite") {
-  .projr_dir_create(path_dir_save_local)
+  .dir_create(path_dir_save_local)
   # regardless of osf_tbl being a node or a sub-directory,
   # we always want to downloads its contents rather than
   # the node/folder itself

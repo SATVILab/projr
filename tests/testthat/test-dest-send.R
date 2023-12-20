@@ -81,7 +81,7 @@ test_that(".projr_dest_send works", {
       projr_version_set("0.0.1")
       .projr_build_manifest_post(TRUE) |> invisible()
       .projr_dest_send("major")
-      expect_true(.projr_dir_ls("_archive") |> .is_len_0())
+      expect_true(.file_ls("_archive") |> .is_len_0())
       # run and do something
       .projr_test_setup_content("output", safe = FALSE)
       .projr_version_bump("patch")
@@ -89,7 +89,7 @@ test_that(".projr_dest_send works", {
       .projr_dest_send("major")
       expect_true(dir.exists("_archive"))
       expect_identical(
-        .projr_dir_ls("_archive/output/v0.0.2"), .projr_dir_ls("_output")
+        .file_ls("_archive/output/v0.0.2"), .file_ls("_output")
       )
     }
   )

@@ -101,7 +101,7 @@ test_that("projr_dir_get works", {
 test_that("projr_path_get works", {
   dir_test <- file.path(tempdir(), paste0("report"))
 
-  .projr_dir_create(dir_test)
+  .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
@@ -215,7 +215,7 @@ test_that("projr_path_get works", {
 test_that("projr_dir_create works", {
   dir_test <- file.path(tempdir(), paste0("report"))
 
-  .projr_dir_create(dir_test)
+  .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
@@ -273,7 +273,7 @@ test_that("projr_dir_create works", {
 test_that("projr_dir_ignore works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
-  .projr_dir_create(dir_test)
+  .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
@@ -368,8 +368,8 @@ test_that("projr_dir_ignore works", {
 
       # test not adding when the directory is not in wd
       yml_projr <- .projr_yml_get_root_full()
-      dir_out <- .projr_dir_proj_get("test_2")
-      .projr_dir_create(dir_out)
+      dir_out <- .dir_proj_get("test_2")
+      .dir_create(dir_out)
 
       for (i in seq_along(yml_projr[["directories"]])) {
         yml_projr[["directories"]][[i]][["path"]] <- dir_out
@@ -401,7 +401,7 @@ test_that("projr_dir_ignore works", {
 test_that(".projr_dir_clear works", {
   dir_test <- file.path(tempdir(), paste0("report"))
 
-  .projr_dir_create(dir_test)
+  .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   fn_vec <- list.files(testthat::test_path("./project_structure"))
@@ -429,8 +429,8 @@ test_that(".projr_dir_clear works", {
     path = dir_test,
     code = {
       projr_init()
-      expect_error(.projr_dir_clear(dir_test))
-      expect_false(.projr_dir_clear(file.path(dir_test, "abc")))
+      expect_error(.dir_clear(dir_test))
+      expect_false(.dir_clear(file.path(dir_test, "abc")))
 
       # not deleting directories
       dir_cache_sub <- projr_path_get_dir("cache", "sub")
@@ -439,7 +439,7 @@ test_that(".projr_dir_clear works", {
       .projr_dir_clear_file(path = projr_path_get_dir("cache"))
       expect_true(dir.exists((dir_cache_sub)))
       expect_false(file.exists(path_cache_sub_fn))
-      .projr_dir_clear(
+      .dir_clear(
         path_dir = projr_path_get_dir("cache"),
       )
       expect_false(dir.exists((dir_cache_sub)))
@@ -452,7 +452,7 @@ test_that(".projr_dir_clear works", {
       invisible(file.create(path_cache_sub_fn))
       path_cache_fn <- projr_path_get("cache", "test2.txt")
       invisible(file.create(path_cache_fn))
-      .projr_dir_clear(
+      .dir_clear(
         path_dir = projr_path_get_dir("cache")
       )
       expect_false(dir.exists((dir_cache_sub)))

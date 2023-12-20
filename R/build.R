@@ -142,6 +142,7 @@ projr_build_dev <- function(file = NULL,
 # pre
 # ------------------------
 .projr_build_pre <- function(bump_component, msg) {
+  projr_yml_check(NULL)
   # whether it's an output run  or not
   output_run <- .projr_build_get_output_run(bump_component)
 

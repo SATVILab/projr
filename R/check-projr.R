@@ -40,7 +40,7 @@
   }
   .assert_len_1(bump_component)
   if (.is_string(bump_component)) {
-    .assert_opt(bump_component, c("major", "minor", "patch", "dev", "none"))
+    .assert_in(bump_component, c("major", "minor", "patch", "dev", "none"))
   } else {
     .assert_flag(bump_component)
   }

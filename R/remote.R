@@ -19,7 +19,7 @@
 # local
 .projr_remote_create_local <- function(path) {
   .assert_string(path)
-  .projr_dir_create(path)
+  .dir_create(path)
   invisible(path)
 }
 
@@ -36,7 +36,7 @@
   .assert_string(title, TRUE)
   .assert_string(id_parent)
   .assert_nchar(id_parent, 5L)
-  .assert_opt(category, .projr_opt_remote_get_osf_cat())
+  .assert_in(category, .projr_opt_remote_get_osf_cat())
   .assert_string(description)
   .assert_flag(public, TRUE)
 
@@ -138,7 +138,7 @@
 
 .projr_remote_check_exists <- function(type,
                                        id) {
-  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
+  .assert_in(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_check_exists_local(path = id),
     "osf" = .projr_remote_check_exists_osf(id = id),
@@ -177,7 +177,7 @@
 
 .projr_remote_get <- function(type,
                               id) {
-  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
+  .assert_in(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_get_local(id = id),
     "osf" = .projr_remote_get_osf(id = id),
@@ -258,7 +258,7 @@
   .assert_string(path, TRUE)
   .assert_path_not_file(path)
   .assert_flag(path_append_label)
-  .assert_opt(label, .projr_opt_dir_get_label_send(NULL))
+  .assert_in(label, .projr_opt_dir_get_label_send(NULL))
   .assert_opt_single(structure, .projr_opt_remote_get_structure())
 
   # the local destination is just the
@@ -279,7 +279,7 @@
   # create this, as we create the OSF sub-directory
   # if specified. Needs to be automated
   # due to versioning
-  .projr_dir_create(path_dir)
+  .dir_create(path_dir)
   path_dir
 }
 
@@ -295,7 +295,7 @@
   .assert_nchar_single(id, 5L, TRUE)
   .assert_string(path)
   .assert_flag(path_append_label)
-  .assert_opt(label, .projr_opt_dir_get_label_send(NULL))
+  .assert_in(label, .projr_opt_dir_get_label_send(NULL))
   .assert_opt_single(structure, .projr_opt_remote_get_structure())
   label <- .projr_remote_get_final_osf_get_label(
     label, path_append_label
@@ -331,7 +331,7 @@
 
 .projr_remote_get_final_github <- function(id, label) {
   .assert_string(id, TRUE)
-  .assert_opt(label, .projr_opt_dir_get_label_send(NULL), TRUE)
+  .assert_in(label, .projr_opt_dir_get_label_send(NULL), TRUE)
   # everything uploaded to a gh release
   # is a single file, and all other remotes
   # are just directories where files can
@@ -388,7 +388,7 @@
   .assert_flag(path_append_label, TRUE)
   .assert_opt_single(structure, .projr_opt_remote_get_structure(), TRUE)
   if (path_append_label) {
-    .assert_opt(label, .projr_opt_dir_get_label_send(NULL), TRUE)
+    .assert_in(label, .projr_opt_dir_get_label_send(NULL), TRUE)
   }
 
   args_list <- list()
@@ -399,7 +399,7 @@
     args_list <- args_list |> append(list(label))
   }
   if (structure == "version") {
-    args_list <- args_list |> append(list(paste0("v", projr_version_get())))
+    args_list <- args_list |> append(list(.projr_version_get_v()))
   }
   if (length(args_list) == 0L) {
     return(character())
@@ -419,7 +419,7 @@
 .projr_remote_rm_final_if_empty <- function(type,
                                             remote,
                                             structure) {
-  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
+  .assert_in(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_rm_final_if_empty_local(
       remote = remote, structure = structure
@@ -433,7 +433,7 @@
 
 # local
 .projr_remote_rm_final_if_empty_local <- function(remote, structure) {
-  .assert_opt(structure, .projr_opt_remote_get_structure(), TRUE)
+  .assert_in(structure, .projr_opt_remote_get_structure(), TRUE)
   .assert_string(remote, TRUE)
   # only do this for versioned ones
   if (!structure == "version") {
@@ -451,7 +451,7 @@
 
 # osf
 .projr_remote_rm_final_if_empty_osf <- function(remote, structure) {
-  .assert_opt(structure, .projr_opt_remote_get_structure(), TRUE)
+  .assert_in(structure, .projr_opt_remote_get_structure(), TRUE)
   .assert_given_full(remote)
   if (!structure == "version") {
     return(invisible(FALSE))
@@ -483,7 +483,7 @@
 
 .projr_remote_host_rm <- function(type,
                                   host) {
-  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
+  .assert_in(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_host_rm_local(host),
     "osf" = .projr_remote_host_rm_osf(host),
@@ -556,7 +556,7 @@
 # it's actually got nothing, so it's very different)
 .projr_remote_file_rm_all <- function(type,
                                       remote) {
-  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
+  .assert_in(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_file_rm_all_local(remote),
     "osf" = .projr_remote_file_rm_all_osf(remote),
@@ -616,8 +616,8 @@
                                        remote,
                                        path_dir_save_local) {
   .assert_string(path_dir_save_local, TRUE)
-  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
-  .projr_dir_create(path_dir_save_local)
+  .assert_in(type, .projr_opt_remote_get_type(), TRUE)
+  .dir_create(path_dir_save_local)
   switch(type,
     "local" = .projr_remote_file_get_all_local(
       remote = remote,
@@ -641,7 +641,7 @@
 .projr_remote_file_get_all_local <- function(remote,
                                              path_dir_save_local) {
   .assert_string(remote, TRUE)
-  .projr_dir_copy(remote, path_dir_save_local)
+  .dir_copy(remote, path_dir_save_local)
 }
 
 # ---------------------
@@ -681,7 +681,7 @@
 
 .projr_remote_file_get_all_github_file <- function(remote, path_dir_save_local) {
   piggyback::.pb_cache_clear()
-  path_dir_save_init <- .projr_dir_tmp_random_get()
+  path_dir_save_init <- .dir_create_tmp_random()
   if (!remote[["fn"]] %in% piggyback::pb_list(tag = remote[["tag"]])) {
     return(invisible(path_dir_save_local))
   }
@@ -706,7 +706,7 @@
 
 .projr_remote_file_ls <- function(type,
                                   remote) {
-  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
+  .assert_in(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_file_ls_local(remote),
     "osf" = .projr_remote_file_ls_osf(remote),
@@ -717,14 +717,14 @@
 # local
 .projr_remote_file_ls_local <- function(remote) {
   .assert_string(remote, TRUE)
-  .projr_dir_ls(path_dir = remote)
+  .file_ls(path_dir = remote)
 }
 
 # osf
 .projr_remote_file_ls_osf <- function(remote,
                                       path_dir_parent = NULL) {
   .assert_given_full(remote)
-  .assert_chr_full(path_dir_parent)
+  .assert_chr(path_dir_parent)
   osf_tbl_file <- remote |> osfr::osf_ls_files(n_max = Inf)
   if (nrow(osf_tbl_file) == 0L) {
     return(character())
@@ -765,7 +765,7 @@
 # github
 .projr_remote_file_ls_github <- function(remote) {
   .assert_given_full(remote)
-  path_dir_save_local <- .projr_dir_tmp_random_get()
+  path_dir_save_local <- .dir_create_tmp_random()
   .projr_remote_file_get_all(
     "github",
     remote = remote, path_dir_save_local = path_dir_save_local
@@ -783,7 +783,7 @@
 .projr_remote_file_rm <- function(type,
                                   fn,
                                   remote) {
-  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
+  .assert_in(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_file_rm_local(fn = fn, remote = remote),
     "osf" = .projr_remote_file_rm_osf(fn = fn, remote = remote),
@@ -799,7 +799,7 @@
     return(invisible(FALSE))
   }
   .assert_string(remote, TRUE)
-  fn_vec <- .projr_file_filter_exists(file.path(remote, fn))
+  fn_vec <- .file_filter_exists(file.path(remote, fn))
   if (length(fn_vec) == 0L) {
     return(invisible(FALSE))
   }
@@ -896,7 +896,7 @@
   }
   .assert_given_full(remote)
   piggyback::.pb_cache_clear()
-  path_dir_save_local <- .projr_dir_tmp_random_get()
+  path_dir_save_local <- .dir_create_tmp_random()
   .projr_remote_file_get_all(
     "github",
     remote = remote, path_dir_save_local = path_dir_save_local
@@ -929,7 +929,7 @@
                                    remote,
                                    path_dir_local,
                                    fn) {
-  .assert_opt(type, .projr_opt_remote_get_type(), TRUE)
+  .assert_in(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_file_add_local(
       fn = fn, path_dir_local = path_dir_local, remote = remote
@@ -951,7 +951,7 @@
   .assert_string(path_dir_local, TRUE)
   .assert_path_not_file(path_dir_local)
   .assert_string(remote, TRUE)
-  .projr_dir_copy_file(
+  .dir_copy_file(
     fn = fn,
     path_dir_from = path_dir_local,
     path_dir_to = remote
@@ -1071,7 +1071,7 @@
 }
 
 .projr_remote_ls_source <- function() {
-  yml_projr_dir <- projr_yml_get_unchecked()[["directories"]]
+  yml_projr_dir <- .projr_yml_dir_get(NULL)
   lapply(yml_projr_dir, function(x) {
     remote_vec <- c("github", "osf")
     remote_vec[remote_vec %in% names(x)]
@@ -1081,13 +1081,13 @@
 }
 
 .projr_remote_ls_dest <- function() {
-  yml_projr_build <- projr_yml_get_unchecked()[["build"]]
+  yml_projr_build <- .projr_yml_build_get(NULL)
   remote_vec <- c("github", "osf")
   remote_vec[remote_vec %in% names(yml_projr_build)]
 }
 
 .projr_git_push_check <- function() {
   setting_push_explicit <-
-    projr_yml_get_unchecked()[["build"]][["git"]][["push"]]
+    .projr_yml_build_get(NULL)[["git"]][["push"]]
   if (is.null(setting_push_explicit)) TRUE else setting_push_explicit
 }

@@ -224,7 +224,7 @@ projr_yml_cite_set_default <- function(profile = "default",
 }
 
 .projr_yml_cite_get <- function(profile) {
-  init_list <- projr_yml_get_unchecked(profile)[["build"]][["cite"]]
+  init_list <- .projr_yml_get(profile)[["build"]][["cite"]]
   if (length(init_list) == 0L) {
     return(NULL)
   }

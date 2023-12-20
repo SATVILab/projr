@@ -9,7 +9,7 @@ repo_name <- "report"
 # empty and create project directory
 dir_test <- file.path(tempdir(), repo_name)
 if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-.projr_dir_create(dir_test)
+.dir_create(dir_test)
 
 setwd(dir_test)
 .test_unset()

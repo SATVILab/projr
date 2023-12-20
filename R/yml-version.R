@@ -22,7 +22,7 @@
 }
 
 .projr_yml_version_get <- function(profile) {
-  version_format <- projr_yml_get_unchecked(profile)[["version-format"]]
+  version_format <- .projr_yml_get(profile)[["version-format"]]
   if (.is_len_0(version_format)) {
     return(NULL)
   }

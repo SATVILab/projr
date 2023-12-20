@@ -13,12 +13,12 @@
 }
 
 .projr_git_repo_check_exists <- function() {
-  dir.exists(.projr_dir_proj_get(".git"))
+  dir.exists(.dir_proj_get(".git"))
 }
 
 .projr_git_repo_rm <- function() {
-  if (dir.exists(.projr_dir_proj_get(".git"))) {
-    unlink(.projr_dir_proj_get(".git"), recursive = TRUE)
+  if (dir.exists(.dir_proj_get(".git"))) {
+    unlink(.dir_proj_get(".git"), recursive = TRUE)
   }
 }
 
@@ -128,7 +128,7 @@
 }
 
 .projr_git_init_gert <- function() {
-  gert::git_init(path = .projr_dir_proj_get())
+  gert::git_init(path = .dir_proj_get())
 }
 
 # git or gert

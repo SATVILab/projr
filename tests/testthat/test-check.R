@@ -15,8 +15,8 @@ test_that(".projr_remote_create works", {
       expect_true(.assert_dir_exists_single("a", TRUE))
       # multiple
       expect_error(.assert_dir_exists(c("a", "b")))
-      .projr_dir_create("a")
-      .projr_dir_create("b")
+      .dir_create("a")
+      .dir_create("b")
       expect_true(.assert_dir_exists("a", TRUE))
 
       # character

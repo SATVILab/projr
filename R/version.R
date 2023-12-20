@@ -112,7 +112,7 @@ projr_version_format_get <- function() {
 }
 
 
-projr_name_get <- function() basename(.projr_dir_proj_get())
+projr_name_get <- function() basename(.dir_proj_get())
 
 .projr_version_format_check <- function(version) {
   version_format <- projr_version_format_get()
@@ -326,4 +326,11 @@ projr_version_get <- function(dev_force = FALSE) {
     unique() |>
     sort() |>
     utils::tail(1)
+}
+
+.projr_version_append <- function(path) {
+  file.path(path, .projr_version_get_v())
+}
+.projr_version_get_v <- function() {
+  .projr_version_get_v()
 }

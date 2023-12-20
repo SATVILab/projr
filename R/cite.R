@@ -1,6 +1,6 @@
 .projr_cite_citation_set <- function() {
   path_inst_citation <- file.path("inst", "CITATION")
-  .projr_file_rm(path_inst_citation)
+  .file_rm(path_inst_citation)
   .projr_cite_citation_inst_write()
   .projr_cite_citation_inst_add_header()
 }
@@ -10,7 +10,7 @@
 }
 
 .projr_cite_citation_inst_add_header <- function() {
-  path_citation_inst <- .projr_dir_proj_get(
+  path_citation_inst <- .dir_proj_get(
     "inst", "CITATION"
   ) # nolint: object_usage_linter.
   header_txt <- paste0(
@@ -24,7 +24,7 @@
 }
 
 .projr_cite_codemeta_set <- function() {
-  codemeta::write_codemeta(path = .projr_dir_proj_get())
+  codemeta::write_codemeta(path = .dir_proj_get())
 }
 
 .projr_cite_bibtex_get <- function() {

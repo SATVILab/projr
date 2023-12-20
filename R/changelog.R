@@ -12,7 +12,7 @@
 }
 
 .projr_changelog_read <- function() {
-  path_changelog <- .projr_dir_proj_get("CHANGELOG.md")
+  path_changelog <- .dir_proj_get("CHANGELOG.md")
   if (!file.exists(path_changelog)) {
     return(c("# CHANGELOG", ""))
   }
@@ -25,7 +25,7 @@
   append_txt <- .projr_changelog_read()[-c(1, 2)]
   c(init_txt, add_txt, append_txt) |>
     .projr_changelog_write()
-  .projr_dir_proj_get("CHANGELOG.md") |>
+  .dir_proj_get("CHANGELOG.md") |>
     .projr_newline_append()
 }
 
@@ -83,6 +83,6 @@
 }
 
 .projr_changelog_write <- function(txt) {
-  path_changelog <- .projr_dir_proj_get("CHANGELOG.md")
+  path_changelog <- .dir_proj_get("CHANGELOG.md")
   writeLines(txt, path_changelog)
 }

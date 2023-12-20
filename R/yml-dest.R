@@ -385,7 +385,7 @@
 .projr_yml_dest_used_get <- function(profile) {
   .projr_yml_dest_opt_vec()[
     .projr_yml_dest_opt_vec() %in%
-      names(projr_yml_get_unchecked(profile)[["build"]])
+      names(.projr_yml_get(profile)[["build"]])
   ]
 }
 
@@ -426,13 +426,13 @@
 
 # type
 .projr_yml_dest_set_type <- function(yml_type, type, profile) {
-  .assert_opt(type, c("osf", "local", "github"), TRUE)
+  .assert_in(type, c("osf", "local", "github"), TRUE)
   .projr_yml_build_set_nm(yml_type, type, profile)
 }
 
 .projr_yml_dest_get_type <- function(type, profile) {
-  .assert_opt(type, c("osf", "local", "github"), TRUE)
-  init_list <- projr_yml_get_unchecked(profile)[["build"]][[type]]
+  .assert_in(type, c("osf", "local", "github"), TRUE)
+  init_list <- .projr_yml_get(profile)[["build"]][[type]]
   if (length(init_list) == 0L) {
     return(NULL)
   }

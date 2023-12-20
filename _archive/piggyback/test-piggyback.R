@@ -1,7 +1,7 @@
 test_that(".projr_pb_check_run works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
-  .projr_dir_create(dir_test)
+  .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
@@ -41,14 +41,14 @@ test_that(".projr_pb_check_run works", {
         file.path(
           getwd(),
           projr_path_get(
-            "cache", "projr", paste0("v", projr_version_get()),
+            "cache", "projr", .projr_version_get_v(),
             "gh_release", "v1.0.0", "cache.zip"
           )
         ) |>
           normalizePath(winslash = "/", mustWork = FALSE)
       )
       expect_true(file.exists(projr_path_get(
-        "cache", "projr", paste0("v", projr_version_get()),
+        "cache", "projr", .projr_version_get_v(),
         "gh_release", "v1.0.0", "cache.zip"
       )))
     },

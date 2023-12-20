@@ -12,13 +12,13 @@
 }
 
 .projr_init_engine_check_exists <- function() {
-  bookdown_exists_lgl <- file.exists(.projr_dir_proj_get("_bookdown.yml"))
+  bookdown_exists_lgl <- file.exists(.dir_proj_get("_bookdown.yml"))
   quarto_project_exists_lgl <- file.exists(
-    .projr_dir_proj_get("_quarto.yml")
+    .dir_proj_get("_quarto.yml")
   )
   qmd_rmd_exists_lgl <- any(grepl(
     "\\.qmd|\\.Rmd|\\.rmd",
-    list.files(.projr_dir_proj_get())
+    list.files(.dir_proj_get())
   ))
   bookdown_exists_lgl || quarto_project_exists_lgl || qmd_rmd_exists_lgl
 }
@@ -63,7 +63,7 @@
       nm_list[["title"]],
       "</a></li>\n"
     )
-  path_yml <- .projr_dir_proj_get("_output.yml")
+  path_yml <- .dir_proj_get("_output.yml")
   yaml::write_yaml(o_yml, path_yml)
   .projr_newline_append(path_yml)
 
@@ -83,7 +83,7 @@
   index[author_ind] <- nm_author
   description_ind <- which(grepl("^description", index))
   index[description_ind] <- paste0("description: ", nm_list[["title"]])
-  writeLines(index, .projr_dir_proj_get("index.Rmd"))
+  writeLines(index, .dir_proj_get("index.Rmd"))
   invisible(TRUE)
 }
 
@@ -138,7 +138,7 @@
 .projr_init_engine_quarto_project_index <- function() {
   # index.Rmd
   index <- c("# Introduction", "")
-  writeLines(index, .projr_dir_proj_get("index.qmd"))
+  writeLines(index, .dir_proj_get("index.qmd"))
   invisible(TRUE)
 }
 
@@ -168,7 +168,7 @@
     "# Introduction",
     ""
   )
-  path_qmd <- .projr_dir_proj_get(
+  path_qmd <- .dir_proj_get(
     paste0(
       gsub("\\.qmd$", "", nm_list[["filename"]]),
       ".qmd"
@@ -208,7 +208,7 @@
     "# Introduction",
     ""
   )
-  path_rmd <- .projr_dir_proj_get(
+  path_rmd <- .dir_proj_get(
     paste0(
       gsub("\\.Rmd|\\.rmd$", "", nm_list[["filename"]]),
       ".Rmd"

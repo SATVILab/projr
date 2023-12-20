@@ -178,6 +178,22 @@
 }
 
 # all labels matching certain types
+.projr_yml_dir_get_label_artefact <- function(profile) {
+  .projr_yml_dir_get_label_in(profile) |>
+    c(.projr_yml_dir_get_label_out(profile))
+}
+
+.projr_yml_dir_get_label_in <- function(profile) {
+  .projr_yml_dir_get_label_data_raw(profile) |>
+    c(.projr_yml_dir_get_label_cache(profile))
+}
+
+.projr_yml_dir_get_label_out <- function(profile) {
+  .projr_yml_dir_get_label_output(profile) |>
+    c(.projr_yml_dir_get_label_docs(profile)) |>
+    c("data")
+}
+
 .projr_yml_dir_get_label_output <- function(profile) {
   .projr_yml_dir_get_label_nm("output", profile)
 }
@@ -207,15 +223,13 @@
 }
 
 .projr_yml_dir_get_nm <- function(nm, profile) {
-  .assert_opt(
-    nm, names(.projr_yml_dir_get(profile))
-  )
+  .assert_in(nm, .projr_opt_dir_get_label(profile))
   .projr_yml_dir_get(profile)[[nm]]
 }
 
 .projr_yml_dir_set_nm <- function(yml, nm, profile) {
-  .assert_opt(nm, names(.projr_yml_dir_get(profile)))
-  yml_projr <- projr_yml_get_unchecked(profile)
+  .assert_in(nm, names(.projr_yml_dir_get(profile)))
+  yml_projr <- .projr_yml_get(profile)
   yml_projr[["directories"]][[nm]] <- yml
   .projr_yml_set(yml_projr, profile)
 }
@@ -225,7 +239,7 @@
 }
 
 .projr_yml_dir_set_path <- function(path, label, profile) {
-  yml_projr <- projr_yml_get_unchecked(profile)
+  yml_projr <- .projr_yml_get(profile)
   yml_projr[["directories"]][[label]][["path"]] <- path
   .projr_yml_set(yml_projr, profile)
 }
@@ -238,11 +252,11 @@
 }
 
 .projr_yml_dir_get <- function(profile) {
-  projr_yml_get_unchecked(profile)[["directories"]]
+  .projr_yml_get(profile)[["directories"]]
 }
 
 .projr_yml_dir_set <- function(yml_dir, profile) {
-  yml_projr <- projr_yml_get_unchecked(profile)
+  yml_projr <- .projr_yml_get(profile)
   yml_projr[["directories"]] <- yml_dir
   .projr_yml_set(yml_projr, profile)
 }
@@ -256,7 +270,7 @@
 }
 
 .projr_yml_dir_set_nm_empty <- function(nm, profile) {
-  yml_projr <- projr_yml_get_unchecked(profile)
+  yml_projr <- .projr_yml_get(profile)
   yml_projr[["directories"]] <- yml_projr[["directories"]][
     setdiff(names(yml_projr[["directories"]]), nm)
   ]
@@ -264,7 +278,7 @@
 }
 
 .projr_yml_dir_set_nm_non_empty <- function(yml, nm, profile) {
-  yml_projr <- projr_yml_get_unchecked(profile)
+  yml_projr <- .projr_yml_get(profile)
   yml_projr[["directories"]][[nm]] <- yml
   .projr_yml_set(yml_projr, profile)
 }

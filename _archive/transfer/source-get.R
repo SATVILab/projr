@@ -16,7 +16,7 @@
 
 .projr_source_get_label <- function(label,
                                     bump_component) {
-  yml_projr_label <- projr_yml_get_unchecked()[["directories"]][[label]]
+  yml_projr_label <- .projr_yml_get()[["directories"]][[label]]
 }
 
 .projr_source_get_check <- function(bump_component) {
@@ -29,7 +29,7 @@
 }
 
 .projr_source_get_get <- function(label) {
-  projr_yml_get_unchecked()[["directories"]]
+  .projr_yml_get()[["directories"]]
 }
 # TODO: okay, so the logic is a bit messed up here,
 # but I think we're okay generally.
@@ -42,5 +42,5 @@
 
 .projr_source_get_remote <- function(remote_type,
                                      bump_component) {
-  yml_projr_remote <- projr_yml_get_unchecked()[["build"]][[remote_type]]
+  yml_projr_remote <- .projr_yml_get()[["build"]][[remote_type]]
 }

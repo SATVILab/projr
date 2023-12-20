@@ -11,16 +11,21 @@
 #'
 #' Note that an error is thrown if the active settings
 #' are invalid.
+#' @param profile character.
+#' \code{projr} profile to use.
+#' If \code{NULL}, then the active profile is used.
+#' Default is `NULL`.
+#' @param check logical.
+#' Whether to check the validity of the settings.
+#' Default is `FALSE`.
 #'
 #' @seealso projr_yml_get_unchecked,projr_yml_check
 #'
 #' @return A named list, if the settings are valid.
 #'
 #' @export
-projr_yml_get <- function() {
-  yml_projr <- projr_yml_get_unchecked()
-  projr_yml_check(yml_projr)
-  yml_projr
+projr_yml_get <- function(profile = NULL, check = FALSE) {
+  .projr_yml_get(profile)
 }
 
 #' @title Get active `projr` settings and do no check
@@ -38,15 +43,14 @@ projr_yml_get <- function() {
 #' @return A named list.
 #'
 #' @seealso projr_yml_get,projr_yml_check
-#' @export
-projr_yml_get_unchecked <- function(profile = NULL) {
+.projr_yml_get <- function(profile) {
   if (!is.null(profile)) {
-    return(.projr_yml_get_unchecked_profile(profile))
+    return(.projr_yml_get_profile(profile))
   }
-  .projr_yml_get_unchecked_null()
+  .projr_yml_get_null()
 }
 
-.projr_yml_get_unchecked_profile <- function(profile) {
+.projr_yml_get_profile <- function(profile) {
   .assert_string(profile)
   switch(profile,
     "local" = .projr_yml_get_local(),
@@ -55,7 +59,7 @@ projr_yml_get_unchecked <- function(profile = NULL) {
   )
 }
 
-.projr_yml_get_unchecked_null <- function() {
+.projr_yml_get_null <- function() {
   yml_projr_root <- .projr_yml_get_root_default()
   yml_projr_profile <- .projr_yml_get_profile()
   yml_projr_local <- .projr_yml_get_local()
@@ -124,7 +128,7 @@ projr_yml_get_unchecked <- function(profile = NULL) {
 }
 
 .projr_yml_get_root_full <- function() {
-  path_yml <- .projr_dir_proj_get("_projr.yml")
+  path_yml <- .dir_proj_get("_projr.yml")
   if (!file.exists(path_yml)) {
     stop(paste0("_projr.yml not found at ", path_yml))
   }
@@ -150,7 +154,7 @@ projr_yml_get_unchecked <- function(profile = NULL) {
   key_root_build <- paste0("build-", profile)
   root_dir_ind <- key_root_dir %in% names(yml_projr_root_full)
   root_build_ind <- key_root_build %in% names(yml_projr_root_full)
-  path_yml_projr_profile <- .projr_dir_proj_get(
+  path_yml_projr_profile <- .dir_proj_get(
     paste0("_projr-", profile, ".yml")
   )
   path_projr_profile_root <- file.exists(path_yml_projr_profile)
@@ -180,7 +184,7 @@ projr_yml_get_unchecked <- function(profile = NULL) {
 }
 
 .projr_yml_get_local <- function() {
-  path_yml <- .projr_dir_proj_get("_projr-local.yml")
+  path_yml <- .dir_proj_get("_projr-local.yml")
   if (!file.exists(path_yml)) {
     return(list())
   }
@@ -622,13 +626,13 @@ projr_yml_check <- function(yml_projr = NULL) {
 
 .projr_yml_get_path <- function(profile) {
   if (!.is_given_mid(profile) || profile == "default") {
-    return(.projr_dir_proj_get("_projr.yml"))
+    return(.dir_proj_get("_projr.yml"))
   }
-  .projr_dir_proj_get(paste0("_projr-", profile, ".yml"))
+  .dir_proj_get(paste0("_projr-", profile, ".yml"))
 }
 
 .projr_yml_set_root <- function(list_save) {
-  path_yml <- .projr_dir_proj_get("_projr.yml")
+  path_yml <- .dir_proj_get("_projr.yml")
   yaml::write_yaml(list_save, path_yml)
   .projr_newline_append(path_yml)
   invisible(TRUE)
@@ -675,7 +679,7 @@ projr_yml_check <- function(yml_projr = NULL) {
 =======
 >>>>>>> bf11267 (Add many updates)
 .projr_desc_get <- function() {
-  path_desc <- .projr_dir_proj_get("DESCRIPTION")
+  path_desc <- .dir_proj_get("DESCRIPTION")
   read.dcf(path_desc)
 }
 

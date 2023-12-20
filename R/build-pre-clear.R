@@ -19,14 +19,25 @@
 }
 
 .projr_build_clear_pre_output <- function(cache) {
-  # clear output director(ies)
+  # purpose:
+  # we want to empty the safe output directories
+  # (safe data, output and docs),
+  # and caching docs as well if requested (see below; the default),
+  # before the run so that we know they were produced by the run.
+  # notes:
+  # 1. clear output director(ies)
   # does not depend on output_run as
   # this is always saved to the same location
   # (and only copied across after builds on output runs,
   # nothing about non-safe dirs pre-run)
+  # 2. cache only docs directory
+  # only cache docs as the other two output types
+  # are written to cache directories by default anyway
+  # (as long as people use `.projr_use_data`)
   # we clear safe output directories before copying afterwards
-  for (x in .projr_build_clear_pre_output_get_label()) {
-    .projr_build_clear_pre_output_label(x, cache)
+  for (x in .projr_yml_dir_get_label_out(NULL)) {
+    cache_label <- cache && x %in% .projr_yml_dir_get_label_docs(NULL)
+    .projr_build_clear_pre_output_label(x, cache_label)
   }
 }
 
@@ -39,22 +50,15 @@
 }
 
 .projr_build_clear_pre_output_label_cache <- function(label) {
-  .projr_dir_mimick(
-    .projr_path_get_dir(label, safe = TRUE),
-    .projr_dir_get_cache_auto_version_old(label, profile = NULL)
+  .dir_copy_exact(
+    projr_path_get_dir(label, safe = TRUE),
+    .projr_dir_get_cache_auto_version(label, profile = NULL)
   )
 }
 
 .projr_build_clear_pre_output_label_no_cache <- function(label) {
-  .projr_path_get_dir(label, safe = TRUE) |>
-    .projr_dir_clear()
-}
-
-.projr_build_clear_pre_output_get_label <- function() {
-  label_vec <- names(.projr_yml_dir_get())
-  label_vec[grepl("^output", .projr_dir_label_strip(label_vec))] |>
-    c("data") |>
-    unique()
+  projr_path_get_dir(label, safe = TRUE) |>
+    .dir_clear()
 }
 
 .projr_build_clear_pre_docs <- function(output_run, cache) {
@@ -73,18 +77,18 @@
 .projr_build_clear_pre_docs_check <- function(output_run) {
   path_docs <- projr_path_get_dir("docs", safe = !output_run) |>
     normalizePath(winslash = "/")
-  path_proj_root <- .projr_dir_proj_get() |> normalizePath(winslash = "/")
+  path_proj_root <- .dir_proj_get() |> normalizePath(winslash = "/")
   identical(path_docs, path_proj_root)
 }
 
 .projr_build_clear_pre_docs_cache <- function(output_run) {
-  .projr_dir_mimick(
-    .projr_path_get_dir("docs", safe = !output_run),
+  .dir_copy_exact(
+    projr_path_get_dir("docs", safe = !output_run),
     .projr_dir_get_cache_auto("projr", "cleared_docs")
   )
 }
 
 .projr_build_clear_pre_docs_no_cache <- function(output_run) {
-  .projr_path_get_dir("docs", safe = !output_run) |>
-    .projr_dir_clear()
+  projr_path_get_dir("docs", safe = !output_run) |>
+    .dir_clear()
 }

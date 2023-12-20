@@ -2,419 +2,203 @@
 #'
 #' @description
 #' Checks correctness of active `projr` settings.
-#' @param yml_projr list.
-#' Projr settings. If not supplied,
-#' then the results of `projr_yml_get_unchecked` is used.
+
+#' @param profile character().
+#' Profile whose file needs to be checked.
+#' If not supplied, then the merged profile is used.
+#' Default is NULL.
 #'
 #' @return
 #' Returns `TRUE` if all checks pass.
 #' Otherwise throws an error.
 #'
 #' @export
-projr_yml_check <- function(yml_projr = NULL) {
-  if (is.null(yml_projr)) {
-    yml_projr <- projr_yml_get_unchecked()
-  }
-  .projr_yml_check_merged(yml_projr)
+projr_yml_check <- function(profile = NULL) {
+  assert_has(names(projr_yml_get(profile)), c("build", "directories"), TRUE)
+  .projr_yml_dir_check(profile)
+  .projr_yml_build_check(profile)
 }
 
-.projr_yml_check_merged <- function(yml_projr) {
-  if (!"directories" %in% names(yml_projr)) {
-    stop("default directories not set in _projr.yml.")
+# directory
+# ----------------------
+.projr_yml_dir_check <- function(profile) {
+  yml_dir <- .projr_yml_dir_get(profile)
+  nm_vec <- names(yml_dir)
+  nm_vec_strip <- .projr_dir_label_strip(nm_vec)
+  .assert_len(nm_vec, unique(nm_vec))
+  .assert_len(nm_vec, nm_vec[nzchar(nm_vec)])
+  .assert_nz(nm_vec)
+  .assert_detect_any(nm_vec_strip, "^cache")
+  .assert_detect_any(nm_vec_strip, "^output")
+  for (x in nm_vec) {
+    .projr_yml_dir_check_label(x, profile)
   }
-  if (!"build" %in% names(yml_projr)) {
-    stop('_projr.yml must include "build" element')
-  }
-
-  # directories section
-  # ----------------------
-  yml_projr_dir <- yml_projr[["directories"]]
-  nm_vec_dir <- names(yml_projr_dir)[nzchar(names(yml_projr_dir))]
-  if (!length(nm_vec_dir) == length(yml_projr_dir)) {
-    stop("Directories must be named in projr settings")
-  }
-  nm_vec_dir_uni <- unique(nm_vec_dir)
-  if (!length(nm_vec_dir_uni) == length(nm_vec_dir)) {
-    stop("Directory names must be unique in projr settings")
-  }
-  if (!length(names(yml_projr_dir)) == length(yml_projr_dir)) {
-    stop("no directories set in _projr.yml")
-  }
-  nm_vec_dir <- names(yml_projr_dir)
-  # required repositories
-  nm_vec_dir_match <- .projr_dir_label_strip(nm_vec_dir)
-  if (!any(.projr_yml_dir_label_class_detect_data_raw(nm_vec_dir_match))) {
-    stop("No data-raw directory specified in projr settings")
-  }
-  if (!"cache" %in% nm_vec_dir_match) {
-    stop("No cache directory specified in projr settings")
-  }
-  if (!any(grepl("^output", nm_vec_dir_match))) {
-    stop("No output directory specified in projr settings")
-  }
-  if (!any(grepl("^archive", nm_vec_dir_match))) {
-    stop("No archive directory specified in projr settings")
-  }
-
-  .projr_yml_check_dir(yml_projr_dir)
-
-
-  # build section
-  # -------------------------
-  yml_projr_build <- yml_projr[["build"]]
-
-  # dev-output
-  if (!"dev-output" %in% names(yml_projr_build)) {
-    stop("dev-output section missing from projr settings in build key")
-  }
-  if (!is.logical(yml_projr_build[["dev-output"]])) {
-    stop("dev-output must be logical in projr settings in build key")
-  }
-  nm_vec_extra <- setdiff(
-    names(yml_projr_build),
-    c("dev-output", "git", "github", "package", "local", "osf")
-  )
-  if (length(nm_vec_extra) > 0) {
-    stop(paste0(
-      "The following key(s) are unknown
-      in the build section of projr settings: ",
-      paste0(nm_vec_extra, collapse = ", ")
-    ))
-  }
-  .projr_yml_check_build_git(yml_projr_build[["git"]])
-  .projr_yml_check_build_gh_release(yml_projr_build[["github"]])
-
-  TRUE
 }
 
-.projr_yml_check_dir <- function(yml_projr_dir) {
-  for (i in seq_along(yml_projr_dir)) {
-    .projr_yml_check_dir_elem(
-      yml_projr_dir[[i]],
-      names(yml_projr_dir)[i],
-      names(yml_projr_dir)
+# directory labels
+# ----------------------
+
+.projr_yml_dir_check_label <- function(label, profile) {
+  .projr_yml_dir_get_label(label, profile) |>
+    .assert_in(c("path", "ignore-git", "ignore-rbuild", "ignore", "output")) |>
+    .projr_yml_dir_check_label_path(label, profile) |>
+    .projr_yml_dir_check_label_ignore() |>
+    .projr_yml_dir_check_label_git_track_adjust() |>
+    .projr_yml_dir_check_label_output(profile)
+}
+
+.projr_yml_dir_check_label_path <- function(yml_label, label, profile) {
+  is_docs <- .projr_yml_dir_label_class_detect_docs(label)
+  if (is_docs && !path %in% names(yml_label)) {
+    return(invisible(TRUE))
+  }
+  .assert_has(names(yml_label), "path")
+  .assert_string(yml_label[["path"]], TRUE)
+  .projr_yml_dir_check_label_path_restricted(yml_label, label, profile)
+
+
+  invisible(TRUE)
+}
+
+.projr_yml_dir_check_label_path_restricted <- function(yml_label, label, profile) {
+  label_vec_restricted <- .projr_yml_dir_get_label_in(profile) |>
+    c(.projr_yml_dir_get_label_output(profile))
+  if (label %in% label_vec_restricted) {
+    .assert_path_not_sub(yml_label[["path"]], c("data", "man", "R", "tests"))
+  }
+  invisible(TRUE)
+}
+
+.projr_yml_dir_check_label_ignore <- function(yml_label) {
+  for (x in c("ignore", "ignore-git", "ignore-rbuild")) {
+    .projr_yml_dir_check_label_ignore_ind(yml_label, x)
+  }
+  invisible(TRUE)
+}
+
+.projr_yml_dir_check_label_ignore_ind <- function(yml_label, nm) {
+  if (nm %in% names(yml_label)) {
+    val <- yml_label[[nm]]
+    .assert_class_any(val, c("logical", "character"), TRUE)
+    .assert_len_1(val, TRUE)
+    if (is.logical(val)) .assert_flag(val)
+    if (is.character(val)) .assert_in(val, c("manual", "ignore", "no-ignore"))
+  }
+  invisible(TRUE)
+}
+
+.projr_yml_dir_check_label_git_track_adjust <- function(yml_label) {
+  if (!"git-track-adjust" %in% names(yml_label)) {
+    return(invisible(TRUE))
+  }
+  .assert_flag(yml_label[["git-track-adjust"]], TRUE)
+}
+
+.projr_yml_dir_check_label_output <- function(yml_label, label, profile) {
+  label_vec_output_valid <- .projr_yml_dir_get_label_output(profile) |>
+    c(.projr_yml_dir_get_label_in(profile)) |>
+    c("data", "docs")
+  if (!label %in% label_vec_output_valid) {
+    .assert_has_not(names(yml_label), "output")
+  }
+  if (!"output" %in% names(yml_label)) {
+    return(invisible(TRUE))
+  }
+
+  .assert_len_1(yml_label[["output"]], TRUE)
+  .assert_class_any(yml_label[["output"]], c("logical", "character"), TRUE)
+  if (is.logical(yml_label[["output"]])) {
+    .assert_flag(yml_label[["output"]])
+  } else if (is.character(yml_label[["output"]])) {
+    .assert_in(
+      yml_label[["output"]],
+      .projr_yml_dir_get_label_output(profile) |> c("output")
     )
   }
-  invisible(TRUE)
 }
 
-.projr_yml_check_dir_elem <- function(elem, key, keys) {
-  key_match <- .projr_dir_label_strip(key)
-  nm_vec_actual <- names(elem)
-  nm_vec_valid <- c(
-    "path", "ignore-git", "ignore-rbuild", "git-track-adjust",
-    "output", "archive",
-    "manifest",
-    "hash",
-    "osf"
+# build
+# ----------------------
+
+.projr_yml_build_check <- function(profile) {
+  yml_build <- .projr_yml_build_get(profile)
+  nm_vec <- names(yml_build)
+  .assert_in(
+    nm_vec, c("dev-output", "git", "github", "package", "local", "osf")
   )
-  nm_vec_extra <- setdiff(nm_vec_actual, nm_vec_valid)
-  if (length(nm_vec_extra) > 0) {
-    stop(paste0(
-      "The following name(s) are invalid for
-      directories as projr settings:",
-      paste0(nm_vec_extra, collapse = ", ")
-    ))
-  }
-  if (length(nm_vec_actual) > length(unique(nm_vec_actual))) {
-    stop(paste0(
-      "Directory settings must be unique"
-    ))
-  }
-  # path
-  # -------------------
-
-  if (!grepl("^docs", key_match)) {
-    if (!"path" %in% nm_vec_actual) {
-      stop(paste0(
-        "Path must be specified for directories in `projr` settings"
-      ))
-    }
-  }
-  if ("path" %in% nm_vec_actual) {
-    if (!all(is.character(elem[["path"]]))) {
-      stop(paste0(
-        "Path must be of type character for directories in `projr` settings"
-      ))
-    }
-    if (!length(elem[["path"]]) == 1) {
-      stop(paste0(
-        "Path must be of length one for directories in `projr` settings"
-      ))
-    }
-  }
-
-  # ignore
-  # ------------
-  if ("ignore-git" %in% names(elem)) {
-    # must be length 1
-    if (!length(elem[["ignore-git"]]) == 1) {
-      stop(paste0(
-        "`ignore_git` must be of length 1 for for directories in `projr` settings" # nolint
-      ))
-    }
-    # must be logical, or else character of certain types
-    ignore_logical <- is.logical(elem[["ignore-git"]])
-    if (is.character(elem[["ignore-git"]])) {
-      ignore_chr_correct <- elem[["ignore-git"]] %in%
-        c("manual", "ignore", "no-ignore")
-    } else {
-      ignore_chr_correct <- FALSE
-    }
-    if (!(ignore_logical || ignore_chr_correct)) {
-      stop(paste0(
-        '`ignore_git` must be of type logical or `"manual"`, `"ignore"` or `"no-ignore"` # nolint
-        for directories in `projr` settings'
-      ))
-    }
-  }
-  if ("ignore-rbuild" %in% names(elem)) {
-    # must be length 1
-    if (!length(elem[["ignore-rbuild"]]) == 1) {
-      stop(paste0(
-        "`ignore_rbuild` must be of length 1 for for directories in `projr` settings" # nolint
-      ))
-    }
-    # must be logical, or else character of certain types
-    ignore_logical <- is.logical(elem[["ignore-rbuild"]])
-    if (is.character(elem[["ignore-rbuild"]])) {
-      ignore_chr_correct <- elem[["ignore-rbuild"]] %in%
-        c("manual", "ignore", "no-ignore")
-    } else {
-      ignore_chr_correct <- FALSE
-    }
-    if (!(ignore_logical || ignore_chr_correct)) {
-      stop(paste0(
-        '`ignore_rbuild` must be of type logical or `"manual"`, `"ignore"` or `"no-ignore"` # nolint
-        for directories in `projr` settings'
-      ))
-    }
-  }
-
-  # must be logical or character
-  if ("git-track-adjust" %in% names(elem)) {
-    if (!is.logical(elem[["output"]])) {
-      stop(paste0(
-        "`git_track_adjust` must be of type character
-      for directories in `projr` settings"
-      ))
-    }
-  }
-
-  # output
-  # ------------
-  # must be logical or character
-  if ("output" %in% names(elem)) {
-    if (!is.logical(elem[["output"]])) {
-      if (!all(is.character(elem[["output"]]))) {
-        stop(paste0(
-          "`output` must be of type character
-          for directories in `projr` settings"
-        ))
-      }
-    }
-  }
-
-  # archive
-  # ------------
-  # must be logical or character
-  if ("archive" %in% names(elem)) {
-    if (!is.logical(elem[["archive"]])) {
-      if (!is.character(elem[["archive"]])) {
-        stop(paste0(
-          "`archive` must be of type character
-          for directories in `projr` settings"
-        ))
-      }
-    }
-  }
-
-  # hash
-  # ------------
-  # must be logical or character
-  if ("hash" %in% names(elem)) {
-    if (!is.logical(elem[["hash"]])) {
-      stop(paste0(
-        "`hash` must be of type logical
-        for directories in `projr` settings"
-      ))
-    }
-  }
-
-  # manifest
-  # ------------
-  # must be logical or character
-  if ("manifest" %in% names(elem)) {
-    if (!is.logical(elem[["manifest"]])) {
-      stop(paste0(
-        "`manifest` must be of type logical
-        for directories in `projr` settings"
-      ))
-    }
-  }
-
-  # key-specific
-  # ==================
-
-
-
-  # path not invalid
-  # -------------------
-  dir_vec_restricted <- c(
-    "data", "man", "R", "tests"
-  )
-  if (grepl("^dataraw|^cache|^archive|^output", key_match)) {
-    within_ind <- fs::path_has_parent(
-      elem[["path"]], dir_vec_restricted
-    ) |>
-      any()
-    if (within_ind) {
-      stop(paste0(
-        "Paths in dataraw, cache, archive and output directories cannot
-        be to the following (or sub-directories thereof): ",
-        paste0(dir_vec_restricted, collapse = ", ")
-      ))
-    }
-  }
-
-  # sending to output
-  # -------------------
-  if (grepl("^dataraw|^cache", key_match)) {
-    if ("output" %in% names(elem)) {
-      if (is.character(elem[["output"]])) {
-        if (any(!elem[["output"]] %in% keys)) {
-          stop(paste0(
-            "Output location for projr directory ", key, " misspecified"
-          ))
-        }
-      }
-    }
-  } else if (grepl("^output|^archive", key_match)) {
-    if ("output" %in% names(elem)) {
-      stop(paste0(
-        "Output location for projr directory ", key,
-        " should not be specified"
-      ))
-    }
-  }
-
-  # sending to archive
-  # -----------------
-  if (grepl("^output|^dataraw|^cache", key_match)) {
-    if ("archive" %in% names(elem)) {
-      if (is.character(elem[["archive"]])) {
-        if (any(!elem[["archive"]] %in% keys)) {
-          stop(paste0(
-            "Archive location for projr directory ", key, " misspecified"
-          ))
-        }
-      }
-    }
-  } else if (grepl("^archive", key_match)) {
-    if ("archive" %in% names(elem)) {
-      stop(paste0(
-        "Archive location for projr directory ", key,
-        " should not be specified"
-      ))
-    }
-  }
-
-  # sending manifest to cache or data-raw
-  # -----------------
-  if (grepl("^dataraw|^cache", key_match)) {
-    if ("manifest" %in% names(elem)) {
-      stop(paste0(
-        "Cannot save manifest to the following
-        `projr` directory (data-raw or cache): ",
-        key
-      ))
-    }
-  }
-
-  # hashing archive
-  # -----------------
-  if (grepl("^archive", key_match)) {
-    if ("hash" %in% names(elem)) {
-      stop(paste0(
-        "Cannot hash `projr` archive directories: ", key
-      ))
-    }
-  }
-
-
-  invisible(TRUE)
+  .assert_flag(.projr_yml_build_get_dev_output(profile))
+  .projr_yml_build_check_git(profile)
 }
 
-.projr_yml_check_build_git <- function(yml_git) {
+# build: git
+# ----------------------
+
+.projr_yml_build_check_git <- function(profile) {
+  yml_git <- .projr_yml_git_get(profile)
   if (is.null(yml_git)) {
-    return(FALSE)
+    return(invisible(TRUE))
   }
-  nm_vec_permitted <- c("commit", "add-untracked", "push")
-  nm_vec_actual <- names(yml_git)
-  nm_vec_extra <- setdiff(nm_vec_actual, nm_vec_permitted)
-  if (length(nm_vec_extra) > 0) {
-    stop(paste0(
-      "The following are extra setting(s)
-      in the Git section of the projr build key: ",
-      paste0(nm_vec_extra, collapse = ", ")
-    ))
+  .assert_in(names(yml_git), c("commit", "add-untracked", "push"))
+  if ("commit" %in% names(yml_git)) {
+    .assert_flag(yml_git[["commit"]])
   }
-  if (!"commit" %in% names(yml_git)) {
-    stop("The commit key is required in the
-    Git section of the projr build key")
+  if ("add-untracked" %in% names(yml_git)) {
+    .assert_flag(yml_git[["add-untracked"]])
   }
-  for (i in seq_along(yml_git)) {
-    if (!is.logical(yml_git[[i]])) {
-      stop(paste0(
-        "The key ", names(yml_git)[i],
-        " in the git section of the projr build key must be logical"
-      ))
-    }
-  }
-}
-
-.projr_yml_check_build_gh_release <- function(yml_gh) {
-  if (is.null(yml_gh)) {
-    return(FALSE)
-  }
-  dir_vec <- names(projr_yml_get_unchecked()[["directories"]])
-  for (i in seq_along(yml_gh)) {
-    .projr_yml_check_gh_release_ind(
-      tag = names(yml_gh)[i],
-      elem = yml_gh[[i]],
-      directories = dir_vec
-    )
+  if ("push" %in% names(yml_git)) {
+    .assert_flag(yml_git[["push"]])
   }
   invisible(TRUE)
 }
 
-.projr_yml_check_gh_release_ind <- function(tag = NULL,
-                                            elem = NULL,
-                                            directories = NULL) {
-  if (is.null(tag)) {
-    stop("tag must be specified for GitHub releases in projr settings")
+# build: local
+# ----------------------
+
+.projr_yml_build_check_dest <- function(profile) {
+  for (x in .projr_opt_remote_get_type()) {
+    if (is.null(.projr_yml_dest_get_type(x, profile))) {
+      return(invisible(TRUE))
+    }
+    title_vec <- names(.projr_yml_dest_get_type(x, profile))
+    for (i in seq_along(title_vec)) {
+      .projr_yml_build_check_dest_title(
+        .projr_yml_dest_get_title(title_vec[i], profile),
+        title = title_vec[i],
+        type = x
+      )
+    }
   }
-  if (is.null(elem)) {
-    stop("`content` and `body` must be specified
-    for GitHub releases in projr settings")
-  }
-  nm_vec_permitted <- c("content", "body") |> sort()
-  nm_vec_actual <- names(elem) |> sort()
-  if (!all(nm_vec_permitted == nm_vec_actual)) {
-    stop(
-      "GitHub releases specified in projr settings
-      require `content` and `body` keys"
+}
+
+.projr_yml_build_check_dest_title <- function(yml_title, title, type) {
+  .assert_string(title, TRUE)
+  .assert_in(yml_title[["content"]], .projr_opt_dir_get_label_send(NULL), TRUE)
+  .assert_in(yml_title[["structure"]], .projr_opt_remote_get_structure())
+  .assert_string(yml_title[["path"]], type == "local")
+  .assert_flag(yml_title[["path-append-label"]])
+  .assert_string(id, type == "osf")
+  .assert_nchar(id, 5L)
+  if ("get" %in% names(yml_title)) {
+    get_list <- yml_title[["get"]]
+    .assert_in(names(get_list), c("sync-approach", "conflict"))
+    .assert_in(
+      get_list[["sync-approach"]], .projr_opt_remote_sync_approach_get()
+    )
+    .assert_in(
+      get_list[["conflict"]], .projr_opt_remote_conflict_get()
     )
   }
-  directories <- c(directories, "code")
-  directories_extra <- setdiff(elem[["content"]], directories)
-  if (length(directories_extra) > 0) {
-    stop(paste0(
-      "In GitHub release with tag ", tag,
-      ", the following entries in content are not found
-      in the directories key:",
-      directories_extra
-    ))
+  if ("send" %in% names(yml_title)) {
+    send_list <- yml_title[["send"]]
+    .assert_in(names(send_list), .projr_opt_remote_transfer_names_get())
+    .assert_in(send_list[["cue"]], .projr_opt_remote_cue_get())
+    .assert_in(
+      send_list[["sync-approach"]], .projr_opt_remote_sync_approach_get()
+    )
+    .assert_in(send_list[["conflict"]], .projr_opt_remote_conflict_get())
+    .assert_in(
+      send_list[["version-source"]], .projr_opt_remote_version_source_get()
+    )
   }
   invisible(TRUE)
 }

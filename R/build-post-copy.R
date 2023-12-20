@@ -34,10 +34,11 @@
     # don't do it if not an output run (leave it in dev)
     return(invisible(FALSE))
   }
-  label_vec_output <- .projr_yml_dir_get_label_output() |> c("data")
+  label_vec_output <- .projr_yml_dir_get_label_output(NULL) |> c("data")
   for (x in label_vec_output) {
-    .projr_dir_move(
-      projr_path_get_dir(x, safe = TRUE), projr_path_get_dir(x, safe = FALSE)
+    .dir_move(
+      projr_path_get_dir(x, safe = TRUE),
+      projr_path_get_dir(x, safe = FALSE)
     )
   }
   invisible(TRUE)
@@ -58,7 +59,7 @@
   }
   .projr_build_copy_pkg_build()
   for (x in .projr_build_copy_pkg_get_label()) {
-    .projr_file_copy(
+    .file_copy(
       .projr_build_copy_pkg_build_path_get(),
       projr_path_get_dir(x, "pkg", safe = !output_run)
     )
@@ -74,7 +75,7 @@
 
 .projr_build_copy_pkg_get_label <- function() {
   sapply(
-    .projr_yml_dir_get_label_output(),
+    .projr_yml_dir_get_label_output(NULL),
     .projr_yml_dir_get_pkg_nm_complete,
     profile = NULL
   )
@@ -87,7 +88,7 @@
   path_pkg <- file.path(path_dir_pkg, fn_pkg)
   .projr_dep_install("pkgbuild")
   pkgbuild::build(
-    path = .projr_dir_proj_get(),
+    path = .dir_proj_get(),
     dest_path = path_pkg,
     binary = FALSE,
     quiet = TRUE

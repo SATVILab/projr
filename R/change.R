@@ -38,7 +38,7 @@
   # as it will filter on version and does
   # not assume there is only one label
   # get manifests from previous version and current version
-  manifest <- .projr_manifest_read(.projr_dir_proj_get("manifest.csv"))
+  manifest <- .projr_manifest_read(.dir_proj_get("manifest.csv"))
 
   if (nrow(manifest) == 0L) {
     return(.projr_zero_list_manifest_get())
@@ -161,12 +161,12 @@
 }
 
 .projr_change_get_file_dir_osf <- function(remote) {
-  .projr_remote_file_get_all("osf", remote, .projr_dir_tmp_random_get())
+  .projr_remote_file_get_all("osf", remote, .dir_create_tmp_random())
 }
 
 .projr_change_get_file_dir_github <- function(remote) {
   .projr_remote_file_get_all(
-    "github", remote, .projr_dir_tmp_random_get()
+    "github", remote, .dir_create_tmp_random()
   )
 }
 

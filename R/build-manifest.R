@@ -106,15 +106,15 @@
 
 .projr_build_manifest_post_get_path <- function(output_run) {
   if (output_run) {
-    return(.projr_dir_proj_get("manifest.csv"))
+    return(.dir_proj_get("manifest.csv"))
   }
   .projr_dir_get_cache_auto_version("manifest.csv", profile = NULL)
 }
 
 .projr_build_manifest_post_get_manifest_previous_version <- function() {
-  path <- .projr_dir_proj_get("manifest.csv")
+  path <- .dir_proj_get("manifest.csv")
   if (!file.exists(path)) {
     return(.projr_zero_tbl_get_manifest())
   }
-  .projr_manifest_read(.projr_dir_proj_get("manifest.csv"))
+  .projr_manifest_read(.dir_proj_get("manifest.csv"))
 }
