@@ -209,7 +209,7 @@ test_that("projr_build_copy_pkg works", {
 })
 
 test_that("projr_build_copy_dir works when outputting", {
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .dir_create(dir_test)
