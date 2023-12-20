@@ -14,7 +14,7 @@
 #'
 #' @export
 projr_yml_check <- function(profile = NULL) {
-  assert_has(names(projr_yml_get(profile)), c("build", "directories"), TRUE)
+  .assert_has(names(projr_yml_get(profile)), c("build", "directories"), TRUE)
   .projr_yml_dir_check(profile)
   .projr_yml_build_check(profile)
 }
@@ -25,8 +25,8 @@ projr_yml_check <- function(profile = NULL) {
   yml_dir <- .projr_yml_dir_get(profile)
   nm_vec <- names(yml_dir)
   nm_vec_strip <- .projr_dir_label_strip(nm_vec)
-  .assert_len(nm_vec, unique(nm_vec))
-  .assert_len(nm_vec, nm_vec[nzchar(nm_vec)])
+  .assert_len(nm_vec, unique(nm_vec) |> length())
+  .assert_len(nm_vec, nm_vec[nzchar(nm_vec)] |> length())
   .assert_nz(nm_vec)
   .assert_detect_any(nm_vec_strip, "^cache")
   .assert_detect_any(nm_vec_strip, "^output")
@@ -39,12 +39,15 @@ projr_yml_check <- function(profile = NULL) {
 # ----------------------
 
 .projr_yml_dir_check_label <- function(label, profile) {
-  .projr_yml_dir_get_label(label, profile) |>
-    .assert_in(c("path", "ignore-git", "ignore-rbuild", "ignore", "output")) |>
+  yml_label <- .projr_yml_dir_get_label(label, profile)
+  .assert_in(
+    names(yml_label), c("path", "ignore-git", "ignore-rbuild", "ignore", "output")
+  )
+  yml_label |>
     .projr_yml_dir_check_label_path(label, profile) |>
     .projr_yml_dir_check_label_ignore() |>
     .projr_yml_dir_check_label_git_track_adjust() |>
-    .projr_yml_dir_check_label_output(profile)
+    .projr_yml_dir_check_label_output(label, profile)
 }
 
 .projr_yml_dir_check_label_path <- function(yml_label, label, profile) {

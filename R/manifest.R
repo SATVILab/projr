@@ -8,11 +8,19 @@
   hash_tbl <- .projr_hash_dir(
     path_dir = projr_path_get_dir(label, safe = !output_run),
     dir_exc = .projr_build_label_get_dir_exc(label)
-  )
+  ) |>
+    .projr_manifest_hash_cache_filter(label)
   cbind(
     data.frame(label = rep(label, nrow(hash_tbl))),
     hash_tbl
   )
+}
+
+.projr_manifest_hash_cache_filter <- function(hash_tbl, label) {
+  if (!.projr_yml_dir_label_class_detect_cache(label)) {
+    return(hash_tbl)
+  }
+  hash_tbl[!grepl("^projr/v\\d+", hash_tbl[["fn"]]), , drop = FALSE]
 }
 
 .projr_build_label_get_dir_exc <- function(label) {

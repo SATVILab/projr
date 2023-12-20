@@ -43,3 +43,14 @@ test_that("getting and setting metadata files works", {
     force = TRUE
   )
 })
+
+test_that(".projr_dest_send_get_plan works", {
+  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      projr_init()
+      projr_yml_check()
+    }
+  )
+})

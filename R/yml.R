@@ -55,13 +55,13 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   switch(profile,
     "local" = .projr_yml_get_local(),
     "default" = .projr_yml_get_root_default(),
-    .projr_yml_get_profile()
+    .projr_yml_get_profile_spec()
   )
 }
 
 .projr_yml_get_null <- function() {
   yml_projr_root <- .projr_yml_get_root_default()
-  yml_projr_profile <- .projr_yml_get_profile()
+  yml_projr_profile <- .projr_yml_get_profile_spec()
   yml_projr_local <- .projr_yml_get_local()
 
   .projr_yml_merge(
@@ -144,43 +144,20 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   yml_projr_root_full[nm_vec]
 }
 
-.projr_yml_get_profile <- function() {
-  profile <- projr_profile_get()
+.projr_yml_get_profile_spec <- function(profile) {
+  if (!.is_given_mid(profile)) {
+    profile <- projr_profile_get()
+  }
   if (profile == "default") {
     return(list())
   }
-  yml_projr_root_full <- .projr_yml_get_root_full()
-  key_root_dir <- paste0("directories-", profile)
-  key_root_build <- paste0("build-", profile)
-  root_dir_ind <- key_root_dir %in% names(yml_projr_root_full)
-  root_build_ind <- key_root_build %in% names(yml_projr_root_full)
-  path_yml_projr_profile <- .dir_proj_get(
+  path_profile <- .dir_proj_get(
     paste0("_projr-", profile, ".yml")
   )
-  path_projr_profile_root <- file.exists(path_yml_projr_profile)
-  if ((root_build_ind || root_dir_ind) && path_projr_profile_root) {
-    stop(paste0(
-      "Settings for profile ", profile,
-      " found in both _projr.yml and _projr-", profile,
-      ".yml. Please either delete _projr-", profile,
-      ".yml, or remove the profile's settings in _projr.yml"
-    ))
-  }
-  if (root_build_ind || root_dir_ind) {
-    pos_dir <- which(names(yml_projr_root_full) == key_root_dir)
-    pos_build <- which(names(yml_projr_root_full) == key_root_build)
-    pos_either <- c(pos_dir, pos_build)
-    yml_projr_profile <- yml_projr_root_full[pos_either]
-    return(yml_projr_profile)
-  }
-  if (!file.exists(path_yml_projr_profile)) {
+  if (!file.exists(path_profile)) {
     return(list())
   }
-  yml_projr_init <- yaml::read_yaml(path_yml_projr_profile)
-  pos_dir <- which(names(yml_projr_init) == "directories")
-  pos_build <- which(names(yml_projr_init) == "build")
-  pos_either <- c(pos_dir, pos_build)
-  yml_projr_init[pos_either]
+  yaml::read_yaml(path_profile)
 }
 
 .projr_yml_get_local <- function() {

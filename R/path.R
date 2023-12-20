@@ -207,7 +207,7 @@
 
 # create
 .dir_create <- function(path_dir) {
-  .assert_chr(path_dir, TRUE)
+  .assert_chr_min(path_dir, TRUE)
   for (i in seq_along(path_dir)) {
     .assert_path_not_file(path_dir[[i]])
     if (!dir.exists(path_dir[[i]])) {
@@ -436,10 +436,15 @@
 .dir_copy_file_tree <- function(fn,
                                 path_dir_to) {
   # copy the required directory tree across
-  dir_vec <- dirname(fn) |> unique()
-  for (i in seq_along(dir_vec)) {
-    .dir_create(file.path(path_dir_to, dir_vec[[i]]))
-  }
+  dirname(fn) |>
+    setdiff(c(".", "..")) |>
+    unique() |>
+    vapply(
+      function(x) file.path(path_dir_to, x), character(1)
+    ) |>
+    stats::setNames(NULL) |>
+    .dir_filter_removable(path_dir_to) |>
+    .dir_create()
   invisible(TRUE)
 }
 

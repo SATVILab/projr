@@ -82,7 +82,7 @@
     return(invisible(TRUE))
   }
 
-  if (all(value %in% x)) {
+  if (!all(value %in% x)) {
     stop(
       paste0(
         nm, " must contain all the following value(s):\n",
@@ -258,16 +258,17 @@
 # path
 # --------------
 
-.assert_path_not_sub <- function(x, sub, required = FALSE, nm = TRUE) {
+.assert_path_not_sub <- function(x, sub, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
+  .assert_chr(sub, TRUE)
   if (!requireNamespace("fs", quietly = TRUE)) {
     utils::install.packages("fs")
   }
 
-  if (!fs::path_has_parent(x, sub)) {
+  if (any(vapply(sub, function(y) fs::path_has_parent(x, y), logical(1)))) {
     stop(paste0(nm, " must not be a subdirectory of ", sub), call. = FALSE)
   }
   invisible(TRUE)
@@ -389,7 +390,7 @@
 }
 
 .is_opt <- function(x, opt) {
-  .is_opt_min(x, opt) && .is_len_pos(x) && all(!is.na(x))
+  all(.is_opt_min(x, opt)) && .is_len_pos(x) && all(!is.na(x))
 }
 
 .is_opt_min <- function(x, opt) {
@@ -567,7 +568,7 @@
 .assert_string <- function(x, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
-    return(invisible(FALSE))
+    return(invisible(TRUE))
   }
 
   if (!.is_string(x)) {
