@@ -395,7 +395,10 @@
     .path_filter_spec(dir_exc) |>
     .path_filter_spec_add_back_file(path_dir_from, dir_exc) |>
     .dir_copy_file(path_dir_from, path_dir_to)
-  .dir_copy_tree(path_dir_from = path_dir_from, path_dir_to = path_dir_to)
+  # .dir_copy_tree(
+  #   path_dir_from = path_dir_from, path_dir_to = path_dir_to
+  # )
+  invisible(TRUE)
 }
 
 .dir_copy_exact_file <- function(fn,

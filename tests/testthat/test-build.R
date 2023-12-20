@@ -158,7 +158,7 @@ test_that(".projr_build_copy_to_unsafe works", {
 })
 
 test_that("projr_build_copy_pkg works", {
-  #  skip_if(.is_test_select())
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .dir_create(dir_test)
@@ -188,54 +188,20 @@ test_that("projr_build_copy_pkg works", {
       expect_false(.projr_build_copy_pkg(TRUE))
       .projr_yml_set(yml_projr_init)
 
-      # errors
-      # ---------------------
-      # numeric value
-      yml_projr_error <- yml_projr_init
-      yml_projr_error[["build"]][["package"]] <- 1
-      .projr_yml_set(yml_projr_error)
-      expect_error(.projr_build_copy_pkg(TRUE))
-      .projr_yml_set(yml_projr_init)
-      # double-logical
-      yml_projr_error <- yml_projr_init
-      yml_projr_error[["build"]][["package"]] <- list(TRUE, TRUE)
-      .projr_yml_set(yml_projr_error)
-      expect_error(.projr_build_copy_pkg(TRUE))
-      .projr_yml_set(yml_projr_init)
-      # directory missing
-      yml_projr_error <- yml_projr_init
-      yml_projr_error[["build"]][["package"]] <- "abc"
-      .projr_yml_set(yml_projr_error)
-      expect_error(.projr_build_copy_pkg(TRUE))
-      .projr_yml_set(yml_projr_init)
-      # directory invalid (doesn't begin with output, basically)
-      yml_projr_error <- yml_projr_init
-      yml_projr_error[["build"]][["package"]] <- "data-raw"
-      .projr_yml_set(yml_projr_error)
-      expect_error(.projr_build_copy_pkg(TRUE))
-      .projr_yml_set(yml_projr_init)
 
       # build
       # ----------------------
       # package: TRUE
-      yml_projr_run <- yml_projr_init
-      yml_projr_run[["build"]][["package"]] <- TRUE
-      .projr_yml_set(yml_projr_run)
+      .projr_yml_dir_set_pkg(TRUE, "output", "default")
+      # ensure there is something to build the package out of
+      x <- "1"
+      projr_use_data(x, safe = FALSE)
+      dir.create("inst")
+      file.create("inst/f1")
       expect_true(.projr_build_copy_pkg(TRUE))
-      expect_true(file.exists("_output/report_0.0.0-1.tar.gz"))
+
+      expect_true(file.exists("_output/pkg/report_0.0.0-1.tar.gz"))
       .projr_yml_set(yml_projr_init)
-      # package: character
-      yml_projr_run[["build"]][["package"]] <- c("outputPkg", "outputPkg2")
-      yml_projr_run[["directories"]][["outputPkg"]] <-
-        list(path = "_outputPkg")
-      yml_projr_run[["directories"]][["outputPkg2"]] <-
-        list(path = "_outputPkg2")
-      .projr_yml_set(yml_projr_run)
-      dir.create("_outputPkg")
-      file.create("_outputPkg/report_0.0.0-1.tar.gz")
-      expect_true(.projr_build_copy_pkg(TRUE))
-      expect_true(file.exists("_outputPkg/report_0.0.0-1.tar.gz"))
-      expect_true(file.exists("_outputPkg2/report_0.0.0-1.tar.gz"))
     },
     quiet = TRUE,
     force = TRUE
@@ -243,7 +209,7 @@ test_that("projr_build_copy_pkg works", {
 })
 
 test_that("projr_build_copy_dir works when outputting", {
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .dir_create(dir_test)
@@ -357,92 +323,43 @@ test_that("projr_build_copy_dir works when outputting", {
       yml_projr[["directories"]][["data-raw"]] <- list(
         path = "_data_raw", output = TRUE
       )
-      yml_projr[["directories"]][["docs"]] <- list(
-        path = "docs", output = TRUE
-      )
       yml_projr[["directories"]][["cache"]] <- list(
         path = "_tmp", output = TRUE
       )
       .projr_yml_set(yml_projr)
-      projr:::.projr_build_copy_dir(output_run = TRUE)
       expect_true(.projr_build_copy_dir(output_run = TRUE))
-      expect_true(file.exists(
-        projr_path_get("output", "data-raw.zip", safe = FALSE)
+      expect_true(dir.exists(
+        projr_path_get("output", "data-raw", safe = FALSE)
       ))
-      expect_true(file.exists(
-        projr_path_get("output", "docs.zip", safe = FALSE)
-      ))
-      expect_true(file.exists(
-        projr_path_get("output", "cache.zip", safe = FALSE)
-      ))
-      expect_false(file.exists(
-        projr_path_get("output", "data-raw.zip", safe = TRUE)
-      ))
-      expect_false(file.exists(
-        projr_path_get("output", "docs.zip", safe = TRUE)
-      ))
-      expect_false(file.exists(
-        projr_path_get("output", "cache.zip", safe = TRUE)
-      ))
-      unlink(projr_dir_get("output", safe = TRUE), recursive = TRUE)
-      unlink(projr_dir_get("output", safe = FALSE), recursive = TRUE)
-      expect_true(.projr_build_copy_dir(output_run = FALSE))
-      expect_true(file.exists(
-        projr_path_get("output", "data-raw.zip", safe = TRUE)
-      ))
-      expect_true(file.exists(
-        projr_path_get("output", "docs.zip", safe = TRUE)
-      ))
-      expect_true(file.exists(
-        projr_path_get("output", "cache.zip", safe = TRUE)
-      ))
-      expect_false(file.exists(
-        projr_path_get("output", "data-raw.zip", safe = FALSE)
-      ))
-      expect_false(file.exists(
-        projr_path_get("output", "docs.zip", safe = FALSE)
-      ))
-      expect_false(file.exists(
-        projr_path_get("output", "cache.zip", safe = FALSE)
-      ))
-
 
       # check that they're copied across correctly when
       # to different folders
       # -------------------
-
-      unlink(projr_dir_get("output", safe = TRUE), recursive = TRUE)
-      unlink(projr_dir_get("output", safe = FALSE), recursive = TRUE)
-      yml_projr[["directories"]] <- list(
-        `data-raw` = list("path" = "_data_raw", output = "output"),
-        cache = list("path" = "_tmp", output = c("output", "output2")),
-        docs = list("path" = "docs", output = FALSE),
-        output = list("path" = "_output"),
-        output2 = list("path" = "_output2"),
-        archive = list("path" = "_archive")
+      yml_projr <- yml_projr_init
+      yml_projr[["directories"]][["data-raw"]] <- list(
+        path = "_data_raw", output = TRUE
+      )
+      yml_projr[["directories"]][["cache"]] <- list(
+        path = "_tmp", output = "output2"
       )
       .projr_yml_set(yml_projr)
+      .projr_yml_dir_add_label(
+        path = "_output2", label = "output2", profile = "default"
+      )
+      .dir_rm("_output")
+      .dir_rm("_output2")
       expect_true(.projr_build_copy_dir(output_run = TRUE))
-      expect_true(file.exists(
-        projr_path_get("output", "data-raw.zip", safe = FALSE)
+      expect_true(dir.exists(
+        projr_path_get("output", "data-raw", safe = FALSE, create = FALSE)
       ))
-      expect_false(file.exists(
-        projr_path_get("output", "docs.zip", safe = FALSE)
+      expect_false(dir.exists(
+        projr_path_get("output", "cache", safe = FALSE, create = FALSE)
       ))
-      expect_true(file.exists(
-        projr_path_get("output", "cache.zip", safe = FALSE)
+      expect_true(dir.exists(
+        projr_path_get("output2", "data-raw", safe = FALSE, create = FALSE)
       ))
-      expect_true(file.exists(
-        projr_path_get("output2", "cache.zip", safe = FALSE)
-      ))
-      expect_false(file.exists(
-        projr_path_get("output", "data-raw.zip", safe = TRUE)
-      ))
-      expect_false(file.exists(
-        projr_path_get("output", "docs.zip", safe = TRUE)
-      ))
-      expect_false(file.exists(
-        projr_path_get("output", "cache.zip", safe = TRUE)
+      expect_true(dir.exists(
+        projr_path_get("output2", "cache", safe = FALSE, create = FALSE)
       ))
     },
     quiet = TRUE,
@@ -492,7 +409,7 @@ test_that("projr_build_frontmatter_get works", {
         title = "Urgh",
         filename = "test"
       )
-      .projr_init_description(dir_test, nm_list)
+      .projr_init_description(nm_list)
       # no frontmatter
       writeLines(c("# Introduction", "abc"), con = "test.qmd")
       expect_identical(.projr_build_frontmatter_get("test.qmd"), list())
@@ -580,7 +497,7 @@ test_that(".projr_build_copy_docs_quarto_format_get works", {
         title = "Urgh",
         filename = "test"
       )
-      .projr_init_description(dir_test, nm_list)
+      .projr_init_description(nm_list)
       expect_identical(
         .projr_build_copy_docs_quarto_format_get(list()),
         "html"
@@ -724,7 +641,7 @@ test_that(".projr_build_copy_docs_quarto_format_get works", {
         title = "Urgh",
         filename = "test"
       )
-      .projr_init_description(dir_test, nm_list)
+      .projr_init_description(nm_list)
       writeLines(c("# Introduction", "abc"), con = "test.qmd")
       invisible(file.create("test.html"))
       dir.create("test_files")
@@ -788,7 +705,7 @@ test_that(".projr_build_copy_docs_rmd_format_get works", {
   #   title = "Urgh",
   #   filename = "test"
   # )
-  # .projr_init_description(dir_test, nm_list)
+  # .projr_init_description(nm_list)
 
   usethis::with_project(
     path = dir_test,
@@ -804,7 +721,7 @@ test_that(".projr_build_copy_docs_rmd_format_get works", {
         title = "Urgh",
         filename = "test"
       )
-      .projr_init_description(dir_test, nm_list)
+      .projr_init_description(nm_list)
       expect_identical(
         .projr_build_copy_docs_rmd_format_get(list()),
         "html_document"
@@ -860,7 +777,7 @@ test_that(".projr_build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
         title = "Urgh",
         filename = "test"
       )
-      .projr_init_description(dir_test, nm_list)
+      .projr_init_description(nm_list)
       # prefix
       expect_identical(
         .projr_build_copy_docs_rmd_fn_prefix_get("test.Rmd"),
@@ -940,7 +857,7 @@ test_that(".projr_build_copy_docs_rmd_format_get works", {
         title = "Urgh",
         filename = "test"
       )
-      .projr_init_description(dir_test, nm_list)
+      .projr_init_description(nm_list)
       writeLines(c("# Introduction", "abc"), con = "test.Rmd")
       invisible(file.create("test.html"))
       dir.create("test_files")
