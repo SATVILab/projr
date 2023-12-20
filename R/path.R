@@ -215,7 +215,7 @@
 
 .dir_get_tmp_random_path <- function() {
   file.path(
-    tempdir(), .dir_proj_get(), signif(rnorm(1), 6)
+    tempdir(), "randomnia", signif(rnorm(1), 6)
   )
 }
 
