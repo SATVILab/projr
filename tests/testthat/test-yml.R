@@ -50,7 +50,7 @@ test_that(".projr_dest_send_get_plan works", {
     path = dir_test,
     code = {
       projr_init()
-      projr_yml_check()
+      expect_true(projr_yml_check())
     }
   )
 })
