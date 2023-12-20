@@ -446,7 +446,6 @@
       "RemoteRef": "HEAD",
       "RemoteSha": "1efa1c8fa86f7d90dc6d173231ddddceb79b4be8",
       "Requirements": [
-        "R",
         "devtools",
         "ggnetwork",
         "ggplot2",
@@ -454,7 +453,7 @@
         "igraph",
         "miniCRAN"
       ],
-      "Hash": "f1e3366253f20383eb01a392e29e3800"
+      "Hash": "1794677b1a754bcea650d35583dff2d4"
     },
     "desc": {
       "Package": "desc",
