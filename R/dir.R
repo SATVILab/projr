@@ -23,15 +23,15 @@
 #' and \code{.Rbuildignore} as specified
 #' in \code{_projr.yml}.
 #' Default is \code{TRUE}.
-#' @param path_relative_force logical.
+#' @param relative logical.
 #' If \code{TRUE}, then forces that the returned
 #' path is relative to the project root.
 #' Default is \code{FALSE}.
-#' @param path_absolute_force logical.
+#' @param absolute logical.
 #' If `TRUE`, then forces the returned path
 #' to be absolute.
 #' Default is `FALSE`.
-#' @param output_safe logical.
+#' @param safe logical.
 #' If \code{TRUE}, then the output directory
 #' is set to be \code{"<path_to_cache>/projr_output"}
 #' instead of \code{<path_to_output>} (as specified in \code{_projr.yml}).
@@ -40,39 +40,123 @@
 #' "development" or test runs will add to, delete or overwrite files
 #' from the previous run of `projr_build_output`.
 #' Default is \code{TRUE}.
+#' Do not change this unless you know what you are doing.
 #' @return Character.
 #' Path to directory requested.
 #' @details DETAILS
 #' @examples
 #' \dontrun{
-#' if (interactive()) {
-#'   # EXAMPLE1
-#' }
+#'
 #' }
 #' @rdname projr_dir_get
 #' @export
-#'
+#' @seealso projr_dir_create_all
 projr_dir_get <- function(label, ...,
                           create = TRUE,
-                          path_relative_force = FALSE,
-                          output_safe = TRUE,
-                          path_absolute_force = FALSE) {
-  # get path
-  path_dir <- .projr_dir_get(label = label, ..., output_safe = output_safe)
+                          relative = FALSE,
+                          absolute = FALSE,
+                          safe = TRUE) {
+  dots_vec <- .projr_dots_get_chr_vec(...)
+  .projr_dir_get_check(label, dots_vec, relative, absolute, safe)
 
-  if (create) {
-    .projr_dir_create(path_dir)
+  .projr_dir_get(label = label, ..., safe = safe) |>
+    .projr_dir_get_create(create) |>
+    .projr_dir_get_rel(relative) |>
+    .projr_dir_get_abs(absolute)
+}
+
+#' @rdname projr_dir_get
+#' @export
+projr_path_get_dir <- projr_dir_get
+
+.projr_dir_get_check <- function(label, dots_list, relative, absolute, safe) {
+  if (.is_len_pos(dots_list)) {
+    dots_list |>
+      unlist() |>
+      .assert_chr()
   }
+  .projr_dir_check_label(label, NULL)
+  .assert_flag(relative)
+  .assert_flag(absolute)
+  .assert_flag(safe)
+  if (relative && absolute) {
+    stop("relative and absolute cannot both be TRUE")
+  }
+}
 
-  if (path_relative_force) {
-    path_dir <- fs::path_rel(
-      path_dir,
-      start = rprojroot::is_r_package$find_file()
+.projr_dir_check_label <- function(label, profile) {
+  .assert_string(label)
+  .projr_dir_check_label_found(label, profile)
+}
+
+.projr_dir_check_label_found <- function(label, profile) {
+  opt_vec <- c(
+    names(.projr_yml_dir_get(profile)), "docs", "data", "project", "code"
+  )
+  label_found <- label %in% opt_vec
+  if (!label_found) {
+    stop("label '", label, "' not found in _projr.yml", call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.projr_dir_check_label_strip <- function(label) {
+  label_strip <- .projr_dir_label_strip(label)
+  label_valid <- grepl("^docs|^data-raw|^cache|^output|^archive", label_strip)
+  if (!label_valid) {
+    stop(
+      paste0("label '", label, "' not valid.\n"),
+      "Must begin with 'docs', 'data-raw', 'cache', 'output' or 'archive'\n",
+      "However, it can:\n",
+      " - be capitalised any which way, e.g. DATA-RAW or dAtA-rAw)\n",
+      " - have any suffix, e.g. 'data-raw-foo' or 'data-raw-foo-bar'\n",
+      " - use a hyphen, underscore or neither, e.g. 'data_raw', 'data-raw' or dataraw.\n",
+      call. = FALSE
     )
   }
-  as.character(path_dir) |>
-    fs::path_norm() |>
-    as.character()
+  invisible(TRUE)
+}
+
+.projr_dir_label_strip <- function(x) {
+  gsub("_", "", gsub("-", "", x)) |>
+    tolower()
+}
+
+
+.projr_dir_get_create <- function(path, create) {
+  if (create) {
+    .dir_create(path)
+  }
+  invisible(path)
+}
+
+.projr_dir_get_rel <- function(path, relative) {
+  if (!relative) {
+    return(path)
+  }
+  .path_force_rel(path)
+}
+
+.projr_dir_get_abs <- function(path, absolute) {
+  if (!absolute) {
+    return(path)
+  }
+  .path_force_abs(path)
+}
+
+#' @title Create all directories in _projr.yml
+#'
+#' @description
+#' Convenience function to create all directories
+#' listed in \code{_projr.yml} for the current projr profile.
+#' @seealso projr_dir_get
+projr_dir_create_all <- function() {
+  label_vec <- .projr_yml_dir_get(NULL) |>
+    names()
+  for (i in seq_along(label_vec)) {
+    projr_dir_create(label_vec[[i]], create = TRUE)
+  }
+  invisible(TRUE)
 }
 
 #' @title Return path
@@ -117,15 +201,17 @@ projr_dir_get <- function(label, ...,
 #' @export
 projr_path_get <- function(label, ...,
                            create = TRUE,
-                           path_relative_force = FALSE,
-                           output_safe = TRUE) {
+                           relative = FALSE,
+                           absolute = FALSE,
+                           safe = TRUE) {
   args_dotted <- list(...)
   if (length(args_dotted) == 0) {
-    path_dir <- projr_dir_get(
+    path_dir <- projr_path_get_dir(
       label = label,
       create = create,
-      path_relative_force = path_relative_force,
-      output_safe = output_safe
+      relative = relative,
+      absolute = absolute,
+      safe = safe
     )
     return(path_dir)
   }
@@ -136,16 +222,17 @@ projr_path_get <- function(label, ...,
         label = label,
         args_dotted[-length(args_dotted)] |> unlist(),
         create = create,
-        path_relative_force = path_relative_force,
-        output_safe = output_safe
+        relative = relative,
+        absolute = absolute,
+        safe = safe
       )
     )
   } else {
-    path_dir <- projr_dir_get(
+    path_dir <- projr_path_get_dir(
       label = label,
       create = create,
-      path_relative_force = path_relative_force,
-      output_safe = output_safe
+      relative = relative,
+      safe = safe
     )
   }
   file.path(path_dir, args_dotted[length(args_dotted)]) |>
@@ -153,6 +240,9 @@ projr_path_get <- function(label, ...,
     as.character()
 }
 
+#' @rdname
+#' @export
+projr_path_get_file <- projr_path_get
 
 #' @title Create a directory in _projr.yml
 #'
@@ -163,20 +253,38 @@ projr_path_get <- function(label, ...,
 #' @inheritParams projr_dir_get
 #'
 #' @export
-projr_dir_create <- function(label, ..., output_safe = TRUE) {
+projr_dir_create <- function(label, ..., safe = TRUE) {
   for (x in label) {
-    projr_dir_get(
+    projr_path_get_dir(
       label = x,
       ...,
       create = TRUE,
-      output_safe = output_safe
+      safe = safe
     )
   }
 }
 
+#' @title Update ignore settings as per projr config
+#'
+#' @description
+#' Ensure `projr` directories are ignored
+#' appropriately (in `.gitignore` and `.Rbuildignore`)
+#' as per `_projr.yml`.
+#'
+#' @description git_skip_adjust logical.
+#' If \code{TRUE}, then the directories
+#' are skipped by Git if already tracked
+#' and they are supposed to be ignored
+#' as per \code{_projr.yml}.
+#' Default is \code{NULL}, in which
+#' case the settings as per \code{_projr.yml}
+#' are used (or the default, if unspecified there).
+#'
+#' @export
 projr_dir_ignore <- function(git_skip_adjust = NULL) {
-  label_vec <- names(projr_yml_get()[["directories"]])
+  label_vec <- .projr_yml_dir_get(NULL) |> names()
   for (i in seq_along(label_vec)) {
+    print(label_vec[[i]])
     .projr_ignore_label_set(
       label = label_vec[[i]],
       git_skip_adjust = git_skip_adjust
@@ -184,5 +292,3 @@ projr_dir_ignore <- function(git_skip_adjust = NULL) {
   }
   invisible(TRUE)
 }
-
-# Start of projr section: do not edit by hand (until `# End of projr section`)

@@ -4,7 +4,7 @@
 \alias{projr_dir_create}
 \title{Create a directory in _projr.yml}
 \usage{
-projr_dir_create(label, ..., output_safe = TRUE)
+projr_dir_create(label, ..., safe = TRUE)
 }
 \arguments{
 \item{label}{character.
@@ -19,7 +19,7 @@ whereas the others returns paths as specified in \code{"_projr.yml"}.}
 \item{...}{Specifies sub-directory of directory returned.
 Passed to \code{file.path}.}
 
-\item{output_safe}{logical.
+\item{safe}{logical.
 If \code{TRUE}, then the output directory
 is set to be \code{"<path_to_cache>/projr_output"}
 instead of \code{<path_to_output>} (as specified in \code{_projr.yml}).
@@ -27,7 +27,8 @@ The only time that this should be set to \code{TRUE}
 should be when \code{projr_build_output} is being run, as otherwise
 "development" or test runs will add to, delete or overwrite files
 from the previous run of \code{projr_build_output}.
-Default is \code{TRUE}.}
+Default is \code{TRUE}.
+Do not change this unless you know what you are doing.}
 }
 \description{
 Creates a directory that is

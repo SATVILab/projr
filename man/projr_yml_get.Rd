@@ -4,7 +4,17 @@
 \alias{projr_yml_get}
 \title{Get active \code{projr} settings and checks for validity}
 \usage{
-projr_yml_get()
+projr_yml_get(profile = NULL, check = FALSE)
+}
+\arguments{
+\item{profile}{character.
+\code{projr} profile to use.
+If \code{NULL}, then the active profile is used.
+Default is \code{NULL}.}
+
+\item{check}{logical.
+Whether to check the validity of the settings.
+Default is \code{FALSE}.}
 }
 \value{
 A named list, if the settings are valid.

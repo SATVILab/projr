@@ -21,22 +21,22 @@ repo_name <- "report"
 dir_test <- file.path(tempdir(), repo_name)
 if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
 
-if (!dir.exists(dir_test)) dir.create(dir_test)
+.dir_create(dir_test)
 fn_vec <- list.files(testthat::test_path("./project_structure"))
 
 for (x in fn_vec) {
-    file.copy(
-        file.path(testthat::test_path("./project_structure"), x),
-        file.path(dir_test, x),
-        overwrite = TRUE
-    )
+  file.copy(
+    file.path(testthat::test_path("./project_structure"), x),
+    file.path(dir_test, x),
+    overwrite = TRUE
+  )
 }
 desc <- read.dcf("DESCRIPTION")
 desc[1] <- repo_name
 write.dcf(desc, file.path(dir_test, "DESCRIPTION"))
 gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
+  "# R", ".Rproj.user", ".Rhistory", ".RData",
+  ".Ruserdata", "", "# docs", "docs/*"
 )
 writeLines(gitignore, file.path(dir_test, ".gitignore"))
 
@@ -53,8 +53,8 @@ setwd(dir_test)
 (me <- gh_account$login)
 # delete repo if it exists
 gh::gh(
-    "DELETE /repos/:username/:pkg",
-    username = me, pkg = repo_name
+  "DELETE /repos/:username/:pkg",
+  username = me, pkg = repo_name
 )
 usethis::use_git()
 usethis::use_github()
@@ -65,7 +65,7 @@ usethis::use_github()
 # initialise project
 file.create(projr::projr_path_get("data-raw", "test_data_raw.txt"))
 file.create(projr_path_get("cache", "test_cache.txt"))
-file.create(projr_path_get("output", "test_output.txt", output_safe = FALSE))
+file.create(projr_path_get("output", "test_output.txt", safe = FALSE))
 file.create(projr_path_get("docs", "test_docs.txt"))
 
 .projr_pb_upload(TRUE)

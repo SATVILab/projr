@@ -4,7 +4,7 @@
 \alias{projr_build_dev}
 \title{Build dev project}
 \usage{
-projr_build_dev(file = NULL, bump = FALSE, remove_old_dev = TRUE, ...)
+projr_build_dev(file = NULL, bump = FALSE, old_dev_remove = TRUE, ...)
 }
 \arguments{
 \item{file}{character vector.
@@ -16,7 +16,7 @@ Default is NULL, in which case all files are built.}
 Whether to increment dev version for build.
 Default is \code{FALSE}.}
 
-\item{remove_old_dev}{logical.
+\item{old_dev_remove}{logical.
 If \code{TRUE}, then previous development builds are deleted
 after a successful run.}
 

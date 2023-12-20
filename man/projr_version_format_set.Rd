@@ -9,7 +9,7 @@ projr_version_format_set(version_format)
 \arguments{
 \item{version_format}{character.
 The version format.
-Specifies the version components ("major" and/or "minor" and/or "patch", and "dev"/"1"/"9000"),
+Specifies the version components ("major" and/or "minor" and/or "patch", and "dev"/"1"/"9000"), # nolint: line_length_linter.
 as well as the separators between them.
 If "1" is used instead of "dev", then "dev" component resets at "1".
 If "9000" is used instead of "dev", then "dev" component resets at "9000".

@@ -10,18 +10,7 @@
 #' @param profile character.
 #' If not `NULL`, then this is the name of the profile.
 #' If `NULL` and the environment variable `PROJR_PROFILE` is set,
-#' then made equal to its value. If the variable is not set,
-#' then made equal to the working directory.
-#' @param method "key" or "file".
-#' Specifies where the `projr` profile is specified.
-#' If "key" (default), then the additional profile is added
-#' as new keys in `_projr.yml` in the form `directories-<profile>` and
-#' `build-<profile>`.
-#' If "file", then the file `_projr-<profile>.yml` is created
-#' with all-null values for the sub-keys of the `build` and `directories`
-#' keys in `_projr.yml`.
-#'
-#' Default is `NULL`.
+#' then made equal to its value.
 #'
 #' @param silent logical.
 #' If `TRUE`, then any messages are suppressed.
@@ -33,65 +22,28 @@
 #' is empty (indicated by `~` in the YAML file by default), then
 #' the corresponding setting in `_projr.yml` is used.
 #'
-#' If using `method = "file"`, then the profile
-#' cannot be automatically specified from the working directory
-#' but must be specified by either `PROJR_PROFILE` or the `profile` argument.
-#'
 #' @return Invisibly returns the new projr profile.
 #' @seealso projr_profile_create_local,projr_yml_get
 #' @export
 #'
 projr_profile_create <- function(profile = NULL,
-                                 method = "key",
-                                 silent = Sys.getenv("PROJR_TEST") == "TRUE") {
+                                 silent = FALSE) {
   # get and validate profile
   # --------------------------
 
-  if (!is.logical(silent)) {
-    stop("`silent` parameter must be of type local.")
+  if (.is_test()) {
+    silent <- TRUE
   }
-
-  if (!is.null(profile)) {
-    if (profile == "local") {
-      stop(
-        "Cannot create profile named 'local' in this way.
-        Use `projr_profile_create_local()` instead."
-      )
-    }
-    if (profile == "default") {
-      stop("Cannot create profile named 'default' as it is used internally.")
-    }
-  } else if (nzchar(Sys.getenv("PROJR_PROFILE"))) {
-    profile <- Sys.getenv("PROJR_PROFILE")
-  } else {
-    if (method == "file") {
-      stop("The projr profile cannot be the working directory
-      if settings method = `file`.")
-    }
-    profile <- rprojroot::is_r_package$find_file()
-  }
-  if (!all(method %in% c("key", "file"))) {
-    stop("method must be either 'key' or 'file'")
-  }
-  if (identical(sort(as.character(method)), sort(c("key", "file")))) {
-    stop("method must be either 'key' or 'file' and not both")
-  }
-  if (method == "file") {
-    .projr_profile_check(profile)
-  }
-  yml_projr_root <- .projr_yml_get_root_full()
-  key_ind_dir <- paste0("directories-", profile) %in% names(yml_projr_root)
-  key_ind_build <- paste0("build-", profile) %in% names(yml_projr_root)
+  .assert_flag(silent, required = TRUE)
+  profile <- profile %||% Sys.getenv("PROJR_PROFILE")
+  .assert_string(profile, required = TRUE)
+  .assert_in_single_not(profile, opt = c("default", "local"), required = TRUE)
+  .projr_profile_check(profile)
   file_ind <- file.exists(
-    file.path(
-      rprojroot::is_r_package$find_file(),
-      paste0("_projr-", profile, ".yml")
-    )
+    .dir_proj_get(paste0("_projr-", profile, ".yml"))
   )
-  if (any(key_ind_dir, key_ind_build, file_ind)) {
-    if (!silent) {
-      message("projr profile ", profile, " already exists")
-    }
+  if (file_ind) {
+    message(paste0("projr profile ", profile, " already exists"))
     return(invisible(FALSE))
   }
 
@@ -99,27 +51,11 @@ projr_profile_create <- function(profile = NULL,
   # -------------------------
 
   yml_projr_root_default <- .projr_yml_get_root_default()
-  yml_projr_root_full <- .projr_yml_get_root_full()
-  if (method == "key") {
-    yml_final <- yml_projr_root_full |>
-      append({
-        yml_projr_add <- .projr_list_elem_as_null(yml_projr_root_default)
-        yml_projr_add |>
-          stats::setNames(paste0(names(yml_projr_add), "-", profile))
-      })
-    yaml::write_yaml(
-      yml_final,
-      file.path(rprojroot::is_r_package$find_file(), "_projr.yml")
-    )
-  } else {
-    yaml::write_yaml(
-      .projr_list_elem_as_null(yml_projr_root_default),
-      file = file.path(
-        rprojroot::is_r_package$find_file(),
-        paste0("_projr-", profile, ".yml")
-      )
-    )
-  }
+
+  yaml::write_yaml(
+    .projr_list_elem_as_null(yml_projr_root_default),
+    file = .dir_proj_get(paste0("_projr-", profile, ".yml"))
+  )
 
   if (!silent) {
     message(paste0("Added the following profile: ", profile))
@@ -139,43 +75,35 @@ projr_profile_create <- function(profile = NULL,
 #' Creates a file `_projr-local.yml` with empty settings and ignores it from
 #' `.Rbuildignore` and `.gitignore`.
 #'
+#' @param overwrite logical.
+#' If `TRUE`, then overwrite `_projr-local.yml` if it already exists.
+#' Default is `FALSE`.
+#'
 #' @details
 #' Note that if any setting in `_projr-local.yml` is empty,
 #' then a lower-precendence file's setting
 #' (i.e. from `_projr-<profile>.yml` or `_projr.yml`) is used.
 #' Empty settings are by default indicated by `~`.
 #' @seealso projr_profile_create_local,projr_yml_get
-projr_profile_create_local <- function() {
-  path_fn <- file.path(
-    rprojroot::is_r_package$find_file(), "_projr-local.yml"
-  )
-  if (file.exists(path_fn)) {
-    stop("_projr-local.yml already exists")
+projr_profile_create_local <- function(overwrite = FALSE) {
+  projr_profile_create_local_check(overwrite)
+  .projr_profile_create_local_actual()
+  .projr_profile_create_local_ignore()
+  invisible(TRUE)
+}
+
+projr_profile_create_local_check <- function(overwrite) {
+  if (!overwrite && file.exists(.dir_proj_get("_projr-local.yml"))) {
+    stop("overwrite = TRUE and _projr-local.yml already exists", call. = FALSE)
   }
+  invisible(TRUE)
+}
+
+.projr_profile_create_local_actual <- function() {
   yml_projr_root_default <- .projr_yml_get_root_default()
   yml_projr_local <- yml_projr_root_default[c("directories", "build")]
   yml_projr_local <- .projr_list_elem_as_null(yml_projr_local)
-  yaml::write_yaml(yml_projr_local, file = path_fn)
-  gitignore <- readLines(
-    file.path(rprojroot::is_r_package$find_file(), ".gitignore")
-  )
-  if (!"_projr-local.yml" %in% gitignore) {
-    writeLines(
-      c(gitignore, "_projr-local.yml"),
-      file.path(rprojroot::is_r_package$find_file(), ".gitignore")
-    )
-  }
-  rbuildignore <- readLines(
-    file.path(rprojroot::is_r_package$find_file(), ".Rbuildignore")
-  )
-  if (!"^_projr-local\\.yml$" %in% rbuildignore) {
-    writeLines(
-      c(rbuildignore, "^_projr-local\\.yml$"),
-      file.path(rprojroot::is_r_package$find_file(), ".Rbuildignore")
-    )
-  }
-
-  invisible(TRUE)
+  yaml::write_yaml(yml_projr_local, file = .dir_proj_get("_projr-local.yml"))
 }
 
 .projr_list_elem_as_null <- function(x) {
@@ -188,16 +116,43 @@ projr_profile_create_local <- function() {
     stats::setNames(names(x))
 }
 
+.projr_profile_create_local_ignore <- function() {
+  .projr_profile_create_local_ignore_git()
+  .projr_profile_create_local_ignore_rbuild()
+}
+.projr_profile_create_local_ignore_git <- function() {
+  gitignore <- readLines(.dir_proj_get(".gitignore"))
+  if (!"_projr-local.yml" %in% gitignore) {
+    writeLines(
+      c(gitignore, "_projr-local.yml"),
+      .dir_proj_get(".gitignore")
+    )
+    .projr_newline_append(.dir_proj_get(".gitignore"))
+  }
+}
+.projr_profile_create_local_ignore_rbuild <- function() {
+  rbuildignore <- readLines(
+    .dir_proj_get(".Rbuildignore")
+  )
+  if (!"^_projr-local\\.yml$" %in% rbuildignore) {
+    writeLines(
+      c(rbuildignore, "^_projr-local\\.yml$"),
+      .dir_proj_get(".Rbuildignore")
+    )
+    .projr_newline_append(.dir_proj_get(".Rbuildignore"))
+  }
+}
+
 .projr_profile_check <- function(x) {
-  x <- gsub("\\w", "", x)
-  x <- gsub("-", "", x)
-  if (nzchar(x)) {
+  if (nzchar(gsub("\\w|-|_", "", x))) {
     stop("If projr profile settings are kept in a file,
     then the profile can only use alphumeric characters,
     the underscore and the hyphen.")
   }
   invisible(TRUE)
 }
+
+
 
 #' @title Get active projr profile
 #'
@@ -220,24 +175,7 @@ projr_profile_create_local <- function() {
 #'
 #' @export
 projr_profile_get <- function() {
-  yml_projr <- .projr_yml_get_root_full()
-  if (nzchar(Sys.getenv("PROJR_PROFILE"))) {
-    projr_profile <- Sys.getenv("PROJR_PROFILE")
-    key_ind <- paste0("directories-", projr_profile) %in% names(yml_projr)
-    file_ind <- file.exists(
-      file.path(paste0("_projr-", projr_profile, ".yml"))
-    )
-    if (key_ind || file_ind) {
-      return(projr_profile)
-    }
-  }
-  projr_profile <- rprojroot::is_r_package$find_file()
-  key_ind_dir <- paste0("directories-", projr_profile) %in% names(yml_projr)
-  key_ind_build <- paste0("build-", projr_profile) %in% names(yml_projr)
-  if (key_ind_dir || key_ind_build) {
-    return(projr_profile)
-  }
-  "default"
+  Sys.getenv("PROJR_PROFILE", unset = "default")
 }
 
 #' @title Delete a projr profile from _projr.yml
@@ -253,57 +191,29 @@ projr_profile_get <- function() {
 #'
 #' @export
 projr_profile_delete <- function(profile) {
-  if (missing(profile)) {
-    stop("profile not specified")
+  .projr_profile_delete_check(profile)
+  .projr_profile_delete_actual(profile)
+}
+
+.projr_profile_delete_check <- function(profile) {
+  .assert_string(profile, TRUE)
+  if (.is_opt(profile, "default")) {
+    stop("Cannot delete profile named 'default' as it is used internally.")
   }
-  if (!is.character(profile)) {
-    stop("profile must be of type character.")
-  }
-  if (profile == "default") {
+}
+
+.projr_profile_delete_actual <- function(profile) {
+  path_fn <- .dir_proj_get(paste0("_projr-", profile, ".yml"))
+  if (!file.exists(path_fn)) {
+    message("No such profile detected: ", profile)
     return(invisible(FALSE))
   }
-
-  # delete
-  # -----------------
-
-  # key
-  yml_projr_root <- .projr_yml_get_root_default()
-  dir_ind <- which(
-    names(yml_projr_root) == paste0("directories-", profile)
-  )
-  if (length(dir_ind) > 0) {
-    yml_projr_root <- yml_projr_root[-dir_ind]
-  }
-  build_ind <- which(
-    names(yml_projr_root) == paste0("build-", profile)
-  )
-  if (length(build_ind) > 0) {
-    yml_projr_root <- yml_projr_root[-build_ind]
-  }
-  .projr_yml_set(yml_projr_root)
-
-  # file
-  path_fn <- file.path(
-    rprojroot::is_r_package$find_file(),
-    paste0("_projr-", profile, ".yml")
-  )
-  if (file.exists(path_fn)) {
-    file.remove(path_fn)
-  }
-
-  invisible(TRUE)
+  invisible(file.remove(path_fn))
 }
 
 #' @title Delete local `projr` settings file.
 #'
 #' @description Deletes `_projr-local.yml` file.
 projr_profile_delete_local <- function() {
-  path_fn <- file.path(
-    rprojroot::is_r_package$find_file(),
-    paste0("_projr-local.yml")
-  )
-  if (file.exists(path_fn)) {
-    file.remove(path_fn)
-  }
-  invisible(TRUE)
+  projr_profile_delete("local")
 }

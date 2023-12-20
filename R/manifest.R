@@ -1,180 +1,121 @@
-# hashed beforehand
-.projr_build_manifest_hash_pre <- function(output_run) {
-  yml_projr_dir <- projr_yml_get()[["directories"]]
-  cache_vec <- names(yml_projr_dir)[
-    grepl("^cache", .projr_dir_label_strip(names(yml_projr_dir)))
-  ]
-  for (x in cache_vec) {
-    if (!"hash" %in% names(yml_projr_dir[[x]])) {
-      cache_vec <- cache_vec[!cache_vec == x]
-      next
-    }
-    if (!yml_projr_dir[[x]][["hash"]]) {
-      cache_vec <- cache_vec[!cache_vec == x]
-    }
-  }
-  if (length(cache_vec) == 0) {
-    return(
-      data.frame(
-        label = character(0), fn = character(0),
-        version = character(0), hash = character(0)
-      )
-    )
-  }
-  hash_tbl_list <- lapply(
-    cache_vec, .projr_manifest_hash_label,
-    output_run = output_run
-  )
-  Reduce(rbind, hash_tbl_list)
-}
+# hashing
+# ---------------------------
 
-.projr_build_manifest_hash_post <- function(output_run) {
-  yml_projr_dir <- projr_yml_get()[["directories"]]
-  label_vec <- names(yml_projr_dir)[
-    grepl(
-      "^dataraw|^output|^docs",
-      .projr_dir_label_strip(names(yml_projr_dir))
-    )
-  ]
-  if (!"docs" %in% label_vec) {
-    label_vec <- c(label_vec, "docs")
-  }
-  for (x in label_vec) {
-    if (grepl("^docs", .projr_dir_label_strip(x))) {
-      if (!"hash" %in% names(yml_projr_dir[[x]])) {
-        label_vec <- label_vec[!label_vec == x]
-        next
-      }
-      if (!yml_projr_dir[[x]][["hash"]]) {
-        label_vec <- label_vec[!label_vec == x]
-      }
-    } else if ("hash" %in% names(yml_projr_dir[[x]])) {
-      if (!yml_projr_dir[[x]][["hash"]]) {
-        label_vec <- label_vec[!label_vec == x]
-      }
-    }
-  }
-  if (length(label_vec) == 0) {
-    return(
-      data.frame(
-        label = character(0), fn = character(0),
-        version = character(0), hash = character(0)
-      )
-    )
-  }
-  hash_tbl_list <- lapply(
-    label_vec, .projr_manifest_hash_label,
-    output_run = output_run
-  )
-  Reduce(rbind, hash_tbl_list)
-}
-
-.projr_manifest_hash_label <- function(label, output_run) {
+.projr_manifest_hash_label <- function(label,
+                                       output_run) {
   # output is always in safe directory
   # as hashing is done before copying over to final directory
-  path_dir <- projr::projr_dir_get(label, output_safe = !output_run)
-  fn_vec <- list.files(path_dir, full.names = TRUE, recursive = TRUE)
-  if (length(fn_vec) == 0) {
-    return(data.frame(
-      label = character(0),
-      fn = character(0),
-      version = character(0),
-      hash = character(0)
-    ))
-  }
-  fn_to_hash_vec <- vapply(fn_vec, function(fn) {
-    digest::digest(fn, serialize = FALSE, file = TRUE)
-  }, character(1))
-  data.frame(
-    label = label,
-    fn = fs::path_rel(fn_vec, path_dir) |> as.character(),
-    version = paste0("v", projr_version_get()),
-    hash = fn_to_hash_vec
+  hash_tbl <- .projr_hash_dir(
+    path_dir = projr_path_get_dir(label, safe = !output_run),
+    dir_exc = .projr_build_label_get_dir_exc(label)
+  ) |>
+    .projr_manifest_hash_cache_filter(label)
+  cbind(
+    data.frame(label = rep(label, nrow(hash_tbl))),
+    hash_tbl
   )
 }
 
-.projr_manifest_write <- function(manifest, output_run, append = TRUE) {
-  if (!output_run) {
-    dir_cache_auto <- .projr_dir_get_cache_auto()
-    dir_write <- file.path(
-      dir_cache_auto, "projr", paste0("v", projr_version_get())
-    )
-    if (!dir.exists(dir_write)) {
-      dir.create(dir_write, recursive = TRUE)
-    }
-  } else {
-    dir_write <- projr_dir_get("project")
+.projr_manifest_hash_cache_filter <- function(hash_tbl, label) {
+  if (!.projr_yml_dir_label_class_detect_cache(label)) {
+    return(hash_tbl)
   }
-  if (append) {
-    path_manifest <- file.path(dir_write, "manifest.csv")
-    if (file.exists(path_manifest)) {
-      manifest_orig <- .projr_manifest_read()
-      manifest <- manifest_orig |> rbind(manifest)
-    }
-  }
-  utils::write.csv(manifest, file.path(dir_write, "manifest.csv"))
+  hash_tbl[!grepl("^projr/v\\d+", hash_tbl[["fn"]]), , drop = FALSE]
 }
 
-.projr_manifest_read <- function() {
-  utils::read.csv(
-    projr_path_get("project", "manifest.csv"),
+.projr_build_label_get_dir_exc <- function(label) {
+  switch(.projr_yml_dir_label_class_get(label),
+    "cache" = "projr"
+  )
+}
+
+# writing, reading and merging
+# ---------------------------
+
+.projr_manifest_write <- function(manifest, path, overwrite = TRUE) {
+  rownames(manifest) <- NULL
+  manifest |>
+    .projr_manifest_remove_duplicate() |>
+    .projr_manifest_write_actual(path, overwrite)
+}
+
+.projr_manifest_append_previous <- function(manifest, append, path_previous) {
+  if (!append) {
+    return(manifest)
+  }
+  if (is.null(path_previous)) {
+    path_previous <- .projr_manifest_get_path_file("NULL")
+  }
+  if (!file.exists(path_previous)) {
+    return(manifest)
+  }
+  manifest_pre <- .projr_manifest_read(path_previous)
+  manifest |> .projr_manifest_append_previous_actual(manifest_pre)
+}
+
+.projr_manifest_append_previous_actual <- function(manifest, manifest_pre) {
+  rownames(manifest_pre) <- NULL
+  manifest <- manifest_pre |> rbind(manifest)
+  rownames(manifest) <- NULL
+  manifest
+}
+
+.projr_manifest_remove_duplicate <- function(manifest) {
+  manifest[["string"]] <- Reduce(paste0, manifest)
+  manifest <- manifest[!duplicated(manifest[["string"]]), ]
+  manifest[["string"]] <- NULL
+  manifest
+}
+
+.projr_manifest_write_actual <- function(manifest, path, overwrite) {
+  rownames(manifest) <- NULL
+  if (file.exists(path)) {
+    if (!overwrite) {
+      stop("file '", path, "' already exists", call. = FALSE)
+    }
+    invisible(file.remove(path))
+  }
+  .dir_create(dirname(path))
+  utils::write.csv(
+    manifest, path,
+    row.names = FALSE
+  )
+  invisible(path)
+}
+
+.projr_manifest_read <- function(path = NULL) {
+  out_tbl <- utils::read.csv(
+    path,
     stringsAsFactors = FALSE
   )
+  rownames(out_tbl) <- NULL
+  out_tbl
 }
 
-.projr_manifest_compare <- function(manifest_pre, manifest_post) {
-  zero_row_tbl <- data.frame(
+.projr_manifest_get_path_dir <- function(path_dir) {
+  if (is.null(path_dir)) {
+    path_dir <- .dir_proj_get()
+  }
+  .dir_create(path_dir)
+}
+
+.projr_manifest_get_path_file <- function(path_dir) {
+  path_dir |>
+    .projr_manifest_get_path_dir() |>
+    file.path("manifest.csv")
+}
+
+.projr_manifest_version_get_latest <- function(manifest) {
+  manifest[["version"]] |> .projr_version_get_earliest()
+}
+
+.projr_zero_tbl_get_manifest <- function() {
+  out_df <- data.frame(
     label = character(0),
     fn = character(0),
     version = character(0),
     hash = character(0)
   )
-  attr(zero_row_tbl, "row.names") <- character(0)
-  # get last version uploaded
-  # get version that is being uploaded to
-  # get list of whatever is in the OSF registry
-  # get all files that have been added
-  version_previous <- .projr_manifest_get_version_latest(manifest_pre)
-  manifest_pre <- manifest_pre[
-    manifest_pre[["version"]] == version_previous,
-  ]
-  manifest_post <- manifest_post[
-    manifest_post[["version"]] == paste0("v", projr_version_get()),
-  ]
-  fn_vec_pre_lgl_removed <- !manifest_pre[["fn"]] %in% manifest_post[["fn"]]
-  fn_vec_post_lgl_kept <- manifest_post[["fn"]] %in% manifest_pre[["fn"]]
-  fn_vec_post_lgl_add <- !manifest_post[["fn"]] %in% manifest_pre[["fn"]]
-  manifest_post_kept <- manifest_post[fn_vec_post_lgl_kept, ]
-  hash_from_fn_pre <- setNames(
-    manifest_pre[["hash"]], manifest_pre[["fn"]]
-  )
-  hash_vec_post_match <- manifest_post_kept[["hash"]] ==
-    hash_from_fn_pre[manifest_post_kept[["fn"]]]
-  if (nrow(manifest_post) == 0L) {
-    manifest_post_kept_unchanged <- zero_row_tbl
-    manifest_post_kept_changed <- zero_row_tbl
-    manifest_post_add <- zero_row_tbl
-  } else {
-    manifest_post_add <- manifest_post[fn_vec_post_lgl_add, ]
-    manifest_post_kept_unchanged <- manifest_post_kept[hash_vec_post_match, ]
-    manifest_post_kept_changed <- manifest_post_kept[!hash_vec_post_match, ]
-  }
-  if (nrow(manifest_pre) == 0L) {
-    manifest_removed <- zero_row_tbl
-  } else {
-    manifest_removed <- manifest_pre[fn_vec_pre_lgl_removed, ]
-  }
-  list(
-    "removed" = manifest_removed,
-    "kept_unchanged" = manifest_post_kept_unchanged,
-    "kept_changed" = manifest_post_kept_changed,
-    "added" = manifest_post_add
-  )
-}
-
-.projr_manifest_get_version_latest <- function(manifest) {
-  manifest[["version"]] |>
-    unique() |>
-    sort() |>
-    utils::tail(1)
+  rownames(out_df) <- NULL
+  out_df
 }

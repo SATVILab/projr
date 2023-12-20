@@ -11,16 +11,21 @@
 #'
 #' Note that an error is thrown if the active settings
 #' are invalid.
+#' @param profile character.
+#' \code{projr} profile to use.
+#' If \code{NULL}, then the active profile is used.
+#' Default is `NULL`.
+#' @param check logical.
+#' Whether to check the validity of the settings.
+#' Default is `FALSE`.
 #'
 #' @seealso projr_yml_get_unchecked,projr_yml_check
 #'
 #' @return A named list, if the settings are valid.
 #'
 #' @export
-projr_yml_get <- function() {
-  yml_projr <- projr_yml_get_unchecked()
-  projr_yml_check(yml_projr)
-  yml_projr
+projr_yml_get <- function(profile = NULL, check = FALSE) {
+  .projr_yml_get(profile)
 }
 
 #' @title Get active `projr` settings and do no check
@@ -38,10 +43,25 @@ projr_yml_get <- function() {
 #' @return A named list.
 #'
 #' @seealso projr_yml_get,projr_yml_check
-#' @export
-projr_yml_get_unchecked <- function() {
+.projr_yml_get <- function(profile) {
+  if (!is.null(profile)) {
+    return(.projr_yml_get_profile(profile))
+  }
+  .projr_yml_get_null()
+}
+
+.projr_yml_get_profile <- function(profile) {
+  .assert_string(profile)
+  switch(profile,
+    "local" = .projr_yml_get_local(),
+    "default" = .projr_yml_get_root_default(),
+    .projr_yml_get_profile_spec()
+  )
+}
+
+.projr_yml_get_null <- function() {
   yml_projr_root <- .projr_yml_get_root_default()
-  yml_projr_profile <- .projr_yml_get_profile()
+  yml_projr_profile <- .projr_yml_get_profile_spec()
   yml_projr_local <- .projr_yml_get_local()
 
   .projr_yml_merge(
@@ -100,7 +120,6 @@ projr_yml_get_unchecked <- function() {
         }
       }
     }
-    x <- 1
     # carry on if no return has been made
     # because the highest-precedence element was not a list
     .projr_yml_merge(elem_default, elem_profile, elem_local)
@@ -109,8 +128,7 @@ projr_yml_get_unchecked <- function() {
 }
 
 .projr_yml_get_root_full <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_yml <- file.path(dir_proj, "_projr.yml")
+  path_yml <- .dir_proj_get("_projr.yml")
   if (!file.exists(path_yml)) {
     stop(paste0("_projr.yml not found at ", path_yml))
   }
@@ -126,49 +144,24 @@ projr_yml_get_unchecked <- function() {
   yml_projr_root_full[nm_vec]
 }
 
-.projr_yml_get_profile <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  profile <- projr_profile_get()
+.projr_yml_get_profile_spec <- function(profile) {
+  if (!.is_given_mid(profile)) {
+    profile <- projr_profile_get()
+  }
   if (profile == "default") {
     return(list())
   }
-  yml_projr_root_full <- .projr_yml_get_root_full()
-  key_root_dir <- paste0("directories-", profile)
-  key_root_build <- paste0("build-", profile)
-  root_dir_ind <- key_root_dir %in% names(yml_projr_root_full)
-  root_build_ind <- key_root_build %in% names(yml_projr_root_full)
-  path_yml_projr_profile <- file.path(
-    dir_proj, paste0("_projr-", profile, ".yml")
+  path_profile <- .dir_proj_get(
+    paste0("_projr-", profile, ".yml")
   )
-  path_projr_profile_root <- file.exists(path_yml_projr_profile)
-  if ((root_build_ind || root_dir_ind) && path_projr_profile_root) {
-    stop(paste0(
-      "Settings for profile ", profile,
-      " found in both _projr.yml and _projr-", profile,
-      ".yml. Please either delete _projr-", profile,
-      ".yml, or remove the profile's settings in _projr.yml"
-    ))
-  }
-  if (root_build_ind || root_dir_ind) {
-    pos_dir <- which(names(yml_projr_root_full) == key_root_dir)
-    pos_build <- which(names(yml_projr_root_full) == key_root_build)
-    pos_either <- c(pos_dir, pos_build)
-    yml_projr_profile <- yml_projr_root_full[pos_either]
-    return(yml_projr_profile)
-  }
-  if (!file.exists(path_yml_projr_profile)) {
+  if (!file.exists(path_profile)) {
     return(list())
   }
-  yml_projr_init <- yaml::read_yaml(path_yml_projr_profile)
-  pos_dir <- which(names(yml_projr_init) == key_root_dir)
-  pos_build <- which(names(yml_projr_init) == key_root_build)
-  pos_either <- c(pos_dir, pos_build)
-  yml_projr_init[pos_either]
+  yaml::read_yaml(path_profile)
 }
 
 .projr_yml_get_local <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_yml <- file.path(dir_proj, "_projr-local.yml")
+  path_yml <- .dir_proj_get("_projr-local.yml")
   if (!file.exists(path_yml)) {
     return(list())
   }
@@ -254,7 +247,7 @@ projr_yml_check <- function(yml_projr = NULL) {
   }
   nm_vec_extra <- setdiff(
     names(yml_projr_build),
-    c("dev-output", "git", "github-release", "package")
+    c("dev-output", "git", "github", "package", "local", "osf")
   )
   if (length(nm_vec_extra) > 0) {
     stop(paste0(
@@ -264,7 +257,7 @@ projr_yml_check <- function(yml_projr = NULL) {
     ))
   }
   .projr_yml_check_build_git(yml_projr_build[["git"]])
-  .projr_yml_check_build_gh_release(yml_projr_build[["github-release"]])
+  .projr_yml_check_build_gh_release(yml_projr_build[["github"]])
 
   TRUE
 }
@@ -287,7 +280,8 @@ projr_yml_check <- function(yml_projr = NULL) {
     "path", "ignore-git", "ignore-rbuild", "git-track-adjust",
     "output", "archive",
     "manifest",
-    "hash"
+    "hash",
+    "osf"
   )
   nm_vec_extra <- setdiff(nm_vec_actual, nm_vec_valid)
   if (length(nm_vec_extra) > 0) {
@@ -331,7 +325,7 @@ projr_yml_check <- function(yml_projr = NULL) {
     # must be length 1
     if (!length(elem[["ignore-git"]]) == 1) {
       stop(paste0(
-        "`ignore-git` must be of length 1 for for directories in `projr` settings" # nolint
+        "`ignore_git` must be of length 1 for for directories in `projr` settings" # nolint
       ))
     }
     # must be logical, or else character of certain types
@@ -344,7 +338,7 @@ projr_yml_check <- function(yml_projr = NULL) {
     }
     if (!(ignore_logical || ignore_chr_correct)) {
       stop(paste0(
-        '`ignore-git` must be of type logical or `"manual"`, `"ignore"` or `"no-ignore"` # nolint
+        '`ignore_git` must be of type logical or `"manual"`, `"ignore"` or `"no-ignore"` # nolint
         for directories in `projr` settings'
       ))
     }
@@ -353,7 +347,7 @@ projr_yml_check <- function(yml_projr = NULL) {
     # must be length 1
     if (!length(elem[["ignore-rbuild"]]) == 1) {
       stop(paste0(
-        "`ignore-rbuild` must be of length 1 for for directories in `projr` settings" # nolint
+        "`ignore_rbuild` must be of length 1 for for directories in `projr` settings" # nolint
       ))
     }
     # must be logical, or else character of certain types
@@ -366,7 +360,7 @@ projr_yml_check <- function(yml_projr = NULL) {
     }
     if (!(ignore_logical || ignore_chr_correct)) {
       stop(paste0(
-        '`ignore-rbuild` must be of type logical or `"manual"`, `"ignore"` or `"no-ignore"` # nolint
+        '`ignore_rbuild` must be of type logical or `"manual"`, `"ignore"` or `"no-ignore"` # nolint
         for directories in `projr` settings'
       ))
     }
@@ -376,7 +370,7 @@ projr_yml_check <- function(yml_projr = NULL) {
   if ("git-track-adjust" %in% names(elem)) {
     if (!is.logical(elem[["output"]])) {
       stop(paste0(
-        "`git-track-adjust` must be of type character
+        "`git_track_adjust` must be of type character
       for directories in `projr` settings"
       ))
     }
@@ -601,16 +595,29 @@ projr_yml_check <- function(yml_projr = NULL) {
 }
 
 .projr_yml_set <- function(list_save) {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_yml <- file.path(dir_proj, "_projr.yml")
+  path_yml <- .projr_dir_proj_get("_projr.yml")
   yaml::write_yaml(list_save, path_yml)
   .projr_newline_append(path_yml)
   invisible(TRUE)
 }
 
+.projr_yml_get_path <- function(profile) {
+  if (!.is_given_mid(profile) || profile == "default") {
+    return(.dir_proj_get("_projr.yml"))
+  }
+  .dir_proj_get(paste0("_projr-", profile, ".yml"))
+}
+
+.projr_yml_set_root <- function(list_save) {
+  path_yml <- .dir_proj_get("_projr.yml")
+  yaml::write_yaml(list_save, path_yml)
+  .projr_newline_append(path_yml)
+  invisible(TRUE)
+}
+
+<<<<<<< HEAD
 .projr_yml_bd_get <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_yml <- file.path(dir_proj, "_bookdown.yml")
+  path_yml <- .projr_dir_proj_get("_bookdown.yml")
   if (!file.exists(path_yml)) {
     return(list())
   }
@@ -618,8 +625,7 @@ projr_yml_check <- function(yml_projr = NULL) {
 }
 
 .projr_yml_quarto_get <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_yml <- file.path(dir_proj, "_quarto.yml")
+  path_yml <- .projr_dir_proj_get("_quarto.yml")
   if (!file.exists(path_yml)) {
     return(list())
   }
@@ -627,8 +633,7 @@ projr_yml_check <- function(yml_projr = NULL) {
 }
 
 .projr_yml_bd_set <- function(list_save) {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_yml <- file.path(dir_proj, "_bookdown.yml")
+  path_yml <- .projr_dir_proj_get("_bookdown.yml")
   yaml::write_yaml(list_save, path_yml)
   .projr_newline_append(path_yml)
   invisible(TRUE)
@@ -636,21 +641,41 @@ projr_yml_check <- function(yml_projr = NULL) {
 
 .projr_yml_quarto_set <- function(list_save) {
   list_save <- yaml::as.yaml(
-    list_save, 
+    list_save,
     handlers = list(logical = function(x) {
       value <- if (x) "true" else "false"
       structure(value, class = "verbatim")
-      })
-      )
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_yml <- file.path(dir_proj, "_quarto.yml")
+    })
+  )
+  path_yml <- .projr_dir_proj_get("_quarto.yml")
   yaml::write_yaml(list_save, path_yml)
   .projr_newline_append(path_yml)
   invisible(TRUE)
 }
 
+=======
+>>>>>>> bf11267 (Add many updates)
 .projr_desc_get <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_desc <- file.path(dir_proj, "DESCRIPTION")
+  path_desc <- .dir_proj_get("DESCRIPTION")
   read.dcf(path_desc)
+}
+
+
+.projr_yml_complete <- function(yml, nm, default) {
+  switch(class(default)[[1]],
+    "NULL" = .projr_yml_complete_null(yml, nm),
+    .projr_yml_complete_default(yml, nm, default)
+  )
+}
+
+.projr_yml_complete_default <- function(yml, nm, default) {
+  yml[[nm]] <- yml[[nm]] %||% default
+  yml
+}
+
+.projr_yml_complete_null <- function(yml, nm) {
+  if (!nm %in% names(yml)) {
+    yml <- yml |> append(list(NULL) |> stats::setNames(nm))
+  }
+  yml
 }

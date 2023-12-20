@@ -1,0 +1,198 @@
+.projr_test_setup_project <- function(git = TRUE,
+                                      github = FALSE,
+                                      set_env_var = TRUE,
+                                      base_name = "test_projr",
+                                      env = rlang::caller_env()) {
+  # set up directory
+  dir_test <- file.path(tempdir(), paste0(base_name))
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
+  withr::defer(unlink(dir_test, recursive = TRUE), envir = env)
+  dir.create(dir_test, recursive = TRUE)
+
+  if (set_env_var) {
+    .test_set()
+    withr::defer(.test_unset(), envir = env)
+  }
+
+  # copy files
+  fn_vec <- list.files(testthat::test_path("./project_structure"))
+
+  for (x in fn_vec) {
+    file.copy(
+      file.path(testthat::test_path("./project_structure"), x),
+      file.path(dir_test, x),
+      overwrite = TRUE
+    )
+  }
+
+  # create .gitignore and .Rbuildignore
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+
+  # create git repo
+  git <- if (github) TRUE else git
+  if (git) {
+    if (!requireNamespace("gert", quietly = TRUE)) {
+      utils::install.packages("gert")
+    }
+    gert::git_init(dir_test)
+    gert::git_add(".", repo = dir_test)
+    gert::git_commit(message = "Initial commit", repo = dir_test)
+  }
+  # create github repo if required
+  if (github) {
+    with_dir(dir_test, {
+      remote_vec <- .projr_test_git_remote_get()
+      if (length(remote_vec) == 0L) {
+        repo <- .projr_test_github_repo_create(
+          repo = basename(dir_test), env = env
+        ) |>
+          basename()
+        .projr_test_github_repo_remote_add(repo = repo)
+        remote_vec <- .projr_test_git_remote_get()
+        if (length(remote_vec) == 0L) {
+          stop("No remotes found")
+        }
+        invisible(.projr_test_git_set_upstream_and_force_push())
+      } else {
+        # should really check that the remote exists
+      }
+    })
+  }
+  invisible(dir_test)
+}
+
+.projr_test_setup_content <- function(label,
+                                      safe = FALSE,
+                                      dir_sub_lvl = 2,
+                                      dir_sub_prefix = "subdir") {
+  for (x in label) {
+    # create files
+    file.create(
+      projr_path_get_file(x, "abc.txt", safe = safe)
+    )
+    if (dir_sub_lvl > 0) {
+      file.create(
+        projr_path_get_file(
+          x, paste0(dir_sub_prefix, "1"), "def.txt",
+          safe = safe
+        )
+      )
+    }
+    if (dir_sub_lvl > 1) {
+      file.create(
+        projr_path_get_file(
+          x, paste0(dir_sub_prefix, "1"),
+          paste0(dir_sub_prefix, "2"), "ghi.txt",
+          safe = safe
+        )
+      )
+    }
+  }
+  vapply(x, projr_path_get_dir, character(1), safe = safe) |> invisible()
+}
+
+.projr_test_setup_content_dir <- function(path_dir = NULL,
+                                          safe = FALSE,
+                                          dir_sub_lvl = 2,
+                                          dir_sub_prefix = "subdir") {
+  if (is.null(path_dir)) {
+    path_dir <- file.path(tempdir(), signif(rnorm(1), 6))
+  }
+  if (dir.exists(path_dir)) {
+    unlink(path_dir, recursive = TRUE)
+  }
+  dir.create(path_dir, recursive = TRUE)
+  # create files
+  file.create(file.path(path_dir, "abc.txt"))
+  file.create(file.path(path_dir, ".hidden.txt"))
+  if (dir_sub_lvl > 0) {
+    path_dir_sub1 <- file.path(path_dir, paste0(dir_sub_prefix, "1"))
+    dir.create(path_dir_sub1)
+    file.create(file.path(path_dir_sub1, "def.txt"))
+  }
+  if (dir_sub_lvl > 1) {
+    path_dir_sub2 <- file.path(path_dir_sub1, paste0(dir_sub_prefix, "2"))
+    dir.create(path_dir_sub2)
+    file.create(file.path(path_dir_sub2, "ghi.txt"))
+  }
+  path_dir |> invisible()
+}
+
+content_vec_test_file <- c(
+  ".hidden.txt", "abc.txt",
+  "subdir1/def.txt", "subdir1/subdir2/ghi.txt"
+)
+
+content_vec_test_dir <- c(
+  "subdir1", "subdir1/subdir2"
+)
+
+content_vec <- c(content_vec_test_file, content_vec_test_dir)
+
+.projr_test_manifest_create <- function(pre = TRUE,
+                                        post = TRUE,
+                                        write = TRUE,
+                                        output_run = TRUE) {
+  if (pre && !post) {
+    manifest <- .projr_build_manifest_hash_pre(output_run)
+  } else if (!pre && post) {
+    manifest <- .projr_build_manifest_hash_post(output_run)
+  } else {
+    manifest <- .projr_build_manifest_hash_pre(output_run) |>
+      rbind(.projr_build_manifest_hash_post(output_run))
+  }
+  if (file.exists("manifest.csv")) {
+    manifest_old <- utils::read.csv("manifest.csv")
+    if (nrow(manifest_old) > 0L) {
+      manifest <- manifest_old |>
+        rbind(manifest)
+    }
+  }
+
+  .projr_manifest_write(manifest, output_run = output_run)
+  manifest
+}
+
+.projr_test_manifest_create_pre <- function(output_run = TRUE) {
+  manifest <- .projr_build_manifest_hash_pre(output_run)
+  .projr_manifest_write(manifest, output_run = output_run)
+  manifest
+}
+
+.projr_test_dir_create_random <- function(base = tempdir(), create = TRUE) {
+  suffix <- .projr_test_random_string_get()
+  path_dir <- file.path(base, "test", suffix)
+  if (dir.exists(path_dir)) {
+    unlink(path_dir, recursive = TRUE)
+  }
+  if (create) {
+    dir.create(path_dir, recursive = TRUE)
+  }
+  path_dir
+}
+
+.projr_test_random_string_get <- function(prefix = "ProjrOSFTest") {
+  random_chr <- signif(rnorm(1))
+  if (is.null(prefix)) random_chr else paste0(prefix, random_chr)
+}
+
+.projr_test_yml_dest_remote_rm <- function() {
+  yml_projr <- .projr_yml_get()
+  type_vec <- c("local", "github", "osf")
+  type_vec <- type_vec[type_vec %in% names(yml_projr[["build"]])]
+  for (i in seq_along(type_vec)) {
+    yml_projr[["build"]] <- yml_projr[["build"]][
+      -which(names(yml_projr[["build"]]) == type_vec[i])
+    ]
+  }
+  .projr_yml_set(yml_projr)
+}

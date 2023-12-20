@@ -21,55 +21,52 @@
 #' Whether \code{renv} should look for packages
 #' on Bioconductor.
 #' Default is \code{TRUE}.
+#' @param public logical.
+#' Whether the GitHub repo created (if any)
+#' is public or not.
+#' Default is `FALSE`.
+#' @seealso projr_init_renviron
 #' @export
-projr_init <- function(dir_proj = getwd(),
-                       yml_path_from = NULL,
+projr_init <- function(yml_path_from = NULL,
                        renv_force = FALSE,
-                       renv_bioconductor = TRUE) {
+                       renv_bioconductor = TRUE,
+                       public = FALSE) {
   # create initial _proj.yml
-  .projr_init_yml(dir_proj, yml_path_from)
+  .projr_init_yml(yml_path_from) # nolint: object_usage_linter.
 
-  # package name
-  nm_pkg <- basename(dir_proj)
-  if (!Sys.getenv("PROJR_TEST") == "TRUE") {
-    cat("Project name is", paste0("`", nm_pkg, "`"), "\n")
-  }
-
-  nm_list_init <- .projr_init_prompt_init(nm_pkg)
+  # get metadata from user
+  nm_list <- .projr_init_prompt_init()
 
   # DESCRIPTION file
-  .projr_init_description(dir_proj, nm_list_init)
+  .projr_init_description(nm_list)
 
   # add various files
   .projr_init_dep() # _dependencies.R
   .projr_init_ignore() # ignore files
   .projr_init_r() # R folder
-  .projr_init_license(nm_list_init) # license
+  .projr_init_license(nm_list) # license
 
-  # add readme
-  readme_list <- .projr_init_readme(nm_list_init)
+  # initialise readme
+  .projr_init_readme(nm_list)
 
   # add document-engine docs
-  .projr_init_engine(nm_list_init)
+  .projr_init_engine(nm_list)
 
   # renv
-  .projr_init_renv(renv_force, renv_bioconductor)
+  .projr_init_renv(force = renv_force, bioc = renv_bioconductor)
 
-  # git and github
-  .projr_init_git_rdme_and_gh(
-    readme = readme_list[["readme"]],
-    path_readme = readme_list[["path_readme"]],
-    nm_list = nm_list_init
-  )
+  # finalise README
+  .projr_readme_render()
 
-  invisible(TRUE)
-}
+  # initialise Git repo
+  .projr_init_git_init(nm_list[["answer_git"]])
 
-.projr_newline_append <- function(path) {
-  txt <- readLines(path)
-  if (!identical(txt[[length(txt)]], "")) {
-    txt <- c(txt, "")
-    writeLines(txt, path)
-  }
+  # create GitHub remote
+  .projr_init_github(username = nm_list[["gh"]], public = public)
+
+  # add citation files
+  .projr_init_cite(nm_list[["answer_readme"]])
+
+  # create github remote
   invisible(TRUE)
 }

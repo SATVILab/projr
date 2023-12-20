@@ -1,20 +1,27 @@
+/**
+ * Last modified: 2023 Nov 26
+ * This JSON file contains the configuration for the development container used in the ProjectACSCyTOFTCells project.
+ * It specifies the Docker image to use, as well as the features to install in the container.
+ * The "ghcr.io/rocker-org/devcontainer-features/r-rig:1" feature installs R and related tools, while the "ghcr.io/rocker-org/devcontainer-features/quarto-cli:1" feature installs Quarto and TinyTeX.
+ * The "postCreateCommand" property specifies the commands to run after the container is created, which primarily sets up R.
+ * The "postStartCommand" property primarily clones repositories in repos-to-clone.list
+ * The extensions specify extensions typically used in VS Code for R analyses.
+ */
 {
-	"image": "mcr.microsoft.com/devcontainers/universal:2",
-	"features": {
-		"ghcr.io/rocker-org/devcontainer-features/quarto-cli:1": {
-			"installTinyTex": true,
-			"version": "latest"
-		},
-		"ghcr.io/rocker-org/devcontainer-features/r-rig:1": {
-			"installDevTools": true,
-			"installREnv": true,
-			"installRMarkdown": true,
-			"installRadian": true,
-			"version": "4",
-			"pakVersion": "auto",
-			"vscodeRSupport": "full",
-			"pandocVersion": "auto"
+	"image": "ghcr.io/rocker-org/devcontainer/geospatial:4",
+	"postCreateCommand": "chmod 755 .devcontainer/scripts/*sh && .devcontainer/scripts/post-create-command.sh",
+	"postStartCommand": "chmod 755 .devcontainer/scripts/*sh && .devcontainer/scripts/post-start-command.sh",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"quarto.quarto",
+				"GitHub.copilot",
+				"GitHub.copilot-chat",
+				"REditorSupport.r",
+				"bierner.markdown-preview-github-styles",
+				"eamodio.gitlens",
+				"mathematic.vscode-pdf"
+			]
 		}
-	},
-	"postCreateCommand": "./scripts/all/config_r.sh"
+	}
 }

@@ -1,6 +1,8 @@
 .projr_ignore_label_set <- function(label, git_skip_adjust = TRUE) {
-  dir_proj <- rprojroot::is_r_package$find_file()
-  dir_path <- .projr_dir_get(label, output_safe = FALSE)
+  .assert_string(label, TRUE)
+  .assert_in(label, .projr_yml_dir_get_label_artefact(NULL))
+  .assert_flag(git_skip_adjust)
+  dir_path <- .projr_dir_get(label, safe = FALSE)
   if (grepl("^archive", .projr_dir_label_strip(label))) {
     dir_path <- dirname(dir_path)
   }
@@ -8,12 +10,12 @@
     return(invisible(TRUE))
   }
 
-  within_wd <- fs::path_has_parent(dir_path, dir_proj)
+  within_wd <- fs::path_has_parent(dir_path, .dir_proj_get())
   if (!within_wd) {
     return(invisible(TRUE))
   }
 
-  dir_path_rel <- fs::path_rel(dir_path, dir_proj)
+  dir_path_rel <- fs::path_rel(dir_path, .dir_proj_get())
   dir_path_rel <- gsub("\\s*/*\\s*$", "", dir_path_rel) # nolint
 
   # rbuildignore
@@ -44,7 +46,7 @@
 # ========================================
 
 .projr_ignore_get_git <- function(label) {
-  yml_projr <- projr_yml_get_unchecked()
+  yml_projr <- .projr_yml_get(NULL)
   ignore_git <- yml_projr[["directories"]][[label]][["ignore-git"]]
   if (is.null(ignore_git)) {
     return("ignore")
@@ -83,7 +85,7 @@
     }
     return(git_skip_adjust)
   }
-  yml_projr <- projr_yml_get_unchecked()
+  yml_projr <- .projr_yml_get(NULL)
   yml_projr_skip <- yml_projr[["directories"]][["label"]][["git_skip_adjust"]]
   if (is.null(yml_projr_skip)) {
     return(TRUE)
@@ -307,29 +309,27 @@
 # getting and adjusting .gitignore
 # --------------------------------
 .projr_ignore_git_read <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
   suppressWarnings(readLines(
-    file.path(dir_proj, ".gitignore")
+    .dir_proj_get(".gitignore")
   ))
 }
 
 .projr_ignore_git_write <- function(gitignore, append) {
-  dir_proj <- rprojroot::is_r_package$find_file()
   cat(
     gitignore,
-    file = file.path(dir_proj, ".gitignore"),
+    file = .dir_proj_get(".gitignore"),
     sep = "\n",
     append = append
   )
-  .projr_newline_append(file.path(dir_proj, ".gitignore"))
-  invisible(file.path(dir_proj, ".gitignore"))
+  .projr_newline_append(.dir_proj_get(".gitignore"))
+  invisible(.dir_proj_get(".gitignore"))
 }
 
 # Rbuildignore
 # ========================================
 
 .projr_ignore_get_rbuild <- function(label) {
-  yml_projr <- projr_yml_get_unchecked()
+  yml_projr <- .projr_yml_get(NULL)
   ignore_rbuild <- yml_projr[["directories"]][[label]][["ignore-rbuild"]]
   if (is.null(ignore_rbuild)) {
     return("ignore")
@@ -443,20 +443,18 @@
 }
 
 .projr_ignore_rbuild_read <- function() {
-  dir_proj <- rprojroot::is_r_package$find_file()
   suppressWarnings(readLines(
-    file.path(dir_proj, ".Rbuildignore")
+    .dir_proj_get(".Rbuildignore")
   ))
 }
 
 .projr_ignore_rbuild_write <- function(buildignore, append) {
-  dir_proj <- rprojroot::is_r_package$find_file()
   cat(
     buildignore,
-    file = file.path(dir_proj, ".Rbuildignore"),
+    file = .dir_proj_get(".Rbuildignore"),
     sep = "\n",
     append = append
   )
-  .projr_newline_append(file.path(dir_proj, ".Rbuildignore"))
-  invisible(file.path(dir_proj, ".Rbuildignore"))
+  .projr_newline_append(.dir_proj_get(".Rbuildignore"))
+  invisible(.dir_proj_get(".Rbuildignore"))
 }

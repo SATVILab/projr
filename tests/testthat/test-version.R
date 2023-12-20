@@ -1,8 +1,8 @@
-
 test_that("projr_version_format_get and _set", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
-
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  withr::defer(unlink(dir_test, recursive = TRUE))
+  .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
@@ -46,7 +46,6 @@ test_that("projr_version_format_get and _set", {
     force = TRUE,
     quiet = TRUE
   )
-  unlink(dir_test, recursive = TRUE)
 })
 
 fn_base <- "abc2k1l432jda:12dk[[2314-ak34129V19"
@@ -81,9 +80,11 @@ svp <- c(".", ".", ".")
 fn <- fn_mmp
 
 test_that(".projr_version_format_list_get works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
+  withr::defer(unlink(dir_test, recursive = TRUE))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
@@ -108,49 +109,50 @@ test_that(".projr_version_format_list_get works", {
       expect_identical(projr_name_get(), "test_projr")
       projr_version_format_set("major.minor.patch-dev")
       expect_identical(
-        .projr_version_format_list_get(),
-        list("components" = cv, "sep" = svd)
+        .projr_version_format_list_get(NULL),
+        list("component" = cv, "sep" = svd)
       )
       projr_version_format_set("major.minor.patch.dev")
       expect_identical(
-        .projr_version_format_list_get(),
-        list("components" = cv, "sep" = svp)
+        .projr_version_format_list_get(NULL),
+        list("component" = cv, "sep" = svp)
       )
       projr_version_format_set("major.minor-dev")
       expect_identical(
-        .projr_version_format_list_get(),
-        list("components" = cv[-3], "sep" = svd[-2])
+        .projr_version_format_list_get(NULL),
+        list("component" = cv[-3], "sep" = svd[-2])
       )
       projr_version_format_set("major.minor.dev")
       expect_identical(
-        .projr_version_format_list_get(),
-        list("components" = cv[-3], "sep" = svp[-2])
+        .projr_version_format_list_get(NULL),
+        list("component" = cv[-3], "sep" = svp[-2])
       )
       projr_version_format_set("major-dev")
       expect_identical(
-        .projr_version_format_list_get(),
-        list("components" = cv[-c(2:3)], "sep" = svd[-c(1:2)])
+        .projr_version_format_list_get(NULL),
+        list("component" = cv[-c(2:3)], "sep" = svd[-c(1:2)])
       )
       projr_version_format_set("major.dev")
       expect_identical(
-        .projr_version_format_list_get(),
-        list("components" = cv[-c(2:3)], "sep" = svp[-c(1:2)])
+        .projr_version_format_list_get(NULL),
+        list("component" = cv[-c(2:3)], "sep" = svp[-c(1:2)])
       )
       yml_projr <- .projr_yml_get_root_full()
       yml_projr[["version_format"]] <- "abc"
       .projr_yml_set(yml_projr)
-      # expect_error(.projr_version_format_list_get())
+      # expect_error(.projr_version_format_list_get(NULL))
     },
     force = TRUE,
     quiet = TRUE
   )
-  unlink(dir_test, recursive = TRUE)
 })
 
 test_that(".projr_version_format_check works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
+  withr::defer(unlink(dir_test, recursive = TRUE))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
@@ -181,14 +183,15 @@ test_that(".projr_version_format_check works", {
     force = TRUE,
     quiet = TRUE
   )
-  unlink(dir_test, recursive = TRUE)
 })
 
 
 test_that("projr_version_get works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
+  withr::defer(unlink(dir_test, recursive = TRUE))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
@@ -227,14 +230,15 @@ test_that("projr_version_get works", {
     force = TRUE,
     quiet = TRUE
   )
-  unlink(dir_test, recursive = TRUE)
 })
 
 
 test_that(".projr_version_run_onwards_get works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
+  withr::defer(unlink(dir_test, recursive = TRUE))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
@@ -314,14 +318,15 @@ test_that(".projr_version_run_onwards_get works", {
     force = TRUE,
     quiet = TRUE
   )
-  unlink(dir_test, recursive = TRUE)
 })
 
 
 test_that("projr_version_set works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
+  withr::defer(unlink(dir_test, recursive = TRUE))
 
-  if (!dir.exists(dir_test)) dir.create(dir_test)
+  .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
@@ -352,19 +357,19 @@ test_that("projr_version_set works", {
       projr_version_set("1.4")
       desc <- .projr_desc_get()
       expect_identical(desc[1, "Version"][[1]], "1.4")
-      invisible(projr_version_dev_bump())
+      invisible(.projr_version_bump_dev())
       desc <- .projr_desc_get()
       expect_identical(desc[1, "Version"][[1]], "1.5")
-      expect_error(invisible(projr_version_dev_bump("does_not_exist")))
+      expect_error(invisible(.projr_version_bump_dev("does_not_exist")))
     },
     force = TRUE,
     quiet = TRUE
   )
-  unlink(dir_test, recursive = TRUE)
 })
 
 
 test_that("checking min version works", {
+  skip_if(.is_test_select())
   expect_identical(
     .projr_version_comp_vec_min_get(version_min = "patch"),
     .projr_version_comp_vec_min_get(version_min = "any")

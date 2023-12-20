@@ -2,15 +2,25 @@
 % Please edit documentation in R/dir.R
 \name{projr_dir_get}
 \alias{projr_dir_get}
+\alias{projr_path_get_dir}
 \title{Return path to profile-specific directory}
 \usage{
 projr_dir_get(
   label,
   ...,
   create = TRUE,
-  path_relative_force = FALSE,
-  output_safe = TRUE,
-  path_absolute_force = FALSE
+  relative = FALSE,
+  absolute = FALSE,
+  safe = TRUE
+)
+
+projr_path_get_dir(
+  label,
+  ...,
+  create = TRUE,
+  relative = FALSE,
+  absolute = FALSE,
+  safe = TRUE
 )
 }
 \arguments{
@@ -34,12 +44,17 @@ and \code{.Rbuildignore} as specified
 in \code{_projr.yml}.
 Default is \code{TRUE}.}
 
-\item{path_relative_force}{logical.
+\item{relative}{logical.
 If \code{TRUE}, then forces that the returned
 path is relative to the project root.
 Default is \code{FALSE}.}
 
-\item{output_safe}{logical.
+\item{absolute}{logical.
+If \code{TRUE}, then forces the returned path
+to be absolute.
+Default is \code{FALSE}.}
+
+\item{safe}{logical.
 If \code{TRUE}, then the output directory
 is set to be \code{"<path_to_cache>/projr_output"}
 instead of \code{<path_to_output>} (as specified in \code{_projr.yml}).
@@ -47,12 +62,8 @@ The only time that this should be set to \code{TRUE}
 should be when \code{projr_build_output} is being run, as otherwise
 "development" or test runs will add to, delete or overwrite files
 from the previous run of \code{projr_build_output}.
-Default is \code{TRUE}.}
-
-\item{path_absolute_force}{logical.
-If \code{TRUE}, then forces the returned path
-to be absolute.
-Default is \code{FALSE}.}
+Default is \code{TRUE}.
+Do not change this unless you know what you are doing.}
 }
 \value{
 Character.
@@ -68,8 +79,9 @@ DETAILS
 }
 \examples{
 \dontrun{
-if (interactive()) {
-  # EXAMPLE1
+
 }
 }
+\seealso{
+projr_dir_create_all
 }

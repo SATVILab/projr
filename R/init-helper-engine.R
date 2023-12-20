@@ -1,4 +1,7 @@
 .projr_init_engine <- function(nm_list) {
+  if (.projr_init_engine_check_exists()) {
+    return(invisible(FALSE))
+  }
   switch(nm_list[["engine"]],
     "bookdown" = .projr_init_engine_bookdown(nm_list),
     "quarto_project" = .projr_init_engine_quarto_project(nm_list),
@@ -6,6 +9,18 @@
     "rmd" = .projr_init_engine_rmd(nm_list),
     stop("Document engine not recognised")
   )
+}
+
+.projr_init_engine_check_exists <- function() {
+  bookdown_exists_lgl <- file.exists(.dir_proj_get("_bookdown.yml"))
+  quarto_project_exists_lgl <- file.exists(
+    .dir_proj_get("_quarto.yml")
+  )
+  qmd_rmd_exists_lgl <- any(grepl(
+    "\\.qmd|\\.Rmd|\\.rmd",
+    list.files(.dir_proj_get())
+  ))
+  bookdown_exists_lgl || quarto_project_exists_lgl || qmd_rmd_exists_lgl
 }
 
 # bookdown
@@ -26,7 +41,6 @@
 }
 
 .projr_init_engine_bookdown_output <- function(nm_list) {
-  dir_proj <- rprojroot::is_r_package$find_file()
   # output.yml
   o_yml <- yaml::read_yaml(system.file(
     "project_structure", "_output.yml",
@@ -49,7 +63,7 @@
       nm_list[["title"]],
       "</a></li>\n"
     )
-  path_yml <- file.path(dir_proj, "_output.yml")
+  path_yml <- .dir_proj_get("_output.yml")
   yaml::write_yaml(o_yml, path_yml)
   .projr_newline_append(path_yml)
 
@@ -69,8 +83,7 @@
   index[author_ind] <- nm_author
   description_ind <- which(grepl("^description", index))
   index[description_ind] <- paste0("description: ", nm_list[["title"]])
-  dir_proj <- rprojroot::is_r_package$find_file()
-  writeLines(index, file.path(dir_proj, "index.Rmd"))
+  writeLines(index, .dir_proj_get("index.Rmd"))
   invisible(TRUE)
 }
 
@@ -125,8 +138,7 @@
 .projr_init_engine_quarto_project_index <- function() {
   # index.Rmd
   index <- c("# Introduction", "")
-  dir_proj <- rprojroot::is_r_package$find_file()
-  writeLines(index, file.path(dir_proj, "index.qmd"))
+  writeLines(index, .dir_proj_get("index.qmd"))
   invisible(TRUE)
 }
 
@@ -156,9 +168,7 @@
     "# Introduction",
     ""
   )
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_qmd <- file.path(
-    dir_proj,
+  path_qmd <- .dir_proj_get(
     paste0(
       gsub("\\.qmd$", "", nm_list[["filename"]]),
       ".qmd"
@@ -198,9 +208,7 @@
     "# Introduction",
     ""
   )
-  dir_proj <- rprojroot::is_r_package$find_file()
-  path_rmd <- file.path(
-    dir_proj,
+  path_rmd <- .dir_proj_get(
     paste0(
       gsub("\\.Rmd|\\.rmd$", "", nm_list[["filename"]]),
       ".Rmd"
