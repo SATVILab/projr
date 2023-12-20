@@ -57,11 +57,14 @@
   if (!.projr_build_copy_pkg_check()) {
     return(invisible(FALSE))
   }
-  path_pkg <- .projr_build_copy_pkg_build()
+  # build
+  .projr_build_copy_pkg_build()
+  # copy to output directories
   for (x in .projr_build_copy_pkg_get_label()) {
     file.copy(
-      .projr_build_copy_pkg_build_get_path(),
-      projr_path_get_dir(x, "pkg", safe = !output_run)
+      .projr_build_copy_pkg_build_path_get() |>
+        .file_ls(full.names = TRUE),
+      projr_path_get_dir(x[[1]], "pkg", safe = !output_run)
     )
   }
   invisible(TRUE)
@@ -77,17 +80,17 @@
 .projr_build_copy_pkg_get_label <- function() {
   sapply(
     .projr_yml_dir_get_label_output(NULL),
-    .projr_yml_dir_get_pkg_nm_complete,
+    .projr_yml_dir_get_pkg_complete,
     profile = NULL
-  )
+  ) |>
+    stats::setNames(NULL)
 }
 
 .projr_build_copy_pkg_build <- function() {
-  path_pkg <- .projr_build_copy_pkg_build_get_path()
   .projr_dep_install("pkgbuild")
   pkgbuild::build(
     path = .dir_proj_get(),
-    dest_path = path_pkg,
+    dest_path = .projr_build_copy_pkg_build_path_setup(),
     binary = FALSE,
     quiet = TRUE
   ) |>
@@ -95,8 +98,8 @@
 }
 
 .projr_build_copy_pkg_build_get_path <- function() {
-  path_dir_pkg <- .projr_build_copy_pkg_build_path_setup()
-  version_pkg <- .projr_desc_get()[, "Version"][[1]]
+  path_dir_pkg <-
+    version_pkg <- .projr_desc_get()[, "Version"][[1]]
   fn_pkg <- paste0(projr_name_get(), "_", version_pkg, ".tar.gz")
   file.path(path_dir_pkg, fn_pkg)
 }
@@ -121,7 +124,7 @@
   for (x in .projr_build_copy_dir_get_label()) {
     output_vec <- .projr_yml_dir_get_output_nm_complete(x, NULL)
     for (i in seq_along(output_vec)) {
-      projr::projr_dir_mimick(
+      .dir_copy_exact(
         projr_path_get_dir(x, safe = !output_run),
         projr_path_get_dir(output_vec[[i]], x, safe = !output_run),
         dir_exc = .projr_build_label_get_dir_exc(x)

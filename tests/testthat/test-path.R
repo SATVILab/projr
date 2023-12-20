@@ -31,7 +31,7 @@ test_that(".path_* functions work", {
 })
 
 test_that(".file_* and .dir_* functions work", {
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
@@ -112,7 +112,7 @@ test_that(".file_* and .dir_* functions work", {
       file.create(file.path(dir_tmp_2, "f1")) |> invisible()
       .dir_copy_exact(dir_tmp, dir_tmp_2, dir_exc = "d1")
       expect_identical(
-        dir_tmp |> .dir_ls(),
+        dir_tmp |> .dir_ls() |> setdiff("d1"),
         dir_tmp_2 |> .dir_ls(),
       )
       expect_identical(

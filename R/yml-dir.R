@@ -20,14 +20,14 @@
 
 # hash
 .projr_yml_dir_nm_set_hash <- function(hash, label, profile) {
-  yml_dir <- .projr_yml_dir_get_nm(label, profile)
+  yml_dir <- .projr_yml_dir_get_label(label, profile)
   yml_dir[["hash"]] <- hash
-  .projr_yml_dir_set_nm(yml_dir, label, profile)
+  .projr_yml_dir_set_label(yml_dir, label, profile)
 }
 
 
 .projr_yml_dir_get_hash <- function(label, profile) {
-  .projr_yml_dir_get_nm(label, profile)[["hash"]] %@@% NULL
+  .projr_yml_dir_get_label(label, profile)[["hash"]] %@@% NULL
 }
 
 .projr_yml_dir_get_hash_complete <- function(label, profile) {
@@ -36,7 +36,7 @@
 }
 
 .projr_yml_dir_get_hash <- function(label, profile) {
-  .projr_yml_dir_get_nm(label, profile)[["hash"]] %@@% NULL
+  .projr_yml_dir_get_label(label, profile)[["hash"]] %@@% NULL
 }
 
 .projr_yml_dir_complete_hash <- function(hash, label) {
@@ -127,16 +127,22 @@
 }
 
 # get package values for a particular label
-.projr_yml_dir_get_pkg_nm_complete <- function(label, profile) {
+.projr_yml_dir_get_pkg_complete <- function(label, profile) {
   if (!label %in% .projr_yml_dir_get_label_output(profile)) {
     return(character())
   }
-  .projr_yml_dir_get_pkg_nm(label, profile) |>
+  .projr_yml_dir_get_pkg(label, profile) |>
     .projr_yml_dir_complete_pkg(label)
 }
 
-.projr_yml_dir_get_pkg_nm <- function(label, profile) {
+.projr_yml_dir_get_pkg <- function(label, profile) {
   .projr_yml_dir_get_label(label, profile)[["package"]]
+}
+
+.projr_yml_dir_set_pkg <- function(package, label, profile) {
+  yml <- .projr_yml_dir_get_label(label, profile)
+  yml[["package"]] <- package
+  .projr_yml_dir_set_label(yml, label, profile)
 }
 
 .projr_yml_dir_complete_pkg <- function(pkg, label) {
@@ -155,21 +161,21 @@
 
 .projr_yml_dir_complete_output <- function(output, label, profile) {
   switch(class(output),
-    logical = .projr_yml_dir_complete_output_lgl(output, label),
+    logical = .projr_yml_dir_complete_output_lgl(output, label, profile),
     character = .projr_yml_dir_complete_output_chr(output, label, profile),
     character()
   )
 }
 
-.projr_yml_dir_complete_output_lgl <- function(output, label) {
+.projr_yml_dir_complete_output_lgl <- function(output, label, profile) {
   if (!output) {
     return(character())
   }
-  .projr_yml_dir_complete_output_true(label)
+  .projr_yml_dir_complete_output_true(label, profile)
 }
 
-.projr_yml_dir_complete_output_true <- function(label) {
-  .projr_yml_dir_get_label_output() |> setdiff(label)
+.projr_yml_dir_complete_output_true <- function(label, profile) {
+  .projr_yml_dir_get_label_output(profile) |> setdiff(label)
 }
 
 .projr_yml_dir_complete_output_chr <- function(output, label, profile) {
@@ -207,7 +213,8 @@
 }
 
 .projr_yml_dir_get_label_docs <- function(profile) {
-  .projr_yml_dir_get_label_nm("docs", profile)
+  label <- .projr_yml_dir_get_label_nm("docs", profile)
+  if (.is_len_0(label)) "docs" else label
 }
 
 .projr_yml_dir_get_label_nm <- function(nm, profile) {
@@ -222,12 +229,13 @@
   ]
 }
 
-.projr_yml_dir_get_nm <- function(nm, profile) {
+.projr_yml_dir_get_label <- function(nm, profile) {
   .assert_in(nm, .projr_opt_dir_get_label(profile))
+  .assert_given(profile)
   .projr_yml_dir_get(profile)[[nm]]
 }
 
-.projr_yml_dir_set_nm <- function(yml, nm, profile) {
+.projr_yml_dir_set_label <- function(yml, nm, profile) {
   .assert_in(nm, names(.projr_yml_dir_get(profile)))
   yml_projr <- .projr_yml_get(profile)
   yml_projr[["directories"]][[nm]] <- yml
@@ -235,7 +243,7 @@
 }
 
 .projr_yml_dir_get_path <- function(label, profile) {
-  .projr_yml_dir_get_nm(label, profile)[["path"]]
+  .projr_yml_dir_get_label(label, profile)[["path"]]
 }
 
 .projr_yml_dir_set_path <- function(path, label, profile) {
@@ -244,9 +252,24 @@
   .projr_yml_set(yml_projr, profile)
 }
 
+.projr_yml_dir_add_label <- function(path, package = NULL, output = NULL, label, profile) {
+  .assert_string(path, TRUE)
+  .assert_string(label, TRUE)
+  .assert_given(profile)
+  yml_projr <- .projr_yml_get(profile)
+  yml_list <- list(path = path)
+  if (!is.null(package)) {
+    yml_list[["package"]] <- package
+  }
+  if (!is.null(output)) {
+    yml_list[["output"]] <- output
+  }
+  yml_projr[["directories"]][[label]] <- yml_list
+  .projr_yml_set(yml_projr, profile)
+}
+
 # basic functions
 # ---------------------------
-
 .projr_yml_dir_get_label <- function(label, profile) {
   .projr_yml_dir_get(profile)[[label]] %@@% NULL
 }
@@ -261,15 +284,15 @@
   .projr_yml_set(yml_projr, profile)
 }
 
-.projr_yml_dir_set_nm <- function(yml, nm, profile) {
+.projr_yml_dir_set_label <- function(yml, nm, profile) {
   if (is.null(yml) || .is_len_0(yml)) {
-    .projr_yml_dir_set_nm_empty(nm, profile)
+    .projr_yml_dir_set_label_empty(nm, profile)
   } else {
-    .projr_yml_dir_set_nm_non_empty(yml, nm, profile)
+    .projr_yml_dir_set_label_non_empty(yml, nm, profile)
   }
 }
 
-.projr_yml_dir_set_nm_empty <- function(nm, profile) {
+.projr_yml_dir_set_label_empty <- function(nm, profile) {
   yml_projr <- .projr_yml_get(profile)
   yml_projr[["directories"]] <- yml_projr[["directories"]][
     setdiff(names(yml_projr[["directories"]]), nm)
@@ -277,7 +300,7 @@
   .projr_yml_set(yml_projr, profile)
 }
 
-.projr_yml_dir_set_nm_non_empty <- function(yml, nm, profile) {
+.projr_yml_dir_set_label_non_empty <- function(yml, nm, profile) {
   yml_projr <- .projr_yml_get(profile)
   yml_projr[["directories"]][[nm]] <- yml
   .projr_yml_set(yml_projr, profile)
