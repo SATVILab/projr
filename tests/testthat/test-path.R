@@ -60,6 +60,7 @@ test_that(".file_* and .dir_* functions work", {
           .path_force_rel(dir_tmp),
         content_vec_test_file
       )
+      # removing
       expect_identical(.file_rm("a"), character())
       expect_identical(
         file.path(dir_tmp, "abc.txt") |>
@@ -83,11 +84,103 @@ test_that(".file_* and .dir_* functions work", {
           .path_force_rel(dir_tmp),
         c("subdir1/def.txt", "subdir1/subdir2/ghi.txt")
       )
-      browser()
-
+      # clearing
       dir_tmp <- .projr_test_setup_content_dir()
-      debugonce(.dir_clear)
-      expect_false(.dir_create_tmp_random() |> .dir_clear())
+      expect_true(.dir_create_tmp_random() |> .dir_clear())
+      expect_true(dir_tmp |> .dir_clear())
+      dir_tmp <- .projr_test_setup_content_dir()
+      .dir_clear(dir_tmp)
+      expect_identical(
+        dir_tmp |> .dir_ls(),
+        character()
+      )
+      # copying and moving
+      # no exclusions
+      dir_tmp <- .projr_test_setup_content_dir()
+      dir_tmp_2 <- .dir_create_tmp_random()
+      file.create(file.path(dir_tmp_2, "f1")) |> invisible()
+      .dir_copy_exact(dir_tmp, dir_tmp_2)
+      expect_identical(
+        dir_tmp |> .dir_ls(),
+        dir_tmp_2 |> .dir_ls()
+      )
+      # exclusions
+      dir_tmp <- .projr_test_setup_content_dir()
+      .dir_create(file.path(dir_tmp, "d1"))
+      file.create(file.path(dir_tmp, "d1", "f2")) |> invisible()
+      dir_tmp_2 <- .dir_create_tmp_random()
+      file.create(file.path(dir_tmp_2, "f1")) |> invisible()
+      .dir_copy_exact(dir_tmp, dir_tmp_2, dir_exc = "d1")
+      expect_identical(
+        dir_tmp |> .dir_ls(),
+        dir_tmp_2 |> .dir_ls(),
+      )
+      expect_identical(
+        dir_tmp |> .file_ls() |> setdiff("d1/f2"),
+        dir_tmp_2 |> .file_ls(),
+      )
+      # removing initial, no exclusion
+      dir_tmp <- .projr_test_setup_content_dir()
+      path_vec_dir <- dir_tmp |> .dir_ls()
+      path_vec_file <- dir_tmp |> .file_ls()
+      dir_tmp_2 <- .dir_create_tmp_random()
+      .dir_move_exact(dir_tmp, dir_tmp_2)
+      expect_identical(
+        dir_tmp_2 |> .dir_ls(),
+        path_vec_dir
+      )
+      expect_identical(
+        dir_tmp_2 |> .file_ls(),
+        path_vec_file
+      )
+      expect_identical(.file_ls(dir_tmp), character())
+      expect_identical(.dir_ls(dir_tmp), character())
+      # removing initial, with exclusion
+      dir_tmp <- .projr_test_setup_content_dir()
+      path_vec_dir <- dir_tmp |> .dir_ls()
+      path_vec_file <- dir_tmp |> .file_ls()
+
+      .dir_create(file.path(dir_tmp, "d1"))
+      file.create(file.path(dir_tmp, "d1", "f2")) |> invisible()
+      path_vec_excess <- dir_tmp |> .dir_ls()
+      dir_tmp_2 <- .dir_create_tmp_random()
+      .dir_move_exact(dir_tmp, dir_tmp_2, dir_exc = "d1")
+      expect_identical(dir_tmp_2 |> .dir_ls(), path_vec_dir)
+      expect_identical(dir_tmp_2 |> .file_ls(), path_vec_file)
+      expect_identical(.file_ls(dir_tmp), "d1/f2")
+      expect_identical(.dir_ls(dir_tmp), "d1")
+
+      # not removing initial, no exclusion
+      dir_tmp <- .projr_test_setup_content_dir()
+      path_vec_dir <- dir_tmp |> .dir_ls()
+      path_vec_file <- dir_tmp |> .file_ls()
+      dir_tmp_2 <- .dir_create_tmp_random()
+      file.create(file.path(dir_tmp_2, "f1")) |> invisible()
+      .dir_move(dir_tmp, dir_tmp_2)
+      expect_identical(
+        dir_tmp_2 |> .dir_ls(),
+        path_vec_dir
+      )
+      expect_identical(
+        dir_tmp_2 |> .file_ls() |> sort(),
+        path_vec_file |> c("f1") |> sort()
+      )
+      expect_identical(.file_ls(dir_tmp), character())
+      expect_identical(.dir_ls(dir_tmp), character())
+      # removing initial, with exclusion
+      dir_tmp <- .projr_test_setup_content_dir()
+      path_vec_dir <- dir_tmp |> .dir_ls()
+      path_vec_file <- dir_tmp |> .file_ls()
+
+      .dir_create(file.path(dir_tmp, "d1"))
+      file.create(file.path(dir_tmp, "d1", "f2")) |> invisible()
+      path_vec_excess <- dir_tmp |> .dir_ls()
+      dir_tmp_2 <- .dir_create_tmp_random()
+      .dir_move(dir_tmp, dir_tmp_2, dir_exc = "d1")
+      expect_identical(dir_tmp_2 |> .dir_ls(), path_vec_dir)
+      expect_identical(dir_tmp_2 |> .file_ls(), path_vec_file)
+      expect_identical(.file_ls(dir_tmp), "d1/f2")
+      expect_identical(.dir_ls(dir_tmp), "d1")
     }
   )
 })

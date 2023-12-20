@@ -13,9 +13,12 @@
     return(fn)
   }
   .assert_chr(exc)
-  fn[
-    !grepl(paste0("^", gsub("/+$|^\\^", "", exc), "/", collapse = "|"), fn)
-  ]
+  pattern <- paste0(
+    paste0("^", gsub("/+$|^\\^", "", exc), "/", collapse = "|"),
+    "|",
+    paste0("^", gsub("/+$|^\\^", "", exc), "$", collapse = "|")
+  )
+  fn[!grepl(pattern, fn)]
 }
 
 # -------------------
@@ -100,7 +103,7 @@
   if (.is_len_0(path_vec)) {
     return(path_vec)
   }
-  .dir_filter_removable(path_dir)
+  .dir_filter_removable(path_vec)
 }
 
 # --------------------
@@ -115,7 +118,7 @@
 # ---------------------
 
 .file_rm <- function(fn) {
-  .assert_chr(fn, TRUE)
+  .assert_chr_min(fn, TRUE)
   fn <- fn |> .file_filter_exists()
   if (length(fn) == 0) {
     return(invisible(character()))
@@ -233,7 +236,7 @@
 }
 
 .dir_filter_removable <- function(path, path_dir_base = NULL) {
-  .assert_chr(path, TRUE)
+  .assert_chr_min(path, TRUE)
   .assert_string(path_dir_base)
   path[
     !fs::path_abs(path) %in% .dir_ls_unremovable(path_dir_base)
@@ -241,16 +244,19 @@
 }
 
 # ---------------------
-# moving
+# removing
 # ---------------------
 
 # remove directory itself
 .dir_rm <- function(path) {
-  .assert_chr(path, TRUE)
-  if (!dir.exists(path)) {
-    return(invisible(FALSE))
+  .assert_chr_min(path, TRUE)
+  for (i in seq_along(path)) {
+    .assert_path_not_file(path[[i]])
+    if (!dir.exists(path[[i]])) {
+      next
+    }
+    unlink(path[[i]], recursive = TRUE)
   }
-  unlink(path, recursive = TRUE)
   invisible(TRUE)
 }
 
@@ -259,12 +265,18 @@
   .dir_rm(path)
 }
 
+# ---------------------
+# clearing
+# ---------------------
+
 # remove directory contents
 .dir_clear <- function(path_dir,
                        recursive_file = FALSE,
                        recursive_dir = FALSE,
-                       delete_hidden = TRUE) {
+                       delete_hidden = TRUE,
+                       dir_exc = NULL) {
   .assert_string(path_dir, TRUE)
+  .assert_dir_exists(path_dir)
   .assert_flag(recursive_file, TRUE)
   .assert_flag(recursive_dir, TRUE)
   .assert_flag(delete_hidden, TRUE)
@@ -272,11 +284,15 @@
     return(invisible(FALSE))
   }
 
-  .projr_dir_clear_file(
+  .dir_clear_file(
     path_dir,
-    delete_hidden = delete_hidden, recursive = recursive_file
+    delete_hidden = delete_hidden, recursive = recursive_file,
+    dir_exc = dir_exc
   )
-  .projr_dir_clear_dir(path_dir, recursive = recursive_dir)
+  .dir_clear_dir(
+    path_dir,
+    recursive = recursive_dir, dir_exc = dir_exc
+  )
   invisible(TRUE)
 }
 
@@ -307,30 +323,39 @@
 
 .dir_clear_file <- function(path,
                             delete_hidden = TRUE,
-                            recursive = TRUE) {
+                            recursive = TRUE,
+                            dir_exc = NULL) {
   # delete all files within a directory
   if (!.dir_clear_check(path)) {
     return(invisible(FALSE))
   }
-  .file_ls(path, delete_hidden, recursive) |>
+  path |>
+    file.path(.file_ls(path, delete_hidden, recursive)) |>
     .file_filter_dir_non() |>
+    .path_filter_spec(dir_exc) |>
+    .path_filter_spec_add_back_file(path, dir_exc) |>
     .file_rm()
   invisible(TRUE)
 }
 
 .dir_clear_dir <- function(path, recursive = FALSE, dir_exc = NULL) {
-  .assert_chr_min(path)
+  .assert_string(path)
   if (!.dir_clear_check(path)) {
     return(invisible(FALSE))
   }
-  path_vec_dir <- .file_ls(path, recursive, full.names = TRUE) |>
-    .file_filter_dir() |>
-    .dir_filter_removable()
+  path_vec_dir <- .dir_ls(path, recursive = recursive, full.names = TRUE) |>
+    .dir_filter_removable() |>
+    .path_filter_spec(dir_exc) |>
+    .path_filter_spec_add_back_file(path, dir_exc)
   for (i in seq_along(path_vec_dir)) {
     unlink(path_vec_dir[i], recursive = TRUE)
   }
   invisible(TRUE)
 }
+
+# ---------------------
+# moving and copying
+# ---------------------
 
 # make second directory exactly like first,
 # whilst not removing contents from first
@@ -359,6 +384,7 @@
   .assert_chr(dir_exc)
   .file_ls(path_dir_from) |>
     .path_filter_spec(dir_exc) |>
+    .path_filter_spec_add_back_file(path_dir_from, dir_exc) |>
     .dir_copy_file(path_dir_from, path_dir_to)
   .dir_copy_tree(path_dir_from = path_dir_from, path_dir_to = path_dir_to)
 }
@@ -380,7 +406,7 @@
     return(invisible(FALSE))
   }
   # ensure relevant directories are available
-  .dir_copy_file_tree(fn, path_dir_from, path_dir_to)
+  .dir_copy_file_tree(fn, path_dir_to)
   fs::file_copy(
     file.path(path_dir_from, fn) |> .path_force_abs(),
     file.path(path_dir_to, fn) |> .path_force_abs(),
@@ -399,12 +425,11 @@
 }
 
 .dir_copy_file_tree <- function(fn,
-                                path_dir_from,
                                 path_dir_to) {
   # copy the required directory tree across
   dir_vec <- dirname(fn) |> unique()
   for (i in seq_along(dir_vec)) {
-    .dir_create(file.path(path_dir_to, dir_vec[[i]]), recursive = TRUE)
+    .dir_create(file.path(path_dir_to, dir_vec[[i]]))
   }
   invisible(TRUE)
 }
@@ -424,31 +449,93 @@
 }
 
 .dir_move <- function(path_dir_from,
-                      path_dir_to) {
-  .dir_copy_tree(path_dir_from = path_dir_from, path_dir_to = path_dir_to)
+                      path_dir_to,
+                      dir_exc = NULL) {
   .dir_move_file(
-    fn = .file_ls(path_dir_from),
     path_dir_from = path_dir_from,
-    path_dir_to = path_dir_to
+    path_dir_to = path_dir_to,
+    dir_exc = dir_exc
   )
-  .dir_clear(path_dir_from)
+  .dir_move_dir(
+    path_dir_from = path_dir_from,
+    path_dir_to = path_dir_to,
+    dir_exc = dir_exc
+  )
 }
 
-.dir_move_file <- function(fn,
+.dir_move_file <- function(fn = NULL,
                            path_dir_from,
-                           path_dir_to) {
-  if (!.dir_copy_check(fn, path_dir_from)) {
+                           path_dir_to,
+                           dir_exc = dir_exc) {
+  .assert_string(path_dir_from)
+  if (is.null(fn)) {
+    fn <- .file_ls(path_dir_from) |>
+      .path_filter_spec(dir_exc) |>
+      .path_filter_spec_add_back_file(path_dir_from, dir_exc)
+  } else {
+    .assert_chr_min(fn)
+    fn <- file.path(path_dir_from, fn) |>
+      .file_filter_exists() |>
+      .file_filter_dir_non() |>
+      .path_force_rel(path_dir_from) |>
+      .path_filter_spec(dir_exc) |>
+      .path_filter_spec_add_back_file(path_dir_from, dir_exc)
+  }
+  if (.is_len_0(fn)) {
     return(invisible(FALSE))
   }
-  .dir_copy_tree(
-    path_dir_from = path_dir_from, path_dir_to = path_dir_to
-  )
-  fn <- fn[file.exists(path_dir_from, fn)]
+  .assert_string(path_dir_to, TRUE)
+  .dir_copy_file_tree(fn, path_dir_to)
+  .assert_string(path_dir_to)
+  file.rename(
+    fn |> .path_force_abs(path_dir_from),
+    fn |> .path_force_abs(path_dir_to)
+  ) |>
+    invisible()
+  invisible(TRUE)
+}
 
-  file.copy(
-    .path_force_abs(fn, path_dir_from),
-    .path_force_abs(fn, path_dir_to),
-    overwrite = TRUE
+.path_filter_spec_add_back_file <- function(fn, path_dir, path_exc) {
+  if (is.null(path_exc)) {
+    return(fn)
+  }
+  fn |>
+    c(
+      file.path(path_dir, path_exc) |> .file_filter_dir_non()
+    )
+}
+
+.dir_move_dir <- function(path_dir = NULL,
+                          path_dir_from,
+                          path_dir_to,
+                          dir_exc) {
+  .assert_string(path_dir_from)
+  if (is.null(path_dir)) {
+    path_dir <- .dir_ls(path_dir_from) |>
+      .path_filter_spec(dir_exc) |>
+      .path_filter_spec_add_back_file(path_dir_from, dir_exc)
+  } else {
+    .assert_chr_min(path_dir)
+    path_dir <- file.path(path_dir_from, path_dir) |>
+      .file_filter_exists() |>
+      .file_filter_dir() |>
+      .path_force_rel(path_dir_from) |>
+      .path_filter_spec(dir_exc) |>
+      .path_filter_spec_add_back_file(path_dir_from, dir_exc)
+  }
+  if (.is_len_0(path_dir)) {
+    return(invisible(FALSE))
+  }
+  suppressWarnings(file.rename(
+    path_dir |> .path_force_abs(path_dir_from),
+    path_dir |> .path_force_abs(path_dir_to)
+  ) |>
+    invisible())
+
+  .dir_rm(
+    file.path(path_dir_from, path_dir)[
+      dir.exists(file.path(path_dir_from, path_dir))
+    ]
   )
   invisible(TRUE)
 }
