@@ -58,6 +58,17 @@
   }
 }
 
+# full
+.path_get_full <- function(path_dir, ...) {
+  .assert_string(path_dir, TRUE)
+  path_append <- list(...) |> unlist()
+  do.call(
+    "file.path",
+    args = list(path_dir) |> append(path_append)
+  ) |>
+    as.character()
+}
+
 # ==============================
 # file
 # ==============================
@@ -187,7 +198,7 @@
     rprojroot::is_r_package$find_file(),
     error = function(e) getwd()
   ) |>
-    file.path(...)
+    .path_get_full(...)
 }
 
 # ---------------------
@@ -276,7 +287,6 @@
                        delete_hidden = TRUE,
                        dir_exc = NULL) {
   .assert_string(path_dir, TRUE)
-  .assert_dir_exists(path_dir)
   .assert_flag(recursive_file, TRUE)
   .assert_flag(recursive_dir, TRUE)
   .assert_flag(delete_hidden, TRUE)
@@ -329,8 +339,7 @@
   if (!.dir_clear_check(path)) {
     return(invisible(FALSE))
   }
-  path |>
-    file.path(.file_ls(path, delete_hidden, recursive)) |>
+  .file_ls(path, recursive, all.files = delete_hidden, full.names = TRUE) |>
     .file_filter_dir_non() |>
     .path_filter_spec(dir_exc) |>
     .path_filter_spec_add_back_file(path, dir_exc) |>

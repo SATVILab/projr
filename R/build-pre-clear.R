@@ -15,7 +15,7 @@
 
 .projr_dir_clear_pre_cache_version <- function() {
   .projr_dir_get_cache_auto_version(profile = NULL) |>
-    .projr_dir_clear_dir(recursive = FALSE, dir_exc = "old")
+    .dir_clear_dir(dir_exc = "old")
 }
 
 .projr_build_clear_pre_output <- function(cache) {

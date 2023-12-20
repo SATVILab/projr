@@ -259,7 +259,7 @@
   .assert_path_not_file(path)
   .assert_flag(path_append_label)
   .assert_in(label, .projr_opt_dir_get_label_send(NULL))
-  .assert_opt_single(structure, .projr_opt_remote_get_structure())
+  .assert_in_single(structure, .projr_opt_remote_get_structure())
 
   # the local destination is just the
   # local directory where files are get, so
@@ -296,7 +296,7 @@
   .assert_string(path)
   .assert_flag(path_append_label)
   .assert_in(label, .projr_opt_dir_get_label_send(NULL))
-  .assert_opt_single(structure, .projr_opt_remote_get_structure())
+  .assert_in_single(structure, .projr_opt_remote_get_structure())
   label <- .projr_remote_get_final_osf_get_label(
     label, path_append_label
   )
@@ -386,7 +386,7 @@
                                                  structure) {
   .assert_string(path)
   .assert_flag(path_append_label, TRUE)
-  .assert_opt_single(structure, .projr_opt_remote_get_structure(), TRUE)
+  .assert_in_single(structure, .projr_opt_remote_get_structure(), TRUE)
   if (path_append_label) {
     .assert_in(label, .projr_opt_dir_get_label_send(NULL), TRUE)
   }

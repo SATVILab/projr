@@ -1,5 +1,6 @@
 test_that("projr_dir_get works", {
   # setup
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = TRUE)
 
   # run from within project
@@ -27,7 +28,6 @@ test_that("projr_dir_get works", {
         relative = FALSE
       ), "_tmp/projr/v0.0.0-1/output")
       expect_identical(projr_dir_get("output", safe = FALSE), "_output")
-      expect_identical(projr_dir_get("archive"), "_tmp/projr/v0.0.0-1/archive")
       if (dir.exists("_tmp")) unlink("_tmp", recursive = TRUE)
       expect_identical(projr_dir_get("cache", create = FALSE), "_tmp")
       expect_true(!dir.exists("_tmp"))
@@ -71,13 +71,6 @@ test_that("projr_dir_get works", {
         projr_path_get_dir("cache", "abc"), "_tmp/abc"
       )
       expect_identical(
-        projr_path_get_dir("archive", "abc"), "_tmp/projr/v0.0.0-1/archive/abc"
-      )
-      expect_identical(
-        projr_path_get_dir("archive", "abc", safe = FALSE),
-        "_archive/v0.0.0-1/abc"
-      )
-      expect_identical(
         projr_path_get_dir("output", "abc", safe = TRUE),
         "_tmp/projr/v0.0.0-1/output/abc"
       )
@@ -99,6 +92,7 @@ test_that("projr_dir_get works", {
 })
 
 test_that("projr_path_get works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
 
   .dir_create(dir_test)
@@ -147,9 +141,6 @@ test_that("projr_path_get works", {
         relative = FALSE
       ), "_tmp/projr/v0.0.0-1/output")
       expect_identical(projr_path_get("output", safe = FALSE), "_output")
-      expect_identical(
-        projr_path_get("archive", safe = FALSE), "_archive/v0.0.0-1"
-      )
       if (dir.exists("_tmp")) unlink("_tmp", recursive = TRUE)
       expect_identical(projr_path_get("cache", create = FALSE), "_tmp")
       expect_true(!dir.exists("_tmp"))
@@ -184,24 +175,11 @@ test_that("projr_path_get works", {
         projr_path_get("cache", "abc"), "_tmp/abc"
       )
       expect_identical(
-        projr_path_get("archive", "abc", safe = TRUE),
-        "_tmp/projr/v0.0.0-1/archive/abc"
-      )
-      expect_identical(
-        projr_path_get("archive", "abc", safe = FALSE),
-        "_archive/v0.0.0-1/abc"
-      )
-      expect_identical(
         projr_path_get("data-raw", "abc", "def", "ghi"),
         file.path(path_data_raw_abs, "abc/def/ghi") |>
           fs::path_norm() |>
           as.character()
       )
-      expect_true(
-        fs::is_dir(dirname((projr_path_get("archive", "abc", "def"))))
-      )
-      expect_true(dir.exists(dirname(projr_path_get("archive", "abc"))))
-      expect_true(!file.exists(projr_path_get("archive", "abc", "def")))
       expect_identical(
         projr_path_get("output", "abc", safe = TRUE),
         "_tmp/projr/v0.0.0-1/output/abc"
@@ -213,6 +191,7 @@ test_that("projr_path_get works", {
 })
 
 test_that("projr_dir_create works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
 
   .dir_create(dir_test)
@@ -246,9 +225,6 @@ test_that("projr_dir_create works", {
 
       projr_dir_create("data-raw")
       expect_true(dir.exists("_data_raw"))
-      projr_dir_create("archive", safe = FALSE)
-      expect_true(dir.exists("_archive"))
-      expect_true(dir.exists(file.path("_archive", "v0.0.0-1")))
       projr_dir_create("output")
       expect_false(dir.exists("_output"))
       expect_true(dir.exists("_tmp/projr/v0.0.0-1/output"))
@@ -271,6 +247,7 @@ test_that("projr_dir_create works", {
 })
 
 test_that("projr_dir_ignore works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   .dir_create(dir_test)
@@ -343,13 +320,8 @@ test_that("projr_dir_ignore works", {
       buildignore <- .projr_ignore_rbuild_read()
       expect_identical(length(which(buildignore == "^_output$")), 1L)
       expect_identical(length(which(buildignore == "^_output/")), 1L)
-      .projr_ignore_label_set("archive")
-      .projr_ignore_label_set("archive")
       gitignore <- .projr_ignore_git_read()
-      expect_identical(length(which(gitignore == "_archive/**")), 1L)
       buildignore <- .projr_ignore_rbuild_read()
-      expect_identical(length(which(buildignore == "^_archive/")), 1L)
-      expect_identical(length(which(buildignore == "^_archive$")), 1L)
 
       yml_projr <- .projr_yml_get_root_full()
       for (i in seq_along(yml_projr[["directories"]])) {
@@ -398,7 +370,8 @@ test_that("projr_dir_ignore works", {
   )
 })
 
-test_that(".projr_dir_clear works", {
+test_that(".dir_clear works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
 
   .dir_create(dir_test)
@@ -436,7 +409,7 @@ test_that(".projr_dir_clear works", {
       dir_cache_sub <- projr_path_get_dir("cache", "sub")
       path_cache_sub_fn <- file.path(dir_cache_sub, "test.txt")
       invisible(file.create(path_cache_sub_fn))
-      .projr_dir_clear_file(path = projr_path_get_dir("cache"))
+      .dir_clear_file(path = projr_path_get_dir("cache"), recursive = TRUE)
       expect_true(dir.exists((dir_cache_sub)))
       expect_false(file.exists(path_cache_sub_fn))
       .dir_clear(

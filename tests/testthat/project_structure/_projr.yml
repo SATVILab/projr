@@ -7,8 +7,6 @@ directories:
     path: _tmp
   output: 
     path: _output
-  archive: 
-    path: _archive
   docs:
     archive: true
 
