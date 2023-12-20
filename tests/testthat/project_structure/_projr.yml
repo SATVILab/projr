@@ -2,13 +2,10 @@
 directories:
   data-raw:
     path: _data_raw
-    archive: true
   cache: 
     path: _tmp
   output: 
     path: _output
-  docs:
-    archive: true
 
 build:
   github:

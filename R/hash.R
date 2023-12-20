@@ -4,11 +4,10 @@
   if (.is_len_0(fn_vec)) {
     return(.projr_zero_tbl_get_hash())
   }
-  fn_vec <- fn_vec |>
-    .path_filter_spec(dir_exc) |>
-    file.path(path_dir = path_dir)
+  fn_vec <- file.path(path_dir, fn_vec) |>
+    .path_filter_spec(dir_exc)
   out_tbl <- data.frame(
-    fn = .path_force_rel(fn_vec, path_dir),
+    fn = fn_vec |> .path_force_rel(path_dir),
     version = paste0("v", version %||% projr_version_get()),
     hash = .projr_hash_file(fn_vec)
   )

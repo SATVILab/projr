@@ -794,7 +794,7 @@
 # local
 .projr_remote_file_rm_local <- function(fn,
                                         remote) {
-  .assert_chr(fn, TRUE)
+  .assert_chr_min(fn, TRUE)
   if (length(fn) == 0L) {
     return(invisible(FALSE))
   }
@@ -947,7 +947,7 @@
 .projr_remote_file_add_local <- function(fn,
                                          path_dir_local,
                                          remote) {
-  .assert_chr(fn, TRUE)
+  .assert_chr_min(fn, TRUE)
   .assert_string(path_dir_local, TRUE)
   .assert_path_not_file(path_dir_local)
   .assert_string(remote, TRUE)
