@@ -30,7 +30,7 @@
   # (and only copied across after builds on output runs,
   # nothing about non-safe dirs pre-run)
   label_vec <- .projr_yml_dir_get_label_out(NULL) |>
-    setdiff(.projr_yml_dir_get_label_docs())
+    setdiff(.projr_yml_dir_get_label_docs(NULL))
   for (i in seq_along(label_vec)) {
     .projr_build_clear_pre_output_label(label_vec[[i]])
   }
