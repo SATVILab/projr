@@ -115,7 +115,7 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
 }
 
 
-# taken from withr::with_dir
+# taken from withr-with_dir
 with_dir <- function(new, code) {
   old <- setwd(dir = new)
   on.exit(setwd(old))
