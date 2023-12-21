@@ -133,7 +133,7 @@ test_that(".projr_git_ functions work", { # setup
   cat("e-2")
   print("e-2")
   dir_test <- .projr_test_setup_project(
-    git = TRUE, github = TRUE, set_env_var = FALSE
+    git = TRUE, github = TRUE, set_env_var = TRUE
   )
   # skip()
   message("e-1")
