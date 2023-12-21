@@ -34,7 +34,9 @@ Suggests:
     testthat (>= 3.0.0),
     httr,
     rlang,
-    gitcreds
+    gitcreds,
+    codemeta,
+    cffr
 Config/testthat/edition: 3
 URL: https://satvilab.github.io/projr/
 VignetteBuilder: knitr
