@@ -12,3 +12,4 @@ devtools::load_all()
 devtools::test()
 
 # seems to be the third test stanza in test-git.R
+x <- 1
