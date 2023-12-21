@@ -129,67 +129,39 @@ test_that(".projr_git_ functions work", { # setup
   # skip_if(.is_test_select())
   #  debugonce(.projr_test_setup_project)
   # debugonce(.projr_test_setup_project_github_actual)
-  message("e-2")
-  cat("e-2")
-  print("e-2")
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
   # skip()
-  message("e-1")
-  cat("e-1")
-  print("e-1")
 
   # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
-      message("e0")
-      cat("e0")
-      print("e0")
       expect_true(TRUE)
-      message("e1")
-      cat("e1")
-      print("e1")
       # check there's a remote
       # ---------------------
       expect_true(.projr_git_remote_check_exists_git())
-      cat("e2")
-      print("e2")
       expect_true(.projr_git_remote_check_exists_gert())
-      cat("e3")
-      print("e3")
       expect_true(.projr_git_remote_check_exists())
       # check there's an upstream remote
       # ---------------------
       # debugonce(.projr_git_remote_check_upstream_git())
       # no upstream branch created for some reason.
       # just checking that code runs for now.
-      print("e4")
-      cat("e4")
       expect_true(.is_flag(suppressWarnings(.projr_git_remote_check_upstream_git())))
-      cat("e5")
-      print("e5")
       expect_true(.is_flag(suppressWarnings(.projr_git_remote_check_upstream())))
       # push
       # -----------------------
-      print("e6")
-      cat("e6")
       invisible(file.create("abc.txt"))
       status_tbl <- gert::git_status()
       .projr_git_commit_file("abc.txt", msg = "abc")
-      cat("e7")
-      print("e7")
       expect_true(.projr_git_push_git())
       invisible(file.create("def.txt"))
       status_tbl <- gert::git_status()
       .projr_git_commit_file("def.txt", msg = "def")
-      print("e8")
-      cat("e8")
       expect_true(.projr_git_push_gert())
       .projr_git_config_get_name()
-      cat("e8 complete, ending now")
-      print("e8 complete, ending now")
     }
   )
 })

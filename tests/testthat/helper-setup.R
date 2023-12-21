@@ -104,7 +104,6 @@
     if (length(remote_vec) == 0L) {
       stop("No remotes found")
     }
-    print(.string_create(remote_vec))
     # we must not then have upstream set:
     invisible(.projr_test_git_set_upstream_and_force_push())
   } else {
