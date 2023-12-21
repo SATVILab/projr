@@ -70,15 +70,15 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
   }
   for (i in seq_along(dep_required)) {
     if (.projr_renv_detect()) {
-      .projr_dep_install_only_rscript(x)
+      .projr_dep_install_only_rscript(dep_required[[i]])
     } else {
-      if (grepl("^\\w+/\\w+", gsub("\\.", "", x))) {
+      if (grepl("^\\w+/\\w+", gsub("\\.", "", dep_required[[i]]))) {
         if (!requireNamespace("remotes", quietly = TRUE)) {
           utils::install.packages("remotes")
         }
-        remotes::install_github(x)
+        remotes::install_github(dep_required[[i]])
       } else {
-        utils::install.packages(x)
+        utils::install.packages(dep_required[[i]])
       }
     }
   }
