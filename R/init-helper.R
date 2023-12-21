@@ -667,15 +667,36 @@ projr_init_renviron <- function() {
     .projr_init_renviron_add()
 }
 
+#' @importFrom fs
 .projr_init_renviron_create <- function() {
   .projr_dep_install_only("usethis")
-  path <- usethis:::scoped_path_r(
+  path <- .projr_usethis_use_scoped_path_r(
     scope = "user", ".Renviron", envvar = "R_ENVIRON_USER"
   )
   if (!file.exists(path)) {
     file.create(path)
   }
   invisible(path)
+}
+
+.projr_usethis_use_scoped_path_r <- function(scope = c("user", "projr"),
+                                             ...,
+                                             envvar = NULL) {
+  # rewritten because use_scoped_path_r is not exported from
+  # usethis and R CMD CHECK complained about
+  # usethis use_scoped_path_r
+  scope <- match.arg(scope)
+  if (scope == "user" && !is.null(envvar)) {
+    env <- Sys.getenv(envvar, unset = "")
+    if (!identical(env, "")) {
+      return(fs::path_expand(env))
+    }
+  }
+  root <- switch(scope,
+    user = fs::path_home_r(),
+    project = usethis::proj_get()
+  )
+  fs::path(root, ...)
 }
 
 .projr_init_renviron_add <- function(path) {
