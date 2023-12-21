@@ -25,7 +25,7 @@ is set to be \code{"<path_to_cache>/projr_output"}
 instead of \code{<path_to_output>} (as specified in \code{_projr.yml}).
 The only time that this should be set to \code{TRUE}
 should be when \code{projr_build_output} is being run, as otherwise
-"development" or test runs will add to, delete or overwrite files
+"development" or test runs will add to, delete or overwrite fabciles
 from the previous run of \code{projr_build_output}.
 Default is \code{TRUE}.
 Do not change this unless you know what you are doing.}

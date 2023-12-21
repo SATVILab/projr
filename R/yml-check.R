@@ -53,7 +53,7 @@ projr_yml_check <- function(profile = NULL) {
 
 .projr_yml_dir_check_label_path <- function(yml_label, label, profile) {
   is_docs <- .projr_yml_dir_label_class_detect_docs(label)
-  if (is_docs && !path %in% names(yml_label)) {
+  if (is_docs && !"path" %in% names(yml_label)) {
     return(invisible(TRUE))
   }
   .assert_has(names(yml_label), "path")
@@ -180,8 +180,8 @@ projr_yml_check <- function(profile = NULL) {
   .assert_in(yml_title[["structure"]], .projr_opt_remote_get_structure())
   .assert_string(yml_title[["path"]], type == "local")
   .assert_flag(yml_title[["path-append-label"]])
-  .assert_string(id, type == "osf")
-  .assert_nchar(id, 5L)
+  .assert_string(yml_title[["id"]], type == "osf")
+  .assert_nchar(yml_title[["id"]], 5L)
   if ("get" %in% names(yml_title)) {
     get_list <- yml_title[["get"]]
     .assert_in(names(get_list), c("sync-approach", "conflict"))
@@ -195,7 +195,7 @@ projr_yml_check <- function(profile = NULL) {
   if ("send" %in% names(yml_title)) {
     send_list <- yml_title[["send"]]
     .assert_in(names(send_list), .projr_opt_remote_transfer_names_get())
-    .assert_in(send_list[["cue"]], .projr_opt_remote_cue_get())
+    .assert_in(send_list[["cue"]], .projr_opt_cue_get())
     .assert_in(
       send_list[["sync-approach"]], .projr_opt_remote_sync_approach_get()
     )

@@ -24,11 +24,16 @@
 #' Which minimum build level triggers the scripts.
 #' "build" and "dev" are equivalent, and
 #' always trigger the scripts.
+#' @param overwrite logical.
+#' Whether to overwrite any script settings
+#' of the same title in the `projr`
+#' configuration file.
 #' @param profile character.
 #' Profile to add the script to.
 #' If `"default"`` (the default),
 #' the script is added to the default profile,
 #' which is `_projr.yml`.
+#'
 #'
 #' @details
 #' Within a stage (pre- or post-build), scripts

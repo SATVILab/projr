@@ -5,37 +5,99 @@
 #' @title Add an OSF node as a destination
 #'
 #' @description
-#' Add a project or component to the _projr.yml
-#' specification for OSF.
+#' Add an OSF node (project or component)
+#' as a destination to a _projr.yml file.
 #'
 #' @param title character.
-#' The title of the project or component.
-#' Must be supplied.
-#' @param description character. Description on OSF. Default is `NULL`.
-#' @param content character vector. Keys to include in the OSF upload.
-#' @param public logical. Whether the project or component is public on OSF.
+#' Title of the OSF node.
+#' For GitHub releases, can use title as `@version`,
+#' Note that this implies that a new tag will be created with each
+#' new version, so do not use with large files.
+#' If not supplied, then will
+#' automatically be generated from `content`.
+#' @param content character vector.
+#' Labels of directories to include in the upload.
+#' Options are the labels of directories
+#' in the active `projr` configuration,
+#' as well as "docs", "data" and "code".
+#' "docs" means the directory where the documents are rendered to,
+#' "data" means the files in the `"data"` directory,
+#' and "code" means all files tracked by the Git repository.
+#' @param path character.
+#' Path to the directory on the OSF node.
+#' @param structure "latest" or "version".
+#' Structure of the remote.
+#' If "latest", then `path` simply contains
+#' the latest versions of the contents.
+#' If "version", then `path` will contain
+#' a directory for each version.
+#' If not supplied, will be `version`.
+#' @param path_append_label logical.
+#' Whether to append the label to the path.
+#' If `TRUE`, then the label will be appended to `path`.
+#' If `FALSE`, then the path will be the path to the label.
+#' If not set, then will be treated as `TRUE`.
+#' @param overwrite logical.
+#' Whether to rewrite an existing entry of the same
+#' title in the specified `projr` configuration file.
+#' Default is TRUE.
+#' @param public logical.
+#' Whether the OSF node is public.
 #' Default is `FALSE`.
 #' @param category character. The category of the project or component.
 #' The following are valid options: `"project"`, `"analysis"`,
 #' `"communication"`, `"data"`, `"hypothesis"`, `"instrumentation"`,
 #' `"methods and measures"`, `"procedure"`, `"project"`, `"software"` and other
 #' `"other"`. Default is `NULL.`
+#' @param description character.
+#' Description of the OSF node.
+#' Default is `NULL`.
 #' @param id character. The id of the project or component. Must be five
 #' characters. Default is `NULL`.
 #' @param id_parent character. The id of the parent project or component.
 #' Must be five characters. Default is `NULL`.
-#' @param overwrite logical. If `TRUE`, then the project or component
-#' will be overwitten if it exists.
-#' Note that any components of the project/component
-#' will be deleted from the YAML file. If `FALSE`, then an error will be thrown.
-#' Default is `FALSE`.
-#' element in
+#' @param send_cue TRUE/FALSE, or one of "build", "dev", "patch",
+#' "minor" or "major".
+#' Minimum component bumped in a project build to initiate
+#' the upload.
+#' If `TRUE`, then will be set to `"patch"`.
+#' If `FALSE`, then will never be uploaded.
+#' If `"build"`, then will be uploaded on every build,
+#' including `dev` builds, so `dev` and `"build"` are equivalent.
+#' @param send_sync_approach "upload-all", "upload-missing",
+#' "sync-using-deletiong" and "sync-using-version".
+#' How to synchronise to the remote.
+#' If `upload-all`, then all files are uploaded.
+#' If `upload-missing`, then only missing files are uploaded.
+#' If `sync-using-deletion`, then all files on the remote
+#' are deleted before uploading all local files.
+#' If `sync-using-version`, then files
+#' that have changed or been added locally are uploaded to the remote,
+#' and files that have been removed locally are removed from the remote.
+#' If not set, then "sync-using-version" will be used.
+#' @param send_version_source "manifest" or "file".
+#' For `sync-using-version` synchronisation approach,
+#' whether to use the recorded versions of objects to
+#' determine what has changed  ("manifest"),
+#' or to download everything from the remote, version it
+#' and compare it to what's in the local folder ("file").
+#' If not set, then "manifest" is used.
+#' @param send_conflict "overwrite", "error" or "skip".
+#' What to do if a file that is to be uploaded
+#' to the remote is already on the remote.
+#' Default is "overwrite".
+
+#' @param profile character.
+#' Profile to write the settings to.
+#' If "default", then written to `_projr.yml`,
+#' otherwise written to `_projr-<profile>.yml`.
+#' The default is "default".
 #' @export
 #' @rdname projr_yml_dest_add_osf
-projr_yml_dest_add_osf <- function(title = NULL,
-                                   content = NULL,
-                                   structure = NULL,
+projr_yml_dest_add_osf <- function(title,
+                                   content,
                                    path = NULL,
+                                   structure = NULL,
                                    path_append_label = NULL,
                                    overwrite = FALSE,
                                    public = FALSE,
@@ -43,8 +105,8 @@ projr_yml_dest_add_osf <- function(title = NULL,
                                    description = NULL,
                                    id = NULL,
                                    id_parent = NULL,
-                                   get_sync_approach = NULL,
-                                   get_conflict = NULL,
+                                   # get_sync_approach = NULL,
+                                   # get_conflict = NULL,
                                    send_cue = NULL,
                                    send_sync_approach = NULL,
                                    send_version_source = NULL,
@@ -63,8 +125,8 @@ projr_yml_dest_add_osf <- function(title = NULL,
     description = description,
     id = id,
     id_parent = id_parent,
-    get_sync_approach = get_sync_approach,
-    get_conflict = get_conflict,
+    get_sync_approach = NULL,
+    get_conflict = NULL,
     send_cue = send_cue,
     send_sync_approach = send_sync_approach,
     send_version_source = send_version_source,
@@ -116,64 +178,39 @@ projr_yml_dest_add_osf_comp <- function(title,
 # local
 # =========================================
 
-#' @title Add an OSF node as a destination
+#' @title Add a local directory as a destination
 #'
 #' @description
-#' Add a project or component to the _projr.yml
-#' specification for OSF.
+#' Add a local directory as a destination
+#' to a _projr.yml file.
 #'
-#' Note: this will always add to `_projr.yml`.
-#' If you want to add to another `projr` file, you can either
-#' create that manually or copy the result of applying
-#' this function to `_projr.yml` across.
+#'
+#' @inheritParams projr_yml_dest_add_osf
 #'
 #' @param title character.
 #' The name of the directory.
 #' Has no effect besides helping structure `_projr.yml`.
 #' If not supplied, will be made equal to `content`.
-#' @param content character vector.
-#' Labels to include in the OSF upload, e.g. `data-raw`, `cache`, `output`,
 #' @param path character.
-#' Path to the directory on the local system.
+#' Path to the directory.
 #' If a relative path is given, then it is taken as
 #' relative to the project home directory.
-#' If not supplied, then will be by default `_output`
-#' if structure is `latest` and `_archive` if structure is
-#' `version`.
-#' @param path_append_label logical.
-#' Whether to append the label to the path.
-#' If `TRUE`, then the label will be appended to `path`.
-#' If `FALSE`, then the path will be the path to the label.
-#' @param ignore_git logical.
-#' Whether to exclude the final path from Git.
-#' If not supplied, then the path will be excluded.
-#' @param ignore_rbuild logical.
-#' Whether to exclude the final path in `.Rbuildignore`.
-#' If not supplied, then the path will be excluded.
-#' @param structure "latest" or "version".
-#' Structure of the remote.
-#' If "latest", then `path` simply contains
-#' the latest versions of the contents.
-#' If "version", then `path` will contain
-#' a directory for each version.
-#' If not supplied, will be `version`.
-#' @param cue character.
-#' When to cue the upload.
+#' Must be supplied.
 #'
 #' @export
 #' @rdname projr_yml_dest_add
 projr_yml_dest_add_local <- function(title,
                                      content,
                                      path,
-                                     path_append_label = NULL,
                                      structure = NULL,
-                                     get_sync_approach = NULL,
-                                     get_conflict = NULL,
+                                     path_append_label = NULL,
+                                     overwrite = TRUE,
+                                     #  get_sync_approach = NULL,
+                                     #  get_conflict = NULL,
                                      send_cue = NULL,
                                      send_sync_approach = NULL,
                                      send_version_source = NULL,
                                      send_conflict = NULL,
-                                     overwrite = TRUE,
                                      profile = "default") {
   .assert_string(title, TRUE)
   .assert_len_1(title, TRUE)
@@ -189,8 +226,58 @@ projr_yml_dest_add_local <- function(title,
     path = path,
     path_append_label = path_append_label,
     structure = structure,
-    get_sync_approach = get_sync_approach,
-    get_conflict = get_conflict,
+    get_sync_approach = NULL,
+    get_conflict = NULL,
+    send_cue = send_cue,
+    send_sync_approach = send_sync_approach,
+    send_version_source = send_version_source,
+    send_conflict = send_conflict,
+    profile = profile
+  )
+}
+
+#' @title Add a GitHub release as a destination
+#'
+#' @description
+#' Add a GitHub release as a destination
+#' to a _projr.yml file.
+#'
+#' @inheritParams projr_yml_dest_add_osf
+#'
+#' @param title character.
+#' Title of the GitHub release.
+#' Can use title as `@version`,
+#' in which case the release will be entitled
+#' the version of the project at the time.
+#' If not supplied, then will
+#' automatically be generated from `content`.
+#' @export
+projr_yml_dest_add_github <- function(title,
+                                      content,
+                                      structure = NULL,
+                                      overwrite = TRUE,
+                                      # get_sync_approach = NULL,
+                                      # get_conflict = NULL,
+                                      send_cue = NULL,
+                                      send_sync_approach = NULL,
+                                      send_version_source = NULL,
+                                      send_conflict = NULL,
+                                      profile = "default") {
+  .assert_string(title, TRUE)
+  .assert_len_1(title, TRUE)
+  .assert_chr(content, TRUE)
+  .assert_in(content, .projr_yml_dir_get(profile) |> names())
+
+  .projr_yml_dest_add(
+    role = "destination",
+    type = "local",
+    title = title,
+    content = content,
+    path = NULL,
+    path_append_label = NULL,
+    structure = structure,
+    get_sync_approach = NULL,
+    get_conflict = NULL,
     send_cue = send_cue,
     send_sync_approach = send_sync_approach,
     send_version_source = send_version_source,

@@ -7,18 +7,13 @@
 \alias{projr_build_patch}
 \title{Build project to output}
 \usage{
-projr_build_output(
-  bump_component,
-  old_output_cache = FALSE,
-  msg = NULL,
-  args_engine = list()
-)
+projr_build_output(bump_component, msg = NULL, args_engine = list())
 
-projr_build_major(msg = NULL, old_output_cache = FALSE, args_engine = list())
+projr_build_major(msg = NULL, args_engine = list())
 
-projr_build_minor(msg = NULL, old_output_cache = FALSE, args_engine = list())
+projr_build_minor(msg = NULL, args_engine = list())
 
-projr_build_patch(msg = NULL, old_output_cache = FALSE, args_engine = list())
+projr_build_patch(msg = NULL, args_engine = list())
 }
 \arguments{
 \item{bump_component}{"major", "minor", "patch" or missing.

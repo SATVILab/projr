@@ -33,10 +33,6 @@ Default is \code{TRUE}.}
 Whether the GitHub repo created (if any)
 is public or not.
 Default is \code{FALSE}.}
-
-\item{dir_proj}{character.
-Project directory.
-Default is \code{getwd()}.}
 }
 \description{
 Initialise project

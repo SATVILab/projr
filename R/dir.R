@@ -37,17 +37,12 @@
 #' instead of \code{<path_to_output>} (as specified in \code{_projr.yml}).
 #' The only time that this should be set to \code{TRUE}
 #' should be when `projr_build_output` is being run, as otherwise
-#' "development" or test runs will add to, delete or overwrite files
+#' "development" or test runs will add to, delete or overwrite fabciles
 #' from the previous run of `projr_build_output`.
 #' Default is \code{TRUE}.
 #' Do not change this unless you know what you are doing.
 #' @return Character.
 #' Path to directory requested.
-#' @details DETAILS
-#' @examples
-#' \dontrun{
-#'
-#' }
 #' @rdname projr_dir_get
 #' @export
 #' @seealso projr_dir_create_all
@@ -279,6 +274,14 @@ projr_dir_create <- function(label, ..., safe = TRUE) {
 #' Default is \code{NULL}, in which
 #' case the settings as per \code{_projr.yml}
 #' are used (or the default, if unspecified there).
+#'
+#' @param git_skip_adjust logical.
+#' Whether to use Git's ability to
+#' ignore already tracked files if the
+#' files were previously tracked but we now no
+#' longer wish to track them.
+#' If `NULL`, then treated as `TRUE`.
+#' Default is `NULL`.
 #'
 #' @export
 projr_dir_ignore <- function(git_skip_adjust = NULL) {

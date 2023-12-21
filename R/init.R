@@ -2,10 +2,6 @@
 #'
 #' @description Initialise project
 #'
-#' @param dir_proj character.
-#' Project directory.
-#' Default is \code{getwd()}.
-#'
 #' @param yml_path_from character.
 #' Path to YAML file to use as `_projr.yml`.
 #' If not supplied, then default `_projr.yml`

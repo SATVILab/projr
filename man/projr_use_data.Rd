@@ -14,8 +14,59 @@ projr_use_data(
   safe = TRUE
 )
 }
+\arguments{
+\item{...}{Unquoted names of existing objects to save.}
+
+\item{internal}{If \code{FALSE}, saves each object in its own \code{.rda}
+file in the \verb{data/} directory. These data files bypass the usual
+export mechanism and are available whenever the package is loaded
+(or via \code{\link[=data]{data()}} if \code{LazyData} is not true).
+
+If \code{TRUE}, stores all objects in a single \code{R/sysdata.rda} file.
+Objects in this file follow the usual export rules. Note that this means
+they will be exported if you are using the common \code{exportPattern()}
+rule which exports all objects except for those that start with \code{.}.}
+
+\item{overwrite}{By default, \code{projr_use_data()} will not overwrite existing
+files. If you really want to do so, set this to \code{TRUE}.}
+
+\item{compress}{Choose the type of compression used by \code{\link[=save]{save()}}.
+Should be one of "gzip", "bzip2", or "xz".}
+
+\item{version}{The serialization format version to use. The default, 2, was
+the default format from R 1.4.0 to 3.5.3. Version 3 became the default from
+R 3.6.0 and can only be read by R versions 3.5.0 and higher.}
+
+\item{ascii}{if \code{TRUE}, an ASCII representation of the data is
+    written.  The default value of \code{ascii} is \code{FALSE} which
+    leads to a binary file being written.  If \code{NA} and
+    \code{version >= 2}, a different ASCII representation is used which
+    writes double/complex numbers as binary fractions.}
+
+\item{safe}{logical.
+Whether to save data to a temporary directory
+(in \verb{<cache>/"projr"/v<version>/data/})
+or "data/".
+Default is the temporary directory (TRUE).}
+}
 \description{
 usethis::use_data always saves data to \verb{data/}, which
 conflicts with the temporary directories used by \code{projr_build_dev}
 and makes it difficult to restore after failed output builds.
+}
+\details{
+Taken directly from the documentation for the original
+\code{usethis} function, and adjusted slightly.
+}
+\examples{
+\dontrun{
+x <- 1:10
+y <- 1:100
+
+projr_use_data(x, y) # For external use
+projr_use_data(x, y, internal = TRUE) # For internal use
+}
+}
+\seealso{
+The \href{https://r-pkgs.org/data.html}{data chapter} of \href{https://r-pkgs.org}{R Packages}.
 }

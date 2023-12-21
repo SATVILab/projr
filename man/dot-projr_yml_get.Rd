@@ -6,6 +6,14 @@
 \usage{
 .projr_yml_get(profile)
 }
+\arguments{
+\item{profile}{character.
+If supplied, the specific profile file to read in.
+"default" loads \verb{_projr.yml}, but another value
+loads \verb{_projr-<profile>.yml}.
+If NULL, then the active profile is used.
+It not supplied, then treated as \code{NULL}.}
+}
 \value{
 A named list.
 }

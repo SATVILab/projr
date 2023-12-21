@@ -6,6 +6,16 @@
 \usage{
 projr_env_file_activate(file = NULL, env = NULL)
 }
+\arguments{
+\item{file}{character vector.
+Paths to files to activate.
+Default is NULL, in which case all relevant files are used.}
+
+\item{env}{environment.
+Environment upon whose destruction the variables are unset.
+If \code{NULL}, then set to the calling environment.}
+}
 \description{
-Activate environment variables in files
+Which file(s) are used to supply
+default values for unspecified environment variables.
 }

@@ -49,7 +49,12 @@
 #' If `TRUE`, then if all the settings are the same
 #' then only `cite: TRUE` or `cite: FALSE` is written to `_projr.yml`.
 #' Default is `TRUE`.
-#' @inheritParams projr_yml_cite_set
+#' @param simplify_default logical.
+#' If `TRUE`, then if all the settings are the same
+#' and equl to the default (`TRUE`),
+#' then the settings are not recorded in the `projr`
+#' configuration file (as the default will be equal to it).
+#' @inheritParams projr_dir_get
 #'
 #' @examples
 #' \dontrun{

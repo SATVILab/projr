@@ -38,7 +38,7 @@ projr_test_renv <- function(file = NULL) {
     args = cmd_txt, stdout = path_vec_log[1], stderr = path_vec_log[2]
   ))
   # notify user of success or failure
-  if (x == 0) {
+  if (out == 0) {
     print("renv restore successful")
     return(invisible(TRUE))
   }

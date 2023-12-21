@@ -44,6 +44,12 @@ If \code{NULL}, then setting is not changed.}
 If \code{TRUE}, then if all the settings are the same
 then only \code{cite: TRUE} or \code{cite: FALSE} is written to \verb{_projr.yml}.
 Default is \code{TRUE}.}
+
+\item{simplify_default}{logical.
+If \code{TRUE}, then if all the settings are the same
+and equl to the default (\code{TRUE}),
+then the settings are not recorded in the \code{projr}
+configuration file (as the default will be equal to it).}
 }
 \description{
 \code{projr_yml_cite_set} sets the citation options in \verb{_projr.yml}.

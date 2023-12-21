@@ -1,6 +1,21 @@
 #' @title Activate environment variables in files
+#'
+#' @description
+#' Which file(s) are used to supply
+#' default values for unspecified environment variables.
+#'
+#' @param file character vector.
+#' Paths to files to activate.
+#' Default is NULL, in which case all relevant files are used.
+#' @param env environment.
+#' Environment upon whose destruction the variables are unset.
+#' If `NULL`, then set to the calling environment.
+
 #' @export
 projr_env_file_activate <- function(file = NULL, env = NULL) {
+  if (is.null(env)) {
+    env <- parent.frame()
+  }
   if (!is.null(file)) {
     for (x in file) {
       .projr_build_env_file_activate_ind(file = x, env = env)

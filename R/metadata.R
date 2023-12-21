@@ -25,8 +25,8 @@
     return(user_name)
   }
   user_name <- Sys.info()[["user"]]
-  if (!identical(user, "unknown")) {
-    return(user)
+  if (!identical(user_name, "unknown")) {
+    return(user_name)
   }
   character()
 }

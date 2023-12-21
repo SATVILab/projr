@@ -1,31 +1,3 @@
-#' @title Add a remote as a destination
-#'
-#' @description
-#'
-#' @param type "github", "osf" or "local".
-#' Type of remote to create.
-#' Selecting "github" means a GitHub release,
-#' "osf" means an OSF node (project or component),
-#' and "local" means a local directory.
-#' Must be selected.
-#' @param title character.
-#' Title of the remote.
-#' in which case the GitHub releases's tag
-#' will the project version (i.e. the result of `projr_version_get()`)
-#' at the time of the upload.
-#' Has no effect for `local` remotes.
-#' For GitHub releases, can use title as `@version`,
-#' Note that this implies that a new tag will be created with each
-#' new version, so do not use with large files.
-#' If not supplied, then will
-#' automatically be generated from `content`.
-#' @param description character.
-#' Description of the remote.
-#' Has no effect for `local` remotes.
-#' Default is `NULL`.
-#' @param content character vector.
-#' Labels in the `directories` key of `projr_yml_get()`
-#' to send to the remote e.g. `data-raw`, `cache`, `output`.
 .projr_yml_dest_add <- function(role,
                                 type,
                                 title,

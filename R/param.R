@@ -1,4 +1,14 @@
 #' @title Get project parameters
+#'
+#' @description
+#' Get project parameters from `param` key
+#' in `projr` configuration.
+#'
+#' @param ... character.
+#' Sequential names to specify path in list.
+#' For example, `projr_param_get("a", "b")`
+#' returns the value of `projr$param$a$b`.
+#' @export
 projr_par_get <- function(...) {
   yml_projr_param <- .projr_par_get_list()
   if (is.null(yml_projr_param)) {

@@ -9,6 +9,13 @@ projr_par_get(...)
 
 projr_param_get(...)
 }
+\arguments{
+\item{...}{character.
+Sequential names to specify path in list.
+For example, \code{projr_param_get("a", "b")}
+returns the value of \code{projr$param$a$b}.}
+}
 \description{
-Get project parameters
+Get project parameters from \code{param} key
+in \code{projr} configuration.
 }

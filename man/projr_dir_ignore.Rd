@@ -6,6 +6,15 @@
 \usage{
 projr_dir_ignore(git_skip_adjust = NULL)
 }
+\arguments{
+\item{git_skip_adjust}{logical.
+Whether to use Git's ability to
+ignore already tracked files if the
+files were previously tracked but we now no
+longer wish to track them.
+If \code{NULL}, then treated as \code{TRUE}.
+Default is \code{NULL}.}
+}
 \description{
 Ensure \code{projr} directories are ignored
 appropriately (in \code{.gitignore} and \code{.Rbuildignore})

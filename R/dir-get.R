@@ -110,7 +110,7 @@
   }
   switch(.projr_engine_get(),
     "quarto_project" =
-      .projr_dir_set_docs_quarto_project_safe(path),
+      .projr_dir_set_docs_quarto_project(path),
     "bookdown" = .projr_dir_set_docs_bookdown(path)
   )
   invisible(TRUE)

@@ -40,6 +40,11 @@ Which minimum build level triggers the scripts.
 "build" and "dev" are equivalent, and
 always trigger the scripts.}
 
+\item{overwrite}{logical.
+Whether to overwrite any script settings
+of the same title in the \code{projr}
+configuration file.}
+
 \item{profile}{character.
 Profile to add the script to.
 If \verb{"default"`` (the default), the script is added to the default profile, which is }_projr.yml`.}

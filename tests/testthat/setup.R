@@ -36,6 +36,9 @@ withr::defer(
     .test_unset()
     .test_unset_fast()
     .test_unset_select()
+    if (file.exists(file.path(tempdir(), "abc"))) {
+      unlink(file.path(tempdir(), "abc"))
+    }
   },
   envir = teardown_env()
 )

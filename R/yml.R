@@ -39,6 +39,12 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 #' Where there are conflicts, local settings has highest precedence
 #' (i.e. are always preferred) and default settings have lowest precedence
 #' (i.e. are never preferred).
+#' @param profile character.
+#' If supplied, the specific profile file to read in.
+#' "default" loads `_projr.yml`, but another value
+#' loads `_projr-<profile>.yml`.
+#' If NULL, then the active profile is used.
+#' It not supplied, then treated as `NULL`.
 #'
 #' @return A named list.
 #'
