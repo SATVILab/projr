@@ -2,7 +2,7 @@
                                            token = NULL,
                                            repo = NULL,
                                            env = NULL) {
-  msssage("Beginning .projr_test_github_repo_create")
+  message("Beginning .projr_test_github_repo_create")
   # set up
   # ----------
   if (!requireNamespace("gh", quietly = TRUE)) {
