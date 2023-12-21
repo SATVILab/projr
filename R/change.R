@@ -187,7 +187,7 @@
   fn_vec_post_lgl_kept <- hash_post[["fn"]] %in% hash_pre[["fn"]]
   fn_vec_post_lgl_add <- !hash_post[["fn"]] %in% hash_pre[["fn"]]
   hash_post_kept <- hash_post[fn_vec_post_lgl_kept, ]
-  hash_from_fn_pre <- setNames(
+  hash_from_fn_pre <- stats::setNames(
     hash_pre[["hash"]], hash_pre[["fn"]]
   )
   hash_vec_post_match <- hash_post_kept[["hash"]] ==
