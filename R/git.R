@@ -253,21 +253,34 @@
   if (.is_string(nm)) {
     return(nm)
   }
-  nm <- .projr_git_config_get_name_git_system()
-  if (.is_string(nm)) {
-    return(nm)
-  }
-  "anonymous-user"
+  .projr_git_config_get_name_git_system()
 }
 
 .projr_git_config_get_name_git_local <- function() {
-  system2("git", args = "config user.name", stdout = TRUE)
+  tryCatch(
+    suppressWarnings(
+      system2("git", args = "config --local user.name", stdout = TRUE)
+    ),
+    error = function(e) character()
+  )
 }
 .projr_git_config_get_name_git_global <- function() {
-  system2("git", args = "config --global user.name", stdout = TRUE)
+  tryCatch(
+    suppressWarnings(
+      system2("git", args = "config --global user.name", stdout = TRUE)
+    ),
+    error = function(e) character()
+  )
 }
 .projr_git_config_get_name_git_system <- function() {
-  system2("git", args = "config --system user.name", stdout = TRUE)
+  tryCatch(
+    suppressWarnings(
+      system2("git", args = "config --system user.name", stdout = TRUE)
+    ),
+    error = function(e) {
+      "anonymous-user"
+    }
+  )
 }
 
 .projr_git_config_get_name_gert <- function() {
