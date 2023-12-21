@@ -146,7 +146,7 @@ with_dir <- function(new, code) {
     return(character())
   }
   if (is.null(path_dir_fn_rel_zip)) {
-    path_dir_fn_rel_zip <- file.path(tempdir(), "zip", signif(rnorm(1)))
+    path_dir_fn_rel_zip <- file.path(tempdir(), "zip", signif(stats::rnorm(1)))
   }
   .dir_create(path_dir_fn_rel_zip)
   fn_rel_zip <- gsub("\\.zip$", "", fn_rel_zip)

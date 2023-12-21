@@ -137,7 +137,7 @@
                                           dir_sub_lvl = 2,
                                           dir_sub_prefix = "subdir") {
   if (is.null(path_dir)) {
-    path_dir <- file.path(tempdir(), signif(rnorm(1), 6))
+    path_dir <- file.path(tempdir(), signif(stats::rnorm(1), 6))
   }
   if (dir.exists(path_dir)) {
     unlink(path_dir, recursive = TRUE)
@@ -213,7 +213,7 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
 }
 
 .projr_test_random_string_get <- function(prefix = "ProjrOSFTest") {
-  random_chr <- signif(rnorm(1))
+  random_chr <- signif(stats::rnorm(1))
   if (is.null(prefix)) random_chr else paste0(prefix, random_chr)
 }
 

@@ -1,6 +1,6 @@
 .projr_osf_label_get_random <- function(prefix) {
   label <- paste0(
-    prefix, rnorm(1) |> signif(15) |> as.character()
+    prefix, stats::norm(1) |> signif(15) |> as.character()
   )
   # add it to yml_projr
   yml_projr <- .projr_yml_get()
@@ -13,7 +13,7 @@
 
 .projr_test_osf_create_project <- function(prefix) {
   project <- paste0(
-    prefix, "ProjrOSFTest", rnorm(1) |> signif(6) |> as.character()
+    prefix, "ProjrOSFTest", stats::norm(1) |> signif(6) |> as.character()
   )
   .projr_remote_create(
     type = "osf",

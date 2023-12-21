@@ -24,7 +24,7 @@
   token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
   if (!nzchar(token)) stop("No GitHub token found")
   repo <- repo %||% "test_projr_alt"
-  repo <- paste0("ProjrGitHubTest", repo, signif(rnorm(1), 4))
+  repo <- paste0("ProjrGitHubTest", repo, signif(stats::rnorm(1), 4))
 
   # check that it exists or not
   exists_ind <- .projr_test_github_repo_check_exists(

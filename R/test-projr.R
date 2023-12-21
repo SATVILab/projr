@@ -57,7 +57,7 @@ projr_test_renv <- function(file = NULL) {
   ) |>
     .file_filter_exists()
   dir_test <- file.path(
-    tempdir(), "test_renv", "renv", signif(abs(rnorm(1)), 5)
+    tempdir(), "test_renv", "renv", signif(abs(stats::rnorm(1)), 5)
   )
   if (dir.exists(dir_test)) {
     unlink(dir_test, recursive = TRUE)

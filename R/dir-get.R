@@ -19,7 +19,7 @@
 }
 
 .projr_dir_get_tmp_random <- function(...) {
-  file.path(tempdir(), "projr", signif(rnorm(1))) |>
+  file.path(tempdir(), "projr", signif(stats::rnorm(1))) |>
     .path_get_full(...)
 }
 
