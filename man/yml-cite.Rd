@@ -50,6 +50,9 @@ If \code{TRUE}, then if all the settings are the same
 and equl to the default (\code{TRUE}),
 then the settings are not recorded in the \code{projr}
 configuration file (as the default will be equal to it).}
+
+\item{character.}{The profile to write to.
+Default is "default", in which case it writes to \verb{_projr.yml}.}
 }
 \description{
 \code{projr_yml_cite_set} sets the citation options in \verb{_projr.yml}.

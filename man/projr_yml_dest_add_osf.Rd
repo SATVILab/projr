@@ -21,7 +21,8 @@ projr_yml_dest_add_osf(
   send_cue = NULL,
   send_sync_approach = NULL,
   send_version_source = NULL,
-  send_conflict = NULL
+  send_conflict = NULL,
+  profile = "default"
 )
 
 projr_yml_dest_add_osf_proj(
