@@ -110,7 +110,8 @@ projr_yml_dest_add_osf <- function(title,
                                    send_cue = NULL,
                                    send_sync_approach = NULL,
                                    send_version_source = NULL,
-                                   send_conflict = NULL) {
+                                   send_conflict = NULL,
+                                   profile = "default") {
   .projr_yml_dest_add(
     role = "destination",
     type = "osf",
@@ -130,7 +131,8 @@ projr_yml_dest_add_osf <- function(title,
     send_cue = send_cue,
     send_sync_approach = send_sync_approach,
     send_version_source = send_version_source,
-    send_conflict = send_conflict
+    send_conflict = send_conflict,
+    profile = profile
   )
 }
 

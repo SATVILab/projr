@@ -41,7 +41,7 @@
   .assert_class_exact(send_list, "list")
   if (.is_len_pos(send_list)) {
     .assert_in(names(send_list), .projr_opt_remote_transfer_names_get())
-    .assert_in(send_list[["cue"]], ..projr_opt_cue_get())
+    .assert_in(send_list[["cue"]], .projr_opt_cue_get())
     .assert_in(
       send_list[["sync-approach"]], .projr_opt_remote_sync_approach_get()
     )

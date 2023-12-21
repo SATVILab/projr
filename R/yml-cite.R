@@ -54,6 +54,9 @@
 #' and equl to the default (`TRUE`),
 #' then the settings are not recorded in the `projr`
 #' configuration file (as the default will be equal to it).
+#' @param character.
+#' The profile to write to.
+#' Default is "default", in which case it writes to `_projr.yml`.
 #' @inheritParams projr_dir_get
 #'
 #' @examples

@@ -828,7 +828,7 @@ projr_init_renviron <- function() {
   if (answer_git %in% c(2, 3)) {
     .projr_init_git_suggest_git()
     if (answer_git == 2) {
-      .projr_yml_git_set(all = FALSE)
+      .projr_yml_git_set(FALSE, "default")
     } else if (answer_git == 3) {
       answer_ignore <- .projr_init_prompt_yn(
         question = "Do you want to apply ignore settings as per `_projr.yml`?",
