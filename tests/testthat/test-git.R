@@ -140,36 +140,45 @@ test_that(".projr_git_ functions work", { # setup
     code = {
       # check there's a remote
       # ---------------------
-      message("e1")
+      cat("e1")
+      print("e1")
       expect_true(.projr_git_remote_check_exists_git())
-      message("e2")
+      cat("e2")
+      print("e2")
       expect_true(.projr_git_remote_check_exists_gert())
-      message("e3")
+      cat("e3")
+      print("e3")
       expect_true(.projr_git_remote_check_exists())
       # check there's an upstream remote
       # ---------------------
       # debugonce(.projr_git_remote_check_upstream_git())
       # no upstream branch created for some reason.
       # just checking that code runs for now.
-      message("e4")
+      print("e4")
+      cat("e4")
       expect_true(.is_flag(suppressWarnings(.projr_git_remote_check_upstream_git())))
-      message("e5")
+      cat("e5")
+      print("e5")
       expect_true(.is_flag(suppressWarnings(.projr_git_remote_check_upstream())))
       # push
       # -----------------------
-      message("e6")
+      print("e6")
+      cat("e6")
       invisible(file.create("abc.txt"))
       status_tbl <- gert::git_status()
       .projr_git_commit_file("abc.txt", msg = "abc")
-      message("e7")
+      cat("e7")
+      print("e7")
       expect_true(.projr_git_push_git())
       invisible(file.create("def.txt"))
       status_tbl <- gert::git_status()
       .projr_git_commit_file("def.txt", msg = "def")
-      message("e8")
+      print("e8")
+      cat("e8")
       expect_true(.projr_git_push_gert())
       .projr_git_config_get_name()
-      message("e8 complete, ending now")
+      cat("e8 complete, ending now")
+      print("e8 complete, ending now")
     }
   )
 })
