@@ -151,7 +151,6 @@ test_that(".projr_git_ functions work", { # setup
       message("e1")
       cat("e1")
       print("e1")
-      skip()
       # check there's a remote
       # ---------------------
       expect_true(.projr_git_remote_check_exists_git())
