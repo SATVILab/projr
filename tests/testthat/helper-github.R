@@ -87,13 +87,13 @@
       },
       envir = env
     )
-    return(paste0(user, "/", repo))
     message("p9")
+    return(paste0(user, "/", repo))
   } else {
     message("p10")
+    message("Ending .projr_test_github_repo_create")
     character()
   }
-  message("Ending .projr_test_github_repo_create")
 }
 
 .projr_test_github_repo_check_exists <- function(user = NULL,
@@ -133,8 +133,8 @@
   message("p3")
 
   # Check the status of the response
-  httr::http_status(response)$category == "Success"
   message("Ending .projr_test_github_repo_check_exists")
+  httr::http_status(response)$category == "Success"
 }
 
 .projr_test_github_repo_remote_add <- function(user = NULL,
@@ -178,7 +178,6 @@
 .projr_test_git_remote_get <- function() {
   message("Beginning .projr_test_git_remote_get")
   system2("git", args = "remote", stdout = TRUE)
-  message("Ending .projr_test_git_remote_get")
 }
 
 .projr_test_git_branch_get <- function() {
@@ -187,7 +186,6 @@
     "git",
     args = c("branch", "--show-current"), stdout = TRUE
   )
-  message("Ending .projr_test_git_branch_get")
 }
 
 .projr_test_git_set_upstream_and_force_push <- function(remote = NULL,
@@ -204,7 +202,6 @@
       stdout = NULL, stderr = NULL
     )
   )
-  message("Ending .projr_test_git_set_upstream_and_force_push")
 }
 
 .projr_remote_host_rm_all_github <- function(user = NULL) {
