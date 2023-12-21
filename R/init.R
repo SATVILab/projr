@@ -55,7 +55,6 @@ projr_init <- function(yml_path_from = NULL,
   # add document-engine docs
   .projr_init_engine(nm_list)
 
-
   # finalise README
   .projr_readme_render()
 

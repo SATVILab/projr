@@ -7,14 +7,12 @@
   if (!.projr_build_renv_snapshot_check(output_run)) {
     return(invisible(FALSE))
   }
-  if (.projr_yml_renv_get()) {
-    renv::snapshot(prompt = FALSE)
-  }
+  renv::snapshot(prompt = FALSE)
   invisible(TRUE)
 }
 
 .projr_build_renv_snapshot_check <- function(output_run) {
-  output_run && !.is_test()
+  output_run && !.is_test() && .projr_renv_detect()
 }
 
 # commit

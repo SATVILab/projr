@@ -9,10 +9,6 @@
   .projr_yml_build_get_nm("dev-output", profile)
 }
 
-.projr_yml_build_get_renv <- function(profile) {
-  .projr_yml_build_get_nm("renv", profile)
-}
-
 .projr_yml_build_get_nm <- function(nm, profile) {
   .projr_yml_build_get(profile)[[nm]] %@@% NULL
 }

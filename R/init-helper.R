@@ -187,12 +187,11 @@
 }
 
 .projr_init_renv <- function(force, bioc) {
-  renv_init_env_var_lgl <- .is_test()
-  renv_init_exists_lgl <- file.exists(.dir_proj_get("renv.lock"))
-  if (!renv_init_env_var_lgl && !renv_init_exists_lgl) {
-    .projr_renv_init_rscript(force = force, bioc = bioc)
-    try(source("renv/activate.R"), silent = TRUE)
+  if (.is_test() || .projr_dep_detect_renv()) {
+    return(invisible(FALSE))
   }
+  .projr_renv_init_rscript_actual(force, bioc)
+  try(source("renv/activate.R"), silent = TRUE)
   # activate `renv`.
   # wrapped in `try` in case something goes wrong.
   # User can just restart `R` to activate `renv`
@@ -200,9 +199,7 @@
   invisible(TRUE)
 }
 
-.projr_renv_init_rscript <- function(force, bioc) {
-  # initialise in a separate `R` process to avoid
-  # any prompts
+.projr_renv_init_rscript_actual <- function(force, bioc) {
   cmd_txt <- paste0(
     "-e '",
     "renv::init(",
@@ -214,6 +211,11 @@
     .projr_path_rscript_get(),
     args = cmd_txt, stdout = FALSE
   )
+  invisible(TRUE)
+}
+
+.projr_renv_detect <- function() {
+  .dir_proj_get("renv.lock") |> file.exists()
 }
 
 # engine

@@ -40,6 +40,9 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
 .projr_dep_add <- function(dep) {
   # don't add to _dependencies
   # if renv already picks it up as a dependency
+  if (!.projr_renv_detect())) {
+    return(invisible(FALSE))
+  }
   if (.projr_dep_in_renv(dep)) {
     return(invisible(FALSE))
   }
@@ -57,12 +60,22 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
 }
 
 .projr_dep_install_only <- function(dep) {
-  for (x in dep) {
-    if (requireNamespace(x, quietly = TRUE)) {
-      next
-    }
-    .projr_dep_install_only_rscript(x)
+  # don't install any already available
+  # (we're not trying to force the latest version)
+  dep_required <- dep[
+    vapply(dep, function(x) !requireNamespace(x, quietly = TRUE), logical(1))
+  ]
+  if (.is_len_0(dep_required)) {
+    return(invisible(TRUE))
   }
+  for (i in seq_along(dep_required)) {
+    if (.projr_renv_detect()) {
+      .projr_dep_install_only_rscript(x)
+    } else {
+      utils::install.packages(x)
+    }
+  }
+  invisible(TRUE)
 }
 
 .projr_dep_install_only_rscript <- function(dep) {
