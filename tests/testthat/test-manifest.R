@@ -1,4 +1,5 @@
 test_that(".projr_manifest_hash_label works", {
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
@@ -30,6 +31,7 @@ test_that(".projr_manifest_hash_label works", {
 })
 
 test_that(".projr_build_manifest_* works", {
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,

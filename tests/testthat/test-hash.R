@@ -1,4 +1,5 @@
 test_that("projr_hash_dir works", {
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,

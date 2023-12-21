@@ -1,6 +1,7 @@
 test_that(".is_cue works", {
   # skips
   skip_if(FALSE)
+  skip_if(.is_test_select())
 
   # setup
   dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = FALSE)

@@ -1,5 +1,6 @@
 test_that(".projr_local_dir_create works", {
   # skips
+  skip_if(.is_test_select())
 
   # setup
   dir_test <- .projr_test_setup_project(

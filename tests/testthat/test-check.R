@@ -1,5 +1,6 @@
 test_that(".projr_remote_create works", {
   skip_if_offline()
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
   )

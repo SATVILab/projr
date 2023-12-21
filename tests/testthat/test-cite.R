@@ -1,5 +1,6 @@
 test_that("projr_yml_cite_ functions work works", {
   # setup
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
@@ -60,6 +61,7 @@ test_that("projr_yml_cite_ functions work works", {
 
 test_that(".projr_cite_ functions work works", {
   # setup
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project

@@ -1,4 +1,5 @@
 test_that("projr_engine_get works", {
+  skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   .dir_create(dir_test)
