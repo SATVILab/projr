@@ -86,7 +86,18 @@
     return(invisible(TRUE))
   }
   # create github repo if required
-  with_dir(path_dir, .projr_test_setup_project_github_actual(path_dir, env))
+  with_dir(
+    path_dir,
+    {
+      tryCatch(usethis::use_github(private = TRUE))
+      if (!requireNamespace("gert")) {
+        utils::install.packages("gert")
+      }
+      gert::git_push()
+    }
+
+    # .projr_test_setup_project_github_actual(path_dir, env)
+  )
   invisible(TRUE)
 }
 
