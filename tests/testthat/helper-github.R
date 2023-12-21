@@ -170,9 +170,9 @@
 
   # Call the 'git' command to add the remote repository
   message("p10")
-  system2("git", args = c("remote", "add", "origin", url))
   message("p11")
   message("Ending .projr_test_github_repo_remote_add")
+  system2("git", args = c("remote", "add", "origin", url))
 }
 
 .projr_test_git_remote_get <- function() {
@@ -193,13 +193,15 @@
   message("Beginning .projr_test_git_set_upstream_and_force_push")
   remote <- remote %||% .projr_test_git_remote_get()
   remote <- remote[1]
+  print(.string_create(remote))
   branch <- branch %||% .projr_test_git_branch_get()
+  print(.string_create(branch))
   message("p1")
   invisible(
     system2(
       "git",
       args = c("push", "--force", "-u", remote, branch),
-      stdout = NULL, stderr = NULL
+      stdout = NULL, stderr = NULL, timeout = 20
     )
   )
 }

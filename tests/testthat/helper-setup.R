@@ -86,18 +86,7 @@
     return(invisible(TRUE))
   }
   # create github repo if required
-  with_dir(
-    path_dir,
-    {
-      tryCatch(usethis::use_github(private = TRUE))
-      if (!requireNamespace("gert")) {
-        utils::install.packages("gert")
-      }
-      gert::git_push()
-    }
-
-    # .projr_test_setup_project_github_actual(path_dir, env)
-  )
+  with_dir(path_dir, .projr_test_setup_project_github_actual(path_dir, env))
   invisible(TRUE)
 }
 
@@ -115,6 +104,7 @@
     if (length(remote_vec) == 0L) {
       stop("No remotes found")
     }
+    print(.string_create(remote_vec))
     # we must not then have upstream set:
     invisible(.projr_test_git_set_upstream_and_force_push())
   } else {
