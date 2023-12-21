@@ -1,11 +1,11 @@
 .projr_metadata_get_author_host <- function() {
   user_name <- .projr_git_config_get_name()
-  if (.is_string(user_name)) {
+  if (.is_len_1(user_name) && .is_string(user_name)) {
     return(user_name)
   }
-  use_name <- .projr_metadata_get_author_host_env()
-  if (.is_string(use_name)) {
-    return(use_name)
+  user_name <- .projr_metadata_get_author_host_env()
+  if (.is_len_1(user_name) && .is_string(user_name)) {
+    return(user_name)
   }
   .projr_metadata_get_author_sys_info()
 }
@@ -21,11 +21,14 @@
 
 .projr_metadata_get_author_sys_info <- function() {
   user_name <- Sys.info()[["user"]]
-  if (.is_string(user_name)) {
+  if (.is_len_1(user_name) && .is_string(user_name)) {
     return(user_name)
   }
   user_name <- Sys.info()[["user"]]
-  if (!identical(user_name, "unknown") && .is_string(user_name)) {
+  if (
+    .is_len_1(user_name) && !identical(user_name, "unknown") &&
+      .is_string(user_name)
+  ) {
     return(user_name)
   }
   "anonymous-user"
