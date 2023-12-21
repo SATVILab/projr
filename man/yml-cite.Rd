@@ -51,7 +51,8 @@ and equl to the default (\code{TRUE}),
 then the settings are not recorded in the \code{projr}
 configuration file (as the default will be equal to it).}
 
-\item{character.}{The profile to write to.
+\item{profile}{character.
+The profile to write to.
 Default is "default", in which case it writes to \verb{_projr.yml}.}
 }
 \description{
