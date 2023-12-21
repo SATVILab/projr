@@ -129,21 +129,31 @@ test_that(".projr_git_ functions work", { # setup
   # skip_if(.is_test_select())
   #  debugonce(.projr_test_setup_project)
   # debugonce(.projr_test_setup_project_github_actual)
+  message("e-2")
+  cat("e-2")
+  print("e-2")
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = FALSE
   )
   # skip()
+  message("e-1")
+  cat("e-1")
+  print("e-1")
 
   # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
+      message("e0")
+      cat("e0")
+      print("e0")
       expect_true(TRUE)
+      message("e1")
+      cat("e1")
+      print("e1")
       skip()
       # check there's a remote
       # ---------------------
-      cat("e1")
-      print("e1")
       expect_true(.projr_git_remote_check_exists_git())
       cat("e2")
       print("e2")
