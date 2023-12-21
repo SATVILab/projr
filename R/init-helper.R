@@ -188,7 +188,7 @@
 
 .projr_init_renv <- function(force, bioc) {
   if (.is_test() || .projr_dep_detect_renv()) {
-    return(invisible(FALSE))
+    return(invisible(TRUE))
   }
   .projr_renv_init_rscript_actual(force, bioc)
   try(source("renv/activate.R"), silent = TRUE)
