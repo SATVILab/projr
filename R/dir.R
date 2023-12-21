@@ -240,7 +240,7 @@ projr_path_get <- function(label, ...,
     as.character()
 }
 
-#' @rdname
+#' @rdname projr_path_get
 #' @export
 projr_path_get_file <- projr_path_get
 

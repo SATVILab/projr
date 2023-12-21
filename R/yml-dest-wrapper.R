@@ -31,7 +31,7 @@
 #' Default is `FALSE`.
 #' element in
 #' @export
-#' @rdname projr_yml_dest_add
+#' @rdname projr_yml_dest_add_osf
 projr_yml_dest_add_osf <- function(title = NULL,
                                    content = NULL,
                                    structure = NULL,
