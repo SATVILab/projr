@@ -248,7 +248,7 @@
 }
 
 .projr_test_git_remote_dir_get_tmp <- function() {
-  path_dir <- file.path(tempdir(), "github_repo_to_remove")
+  path_dir <- file.path(tempdir() |> dirname(), "github_repo_to_remove")
   .dir_create(path_dir)
   path_dir
 }

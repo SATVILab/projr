@@ -57,7 +57,6 @@
 #' @param profile character.
 #' The profile to write to.
 #' Default is "default", in which case it writes to `_projr.yml`.
-#' @inheritParams projr_dir_get
 #'
 #' @examples
 #' \dontrun{

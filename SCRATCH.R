@@ -10,3 +10,10 @@ devtools::load_all()
 .test_unset_select()
 .test_set_fast()
 devtools::test()
+
+
+test_fn <- function() {
+  browser()
+  browser()
+  .projr_osf_rm_node_id_defer("gubds")
+}

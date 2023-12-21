@@ -24,13 +24,16 @@
   )
 }
 
-.projr_osf_rm_node_id_defer <- function(id, env = parent.frame()) {
+.projr_osf_rm_node_id_defer <- function(id, env = NULL) {
+  if (is.null(env)) {
+    env <- rlang::caller_env()
+  }
   # store label in tempdir() to be removed later
   path_file_rm <- file.path(.projr_test_osf_remote_dir_get_tmp(), id)
   invisible(file.create(path_file_rm, showWarnings = FALSE))
   withr::defer(
     {
-      try(.projr_osf_rm_node_id(id), silent = TRUE)
+      try(.projr_remote_host_rm("osf", id), silent = TRUE)
       eval(parse(text = paste0("unlink('", path_file_rm, "')")))
     },
     envir = env
@@ -80,7 +83,9 @@
 }
 
 .projr_test_osf_remote_dir_get_tmp <- function() {
-  path_dir <- file.path(tempdir(), "osf_node_to_remove")
+  path_dir <- file.path(
+    tempdir() |> dirname(), "osf_node_to_remove"
+  )
   .dir_create(path_dir)
   path_dir
 }

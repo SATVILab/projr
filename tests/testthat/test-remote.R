@@ -45,7 +45,8 @@ test_that(".projr_remote_create works - remote", {
       # project
       id_parent <- .projr_test_osf_create_project("ProjectParent")
       expect_true(.projr_remote_check_exists("osf", id_parent))
-      .projr_osf_rm_node_id_defer(id_parent)
+      env <- environment()
+      .projr_osf_rm_node_id_defer(id_parent, env)
 
       # component
       id_comp <- try(.projr_remote_create(
@@ -53,7 +54,7 @@ test_that(".projr_remote_create works - remote", {
         category = "data"
       ))
       expect_true(.projr_remote_check_exists("osf", id_comp))
-      .projr_osf_rm_node_id_defer(id_comp)
+      .projr_osf_rm_node_id_defer(id_comp, env)
 
       # github
       # --------------------------

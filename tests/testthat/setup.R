@@ -34,9 +34,22 @@ withr::defer(
     .projr_test_osf_rm()
     .projr_test_github_rm()
     .test_unset()
-    .test_unset_fast()
-    .test_unset_select()
-    .file_rm(file.path(dirname(tempdir()), "abc"))
+    # .test_unset_fast()
+    # .test_unset_select()
+    try(.projr_test_rm_random_abc(), silent = TRUE)
   },
   envir = teardown_env()
 )
+
+.projr_test_rm_random_abc <- function() {
+  path_random <- file.path(dirname(tempdir()), "abc")
+  if (file.exists(path_random)) {
+    if (fs::is_dir(path_random)) {
+      .dir_rm(path_random)
+    }
+    if (fs::is_file(path_random)) {
+      file.remove(path_random)
+    }
+  }
+  invisible(TRUE)
+}
