@@ -40,7 +40,7 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
 .projr_dep_add <- function(dep) {
   # don't add to _dependencies
   # if renv already picks it up as a dependency
-  if (!.projr_renv_detect())) {
+  if (!.projr_renv_detect()) {
     return(invisible(FALSE))
   }
   if (.projr_dep_in_renv(dep)) {
