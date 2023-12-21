@@ -246,14 +246,18 @@
 
 .projr_git_config_get_name_git <- function() {
   nm <- .projr_git_config_get_name_git_local()
-  if (nzchar(nm)) {
+  if (.is_string(nm)) {
     return(nm)
   }
   nm <- .projr_git_config_get_name_git_global()
-  if (nzchar(nm)) {
+  if (.is_string(nm)) {
     return(nm)
   }
-  .projr_git_config_get_name_git_system()
+  nm <- .projr_git_config_get_name_git_system()
+  if (.is_string(nm)) {
+    return(nm)
+  }
+  "anonymous-user"
 }
 
 .projr_git_config_get_name_git_local <- function() {
@@ -275,7 +279,11 @@
   if (.is_string(nm)) {
     return(nm)
   }
-  .projr_git_config_get_name_gert_system()
+  nm <- .projr_git_config_get_name_gert_system()
+  if (.is_string(nm)) {
+    return(nm)
+  }
+  "anonymous-user"
 }
 
 .projr_git_config_get_name_gert_local <- function() {

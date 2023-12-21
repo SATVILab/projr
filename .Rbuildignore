@@ -28,3 +28,6 @@
 ^doc$
 ^Meta$
 ^\.renvignore$
+^_dependencies\.R$
+^_archive$
+^SCRATCH-old\.R$
