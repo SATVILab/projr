@@ -271,7 +271,7 @@ projr_use_data <- function(...,
   if (!safe) {
     if (internal) {
       .dir_create("R")
-      paths <- fs:::path("R", "sysdata.rda")
+      paths <- file.path("R", "sysdata.rda")
       objs <- list(objs)
     } else {
       .dir_create("data")
@@ -286,7 +286,7 @@ projr_use_data <- function(...,
     path_tmp_base <- .projr_dir_get_cache_auto(profile = NULL)
     if (internal) {
       .dir_create(file.path(path_tmp_base, "R"))
-      paths <- fs:::path(file.path(path_tmp_base, "R"), "sysdata.rda")
+      paths <- file.path(file.path(path_tmp_base, "R"), "sysdata.rda")
       objs <- list(objs)
     } else {
       .dir_create(file.path(path_tmp_base, "data"))
