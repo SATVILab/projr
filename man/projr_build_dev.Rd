@@ -4,7 +4,12 @@
 \alias{projr_build_dev}
 \title{Build dev project}
 \usage{
-projr_build_dev(file = NULL, bump = FALSE, old_dev_remove = TRUE, ...)
+projr_build_dev(
+  file = NULL,
+  bump = FALSE,
+  old_dev_remove = TRUE,
+  args_engine = list()
+)
 }
 \arguments{
 \item{file}{character vector.
@@ -20,7 +25,10 @@ Default is \code{FALSE}.}
 If \code{TRUE}, then previous development builds are deleted
 after a successful run.}
 
-\item{...}{Arguments passed to \code{bookdown::render}.}
+\item{args_engine}{list.
+Arguments passed to the
+rendering engine
+(\code{rmarkdown::render}, \code{quarto::render} or \code{bookdown::render_book}).}
 }
 \description{
 Builds project to output, which

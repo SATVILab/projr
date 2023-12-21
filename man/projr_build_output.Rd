@@ -7,13 +7,18 @@
 \alias{projr_build_patch}
 \title{Build project to output}
 \usage{
-projr_build_output(bump_component, old_output_cache = FALSE, msg = NULL, ...)
+projr_build_output(
+  bump_component,
+  old_output_cache = FALSE,
+  msg = NULL,
+  args_engine = list()
+)
 
-projr_build_major(msg = NULL, old_output_cache = FALSE, ...)
+projr_build_major(msg = NULL, old_output_cache = FALSE, args_engine = list())
 
-projr_build_minor(msg = NULL, old_output_cache = FALSE, ...)
+projr_build_minor(msg = NULL, old_output_cache = FALSE, args_engine = list())
 
-projr_build_patch(msg = NULL, old_output_cache = FALSE, ...)
+projr_build_patch(msg = NULL, old_output_cache = FALSE, args_engine = list())
 }
 \arguments{
 \item{bump_component}{"major", "minor", "patch" or missing.
@@ -34,7 +39,10 @@ they would simply consist of details as to the version
 being bumped to and the stage in the build process
 at which the commit was made.}
 
-\item{...}{Arguments passed to \code{bookdown::render}.}
+\item{args_engine}{list.
+Arguments passed to the
+rendering engine
+(\code{rmarkdown::render}, \code{quarto::render} or \code{bookdown::render_book}).}
 }
 \description{
 \code{projr_build_output} Builds project to output, which

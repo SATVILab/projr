@@ -28,13 +28,16 @@
 #' being bumped to and the stage in the build process
 #' at which the commit was made.
 #'
-#' @param ... Arguments passed to \code{bookdown::render}.
+#' @param args_engine list.
+#' Arguments passed to the
+#' rendering engine
+#' (`rmarkdown::render`, `quarto::render` or `bookdown::render_book`).
 #'
 #' @export
 projr_build_output <- function(bump_component,
                                old_output_cache = FALSE,
                                msg = NULL,
-                               ...) {
+                               args_engine = list()) {
   bump_component <- .projr_build_output_get_bump_component(
     bump_component
   )
@@ -43,7 +46,8 @@ projr_build_output <- function(bump_component,
   .projr_build(
     bump_component = bump_component,
     old_output_cache = old_output_cache,
-    msg = msg, ...
+    msg = msg,
+    args_engine = args_engine
   )
 }
 
@@ -51,12 +55,12 @@ projr_build_output <- function(bump_component,
 #' @export
 projr_build_major <- function(msg = NULL,
                               old_output_cache = FALSE,
-                              ...) {
+                              args_engine = list()) {
   projr_build_output(
     bump_component = "major",
     msg = msg,
     old_output_cache = old_output_cache,
-    ...
+    args_engine = args_engine
   )
 }
 
@@ -64,12 +68,12 @@ projr_build_major <- function(msg = NULL,
 #' @export
 projr_build_minor <- function(msg = NULL,
                               old_output_cache = FALSE,
-                              ...) {
+                              args_engine = list()) {
   projr_build_output(
     bump_component = "minor",
     msg = msg,
     old_output_cache = old_output_cache,
-    ...
+    args_engine = args_engine
   )
 }
 
@@ -77,12 +81,12 @@ projr_build_minor <- function(msg = NULL,
 #' @export
 projr_build_patch <- function(msg = NULL,
                               old_output_cache = FALSE,
-                              ...) {
+                              args_engine = list()) {
   projr_build_output(
     bump_component = "patch",
     msg = msg,
     old_output_cache = old_output_cache,
-    ...
+    args_engine = args_engine
   )
 }
 
@@ -103,19 +107,23 @@ projr_build_patch <- function(msg = NULL,
 #' @param old_dev_remove logical.
 #' If `TRUE`, then previous development builds are deleted
 #' after a successful run.
-#' @param ... Arguments passed to \code{bookdown::render}.
+#' @param args_engine list.
+#' Arguments passed to the
+#' rendering engine
+#' (`rmarkdown::render`, `quarto::render` or `bookdown::render_book`).
 #'
 #' @export
 projr_build_dev <- function(file = NULL,
                             bump = FALSE,
-                            old_dev_remove = TRUE, ...) {
+                            old_dev_remove = TRUE,
+                            args_engine = list()) {
   # NULL if FALSE and "dev" if TRUE
   bump_component <- .projr_build_dev_get_bump_component(bump)
   .projr_build(
     file = file,
     bump_component = bump_component,
     old_dev_remove = TRUE,
-    ...
+    args_engine = args_engine
   )
 }
 
@@ -129,7 +137,7 @@ projr_build_dev <- function(file = NULL,
                          bump_component,
                          old_dev_remove = TRUE,
                          msg = "",
-                         ...) {
+                         args_engine) {
   .projr_build_pre(bump_component, msg) |>
     .projr_build_actual(file) |>
     .projr_build_post(bump_component, msg, old_dev_remove)
@@ -199,11 +207,11 @@ projr_build_dev <- function(file = NULL,
 
 # actual
 # ------------------------
-.projr_build_actual <- function(version_run_on_list, file) {
+.projr_build_actual <- function(version_run_on_list, file, args_engine) {
   .projr_build_engine(
     file = file,
     version_run_on_list = version_run_on_list,
-    ...
+    args_engine = args_engine
   )
   invisible(version_run_on_list)
 }

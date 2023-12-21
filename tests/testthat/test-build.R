@@ -19,7 +19,7 @@ test_that("projr_build_dev works", {
     path = dir_test,
     code = {
       projr_init()
-      projr_build_dev(quiet = TRUE)
+      projr_build_dev()
       projr_version_get()
       yml_bd <- .projr_yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "docs")
