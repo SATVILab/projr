@@ -66,9 +66,17 @@
   }
   gert::git_init(path_dir)
   gert::git_add(".", repo = path_dir)
-  gert::git_config_set("user.name", "Darth Vader")
-  gert::git_config_set("user.email", "number_one_fan@tellytubbies.com")
-  gert::git_commit(message = "Initial commit", repo = path_dir)
+  gert::git_config_set(
+    "user.name", "Darth Vader",
+    repo = path_dir
+  )
+  gert::git_config_set(
+    "user.email", "number_one_fan@tellytubbies.com",
+    repo = path_dir
+  )
+  gert::git_commit(
+    message = "Initial commit", repo = path_dir,
+  )
   invisible(TRUE)
 }
 
