@@ -35,7 +35,6 @@
 #'
 #' @export
 projr_build_output <- function(bump_component,
-                               old_output_cache = FALSE,
                                msg = NULL,
                                args_engine = list()) {
   bump_component <- .projr_build_output_get_bump_component(
@@ -45,7 +44,6 @@ projr_build_output <- function(bump_component,
 
   .projr_build(
     bump_component = bump_component,
-    old_output_cache = old_output_cache,
     msg = msg,
     args_engine = args_engine
   )
@@ -54,12 +52,10 @@ projr_build_output <- function(bump_component,
 #' @rdname projr_build_output
 #' @export
 projr_build_major <- function(msg = NULL,
-                              old_output_cache = FALSE,
                               args_engine = list()) {
   projr_build_output(
     bump_component = "major",
     msg = msg,
-    old_output_cache = old_output_cache,
     args_engine = args_engine
   )
 }
@@ -67,12 +63,10 @@ projr_build_major <- function(msg = NULL,
 #' @rdname projr_build_output
 #' @export
 projr_build_minor <- function(msg = NULL,
-                              old_output_cache = FALSE,
                               args_engine = list()) {
   projr_build_output(
     bump_component = "minor",
     msg = msg,
-    old_output_cache = old_output_cache,
     args_engine = args_engine
   )
 }
@@ -80,12 +74,10 @@ projr_build_minor <- function(msg = NULL,
 #' @rdname projr_build_output
 #' @export
 projr_build_patch <- function(msg = NULL,
-                              old_output_cache = FALSE,
                               args_engine = list()) {
   projr_build_output(
     bump_component = "patch",
     msg = msg,
-    old_output_cache = old_output_cache,
     args_engine = args_engine
   )
 }

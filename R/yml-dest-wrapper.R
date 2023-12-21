@@ -11,7 +11,7 @@
 #' @param title character.
 #' The title of the project or component.
 #' Must be supplied.
-#' @param body character. Description on OSF. Default is `NULL`.
+#' @param description character. Description on OSF. Default is `NULL`.
 #' @param content character vector. Keys to include in the OSF upload.
 #' @param public logical. Whether the project or component is public on OSF.
 #' Default is `FALSE`.
@@ -24,8 +24,6 @@
 #' characters. Default is `NULL`.
 #' @param id_parent character. The id of the parent project or component.
 #' Must be five characters. Default is `NULL`.
-#' @param title_parent character. The title of the parent project or component.
-#' Default is `NULL`.
 #' @param overwrite logical. If `TRUE`, then the project or component
 #' will be overwitten if it exists.
 #' Note that any components of the project/component
@@ -45,7 +43,6 @@ projr_yml_dest_add_osf <- function(title = NULL,
                                    description = NULL,
                                    id = NULL,
                                    id_parent = NULL,
-                                   title_parent = NULL,
                                    get_sync_approach = NULL,
                                    get_conflict = NULL,
                                    send_cue = NULL,
@@ -66,7 +63,6 @@ projr_yml_dest_add_osf <- function(title = NULL,
     description = description,
     id = id,
     id_parent = id_parent,
-    title_parent = title_parent,
     get_sync_approach = get_sync_approach,
     get_conflict = get_conflict,
     send_cue = send_cue,
@@ -79,13 +75,13 @@ projr_yml_dest_add_osf <- function(title = NULL,
 #' @rdname projr_yml_dest_add_osf
 #' @export
 projr_yml_dest_add_osf_proj <- function(title,
-                                        body = NULL,
+                                        description = NULL,
                                         content = NULL,
                                         public = FALSE,
                                         id = NULL) {
   projr_yml_dest_add_osf(
     title = title,
-    body = body,
+    description = description,
     content = content,
     public = public,
     category = "project",
@@ -96,24 +92,22 @@ projr_yml_dest_add_osf_proj <- function(title,
 #' @rdname projr_yml_dest_add_osf
 #' @export
 projr_yml_dest_add_osf_comp <- function(title,
-                                        body = NULL,
+                                        description = NULL,
                                         content = NULL,
                                         public = FALSE,
                                         category = NULL,
-                                        title_parent = NULL,
                                         id_parent = NULL,
                                         id = NULL) {
-  if (missing(id_parent) && missing(title_parent)) {
-    stop("either id_parent or title_parent must be specified")
+  if (missing(id_parent)) {
+    stop("id_parent must be specified")
   }
   projr_yml_dest_add_osf(
     title = title,
-    body = body,
+    description = description,
     content = content,
     public = public,
     category = category,
     id_parent = id_parent,
-    title_parent = title_parent,
     id = id
   )
 }

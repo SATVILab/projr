@@ -58,7 +58,7 @@ test_that(".projr_build_clear_pre and _post works", {
       path_output_final <- projr_path_get_dir("output", "a", safe = FALSE)
       path_docs <- projr_path_get_dir("docs", "b")
       path_data <- projr_path_get_dir("project", "data", "c")
-      .projr_build_clear_pre(FALSE)
+      .projr_build_clear_pre()
       expect_false(dir.exists(path_safe))
       expect_true(dir.exists(path_output_final))
       expect_false(dir.exists(path_docs))
