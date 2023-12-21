@@ -49,11 +49,12 @@ projr_init <- function(yml_path_from = NULL,
   # initialise readme
   .projr_init_readme(nm_list)
 
+  # renv
+  .projr_init_renv(force = renv_force, bioc = renv_bioconductor)
+
   # add document-engine docs
   .projr_init_engine(nm_list)
 
-  # renv
-  .projr_init_renv(force = renv_force, bioc = renv_bioconductor)
 
   # finalise README
   .projr_readme_render()
