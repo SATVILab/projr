@@ -3,7 +3,10 @@ library(testthat)
 devtools::load_all()
 .test_set_select()
 devtools::test_active_file("tests/testthat/test-git.R")
+
 .test_unset_select()
+devtools::test()
+
 .test_set()
 devtools::test()
 .test_set_fast()
@@ -16,7 +19,7 @@ yaml::read_yaml(.dir_proj_get("_projr.yml"))
 • TRUE is TRUE (1): test-manual-osf-download.R:137:3
 
 ── Failed tests ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-Failure (test-git.R:132:3): .projr_git_ functions work
+Failure (test-git.R:132:3): .projr_git_ func!tions work
 suppressWarnings(.projr_git_remote_check_upstream_git()) is not TRUE
 
 `actual`:   FALSE
