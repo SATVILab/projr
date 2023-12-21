@@ -72,7 +72,14 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
     if (.projr_renv_detect()) {
       .projr_dep_install_only_rscript(x)
     } else {
-      utils::install.packages(x)
+      if (grepl("^\\w+/\\w+", gsub("\\.", "", x))) {
+        if (!requireNamespace("remotes", quietly = TRUE)) {
+          utils::install.packages("remotes")
+        }
+        remotes::install_github(x)
+      } else {
+        utils::install.packages(x)
+      }
     }
   }
   invisible(TRUE)
