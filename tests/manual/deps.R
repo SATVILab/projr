@@ -1,5 +1,0 @@
-# remotes::install_github("crsh/depgraph")
-# remotes::install_github("jimhester/itdepends")
-png("_scratch/depgraph.png")
-depgraph::plot_dependency_graph(".", suggests = FALSE)
-dev.off()
