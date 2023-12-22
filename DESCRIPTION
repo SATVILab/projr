@@ -16,28 +16,28 @@ Imports:
     fs,
     digest
 Suggests:
+    remotes,
     roxygen2,
     usethis,
     gert,
-    piggyback,
-    pkgbuild,
     gh,
-    rmarkdown,
-    bookdown,
-    quarto,
-    covr,
-    devtools,
-    knitr,
-    osfr,
-    testthat (>= 3.0.0),
-    httr,
-    rlang,
+    credentials,
     gitcreds,
+    piggyback,
+    osfr,
     codemeta,
     cffr,
-    withr,
-    remotes,
-    credentials
+    pkgbuild,
+    rmarkdown,
+    bookdown,
+    knitr,
+    quarto,
+    testthat (>= 3.0.0),
+    devtools,
+    httr,
+    covr,
+    rlang,
+    withr
 Config/testthat/edition: 3
 URL: https://satvilab.github.io/projr/
 VignetteBuilder: knitr
