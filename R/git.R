@@ -230,8 +230,8 @@
   invisible(TRUE)
 }
 
-.projr_git_push_git <- function() {
-  system2("git", args = "push")
+.projr_git_push_git <- function(...) {
+  system2("git", args = "push", ...)
   invisible(TRUE)
 }
 
