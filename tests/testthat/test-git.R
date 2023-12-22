@@ -166,8 +166,8 @@ test_that(".projr_git_ functions work", { # setup
       # ---------------------
       print("check upstream")
       expect_true(suppressWarnings(.projr_git_remote_check_upstream_git()))
-      skip()
       expect_true(suppressWarnings(.projr_git_remote_check_upstream()))
+      skip()
       print("done checking upstream")
       # push
       # -----------------------
