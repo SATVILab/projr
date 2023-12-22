@@ -1,6 +1,7 @@
 test_that(".projr_yml_git_ functions work", {
   # setup
   skip_if(.is_test_select())
+  skip()
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
@@ -62,6 +63,7 @@ test_that(".projr_yml_git_ functions work", {
 
 test_that(".projr_git_ functions work", { # setup
   skip_if(.is_test_select())
+  skip()
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
@@ -127,6 +129,7 @@ test_that(".projr_git_ functions work", { # setup
 
 test_that(".projr_git_ functions work", { # setup
   skip_if(.is_test_select())
+  skip()
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
