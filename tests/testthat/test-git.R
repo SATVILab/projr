@@ -161,12 +161,14 @@ test_that(".projr_git_ functions work", { # setup
       expect_true(.projr_git_remote_check_exists_git())
       expect_true(.projr_git_remote_check_exists_gert())
       expect_true(.projr_git_remote_check_exists())
-      skip()
       print("done checking remotes exist")
       # check there's an upstream remote
       # ---------------------
+      print("check upstream")
       expect_true(suppressWarnings(.projr_git_remote_check_upstream_git()))
+      skip()
       expect_true(suppressWarnings(.projr_git_remote_check_upstream()))
+      print("done checking upstream")
       # push
       # -----------------------
       invisible(file.create("abc.txt"))
