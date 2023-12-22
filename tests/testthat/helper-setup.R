@@ -42,10 +42,24 @@
   invisible(TRUE)
 }
 
+.projr_test_setup_project_git_config <- function() {
+  if (!"user.name" %in% names(gert::git_config_global())) {
+    gert::git_config_global_set(
+      "user.name", "Darth Vader"
+    )
+  }
+  if (!"user.email" %in% names(gert::git_config_global())) {
+    gert::git_config_global_set(
+      "user.email", "number_one_fan@tellytubbies.com",
+    )
+  }
+}
+
 .projr_test_setup_project_github <- function(github, path_dir, env) {
   if (!github) {
     return(invisible(TRUE))
   }
+  .projr_test_setup_project_git_config()
   # .dir_rm(path_dir)
   # create github repo if required
   with_dir(
@@ -86,16 +100,9 @@
   if (!requireNamespace("gert", quietly = TRUE)) {
     utils::install.packages("gert")
   }
+  .projr_test_setup_project_git_config()
   gert::git_init(path_dir)
   gert::git_add(".", repo = path_dir)
-  gert::git_config_set(
-    "user.name", "Darth Vader",
-    repo = path_dir
-  )
-  gert::git_config_set(
-    "user.email", "number_one_fan@tellytubbies.com",
-    repo = path_dir
-  )
   gert::git_commit(
     message = "Initial commit", repo = path_dir,
   )
