@@ -176,10 +176,35 @@ test_that(".projr_git_ functions work", { # setup
       status_tbl <- gert::git_status()
       print("done get gert status table")
       print("commit a file with git")
-      .projr_git_commit_file_git("abc.txt", msg = "abc", timeout = 20)
+      pathout <- file.path(tempdir(), "pushout")
+      file.create(pathout)
+      errout <- file.path(tempdir(), "errout")
+      file.create(errout)
+      .projr_git_commit_file_git(
+        "abc.txt",
+        msg = "abc", timeout = 20, stdout = pathout, stderr = errout
+      )
+      print("pathout")
+      print(readLines(pathout))
+      print("errout")
+      print(readLines(errout))
       print("done commit a file with git")
       print("push a file with git")
-      expect_true(.projr_git_push_git(timeout = 20))
+      pathout <- file.path(tempdir(), "pushout")
+      .file_rm(pathout)
+      file.create(pathout)
+      errout <- file.path(tempdir(), "errout")
+      .file_rm(errout)
+      file.create(errout)
+      expect_true(
+        .projr_git_push_git(
+          timeout = 20, stdout = pathout, stderr = errout
+        )
+      )
+      print("pathout")
+      print(readLines(pathout))
+      print("errout")
+      print(readLines(errout))
       print("done pushing a file with git")
       invisible(file.create("def.txt"))
       status_tbl <- gert::git_status()

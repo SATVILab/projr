@@ -42,7 +42,7 @@
       "commit -m ", shQuote(msg), " ",
       paste0(normalizePath(file, winslash = "/"), collapse = " ")
     ),
-    stdout = TRUE, ...
+    ...
   )
 }
 
