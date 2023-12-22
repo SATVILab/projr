@@ -34,26 +34,31 @@
   )
 }
 
-.projr_git_commit_file_git <- function(file, msg) {
+.projr_git_commit_file_git <- function(file, msg, ...) {
   .projr_git_add_file_git(file)
   system2(
     "git",
-    args = paste0("commit -m '", msg, "' ", paste0(file, collapse = " ")),
-    stdout = TRUE
+    args = paste0(
+      "commit -m ", shQuote(msg), " ",
+      paste0(normalizePath(file, winslash = "/"), collapse = " ")
+    ),
+    stdout = TRUE, ...
   )
 }
 
-.projr_git_add_file_git <- function(file) {
+.projr_git_add_file_git <- function(file, ...) {
   system2(
     "git",
-    args = paste0("add ", paste0(file, collapse = " ")),
-    stdout = TRUE
+    args = paste0(
+      "add ", paste0(normalizePath(file, winslash = "/"), collapse = " ")
+    ),
+    stdout = TRUE, ...
   )
 }
 
-.projr_git_commit_file_gert <- function(file, msg) {
+.projr_git_commit_file_gert <- function(file, msg, ...) {
   gert::git_add(file)
-  gert::git_commit(msg)
+  gert::git_commit(msg, ...)
 }
 
 .projr_git_commit_all <- function(msg = NULL, add_untracked = TRUE) {

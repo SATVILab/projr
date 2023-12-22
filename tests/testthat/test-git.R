@@ -93,16 +93,24 @@ test_that(".projr_git_ functions work", { # setup
       # adding and committing individual fules
       # ---------------------
       status_tbl <- gert::git_status()
+      path_err <- file.path(tempdir(), "err1")
       commit_out <- .projr_git_commit_file_git(
         ".Rbuildignore",
-        msg = "Have fun"
+        msg = "Have fun", stderr = path_err
       )
+      print("first commit out")
       print(commit_out)
-      commit_out <- expect_identical(
+      print("first error message")
+      print(readLines(path_err))
+      expect_identical(
         nrow(gert::git_status()), nrow(status_tbl) - 1L
       )
+      commit_out <- .projr_git_commit_file_gert(
+        ".gitignore",
+        msg = "Have fun"
+      )
+      print("second commit out")
       print(commit_out)
-      .projr_git_commit_file_gert(".gitignore", msg = "Have fun")
       expect_identical(nrow(gert::git_status()), nrow(status_tbl) - 2L)
       # getting modified files
       # ---------------------
