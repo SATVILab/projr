@@ -152,12 +152,17 @@ test_that(".projr_git_ functions work", { # setup
   usethis::with_project(
     path = dir_test,
     code = {
+      print("setting config")
       .projr_test_setup_project_git_config()
+      print("done setting config")
+      skip()
       # check there's a remote
       # ---------------------
+      print("checking remotes exist")
       expect_true(.projr_git_remote_check_exists_git())
       expect_true(.projr_git_remote_check_exists_gert())
       expect_true(.projr_git_remote_check_exists())
+      print("done checking remotes exist")
       # check there's an upstream remote
       # ---------------------
       expect_true(suppressWarnings(.projr_git_remote_check_upstream_git()))

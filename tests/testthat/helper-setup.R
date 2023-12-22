@@ -150,9 +150,6 @@
   invisible(TRUE)
 }
 
-
-
-
 .projr_test_setup_content <- function(label,
                                       safe = FALSE,
                                       dir_sub_lvl = 2,
