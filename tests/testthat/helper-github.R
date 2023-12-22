@@ -1,5 +1,5 @@
 .projr_test_github_repo_create <- function(user = NULL,
-                                           token = NULL,
+                                           # token = NULL,
                                            repo = NULL,
                                            env = NULL) {
   .assert_string(user)
@@ -21,8 +21,8 @@
 
   user <- user %||% gh::gh_whoami()[["login"]]
   if (!nzchar(user)) stop("No GitHub user found")
-  token <- token %||% Sys.getenv("GITHUB_PAT")
-  token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
+  credentials::set_github_pat()
+  token <- Sys.getenv("GITHUB_PAT")
   if (!nzchar(token)) stop("No GitHub token found")
 
   # check that it exists or not
