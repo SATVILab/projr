@@ -216,9 +216,9 @@ test_that(".projr_git_ functions work", { # setup
       print("commit a file with gert")
       .projr_git_commit_file_gert("def.txt", msg = "def")
       print("done committing a file with gert")
-      if (!Sys.getenv("GITHUB_ACTIONS") == "true") {
-        expect_true(.projr_git_push_gert())
-      }
+      # if (!Sys.getenv("GITHUB_ACTIONS") == "true") {
+      expect_true(.projr_git_push_gert())
+      # }
       print("gert::git_log()")
       gert::git_log()[["message"]] |> print()
       gert::git_log()[["files"]] |> print()
