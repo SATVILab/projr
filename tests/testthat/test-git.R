@@ -155,11 +155,11 @@ test_that(".projr_git_ functions work", { # setup
       print("setting config")
       .projr_test_setup_project_git_config()
       print("done setting config")
-      skip()
       # check there's a remote
       # ---------------------
       print("checking remotes exist")
       expect_true(.projr_git_remote_check_exists_git())
+      skip()
       expect_true(.projr_git_remote_check_exists_gert())
       expect_true(.projr_git_remote_check_exists())
       print("done checking remotes exist")
