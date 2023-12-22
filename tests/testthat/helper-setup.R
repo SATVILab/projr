@@ -50,7 +50,7 @@
   }
   if (!"user.email" %in% names(gert::git_config_global())) {
     gert::git_config_global_set(
-      "user.email", "number_one_fan@tellytubbies.com",
+      "user.email", "number_one_fan@tellytubbies.com"
     )
   }
 }
