@@ -61,7 +61,7 @@ test_that(".projr_yml_git_ functions work", {
 })
 
 test_that(".projr_git_ functions work", { # setup
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
@@ -87,7 +87,7 @@ test_that(".projr_git_ functions work", { # setup
       # config
       # ---------------------
       .projr_test_setup_project_git_config()
-      expect_identical(.projr_git_config_get_name_git(), "Darth Vader")
+      expect_identical(.projr_git_config_get_name_git(), "DarthVader")
 
       # adding and committing individual fules
       # ---------------------
@@ -143,7 +143,7 @@ test_that(".projr_git_ functions work", { # setup
 
 
 test_that(".projr_git_ functions work", { # setup
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )

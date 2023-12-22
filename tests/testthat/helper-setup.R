@@ -55,9 +55,9 @@
   ]
   if (!.is_string(nm)) {
     gert::git_config_global_set(
-      "user.name", "Darth Vader"
+      "user.name", "DarthVader"
     )
-    system2("git", c("config", "--global", "user.name", "Darth Vader"))
+    system2("git", c("config", "--global", "user.name", "DarthVader"))
   }
   email <- gert_config_global[["value"]][
     gert_config_global[["name"]] == "user.email"
@@ -78,16 +78,16 @@
   }
 
   gert::git_config_set(
-    "user.name", "Darth Vader"
+    "user.name", "DarthVader"
   )
-  system2("git", c("config", "--local", "user.name", "Darth Vader"))
+  system2("git", c("config", "--local", "user.name", "DarthVader"))
   gert::git_config_set(
     "user.email", "number_one_fan@tellytubbies.com"
   )
   system2(
     "git", c(
       "config", "--local", "user.email",
-      "number_one_fan@tellytubbies.com"
+      shQuote("number_one_fan@tellytubbies.com")
     )
   )
   invisible(TRUE)

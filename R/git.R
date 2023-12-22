@@ -7,7 +7,7 @@
 
   if (.is_test()) {
     .projr_dep_install_only("gert")
-    gert::git_config_set("user.name", "Darth Vader")
+    gert::git_config_set("user.name", "DarthVader")
     gert::git_config_set("user.email", "number_one_fan@tellytubbies.com")
   }
 }
