@@ -152,17 +152,21 @@
   url <- paste0("https://github.com/", user, "/", repo, ".git")
 
   # Call the 'git' command to add the remote repository
-  system2("git", args = c("remote", "add", "origin", url))
+  system2(
+    "git",
+    args = c("remote", "add", "origin", url), timeout = 20
+  )
 }
 
 .projr_test_git_remote_get <- function() {
-  system2("git", args = "remote", stdout = TRUE)
+  system2("git", args = "remote", stdout = TRUE, timeout = 20)
 }
 
 .projr_test_git_branch_get <- function() {
   system2(
     "git",
-    args = c("branch", "--show-current"), stdout = TRUE
+    args = c("branch", "--show-current"), stdout = TRUE,
+    timeout = 20
   )
 }
 
