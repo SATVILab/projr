@@ -88,7 +88,7 @@
       utils::install.packages("gert")
     }
     gert::git_clone(paste0("https://www.github.com/", user, "/", repo))
-    withdir(repo, .projr_test_setup_project_git_config(FALSE))
+    with_dir(repo, .projr_test_setup_project_git_config(FALSE))
     return(paste0(user, "/", repo))
   } else {
     character()
