@@ -5,7 +5,7 @@
   .assert_string(user)
   .assert_string(repo)
   .assert_class(env, "environment")
-  .projr_test_setup_project_git_config()
+  .projr_test_setup_project_git_config(TRUE)
 
   # set up
   # ----------
@@ -87,9 +87,8 @@
     if (!requireNamespace("gert", quietly = TRUE)) {
       utils::install.packages("gert")
     }
-    .projr_test_setup_project_git_config()
     gert::git_clone(paste0("https://www.github.com/", user, "/", repo))
-    .projr_test_setup_project_git_config()
+    withdir(repo, .projr_test_setup_project_git_config(FALSE))
     return(paste0(user, "/", repo))
   } else {
     character()
