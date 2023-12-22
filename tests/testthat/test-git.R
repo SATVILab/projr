@@ -159,9 +159,9 @@ test_that(".projr_git_ functions work", { # setup
       # ---------------------
       print("checking remotes exist")
       expect_true(.projr_git_remote_check_exists_git())
-      skip()
       expect_true(.projr_git_remote_check_exists_gert())
       expect_true(.projr_git_remote_check_exists())
+      skip()
       print("done checking remotes exist")
       # check there's an upstream remote
       # ---------------------
