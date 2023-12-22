@@ -21,7 +21,7 @@
   user <- user %||% gh::gh_whoami()[["login"]]
   if (!nzchar(user)) stop("No GitHub user found")
   if (Sys.getenv("GITHUB_ACTIONS") == "true") {
-    system2("git", args = "config credential.helper store")
+    system2("git", args = "config --global credential.helper store")
 
     # Use system2 to set your credentials
     system2(
@@ -97,9 +97,6 @@
       utils::install.packages("gert")
     }
     gert::git_clone(paste0("https://www.github.com/", user, "/", repo))
-
-
-
 
     return(paste0(user, "/", repo))
   } else {
