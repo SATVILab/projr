@@ -164,7 +164,10 @@ test_that(".projr_git_ functions work", { # setup
       print(Sys.getenv("GH_TOKEN"))
       print("GITHUB_PAT")
       print(Sys.getenv("GITHUB_PAT"))
-      expect_true(.projr_git_push_gert())
+      expect_true(.projr_git_push_gert(
+        password = Sys.getenv("GITHUB_PAT"),
+        verbose = TRUE
+      ))
     }
   )
 })

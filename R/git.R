@@ -231,7 +231,7 @@
 }
 
 .projr_git_push_gert <- function() {
-  gert::git_push()
+  gert::git_push(...)
   invisible(TRUE)
 }
 
