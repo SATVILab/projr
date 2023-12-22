@@ -126,11 +126,7 @@ test_that(".projr_git_ functions work", { # setup
 
 
 test_that(".projr_git_ functions work", { # setup
-  # skip_if(.is_test_select())
-  #  debugonce(.projr_test_setup_project)
-  # debugonce(.projr_test_setup_project_github_actual)
-  debugonce(.projr_test_setup_project_github_actual)
-  debugonce(.projr_test_github_repo_create)
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
@@ -140,7 +136,6 @@ test_that(".projr_git_ functions work", { # setup
   usethis::with_project(
     path = dir_test,
     code = {
-      expect_true(TRUE)
       # check there's a remote
       # ---------------------
       expect_true(.projr_git_remote_check_exists_git())
@@ -151,8 +146,8 @@ test_that(".projr_git_ functions work", { # setup
       # debugonce(.projr_git_remote_check_upstream_git())
       # no upstream branch created for some reason.
       # just checking that code runs for now.
-      expect_true(.is_flag(suppressWarnings(.projr_git_remote_check_upstream_git())))
-      expect_true(.is_flag(suppressWarnings(.projr_git_remote_check_upstream())))
+      expect_true(suppressWarnings(.projr_git_remote_check_upstream_git()))
+      expect_true(suppressWarnings(.projr_git_remote_check_upstream()))
       # push
       # -----------------------
       invisible(file.create("abc.txt"))

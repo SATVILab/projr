@@ -4,29 +4,20 @@
                                       base_name = "test_projr",
                                       env = rlang::caller_env()) {
   force(env)
-  base_name <- .projr_test_setup_project_basename(base_name, github)
   path_dir_test <- .projr_test_setup_project_dir(base_name, env)
   .projr_test_setup_project_env_var(set_env_var, env)
   .projr_test_setup_project_github(github, path_dir_test, env)
-
   .projr_test_setup_project_files_copy(path_dir_test)
   .projr_test_setup_project_files_create_ignore(path_dir_test)
-  .projr_test_setup_project_files_git(git || github, path_dir_test)
+  .projr_test_setup_project_files_git(git && !github, path_dir_test)
   invisible(path_dir_test)
 }
 
-.projr_test_setup_project_basename <- function(base_name = NULL) {
-  if (is.null(base_name)) {
-    base_name <- "Auto"
-  }
-  if (!github) {
-    return(base_name)
-  }
-  paste0("ProjrGitHubTest", base_name, signif(stats::rnorm(1), 6))
-}
+
 
 .projr_test_setup_project_dir <- function(base_name, env) {
   # set up directory
+  base_name <- .projr_test_setup_project_basename(base_name)
   path_dir_test <- file.path(tempdir(), paste0(base_name))
   if (dir.exists(path_dir_test)) {
     unlink(path_dir_test, recursive = TRUE)
@@ -34,6 +25,13 @@
   withr::defer(unlink(path_dir_test, recursive = TRUE), envir = env)
   .dir_create(path_dir_test)
   path_dir_test
+}
+
+.projr_test_setup_project_basename <- function(base_name = NULL) {
+  if (is.null(base_name)) {
+    base_name <- "Auto"
+  }
+  paste0("ProjrGitHubTest", base_name, signif(stats::rnorm(1), 6))
 }
 
 .projr_test_setup_project_env_var <- function(set_env_var, env) {
@@ -48,25 +46,13 @@
   if (!github) {
     return(invisible(TRUE))
   }
-  .dir_rm(path_dir)
-  repo <- basename(path_dir)
-  path_dir <- dirname(path_dir)
+  # .dir_rm(path_dir)
   # create github repo if required
   with_dir(
-    path_dir, .projr_test_github_repo_create(path_dir, repo, env)
+    dirname(path_dir),
+    .projr_test_github_repo_create(repo = basename(path_dir), env = env)
   )
   invisible(TRUE)
-}
-
-.projr_test_setup_project_github_actual <- function(github,
-                                                    repo,
-                                                    env) {
-  if (!github) {
-    return(invisible(TRUE))
-  }
-  .projr_test_github_repo_create(
-    github = github, repo = repo, env = env
-  )
 }
 
 .projr_test_setup_project_files_copy <- function(path_dir) {

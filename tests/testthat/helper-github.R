@@ -1,9 +1,7 @@
-.projr_test_github_repo_create <- function(github,
-                                           user = NULL,
+.projr_test_github_repo_create <- function(user = NULL,
                                            token = NULL,
                                            repo = NULL,
                                            env = NULL) {
-  .assert_flag(github, TRUE)
   .assert_string(user)
   .assert_string(token)
   .assert_string(repo)
@@ -88,7 +86,7 @@
     if (!requireNamespace("gert", quietly = TRUE)) {
       utils::install.packages("gert")
     }
-    gert::git_clone(paste0("https://www.github.com/", user, "/", repo, ".git"))
+    gert::git_clone(paste0("https://www.github.com/", user, "/", repo))
 
 
 
