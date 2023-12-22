@@ -143,9 +143,6 @@ test_that(".projr_git_ functions work", { # setup
       expect_true(.projr_git_remote_check_exists())
       # check there's an upstream remote
       # ---------------------
-      # debugonce(.projr_git_remote_check_upstream_git())
-      # no upstream branch created for some reason.
-      # just checking that code runs for now.
       expect_true(suppressWarnings(.projr_git_remote_check_upstream_git()))
       expect_true(suppressWarnings(.projr_git_remote_check_upstream()))
       # push
