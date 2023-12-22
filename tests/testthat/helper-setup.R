@@ -113,7 +113,7 @@
   gert::git_init(path_dir)
   gert::git_add(".", repo = path_dir)
   gert::git_commit(
-    message = "Initial commit", repo = path_dir,
+    message = "Initial commit", repo = path_dir
   )
   invisible(TRUE)
 }
