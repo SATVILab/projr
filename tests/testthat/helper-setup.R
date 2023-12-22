@@ -138,8 +138,9 @@
   if (!requireNamespace("gert", quietly = TRUE)) {
     utils::install.packages("gert")
   }
-  .projr_test_setup_project_git_config()
+  .projr_test_setup_project_git_config(TRUE)
   gert::git_init(path_dir)
+  with_dir(path_dir, .projr_test_setup_project_git_config(FALSE))
   gert::git_add(".", repo = path_dir)
   gert::git_commit(
     message = "Initial commit", repo = path_dir
