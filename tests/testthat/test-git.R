@@ -159,8 +159,13 @@ test_that(".projr_git_ functions work", { # setup
       # ---------------------
       print("checking remotes exist")
       expect_true(.projr_git_remote_check_exists_git())
+      print("git remote identification")
+      print(system2("git", args = c("remote", "-v"), stdout = TRUE))
+      print("done with git remote identification")
       expect_true(.projr_git_remote_check_exists_gert())
       expect_true(.projr_git_remote_check_exists())
+      print("gert remote identification")
+      print(gert::git_remote_ls())
       print("done checking remotes exist")
       # check there's an upstream remote
       # ---------------------
