@@ -3,7 +3,6 @@
                                            repo = NULL,
                                            env = NULL) {
   .assert_string(user)
-  .assert_string(token)
   .assert_string(repo)
   .assert_class(env, "environment")
 
