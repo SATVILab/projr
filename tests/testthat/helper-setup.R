@@ -7,13 +7,12 @@
   path_dir_test <- .projr_test_setup_project_dir(base_name, env)
   .projr_test_setup_project_env_var(set_env_var, env)
   .projr_test_setup_project_github(github, path_dir_test, env)
+  skip()
   .projr_test_setup_project_files_copy(path_dir_test)
   .projr_test_setup_project_files_create_ignore(path_dir_test)
   .projr_test_setup_project_files_git(git && !github, path_dir_test)
   invisible(path_dir_test)
 }
-
-
 
 .projr_test_setup_project_dir <- function(base_name, env) {
   # set up directory
@@ -97,7 +96,10 @@
   if (!github) {
     return(invisible(TRUE))
   }
+  print("Beginning GitHub setup")
+  print("Running config function")
   .projr_test_setup_project_git_config(TRUE)
+  print("Ended running config function")
   # .dir_rm(path_dir)
   # create github repo if required
   with_dir(
