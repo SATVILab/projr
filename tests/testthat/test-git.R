@@ -181,10 +181,12 @@ test_that(".projr_git_ functions work", { # setup
       print("push a file with git")
       expect_true(.projr_git_push_git())
       print("done pushing a file with git")
-      skip()
       invisible(file.create("def.txt"))
       status_tbl <- gert::git_status()
+      print("commit a file with gert")
       .projr_git_commit_file_gert("def.txt", msg = "def")
+      print("done committing a file with gert")
+      skip()
       if (!Sys.getenv("GITHUB_ACTIONS") == "true") {
         expect_true(.projr_git_push_gert())
       }
