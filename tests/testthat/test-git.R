@@ -151,14 +151,20 @@ test_that(".projr_git_ functions work", { # setup
       # push
       # -----------------------
       invisible(file.create("abc.txt"))
+
       status_tbl <- gert::git_status()
       .projr_git_commit_file("abc.txt", msg = "abc")
       expect_true(.projr_git_push_git())
       invisible(file.create("def.txt"))
       status_tbl <- gert::git_status()
       .projr_git_commit_file("def.txt", msg = "def")
+      print("GITHUB_TOKEN")
+      print(Sys.getenv("GITHUB_TOKEN"))
+      print("GH_TOKEN")
+      print(Sys.getenv("GH_TOKEN"))
+      print("GITHUB_PAT")
+      print(Sys.getenv("GITHUB_PAT"))
       expect_true(.projr_git_push_gert())
-      .projr_git_config_get_name()
     }
   )
 })
