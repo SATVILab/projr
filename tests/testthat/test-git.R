@@ -217,15 +217,25 @@ test_that(".projr_git_ functions work", { # setup
       print("commit a file with gert")
       .projr_git_commit_file_gert("def.txt", msg = "def")
       print("done committing a file with gert")
-      # if (!Sys.getenv("GITHUB_ACTIONS") == "true") {
-      expect_true(.projr_git_push_gert())
-      # }
+      if (!Sys.getenv("GITHUB_ACTIONS") == "true") {
+        expect_true(.projr_git_push_gert())
+      }
       print("gert::git_log()")
       gert::git_log()[["message"]] |> print()
       gert::git_log()[["files"]] |> print()
       gert::git_log()[["author"]] |> print()
       print("gert::git_info()")
       print(gert::git_info())
+      if (!requireNamespace("gitcreds", quietly = TRUE)) {
+        utils::install.packages("gitcreds")
+      }
+      if (!requireNamespace("credentials", quietly = TRUE)) {
+        utils::install.packages("credentials")
+      }
+      print("gitcreds::gitcreds_get")
+      gitcreds::gitcreds_get() |> print()
+      print("usethis::gh_token_help")
+      usethis::gh_token_help() |> print()
     }
   )
 })

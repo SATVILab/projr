@@ -221,10 +221,10 @@
 }
 
 # push
-.projr_git_push <- function() {
+.projr_git_push <- function(...) {
   switch(.projr_git_system_get(),
-    "git" = .projr_git_push_git(),
-    "gert" = .projr_git_push_gert(),
+    "git" = .projr_git_push_git(...),
+    "gert" = .projr_git_push_gert(...),
     stop(paste0(.projr_git_system_get(), " not recognised"))
   )
   invisible(TRUE)
