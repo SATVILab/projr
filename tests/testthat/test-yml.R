@@ -55,3 +55,22 @@ test_that(".projr_dest_send_get_plan works", {
     }
   )
 })
+
+test_that(".projr_dest_send_get_plan works", {
+  skip_if(.is_test_select())
+  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      projr_init()
+      #  browser()
+      projr_yml_dest_add_local(
+        title = "test", content = "data-raw", path = "_archive"
+      )
+      expect_true(!is.null(.projr_yml_dest_get_type("local", "default")))
+      # projr_yml_dest_add_osf(
+      #  title = "test", content = "data-raw", category = "project"
+      # )
+    }
+  )
+})

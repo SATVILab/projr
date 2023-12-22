@@ -1,5 +1,5 @@
 test_that(".projr_change_get_manifest works", {
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
@@ -15,6 +15,7 @@ test_that(".projr_change_get_manifest works", {
       Sys.setenv("OSF_PAT" = pat_old)
       suppressMessages(projr_instr_auth_github())
       suppressMessages(projr_instr_auth_osf())
+      suppressWarnings(.projr_auth_get_osf_pat_warn())
     }
   )
 })
