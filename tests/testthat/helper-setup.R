@@ -43,6 +43,9 @@
 }
 
 .projr_test_setup_project_git_config <- function() {
+  if (!Sys.getenv("GITHUB_ACTIONS") == "true") {
+    return(invisible(TRUE))
+  }
   if (!"user.name" %in% names(gert::git_config_global())) {
     gert::git_config_global_set(
       "user.name", "Darth Vader"
@@ -53,6 +56,7 @@
       "user.email", "number_one_fan@tellytubbies.com"
     )
   }
+  invisible(TRUE)
 }
 
 .projr_test_setup_project_github <- function(github, path_dir, env) {
