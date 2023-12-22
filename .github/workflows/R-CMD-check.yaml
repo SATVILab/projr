@@ -26,6 +26,7 @@ jobs:
 
     env:
       GITHUB_PAT: ${{ secrets.GH_TOKEN }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
       OSF_PAT: ${{ secrets.OSF_PAT }}
       R_KEEP_PKG_SOURCE: yes
 
