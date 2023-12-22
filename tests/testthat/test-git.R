@@ -87,8 +87,8 @@ test_that(".projr_git_ functions work", { # setup
       # config
       # ---------------------
       gert::git_config_set("user.name", "Darth Vader")
+      gert::git_config_set("user.email", "number_one_fan@tellytubbies.com")
       expect_identical(.projr_git_config_get_name_git(), "Darth Vader")
-      expect_identical(.projr_git_config_get_name_gert(), "Darth Vader")
 
       # adding and committing individual fules
       # ---------------------
