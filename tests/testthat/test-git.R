@@ -178,8 +178,10 @@ test_that(".projr_git_ functions work", { # setup
       print("commit a file with git"
       .projr_git_commit_file_git("abc.txt", msg = "abc")
       print("done commit a file with git")
-      skip()
+      print("push a file with git")
       expect_true(.projr_git_push_git())
+      print("done pushing a file with git")
+      skip()
       invisible(file.create("def.txt"))
       status_tbl <- gert::git_status()
       .projr_git_commit_file_gert("def.txt", msg = "def")
