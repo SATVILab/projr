@@ -20,6 +20,9 @@
 
   user <- user %||% gh::gh_whoami()[["login"]]
   if (!nzchar(user)) stop("No GitHub user found")
+  if (!requireNamespace("credentials", quietly = TRUE)) {
+    utils::install.packages("credentials")
+  }
   credentials::set_github_pat()
   token <- Sys.getenv("GITHUB_PAT")
   if (!nzchar(token)) stop("No GitHub token found")

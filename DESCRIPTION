@@ -37,7 +37,7 @@ Suggests:
     cffr,
     withr,
     remotes,
-    credential
+    credentials
 Config/testthat/edition: 3
 URL: https://satvilab.github.io/projr/
 VignetteBuilder: knitr
