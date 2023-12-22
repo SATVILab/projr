@@ -42,17 +42,27 @@
   invisible(TRUE)
 }
 
-.projr_test_setup_project_git_config <- function() {
+.projr_test_setup_project_git_config <- function(global_only = FALSE) {
   if (!Sys.getenv("GITHUB_ACTIONS") == "true") {
     return(invisible(TRUE))
   }
-  if (!"user.name" %in% names(gert::git_config_global())) {
+  gert_config_global <- gert::git_config_global()[
+    gert::git_config_global()[["level"]] == "global", ,
+    drop = FALSE
+  ]
+  nm <- gert_config_global[["value"]][[
+    gert_config_global[["name"]] == "user.name"
+  ]]
+  if (!.is_string(nm)) {
     gert::git_config_global_set(
       "user.name", "Darth Vader"
     )
     system2("git", c("config", "--global", "user.name", "Darth Vader"))
   }
-  if (!"user.email" %in% names(gert::git_config_global())) {
+  email <- gert_config_global[["value"]][[
+    gert_config_global[["name"]] == "user.email"
+  ]]
+  if (!.is_string(email)) {
     gert::git_config_global_set(
       "user.email", "number_one_fan@tellytubbies.com"
     )
@@ -63,6 +73,23 @@
       )
     )
   }
+  if (global_only) {
+    return(invisible(TRUE))
+  }
+
+  gert::git_config_set(
+    "user.name", "Darth Vader"
+  )
+  system2("git", c("config", "--local", "user.name", "Darth Vader"))
+  gert::git_config_set(
+    "user.email", "number_one_fan@tellytubbies.com"
+  )
+  system2(
+    "git", c(
+      "config", "--local", "user.email",
+      "number_one_fan@tellytubbies.com"
+    )
+  )
   invisible(TRUE)
 }
 
