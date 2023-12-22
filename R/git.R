@@ -230,7 +230,7 @@
   invisible(TRUE)
 }
 
-.projr_git_push_gert <- function() {
+.projr_git_push_gert <- function(...) {
   gert::git_push(...)
   invisible(TRUE)
 }
