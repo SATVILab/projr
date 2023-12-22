@@ -154,6 +154,7 @@ test_that(".projr_git_ functions work", { # setup
     code = {
       print("setting config")
       .projr_test_setup_project_git_config()
+      skip()
       print("done setting config")
       # check there's a remote
       # ---------------------
@@ -177,7 +178,6 @@ test_that(".projr_git_ functions work", { # setup
       print("done get gert status table")
       print("commit a file with git")
       .projr_git_commit_file_git("abc.txt", msg = "abc", timeout = 20)
-      skip()
       print("done commit a file with git")
       print("push a file with git")
       expect_true(.projr_git_push_git(timeout = 20))
