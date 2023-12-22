@@ -172,13 +172,17 @@ test_that(".projr_git_ functions work", { # setup
       # -----------------------
       invisible(file.create("abc.txt"))
 
+      print("get gert status table")
       status_tbl <- gert::git_status()
+      print("done get gert status table")
+      print("commit a file with git"
+      .projr_git_commit_file_git("abc.txt", msg = "abc")
+      print("done commit a file with git")
       skip()
-      .projr_git_commit_file("abc.txt", msg = "abc")
       expect_true(.projr_git_push_git())
       invisible(file.create("def.txt"))
       status_tbl <- gert::git_status()
-      .projr_git_commit_file("def.txt", msg = "def")
+      .projr_git_commit_file_gert("def.txt", msg = "def")
       if (!Sys.getenv("GITHUB_ACTIONS") == "true") {
         expect_true(.projr_git_push_gert())
       }
