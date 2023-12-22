@@ -126,7 +126,7 @@ test_that(".projr_git_ functions work", { # setup
 
 
 test_that(".projr_git_ functions work", { # setup
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
