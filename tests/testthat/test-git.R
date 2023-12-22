@@ -155,9 +155,9 @@ test_that(".projr_git_ functions work", { # setup
       invisible(file.create("def.txt"))
       status_tbl <- gert::git_status()
       .projr_git_commit_file("def.txt", msg = "def")
-      # if (!Sys.getenv("GITHUB_ACTIONS") == "true") {
-      expect_true(.projr_git_push_gert())
-      # }
+      if (!Sys.getenv("GITHUB_ACTIONS") == "true") {
+        expect_true(.projr_git_push_gert())
+      }
     }
   )
 })
