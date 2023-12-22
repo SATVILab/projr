@@ -129,6 +129,8 @@ test_that(".projr_git_ functions work", { # setup
   # skip_if(.is_test_select())
   #  debugonce(.projr_test_setup_project)
   # debugonce(.projr_test_setup_project_github_actual)
+  debugonce(.projr_test_setup_project_github_actual)
+  debugonce(.projr_test_github_repo_create)
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )

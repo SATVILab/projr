@@ -1,7 +1,14 @@
-.projr_test_github_repo_create <- function(user = NULL,
+.projr_test_github_repo_create <- function(github,
+                                           user = NULL,
                                            token = NULL,
                                            repo = NULL,
                                            env = NULL) {
+  .assert_flag(github, TRUE)
+  .assert_string(user)
+  .assert_string(token)
+  .assert_string(repo)
+  .assert_class(env, "environment")
+
   # set up
   # ----------
   if (!requireNamespace("gh", quietly = TRUE)) {
@@ -14,18 +21,11 @@
     env <- rlang::caller_env()
   }
 
-  # defaults
-  if (!requireNamespace("gh", quietly = TRUE)) {
-    utils::install.packages("gh")
-  }
-
   user <- user %||% gh::gh_whoami()[["login"]]
   if (!nzchar(user)) stop("No GitHub user found")
   token <- token %||% Sys.getenv("GITHUB_PAT")
   token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
   if (!nzchar(token)) stop("No GitHub token found")
-  repo <- repo %||% "test_projr_alt"
-  repo <- paste0("ProjrGitHubTest", repo, signif(stats::rnorm(1), 4))
 
   # check that it exists or not
 
@@ -84,6 +84,15 @@
       },
       envir = env
     )
+
+    if (!requireNamespace("gert", quietly = TRUE)) {
+      utils::install.packages("gert")
+    }
+    gert::git_clone(paste0("https://www.github.com/", user, "/", repo, ".git"))
+
+
+
+
     return(paste0(user, "/", repo))
   } else {
     character()
