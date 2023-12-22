@@ -167,7 +167,6 @@ test_that(".projr_git_ functions work", { # setup
       print("check upstream")
       expect_true(suppressWarnings(.projr_git_remote_check_upstream_git()))
       expect_true(suppressWarnings(.projr_git_remote_check_upstream()))
-      skip()
       print("done checking upstream")
       # push
       # -----------------------
@@ -175,6 +174,7 @@ test_that(".projr_git_ functions work", { # setup
 
       print("get gert status table")
       status_tbl <- gert::git_status()
+      skip()
       print("done get gert status table")
       print("commit a file with git")
       .projr_git_commit_file_git("abc.txt", msg = "abc", timeout = 20)
