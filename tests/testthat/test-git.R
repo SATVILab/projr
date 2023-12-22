@@ -136,6 +136,7 @@ test_that(".projr_git_ functions work", { # setup
   usethis::with_project(
     path = dir_test,
     code = {
+      .projr_test_setup_project_git_config()
       # check there's a remote
       # ---------------------
       expect_true(.projr_git_remote_check_exists_git())
