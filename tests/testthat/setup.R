@@ -27,6 +27,7 @@
 }
 
 .test_set()
+.test_set_select()
 
 # instruct deletion upon completion of all tests
 withr::defer(

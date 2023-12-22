@@ -1,7 +1,6 @@
 test_that(".projr_yml_git_ functions work", {
   # setup
   skip_if(.is_test_select())
-  skip()
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
@@ -62,7 +61,7 @@ test_that(".projr_yml_git_ functions work", {
 })
 
 test_that(".projr_git_ functions work", { # setup
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
@@ -77,11 +76,14 @@ test_that(".projr_git_ functions work", { # setup
       .projr_git_init_git()
       expect_true(.projr_git_repo_check_exists())
       .projr_git_repo_rm()
+      expect_false(.projr_git_repo_check_exists())
       .projr_git_init_gert()
       expect_true(.projr_git_repo_check_exists())
       .projr_git_repo_rm()
+      expect_false(.projr_git_repo_check_exists())
       .projr_git_init()
       expect_true(.projr_git_repo_check_exists())
+
       # config
       # ---------------------
       gert::git_config_set("user.name", "Darth Vader")
@@ -91,8 +93,15 @@ test_that(".projr_git_ functions work", { # setup
       # adding and committing individual fules
       # ---------------------
       status_tbl <- gert::git_status()
-      .projr_git_commit_file_git(".Rbuildignore", msg = "Have fun")
-      expect_identical(nrow(gert::git_status()), nrow(status_tbl) - 1L)
+      commit_out <- .projr_git_commit_file_git(
+        ".Rbuildignore",
+        msg = "Have fun"
+      )
+      print(commit_out)
+      commit_out <- expect_identical(
+        nrow(gert::git_status()), nrow(status_tbl) - 1L
+      )
+      print(commit_out)
       .projr_git_commit_file_gert(".gitignore", msg = "Have fun")
       expect_identical(nrow(gert::git_status()), nrow(status_tbl) - 2L)
       # getting modified files
@@ -128,11 +137,9 @@ test_that(".projr_git_ functions work", { # setup
 
 test_that(".projr_git_ functions work", { # setup
   skip_if(.is_test_select())
-  skip()
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
-  skip()
 
   # run from within project
   usethis::with_project(
