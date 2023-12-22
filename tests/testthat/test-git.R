@@ -214,7 +214,12 @@ test_that(".projr_git_ functions work", { # setup
       if (!Sys.getenv("GITHUB_ACTIONS") == "true") {
         expect_true(.projr_git_push_gert())
       }
-      print("get to the end")
+      print("gert::git_log()")
+      gert::git_log()[["message"]] |> print()
+      gert::git_log()[["files"]] |> print()
+      gert::git_log()[["author"]] |> print()
+      print("gert::git_info()")
+      print(gert::git_info())
     }
   )
 })
