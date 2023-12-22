@@ -50,16 +50,18 @@
     gert::git_config_global_set(
       "user.name", "Darth Vader"
     )
-    system2("git", c("config", "--global", "user.name", "Darth Vader")
+    system2("git", c("config", "--global", "user.name", "Darth Vader"))
   }
   if (!"user.email" %in% names(gert::git_config_global())) {
     gert::git_config_global_set(
       "user.email", "number_one_fan@tellytubbies.com"
     )
     system2(
-      "git", c("config", "--global", "user.email",
-      "number_one_fan@tellytubbies.com"
+      "git", c(
+        "config", "--global", "user.email",
+        "number_one_fan@tellytubbies.com"
       )
+    )
   }
   invisible(TRUE)
 }
