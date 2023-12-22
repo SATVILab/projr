@@ -20,17 +20,7 @@
 
   user <- user %||% gh::gh_whoami()[["login"]]
   if (!nzchar(user)) stop("No GitHub user found")
-  if (Sys.getenv("GITHUB_ACTIONS") %in% c("true", "TRUE")) {
-    system2("git", args = "config --global credential.helper store")
 
-    # Use system2 to set your credentials
-    system2(
-      "bash",
-      args = c(
-        "-c", sprintf('echo "https://%s:x-oauth-basic@github.com" | git credential approve', Sys.getenv("GITHUB_PAT"))
-      )
-    )
-  }
   # credentials::set_github_pat()
   token <- Sys.getenv("GITHUB_PAT")
   if (!nzchar(token)) stop("No GitHub token found")
