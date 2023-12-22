@@ -275,3 +275,20 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
   }
   .projr_yml_set(yml_projr)
 }
+
+.projr_test_coverage <- function() {
+  if (!requireNamespace("covr")) {
+    utils::install.packages("covr")
+  }
+  if (!requireNamespace("DT")) {
+    utils::install.packages("DT")
+  }
+  if (!requireNamespace("htmltools")) {
+    utils::install.packages("htmltools")
+  }
+  .dir_create("_tmp")
+  covr::report(
+    covr::package_coverage(),
+    file = "_tmp/report.html", browse = FALSE
+  )
+}
