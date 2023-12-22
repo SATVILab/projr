@@ -194,6 +194,27 @@ test_that(".projr_git_ functions work", { # setup
       print("errout")
       print(readLines(errout))
       print("done commit a file with git")
+
+      print("Use plain-text credential store")
+      system2("git", args = c("config", "--local", "credential.helper", "store"))
+
+      username <- gh::gh_whoami()[["login"]]
+      PAT <- Sys.getenv("GITHUB_PAT")
+
+      # Create a credential string
+      credential_string <- paste0("protocol=https\nhost=github.com\nusername=", username, "\npassword=", PAT)
+
+      # Write the credential string to a temporary file
+      temp_file <- tempfile()
+      writeLines(credential_string, temp_file)
+
+      # Use the temporary file as the input for 'git credential approve'
+      system(paste0("git credential approve < ", shQuote(temp_file)))
+
+      # Delete the temporary file
+      file.remove(temp_file)
+
+
       print("push a file with git")
       pathout <- file.path(tempdir(), "pushout")
       .file_rm(pathout)
@@ -234,8 +255,8 @@ test_that(".projr_git_ functions work", { # setup
       }
       print("gitcreds::gitcreds_get")
       gitcreds::gitcreds_get() |> print()
-      print("usethis::gh_token_help")
-      usethis::gh_token_help() |> print()
+      # print("usethis::gh_token_help")
+      # usethis::gh_token_help() |> print()
     }
   )
 })
