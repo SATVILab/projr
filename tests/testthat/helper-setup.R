@@ -50,18 +50,18 @@
     gert::git_config_global()[["level"]] == "global", ,
     drop = FALSE
   ]
-  nm <- gert_config_global[["value"]][[
+  nm <- gert_config_global[["value"]][
     gert_config_global[["name"]] == "user.name"
-  ]]
+  ]
   if (!.is_string(nm)) {
     gert::git_config_global_set(
       "user.name", "Darth Vader"
     )
     system2("git", c("config", "--global", "user.name", "Darth Vader"))
   }
-  email <- gert_config_global[["value"]][[
+  email <- gert_config_global[["value"]][
     gert_config_global[["name"]] == "user.email"
-  ]]
+  ]
   if (!.is_string(email)) {
     gert::git_config_global_set(
       "user.email", "number_one_fan@tellytubbies.com"
