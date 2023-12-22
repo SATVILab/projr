@@ -207,6 +207,7 @@ test_that(".projr_git_ functions work", { # setup
         )
       )
       print("pathout")
+      print("no change")
       print(readLines(pathout))
       print("errout")
       print(readLines(errout))
