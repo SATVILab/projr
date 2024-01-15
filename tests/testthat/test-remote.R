@@ -276,9 +276,8 @@ test_that(".projr_remote_rm_final_if_empty works - local", {
 
 test_that(".projr_remote_rm_final_if_empty works - remote", {
   skip_if_offline()
-  skip_on_cran()
-  # skip_if(.is_test_fast())
   skip_if(.is_test_select())
+  skip_on_cran()
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
