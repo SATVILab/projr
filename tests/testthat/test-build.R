@@ -879,7 +879,7 @@ test_that(".projr_build_copy_docs_rmd_format_get works", {
 })
 
 test_that(".projr_env_file_activate works", {
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
   )
