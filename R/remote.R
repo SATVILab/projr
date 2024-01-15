@@ -522,13 +522,13 @@
   # defaults
   user <- if ("user" %in% names(host)) host[["user"]] else NULL
   user <- user %||% gh::gh_whoami()[["login"]]
-  if (!nzchar(user)) stop("No GitHub user found")
+  if (!.is_string(user)) stop("No GitHub user found")
   token <- if ("token" %in% names(host)) host[["token"]] else NULL # nolint
   token <- token %||% Sys.getenv("GITHUB_PAT")
   token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
-  if (!nzchar(token)) stop("No GitHub token found")
+  if (!.is_string(token)) stop("No GitHub token found")
   repo <- if ("repo" %in% names(host)) host[["repo"]] else NULL
-  if (!nzchar(repo)) stop("No GitHub repo specified")
+  if (!.is_string(repo)) stop("No GitHub repo specified")
   # Define the URL of the GitHub API
   # take basename in case we've accidentally specified
   # the user as well in the repo specification

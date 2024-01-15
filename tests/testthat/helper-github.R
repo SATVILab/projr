@@ -29,7 +29,7 @@
 
   print("getting upload stuff")
   user <- user %||% gh::gh_whoami()[["login"]]
-  if (!nzchar(user)) stop("No GitHub user found")
+  if (!.is_string(user)) stop("No GitHub user found")
 
   # credentials::set_github_pat()
   token <- Sys.getenv("GITHUB_PAT")
@@ -145,7 +145,7 @@
 
   # defaults
   user <- user %||% gh::gh_whoami()[["login"]]
-  if (!nzchar(user)) stop("No GitHub user found")
+  if (!.is_string(user)) stop("No GitHub user found")
   token <- token %||% Sys.getenv("GITHUB_PAT")
   token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
   if (!nzchar(token)) stop("No GitHub token found")
@@ -179,7 +179,7 @@
 
   # defaults
   user <- user %||% gh::gh_whoami()[["login"]]
-  if (!nzchar(user)) stop("No GitHub user found")
+  if (!.is_string(user)) stop("No GitHub user found")
   token <- token %||% Sys.getenv("GITHUB_PAT")
   token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
   if (!nzchar(token)) stop("No GitHub token found")
@@ -233,7 +233,7 @@
 
   # defaults
   user <- user %||% gh::gh_whoami()[["login"]]
-  if (!nzchar(user)) stop("No GitHub user found")
+  if (!.is_string(user)) stop("No GitHub user found")
 
   # Initialize an empty list to store the repositories
   repo_list <- list()
