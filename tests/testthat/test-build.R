@@ -917,3 +917,23 @@ test_that(".projr_env_file_activate works", {
     }
   )
 })
+
+test_that(".projr_build_engine works", {
+  # skip_if(.is_test_select())
+  dir_test <- .projr_test_setup_project(
+    git = FALSE, github = FALSE, set_env_var = TRUE
+  )
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      browser()
+      .projr_build_engine(args_engine = list())
+      expect_true(file.exists("docs/reportV0.0.0-1/index.html"))
+      # now test a quarto project
+      .file_rm("_bookdown.yml")
+      .file_rm("_output.yml")
+      .projr_dep_install_only("quarto")
+      quarto::quarto
+    }
+  )
+})

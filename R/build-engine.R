@@ -4,8 +4,8 @@
   build_error <- switch(.projr_engine_get(),
     "bookdown" = .projr_build_engine_bookdown(args_engine),
     "quarto_project" = .projr_build_engine_quarto_project(args_engine),
-    "quarto_document" = .projr_build_engine_qmd(args_engine),
-    "rmd" = .projr_build_engine_rmd(args_engine)
+    "quarto_document" = .projr_build_engine_qmd(file, args_engine),
+    "rmd" = .projr_build_engine_rmd(file, args_engine)
   )
   .projr_build_engine_error(build_error, version_run_on_list)
 }
@@ -30,7 +30,7 @@
   paste0("Error rendering Quarto project ", err_msg)
 }
 
-.projr_build_engine_qmd <- function(args_engine) {
+.projr_build_engine_qmd <- function(file, args_engine) {
   .projr_dep_install("quarto")
   fn_vec <- .projr_build_engine_doc_fn_get(file = file, type = "qmd")
   for (x in fn_vec) {
@@ -46,7 +46,7 @@
   paste0("Error rendering Quarto document ", x, ": ", err_msg)
 }
 
-.projr_build_engine_rmd <- function(args_engine) {
+.projr_build_engine_rmd <- function(file, args_engine) {
   .projr_dep_install("rmarkdown")
   fn_vec <- .projr_build_engine_doc_fn_get(file = file, type = "rmd")
   for (x in fn_vec) {
