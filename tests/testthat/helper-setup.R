@@ -277,6 +277,7 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
 }
 
 .projr_test_coverage <- function() {
+  devtools::load_all()
   if (!requireNamespace("covr")) {
     utils::install.packages("covr")
   }
@@ -287,6 +288,8 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
     utils::install.packages("htmltools")
   }
   .dir_create("_tmp")
+  .test_unset_select()
+  .test_unset_fast()
   covr::report(
     covr::package_coverage(),
     file = "_tmp/report.html", browse = FALSE
