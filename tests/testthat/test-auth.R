@@ -16,6 +16,7 @@ test_that(".projr_change_get_manifest works", {
       suppressMessages(projr_instr_auth_github())
       suppressMessages(projr_instr_auth_osf())
       suppressWarnings(.projr_auth_get_osf_pat_warn())
+      Sys.setenv("GITHUB_PAT" = pat_old)
     }
   )
 })
