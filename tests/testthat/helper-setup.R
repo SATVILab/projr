@@ -291,10 +291,17 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
   .dir_create("_tmp/coverage")
   .test_unset_select()
   .test_unset_fast()
-  covr::report(
-    covr::package_coverage(),
-    file = "_tmp/report.html", browse = FALSE
+  withr::with_envvar(
+    c(NOT_CRAN = "true"),
+    {
+      covr::report(
+        covr::package_coverage(),
+        file = "_tmp/coverage/report.html",
+        browse = FALSE
+      )
+    }
   )
+  .file_rm("_tmp/coverage.zip")
   .projr_zip_dir("_tmp/coverage", "_tmp/coverage.zip")
 }
 
