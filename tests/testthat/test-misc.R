@@ -51,3 +51,13 @@ test_that("projr_use_data works", {
     }
   )
 })
+
+test_that(".projr_list_add_list works", {
+  expect_true(
+    "a" %in% names(
+      .projr_list_add_list(
+        x = "val", nm = "a", list_base = list(b = 2)
+      )
+    )
+  )
+})
