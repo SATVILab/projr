@@ -102,7 +102,7 @@
     send_list = send_list
   ) |>
     .projr_yml_dest_add_get_list_add_extra(
-      type = type, id = id, id_parent = id_parent,
+      type = type, id = id, id_parent = id_parent, title = title,
       category = category, public = public, description = description
     ) |>
     .projr_yml_dest_set_title(
@@ -132,12 +132,13 @@
                                                    type,
                                                    id,
                                                    id_parent,
+                                                   title,
                                                    category,
                                                    public,
                                                    description) {
   switch(type,
     "osf" = .projr_yml_dest_add_get_list_add_extra_osf(
-      list_add = list_add, id = id, id_parent = id_parent,
+      list_add = list_add, id = id, id_parent = id_parent, title,
       category = category, public = public, description = description
     ),
     list_add
@@ -147,6 +148,7 @@
 .projr_yml_dest_add_get_list_add_extra_osf <- function(list_add,
                                                        id,
                                                        id_parent,
+                                                       title,
                                                        category,
                                                        public,
                                                        description) {
@@ -157,6 +159,7 @@
     "NULL" = .projr_yml_dest_add_get_list_add_extra_osf_id_null(
       list_add = list_add,
       id_parent = id_parent,
+      title = title,
       category = category,
       public = public,
       description = description

@@ -292,3 +292,11 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
     file = "_tmp/report.html", browse = FALSE
   )
 }
+
+.projr_test_yml_unset_remote <- function() {
+  yml_projr_build <- .projr_yml_build_get(NULL)
+  yml_projr_build <- yml_projr_build[setdiff(
+    names(yml_projr_build), c("github", "osf", "local")
+  )]
+  .projr_yml_build_set(yml_projr_build, NULL)
+}

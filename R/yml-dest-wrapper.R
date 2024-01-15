@@ -238,6 +238,10 @@ projr_yml_dest_add_local <- function(title,
   )
 }
 
+# =========================================
+# github
+# =========================================
+
 #' @title Add a GitHub release as a destination
 #'
 #' @description
@@ -272,7 +276,7 @@ projr_yml_dest_add_github <- function(title,
 
   .projr_yml_dest_add(
     role = "destination",
-    type = "local",
+    type = "github",
     title = title,
     content = content,
     path = NULL,

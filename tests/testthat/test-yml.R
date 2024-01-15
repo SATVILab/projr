@@ -1,4 +1,4 @@
-test_that("getting and setting metadata files works", {
+test_that("basic yml functions work", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -44,7 +44,7 @@ test_that("getting and setting metadata files works", {
   )
 })
 
-test_that(".projr_dest_send_get_plan works", {
+test_that("projr_yml_check works", {
   skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -56,21 +56,32 @@ test_that(".projr_dest_send_get_plan works", {
   )
 })
 
-test_that(".projr_dest_send_get_plan works", {
-  skip_if(.is_test_select())
+test_that("projr_yml_dest_add_* functions work", {
+  # skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
-      projr_init()
       #  browser()
+      .projr_test_yml_unset_remote()
       projr_yml_dest_add_local(
         title = "test", content = "data-raw", path = "_archive"
       )
       expect_true(!is.null(.projr_yml_dest_get_type("local", "default")))
-      # projr_yml_dest_add_osf(
-      #  title = "test", content = "data-raw", category = "project"
-      # )
+
+      projr_yml_dest_add_osf(
+        title = "test", content = "data-raw", category = "project"
+      )
+      expect_true(!is.null(.projr_yml_dest_get_type("osf", "default")))
+      expect_true(
+        .is_string(
+          .projr_yml_dest_get_type("osf", "default")[["test"]][["id"]]
+        )
+      )
+      projr_yml_dest_add_github(
+        title = "test", content = "data-raw"
+      )
+      expect_true(!is.null(.projr_yml_dest_get_type("github", "default")))
     }
   )
 })
