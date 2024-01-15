@@ -287,13 +287,15 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
   if (!requireNamespace("htmltools")) {
     utils::install.packages("htmltools")
   }
-  .dir_create("_tmp")
+  .dir_rm("_tmp/coverage")
+  .dir_create("_tmp/coverage")
   .test_unset_select()
   .test_unset_fast()
   covr::report(
     covr::package_coverage(),
     file = "_tmp/report.html", browse = FALSE
   )
+  .projr_zip_dir("_tmp/coverage", "_tmp/coverage.zip")
 }
 
 .projr_test_yml_unset_remote <- function() {
