@@ -34,7 +34,9 @@
   .projr_dep_install("quarto")
   fn_vec <- .projr_build_engine_doc_fn_get(file = file, type = "qmd")
   for (x in fn_vec) {
-    x_return <- try(do.call(quarto::quarto_render, args_engine))
+    x_return <- try(
+      do.call(quarto::quarto_render, list(input = x) |> append(args_engine))
+    )
     if (.is_try_error(x_return)) {
       break
     }
@@ -50,7 +52,9 @@
   .projr_dep_install("rmarkdown")
   fn_vec <- .projr_build_engine_doc_fn_get(file = file, type = "rmd")
   for (x in fn_vec) {
-    x_return <- try(do.call(rmarkdown::render, args_engine))
+    x_return <- try(
+      do.call(rmarkdown::render, list(input = x) |> append(args_engine))
+    )
     if (.is_try_error(x_return)) {
       break
     }

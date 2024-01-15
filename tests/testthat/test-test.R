@@ -1,6 +1,6 @@
 test_that("projr_test_renv_restore works", {
   # setup
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   skip_on_cran()
   skip_if_offline()
   skip_if(.is_test_fast())

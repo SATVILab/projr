@@ -13,7 +13,11 @@
   if (.is_len_0(x)) {
     return(list_base)
   }
-  list_base[[nm]] <- x
+  if (!is.null(nm)) {
+    list_base[[nm]] <- x
+  } else {
+    list_base <- list_base |> append(list(x))
+  }
   list_base
 }
 

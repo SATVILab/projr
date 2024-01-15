@@ -926,14 +926,41 @@ test_that(".projr_build_engine works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      browser()
+      version_run_on_list <- .projr_version_run_onwards_get("patch")
+
+      # bookdowwn
       .projr_build_engine(args_engine = list())
       expect_true(file.exists("docs/reportV0.0.0-1/index.html"))
-      # now test a quarto project
+      # now rmarkdown only
       .file_rm("_bookdown.yml")
       .file_rm("_output.yml")
-      .projr_dep_install_only("quarto")
-      quarto::quarto
+      .projr_build_engine(
+        file = NULL, version_run_on_list = version_run_on_list, args_engine = list()
+      )
+      expect_true(file.exists("index.html"))
+      # now test quarto files
+      .file_rm("index.Rmd")
+      .file_rm("index.html")
+      file.create("quarto.qmd") |> invisible()
+      writeLines(
+        c("---", "title: quarto", "---", "", "## Quarto", "", "abc", ""),
+        con = "quarto.qmd"
+      )
+      .projr_build_engine(
+        file = NULL, version_run_on_list = version_run_on_list, args_engine = list()
+      )
+      expect_true(file.exists("quarto.html"))
+      # now test quarto project
+      .file_rm("quarto.html")
+      file.create("quarto.yml") |> invisible()
+      writeLines(
+        c("project", "project:", '  title: "quarto_project"', ""),
+        con = "quarto.yml"
+      )
+      .projr_build_engine(
+        file = NULL, version_run_on_list = version_run_on_list, args_engine = list()
+      )
+      expect_true(dir.exists("docs/reportV0.0.0-1"))
     }
   )
 })
