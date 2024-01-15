@@ -13,6 +13,23 @@
     ]
   },
   "Packages": {
+    "DT": {
+      "Package": "DT",
+      "Version": "0.31",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "crosstalk",
+        "htmltools",
+        "htmlwidgets",
+        "httpuv",
+        "jquerylib",
+        "jsonlite",
+        "magrittr",
+        "promises"
+      ],
+      "Hash": "77b5189f5272ae2b21e3ac2175ad107c"
+    },
     "R.cache": {
       "Package": "R.cache",
       "Version": "0.16.0",
@@ -287,6 +304,26 @@
       "Repository": "RSPM",
       "Hash": "d691c61bff84bd63c383874d2d0c3307"
     },
+    "covr": {
+      "Package": "covr",
+      "Version": "3.6.4",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "crayon",
+        "digest",
+        "httr",
+        "jsonlite",
+        "methods",
+        "rex",
+        "stats",
+        "utils",
+        "withr",
+        "yaml"
+      ],
+      "Hash": "0cbf0435830e767ba9b292b313592362"
+    },
     "cpp11": {
       "Package": "cpp11",
       "Version": "0.4.3",
@@ -319,6 +356,19 @@
         "sys"
       ],
       "Hash": "c7844b32098dcbd1c59cbd8dddb4ecc6"
+    },
+    "crosstalk": {
+      "Package": "crosstalk",
+      "Version": "1.2.1",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R6",
+        "htmltools",
+        "jsonlite",
+        "lazyeval"
+      ],
+      "Hash": "ab12c7b080a57475248a30f4db6298c0"
     },
     "crul": {
       "Package": "crul",
