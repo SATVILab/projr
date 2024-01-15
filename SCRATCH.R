@@ -1,7 +1,6 @@
 library(testthat)
 devtools::load_all()
-.test_unset_select()
-devtools::test_active_file("tests/testthat/test-auth.R")
+.test_set_select()
 devtools::test()
 
 library(testthat)

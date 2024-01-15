@@ -6,30 +6,29 @@
 #'
 #' @param file character vector.
 #' Paths to files to activate.
-#' Default is NULL, in which case all relevant files are used.
-#' @param env environment.
-#' Environment upon whose destruction the variables are unset.
-#' If `NULL`, then set to the calling environment.
-
+#' Default is NULL, in which case all relevant files that exist are used
+#' (`environment.local`, `_environment-<profile>` and `_environment`,
+#' in order of decreasing priority and where `<profile>` is
+#' an activated Quarto profile)
+#'
 #' @export
-projr_env_file_activate <- function(file = NULL, env = NULL) {
-  if (is.null(env)) {
-    env <- parent.frame()
-  }
+projr_env_file_activate <- function(file = NULL) {
+  .file_rm(.projr_env_file_get_path_list())
   if (!is.null(file)) {
     for (x in file) {
-      .projr_build_env_file_activate_ind(file = x, env = env)
+      .projr_build_env_file_activate_ind(file = x)
     }
     return(invisible(TRUE))
   }
-  .projr_build_env_file_activate_ind(env, "_environment.local")
+  .projr_build_env_file_activate_ind("_environment.local")
   quarto_profile_vec <- .projr_quarto_profile_get()
   for (i in seq_along(quarto_profile_vec)) {
     .projr_build_env_file_activate_ind(
-      env, paste0("_environment-", quarto_profile_vec[[i]])
+      paste0("_environment-", quarto_profile_vec[[i]])
     )
   }
-  .projr_build_env_file_activate_ind(env, "_environment")
+  .projr_build_env_file_activate_ind("_environment")
+  invisible(TRUE)
 }
 
 .projr_quarto_profile_get <- function() {
@@ -51,8 +50,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   invisible(TRUE)
 }
 
-
-.projr_build_env_file_activate_ind <- function(env, file) {
+.projr_build_env_file_activate_ind <- function(file) {
   path_env <- .dir_proj_get(file)
   if (!file.exists(path_env)) {
     return(invisible(FALSE))
@@ -60,7 +58,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   .projr_build_env_file_activate_ind_ignore(file)
   fn_vec_local <- readLines(path_env)
   for (i in seq_along(fn_vec_local)) {
-    .projr_build_env_var_set_line(fn_vec_local[[i]], env)
+    .projr_build_env_var_set_line(fn_vec_local[[i]])
   }
 }
 
@@ -81,7 +79,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
   .projr_ignore_rbuild_write(rbuildignore, append = FALSE)
 }
 
-.projr_build_env_var_set_line <- function(line, env) {
+.projr_build_env_var_set_line <- function(line) {
   # handle comments
   line <- sub("^#.*$", "", line)
   line <- sub("\\s+#.*$", "", line)
@@ -93,7 +91,7 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
     return(invisible(FALSE))
   }
   .projr_env_var_set(nm = env_var_nm, val = env_var_val)
-  .projr_env_var_unset_on_exit(env_var_nm, env)
+  .projr_build_env_var_add_to_unset(env_var_nm)
   invisible(TRUE)
 }
 
@@ -118,4 +116,37 @@ projr_env_file_activate <- function(file = NULL, env = NULL) {
     ))
   }
   invisible(TRUE)
+}
+
+.projr_build_env_var_add_to_unset <- function(env_var_nm) {
+  path_file <- .projr_env_file_get_path_list()
+  if (!file.exists(path_file)) {
+    .dir_create(dirname(path_file))
+    invisible(file.create(path_file))
+  }
+  fn_vec <- readLines(path_file)
+  if (env_var_nm %in% fn_vec) {
+    return(invisible(FALSE))
+  }
+  fn_vec <- c(fn_vec, env_var_nm)
+  writeLines(fn_vec, path_file)
+  .projr_newline_append(path_file)
+  invisible(TRUE)
+}
+
+.projr_env_file_get_path_list <- function() {
+  file.path(tempdir(), "projr-env_file", "env.list")
+}
+
+.projr_env_file_deactivate <- function() {
+  if (!file.exists(.projr_env_file_get_path_list())) {
+    return(invisible(FALSE))
+  }
+  fn_vec <- readLines(.projr_env_file_get_path_list())
+  for (i in seq_along(fn_vec)) {
+    if (.is_string(fn_vec[[i]])) {
+      eval(parse(text = paste0("Sys.unsetenv('", fn_vec[[i]], "')")))
+    }
+  }
+  .dir_rm(dirname(.projr_env_file_get_path_list()))
 }

@@ -130,9 +130,11 @@ projr_build_dev <- function(file = NULL,
                          old_dev_remove = TRUE,
                          msg = "",
                          args_engine) {
+  projr_env_file_activate()
   .projr_build_pre(bump_component, msg) |>
     .projr_build_actual(file) |>
     .projr_build_post(bump_component, msg, old_dev_remove)
+  .projr_env_file_deactivate()
 }
 
 .projr_build_get_output_run <- function(bump_component) {

@@ -877,3 +877,43 @@ test_that(".projr_build_copy_docs_rmd_format_get works", {
     quiet = TRUE
   )
 })
+
+test_that(".projr_env_file_activate works", {
+  # skip_if(.is_test_select())
+  dir_test <- .projr_test_setup_project(
+    git = FALSE, github = FALSE, set_env_var = TRUE
+  )
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      invisible(file.create("_environment"))
+      Sys.unsetenv("TEST_VAR")
+      writeLines(c("TEST_VAR=abc", ""), "_environment")
+      env <- environment()
+      projr_env_file_activate("_environment")
+      expect_identical(Sys.getenv("TEST_VAR"), "abc")
+      .projr_env_file_deactivate()
+      expect_identical(Sys.getenv("TEST_VAR"), "")
+      file.create("_environment.local") |> invisible()
+      writeLines(c("TEST_VAR_LOCAL=abc", ""), "_environment.local")
+      Sys.setenv("QUARTO_PROFILE" = "test")
+      file.create("_environment-test") |> invisible()
+      writeLines(c("TEST_VAR_QUARTO=abc", ""), "_environment-test")
+      writeLines(c("TEST_VAR_DEFAULT=abc", ""), "_environment")
+      projr_env_file_activate()
+      expect_identical(Sys.getenv("TEST_VAR_LOCAL"), "abc")
+      expect_identical(Sys.getenv("TEST_VAR_QUARTO"), "abc")
+      expect_identical(Sys.getenv("TEST_VAR_DEFAULT"), "abc")
+      .projr_env_file_deactivate()
+      expect_identical(Sys.getenv("TEST_VAR_LOCAL"), "")
+      expect_identical(Sys.getenv("TEST_VAR_QUARTO"), "")
+      expect_identical(Sys.getenv("TEST_VAR_DEFAULT"), "")
+      Sys.setenv("TEST_VAR_QUARTO" = "def")
+      projr_env_file_activate()
+      expect_identical(Sys.getenv("TEST_VAR_QUARTO"), "def")
+      .projr_env_file_deactivate()
+      expect_identical(Sys.getenv("TEST_VAR_QUARTO"), "def")
+      Sys.unsetenv("TEST_VAR_QUARTO")
+    }
+  )
+})

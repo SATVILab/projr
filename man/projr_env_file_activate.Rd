@@ -4,16 +4,15 @@
 \alias{projr_env_file_activate}
 \title{Activate environment variables in files}
 \usage{
-projr_env_file_activate(file = NULL, env = NULL)
+projr_env_file_activate(file = NULL)
 }
 \arguments{
 \item{file}{character vector.
 Paths to files to activate.
-Default is NULL, in which case all relevant files are used.}
-
-\item{env}{environment.
-Environment upon whose destruction the variables are unset.
-If \code{NULL}, then set to the calling environment.}
+Default is NULL, in which case all relevant files that exist are used
+(\code{environment.local}, \verb{_environment-<profile>} and \verb{_environment},
+in order of decreasing priority and where \verb{<profile>} is
+an activated Quarto profile)}
 }
 \description{
 Which file(s) are used to supply

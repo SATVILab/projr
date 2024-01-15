@@ -186,18 +186,6 @@ with_dir <- function(new, code) {
   invisible(TRUE)
 }
 
-.projr_env_var_unset_on_exit <- function(nm, env) {
-  eval(
-    parse(text = paste0(
-      "on.exit(",
-      "Sys.unsetenv('", nm, "'), ",
-      "add = TRUE, after = TRUE)",
-      ")"
-    )),
-    envir = env
-  )
-}
-
 .projr_env_var_set <- function(nm, val) {
   do.call(
     Sys.setenv,
