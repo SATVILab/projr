@@ -44,6 +44,7 @@ test_that(".projr_changelog_add works", {
         ) |>
           sub("\\):.*$", "\\)", x = _)
       )
+      projr_cat_changelog()
     }
   )
 })
