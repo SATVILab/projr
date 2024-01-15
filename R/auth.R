@@ -1,7 +1,7 @@
 # github
 .projr_auth_get_github_pat <- function(init = FALSE) {
   pat <- .projr_auth_get_github_pat_find()
-  if (nzchar(pat)) {
+  if (.is_string(pat)) {
     return(invisible(pat))
   }
   .projr_auth_get_github_pat_warn(init)
@@ -11,7 +11,7 @@
 .projr_auth_get_github_pat_find <- function() {
   # try GITHUB_PAT
   pat <- Sys.getenv("GITHUB_PAT")
-  if (nzchar(pat)) {
+  if (.is_string(pat)) {
     return(invisible(pat))
   }
   # try gitcreds
@@ -69,7 +69,7 @@
 # osf
 .projr_auth_get_osf_pat <- function() {
   pat <- .projr_auth_get_osf_pat_find()
-  if (nzchar(pat)) {
+  if (.is_string(pat)) {
     return(invisible(pat))
   }
   warning(
