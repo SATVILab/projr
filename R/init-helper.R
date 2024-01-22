@@ -724,7 +724,7 @@ projr_init_renviron <- function() {
   )
 }
 
-.projr_init_renviront_txt_update <- function(txt) {
+.projr_init_renviron_txt_update <- function(txt) {
   nm_vec <- c(
     "PROJR_PATH_YML", "PROJR_FIRST_NAME", "PROJR_LAST_NAME",
     "PROJR_EMAIL", "PROJR_GITHUB_USER_NAME"
