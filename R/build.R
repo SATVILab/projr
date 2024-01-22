@@ -132,7 +132,7 @@ projr_build_dev <- function(file = NULL,
                          args_engine) {
   projr_env_file_activate()
   .projr_build_pre(bump_component, msg) |>
-    .projr_build_actual(file) |>
+    .projr_build_actual(file = file, args_engine = args_engine) |>
     .projr_build_post(bump_component, msg, old_dev_remove)
   .projr_env_file_deactivate()
 }
@@ -152,7 +152,7 @@ projr_build_dev <- function(file = NULL,
   .projr_build_env_check(output_run)
 
   # check we are not missing upstream commits
-  .projr_build_exit_if_behind_upstream()
+  .projr_build_exit_if_behind_upstream(output_run)
 
   # get version for DESCRIPTION and bookdown from run onwards
   # snapshot if need be

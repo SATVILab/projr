@@ -335,6 +335,9 @@
 }
 
 .projr_git_check_behind_git <- function() {
+  if (length(.projr_remote_ls()) == 0L) {
+    return(invisible(FALSE))
+  }
   commit_vec_local <- .projr_git_get_commit_hash_local()
   commit_vec_remote <- .projr_git_get_commit_hash_remote()
   setdiff(commit_vec_remote, commit_vec_local) > 0L

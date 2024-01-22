@@ -1,25 +1,36 @@
 test_that("projr_build_dev works", {
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("report"))
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  .dir_create(dir_test)
-  .test_set()
-  withr::defer(.test_unset())
-  withr::defer(unlink(dir_test, recursive = TRUE))
-
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
   usethis::with_project(
     path = dir_test,
     code = {
       projr_init()
       projr_build_dev()
+      projr_version_get()
+      yml_bd <- .projr_yml_bd_get()
+      expect_identical(basename(yml_bd$output_dir), "docs")
+      desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
+      expect_identical(desc_file[1, "Version"][[1]], "0.0.0-1")
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that("projr_build_output works", {
+  # skip_if(.is_test_select())
+  dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      browser()
+      projr_init()
+      .projr_test_yml_unset_remote()
+      .projr_yml_git_set_commit(TRUE, TRUE, NULL)
+      .projr_yml_git_set_add_untracked(TRUE, TRUE, NULL)
+      .projr_yml_git_set_push(FALSE, TRUE, NULL)
+      debugonce(.projr_git_check_behind)
+      projr_build_output("patch", msg = "test")
       projr_version_get()
       yml_bd <- .projr_yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "docs")

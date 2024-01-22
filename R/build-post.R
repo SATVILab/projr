@@ -44,7 +44,7 @@
   if (!output_run) {
     return(invisible(FALSE))
   }
-  cite_vec <- .projr_yml_cite_get()
+  cite_vec <- .projr_yml_cite_get(NULL)
   for (i in seq_along(cite_vec)) {
     switch(cite_vec[[i]],
       "cff" = .projr_cite_cff_set(),

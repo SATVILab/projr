@@ -1245,14 +1245,15 @@
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteUsername": "rstudio",
       "RemoteRepo": "renv",
-      "RemoteRef": "main",
+      "RemoteUsername": "rstudio",
+      "RemotePkgRef": "rstudio/renv",
+      "RemoteRef": "36e1b5192fbc9f380dd4fffc6ee837856d5d3e75",
       "RemoteSha": "36e1b5192fbc9f380dd4fffc6ee837856d5d3e75",
       "Requirements": [
         "utils"
       ],
-      "Hash": "5a15a60d89c07bf56bfd736c1ba57e27"
+      "Hash": "444f79841ecea0321e14c3e9dd226933"
     },
     "rex": {
       "Package": "rex",
