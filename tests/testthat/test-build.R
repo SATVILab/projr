@@ -21,7 +21,7 @@ test_that("projr_build_dev works", {
 })
 
 test_that("projr_build_output works", {
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
@@ -39,6 +39,8 @@ test_that("projr_build_output works", {
       expect_identical(basename(yml_bd$output_dir), "_book")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
+      # run repeat build
+      projr_build_output("minor", msg = "test")
     },
     quiet = TRUE,
     force = TRUE
