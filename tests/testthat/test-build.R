@@ -1,6 +1,6 @@
 test_that("projr_build_dev works", {
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
+  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -8,7 +8,10 @@ test_that("projr_build_dev works", {
       projr_build_dev()
       projr_version_get()
       yml_bd <- .projr_yml_bd_get()
-      expect_identical(basename(yml_bd$output_dir), "docs")
+      # it's set in _bookdown.yml
+      # and not in _projr.yml, so use _bookdown.yml
+      # as basename
+      expect_identical(basename(yml_bd$output_dir), "_book")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.0-1")
     },
@@ -18,24 +21,24 @@ test_that("projr_build_dev works", {
 })
 
 test_that("projr_build_output works", {
-  # skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = FALSE)
+  skip_if(.is_test_select())
+  dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
-      browser()
       projr_init()
       .projr_test_yml_unset_remote()
       .projr_yml_git_set_commit(TRUE, TRUE, NULL)
       .projr_yml_git_set_add_untracked(TRUE, TRUE, NULL)
       .projr_yml_git_set_push(FALSE, TRUE, NULL)
-      debugonce(.projr_git_check_behind)
+      # debugonce(.projr_build_output_get_msg)
+      # debugonce(.projr_git_msg_get)
       projr_build_output("patch", msg = "test")
       projr_version_get()
       yml_bd <- .projr_yml_bd_get()
-      expect_identical(basename(yml_bd$output_dir), "docs")
+      expect_identical(basename(yml_bd$output_dir), "_book")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
-      expect_identical(desc_file[1, "Version"][[1]], "0.0.0-1")
+      expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
     },
     quiet = TRUE,
     force = TRUE
@@ -930,7 +933,7 @@ test_that(".projr_env_file_activate works", {
 })
 
 test_that(".projr_build_engine works", {
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
   )

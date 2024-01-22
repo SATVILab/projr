@@ -30,11 +30,14 @@
   }
 
   # commit
-  .projr_git_commit_all(add_untracked = .projr_yml_git_get_add_untracked())
+  .projr_git_commit_all(
+    msg = msg,
+    add_untracked = .projr_yml_git_get_add_untracked(NULL)
+  )
 }
 
 .projr_build_git_check <- function(output_run) {
-  output_run && .projr_yml_git_get_commit()
+  output_run && .projr_yml_git_get_commit(NULL)
 }
 
 # commit messages
@@ -78,7 +81,7 @@
 
 # commit
 .projr_build_git_push <- function(output_run) {
-  if (!output_run || !.projr_yml_git_get_push()) {
+  if (!output_run || !.projr_yml_git_get_push(NULL)) {
     return(invisible(FALSE))
   }
   if (!.projr_git_repo_check_exists()) {

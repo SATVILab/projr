@@ -131,9 +131,9 @@ projr_build_dev <- function(file = NULL,
                          msg = "",
                          args_engine) {
   projr_env_file_activate()
-  .projr_build_pre(bump_component, msg) |>
-    .projr_build_actual(file = file, args_engine = args_engine) |>
-    .projr_build_post(bump_component, msg, old_dev_remove)
+  version_run_on_list <- .projr_build_pre(bump_component, msg)
+  .projr_build_actual(version_run_on_list, file, args_engine)
+  .projr_build_post(version_run_on_list, bump_component, msg, old_dev_remove)
   .projr_env_file_deactivate()
 }
 
