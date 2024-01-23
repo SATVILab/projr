@@ -33,6 +33,15 @@
 .projr_yml_quarto_set <- function(list_save) {
   path_yml <- .dir_proj_get("_quarto.yml")
 
+  # the `render` key has to be a list (in YAML),
+  # but is automatically converted to a string (in R)
+  # so we need to convert it back to a list
+  if (.is_string(list_save[["project"]][["render"]])) {
+    list_save[["project"]][["render"]] <- list(
+      list_save[["project"]][["render"]]
+    )
+  }
+
   yaml::write_yaml(
     list_save, path_yml,
     handlers = list(logical = function(x) {
