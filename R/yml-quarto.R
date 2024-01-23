@@ -32,13 +32,13 @@
 
 .projr_yml_quarto_set <- function(list_save) {
   path_yml <- .dir_proj_get("_quarto.yml")
-  
+
   yaml::write_yaml(
     list_save, path_yml,
     handlers = list(logical = function(x) {
       value <- ifelse(x, "true", "false")
       structure(value, class = "verbatim")
-    }
+    })
   )
   .projr_newline_append(path_yml)
   invisible(TRUE)
