@@ -521,6 +521,7 @@
 
   # defaults
   user <- if ("user" %in% names(host)) host[["user"]] else NULL
+  .projr_dep_install("gh")
   user <- user %||% gh::gh_whoami()[["login"]]
   if (!.is_string(user)) stop("No GitHub user found")
   token <- if ("token" %in% names(host)) host[["token"]] else NULL # nolint

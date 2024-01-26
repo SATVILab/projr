@@ -197,7 +197,7 @@ test_that(".projr_git_ functions work", { # setup
 
       print("Use plain-text credential store")
       system2("git", args = c("config", "--local", "credential.helper", "store"))
-
+      .projr_dep_install_only("gh")
       username <- gh::gh_whoami()[["login"]]
       PAT <- Sys.getenv("GITHUB_PAT")
 

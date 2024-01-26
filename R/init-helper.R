@@ -909,6 +909,7 @@ projr_init_renviron <- function() {
 
 .projr_init_github_actual <- function(username, public) {
   .projr_dep_install_only("usethis")
+  .projr_dep_install_only("gh")
   try({
     if (identical(username, gh::gh_whoami()$login)) {
       usethis::use_github(private = !public)

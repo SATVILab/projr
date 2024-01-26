@@ -28,6 +28,7 @@
   print("ending install")
 
   print("getting upload stuff")
+  .projr_dep_install_only("gh")
   user <- user %||% gh::gh_whoami()[["login"]]
   if (!.is_string(user)) stop("No GitHub user found")
 
@@ -144,6 +145,7 @@
   }
 
   # defaults
+  .projr_dep_install_only("gh")
   user <- user %||% gh::gh_whoami()[["login"]]
   if (!.is_string(user)) stop("No GitHub user found")
   token <- token %||% Sys.getenv("GITHUB_PAT")
@@ -178,6 +180,7 @@
   }
 
   # defaults
+  .projr_dep_install_only("gh")
   user <- user %||% gh::gh_whoami()[["login"]]
   if (!.is_string(user)) stop("No GitHub user found")
   token <- token %||% Sys.getenv("GITHUB_PAT")
@@ -232,6 +235,7 @@
   }
 
   # defaults
+  .projr_dep_install_only("gh")
   user <- user %||% gh::gh_whoami()[["login"]]
   if (!.is_string(user)) stop("No GitHub user found")
 
@@ -244,6 +248,7 @@
   # Get the repositories page by page
   while (TRUE) {
     # Get the current page of repositories
+    .projr_dep_install_only("gh")
     repos <- gh::gh(
       "GET /users/{username}/repos?page={page}",
       username = user, page = page
