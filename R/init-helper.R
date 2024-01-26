@@ -917,7 +917,7 @@ projr_init_renviron <- function() {
         print("Failed to create GitHub remote")
         print("Can try again later with:")
         print(
-          paste0("usethis::use_github(private = ", !public, ")"
+          paste0("usethis::use_github(private = ", !public, ")")
         )
       }
     )
