@@ -910,13 +910,35 @@ projr_init_renviron <- function() {
 .projr_init_github_actual <- function(username, public) {
   .projr_dep_install_only("usethis")
   .projr_dep_install_only("gh")
-  try({
-    if (identical(username, gh::gh_whoami()$login)) {
-      usethis::use_github(private = !public)
-    } else {
-      usethis::use_github(organisation = username, private = !public)
-    }
-  })
+  if (identical(username, gh::gh_whoami()$login)) {
+    tryCatch(
+      usethis::use_github(private = !public),
+      error = function(e) {
+        print("Failed to create GitHub remote")
+        print("Can try again later with:")
+        print(
+          paste0("usethis::use_github(private = ", !public, ")"
+        )
+      }
+    )
+  } else {
+    tryCatch(
+      usethis::use_github(
+        username = username,
+        private = !public
+      ),
+      error = function(e) {
+        print("Failed to create GitHub remote")
+        print("Can try again later with:")
+        print(
+          paste0(
+            "usethis::use_github(username = ", username,
+            ", private = ", !public, ")"
+          )
+        )
+      }
+    )
+  }
   invisible(TRUE)
 }
 
