@@ -43,13 +43,13 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
   if (!.projr_renv_detect()) {
     return(invisible(FALSE))
   }
-  if (.projr_dep_in_renv(dep)) {
+  if (.projr_dep_in_renv(basename(dep))) {
     return(invisible(FALSE))
   }
   path_dep <- .dir_proj_get("_dependencies.R")
   dep_vec <- readLines(path_dep)
   for (i in seq_along(dep)) {
-    dep_txt <- paste0("library(", dep[[i]], ")", collapse = "")
+    dep_txt <- paste0("library(", basename(dep[[i]]), ")", collapse = "")
     if (!any(grepl(dep_txt, dep_vec))) {
       dep_vec <- c(dep_vec, dep_txt)
     }
