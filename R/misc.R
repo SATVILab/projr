@@ -49,8 +49,9 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
   path_dep <- .dir_proj_get("_dependencies.R")
   dep_vec <- readLines(path_dep)
   for (i in seq_along(dep)) {
+    dep_pattern <- paste0("library\\(", basename(dep[[i]]), "\\)", collapse = "")
     dep_txt <- paste0("library(", basename(dep[[i]]), ")", collapse = "")
-    if (!any(grepl(dep_txt, dep_vec))) {
+    if (!any(grepl(dep_pattern, dep_vec))) {
       dep_vec <- c(dep_vec, dep_txt)
     }
   }
