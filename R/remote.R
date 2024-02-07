@@ -818,7 +818,7 @@
 # osf
 .projr_remote_file_rm_osf <- function(fn,
                                       remote) {
-  .assert_chr(fn, TRUE)
+  .assert_chr_min(fn, TRUE)
   if (length(fn) == 0) {
     return(invisible(FALSE))
   }
@@ -898,7 +898,7 @@
 # github
 .projr_remote_file_rm_github <- function(fn,
                                          remote) {
-  .assert_chr(fn, TRUE)
+  .assert_chr_min(fn, TRUE)
   if (.is_len_0(fn)) {
     return(invisible(FALSE))
   }
