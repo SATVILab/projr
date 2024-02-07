@@ -203,6 +203,7 @@
   cmd_txt <- paste0(
     "-e '",
     "renv::init(",
+    'settings = list(snapshot.type = "implicit"), ',
     "force = ", force, ", ",
     "bioconductor = ", bioc,
     ")'"
