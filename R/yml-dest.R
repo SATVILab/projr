@@ -229,7 +229,7 @@
 }
 
 
-.projr_yml_dest_complete_title <- function(title, yml_title, type) {
+.projr_yml_dest_complete_title <- function(yml_title, title, type) {
   yml_title |>
     .projr_yml_dest_complete_title_structure(type) |>
     .projr_yml_dest_complete_title_cue(type) |>
