@@ -948,7 +948,7 @@ projr_init_renviron <- function() {
 }
 
 .projr_git_gh_check_auth <- function() {
-  if (!nzchar(.projr_auth_get_github_pat())) {
+  if (nzchar(.projr_auth_get_github_pat())) {
     return(invisible(TRUE))
   }
   warning(
