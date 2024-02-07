@@ -601,6 +601,7 @@
   .assert_chr_mid(remote, TRUE)
   .assert_in("tag", names(remote), TRUE)
   .assert_in("fn", names(remote), TRUE)
+  .projr_dep_install("piggyback")
   # the `piggyback::pb_delete` function
   # deletes all files by default and
   # pb_release_delete deletes the release itself,
