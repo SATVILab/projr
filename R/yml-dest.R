@@ -225,18 +225,18 @@
   force(title)
   force(profile)
   .projr_yml_dest_get_title(title, type, profile) |>
-    .projr_yml_dest_complete_title(type)
+    .projr_yml_dest_complete_title(title, type)
 }
 
 
-.projr_yml_dest_complete_title <- function(yml_title, type) {
+.projr_yml_dest_complete_title <- function(title, yml_title, type) {
   yml_title |>
     .projr_yml_dest_complete_title_structure(type) |>
     .projr_yml_dest_complete_title_cue(type) |>
     .projr_yml_dest_complete_title_upload(type) |>
     .projr_yml_dest_complete_title_path_append_label(type) |>
     .projr_yml_dest_complete_title_path(type) |>
-    .projr_yml_dest_complete_title_id(type)
+    .projr_yml_dest_complete_title_id(type, title)
 }
 
 .projr_yml_dest_complete_title_structure <- function(yml, type) {
@@ -312,15 +312,21 @@
   .projr_yml_complete(yml, "path", NULL)
 }
 
-.projr_yml_dest_complete_title_id <- function(yml, type) {
+.projr_yml_dest_complete_title_id <- function(yml, type, title) {
   switch(type,
     "local" = .projr_yml_dest_complete_title_id_local(yml),
+    "github" = .projr_yml_dest_complete_title_id_github(yml, title),
     yml
   )
 }
 
 .projr_yml_dest_complete_title_id_local <- function(yml) {
   yml[["id"]] <- yml[["path"]]
+  yml
+}
+
+.projr_yml_dest_complete_title_id_github <- function(yml, title) {
+  yml[["id"]] <- title
   yml
 }
 
