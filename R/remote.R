@@ -600,14 +600,18 @@
 .projr_remote_file_rm_all_github <- function(remote) {
   .assert_chr_mid(remote, TRUE)
   .assert_in("tag", names(remote), TRUE)
-  .assert_in("fn", names(remote), TRUE)
+  .assert_string(remote[["tag"]], TRUE)
   .projr_dep_install("piggyback")
   # the `piggyback::pb_delete` function
   # deletes all files by default and
   # pb_release_delete deletes the release itself,
   # so this should still just empty it
   piggyback::.pb_cache_clear()
-  piggyback::pb_delete(tag = remote)
+  release_tbl <- .projr_pb_release_tbl_get()
+  if (!(remote[["tag"]] %in% release_tbl[["release_name"]])) {
+    return(invisible(FALSE))
+  }
+  piggyback::pb_delete(tag = remote[["tag"]])
   invisible(TRUE)
 }
 
