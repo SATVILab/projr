@@ -598,7 +598,9 @@
 
 # github
 .projr_remote_file_rm_all_github <- function(remote) {
-  .assert_string(remote, TRUE)
+  .assert_chr_mid(remote, TRUE)
+  .assert_in("tag", names(remote), TRUE)
+  .assert_in("fn", names(remote), TRUE)
   # the `piggyback::pb_delete` function
   # deletes all files by default and
   # pb_release_delete deletes the release itself,
