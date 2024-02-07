@@ -166,7 +166,7 @@ projr_yml_check <- function(profile = NULL) {
     title_vec <- names(.projr_yml_dest_get_type(x, profile))
     for (i in seq_along(title_vec)) {
       .projr_yml_build_check_dest_title(
-        .projr_yml_dest_get_title(title_vec[i], profile),
+        .projr_yml_dest_get_title(title_vec[i], x, profile),
         title = title_vec[i],
         type = x
       )
