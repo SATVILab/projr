@@ -340,7 +340,7 @@
   }
   commit_vec_local <- .projr_git_get_commit_hash_local()
   commit_vec_remote <- .projr_git_get_commit_hash_remote()
-  setdiff(commit_vec_remote, commit_vec_local) > 0L
+  length(setdiff(commit_vec_remote, commit_vec_local)) > 0L
 }
 
 .projr_git_check_behind_gert <- function() {
