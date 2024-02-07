@@ -69,6 +69,7 @@
   if ((!file.exists(.dir_proj_get("README.Rmd"))) || (!output_run)) {
     return(invisible(FALSE))
   }
+  invisible(TRUE)
 }
 
 .projr_build_readme_rmd_render_detect_pkg_use <- function() {
