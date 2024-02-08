@@ -311,7 +311,7 @@ projr_use_data <- function(...,
       }
     }
   } else {
-    path_tmp_base <- .projr_dir_get_cache_auto(profile = NULL)
+    path_tmp_base <- .projr_dir_get_cache_auto_version(profile = NULL)
     if (internal) {
       .dir_create(file.path(path_tmp_base, "R"))
       paths <- file.path(file.path(path_tmp_base, "R"), "sysdata.rda")
