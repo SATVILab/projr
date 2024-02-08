@@ -34,7 +34,9 @@
     # don't do it if not an output run (leave it in dev)
     return(invisible(FALSE))
   }
-  label_vec_output <- .projr_yml_dir_get_label_output(NULL) |> c("data")
+  label_vec_output <- .projr_yml_dir_get_label_output(NULL) |>
+    c("data") |>
+    unique()
   for (x in label_vec_output) {
     .dir_move(
       projr_path_get_dir(x, safe = TRUE),
