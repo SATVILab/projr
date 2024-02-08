@@ -1095,7 +1095,15 @@
 }
 
 .projr_git_push_check <- function() {
-  setting_push_explicit <-
-    .projr_yml_build_get(NULL)[["git"]][["push"]]
-  if (is.null(setting_push_explicit)) TRUE else setting_push_explicit
+  setting_git <-
+    .projr_yml_build_get(NULL)[["git"]]
+  switch(class(setting_git),
+    "NULL" = TRUE,
+    "logical" = setting_git,
+    list = {
+      setting_push <- setting_git[["push"]]
+      if (is.null(setting_push)) TRUE else setting_push
+    },
+    stop(paste0("git setting '", class(setting_git), "' not recognized"))
+  )
 }
