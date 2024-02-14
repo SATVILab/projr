@@ -16,6 +16,11 @@
   .assert_string(title)
   .assert_string(role, TRUE)
   .assert_string(type, TRUE)
+  content_opt <- switch(type,
+    "github" = .projr_opt_dir_get_label_send(NULL) |> c("code"),
+    .projr_opt_dir_get_label_send(NULL)
+  ) |>
+    unique()
   .assert_in(content, .projr_opt_dir_get_label_send(NULL), TRUE)
   .assert_in(structure, .projr_opt_remote_get_structure())
   .assert_string(path, type == "local")
