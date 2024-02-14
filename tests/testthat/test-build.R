@@ -21,7 +21,7 @@ test_that("projr_build_dev works", {
 })
 
 test_that("projr_build_output works", {
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
