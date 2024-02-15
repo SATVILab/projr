@@ -849,7 +849,7 @@
 
 .projr_remote_detect_structure_osf <- function(remote) {
   version_format_correct <- try(
-    remote[["name"]][[1]]],
+    remote[["name"]][[1]],
     silent = TRUE
   )
   if (inherits(version_format_correct, "try-error")) {
