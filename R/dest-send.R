@@ -93,8 +93,8 @@
 
   # get overall type of plan
   plan <- .projr_dest_send_get_plan(
-    version_source = yml_title[["upload"]][["version-source"]],
-    sync_approach = yml_title[["upload"]][["sync-approach"]],
+    version_source = yml_title[["send"]][["version-source"]],
+    sync_approach = yml_title[["send"]][["sync-approach"]],
     type = type,
     structure = yml_title[["structure"]]
   )
@@ -106,7 +106,7 @@
     path_dir_local = path_dir_local,
     remote = remote,
     type = type,
-    version_source = yml_title[["upload"]][["version-source"]]
+    version_source = yml_title[["send"]][["version-source"]]
   )
 
   # remove and upload files as stated

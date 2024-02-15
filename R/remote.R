@@ -798,6 +798,106 @@
 }
 
 # ========================
+# List all contents of the most recent remote
+# ========================
+
+.projr_remote_file_ls_recent <- function(type,
+                                         remote) {
+
+}
+
+# ==========================
+# Get the most recent remote
+# ==========================
+
+.projr_remote_get_recent <- function(remote_final,
+                                     type) {
+  switch(type,
+    "local" = .projr_remote_get_recent_local(remote_final),
+    "osf" = .projr_remote_get_recent_osf(remote_final),
+    "github" = .projr_remote_get_recent_github(remote_final)
+  )
+}
+
+.projr_remote_get_recent_local <- function(remote_final) {
+
+}
+
+# ========================
+# Detect whether a remote is version or latest
+# based on the remote itself
+# ========================
+
+.projr_remote_detect_structure <- function(remote, type) {
+  switch(type,
+    "local" = .projr_remote_detect_structure_local(remote),
+    "osf" = .projr_remote_detect_structure_osf(remote),
+    "github" = .projr_remote_detect_structure_github(remote)
+  )
+}
+
+.projr_remote_detect_structure_local <- function(remote) {
+  version_format_correct <- try(
+    .projr_version_format_check(basename(remote)),
+    silent = TRUE
+  )
+  if (inherits(version_format_correct, "try-error")) {
+    return("latest")
+  }
+  "version"
+}
+
+.projr_remote_detect_structure_osf <- function(remote) {
+  version_format_correct <- try(
+    remote[["name"][[1]]],
+    silent = TRUE
+  )
+  if (inherits(version_format_correct, "try-error")) {
+    return("latest")
+  }
+  "version"
+}
+
+.projr_remote_detect_structure_github <- function(remote) {
+  version_remote <- .projr_version_get_remote_github(remote)
+  if (is.null(version_remote)) "latest" else "version"
+}
+
+.projr_version_get_remote <- function(remote, type) {
+  switch(type,
+    "github" = .projr_version_get_remote_github(remote),
+    "local" = .projr_version_get_remote_local(remote),
+    stop("type not recognized")
+  )
+}
+
+.projr_version_get_remote_local <- function(remote) {
+  version <- basename(remote)
+  version_format_correct <- try(
+    .projr_version_format_check(version),
+    silent = TRUE
+  )
+  if (inherits(version_format_correct, "try-error")) {
+    return(NULL)
+  }
+  version
+}
+
+.projr_version_get_remote_github <- function(remote) {
+  version <- sub(".*-v(.*)\\.zip$", "\\1", remote[["fn"]])
+  version_format_correct <- try(
+    .projr_version_format_check(version),
+    silent = TRUE
+  )
+  if (inherits(version_format_correct, "try-error")) {
+    return(NULL)
+  }
+  version
+}
+
+
+
+# ========================
 # list all contents of a remote (without versioning)
 # ========================
 

@@ -248,7 +248,7 @@
 }
 
 .projr_yml_dest_complete_title_upload <- function(yml, type) {
-  yml[["upload"]] <- yml[["upload"]] |>
+  yml[["send"]] <- yml[["send"]] |>
     .projr_yml_dest_complete_title_upload_version_source(type) |>
     .projr_yml_dest_complete_title_upload_sync_approach(type) |>
     .projr_yml_dest_complete_title_upload_conflict(type)
