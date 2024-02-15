@@ -5,7 +5,7 @@
 .projr_yml_dir_set_docs <- function(path, profile) {
   # this is the profile that we get it from (NULL)
   path_docs <- .projr_yml_dir_get_docs_rel_if_within_cache(path, profile = NULL)
-  if (is.null(profile)) {
+  if (missing(profile) || is.null(profile)) {
     profile_save <- "default"
     # allowing multiple profiles, should
     # make priority match up with quartos.
@@ -27,7 +27,7 @@
   # I suppose we can do that...
   # we just read in the active profile,
   # and see if it's
-  .projr_yml_dir_set_path("docs", profile_save)
+  .projr_yml_dir_set_path(path_docs, "docs", profile_save)
 }
 
 .projr_yml_dir_get_docs_rel_if_within_cache <- function(path, profile) {
