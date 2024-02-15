@@ -2,7 +2,7 @@ library(testthat)
 devtools::load_all()
 .test_set_select()
 # devtools::test_active_file("tests/testthat/test-remote.R")
-devtools::test_active_file("tests/testthat/test-build-send.R")
+devtools::test_active_file("tests/testthat/test-build.R")
 
 library(testthat)
 # devtools::load_all(path = file.path(Sys.getenv("pkg"), "projr"))
