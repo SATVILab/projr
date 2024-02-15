@@ -43,7 +43,7 @@
 .assert_attr <- function(x, attr, required = FALSE, nm = NULL) {
   .assert_given_mid(attr)
   nm <- .assert_nm_get(x, nm)
-  if (!.assert_check(x, required, nm)) {
+  if (.assert_in(attr, names(attributes(x)), required, nm)) {
     return(invisible(TRUE))
   }
 

@@ -12,7 +12,10 @@
   switch(type,
     "local" = .projr_remote_create_local(path = id),
     "osf" = .projr_remote_create_osf(title = name, ...),
-    "github" = .projr_remote_create_github(tag = id, ...)
+    "github" = .projr_remote_create_github(
+      tag = .projr_remote_misc_get_github_tag(id),
+      ...
+    )
   )
 }
 
@@ -142,7 +145,9 @@
   switch(type,
     "local" = .projr_remote_check_exists_local(path = id),
     "osf" = .projr_remote_check_exists_osf(id = id),
-    "github" = .projr_remote_check_exists_github(tag = id)
+    "github" = .projr_remote_check_exists_github(
+      tag = .projr_remote_misc_get_github_tag(id)
+    )
   )
 }
 
@@ -181,7 +186,7 @@
   switch(type,
     "local" = .projr_remote_get_local(id = id),
     "osf" = .projr_remote_get_osf(id = id),
-    "github" = .projr_remote_get_github(id),
+    "github" = .projr_remote_get_github(.projr_remote_misc_get_github_tag(id)),
     stop(paste0("type '", type, "' not recognized"))
   )
 }
@@ -241,7 +246,7 @@
       structure = structure
     ),
     "github" = .projr_remote_get_final_github(
-      id = id, label = label
+      id = .projr_remote_misc_get_github_tag(id), label = label
     ),
     stop(paste0("type '", type, "' not recognized"))
   )
@@ -599,19 +604,22 @@
 # github
 .projr_remote_file_rm_all_github <- function(remote) {
   .assert_chr_mid(remote, TRUE)
-  .assert_in("tag", names(remote), TRUE)
-  .assert_string(remote[["tag"]], TRUE)
+  tag <- .projr_remote_misc_get_github_tag(remote)
+  .assert_chr_mid(tag, TRUE)
   .projr_dep_install("piggyback")
   # the `piggyback::pb_delete` function
   # deletes all files by default and
   # pb_release_delete deletes the release itself,
   # so this should still just empty it
   piggyback::.pb_cache_clear()
-  release_tbl <- .projr_pb_release_tbl_get()
-  if (!(remote[["tag"]] %in% release_tbl[["release_name"]])) {
+  release_tbl <- try(.projr_pb_release_tbl_get())
+  if (inherits(release_tbl, "try-error")) {
+    stop("Could not get GitHub release table")
+  }
+  if (!(tag %in% release_tbl[["release_name"]])) {
     return(invisible(FALSE))
   }
-  piggyback::pb_delete(tag = remote[["tag"]])
+  piggyback::pb_delete(tag = tag)
   invisible(TRUE)
 }
 
@@ -679,6 +687,7 @@
 
 .projr_remote_file_get_all_github <- function(remote, path_dir_save_local) {
   .assert_given_full(remote)
+
   if (!.projr_remote_check_exists("github", remote[["tag"]])) {
     return(invisible(FALSE))
   }
@@ -689,6 +698,8 @@
 
 .projr_remote_file_get_all_github_file <- function(remote, path_dir_save_local) {
   piggyback::.pb_cache_clear()
+  .assert_attr(remote, "names")
+  .assert_has(names(remote), c("tag", "fn"))
   path_dir_save_init <- .dir_create_tmp_random()
   if (!remote[["fn"]] %in% piggyback::pb_list(tag = remote[["tag"]])) {
     return(invisible(path_dir_save_local))
@@ -956,6 +967,9 @@
                                          path_dir_local,
                                          remote) {
   .assert_chr_min(fn, TRUE)
+  if (.is_len_0(fn)) {
+    return(invisible(FALSE))
+  }
   .assert_string(path_dir_local, TRUE)
   .assert_path_not_file(path_dir_local)
   .assert_string(remote, TRUE)
@@ -970,8 +984,8 @@
 .projr_remote_file_add_osf <- function(fn,
                                        path_dir_local,
                                        remote) {
-  .assert_chr(fn, TRUE)
-  if (length(fn) == 0) {
+  .assert_chr_min(fn, TRUE)
+  if (.is_len_0(fn)) {
     return(invisible(FALSE))
   }
   .assert_string(path_dir_local, TRUE)
@@ -1001,8 +1015,11 @@
 .projr_remote_file_add_github <- function(fn,
                                           path_dir_local,
                                           remote) {
+  .assert_chr_min(fn, TRUE)
+  if (.is_len_0(fn)) {
+    return(invisible(FALSE))
+  }
   .assert_given_full(remote)
-  .assert_chr(fn, TRUE)
   label <- gsub("\\.zip", "", remote[["fn"]])
   if (length(fn) == 0L && label != "code") {
     return(invisible(FALSE))
@@ -1106,4 +1123,14 @@
     },
     stop(paste0("git setting '", class(setting_git), "' not recognized"))
   )
+}
+
+
+.projr_remote_misc_get_github_tag <- function(x) {
+  .assert_given_full(x)
+  if (!"tag" %in% names(x)) {
+    .assert_string(x)
+    return(x)
+  }
+  x[["tag"]]
 }
