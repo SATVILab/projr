@@ -439,9 +439,15 @@
                                               path_append_label,
                                               label,
                                               structure) {
+  # keep it as NULL this way if it's already
+  # NULL (otherwise it's character(),
+  # which triggers an error when checking for a string later)
+  if (!is.null(path)) {
+    path <- path |> gsub(pattern = "\\.zip$", replacement = "", x = _)
+  }
   paste0(
     .projr_remote_get_path_rel_flat(
-      path = path |> gsub(pattern = "\\.zip$", replacement = "", x = _),
+      path = path,
       path_append_label = path_append_label,
       label = label,
       structure = structure
