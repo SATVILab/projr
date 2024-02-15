@@ -3,8 +3,31 @@
 
 # docs
 .projr_yml_dir_set_docs <- function(path, profile) {
-  .projr_yml_dir_get_docs_rel_if_within_cache(path, profile) |>
-    .projr_yml_dir_set_path("docs", NULL)
+  # this is the profile that we get it from (NULL)
+  path_docs <- .projr_yml_dir_get_docs_rel_if_within_cache(path, profile = NULL)
+  if (is.null(profile)) {
+    profile_save <- "default"
+    # allowing multiple profiles, should
+    # make priority match up with quartos.
+    # quarto uses the first profile as the dominant one
+    projr_profile_vec <- projr_profile_get() |> rev()
+    for (i in seq_along(projr_profile_vec)) {
+      if (!is.null(.projr_yml_dir_get_path("docs", projr_profile_vec[[i]]))) {
+        profile_save <- projr_profile_vec[[i]]
+      }
+    }
+  } else {
+    .assert_string(profile, TRUE)
+    profile_save <- profile
+  }
+
+  # we always save it to the base profile.
+  # otherwise we're going to have to figure out
+  # where the setting came from.
+  # I suppose we can do that...
+  # we just read in the active profile,
+  # and see if it's
+  .projr_yml_dir_set_path("docs", profile_save)
 }
 
 .projr_yml_dir_get_docs_rel_if_within_cache <- function(path, profile) {
