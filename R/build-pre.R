@@ -14,17 +14,24 @@
 }
 
 .projr_build_output_get_msg <- function(msg) {
-  if (is.null(msg)) {
+  if (is.null(msg) || .is_len_0(msg)) {
     if (!.is_test()) {
       if (interactive()) {
         cat("Please enter a one-line description of change", "\n")
         msg <- readline(prompt = ">> ")
+        while (.is_len_0(msg)) {
+          cat("Message cannot be empty", "\n")
+          cat("Please enter a one-line description of change", "\n")
+          msg <- readline(prompt = ">> ")
+        }
       } else {
-        msg <- ""
+        msg <- "build"
       }
     } else {
-      msg <- ""
+      msg <- "build"
     }
+  } else {
+    .assert_string(msg)
   }
   msg
 }
