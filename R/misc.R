@@ -441,8 +441,12 @@ projr_use_data <- function(...,
   )
 }
 
-.projr_opt_dir_get_label_send <- function(profile) {
-  .projr_opt_dir_get_label(profile) |> setdiff("project")
+.projr_opt_dir_get_label_send <- function(profile, type = NULL) {
+  .projr_opt_dir_get_label(profile) |>
+    setdiff("project") |>
+    c(.projr_yml_dir_get_label_docs(profile)) |>
+    c("package") |>
+    unique()
 }
 
 .projr_opt_dir_get_label_get <- function(profile) {

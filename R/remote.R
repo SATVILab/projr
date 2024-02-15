@@ -221,10 +221,24 @@
 # and files to upload to (GitHub)
 # =====================
 
-# wrapper functions to get the "final" remote,
-# i.e. including any sub-directories for
-# specifying the version and so on for
-# hierarchical remotes (like "local" and "OSF")
+# wrapper functions to get the "final" remote.
+# For hierarchical remotes, this essentially
+# means creating sub-directories,
+# where the following rules are observed:
+# - the path is the first part
+# - the label comes next
+# - the version comes last
+# For GitHub, this means creating
+# the file name of the asset,
+# where the following rules are observed:
+# - any path is prepended
+# - the label is appended ot the path
+# - the version is appended thereafter
+#   (if it's a versioned structure).
+# - it then ends in `.zip`.
+# - if path_append_label is FALSE and path
+#   is not supplied, then is treated as if
+#   path_append_label is TRUE.
 .projr_remote_get_final <- function(type,
                                     id,
                                     path = NULL,
@@ -246,7 +260,11 @@
       structure = structure
     ),
     "github" = .projr_remote_get_final_github(
-      id = .projr_remote_misc_get_github_tag(id), label = label
+      id = .projr_remote_misc_get_github_tag(id),
+      path = path,
+      path_append_label = path_append_label,
+      label = label,
+      structure = structure
     ),
     stop(paste0("type '", type, "' not recognized"))
   )
@@ -334,18 +352,28 @@
 # github
 # ---------------------
 
-.projr_remote_get_final_github <- function(id, label) {
+.projr_remote_get_final_github <- function(id,
+                                           path,
+                                           path_append_label,
+                                           label,
+                                           structure) {
   .assert_string(id, TRUE)
   .assert_in(label, .projr_opt_dir_get_label_send(NULL), TRUE)
+  fn <- .projr_remote_get_path_rel(
+    type = "github",
+    path = path,
+    path_append_label = path_append_label,
+    label = label,
+    structure = structure
+  )
   # everything uploaded to a gh release
   # is a single file, and all other remotes
   # are just directories where files can
   # be uploaded to (and possibly folders,
-  # but giithub releases don't do that), so
-  # the remote for github release is just the
-  # name of the tag
-  # (given generally as the id here)
-  c("tag" = id, "fn" = paste0(label, ".zip"))
+  # but github releases don't do that), so
+  # the remote for a github release
+  # is the tag plus the file name
+  c("tag" = id, "fn" = fn)
 }
 
 # =====================
@@ -361,27 +389,21 @@
                                        label,
                                        structure,
                                        type) {
-  fn <- switch(type,
+  switch(type,
     "osf" = , # same as local
-    "local" = .projr_remote_get_path_rel_hierarchy,
-    "github" = .projr_remote_get_path_rel_flat
+    "local" = .projr_remote_get_path_rel_hierarchy(
+      path = path,
+      path_append_label = path_append_label,
+      label = label,
+      structure = structure
+    ),
+    "github" = .projr_remote_get_path_rel_github(
+      path = path,
+      path_append_label = path_append_label,
+      label = label,
+      structure = structure
+    )
   )
-  args_list <- list(
-    path = path,
-    path_append_label = path_append_label
-  )
-
-  args_list <- list(
-    structure = structure, path_append_label = path_append_label
-  )
-  if (!missing(label)) {
-    args_list <- args_list |> append(list(label = label))
-  }
-  if (!.is_given_mid(path)) {
-    path <- NULL
-  }
-  args_list <- args_list |> append(list(path = path))
-  do.call(what = fn, args = args_list)
 }
 
 # hierarchical remotes
@@ -413,8 +435,46 @@
   do.call(file.path, args_list)
 }
 
+.projr_remote_get_path_rel_github <- function(path,
+                                              path_append_label,
+                                              label,
+                                              structure) {
+  paste0(
+    .projr_remote_get_path_rel_flat(
+      path = path |> gsub(pattern = "\\.zip$", replacement = "", x = _),
+      path_append_label = path_append_label,
+      label = label,
+      structure = structure
+    ),
+    ".zip"
+  )
+}
+
 # flat remotes
-.projr_remote_get_path_rel_flat <- function(...) character()
+.projr_remote_get_path_rel_flat <- function(path,
+                                            path_append_label,
+                                            label,
+                                            structure) {
+  .assert_string(path)
+  .assert_flag(path_append_label, TRUE)
+  .assert_in_single(structure, .projr_opt_remote_get_structure(), TRUE)
+  if (path_append_label) {
+    .assert_in(label, .projr_opt_dir_get_label_send(NULL), TRUE)
+  }
+  path_rel <- if (!is.null(path)) path else ""
+
+  # ensure that we use the label
+  # if we don't specify the path
+  if (!.is_len_0(path_rel) && path_append_label) {
+    path_rel <- paste0(path_rel, "-", label)
+  } else if (.is_len_0(path_rel)) {
+    path_rel <- label
+  }
+  if (structure == "version") {
+    path_rel <- paste0(path_rel, "-", .projr_version_get_v())
+  }
+  path_rel
+}
 
 
 # ========================
