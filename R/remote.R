@@ -685,7 +685,16 @@
   if (!(tag %in% release_tbl[["release_name"]])) {
     return(invisible(FALSE))
   }
-  piggyback::pb_delete(tag = tag)
+  # delete individual zipped file
+  # if it is in the release
+  asset_tbl <- .projr_pb_asset_tbl_get(tag = tag)
+  if (nrow(asset_tbl) == 0L) {
+    return(invisible(FALSE))
+  }
+  if (!remote[["fn"]] %in% asset_tbl[["file_name"]]) {
+    return(invisible(FALSE))
+  }
+I  piggyback::pb_delete(tag = tag, file = remote[["fn"]])
   invisible(TRUE)
 }
 
