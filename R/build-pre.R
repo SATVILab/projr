@@ -25,10 +25,10 @@
           msg <- readline(prompt = ">> ")
         }
       } else {
-        msg <- "build"
+        msg <- "Build project"
       }
     } else {
-      msg <- "build"
+      msg <- "Build project"
     }
   } else {
     .assert_string(msg)
