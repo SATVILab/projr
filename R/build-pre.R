@@ -83,7 +83,12 @@
 
 # ignore
 .projr_build_ignore <- function() {
+  old_profile <- projr_profile_get()
+  Sys.unsetenv("PROJR_PROFILE")
   projr_path_get_dir("docs")
+  if (!identical(old_profile, "default")) {
+    Sys.setenv("PROJR_PROFILE" = old_profile)
+  }
   projr_dir_ignore()
   invisible(TRUE)
 }
