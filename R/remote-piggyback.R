@@ -24,7 +24,7 @@
 }
 
 .projr_pb_asset_tbl_get <- function(tag, pause_second = 3) {
-  gh_tbl_asset <- .projr_pb_asset_tbl_get_attempt()
+  gh_tbl_asset <- .projr_pb_asset_tbl_get_attempt(tag = tag)
   error_lgl <- inherits(gh_tbl_asset, "try-error")
   zero_row_lgl <- nrow(gh_tbl_asset) == 0L
   redo <- error_lgl || zero_row_lgl
@@ -33,7 +33,7 @@
   }
   piggyback::.pb_cache_clear()
   Sys.sleep(pause_second)
-  gh_tbl_asset <- .projr_pb_asset_tbl_get_attempt()
+  gh_tbl_asset <- .projr_pb_asset_tbl_get_attempt(tag = tag)
   zero_row_lgl <- nrow(gh_tbl_asset) == 0L
   redo <- error_lgl || zero_row_lgl
   if (!redo) {
@@ -41,7 +41,7 @@
   }
   piggyback::.pb_cache_clear()
   Sys.sleep(pause_second)
-  .projr_pb_asset_tbl_get_attempt()
+  .projr_pb_asset_tbl_get_attempt(tag = tag)
 }
 
 .projr_pb_asset_tbl_get_attempt <- function(tag) {
