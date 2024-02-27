@@ -125,13 +125,21 @@ projr_yml_check <- function(profile = NULL) {
 # ----------------------
 
 .projr_yml_build_check <- function(profile) {
+  .projr_yml_build_check_label(profile)
+  .projr_yml_build_check_git(profile)
+  .projr_yml_build_check_dest(profile)
+}
+
+# build: label
+# ----------------------
+
+.projr_yml_build_check_label <- function(profile) {
   yml_build <- .projr_yml_build_get(profile)
   nm_vec <- names(yml_build)
   .assert_in(
     nm_vec, c("dev-output", "git", "github", "package", "local", "osf")
   )
   .assert_flag(.projr_yml_build_get_dev_output(profile))
-  .projr_yml_build_check_git(profile)
 }
 
 # build: git

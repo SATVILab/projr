@@ -45,12 +45,24 @@ test_that("basic yml functions work", {
 })
 
 test_that("projr_yml_check works", {
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
       projr_init()
+      expect_true(projr_yml_check())
+      browser()
+      debugonce(.projr_yml_build_check_dest)
+      projr_yml_check()
+      projr_yml_dest_add_local(
+        title = "test",
+        content = "data-raw",
+        path = "_outputting",
+        send_version_source = "file",
+        send_sync_approach = "upload-all",
+        send_conflict = "overwrite"
+      )
       expect_true(projr_yml_check())
     }
   )
