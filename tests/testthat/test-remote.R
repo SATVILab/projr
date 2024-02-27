@@ -208,7 +208,7 @@ test_that(".projr_remote_get_final works", {
           "github",
           id = "kablumph", label = "data-raw", structure = "version"
         ),
-        c("tag" = "kablumph", fn = "data-raw.zip")
+        c("tag" = "kablumph", fn = "data-raw-v0.0.0-1.zip")
       )
     }
   )
