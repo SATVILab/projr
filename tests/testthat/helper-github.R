@@ -1,21 +1,30 @@
 .projr_test_github_repo_create <- function(user = NULL,
                                            # token = NULL,
                                            repo = NULL,
-                                           env = NULL) {
-  print("Running repo creation function")
-  print("getwd()")
-  print(getwd())
-  print(".git repo exists")
-  print(".git" %in% .dir_ls(getwd()))
+                                           env = NULL,
+                                           debug = FALSE) {
+  if (debug) {
+    print("Running repo creation function")
+    print("getwd()")
+    print(getwd())
+    print(".git repo exists")
+    print(".git" %in% .dir_ls(getwd()))
+  }
   .assert_string(user)
   .assert_string(repo)
   .assert_class(env, "environment")
-  print("beginning config again")
+  if (debug) {
+    print("beginning config again")
+  }
   .projr_test_setup_project_git_config(TRUE)
-  print("ending config again")
+  if (debug) {
+    print("ending config again")
+  }
   # set up
   # ----------
-  print("beginning install")
+  if (debug) {
+    print("beginning install")
+  }
   if (!requireNamespace("gh", quietly = TRUE)) {
     utils::install.packages("gh")
   }
@@ -25,9 +34,11 @@
   if (is.null(env)) {
     env <- rlang::caller_env()
   }
-  print("ending install")
+  if (debug) {
+    print("ending install")
 
-  print("getting upload stuff")
+    print("getting upload stuff")
+  }
   .projr_dep_install_only("gh")
   user <- user %||% gh::gh_whoami()[["login"]]
   if (!.is_string(user)) stop("No GitHub user found")
@@ -35,29 +46,37 @@
   # credentials::set_github_pat()
   token <- Sys.getenv("GITHUB_PAT")
   if (!nzchar(token)) stop("No GitHub token found")
-  print("ending upload stuff")
-  print("user")
-  print(user)
-  print("nchar(token)")
-  print(nchar(token))
+  if (debug) {
+    print("ending upload stuff")
+    print("user")
+    print(user)
+    print("nchar(token)")
+    print(nchar(token))
 
-  # check that it exists or not
+    # check that it exists or not
 
-  print("Checking if repo exists")
+    print("Checking if repo exists")
+  }
 
   exists_ind <- .projr_test_github_repo_check_exists(
     user = user,
     token = token,
     repo = repo
   )
-  print("exists_ind")
-  print(exists_ind)
+
+  if (debug) {
+    print("exists_ind")
+    print(exists_ind)
+  }
 
   if (exists_ind) {
     return(paste0(user, "/", repo))
   }
 
-  print("setting up fn body")
+  if (debug) {
+    print("setting up fn body")
+  }
+
 
 
   # Define the URL of the GitHub API
@@ -70,16 +89,21 @@
     private = FALSE,
     auto_init = TRUE
   )
-  print("got function body")
-  print("body")
-  print(body)
+
+  if (debug) {
+    print("got function body")
+    print("body")
+    print(body)
+  }
 
   # create
   # ----------
 
   # Make the POST request to the GitHub API
 
-  print("running POST request")
+  if (debug) {
+    print("running POST request")
+  }
 
   response <- httr::POST(
     url,
@@ -87,15 +111,22 @@
     body = body,
     encode = "json"
   )
-  print("Done running post request")
+
+  if (debug) {
+    print("Done running post request")
+  }
 
   # check
   # ----------
 
   # Check the status of the response
-  print("checking response status")
+  if (debug) {
+    print("checking response status")
+  }
   if (httr::http_status(response)$category == "Success") {
-    print("response successfull")
+    if (debug) {
+      print("response successfull")
+    }
     file.create(file.path(.projr_test_git_remote_dir_get_tmp(), repo))
     # defer deletion
     withr::defer(
@@ -116,16 +147,23 @@
     if (!requireNamespace("gert", quietly = TRUE)) {
       utils::install.packages("gert")
     }
-    print("cloning repo")
+
+    if (debug) {
+      print("cloning repo")
+    }
     gert::git_clone(paste0("https://www.github.com/", user, "/", repo))
-    print("done cloning repo")
-    print("setting up config")
+    if (debug) {
+      print("done cloning repo")
+      print("setting up config")
+    }
     with_dir(repo, .projr_test_setup_project_git_config(FALSE))
-    print("done setting up config")
-    print(".dir_ls(getwd, recursive = FALSE)")
-    print(.dir_ls(getwd(), recursive = FALSE))
-    print(".dir_ls(file.path(getwd(), repo), recursive = FALSE)")
-    print(.dir_ls(file.path(getwd(), repo), recursive = FALSE))
+    if (debug) {
+      print("done setting up config")
+      print(".dir_ls(getwd, recursive = FALSE)")
+      print(.dir_ls(getwd(), recursive = FALSE))
+      print(".dir_ls(file.path(getwd(), repo), recursive = FALSE)")
+      print(.dir_ls(file.path(getwd(), repo), recursive = FALSE))
+    }
     return(paste0(user, "/", repo))
   } else {
     stop("response failure")
