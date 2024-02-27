@@ -24,7 +24,7 @@
 #' renv has been installing packages.
 projr_test_renv <- function(file = NULL) {
   .projr_dep_install_only("renv")
-  if (!file.exists(.projr_dir_get("renv.lock"))) {
+  if (!file.exists(.dir_proj_get("renv.lock"))) {
     stop("No renv configuration detected in project.")
   }
   # set up project (to be deleted afterwards as well)
@@ -34,19 +34,29 @@ projr_test_renv <- function(file = NULL) {
     add = TRUE, after = TRUE
   )
   # get renv command text
-  cmd_txt <- .projr_test_renv_cmd_get(path_dir_test)
+  lib_vec <-
+    cmd_txt <- .projr_test_renv_cmd_get(path_dir_test)
   # set up logging files
   path_vec_log <- .projr_test_renv_file_log_get()
   out <- suppressWarnings(system2(
     .projr_path_rscript_get(),
-    args = cmd_txt, stdout = path_vec_log[1], stderr = path_vec_log[2]
+    # args = c("-e ", cmd_txt),
+    args = c("-e ", shQuote("print('a')")),
+    stdout = path_vec_log[1],
+    stderr = path_vec_log[2]
   ))
   # notify user of success or failure
   if (out == 0) {
     print("renv restore successful")
+    print(paste0("For details, see log file at ", path_vec_log[1]))
     return(invisible(TRUE))
   }
-  stop("renv restore failed")
+  stop(
+    paste0(
+      "renv restore failed. For details, see log file at ", path_vec_log[2]
+    ),
+    call. = FALSE
+  )
   return(invisible(FALSE))
 }
 
@@ -73,16 +83,17 @@ projr_test_renv <- function(file = NULL) {
   dir_test
 }
 .projr_test_renv_cmd_get <- function(path_dir_test) {
-  lib_paths <- c(file.path(path_dir_test, "renv_lib_check"), .libPaths()[-1])
-  .dir_create(lib_paths)
+  lib_vec <- c(file.path(path_dir_test, "renv_lib_check"), .libPaths()[-1])
+  .dir_create(lib_vec)
 
-  # Convert the library paths to a string that can be used in the Rscript command
-  lib_paths_str <- paste(sapply(lib_paths, function(x) paste0("\"", x, "\"")), collapse = ", ")
+  # Step 2: Use shQuote to add quotes around each path.
+  lib_vec_quoted <- sapply(lib_vec, shQuote)
 
-  # Create the Rscript command
-  cmd_txt <- sprintf("-e 'renv::restore(rebuild = TRUE, library = c(%s))'", lib_paths_str)
+  # Step 3: Collapse the quoted paths into a single string with commas in between.
+  paths_str <- paste(lib_vec_quoted, collapse = ", ")
 
-  return(cmd_txt)
+  # Step 4: Construct the Rscript command as a string, inserting the string of paths into the appropriate place.
+  cmd <- paste0("renv::restore(rebuild = TRUE, library = c(", paths_str, "))")
 }
 
 .projr_test_renv_file_log_get <- function() {

@@ -1,6 +1,5 @@
 test_that("projr_test_renv_restore works", {
   # setup
-  browser()
   # skip_if(.is_test_select())
   skip_on_cran()
   skip_if_offline()
@@ -11,7 +10,6 @@ test_that("projr_test_renv_restore works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      browser()
       .projr_init_renv(force = FALSE, bioc = FALSE, skip_init = FALSE)
       renv::snapshot(prompt = FALSE)
       expect_true(projr_test_renv())
