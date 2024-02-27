@@ -43,9 +43,6 @@ test_that("projr_build_output works", {
       # ----------------------
       .projr_test_setup_content("data-raw")
       projr_build_patch(msg = "Vat are you vinking about")
-
-
-      browser()
     },
     quiet = TRUE,
     force = TRUE

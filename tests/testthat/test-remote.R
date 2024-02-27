@@ -204,7 +204,10 @@ test_that(".projr_remote_get_final works", {
       # github
       # --------------------------
       expect_identical(
-        .projr_remote_get_final("github", id = "kablumph", label = "data-raw"),
+        .projr_remote_get_final(
+          "github",
+          id = "kablumph", label = "data-raw", structure = "version"
+        ),
         c("tag" = "kablumph", fn = "data-raw.zip")
       )
     }
@@ -382,7 +385,7 @@ test_that(".projr_remote_file_rm_all works - remote", {
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
@@ -435,7 +438,11 @@ test_that(".projr_remote_file_rm_all works - remote", {
       piggyback::pb_upload(file = path_zip, tag = id)
       content_tbl_pre_delete <- piggyback::pb_list(tag = id)
       expect_identical(nrow(content_tbl_pre_delete), 1L)
-      expect_true(.projr_remote_file_rm_all("github", remote = id))
+      remote_github <- c("tag" = id, fn = basename(path_zip))
+      expect_true(.projr_remote_file_rm_all(
+        "github",
+        remote = remote_github
+      ))
       piggyback:::.pb_cache_clear()
       content_tbl <- piggyback::pb_list(tag = id)
       expect_null(content_tbl)
@@ -564,7 +571,7 @@ test_that("adding, tallying and removing files from remotes works - github", {
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
@@ -575,7 +582,10 @@ test_that("adding, tallying and removing files from remotes works - github", {
       # --------------------------
       # create release
       id <- .projr_test_random_string_get()
-      remote <- .projr_remote_get_final("github", id = id, label = "data-raw")
+      remote <- .projr_remote_get_final(
+        "github",
+        id = id, label = "data-raw", structure = "latest"
+      )
       .projr_remote_create("github", remote[["tag"]])
 
       # when empty

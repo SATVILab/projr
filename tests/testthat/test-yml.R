@@ -72,7 +72,6 @@ test_that("projr_yml_dest_add_* functions work", {
   usethis::with_project(
     path = dir_test,
     code = {
-      #  browser()
       .projr_test_yml_unset_remote()
       projr_yml_dest_add_local(
         title = "test", content = "data-raw", path = "_archive"

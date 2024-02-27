@@ -669,6 +669,14 @@
 
 # github
 .projr_remote_file_rm_all_github <- function(remote) {
+  # here, if remote specifies the file, it will only remove
+  # that file, but if remote doesn't, then
+  # it removes every file.
+  # I think this is essentially the same as OSF and local,
+  # as there you would specify the remote and then upload
+  # all the directories to that remote as directories.
+  # here those directories are uploaded as files,
+  # which is different.
   .assert_chr_mid(remote, TRUE)
   tag <- .projr_remote_misc_get_github_tag(remote)
   .assert_chr_mid(tag, TRUE)
@@ -687,17 +695,21 @@
   }
   # delete individual zipped file
   # if it is in the release
-  asset_tbl <- try(.projr_pb_asset_tbl_get(tag = tag))
-  if (inherits(asset_tbl, "try-error")) {
-    stop("Could not get the assets for the GitHub release")
+  if ("fn" %in% names(remote)) {
+    asset_tbl <- try(.projr_pb_asset_tbl_get(tag = tag))
+    if (inherits(asset_tbl, "try-error")) {
+      stop("Could not get the assets for the GitHub release")
+    }
+    if (nrow(asset_tbl) == 0L) {
+      return(invisible(FALSE))
+    }
+    if (!remote[["fn"]] %in% asset_tbl[["file_name"]]) {
+      return(invisible(FALSE))
+    }
+    piggyback::pb_delete(tag = tag, file = remote[["fn"]])
+  } else {
+    piggyback::pb_delete(tag = tag)
   }
-  if (nrow(asset_tbl) == 0L) {
-    return(invisible(FALSE))
-  }
-  if (!remote[["fn"]] %in% asset_tbl[["file_name"]]) {
-    return(invisible(FALSE))
-  }
-  piggyback::pb_delete(tag = tag, file = remote[["fn"]])
   invisible(TRUE)
 }
 
