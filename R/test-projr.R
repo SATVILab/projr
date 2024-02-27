@@ -23,6 +23,10 @@
 #' using the first library used by the project to which
 #' renv has been installing packages.
 projr_test_renv <- function(file = NULL) {
+  .projr_dep_install_only("renv")
+  if (!file.exists(.projr_dir_get("renv.lock"))) {
+    stop("No renv configuration detected in project.")
+  }
   # set up project (to be deleted afterwards as well)
   path_dir_test <- .projr_test_renv_dir_setup(file)
   on.exit(
