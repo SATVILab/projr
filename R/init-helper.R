@@ -186,8 +186,8 @@
   invisible(TRUE)
 }
 
-.projr_init_renv <- function(force, bioc) {
-  if (.is_test() || .projr_renv_detect()) {
+.projr_init_renv <- function(force, bioc, skip_init = .is_test()) {
+  if (skip_init || .projr_renv_detect()) {
     return(invisible(TRUE))
   }
   .projr_renv_init_rscript_actual(force, bioc)
