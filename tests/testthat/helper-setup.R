@@ -91,14 +91,21 @@
   invisible(TRUE)
 }
 
-.projr_test_setup_project_github <- function(github, path_dir, env) {
+.projr_test_setup_project_github <- function(github,
+                                             path_dir,
+                                             env,
+                                             debug = FALSE) {
   if (!github) {
     return(invisible(TRUE))
   }
-  print("Beginning GitHub setup")
-  print("Running config function")
+  if (debug) {
+    print("Beginning GitHub setup")
+    print("Running config function")
+  }
   .projr_test_setup_project_git_config(TRUE)
-  print("Ended running config function")
+  if (debug) {
+    print("Ended running config function")
+  }
   # .dir_rm(path_dir)
   # create github repo if required
   with_dir(

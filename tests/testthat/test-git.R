@@ -147,40 +147,59 @@ test_that(".projr_git_ functions work", { # setup
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
+  debug <- FALSE
 
   # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
-      print("setting config")
+      if (debug) {
+        print("setting config")
+      }
       .projr_test_setup_project_git_config()
-      print("done setting config")
+      if (debug) {
+        print("done setting config")
+      }
       # check there's a remote
       # ---------------------
-      print("checking remotes exist")
+      if (debug) {
+        print("checking remotes exist")
+      }
       expect_true(.projr_git_remote_check_exists_git())
-      print("git remote identification")
-      print(system2("git", args = c("remote", "-v"), stdout = TRUE))
-      print("done with git remote identification")
+      if (debug) {
+        print("git remote identification")
+        print(system2("git", args = c("remote", "-v"), stdout = TRUE))
+        print("done with git remote identification")
+      }
       expect_true(.projr_git_remote_check_exists_gert())
       expect_true(.projr_git_remote_check_exists())
-      print("gert remote identification")
-      print(gert::git_remote_ls())
-      print("done checking remotes exist")
+      if (debug) {
+        print("gert remote identification")
+        print(gert::git_remote_ls())
+        print("done checking remotes exist")
+      }
       # check there's an upstream remote
       # ---------------------
-      print("check upstream")
+      if (debug) {
+        print("check upstream")
+      }
       expect_true(suppressWarnings(.projr_git_remote_check_upstream_git()))
       expect_true(suppressWarnings(.projr_git_remote_check_upstream()))
-      print("done checking upstream")
+      if (debug) {
+        print("done checking upstream")
+      }
       # push
       # -----------------------
       invisible(file.create("abc.txt"))
 
-      print("get gert status table")
+      if (debug) {
+        print("get gert status table")
+      }
       status_tbl <- gert::git_status()
-      print("done get gert status table")
-      print("commit a file with git")
+      if (debug) {
+        print("done get gert status table")
+        print("commit a file with git")
+      }
       pathout <- file.path(tempdir(), "pushout")
       file.create(pathout)
       errout <- file.path(tempdir(), "errout")
@@ -189,13 +208,15 @@ test_that(".projr_git_ functions work", { # setup
         "abc.txt",
         msg = "abc", timeout = 20, stdout = pathout, stderr = errout
       )
-      print("pathout")
-      print(readLines(pathout))
-      print("errout")
-      print(readLines(errout))
-      print("done commit a file with git")
+      if (debug) {
+        print("pathout")
+        print(readLines(pathout))
+        print("errout")
+        print(readLines(errout))
+        print("done commit a file with git")
+        print("Use plain-text credential store")
+      }
 
-      print("Use plain-text credential store")
       system2("git", args = c("config", "--local", "credential.helper", "store"))
       .projr_dep_install_only("gh")
       username <- gh::gh_whoami()[["login"]]
@@ -214,8 +235,9 @@ test_that(".projr_git_ functions work", { # setup
       # Delete the temporary file
       file.remove(temp_file)
 
-
-      print("push a file with git")
+      if (debug) {
+        print("push a file with git")
+      }
       pathout <- file.path(tempdir(), "pushout")
       .file_rm(pathout)
       file.create(pathout)
@@ -227,33 +249,45 @@ test_that(".projr_git_ functions work", { # setup
           timeout = 20, stdout = pathout, stderr = errout
         )
       )
-      print("pathout")
-      print("no change")
-      print(readLines(pathout))
-      print("errout")
-      print(readLines(errout))
-      print("done pushing a file with git")
+      if (debug) {
+        print("pathout")
+        print("no change")
+        print(readLines(pathout))
+        print("errout")
+        print(readLines(errout))
+        print("done pushing a file with git")
+      }
       invisible(file.create("def.txt"))
       status_tbl <- gert::git_status()
-      print("commit a file with gert")
+      if (debug) {
+        print("commit a file with gert")
+      }
       .projr_git_commit_file_gert("def.txt", msg = "def")
-      print("done committing a file with gert")
+      if (debug) {
+        print("done committing a file with gert")
+      }
       if (!Sys.getenv("GITHUB_ACTIONS") == "true") {
         expect_true(.projr_git_push_gert())
       }
-      print("gert::git_log()")
+      if (debug) {
+        print("gert::git_log()")
+      }
       gert::git_log()[["message"]] |> print()
       gert::git_log()[["files"]] |> print()
       gert::git_log()[["author"]] |> print()
-      print("gert::git_info()")
-      print(gert::git_info())
+      if (debug) {
+        print("gert::git_info()")
+        print(gert::git_info())
+      }
       if (!requireNamespace("gitcreds", quietly = TRUE)) {
         utils::install.packages("gitcreds")
       }
       if (!requireNamespace("credentials", quietly = TRUE)) {
         utils::install.packages("credentials")
       }
-      print("gitcreds::gitcreds_get")
+      if (debug) {
+        print("gitcreds::gitcreds_get")
+      }
       gitcreds::gitcreds_get() |> print()
       # print("usethis::gh_token_help")
       # usethis::gh_token_help() |> print()
