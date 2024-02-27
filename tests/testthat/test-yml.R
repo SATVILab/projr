@@ -52,8 +52,6 @@ test_that("projr_yml_check works", {
     code = {
       projr_init()
       expect_true(projr_yml_check())
-      browser()
-      debugonce(.projr_yml_build_check_dest)
       projr_yml_check()
       projr_yml_dest_add_local(
         title = "test",

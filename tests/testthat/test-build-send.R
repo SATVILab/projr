@@ -20,7 +20,6 @@ test_that("projr_build_output works", {
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
       # run repeat build
       projr_build_output("minor", msg = "test")
-      # browser()
       # no add that we're pushing to GitHub, but
       # data-raw and source are empty
       projr_yml_dest_add_github(

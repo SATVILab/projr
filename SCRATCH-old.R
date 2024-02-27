@@ -641,10 +641,10 @@ list_add <- .projr_osf_dest_get_list_add(
     list_add[["structure"]] <- structure
   }
   if (!length(get_list) == 0L) {
-    list_add[["download"]] <- get_list
+    list_add[["get"]] <- get_list
   }
   if (!length(send_list) == 0L) {
-    list_add[["upload"]] <- send_list
+    list_add[["send"]] <- send_list
   }
 
   list(list_add) |> stats::setNames(title)
