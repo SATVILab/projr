@@ -27,7 +27,26 @@
   switch(as.character(safe),
     "TRUE" = .projr_dir_get_label_safe(label),
     "FALSE" = .projr_dir_get_label_unsafe(label)
-  )
+  ) |>
+    .projr_dir_get_label_check_not_root()
+}
+
+.projr_dir_get_label_check_not_root <- function(path, label) {
+  if (label %in% c("code", "project", "docs")) {
+    return(path)
+  }
+  path_proj <- .dir_proj_get() |>
+    fs::path_abs() |>
+    as.character()
+  if (path_proj == path) {
+    stop(
+      paste0(
+        "The path for label ", label, " is the root directory of the project."
+      ),
+      call. = FALSE
+    )
+  }
+  path
 }
 
 .projr_dir_get_label_safe <- function(label) {
