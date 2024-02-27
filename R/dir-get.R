@@ -28,7 +28,7 @@
     "TRUE" = .projr_dir_get_label_safe(label),
     "FALSE" = .projr_dir_get_label_unsafe(label)
   ) |>
-    .projr_dir_get_label_check_not_root()
+    .projr_dir_get_label_check_not_root(label = label)
 }
 
 .projr_dir_get_label_check_not_root <- function(path, label) {
