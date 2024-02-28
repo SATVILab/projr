@@ -96,10 +96,13 @@
       version_post = version_post
     ))
   }
-  version_pre |> .projr_version_v_rm()
+  version_pre |> .projr_version_v_add()
 }
 
 .projr_change_get_manifest_version_pre_null <- function(manifest, version_post) {
+  if (nrow(manifest) == 0L) {
+    return(character())
+  }
   version_vec_manifest <- manifest[["version"]] |> .projr_version_v_rm()
   version_post <- version_post |> .projr_version_v_rm()
   # FIX THIS
