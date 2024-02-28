@@ -112,7 +112,36 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
 }
 
 .projr_dep_in_renv <- function(dep) {
-  dep %in% names(renv::lockfile_read()$Packages)
+  dep %in% names(.projr_renv_lockfile_read()$Packages)
+}
+
+.projr_renv_lockfile_read <- function() {
+  path_lockfile <- .projr_renv_lockfile_path_get()
+  # renv:::renv_lockfile_read is
+  # way too much to port across just quickly.
+  # well, it's doable, but it's not worth it.
+  # we'll just skip whatever is done there and
+  # read in using the same json function as them:
+  if (!requireNamespace("jsonlite")) {
+    utils::install.packages("jsonlite")
+  }
+  jsonlite::fromJSON(file = path_lockfile)
+}
+
+.projr_renv_lockfile_path_get <- function() {
+  # taken from renv:::renv_paths_lockfile.
+  # we're not finding the lockfile when testing on
+  # GH to add dependencies, so we're gonna our
+  # own .dir_proj_get to get the project root
+  override <- Sys.getenv("RENV_PATHS_LOCKFILE", unset = NA)
+  if (!is.na(override)) {
+    last <- substr(override, nchar(override), nchar(override))
+    if (last %in% c("/", "\\")) {
+      override <- paste0(override, "renv.lock")
+    }
+    return(override)
+  }
+  .dir_proj_get("renv.lock")
 }
 
 

@@ -216,7 +216,7 @@
 }
 
 .projr_renv_detect <- function() {
-  .dir_proj_get("renv.lock") |> file.exists()
+  .projr_renv_lockfile_path_get() |> file.exists()
 }
 
 # engine
