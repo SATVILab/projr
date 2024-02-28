@@ -832,7 +832,15 @@
 }
 
 .projr_remote_get_recent_local <- function(remote_final) {
+  stop("Not defined yet")
+}
 
+.projr_remote_get_recent_osf <- function(remote_final) {
+  stop("Not defined yet")
+}
+
+.projr_remote_get_recent_github <- function(remote_final) {
+  stop("Not defined yet")
 }
 
 # ========================

@@ -701,7 +701,7 @@ projr_init_renviron <- function() {
 
 .projr_init_renviron_add <- function(path) {
   renviron_txt <- readLines(path)
-  renviron_txt <- .projr_init_renviront_txt_update(renviron_txt)
+  renviron_txt <- .projr_init_renviron_txt_update(renviron_txt)
   writeLines(renviron_txt, path)
   .projr_newline_append(path)
   message(
