@@ -11,8 +11,12 @@ test_that("projr_test_renv_restore works", {
     path = dir_test,
     code = {
       .projr_init_renv(force = FALSE, bioc = FALSE, skip_init = FALSE)
-      renv::snapshot(prompt = FALSE)
+      pak_setting <- Sys.getenv("RENV_CONFIG_PAK_ENABLED")
+      Sys.setenv(RENV_CONFIG_PAK_ENABLED = "FALSE")
+      try(renv::snapshot(prompt = FALSE))
+      try(renv::update(prompt = FALSE))
       expect_true(projr_test_renv())
+      Sys.setenv(RENV_CONFIG_PAK_ENABLED = pak_setting)
     }
   )
 })
