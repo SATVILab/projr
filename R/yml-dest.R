@@ -330,6 +330,22 @@
   yml
 }
 
+# ----------------------
+# set individual settings
+# ----------------------
+
+# sync-approach
+.projr_yml_dest_set_send_sync_approach <- function(sync_approach, title, type, profile) {
+  yml_title <- .projr_yml_dest_get_title(
+    title = title, type = type, profile = profile
+  )
+  yml_title[["send"]][["sync-approach"]] <- sync_approach
+  .projr_yml_dest_set_title(
+    yml = yml_title, title = title, type = type, profile = profile,
+    overwrite = TRUE
+  )
+}
+
 # -----------------
 # default
 # -----------------
