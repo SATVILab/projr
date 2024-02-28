@@ -102,7 +102,17 @@
 .projr_change_get_manifest_version_pre_null <- function(manifest, version_post) {
   version_vec_manifest <- manifest[["version"]] |> .projr_version_v_rm()
   version_post <- version_post |> .projr_version_v_rm()
-  manifest_pre_all <- manifest[version_vec_manifest < version_post, , drop = FALSE]
+  # FIX THIS
+  manifest_pre_all <- manifest[
+    vapply(
+      version_vec_manifest,
+      function(x) {
+        utils::compareVersion(x, version_post) == -1
+      },
+      logical(1)
+    ), ,
+    drop = FALSE
+  ]
   if (nrow(manifest_pre_all) == 0L) {
     return(character())
   }
