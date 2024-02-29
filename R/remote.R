@@ -696,18 +696,7 @@
   # delete individual zipped file
   # if it is in the release
   if ("fn" %in% names(remote)) {
-    asset_tbl <- try(.projr_pb_asset_tbl_get(tag = tag))
-    if (inherits(asset_tbl, "try-error")) {
-      stop("Could not get the assets for the GitHub release")
-    }
-    # assume that NULL asset tbl's mean nothing is there
-    if (is.null(asset_tbl)) {
-      return(invisible(FALSE))
-    }
-    if (nrow(asset_tbl) == 0L) {
-      return(invisible(FALSE))
-    }
-    if (!remote[["fn"]] %in% asset_tbl[["file_name"]]) {
+    if (.projr_remote_file_rm_all_github_check_fn(remote[["fn"]], tag)) {
       return(invisible(FALSE))
     }
     piggyback::pb_delete(tag = tag, file = remote[["fn"]])
@@ -715,6 +704,21 @@
     try(piggyback::pb_delete(tag = tag))
   }
   invisible(TRUE)
+}
+
+.projr_remote_file_rm_all_github_check_fn <- function(fn, tag) {
+  asset_tbl <- try(.projr_pb_asset_tbl_get(tag = tag))
+  if (inherits(asset_tbl, "try-error")) {
+    stop("Could not get the assets for the GitHub release")
+  }
+  # assume that NULL asset tbl's mean nothing is there
+  if (is.null(asset_tbl)) {
+    return(invisible(FALSE))
+  }
+  if (nrow(asset_tbl) == 0L) {
+    return(invisible(FALSE))
+  }
+  remote[["fn"]] %in% asset_tbl[["file_name"]]
 }
 
 # ========================
