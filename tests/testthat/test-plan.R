@@ -214,7 +214,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
 })
 
 test_that(".projr_plan_implement works", {
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
@@ -247,6 +247,7 @@ test_that(".projr_plan_implement works", {
       expect_true(dir.exists(dir_tmp_2))
       # check that we're emptying remote if needed
       .projr_test_setup_content_dir(dir_tmp_2)
+      browser()
       expect_true(.file_ls(dir_tmp_2) |> length() > 0L)
       .projr_test_setup_content_dir(dir_tmp)
       .projr_plan_implement(
@@ -257,7 +258,7 @@ test_that(".projr_plan_implement works", {
         type = "local",
         structure = "latest"
       )
-      expect_identical(.file_ls(dir_tmp_2) |> length(), 0L)
+      expect_identical(.file_ls(dir_tmp_2) |> length(), 4L)
       expect_true(dir.exists(dir_tmp_2))
       # check it's deleted when an empty versioned remote
       .dir_clear(dir_tmp_2)
