@@ -214,7 +214,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
 })
 
 test_that(".projr_plan_implement works", {
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
