@@ -696,7 +696,7 @@
   # delete individual zipped file
   # if it is in the release
   if ("fn" %in% names(remote)) {
-    if (.projr_remote_file_rm_all_github_check_fn(remote[["fn"]], tag)) {
+    if (!.projr_remote_file_rm_all_github_check_fn(remote[["fn"]], tag)) {
       return(invisible(FALSE))
     }
     piggyback::pb_delete(tag = tag, file = remote[["fn"]])
