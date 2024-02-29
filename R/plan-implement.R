@@ -5,7 +5,7 @@
                                   structure,
                                   path_dir_local) {
   # clear if needed
-  .projr_remote_file_rm_all_if_plan(plan, type, remote)
+  .projr_remote_file_rm_all_if_plan(plan, plan_detail, type, remote)
 
   # remove any files that need to be removed
   .projr_remote_file_rm(
@@ -24,14 +24,16 @@
 
 # clear remote if up-front clearance is requested
 .projr_remote_file_rm_all_if_plan <- function(plan,
+                                              plan_detail,
                                               type,
                                               remote) {
-  if (!.projr_remote_file_rm_all_if_plan_check(plan)) {
+  if (!.projr_remote_file_rm_all_if_plan_check(plan, plan_detail)) {
     return(invisible(FALSE))
   }
   .projr_remote_file_rm_all(type, remote)
 }
 
-.projr_remote_file_rm_all_if_plan_check <- function(plan) {
-  grepl("^delete", plan)
+.projr_remote_file_rm_all_if_plan_check <- function(plan, plan_detail) {
+  grepl("^delete", plan) &&
+    (.is_len_pos(plan_detail[["rm"]]) || .is_len_pos(plan_detail[["add"]]))
 }
