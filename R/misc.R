@@ -122,7 +122,7 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
   # well, it's doable, but it's not worth it.
   # we'll just skip whatever is done there and
   # read in using the same json function as them:
-  if (!requireNamespace("jsonlite")) {
+  if (!requireNamespace("jsonlite", quietly = TRUE)) {
     utils::install.packages("jsonlite")
   }
   jsonlite::fromJSON(txt = path_lockfile)
