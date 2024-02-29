@@ -247,7 +247,6 @@ test_that(".projr_plan_implement works", {
       expect_true(dir.exists(dir_tmp_2))
       # check that we're emptying remote if needed
       .projr_test_setup_content_dir(dir_tmp_2)
-      browser()
       expect_true(.file_ls(dir_tmp_2) |> length() > 0L)
       .projr_test_setup_content_dir(dir_tmp)
       .projr_plan_implement(
