@@ -700,6 +700,10 @@
     if (inherits(asset_tbl, "try-error")) {
       stop("Could not get the assets for the GitHub release")
     }
+    # assume that NULL asset tbl's mean nothing is there
+    if (is.null(asset_tbl)) {
+      return(invisible(FALSE))
+    }
     if (nrow(asset_tbl) == 0L) {
       return(invisible(FALSE))
     }
@@ -708,7 +712,7 @@
     }
     piggyback::pb_delete(tag = tag, file = remote[["fn"]])
   } else {
-    piggyback::pb_delete(tag = tag)
+    try(piggyback::pb_delete(tag = tag))
   }
   invisible(TRUE)
 }
