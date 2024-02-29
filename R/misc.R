@@ -125,7 +125,7 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
   if (!requireNamespace("jsonlite")) {
     utils::install.packages("jsonlite")
   }
-  jsonlite::fromJSON(file = path_lockfile)
+  jsonlite::fromJSON(txt = path_lockfile)
 }
 
 .projr_renv_lockfile_path_get <- function() {
