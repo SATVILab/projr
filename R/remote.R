@@ -718,7 +718,7 @@
   if (nrow(asset_tbl) == 0L) {
     return(invisible(FALSE))
   }
-  remote[["fn"]] %in% asset_tbl[["file_name"]]
+  fn %in% asset_tbl[["file_name"]]
 }
 
 # ========================
