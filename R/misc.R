@@ -49,7 +49,10 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
   path_dep <- .dir_proj_get("_dependencies.R")
   dep_vec <- readLines(path_dep)
   for (i in seq_along(dep)) {
-    dep_pattern <- paste0("library\\(", basename(dep[[i]]), "\\)", collapse = "")
+    dep_pattern <- paste0(
+      "library\\(", basename(dep[[i]]), "\\)",
+      collapse = ""
+    )
     dep_txt <- paste0("library(", basename(dep[[i]]), ")", collapse = "")
     if (!any(grepl(dep_pattern, dep_vec))) {
       dep_vec <- c(dep_vec, dep_txt)
@@ -143,7 +146,6 @@ if (!requireNamespace("piggyback", quietly = TRUE)) {
   }
   .dir_proj_get("renv.lock")
 }
-
 
 # taken from withr-with_dir
 with_dir <- function(new, code) {
@@ -483,7 +485,7 @@ projr_use_data <- function(...,
 }
 
 .projr_opt_cue_get <- function() {
-  c("build", "dev", "patch", "minor", "major")
+  c("build", "patch", "minor", "major")
 }
 
 .projr_opt_remote_sync_approach_get <- function() {
