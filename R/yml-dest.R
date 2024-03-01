@@ -121,7 +121,7 @@
   list() |>
     .projr_list_add(content) |>
     .projr_list_add(path) |>
-    .projr_list_add(path_append_label) |>
+    .projr_list_add(path_append_label, nm = "path-append-label") |>
     .projr_list_add(structure) |>
     .projr_list_add(get_list, nm = "get") |>
     .projr_list_add(send_list, nm = "send")
