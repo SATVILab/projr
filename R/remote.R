@@ -85,6 +85,43 @@
   if (inherits(id, "try-error")) character() else id
 }
 
+#' Create a new project on OSF
+#'
+#' This function creates a new project on the Open Science Framework (OSF)
+#' with the specified title, description, and visibility settings.
+#'
+#' @param title character. Title of the project.
+#' @param description character. Description of the project.
+#' @param public logical.
+#' Whether the project should be public (TRUE) or private (FALSE).
+#'
+#' @return A character string containing the ID of the newly created project.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' projr_osf_create_project(
+#'   title = "My New Project",
+#'   description = "This is a description of my new project.",
+#'   public = TRUE # because open science
+#' )
+#' }
+#'
+#' @seealso \url{https://osf.io/} for more information about OSF.
+projr_osf_create_project <- function(title,
+                                     description,
+                                     public) {
+  id <- .projr_remote_create_osf_project(
+    title = title,
+    description = description,
+    public = public
+  )
+  if (!.is_string(id)) {
+    stop(paste0("Failed to create OSF project"))
+  }
+  id
+}
+
 .projr_remote_create_osf_component <- function(title,
                                                id_parent,
                                                category,
@@ -98,6 +135,23 @@
     category = category
   )[["id"]])
   if (inherits(id, "try-error")) character() else id
+}
+
+.projr_remote_create_osf_component_check_id_parent <- function(id_parent) {
+  id_parent <- try(force(id_parent), silent = TRUE)
+  if (is.null(id_parent) || inherits(id_parent, "try-error")) {
+    # if the OSF category is not a project,
+    # then the parent id must be supplied.
+    # here we tell them that, and tell them to
+    # either create it directly on OSF or
+    # use the `projr_osf_create_project` function, seeing
+    # `?projr_osf_create_project` for details.
+    stop(paste0(
+      "The parent ID must be supplied if the OSF category is not a project.", # nolint
+      "\n",
+      "Please create the project directly on OSF or use `projr_osf_create_project`." # nolint
+    ), call. = FALSE)
+  }
 }
 
 

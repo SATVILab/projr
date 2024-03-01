@@ -328,6 +328,9 @@
 }
 
 .projr_git_check_behind <- function() {
+  if (!.projr_git_remote_check_exists()) {
+    return(invisible(FALSE))
+  }
   switch(.projr_git_system_get(),
     "git" = .projr_git_check_behind_git(),
     "gert" = .projr_git_check_behind_gert()
@@ -335,9 +338,6 @@
 }
 
 .projr_git_check_behind_git <- function() {
-  if (length(.projr_remote_ls()) == 0L) {
-    return(invisible(FALSE))
-  }
   commit_vec_local <- .projr_git_get_commit_hash_local()
   commit_vec_remote <- .projr_git_get_commit_hash_remote()
   length(setdiff(commit_vec_remote, commit_vec_local)) > 0L

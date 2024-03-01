@@ -173,9 +173,11 @@
 
 .projr_yml_dest_add_get_list_add_extra_osf_id_chr <- function(list_add,
                                                               id) {
+  .assert_string(id, TRUE)
+  .assert_nchar_single(id, 5L)
   if (!.projr_yml_dest_add_get_list_add_extra_osf_id_chr_check(id)) {
     stop(
-      paste0("id ", id, " does not exist on OSF"),
+      paste0("id ", id, " not found on OSF"),
       call. = FALSE
     )
   }

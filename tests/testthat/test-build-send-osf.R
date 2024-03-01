@@ -2,7 +2,7 @@ test_that("projr_build_output works - osf - latest", {
   #  skip_if(.is_test_select())
   skip_if(.is_test_fast())
   dir_test <- .projr_test_setup_project(
-    git = TRUE, github = TRUE, set_env_var = TRUE
+    git = TRUE, github = FALSE, set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -26,45 +26,65 @@ test_that("projr_build_output works - osf - latest", {
       expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
       # data-raw and source are empty
-      projr_yml_dest_add_osf(
+      expect_error(projr_yml_dest_add_osf(
         title = "Raw data",
         content = "data-raw",
         structure = "latest",
         category = "data"
+      ))
+      id_parent <- .projr_test_osf_create_project("Test")
+      projr_yml_dest_add_osf(
+        title = "Raw data",
+        content = "data-raw",
+        structure = "latest",
+        category = "data",
+        id_parent = id_parent
       )
+      id <- .projr_yml_dest_get_title("Raw data", "osf", NULL)[["id"]]
+      expect_true(.is_string(id))
+      expect_true(.assert_nchar(id, 5L))
 
       # handle nothing to send
       # ---------------------
-      browser()
       projr_build_patch(msg = "Vat are you vinking about")
-      release_tbl <- .projr_pb_release_tbl_get()
-      expect_true(nrow(release_tbl) == 0L)
+      osf_tbl <- .projr_remote_get_final_osf(
+        id = id,
+        path = NULL,
+        path_append_label = TRUE,
+        label = "data-raw",
+        structure = "latest"
+      )
+      fn_vec <- .projr_remote_file_ls(
+        "osf",
+        remote = osf_tbl
+      )
+      expect_true(.is_len_0(fn_vec))
 
       # handle something to upload
       # ---------------------
 
       .projr_test_setup_content("data-raw")
       projr_build_patch(msg = "Ze data")
-      release_tbl <- .projr_pb_release_tbl_get()
-      expect_true(nrow(release_tbl) == 1L)
       fn_vec <- .projr_remote_file_ls(
         "osf",
-        remote = c("tag" = "Raw-data", fn = "data-raw.zip")
+        remote = osf_tbl
       )
-      expect_true("subdir1/subdir2/ghi.txt" %in% fn_vec)
-      expect_true("abc.txt" %in% fn_vec)
-
+      expect_identical(
+        .file_ls("_data_raw") |> sort(),
+        fn_vec |> sort()
+      )
 
       # expect no change
       # ----------------------
       projr_build_patch(msg = "I love zis data")
-      release_tbl <- .projr_pb_release_tbl_get()
-      expect_true(nrow(release_tbl) == 1L)
       fn_vec <- .projr_remote_file_ls(
         "osf",
-        remote = c("tag" = "Raw-data", fn = "data-raw.zip")
+        remote = osf_tbl
       )
-      expect_true("subdir1/subdir2/ghi.txt" %in% fn_vec)
+      expect_identical(
+        .file_ls("_data_raw") |> sort(),
+        fn_vec |> sort()
+      )
 
       # add something
       # ----------------------
@@ -72,10 +92,12 @@ test_that("projr_build_output works - osf - latest", {
       projr_build_patch(msg = "More data")
       fn_vec <- .projr_remote_file_ls(
         "osf",
-        remote = c("tag" = "Raw-data", fn = "data-raw.zip")
+        remote = osf_tbl
       )
-      expect_true("add.txt" %in% fn_vec)
-      expect_true("subdir1/subdir2/ghi.txt" %in% fn_vec)
+      expect_identical(
+        .file_ls("_data_raw") |> sort(),
+        fn_vec |> sort()
+      )
 
 
       # do nothing again
@@ -83,10 +105,12 @@ test_that("projr_build_output works - osf - latest", {
       projr_build_patch(msg = "I love zis data")
       fn_vec <- .projr_remote_file_ls(
         "osf",
-        remote = c("tag" = "Raw-data", fn = "data-raw.zip")
+        remote = osf_tbl
       )
-      expect_true("add.txt" %in% fn_vec)
-      expect_true("subdir1/subdir2/ghi.txt" %in% fn_vec)
+      expect_identical(
+        .file_ls("_data_raw") |> sort(),
+        fn_vec |> sort()
+      )
 
       # remove something
       # ----------------------
@@ -94,10 +118,12 @@ test_that("projr_build_output works - osf - latest", {
       projr_build_patch(msg = "Less data")
       fn_vec <- .projr_remote_file_ls(
         "osf",
-        remote = c("tag" = "Raw-data", fn = "data-raw.zip")
+        remote = osf_tbl
       )
-      expect_true(!"add.txt" %in% fn_vec)
-      expect_true("subdir1/subdir2/ghi.txt" %in% fn_vec)
+      expect_identical(
+        .file_ls("_data_raw") |> sort(),
+        fn_vec |> sort()
+      )
     },
     quiet = TRUE,
     force = TRUE
