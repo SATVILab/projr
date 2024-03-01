@@ -1,5 +1,5 @@
 test_that("projr_build_output works - github - latest", {
-  skip_if(.is_test_select())
+  #  skip_if(.is_test_select())
   skip_if(.is_test_fast())
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
@@ -66,7 +66,6 @@ test_that("projr_build_output works - github - latest", {
 
       # add something
       # ----------------------
-      browser()
       file.create("_data_raw/add.txt")
       projr_build_patch(msg = "More data")
       fn_vec <- .projr_remote_file_ls(
