@@ -286,7 +286,8 @@ test_that(".projr_plan_implement works", {
         path_dir_local = dir_tmp,
         remote = dir_tmp_2,
         type = "local",
-        structure = "latest"
+        structure = "latest",
+        conflict = "overwrite"
       )
       expect_true(!file.exists(file.path(dir_tmp_2, "f2.txt")))
       expect_true(file.exists(file.path(dir_tmp_2, "abc.txt")))

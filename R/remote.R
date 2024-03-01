@@ -1195,10 +1195,10 @@
 
 .projr_remote_check_conflict_local <- function(conflict, fn, remote) {
   switch(conflict,
-  "overwrite" = fn,
-  "skip" = fn[!file.exists(file.path(remote, fn))],
-  "error" = .projr_remote_check_conflict_local_error(fn, remote),
-  stop("conflict must be one of 'overwrite', 'skip', or 'error'")
+    "overwrite" = fn,
+    "skip" = fn[!file.exists(file.path(remote, fn))],
+    "error" = .projr_remote_check_conflict_local_error(fn, remote),
+    stop("conflict must be one of 'overwrite', 'skip', or 'error'")
   )
 }
 
@@ -1290,14 +1290,14 @@
 }
 
 .projr_remote_file_add_github_check_conflict <- function(conflict, id) {
-  if (conflict == "overwrite" && .projr_remote_check_exists("github", id)) {
+  if (conflict == "error" && .projr_remote_check_exists("github", id)) {
     stop(paste0(
-      "Attempting to upload to a pre-existing release with conflict = 'overwrite' for release ", #nolint
+      "Attempting to upload to a pre-existing release with conflict = 'error' for release ", # nolint
       id
     ))
   }
   if (conflict == "skip") {
-    warning("The setting `conflict = 'skip'` is not supported for GitHub destinations") #nolint
+    warning("The setting `conflict = 'skip'` is not supported for GitHub destinations") # nolint
   }
   invisible(TRUE)
 }
