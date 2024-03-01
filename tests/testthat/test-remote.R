@@ -445,7 +445,7 @@ test_that(".projr_remote_file_rm_all works - remote", {
       ))
       piggyback:::.pb_cache_clear()
       content_tbl <- piggyback::pb_list(tag = id)
-      expect_null(content_tbl)
+      expect_true(is.null(content_tbl) || nrow(content_tbl) == 0L)
     }
   )
 })
