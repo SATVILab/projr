@@ -207,7 +207,7 @@
 
 .projr_yml_dest_add_get_list_add_extra_osf_id_null_check_success <-
   function(id, list_add) {
-    if (!nzchar(id)) {
+    if (.is_len_0(id) || !.is_string(id)) {
       stop(
         "Failed to create OSF node",
         call. = FALSE
