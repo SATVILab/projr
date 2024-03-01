@@ -485,7 +485,7 @@ projr_use_data <- function(...,
 }
 
 .projr_opt_cue_get <- function() {
-  c("build", "patch", "minor", "major")
+  c("patch", "minor", "major")
 }
 
 .projr_opt_remote_sync_approach_get <- function() {
