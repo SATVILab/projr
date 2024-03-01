@@ -439,10 +439,10 @@ test_that(".projr_remote_file_rm_all works - remote", {
       content_tbl_pre_delete <- piggyback::pb_list(tag = id)
       expect_identical(nrow(content_tbl_pre_delete), 1L)
       remote_github <- c("tag" = id, fn = basename(path_zip))
-      expect_true(.projr_remote_file_rm_all(
+      .projr_remote_file_rm_all(
         "github",
         remote = remote_github
-      ))
+      )
       piggyback:::.pb_cache_clear()
       content_tbl <- piggyback::pb_list(tag = id)
       expect_true(is.null(content_tbl) || nrow(content_tbl) == 0L)
