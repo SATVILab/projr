@@ -363,6 +363,19 @@
   )
 }
 
+# cue
+.projr_yml_dest_set_send_cue <- function(cue, title, type, profile) {
+  .assert_in(cue, .projr_opt_cue_get())
+  yml_title <- .projr_yml_dest_get_title(
+    title = title, type = type, profile = profile
+  )
+  yml_title[["cue"]] <- cue
+  .projr_yml_dest_set_title(
+    yml = yml_title, title = title, type = type, profile = profile,
+    overwrite = TRUE
+  )
+}
+
 # -----------------
 # default
 # -----------------

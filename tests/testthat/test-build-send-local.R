@@ -646,7 +646,7 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
 })
 
 test_that("projr_build_output works - local - latest - none - <conflict>", {
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   skip_if(.is_test_fast())
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = FALSE, set_env_var = TRUE
@@ -725,7 +725,7 @@ test_that("projr_build_output works - local - latest - none - <conflict>", {
   )
 })
 
-test_that("projr_build_output works - local - latest - none - <conflict>", {
+test_that("projr_build_output works - local - latest - none - <cue>", {
   # skip_if(.is_test_select())
   skip_if(.is_test_fast())
   dir_test <- .projr_test_setup_project(
@@ -758,16 +758,84 @@ test_that("projr_build_output works - local - latest - none - <conflict>", {
         content = "data-raw",
         path = "_archive",
         structure = "latest",
-        send_sync_approach = "upload-all",
-        cue =
-        )
+        send_sync_approach = "sync-using-deletion",
+        send_cue = "patch"
+      )
 
-      # handle nothing to send
+      # cue: patch
       # ---------------------
+      # patch build
+      file.create("_data_raw/f1.txt")
       projr_build_patch(msg = "Vat are you vinking about")
-      expect_true(dir.exists(
-        file.path(dir_test, "_archive/data-raw")
-      ))
+      expect_true(file.exists("_archive/data-raw/f1.txt"))
+
+      # minor build
+      file.create("_data_raw/f2.txt")
+      projr_build_minor(msg = "Vat are you vinking about")
+      expect_true(file.exists("_archive/data-raw/f1.txt"))
+      expect_true(file.exists("_archive/data-raw/f2.txt"))
+
+      # major build
+      file.create("_data_raw/f3.txt")
+      projr_build_major(msg = "Vat are you vinking about")
+      expect_true(file.exists("_archive/data-raw/f1.txt"))
+      expect_true(file.exists("_archive/data-raw/f3.txt"))
+
+      # cue: minor
+      # ---------------------
+
+      .projr_yml_dest_set_send_cue(
+        "minor",
+        title = "Raw data", type = "local", profile = "default"
+      )
+      .dir_rm("_archive/data-raw")
+      .dir_rm("_data_raw")
+      dir.create("_data_raw")
+
+      # patch build
+      file.create("_data_raw/f1.txt")
+      projr_build_patch(msg = "Vat are you vinking about")
+      expect_false(file.exists("_archive/data-raw/f1.txt"))
+
+      # minor build
+      file.create("_data_raw/f2.txt")
+      projr_build_minor(msg = "Vat are you vinking about")
+      expect_true(file.exists("_archive/data-raw/f1.txt"))
+      expect_true(file.exists("_archive/data-raw/f2.txt"))
+
+      # major build
+      file.create("_data_raw/f3.txt")
+      projr_build_major(msg = "Vat are you vinking about")
+      expect_true(file.exists("_archive/data-raw/f1.txt"))
+      expect_true(file.exists("_archive/data-raw/f3.txt"))
+
+      # cue: major
+      # ---------------------
+
+      .projr_yml_dest_set_send_cue(
+        "major",
+        title = "Raw data", type = "local", profile = "default"
+      )
+      .dir_rm("_archive/data-raw")
+      .dir_rm("_data_raw")
+      dir.create("_data_raw")
+
+      # patch build
+      file.create("_data_raw/f1.txt")
+      projr_build_patch(msg = "Vat are you vinking about")
+      expect_false(file.exists("_archive/data-raw/f1.txt"))
+
+      # minor build
+      file.create("_data_raw/f2.txt")
+      projr_build_minor(msg = "Vat are you vinking about")
+      expect_false(file.exists("_archive/data-raw/f1.txt"))
+      expect_false(file.exists("_archive/data-raw/f2.txt"))
+
+      # major build
+      file.create("_data_raw/f3.txt")
+      projr_build_major(msg = "Vat are you vinking about")
+      expect_true(file.exists("_archive/data-raw/f1.txt"))
+      expect_true(file.exists("_archive/data-raw/f3.txt"))
     },
     quiet = TRUE,
     force = TRUE
