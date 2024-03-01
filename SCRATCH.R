@@ -1,8 +1,12 @@
 library(testthat)
 devtools::load_all()
 .test_set_select()
-# devtools::test_active_file("tests/testthat/test-remote.R")
-devtools::test_active_file("tests/testthat/test-plan.R")
+# debugonce(.projr_yml_dest_add_get_list_add_extra_osf)
+# debugonce(.projr_yml_dest_add_get_list_add_extra_osf_id_null)
+# debugonce(.projr_remote_create_osf)
+devtools::test_active_file(
+  "tests/testthat/test-build-send-osf.R"
+)
 
 library(testthat)
 devtools::load_all()
@@ -17,13 +21,12 @@ devtools::load_all()
 .projr_test_coverage()
 
 
-debugonce(.projr_change_get)
 
-change_list <- .projr_change_get(
-  label = label, path_dir_local = path_dir_local,
-  version_source = version_source, type = type, remote = remote
+debugonce(.projr_remote_file_ls_github)
+debugonce(.projr_remote_file_get_all_github)
+.projr_remote_get_path_rel(
+  path = path, path_append_label = path_append_label,
+  label = label, structure = structure, type = "local"
 )
 
-debugonce(.projr_change_get_manifest)
-.projr_change_get_manifest(label = label)
-manifest[version_vec_manifest < version_post, , drop = FALSE]$version |> unique()
+.projr_yml_dest_get_title("Raw data", "local", NULL)
