@@ -1384,5 +1384,5 @@
     .assert_string(x)
     return(x)
   }
-  x[["tag"]]
+  x[["tag"]] |> gsub("\\s", "-", x = "_")
 }
