@@ -1140,7 +1140,8 @@
     "github",
     fn = fn_vec_to_upload,
     path_dir_local = path_dir_save_local,
-    remote = remote
+    remote = remote,
+    conflict = "overwrite"
   )
   unlink(path_dir_save_local, recursive = TRUE)
   invisible(TRUE)
@@ -1153,17 +1154,21 @@
 .projr_remote_file_add <- function(type,
                                    remote,
                                    path_dir_local,
-                                   fn) {
+                                   fn,
+                                   conflict) {
   .assert_in(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_file_add_local(
-      fn = fn, path_dir_local = path_dir_local, remote = remote
+      fn = fn, path_dir_local = path_dir_local, remote = remote,
+      conflict = conflict
     ),
     "osf" = .projr_remote_file_add_osf(
-      fn = fn, path_dir_local = path_dir_local, remote = remote
+      fn = fn, path_dir_local = path_dir_local, remote = remote,
+      conflict = conflict
     ),
     "github" = .projr_remote_file_add_github(
-      fn = fn, path_dir_local = path_dir_local, remote = remote
+      fn = fn, path_dir_local = path_dir_local, remote = remote,
+      conflict = conflict
     )
   )
 }
@@ -1171,7 +1176,8 @@
 # local
 .projr_remote_file_add_local <- function(fn,
                                          path_dir_local,
-                                         remote) {
+                                         remote,
+                                         conflict) {
   .assert_chr_min(fn, TRUE)
   if (.is_len_0(fn)) {
     return(invisible(FALSE))
@@ -1179,6 +1185,7 @@
   .assert_string(path_dir_local, TRUE)
   .assert_path_not_file(path_dir_local)
   .assert_string(remote, TRUE)
+  fn <- .projr_remote_check_conflict_local(conflict, fn, remote)
   .dir_copy_file(
     fn = fn,
     path_dir_from = path_dir_local,
@@ -1186,10 +1193,34 @@
   )
 }
 
+.projr_remote_check_conflict_local <- function(conflict, fn, remote) {
+  switch(conflict,
+  "overwrite" = fn,
+  "skip" = fn[!file.exists(file.path(remote, fn))],
+  "error" = .projr_remote_check_conflict_local_error(fn, remote),
+  stop("conflict must be one of 'overwrite', 'skip', or 'error'")
+  )
+}
+
+.projr_remote_check_conflict_local_error <- function(fn, remote) {
+  fn_exists <- fn[file.exists(file.path(remote, fn))]
+  if (.is_len_pos(fn_exists)) {
+    fn_exists <- fn_exists[seq_len(min(5L, length(fn_exists)))]
+    stop(paste0(
+      "At least the following file(s) already exist in local remote ",
+      remote, ": ",
+      paste0(fn_exists, sep = "\n")
+    ))
+  }
+  fn
+}
+
+
 # osf
 .projr_remote_file_add_osf <- function(fn,
                                        path_dir_local,
-                                       remote) {
+                                       remote,
+                                       conflict) {
   .assert_chr_min(fn, TRUE)
   if (.is_len_0(fn)) {
     return(invisible(FALSE))
@@ -1211,7 +1242,7 @@
       path = file.path(
         path_dir_local, plot_tbl[["fn"]][plot_tbl[["dir"]] == x]
       ),
-      conflicts = "overwrite"
+      conflicts = conflict
     )
   }
   invisible(TRUE)
@@ -1220,7 +1251,8 @@
 # github
 .projr_remote_file_add_github <- function(fn,
                                           path_dir_local,
-                                          remote) {
+                                          remote,
+                                          conflict) {
   .assert_chr_min(fn, TRUE)
   if (.is_len_0(fn)) {
     return(invisible(FALSE))
@@ -1231,6 +1263,7 @@
     return(invisible(FALSE))
   }
   .projr_dep_install("piggyback")
+  .projr_remote_file_add_github_check_conflict(conflict, remote[["tag"]])
   .assert_string(path_dir_local, TRUE)
   .assert_path_not_file(path_dir_local)
 
@@ -1254,6 +1287,19 @@
     return(invisible(TRUE))
   }
   .projr_remote_file_add_github_zip(path_zip = path_zip, tag = tag)
+}
+
+.projr_remote_file_add_github_check_conflict <- function(conflict, id) {
+  if (conflict == "overwrite" && .projr_remote_check_exists("github", id)) {
+    stop(paste0(
+      "Attempting to upload to a pre-existing release with conflict = 'overwrite' for release ", #nolint
+      id
+    ))
+  }
+  if (conflict == "skip") {
+    warning("The setting `conflict = 'skip'` is not supported for GitHub destinations") #nolint
+  }
+  invisible(TRUE)
 }
 
 .projr_remote_file_add_github_zip <- function(path_zip,

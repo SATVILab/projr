@@ -335,11 +335,28 @@
 # ----------------------
 
 # sync-approach
-.projr_yml_dest_set_send_sync_approach <- function(sync_approach, title, type, profile) {
+.projr_yml_dest_set_send_sync_approach <- function(sync_approach,
+                                                   title,
+                                                   type,
+                                                   profile) {
+  .assert_in(sync_approach, .projr_opt_remote_sync_approach_get())
   yml_title <- .projr_yml_dest_get_title(
     title = title, type = type, profile = profile
   )
   yml_title[["send"]][["sync-approach"]] <- sync_approach
+  .projr_yml_dest_set_title(
+    yml = yml_title, title = title, type = type, profile = profile,
+    overwrite = TRUE
+  )
+}
+
+# conflict
+.projr_yml_dest_set_send_conflict <- function(conflict, title, type, profile) {
+  .assert_in(conflict, .projr_opt_remote_conflict_get())
+  yml_title <- .projr_yml_dest_get_title(
+    title = title, type = type, profile = profile
+  )
+  yml_title[["send"]][["conflict"]] <- conflict
   .projr_yml_dest_set_title(
     yml = yml_title, title = title, type = type, profile = profile,
     overwrite = TRUE

@@ -3,7 +3,8 @@
                                   remote,
                                   type,
                                   structure,
-                                  path_dir_local) {
+                                  path_dir_local,
+                                  conflict) {
   # clear if needed
   .projr_remote_file_rm_all_if_plan(plan, plan_detail, type, remote)
 
@@ -15,7 +16,9 @@
   )
 
   # add any files that need to be added
-  .projr_remote_file_add(type, remote, path_dir_local, plan_detail[["add"]])
+  .projr_remote_file_add(
+    type, remote, path_dir_local, plan_detail[["add"]], conflict
+  )
 
   # delete unused versioned remote directories if creatd
   .projr_remote_rm_final_if_empty(type, remote, structure)

@@ -223,7 +223,7 @@ test_that("projr_build_output works - local - latest - file", {
 })
 
 test_that("projr_build_output works - local - latest - <sync-approach>", {
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   skip_if(.is_test_fast())
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = FALSE, set_env_var = TRUE
@@ -407,7 +407,6 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
 
       # sync-using-version
       # ----------------------
-      # browser()
       .projr_yml_dest_set_send_sync_approach(
         "sync-using-version",
         title = "Raw data", type = "local", profile = "default"
@@ -435,7 +434,7 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
 })
 
 test_that("projr_build_output works - local - latest - <sync-approach> - none", {
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   skip_if(.is_test_fast())
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = FALSE, set_env_var = TRUE
@@ -467,6 +466,7 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
         content = "data-raw",
         path = "_archive",
         structure = "latest",
+        send_version_source = "none",
         send_sync_approach = "upload-all"
       )
       # handle nothing to send
@@ -619,7 +619,6 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
 
       # sync-using-version
       # ----------------------
-      # browser()
       .projr_yml_dest_set_send_sync_approach(
         "sync-using-version",
         title = "Raw data", type = "local", profile = "default"
@@ -639,6 +638,135 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
       ))
       expect_true(!file.exists(
         file.path(path_dir_sub_current |> dirname() |> dirname(), "abc.txt")
+      ))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that("projr_build_output works - local - latest - none - <conflict>", {
+  # skip_if(.is_test_select())
+  skip_if(.is_test_fast())
+  dir_test <- .projr_test_setup_project(
+    git = TRUE, github = FALSE, set_env_var = TRUE
+  )
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # initialse `projr` project
+      projr_init()
+      # remove remotes
+      .projr_test_yml_unset_remote()
+      .projr_yml_git_set_commit(TRUE, TRUE, NULL)
+      .projr_yml_git_set_add_untracked(TRUE, TRUE, NULL)
+      .projr_yml_git_set_push(FALSE, TRUE, NULL)
+      projr_build_output("patch", msg = "test")
+      projr_version_get()
+      expect_identical(projr_version_get(), "0.0.1")
+      yml_bd <- .projr_yml_bd_get()
+      expect_identical(basename(yml_bd$output_dir), "_book")
+      desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
+      expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
+      # run repeat build
+      projr_build_output("minor", msg = "test")
+      expect_identical(projr_version_get(), "0.1.0")
+      # no add that we're pushing to GitHub, but
+      # data-raw and source are empty
+      projr_yml_dest_add_local(
+        title = "Raw data",
+        content = "data-raw",
+        path = "_archive",
+        structure = "latest",
+        send_version_source = "none",
+        send_sync_approach = "upload-all",
+        send_conflict = "error"
+      )
+      # handle nothing to send
+      # ---------------------
+      projr_build_patch(msg = "Vat are you vinking about")
+      expect_true(dir.exists(
+        file.path(dir_test, "_archive/data-raw")
+      ))
+
+      # handle something to upload
+      # ---------------------
+      .projr_test_setup_content("data-raw")
+      projr_build_patch(msg = "Ze data")
+      path_sub_dir_2 <- file.path(
+        "_archive/data-raw/subdir1/subdir2"
+      )
+      expect_true(file.exists(
+        file.path(path_sub_dir_2 |> dirname(), "def.txt")
+      ))
+      expect_true(file.exists(
+        file.path(dirname(dirname(path_sub_dir_2)), "abc.txt")
+      ))
+
+      # error when there is a conflict
+      # ---------------------
+      expect_error(projr_build_patch(msg = "Ze data"))
+
+      # use skip
+      # ----------------------
+      .projr_yml_dest_set_send_conflict(
+        "skip",
+        title = "Raw data", type = "local", profile = "default"
+      )
+      .file_ls("_data_raw")
+      writeLines("abc", "_data_raw/abc.txt")
+      projr_build_patch(msg = "Changed but ignored")
+      expect_identical(
+        readLines("_archive/data-raw/abc.txt"), character()
+      )
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that("projr_build_output works - local - latest - none - <conflict>", {
+  # skip_if(.is_test_select())
+  skip_if(.is_test_fast())
+  dir_test <- .projr_test_setup_project(
+    git = TRUE, github = FALSE, set_env_var = TRUE
+  )
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # initialse `projr` project
+      projr_init()
+      # remove remotes
+      .projr_test_yml_unset_remote()
+      .projr_yml_git_set_commit(TRUE, TRUE, NULL)
+      .projr_yml_git_set_add_untracked(TRUE, TRUE, NULL)
+      .projr_yml_git_set_push(FALSE, TRUE, NULL)
+      projr_build_output("patch", msg = "test")
+      projr_version_get()
+      expect_identical(projr_version_get(), "0.0.1")
+      yml_bd <- .projr_yml_bd_get()
+      expect_identical(basename(yml_bd$output_dir), "_book")
+      desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
+      expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
+      # run repeat build
+      projr_build_output("minor", msg = "test")
+      expect_identical(projr_version_get(), "0.1.0")
+      # no add that we're pushing to GitHub, but
+      # data-raw and source are empty
+      projr_yml_dest_add_local(
+        title = "Raw data",
+        content = "data-raw",
+        path = "_archive",
+        structure = "latest",
+        send_sync_approach = "upload-all",
+        cue =
+        )
+
+      # handle nothing to send
+      # ---------------------
+      projr_build_patch(msg = "Vat are you vinking about")
+      expect_true(dir.exists(
+        file.path(dir_test, "_archive/data-raw")
       ))
     },
     quiet = TRUE,

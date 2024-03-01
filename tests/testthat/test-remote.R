@@ -483,7 +483,8 @@ test_that("adding, tallying and removing files from remotes works - local", {
         "local",
         fn = fn_vec_source,
         path_dir_local = path_dir_source,
-        remote = path_dir_dest
+        remote = path_dir_dest,
+        conflict = "overwrite"
       )
       expect_identical(
         .projr_remote_file_ls("local", path_dir_dest),
@@ -542,7 +543,8 @@ test_that("adding, tallying and removing files from remotes works - osf", {
         "osf",
         fn = fn_vec_source,
         path_dir_local = path_dir_source,
-        remote = osf_tbl
+        remote = osf_tbl,
+        conflict = "overwrite"
       )
       expect_identical(
         .projr_remote_file_ls("osf", osf_tbl),
@@ -604,7 +606,8 @@ test_that("adding, tallying and removing files from remotes works - github", {
       fn_vec <- .projr_remote_file_ls("local", path_dir_source)
       .projr_remote_file_add(
         "github",
-        fn = fn_vec, path_dir_local = path_dir_source, remote = remote
+        fn = fn_vec, path_dir_local = path_dir_source, remote = remote,
+        conflict = "overwrite"
       )
       path_dir_save <- .dir_create_tmp_random()
       .projr_remote_file_get_all(
