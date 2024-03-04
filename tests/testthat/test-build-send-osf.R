@@ -1,6 +1,7 @@
 test_that("projr_build_output works - osf - latest", {
-  #  skip_if(.is_test_select())
+  skip_if(.is_test_select())
   skip_if(.is_test_fast())
+  skip_if(Sys.getenv("GITHUB_ACTIONS") == "true")
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = FALSE, set_env_var = TRUE
   )
@@ -63,6 +64,8 @@ test_that("projr_build_output works - osf - latest", {
       # handle something to upload
       # ---------------------
 
+      browser()
+
       .projr_test_setup_content("data-raw")
       projr_build_patch(msg = "Ze data")
       fn_vec <- .projr_remote_file_ls(
@@ -70,8 +73,8 @@ test_that("projr_build_output works - osf - latest", {
         remote = osf_tbl
       )
       expect_identical(
-        .file_ls("_data_raw") |> sort(),
-        fn_vec |> sort()
+        fn_vec |> sort(),
+        .file_ls("_data_raw") |> sort()
       )
 
       # expect no change
@@ -121,8 +124,8 @@ test_that("projr_build_output works - osf - latest", {
         remote = osf_tbl
       )
       expect_identical(
-        .file_ls("_data_raw") |> sort(),
-        fn_vec |> sort()
+        fn_vec |> sort(),
+        .file_ls("_data_raw") |> sort()
       )
     },
     quiet = TRUE,

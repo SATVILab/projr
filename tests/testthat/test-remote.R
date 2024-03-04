@@ -413,7 +413,7 @@ test_that(".projr_remote_file_rm_all works - remote", {
       path_tmp_file <- file.path(tempdir(), "abc.txt")
       file.create(path_tmp_file)
       .projr_osf_upload(x = osf_tbl, path = path_tmp_file)
-      .projr_osf_uploadx(x = osf_tbl_sub_a, path = path_tmp_file)
+      .projr_osf_upload(x = osf_tbl_sub_a, path = path_tmp_file)
       .projr_osf_upload(x = osf_tbl_sub_b, path = path_tmp_file)
       expect_true(
         .projr_remote_file_rm_all(
@@ -445,6 +445,7 @@ test_that(".projr_remote_file_rm_all works - remote", {
       )
       piggyback:::.pb_cache_clear()
       content_tbl <- piggyback::pb_list(tag = id)
+      browser()
       expect_true(is.null(content_tbl) || nrow(content_tbl) == 0L)
     }
   )
