@@ -412,9 +412,17 @@ test_that(".projr_remote_file_rm_all works - remote", {
       osf_tbl_sub_b <- .projr_osf_mkdir(osf_tbl, path = "a/b")
       path_tmp_file <- file.path(tempdir(), "abc.txt")
       file.create(path_tmp_file)
-      .projr_osf_upload(x = osf_tbl, path = path_tmp_file)
-      .projr_osf_upload(x = osf_tbl_sub_a, path = path_tmp_file)
-      .projr_osf_upload(x = osf_tbl_sub_b, path = path_tmp_file)
+      .projr_osf_upload(
+        x = osf_tbl, path = path_tmp_file, conflicts = "overwrite"
+      )
+      .projr_osf_upload(
+        x = osf_tbl_sub_a, path = path_tmp_file,
+        conflicts = "overwrite"
+      )
+      .projr_osf_upload(
+        x = osf_tbl_sub_b, path = path_tmp_file,
+        conflicts = "overwrite"
+      )
       expect_true(
         .projr_remote_file_rm_all(
           "osf",
