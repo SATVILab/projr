@@ -46,8 +46,8 @@
 # DO NOT CHANGE WITHOUT THINKING HARD ABOUT
 # WHAT YOU ARE DOING.
 .projr_remote_host_rm_all_osf <- function() {
-  osf_tbl <- osfr::osf_retrieve_user("me") |>
-    osfr::osf_ls_nodes(n_max = Inf)
+  osf_tbl <- .projr_osf_retrieve_user("me") |>
+    .projr_osf_ls_nodes(n_max = Inf)
   ind_vec <- grepl("ProjrOSFTest", osf_tbl[["name"]])
   id_vec <- osf_tbl[ind_vec, ][["id"]]
   name_vec <- osf_tbl[ind_vec, ][["name"]]

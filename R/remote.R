@@ -76,7 +76,7 @@
 .projr_remote_create_osf_project <- function(title,
                                              description,
                                              public) {
-  id <- try(osfr::osf_create_project(
+  id <- try(.projr_osf_create_project(
     title = title,
     description = description,
     public = public,
@@ -127,7 +127,7 @@ projr_osf_create_project <- function(title,
                                                category,
                                                description,
                                                public) {
-  id <- try(osfr::osf_create_component(
+  id <- try(.projr_osf_create_component(
     x = .projr_remote_get_osf(id = id_parent),
     title = title,
     description = description,
@@ -255,7 +255,7 @@ projr_osf_create_project <- function(title,
 .projr_remote_get_osf <- function(id) {
   .assert_nchar_single(id, 5L, TRUE)
   tryCatch(
-    osfr::osf_retrieve_node(paste0("https://osf.io/", id)),
+    .projr_osf_retrieve_node(paste0("https://osf.io/", id)),
     error = function(e) {
       stop(paste0(
         "Could not retrieve OSF node (project/component):", id
@@ -386,7 +386,7 @@ projr_osf_create_project <- function(title,
   )
   osf_tbl <- .projr_remote_get(id = id, type = "osf")
   if (length(path_rel) > 0L) {
-    osf_tbl <- osfr::osf_mkdir(osf_tbl, path_rel)
+    osf_tbl <- .projr_osf_mkdir(osf_tbl, path_rel)
   }
   osf_tbl
 }
@@ -584,10 +584,10 @@ projr_osf_create_project <- function(title,
   if (!inherits(remote, "osf_tbl_file")) {
     return(invisible(FALSE))
   }
-  if (nrow(osfr::osf_ls_files(remote)) > 0L) {
+  if (nrow(.projr_osf_ls_files(remote)) > 0L) {
     return(invisible(FALSE))
   }
-  osfr::osf_rm(x = remote, check = FALSE)
+  .projr_osf_rm(x = remote, check = FALSE)
   invisible(TRUE)
 }
 
@@ -629,8 +629,8 @@ projr_osf_create_project <- function(title,
 # osf
 .projr_remote_host_rm_osf <- function(host) {
   .assert_given_full(host)
-  osfr::osf_rm(
-    x = osfr::osf_retrieve_node(host), check = FALSE, recurse = TRUE
+  .projr_osf_rm(
+    x = .projr_osf_retrieve_node(host), check = FALSE, recurse = TRUE
   )
   invisible(TRUE)
 }
@@ -711,12 +711,12 @@ projr_osf_create_project <- function(title,
 # osf
 .projr_remote_file_rm_all_osf <- function(remote) {
   .assert_given_full(remote)
-  osf_tbl_file <- remote |> osfr::osf_ls_files(n_max = Inf)
+  osf_tbl_file <- remote |> .projr_osf_ls_files(n_max = Inf)
   if (nrow(osf_tbl_file) == 0L) {
     return(invisible(FALSE))
   }
   for (i in seq_len(nrow(osf_tbl_file))) {
-    osfr::osf_rm(x = osf_tbl_file[i, ], recurse = TRUE, check = FALSE)
+    .projr_osf_rm(x = osf_tbl_file[i, ], recurse = TRUE, check = FALSE)
   }
   invisible(TRUE)
 }
@@ -819,12 +819,12 @@ projr_osf_create_project <- function(title,
 .projr_remote_file_get_all_osf <- function(remote,
                                            path_dir_save_local) {
   .assert_given_full(remote)
-  osf_tbl_file <- remote |> osfr::osf_ls_files(n_max = Inf)
+  osf_tbl_file <- remote |> .projr_osf_ls_files(n_max = Inf)
   if (nrow(osf_tbl_file) == 0L) {
     return(invisible(path_dir_save_local))
   }
   for (i in seq_len(nrow(osf_tbl_file))) {
-    osfr::osf_download(
+    .projr_osf_download(
       x = osf_tbl_file[i, ],
       path = path_dir_save_local,
       check = FALSE
@@ -1001,45 +1001,103 @@ projr_osf_create_project <- function(title,
 
 # osf
 .projr_remote_file_ls_osf <- function(remote,
-                                      path_dir_parent = NULL) {
+                                      path_dir_parent = NULL,
+                                      fn_vec = character()) {
+  # this function is to be applied to every directory.
+  # it does the following:
+  # 1. Lists all the files
+  # 2. Steps into each directory, and recurses, listing all the
+  #    files and then stepping into each sub-directory, and so on.
   .assert_given_full(remote)
   .assert_chr(path_dir_parent)
-  osf_tbl_file <- remote |> osfr::osf_ls_files(n_max = Inf)
+  osf_tbl_file <- remote |> .projr_osf_ls_files(n_max = Inf)
   if (nrow(osf_tbl_file) == 0L) {
     return(character())
   }
-  dir_vec_ind <- .projr_osf_is_dir(osf_tbl_file)
-  if (any(!dir_vec_ind)) {
-    fn_vec_fn <- osf_tbl_file[["name"]][!dir_vec_ind]
-    if (!is.null(path_dir_parent)) {
-      fn_vec_fn <- file.path(path_dir_parent, fn_vec_fn)
-    }
-  } else {
-    fn_vec_fn <- NULL
-  }
-  fn_vec_dir <- NULL
-  if (any(dir_vec_ind)) {
-    dir_vec_int <- which(dir_vec_ind)
-    for (i in seq_along(dir_vec_int)) {
-      path_dir_osf <- osf_tbl_file[["name"]][dir_vec_int[i]]
-      if (!is.null(path_dir_parent)) {
-        path_dir_parent_curr <- file.path(
-          basename(path_dir_parent), path_dir_osf
-        )
-      } else {
-        path_dir_parent_curr <- path_dir_osf
-      }
-      fn_vec_dir_ind <- .projr_osf_ls_files(
-        osf_tbl = osfr::osf_mkdir(x = remote, path = path_dir_osf),
-        path_dir_parent = path_dir_parent_curr
-      )
-      if (length(fn_vec_dir_ind > 0L)) {
-        fn_vec_dir <- c(fn_vec_dir, fn_vec_dir_ind)
-      }
-    }
-  }
+  # add all files
+  fn_vec_fn <- .projr_remote_file_ls_osf_fn(
+    osf_tbl_file = osf_tbl_file,
+    path_dir_parent = path_dir_parent
+  )
+  # recurse through directories
+  fn_vec_dir <- .projr_remote_file_ls_osf_dir(
+    remote = remote,
+    osf_tbl_file = osf_tbl_file,
+    path_dir_parent = path_dir_parent,
+    fn_vec = fn_vec
+  )
   c(fn_vec_fn, fn_vec_dir) |> unique()
 }
+
+.projr_remote_file_ls_osf_fn <- function(osf_tbl_file,
+                                         path_dir_parent) {
+  dir_vec_ind <- .projr_osf_is_dir(osf_tbl_file)
+  if (all(dir_vec_ind)) {
+    return(NULL)
+  }
+  fn_vec_fn <- osf_tbl_file[["name"]][!dir_vec_ind]
+  if (!is.null(path_dir_parent)) {
+    fn_vec_fn <- file.path(path_dir_parent, fn_vec_fn)
+  }
+  fn_vec_fn
+}
+
+.projr_remote_file_ls_osf_dir <- function(remote,
+                                          osf_tbl_file,
+                                          path_dir_parent,
+                                          fn_vec) {
+  dir_vec_int <- which(.projr_osf_is_dir(osf_tbl_file))
+  if (!any(.projr_osf_is_dir(osf_tbl_file))) {
+    return(NULL)
+  }
+  path_dir_osf <- osf_tbl_file[["name"]][dir_vec_int]
+  # if there are directories, go through them
+  .projr_remote_file_ls_osf_dir_non_null(
+    remote = remote,
+    path_dir_osf = path_dir_osf,
+    path_dir_parent = path_dir_parent,
+    fn_vec = fn_vec
+  )
+}
+
+.projr_remote_file_ls_osf_dir_non_null <- function(remote,
+                                                   path_dir_osf,
+                                                   path_dir_parent,
+                                                   fn_vec) {
+  for (i in seq_along(path_dir_osf)) {
+    fn_vec_add <- .projr_remote_file_ls_osf_dir_non_null_ind(
+      path_dir_osf = path_dir_osf[[i]],
+      remote = remote,
+      path_dir_parent = path_dir_parent,
+      fn_vec = fn_vec
+    )
+    fn_vec <- c(fn_vec, fn_vec_add)
+  }
+  fn_vec
+}
+
+.projr_remote_file_ls_osf_dir_non_null_ind <- function(path_dir_osf,
+                                                       remote,
+                                                       path_dir_parent,
+                                                       fn_vec) {
+  if (!is.null(path_dir_parent)) {
+    path_dir_parent_curr <- file.path(
+      basename(path_dir_parent), path_dir_osf
+    )
+  } else {
+    path_dir_parent_curr <- path_dir_osf
+  }
+  # recurse into directory
+  fn_vec_ind <- .projr_remote_file_ls_osf(
+    remote = .projr_osf_mkdir(x = remote, path = path_dir_osf),
+    path_dir_parent = path_dir_parent_curr, fn_vec = fn_vec
+  )
+  if (length(fn_vec_ind > 0L)) {
+    fn_vec <- c(fn_vec, fn_vec_ind)
+  }
+  fn_vec
+}
+
 
 # github
 .projr_remote_file_ls_github <- function(remote) {
@@ -1111,7 +1169,7 @@ projr_osf_create_project <- function(title,
   osf_tbl_rm <- .projr_remote_file_rm_osf_rm_get(
     path = dir, node = osf_tbl
   )
-  osf_tbl_rm_file <- osf_tbl_rm |> osfr::osf_ls_files(n_max = Inf)
+  osf_tbl_rm_file <- osf_tbl_rm |> .projr_osf_ls_files(n_max = Inf)
   fn_vec_dir <- basename(fn)[dirname(fn) == dir]
   .projr_remote_file_rm_osf_detailed(
     fn_dir = fn_vec_dir, osf_tbl = osf_tbl_rm, osf_tbl_file = osf_tbl_rm_file
@@ -1123,7 +1181,7 @@ projr_osf_create_project <- function(title,
   .assert_string(path, TRUE)
   .assert_given_full(node)
   if (path != ".") {
-    node <- osfr::osf_mkdir(x = node, path = path)
+    node <- .projr_osf_mkdir(x = node, path = path)
   }
   node
 }
@@ -1139,7 +1197,7 @@ projr_osf_create_project <- function(title,
   remove_dir <- setequal(fn_dir, fn_vec_osf) &&
     inherits(osf_tbl, "osf_tbl_file")
   if (remove_dir) {
-    osfr::osf_rm(x = osf_tbl, check = FALSE, recurse = FALSE)
+    .projr_osf_rm(x = osf_tbl, check = FALSE, recurse = FALSE)
     return(invisible(TRUE))
   }
   fn_vec_to_rm <- fn_vec_osf[fn_vec_osf %in% fn_dir]
@@ -1162,7 +1220,7 @@ projr_osf_create_project <- function(title,
     osf_tbl_file_ind <- osf_tbl_file[
       osf_tbl_file[["name"]] == fn_rm[[i]],
     ]
-    osfr::osf_rm(x = osf_tbl_file_ind, check = FALSE, recurse = FALSE)
+    .projr_osf_rm(x = osf_tbl_file_ind, check = FALSE, recurse = FALSE)
   }
 }
 
@@ -1287,11 +1345,11 @@ projr_osf_create_project <- function(title,
   dir_vec <- unique(plot_tbl[["dir"]])
   for (x in dir_vec) {
     if (x != ".") {
-      osf_tbl_upload <- osfr::osf_mkdir(x = remote, path = x)
+      osf_tbl_upload <- .projr_osf_mkdir(x = remote, path = x)
     } else {
       osf_tbl_upload <- remote
     }
-    osfr::osf_upload(
+    .projr_osf_upload(
       x = osf_tbl_upload,
       path = file.path(
         path_dir_local, plot_tbl[["fn"]][plot_tbl[["dir"]] == x]

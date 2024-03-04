@@ -508,3 +508,27 @@ projr_use_data <- function(...,
 .projr_opt_remote_transfer_names_get <- function() {
   c("cue", "sync-approach", "conflict", "version-source")
 }
+
+.projr_try_repeat <- function(fn, args, n_try = 3, n_sleep = 3) {
+  last_error <- NULL
+
+  for (i in seq_len(n_try)) {
+    result_obj <- tryCatch(
+      {
+        list(success = TRUE, result = do.call(fn, args))
+      },
+      error = function(err) {
+        Sys.sleep(n_sleep)
+        list(success = FALSE, result = err)
+      }
+    )
+
+    if (result_obj$success) {
+      return(result_obj$result)
+    }
+
+    last_error <- result_obj$result
+  }
+
+  stop("All attempts failed with the following error: ", last_error)
+}

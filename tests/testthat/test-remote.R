@@ -189,7 +189,7 @@ test_that(".projr_remote_get_final works", {
 
       # sub-directory
       path_rel <- "a/data-raw/v0.0.0-1"
-      osf_tbl <- osfr::osf_mkdir(.projr_remote_get("osf", id), path_rel)
+      osf_tbl <- .projr_osf_mkdir(.projr_remote_get("osf", id), path_rel)
       expect_identical(
         .projr_remote_get_final_osf(
           id = id,
@@ -315,7 +315,7 @@ test_that(".projr_remote_rm_final_if_empty works - remote", {
           remote = osf_tbl_file, structure = "version"
         )
       )
-      expect_identical(osfr::osf_ls_files(osf_tbl) |> nrow(), 0L)
+      expect_identical(.projr_osf_ls_files(osf_tbl) |> nrow(), 0L)
 
       # create the sub-directory, and upload to it
       osf_tbl_file <- .projr_remote_get_final(
@@ -323,7 +323,7 @@ test_that(".projr_remote_rm_final_if_empty works - remote", {
         id = id, path_append_label = FALSE, structure = "version"
       )
       invisible(file.create("abc.txt"))
-      osfr::osf_upload(x = osf_tbl_file, path = "abc.txt")
+      .projr_osf_upload(x = osf_tbl_file, path = "abc.txt")
 
       # try to remove it, check that it isn't
       expect_false(
@@ -332,7 +332,7 @@ test_that(".projr_remote_rm_final_if_empty works - remote", {
           remote = osf_tbl_file, structure = "version"
         )
       )
-      expect_identical(osfr::osf_ls_files(osf_tbl) |> nrow(), 1L)
+      expect_identical(.projr_osf_ls_files(osf_tbl) |> nrow(), 1L)
 
       # github
       # --------------------------
@@ -408,20 +408,20 @@ test_that(".projr_remote_file_rm_all works - remote", {
       )
 
       # clear content
-      osf_tbl_sub_a <- osfr::osf_mkdir(osf_tbl, path = "a")
-      osf_tbl_sub_b <- osfr::osf_mkdir(osf_tbl, path = "a/b")
+      osf_tbl_sub_a <- .projr_osf_mkdir(osf_tbl, path = "a")
+      osf_tbl_sub_b <- .projr_osf_mkdir(osf_tbl, path = "a/b")
       path_tmp_file <- file.path(tempdir(), "abc.txt")
       file.create(path_tmp_file)
-      osfr::osf_upload(x = osf_tbl, path = path_tmp_file)
-      osfr::osf_upload(x = osf_tbl_sub_a, path = path_tmp_file)
-      osfr::osf_upload(x = osf_tbl_sub_b, path = path_tmp_file)
+      .projr_osf_upload(x = osf_tbl, path = path_tmp_file)
+      .projr_osf_uploadx(x = osf_tbl_sub_a, path = path_tmp_file)
+      .projr_osf_upload(x = osf_tbl_sub_b, path = path_tmp_file)
       expect_true(
         .projr_remote_file_rm_all(
           "osf",
           remote = osf_tbl
         )
       )
-      expect_true(nrow(osfr::osf_ls_files(osf_tbl)) == 0L)
+      expect_true(nrow(.projr_osf_ls_files(osf_tbl)) == 0L)
 
       # github
       # --------------------------
