@@ -64,8 +64,6 @@ test_that("projr_build_output works - osf - latest", {
       # handle something to upload
       # ---------------------
 
-      browser()
-
       .projr_test_setup_content("data-raw")
       projr_build_patch(msg = "Ze data")
       fn_vec <- .projr_remote_file_ls(
