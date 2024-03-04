@@ -53,7 +53,7 @@
   if (!is.null(public)) public else FALSE
 }
 
-.projr_osf_upload <- function(..., n_try = 3, n_sleep = 3) {
+.projr_osf_upload <- function(..., n_try = NULL, n_sleep = 3) {
   args_list <- list(...)
   .projr_try_repeat(
     osfr::osf_upload,
@@ -63,7 +63,7 @@
   )
 }
 
-.projr_osf_create_project <- function(..., n_try = 3, n_sleep = 3) {
+.projr_osf_create_project <- function(..., n_try = NULL, n_sleep = 3) {
   args_list <- list(...)
   .projr_try_repeat(
     osfr::osf_create_project,
@@ -73,7 +73,7 @@
   )
 }
 
-.projr_osf_create_component <- function(..., n_try = 3, n_sleep = 3) {
+.projr_osf_create_component <- function(..., n_try = NULL, n_sleep = 3) {
   args_list <- list(...)
   .projr_try_repeat(
     osfr::osf_create_component,
@@ -83,7 +83,7 @@
   )
 }
 
-.projr_osf_retrieve_node <- function(..., n_try = 3, n_sleep = 3) {
+.projr_osf_retrieve_node <- function(..., n_try = NULL, n_sleep = 3) {
   args_list <- list(...)
   .projr_try_repeat(
     osfr::osf_retrieve_node,
@@ -93,7 +93,7 @@
   )
 }
 
-.projr_osf_mkdir <- function(..., n_try = 3, n_sleep = 3) {
+.projr_osf_mkdir <- function(..., n_try = NULL, n_sleep = 3) {
   args_list <- list(...)
   .projr_try_repeat(
     osfr::osf_mkdir,
@@ -103,7 +103,7 @@
   )
 }
 
-.projr_osf_ls_files <- function(..., n_try = 3, n_sleep = 3) {
+.projr_osf_ls_files <- function(..., n_try = NULL, n_sleep = 3) {
   args_list <- list(...)
   .projr_try_repeat(
     osfr::osf_ls_files,
@@ -113,7 +113,7 @@
   )
 }
 
-.projr_osf_rm <- function(..., n_try = 3, n_sleep = 3) {
+.projr_osf_rm <- function(..., n_try = NULL, n_sleep = 3) {
   args_list <- list(...)
   .projr_try_repeat(
     osfr::osf_rm,
@@ -123,7 +123,7 @@
   )
 }
 
-.projr_osf_download <- function(..., n_try = 3, n_sleep = 3) {
+.projr_osf_download <- function(..., n_try = NULL, n_sleep = 3) {
   args_list <- list(...)
   .projr_try_repeat(
     osfr::osf_download,
@@ -133,7 +133,7 @@
   )
 }
 
-.projr_osf_retrieve_user <- function(..., n_try = 3, n_sleep = 3) {
+.projr_osf_retrieve_user <- function(..., n_try = NULL, n_sleep = 3) {
   args_list <- list(...)
   .projr_try_repeat(
     osfr::osf_retrieve_user,
@@ -143,7 +143,7 @@
   )
 }
 
-.projr_osf_ls_nodes <- function(..., n_try = 3, n_sleep = 3) {
+.projr_osf_ls_nodes <- function(..., n_try = NULL, n_sleep = 3) {
   args_list <- list(...)
   .projr_try_repeat(
     osfr::osf_ls_nodes,

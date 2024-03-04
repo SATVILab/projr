@@ -509,8 +509,16 @@ projr_use_data <- function(...,
   c("cue", "sync-approach", "conflict", "version-source")
 }
 
-.projr_try_repeat <- function(fn, args, n_try = 3, n_sleep = 3) {
+.projr_try_repeat <- function(fn, args, n_try = NULL, n_sleep = 3) {
   last_error <- NULL
+
+  if (is.null(n_try)) {
+    if (Sys.getenv("TESTTHAT") == "true") {
+      n_try <- 10
+    } else {
+      n_try <- 3
+    }
+  }
 
   for (i in seq_len(n_try)) {
     result_obj <- tryCatch(
