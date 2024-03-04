@@ -27,6 +27,10 @@
 #' they would simply consist of details as to the version
 #' being bumped to and the stage in the build process
 #' at which the commit was made.
+#' @param profile character.
+#' `projr` profile to use. Will set the environment variable
+#' `PROJR_PROFILE` to this value at the start of the build,
+#  and set it to what it was before at the end of the build.
 #'
 #' @param args_engine list.
 #' Arguments passed to the
@@ -36,7 +40,8 @@
 #' @export
 projr_build_output <- function(bump_component,
                                msg = NULL,
-                               args_engine = list()) {
+                               args_engine = list(),
+                               profile = NULL) {
   bump_component <- .projr_build_output_get_bump_component(
     bump_component
   )
@@ -45,40 +50,47 @@ projr_build_output <- function(bump_component,
   .projr_build(
     bump_component = bump_component,
     msg = msg,
-    args_engine = args_engine
+    args_engine = args_engine,
+    profile = profile
   )
 }
 
 #' @rdname projr_build_output
 #' @export
 projr_build_major <- function(msg = NULL,
-                              args_engine = list()) {
+                              args_engine = list(),
+                              profile = NULL) {
   projr_build_output(
     bump_component = "major",
     msg = msg,
-    args_engine = args_engine
+    args_engine = args_engine,
+    profile = profile
   )
 }
 
 #' @rdname projr_build_output
 #' @export
 projr_build_minor <- function(msg = NULL,
-                              args_engine = list()) {
+                              args_engine = list(),
+                              profile = NULL) {
   projr_build_output(
     bump_component = "minor",
     msg = msg,
-    args_engine = args_engine
+    args_engine = args_engine,
+    profile = profile
   )
 }
 
 #' @rdname projr_build_output
 #' @export
 projr_build_patch <- function(msg = NULL,
-                              args_engine = list()) {
+                              args_engine = list(),
+                              profile = NULL) {
   projr_build_output(
     bump_component = "patch",
     msg = msg,
-    args_engine = args_engine
+    args_engine = args_engine,
+    profile = profile
   )
 }
 
@@ -103,19 +115,25 @@ projr_build_patch <- function(msg = NULL,
 #' Arguments passed to the
 #' rendering engine
 #' (`rmarkdown::render`, `quarto::render` or `bookdown::render_book`).
+#' @param profile character.
+#' `projr` profile to use. Will set the environment variable
+#' `PROJR_PROFILE` to this value at the start of the build,
+#  and set it to what it was before at the end of the build.
 #'
 #' @export
 projr_build_dev <- function(file = NULL,
                             bump = FALSE,
                             old_dev_remove = TRUE,
-                            args_engine = list()) {
+                            args_engine = list(),
+                            profile = NULL) {
   # NULL if FALSE and "dev" if TRUE
   bump_component <- .projr_build_dev_get_bump_component(bump)
   .projr_build(
     file = file,
     bump_component = bump_component,
     old_dev_remove = TRUE,
-    args_engine = args_engine
+    args_engine = args_engine,
+    profile = profile
   )
 }
 
@@ -129,7 +147,13 @@ projr_build_dev <- function(file = NULL,
                          bump_component,
                          old_dev_remove = TRUE,
                          msg = "",
-                         args_engine) {
+                         args_engine,
+                         profile) {
+  if (!is.null(profile)) {
+    old_profile <- Sys.getenv("PROJR_PROFILE")
+    Sys.setenv(PROJR_PROFILE = profile)
+    on.exit(Sys.setenv(PROJR_PROFILE = old_profile))
+  }
   projr_env_file_activate()
   version_run_on_list <- .projr_build_pre(bump_component, msg)
   .projr_build_actual(version_run_on_list, file, args_engine)

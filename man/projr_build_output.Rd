@@ -7,13 +7,18 @@
 \alias{projr_build_patch}
 \title{Build project to output}
 \usage{
-projr_build_output(bump_component, msg = NULL, args_engine = list())
+projr_build_output(
+  bump_component,
+  msg = NULL,
+  args_engine = list(),
+  profile = NULL
+)
 
-projr_build_major(msg = NULL, args_engine = list())
+projr_build_major(msg = NULL, args_engine = list(), profile = NULL)
 
-projr_build_minor(msg = NULL, args_engine = list())
+projr_build_minor(msg = NULL, args_engine = list(), profile = NULL)
 
-projr_build_patch(msg = NULL, args_engine = list())
+projr_build_patch(msg = NULL, args_engine = list(), profile = NULL)
 }
 \arguments{
 \item{bump_component}{"major", "minor", "patch" or missing.
@@ -38,6 +43,10 @@ at which the commit was made.}
 Arguments passed to the
 rendering engine
 (\code{rmarkdown::render}, \code{quarto::render} or \code{bookdown::render_book}).}
+
+\item{profile}{character.
+\code{projr} profile to use. Will set the environment variable
+\code{PROJR_PROFILE} to this value at the start of the build,}
 }
 \description{
 \code{projr_build_output} Builds project to output, which

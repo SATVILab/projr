@@ -8,7 +8,8 @@ projr_build_dev(
   file = NULL,
   bump = FALSE,
   old_dev_remove = TRUE,
-  args_engine = list()
+  args_engine = list(),
+  profile = NULL
 )
 }
 \arguments{
@@ -29,6 +30,10 @@ after a successful run.}
 Arguments passed to the
 rendering engine
 (\code{rmarkdown::render}, \code{quarto::render} or \code{bookdown::render_book}).}
+
+\item{profile}{character.
+\code{projr} profile to use. Will set the environment variable
+\code{PROJR_PROFILE} to this value at the start of the build,}
 }
 \description{
 Builds project to output, which
