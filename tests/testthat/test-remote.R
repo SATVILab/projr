@@ -315,7 +315,16 @@ test_that(".projr_remote_rm_final_if_empty works - remote", {
           remote = osf_tbl_file, structure = "version"
         )
       )
-      expect_identical(.projr_osf_ls_files(osf_tbl) |> nrow(), 0L)
+      is_zero <- (.projr_osf_ls_files(osf_tbl) |> nrow()) == 0L
+      n_sec <- 0
+      start_time <- proc.time()[3]
+      while (!is_zero && n_sec < 15) {
+        Sys.sleep(3)
+        is_zero <- (.projr_osf_ls_files(osf_tbl) |> nrow()) == 0L
+        n_sec <- proc.time()[3] - start_time
+      }
+      expect_true(is_zero)
+
 
       # create the sub-directory, and upload to it
       osf_tbl_file <- .projr_remote_get_final(
