@@ -51,7 +51,7 @@ jobs:
   R-CMD-check-all:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.config.os }}
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }}
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }} - all OS's
 
     strategy:
       fail-fast: false
