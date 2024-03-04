@@ -159,7 +159,7 @@ test_that(".projr_remote_get_final works - local", {
 test_that(".projr_remote_get_final works", {
   skip_if_offline()
   skip_on_cran()
-  # skip_if(.is_test_fast())
+  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
@@ -385,7 +385,7 @@ test_that(".projr_remote_file_rm_all works - remote", {
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
@@ -445,7 +445,6 @@ test_that(".projr_remote_file_rm_all works - remote", {
       )
       piggyback:::.pb_cache_clear()
       content_tbl <- piggyback::pb_list(tag = id)
-      browser()
       expect_true(is.null(content_tbl) || nrow(content_tbl) == 0L)
     }
   )
@@ -574,7 +573,7 @@ test_that("adding, tallying and removing files from remotes works - github", {
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )

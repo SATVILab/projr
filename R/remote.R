@@ -1494,7 +1494,9 @@ projr_osf_create_project <- function(title,
   .assert_given_full(x)
   if (!"tag" %in% names(x)) {
     .assert_string(x)
-    return(x)
+    tag <- x
+  } else {
+    tag <- x[["tag"]]
   }
-  x[["tag"]] |> gsub("\\s", "-", x = "_")
+  gsub("\\s", "-", tag)
 }
