@@ -64,6 +64,7 @@
 }
 
 .projr_osf_create_project <- function(..., n_try = NULL, n_sleep = 3) {
+  .projr_dep_install("osfr")
   args_list <- list(...)
   .projr_try_repeat(
     osfr::osf_create_project,
