@@ -1,11 +1,9 @@
 library(testthat)
 devtools::load_all()
 .test_set_select()
-# debugonce(.projr_yml_dest_add_get_list_add_extra_osf)
-# debugonce(.projr_yml_dest_add_get_list_add_extra_osf_id_null)
-# debugonce(.projr_remote_create_osf)
+# debugonce(.projr_remote_create_osf_project)
 devtools::test_active_file(
-  "tests/testthat/test-build-send-osf.R"
+  "tests/testthat/test-remote.R"
 )
 
 library(testthat)
@@ -21,12 +19,10 @@ devtools::load_all()
 .projr_test_coverage()
 
 
-
-debugonce(.projr_remote_file_ls_github)
-debugonce(.projr_remote_file_get_all_github)
-.projr_remote_get_path_rel(
-  path = path, path_append_label = path_append_label,
-  label = label, structure = structure, type = "local"
+debug(.projr_remote_file_ls_osf)
+# debugonce(.projr_remote_file_ls_osf_dir)
+# debugonce(.projr_remote_file_ls_osf_dir_non_null_ind)
+.projr_remote_file_ls(
+  "osf",
+  remote = osf_tbl
 )
-
-.projr_yml_dest_get_title("Raw data", "local", NULL)
