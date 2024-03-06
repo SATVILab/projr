@@ -8,17 +8,8 @@ directories:
     path: _output
   docs:
     path: docs
-
 build:
-  local:
-    "archive":
-      path: _archive
-      content: [data-raw, output, docs]
-      structure: version
   github:
-    "@version":
-      content: code
-      description: "Latest source code"
     input:
       content: [data-raw]
       description: "Project inputs"
