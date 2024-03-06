@@ -275,6 +275,14 @@ with_dir <- function(new, code) {
 #' conflicts with the temporary directories used by `projr_build_dev`
 #' and makes it difficult to restore after failed output builds.
 #'
+#' `projr_use_data` is a drop-in replacement for `usethis::use_data`,
+#' which saves data to the temporary directory when `safe = TRUE`.
+#' This makes it easier to restore the project after a failed output build.
+#'
+#' The only other difference is that `projr_use_data` invisibly
+#' returns the path to the saved data file, whereas `usethis::use_data`
+#' returns `TRUE`.
+#'
 #' @param ... Unquoted names of existing objects to save.
 #' @param internal If `FALSE`, saves each object in its own `.rda`
 #'   file in the `data/` directory. These data files bypass the usual
@@ -365,11 +373,12 @@ projr_use_data <- function(...,
     }
   }
   envir <- parent.frame()
-  mapply(save, list = objs, file = .dir_proj_get(paths), MoreArgs = list(
+  paths_project <- vapply(paths, .dir_proj_get, character(1))
+  mapply(save, list = objs, file = paths_project, MoreArgs = list(
     envir = envir,
     compress = compress, version = version, ascii = ascii
   ))
-  invisible()
+  invisible(paths_project)
 }
 
 .projr_usethis_get_objs_from_dots <- function(.dots) {

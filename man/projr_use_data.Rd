@@ -53,6 +53,14 @@ Default is the temporary directory (TRUE).}
 usethis::use_data always saves data to \verb{data/}, which
 conflicts with the temporary directories used by \code{projr_build_dev}
 and makes it difficult to restore after failed output builds.
+
+\code{projr_use_data} is a drop-in replacement for \code{usethis::use_data},
+which saves data to the temporary directory when \code{safe = TRUE}.
+This makes it easier to restore the project after a failed output build.
+
+The only other difference is that \code{projr_use_data} invisibly
+returns the path to the saved data file, whereas \code{usethis::use_data}
+returns \code{TRUE}.
 }
 \details{
 Taken directly from the documentation for the original
