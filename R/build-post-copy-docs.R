@@ -164,34 +164,57 @@
 
 .projr_build_copy_docs_paths <- function(path, output_run) {
   for (x in path) {
-    if (fs::is_file(x)) {
-      file_to <- projr_path_get("docs", basename(x), safe = !output_run)
-      if (file.exists(file_to)) {
-        invisible(file.remove(file_to))
-      }
-      file.rename(from = x, to = file_to)
-    } else if (fs::is_dir(x)) {
-      fn_vec <- list.files(
-        .dir_proj_get(x),
-        recursive = TRUE,
-        all.files = TRUE
-      )
-      fn_vec_from <- .dir_proj_get(x, fn_vec)
-      fn_vec_to <- file.path(
-        projr_path_get_dir("docs", safe = !output_run), x, fn_vec
-      )
-      dir_vec_to <- dirname(fn_vec_to) |> unique()
-      for (i in seq_along(dir_vec_to)) {
-        .dir_create(dir_vec_to[i])
-      }
-      invisible(file.rename(from = fn_vec_from, to = fn_vec_to))
-    }
+    .projr_build_copy_docs_paths_file(x, output_run)
+    .projr_build_copy_docs_paths_dir(x, output_run)
   }
+  .projr_build_copy_docs_paths_rm_dir(path)
+  invisible(TRUE)
+}
+
+.projr_build_copy_docs_paths_file <- function(path, output_run) {
+  if (!file.exists(path) || !fs::is_file(path)) {
+    return(invisible(FALSE))
+  }
+  file_to <- projr_path_get("docs", basename(path), safe = !output_run)
+  if (file.exists(file_to)) {
+    invisible(file.remove(file_to))
+  }
+  file.rename(from = path, to = file_to)
+  invisible(TRUE)
+}
+
+.projr_build_copy_docs_paths_dir <- function(path, output_run) {
+  if (!file.exists(path) || !fs::is_dir(path)) {
+    return(invisible(FALSE))
+  }
+  fn_vec <- list.files(
+    .dir_proj_get(path),
+    recursive = TRUE,
+    all.files = TRUE
+  )
+  fn_vec_from <- vapply(
+    fn_vec, function(fn) .dir_proj_get(path, fn), character(1)
+  )
+  fn_vec_to <- file.path(
+    projr_path_get_dir("docs", safe = !output_run), path, fn_vec
+  )
+  dir_vec_to <- dirname(fn_vec_to) |> unique()
+  for (i in seq_along(dir_vec_to)) {
+    .dir_create(dir_vec_to[i])
+  }
+  invisible(file.rename(from = fn_vec_from, to = fn_vec_to))
+  dir_to <- projr_path_get_dir("docs", path, safe = !output_run)
+  if (file.exists(dir_to)) {
+    invisible(unlink(dir_to, recursive = TRUE))
+  }
+  invisible(file.rename(from = path, to = dir_to))
+  invisible(TRUE)
+}
+
+.projr_build_copy_docs_paths_rm_dir <- function(path) {
   for (x in path) {
-    if (file.exists(x)) {
-      if (fs::is_dir(x)) {
-        invisible(unlink(x, recursive = TRUE))
-      }
+    if (file.exists(x) && fs::is_dir(x)) {
+      invisible(unlink(x, recursive = TRUE))
     }
   }
   invisible(TRUE)
