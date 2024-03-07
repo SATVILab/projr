@@ -8,7 +8,7 @@
   label_vec <- c(.projr_yml_dir_get_label_output(NULL), "docs", "data") |>
     unique()
   for (x in label_vec) {
-    if (!.projr_build_clear_post_check(x)) {
+    if (!.projr_build_clear_post_check_label(x)) {
       next
     }
     projr_path_get_dir(x, safe = FALSE) |> .dir_clear()
@@ -16,17 +16,17 @@
   invisible(TRUE)
 }
 
-.projr_build_clear_post_check <- function(label) {
+.projr_build_clear_post_check <- function(output_run) {
+  invisible(output_run)
+}
+
+.projr_build_clear_post_check_label <- function(label) {
   # allow the exception that the quarto project
   # and bookdown folders are not cleared
   if (!label == "docs") {
     return(TRUE)
   }
   .projr_engine_get() %in% c("quarto_document", "rmd")
-}
-
-.projr_build_clear_post_check <- function(output_run) {
-  invisible(output_run)
 }
 
 # clear old temporary output directories
