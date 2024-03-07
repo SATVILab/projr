@@ -5,10 +5,24 @@
   # clear the output folders (output and data),
   # as these would still contain output from
   # previous runs as they're not cleared pre-run
-  for (x in c(.projr_yml_dir_get_label_output(NULL), "data")) {
+  label_vec <- c(.projr_yml_dir_get_label_output(NULL), "docs", "data") |>
+    unique()
+  for (x in label_vec) {
+    if (!.projr_build_clear_post_check(x)) {
+      next
+    }
     projr_path_get_dir(x, safe = FALSE) |> .dir_clear()
   }
   invisible(TRUE)
+}
+
+.projr_build_clear_post_check <- function(label) {
+  # allow the exception that the quarto project
+  # and bookdown folders are not cleared
+  if (!label == "docs") {
+    return(TRUE)
+  }
+  .projr_engine_get() %in% c("quarto_document", "rmd")
 }
 
 .projr_build_clear_post_check <- function(output_run) {

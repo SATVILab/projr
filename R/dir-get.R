@@ -121,7 +121,7 @@
 }
 
 .projr_dir_set_docs_safe <- function(path, label) {
-  # don't do anything for quarto and rmd projects,
+  # don't do anything for quarto and bookdown projects,
   # as we only manipulate the _quarto.yml and _bookdown.yml
   # here (_projr.yml manipulated only for unsafe ones)
   if (!.projr_dir_set_docs_safe_check(label)) {
