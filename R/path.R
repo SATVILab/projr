@@ -108,13 +108,29 @@
   path_vec <- list.files(
     path_dir,
     recursive = recursive, full.names = full.names, all.files = all.files
-  ) |>
-    fs::path_norm() |>
-    as.character()
+  )
+  if (.is_len_0(path_vec)) {
+    return(path_vec)
+  }
+  path_vec <- path_vec |> .file_ls_rm_dir(path_dir, full.names)
+
   if (.is_len_0(path_vec)) {
     return(path_vec)
   }
   .dir_filter_removable(path_vec)
+}
+
+.file_ls_rm_dir <- function(fn, path_dir, full.names) {
+  if (!full.names) {
+    fn_full <- file.path(path_dir, fn)
+  } else {
+    fn_full <- fn
+  }
+  fn <- fn[!fs::is_dir(fn) & file.exists(fn_full)]
+  fn |>
+    fs::path_expand() |>
+    fs::path_norm() |>
+    as.character()
 }
 
 # --------------------

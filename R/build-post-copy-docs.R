@@ -187,11 +187,7 @@
   if (!file.exists(path) || !fs::is_dir(path)) {
     return(invisible(FALSE))
   }
-  fn_vec <- list.files(
-    .dir_proj_get(path),
-    recursive = TRUE,
-    all.files = TRUE
-  )
+  fn_vec <- .file_ls(.dir_proj_get(path))
   fn_vec_from <- vapply(
     fn_vec, function(fn) .dir_proj_get(path, fn), character(1)
   )
