@@ -187,23 +187,13 @@
   if (!file.exists(path) || !fs::is_dir(path)) {
     return(invisible(FALSE))
   }
-  fn_vec <- .file_ls(.dir_proj_get(path))
-  fn_vec_from <- vapply(
-    fn_vec, function(fn) .dir_proj_get(path, fn), character(1)
+  path_dir_to <- file.path(
+    projr_path_get_dir("docs", safe = !output_run), path
   )
-  fn_vec_to <- file.path(
-    projr_path_get_dir("docs", safe = !output_run), path, fn_vec
+  .dir_copy_exact(
+    path_dir_from = path,
+    path_dir_to = path_dir_to
   )
-  dir_vec_to <- dirname(fn_vec_to) |> unique()
-  for (i in seq_along(dir_vec_to)) {
-    .dir_create(dir_vec_to[i])
-  }
-  invisible(file.rename(from = fn_vec_from, to = fn_vec_to))
-  dir_to <- projr_path_get_dir("docs", path, safe = !output_run)
-  if (file.exists(dir_to)) {
-    invisible(unlink(dir_to, recursive = TRUE))
-  }
-  invisible(file.rename(from = path, to = dir_to))
   invisible(TRUE)
 }
 
