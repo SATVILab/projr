@@ -100,9 +100,6 @@
   # list all files, with useful defaults,
   # whilst excluding the project directory
   # and the directory itself
-  # if `recursive`, then `include.dirs` is set
-  # to TRUE so that the recursion actually happens
-  # (but the directories are then filtered out afterwards).
   .assert_string(path_dir, TRUE)
   .assert_dir_exists(path_dir, TRUE)
   .assert_flag(recursive, TRUE)
@@ -110,11 +107,9 @@
   .assert_flag(all.files, TRUE)
   path_vec <- list.files(
     path_dir,
-    recursive = recursive, full.names = full.names, all.files = all.files,
-    include.dirs = recursive
+    recursive = recursive, full.names = full.names, all.files = all.files
   ) |>
     fs::path_norm() |>
-    .file_filter_dir_non() |>
     as.character()
   if (.is_len_0(path_vec)) {
     return(path_vec)
