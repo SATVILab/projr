@@ -190,7 +190,7 @@
   path_dir_to <- file.path(
     projr_path_get_dir("docs", safe = !output_run), path
   )
-  .dir_copy_exact(
+  .dir_move_exact(
     path_dir_from = path,
     path_dir_to = path_dir_to
   )
