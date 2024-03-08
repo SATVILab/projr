@@ -902,11 +902,11 @@ projr_init_renviron <- function() {
 # --------------------------
 .projr_init_github <- function(username,
                                public) {
-  if (!.projr_git_repo_check_exists()) {
+  if (!.projr_git_repo_check_exists() || is.null(username)) {
     .projr_yml_unset_github_dest()
     return(invisible(FALSE))
   }
-  if (.projr_git_remote_check_exists() || is.null(username)) {
+  if (.projr_git_remote_check_exists()) {
     return(invisible(FALSE))
   }
   .projr_init_github_actual(username, public)
