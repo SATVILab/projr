@@ -13,7 +13,5 @@ build:
   github:
     input:
       content: [data-raw]
-      description: "Project inputs"
     output:
       content: [output, docs]
-      description: "Project outputs"
