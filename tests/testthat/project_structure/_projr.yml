@@ -9,6 +9,7 @@ directories:
   docs:
     path: docs
 build:
+  git: true
   github:
     input:
       content: [data-raw]
