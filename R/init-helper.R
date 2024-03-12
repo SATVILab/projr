@@ -43,6 +43,7 @@
 }
 
 .projr_init_yml_test_unset_push <- function() {
+  # HERE
   if (!.is_test()) {
     return(invisible(FALSE))
   }
@@ -51,8 +52,10 @@
   if (!"build" %in% names(yml_projr)) {
     return(invisible(FALSE))
   }
-  yml_projr[["build"]][["git"]][["push"]] <- FALSE
-  yaml::write_yaml(yml_projr, path_yml)
+  .projr_yml_git_set_push(
+    FALSE,
+    simplify_default = TRUE, profile = "default"
+  )
   invisible(TRUE)
 }
 
@@ -236,6 +239,10 @@
   if (.projr_init_engine_check_exists()) {
     return(NULL)
   }
+  answer_auto <- Sys.getenv(
+    "PROJR_TEST_ENGINE",
+    unset = "Bookdown project"
+  )
   nm_engine <- .projr_init_prompt_ind(
     .var = NULL,
     nm_item_long = "document engine",
@@ -246,7 +253,7 @@
     allow_specify_other = FALSE,
     allow_complete_later = FALSE,
     answer_translate = NULL,
-    answer_auto = "Bookdown project"
+    answer_auto = answer_auto
   )
   long_to_short_vec_engine <- c(
     `Quarto project` = "quarto_project",
@@ -366,7 +373,7 @@
       nm_last <- NULL
     }
     nm_email <- NULL
-    nm_title <- NULL
+    nm_title <- "TITLE"
   }
   list(
     pkg = nm_pkg,
