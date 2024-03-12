@@ -1,3 +1,5 @@
+# bookdown
+# ------------------------
 test_that("projr_build_dev works", {
   skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -46,6 +48,54 @@ test_that("projr_build_output works", {
     force = TRUE
   )
 })
+
+# quarto
+# ------------------------
+
+test_that("projr_build_ works with quarto projects", {
+  dir_test <- .projr_test_setup_project(
+    git = FALSE, set_env_var = TRUE
+  )
+  skip_if(.is_test_fast())
+  # skip_if(.is_test_select())
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      invisible(file.remove(
+        c(
+          "_bookdown.yml", "index.Rmd"
+        )
+      ))
+      Sys.setenv("PROJR_TEST_ENGINE" = "Quarto project")
+      # remove the pdf setting
+      projr_init()
+      yml_quarto <- .projr_yml_quarto_get()
+      yml_quarto$format <- yml_quarto$format[-2]
+      .projr_yml_quarto_set(yml_quarto)
+      # dev build
+      projr_build_dev()
+      expect_true(
+        dir.exists("_tmp/projr/v0.0.0-1/docs")
+      )
+      expect_true(
+        length(.file_ls("_tmp/projr/v0.0.0-1/docs")) > 5
+      )
+
+      # output build
+      projr_build_patch(msg = "Test")
+      expect_true(
+        !dir.exists("_tmp/projr/v0.0.0-1/docs")
+      )
+      expect_true(dir.exists("docs"))
+      expect_true(length(.file_ls("docs")) > 5)
+      expect_true(file.exists("docs/index.html"))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+
 
 test_that(".projr_build_clear_pre and _post works", {
   skip_if(.is_test_select())

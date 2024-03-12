@@ -2,7 +2,8 @@
                                       github = FALSE,
                                       set_env_var = TRUE,
                                       base_name = "test_projr",
-                                      env = rlang::caller_env()) {
+                                      env = rlang::caller_env(),
+                                      rm_engine = FALSE) {
   force(env)
   path_dir_test <- .projr_test_setup_project_dir(base_name, env)
   .projr_test_setup_project_env_var(set_env_var, env)
@@ -10,8 +11,19 @@
   .projr_test_setup_project_files_copy(path_dir_test)
   .projr_test_setup_project_files_create_ignore(path_dir_test)
   .projr_test_setup_project_files_git(git && !github, path_dir_test)
+  .projr_test_rm_engine(rm_engine, path_dir_test)
   invisible(path_dir_test)
 }
+
+.projr_test_rm_engine <- function(rm_engine, path_dir_test) {
+  if (rm_engine) {
+    .file_rm(file.path(path_dir_test, "_bookdown.yml"))
+    .file_rm(file.path(path_dir_test, "index.Rmd"))
+    return(invisible(TRUE))
+  }
+  invisible(FALSE)
+}
+
 
 .projr_test_setup_project_dir <- function(base_name, env) {
   # set up directory
@@ -322,3 +334,5 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
   )]
   .projr_yml_build_set(yml_projr_build, NULL)
 }
+
+.projr_test_setup_project()

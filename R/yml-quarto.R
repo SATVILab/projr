@@ -41,6 +41,11 @@
       list_save[["project"]][["render"]]
     )
   }
+  if (.is_string(list_save[["book"]][["chapters"]])) {
+    list_save[["book"]][["chapters"]] <- list(
+      list_save[["book"]][["chapters"]]
+    )
+  }
 
   yaml::write_yaml(
     list_save, path_yml,
