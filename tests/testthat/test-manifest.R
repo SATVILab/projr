@@ -42,7 +42,7 @@ test_that(".projr_build_manifest_* works", {
       # no content, except for an ignored label (output)
       label_vec <- c("cache", "data-raw", "output")[-3]
       for (x in label_vec) {
-        .dir_rm(projr_dir_get(x, safe = TRUE, create = FALSE))
+        .dir_rm(projr_path_get_dir(x, safe = TRUE, create = FALSE))
         projr_dir_create(x, safe = TRUE)
       }
       .projr_test_setup_content("output", safe = TRUE)
@@ -83,8 +83,8 @@ test_that(".projr_build_manifest_* works", {
 
       # return zero table
       invisible(.file_rm(.projr_build_manifest_pre_path_get()))
-      .dir_rm(projr_dir_get("docs", safe = FALSE))
-      .dir_rm(projr_dir_get("output", safe = FALSE))
+      .dir_rm(projr_path_get_dir("docs", safe = FALSE))
+      .dir_rm(projr_path_get_dir("output", safe = FALSE))
       .file_rm(.dir_proj_get("manifest.csv"))
       path_manifest <- .projr_build_manifest_post(TRUE)
       expect_identical(nrow(.projr_manifest_read(path_manifest)), 0L)

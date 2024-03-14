@@ -46,11 +46,11 @@
 #' @rdname projr_dir_get
 #' @export
 #' @seealso projr_dir_create_all
-projr_dir_get <- function(label, ...,
-                          create = TRUE,
-                          relative = FALSE,
-                          absolute = FALSE,
-                          safe = TRUE) {
+projr_path_get_dir <- function(label, ...,
+                               create = TRUE,
+                               relative = FALSE,
+                               absolute = FALSE,
+                               safe = TRUE) {
   dots_vec <- .projr_dots_get_chr_vec(...)
   .projr_dir_get_check(label, dots_vec, relative, absolute, safe)
 
@@ -59,10 +59,6 @@ projr_dir_get <- function(label, ...,
     .projr_dir_get_rel(relative) |>
     .projr_dir_get_abs(absolute)
 }
-
-#' @rdname projr_dir_get
-#' @export
-projr_path_get_dir <- projr_dir_get
 
 .projr_dir_get_check <- function(label, dots_list, relative, absolute, safe) {
   if (.is_len_pos(dots_list)) {
@@ -180,7 +176,7 @@ projr_dir_create_all <- function() {
 #' and \code{.Rbuildignore} as specified
 #' in \code{_projr.yml}.
 #' Default is \code{TRUE}.
-#' @inheritParams projr_dir_get
+#' @inheritParams projr_path_get_dir
 #'
 #' @return Character.
 #' Path to directory requested.
@@ -235,17 +231,15 @@ projr_path_get <- function(label, ...,
     as.character()
 }
 
-#' @rdname projr_path_get
-#' @export
-projr_path_get_file <- projr_path_get
-
 #' @title Create a directory in _projr.yml
 #'
 #' @description Creates a directory that is
 #' listed in _projr.yml for the current projr profile.
 #' Will add to \code{.gitignore} and \code{.Rbuildignore}
 #' as well if required.
-#' @inheritParams projr_dir_get
+#' @inheritParams projr_path_get_dir
+#'
+#' @seealso projr_dir_create_all
 #'
 #' @export
 projr_dir_create <- function(label, ..., safe = TRUE) {

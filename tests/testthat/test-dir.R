@@ -1,4 +1,4 @@
-test_that("projr_dir_get works", {
+test_that("projr_path_get_dir works", {
   # setup
   skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = TRUE)
@@ -18,18 +18,20 @@ test_that("projr_dir_get works", {
       projr_init()
       projr_path_get_dir("project")
       yml_projr <- .projr_yml_get_root_full()
-      expect_error(projr_dir_get("ailc"))
-      expect_identical(projr_dir_get("data-raw"), "_data_raw")
-      expect_identical(projr_dir_get("output"), "_tmp/projr/v0.0.0-1/output")
-      expect_identical(projr_dir_get(
+      expect_error(projr_path_get_dir("ailc"))
+      expect_identical(projr_path_get_dir("data-raw"), "_data_raw")
+      expect_identical(
+        projr_path_get_dir("output"), "_tmp/projr/v0.0.0-1/output"
+      )
+      expect_identical(projr_path_get_dir(
         "output",
         safe = TRUE,
         create = FALSE,
         relative = FALSE
       ), "_tmp/projr/v0.0.0-1/output")
-      expect_identical(projr_dir_get("output", safe = FALSE), "_output")
+      expect_identical(projr_path_get_dir("output", safe = FALSE), "_output")
       if (dir.exists("_tmp")) unlink("_tmp", recursive = TRUE)
-      expect_identical(projr_dir_get("cache", create = FALSE), "_tmp")
+      expect_identical(projr_path_get_dir("cache", create = FALSE), "_tmp")
       expect_true(!dir.exists("_tmp"))
       projr_path_get_dir("cache", create = TRUE)
       expect_true(dir.exists("_tmp"))

@@ -36,3 +36,6 @@ listed in _projr.yml for the current projr profile.
 Will add to \code{.gitignore} and \code{.Rbuildignore}
 as well if required.
 }
+\seealso{
+projr_dir_create_all
+}

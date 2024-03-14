@@ -2,19 +2,9 @@
 % Please edit documentation in R/dir.R
 \name{projr_path_get}
 \alias{projr_path_get}
-\alias{projr_path_get_file}
 \title{Return path}
 \usage{
 projr_path_get(
-  label,
-  ...,
-  create = TRUE,
-  relative = FALSE,
-  absolute = FALSE,
-  safe = TRUE
-)
-
-projr_path_get_file(
   label,
   ...,
   create = TRUE,

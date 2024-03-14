@@ -230,11 +230,53 @@
     .projr_dir_get_create(create)
 }
 
-.projr_dir_get_cache_auto_path <- function(profile) {
-  .projr_yml_dir_get(profile)[[
-    .projr_dir_get_cache_auto_ind(profile)
-  ]][["path"]]
+.projr_path_get_cache_auto_version <- function(..., create = FALSE, profile) {
+  .projr_dir_get_cache_auto_check(profile = profile)
+  path_dir <- .projr_dir_get_cache_auto_path(profile) |>
+    file.path("projr") |>
+    .projr_version_append() |>
+    .path_get_full(...)
+  .projr_dir_get_create(dirname(path_dir), create)
+  path_dir
 }
+
+#' @title Get `projr` build cache directory
+#' @rdname projr_path_get_cache_build
+#'
+#' @description Get the cache directory for `projr` builds.
+#' It is a sub-directory of the cache directory.
+#' For development builds (`projr_build_dev`), this is the final
+#' directory for `output` and `docs` items.
+#' For output builds (`projr_build_output`), this is the staging
+#' directory. After the documents are rendered, they are copied
+#' to their final directories.
+#'
+#' `projr_path_get_cache_build` assumes the path is to a file,
+#' whereas `projr_path_get_cache_build_dir` assumes the path
+#' is to a directory.
+#' This distinctiion is only relevant when `create = TRUE`, as it
+#' determines what directory is attempted to be created.
+#'
+#' @param ... comma-separated strings specified initially the
+#' label (e.g. `"docs"` or `"output"`) as well as, optionally, sub-directories
+#' (e.g. `"img", "`). For example, `projr_path_get_cache_build("docs", "img")`
+#' returns the path to the `img` directory in the `docs` sub-directory
+#' of the build cache directory.
+#' @param create logical.
+#' If \code{TRUE}, then the directory
+#' is created if it does not exist.
+#' @param profile character.
+#' The name of the `projr` profile to use.
+#' Default is \code{NULL}, which uses the current `projr` profile.
+#' @return character.
+#' Path to the cache (sub-)directory for `projr` builds.
+#' @seealso projr_path_get,projr_path_get_dir
+#' @export
+projr_path_get_cache_build_dir <- .projr_dir_get_cache_auto_version
+
+#' @rdname projr_path_get_cache_build
+#' @export
+projr_path_get_cache_build <- .projr_path_get_cache_auto_version
 
 .projr_dir_get_cache_auto_check <- function(profile) {
   # find cache directory to save to
