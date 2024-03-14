@@ -36,16 +36,54 @@
   # the `render` key has to be a list (in YAML),
   # but is automatically converted to a string (in R)
   # so we need to convert it back to a list
+
+  # project key
   if (.is_string(list_save[["project"]][["render"]])) {
     list_save[["project"]][["render"]] <- list(
       list_save[["project"]][["render"]]
     )
   }
+
+  # website key
+  # -------------
+
+  # top level
+  if (.is_string(list_save[["website"]][["other-links"]])) {
+    list_save[["website"]][["other-links"]] <- list(
+      list_save[["website"]][["other-links"]]
+    )
+  }
+  if (.is_string(list_save[["website"]][["code-links"]])) {
+    list_save[["website"]][["code-links"]] <- list(
+      list_save[["website"]][["code-links"]]
+    )
+  }
+
+  # navbar
+  if (.is_string(list_save[["website"]][["navbar"]][["right"]])) {
+    list_save[["website"]][["navbar"]][["right"]] <- list(
+      list_save[["website"]][["navbar"]][["right"]]
+    )
+  }
+  if (.is_string(list_save[["website"]][["navbar"]][["left"]])) {
+    list_save[["website"]][["navbar"]][["left"]] <- list(
+      list_save[["website"]][["navbar"]][["left"]]
+    )
+  }
+
+  # START HERE: pick up at nav-items on this link: https://quarto.org/docs/reference/projects/websites.html
+
+
+  # book key (https://quarto.org/docs/reference/projects/books.html)
+  # ---------------
   if (.is_string(list_save[["book"]][["chapters"]])) {
     list_save[["book"]][["chapters"]] <- list(
       list_save[["book"]][["chapters"]]
     )
   }
+
+  # manuscript key (https://quarto.org/docs/reference/projects/manuscripts.html)
+  # ----------------
 
   yaml::write_yaml(
     list_save, path_yml,

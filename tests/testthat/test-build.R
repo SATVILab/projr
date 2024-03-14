@@ -49,7 +49,7 @@ test_that("projr_build_output works", {
   )
 })
 
-# quarto
+# quarto project
 # ------------------------
 
 test_that("projr_build_ works with quarto projects", {
@@ -69,6 +69,7 @@ test_that("projr_build_ works with quarto projects", {
       Sys.setenv("PROJR_TEST_ENGINE" = "Quarto project")
       # remove the pdf setting
       projr_init()
+      browser()
       yml_quarto <- .projr_yml_quarto_get()
       yml_quarto$format <- yml_quarto$format[-2]
       .projr_yml_quarto_set(yml_quarto)
@@ -95,7 +96,8 @@ test_that("projr_build_ works with quarto projects", {
   )
 })
 
-
+# clearing
+# ------------------------E
 
 test_that(".projr_build_clear_pre and _post works", {
   skip_if(.is_test_select())
@@ -353,8 +355,8 @@ test_that("projr_build_copy_dir works when outputting", {
       # check that nothing is copied across when FALSE
       # -------------------
 
-      unlink(projr_dir_get("output", safe = TRUE), recursive = TRUE)
-      unlink(projr_dir_get("output", safe = FALSE), recursive = TRUE)
+      unlink(projr_path_get_dir("output", safe = TRUE), recursive = TRUE)
+      unlink(projr_path_get_dir("output", safe = FALSE), recursive = TRUE)
 
       yml_projr <- yml_projr_init
       yml_projr[["directories"]][["data-raw"]] <- list(
