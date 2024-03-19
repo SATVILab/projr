@@ -64,7 +64,7 @@
 .projr_build_clear_pre_docs_cache <- function(output_run) {
   .dir_copy_exact(
     projr_path_get_dir("docs", safe = !output_run),
-    .projr_dir_get_cache_auto("projr", "cleared_docs")
+    .projr_path_get_cache_auto_dir("projr", "cleared_docs")
   )
 }
 

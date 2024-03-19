@@ -206,7 +206,7 @@
 }
 
 # get cache directory to save to
-.projr_dir_get_cache_auto <- function(..., create = FALSE, profile) {
+.projr_path_get_cache_auto_dir <- function(..., create = FALSE, profile) {
   .projr_dir_get_cache_auto_check(profile = profile)
   .projr_dir_get_cache_auto_path(profile) |>
     .path_get_full(...) |>
@@ -277,6 +277,13 @@ projr_path_get_cache_build_dir <- .projr_dir_get_cache_auto_version
 #' @rdname projr_path_get_cache_build
 #' @export
 projr_path_get_cache_build <- .projr_path_get_cache_auto_version
+
+
+.projr_dir_get_cache_auto_path <- function(profile) {
+  .projr_yml_dir_get(profile)[[
+    .projr_dir_get_cache_auto_ind(profile)
+  ]][["path"]]
+}
 
 .projr_dir_get_cache_auto_check <- function(profile) {
   # find cache directory to save to
