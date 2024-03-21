@@ -150,6 +150,7 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   yml_projr_root_full[nm_vec]
 }
 
+
 .projr_yml_get_profile_spec <- function(profile) {
   if (!.is_given_mid(profile)) {
     profile <- projr_profile_get()
@@ -157,6 +158,38 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   if (profile == "default") {
     return(list())
   }
+  profile_vec <- strsplit(profile, ";")[[1]]
+  if (length(profile_vec) == 1L) {
+    return(.projr_yml_get_profile_ind(profile_vec))
+  }
+
+  # read in with at least 3
+  profile_list <- .projr_yml_get_profile_list_min_3(profile_vec)
+
+  yml_projr_profile <- .projr_yml_merge_list(profile_list[1:3])
+
+  if (length(profile_list) == 3L) {
+    return(yml_projr_profile)
+  }
+
+  n_done <- 3
+  # merge next two in at a time
+  while (n_done < length(profile_list)) {
+    end_iter <- min(n_done + 2, length(profile_list))
+    end_iter_max <- n_done + 2
+    if (end_iter < end_iter_max) {
+      profile_list <- profile_list |>
+        append(lapply(1, function(x) list()))
+    }
+    yml_projr_profile <- .projr_yml_merge_list_add(
+      yml_projr_profile, profile_list[(n_done + 1):end_iter_max]
+    )
+    n_done <- end_iter_max
+  }
+  yml_projr_profile
+}
+
+.projr_yml_get_profile_ind <- function(profile) {
   path_profile <- .dir_proj_get(
     paste0("_projr-", profile, ".yml")
   )
@@ -164,6 +197,33 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     return(list())
   }
   yaml::read_yaml(path_profile)
+}
+
+.projr_yml_get_profile_list_min_3 <- function(profile_vec) {
+  profile_list <- lapply(profile_vec, .projr_yml_get_profile_ind)
+  if (length(profile_list) == 3L) {
+    return(profile_list)
+  }
+  # ensure we have at least three
+  rem <- 3 - length(profile_list) %% 3
+  profile_list |>
+    append(lapply(seq_len(rem), function(x) list()))
+}
+
+.projr_yml_merge_list <- function(profile_list) {
+  .projr_yml_merge(
+    yml_projr_root_default = profile_list[[3]],
+    yml_projr_profile = profile_list[[2]],
+    yml_projr_local = profile_list[[1]]
+  )
+}
+
+.projr_yml_merge_list_add <- function(yml_projr_profile, profile_list) {
+  .projr_yml_merge(
+    yml_projr_root_default = profile_list[[3]],
+    yml_projr_profile = profile_list[[2]],
+    yml_projr_local = yml_projr_profile
+  )
 }
 
 .projr_yml_get_local <- function() {
@@ -204,7 +264,6 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   path_desc <- .dir_proj_get("DESCRIPTION")
   read.dcf(path_desc)
 }
-
 
 .projr_yml_complete <- function(yml, nm, default) {
   switch(class(default)[[1]],
