@@ -57,6 +57,8 @@ projr_profile_create <- function(profile = NULL,
     file = .dir_proj_get(paste0("_projr-", profile, ".yml"))
   )
 
+  .projr_ignore_rbuild_set(paste0("_projr-", profile, ".yml"), "ignore")
+
   if (!silent) {
     message(paste0("Added the following profile: ", profile))
   }
@@ -89,6 +91,7 @@ projr_profile_create_local <- function(overwrite = FALSE) {
   projr_profile_create_local_check(overwrite)
   .projr_profile_create_local_actual()
   .projr_profile_create_local_ignore()
+  .projr_ignore_rbuild_set("_projr-local.yml", "ignore")
   invisible(TRUE)
 }
 
