@@ -158,7 +158,6 @@
     con = path_yml
   )
   yml_frontmatter <- yaml::read_yaml(path_yml)
-  # unlink(.projr_dir_get_cache_auto("projr_cache"), recursive = TRUE)
   yml_frontmatter
 }
 
