@@ -99,7 +99,8 @@
   version_pre |> .projr_version_v_add()
 }
 
-.projr_change_get_manifest_version_pre_null <- function(manifest, version_post) {
+.projr_change_get_manifest_version_pre_null <- function(manifest,
+                                                        version_post) {
   if (nrow(manifest) == 0L) {
     return(character())
   }
