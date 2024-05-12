@@ -85,7 +85,15 @@
     "git",
     args = "status --porcelain", stdout = TRUE
   )
-  sub("^ M (.*)", "\\1", grep("^ M", git_status_output, value = TRUE))
+  sub(
+    "^(.|)(M|D) (.*)",
+    "\\3",
+    grep(
+      "^(.|)(M|D)",
+      git_status_output,
+      value = TRUE
+    )
+  )
 }
 
 .projr_git_modified_get_gert <- function() {
@@ -108,7 +116,8 @@
     args = "status --porcelain", stdout = TRUE
   )
   sub(
-    "^\\?\\? (.*)", "\\1", grep("^\\?\\?", git_status_output, value = TRUE)
+    "^A[^MD] (.*)", "\\1", 
+    grep("^A[^MD]", git_status_output, value = TRUE)
   )
 }
 
