@@ -85,14 +85,18 @@
     "git",
     args = "status --porcelain", stdout = TRUE
   )
-  sub(
-    "^(.|)(M|D) (.*)",
-    "\\3",
-    grep(
-      "^(.|)(M|D)",
-      git_status_output,
-      value = TRUE
-    )
+  match_vec <- grep(
+    "^M.|^A.|^D.|^.M|^.A|^.D",
+    git_status_output,
+    value = TRUE
+  )
+  if (.is_len_0(match_vec)) {
+    return(match_vec)
+  }
+  substr(
+    match_vec,
+    start = 4,
+    stop = nchar(match_vec)
   )
 }
 
@@ -116,8 +120,8 @@
     args = "status --porcelain", stdout = TRUE
   )
   sub(
-    "^A[^MD] (.*)", "\\1", 
-    grep("^A[^MD]", git_status_output, value = TRUE)
+    "^\\?\\? (.*)", "\\1",
+    grep("^\\?\\?", git_status_output, value = TRUE)
   )
 }
 
