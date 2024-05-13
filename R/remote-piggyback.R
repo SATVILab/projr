@@ -11,7 +11,19 @@
   }
   piggyback::.pb_cache_clear()
   Sys.sleep(pause_second)
-  .projr_pb_release_tbl_get_attempt()
+  gh_tbl_release <- .projr_pb_release_tbl_get_attempt()
+  if (!.projr_pb_tbl_redo_check(gh_tbl_release)) {
+    return(gh_tbl_release)
+  } else {
+    stop(
+      "Failed to get release table from piggyback.
+       Ensure `piggyback` R package version is at least
+       1.06, or is the latest version from GitHub.
+       To install the latest version from GitHub, run
+       the following:
+       remotes::install_github('ropensci/piggyback')"
+    )
+  }
 }
 
 .projr_pb_release_tbl_get_attempt <- function() {
