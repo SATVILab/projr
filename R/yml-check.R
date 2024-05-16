@@ -137,7 +137,11 @@ projr_yml_check <- function(profile = NULL) {
   yml_build <- .projr_yml_build_get(profile)
   nm_vec <- names(yml_build)
   .assert_in(
-    nm_vec, c("dev-output", "git", "github", "package", "local", "osf")
+    nm_vec,
+    c(
+      "dev-output", "script", "git",
+      "github", "package", "local", "osf"
+    )
   )
   .assert_flag(.projr_yml_build_get_dev_output(profile))
 }
