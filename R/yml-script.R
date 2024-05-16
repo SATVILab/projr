@@ -18,6 +18,10 @@
 #' Path(s) to scripts, relative to project root (if not absolute).
 #' @param title character.
 #' Title for set of scripts.
+#' Initial and trailing spaces are removed, and
+#' the middle spaces are converted to dashes.
+#' For example, `" a b "` is converted to
+#' `"a-b"`. `
 #' @param stage "pre" or "post".
 #' Whether to run the script before or after the build.
 #' @param cue "build", "dev", "patch", "minor" or "major".
@@ -28,6 +32,10 @@
 #' Whether to overwrite any script settings
 #' of the same title in the `projr`
 #' configuration file.
+#' If `FALSE` and there already exists
+#' a key under `build/script` with the name
+#' `title`, an error is thrown.
+#' Default is `TRUE`.
 #' @param profile character.
 #' Profile to add the script to.
 #' If `"default"`` (the default),
@@ -86,6 +94,8 @@ projr_yml_script_add <- function(path,
                                   cue,
                                   profile,
                                   overwrite = TRUE) {
+  title <- gsub("^\\s*|\\s*$", "", title) |>
+    gsub("\\s+", "-", x = _)
   .projr_yml_script_check_overwrite(title, overwrite, profile = profile)
   yml_script <- .projr_yml_script_get(profile)
   yml_script[[stage]][[title]] <- .projr_yml_script_add_get(
@@ -172,14 +182,28 @@ projr_yml_script_rm_all <- function(profile = "default") {
 
 #' @rdname yml-script
 #' @export
-projr_yml_script_add_pre <- function(path, title, cue, profile) {
-  projr_yml_script_add(path, title, stage = "pre", cue = cue, profile = profile)
+projr_yml_script_add_pre <- function(path,
+                                     title,
+                                     cue = NULL,
+                                     overwrite = TRUE,
+                                     profile = "default") {
+  projr_yml_script_add(
+    path = path, title = title,
+    stage = "pre", cue = cue, profile = profile, overwrite = overwrite
+  )
 }
 
 #' @rdname yml-script
 #' @export
-projr_yml_script_add_post <- function(path, title, cue, profile) {
-  projr_yml_script_add(path, title, stage = "post", cue = cue, profile = profile)
+projr_yml_script_add_post <- function(path,
+                                      title,
+                                      cue = NULL,
+                                      overwrite = TRUE,
+                                      profile = "default") {
+  projr_yml_script_add(
+    path = path, title = title,
+    stage = "post", cue = cue, profile = profile, overwrite = overwrite
+  )
 }
 
 .projr_yml_script_complete_cue <- function(x) {

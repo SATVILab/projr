@@ -21,16 +21,32 @@ projr_yml_script_rm(title, path = NULL, profile = "default")
 
 projr_yml_script_rm_all(profile = "default")
 
-projr_yml_script_add_pre(path, title, cue, profile)
+projr_yml_script_add_pre(
+  path,
+  title,
+  cue = NULL,
+  overwrite = TRUE,
+  profile = "default"
+)
 
-projr_yml_script_add_post(path, title, cue, profile)
+projr_yml_script_add_post(
+  path,
+  title,
+  cue = NULL,
+  overwrite = TRUE,
+  profile = "default"
+)
 }
 \arguments{
 \item{path}{character vector.
 Path(s) to scripts, relative to project root (if not absolute).}
 
 \item{title}{character.
-Title for set of scripts.}
+Title for set of scripts.
+Initial and trailing spaces are removed, and
+the middle spaces are converted to dashes.
+For example, \code{" a b "} is converted to
+\code{"a-b"}. `}
 
 \item{stage}{"pre" or "post".
 Whether to run the script before or after the build.}
@@ -43,7 +59,11 @@ always trigger the scripts.}
 \item{overwrite}{logical.
 Whether to overwrite any script settings
 of the same title in the \code{projr}
-configuration file.}
+configuration file.
+If \code{FALSE} and there already exists
+a key under \code{build/script} with the name
+\code{title}, an error is thrown.
+Default is \code{TRUE}.}
 
 \item{profile}{character.
 Profile to add the script to.
