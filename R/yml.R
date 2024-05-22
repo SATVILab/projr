@@ -287,11 +287,15 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 }
 
 .projr_yml_order <- function(yml) {
-  nm_vec <- "directories"
-  if ("parameters" %in% names(yml)) {
-    nm_vec <- c(nm_vec, "parameters")
+  nm_vec <- character(0L)
+  order_vec <- c(
+    "directories", "parameters", "build"s
+  )
+  for (x in order_vec) {
+    if (x %in% names(yml)) {
+      nm_vec <- c(nm_vec, x)
+    }
   }
-  nm_vec <- c(nm_vec, "build")
   nm_vec <- c(nm_vec, setdiff(names(yml), nm_vec))
   yml[nm_vec]
 }
