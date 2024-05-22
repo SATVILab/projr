@@ -142,12 +142,8 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 }
 
 .projr_yml_get_root_default <- function() {
-  yml_projr_root_full <- .projr_yml_get_root_full()
-  nm_vec <- c("directories", "build")
-  if ("version-format" %in% names(yml_projr_root_full)) {
-    nm_vec <- c(nm_vec, "version-format")
-  }
-  yml_projr_root_full[nm_vec]
+  .projr_yml_get_root_full() |>
+    .projr_yml_get_filter_top_level()
 }
 
 
@@ -196,7 +192,8 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   if (!file.exists(path_profile)) {
     return(list())
   }
-  yaml::read_yaml(path_profile)
+  yaml::read_yaml(path_profile) |>
+    .projr_yml_get_filter_top_level()
 }
 
 .projr_yml_get_profile_list_min_3 <- function(profile_vec) {
@@ -232,11 +229,16 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     return(list())
   }
 
-  yml_projr_init <- yaml::read_yaml(path_yml)
-  pos_dir <- which(names(yml_projr_init) == "directories")
-  pos_build <- which(names(yml_projr_init) == "build")
-  pos_either <- c(pos_dir, pos_build)
-  yml_projr_init[pos_either]
+  yaml::read_yaml(path_yml) |>
+    .projr_yml_get_filter_top_level()
+}
+
+.projr_yml_get_filter_top_level <- function(yml) {
+  pos_dir <- which(names(yml) == "directories")[1]
+  pos_build <- which(names(yml) == "build")[1]
+  pos_param <- which(names(yml) == "parameters")[1]
+  pos_any <- c(pos_dir, pos_param, pos_build)
+  yml[pos_any]
 }
 
 .projr_yml_set <- function(list_save, profile = "default") {
@@ -282,4 +284,14 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     yml <- yml |> append(list(NULL) |> stats::setNames(nm))
   }
   yml
+}
+
+.projr_yml_order <- function(yml) {
+  nm_vec <- "directories"
+  if ("parameters" %in% names(yml)) {
+    nm_vec <- c(nm_vec, "parameters")
+  }
+  nm_vec <- c(nm_vec, "build")
+  nm_vec <- c(nm_vec, setdiff(names(yml), nm_vec))
+  yml[nm_vec]
 }
