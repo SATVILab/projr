@@ -1,0 +1,29 @@
+name: Add Issues to Project
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_name:
+        description: 'Name of the project'
+        required: true
+        default: 'projr'
+      org_name:
+        description: 'Organization name (if project is an organization project)'
+        required: false
+        default: SATVILab
+
+jobs:
+  add-issues-to-project:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Add Issues to Project Action
+        with:
+          project_name: ${{ github.event.inputs.project_name }}
+          org_name: ${{ github.event.inputs.org_name }}
+        env:
+          ADD_ISSUES_TO_PROJECT_TOKEN: ${{ secrets.ADD_ISSUES_TO_PROJECT_TOKEN }}
+        uses: SATVILab/actions/add-issues-to-project@v1.0.03
