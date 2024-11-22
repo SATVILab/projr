@@ -925,22 +925,7 @@ projr_init_renviron <- function() {
   if (identical(username, gh::gh_whoami()$login)) {
     projr_init_github_actual_user(public)
   } else {
-    tryCatch(
-      usethis::use_github(
-        username = username,
-        private = !public
-      ),
-      error = function(e) {
-        print("Failed to create GitHub remote")
-        print("Can try again later with:")
-        print(
-          paste0(
-            "usethis::use_github(username = ", username,
-            ", private = ", !public, ")"
-          )
-        )
-      }
-    )
+    projr_init_github_actual_org(public, username)
   }
   invisible(TRUE)
 }
