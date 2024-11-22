@@ -923,9 +923,9 @@ projr_init_renviron <- function() {
   .projr_dep_install_only("usethis")
   .projr_dep_install_only("gh")
   if (identical(username, gh::gh_whoami()$login)) {
-    projr_init_github_actual_user(public)
+    .projr_init_github_actual_user(public)
   } else {
-    projr_init_github_actual_org(public, username)
+    .projr_init_github_actual_org(public, username)
   }
   invisible(TRUE)
 }
@@ -934,12 +934,12 @@ projr_init_renviron <- function() {
   tryCatch(
       usethis::use_github(private = !public),
       error = function(e) {
-        projr_init_github_actual_user_error(public)
+        .projr_init_github_actual_user_error(public)
       }
     )
 }
 
-projr_init_github_actual_user_error <- function(public) {
+.projr_init_github_actual_user_error <- function(public) {
   print("Failed to create GitHub remote")
   print("Can try again later with:")
   print(
@@ -949,37 +949,37 @@ projr_init_github_actual_user_error <- function(public) {
 
 .projr_init_github_actual_org <- function(public, username) {
   if ("username" %in% formals(usethis::use_github)) {
-    projr_init_github_actual_org_old(public, username)
+    .projr_init_github_actual_org_old(public, username)
   } else {
-    projr_init_github_actual_org_new(public, username)
+    .projr_init_github_actual_org_new(public, username)
   }
 }
 
-projr_init_github_actual_org_new <- function(public, username) {
+.projr_init_github_actual_org_new <- function(public, username) {
   tryCatch(
     usethis::use_github(
       organisation = username,
       private = !public
     ),
     error = function(e) {
-      projr_init_github_actual_org_error(public, username)
+      .projr_init_github_actual_org_error(public, username)
     }
   )
 }
 
-projr_init_github_actual_org_old <- function(public, username) {
+.projr_init_github_actual_org_old <- function(public, username) {
   tryCatch(
     usethis::use_github(
       username = username,
       private = !public
     ),
     error = function(e) {
-      projr_init_github_actual_org_error(public, username)
+      .projr_init_github_actual_org_error(public, username)
     }
   )
 }
 
-projr_init_github_actual_org_error <- function(public, username) {
+.projr_init_github_actual_org_error <- function(public, username) {
   print("Failed to create GitHub remote")
   print("Can try again later with:")
   print(
