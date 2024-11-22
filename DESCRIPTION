@@ -1,7 +1,13 @@
 Package: projr
 Title: Facilitate reproducible and archived projects
-Version: 0.1.11-10
-Authors@R: person("Miguel", "Rodo", , "miguel.rodo@uct.ac.za", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2036-4878"))
+Version: 0.1.11-12
+Authors@R: person(
+  given = "Miguel",
+  family = "Rodo",
+  email = "miguel.rodo@uct.ac.za",
+  role = c("aut", "cre"),
+  comment = c(ORCID = "0000-0002-2036-4878")
+)
 Maintainer: Miguel Rodo <miguel.rodo@uct.ac.za>
 Description: Facilitate reproducible and archived projects.
 License: MIT + file LICENSE
