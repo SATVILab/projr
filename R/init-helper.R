@@ -923,16 +923,7 @@ projr_init_renviron <- function() {
   .projr_dep_install_only("usethis")
   .projr_dep_install_only("gh")
   if (identical(username, gh::gh_whoami()$login)) {
-    tryCatch(
-      usethis::use_github(private = !public),
-      error = function(e) {
-        print("Failed to create GitHub remote")
-        print("Can try again later with:")
-        print(
-          paste0("usethis::use_github(private = ", !public, ")")
-        )
-      }
-    )
+    projr_init_github_actual_user(public)
   } else {
     tryCatch(
       usethis::use_github(
@@ -952,6 +943,66 @@ projr_init_renviron <- function() {
     )
   }
   invisible(TRUE)
+}
+
+.projr_init_github_actual_user <- function(public) {
+  tryCatch(
+      usethis::use_github(private = !public),
+      error = function(e) {
+        projr_init_github_actual_user_error(public)
+      }
+    )
+}
+
+projr_init_github_actual_user_error <- function(public) {
+  print("Failed to create GitHub remote")
+  print("Can try again later with:")
+  print(
+    paste0("usethis::use_github(private = ", !public, ")")
+  )
+}
+
+.projr_init_github_actual_user_org <- function(public, username) {
+  if ("username" %in% formals(usethis::use_github)) {
+    projr_init_github_actual_user_org_old(public, username)
+  } else {
+    projr_init_github_actual_user_org_new(public, username)
+  }
+}
+
+projr_init_github_actual_user_org_new <- function(public, username) {
+  tryCatch(
+    usethis::use_github(
+      organisation = username,
+      private = !public
+    ),
+    error = function(e) {
+      projr_init_github_actual_user_org_error(public, username)
+    }
+  )
+}
+
+projr_init_github_actual_user_org_old <- function(public, username) {
+  tryCatch(
+    usethis::use_github(
+      username = username,
+      private = !public
+    ),
+    error = function(e) {
+      projr_init_github_actual_user_org_error(public, username)
+    }
+  )
+}
+
+projr_init_github_actual_user_org_error <- function(e, public, username) {
+  print("Failed to create GitHub remote")
+  print("Can try again later with:")
+  print(
+    paste0(
+      "usethis::use_github(username = ", username,
+      ", private = ", !public, ")"
+    )
+  )
 }
 
 .projr_git_gh_check_auth <- function() {
