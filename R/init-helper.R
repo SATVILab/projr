@@ -979,7 +979,7 @@ projr_init_github_actual_org_old <- function(public, username) {
   )
 }
 
-projr_init_github_actual_org_error <- function(e, public, username) {
+projr_init_github_actual_org_error <- function(public, username) {
   print("Failed to create GitHub remote")
   print("Can try again later with:")
   print(
