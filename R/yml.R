@@ -234,11 +234,26 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 }
 
 .projr_yml_get_filter_top_level <- function(yml) {
-  pos_dir <- which(names(yml) == "directories")[1]
-  pos_build <- which(names(yml) == "build")[1]
-  pos_param <- which(names(yml) == "parameters")[1]
-  pos_any <- c(pos_dir, pos_param, pos_build)
-  yml[pos_any]
+  nm_list <- list(
+    "directories", "build",
+    c("parameters", "parameter", "param", "par")
+  )
+  pos_list_init <- sapply(
+    nm_list, function(x) projr_yml_get_filter_top_level_ind(yml, x)
+    )
+  pos_vec <- unlist(pos_list_init[
+    vapply(pos_list_init, function(x) !is.null(x), logical(1))
+    ])
+  yml[pos_vec]
+}
+
+projr_yml_get_filter_top_level_ind <- function(yml, nm) {
+  for (i in seq_along(nm)) {
+    if (nm[[i]] %in% names(yml)) {
+      return(which(names(yml) == nm[[i]])[1])
+    }
+  }
+  NULL
 }
 
 .projr_yml_set <- function(list_save, profile = "default") {
