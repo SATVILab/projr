@@ -39,7 +39,7 @@
 # most basic
 # ---------------------------
 .projr_yml_build_get <- function(profile) {
-  .projr_yml_get(profile)[["build"]]
+  .projr_yml_get(profile)[["build"]] %||% list()
 }
 
 .projr_yml_build_set <- function(yml_build, profile) {
