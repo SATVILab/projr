@@ -38,49 +38,24 @@
   # so we need to convert it back to a list
 
   # project key
-  if (.is_string(list_save[["project"]][["render"]])) {
-    list_save[["project"]][["render"]] <- list(
-      list_save[["project"]][["render"]]
-    )
-  }
+  # -------------
+  list_save <- wrap_in_list_if_string(list_save, c("project", "render"))
 
   # website key
-  # -------------
+  # -----------
 
-  # top level
-  if (.is_string(list_save[["website"]][["other-links"]])) {
-    list_save[["website"]][["other-links"]] <- list(
-      list_save[["website"]][["other-links"]]
-    )
-  }
-  if (.is_string(list_save[["website"]][["code-links"]])) {
-    list_save[["website"]][["code-links"]] <- list(
-      list_save[["website"]][["code-links"]]
-    )
-  }
-
-  # navbar
-  if (.is_string(list_save[["website"]][["navbar"]][["right"]])) {
-    list_save[["website"]][["navbar"]][["right"]] <- list(
-      list_save[["website"]][["navbar"]][["right"]]
-    )
-  }
-  if (.is_string(list_save[["website"]][["navbar"]][["left"]])) {
-    list_save[["website"]][["navbar"]][["left"]] <- list(
-      list_save[["website"]][["navbar"]][["left"]]
-    )
-  }
+  list_save <- wrap_in_list_if_string(list_save, c("website", "other-links"))
+  list_save <- wrap_in_list_if_string(list_save, c("website", "code-links"))
+  list_save <- wrap_in_list_if_string(list_save, c("website", "navbar", "right"))
+  list_save <- wrap_in_list_if_string(list_save, c("website", "navbar", "left"))
 
   # START HERE: pick up at nav-items on this link: https://quarto.org/docs/reference/projects/websites.html
 
 
   # book key (https://quarto.org/docs/reference/projects/books.html)
   # ---------------
-  if (.is_string(list_save[["book"]][["chapters"]])) {
-    list_save[["book"]][["chapters"]] <- list(
-      list_save[["book"]][["chapters"]]
-    )
-  }
+  list_save <- wrap_in_list_if_string(list_save, c("book", "chapters"))
+  list_save <- wrap_in_list_if_string(list_save, c("book", "appendices"))
 
   # manuscript key (https://quarto.org/docs/reference/projects/manuscripts.html)
   # ----------------
@@ -95,3 +70,40 @@
   .projr_newline_append(path_yml)
   invisible(TRUE)
 }
+
+# Helper function to wrap a nested element in a list if it’s a string
+wrap_in_list_if_string <- function(lst, path) {
+  
+  val <- get_nested_value(lst, path)
+  if (.is_string(val)) {
+    # Wrap this element in a list
+    lst <- set_nested_value(lst, path, list(val))
+  }
+  
+  lst
+}
+
+# Safely retrieve value at nested path
+get_nested_value <- function(x, keys) {
+  for (k in keys) {
+    if (!is.list(x) || is.null(x[[k]])) return(NULL)
+    x <- x[[k]]
+  }
+  x
+}
+
+# Assign a value at nested path
+set_nested_value <- function(x, keys, value) {
+  if (length(keys) == 1) {
+    x[[keys]] <- value
+  } else {
+    x[[keys[1]]] <- set_nested_value(x[[keys[1]]], keys[-1], value)
+  }
+  x
+}
+
+
+
+
+
+
