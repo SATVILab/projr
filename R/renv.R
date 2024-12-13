@@ -1,145 +1,281 @@
 #' @title Test renv restore
 #'
 #' @description
-#' Tests renv restore without using the cache.
+#' Tests `renv::restore()` without using the cache in a clean, temporary environment.
+#' Automatically creates a temporary project directory, initializes `renv`,
+#' copies required files, disables the cache via `.Rprofile`, and then performs `renv::restore()`.
+#' Afterwards, it deletes the first library path where `renv` restored packages.
 #'
-#' @param working_dir Character. Path to the directory where the test will run.
-#' @param files_to_copy Character vector. Paths to additional files to copy into the working directory.
+#' **Note:**  
+#' To ensure isolation, the test runs in a directory that is completely separate 
+#' from the parent project and executes `Rscript` with the `--vanilla` option.
+#' The `--vanilla` flag seems essential to prevent the project
+#' `renv` settings from being affected by testing.
 #'
-#' @return TRUE if renv::restore() succeeds, FALSE otherwise.
+#' @param files_to_copy character vector.
+#' Paths to files to copy into the temporary directory before restoring.
+#' Note that `renv.lock` is always copied.
+#' @param delete_lib Logical.
+#' If `TRUE`, the restored library path is deleted after the test.
+#' Default is `TRUE`.
+#'
+#' @return `TRUE` if `renv::restore()` succeeds, `FALSE` otherwise.
 #' @export
-projr_renv_test <- function(working_dir, files_to_copy = NULL) {
-  # Ensure renv is available
-  if (!requireNamespace("renv", quietly = TRUE)) {
-    stop("The 'renv' package is not installed.")
-  }
-  
-  # Create and move to the working directory
+
+projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
+  # Create a temporary working directory
+  working_dir <- tempfile("projr_renv_test_")
   dir.create(working_dir, recursive = TRUE, showWarnings = FALSE)
-  old_wd <- getwd()
+
+  wd_old <- getwd()
+  on.exit(setwd(wd_old), add = TRUE)
   setwd(working_dir)
-  on.exit(setwd(old_wd), add = TRUE)
+  cli::cli_alert_info(paste0("Working directory: ", working_dir))
   
-  # Initialize renv in this directory
-  renv::init(bare = TRUE, quiet = TRUE)
+  # Initialize renv in the working directory
+  .projr_renv_rest_init()
+  .projr_renv_rest_activate()
   
-  # Copy any additional files needed
-  if (!is.null(files_to_copy)) {
-    file.copy(files_to_copy, working_dir, overwrite = TRUE)
+  # Remove existing files and copy new files
+  .dir_copy_file(files_to_copy |> union("renv.lock"), wd_old, working_dir)
+  
+  # Disable renv cache by modifying .Rprofile
+  .projr_renv_rest_disable_cache()
+  
+  # Run renv::restore() via Rscript
+  success <- .projr_renv_rest_restore()
+  
+  # If restore was successful, clean up the first library path
+  if (delete_lib) {
+    .projr_renv_rest_cleanup_lib()
   }
+
+  success
+}
+
+#----------------- Sub-Functions -----------------#
+
+#' Initialize renv in the specified working directory using Rscript
+#'
+#' @param working_dir Character. Path to the working directory.
+#' @return NULL. Stops execution on failure.
+.projr_renv_rest_init <- function() {
+  cmd <- paste0("renv::init(); message(renv::project())")
+  res <- .projr_renv_rest_run_rscript(cmd, FALSE, TRUE)
   
-  # Append a setting to disable the renv cache in .Rprofile
-  rprofile_path <- file.path(working_dir, ".Rprofile")
-  cat("renv::settings$use.cache(FALSE)\n", file = rprofile_path, append = TRUE)
+  if (!res$success) {
+    stop("Failed to initialize renv: ", res$error)
+  }
+}
+
+.projr_renv_rest_activate <- function() {
+  working_dir <- getwd()
+  cmd <- paste0(
+    "renv::activate('", working_dir, "'); message(renv::project())"
+    )
+  res <- .projr_renv_rest_run_rscript(cmd, FALSE, TRUE)
   
-  # Run renv::restore()
-  success <- tryCatch(
+  if (!res$success) {
+    stop("Failed to activate renv: ", res$error)
+  }
+}
+
+.projr_renv_test_test_snapshot <- function() {
+  working_dir <- getwd()
+  writeLines("library(tinytest)\nrenv::install('tinytest')\n", "_dependencies.R")
+  cmd <- paste0(
+    "renv::activate(project = '", working_dir, "');",
+    "renv::install('tinytest', project = '", working_dir, "', prompt = FALSE);",
+    "renv::snapshot(project = '" , working_dir, "', prompt = FALSE)"
+    )
+  res <- .projr_renv_rest_run_rscript(cmd, FALSE, TRUE)
+
+  if (!res$success) {
+    stop('Failed to run commands: ', res$error)
+  }
+}
+
+.projr_renv_test_test_lockfile_create <- function(file_path, bad = FALSE) {
+  current_r_version <- R.version$major
+  current_r_minor_version <- R.version$minor
+  full_version <- paste(current_r_version, current_r_minor_version, sep = ".")
+  renv_lock <- list(
+    R = list(
+      Version = full_version,
+      Repositories = list(
+        list(Name = "CRAN", URL = "https://p3m.dev/cran/latest"),
+        list(Name = "PPM", URL = "https://p3m.dev/cran/latest"),
+        list(Name = "RSPM", URL = "https://p3m.dev/cran/latest")
+      )
+    ),
+    Packages = list(
+      tinytest = list(
+        Package = "tinytest",
+        Version = if (bad) "1000000000000.0.0" else "1.4.1",
+        Source = "Repository",
+        Repository = "CRAN",
+        Requirements = c("R", "parallel", "utils"),
+        Hash = if (bad) "1f344373b4f0fe61b6zzzze3d3c842ca" else "1f344373b4f0fe61b6a0d4e3d3c842ca" # nolint
+      )
+    )
+  )
+  
+  jsonlite::write_json(
+    renv_lock, path = file_path, pretty = TRUE, auto_unbox = TRUE
+  )
+}
+
+#' Remove existing files and copy specified files into the working directory
+#'
+#' @param working_dir Character. Path to the working directory.
+#' @param files_to_copy Character vector. Paths to files to copy.
+#' @return NULL. Stops execution on failure.
+.projr_renv_rest_copy_files <- function(files_to_copy) {
+  # List all files in the working directory
+  files_to_copy <- union(files_to_copy, "renv.lock")
+  
+  # Remove existing files using .file_rm
+  .file_rm(files_in_dir)
+  
+  # Copy new files using .dir_copy_file
+  if (!is.null(files_to_copy) && length(files_to_copy) > 0) {
+    # Assuming .dir_copy_file has the signature .dir_copy_file(from, to)
+    # and can handle both files and directories
+    .dir_copy_file(from = files_to_copy, to = working_dir)
+  }
+}
+
+#' Disable renv cache by appending a setting to .Rprofile
+#'
+#' @param working_dir Character. Path to the working directory.
+#' @return NULL. Stops execution on failure.
+.projr_renv_rest_disable_cache <- function() {
+  # Append the setting to disable cache
+  append_success <- tryCatch(
     {
-      renv::restore(prompt = FALSE, quiet = TRUE)
+      cat("renv::settings$use.cache(FALSE)\n", file = ".Rprofile", append = TRUE)
       TRUE
     },
     error = function(e) {
-      message("renv::restore() failed: ", e$message)
       FALSE
     }
   )
   
-  # Delete the first library path if restore succeeded
-  if (success) {
-    first_lib <- .libPaths()[1]
-    unlink(first_lib, recursive = TRUE)
-    message("Deleted library: ", first_lib)
+  if (!append_success) {
+    stop("Failed to modify .Rprofile to disable renv cache.")
+  }
+}
+
+#' Run renv::restore() via Rscript in the specified working directory
+#'
+#' @param working_dir Character. Path to the working directory.
+#' @return Logical. TRUE if restore succeeds, FALSE otherwise.
+.projr_renv_rest_restore <- function() {
+  wd <- getwd()
+  cmd <- paste0(
+     "renv::activate('", wd, "'); ",
+    "renv::restore(project = '", wd, "', prompt = FALSE, rebuild = TRUE)"
+  )
+  res <- .projr_renv_rest_run_rscript(cmd, vanilla = TRUE)
+  
+  if (!res$success) {
+    cli::cli_alert_danger("renv::restore() failed.")
+    message("res$error")
+    return(FALSE)
+  } else {
+    cli::cli_alert_success("renv::restore() successful.")
   }
   
-  success
+  res$success
 }
 
-.projr_renv_test_dir_setup <- function(file) {
-
-
-  dir_test
-}
-
-.projr_renv_test_dir_setup_copy <- function(file) {
-  # Collect files to copy
-  fn_vec <- c(
-    "renv.lock",
-    file,
-    file.path("renv", list.files(.dir_proj_get("renv"), recursive = TRUE)),
-    ".Rprofile"
-  ) |> 
-    .file_filter_exists()
-  
-  # Generate a unique temporary directory
-  dir_test <- tempfile(pattern = "test_renv_", tmpdir = tempdir())
-  dir.create(file.path(dir_test, "renv", "staging"), recursive = TRUE)
-
-  .dir_copy_file(fn_vec, .dir_proj_get(), dir_test)
-}
-
-.projr_renv_test_cmd_get_lib_get <- function(path_dir_test) {
-  lib_paths <- c(file.path(path_dir_test, "renv_lib_check"), .libPaths()[-1])
-  .dir_create(lib_paths)
-  lib_pahs
-}
-
-.projr_renv_test_cmd_get_activate <- function(path_dir_test, lib_paths) {
-  # Quote library paths
-  lib_vec_quoted <- sapply(lib_paths, shQuote)
-
-  # Collapse into a single string with commas
-  paths_str <- paste(lib_vec_quoted, collapse = ", ")
-
-  # Construct the renv::activate command
-  paste0(
-    "renv::activate(project = '", path_dir_test, "', library = c(",
-    paths_str, "))"
+#' Delete the first library path from .libPaths()
+#'
+#' @return NULL. Stops execution on failure.
+.projr_renv_rest_cleanup_lib <- function() {
+  wd <- getwd()
+  cmd <- paste0(
+    "renv::activate('", wd, "'); ",
+    "first_lib <- message(.libPaths()[1]); ",
+    "if (dir.exists(first_lib)) {",
+    "unlink(first_lib, recursive = TRUE, force = TRUE);",
+    "message('Deleted library: ', first_lib);",
+    "} else {",
+    "message('Library path does not exist and cannot be deleted: ', first_lib);",
+    "}"
   )
+  res <- .projr_renv_rest_run_rscript(cmd, FALSE, TRUE)
+
+  if (!res$success) {
+    stop("Failed to delete library: ", res$error)
+  }
 }
 
-.projr_renv_test_cmd_get_restore <- function(path_dir_test, lib_paths) {
-  # Quote library paths
-  lib_vec_quoted <- sapply(lib_paths, shQuote)
+#' Run an R command using Rscript in the specified working directory
+#'
+#' @param expr Character. R expression to execute.
+#' @param working_dir Character. Path to the working directory.
+#' @parma message_path Logical. Whether to say where the 
+#' output is diverted to.
+#' @return List with elements 'success' (logical) and 'error' (character).
+.projr_renv_rest_run_rscript <- function(expr, message_path = TRUE, vanilla = FALSE) {
+  rscript <- .projr_path_rscript_get()
   
-  # Collapse into a single string with commas
-  paths_str <- paste(lib_vec_quoted, collapse = ", ")
+  if (rscript == "") {
+    return(list(success = FALSE, error = "Rscript executable not found."))
+  }
   
-  # Construct the renv::restore command
-  paste0(
-    "renv::restore(project = '", path_dir_test, "', library = c(",
-    paths_str, "), prompt = FALSE, rebuild = TRUE)"
-  )
-}
-
-.projr_renv_test_file_log_get <- function() {
-  path_vec <- .projr_renv_test_file_log_get_path()
-  .projr_renv_test_file_log_prepare_path(path_vec)
-  path_vec
-}
-
-.projr_renv_test_file_log_get_path <- function() {
-  tryCatch(
-    c(
-      projr_path_get("cache", "projr", "log-renv_restore-output.txt", absolute = TRUE),
-      projr_path_get("cache", "projr", "log-renv_restore-error.txt", absolute = TRUE)
-    ),
-    error = function(e) {
-      c(
-        .dir_proj_get("_tmp", "projr", "log-renv_restore-output.txt"),
-        .dir_proj_get("_tmp", "projr", "log-renv_restore-error.txt")
+  # Create temporary files for stdout and stderr
+  stdout_file <- tempfile("rscript_stdout_")
+  stderr_file <- tempfile("rscript_stderr_")
+  if (message_path) {
+    cli::cli_alert_info(paste0("stdout_file: ", stdout_file))
+    cli::cli_alert_info(paste0("stderr_file: ", stderr_file))
+  }
+   
+  # Execute the R command using system2
+  if (vanilla) {
+    args <- c("--vanilla", "-e", shQuote(expr))
+  } else {
+    args <- c("-e", shQuote(expr))
+  }
+  res <- tryCatch(
+    {
+      system2(
+        command = rscript,
+        args = args,
+        stdout = stdout_file,
+        stderr = stderr_file
       )
+    },
+    error = function(e) {
+      return(-1)
     }
   )
+  
+  # Check the exit status
+  if (res != 0) {
+    # Read the error message from stderr
+    error_msg <- tryCatch(
+      {
+        paste(readLines(stderr_file, warn = FALSE), collapse = "\n")
+      },
+      error = function(e) {
+        "Unknown error."
+      }
+    )
+    return(list(success = FALSE, error = error_msg))
+  }
+  
+  list(success = TRUE, error = NULL)
 }
 
-.projr_renv_test_file_log_prepare_path <- function(paths) {
-  for (path in paths) {
-    .dir_create(dirname(path))
-    if (file.exists(path)) {
-      file.remove(path)
-    }
-  }
-  invisible(TRUE)
+.generate_random_string <- function(length = 10) {
+  # Define the characters to sample from
+  chars <- c(letters, LETTERS, 0:9) # lowercase, uppercase, digits
+  
+  # Generate a random string
+  paste0(sample(chars, length, replace = TRUE), collapse = "")
 }
 
 # Helper function to ensure the cli package is available

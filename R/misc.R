@@ -241,6 +241,11 @@ with_dir <- function(new, code) {
 }
 
 .projr_path_rscript_get <- function() {
+  rscript <- Sys.which("Rscript")
+  if (nzchar(rscript)) {
+    return(rscript)
+  }
+  # Fallback to default R installation path
   file.path(R.home("bin"), "Rscript")
 }
 

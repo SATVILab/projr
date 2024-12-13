@@ -4,28 +4,29 @@
 \alias{projr_renv_test}
 \title{Test renv restore}
 \usage{
-projr_renv_test(file = NULL)
+projr_renv_test(files_to_copy = NULL, delete_lib = TRUE)
 }
 \arguments{
-\item{file}{character vector.
-Additional files to copy across to the new directory
-before restoring.
-May be useful, for example, to copy across an \code{.Renviron} file
-to ensure that certain environment variables (such
-as authentication tokens) are set.}
+\item{files_to_copy}{character vector.
+Paths to files to copy into the temporary directory before restoring.
+Note that \code{renv.lock} is always copied.}
+
+\item{delete_lib}{Logical.
+If \code{TRUE}, the restored library path is deleted after the test.
+Default is \code{TRUE}.}
 }
 \value{
-\code{TRUE} for successful restores and \code{FALSE} for failed restores.
+\code{TRUE} if \code{renv::restore()} succeeds, \code{FALSE} otherwise.
 }
 \description{
-Tests renv restore without using the current project library.
-Useful for testing renv restore in a clean environment
-without using the cache.
-}
-\details{
-Copies the renv.lock file and renv directory to a temporary directory,
-along with .Rprofile and any files specified by the user.
-Then runs renv::restore() on the temporary directory, without
-using the first library used by the project to which
-renv has been installing packages.
+Tests \code{renv::restore()} without using the cache in a clean, temporary environment.
+Automatically creates a temporary project directory, initializes \code{renv},
+copies required files, disables the cache via \code{.Rprofile}, and then performs \code{renv::restore()}.
+Afterwards, it deletes the first library path where \code{renv} restored packages.
+
+\strong{Note:}
+To ensure isolation, the test runs in a directory that is completely separate
+from the parent project and executes \code{Rscript} with the \code{--vanilla} option.
+The \code{--vanilla} flag seems essential to prevent the project
+\code{renv} settings from being affected by testing.
 }
