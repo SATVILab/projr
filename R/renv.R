@@ -1,76 +1,66 @@
 #' @title Test renv restore
 #'
 #' @description
-#' Tests renv restore without using the current project library.
-#' Useful for testing renv restore in a clean environment
-#' without using the cache.
+#' Tests renv restore without using the cache.
 #'
-#' @param file character vector.
-#' Additional files to copy across to the new directory
-#' before restoring.
-#' May be useful, for example, to copy across an `.Renviron` file
-#' to ensure that certain environment variables (such
-#' as authentication tokens) are set.
+#' @param working_dir Character. Path to the directory where the test will run.
+#' @param files_to_copy Character vector. Paths to additional files to copy into the working directory.
 #'
-#' @return
-#' `TRUE` for successful restores and `FALSE` for failed restores.
-#'
-#' @details
-#' Copies the renv.lock file and renv directory to a temporary directory,
-#' along with .Rprofile and any files specified by the user.
-#' Then runs renv::restore() on the temporary directory, without
-#' using the first library used by the project to which
-#' renv has been installing packages.
-#'
+#' @return TRUE if renv::restore() succeeds, FALSE otherwise.
 #' @export
-projr_renv_test <- function(file = NULL) {
-  if (!is.null(file) && !is.character(file)) {
-    stop("`file` must be a character vector or NULL.")
+projr_renv_test <- function(working_dir, files_to_copy = NULL) {
+  # Ensure renv is available
+  if (!requireNamespace("renv", quietly = TRUE)) {
+    stop("The 'renv' package is not installed.")
   }
   
-  .projr_dep_install_only("renv")
+  # Create and move to the working directory
+  dir.create(working_dir, recursive = TRUE, showWarnings = FALSE)
+  old_wd <- getwd()
+  setwd(working_dir)
+  on.exit(setwd(old_wd), add = TRUE)
   
-  renv_lock_path <- .dir_proj_get("renv.lock")
-  if (!file.exists(renv_lock_path)) {
-    stop("No renv configuration detected in project.")
+  # Initialize renv in this directory
+  renv::init(bare = TRUE, quiet = TRUE)
+  
+  # Copy any additional files needed
+  if (!is.null(files_to_copy)) {
+    file.copy(files_to_copy, working_dir, overwrite = TRUE)
   }
   
-  # Set up project (to be deleted afterwards as well)
-  path_dir_test <- .projr_renv_test_dir_setup(file)
-  on.exit(
-    unlink(path_dir_test, recursive = TRUE),
-    add = TRUE
+  # Append a setting to disable the renv cache in .Rprofile
+  rprofile_path <- file.path(working_dir, ".Rprofile")
+  cat("renv::settings$use.cache(FALSE)\n", file = rprofile_path, append = TRUE)
+  
+  # Run renv::restore()
+  success <- tryCatch(
+    {
+      renv::restore(prompt = FALSE, quiet = TRUE)
+      TRUE
+    },
+    error = function(e) {
+      message("renv::restore() failed: ", e$message)
+      FALSE
+    }
   )
   
-  # Get renv command text
-  cmd_txt <- .projr_renv_test_cmd_get(path_dir_test)
-  
-  # Set up logging files
-  path_vec_log <- .projr_renv_test_file_log_get()
-  
-  out <- system2(
-    .projr_path_rscript_get(),
-    args = c("-e", shQuote(cmd_txt)),
-    stdout = path_vec_log[1],
-    stderr = path_vec_log[2]
-  )
-  
-  # Notify user of success or failure
-  if (out == 0) {
-    message("renv restore successful")
-    message(paste0("For details, see log file at ", path_vec_log[1]))
-    return(TRUE)
-  } else {
-    message(
-      paste0(
-        "renv restore failed. For details, see log file at ", path_vec_log[2]
-      )
-    )
-    return(FALSE)
+  # Delete the first library path if restore succeeded
+  if (success) {
+    first_lib <- .libPaths()[1]
+    unlink(first_lib, recursive = TRUE)
+    message("Deleted library: ", first_lib)
   }
+  
+  success
 }
 
 .projr_renv_test_dir_setup <- function(file) {
+
+
+  dir_test
+}
+
+.projr_renv_test_dir_setup_copy <- function(file) {
   # Collect files to copy
   fn_vec <- c(
     "renv.lock",
@@ -83,31 +73,31 @@ projr_renv_test <- function(file = NULL) {
   # Generate a unique temporary directory
   dir_test <- tempfile(pattern = "test_renv_", tmpdir = tempdir())
   dir.create(file.path(dir_test, "renv", "staging"), recursive = TRUE)
-  
-  # Copy files
-  for (x in fn_vec) {
-    source_path <- .dir_proj_get(x)
-    dest_path <- file.path(dir_test, x)
-    
-    if (dir.exists(source_path)) {
-      dir.create(dest_path, recursive = TRUE)
-      success <- file.copy(from = source_path, to = dest_path, recursive = TRUE)
-    } else {
-      success <- file.copy(from = source_path, to = dest_path)
-    }
-    
-    if (!success) {
-      stop(paste("Failed to copy file:", x))
-    }
-  }
-  
-  dir_test
+
+  .dir_copy_file(fn_vec, .dir_proj_get(), dir_test)
 }
 
-.projr_renv_test_cmd_get <- function(path_dir_test) {
+.projr_renv_test_cmd_get_lib_get <- function(path_dir_test) {
   lib_paths <- c(file.path(path_dir_test, "renv_lib_check"), .libPaths()[-1])
   .dir_create(lib_paths)
-  
+  lib_pahs
+}
+
+.projr_renv_test_cmd_get_activate <- function(path_dir_test, lib_paths) {
+  # Quote library paths
+  lib_vec_quoted <- sapply(lib_paths, shQuote)
+
+  # Collapse into a single string with commas
+  paths_str <- paste(lib_vec_quoted, collapse = ", ")
+
+  # Construct the renv::activate command
+  paste0(
+    "renv::activate(project = '", path_dir_test, "', library = c(",
+    paths_str, "))"
+  )
+}
+
+.projr_renv_test_cmd_get_restore <- function(path_dir_test, lib_paths) {
   # Quote library paths
   lib_vec_quoted <- sapply(lib_paths, shQuote)
   
@@ -115,7 +105,10 @@ projr_renv_test <- function(file = NULL) {
   paths_str <- paste(lib_vec_quoted, collapse = ", ")
   
   # Construct the renv::restore command
-  paste0("renv::restore(rebuild = TRUE, library = c(", paths_str, "))")
+  paste0(
+    "renv::restore(project = '", path_dir_test, "', library = c(",
+    paths_str, "), prompt = FALSE, rebuild = TRUE)"
+  )
 }
 
 .projr_renv_test_file_log_get <- function() {
@@ -127,8 +120,8 @@ projr_renv_test <- function(file = NULL) {
 .projr_renv_test_file_log_get_path <- function() {
   tryCatch(
     c(
-      projr_path_get_dir("cache", "projr", "log-renv_restore-output.txt"),
-      projr_path_get_dir("cache", "projr", "log-renv_restore-error.txt")
+      projr_path_get("cache", "projr", "log-renv_restore-output.txt", absolute = TRUE),
+      projr_path_get("cache", "projr", "log-renv_restore-error.txt", absolute = TRUE)
     ),
     error = function(e) {
       c(

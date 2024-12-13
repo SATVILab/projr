@@ -25,7 +25,7 @@ test_that(".projr_local_dir_create works", {
 })
 
 test_that("projr_use_data works", {
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   # skips
 
   # setup

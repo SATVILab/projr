@@ -1,18 +1,13 @@
 library(testthat)
 devtools::load_all()
 .test_set_select()
-devtools::test_active_file(
-  "tests/testthat/test-build.R"
-)
-
-library(testthat)
-devtools::load_all()
-.test_unset_select()
 devtools::test()
 
-library(testthat)
-devtools::load_all()
-.test_unset_select()
-.test_unset_fast()
-devtools::load_all()
-.projr_test_coverage()
+"/usr/local/lib/R/bin/Rscript" -e "renv::restore(rebuild = TRUE, prompt = FALSE, library = c('/tmp/Rtmp4DsDsT/test_renv_fca61a36ad78/renv_lib_check', '/usr/local/lib/R/library'))"
+
+[1] "renv::restore(project = '/tmp/RtmpbhbtvR/test_renv_1218c3bdda6bd', library = c('/tmp/RtmpbhbtvR/test_renv_1218c3bdda6bd/renv_lib_check', '/usr/local/lib/R/library'), prompt = FALSE, rebuild = TRUE)"
+
+
+test -d "/tmp/RtmpbhbtvR/test_renv_1218c3bdda6bd" || echo "renv project directory not found"
+test -d "/tmp/RtmpbhbtvR/test_renv_1218c3bdda6bd/renv_lib_check" || echo "first library directory not found"
+test -d "/usr/local/lib/R/library" || echo "second library directory not found"
