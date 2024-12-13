@@ -298,8 +298,26 @@
 }
 
 .projr_yml_dir_get <- function(profile) {
-  .projr_yml_get(profile)[["directories"]]
+  yml_dir_init <- .projr_yml_get(profile)[["directories"]]
+  yml_dir_init |>
+    .projr_yml_dir_get_complete_label()
 }
+
+.projr_yml_dir_get_complete_label <- function(yml_dir) {
+  default_list <- list(
+    "data-raw" = list(path = "_data_raw"),
+    "cache" = list(path = "_tmp"),
+    "output" = list(path = "_output")
+  )
+  for (x in names(default_list)) {
+    if (!x %in% names(yml_dir)) {
+      yml_dir[[x]] <- default_list[[x]]
+    }
+  }
+  yml_dir
+}
+
+
 
 .projr_yml_dir_set <- function(yml_dir, profile) {
   yml_projr <- .projr_yml_get(profile)

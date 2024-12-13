@@ -136,7 +136,7 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 .projr_yml_get_root_full <- function() {
   path_yml <- .dir_proj_get("_projr.yml")
   if (!file.exists(path_yml)) {
-    stop(paste0("_projr.yml not found at ", path_yml))
+    return(list())
   }
   yaml::read_yaml(path_yml)
 }

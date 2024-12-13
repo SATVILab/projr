@@ -36,7 +36,7 @@ test_that("basic yml functions work", {
       expect_identical(.projr_yml_get_root_full(), yml_projr_min)
       unlink(file.path(dir_test, "_projr.yml"))
       unlink(file.path(dir_test, "_bookdown.yml"))
-      expect_error(.projr_yml_get_root_full())
+      expect_identical(class(.projr_yml_get_root_full()), "list")
       expect_identical(.projr_yml_bd_get(), list())
     },
     quiet = TRUE,
