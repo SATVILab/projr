@@ -4,13 +4,22 @@ on:
   workflow_dispatch:
     inputs:
       project_name:
-        description: 'Name of the project'
-        required: true
-        default: 'projr'
-      org_name:
-        description: 'Organization name (if project is an organization project)'
+        description: "Project name. Defaults to current repository."
+        default: ""
         required: false
-        default: SATVILab
+      project_owner:
+        description: "Project owner. Defaults to current user."
+        required: false
+      is_project_owner_org:
+        description: "Whether the project owner is an organization. Defaults to `false`."
+        required: false
+        default: "false"
+      source_repo_name:
+        description: "Repository name. Defaults to current repository."
+        required: false
+      source_repo_owner:
+        description: "Repository owner. Defaults to current user."
+        required: false
 
 jobs:
   add-issues-to-project:
@@ -21,9 +30,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Add Issues to Project Action
+        uses: MiguelRodo/actions/add-issues-to-project@v1.1.0
         with:
           project_name: ${{ github.event.inputs.project_name }}
-          org_name: ${{ github.event.inputs.org_name }}
-        env:
+          project_owner: ${{ github.event.inputs.project_owner }}
+          is_project_owner_org: ${{ github.event.inputs.is_project_owner_org }}
+          source_repo_name: ${{ github.event.inputs.source_repo_name }}
+          source_repo_owner: ${{ github.event.inputs.source_repo_owner }}
           ADD_ISSUES_TO_PROJECT_TOKEN: ${{ secrets.ADD_ISSUES_TO_PROJECT_TOKEN }}
-        uses: SATVILab/actions/add-issues-to-project@v1.0.4
