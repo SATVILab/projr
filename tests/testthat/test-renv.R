@@ -15,7 +15,7 @@ test_that("projr_test_renv_restore works", {
       Sys.setenv(RENV_CONFIG_PAK_ENABLED = "FALSE")
       try(renv::snapshot(prompt = FALSE))
       try(renv::update(prompt = FALSE))
-      expect_true(projr_test_renv())
+      expect_true(projr_renv_test())
       Sys.setenv(RENV_CONFIG_PAK_ENABLED = pak_setting)
     }
   )
