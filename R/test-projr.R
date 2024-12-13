@@ -115,8 +115,7 @@ projr_test_renv <- function(file = NULL) {
   paths_str <- paste(lib_vec_quoted, collapse = ", ")
   
   # Construct the renv::restore command
-  cmd <- paste0("renv::restore(rebuild = TRUE, library = c(", paths_str, "))")
-  return(cmd)
+  paste0("renv::restore(rebuild = TRUE, library = c(", paths_str, "))")
 }
 
 .projr_test_renv_file_log_get <- function() {
