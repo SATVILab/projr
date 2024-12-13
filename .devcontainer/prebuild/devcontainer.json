@@ -8,7 +8,8 @@
         "mathematic.vscode-pdf",
         "GitHub.copilot",
         "GitHub.copilot-chat",
-        "bierner.markdown-preview-github-styles"
+        "bierner.markdown-preview-github-styles",
+        "github.vscode-github-actions"
       ]
     }
   }

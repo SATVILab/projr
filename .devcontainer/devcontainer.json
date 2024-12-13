@@ -30,13 +30,14 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"quarto.quarto",
-				"REditorSupport.r",
-				"mathematic.vscode-pdf",
-				"GitHub.copilot",
-				"GitHub.copilot-chat",
-				"bierner.markdown-preview-github-styles"
-			]
+        "quarto.quarto",
+        "REditorSupport.r",
+        "mathematic.vscode-pdf",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "bierner.markdown-preview-github-styles",
+        "github.vscode-github-actions"
+      ]
 		}
 	}
 }
