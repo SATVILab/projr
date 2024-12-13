@@ -21,7 +21,7 @@
 		},
 		"ghcr.io/devcontainers-contrib/features/vscode-cli:1": {},
 		"ghcr.io/devcontainers-contrib/features/apt-get-packages:1": {
-			"packages": "xvfb,vim,libcurl4-openssl-dev,,libsecret-1-dev"
+			"packages": "xvfb,vim,libcurl4-openssl-dev,libsecret-1-dev"
 		},
     "ghcr.io/rocker-org/devcontainer-features/quarto-cli:1": {
 			"installTinyTex": true
