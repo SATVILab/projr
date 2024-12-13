@@ -1,15 +1,12 @@
 name: 'Pre-build Dev Container'
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       use_cache:
         description: 'Use cache when building the image'
         required: false
-        default: 'true'
+        default: 'false'
 
 jobs:
   build:
