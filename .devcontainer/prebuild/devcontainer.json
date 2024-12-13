@@ -1,0 +1,15 @@
+{
+  "image": "ghcr.io/satvilab/projr",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "quarto.quarto",
+        "REditorSupport.r",
+        "mathematic.vscode-pdf",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "bierner.markdown-preview-github-styles"
+      ]
+    }
+  }
+}
