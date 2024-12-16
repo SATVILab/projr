@@ -41,9 +41,16 @@
 }
 
 .assert_attr <- function(x, attr, required = FALSE, nm = NULL) {
+  if (required) {
+    .assert_given(x = x, nm = nm)
+  } else if (!.is_given_mid(x)) {
+    return(invisible(TRUE))
+  }
   .assert_given_mid(attr)
+  .assert_string(attr, TRUE)
   nm <- .assert_nm_get(x, nm)
-  if (.assert_in(attr, names(attributes(x)), required, nm)) {
+
+  if (.is_opt(attr, names(attributes(x)))) {
     return(invisible(TRUE))
   }
 
