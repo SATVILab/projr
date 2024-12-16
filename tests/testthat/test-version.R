@@ -1,47 +1,34 @@
-test_that("projr_version_format_get and _set", {
+test_that(".projr_yml_metadata_get_version_format_get and _set", {
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
-  withr::defer(unlink(dir_test, recursive = TRUE))
-  .dir_create(dir_test)
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
+  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
-  for (x in fn_vec) {
-    file.copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
       yml_projr_init <- .projr_yml_get_root_full()
-      expect_identical(projr_version_format_get(), "major.minor.patch-dev")
+      expect_identical(.projr_yml_metadata_get_version_format(NULL), "major.minor.patch-dev")
       yml_projr <- yml_projr_init
-      yml_projr[["version-format"]] <- "major.minor-dev"
+      yml_projr[["metadata"]][["version-format"]] <- "major.minor-dev"
       .projr_yml_set(yml_projr)
-      expect_identical(projr_version_format_get(), "major.minor-dev")
+      expect_identical(.projr_yml_metadata_get_version_format(NULL), "major.minor-dev")
       .projr_yml_set(yml_projr_init)
       yml_projr <- .projr_yml_get_root_full()
-      yml_projr[["version-format"]] <- "abc"
-      .projr_yml_set(yml_projr)
-      expect_error(projr_version_format_get())
-      projr_version_format_set("major.dev")
-      expect_identical(projr_version_format_get(), "major.dev")
-      expect_error(projr_version_format_set(c("abc")))
-      expect_error(projr_version_format_set(c("major.dev", "major.minor-dev")))
-      expect_error(projr_version_format_set(1))
-      expect_error(projr_version_format_set())
+      expect_error(.projr_yml_metadata_set_version_format("abc", NULL))
+      expect_error(.projr_yml_metadata_set_version_format("abc"))
+      .projr_yml_metadata_set_version_format("major.dev", NULL)
+      expect_identical(.projr_yml_metadata_get_version_format(NULL), "major.dev")
+      expect_error(
+        .projr_yml_metadata_set_version_format(c("abc"), NULL)
+        )
+      expect_error(
+        .projr_yml_metadata_set_version_format(c("major.dev", "major.minor-dev"), NULL)
+        )
+      expect_error(
+        .projr_yml_metadata_set_version_format(1, NULL))
+      expect_error(
+        .projr_yml_metadata_set_version_format(profile = NULL)
+        )
     },
     force = TRUE,
     quiet = TRUE
@@ -81,66 +68,42 @@ fn <- fn_mmp
 
 test_that(".projr_version_format_list_get works", {
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
-  .dir_create(dir_test)
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
-
-  for (x in fn_vec) {
-    file.copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
-      expect_identical(projr_name_get(), "test_projr")
-      projr_version_format_set("major.minor.patch-dev")
+      .projr_yml_metadata_set_version_format("major.minor.patch-dev", NULL)
       expect_identical(
         .projr_version_format_list_get(NULL),
         list("component" = cv, "sep" = svd)
       )
-      projr_version_format_set("major.minor.patch.dev")
+      .projr_yml_metadata_set_version_format("major.minor.patch.dev", NULL)
       expect_identical(
         .projr_version_format_list_get(NULL),
         list("component" = cv, "sep" = svp)
       )
-      projr_version_format_set("major.minor-dev")
+      .projr_yml_metadata_set_version_format("major.minor-dev", NULL)
       expect_identical(
         .projr_version_format_list_get(NULL),
         list("component" = cv[-3], "sep" = svd[-2])
       )
-      projr_version_format_set("major.minor.dev")
+      .projr_yml_metadata_set_version_format("major.minor.dev", NULL)
       expect_identical(
         .projr_version_format_list_get(NULL),
         list("component" = cv[-3], "sep" = svp[-2])
       )
-      projr_version_format_set("major-dev")
+      .projr_yml_metadata_set_version_format("major-dev", NULL)
       expect_identical(
         .projr_version_format_list_get(NULL),
         list("component" = cv[-c(2:3)], "sep" = svd[-c(1:2)])
       )
-      projr_version_format_set("major.dev")
+      .projr_yml_metadata_set_version_format("major.dev", NULL)
       expect_identical(
         .projr_version_format_list_get(NULL),
         list("component" = cv[-c(2:3)], "sep" = svp[-c(1:2)])
       )
-      yml_projr <- .projr_yml_get_root_full()
-      yml_projr[["version_format"]] <- "abc"
-      .projr_yml_set(yml_projr)
-      # expect_error(.projr_version_format_list_get(NULL))
     },
     force = TRUE,
     quiet = TRUE
@@ -149,28 +112,9 @@ test_that(".projr_version_format_list_get works", {
 
 test_that(".projr_version_format_check works", {
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
-  .dir_create(dir_test)
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
-
-  for (x in fn_vec) {
-    file.copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
@@ -188,28 +132,9 @@ test_that(".projr_version_format_check works", {
 
 test_that("projr_version_get works", {
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("report"))
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
-  .dir_create(dir_test)
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
-
-  for (x in fn_vec) {
-    file.copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
@@ -220,8 +145,9 @@ test_that("projr_version_get works", {
       expect_identical(projr_version_get(), "7.9.2-1")
       projr_version_set("7.9.2")
       expect_identical(projr_version_get(), "7.9.2")
-      expect_identical(projr_version_get(dev_force = TRUE), "7.9.2-1")
-      projr_version_format_set("major.dev")
+      expect_identical(.projr_version_get(dev_force = TRUE), "7.9.2-1")
+      expect_identical(projr_version_get(), "7.9.2")
+      .projr_yml_metadata_set_version_format("major.dev", NULL)
 
       projr_version_set("0.1")
       expect_identical(projr_version_get(), "0.1")
@@ -235,33 +161,15 @@ test_that("projr_version_get works", {
 
 test_that(".projr_version_run_onwards_get works", {
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("report"))
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
-  .dir_create(dir_test)
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
-
-  for (x in fn_vec) {
-    file.copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
       projr_version_set("0.42.33-1")
+      # debugonce(.projr_version_run_onwards_get)
+      # debugonce(.projr_version_run_onwards_get_output)
       expect_identical(
         .projr_version_run_onwards_get("major"),
         list(
@@ -323,34 +231,13 @@ test_that(".projr_version_run_onwards_get works", {
 
 test_that("projr_version_set works", {
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("report"))
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
 
-  .dir_create(dir_test)
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
-
-  for (x in fn_vec) {
-    file.copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
-
+  # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
-      projr_version_format_set("major.dev")
+      .projr_yml_metadata_set_version_format("major.dev", NULL)
       projr_version_set("1.2")
       desc <- .projr_desc_get()
       expect_identical(desc[1, "Version"][[1]], "1.2")

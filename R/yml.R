@@ -237,7 +237,8 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   nm_list <- list(
     "directories",
     "build",
-    c("parameters", "parameter", "param", "par")
+    c("parameters", "parameter", "param", "par"),
+    "metadata"
   )
   
   pos_list <- lapply(nm_list, projr_yml_get_filter_top_level_ind, yml = yml)
@@ -275,7 +276,7 @@ projr_yml_get_filter_top_level_ind <- function(yml, nm) {
 }
 
 .projr_desc_get <- function() {
-  if (!file.exists(".dir_proj_get")) {
+  if (!file.exists(.dir_proj_get("DESCRIPTION"))) {
     stop("DESCRIPTION file not found")
   }
   path_desc <- .dir_proj_get("DESCRIPTION")

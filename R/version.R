@@ -40,8 +40,7 @@ projr_version_set <- function(version, path_dir = NULL, only_if_exists = TRUE) {
 
 .projr_version_set_file <- function(version, path_dir = NULL, only_if_exists = FALSE) {
   .projr_version_check(version)
-  version <- version |>
-    .projr_version_v_add(version)
+  version <- version |> .projr_version_v_add()
   path_file <- if (is.null(path_dir)) {
     projr_path_get("project", "VERSION")
   } else {
@@ -55,91 +54,10 @@ projr_version_set <- function(version, path_dir = NULL, only_if_exists = TRUE) {
   invisible(TRUE)
 }
 
-#' @title Get version format
-#'
-#' @description
-#' Returns the version format,
-#' which species the depth of semantic
-#' versioning levels used (e.g. major or major, minor and patch)
-#' as well as the separators between the versions (periods or dashes).
-#'
-#' @param version_format character.
-#' The version format.
-#' Specifies the version components ("major" and/or "minor" and/or "patch", and "dev"/"1"/"9000"), # nolint: line_length_linter.
-#' as well as the separators between them.
-#' If "1" is used instead of "dev", then "dev" component resets at "1".
-#' If "9000" is used instead of "dev", then "dev" component resets at "9000".
-#' If "dev" is used, then "dev" component resets at "9000".
-#' Examples: "major.minor-1", "major-minor-patch-dev", "major.9000".
-#' Default is "major.minor.patch.dev".
-#'
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' projr_version_format_set("major.minor-dev")
-#' projr_version_format_set("major.minor.patch-1")
-#' }
-projr_version_format_set <- function(version_format) {
-  if (missing(version_format)) {
-    stop("version_format must be supplied")
-  }
-  if (!length(version_format) == 1) {
-    stop("version format must be of length 1")
-  }
-  if (!is.character(version_format)) {
-    stop("version format must be of type character")
-  }
-  version_valid_vec <- c(
-    "major.minor.patch-dev",
-    "major.minor.patch.dev",
-    "major.minor-dev",
-    "major.minor.dev",
-    "major-dev",
-    "major.dev"
-  )
-  if (!version_format %in% version_valid_vec) {
-    stop("version format not valid")
-  }
-  yml_projr <- projr_yml_get()
-  yml_projr[["version-format"]] <- version_format
-  .projr_yml_set(yml_projr)
-  invisible(TRUE)
-}
-
-#' @title Get version format
-#'
-#' @description
-#' Returns the version format,
-#' which species the depth of semantic
-#' versioning levels used (e.g. major or major, minor and patch)
-#' as well as the separators between the versions (periods or dashes).
-#'
-#' @export
-projr_version_format_get <- function() {
-  version_format <- projr_yml_get()[["version-format"]]
-  if (length(version_format) == 0) {
-    version_format <- "major.minor.patch-dev"
-  }
-  version_valid_vec <- c(
-    "major.minor.patch-dev",
-    "major.minor.patch.dev",
-    "major.minor-dev",
-    "major.minor.dev",
-    "major-dev",
-    "major.dev"
-  )
-  if (!version_format %in% version_valid_vec) {
-    stop(paste0("Current version format not valid: ", version_format))
-  }
-  version_format
-}
-
-
 projr_name_get <- function() basename(.dir_proj_get())
 
-.projr_version_format_check <- function(version) {
-  version_format <- projr_version_format_get()
+.projr_version_format_check <- function(version, profile = NULL) {
+  version_format <- .projr_yml_metadata_get_version_format(profile)
   version_format_regex <- gsub("major", "\\\\d\\+", version_format)
   version_format_regex <- gsub("minor", "\\\\d\\+", version_format_regex)
   version_format_regex <- gsub("patch", "\\\\d\\+", version_format_regex)
@@ -161,49 +79,48 @@ projr_name_get <- function() basename(.dir_proj_get())
 }
 
 .projr_version_current_vec_get <- function(dev_force = FALSE) {
-  # basically, the idea
-  # is to choose whichever is greater of
-  # the _bookdown.yml and the
-  # DESCRIPTION versions
+  version_vec_init <- .projr_version_current_vec_get_init()
 
   version_format <- .projr_version_format_list_get(NULL)[["component"]]
   # if not forcing there to be a dev version
   if (!dev_force) {
-    return(version_desc_vec |> as.integer())
+    return(version_vec_init |> as.integer())
   }
-  if (length(version_format) == length(version_desc_vec)) {
-    return(version_desc_vec |> as.integer())
+  if (length(version_format) == length(version_vec_init)) {
+    return(version_vec_init |> as.integer())
   }
-  if ("dev" %in% version_format) {
-    version_desc_vec <- c(version_desc_vec, "1")
-  } else {
-    version_desc_vec <- c(
-      version_desc_vec, version_format[length(version_format)]
-    )
+  version_dev_append <- .projr_version_current_vec_get_dev(version_format)
+  version_vec_init <- c(version_vec_init, version_dev_append)
+  version_vec_init |> as.integer()
+}
+
+.projr_version_current_vec_get_dev <- function(version_format) {
+  if ("dev" == version_format[length(version_format)]) {
+    return("1")
   }
-  version_desc_vec |> as.integer()
+  version_format[length(version_format)]
 }
 
 .projr_version_current_vec_get_init <- function() {
   version_vec_init <- if (file.exists(.dir_proj_get("DESCRIPTION"))) {
     .projr_version_current_vec_get_init_desc()
   } else {
-    .projr_vresion_current_vec_get_init_file()
+    .projr_version_current_vec_get_init_file()
   }
-  .assert_character(version_vec_init)
+  .assert_chr_mid(version_vec_init)
   version_vec_init
 }
 
 .projr_version_current_vec_get_init_desc <- function() {
   desc <- .projr_desc_get()
-  version_desc_vec <- strsplit(
+  strsplit(
     desc[1, "Version"][[1]],
     split = "\\-|\\."
   )[[1]]
 }
 
-.projr_vresion_current_vec_get_init_file <- function() {
-  if (!file.exists("VERSION")) {
+.projr_version_current_vec_get_init_file <- function() {
+  if (!file.exists(.dir_proj_get("VERSION"))) {
     stop("VERSION file not found")
   }
   version_file <- readLines("VERSION")
@@ -216,84 +133,129 @@ projr_name_get <- function() basename(.dir_proj_get())
   version_orig_vec <- .projr_version_current_vec_get(dev_force = TRUE)
   version_format_list <- .projr_version_format_list_get(NULL)
 
-  if (!is.null(bump_component)) {
-    comp_to_update_ind <- which(
-      version_format_list[["component"]] == bump_component
+  if (is.null(bump_component)) {
+    return(
+      .projr_version_run_onwards_get_dev(
+        version_orig_vec, version_format_list$sep
+      )
     )
-    version_update_vec <- version_orig_vec
-
-    version_update_vec[comp_to_update_ind] <- version_update_vec[
-      comp_to_update_ind
-    ] + 1
-    if (comp_to_update_ind < length(version_update_vec)) {
-      version_update_vec[
-        seq(comp_to_update_ind + 1, length(version_orig_vec))
-      ] <- 0
-    }
-    if (bump_component %in% c("major", "minor", "patch")) {
-      version_desc_failure <- paste0(
-        paste0(
-          version_orig_vec[-length(version_orig_vec)],
-          version_format_list$sep,
-          collapse = ""
-        ),
-        version_orig_vec[length(version_orig_vec)]
-      )
-      version_desc_run <- version_desc_success <- paste0(
-        paste0(
-          version_update_vec[-length(version_update_vec)],
-          collapse = version_format_list$sep[1]
-        )
-      )
-    } else {
-      version_desc_run <- version_desc_failure <- version_desc_success <-
-        paste0(
-          paste0(
-            version_update_vec[-length(version_update_vec)],
-            version_format_list$sep,
-            collapse = ""
-          ),
-          version_update_vec[length(version_update_vec)]
-        )
-    }
-  } else {
-    version_desc_run <- version_desc_failure <- version_desc_success <-
-      paste0(
-        paste0(
-          version_orig_vec[-length(version_orig_vec)],
-          version_format_list$sep,
-          collapse = ""
-        ),
-        version_orig_vec[length(version_orig_vec)]
-      )
   }
+  if (bump_component == "dev") {
+    version_orig_vec[length(version_orig_vec)] <- version_orig_vec[
+      length(version_orig_vec)
+    ] + 1
+    return(
+      .projr_version_run_onwards_get_dev(
+        version_orig_vec, version_format_list$sep
+      )
+    )
+  }
+
+  .projr_version_run_onwards_get_bump(
+    version_orig_vec,
+    version_format_list$component,
+    version_format_list$sep,
+    bump_component
+  )
+}
+
+.projr_version_run_onwards_get_dev <- function(version_vec,
+                                               version_format_sep) {
+  version_vec <- .projr_version_run_onwards_get_dev_append_dev(
+    version_vec, version_format_sep
+  )
+  version <- .projr_version_concat(version_vec, version_format_sep) 
   list(
     "desc" = c(
-      "run" = version_desc_run,
-      "failure" = version_desc_failure,
-      "success" = version_desc_success
+      "run" = version,
+      "failure" = version,
+      "success" = version
     )
   )
 }
 
-#' @title Return the next version to be built
+.projr_version_run_onwards_get_dev_append_dev <- function(version_vec,
+                                                          version_format_sep) {
+  if (length(version_vec) == length(version_format_sep) + 1) {
+    return(version_vec)
+  }
+  version_format <- .projr_version_format_list_get(NULL)[["component"]]
+  version_dev_append <- .projr_version_current_vec_get_dev(version_format)
+  c(version_vec, version_dev_append)
+}
+
+.projr_version_concat <- function(version_vec, split_vec) {
+  if (.is_len_1(version_vec)) {
+    # major-version only format
+    # output build
+    return(version_vec)
+  }
+  version <- paste0(
+    version_vec[seq_along(split_vec)],
+    collapse = split_vec[-length(split_vec)]
+  )
+  if (length(version_vec) == length(split_vec)) {
+    # major-version-<dev> format
+    # output build
+    return(version)
+  }
+  # dev build
+  paste0(
+    version,
+    split_vec[length(split_vec)],
+    version_vec[length(split_vec) + 1]
+  )
+}
+
+.projr_version_run_onwards_get_bump <- function(version_vec,
+                                                  version_format_comp,
+                                                  version_format_sep,
+                                                  bump_component) {
+    
+  version_update_vec <- .projr_version_run_onwards_get_bump_update_vec( 
+    version_vec[-length(version_vec)], version_format_comp, bump_component
+  )
+  version_failure <- .projr_version_concat(version_vec, version_format_sep)
+  version_run <- .projr_version_concat(version_update_vec, version_format_sep)
+  version_success <- version_run
+  list(
+    "desc" = c(
+      "run" = version_run,
+      "failure" = version_failure,
+      "success" = version_success
+    )
+  )
+}
+
+.projr_version_run_onwards_get_bump_update_vec <- function(version_vec,
+                                                             version_format_comp,
+                                                             bump_component) {
+  comp_to_update_ind <- which(version_format_comp == bump_component)
+  version_update_vec <- version_vec
+  version_update_vec[comp_to_update_ind] <- version_update_vec[
+    comp_to_update_ind
+  ] + 1
+  if (comp_to_update_ind < length(version_update_vec)) {
+    version_update_vec[
+      seq(comp_to_update_ind + 1, length(version_vec))
+    ] <- 0
+  }
+  version_update_vec
+}
+
+#' @title Returns project version
 #'
 #' @description
-#' Returns version of project currently being worked on,
-#' which is defined as whichever version is later
-#' between DESCRIPTION and _bookdown.yml.
-#' Typically this will simply be the version in
-#' \code{_bookdown.yml}.
-#'
-#' @param dev_force logical.
-#' If `TRUE`, then the returned version
-#' will necessarily have a `dev` component.
-#' Default is `FALSE`.
+#' Returns project version 
 #'
 #' @return Character.
 #'
 #' @export
-projr_version_get <- function(dev_force = FALSE) {
+projr_version_get <- function() {
+  .projr_version_get(FALSE)
+}
+
+.projr_version_get <- function(dev_force = FALSE) {
   .projr_version_current_vec_get(dev_force = dev_force) |>
     .projr_version_chr_get()
 }

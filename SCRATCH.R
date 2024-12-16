@@ -13,11 +13,11 @@ pkg_vec <- c(
 )
 renv::install(pkg_vec, prompt = FALSE)
 
-.projr_path_rscript_get <- function() {
-  rscript <- Sys.which("Rscript")
-  if (nzchar(rscript)) {
-    return(rscript)
-  }
-  # Fallback to default R installation path
-  file.path(R.home("bin"), "Rscript")
+if (bump_component %in% c("major", "minor", "patch")) {
+  version_desc_failure <- 
+    .projr_version_concat(version_orig_vec, version_format_list$sep)
+  version_desc_run <- version_desc_success <-
+    .projr_version_concat(
+      version_update_vec, version_format_list$sep
+    )
 }

@@ -6,7 +6,7 @@
 # -----------------
 .projr_build_output_get_bump_component <- function(bump_component) {
   if (missing(bump_component)) {
-    version <- projr_version_format_get()
+    version <- .projr_yml_metadata_get_version_format(NULL)
     version_vec <- strsplit(version, split = "\\.|\\-")[[1]]
     bump_component <- version_vec[length(version_vec) - 1]
   }
@@ -101,4 +101,10 @@
 .projr_build_doc_output_dir_update <- function(output_run) {
   # sets docs directory correctly whenever called
   invisible(.projr_dir_get_label("docs", safe = !output_run))
+}
+
+.projr_build_ensure_dev_version <- function() {
+  .projr_version_get(dev_force = TRUE) |>
+    projr_version_set()
+  invisible(TRUE)
 }

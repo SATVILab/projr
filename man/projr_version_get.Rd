@@ -2,23 +2,13 @@
 % Please edit documentation in R/version.R
 \name{projr_version_get}
 \alias{projr_version_get}
-\title{Return the next version to be built}
+\title{Returns project version}
 \usage{
-projr_version_get(dev_force = FALSE)
-}
-\arguments{
-\item{dev_force}{logical.
-If \code{TRUE}, then the returned version
-will necessarily have a \code{dev} component.
-Default is \code{FALSE}.}
+projr_version_get()
 }
 \value{
 Character.
 }
 \description{
-Returns version of project currently being worked on,
-which is defined as whichever version is later
-between DESCRIPTION and _bookdown.yml.
-Typically this will simply be the version in
-\code{_bookdown.yml}.
+Returns project version
 }

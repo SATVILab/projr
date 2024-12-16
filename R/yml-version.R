@@ -1,8 +1,5 @@
 .projr_version_format_list_get <- function(profile) {
-  version_format <- .projr_yml_version_get(profile)
-  if (is.null(version_format)) {
-    version_format <- "major.minor.patch-dev"
-  }
+  version_format <- .projr_yml_metadata_get_version_format(profile)
   version_format_vec_sep <- strsplit(
     version_format, "major|minor|patch|dev"
   )[[1]][-1]
@@ -21,10 +18,42 @@
   )
 }
 
-.projr_yml_version_get <- function(profile) {
-  version_format <- .projr_yml_get(profile)[["version-format"]]
-  if (.is_len_0(version_format)) {
-    return(NULL)
+# version-format
+# --------------------------- 
+
+.projr_yml_metadata_get_version_format <- function(profile) {
+  .projr_yml_metadata_get_nm("version-format", profile) %||% "major.minor.patch-dev"
+}
+
+.projr_yml_metadata_set_version_format <- function(version_format, profile) {
+  .projr_yml_version_format_set_check(version_format)
+  .projr_yml_metadata_set_nm(version_format, "version-format", profile)
+}
+
+.projr_yml_version_format_set_check <- function(version_format) {
+  if (is.null(version_format) || .is_len_0(version_format)) {
+    return(invisible(TRUE))
   }
-  version_format
+  version_valid_vec <- c(
+    "major.minor.patch-dev",
+    "major.minor.patch.dev",
+    "major.minor-dev",
+    "major.minor.dev",
+    "major-dev",
+    "major.dev"
+  )
+  version_valid_vec_9000 <- gsub(
+    "dev$", "9000", version_valid_vec
+  )
+  version_valid_vec_1 <- gsub(
+    "dev$", "1", version_valid_vec
+  )
+  version_valid_vec <- c(
+    version_valid_vec,
+    version_valid_vec_9000,
+    version_valid_vec_1
+  )
+  .assert_given_mid(version_format)
+  .assert_string(version_format, TRUE)
+  .assert_in(version_format, version_valid_vec, TRUE)
 }

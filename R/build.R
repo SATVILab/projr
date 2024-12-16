@@ -190,6 +190,9 @@ projr_build_dev <- function(file = NULL,
   # will copy docs across upon success.
   .projr_build_doc_output_dir_update(FALSE)
 
+  # ensure that pre-build, we are on dev versoin
+  .projr_build_ensure_dev_version()
+
   # get DESCRIPTION and build versions under all
   # build outcomes
   version_run_on_list <- .projr_version_run_onwards_get(bump_component)
@@ -205,9 +208,6 @@ projr_build_dev <- function(file = NULL,
     stage = "pre",
     msg = msg
   )
-
-  # push files pre-run to notify others of build
-  .projr_build_git_push(output_run)
 
   # set the version pre-run
   .projr_build_version_set_pre(version_run_on_list)

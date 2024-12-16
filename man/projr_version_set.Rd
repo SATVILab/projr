@@ -4,7 +4,7 @@
 \alias{projr_version_set}
 \title{Set project version}
 \usage{
-projr_version_set(version)
+projr_version_set(version, path_dir = NULL, only_if_exists = TRUE)
 }
 \arguments{
 \item{version}{character.
