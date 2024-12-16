@@ -173,7 +173,7 @@ projr_yml_check <- function(profile = NULL) {
 .projr_yml_build_check_dest <- function(profile) {
   for (x in .projr_opt_remote_get_type()) {
     if (is.null(.projr_yml_dest_get_type(x, profile))) {
-      return(invisible(TRUE))
+      next
     }
     title_vec <- names(.projr_yml_dest_get_type(x, profile))
     for (i in seq_along(title_vec)) {
