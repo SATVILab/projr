@@ -275,6 +275,9 @@ projr_yml_get_filter_top_level_ind <- function(yml, nm) {
 }
 
 .projr_desc_get <- function() {
+  if (!file.exists(".dir_proj_get")) {
+    stop("DESCRIPTION file not found")
+  }
   path_desc <- .dir_proj_get("DESCRIPTION")
   read.dcf(path_desc)
 }

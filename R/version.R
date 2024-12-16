@@ -11,23 +11,47 @@
 #' May be dev version (i.e. include the dev component) or not.
 #'
 #' @export
-projr_version_set <- function(version) {
+projr_version_set <- function(version, path_dir = NULL, only_if_exists = TRUE) {
+  if (file.exists("DESCRIPTION")) {
+    .projr_version_set_desc(version)
+    .projr_version_set_file(version, path_dir = path_dir, only_if_exists = TRUE)
+  } else {
+    .projr_version_set_file(version, path_dir = path_dir, only_if_exists = FALSE)
+  }
+
+  invisible(TRUE)
+}
+
+.projr_version_set_desc <- function(version) {
+  .projr_version_check(version)
+  desc_file <- read.dcf("DESCRIPTION")
+  desc_file[, "Version"] <- .projr_version_v_rm(version)
+  write.dcf(desc_file, file = "DESCRIPTION")
+}
+
+.projr_version_check <- function(version) {
   if (missing(version)) stop("version must be supplied")
-  if (!length(version) == 1L) {
-    stop("version must be a character vector with one element")
-  }
-  if (!is.character(version)) {
-    stop("version must be of type character")
-  }
+  .assert_string(version, TRUE)
   if (grepl("^v", version)) {
     version <- gsub("^v", "", version)
   }
   .projr_version_format_check(version)
-  # check that version is in correct format
-  desc_file <- read.dcf("DESCRIPTION")
-  desc_file[, "Version"] <- version
-  write.dcf(desc_file, file = "DESCRIPTION")
+}
 
+.projr_version_set_file <- function(version, path_dir = NULL, only_if_exists = FALSE) {
+  .projr_version_check(version)
+  version <- version |>
+    .projr_version_v_add(version)
+  path_file <- if (is.null(path_dir)) {
+    projr_path_get("project", "VERSION")
+  } else {
+    .dir_create(path_dir)
+    file.path(path_dir, "VERSION")
+  }
+  if (!file.exists(path_file) && only_if_exists) {
+    return(invisible(FALSE))
+  }
+  writeLines(version, con = path_file)
   invisible(TRUE)
 }
 
@@ -141,11 +165,7 @@ projr_name_get <- function() basename(.dir_proj_get())
   # is to choose whichever is greater of
   # the _bookdown.yml and the
   # DESCRIPTION versions
-  desc <- .projr_desc_get()
-  version_desc_vec <- strsplit(
-    desc[1, "Version"][[1]],
-    split = "\\-|\\."
-  )[[1]]
+
   version_format <- .projr_version_format_list_get(NULL)[["component"]]
   # if not forcing there to be a dev version
   if (!dev_force) {
@@ -162,6 +182,34 @@ projr_name_get <- function() basename(.dir_proj_get())
     )
   }
   version_desc_vec |> as.integer()
+}
+
+.projr_version_current_vec_get_init <- function() {
+  version_vec_init <- if (file.exists(.dir_proj_get("DESCRIPTION"))) {
+    .projr_version_current_vec_get_init_desc()
+  } else {
+    .projr_vresion_current_vec_get_init_file()
+  }
+  .assert_character(version_vec_init)
+  version_vec_init
+}
+
+.projr_version_current_vec_get_init_desc <- function() {
+  desc <- .projr_desc_get()
+  version_desc_vec <- strsplit(
+    desc[1, "Version"][[1]],
+    split = "\\-|\\."
+  )[[1]]
+}
+
+.projr_vresion_current_vec_get_init_file <- function() {
+  if (!file.exists("VERSION")) {
+    stop("VERSION file not found")
+  }
+  version_file <- readLines("VERSION")
+  version_file <- version_file[[1]]
+  version_file <- .projr_version_v_rm(version_file)
+  strsplit(version_file, split = "\\-|\\.")[[1]]
 }
 
 .projr_version_run_onwards_get <- function(bump_component) {
@@ -312,7 +360,7 @@ projr_version_get <- function(dev_force = FALSE) {
 }
 
 .projr_version_v_rm <- function(x) {
-  gsub("^v+", "", x)
+  gsub("^v+", "", tolower(x))
 }
 
 .projr_version_v_add <- function(x) {
