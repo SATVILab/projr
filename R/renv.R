@@ -504,7 +504,9 @@ projr_renv_restore_and_update <- function(github = TRUE,
   if (restore) {
     cli::cli_alert_info("Attempting to restore {pkg_type} packages: {.pkg {pkg_names}}")
     tryCatch(
-      renv::restore(packages = pkg_names, transactional = FALSE),
+      renv::restore(
+        packages = pkg_names, transactional = FALSE, prompt = FALSE
+        ),
       error = function(e) {
         cli::cli_alert_danger("Failed to restore {pkg_type} packages: {.pkg {pkg_names}}. Error: {e$message}")
       }

@@ -1,6 +1,6 @@
 test_that("All assertion functions work as expected", {
   skip_if_offline()
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   
   # Setup a temporary test project directory
   dir_test <- .projr_test_setup_project(

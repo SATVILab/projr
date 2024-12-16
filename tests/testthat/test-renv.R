@@ -1,5 +1,6 @@
 test_that("projr_renv_test successfully restores renv environment", {
   skip_if_offline()
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
   on.exit(unlink(dir_test, recursive = TRUE), add = TRUE)
   setwd(dir_test)
@@ -27,6 +28,7 @@ test_that("projr_renv_test successfully restores renv environment", {
 
 test_that("projr_renv_test fails when it should", {
   skip_if_offline()
+  skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
   on.exit(unlink(dir_test, recursive = TRUE), add = TRUE)
   setwd(dir_test)
@@ -53,6 +55,7 @@ test_that("projr_renv_test fails when it should", {
 
 test_that("projr_renv_restore and projr_renv_update work with mixed repositories", {
   skip_if_offline()
+  # skip_if(.is_test_select())
 
   dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
   on.exit(unlink(dir_test, recursive = TRUE), add = TRUE)
