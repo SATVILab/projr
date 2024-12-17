@@ -41,7 +41,8 @@ Suggests:
     DT,
     rlang,
     withr,
-    BiocManager
+    BiocManager,
+    cli
 Config/testthat/edition: 3
 URL: https://satvilab.github.io/projr/
 VignetteBuilder: knitr
