@@ -9,6 +9,10 @@
   .projr_yml_build_get_nm("dev-output", profile)
 }
 
+.projr_yml_build_get_script <- function(profile) {
+  .projr_yml_build_get_nm("script", profile)
+}
+
 .projr_yml_build_get_nm <- function(nm, profile) {
   .projr_yml_build_get(profile)[[nm]] %@@% NULL
 }

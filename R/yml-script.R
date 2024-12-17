@@ -173,7 +173,7 @@ projr_yml_script_rm_all <- function(profile = "default") {
 }
 
 .projr_yml_script_get <- function(profile) {
-  .projr_yml_get(profile)[["build"]][["script"]]
+  .projr_yml_build_get_script(profile)
 }
 
 .projr_yml_script_set <- function(yml_script, profile = NULL) {
