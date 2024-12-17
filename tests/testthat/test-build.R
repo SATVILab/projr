@@ -69,7 +69,6 @@ test_that("projr_build_ works with quarto projects", {
       Sys.setenv("PROJR_TEST_ENGINE" = "Quarto project")
       # remove the pdf setting
       projr_init()
-      browser()
       yml_quarto <- .projr_yml_quarto_get()
       yml_quarto$format <- yml_quarto$format[-2]
       .projr_yml_quarto_set(yml_quarto)

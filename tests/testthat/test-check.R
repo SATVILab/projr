@@ -131,8 +131,6 @@ test_that("All assertion functions work as expected", {
       expect_true(.assert_attr_exact(x_with_attr, "my_attr"))
       
       # `.assert_attr()` checks that an attribute is present
-      # browser()
-      # debugonce(.assert_attr)
       expect_error(.assert_attr(x_with_attr, "missing_attr"),
                    regexp = "must have attribute missing_attr")
       expect_true(.assert_attr(x_with_attr, "my_attr"))
