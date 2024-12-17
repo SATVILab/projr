@@ -1,6 +1,6 @@
 Package: projr
 Title: Facilitate reproducible and archived projects
-Version: 0.1.12-6
+Version: 0.1.12-7
 Authors@R: person("Miguel", "Rodo", , "miguel.rodo@uct.ac.za", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2036-4878"))
 Maintainer: Miguel Rodo <miguel.rodo@uct.ac.za>
 Description: Facilitate reproducible and archived projects.
@@ -40,7 +40,8 @@ Suggests:
     htmltools,
     DT,
     rlang,
-    withr
+    withr,
+    BiocManager
 Config/testthat/edition: 3
 URL: https://satvilab.github.io/projr/
 VignetteBuilder: knitr

@@ -281,6 +281,12 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   }
 }
 
+.ensure_biocmanager <- function() {
+  if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    try(renv::install("BiocManager", prompt = FALSE))
+  }
+}
+
 .check_renv <- function() {
   # Checks if 'renv' is installed.
   # Stops execution if not available.
@@ -559,6 +565,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
 
   if (is_bioc) {
     if (biocmanager_install) {
+      .ensure_biocmanager()
       cli::cli_alert_info("Installing Bioconductor packages using BiocManager: {.pkg {pkg}}")
       tryCatch(
         BiocManager::install(pkg, update = TRUE, ask = FALSE),
