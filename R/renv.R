@@ -599,7 +599,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
   
   .ensure_cli()
 
-  installed_pkgs <- rownames(installed.packages())
+  installed_pkgs <- rownames(utils::installed.packages())
   pkg_remaining <- pkg[
     !sapply(pkg, function(x) sub("^.*/", "", x)) %in% installed_pkgs
   ]
