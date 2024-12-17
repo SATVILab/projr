@@ -1,26 +1,45 @@
-#' @title Set project version
+#' @title Set Project Version
+#' @rdname projr_version_set
 #'
-#' @description Set project version manually.
-#' Sometimes this may be necessary if, for example, a collaborator has
-#' built and pushed the project whilst you've made updates, and so you want
-#' to manually increase your version
-#' (rather than merging their changes in first).
+#' @description
+#' Sets the project version manually in the `DESCRIPTION` file and optionally in a `VERSION` file.
+#' This is useful in cases where you need to increment the version manually, for example,
+#' if a collaborator has pushed changes and you want to manually set your version before merging.
 #'
-#' @param version character.
-#' Version to set.
-#' May be dev version (i.e. include the dev component) or not.
+#' @param version A character string specifying the version to set.
+#'   It may include a development component (e.g., "1.2.3-dev") or just the stable version (e.g., "1.2.3").
+#' @param only_if_exists A logical flag indicating whether to update the `VERSION` file
+#'   only if it already exists (`TRUE`) or to create it if it doesn't exist (`FALSE`).
+#'   Defaults to `TRUE`.
 #'
+#' @return Invisibly returns `TRUE` if successful.
 #' @export
-projr_version_set <- function(version, path_dir = NULL, only_if_exists = TRUE) {
-  if (file.exists("DESCRIPTION")) {
+projr_version_set <- function(version, only_if_exists = TRUE) {
+  if (file.exists(.dir_proj_get("DESCRIPTION"))) {
     .projr_version_set_desc(version)
-    .projr_version_set_file(version, path_dir = path_dir, only_if_exists = TRUE)
+    .projr_version_set_file(version, only_if_exists = TRUE)
   } else {
-    .projr_version_set_file(version, path_dir = path_dir, only_if_exists = FALSE)
+    .projr_version_set_file(version, only_if_exists = FALSE)
   }
-
   invisible(TRUE)
 }
+
+.projr_version_copy_dir <- function(path_dir) {
+  # @title Copy Project Version to a Directory
+  #
+  # @description
+  # Copies the current project version to a specified directory
+  # by creating or updating
+  # a `VERSION` file. This ensures that the specified directory
+  # aligns with the project's version.
+  #
+  # @param path_dir. character.
+  # Specifies the directory path to copy the version to.
+  .assert_string(path_dir, TRUE)
+  projr_version_get() |>
+    .projr_version_set_file(path_dir = path_dir)
+}
+
 
 .projr_version_set_desc <- function(version) {
   .projr_version_check(version)
@@ -40,6 +59,8 @@ projr_version_set <- function(version, path_dir = NULL, only_if_exists = TRUE) {
 
 .projr_version_set_file <- function(version, path_dir = NULL, only_if_exists = FALSE) {
   .projr_version_check(version)
+  .assert_string(path_dir)
+  .assert_flag(only_if_exists)
   version <- version |> .projr_version_v_add()
   path_file <- if (is.null(path_dir)) {
     projr_path_get("project", "VERSION")
