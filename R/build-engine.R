@@ -89,11 +89,11 @@
     "FALSE" = file[grepl(detect_str, file)] |> .file_filter_exists()
   )
   .projr_build_engine_doc_fn_get_error(fn_vec, type)
-  fn_vec
+  fn_vec |> setdiff("README.Rmd")
 }
 
 .projr_build_engine_doc_fn_get_error <- function(fn, type) {
-  if (.is_len_pos(fn)) {
+  if (.is_given_mid(fn) && .is_len_pos(fn)) {
     return(invisible(TRUE))
   }
   document_type <- switch(tolower(type),
