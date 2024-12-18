@@ -87,7 +87,7 @@ test_that(".projr_osf_send_dir and _missing work", {
       yml_projr_orig <- .projr_yml_get()
 
       # create files
-      .projr_test_setup_content("data-raw")
+      .projr_test_setup_content("raw-data")
 
       # create manifest
       manifest <- .projr_test_manifest_create()
@@ -96,7 +96,7 @@ test_that(".projr_osf_send_dir and _missing work", {
       osf_tbl_proj <- .projr_test_osf_create_project("ProjectUploadFn")
       .projr_osf_rm_node_id_defer(osf_tbl_proj[["id"]])
 
-      path_dir_fn <- projr_path_get_dir("data-raw", safe = FALSE)
+      path_dir_fn <- projr_path_get_dir("raw-data", safe = FALSE)
       fn_vec <- list.files(path_dir_fn, recursive = TRUE)
 
       # upload to node
@@ -142,20 +142,20 @@ test_that(".projr_osf_send_dir and _missing work", {
 
       # create extra files
       path_file_extra_init <- projr_path_get(
-        "data-raw", "extra.txt"
+        "raw-data", "extra.txt"
       )
       path_file_extra_sub <- projr_path_get(
-        "data-raw", "altdir1", "extra2.txt"
+        "raw-data", "altdir1", "extra2.txt"
       )
       path_file_extra_sub_sub <- projr_path_get(
-        "data-raw", "altdir1", "altdir2", "extra3.txt"
+        "raw-data", "altdir1", "altdir2", "extra3.txt"
       )
 
       path_file_extra <- c(
         path_file_extra_init, path_file_extra_sub, path_file_extra_sub_sub
       )
       for (x in path_file_extra) file.create(path_file_extra)
-      fn_vec <- list.files(projr_path_get("data-raw"), recursive = TRUE)
+      fn_vec <- list.files(projr_path_get("raw-data"), recursive = TRUE)
       projr_version_set("0.0.1")
       .projr_test_manifest_create()
 
@@ -164,7 +164,7 @@ test_that(".projr_osf_send_dir and _missing work", {
         path_dir_local = path_dir_fn,
         osf_tbl = osf_tbl_file,
         conflict = "overwrite",
-        label = "data-raw",
+        label = "raw-data",
         version_source = "manifest"
       )
 
@@ -227,16 +227,16 @@ test_that(".projr_osf_send_dir and _missing work", {
         osf_tbl = osf_tbl_proj,
         path = "abc",
         path_append_label = TRUE,
-        label = "data-raw",
+        label = "raw-data",
         structure = "version",
         version = NULL
       )
       osf_tbl_file <- osf_tbl_proj |> osfr::osf_mkdir(path_dir_osf)
-      path_dir_local <- projr_path_get_dir("data-raw")
+      path_dir_local <- projr_path_get_dir("raw-data")
       # upload
       .projr_osf_send_version(
         path_dir_local = path_dir_local,
-        label = "data-raw",
+        label = "raw-data",
         osf_tbl_upload = osf_tbl_file,
         version_source = "manifest"
       )
@@ -247,7 +247,7 @@ test_that(".projr_osf_send_dir and _missing work", {
         osf_tbl = osf_tbl_file,
         path_dir_save_local = path_dir_save_local
       )
-      fn_vec <- list.files(projr_dir_get("data-raw"), recursive = TRUE)
+      fn_vec <- list.files(projr_dir_get("raw-data"), recursive = TRUE)
       expect_identical(
         fn_vec, list.files(path_dir_save_local, recursive = TRUE)
       )
@@ -256,11 +256,11 @@ test_that(".projr_osf_send_dir and _missing work", {
       projr_version_set("0.0.2")
       .projr_test_manifest_create()
 
-      path_dir_local <- projr_path_get_dir("data-raw")
+      path_dir_local <- projr_path_get_dir("raw-data")
       # upload
       .projr_osf_send_version(
         path_dir_local = path_dir_local,
-        label = "data-raw",
+        label = "raw-data",
         osf_tbl_upload = osf_tbl_file,
         version_source = "manifest"
       )
@@ -271,7 +271,7 @@ test_that(".projr_osf_send_dir and _missing work", {
         osf_tbl = osf_tbl_file,
         path_dir_save_local = path_dir_save_local
       )
-      fn_vec <- list.files(projr_dir_get("data-raw"), recursive = TRUE)
+      fn_vec <- list.files(projr_dir_get("raw-data"), recursive = TRUE)
       expect_identical(
         fn_vec, list.files(path_dir_save_local, recursive = TRUE)
       )
@@ -280,21 +280,21 @@ test_that(".projr_osf_send_dir and _missing work", {
       expect_identical(osfr::osf_ls_files(osf_tbl_dir)[["name"]], "v0.0.1")
 
 
-      file.remove(projr_path_get("data-raw", "extra.txt"))
-      unlink(projr_dir_get("data-raw", "altdir1"), recursive = TRUE)
+      file.remove(projr_path_get("raw-data", "extra.txt"))
+      unlink(projr_dir_get("raw-data", "altdir1"), recursive = TRUE)
 
       # add a file
-      file.create(projr_path_get("data-raw", "add.txt"))
+      file.create(projr_path_get("raw-data", "add.txt"))
 
       # change a file
-      writeLines(c("change"), projr_path_get("data-raw", "abc.txt"))
+      writeLines(c("change"), projr_path_get("raw-data", "abc.txt"))
 
       projr_version_set("v0.0.3")
       manifest <- .projr_test_manifest_create()
       # upload
       .projr_osf_send_version(
         path_dir_local = path_dir_local,
-        label = "data-raw",
+        label = "raw-data",
         osf_tbl_upload = osf_tbl_file,
         version_source = "manifest"
       )
@@ -305,7 +305,7 @@ test_that(".projr_osf_send_dir and _missing work", {
         osf_tbl = osf_tbl_file,
         path_dir_save_local = path_dir_save_local
       )
-      fn_vec <- list.files(projr_dir_get("data-raw"), recursive = TRUE)
+      fn_vec <- list.files(projr_dir_get("raw-data"), recursive = TRUE)
       expect_identical(
         fn_vec, list.files(path_dir_save_local, recursive = TRUE)
       )
@@ -322,14 +322,14 @@ test_that(".projr_osf_send_dir and _missing work", {
       # ----------------------
 
       # remove all extra files
-      file.remove(projr_path_get("data-raw", "extra.txt"))
-      unlink(projr_dir_get("data-raw", "altdir1"), recursive = TRUE)
+      file.remove(projr_path_get("raw-data", "extra.txt"))
+      unlink(projr_dir_get("raw-data", "altdir1"), recursive = TRUE)
 
       # add a file
-      file.create(projr_path_get("data-raw", "add.txt"))
+      file.create(projr_path_get("raw-data", "add.txt"))
 
       # change a file
-      writeLines(c("change"), projr_path_get("data-raw", "abc.txt"))
+      writeLines(c("change"), projr_path_get("raw-data", "abc.txt"))
 
 
 

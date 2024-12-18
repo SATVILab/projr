@@ -5,14 +5,14 @@ test_that(".projr_manifest_hash_label works", {
     path = dir_test,
     code = {
       # test hashing empty directory
-      path_dir_empty <- projr_path_get_dir("data-raw")
+      path_dir_empty <- projr_path_get_dir("raw-data")
       .dir_rm(path_dir_empty)
       dir.create(path_dir_empty)
-      manifest <- .projr_manifest_hash_label("data-raw", FALSE)
+      manifest <- .projr_manifest_hash_label("raw-data", FALSE)
       expect_identical(nrow(manifest), 0L)
       # test hashing empty directory with a sub-directory
       dir.create(file.path(path_dir_empty, "def"))
-      manifest <- .projr_manifest_hash_label("data-raw", TRUE)
+      manifest <- .projr_manifest_hash_label("raw-data", TRUE)
       expect_identical(nrow(manifest), 0L)
 
       # test hashing non-empty directories
@@ -40,7 +40,7 @@ test_that(".projr_build_manifest_* works", {
       # --------------------------
 
       # no content, except for an ignored label (output)
-      label_vec <- c("cache", "data-raw", "output")[-3]
+      label_vec <- c("cache", "raw-data", "output")[-3]
       for (x in label_vec) {
         .dir_rm(projr_path_get_dir(x, safe = TRUE, create = FALSE))
         projr_dir_create(x, safe = TRUE)

@@ -18,14 +18,14 @@ test_that(".projr_change_get_manifest works", {
       expect_identical(nrow(change_list[["removed"]]), 0L)
       expect_identical(nrow(change_list[["kept_changed"]]), 0L)
       expect_identical(nrow(change_list[["added"]]), 3L)
-      change_list_data_raw <- .projr_change_get(
-        label = "data-raw", version_source = "manifest"
+      change_list_raw_data <- .projr_change_get(
+        label = "raw-data", version_source = "manifest"
       )
-      expect_identical(length(change_list_data_raw), 4L)
-      expect_identical(nrow(change_list_data_raw[["kept_unchanged"]]), 0L)
-      expect_identical(nrow(change_list_data_raw[["removed"]]), 0L)
-      expect_identical(nrow(change_list_data_raw[["kept_changed"]]), 0L)
-      expect_identical(nrow(change_list_data_raw[["added"]]), 0L)
+      expect_identical(length(change_list_raw_data), 4L)
+      expect_identical(nrow(change_list_raw_data[["kept_unchanged"]]), 0L)
+      expect_identical(nrow(change_list_raw_data[["removed"]]), 0L)
+      expect_identical(nrow(change_list_raw_data[["kept_changed"]]), 0L)
+      expect_identical(nrow(change_list_raw_data[["added"]]), 0L)
 
       # no change, two versions
       # -----------------------
@@ -39,23 +39,23 @@ test_that(".projr_change_get_manifest works", {
       expect_identical(nrow(change_list[["removed"]]), 0L)
       expect_identical(nrow(change_list[["kept_changed"]]), 0L)
       expect_identical(nrow(change_list[["added"]]), 0L)
-      change_list_data_raw <- .projr_change_get(
-        label = "data-raw", version_source = "manifest"
+      change_list_raw_data <- .projr_change_get(
+        label = "raw-data", version_source = "manifest"
       )
-      expect_identical(length(change_list_data_raw), 4L)
-      expect_identical(nrow(change_list_data_raw[["kept_unchanged"]]), 0L)
-      expect_identical(nrow(change_list_data_raw[["removed"]]), 0L)
-      expect_identical(nrow(change_list_data_raw[["kept_changed"]]), 0L)
-      expect_identical(nrow(change_list_data_raw[["added"]]), 0L)
+      expect_identical(length(change_list_raw_data), 4L)
+      expect_identical(nrow(change_list_raw_data[["kept_unchanged"]]), 0L)
+      expect_identical(nrow(change_list_raw_data[["removed"]]), 0L)
+      expect_identical(nrow(change_list_raw_data[["kept_changed"]]), 0L)
+      expect_identical(nrow(change_list_raw_data[["added"]]), 0L)
 
       # added category, three versions
       # ------------------------------
       .projr_version_bump_patch() |> invisible()
-      .projr_test_setup_content("data-raw")
+      .projr_test_setup_content("raw-data")
       .projr_build_manifest_pre(TRUE) |> invisible()
       .projr_build_manifest_post(TRUE) |> invisible()
       expect_true(
-        all(c("data-raw", "output") %in% .projr_manifest_read(
+        all(c("raw-data", "output") %in% .projr_manifest_read(
           .projr_build_manifest_post_get_path(TRUE)
         )[["label"]])
       )
@@ -67,14 +67,14 @@ test_that(".projr_change_get_manifest works", {
       expect_identical(nrow(change_list[["removed"]]), 0L)
       expect_identical(nrow(change_list[["kept_changed"]]), 0L)
       expect_identical(nrow(change_list[["added"]]), 0L)
-      change_list_data_raw <- .projr_change_get(
-        label = "data-raw", version_source = "manifest"
+      change_list_raw_data <- .projr_change_get(
+        label = "raw-data", version_source = "manifest"
       )
-      expect_identical(length(change_list_data_raw), 4L)
-      expect_identical(nrow(change_list_data_raw[["kept_unchanged"]]), 0L)
-      expect_identical(nrow(change_list_data_raw[["removed"]]), 0L)
-      expect_identical(nrow(change_list_data_raw[["kept_changed"]]), 0L)
-      expect_identical(nrow(change_list_data_raw[["added"]]), 3L)
+      expect_identical(length(change_list_raw_data), 4L)
+      expect_identical(nrow(change_list_raw_data[["kept_unchanged"]]), 0L)
+      expect_identical(nrow(change_list_raw_data[["removed"]]), 0L)
+      expect_identical(nrow(change_list_raw_data[["kept_changed"]]), 0L)
+      expect_identical(nrow(change_list_raw_data[["added"]]), 3L)
     }
   )
 })

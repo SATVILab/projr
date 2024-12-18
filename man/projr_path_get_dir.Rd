@@ -15,7 +15,7 @@ projr_path_get_dir(
 }
 \arguments{
 \item{label}{character.
-One of \code{"data_raw"}, \code{"cache"},\code{"output"},
+One of \code{"raw"}, \code{"cache"},\code{"output"},
 \code{"archive"} and \code{"docs"}.
 Class of directory to return.
 The \code{"docs"} option returns the path to

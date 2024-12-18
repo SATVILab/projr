@@ -26,17 +26,17 @@ test_that("projr_build_output works - osf - latest", {
       projr_build_output("minor", msg = "test")
       expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
-      # data-raw and source are empty
+      # raw-data and source are empty
       expect_error(projr_yml_dest_add_osf(
         title = "Raw data",
-        content = "data-raw",
+        content = "raw-data",
         structure = "latest",
         category = "data"
       ))
       id_parent <- .projr_test_osf_create_project("Test")
       projr_yml_dest_add_osf(
         title = "Raw data",
-        content = "data-raw",
+        content = "raw-data",
         structure = "latest",
         category = "data",
         id_parent = id_parent
@@ -52,7 +52,7 @@ test_that("projr_build_output works - osf - latest", {
         id = id,
         path = NULL,
         path_append_label = TRUE,
-        label = "data-raw",
+        label = "raw-data",
         structure = "latest"
       )
       fn_vec <- .projr_remote_file_ls(
@@ -64,7 +64,7 @@ test_that("projr_build_output works - osf - latest", {
       # handle something to upload
       # ---------------------
 
-      .projr_test_setup_content("data-raw")
+      .projr_test_setup_content("raw-data")
       projr_build_patch(msg = "Ze data")
       fn_vec <- .projr_remote_file_ls(
         "osf",

@@ -31,7 +31,7 @@ This file is your project's command center.  Let's break down its key sections:
 * **`directories`:**
    - **Purpose:** Defines where essential project components live.
    - **Key Folders:**
-      - `data-raw`: Your untouched, original data.
+      - `raw-data`: Your untouched, original data.
       - `cache`: Temporary files created during development.
       - `output`: Final results you want to share (figures, tables, etc.).
       - `docs`: Rendered documents (HTML, PDF).
@@ -40,7 +40,7 @@ This file is your project's command center.  Let's break down its key sections:
         - Simplifies sharing specific parts of your project.
         - `projr` can smartly manage and protect your outputs.
 
-Use `projr_path_get()` to find these folders. Example: `projr_path_get("data-raw") ` will return the path to your `data-raw` directory.
+Use `projr_path_get()` to find these folders. Example: `projr_path_get("raw-data") ` will return the path to your `raw-data` directory.
 
 * **`build`:**
    - **Purpose:** Automates tasks that happen every time you build your project.

@@ -146,7 +146,7 @@ test_that("projr_manifest_hash_dir works", {
       invisible(file.create("_data_raw/test.txt"))
       invisible(file.create("_data_raw/abc/test.txt"))
       # to fix:
-      # - why did data-raw sub-directory not appear?
+      # - why did raw-data sub-directory not appear?
       # - what is going on with the output directory? It seems
       #   like the test is assuming the files will be in the cache directory,
       #   but they should actually be in the unsafe directory.
@@ -157,7 +157,7 @@ test_that("projr_manifest_hash_dir works", {
       expect_identical(nrow(manifest), 4L)
       expect_identical(colnames(manifest), c("label", "fn", "version", "hash"))
       yml_projr <- yml_projr_init
-      yml_projr[["directories"]][["data-raw"]][["hash"]] <- FALSE
+      yml_projr[["directories"]][["raw-data"]][["hash"]] <- FALSE
       .projr_yml_set(yml_projr)
       manifest <- .projr_build_manifest_hash_post(FALSE)
       expect_identical(nrow(manifest), 2L)
@@ -212,8 +212,8 @@ test_that("projr_manifest_compare works", {
     path = dir_test,
     code = {
       # clean up
-      if (dir.exists(projr_dir_get("data-raw"))) {
-        unlink(projr_dir_get("data-raw"), recursive = TRUE)
+      if (dir.exists(projr_dir_get("raw-data"))) {
+        unlink(projr_dir_get("raw-data"), recursive = TRUE)
       }
       # create files
       path_output_kept_unchanged <- projr_path_get(
@@ -361,7 +361,7 @@ test_that(".projr_remote_create works", {
       debugonce(.projr_yml_remote_check_content)
       projr_dest_add_local(
         title = "Archive",
-        content = "data-raw",
+        content = "raw-data",
         path = "_archive"
       )
       yml_projr_build <- projr_yml_get()[["build"]]
@@ -369,7 +369,7 @@ test_that(".projr_remote_create works", {
         identical(
           yml_projr_build[["local"]][["Archive"]],
           list(
-            content = "data-raw",
+            content = "raw-data",
             path = "_archive"
           )
         )
@@ -565,12 +565,12 @@ list_add <- .projr_osf_dest_get_list_add(
   if (category != "project") {
     .projr_remote_check_osf_label(
       label = content,
-      type_opt = c("data-raw", "cache", "output", "archive", "docs")
+      type_opt = c("raw-data", "cache", "output", "archive", "docs")
     )
   } else if (!is.null(content)) {
     .projr_remote_check_osf_label(
       label = content,
-      type_opt = c("data-raw", "cache", "output", "archive", "docs")
+      type_opt = c("raw-data", "cache", "output", "archive", "docs")
     )
   }
 
@@ -769,7 +769,7 @@ content <- .projr_yml_remote_content_get(
   # check it only matches restricted types
   short_to_match_type <- c(
     "cache" = "^cache",
-    "data-raw" = "^dataraw",
+    "raw-data" = "^raw",
     "output" = "^output",
     "archive" = "^archive",
     "docs" = "^docs"
@@ -1218,7 +1218,7 @@ test_that("projr_dir_ignore works", {
       expect_identical(length(which(
         buildignore == "^docs/reportV0\\.0\\.0-1"
       )), 1L)
-      .projr_ignore_label_set("data-raw")
+      .projr_ignore_label_set("raw-data")
       # test that nothing is done when directory is equal to working directory
       .projr_gitignore_set(gitignore_orig, append = FALSE)
       yml_bd_init <- .projr_yml_bd_get()
@@ -1234,12 +1234,12 @@ test_that("projr_dir_ignore works", {
       expect_identical(length(which(
         buildignore == "^\\."
       )), 0L)
-      .projr_ignore_label_set("data-raw")
+      .projr_ignore_label_set("raw-data")
       gitignore <- .projr_ignore_git_read()
       expect_identical(length(which(gitignore == "_data_raw/**")), 1L)
       buildignore <- .projr_ignore_rbuild_read()
       expect_identical(length(which(buildignore == "^_data_raw")), 1L)
-      .projr_ignore_label_set("data-raw")
+      .projr_ignore_label_set("raw-data")
       gitignore <- .projr_ignore_git_read()
       expect_identical(length(which(gitignore == "_data_raw/**")), 1L)
       buildignore <- .projr_ignore_rbuild_read()
@@ -1249,7 +1249,7 @@ test_that("projr_dir_ignore works", {
       expect_identical(length(which(gitignore == "_output/**")), 1L)
       buildignore <- .projr_ignore_rbuild_read()
       expect_identical(length(which(buildignore == "^_output")), 1L)
-      .projr_ignore_label_set("data-raw")
+      .projr_ignore_label_set("raw-data")
       gitignore <- .projr_ignore_git_read()
       expect_identical(length(which(gitignore == "_output/**")), 1L)
       buildignore <- .projr_ignore_rbuild_read()
@@ -1259,7 +1259,7 @@ test_that("projr_dir_ignore works", {
       expect_identical(length(which(gitignore == "_archive/**")), 1L)
       buildignore <- .projr_ignore_rbuild_read()
       expect_identical(length(which(buildignore == "^_archive")), 1L)
-      .projr_ignore_label_set("data-raw")
+      .projr_ignore_label_set("raw-data")
       gitignore <- .projr_ignore_git_read()
       expect_identical(length(which(gitignore == "_archive/**")), 1L)
       buildignore <- .projr_ignore_rbuild_read()
@@ -1269,7 +1269,7 @@ test_that("projr_dir_ignore works", {
       expect_identical(length(which(gitignore == "_tmp/**")), 1L)
       buildignore <- .projr_ignore_rbuild_read()
       expect_identical(length(which(buildignore == "^_tmp")), 1L)
-      .projr_ignore_label_set("data-raw")
+      .projr_ignore_label_set("raw-data")
       gitignore <- .projr_ignore_git_read()
       expect_identical(length(which(gitignore == "_tmp/**")), 1L)
       buildignore <- .projr_ignore_rbuild_read()
@@ -1283,7 +1283,7 @@ test_that("projr_dir_ignore works", {
       .projr_yml_set(yml_projr)
       # test taking away from gitignore and buildignore
 
-      .projr_ignore_label_set("data-raw")
+      .projr_ignore_label_set("raw-data")
       gitignore <- .projr_ignore_git_read()
       expect_identical(length(which(gitignore == "_data_raw/**")), 0L)
       buildignore <- .projr_ignore_rbuild_read()
@@ -1319,9 +1319,9 @@ test_that("projr_dir_ignore works", {
         yml_projr[["directories"]][[i]][["ignore_rbuild"]] <- 1
         yml_projr[["directories"]][[i]][["ignore_git"]] <- 1
       }
-      names(yml_projr[["directories"]]) <- rep("data-raw", 4)
+      names(yml_projr[["directories"]]) <- rep("raw-data", 4)
       .projr_yml_set(yml_projr)
-      expect_error(.projr_ignore_label_set("data-raw"))
+      expect_error(.projr_ignore_label_set("raw-data"))
     },
     force = TRUE,
     quiet = TRUE
@@ -2332,7 +2332,7 @@ x <- readChar(fn_vec[1], file.info(fn_vec[1])$size)
       yml_projr <- .projr_yml_get()
       # check that copying non-default directories works as well
       copy_list <- list(
-        `data-raw` = TRUE, cache = TRUE, bookdown = FALSE, package = TRUE
+        `raw-data` = TRUE, cache = TRUE, bookdown = FALSE, package = TRUE
       )
       yml_projr[["build-output"]][["copy-to-output"]] <- copy_list
       yml_projr[["build-output"]] <- yml_projr[["build-output"]][
@@ -2366,7 +2366,7 @@ x <- readChar(fn_vec[1], file.info(fn_vec[1])$size)
         list.files("_output", recursive = TRUE),
         c(
           "VERSION - 0.0.2", "abc.txt", "cache.zip",
-          "data-raw.zip", "report_0.0.2.tar.gz",
+          "raw-data.zip", "report_0.0.2.tar.gz",
           "test_dir/def.txt"
         )
       )
@@ -2462,7 +2462,7 @@ test_that("projr_build_output works", {
       yml_projr <- .projr_yml_get()
       # check that copying non-default directories works as well
       copy_list <- list(
-        `data-raw` = TRUE, cache = TRUE, bookdown = FALSE, package = TRUE
+        `raw-data` = TRUE, cache = TRUE, bookdown = FALSE, package = TRUE
       )
       yml_projr[["build-output"]][["copy-to-output"]] <- copy_list
       yml_projr[["build-output"]] <- yml_projr[["build-output"]][
@@ -2496,7 +2496,7 @@ test_that("projr_build_output works", {
         list.files("_output", recursive = TRUE),
         c(
           "VERSION - 0.0.2", "abc.txt", "cache.zip",
-          "data-raw.zip", "report_0.0.2.tar.gz",
+          "raw-data.zip", "report_0.0.2.tar.gz",
           "test_dir/def.txt"
         )
       )

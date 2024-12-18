@@ -139,7 +139,7 @@
 .projr_build_copy_dir_get_label <- function() {
   c(
     .projr_yml_dir_get_label_output(NULL),
-    .projr_yml_dir_get_label_data_raw(NULL),
+    .projr_yml_dir_get_label_raw(NULL),
     .projr_yml_dir_get_label_cache(NULL)
   )
 }

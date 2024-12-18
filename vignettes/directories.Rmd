@@ -28,7 +28,7 @@ Here is the default `directories` key:
 
 ```yaml
 directories:
-  data-raw:
+  raw-data:
     path: _data_raw
   cache: 
     path: _tmp
@@ -38,10 +38,10 @@ directories:
     path: docs
 ```
 
-To access the `path` for the `data-raw` directory, run:
+To access the `path` for the `raw-data` directory, run:
 
 ```r
-projr_path_get("data-raw")
+projr_path_get("raw-data")
 ```
 
 which yields

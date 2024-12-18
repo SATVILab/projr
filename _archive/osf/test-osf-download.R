@@ -14,7 +14,7 @@ test_that(".projr_checkout_osf works", {
       # ---------------------------
 
       # create files
-      .projr_test_setup_content("data-raw")
+      .projr_test_setup_content("raw-data")
 
       # create manifest
       manifest <- .projr_test_manifest_create()
@@ -24,7 +24,7 @@ test_that(".projr_checkout_osf works", {
       .projr_osf_rm_node_id_defer(osf_tbl_proj[["id"]])
 
       # upload to OSF
-      osf_tbl_upload <- osfr::osf_mkdir(x = osf_tbl_proj, path = "data-raw")
+      osf_tbl_upload <- osfr::osf_mkdir(x = osf_tbl_proj, path = "raw-data")
       osf_tbl_dir <- with_dir(
         "_data_raw",
         {
@@ -35,7 +35,7 @@ test_that(".projr_checkout_osf works", {
       )
       # add to YAML config
       projr_source_add_osf(
-        label = "data-raw", id = osf_tbl_proj[["id"]]
+        label = "raw-data", id = osf_tbl_proj[["id"]]
       )
 
       # remove to test restore
@@ -44,7 +44,7 @@ test_that(".projr_checkout_osf works", {
 
       # restore from a `latest` folder
       # ------------------------
-      .projr_checkout_osf("data-raw")
+      .projr_checkout_osf("raw-data")
       # check files there
       expect_identical(
         list.files(file.path("_data_raw")), c("abc.txt", "subdir1")
@@ -60,7 +60,7 @@ test_that(".projr_checkout_osf works", {
       # ------------------------
       osfr::osf_rm(osf_tbl_upload, recurse = TRUE, check = FALSE)
       osf_tbl_upload <- osfr::osf_mkdir(
-        x = osf_tbl_proj, path = "data-raw/v1.0.1"
+        x = osf_tbl_proj, path = "raw-data/v1.0.1"
       )
       osf_tbl_dir <- with_dir(
         "_data_raw",
@@ -72,14 +72,14 @@ test_that(".projr_checkout_osf works", {
 
       # add to YAML config
       projr_source_add_osf(
-        label = "data-raw", id = osf_tbl_proj[["id"]],
+        label = "raw-data", id = osf_tbl_proj[["id"]],
         structure = "version", overwrite = TRUE
       )
 
       # remove to test restore
       unlink("_data_raw", recursive = TRUE)
       dir.create("_data_raw")
-      .projr_checkout_osf("data-raw", )
+      .projr_checkout_osf("raw-data", )
       # check files there
       expect_identical(
         list.files(file.path("_data_raw")), c("abc.txt", "subdir1")
@@ -99,12 +99,12 @@ test_that(".projr_checkout_osf works", {
       # -----------------------------
 
       # create files
-      .projr_test_setup_content("data-raw")
+      .projr_test_setup_content("raw-data")
       file.create("_data_raw/add.txt")
 
       # add a new version
       osf_tbl_upload <- osfr::osf_mkdir(
-        x = osf_tbl_proj, path = "data-raw/v2.0.1"
+        x = osf_tbl_proj, path = "raw-data/v2.0.1"
       )
       osf_tbl_dir <- with_dir(
         "_data_raw",
@@ -115,7 +115,7 @@ test_that(".projr_checkout_osf works", {
       unlink("_data_raw", recursive = TRUE)
       dir.create("_data_raw")
       # checkout
-      .projr_checkout_osf("data-raw", version = "1.5")
+      .projr_checkout_osf("raw-data", version = "1.5")
       # check files there
       expect_identical(
         list.files(file.path("_data_raw")), c("abc.txt", "subdir1")

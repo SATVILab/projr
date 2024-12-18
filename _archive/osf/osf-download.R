@@ -9,9 +9,9 @@
     label <- .projr_yml_get()[["directories"]]
   }
   if (input_only) {
-    match_str <- "^cache|^dataraw"
+    match_str <- "^cache|^raw"
   } else {
-    match_str <- "^cache|^dataraw|^output"
+    match_str <- "^cache|^raw|^output"
   }
   label <- label[grepl(match_str, .projr_dir_label_strip(label))]
   for (i in seq_along(label)) {

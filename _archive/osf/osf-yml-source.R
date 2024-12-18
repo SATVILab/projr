@@ -19,9 +19,9 @@
 #' to which the contents will be saved.
 #' @param path_append_label
 #' Whether to append the label to the path.
-#' For example, if `label` is `data-raw` and `path` is `Study234`,
+#' For example, if `label` is `raw-data` and `path` is `Study234`,
 #' then the path to the directory under which
-#' the contents will be saved is be `data-raw`.
+#' the contents will be saved is be `raw-data`.
 #' Default is `FALSE` if `path` is `NULL`, and `FALSE` otherwise.
 #' @param category character.
 #' The category of the project or component.
@@ -67,12 +67,12 @@
 #'
 #' # add a project as source:
 #' projr_source_add_osf(
-#'   label = "data-raw",
+#'   label = "raw-data",
 #'   category = "project"
 #' )
 #' # add a component as source:
 #' projr_source_add_osf(
-#'   label = "data-raw",
+#'   label = "raw-data",
 #'   category = "data",
 #'   id_parent = "y235k"
 #' )
@@ -183,7 +183,7 @@ projr_source_add_osf <- function(label,
   # check inputs
   # ------------
   .projr_osf_yml_check_label(
-    label = label, type_opt = c("data-raw", "cache")
+    label = label, type_opt = c("raw-data", "cache")
   )
   .projr_osf_yml_check_body(body = body)
 

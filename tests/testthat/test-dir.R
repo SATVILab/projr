@@ -19,7 +19,7 @@ test_that("projr_path_get_dir works", {
       projr_path_get_dir("project")
       yml_projr <- .projr_yml_get_root_full()
       expect_error(projr_path_get_dir("ailc"))
-      expect_identical(projr_path_get_dir("data-raw"), "_data_raw")
+      expect_identical(projr_path_get_dir("raw-data"), "_data_raw")
       expect_identical(
         projr_path_get_dir("output"), "_tmp/projr/v0.0.0-1/output"
       )
@@ -36,20 +36,20 @@ test_that("projr_path_get_dir works", {
       projr_path_get_dir("cache", create = TRUE)
       expect_true(dir.exists("_tmp"))
       yml_projr <- .projr_yml_get_root_full()
-      path_tmp_data_raw <- fs::path_abs(dirname(dirname(getwd()))) |>
+      path_tmp_raw_data <- fs::path_abs(dirname(dirname(getwd()))) |>
         as.character()
-      yml_projr[["directories"]][["data-raw"]] <- list(
-        path = path_tmp_data_raw,
+      yml_projr[["directories"]][["raw-data"]] <- list(
+        path = path_tmp_raw_data,
         "ignore-git" = TRUE
       )
       .projr_yml_set(yml_projr)
       expect_identical(
-        projr_path_get_dir("data-raw"),
-        path_tmp_data_raw
+        projr_path_get_dir("raw-data"),
+        path_tmp_raw_data
       )
 
       expect_identical(
-        projr_path_get_dir("data-raw", relative = TRUE),
+        projr_path_get_dir("raw-data", relative = TRUE),
         "../.."
       )
 
@@ -60,12 +60,12 @@ test_that("projr_path_get_dir works", {
         projr_path_get_dir("docs", "abc", safe = FALSE), "_book/abc"
       )
       expect_identical(
-        projr_path_get_dir("data-raw", "abc"),
-        file.path(path_tmp_data_raw, "abc")
+        projr_path_get_dir("raw-data", "abc"),
+        file.path(path_tmp_raw_data, "abc")
       )
       expect_identical(
-        projr_path_get_dir("data-raw", "abc", "def", "ghi"),
-        file.path(path_tmp_data_raw, "abc/def/ghi") |>
+        projr_path_get_dir("raw-data", "abc", "def", "ghi"),
+        file.path(path_tmp_raw_data, "abc/def/ghi") |>
           fs::path_norm() |>
           as.character()
       )
@@ -134,7 +134,7 @@ test_that("projr_path_get works", {
       )
 
       expect_error(projr_path_get("abc"))
-      expect_identical(projr_path_get("data-raw"), "_data_raw")
+      expect_identical(projr_path_get("raw-data"), "_data_raw")
       expect_identical(projr_path_get("output"), "_tmp/projr/v0.0.0-1/output")
       expect_identical(projr_path_get(
         "output",
@@ -149,16 +149,16 @@ test_that("projr_path_get works", {
       projr_path_get("cache", create = TRUE)
       expect_true(dir.exists("_tmp"))
       yml_projr <- .projr_yml_get_root_full()
-      path_data_raw_abs <- fs::path_abs(dirname(dirname(getwd()))) |>
+      path_raw_data_abc <- fs::path_abs(dirname(dirname(getwd()))) |>
         as.character()
-      yml_projr[["directories"]][["data-raw"]] <- list(
-        path = path_data_raw_abs, "ignore-git" = TRUE
+      yml_projr[["directories"]][["raw-data"]] <- list(
+        path = path_raw_data_abc, "ignore-git" = TRUE
       )
       .projr_yml_set(yml_projr)
 
-      expect_identical(projr_path_get("data-raw"), path_data_raw_abs)
+      expect_identical(projr_path_get("raw-data"), path_raw_data_abc)
       expect_identical(
-        projr_path_get("data-raw", relative = TRUE),
+        projr_path_get("raw-data", relative = TRUE),
         "../.."
       )
 
@@ -170,15 +170,15 @@ test_that("projr_path_get works", {
         projr_path_get("docs", "abc", safe = FALSE), "_book/abc"
       )
       expect_identical(
-        projr_path_get("data-raw", "abc"),
-        file.path(path_data_raw_abs, "abc")
+        projr_path_get("raw-data", "abc"),
+        file.path(path_raw_data_abc, "abc")
       )
       expect_identical(
         projr_path_get("cache", "abc"), "_tmp/abc"
       )
       expect_identical(
-        projr_path_get("data-raw", "abc", "def", "ghi"),
-        file.path(path_data_raw_abs, "abc/def/ghi") |>
+        projr_path_get("raw-data", "abc", "def", "ghi"),
+        file.path(path_raw_data_abc, "abc/def/ghi") |>
           fs::path_norm() |>
           as.character()
       )
@@ -225,7 +225,7 @@ test_that("projr_dir_create works", {
       expect_error(projr_dir_create("abc"))
       expect_error(projr_dir_create(TRUE))
 
-      projr_dir_create("data-raw")
+      projr_dir_create("raw-data")
       expect_true(dir.exists("_data_raw"))
       projr_dir_create("output")
       expect_false(dir.exists("_output"))
@@ -294,7 +294,7 @@ test_that("projr_dir_ignore works", {
       expect_identical(length(which(
         buildignore == "^_book$"
       )), 1L)
-      .projr_ignore_label_set("data-raw")
+      .projr_ignore_label_set("raw-data")
       # test that nothing is done when directory is equal to working directory
       .projr_ignore_git_write(gitignore_orig, append = FALSE)
       yml_bd_init <- .projr_yml_bd_get()
@@ -310,7 +310,7 @@ test_that("projr_dir_ignore works", {
       expect_identical(length(which(
         buildignore == "^\\."
       )), 0L)
-      .projr_ignore_label_set("data-raw")
+      .projr_ignore_label_set("raw-data")
       gitignore <- .projr_ignore_git_read()
       expect_identical(length(which(gitignore == "_data_raw/**")), 1L)
       buildignore <- .projr_ignore_rbuild_read()
@@ -333,7 +333,7 @@ test_that("projr_dir_ignore works", {
       .projr_yml_set(yml_projr)
       # test taking away from gitignore and buildignore
 
-      .projr_ignore_label_set("data-raw")
+      .projr_ignore_label_set("raw-data")
       yml_gitignore <- .projr_ignore_git_read()
       expect_identical(length(which(gitignore == "^_data_raw/**")), 0L)
       buildignore <- .projr_ignore_rbuild_read()
@@ -363,9 +363,9 @@ test_that("projr_dir_ignore works", {
         yml_projr[["directories"]][[i]][["ignore-git"]] <- 1
         yml_projr[["directories"]][[i]][["ignore-rbuild"]] <- 1
       }
-      names(yml_projr[["directories"]]) <- rep("data-raw", 4)
+      names(yml_projr[["directories"]]) <- rep("raw-data", 4)
       .projr_yml_set(yml_projr)
-      expect_error(.projr_ignore_label_set("data-raw"))
+      expect_error(.projr_ignore_label_set("raw-data"))
     },
     force = TRUE,
     quiet = TRUE

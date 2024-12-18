@@ -2,19 +2,23 @@
 % Please edit documentation in R/version.R
 \name{projr_version_set}
 \alias{projr_version_set}
-\title{Set project version}
+\title{Set Project Version}
 \usage{
-projr_version_set(version, path_dir = NULL, only_if_exists = TRUE)
+projr_version_set(version, only_if_exists = TRUE)
 }
 \arguments{
-\item{version}{character.
-Version to set.
-May be dev version (i.e. include the dev component) or not.}
+\item{version}{A character string specifying the version to set.
+It may include a development component (e.g., "1.2.3-dev") or just the stable version (e.g., "1.2.3").}
+
+\item{only_if_exists}{A logical flag indicating whether to update the \code{VERSION} file
+only if it already exists (\code{TRUE}) or to create it if it doesn't exist (\code{FALSE}).
+Defaults to \code{TRUE}.}
+}
+\value{
+Invisibly returns \code{TRUE} if successful.
 }
 \description{
-Set project version manually.
-Sometimes this may be necessary if, for example, a collaborator has
-built and pushed the project whilst you've made updates, and so you want
-to manually increase your version
-(rather than merging their changes in first).
+Sets the project version manually in the \code{DESCRIPTION} file and optionally in a \code{VERSION} file.
+This is useful in cases where you need to increment the version manually, for example,
+if a collaborator has pushed changes and you want to manually set your version before merging.
 }

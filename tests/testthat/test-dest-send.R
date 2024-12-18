@@ -10,14 +10,14 @@ test_that("projr_yml_dest_add* functions work", {
       # add one
       projr_yml_dest_add_local(
         title = "archive",
-        content = "data-raw",
+        content = "raw-data",
         path = "_archive"
       )
       expect_identical(
         .projr_yml_dest_get_type("local", "default"),
         list(
           archive = list(
-            content = "data-raw",
+            content = "raw-data",
             path = "_archive"
           )
         )
@@ -32,7 +32,7 @@ test_that("projr_yml_dest_add* functions work", {
         .projr_yml_dest_get_type("local", "default"),
         list(
           archive = list(
-            content = "data-raw",
+            content = "raw-data",
             path = "_archive"
           ),
           "archive second" = list(
@@ -47,7 +47,7 @@ test_that("projr_yml_dest_add* functions work", {
         .projr_yml_dest_get_type("local", "default"),
         list(
           archive = list(
-            content = "data-raw",
+            content = "raw-data",
             path = "_archive"
           )
         )

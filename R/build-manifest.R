@@ -32,7 +32,7 @@
   # except for cache directories
   label_vec <- c(
     .projr_yml_dir_get_label_cache(NULL),
-    .projr_yml_dir_get_label_data_raw(NULL)
+    .projr_yml_dir_get_label_raw(NULL)
   )
   label_vec[
     vapply(
@@ -43,7 +43,7 @@
 }
 
 .projr_build_manifest_pre_get_label_ind_check <- function(label) {
-  if (grepl("^dataraw", label)) {
+  if (grepl("^raw", label)) {
     return(TRUE)
   }
 }

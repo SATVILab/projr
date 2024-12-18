@@ -64,7 +64,7 @@
 
 .projr_yml_dir_complete_hash <- function(hash, label) {
   switch(.projr_yml_dir_label_class_get(label),
-    "dataraw" = .projr_yml_dir_complete_hash_data_raw(hash),
+    "raw" = .projr_yml_dir_complete_hash_raw(hash),
     "cache" = .projr_yml_dir_complete_hash_cache(hash),
     "output" = .projr_yml_dir_complete_hash_output(hash),
     "docs" = .projr_yml_dir_complete_hash_output(hash),
@@ -81,8 +81,8 @@
 }
 
 .projr_yml_dir_label_class_get_ind <- function(x) {
-  if (.projr_yml_dir_label_class_detect_data_raw(x)) {
-    return("dataraw")
+  if (.projr_yml_dir_label_class_detect_raw(x)) {
+    return("raw")
   }
   if (.projr_yml_dir_label_class_detect_cache(x)) {
     return("cache")
@@ -105,8 +105,8 @@
   stop("label '", x, "' not valid", call. = FALSE)
 }
 
-.projr_yml_dir_label_class_detect_data_raw <- function(x) {
-  grepl("^dataraw", .projr_dir_label_strip(x))
+.projr_yml_dir_label_class_detect_raw <- function(x) {
+  grepl("^raw", .projr_dir_label_strip(x))
 }
 
 .projr_yml_dir_label_class_detect_cache <- function(x) {
@@ -141,7 +141,7 @@
   hash %||% TRUE
 }
 
-.projr_yml_dir_complete_hash_data_raw <- function(hash) {
+.projr_yml_dir_complete_hash_raw <- function(hash) {
   hash %||% TRUE
 }
 
@@ -213,7 +213,7 @@
 }
 
 .projr_yml_dir_get_label_in <- function(profile) {
-  .projr_yml_dir_get_label_data_raw(profile) |>
+  .projr_yml_dir_get_label_raw(profile) |>
     c(.projr_yml_dir_get_label_cache(profile))
 }
 
@@ -227,8 +227,8 @@
   .projr_yml_dir_get_label_nm("output", profile)
 }
 
-.projr_yml_dir_get_label_data_raw <- function(profile) {
-  .projr_yml_dir_get_label_nm("dataraw", profile)
+.projr_yml_dir_get_label_raw <- function(profile) {
+  .projr_yml_dir_get_label_nm("raw", profile)
 }
 
 .projr_yml_dir_get_label_cache <- function(profile) {
@@ -305,7 +305,7 @@
 
 .projr_yml_dir_get_complete_label <- function(yml_dir) {
   default_list <- list(
-    "data-raw" = list(path = "_data_raw"),
+    "raw-data" = list(path = "_data_raw"),
     "cache" = list(path = "_tmp"),
     "output" = list(path = "_output")
   )

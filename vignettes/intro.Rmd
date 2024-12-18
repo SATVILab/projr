@@ -29,7 +29,7 @@ The `projr` workflow:
 - **Initialisation**: Run `projr::projr_init()` to set up the project with metadata, `projr`-specific configuration and a Git repo connected to GitHub (if you so choose).
 - **Building the project**: Run `projr::projr_build_output()` to build the project, version the project and its components, and upload the components to GitHub, OSF and/or a local folder.
 
-Project directory structure (e.g. that raw data are kept in the `data-raw` folder) and on-build actions (e.g. uploading to GitHub) are specified in the `_projr.yml` file.
+Project directory structure (e.g. that raw data are kept in the `raw-data` folder) and on-build actions (e.g. uploading to GitHub) are specified in the `_projr.yml` file.
 
 There are only three functions to remember: `projr_init()`, `projr_build_output()` and `projr_path_get()`.
 The `projr` configuration file, `_projr.yml`, specifies project defaults that are appropriate for the majority of projects, but can be customised to your needs.
@@ -149,7 +149,7 @@ Here is the default `directories` key:
 ```yaml
 # default directory settings:
 directories:
-  data-raw:
+  raw-data:
     path: _data_raw
   cache: 
     path: _tmp
@@ -162,7 +162,7 @@ directories:
 The purpose is to specify the paths to the key folders in your project.
 They are as follows:
 
-- `data-raw`: The folder where raw data is stored.
+- `raw-data`: The folder where raw data is stored.
 - `cache`: This stores files created during project builds that you do not want to share. For example, if you use the `R` package `targets` to cache intermediate output, the cached intermediate output will go here.
 - `output`: This also stores files created during project builds - but these you want to share, e.g. figures or tables.
 - `docs`:  This is where the rendered documents are stored, e.g. the HTML or PDF files.
@@ -203,13 +203,13 @@ Essentially, `projr_path_get` should replace either hardcoded paths (`"_output/f
 
 #### Benefits
 
-Using folders in the manner described (e.g. storing raw data in the `data-raw` folder and outputs in the `output` folder) has the following benefits:
+Using folders in the manner described (e.g. storing raw data in the `raw-data` folder and outputs in the `output` folder) has the following benefits:
 
 - A person new to the project can read one file (`_projr.yml`) rather than trawling through source code to understand the project structure.
 - Sharing parts of the project (e.g. the raw data) and setting up the project again (e.g. on a new computer or on a collaborator's computer) is easier as like things are kept together. This is as opposed to, for example, keeping some raw data in `_data_raw`, others in `inst/extdata` and others at the root of the project, which makes bringing all the pieces together harder.
 - It helps `projr` help you, as it understands your project structure. This takes the following forms:
   - `projr` can "protect" the output folder. The `projr_build_dev()` function (described more below) builds the project, but saves outputs to the `cache` folder rather than the `output` folder. This prevents you accidentally overwriting outputs from a previous successful build whilst iterating on the code in preparation for the next build.
-  - `projr` can upload the data to various places. As described in the next subsection (`build`), `projr` can send data from these folders (`data-raw`, `output`, etc.) to various places - at present, this includes GitHub releases, OSF and local folders (e.g. your OneDrive project folder).
+  - `projr` can upload the data to various places. As described in the next subsection (`build`), `projr` can send data from these folders (`raw-data`, `output`, etc.) to various places - at present, this includes GitHub releases, OSF and local folders (e.g. your OneDrive project folder).
   - `projr` can automatically ignore large files from Git. If you don't understand what this means, then don't worry - in fact, it's *great* that you're here as this means `projr` can help you to use the incredibly useful versioning tool that is Git without having to understand its details.
 
 There are other benefits, but they rely on understanding some more advanced `projr` features, which are not covered in this vignette.
@@ -224,14 +224,14 @@ Here is the first part of the default `build` key (if the project is connected t
 build:
   github:
     input:
-      content: [data-raw]
+      content: [raw-data]
       description: "Project inputs"
 ```
 
-This specifies that, after the project is built, the `data-raw` directory (i.e. the contents of `_data_raw`) is uploaded to GitHub as a release whose name is `input`.
+This specifies that, after the project is built, the `raw-data` directory (i.e. the contents of `_data_raw`) is uploaded to GitHub as a release whose name is `input`.
 
-By default, it is uploaded to a file called `data-raw-v<project_version>.zip`, where `<project_version>` is the version of the project (e.g. `0.1.0`).
-Furthermore, by default this only takes place when anything changes within `data-raw`, i.e. file(s) are added, removed or changed.
+By default, it is uploaded to a file called `raw-data-v<project_version>.zip`, where `<project_version>` is the version of the project (e.g. `0.1.0`).
+Furthermore, by default this only takes place when anything changes within `raw-data`, i.e. file(s) are added, removed or changed.
 
 These uploads are designed to be highly flexible, and can be customised to your needs.
 Please see the `destination` vignette for more details (`evignette("destination")`).
@@ -252,7 +252,7 @@ Both will automatically detect the type of source documents you have (Rmd's, Qmd
 
 `projr_build_output()`
 - This does the same as `projr_build_dev()`, except that the output documents are saved to their final destination (as specified in `docs`/`output`) and the outputs (GitHub/OSF) are sent to, as desired).
-  - If you set the project up with GitHub, then by default the `data-raw`, `docs` and `output` folders are uploaded to GitHub as GitHub releases.
+  - If you set the project up with GitHub, then by default the `raw-data`, `docs` and `output` folders are uploaded to GitHub as GitHub releases.
 
 ### `projr_build_dev()`
 

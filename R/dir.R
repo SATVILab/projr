@@ -7,7 +7,7 @@
 #' Also creates the directory if it does not exist, and
 #' ignores it if requested by `_projr.yml`.
 #' @param label character.
-#' One of \code{"data_raw"}, \code{"cache"},\code{"output"},
+#' One of \code{"raw"}, \code{"cache"},\code{"output"},
 #' \code{"archive"} and \code{"docs"}.
 #' Class of directory to return.
 #' The \code{"docs"} option returns the path to
@@ -93,15 +93,15 @@ projr_path_get_dir <- function(label, ...,
 
 .projr_dir_check_label_strip <- function(label) {
   label_strip <- .projr_dir_label_strip(label)
-  label_valid <- grepl("^docs|^data-raw|^cache|^output|^archive", label_strip)
+  label_valid <- grepl("^docs|^raw|^cache|^output|^archive", label_strip)
   if (!label_valid) {
     stop(
       paste0("label '", label, "' not valid.\n"),
-      "Must begin with 'docs', 'data-raw', 'cache', 'output' or 'archive'\n",
+      "Must begin with 'docs', 'raw', 'cache', 'output' or 'archive'\n",
       "However, it can:\n",
-      " - be capitalised any which way, e.g. DATA-RAW or dAtA-rAw)\n",
-      " - have any suffix, e.g. 'data-raw-foo' or 'data-raw-foo-bar'\n",
-      " - use a hyphen, underscore or neither, e.g. 'data_raw', 'data-raw' or dataraw.\n",
+      " - be capitalised any which way, e.g. RAW-DATA or rAw-dAtA)\n",
+      " - have any suffix, e.g. 'raw-data-foo' or 'raw-data-foo-bar'\n",
+      " - use a hyphen, underscore or neither, e.g. 'raw', 'raw-data' or rawdata\n",
       call. = FALSE
     )
   }

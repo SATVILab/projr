@@ -55,7 +55,7 @@ test_that("projr_yml_check works", {
       projr_yml_check()
       projr_yml_dest_add_local(
         title = "test",
-        content = "data-raw",
+        content = "raw-data",
         path = "_outputting",
         send_version_source = "file",
         send_sync_approach = "upload-all",
@@ -74,12 +74,12 @@ test_that("projr_yml_dest_add_* functions work", {
     code = {
       .projr_test_yml_unset_remote()
       projr_yml_dest_add_local(
-        title = "test", content = "data-raw", path = "_archive"
+        title = "test", content = "raw-data", path = "_archive"
       )
       expect_true(!is.null(.projr_yml_dest_get_type("local", "default")))
 
       projr_yml_dest_add_osf(
-        title = "test", content = "data-raw", category = "project"
+        title = "test", content = "raw-data", category = "project"
       )
       expect_true(!is.null(.projr_yml_dest_get_type("osf", "default")))
       expect_true(
@@ -88,7 +88,7 @@ test_that("projr_yml_dest_add_* functions work", {
         )
       )
       projr_yml_dest_add_github(
-        title = "test", content = "data-raw"
+        title = "test", content = "raw-data"
       )
       expect_true(!is.null(.projr_yml_dest_get_type("github", "default")))
     }

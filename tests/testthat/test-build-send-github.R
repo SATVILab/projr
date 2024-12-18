@@ -28,7 +28,7 @@ test_that("projr_build_output works - github - latest", {
       # data-raw and source are empty
       projr_yml_dest_add_github(
         title = "Raw data",
-        content = "data-raw",
+        content = "raw-data",
         structure = "latest"
       )
 
@@ -41,13 +41,13 @@ test_that("projr_build_output works - github - latest", {
       # handle something to upload
       # ---------------------
 
-      .projr_test_setup_content("data-raw")
+      .projr_test_setup_content("raw-data")
       projr_build_patch(msg = "Ze data")
       release_tbl <- .projr_pb_release_tbl_get()
       expect_true(nrow(release_tbl) == 1L)
       fn_vec <- .projr_remote_file_ls(
         "github",
-        remote = c("tag" = "Raw-data", fn = "data-raw.zip")
+        remote = c("tag" = "Raw-data", fn = "raw-data.zip")
       )
       expect_true("subdir1/subdir2/ghi.txt" %in% fn_vec)
       expect_true("abc.txt" %in% fn_vec)
@@ -60,7 +60,7 @@ test_that("projr_build_output works - github - latest", {
       expect_true(nrow(release_tbl) == 1L)
       fn_vec <- .projr_remote_file_ls(
         "github",
-        remote = c("tag" = "Raw-data", fn = "data-raw.zip")
+        remote = c("tag" = "Raw-data", fn = "raw-data.zip")
       )
       expect_true("subdir1/subdir2/ghi.txt" %in% fn_vec)
 
@@ -70,7 +70,7 @@ test_that("projr_build_output works - github - latest", {
       projr_build_patch(msg = "More data")
       fn_vec <- .projr_remote_file_ls(
         "github",
-        remote = c("tag" = "Raw-data", fn = "data-raw.zip")
+        remote = c("tag" = "Raw-data", fn = "raw-data.zip")
       )
       expect_true("add.txt" %in% fn_vec)
       expect_true("subdir1/subdir2/ghi.txt" %in% fn_vec)
@@ -81,7 +81,7 @@ test_that("projr_build_output works - github - latest", {
       projr_build_patch(msg = "I love zis data")
       fn_vec <- .projr_remote_file_ls(
         "github",
-        remote = c("tag" = "Raw-data", fn = "data-raw.zip")
+        remote = c("tag" = "Raw-data", fn = "raw-data.zip")
       )
       expect_true("add.txt" %in% fn_vec)
       expect_true("subdir1/subdir2/ghi.txt" %in% fn_vec)
@@ -92,7 +92,7 @@ test_that("projr_build_output works - github - latest", {
       projr_build_patch(msg = "Less data")
       fn_vec <- .projr_remote_file_ls(
         "github",
-        remote = c("tag" = "Raw-data", fn = "data-raw.zip")
+        remote = c("tag" = "Raw-data", fn = "raw-data.zip")
       )
       expect_true(!"add.txt" %in% fn_vec)
       expect_true("subdir1/subdir2/ghi.txt" %in% fn_vec)

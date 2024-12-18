@@ -299,16 +299,16 @@ test_that("projr_build_copy_dir works when outputting", {
       yml_projr_init <- .projr_yml_get_root_full()
       invisible({
         file.create(
-          projr_path_get("data-raw", "a.txt", safe = TRUE)
+          projr_path_get("raw-data", "a.txt", safe = TRUE)
         )
         file.create(
-          projr_path_get("data-raw", "b.txt", safe = TRUE)
+          projr_path_get("raw-data", "b.txt", safe = TRUE)
         )
         file.create(
-          projr_path_get("data-raw", "dir_c", "c.txt", safe = TRUE)
+          projr_path_get("raw-data", "dir_c", "c.txt", safe = TRUE)
         )
         file.create(
-          projr_path_get("data-raw", "dir_d", "d.txt", safe = TRUE)
+          projr_path_get("raw-data", "dir_d", "d.txt", safe = TRUE)
         )
       })
       invisible({
@@ -358,7 +358,7 @@ test_that("projr_build_copy_dir works when outputting", {
       unlink(projr_path_get_dir("output", safe = FALSE), recursive = TRUE)
 
       yml_projr <- yml_projr_init
-      yml_projr[["directories"]][["data-raw"]] <- list(
+      yml_projr[["directories"]][["raw-data"]] <- list(
         path = "_data_raw", output = FALSE
       )
       yml_projr[["directories"]][["docs"]] <- list(
@@ -370,10 +370,10 @@ test_that("projr_build_copy_dir works when outputting", {
       .projr_yml_set(yml_projr)
       expect_true(.projr_build_copy_dir(output_run = TRUE))
       expect_false(file.exists(
-        projr_path_get("output", "data-raw.zip", safe = TRUE)
+        projr_path_get("output", "raw-data.zip", safe = TRUE)
       ))
       expect_false(file.exists(
-        projr_path_get("output", "data-raw.zip", safe = FALSE)
+        projr_path_get("output", "raw-data.zip", safe = FALSE)
       ))
       expect_false(file.exists(
         projr_path_get("output", "docs.zip", safe = FALSE)
@@ -387,7 +387,7 @@ test_that("projr_build_copy_dir works when outputting", {
       # -------------------
 
       yml_projr <- yml_projr_init
-      yml_projr[["directories"]][["data-raw"]] <- list(
+      yml_projr[["directories"]][["raw-data"]] <- list(
         path = "_data_raw", output = TRUE
       )
       yml_projr[["directories"]][["cache"]] <- list(
@@ -396,14 +396,14 @@ test_that("projr_build_copy_dir works when outputting", {
       .projr_yml_set(yml_projr)
       expect_true(.projr_build_copy_dir(output_run = TRUE))
       expect_true(dir.exists(
-        projr_path_get("output", "data-raw", safe = FALSE)
+        projr_path_get("output", "raw-data", safe = FALSE)
       ))
 
       # check that they're copied across correctly when
       # to different folders
       # -------------------
       yml_projr <- yml_projr_init
-      yml_projr[["directories"]][["data-raw"]] <- list(
+      yml_projr[["directories"]][["raw-data"]] <- list(
         path = "_data_raw", output = TRUE
       )
       yml_projr[["directories"]][["cache"]] <- list(
@@ -417,13 +417,13 @@ test_that("projr_build_copy_dir works when outputting", {
       .dir_rm("_output2")
       expect_true(.projr_build_copy_dir(output_run = TRUE))
       expect_true(dir.exists(
-        projr_path_get("output", "data-raw", safe = FALSE, create = FALSE)
+        projr_path_get("output", "raw-data", safe = FALSE, create = FALSE)
       ))
       expect_false(dir.exists(
         projr_path_get("output", "cache", safe = FALSE, create = FALSE)
       ))
       expect_true(dir.exists(
-        projr_path_get("output2", "data-raw", safe = FALSE, create = FALSE)
+        projr_path_get("output2", "raw-data", safe = FALSE, create = FALSE)
       ))
       expect_true(dir.exists(
         projr_path_get("output2", "cache", safe = FALSE, create = FALSE)

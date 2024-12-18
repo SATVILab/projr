@@ -154,7 +154,7 @@ test_that("projr_profile_create_local works", {
       expect_error(.projr_profile_create_local())
       yml_projr_local <- yaml::read_yaml("_projr-local.yml")
       expect_true(
-        is.null(yml_projr_local[["directories"]][["data-raw"]][["path"]])
+        is.null(yml_projr_local[["directories"]][["raw-data"]][["path"]])
       )
       expect_true(all(names(yml_projr_local) == c("directories", "build")))
       rbuildignore <- readLines(.dir_proj_get(".Rbuildignore"))

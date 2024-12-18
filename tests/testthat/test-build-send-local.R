@@ -25,26 +25,26 @@ test_that("projr_build_output works - local - defaults", {
       projr_build_output("minor", msg = "test")
       expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
-      # data-raw and source are empty
+      # raw-data and source are empty
       projr_yml_dest_add_local(
         title = "Raw data",
-        content = "data-raw",
+        content = "raw-data",
         path = "_archive"
       )
       # handle nothing to send
       # ---------------------
       projr_build_patch(msg = "Vat are you vinking about")
       expect_true(dir.exists(
-        file.path(dir_test, "_archive/data-raw")
+        file.path(dir_test, "_archive/raw-data")
       ))
 
       # handle something to upload
       # ---------------------
 
-      .projr_test_setup_content("data-raw")
+      .projr_test_setup_content("raw-data")
       projr_build_patch(msg = "Ze data")
       path_sub_dir_2 <- file.path(
-        "_archive/data-raw/v0.1.2/subdir1/subdir2"
+        "_archive/raw-data/v0.1.2/subdir1/subdir2"
       )
       expect_true(file.exists(
         file.path(path_sub_dir_2 |> dirname(), "def.txt")
@@ -57,7 +57,7 @@ test_that("projr_build_output works - local - defaults", {
       # ----------------------
       projr_build_patch(msg = "I love zis data")
       expect_true(!dir.exists(
-        file.path("_archive/data-raw", .projr_version_get_v())
+        file.path("_archive/raw-data", .projr_version_get_v())
       ))
 
 
@@ -66,10 +66,10 @@ test_that("projr_build_output works - local - defaults", {
       file.create("_data_raw/add.txt")
       projr_build_patch(msg = "More data")
       expect_true(dir.exists(
-        file.path("_archive/data-raw", .projr_version_get_v())
+        file.path("_archive/raw-data", .projr_version_get_v())
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", .projr_version_get_v(), "subdir1", "subdir2"
+        "_archive/raw-data", .projr_version_get_v(), "subdir1", "subdir2"
       )
       expect_true(file.exists(
         file.path(path_dir_sub_current |> dirname(), "def.txt")
@@ -85,7 +85,7 @@ test_that("projr_build_output works - local - defaults", {
       # ----------------------
       projr_build_patch(msg = "I love zis data")
       expect_true(!dir.exists(
-        file.path("_archive/data-raw", .projr_version_get_v())
+        file.path("_archive/raw-data", .projr_version_get_v())
       ))
 
       # remove something
@@ -93,10 +93,10 @@ test_that("projr_build_output works - local - defaults", {
       file.remove("_data_raw/add.txt")
       projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
-        file.path("_archive/data-raw", .projr_version_get_v())
+        file.path("_archive/raw-data", .projr_version_get_v())
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", .projr_version_get_v(), "subdir1", "subdir2"
+        "_archive/raw-data", .projr_version_get_v(), "subdir1", "subdir2"
       )
       expect_true(!file.exists(
         file.path(dirname(dirname(path_dir_sub_current)), "add.txt")
@@ -138,10 +138,10 @@ test_that("projr_build_output works - local - latest - file", {
       projr_build_output("minor", msg = "test")
       expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
-      # data-raw and source are empty
+      # raw-data and source are empty
       projr_yml_dest_add_local(
         title = "Raw data",
-        content = "data-raw",
+        content = "raw-data",
         path = "_archive",
         structure = "latest",
         send_version_source = "file"
@@ -150,16 +150,16 @@ test_that("projr_build_output works - local - latest - file", {
       # ---------------------
       projr_build_patch(msg = "Vat are you vinking about")
       expect_true(dir.exists(
-        file.path(dir_test, "_archive/data-raw")
+        file.path(dir_test, "_archive/raw-data")
       ))
 
       # handle something to upload
       # ---------------------
 
-      .projr_test_setup_content("data-raw")
+      .projr_test_setup_content("raw-data")
       projr_build_patch(msg = "Ze data")
       path_sub_dir_2 <- file.path(
-        "_archive/data-raw/subdir1/subdir2"
+        "_archive/raw-data/subdir1/subdir2"
       )
       expect_true(file.exists(
         file.path(path_sub_dir_2 |> dirname(), "def.txt")
@@ -178,10 +178,10 @@ test_that("projr_build_output works - local - latest - file", {
       file.create("_data_raw/add.txt")
       projr_build_patch(msg = "More data")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", "subdir1", "subdir2"
+        "_archive/raw-data", "subdir1", "subdir2"
       )
       expect_true(file.exists(
         file.path(path_dir_sub_current |> dirname(), "def.txt")
@@ -197,7 +197,7 @@ test_that("projr_build_output works - local - latest - file", {
       # ----------------------
       projr_build_patch(msg = "I love zis data")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
 
       # remove something
@@ -205,10 +205,10 @@ test_that("projr_build_output works - local - latest - file", {
       file.remove("_data_raw/add.txt")
       projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", "subdir1", "subdir2"
+        "_archive/raw-data", "subdir1", "subdir2"
       )
       expect_true(!file.exists(
         file.path(dirname(dirname(path_dir_sub_current)), "add.txt")
@@ -249,10 +249,10 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
       projr_build_output("minor", msg = "test")
       expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
-      # data-raw and source are empty
+      # raw-data and source are empty
       projr_yml_dest_add_local(
         title = "Raw data",
-        content = "data-raw",
+        content = "raw-data",
         path = "_archive",
         structure = "latest",
         send_sync_approach = "upload-all"
@@ -261,16 +261,16 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
       # ---------------------
       projr_build_patch(msg = "Vat are you vinking about")
       expect_true(dir.exists(
-        file.path(dir_test, "_archive/data-raw")
+        file.path(dir_test, "_archive/raw-data")
       ))
 
       # handle something to upload
       # ---------------------
 
-      .projr_test_setup_content("data-raw")
+      .projr_test_setup_content("raw-data")
       projr_build_patch(msg = "Ze data")
       path_sub_dir_2 <- file.path(
-        "_archive/data-raw/subdir1/subdir2"
+        "_archive/raw-data/subdir1/subdir2"
       )
       expect_true(file.exists(
         file.path(path_sub_dir_2 |> dirname(), "def.txt")
@@ -284,10 +284,10 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
       file.create("_data_raw/add.txt")
       projr_build_patch(msg = "More data")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", "subdir1", "subdir2"
+        "_archive/raw-data", "subdir1", "subdir2"
       )
       expect_true(file.exists(
         file.path(path_dir_sub_current |> dirname(), "def.txt")
@@ -304,10 +304,10 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
       file.remove("_data_raw/add.txt")
       projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", "subdir1", "subdir2"
+        "_archive/raw-data", "subdir1", "subdir2"
       )
       expect_true(file.exists(
         file.path(dirname(dirname(path_dir_sub_current)), "add.txt")
@@ -332,10 +332,10 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
       file.create("_data_raw/add2.txt")
       projr_build_patch(msg = "More data")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", "subdir1", "subdir2"
+        "_archive/raw-data", "subdir1", "subdir2"
       )
       expect_true(file.exists(
         file.path(path_dir_sub_current |> dirname(), "def.txt")
@@ -352,10 +352,10 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
       file.remove("_data_raw/add2.txt")
       projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", "subdir1", "subdir2"
+        "_archive/raw-data", "subdir1", "subdir2"
       )
       expect_true(file.exists(
         file.path(dirname(dirname(path_dir_sub_current)), "add2.txt")
@@ -372,10 +372,10 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
       )
       projr_build_patch(msg = "Synchronise")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", "subdir1", "subdir2"
+        "_archive/raw-data", "subdir1", "subdir2"
       )
       expect_true(!file.exists(
         file.path(dirname(dirname(path_dir_sub_current)), "add2.txt")
@@ -393,10 +393,10 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
 
       projr_build_patch(msg = "Synchronise")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", "subdir1", "subdir2"
+        "_archive/raw-data", "subdir1", "subdir2"
       )
       expect_true(!file.exists(
         file.path(dirname(dirname(path_dir_sub_current)), "add2.txt")
@@ -416,10 +416,10 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
 
       projr_build_patch(msg = "Synchronise")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", "subdir1", "subdir2"
+        "_archive/raw-data", "subdir1", "subdir2"
       )
       expect_true(file.exists(
         file.path(dirname(dirname(path_dir_sub_current)), "add2.txt")
@@ -460,10 +460,10 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
       projr_build_output("minor", msg = "test")
       expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
-      # data-raw and source are empty
+      # raw-data and source are empty
       projr_yml_dest_add_local(
         title = "Raw data",
-        content = "data-raw",
+        content = "raw-data",
         path = "_archive",
         structure = "latest",
         send_version_source = "none",
@@ -473,16 +473,16 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
       # ---------------------
       projr_build_patch(msg = "Vat are you vinking about")
       expect_true(dir.exists(
-        file.path(dir_test, "_archive/data-raw")
+        file.path(dir_test, "_archive/raw-data")
       ))
 
       # handle something to upload
       # ---------------------
 
-      .projr_test_setup_content("data-raw")
+      .projr_test_setup_content("raw-data")
       projr_build_patch(msg = "Ze data")
       path_sub_dir_2 <- file.path(
-        "_archive/data-raw/subdir1/subdir2"
+        "_archive/raw-data/subdir1/subdir2"
       )
       expect_true(file.exists(
         file.path(path_sub_dir_2 |> dirname(), "def.txt")
@@ -496,10 +496,10 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
       file.create("_data_raw/add.txt")
       projr_build_patch(msg = "More data")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", "subdir1", "subdir2"
+        "_archive/raw-data", "subdir1", "subdir2"
       )
       expect_true(file.exists(
         file.path(path_dir_sub_current |> dirname(), "def.txt")
@@ -516,10 +516,10 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
       file.remove("_data_raw/add.txt")
       projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", "subdir1", "subdir2"
+        "_archive/raw-data", "subdir1", "subdir2"
       )
       expect_true(file.exists(
         file.path(dirname(dirname(path_dir_sub_current)), "add.txt")
@@ -544,10 +544,10 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
       file.create("_data_raw/add2.txt")
       projr_build_patch(msg = "More data")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", "subdir1", "subdir2"
+        "_archive/raw-data", "subdir1", "subdir2"
       )
       expect_true(file.exists(
         file.path(path_dir_sub_current |> dirname(), "def.txt")
@@ -564,10 +564,10 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
       file.remove("_data_raw/add2.txt")
       projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", "subdir1", "subdir2"
+        "_archive/raw-data", "subdir1", "subdir2"
       )
       expect_true(file.exists(
         file.path(dirname(dirname(path_dir_sub_current)), "add2.txt")
@@ -584,10 +584,10 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
       )
       projr_build_patch(msg = "Synchronise")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", "subdir1", "subdir2"
+        "_archive/raw-data", "subdir1", "subdir2"
       )
       expect_true(!file.exists(
         file.path(dirname(dirname(path_dir_sub_current)), "add2.txt")
@@ -605,10 +605,10 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
 
       projr_build_patch(msg = "Synchronise")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", "subdir1", "subdir2"
+        "_archive/raw-data", "subdir1", "subdir2"
       )
       expect_true(!file.exists(
         file.path(dirname(dirname(path_dir_sub_current)), "add2.txt")
@@ -628,10 +628,10 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
 
       projr_build_patch(msg = "Synchronise")
       expect_true(dir.exists(
-        file.path("_archive/data-raw/")
+        file.path("_archive/raw-data/")
       ))
       path_dir_sub_current <- file.path(
-        "_archive/data-raw", "subdir1", "subdir2"
+        "_archive/raw-data", "subdir1", "subdir2"
       )
       expect_true(file.exists(
         file.path(dirname(dirname(path_dir_sub_current)), "add2.txt")
@@ -672,10 +672,10 @@ test_that("projr_build_output works - local - latest - none - <conflict>", {
       projr_build_output("minor", msg = "test")
       expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
-      # data-raw and source are empty
+      # raw-data and source are empty
       projr_yml_dest_add_local(
         title = "Raw data",
-        content = "data-raw",
+        content = "raw-data",
         path = "_archive",
         structure = "latest",
         send_version_source = "none",
@@ -686,15 +686,15 @@ test_that("projr_build_output works - local - latest - none - <conflict>", {
       # ---------------------
       projr_build_patch(msg = "Vat are you vinking about")
       expect_true(dir.exists(
-        file.path(dir_test, "_archive/data-raw")
+        file.path(dir_test, "_archive/raw-data")
       ))
 
       # handle something to upload
       # ---------------------
-      .projr_test_setup_content("data-raw")
+      .projr_test_setup_content("raw-data")
       projr_build_patch(msg = "Ze data")
       path_sub_dir_2 <- file.path(
-        "_archive/data-raw/subdir1/subdir2"
+        "_archive/raw-data/subdir1/subdir2"
       )
       expect_true(file.exists(
         file.path(path_sub_dir_2 |> dirname(), "def.txt")
@@ -717,7 +717,7 @@ test_that("projr_build_output works - local - latest - none - <conflict>", {
       writeLines("abc", "_data_raw/abc.txt")
       projr_build_patch(msg = "Changed but ignored")
       expect_identical(
-        readLines("_archive/data-raw/abc.txt"), character()
+        readLines("_archive/raw-data/abc.txt"), character()
       )
     },
     quiet = TRUE,
@@ -752,10 +752,10 @@ test_that("projr_build_output works - local - latest - none - <cue>", {
       projr_build_output("minor", msg = "test")
       expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
-      # data-raw and source are empty
+      # raw-data and source are empty
       projr_yml_dest_add_local(
         title = "Raw data",
-        content = "data-raw",
+        content = "raw-data",
         path = "_archive",
         structure = "latest",
         send_sync_approach = "sync-using-deletion",
@@ -767,19 +767,19 @@ test_that("projr_build_output works - local - latest - none - <cue>", {
       # patch build
       file.create("_data_raw/f1.txt")
       projr_build_patch(msg = "Vat are you vinking about")
-      expect_true(file.exists("_archive/data-raw/f1.txt"))
+      expect_true(file.exists("_archive/raw-data/f1.txt"))
 
       # minor build
       file.create("_data_raw/f2.txt")
       projr_build_minor(msg = "Vat are you vinking about")
-      expect_true(file.exists("_archive/data-raw/f1.txt"))
-      expect_true(file.exists("_archive/data-raw/f2.txt"))
+      expect_true(file.exists("_archive/raw-data/f1.txt"))
+      expect_true(file.exists("_archive/raw-data/f2.txt"))
 
       # major build
       file.create("_data_raw/f3.txt")
       projr_build_major(msg = "Vat are you vinking about")
-      expect_true(file.exists("_archive/data-raw/f1.txt"))
-      expect_true(file.exists("_archive/data-raw/f3.txt"))
+      expect_true(file.exists("_archive/raw-data/f1.txt"))
+      expect_true(file.exists("_archive/raw-data/f3.txt"))
 
       # cue: minor
       # ---------------------
@@ -788,26 +788,26 @@ test_that("projr_build_output works - local - latest - none - <cue>", {
         "minor",
         title = "Raw data", type = "local", profile = "default"
       )
-      .dir_rm("_archive/data-raw")
+      .dir_rm("_archive/raw-data")
       .dir_rm("_data_raw")
       dir.create("_data_raw")
 
       # patch build
       file.create("_data_raw/f1.txt")
       projr_build_patch(msg = "Vat are you vinking about")
-      expect_false(file.exists("_archive/data-raw/f1.txt"))
+      expect_false(file.exists("_archive/raw-data/f1.txt"))
 
       # minor build
       file.create("_data_raw/f2.txt")
       projr_build_minor(msg = "Vat are you vinking about")
-      expect_true(file.exists("_archive/data-raw/f1.txt"))
-      expect_true(file.exists("_archive/data-raw/f2.txt"))
+      expect_true(file.exists("_archive/raw-data/f1.txt"))
+      expect_true(file.exists("_archive/raw-data/f2.txt"))
 
       # major build
       file.create("_data_raw/f3.txt")
       projr_build_major(msg = "Vat are you vinking about")
-      expect_true(file.exists("_archive/data-raw/f1.txt"))
-      expect_true(file.exists("_archive/data-raw/f3.txt"))
+      expect_true(file.exists("_archive/raw-data/f1.txt"))
+      expect_true(file.exists("_archive/raw-data/f3.txt"))
 
       # cue: major
       # ---------------------
@@ -816,26 +816,26 @@ test_that("projr_build_output works - local - latest - none - <cue>", {
         "major",
         title = "Raw data", type = "local", profile = "default"
       )
-      .dir_rm("_archive/data-raw")
+      .dir_rm("_archive/raw-data")
       .dir_rm("_data_raw")
       dir.create("_data_raw")
 
       # patch build
       file.create("_data_raw/f1.txt")
       projr_build_patch(msg = "Vat are you vinking about")
-      expect_false(file.exists("_archive/data-raw/f1.txt"))
+      expect_false(file.exists("_archive/raw-data/f1.txt"))
 
       # minor build
       file.create("_data_raw/f2.txt")
       projr_build_minor(msg = "Vat are you vinking about")
-      expect_false(file.exists("_archive/data-raw/f1.txt"))
-      expect_false(file.exists("_archive/data-raw/f2.txt"))
+      expect_false(file.exists("_archive/raw-data/f1.txt"))
+      expect_false(file.exists("_archive/raw-data/f2.txt"))
 
       # major build
       file.create("_data_raw/f3.txt")
       projr_build_major(msg = "Vat are you vinking about")
-      expect_true(file.exists("_archive/data-raw/f1.txt"))
-      expect_true(file.exists("_archive/data-raw/f3.txt"))
+      expect_true(file.exists("_archive/raw-data/f1.txt"))
+      expect_true(file.exists("_archive/raw-data/f3.txt"))
     },
     quiet = TRUE,
     force = TRUE
@@ -869,10 +869,10 @@ test_that("projr_build_output works - local - latest - none - don't append label
       projr_build_output("minor", msg = "test")
       expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
-      # data-raw and source are empty
+      # raw-data and source are empty
       projr_yml_dest_add_local(
         title = "Raw data",
-        content = "data-raw",
+        content = "raw-data",
         path = "_archive",
         path_append_label = FALSE,
         structure = "latest",

@@ -294,7 +294,7 @@ projr_build_dev <- function(file = NULL,
                                      version_run_on_list,
                                      msg) {
   output_run <- .projr_build_get_output_run(bump_component)
-  # hash data-raw and outputs, then save manifest table
+  # hash raw-data and outputs, then save manifest table
   .projr_build_manifest_post(output_run)
 
   # remove dev output files

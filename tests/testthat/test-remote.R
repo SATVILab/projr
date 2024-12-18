@@ -137,7 +137,7 @@ test_that(".projr_remote_get_final works - local", {
           id = "a/b/c",
           path = NULL,
           path_append_label = FALSE,
-          label = "data-raw",
+          label = "raw-data",
           structure = "latest"
         ),
         "a/b/c"
@@ -147,10 +147,10 @@ test_that(".projr_remote_get_final works - local", {
           "local",
           id = "a/b/c",
           path_append_label = TRUE,
-          label = "data-raw",
+          label = "raw-data",
           structure = "version"
         ),
-        "a/b/c/data-raw/v0.0.0-1"
+        "a/b/c/raw-data/v0.0.0-1"
       )
     }
   )
@@ -188,14 +188,14 @@ test_that(".projr_remote_get_final works", {
       )
 
       # sub-directory
-      path_rel <- "a/data-raw/v0.0.0-1"
+      path_rel <- "a/raw-data/v0.0.0-1"
       osf_tbl <- .projr_osf_mkdir(.projr_remote_get("osf", id), path_rel)
       expect_identical(
         .projr_remote_get_final_osf(
           id = id,
           path = "a",
           path_append_label = TRUE,
-          label = "data-raw",
+          label = "raw-data",
           structure = "version"
         ),
         osf_tbl
@@ -206,9 +206,9 @@ test_that(".projr_remote_get_final works", {
       expect_identical(
         .projr_remote_get_final(
           "github",
-          id = "kablumph", label = "data-raw", structure = "version"
+          id = "kablumph", label = "raw-data", structure = "version"
         ),
-        c("tag" = "kablumph", fn = "data-raw-v0.0.0-1.zip")
+        c("tag" = "kablumph", fn = "raw-data-v0.0.0-1.zip")
       )
     }
   )
@@ -603,7 +603,7 @@ test_that("adding, tallying and removing files from remotes works - github", {
       id <- .projr_test_random_string_get()
       remote <- .projr_remote_get_final(
         "github",
-        id = id, label = "data-raw", structure = "latest"
+        id = id, label = "raw-data", structure = "latest"
       )
       .projr_remote_create("github", remote[["tag"]])
 
@@ -619,7 +619,7 @@ test_that("adding, tallying and removing files from remotes works - github", {
       # with content
       path_dir_source <- .projr_test_setup_content_dir()
       remote <- stats::setNames(.projr_test_random_string_get(), "tag")
-      remote <- remote |> c(c("fn" = "data-raw.zip"))
+      remote <- remote |> c(c("fn" = "raw-data.zip"))
       fn_vec <- .projr_remote_file_ls("local", path_dir_source)
       .projr_remote_file_add(
         "github",
