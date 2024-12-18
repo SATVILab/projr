@@ -45,7 +45,6 @@
 #' Path to directory requested.
 #' @rdname projr_path_get_dir
 #' @export
-#' @seealso projr_dir_create_all
 projr_path_get_dir <- function(label, ...,
                                create = TRUE,
                                relative = FALSE,
@@ -135,21 +134,6 @@ projr_path_get_dir <- function(label, ...,
   .path_force_abs(path)
 }
 
-#' @title Create all directories in _projr.yml
-#'
-#' @description
-#' Convenience function to create all directories
-#' listed in \code{_projr.yml} for the current projr profile.
-#' @seealso projr_dir_get
-projr_dir_create_all <- function() {
-  label_vec <- .projr_yml_dir_get(NULL) |>
-    names()
-  for (i in seq_along(label_vec)) {
-    projr_dir_create(label_vec[[i]], create = TRUE)
-  }
-  invisible(TRUE)
-}
-
 #' @title Return path
 #'
 #' @description Returns path to \code{projr} profile-specific directory.
@@ -231,18 +215,8 @@ projr_path_get <- function(label, ...,
     as.character()
 }
 
-#' @title Create a directory in _projr.yml
-#'
-#' @description Creates a directory that is
-#' listed in _projr.yml for the current projr profile.
-#' Will add to \code{.gitignore} and \code{.Rbuildignore}
-#' as well if required.
-#' @inheritParams projr_path_get_dir
-#'
-#' @seealso projr_dir_create_all
-#'
-#' @export
-projr_dir_create <- function(label, ..., safe = TRUE) {
+.projr_dir_create <- function(label, ..., safe = TRUE) {
+  # create directories
   for (x in label) {
     projr_path_get_dir(
       label = x,
@@ -251,4 +225,5 @@ projr_dir_create <- function(label, ..., safe = TRUE) {
       safe = safe
     )
   }
+  invisible(TRUE)
 }

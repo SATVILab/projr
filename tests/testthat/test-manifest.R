@@ -43,7 +43,7 @@ test_that(".projr_build_manifest_* works", {
       label_vec <- c("cache", "raw-data", "output")[-3]
       for (x in label_vec) {
         .dir_rm(projr_path_get_dir(x, safe = TRUE, create = FALSE))
-        projr_dir_create(x, safe = TRUE)
+        .projr_dir_create(x, safe = TRUE)
       }
       .projr_test_setup_content("output", safe = TRUE)
       expect_false(.projr_build_manifest_pre(FALSE))

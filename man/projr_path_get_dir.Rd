@@ -64,6 +64,3 @@ Returns path to \code{projr} profile-specific directory.
 Also creates the directory if it does not exist, and
 ignores it if requested by \verb{_projr.yml}.
 }
-\seealso{
-projr_dir_create_all
-}

@@ -192,7 +192,7 @@ test_that("projr_path_get works", {
   )
 })
 
-test_that("projr_dir_create works", {
+test_that(".projr_dir_create works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
 
@@ -221,23 +221,23 @@ test_that("projr_dir_create works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      expect_error(projr_dir_create())
-      expect_error(projr_dir_create("abc"))
-      expect_error(projr_dir_create(TRUE))
+      expect_error(.projr_dir_create())
+      expect_error(.projr_dir_create("abc"))
+      expect_error(.projr_dir_create(TRUE))
 
-      projr_dir_create("raw-data")
+      .projr_dir_create("raw-data")
       expect_true(dir.exists("_raw_data"))
-      projr_dir_create("output")
+      .projr_dir_create("output")
       expect_false(dir.exists("_output"))
       expect_true(dir.exists("_tmp/projr/v0.0.0-1/output"))
-      projr_dir_create("output", safe = FALSE)
+      .projr_dir_create("output", safe = FALSE)
       expect_true(dir.exists("_output"))
-      projr_dir_create("cache")
+      .projr_dir_create("cache")
       expect_true(dir.exists("_tmp"))
 
       unlink("_tmp", recursive = TRUE)
       unlink("_output", recursive = TRUE)
-      projr_dir_create(c("cache", "output"), safe = FALSE)
+      .projr_dir_create(c("cache", "output"), safe = FALSE)
       expect_true(dir.exists("_tmp"))
       expect_true(dir.exists("_output"))
       gitignore <- .projr_ignore_git_read()

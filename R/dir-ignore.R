@@ -122,10 +122,8 @@ projr_dir_ignore <- function(git_skip_adjust = NULL) {
     return(list(start = character(0), end = character(0)))
   }
   
-  top_line <- "# Start of projr section: do not edit by hand (update with projr_dir_ignore())"
-  bottom_line <- "# End of projr section"
   match_str_top <- "^# Start of projr section: do not edit by hand \\(update with projr_dir_ignore\\(\\))"
-  match_str_bottom <- paste0("^", bottom_line)
+  match_str_bottom <- "^# End of projr section"
   
   .projr_dir_ignore_gitignore_get_check(
     match_str_top, match_str_bottom, gitignore_vec
@@ -135,7 +133,13 @@ projr_dir_ignore <- function(git_skip_adjust = NULL) {
   projr_ignore_ind_bot <- which(grepl(match_str_bottom, gitignore_vec))
 
   if (length(projr_ignore_ind_top) == 0L) {
-    return(list(start = character(0), end = character(0)))
+    return(list(
+      start = paste0(
+        gitignore_vec,
+        "# Start of projr section: do not edit by hand (update with projr_dir_ignore())"
+      ),
+      end = "# End of projr section"
+    ))
   }
   
   list(
@@ -434,10 +438,8 @@ projr_dir_ignore <- function(git_skip_adjust = NULL) {
     return(list(start = character(0), end = character(0)))
   }
   
-  top_line <- "# Start of projr section: do not edit by hand (update with projr_dir_ignore())"
-  bottom_line <- "# End of projr section"
   match_str_top <- "^# Start of projr section: do not edit by hand \\(update with projr_dir_ignore\\(\\))"
-  match_str_bottom <- paste0("^", bottom_line)
+  match_str_bottom <- "^# End of projr section"
   
   .projr_dir_ignore_rbuildignore_get_check(
     match_str_top, match_str_bottom, rbuildignore_vec
@@ -447,7 +449,13 @@ projr_dir_ignore <- function(git_skip_adjust = NULL) {
   projr_ignore_ind_bot <- which(grepl(match_str_bottom, rbuildignore_vec))
 
   if (length(projr_ignore_ind_top) == 0L) {
-    return(list(start = character(0), end = character(0)))
+    return(list(
+      start = paste0(
+        rbuildignore_vec,
+        "# Start of projr section: do not edit by hand (update with projr_dir_ignore())"
+      ),
+      end = "# End of projr section"
+    ))
   }
   
   list(
