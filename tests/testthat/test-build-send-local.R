@@ -63,7 +63,7 @@ test_that("projr_build_output works - local - defaults", {
 
       # add something
       # ----------------------
-      file.create("_data_raw/add.txt")
+      file.create("_raw_data/add.txt")
       projr_build_patch(msg = "More data")
       expect_true(dir.exists(
         file.path("_archive/raw-data", .projr_version_get_v())
@@ -90,7 +90,7 @@ test_that("projr_build_output works - local - defaults", {
 
       # remove something
       # ----------------------
-      file.remove("_data_raw/add.txt")
+      file.remove("_raw_data/add.txt")
       projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
         file.path("_archive/raw-data", .projr_version_get_v())
@@ -175,7 +175,7 @@ test_that("projr_build_output works - local - latest - file", {
 
       # add something
       # ----------------------
-      file.create("_data_raw/add.txt")
+      file.create("_raw_data/add.txt")
       projr_build_patch(msg = "More data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
@@ -202,7 +202,7 @@ test_that("projr_build_output works - local - latest - file", {
 
       # remove something
       # ----------------------
-      file.remove("_data_raw/add.txt")
+      file.remove("_raw_data/add.txt")
       projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
@@ -281,7 +281,7 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
 
       # add something
       # ----------------------
-      file.create("_data_raw/add.txt")
+      file.create("_raw_data/add.txt")
       projr_build_patch(msg = "More data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
@@ -301,7 +301,7 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
 
       # remove something
       # ----------------------
-      file.remove("_data_raw/add.txt")
+      file.remove("_raw_data/add.txt")
       projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
@@ -329,7 +329,7 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
 
       # add something
       # ----------------------
-      file.create("_data_raw/add2.txt")
+      file.create("_raw_data/add2.txt")
       projr_build_patch(msg = "More data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
@@ -349,7 +349,7 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
 
       # remove something
       # ----------------------
-      file.remove("_data_raw/add2.txt")
+      file.remove("_raw_data/add2.txt")
       projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
@@ -411,8 +411,8 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
         "sync-using-version",
         title = "Raw data", type = "local", profile = "default"
       )
-      file.create("_data_raw/add2.txt")
-      file.remove("_data_raw/abc.txt")
+      file.create("_raw_data/add2.txt")
+      file.remove("_raw_data/abc.txt")
 
       projr_build_patch(msg = "Synchronise")
       expect_true(dir.exists(
@@ -493,7 +493,7 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
 
       # add something
       # ----------------------
-      file.create("_data_raw/add.txt")
+      file.create("_raw_data/add.txt")
       projr_build_patch(msg = "More data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
@@ -513,7 +513,7 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
 
       # remove something
       # ----------------------
-      file.remove("_data_raw/add.txt")
+      file.remove("_raw_data/add.txt")
       projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
@@ -541,7 +541,7 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
 
       # add something
       # ----------------------
-      file.create("_data_raw/add2.txt")
+      file.create("_raw_data/add2.txt")
       projr_build_patch(msg = "More data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
@@ -561,7 +561,7 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
 
       # remove something
       # ----------------------
-      file.remove("_data_raw/add2.txt")
+      file.remove("_raw_data/add2.txt")
       projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
@@ -623,8 +623,8 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
         "sync-using-version",
         title = "Raw data", type = "local", profile = "default"
       )
-      file.create("_data_raw/add2.txt")
-      file.remove("_data_raw/abc.txt")
+      file.create("_raw_data/add2.txt")
+      file.remove("_raw_data/abc.txt")
 
       projr_build_patch(msg = "Synchronise")
       expect_true(dir.exists(
@@ -713,8 +713,8 @@ test_that("projr_build_output works - local - latest - none - <conflict>", {
         "skip",
         title = "Raw data", type = "local", profile = "default"
       )
-      .file_ls("_data_raw")
-      writeLines("abc", "_data_raw/abc.txt")
+      .file_ls("_raw_data")
+      writeLines("abc", "_raw_data/abc.txt")
       projr_build_patch(msg = "Changed but ignored")
       expect_identical(
         readLines("_archive/raw-data/abc.txt"), character()
@@ -765,18 +765,18 @@ test_that("projr_build_output works - local - latest - none - <cue>", {
       # cue: patch
       # ---------------------
       # patch build
-      file.create("_data_raw/f1.txt")
+      file.create("_raw_data/f1.txt")
       projr_build_patch(msg = "Vat are you vinking about")
       expect_true(file.exists("_archive/raw-data/f1.txt"))
 
       # minor build
-      file.create("_data_raw/f2.txt")
+      file.create("_raw_data/f2.txt")
       projr_build_minor(msg = "Vat are you vinking about")
       expect_true(file.exists("_archive/raw-data/f1.txt"))
       expect_true(file.exists("_archive/raw-data/f2.txt"))
 
       # major build
-      file.create("_data_raw/f3.txt")
+      file.create("_raw_data/f3.txt")
       projr_build_major(msg = "Vat are you vinking about")
       expect_true(file.exists("_archive/raw-data/f1.txt"))
       expect_true(file.exists("_archive/raw-data/f3.txt"))
@@ -789,22 +789,22 @@ test_that("projr_build_output works - local - latest - none - <cue>", {
         title = "Raw data", type = "local", profile = "default"
       )
       .dir_rm("_archive/raw-data")
-      .dir_rm("_data_raw")
-      dir.create("_data_raw")
+      .dir_rm("_raw_data")
+      dir.create("_raw_data")
 
       # patch build
-      file.create("_data_raw/f1.txt")
+      file.create("_raw_data/f1.txt")
       projr_build_patch(msg = "Vat are you vinking about")
       expect_false(file.exists("_archive/raw-data/f1.txt"))
 
       # minor build
-      file.create("_data_raw/f2.txt")
+      file.create("_raw_data/f2.txt")
       projr_build_minor(msg = "Vat are you vinking about")
       expect_true(file.exists("_archive/raw-data/f1.txt"))
       expect_true(file.exists("_archive/raw-data/f2.txt"))
 
       # major build
-      file.create("_data_raw/f3.txt")
+      file.create("_raw_data/f3.txt")
       projr_build_major(msg = "Vat are you vinking about")
       expect_true(file.exists("_archive/raw-data/f1.txt"))
       expect_true(file.exists("_archive/raw-data/f3.txt"))
@@ -817,22 +817,22 @@ test_that("projr_build_output works - local - latest - none - <cue>", {
         title = "Raw data", type = "local", profile = "default"
       )
       .dir_rm("_archive/raw-data")
-      .dir_rm("_data_raw")
-      dir.create("_data_raw")
+      .dir_rm("_raw_data")
+      dir.create("_raw_data")
 
       # patch build
-      file.create("_data_raw/f1.txt")
+      file.create("_raw_data/f1.txt")
       projr_build_patch(msg = "Vat are you vinking about")
       expect_false(file.exists("_archive/raw-data/f1.txt"))
 
       # minor build
-      file.create("_data_raw/f2.txt")
+      file.create("_raw_data/f2.txt")
       projr_build_minor(msg = "Vat are you vinking about")
       expect_false(file.exists("_archive/raw-data/f1.txt"))
       expect_false(file.exists("_archive/raw-data/f2.txt"))
 
       # major build
-      file.create("_data_raw/f3.txt")
+      file.create("_raw_data/f3.txt")
       projr_build_major(msg = "Vat are you vinking about")
       expect_true(file.exists("_archive/raw-data/f1.txt"))
       expect_true(file.exists("_archive/raw-data/f3.txt"))
@@ -879,7 +879,7 @@ test_that("projr_build_output works - local - latest - none - don't append label
         send_sync_approach = "sync-using-deletion"
       )
       # patch build
-      file.create("_data_raw/f1.txt")
+      file.create("_raw_data/f1.txt")
       projr_build_patch(msg = "Vat are you vinking about")
       expect_true(file.exists("_archive/f1.txt"))
     },

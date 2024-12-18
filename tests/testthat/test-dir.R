@@ -19,7 +19,7 @@ test_that("projr_path_get_dir works", {
       projr_path_get_dir("project")
       yml_projr <- .projr_yml_get_root_full()
       expect_error(projr_path_get_dir("ailc"))
-      expect_identical(projr_path_get_dir("raw-data"), "_data_raw")
+      expect_identical(projr_path_get_dir("raw-data"), "_raw_data")
       expect_identical(
         projr_path_get_dir("output"), "_tmp/projr/v0.0.0-1/output"
       )
@@ -134,7 +134,7 @@ test_that("projr_path_get works", {
       )
 
       expect_error(projr_path_get("abc"))
-      expect_identical(projr_path_get("raw-data"), "_data_raw")
+      expect_identical(projr_path_get("raw-data"), "_raw_data")
       expect_identical(projr_path_get("output"), "_tmp/projr/v0.0.0-1/output")
       expect_identical(projr_path_get(
         "output",
@@ -226,7 +226,7 @@ test_that("projr_dir_create works", {
       expect_error(projr_dir_create(TRUE))
 
       projr_dir_create("raw-data")
-      expect_true(dir.exists("_data_raw"))
+      expect_true(dir.exists("_raw_data"))
       projr_dir_create("output")
       expect_false(dir.exists("_output"))
       expect_true(dir.exists("_tmp/projr/v0.0.0-1/output"))
@@ -241,7 +241,7 @@ test_that("projr_dir_create works", {
       expect_true(dir.exists("_tmp"))
       expect_true(dir.exists("_output"))
       gitignore <- .projr_ignore_git_read()
-      expect_identical(length(which(gitignore == "_data_raw/**")), 0L)
+      expect_identical(length(which(gitignore == "_raw_data/**")), 0L)
     },
     force = TRUE,
     quiet = TRUE
@@ -312,10 +312,10 @@ test_that("projr_dir_ignore works", {
       )), 0L)
       .projr_ignore_label_set("raw-data")
       gitignore <- .projr_ignore_git_read()
-      expect_identical(length(which(gitignore == "_data_raw/**")), 1L)
+      expect_identical(length(which(gitignore == "_raw_data/**")), 1L)
       buildignore <- .projr_ignore_rbuild_read()
-      expect_identical(length(which(buildignore == "^_data_raw/")), 1L)
-      expect_identical(length(which(buildignore == "^_data_raw$")), 1L)
+      expect_identical(length(which(buildignore == "^_raw_data/")), 1L)
+      expect_identical(length(which(buildignore == "^_raw_data$")), 1L)
       .projr_ignore_label_set("output")
       gitignore <- .projr_ignore_git_read()
       expect_identical(length(which(gitignore == "_output/**")), 1L)
@@ -335,10 +335,10 @@ test_that("projr_dir_ignore works", {
 
       .projr_ignore_label_set("raw-data")
       yml_gitignore <- .projr_ignore_git_read()
-      expect_identical(length(which(gitignore == "^_data_raw/**")), 0L)
+      expect_identical(length(which(gitignore == "^_raw_data/**")), 0L)
       buildignore <- .projr_ignore_rbuild_read()
-      expect_identical(length(which(buildignore == "^_data_raw/")), 0L)
-      expect_identical(length(which(buildignore == "^_data_raw$")), 0L)
+      expect_identical(length(which(buildignore == "^_raw_data/")), 0L)
+      expect_identical(length(which(buildignore == "^_raw_data$")), 0L)
 
       # test not adding when the directory is not in wd
       yml_projr <- .projr_yml_get_root_full()

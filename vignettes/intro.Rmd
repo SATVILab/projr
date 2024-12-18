@@ -150,7 +150,7 @@ Here is the default `directories` key:
 # default directory settings:
 directories:
   raw-data:
-    path: _data_raw
+    path: _raw_data
   cache: 
     path: _tmp
   output: 
@@ -206,7 +206,7 @@ Essentially, `projr_path_get` should replace either hardcoded paths (`"_output/f
 Using folders in the manner described (e.g. storing raw data in the `raw-data` folder and outputs in the `output` folder) has the following benefits:
 
 - A person new to the project can read one file (`_projr.yml`) rather than trawling through source code to understand the project structure.
-- Sharing parts of the project (e.g. the raw data) and setting up the project again (e.g. on a new computer or on a collaborator's computer) is easier as like things are kept together. This is as opposed to, for example, keeping some raw data in `_data_raw`, others in `inst/extdata` and others at the root of the project, which makes bringing all the pieces together harder.
+- Sharing parts of the project (e.g. the raw data) and setting up the project again (e.g. on a new computer or on a collaborator's computer) is easier as like things are kept together. This is as opposed to, for example, keeping some raw data in `_raw_data`, others in `inst/extdata` and others at the root of the project, which makes bringing all the pieces together harder.
 - It helps `projr` help you, as it understands your project structure. This takes the following forms:
   - `projr` can "protect" the output folder. The `projr_build_dev()` function (described more below) builds the project, but saves outputs to the `cache` folder rather than the `output` folder. This prevents you accidentally overwriting outputs from a previous successful build whilst iterating on the code in preparation for the next build.
   - `projr` can upload the data to various places. As described in the next subsection (`build`), `projr` can send data from these folders (`raw-data`, `output`, etc.) to various places - at present, this includes GitHub releases, OSF and local folders (e.g. your OneDrive project folder).
@@ -228,7 +228,7 @@ build:
       description: "Project inputs"
 ```
 
-This specifies that, after the project is built, the `raw-data` directory (i.e. the contents of `_data_raw`) is uploaded to GitHub as a release whose name is `input`.
+This specifies that, after the project is built, the `raw-data` directory (i.e. the contents of `_raw_data`) is uploaded to GitHub as a release whose name is `input`.
 
 By default, it is uploaded to a file called `raw-data-v<project_version>.zip`, where `<project_version>` is the version of the project (e.g. `0.1.0`).
 Furthermore, by default this only takes place when anything changes within `raw-data`, i.e. file(s) are added, removed or changed.

@@ -98,9 +98,9 @@ test_that("projr_manifest_hash_dir works", {
       browser()
       yml_projr_init <- .projr_yml_get_root_full()
       # test getting hashes
-      dir.create("_data_raw/sub", recursive = TRUE)
-      invisible(file.create("_data_raw/abc.csv"))
-      invisible(file.create("_data_raw/sub/def.csv"))
+      dir.create("_raw_data/sub", recursive = TRUE)
+      invisible(file.create("_raw_data/abc.csv"))
+      invisible(file.create("_raw_data/sub/def.csv"))
       dir.create("_tmp")
       expect_identical(
         nrow(.projr_manifest_hash_label("cache", output_run = TRUE)), 0L
@@ -108,7 +108,7 @@ test_that("projr_manifest_hash_dir works", {
       expect_identical(
         ncol(.projr_manifest_hash_label("cache", output_run = TRUE)), 4L
       )
-      invisible(file.create("_data_raw/sub/def.csv"))
+      invisible(file.create("_raw_data/sub/def.csv"))
 
       # test getting manifest
       # ----------------------------
@@ -133,8 +133,8 @@ test_that("projr_manifest_hash_dir works", {
       expect_identical(colnames(manifest), c("label", "fn", "version", "hash"))
 
       # post:
-      if (dir.exists("_data_raw")) {
-        unlink("_data_raw", recursive = TRUE)
+      if (dir.exists("_raw_data")) {
+        unlink("_raw_data", recursive = TRUE)
       }
       if (dir.exists("_tmp")) {
         unlink("_tmp", recursive = TRUE)
@@ -142,9 +142,9 @@ test_that("projr_manifest_hash_dir works", {
       dir.create("_tmp/projr/v0.0.0-1/output/abc", recursive = TRUE)
       invisible(file.create("_tmp/projr/v0.0.0-1/output/test.txt"))
       invisible(file.create("_tmp/projr/v0.0.0-1/output/abc/test.txt"))
-      dir.create("_data_raw/abc", recursive = TRUE)
-      invisible(file.create("_data_raw/test.txt"))
-      invisible(file.create("_data_raw/abc/test.txt"))
+      dir.create("_raw_data/abc", recursive = TRUE)
+      invisible(file.create("_raw_data/test.txt"))
+      invisible(file.create("_raw_data/abc/test.txt"))
       # to fix:
       # - why did raw-data sub-directory not appear?
       # - what is going on with the output directory? It seems
@@ -1236,14 +1236,14 @@ test_that("projr_dir_ignore works", {
       )), 0L)
       .projr_ignore_label_set("raw-data")
       gitignore <- .projr_ignore_git_read()
-      expect_identical(length(which(gitignore == "_data_raw/**")), 1L)
+      expect_identical(length(which(gitignore == "_raw_data/**")), 1L)
       buildignore <- .projr_ignore_rbuild_read()
-      expect_identical(length(which(buildignore == "^_data_raw")), 1L)
+      expect_identical(length(which(buildignore == "^_raw_data")), 1L)
       .projr_ignore_label_set("raw-data")
       gitignore <- .projr_ignore_git_read()
-      expect_identical(length(which(gitignore == "_data_raw/**")), 1L)
+      expect_identical(length(which(gitignore == "_raw_data/**")), 1L)
       buildignore <- .projr_ignore_rbuild_read()
-      expect_identical(length(which(buildignore == "^_data_raw")), 1L)
+      expect_identical(length(which(buildignore == "^_raw_data")), 1L)
       .projr_ignore_label_set("output")
       gitignore <- .projr_ignore_git_read()
       expect_identical(length(which(gitignore == "_output/**")), 1L)
@@ -1285,9 +1285,9 @@ test_that("projr_dir_ignore works", {
 
       .projr_ignore_label_set("raw-data")
       gitignore <- .projr_ignore_git_read()
-      expect_identical(length(which(gitignore == "_data_raw/**")), 0L)
+      expect_identical(length(which(gitignore == "_raw_data/**")), 0L)
       buildignore <- .projr_ignore_rbuild_read()
-      expect_identical(length(which(buildignore == "^_data_raw")), 0L)
+      expect_identical(length(which(buildignore == "^_raw_data")), 0L)
       buildignore <- .projr_ignore_rbuild_read()
 
       # test not adding when the directory is not in wd
@@ -2339,10 +2339,10 @@ x <- readChar(fn_vec[1], file.info(fn_vec[1])$size)
         !names(yml_projr[["build-output"]]) == "github-release"
       ]
       .projr_yml_set(list_save = yml_projr)
-      if (!dir.exists("_data_raw")) {
-        dir.create("_data_raw")
+      if (!dir.exists("_raw_data")) {
+        dir.create("_raw_data")
       }
-      invisible(file.create("_data_raw/test.txt"))
+      invisible(file.create("_raw_data/test.txt"))
       if (!dir.exists("_tmp")) {
         dir.create("_tmp")
       }
@@ -2469,10 +2469,10 @@ test_that("projr_build_output works", {
         !names(yml_projr[["build-output"]]) == "github-release"
       ]
       .projr_yml_set(list_save = yml_projr)
-      if (!dir.exists("_data_raw")) {
-        dir.create("_data_raw")
+      if (!dir.exists("_raw_data")) {
+        dir.create("_raw_data")
       }
-      invisible(file.create("_data_raw/test.txt"))
+      invisible(file.create("_raw_data/test.txt"))
       if (!dir.exists("_tmp")) {
         dir.create("_tmp")
       }

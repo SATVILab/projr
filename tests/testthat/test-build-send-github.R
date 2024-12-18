@@ -66,7 +66,7 @@ test_that("projr_build_output works - github - latest", {
 
       # add something
       # ----------------------
-      file.create("_data_raw/add.txt")
+      file.create("_raw_data/add.txt")
       projr_build_patch(msg = "More data")
       fn_vec <- .projr_remote_file_ls(
         "github",
@@ -88,7 +88,7 @@ test_that("projr_build_output works - github - latest", {
 
       # remove something
       # ----------------------
-      file.remove("_data_raw/add.txt")
+      file.remove("_raw_data/add.txt")
       projr_build_patch(msg = "Less data")
       fn_vec <- .projr_remote_file_ls(
         "github",

@@ -305,7 +305,7 @@
 
 .projr_yml_dir_get_complete_label <- function(yml_dir) {
   default_list <- list(
-    "raw-data" = list(path = "_data_raw"),
+    "raw-data" = list(path = "_raw_data"),
     "cache" = list(path = "_tmp"),
     "output" = list(path = "_output")
   )

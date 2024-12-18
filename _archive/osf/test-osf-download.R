@@ -26,7 +26,7 @@ test_that(".projr_checkout_osf works", {
       # upload to OSF
       osf_tbl_upload <- osfr::osf_mkdir(x = osf_tbl_proj, path = "raw-data")
       osf_tbl_dir <- with_dir(
-        "_data_raw",
+        "_raw_data",
         {
           .projr_osf_send_dir(
             osf_tbl = osf_tbl_upload, path_dir = "."
@@ -39,21 +39,21 @@ test_that(".projr_checkout_osf works", {
       )
 
       # remove to test restore
-      unlink("_data_raw", recursive = TRUE)
-      dir.create("_data_raw")
+      unlink("_raw_data", recursive = TRUE)
+      dir.create("_raw_data")
 
       # restore from a `latest` folder
       # ------------------------
       .projr_checkout_osf("raw-data")
       # check files there
       expect_identical(
-        list.files(file.path("_data_raw")), c("abc.txt", "subdir1")
+        list.files(file.path("_raw_data")), c("abc.txt", "subdir1")
       )
       expect_identical(
-        list.files(file.path("_data_raw", "subdir1")), c("def.txt", "subdir2")
+        list.files(file.path("_raw_data", "subdir1")), c("def.txt", "subdir2")
       )
       expect_identical(
-        list.files(file.path("_data_raw", "subdir1", "subdir2")), c("ghi.txt")
+        list.files(file.path("_raw_data", "subdir1", "subdir2")), c("ghi.txt")
       )
 
       # restore from a versioned folder
@@ -63,12 +63,12 @@ test_that(".projr_checkout_osf works", {
         x = osf_tbl_proj, path = "raw-data/v1.0.1"
       )
       osf_tbl_dir <- with_dir(
-        "_data_raw",
+        "_raw_data",
         .projr_osf_send_dir(osf_tbl = osf_tbl_upload, path_dir = ".")
       )
       # remove downloaded files
-      unlink("_data_raw", recursive = TRUE)
-      dir.create("_data_raw")
+      unlink("_raw_data", recursive = TRUE)
+      dir.create("_raw_data")
 
       # add to YAML config
       projr_source_add_osf(
@@ -77,54 +77,54 @@ test_that(".projr_checkout_osf works", {
       )
 
       # remove to test restore
-      unlink("_data_raw", recursive = TRUE)
-      dir.create("_data_raw")
+      unlink("_raw_data", recursive = TRUE)
+      dir.create("_raw_data")
       .projr_checkout_osf("raw-data", )
       # check files there
       expect_identical(
-        list.files(file.path("_data_raw")), c("abc.txt", "subdir1")
+        list.files(file.path("_raw_data")), c("abc.txt", "subdir1")
       )
       expect_identical(
-        list.files(file.path("_data_raw", "subdir1")), c("def.txt", "subdir2")
+        list.files(file.path("_raw_data", "subdir1")), c("def.txt", "subdir2")
       )
       expect_identical(
-        list.files(file.path("_data_raw", "subdir1", "subdir2")), c("ghi.txt")
+        list.files(file.path("_raw_data", "subdir1", "subdir2")), c("ghi.txt")
       )
 
       # remove downloaded files
-      if (dir.exists("_data_raw")) unlink("_data_raw", recursive = TRUE)
-      dir.create("_data_raw")
+      if (dir.exists("_raw_data")) unlink("_raw_data", recursive = TRUE)
+      dir.create("_raw_data")
 
       # restore from a versioned folder but not the latest
       # -----------------------------
 
       # create files
       .projr_test_setup_content("raw-data")
-      file.create("_data_raw/add.txt")
+      file.create("_raw_data/add.txt")
 
       # add a new version
       osf_tbl_upload <- osfr::osf_mkdir(
         x = osf_tbl_proj, path = "raw-data/v2.0.1"
       )
       osf_tbl_dir <- with_dir(
-        "_data_raw",
+        "_raw_data",
         .projr_osf_send_dir(osf_tbl = osf_tbl_upload, path_dir = ".")
       )
 
       # remove downloaded files
-      unlink("_data_raw", recursive = TRUE)
-      dir.create("_data_raw")
+      unlink("_raw_data", recursive = TRUE)
+      dir.create("_raw_data")
       # checkout
       .projr_checkout_osf("raw-data", version = "1.5")
       # check files there
       expect_identical(
-        list.files(file.path("_data_raw")), c("abc.txt", "subdir1")
+        list.files(file.path("_raw_data")), c("abc.txt", "subdir1")
       )
       expect_identical(
-        list.files(file.path("_data_raw", "subdir1")), c("def.txt", "subdir2")
+        list.files(file.path("_raw_data", "subdir1")), c("def.txt", "subdir2")
       )
       expect_identical(
-        list.files(file.path("_data_raw", "subdir1", "subdir2")), c("ghi.txt")
+        list.files(file.path("_raw_data", "subdir1", "subdir2")), c("ghi.txt")
       )
     },
     quiet = TRUE,

@@ -29,7 +29,7 @@ Here is the default `directories` key:
 ```yaml
 directories:
   raw-data:
-    path: _data_raw
+    path: _raw_data
   cache: 
     path: _tmp
   output: 
@@ -47,7 +47,7 @@ projr_path_get("raw-data")
 which yields
 
 ```r
-"_data_raw"
+"_raw_data"
 ```
 
 Now,

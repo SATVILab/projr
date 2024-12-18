@@ -72,7 +72,7 @@ test_that("projr_build_output works - osf - latest", {
       )
       expect_identical(
         fn_vec |> sort(),
-        .file_ls("_data_raw") |> sort()
+        .file_ls("_raw_data") |> sort()
       )
 
       # expect no change
@@ -83,20 +83,20 @@ test_that("projr_build_output works - osf - latest", {
         remote = osf_tbl
       )
       expect_identical(
-        .file_ls("_data_raw") |> sort(),
+        .file_ls("_raw_data") |> sort(),
         fn_vec |> sort()
       )
 
       # add something
       # ----------------------
-      file.create("_data_raw/add.txt")
+      file.create("_raw_data/add.txt")
       projr_build_patch(msg = "More data")
       fn_vec <- .projr_remote_file_ls(
         "osf",
         remote = osf_tbl
       )
       expect_identical(
-        .file_ls("_data_raw") |> sort(),
+        .file_ls("_raw_data") |> sort(),
         fn_vec |> sort()
       )
 
@@ -109,13 +109,13 @@ test_that("projr_build_output works - osf - latest", {
         remote = osf_tbl
       )
       expect_identical(
-        .file_ls("_data_raw") |> sort(),
+        .file_ls("_raw_data") |> sort(),
         fn_vec |> sort()
       )
 
       # remove something
       # ----------------------
-      file.remove("_data_raw/add.txt")
+      file.remove("_raw_data/add.txt")
       projr_build_patch(msg = "Less data")
       fn_vec <- .projr_remote_file_ls(
         "osf",
@@ -123,7 +123,7 @@ test_that("projr_build_output works - osf - latest", {
       )
       expect_identical(
         fn_vec |> sort(),
-        .file_ls("_data_raw") |> sort()
+        .file_ls("_raw_data") |> sort()
       )
     },
     quiet = TRUE,

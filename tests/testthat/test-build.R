@@ -359,7 +359,7 @@ test_that("projr_build_copy_dir works when outputting", {
 
       yml_projr <- yml_projr_init
       yml_projr[["directories"]][["raw-data"]] <- list(
-        path = "_data_raw", output = FALSE
+        path = "_raw_data", output = FALSE
       )
       yml_projr[["directories"]][["docs"]] <- list(
         path = "docs", output = FALSE
@@ -388,7 +388,7 @@ test_that("projr_build_copy_dir works when outputting", {
 
       yml_projr <- yml_projr_init
       yml_projr[["directories"]][["raw-data"]] <- list(
-        path = "_data_raw", output = TRUE
+        path = "_raw_data", output = TRUE
       )
       yml_projr[["directories"]][["cache"]] <- list(
         path = "_tmp", output = TRUE
@@ -404,7 +404,7 @@ test_that("projr_build_copy_dir works when outputting", {
       # -------------------
       yml_projr <- yml_projr_init
       yml_projr[["directories"]][["raw-data"]] <- list(
-        path = "_data_raw", output = TRUE
+        path = "_raw_data", output = TRUE
       )
       yml_projr[["directories"]][["cache"]] <- list(
         path = "_tmp", output = "output2"
