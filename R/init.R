@@ -36,6 +36,9 @@ projr_init <- function(yml_path_from = NULL,
   # DESCRIPTION file
   .projr_init_description(nm_list)
 
+  # add document-engine docs
+  .projr_init_engine(nm_list)
+  
   # add various files
   .projr_init_dep() # _dependencies.R
   .projr_init_ignore() # ignore files
@@ -48,8 +51,6 @@ projr_init <- function(yml_path_from = NULL,
   # renv
   .projr_init_renv(force = renv_force, bioc = renv_bioconductor)
 
-  # add document-engine docs
-  .projr_init_engine(nm_list)
 
   # finalise README
   .projr_readme_render()
