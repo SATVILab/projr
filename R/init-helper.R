@@ -758,7 +758,7 @@ projr_init_renviron <- function() {
 
 .projr_init_license <- function(nm_list) {
   .projr_init_license_create(
-    x = nm_list[["nm_license"]],
+    x = nm_list[["license"]],
     nm_first = nm_list[["first"]],
     nm_last = nm_list[["last"]]
   )
