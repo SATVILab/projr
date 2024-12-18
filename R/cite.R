@@ -6,7 +6,7 @@
 }
 
 .projr_cite_citation_inst_write <- function() {
-  cffr::write_citation(cffr::cff_create())
+  cffr::cff_write_citation(cffr::cff_create())
 }
 
 .projr_cite_citation_inst_add_header <- function() {
@@ -29,7 +29,7 @@
 
 .projr_cite_bibtex_get <- function() {
   bibtex_txt <- utils::toBibtex(
-    cffr::cff_to_bibtex(cffr::cff_create())
+    cffr::as_bibentry(cffr::cff_create())
   ) |>
     as.character()
   c(
