@@ -312,6 +312,10 @@
     "output"   = list(path = "_output")
   )
 
+  if (length(yml_dir) == 0) {
+    return(default_list)
+  }
+
   nm_vec_current <- vapply(names(yml_dir), .projr_dir_label_strip, character(1))
   match_vec_required <- c("^raw", "^cache", "^output")
 
