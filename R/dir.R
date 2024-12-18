@@ -252,39 +252,3 @@ projr_dir_create <- function(label, ..., safe = TRUE) {
     )
   }
 }
-
-#' @title Update ignore settings as per projr config
-#'
-#' @description
-#' Ensure `projr` directories are ignored
-#' appropriately (in `.gitignore` and `.Rbuildignore`)
-#' as per `_projr.yml`.
-#'
-#' @description git_skip_adjust logical.
-#' If \code{TRUE}, then the directories
-#' are skipped by Git if already tracked
-#' and they are supposed to be ignored
-#' as per \code{_projr.yml}.
-#' Default is \code{NULL}, in which
-#' case the settings as per \code{_projr.yml}
-#' are used (or the default, if unspecified there).
-#'
-#' @param git_skip_adjust logical.
-#' Whether to use Git's ability to
-#' ignore already tracked files if the
-#' files were previously tracked but we now no
-#' longer wish to track them.
-#' If `NULL`, then treated as `TRUE`.
-#' Default is `NULL`.
-#'
-#' @export
-projr_dir_ignore <- function(git_skip_adjust = NULL) {
-  label_vec <- .projr_yml_dir_get(NULL) |> names()
-  for (i in seq_along(label_vec)) {
-    .projr_ignore_label_set(
-      label = label_vec[[i]],
-      git_skip_adjust = git_skip_adjust
-    )
-  }
-  invisible(TRUE)
-}
