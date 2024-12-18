@@ -14,7 +14,6 @@
 #'
 #' @export
 projr_yml_check <- function(profile = NULL) {
-  .assert_has(names(projr_yml_get(profile)), c("directories"), TRUE)
   .projr_yml_dir_check(profile)
   .projr_yml_build_check(profile)
   invisible(TRUE)
