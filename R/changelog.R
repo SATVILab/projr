@@ -72,7 +72,7 @@
   if (!nzchar(author)) {
     return(paste0("(", time, ")"))
   }
-  paste0("", author, " (",data, " ", time, ")")
+  paste0("", author, " (", date, " ", time, ")")
 }
 
 .projr_changelog_get_entry <- function(line, bump_component) {
