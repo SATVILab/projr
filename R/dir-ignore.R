@@ -134,7 +134,7 @@ projr_dir_ignore <- function(git_skip_adjust = NULL) {
 
   if (length(projr_ignore_ind_top) == 0L) {
     return(list(
-      start = paste0(
+      start = c(
         gitignore_vec,
         "# Start of projr section: do not edit by hand (update with projr_dir_ignore())"
       ),
@@ -450,7 +450,7 @@ projr_dir_ignore <- function(git_skip_adjust = NULL) {
 
   if (length(projr_ignore_ind_top) == 0L) {
     return(list(
-      start = paste0(
+      start = c(
         rbuildignore_vec,
         "# Start of projr section: do not edit by hand (update with projr_dir_ignore())"
       ),
