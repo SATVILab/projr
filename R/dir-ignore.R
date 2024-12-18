@@ -41,6 +41,10 @@ projr_dir_ignore <- function(git_skip_adjust = NULL) {
 
 .projr_dir_ignore_git <- function(git_skip_adjust = NULL) {
 
+  if (!.projr_git_repo_check_exists()) {
+    return(invisible(FALSE))
+  }
+
   # get paths to ignore, skip and/or unskip
   instr_list <- .projr_dir_ignore_git_get_instructions(git_skip_adjust)
 
@@ -194,6 +198,9 @@ projr_dir_ignore <- function(git_skip_adjust = NULL) {
 }
 
 .projr_ignore_get_git_skip_adjust <- function(label, git_skip_adjust) {
+  if (!.projr_ignore_check_git_skip_adjust_possible()) {
+    return(invisible(FALSE))
+  }
   if (!is.null(git_skip_adjust)) {
     .assert_flag(git_skip_adjust)
     return(git_skip_adjust)
@@ -206,6 +213,10 @@ projr_dir_ignore <- function(git_skip_adjust = NULL) {
   git_skip_adjust
 }
 
+.projr_ignore_check_git_skip_adjust_possible <- function() {
+  # need to have git installed and in be in a git repo
+  .projr_git_repo_check_exists() && .projr_git_system_check_git()
+}
 
 
 
@@ -371,6 +382,9 @@ projr_dir_ignore <- function(git_skip_adjust = NULL) {
 
 # .Rbuildignore Management
 .projr_dir_ignore_rbuild <- function() {
+  if (!file.exists(.dir_proj_get(".Rbuildignore"))) {
+    return(invisible(FALSE))
+  }
   # Remove all projr-managed entries from .Rbuildignore,
   # then add back applicable ones
   rbuildignore_list <- .projr_dir_ignore_rbuildignore_get()
