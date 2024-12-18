@@ -178,6 +178,8 @@
   writeLines(rbuildignore, .dir_proj_get(".Rbuildignore"))
   .projr_newline_append(.dir_proj_get(".Rbuildignore"))
 
+  projr_dir_ignore()
+
   invisible(TRUE)
 }
 
