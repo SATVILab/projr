@@ -67,11 +67,12 @@
 
 .projr_change_get_author_time <- function() {
   author <- .projr_metadata_get_author_host()
+  date <- .projr_metadata_get_date()
   time <- .projr_metadata_get_time()
   if (!nzchar(author)) {
     return(paste0("(", time, ")"))
   }
-  paste0("", author, " (", time, ")")
+  paste0("", author, " (",data, " ", time, ")")
 }
 
 .projr_changelog_get_entry <- function(line, bump_component) {

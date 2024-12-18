@@ -51,7 +51,6 @@ projr_init <- function(yml_path_from = NULL,
   # renv
   .projr_init_renv(force = renv_force, bioc = renv_bioconductor)
 
-
   # finalise README
   .projr_readme_render()
 

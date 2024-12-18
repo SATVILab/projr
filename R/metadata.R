@@ -43,5 +43,9 @@
 }
 
 .projr_metadata_get_time <- function() {
-  Sys.time() |> format("%H:%M:%S")
+  Sys.time() |> format("%H:%M:%S", tz = "UTC")
+}
+
+.projr_metadata_get_date <- function() {
+  Sys.time() |> format("%Y-%m-%d", tz = "UTC")
 }

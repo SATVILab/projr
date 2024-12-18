@@ -16,6 +16,7 @@ test_that(".projr_local_dir_create works", {
       expect_true(.is_chr(.projr_metadata_get_author_sys_info()))
       expect_true(.is_chr(.projr_metadata_get_host()))
       expect_true(.is_chr(.projr_metadata_get_time()))
+      expect_true(.is_chr(.projr_metadata_get_date()))
     }
   )
 })
