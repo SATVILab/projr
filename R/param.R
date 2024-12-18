@@ -25,7 +25,15 @@ projr_par_get <- function(..., profile = NULL) {
 }
 
 .projr_par_get_list <- function(profile) {
-  .projr_yml_get(NULL)[["parameters"]]
+  yml_projr <- .projr_yml_get(profile)
+  par_vec_in <- which(par_nm_vec %in% names(yml_projr))
+  if (length(par_vec_in) > 1) {
+   stop(paste0(
+     "Multiple `parameters` keys found in `projr` configuration: ",
+     paste0(par_nm_vec[par_vec_in], collapse = ", ")
+   ))
+  }
+  yml_projr[[par_nm_vec[par_vec_in]]]
 }
 
 .projr_par_get_option <- function(par_list, par_vec) {
@@ -68,5 +76,5 @@ projr_yml_par_add <- function(profile = "default") {
   invisible(TRUE)
 }
 .projr_yml_par_add_empty_check <- function(yml) {
-  !"parameters" %in% names(yml)
+  !any(par_nm_vec %in% names(yml))
 }

@@ -237,7 +237,7 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   nm_list <- list(
     "directories",
     "build",
-    c("parameters", "parameter", "param", "par"),
+    par_nm_vec,
     "metadata"
   )
   
@@ -305,7 +305,7 @@ projr_yml_get_filter_top_level_ind <- function(yml, nm) {
 .projr_yml_order <- function(yml) {
   nm_vec <- character(0L)
   order_vec <- c(
-    "directories", "parameters", "build"
+    "directories", par_nm_vec, "build"
   )
   for (x in order_vec) {
     if (x %in% names(yml)) {
