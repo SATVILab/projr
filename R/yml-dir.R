@@ -304,17 +304,28 @@
 }
 
 .projr_yml_dir_get_complete_label <- function(yml_dir) {
+  # ensure that all required labels
+  # are present
   default_list <- list(
     "raw-data" = list(path = "_raw_data"),
-    "cache" = list(path = "_tmp"),
-    "output" = list(path = "_output")
+    "cache"    = list(path = "_tmp"),
+    "output"   = list(path = "_output")
   )
-  for (x in names(default_list)) {
-    if (!x %in% names(yml_dir)) {
-      yml_dir[[x]] <- default_list[[x]]
-    }
+
+  nm_vec_current <- vapply(names(yml_dir), .projr_dir_label_strip, character(1))
+  match_vec_required <- c("^raw", "^cache", "^output")
+
+  nm_vec_missing_lgl <- vapply(
+    match_vec_required,
+    function(x) !any(grepl(x, nm_vec_current)),
+    logical(1)
+  )
+
+  if (all(!nm_vec_missing_lgl)) {
+    return(yml_dir)
   }
-  yml_dir
+
+  yml_dir |> append(default_list[nm_vec_missing_lgl])
 }
 
 

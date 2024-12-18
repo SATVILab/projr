@@ -25,7 +25,7 @@ test_that("projr_build_output works - github - latest", {
       projr_build_output("minor", msg = "test")
       expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
-      # data-raw and source are empty
+      # raw-data and source are empty
       projr_yml_dest_add_github(
         title = "Raw data",
         content = "raw-data",
