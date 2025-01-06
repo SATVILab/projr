@@ -21,14 +21,22 @@ projr_env_file_activate <- function(file = NULL) {
     return(invisible(TRUE))
   }
   .projr_build_env_file_activate_ind("_environment.local")
-  quarto_profile_vec <- .projr_quarto_profile_get() |> setdiff("required")
-  for (i in seq_along(quarto_profile_vec)) {
+  env_profile_vec <- .projr_env_profile_get()
+  for (i in seq_along(env_profile_vec)) {
     .projr_build_env_file_activate_ind(
-      paste0("_environment-", quarto_profile_vec[[i]])
+      paste0("_environment-", env_profile_vec[[i]])
     )
   }
   .projr_build_env_file_activate_ind("_environment")
   invisible(TRUE)
+}
+
+.projr_env_profile_get <- function() {
+  quarto_profile_vec <- .projr_quarto_profile_get()
+  projr_profile_vec <- projr_profile_get()
+  c(quarto_profile_vec, projr_profile_vec) |>
+    setdiff("required") |>
+    unique()
 }
 
 .projr_quarto_profile_get <- function() {
