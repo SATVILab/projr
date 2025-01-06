@@ -24,12 +24,6 @@
     profile_save <- profile
   }
 
-  # we always save it to the base profile.
-  # otherwise we're going to have to figure out
-  # where the setting came from.
-  # I suppose we can do that...
-  # we just read in the active profile,
-  # and see if it's
   .projr_yml_dir_set_path(path_docs, "docs", profile_save)
 }
 
