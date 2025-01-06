@@ -49,12 +49,7 @@ projr_env_file_activate <- function(file = NULL) {
 }
 
 .projr_env_profile_get_projr <- function() {
-  projr_profile <- Sys.getenv("PROJR_PROFILE")
-  if (!nzchar(projr_profile)) {
-    return(character())
-  }
-  projr_profile_vec <- strsplit(projr_profile, ",")[[1]]
-  vapply(projr_profile_vec, trimws, character(1)) |> stats::setNames(NULL)
+  .projr_profile_get_split()
 }
 
 .projr_build_env_check <- function(output_run) {
