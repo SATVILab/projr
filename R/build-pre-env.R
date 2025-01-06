@@ -21,7 +21,7 @@ projr_env_file_activate <- function(file = NULL) {
     return(invisible(TRUE))
   }
   .projr_build_env_file_activate_ind("_environment.local")
-  quarto_profile_vec <- .projr_quarto_profile_get()
+  quarto_profile_vec <- .projr_quarto_profile_get() |> setdiff("required")
   for (i in seq_along(quarto_profile_vec)) {
     .projr_build_env_file_activate_ind(
       paste0("_environment-", quarto_profile_vec[[i]])
