@@ -22,7 +22,7 @@ projr_ignore <- function() {
   # root level files
   .projr_ignore_yml()
   .projr_ignore_build_source()
-  .projr_ignore_content()
+  .projr_ignore_ext()
   # directories at root level
   # unspecified by `directories` key
   # in `_projr.yml`
@@ -136,11 +136,11 @@ projr_ignore <- function() {
 # content files
 # -------------------------------------------------------------------------
 
-.projr_ignore_content <- function() {
-  .projr_ignore_content_rbuild()
-  .projr_ignore_content_git()
+.projr_ignore_ext <- function() {
+  .projr_ignore_ext_rbuild()
+  .projr_ignore_ext_git()
 }
-.projr_ignore_content_rbuild <- function() {
+.projr_ignore_ext_rbuild <- function() {
   pattern <- c(
     "\\.log",
     "\\.aux",
@@ -170,7 +170,16 @@ projr_ignore <- function() {
     "\\.Rhistory",
     "\\.DS_Store",
     "__pycache__/",
-    "\\.pyc"
+    "\\.pyc",
+    "\\.code-workspace$",
+    "\\.R",
+    "\\.py",
+    "\\.sh",
+    "\\.yaml",
+    "\\.yml",
+    "\\.toml",
+    "\\.json",
+    "\\.txt"
   ) |>
     paste0(collapse = "|")
   path_vec <- list.files(
@@ -181,7 +190,7 @@ projr_ignore <- function() {
   .projr_ignore_file_rbuild(path_vec)
 }
 
-.projr_ignore_content_git <- function() {
+.projr_ignore_ext_git <- function() {
   pattern <- c(
     "\\.log",
     "\\.aux",
