@@ -181,6 +181,15 @@ projr_profile_get <- function() {
   Sys.getenv("PROJR_PROFILE", unset = "default")
 }
 
+.projr_profile_get_split <- function() {
+  projr_profile <- Sys.getenv("PROJR_PROFILE")
+  if (!nzchar(projr_profile)) {
+    return(character())
+  }
+  projr_profile_vec <- strsplit(projr_profile, ",")[[1]]
+  vapply(projr_profile_vec, trimws, character(1)) |> stats::setNames(NULL)
+}
+
 #' @title Delete a projr profile from _projr.yml
 #'
 #' @description
