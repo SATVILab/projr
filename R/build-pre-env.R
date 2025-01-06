@@ -32,20 +32,29 @@ projr_env_file_activate <- function(file = NULL) {
 }
 
 .projr_env_profile_get <- function() {
-  quarto_profile_vec <- .projr_quarto_profile_get()
-  projr_profile_vec <- projr_profile_get()
+  quarto_profile_vec <- .projr_env_profile_get_quarto()
+  projr_profile_vec <- .projr_env_profile_get_projr()
   c(quarto_profile_vec, projr_profile_vec) |>
     setdiff("required") |>
     unique()
 }
 
-.projr_quarto_profile_get <- function() {
+.projr_env_profile_get_quarto <- function() {
   quarto_profile <- Sys.getenv("QUARTO_PROFILE")
   if (!nzchar(quarto_profile)) {
     return(character())
   }
   quarto_profile_vec <- strsplit(quarto_profile, ",")[[1]]
   vapply(quarto_profile_vec, trimws, character(1)) |> stats::setNames(NULL)
+}
+
+.projr_env_profile_get_projr <- function() {
+  projr_profile <- Sys.getenv("PROJR_PROFILE")
+  if (!nzchar(projr_profile)) {
+    return(character())
+  }
+  projr_profile_vec <- strsplit(projr_profile, ",")[[1]]
+  vapply(projr_profile_vec, trimws, character(1)) |> stats::setNames(NULL)
 }
 
 .projr_build_env_check <- function(output_run) {
