@@ -12,7 +12,7 @@
     # allowing multiple profiles, should
     # make priority match up with quartos.
     # quarto uses the first profile as the dominant one
-    projr_profile_vec <- .projr_profile_get_split() |>
+    projr_profile_vec <- .projr_profile_get_var() |>
       rev()
     for (i in seq_along(projr_profile_vec)) {
       if (!is.null(.projr_yml_dir_get_path("docs", projr_profile_vec[[i]]))) {

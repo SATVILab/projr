@@ -49,7 +49,7 @@ projr_env_file_activate <- function(file = NULL) {
 }
 
 .projr_env_profile_get_projr <- function() {
-  .projr_profile_get_split()
+  .projr_profile_get_var()
 }
 
 .projr_build_env_check <- function(output_run) {

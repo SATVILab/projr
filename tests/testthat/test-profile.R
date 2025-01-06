@@ -24,11 +24,11 @@ test_that("projr_profile_get, _set and _create work", {
   usethis::with_project(
     path = dir_test,
     code = {
-      yml_projr_init <- .projr_yml_get_root_full()
+      yml_projr_init <- .projr_yml_get_default_raw()
       # test getting input and validating
       # --------------------------------
       expect_error(.projr_profile_create(silent = "wingbats"))
-      yml_projr_init <- .projr_yml_get_root_full()
+      yml_projr_init <- .projr_yml_get_default_raw()
       Sys.unsetenv("PROJR_PROFILE")
       expect_identical(projr_profile_get(), "default")
       Sys.setenv("PROJR_PROFILE" = "abc")
@@ -70,7 +70,7 @@ test_that("projr_profile_get, _set and _create work", {
 
       # file method
       projr_profile_create(profile = "test-profile2")
-      yml_projr <- .projr_yml_get_root_full()
+      yml_projr <- .projr_yml_get_default_raw()
       expect_true(file.exists("_projr-test-profile2.yml"))
       .projr_yml_set(yml_projr_init)
 

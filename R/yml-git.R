@@ -301,7 +301,7 @@ projr_yml_git_set_default <- function(profile = "default",
 # --------------------
 
 .projr_yml_unset_github_dest <- function() {
-  yml_projr_root <- .projr_yml_get_root_default()
+  yml_projr_root <- .projr_yml_get_default()
   yml_projr_root[["build"]][["github"]] <- NULL
   .projr_yml_set_root(yml_projr_root)
   invisible(TRUE)

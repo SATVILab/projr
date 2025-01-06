@@ -50,7 +50,7 @@ projr_profile_create <- function(profile = NULL,
   # create profile settings
   # -------------------------
 
-  yml_projr_root_default <- .projr_yml_get_root_default()
+  yml_projr_root_default <- .projr_yml_get_default()
 
   yaml::write_yaml(
     .projr_list_elem_as_null(yml_projr_root_default),
@@ -103,7 +103,7 @@ projr_profile_create_local_check <- function(overwrite) {
 }
 
 .projr_profile_create_local_actual <- function() {
-  yml_projr_root_default <- .projr_yml_get_root_default()
+  yml_projr_root_default <- .projr_yml_get_default()
   yml_projr_local <- yml_projr_root_default[c("directories", "build")]
   yml_projr_local <- .projr_list_elem_as_null(yml_projr_local)
   yaml::write_yaml(yml_projr_local, file = .dir_proj_get("_projr-local.yml"))
@@ -160,34 +160,41 @@ projr_profile_create_local_check <- function(overwrite) {
 #' @title Get active projr profile
 #'
 #' @description
-#' Get active \code{projr} profile.
-#' For each setting, preference is given if specified
-#' in `_projr-local.yml` and, failing that, in `_projr-<profile>.yml`
-#' (or in the `build-<profile>` and `directories-<profile>` keys).
-#' Note that the active `projr` profile is only
-#' equal to the `PROJR_PROFILE` environment variable
-#' if the latter is set and the corresponding profile exists
-#' (either as keys  in `_projr.yml` or as a file `_projr-<profile>.yml`).
+#' Get active \code{projr} profile(s).
 #'
 #' @return
-#' Character vector of length 1
-#' corresponding to active \code{projr} profile.
-#' If "default" is returned, then no profile is active.
-#' Note that any `_projr-local.yml` file will
-#' always overwrite profile-specific and default settings.
+#' Character vector of length equal to number of active profiles.
+#' 
+#' @details 
+#' Note that `local` and `default` are not returned, but are always active (if 
+#' they exist).
+#' `local` corresponds to `_projr-local.yml` and `default` to `_projr.yml`.
 #'
 #' @export
 projr_profile_get <- function() {
-  Sys.getenv("PROJR_PROFILE", unset = "default")
+  .projr_profile_get_var()
 }
 
-.projr_profile_get_split <- function() {
-  projr_profile <- Sys.getenv("PROJR_PROFILE")
+.projr_profile_get_var <- function() {
+  # get explicitly specified PROJR_PROFILES
+  # (other than "default")
+  projr_profile <- .projr_profile_get_var_unsplit()
   if (!nzchar(projr_profile)) {
     return(character())
   }
   projr_profile_vec <- strsplit(projr_profile, ",")[[1]]
-  vapply(projr_profile_vec, trimws, character(1)) |> stats::setNames(NULL)
+  vapply(projr_profile_vec, trimws, character(1)) |>
+    setdiff(c("default", "local", "")) |>
+    stats::setNames(NULL)
+}
+
+.projr_profile_get_var_unsplit <- function() {
+  .projr_profile_get_raw() |>
+    setdiff(c("default", "local"))
+}
+
+.projr_profile_get_raw <- function() {
+  Sys.getenv("PROJR_PROFILE")
 }
 
 #' @title Delete a projr profile from _projr.yml

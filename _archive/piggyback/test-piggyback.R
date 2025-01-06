@@ -25,7 +25,7 @@ test_that(".projr_pb_check_run works", {
     code = {
       # automatic exits
       # ---------------------
-      yml_projr_init <- .projr_yml_get_root_full()
+      yml_projr_init <- .projr_yml_get_default_raw()
       expect_false(.projr_pb_check_run(output_run = FALSE))
       yml_projr <- yml_projr_init
       yml_projr[["build"]] <- yml_projr[["build"]][c("git", "dev-output")]

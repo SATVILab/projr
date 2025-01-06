@@ -96,7 +96,7 @@ test_that("projr_manifest_hash_dir works", {
     path = dir_test,
     code = {
       browser()
-      yml_projr_init <- .projr_yml_get_root_full()
+      yml_projr_init <- .projr_yml_get_default_raw()
       # test getting hashes
       dir.create("_raw_data/sub", recursive = TRUE)
       invisible(file.create("_raw_data/abc.csv"))
@@ -478,7 +478,7 @@ if (yml_projr[["build"]][["git"]][["add-untracked"]]) {
 
 # from inside .projr_dest_add_osf
 title <- .projr_remote_title_get(title = title, content = content)
-yml_projr_orig_root <- .projr_yml_get_root_default()
+yml_projr_orig_root <- .projr_yml_get_default()
 yml_projr <- .projr_yml_get()
 
 get_list <- ..projr_dest_add_list_get_osf_add_load_get_list(
@@ -1275,7 +1275,7 @@ test_that("projr_dir_ignore works", {
       buildignore <- .projr_ignore_rbuild_read()
       expect_identical(length(which(buildignore == "^_tmp")), 1L)
 
-      yml_projr <- .projr_yml_get_root_full()
+      yml_projr <- .projr_yml_get_default_raw()
       for (i in seq_along(yml_projr[["directories"]])) {
         yml_projr[["directories"]][[i]][["ignore_git"]] <- FALSE
         yml_projr[["directories"]][[i]][["ignore_rbuild"]] <- FALSE
@@ -1291,7 +1291,7 @@ test_that("projr_dir_ignore works", {
       buildignore <- .projr_ignore_rbuild_read()
 
       # test not adding when the directory is not in wd
-      yml_projr <- .projr_yml_get_root_full()
+      yml_projr <- .projr_yml_get_default_raw()
       dir_out <- file.path(
         dirname(rprojroot::is_r_package$find_file()), "test_2"
       )
@@ -1314,7 +1314,7 @@ test_that("projr_dir_ignore works", {
       # test errors
       expect_error(.projr_ignore_label_set(c("abc", "def")))
       expect_error(.projr_ignore_label_set(1))
-      yml_projr <- .projr_yml_get_root_full()
+      yml_projr <- .projr_yml_get_default_raw()
       for (i in seq_along(yml_projr[["directories"]])) {
         yml_projr[["directories"]][[i]][["ignore_rbuild"]] <- 1
         yml_projr[["directories"]][[i]][["ignore_git"]] <- 1
@@ -1798,7 +1798,7 @@ test_that("projr_build_copy_dir works when archiving", {
     path = dir_test,
     code = {
       projr_init()
-      yml_projr_init <- .projr_yml_get_root_full()
+      yml_projr_init <- .projr_yml_get_default_raw()
       # do nothing when not output
       expect_false(.projr_build_archive(output_run = FALSE))
       version_run_on_list <- .projr_version_run_onwards_get(

@@ -6,14 +6,14 @@ test_that(".projr_yml_metadata_get_version_format_get and _set", {
   usethis::with_project(
     path = dir_test,
     code = {
-      yml_projr_init <- .projr_yml_get_root_full()
+      yml_projr_init <- .projr_yml_get_default_raw()
       expect_identical(.projr_yml_metadata_get_version_format(NULL), "major.minor.patch-dev")
       yml_projr <- yml_projr_init
       yml_projr[["metadata"]][["version-format"]] <- "major.minor-dev"
       .projr_yml_set(yml_projr)
       expect_identical(.projr_yml_metadata_get_version_format(NULL), "major.minor-dev")
       .projr_yml_set(yml_projr_init)
-      yml_projr <- .projr_yml_get_root_full()
+      yml_projr <- .projr_yml_get_default_raw()
       expect_error(.projr_yml_metadata_set_version_format("abc", NULL))
       expect_error(.projr_yml_metadata_set_version_format("abc"))
       .projr_yml_metadata_set_version_format("major.dev", NULL)

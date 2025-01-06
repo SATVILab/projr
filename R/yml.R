@@ -60,13 +60,13 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   .assert_string(profile)
   switch(profile,
     "local" = .projr_yml_get_local(),
-    "default" = .projr_yml_get_root_default(),
+    "default" = .projr_yml_get_default(),
     .projr_yml_get_profile_spec()
   )
 }
 
 .projr_yml_get_null <- function() {
-  yml_projr_root <- .projr_yml_get_root_default()
+  yml_projr_root <- .projr_yml_get_default()
   yml_projr_profile <- .projr_yml_get_profile_spec()
   yml_projr_local <- .projr_yml_get_local()
 
@@ -133,7 +133,7 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     stats::setNames(nm_vec)
 }
 
-.projr_yml_get_root_full <- function() {
+.projr_yml_get_default_raw <- function() {
   path_yml <- .dir_proj_get("_projr.yml")
   if (!file.exists(path_yml)) {
     return(list())
@@ -141,20 +141,24 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   yaml::read_yaml(path_yml)
 }
 
-.projr_yml_get_root_default <- function() {
-  .projr_yml_get_root_full() |>
+.projr_yml_get_default <- function() {
+  .projr_yml_get_profile_ind("default") |>
     .projr_yml_get_filter_top_level()
 }
 
 
 .projr_yml_get_profile_spec <- function(profile) {
   if (!.is_given_mid(profile)) {
-    profile <- projr_profile_get()
+    profile_vec <- .projr_profile_get_var()
+  } else {
+    .assert_string(profile)
+    profile_vec <- vapply(profile, trimws, character(1)) |>
+      setdiff(c("default", "local", "")) |>
+      stats::setNames(NULL)
   }
-  if (profile == "default") {
+  if (!all(nzchar(profile_vec))) {
     return(list())
   }
-  profile_vec <- strsplit(profile, ";")[[1]]
   if (length(profile_vec) == 1L) {
     return(.projr_yml_get_profile_ind(profile_vec))
   }
@@ -186,14 +190,24 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 }
 
 .projr_yml_get_profile_ind <- function(profile) {
+  .projr_yml_get_profile_ind_raw(profile) |>
+    .projr_yml_get_filter_top_level()
+}
+
+.projr_yml_get_profile_ind_raw <- function(profile) {
+  .assert_string(profile)
+  if (missing(profile) || profile == "default") {
+    profile_spec <- ""
+  } else {
+    profile_spec <- paste0("-", profile)
+  }
   path_profile <- .dir_proj_get(
-    paste0("_projr-", profile, ".yml")
+    paste0("_projr", profile_spec, ".yml")
   )
   if (!file.exists(path_profile)) {
     return(list())
   }
-  yaml::read_yaml(path_profile) |>
-    .projr_yml_get_filter_top_level()
+  yaml::read_yaml(path_profile)
 }
 
 .projr_yml_get_profile_list_min_3 <- function(profile_vec) {
@@ -224,12 +238,7 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 }
 
 .projr_yml_get_local <- function() {
-  path_yml <- .dir_proj_get("_projr-local.yml")
-  if (!file.exists(path_yml)) {
-    return(list())
-  }
-
-  yaml::read_yaml(path_yml) |>
+  .projr_yml_get_profile_ind("local") |>
     .projr_yml_get_filter_top_level()
 }
 

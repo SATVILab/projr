@@ -172,7 +172,7 @@ test_that(".projr_build_copy_to_unsafe works", {
     path = dir_test,
     code = {
       projr_init()
-      yml_projr_init <- .projr_yml_get_root_full()
+      yml_projr_init <- .projr_yml_get_default_raw()
       yml_bd_init <- .projr_yml_bd_get()
       # run when there are no files in dir_output
       expect_true(.projr_build_copy_to_unsafe(output_run = TRUE))
@@ -245,7 +245,7 @@ test_that("projr_build_copy_pkg works", {
     path = dir_test,
     code = {
       projr_init()
-      yml_projr_init <- .projr_yml_get_root_full()
+      yml_projr_init <- .projr_yml_get_default_raw()
 
       # don't build
       # ---------------------
@@ -296,7 +296,7 @@ test_that("projr_build_copy_dir works when outputting", {
     path = dir_test,
     code = {
       projr_init()
-      yml_projr_init <- .projr_yml_get_root_full()
+      yml_projr_init <- .projr_yml_get_default_raw()
       invisible({
         file.create(
           projr_path_get("raw-data", "a.txt", safe = TRUE)

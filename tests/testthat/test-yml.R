@@ -25,18 +25,18 @@ test_that("basic yml functions work", {
   usethis::with_project(
     path = dir_test,
     code = {
-      yml_projr_int <- .projr_yml_get_root_full()
-      expect_identical(class(.projr_yml_get_root_full()), "list")
+      yml_projr_int <- .projr_yml_get_default_raw()
+      expect_identical(class(.projr_yml_get_default_raw()), "list")
       expect_identical(class(.projr_yml_bd_get()), "list")
       expect_identical(class(.projr_desc_get()), c("matrix", "array"))
       yml_projr_min <- list(
         "directories" = NULL, "build" = list()
       )
       .projr_yml_set(yml_projr_min)
-      expect_identical(.projr_yml_get_root_full(), yml_projr_min)
+      expect_identical(.projr_yml_get_default_raw(), yml_projr_min)
       unlink(file.path(dir_test, "_projr.yml"))
       unlink(file.path(dir_test, "_bookdown.yml"))
-      expect_identical(class(.projr_yml_get_root_full()), "list")
+      expect_identical(class(.projr_yml_get_default_raw()), "list")
       expect_identical(.projr_yml_bd_get(), list())
     },
     quiet = TRUE,

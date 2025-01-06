@@ -17,7 +17,7 @@ test_that("projr_path_get_dir works", {
 
       projr_init()
       projr_path_get_dir("project")
-      yml_projr <- .projr_yml_get_root_full()
+      yml_projr <- .projr_yml_get_default_raw()
       expect_error(projr_path_get_dir("ailc"))
       expect_identical(projr_path_get_dir("raw-data"), "_raw_data")
       expect_identical(
@@ -35,7 +35,7 @@ test_that("projr_path_get_dir works", {
       expect_true(!dir.exists("_tmp"))
       projr_path_get_dir("cache", create = TRUE)
       expect_true(dir.exists("_tmp"))
-      yml_projr <- .projr_yml_get_root_full()
+      yml_projr <- .projr_yml_get_default_raw()
       path_tmp_raw_data <- fs::path_abs(dirname(dirname(getwd()))) |>
         as.character()
       yml_projr[["directories"]][["raw-data"]] <- list(
@@ -148,7 +148,7 @@ test_that("projr_path_get works", {
       expect_true(!dir.exists("_tmp"))
       projr_path_get("cache", create = TRUE)
       expect_true(dir.exists("_tmp"))
-      yml_projr <- .projr_yml_get_root_full()
+      yml_projr <- .projr_yml_get_default_raw()
       path_raw_data_abc <- fs::path_abs(dirname(dirname(getwd()))) |>
         as.character()
       yml_projr[["directories"]][["raw-data"]] <- list(
@@ -325,7 +325,7 @@ test_that("projr_dir_ignore works", {
       gitignore <- .projr_ignore_git_read()
       buildignore <- .projr_ignore_rbuild_read()
 
-      yml_projr <- .projr_yml_get_root_full()
+      yml_projr <- .projr_yml_get_default_raw()
       for (i in seq_along(yml_projr[["directories"]])) {
         yml_projr[["directories"]][[i]][["ignore-git"]] <- FALSE
         yml_projr[["directories"]][[i]][["ignore-rbuild"]] <- FALSE
@@ -341,7 +341,7 @@ test_that("projr_dir_ignore works", {
       expect_identical(length(which(buildignore == "^_raw_data$")), 0L)
 
       # test not adding when the directory is not in wd
-      yml_projr <- .projr_yml_get_root_full()
+      yml_projr <- .projr_yml_get_default_raw()
       dir_out <- .dir_proj_get("test_2")
       .dir_create(dir_out)
 
@@ -358,7 +358,7 @@ test_that("projr_dir_ignore works", {
       # test errors
       expect_error(.projr_ignore_label_set(c("abc", "def")))
       expect_error(.projr_ignore_label_set(1))
-      yml_projr <- .projr_yml_get_root_full()
+      yml_projr <- .projr_yml_get_default_raw()
       for (i in seq_along(yml_projr[["directories"]])) {
         yml_projr[["directories"]][[i]][["ignore-git"]] <- 1
         yml_projr[["directories"]][[i]][["ignore-rbuild"]] <- 1
