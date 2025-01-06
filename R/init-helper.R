@@ -178,7 +178,7 @@
   writeLines(rbuildignore, .dir_proj_get(".Rbuildignore"))
   .projr_newline_append(.dir_proj_get(".Rbuildignore"))
 
-  projr_dir_ignore()
+  .projr_dir_ignore()
 
   invisible(TRUE)
 }
@@ -840,7 +840,7 @@ projr_init_renviron <- function() {
     if (answer_git == 2) {
       .projr_yml_git_set(FALSE, "default")
     } else if (answer_git == 3) {
-      projr_dir_ignore()
+      .projr_dir_ignore()
     }
     return(invisible(FALSE))
   }

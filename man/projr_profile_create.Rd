@@ -2,36 +2,28 @@
 % Please edit documentation in R/profile.R
 \name{projr_profile_create}
 \alias{projr_profile_create}
-\title{Add projr profile}
+\title{Add projr profile file}
 \usage{
-projr_profile_create(profile = NULL, silent = FALSE)
+projr_profile_create(profile)
 }
 \arguments{
 \item{profile}{character.
-If not \code{NULL}, then this is the name of the profile.
-If \code{NULL} and the environment variable \code{PROJR_PROFILE} is set,
-then made equal to its value.}
-
-\item{silent}{logical.
-If \code{TRUE}, then any messages are suppressed.
-Default is \code{TRUE} is the environment
-variable \code{PROJR_TEST} is \code{"TRUE"}.}
+Name of the profile.
+If not supplied, then the profile is named \code{default}
+(and the file \verb{_projr.yml} is created).}
 }
 \value{
-Invisibly returns the new projr profile.
+Invisibly returns \code{TRUE} if the file was created,
+and \code{FALSE} if the file already exists.
 }
 \description{
-Creates a new \code{projr} profile that overrides
+Creates a new \code{projr} profile that can override
 settings in \verb{_projr.yml}.
-The profile becomes active when either the working directory
-(\code{rprojroot::is_r_package$find_file()}) or
-\code{Sys.getenv("PROJR_PROFILE")} is equal to \code{profile}.
-}
-\details{
-Note that if any setting in \code{projr} profile-specific setting
-is empty (indicated by \code{~} in the YAML file by default), then
-the corresponding setting in \verb{_projr.yml} is used.
+If the associated file does not exists, it
+creates a blank file.
+The file is ignored from the R build process and, if
+it is the \code{local} profile, from Git as well.
 }
 \seealso{
-projr_profile_create_local,projr_yml_get
+projr_profile_create_local,projr_profile_get
 }

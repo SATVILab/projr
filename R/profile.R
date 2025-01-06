@@ -1,70 +1,49 @@
-#' @title Add projr profile
+#' @title Add projr profile file
 #'
 #' @description
-#' Creates a new `projr` profile that overrides
+#' Creates a new `projr` profile that can override
 #' settings in `_projr.yml`.
-#' The profile becomes active when either the working directory
-#' (`rprojroot::is_r_package$find_file()`) or
-#' `Sys.getenv("PROJR_PROFILE")` is equal to `profile`.
+#' If the associated file does not exists, it
+#' creates a blank file.
+#' The file is ignored from the R build process and, if
+#' it is the `local` profile, from Git as well.
 #'
 #' @param profile character.
-#' If not `NULL`, then this is the name of the profile.
-#' If `NULL` and the environment variable `PROJR_PROFILE` is set,
-#' then made equal to its value.
+#' Name of the profile.
+#' If not supplied, then the profile is named `default`
+#' (and the file `_projr.yml` is created).
 #'
-#' @param silent logical.
-#' If `TRUE`, then any messages are suppressed.
-#' Default is `TRUE` is the environment
-#' variable `PROJR_TEST` is `"TRUE"`.
-#'
-#' @details
-#' Note that if any setting in `projr` profile-specific setting
-#' is empty (indicated by `~` in the YAML file by default), then
-#' the corresponding setting in `_projr.yml` is used.
-#'
-#' @return Invisibly returns the new projr profile.
-#' @seealso projr_profile_create_local,projr_yml_get
+#' @return
+#' Invisibly returns `TRUE` if the file was created,
+#' and `FALSE` if the file already exists.
+#' 
+#' @seealso projr_profile_create_local,projr_profile_get
 #' @export
-#'
-projr_profile_create <- function(profile = NULL,
-                                 silent = FALSE) {
-  # get and validate profile
-  # --------------------------
-
-  if (.is_test()) {
-    silent <- TRUE
+projr_profile_create <- function(profile) {
+  .assert_len_1(profile)
+  if (missing(profile) || profile == "default") {
+    profile_spec <- ""
+  } else {
+    .assert_string(profile)
+    profile_spec <- paste0("-", profile)
   }
-  .assert_flag(silent, required = TRUE)
-  profile <- profile %||% Sys.getenv("PROJR_PROFILE")
-  .assert_string(profile, required = TRUE)
-  .assert_in_single_not(profile, opt = c("default", "local"), required = TRUE)
-  .projr_profile_check(profile)
-  file_ind <- file.exists(
-    .dir_proj_get(paste0("_projr-", profile, ".yml"))
-  )
-  if (file_ind) {
-    message(paste0("projr profile ", profile, " already exists"))
+  path_file <- paste0("_projr", profile_spec, ".yml") |>
+    .dir_proj_get()
+  .projr_ignore_rbuild_set(basename(path_file), "ignore")
+  if (profile == "local") {
+    .projr_profile_create_local_ignore_git()
+  }
+  if (file.exists(path_file)) {
+    message(paste0("File ", path_file, " already exists"))
     return(invisible(FALSE))
   }
+  file.create(path_file)
 
-  # create profile settings
-  # -------------------------
+  message(paste0(
+    "Created file ", basename(path_file), " in root of project"
+  ))
 
-  yml_projr_root_default <- .projr_yml_get_default()
-
-  yaml::write_yaml(
-    .projr_list_elem_as_null(yml_projr_root_default),
-    file = .dir_proj_get(paste0("_projr-", profile, ".yml"))
-  )
-
-  .projr_ignore_rbuild_set(paste0("_projr-", profile, ".yml"), "ignore")
-
-  if (!silent) {
-    message(paste0("Added the following profile: ", profile))
-  }
-
-
-  invisible(profile)
+  invisible(TRUE)
 }
 
 #' @title Create a local `projr` profile
@@ -72,14 +51,6 @@ projr_profile_create <- function(profile = NULL,
 #' @description Create a `projr` profile with highest precedence
 #' (i.e. its settings overwrite any others) that is
 #' ignored by Git.
-#' Useful to avoid bloat through many entries in `_projr.yml`
-#' or extra `_projr-<profile>.yml` files.
-#' Creates a file `_projr-local.yml` with empty settings and ignores it from
-#' `.Rbuildignore` and `.gitignore`.
-#'
-#' @param overwrite logical.
-#' If `TRUE`, then overwrite `_projr-local.yml` if it already exists.
-#' Default is `FALSE`.
 #'
 #' @details
 #' Note that if any setting in `_projr-local.yml` is empty,
@@ -87,26 +58,8 @@ projr_profile_create <- function(profile = NULL,
 #' (i.e. from `_projr-<profile>.yml` or `_projr.yml`) is used.
 #' Empty settings are by default indicated by `~`.
 #' @seealso projr_profile_create_local,projr_yml_get
-projr_profile_create_local <- function(overwrite = FALSE) {
-  projr_profile_create_local_check(overwrite)
-  .projr_profile_create_local_actual()
-  .projr_profile_create_local_ignore()
-  .projr_ignore_rbuild_set("_projr-local.yml", "ignore")
-  invisible(TRUE)
-}
-
-projr_profile_create_local_check <- function(overwrite) {
-  if (!overwrite && file.exists(.dir_proj_get("_projr-local.yml"))) {
-    stop("overwrite = TRUE and _projr-local.yml already exists", call. = FALSE)
-  }
-  invisible(TRUE)
-}
-
-.projr_profile_create_local_actual <- function() {
-  yml_projr_root_default <- .projr_yml_get_default()
-  yml_projr_local <- yml_projr_root_default[c("directories", "build")]
-  yml_projr_local <- .projr_list_elem_as_null(yml_projr_local)
-  yaml::write_yaml(yml_projr_local, file = .dir_proj_get("_projr-local.yml"))
+projr_profile_create_local <- function() {
+  projr_profile_create(local)
 }
 
 .projr_list_elem_as_null <- function(x) {
@@ -123,6 +76,7 @@ projr_profile_create_local_check <- function(overwrite) {
   .projr_profile_create_local_ignore_git()
   .projr_profile_create_local_ignore_rbuild()
 }
+
 .projr_profile_create_local_ignore_git <- function() {
   gitignore <- readLines(.dir_proj_get(".gitignore"))
   if (!"_projr-local.yml" %in% gitignore) {

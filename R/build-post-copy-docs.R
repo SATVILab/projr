@@ -11,8 +11,8 @@
 # ------------------
 
 .projr_build_copy_docs_rmd <- function(output_run) {
-  fn_vec_qmd <- list.files(pattern = "\\.Rmd$|\\.rmd$")
-  for (fn in fn_vec_qmd) {
+  fn_vec_rmd <- list.files(pattern = "\\.Rmd$|\\.rmd$")
+  for (fn in fn_vec_rmd) {
     .projr_build_copy_docs_rmd_ind(fn, output_run)
   }
   invisible(TRUE)
