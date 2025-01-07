@@ -21,7 +21,7 @@
 projr_ignore_auto <- function() {
   # ignore directories specified in
   # `_projr.yml`
-  .projr_ignore_auto_diryml()
+  .projr_ignore_diryml()
   # root level files
   .projr_ignore_auto_yml()
   .projr_ignore_auto_build_source()
