@@ -46,7 +46,7 @@ projr_ignore <- function() {
   if (.is_len_0(dir_vec)) {
     return(invisible(FALSE))
   }
-  projr_ignore_dir_rbuild(dir_vec)
+  .projr_ignore_dir_rbuild(dir_vec)
 }
 
 .projr_ignore_devcontainer <- function() {
