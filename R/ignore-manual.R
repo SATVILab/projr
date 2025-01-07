@@ -153,10 +153,46 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
 .projr_ignore_manual_path_add_get_updated_start <- function(ignore, start) {
   if (.is_len_0(start)) {
     ignore
+  } else if (.is_len_1(start)) {
+      .projr_ignore_manual_path_add_get_updated_start_len_1(ignore, start)
   } else {
-    start <- if (start[length(start)] == "") start else c(start, "")
-    c(ignore[!ignore %in% start], start)
+    .projr_ignore_manual_path_add_get_updated_start_len_g1(ignore, start)
   }
 }
 
+.projr_ignore_manual_path_add_get_updated_start_len_1 <- function(ignore, start) {
+  start <- .projr_ignore_manual_path_add_get_updated_start_len_1_start(start)
+  c(ignore[!ignore %in% start], start)
+}
 
+.projr_ignore_manual_path_add_get_updated_start_len_1_start <- function(start) {
+  if (grepl(match_str_bottom, start)) {
+      c("", start)
+  } else if (start == "") {
+      start
+  } else {
+      c(start, "")
+  }
+}
+
+.projr_ignore_manual_path_add_get_updated_start_len_g1 <- function(ignore, start) {
+  ignore <- ignore[!ignore %in% start]
+  start <- .projr_ignore_manual_path_add_get_updated_start_len_g1_start(start)
+  c(ignore, start)
+}
+
+.projr_ignore_manual_path_add_get_updated_start_len_g1_start <- function(start) {
+  if (grepl(match_str_bottom, start[length(start)])) {
+    start_pre <- start[-length(start)]
+    if (start_pre[length(start_pre)] != "") {
+      start_pre <- c(start_pre, "")
+    }
+    c(start_pre, start[length(start)])
+  } else {
+    if (start[length(start)] != "") {
+      c(start, "")
+    } else {
+      start
+    }
+  }
+}
