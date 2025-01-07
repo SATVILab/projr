@@ -159,13 +159,4 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
   }
 }
 
-.projr_unignore_manual_path_add_get_updated <- function(path,
-                                                      ignore) {
-  ignore_list <- .projr_ignore_path_get_list(path, ignore)
-  c(
-    ignore_list[["start"]],
-    ignore_list$content,
-    c(ignore_list[["end"]], ignore) |> unique()
-  )
-}
 

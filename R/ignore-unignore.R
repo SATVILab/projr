@@ -164,6 +164,19 @@ projr_unignore_manual_dir_rbuild <- function(unignore) {
   c(
     ignore_list[["start"]],
     ignore_list$content,
-    c(ignore_list[["end"]], unignore) |> unique()
+    .projr_unignore_manual_path_add_get_updated_end(unignore, ignore_list$end)
   )
+}
+
+
+
+
+.projr_unignore_manual_path_add_get_updated_end <- function(ignore, end) {
+  if (.is_len_0(end)) {
+    ignore
+  } else if (.is_len_1(end)) {
+    c(end, "", ignore)
+  else 
+    c(end, ignore)
+  }
 }
