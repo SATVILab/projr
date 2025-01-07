@@ -120,7 +120,7 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
   patterns <- gsub("\\$$", "", patterns)
   patterns <- paste0(patterns, "/")
   patterns <- c(patterns, utils::glob2rx(ignore))
-  .projr_ignore_manual_path_add(ignore, .dir_proj_get(".Rbuildignore"))
+  .projr_ignore_manual_path_add(patterns, .dir_proj_get(".Rbuildignore"))
 }
 
 # ===========================================================================
