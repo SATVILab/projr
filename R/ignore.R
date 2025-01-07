@@ -26,7 +26,7 @@ projr_ignore <- function() {
   # directories at root level
   # unspecified by `directories` key
   # in `_projr.yml`
-  .projr_ignore_extensions()
+  .projr_ignore_quarto()
   .projr_ignore_devcontainer()
   .projr_ignore_github()
   .projr_ignore_vscode() # also code-workspace files
@@ -40,7 +40,7 @@ projr_ignore <- function() {
 
 # ignore _extensions directory if 
 # projr engine is quarto and _extensions exists
-.projr_ignore_dir_quarto <- function() {
+.projr_ignore_quarto <- function() {
   dir_vec <- c("_extensions", "index_files", ".quarto")
   dir_vec <- dir_vec[dir.exists(dir_vec)]
   if (.is_len_0(dir_vec)) {
