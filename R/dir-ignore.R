@@ -107,14 +107,13 @@
 }
 
 .projr_ignore_diryml_git_update_gitignore <- function(ignore) {
-  gitignore_list <- .projr_ignore_gitignore_get()
-  # Update the .gitignore content with new ignore patterns
-  gitignore_vec <- c(
-    gitignore_list[["start"]],
-    ignore,
-    gitignore_list[["end"]]
-  )
-  .projr_ignore_git_write(gitignore_vec, FALSE)
+
+  if (!all(nzchar(ignore))) {
+    return(invisible(FALSE))
+  }
+
+  file_vec <- .projr_ignore_path_add_get_updated(path, ignore, TRUE)
+  .projr_ignore_path_write(file_vec, path)
   invisible(TRUE)
 }
 
