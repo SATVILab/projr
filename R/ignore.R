@@ -118,7 +118,6 @@ projr_ignore <- function() {
     "CONTRIBUTING\\.md$",
     "LICENSE$",
     "LICENSE\\.md$",
-    "README\\.md$",
     "README\\.Rmd$"
   ) |>
     paste0(collapse = "|")
@@ -223,7 +222,8 @@ projr_ignore <- function() {
   path_vec <- list.files(
     path = .dir_proj_get(),
     pattern = pattern
-  )
+  ) |>
+    setdiff("manifest.csv")
   .projr_ignore_path_add(path_vec, .dir_proj_get(".gitignore"))
 }
 
