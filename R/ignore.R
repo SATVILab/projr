@@ -293,7 +293,7 @@ projr_ignore <- function() {
 .projr_ignore_path_add_get_updated <- function(path, ignore, override) {
   ignore_list <- .projr_ignore_path_get_list(path, ignore, override)
   updated_content <- .projr_ignore_path_get_updated_content(
-    override, ignore, ignore_list
+    override, ignore, ignore_list[["content"]]
   )
 
   c(
