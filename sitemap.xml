@@ -18,10 +18,9 @@
 <url><loc>https://satvilab.github.io/projr/reference/instr_auth.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_build_dev.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_build_output.html</loc></url>
-<url><loc>https://satvilab.github.io/projr/reference/projr_dir_create.html</loc></url>
-<url><loc>https://satvilab.github.io/projr/reference/projr_dir_create_all.html</loc></url>
-<url><loc>https://satvilab.github.io/projr/reference/projr_dir_ignore.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_env_file_activate.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/projr_ignore_auto.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/projr_ignore_manual.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_init.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_init_renviron.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_osf_create_project.html</loc></url>
@@ -36,9 +35,8 @@
 <url><loc>https://satvilab.github.io/projr/reference/projr_profile_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_renv_restore.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_renv_test.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/projr_unignore_manual.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_use_data.html</loc></url>
-<url><loc>https://satvilab.github.io/projr/reference/projr_version_format_get.html</loc></url>
-<url><loc>https://satvilab.github.io/projr/reference/projr_version_format_set.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_version_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_version_set.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_yml_check.html</loc></url>

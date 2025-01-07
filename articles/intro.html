@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.12-0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.17-18</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,7 +94,7 @@ the project and its components, and upload the components to GitHub, OSF
 and/or a local folder.</li>
 </ul>
 <p>Project directory structure (e.g. that raw data are kept in the
-<code>data-raw</code> folder) and on-build actions (e.g. uploading to
+<code>raw-data</code> folder) and on-build actions (e.g. uploading to
 GitHub) are specified in the <code>_projr.yml</code> file.</p>
 <p>There are only three functions to remember:
 <code><a href="../reference/projr_init.html">projr_init()</a></code>, <code><a href="../reference/projr_build_output.html">projr_build_output()</a></code> and
@@ -304,8 +304,8 @@ key.</li>
 <p>Here is the default <code>directories</code> key:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># default directory settings:</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="at">  </span><span class="fu">data-raw</span><span class="kw">:</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _data_raw</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-data</span><span class="kw">:</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _raw_data</span></span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="at">  </span><span class="fu">cache</span><span class="kw">:</span><span class="at"> </span></span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _tmp</span></span>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span><span class="at"> </span></span>
@@ -316,7 +316,7 @@ key.</li>
 project. They are as follows:</p>
 <ul>
 <li>
-<code>data-raw</code>: The folder where raw data is stored.</li>
+<code>raw-data</code>: The folder where raw data is stored.</li>
 <li>
 <code>cache</code>: This stores files created during project builds
 that you do not want to share. For example, if you use the
@@ -360,7 +360,7 @@ hardcoded paths
 <h5 id="benefits">Benefits<a class="anchor" aria-label="anchor" href="#benefits"></a>
 </h5>
 <p>Using folders in the manner described (e.g. storing raw data in the
-<code>data-raw</code> folder and outputs in the <code>output</code>
+<code>raw-data</code> folder and outputs in the <code>output</code>
 folder) has the following benefits:</p>
 <ul>
 <li>A person new to the project can read one file
@@ -369,7 +369,7 @@ understand the project structure.</li>
 <li>Sharing parts of the project (e.g. the raw data) and setting up the
 project again (e.g. on a new computer or on a collaborator’s computer)
 is easier as like things are kept together. This is as opposed to, for
-example, keeping some raw data in <code>_data_raw</code>, others in
+example, keeping some raw data in <code>_raw_data</code>, others in
 <code>inst/extdata</code> and others at the root of the project, which
 makes bringing all the pieces together harder.</li>
 <li>It helps <code>projr</code> help you, as it understands your project
@@ -386,7 +386,7 @@ the code in preparation for the next build.</li>
 <code>projr</code> can upload the data to various places. As
 described in the next subsection (<code>build</code>),
 <code>projr</code> can send data from these folders
-(<code>data-raw</code>, <code>output</code>, etc.) to various places -
+(<code>raw-data</code>, <code>output</code>, etc.) to various places -
 at present, this includes GitHub releases, OSF and local folders
 (e.g. your OneDrive project folder).</li>
 <li>
@@ -414,17 +414,17 @@ project is connected to GitHub):</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="at">    </span><span class="fu">input</span><span class="kw">:</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">data-raw</span><span class="kw">]</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
 <span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="at">      </span><span class="fu">description</span><span class="kw">:</span><span class="at"> </span><span class="st">"Project inputs"</span></span></code></pre></div>
 <p>This specifies that, after the project is built, the
-<code>data-raw</code> directory (i.e. the contents of
-<code>_data_raw</code>) is uploaded to GitHub as a release whose name is
+<code>raw-data</code> directory (i.e. the contents of
+<code>_raw_data</code>) is uploaded to GitHub as a release whose name is
 <code>input</code>.</p>
 <p>By default, it is uploaded to a file called
-<code>data-raw-v&lt;project_version&gt;.zip</code>, where
+<code>raw-data-v&lt;project_version&gt;.zip</code>, where
 <code>&lt;project_version&gt;</code> is the version of the project
 (e.g. <code>0.1.0</code>). Furthermore, by default this only takes place
-when anything changes within <code>data-raw</code>, i.e. file(s) are
+when anything changes within <code>raw-data</code>, i.e. file(s) are
 added, removed or changed.</p>
 <p>These uploads are designed to be highly flexible, and can be
 customised to your needs. Please see the <code>destination</code>
@@ -460,7 +460,7 @@ render them accordingly.</p>
 saved to their final destination (as specified in
 <code>docs</code>/<code>output</code>) and the outputs (GitHub/OSF) are
 sent to, as desired). - If you set the project up with GitHub, then by
-default the <code>data-raw</code>, <code>docs</code> and
+default the <code>raw-data</code>, <code>docs</code> and
 <code>output</code> folders are uploaded to GitHub as GitHub
 releases.</p>
 </div>

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.12-0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.17-18</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,28 +82,22 @@
         <dd>Build project to output</dd>
       </dl><dl><dt>
 
-          <code><a href="projr_dir_create.html">projr_dir_create()</a></code>
-
-        </dt>
-        <dd>Create a directory in _projr.yml</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_dir_create_all.html">projr_dir_create_all()</a></code>
-
-        </dt>
-        <dd>Create all directories in _projr.yml</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_dir_ignore.html">projr_dir_ignore()</a></code>
-
-        </dt>
-        <dd>Update ignore settings as per projr config</dd>
-      </dl><dl><dt>
-
           <code><a href="projr_env_file_activate.html">projr_env_file_activate()</a></code>
 
         </dt>
         <dd>Activate environment variables in files</dd>
+      </dl><dl><dt>
+
+          <code><a href="projr_ignore_auto.html">projr_ignore_auto()</a></code>
+
+        </dt>
+        <dd>Update <code>.gitignore</code> and <code>.Rbuildignore</code> with projr-managed ignores</dd>
+      </dl><dl><dt>
+
+          <code><a href="projr_ignore_manual.html">projr_ignore_manual()</a></code> <code><a href="projr_ignore_manual.html">projr_ignore_manual_dir()</a></code> <code><a href="projr_ignore_manual.html">projr_ignore_manual_file()</a></code> <code><a href="projr_ignore_manual.html">projr_ignore_manual_file_git()</a></code> <code><a href="projr_ignore_manual.html">projr_ignore_manual_dir_git()</a></code> <code><a href="projr_ignore_manual.html">projr_ignore_manual_file_rbuild()</a></code> <code><a href="projr_ignore_manual.html">projr_ignore_manual_dir_rbuild()</a></code>
+
+        </dt>
+        <dd>Manually Ignore Files or Directories in <code>.gitignore</code> and <code>.Rbuildignore</code></dd>
       </dl><dl><dt>
 
           <code><a href="projr_init.html">projr_init()</a></code>
@@ -151,7 +145,7 @@
           <code><a href="projr_profile_create.html">projr_profile_create()</a></code>
 
         </dt>
-        <dd>Add projr profile</dd>
+        <dd>Add projr profile file</dd>
       </dl><dl><dt>
 
           <code><a href="projr_profile_create_local.html">projr_profile_create_local()</a></code>
@@ -190,34 +184,28 @@
         <dd>Test renv restore</dd>
       </dl><dl><dt>
 
+          <code><a href="projr_unignore_manual.html">projr_unignore_manual()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_dir()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_file()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_file_git()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_dir_git()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_file_rbuild()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_dir_rbuild()</a></code>
+
+        </dt>
+        <dd>Manually Unignore Files or Directories in <code>.gitignore</code> and <code>.Rbuildignore</code></dd>
+      </dl><dl><dt>
+
           <code><a href="projr_use_data.html">projr_use_data()</a></code>
 
         </dt>
         <dd><code>projr</code> drop-in replacement for usethis::use_data</dd>
       </dl><dl><dt>
 
-          <code><a href="projr_version_format_get.html">projr_version_format_get()</a></code>
-
-        </dt>
-        <dd>Get version format</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_version_format_set.html">projr_version_format_set()</a></code>
-
-        </dt>
-        <dd>Get version format</dd>
-      </dl><dl><dt>
-
           <code><a href="projr_version_get.html">projr_version_get()</a></code>
 
         </dt>
-        <dd>Return the next version to be built</dd>
+        <dd>Returns project version</dd>
       </dl><dl><dt>
 
           <code><a href="projr_version_set.html">projr_version_set()</a></code>
 
         </dt>
-        <dd>Set project version</dd>
+        <dd>Set Project Version</dd>
       </dl><dl><dt>
 
           <code><a href="projr_yml_check.html">projr_yml_check()</a></code>
