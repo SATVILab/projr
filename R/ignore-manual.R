@@ -133,7 +133,7 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
   }
   .assert_string(path, TRUE)
 
-  file_vec <- .projr_ignore_manual_path_add_get_updated(path, ignore, FALSE)
+  file_vec <- .projr_ignore_manual_path_add_get_updated(path, ignore)
   .projr_ignore_path_write(file_vec, path)
   invisible(TRUE)
 }
