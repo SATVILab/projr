@@ -151,6 +151,7 @@ projr_unignore_manual_dir_rbuild <- function(unignore) {
     return(invisible(FALSE))
   }
   .assert_string(path, TRUE)
+  unignore <- unignore |> unique()
 
   file_vec <- .projr_unignore_manual_path_add_get_updated(path, unignore)
   .projr_ignore_path_write(file_vec, path)
@@ -173,10 +174,11 @@ projr_unignore_manual_dir_rbuild <- function(unignore) {
 
 .projr_unignore_manual_path_add_get_updated_end <- function(ignore, end) {
   if (.is_len_0(end)) {
-    ignore |> unique()
+    ignore
   } else if (.is_len_1(end)) {
-    c(end, "", ignore) |> unique()
+    end <- if (end == "") end else c(end, "")
+    
   } else {
-    c(end, ignore) |> unique()
+    c(end, ignore[!ignore %in% end])
   }
 }
