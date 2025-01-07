@@ -288,23 +288,25 @@ projr_ignore_auto <- function() {
     book_filename <- "_main"
   }
 
-  paste0(book_filename, ".tex") |> .projr_ignore_auto_file()
+  paste0(book_filename, ".tex") |> .projr_ignore_auto_file_git()
+  paste0(book_filename, ".tex") |> .projr_ignore_auto_file_rbuild()
 }
 
 .projr_ignore_auto_build_tex_quarto <- function() {
   if (!.projr_engine_get() == "quarto_project") {
     return(invisible(FALSE))
   }
-  .projr_ignore_auto_file("index.tex")
-  
+  .projr_ignore_auto_file_git("index.tex")
+  .projr_ignore_auto_file_rbuild("index.tex")
 }
 
 .projr_ignore_auto_build_tex_rqmd <- function() {
-  list.files(
+  path_vec <- list.files(
     path = .dir_proj_get(), pattern = "\\.qmd$|\\.Rmd|\\.rmd"
   ) |>
-    gsub("\\.qmd$|\\.Rmd$|\\.rmd$", ".tex", x = _) |>
-    .projr_ignore_auto_file()
+    gsub("\\.qmd$|\\.Rmd$|\\.rmd$", ".tex", x = _)
+  .projr_ignore_auto_file_git(path_vec)
+  .projr_ignore_auto_file_rbuild(path_vec)
 }
 
 # ========================================================================
