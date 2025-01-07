@@ -173,10 +173,10 @@ projr_unignore_manual_dir_rbuild <- function(unignore) {
 
 .projr_unignore_manual_path_add_get_updated_end <- function(ignore, end) {
   if (.is_len_0(end)) {
-    ignore
+    ignore |> unique()
   } else if (.is_len_1(end)) {
-    c(end, "", ignore)
+    c(end, "", ignore) |> unique()
   } else {
-    c(end, ignore)
+    c(end, ignore) |> unique()
   }
 }

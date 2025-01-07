@@ -151,11 +151,11 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
 
 .projr_ignore_manual_path_add_get_updated_start <- function(ignore, start) {
   if (.is_len_0(start)) {
-    ignore
+    ignore |> unique()
   } else if (.is_len_1(start)) {
-    c(ignore, "", start)
+    c(ignore, "", start) |> unique()
   } else {
-    c(start[-length(start)], ignore, "", start[length(start)])
+    c(start[-length(start)], ignore, "", start[length(start)]) |> unique()
   }
 }
 
