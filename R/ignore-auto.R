@@ -5,6 +5,8 @@
 #' projr, as well as
 #' other directories and files that should
 #' clearly be ignored. 
+#' They are kept up-to-date with the project's configuration,
+#' and are written within a demarcated section of the file.
 #'
 #' @return Called primarily for its side effects (modifying
 #'   `.gitignore` and/or `.Rbuildignore`). Returns `TRUE` invisibly.

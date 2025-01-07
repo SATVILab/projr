@@ -1,41 +1,52 @@
-# ===========================================================================
-# Exported functions for ignoring specified files/directories from specified paths
-# ===========================================================================
-
-#' @title Manually ignore specified files/directories from .gitignore and/or .Rbuildignore
+#' @title Manually Ignore Files or Directories in `.gitignore` and `.Rbuildignore`
 #'
 #' @description
-#' These functions are used to add files and directories to ignore lists for 
-#' different contexts.
-#' - projr_ignore_manual: Adds specified files and directories to both Git
-#'  and R build ignore files. Automatically determines whether the input is a
-#' file or directory, and if it does not exist, it is assumed to be a file.
-#' - projr_ignore_manual_dir,projr_ignore_manual_file: 
-#'   Explicitly adds directories or files to both Git and R build ignore files.
-#' - projr_ignore_manual_dir_git,projr_ignore_manual_file_git:
-#'   Explicitly adds directories or files to the `.gitignore` file.
-#' - projr_ignore_manual_dir_rbuild,projr_ignore_manual_file_rbuild:
-#'   Explicitly adds directories or files to the `.Rbuildignore` file.
+#' These functions allow manual addition of files and directories to the 
+#' `.gitignore` and `.Rbuildignore` files, outside of the automatic management 
+#' provided by the `projr` package.
+#'
+#' - `projr_ignore_manual`: General function to add both files and directories 
+#'   to both `.gitignore` and `.Rbuildignore`. If a path does not exist, it is 
+#'   treated as a file.
+#' - `projr_ignore_manual_dir`: Specifically adds directories to both `.gitignore` 
+#'   and `.Rbuildignore`.
+#' - `projr_ignore_manual_file`: Specifically adds files to both `.gitignore` 
+#'   and `.Rbuildignore`.
+#' - `projr_ignore_manual_dir_git` and `projr_ignore_manual_file_git`: Add 
+#'   directories or files explicitly to `.gitignore`.
+#' - `projr_ignore_manual_dir_rbuild` and `projr_ignore_manual_file_rbuild`: Add 
+#'   directories or files explicitly to `.Rbuildignore`.
 #'
 #' @details
-#' - `projr_ignore_add`: Adds specified files and directories to both Git 
-#'   and R build ignore files.
-#' - `projr_ignore_add_git`: Adds specified files and directories to 
-#'   the `.gitignore` file.
-#' - `projr_ignore_add_rbuild`: Adds specified files and directories to 
-#'   the `.Rbuildignore` file.
-#' 
+#' These functions provide fine-grained control for cases where users want to 
+#' manually ignore specific paths permanently. They do not interact with the 
+#' automated ignore management system of `projr`. 
+#' - Non-existent paths provided to `projr_ignore_manual` are assumed to be files.
+#' - For `.gitignore`, directories are automatically appended with `/**` if 
+#'   missing, ensuring proper Git ignore syntax.
+#' - For `.Rbuildignore`, paths are converted to regular expressions using 
+#'   `glob2rx` for compatibility with R's build tools.
 #'
 #' @param ignore A character vector of file or directory paths to be ignored. 
 #'   Paths must be valid non-empty strings.
 #'
 #' @return
-#' The functions return `invisible(FALSE)` if the input contains invalid 
-#' (empty) paths. Otherwise, the operations are performed invisibly.
+#' Invisibly returns `TRUE` if the operation succeeds, or `FALSE` if the input 
+#' contains invalid (empty) paths.
 #'
 #' @seealso
-#' `.projr_ignore_file_git`, `.projr_ignore_dir_git`, `.projr_ignore_file_rbuild`, 
-#' `.projr_ignore_dir_rbuild` for the underlying helper functions.
+#' `projr_ignore_auto` for dynamically managed ignore entries, and `projr_unignore_manual`
+#' for forcing certain paths to not be ignored.
+#'
+#' @examples
+#' # Manually ignore files and directories
+#' projr_ignore_manual(c("output", "tempfile.log"))
+#'
+#' # Specifically ignore directories
+#' projr_ignore_manual_dir("data")
+#'
+#' # Specifically ignore files
+#' projr_ignore_manual_file("README.md")
 #'
 #' @export
 projr_ignore_manual <- function(ignore) {
@@ -43,34 +54,46 @@ projr_ignore_manual <- function(ignore) {
     return(invisible(FALSE))
   }
   ignore_file <- ignore[fs::is_file(ignore)]
-  ignore_dir <- ignore[fs::is_dir(ignore)]
-  ignore_nonexistent <- ignore[!fs::file_exists(ignore)]
-  .projr_ignore_manual_file_git(c(ignore_file, ignore_nonexistent))
-  .projr_ignore_manual_dir_git(ignore_dir)
-  .projr_ignore_manual_file_rbuild(c(ignore_file, ignore_nonexistent))
-  .projr_ignore_manual_dir_rbuild(ignore_dir)
+  ignore_dir <- ignore[fs::is_dir(ignore)] |>
+    c(ignore[grepl("/$", ignore)]) |>
+    unique()
+  ignore_nonexistent <- setdiff(
+    ignore, c(ignore_file, ignore_dir)
+  )
+  projr_ignore_manual_file_git(c(ignore_file, ignore_nonexistent))
+  projr_ignore_manual_dir_git(ignore_dir)
+  projr_ignore_manual_file_rbuild(c(ignore_file, ignore_nonexistent))
+  projr_ignore_manual_dir_rbuild(ignore_dir)
 }
 
+#' @rdname projr_ignore_manual
+#' @export
 projr_ignore_manual_dir <- function(ignore) {
   if (!all(nzchar(ignore))) {
     return(invisible(FALSE))
   }
-  .projr_ignore_manual_dir_git(ignore)
-  .projr_ignore_manual_dir_rbuild(ignore)
+  projr_ignore_manual_dir_git(ignore)
+  projr_ignore_manual_dir_rbuild(ignore)
 }
 
+#' @rdname projr_ignore_manual
+#' @export
 projr_ignore_manual_file <- function(ignore) {
   if (!all(nzchar(ignore))) {
     return(invisible(FALSE))
   }
-  .projr_ignore_manual_file_git(ignore)
-  .projr_ignore_manual_file_rbuild(ignore)
+  projr_ignore_manual_file_git(ignore)
+  projr_ignore_manual_file_rbuild(ignore)
 }
 
+#' @rdname projr_ignore_manual
+#' @export
 projr_ignore_manual_file_git <- function(ignore) {
   .projr_ignore_manual_path_add(ignore, projr_path_get(".gitignore"))
 }
 
+#' @rdname projr_ignore_manual
+#' @export
 projr_ignore_manual_dir_git <- function(ignore) {
   if (!all(nzchar(ignore))) {
     return(invisible(FALSE))
@@ -79,6 +102,8 @@ projr_ignore_manual_dir_git <- function(ignore) {
   .projr_ignore_manual_path_add(ignore, projr_path_get(".gitignore"))
 }
 
+#' @rdname projr_ignore_manual
+#' @export
 projr_ignore_manual_file_rbuild <- function(ignore) {
   ignore <- gsub("/+$", "", ignore) |>
     trimws() |>
@@ -86,15 +111,12 @@ projr_ignore_manual_file_rbuild <- function(ignore) {
   .projr_ignore_manual_path_add(ignore, projr_path_get(".Rbuildignore"))
 }
 
+#' @rdname projr_ignore_manual
+#' @export
 projr_ignore_manual_dir_rbuild <- function(ignore) {
-  # Remove trailing slashes and trim whitespace
   ignore <- gsub("/+$", "", ignore)
   ignore <- trimws(ignore)
-
-  # Convert the glob pattern to a regular expression pattern
   patterns <- utils::glob2rx(ignore)
-
-  # Handle directory-specific patterns
   patterns <- gsub("\\$$", "", patterns)
   patterns <- paste0(patterns, "/")
   patterns <- c(patterns, utils::glob2rx(ignore))
@@ -123,6 +145,16 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
     c(ignore_list[["start"]], ignore) |> unique(),
     ignore_list$content,
     ignore_list$end
+  )
+}
+
+.projr_unignore_manual_path_add_get_updated <- function(path,
+                                                      ignore) {
+  ignore_list <- .projr_ignore_path_get_list(path, ignore)
+  c(
+    ignore_list[["start"]],
+    ignore_list$content,
+    c(ignore_list[["end"]], ignore) |> unique()
   )
 }
 
