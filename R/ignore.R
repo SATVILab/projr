@@ -76,7 +76,7 @@ projr_ignore <- function() {
     invisible(FALSE)
   }
   path_vec <- list.files(
-    path = .projr_dir_get(),
+    path = .dir_proj_get(),
     pattern = "\\.code\\-workspace$",
     full.names = TRUE
   )
@@ -92,7 +92,7 @@ projr_ignore <- function() {
 # -------------------------------------------------------------------------
 .projr_ignore_yml <- function() {
   path_vec <- list.files(
-    path = .projr_dir_get(),
+    path = .dir_proj_get(),
     pattern = "^_projr\\.yml$|^_projr-.+\\.yml|^_quarto\\.yml$|^_bookdown\\.yml$",
     full.names = TRUE
   )
@@ -103,7 +103,7 @@ projr_ignore <- function() {
 # -------------------------------------------------------------------------
 .projr_ignore_build_source <- function() {
   path_vec <- list.files(
-    path = .projr_dir_get(),
+    path = .dir_proj_get(),
     pattern = "\\.qmd$|\\.rmd$|\\.Rmd$",
     full.names = TRUE
   )
@@ -126,7 +126,7 @@ projr_ignore <- function() {
   ) |>
     paste0(collapse = "|")
   path_vec <- list.files(
-    path = .projr_dir_get(),
+    path = .dir_proj_get(),
     pattern = pattern,
     full.names = TRUE
   )
@@ -183,7 +183,7 @@ projr_ignore <- function() {
   ) |>
     paste0(collapse = "|")
   path_vec <- list.files(
-    path = .projr_dir_get(),
+    path = .dir_proj_get(),
     pattern = pattern,
     full.names = TRUE
   )
@@ -226,7 +226,7 @@ projr_ignore <- function() {
 
   # Example usage:
   path_vec <- list.files(
-    path = .projr_dir_get(),
+    path = .dir_proj_get(),
     pattern = pattern,
     full.names = TRUE
   )
