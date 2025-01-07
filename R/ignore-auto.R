@@ -24,6 +24,7 @@ projr_ignore_auto <- function() {
   .projr_ignore_diryml()
   # root level files
   .projr_ignore_auto_yml()
+  .projr_ignore_auto_env()
   .projr_ignore_auto_build_source()
   .projr_ignore_auto_build_tex()
   .projr_ignore_auto_ext()
@@ -112,8 +113,19 @@ projr_ignore_auto <- function() {
     pattern = "^_projr\\.yml$|^_projr-.+\\.yml|^_quarto\\.yml$|^_bookdown\\.yml$"
   )
   .projr_ignore_auto_file_rbuild(path_vec)
-  if (file.exists(".projr-local.yml")) {
-    .projr_ignore_auto_file_git(".projr-local.yml")
+  if (file.exists(.dir_proj_get(".projr-local.yml"))) {
+    .projr_ignore_auto_file_git(.dir_proj_get(".projr-local.yml"))
+  }
+}
+
+.projr_ignore_auto_env <- function() {
+  path_vec <- list.files(
+    path = ".dir_proj_get()",
+    pattern = "^_environment$|^_environment-[a-zA-Z0-9]+$|^_environment\\.required$|^_environment\\.local$" #nolint
+  )
+  .projr_ignore_auto_dir_rbuild(path_vec)
+  if (file.exists(.dir_proj_get("_environment.local"))) {
+    .projr_ignore_auto_dir_git(.dir_proj_get("_environment.local"))
   }
 }
 
