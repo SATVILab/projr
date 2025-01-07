@@ -436,12 +436,7 @@ projr_ignore <- function() {
 
 # write to the specified file
 .projr_ignore_path_write <- function(file_vec, path) {
-  cat(
-    file_vec,
-    file = path,
-    sep = "\n",
-    append = FALSE
-  )
+  writeLines(file_vec, path)
   .projr_newline_append(path)
   invisible(path)
 }
