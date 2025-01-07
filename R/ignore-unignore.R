@@ -176,7 +176,7 @@ projr_unignore_manual_dir_rbuild <- function(unignore) {
     ignore
   } else if (.is_len_1(end)) {
     c(end, "", ignore)
-  else 
+  } else {
     c(end, ignore)
   }
 }
