@@ -89,7 +89,7 @@
   if (!identical(old_profile, "default")) {
     Sys.setenv("PROJR_PROFILE" = old_profile)
   }
-  projr_ignore()
+  projr_ignore_auto()
   invisible(TRUE)
 }
 
