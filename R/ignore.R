@@ -242,7 +242,7 @@ projr_ignore <- function() {
 }
 
 .projr_ignore_dir_git <- function(ignore) {
-  if (!nzchar(ignore)) {
+  if (!all(nzchar(ignore))) {
     return(invisible(FALSE))
   }
   ignore <- paste0(ignore, "/**")
@@ -281,7 +281,7 @@ projr_ignore <- function() {
   # in the text file at the specified path
   # (e.g., .gitignore, .Rbuildignore)
 
-  if (!nzchar(ignore)) {
+  if (!all(nzchar(ignore))) {
     return(invisible(FALSE))
   }
 
@@ -453,7 +453,7 @@ projr_ignore <- function() {
 .projr_ignore_add_git <- function(ignore) {
   # ensure that certain lines are present in the .gitignore file
 
-  if (!nzchar(ignore)) {
+  if (!all(nzchar(ignore))) {
     return(invisible(FALSE))
   }
 
@@ -481,7 +481,7 @@ projr_ignore <- function() {
   
   # Retrieve the current .gitignore content and extract projr-managed sections
   gitignore_vec <- .projr_ignore_git_read()
-  if (length(gitignore_vec) == 0) {
+  if (.is_len_0(gitignore_vec)) {
     return(.projr_ignore_gitignore_get_empty())
   }
 
