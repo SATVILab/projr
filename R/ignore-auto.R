@@ -25,6 +25,7 @@ projr_ignore_auto <- function() {
   # root level files
   .projr_ignore_auto_yml()
   .projr_ignore_auto_build_source()
+  .projr_ignore_auto_build_tex()
   .projr_ignore_auto_ext()
   # directories at root level
   # unspecified by `directories` key
@@ -245,6 +246,48 @@ projr_ignore_auto <- function() {
         "LICENSE", "LICENSE.md", "README.md")
     )
   .projr_ignore_auto_path_add(path_vec, .dir_proj_get(".gitignore"))
+}
+
+# ===========================================================================
+# Ignore tex files based on build files
+# ===========================================================================
+
+.projr_ignore_auto_build_tex <- function() {
+  .projr_ignore_auto_build_tex_bookdown()
+  .projr_ignore_auto_build_tex_quarto()
+  .projr_ignore_auto_build_tex_rqmd()
+}
+
+.projr_ignore_auto_build_tex_bookdown <- function() {
+  if (!.projr_engine_get() == "bookdown") {
+    return(invisible(FALSE))
+  }
+  yml_bd <- .projr_yml_bd_get()
+  # Get the book_filename
+  book_filename <- yml_bd$book_filename
+
+  # Default to "_main" if book_filename is not specified
+  if (is.null(book_filename)) {
+    book_filename <- "_main"
+  }
+
+  paste0(book_filename, ".tex") |> .projr_ignore_auto_file()
+}
+
+.projr_ignore_auto_build_tex_quarto <- function() {
+  if (!.projr_engine_get() == "quarto_project") {
+    return(invisible(FALSE))
+  }
+  .projr_ignore_auto_file("index.tex")
+  
+}
+
+.projr_ignore_auto_build_tex_rqmd <- function() {
+  list.files(
+    path = .dir_proj_get(), pattern = "\\.qmd$|\\.Rmd|\\.rmd"
+  ) |>
+    gsub("\\.qmd$|\\.Rmd$|\\.rmd$", ".tex", x = _) |>
+    .projr_ignore_auto_file()
 }
 
 # ========================================================================
