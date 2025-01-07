@@ -89,7 +89,7 @@ projr_ignore_manual_file <- function(ignore) {
 #' @rdname projr_ignore_manual
 #' @export
 projr_ignore_manual_file_git <- function(ignore) {
-  .projr_ignore_manual_path_add(ignore, projr_path_get(".gitignore"))
+  .projr_ignore_manual_path_add(ignore, .dir_proj_get(".gitignore"))
 }
 
 #' @rdname projr_ignore_manual
@@ -99,7 +99,7 @@ projr_ignore_manual_dir_git <- function(ignore) {
     return(invisible(FALSE))
   }
   ignore <- if (grepl("/\\*\\*$", ignore)) ignore else paste0(ignore, "/**")
-  .projr_ignore_manual_path_add(ignore, projr_path_get(".gitignore"))
+  .projr_ignore_manual_path_add(ignore, .dir_proj_get(".gitignore"))
 }
 
 #' @rdname projr_ignore_manual
@@ -108,7 +108,7 @@ projr_ignore_manual_file_rbuild <- function(ignore) {
   ignore <- gsub("/+$", "", ignore) |>
     trimws() |>
     utils::glob2rx()
-  .projr_ignore_manual_path_add(ignore, projr_path_get(".Rbuildignore"))
+  .projr_ignore_manual_path_add(ignore, .dir_proj_get(".Rbuildignore"))
 }
 
 #' @rdname projr_ignore_manual
@@ -120,7 +120,7 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
   patterns <- gsub("\\$$", "", patterns)
   patterns <- paste0(patterns, "/")
   patterns <- c(patterns, utils::glob2rx(ignore))
-  .projr_ignore_manual_path_add(ignore, projr_path_get(".Rbuildignore"))
+  .projr_ignore_manual_path_add(ignore, .dir_proj_get(".Rbuildignore"))
 }
 
 # ===========================================================================
