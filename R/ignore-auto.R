@@ -191,7 +191,8 @@ projr_ignore_auto <- function() {
     "\\.yml",
     "\\.toml",
     "\\.json",
-    "\\.txt"
+    "\\.txt",
+    "\\.rmarkdown"
   ) |>
     paste0(collapse = "|")
   path_vec <- list.files(
@@ -232,7 +233,8 @@ projr_ignore_auto <- function() {
     "\\.Rhistory",
     "\\.DS_Store",
     "__pycache__/",
-    "\\.pyc"
+    "\\.pyc",
+    "\\.rmarkdown"
   ) |>
     paste0(collapse = "|")
 
