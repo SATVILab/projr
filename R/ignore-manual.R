@@ -145,7 +145,7 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
   
   c(
     .projr_ignore_manual_path_add_get_updated_start(ignore, ignore_list$start),
-    ignore_list$content,
+    ignore_list$content |> setdiff("") |> unique(),
     ignore_list$end
   ) 
 }
@@ -166,7 +166,7 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
 }
 
 .projr_ignore_manual_path_add_get_updated_start_len_1_start <- function(start) {
-  if (grepl(match_str_bottom, start)) {
+  if (grepl(match_str_top, start)) {
       c("", start)
   } else if (start == "") {
       start
@@ -182,7 +182,7 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
 }
 
 .projr_ignore_manual_path_add_get_updated_start_len_g1_start <- function(start) {
-  if (grepl(match_str_bottom, start[length(start)])) {
+  if (grepl(match_str_top, start[length(start)])) {
     start_pre <- start[-length(start)]
     if (start_pre[length(start_pre)] != "") {
       start_pre <- c(start_pre, "")
