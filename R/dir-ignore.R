@@ -366,9 +366,6 @@
     return(list(start = character(0), end = character(0)))
   }
   
-  match_str_top <- "^# Start of projr section: do not edit by hand \\(update with projr_ignore\\(\\))"
-  match_str_bottom <- "^# End of projr section"
-  
   .projr_ignore_diryml_rbuildignore_get_check(
     match_str_top, match_str_bottom, rbuildignore_vec
   )

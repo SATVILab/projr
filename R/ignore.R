@@ -344,8 +344,7 @@ projr_ignore <- function() {
 
 # get the indices of the projr-managed section from the specified file
 .projr_ignore_path_get_ind <- function(file_vec, path) {
-  match_str_top <- "^# Start of projr section: do not edit by hand \\(update with projr_ignore\\(\\))|^# Start of projr section: do not edit by hand \\(update with projr_dir_ignore\\(\\))"
-  match_str_bottom <- "^# End of projr section"
+
   
   .projr_ignore_path_get_check(
     match_str_top, match_str_bottom, file_vec, path
@@ -521,8 +520,6 @@ projr_ignore <- function() {
 }
 
 .projr_ignore_gitignore_get_ind <- function(gitignore_vec) {
-  match_str_top <- "^# Start of projr section: do not edit by hand \\(update with projr_ignore\\(\\))|^# Start of projr section: do not edit by hand \\(update with projr_dir_ignore\\(\\))"
-  match_str_bottom <- "^# End of projr section"
   
   .projr_ignore_gitignore_get_check(
     match_str_top, match_str_bottom, gitignore_vec
@@ -660,3 +657,6 @@ projr_ignore <- function() {
   )
   .projr_build_copy_docs_quarto_path_get(format, fn_output_prefix)
 }
+
+match_str_top <- "^# Start of projr section: do not edit by hand \\(update with projr_ignore\\(\\))|^# Start of projr section: do not edit by hand \\(update with projr_dir_ignore\\(\\))"
+match_str_bottom <- "^# End of projr section"
