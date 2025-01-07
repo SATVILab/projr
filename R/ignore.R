@@ -40,14 +40,13 @@ projr_ignore <- function() {
 
 # ignore _extensions directory if 
 # projr engine is quarto and _extensions exists
-.projr_ignore_extensions <- function() {
-  if (grepl("^quarto", .projr_engine_get()) && 
-        dir.exists("_extensions")) {
-    .projr_ignore_dir_rbuild("_extensions")
-    invisible(TRUE)
-  } else {
-    invisible(FALSE)
-  }  
+.projr_ignore_dir_quarto <- function() {
+  dir_vec <- c("_extensions", "index_files", ".quarto")
+  dir_vec <- dir_vec[dir.exists(dir_vec)]
+  if (.is_len_0(dir_vec)) {
+    return(invisible(FALSE))
+  }
+  projr_ignore_dir_rbuild(dir_vec)
 }
 
 .projr_ignore_devcontainer <- function() {
