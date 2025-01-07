@@ -180,7 +180,8 @@ projr_ignore <- function() {
   path_vec <- list.files(
     path = .dir_proj_get(),
     pattern = pattern
-  )
+  ) |>
+    setdiff("README.md")
   .projr_ignore_file_rbuild(path_vec)
 }
 
@@ -203,7 +204,7 @@ projr_ignore <- function() {
     "\\.csv",
     "\\.tsv",
     "\\.json",
-    # Note: intentionally omitting "\\.md"
+    "\\.md",
     "\\.knit\\.md",
     "\\.utf8\\.md",
     "\\.tmp",
@@ -223,7 +224,10 @@ projr_ignore <- function() {
     path = .dir_proj_get(),
     pattern = pattern
   ) |>
-    setdiff("manifest.csv")
+    setdiff(
+      c("manifest.csv", "CHANGELOG.md", "NEWS.md", "CONTRIBUTING.md",
+        "LICENSE", "LICENSE.md", "README.md")
+    )
   .projr_ignore_path_add(path_vec, .dir_proj_get(".gitignore"))
 }
 
