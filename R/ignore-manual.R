@@ -141,11 +141,22 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
 .projr_ignore_manual_path_add_get_updated <- function(path,
                                                       ignore) {
   ignore_list <- .projr_ignore_path_get_list(path, ignore)
+  
   c(
-    c(ignore_list[["start"]], ignore) |> unique(),
+    .projr_ignore_manual_path_add_get_updated_start(ignore, ignore_list$start),
     ignore_list$content,
     ignore_list$end
   )
+}
+
+.projr_ignore_manual_path_add_get_updated_start <- function(ignore, start) {
+  if (.is_len_0(start)) {
+    ignore
+  } else if (.is_len_1(start)) {
+    c(ignore, "", start)
+  else 
+    c(start[-length(start)], ignore, "", start[length(start)])
+  }
 }
 
 .projr_unignore_manual_path_add_get_updated <- function(path,
