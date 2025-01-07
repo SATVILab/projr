@@ -154,7 +154,7 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
   if (.is_len_0(start)) {
     ignore
   } else {
-    start <- if (start == "") start else c("", start)
+    start <- if (start[length(start)] == "") start else c(start, "")
     c(ignore[!ignore %in% start], start)
   }
 }

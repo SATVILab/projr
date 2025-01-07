@@ -169,15 +169,12 @@ projr_unignore_manual_dir_rbuild <- function(unignore) {
   )
 }
 
-
-
-
 .projr_unignore_manual_path_add_get_updated_end <- function(ignore, end) {
   if (.is_len_0(end)) {
     ignore
   } else if (.is_len_1(end)) {
     end <- if (end == "") end else c(end, "")
-    
+    c(end, ignore[!ignore %in% end])
   } else {
     c(end, ignore[!ignore %in% end])
   }
