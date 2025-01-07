@@ -111,9 +111,10 @@
   if (!all(nzchar(ignore))) {
     return(invisible(FALSE))
   }
+  path_gitignore <- .dir_proj_get(".gitignore")
 
-  file_vec <- .projr_ignore_path_add_get_updated(path, ignore, TRUE)
-  .projr_ignore_path_write(file_vec, path)
+  file_vec <- .projr_ignore_path_add_get_updated(path_gitignore, ignore, TRUE)
+  .projr_ignore_path_write(file_vec, path_gitignore)
   invisible(TRUE)
 }
 
