@@ -414,7 +414,7 @@ projr_osf_create_project <- function(title,
   .assert_string(id, TRUE)
   .assert_in(label, .projr_opt_dir_get_label_send(NULL), TRUE)
   fn <- .projr_remote_get_path_rel(
-    type = "github",
+    type = "github",``
     path = path,
     path_append_label = path_append_label,
     label = label,
@@ -1498,5 +1498,6 @@ projr_osf_create_project <- function(title,
   } else {
     tag <- x[["tag"]]
   }
-  gsub("\\s", "-", tag)
+  tag <- gsub("\\s", "-", tag)
+  if (tag == "@version") projr_version_get_v() else tag
 }
