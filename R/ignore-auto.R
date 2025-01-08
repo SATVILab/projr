@@ -315,7 +315,7 @@ projr_ignore_auto <- function() {
   if (.is_len_0(path_vec)) {
     return(invisible(FALSE))
   }
-  path_vec <- path_vec[path.exists(path_vec)]
+  path_vec <- path_vec[file.exists(path_vec)]
   if (.is_len_0(path_vec)) {
     return(invisible(FALSE))
   }
