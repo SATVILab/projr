@@ -57,6 +57,7 @@
 # .gitignore Management (As previously defined)
 .projr_ignore_diryml_git_get_instructions <- function(git_skip_adjust = NULL) {
   # get which paths to ignore, skip, and/or unskip
+  label_vec <- .projr_ignore_diryml_git_get_instructions_labels()
   
   path_ignore <- path_skip <- path_unskip <- character(0)
   
