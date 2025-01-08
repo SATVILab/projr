@@ -414,7 +414,10 @@ projr_ignore_auto <- function() {
   # Handle directory-specific patterns
   patterns <- gsub("\\$$", "", patterns)
   patterns <- paste0(patterns, "/")
-  patterns <- c(patterns, utils::glob2rx(ignore))
+  patterns <- lapply(seq_along(patterns), function(i) {
+    c(patterns[i], utils::glob2rx(ignore[i]))
+  }) |>
+    unlist()
 
   # Add the patterns to the .Rbuildignore file
   .projr_ignore_auto_path_add(patterns, .dir_proj_get(".Rbuildignore"))
