@@ -52,7 +52,8 @@
 #'
 #' @export
 projr_unignore_manual <- function(unignore) {
-  if (!all(nzchar(unignore))) {
+  unignore <- setdiff(unignore, "")
+  if (!.is_chr(unignore)) {
     return(invisible(FALSE))
   }
   unignore_file <- unignore[fs::is_file(unignore)]
@@ -73,7 +74,8 @@ projr_unignore_manual <- function(unignore) {
 #' @rdname projr_unignore_manual
 #' @export
 projr_unignore_manual_dir <- function(unignore) {
-  if (!all(nzchar(unignore))) {
+  unignore <- setdiff(unignore, "")
+  if (!.is_chr(unignore)) {
     return(invisible(FALSE))
   }
   projr_unignore_manual_dir_git(unignore)
@@ -83,7 +85,8 @@ projr_unignore_manual_dir <- function(unignore) {
 #' @rdname projr_unignore_manual
 #' @export
 projr_unignore_manual_file <- function(unignore) {
-  if (!all(nzchar(unignore))) {
+  unignore <- setdiff(unignore, "")
+  if (!.is_chr(unignore)) {
     return(invisible(FALSE))
   }
   projr_unignore_manual_file_git(unignore)
@@ -93,7 +96,8 @@ projr_unignore_manual_file <- function(unignore) {
 #' @rdname projr_unignore_manual
 #' @export
 projr_unignore_manual_file_git <- function(unignore) {
-  if (!all(nzchar(unignore))) {
+  unignore <- setdiff(unignore, "")
+  if (!.is_chr(unignore)) {
     return(invisible(FALSE))
   }
   # Remove any existing "!" to avoid duplication, then prepend it
@@ -105,7 +109,8 @@ projr_unignore_manual_file_git <- function(unignore) {
 #' @rdname projr_unignore_manual
 #' @export
 projr_unignore_manual_dir_git <- function(unignore) {
-  if (!all(nzchar(unignore))) {
+  unignore <- setdiff(unignore, "")
+  if (!.is_chr(unignore)) {
     return(invisible(FALSE))
   }
   # Ensure trailing "/**" if not already present
@@ -119,7 +124,8 @@ projr_unignore_manual_dir_git <- function(unignore) {
 #' @rdname projr_unignore_manual
 #' @export
 projr_unignore_manual_file_rbuild <- function(unignore) {
-  if (!all(nzchar(unignore))) {
+  unignore <- setdiff(unignore, "")
+  if (!.is_chr(unignore)) {
     return(invisible(FALSE))
   }
   # Trim trailing slashes, convert to regex, then prepend "!"
@@ -134,7 +140,8 @@ projr_unignore_manual_file_rbuild <- function(unignore) {
 #' @rdname projr_unignore_manual
 #' @export
 projr_unignore_manual_dir_rbuild <- function(unignore) {
-  if (!all(nzchar(unignore))) {
+  unignore <- setdiff(unignore, "")
+  if (!.is_chr(unignore)) {
     return(invisible(FALSE))
   }
   unignore <- gsub("/+$", "", unignore)
@@ -156,7 +163,8 @@ projr_unignore_manual_dir_rbuild <- function(unignore) {
 # ===========================================================================
 
 .projr_unignore_manual_path_add <- function(unignore, path) {
-  if (!all(nzchar(unignore))) {
+  unignore <- setdiff(unignore, "")
+  if (!.is_chr(unignore)) {
     return(invisible(FALSE))
   }
   .assert_string(path, TRUE)

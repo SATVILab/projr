@@ -372,11 +372,16 @@ projr_ignore_auto <- function() {
 # ===========================================================================
 
 .projr_ignore_auto_file_git <- function(ignore) {
+  ignore <- setdiff(ignore, "")
+  if (!.is_chr(ignore)) {
+    return(invisible(FALSE))
+  }
   .projr_ignore_auto_path_add(ignore, .dir_proj_get(".gitignore"))
 }
 
 .projr_ignore_auto_dir_git <- function(ignore) {
-  if (!all(nzchar(ignore))) {
+  ignore <- setdiff(ignore, "")
+  if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
   ignore <- if (grepl("/\\*\\*$", ignore)) ignore else paste0(ignore, "/**")
@@ -384,7 +389,8 @@ projr_ignore_auto <- function() {
 }
 
 .projr_ignore_auto_file_rbuild <- function(ignore) {
-  if (!all(nzchar(ignore))) {
+  ignore <- setdiff(ignore, "")
+  if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
   ignore <- gsub("/+$", "", ignore) |>
@@ -394,7 +400,8 @@ projr_ignore_auto <- function() {
 }
 
 .projr_ignore_auto_dir_rbuild <- function(ignore) {
-  if (!all(nzchar(ignore))) {
+  ignore <- setdiff(ignore, "")
+  if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
   # Remove trailing slashes and trim whitespace

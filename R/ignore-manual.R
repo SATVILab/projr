@@ -50,7 +50,8 @@
 #'
 #' @export
 projr_ignore_manual <- function(ignore) {
-  if (!all(nzchar(ignore))) {
+  ignore <- setdiff(ignore, "")
+  if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
   ignore_file <- ignore[fs::is_file(ignore)]
@@ -69,7 +70,8 @@ projr_ignore_manual <- function(ignore) {
 #' @rdname projr_ignore_manual
 #' @export
 projr_ignore_manual_dir <- function(ignore) {
-  if (!all(nzchar(ignore))) {
+  ignore <- setdiff(ignore, "")
+  if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
   projr_ignore_manual_dir_git(ignore)
@@ -79,7 +81,8 @@ projr_ignore_manual_dir <- function(ignore) {
 #' @rdname projr_ignore_manual
 #' @export
 projr_ignore_manual_file <- function(ignore) {
-  if (!all(nzchar(ignore))) {
+  ignore <- setdiff(ignore, "")
+  if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
   projr_ignore_manual_file_git(ignore)
@@ -89,7 +92,8 @@ projr_ignore_manual_file <- function(ignore) {
 #' @rdname projr_ignore_manual
 #' @export
 projr_ignore_manual_file_git <- function(ignore) {
-  if (!all(nzchar(ignore))) {
+  ignore <- setdiff(ignore, "")
+  if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
   ignore <- unique(ignore)
@@ -99,7 +103,8 @@ projr_ignore_manual_file_git <- function(ignore) {
 #' @rdname projr_ignore_manual
 #' @export
 projr_ignore_manual_dir_git <- function(ignore) {
-  if (!all(nzchar(ignore))) {
+  ignore <- setdiff(ignore, "")
+  if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
   ignore <- unique(ignore)
@@ -110,7 +115,8 @@ projr_ignore_manual_dir_git <- function(ignore) {
 #' @rdname projr_ignore_manual
 #' @export
 projr_ignore_manual_file_rbuild <- function(ignore) {
-  if (!all(nzchar(ignore))) {
+  ignore <- setdiff(ignore, "")
+  if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
   ignore <- unique(ignore)
@@ -123,7 +129,8 @@ projr_ignore_manual_file_rbuild <- function(ignore) {
 #' @rdname projr_ignore_manual
 #' @export
 projr_ignore_manual_dir_rbuild <- function(ignore) {
-  if (!all(nzchar(ignore))) {
+  ignore <- setdiff(ignore, "")
+  if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
   ignore <- unique(ignore)
@@ -144,7 +151,8 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
 # ===========================================================================
 
 .projr_ignore_manual_path_add <- function(ignore, path) {
-  if (!all(nzchar(ignore))) {
+  ignore <- setdiff(ignore, "")
+  if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
   .assert_string(path, TRUE)
