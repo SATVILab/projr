@@ -93,6 +93,9 @@ projr_unignore_manual_file <- function(unignore) {
 #' @rdname projr_unignore_manual
 #' @export
 projr_unignore_manual_file_git <- function(unignore) {
+  if (!all(nzchar(unignore))) {
+    return(invisible(FALSE))
+  }
   # Remove any existing "!" to avoid duplication, then prepend it
   unignore <- gsub("^!+", "", unignore)
   unignore <- paste0("!", unignore)
@@ -116,6 +119,9 @@ projr_unignore_manual_dir_git <- function(unignore) {
 #' @rdname projr_unignore_manual
 #' @export
 projr_unignore_manual_file_rbuild <- function(unignore) {
+  if (!all(nzchar(unignore))) {
+    return(invisible(FALSE))
+  }
   # Trim trailing slashes, convert to regex, then prepend "!"
   unignore <- gsub("/+$", "", unignore) |>
     trimws() |>
@@ -128,6 +134,9 @@ projr_unignore_manual_file_rbuild <- function(unignore) {
 #' @rdname projr_unignore_manual
 #' @export
 projr_unignore_manual_dir_rbuild <- function(unignore) {
+  if (!all(nzchar(unignore))) {
+    return(invisible(FALSE))
+  }
   unignore <- gsub("/+$", "", unignore)
   unignore <- trimws(unignore)
   patterns <- utils::glob2rx(unignore)

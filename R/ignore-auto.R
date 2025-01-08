@@ -384,6 +384,9 @@ projr_ignore_auto <- function() {
 }
 
 .projr_ignore_auto_file_rbuild <- function(ignore) {
+  if (!all(nzchar(ignore))) {
+    return(invisible(FALSE))
+  }
   ignore <- gsub("/+$", "", ignore) |>
     trimws() |>
     utils::glob2rx()
@@ -391,6 +394,9 @@ projr_ignore_auto <- function() {
 }
 
 .projr_ignore_auto_dir_rbuild <- function(ignore) {
+  if (!all(nzchar(ignore))) {
+    return(invisible(FALSE))
+  }
   # Remove trailing slashes and trim whitespace
   ignore <- gsub("/+$", "", ignore)
   ignore <- trimws(ignore)

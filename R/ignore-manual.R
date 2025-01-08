@@ -123,6 +123,9 @@ projr_ignore_manual_file_rbuild <- function(ignore) {
 #' @rdname projr_ignore_manual
 #' @export
 projr_ignore_manual_dir_rbuild <- function(ignore) {
+  if (!all(nzchar(ignore))) {
+    return(invisible(FALSE))
+  }
   ignore <- unique(ignore)
   ignore <- gsub("/+$", "", ignore)
   ignore <- trimws(ignore)
