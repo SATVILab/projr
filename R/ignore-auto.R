@@ -120,7 +120,7 @@ projr_ignore_auto <- function() {
 
 .projr_ignore_auto_env <- function() {
   path_vec <- list.files(
-    path = ".dir_proj_get()",
+    path = .dir_proj_get(),
     pattern = "^_environment$|^_environment-[a-zA-Z0-9]+$|^_environment\\.required$|^_environment\\.local$" #nolint
   )
   .projr_ignore_auto_dir_rbuild(path_vec)
