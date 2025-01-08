@@ -263,6 +263,26 @@
 }
 
 .projr_yml_dir_get_path <- function(label, profile) {
+  path_raw <- .projr_yml_dir_get_path_raw(label, profile)
+  if (!is.null(path_raw) || grepl("^docs$", label)) {
+    # handled elsewhere for null docs
+    return(path_raw)
+  }
+  # return
+  .projr_yml_dir_get_path_default(label)
+}
+
+.projr_yml_dir_get_path_default <- function(label) {
+  label_strip <- .projr_dir_label_strip(label)
+  label_vec_opt <- c("output", "raw", "rawdata", "cache")
+  if (!label_strip %in% label_vec_opt) {
+    return(NULL)
+  }
+  path_vec <- c("_output", "_raw_data", "_raw_data", "_tmp")
+  path_vec[label_vec_opt == label_strip]
+}
+
+.projr_yml_dir_get_path_raw <- function(label, profile) {
   .projr_yml_dir_get_label(label, profile)[["path"]]
 }
 

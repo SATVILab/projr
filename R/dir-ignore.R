@@ -57,18 +57,39 @@
 # .gitignore Management (As previously defined)
 .projr_ignore_diryml_git_get_instructions <- function(git_skip_adjust = NULL) {
   # get which paths to ignore, skip, and/or unskip
-  yml_dir <- .projr_yml_dir_get(NULL)
+  
   path_ignore <- path_skip <- path_unskip <- character(0)
   
-  for (i in seq_along(yml_dir)) {
+  for (i in seq_along(label_vec)) {
     instr_list_label <- .projr_ignore_diryml_git_get_instructions_label(
-      names(yml_dir)[[i]], git_skip_adjust
+      label_vec[[i]], git_skip_adjust
     )
     path_ignore <- c(path_ignore, instr_list_label$ignore)
     path_skip <- c(path_skip, instr_list_label$skip)
     path_unskip <- c(path_unskip, instr_list_label$unskip)
   }
   list(ignore = path_ignore, skip = path_skip, unskip = path_unskip)
+}
+
+.projr_ignore_diryml_git_get_instructions_labels <- function() {
+  # Get directory labels and their paths,
+  # ensuring directory types not specified are also included.
+  yml_dir <- .projr_yml_dir_get(NULL) # Fetch directory labels and paths
+  label_vec <- names(yml_dir) # Extract the labels
+  label_vec_strip <- .projr_dir_label_strip(label_vec) # Strip unnecessary parts of the labels
+  
+  # Define patterns to match standard directory labels
+  label_vec_match <- c("^docs", "^raw", "^cache", "^output")
+  label_vec_rep <- c("docs", "raw-data", "cache", "output") # Standardized labels
+  
+  # Identify missing standard labels
+  label_vec_missing_ind <- vapply(seq_along(label_vec_match), function(i) {
+    !any(grepl(label_vec_match[[i]], label_vec_strip))
+  }, logical(1))
+  label_vec_missing <- label_vec_rep[label_vec_missing_ind] # Extract missing labels
+  
+  # Combine existing and missing labels
+  c(label_vec, label_vec_missing)
 }
 
 .projr_ignore_diryml_git_get_instructions_label <- function(label,
