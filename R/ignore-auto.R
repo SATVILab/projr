@@ -287,6 +287,10 @@ projr_ignore_auto <- function() {
   if (is.null(book_filename)) {
     book_filename <- "_main"
   }
+  path_tex <- paste0(book_filename, ".tex")
+  if (!file.exists(path_tex)) {
+    return(invisible(FALSE))
+  }
 
   paste0(book_filename, ".tex") |> .projr_ignore_auto_file_git()
   paste0(book_filename, ".tex") |> .projr_ignore_auto_file_rbuild()
@@ -294,6 +298,9 @@ projr_ignore_auto <- function() {
 
 .projr_ignore_auto_build_tex_quarto <- function() {
   if (!.projr_engine_get() == "quarto_project") {
+    return(invisible(FALSE))
+  }
+  if (!file.exists("index.tex")) {
     return(invisible(FALSE))
   }
   .projr_ignore_auto_file_git("index.tex")
@@ -305,6 +312,13 @@ projr_ignore_auto <- function() {
     path = .dir_proj_get(), pattern = "\\.qmd$|\\.Rmd|\\.rmd"
   ) |>
     gsub("\\.qmd$|\\.Rmd$|\\.rmd$", ".tex", x = _)
+  if (.is_len_0(path_vec)) {
+    return(invisible(FALSE))
+  }
+  path_vec <- path_vec[path.exists(path_vec)]
+  if (.is_len_0(path_vec)) {
+    return(invisible(FALSE))
+  }
   .projr_ignore_auto_file_git(path_vec)
   .projr_ignore_auto_file_rbuild(path_vec)
 }
