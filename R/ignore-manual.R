@@ -96,7 +96,6 @@ projr_ignore_manual_file_git <- function(ignore) {
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
-  ignore <- unique(ignore)
   .projr_ignore_manual_path_add(ignore, .dir_proj_get(".gitignore"))
 }
 
@@ -107,7 +106,6 @@ projr_ignore_manual_dir_git <- function(ignore) {
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
-  ignore <- unique(ignore)
   ignore <- if (grepl("/\\*\\*$", ignore)) ignore else paste0(ignore, "/**")
   .projr_ignore_manual_path_add(ignore, .dir_proj_get(".gitignore"))
 }
@@ -119,7 +117,6 @@ projr_ignore_manual_file_rbuild <- function(ignore) {
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
-  ignore <- unique(ignore)
   ignore <- gsub("/+$", "", ignore) |>
     trimws() |>
     utils::glob2rx()
@@ -133,7 +130,6 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
-  ignore <- unique(ignore)
   ignore <- gsub("/+$", "", ignore)
   ignore <- trimws(ignore)
   patterns <- utils::glob2rx(ignore)
@@ -156,7 +152,6 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
     return(invisible(FALSE))
   }
   .assert_string(path, TRUE)
-  ignore <- unique(ignore)
 
   file_vec <- .projr_ignore_manual_path_add_get_updated(path, ignore)
   .projr_ignore_path_write(file_vec, path)
