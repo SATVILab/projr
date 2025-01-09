@@ -260,7 +260,8 @@ projr_ignore_auto <- function() {
   ) |>
     setdiff(
       c("manifest.csv", "CHANGELOG.md", "NEWS.md", "CONTRIBUTING.md",
-        "LICENSE", "LICENSE.md", "README.md")
+        "LICENSE", "LICENSE.md", "README.md", "codemeta.json",
+        "CITATION.cff")
     )
   .projr_ignore_auto_path_add(path_vec, .dir_proj_get(".gitignore"))
 }

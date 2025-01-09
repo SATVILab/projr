@@ -865,25 +865,9 @@ projr_init_renviron <- function() {
 }
 
 .projr_init_git_file_get <- function() {
-  fn_vec <- c(
-    "DESCRIPTION",
-    ".Rbuildignore",
-    ".gitignore",
-    "_dependencies.R",
-    list.files("renv", recursive = TRUE, full.names = TRUE),
-    "renv.lock",
-    ".Rprofile",
-    "_projr.yml",
-    "_quarto.yml",
-    "_bookdown.yml",
-    "README.md",
-    "README.Rmd"
-  )
-  fn_vec <- .file_filter_exists(
-    vapply(fn_vec, .dir_proj_get, character(1L))
-  ) |>
-    stats::setNames(NULL) |>
-    fs::path_rel(start = .dir_proj_get())
+  fn_vec_root <- list.files(.dir_proj_get())
+  fn_vec_citation <- list.files("inst", pattern = "^CITATION$", full.names = TRUE)
+  fn_vec_renv <- list.files("renv", recursive = TRUE, full.names = TRUE)
   fn_vec[
     fn_vec %in% c(.projr_git_modified_get(), .projr_git_new_get())
   ]
