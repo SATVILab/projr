@@ -868,6 +868,7 @@ projr_init_renviron <- function() {
   fn_vec_root <- list.files(.dir_proj_get())
   fn_vec_citation <- list.files("inst", pattern = "^CITATION$", full.names = TRUE)
   fn_vec_renv <- list.files("renv", recursive = TRUE, full.names = TRUE)
+  fn_vec <- c(fn_vec_root, fn_vec_citation, fn_vec_renv)
   fn_vec[
     fn_vec %in% c(.projr_git_modified_get(), .projr_git_new_get())
   ]
