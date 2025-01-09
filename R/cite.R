@@ -6,13 +6,14 @@
 }
 
 .projr_cite_citation_inst_write <- function() {
-  cffr::cff_write_citation(cffr::cff_create())
+  cffr::cff_write_citation(
+    cffr::cff_create(),
+    file = .dir_proj_get("inst", "CITATION")
+  )
 }
 
 .projr_cite_citation_inst_add_header <- function() {
-  path_citation_inst <- .dir_proj_get(
-    "inst", "CITATION"
-  ) # nolint: object_usage_linter.
+  path_citation_inst <- .dir_proj_get("inst", "CITATION") # nolint: object_usage_linter.
   header_txt <- paste0(
     'citHeader("To cite `',
     .projr_pkg_nm_get(), # nolint: object_usage_linter.
