@@ -47,6 +47,12 @@
 
   ind_top <- which(grepl(match_str_top, file_vec))
   ind_bot <- which(grepl(match_str_bottom, file_vec))
+  if (.is_len_0(ind_top)) {
+    ind_top <- NA_integer_
+  }
+  if (.is_len_0(ind_bot)) {
+    ind_bot <- NA_integer_
+  }
   c("top" = ind_top, "bot" = ind_bot)
 }
 
@@ -94,7 +100,7 @@
 
 # get lines before and after the projr-managed section
 .projr_ignore_path_get_startend <- function(ind_top, ind_bot, file_vec) {
-  if (length(ind_top) == 0L) {
+  if (is.na(ind_top)) {
     start <- c(
       file_vec,
       "# Start of projr section: do not edit by hand (update with projr_ignore_auto())"
@@ -109,7 +115,7 @@
 
 # get lines in the projr-managed section
 .projr_ignore_path_get_content <- function(ind_top, ind_bot, file_vec) {
-  if (length(ind_top) == 0L) {
+  if (is.na(ind_top)) {
     character(0)
   } else if (ind_top == ind_bot) {
     character(0)
