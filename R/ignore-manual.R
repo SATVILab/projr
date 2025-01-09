@@ -106,7 +106,13 @@ projr_ignore_manual_dir_git <- function(ignore) {
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
-  ignore <- if (grepl("/\\*\\*$", ignore)) ignore else paste0(ignore, "/**")
+  ignore <- vapply(ignore, function(x) {
+    if (grepl("/\\*\\*$", x)) {
+      x
+    } else {
+      paste0(x, "/**")
+    }
+  })
   .projr_ignore_manual_path_add(ignore, .dir_proj_get(".gitignore"))
 }
 
