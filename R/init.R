@@ -54,14 +54,15 @@ projr_init <- function(yml_path_from = NULL,
   # finalise README
   .projr_readme_render()
 
+  # add citation files
+  .projr_init_cite(nm_list[["answer_readme"]])
+
   # initialise Git repo
   .projr_init_git_init(nm_list[["answer_git"]])
 
   # create GitHub remote
   .projr_init_github(username = nm_list[["gh"]], public = public)
 
-  # add citation files
-  .projr_init_cite(nm_list[["answer_readme"]])
 
   # create github remote
   invisible(TRUE)
