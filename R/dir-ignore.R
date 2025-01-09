@@ -130,7 +130,8 @@
 
 .projr_ignore_diryml_git_update_gitignore <- function(ignore) {
 
-  if (!all(nzchar(ignore))) {
+  ignore <- setdiff(ignore, "")
+  if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
   path_gitignore <- .dir_proj_get(".gitignore")

@@ -432,7 +432,8 @@ projr_ignore_auto <- function() {
   # in the text file at the specified path
   # (e.g., .gitignore, .Rbuildignore)
 
-  if (!all(nzchar(ignore))) {
+  ignore <- setdiff(ignore, "")
+  if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
 
