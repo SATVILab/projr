@@ -140,6 +140,57 @@
   msg
 }
 
+# just checked
+.projr_git_changed_filter <- function(path) {
+  # check if specific file(s)
+  # are untracked (and not ignore) or modified
+  if (!.projr_git_repo_check_exists()) {
+    return(character(0L))
+  }
+  if (.is_len_0(path)) {
+    return(character(0L))
+  }
+  path <- path[file.exists(path)]
+  if (.is_len_0(path)) {
+    return(character(0L))
+  }
+  path <- path[fs::path_has_parent(path, .dir_proj_get())]
+  if (.is_len_0(path)) {
+    return(character(0L))
+  }
+  path <- fs::path_rel(path, .dir_proj_get())
+  if (!.is_chr(path)) {
+    stop("path must be a character vector")
+  }
+  switch(.projr_git_system_get(),
+    "git" = .projr_git_changed_filter_git(path),
+    "gert" = .projr_git_changed_filter_gert(path),
+    stop(paste0(.projr_git_system_get(), " not recognised"))
+  )
+}
+
+.projr_git_changed_filter_git <- function(path) {
+  path[vapply(path, .projr_git_changed_filter_git_ind, logical(1L))]
+}
+.projr_git_changed_filter_git_ind <- function(path) {
+  # Run git status with porcelain output
+  status <- system2("git", args = c("status", "--porcelain", path), stdout = TRUE)
+  length(status) > 0
+}
+
+.projr_git_changed_filter_gert <- function(path) {
+  path_known <- path_rel[path_rel %in% git_ls()[["path"]]]
+  git_status_tbl <- git_status(pathspec = path_known)
+  # check if known files have been modified
+  path_known_changed <- path_known[
+    path_known %in% git_status_tbl[["file"]] &
+      git_status_tbl[["status"]] %in% c("modified", "new")
+  ]
+  # unknown files are a changed
+  path_unknown <- setdiff(path_rel, path_known)
+  c(path_known_changed, path_unknown)
+}
+
 # initialisation
 .projr_git_init_git <- function() {
   system2("git", args = "init")
