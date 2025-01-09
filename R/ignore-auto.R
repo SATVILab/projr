@@ -391,7 +391,7 @@ projr_ignore_auto <- function() {
     } else {
       paste0(x, "/**")
     }
-  })
+  }, character(1L))
   .projr_ignore_auto_path_add(ignore, .dir_proj_get(".gitignore"))
 }
 

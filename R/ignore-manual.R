@@ -112,7 +112,7 @@ projr_ignore_manual_dir_git <- function(ignore) {
     } else {
       paste0(x, "/**")
     }
-  })
+  }, character(1L))
   .projr_ignore_manual_path_add(ignore, .dir_proj_get(".gitignore"))
 }
 
