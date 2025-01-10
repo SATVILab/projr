@@ -44,7 +44,7 @@
   if (!output_run) {
     return(invisible(FALSE))
   }
-  cite_vec <- .projr_yml_cite_get(NULL)
+  cite_vec <- .projr_build_cite_get_yml()
   for (i in seq_along(cite_vec)) {
     switch(cite_vec[[i]],
       "cff" = .projr_cite_cff_set(),
@@ -54,6 +54,89 @@
   }
   invisible(TRUE)
 }
+
+.projr_build_cite_get_yml <- function() {
+  cite_vec <- .projr_yml_cite_get(NULL)
+  if (is.null(cite_vec) || isTRUE(cite_vec)) {
+    return(c("cff", "codemeta", "inst-citation"))
+  } else if (isFALSE(cite_vec)) {
+    return(character(0))
+  } else {
+    .assert_chr(cite_vec)
+    cite_vec
+  }
+}
+
+.projr_build_cite_cff <- function() {
+  if (!file.exists(.dir_proj_get("CITATION.cff"))) {
+    return(invsiible(FALSE))
+  }
+  .projr_build_cite_cff_update_file()
+}
+
+.projr_build_cite_cff_update_file <- function() {
+  file_vec <- readLines(.dir_proj_get("CITATION.cff"))
+  file_vec <- gsub(
+    "^version::\\s*\"?[^\"]*\"",
+    paste0("version: ", projr_version_get()),
+    file_vec
+  )
+    # Update the preferred-citation version if it exists
+  preferred_citation_index <- grep("^preferred-citation:", file_vec)[[1]]
+  if (length(preferred_citation_index) > 0) {
+    for (i in (preferred_citation_index + 1):length(file_vec)) {
+      if (grepl("^\\s*version\\s*:\\s*\"?[^\"]*\"", file_vec[i])) {
+        file_vec[i] <- gsub(
+          "^\\s*version\\s*:\\s*\"?[^\"]*\"",
+          paste0("  version: ", projr_version_get()),
+          file_vec[i]
+        )
+        break
+      } else if (!grepl("^\\s", file_vec[i])) {
+        break
+      }
+    }
+  }
+  writeLines(file_vec, .dir_proj_get("CITATION.cff"))
+}
+
+.projr_build_cite_inst_citation <- function() {
+  if (!file.exists(.dir_proj_get("inst", "CITATION"))) {
+    return(invisible(FALSE))
+  }
+  .projr_build_cite_inst_citation_update_file()
+}
+
+.projr_build_cite_inst_citation_update_file <- function() {
+  file_vec <- readLines(.dir_proj_get("inst", "CITATION"))
+  file_vec <- gsub(
+    "^\\s*version\\s*=\\s*\"[^\"]*\"(,?)",
+    paste0("version = ", projr_version_get(), "\\1"),
+    file_vec
+  )
+  writeLines(file_vec, .dir_proj_get("inst", "CITATION"))
+  invisible(TRUE)
+}
+
+.projr_build_cite_codemeta <- function() {
+  if (!file.exists(.dir_proj_get("codemeta.json"))) {
+    return(invisible(FALSE))
+  }
+  .projr_build_cite_codemeta_update_file()
+}
+
+.projr_build_cite_codemeta_update_file <- function() {
+  file_vec <- readLines(.dir_proj_get("codemeta.json"))
+  file_vec <- gsub(
+    "^\\s*\"version\"\\s*:\\s*\"[^\"]*\"(,?)",
+    paste0("\"version\": \"", projr_version_get(), "\"\\1"),
+    file_vec
+  )
+  writeLines(file_vec, .dir_proj_get("codemeta.json"))
+  invisible(TRUE)
+}
+
+
 
 # readme
 # --------------------

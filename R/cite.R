@@ -6,6 +6,7 @@
 }
 
 .projr_cite_citation_inst_write <- function() {
+  .projr_dep_install("cffr")
   cffr::cff_write_citation(
     cffr::cff_create(),
     file = .dir_proj_get("inst", "CITATION")
@@ -25,10 +26,12 @@
 }
 
 .projr_cite_codemeta_set <- function() {
-  codemeta::write_codemeta(path = .dir_proj_get())
+  .projr_dep_install("codemeta")
+  try(codemeta::write_codemeta(path = .dir_proj_get()))
 }
 
 .projr_cite_bibtex_get <- function() {
+  .projr_dep_install("cffr")
   bibtex_txt <- utils::toBibtex(
     cffr::as_bibentry(cffr::cff_create())
   ) |>
@@ -48,5 +51,5 @@
 
 .projr_cite_cff_set <- function() {
   .projr_dep_install("cffr")
-  cffr::cff_write()
+  try(cffr::cff_write())
 }
