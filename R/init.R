@@ -67,3 +67,52 @@ projr_init <- function(yml_path_from = NULL,
   # create github remote
   invisible(TRUE)
 }
+
+#' @export 
+#' @rdname projr_
+projr_init_git <- function(commit = TRUE) {
+  .projr_git_system_setup()
+  .projr_init_git_git(commit)
+  .projr_init_git_github()
+}
+
+.projr_init_git_git <- function(commit,
+                                username,
+                                public) {
+  # initialise Git repo
+  .projr_init_git_init(answer_git = 1L, commit = commit)
+  # push to GitHub
+  .projr_init_git_github(username, public)
+
+}
+
+.projr_init_git_github <- function(username,
+                                   public) {
+  if (!.projr_git_remote_check_exists()) {
+    .projr_dep_install_only("usethis")
+    if (!.projr_git_gh_check_auth()) {
+      stop(call. = FALSE)
+    }
+    .projr_init_github_actual(username, public)
+  }
+}
+
+#' @export 
+#' @rdname projr_init
+projr_init_license <- function(license, first_name, last_name) {
+  if (tolower(license) == "proprietary") {
+    .assert_string(first_name, TRUE)
+    .assert_string(last_name, TRUE)
+  }
+  .projr_dep_install_only("usethis")
+  .projr_init_license_create_actual(license, first_name, last_name)
+}
+
+projr_init_ignore <- function() {
+  projr_ignore_auto()
+}
+
+projr_init_renv <- function(force = FALSE, bioc = TRUE) {
+  .projr_dep_install_only("renv")
+  .projr_init_renv(force, bioc, FALSE)
+}

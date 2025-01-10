@@ -822,19 +822,33 @@ projr_init_renviron <- function() {
     return(invisible(FALSE))
   }
   .projr_dep_install_only("usethis")
-  switch(x,
-    "CC-BY" = usethis::use_ccby_license(),
-    "Apache 2.0" = usethis::use_apache_license(),
-    "CC0" = usethis::use_cc0_license(),
-    "Proprietary" = usethis::use_proprietary_license(
-      paste0(nm_first, " ", nm_last)
-    )
-  )
+  .projr_init_license_create_actual(x, nm_first, nm_last)
   invisible(x)
 }
 
+.projr_init_license_create_actual <- function(x, nm_first, nm_list) {
+  opt_vec <- c(
+    "ccby", "CC-BY", "apache", "Apache 2.0", "cc0", "CC0",
+    "proprietary", "Proprietary"
+  )
+  .assert_in(x, opt_vec, TRUE)
+  switch(x,
+    "ccby" = ,
+    "CC-BY" = usethis::use_ccby_license(),
+    "apache" = ,
+    "Apache 2.0" = usethis::use_apache_license(),
+    "cc0" = ,
+    "CC0" = usethis::use_cc0_license(),
+    "proprietary" = ,
+    "Proprietary" = {
+      usethis::use_proprietary_license(paste0(nm_first, " ", nm_last))
+    } 
+  )
+}
+
 # git
-.projr_init_git_init <- function(answer_git) {
+.projr_init_git_init <- function(answer_git,
+                                 commit = TRUE) {
   if (answer_git %in% c(2, 3)) {
     .projr_init_git_suggest_git()
     if (answer_git == 2) {
@@ -847,7 +861,9 @@ projr_init_renviron <- function() {
   .projr_git_system_setup()
   .projr_git_init()
   projr_ignore_auto()
-  .projr_init_git_commit()
+  if (commit) {
+    .projr_init_git_commit()
+  }
   .projr_init_git_suggest_git()
   invisible(TRUE)
 }

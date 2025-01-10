@@ -47,5 +47,6 @@
 }
 
 .projr_cite_cff_set <- function() {
+  .projr_dep_install("cffr")
   cffr::cff_write()
 }

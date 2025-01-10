@@ -2,6 +2,7 @@
 % Please edit documentation in R/init.R
 \name{projr_init}
 \alias{projr_init}
+\alias{projr_init_license}
 \title{Initialise project}
 \usage{
 projr_init(
@@ -10,6 +11,8 @@ projr_init(
   renv_bioconductor = TRUE,
   public = FALSE
 )
+
+projr_init_license(license, first_name, last_name)
 }
 \arguments{
 \item{yml_path_from}{character.
