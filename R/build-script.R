@@ -8,7 +8,7 @@
   }
 }
 
-.projr_build_post_script_run < function(bump_component) {
+.projr_build_post_script_run <- function(bump_component) {
   .projr_build_script_run(bump_component, "post")
 }
 
