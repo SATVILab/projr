@@ -12,6 +12,10 @@
   .projr_build_script_run(bump_component, "post")
 }
 
+.projr_build_pre_script_run < function(bump_component) {
+  .projr_build_script_run(bump_component, "pre")
+}
+
 .projr_build_script_run_title <- function(x, bump_component, stage) {
   cue <- .projr_yml_script_complete_cue(x[["cue"]])
   if (!.is_cue(cue, bump_component)) {

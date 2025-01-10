@@ -2,6 +2,42 @@
 # Pre-build
 # ==========================
 
+.projr_build_pre_check <- function(output_run) {
+  # set and check authorisation is available
+  .projr_build_env_check(output_run)
+
+  # check we are not missing upstream commits
+  .projr_build_exit_if_behind_upstream(output_run)
+}
+
+.projr_build_pre_document <- function(output_run) {
+
+  # get version for DESCRIPTION and bookdown from run onwards
+  # snapshot if need be
+  .projr_build_renv_snapshot(output_run)
+
+  # make sure everything is ignored that should be ignored
+  # (including docs directory)
+  .projr_build_ignore()
+
+  # ensure that docs directory is the unsafe directory.
+  # will copy docs across upon success.
+  .projr_build_doc_output_dir_update(FALSE)
+
+  # ensure that pre-build, we are on dev version
+  .projr_build_ensure_dev_version()
+}
+
+.projr_build_pre_setup_for_output_run <- function(version_run_on_list,
+                                                  output_run) {
+  # set the version pre-run
+  .projr_build_version_set_pre(version_run_on_list)
+
+  # empty output directories
+  # (docs, output and data)
+  .projr_build_clear_pre(output_run)
+}
+
 # misc
 # -----------------
 .projr_build_output_get_bump_component <- function(bump_component) {
