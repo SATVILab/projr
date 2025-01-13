@@ -215,7 +215,7 @@ projr_build_dev <- function(file = NULL,
 
   # check required env vars are present, and
   # that we're not behind upstream remote
-  projr_build_pre_check(output_run)
+  .projr_build_pre_check(output_run)
 
   # update reng, ignore files, doc directory and version
   projr_build_pre_document(output_run)
