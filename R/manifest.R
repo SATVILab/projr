@@ -84,6 +84,9 @@
 }
 
 .projr_manifest_read <- function(path = NULL) {
+  if (is.null(path) || !file.exists(path)) {
+    return(.projr_zero_tbl_get_manifest())
+  }
   out_tbl <- utils::read.csv(
     path,
     stringsAsFactors = FALSE
