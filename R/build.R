@@ -218,7 +218,7 @@ projr_build_dev <- function(file = NULL,
   .projr_build_pre_check(output_run)
 
   # update reng, ignore files, doc directory and version
-  projr_build_pre_document(output_run)
+  .projr_build_pre_document(output_run)
 
   # get DESCRIPTION and build versions under all
   # build outcomes
@@ -234,7 +234,7 @@ projr_build_dev <- function(file = NULL,
 
   # clear output and docs directories, and set
   # run version to output run version if need be
-  projr_build_pre_setup_for_output_run(
+  .projr_build_pre_setup_for_output_run(
     version_run_on_list, output_run
   )
 
@@ -267,7 +267,7 @@ projr_build_dev <- function(file = NULL,
   output_run <- .projr_build_get_output_run(bump_component)
 
   # move artefacts to unsafe, final directories
-  projr_build_post_finalise_artefacts(bump_component, version_run_on_list)
+  .projr_build_post_finalise_artefacts(bump_component, version_run_on_list)
 
   # update documentation
   .projr_build_post_document(bump_component, version_run_on_list, msg)
