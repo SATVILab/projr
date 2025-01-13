@@ -90,7 +90,7 @@
     "archive" %in% names(.projr_yml_dest_get_type("github", NULL))
   )
   if (is_github && archive_not_specified) {
-    upload_github
+    upload_force
   } else {
     NULL
   }
