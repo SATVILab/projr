@@ -370,9 +370,9 @@ projr_build_dev <- function(file = NULL,
 # send to remotes
 .projr_build_post_send_dest <- function(bump_component,
                                         old_dev_remove,
-                                        github_latest,
-                                        github_archive) {
-  .projr_dest_send(bump_component, github_latest, github_archive)
+                                        upload_github,
+                                        upload_force) {
+  .projr_dest_send(bump_component, upload_github, upload_force)
   .projr_build_clear_old(
     .projr_build_get_output_run(bump_component), old_dev_remove
   )
