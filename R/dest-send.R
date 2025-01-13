@@ -127,8 +127,11 @@
                                    upload_github,
                                    upload_force) {
   force(title)
+  no_send <- .projr_dest_send_title_check(
+    title, type, bump_component, upload_github, upload_force
+  )
 
-  if (!.projr_dest_send_title_check(title, type, bump_component)) {
+  if (no_send) {
     return(invisible(FALSE))
   }
 
@@ -145,9 +148,15 @@
   invisible(TRUE)
 }
 
-.projr_dest_send_title_check <- function(title, type, bump_component) {
+.projr_dest_send_title_check <- function(title,
+                                         type,
+                                         bump_component,
+                                         upload_github,
+                                         upload_force) {
   force(title)
-  .projr_yml_dest_get_title_complete(title, type, NULL)[["cue"]] |>
+  .projr_yml_dest_get_title_complete(
+    title, type, NULL, upload_github, upload_force
+    )[["cue"]] |>
     .is_cue(bump_component)
 }
 

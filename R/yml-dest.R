@@ -250,8 +250,8 @@
   } else {
     # construct equivalent yml as only specified via parameter
     # at this stage
-    .projr_yml_dest_get_title_complete_param_init(
-      title, type, upload_github
+    .projr_yml_dest_get_title_complete_param(
+      title, type, upload_github, upload_force
     )
   }
 }
@@ -266,9 +266,9 @@
 }
 
 .projr_yml_dest_get_title_complete_param <- function(title,
-                                                      type,
-                                                      upload_github,
-                                                      upload_force) {
+                                                     type,
+                                                     upload_github,
+                                                     upload_force) {
   .projr_yml_dest_get_title_complete_param_init(
     title, type, upload_github
   ) |>

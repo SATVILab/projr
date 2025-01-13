@@ -351,6 +351,7 @@ projr_build_dev <- function(file = NULL,
     msg = msg
   )
 }
+
 # record (version, rmd, git)
 .projr_build_post_commit_git <- function(bump_component,
                                          version_run_on_list,
