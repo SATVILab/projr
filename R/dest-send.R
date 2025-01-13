@@ -127,11 +127,11 @@
                                    upload_github,
                                    upload_force) {
   force(title)
-  no_send <- .projr_dest_send_title_check(
+  may_send <- .projr_dest_send_title_check(
     title, type, bump_component, upload_github, upload_force
   )
 
-  if (no_send) {
+  if (!may_send) {
     return(invisible(FALSE))
   }
 
@@ -189,7 +189,6 @@
 }
 
 .projr_dest_send_title_get_content_param <- function(upload_github) {
-  force(title)
   if (.is_chr(upload_github)) {
     upload_github
   } else {
@@ -270,14 +269,6 @@
     path_append_label = yml_title[["path-append-label"]],
     label = label,
     structure = yml_title[["structure"]]
-  )
-}
-
-.projr_dest_send_label_get_remote_final_github_force <- function(type) {
-  .projr_remote_get_final(
-    type = "github",
-    id = "archive",
-    path = NULL,
   )
 }
 
