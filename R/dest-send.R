@@ -25,7 +25,7 @@
   if (!output_run) {
     return(invisible(FALSE))
   }
-  isTRUE(upload_github) || (.is_chr(upload_github, TRUE))
+  isTRUE(upload_github) || .is_chr(upload_github)
 }
 
 .projr_dest_send_get_type <- function(upload_github) {
@@ -181,7 +181,7 @@
 
 .projr_dest_send_title_get_content_param <- function(upload_github) {
   force(title)
-  if (.is_chr(upload_github, TRUE)) {
+  if (.is_chr(upload_github)) {
     upload_github
   } else {
     yml_dir <- .projr_yml_dir_get(NULL)
