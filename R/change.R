@@ -31,14 +31,18 @@
 # manifest-based
 # ------------------------
 
-.projr_change_get_manifest <- function(version_post = NULL,
-                                       version_pre = NULL,
+.projr_change_get_manifest <- function(type_pre,
+                                       remote_pre,
+                                       type_post,
+                                       remote_post,
                                        label = NULL) {
   # this differs from .projr_change_get_hash
   # as it will filter on version and does
   # not assume there is only one label
   # get manifests from previous version and current version
-  manifest <- .projr_manifest_read(.dir_proj_get("manifest.csv"))
+  manifest_pre <- .projr_remote_get_manifest(type_pre, remote_pre)
+  manifest_post <- .projr_remote_get_manifest(type_post, remote_post)
+
 
   if (nrow(manifest) == 0L) {
     return(.projr_zero_list_manifest_get())

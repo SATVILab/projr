@@ -29,46 +29,7 @@
   )
 }
 
-# get manifests from various places
-# ---------------------------
 
-.projr_manifest_get <- function(type,
-                                remote) {
-  switch(type,
-    "project" = .projr_manifest_get_project(),
-    .projr_manifest_get_non_project(type, remote)
-  )
-}
-
-.projr_manifest_get_project <- function() {
-  # just the actual project
-  .projr_manifest_read(.dir_proj_get("manifest.csv"))
-}
-
-.projr_manifest_get_non_project <- function(type,
-                                            remote) {
-  manifest_actual <- .projr_manifest_get_non_project_raw(type, remote)
-  if (is.null(manifest_actual)) {
-    .projr_manifest_get_project()
-  } else {
-    manifest_actual
-  }
-}
-
-.projr_manifest_get_non_project_raw <- function(type, remote) {
-  path_dir_save <- .dir_create_tmp_random()
-  .projr_remote_file_get_all(type, remote, path_dir_save)
-  manifest <- .projr_manifest_read(file.path(path_dir_save, "manifest.csv"))
-  unlink(path_dir_save, recursive = TRUE)
-  manifest
-}
-
-.projr_manifest_get_version <- function(type,
-                                        remote,
-                                        label) {
-  .projr_manifest_get(type, remote) |>
-    .projr_manifest_version_get_latest()
-}
 
 # writing, reading and merging
 # ---------------------------

@@ -872,12 +872,63 @@ projr_osf_create_project <- function(title,
 }
 
 # ========================
-# List all contents of the most recent remote
+# Get manifests
 # ========================
 
-.projr_remote_file_ls_recent <- function(type,
-                                         remote) {
+.projr_remote_get_manifest <- function(type,
+                                remote_final) {
+  switch(type,
+    "project" = .projr_remote_get_manifest_project(),
+    .projr_remote_get_manifest_non_project(type, remote_final)
+  )
+}
 
+.projr_remote_get_manifest_project <- function() {
+  # just the actual project
+  .projr_manifest_read(.dir_proj_get("manifest.csv"))
+}
+
+.projr_remote_get_manifest_non_project <- function(type,
+                                                   remote_final) {
+  manifest_actual <- .projr_remote_get_manifest_non_project_raw(type, remote_final)
+  if (is.null(manifest_actual)) {
+    .projr_remote_get_manifest_project()
+  } else {
+    manifest_actual
+  }
+}
+
+.projr_remote_get_manifest_non_project_raw <- function(type, remote_final) {
+  path_dir_save <- .dir_create_tmp_random()
+  .projr_remote_file_get_all(type, remote_final, path_dir_save)
+  manifest <- .projr_manifest_read(file.path(path_dir_save, "manifest.csv"))
+  unlink(path_dir_save, recursive = TRUE)
+  manifest
+}
+
+
+# ========================
+# Get latest version of a particular label from a remote
+# ========================
+
+.projr_remote_get_version_label <- function(remote_final,
+                                            type,
+                                            label) {
+  switch(type,
+    "project" = .projr_remote_get_version_label_project(),
+    "github" = .projr_remote_get_version_label_github(
+      remote_final, label
+    )
+  )
+}
+
+.projr_remote_get_version_label_project <- function() {
+  .projr_version_get() |> .projr_version_v_add()
+}
+
+.projr_remote_get_version_label_github <- function(remote_final,
+                                                   label) {
+  
 }
 
 # ==========================
