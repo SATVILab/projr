@@ -11,14 +11,34 @@ projr_build_output(
   bump_component,
   msg = NULL,
   args_engine = list(),
-  profile = NULL
+  profile = NULL,
+  upload_github = FALSE,
+  upload_force = TRUE
 )
 
-projr_build_major(msg = NULL, args_engine = list(), profile = NULL)
+projr_build_major(
+  msg = NULL,
+  args_engine = list(),
+  profile = NULL,
+  upload_github = FALSE,
+  upload_force = TRUE
+)
 
-projr_build_minor(msg = NULL, args_engine = list(), profile = NULL)
+projr_build_minor(
+  msg = NULL,
+  args_engine = list(),
+  profile = NULL,
+  upload_github = FALSE,
+  upload_force = TRUE
+)
 
-projr_build_patch(msg = NULL, args_engine = list(), profile = NULL)
+projr_build_patch(
+  msg = NULL,
+  args_engine = list(),
+  profile = NULL,
+  upload_github = FALSE,
+  upload_force = TRUE
+)
 }
 \arguments{
 \item{bump_component}{"major", "minor", "patch" or missing.
@@ -47,6 +67,29 @@ rendering engine
 \item{profile}{character.
 \code{projr} profile to use. Will set the environment variable
 \code{PROJR_PROFILE} to this value at the start of the build,}
+
+\item{upload_github}{\code{TRUE},\code{FALSE} orcharacter vector of
+directory labels.
+If \code{TRUE}, then all directories (\code{raw-data}, \code{output}, etc)
+are uploaded to a GitHub release named \code{archive}
+as versioned files (e.g. \code{output-v0.1.2.zip}).
+If \code{FALSE}, then no directories are uploaded.
+If a character vector, then only the directories
+specified are uploaded.
+Default is \code{FALSE}.
+Ignored if there is a release named \code{archive}
+already specified as a destination in
+the \code{projr} configuration file.}
+
+\item{upload_force}{logical.
+If \code{TRUE}, then the directories are uploaded
+regardless of whether the directory to be uploaded
+has exactly the same contents as the latest version
+of the directory on the GitHub release.
+Default is \code{TRUE}.
+Ignored if there is a release named \code{archive}
+already specified as a destination in
+the \code{projr} configuration file.}
 }
 \description{
 \code{projr_build_output} Builds project to output, which

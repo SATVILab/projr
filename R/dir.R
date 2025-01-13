@@ -92,7 +92,7 @@ projr_path_get_dir <- function(label, ...,
 
 .projr_dir_check_label_strip <- function(label) {
   label_strip <- .projr_dir_label_strip(label)
-  label_valid <- grepl("^docs|^raw|^cache|^output|^archive", label_strip)
+  label_valid <- grepl("^docs|^raw|^cache|^output", label_strip)
   if (!label_valid) {
     stop(
       paste0("label '", label, "' not valid.\n"),

@@ -223,11 +223,87 @@
 # -----------------
 
 # main function
-.projr_yml_dest_get_title_complete <- function(title, type, profile) {
+.projr_yml_dest_get_title_complete <- function(title,
+                                               type,
+                                               profile,
+                                               upload_github,
+                                               upload_force) {
   force(title)
   force(profile)
-  .projr_yml_dest_get_title(title, type, profile) |>
+
+  .projr_yml_dest_get_title_init(
+    title, type, profile, upload_github, upload_force
+  ) |>
     .projr_yml_dest_complete_title(title, type)
+}
+
+.projr_yml_dest_get_title_init <- function(title,
+                                           type,
+                                           profile,
+                                           upload_github,
+                                           upload_force) {
+  is_github_param <-.projr_yml_dest_get_title_complete_is_github_param(
+    type, title, upload_github
+  )
+  if (!is_github_param) {
+    .projr_yml_dest_get_title(title, type, profile)
+  } else {
+    # construct equivalent yml as only specified via parameter
+    # at this stage
+    .projr_yml_dest_get_title_complete_param_init(
+      title, type, upload_github
+    )
+  }
+}
+
+.projr_yml_dest_get_title_complete_is_github_param <- function(type,
+                                                               title,
+                                                               upload_github) {
+  is_github <- type == "github"
+  is_archive_param <- title == "archive" && !isFALSE(upload_github)
+  is_github_param <- is_github && is_archive_param
+  is_github_param
+}
+
+.projr_yml_dest_get_title_complete_param <- function(title,
+                                                      type,
+                                                      upload_github,
+                                                      upload_force) {
+  .projr_yml_dest_get_title_complete_param_init(
+    title, type, upload_github
+  ) |>
+    .projr_yml_dest_get_title_complete_param_force(upload_force)
+}
+
+.projr_yml_dest_get_title_complete_param_init <- function(title,
+                                                          type,
+                                                          upload_github) {
+  content_vec <- .projr_dest_send_title_get_content(
+    title, type, upload_github
+  )
+  list(
+    "title" = title,
+    "type" = type,
+    content = content_vec
+  )
+}
+
+.projr_yml_dest_get_title_complete_param_force <- function(yml_title,
+                                                            upload_force) {
+  if (!upload_force) {
+    return(yml_title)
+  }
+  yml_title[["send"]] <- list(
+    "version-source" = "none",
+    "sync-approach" = "sync-using-deletion",
+    "conflict" = "overwrite"
+  )
+  yml_title
+}
+
+.projr_yml_dest_get_title_complete_param_nonforce <- function(yml_title) {
+  yml_title |>
+    .projr_yml_dest_complete_title()
 }
 
 

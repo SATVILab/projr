@@ -31,7 +31,27 @@
 #' `projr` profile to use. Will set the environment variable
 #' `PROJR_PROFILE` to this value at the start of the build,
 #  and set it to what it was before at the end of the build.
-#'
+#' @param upload_github `TRUE`,`FALSE` orcharacter vector of 
+#' directory labels.
+#' If `TRUE`, then all directories (`raw-data`, `output`, etc)
+#' are uploaded to a GitHub release named `archive`
+#' as versioned files (e.g. `output-v0.1.2.zip`).
+#' If `FALSE`, then no directories are uploaded.
+#' If a character vector, then only the directories
+#' specified are uploaded.
+#' Default is `FALSE`.
+#' Ignored if there is a release named `archive`
+#' already specified as a destination in
+#' the `projr` configuration file.
+#' @param upload_force logical.
+#' If `TRUE`, then the directories are uploaded
+#' regardless of whether the directory to be uploaded
+#' has exactly the same contents as the latest version
+#' of the directory on the GitHub release.
+#' Default is `TRUE`.
+#' Ignored if there is a release named `archive`
+#' already specified as a destination in
+#' the `projr` configuration file.
 #' @param args_engine list.
 #' Arguments passed to the
 #' rendering engine
@@ -41,7 +61,9 @@
 projr_build_output <- function(bump_component,
                                msg = NULL,
                                args_engine = list(),
-                               profile = NULL) {
+                               profile = NULL,
+                               upload_github = FALSE,
+                               upload_force = TRUE) {
   bump_component <- .projr_build_output_get_bump_component(
     bump_component
   )
@@ -51,7 +73,9 @@ projr_build_output <- function(bump_component,
     bump_component = bump_component,
     msg = msg,
     args_engine = args_engine,
-    profile = profile
+    profile = profile,
+    upload_github = upload_github,
+    upload_force = upload_force
   )
 }
 
@@ -59,12 +83,16 @@ projr_build_output <- function(bump_component,
 #' @export
 projr_build_major <- function(msg = NULL,
                               args_engine = list(),
-                              profile = NULL) {
+                              profile = NULL,
+                              upload_github = FALSE,
+                              upload_force = TRUE) {
   projr_build_output(
     bump_component = "major",
     msg = msg,
     args_engine = args_engine,
-    profile = profile
+    profile = profile,
+    upload_github = upload_github,
+    upload_force = upload_force
   )
 }
 
@@ -72,12 +100,16 @@ projr_build_major <- function(msg = NULL,
 #' @export
 projr_build_minor <- function(msg = NULL,
                               args_engine = list(),
-                              profile = NULL) {
+                              profile = NULL,
+                              upload_github = FALSE,
+                              upload_force = TRUE) {
   projr_build_output(
     bump_component = "minor",
     msg = msg,
     args_engine = args_engine,
-    profile = profile
+    profile = profile,
+    upload_github = upload_github,
+    upload_force = upload_force
   )
 }
 
@@ -85,12 +117,16 @@ projr_build_minor <- function(msg = NULL,
 #' @export
 projr_build_patch <- function(msg = NULL,
                               args_engine = list(),
-                              profile = NULL) {
+                              profile = NULL,
+                              upload_github = FALSE,
+                              upload_force = TRUE) {
   projr_build_output(
     bump_component = "patch",
     msg = msg,
     args_engine = args_engine,
-    profile = profile
+    profile = profile,
+    upload_github = upload_github,
+    upload_force = upload_force
   )
 }
 
@@ -148,7 +184,9 @@ projr_build_dev <- function(file = NULL,
                          old_dev_remove = TRUE,
                          msg = "",
                          args_engine,
-                         profile) {
+                         profile,
+                         upload_github = FALSE,
+                         upload_force = TRUE) {
   if (!is.null(profile)) {
     old_profile <- Sys.getenv("PROJR_PROFILE")
     Sys.setenv(PROJR_PROFILE = profile)
@@ -157,7 +195,10 @@ projr_build_dev <- function(file = NULL,
   projr_env_file_activate()
   version_run_on_list <- .projr_build_pre(bump_component, msg)
   .projr_build_actual(version_run_on_list, file, args_engine)
-  .projr_build_post(version_run_on_list, bump_component, msg, old_dev_remove)
+  .projr_build_post(
+    version_run_on_list, bump_component, msg, old_dev_remove,
+    upload_github, upload_force
+    )
   .projr_env_file_deactivate()
 }
 
@@ -220,7 +261,9 @@ projr_build_dev <- function(file = NULL,
 .projr_build_post <- function(version_run_on_list,
                               bump_component,
                               msg,
-                              old_dev_remove) {
+                              old_dev_remove,
+                              upload_github,
+                              upload_force) {
   output_run <- .projr_build_get_output_run(bump_component)
 
   # move artefacts to unsafe, final directories
@@ -233,7 +276,9 @@ projr_build_dev <- function(file = NULL,
   .projr_build_post_commit_git(bump_component, version_run_on_list, msg)
 
   # send to remotes
-  .projr_build_post_send_dest(bump_component, old_dev_remove)
+  .projr_build_post_send_dest(
+    bump_component, old_dev_remove, upload_github, upload_force
+    )
 
   # run post-build scripts
   .projr_build_post_script_run(bump_component)
@@ -323,8 +368,11 @@ projr_build_dev <- function(file = NULL,
 }
 
 # send to remotes
-.projr_build_post_send_dest <- function(bump_component, old_dev_remove) {
-  .projr_dest_send(bump_component)
+.projr_build_post_send_dest <- function(bump_component,
+                                        old_dev_remove,
+                                        github_latest,
+                                        github_archive) {
+  .projr_dest_send(bump_component, github_latest, github_archive)
   .projr_build_clear_old(
     .projr_build_get_output_run(bump_component), old_dev_remove
   )
