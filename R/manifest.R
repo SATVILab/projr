@@ -66,7 +66,6 @@
 .projr_manifest_get_version <- function(type,
                                         remote,
                                         label) {
-  remote <- 
   .projr_manifest_get(type, remote) |>
     .projr_manifest_version_get_latest()
 }
