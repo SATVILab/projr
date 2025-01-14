@@ -923,6 +923,66 @@ projr_osf_create_project <- function(title,
 }
 
 # ========================
+# Update manifest
+# ========================
+
+.projr_remote_write_manifest <- function(type,
+                                         remote_final,
+                                         manifest) {
+  path_dir_save <- .dir_create_tmp_random()
+  .projr_manifest_write(manifest, file.path(path_dir_save, "manifest.csv"))
+  remote_save <- .projr_remote_write_manifest_get_remote(type, remote_final)
+  switch(type,
+    "project" = NULL,
+    .projr_remote_file_add(
+      type, remote_save, path_dir_save, "manifest.csv", "overwrite"
+    )
+  )
+  unlink(path_dir_save, recursive = TRUE)
+  invisible(TRUE)
+}
+
+.projr_remote_write_manifest_get_remote <- function(type, remote) {
+  switch(type,
+    "github" = .projr_remote_write_manifest_get_remote_github(remote)
+  )
+}
+
+.projr_remote_write_manifest_get_remote_github <- function(remote) {
+  remote[["fn"]] <- "manifest.csv"
+  remote
+}
+
+# ========================
+# Update VERSION file
+# ========================
+
+.projr_remote_write_version_file <- function(type,
+                                             remote,
+                                             version_file) {
+  path_dir_save <- .dir_create_tmp_random()
+  writeLines(version_file, file.path(path_dir_save, "VERSION"))
+  remote_save <- .projr_remote_write_version_file_get_remote(type, remote)
+  switch(type,
+    "project" = NULL,
+    .projr_remote_file_add(
+      type, remote_save, path_dir_save, "VERSION", "overwrite"
+    )
+  )
+}
+
+.projr_remote_write_version_file_get_remote <- function(type, remote) {
+  switch(type,
+    "github" = .projr_remote_write_version_file_get_remote_github(remote)
+  )
+}
+
+.projr_remote_write_version_file_get_remote_github <- function(remote) {
+  remote[["fn"]] <- "VERSION"
+  remote
+}
+                                                            
+# ========================
 # Get manifests
 # ========================
 

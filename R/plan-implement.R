@@ -20,7 +20,7 @@
     type, remote, path_dir_local, plan_detail[["add"]], conflict
   )
 
-  # delete unused versioned remote directories if creatd
+  # delete unused versioned remote directories if created
   .projr_remote_rm_final_if_empty(type, remote, structure)
 }
 

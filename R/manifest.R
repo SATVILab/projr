@@ -108,6 +108,10 @@
   out_tbl
 }
 
+.projr_manifest_read_project <- function() {
+  .projr_manifest_read(.dir_proj_get("manifest.csv"))
+}
+
 .projr_manifest_get_path_dir <- function(path_dir) {
   if (is.null(path_dir)) {
     path_dir <- .dir_proj_get()
@@ -134,4 +138,32 @@
   )
   rownames(out_df) <- NULL
   out_df
+}
+
+.projr_version_file_update_project_version <- function(version_file) {
+  if (.is_len_0(version_file)) {
+    return(paste0("Project: ", projr_version_get()))
+  }
+  if (!grepl("^Project: ", version_file)) {
+    version_file <- version_file[!grepl("^Project: ", version_file)]
+  } 
+  c(paste0("Project: ", projr_version_get()), version_file)
+}
+
+.projr_version_file_update_label_version <- function(version_file, label) {
+  if (.is_len_0(version_file)) {
+    return(paste0(label, ": ", projr_version_get()))
+  }
+  label_ind <- which(grepl(paste0("^", label, ": "), version_file))
+  line_add <- paste0(label, ": ", projr_version_get())
+  if (.is_len_0(label_ind)) {
+    c(version_file, line_add)
+  } else {
+    version_file[label_ind[[1]]] <- line_add
+    if (length(label_ind) > 1) {
+      version_file[-label_ind[-1]]
+    } else {
+      version_file
+    }
+  }
 }

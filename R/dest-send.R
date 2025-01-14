@@ -255,7 +255,16 @@
     type = type,
     structure = yml_title[["structure"]],
     path_dir_local = path_dir_local,
-    conflict = yml_title[["send"]][["conflict"]]
+    conflict = yml_title[["send"]][["conflict"]],
+    label = label
+  )
+  
+  # update manifest.csv and VERSION file
+  .projr_dest_send_label_versioning_update(
+    type = type, 
+    remote = remote,
+    label = label,
+    plan_detail = plan_list_detail
   )
 }
 
@@ -286,3 +295,64 @@
   }
   .projr_remote_rm_final_if_empty(type, remote, structure)
 }
+
+
+# ================================
+# update versioning files
+# ================================
+
+.projr_dest_send_label_versioning_update <- function(type,
+                                                     remote,
+                                                     label,
+                                                     plan_detail) {
+  .projr_dest_send_label_versioning_update_manifest(
+    type, remote, label, plan_detail
+  )
+  .projr_dest_send_label_versioning_update_version_file(
+    type, remote, label, plan_detail
+  )
+}
+
+.projr_dest_send_label_versioning_update_manifest <- function(type, 
+                                                              remote, 
+                                                              label, 
+                                                              plan_detail) {
+  skip_update <- 
+    .projr_dest_send_label_versioning_update_check_skip(plan_detail)
+  if (skip_update) {
+    return(invisible(FALSE))
+  }
+  manifest_project <- .projr_manifest_read_project()
+  manifest_add <- manifest_project |>
+    .projr_manifest_filter_label(label) |>
+    .projr_manifest_filter_version(projr::projr_version_get())
+  manifest_remote <- .projr_remote_get_manifest(type, remote)
+  manifest_final <- rbind(manifest_remote, manifest_add)
+  .projr_remote_write_manifest(type, remote, manifest_final)
+  invisible(TRUE)
+}
+
+.projr_dest_send_label_versioning_update_check_skip <- function(plan_detail) {
+  .is_len_0(plan_detail[["add"]]) && .is_len_0(plan_detail[["rm"]])
+}
+
+.projr_dest_send_label_versioning_update_version_file <- function(type,
+                                                                  remote,
+                                                                  label,
+                                                                  plan_detail) {
+  version_file_remote <- .projr_remote_get_version_file(type, remote)
+  version_file <- .projr_version_file_update_project_version(
+    version_file_remote
+  )
+  check_skip_update_label <-
+    .projr_dest_send_label_versioning_update_check_skip(
+      plan_detail
+    )
+  if (!check_skip_update_label) {
+    version_file <- .projr_version_file_update_label_version(
+      version_file, label
+    )
+  }
+  .projr_remote_write_version_file(type, remote, version_file)
+}
+
