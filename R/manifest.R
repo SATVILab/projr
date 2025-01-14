@@ -144,7 +144,7 @@
   if (.is_len_0(version_file)) {
     return(paste0("Project: ", projr_version_get()))
   }
-  if (!grepl("^Project: ", version_file)) {
+  if (!any(grepl("^Project: ", version_file))) {
     version_file <- version_file[!grepl("^Project: ", version_file)]
   } 
   c(paste0("Project: ", projr_version_get()), version_file)
