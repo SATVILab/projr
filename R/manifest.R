@@ -38,10 +38,9 @@
 }
 
 .projr_manifest_filter_version <- function(manifest, version) {
-  manifest[manifest[["version"]] == version, ] %@@%
+  manifest[manifest[["version"]] == .projr_version_v_add(version), ] %@@%
     .projr_zero_tbl_get_manifest()
 }
-
 
 # writing, reading and merging
 # ---------------------------
