@@ -900,7 +900,11 @@ projr_osf_create_project <- function(title,
   .assert_attr(remote, "names")
   .assert_has(names(remote), c("tag", "fn"))
   path_dir_save_init <- .dir_create_tmp_random()
-  if (!remote[["fn"]] %in% piggyback::pb_list(tag = remote[["tag"]])[["file_name"]]) {
+  fn_vec_release <- piggyback::pb_list(tag = remote[["tag"]])[["file_name"]]
+  if (.is_len_0(fn_vec_release)) {
+    return(invisible(path_dir_save_local))
+  }
+  if (!remote[["fn"]] %in% fn_vec_release) {
     return(invisible(path_dir_save_local))
   }
   piggyback::pb_download(
