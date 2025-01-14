@@ -249,8 +249,7 @@
     type = type,
     structure = yml_title[["structure"]],
     path_dir_local = path_dir_local,
-    conflict = yml_title[["send"]][["conflict"]],
-    label = label
+    conflict = yml_title[["send"]][["conflict"]]
   )
   
   # update manifest.csv and VERSION file
