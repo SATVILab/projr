@@ -19,7 +19,7 @@
 
 .projr_dest_send_check <- function(bump_component) {
   # output_run
-  !.projr_build_get_output_run(bump_component)
+  .projr_build_get_output_run(bump_component)
 }
 
 .projr_dest_send_get_type <- function(upload_github) {
