@@ -776,6 +776,53 @@ projr_osf_create_project <- function(title,
 }
 
 # ========================
+# download single file from a remote
+# ========================
+
+.projr_remote_file_get_ind <- function(type,
+                                       remote,
+                                       fn,
+                                       path_dir_save_local) {
+  .assert_string(path_dir_save_local, TRUE)
+  .assert_in(type, .projr_opt_remote_get_type(), TRUE)
+  .dir_create(path_dir_save_local)
+  switch(
+    type,
+    "local" = .projr_remote_file_get_ind_local(
+      remote = remote,
+      fn = fn,
+      path_dir_save_local = path_dir_save_local
+    ),
+    "osf" = .projr_remote_file_get_ind_osf(
+      remote = remote,
+      fn = fn,
+      path_dir_save_local = path_dir_save_local
+    ),
+    "github" = .projr_remote_file_get_ind_github(
+      remote = remote,
+      fn = fn,
+      path_dir_save_local = path_dir_save_local
+    )
+  )
+}
+
+.projr_remote_file_get_ind_github <- function(remote,
+                                              fn,
+                                              path_dir_save_local) {
+  .projr_dep_install("piggyback")
+  if (!.projr_remote_check_exists("github", remote[["tag"]])) {
+    return(character(0L))
+  }
+  fn_zip <- if (!grepl("\\.zip$", fn)) paste0(fn, ".zip") else fn
+  fn_no_zip <- if (grepl("\\.zip$", fn)) gsub("\\.zip$", "", fn) else fn
+  remote[["fn"]] <- fn_zip
+  .projr_remote_file_get_all_github_file(
+    remote = remote, path_dir_save_local = path_dir_save_local
+  )
+  invisible(file.path(path_dir_save_local, fn_no_zip))
+}
+
+# ========================
 # download all contents of a remote
 # ========================
 
@@ -853,7 +900,7 @@ projr_osf_create_project <- function(title,
   .assert_attr(remote, "names")
   .assert_has(names(remote), c("tag", "fn"))
   path_dir_save_init <- .dir_create_tmp_random()
-  if (!remote[["fn"]] %in% piggyback::pb_list(tag = remote[["tag"]])) {
+  if (!remote[["fn"]] %in% piggyback::pb_list(tag = remote[["tag"]])[["file_name"]]) {
     return(invisible(path_dir_save_local))
   }
   piggyback::pb_download(
@@ -876,7 +923,7 @@ projr_osf_create_project <- function(title,
 # ========================
 
 .projr_remote_get_manifest <- function(type,
-                                remote_final) {
+                                      remote_final) {
   switch(type,
     "project" = .projr_remote_get_manifest_project(),
     .projr_remote_get_manifest_non_project(type, remote_final)
@@ -906,6 +953,35 @@ projr_osf_create_project <- function(title,
   manifest
 }
 
+# ========================
+# Get VERSION
+# ========================
+
+.projr_remote_get_version_file <- function(type,
+                                           remote_final) {
+  switch(type,
+    "project" = character(0L),
+    .projr_remote_get_version_file_non_project(type, remote_final)
+  )
+}
+
+.projr_remote_get_version_file_non_project <- function(type,
+                                                       remote_final) {
+  path_dir_save <- .dir_create_tmp_random()
+  path_version <- .projr_remote_file_get_ind(
+    type, remote_final, "VERSION", path_dir_save
+  )
+  version_file <- .projr_remote_get_version_file_read(path_version)
+  unlink(path_dir_save, recursive = TRUE)
+  version_file
+}
+
+.projr_remote_get_version_file_read <- function(path) {
+  if (!file.exists(path)) {
+    return(character(0L))
+  }
+  readLines(path, warn = FALSE)
+}
 
 # ========================
 # Get latest version of a particular label from a remote
@@ -914,22 +990,132 @@ projr_osf_create_project <- function(title,
 .projr_remote_get_version_label <- function(remote_final,
                                             type,
                                             label) {
-  switch(type,
-    "project" = .projr_remote_get_version_label_project(),
-    "github" = .projr_remote_get_version_label_github(
-      remote_final, label
-    )
-  )
+  if (type == "project") {
+    .projr_remote_get_version_project()
+  } else {
+    .projr_remote_get_version_label_non_project(remote_final, type, label)
+  }
 }
 
-.projr_remote_get_version_label_project <- function() {
+.projr_remote_get_version_project <- function() {
   .projr_version_get() |> .projr_version_v_add()
 }
 
-.projr_remote_get_version_label_github <- function(remote_final,
-                                                   label) {
-  
+.projr_remote_get_version_label_non_project <- function(remote_final,
+                                                        type,
+                                                        label) {
+  # use the versioned folders (e.g. data-raw-v0.1.0)
+  version_structure <- .projr_remote_get_version_label_non_project_structure(
+    remote_final, type, label
+  )
+  if (.is_string(version_structure)) {
+    return(version_structure)
+  }
+  # use the versioned files (data-raw-project: v1.0.0)
+  .projr_remote_get_version_label_non_project_file(
+    remote_final, type, label
+  )
 }
+
+.projr_remote_get_version_label_non_project_structure <- function(remote_final,
+                                                                  type,
+                                                                  label) {
+  fn_vec <- .projr_remote_get_version_label_non_project_get_fn(
+    remote_final, type
+    )
+  .projr_remote_version_latest_get(fn_vec, type, label)
+}
+
+.projr_remote_get_version_label_non_project_get_fn <- function(remote_final,
+                                                               type) {                                         
+  switch(type,
+    "github" = .projr_remote_get_version_label_non_project_get_fn_github(remote_final)
+  )
+}
+
+.projr_remote_get_version_label_non_project_get_fn_github <- function(remote_final) {
+  pb_tbl <- piggyback::pb_list(tag = remote_final[["tag"]])
+  if ("file_name" %in% names(pb_tbl)) {
+    fn_vec <- pb_tbl[["file_name"]]
+    setdiff(fn_vec, "")
+  } else {
+    character(0L)
+  }
+}
+
+.projr_remote_version_latest_get <- function(fn, type, label) {
+  fn <- .projr_remote_version_latest_filter(fn, type, label)
+  .projr_remote_version_latest_extract(fn, label)
+}
+
+.projr_remote_version_latest_filter <- function(fn, type, label) {
+  if (.is_len_0(fn)) {
+    return(character(0L))
+  }
+  version_format_regex_dev_n <- .projr_remote_version_latest_get_regex(
+    type, label
+  )
+  grep(version_format_regex_dev_n, fn, value = TRUE)
+}
+
+.projr_remote_version_latest_filter_get_regex <- function(type, label)  {
+  version_format <- .projr_yml_metadata_get_version_format(NULL)
+  version_format_regex <- gsub("major", "\\\\d\\+", version_format)
+  version_format_regex <- gsub("minor", "\\\\d\\+", version_format_regex)
+  version_format_regex <- gsub("patch", "\\\\d\\+", version_format_regex)
+  version_format_regex <- gsub("\\.dev$|\\-dev", "", version_format_regex)
+  version_format_regex <- paste0(label, "-v", version_format_regex)
+  if (type == "github") {
+    version_format_regex <- paste0(version_format_regex, ".zip")
+  }
+  utils::glob2rx(version_format_regex)
+}
+
+.projr_remote_version_latest_extract <- function(fn, label) {
+  if (.is_len_0(fn)) {
+    return(character(0L))
+  }
+  fn_no_zip <- sub("\\.zip$", "", fn)
+  version_vec <- sub(".*-v(.*)", "\\1", fn_no_zip)
+  version_vec <- setdiff(version_vec, "")
+  if (.is_len_0(version_vec)) {
+    return(character(0L))
+  }
+  version_format_correct <- try(
+    vapply(version_vec, function(x) .projr_version_format_check(x), logical(1)) |>
+      all(),
+    silent = TRUE
+  )
+  if (inherits(version_format_correct, "try-error")) {
+    return(character(0L))
+  }
+  sort(version_vec, decreasing = TRUE)[1]
+}
+
+.projr_remote_get_version_label_non_project_file <- function(remote_final,
+                                                             type,
+                                                             label) {
+  version_file <- .projr_remote_get_version_file(type, remote_final)
+  .projr_remote_get_version_label_non_project_file_extract(
+    version_file, label
+  )
+}
+
+.projr_remote_get_version_label_non_project_file_extract <- function(version_file,
+                                                                     label) {
+  match_str <- utils::glob2rx(label) |>
+    gsub("\\$", "", x = _) |>
+    paste0(": ")
+  label_regex <- grep(match_str, version_file, value = TRUE)
+  if (.is_len_0(label_regex)) {
+    return(character(0L))
+  }
+  gsub(match_str, "", label_regex) |> 
+    trimws() |>
+    .projr_version_v_rm()
+}
+
+
 
 # ==========================
 # Get the most recent remote

@@ -29,6 +29,18 @@
   )
 }
 
+# misc operations
+# ---------------------------
+
+.projr_manifest_filter_label <- function(manifest, label) {
+  manifest[manifest[["label"]] == label, ] %@@%
+    .projr_zero_tbl_get_manifest()
+}
+
+.projr_manifest_filter_version <- function(manifest, version) {
+  manifest[manifest[["version"]] == version, ] %@@%
+    .projr_zero_tbl_get_manifest()
+}
 
 
 # writing, reading and merging

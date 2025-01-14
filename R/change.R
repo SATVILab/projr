@@ -6,7 +6,13 @@
                               remote) {
   .projr_change_get_check(label, path_dir_local, version_source)
   switch(version_source,
-    "manifest" = .projr_change_get_manifest(label = label),
+    "manifest" = .projr_change_get_manifest(
+      type_pre = type,
+      remote_pre = remote,
+      type_post = "project",
+      remote_post = NULL,
+      label = label
+    ),
     "file" = .projr_change_get_file(
       type_pre = type,
       remote_pre = remote,
@@ -36,97 +42,99 @@
                                        type_post,
                                        remote_post,
                                        label = NULL) {
+  .assert_given_mid(label)
+  version_pre_actual <- 
+    .projr_remote_get_version_label(
+    remote_pre, type_pre, label
+    )
+  version_post_actual <- .projr_remote_get_version_label(
+    remote_post, type_post, label
+    )
   # this differs from .projr_change_get_hash
-  # as it will filter on version and does
-  # not assume there is only one label
+  # as it will filter on version
   # get manifests from previous version and current version
-  manifest_pre <- .projr_remote_get_manifest(type_pre, remote_pre)
-  manifest_post <- .projr_remote_get_manifest(type_post, remote_post)
+  manifest_pre_full <- .projr_remote_get_manifest(type_pre, remote_pre) |>
+    .projr_manifest_filter_label(label)
+  manifest_post_full <- .projr_remote_get_manifest(type_post, remote_post) |>
+    .projr_manifest_filter_label(label)
 
-
-  if (nrow(manifest) == 0L) {
+  if (.projr_change_get_manifest_check_nothing(manifest_pre_full, manifest_post_full)) {
+    # this is if no files are specified in either location
     return(.projr_zero_list_manifest_get())
   }
 
-  # get version to compare
-  version_vec <- .projr_change_get_manifest_version_to_compare(
-    version_post = version_post,
-    version_pre = version_pre,
-    manifest = manifest
+  # filter for actual version
+  manifest_post <- manifest_post_full |>
+    .projr_manifest_filter_version(version_post_actual)
+  
+  # get version that is the closest mismatch
+  # to the post version, or the previous version
+  # if they're all the same.
+  version_pre_final <- .projr_change_get_manifest_get_closest_mismatch(
+    version_pre_actual, version_post_actual, manifest_post,
+    manifest_pre_full, manifest_post_full
   )
 
-  # choose current label only,
-  # done after comparing to ensure we get the right comparison
-  if (!is.null(label)) {
-    manifest <- manifest[manifest[["label"]] == label, ]
-  }
+  manifest_pre <- manifest_pre_full |>
+    .projr_manifest_filter_version(version_pre_final)
 
-  # use zero table if version_pre not found
-  manifest_pre <- manifest[manifest[["version"]] == version_vec[["pre"]], ] %@@%
-    .projr_zero_tbl_get_manifest()
+  if (.projr_change_get_manifest_check_nothing(manifest_pre, manifest_post)) {
+    # this is if no files are specified in either location
+    return(.projr_zero_list_manifest_get())
+  } 
 
-  manifest_post <- manifest[manifest[["version"]] == version_vec[["post"]], ]
-
-  # compare
-  # -----------------
-
-  # can't assume there's only one label
   .projr_change_get_hash(hash_pre = manifest_pre, hash_post = manifest_post)
 }
 
-.projr_change_get_manifest_version_to_compare <- function(version_post = NULL,
-                                                          version_pre = NULL,
-                                                          manifest) {
-  version_post <- .projr_change_get_manifest_version_post(
-    version_post = version_post
-  )
-  version_pre <- .projr_change_get_manifest_version_pre(
-    version_pre, version_post, manifest
-  )
-  c("post" = version_post, "pre" = version_pre)
+.projr_change_get_manifest_check_nothing <- function(manifest_pre, manifest_post) {
+  nrow(manifest_pre) == 0L && nrow(manifest_post) == 0L
 }
 
-.projr_change_get_manifest_version_post <- function(version_post = NULL) {
-  (version_post %||% projr_version_get()) |>
-    .projr_version_v_add()
+
+.projr_change_get_manifest_get_closest_mismatch <- function(version_pre,
+                                                            version_post,
+                                                            manifest_post,
+                                                            manifest_pre_full,
+                                                            manifest_post_full) {
+  # get the closest mismatch to the latest version,
+  # and if there are no mismatches just return the 
+  # previous version (furthest away version)
+  version_vec_pre <- manifest_pre_full[["version"]] |> .projr_version_v_rm()
+  version_vec_post <- manifest_post_full[["version"]] |> .projr_version_v_rm()
+  version_vec <- c(version_vec_pre, version_vec_post) |>
+    unique() |>
+    sort() |>
+    rev()
+  version_closest_mismatch <- version_pre
+  version_vec_loop <- version_vec[version_vec >= version_pre &
+    version_vec <= version_post]
+  for (i in seq_along(version_vec_loop)) {
+    version_curr <- version_vec_loop[[i]]
+    manifest_curr <- 
+      .projr_change_get_manifest_get_closest_mismatch_get_manifest_curr(
+        manifest_pre, manifest_post, version_curr
+      )
+    if (!identical(manifest_curr, manifest_post)) {
+      version_closest_mismatch <- version_curr
+      break
+    }
+  }
+  version_closest_mismatch
 }
 
-.projr_change_get_manifest_version_pre <- function(version_pre = NULL,
-                                                   version_post,
-                                                   manifest) {
-  if (is.null(version_pre)) {
-    return(.projr_change_get_manifest_version_pre_null(
-      manifest = manifest,
-      version_post = version_post
-    ))
+.projr_change_get_manifest_get_closest_mismatch_get_manifest_curr <-
+  function(manifest_pre, manifest_post, version) {
+    # prefer the manifest from the previous version,
+    # as it was uploaded with it,
+    # but otherwise use the manifest from the post version
+    # (especially since the pre-manifest may not be up to date)
+    if (version %in% manifest_pre[["version"]]) {
+      manifest_pre |> .projr_manifest_filter_version(version)
+    } else {
+      # will return empty  manifest if not found
+      manifest_post |> .projr_manifest_filter_version(version)
+    }
   }
-  version_pre |> .projr_version_v_add()
-}
-
-.projr_change_get_manifest_version_pre_null <- function(manifest, version_post) {
-  if (nrow(manifest) == 0L) {
-    return(character())
-  }
-  version_vec_manifest <- manifest[["version"]] |> .projr_version_v_rm()
-  version_post <- version_post |> .projr_version_v_rm()
-  # FIX THIS
-  manifest_pre_all <- manifest[
-    vapply(
-      version_vec_manifest,
-      function(x) {
-        utils::compareVersion(x, version_post) == -1
-      },
-      logical(1)
-    ), ,
-    drop = FALSE
-  ]
-  if (nrow(manifest_pre_all) == 0L) {
-    return(character())
-  }
-  manifest_pre_all |>
-    .projr_manifest_version_get_latest() |>
-    .projr_version_v_add()
-}
 
 .projr_zero_list_manifest_get <- function() {
   list(
