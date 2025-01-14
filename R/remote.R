@@ -1052,7 +1052,7 @@ projr_osf_create_project <- function(title,
   if (.is_len_0(fn)) {
     return(character(0L))
   }
-  version_format_regex_dev_n <- .projr_remote_version_latest_get_regex(
+  version_format_regex_dev_n <- .projr_remote_version_latest_filter_get_regex(
     type, label
   )
   grep(version_format_regex_dev_n, fn, value = TRUE)
