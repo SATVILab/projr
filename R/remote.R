@@ -947,7 +947,9 @@ projr_osf_create_project <- function(title,
 
 .projr_remote_get_manifest_non_project_raw <- function(type, remote_final) {
   path_dir_save <- .dir_create_tmp_random()
-  .projr_remote_file_get_all(type, remote_final, path_dir_save)
+  path_manifest <- .projr_remote_file_get_ind(
+    type, remote_final, "manifest.csv", path_dir_save
+  )
   manifest <- .projr_manifest_read(file.path(path_dir_save, "manifest.csv"))
   unlink(path_dir_save, recursive = TRUE)
   manifest
