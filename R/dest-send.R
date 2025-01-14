@@ -6,8 +6,7 @@
                              upload_force) {
   # consider early exit
   # ------------------
-  dont_exit_early <- .projr_dest_send_check(bump_component, upload_github)
-  if (!dont_exit_early) {
+  if (!.projr_dest_send_check(bump_component)) {
     return(invisible(FALSE))
   }
 
@@ -18,14 +17,9 @@
   }
 }
 
-.projr_dest_send_check <- function(bump_component,
-                                   upload_github) {
+.projr_dest_send_check <- function(bump_component) {
   # output_run
-  output_run <- .projr_build_get_output_run(bump_component)
-  if (!output_run) {
-    return(invisible(FALSE))
-  }
-  isTRUE(upload_github) || .is_chr(upload_github)
+  !.projr_build_get_output_run(bump_component)
 }
 
 .projr_dest_send_get_type <- function(upload_github) {
