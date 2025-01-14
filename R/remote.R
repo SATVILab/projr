@@ -998,7 +998,7 @@ projr_osf_create_project <- function(title,
 }
 
 .projr_remote_get_version_project <- function() {
-  .projr_version_get() |> .projr_version_v_add()
+  .projr_version_get() |> .projr_version_v_rm()
 }
 
 .projr_remote_get_version_label_non_project <- function(remote_final,
