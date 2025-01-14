@@ -43,8 +43,7 @@
                                        remote_post,
                                        label = NULL) {
   .assert_given_mid(label)
-  version_pre_actual <- 
-    .projr_remote_get_version_label(
+  version_pre_actual <- .projr_remote_get_version_label(
     remote_pre, type_pre, label
     )
   version_post_actual <- .projr_remote_get_version_label(
@@ -67,16 +66,10 @@
   manifest_post <- manifest_post_full |>
     .projr_manifest_filter_version(version_post_actual)
   
-  # get version that is the closest mismatch
-  # to the post version, or the previous version
-  # if they're all the same.
-  version_pre_final <- .projr_change_get_manifest_get_closest_mismatch(
+  manifest_pre <- .projr_change_get_manifest_pre_final(
     version_pre_actual, version_post_actual, manifest_post,
-    manifest_pre_full, manifest_post_full
+    manifest_pre_full, manifest_post_full, type_pre, remote_pre
   )
-
-  manifest_pre <- manifest_pre_full |>
-    .projr_manifest_filter_version(version_pre_final)
 
   if (.projr_change_get_manifest_check_nothing(manifest_pre, manifest_post)) {
     # this is if no files are specified in either location
@@ -88,6 +81,32 @@
 
 .projr_change_get_manifest_check_nothing <- function(manifest_pre, manifest_post) {
   nrow(manifest_pre) == 0L && nrow(manifest_post) == 0L
+}
+
+.projr_change_get_manifest_pre_final <- function(version_pre_actual,
+                                                 version_post_actual,
+                                                 manifest_post,
+                                                 manifest_pre_full,
+                                                 manifest_post_full,
+                                                 type_pre,
+                                                 remote_pre) {
+  if (.is_len_0(version_pre_actual)) {
+    # has it directly if not available
+    path_dir_local_pre <- .projr_change_get_file_dir(
+      type = type_pre,
+      remote = remote_pre
+    )
+    .projr_hash_dir(path_dir_local_pre)
+
+  } else {
+    version_pre_final <- .projr_change_get_manifest_get_closest_mismatch(
+      version_pre_actual, version_post_actual, manifest_post,
+      manifest_pre_full, manifest_post_full
+    )
+    manifest_pre_full |>
+      .projr_manifest_filter_version(version_pre_final)
+  }
+
 }
 
 
@@ -201,7 +220,7 @@
 # between two directories
 .projr_change_get_dir <- function(path_dir_pre,
                                   path_dir_post) {
-  hash_tbl_pre <- .projr_hash_dir(path_dir_pre)
+  hash_tbl_pre <- 
   hash_tbl_post <- .projr_hash_dir(path_dir_post)
   .projr_change_get_hash(hash_pre = hash_tbl_pre, hash_post = hash_tbl_post)
 }
