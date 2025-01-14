@@ -345,8 +345,8 @@
     version_file_remote
   )
   check_skip_update_label <-
-    .projr_dest_send_label_versioning_update_check_skip(
-      plan_detail
+    .projr_dest_send_label_versioning_update_check_skip_version_file(
+      plan_detail, version_file, label
     )
   if (!check_skip_update_label) {
     version_file <- .projr_version_file_update_label_version(
@@ -354,5 +354,11 @@
     )
   }
   .projr_remote_write_version_file(type, remote, version_file)
+}
+
+.projr_dest_send_label_versioning_update_check_skip_version_file <-
+  function(plan_detail, version_file, label) {
+    .is_len_0(plan_detail[["add"]]) && .is_len_0(plan_detail[["rm"]]) &&
+      grepl(paste0("^", label, ": "), version_file)
 }
 
