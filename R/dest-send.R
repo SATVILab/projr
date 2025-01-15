@@ -310,17 +310,14 @@
                                                               remote, 
                                                               label, 
                                                               plan_detail) {
-  skip_update <- 
-    .projr_dest_send_label_versioning_update_check_skip(plan_detail)
-  if (skip_update) {
-    return(invisible(FALSE))
-  }
+  manifest_remote <- .projr_remote_get_manifest(type, remote)
   manifest_project <- .projr_manifest_read_project()
   manifest_add <- manifest_project |>
     .projr_manifest_filter_label(label) |>
     .projr_manifest_filter_version(projr::projr_version_get())
-  manifest_remote <- .projr_remote_get_manifest(type, remote)
-  manifest_final <- rbind(manifest_remote, manifest_add)
+  manifest_final <-
+    .projr_manifest_append_previous_actual(manifest_add, manifest_remote) |>
+    .projr_manifest_remove_duplicate()
   .projr_remote_write_manifest(type, remote, manifest_final)
   invisible(TRUE)
 }
