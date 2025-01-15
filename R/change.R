@@ -131,7 +131,7 @@
     version_curr <- version_vec_loop[[i]]
     manifest_curr <- 
       .projr_change_get_manifest_get_closest_mismatch_get_manifest_curr(
-        manifest_pre, manifest_post, version_curr
+        manifest_pre_full, manifest_post_full, version_curr
       )
     if (!identical(manifest_curr, manifest_post)) {
       version_closest_mismatch <- version_curr
