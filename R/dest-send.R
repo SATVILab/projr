@@ -352,6 +352,6 @@
 .projr_dest_send_label_versioning_update_check_skip_version_file <-
   function(plan_detail, version_file, label) {
     .is_len_0(plan_detail[["add"]]) && .is_len_0(plan_detail[["rm"]]) &&
-      grepl(paste0("^", label, ": "), version_file)
+      any(grepl(paste0("^", label, ": "), version_file))
 }
 
