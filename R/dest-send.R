@@ -217,10 +217,10 @@
   remote <- .projr_remote_get_final(
     type = type,
     id = yml_title[["id"]],
-    path = yml_title[["path"]],
-    path_append_label = yml_title[["path-append-label"]],
     label = label,
-    structure = yml_title[["structure"]]
+    structure = yml_title[["structure"]],
+    path = yml_title[["path"]],
+    path_append_label = yml_title[["path-append-label"]]
   )
 
   # get overall type of plan
@@ -267,10 +267,10 @@
   .projr_remote_get_final(
     type = type,
     id = yml_title[["id"]],
-    path = yml_title[["path"]],
-    path_append_label = yml_title[["path-append-label"]],
     label = label,
-    structure = yml_title[["structure"]]
+    structure = yml_title[["structure"]],
+    path = yml_title[["path"]],
+    path_append_label = yml_title[["path-append-label"]]
   )
 }
 
