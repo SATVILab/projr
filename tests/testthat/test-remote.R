@@ -146,9 +146,9 @@ test_that(".projr_remote_get_final works - local", {
         .projr_remote_get_final(
           "local",
           id = "a/b/c",
-          path_append_label = TRUE,
           label = "raw-data",
-          structure = "version"
+          structure = "version",
+          path_append_label = TRUE
         ),
         "a/b/c/raw-data/v0.0.0-1"
       )
