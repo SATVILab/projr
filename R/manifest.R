@@ -42,6 +42,17 @@
     .projr_zero_tbl_get_manifest()
 }
 
+# get what would be added,
+# based on the project
+# ---------------------------
+
+.projr_manifest_get_add_project <- function(label) {
+  manifest_project <- .projr_manifest_read_project()
+  manifest_project |>
+    .projr_manifest_filter_label(label) |>
+    .projr_manifest_filter_version(projr::projr_version_get())
+}
+
 # writing, reading and merging
 # ---------------------------
 
@@ -166,4 +177,19 @@
       version_file
     }
   }
+}
+
+.projr_version_file_check_update_label <- function(fn,
+                                                   version_file,
+                                                   label) {
+  is_change <- .is_change(fn)
+  is_label_present <- .projr_version_file_check_update_label_present(
+    version_file, label
+  )
+  is_change || !is_label_present
+}
+
+.projr_version_file_check_update_label_present <- function(version_file,
+                                                            label) {
+  !.is_len_0(which(grepl(paste0("^", label, ": "), version_file)))
 }

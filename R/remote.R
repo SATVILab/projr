@@ -981,13 +981,37 @@ projr_osf_create_project <- function(title,
   remote[["fn"]] <- "VERSION"
   remote
 }
+
+# ========================
+# Get updated manifest
+# ========================
+
+.projr_remote_get_updated_manifest <- function(type,
+                                               remote_final,
+                                               label) {
+  switch(type,
+    "project" = .projr_remote_get_manifest_project(),
+    .projr_remote_get_updated_manifest_non_project(type, remote_final)
+  )
+}
+
+.projr_remote_get_updated_manifest_project <- function(type, 
+                                                       remote,
+                                                       label) {
+  # update for a given label based on what's in the project
+  manifest_remote <- .projr_remote_get_manifest(type, remote)
+  manifest_add <- .projr_manifest_get_add_project(label)
+  manifest_add |> 
+      .projr_manifest_append_previous_actual(manifest_remote) |>
+      .projr_manifest_remove_duplicate()
+}
                                                             
 # ========================
 # Get manifests
 # ========================
 
 .projr_remote_get_manifest <- function(type,
-                                      remote_final) {
+                                       remote_final) {
   switch(type,
     "project" = .projr_remote_get_manifest_project(),
     .projr_remote_get_manifest_non_project(type, remote_final)
