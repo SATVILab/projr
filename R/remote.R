@@ -227,6 +227,99 @@ projr_osf_create_project <- function(title,
   tag %in% release_tbl[["release_name"]]
 }
 
+# ========================
+# check existence of remote_final
+# ========================
+
+.projr_remote_final_check_exists <- function(type,
+                                             id,
+                                             label,
+                                             structure,
+                                             path,
+                                             path_append_label,
+                                             version) {
+  .assert_in(type, .projr_opt_remote_get_type(), TRUE)
+  remote_pre <- .projr_remote_get_final(
+    type, id, label, structure, path, path_append_label,
+    version, TRUE
+  )
+  switch(type,
+    "local" = .projr_remote_final_check_exists_local(
+      remote_pre, structure, label, version
+    ),
+    "osf" = .projr_remote_final_check_exists_osf(remote_final),
+    "github" = .projr_remote_final_check_exists_github(remote_pre)
+  )
+}
+
+.projr_remote_final_check_exists_local <- function(remote_pre,
+                                                   structure,
+                                                   label,
+                                                   version) {
+  remote_final_pseudo <- if (structure == "archive") {
+    file.path(remote_pre, .projr_version_v_add(version))
+  } else {
+    file.path(remote_pre, label)
+  }
+  dir.exists(remote_final_pseudo)
+}
+
+.projr_remote_final_check_exists_osf <- function(remote_pre,
+                                                 structure,
+                                                 label,
+                                                 version) {
+  dir_basename <- if (structure == "archive") {
+    version |> .projr_version_v_add()
+  } else {
+    label
+  }
+  osf_tbl_file <- remote_pre |> osfr::osf_ls_files(n_max = Inf)
+  dir_basename %in% osf_tbl_file[["name"]]
+}
+
+.projr_remote_final_check_exists_github <- function(remote_pre) {
+  .assert_attr(remote_final, "names")
+  .assert_has(names(remote_final), c("tag", "fn"))
+  if (!.projr_remote_check_exists("github", remote_final[["tag"]])) {
+    return(FALSE)
+  }
+  asset_tbl <- .projr_pb_asset_tbl_get(remote_final[["tag"]])
+  # if there's an error for some reason, assume it's not there
+  tryCatch(
+    remote_final[["fn"]] %in% asset_tbl[["file_name"]],
+    error = function(e) {
+      FALSE
+    }
+  )
+}
+
+
+.projr_remote_final_check_exists_local <- function(path) {
+  .assert_string(path, TRUE)
+  .assert_path_not_file(path)
+  dir.exists(path)
+}
+
+.projr_remote_final_check_exists_osf <- function() {
+
+}
+
+.projr_remote_final_check_exists_github <- function(remote_final) {
+  .assert_attr(remote_final, "names")
+  .assert_has(names(remote_final), c("tag", "fn"))
+  if (!.projr_remote_check_exists("github", remote_final[["tag"]])) {
+    return(FALSE)
+  }
+  asset_tbl <- .projr_pb_asset_tbl_get(remote_final[["tag"]])
+  # if there's an error for some reason, assume it's not there
+  tryCatch(
+    remote_final[["fn"]] %in% asset_tbl[["file_name"]],
+    error = function(e) {
+      FALSE
+    }
+  )
+}
+
 # =====================
 # get just the remote itself,
 # nothing more specific like sub-directories (OSF/local)
@@ -295,30 +388,39 @@ projr_osf_create_project <- function(title,
 #   path_append_label is TRUE.
 .projr_remote_get_final <- function(type,
                                     id,
+                                    label,
+                                    structure,
                                     path = NULL,
                                     path_append_label = TRUE,
-                                    label,
-                                    structure) {
+                                    version = NULL,
+                                    pre = FALSE) {
+  # pre: "one up" from the final remote, e.g. the directory
+  # above for hierarchical. Does not apply to flat.
   switch(type,
     "local" = .projr_remote_get_final_local(
       path = id,
-      path_append_label = path_append_label,
       label = label,
-      structure = structure
+      structure = structure,
+      path_append_label = path_append_label,
+      version = version,
+      pre = pre
     ),
     "osf" = .projr_remote_get_final_osf(
       id = id,
+      label = label,
+      structure = structure,
       path = path,
       path_append_label = path_append_label,
-      label = label,
-      structure = structure
+      version = version,
+      pre = pre
     ),
     "github" = .projr_remote_get_final_github(
       id = .projr_remote_misc_get_github_tag(id),
+      label = label,
+      structure = structure,
       path = path,
       path_append_label = path_append_label,
-      label = label,
-      structure = structure
+      version = version
     ),
     stop(paste0("type '", type, "' not recognized"))
   )
@@ -331,12 +433,16 @@ projr_osf_create_project <- function(title,
 .projr_remote_get_final_local <- function(path,
                                           path_append_label,
                                           label,
-                                          structure) {
+                                          structure,
+                                          version,
+                                          pre) {
   .assert_string(path, TRUE)
   .assert_path_not_file(path)
   .assert_flag(path_append_label)
   .assert_in(label, .projr_opt_dir_get_label_send(NULL))
   .assert_in_single(structure, .projr_opt_remote_get_structure())
+  .assert_string(version)
+  .assert_logical(pre, TRUE)
 
   # the local destination is just the
   # local directory where files are get, so
@@ -351,7 +457,9 @@ projr_osf_create_project <- function(title,
     path_append_label = path_append_label,
     label = label,
     structure = structure,
-    type = "local"
+    type = "local",
+    version = version,
+    pre = pre
   )
   # create this, as we create the OSF sub-directory
   # if specified. Needs to be automated
@@ -368,7 +476,8 @@ projr_osf_create_project <- function(title,
                                         path,
                                         path_append_label,
                                         label,
-                                        structure) {
+                                        structure,
+                                        version) {
   .assert_nchar_single(id, 5L, TRUE)
   .assert_string(path)
   .assert_flag(path_append_label)
@@ -382,7 +491,8 @@ projr_osf_create_project <- function(title,
     path = path,
     path_append_label = path_append_label,
     label = label,
-    structure = structure
+    structure = structure,
+    version = version
   )
   osf_tbl <- .projr_remote_get(id = id, type = "osf")
   if (length(path_rel) > 0L) {
@@ -410,7 +520,8 @@ projr_osf_create_project <- function(title,
                                            path,
                                            path_append_label,
                                            label,
-                                           structure) {
+                                           structure,
+                                           version) {
   .assert_string(id, TRUE)
   .assert_in(label, .projr_opt_dir_get_label_send(NULL), TRUE)
   fn <- .projr_remote_get_path_rel(
@@ -418,7 +529,8 @@ projr_osf_create_project <- function(title,
     path = path,
     path_append_label = path_append_label,
     label = label,
-    structure = structure
+    structure = structure,
+    version = version
   )
   # everything uploaded to a gh release
   # is a single file, and all other remotes
@@ -442,20 +554,25 @@ projr_osf_create_project <- function(title,
                                        path_append_label,
                                        label,
                                        structure,
-                                       type) {
+                                       type,
+                                       version,
+                                       pre) {
   switch(type,
     "osf" = , # same as local
     "local" = .projr_remote_get_path_rel_hierarchy(
       path = path,
       path_append_label = path_append_label,
       label = label,
-      structure = structure
+      structure = structure,
+      version = version,
+      pre = pre
     ),
     "github" = .projr_remote_get_path_rel_github(
       path = path,
       path_append_label = path_append_label,
       label = label,
-      structure = structure
+      structure = structure,
+      version = version
     )
   )
 }
@@ -464,7 +581,9 @@ projr_osf_create_project <- function(title,
 .projr_remote_get_path_rel_hierarchy <- function(path,
                                                  path_append_label,
                                                  label,
-                                                 structure) {
+                                                 structure,
+                                                 version,
+                                                 pre) {
   .assert_string(path)
   .assert_flag(path_append_label, TRUE)
   .assert_in_single(structure, .projr_opt_remote_get_structure(), TRUE)
@@ -480,10 +599,14 @@ projr_osf_create_project <- function(title,
     args_list <- args_list |> append(list(label))
   }
   if (structure == "version") {
-    args_list <- args_list |> append(list(.projr_version_get_v()))
+    version_add <- if (is.null(version)) .projr_version_get_v() else version
+    args_list <- args_list |> append(list(version_add))
   }
   if (length(args_list) == 0L) {
     return(character())
+  }
+  if (pre) {
+    args_list <- args_list[-length(args_list)]
   }
 
   do.call(file.path, args_list)
@@ -492,7 +615,8 @@ projr_osf_create_project <- function(title,
 .projr_remote_get_path_rel_github <- function(path,
                                               path_append_label,
                                               label,
-                                              structure) {
+                                              structure,
+                                              version) {
   # keep it as NULL this way if it's already
   # NULL (otherwise it's character(),
   # which triggers an error when checking for a string later)
@@ -504,7 +628,8 @@ projr_osf_create_project <- function(title,
       path = path,
       path_append_label = path_append_label,
       label = label,
-      structure = structure
+      structure = structure,
+      version = version
     ),
     ".zip"
   )
@@ -514,7 +639,8 @@ projr_osf_create_project <- function(title,
 .projr_remote_get_path_rel_flat <- function(path,
                                             path_append_label,
                                             label,
-                                            structure) {
+                                            structure,
+                                            version) {
   .assert_string(path)
   .assert_flag(path_append_label, TRUE)
   .assert_in_single(structure, .projr_opt_remote_get_structure(), TRUE)
@@ -531,7 +657,8 @@ projr_osf_create_project <- function(title,
     path_rel <- label
   }
   if (structure == "version") {
-    path_rel <- paste0(path_rel, "-", .projr_version_get_v())
+    version_add <- if (is.null(version)) .projr_version_get_v() else version
+    path_rel <- paste0(path_rel, "-", version_add)
   }
   path_rel
 }
@@ -1098,11 +1225,8 @@ projr_osf_create_project <- function(title,
   version_structure <- .projr_remote_get_version_label_non_project_structure(
     remote_final, type, label
   )
-  if (.is_string(version_structure)) {
-    return(version_structure)
-  }
   # use the versioned files (data-raw-project: v1.0.0)
-  .projr_remote_get_version_label_non_project_file(
+  version_file <- .projr_remote_get_version_label_non_project_file(
     remote_final, type, label
   )
 }
@@ -1179,7 +1303,7 @@ projr_osf_create_project <- function(title,
   if (inherits(version_format_correct, "try-error")) {
     return(character(0L))
   }
-  sort(version_vec, decreasing = TRUE)[1]
+  .projr_version_get_latest(version_vec)
 }
 
 .projr_remote_get_version_label_non_project_file <- function(remote_final,
