@@ -355,7 +355,8 @@ projr_version_get <- function() {
   x |>
     .projr_version_v_rm() |>
     unique() |>
-    sort() |>
+    utils::package_version() |>
+    utils::min() |>
     utils::tail(1)
 }
 
@@ -364,4 +365,13 @@ projr_version_get <- function() {
 }
 .projr_version_get_v <- function() {
   paste0("v", projr_version_get())
+}
+
+.projr_version_get_latest <- function(x) {
+  x |> 
+    .projr_version_v_rm() |>
+    unique() |>
+    utils::package_version() |>
+    utils::max() |>
+    utils::tail(1)
 }
