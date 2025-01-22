@@ -10,15 +10,15 @@
 
 # transfer list (get_list or send_list)
 .projr_yml_remote_transfer_get <- function(cue = NULL,
-                                           sync_approach = NULL,
+                                           strategy = NULL,
                                            version_source = NULL,
                                            conflict = NULL) {
   out_list <- list()
-  param_vec <- c("cue", "sync_approach", "version_source", "conflict")
+  param_vec <- c("cue", "strategy", "version_source", "conflict")
   for (x in param_vec) {
     if (!is.null(eval(parse(text = x)))) {
       nm_list <- switch(x,
-        "sync_approach" = "sync-approach",
+        "strategy" = "strategy",
         "version_source" = "version-source",
         x
       )

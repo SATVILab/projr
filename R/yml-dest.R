@@ -12,22 +12,22 @@
                                 description = NULL,
                                 id = NULL,
                                 id_parent = NULL,
-                                get_sync_approach = NULL,
+                                get_strategy = NULL,
                                 get_conflict = NULL,
                                 send_cue = NULL,
-                                send_sync_approach = NULL,
+                                send_strategy = NULL,
                                 send_version_source = NULL,
                                 send_conflict = NULL) {
   # gather get and send args
   # ------------------------
   get_list <- .projr_yml_remote_transfer_get(
-    sync_approach = get_sync_approach,
+    strategy = get_strategy,
     conflict = get_conflict
   )
 
   send_list <- .projr_yml_remote_transfer_get(
     cue = send_cue,
-    sync_approach = send_sync_approach,
+    strategy = send_strategy,
     version_source = send_version_source,
     conflict = send_conflict
   )
@@ -295,7 +295,7 @@
   }
   yml_title[["send"]] <- list(
     "version-source" = "none",
-    "sync-approach" = "sync-using-deletion",
+    "strategy" = "sync-using-deletion",
     "conflict" = "overwrite"
   )
   yml_title
@@ -328,7 +328,7 @@
 .projr_yml_dest_complete_title_upload <- function(yml, type) {
   yml[["send"]] <- yml[["send"]] |>
     .projr_yml_dest_complete_title_upload_version_source(type) |>
-    .projr_yml_dest_complete_title_upload_sync_approach(type) |>
+    .projr_yml_dest_complete_title_upload_strategy(type) |>
     .projr_yml_dest_complete_title_upload_conflict(type)
   yml
 }
@@ -337,42 +337,42 @@
   .projr_yml_complete(yml, "version-source", "manifest")
 }
 
-# sync-approach
-.projr_yml_dest_complete_title_upload_sync_approach <- function(yml, type) {
-  yml[["sync-approach"]] <- switch(type,
+# strategy
+.projr_yml_dest_complete_title_upload_strategy <- function(yml, type) {
+  yml[["strategy"]] <- switch(type,
     "local" = ,
-    "osf" = .projr_yml_dest_complete_title_sync_approach_hierarchy(
-      yml[["sync-approach"]], yml[["version-source"]]
+    "osf" = .projr_yml_dest_complete_title_strategy_hierarchy(
+      yml[["strategy"]], yml[["version-source"]]
     ),
-    "github" = .projr_yml_dest_complete_title_sync_approach_github(
-      yml[["sync-approach"]], yml[["version-source"]]
+    "github" = .projr_yml_dest_complete_title_strategy_github(
+      yml[["strategy"]], yml[["version-source"]]
     )
   )
   yml
 }
 
-.projr_yml_dest_complete_title_sync_approach_hierarchy <-
-  function(sync_approach, version_source) {
+.projr_yml_dest_complete_title_strategy_hierarchy <-
+  function(strategy, version_source) {
     # default is sync-using-version
-    sync_approach <- sync_approach %||% "sync-using-version"
+    strategy <- strategy %||% "sync-using-version"
     version_source <- version_source %||% "manifest"
     # if we cannot use versioning but must sync, the only option is
     # sync-using-deletion
-    if (version_source == "none" && sync_approach == "sync-using-version") {
+    if (version_source == "none" && strategy == "sync-using-version") {
       return("sync-using-deletion")
     }
-    sync_approach
+    strategy
   }
 
-.projr_yml_dest_complete_title_sync_approach_github <-
-  function(sync_approach, version_source) {
+.projr_yml_dest_complete_title_strategy_github <-
+  function(strategy, version_source) {
     # default is sync-using-version, for speeds
-    sync_approach <- sync_approach %||% "sync-using-version"
+    strategy <- strategy %||% "sync-using-version"
     version_source <- version_source %||% "manifest"
     # only if we're allowed to use versioning and we're syncing
     # do we use sync-using-version (which is the default).
     # Otherwise, we use sync-using-deletion
-    if (sync_approach == "sync-using-version" && version_source != "none") {
+    if (strategy == "sync-using-version" && version_source != "none") {
       return("sync-using-version")
     }
     "sync-using-deletion"
@@ -412,16 +412,16 @@
 # set individual settings
 # ----------------------
 
-# sync-approach
-.projr_yml_dest_set_send_sync_approach <- function(sync_approach,
+# strategy
+.projr_yml_dest_set_send_strategy <- function(strategy,
                                                    title,
                                                    type,
                                                    profile) {
-  .assert_in(sync_approach, .projr_opt_remote_sync_approach_get())
+  .assert_in(strategy, .projr_opt_remote_strategy_get())
   yml_title <- .projr_yml_dest_get_title(
     title = title, type = type, profile = profile
   )
-  yml_title[["send"]][["sync-approach"]] <- sync_approach
+  yml_title[["send"]][["strategy"]] <- strategy
   .projr_yml_dest_set_title(
     yml = yml_title, title = title, type = type, profile = profile,
     overwrite = TRUE

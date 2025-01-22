@@ -222,7 +222,7 @@ test_that("projr_build_output works - local - latest - file", {
   )
 })
 
-test_that("projr_build_output works - local - latest - <sync-approach>", {
+test_that("projr_build_output works - local - latest - <strategy>", {
   skip_if(.is_test_select())
   skip_if(.is_test_fast())
   dir_test <- .projr_test_setup_project(
@@ -255,7 +255,7 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
         content = "raw-data",
         path = "_archive",
         structure = "latest",
-        send_sync_approach = "upload-all"
+        send_strategy = "upload-all"
       )
       # handle nothing to send
       # ---------------------
@@ -318,7 +318,7 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
 
       # change to upload-missing
       # ----------------------
-      .projr_yml_dest_set_send_sync_approach(
+      .projr_yml_dest_set_send_strategy(
         "upload-missing",
         title = "Raw data", type = "local", profile = "default"
       )
@@ -366,7 +366,7 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
 
       # sync-using-deletion
       # ----------------------
-      .projr_yml_dest_set_send_sync_approach(
+      .projr_yml_dest_set_send_strategy(
         "sync-using-deletion",
         title = "Raw data", type = "local", profile = "default"
       )
@@ -386,7 +386,7 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
 
       # sync-using-version
       # ----------------------
-      .projr_yml_dest_set_send_sync_approach(
+      .projr_yml_dest_set_send_strategy(
         "sync-using-version",
         title = "Raw data", type = "local", profile = "default"
       )
@@ -407,7 +407,7 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
 
       # sync-using-version
       # ----------------------
-      .projr_yml_dest_set_send_sync_approach(
+      .projr_yml_dest_set_send_strategy(
         "sync-using-version",
         title = "Raw data", type = "local", profile = "default"
       )
@@ -433,7 +433,7 @@ test_that("projr_build_output works - local - latest - <sync-approach>", {
   )
 })
 
-test_that("projr_build_output works - local - latest - <sync-approach> - none", {
+test_that("projr_build_output works - local - latest - <strategy> - none", {
   skip_if(.is_test_select())
   skip_if(.is_test_fast())
   dir_test <- .projr_test_setup_project(
@@ -467,7 +467,7 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
         path = "_archive",
         structure = "latest",
         send_version_source = "none",
-        send_sync_approach = "upload-all"
+        send_strategy = "upload-all"
       )
       # handle nothing to send
       # ---------------------
@@ -530,7 +530,7 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
 
       # change to upload-missing
       # ----------------------
-      .projr_yml_dest_set_send_sync_approach(
+      .projr_yml_dest_set_send_strategy(
         "upload-missing",
         title = "Raw data", type = "local", profile = "default"
       )
@@ -578,7 +578,7 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
 
       # sync-using-deletion
       # ----------------------
-      .projr_yml_dest_set_send_sync_approach(
+      .projr_yml_dest_set_send_strategy(
         "sync-using-deletion",
         title = "Raw data", type = "local", profile = "default"
       )
@@ -598,7 +598,7 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
 
       # sync-using-version
       # ----------------------
-      .projr_yml_dest_set_send_sync_approach(
+      .projr_yml_dest_set_send_strategy(
         "sync-using-version",
         title = "Raw data", type = "local", profile = "default"
       )
@@ -619,7 +619,7 @@ test_that("projr_build_output works - local - latest - <sync-approach> - none", 
 
       # sync-using-version
       # ----------------------
-      .projr_yml_dest_set_send_sync_approach(
+      .projr_yml_dest_set_send_strategy(
         "sync-using-version",
         title = "Raw data", type = "local", profile = "default"
       )
@@ -679,7 +679,7 @@ test_that("projr_build_output works - local - latest - none - <conflict>", {
         path = "_archive",
         structure = "latest",
         send_version_source = "none",
-        send_sync_approach = "upload-all",
+        send_strategy = "upload-all",
         send_conflict = "error"
       )
       # handle nothing to send
@@ -758,7 +758,7 @@ test_that("projr_build_output works - local - latest - none - <cue>", {
         content = "raw-data",
         path = "_archive",
         structure = "latest",
-        send_sync_approach = "sync-using-deletion",
+        send_strategy = "sync-using-deletion",
         send_cue = "patch"
       )
 
@@ -876,7 +876,7 @@ test_that("projr_build_output works - local - latest - none - don't append label
         path = "_archive",
         path_append_label = FALSE,
         structure = "latest",
-        send_sync_approach = "sync-using-deletion"
+        send_strategy = "sync-using-deletion"
       )
       # patch build
       file.create("_raw_data/f1.txt")

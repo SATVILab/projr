@@ -5,7 +5,7 @@
                         path,
                         path_append_label,
                         cue = NULL,
-                        sync_approach,
+                        strategy,
                         version_source,
                         conflict,
                         component) {

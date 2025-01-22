@@ -10,7 +10,7 @@ projr_yml_dest_add_github(
   structure = NULL,
   overwrite = TRUE,
   send_cue = NULL,
-  send_sync_approach = NULL,
+  send_strategy = NULL,
   send_version_source = NULL,
   send_conflict = NULL,
   profile = "default"
@@ -56,7 +56,7 @@ If \code{FALSE}, then will never be uploaded.
 If \code{"build"}, then will be uploaded on every build,
 including \code{dev} builds, so \code{dev} and \code{"build"} are equivalent.}
 
-\item{send_sync_approach}{"upload-all", "upload-missing",
+\item{send_strategy}{"upload-all", "upload-missing",
 "sync-using-deletiong" and "sync-using-version".
 How to synchronise to the remote.
 If \code{upload-all}, then all files are uploaded.

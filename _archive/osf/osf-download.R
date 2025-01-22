@@ -74,7 +74,7 @@
     # type of OSF directory (latest, version or content)
     structure = yml_osf[["remote-structure"]],
     # how to choose what to delete (locally) and what to download
-    sync_approach = yml_osf[["download"]][["sync-approach"]],
+    strategy = yml_osf[["download"]][["strategy"]],
     conflict = yml_osf[["download"]][["conflict"]]
   )
 
@@ -87,12 +87,12 @@
                                    sub_dir,
                                    path_save,
                                    structure,
-                                   sync_approach,
+                                   strategy,
                                    conflict) {
   # ensure we clear it before checking
   # so that it's empty to match the remote
   # before leaving
-  if (sync_approach == "delete-then-download-all") {
+  if (strategy == "delete-then-download-all") {
     unlink(path_save, recursive = TRUE)
   }
   .dir_create(path_save)
@@ -100,7 +100,7 @@
   if (nrow(osf_tbl_file) == 0L) {
     return(invisible(FALSE))
   }
-  if (grepl("download\\-all$", sync_approach)) {
+  if (grepl("download\\-all$", strategy)) {
     .projr_osf_dnld_to_dir_all(
       osf_tbl_file = osf_tbl_file,
       version = version,
@@ -110,7 +110,7 @@
       conflict = conflict
     )
   }
-  if (grepl("^download-missing$", sync_approach)) {
+  if (grepl("^download-missing$", strategy)) {
     stop("download_missing not implemented yet")
   }
   invisible(TRUE)
@@ -174,14 +174,14 @@
     if (is.null(yml_projr[["conflict"]])) {
       yml_projr[["conflict"]] <- "overwrite"
     }
-    if (is.null(yml_projr[["sync-approach"]])) {
-      yml_projr[["sync-approach"]] <- "download-all"
+    if (is.null(yml_projr[["strategy"]])) {
+      yml_projr[["strategy"]] <- "download-all"
     }
   } else {
     yml_projr[["conflict"]] <- "overwrite"
-    yml_projr[["sync-approach"]] <- "download-all"
+    yml_projr[["strategy"]] <- "download-all"
   }
-  yml_projr[c("conflict", "sync-approach")]
+  yml_projr[c("conflict", "strategy")]
 }
 
 .projr_osf_download_dir <- function() {

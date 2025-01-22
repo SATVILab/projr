@@ -5,7 +5,7 @@
                                         path,
                                         path_append_label,
                                         cue,
-                                        sync_approach,
+                                        strategy,
                                         version_source,
                                         conflict,
                                         component) {
@@ -20,7 +20,7 @@
       path,
       path_append_label,
       structure,
-      sync_approach,
+      strategy,
       version_source
     )
   }
@@ -35,7 +35,7 @@
       path = yml_projr_osf_ind[["path"]], ,
       path_append_label = yml_projr_osf_ind[["path_append_label"]], ,
       cue = yml_projr_osf_ind_upload[["cue"]],
-      sync_approach = yml_projr_osf_ind_upload[["sync-approach"]],
+      strategy = yml_projr_osf_ind_upload[["strategy"]],
       version_source = yml_projr_osf_ind_upload[["version-source"]],
       conflict = yml_projr_osf_ind_upload[["conflict"]],
       component = yml_projr_osf_ind[["component"]]
@@ -49,7 +49,7 @@
                                       path,
                                       path_append_label,
                                       structure,
-                                      sync_approach,
+                                      strategy,
                                       version_source,
                                       conflict) {
   # get what must be transferred and where
@@ -62,7 +62,7 @@
       osf_tbl = osf_tbl,
       path = path,
       path_append_label = path_append_label,
-      sync_approach = sync_approach,
+      strategy = strategy,
       version_source = version_source,
       conflict = conflict
     ),
@@ -72,7 +72,7 @@
       osf_tbl = osf_tbl,
       path = path,
       path_append_label = path_append_label,
-      sync_approach = sync_approach,
+      strategy = strategy,
       version_source = version_source,
       conflict = conflict
     )
@@ -87,7 +87,7 @@
                                        path,
                                        path_append_label,
                                        osf_tbl_upload = NULL,
-                                       sync_approach,
+                                       strategy,
                                        version_source,
                                        conflict) {
   if (is.null(osf_tbl_upload)) {
@@ -104,16 +104,16 @@
   path_dir_local <- projr_path_get_dir(label, safe = !output_run)
 
   # this is effectively just wiping out what's there
-  convert_to_sync_using_deletion <- sync_approach == "sync-using-version" &&
+  convert_to_sync_using_deletion <- strategy == "sync-using-version" &&
     version_source == "none"
   if (convert_to_sync_using_deletion) {
-    sync_approach <- "sync-using-deletion"
+    strategy <- "sync-using-deletion"
   }
   # delete what's there if requred
-  if (sync_approach == "sync-using-deletion") {
+  if (strategy == "sync-using-deletion") {
     .projr_osf_node_empty(osf_tbl = osf_tbl_upload)
   }
-  switch(sync_approach,
+  switch(strategy,
     "upload-all" = ,
     "sync-using-delection" = .projr_osf_send_dir(
       path_dir_local = path_dir_local,
@@ -134,7 +134,7 @@
       version_source = version_source
     ),
     stop(paste0(
-      "sync_approach must be one of: ",
+      "strategy must be one of: ",
       paste0('"', c(
         "upload-all", "sync-using-deletion", "upload-missing",
         "sync-using-version"
@@ -148,7 +148,7 @@
                                         osf_tbl,
                                         path,
                                         path_append_label,
-                                        sync_approach,
+                                        strategy,
                                         version_source,
                                         conflict) {
   # avoid creating new version upfront
@@ -173,7 +173,7 @@
         label = label,
         output_run = output_run,
         osf_tbl_upload = osf_tbl_upload,
-        sync_approach = sync_approach,
+        strategy = strategy,
         version_source = "none",
         conflict = conflict
       )

@@ -226,7 +226,7 @@
   # get overall type of plan
   plan <- .projr_dest_send_get_plan(
     version_source = yml_title[["send"]][["version-source"]],
-    sync_approach = yml_title[["send"]][["sync-approach"]],
+    strategy = yml_title[["send"]][["strategy"]],
     type = type,
     structure = yml_title[["structure"]]
   )
@@ -279,11 +279,11 @@
 # ================================
 
 # delete the remote if it's empty and it's versioned
-.projr_dest_send_label_clear <- function(sync_approach,
+.projr_dest_send_label_clear <- function(strategy,
                                          type,
                                          remote,
                                          structure) {
-  if (!.is_opt(sync_approach, "sync-using-deletion")) {
+  if (!.is_opt(strategy, "sync-using-deletion")) {
     return(invisible(FALSE))
   }
   .projr_remote_rm_final_if_empty(type, remote, structure)

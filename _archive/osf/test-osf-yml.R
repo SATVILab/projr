@@ -43,10 +43,10 @@ test_that("projr_source_add_osf works", {
         path_append_label = FALSE,
         structure = "latest",
         download_cue = "build",
-        download_sync_approach = "download-all",
+        download_strategy = "download-all",
         download_conflict = "overwrite",
         upload_cue = "major",
-        upload_sync_approach = "upload-all",
+        upload_strategy = "upload-all",
         upload_version_source = "manifest",
         upload_conflict = "overwrite"
       )

@@ -8,14 +8,14 @@ test_that(".projr_dest_send_get_plan works", {
       expect_identical(
         .projr_dest_send_get_plan(
           version_source = "none",
-          sync_approach = "upload-all"
+          strategy = "upload-all"
         ),
         "add_all"
       )
       expect_identical(
         .projr_dest_send_get_plan(
           version_source = "none",
-          sync_approach = "sync-using-deletion"
+          strategy = "sync-using-deletion"
         ),
         "delete_add_all"
       )
@@ -23,7 +23,7 @@ test_that(".projr_dest_send_get_plan works", {
       expect_identical(
         .projr_dest_send_get_plan(
           version_source = "manifest",
-          sync_approach = "upload-all",
+          strategy = "upload-all",
           type = "github",
           structure = "latest"
         ),
@@ -32,7 +32,7 @@ test_that(".projr_dest_send_get_plan works", {
       expect_identical(
         .projr_dest_send_get_plan(
           version_source = "manifest",
-          sync_approach = "upload-all",
+          strategy = "upload-all",
           type = "github",
           structure = "version"
         ),
@@ -41,7 +41,7 @@ test_that(".projr_dest_send_get_plan works", {
       expect_identical(
         .projr_dest_send_get_plan(
           version_source = "manifest",
-          sync_approach = "sync-using-deletion",
+          strategy = "sync-using-deletion",
           type = "github",
           structure = "version"
         ),
@@ -50,7 +50,7 @@ test_that(".projr_dest_send_get_plan works", {
       expect_identical(
         .projr_dest_send_get_plan(
           version_source = "manifest",
-          sync_approach = "sync-using-version",
+          strategy = "sync-using-version",
           type = "github",
           structure = "version"
         ),
@@ -60,7 +60,7 @@ test_that(".projr_dest_send_get_plan works", {
       expect_identical(
         .projr_dest_send_get_plan(
           version_source = "manifest",
-          sync_approach = "upload-all",
+          strategy = "upload-all",
           type = "osf",
           structure = "latest"
         ),
@@ -69,7 +69,7 @@ test_that(".projr_dest_send_get_plan works", {
       expect_identical(
         .projr_dest_send_get_plan(
           version_source = "manifest",
-          sync_approach = "upload-all",
+          strategy = "upload-all",
           type = "osf",
           structure = "version"
         ),
@@ -78,7 +78,7 @@ test_that(".projr_dest_send_get_plan works", {
       expect_identical(
         .projr_dest_send_get_plan(
           version_source = "manifest",
-          sync_approach = "sync-using-deletion",
+          strategy = "sync-using-deletion",
           type = "local",
           structure = "version"
         ),
@@ -87,7 +87,7 @@ test_that(".projr_dest_send_get_plan works", {
       expect_identical(
         .projr_dest_send_get_plan(
           version_source = "manifest",
-          sync_approach = "sync-using-version",
+          strategy = "sync-using-version",
           type = "osf",
           structure = "version"
         ),

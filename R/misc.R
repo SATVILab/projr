@@ -504,7 +504,7 @@ projr_use_data <- function(...,
   c("patch", "minor", "major")
 }
 
-.projr_opt_remote_sync_approach_get <- function() {
+.projr_opt_remote_strategy_get <- function() {
   c(
     "upload-missing",
     "upload-all",
@@ -522,7 +522,7 @@ projr_use_data <- function(...,
 }
 
 .projr_opt_remote_transfer_names_get <- function() {
-  c("cue", "sync-approach", "conflict", "version-source")
+  c("cue", "strategy", "conflict", "version-source")
 }
 
 .projr_try_repeat <- function(fn, args, n_try = NULL, n_sleep = 3) {

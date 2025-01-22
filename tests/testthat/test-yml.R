@@ -58,7 +58,7 @@ test_that("projr_yml_check works", {
         content = "raw-data",
         path = "_outputting",
         send_version_source = "file",
-        send_sync_approach = "upload-all",
+        send_strategy = "upload-all",
         send_conflict = "overwrite"
       )
       expect_true(projr_yml_check())

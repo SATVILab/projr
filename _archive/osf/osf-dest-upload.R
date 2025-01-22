@@ -20,7 +20,7 @@
       path = yml_projr_osf_ind[["path"]], ,
       path_append_label = yml_projr_osf_ind[["path_append_label"]],
       cue = yml_projr_osf_ind_upload[["cue"]],
-      sync_approach = yml_projr_osf_ind_upload[["sync-approach"]],
+      strategy = yml_projr_osf_ind_upload[["strategy"]],
       version_source = yml_projr_osf_ind_upload[["version-source"]],
       conflict = yml_projr_osf_ind_upload[["conflict"]],
       component = yml_projr_osf_ind[["component"]]

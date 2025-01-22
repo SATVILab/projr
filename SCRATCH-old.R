@@ -482,13 +482,13 @@ yml_projr_orig_root <- .projr_yml_get_default()
 yml_projr <- .projr_yml_get()
 
 get_list <- ..projr_dest_add_list_get_osf_add_load_get_list(
-  sync_approach = get_sync_approach,
+  strategy = get_strategy,
   conflict = get_conflict
 )
 
 send_list <- ..projr_dest_add_list_get_osf_add_load_get_list(
   cue = send_cue,
-  sync_approach = send_sync_approach,
+  strategy = send_strategy,
   version_source = send_version_source,
   conflict = send_conflict
 )
@@ -579,13 +579,13 @@ list_add <- .projr_osf_dest_get_list_add(
   .projr_remote_check_osf_trans_list(trans_list = download)
   .projr_remote_check_osf_trans_names(
     trans_list = download,
-    nm_opt = c("sync_approach", "conflict")
+    nm_opt = c("strategy", "conflict")
   )
   .projr_remote_check_osf_cue(
     trans_list = download,
     nm_opt = c("none", "build", "major", "minor", "patch")
   )
-  .projr_remote_check_osf_sync_approach(
+  .projr_remote_check_osf_strategy(
     trans_list = download,
     nm_opt = c(
       "download-all",
@@ -601,13 +601,13 @@ list_add <- .projr_osf_dest_get_list_add(
   )
   .projr_remote_check_osf_trans_names(
     trans_list = upload,
-    nm_opt = c("cue", "sync-approach", "version-source", "conflict")
+    nm_opt = c("cue", "strategy", "version-source", "conflict")
   )
   .projr_remote_check_osf_cue(
     trans_list = upload,
     nm_opt = c("none", "build", "major", "minor", "patch", "change")
   )
-  .projr_remote_check_osf_sync_approach(
+  .projr_remote_check_osf_strategy(
     trans_list = upload,
     nm_opt = c(
       "upload-missing",

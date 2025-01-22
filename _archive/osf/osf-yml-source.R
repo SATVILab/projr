@@ -88,10 +88,10 @@ projr_source_add_osf <- function(label,
                                  path_append_label = NULL,
                                  structure = NULL,
                                  download_cue = NULL,
-                                 download_sync_approach = NULL,
+                                 download_strategy = NULL,
                                  download_conflict = NULL,
                                  upload_cue = NULL,
-                                 upload_sync_approach = NULL,
+                                 upload_strategy = NULL,
                                  upload_version_source = NULL,
                                  upload_conflict = NULL) {
   # format inputs
@@ -102,13 +102,13 @@ projr_source_add_osf <- function(label,
 
   download_list <- .projr_osf_yml_add_load_get_list(
     cue = download_cue,
-    sync_approach = download_sync_approach,
+    strategy = download_strategy,
     conflict = download_conflict
   )
 
   upload_list <- .projr_osf_yml_add_load_get_list(
     cue = upload_cue,
-    sync_approach = upload_sync_approach,
+    strategy = upload_strategy,
     version_source = upload_version_source,
     conflict = upload_conflict
   )
@@ -208,13 +208,13 @@ projr_source_add_osf <- function(label,
   .projr_osf_yml_check_trans_list(trans_list = download)
   .projr_osf_yml_check_trans_names(
     trans_list = download,
-    nm_opt = c("cue", "sync-approach", "conflict")
+    nm_opt = c("cue", "strategy", "conflict")
   )
   .projr_osf_yml_check_cue(
     trans_list = download,
     nm_opt = c("none", "build", "major", "minor", "patch", "change")
   )
-  .projr_osf_yml_check_sync_approach(
+  .projr_osf_yml_check_strategy(
     trans_list = download,
     nm_opt = c(
       "download-all",
@@ -230,13 +230,13 @@ projr_source_add_osf <- function(label,
   .projr_osf_yml_check_trans_list(trans_list = upload)
   .projr_osf_yml_check_trans_names(
     trans_list = upload,
-    nm_opt = c("cue", "sync-approach", "version-source", "conflict")
+    nm_opt = c("cue", "strategy", "version-source", "conflict")
   )
   .projr_osf_yml_check_cue(
     trans_list = upload,
     nm_opt = c("none", "build", "major", "minor", "patch", "change")
   )
-  .projr_osf_yml_check_sync_approach(
+  .projr_osf_yml_check_strategy(
     trans_list = upload,
     nm_opt = c(
       "upload-all",

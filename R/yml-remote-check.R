@@ -35,9 +35,9 @@
   .assert_nchar_single(id_parent, 5L)
   .assert_class_exact(get_list, "list")
   if (.is_len_pos(get_list)) {
-    .assert_in(names(get_list), c("sync-approach", "conflict"))
+    .assert_in(names(get_list), c("strategy", "conflict"))
     .assert_in(
-      get_list[["sync-approach"]], .projr_opt_remote_sync_approach_get()
+      get_list[["strategy"]], .projr_opt_remote_strategy_get()
     )
     .assert_in(
       get_list[["conflict"]], .projr_opt_remote_conflict_get()
@@ -48,7 +48,7 @@
     .assert_in(names(send_list), .projr_opt_remote_transfer_names_get())
     .assert_in(send_list[["cue"]], .projr_opt_cue_get())
     .assert_in(
-      send_list[["sync-approach"]], .projr_opt_remote_sync_approach_get()
+      send_list[["strategy"]], .projr_opt_remote_strategy_get()
     )
     .assert_in(send_list[["conflict"]], .projr_opt_remote_conflict_get())
     .assert_in(
