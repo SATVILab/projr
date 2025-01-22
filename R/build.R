@@ -225,7 +225,7 @@ projr_build_dev <- function(file = NULL,
   version_run_on_list <- .projr_version_run_onwards_get(bump_component)
 
   # run any scripts
-  .projr_build_pre_script_run(bump_component)
+  .projr_build_pre_script_run()
 
   # commit any unstaged files pre-run
   .projr_build_pre_commit_git(
@@ -281,7 +281,7 @@ projr_build_dev <- function(file = NULL,
     )
 
   # run post-build scripts
-  .projr_build_post_script_run(bump_component)
+  .projr_build_post_script_run()
 
   # initate dev version
   .projr_build_post_dev(bump_component, version_run_on_list, msg)
