@@ -508,8 +508,8 @@ projr_use_data <- function(...,
   c(
     "upload-missing",
     "upload-all",
-    "sync-using-deletion",
-    "sync-using-version"
+    "sync-purge",
+    "sync-diff"
   )
 }
 
