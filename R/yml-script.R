@@ -205,10 +205,3 @@ projr_yml_script_add_post <- function(path,
     stage = "post", cue = cue, profile = profile, overwrite = overwrite
   )
 }
-
-.projr_yml_script_complete_cue <- function(x) {
-  if (is.null(x)) {
-    return(invisible("dev"))
-  }
-  invisible(x)
-}

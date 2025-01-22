@@ -10,9 +10,6 @@
                         conflict,
                         component) {
   # whether to run or not
-  if (!.is_cue(cue, bump_component = bump_component)) {
-    return(invisible(FALSE))
-  }
   switch(remote_type,
     "osf" = .projr_send_osf(
       path_dir_local = path_dir_local,

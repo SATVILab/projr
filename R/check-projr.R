@@ -2,42 +2,17 @@
 .is_cue <- function(cue, bump_component) {
   .is_cue_check(cue, bump_component)
 
-  if (is.null(cue)) {
-    return(TRUE)
-  }
-  if (.is_flag(bump_component)) {
-    return(.is_opt(cue, c("build", "dev")))
-  }
-  # if cue is none, then we're saying nothing
-  # must happen
-  if (.is_opt(cue, "none")) {
-    return(FALSE)
-  }
-  if (.is_opt(cue, c("build", "dev"))) {
-    return(TRUE)
-  }
-  if (.is_opt(cue, "major")) {
-    return(.is_opt(bump_component, "major"))
-  }
-  if (.is_opt(cue, "minor")) {
-    return(.is_opt(bump_component, c("major", "minor")))
-  }
-  .is_opt(bump_component, c("major", "minor", "patch"))
+  never_act <- .is_opt(cue, "never")
+  not_output_build <- is.null(bump_component) ||
+    .is_opt(bump_component, c("none", "dev"))
+  
+  !(never_act || not_output_build)
 }
 
 .is_cue_check <- function(cue, bump_component) {
-  if (is.null(cue)) {
-    return(invisible(TRUE))
-  }
+  .assert_string(cue)
   .assert_len_1(cue)
-  if (is.null(bump_component)) {
-    if (.is_opt(cue, c("major", "minor", "patch"))) {
-      stop(
-        "bump_component must be supplied if cue is major, minor or patch",
-        call. = FALSE
-      )
-    }
-  }
+  .assert_in(cue, c("never", "always", "if-change"))
   .assert_len_1(bump_component)
   if (.is_string(bump_component)) {
     .assert_in(bump_component, c("major", "minor", "patch", "dev", "none"))

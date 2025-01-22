@@ -240,7 +240,6 @@ test_that(".projr_build_script... functions work works", {
         rm(y, envir = .GlobalEnv)
       }
       .projr_build_script_run(
-        bump_component = "patch",
         stage = "post"
       )
       expect_false(exists("x"))
@@ -254,7 +253,6 @@ test_that(".projr_build_script... functions work works", {
       }
       # something done
       .projr_build_script_run(
-        bump_component = "patch",
         stage = "pre"
       )
       expect_true(exists("x"))

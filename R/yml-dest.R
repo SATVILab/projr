@@ -322,7 +322,7 @@
 }
 
 .projr_yml_dest_complete_title_cue <- function(yml, type) {
-  .projr_yml_complete(yml, "cue", "patch")
+  .projr_yml_complete(yml, "cue", "if-change")
 }
 
 .projr_yml_dest_complete_title_upload <- function(yml, type) {

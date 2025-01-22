@@ -212,7 +212,7 @@ projr_source_add_osf <- function(label,
   )
   .projr_osf_yml_check_cue(
     trans_list = download,
-    nm_opt = c("none", "build", "major", "minor", "patch", "change")
+    nm_opt = c("never", "always", "if-change")
   )
   .projr_osf_yml_check_strategy(
     trans_list = download,
@@ -234,7 +234,7 @@ projr_source_add_osf <- function(label,
   )
   .projr_osf_yml_check_cue(
     trans_list = upload,
-    nm_opt = c("none", "build", "major", "minor", "patch", "change")
+    nm_opt = c("never", "always", "if-change")
   )
   .projr_osf_yml_check_strategy(
     trans_list = upload,
