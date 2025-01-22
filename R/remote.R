@@ -1316,7 +1316,7 @@ projr_osf_create_project <- function(title,
   remote_final_vec_basename <- .projr_remote_final_ls(
     type, remote_pre
     )
-  .projr_remote_version_latest_get(fn_vec, type, label) |>
+  .projr_remote_version_latest_get(remote_final_vec_basename, type, label) |>
     .projr_version_v_rm()
 }
 
@@ -1533,7 +1533,7 @@ projr_osf_create_project <- function(title,
 
 .projr_remote_final_ls_osf <- function(remote_pre) {
   .assert_given_full(remote_pre)
-  osf_tbl_file <- remote |> .projr_osf_ls_files(n_max = Inf)
+  osf_tbl_file <- remote_pre |> .projr_osf_ls_files(n_max = Inf)
   if (nrow(osf_tbl_file) == 0L) {
     return(character())
   }
