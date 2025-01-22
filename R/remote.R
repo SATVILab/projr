@@ -420,7 +420,8 @@ projr_osf_create_project <- function(title,
       structure = structure,
       path = path,
       path_append_label = path_append_label,
-      version = version
+      version = version,
+      pre = pre
     ),
     stop(paste0("type '", type, "' not recognized"))
   )
@@ -521,9 +522,14 @@ projr_osf_create_project <- function(title,
                                            path_append_label,
                                            label,
                                            structure,
-                                           version) {
+                                           version,
+                                           pre) {
   .assert_string(id, TRUE)
   .assert_in(label, .projr_opt_dir_get_label_send(NULL), TRUE)
+  if (pre) {
+    return(c("tag" = id))
+  }
+  
   fn <- .projr_remote_get_path_rel(
     type = "github",
     path = path,
@@ -933,6 +939,39 @@ projr_osf_create_project <- function(title,
   )
 }
 
+.projr_remote_file_get_ind_local <- function(remote,
+                                             fn,
+                                             path_dir_save_local) {
+  path_remote_fn <- file.path(remote, fn)
+  if (!file.exists(path_remote_fn)) {
+    return(character(0L))
+  } else {
+    path_fn <- file.path(path_dir_save_local, fn)
+    file.copy(path_remote_fn, path_fn)
+    path_fn
+  }
+}
+
+.projr_remote_file_get_ind_osf <- function(remote,
+                                           fn,
+                                           path_dir_save_local) {
+  .assert_given_full(remote)
+  osf_tbl_file <- remote |> .projr_osf_ls_files(n_max = Inf)
+  if (nrow(osf_tbl_file) == 0L) {
+    return(character(0L))
+  }
+  if (!fn %in% osf_tbl_file[["name"]]) {
+    return(character(0L))
+  }
+  .projr_osf_download(
+    x = osf_tbl_file[osf_tbl_file[["name"]] == fn, ],
+    path = path_dir_save_local,
+    check = FALSE
+  )
+  path_fn <- file.path(path_dir_save_local, fn)
+  if (file.exists(path_fn)) path_fn else character(0L)
+}
+
 .projr_remote_file_get_ind_github <- function(remote,
                                               fn,
                                               path_dir_save_local) {
@@ -946,7 +985,8 @@ projr_osf_create_project <- function(title,
   .projr_remote_file_get_all_github_file(
     remote = remote, path_dir_save_local = path_dir_save_local
   )
-  invisible(file.path(path_dir_save_local, fn_no_zip))
+  path_fn <- file.path(path_dir_save_local, fn_no_zip)
+  if (file.exists(path_fn)) path_fn else character(0L)
 }
 
 # ========================
@@ -1138,7 +1178,7 @@ projr_osf_create_project <- function(title,
 # ========================
 
 .projr_remote_get_manifest <- function(type,
-                                       remote_final) {
+                                       remote_pre) {
   switch(type,
     "project" = .projr_remote_get_manifest_project(),
     .projr_remote_get_manifest_non_project(type, remote_final)
@@ -1151,8 +1191,8 @@ projr_osf_create_project <- function(title,
 }
 
 .projr_remote_get_manifest_non_project <- function(type,
-                                                   remote_final) {
-  manifest_actual <- .projr_remote_get_manifest_non_project_raw(type, remote_final)
+                                                   remote_pre) {
+  manifest_actual <- .projr_remote_get_manifest_non_project_raw(type, remote_pre)
   if (is.null(manifest_actual)) {
     .projr_remote_get_manifest_project()
   } else {
@@ -1160,10 +1200,10 @@ projr_osf_create_project <- function(title,
   }
 }
 
-.projr_remote_get_manifest_non_project_raw <- function(type, remote_final) {
+.projr_remote_get_manifest_non_project_raw <- function(type, remote_pre) {
   path_dir_save <- .dir_create_tmp_random()
   path_manifest <- .projr_remote_file_get_ind(
-    type, remote_final, "manifest.csv", path_dir_save
+    type, remote_pre, "manifest.csv", path_dir_save
   )
   manifest <- .projr_manifest_read(file.path(path_dir_save, "manifest.csv"))
   unlink(path_dir_save, recursive = TRUE)
@@ -1175,18 +1215,18 @@ projr_osf_create_project <- function(title,
 # ========================
 
 .projr_remote_get_version_file <- function(type,
-                                           remote_final) {
+                                           remote_pre) {
   switch(type,
     "project" = character(0L),
-    .projr_remote_get_version_file_non_project(type, remote_final)
+    .projr_remote_get_version_file_non_project(type, remote_pre)
   )
 }
 
 .projr_remote_get_version_file_non_project <- function(type,
-                                                       remote_final) {
+                                                       remote_pre) {
   path_dir_save <- .dir_create_tmp_random()
   path_version <- .projr_remote_file_get_ind(
-    type, remote_final, "VERSION", path_dir_save
+    type, remote_pre, "VERSION", path_dir_save
   )
   version_file <- .projr_remote_get_version_file_read(path_version)
   unlink(path_dir_save, recursive = TRUE)
@@ -1204,13 +1244,16 @@ projr_osf_create_project <- function(title,
 # Get latest version of a particular label from a remote
 # ========================
 
-.projr_remote_get_version_label <- function(remote_final,
+.projr_remote_get_version_label <- function(remote_pre,
                                             type,
-                                            label) {
+                                            label,
+                                            structure) {
   if (type == "project") {
     .projr_remote_get_version_project()
   } else {
-    .projr_remote_get_version_label_non_project(remote_final, type, label)
+    .projr_remote_get_version_label_non_project(
+      remote_pre, type, label, structure
+      )
   }
 }
 
@@ -1218,37 +1261,75 @@ projr_osf_create_project <- function(title,
   .projr_version_get() |> .projr_version_v_rm()
 }
 
-.projr_remote_get_version_label_non_project <- function(remote_final,
+.projr_remote_get_version_label_non_project <- function(remote_pre,
                                                         type,
-                                                        label) {
-  # use the versioned folders (e.g. data-raw-v0.1.0)
-  version_structure <- .projr_remote_get_version_label_non_project_structure(
-    remote_final, type, label
-  )
+                                                        label,
+                                                        structure) {
+  if (structure == "archive") {
+    version_archive <- .projr_remote_get_version_label_non_project_archive(
+      remote_pre, type, label, structure
+    )
+    if (!.projr_version_check_error_free(version_archive)) {
+      return(character(0L))
+    }
+  } else {
+    version_archive <- NULL
+  }
+  
   # use the versioned files (data-raw-project: v1.0.0)
   version_file <- .projr_remote_get_version_label_non_project_file(
-    remote_final, type, label
+    remote_pre, type, label
   )
+  # if it's not correctly formatted (which may happen because
+  # it's not found) or if it does not match version_archive,
+  # then return nothing
+  if (!.projr_version_check_error_free(version_file)) {
+    return(character(0L))
+  }
+  if (!identical(version_archive, version_file)) {
+    return(character(0L))
+  }
+
+  version_thus_far <- version_archive
+  
+  # check that the manifest matches
+  manifest_project <- .projr_remote_get_manifest_project() |>
+    .projr_manifest_filter_label(label) |>
+    .projr_manifest_filter_version(version_thus_far)
+  manifest_remote <- .projr_remote_get_manifest(type, remote_pre) |>
+    .projr_manifest_filter_label(label) |>
+    .projr_manifest_filter_version(version_thus_far)
+  if (!identical(manifest_project, manifest_remote)) {
+    return(character(0L))
+  }
+
+  version_thus_far
 }
 
-.projr_remote_get_version_label_non_project_structure <- function(remote_final,
-                                                                  type,
-                                                                  label) {
-  fn_vec <- .projr_remote_get_version_label_non_project_get_fn(
-    remote_final, type
+.projr_remote_get_version_label_non_project_archive <- function(remote_pre,
+                                                                type,
+                                                                label,
+                                                                structure) {
+  if (structure != "archive") {
+    return(NULL)
+  }
+  remote_final_vec_basename <- .projr_remote_final_ls(
+    type, remote_pre
     )
-  .projr_remote_version_latest_get(fn_vec, type, label)
+  .projr_remote_version_latest_get(fn_vec, type, label) |>
+    .projr_version_v_rm()
 }
 
-.projr_remote_get_version_label_non_project_get_fn <- function(remote_final,
+.projr_remote_get_version_label_non_project_get_fn <- function(remote_pre,
                                                                type) {                                         
   switch(type,
-    "github" = .projr_remote_get_version_label_non_project_get_fn_github(remote_final)
+    "github" = .projr_remote_get_version_label_non_project_get_fn_github(remote_pre),
+    "local" = 
   )
 }
 
-.projr_remote_get_version_label_non_project_get_fn_github <- function(remote_final) {
-  pb_tbl <- piggyback::pb_list(tag = remote_final[["tag"]])
+.projr_remote_get_version_label_non_project_get_fn_github <- function(remote_pre) {
+  pb_tbl <- piggyback::pb_list(tag = remote_pre[["tag"]])
   if ("file_name" %in% names(pb_tbl)) {
     fn_vec <- pb_tbl[["file_name"]]
     setdiff(fn_vec, "")
@@ -1306,10 +1387,10 @@ projr_osf_create_project <- function(title,
   .projr_version_get_latest(version_vec)
 }
 
-.projr_remote_get_version_label_non_project_file <- function(remote_final,
+.projr_remote_get_version_label_non_project_file <- function(remote_pre,
                                                              type,
                                                              label) {
-  version_file <- .projr_remote_get_version_file(type, remote_final)
+  version_file <- .projr_remote_get_version_file(type, remote_pre)
   .projr_remote_get_version_label_non_project_file_extract(
     version_file, label
   )
@@ -1322,6 +1403,10 @@ projr_osf_create_project <- function(title,
     paste0(": ")
   label_regex <- grep(match_str, version_file, value = TRUE)
   if (.is_len_0(label_regex)) {
+    return(character(0L))
+  }
+  # return character() if ends in an asterisk
+  if (grep("\\*$", label_regex)) {
     return(character(0L))
   }
   gsub(match_str, "", label_regex) |> 
@@ -1428,6 +1513,45 @@ projr_osf_create_project <- function(title,
   version
 }
 
+# ========================
+# List all final remotes in a particular pre-remote
+# ========================
+
+.projr_remote_final_ls <- function(type,
+                                   remote_pre) {
+  .assert_in(type, .projr_opt_remote_get_type(), TRUE)
+  switch(type,
+    "local" = .projr_remote_final_ls_local(remote_pre),
+    "osf" = .projr_remote_final_ls_osf(remote_pre),
+    "github" = .projr_remote_final_ls_github(remote_pre)
+  )
+}
+
+.projr_remote_final_ls_local <- function(remote_pre) {
+  list.dirs(remote_pre, full.names = FALSE, recursive = FALSE)
+}
+
+.projr_remote_final_ls_osf <- function(remote_pre) {
+  .assert_given_full(remote_pre)
+  osf_tbl_file <- remote |> .projr_osf_ls_files(n_max = Inf)
+  if (nrow(osf_tbl_file) == 0L) {
+    return(character())
+  }
+  dir_vec_int <- which(.projr_osf_is_dir(osf_tbl_file))
+  osf_tbl_file[["name"]][dir_vec_int]
+}
+
+.projr_remote_final_ls_github <- function(remote_pre) {
+  .assert_given_full(remote_pre)
+  .projr_dep_install("piggyback")
+  pb_tbl <- piggyback::pb_list(tag = remote_pre[["tag"]])
+  if ("file_name" %in% names(pb_tbl)) {
+    fn_vec <- pb_tbl[["file_name"]]
+    setdiff(fn_vec, "")
+  } else {
+    character(0L)
+  }
+}
 
 
 # ========================
@@ -1453,7 +1577,8 @@ projr_osf_create_project <- function(title,
 # osf
 .projr_remote_file_ls_osf <- function(remote,
                                       path_dir_parent = NULL,
-                                      fn_vec = character()) {
+                                      fn_vec = character(),
+                                      recurse = TRUE) {
   # this function is to be applied to every directory.
   # it does the following:
   # 1. Lists all the files

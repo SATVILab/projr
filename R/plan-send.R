@@ -22,6 +22,11 @@
   remote_dest <- .projr_dest_send_label_get_remote_dest_if_exists(
     type, label, yml_title, remote_dest_exists
   )
+  version_comparison <- .projr_remote_get_version_label(
+    # TODO: need to know what to do if this does not exist
+    remote_pre, type, label, yml_title[["structure"]]
+  )
+
   remote_comp_exists <- .projr_remote_final_check_exists(
     type, yml_title[["id"]], label, yml_title[["structure"]],
     yml_title[["path"]], yml_title[["path-append-label"]], version_comparison
@@ -59,7 +64,7 @@
 
   version_comparison <- .projr_remote_get_version_label(
     # TODO: need to know what to do if this does not exist
-    remote_dest, type, label
+    remote_dest, type, label, yml_title[["structure"]]
   )
 
 }
@@ -77,7 +82,7 @@
 
   version_comparison <- .projr_remote_get_version_label(
     # TODO: need to know what to do if this does not exist
-    remote_dest, type, label
+    remote_dest, type, label, yml_title[["structure"]]
     )
   if (is.null(version_comparison)) {
     return(list("remote" = NULL, "exists" = FALSE, "version" = NULL))
@@ -142,7 +147,9 @@
                                                                  structure,
                                                                  version,
                                                                  remote_dest) {     
-  version_latest <- .projr_remote_get_version_label(remote_dest, type, label)
+  version_latest <- .projr_remote_get_version_label(
+    remote_dest, type, label, yml_title[["structure"]]
+    )
   remote_comparison_exist
   remote_comparison <- .projr_remote_get_final(
     type, id, label, structure, path, path_append_label, version_latest

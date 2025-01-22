@@ -57,6 +57,18 @@ projr_version_set <- function(version, only_if_exists = TRUE) {
   .projr_version_format_check(version)
 }
 
+.projr_version_check_error_free <- function(version) {
+  tryCatch(
+    .projr_version_check(version),
+    error = function(e) {
+      FALSE
+    }
+  )
+}
+
+
+
+
 .projr_version_set_file <- function(version, path_dir = NULL, only_if_exists = FALSE) {
   .projr_version_check(version)
   .assert_string(path_dir)
@@ -372,6 +384,6 @@ projr_version_get <- function() {
     .projr_version_v_rm() |>
     unique() |>
     utils::package_version() |>
-    utils::max() |>
+    max() |>
     utils::tail(1)
 }
