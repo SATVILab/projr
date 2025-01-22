@@ -471,7 +471,7 @@ projr_use_data <- function(...,
 }
 
 .projr_opt_remote_get_structure <- function() {
-  c("version", "latest")
+  c("archive", "latest")
 }
 
 .projr_opt_remote_get_type <- function() {
