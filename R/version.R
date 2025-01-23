@@ -367,9 +367,9 @@ projr_version_get <- function() {
   x |>
     .projr_version_v_rm() |>
     unique() |>
-    utils::package_version() |>
-    utils::min() |>
-    utils::tail(1)
+    package_version() |>
+    min() |>
+    tail(1)
 }
 
 .projr_version_append <- function(path) {
@@ -383,7 +383,7 @@ projr_version_get <- function() {
   x |> 
     .projr_version_v_rm() |>
     unique() |>
-    utils::package_version() |>
+    package_version() |>
     max() |>
-    utils::tail(1)
+    tail(1)
 }
