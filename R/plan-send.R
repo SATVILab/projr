@@ -17,11 +17,7 @@
   )
 
 }
-  remote_pre <- .projr_remote_get_final_if_exists(
-    type, yml_title[["id"]], label, yml_title[["structure"]],
-    yml_title[["path"]], yml_title[["path-append-label"]], NULL,
-    TRUE
-  )
+
 .projr_dest_send_label_get_remotes <- function(type,
                                                id,
                                                path,
@@ -68,7 +64,7 @@
                                                     structure,
                                                     path,
                                                     path_append_label,
-                                                    version) {                                                 ) {
+                                                    version) {
   if (is.null(version_comparison)) {
     NULL
   } else {
