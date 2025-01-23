@@ -65,11 +65,11 @@
                                                     path,
                                                     path_append_label,
                                                     version) {
-  if (is.null(version_comparison)) {
+  if (is.null(version)) {
     NULL
   } else {
     .projr_remote_get_final(
-      type, id, label, structure, path, path_append_label, version_comparison
+      type, id, label, structure, path, path_append_label, version
     )
   }
 }
