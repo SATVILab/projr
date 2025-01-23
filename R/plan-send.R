@@ -25,7 +25,7 @@
                                                label,
                                                structure,
                                                strategy) {
-  remote_pre <- .projr_remote_get_final_if_exists(
+  remote_pre <- .projr_remote_get_final(
     type, id, label, structure, path, path_append_label, NULL, TRUE
   )
   remote_dest <- .projr_remote_get_final_if_exists(
