@@ -541,6 +541,27 @@ projr_osf_create_project <- function(title,
   c("tag" = id, "fn" = fn)
 }
 
+# wrapper if it returns NULL because we
+# already know it does not exist
+.projr_remote_get_final_if_exists <- function(type,
+                                              id,
+                                              label,
+                                              structure,
+                                              path = NULL,
+                                              path_append_label = TRUE,
+                                              version = NULL,
+                                              pre = FALSE) {
+  exists <- .projr_remote_final_check_exists(
+    type, id, label, structure, path, path_append_label, version
+  )
+  if (!exists) {
+    return(NULL)
+  }
+  .projr_remote_get_final(
+    type, id, label, structure, path, path_append_label, version, pre
+  )
+}
+
 # =====================
 # get relative paths
 # =====================
