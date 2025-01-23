@@ -519,6 +519,10 @@ projr_osf_create_project <- function(title,
                                            pre) {
   .assert_string(id, TRUE)
   .assert_in(label, .projr_opt_dir_get_label_send(NULL), TRUE)
+  tag <- .projr_remote_misc_get_github_tag(id)
+  if (!.projr_remote_check_exists("github", tag)) {
+    .projr_remote_create_github(tag = tag)
+  }
   if (pre) {
     return(c("tag" = id))
   }
