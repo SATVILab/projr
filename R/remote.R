@@ -712,7 +712,7 @@ projr_osf_create_project <- function(title,
   .assert_in(structure, .projr_opt_remote_get_structure(), TRUE)
   .assert_string(remote, TRUE)
   # only do this for versioned ones
-  if (!"structure" == "archive) {
+  if (!structure == "archive") {
     return(invisible(FALSE))
   }
   if (!dir.exists(remote)) {
@@ -729,7 +729,7 @@ projr_osf_create_project <- function(title,
 .projr_remote_rm_final_if_empty_osf <- function(remote, structure) {
   .assert_in(structure, .projr_opt_remote_get_structure(), TRUE)
   .assert_given_full(remote)
-  if (!"structure" == "archive) {
+  if (!structure == "archive") {
     return(invisible(FALSE))
   }
   if (!inherits(remote, "osf_tbl_file")) {
