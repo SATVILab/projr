@@ -1292,6 +1292,8 @@ projr_osf_create_project <- function(title,
   manifest_remote <- .projr_remote_get_manifest(type, remote_pre) |>
     .projr_manifest_filter_label(label) |>
     .projr_manifest_filter_version(version_thus_far)
+  rownames(manifest_project) <- NULL
+  rownames(manifest_remote) <- NULL
   if (!identical(manifest_project, manifest_remote)) {
     return(character(0L))
   }
