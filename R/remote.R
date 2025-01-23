@@ -313,33 +313,6 @@ projr_osf_create_project <- function(title,
   )
 }
 
-
-.projr_remote_final_check_exists_local <- function(path) {
-  .assert_string(path, TRUE)
-  .assert_path_not_file(path)
-  dir.exists(path)
-}
-
-.projr_remote_final_check_exists_osf <- function() {
-
-}
-
-.projr_remote_final_check_exists_github <- function(remote_final) {
-  .assert_attr(remote_final, "names")
-  .assert_has(names(remote_final), c("tag", "fn"))
-  if (!.projr_remote_check_exists("github", remote_final[["tag"]])) {
-    return(FALSE)
-  }
-  asset_tbl <- .projr_pb_asset_tbl_get(remote_final[["tag"]])
-  # if there's an error for some reason, assume it's not there
-  tryCatch(
-    remote_final[["fn"]] %in% asset_tbl[["file_name"]],
-    error = function(e) {
-      FALSE
-    }
-  )
-}
-
 # =====================
 # get just the remote itself,
 # nothing more specific like sub-directories (OSF/local)
