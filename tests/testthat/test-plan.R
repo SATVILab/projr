@@ -34,7 +34,7 @@ test_that(".projr_dest_send_get_plan works", {
           version_source = "manifest",
           strategy = "upload-all",
           type = "github",
-          structure = "version"
+          structure = "archive"
         ),
         "add_all"
       )
@@ -43,7 +43,7 @@ test_that(".projr_dest_send_get_plan works", {
           version_source = "manifest",
           strategy = "sync-using-deletion",
           type = "github",
-          structure = "version"
+          structure = "archive"
         ),
         "delete_add_all"
       )
@@ -52,7 +52,7 @@ test_that(".projr_dest_send_get_plan works", {
           version_source = "manifest",
           strategy = "sync-using-version",
           type = "github",
-          structure = "version"
+          structure = "archive"
         ),
         "delete_add_all_if_change"
       )
@@ -71,7 +71,7 @@ test_that(".projr_dest_send_get_plan works", {
           version_source = "manifest",
           strategy = "upload-all",
           type = "osf",
-          structure = "version"
+          structure = "archive"
         ),
         "add_all"
       )
@@ -80,7 +80,7 @@ test_that(".projr_dest_send_get_plan works", {
           version_source = "manifest",
           strategy = "sync-using-deletion",
           type = "local",
-          structure = "version"
+          structure = "archive"
         ),
         "delete_add_all"
       )
@@ -89,7 +89,7 @@ test_that(".projr_dest_send_get_plan works", {
           version_source = "manifest",
           strategy = "sync-using-version",
           type = "osf",
-          structure = "version"
+          structure = "archive"
         ),
         "delete_add_all_if_change"
       )
@@ -271,7 +271,7 @@ test_that(".projr_plan_implement works", {
         path_dir_local = dir_tmp,
         remote = dir_tmp_2_version,
         type = "local",
-        structure = "version"
+        structure = "archive"
       )
       expect_identical(.file_ls(dir_tmp_2) |> length(), 0L)
       expect_true(dir.exists(dir_tmp_2))

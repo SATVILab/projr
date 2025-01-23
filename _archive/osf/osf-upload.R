@@ -157,7 +157,7 @@
     path = path,
     path_append_label = path_append_label,
     label = label,
-    structure = "version",
+    structure = "archive",
     version = NULL
   )
   # get local directory to upload from

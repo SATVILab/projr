@@ -147,7 +147,7 @@ test_that(".projr_remote_get_final works - local", {
           "local",
           id = "a/b/c",
           label = "raw-data",
-          structure = "version",
+          structure = "archive",
           path_append_label = TRUE
         ),
         "a/b/c/raw-data/v0.0.0-1"
@@ -196,7 +196,7 @@ test_that(".projr_remote_get_final works", {
           path = "a",
           path_append_label = TRUE,
           label = "raw-data",
-          structure = "version"
+          structure = "archive"
         ),
         osf_tbl
       )
@@ -206,7 +206,7 @@ test_that(".projr_remote_get_final works", {
       expect_identical(
         .projr_remote_get_final(
           "github",
-          id = "kablumph", label = "raw-data", structure = "version"
+          id = "kablumph", label = "raw-data", structure = "archive"
         ),
         c("tag" = "kablumph", fn = "raw-data-v0.0.0-1.zip")
       )
@@ -246,14 +246,14 @@ test_that(".projr_remote_rm_final_if_empty works - local", {
       # versioned structure
       id <- .projr_remote_get_final(
         "local",
-        id = "a/b/c", path_append_label = FALSE, structure = "version"
+        id = "a/b/c", path_append_label = FALSE, structure = "archive"
       )
 
       # will remove now
       expect_true(
         .projr_remote_rm_final_if_empty(
           "local",
-          remote = id, structure = "version"
+          remote = id, structure = "archive"
         )
       )
       expect_false(dir.exists(id))
@@ -261,7 +261,7 @@ test_that(".projr_remote_rm_final_if_empty works - local", {
       # won't remove if there are contents
       id <- .projr_remote_get_final(
         "local",
-        id = "a/b/c", path_append_label = FALSE, structure = "version"
+        id = "a/b/c", path_append_label = FALSE, structure = "archive"
       )
       file.create(file.path(id, "abc.txt"))
 
@@ -269,7 +269,7 @@ test_that(".projr_remote_rm_final_if_empty works - local", {
       expect_false(
         .projr_remote_rm_final_if_empty(
           "local",
-          remote = id, structure = "version"
+          remote = id, structure = "archive"
         )
       )
       expect_true(dir.exists(id))
@@ -298,21 +298,21 @@ test_that(".projr_remote_rm_final_if_empty works - remote", {
       expect_false(
         .projr_remote_rm_final_if_empty(
           "osf",
-          remote = osf_tbl, structure = "version"
+          remote = osf_tbl, structure = "archive"
         )
       )
 
       # create the sub-directory
       osf_tbl_file <- .projr_remote_get_final(
         "osf",
-        id = id, path_append_label = FALSE, structure = "version"
+        id = id, path_append_label = FALSE, structure = "archive"
       )
 
       # remove it again
       expect_true(
         .projr_remote_rm_final_if_empty(
           "osf",
-          remote = osf_tbl_file, structure = "version"
+          remote = osf_tbl_file, structure = "archive"
         )
       )
       is_zero <- (.projr_osf_ls_files(osf_tbl) |> nrow()) == 0L
@@ -329,7 +329,7 @@ test_that(".projr_remote_rm_final_if_empty works - remote", {
       # create the sub-directory, and upload to it
       osf_tbl_file <- .projr_remote_get_final(
         "osf",
-        id = id, path_append_label = FALSE, structure = "version"
+        id = id, path_append_label = FALSE, structure = "archive"
       )
       invisible(file.create("abc.txt"))
       .projr_osf_upload(x = osf_tbl_file, path = "abc.txt")
@@ -338,7 +338,7 @@ test_that(".projr_remote_rm_final_if_empty works - remote", {
       expect_false(
         .projr_remote_rm_final_if_empty(
           "osf",
-          remote = osf_tbl_file, structure = "version"
+          remote = osf_tbl_file, structure = "archive"
         )
       )
       expect_identical(.projr_osf_ls_files(osf_tbl) |> nrow(), 1L)

@@ -37,7 +37,7 @@
   if (structure == "latest") {
     return(path_base)
   }
-  if (structure == "version") {
+  if ("structure" == "archive") {
     if (!is.null(version) && version == "latest") {
       osf_tbl_file <- osfr::osf_mkdir(x = osf_tbl, path = path_base)
       osf_tbl_file <- osf_tbl_file |> osfr::osf_ls_files(n_max = Inf)

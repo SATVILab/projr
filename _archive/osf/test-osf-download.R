@@ -73,7 +73,7 @@ test_that(".projr_checkout_osf works", {
       # add to YAML config
       projr_source_add_osf(
         label = "raw-data", id = osf_tbl_proj[["id"]],
-        structure = "version", overwrite = TRUE
+        structure = "archive", overwrite = TRUE
       )
 
       # remove to test restore

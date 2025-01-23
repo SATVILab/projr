@@ -520,7 +520,7 @@ projr_osf_create_project <- function(title,
   .assert_string(id, TRUE)
   .assert_in(label, .projr_opt_dir_get_label_send(NULL), TRUE)
   tag <- .projr_remote_misc_get_github_tag(id)
-  if (!.projr_remote_check_exists("github", tag)) {
+  if (!pre) {
     .projr_remote_create_github(tag = tag)
   }
   if (pre) {
@@ -622,7 +622,7 @@ projr_osf_create_project <- function(title,
   if (path_append_label) {
     args_list <- args_list |> append(list(label))
   }
-  if (structure == "version") {
+  if (structure == "archive") {
     version_add <- if (is.null(version)) .projr_version_get_v() else version
     args_list <- args_list |> append(list(version_add))
   }
@@ -680,7 +680,7 @@ projr_osf_create_project <- function(title,
   } else if (.is_len_0(path_rel)) {
     path_rel <- label
   }
-  if (structure == "version") {
+  if (structure == "archive") {
     version_add <- if (is.null(version)) .projr_version_get_v() else version
     path_rel <- paste0(path_rel, "-", version_add)
   }
@@ -712,7 +712,7 @@ projr_osf_create_project <- function(title,
   .assert_in(structure, .projr_opt_remote_get_structure(), TRUE)
   .assert_string(remote, TRUE)
   # only do this for versioned ones
-  if (!structure == "version") {
+  if (!"structure" == "archive) {
     return(invisible(FALSE))
   }
   if (!dir.exists(remote)) {
@@ -729,7 +729,7 @@ projr_osf_create_project <- function(title,
 .projr_remote_rm_final_if_empty_osf <- function(remote, structure) {
   .assert_in(structure, .projr_opt_remote_get_structure(), TRUE)
   .assert_given_full(remote)
-  if (!structure == "version") {
+  if (!"structure" == "archive) {
     return(invisible(FALSE))
   }
   if (!inherits(remote, "osf_tbl_file")) {

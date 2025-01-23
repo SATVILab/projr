@@ -124,7 +124,7 @@
                                        conflict) {
   if (structure == "content") {
     stop("content-addressable remote structure not yet supported")
-  } else if (structure == "version") {
+  } else if (structure == "archive") {
     osf_tbl_file <- osf_tbl_file[
       grepl("^v\\d+", osf_tbl_file[["name"]]),
     ]

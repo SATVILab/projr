@@ -228,7 +228,7 @@ test_that(".projr_osf_send_dir and _missing work", {
         path = "abc",
         path_append_label = TRUE,
         label = "raw-data",
-        structure = "version",
+        structure = "archive",
         version = NULL
       )
       osf_tbl_file <- osf_tbl_proj |> osfr::osf_mkdir(path_dir_osf)
