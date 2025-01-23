@@ -1340,24 +1340,6 @@ projr_osf_create_project <- function(title,
     .projr_version_v_rm()
 }
 
-.projr_remote_get_version_label_non_project_get_fn <- function(remote_pre,
-                                                               type) {                                         
-  switch(type,
-    "github" = .projr_remote_get_version_label_non_project_get_fn_github(remote_pre),
-    "local" = 
-  )
-}
-
-.projr_remote_get_version_label_non_project_get_fn_github <- function(remote_pre) {
-  pb_tbl <- piggyback::pb_list(tag = remote_pre[["tag"]])
-  if ("file_name" %in% names(pb_tbl)) {
-    fn_vec <- pb_tbl[["file_name"]]
-    setdiff(fn_vec, "")
-  } else {
-    character(0L)
-  }
-}
-
 .projr_remote_version_latest_get <- function(fn, type, label) {
   fn <- .projr_remote_version_latest_filter(fn, type, label)
   .projr_remote_version_latest_extract(fn, label)

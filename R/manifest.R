@@ -161,12 +161,17 @@
   c(paste0("Project: ", projr_version_get()), version_file)
 }
 
-.projr_version_file_update_label_version <- function(version_file, label) {
+.projr_version_file_update_label_version <- function(version_file, label, is_upload) {
+  version_add <- if (is_upload) {
+    projr_version_get() |> paste0("*")
+  } else {
+    projr_version_get()
+  }
   if (.is_len_0(version_file)) {
-    return(paste0(label, ": ", projr_version_get()))
+    return(paste0(label, ": ", version_add))
   }
   label_ind <- which(grepl(paste0("^", label, ": "), version_file))
-  line_add <- paste0(label, ": ", projr_version_get())
+  line_add <- paste0(label, ": ", version_add)
   if (.is_len_0(label_ind)) {
     c(version_file, line_add)
   } else {
