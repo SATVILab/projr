@@ -295,7 +295,7 @@
   }
   yml_title[["send"]] <- list(
     "version-source" = "none",
-    "strategy" = "sync-using-deletion",
+    "strategy" = "sync-purge",
     "conflict" = "overwrite"
   )
   yml_title
@@ -353,29 +353,29 @@
 
 .projr_yml_dest_complete_title_strategy_hierarchy <-
   function(strategy, version_source) {
-    # default is sync-using-version
-    strategy <- strategy %||% "sync-using-version"
+    # default is sync-diff
+    strategy <- strategy %||% "sync-diff"
     version_source <- version_source %||% "manifest"
     # if we cannot use versioning but must sync, the only option is
-    # sync-using-deletion
-    if (version_source == "none" && strategy == "sync-using-version") {
-      return("sync-using-deletion")
+    # sync-purge
+    if (version_source == "none" && strategy == "sync-diff") {
+      return("sync-purge")
     }
     strategy
   }
 
 .projr_yml_dest_complete_title_strategy_github <-
   function(strategy, version_source) {
-    # default is sync-using-version, for speeds
-    strategy <- strategy %||% "sync-using-version"
+    # default is sync-diff, for speeds
+    strategy <- strategy %||% "sync-diff"
     version_source <- version_source %||% "manifest"
     # only if we're allowed to use versioning and we're syncing
-    # do we use sync-using-version (which is the default).
-    # Otherwise, we use sync-using-deletion
-    if (strategy == "sync-using-version" && version_source != "none") {
-      return("sync-using-version")
+    # do we use sync-diff (which is the default).
+    # Otherwise, we use sync-purge
+    if (strategy == "sync-diff" && version_source != "none") {
+      return("sync-diff")
     }
-    "sync-using-deletion"
+    "sync-purge"
   }
 
 .projr_yml_dest_complete_title_upload_conflict <- function(yml, type) {

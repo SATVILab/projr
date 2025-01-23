@@ -13,7 +13,7 @@
   remote_list <- .projr_dest_send_label_get_remotes(
     type, yml_title[["id"]], yml_title[["path"]],
     yml_title[["path-append-label"]], label, yml_title[["structure"]],
-    yml_title[["strategy"]]
+    yml_title[["send"]][["strategy"]]
   )
 
 }
