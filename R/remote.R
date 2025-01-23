@@ -1174,7 +1174,7 @@ projr_osf_create_project <- function(title,
                                        remote_pre) {
   switch(type,
     "project" = .projr_remote_get_manifest_project(),
-    .projr_remote_get_manifest_non_project(type, remote_final)
+    .projr_remote_get_manifest_non_project(type, remote_pre)
   )
 }
 
