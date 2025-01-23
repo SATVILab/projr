@@ -1399,7 +1399,7 @@ projr_osf_create_project <- function(title,
     return(character(0L))
   }
   # return character() if ends in an asterisk
-  if (grep("\\*$", label_regex)) {
+  if (grepl("\\*$", label_regex)) {
     return(character(0L))
   }
   gsub(match_str, "", label_regex) |> 
