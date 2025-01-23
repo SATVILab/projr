@@ -279,7 +279,7 @@ projr_osf_create_project <- function(title,
 
 .projr_remote_final_check_exists_github <- function(remote_pre) {
   .assert_attr(remote_final, "names")
-  .assert_has(names(remote_final), c("tag", "fn"))
+  .assert_has(names(remote_final), c("tag"))
   if (!.projr_remote_check_exists("github", remote_final[["tag"]])) {
     return(FALSE)
   }
