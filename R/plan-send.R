@@ -25,8 +25,8 @@
                                                label,
                                                structure,
                                                strategy) {
-  remote_pre <- .projr_dest_send_label_get_remote_pre(
-    type, id, label, structure, path, path_append_label, NULL
+  remote_pre <- .projr_remote_get_final(
+    type, id, label, structure, path, path_append_label, NULL, TRUE
   )
   remote_dest <- .projr_remote_get_final_if_exists(
     type, id, label, structure, path, path_append_label, NULL
@@ -42,18 +42,6 @@
     "remote_dest" = remote_dest,
     "remote_comp" = remote_comp,
     "version_comp" = version_comp
-  )
-}
-
-.projr_dest_send_label_get_remote_pre <- function(type,
-                                                  id,
-                                                  label,
-                                                  structure,
-                                                  path,
-                                                  path_append_label,
-                                                  version) {
-  remote_pre_init <- .projr_remote_get_final(
-    type, id, label, structure, path, path_append_label, version, TRUE
   )
 }
 
