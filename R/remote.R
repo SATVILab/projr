@@ -239,6 +239,11 @@ projr_osf_create_project <- function(title,
                                              path_append_label,
                                              version) {
   .assert_in(type, .projr_opt_remote_get_type(), TRUE)
+  version <- if (is.null(version)) {
+    .projr_version_get_v()
+  }  else {
+    version |> .projr_version_v_add()
+  } 
   remote_pre <- .projr_remote_get_final(
     type, id, label, structure, path, path_append_label,
     version, TRUE
@@ -247,8 +252,12 @@ projr_osf_create_project <- function(title,
     "local" = .projr_remote_final_check_exists_local(
       remote_pre, structure, label, version
     ),
-    "osf" = .projr_remote_final_check_exists_osf(remote_final),
-    "github" = .projr_remote_final_check_exists_github(remote_pre)
+    "osf" = .projr_remote_final_check_exists_osf(
+      remote_pre, structure, label, version
+    ),
+    "github" = .projr_remote_final_check_exists_github(
+      remote_pre, structure, label, version
+    )
   )
 }
 
@@ -274,19 +283,30 @@ projr_osf_create_project <- function(title,
     label
   }
   osf_tbl_file <- remote_pre |> osfr::osf_ls_files(n_max = Inf)
+  if (nrow(osf_tbl_file) == 0L) {
+    return(FALSE)
+  }
   dir_basename %in% osf_tbl_file[["name"]]
 }
 
-.projr_remote_final_check_exists_github <- function(remote_pre) {
-  .assert_attr(remote_final, "names")
-  .assert_has(names(remote_final), c("tag"))
-  if (!.projr_remote_check_exists("github", remote_final[["tag"]])) {
+.projr_remote_final_check_exists_github <- function(remote_pre,
+                                                    structure,
+                                                    label,
+                                                    version) {
+  .assert_attr(remote_pre, "names")
+  .assert_has(names(remote_pre), c("tag"))
+  if (!.projr_remote_check_exists("github", remote_pre[["tag"]])) {
     return(FALSE)
   }
-  asset_tbl <- .projr_pb_asset_tbl_get(remote_final[["tag"]])
+  asset_tbl <- .projr_pb_asset_tbl_get(remote_pre[["tag"]])
   # if there's an error for some reason, assume it's not there
+  fn <- if (structure == "archive") {
+    paste0(label, "-", version, ".zip")
+  } else {
+    paste0(label, ".zip")
+  }
   tryCatch(
-    remote_final[["fn"]] %in% asset_tbl[["file_name"]],
+    fn %in% asset_tbl[["file_name"]],
     error = function(e) {
       FALSE
     }
