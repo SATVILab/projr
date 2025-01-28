@@ -153,6 +153,16 @@
 .projr_manifest_version_get_latest <- function(manifest) {
   manifest[["version"]] |> .projr_version_get_earliest()
 }
+.projr_empty_tbl_get_manifest <- function(label, version) {
+  out_df <- data.frame(
+    label = label,
+    fn = character(1),
+    version = version |> .projr_version_v_add(),
+    hash = character(1)
+  )
+  rownames(out_df) <- NULL
+  out_df
+}
 
 .projr_zero_tbl_get_manifest <- function() {
   out_df <- data.frame(
