@@ -20,7 +20,7 @@ projr_yml_dest_add_osf(
   id_parent = NULL,
   send_cue = NULL,
   send_strategy = NULL,
-  send_version_source = NULL,
+  send_inspect = NULL,
   send_conflict = NULL,
   profile = "default"
 )
@@ -124,7 +124,7 @@ that have changed or been added locally are uploaded to the remote,
 and files that have been removed locally are removed from the remote.
 If not set, then "sync-using-version" will be used.}
 
-\item{send_version_source}{"manifest" or "file".
+\item{send_inspect}{"manifest" or "file".
 For \code{sync-using-version} synchronisation approach,
 whether to use the recorded versions of objects to
 determine what has changed  ("manifest"),

@@ -436,7 +436,7 @@ projr_osf_create_project <- function(title,
   .assert_in(label, .projr_opt_dir_get_label_send(NULL))
   .assert_in_single(structure, .projr_opt_remote_get_structure())
   .assert_string(version)
-  .assert_logical(pre, TRUE)
+  .assert_lgl(pre, TRUE)
 
   # the local destination is just the
   # local directory where files are get, so

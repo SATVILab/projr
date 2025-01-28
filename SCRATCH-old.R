@@ -489,7 +489,7 @@ get_list <- ..projr_dest_add_list_get_osf_add_load_get_list(
 send_list <- ..projr_dest_add_list_get_osf_add_load_get_list(
   cue = send_cue,
   strategy = send_strategy,
-  version_source = send_version_source,
+  inspect = send_inspect,
   conflict = send_conflict
 )
 
@@ -601,7 +601,7 @@ list_add <- .projr_osf_dest_get_list_add(
   )
   .projr_remote_check_osf_trans_names(
     trans_list = upload,
-    nm_opt = c("cue", "strategy", "version-source", "conflict")
+    nm_opt = c("cue", "strategy", "inspect", "conflict")
   )
   .projr_remote_check_osf_cue(
     trans_list = upload,
@@ -1034,12 +1034,12 @@ if (sub_dir) {
   # - local-specific:
   #   - nothing
   # okay, so it seems to depend a lot on the structure,
-  # the sync approach and the version_source
+  # the sync approach and the inspect
   # ya, when doing this for OSF the first thing I did
   # was to get the remote structure
   # then I deleted things if we used sync-using-deletion
   # so, we actually only get the change list if the
-  # version-source is sync-using-version. Otherwise,
+  # inspect is sync-using-version. Otherwise,
   # we just either upload everything or delete everything.
   # Okay, so now we just focus on the process for adding
   # decide what to do
@@ -1156,13 +1156,13 @@ if (sub_dir) {
                                          remote_base,
                                          remote_final,
                                          path_remote_rel,
-                                         version_source) {
+                                         inspect) {
   # this will assume that the manifest knows
   # about what's online
   # TODO: make this function differently dependening
   # on what sync-approach and remote-structure are
   # (in addition to version source)
-  switch(version_source,
+  switch(inspect,
     "manifest" = .projr_change_get_manifest(label = label),
     "file" = .projr_change_get_file(
       output_run = output_run,
@@ -1172,7 +1172,7 @@ if (sub_dir) {
       path_remote_rel_pre = path_remote_rel,
       label_post = label
     ),
-    stop(paste0("version_source '", version_source, "' not recognized"))
+    stop(paste0("inspect '", inspect, "' not recognized"))
   )
 }
 

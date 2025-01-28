@@ -6,8 +6,18 @@
   # set and check authorisation is available
   .projr_build_env_check(output_run)
 
+  # check that we have Git if needed
+
+
   # check we are not missing upstream commits
   .projr_build_exit_if_behind_upstream(output_run)
+}
+
+.projr_build_git_check <- function(output_run) {
+  need_git <- output_run && .projr_yml_git_get_commit(NULL)
+  if (need_git && !.projr_git_repo_check_exists()) {
+    stop("Git commits requested but no Git directory found")
+  }
 }
 
 .projr_build_pre_document <- function(output_run) {

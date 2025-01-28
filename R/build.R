@@ -294,7 +294,9 @@ projr_build_dev <- function(file = NULL,
 
 # update lock file, help files, citation files, README
 # and CHANGELOG
-.projr_build_post_document <- function(bump_component, version_run_on_list, msg) {
+.projr_build_post_document <- function(bump_component,
+                                       version_run_on_list,
+                                       msg) {
   output_run <- .projr_build_get_output_run(bump_component)
   .projr_build_renv_snapshot(output_run)
   .projr_build_roxygenise(output_run)

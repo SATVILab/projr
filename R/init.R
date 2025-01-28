@@ -70,19 +70,17 @@ projr_init <- function(yml_path_from = NULL,
 
 #' @export 
 #' @rdname projr_
-projr_init_git <- function(commit = TRUE) {
+projr_init_git <- function(commit = TRUE, username = NULL, public = FALSE) {
   .projr_git_system_setup()
   .projr_init_git_git(commit)
-  .projr_init_git_github()
+  if (!is.null(username)) {
+    .projr_init_git_github(username, public)
+  }
 }
 
-.projr_init_git_git <- function(commit,
-                                username,
-                                public) {
+.projr_init_git_git <- function(commit) {
   # initialise Git repo
   .projr_init_git_init(answer_git = 1L, commit = commit)
-  # push to GitHub
-  .projr_init_git_github(username, public)
 
 }
 

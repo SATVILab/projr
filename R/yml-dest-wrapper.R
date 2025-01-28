@@ -32,11 +32,6 @@
 #' If "version", then `path` will contain
 #' a directory for each version.
 #' If not supplied, will be `version`.
-#' @param path_append_label logical.
-#' Whether to append the label to the path.
-#' If `TRUE`, then the label will be appended to `path`.
-#' If `FALSE`, then the path will be the path to the label.
-#' If not set, then will be treated as `TRUE`.
 #' @param overwrite logical.
 #' Whether to rewrite an existing entry of the same
 #' title in the specified `projr` configuration file.
@@ -56,36 +51,41 @@
 #' characters. Default is `NULL`.
 #' @param id_parent character. The id of the parent project or component.
 #' Must be five characters. Default is `NULL`.
-#' @param send_cue TRUE/FALSE, or one of "build", "dev", "patch",
-#' "minor" or "major".
-#' Minimum component bumped in a project build to initiate
-#' the upload.
-#' If `TRUE`, then will be set to `"patch"`.
-#' If `FALSE`, then will never be uploaded.
-#' If `"build"`, then will be uploaded on every build,
-#' including `dev` builds, so `dev` and `"build"` are equivalent.
+#' @param send_cue "always", "if-change" or "never".
+#' Only relevant if `structure` is `archive`
+#' and `send_strategy` is `sync-diff` or `sync-purge`.
+#' If `always`, then a new remote is created
+#' every time, even if there is no change from the previous
+#' build.
+#' For example, if the contents of `raw-data` are the same
+#' between builds `v0.0.1` and `v0.0.2`, then 
+#' a local remote would have folders `raw-data/v0.0.1`
+#' and `raw-data/v0.0.2`.
+#' If `if-change`, then a new remote is created
+#' only if there is a change from the previous build.
+#' In the example above, a local remote would
+#' only have the folder `raw-data/v0.0.1`.
+#' If `never`, then a new remote is never created.
 #' @param send_strategy "upload-all", "upload-missing",
-#' "sync-using-deletiong" and "sync-using-version".
+#' "sync-purge" and "sync-diff".
 #' How to synchronise to the remote.
 #' If `upload-all`, then all files are uploaded.
 #' If `upload-missing`, then only missing files are uploaded.
-#' If `sync-using-deletion`, then all files on the remote
+#' If `sync-purge`, then all files on the remote
 #' are deleted before uploading all local files.
-#' If `sync-using-version`, then files
+#' If `sync-diff`, then files
 #' that have changed or been added locally are uploaded to the remote,
 #' and files that have been removed locally are removed from the remote.
-#' If not set, then "sync-using-version" will be used.
-#' @param send_version_source "manifest" or "file".
-#' For `sync-using-version` synchronisation approach,
-#' whether to use the recorded versions of objects to
-#' determine what has changed  ("manifest"),
-#' or to download everything from the remote, version it
-#' and compare it to what's in the local folder ("file").
-#' If not set, then "manifest" is used.
-#' @param send_conflict "overwrite", "error" or "skip".
-#' What to do if a file that is to be uploaded
-#' to the remote is already on the remote.
-#' Default is "overwrite".
+#' If not set, then "sync-diff" will be used.
+#' @param send_inspect "manifest" , "file" or "none".
+#' What to look at to find what are the
+#' files on the remote, and their versions.
+#' If `manifest`, then the manifest on the remote is used.
+#' If `file`, then the files on the remote are downloaded
+#' and their versions are determined.
+#' If `none`, then no inspection is done (the remote
+#' is typically treated as "empty" in that case).
+#' If not set, then defaults to `"manifest"`.
 
 #' @param profile character.
 #' Profile to write the settings to.
@@ -98,7 +98,6 @@ projr_yml_dest_add_osf <- function(title,
                                    content,
                                    path = NULL,
                                    structure = NULL,
-                                   path_append_label = NULL,
                                    overwrite = FALSE,
                                    public = FALSE,
                                    category = NULL,
@@ -109,8 +108,7 @@ projr_yml_dest_add_osf <- function(title,
                                    # get_conflict = NULL,
                                    send_cue = NULL,
                                    send_strategy = NULL,
-                                   send_version_source = NULL,
-                                   send_conflict = NULL,
+                                   send_inspect = NULL,
                                    profile = "default") {
   .projr_yml_dest_add(
     role = "destination",
@@ -119,7 +117,7 @@ projr_yml_dest_add_osf <- function(title,
     content = content,
     structure = structure,
     path = path,
-    path_append_label = path_append_label,
+    path_append_label = TRUE,
     overwrite = overwrite,
     public = public,
     category = category |> tolower(),
@@ -130,8 +128,7 @@ projr_yml_dest_add_osf <- function(title,
     get_conflict = NULL,
     send_cue = send_cue,
     send_strategy = send_strategy,
-    send_version_source = send_version_source,
-    send_conflict = send_conflict,
+    send_inspect = send_inspect,
     profile = profile
   )
 }
@@ -205,14 +202,12 @@ projr_yml_dest_add_local <- function(title,
                                      content,
                                      path,
                                      structure = NULL,
-                                     path_append_label = NULL,
                                      overwrite = TRUE,
                                      #  get_strategy = NULL,
                                      #  get_conflict = NULL,
                                      send_cue = NULL,
                                      send_strategy = NULL,
-                                     send_version_source = NULL,
-                                     send_conflict = NULL,
+                                     send_inspect = NULL,
                                      profile = "default") {
   .assert_string(title, TRUE)
   .assert_len_1(title, TRUE)
@@ -226,14 +221,13 @@ projr_yml_dest_add_local <- function(title,
     title = title,
     content = content,
     path = path,
-    path_append_label = path_append_label,
+    path_append_label = TRUE,
     structure = structure,
     get_strategy = NULL,
     get_conflict = NULL,
     send_cue = send_cue,
     send_strategy = send_strategy,
-    send_version_source = send_version_source,
-    send_conflict = send_conflict,
+    send_inspect = send_inspect,
     profile = profile
   )
 }
@@ -266,15 +260,16 @@ projr_yml_dest_add_github <- function(title,
                                       # get_conflict = NULL,
                                       send_cue = NULL,
                                       send_strategy = NULL,
-                                      send_version_source = NULL,
-                                      send_conflict = NULL,
+                                      send_inspect = NULL,
                                       profile = "default") {
   .assert_string(title, TRUE)
   # as GitHub automatically does this anyway
   title <- gsub(" ", "-", title)
   .assert_len_1(title, TRUE)
   .assert_chr(content, TRUE)
-  .assert_in(content, .projr_yml_dir_get(NULL) |> names() |> c("code") |> unique())
+  .assert_in(
+    content, .projr_yml_dir_get(NULL) |> names() |> c("code") |> unique()
+  )
 
   .projr_yml_dest_add(
     role = "destination",
@@ -282,14 +277,12 @@ projr_yml_dest_add_github <- function(title,
     title = title,
     content = content,
     path = NULL,
-    path_append_label = NULL,
     structure = structure,
     get_strategy = NULL,
     get_conflict = NULL,
     send_cue = send_cue,
     send_strategy = send_strategy,
-    send_version_source = send_version_source,
-    send_conflict = send_conflict,
+    send_inspect = send_inspect,
     profile = profile
   )
 }

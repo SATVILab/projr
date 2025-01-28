@@ -57,7 +57,7 @@ test_that("projr_yml_check works", {
         title = "test",
         content = "raw-data",
         path = "_outputting",
-        send_version_source = "file",
+        send_inspect = "file",
         send_strategy = "upload-all",
         send_conflict = "overwrite"
       )

@@ -92,7 +92,7 @@ projr_source_add_osf <- function(label,
                                  download_conflict = NULL,
                                  upload_cue = NULL,
                                  upload_strategy = NULL,
-                                 upload_version_source = NULL,
+                                 upload_inspect = NULL,
                                  upload_conflict = NULL) {
   # format inputs
   if (is.null(title)) {
@@ -109,7 +109,7 @@ projr_source_add_osf <- function(label,
   upload_list <- .projr_osf_yml_add_load_get_list(
     cue = upload_cue,
     strategy = upload_strategy,
-    version_source = upload_version_source,
+    inspect = upload_inspect,
     conflict = upload_conflict
   )
 
@@ -230,7 +230,7 @@ projr_source_add_osf <- function(label,
   .projr_osf_yml_check_trans_list(trans_list = upload)
   .projr_osf_yml_check_trans_names(
     trans_list = upload,
-    nm_opt = c("cue", "strategy", "version-source", "conflict")
+    nm_opt = c("cue", "strategy", "inspect", "conflict")
   )
   .projr_osf_yml_check_cue(
     trans_list = upload,

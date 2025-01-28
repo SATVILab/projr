@@ -47,7 +47,7 @@ test_that("projr_source_add_osf works", {
         download_conflict = "overwrite",
         upload_cue = "if-change",
         upload_strategy = "upload-all",
-        upload_version_source = "manifest",
+        upload_inspect = "manifest",
         upload_conflict = "overwrite"
       )
       yml_proj <- .projr_yml_get()

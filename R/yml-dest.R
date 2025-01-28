@@ -16,8 +16,7 @@
                                 get_conflict = NULL,
                                 send_cue = NULL,
                                 send_strategy = NULL,
-                                send_version_source = NULL,
-                                send_conflict = NULL) {
+                                send_inspect = NULL) {
   # gather get and send args
   # ------------------------
   get_list <- .projr_yml_remote_transfer_get(
@@ -28,8 +27,7 @@
   send_list <- .projr_yml_remote_transfer_get(
     cue = send_cue,
     strategy = send_strategy,
-    version_source = send_version_source,
-    conflict = send_conflict
+    inspect = send_inspect
   )
 
   # check inputs
@@ -294,7 +292,7 @@
     return(yml_title)
   }
   yml_title[["send"]] <- list(
-    "version-source" = "none",
+    "inspect" = "none",
     "strategy" = "sync-purge",
     "conflict" = "overwrite"
   )
@@ -318,7 +316,7 @@
 }
 
 .projr_yml_dest_complete_title_structure <- function(yml, type) {
-  .projr_yml_complete(yml, "structure", "version")
+  .projr_yml_complete(yml, "structure", "archive")
 }
 
 .projr_yml_dest_complete_title_cue <- function(yml, type) {
@@ -327,14 +325,13 @@
 
 .projr_yml_dest_complete_title_upload <- function(yml, type) {
   yml[["send"]] <- yml[["send"]] |>
-    .projr_yml_dest_complete_title_upload_version_source(type) |>
-    .projr_yml_dest_complete_title_upload_strategy(type) |>
-    .projr_yml_dest_complete_title_upload_conflict(type)
+    .projr_yml_dest_complete_title_upload_inspect(type) |>
+    .projr_yml_dest_complete_title_upload_strategy(type)
   yml
 }
 
-.projr_yml_dest_complete_title_upload_version_source <- function(yml, type) {
-  .projr_yml_complete(yml, "version-source", "manifest")
+.projr_yml_dest_complete_title_upload_inspect <- function(yml, type) {
+  .projr_yml_complete(yml, "inspect", "manifest")
 }
 
 # strategy
@@ -342,45 +339,41 @@
   yml[["strategy"]] <- switch(type,
     "local" = ,
     "osf" = .projr_yml_dest_complete_title_strategy_hierarchy(
-      yml[["strategy"]], yml[["version-source"]]
+      yml[["strategy"]], yml[["inspect"]]
     ),
     "github" = .projr_yml_dest_complete_title_strategy_github(
-      yml[["strategy"]], yml[["version-source"]]
+      yml[["strategy"]], yml[["inspect"]]
     )
   )
   yml
 }
 
 .projr_yml_dest_complete_title_strategy_hierarchy <-
-  function(strategy, version_source) {
+  function(strategy, inspect) {
     # default is sync-diff
     strategy <- strategy %||% "sync-diff"
-    version_source <- version_source %||% "manifest"
+    inspect <- inspect %||% "manifest"
     # if we cannot use versioning but must sync, the only option is
     # sync-purge
-    if (version_source == "none" && strategy == "sync-diff") {
+    if (inspect == "none" && strategy == "sync-diff") {
       return("sync-purge")
     }
     strategy
   }
 
 .projr_yml_dest_complete_title_strategy_github <-
-  function(strategy, version_source) {
+  function(strategy, inspect) {
     # default is sync-diff, for speeds
     strategy <- strategy %||% "sync-diff"
-    version_source <- version_source %||% "manifest"
+    inspect <- inspect %||% "manifest"
     # only if we're allowed to use versioning and we're syncing
     # do we use sync-diff (which is the default).
     # Otherwise, we use sync-purge
-    if (strategy == "sync-diff" && version_source != "none") {
+    if (strategy == "sync-diff" && inspect != "none") {
       return("sync-diff")
     }
     "sync-purge"
   }
-
-.projr_yml_dest_complete_title_upload_conflict <- function(yml, type) {
-  .projr_yml_complete(yml, "conflict", "overwrite")
-}
 
 .projr_yml_dest_complete_title_path_append_label <- function(yml, type) {
   .projr_yml_complete(yml, "path-append-label", TRUE)
@@ -422,19 +415,6 @@
     title = title, type = type, profile = profile
   )
   yml_title[["send"]][["strategy"]] <- strategy
-  .projr_yml_dest_set_title(
-    yml = yml_title, title = title, type = type, profile = profile,
-    overwrite = TRUE
-  )
-}
-
-# conflict
-.projr_yml_dest_set_send_conflict <- function(conflict, title, type, profile) {
-  .assert_in(conflict, .projr_opt_remote_conflict_get())
-  yml_title <- .projr_yml_dest_get_title(
-    title = title, type = type, profile = profile
-  )
-  yml_title[["send"]][["conflict"]] <- conflict
   .projr_yml_dest_set_title(
     yml = yml_title, title = title, type = type, profile = profile,
     overwrite = TRUE

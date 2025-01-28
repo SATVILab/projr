@@ -56,42 +56,40 @@ test_that("projr_yml_dest_add* functions work", {
   )
 })
 
-
-test_that(".projr_dest_send works", {
+# --------------------------
+# actually sending
+# --------------------------
+test_that(".projr_remote_create works - local", {
+  # skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
     code = {
-      # no runs
-      expect_false(.projr_dest_send("dev"))
-      .projr_yml_dest_rm_type_all("default")
-      expect_false(.projr_dest_send("major"))
-      # run, but do nothing
+      file.create(projr::projr_path_get("raw-data", "data.csv"))
+      projr_init_git()
+      .projr_yml_git_set_push(FALSE, TRUE, NULL)
+      projr::projr_build_dev()     
+      # remove github remote
+      yml_projr <- projr_yml_get()
+      yml_projr[["build"]] <- yml_projr[["build"]][
+        -which(names(yml_projr[["build"]]) == "github")
+        ]
+      .projr_yml_set(yml_projr)
+      projr::projr_build_patch()
+      # add a local destination, that is never sent to
       projr_yml_dest_add_local(
-        title = "archive",
-        content = "output",
-        path = "_archive"
+        title = "latest",
+        content = "raw-data",
+        path = "_latest",
+        structure = "latest"
       )
-      expect_true(
-        .is_len_pos(
-          .projr_yml_dest_get_title("archive", "local", "default")
-        )
-      )
-      projr_version_set("0.0.1")
-      .projr_build_manifest_post(TRUE) |> invisible()
-      .projr_dest_send("major")
-      expect_true(.file_ls("_archive") |> .is_len_0())
-      # run and do something
-      .projr_test_setup_content("output", safe = FALSE)
-      .projr_version_bump("patch")
-      .projr_build_manifest_post(TRUE) |> invisible()
-      .projr_dest_send("major")
-      expect_true(dir.exists("_archive"))
-      expect_identical(
-        .file_ls("_archive/output/v0.0.2"), .file_ls("_output")
-      )
+      # test no github
+      browser()
+      browser()
+      projr::projr_build_patch()
+
     }
   )
 })

@@ -137,7 +137,7 @@ test_that(".projr_osf_send_dir and _missing work", {
         fn_vec, list.files(path_dir_save_local, recursive = TRUE)
       )
 
-      # upload only missing files - version_source - manifest
+      # upload only missing files - inspect - manifest
       # ----------------------
 
       # create extra files
@@ -165,7 +165,7 @@ test_that(".projr_osf_send_dir and _missing work", {
         osf_tbl = osf_tbl_file,
         conflict = "overwrite",
         label = "raw-data",
-        version_source = "manifest"
+        inspect = "manifest"
       )
 
       # check
@@ -179,7 +179,7 @@ test_that(".projr_osf_send_dir and _missing work", {
       )
 
 
-      # upload only missing files - version_source - osf
+      # upload only missing files - inspect - osf
       # ----------------------
 
       # create files
@@ -197,7 +197,7 @@ test_that(".projr_osf_send_dir and _missing work", {
         osf_tbl = osf_tbl_file_output,
         conflict = "overwrite",
         label = "output",
-        version_source = "osf"
+        inspect = "osf"
       )
 
       # check
@@ -238,7 +238,7 @@ test_that(".projr_osf_send_dir and _missing work", {
         path_dir_local = path_dir_local,
         label = "raw-data",
         osf_tbl_upload = osf_tbl_file,
-        version_source = "manifest"
+        inspect = "manifest"
       )
 
       # check
@@ -262,7 +262,7 @@ test_that(".projr_osf_send_dir and _missing work", {
         path_dir_local = path_dir_local,
         label = "raw-data",
         osf_tbl_upload = osf_tbl_file,
-        version_source = "manifest"
+        inspect = "manifest"
       )
 
       # check
@@ -296,7 +296,7 @@ test_that(".projr_osf_send_dir and _missing work", {
         path_dir_local = path_dir_local,
         label = "raw-data",
         osf_tbl_upload = osf_tbl_file,
-        version_source = "manifest"
+        inspect = "manifest"
       )
 
       # check

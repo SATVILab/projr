@@ -7,14 +7,14 @@ test_that(".projr_dest_send_get_plan works", {
       # no version source, so just send everything
       expect_identical(
         .projr_dest_send_get_plan(
-          version_source = "none",
+          inspect = "none",
           strategy = "upload-all"
         ),
         "add_all"
       )
       expect_identical(
         .projr_dest_send_get_plan(
-          version_source = "none",
+          inspect = "none",
           strategy = "sync-using-deletion"
         ),
         "delete_add_all"
@@ -22,7 +22,7 @@ test_that(".projr_dest_send_get_plan works", {
       # flat
       expect_identical(
         .projr_dest_send_get_plan(
-          version_source = "manifest",
+          inspect = "manifest",
           strategy = "upload-all",
           type = "github",
           structure = "latest"
@@ -31,7 +31,7 @@ test_that(".projr_dest_send_get_plan works", {
       )
       expect_identical(
         .projr_dest_send_get_plan(
-          version_source = "manifest",
+          inspect = "manifest",
           strategy = "upload-all",
           type = "github",
           structure = "archive"
@@ -40,7 +40,7 @@ test_that(".projr_dest_send_get_plan works", {
       )
       expect_identical(
         .projr_dest_send_get_plan(
-          version_source = "manifest",
+          inspect = "manifest",
           strategy = "sync-using-deletion",
           type = "github",
           structure = "archive"
@@ -49,7 +49,7 @@ test_that(".projr_dest_send_get_plan works", {
       )
       expect_identical(
         .projr_dest_send_get_plan(
-          version_source = "manifest",
+          inspect = "manifest",
           strategy = "sync-using-version",
           type = "github",
           structure = "archive"
@@ -59,7 +59,7 @@ test_that(".projr_dest_send_get_plan works", {
       # hierarchical
       expect_identical(
         .projr_dest_send_get_plan(
-          version_source = "manifest",
+          inspect = "manifest",
           strategy = "upload-all",
           type = "osf",
           structure = "latest"
@@ -68,7 +68,7 @@ test_that(".projr_dest_send_get_plan works", {
       )
       expect_identical(
         .projr_dest_send_get_plan(
-          version_source = "manifest",
+          inspect = "manifest",
           strategy = "upload-all",
           type = "osf",
           structure = "archive"
@@ -77,7 +77,7 @@ test_that(".projr_dest_send_get_plan works", {
       )
       expect_identical(
         .projr_dest_send_get_plan(
-          version_source = "manifest",
+          inspect = "manifest",
           strategy = "sync-using-deletion",
           type = "local",
           structure = "archive"
@@ -86,7 +86,7 @@ test_that(".projr_dest_send_get_plan works", {
       )
       expect_identical(
         .projr_dest_send_get_plan(
-          version_source = "manifest",
+          inspect = "manifest",
           strategy = "sync-using-version",
           type = "osf",
           structure = "archive"
@@ -177,7 +177,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
         path_dir_local = dir_tmp,
         type = "local",
         remote = dir_tmp_2,
-        version_source = "file"
+        inspect = "file"
       )
       expect_identical(
         plan_list_detail,
@@ -190,7 +190,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
         path_dir_local = dir_tmp,
         type = "local",
         remote = dir_tmp_2,
-        version_source = "file"
+        inspect = "file"
       )
       expect_identical(
         plan_list_detail,
@@ -203,7 +203,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
         path_dir_local = dir_tmp,
         type = "local",
         remote = dir_tmp_2,
-        version_source = "file"
+        inspect = "file"
       )
       expect_identical(
         plan_list_detail,

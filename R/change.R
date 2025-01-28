@@ -1,11 +1,11 @@
 .projr_change_get <- function(label,
                               output_run,
                               path_dir_local = NULL,
-                              version_source,
+                              inspect,
                               type,
                               remote) {
-  .projr_change_get_check(label, path_dir_local, version_source)
-  switch(version_source,
+  .projr_change_get_check(label, path_dir_local, inspect)
+  switch(inspect,
     "manifest" = .projr_change_get_manifest(
       type_pre = type,
       remote_pre = remote,
@@ -20,18 +20,18 @@
       remote_post = path_dir_local %||%
         projr_path_get_dir(label, safe = !output_run)
     ),
-    stop(paste0("version_source '", version_source, "' not recognized"))
+    stop(paste0("inspect '", inspect, "' not recognized"))
   )
 }
 
 .projr_change_get_check <- function(label,
                                     path_dir_local,
-                                    version_source) {
+                                    inspect) {
   if (is.null(path_dir_local)) {
     .assert_string(label, required = TRUE)
   }
-  .assert_given(version_source)
-  .assert_string(version_source)
+  .assert_given(inspect)
+  .assert_string(inspect)
 }
 
 # manifest-based

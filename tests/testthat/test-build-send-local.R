@@ -144,7 +144,7 @@ test_that("projr_build_output works - local - latest - file", {
         content = "raw-data",
         path = "_archive",
         structure = "latest",
-        send_version_source = "file"
+        send_inspect = "file"
       )
       # handle nothing to send
       # ---------------------
@@ -466,7 +466,7 @@ test_that("projr_build_output works - local - latest - <strategy> - none", {
         content = "raw-data",
         path = "_archive",
         structure = "latest",
-        send_version_source = "none",
+        send_inspect = "none",
         send_strategy = "upload-all"
       )
       # handle nothing to send
@@ -678,7 +678,7 @@ test_that("projr_build_output works - local - latest - none - <conflict>", {
         content = "raw-data",
         path = "_archive",
         structure = "latest",
-        send_version_source = "none",
+        send_inspect = "none",
         send_strategy = "upload-all",
         send_conflict = "error"
       )

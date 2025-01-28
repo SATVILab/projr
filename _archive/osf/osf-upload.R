@@ -6,7 +6,7 @@
                                         path_append_label,
                                         cue,
                                         strategy,
-                                        version_source,
+                                        inspect,
                                         conflict,
                                         component) {
   # would need to add cue here
@@ -21,7 +21,7 @@
       path_append_label,
       structure,
       strategy,
-      version_source
+      inspect
     )
   }
   for (i in seq_along(component)) {
@@ -36,7 +36,7 @@
       path_append_label = yml_projr_osf_ind[["path_append_label"]], ,
       cue = yml_projr_osf_ind_upload[["cue"]],
       strategy = yml_projr_osf_ind_upload[["strategy"]],
-      version_source = yml_projr_osf_ind_upload[["version-source"]],
+      inspect = yml_projr_osf_ind_upload[["inspect"]],
       conflict = yml_projr_osf_ind_upload[["conflict"]],
       component = yml_projr_osf_ind[["component"]]
     )
@@ -50,7 +50,7 @@
                                       path_append_label,
                                       structure,
                                       strategy,
-                                      version_source,
+                                      inspect,
                                       conflict) {
   # get what must be transferred and where
   # ----------------------------
@@ -63,7 +63,7 @@
       path = path,
       path_append_label = path_append_label,
       strategy = strategy,
-      version_source = version_source,
+      inspect = inspect,
       conflict = conflict
     ),
     "version" = .projr_osf_send_yml_version(
@@ -73,7 +73,7 @@
       path = path,
       path_append_label = path_append_label,
       strategy = strategy,
-      version_source = version_source,
+      inspect = inspect,
       conflict = conflict
     )
   )
@@ -88,7 +88,7 @@
                                        path_append_label,
                                        osf_tbl_upload = NULL,
                                        strategy,
-                                       version_source,
+                                       inspect,
                                        conflict) {
   if (is.null(osf_tbl_upload)) {
     osf_tbl_upload <- .projr_osf_node_dir_get(
@@ -105,7 +105,7 @@
 
   # this is effectively just wiping out what's there
   convert_to_sync_using_deletion <- strategy == "sync-using-version" &&
-    version_source == "none"
+    inspect == "none"
   if (convert_to_sync_using_deletion) {
     strategy <- "sync-using-deletion"
   }
@@ -123,7 +123,7 @@
     "upload-missing" = .projr_osf_send_missing(
       path_dir_local = path_dir_local,
       osf_tbl = osf_tbl_upload,
-      version_source = version_source,
+      inspect = inspect,
       label = label,
       conflict = conflict
     ),
@@ -131,7 +131,7 @@
       path_dir_local = path_dir_local,
       label = label,
       osf_tbl_upload = osf_tbl_upload,
-      version_source = version_source
+      inspect = inspect
     ),
     stop(paste0(
       "strategy must be one of: ",
@@ -149,7 +149,7 @@
                                         path,
                                         path_append_label,
                                         strategy,
-                                        version_source,
+                                        inspect,
                                         conflict) {
   # avoid creating new version upfront
   path_dir_osf <- .projr_osf_path_get(
@@ -163,9 +163,9 @@
   # get local directory to upload from
   path_dir_local <- projr_path_get_dir(label, safe = !output_run)
 
-  switch(version_source,
+  switch(inspect,
     "none" = {
-      # if the version_source is none, we won't only create a
+      # if the inspect is none, we won't only create a
       # new version if there are changes but
       # whenever we upload
       osf_tbl_upload <- osfr::osf_mkdir(x = osf_tbl, path = path_dir_osf)
@@ -174,7 +174,7 @@
         output_run = output_run,
         osf_tbl_upload = osf_tbl_upload,
         strategy = strategy,
-        version_source = "none",
+        inspect = "none",
         conflict = conflict
       )
     },
@@ -183,25 +183,25 @@
       label = label,
       osf_tbl = osf_tbl,
       path_dir_osf = path_dir_osf,
-      version_source = "manifest"
+      inspect = "manifest"
     ),
     "osf" = .projr_osf_send_version(
       path_dir_local = path_dir_local,
       label = label,
       osf_tbl = osf_tbl,
       path_dir_osf = path_dir_osf,
-      version_source = "osf"
+      inspect = "osf"
     )
   )
 }
 
 .projr_osf_send_missing <- function(path_dir_local,
                                     osf_tbl,
-                                    version_source,
+                                    inspect,
                                     label,
                                     conflict) {
   fn_vec_local <- list.files(path_dir_local, recursive = TRUE)
-  fn_vec_missing <- switch(version_source,
+  fn_vec_missing <- switch(inspect,
     "osf" = setdiff(fn_vec_local, .projr_osf_ls_files(osf_tbl)),
     "manifest" =
       .projr_change_get_manifest(label = label)[["added"]][["fn"]],
@@ -218,13 +218,13 @@
                                     osf_tbl = NULL,
                                     osf_tbl_upload = NULL,
                                     path_dir_osf = NULL,
-                                    version_source) {
-  change_list <- switch(version_source,
+                                    inspect) {
+  change_list <- switch(inspect,
     "manifest" = {
 
     },
     "osf" = {
-      stop(paste0("osf version_source not yet implemented"))
+      stop(paste0("osf inspect not yet implemented"))
     }
   )
 

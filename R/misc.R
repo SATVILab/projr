@@ -501,28 +501,23 @@ projr_use_data <- function(...,
 }
 
 .projr_opt_cue_get <- function() {
-  c("patch", "minor", "major")
+  c("if-change", "always", "never")
 }
 
 .projr_opt_remote_strategy_get <- function() {
-  c(
-    "upload-missing",
-    "upload-all",
-    "sync-purge",
-    "sync-diff"
-  )
+  c("upload-missing", "upload-all", "sync-purge", "sync-diff")
 }
 
 .projr_opt_remote_conflict_get <- function() {
   c("overwrite", "skip", "error")
 }
 
-.projr_opt_remote_version_source_get <- function() {
+.projr_opt_remote_inspect_get <- function() {
   c("file", "manifest", "none")
 }
 
 .projr_opt_remote_transfer_names_get <- function() {
-  c("cue", "strategy", "conflict", "version-source")
+  c("cue", "strategy", "conflict", "inspect")
 }
 
 .projr_try_repeat <- function(fn, args, n_try = NULL, n_sleep = 3) {

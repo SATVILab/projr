@@ -6,7 +6,7 @@
                         path_append_label,
                         cue = NULL,
                         strategy,
-                        version_source,
+                        inspect,
                         conflict,
                         component) {
   # whether to run or not
@@ -35,7 +35,7 @@
                                 remote_base = NULL,
                                 remote_final = NULL,
                                 path_remote_rel = NULL,
-                                version_source) {
+                                inspect) {
   output_run <- .projr_run_output_check(bump_component)
   change_list <- .projr_change_get(
     label = label,
@@ -43,7 +43,7 @@
     remote_final = remote_final,
     path_remote_rel = path_remote_rel,
     remote_type = remote_type,
-    version_source = version_source
+    inspect = inspect
   )
   .projr_send_file(
     fn_rel = change_list[["add"]],

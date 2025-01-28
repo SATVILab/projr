@@ -885,13 +885,29 @@ projr_init_renviron <- function() {
     .dir_proj_get(),
     recursive = FALSE, full.names = TRUE
   )
-  fn_vec_citation <- list.files("inst", pattern = "^CITATION$", full.names = TRUE)
-  fn_vec_renv <- .file_ls("renv", recursive = TRUE, full.names = TRUE)
+  fn_vec_citation <- .projr_init_git_file_get_citation()
+  fn_vec_renv <- .projr_init_git_file_get_renv()
   fn_vec <- c(fn_vec_root, fn_vec_citation, fn_vec_renv)
   if (.is_len_0(fn_vec)) {
     return(character(0))
   }
   .projr_git_changed_filter(fn_vec)
+}
+
+.projr_init_git_file_get_citation <- function() { # nolint
+  if (dir.exists("inst")) {
+    list.files("inst", pattern = "^CITATION$", full.names = TRUE)
+  } else {
+    character(0)
+  }
+}
+
+.projr_init_git_file_get_renv <- function() {
+  if (dir.exists("renv")) {
+    .file_ls("renv", recursive = TRUE, full.names = TRUE)
+  } else {
+    character(0)
+  }
 }
 
 .projr_init_git_suggest_git <- function() {

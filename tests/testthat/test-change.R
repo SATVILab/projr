@@ -11,7 +11,7 @@ test_that(".projr_change_get_manifest works", {
       # only one version
       # ----------------
       change_list <- .projr_change_get(
-        label = "output", version_source = "manifest"
+        label = "output", inspect = "manifest"
       )
       expect_identical(length(change_list), 4L)
       expect_identical(nrow(change_list[["kept_unchanged"]]), 0L)
@@ -19,7 +19,7 @@ test_that(".projr_change_get_manifest works", {
       expect_identical(nrow(change_list[["kept_changed"]]), 0L)
       expect_identical(nrow(change_list[["added"]]), 3L)
       change_list_raw_data <- .projr_change_get(
-        label = "raw-data", version_source = "manifest"
+        label = "raw-data", inspect = "manifest"
       )
       expect_identical(length(change_list_raw_data), 4L)
       expect_identical(nrow(change_list_raw_data[["kept_unchanged"]]), 0L)
@@ -32,7 +32,7 @@ test_that(".projr_change_get_manifest works", {
       .projr_version_bump_major() |> invisible()
       .projr_build_manifest_post(TRUE) |> invisible()
       change_list <- .projr_change_get(
-        label = "output", version_source = "manifest"
+        label = "output", inspect = "manifest"
       )
       expect_identical(length(change_list), 4L)
       expect_identical(nrow(change_list[["kept_unchanged"]]), 3L)
@@ -40,7 +40,7 @@ test_that(".projr_change_get_manifest works", {
       expect_identical(nrow(change_list[["kept_changed"]]), 0L)
       expect_identical(nrow(change_list[["added"]]), 0L)
       change_list_raw_data <- .projr_change_get(
-        label = "raw-data", version_source = "manifest"
+        label = "raw-data", inspect = "manifest"
       )
       expect_identical(length(change_list_raw_data), 4L)
       expect_identical(nrow(change_list_raw_data[["kept_unchanged"]]), 0L)
@@ -60,7 +60,7 @@ test_that(".projr_change_get_manifest works", {
         )[["label"]])
       )
       change_list <- .projr_change_get(
-        label = "output", version_source = "manifest"
+        label = "output", inspect = "manifest"
       )
       expect_identical(length(change_list), 4L)
       expect_identical(nrow(change_list[["kept_unchanged"]]), 3L)
@@ -68,7 +68,7 @@ test_that(".projr_change_get_manifest works", {
       expect_identical(nrow(change_list[["kept_changed"]]), 0L)
       expect_identical(nrow(change_list[["added"]]), 0L)
       change_list_raw_data <- .projr_change_get(
-        label = "raw-data", version_source = "manifest"
+        label = "raw-data", inspect = "manifest"
       )
       expect_identical(length(change_list_raw_data), 4L)
       expect_identical(nrow(change_list_raw_data[["kept_unchanged"]]), 0L)
@@ -113,7 +113,7 @@ test_that(".projr_change_get works for files", {
       change_list <- .projr_change_get(
         label = "output",
         output_run = FALSE,
-        version_source = "file",
+        inspect = "file",
         type = "local",
         remote = .dir_create_tmp_random()
       )
@@ -130,7 +130,7 @@ test_that(".projr_change_get works for files", {
       change_list <- .projr_change_get(
         label = "output",
         output_run = TRUE,
-        version_source = "file",
+        inspect = "file",
         type = "local",
         remote = .dir_create_tmp_random()
       )
@@ -143,7 +143,7 @@ test_that(".projr_change_get works for files", {
       change_list <- .projr_change_get(
         label = "output",
         output_run = TRUE,
-        version_source = "file",
+        inspect = "file",
         type = "local",
         remote = .dir_create_tmp_random()
       )
@@ -164,7 +164,7 @@ test_that(".projr_change_get works for files", {
       change_list <- .projr_change_get(
         label = "output",
         output_run = TRUE,
-        version_source = "file",
+        inspect = "file",
         type = "local",
         remote = "_output2"
       )

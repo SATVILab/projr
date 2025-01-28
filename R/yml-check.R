@@ -212,7 +212,7 @@ projr_yml_check <- function(profile = NULL) {
     )
     .assert_in(send_list[["conflict"]], .projr_opt_remote_conflict_get())
     .assert_in(
-      send_list[["version-source"]], .projr_opt_remote_version_source_get()
+      send_list[["inspect"]], .projr_opt_remote_inspect_get()
     )
   }
   invisible(TRUE)

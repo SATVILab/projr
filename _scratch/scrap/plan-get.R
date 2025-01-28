@@ -10,12 +10,12 @@
 # delete_add_all
 # delete_add_all_if_change
 
-.projr_dest_send_get_plan <- function(version_source,
+.projr_dest_send_get_plan <- function(inspect,
                                       strategy,
                                       type,
                                       structure) {
   # get exactly how we decide what to do with the changes
-  switch(version_source,
+  switch(inspect,
     "none" = .projr_dest_send_get_plan_none(strategy),
     "manifest" = ,
     "file" = .projr_dest_send_get_plan_source(
@@ -24,7 +24,7 @@
       strategy = strategy
     ),
     stop(
-      paste0("version_source '", version_source, "' not supported"),
+      paste0("inspect '", inspect, "' not supported"),
       call. = FALSE
     )
   )
