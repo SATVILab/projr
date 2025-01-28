@@ -225,3 +225,53 @@
                                                             label) {
   !.is_len_0(which(grepl(paste0("^", label, ": "), version_file)))
 }
+
+# get minimum acceptable version
+.projr_manifest_get_version_earliest_match <- function(label,
+                                                       version_comp) {
+  # begin with latest version (most conservative)
+  version_earliest_match <- projr_version_get() |>
+    .projr_version_v_rm() |>
+    package_version()
+  # get lowest version available, if version_comp not provided
+  version_comp <-
+    .projr_manifest_get_version_earliest_match_get_version_comp(version_comp)
+  manifest_project <- .projr_remote_get_manifest_project() |>
+    .projr_manifest_filter_label(label)
+  rownames(manifest_project) <- NULL
+  manifest_latest <- manifest_project |>
+    .projr_manifest_filter_version(projr_version_get())
+  version_vec <- manifest_latest[["version"]] |>
+    .projr_version_v_rm() |>
+    package_version() |>
+    sort()
+  version_vec <- version_vec[version_vec >= package_version(version_comp)]
+  if (.is_len_0(version_vec)) {
+    return(version_earliest_match)
+  }
+  version_vec <- version_vec |> rev()
+  for (i in seq_along(version_vec)) {
+    version_curr <- version_vec[[i]]
+    manifest_curr <- manifest_project |>
+      .projr_manifest_filter_version(version_curr)
+    if (!identical(manifest_curr, manifest_latest)) {
+      return(version_curr)
+    }
+    version_earliest_match <- version_curr
+  }
+  version_earliest_match
+}
+
+.projr_manifest_get_version_earliest_match_get_version_comp <-
+  function(version_comp = NULL) {
+    if (!is.null(version_comp)) {
+      return(version_comp)
+    }
+    version_format <- .projr_yml_metadata_get_version_format(NULL)
+    # remove dev
+    version_format <- gsub(".dev$", "", version_format)
+    # swop all but last component for 0, and last for 1,
+    # to get earliest possible valid version
+    version_format <- gsub("major|minor|patch", "0", version_format)
+    gsub("0$", "1", version_format)
+  }
