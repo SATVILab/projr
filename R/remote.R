@@ -759,6 +759,31 @@ projr_osf_create_project <- function(title,
 }
 
 # ========================
+# Hash a particular remote
+# ========================
+
+
+.projr_remote_hash <- function(type,
+                               remote_final,
+                               version,
+                               label) {
+  .assert_in(type, .projr_opt_remote_get_type(), TRUE)
+  hash_tbl <- .projr_change_file_dir(
+    type, remote_final
+  ) |>
+    .projr_hash_dir(version) |>
+    .projr_manifest_hash_cache_filter(label)
+  if (nrow(hash_tbl) == 0) {
+    .projr_zero_tbl_get_manifest(label)
+  } else {
+    cbind(
+      data.frame(label = rep(label, nrow(hash_tbl))),
+      hash_tbl
+    )
+  }
+}
+
+# ========================
 # delete a remote host
 # ========================
 
