@@ -153,6 +153,7 @@
 .projr_manifest_version_get_latest <- function(manifest) {
   manifest[["version"]] |> .projr_version_get_earliest()
 }
+
 .projr_empty_tbl_get_manifest <- function(label, version) {
   out_df <- data.frame(
     label = label,
@@ -185,8 +186,10 @@
   c(paste0("Project: ", projr_version_get()), version_file)
 }
 
-.projr_version_file_update_label_version <- function(version_file, label, is_upload) {
-  version_add <- if (is_upload) {
+.projr_version_file_update_label_version <- function(version_file, # nolint
+                                                     label,
+                                                     add_asterisk) {
+  version_add <- if (add_asterisk) {
     projr_version_get() |> paste0("*")
   } else {
     projr_version_get()
