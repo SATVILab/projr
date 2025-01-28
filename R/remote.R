@@ -630,7 +630,16 @@ projr_osf_create_project <- function(title,
     return(character())
   }
   if (pre) {
+    # remove the label (if structure is latest),
+    # or the version (if structure is archive).
+    # ensures that the manifest and version files
+    # are always at the same level as the labels
     args_list <- args_list[-length(args_list)]
+    if (structure == "archive") {
+      # need to also remove the label
+      # if it's an archive
+    args_list <- args_list[-length(args_list)]
+    }
   }
 
   do.call(file.path, args_list)
