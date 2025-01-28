@@ -106,7 +106,6 @@
     manifest_pre_full |>
       .projr_manifest_filter_version(version_pre_final)
   }
-
 }
 
 
@@ -156,12 +155,8 @@
   }
 
 .projr_zero_list_manifest_get <- function() {
-  list(
-    "removed" = character(),
-    "kept_unchanged" = character(),
-    "kept_changed" = character(),
-    "added" = character()
-  )
+  lapply(1:4, functiion(x) character(0L)) |>
+    stats::setNames(c("fn_dest_extra", "fn_same", "fn_diff", "fn_source_extra"))
 }
 
 # file-based
@@ -251,9 +246,9 @@
     hash_removed <- hash_pre[fn_vec_pre_lgl_removed, ]
   }
   list(
-    "removed" = hash_removed,
-    "kept_unchanged" = hash_post_kept_unchanged,
-    "kept_changed" = hash_post_kept_changed,
-    "added" = hash_post_add
+    "fn_dest_extra" = hash_removed,
+    "fn_same" = hash_post_kept_unchanged,
+    "fn_diff" = hash_post_kept_changed,
+    "fn_source_extra" = hash_post_add
   )
 }
