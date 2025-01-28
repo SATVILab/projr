@@ -243,7 +243,7 @@ projr_osf_create_project <- function(title,
     .projr_version_get_v()
   }  else {
     version |> .projr_version_v_add()
-  } 
+  }
   remote_pre <- .projr_remote_get_final(
     type, id, label, structure, path, path_append_label,
     version, TRUE
@@ -526,7 +526,7 @@ projr_osf_create_project <- function(title,
   if (pre) {
     return(c("tag" = id))
   }
-  
+
   fn <- .projr_remote_get_path_rel(
     type = "github",
     path = path,
@@ -638,7 +638,7 @@ projr_osf_create_project <- function(title,
     if (structure == "archive") {
       # need to also remove the label
       # if it's an archive
-    args_list <- args_list[-length(args_list)]
+      args_list <- args_list[-length(args_list)]
     }
   }
 
@@ -1214,17 +1214,17 @@ projr_osf_create_project <- function(title,
   )
 }
 
-.projr_remote_get_updated_manifest_project <- function(type, 
+.projr_remote_get_updated_manifest_project <- function(type,
                                                        remote,
                                                        label) {
   # update for a given label based on what's in the project
   manifest_remote <- .projr_remote_get_manifest(type, remote)
   manifest_add <- .projr_manifest_get_add_project(label)
-  manifest_add |> 
-      .projr_manifest_append_previous_actual(manifest_remote) |>
-      .projr_manifest_remove_duplicate()
+  manifest_add |>
+    .projr_manifest_append_previous_actual(manifest_remote) |>
+    .projr_manifest_remove_duplicate()
 }
-                                                            
+
 # ========================
 # Get manifests
 # ========================
@@ -1286,9 +1286,9 @@ projr_osf_create_project <- function(title,
 }
 
 .projr_remote_get_version_file_read <- function(path) {
-  if (!file.exists(path)) {
+  if (!file.exists(path)) 
     return(character(0L))
-  }
+  
   readLines(path, warn = FALSE)
 }
 
@@ -1313,21 +1313,22 @@ projr_osf_create_project <- function(title,
   .projr_version_get() |> .projr_version_v_rm()
 }
 
-.projr_remote_get_version_label_non_project <- function(remote_pre,
+.projr_remote_get_version_label_non_project <- function(remote_pre, # nolint
                                                         type,
                                                         label,
                                                         structure) {
+
   if (structure == "archive") {
     version_archive <- .projr_remote_get_version_label_non_project_archive(
       remote_pre, type, label, structure
     )
-    if (!.projr_version_check_error_free(version_archive)) {
+    if (!.projr_version_check_error_free(version_archive)) { # nolint
       return(character(0L))
     }
   } else {
     version_archive <- NULL
   }
-  
+
   # use the versioned files (data-raw-project: v1.0.0)
   version_file <- .projr_remote_get_version_label_non_project_file(
     remote_pre, type, label
@@ -1343,7 +1344,7 @@ projr_osf_create_project <- function(title,
   }
 
   version_thus_far <- version_archive
-  
+
   # check that the manifest matches
   manifest_project <- .projr_remote_get_manifest_project() |>
     .projr_manifest_filter_label(label) |>
@@ -1445,7 +1446,7 @@ projr_osf_create_project <- function(title,
   if (grepl("\\*$", label_regex)) {
     return(character(0L))
   }
-  gsub(match_str, "", label_regex) |> 
+  gsub(match_str, "", label_regex) |>
     trimws() |>
     .projr_version_v_rm()
 }
