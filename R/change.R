@@ -215,7 +215,7 @@
 # between two directories
 .projr_change_get_dir <- function(path_dir_pre,
                                   path_dir_post) {
-  hash_tbl_pre <- 
+  hash_tbl_pre <- stop("this should not happen like this")
   hash_tbl_post <- .projr_hash_dir(path_dir_post)
   .projr_change_get_hash(hash_pre = hash_tbl_pre, hash_post = hash_tbl_post)
 }
