@@ -22,6 +22,15 @@
     remote_list[["remote_dest"]], remote_list[["remote_comp"]]
   )
 
+  .projr_dest_send_label_implement_plan(
+    plan[["fn_add"]], plan[["fn_rm"]], plan[["version"]],
+    plan[["manifest"]], plan[["create"]], plan[["purge"]],
+    remote_list[["remote_dest"]], type, yml_title[["id"]], label,
+    yml_title[["structure"]], yml_title[["path"]],
+    yml_title[["path_append_label"]],
+    path_dir_local, remote_list[["remote_pre"]]
+  )
+
 }
 
 # ==========================================================================
@@ -761,4 +770,42 @@
     create = TRUE,
     purge = strategy == "sync-purge"
   )
+}
+
+# ==========================================================================
+# Implement plan
+# ==========================================================================
+
+.projr_dest_send_label_implement_plan <- function(fn_add,
+                                                  fn_rm,
+                                                  version_file,
+                                                  manifest,
+                                                  create,
+                                                  purge,
+                                                  remote_dest,
+                                                  type,
+                                                  id,
+                                                  label,
+                                                  structure,
+                                                  path,
+                                                  path_append_label,
+                                                  path_dir_local,
+                                                  remote_pre) {
+  if (purge) {
+    .projr_remote_file_rm_all(type, remote_dest)
+  }
+  if (create) {
+    remote_dest <- .projr_remote_get_final(
+      type, id, label, structure, path, path_append_label, NULL
+    )
+  }
+
+  .projr_remote_file_rm(type, fn_rm, remote_dest)
+
+  .projr_remote_file_add(type, remote_dest, path_dir_local, fn_add)
+
+  # need to use remote_pre and just add an individual file
+  .projr_remote_write_manifest(type, remote_pre, manifest)
+  .projr_remote_write_version_file(type, remote_pre, version_file)
+  invisible(TRUE)
 }

@@ -1146,30 +1146,18 @@ projr_osf_create_project <- function(title,
 # ========================
 
 .projr_remote_write_manifest <- function(type,
-                                         remote_final,
+                                         remote_pre,
                                          manifest) {
   path_dir_save <- .dir_create_tmp_random()
   .projr_manifest_write(manifest, file.path(path_dir_save, "manifest.csv"))
-  remote_save <- .projr_remote_write_manifest_get_remote(type, remote_final)
   switch(type,
     "project" = NULL,
     .projr_remote_file_add(
-      type, remote_save, path_dir_save, "manifest.csv", "overwrite"
+      type, remote_pre, path_dir_save, "manifest.csv"
     )
   )
   unlink(path_dir_save, recursive = TRUE)
   invisible(TRUE)
-}
-
-.projr_remote_write_manifest_get_remote <- function(type, remote) {
-  switch(type,
-    "github" = .projr_remote_write_manifest_get_remote_github(remote)
-  )
-}
-
-.projr_remote_write_manifest_get_remote_github <- function(remote) {
-  remote[["fn"]] <- "manifest.csv"
-  remote
 }
 
 # ========================
@@ -1181,24 +1169,12 @@ projr_osf_create_project <- function(title,
                                              version_file) {
   path_dir_save <- .dir_create_tmp_random()
   writeLines(version_file, file.path(path_dir_save, "VERSION"))
-  remote_save <- .projr_remote_write_version_file_get_remote(type, remote)
   switch(type,
     "project" = NULL,
     .projr_remote_file_add(
-      type, remote_save, path_dir_save, "VERSION", "overwrite"
+      type, remote_pre, path_dir_save, "VERSION"
     )
   )
-}
-
-.projr_remote_write_version_file_get_remote <- function(type, remote) {
-  switch(type,
-    "github" = .projr_remote_write_version_file_get_remote_github(remote)
-  )
-}
-
-.projr_remote_write_version_file_get_remote_github <- function(remote) {
-  remote[["fn"]] <- "VERSION"
-  remote
 }
 
 # ========================
@@ -1865,8 +1841,7 @@ projr_osf_create_project <- function(title,
     "github",
     fn = fn_vec_to_upload,
     path_dir_local = path_dir_save_local,
-    remote = remote,
-    conflict = "overwrite"
+    remote = remote
   )
   unlink(path_dir_save_local, recursive = TRUE)
   invisible(TRUE)
@@ -1879,21 +1854,17 @@ projr_osf_create_project <- function(title,
 .projr_remote_file_add <- function(type,
                                    remote,
                                    path_dir_local,
-                                   fn,
-                                   conflict) {
+                                   fn) {
   .assert_in(type, .projr_opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .projr_remote_file_add_local(
-      fn = fn, path_dir_local = path_dir_local, remote = remote,
-      conflict = conflict
+      fn = fn, path_dir_local = path_dir_local, remote = remote
     ),
     "osf" = .projr_remote_file_add_osf(
-      fn = fn, path_dir_local = path_dir_local, remote = remote,
-      conflict = conflict
+      fn = fn, path_dir_local = path_dir_local, remote = remote
     ),
     "github" = .projr_remote_file_add_github(
-      fn = fn, path_dir_local = path_dir_local, remote = remote,
-      conflict = conflict
+      fn = fn, path_dir_local = path_dir_local, remote = remote
     )
   )
 }
@@ -1901,8 +1872,7 @@ projr_osf_create_project <- function(title,
 # local
 .projr_remote_file_add_local <- function(fn,
                                          path_dir_local,
-                                         remote,
-                                         conflict) {
+                                         remote) {
   .assert_chr_min(fn, TRUE)
   if (.is_len_0(fn)) {
     return(invisible(FALSE))
@@ -1910,7 +1880,6 @@ projr_osf_create_project <- function(title,
   .assert_string(path_dir_local, TRUE)
   .assert_path_not_file(path_dir_local)
   .assert_string(remote, TRUE)
-  fn <- .projr_remote_check_conflict_local(conflict, fn, remote)
   .dir_copy_file(
     fn = fn,
     path_dir_from = path_dir_local,
@@ -1918,34 +1887,12 @@ projr_osf_create_project <- function(title,
   )
 }
 
-.projr_remote_check_conflict_local <- function(conflict, fn, remote) {
-  switch(conflict,
-    "overwrite" = fn,
-    "skip" = fn[!file.exists(file.path(remote, fn))],
-    "error" = .projr_remote_check_conflict_local_error(fn, remote),
-    stop("conflict must be one of 'overwrite', 'skip', or 'error'")
-  )
-}
-
-.projr_remote_check_conflict_local_error <- function(fn, remote) {
-  fn_exists <- fn[file.exists(file.path(remote, fn))]
-  if (.is_len_pos(fn_exists)) {
-    fn_exists <- fn_exists[seq_len(min(5L, length(fn_exists)))]
-    stop(paste0(
-      "At least the following file(s) already exist in local remote ",
-      remote, ": ",
-      paste0(fn_exists, sep = "\n")
-    ))
-  }
-  fn
-}
 
 
 # osf
 .projr_remote_file_add_osf <- function(fn,
                                        path_dir_local,
-                                       remote,
-                                       conflict) {
+                                       remote) {
   .assert_chr_min(fn, TRUE)
   if (.is_len_0(fn)) {
     return(invisible(FALSE))
@@ -1966,8 +1913,7 @@ projr_osf_create_project <- function(title,
       x = osf_tbl_upload,
       path = file.path(
         path_dir_local, plot_tbl[["fn"]][plot_tbl[["dir"]] == x]
-      ),
-      conflicts = conflict
+      )
     )
   }
   invisible(TRUE)
@@ -1976,8 +1922,7 @@ projr_osf_create_project <- function(title,
 # github
 .projr_remote_file_add_github <- function(fn,
                                           path_dir_local,
-                                          remote,
-                                          conflict) {
+                                          remote) {
   .assert_chr_min(fn, TRUE)
   if (.is_len_0(fn)) {
     return(invisible(FALSE))
@@ -1988,7 +1933,6 @@ projr_osf_create_project <- function(title,
     return(invisible(FALSE))
   }
   .projr_dep_install("piggyback")
-  .projr_remote_file_add_github_check_conflict(conflict, remote[["tag"]])
   .assert_string(path_dir_local, TRUE)
   .assert_path_not_file(path_dir_local)
 
@@ -2012,19 +1956,6 @@ projr_osf_create_project <- function(title,
     return(invisible(TRUE))
   }
   .projr_remote_file_add_github_zip(path_zip = path_zip, tag = tag)
-}
-
-.projr_remote_file_add_github_check_conflict <- function(conflict, id) {
-  if (conflict == "error" && .projr_remote_check_exists("github", id)) {
-    stop(paste0(
-      "Attempting to upload to a pre-existing release with conflict = 'error' for release ", # nolint
-      id
-    ))
-  }
-  if (conflict == "skip") {
-    warning("The setting `conflict = 'skip'` is not supported for GitHub destinations") # nolint
-  }
-  invisible(TRUE)
 }
 
 .projr_remote_file_add_github_zip <- function(path_zip,
