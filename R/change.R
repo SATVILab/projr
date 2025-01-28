@@ -155,7 +155,7 @@
   }
 
 .projr_zero_list_manifest_get <- function() {
-  lapply(1:4, functiion(x) character(0L)) |>
+  lapply(1:4, function(x) character(0L)) |>
     stats::setNames(c("fn_dest_extra", "fn_same", "fn_diff", "fn_source_extra"))
 }
 
