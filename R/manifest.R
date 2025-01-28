@@ -56,11 +56,15 @@
 # based on the project
 # ---------------------------
 
-.projr_manifest_get_add_project <- function(label) {
+.projr_manifest_get_add_project <- function(manifest, label) {
   manifest_project <- .projr_manifest_read_project()
-  manifest_project |>
+  manifest_add <- manifest_project |>
     .projr_manifest_filter_label(label) |>
     .projr_manifest_filter_version(projr::projr_version_get())
+  if (nrow(manifest_add) == 0L) {
+    return(.projr_empty_tbl_get_manifest(label, projr::projr_version_get()))
+  }
+  manifest_add
 }
 
 # writing, reading and merging
