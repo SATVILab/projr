@@ -42,6 +42,16 @@
     .projr_zero_tbl_get_manifest()
 }
 
+.projr_manifest_filter_out_version_label <- function(manifest,
+                                                     version,
+                                                     label) {
+  label_vec_non <- manifest[["label"]] != label
+  version_vec_non <- manifest[["version"]] != .projr_version_v_add(version)
+  manifest[label_vec_non & version_vec_non, ] %@@%
+    .projr_zero_tbl_get_manifest()
+
+}
+
 # get what would be added,
 # based on the project
 # ---------------------------
