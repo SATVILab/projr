@@ -19,9 +19,11 @@ Default is \code{TRUE}.}
 \code{TRUE} if \code{renv::restore()} succeeds, \code{FALSE} otherwise.
 }
 \description{
-Tests \code{renv::restore()} without using the cache in a clean, temporary environment.
+Tests \code{renv::restore()} without using the cache in
+a clean, temporary environment.
 Automatically creates a temporary project directory, initializes \code{renv},
-copies required files, disables the cache via \code{.Rprofile}, and then performs \code{renv::restore()}.
+copies required files, disables the cache via
+\code{.Rprofile}, and then performs \code{renv::restore()}.
 Afterwards, it deletes the first library path where \code{renv} restored packages.
 
 \strong{Note:}

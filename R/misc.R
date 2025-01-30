@@ -24,7 +24,7 @@
 if (!requireNamespace("piggyback", quietly = TRUE)) {
 }
 
-par_nm_vec <- c( "parameters", "parameter", "param", "params", "par", "pars")
+par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 
 # ------------
 # dependencies

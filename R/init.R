@@ -23,10 +23,10 @@
 #' Default is `FALSE`.
 #' @seealso projr_init_renviron
 #' @export
-projr_init <- function(yml_path_from = NULL,
-                       renv_force = FALSE,
-                       renv_bioconductor = TRUE,
-                       public = FALSE) {
+projr_init_full <- function(yml_path_from = NULL,
+                            renv_force = FALSE,
+                            renv_bioconductor = TRUE,
+                            public = FALSE) {
   # create initial _proj.yml
   .projr_init_yml(yml_path_from) # nolint: object_usage_linter.
 
@@ -38,7 +38,7 @@ projr_init <- function(yml_path_from = NULL,
 
   # add document-engine docs
   .projr_init_engine(nm_list)
-  
+
   # add various files
   .projr_init_dep() # _dependencies.R
   .projr_init_ignore() # ignore files
@@ -68,7 +68,7 @@ projr_init <- function(yml_path_from = NULL,
   invisible(TRUE)
 }
 
-#' @export 
+#' @export
 #' @rdname projr_
 projr_init_git <- function(commit = TRUE, username = NULL, public = FALSE) {
   .projr_git_system_setup()
@@ -95,7 +95,7 @@ projr_init_git <- function(commit = TRUE, username = NULL, public = FALSE) {
   }
 }
 
-#' @export 
+#' @export
 #' @rdname projr_init
 projr_init_license <- function(license, first_name, last_name) {
   if (tolower(license) == "proprietary") {

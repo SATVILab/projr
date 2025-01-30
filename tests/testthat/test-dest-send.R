@@ -70,13 +70,15 @@ test_that(".projr_remote_create works - local", {
       file.create(projr::projr_path_get("raw-data", "data.csv"))
       projr_init_git()
       .projr_yml_git_set_push(FALSE, TRUE, NULL)
-      projr::projr_build_dev()     
+      projr::projr_build_dev()
       # remove github remote
       yml_projr <- projr_yml_get()
       yml_projr[["build"]] <- yml_projr[["build"]][
         -which(names(yml_projr[["build"]]) == "github")
-        ]
+      ]
       .projr_yml_set(yml_projr)
+      browser()
+      browser()
       projr::projr_build_patch()
       # add a local destination, that is never sent to
       projr_yml_dest_add_local(
@@ -85,11 +87,29 @@ test_that(".projr_remote_create works - local", {
         path = "_latest",
         structure = "latest"
       )
-      # test no github
-      browser()
-      browser()
       projr::projr_build_patch()
-
+      expect_true(file.exists("_latest/raw-data/data.csv"))
+      projr_yml_dest_add_local(
+        title = "archive",
+        content = "raw-data",
+        path = "_archive",
+        structure = "archive",
+        overwrite = TRUE
+      )
+      projr::projr_build_patch()
+      expect_true(file.exists("_latest/raw-data/data.csv"))
+      expect_true(file.exists("_archive/raw-data/v0.0.3/data.csv"))
+      browser()
+      browser()
+      undebug(.projr_dest_send_label_get_remotes_get_version_comp)
+      undebug(.projr_dest_send_label_get_remotes)
+      undebug(.projr_dest_send_label_get_plan_fn_sync)
+      undebug(.projr_manifest_get_version_earliest_match)
+      projr::projr_build_patch()
     }
   )
 })
+
+debugonce(.projr_dest_send_label_get_remotes_get_version_comp)
+ .projr_dest_send_label_get_remotes_get_version_comp(remote_pre, 
+               type, label, structure, strategy, inspect, cue)

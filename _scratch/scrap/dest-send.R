@@ -153,4 +153,4 @@
   function(plan_detail, version_file, label) {
     .is_len_0(plan_detail[["add"]]) && .is_len_0(plan_detail[["rm"]]) &&
       any(grepl(paste0("^", label, ": "), version_file))
-}
+  }

@@ -19,7 +19,7 @@
 
 .projr_dest_send_check <- function(bump_component) {
   # output_run
-  .projr_build_get_output_run(bump_component)
+  .projr_build_get_output_run(bump_component) # nolint
 }
 
 .projr_dest_send_get_type <- function(upload_github) {
@@ -51,7 +51,7 @@
                                   upload_force) {
   # ensure that these are not NULL only if not
   # specified in _projr.yml. Reaason is that,
-  # if they are specified in the `yml`, the settings 
+  # if they are specified in the `yml`, the settings
   # in the `yml` will be used, so we want to make
   # that consistent that the `content` setting is
   # also specified in the `yml`.
@@ -135,7 +135,7 @@
 
   for (x in content_vec) {
     .projr_dest_send_label(
-      x, title, type, .projr_build_get_output_run(bump_component), 
+      x, title, type, .projr_build_get_output_run(bump_component),
       upload_github, upload_force
     )
   }

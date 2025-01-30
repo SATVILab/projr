@@ -11,15 +11,18 @@
     title, type, NULL, upload_github, upload_force
   )
   remote_list <- .projr_dest_send_label_get_remotes(
-    type, label, path_dir_local, yml_title[["path_append_label"]],
-    yml_title[["label"]], yml_title[["structure"]],
+    type, yml_title[["id"]], yml_title[["path"]],
+    yml_title[["path-append-label"]],
+    label, yml_title[["structure"]],
     yml_title[["send"]][["strategy"]], yml_title[["send"]][["inspect"]],
     yml_title[["send"]][["cue"]]
   )
+
   plan <- .projr_dest_send_label_get_plan(
     yml_title[["send"]][["strategy"]], yml_title[["send"]][["inspect"]],
-    remote_list[["version_comp"]], type, label, remote_list[["remote_pre"]],
-    remote_list[["remote_dest"]], remote_list[["remote_comp"]]
+    remote_list[["version_comp"]], type, label,
+    remote_list[["remote_pre"]], remote_list[["remote_dest"]],
+    remote_list[["remote_comp"]], yml_title[["send"]][["cue"]]
   )
 
   .projr_dest_send_label_implement_plan(
@@ -27,7 +30,7 @@
     plan[["manifest"]], plan[["create"]], plan[["purge"]],
     remote_list[["remote_dest"]], type, yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
-    yml_title[["path_append_label"]],
+    yml_title[["path-append-label"]],
     path_dir_local, remote_list[["remote_pre"]]
   )
 
@@ -116,10 +119,10 @@
   function(cue,
            strategy,
            structure) {
-  # if we are always uploading, then we don't need to compare
-  # against anything, as we are always going to upload
-  # to the latest version
-  cue == "always" || strategy == "upload-missing" || structure == "latest"
+    # if we are always uploading, then we don't need to compare
+    # against anything, as we are always going to upload
+    # to the latest version
+    cue == "always" || strategy == "upload-missing" || structure == "latest"
   }
 
 .projr_dest_send_label_get_remotes_get_version_comp_latest <- function() { # nolint
@@ -156,7 +159,7 @@
   # earliest version does not work if it's not trusted
   # or none are avaialble (version_remote is NULL),
   # or if the version is too old
-  if (is.null(version_remote) || version_remote < version_min_acceptable) {
+  if (!.is_string(version_remote) || version_remote < version_min_acceptable) {
     return(version_comp_no_trusted_archive)
   }
   # at this point, this is simply the latest remote.
@@ -194,10 +197,18 @@
                                             label,
                                             remote_pre,
                                             remote_dest,
-                                            remote_comp) {
+                                            remote_comp,
+                                            cue) {
   plan_fn <- .projr_dest_send_label_get_plan_fn(
     strategy, label, inspect, version_comp, remote_comp, type,
     remote_pre, remote_dest
+  )
+
+  .projr_dest_send_label_get_plan_action(
+    strategy, plan_fn[["fn_source"]], plan_fn[["fn_dest"]],
+    plan_fn[["fn_source_extra"]], plan_fn[["fn_dest_extra"]],
+    plan_fn[["fn_same"]], plan_fn[["fn_diff"]],
+    remote_pre, remote_dest, type, label, version_comp, cue
   )
 
 }
@@ -242,10 +253,10 @@
 }
 
 .projr_dest_send_label_get_plan_fn_upload_missing <- function(inspect,
-                                                           version_comp,
-                                                           remote_comp,
-                                                           type,
-                                                           label) {
+                                                              version_comp,
+                                                              remote_comp,
+                                                              type,
+                                                              label) {
   # add all in `fn_souce_extra`, so need `fn_source` and `fn_dest`,
   # and then we diff them.
   fn_source <- .projr_dest_send_label_get_fn_source(label)
@@ -279,12 +290,12 @@
 }
 
 .projr_dest_send_label_get_plan_fn_sync <- function(inspect, # nolint
-                                                 version_comp,
-                                                 remote_pre,
-                                                 remote_dest,
-                                                 remote_comp,
-                                                 type,
-                                                 label) {
+                                                    version_comp,
+                                                    remote_pre,
+                                                    remote_dest,
+                                                    remote_comp,
+                                                    type,
+                                                    label) {
   if (inspect == "none") {
     # essentially, upload-all
     return(c("fn_source_extra" = .projr_dest_send_label_get_fn_source(label)))
@@ -323,7 +334,7 @@
            label) {
     # if the remote does not exist
     if (is.null(remote_comp)) {
-      .projr_empty_tbl_get_manifest()
+      .projr_empty_tbl_get_manifest(label, version_comp)
     } else {
       .projr_remote_hash(type, remote_comp, version_comp, label)
     }
@@ -341,29 +352,29 @@
 # Actions to take
 # --------------------------------------------------------------------------
 
-
-# action <- .projr_dest_send_label_get_plan_action(
-#   strategy, plan_fn[["fn_source"]], plan_fn[["fn_dest"]],
-#   plan_fn[["fn_source_extra"]], plan_fn[["fn_same"]],
-#   plan_fn[["fn_diff"]], remote_pre, remote_dest
-# )
-
 .projr_dest_send_label_get_plan_action <- function(strategy,
                                                    fn_source,
                                                    fn_dest,
                                                    fn_source_extra,
+                                                   fn_dest_extra,
                                                    fn_same,
                                                    fn_diff,
                                                    remote_pre,
                                                    remote_dest,
                                                    type,
-                                                   label) {
+                                                   label,
+                                                   version_comp,
+                                                   cue) {
   switch(strategy,
     "upload-all" = .projr_dest_send_label_get_plan_action_upload_all(
       fn_source, remote_dest, type, remote_pre, label
     ),
     "upload-missing" = .projr_dest_send_label_get_plan_action_upload_missing(
       fn_source_extra, remote_dest, type, remote_pre, label
+    ),
+    .projr_dest_send_label_get_plan_action_sync(
+      remote_dest, cue, fn_source_extra, type, remote_pre, label,
+      version_comp, fn_dest_extra, fn_diff, fn_same, strategy
     )
   )
 }
@@ -393,7 +404,7 @@
     "manifest" = manifest,
     "purge" = FALSE,
     "create" = create
-    )
+  )
 }
 
 .projr_dest_send_label_get_plan_action_version_file <- function(type, # nolint
@@ -417,9 +428,10 @@
                                                             remote_pre,
                                                             label,
                                                             rm_existing = FALSE,
+                                                            rm_existing_all = FALSE, # nolint
                                                             rm_adding = FALSE) { # nolint
   manifest_remote <- .projr_remote_get_manifest(type, remote_pre)
-  manifest_append <- .projr_manifest_get_add_project(label)
+  manifest_append <- .projr_manifest_get_add_project(manifest_remote, label)
   # remove any entries in manifest_remote
   # that are in manifest_append (as we are going to overwrite them)
   if (rm_existing) {
@@ -656,7 +668,7 @@
   list(
     fn_add = fn_source_extra,
     fn_rm = character(0L),
-    version_file = version_file,
+    version = version_file,
     manifest = manifest,
     create = TRUE,
     purge = FALSE
@@ -672,8 +684,6 @@
                                                                        fn_diff, # nolint
                                                                        fn_same, # nolint
                                                                        strategy) { # nolint
-  # TODO: START HERE
-  # START HERE
   if (is.null(version_comp)) {
     .projr_dest_send_label_get_plan_action_no_remote_if_change_null(
       type, remote_pre, label, fn_source_extra
@@ -700,7 +710,7 @@
   list(
     fn_add = fn_source_extra,
     fn_rm = character(0L),
-    version_file = version_file,
+    version = version_file,
     manifest = manifest,
     create = TRUE,
     purge = FALSE
@@ -800,9 +810,13 @@
     )
   }
 
-  .projr_remote_file_rm(type, fn_rm, remote_dest)
+  if (.is_len_pos(fn_rm)) {
+    .projr_remote_file_rm(type, fn_rm, remote_dest)
+  }
 
-  .projr_remote_file_add(type, remote_dest, path_dir_local, fn_add)
+  if (.is_len_pos(fn_add)) {
+    .projr_remote_file_add(type, remote_dest, path_dir_local, fn_add)
+  }
 
   # need to use remote_pre and just add an individual file
   .projr_remote_write_manifest(type, remote_pre, manifest)

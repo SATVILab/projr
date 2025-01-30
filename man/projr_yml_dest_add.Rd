@@ -9,12 +9,10 @@ projr_yml_dest_add_local(
   content,
   path,
   structure = NULL,
-  path_append_label = NULL,
   overwrite = TRUE,
   send_cue = NULL,
   send_strategy = NULL,
   send_inspect = NULL,
-  send_conflict = NULL,
   profile = "default"
 )
 }
@@ -47,50 +45,48 @@ If "version", then \code{path} will contain
 a directory for each version.
 If not supplied, will be \code{version}.}
 
-\item{path_append_label}{logical.
-Whether to append the label to the path.
-If \code{TRUE}, then the label will be appended to \code{path}.
-If \code{FALSE}, then the path will be the path to the label.
-If not set, then will be treated as \code{TRUE}.}
-
 \item{overwrite}{logical.
 Whether to rewrite an existing entry of the same
 title in the specified \code{projr} configuration file.
 Default is TRUE.}
 
-\item{send_cue}{TRUE/FALSE, or one of "build", "dev", "patch",
-"minor" or "major".
-Minimum component bumped in a project build to initiate
-the upload.
-If \code{TRUE}, then will be set to \code{"patch"}.
-If \code{FALSE}, then will never be uploaded.
-If \code{"build"}, then will be uploaded on every build,
-including \code{dev} builds, so \code{dev} and \code{"build"} are equivalent.}
+\item{send_cue}{"always", "if-change" or "never".
+Only relevant if \code{structure} is \code{archive}
+and \code{send_strategy} is \code{sync-diff} or \code{sync-purge}.
+If \code{always}, then a new remote is created
+every time, even if there is no change from the previous
+build.
+For example, if the contents of \code{raw-data} are the same
+between builds \code{v0.0.1} and \code{v0.0.2}, then
+a local remote would have folders \code{raw-data/v0.0.1}
+and \code{raw-data/v0.0.2}.
+If \verb{if-change}, then a new remote is created
+only if there is a change from the previous build.
+In the example above, a local remote would
+only have the folder \code{raw-data/v0.0.1}.
+If \code{never}, then a new remote is never created.}
 
 \item{send_strategy}{"upload-all", "upload-missing",
-"sync-using-deletiong" and "sync-using-version".
+"sync-purge" and "sync-diff".
 How to synchronise to the remote.
 If \code{upload-all}, then all files are uploaded.
 If \code{upload-missing}, then only missing files are uploaded.
-If \code{sync-using-deletion}, then all files on the remote
+If \code{sync-purge}, then all files on the remote
 are deleted before uploading all local files.
-If \code{sync-using-version}, then files
+If \code{sync-diff}, then files
 that have changed or been added locally are uploaded to the remote,
 and files that have been removed locally are removed from the remote.
-If not set, then "sync-using-version" will be used.}
+If not set, then "sync-diff" will be used.}
 
-\item{send_inspect}{"manifest" or "file".
-For \code{sync-using-version} synchronisation approach,
-whether to use the recorded versions of objects to
-determine what has changed  ("manifest"),
-or to download everything from the remote, version it
-and compare it to what's in the local folder ("file").
-If not set, then "manifest" is used.}
-
-\item{send_conflict}{"overwrite", "error" or "skip".
-What to do if a file that is to be uploaded
-to the remote is already on the remote.
-Default is "overwrite".}
+\item{send_inspect}{"manifest" , "file" or "none".
+What to look at to find what are the
+files on the remote, and their versions.
+If \code{manifest}, then the manifest on the remote is used.
+If \code{file}, then the files on the remote are downloaded
+and their versions are determined.
+If \code{none}, then no inspection is done (the remote
+is typically treated as "empty" in that case).
+If not set, then defaults to \code{"manifest"}.}
 
 \item{profile}{character.
 Profile to write the settings to.

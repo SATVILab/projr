@@ -308,7 +308,6 @@
 .projr_yml_dest_complete_title <- function(yml_title, title, type) {
   yml_title |>
     .projr_yml_dest_complete_title_structure(type) |>
-    .projr_yml_dest_complete_title_cue(type) |>
     .projr_yml_dest_complete_title_upload(type) |>
     .projr_yml_dest_complete_title_path_append_label(type) |>
     .projr_yml_dest_complete_title_path(type) |>
@@ -319,15 +318,17 @@
   .projr_yml_complete(yml, "structure", "archive")
 }
 
-.projr_yml_dest_complete_title_cue <- function(yml, type) {
-  .projr_yml_complete(yml, "cue", "if-change")
-}
 
 .projr_yml_dest_complete_title_upload <- function(yml, type) {
   yml[["send"]] <- yml[["send"]] |>
+    .projr_yml_dest_complete_title_cue(type) |>
     .projr_yml_dest_complete_title_upload_inspect(type) |>
     .projr_yml_dest_complete_title_upload_strategy(type)
   yml
+}
+
+.projr_yml_dest_complete_title_cue <- function(yml, type) {
+  .projr_yml_complete(yml, "cue", "if-change")
 }
 
 .projr_yml_dest_complete_title_upload_inspect <- function(yml, type) {

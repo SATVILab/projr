@@ -768,13 +768,13 @@ projr_osf_create_project <- function(title,
                                version,
                                label) {
   .assert_in(type, .projr_opt_remote_get_type(), TRUE)
-  hash_tbl <- .projr_change_file_dir(
+  hash_tbl <- .projr_change_file_dir( # nolint
     type, remote_final
   ) |>
     .projr_hash_dir(version) |>
     .projr_manifest_hash_cache_filter(label)
   if (nrow(hash_tbl) == 0) {
-    .projr_zero_tbl_get_manifest(label)
+    .projr_zero_tbl_get_manifest()
   } else {
     cbind(
       data.frame(label = rep(label, nrow(hash_tbl))),
@@ -1114,7 +1114,8 @@ projr_osf_create_project <- function(title,
   )
 }
 
-.projr_remote_file_get_all_github_file <- function(remote, path_dir_save_local) {
+.projr_remote_file_get_all_github_file <- function(remote,
+                                                   path_dir_save_local) {
   piggyback::.pb_cache_clear()
   .assert_attr(remote, "names")
   .assert_has(names(remote), c("tag", "fn"))
@@ -1165,7 +1166,7 @@ projr_osf_create_project <- function(title,
 # ========================
 
 .projr_remote_write_version_file <- function(type,
-                                             remote,
+                                             remote_pre,
                                              version_file) {
   path_dir_save <- .dir_create_tmp_random()
   writeLines(version_file, file.path(path_dir_save, "VERSION"))
@@ -1175,30 +1176,6 @@ projr_osf_create_project <- function(title,
       type, remote_pre, path_dir_save, "VERSION"
     )
   )
-}
-
-# ========================
-# Get updated manifest
-# ========================
-
-.projr_remote_get_updated_manifest <- function(type,
-                                               remote_final,
-                                               label) {
-  switch(type,
-    "project" = .projr_remote_get_manifest_project(),
-    .projr_remote_get_updated_manifest_non_project(type, remote_final)
-  )
-}
-
-.projr_remote_get_updated_manifest_project <- function(type,
-                                                       remote,
-                                                       label) {
-  # update for a given label based on what's in the project
-  manifest_remote <- .projr_remote_get_manifest(type, remote)
-  manifest_add <- .projr_manifest_get_add_project(label)
-  manifest_add |>
-    .projr_manifest_append_previous_actual(manifest_remote) |>
-    .projr_manifest_remove_duplicate()
 }
 
 # ========================
@@ -1220,7 +1197,9 @@ projr_osf_create_project <- function(title,
 
 .projr_remote_get_manifest_non_project <- function(type,
                                                    remote_pre) {
-  manifest_actual <- .projr_remote_get_manifest_non_project_raw(type, remote_pre)
+  manifest_actual <- .projr_remote_get_manifest_non_project_raw(
+    type, remote_pre
+  )
   if (is.null(manifest_actual)) {
     .projr_remote_get_manifest_project()
   } else {
@@ -1233,7 +1212,7 @@ projr_osf_create_project <- function(title,
   path_manifest <- .projr_remote_file_get_ind(
     type, remote_pre, "manifest.csv", path_dir_save
   )
-  manifest <- .projr_manifest_read(file.path(path_dir_save, "manifest.csv"))
+  manifest <- .projr_manifest_read(path_manifest)
   unlink(path_dir_save, recursive = TRUE)
   manifest
 }
@@ -1262,9 +1241,9 @@ projr_osf_create_project <- function(title,
 }
 
 .projr_remote_get_version_file_read <- function(path) {
-  if (!file.exists(path)) 
+  if (!.is_string(path) || !file.exists(path)) {
     return(character(0L))
-  
+  }
   readLines(path, warn = FALSE)
 }
 
@@ -1281,7 +1260,7 @@ projr_osf_create_project <- function(title,
   } else {
     .projr_remote_get_version_label_non_project(
       remote_pre, type, label, structure
-      )
+    )
   }
 }
 
@@ -1298,14 +1277,17 @@ projr_osf_create_project <- function(title,
     version_archive <- .projr_remote_get_version_label_non_project_archive(
       remote_pre, type, label, structure
     )
-    if (!.projr_version_check_error_free(version_archive)) { # nolint
+    if (
+      !.is_string(version_archive) ||
+        !.projr_version_check_error_free(version_archive)
+      ) { # nolint
       return(character(0L))
     }
   } else {
     version_archive <- NULL
   }
 
-  # use the versioned files (data-raw-project: v1.0.0)
+  # use the versioned files (raw-data-project: v1.0.0)
   version_file <- .projr_remote_get_version_label_non_project_file(
     remote_pre, type, label
   )
@@ -1346,12 +1328,15 @@ projr_osf_create_project <- function(title,
   }
   remote_final_vec_basename <- .projr_remote_final_ls(
     type, remote_pre
-    )
+  )
   .projr_remote_version_latest_get(remote_final_vec_basename, type, label) |>
     .projr_version_v_rm()
 }
 
 .projr_remote_version_latest_get <- function(fn, type, label) {
+  if (.is_len_0(fn)) {
+    return(character(0L))
+  }
   fn <- .projr_remote_version_latest_filter(fn, type, label)
   .projr_remote_version_latest_extract(fn, label)
 }
@@ -1390,7 +1375,10 @@ projr_osf_create_project <- function(title,
     return(character(0L))
   }
   version_format_correct <- try(
-    vapply(version_vec, function(x) .projr_version_format_check(x), logical(1)) |>
+    vapply(
+      version_vec,
+      function(x) .projr_version_format_check(x), logical(1)
+    ) |>
       all(),
     silent = TRUE
   )
@@ -1409,23 +1397,24 @@ projr_osf_create_project <- function(title,
   )
 }
 
-.projr_remote_get_version_label_non_project_file_extract <- function(version_file,
-                                                                     label) {
-  match_str <- utils::glob2rx(label) |>
-    gsub("\\$", "", x = _) |>
-    paste0(": ")
-  label_regex <- grep(match_str, version_file, value = TRUE)
-  if (.is_len_0(label_regex)) {
-    return(character(0L))
+.projr_remote_get_version_label_non_project_file_extract <-
+  function(version_file,
+           label) {
+    match_str <- utils::glob2rx(label) |>
+      gsub("\\$", "", x = _) |>
+      paste0(": ")
+    label_regex <- grep(match_str, version_file, value = TRUE)
+    if (.is_len_0(label_regex)) {
+      return(character(0L))
+    }
+    # return character() if ends in an asterisk
+    if (grepl("\\*$", label_regex)) {
+      return(character(0L))
+    }
+    gsub(match_str, "", label_regex) |>
+      trimws() |>
+      .projr_version_v_rm()
   }
-  # return character() if ends in an asterisk
-  if (grepl("\\*$", label_regex)) {
-    return(character(0L))
-  }
-  gsub(match_str, "", label_regex) |>
-    trimws() |>
-    .projr_version_v_rm()
-}
 
 
 
@@ -1920,7 +1909,7 @@ projr_osf_create_project <- function(title,
 }
 
 # github
-.projr_remote_file_add_github <- function(fn,
+.projr_remote_file_add_github <- function(fn, # nolint: cyclocomp_linter.
                                           path_dir_local,
                                           remote) {
   .assert_chr_min(fn, TRUE)
@@ -2043,5 +2032,5 @@ projr_osf_create_project <- function(title,
     tag <- x[["tag"]]
   }
   tag <- gsub("\\s", "-", tag)
-  if (tag == "@version") projr_version_get_v() else tag
+  if (tag == "@version") .projr_version_get_v() else tag
 }

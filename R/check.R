@@ -168,7 +168,7 @@
   if (!identical(class, class(x))) {
     stop(
       paste0(
-        nm, " must have exactly the following class(es) (without any sorting to help): ",
+        nm, " must have exactly the following class(es) (without any sorting to help): ", # nolint
         .string_create(class, sep = "\n")
       ),
       call. = FALSE
@@ -186,7 +186,7 @@
   if (!identical(class |> sort(), class(x) |> sort())) {
     stop(
       paste0(
-        nm, " must have exactly the following class(es) (after sorting to help): ",
+        nm, " must have exactly the following class(es) (after sorting to help): ", # nolint: line_length_linter.
         .string_create(class, sep = "\n")
       ),
       call. = FALSE
@@ -517,7 +517,7 @@
     return(invisible(TRUE))
   }
   if (!.is_number_min(x)) {
-    stop(paste0(nm, " must be a number (a numeric vector of length one)"), call. = FALSE)
+    stop(paste0(nm, " must be a number (a numeric vector of length one)"), call. = FALSE) # nolint: line_length_linter.
   }
   invisible(TRUE)
 }

@@ -16,7 +16,8 @@
   )
 }
 
-.projr_manifest_hash_cache_filter <- function(hash_tbl, label) {
+.projr_manifest_hash_cache_filter <- function(hash_tbl, # nolint
+                                              label) {
   if (!.projr_yml_dir_label_class_detect_cache(label)) {
     return(hash_tbl)
   }
@@ -42,7 +43,7 @@
     .projr_zero_tbl_get_manifest()
 }
 
-.projr_manifest_filter_out_version_label <- function(manifest,
+.projr_manifest_filter_out_version_label <- function(manifest, # nolint
                                                      version,
                                                      label) {
   label_vec_non <- manifest[["label"]] != label
@@ -56,7 +57,7 @@
 # based on the project
 # ---------------------------
 
-.projr_manifest_get_add_project <- function(manifest, label) {
+.projr_manifest_get_add_project <- function(manifest, label) { # nolint
   manifest_project <- .projr_manifest_read_project()
   manifest_add <- manifest_project |>
     .projr_manifest_filter_label(label) |>
@@ -77,7 +78,7 @@
     .projr_manifest_write_actual(path, overwrite)
 }
 
-.projr_manifest_append_previous <- function(manifest, append, path_previous) {
+.projr_manifest_append_previous <- function(manifest, append, path_previous) { # nolint
   if (!append) {
     return(manifest)
   }
@@ -91,14 +92,14 @@
   manifest |> .projr_manifest_append_previous_actual(manifest_pre)
 }
 
-.projr_manifest_append_previous_actual <- function(manifest, manifest_pre) {
+.projr_manifest_append_previous_actual <- function(manifest, manifest_pre) { # nolint
   rownames(manifest_pre) <- NULL
   manifest <- manifest_pre |> rbind(manifest)
   rownames(manifest) <- NULL
   manifest
 }
 
-.projr_manifest_remove_duplicate <- function(manifest) {
+.projr_manifest_remove_duplicate <- function(manifest) { # nolint: object_length_linter, line_length_linter.
   manifest[["string"]] <- Reduce(paste0, manifest)
   manifest <- manifest[!duplicated(manifest[["string"]]), ]
   manifest[["string"]] <- NULL
@@ -122,7 +123,7 @@
 }
 
 .projr_manifest_read <- function(path = NULL) {
-  if (is.null(path) || !file.exists(path)) {
+  if (!.is_string(path) || !file.exists(path)) {
     return(.projr_zero_tbl_get_manifest())
   }
   out_tbl <- utils::read.csv(
@@ -150,7 +151,7 @@
     file.path("manifest.csv")
 }
 
-.projr_manifest_version_get_latest <- function(manifest) {
+.projr_manifest_version_get_latest <- function(manifest) { # nolint: object_length_linter, line_length_linter.
   manifest[["version"]] |> .projr_version_get_earliest()
 }
 
@@ -176,13 +177,13 @@
   out_df
 }
 
-.projr_version_file_update_project_version <- function(version_file) {
+.projr_version_file_update_project_version <- function(version_file) { # nolint: object_length_linter, line_length_linter.
   if (.is_len_0(version_file)) {
     return(paste0("Project: ", projr_version_get()))
   }
   if (any(grepl("^Project: ", version_file))) {
     version_file <- version_file[!grepl("^Project: ", version_file)]
-  } 
+  }
   c(paste0("Project: ", projr_version_get()), version_file)
 }
 
@@ -211,23 +212,23 @@
   }
 }
 
-.projr_version_file_check_update_label <- function(fn,
+.projr_version_file_check_update_label <- function(fn, # nolint: object_length_linter, line_length_linter.
                                                    version_file,
                                                    label) {
-  is_change <- .is_change(fn)
+  is_change <- .is_change(fn) # nolint
   is_label_present <- .projr_version_file_check_update_label_present(
     version_file, label
   )
   is_change || !is_label_present
 }
 
-.projr_version_file_check_update_label_present <- function(version_file,
-                                                            label) {
+.projr_version_file_check_update_label_present <- function(version_file, # nolint
+                                                           label) {
   !.is_len_0(which(grepl(paste0("^", label, ": "), version_file)))
 }
 
 # get minimum acceptable version
-.projr_manifest_get_version_earliest_match <- function(label,
+.projr_manifest_get_version_earliest_match <- function(label, # nolint
                                                        version_comp) {
   # begin with latest version (most conservative)
   version_earliest_match <- projr_version_get() |>
@@ -241,7 +242,8 @@
   rownames(manifest_project) <- NULL
   manifest_latest <- manifest_project |>
     .projr_manifest_filter_version(projr_version_get())
-  version_vec <- manifest_latest[["version"]] |>
+  manifest_latest <- manifest_latest[, c("label", "fn", "hash")]
+  version_vec <- manifest_project[["version"]] |>
     .projr_version_v_rm() |>
     package_version() |>
     sort()
@@ -254,7 +256,11 @@
     version_curr <- version_vec[[i]]
     manifest_curr <- manifest_project |>
       .projr_manifest_filter_version(version_curr)
-    if (!identical(manifest_curr, manifest_latest)) {
+    manifest_curr <- manifest_curr[, c("label", "fn", "hash")]
+    change_list <- .projr_change_get_hash(manifest_curr, manifest_latest)
+    change_vec <- change_list[-which(names(change_list) == "fn_same")] |>
+      unlist()
+    if (.is_len_pos(change_vec)) {
       return(version_curr)
     }
     version_earliest_match <- version_curr
@@ -262,7 +268,7 @@
   version_earliest_match
 }
 
-.projr_manifest_get_version_earliest_match_get_version_comp <-
+.projr_manifest_get_version_earliest_match_get_version_comp <- # nolint
   function(version_comp = NULL) {
     if (!is.null(version_comp)) {
       return(version_comp)

@@ -45,10 +45,10 @@
   .assert_given_mid(label)
   version_pre_actual <- .projr_remote_get_version_label(
     remote_pre, type_pre, label
-    )
+  )
   version_post_actual <- .projr_remote_get_version_label(
     remote_post, type_post, label
-    )
+  )
   # this differs from .projr_change_get_hash
   # as it will filter on version
   # get manifests from previous version and current version
@@ -57,7 +57,9 @@
   manifest_post_full <- .projr_remote_get_manifest(type_post, remote_post) |>
     .projr_manifest_filter_label(label)
 
-  if (.projr_change_get_manifest_check_nothing(manifest_pre_full, manifest_post_full)) {
+  if (.projr_change_get_manifest_check_nothing(
+    manifest_pre_full, manifest_post_full
+  )) {
     # this is if no files are specified in either location
     return(.projr_zero_list_manifest_get())
   }
@@ -65,7 +67,7 @@
   # filter for actual version
   manifest_post <- manifest_post_full |>
     .projr_manifest_filter_version(version_post_actual)
-  
+
   manifest_pre <- .projr_change_get_manifest_pre_final(
     version_pre_actual, version_post_actual, manifest_post,
     manifest_pre_full, manifest_post_full, type_pre, remote_pre
@@ -74,12 +76,13 @@
   if (.projr_change_get_manifest_check_nothing(manifest_pre, manifest_post)) {
     # this is if no files are specified in either location
     return(.projr_zero_list_manifest_get())
-  } 
+  }
 
   .projr_change_get_hash(hash_pre = manifest_pre, hash_post = manifest_post)
 }
 
-.projr_change_get_manifest_check_nothing <- function(manifest_pre, manifest_post) {
+.projr_change_get_manifest_check_nothing <- function(manifest_pre,
+                                                     manifest_post) {
   nrow(manifest_pre) == 0L && nrow(manifest_post) == 0L
 }
 
@@ -113,9 +116,9 @@
                                                             version_post,
                                                             manifest_post,
                                                             manifest_pre_full,
-                                                            manifest_post_full) {
+                                                            manifest_post_full) { # nolint
   # get the closest mismatch to the latest version,
-  # and if there are no mismatches just return the 
+  # and if there are no mismatches just return the
   # previous version (furthest away version)
   version_vec_pre <- manifest_pre_full[["version"]] |> .projr_version_v_rm()
   version_vec_post <- manifest_post_full[["version"]] |> .projr_version_v_rm()
@@ -124,11 +127,12 @@
     sort() |>
     rev()
   version_closest_mismatch <- version_pre
-  version_vec_loop <- version_vec[version_vec >= version_pre &
-    version_vec <= version_post]
+  version_vec_loop <- version_vec[
+    version_vec >= version_pre & version_vec <= version_post
+  ]
   for (i in seq_along(version_vec_loop)) {
     version_curr <- version_vec_loop[[i]]
-    manifest_curr <- 
+    manifest_curr <-
       .projr_change_get_manifest_get_closest_mismatch_get_manifest_curr(
         manifest_pre_full, manifest_post_full, version_curr
       )
@@ -246,9 +250,9 @@
     hash_removed <- hash_pre[fn_vec_pre_lgl_removed, ]
   }
   list(
-    "fn_dest_extra" = hash_removed,
-    "fn_same" = hash_post_kept_unchanged,
-    "fn_diff" = hash_post_kept_changed,
-    "fn_source_extra" = hash_post_add
+    "fn_dest_extra" = hash_removed[["fn"]],
+    "fn_same" = hash_post_kept_unchanged[["fn"]],
+    "fn_diff" = hash_post_kept_changed[["fn"]],
+    "fn_source_extra" = hash_post_add[["fn"]]
   )
 }
