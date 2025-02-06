@@ -826,7 +826,7 @@ projr_init_renviron <- function() {
   invisible(x)
 }
 
-.projr_init_license_create_actual <- function(x, nm_first, nm_list) {
+.projr_init_license_create_actual <- function(x, nm_first, nm_last) {
   opt_vec <- c(
     "ccby", "CC-BY", "apache", "Apache 2.0", "cc0", "CC0",
     "proprietary", "Proprietary"
