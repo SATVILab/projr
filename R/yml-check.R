@@ -41,7 +41,8 @@ projr_yml_check <- function(profile = NULL) {
 .projr_yml_dir_check_label <- function(label, profile) {
   yml_label <- .projr_yml_dir_get_label(label, profile)
   .assert_in(
-    names(yml_label), c("path", "ignore-git", "ignore-rbuild", "ignore", "output")
+    names(yml_label),
+    c("path", "ignore-git", "ignore-rbuild", "ignore", "output")
   )
   yml_label |>
     .projr_yml_dir_check_label_path(label, profile) |>
@@ -135,6 +136,9 @@ projr_yml_check <- function(profile = NULL) {
 .projr_yml_build_check_label <- function(profile) {
   yml_build <- .projr_yml_build_get(profile)
   nm_vec <- names(yml_build)
+  if (is.null(nm_vec) || .is_len_0(nm_vec)) {
+    return(invisible(FALSE))
+  }
   .assert_in(
     nm_vec,
     c(

@@ -842,7 +842,7 @@ projr_init_renviron <- function() {
     "proprietary" = ,
     "Proprietary" = {
       usethis::use_proprietary_license(paste0(nm_first, " ", nm_last))
-    } 
+    }
   )
 }
 
