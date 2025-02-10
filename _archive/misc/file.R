@@ -1,7 +1,7 @@
 path_filter_essential_non_get_essential <- function(path_dir) {
   fn_vec_rel <- c(
-    ".", "..", .dir_proj_get(),
-    dirname(.dir_proj_get()), path_dir
+    ".", "..", .path_get(),
+    dirname(.path_get()), path_dir
   )
   fn_vec_abs <- fn_vec_rel |> .path_force_abs()
   c(fn_vec_rel, fn_vec_abs) |>

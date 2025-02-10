@@ -15,7 +15,7 @@
 #' @return Invisibly returns `TRUE` if successful.
 #' @export
 projr_version_set <- function(version, only_if_exists = TRUE) {
-  if (file.exists(.dir_proj_get("DESCRIPTION"))) {
+  if (file.exists(.path_get("DESCRIPTION"))) {
     .projr_version_set_desc(version)
     .projr_version_set_file(version, only_if_exists = TRUE)
   } else {
@@ -87,7 +87,7 @@ projr_version_set <- function(version, only_if_exists = TRUE) {
   invisible(TRUE)
 }
 
-projr_name_get <- function() basename(.dir_proj_get())
+projr_name_get <- function() basename(.path_get())
 
 .projr_version_format_check <- function(version, profile = NULL) {
   version_format <- .projr_yml_metadata_get_version_format(profile)
@@ -135,7 +135,7 @@ projr_name_get <- function() basename(.dir_proj_get())
 }
 
 .projr_version_current_vec_get_init <- function() {
-  version_vec_init <- if (file.exists(.dir_proj_get("DESCRIPTION"))) {
+  version_vec_init <- if (file.exists(.path_get("DESCRIPTION"))) {
     .projr_version_current_vec_get_init_desc()
   } else {
     .projr_version_current_vec_get_init_file()
@@ -153,7 +153,7 @@ projr_name_get <- function() basename(.dir_proj_get())
 }
 
 .projr_version_current_vec_get_init_file <- function() {
-  if (!file.exists(.dir_proj_get("VERSION"))) {
+  if (!file.exists(.path_get("VERSION"))) {
     stop("VERSION file not found")
   }
   version_file <- readLines("VERSION")

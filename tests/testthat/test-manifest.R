@@ -85,7 +85,7 @@ test_that(".projr_build_manifest_* works", {
       invisible(.file_rm(.projr_build_manifest_pre_path_get()))
       .dir_rm(projr_path_get_dir("docs", safe = FALSE))
       .dir_rm(projr_path_get_dir("output", safe = FALSE))
-      .file_rm(.dir_proj_get("manifest.csv"))
+      .file_rm(.path_get("manifest.csv"))
       path_manifest <- .projr_build_manifest_post(TRUE)
       expect_identical(nrow(.projr_manifest_read(path_manifest)), 0L)
     }

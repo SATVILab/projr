@@ -322,8 +322,8 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
   )
   .file_rm("_tmp/coverage.zip")
   .projr_zip_dir(
-    .dir_proj_get("_tmp/coverage"),
-    .dir_proj_get("_tmp/coverage.zip")
+    .path_get("_tmp/coverage"),
+    .path_get("_tmp/coverage.zip")
   )
 }
 

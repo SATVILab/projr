@@ -23,7 +23,7 @@
 # ---------------------------
 
 .projr_yml_bd_get <- function() {
-  path_yml <- .dir_proj_get("_bookdown.yml")
+  path_yml <- .path_get("_bookdown.yml")
   if (!file.exists(path_yml)) {
     return(list())
   }
@@ -31,7 +31,7 @@
 }
 
 .projr_yml_bd_set <- function(list_save) {
-  path_yml <- .dir_proj_get("_bookdown.yml")
+  path_yml <- .path_get("_bookdown.yml")
   yaml::write_yaml(list_save, path_yml)
   .projr_newline_append(path_yml)
   invisible(TRUE)

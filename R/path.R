@@ -28,7 +28,7 @@
 # relative
 .path_force_rel <- function(path, path_dir = NULL) {
   path |>
-    fs::path_rel(path_dir %||% .dir_proj_get()) |>
+    fs::path_rel(path_dir %||% .path_get()) |>
     as.character()
 }
 
@@ -39,7 +39,7 @@
     return(fn)
   }
   if (is.null(path_dir)) {
-    path_dir <- .dir_proj_get()
+    path_dir <- .path_get()
   }
   file.path(path_dir, fn) |>
     fs::path_abs() |>
@@ -192,8 +192,8 @@
 .dir_ls_unremovable <- function(path_dir = NULL) {
   .assert_chr(path_dir)
   c(
-    ".", "..", .dir_proj_get(),
-    dirname(.dir_proj_get()), path_dir
+    ".", "..", .path_get(),
+    dirname(.path_get()), path_dir
   ) |>
     .file_filter_dir() |>
     .file_filter_exists() |>
@@ -206,15 +206,23 @@
 # get
 # ---------------------
 
-.dir_proj_get <- function(...) {
-  if (!requireNamespace("rprojroot", quietly = TRUE)) {
-    utils::install.packages("rprojroot")
-  }
+.path_get <- function(...) {
   tryCatch(
-    rprojroot::is_r_package$find_file(),
-    error = function(e) getwd()
-  ) |>
-    .path_get_full(...)
+    rprojroot::find_root_file(
+      ...,
+      criterion = rprojroot::criteria$is_rstudio_project |
+        rprojroot::criteria$is_vcs_root |
+        rprojroot::has_file("README.md") |
+        rprojroot::has_file("README.Rmd") |
+        rprojroot::criteria$is_renv_project |
+        rprojroot::criteria$is_r_package |
+        rprojroot::criteria$is_quarto_project |
+        rprojroot::has_file("_projr.yml") |
+        rprojroot::has_file("_projr-local.yml") |
+        rprojroot::criteria$is_pkgdown_project
+    ),
+    error = function(e) file.path(getwd(), "...")
+  )
 }
 
 # ---------------------
@@ -338,7 +346,7 @@
   .assert_string(path_dir_one, TRUE)
   .assert_dir_exists(path_dir_one, TRUE)
   if (is.null(path_dir_two)) {
-    path_dir_two <- .dir_proj_get()
+    path_dir_two <- .path_get()
   }
   .assert_dir_exists(path_dir_two, TRUE)
   identical(

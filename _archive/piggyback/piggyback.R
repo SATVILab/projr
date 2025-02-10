@@ -145,7 +145,7 @@
 .projr_pb_path_get_dir <- function(label, output_run) {
   path_dir <- projr_path_get_dir(label, safe = !output_run)
   if (!fs::is_absolute_path(path_dir)) {
-    path_dir <- .dir_proj_get(path_dir)
+    path_dir <- .path_get(path_dir)
   }
   path_dir
 }
@@ -155,7 +155,7 @@
     "gh_release", tag, paste0(label, ".zip")
   )
   if (!fs::is_absolute_path(path_zip)) {
-    path_zip <- .dir_proj_get(path_zip)
+    path_zip <- .path_get(path_zip)
   }
   if (file.exists(path_zip)) {
     file.remove(path_zip)

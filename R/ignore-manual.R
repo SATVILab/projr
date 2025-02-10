@@ -96,7 +96,7 @@ projr_ignore_manual_file_git <- function(ignore) {
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
-  .projr_ignore_manual_path_add(ignore, .dir_proj_get(".gitignore"))
+  .projr_ignore_manual_path_add(ignore, .path_get(".gitignore"))
 }
 
 #' @rdname projr_ignore_manual
@@ -113,7 +113,7 @@ projr_ignore_manual_dir_git <- function(ignore) {
       paste0(x, "/**")
     }
   }, character(1L))
-  .projr_ignore_manual_path_add(ignore, .dir_proj_get(".gitignore"))
+  .projr_ignore_manual_path_add(ignore, .path_get(".gitignore"))
 }
 
 #' @rdname projr_ignore_manual
@@ -126,7 +126,7 @@ projr_ignore_manual_file_rbuild <- function(ignore) {
   ignore <- gsub("/+$", "", ignore) |>
     trimws() |>
     utils::glob2rx()
-  .projr_ignore_manual_path_add(ignore, .dir_proj_get(".Rbuildignore"))
+  .projr_ignore_manual_path_add(ignore, .path_get(".Rbuildignore"))
 }
 
 #' @rdname projr_ignore_manual
@@ -145,7 +145,7 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
     c(patterns[i], utils::glob2rx(ignore[i]))
   }) |>
     unlist()
-  .projr_ignore_manual_path_add(patterns, .dir_proj_get(".Rbuildignore"))
+  .projr_ignore_manual_path_add(patterns, .path_get(".Rbuildignore"))
 }
 
 # ===========================================================================

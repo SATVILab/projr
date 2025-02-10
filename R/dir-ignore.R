@@ -40,7 +40,7 @@
 .projr_ignore_diryml_git <- function(git_skip_adjust = NULL) {
 
   if (!.projr_git_repo_check_exists() &&
-        !file.exists(.dir_proj_get(".gitignore"))) {
+        !file.exists(.path_get(".gitignore"))) {
     return(invisible(FALSE))
   }
 
@@ -134,7 +134,7 @@
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
-  path_gitignore <- .dir_proj_get(".gitignore")
+  path_gitignore <- .path_get(".gitignore")
 
   file_vec <- .projr_ignore_auto_path_add_get_updated(path_gitignore, ignore, TRUE)
   .projr_ignore_path_write(file_vec, path_gitignore)
@@ -318,8 +318,8 @@
 
 # .Rbuildignore Management
 .projr_ignore_diryml_rbuild <- function() {
-  if (!file.exists(.dir_proj_get("DESCRIPTION")) &&
-        !file.exists(.dir_proj_get(".Rbuildignore"))) {
+  if (!file.exists(.path_get("DESCRIPTION")) &&
+        !file.exists(.path_get(".Rbuildignore"))) {
     return(invisible(FALSE))
   }
   # Remove all projr-managed entries from .Rbuildignore,
@@ -451,12 +451,12 @@
     return(character(0))
   }
   
-  within_wd <- fs::path_has_parent(path_dir, .dir_proj_get())
+  within_wd <- fs::path_has_parent(path_dir, .path_get())
   if (!within_wd) {
     return(character(0))
   }
   
-  path_dir_rel <- fs::path_rel(path_dir, .dir_proj_get())
+  path_dir_rel <- fs::path_rel(path_dir, .path_get())
   # Remove trailing slashes and spaces
   path_dir_rel <- gsub("\\s*/*\\s*$", "", path_dir_rel) 
   path_dir_rel
@@ -466,7 +466,7 @@
 .projr_ignore_rbuild_read <- function() {
   # Read the contents of .Rbuildignore, returning an empty
   # character vector if the file doesn't exist
-  file_path <- .dir_proj_get(".Rbuildignore")
+  file_path <- .path_get(".Rbuildignore")
   if (!file.exists(file_path)) {
     return(character(0))
   }
@@ -475,7 +475,7 @@
 
 .projr_ignore_rbuild_write <- function(buildignore, append = FALSE) {
   # Write the updated .Rbuildignore content, ensuring it ends with a newline
-  file_path <- .dir_proj_get(".Rbuildignore")
+  file_path <- .path_get(".Rbuildignore")
   # Write the content to .Rbuildignore
   cat(
     buildignore,

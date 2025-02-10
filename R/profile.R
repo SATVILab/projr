@@ -28,7 +28,7 @@ projr_profile_create <- function(profile) {
     profile_spec <- paste0("-", profile)
   }
   path_file <- paste0("_projr", profile_spec, ".yml") |>
-    .dir_proj_get()
+    .path_get()
   .projr_ignore_rbuild_set(basename(path_file), "ignore")
   if (profile == "local") {
     .projr_profile_create_local_ignore_git()
@@ -78,25 +78,25 @@ projr_profile_create_local <- function() {
 }
 
 .projr_profile_create_local_ignore_git <- function() {
-  gitignore <- readLines(.dir_proj_get(".gitignore"))
+  gitignore <- readLines(.path_get(".gitignore"))
   if (!"_projr-local.yml" %in% gitignore) {
     writeLines(
       c(gitignore, "_projr-local.yml"),
-      .dir_proj_get(".gitignore")
+      .path_get(".gitignore")
     )
-    .projr_newline_append(.dir_proj_get(".gitignore"))
+    .projr_newline_append(.path_get(".gitignore"))
   }
 }
 .projr_profile_create_local_ignore_rbuild <- function() {
   rbuildignore <- readLines(
-    .dir_proj_get(".Rbuildignore")
+    .path_get(".Rbuildignore")
   )
   if (!"^_projr-local\\.yml$" %in% rbuildignore) {
     writeLines(
       c(rbuildignore, "^_projr-local\\.yml$"),
-      .dir_proj_get(".Rbuildignore")
+      .path_get(".Rbuildignore")
     )
-    .projr_newline_append(.dir_proj_get(".Rbuildignore"))
+    .projr_newline_append(.path_get(".Rbuildignore"))
   }
 }
 
@@ -176,7 +176,7 @@ projr_profile_delete <- function(profile) {
 }
 
 .projr_profile_delete_actual <- function(profile) {
-  path_fn <- .dir_proj_get(paste0("_projr-", profile, ".yml"))
+  path_fn <- .path_get(paste0("_projr-", profile, ".yml"))
   if (!file.exists(path_fn)) {
     message("No such profile detected: ", profile)
     return(invisible(FALSE))

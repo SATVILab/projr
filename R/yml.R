@@ -134,7 +134,7 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 }
 
 .projr_yml_get_default_raw <- function() {
-  path_yml <- .dir_proj_get("_projr.yml")
+  path_yml <- .path_get("_projr.yml")
   if (!file.exists(path_yml)) {
     return(list())
   }
@@ -201,7 +201,7 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   } else {
     profile_spec <- paste0("-", profile)
   }
-  path_profile <- .dir_proj_get(
+  path_profile <- .path_get(
     paste0("_projr", profile_spec, ".yml")
   )
   if (!file.exists(path_profile)) {
@@ -272,23 +272,23 @@ projr_yml_get_filter_top_level_ind <- function(yml, nm) {
 
 .projr_yml_get_path <- function(profile) {
   if (!.is_given_mid(profile) || profile == "default") {
-    return(.dir_proj_get("_projr.yml"))
+    return(.path_get("_projr.yml"))
   }
-  .dir_proj_get(paste0("_projr-", profile, ".yml"))
+  .path_get(paste0("_projr-", profile, ".yml"))
 }
 
 .projr_yml_set_root <- function(list_save) {
-  path_yml <- .dir_proj_get("_projr.yml")
+  path_yml <- .path_get("_projr.yml")
   yaml::write_yaml(list_save, path_yml)
   .projr_newline_append(path_yml)
   invisible(TRUE)
 }
 
 .projr_desc_get <- function() {
-  if (!file.exists(.dir_proj_get("DESCRIPTION"))) {
+  if (!file.exists(.path_get("DESCRIPTION"))) {
     stop("DESCRIPTION file not found")
   }
-  path_desc <- .dir_proj_get("DESCRIPTION")
+  path_desc <- .path_get("DESCRIPTION")
   read.dcf(path_desc)
 }
 

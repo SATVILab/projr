@@ -63,7 +63,7 @@ projr_env_file_activate <- function(file = NULL) {
 }
 
 .projr_build_env_file_activate_ind <- function(file) {
-  path_env <- .dir_proj_get(file)
+  path_env <- .path_get(file)
   if (!file.exists(path_env)) {
     return(invisible(FALSE))
   }
@@ -75,7 +75,7 @@ projr_env_file_activate <- function(file = NULL) {
 }
 
 .projr_build_env_file_activate_ind_ignore <- function(file) {
-  if (!fs::path_has_parent(file, .dir_proj_get())) {
+  if (!fs::path_has_parent(file, .path_get())) {
     return(invisible(FALSE))
   }
   if (file == "_environment.local") {
@@ -108,7 +108,7 @@ projr_env_file_activate <- function(file = NULL) {
 }
 
 .projr_build_env_file_required_check <- function() {
-  path_required <- .dir_proj_get("_environment.required")
+  path_required <- .path_get("_environment.required")
   if (!file.exists(path_required)) {
     return(invisible(FALSE))
   }

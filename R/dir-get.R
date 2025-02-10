@@ -35,7 +35,7 @@
   if (label %in% c("code", "project", "docs")) {
     return(path)
   }
-  path_proj <- .dir_proj_get() |>
+  path_proj <- .path_get() |>
     fs::path_abs() |>
     as.character()
   if (path_proj == path) {

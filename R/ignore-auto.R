@@ -94,7 +94,7 @@ projr_ignore_auto <- function() {
     invisible(FALSE)
   }
   path_vec <- list.files(
-    path = .dir_proj_get(),
+    path = .path_get(),
     pattern = "\\.code\\-workspace$"
   )
   .projr_ignore_auto_file_rbuild(path_vec)
@@ -109,23 +109,23 @@ projr_ignore_auto <- function() {
 # -------------------------------------------------------------------------
 .projr_ignore_auto_yml <- function() {
   path_vec <- list.files(
-    path = .dir_proj_get(),
+    path = .path_get(),
     pattern = "^_projr\\.yml$|^_projr-.+\\.yml|^_quarto\\.yml$|^_bookdown\\.yml$"
   )
   .projr_ignore_auto_file_rbuild(path_vec)
-  if (file.exists(.dir_proj_get(".projr-local.yml"))) {
-    .projr_ignore_auto_file_git(.dir_proj_get(".projr-local.yml"))
+  if (file.exists(.path_get(".projr-local.yml"))) {
+    .projr_ignore_auto_file_git(.path_get(".projr-local.yml"))
   }
 }
 
 .projr_ignore_auto_env <- function() {
   path_vec <- list.files(
-    path = .dir_proj_get(),
+    path = .path_get(),
     pattern = "^_environment$|^_environment-[a-zA-Z0-9]+$|^_environment\\.required$|^_environment\\.local$" #nolint
   )
   .projr_ignore_auto_dir_rbuild(path_vec)
-  if (file.exists(.dir_proj_get("_environment.local"))) {
-    .projr_ignore_auto_dir_git(.dir_proj_get("_environment.local"))
+  if (file.exists(.path_get("_environment.local"))) {
+    .projr_ignore_auto_dir_git(.path_get("_environment.local"))
   }
 }
 
@@ -133,7 +133,7 @@ projr_ignore_auto <- function() {
 # -------------------------------------------------------------------------
 .projr_ignore_auto_build_source <- function() {
   path_vec <- list.files(
-    path = .dir_proj_get(),
+    path = .path_get(),
     pattern = "\\.qmd$|\\.rmd$|\\.Rmd$"
   )
   .projr_ignore_auto_file_rbuild(path_vec)
@@ -154,7 +154,7 @@ projr_ignore_auto <- function() {
   ) |>
     paste0(collapse = "|")
   path_vec <- list.files(
-    path = .dir_proj_get(),
+    path = .path_get(),
     pattern = pattern
   )
   .projr_ignore_auto_file_rbuild(path_vec)
@@ -211,7 +211,7 @@ projr_ignore_auto <- function() {
   ) |>
     paste0(collapse = "|")
   path_vec <- list.files(
-    path = .dir_proj_get(),
+    path = .path_get(),
     pattern = pattern
   ) |>
     setdiff("README.md")
@@ -255,7 +255,7 @@ projr_ignore_auto <- function() {
 
   # Example usage:
   path_vec <- list.files(
-    path = .dir_proj_get(),
+    path = .path_get(),
     pattern = pattern
   ) |>
     setdiff(
@@ -263,7 +263,7 @@ projr_ignore_auto <- function() {
         "LICENSE", "LICENSE.md", "README.md", "codemeta.json",
         "CITATION.cff")
     )
-  .projr_ignore_auto_path_add(path_vec, .dir_proj_get(".gitignore"))
+  .projr_ignore_auto_path_add(path_vec, .path_get(".gitignore"))
 }
 
 # ===========================================================================
@@ -310,7 +310,7 @@ projr_ignore_auto <- function() {
 
 .projr_ignore_auto_build_tex_rqmd <- function() {
   path_vec <- list.files(
-    path = .dir_proj_get(), pattern = "\\.qmd$|\\.Rmd|\\.rmd"
+    path = .path_get(), pattern = "\\.qmd$|\\.Rmd|\\.rmd"
   ) |>
     gsub("\\.qmd$|\\.Rmd$|\\.rmd$", ".tex", x = _)
   if (.is_len_0(path_vec)) {
@@ -377,7 +377,7 @@ projr_ignore_auto <- function() {
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
-  .projr_ignore_auto_path_add(ignore, .dir_proj_get(".gitignore"))
+  .projr_ignore_auto_path_add(ignore, .path_get(".gitignore"))
 }
 
 .projr_ignore_auto_dir_git <- function(ignore) {
@@ -392,7 +392,7 @@ projr_ignore_auto <- function() {
       paste0(x, "/**")
     }
   }, character(1L))
-  .projr_ignore_auto_path_add(ignore, .dir_proj_get(".gitignore"))
+  .projr_ignore_auto_path_add(ignore, .path_get(".gitignore"))
 }
 
 .projr_ignore_auto_file_rbuild <- function(ignore) {
@@ -403,7 +403,7 @@ projr_ignore_auto <- function() {
   ignore <- gsub("/+$", "", ignore) |>
     trimws() |>
     utils::glob2rx()
-  .projr_ignore_auto_path_add(ignore, .dir_proj_get(".Rbuildignore"))
+  .projr_ignore_auto_path_add(ignore, .path_get(".Rbuildignore"))
 }
 
 .projr_ignore_auto_dir_rbuild <- function(ignore) {
@@ -427,7 +427,7 @@ projr_ignore_auto <- function() {
     unlist()
 
   # Add the patterns to the .Rbuildignore file
-  .projr_ignore_auto_path_add(patterns, .dir_proj_get(".Rbuildignore"))
+  .projr_ignore_auto_path_add(patterns, .path_get(".Rbuildignore"))
 }
 
 # ===========================================================================

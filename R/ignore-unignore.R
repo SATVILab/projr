@@ -103,7 +103,7 @@ projr_unignore_manual_file_git <- function(unignore) {
   # Remove any existing "!" to avoid duplication, then prepend it
   unignore <- gsub("^!+", "", unignore)
   unignore <- paste0("!", unignore)
-  .projr_unignore_manual_path_add(unignore, .dir_proj_get(".gitignore"))
+  .projr_unignore_manual_path_add(unignore, .path_get(".gitignore"))
 }
 
 #' @rdname projr_unignore_manual
@@ -118,7 +118,7 @@ projr_unignore_manual_dir_git <- function(unignore) {
   # Remove any existing "!" and prepend it
   unignore <- gsub("^!+", "", unignore)
   unignore <- paste0("!", unignore)
-  .projr_unignore_manual_path_add(unignore, .dir_proj_get(".gitignore"))
+  .projr_unignore_manual_path_add(unignore, .path_get(".gitignore"))
 }
 
 #' @rdname projr_unignore_manual
@@ -134,7 +134,7 @@ projr_unignore_manual_file_rbuild <- function(unignore) {
     utils::glob2rx()
   unignore <- gsub("^!+", "", unignore)
   unignore <- paste0("!", unignore)
-  .projr_unignore_manual_path_add(unignore, .dir_proj_get(".Rbuildignore"))
+  .projr_unignore_manual_path_add(unignore, .path_get(".Rbuildignore"))
 }
 
 #' @rdname projr_unignore_manual
@@ -155,7 +155,7 @@ projr_unignore_manual_dir_rbuild <- function(unignore) {
   patterns <- gsub("^!+", "", patterns)
   patterns <- paste0("!", patterns)
 
-  .projr_unignore_manual_path_add(patterns, .dir_proj_get(".Rbuildignore"))
+  .projr_unignore_manual_path_add(patterns, .path_get(".Rbuildignore"))
 }
 
 # ===========================================================================

@@ -1192,7 +1192,7 @@ projr_osf_create_project <- function(title,
 
 .projr_remote_get_manifest_project <- function() {
   # just the actual project
-  .projr_manifest_read(.dir_proj_get("manifest.csv"))
+  .projr_manifest_read(.path_get("manifest.csv"))
 }
 
 .projr_remote_get_manifest_non_project <- function(type,

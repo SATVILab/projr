@@ -6,7 +6,7 @@
   }
   .projr_dep_install_only("roxygen2")
   suppressMessages(suppressWarnings(invisible(
-    roxygen2::roxygenise(package.dir = .dir_proj_get())
+    roxygen2::roxygenise(package.dir = .path_get())
   )))
   invisible(TRUE)
 }
@@ -68,14 +68,14 @@
 }
 
 .projr_build_cite_cff <- function() {
-  if (!file.exists(.dir_proj_get("CITATION.cff"))) {
+  if (!file.exists(.path_get("CITATION.cff"))) {
     return(invsiible(FALSE))
   }
   .projr_build_cite_cff_update_file()
 }
 
 .projr_build_cite_cff_update_file <- function() {
-  file_vec <- readLines(.dir_proj_get("CITATION.cff"))
+  file_vec <- readLines(.path_get("CITATION.cff"))
   file_vec <- gsub(
     "^version::\\s*\"?[^\"]*\"",
     paste0("version: ", projr_version_get()),
@@ -97,42 +97,42 @@
       }
     }
   }
-  writeLines(file_vec, .dir_proj_get("CITATION.cff"))
+  writeLines(file_vec, .path_get("CITATION.cff"))
 }
 
 .projr_build_cite_inst_citation <- function() {
-  if (!file.exists(.dir_proj_get("inst", "CITATION"))) {
+  if (!file.exists(.path_get("inst", "CITATION"))) {
     return(invisible(FALSE))
   }
   .projr_build_cite_inst_citation_update_file()
 }
 
 .projr_build_cite_inst_citation_update_file <- function() {
-  file_vec <- readLines(.dir_proj_get("inst", "CITATION"))
+  file_vec <- readLines(.path_get("inst", "CITATION"))
   file_vec <- gsub(
     "^\\s*version\\s*=\\s*\"[^\"]*\"(,?)",
     paste0("version = ", projr_version_get(), "\\1"),
     file_vec
   )
-  writeLines(file_vec, .dir_proj_get("inst", "CITATION"))
+  writeLines(file_vec, .path_get("inst", "CITATION"))
   invisible(TRUE)
 }
 
 .projr_build_cite_codemeta <- function() {
-  if (!file.exists(.dir_proj_get("codemeta.json"))) {
+  if (!file.exists(.path_get("codemeta.json"))) {
     return(invisible(FALSE))
   }
   .projr_build_cite_codemeta_update_file()
 }
 
 .projr_build_cite_codemeta_update_file <- function() {
-  file_vec <- readLines(.dir_proj_get("codemeta.json"))
+  file_vec <- readLines(.path_get("codemeta.json"))
   file_vec <- gsub(
     "^\\s*\"version\"\\s*:\\s*\"[^\"]*\"(,?)",
     paste0("\"version\": \"", projr_version_get(), "\"\\1"),
     file_vec
   )
-  writeLines(file_vec, .dir_proj_get("codemeta.json"))
+  writeLines(file_vec, .path_get("codemeta.json"))
   invisible(TRUE)
 }
 
@@ -149,14 +149,14 @@
 }
 
 .projr_build_readme_rmd_render_check <- function(output_run) {
-  if ((!file.exists(.dir_proj_get("README.Rmd"))) || (!output_run)) {
+  if ((!file.exists(.path_get("README.Rmd"))) || (!output_run)) {
     return(invisible(FALSE))
   }
   invisible(TRUE)
 }
 
 .projr_build_readme_rmd_render_detect_pkg_use <- function() {
-  readme_rmd <- readLines(.dir_proj_get("README.Rmd"))
+  readme_rmd <- readLines(.path_get("README.Rmd"))
   pkg_use_detected_lib <- grepl(
     paste0(
       "library\\(", projr_name_get(), "\\)|",
@@ -183,7 +183,7 @@
 
 .projr_build_readme_rmd_render_actual <- function() {
   rmarkdown::render(
-    .dir_proj_get("README.Rmd"),
+    .path_get("README.Rmd"),
     output_format = "md_document", quiet = TRUE
   )
   invisible(TRUE)

@@ -48,7 +48,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   if (.projr_dep_in_renv(basename(dep))) {
     return(invisible(FALSE))
   }
-  path_dep <- .dir_proj_get("_dependencies.R")
+  path_dep <- .path_get("_dependencies.R")
   dep_vec <- readLines(path_dep)
   for (i in seq_along(dep)) {
     dep_pattern <- paste0(
@@ -105,7 +105,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 }
 
 .projr_dep_rm <- function(dep) {
-  path_dep <- .dir_proj_get("_dependencies.R")
+  path_dep <- .path_get("_dependencies.R")
   dep_vec <- readLines(path_dep)
   for (i in seq_along(dep)) {
     dep_txt <- paste0("library(", basename(dep[[i]]), ")", collapse = "")
@@ -146,7 +146,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
     }
     return(override)
   }
-  .dir_proj_get("renv.lock")
+  .path_get("renv.lock")
 }
 
 # taken from withr-with_dir
@@ -238,7 +238,7 @@ with_dir <- function(new, code) {
 .projr_pkg_nm_get <- function() {
   desc::desc_get_field(
     "Package",
-    file = .dir_proj_get("DESCRIPTION")
+    file = .path_get("DESCRIPTION")
   )
 }
 
@@ -370,7 +370,7 @@ projr_use_data <- function(...,
     }
   }
   if (!overwrite) {
-    fn_vec_existing <- .file_filter_exists(.dir_proj_get(paths))
+    fn_vec_existing <- .file_filter_exists(.path_get(paths))
     if (length(fn_vec_existing) > 0L) {
       stop(
         "The following files already exist:\n",
@@ -411,7 +411,7 @@ projr_use_data <- function(...,
   eval(substitute(alist(...)))
 }
 
-.projr_usethis_proj_desc <- function(path = .dir_proj_get()) {
+.projr_usethis_proj_desc <- function(path = .path_get()) {
   desc::desc(file = path)
 }
 

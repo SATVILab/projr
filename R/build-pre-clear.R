@@ -57,7 +57,7 @@
 .projr_build_clear_pre_docs_check <- function(output_run) {
   path_docs <- projr_path_get_dir("docs", safe = !output_run) |>
     normalizePath(winslash = "/")
-  path_proj_root <- .dir_proj_get() |> normalizePath(winslash = "/")
+  path_proj_root <- .path_get() |> normalizePath(winslash = "/")
   identical(path_docs, path_proj_root)
 }
 

@@ -1,7 +1,7 @@
 # Helper function to retrieve the entire Quarto YAML configuration
 .projr_yml_quarto_get <- function() {
   # Construct the path to the `_quarto.yml` file within the project directory
-  path_yml <- .dir_proj_get("_quarto.yml")
+  path_yml <- .path_get("_quarto.yml")
   
   # Check if the YAML file exists; if not, return an empty list
   if (!file.exists(path_yml)) {
@@ -15,7 +15,7 @@
 # Helper function to write updates to the Quarto YAML configuration
 .projr_yml_quarto_set <- function(list_save) {
   # Construct the path to the `_quarto.yml` file within the project directory
-  path_yml <- .dir_proj_get("_quarto.yml")
+  path_yml <- .path_get("_quarto.yml")
   
   # Ensure that specific YAML keys are stored as lists rather than strings
   # This is necessary because Quarto expects certain fields to be lists

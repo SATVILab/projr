@@ -9,12 +9,12 @@
   .projr_dep_install("cffr")
   cffr::cff_write_citation(
     cffr::cff_create(),
-    file = .dir_proj_get("inst", "CITATION")
+    file = .path_get("inst", "CITATION")
   )
 }
 
 .projr_cite_citation_inst_add_header <- function() {
-  path_citation_inst <- .dir_proj_get("inst", "CITATION") # nolint: object_usage_linter.
+  path_citation_inst <- .path_get("inst", "CITATION") # nolint: object_usage_linter.
   header_txt <- paste0(
     'citHeader("To cite `',
     .projr_pkg_nm_get(), # nolint: object_usage_linter.
@@ -27,7 +27,7 @@
 
 .projr_cite_codemeta_set <- function() {
   .projr_dep_install("codemeta")
-  try(codemeta::write_codemeta(path = .dir_proj_get()))
+  try(codemeta::write_codemeta(path = .path_get()))
 }
 
 .projr_cite_bibtex_get <- function() {

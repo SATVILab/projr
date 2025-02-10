@@ -91,7 +91,7 @@
 .projr_build_copy_pkg_build <- function() {
   .projr_dep_install("pkgbuild")
   pkgbuild::build(
-    path = .dir_proj_get(),
+    path = .path_get(),
     dest_path = .projr_build_copy_pkg_build_path_setup(),
     binary = FALSE,
     quiet = TRUE

@@ -35,10 +35,10 @@
 }
 
 .projr_init_yml_copy <- function(path) {
-  if (file.exists(.dir_proj_get("_projr.yml"))) {
+  if (file.exists(.path_get("_projr.yml"))) {
     return(invisible(FALSE))
   }
-  file.copy(from = path, to = .dir_proj_get("_projr.yml"))
+  file.copy(from = path, to = .path_get("_projr.yml"))
   invisible(TRUE)
 }
 
@@ -47,7 +47,7 @@
   if (!.is_test()) {
     return(invisible(FALSE))
   }
-  path_yml <- .dir_proj_get("_projr.yml")
+  path_yml <- .path_get("_projr.yml")
   yml_projr <- yaml::read_yaml(path_yml)
   if (!"build" %in% names(yml_projr)) {
     return(invisible(FALSE))
@@ -123,10 +123,10 @@
     )
   ))
   suppressWarnings(descrptn$set("Description", nm_list[["title"]]))
-  descrptn$write(file = .dir_proj_get("DESCRIPTION"))
-  desc::desc_normalize(.dir_proj_get("DESCRIPTION"))
+  descrptn$write(file = .path_get("DESCRIPTION"))
+  desc::desc_normalize(.path_get("DESCRIPTION"))
   .projr_dep_install_only("usethis")
-  usethis::proj_activate(.dir_proj_get())
+  usethis::proj_activate(.path_get())
   usethis::use_roxygen_md()
   invisible(TRUE)
 }
@@ -136,8 +136,8 @@
 }
 
 .projr_init_dep <- function() {
-  if (file.exists(.dir_proj_get("_dependencies.R"))) {
-    dep <- readLines(.dir_proj_get("_dependencies.R"))
+  if (file.exists(.path_get("_dependencies.R"))) {
+    dep <- readLines(.path_get("_dependencies.R"))
   } else {
     dep <- NULL
   }
@@ -146,13 +146,13 @@
     "library(projr)", ""
   ) |>
     unique()
-  writeLines(dep, .dir_proj_get("_dependencies.R"))
+  writeLines(dep, .path_get("_dependencies.R"))
   invisible(TRUE)
 }
 
 .projr_init_ignore <- function() {
-  if (file.exists(.dir_proj_get(".gitignore"))) {
-    gitignore <- readLines(.dir_proj_get(".gitignore"))
+  if (file.exists(.path_get(".gitignore"))) {
+    gitignore <- readLines(.path_get(".gitignore"))
   } else {
     gitignore <- NULL
   }
@@ -162,11 +162,11 @@
     ".Ruserdata", "_projr-local.yml", "_environment.local"
   ) |>
     unique()
-  writeLines(gitignore, .dir_proj_get(".gitignore"))
-  .projr_newline_append(.dir_proj_get(".gitignore"))
+  writeLines(gitignore, .path_get(".gitignore"))
+  .projr_newline_append(.path_get(".gitignore"))
 
-  if (file.exists(.dir_proj_get(".Rbuildignore"))) {
-    rbuildignore <- readLines(.dir_proj_get(".Rbuildignore"))
+  if (file.exists(.path_get(".Rbuildignore"))) {
+    rbuildignore <- readLines(.path_get(".Rbuildignore"))
   } else {
     rbuildignore <- NULL
   }
@@ -175,8 +175,8 @@
     "^.*\\.Rproj$", "^\\.Rproj\\.user$", "^_projr-local\\.yml$"
   ) |>
     unique()
-  writeLines(rbuildignore, .dir_proj_get(".Rbuildignore"))
-  .projr_newline_append(.dir_proj_get(".Rbuildignore"))
+  writeLines(rbuildignore, .path_get(".Rbuildignore"))
+  .projr_newline_append(.path_get(".Rbuildignore"))
 
   projr_ignore_auto()
 
@@ -184,10 +184,10 @@
 }
 
 .projr_init_r <- function() {
-  if (dir.exists(.dir_proj_get("R"))) {
+  if (dir.exists(.path_get("R"))) {
     return(invisible(FALSE))
   }
-  dir.create(.dir_proj_get("R"))
+  dir.create(.path_get("R"))
   invisible(TRUE)
 }
 
@@ -353,7 +353,7 @@
 
 # metadata
 .projr_init_prompt_metadata <- function() {
-  nm_pkg <- basename(.dir_proj_get())
+  nm_pkg <- basename(.path_get())
   if (!.is_test()) {
     cat("Project name is", paste0("`", nm_pkg, "`"), "\n")
   }
@@ -429,7 +429,7 @@
 }
 
 .projr_init_prompt_ind_license <- function() {
-  if (file.exists(.dir_proj_get("LICENSE.md"))) {
+  if (file.exists(.path_get("LICENSE.md"))) {
     return(NULL)
   }
 
@@ -471,7 +471,7 @@
 }
 
 .projr_desc_tmp_create <- function() {
-  path_desc <- .dir_proj_get("DESCRIPTION")
+  path_desc <- .path_get("DESCRIPTION")
   desc_exists_pre <- file.exists(path_desc)
   if (!desc_exists_pre) {
     desc::description$new("!new")$write(file = path_desc)
@@ -481,7 +481,7 @@
 
 .projr_desc_tmp_remove <- function(desc_exists_pre) {
   if (!desc_exists_pre) {
-    .file_rm(.dir_proj_get("DESCRIPTION"))
+    .file_rm(.path_get("DESCRIPTION"))
   }
 }
 
@@ -537,8 +537,8 @@
 
 .projr_readme_get_path <- function() {
   switch(.projr_readme_get_type(),
-    "md" = .dir_proj_get("README.md"),
-    "Rmd" = .dir_proj_get("README.Rmd")
+    "md" = .path_get("README.md"),
+    "Rmd" = .path_get("README.Rmd")
   )
 }
 
@@ -567,7 +567,7 @@
 }
 
 .projr_readme_detect_type <- function() {
-  grepl("README\\.Rmd", list.files(.dir_proj_get())) |>
+  grepl("README\\.Rmd", list.files(.path_get())) |>
     any()
 }
 .projr_readme_write <- function(readme) {
@@ -600,11 +600,11 @@
   )
 }
 .projr_readme_render <- function() {
-  if (!file.exists(.dir_proj_get("README.Rmd"))) {
+  if (!file.exists(.path_get("README.Rmd"))) {
     return(invisible(FALSE))
   }
   try(rmarkdown::render(
-    .dir_proj_get("README.Rmd"),
+    .path_get("README.Rmd"),
     output_format = "md_document", quiet = TRUE
   ))
   invisible(TRUE)
@@ -786,21 +786,21 @@ projr_init_renviron <- function() {
   usethis::use_readme_md(open = FALSE)
   answer_readme <- 2
   fn_readme <- paste0("README.", ifelse(answer_readme == 1, "Rmd", "md"))
-  path_readme <- .dir_proj_get(fn_readme)
+  path_readme <- .path_get(fn_readme)
   readme <- readLines(path_readme)
   list(readme = readme, path_readme = path_readme)
 }
 
 .projr_init_readme_pre_existing <- function() {
-  fn_vec <- list.files(.dir_proj_get())
+  fn_vec <- list.files(.path_get())
   if (any(grepl("^README\\.md$", fn_vec))) {
     fn_readme <- "README.md"
-    path_readme <- .dir_proj_get(fn_readme)
+    path_readme <- .path_get(fn_readme)
     readme <- readLines(path_readme)
     return(list(readme = readme, path_readme = path_readme))
   } else if (any(grepl("^README\\.Rmd$", fn_vec))) {
     fn_readme <- "README.Rmd"
-    path_readme <- .dir_proj_get(fn_readme)
+    path_readme <- .path_get(fn_readme)
     readme <- readLines(path_readme)
     return(list(readme = readme, path_readme = path_readme))
   }
@@ -869,7 +869,7 @@ projr_init_renviron <- function() {
 }
 
 .projr_init_git_check_exists <- function() {
-  dir.exists(.dir_proj_get(".git"))
+  dir.exists(.path_get(".git"))
 }
 
 .projr_init_git_commit <- function() {
@@ -882,7 +882,7 @@ projr_init_renviron <- function() {
 
 .projr_init_git_file_get <- function() {
   fn_vec_root <- .file_ls(
-    .dir_proj_get(),
+    .path_get(),
     recursive = FALSE, full.names = TRUE
   )
   fn_vec_citation <- .projr_init_git_file_get_citation()
@@ -1051,7 +1051,7 @@ projr_init_renviron <- function() {
 }
 
 .projr_init_cite_inst_citation <- function() {
-  if (file.exists(.dir_proj_get("inst", "CITATION"))) {
+  if (file.exists(.path_get("inst", "CITATION"))) {
     return(invisible(FALSE))
   }
   projr_yml_cite_set(inst_citation = TRUE)
@@ -1063,10 +1063,10 @@ projr_init_renviron <- function() {
 .projr_init_cite_citation_readme <- function(answer_readme) {
   switch(as.character(answer_readme),
     "1" = .projr_init_cite_citation_readme_add_file(
-      .dir_proj_get("README.Rmd")
+      .path_get("README.Rmd")
     ),
     "2" = .projr_init_cite_citation_readme_add_file(
-      .dir_proj_get("README.md")
+      .path_get("README.md")
     ),
     "3" = invisible(FALSE)
   )
@@ -1074,7 +1074,7 @@ projr_init_renviron <- function() {
 
 .projr_init_cite_citation_readme_add_rmd <- function() {
   .projr_dep_add("cffr")
-  path_readme <- .dir_proj_get("README.Rmd")
+  path_readme <- .path_get("README.Rmd")
   readme_vec <- readLines(path_readme)
   writeLines(
     c(
@@ -1105,7 +1105,7 @@ projr_init_renviron <- function() {
 }
 
 .projr_init_cite_cff <- function() {
-  path_cff <- .dir_proj_get("CITATION")
+  path_cff <- .path_get("CITATION")
   if (file.exists(path_cff)) {
     return(invisible(FALSE))
   }
@@ -1115,7 +1115,7 @@ projr_init_renviron <- function() {
 }
 
 .projr_init_cite_codemeta <- function() {
-  path_codemeta <- .dir_proj_get("codemeta.json")
+  path_codemeta <- .path_get("codemeta.json")
   if (file.exists(path_codemeta)) {
     return(invisible(FALSE))
   }

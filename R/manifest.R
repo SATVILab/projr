@@ -135,12 +135,12 @@
 }
 
 .projr_manifest_read_project <- function() {
-  .projr_manifest_read(.dir_proj_get("manifest.csv"))
+  .projr_manifest_read(.path_get("manifest.csv"))
 }
 
 .projr_manifest_get_path_dir <- function(path_dir) {
   if (is.null(path_dir)) {
-    path_dir <- .dir_proj_get()
+    path_dir <- .path_get()
   }
   .dir_create(path_dir)
 }

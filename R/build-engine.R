@@ -85,7 +85,7 @@
     stop(paste0("Unknown document type: ", type), call. = FALSE)
   )
   fn_vec <- switch(as.character(is.null(file)),
-    "TRUE" = list.files(.dir_proj_get(), pattern = detect_str),
+    "TRUE" = list.files(.path_get(), pattern = detect_str),
     "FALSE" = file[grepl(detect_str, file)] |> .file_filter_exists()
   )
   .projr_build_engine_doc_fn_get_error(fn_vec, type)

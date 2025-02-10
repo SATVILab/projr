@@ -13,12 +13,12 @@
 }
 
 .projr_git_repo_check_exists <- function() {
-  dir.exists(.dir_proj_get(".git"))
+  dir.exists(.path_get(".git"))
 }
 
 .projr_git_repo_rm <- function() {
-  if (dir.exists(.dir_proj_get(".git"))) {
-    unlink(.dir_proj_get(".git"), recursive = TRUE)
+  if (dir.exists(.path_get(".git"))) {
+    unlink(.path_get(".git"), recursive = TRUE)
   }
 }
 
@@ -154,11 +154,11 @@
   if (.is_len_0(path)) {
     return(character(0L))
   }
-  path <- path[fs::path_has_parent(path, .dir_proj_get())]
+  path <- path[fs::path_has_parent(path, .path_get())]
   if (.is_len_0(path)) {
     return(character(0L))
   }
-  path <- fs::path_rel(path, .dir_proj_get())
+  path <- fs::path_rel(path, .path_get())
   if (!.is_chr(path)) {
     stop("path must be a character vector")
   }
@@ -197,7 +197,7 @@
 }
 
 .projr_git_init_gert <- function() {
-  gert::git_init(path = .dir_proj_get())
+  gert::git_init(path = .path_get())
 }
 
 # git or gert
