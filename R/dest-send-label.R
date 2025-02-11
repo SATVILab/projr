@@ -153,7 +153,7 @@
   }
   # now, we need to see if an earlier version might work
   version_remote <- .projr_remote_get_version_label(
-    remote_pre, type, label, structure
+    remote_pre, type, label, "archive"
   ) |>
     .projr_version_v_rm()
   # earliest version does not work if it's not trusted
