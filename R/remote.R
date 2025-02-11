@@ -1151,6 +1151,11 @@ projr_osf_create_project <- function(title,
                                          manifest) {
   path_dir_save <- .dir_create_tmp_random()
   .projr_manifest_write(manifest, file.path(path_dir_save, "manifest.csv"))
+  remote_pre <- if (type == "github") {
+    remote_pre <- remote_pre |> c("fn" = "manifest.csv")
+  } else {
+    remote_pre
+  }
   switch(type,
     "project" = NULL,
     .projr_remote_file_add(
@@ -1170,6 +1175,11 @@ projr_osf_create_project <- function(title,
                                              version_file) {
   path_dir_save <- .dir_create_tmp_random()
   writeLines(version_file, file.path(path_dir_save, "VERSION"))
+  remote_pre <- if (type == "github") {
+    remote_pre <- remote_pre |> c("fn" = "VERSION")
+  } else {
+    remote_pre
+  }
   switch(type,
     "project" = NULL,
     .projr_remote_file_add(
