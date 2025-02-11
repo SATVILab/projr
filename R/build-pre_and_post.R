@@ -29,9 +29,7 @@
     stop("Git commits requested but no Git directory found")
   }
 
-  msg <- .projr_build_git_commit_get_msg(
-    msg, stage, bump_component
-  )
+  msg <- .projr_build_git_commit_get_msg(msg, stage)
 
   # commit
   .projr_git_commit_all(
