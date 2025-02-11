@@ -29,11 +29,26 @@
     stop("Git commits requested but no Git directory found")
   }
 
+  msg <- .projr_build_git_commit_get_msg(
+    msg, stage, bump_component
+  )
+
   # commit
   .projr_git_commit_all(
     msg = msg,
     add_untracked = .projr_yml_git_get_add_untracked(NULL)
   )
+}
+
+.projr_build_git_commit_get_msg <- function(msg, stage) {
+  if (stage == "pre") {
+    "Snapshot pre-build"
+  } else {
+    paste0(
+      "Build v", projr_version_get(), ": ",
+      trimws(msg)
+    )
+  }
 }
 
 .projr_build_git_check <- function(output_run) {
