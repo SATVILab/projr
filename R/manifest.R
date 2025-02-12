@@ -122,7 +122,7 @@
   invisible(path)
 }
 
-.projr_manifest_read <- function(path = NULL) {
+.projr_restore_label <- function(path = NULL) {
   if (!.is_string(path) || !file.exists(path)) {
     return(.projr_zero_tbl_get_manifest())
   }

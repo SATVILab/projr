@@ -29,6 +29,11 @@
 projr_restore <- function(label = NULL,
                           type = NULL,
                           title = NULL) {
+  if (!file.exists(.path_get("manifest.csv"))) {
+    stop(
+      "No manifest.csv file found, so no builds have occurred, so nothing to restore." # nolint
+    )
+  }
   label <- .projr_restore_get_label(label)
   for (i in seq_along(label)) {
     .projr_restore_label(label[[i]], type, title)
@@ -59,6 +64,9 @@ projr_restore <- function(label = NULL,
 }
 
 .projr_restore_label <- function(label, type, title) {
+  if (!.projr_restore_label_check_non_empty(label)) {
+    return(invisible(FALSE))
+  }
   # get source remote (type and title)
   source_vec <- .projr_restore_label_get_source(label, type, title)
   yml_title <- .projr_yml_dest_get_title_complete(
@@ -72,7 +80,7 @@ projr_restore <- function(label = NULL,
   if (is.null(remote_source)) {
     stop(paste0(
                 "Remote source does not exist for ", label,
-                " where title is ", yml_title[["title"]], " and type is ",
+                " where title is ", source_vec[["title"]], " and type is ",
                 source_vec[["type"]]))
   }
   path_dir_save_local <- projr_path_get_dir(label)
@@ -81,6 +89,19 @@ projr_restore <- function(label = NULL,
   )
   invisible(TRUE)
 }
+
+.projr_restore_label_check_non_empty <- function(label) {
+  manifest <- .projr_manifest_read(.path_get("manifest.csv")) |>
+    .projr_manifest_filter_label(label)
+  fn_vec <- unique(manifest[["fn"]])
+  if (.is_len_1(fn_vec) && fn_vec == "") {
+    message("No files kept in ", label)
+    message("Skipping restore for ", label)
+    return(invisible(FALSE))
+  }
+  invisible(TRUE)
+}
+
 
 .projr_restore_label_get_source <- function(label, type, title) {
   # get source remote (type and title)
@@ -130,3 +151,5 @@ projr_restore <- function(label = NULL,
   }
   c("type" = tp_first, "title" = tt_first)
 }
+
+
