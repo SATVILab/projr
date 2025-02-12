@@ -219,5 +219,17 @@ projr_yml_check <- function(profile = NULL) {
       send_list[["inspect"]], .projr_opt_remote_inspect_get()
     )
   }
+  if ("source" %in% names(yml_title)) {
+    source_elem <- yml_title[["source"]]
+    if (!isTRUE(source_elem) && !isFALSE(source_elem)) {
+      .assert_chr(source_elem)
+      for (i in seq_along(source_elem)) {
+        .assert_in(
+          source_elem[[i]],
+          .projr_opt_dir_get_label_send(NULL)
+        )
+      }
+    }
+  }
   invisible(TRUE)
 }
