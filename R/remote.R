@@ -1873,12 +1873,16 @@ projr_osf_create_project <- function(title,
     fn = fn_vec_to_rm, remote = path_dir_save_local
   )
   fn_vec_to_upload <- setdiff(fn_vec, fn_vec_to_rm)
-  .projr_remote_file_add(
-    "github",
-    fn = fn_vec_to_upload,
-    path_dir_local = path_dir_save_local,
-    remote = remote
-  )
+  if (.is_len_0(fn_vec_to_upload)) {
+    .projr_remote_file_rm_all_github(remote)
+  } else {
+    .projr_remote_file_add(
+      "github",
+      fn = fn_vec_to_upload,
+      path_dir_local = path_dir_save_local,
+      remote = remote
+    )
+  }
   unlink(path_dir_save_local, recursive = TRUE)
   invisible(TRUE)
 }
