@@ -70,11 +70,11 @@ projr_restore <- function(label,
     stop(paste0(
                 "Remote source does not exist for ", label,
                 " where title is ", yml_title[["title"]], " and type is ",
-                yml_title[["type"]]))
+                source_vec[["type"]]))
   }
   path_dir_save_local <- projr_path_get_dir(label)
   .projr_remote_file_get_all(
-    yml_title[["type"]], remote_source, path_dir_save_local
+    source_vec[["type"]], remote_source, path_dir_save_local
   )
   invisible(TRUE)
 }
