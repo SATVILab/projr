@@ -6,14 +6,14 @@ test_that("projr_build_dev works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      projr_init()
+      projr_init_full()
       projr_build_dev()
       projr_version_get()
       yml_bd <- .projr_yml_bd_get()
       # it's set in _bookdown.yml
       # and not in _projr.yml, so use _bookdown.yml
       # as basename
-      expect_identical(basename(yml_bd$output_dir), "_book")
+      expect_identical(basename(yml_bd$output_dir), "docs")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.0-1")
     },
@@ -28,7 +28,7 @@ test_that("projr_build_output works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      projr_init()
+      projr_init_full()
       .projr_test_yml_unset_remote()
       .projr_yml_git_set_commit(TRUE, TRUE, NULL)
       .projr_yml_git_set_add_untracked(TRUE, TRUE, NULL)
@@ -38,7 +38,7 @@ test_that("projr_build_output works", {
       projr_build_output("patch", msg = "test")
       projr_version_get()
       yml_bd <- .projr_yml_bd_get()
-      expect_identical(basename(yml_bd$output_dir), "_book")
+      expect_identical(basename(yml_bd$output_dir), "docs")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
       # run repeat build
@@ -68,7 +68,7 @@ test_that("projr_build_ works with quarto projects", {
       ))
       Sys.setenv("PROJR_TEST_ENGINE" = "Quarto project")
       # remove the pdf setting
-      projr_init()
+      projr_init_full()
       yml_quarto <- .projr_yml_quarto_get()
       yml_quarto$format <- yml_quarto$format[-2]
       .projr_yml_quarto_set(yml_quarto)
@@ -118,7 +118,7 @@ test_that(".projr_build_clear_pre and _post works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      projr_init()
+      projr_init_full()
       # pre
       # ------------------------
       path_safe <- projr_path_get_dir("output", "a", safe = TRUE)
@@ -1002,7 +1002,9 @@ test_that(".projr_build_engine works", {
       .file_rm("_bookdown.yml")
       .file_rm("_output.yml")
       .projr_build_engine(
-        file = NULL, version_run_on_list = version_run_on_list, args_engine = list()
+        file = NULL,
+        version_run_on_list = version_run_on_list,
+        args_engine = list()
       )
       expect_true(file.exists("index.html"))
       # now test quarto files

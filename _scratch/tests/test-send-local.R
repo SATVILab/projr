@@ -59,6 +59,7 @@ test_that("projr_yml_dest_add* functions work", {
 # --------------------------
 # actually sending
 # --------------------------
+
 test_that(".projr_remote_create works - local", {
   # skip_if(.is_test_select())
   dir_test <- .projr_test_setup_project(
@@ -100,11 +101,17 @@ test_that(".projr_remote_create works - local", {
       expect_true(file.exists("_latest/raw-data/data.csv"))
       expect_true(file.exists("_archive/raw-data/v0.0.3/data.csv"))
       browser()
-      browser()
-      undebug(.projr_dest_send_label_get_remotes_get_version_comp)
-      undebug(.projr_dest_send_label_get_remotes)
-      undebug(.projr_dest_send_label_get_plan_fn_sync)
-      undebug(.projr_manifest_get_version_earliest_match)
+
+      # always add  it
+      projr_yml_dest_add_local(
+        title = "archive",
+        content = "raw-data",
+        path = "_archive",
+        structure = "archive",
+        send_cue = "always",
+        overwrite = TRUE
+      )
+
       projr::projr_build_patch()
     }
   )

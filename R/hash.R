@@ -8,7 +8,8 @@
     .path_filter_spec(dir_exc)
   out_tbl <- data.frame(
     fn = fn_vec |> .path_force_rel(path_dir),
-    version = paste0("v", version %||% projr_version_get()),
+    version = (version %||% projr_version_get()) |>
+      .projr_version_v_add(),
     hash = .projr_hash_file(fn_vec)
   )
   rownames(out_tbl) <- NULL

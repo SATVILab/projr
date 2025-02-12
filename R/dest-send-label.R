@@ -322,7 +322,7 @@
       )
     } else {
       .projr_dest_send_label_get_manifest_remote_manifest(
-        type, remote_pre, label
+        type, remote_pre, label, version_comp
       )
     }
   }
@@ -341,10 +341,11 @@
   }
 
 .projr_dest_send_label_get_manifest_remote_manifest <- # nolint
-  function(type, remote_pre, label) {
+  function(type, remote_pre, label, version = NULL) {
+    version <- if (is.null(version)) projr_version_get() else version
     .projr_remote_get_manifest(type, remote_pre) |>
       .projr_manifest_filter_label(label) |>
-      .projr_manifest_filter_version(projr_version_get())
+      .projr_manifest_filter_version(version)
   }
 
 

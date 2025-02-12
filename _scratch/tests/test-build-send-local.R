@@ -121,7 +121,7 @@ test_that("projr_build_output works - local - latest - file", {
     path = dir_test,
     code = {
       # initialse `projr` project
-      projr_init()
+      projr_init_full()
       # remove remotes
       .projr_test_yml_unset_remote()
       .projr_yml_git_set_commit(TRUE, TRUE, NULL)

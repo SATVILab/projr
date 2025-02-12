@@ -1,4 +1,5 @@
 # github
+# works - 2025 02 12
 .projr_auth_get_github_pat <- function(init = FALSE) {
   pat <- .projr_auth_get_github_pat_find()
   if (.is_string(pat)) {

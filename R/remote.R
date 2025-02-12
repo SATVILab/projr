@@ -625,7 +625,11 @@ projr_osf_create_project <- function(title,
     args_list <- args_list |> append(list(label))
   }
   if (structure == "archive") {
-    version_add <- if (is.null(version)) .projr_version_get_v() else version
+    version_add <- if (is.null(version)) {
+      .projr_version_get_v()
+    }  else {
+      version |> .projr_version_v_add()
+    } 
     args_list <- args_list |> append(list(version_add))
   }
   if (length(args_list) == 0L) {
@@ -692,7 +696,11 @@ projr_osf_create_project <- function(title,
     path_rel <- label
   }
   if (structure == "archive") {
-    version_add <- if (is.null(version)) .projr_version_get_v() else version
+    version_add <- if (is.null(version)) {
+      .projr_version_get_v()
+    }  else {
+      version |> .projr_version_v_add()
+    } 
     path_rel <- paste0(path_rel, "-", version_add)
   }
   path_rel
@@ -770,7 +778,7 @@ projr_osf_create_project <- function(title,
                                version,
                                label) {
   .assert_in(type, .projr_opt_remote_get_type(), TRUE)
-  hash_tbl <- .projr_change_file_dir( # nolint
+  hash_tbl <- .projr_change_get_file_dir( # nolint
     type, remote_final
   ) |>
     .projr_hash_dir(version) |>
@@ -1339,10 +1347,27 @@ projr_osf_create_project <- function(title,
                                                                 label,
                                                                 structure) {
   if (structure != "archive") {
-    return(NULL)
+    return(character(0L))
+  }
+  remote_pre_down <- switch(type,
+    "local" = {
+      if (is.null(remote_pre)) {
+        return(NULL)
+      }
+      dir_vec <- .dir_ls(remote_pre, recursive = FALSE)
+      if (is.null(dir_vec) || .is_len_0(dir_vec) || !label %in% dir_vec) {
+        return(NULL)
+      }
+      file.path(remote_pre, label)
+    },
+    "github" = remote_pre,
+    "osf" = stop("Not yet implemented for OSF")
+  )
+  if (is.null(remote_pre)) {
+    return(character(0L))
   }
   remote_final_vec_basename <- .projr_remote_final_ls(
-    type, remote_pre
+    type, remote_pre_down
   )
   .projr_remote_version_latest_get(remote_final_vec_basename, type, label) |>
     .projr_version_v_rm()
@@ -1351,6 +1376,10 @@ projr_osf_create_project <- function(title,
 .projr_remote_version_latest_get <- function(fn, type, label) {
   if (.is_len_0(fn)) {
     return(character(0L))
+  }
+  if (type != "github") {
+    fn <- vapply(fn, .projr_version_v_rm, character(1L))
+    return(fn |> package_version() |> max())
   }
   fn <- .projr_remote_version_latest_filter(fn, type, label)
   .projr_remote_version_latest_extract(fn, label)

@@ -450,7 +450,7 @@
     allow_specify_other = FALSE,
     allow_complete_later = TRUE,
     answer_translate = long_to_short_license_vec,
-    answer_auto = "1"
+    answer_auto = "ccby"
   )
 }
 
