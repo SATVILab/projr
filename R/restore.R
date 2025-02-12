@@ -41,7 +41,8 @@ projr_restore <- function(label = NULL,
     return(label)
   }
   # default to raw labels, if none other requested
-  nm_vec <- .projr_yml_dir_get(NULL)
+  nm_vec <- .projr_yml_dir_get(NULL) |>
+    names()
   nm_vec[grepl("^raw", .projr_dir_label_strip(nm_vec))]
 }
 
