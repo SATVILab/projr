@@ -17,11 +17,11 @@
 #' @param title character.
 #' Title of remote.
 #' Ignored if `type` is not specified.
-#' 
+#'
 #' @return
 #' Invisible returns `TRUE` if successful.
-#' 
-#' @examples 
+#'
+#' @examples
 #' \dontrun{projr_restore("raw-data")}
 #' @export
 projr_restore <- function(label,
@@ -42,11 +42,13 @@ projr_restore <- function(label,
   nm_vec <- .projr_yml_dir_get(NULL)
   nm_vec[grepl("^raw", .projr_dir_label_strip(nm_vec))]
 }
+
 .projr_restore_get_label_check <- function(label) {
   if (!is.null(label)) {
     opt_vec <- .projr_yml_dir_get(NULL) |>
       names()
-    for (x in label ){
+    .assert_len_pos(opt_vec)
+    for (x in label){
       .assert_in(x, opt_vec)
     }
   }
@@ -98,7 +100,7 @@ projr_restore <- function(label,
     title <- names(yml_type)
     for (i in seq_along(title)) {
       tt <- title[[i]]
-      yml_title <- .projr_yml_dest_get_title_complete( # nolint
+      yml_title <- .projr_yml_dest_get_title_complete(
         tt, tp, NULL, FALSE, FALSE
       )
       if (!label %in% yml_title[["content"]]) {
@@ -107,18 +109,16 @@ projr_restore <- function(label,
       if ("source" %in% names(yml_title)) {
         source_vec <- yml_title[["source"]]
         if (isTRUE(source_vec)) {
-          return(c("type" = tp, "title" = tt))
+          return(c(type = tp, title = tt))
         } else if (isFALSE(source_vec)) {
           next
         } else if (label %in% source_vec) {
-          return(c("type" = tp, "title" = tt))
-        } else {
-          # use the first one if no source
-          if (is.null(tt_first)) {
-            tp_first <- tp
-            tt_first <- tt
-          }
+          return(c(type = tp, title = tt))
         }
+      }
+      if (is.null(tt_first)) {
+        tp_first <- tp
+        tt_first <- tt
       }
     }
   }
