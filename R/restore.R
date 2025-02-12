@@ -3,6 +3,8 @@
 #' @param label character vector.
 #' Must all be labels found in `_projr.yml` (or
 #' default labels).
+#' If `NULL` (the default), then all `raw` labels
+#' are restored (e.g. `raw-data`, `raw-docs`, `raw`, etc.).
 #' @param type character.
 #' Type of remote to restore from.
 #' One of `local`, `osf` and `github`.
@@ -24,7 +26,7 @@
 #' @examples
 #' \dontrun{projr_restore("raw-data")}
 #' @export
-projr_restore <- function(label,
+projr_restore <- function(label = NULL,
                           type = NULL,
                           title = NULL) {
   label <- .projr_restore_get_label(label)
