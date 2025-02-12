@@ -62,7 +62,7 @@ projr_restore <- function(label,
     source_vec[["title"]], source_vec[["type"]], NULL, FALSE, FALSE
   )
   remote_source <- .projr_remote_get_final_if_exists(
-    yml_title[["type"]], yml_title[["id"]], label,
+    source_vec[["type"]], yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
     yml_title[["path-append-label"]], NULL
   )
