@@ -831,22 +831,23 @@
       # the release has the file <label>-empty.zip,
       # and delete if it does have that.
     }
+  } else if (type == "github") {
+    # 1. question is, at this point, do we know if it SHOULD 
+    # be zero, just from what is supposed to be added
+    # or taken away? Does that need to be part of the plan?
+    # 2. need to think through the scenarios:
+    # latest:
+    #  - want blank, remote not there 
+    #  - want blank, remote there
+    # archive:
+    #  - want blank, remote not there
+    #  - want blank, remote there
+    if (structure == "latest") {
+      # 
+    }
+
   }
 
-  # need to think through the scenarios:
-  # latest:
-  #  - want blank, remote not there 
-  #  - want blank, remote there
-  # archive:
-  #  - want blank, remote not there
-  #  - want blank, remote there
-
-  # 
-  # if (create && type == "github" && !.projr_remote_final_check_exists(
-  #   type, id, label, structure, path, path_append_label, NULL
-  # )) {
-  #   .projr_remote_create(type, id, label, structure, path, path_append_label)
-  # }
 
   # need to use remote_pre and just add an individual file
   .projr_remote_write_manifest(type, remote_pre, manifest)
