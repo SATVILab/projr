@@ -243,7 +243,8 @@
 }
 
 .projr_dest_send_label_get_fn_source <- function(label) {
-  .projr_dest_send_label_get_manifest_source(label)[["fn"]]
+  fn_vec <- .projr_dest_send_label_get_manifest_source(label)[["fn"]]
+  fn_vec[!is.na(fn_vec)]
 }
 
 .projr_dest_send_label_get_manifest_source <- function(label) {
@@ -286,7 +287,8 @@
   manifest_remote <- .projr_remote_get_manifest(type, remote_pre) |>
     .projr_manifest_filter_version(version_comp) |>
     .projr_manifest_filter_label(label)
-  manifest_remote[["fn"]]
+  fn_vec <- manifest_remote[["fn"]]
+  fn_vec[!is.na(fn_vec)]
 }
 
 .projr_dest_send_label_get_plan_fn_sync <- function(inspect, # nolint

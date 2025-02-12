@@ -10,10 +10,14 @@
     dir_exc = .projr_build_label_get_dir_exc(label)
   ) |>
     .projr_manifest_hash_cache_filter(label)
-  cbind(
-    data.frame(label = rep(label, nrow(hash_tbl))),
-    hash_tbl
-  )
+  if (nrow(hash_tbl) == 0L) {
+    .projr_empty_tbl_get_manifest(label, projr::projr_version_get())
+  } else {
+    cbind(
+      data.frame(label = rep(label, nrow(hash_tbl))),
+      hash_tbl
+    )
+  }
 }
 
 .projr_manifest_hash_cache_filter <- function(hash_tbl, # nolint

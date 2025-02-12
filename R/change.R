@@ -254,5 +254,6 @@
     "fn_same" = hash_post_kept_unchanged[["fn"]],
     "fn_diff" = hash_post_kept_changed[["fn"]],
     "fn_source_extra" = hash_post_add[["fn"]]
-  )
+  ) |>
+    lapply(.filter_filter_non_na)
 }

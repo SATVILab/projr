@@ -81,6 +81,10 @@
   x[fs::is_dir(x)]
 }
 
+.filter_filter_non_na <- function(x) {
+  x[!is.na(x)]
+}
+
 .file_filter_dir_non <- function(x) {
   # fs::is_dir returns FALSE for
   # files that do not exist, so ensuring that

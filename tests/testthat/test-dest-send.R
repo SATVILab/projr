@@ -222,6 +222,19 @@ test_that("projr_dest_send works - local", {
       projr::projr_build_patch()
       expect_true(file.exists("_archive/raw-data/v0.0.8/data.csv"))
 
+      # handle an empty directory
+      unlink("_raw_data", recursive = TRUE)
+      projr_yml_dest_add_local(
+        title = "archive",
+        content = "raw-data",
+        path = "_archive",
+        structure = "archive",
+        send_cue = "if-change",
+        overwrite = TRUE
+      )
+      projr::projr_build_patch()
+      expect_true(dir.exists("_archive/raw-data/v0.0.9"))
+      expect_true(.is_len_0(list.files("_archive/raw-data/v0.0.9")))
 
     }
   )
