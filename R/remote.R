@@ -219,6 +219,7 @@ projr_osf_create_project <- function(title,
 
 # github
 .projr_remote_check_exists_github <- function(tag) {
+  .projr_dep_install("piggyback")
   .assert_string(tag, TRUE)
   release_tbl <- .projr_pb_release_tbl_get()
   if (.is_try_error(release_tbl)) {
@@ -295,6 +296,7 @@ projr_osf_create_project <- function(title,
                                                     version) {
   .assert_attr(remote_pre, "names")
   .assert_has(names(remote_pre), c("tag"))
+  .projr_dep_install("piggyback")
   if (!.projr_remote_check_exists("github", remote_pre[["tag"]])) {
     return(FALSE)
   }
@@ -946,6 +948,7 @@ projr_osf_create_project <- function(title,
 }
 
 .projr_remote_file_rm_all_github_check_fn <- function(fn, tag) {
+  .projr_dep_install("piggyback")
   asset_tbl <- try(.projr_pb_asset_tbl_get(tag = tag))
   if (inherits(asset_tbl, "try-error")) {
     stop("Could not get the assets for the GitHub release")
@@ -1104,6 +1107,7 @@ projr_osf_create_project <- function(title,
 # ---------------------
 
 .projr_remote_file_get_all_github <- function(remote, path_dir_save_local) {
+  .projr_dep_install("piggyback")
   .assert_given_full(remote)
 
   if (!.projr_remote_check_exists("github", remote[["tag"]])) {
@@ -1116,6 +1120,7 @@ projr_osf_create_project <- function(title,
 
 .projr_remote_file_get_all_github_file <- function(remote,
                                                    path_dir_save_local) {
+  .projr_dep_install("piggyback")
   piggyback::.pb_cache_clear()
   .assert_attr(remote, "names")
   .assert_has(names(remote), c("tag", "fn"))
@@ -1489,6 +1494,7 @@ projr_osf_create_project <- function(title,
 }
 
 .projr_remote_detect_structure_github <- function(remote) {
+  .projr_dep_install("piggyback")
   version_remote <- .projr_version_get_remote_github(remote)
   if (is.null(version_remote)) "latest" else "version"
 }
@@ -1689,6 +1695,7 @@ projr_osf_create_project <- function(title,
 
 # github
 .projr_remote_file_ls_github <- function(remote) {
+  .projr_dep_install("piggyback")
   .assert_given_full(remote)
   path_dir_save_local <- .dir_create_tmp_random()
   .projr_remote_file_get_all(
@@ -1815,6 +1822,7 @@ projr_osf_create_project <- function(title,
 # github
 .projr_remote_file_rm_github <- function(fn,
                                          remote) {
+  .projr_dep_install("piggyback")
   .assert_chr_min(fn, TRUE)
   if (.is_len_0(fn)) {
     return(invisible(FALSE))
@@ -1960,6 +1968,7 @@ projr_osf_create_project <- function(title,
 .projr_remote_file_add_github_zip <- function(path_zip,
                                               tag,
                                               pause_second = 3) {
+  .projr_dep_install("piggyback")
   pb_upload <- .projr_remote_file_add_github_zip_attempt(
     path_zip = path_zip, tag = tag
   )

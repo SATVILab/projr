@@ -1,4 +1,5 @@
 .projr_pb_release_tbl_get <- function(pause_second = 3) {
+  .projr_dep_install("piggyback")
   gh_tbl_release <- .projr_pb_release_tbl_get_attempt()
   if (!.projr_pb_tbl_redo_check(gh_tbl_release)) {
     return(gh_tbl_release)
@@ -19,6 +20,7 @@
 }
 
 .projr_pb_asset_tbl_get <- function(tag, pause_second = 3) {
+  .projr_dep_install("piggyback")
   gh_tbl_asset <- .projr_pb_asset_tbl_get_attempt(tag = tag)
   if (!.projr_pb_tbl_redo_check(gh_tbl_asset)) {
     return(gh_tbl_asset)
