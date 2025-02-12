@@ -83,7 +83,7 @@ projr_restore <- function(label,
     return(c("type" = type, "title" = title))
   }
   if (is.null(type)) {
-    nm_vec <- .projr_yml_build_get() |>
+    nm_vec <- .projr_yml_build_get(NULL) |>
       names()
     type <- nm_vec[grepl("^github$|^local$|^osf", nm_vec)]
     if (.is_len_0(type)) {
