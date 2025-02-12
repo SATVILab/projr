@@ -94,7 +94,10 @@ projr_restore <- function(label = NULL,
   manifest <- .projr_manifest_read(.path_get("manifest.csv")) |>
     .projr_manifest_filter_label(label)
   fn_vec <- unique(manifest[["fn"]])
-  if (.is_len_1(fn_vec) && fn_vec == "") {
+  label_recorded_and_unused <- .is_len_1(fn_vec) && fn_vec == ""
+  label_unrecorded <- .is_len_0(fn_vec)
+  nothing_to_restore <- label_recorded_and_unused || label_unrecorded
+  if (nothing_to_restore) {
     message("No files kept in ", label)
     message("Skipping restore for ", label)
     return(invisible(FALSE))
