@@ -146,6 +146,36 @@ usethis::with_project(
     expect_true(.projr_remote_final_check_exists(
       "github", "archive", "raw-data", "archive", NULL, NULL, NULL
     ))
+    expect_true(.projr_remote_final_check_exists(
+      "github", "latest", "raw-data", "latest", NULL, NULL, NULL
+    ))
+
+    browser()
+    browser()
+
+    # handle an empty directory
+    .projr_yml_dest_rm_type_all("default")
+    unlink("_raw_data", recursive = TRUE)
+    projr_yml_dest_add_github(
+      title = "latest",
+      content = "raw-data",
+      structure = "latest",
+      send_cue = "if-change",
+      overwrite = TRUE
+    )
+    projr_yml_dest_add_github(
+      title = "archive",
+      content = "raw-data",
+      structure = "archive",
+      send_cue = "if-change",
+      overwrite = TRUE
+    )
+    debugonce(.projr_dest_send_label)
+    projr::projr_build_patch()
+    expect_false(.projr_remote_final_check_exists(
+      "github", "archive", "raw-data", "archive", NULL, NULL, NULL
+    ))
+
   }
 )
 

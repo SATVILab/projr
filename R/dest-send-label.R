@@ -808,6 +808,13 @@
     .projr_remote_file_rm_all(type, remote_dest)
   }
   if (create) {
+    # will create for OSF and local,
+    # but not GitHub, so GitHub remote
+    # is only created if there is a file to add
+    # this means if the create is TRUE
+    # and .is_len_pos(fn_add) is FALSE,
+    # then we need to create an empty
+    # GitHub remote. Could do that later, I guess?
     remote_dest <- .projr_remote_get_final(
       type, id, label, structure, path, path_append_label, NULL
     )
@@ -819,7 +826,27 @@
 
   if (.is_len_pos(fn_add)) {
     .projr_remote_file_add(type, remote_dest, path_dir_local, fn_add)
+    if (structure == "latest" && type == "github") {
+      # get projr release_tbl, check if
+      # the release has the file <label>-empty.zip,
+      # and delete if it does have that.
+    }
   }
+
+  # need to think through the scenarios:
+  # latest:
+  #  - want blank, remote not there 
+  #  - want blank, remote there
+  # archive:
+  #  - want blank, remote not there
+  #  - want blank, remote there
+
+  # 
+  # if (create && type == "github" && !.projr_remote_final_check_exists(
+  #   type, id, label, structure, path, path_append_label, NULL
+  # )) {
+  #   .projr_remote_create(type, id, label, structure, path, path_append_label)
+  # }
 
   # need to use remote_pre and just add an individual file
   .projr_remote_write_manifest(type, remote_pre, manifest)
