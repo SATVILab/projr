@@ -83,15 +83,32 @@
       remote_pre, inspect, strategy
     )
   if (is_nothing) {
-    return(.projr_dest_send_label_get_remotes_get_version_comp_nothing())
+    return(NULL)
   }
-  # here we always compare against the latest remote
-  is_latest <-
-    .projr_dest_send_label_get_remotes_get_version_comp_check_latest(
-      cue, strategy, structure
-    )
-  if (is_latest) {
-    return(.projr_dest_send_label_get_remotes_get_version_comp_latest())
+  # in all cases here, we're just trying to find 
+  # the version on the remote that is acceptable to compare against.
+  # the major difference between `latest` and `archive`
+  # is that in `latest` we don't care about whether 
+  # there is a difference in the files in between now
+  # and the last upload (even if the last upload is the
+  # same as now), and we also don't care about
+  # checking what the versioned uploaded file/folder
+  # is
+  if (structure == "latest") {
+    return(.projr_dest_send_label_get_remotes_get_version_comp_latest(
+      inspect, remote_pre, type, label
+    ))
+  }
+  # now, it's archive, but we compare
+  # against the latest version to see what
+  # we should upload, as now we're not interested
+  # in old remotes, but the latest one
+  # does upload-missing become upload-all here?
+  # yes, essentially, with cue: always, as we're
+  # not going to adjust old versions so it's basically
+  # just upload all
+  if (cue == "always" || strategy == "upload-missing") {
+    return(projr_version_get() |> .projr_version_v_rm())
   }
   # now we see if we can compare against an archived remote
   .projr_dest_send_label_get_remotes_get_version_comp_archive(
@@ -110,24 +127,23 @@
     is_no_comp || is_no_inspect || is_upload_all
   }
 
-.projr_dest_send_label_get_remotes_get_version_comp_nothing <- function() { # nolint
-  # nothing to compare against, so return `NULL`
-  NULL
-}
-
-.projr_dest_send_label_get_remotes_get_version_comp_check_latest <- # nolint
-  function(cue,
-           strategy,
-           structure) {
-    # if we are always uploading, then we don't need to compare
-    # against anything, as we are always going to upload
-    # to the latest version
-    cue == "always" || strategy == "upload-missing" || structure == "latest"
+.projr_dest_send_label_get_remotes_get_version_comp_latest <-
+  function(inspect,
+           remote_pre,
+           type,
+           label) { # nolint
+    version_project <- projr_version_get() |> .projr_version_v_rm()
+    version_comp_untrusted <- if (inspect == "file") version_project else NULL
+    version_remote <- .projr_remote_get_version_label(
+      remote_pre, type, label, "latest"
+    ) |>
+      .projr_version_v_rm()
+    if (!.is_string(version_remote)) {
+      version_comp_untrusted
+    } else {
+      version_remote
+    }
   }
-
-.projr_dest_send_label_get_remotes_get_version_comp_latest <- function() { # nolint
-  projr_version_get() |> .projr_version_v_rm()
-}
 
 .projr_dest_send_label_get_remotes_get_version_comp_archive <- function(cue, # nolint
                                                                         strategy, # nolint

@@ -28,8 +28,9 @@
   }
   msg <- .projr_git_msg_get(msg)
   switch(.projr_git_system_get(),
-    "git" = .projr_git_commit_file_git(file, msg),
-    "gert" = .projr_git_commit_file_gert(file, msg),
+    # suppress warnings from adding deleted files
+    "git" = suppressWarnings(.projr_git_commit_file_git(file, msg)),
+    "gert" = suppressWarnings(.projr_git_commit_file_gert(file, msg)),
     stop(paste0(.projr_git_system_get(), " not recognised"))
   )
 }

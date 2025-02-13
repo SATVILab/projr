@@ -185,3 +185,7 @@ gh::gh(
   username = gh::gh_whoami()$login,
   pkg = basename(dir_test)
 )
+
+# empty directories
+# ---------------------
+

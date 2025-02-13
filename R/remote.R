@@ -629,7 +629,7 @@ projr_osf_create_project <- function(title,
       .projr_version_get_v()
     }  else {
       version |> .projr_version_v_add()
-    } 
+    }
     args_list <- args_list |> append(list(version_add))
   }
   if (length(args_list) == 0L) {
@@ -700,7 +700,7 @@ projr_osf_create_project <- function(title,
       .projr_version_get_v()
     }  else {
       version |> .projr_version_v_add()
-    } 
+    }
     path_rel <- paste0(path_rel, "-", version_add)
   }
   path_rel
@@ -1296,6 +1296,19 @@ projr_osf_create_project <- function(title,
                                                         label,
                                                         structure) {
 
+  # use the versioned files (raw-data-project: v1.0.0)
+  version_file <- .projr_remote_get_version_label_non_project_file(
+    remote_pre, type, label
+  )
+
+  # if it's not correctly formatted (which may happen because
+  # it's not found) or if it does not match version_archive,
+  # then return nothing
+  if (!.projr_version_check_error_free(version_file)) {
+    return(character(0L))
+  }
+
+  # check what is the version indicated by the file structure
   if (structure == "archive") {
     version_archive <- .projr_remote_get_version_label_non_project_archive(
       remote_pre, type, label, structure
@@ -1306,40 +1319,34 @@ projr_osf_create_project <- function(title,
       ) { # nolint
       return(character(0L))
     }
-  } else {
-    version_archive <- NULL
+    if (!identical(version_archive, version_file)) {
+      return(character(0L))
+    }
   }
-
-  # use the versioned files (raw-data-project: v1.0.0)
-  version_file <- .projr_remote_get_version_label_non_project_file(
-    remote_pre, type, label
-  )
-  # if it's not correctly formatted (which may happen because
-  # it's not found) or if it does not match version_archive,
-  # then return nothing
-  if (!.projr_version_check_error_free(version_file)) {
-    return(character(0L))
-  }
-  if (!identical(version_archive, version_file)) {
-    return(character(0L))
-  }
-
-  version_thus_far <- version_archive
 
   # check that the manifest matches
   manifest_project <- .projr_remote_get_manifest_project() |>
     .projr_manifest_filter_label(label) |>
-    .projr_manifest_filter_version(version_thus_far)
+    .projr_manifest_filter_version(version_file)
   manifest_remote <- .projr_remote_get_manifest(type, remote_pre) |>
     .projr_manifest_filter_label(label) |>
-    .projr_manifest_filter_version(version_thus_far)
+    .projr_manifest_filter_version(version_file)
   rownames(manifest_project) <- NULL
   rownames(manifest_remote) <- NULL
-  if (!identical(manifest_project, manifest_remote)) {
+  # if the relevant version wasn't actually recorded online
+  if (nrow(manifest_remote) == 0L) {
+    return(character(0L))
+  }
+  # if they don't match (being recorded as both
+  # empty should be a match)
+  change_list <- .projr_change_get_hash(manifest_remote, manifest_project)
+  change_list <- change_list[-which(names(change_list) == "fn_same")]
+  same_contents <- vapply(change_list, .is_len_0, logical(1)) |> all()
+  if (!same_contents) {
     return(character(0L))
   }
 
-  version_thus_far
+  version_file
 }
 
 .projr_remote_get_version_label_non_project_archive <- function(remote_pre,

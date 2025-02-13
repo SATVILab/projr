@@ -164,6 +164,7 @@ test_that("projr_dest_send works - local", {
         send_cue = "always",
         overwrite = TRUE
       )
+
       projr::projr_build_patch()
       expect_true(file.exists("_latest/raw-data/data.csv"))
       expect_true(file.exists("_archive/raw-data/v0.0.3/data.csv"))
@@ -194,7 +195,7 @@ test_that("projr_dest_send works - local", {
       expect_true(file.exists("_archive/raw-data/v0.0.6/data.csv"))
 
       # new upload, despite no change in project and cue: if-change
-      # as remote was changed 
+      # as remote was changed
       projr_yml_dest_add_local(
         title = "archive",
         content = "raw-data",
@@ -236,6 +237,79 @@ test_that("projr_dest_send works - local", {
       expect_true(dir.exists("_archive/raw-data/v0.0.9"))
       expect_true(.is_len_0(list.files("_archive/raw-data/v0.0.9")))
 
+    }
+  )
+})
+
+
+# --------------------------
+# empty directory from the start
+# --------------------------
+
+test_that("projr_dest_send works - local - empty dirs", {
+  # skip_if(.is_test_select()
+  dir_test <- .projr_test_setup_project(
+    git = TRUE, github = FALSE, set_env_var = TRUE
+  )
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      projr_init_git()
+      .projr_yml_git_set_push(FALSE, TRUE, NULL)
+      # remove github remote
+      .projr_yml_dest_rm_type_all("default")
+      # add a local destination, that is never sent to
+      projr_yml_dest_add_local(
+        title = "latest",
+        content = "raw-data",
+        path = "_latest",
+        structure = "latest"
+      )
+      projr::projr_build_patch()
+      expect_true(dir.exists("_latest/raw-data"))
+      expect_false(file.exists("_latest/raw-data/data.csv"))
+      # add a file
+      file.create("_raw_data/data.csv")
+      projr::projr_build_patch()
+      expect_true(file.exists("_latest/raw-data/data.csv"))
+      # remove that one file
+      file.remove("_raw_data/data.csv")
+      projr::projr_build_patch()
+      expect_true(dir.exists("_latest/raw-data"))
+      expect_false(file.exists("_latest/raw-data/data.csv"))
+
+      # -------------------
+      # structure: archive
+      # -------------------
+
+      .projr_yml_dest_rm_type_all("default")
+      projr_yml_dest_add_local(
+        title = "archive",
+        content = "raw-data",
+        path = "_archive",
+        structure = "archive",
+        overwrite = TRUE
+      )
+      projr::projr_build_patch()
+      expect_true(dir.exists("_archive/raw-data/v0.0.4"))
+      expect_false(file.exists("_archive/raw-data/v0.0.4/data.csv"))
+      # add a file
+      # browser()
+      # debugonce(.projr_dest_send_label)
+      # browser()
+      file.create("_raw_data/data.csv")
+      projr::projr_build_patch() # problem isn't here,
+      # it's that manifest.csv for v0.0.4 
+      # says that data.csv is there when it isn't
+      expect_true(file.exists("_archive/raw-data/v0.0.5/data.csv"))
+      # remove that one file
+      file.remove("_raw_data/data.csv")
+      projr::projr_build_patch()
+      expect_true(dir.exists("_archive/raw-data/v0.0.6"))
+      expect_false(file.exists("_archive/raw-data/v0.0.6/data.csv"))
+      # keep it removed
+      projr::projr_build_patch()
+      expect_false(dir.exists("_archive/raw-data/v0.0.7"))
     }
   )
 })
