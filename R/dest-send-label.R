@@ -834,6 +834,11 @@
     remote_dest <- .projr_remote_get_final(
       type, id, label, structure, path, path_append_label, NULL
     )
+    if (type == "github" && .is_len_0(fn_add)) {
+      .projr_dest_send_label_implement_plan_github_empty(
+        remote_dest
+      )
+    }
   }
 
   if (.is_len_pos(fn_rm)) {
@@ -869,4 +874,28 @@
   .projr_remote_write_manifest(type, remote_pre, manifest)
   .projr_remote_write_version_file(type, remote_pre, version_file)
   invisible(TRUE)
+}
+
+.projr_dest_send_label_implement_plan_github_empty <- function(remote_dest) {
+  # this only happens if the remote doesn't exist,
+  # what if we in the end end up with no remote, what then?
+  # shouldn't we always have some sort of remote?
+  if (!.projr_remote_final_check_exists_github_direct(
+    remote_dest[["tag"]], remote_dest[["fn"]]
+  )) {
+    # create release if it doesn't exist
+    if (!.projr_remote_check_exists("github", remote_dest[["tag"]])) {
+      .projr_remote_create_github(remote_dest[["tag"]])
+    }
+    # upload empty asset, if that doesn't already exist
+    remote_dest_empty <- remote_dest
+    remote_dest_empty[["fn"]] <- gsub(
+      "\\.zip$", "-empty.zip", remote_dest_empty[["fn"]]
+    )
+    path_tmp <- tempdir()
+    file.create(file.path(path_tmp, "projr-empty"))
+    .projr_remote_file_add(
+      "github", remote_dest_empty, path_tmp, "projr-empty"
+    )
+  }
 }

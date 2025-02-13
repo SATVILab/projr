@@ -189,3 +189,83 @@ gh::gh(
 # empty directories
 # ---------------------
 
+# --------------------------
+# empty directory from the start
+# --------------------------
+
+dir_test <- .projr_test_setup_project(
+  git = TRUE, github = TRUE, set_env_var = TRUE
+)
+usethis::with_project(
+  path = dir_test,
+  code = {
+    browser()
+    projr_init_git()
+    .projr_yml_git_set_push(FALSE, TRUE, NULL)
+    # remove github remote
+    .projr_yml_dest_rm_type_all("default")
+    # add a local destination, that is never sent to
+    projr_yml_dest_add_github(
+      title = "latest",
+      content = "raw-data",
+      structure = "latest"
+    )
+    debugonce(.projr_dest_send_label)
+    projr::projr_build_patch()
+    expect_true(.projr_remote_check_exists("github", "latest"))
+    expect_true(.projr_remote_final_check_exists(
+      "github", "latest", "raw-data", "latest", NULL, NULL, NULL
+    ))
+    expect_true(dir.exists("_latest/raw-data"))
+    expect_false(file.exists("_latest/raw-data/data.csv"))
+    # add a file
+    file.create("_raw_data/data.csv")
+    projr::projr_build_patch()
+    expect_true(file.exists("_latest/raw-data/data.csv"))
+    # remove that one file
+    file.remove("_raw_data/data.csv")
+    projr::projr_build_patch()
+    expect_true(dir.exists("_latest/raw-data"))
+    expect_false(file.exists("_latest/raw-data/data.csv"))
+
+    # -------------------
+    # structure: archive
+    # -------------------
+
+    .projr_yml_dest_rm_type_all("default")
+    projr_yml_dest_add_local(
+      title = "archive",
+      content = "raw-data",
+      path = "_archive",
+      structure = "archive",
+      overwrite = TRUE
+    )
+    projr::projr_build_patch()
+    expect_true(dir.exists("_archive/raw-data/v0.0.4"))
+    expect_false(file.exists("_archive/raw-data/v0.0.4/data.csv"))
+    # add a file
+    # browser()
+    # debugonce(.projr_dest_send_label)
+    # browser()
+    file.create("_raw_data/data.csv")
+    projr::projr_build_patch() # problem isn't here,
+    # it's that manifest.csv for v0.0.4 
+    # says that data.csv is there when it isn't
+    expect_true(file.exists("_archive/raw-data/v0.0.5/data.csv"))
+    # remove that one file
+    file.remove("_raw_data/data.csv")
+    projr::projr_build_patch()
+    expect_true(dir.exists("_archive/raw-data/v0.0.6"))
+    expect_false(file.exists("_archive/raw-data/v0.0.6/data.csv"))
+    # keep it removed
+    projr::projr_build_patch()
+    expect_false(dir.exists("_archive/raw-data/v0.0.7"))
+  }
+)
+
+# delete the GitHub repo
+gh::gh(
+  "DELETE /repos/{username}/{pkg}",
+  username = gh::gh_whoami()$login,
+  pkg = basename(dir_test)
+)

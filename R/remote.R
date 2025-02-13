@@ -315,6 +315,25 @@ projr_osf_create_project <- function(title,
   )
 }
 
+.projr_remote_final_check_exists_github_direct <- function(tag, fn) {
+  if (!.projr_remote_check_exists("github", tag)) {
+    return(FALSE)
+  }
+  asset_tbl <- .projr_pb_asset_tbl_get(remote_pre[["tag"]])
+  # ensure it always ends in .zip
+  fn <- if (!grepl("\\.zip$", fn)) {
+    paste0(fn, ".zip")
+  } else {
+    fn
+  }
+  tryCatch(
+    fn %in% asset_tbl[["file_name"]],
+    error = function(e) {
+      FALSE
+    }
+  )
+}
+
 # =====================
 # get just the remote itself,
 # nothing more specific like sub-directories (OSF/local)
