@@ -14,7 +14,7 @@ projr_init <- function(git = TRUE,
                       .yml = FALSE,
                        lit_doc = NULL) {
 
-  #
+  # 
 
   # initialise Git
   .init_std_git(git, git_commit)
@@ -79,11 +79,9 @@ projr_init <- function(git = TRUE,
     "",
     "`[Methods, timeline, team, data sources, software/tools, etc.]`"
   )
-  writeLines(readme_contents, con = "README.md")
-  message("Created README.md.")
-  invisible(TRUE)
 }
 
+  try(source("renv/activate.R"), silent = TRUE)
 # ========================================
 # Git
 # ========================================
