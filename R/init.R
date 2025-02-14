@@ -114,3 +114,4 @@ projr_init_renv <- function(force = FALSE, bioc = TRUE) {
   .projr_dep_install_only("renv")
   .projr_init_renv(force, bioc, FALSE)
 }
+                       citation = FALSE {
