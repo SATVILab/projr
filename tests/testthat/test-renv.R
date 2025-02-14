@@ -1,4 +1,4 @@
-test_that(.renv_test successfully restores renv environment", {
+test_that("projr_renv_test successfully restores renv environment", {
   skip_if_offline()
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -26,7 +26,7 @@ test_that(.renv_test successfully restores renv environment", {
   expect_true(result)
 })
 
-test_that(.renv_test fails when it should", {
+test_that("projr_renv_test fails when it should", {
   skip_if_offline()
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -53,7 +53,7 @@ test_that(.renv_test fails when it should", {
   expect_false(result)
 })
 
-test_that(.renv_restore and.renv_update work with mixed repositories", {
+test_that("projr_renv_restore and.renv_update work with mixed repositories", {
   skip_if_offline()
   skip_if(.is_test_select())
 

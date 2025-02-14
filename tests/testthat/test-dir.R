@@ -1,4 +1,4 @@
-test_that(.path_get_dir works", {
+test_that("projr_path_get_dir works", {
   # setup
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
@@ -93,7 +93,7 @@ test_that(.path_get_dir works", {
   )
 })
 
-test_that(.path_get works", {
+test_that("projr_path_get works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
 
@@ -248,7 +248,7 @@ test_that(".dir_create works", {
   )
 })
 
-test_that(.dir_ignore works", {
+test_that("projr_dir_ignore works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 

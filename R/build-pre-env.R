@@ -33,8 +33,8 @@ projr_env_file_activate <- function(file = NULL) {
 
 .env_profile_get <- function() {
   quarto_profile_vec <- .env_profile_get_quarto()
- .profile_vec <- .env_profile_get_projr()
-  c(quarto_profile_vec,.profile_vec) |>
+  profile_vec <- .env_profile_get_projr()
+  c(quarto_profile_vec, profile_vec) |>
     setdiff("required") |>
     unique()
 }

@@ -53,7 +53,7 @@
   # TODO: start here
   manifest_remote <- .remote_get_manifest(type, remote_pre)
   manifest_append <- .empty_tbl_get_manifest(
-    label,.version_get() |> .version_v_rm()
+    label, projr_version_get() |> .version_v_rm()
   )
   manifest_append |>
     .manifest_append_previous_impl(manifest_remote) |>
@@ -67,7 +67,7 @@
 .dest_send_label_get_plan_get_version_min_acceptable <- function(version_comp,
                                                                        label,
                                                                        strategy) {
-  version_min_acceptable <-.version_get() |>
+  version_min_acceptable <- projr_version_get() |>
     .version_v_rm() |>
     package_version()
   if (is.null(version_comp)) {
@@ -78,7 +78,7 @@
     .manifest_filter_label(label)
   rownames(manifest_project) <- NULL
   manifest_latest <- manifest_project |>
-    .manifest_filter_version.version_get())
+    .manifest_filter_version(projr_version_get())
   version_vec <- manifest_latest[["version"]] |>
     .version_v_rm() |>
     package_version() |>

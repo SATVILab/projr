@@ -109,9 +109,9 @@ test_that(".yml_script_ functions work works with other profile", {
   usethis::with_project(
     path = dir_test,
     code = {
-      Sys.setenv(.PROFILE" = "test")
+      Sys.setenv("PROJR_PROFILE" = "test")
       withr::defer(
-        Sys.unsetenv(.PROFILE"),
+        Sys.unsetenv("PROJR_PROFILE"),
         envir = rlang::caller_env()
       )
       file.create("_projr-test.yml")

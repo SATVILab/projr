@@ -93,7 +93,7 @@
 #' otherwise written to `_projr-<profile>.yml`.
 #' The default is "default".
 #' @export
-#' @rdname.yml_dest_add_osf
+#' @rdname projr_yml_dest_add_osf
 projr_yml_dest_add_osf <- function(title,
                                    content,
                                    path = NULL,
@@ -134,7 +134,7 @@ projr_yml_dest_add_osf <- function(title,
   )
 }
 
-#' @rdname.yml_dest_add_osf
+#' @rdname projr_yml_dest_add_osf
 #' @export
 projr_yml_dest_add_osf_proj <- function(title,
                                         description = NULL,
@@ -151,7 +151,7 @@ projr_yml_dest_add_osf_proj <- function(title,
   )
 }
 
-#' @rdname.yml_dest_add_osf
+#' @rdname projr_yml_dest_add_osf
 #' @export
 projr_yml_dest_add_osf_comp <- function(title,
                                         description = NULL,
@@ -185,7 +185,7 @@ projr_yml_dest_add_osf_comp <- function(title,
 #' to a _projr.yml file.
 #'
 #'
-#' @inheritParams.yml_dest_add_osf
+#' @inheritParams projr_yml_dest_add_osf
 #'
 #' @param title character.
 #' The name of the directory.
@@ -198,7 +198,7 @@ projr_yml_dest_add_osf_comp <- function(title,
 #' Must be supplied.
 #'
 #' @export
-#' @rdname.yml_dest_add
+#' @rdname projr_yml_dest_add
 projr_yml_dest_add_local <- function(title,
                                      content,
                                      path,
@@ -244,7 +244,7 @@ projr_yml_dest_add_local <- function(title,
 #' Add a GitHub release as a destination
 #' to a _projr.yml file.
 #'
-#' @inheritParams.yml_dest_add_osf
+#' @inheritParams projr_yml_dest_add_osf
 #'
 #' @param title character.
 #' Title of the GitHub release.

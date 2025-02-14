@@ -90,7 +90,7 @@
 # build-manifest testing
 # ===============================
 
-test_that(.manifest_hash_dir works", {
+test_that("projr_manifest_hash_dir works", {
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
@@ -182,7 +182,7 @@ test_that(.manifest_hash_dir works", {
   )
 })
 
-test_that(.manifest_compare works", {
+test_that("projr_manifest_compare works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   .dir_create(dir_test)
@@ -1178,7 +1178,7 @@ if (sub_dir) {
 
 # old test-dir.R code (seems to be a repeat of earlier, but with bugs not fixed)
 
-test_that(.dir_ignore works", {
+test_that("projr_dir_ignore works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
@@ -1451,7 +1451,7 @@ while (x < 10) {
   # --------------------
 
   dir_version <-.path_get_dir("output", output_safe = FALSE)
-  version_fn <- paste0("VERSION - ",.version_get())
+  version_fn <- paste0("VERSION - ", projr_version_get())
   file.create(file.path(dir_version, version_fn))
 
   dir_tmp_vec_output <- list.dirs(
@@ -1780,7 +1780,7 @@ if (use_bd_vec) {
 # old archive
 # =====================
 
-test_that(.build_copy_dir works when archiving", {
+test_that("projr_build_copy_dir works when archiving", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   if (!dir.exists(dir_test)) dir.create(dir_test)
@@ -2390,7 +2390,7 @@ x <- readChar(fn_vec[1], file.info(fn_vec[1])$size)
 # OLD BUILD TESTING
 # =============================
 
-test_that(.build_output works", {
+test_that("projr_build_output works", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   if (!dir.exists(dir_test)) dir.create(dir_test)

@@ -24,7 +24,7 @@ test_that(".local_dir_create works", {
   )
 })
 
-test_that(.use_data works", {
+test_that("projr_use_data works", {
   skip_if(.is_test_select())
   # skips
 

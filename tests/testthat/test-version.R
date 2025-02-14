@@ -130,7 +130,7 @@ test_that(".version_format_check works", {
 })
 
 
-test_that(.version_get works", {
+test_that("projr_version_get works", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -141,17 +141,17 @@ test_that(.version_get works", {
       expect_identical(
         .version_current_vec_get(), c(rep(0L, 3), 1L)
       )
-     .version_set("7.9.2-1")
+     projr_version_set("7.9.2-1")
       expect_identical.version_get(), "7.9.2-1")
-     .version_set("7.9.2")
+     projr_version_set("7.9.2")
       expect_identical.version_get(), "7.9.2")
       expect_identical(.version_get(dev_force = TRUE), "7.9.2-1")
       expect_identical.version_get(), "7.9.2")
       .yml_metadata_set_version_format("major.dev", NULL)
 
-     .version_set("0.1")
+     projr_version_set("0.1")
       expect_identical.version_get(), "0.1")
-      expect_error.version_set())
+      expect_errorprojr_version_set())
     },
     force = TRUE,
     quiet = TRUE
@@ -167,7 +167,7 @@ test_that(".version_run_onwards_get works", {
   usethis::with_project(
     path = dir_test,
     code = {
-     .version_set("0.42.33-1")
+     projr_version_set("0.42.33-1")
       # debugonce(.version_run_onwards_get)
       # debugonce(.version_run_onwards_get_output)
       expect_identical(
@@ -178,7 +178,7 @@ test_that(".version_run_onwards_get works", {
           )
         )
       )
-     .version_set("0.42.33-9001")
+     projr_version_set("0.42.33-9001")
       expect_identical(
         .version_run_onwards_get("major"),
         list(
@@ -187,7 +187,7 @@ test_that(".version_run_onwards_get works", {
           )
         )
       )
-     .version_set("0.42.33-1")
+     projr_version_set("0.42.33-1")
       expect_identical(
         .version_run_onwards_get("dev"),
         list(
@@ -204,7 +204,7 @@ test_that(".version_run_onwards_get works", {
           )
         )
       )
-     .version_set("0.42.33")
+     projr_version_set("0.42.33")
       expect_identical(
         .version_run_onwards_get(NULL),
         list(
@@ -213,7 +213,7 @@ test_that(".version_run_onwards_get works", {
           )
         )
       )
-     .version_set("0.42.33")
+     projr_version_set("0.42.33")
       expect_identical(
         .version_run_onwards_get("patch"),
         list(
@@ -229,7 +229,7 @@ test_that(".version_run_onwards_get works", {
 })
 
 
-test_that(.version_set works", {
+test_that("projr_version_set works", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -238,10 +238,10 @@ test_that(.version_set works", {
     path = dir_test,
     code = {
       .yml_metadata_set_version_format("major.dev", NULL)
-     .version_set("1.2")
+     projr_version_set("1.2")
       desc <- .desc_get()
       expect_identical(desc[1, "Version"][[1]], "1.2")
-     .version_set("1.4")
+     projr_version_set("1.4")
       desc <- .desc_get()
       expect_identical(desc[1, "Version"][[1]], "1.4")
       invisible(.version_bump_dev())

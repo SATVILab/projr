@@ -1,4 +1,4 @@
-test_that(.profile_get, _set and _create work", {
+test_that("projr_profile_get, _set and _create work", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
   withr::defer(.test_unset())
@@ -29,12 +29,12 @@ test_that(.profile_get, _set and _create work", {
       # --------------------------------
       expect_error(.profile_create(silent = "wingbats"))
       yml.init <- .yml_get_default_raw()
-      Sys.unsetenv(.PROFILE")
+      Sys.unsetenv("PROJR_PROFILE")
       expect_identical.profile_get(), "default")
-      Sys.setenv(.PROFILE" = "abc")
+      Sys.setenv("PROJR_PROFILE" = "abc")
 
       expect_identical.profile_get(), "abc")
-      Sys.unsetenv(.PROFILE")
+      Sys.unsetenv("PROJR_PROFILE")
       # test "protected" profiles
       expect_error.profile_create("local"))
       expect_error.profile_create("default"))
@@ -80,12 +80,12 @@ test_that(.profile_get, _set and _create work", {
       # default
      .profile <-.profile_get()
       expect_identical.profile_get(), "default")
-      Sys.setenv(.PROFILE" = "abc")
+      Sys.setenv("PROJR_PROFILE" = "abc")
       expect_identical.profile_get(), "abc")
       #.PROFILE that exists
      .profile_create(profile = "abc")
       expect_identical.profile_get(), "abc")
-      Sys.unsetenv(.PROFILE")
+      Sys.unsetenv("PROJR_PROFILE")
       expect_identical.profile_get(), "default")
       .yml_set(yml.init)
       invisible(file.remove("_projr-abc.yml"))
@@ -96,7 +96,7 @@ test_that(.profile_get, _set and _create work", {
       # test precedence works correctly
      .profile_create("test_profile_hidden")
       # should get the projr profile back
-      Sys.setenv(.PROFILE" = "test_profile_hidden")
+      Sys.setenv("PROJR_PROFILE" = "test_profile_hidden")
       expect_identical.profile_get(), "test_profile_hidden")
 
       # delecting a a projr profile
@@ -110,12 +110,12 @@ test_that(.profile_get, _set and _create work", {
       expect_error.profile_delete("default"))
 
       # deleting it anywhere
-      Sys.setenv(.PROFILE" = "xyz")
+      Sys.setenv("PROJR_PROFILE" = "xyz")
      .profile_create()
       expect_true(file.exists("_projr-xyz.yml"))
      .profile_delete.profile_get())
       expect_false(file.exists("_projr-xyz.yml"))
-      Sys.unsetenv(.PROFILE")
+      Sys.unsetenv("PROJR_PROFILE")
       .test_unset()
     },
     quiet = TRUE,
@@ -123,7 +123,7 @@ test_that(.profile_get, _set and _create work", {
   )
 })
 
-test_that(.profile_create_local works", {
+test_that("projr_profile_create_local works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
   withr::defer(unlink(dir_test, recursive = TRUE))

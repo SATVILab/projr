@@ -1,5 +1,5 @@
 #' @title Set Project Version
-#' @rdname.version_set
+#' @rdname projr_version_set
 #'
 #' @description
 #' Sets the project version manually in the `DESCRIPTION` file and optionally in a `VERSION` file.
@@ -336,7 +336,7 @@ projr_version_get <- function() {
     }
   }
   version_new <- .version_chr_get(version_current_vec)
- .version_set(version = version_new)
+ projr_version_set(version = version_new)
   version_new
 }
 
@@ -376,7 +376,7 @@ projr_version_get <- function() {
   file.path(path, .version_get_v())
 }
 .version_get_v <- function() {
-  paste0("v",.version_get())
+  paste0("v", projr_version_get())
 }
 
 .version_get_latest <- function(x) {

@@ -130,27 +130,27 @@
 # ignore
 .build_ignore <- function() {
   old_profile <- .profile_get_raw()
-  Sys.unsetenv(.PROFILE")
+  Sys.unsetenv("PROJR_PROFILE")
  .path_get_dir("docs")
   if (!identical(old_profile, "default")) {
-    Sys.setenv(.PROFILE" = old_profile)
+    Sys.setenv("PROJR_PROFILE" = old_profile)
   }
  .ignore_auto()
   invisible(TRUE)
 }
 
 .build_version_set_pre <- function(version_run_on_list) {
- .version_set(version_run_on_list$desc[["run"]])
+ projr_version_set(version_run_on_list$desc[["run"]])
   invisible(TRUE)
 }
 
-.build_doc_output_dir_update <- function(output_run) {
+.build_doc_oilutput_dir_update <- function(output_run) {
   # sets docs directory correctly whenever called
   invisible(.dir_get_label("docs", safe = !output_run))
 }
 
 .build_ensure_dev_version <- function() {
   .version_get(dev_force = TRUE) |>
-   .version_set()
+   projr_version_set()
   invisible(TRUE)
 }

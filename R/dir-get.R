@@ -241,7 +241,7 @@
 }
 
 #' @title Get `projr` build cache directory
-#' @rdname.path_get_cache_build
+#' @rdname projr_path_get_cache_build
 #'
 #' @description Get the cache directory for `projr` builds.
 #' It is a sub-directory of the cache directory.
@@ -274,7 +274,7 @@
 #' @export
 projr_path_get_cache_build_dir <- .dir_get_cache_auto_version
 
-#' @rdname.path_get_cache_build
+#' @rdname projr_path_get_cache_build
 #' @export
 projr_path_get_cache_build <- .path_get_cache_auto_version
 

@@ -1,4 +1,4 @@
-test_that(.source_add_osf works", {
+test_that("projr_source_add_osf works", {
   skip_if_offline()
   skip_if(FALSE)
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -63,7 +63,7 @@ test_that(.source_add_osf works", {
   )
 })
 
-test_that(.dest_add_osf works", {
+test_that("projr_dest_add_osf works", {
   skip_if_offline()
   skip_if(FALSE)
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)

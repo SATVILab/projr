@@ -1,4 +1,4 @@
-test_that(.yml_dest_add* functions work", {
+test_that("projr_yml_dest_add* functions work", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE

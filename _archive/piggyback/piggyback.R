@@ -13,7 +13,7 @@
     renv::install("piggyback", prompt = FALSE)
     .dep_add("piggyback")
   }
-  for (i in seq_along.yml_get()[["build"]][["github"]])) {
+  for (i in seq_along(projr_yml_get()[["build"]][["github"]])) {
     gh_tbl_release <- .pb_release_tbl_get()
     if (inherits(gh_tbl_release, "try-error")) {
       break

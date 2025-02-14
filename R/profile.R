@@ -132,14 +132,14 @@ projr_profile_get <- function() {
 .profile_get_var <- function() {
   # get explicitly specified.PROFILES
   # (other than "default")
- .profile <- .profile_get_var_unsplit()
-  if (!nzchar.profile)) {
+  profile <- .profile_get_var_unsplit()
+  if (!nzchar(profile)) {
     return(character())
   }
- .profile_vec <- strsplit.profile, ",")[[1]]
-  vapply.profile_vec, trimws, character(1)) |>
-    setdiff(c("default", "local", "")) |>
-    stats::setNames(NULL)
+ profile_vec <- strsplit(profile, ",")[[1]]
+ vapply(profile_vec, trimws, character(1)) |>
+   setdiff(c("default", "local", "")) |>
+   stats::setNames(NULL)
 }
 
 .profile_get_var_unsplit <- function() {
@@ -148,7 +148,7 @@ projr_profile_get <- function() {
 }
 
 .profile_get_raw <- function() {
-  Sys.getenv(.PROFILE")
+  Sys.getenv("PROJR_PROFILE")
 }
 
 #' @title Delete a projr profile from _projr.yml

@@ -43,7 +43,7 @@
     "Snapshot pre-build"
   } else {
     paste0(
-      "Build v",.version_get(), ": ",
+      "Build v", projr_version_get(), ": ",
       trimws(msg)
     )
   }

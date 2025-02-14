@@ -1,4 +1,4 @@
-test_that(.build_output works - osf - latest", {
+test_that("projr_build_output works - osf - latest", {
   skip_if(.is_test_select())
   skip_if(.is_test_fast())
   skip_if(Sys.getenv("GITHUB_ACTIONS") == "true")

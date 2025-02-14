@@ -108,7 +108,7 @@
   # not going to adjust old versions so it's basically
   # just upload all
   if (cue == "always" || strategy == "upload-missing") {
-    return.version_get() |> .version_v_rm())
+    return(projr_version_get() |> .version_v_rm())
   }
   # now we see if we can compare against an archived remote
   .dest_send_label_get_remotes_get_version_comp_archive(
@@ -132,7 +132,7 @@
            remote_pre,
            type,
            label) { # nolint
-    version_project <-.version_get() |> .version_v_rm()
+    version_project <- projr_version_get() |> .version_v_rm()
     version_comp_untrusted <- if (inspect == "file") version_project else NULL
     version_remote <- .remote_get_version_label(
       remote_pre, type, label, "latest"
@@ -156,7 +156,7 @@
   # return `NULL` to indicate untrusted manifests.
   # otherwise return `NULL`, indicating we trust nothing,
   # if we would not consider the manifest
-  version_project <-.version_get() |> .version_v_rm()
+  version_project <- projr_version_get() |> .version_v_rm()
   version_comp_no_trusted_archive <- NULL
   version_min_acceptable <-
     .manifest_get_version_earliest_match(label, NULL) |>
@@ -280,7 +280,7 @@
 .dest_send_label_get_manifest_source <- function(label) {
   .remote_get_manifest("project") |>
     .manifest_filter_label(label) |>
-    .manifest_filter_version.version_get())
+    .manifest_filter_version(projr_version_get())
 }
 
 .dest_send_label_get_plan_fn_upload_missing <- function(inspect,
@@ -380,7 +380,7 @@
 
 .dest_send_label_get_manifest_remote_manifest <- # nolint
   function(type, remote_pre, label, version = NULL) {
-    version <- if (is.null(version)).version_get() else version
+    version <- if (is.null(version)) projr_version_get() else version
     .remote_get_manifest(type, remote_pre) |>
       .manifest_filter_label(label) |>
       .manifest_filter_version(version)
@@ -482,13 +482,13 @@
   if (rm_existing_all) {
     manifest_remote <- manifest_remote |>
       .manifest_filter_out_version_label(
-       .version_get(), label
+        projr_version_get(), label
       )
   }
   if (rm_adding) {
     manifest_remote_existing <- manifest_remote |>
       .manifest_filter_label(label) |>
-      .manifest_filter_version.version_get())
+      .manifest_filter_version(projr_version_get())
     manifest_append <-
       .dest_send_label_get_plan_action_manifest_rm_existing(
         manifest_append, label, manifest_remote_existing
@@ -506,7 +506,7 @@
            manifest_append) {
     manifest_remote_version_label <- manifest_remote |>
       .manifest_filter_label(label) |>
-      .manifest_filter_version.version_get())
+      .manifest_filter_version(projr_version_get())
     rn_vec_init <- rownames(manifest_remote_version_label)
     manifest_remote_version_label <- manifest_remote_version_label[
       !manifest_remote_version_label[["fn"]] %in% manifest_append[["fn"]]

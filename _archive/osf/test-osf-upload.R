@@ -156,7 +156,7 @@ test_that(".osf_send_dir and _missing work", {
       )
       for (x in path_file_extra) file.create(path_file_extra)
       fn_vec <- list.files.path_get("raw-data"), recursive = TRUE)
-     .version_set("0.0.1")
+     projr_version_set("0.0.1")
       .test_manifest_create()
 
       # upload
@@ -253,7 +253,7 @@ test_that(".osf_send_dir and _missing work", {
       )
 
       # bump version, but expect no upload as nothing changed
-     .version_set("0.0.2")
+     projr_version_set("0.0.2")
       .test_manifest_create()
 
       path_dir_local <-.path_get_dir("raw-data")
@@ -289,7 +289,7 @@ test_that(".osf_send_dir and _missing work", {
       # change a file
       writeLines(c("change"),.path_get("raw-data", "abc.txt"))
 
-     .version_set("v0.0.3")
+     projr_version_set("v0.0.3")
       manifest <- .test_manifest_create()
       # upload
       .osf_send_version(

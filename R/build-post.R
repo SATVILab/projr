@@ -78,7 +78,7 @@
   file_vec <- readLines(.path_get("CITATION.cff"))
   file_vec <- gsub(
     "^version::\\s*\"?[^\"]*\"",
-    paste0("version: ",.version_get()),
+    paste0("version: ", projr_version_get()),
     file_vec
   )
     # Update the preferred-citation version if it exists
@@ -88,7 +88,7 @@
       if (grepl("^\\s*version\\s*:\\s*\"?[^\"]*\"", file_vec[i])) {
         file_vec[i] <- gsub(
           "^\\s*version\\s*:\\s*\"?[^\"]*\"",
-          paste0("  version: ",.version_get()),
+          paste0("  version: ", projr_version_get()),
           file_vec[i]
         )
         break
@@ -111,7 +111,7 @@
   file_vec <- readLines(.path_get("inst", "CITATION"))
   file_vec <- gsub(
     "^\\s*version\\s*=\\s*\"[^\"]*\"(,?)",
-    paste0("version = ",.version_get(), "\\1"),
+    paste0("version = ", projr_version_get(), "\\1"),
     file_vec
   )
   writeLines(file_vec, .path_get("inst", "CITATION"))
@@ -129,7 +129,7 @@
   file_vec <- readLines(.path_get("codemeta.json"))
   file_vec <- gsub(
     "^\\s*\"version\"\\s*:\\s*\"[^\"]*\"(,?)",
-    paste0("\"version\": \"",.version_get(), "\"\\1"),
+    paste0("\"version\": \"", projr_version_get(), "\"\\1"),
     file_vec
   )
   writeLines(file_vec, .path_get("codemeta.json"))
@@ -159,9 +159,9 @@
   readme_rmd <- readLines(.path_get("README.Rmd"))
   pkg_use_detected_lib <- grepl(
     paste0(
-      "library\\(",.name_get(), "\\)|",
-      'library\\("',.name_get(), '"\\)|',
-      "library\\('",.name_get(), "'\\)"
+      "library\\(", projr_name_get(), "\\)|",
+      'library\\("', projr_name_get(), '"\\)|',
+      "library\\('", projr_name_get(), "'\\)"
     ),
     readme_rmd
   ) |>
@@ -196,6 +196,6 @@
   if (success) {
     return(invisible(FALSE))
   }
- .version_set(version_run_on_list$desc[["failure"]])
+ projr_version_set(version_run_on_list$desc[["failure"]])
   invisible(TRUE)
 }

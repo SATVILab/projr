@@ -393,10 +393,10 @@
     match_str_top, match_str_bottom, rbuildignore_vec
   )
   
- .ignore_ind_top <- which(grepl(match_str_top, rbuildignore_vec))
- .ignore_ind_bot <- which(grepl(match_str_bottom, rbuildignore_vec))
+ ignore_ind_top <- which(grepl(match_str_top, rbuildignore_vec))
+ ignore_ind_bot <- which(grepl(match_str_bottom, rbuildignore_vec))
 
-  if (length.ignore_ind_top) == 0L) {
+  if (length(ignore_ind_top) == 0L) {
     return(list(
       start = c(
         rbuildignore_vec,
@@ -407,8 +407,8 @@
   }
   
   list(
-    start = rbuildignore_vec[seq_len.ignore_ind_top)],
-    end = rbuildignore_vec[seq.ignore_ind_bot, length(rbuildignore_vec))]
+    start = rbuildignore_vec[seq_len(ignore_ind_top)],
+    end = rbuildignore_vec[seq(ignore_ind_bot, length(rbuildignore_vec))]
   )
 }
 
@@ -416,16 +416,16 @@
                                                       match_str_bottom,
                                                       rbuildignore_vec) {
   # validate that the Projr-managed section in .Rbuildignore is well-formed
- .ignore_ind_bot <- which(grepl(match_str_bottom, rbuildignore_vec))
- .ignore_ind_top <- which(grepl(match_str_top, rbuildignore_vec))
+ ignore_ind_bot <- which(grepl(match_str_bottom, rbuildignore_vec))
+ ignore_ind_top <- which(grepl(match_str_top, rbuildignore_vec))
   
-  if (length.ignore_ind_top) > 1 ||
-      length.ignore_ind_bot) > 1) {
+  if (length(ignore_ind_top) > 1 ||
+      length(ignore_ind_bot) > 1) {
     stop("Multiple projr sections found in .Rbuildignore")
   }
   
-  found_top <- length.ignore_ind_top) == 1
-  found_bottom <- length.ignore_ind_bot) == 1
+  found_top <- length(ignore_ind_top) == 1
+  found_bottom <- length(ignore_ind_bot) == 1
   
   if (found_top && !found_bottom) {
     stop("Found start of projr section but not end in .Rbuildignore")
@@ -436,7 +436,7 @@
   }
   
   if (found_top && found_bottom) {
-    if .ignore_ind_top >.ignore_ind_bot) {
+    if (ignore_ind_top >ignore_ind_bot) {
       stop("Start of projr section found after end in .Rbuildignore")
     }
   }

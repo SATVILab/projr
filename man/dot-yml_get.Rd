@@ -29,5 +29,5 @@ Where there are conflicts, local settings has highest precedence
 (i.e. are never preferred).
 }
 \seealso{
-projr_yml_get.yml_check
+.yml_get.yml_check
 }

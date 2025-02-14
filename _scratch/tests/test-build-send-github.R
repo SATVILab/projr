@@ -1,4 +1,4 @@
-test_that(.build_output works - github - latest", {
+test_that("projr_build_output works - github - latest", {
   skip_if(.is_test_select())
   skip_if(.is_test_fast())
   dir_test <- .test_setup_project(
@@ -15,15 +15,15 @@ test_that(.build_output works - github - latest", {
       .yml_git_set_add_untracked(TRUE, TRUE, NULL)
       .yml_git_set_push(FALSE, TRUE, NULL)
      .build_output("patch", msg = "test")
-     .version_get()
-      expect_identical.version_get(), "0.0.1")
+     projr_version_get()
+      expect_identical(projr_version_get(), "0.0.1")
       yml_bd <- .yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "_book")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
       # run repeat build
      .build_output("minor", msg = "test")
-      expect_identical.version_get(), "0.1.0")
+      expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
       # raw-data and source are empty
      .yml_dest_add_github(

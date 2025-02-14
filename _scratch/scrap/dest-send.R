@@ -117,7 +117,7 @@
   manifest_project <- .manifest_read_project()
   manifest_add <- manifest_project |>
     .manifest_filter_label(label) |>
-    .manifest_filter_version(projr:.version_get())
+    .manifest_filter_version(projr:projr_version_get())
   manifest_final <-
     .manifest_append_previous_impl(manifest_add, manifest_remote) |>
     .manifest_remove_duplicate()

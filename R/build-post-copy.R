@@ -102,7 +102,7 @@
 .build_copy_pkg_build_get_path <- function() {
   path_dir_pkg <-
     version_pkg <- .desc_get()[, "Version"][[1]]
-  fn_pkg <- paste0.name_get(), "_", version_pkg, ".tar.gz")
+  fn_pkg <- paste0(projr_name_get(), "_", version_pkg, ".tar.gz")
   file.path(path_dir_pkg, fn_pkg)
 }
 

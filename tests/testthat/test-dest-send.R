@@ -1,4 +1,4 @@
-test_that(.yml_dest_add* functions work", {
+test_that("projr_yml_dest_add* functions work", {
   # skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
@@ -106,7 +106,7 @@ test_that(.yml_dest_add* functions work", {
 # actually sending
 # --------------------------
 
-test_that(.dest_send works - local", {
+test_that("projr_dest_send works - local", {
   # skip_if(.is_test_select()
   dir_test <- .test_setup_project(
     git = TRUE, github = FALSE, set_env_var = TRUE
@@ -246,7 +246,7 @@ test_that(.dest_send works - local", {
 # empty directory from the start
 # --------------------------
 
-test_that(.dest_send works - local - empty dirs", {
+test_that("projr_dest_send works - local - empty dirs", {
   # skip_if(.is_test_select()
   dir_test <- .test_setup_project(
     git = TRUE, github = FALSE, set_env_var = TRUE

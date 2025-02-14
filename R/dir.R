@@ -43,7 +43,7 @@
 #' Do not change this unless you know what you are doing.
 #' @return Character.
 #' Path to directory requested.
-#' @rdname.path_get_dir
+#' @rdname projr_path_get_dir
 #' @export
 projr_path_get_dir <- function(label, ...,
                                create = TRUE,
@@ -172,7 +172,7 @@ projr_path_get_dir <- function(label, ...,
 #'   # EXAMPLE1
 #' }
 #' }
-#' @rdname.path_get
+#' @rdname projr_path_get
 #' @export
 projr_path_get <- function(label, ...,
                            create = TRUE,
@@ -192,7 +192,7 @@ projr_path_get <- function(label, ...,
   }
   if (length(args_dotted) > 1) {
     path_dir <- do.call(
-      what = .path_get_dir",
+      what = ".path_get_dir",
       args = list(
         label = label,
         args_dotted[-length(args_dotted)] |> unlist(),

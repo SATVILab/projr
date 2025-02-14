@@ -184,12 +184,12 @@
 
 .version_file_update_project_version <- function(version_file) { # nolint: object_length_linter, line_length_linter.
   if (.is_len_0(version_file)) {
-    return(paste0("Project: ",.version_get()))
+    return(paste0("Project: ", projr_version_get()))
   }
   if (any(grepl("^Project: ", version_file))) {
     version_file <- version_file[!grepl("^Project: ", version_file)]
   }
-  c(paste0("Project: ",.version_get()), version_file)
+  c(paste0("Project: ", projr_version_get()), version_file)
 }
 
 .version_file_update_label_version <- function(version_file, # nolint
@@ -246,7 +246,7 @@
     .manifest_filter_label(label)
   rownames(manifest_project) <- NULL
   manifest_latest <- manifest_project |>
-    .manifest_filter_version.version_get())
+    .manifest_filter_version(projr_version_get())
   manifest_latest <- manifest_latest[, c("label", "fn", "hash")]
   version_vec <- manifest_project[["version"]] |>
     .version_v_rm() |>

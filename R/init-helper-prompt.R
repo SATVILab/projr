@@ -26,7 +26,7 @@
   }
   # choose question scheme when
   # pre-specified options given
-  default_given <- nzchar(Sys.getenv(paste0(.", .var))) ||
+  default_given <- nzchar(Sys.getenv(paste0("PROJR_", .var))) ||
     !is.null(option_default)
 
   # return auto answer
@@ -107,7 +107,7 @@
   request_default <- paste0("Please select ", nm_item_long, ".")
   request_default_n <- paste0("Please specify the ", nm_item_long, ".")
   # add variable to default
-  nm_item_var <- strsplit(Sys.getenv(paste0(.", .var)), ";")[[1]]
+  nm_item_var <- strsplit(Sys.getenv(paste0("PROJR_", .var)), ";")[[1]]
   nm_item_default <- c(nm_item_var, option_default)
   # add alternative items to what we can ask
   nm_item_vec_full <- c(nm_item_default, option_other)

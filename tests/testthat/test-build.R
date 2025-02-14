@@ -1,6 +1,6 @@
 # bookdown
 # ------------------------
-test_that(.build_dev works", {
+test_that("projr_build_dev works", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -22,7 +22,7 @@ test_that(.build_dev works", {
   )
 })
 
-test_that(.build_output works", {
+test_that("projr_build_output works", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -52,7 +52,7 @@ test_that(.build_output works", {
 # quarto project
 # ------------------------
 
-test_that(.build_ works with quarto projects", {
+test_that("projr_build_ works with quarto projects", {
   dir_test <- .test_setup_project(
     git = FALSE, set_env_var = TRUE
   )
@@ -224,7 +224,7 @@ test_that(".build_copy_to_unsafe works", {
   )
 })
 
-test_that(.build_copy_pkg works", {
+test_that("projr_build_copy_pkg works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -275,7 +275,7 @@ test_that(.build_copy_pkg works", {
   )
 })
 
-test_that(.build_copy_dir works when outputting", {
+test_that("projr_build_copy_dir works when outputting", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -341,7 +341,7 @@ test_that(.build_copy_dir works when outputting", {
         file.create(
          .path_get(
             "docs",
-            paste0.name_get(), "V",.version_get()),
+            paste0(projr_name_get(), "V", projr_version_get()),
             "c.txt",
             safe = TRUE
           )
@@ -434,7 +434,7 @@ test_that(.build_copy_dir works when outputting", {
   )
 })
 
-test_that(.build_frontmatter_get works", {
+test_that("projr_build_frontmatter_get works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 

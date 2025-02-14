@@ -46,9 +46,9 @@ projr_par_get <- function(..., profile = NULL) {
   eval(parse(text = parse_txt))
 }
 
-#' @rdname.par_get
+#' @rdname projr_par_get
 #' @export
-projr_param_get <-.par_get
+projr_param_get <- projr_par_get
 
 #' @title Add the `parameters` key
 #'

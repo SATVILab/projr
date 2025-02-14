@@ -1,4 +1,4 @@
-test_that(.init works", {
+test_that("projr_init works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -240,7 +240,7 @@ test_that(".init_readme works", {
   )
 })
 
-test_that(.init_bookdown works", {
+test_that("projr_init_bookdown works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -275,7 +275,7 @@ test_that(.init_bookdown works", {
   )
 })
 
-test_that(.init_quarto_project works", {
+test_that("projr_init_quarto_project works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -316,7 +316,7 @@ test_that(.init_quarto_project works", {
   )
 })
 
-test_that(.init_quarto_document works", {
+test_that("projr_init_quarto_document works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -350,7 +350,7 @@ test_that(.init_quarto_document works", {
   )
 })
 
-test_that(.init_rmd works", {
+test_that("projr_init_rmd works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)

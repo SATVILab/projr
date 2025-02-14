@@ -12,11 +12,11 @@
     # allowing multiple profiles, should
     # make priority match up with quartos.
     # quarto uses the first profile as the dominant one
-   .profile_vec <- .profile_get_var() |>
+   projr_profile_vec <- .profile_get_var() |>
       rev()
-    for (i in seq_along.profile_vec)) {
-      if (!is.null(.yml_dir_get_path("docs",.profile_vec[[i]]))) {
-        profile_save <-.profile_vec[[i]]
+    for (i in seq_along(projr_profile_vec)) {
+      if (!is.null(.yml_dir_get_path("docs", projr_profile_vec[[i]]))) {
+        profile_save <- projr_profile_vec[[i]]
       }
     }
   } else {

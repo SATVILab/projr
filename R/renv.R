@@ -29,7 +29,7 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   # Initializes renv, copies files, disables cache, and runs renv::restore().
   # Optionally deletes the restored library path afterwards.
 
-  working_dir <- tempfile(.renv_test_")
+  working_dir <- tempfile("projr_renv_test_")
   dir.create(working_dir, recursive = TRUE, showWarnings = FALSE)
 
   wd_old <- getwd()
@@ -354,7 +354,7 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
 #' }
 #'
 #' @export
-#' @rdname.renv_restore
+#' @rdname projr_renv_restore
 projr_renv_restore <- function(github = TRUE,
                                non_github = TRUE,
                                biocmanager_install = FALSE) {
@@ -378,7 +378,7 @@ projr_renv_restore <- function(github = TRUE,
 }
 
 #' @export
-#' @rdname.renv_restore
+#' @rdname projr_renv_restore
 projr_renv_update <- function(github = TRUE,
                               non_github = TRUE,
                               biocmanager_install = FALSE) {
@@ -402,7 +402,7 @@ projr_renv_update <- function(github = TRUE,
 }
 
 #' @export
-#' @rdname.renv_restore
+#' @rdname projr_renv_restore
 projr_renv_restore_and_update <- function(github = TRUE,
                                           non_github = TRUE,
                                           biocmanager_install = FALSE) {

@@ -1,4 +1,4 @@
-#' @rdname.build_output
+#' @rdname projr_build_output
 #' @title Build project to output
 #'
 #' @description .build_output` Builds project to output, which
@@ -79,7 +79,7 @@ projr_build_output <- function(bump_component,
   )
 }
 
-#' @rdname.build_output
+#' @rdname projr_build_output
 #' @export
 projr_build_major <- function(msg = NULL,
                               args_engine = list(),
@@ -96,7 +96,7 @@ projr_build_major <- function(msg = NULL,
   )
 }
 
-#' @rdname.build_output
+#' @rdname projr_build_output
 #' @export
 projr_build_minor <- function(msg = NULL,
                               args_engine = list(),
@@ -113,7 +113,7 @@ projr_build_minor <- function(msg = NULL,
   )
 }
 
-#' @rdname.build_output
+#' @rdname projr_build_output
 #' @export
 projr_build_patch <- function(msg = NULL,
                               args_engine = list(),
@@ -188,9 +188,9 @@ projr_build_dev <- function(file = NULL,
                          upload_github = FALSE,
                          upload_force = TRUE) {
   if (!is.null(profile)) {
-    old_profile <- Sys.getenv(.PROFILE")
-    Sys.setenv.PROFILE = profile)
-    on.exit(Sys.setenv.PROFILE = old_profile))
+    old_profile <- Sys.getenv("PROJR_PROFILE")
+    Sys.setenv(PROJR_PROFILE = profile)
+    on.exit(Sys.setenv(PROJR_PROFILE = old_profile))
   }
  .env_file_activate()
   version_run_on_list <- .build_pre(bump_component, msg)

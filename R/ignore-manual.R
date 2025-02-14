@@ -67,7 +67,7 @@ projr_ignore_manual <- function(ignore) {
  .ignore_manual_dir_rbuild(ignore_dir)
 }
 
-#' @rdname.ignore_manual
+#' @rdname projr_ignore_manual
 #' @export
 projr_ignore_manual_dir <- function(ignore) {
   ignore <- setdiff(ignore, "")
@@ -78,7 +78,7 @@ projr_ignore_manual_dir <- function(ignore) {
  .ignore_manual_dir_rbuild(ignore)
 }
 
-#' @rdname.ignore_manual
+#' @rdname projr_ignore_manual
 #' @export
 projr_ignore_manual_file <- function(ignore) {
   ignore <- setdiff(ignore, "")
@@ -89,7 +89,7 @@ projr_ignore_manual_file <- function(ignore) {
  .ignore_manual_file_rbuild(ignore)
 }
 
-#' @rdname.ignore_manual
+#' @rdname projr_ignore_manual
 #' @export
 projr_ignore_manual_file_git <- function(ignore) {
   ignore <- setdiff(ignore, "")
@@ -99,7 +99,7 @@ projr_ignore_manual_file_git <- function(ignore) {
   .ignore_manual_path_add(ignore, .path_get(".gitignore"))
 }
 
-#' @rdname.ignore_manual
+#' @rdname projr_ignore_manual
 #' @export
 projr_ignore_manual_dir_git <- function(ignore) {
   ignore <- setdiff(ignore, "")
@@ -116,7 +116,7 @@ projr_ignore_manual_dir_git <- function(ignore) {
   .ignore_manual_path_add(ignore, .path_get(".gitignore"))
 }
 
-#' @rdname.ignore_manual
+#' @rdname projr_ignore_manual
 #' @export
 projr_ignore_manual_file_rbuild <- function(ignore) {
   ignore <- setdiff(ignore, "")
@@ -129,7 +129,7 @@ projr_ignore_manual_file_rbuild <- function(ignore) {
   .ignore_manual_path_add(ignore, .path_get(".Rbuildignore"))
 }
 
-#' @rdname.ignore_manual
+#' @rdname projr_ignore_manual
 #' @export
 projr_ignore_manual_dir_rbuild <- function(ignore) {
   ignore <- setdiff(ignore, "")

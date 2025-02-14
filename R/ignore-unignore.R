@@ -71,7 +71,7 @@ projr_unignore_manual <- function(unignore) {
  .unignore_manual_dir_rbuild(unignore_dir)
 }
 
-#' @rdname.unignore_manual
+#' @rdname projr_unignore_manual
 #' @export
 projr_unignore_manual_dir <- function(unignore) {
   unignore <- setdiff(unignore, "")
@@ -82,7 +82,7 @@ projr_unignore_manual_dir <- function(unignore) {
  .unignore_manual_dir_rbuild(unignore)
 }
 
-#' @rdname.unignore_manual
+#' @rdname projr_unignore_manual
 #' @export
 projr_unignore_manual_file <- function(unignore) {
   unignore <- setdiff(unignore, "")
@@ -93,7 +93,7 @@ projr_unignore_manual_file <- function(unignore) {
  .unignore_manual_file_rbuild(unignore)
 }
 
-#' @rdname.unignore_manual
+#' @rdname projr_unignore_manual
 #' @export
 projr_unignore_manual_file_git <- function(unignore) {
   unignore <- setdiff(unignore, "")
@@ -106,7 +106,7 @@ projr_unignore_manual_file_git <- function(unignore) {
   .unignore_manual_path_add(unignore, .path_get(".gitignore"))
 }
 
-#' @rdname.unignore_manual
+#' @rdname projr_unignore_manual
 #' @export
 projr_unignore_manual_dir_git <- function(unignore) {
   unignore <- setdiff(unignore, "")
@@ -121,7 +121,7 @@ projr_unignore_manual_dir_git <- function(unignore) {
   .unignore_manual_path_add(unignore, .path_get(".gitignore"))
 }
 
-#' @rdname.unignore_manual
+#' @rdname projr_unignore_manual
 #' @export
 projr_unignore_manual_file_rbuild <- function(unignore) {
   unignore <- setdiff(unignore, "")
@@ -137,7 +137,7 @@ projr_unignore_manual_file_rbuild <- function(unignore) {
   .unignore_manual_path_add(unignore, .path_get(".Rbuildignore"))
 }
 
-#' @rdname.unignore_manual
+#' @rdname projr_unignore_manual
 #' @export
 projr_unignore_manual_dir_rbuild <- function(unignore) {
   unignore <- setdiff(unignore, "")

@@ -69,7 +69,7 @@ projr_init_prompt <- function(yml_path_from = NULL,
 }
 
 #' @export
-#' @rdname.
+#' @rdname projr_
 projr_init_git <- function(commit = TRUE, username = NULL, public = FALSE) {
   .git_system_setup()
   .init_git_git(commit)
@@ -96,7 +96,7 @@ projr_init_git <- function(commit = TRUE, username = NULL, public = FALSE) {
 }
 
 #' @export
-#' @rdname.init
+#' @rdname projr_init
 projr_init_license <- function(license, first_name, last_name) {
   if (tolower(license) == "proprietary") {
     .assert_string(first_name, TRUE)
