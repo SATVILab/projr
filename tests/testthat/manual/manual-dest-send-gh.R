@@ -150,9 +150,6 @@ usethis::with_project(
       "github", "latest", "raw-data", "latest", NULL, NULL, NULL
     ))
 
-    browser()
-    browser()
-
     # handle an empty directory
     .projr_yml_dest_rm_type_all("default")
     unlink("_raw_data", recursive = TRUE)
@@ -190,7 +187,7 @@ gh::gh(
 # ---------------------
 
 # --------------------------
-# empty directory from the start
+# empty directory from the start, latest
 # --------------------------
 
 dir_test <- .projr_test_setup_project(
@@ -199,7 +196,6 @@ dir_test <- .projr_test_setup_project(
 usethis::with_project(
   path = dir_test,
   code = {
-    browser()
     projr_init_git()
     .projr_yml_git_set_push(FALSE, TRUE, NULL)
     # remove github remote
@@ -210,56 +206,206 @@ usethis::with_project(
       content = "raw-data",
       structure = "latest"
     )
-    debugonce(.projr_dest_send_label)
+    projr::projr_build_patch()
+    # expect that the empty equivalent exists,
+    # and that it only contains projr-empty
+    expect_true(.projr_remote_check_exists("github", "latest"))
+    remote_pre_latest <- c("tag" = "latest")
+    expect_true(.projr_remote_final_check_exists_github(
+      remote_pre_latest, "latest", "raw-data-empty", NULL
+    ))
+    path_dir_save <-.dir_get_tmp_random_path()
+    dir.create(path_dir_save, recursive = TRUE, showWarnings = FALSE)
+    .projr_remote_file_get_ind_github(
+      remote_pre_latest, "raw-data-empty", path_dir_save
+    )
+    expect_true(file.exists(file.path(path_dir_save, "projr-empty")))
+    unlink(path_dir_save, recursive = TRUE)
+
+    # check that we still have the same thing
     projr::projr_build_patch()
     expect_true(.projr_remote_check_exists("github", "latest"))
-    expect_true(.projr_remote_final_check_exists(
-      "github", "latest", "raw-data", "latest", NULL, NULL, NULL
+    remote_pre_latest <- c("tag" = "latest")
+    expect_true(.projr_remote_final_check_exists_github(
+      remote_pre_latest, "latest", "raw-data-empty", NULL
     ))
-    expect_true(dir.exists("_latest/raw-data"))
-    expect_false(file.exists("_latest/raw-data/data.csv"))
-    # add a file
-    file.create("_raw_data/data.csv")
-    projr::projr_build_patch()
-    expect_true(file.exists("_latest/raw-data/data.csv"))
-    # remove that one file
-    file.remove("_raw_data/data.csv")
-    projr::projr_build_patch()
-    expect_true(dir.exists("_latest/raw-data"))
-    expect_false(file.exists("_latest/raw-data/data.csv"))
+    path_dir_save <-.dir_get_tmp_random_path()
+    dir.create(path_dir_save, recursive = TRUE, showWarnings = FALSE)
+    .projr_remote_file_get_ind_github(
+      remote_pre_latest, "raw-data-empty", path_dir_save
+    )
+    unlink(path_dir_save, recursive = TRUE)
 
-    # -------------------
-    # structure: archive
-    # -------------------
+    # add a file, then we need to remove the empty directory
+    file.create(projr::projr_path_get("raw-data", "data.csv"))
+    projr::projr_build_patch()
+    expect_false(.projr_remote_final_check_exists_github(
+      remote_pre_latest, "latest", "raw-data-empty", NULL
+    ))
+    expect_true(.projr_remote_final_check_exists_github(
+      remote_pre_latest, "latest", "raw-data", NULL
+    ))
+    path_dir_save <- .dir_get_tmp_random_path()
+    dir.create(path_dir_save, recursive = TRUE, showWarnings = FALSE)
+    .projr_remote_file_get_ind_github(
+      remote_pre_latest, "raw-data", path_dir_save
+    )
 
+    # now go from something to nothing,
+    # so need to add raw-data-empty
+    file.remove(projr::projr_path_get("raw-data", "data.csv"))
+    projr::projr_build_patch()
+    expect_true(.projr_remote_final_check_exists_github(
+      remote_pre_latest, "latest", "raw-data-empty", NULL
+    ))
+    expect_false(.projr_remote_final_check_exists_github(
+      remote_pre_latest, "latest", "raw-data", NULL
+    ))
+  }
+)
+
+# delete the GitHub repo
+gh::gh(
+  "DELETE /repos/{username}/{pkg}",
+  username = gh::gh_whoami()$login,
+  pkg = basename(dir_test)
+)
+
+# --------------------------
+# empty directory from the start, archive
+# --------------------------
+
+dir_test <- .projr_test_setup_project(
+  git = TRUE, github = TRUE, set_env_var = TRUE
+)
+usethis::with_project(
+  path = dir_test,
+  code = {
+    projr_init_git()
+    .projr_yml_git_set_push(FALSE, TRUE, NULL)
+    # remove github remote
     .projr_yml_dest_rm_type_all("default")
-    projr_yml_dest_add_local(
+    # add a local destination, that is never sent to
+    projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
-      path = "_archive",
+      structure = "archive"
+    )
+    projr::projr_build_patch()
+    # expect that the empty equivalent exists,
+    # and that it only contains projr-empty
+    expect_true(.projr_remote_check_exists("github", "archive"))
+    remote_pre_archive <- c("tag" = "archive")
+    expect_true(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.1-empty"
+    ))
+    path_dir_save <- .dir_get_tmp_random_path()
+    dir.create(path_dir_save, recursive = TRUE, showWarnings = FALSE)
+    .projr_remote_file_get_ind_github(
+      remote_pre_archive, "raw-data-v0.0.1-empty", path_dir_save
+    )
+    expect_true(file.exists(file.path(path_dir_save, "projr-empty")))
+    unlink(path_dir_save, recursive = TRUE)
+
+    # check that we do not add v0.0.2, as cue is if-change
+
+    projr::projr_build_patch()
+    expect_true(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.1-empty"
+    ))
+    expect_false(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.2-empty"
+    ))
+
+    # add a file, then we need to remove the empty directory
+    file.create(projr::projr_path_get("raw-data", "data.csv"))
+
+    projr::projr_build_patch()
+    expect_true(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.1-empty"
+    ))
+    expect_true(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.3"
+    ))
+    expect_false(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.3-empty"
+    ))
+
+    # now go from something to nothing,
+    # so need to add raw-data-empty
+    file.remove(projr::projr_path_get("raw-data", "data.csv"))
+    projr::projr_build_patch()
+    expect_true(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.4-empty"
+    ))
+    expect_true(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.3"
+    ))
+    expect_false(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.4"
+    ))
+
+    # try with cue: always
+    projr_yml_dest_add_github(
+      title = "archive",
+      content = "raw-data",
       structure = "archive",
+      send_cue = "always",
       overwrite = TRUE
     )
     projr::projr_build_patch()
-    expect_true(dir.exists("_archive/raw-data/v0.0.4"))
-    expect_false(file.exists("_archive/raw-data/v0.0.4/data.csv"))
-    # add a file
-    # browser()
-    # debugonce(.projr_dest_send_label)
-    # browser()
+    expect_true(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.5-empty"
+    ))
+    expect_false(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.5"
+    ))
+
+    # try with inspect: file, no change
+    projr_yml_dest_add_github(
+      title = "archive",
+      content = "raw-data",
+      structure = "archive",
+      send_inspect = "file",
+      overwrite = TRUE
+    )
+    projr::projr_build_patch()
+    expect_false(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.6-empty"
+    ))
+    expect_false(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.6"
+    ))
+
+    # try with inspect: file, add a file
+
     file.create("_raw_data/data.csv")
-    projr::projr_build_patch() # problem isn't here,
-    # it's that manifest.csv for v0.0.4 
-    # says that data.csv is there when it isn't
-    expect_true(file.exists("_archive/raw-data/v0.0.5/data.csv"))
-    # remove that one file
+    projr::projr_build_patch()
+    expect_false(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.7-empty"
+    ))
+    expect_true(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.7"
+    ))
+
+    # try with inspect: file, remove a file
     file.remove("_raw_data/data.csv")
     projr::projr_build_patch()
-    expect_true(dir.exists("_archive/raw-data/v0.0.6"))
-    expect_false(file.exists("_archive/raw-data/v0.0.6/data.csv"))
-    # keep it removed
+    expect_true(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.8-empty"
+    ))
+    expect_false(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.8"
+    ))
+
+    # try with inspect: file, no change from no file
     projr::projr_build_patch()
-    expect_false(dir.exists("_archive/raw-data/v0.0.7"))
+    expect_false(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.9-empty"
+    ))
+    expect_false(.projr_remote_final_check_exists_github(
+      remote_pre_archive, "archive", "raw-data", "v0.0.9"
+    ))
   }
 )
 

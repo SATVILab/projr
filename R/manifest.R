@@ -265,8 +265,9 @@
     change_list <- .projr_change_get_hash(manifest_curr, manifest_latest)
     change_vec <- change_list[-which(names(change_list) == "fn_same")] |>
       unlist()
-    if (.is_len_pos(change_vec)) {
-      return(version_curr)
+    is_change <- .is_len_pos(change_vec)
+    if (is_change) {
+      return(version_earliest_match)
     }
     version_earliest_match <- version_curr
   }

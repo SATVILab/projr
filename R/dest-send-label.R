@@ -85,10 +85,10 @@
   if (is_nothing) {
     return(NULL)
   }
-  # in all cases here, we're just trying to find 
+  # in all cases here, we're just trying to find
   # the version on the remote that is acceptable to compare against.
   # the major difference between `latest` and `archive`
-  # is that in `latest` we don't care about whether 
+  # is that in `latest` we don't care about whether
   # there is a difference in the files in between now
   # and the last upload (even if the last upload is the
   # same as now), and we also don't care about
@@ -157,8 +157,7 @@
   # otherwise return `NULL`, indicating we trust nothing,
   # if we would not consider the manifest
   version_project <- projr_version_get() |> .projr_version_v_rm()
-  version_comp_no_trusted_archive <- # nolint
-    if (inspect == "file") version_project else NULL
+  version_comp_no_trusted_archive <- NULL
   version_min_acceptable <-
     .projr_manifest_get_version_earliest_match(label, NULL) |>
     .projr_version_v_rm() # nolint
@@ -196,10 +195,25 @@
     # as that is the comparison remote, essentially.
     remote_dest
   } else {
-    .projr_remote_get_final(
+    remote_comp <- .projr_remote_get_final(
       type, id, label, structure, path, path_append_label, version
     )
+    .projr_dest_send_label_get_remotes_comp_empty(remote_comp, type)
   }
+}
+
+.projr_dest_send_label_get_remotes_comp_empty <- function(remote_comp,
+                                                          type) {
+  if (type != "github") {
+    return(remote_comp)
+  }
+  remote_comp_exists <- .projr_remote_final_check_exists_github_direct(
+    remote_comp[["tag"]], remote_comp[["fn"]]
+  )
+  if (!remote_comp_exists) {
+    remote_comp["fn"] <- gsub("\\.zip$", "-empty.zip", remote_comp[["fn"]])
+  }
+  remote_comp
 }
 
 # ==========================================================================
@@ -322,6 +336,12 @@
   manifest_remote <- .projr_dest_send_label_get_manifest_remote(
     version_comp, inspect, remote_comp, type, label, remote_pre
   )
+  if (nrow(manifest_remote) == 1 &&
+        !is.na(manifest_remote[["fn"]]) &&
+        manifest_remote[["fn"]] == "projr-empty") {
+    manifest_remote[["fn"]] <- NA_character_
+    manifest_remote[["hash"]] <- NA_character_
+  }
   .projr_change_get_hash(manifest_remote, manifest_project)
 }
 
@@ -823,7 +843,7 @@
   if (purge) {
     .projr_remote_file_rm_all(type, remote_dest)
   }
-  if (create) {
+  if (create || type == "github") {
     # will create for OSF and local,
     # but not GitHub, so GitHub remote
     # is only created if there is a file to add
@@ -834,11 +854,6 @@
     remote_dest <- .projr_remote_get_final(
       type, id, label, structure, path, path_append_label, NULL
     )
-    if (type == "github" && .is_len_0(fn_add)) {
-      .projr_dest_send_label_implement_plan_github_empty(
-        remote_dest
-      )
-    }
   }
 
   if (.is_len_pos(fn_rm)) {
@@ -847,28 +862,29 @@
 
   if (.is_len_pos(fn_add)) {
     .projr_remote_file_add(type, remote_dest, path_dir_local, fn_add)
-    if (structure == "latest" && type == "github") {
-      # get projr release_tbl, check if
-      # the release has the file <label>-empty.zip,
-      # and delete if it does have that.
+    if (type == "github") {
+      # ensure that we remove the empty one
+      remote_dest_empty <- remote_dest
+      remote_dest_empty["fn"] <- gsub(
+        "\\.zip$", "-empty.zip", remote_dest_empty["fn"]
+      )
+      if (.projr_remote_final_check_exists_github(
+        remote_dest_empty["tag"], "latest", remote_dest_empty[["fn"]], NULL
+      )) {
+        .projr_remote_file_rm_all_github(remote_dest_empty)
+      }
     }
-  } else if (type == "github") {
-    # 1. question is, at this point, do we know if it SHOULD 
-    # be zero, just from what is supposed to be added
-    # or taken away? Does that need to be part of the plan?
-    # 2. need to think through the scenarios:
-    # latest:
-    #  - want blank, remote not there 
-    #  - want blank, remote there
-    # archive:
-    #  - want blank, remote not there
-    #  - want blank, remote there
-    if (structure == "latest") {
-      # 
-    }
-
   }
 
+  # ensure that there is an empty one, if
+  # there is non-empty one
+  if (type == "github") {
+    if (structure == "latest" || create) {
+      .projr_dest_send_label_implement_plan_github_empty(
+        remote_dest
+      )
+    }
+  }
 
   # need to use remote_pre and just add an individual file
   .projr_remote_write_manifest(type, remote_pre, manifest)

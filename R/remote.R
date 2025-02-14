@@ -319,7 +319,7 @@ projr_osf_create_project <- function(title,
   if (!.projr_remote_check_exists("github", tag)) {
     return(FALSE)
   }
-  asset_tbl <- .projr_pb_asset_tbl_get(remote_pre[["tag"]])
+  asset_tbl <- .projr_pb_asset_tbl_get(tag)
   # ensure it always ends in .zip
   fn <- if (!grepl("\\.zip$", fn)) {
     paste0(fn, ".zip")
@@ -1429,7 +1429,11 @@ projr_osf_create_project <- function(title,
   version_format_regex <- gsub("\\.dev$|\\-dev", "", version_format_regex)
   version_format_regex <- paste0(label, "-v", version_format_regex)
   if (type == "github") {
-    version_format_regex <- paste0(version_format_regex, ".zip")
+    version_format_regex <- paste0(
+      paste0(version_format_regex, ".zip"),
+      "|",
+      paste0(version_format_regex, "-empty.zip")
+    )
   }
   utils::glob2rx(version_format_regex)
 }
@@ -1440,6 +1444,7 @@ projr_osf_create_project <- function(title,
   }
   fn_no_zip <- sub("\\.zip$", "", fn)
   version_vec <- sub(".*-v(.*)", "\\1", fn_no_zip)
+  version_vec <- gsub("-empty", "", version_vec)
   version_vec <- setdiff(version_vec, "")
   if (.is_len_0(version_vec)) {
     return(character(0L))
