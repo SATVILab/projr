@@ -920,7 +920,7 @@ projr_init_renviron <- function() {
 # github
 # --------------------------
 .init_github <- function(username,
-                               public) {
+                         public) {
   if (!.git_repo_check_exists() || is.null(username)) {
     .yml_unset_github_dest()
     return(invisible(FALSE))

@@ -26,7 +26,7 @@
 # bookdown
 # ------------------------
 .init_engine_bookdown <- function(nm_list) {
-  .dep_add("bookdown")
+  .dep_install("bookdown")
   .init_engine_bookdown_bookdown()
   .init_engine_bookdown_output(nm_list)
   .init_engine_bookdown_index(nm_list)
@@ -91,7 +91,7 @@
 # ---------------------
 
 .init_engine_quarto_project <- function(nm_list) {
-  .dep_add("quarto")
+  .dep_install("quarto")
   .init_engine_quarto_project_yml(nm_list)
   .init_engine_quarto_project_index()
 }
@@ -137,8 +137,8 @@
 
 .init_engine_quarto_project_index <- function() {
   # index.Rmd
-  index <- c("# Introduction", "")
-  writeLines(index, .path_get("index.qmd"))
+  c("# Introduction", "") |>
+    writeLines(.path_get("index.qmd"))
   invisible(TRUE)
 }
 
@@ -146,7 +146,7 @@
 # ---------------------
 
 .init_engine_quarto_document <- function(nm_list) {
-  .dep_add("quarto")
+  .dep_install("quarto")
   .init_engine_quarto_document_doc(nm_list)
 }
 
@@ -182,7 +182,7 @@
 # ---------------------
 
 .init_engine_rmd <- function(nm_list) {
-  .dep_add("rmarkdown")
+  .dep_install("rmarkdown")
   .init_engine_rmd_doc(nm_list)
 }
 

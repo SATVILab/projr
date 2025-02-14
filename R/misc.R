@@ -619,6 +619,73 @@ projr_use_data <- function(...,
   )
 }
 
+.init_engine_bookdown_contents_bookdown <- function() {
+  c(
+    "bookdown::gitbook:",
+    "  toc_depth: 6",
+    "  css: style.css",
+    "  config:",
+    "    toc:",
+    "      before: |",
+    "        <li><a href=\"./\">TODO: ADD SHORT DESCRIPTION</a></li>",
+    "      after: |",
+    "        <li><a href=\"https://github.com/[GITHUB_USER]/[GITHUB_REPO]\" target=\"blank\">SATVILab/TODO:_ADD_REPO_NAME</a></li>", # nolint
+    "    download: [\"pdf\", \"epub\"]",
+    "bookdown::pdf_book:",
+    "  latex_engine: xelatex",
+    "  citation_package: natbib",
+    "  keep_tex: yes",
+    "bookdown::epub_book: default"
   )
+}
 
+init_engine_bookdown_contents_output <- function() {
+  c(
+    "book_filename: docs",
+    "delete_merged_file: yes",
+    "language:",
+    "  ui:",
+    "    chapter_name: 'Chapter '",
+    "rmd_files:",
+    "- index.Rmd",
+    "output_dir: docs"
   )
+}
+
+init_engine_bookdown_contents_index <- function() {
+  c(
+    "---",
+    "title: \"[Title]\"",
+    "author: \"[Author]\"",
+    "date: \"`r Sys.Date()`\"",
+    "site: bookdown::bookdown_site",
+    "documentclass: book",
+    "---",
+    "",
+    "# Introduction",
+    "",
+    "```{r , include = FALSE}",
+    "",
+    "```"
+  )
+}
+
+.init_engine_quarto_projects_content_yml <- function() {
+  list(
+    project = list(type = "website"),
+    website = list(
+      title = "[Title]",
+      navbar = list(
+        left = list(
+          list(href = "index.qmd", text = "Home")
+        )
+      )
+    ),
+    format = list(
+      html = list(
+        theme = "cosmo",
+        toc = TRUE
+      )
+    )
+  )
+}
