@@ -167,7 +167,7 @@
   ) |>
     any()
   pkg_use_detected_dots <- grepl(
-    paste0.name_get(), "::"),
+    paste0(projr_name_get(), "::"),
     readme_rmd
   ) |>
     any()
