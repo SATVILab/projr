@@ -53,7 +53,7 @@
 
   # add
   # -----------------
-  .yml_dest_add_actual(
+  .yml_dest_add_impl(
     type = type,
     title = title,
     content = content,
@@ -75,7 +75,7 @@
 }
 
 # add now
-.yml_dest_add_actual <- function(type,
+.yml_dest_add_impl <- function(type,
                                        title,
                                        content,
                                        structure,

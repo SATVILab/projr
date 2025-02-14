@@ -497,7 +497,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
   if (act) {
     action <- if (restore) "Restoring" else "Installing latest" # nolint: object_usage_linter.
     cli::cli_alert_info("{action} {source} packages.")
-    .renv_restore_update_actual(
+    .renv_restore_update_impl(
       pkg,
       restore,
       biocmanager_install,
@@ -509,7 +509,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
   }
 }
 
-.renv_restore_update_actual <- function(pkg, restore, biocmanager_install, is_bioc) {
+.renv_restore_update_impl <- function(pkg, restore, biocmanager_install, is_bioc) {
   # Performs the actual restore or update of packages.
   # On restore, attempts renv::restore() and checks for missing packages.
   # On update, installs the latest versions.

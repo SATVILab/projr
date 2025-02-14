@@ -79,7 +79,7 @@
   rownames(manifest) <- NULL
   manifest |>
     .manifest_remove_duplicate() |>
-    .manifest_write_actual(path, overwrite)
+    .manifest_write_impl(path, overwrite)
 }
 
 .manifest_append_previous <- function(manifest, append, path_previous) { # nolint
@@ -93,10 +93,10 @@
     return(manifest)
   }
   manifest_pre <- .manifest_read(path_previous)
-  manifest |> .manifest_append_previous_actual(manifest_pre)
+  manifest |> .manifest_append_previous_impl(manifest_pre)
 }
 
-.manifest_append_previous_actual <- function(manifest, manifest_pre) { # nolint
+.manifest_append_previous_impl <- function(manifest, manifest_pre) { # nolint
   rownames(manifest_pre) <- NULL
   manifest <- manifest_pre |> rbind(manifest)
   rownames(manifest) <- NULL
@@ -110,7 +110,7 @@
   manifest
 }
 
-.manifest_write_actual <- function(manifest, path, overwrite) {
+.manifest_write_impl <- function(manifest, path, overwrite) {
   rownames(manifest) <- NULL
   if (file.exists(path)) {
     if (!overwrite) {

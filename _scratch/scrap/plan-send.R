@@ -56,7 +56,7 @@
     label,.version_get() |> .version_v_rm()
   )
   manifest_append |>
-    .manifest_append_previous_actual(manifest_remote) |>
+    .manifest_append_previous_impl(manifest_remote) |>
     .manifest_remove_duplicate()
 }
 
@@ -146,7 +146,7 @@
   manifest_remote <- .remote_get_manifest(type, remote_pre)
   manifest_project_latest_label <- .manifest_get_add_project(label)
   manifest_project_latest_label |>
-    .manifest_append_previous_actual(manifest_remote) |>
+    .manifest_append_previous_impl(manifest_remote) |>
     .manifest_remove_duplicate()
 }
 

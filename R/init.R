@@ -91,7 +91,7 @@ projr_init_git <- function(commit = TRUE, username = NULL, public = FALSE) {
     if (!.git_gh_check_auth()) {
       stop(call. = FALSE)
     }
-    .init_github_actual(username, public)
+    .init_github_impl(username, public)
   }
 }
 
@@ -103,7 +103,7 @@ projr_init_license <- function(license, first_name, last_name) {
     .assert_string(last_name, TRUE)
   }
   .dep_install_only("usethis")
-  .init_license_create_actual(license, first_name, last_name)
+  .init_license_create_impl(license, first_name, last_name)
 }
 
 projr_init_ignore <- function() {

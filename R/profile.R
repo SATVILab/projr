@@ -165,7 +165,7 @@ projr_profile_get <- function() {
 #' @export
 projr_profile_delete <- function(profile) {
   .profile_delete_check(profile)
-  .profile_delete_actual(profile)
+  .profile_delete_impl(profile)
 }
 
 .profile_delete_check <- function(profile) {
@@ -175,7 +175,7 @@ projr_profile_delete <- function(profile) {
   }
 }
 
-.profile_delete_actual <- function(profile) {
+.profile_delete_impl <- function(profile) {
   path_fn <- .path_get(paste0("_projr-", profile, ".yml"))
   if (!file.exists(path_fn)) {
     message("No such profile detected: ", profile)

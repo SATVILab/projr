@@ -18,8 +18,8 @@
 }
 
 .init_yml_get_path_from_auto <- function() {
-  if (nzchar(Sys.getenv(.PATH_YML"))) {
-    return(Sys.getenv(.PATH_YML"))
+  if (nzchar(Sys.getenv("PROJR_PATH_YML"))) {
+    return(Sys.getenv("PROJR_PATH_YML"))
   }
   system.file("project_structure", "_projr.yml", package = "projr")
 }
@@ -178,7 +178,7 @@
   writeLines(rbuildignore, .path_get(".Rbuildignore"))
   .newline_append(.path_get(".Rbuildignore"))
 
- .ignore_auto()
+  projr_ignore_auto()
 
   invisible(TRUE)
 }
@@ -195,7 +195,7 @@
   if (skip_init || .renv_detect()) {
     return(invisible(TRUE))
   }
-  .renv_init_rscript_actual(force, bioc)
+  .renv_init_rscript_impl(bioc)
   try(source("renv/activate.R"), silent = TRUE)
   # activate `renv`.
   # wrapped in `try` in case something goes wrong.
@@ -204,12 +204,11 @@
   invisible(TRUE)
 }
 
-.renv_init_rscript_actual <- function(force, bioc) {
+.renv_init_rscript_impl <- function(bioc) {
   cmd_txt <- paste0(
     "-e '",
     "renv::init(",
     'settings = list(snapshot.type = "implicit"), ',
-    "force = ", force, ", ",
     "bioconductor = ", bioc,
     ")'"
   )
@@ -242,7 +241,7 @@
     return(NULL)
   }
   answer_auto <- Sys.getenv(
-    .TEST_ENGINE",
+    "PROJR_TEST_ENGINE",
     unset = "Bookdown project"
   )
   nm_engine <- .init_prompt_ind(
@@ -661,11 +660,11 @@
 # convenience environment variables
 # ============================
 
-#' @title Set environment variables for.init
+#' @title Set environment variables for projr_init
 #'
 #' @description
-#' Set environment variables for .init.`
-#' When set, .init` will use these variables
+#' Set environment variables for `projr_init.`
+#' When set, `projr_init` will use these variables
 #' to provide options to populate the metadata.
 #' This function creates the `.Renviron` file
 #' for the user if it does not exist.
@@ -716,19 +715,19 @@ projr_init_renviron <- function() {
   message(
     paste0(
       "Edit the .Renviron file at ", path,
-      "to have default options for.init setup metadata.\n"
+      "to have default options for projr_init setup metadata.\n"
     ),
     "The following variables are availabe:\n",
     paste0(
-      "  -.PATH_YML\n",
-      "  -.FIRST_NAME\n",
-      "  -.LAST_NAME\n",
-      "  -.EMAIL\n",
-      "  -.GITHUB_USER_NAME\n"
+      "  - PROJR_PATH_YML\n",
+      "  - PROJR_FIRST_NAME\n",
+      "  - PROJR_LAST_NAME\n",
+      "  - PROJR_EMAIL\n",
+      "  - PROJR_GITHUB_USER_NAME\n"
     ),
     "There must be no white space in the line.\n",
-    "For example, .FIRST_NAME=Mogley` is valid,\n",
-    "but .FIRST_NAME = Mogley` is not.\n",
+    "For example, `PROJR_FIRST_NAME=Mogley` is valid,\n",
+    "but `PROJR_FIRST_NAME = Mogley` is not.\n",
     "Restart R once they are set to use them.\n",
     "They should be available for all new projects for this user."
   )
@@ -736,8 +735,8 @@ projr_init_renviron <- function() {
 
 .init_renviron_txt_update <- function(txt) {
   nm_vec <- c(
-    .PATH_YML", .FIRST_NAME", .LAST_NAME",
-    .EMAIL", .GITHUB_USER_NAME"
+    "PROJR_PATH_YML", "PROJR_FIRST_NAME", "PROJR_LAST_NAME",
+    "PROJR_EMAIL", "PROJR_GITHUB_USER_NAME"
   )
   for (x in nm_vec) {
     txt <- .init_renviron_add_ind(x, txt)
@@ -822,11 +821,11 @@ projr_init_renviron <- function() {
     return(invisible(FALSE))
   }
   .dep_install_only("usethis")
-  .init_license_create_actual(x, nm_first, nm_last)
+  .init_license_create_impl(x, nm_first, nm_last)
   invisible(x)
 }
 
-.init_license_create_actual <- function(x, nm_first, nm_last) {
+.init_license_create_impl <- function(x, nm_first, nm_last) {
   opt_vec <- c(
     "ccby", "CC-BY", "apache", "Apache 2.0", "cc0", "CC0",
     "proprietary", "Proprietary"
@@ -854,7 +853,7 @@ projr_init_renviron <- function() {
     if (answer_git == 2) {
       .yml_git_set(FALSE, "default")
     } else if (answer_git == 3) {
-     .ignore_auto()
+      projr_ignore_auto()
     }
     return(invisible(FALSE))
   }
@@ -929,10 +928,10 @@ projr_init_renviron <- function() {
   if (.git_remote_check_exists()) {
     return(invisible(FALSE))
   }
-  .init_github_actual(username, public)
+  .init_github_impl(username, public)
 }
 
-.init_github_actual <- function(username, public) {
+.init_github_impl <- function(username, public) {
   .dep_install_only("usethis")
   .dep_install_only("gh")
   if (identical(username, gh::gh_whoami()$login)) {
@@ -1020,7 +1019,7 @@ projr_init_renviron <- function() {
     "For more details, see https://happygitwithr.com/https-pat#tldr\n",
     "\n",
     "After doing the above:\n",
-    "1. In R, rerun projr:.init()\n",
+    "1. In R, rerun projr::projr_init()\n",
     "It will skip what's been done already and try set up GitHub again.\n",
     call. = FALSE
   )
@@ -1048,7 +1047,7 @@ projr_init_renviron <- function() {
   if (file.exists(.path_get("inst", "CITATION"))) {
     return(invisible(FALSE))
   }
- .yml_cite_set(inst_citation = TRUE)
+  projr_yml_cite_set(inst_citation = TRUE)
   .dep_install("cffr")
   .cite_citation_set()
 }
@@ -1104,7 +1103,7 @@ projr_init_renviron <- function() {
     return(invisible(FALSE))
   }
   .dep_install("cffr")
- .yml_cite_set(cff = TRUE)
+  projr_yml_cite_set(cff = TRUE)
   .cite_cff_set()
 }
 
@@ -1113,7 +1112,7 @@ projr_init_renviron <- function() {
   if (file.exists(path_codemeta)) {
     return(invisible(FALSE))
   }
- .yml_cite_set(codemeta = TRUE)
+  projr_yml_cite_set(codemeta = TRUE)
   .dep_install("cboettig/codemeta")
   .cite_codemeta_set()
 }

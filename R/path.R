@@ -215,6 +215,7 @@
     rprojroot::find_root_file(
       ...,
       criterion = rprojroot::criteria$is_vcs_root |
+        rprojroot::has_file("VERSION") |
         rprojroot::has_file("README.md") |
         rprojroot::criteria$is_rstudio_project |
         rprojroot::has_file("README.Rmd") |

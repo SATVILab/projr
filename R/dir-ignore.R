@@ -101,12 +101,12 @@
     return(list(ignore = c0, skip = c0, unskip = c0))
   }
 
-  .ignore_diryml_git_get_instructions_label_actual(
+  .ignore_diryml_git_get_instructions_label_impl(
     path, label, git_skip_adjust
   )
 }
 
-.ignore_diryml_git_get_instructions_label_actual <- function(path,
+.ignore_diryml_git_get_instructions_label_impl <- function(path,
                                                                 label,
                                                                 git_skip_adjust) {
   # ignore

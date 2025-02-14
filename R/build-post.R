@@ -145,7 +145,7 @@
     return(invisible(FALSE))
   }
   .build_readme_rmd_render_add_devtools_if_needed()
-  .build_readme_rmd_render_actual()
+  .build_readme_rmd_render_impl()
 }
 
 .build_readme_rmd_render_check <- function(output_run) {
@@ -181,7 +181,7 @@
   }
 }
 
-.build_readme_rmd_render_actual <- function() {
+.build_readme_rmd_render_impl <- function() {
   rmarkdown::render(
     .path_get("README.Rmd"),
     output_format = "md_document", quiet = TRUE

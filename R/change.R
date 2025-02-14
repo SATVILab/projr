@@ -43,10 +43,10 @@
                                        remote_post,
                                        label = NULL) {
   .assert_given_mid(label)
-  version_pre_actual <- .remote_get_version_label(
+  version_pre_impl <- .remote_get_version_label(
     remote_pre, type_pre, label
   )
-  version_post_actual <- .remote_get_version_label(
+  version_post_impl <- .remote_get_version_label(
     remote_post, type_post, label
   )
   # this differs from .change_get_hash

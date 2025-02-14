@@ -180,7 +180,7 @@ projr_yml_cite_set_default <- function(profile = "default",
 }
 
 .yml_cite_get_ordered <- function(yml_cite) {
-  nm_vec_actual <- names(yml_cite)
+  nm_vec_impl <- names(yml_cite)
   nm_vec_possible <- c("codemeta", "cff", "inst-citation")
   nm_vec_ordered <- nm_vec_possible[nm_vec_possible %in% nm_vec_actual]
   yml_cite[nm_vec_ordered]

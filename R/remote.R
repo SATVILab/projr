@@ -1239,7 +1239,7 @@ projr_osf_create_project <- function(title,
 
 .remote_get_manifest_non_project <- function(type,
                                                    remote_pre) {
-  manifest_actual <- .remote_get_manifest_non_project_raw(
+  manifest_impl <- .remote_get_manifest_non_project_raw(
     type, remote_pre
   )
   if (is.null(manifest_actual)) {

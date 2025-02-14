@@ -119,7 +119,7 @@
     .manifest_filter_label(label) |>
     .manifest_filter_version(projr:.version_get())
   manifest_final <-
-    .manifest_append_previous_actual(manifest_add, manifest_remote) |>
+    .manifest_append_previous_impl(manifest_add, manifest_remote) |>
     .manifest_remove_duplicate()
   .remote_write_manifest(type, remote, manifest_final)
   invisible(TRUE)

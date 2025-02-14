@@ -194,7 +194,7 @@ projr_build_dev <- function(file = NULL,
   }
  .env_file_activate()
   version_run_on_list <- .build_pre(bump_component, msg)
-  .build_actual(version_run_on_list, file, args_engine)
+  .build_impl(version_run_on_list, file, args_engine)
   .build_post(
     version_run_on_list, bump_component, msg, old_dev_remove,
     upload_github, upload_force
@@ -247,7 +247,7 @@ projr_build_dev <- function(file = NULL,
 
 # actual
 # ------------------------
-.build_actual <- function(version_run_on_list, file, args_engine) {
+.build_impl <- function(version_run_on_list, file, args_engine) {
   .build_engine(
     file = file,
     version_run_on_list = version_run_on_list,

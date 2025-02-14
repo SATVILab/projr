@@ -496,7 +496,7 @@
   }
 
   manifest_append |>
-    .manifest_append_previous_actual(manifest_remote)
+    .manifest_append_previous_impl(manifest_remote)
 
 }
 
