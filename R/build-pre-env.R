@@ -13,33 +13,33 @@
 #'
 #' @export
 projr_env_file_activate <- function(file = NULL) {
-  .file_rm(.projr_env_file_get_path_list())
+  .file_rm(.env_file_get_path_list())
   if (!is.null(file)) {
     for (x in file) {
-      .projr_build_env_file_activate_ind(file = x)
+      .build_env_file_activate_ind(file = x)
     }
     return(invisible(TRUE))
   }
-  .projr_build_env_file_activate_ind("_environment.local")
-  env_profile_vec <- .projr_env_profile_get()
+  .build_env_file_activate_ind("_environment.local")
+  env_profile_vec <- .env_profile_get()
   for (i in seq_along(env_profile_vec)) {
-    .projr_build_env_file_activate_ind(
+    .build_env_file_activate_ind(
       paste0("_environment-", env_profile_vec[[i]])
     )
   }
-  .projr_build_env_file_activate_ind("_environment")
+  .build_env_file_activate_ind("_environment")
   invisible(TRUE)
 }
 
-.projr_env_profile_get <- function() {
-  quarto_profile_vec <- .projr_env_profile_get_quarto()
-  projr_profile_vec <- .projr_env_profile_get_projr()
-  c(quarto_profile_vec, projr_profile_vec) |>
+.env_profile_get <- function() {
+  quarto_profile_vec <- .env_profile_get_quarto()
+ .profile_vec <- .env_profile_get_projr()
+  c(quarto_profile_vec,.profile_vec) |>
     setdiff("required") |>
     unique()
 }
 
-.projr_env_profile_get_quarto <- function() {
+.env_profile_get_quarto <- function() {
   quarto_profile <- Sys.getenv("QUARTO_PROFILE")
   if (!nzchar(quarto_profile)) {
     return(character())
@@ -48,78 +48,78 @@ projr_env_file_activate <- function(file = NULL) {
   vapply(quarto_profile_vec, trimws, character(1)) |> stats::setNames(NULL)
 }
 
-.projr_env_profile_get_projr <- function() {
-  .projr_profile_get_var()
+.env_profile_get_projr <- function() {
+  .profile_get_var()
 }
 
-.projr_build_env_check <- function(output_run) {
+.build_env_check <- function(output_run) {
   if (!output_run) {
     return(invisible(FALSE))
   }
   # check implied remotes
-  .projr_build_check_auth_remote()
-  .projr_build_env_file_required_check()
+  .build_check_auth_remote()
+  .build_env_file_required_check()
   invisible(TRUE)
 }
 
-.projr_build_env_file_activate_ind <- function(file) {
+.build_env_file_activate_ind <- function(file) {
   path_env <- .path_get(file)
   if (!file.exists(path_env)) {
     return(invisible(FALSE))
   }
-  .projr_build_env_file_activate_ind_ignore(file)
+  .build_env_file_activate_ind_ignore(file)
   fn_vec_local <- readLines(path_env)
   for (i in seq_along(fn_vec_local)) {
-    .projr_build_env_var_set_line(fn_vec_local[[i]])
+    .build_env_var_set_line(fn_vec_local[[i]])
   }
 }
 
-.projr_build_env_file_activate_ind_ignore <- function(file) {
+.build_env_file_activate_ind_ignore <- function(file) {
   if (!fs::path_has_parent(file, .path_get())) {
     return(invisible(FALSE))
   }
   if (file == "_environment.local") {
-    gitignore <- .projr_ignore_git_read()
+    gitignore <- .ignore_git_read()
     if (!file %in% gitignore) {
       return(invisible(FALSE))
     }
     gitignore <- c(gitignore, file)
-    .projr_ignore_git_write(gitignore, append = FALSE)
+    .ignore_git_write(gitignore, append = FALSE)
   }
-  rbuildignore <- .projr_ignore_rbuild_read()
+  rbuildignore <- .ignore_rbuild_read()
   rbuildignore <- c(rbuildignore, utils::glob2rx(file))
-  .projr_ignore_rbuild_write(rbuildignore, append = FALSE)
+  .ignore_rbuild_write(rbuildignore, append = FALSE)
 }
 
-.projr_build_env_var_set_line <- function(line) {
+.build_env_var_set_line <- function(line) {
   # handle comments
   line <- sub("^#.*$", "", line)
   line <- sub("\\s+#.*$", "", line)
-  env_var_nm <- .projr_env_var_nm_get(line)
-  env_var_val <- .projr_env_var_val_get(line)
+  env_var_nm <- .env_var_nm_get(line)
+  env_var_val <- .env_var_val_get(line)
   specification_correct <- nzchar(env_var_nm) && nzchar(env_var_val)
   unspecified <- !nzchar(Sys.getenv(env_var_nm))
   if (!specification_correct || !unspecified) {
     return(invisible(FALSE))
   }
-  .projr_env_var_set(nm = env_var_nm, val = env_var_val)
-  .projr_build_env_var_add_to_unset(env_var_nm)
+  .env_var_set(nm = env_var_nm, val = env_var_val)
+  .build_env_var_add_to_unset(env_var_nm)
   invisible(TRUE)
 }
 
-.projr_build_env_file_required_check <- function() {
+.build_env_file_required_check <- function() {
   path_required <- .path_get("_environment.required")
   if (!file.exists(path_required)) {
     return(invisible(FALSE))
   }
   fn_vec_required <- readLines(path_required)
   for (i in seq_along(fn_vec_required)) {
-    .projr_build_env_var_required_check(fn_vec_required[[i]])
+    .build_env_var_required_check(fn_vec_required[[i]])
   }
 }
 
-.projr_build_env_var_required_check <- function(line) {
-  env_var_nm <- .projr_env_var_nm_get(line)
+.build_env_var_required_check <- function(line) {
+  env_var_nm <- .env_var_nm_get(line)
   unspecified <- !nzchar(Sys.getenv(env_var_nm))
   if (unspecified) {
     warning(paste0(
@@ -130,8 +130,8 @@ projr_env_file_activate <- function(file = NULL) {
   invisible(TRUE)
 }
 
-.projr_build_env_var_add_to_unset <- function(env_var_nm) {
-  path_file <- .projr_env_file_get_path_list()
+.build_env_var_add_to_unset <- function(env_var_nm) {
+  path_file <- .env_file_get_path_list()
   if (!file.exists(path_file)) {
     .dir_create(dirname(path_file))
     invisible(file.create(path_file))
@@ -142,23 +142,23 @@ projr_env_file_activate <- function(file = NULL) {
   }
   fn_vec <- c(fn_vec, env_var_nm)
   writeLines(fn_vec, path_file)
-  .projr_newline_append(path_file)
+  .newline_append(path_file)
   invisible(TRUE)
 }
 
-.projr_env_file_get_path_list <- function() {
+.env_file_get_path_list <- function() {
   file.path(tempdir(), "projr-env_file", "env.list")
 }
 
-.projr_env_file_deactivate <- function() {
-  if (!file.exists(.projr_env_file_get_path_list())) {
+.env_file_deactivate <- function() {
+  if (!file.exists(.env_file_get_path_list())) {
     return(invisible(FALSE))
   }
-  fn_vec <- readLines(.projr_env_file_get_path_list())
+  fn_vec <- readLines(.env_file_get_path_list())
   for (i in seq_along(fn_vec)) {
     if (.is_string(fn_vec[[i]])) {
       eval(parse(text = paste0("Sys.unsetenv('", fn_vec[[i]], "')")))
     }
   }
-  .dir_rm(dirname(.projr_env_file_get_path_list()))
+  .dir_rm(dirname(.env_file_get_path_list()))
 }

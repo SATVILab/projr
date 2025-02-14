@@ -25,35 +25,35 @@ test_that("basic yml functions work", {
   usethis::with_project(
     path = dir_test,
     code = {
-      yml_projr_int <- .projr_yml_get_default_raw()
-      expect_identical(class(.projr_yml_get_default_raw()), "list")
-      expect_identical(class(.projr_yml_bd_get()), "list")
-      expect_identical(class(.projr_desc_get()), c("matrix", "array"))
-      yml_projr_min <- list(
+      yml.int <- .yml_get_default_raw()
+      expect_identical(class(.yml_get_default_raw()), "list")
+      expect_identical(class(.yml_bd_get()), "list")
+      expect_identical(class(.desc_get()), c("matrix", "array"))
+      yml.min <- list(
         "directories" = NULL, "build" = list()
       )
-      .projr_yml_set(yml_projr_min)
-      expect_identical(.projr_yml_get_default_raw(), yml_projr_min)
+      .yml_set(yml.min)
+      expect_identical(.yml_get_default_raw(), yml.min)
       unlink(file.path(dir_test, "_projr.yml"))
       unlink(file.path(dir_test, "_bookdown.yml"))
-      expect_identical(class(.projr_yml_get_default_raw()), "list")
-      expect_identical(.projr_yml_bd_get(), list())
+      expect_identical(class(.yml_get_default_raw()), "list")
+      expect_identical(.yml_bd_get(), list())
     },
     quiet = TRUE,
     force = TRUE
   )
 })
 
-test_that("projr_yml_check works", {
+test_that(.yml_check works", {
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
-      projr_init()
-      expect_true(projr_yml_check())
-      projr_yml_check()
-      projr_yml_dest_add_local(
+     .init()
+      expect_true.yml_check())
+     .yml_check()
+     .yml_dest_add_local(
         title = "test",
         content = "raw-data",
         path = "_outputting",
@@ -61,36 +61,36 @@ test_that("projr_yml_check works", {
         send_strategy = "upload-all",
         send_conflict = "overwrite"
       )
-      expect_true(projr_yml_check())
+      expect_true.yml_check())
     }
   )
 })
 
-test_that("projr_yml_dest_add_* functions work", {
+test_that(.yml_dest_add_* functions work", {
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
-      .projr_test_yml_unset_remote()
-      projr_yml_dest_add_local(
+      .test_yml_unset_remote()
+     .yml_dest_add_local(
         title = "test", content = "raw-data", path = "_archive"
       )
-      expect_true(!is.null(.projr_yml_dest_get_type("local", "default")))
+      expect_true(!is.null(.yml_dest_get_type("local", "default")))
 
-      projr_yml_dest_add_osf(
+     .yml_dest_add_osf(
         title = "test", content = "raw-data", category = "project"
       )
-      expect_true(!is.null(.projr_yml_dest_get_type("osf", "default")))
+      expect_true(!is.null(.yml_dest_get_type("osf", "default")))
       expect_true(
         .is_string(
-          .projr_yml_dest_get_type("osf", "default")[["test"]][["id"]]
+          .yml_dest_get_type("osf", "default")[["test"]][["id"]]
         )
       )
-      projr_yml_dest_add_github(
+     .yml_dest_add_github(
         title = "test", content = "raw-data"
       )
-      expect_true(!is.null(.projr_yml_dest_get_type("github", "default")))
+      expect_true(!is.null(.yml_dest_get_type("github", "default")))
     }
   )
 })

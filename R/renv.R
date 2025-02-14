@@ -29,7 +29,7 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   # Initializes renv, copies files, disables cache, and runs renv::restore().
   # Optionally deletes the restored library path afterwards.
 
-  working_dir <- tempfile("projr_renv_test_")
+  working_dir <- tempfile(.renv_test_")
   dir.create(working_dir, recursive = TRUE, showWarnings = FALSE)
 
   wd_old <- getwd()
@@ -37,17 +37,17 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   setwd(working_dir)
   cli::cli_alert_info(paste0("Working directory: ", working_dir))
 
-  .projr_renv_rest_init()
-  .projr_renv_rest_activate()
+  .renv_rest_init()
+  .renv_rest_activate()
 
   .dir_copy_file(files_to_copy |> union("renv.lock"), wd_old, working_dir)
 
-  .projr_renv_rest_disable_cache()
+  .renv_rest_disable_cache()
 
-  success <- .projr_renv_rest_restore()
+  success <- .renv_rest_restore()
 
   if (delete_lib) {
-    .projr_renv_rest_cleanup_lib()
+    .renv_rest_cleanup_lib()
   }
 
   success
@@ -56,19 +56,19 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
 
 #----------------- Sub-Functions -----------------#
 
-.projr_renv_rest_init <- function() {
+.renv_rest_init <- function() {
   # Initializes renv in the current working directory using Rscript.
   # Stops execution on failure.
 
   cmd <- paste0("renv::init(); message(renv::project())")
-  res <- .projr_renv_rest_run_rscript(cmd, FALSE, TRUE)
+  res <- .renv_rest_run_rscript(cmd, FALSE, TRUE)
 
   if (!res$success) {
     stop("Failed to initialize renv: ", res$error)
   }
 }
 
-.projr_renv_rest_activate <- function() {
+.renv_rest_activate <- function() {
   # Activates renv in the current working directory using Rscript.
   # Stops execution on failure.
 
@@ -76,14 +76,14 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   cmd <- paste0(
     "renv::activate('", working_dir, "'); message(renv::project())"
   )
-  res <- .projr_renv_rest_run_rscript(cmd, FALSE, TRUE)
+  res <- .renv_rest_run_rscript(cmd, FALSE, TRUE)
 
   if (!res$success) {
     stop("Failed to activate renv: ", res$error)
   }
 }
 
-.projr_renv_test_test_snapshot <- function() {
+.renv_test_test_snapshot <- function() {
   # Creates a _dependencies.R file, installs 'tinytest',
   # and snapshots the environment.
   # Uses Rscript to run commands under renv. Stops on failure.
@@ -98,14 +98,14 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
     "renv::install('tinytest', project = '", working_dir, "', prompt = FALSE);",
     "renv::snapshot(project = '", working_dir, "', prompt = FALSE)"
   )
-  res <- .projr_renv_rest_run_rscript(cmd, FALSE, TRUE)
+  res <- .renv_rest_run_rscript(cmd, FALSE, TRUE)
 
   if (!res$success) {
     stop("Failed to run commands: ", res$error)
   }
 }
 
-.projr_renv_test_test_lockfile_create <- function(file_path, bad = FALSE) {
+.renv_test_test_lockfile_create <- function(file_path, bad = FALSE) {
   # Creates a renv.lock file for testing.
   # If 'bad' is TRUE, sets an unrealistic package version and hash.
 
@@ -142,7 +142,7 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   )
 }
 
-.projr_renv_rest_copy_files <- function(files_to_copy) {
+.renv_rest_copy_files <- function(files_to_copy) {
   # Removes existing files and copies specified files (including renv.lock)
   # into the working directory.
   # Stops if file operations fail.
@@ -158,7 +158,7 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   }
 }
 
-.projr_renv_rest_disable_cache <- function() {
+.renv_rest_disable_cache <- function() {
   # Disables the renv cache by appending a setting to
   # .Rprofile in the current directory.
   # Stops execution on failure.
@@ -181,7 +181,7 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   }
 }
 
-.projr_renv_rest_restore <- function() {
+.renv_rest_restore <- function() {
   # Runs renv::restore() via Rscript with --vanilla in the current directory.
   # Returns TRUE if successful, FALSE otherwise.
 
@@ -190,7 +190,7 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
     "renv::activate('", wd, "'); ",
     "renv::restore(project = '", wd, "', prompt = FALSE, rebuild = TRUE)"
   )
-  res <- .projr_renv_rest_run_rscript(cmd, vanilla = TRUE)
+  res <- .renv_rest_run_rscript(cmd, vanilla = TRUE)
 
   if (!res$success) {
     cli::cli_alert_danger("renv::restore() failed.")
@@ -203,7 +203,7 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   res$success
 }
 
-.projr_renv_rest_cleanup_lib <- function() {
+.renv_rest_cleanup_lib <- function() {
   # Deletes the first library path from .libPaths()
   # using Rscript with renv activated.
   # Stops on failure.
@@ -219,20 +219,20 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
     "message('Library path does not exist and cannot be deleted: ', first_lib);", # nolint
     "}"
   )
-  res <- .projr_renv_rest_run_rscript(cmd, FALSE, TRUE)
+  res <- .renv_rest_run_rscript(cmd, FALSE, TRUE)
 
   if (!res$success) {
     stop("Failed to delete library: ", res$error)
   }
 }
 
-.projr_renv_rest_run_rscript <- function(expr, message_path = TRUE, vanilla = FALSE) {
+.renv_rest_run_rscript <- function(expr, message_path = TRUE, vanilla = FALSE) {
   # Runs the given R expression in a separate Rscript process.
   # If `vanilla` is TRUE, uses --vanilla.
   # If `message_path` is TRUE, logs stdout/stderr file paths.
   # Returns a list with 'success' and 'error'.
 
-  rscript <- .projr_path_rscript_get()
+  rscript <- .path_rscript_get()
 
   if (rscript == "") {
     return(list(success = FALSE, error = "Rscript executable not found."))
@@ -319,9 +319,9 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
 #' @description
 #' Functions to manage the restoration and updating of packages specified in the `renv` lockfile.
 #'
-#' - `projr_renv_restore()`: Restores packages from the lockfile, attempting to install the lockfile versions.
-#' - `projr_renv_update()`: Updates packages to their latest available versions, ignoring the lockfile versions.
-#' - `projr_renv_restore_and_update()`: First restores packages from the lockfile, then updates them to the latest versions.
+#' - .renv_restore()`: Restores packages from the lockfile, attempting to install the lockfile versions.
+#' - .renv_update()`: Updates packages to their latest available versions, ignoring the lockfile versions.
+#' - .renv_restore_and_update()`: First restores packages from the lockfile, then updates them to the latest versions.
 #'
 #' @details
 #' Control whether to process GitHub packages, non-GitHub packages (CRAN and Bioconductor), or both using the `github` and `non_github` arguments.
@@ -338,23 +338,23 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
 #' @examples
 #' \dontrun{
 #' # Restore all packages
-#' projr_renv_restore()
+#'.renv_restore()
 #'
 #' # Update all packages
-#' projr_renv_update()
+#'.renv_update()
 #'
 #' # Restore and then update all packages
-#' projr_renv_restore_and_update()
+#'.renv_restore_and_update()
 #'
 #' # Only restore non-GitHub packages
-#' projr_renv_restore(github = FALSE)
+#'.renv_restore(github = FALSE)
 #'
 #' # Only update GitHub packages
-#' projr_renv_update(non_github = FALSE)
+#'.renv_update(non_github = FALSE)
 #' }
 #'
 #' @export
-#' @rdname projr_renv_restore
+#' @rdname.renv_restore
 projr_renv_restore <- function(github = TRUE,
                                non_github = TRUE,
                                biocmanager_install = FALSE) {
@@ -365,8 +365,8 @@ projr_renv_restore <- function(github = TRUE,
 
   cli::cli_h1("Starting renv environment restoration")
 
-  package_list <- .projr_renv_lockfile_pkg_get()
-  .projr_renv_restore_or_update_impl(
+  package_list <- .renv_lockfile_pkg_get()
+  .renv_restore_or_update_impl(
     package_list = package_list,
     non_github = non_github,
     github = github,
@@ -378,7 +378,7 @@ projr_renv_restore <- function(github = TRUE,
 }
 
 #' @export
-#' @rdname projr_renv_restore
+#' @rdname.renv_restore
 projr_renv_update <- function(github = TRUE,
                               non_github = TRUE,
                               biocmanager_install = FALSE) {
@@ -389,8 +389,8 @@ projr_renv_update <- function(github = TRUE,
 
   cli::cli_h1("Starting renv environment update")
 
-  package_list <- .projr_renv_lockfile_pkg_get()
-  .projr_renv_restore_or_update_impl(
+  package_list <- .renv_lockfile_pkg_get()
+  .renv_restore_or_update_impl(
     package_list = package_list,
     non_github = non_github,
     github = github,
@@ -402,17 +402,17 @@ projr_renv_update <- function(github = TRUE,
 }
 
 #' @export
-#' @rdname projr_renv_restore
+#' @rdname.renv_restore
 projr_renv_restore_and_update <- function(github = TRUE,
                                           non_github = TRUE,
                                           biocmanager_install = FALSE) {
   # First restores packages to the lockfile versions, then updates them to the latest versions.
 
-  projr_renv_restore(github, non_github, biocmanager_install)
-  projr_renv_update(github, non_github, biocmanager_install)
+ .renv_restore(github, non_github, biocmanager_install)
+ .renv_update(github, non_github, biocmanager_install)
 }
 
-.projr_renv_lockfile_pkg_get <- function() {
+.renv_lockfile_pkg_get <- function() {
   # Reads the current renv lockfile, extracts and categorizes packages as regular, Bioconductor, or GitHub.
   # Returns a list of package vectors.
 
@@ -446,16 +446,16 @@ projr_renv_restore_and_update <- function(github = TRUE,
   )
 }
 
-.projr_renv_restore_or_update_impl <- function(package_list,
+.renv_restore_or_update_impl <- function(package_list,
                                                github,
                                                non_github,
                                                restore,
                                                biocmanager_install) {
-  # Internal helper for projr_renv_restore and projr_renv_update.
+  # Internal helper for.renv_restore and.renv_update.
   # Calls the appropriate wrapper for CRAN, Bioconductor, and GitHub packages
   # based on whether restore or update operations are requested.
 
-  .projr_renv_restore_or_update_actual_wrapper(
+  .renv_restore_or_update_actual_wrapper(
     pkg = package_list[["regular"]],
     act = non_github,
     restore = restore,
@@ -463,7 +463,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
     biocmanager_install = biocmanager_install
   )
 
-  .projr_renv_restore_or_update_actual_wrapper(
+  .renv_restore_or_update_actual_wrapper(
     pkg = package_list[["bioc"]],
     act = non_github,
     restore = restore,
@@ -471,7 +471,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
     biocmanager_install = biocmanager_install
   )
 
-  .projr_renv_restore_or_update_actual_wrapper(
+  .renv_restore_or_update_actual_wrapper(
     pkg = package_list[["gh"]],
     act = github,
     restore = restore,
@@ -481,7 +481,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
   invisible(TRUE)
 }
 
-.projr_renv_restore_or_update_actual_wrapper <- function(pkg,
+.renv_restore_or_update_actual_wrapper <- function(pkg,
                                                          act,
                                                          restore,
                                                          source,
@@ -497,7 +497,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
   if (act) {
     action <- if (restore) "Restoring" else "Installing latest" # nolint: object_usage_linter.
     cli::cli_alert_info("{action} {source} packages.")
-    .projr_renv_restore_update_actual(
+    .renv_restore_update_actual(
       pkg,
       restore,
       biocmanager_install,
@@ -509,7 +509,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
   }
 }
 
-.projr_renv_restore_update_actual <- function(pkg, restore, biocmanager_install, is_bioc) {
+.renv_restore_update_actual <- function(pkg, restore, biocmanager_install, is_bioc) {
   # Performs the actual restore or update of packages.
   # On restore, attempts renv::restore() and checks for missing packages.
   # On update, installs the latest versions.
@@ -541,18 +541,18 @@ projr_renv_restore_and_update <- function(github = TRUE,
       }
     )
     cli::cli_alert_info("Checking for packages that failed to restore.")
-    .projr_renv_restore_remaining(pkg_names)
+    .renv_restore_remaining(pkg_names)
   } else {
     cli::cli_alert_info("Installing latest {pkg_type} packages: {.pkg {pkg_names}}")
-    .projr_renv_install(pkg, biocmanager_install, is_bioc)
+    .renv_install(pkg, biocmanager_install, is_bioc)
   }
 
   cli::cli_alert_info("Checking for packages that are still not installed.")
-  .projr_renv_install_remaining(pkg, biocmanager_install, is_bioc)
+  .renv_install_remaining(pkg, biocmanager_install, is_bioc)
   invisible(TRUE)
 }
 
-.projr_renv_restore_remaining <- function(pkg) {
+.renv_restore_remaining <- function(pkg) {
   # Checks for packages that failed to restore and tries restoring them individually.
 
   .ensure_cli()
@@ -580,7 +580,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
   }
 }
 
-.projr_renv_install <- function(pkg, biocmanager_install, is_bioc) {
+.renv_install <- function(pkg, biocmanager_install, is_bioc) {
   # Installs packages using renv. If is_bioc and biocmanager_install are TRUE, uses BiocManager::install().
   # Otherwise, uses renv::install(). Logs errors on failure.
 
@@ -616,7 +616,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
   }
 }
 
-.projr_renv_install_remaining <- function(pkg, biocmanager_install, is_bioc) {
+.renv_install_remaining <- function(pkg, biocmanager_install, is_bioc) {
   # Checks for packages still missing after the initial restore/update process.
   # Attempts to install them again, and if they remain missing, tries one by one.
 
@@ -634,7 +634,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
 
   cli::cli_alert_warning("Packages that are still missing: {.pkg {pkg_remaining}}")
   cli::cli_alert_info("Attempting to install remaining packages.")
-  .projr_renv_install(pkg_remaining, biocmanager_install, is_bioc)
+  .renv_install(pkg_remaining, biocmanager_install, is_bioc)
 
   pkg_still_missing <- pkg_remaining[
     !sapply(pkg_remaining, function(x) {
@@ -652,7 +652,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
 
   for (x in pkg_still_missing) {
     if (!requireNamespace(sub("^.*/", "", x), quietly = TRUE)) {
-      .projr_renv_install(x, biocmanager_install, is_bioc)
+      .renv_install(x, biocmanager_install, is_bioc)
     }
   }
 

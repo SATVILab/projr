@@ -1,5 +1,5 @@
-.projr_version_format_list_get <- function(profile) {
-  version_format <- .projr_yml_metadata_get_version_format(profile)
+.version_format_list_get <- function(profile) {
+  version_format <- .yml_metadata_get_version_format(profile)
   version_format_vec_sep <- strsplit(
     version_format, "major|minor|patch|dev"
   )[[1]][-1]
@@ -21,16 +21,16 @@
 # version-format
 # --------------------------- 
 
-.projr_yml_metadata_get_version_format <- function(profile) {
-  .projr_yml_metadata_get_nm("version-format", profile) %||% "major.minor.patch-dev"
+.yml_metadata_get_version_format <- function(profile) {
+  .yml_metadata_get_nm("version-format", profile) %||% "major.minor.patch-dev"
 }
 
-.projr_yml_metadata_set_version_format <- function(version_format, profile) {
-  .projr_yml_version_format_set_check(version_format)
-  .projr_yml_metadata_set_nm(version_format, "version-format", profile)
+.yml_metadata_set_version_format <- function(version_format, profile) {
+  .yml_version_format_set_check(version_format)
+  .yml_metadata_set_nm(version_format, "version-format", profile)
 }
 
-.projr_yml_version_format_set_check <- function(version_format) {
+.yml_version_format_set_check <- function(version_format) {
   if (is.null(version_format) || .is_len_0(version_format)) {
     return(invisible(TRUE))
   }

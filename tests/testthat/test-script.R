@@ -1,20 +1,20 @@
-test_that(".projr_yml_script_ functions work works", {
+test_that(".yml_script_ functions work works", {
   # setup
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
-      # test projr_yml_script_add
-      projr_yml_script_add(
+      # test.yml_script_add
+     .yml_script_add(
         path = "tests/testthat/test-script.R",
         title = "test-script",
         stage = "pre"
       )
       expect_identical(
-        .projr_yml_script_get("default"),
+        .yml_script_get("default"),
         list(
           "test-script" = list(
             "stage" = "pre",
@@ -23,43 +23,43 @@ test_that(".projr_yml_script_ functions work works", {
         )
       )
 
-      # test projr_yml_script_rm_path
-      projr_yml_script_rm(title = "test-script", profile = "default")
+      # test.yml_script_rm_path
+     .yml_script_rm(title = "test-script", profile = "default")
       expect_identical(
-        .projr_yml_script_get("default"),
+        .yml_script_get("default"),
         NULL
       )
 
-      # test projr_yml_script_rm_title
-      projr_yml_script_add(
+      # test.yml_script_rm_title
+     .yml_script_add(
         path = "tests/testthat/test-script.R",
         title = "test-script",
         stage = "pre",
         cue = "major"
       )
-      .projr_yml_script_rm_title(
+      .yml_script_rm_title(
         title = "test-script", profile = "default"
       )
       expect_identical(
-        .projr_yml_script_get("default"),
+        .yml_script_get("default"),
         NULL
       )
 
-      # test projr_yml_script_rm_all
-      projr_yml_script_add(
+      # test.yml_script_rm_all
+     .yml_script_add(
         path = "tests/testthat/test-script.R",
         title = "test-script",
         stage = "pre",
         cue = "minor"
       )
-      projr_yml_script_rm_all(profile = "default")
+     .yml_script_rm_all(profile = "default")
       expect_identical(
-        .projr_yml_script_get("default"),
+        .yml_script_get("default"),
         NULL
       )
 
-      # test projr_yml_script_rm
-      projr_yml_script_add(
+      # test.yml_script_rm
+     .yml_script_add(
         path = c(
           "tests/testthat/test-script.R", "tests/testthat/test-script-2.R"
         ),
@@ -68,7 +68,7 @@ test_that(".projr_yml_script_ functions work works", {
         cue = "minor"
       )
       expect_identical(
-        .projr_yml_script_get("default"),
+        .yml_script_get("default"),
         list(
           `test-script` = list(
             stage = "post",
@@ -81,13 +81,13 @@ test_that(".projr_yml_script_ functions work works", {
         )
       )
 
-      projr_yml_script_rm(
+     .yml_script_rm(
         title = "test-script",
         path = "tests/testthat/test-script.R",
         profile = "default"
       )
       expect_identical(
-        .projr_yml_script_get("default"),
+        .yml_script_get("default"),
         list(
           "test-script" = list(
             "stage" = "post",
@@ -100,33 +100,33 @@ test_that(".projr_yml_script_ functions work works", {
   )
 })
 
-test_that(".projr_yml_script_ functions work works with other profile", {
+test_that(".yml_script_ functions work works with other profile", {
   skip_if(.is_test_select())
   # setup
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
-      Sys.setenv("PROJR_PROFILE" = "test")
+      Sys.setenv(.PROFILE" = "test")
       withr::defer(
-        Sys.unsetenv("PROJR_PROFILE"),
+        Sys.unsetenv(.PROFILE"),
         envir = rlang::caller_env()
       )
       file.create("_projr-test.yml")
       yaml::write_yaml(
         list(directories = list(path = "abc")), "_projr-test.yml"
       )
-      # test projr_yml_script_add
-      projr_yml_script_add(
+      # test.yml_script_add
+     .yml_script_add(
         path = "tests/testthat/test-script.R",
         title = "test-script",
         stage = "pre",
         profile = "test"
       )
       expect_identical(
-        .projr_yml_script_get("test"),
+        .yml_script_get("test"),
         list(
           "test-script" = list(
             "stage" = "pre",
@@ -135,31 +135,31 @@ test_that(".projr_yml_script_ functions work works with other profile", {
         )
       )
 
-      # test projr_yml_script_rm_path
-      projr_yml_script_rm(title = "test-script", profile = "test")
+      # test.yml_script_rm_path
+     .yml_script_rm(title = "test-script", profile = "test")
       expect_identical(
-        .projr_yml_script_get("test"),
+        .yml_script_get("test"),
         NULL
       )
 
-      # test projr_yml_script_rm_title
-      projr_yml_script_add(
+      # test.yml_script_rm_title
+     .yml_script_add(
         path = "tests/testthat/test-script.R",
         title = "test-script",
         stage = "pre",
         cue = "major",
         profile = "test"
       )
-      .projr_yml_script_rm_title(
+      .yml_script_rm_title(
         title = "test-script", profile = "test"
       )
       expect_identical(
-        .projr_yml_script_get("test"),
+        .yml_script_get("test"),
         NULL
       )
 
-      # test projr_yml_script_rm_all
-      projr_yml_script_add(
+      # test.yml_script_rm_all
+     .yml_script_add(
         path = "tests/testthat/test-script.R",
         title = "test-script",
         stage = "pre",
@@ -167,14 +167,14 @@ test_that(".projr_yml_script_ functions work works with other profile", {
         profile = "test"
       )
 
-      projr_yml_script_rm_all(profile = "test")
+     .yml_script_rm_all(profile = "test")
       expect_identical(
-        .projr_yml_script_get("test"),
+        .yml_script_get("test"),
         NULL
       )
 
-      # test projr_yml_script_rm
-      projr_yml_script_add(
+      # test.yml_script_rm
+     .yml_script_add(
         path = c(
           "tests/testthat/test-script.R", "tests/testthat/test-script-2.R"
         ),
@@ -184,7 +184,7 @@ test_that(".projr_yml_script_ functions work works with other profile", {
         profile = "test"
       )
       expect_identical(
-        .projr_yml_script_get("test"),
+        .yml_script_get("test"),
         list(
           `test-script` = list(
             stage = "post",
@@ -197,13 +197,13 @@ test_that(".projr_yml_script_ functions work works with other profile", {
         )
       )
 
-      projr_yml_script_rm(
+     .yml_script_rm(
         title = "test-script",
         path = "tests/testthat/test-script.R",
         profile = "test"
       )
       expect_identical(
-        .projr_yml_script_get("test"),
+        .yml_script_get("test"),
         list(
           "test-script" = list(
             "stage" = "post",
@@ -216,16 +216,16 @@ test_that(".projr_yml_script_ functions work works with other profile", {
   )
 })
 
-test_that(".projr_build_script... functions work works", {
+test_that(".build_script... functions work works", {
   skip_if(.is_test_select())
   # setup
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
-      projr_yml_script_add(
+     .yml_script_add(
         "title" = "test-script",
         path = c("script1.R", "script2.R"),
         stage = "pre"
@@ -239,7 +239,7 @@ test_that(".projr_build_script... functions work works", {
       if (exists("y", envir = .GlobalEnv)) {
         rm(y, envir = .GlobalEnv)
       }
-      .projr_build_script_run(
+      .build_script_run(
         stage = "post"
       )
       expect_false(exists("x"))
@@ -252,7 +252,7 @@ test_that(".projr_build_script... functions work works", {
         rm(y)
       }
       # something done
-      .projr_build_script_run(
+      .build_script_run(
         stage = "pre"
       )
       expect_true(exists("x"))

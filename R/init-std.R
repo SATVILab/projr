@@ -11,13 +11,13 @@ projr_init <- function(git = TRUE,
                        desc = FALSE,
                        license = NULL,
                        citation = FALSE,
-                       projr_yml = FALSE,
+                      .yml = FALSE,
                        lit_doc = NULL) {
 
   #
 
   # initialise Git
-  .projr_init_std_git(git, git_commit)
+  .init_std_git(git, git_commit)
 
 }
 
@@ -25,9 +25,9 @@ projr_init <- function(git = TRUE,
 # README
 # ========================================
 
-.projr_init_readme_
+.init_readme_
 
-.projr_init_readme <- function(init_readme) {
+.init_readme <- function(init_readme) {
   if (!init_readme) {
     return(invisible(FALSE))
   }
@@ -48,7 +48,7 @@ projr_init <- function(git = TRUE,
     "  }",
     "  remotes::install_github(\"MiguelRodo/projrsimple\")",
     "}",
-    "projrsimple::projr_run()",
+    "projrsimple:.run()",
     "```",
     "",
     "<!--",
@@ -88,16 +88,16 @@ projr_init <- function(git = TRUE,
 # Git
 # ========================================
 
-.projr_init_std_git <- function(git, commit) {
+.init_std_git <- function(git, commit) {
   if (!git) {
     return(invisible(FALSE))
   }
-  .projr_git_system_setup()
-  .projr_git_init()
-  projr_ignore_auto()
+  .git_system_setup()
+  .git_init()
+ .ignore_auto()
   if (commit) {
-    .projr_init_git_commit()
+    .init_git_commit()
   }
-  .projr_init_git_suggest_git()
+  .init_git_suggest_git()
   invisible(TRUE)
 }

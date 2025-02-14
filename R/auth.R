@@ -1,15 +1,15 @@
 # github
 # works - 2025 02 12
-.projr_auth_get_github_pat <- function(init = FALSE) {
-  pat <- .projr_auth_get_github_pat_find()
+.auth_get_github_pat <- function(init = FALSE) {
+  pat <- .auth_get_github_pat_find()
   if (.is_string(pat)) {
     return(invisible(pat))
   }
-  .projr_auth_get_github_pat_warn(init)
+  .auth_get_github_pat_warn(init)
   pat
 }
 
-.projr_auth_get_github_pat_find <- function() {
+.auth_get_github_pat_find <- function() {
   # try GITHUB_PAT
   pat <- Sys.getenv("GITHUB_PAT")
   if (.is_string(pat)) {
@@ -17,33 +17,33 @@
   }
   # try gitcreds
   if (!requireNamespace("gitcreds", quietly = TRUE)) {
-    .projr_dep_install("gitcreds")
+    .dep_install("gitcreds")
   } else {
-    .projr_dep_add("gitcreds")
+    .dep_add("gitcreds")
   }
   # taken from rstudio/renv and modified
   tryCatch(
     invisible(gitcreds::gitcreds_get()$password),
     error = function(e) {
       # remove as a forced dependency if this didn't work
-      .projr_dep_rm("gitcreds")
+      .dep_rm("gitcreds")
       invisible(character())
     }
   )
 }
 
-.projr_auth_get_github_pat_warn <- function(init = FALSE) {
+.auth_get_github_pat_warn <- function(init = FALSE) {
   warning(
     "GITHUB_PAT environment variable not found.\n", # nolint
     "\n", # nolint
-    .projr_auth_get_github_pat_instr(),
+    .auth_get_github_pat_instr(),
     "\n", # nolint
-    .projr_auth_get_github_pat_instr_init(init),
+    .auth_get_github_pat_instr_init(init),
     call. = FALSE
   )
 }
 
-.projr_auth_get_github_pat_instr <- function() {
+.auth_get_github_pat_instr <- function() {
   c(
     "GITHUB_PAT is needed to create a GitHub repository.\n", # nolint
     "\n", # nolint
@@ -56,20 +56,20 @@
   )
 }
 
-.projr_auth_get_github_pat_instr_init <- function(init = TRUE) {
+.auth_get_github_pat_instr_init <- function(init = TRUE) {
   if (!init) {
     return(NULL)
   }
   c(
     "After doing the above:\n", # nolint
-    "1. In R, rerun projr::projr_init()\n", # nolint
+    "1. In R, rerun projr:.init()\n", # nolint
     "It will skip what's been done already and try set up GitHub again." # nolint
   )
 }
 
 # osf
-.projr_auth_get_osf_pat <- function() {
-  pat <- .projr_auth_get_osf_pat_find()
+.auth_get_osf_pat <- function() {
+  pat <- .auth_get_osf_pat_find()
   if (.is_string(pat)) {
     return(invisible(pat))
   }
@@ -77,26 +77,26 @@
     "\n",
     "OSF_PAT environment variable not set", # nolint
     "\n",
-    .projr_auth_get_osf_pat_instr(),
+    .auth_get_osf_pat_instr(),
     call. = FALSE
   )
   invisible(character())
 }
 
-.projr_auth_get_osf_pat_find <- function() {
+.auth_get_osf_pat_find <- function() {
   Sys.getenv("OSF_PAT")
 }
 
-.projr_auth_get_osf_pat_warn <- function() {
+.auth_get_osf_pat_warn <- function() {
   warning(
     "OSF_PAT environment variable not found.\n",
     "\n",
-    .projr_auth_get_osf_pat_instr(),
+    .auth_get_osf_pat_instr(),
     call. = FALSE
   )
 }
 
-.projr_auth_get_osf_pat_instr <- function() {
+.auth_get_osf_pat_instr <- function() {
   c(
     "OSF_PAT is needed to transfer to and from OSF.\n",
     "\n",
@@ -127,19 +127,19 @@
 
 #' @title Two-minutes or less authorisation instructions
 #'
-#' @description `projr_instr_auth_github` and
-#' `projr_instr_auth_osf` print easy-to-follow,
+#' @description .instr_auth_github` and
+#' .instr_auth_osf` print easy-to-follow,
 #' step-by-step instructions for authorisation
 #' to GitHub and OSF.
 #' @export
 #' @rdname instr_auth
 projr_instr_auth_github <- function() {
-  message(.projr_auth_get_github_pat_instr())
+  message(.auth_get_github_pat_instr())
 }
 
 #' @title Authorisation instructions
 #' @export
 #' @rdname instr_auth
 projr_instr_auth_osf <- function() {
-  message(.projr_auth_get_osf_pat_instr())
+  message(.auth_get_osf_pat_instr())
 }

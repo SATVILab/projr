@@ -1,21 +1,21 @@
-.projr_osf_label_get_random <- function(prefix) {
+.osf_label_get_random <- function(prefix) {
   label <- paste0(
     prefix, stats::rnorm(1) |> signif(15) |> as.character()
   )
   # add it to yml_projr
-  yml_projr <- .projr_yml_get()
+  yml_projr <- .yml_get()
   yml_projr[["directories"]][[label]] <- list(
     path = "_some_random_path"
   )
-  .projr_yml_set(yml_projr)
+  .yml_set(yml_projr)
   label
 }
 
-.projr_test_osf_create_project <- function(prefix) {
+.test_osf_create_project <- function(prefix) {
   project <- paste0(
     prefix, "ProjrOSFTest", stats::rnorm(1) |> signif(6) |> as.character()
   )
-  .projr_remote_create(
+  .remote_create(
     type = "osf",
     name = project,
     category = "project",
@@ -24,16 +24,16 @@
   )
 }
 
-.projr_osf_rm_node_id_defer <- function(id, env = NULL) {
+.osf_rm_node_id_defer <- function(id, env = NULL) {
   if (is.null(env)) {
     env <- rlang::caller_env()
   }
   # store label in tempdir() to be removed later
-  path_file_rm <- file.path(.projr_test_osf_remote_dir_get_tmp(), id)
+  path_file_rm <- file.path(.test_osf_remote_dir_get_tmp(), id)
   invisible(file.create(path_file_rm, showWarnings = FALSE))
   withr::defer(
     {
-      try(.projr_remote_host_rm("osf", id), silent = TRUE)
+      try(.remote_host_rm("osf", id), silent = TRUE)
       eval(parse(text = paste0("unlink('", path_file_rm, "')")))
     },
     envir = env
@@ -45,9 +45,9 @@
 # SHOULD WORK JUST FINE.
 # DO NOT CHANGE WITHOUT THINKING HARD ABOUT
 # WHAT YOU ARE DOING.
-.projr_remote_host_rm_all_osf <- function() {
-  osf_tbl <- .projr_osf_retrieve_user("me") |>
-    .projr_osf_ls_nodes(n_max = Inf)
+.remote_host_rm_all_osf <- function() {
+  osf_tbl <- .osf_retrieve_user("me") |>
+    .osf_ls_nodes(n_max = Inf)
   ind_vec <- grepl("^test$|ProjrOSFTest", osf_tbl[["name"]])
   id_vec <- osf_tbl[ind_vec, ][["id"]]
   name_vec <- osf_tbl[ind_vec, ][["name"]]
@@ -78,11 +78,11 @@
     }
   }
   for (id in id_vec) {
-    .projr_remote_host_rm("osf", host = id)
+    .remote_host_rm("osf", host = id)
   }
 }
 
-.projr_test_osf_remote_dir_get_tmp <- function() {
+.test_osf_remote_dir_get_tmp <- function() {
   path_dir <- file.path(
     tempdir() |> dirname(), "osf_node_to_remove"
   )

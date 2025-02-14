@@ -19,13 +19,13 @@
 #' Whether to check the validity of the settings.
 #' Default is `FALSE`.
 #'
-#' @seealso projr_yml_get_unchecked,projr_yml_check
+#' @seealso.yml_get_unchecked.yml_check
 #'
 #' @return A named list, if the settings are valid.
 #'
 #' @export
 projr_yml_get <- function(profile = NULL, check = FALSE) {
-  .projr_yml_get(profile)
+  .yml_get(profile)
 }
 
 #' @title Get active `projr` settings and do no check
@@ -48,43 +48,43 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 #'
 #' @return A named list.
 #'
-#' @seealso projr_yml_get,projr_yml_check
-.projr_yml_get <- function(profile) {
+#' @seealso.yml_get.yml_check
+.yml_get <- function(profile) {
   if (!is.null(profile)) {
-    return(.projr_yml_get_profile(profile))
+    return(.yml_get_profile(profile))
   }
-  .projr_yml_get_null()
+  .yml_get_null()
 }
 
-.projr_yml_get_profile <- function(profile) {
+.yml_get_profile <- function(profile) {
   .assert_string(profile)
   switch(profile,
-    "local" = .projr_yml_get_local(),
-    "default" = .projr_yml_get_default(),
-    .projr_yml_get_profile_spec()
+    "local" = .yml_get_local(),
+    "default" = .yml_get_default(),
+    .yml_get_profile_spec()
   )
 }
 
-.projr_yml_get_null <- function() {
-  yml_projr_root <- .projr_yml_get_default()
-  yml_projr_profile <- .projr_yml_get_profile_spec()
-  yml_projr_local <- .projr_yml_get_local()
+.yml_get_null <- function() {
+  yml.root <- .yml_get_default()
+  yml.profile <- .yml_get_profile_spec()
+  yml.local <- .yml_get_local()
 
-  .projr_yml_merge(
-    yml_projr_root, yml_projr_profile, yml_projr_local
+  .yml_merge(
+    yml.root, yml.profile, yml.local
   )
 }
 
-.projr_yml_merge <- function(yml_projr_root_default,
-                             yml_projr_profile,
-                             yml_projr_local) {
-  nm_vec <- names(yml_projr_root_default) |>
-    c(names(yml_projr_profile), names(yml_projr_local)) |>
+.yml_merge <- function(yml.root_default,
+                             yml.profile,
+                             yml.local) {
+  nm_vec <- names(yml.root_default) |>
+    c(names(yml.profile), names(yml.local)) |>
     unique()
   lapply(nm_vec, function(nm) {
-    elem_default <- yml_projr_root_default[[nm]]
-    elem_profile <- yml_projr_profile[[nm]]
-    elem_local <- yml_projr_local[[nm]]
+    elem_default <- yml.root_default[[nm]]
+    elem_profile <- yml.profile[[nm]]
+    elem_local <- yml.local[[nm]]
     # return early if highest-precedence element
     # is not a list.
     # Otherwise, make any lower-precedence elements
@@ -128,12 +128,12 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     }
     # carry on if no return has been made
     # because the highest-precedence element was not a list
-    .projr_yml_merge(elem_default, elem_profile, elem_local)
+    .yml_merge(elem_default, elem_profile, elem_local)
   }) |>
     stats::setNames(nm_vec)
 }
 
-.projr_yml_get_default_raw <- function() {
+.yml_get_default_raw <- function() {
   path_yml <- .path_get("_projr.yml")
   if (!file.exists(path_yml)) {
     return(list())
@@ -141,15 +141,15 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   yaml::read_yaml(path_yml)
 }
 
-.projr_yml_get_default <- function() {
-  .projr_yml_get_profile_ind("default") |>
-    .projr_yml_get_filter_top_level()
+.yml_get_default <- function() {
+  .yml_get_profile_ind("default") |>
+    .yml_get_filter_top_level()
 }
 
 
-.projr_yml_get_profile_spec <- function(profile) {
+.yml_get_profile_spec <- function(profile) {
   if (!.is_given_mid(profile)) {
-    profile_vec <- .projr_profile_get_var()
+    profile_vec <- .profile_get_var()
   } else {
     .assert_string(profile)
     profile_vec <- vapply(profile, trimws, character(1)) |>
@@ -160,16 +160,16 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     return(list())
   }
   if (length(profile_vec) == 1L) {
-    return(.projr_yml_get_profile_ind(profile_vec))
+    return(.yml_get_profile_ind(profile_vec))
   }
 
   # read in with at least 3
-  profile_list <- .projr_yml_get_profile_list_min_3(profile_vec)
+  profile_list <- .yml_get_profile_list_min_3(profile_vec)
 
-  yml_projr_profile <- .projr_yml_merge_list(profile_list[1:3])
+  yml.profile <- .yml_merge_list(profile_list[1:3])
 
   if (length(profile_list) == 3L) {
-    return(yml_projr_profile)
+    return(yml.profile)
   }
 
   n_done <- 3
@@ -181,20 +181,20 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
       profile_list <- profile_list |>
         append(lapply(1, function(x) list()))
     }
-    yml_projr_profile <- .projr_yml_merge_list_add(
-      yml_projr_profile, profile_list[(n_done + 1):end_iter_max]
+    yml.profile <- .yml_merge_list_add(
+      yml.profile, profile_list[(n_done + 1):end_iter_max]
     )
     n_done <- end_iter_max
   }
-  yml_projr_profile
+  yml.profile
 }
 
-.projr_yml_get_profile_ind <- function(profile) {
-  .projr_yml_get_profile_ind_raw(profile) |>
-    .projr_yml_get_filter_top_level()
+.yml_get_profile_ind <- function(profile) {
+  .yml_get_profile_ind_raw(profile) |>
+    .yml_get_filter_top_level()
 }
 
-.projr_yml_get_profile_ind_raw <- function(profile) {
+.yml_get_profile_ind_raw <- function(profile) {
   .assert_string(profile)
   if (missing(profile) || profile == "default") {
     profile_spec <- ""
@@ -210,8 +210,8 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   yaml::read_yaml(path_profile)
 }
 
-.projr_yml_get_profile_list_min_3 <- function(profile_vec) {
-  profile_list <- lapply(profile_vec, .projr_yml_get_profile_ind)
+.yml_get_profile_list_min_3 <- function(profile_vec) {
+  profile_list <- lapply(profile_vec, .yml_get_profile_ind)
   if (length(profile_list) == 3L) {
     return(profile_list)
   }
@@ -221,28 +221,28 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     append(lapply(seq_len(rem), function(x) list()))
 }
 
-.projr_yml_merge_list <- function(profile_list) {
-  .projr_yml_merge(
-    yml_projr_root_default = profile_list[[3]],
-    yml_projr_profile = profile_list[[2]],
-    yml_projr_local = profile_list[[1]]
+.yml_merge_list <- function(profile_list) {
+  .yml_merge(
+    yml.root_default = profile_list[[3]],
+    yml.profile = profile_list[[2]],
+    yml.local = profile_list[[1]]
   )
 }
 
-.projr_yml_merge_list_add <- function(yml_projr_profile, profile_list) {
-  .projr_yml_merge(
-    yml_projr_root_default = profile_list[[3]],
-    yml_projr_profile = profile_list[[2]],
-    yml_projr_local = yml_projr_profile
+.yml_merge_list_add <- function(yml.profile, profile_list) {
+  .yml_merge(
+    yml.root_default = profile_list[[3]],
+    yml.profile = profile_list[[2]],
+    yml.local = yml.profile
   )
 }
 
-.projr_yml_get_local <- function() {
-  .projr_yml_get_profile_ind("local") |>
-    .projr_yml_get_filter_top_level()
+.yml_get_local <- function() {
+  .yml_get_profile_ind("local") |>
+    .yml_get_filter_top_level()
 }
 
-.projr_yml_get_filter_top_level <- function(yml) {
+.yml_get_filter_top_level <- function(yml) {
   nm_list <- list(
     "directories",
     "build",
@@ -250,7 +250,7 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     "metadata"
   )
   
-  pos_list <- lapply(nm_list, projr_yml_get_filter_top_level_ind, yml = yml)
+  pos_list <- lapply(nm_list,.yml_get_filter_top_level_ind, yml = yml)
   pos_vec <- unlist(Filter(Negate(is.null), pos_list), use.names = FALSE)
   
   yml[pos_vec]
@@ -263,28 +263,28 @@ projr_yml_get_filter_top_level_ind <- function(yml, nm) {
   if (length(idx) > 0) idx[1] else NULL
 }
 
-.projr_yml_set <- function(list_save, profile = "default") {
-  path_yml <- .projr_yml_get_path(profile)
+.yml_set <- function(list_save, profile = "default") {
+  path_yml <- .yml_get_path(profile)
   yaml::write_yaml(list_save, path_yml)
-  .projr_newline_append(path_yml)
+  .newline_append(path_yml)
   invisible(TRUE)
 }
 
-.projr_yml_get_path <- function(profile) {
+.yml_get_path <- function(profile) {
   if (!.is_given_mid(profile) || profile == "default") {
     return(.path_get("_projr.yml"))
   }
   .path_get(paste0("_projr-", profile, ".yml"))
 }
 
-.projr_yml_set_root <- function(list_save) {
+.yml_set_root <- function(list_save) {
   path_yml <- .path_get("_projr.yml")
   yaml::write_yaml(list_save, path_yml)
-  .projr_newline_append(path_yml)
+  .newline_append(path_yml)
   invisible(TRUE)
 }
 
-.projr_desc_get <- function() {
+.desc_get <- function() {
   if (!file.exists(.path_get("DESCRIPTION"))) {
     stop("DESCRIPTION file not found")
   }
@@ -292,26 +292,26 @@ projr_yml_get_filter_top_level_ind <- function(yml, nm) {
   read.dcf(path_desc)
 }
 
-.projr_yml_complete <- function(yml, nm, default) {
+.yml_complete <- function(yml, nm, default) {
   switch(class(default)[[1]],
-    "NULL" = .projr_yml_complete_null(yml, nm),
-    .projr_yml_complete_default(yml, nm, default)
+    "NULL" = .yml_complete_null(yml, nm),
+    .yml_complete_default(yml, nm, default)
   )
 }
 
-.projr_yml_complete_default <- function(yml, nm, default) {
+.yml_complete_default <- function(yml, nm, default) {
   yml[[nm]] <- yml[[nm]] %||% default
   yml
 }
 
-.projr_yml_complete_null <- function(yml, nm) {
+.yml_complete_null <- function(yml, nm) {
   if (!nm %in% names(yml)) {
     yml <- yml |> append(list(NULL) |> stats::setNames(nm))
   }
   yml
 }
 
-.projr_yml_order <- function(yml) {
+.yml_order <- function(yml) {
   nm_vec <- character(0L)
   order_vec <- c(
     "directories", par_nm_vec, "build"

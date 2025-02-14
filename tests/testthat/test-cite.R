@@ -1,83 +1,83 @@
-test_that("projr_yml_cite_ functions work works", {
+test_that(.yml_cite_ functions work works", {
   # setup
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
-      projr_yml_cite_set_default()
+     .yml_cite_set_default()
       expect_identical(
-        .projr_yml_cite_get("default"),
+        .yml_cite_get("default"),
         NULL
       )
       # set one to FALSE
-      projr_yml_cite_set(cff = FALSE)
+     .yml_cite_set(cff = FALSE)
       expect_identical(
-        .projr_yml_cite_get("default"),
+        .yml_cite_get("default"),
         list(cff = FALSE)
       )
       # set two to FALSE
-      projr_yml_cite_set(codemeta = FALSE)
+     .yml_cite_set(codemeta = FALSE)
       expect_identical(
-        .projr_yml_cite_get("default"),
+        .yml_cite_get("default"),
         list(codemeta = FALSE, cff = FALSE)
       )
       # set three to FALSE, no simplify identical
-      projr_yml_cite_set(inst_citation = FALSE, simplify_identical = FALSE)
+     .yml_cite_set(inst_citation = FALSE, simplify_identical = FALSE)
       expect_identical(
-        .projr_yml_cite_get("default"),
+        .yml_cite_get("default"),
         list(codemeta = FALSE, cff = FALSE, `inst-citation` = FALSE)
       )
       # set three to FALSE, simplify identical
-      projr_yml_cite_set(inst_citation = FALSE)
+     .yml_cite_set(inst_citation = FALSE)
       expect_identical(
-        .projr_yml_cite_get("default"),
+        .yml_cite_get("default"),
         FALSE
       )
       # set three to TRUE, no simplify default
-      projr_yml_cite_set(all = TRUE, simplify_default = FALSE)
+     .yml_cite_set(all = TRUE, simplify_default = FALSE)
       expect_identical(
-        .projr_yml_cite_get("default"),
+        .yml_cite_get("default"),
         TRUE
       )
       # set three to TRUE, simplify default
-      projr_yml_cite_set(all = TRUE)
+     .yml_cite_set(all = TRUE)
       expect_identical(
-        .projr_yml_cite_get("default"),
+        .yml_cite_get("default"),
         NULL
       )
       # use meaningful default
-      projr_yml_cite_set(cff = FALSE)
-      projr_yml_cite_set_default()
+     .yml_cite_set(cff = FALSE)
+     .yml_cite_set_default()
       expect_identical(
-        .projr_yml_cite_get("default"),
+        .yml_cite_get("default"),
         NULL
       )
     }
   )
 })
 
-test_that(".projr_cite_ functions work works", {
+test_that(".cite_ functions work works", {
   # setup
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
-      .projr_cite_citation_set()
+      .cite_citation_set()
       expect_true(
         file.exists(
           file.path("inst", "CITATION")
         )
       )
-      .projr_cite_codemeta_set()
+      .cite_codemeta_set()
       expect_true(file.exists("codemeta.json"))
-      expect_true(is.character(.projr_cite_bibtex_get()))
-      .projr_cite_cff_set()
+      expect_true(is.character(.cite_bibtex_get()))
+      .cite_cff_set()
       expect_true(file.exists("CITATION.cff"))
     }
   )

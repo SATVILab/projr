@@ -1,4 +1,4 @@
-.projr_engine_get <- function() {
+.engine_get <- function() {
   if (file.exists(.path_get("_quarto.yml"))) {
     return("quarto_project")
   } else if (file.exists(.path_get("_bookdown.yml"))) {

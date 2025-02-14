@@ -4,7 +4,7 @@ test_that(".is_cue works", {
   skip_if(.is_test_select())
 
   # setup
-  dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = FALSE)
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
 
   # run from within project
   usethis::with_project(

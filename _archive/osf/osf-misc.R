@@ -1,15 +1,15 @@
-.projr_osf_filter_dir <- function(x) {
-  x[.projr_osf_is_dir(x), ]
+.osf_filter_dir <- function(x) {
+  x[.osf_is_dir(x), ]
 }
 
 
-.projr_osf_node_dir_get <- function(osf_tbl,
+.osf_node_dir_get <- function(osf_tbl,
                                     label,
                                     path,
                                     path_append_label,
                                     structure,
                                     version = NULL) {
-  path_osf <- .projr_osf_path_get(
+  path_osf <- .osf_path_get(
     osf_tbl = osf_tbl,
     path = path,
     path_append_label = path_append_label,
@@ -23,13 +23,13 @@
   osfr::osf_mkdir(x = osf_tbl, path = path_osf)
 }
 
-.projr_osf_path_get <- function(osf_tbl,
+.osf_path_get <- function(osf_tbl,
                                 path,
                                 path_append_label,
                                 label,
                                 structure,
                                 version = NULL) {
-  path_base <- .projr_osf_path_get_base(
+  path_base <- .osf_path_get_base(
     path = path,
     path_append_label = path_append_label,
     label = label
@@ -51,7 +51,7 @@
         return(NULL)
       }
     }
-    version <- version %||% projr_version_get()
+    version <- version %||%.version_get()
     if (path_base == ".") {
       return(version)
     } else {
@@ -60,7 +60,7 @@
   }
 }
 
-.projr_osf_path_get_base <- function(path,
+.osf_path_get_base <- function(path,
                                      path_append_label,
                                      label) {
   if (is.null(path) && !path_append_label) {

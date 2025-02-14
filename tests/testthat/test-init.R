@@ -1,4 +1,4 @@
-test_that("projr_init works", {
+test_that(.init works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -9,7 +9,7 @@ test_that("projr_init works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      expect_true(projr_init())
+      expect_true.init())
       expect_true(file.exists("_bookdown.yml"))
       expect_true(file.exists("_output.yml"))
       expect_true(file.exists("_projr.yml"))
@@ -19,7 +19,7 @@ test_that("projr_init works", {
       expect_true(file.exists("DESCRIPTION"))
       expect_true(file.exists("index.Rmd"))
       expect_true(dir.exists("R"))
-      projr_init()
+     .init()
       expect_true(file.exists("_bookdown.yml"))
       expect_true(file.exists("_output.yml"))
       expect_true(file.exists("_projr.yml"))
@@ -35,7 +35,7 @@ test_that("projr_init works", {
   )
 })
 
-test_that(".projr_init_yml works", {
+test_that(".init_yml works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -46,21 +46,21 @@ test_that(".projr_init_yml works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      expect_true(.projr_init_yml())
+      expect_true(.init_yml())
       expect_true(file.exists("_projr.yml"))
       invisible(file.remove("_projr.yml"))
       path_yml <- file.path(tempdir(), "_projr.yml")
       yaml::write_yaml(list("abc" = 1), path_yml)
-      Sys.setenv("PROJR_PATH_YML" = path_yml)
-      expect_true(.projr_init_yml(NULL))
-      Sys.unsetenv("PROJR_PATH_YML")
+      Sys.setenv(.PATH_YML" = path_yml)
+      expect_true(.init_yml(NULL))
+      Sys.unsetenv(.PATH_YML")
       expect_true(file.exists("_projr.yml"))
       expect_identical(yaml::read_yaml("_projr.yml"), list("abc" = 1))
       invisible(file.remove("_projr.yml"))
 
       path_yml_2 <- file.path(tempdir(), "_projr2.yml")
       yaml::write_yaml(list("abc" = 2), path_yml_2)
-      expect_true(.projr_init_yml(path_yml_2))
+      expect_true(.init_yml(path_yml_2))
       expect_true(file.exists("_projr.yml"))
       expect_identical(yaml::read_yaml("_projr.yml"), list("abc" = 2))
       invisible(file.remove("_projr.yml"))
@@ -70,7 +70,7 @@ test_that(".projr_init_yml works", {
   )
 })
 
-test_that(".projr_init_description works", {
+test_that(".init_description works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -89,7 +89,7 @@ test_that(".projr_init_description works", {
         email = "fruit@palm_tree.am.zn",
         title = "Urgh"
       )
-      expect_true(.projr_init_description(nm_list))
+      expect_true(.init_description(nm_list))
       expect_true(file.exists("DESCRIPTION"))
       desc <- read.dcf("DESCRIPTION")
       expect_identical(desc[[1]], "testProjr2")
@@ -99,7 +99,7 @@ test_that(".projr_init_description works", {
   )
 })
 
-test_that(".projr_init_dep works", {
+test_that(".init_dep works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -118,8 +118,8 @@ test_that(".projr_init_dep works", {
         email = "fruit@palm_tree.am.zn",
         title = "Urgh"
       )
-      .projr_init_description(nm_list)
-      expect_true(.projr_init_dep())
+      .init_description(nm_list)
+      expect_true(.init_dep())
       expect_true(file.exists("_dependencies.R"))
     },
     force = TRUE,
@@ -127,7 +127,7 @@ test_that(".projr_init_dep works", {
   )
 })
 
-test_that(".projr_init_ignore works", {
+test_that(".init_ignore works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -146,8 +146,8 @@ test_that(".projr_init_ignore works", {
         email = "fruit@palm_tree.am.zn",
         title = "Urgh"
       )
-      .projr_init_description(nm_list)
-      expect_true(.projr_init_ignore())
+      .init_description(nm_list)
+      expect_true(.init_ignore())
       expect_true(file.exists(".gitignore"))
       expect_true(file.exists(".Rbuildignore"))
     },
@@ -156,7 +156,7 @@ test_that(".projr_init_ignore works", {
   )
 })
 
-test_that(".projr_init_renv works", {
+test_that(".init_renv works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -175,17 +175,17 @@ test_that(".projr_init_renv works", {
         email = "fruit@palm_tree.am.zn",
         title = "Urgh"
       )
-      .projr_init_description(nm_list)
+      .init_description(nm_list)
       file.create(file.path(dir_test, ".Rprofile"))
       writeLines('source("renv/activate.R")', file.path(dir_test, ".Rprofile"))
-      expect_true(.projr_init_renv(FALSE, FALSE))
+      expect_true(.init_renv(FALSE, FALSE))
     },
     force = TRUE,
     quiet = TRUE
   )
 })
 
-test_that(".projr_init_license works", {
+test_that(".init_license works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -204,15 +204,15 @@ test_that(".projr_init_license works", {
         email = "fruit@palm_tree.am.zn",
         title = "Urgh"
       )
-      .projr_init_description(nm_list)
-      expect_true(.projr_init_license(nm_list))
+      .init_description(nm_list)
+      expect_true(.init_license(nm_list))
     },
     force = TRUE,
     quiet = TRUE
   )
 })
 
-test_that(".projr_init_readme works", {
+test_that(".init_readme works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -231,8 +231,8 @@ test_that(".projr_init_readme works", {
         email = "fruit@palm_tree.am.zn",
         title = "Urgh"
       )
-      .projr_init_description(nm_list)
-      .projr_init_readme(nm_list)
+      .init_description(nm_list)
+      .init_readme(nm_list)
       expect_true(file.exists("README.md"))
     },
     force = TRUE,
@@ -240,7 +240,7 @@ test_that(".projr_init_readme works", {
   )
 })
 
-test_that("projr_init_bookdown works", {
+test_that(.init_bookdown works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -264,8 +264,8 @@ test_that("projr_init_bookdown works", {
         title = "Urgh",
         filename = NULL
       )
-      .projr_init_description(nm_list)
-      expect_true(.projr_init_engine_bookdown(nm_list))
+      .init_description(nm_list)
+      expect_true(.init_engine_bookdown(nm_list))
       expect_true(file.exists("_bookdown.yml"))
       expect_true(file.exists("_output.yml"))
       expect_true(file.exists("index.Rmd"))
@@ -275,7 +275,7 @@ test_that("projr_init_bookdown works", {
   )
 })
 
-test_that("projr_init_quarto_project works", {
+test_that(.init_quarto_project works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -299,15 +299,15 @@ test_that("projr_init_quarto_project works", {
         title = "Urgh",
         filename = NULL
       )
-      .projr_init_description(nm_list)
-      expect_true(.projr_init_engine_quarto_project(nm_list))
+      .init_description(nm_list)
+      expect_true(.init_engine_quarto_project(nm_list))
       expect_true(file.exists("_quarto.yml"))
       expect_true(file.exists("index.qmd"))
       invisible(file.remove("_quarto.yml"))
       invisible(file.remove("index.qmd"))
       nm_list[["format"]] <- "website"
-      .projr_init_description(nm_list)
-      expect_true(.projr_init_engine_quarto_project(nm_list))
+      .init_description(nm_list)
+      expect_true(.init_engine_quarto_project(nm_list))
       expect_true(file.exists("_quarto.yml"))
       expect_true(file.exists("index.qmd"))
     },
@@ -316,7 +316,7 @@ test_that("projr_init_quarto_project works", {
   )
 })
 
-test_that("projr_init_quarto_document works", {
+test_that(.init_quarto_document works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -340,8 +340,8 @@ test_that("projr_init_quarto_document works", {
         title = "Urgh",
         filename = "test"
       )
-      .projr_init_description(nm_list)
-      expect_true(.projr_init_engine_quarto_document(nm_list))
+      .init_description(nm_list)
+      expect_true(.init_engine_quarto_document(nm_list))
       expect_true(!file.exists("_quarto.yml"))
       expect_true(file.exists("test.qmd"))
     },
@@ -350,7 +350,7 @@ test_that("projr_init_quarto_document works", {
   )
 })
 
-test_that("projr_init_rmd works", {
+test_that(.init_rmd works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -374,8 +374,8 @@ test_that("projr_init_rmd works", {
         title = "Urgh",
         filename = "abc"
       )
-      .projr_init_description(nm_list)
-      expect_true(.projr_init_engine_rmd(nm_list))
+      .init_description(nm_list)
+      expect_true(.init_engine_rmd(nm_list))
       expect_true(!file.exists("_bookdown.yml"))
       expect_true(file.exists("abc.Rmd"))
     },

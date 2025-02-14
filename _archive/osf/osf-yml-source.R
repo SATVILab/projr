@@ -66,12 +66,12 @@
 #' @examples
 #'
 #' # add a project as source:
-#' projr_source_add_osf(
+#'.source_add_osf(
 #'   label = "raw-data",
 #'   category = "project"
 #' )
 #' # add a component as source:
-#' projr_source_add_osf(
+#'.source_add_osf(
 #'   label = "raw-data",
 #'   category = "data",
 #'   id_parent = "y235k"
@@ -98,15 +98,15 @@ projr_source_add_osf <- function(label,
   if (is.null(title)) {
     title <- label
   }
-  yml_projr <- .projr_yml_get()
+  yml_projr <- .yml_get()
 
-  download_list <- .projr_osf_yml_add_load_get_list(
+  download_list <- .osf_yml_add_load_get_list(
     cue = download_cue,
     strategy = download_strategy,
     conflict = download_conflict
   )
 
-  upload_list <- .projr_osf_yml_add_load_get_list(
+  upload_list <- .osf_yml_add_load_get_list(
     cue = upload_cue,
     strategy = upload_strategy,
     inspect = upload_inspect,
@@ -114,7 +114,7 @@ projr_source_add_osf <- function(label,
   )
 
   # check inputs
-  .projr_source_add_osf_check(
+  .source_add_osf_check(
     label = label, id = id, title = title, body = body,
     public = public, category = category, id_parent = id_parent,
     overwrite = overwrite,
@@ -125,8 +125,8 @@ projr_source_add_osf <- function(label,
 
   # check if going to overwrite
   if (!overwrite) {
-    yml_projr_dir_label <- yml_projr[["directories"]][[label]]
-    if ("osf" %in% names(yml_projr_dir_label)) {
+    yml.dir_label <- yml_projr[["directories"]][[label]]
+    if ("osf" %in% names(yml.dir_label)) {
       stop(paste0(
         "OSF source for label ", label, " already exists in _projr.yml"
       ))
@@ -136,7 +136,7 @@ projr_source_add_osf <- function(label,
   # get id
   # ------------------
 
-  id <- .projr_osf_get_node_as_node(
+  id <- .osf_get_node_as_node(
     title = title,
     id = id,
     id_parent = id_parent,
@@ -148,7 +148,7 @@ projr_source_add_osf <- function(label,
   # create list to add
   # ------------------
 
-  list_add <- .projr_osf_source_get_list_add(
+  list_add <- .osf_source_get_list_add(
     title = title,
     id = id,
     path = path,
@@ -161,13 +161,13 @@ projr_source_add_osf <- function(label,
   # add list
   # ----------------------------------
   yml_projr[["directories"]][[label]][["osf"]] <- list_add
-  .projr_yml_set(yml_projr)
+  .yml_set(yml_projr)
 
   id
 }
 
 
-.projr_source_add_osf_check <- function(label,
+.source_add_osf_check <- function(label,
                                         id,
                                         title,
                                         body,
@@ -182,22 +182,22 @@ projr_source_add_osf <- function(label,
                                         upload) {
   # check inputs
   # ------------
-  .projr_osf_yml_check_label(
+  .osf_yml_check_label(
     label = label, type_opt = c("raw-data", "cache")
   )
-  .projr_osf_yml_check_body(body = body)
+  .osf_yml_check_body(body = body)
 
-  .projr_osf_yml_check_id(id = id)
-  .projr_osf_yml_check_id_parent(id_parent = id_parent)
-  .projr_osf_yml_check_proj_with_parent(
+  .osf_yml_check_id(id = id)
+  .osf_yml_check_id_parent(id_parent = id_parent)
+  .osf_yml_check_proj_with_parent(
     id_parent = id_parent, category = category
   )
-  .projr_osf_yml_check_overwrite(overwrite = overwrite)
-  .projr_osf_yml_check_path(path = path)
-  .projr_osf_yml_check_path_append_label(
+  .osf_yml_check_overwrite(overwrite = overwrite)
+  .osf_yml_check_path(path = path)
+  .osf_yml_check_path_append_label(
     path_append_label = path_append_label
   )
-  .projr_osf_yml_check_structure(
+  .osf_yml_check_structure(
     structure = structure,
     nm_opt = c("latest", "version", "content")
   )
@@ -205,16 +205,16 @@ projr_source_add_osf <- function(label,
   # download element
   # -------------------------
 
-  .projr_osf_yml_check_trans_list(trans_list = download)
-  .projr_osf_yml_check_trans_names(
+  .osf_yml_check_trans_list(trans_list = download)
+  .osf_yml_check_trans_names(
     trans_list = download,
     nm_opt = c("cue", "strategy", "conflict")
   )
-  .projr_osf_yml_check_cue(
+  .osf_yml_check_cue(
     trans_list = download,
     nm_opt = c("never", "always", "if-change")
   )
-  .projr_osf_yml_check_strategy(
+  .osf_yml_check_strategy(
     trans_list = download,
     nm_opt = c(
       "download-all",
@@ -223,20 +223,20 @@ projr_source_add_osf <- function(label,
     )
   )
 
-  .projr_osf_yml_check_conflict(trans_list = download)
+  .osf_yml_check_conflict(trans_list = download)
 
   # upload element
   # --------------------------------
-  .projr_osf_yml_check_trans_list(trans_list = upload)
-  .projr_osf_yml_check_trans_names(
+  .osf_yml_check_trans_list(trans_list = upload)
+  .osf_yml_check_trans_names(
     trans_list = upload,
     nm_opt = c("cue", "strategy", "inspect", "conflict")
   )
-  .projr_osf_yml_check_cue(
+  .osf_yml_check_cue(
     trans_list = upload,
     nm_opt = c("never", "always", "if-change")
   )
-  .projr_osf_yml_check_strategy(
+  .osf_yml_check_strategy(
     trans_list = upload,
     nm_opt = c(
       "upload-all",
@@ -245,10 +245,10 @@ projr_source_add_osf <- function(label,
       "upload-changed" # haven't implemented this one yet
     )
   )
-  .projr_osf_yml_check_conflict(trans_list = upload)
+  .osf_yml_check_conflict(trans_list = upload)
 }
 
-.projr_osf_source_get_list_add <- function(title,
+.osf_source_get_list_add <- function(title,
                                            id,
                                            path,
                                            path_append_label,
@@ -275,12 +275,12 @@ projr_source_add_osf <- function(label,
 }
 
 
-.projr_source_add_osf_get_id <- function(id,
+.source_add_osf_get_id <- function(id,
                                          id_parent,
                                          title,
                                          yml_param) {
   if (!is.null(id)) {
-    osf_tbl <- .projr_osf_get_node_id(id)
+    osf_tbl <- .osf_get_node_id(id)
     if (!inherits(osf_tbl, "osf_tbl_node")) {
       stop(paste0(
         "OSF node not found for id ", id
@@ -289,14 +289,14 @@ projr_source_add_osf <- function(label,
     return(id)
   }
   # attempt to get node if it is already there
-  osf_tbl <- .projr_osf_get_node_id_parent(
+  osf_tbl <- .osf_get_node_id_parent(
     title = title, id_parent = id_parent, id_parent_force = id_parent
   )
   if (!is.null(osf_tbl)) {
     return(osf_tbl[["id"]][[1]])
   }
   # create node if it isn't
-  .projr_osf_create_node(
+  .osf_create_node(
     title = title, yml_param = yml_param, id_parent = id_parent
   )[["id"]]
 }

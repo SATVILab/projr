@@ -1,19 +1,19 @@
-test_that(".projr_dest_send_get_plan works", {
+test_that(".dest_send_get_plan works", {
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
       # no version source, so just send everything
       expect_identical(
-        .projr_dest_send_get_plan(
+        .dest_send_get_plan(
           inspect = "none",
           strategy = "upload-all"
         ),
         "add_all"
       )
       expect_identical(
-        .projr_dest_send_get_plan(
+        .dest_send_get_plan(
           inspect = "none",
           strategy = "sync-using-deletion"
         ),
@@ -21,7 +21,7 @@ test_that(".projr_dest_send_get_plan works", {
       )
       # flat
       expect_identical(
-        .projr_dest_send_get_plan(
+        .dest_send_get_plan(
           inspect = "manifest",
           strategy = "upload-all",
           type = "github",
@@ -30,7 +30,7 @@ test_that(".projr_dest_send_get_plan works", {
         "add_all"
       )
       expect_identical(
-        .projr_dest_send_get_plan(
+        .dest_send_get_plan(
           inspect = "manifest",
           strategy = "upload-all",
           type = "github",
@@ -39,7 +39,7 @@ test_that(".projr_dest_send_get_plan works", {
         "add_all"
       )
       expect_identical(
-        .projr_dest_send_get_plan(
+        .dest_send_get_plan(
           inspect = "manifest",
           strategy = "sync-using-deletion",
           type = "github",
@@ -48,7 +48,7 @@ test_that(".projr_dest_send_get_plan works", {
         "delete_add_all"
       )
       expect_identical(
-        .projr_dest_send_get_plan(
+        .dest_send_get_plan(
           inspect = "manifest",
           strategy = "sync-using-version",
           type = "github",
@@ -58,7 +58,7 @@ test_that(".projr_dest_send_get_plan works", {
       )
       # hierarchical
       expect_identical(
-        .projr_dest_send_get_plan(
+        .dest_send_get_plan(
           inspect = "manifest",
           strategy = "upload-all",
           type = "osf",
@@ -67,7 +67,7 @@ test_that(".projr_dest_send_get_plan works", {
         "add_all"
       )
       expect_identical(
-        .projr_dest_send_get_plan(
+        .dest_send_get_plan(
           inspect = "manifest",
           strategy = "upload-all",
           type = "osf",
@@ -76,7 +76,7 @@ test_that(".projr_dest_send_get_plan works", {
         "add_all"
       )
       expect_identical(
-        .projr_dest_send_get_plan(
+        .dest_send_get_plan(
           inspect = "manifest",
           strategy = "sync-using-deletion",
           type = "local",
@@ -85,7 +85,7 @@ test_that(".projr_dest_send_get_plan works", {
         "delete_add_all"
       )
       expect_identical(
-        .projr_dest_send_get_plan(
+        .dest_send_get_plan(
           inspect = "manifest",
           strategy = "sync-using-version",
           type = "osf",
@@ -97,22 +97,22 @@ test_that(".projr_dest_send_get_plan works", {
   )
 })
 
-test_that(".projr_dest_send_get_plan_detail works", {
+test_that(".dest_send_get_plan_detail works", {
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
       # just list whatever's there
       plan_list_detail_zero <- list("add" = character(), "rm" = character())
-      plan_list_detail <- .projr_dest_send_get_plan_detail(
+      plan_list_detail <- .dest_send_get_plan_detail(
         plan = "add_all",
         path_dir_local = .dir_create_tmp_random()
       )
       expect_identical(plan_list_detail, plan_list_detail_zero)
-      dir_tmp <- .projr_test_setup_content_dir()
+      dir_tmp <- .test_setup_content_dir()
       expect_identical(
-        .projr_dest_send_get_plan_detail(
+        .dest_send_get_plan_detail(
           plan = "delete_add_all",
           path_dir_local = dir_tmp
         ),
@@ -121,7 +121,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
       # add what's missing:
       # all missing
       dir_tmp_2 <- .dir_create_tmp_random()
-      plan_list_detail <- .projr_dest_send_get_plan_detail(
+      plan_list_detail <- .dest_send_get_plan_detail(
         plan = "add_missing",
         path_dir_local = dir_tmp,
         type = "local",
@@ -133,7 +133,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
       expect_identical(plan_list_detail, plan_list_detail_full)
       # nothing missing
       .dir_copy(dir_tmp, dir_tmp_2)
-      plan_list_detail <- .projr_dest_send_get_plan_detail(
+      plan_list_detail <- .dest_send_get_plan_detail(
         plan = "add_missing",
         path_dir_local = dir_tmp,
         type = "local",
@@ -142,7 +142,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
       expect_identical(plan_list_detail, plan_list_detail_zero)
       # only extra in remote
       .dir_clear(dir_tmp)
-      plan_list_detail <- .projr_dest_send_get_plan_detail(
+      plan_list_detail <- .dest_send_get_plan_detail(
         plan = "add_missing",
         path_dir_local = dir_tmp,
         type = "local",
@@ -152,7 +152,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
 
       # add all if any massing:
       # nothing missing
-      plan_list_detail <- .projr_dest_send_get_plan_detail(
+      plan_list_detail <- .dest_send_get_plan_detail(
         plan = "add_all_if_missing",
         path_dir_local = dir_tmp,
         type = "local",
@@ -161,7 +161,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
       expect_identical(plan_list_detail, plan_list_detail_zero)
       # one file missing
       invisible(file.create(file.path(dir_tmp, "file_1.txt")))
-      plan_list_detail <- .projr_dest_send_get_plan_detail(
+      plan_list_detail <- .dest_send_get_plan_detail(
         plan = "add_all_if_missing",
         path_dir_local = dir_tmp,
         type = "local",
@@ -172,7 +172,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
       )
 
       # only changes:
-      plan_list_detail <- .projr_dest_send_get_plan_detail(
+      plan_list_detail <- .dest_send_get_plan_detail(
         plan = "change",
         path_dir_local = dir_tmp,
         type = "local",
@@ -185,7 +185,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
       )
       # all if any change
       # only add missing
-      plan_list_detail <- .projr_dest_send_get_plan_detail(
+      plan_list_detail <- .dest_send_get_plan_detail(
         plan = "delete_add_all_if_change",
         path_dir_local = dir_tmp,
         type = "local",
@@ -198,7 +198,7 @@ test_that(".projr_dest_send_get_plan_detail works", {
       )
       # add even if present on remote
       .dir_copy(dir_tmp_2, dir_tmp)
-      plan_list_detail <- .projr_dest_send_get_plan_detail(
+      plan_list_detail <- .dest_send_get_plan_detail(
         plan = "delete_add_all_if_change",
         path_dir_local = dir_tmp,
         type = "local",
@@ -213,9 +213,9 @@ test_that(".projr_dest_send_get_plan_detail works", {
   )
 })
 
-test_that(".projr_plan_implement works", {
+test_that(".plan_implement works", {
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -223,7 +223,7 @@ test_that(".projr_plan_implement works", {
       # do nothing
       dir_tmp <- .dir_create_tmp_random()
       dir_tmp_2 <- .dir_create_tmp_random()
-      .projr_plan_implement(
+      .plan_implement(
         plan = "delete_add_all",
         plan_detail = plan_list_detail_zero,
         path_dir_local = dir_tmp,
@@ -234,8 +234,8 @@ test_that(".projr_plan_implement works", {
       expect_identical(.file_ls(dir_tmp_2) |> length(), 0L)
       expect_true(dir.exists(dir_tmp_2))
       # add content, but still do nothing
-      .projr_test_setup_content_dir(dir_tmp)
-      .projr_plan_implement(
+      .test_setup_content_dir(dir_tmp)
+      .plan_implement(
         plan = "delete_add_all",
         plan_detail = plan_list_detail_zero,
         path_dir_local = dir_tmp,
@@ -246,10 +246,10 @@ test_that(".projr_plan_implement works", {
       expect_identical(.file_ls(dir_tmp_2) |> length(), 0L)
       expect_true(dir.exists(dir_tmp_2))
       # check that we're emptying remote if needed
-      .projr_test_setup_content_dir(dir_tmp_2)
+      .test_setup_content_dir(dir_tmp_2)
       expect_true(.file_ls(dir_tmp_2) |> length() > 0L)
-      .projr_test_setup_content_dir(dir_tmp)
-      .projr_plan_implement(
+      .test_setup_content_dir(dir_tmp)
+      .plan_implement(
         plan = "delete_add_all",
         plan_detail = plan_list_detail_zero,
         path_dir_local = dir_tmp,
@@ -262,10 +262,10 @@ test_that(".projr_plan_implement works", {
       # check it's deleted when an empty versioned remote
       .dir_clear(dir_tmp_2)
       expect_true(.file_ls(dir_tmp_2) |> length() == 0L)
-      .projr_test_setup_content_dir(dir_tmp)
+      .test_setup_content_dir(dir_tmp)
       dir_tmp_2_version <- file.path(dir_tmp_2, "v0.0.1") |>
         .dir_create()
-      .projr_plan_implement(
+      .plan_implement(
         plan = "delete_add_all",
         plan_detail = plan_list_detail_zero,
         path_dir_local = dir_tmp,
@@ -279,8 +279,8 @@ test_that(".projr_plan_implement works", {
       # check that files are copied across and deleted as required
       file.create(file.path(dir_tmp_2, "f1.txt")) |> invisible()
       file.create(file.path(dir_tmp_2, "f2.txt")) |> invisible()
-      .projr_test_setup_content_dir(dir_tmp)
-      .projr_plan_implement(
+      .test_setup_content_dir(dir_tmp)
+      .plan_implement(
         plan = "add_all",
         plan_detail = list("add" = "abc.txt", rm = "f2.txt"),
         path_dir_local = dir_tmp,

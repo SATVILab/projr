@@ -1,99 +1,99 @@
-test_that(".projr_yml_git_ functions work", {
+test_that(".yml_git_ functions work", {
   # setup
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
-      projr_yml_git_set_default()
+     .yml_git_set_default()
       expect_identical(
-        .projr_yml_git_get("default"),
+        .yml_git_get("default"),
         NULL
       )
 
       # set one to FALSE
-      projr_yml_git_set(push = FALSE)
+     .yml_git_set(push = FALSE)
       expect_identical(
-        .projr_yml_git_get("default"),
+        .yml_git_get("default"),
         list(push = FALSE)
       )
       # set two to FALSE
-      projr_yml_git_set(commit = FALSE)
+     .yml_git_set(commit = FALSE)
       expect_identical(
-        .projr_yml_git_get("default"),
+        .yml_git_get("default"),
         list(commit = FALSE, push = FALSE)
       )
       # set three to FALSE, no simplify identical
-      projr_yml_git_set(add_untracked = FALSE, simplify_identical = FALSE)
+     .yml_git_set(add_untracked = FALSE, simplify_identical = FALSE)
       expect_identical(
-        .projr_yml_git_get("default"),
+        .yml_git_get("default"),
         list(commit = FALSE, `add-untracked` = FALSE, push = FALSE)
       )
       # set three to FALSE, simplify identical
-      projr_yml_git_set(add_untracked = FALSE)
+     .yml_git_set(add_untracked = FALSE)
       expect_identical(
-        .projr_yml_git_get("default"),
+        .yml_git_get("default"),
         FALSE
       )
       # set three to TRUE, no simplify default
-      projr_yml_git_set(all = TRUE, simplify_default = FALSE)
+     .yml_git_set(all = TRUE, simplify_default = FALSE)
       expect_identical(
-        .projr_yml_git_get("default"),
+        .yml_git_get("default"),
         TRUE
       )
       # set three to TRUE, simplify default
-      projr_yml_git_set(all = TRUE)
+     .yml_git_set(all = TRUE)
       expect_identical(
-        .projr_yml_git_get("default"),
+        .yml_git_get("default"),
         NULL
       )
       # use meaningful default
-      projr_yml_git_set(commit = FALSE)
-      projr_yml_git_set_default()
+     .yml_git_set(commit = FALSE)
+     .yml_git_set_default()
       expect_identical(
-        .projr_yml_git_get("default"),
+        .yml_git_get("default"),
         NULL
       )
     }
   )
 })
 
-test_that(".projr_git_ functions work", { # setup
+test_that(".git_ functions work", { # setup
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
-      .projr_git_system_setup_gert()
+      .git_system_setup_gert()
 
       # initialisation
       # ---------------------
-      expect_false(.projr_git_repo_check_exists())
-      .projr_git_init_git()
-      expect_true(.projr_git_repo_check_exists())
-      .projr_git_repo_rm()
-      expect_false(.projr_git_repo_check_exists())
-      .projr_git_init_gert()
-      expect_true(.projr_git_repo_check_exists())
-      .projr_git_repo_rm()
-      expect_false(.projr_git_repo_check_exists())
-      .projr_git_init()
-      expect_true(.projr_git_repo_check_exists())
+      expect_false(.git_repo_check_exists())
+      .git_init_git()
+      expect_true(.git_repo_check_exists())
+      .git_repo_rm()
+      expect_false(.git_repo_check_exists())
+      .git_init_gert()
+      expect_true(.git_repo_check_exists())
+      .git_repo_rm()
+      expect_false(.git_repo_check_exists())
+      .git_init()
+      expect_true(.git_repo_check_exists())
 
       # config
       # ---------------------
-      .projr_test_setup_project_git_config()
-      expect_identical(.projr_git_config_get_name_git(), "DarthVader")
+      .test_setup_project_git_config()
+      expect_identical(.git_config_get_name_git(), "DarthVader")
 
       # adding and committing individual fules
       # ---------------------
       status_tbl <- gert::git_status()
       path_err <- file.path(tempdir(), "err1")
-      commit_out <- .projr_git_commit_file_git(
+      commit_out <- .git_commit_file_git(
         ".Rbuildignore",
         msg = "Have fun", stderr = path_err
       )
@@ -104,7 +104,7 @@ test_that(".projr_git_ functions work", { # setup
       expect_identical(
         nrow(gert::git_status()), nrow(status_tbl) - 1L
       )
-      commit_out <- .projr_git_commit_file_gert(
+      commit_out <- .git_commit_file_gert(
         ".gitignore",
         msg = "Have fun"
       )
@@ -113,38 +113,38 @@ test_that(".projr_git_ functions work", { # setup
       expect_identical(nrow(gert::git_status()), nrow(status_tbl) - 2L)
       # getting modified files
       # ---------------------
-      expect_identical(.projr_git_modified_get_git(), character())
-      expect_identical(.projr_git_modified_get_gert(), character())
-      expect_identical(.projr_git_modified_get(), character())
+      expect_identical(.git_modified_get_git(), character())
+      expect_identical(.git_modified_get_gert(), character())
+      expect_identical(.git_modified_get(), character())
       cat("abc", file = ".Rbuildignore")
-      expect_identical(.projr_git_modified_get_git(), ".Rbuildignore")
-      expect_identical(.projr_git_modified_get_gert(), ".Rbuildignore")
-      expect_identical(.projr_git_modified_get(), ".Rbuildignore")
+      expect_identical(.git_modified_get_git(), ".Rbuildignore")
+      expect_identical(.git_modified_get_gert(), ".Rbuildignore")
+      expect_identical(.git_modified_get(), ".Rbuildignore")
       # getting untracked files
       # ---------------------
       status_tbl <- gert::git_status()
       new_vec <- status_tbl[["file"]][status_tbl[["status"]] == "new"] |>
         sort()
-      expect_identical(.projr_git_new_get_git() |> sort(), new_vec)
-      expect_identical(.projr_git_new_get_gert() |> sort(), new_vec)
-      expect_identical(.projr_git_new_get() |> sort(), new_vec)
+      expect_identical(.git_new_get_git() |> sort(), new_vec)
+      expect_identical(.git_new_get_gert() |> sort(), new_vec)
+      expect_identical(.git_new_get() |> sort(), new_vec)
       # check there's a remote
       # ---------------------
-      expect_false(.projr_git_remote_check_exists_git())
-      expect_false(.projr_git_remote_check_exists_gert())
-      expect_false(.projr_git_remote_check_exists())
+      expect_false(.git_remote_check_exists_git())
+      expect_false(.git_remote_check_exists_gert())
+      expect_false(.git_remote_check_exists())
       # check there's an upstream remote
       # ---------------------
-      expect_false(suppressWarnings(.projr_git_remote_check_upstream_git()))
-      expect_false(suppressWarnings(.projr_git_remote_check_upstream()))
+      expect_false(suppressWarnings(.git_remote_check_upstream_git()))
+      expect_false(suppressWarnings(.git_remote_check_upstream()))
     }
   )
 })
 
 
-test_that(".projr_git_ functions work", { # setup
+test_that(".git_ functions work", { # setup
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
   debug <- FALSE
@@ -156,7 +156,7 @@ test_that(".projr_git_ functions work", { # setup
       if (debug) {
         print("setting config")
       }
-      .projr_test_setup_project_git_config()
+      .test_setup_project_git_config()
       if (debug) {
         print("done setting config")
       }
@@ -165,14 +165,14 @@ test_that(".projr_git_ functions work", { # setup
       if (debug) {
         print("checking remotes exist")
       }
-      expect_true(.projr_git_remote_check_exists_git())
+      expect_true(.git_remote_check_exists_git())
       if (debug) {
         print("git remote identification")
         print(system2("git", args = c("remote", "-v"), stdout = TRUE))
         print("done with git remote identification")
       }
-      expect_true(.projr_git_remote_check_exists_gert())
-      expect_true(.projr_git_remote_check_exists())
+      expect_true(.git_remote_check_exists_gert())
+      expect_true(.git_remote_check_exists())
       if (debug) {
         print("gert remote identification")
         print(gert::git_remote_ls())
@@ -183,8 +183,8 @@ test_that(".projr_git_ functions work", { # setup
       if (debug) {
         print("check upstream")
       }
-      expect_true(suppressWarnings(.projr_git_remote_check_upstream_git()))
-      expect_true(suppressWarnings(.projr_git_remote_check_upstream()))
+      expect_true(suppressWarnings(.git_remote_check_upstream_git()))
+      expect_true(suppressWarnings(.git_remote_check_upstream()))
       if (debug) {
         print("done checking upstream")
       }
@@ -204,7 +204,7 @@ test_that(".projr_git_ functions work", { # setup
       file.create(pathout)
       errout <- file.path(tempdir(), "errout")
       file.create(errout)
-      .projr_git_commit_file_git(
+      .git_commit_file_git(
         "abc.txt",
         msg = "abc", timeout = 20, stdout = pathout, stderr = errout
       )
@@ -218,7 +218,7 @@ test_that(".projr_git_ functions work", { # setup
       }
 
       system2("git", args = c("config", "--local", "credential.helper", "store"))
-      .projr_dep_install_only("gh")
+      .dep_install_only("gh")
       username <- gh::gh_whoami()[["login"]]
       PAT <- Sys.getenv("GITHUB_PAT")
 
@@ -245,7 +245,7 @@ test_that(".projr_git_ functions work", { # setup
       .file_rm(errout)
       file.create(errout)
       expect_true(
-        .projr_git_push_git(
+        .git_push_git(
           timeout = 20, stdout = pathout, stderr = errout
         )
       )
@@ -262,12 +262,12 @@ test_that(".projr_git_ functions work", { # setup
       if (debug) {
         print("commit a file with gert")
       }
-      .projr_git_commit_file_gert("def.txt", msg = "def")
+      .git_commit_file_gert("def.txt", msg = "def")
       if (debug) {
         print("done committing a file with gert")
       }
       if (!Sys.getenv("GITHUB_ACTIONS") == "true") {
-        expect_true(.projr_git_push_gert())
+        expect_true(.git_push_gert())
       }
       if (debug) {
         print("gert::git_log()")

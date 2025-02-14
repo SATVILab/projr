@@ -1,17 +1,17 @@
-.projr_init_engine <- function(nm_list) {
-  if (.projr_init_engine_check_exists()) {
+.init_engine <- function(nm_list) {
+  if (.init_engine_check_exists()) {
     return(invisible(FALSE))
   }
   switch(nm_list[["engine"]],
-    "bookdown" = .projr_init_engine_bookdown(nm_list),
-    "quarto_project" = .projr_init_engine_quarto_project(nm_list),
-    "quarto_document" = .projr_init_engine_quarto_document(nm_list),
-    "rmd" = .projr_init_engine_rmd(nm_list),
+    "bookdown" = .init_engine_bookdown(nm_list),
+    "quarto_project" = .init_engine_quarto_project(nm_list),
+    "quarto_document" = .init_engine_quarto_document(nm_list),
+    "rmd" = .init_engine_rmd(nm_list),
     stop("Document engine not recognised")
   )
 }
 
-.projr_init_engine_check_exists <- function() {
+.init_engine_check_exists <- function() {
   bookdown_exists_lgl <- file.exists(.path_get("_bookdown.yml"))
   quarto_project_exists_lgl <- file.exists(
     .path_get("_quarto.yml")
@@ -25,22 +25,22 @@
 
 # bookdown
 # ------------------------
-.projr_init_engine_bookdown <- function(nm_list) {
-  .projr_dep_add("bookdown")
-  .projr_init_engine_bookdown_bookdown()
-  .projr_init_engine_bookdown_output(nm_list)
-  .projr_init_engine_bookdown_index(nm_list)
+.init_engine_bookdown <- function(nm_list) {
+  .dep_add("bookdown")
+  .init_engine_bookdown_bookdown()
+  .init_engine_bookdown_output(nm_list)
+  .init_engine_bookdown_index(nm_list)
 }
 
-.projr_init_engine_bookdown_bookdown <- function() {
+.init_engine_bookdown_bookdown <- function() {
   yml_bd <- yaml::read_yaml(system.file(
     "project_structure", "_bookdown.yml",
     package = "projr"
   ))
-  .projr_yml_bd_set(yml_bd)
+  .yml_bd_set(yml_bd)
 }
 
-.projr_init_engine_bookdown_output <- function(nm_list) {
+.init_engine_bookdown_output <- function(nm_list) {
   # output.yml
   o_yml <- yaml::read_yaml(system.file(
     "project_structure", "_output.yml",
@@ -65,12 +65,12 @@
     )
   path_yml <- .path_get("_output.yml")
   yaml::write_yaml(o_yml, path_yml)
-  .projr_newline_append(path_yml)
+  .newline_append(path_yml)
 
   invisible(TRUE)
 }
 
-.projr_init_engine_bookdown_index <- function(nm_list) {
+.init_engine_bookdown_index <- function(nm_list) {
   # index.Rmd
   index <- readLines(system.file(
     "project_structure", "index.Rmd",
@@ -90,13 +90,13 @@
 # quarto project
 # ---------------------
 
-.projr_init_engine_quarto_project <- function(nm_list) {
-  .projr_dep_add("quarto")
-  .projr_init_engine_quarto_project_yml(nm_list)
-  .projr_init_engine_quarto_project_index()
+.init_engine_quarto_project <- function(nm_list) {
+  .dep_add("quarto")
+  .init_engine_quarto_project_yml(nm_list)
+  .init_engine_quarto_project_index()
 }
 
-.projr_init_engine_quarto_project_yml <- function(nm_list) {
+.init_engine_quarto_project_yml <- function(nm_list) {
   yml_quarto <- switch(nm_list[["format"]],
     "book" = list(
       "project" = list("type" = "book"),
@@ -131,11 +131,11 @@
       )
     )
   )
-  .projr_yml_quarto_set(yml_quarto)
+  .yml_quarto_set(yml_quarto)
   invisible(TRUE)
 }
 
-.projr_init_engine_quarto_project_index <- function() {
+.init_engine_quarto_project_index <- function() {
   # index.Rmd
   index <- c("# Introduction", "")
   writeLines(index, .path_get("index.qmd"))
@@ -145,12 +145,12 @@
 # quarto document
 # ---------------------
 
-.projr_init_engine_quarto_document <- function(nm_list) {
-  .projr_dep_add("quarto")
-  .projr_init_engine_quarto_document_doc(nm_list)
+.init_engine_quarto_document <- function(nm_list) {
+  .dep_add("quarto")
+  .init_engine_quarto_document_doc(nm_list)
 }
 
-.projr_init_engine_quarto_document_doc <- function(nm_list) {
+.init_engine_quarto_document_doc <- function(nm_list) {
   # index.Rmd
   format <- switch(nm_list[["format"]],
     "word" = "docx",
@@ -181,12 +181,12 @@
 # Rmd document
 # ---------------------
 
-.projr_init_engine_rmd <- function(nm_list) {
-  .projr_dep_add("rmarkdown")
-  .projr_init_engine_rmd_doc(nm_list)
+.init_engine_rmd <- function(nm_list) {
+  .dep_add("rmarkdown")
+  .init_engine_rmd_doc(nm_list)
 }
 
-.projr_init_engine_rmd_doc <- function(nm_list) {
+.init_engine_rmd_doc <- function(nm_list) {
   # index.Rmd
   format <- switch(nm_list[["format"]],
     "html" = ,

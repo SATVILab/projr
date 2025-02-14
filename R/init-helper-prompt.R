@@ -1,6 +1,6 @@
 # prompt helpers
 # --------------
-.projr_init_prompt_ind <- function(.var = NULL,
+.init_prompt_ind <- function(.var = NULL,
                                    nm_item_long,
                                    option_default = NULL,
                                    allow_specify_other = TRUE,
@@ -26,7 +26,7 @@
   }
   # choose question scheme when
   # pre-specified options given
-  default_given <- nzchar(Sys.getenv(paste0("PROJR_", .var))) ||
+  default_given <- nzchar(Sys.getenv(paste0(.", .var))) ||
     !is.null(option_default)
 
   # return auto answer
@@ -43,7 +43,7 @@
 
   while (check_correct == "No") {
     # question again
-    answer_list <- .projr_init_prompt_ind_question(
+    answer_list <- .init_prompt_ind_question(
       default_given = default_given,
       .var = .var,
       nm_item_long = nm_item_long,
@@ -61,7 +61,7 @@
       break
     }
     # check if a provided answer is as desired
-    check_correct <- .projr_init_prompt_ind_check(
+    check_correct <- .init_prompt_ind_check(
       nm_long = nm_item_long,
       nm_item = answer_list[["nm"]],
       answer_translate = answer_translate,
@@ -74,40 +74,40 @@
     return(NULL)
   }
 
-  .projr_init_prompt_ind_translate(
+  .init_prompt_ind_translate(
     answer_list[["nm"]],
     answer_translate = answer_translate
   )
 }
 
-.projr_init_prompt_ind_question <- function(default_given,
+.init_prompt_ind_question <- function(default_given,
                                             .var,
                                             nm_item_long,
                                             option_default,
                                             option_other) {
   if (default_given) {
-    answer_list <- .projr_init_prompt_ind_default_given(
+    answer_list <- .init_prompt_ind_default_given(
       .var = .var,
       nm_item_long = nm_item_long,
       option_default = option_default,
       option_other = option_other
     )
   } else {
-    answer_list <- .projr_init_prompt_ind_default_not_given(
+    answer_list <- .init_prompt_ind_default_not_given(
       nm_item_long = nm_item_long
     )
   }
   answer_list
 }
 
-.projr_init_prompt_ind_default_given <- function(.var,
+.init_prompt_ind_default_given <- function(.var,
                                                  nm_item_long,
                                                  option_default,
                                                  option_other) {
   request_default <- paste0("Please select ", nm_item_long, ".")
   request_default_n <- paste0("Please specify the ", nm_item_long, ".")
   # add variable to default
-  nm_item_var <- strsplit(Sys.getenv(paste0("PROJR_", .var)), ";")[[1]]
+  nm_item_var <- strsplit(Sys.getenv(paste0(.", .var)), ";")[[1]]
   nm_item_default <- c(nm_item_var, option_default)
   # add alternative items to what we can ask
   nm_item_vec_full <- c(nm_item_default, option_other)
@@ -144,7 +144,7 @@
   )
 }
 
-.projr_init_prompt_ind_default_not_given <- function(nm_item_long) {
+.init_prompt_ind_default_not_given <- function(nm_item_long) {
   request_default_n <- paste0("Please specify the ", nm_item_long, ".")
   cat(paste0(request_default_n, "\n"))
   nm_item <- readline(prompt = ">> ")
@@ -152,11 +152,11 @@
   list("completed" = TRUE, "nm" = nm_item)
 }
 
-.projr_init_prompt_ind_check <- function(nm_long,
+.init_prompt_ind_check <- function(nm_long,
                                          nm_item,
                                          answer_translate,
                                          option_check) {
-  nm_check <- .projr_init_prompt_ind_translate(
+  nm_check <- .init_prompt_ind_translate(
     nm_item, answer_translate
   )
   check_init <- paste0(
@@ -167,7 +167,7 @@
   option_check[answer]
 }
 
-.projr_init_prompt_ind_translate <- function(nm_item,
+.init_prompt_ind_translate <- function(nm_item,
                                              answer_translate) {
   if (is.null(answer_translate)) {
     return(nm_item)
@@ -176,7 +176,7 @@
 }
 
 
-.projr_init_prompt_yn <- function(question,
+.init_prompt_yn <- function(question,
                                   answer_auto = 2) {
   yn_vec <- c("Yes", "No")
   if (.is_test()) {

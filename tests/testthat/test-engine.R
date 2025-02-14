@@ -1,4 +1,4 @@
-test_that("projr_engine_get works", {
+test_that(.engine_get works", {
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
@@ -26,16 +26,16 @@ test_that("projr_engine_get works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      expect_identical(.projr_engine_get(), "bookdown")
+      expect_identical(.engine_get(), "bookdown")
       unlink("_bookdown.yml")
-      expect_identical(.projr_engine_get(), "rmd")
+      expect_identical(.engine_get(), "rmd")
       unlink(list.files(pattern = "\\.Rmd$|\\.rmd$"))
-      expect_error(.projr_engine_get())
+      expect_error(.engine_get())
       file.create("_quarto.yml")
-      expect_identical(.projr_engine_get(), "quarto_project")
+      expect_identical(.engine_get(), "quarto_project")
       unlink("_quarto.yml")
       invisible(file.create("index.qmd"))
-      expect_identical(.projr_engine_get(), "quarto_document")
+      expect_identical(.engine_get(), "quarto_document")
     },
     force = TRUE,
     quiet = TRUE

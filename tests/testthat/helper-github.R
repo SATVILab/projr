@@ -1,4 +1,4 @@
-.projr_test_github_repo_create <- function(user = NULL,
+.test_github_repo_create <- function(user = NULL,
                                            # token = NULL,
                                            repo = NULL,
                                            env = NULL,
@@ -16,7 +16,7 @@
   if (debug) {
     print("beginning config again")
   }
-  .projr_test_setup_project_git_config(TRUE)
+  .test_setup_project_git_config(TRUE)
   if (debug) {
     print("ending config again")
   }
@@ -39,7 +39,7 @@
 
     print("getting upload stuff")
   }
-  .projr_dep_install_only("gh")
+  .dep_install_only("gh")
   user <- user %||% gh::gh_whoami()[["login"]]
   if (!.is_string(user)) stop("No GitHub user found")
 
@@ -58,7 +58,7 @@
     print("Checking if repo exists")
   }
 
-  exists_ind <- .projr_test_github_repo_check_exists(
+  exists_ind <- .test_github_repo_check_exists(
     user = user,
     token = token,
     repo = repo
@@ -127,13 +127,13 @@
     if (debug) {
       print("response successfull")
     }
-    file.create(file.path(.projr_test_git_remote_dir_get_tmp(), repo))
+    file.create(file.path(.test_git_remote_dir_get_tmp(), repo))
     # defer deletion
     withr::defer(
       {
         try(
           {
-            .projr_remote_host_rm(
+            .remote_host_rm(
               type = "github",
               host = c("repo" = basename(repo))
             )
@@ -156,7 +156,7 @@
       print("done cloning repo")
       print("setting up config")
     }
-    with_dir(repo, .projr_test_setup_project_git_config(FALSE))
+    with_dir(repo, .test_setup_project_git_config(FALSE))
     if (debug) {
       print("done setting up config")
       print(".dir_ls(getwd, recursive = FALSE)")
@@ -170,7 +170,7 @@
   }
 }
 
-.projr_test_github_repo_check_exists <- function(user = NULL,
+.test_github_repo_check_exists <- function(user = NULL,
                                                  token = NULL,
                                                  repo = NULL) {
   # set up
@@ -183,13 +183,13 @@
   }
 
   # defaults
-  .projr_dep_install_only("gh")
+  .dep_install_only("gh")
   user <- user %||% gh::gh_whoami()[["login"]]
   if (!.is_string(user)) stop("No GitHub user found")
   token <- token %||% Sys.getenv("GITHUB_PAT")
   token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
   if (!nzchar(token)) stop("No GitHub token found")
-  repo <- repo %||% "test_projr_alt"
+  repo <- repo %||% "test.alt"
 
   # Define the URL of the GitHub API
   url <- paste0("https://api.github.com/repos/", user, "/", repo)
@@ -207,7 +207,7 @@
   httr::http_status(response)$category == "Success"
 }
 
-.projr_test_github_repo_remote_add <- function(user = NULL,
+.test_github_repo_remote_add <- function(user = NULL,
                                                token = NULL,
                                                repo = NULL) {
   if (!requireNamespace("gh", quietly = TRUE)) {
@@ -218,13 +218,13 @@
   }
 
   # defaults
-  .projr_dep_install_only("gh")
+  .dep_install_only("gh")
   user <- user %||% gh::gh_whoami()[["login"]]
   if (!.is_string(user)) stop("No GitHub user found")
   token <- token %||% Sys.getenv("GITHUB_PAT")
   token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
   if (!nzchar(token)) stop("No GitHub token found")
-  repo <- repo %||% "test_projr_alt"
+  repo <- repo %||% "test.alt"
 
   # Define the URL of the remote repository
   url <- paste0("https://github.com/", user, "/", repo, ".git")
@@ -236,11 +236,11 @@
   )
 }
 
-.projr_test_git_remote_get <- function() {
+.test_git_remote_get <- function() {
   system2("git", args = "remote", stdout = TRUE, timeout = 20)
 }
 
-.projr_test_git_branch_get <- function() {
+.test_git_branch_get <- function() {
   system2(
     "git",
     args = c("branch", "--show-current"), stdout = TRUE,
@@ -248,11 +248,11 @@
   )
 }
 
-.projr_test_git_set_upstream_and_force_push <- function(remote = NULL,
+.test_git_set_upstream_and_force_push <- function(remote = NULL,
                                                         branch = NULL) {
-  remote <- remote %||% .projr_test_git_remote_get()
+  remote <- remote %||% .test_git_remote_get()
   remote <- remote[1]
-  branch <- branch %||% .projr_test_git_branch_get()
+  branch <- branch %||% .test_git_branch_get()
   invisible(
     system2(
       "git",
@@ -262,7 +262,7 @@
   )
 }
 
-.projr_remote_host_rm_all_github <- function(user = NULL) {
+.remote_host_rm_all_github <- function(user = NULL) {
   # set up
   # ----------
   if (!requireNamespace("gh", quietly = TRUE)) {
@@ -273,7 +273,7 @@
   }
 
   # defaults
-  .projr_dep_install_only("gh")
+  .dep_install_only("gh")
   user <- user %||% gh::gh_whoami()[["login"]]
   if (!.is_string(user)) stop("No GitHub user found")
 
@@ -286,7 +286,7 @@
   # Get the repositories page by page
   while (TRUE) {
     # Get the current page of repositories
-    .projr_dep_install_only("gh")
+    .dep_install_only("gh")
     repos <- gh::gh(
       "GET /users/{username}/repos?page={page}",
       username = user, page = page
@@ -334,12 +334,12 @@
       return(invisible(FALSE))
     }
     for (repo in name_vec) {
-      .projr_remote_host_rm_github(host = c("repo" = repo))
+      .remote_host_rm_github(host = c("repo" = repo))
     }
   }
 }
 
-.projr_test_git_remote_dir_get_tmp <- function() {
+.test_git_remote_dir_get_tmp <- function() {
   path_dir <- file.path(tempdir() |> dirname(), "github_repo_to_remove")
   .dir_create(path_dir)
   path_dir

@@ -30,22 +30,22 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 # dependencies
 # ------------
 
-.projr_dep_install <- function(dep) {
+.dep_install <- function(dep) {
   for (x in dep) {
-    .projr_dep_add(x)
+    .dep_add(x)
     if (!requireNamespace(x, quietly = TRUE)) {
-      .projr_dep_install_only(dep)
+      .dep_install_only(dep)
     }
   }
 }
 
-.projr_dep_add <- function(dep) {
+.dep_add <- function(dep) {
   # don't add to _dependencies
   # if renv already picks it up as a dependency
-  if (!.projr_renv_detect()) {
+  if (!.renv_detect()) {
     return(invisible(FALSE))
   }
-  if (.projr_dep_in_renv(basename(dep))) {
+  if (.dep_in_renv(basename(dep))) {
     return(invisible(FALSE))
   }
   path_dep <- .path_get("_dependencies.R")
@@ -61,11 +61,11 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
     }
   }
   writeLines(dep_vec, path_dep)
-  .projr_newline_append(path_dep)
+  .newline_append(path_dep)
   invisible(TRUE)
 }
 
-.projr_dep_install_only <- function(dep) {
+.dep_install_only <- function(dep) {
   # don't install any already available
   # (we're not trying to force the latest version)
   dep_required <- dep[
@@ -75,8 +75,8 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
     return(invisible(TRUE))
   }
   for (i in seq_along(dep_required)) {
-    if (.projr_renv_detect()) {
-      .projr_dep_install_only_rscript(dep_required[[i]])
+    if (.renv_detect()) {
+      .dep_install_only_rscript(dep_required[[i]])
     } else {
       if (grepl("^\\w+/\\w+", gsub("\\.", "", dep_required[[i]]))) {
         if (!requireNamespace("remotes", quietly = TRUE)) {
@@ -91,7 +91,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   invisible(TRUE)
 }
 
-.projr_dep_install_only_rscript <- function(dep) {
+.dep_install_only_rscript <- function(dep) {
   cmd_txt <- paste0(
     "-e '",
     "renv::install(",
@@ -99,12 +99,12 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
     ", prompt = FALSE)'"
   )
   system2(
-    .projr_path_rscript_get(),
+    .path_rscript_get(),
     args = cmd_txt, stdout = FALSE
   )
 }
 
-.projr_dep_rm <- function(dep) {
+.dep_rm <- function(dep) {
   path_dep <- .path_get("_dependencies.R")
   dep_vec <- readLines(path_dep)
   for (i in seq_along(dep)) {
@@ -112,16 +112,16 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
     dep_vec <- dep_vec[!grepl(dep_txt, dep_vec)]
   }
   writeLines(dep_vec, path_dep)
-  .projr_newline_append(path_dep)
+  .newline_append(path_dep)
   invisible(TRUE)
 }
 
-.projr_dep_in_renv <- function(dep) {
-  dep %in% names(.projr_renv_lockfile_read()$Packages)
+.dep_in_renv <- function(dep) {
+  dep %in% names(.renv_lockfile_read()$Packages)
 }
 
-.projr_renv_lockfile_read <- function() {
-  path_lockfile <- .projr_renv_lockfile_path_get()
+.renv_lockfile_read <- function() {
+  path_lockfile <- .renv_lockfile_path_get()
   # renv:::renv_lockfile_read is
   # way too much to port across just quickly.
   # well, it's doable, but it's not worth it.
@@ -133,7 +133,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   jsonlite::fromJSON(txt = path_lockfile)
 }
 
-.projr_renv_lockfile_path_get <- function() {
+.renv_lockfile_path_get <- function() {
   # taken from renv:::renv_paths_lockfile.
   # we're not finding the lockfile when testing on
   # GH to add dependencies, so we're gonna our
@@ -156,7 +156,7 @@ with_dir <- function(new, code) {
   force(code)
 }
 
-.projr_run_output_check <- function(output_run = NULL, bump_component) {
+.run_output_check <- function(output_run = NULL, bump_component) {
   if (!is.null(output_run)) {
     return(output_run)
   }
@@ -164,15 +164,15 @@ with_dir <- function(new, code) {
     stop(paste0("bump_component must be specified if output_run is NULL"))
   }
   output_opt_vec <- c("patch", "minor", "major")
-  .projr_bump_component_get(bump_component) %in% output_opt_vec
+  .bump_component_get(bump_component) %in% output_opt_vec
 }
 
-.projr_bump_component_get <- function(bump_component) {
+.bump_component_get <- function(bump_component) {
   bump_component <- bump_component %||% "dev"
   if (is.logical(bump_component)) "dev" else bump_component
 }
 
-.projr_zip_file <- function(fn_rel,
+.zip_file <- function(fn_rel,
                             path_dir_fn_rel,
                             fn_rel_zip,
                             path_dir_fn_rel_zip = NULL) {
@@ -201,7 +201,7 @@ with_dir <- function(new, code) {
   path_zip
 }
 
-.projr_dir_count_lvl <- function(path_dir) {
+.dir_count_lvl <- function(path_dir) {
   vapply(path_dir, function(x) {
     x <- gsub("^/|/$", "", x)
     if (x == ".") {
@@ -211,7 +211,7 @@ with_dir <- function(new, code) {
   }, integer(1))
 }
 
-.projr_newline_append <- function(path) {
+.newline_append <- function(path) {
   txt <- readLines(path)
   if (!identical(txt[[length(txt)]], "")) {
     txt <- c(txt, "")
@@ -220,29 +220,29 @@ with_dir <- function(new, code) {
   invisible(TRUE)
 }
 
-.projr_env_var_set <- function(nm, val) {
+.env_var_set <- function(nm, val) {
   do.call(
     Sys.setenv,
     args = list(val) |> stats::setNames(nm)
   )
 }
 
-.projr_env_var_nm_get <- function(line) {
+.env_var_nm_get <- function(line) {
   sub("=.*", "", line) |> trimws()
 }
 
-.projr_env_var_val_get <- function(line) {
+.env_var_val_get <- function(line) {
   sub("^.*=", "", line) |> trimws()
 }
 
-.projr_pkg_nm_get <- function() {
+.pkg_nm_get <- function() {
   desc::desc_get_field(
     "Package",
     file = .path_get("DESCRIPTION")
   )
 }
 
-.projr_path_rscript_get <- function() {
+.path_rscript_get <- function() {
   rscript <- Sys.which("Rscript")
   if (nzchar(rscript)) {
     return(rscript)
@@ -251,22 +251,22 @@ with_dir <- function(new, code) {
   file.path(R.home("bin"), "Rscript")
 }
 
-.projr_dots_get <- function(...) {
+.dots_get <- function(...) {
   tryCatch(as.list(...),
     error = function(e) list()
   )
 }
 
-.projr_dots_get_chr <- function(...) {
-  dots_list <- .projr_dots_get(...)
+.dots_get_chr <- function(...) {
+  dots_list <- .dots_get(...)
   if (.is_len_pos(dots_list)) {
     dots_list <- vapply(dots_list, as.character, character(1))
   }
   dots_list
 }
 
-.projr_dots_get_chr_vec <- function(...) {
-  dots_list_chr <- .projr_dots_get_chr(...)
+.dots_get_chr_vec <- function(...) {
+  dots_list_chr <- .dots_get_chr(...)
   if (.is_len_pos(dots_list_chr)) {
     dots_vec_chr <- unlist(dots_list_chr)
   } else {
@@ -279,14 +279,14 @@ with_dir <- function(new, code) {
 #'
 #' @description
 #' usethis::use_data always saves data to `data/`, which
-#' conflicts with the temporary directories used by `projr_build_dev`
+#' conflicts with the temporary directories used by .build_dev`
 #' and makes it difficult to restore after failed output builds.
 #'
-#' `projr_use_data` is a drop-in replacement for `usethis::use_data`,
+#' .use_data` is a drop-in replacement for `usethis::use_data`,
 #' which saves data to the temporary directory when `safe = TRUE`.
 #' This makes it easier to restore the project after a failed output build.
 #'
-#' The only other difference is that `projr_use_data` invisibly
+#' The only other difference is that .use_data` invisibly
 #' returns the path to the saved data file, whereas `usethis::use_data`
 #' returns `TRUE`.
 #'
@@ -300,7 +300,7 @@ with_dir <- function(new, code) {
 #'   Objects in this file follow the usual export rules. Note that this means
 #'   they will be exported if you are using the common `exportPattern()`
 #'   rule which exports all objects except for those that start with `.`.
-#' @param overwrite By default, `projr_use_data()` will not overwrite existing
+#' @param overwrite By default, .use_data()` will not overwrite existing
 #'   files. If you really want to do so, set this to `TRUE`.
 #' @param compress Choose the type of compression used by [save()].
 #'   Should be one of "gzip", "bzip2", or "xz".
@@ -326,8 +326,8 @@ with_dir <- function(new, code) {
 #' x <- 1:10
 #' y <- 1:100
 #'
-#' projr_use_data(x, y) # For external use
-#' projr_use_data(x, y, internal = TRUE) # For internal use
+#'.use_data(x, y) # For external use
+#'.use_data(x, y, internal = TRUE) # For internal use
 #' }
 projr_use_data <- function(...,
                            internal = FALSE,
@@ -339,7 +339,7 @@ projr_use_data <- function(...,
   # copied across from usethis::use_data,
   # except that we adjust output directory
   # based on whether it's an output run or not
-  objs <- .projr_usethis_get_objs_from_dots(.projr_usethis_dots(...))
+  objs <- .usethis_get_objs_from_dots(.usethis_dots(...))
   # not going to add dependency as `projr` will only
   # work for R > 3.5.0
   if (!safe) {
@@ -350,14 +350,14 @@ projr_use_data <- function(...,
     } else {
       .dir_create("data")
       paths <- fs::path("data", objs, ext = "rda")
-      desc <- .projr_usethis_proj_desc()
+      desc <- .usethis_proj_desc()
       if (!desc$has_fields("LazyData")) {
         desc$set(LazyData = "true")
         desc$write()
       }
     }
   } else {
-    path_tmp_base <- .projr_dir_get_cache_auto_version(profile = NULL)
+    path_tmp_base <- .dir_get_cache_auto_version(profile = NULL)
     if (internal) {
       .dir_create(file.path(path_tmp_base, "R"))
       paths <- file.path(file.path(path_tmp_base, "R"), "sysdata.rda")
@@ -365,7 +365,7 @@ projr_use_data <- function(...,
     } else {
       .dir_create(file.path(path_tmp_base, "data"))
       paths <- fs::path(file.path(path_tmp_base, "data"), objs, ext = "rda")
-      desc <- .projr_usethis_proj_desc()
+      desc <- .usethis_proj_desc()
       # don't set the lazy data entry as this is a dev build
     }
   }
@@ -388,7 +388,7 @@ projr_use_data <- function(...,
   invisible(paths_project)
 }
 
-.projr_usethis_get_objs_from_dots <- function(.dots) {
+.usethis_get_objs_from_dots <- function(.dots) {
   if (length(.dots) == 0L) {
     stop("Nothing to save", call. = FALSE)
   }
@@ -407,15 +407,15 @@ projr_use_data <- function(...,
   objs
 }
 
-.projr_usethis_dots <- function(...) {
+.usethis_dots <- function(...) {
   eval(substitute(alist(...)))
 }
 
-.projr_usethis_proj_desc <- function(path = .path_get()) {
+.usethis_proj_desc <- function(path = .path_get()) {
   desc::desc(file = path)
 }
 
-.projr_zip_dir <- function(path_dir,
+.zip_dir <- function(path_dir,
                            path_zip,
                            dir_exc = NULL,
                            dir_inc = NULL,
@@ -463,24 +463,24 @@ projr_use_data <- function(...,
 # options
 # -------
 
-.projr_opt_remote_get_osf_cat <- function() {
+.opt_remote_get_osf_cat <- function() {
   c(
     "analysis", "communication", "data", "hypothesis", "methods",
     "procedure", "project", "question", "other"
   )
 }
 
-.projr_opt_remote_get_structure <- function() {
+.opt_remote_get_structure <- function() {
   c("archive", "latest")
 }
 
-.projr_opt_remote_get_type <- function() {
+.opt_remote_get_type <- function() {
   c("local", "osf", "github")
 }
 
-.projr_opt_dir_get_label <- function(profile) {
+.opt_dir_get_label <- function(profile) {
   c(
-    .projr_yml_dir_get(profile) |> names(),
+    .yml_dir_get(profile) |> names(),
     "docs",
     "data",
     "code",
@@ -488,39 +488,39 @@ projr_use_data <- function(...,
   )
 }
 
-.projr_opt_dir_get_label_send <- function(profile, type = NULL) {
-  .projr_opt_dir_get_label(profile) |>
+.opt_dir_get_label_send <- function(profile, type = NULL) {
+  .opt_dir_get_label(profile) |>
     setdiff("project") |>
-    c(.projr_yml_dir_get_label_docs(profile)) |>
+    c(.yml_dir_get_label_docs(profile)) |>
     c("package") |>
     unique()
 }
 
-.projr_opt_dir_get_label_get <- function(profile) {
-  .projr_opt_dir_get_label(profile) |> setdiff(c("code", "project"))
+.opt_dir_get_label_get <- function(profile) {
+  .opt_dir_get_label(profile) |> setdiff(c("code", "project"))
 }
 
-.projr_opt_cue_get <- function() {
+.opt_cue_get <- function() {
   c("if-change", "always", "never")
 }
 
-.projr_opt_remote_strategy_get <- function() {
+.opt_remote_strategy_get <- function() {
   c("upload-missing", "upload-all", "sync-purge", "sync-diff")
 }
 
-.projr_opt_remote_conflict_get <- function() {
+.opt_remote_conflict_get <- function() {
   c("overwrite", "skip", "error")
 }
 
-.projr_opt_remote_inspect_get <- function() {
+.opt_remote_inspect_get <- function() {
   c("file", "manifest", "none")
 }
 
-.projr_opt_remote_transfer_names_get <- function() {
+.opt_remote_transfer_names_get <- function() {
   c("cue", "strategy", "conflict", "inspect")
 }
 
-.projr_try_repeat <- function(fn, args, n_try = NULL, n_sleep = 3) {
+.try_repeat <- function(fn, args, n_try = NULL, n_sleep = 3) {
   last_error <- NULL
 
   if (is.null(n_try)) {

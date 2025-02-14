@@ -17,7 +17,7 @@
 #' Invisibly returns `TRUE` if the file was created,
 #' and `FALSE` if the file already exists.
 #' 
-#' @seealso projr_profile_create_local,projr_profile_get
+#' @seealso.profile_create_local.profile_get
 #' @export
 projr_profile_create <- function(profile) {
   .assert_len_1(profile)
@@ -29,9 +29,9 @@ projr_profile_create <- function(profile) {
   }
   path_file <- paste0("_projr", profile_spec, ".yml") |>
     .path_get()
-  .projr_ignore_rbuild_set(basename(path_file), "ignore")
+  .ignore_rbuild_set(basename(path_file), "ignore")
   if (profile == "local") {
-    .projr_profile_create_local_ignore_git()
+    .profile_create_local_ignore_git()
   }
   if (file.exists(path_file)) {
     message(paste0("File ", path_file, " already exists"))
@@ -57,37 +57,37 @@ projr_profile_create <- function(profile) {
 #' then a lower-precendence file's setting
 #' (i.e. from `_projr-<profile>.yml` or `_projr.yml`) is used.
 #' Empty settings are by default indicated by `~`.
-#' @seealso projr_profile_create_local,projr_yml_get
+#' @seealso.profile_create_local.yml_get
 projr_profile_create_local <- function() {
-  projr_profile_create(local)
+ .profile_create(local)
 }
 
-.projr_list_elem_as_null <- function(x) {
+.list_elem_as_null <- function(x) {
   lapply(x, function(elem) {
     if (!is.list(elem)) {
       return(NULL)
     }
-    .projr_list_elem_as_null(elem)
+    .list_elem_as_null(elem)
   }) |>
     stats::setNames(names(x))
 }
 
-.projr_profile_create_local_ignore <- function() {
-  .projr_profile_create_local_ignore_git()
-  .projr_profile_create_local_ignore_rbuild()
+.profile_create_local_ignore <- function() {
+  .profile_create_local_ignore_git()
+  .profile_create_local_ignore_rbuild()
 }
 
-.projr_profile_create_local_ignore_git <- function() {
+.profile_create_local_ignore_git <- function() {
   gitignore <- readLines(.path_get(".gitignore"))
   if (!"_projr-local.yml" %in% gitignore) {
     writeLines(
       c(gitignore, "_projr-local.yml"),
       .path_get(".gitignore")
     )
-    .projr_newline_append(.path_get(".gitignore"))
+    .newline_append(.path_get(".gitignore"))
   }
 }
-.projr_profile_create_local_ignore_rbuild <- function() {
+.profile_create_local_ignore_rbuild <- function() {
   rbuildignore <- readLines(
     .path_get(".Rbuildignore")
   )
@@ -96,11 +96,11 @@ projr_profile_create_local <- function() {
       c(rbuildignore, "^_projr-local\\.yml$"),
       .path_get(".Rbuildignore")
     )
-    .projr_newline_append(.path_get(".Rbuildignore"))
+    .newline_append(.path_get(".Rbuildignore"))
   }
 }
 
-.projr_profile_check <- function(x) {
+.profile_check <- function(x) {
   if (nzchar(gsub("\\w|-|_", "", x))) {
     stop("If projr profile settings are kept in a file,
     then the profile can only use alphumeric characters,
@@ -126,29 +126,29 @@ projr_profile_create_local <- function() {
 #'
 #' @export
 projr_profile_get <- function() {
-  .projr_profile_get_var()
+  .profile_get_var()
 }
 
-.projr_profile_get_var <- function() {
-  # get explicitly specified PROJR_PROFILES
+.profile_get_var <- function() {
+  # get explicitly specified.PROFILES
   # (other than "default")
-  projr_profile <- .projr_profile_get_var_unsplit()
-  if (!nzchar(projr_profile)) {
+ .profile <- .profile_get_var_unsplit()
+  if (!nzchar.profile)) {
     return(character())
   }
-  projr_profile_vec <- strsplit(projr_profile, ",")[[1]]
-  vapply(projr_profile_vec, trimws, character(1)) |>
+ .profile_vec <- strsplit.profile, ",")[[1]]
+  vapply.profile_vec, trimws, character(1)) |>
     setdiff(c("default", "local", "")) |>
     stats::setNames(NULL)
 }
 
-.projr_profile_get_var_unsplit <- function() {
-  .projr_profile_get_raw() |>
+.profile_get_var_unsplit <- function() {
+  .profile_get_raw() |>
     setdiff(c("default", "local"))
 }
 
-.projr_profile_get_raw <- function() {
-  Sys.getenv("PROJR_PROFILE")
+.profile_get_raw <- function() {
+  Sys.getenv(.PROFILE")
 }
 
 #' @title Delete a projr profile from _projr.yml
@@ -164,18 +164,18 @@ projr_profile_get <- function() {
 #'
 #' @export
 projr_profile_delete <- function(profile) {
-  .projr_profile_delete_check(profile)
-  .projr_profile_delete_actual(profile)
+  .profile_delete_check(profile)
+  .profile_delete_actual(profile)
 }
 
-.projr_profile_delete_check <- function(profile) {
+.profile_delete_check <- function(profile) {
   .assert_string(profile, TRUE)
   if (.is_opt(profile, "default")) {
     stop("Cannot delete profile named 'default' as it is used internally.")
   }
 }
 
-.projr_profile_delete_actual <- function(profile) {
+.profile_delete_actual <- function(profile) {
   path_fn <- .path_get(paste0("_projr-", profile, ".yml"))
   if (!file.exists(path_fn)) {
     message("No such profile detected: ", profile)
@@ -188,5 +188,5 @@ projr_profile_delete <- function(profile) {
 #'
 #' @description Deletes `_projr-local.yml` file.
 projr_profile_delete_local <- function() {
-  projr_profile_delete("local")
+ .profile_delete("local")
 }

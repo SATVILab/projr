@@ -11,7 +11,7 @@ path_filter_essential_non_get_essential <- function(path_dir) {
     unique()
 }
 
-.projr_dir_ls <- function(path_dir,
+.dir_ls <- function(path_dir,
                           recursive = TRUE,
                           full.names = FALSE,
                           all.files = TRUE) {
@@ -22,10 +22,10 @@ path_filter_essential_non_get_essential <- function(path_dir) {
   ) |>
     fs::path_norm() |>
     as.character() |>
-    .projr_file_filter_essential_non(path_dir)
+    .file_filter_essential_non(path_dir)
 }
 
-.projr_dir_clear_dir_ls <- function(path_dir, recursive) {
+.dir_clear_dir_ls <- function(path_dir, recursive) {
   list.dirs(
     path_dir,
     recursive = recursive, full.names = TRUE

@@ -2,7 +2,7 @@
 # old local remote stuff
 # ======================
 
-.projr_local_send_dir <- function(path_dir_local,
+.local_send_dir <- function(path_dir_local,
                                   path_dir_local_dest,
                                   conflict) {
   # remove pre-existing files and error on overwrite
@@ -10,7 +10,7 @@
   if (length(fn_vec_rel) == 0L) {
     return(invisible(FALSE))
   }
-  .projr_local_send_file(
+  .local_send_file(
     fn_rel = fn_vec_rel,
     path_dir_local = path_dir_local,
     path_dir_local_dest = path_dir_local_dest,
@@ -18,7 +18,7 @@
   )
 }
 
-.projr_local_send_file <- function(fn_rel,
+.local_send_file <- function(fn_rel,
                                    path_dir_local,
                                    path_dir_local_dest,
                                    conflict) {
@@ -27,7 +27,7 @@
     return(invisible(FALSE))
   }
   attach(
-    .projr_local_conflict_manage(
+    .local_conflict_manage(
       path_file_source = file.path(path_dir_local, fn_rel),
       path_file_dest = file.path(path_dir_local_dest, fn_rel),
       conflict = conflict
@@ -37,13 +37,13 @@
   if (length(path_file_dest) == 0L) { # nolint
     return(invisible(FALSE))
   }
-  .projr_local_dir_create(path_file_dest) # nolint
+  .local_dir_create(path_file_dest) # nolint
 
   # copy the files
   all(file.copy(path_file_source, path_file_dest, overwrite = TRUE)) # nolint
 }
 
-.projr_local_conflict_manage <- function(path_file_source,
+.local_conflict_manage <- function(path_file_source,
                                          path_file_dest,
                                          conflict) {
   if (conflict == "overwrite") {
@@ -65,7 +65,7 @@
   )
 }
 
-.projr_local_dir_create <- function(fn) {
+.local_dir_create <- function(fn) {
   dir_vec <- unique(dirname(fn))
   for (i in seq_along(dir_vec)) {
     .dir_create(dir_vec[i])
@@ -73,15 +73,15 @@
   invisible(TRUE)
 }
 
-.projr_local_rm_file <- function(fn_rel,
+.local_rm_file <- function(fn_rel,
                                  path_dir) {
   all(file.remove(file.path(path_dir, fn_rel)))
 }
 
-.projr_get_dir_local <- function(label, bump_component) {
-  projr_path_get_dir(
+.get_dir_local <- function(label, bump_component) {
+ .path_get_dir(
     label = label,
-    safe = !.projr_run_output_check(bump_component)
+    safe = !.run_output_check(bump_component)
   )
 }
 
@@ -90,23 +90,23 @@
 # build-manifest testing
 # ===============================
 
-test_that("projr_manifest_hash_dir works", {
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
+test_that(.manifest_hash_dir works", {
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
       browser()
-      yml_projr_init <- .projr_yml_get_default_raw()
+      yml.init <- .yml_get_default_raw()
       # test getting hashes
       dir.create("_raw_data/sub", recursive = TRUE)
       invisible(file.create("_raw_data/abc.csv"))
       invisible(file.create("_raw_data/sub/def.csv"))
       dir.create("_tmp")
       expect_identical(
-        nrow(.projr_manifest_hash_label("cache", output_run = TRUE)), 0L
+        nrow(.manifest_hash_label("cache", output_run = TRUE)), 0L
       )
       expect_identical(
-        ncol(.projr_manifest_hash_label("cache", output_run = TRUE)), 4L
+        ncol(.manifest_hash_label("cache", output_run = TRUE)), 4L
       )
       invisible(file.create("_raw_data/sub/def.csv"))
 
@@ -118,17 +118,17 @@ test_that("projr_manifest_hash_dir works", {
       file.create("_tmp/test.txt")
       file.create("_tmp/abc/test.txt")
 
-      manifest <- .projr_build_manifest_pre(TRUE) |> .projr_manifest_read()
+      manifest <- .build_manifest_pre(TRUE) |> .manifest_read()
       expect_identical(nrow(manifest), 0L)
-      yml_projr <- yml_projr_init
+      yml_projr <- yml.init
       yml_projr[["directories"]][["cache"]][["hash"]] <- FALSE
-      .projr_yml_set(yml_projr)
-      manifest <- .projr_build_manifest_pre(TRUE)
+      .yml_set(yml_projr)
+      manifest <- .build_manifest_pre(TRUE)
       expect_identical(nrow(manifest), 0L)
-      yml_projr <- yml_projr_init
+      yml_projr <- yml.init
       yml_projr[["directories"]][["cache"]][["hash"]] <- TRUE
-      .projr_yml_set(yml_projr)
-      manifest <- .projr_build_manifest_pre(TRUE)
+      .yml_set(yml_projr)
+      manifest <- .build_manifest_pre(TRUE)
       expect_identical(nrow(manifest), 2L)
       expect_identical(colnames(manifest), c("label", "fn", "version", "hash"))
 
@@ -153,28 +153,28 @@ test_that("projr_manifest_hash_dir works", {
       #   well, I guess it doesn't matter.
       # seems like both are now fixed
 
-      manifest <- .projr_build_manifest_hash_post(FALSE)
+      manifest <- .build_manifest_hash_post(FALSE)
       expect_identical(nrow(manifest), 4L)
       expect_identical(colnames(manifest), c("label", "fn", "version", "hash"))
-      yml_projr <- yml_projr_init
+      yml_projr <- yml.init
       yml_projr[["directories"]][["raw-data"]][["hash"]] <- FALSE
-      .projr_yml_set(yml_projr)
-      manifest <- .projr_build_manifest_hash_post(FALSE)
+      .yml_set(yml_projr)
+      manifest <- .build_manifest_hash_post(FALSE)
       expect_identical(nrow(manifest), 2L)
       yml_projr[["directories"]][["output"]][["hash"]] <- FALSE
-      .projr_yml_set(yml_projr)
-      manifest <- .projr_build_manifest_hash_post(FALSE)
+      .yml_set(yml_projr)
+      manifest <- .build_manifest_hash_post(FALSE)
       expect_identical(nrow(manifest), 0L)
       expect_identical(colnames(manifest), c("label", "fn", "version", "hash"))
 
       # test saving manifest
       # -------------------------
       manifest_tbl <- data.frame(x = 1)
-      .projr_manifest_write(manifest_tbl, output_run = TRUE)
+      .manifest_write(manifest_tbl, output_run = TRUE)
       expect_true(file.exists("manifest.csv"))
-      .projr_manifest_write(manifest_tbl, output_run = FALSE)
+      .manifest_write(manifest_tbl, output_run = FALSE)
       expect_true(
-        file.exists(projr_dir_get("output", "manifest.csv", output_run = FALSE))
+        file.exists.dir_get("output", "manifest.csv", output_run = FALSE))
       )
     },
     force = TRUE,
@@ -182,7 +182,7 @@ test_that("projr_manifest_hash_dir works", {
   )
 })
 
-test_that("projr_manifest_compare works", {
+test_that(.manifest_compare works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   .dir_create(dir_test)
@@ -212,19 +212,19 @@ test_that("projr_manifest_compare works", {
     path = dir_test,
     code = {
       # clean up
-      if (dir.exists(projr_dir_get("raw-data"))) {
-        unlink(projr_dir_get("raw-data"), recursive = TRUE)
+      if (dir.exists.dir_get("raw-data"))) {
+        unlink.dir_get("raw-data"), recursive = TRUE)
       }
       # create files
-      path_output_kept_unchanged <- projr_path_get(
+      path_output_kept_unchanged <-.path_get(
         "output", "kept_unchanged.txt",
         safe = FALSE
       )
-      path_output_kept_changed <- projr_path_get(
+      path_output_kept_changed <-.path_get(
         "output", "kept_changed.txt",
         safe = FALSE
       )
-      path_output_removed <- projr_path_get(
+      path_output_removed <-.path_get(
         "output", "removed.txt",
         safe = FALSE
       )
@@ -232,9 +232,9 @@ test_that("projr_manifest_compare works", {
       invisible(file.create(path_output_kept_changed))
       invisible(file.create(path_output_removed))
       # get manifest beforehand
-      manifest_tbl_pre <- .projr_build_manifest_hash_post(output_run = TRUE)
+      manifest_tbl_pre <- .build_manifest_hash_post(output_run = TRUE)
       # add a file, and change a file
-      path_output_add <- projr_path_get(
+      path_output_add <-.path_get(
         "output", "added.txt",
         safe = FALSE
       )
@@ -242,9 +242,9 @@ test_that("projr_manifest_compare works", {
       cat("add", file = path_output_kept_changed, append = TRUE)
       unlink(path_output_removed)
       # get manifest afterwards
-      manifest_tbl_post <- .projr_build_manifest_hash_post(output_run = TRUE)
-      .projr_manifest_compare(manifest_tbl_pre, manifest_tbl_post)
-      manifest_compare_list <- .projr_manifest_compare(
+      manifest_tbl_post <- .build_manifest_hash_post(output_run = TRUE)
+      .manifest_compare(manifest_tbl_pre, manifest_tbl_post)
+      manifest_compare_list <- .manifest_compare(
         manifest_tbl_pre, manifest_tbl_post
       )
       expect_identical(
@@ -255,14 +255,14 @@ test_that("projr_manifest_compare works", {
       )
       expect_identical("removed.txt", manifest_compare_list$removed$fn)
       expect_identical("added.txt", manifest_compare_list$added$fn)
-      manifest_compare_list <- .projr_manifest_compare(
+      manifest_compare_list <- .manifest_compare(
         manifest_tbl_pre[rep(FALSE, nrow(manifest_tbl_pre))], manifest_tbl_post
       )
 
-      zero_row_tbl <- .projr_zero_tbl_get_manifest()
+      zero_row_tbl <- .zero_tbl_get_manifest()
       expect_identical(manifest_compare_list$kept_unchanged, zero_row_tbl)
       expect_identical(manifest_compare_list$added, manifest_tbl_post)
-      manifest_compare_list <- .projr_manifest_compare(
+      manifest_compare_list <- .manifest_compare(
         manifest_tbl_pre,
         manifest_tbl_post[rep(FALSE, nrow(manifest_tbl_pre)), ]
       )
@@ -279,10 +279,10 @@ test_that("projr_manifest_compare works", {
 # yml-dest testing
 # ===============================
 
-test_that(".projr_remote_create works", {
+test_that(".remote_create works", {
   # POSSIBLY VERY OUT OF DATE
   skip()
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = FALSE
   )
   usethis::with_project(
@@ -297,7 +297,7 @@ test_that(".projr_remote_create works", {
         "local" = list("Zlatan" = list("ID" = "MrMr", "Move" = "Karate"))
       ))
       expect_identical(
-        .projr_dest_add_get_final(
+        .dest_add_get_final(
           yml_root_orig = yml_root_orig,
           yml_merge_final = yml_merge_final,
           type = "local",
@@ -321,7 +321,7 @@ test_that(".projr_remote_create works", {
         "ID" = "KaPow", "Move" = "ChopChop"
       )
       expect_identical(
-        .projr_dest_add_get_final(
+        .dest_add_get_final(
           yml_root_orig = yml_root_orig,
           yml_merge_final = yml_merge_final,
           type = "local",
@@ -341,10 +341,10 @@ test_that(".projr_remote_create works", {
   )
 })
 
-test_that(".projr_remote_create works", {
+test_that(".remote_create works", {
   # POSSIBLY (LIKELY) OUT OF DATE
   skip()
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = FALSE
   )
   usethis::with_project(
@@ -354,20 +354,20 @@ test_that(".projr_remote_create works", {
       # -----------------------------------------------
 
       # remote any pre-existing remotes
-      .projr_test_yml_dest_remote_rm()
+      .test_yml_dest_remote_rm()
 
       # add it
       browser()
-      debugonce(.projr_yml_remote_check_content)
-      projr_dest_add_local(
+      debugonce(.yml_remote_check_content)
+     .dest_add_local(
         title = "Archive",
         content = "raw-data",
         path = "_archive"
       )
-      yml_projr_build <- projr_yml_get()[["build"]]
+      yml.build <-.yml_get()[["build"]]
       expect_true(
         identical(
-          yml_projr_build[["local"]][["Archive"]],
+          yml.build[["local"]][["Archive"]],
           list(
             content = "raw-data",
             path = "_archive"
@@ -476,24 +476,24 @@ if (yml_projr[["build"]][["git"]][["add-untracked"]]) {
 # osf-specific stuff
 # =====================
 
-# from inside .projr_dest_add_osf
-title <- .projr_remote_title_get(title = title, content = content)
-yml_projr_orig_root <- .projr_yml_get_default()
-yml_projr <- .projr_yml_get()
+# from inside .dest_add_osf
+title <- .remote_title_get(title = title, content = content)
+yml.orig_root <- .yml_get_default()
+yml_projr <- .yml_get()
 
-get_list <- ..projr_dest_add_list_get_osf_add_load_get_list(
+get_list <- ..dest_add_list_get_osf_add_load_get_list(
   strategy = get_strategy,
   conflict = get_conflict
 )
 
-send_list <- ..projr_dest_add_list_get_osf_add_load_get_list(
+send_list <- ..dest_add_list_get_osf_add_load_get_list(
   cue = send_cue,
   strategy = send_strategy,
   inspect = send_inspect,
   conflict = send_conflict
 )
 
-.projr_dest_add_osf_check( # nolint
+.dest_add_osf_check( # nolint
   id = id,
   title = title,
   id_parent = id_parent,
@@ -512,7 +512,7 @@ send_list <- ..projr_dest_add_list_get_osf_add_load_get_list(
 
 # create list to add
 # ------------------
-list_add <- .projr_osf_dest_get_list_add(
+list_add <- .osf_dest_get_list_add(
   title = title,
   id = id,
   structure = structure,
@@ -525,7 +525,7 @@ list_add <- .projr_osf_dest_get_list_add(
 # find where to add list, and add it
 # ----------------------------------
 
-.projr_dest_add_osf_check <- function(id,
+.dest_add_osf_check <- function(id,
                                       title,
                                       id_parent,
                                       parent_title,
@@ -539,7 +539,7 @@ list_add <- .projr_osf_dest_get_list_add(
                                       download,
                                       upload,
                                       overwrite) {
-  .projr_remote_check_osf_base(
+  .remote_check_osf_base(
     title = title,
     id = id,
     id_parent = id_parent,
@@ -550,25 +550,25 @@ list_add <- .projr_osf_dest_get_list_add(
     path = path,
     path_append_label = path_append_label
   )
-  .projr_remote_check_osf_overwrite(
+  .remote_check_osf_overwrite(
     overwrite = overwrite
   )
 
   # structure
   # --------------------
-  .projr_remote_check_osf_structure(
+  .remote_check_osf_structure(
     structure = structure,
     nm_opt = c("latest", "version", "content")
   )
   # no requirement that there is content
   # if it's a project
   if (category != "project") {
-    .projr_remote_check_osf_label(
+    .remote_check_osf_label(
       label = content,
       type_opt = c("raw-data", "cache", "output", "archive", "docs")
     )
   } else if (!is.null(content)) {
-    .projr_remote_check_osf_label(
+    .remote_check_osf_label(
       label = content,
       type_opt = c("raw-data", "cache", "output", "archive", "docs")
     )
@@ -576,16 +576,16 @@ list_add <- .projr_osf_dest_get_list_add(
 
   # download
   # ---------------------
-  .projr_remote_check_osf_trans_list(trans_list = download)
-  .projr_remote_check_osf_trans_names(
+  .remote_check_osf_trans_list(trans_list = download)
+  .remote_check_osf_trans_names(
     trans_list = download,
     nm_opt = c("strategy", "conflict")
   )
-  .projr_remote_check_osf_cue(
+  .remote_check_osf_cue(
     trans_list = download,
     nm_opt = c("none", "build", "major", "minor", "patch")
   )
-  .projr_remote_check_osf_strategy(
+  .remote_check_osf_strategy(
     trans_list = download,
     nm_opt = c(
       "download-all",
@@ -596,18 +596,18 @@ list_add <- .projr_osf_dest_get_list_add(
 
   # upload
   # -----------------------
-  .projr_remote_check_osf_trans_list(
+  .remote_check_osf_trans_list(
     trans_list = upload
   )
-  .projr_remote_check_osf_trans_names(
+  .remote_check_osf_trans_names(
     trans_list = upload,
     nm_opt = c("cue", "strategy", "inspect", "conflict")
   )
-  .projr_remote_check_osf_cue(
+  .remote_check_osf_cue(
     trans_list = upload,
     nm_opt = c("none", "build", "major", "minor", "patch", "change")
   )
-  .projr_remote_check_osf_strategy(
+  .remote_check_osf_strategy(
     trans_list = upload,
     nm_opt = c(
       "upload-missing",
@@ -616,11 +616,11 @@ list_add <- .projr_osf_dest_get_list_add(
       "sync-using-version" # haven't implemented this one yet
     )
   )
-  .projr_remote_check_osf_conflict(trans_list = upload)
+  .remote_check_osf_conflict(trans_list = upload)
 }
 
 
-.projr_osf_dest_get_list_add <- function(title,
+.osf_dest_get_list_add <- function(title,
                                          id,
                                          path,
                                          path_append_label,
@@ -654,16 +654,16 @@ list_add <- .projr_osf_dest_get_list_add(
 # base checks for ymls
 # =================
 
-.projr_yml_remote_check_base <- function(type, ...) {
+.yml_remote_check_base <- function(type, ...) {
   switch(type,
-    local = .projr_yml_remote_check_base_local(...),
-    osf = .projr_yml_remote_check_base_osf(...)
+    local = .yml_remote_check_base_local(...),
+    osf = .yml_remote_check_base_osf(...)
   )
   invisible(TRUE)
 }
 
 # local
-.projr_yml_remote_check_base_local <- function(path) {
+.yml_remote_check_base_local <- function(path) {
   if (missing(path)) {
     stop("path must be supplied")
   }
@@ -673,7 +673,7 @@ list_add <- .projr_osf_dest_get_list_add(
   invisible(TRUE)
 }
 # osf
-.projr_yml_remote_check_base_osf <- function(title,
+.yml_remote_check_base_osf <- function(title,
                                              id,
                                              id_parent,
                                              category,
@@ -682,17 +682,17 @@ list_add <- .projr_osf_dest_get_list_add(
                                              title_parent,
                                              path,
                                              path_append_label) {
-  .projr_yml_remote_check_osf_title(title = title)
-  .projr_yml_remote_check_osf_public(public = public)
-  .projr_yml_remote_check_osf_body(body = body)
-  .projr_yml_remote_check_osf_category(category = category)
-  .projr_yml_remote_check_osf_id_parent(id_parent = id_parent)
-  .projr_yml_remote_check_osf_title_parent(title_parent = title_parent)
-  .projr_yml_remote_check_osf_proj_with_parent(
+  .yml_remote_check_osf_title(title = title)
+  .yml_remote_check_osf_public(public = public)
+  .yml_remote_check_osf_body(body = body)
+  .yml_remote_check_osf_category(category = category)
+  .yml_remote_check_osf_id_parent(id_parent = id_parent)
+  .yml_remote_check_osf_title_parent(title_parent = title_parent)
+  .yml_remote_check_osf_proj_with_parent(
     id_parent = id_parent, title_parent = title_parent, category = category
   )
-  .projr_yml_remote_check_osf_path(path = path)
-  .projr_yml_remote_check_osf_path_append_label(
+  .yml_remote_check_osf_path(path = path)
+  .yml_remote_check_osf_path_append_label(
     path_append_label = path_append_label
   )
 }
@@ -701,7 +701,7 @@ list_add <- .projr_osf_dest_get_list_add(
 # further remote check stuff
 # ==============================
 
-.projr_yml_remote_add_check(
+.yml_remote_add_check(
   type = type,
   id = id,
   title = title,
@@ -719,7 +719,7 @@ list_add <- .projr_osf_dest_get_list_add(
   overwrite = overwrite
 )
 
-.projr_dest_add_osf_check( # nolint
+.dest_add_osf_check( # nolint
   id = id,
   title = title,
   id_parent = id_parent,
@@ -743,9 +743,9 @@ list_add <- .projr_osf_dest_get_list_add(
 
 role <- "dest"
 
-title <- .projr_remote_check_title(title = title, content = content)
+title <- .remote_check_title(title = title, content = content)
 
-content <- .projr_yml_remote_content_get(
+content <- .yml_remote_content_get(
   role = role, type = type, content = content
 )
 
@@ -753,7 +753,7 @@ content <- .projr_yml_remote_content_get(
 # remote check stuff
 # ==============================
 
-.projr_remote_check_osf_label <- function(label, type_opt) {
+.remote_check_osf_label <- function(label, type_opt) {
   label_nm <- deparse(substitute(label))
   # check supplied
   if (missing(label)) {
@@ -778,7 +778,7 @@ content <- .projr_yml_remote_content_get(
     short_to_match_type[type_opt],
     collapse = "|"
   )
-  if (!grepl(match_str, .projr_dir_label_strip(label))) {
+  if (!grepl(match_str, .dir_label_strip(label))) {
     stop(paste0(
       label_nm, " entries must match the following: ",
       match_str
@@ -787,7 +787,7 @@ content <- .projr_yml_remote_content_get(
 
   # check that it's actually found
   label_vec <- unique(c(
-    names(.projr_yml_get()[["directories"]]),
+    names(.yml_get()[["directories"]]),
     "docs"
   ))
   if (!all(label %in% label_vec)) {
@@ -802,13 +802,13 @@ content <- .projr_yml_remote_content_get(
 }
 
 
-.projr_remote_check_osf_overwrite <- function(overwrite) {
+.remote_check_osf_overwrite <- function(overwrite) {
   if (!is.logical(overwrite)) {
     stop("overwrite must be logical")
   }
   invisible(TRUE)
 }
-.projr_remote_check_osf_path <- function(path) {
+.remote_check_osf_path <- function(path) {
   if (is.null(path)) {
     return(invisible(FALSE))
   }
@@ -824,7 +824,7 @@ content <- .projr_yml_remote_content_get(
   invisible(TRUE)
 }
 
-.projr_remote_check_osf_path_append_label <- function(path_append_label) {
+.remote_check_osf_path_append_label <- function(path_append_label) {
   if (is.null(path_append_label)) {
     return(invisible(FALSE))
   }
@@ -840,34 +840,34 @@ content <- .projr_yml_remote_content_get(
 
 # ==========================================
 
-path_zip <- .projr_zip_file(
-  fn_rel = .projr_remote_file_ls("local", path_dir_source),
+path_zip <- .zip_file(
+  fn_rel = .remote_file_ls("local", path_dir_source),
   path_dir_fn_rel = path_dir_source,
   fn_rel_zip = remote[["fn"]]
 )
 piggyback:::.pb_cache_clear()
 piggyback::pb_upload(file = path_zip, tag = id)
-fn_vec_source <- .projr_remote_file_ls("local", path_dir_source)
+fn_vec_source <- .remote_file_ls("local", path_dir_source)
 path_dir_dest <- .dir_create_tmp_random()
-.projr_remote_file_add(
+.remote_file_add(
   "github",
   fn = fn_vec_source,
   path_dir_local = path_dir_source,
   remote = remote
 )
 expect_identical(
-  .projr_remote_file_ls("osf", osf_tbl),
+  .remote_file_ls("osf", osf_tbl),
   fn_vec_source
 )
 
 # remove some content
-fn_vec_orig_osf <- .projr_remote_file_ls("osf", osf_tbl)
+fn_vec_orig_osf <- .remote_file_ls("osf", osf_tbl)
 fn_vec_rm <- c("abc.txt", "subdir1/def.txt")
 expect_true(
-  .projr_remote_file_rm("osf", fn = fn_vec_rm, remote = osf_tbl)
+  .remote_file_rm("osf", fn = fn_vec_rm, remote = osf_tbl)
 )
 expect_identical(
-  .projr_remote_file_ls(
+  .remote_file_ls(
     "osf",
     remote = osf_tbl
   ),
@@ -880,30 +880,30 @@ unlink(path_dir_source, recursive = TRUE)
 # ==========================================
 
 # stop here
-.projr_test_debug_save_rds(content_tbl_pre_delete)
+.test_debug_save_rds(content_tbl_pre_delete)
 Sys.sleep(2)
-expect_true(.projr_remote_file_rm_all("github", remote = id))
+expect_true(.remote_file_rm_all("github", remote = id))
 piggyback:::.pb_cache_clear()
 content_tbl <- piggyback::pb_list(tag = id)
 wd <- getwd()
 repo <- piggyback:::guess_repo()
 is_memoised <- memoise::is.memoised(piggyback::pb_list)
-.projr_test_debug_save_rds(is_memoised)
-.projr_test_debug_save_rds(repo)
-.projr_test_debug_save_rds(id)
-.projr_test_debug_save_rds(wd)
-.projr_test_debug_save_rds(content_tbl)
+.test_debug_save_rds(is_memoised)
+.test_debug_save_rds(repo)
+.test_debug_save_rds(id)
+.test_debug_save_rds(wd)
+.test_debug_save_rds(content_tbl)
 pb_info_sv <- piggyback:::pb_info
-.projr_test_debug_save_rds(pb_info_sv)
+.test_debug_save_rds(pb_info_sv)
 expect_true(nrow(content_tbl) == 0L)
 
-.projr_test_debug_read_rds(repo)
-.projr_test_debug_read_rds(wd)
-.projr_test_debug_read_rds(content_tbl_pre_delete)
-.projr_test_debug_read_rds(content_tbl)
-.projr_test_debug_read_rds(id)
-.projr_test_debug_read_rds(opt)
-.projr_test_debug_read_rds(is_memoised)
+.test_debug_read_rds(repo)
+.test_debug_read_rds(wd)
+.test_debug_read_rds(content_tbl_pre_delete)
+.test_debug_read_rds(content_tbl)
+.test_debug_read_rds(id)
+.test_debug_read_rds(opt)
+.test_debug_read_rds(is_memoised)
 
 # ==========================================
 # GitHub setup for testing
@@ -926,38 +926,38 @@ if (inherits(create_repo, "try-error")) {
 # old manifest_compare
 # ==========================================
 
-.projr_manifest_compare <- function(manifest_pre, manifest_post) {
+.manifest_compare <- function(manifest_pre, manifest_post) {
   # get last version uploaded
   # get version that is being uploaded to
   # get list of whatever is in the OSF registry
   # get all files that have been added
-  version_pre <- .projr_manifest_version_get_latest(manifest_pre)
+  version_pre <- .manifest_version_get_latest(manifest_pre)
   manifest_pre <- manifest_pre[
     manifest_pre[["version"]] == version_pre,
   ]
   manifest_post <- manifest_post[
-    manifest_post[["version"]] == .projr_version_get_v(),
+    manifest_post[["version"]] == .version_get_v(),
   ]
-  .projr_change_get_hash(
+  .change_get_hash(
     hash_pre = manifest_pre,
     hash_post = manifest_post
   )
 }
 
 # ==========================================
-# debugging projr_osf_dest_add
+# debugging.osf_dest_add
 # ==========================================
 
 browser()
 
-# debugonce(.projr_osf_yml_get_parent_vec)
-# debugonce(.projr_osf_yml_find_parent)
-# debugonce(.projr_osf_yml_find_parent_rec)
-# debugonce(projr_osf_dest_add)
-# debugonce(.projr_osf_yml_dest_add_comp_parent)
+# debugonce(.osf_yml_get_parent_vec)
+# debugonce(.osf_yml_find_parent)
+# debugonce(.osf_yml_find_parent_rec)
+# debugonce.osf_dest_add)
+# debugonce(.osf_yml_dest_add_comp_parent)
 browser()
 
-# debugonce(.projr_osf_yml_get_parent_vec)
+# debugonce(.osf_yml_get_parent_vec)
 
 # =========================================
 # osf_download_to_dir_all
@@ -985,7 +985,7 @@ if (sub_dir) {
 # manifest download stuff
 # =========================================
 
-.projr_osf_download_node_manifest <- function(osf_tbl) {
+.osf_download_node_manifest <- function(osf_tbl) {
   osf_tbl_files <- osf_tbl |> osfr::osf_ls_files()
   osf_tbl_manifest <- osf_tbl_files[
     osf_tbl_files[["name"]] == "manifest.csv",
@@ -1050,7 +1050,7 @@ if (sub_dir) {
 
 # send to a remote
 
-.projr_dest_send_label_send <- function(path_dir_local,
+.dest_send_label_send <- function(path_dir_local,
                                         remote_final,
                                         change_list,
                                         structure) {
@@ -1122,7 +1122,7 @@ if (sub_dir) {
   #   - as above
   # - github:
   #   -
-  .projr_dest_send_label_
+  .dest_send_label_
 }
 
 
@@ -1132,7 +1132,7 @@ if (sub_dir) {
 
 # for multiple labels
 # ------------------------
-.projr_dest_change_get_content <- function(content,
+.dest_change_get_content <- function(content,
                                            output_run,
                                            remote_type,
                                            remote_name,
@@ -1142,7 +1142,7 @@ if (sub_dir) {
     remote_name = remote_name, yml_remote = yml_remote
   )
   lapply(content, function(x) {
-    do.call(.projr_dest_change_get_label, list(label = x) |> append(args_list))
+    do.call(.dest_change_get_label, list(label = x) |> append(args_list))
   }) |>
     stats::setNames(content)
 }
@@ -1150,7 +1150,7 @@ if (sub_dir) {
 # for a single label
 # ------------------------
 
-.projr_dest_change_get_label <- function(label,
+.dest_change_get_label <- function(label,
                                          output_run,
                                          remote_type,
                                          remote_base,
@@ -1163,8 +1163,8 @@ if (sub_dir) {
   # on what sync-approach and remote-structure are
   # (in addition to version source)
   switch(inspect,
-    "manifest" = .projr_change_get_manifest(label = label),
-    "file" = .projr_change_get_file(
+    "manifest" = .change_get_manifest(label = label),
+    "file" = .change_get_file(
       output_run = output_run,
       remote_type_pre = remote_type,
       remote_base_pre = remote_base,
@@ -1178,7 +1178,7 @@ if (sub_dir) {
 
 # old test-dir.R code (seems to be a repeat of earlier, but with bugs not fixed)
 
-test_that("projr_dir_ignore works", {
+test_that(.dir_ignore works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   if (!dir.exists(dir_test)) dir.create(dir_test)
@@ -1207,91 +1207,91 @@ test_that("projr_dir_ignore works", {
     path = dir_test,
     code = {
       # test adding to gitignore and buildignore
-      gitignore_orig <- .projr_ignore_git_read()
-      buildignore_orig <- .projr_ignore_rbuild_read()
-      .projr_ignore_label_set("docs")
-      gitignore <- .projr_ignore_git_read()
+      gitignore_orig <- .ignore_git_read()
+      buildignore_orig <- .ignore_rbuild_read()
+      .ignore_label_set("docs")
+      gitignore <- .ignore_git_read()
       expect_identical(length(which(
         gitignore == "docs/reportV0.0.0-1/**"
       )), 1L)
-      buildignore <- .projr_ignore_rbuild_read()
+      buildignore <- .ignore_rbuild_read()
       expect_identical(length(which(
         buildignore == "^docs/reportV0\\.0\\.0-1"
       )), 1L)
-      .projr_ignore_label_set("raw-data")
+      .ignore_label_set("raw-data")
       # test that nothing is done when directory is equal to working directory
-      .projr_gitignore_set(gitignore_orig, append = FALSE)
-      yml_bd_init <- .projr_yml_bd_get()
+      .gitignore_set(gitignore_orig, append = FALSE)
+      yml_bd_init <- .yml_bd_get()
       yml_bd <- yml_bd_init
       yml_bd[["output_dir"]] <- "."
-      .projr_yml_bd_set(yml_bd)
-      .projr_ignore_label_set("docs")
-      gitignore <- .projr_ignore_git_read()
+      .yml_bd_set(yml_bd)
+      .ignore_label_set("docs")
+      gitignore <- .ignore_git_read()
       expect_identical(length(which(
         gitignore == "."
       )), 0L)
-      buildignore <- .projr_ignore_rbuild_read()
+      buildignore <- .ignore_rbuild_read()
       expect_identical(length(which(
         buildignore == "^\\."
       )), 0L)
-      .projr_ignore_label_set("raw-data")
-      gitignore <- .projr_ignore_git_read()
+      .ignore_label_set("raw-data")
+      gitignore <- .ignore_git_read()
       expect_identical(length(which(gitignore == "_raw_data/**")), 1L)
-      buildignore <- .projr_ignore_rbuild_read()
+      buildignore <- .ignore_rbuild_read()
       expect_identical(length(which(buildignore == "^_raw_data")), 1L)
-      .projr_ignore_label_set("raw-data")
-      gitignore <- .projr_ignore_git_read()
+      .ignore_label_set("raw-data")
+      gitignore <- .ignore_git_read()
       expect_identical(length(which(gitignore == "_raw_data/**")), 1L)
-      buildignore <- .projr_ignore_rbuild_read()
+      buildignore <- .ignore_rbuild_read()
       expect_identical(length(which(buildignore == "^_raw_data")), 1L)
-      .projr_ignore_label_set("output")
-      gitignore <- .projr_ignore_git_read()
+      .ignore_label_set("output")
+      gitignore <- .ignore_git_read()
       expect_identical(length(which(gitignore == "_output/**")), 1L)
-      buildignore <- .projr_ignore_rbuild_read()
+      buildignore <- .ignore_rbuild_read()
       expect_identical(length(which(buildignore == "^_output")), 1L)
-      .projr_ignore_label_set("raw-data")
-      gitignore <- .projr_ignore_git_read()
+      .ignore_label_set("raw-data")
+      gitignore <- .ignore_git_read()
       expect_identical(length(which(gitignore == "_output/**")), 1L)
-      buildignore <- .projr_ignore_rbuild_read()
+      buildignore <- .ignore_rbuild_read()
       expect_identical(length(which(buildignore == "^_output")), 1L)
-      .projr_ignore_label_set("archive")
-      gitignore <- .projr_ignore_git_read()
+      .ignore_label_set("archive")
+      gitignore <- .ignore_git_read()
       expect_identical(length(which(gitignore == "_archive/**")), 1L)
-      buildignore <- .projr_ignore_rbuild_read()
+      buildignore <- .ignore_rbuild_read()
       expect_identical(length(which(buildignore == "^_archive")), 1L)
-      .projr_ignore_label_set("raw-data")
-      gitignore <- .projr_ignore_git_read()
+      .ignore_label_set("raw-data")
+      gitignore <- .ignore_git_read()
       expect_identical(length(which(gitignore == "_archive/**")), 1L)
-      buildignore <- .projr_ignore_rbuild_read()
+      buildignore <- .ignore_rbuild_read()
       expect_identical(length(which(buildignore == "^_archive")), 1L)
-      .projr_ignore_label_set("cache")
-      gitignore <- .projr_ignore_git_read()
+      .ignore_label_set("cache")
+      gitignore <- .ignore_git_read()
       expect_identical(length(which(gitignore == "_tmp/**")), 1L)
-      buildignore <- .projr_ignore_rbuild_read()
+      buildignore <- .ignore_rbuild_read()
       expect_identical(length(which(buildignore == "^_tmp")), 1L)
-      .projr_ignore_label_set("raw-data")
-      gitignore <- .projr_ignore_git_read()
+      .ignore_label_set("raw-data")
+      gitignore <- .ignore_git_read()
       expect_identical(length(which(gitignore == "_tmp/**")), 1L)
-      buildignore <- .projr_ignore_rbuild_read()
+      buildignore <- .ignore_rbuild_read()
       expect_identical(length(which(buildignore == "^_tmp")), 1L)
 
-      yml_projr <- .projr_yml_get_default_raw()
+      yml_projr <- .yml_get_default_raw()
       for (i in seq_along(yml_projr[["directories"]])) {
         yml_projr[["directories"]][[i]][["ignore_git"]] <- FALSE
         yml_projr[["directories"]][[i]][["ignore_rbuild"]] <- FALSE
       }
-      .projr_yml_set(yml_projr)
+      .yml_set(yml_projr)
       # test taking away from gitignore and buildignore
 
-      .projr_ignore_label_set("raw-data")
-      gitignore <- .projr_ignore_git_read()
+      .ignore_label_set("raw-data")
+      gitignore <- .ignore_git_read()
       expect_identical(length(which(gitignore == "_raw_data/**")), 0L)
-      buildignore <- .projr_ignore_rbuild_read()
+      buildignore <- .ignore_rbuild_read()
       expect_identical(length(which(buildignore == "^_raw_data")), 0L)
-      buildignore <- .projr_ignore_rbuild_read()
+      buildignore <- .ignore_rbuild_read()
 
       # test not adding when the directory is not in wd
-      yml_projr <- .projr_yml_get_default_raw()
+      yml_projr <- .yml_get_default_raw()
       dir_out <- file.path(
         dirname(rprojroot::is_r_package$find_file()), "test_2"
       )
@@ -1300,28 +1300,28 @@ test_that("projr_dir_ignore works", {
       for (i in seq_along(yml_projr[["directories"]])) {
         yml_projr[["directories"]][[i]][["path"]] <- dir_out
       }
-      .projr_yml_set(yml_projr)
-      gitignore <- .projr_ignore_git_read()
+      .yml_set(yml_projr)
+      gitignore <- .ignore_git_read()
       expect_identical(length(
         which(gitignore == "/tmp/RtmpkdBxQ9/test_2/**")
       ), 0L)
-      buildignore <- .projr_ignore_rbuild_read()
+      buildignore <- .ignore_rbuild_read()
       expect_identical(length(
         which(buildignore == "^/tmp/RtmpkdBxQ9/test_2")
       ), 0L)
-      buildignore <- .projr_ignore_rbuild_read()
+      buildignore <- .ignore_rbuild_read()
 
       # test errors
-      expect_error(.projr_ignore_label_set(c("abc", "def")))
-      expect_error(.projr_ignore_label_set(1))
-      yml_projr <- .projr_yml_get_default_raw()
+      expect_error(.ignore_label_set(c("abc", "def")))
+      expect_error(.ignore_label_set(1))
+      yml_projr <- .yml_get_default_raw()
       for (i in seq_along(yml_projr[["directories"]])) {
         yml_projr[["directories"]][[i]][["ignore_rbuild"]] <- 1
         yml_projr[["directories"]][[i]][["ignore_git"]] <- 1
       }
       names(yml_projr[["directories"]]) <- rep("raw-data", 4)
-      .projr_yml_set(yml_projr)
-      expect_error(.projr_ignore_label_set("raw-data"))
+      .yml_set(yml_projr)
+      expect_error(.ignore_label_set("raw-data"))
     },
     force = TRUE,
     quiet = TRUE
@@ -1343,50 +1343,50 @@ test_that("projr_dir_ignore works", {
 if (is.logical(ignore)) {
   if (ignore) {
     if (!txt_gitignore %in% gitignore) {
-      .projr_gitignore_set(txt_gitignore, append = TRUE)
-      .projr_gitignore_set("\n", append = TRUE)
+      .gitignore_set(txt_gitignore, append = TRUE)
+      .gitignore_set("\n", append = TRUE)
     }
     if (!txt_rbuildignore %in% rbuildignore) {
-      .projr_buildignore_set(txt_rbuildignore, append = TRUE)
-      .projr_buildignore_set("\n", append = TRUE)
+      .buildignore_set(txt_rbuildignore, append = TRUE)
+      .buildignore_set("\n", append = TRUE)
     }
     return(invisible(TRUE))
   } else {
     if (txt_gitignore %in% gitignore) {
       gitignore <- gitignore[!(gitignore == txt_gitignore)]
-      .projr_gitignore_set(gitignore, append = FALSE)
+      .gitignore_set(gitignore, append = FALSE)
     }
     if (txt_rbuildignore %in% rbuildignore) {
       rbuildignore <- rbuildignore[!(rbuildignore == txt_rbuildignore)]
-      .projr_buildignore_set(rbuildignore, append = FALSE)
+      .buildignore_set(rbuildignore, append = FALSE)
     }
   }
 } else if (is.character(ignore)) {
   if ("git" %in% ignore) {
     if (!txt_gitignore %in% gitignore) {
-      .projr_gitignore_set(txt_gitignore, append = TRUE)
-      .projr_gitignore_set("\n", append = TRUE)
+      .gitignore_set(txt_gitignore, append = TRUE)
+      .gitignore_set("\n", append = TRUE)
     }
   } else {
     if (txt_gitignore %in% gitignore) {
       gitignore <- gitignore[!(gitignore == txt_gitignore)]
-      .projr_gitignore_set(gitignore, append = FALSE)
+      .gitignore_set(gitignore, append = FALSE)
     }
   }
   if (!txt_rbuildignore %in% rbuildignore) {
-    .projr_buildignore_set(txt_rbuildignore, append = TRUE)
-    .projr_buildignore_set("\n", append = TRUE)
+    .buildignore_set(txt_rbuildignore, append = TRUE)
+    .buildignore_set("\n", append = TRUE)
   } else {
     if (txt_rbuildignore %in% rbuildignore) {
       rbuildignore <- rbuildignore[!(rbuildignore == txt_rbuildignore)]
-      .projr_buildignore_set(rbuildignore, append = FALSE)
+      .buildignore_set(rbuildignore, append = FALSE)
     }
   }
 }
 
 
-gitignore <- .projr_gitignore_get()
-rbuildignore <- .projr_buildignore_get()
+gitignore <- .gitignore_get()
+rbuildignore <- .buildignore_get()
 
 dir_path <- fs::path_rel(dir_path, dir_proj)
 
@@ -1407,7 +1407,7 @@ fs::path_abs(dir_proj)
 
 .test_set()
 library(testthat)
-projr::projr_build_output()
+projr:.build_output()
 
 x <- 1
 while (x < 10) {
@@ -1419,12 +1419,12 @@ while (x < 10) {
 # old clear dev version
 # ==================================
 
-.projr_build_clear_dev <- function(output_run) {
+.build_clear_dev <- function(output_run) {
   if (!output_run) {
     return(invisible(FALSE))
   }
-  proj_nm <- projr_name_get()
-  version_format_list <- .projr_version_format_list_get()
+  proj_nm <-.name_get()
+  version_format_list <- .version_format_list_get()
 
   # clear old docs
   # -----------------------
@@ -1437,25 +1437,25 @@ while (x < 10) {
   )
   dir_report <- basename(
     list.dirs(dirname(
-      projr_path_get_dir("docs", create = FALSE)
+     .path_get_dir("docs", create = FALSE)
     ), recursive = FALSE)
   )
   dir_report_rm <- dir_report[grepl(match_regex, dir_report)]
   for (i in seq_along(dir_report_rm)) {
     unlink(file.path(
-      dirname(projr_dir_get("docs", create = FALSE)), dir_report_rm[[i]]
+      dirname.dir_get("docs", create = FALSE)), dir_report_rm[[i]]
     ), recursive = TRUE)
   }
 
   # clear old output
   # --------------------
 
-  dir_version <- projr_path_get_dir("output", output_safe = FALSE)
-  version_fn <- paste0("VERSION - ", projr_version_get())
+  dir_version <-.path_get_dir("output", output_safe = FALSE)
+  version_fn <- paste0("VERSION - ",.version_get())
   file.create(file.path(dir_version, version_fn))
 
   dir_tmp_vec_output <- list.dirs(
-    projr_path_get_dir("cache", "projr_output"),
+   .path_get_dir("cache", .output"),
     recursive = FALSE
   )
 
@@ -1470,7 +1470,7 @@ while (x < 10) {
 # ================================
 
 # initial question
-answer_list <- .projr_init_prompt_ind_question(
+answer_list <- .init_prompt_ind_question(
   default_given = default_given,
   .var = .var,
   nm_item_long = nm_item_long,
@@ -1483,7 +1483,7 @@ if (!answer_list[["completed"]]) {
   return(.var)
 }
 
-check_correct <- .projr_init_prompt_ind_check(
+check_correct <- .init_prompt_ind_check(
   nm_long = nm_item_long,
   nm_item = answer_list[["nm"]],
   answer_translate = answer_translate,
@@ -1563,19 +1563,19 @@ if (use_bd_vec) {
 # old piggyback stuff
 # =======================
 
-.projr_pb_upload_doc <- function(bump_component) {
+.pb_upload_doc <- function(bump_component) {
   # get settings
-  yml_projr_gh <- projr_yml_get()[["build"]][["github-release"]]
-  yml_projr_gh_doc <- yml_projr_gh[["docs"]]
+  yml.gh <-.yml_get()[["build"]][["github-release"]]
+  yml.gh_doc <- yml.gh[["docs"]]
 
   # consider not uploading
   # ----------------------------
-  if (!yml_projr_gh_doc[["add"]]) {
+  if (!yml.gh_doc[["add"]]) {
     return(invisible(FALSE))
   }
-  if (!.projr_version_comp_min_check(
+  if (!.version_comp_min_check(
     bump_component = bump_component,
-    version_min = yml_projr_gh_doc[["version-component-min"]]
+    version_min = yml.gh_doc[["version-component-min"]]
   )
   ) {
     return(invisible(FALSE))
@@ -1583,7 +1583,7 @@ if (use_bd_vec) {
 
   # zip
   # --------------------------
-  dir_doc <- projr_path_get_dir("docs")
+  dir_doc <-.path_get_dir("docs")
   path_zip <- file.path(dirname(dir_doc), "doc.zip")
   if (file.exists(path_zip)) {
     file.remove(path_zip)
@@ -1633,9 +1633,9 @@ if (use_bd_vec) {
 # ----------------------------
 
 
-.projr_pb_upload_code <- function(bump_component) {
-  yml_projr_gh <- projr_yml_get()[["github-release"]]
-  if (!"source-code" %in% names(yml_projr_gh)) {
+.pb_upload_code <- function(bump_component) {
+  yml.gh <-.yml_get()[["github-release"]]
+  if (!"source-code" %in% names(yml.gh)) {
     return(invisible(FALSE))
   }
 
@@ -1646,9 +1646,9 @@ if (use_bd_vec) {
   # consider exiting
   # ------------------
 
-  upload <- .projr_pb_upload_consider(
-    yml_projr_gh_item = yml_projr_gh[[
-      which(names(yml_projr_gh) == "source-code")
+  upload <- .pb_upload_consider(
+    yml.gh_item = yml.gh[[
+      which(names(yml.gh) == "source-code")
     ]],
     gh_tbl_release = gh_tbl_release,
     bump_component = bump_component
@@ -1660,7 +1660,7 @@ if (use_bd_vec) {
   # upload
   # ------------------
 
-  tag <- .projr_version_get_v()
+  tag <- .version_get_v()
   body <- "Project source code, inputs and/or outputs"
 
 
@@ -1706,28 +1706,28 @@ if (use_bd_vec) {
                 # archived
                 output_key_ind <- grepl(
                   "^output",
-                  .projr_dir_label_strip(names(yml_projr_dir))
+                  .dir_label_strip(names(yml.dir))
                 )
-                output_key_vec <- names(yml_projr_dir)[output_key_ind]
+                output_key_vec <- names(yml.dir)[output_key_ind]
                 archived_via_output_vec <- vapply(
                   output_key_vec, function(x) {
-                  yml_projr_dir_output <- yml_projr_dir[[x]]
-                  if (all(is.logical(yml_projr_dir_output[["archive"]]))) {
-                    return(all(yml_projr_dir_output[["archive"]]))
+                  yml.dir_output <- yml.dir[[x]]
+                  if (all(is.logical(yml.dir_output[["archive"]]))) {
+                    return(all(yml.dir_output[["archive"]]))
                   }
                   TRUE
                 }, logical(1))
                 continue_archive <- !any(archived_via_output_vec)
               }
           }
-        output_false <- "archive" %in% names(yml_projr_dir[[label]])
+        output_false <- "archive" %in% names(yml.dir[[label]])
         if (!output_specified_ind || ()) {
           # archive is specified and is logical, continue only
           # if archive is TRUE
-          if (all(is.logical(yml_projr_dir[[label]][["archive"]]))) {
-            continue_archive <- all(yml_projr_dir[[label]][["archive"]])
+          if (all(is.logical(yml.dir[[label]][["archive"]]))) {
+            continue_archive <- all(yml.dir[[label]][["archive"]])
             # archive character
-          } else if (all(is.character(yml_projr_dir[[label]][["archive"]]))) {
+          } else if (all(is.character(yml.dir[[label]][["archive"]]))) {
             continue_archive <- TRUE
             # archive not specified, don't archive
           } else {
@@ -1736,17 +1736,17 @@ if (use_bd_vec) {
           # output is specified
         } else {
           # - output is FALSE and archive is specified
-          if (all(is.logical(yml_projr_dir[[label]][["output"]]))) {
-            if (all(!yml_projr_dir[[label]][["output"]])) {
+          if (all(is.logical(yml.dir[[label]][["output"]]))) {
+            if (all(!yml.dir[[label]][["output"]])) {
               continue_archive_output_false <- TRUE
             } else {
               continue_ <- FALSE
             }
             # - output is character, and none of those outputs
             # correspond to this archive
-          } else if (all(is.character(yml_projr_dir[[label]][["output"]]))) {
+          } else if (all(is.character(yml.dir[[label]][["output"]]))) {
             continue_archive_output_archive_else <- !(
-              label %in% yml_projr_dir[[label]][["output"]]
+              label %in% yml.dir[[label]][["output"]]
             )
           }
           continue_archive <- continue_archive_output_missing ||
@@ -1761,26 +1761,26 @@ if (use_bd_vec) {
 # new old archive
 # =====================
 
-    yml_projr_dir_output <- yml_projr_dir[[x]]
+    yml.dir_output <- yml.dir[[x]]
     # archive not specified, it will be
     # archived there
-    if (!"archive" %in% names(yml_projr_dir_output)) {
+    if (!"archive" %in% names(yml.dir_output)) {
       return(TRUE)
     }
     # archive is logical, so will be archived
     # there
-    if (all(is.logical(yml_projr_dir_output[["archive"]]))) {
-      return(all(yml_projr_dir_output[["archive"]]))
+    if (all(is.logical(yml.dir_output[["archive"]]))) {
+      return(all(yml.dir_output[["archive"]]))
     }
     # archive is character, so will be archived somewhere
-    if (all(is.character(yml_projr_dir_output[["archive"]]))) {
+    if (all(is.character(yml.dir_output[["archive"]]))) {
       return(TRUE)
     }
 
 # old archive
 # =====================
 
-test_that("projr_build_copy_dir works when archiving", {
+test_that(.build_copy_dir works when archiving", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   if (!dir.exists(dir_test)) dir.create(dir_test)
@@ -1797,15 +1797,15 @@ test_that("projr_build_copy_dir works when archiving", {
   usethis::with_project(
     path = dir_test,
     code = {
-      projr_init()
-      yml_projr_init <- .projr_yml_get_default_raw()
+     .init()
+      yml.init <- .yml_get_default_raw()
       # do nothing when not output
-      expect_false(.projr_build_archive(output_run = FALSE))
-      version_run_on_list <- .projr_version_run_onwards_get(
+      expect_false(.build_archive(output_run = FALSE))
+      version_run_on_list <- .version_run_onwards_get(
         bump_component = "patch"
       )
       # do nothing when nothing saved
-      expect_false(.projr_build_archive(
+      expect_false(.build_archive(
         output_run = FALSE,
         version_run_on_list = version_run_on_list
       ))
@@ -1813,25 +1813,25 @@ test_that("projr_build_copy_dir works when archiving", {
       # save files to output
       invisible({
         file.create(
-          projr_path_get("output", "a.txt", output_safe = FALSE)
+         .path_get("output", "a.txt", output_safe = FALSE)
         )
         file.create(
-          projr_path_get("output", "b.txt", output_safe = FALSE)
+         .path_get("output", "b.txt", output_safe = FALSE)
         )
         file.create(
-          projr_path_get("output", "dir_c", "c.txt", output_safe = FALSE)
+         .path_get("output", "dir_c", "c.txt", output_safe = FALSE)
         )
         file.create(
-          projr_path_get("output", "dir_d", "d.txt", output_safe = FALSE)
+         .path_get("output", "dir_d", "d.txt", output_safe = FALSE)
         )
       })
 
-      .projr_build_archive(
+      .build_archive(
         output_run = TRUE,
         version_run_on_list = version_run_on_list
       )
 
-      dir_archive <- projr_path_get_dir(
+      dir_archive <-.path_get_dir(
         label = "archive",
         paste0("v", version_run_on_list$desc[["success"]])
       )
@@ -1850,7 +1850,7 @@ test_that("projr_build_copy_dir works when archiving", {
 })
 
 
-.projr_build_archive <- function(output_run, version_run_on_list) {
+.build_archive <- function(output_run, version_run_on_list) {
   # How is this supposed to work?
 
   # consider not archiving
@@ -1863,8 +1863,8 @@ test_that("projr_build_copy_dir works when archiving", {
   # then:
 
   # set up paths
-  dir_output <- projr_path_get_dir(label = "output", output_safe = FALSE)
-  dir_archive <- projr_path_get_dir(
+  dir_output <-.path_get_dir(label = "output", output_safe = FALSE)
+  dir_archive <-.path_get_dir(
     label = "archive",
     paste0("v", version_run_on_list$desc[["success"]])
   )
@@ -1898,7 +1898,7 @@ test_that("projr_build_copy_dir works when archiving", {
   for (i in seq_along(dir_vec)) {
     path_dir <- dir_vec[i]
     path_zip <- file.path(dir_archive, paste0(basename(path_dir), ".zip"))
-    .projr_zip_dir(
+    .zip_dir(
       path_dir = path_dir,
       path_zip = path_zip
     )
@@ -1907,17 +1907,17 @@ test_that("projr_build_copy_dir works when archiving", {
   invisible(TRUE)
 }
 
-# old docs projr_dir_get settings
+# old docs.dir_get settings
 # =====================
   if (label == "docs") {
 
     if (file.exists(file.path(dir_proj, "_bookdown.yml"))) {
-      yml_bd <- .projr_yml_bd_get()
+      yml_bd <- .yml_bd_get()
       dir_base <- dir_active[["docs"]][["path"]]
       fn <- basename(yml_bd[["output_dir"]])
       path_bd <- file.path(dir_base, fn)
       yml_bd[["output_dir"]] <- path_bd
-      .projr_yml_bd_set(yml_bd)
+      .yml_bd_set(yml_bd)
       path_final <- file.path(dir_base, fn, ...)
     } else {
       # quarto stuff
@@ -1947,7 +1947,7 @@ test_that("projr_build_copy_dir works when archiving", {
     for (x in archive_vec) {
       file.copy(
         from = path_pkg,
-        to = projr_path_get(x, fn_pkg, output_safe = !output_run)
+        to =.path_get(x, fn_pkg, output_safe = !output_run)
       )
     }
 
@@ -1955,11 +1955,11 @@ test_that("projr_build_copy_dir works when archiving", {
 # QUITE DEVELOPED PIGGYBACK STUFF
 # ====================================
 
-version_format_list <- .projr_version_format_list_get()
+version_format_list <- .version_format_list_get()
 bump_component <- "minor"
 version_current <- "0.1.0"
 
-yml_projr_dir <- projr_yml_get()[["directories"]]
+yml.dir <-.yml_get()[["directories"]]
   if (output_run && "github-release" %in% names(yml_projr[["build-output"]])) {
     # GitHub releases settings
     gh_list_settings <- yml_projr[["build-output"]][["github-release"]]
@@ -1969,7 +1969,7 @@ yml_projr_dir <- projr_yml_get()[["directories"]]
     version_comp_vec <- rev(version_comp_vec)[
         seq_len(which(rev(version_comp_vec == item_version)))
     ]
-    version_current <- projr_version_get()
+    version_current <-.version_get()
     # ensure `piggyback` is available
     if (!requireNamespace("piggyback", quietly = TRUE)) {
         renv::install("piggyback")
@@ -1978,7 +1978,7 @@ yml_projr_dir <- projr_yml_get()[["directories"]]
     gh_tbl_releases <- suppressWarnings(suppressMessages(
       piggyback::pb_releases()
       ))
-    .projr_pb_upload_code(
+    .pb_upload_code(
       gh_tbl_release = gh_tbl_release,
       bump_component = bump_component
     )
@@ -2010,7 +2010,7 @@ yml_projr_dir <- projr_yml_get()[["directories"]]
         # ============================
 
         if (label == "bookdown") {
-            dir_bookdown <- projr_path_get_dir("bookdown")
+            dir_bookdown <-.path_get_dir("bookdown")
             path_zip <- file.path(dirname(dir_bookdown), "doc.zip")
             if (file.exists(path_zip)) {
               file.remove(path_zip)
@@ -2048,7 +2048,7 @@ yml_projr_dir <- projr_yml_get()[["directories"]]
         # uploading non-report and non-source-code items
         # ======================================
 
-        dir_input <- projr_path_get_dir("label", output_safe = FALSE)
+        dir_input <-.path_get_dir("label", output_safe = FALSE)
         if (!fs::is_absolute_path(dir_input)) {
             dir_input <- file.path(dir_proj, dir_input)
         }
@@ -2062,14 +2062,14 @@ yml_projr_dir <- projr_yml_get()[["directories"]]
         # -----------------------------------------------
 
         if (label == "output") {
-            nm_rem_vec <- names(yml_projr_dir)
+            nm_rem_vec <- names(yml.dir)
             nm_rem_vec <- nm_rem_vec[!grepl("^archive|^output$|^bookdown$", nm_rem_vec)]
             for (i in seq_along(nm_rem_vec)) {
                 fn_vec <- fn_vec[
                     !basename(fn_vec) %in% paste0(nm_rem_vec, ".zip")
                 ]
             }
-            dir_bookdown <- projr_path_get_dir("bookdown")
+            dir_bookdown <-.path_get_dir("bookdown")
             fn_vec <- fn_vec[
                 !basename(fn_vec) == paste0(basename(dir_bookdown), ".zip")
             ]
@@ -2178,7 +2178,7 @@ yml_projr_dir <- projr_yml_get()[["directories"]]
 
 
 ############
-## projr_path_get
+##.path_get
 ############
 
     version_comp_vec <- version_format_list[["component"]] |>
@@ -2221,7 +2221,7 @@ library(testthat)
 devtools::load_all()
 # options(error = recover, warn = 2)
 # dir_temp <- file.path(tempdir(), "test")
-# debugonce(".projr_init_prompt")
+# debugonce(".init_prompt")
 .test_set()
 projr_init()
 
@@ -2281,20 +2281,20 @@ x <- readChar(fn_vec[1], file.info(fn_vec[1])$size)
 # OLD TEST
 # =======================
 
-      yml_projr <- yml_projr_init
+      yml_projr <- yml.init
       yml_projr[["build-dev"]] <- yml_projr[["build-dev"]][
         -which(names(yml_projr[["build-dev"]]) == "copy-to-output")
       ]
-      .projr_yml_set(yml_projr)
-      expect_false(.projr_build_output(output_run = FALSE))
-      .projr_yml_set(yml_projr_init)
-      yml_projr <- yml_projr_init
+      .yml_set(yml_projr)
+      expect_false(.build_output(output_run = FALSE))
+      .yml_set(yml.init)
+      yml_projr <- yml.init
       yml_projr[["build-dev"]] <- list(a = FALSE, b = FALSE)
-      .projr_yml_set(yml_projr)
-      expect_false(.projr_build_output(output_run = FALSE))
-      .projr_yml_set(yml_projr_init)
+      .yml_set(yml_projr)
+      expect_false(.build_output(output_run = FALSE))
+      .yml_set(yml.init)
 
-      yml_projr <- projr_yml_get()
+      yml_projr <-.yml_get()
       # test copying to other directories
       if (!dir.exists("_archive")) {
         dir.create("_archive")
@@ -2304,21 +2304,21 @@ x <- readChar(fn_vec[1], file.info(fn_vec[1])$size)
       }
       dir.create("docs/reportV0.0.0-1", recursive = TRUE)
       dir.create("docs/reportV0.0.0-9000", recursive = TRUE)
-      yml_projr <- .projr_yml_get()
+      yml_projr <- .yml_get()
       yml_projr[["build-output"]] <- yml_projr[["build-output"]][
         !names(yml_projr[["build-output"]]) == "github-release"
       ]
-      .projr_yml_set(list_save = yml_projr)
-      projr_build_output(quiet = TRUE)
+      .yml_set(list_save = yml_projr)
+     .build_output(quiet = TRUE)
       expect_true(!dir.exists("docs/reportV0.0.0-1"))
       expect_true(!dir.exists("docs/reportV0.0.0-9000"))
-      yml_bd <- .projr_yml_bd_get()
+      yml_bd <- .yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "reportV0.0.1-1")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
-      expect_identical(list.files(projr_dir_get("output")), character(0))
+      expect_identical(list.files.dir_get("output")), character(0))
       expect_identical(
-        list.files(projr_dir_get("output", output_safe = FALSE)),
+        list.files.dir_get("output", output_safe = FALSE)),
         c("VERSION - 0.0.1", "reportV0.0.1.zip")
       )
 
@@ -2329,7 +2329,7 @@ x <- readChar(fn_vec[1], file.info(fn_vec[1])$size)
       if (!file.exists("_archive/V0.0.1.zip")) {
         file.create("_archive/V0.0.1.zip")
       }
-      yml_projr <- .projr_yml_get()
+      yml_projr <- .yml_get()
       # check that copying non-default directories works as well
       copy_list <- list(
         `raw-data` = TRUE, cache = TRUE, bookdown = FALSE, package = TRUE
@@ -2338,7 +2338,7 @@ x <- readChar(fn_vec[1], file.info(fn_vec[1])$size)
       yml_projr[["build-output"]] <- yml_projr[["build-output"]][
         !names(yml_projr[["build-output"]]) == "github-release"
       ]
-      .projr_yml_set(list_save = yml_projr)
+      .yml_set(list_save = yml_projr)
       if (!dir.exists("_raw_data")) {
         dir.create("_raw_data")
       }
@@ -2347,7 +2347,7 @@ x <- readChar(fn_vec[1], file.info(fn_vec[1])$size)
         dir.create("_tmp")
       }
       invisible(file.create("_tmp/test.txt"))
-      dir_output_safe <- "_tmp/projr_output/0.0.2"
+      dir_output_safe <- "_tmp.output/0.0.2"
       if (!dir.exists(dir_output_safe)) {
         dir.create(dir_output_safe)
       }
@@ -2357,9 +2357,9 @@ x <- readChar(fn_vec[1], file.info(fn_vec[1])$size)
 
       invisible(file.create("_tmp/test.txt"))
 
-      projr_build_output(quiet = TRUE)
+     .build_output(quiet = TRUE)
       expect_identical(
-        list.files("_tmp/projr_output/0.0.2"),
+        list.files("_tmp.output/0.0.2"),
         character(0)
       )
       expect_identical(
@@ -2371,26 +2371,26 @@ x <- readChar(fn_vec[1], file.info(fn_vec[1])$size)
         )
       )
       # test that it runs correctly when there is an error
-      yml_bd <- .projr_yml_bd_get()
+      yml_bd <- .yml_bd_get()
       writeLines(
         c("# Error", "\n", "```{r }", "\n", "stop()", "```"),
         con = "error.Rmd"
       )
       yml_bd[["rmd_files"]] <- c(yml_bd[["rmd_files"]], "error.Rmd")
-      .projr_yml_bd_set(yml_bd)
-      # expect_error(projr_build_output(quiet = TRUE))
+      .yml_bd_set(yml_bd)
+      # expect_error.build_output(quiet = TRUE))
       # reset after error
-      yml_bd <- .projr_yml_bd_get()
+      yml_bd <- .yml_bd_get()
       file.remove("error.Rmd")
       yml_bd[["rmd_files"]] <- c("index.Rmd", "appendix.Rmd")
-      .projr_yml_bd_set(yml_bd)
+      .yml_bd_set(yml_bd)
 
 
 # =============================
 # OLD BUILD TESTING
 # =============================
 
-test_that("projr_build_output works", {
+test_that(.build_output works", {
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   if (!dir.exists(dir_test)) dir.create(dir_test)
@@ -2407,24 +2407,24 @@ test_that("projr_build_output works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      projr_init()
-      yml_projr_init <- .projr_yml_get()
-      yml_bd_init <- .projr_yml_bd_get()
-      expect_false(.projr_build_output(output_run = FALSE))
-      yml_projr <- yml_projr_init
+     .init()
+      yml.init <- .yml_get()
+      yml_bd_init <- .yml_bd_get()
+      expect_false(.build_output(output_run = FALSE))
+      yml_projr <- yml.init
       yml_projr[["build-dev"]] <- yml_projr[["build-dev"]][
         -which(names(yml_projr[["build-dev"]]) == "copy-to-output")
       ]
-      .projr_yml_set(yml_projr)
-      expect_false(.projr_build_output(output_run = FALSE))
-      .projr_yml_set(yml_projr_init)
-      yml_projr <- yml_projr_init
+      .yml_set(yml_projr)
+      expect_false(.build_output(output_run = FALSE))
+      .yml_set(yml.init)
+      yml_projr <- yml.init
       yml_projr[["build-dev"]] <- list(a = FALSE, b = FALSE)
-      .projr_yml_set(yml_projr)
-      expect_false(.projr_build_output(output_run = FALSE))
-      .projr_yml_set(yml_projr_init)
+      .yml_set(yml_projr)
+      expect_false(.build_output(output_run = FALSE))
+      .yml_set(yml.init)
 
-      yml_projr <- projr_yml_get()
+      yml_projr <-.yml_get()
       # test copying to other directories
       if (!dir.exists("_archive")) {
         dir.create("_archive")
@@ -2434,21 +2434,21 @@ test_that("projr_build_output works", {
       }
       dir.create("docs/reportV0.0.0-1", recursive = TRUE)
       dir.create("docs/reportV0.0.0-9000", recursive = TRUE)
-      yml_projr <- .projr_yml_get()
+      yml_projr <- .yml_get()
       yml_projr[["build-output"]] <- yml_projr[["build-output"]][
         !names(yml_projr[["build-output"]]) == "github-release"
       ]
-      .projr_yml_set(list_save = yml_projr)
-      projr_build_output(quiet = TRUE)
+      .yml_set(list_save = yml_projr)
+     .build_output(quiet = TRUE)
       expect_true(!dir.exists("docs/reportV0.0.0-1"))
       expect_true(!dir.exists("docs/reportV0.0.0-9000"))
-      yml_bd <- .projr_yml_bd_get()
+      yml_bd <- .yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "reportV0.0.1-1")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
-      expect_identical(list.files(projr_dir_get("output")), character(0))
+      expect_identical(list.files.dir_get("output")), character(0))
       expect_identical(
-        list.files(projr_dir_get("output", output_safe = FALSE)),
+        list.files.dir_get("output", output_safe = FALSE)),
         c("VERSION - 0.0.1", "reportV0.0.1.zip")
       )
 
@@ -2459,7 +2459,7 @@ test_that("projr_build_output works", {
       if (!file.exists("_archive/V0.0.1.zip")) {
         file.create("_archive/V0.0.1.zip")
       }
-      yml_projr <- .projr_yml_get()
+      yml_projr <- .yml_get()
       # check that copying non-default directories works as well
       copy_list <- list(
         `raw-data` = TRUE, cache = TRUE, bookdown = FALSE, package = TRUE
@@ -2468,7 +2468,7 @@ test_that("projr_build_output works", {
       yml_projr[["build-output"]] <- yml_projr[["build-output"]][
         !names(yml_projr[["build-output"]]) == "github-release"
       ]
-      .projr_yml_set(list_save = yml_projr)
+      .yml_set(list_save = yml_projr)
       if (!dir.exists("_raw_data")) {
         dir.create("_raw_data")
       }
@@ -2477,7 +2477,7 @@ test_that("projr_build_output works", {
         dir.create("_tmp")
       }
       invisible(file.create("_tmp/test.txt"))
-      dir_output_safe <- "_tmp/projr_output/0.0.2"
+      dir_output_safe <- "_tmp.output/0.0.2"
       if (!dir.exists(dir_output_safe)) {
         dir.create(dir_output_safe)
       }
@@ -2487,9 +2487,9 @@ test_that("projr_build_output works", {
 
       invisible(file.create("_tmp/test.txt"))
 
-      projr_build_output(quiet = TRUE)
+     .build_output(quiet = TRUE)
       expect_identical(
-        list.files("_tmp/projr_output/0.0.2"),
+        list.files("_tmp.output/0.0.2"),
         character(0)
       )
       expect_identical(
@@ -2501,19 +2501,19 @@ test_that("projr_build_output works", {
         )
       )
       # test that it runs correctly when there is an error
-      yml_bd <- .projr_yml_bd_get()
+      yml_bd <- .yml_bd_get()
       writeLines(
         c("# Error", "\n", "```{r }", "\n", "stop()", "```"),
         con = "error.Rmd"
       )
       yml_bd[["rmd_files"]] <- c(yml_bd[["rmd_files"]], "error.Rmd")
-      .projr_yml_bd_set(yml_bd)
-      # expect_error(projr_build_output(quiet = TRUE))
+      .yml_bd_set(yml_bd)
+      # expect_error.build_output(quiet = TRUE))
       # reset after error
-      yml_bd <- .projr_yml_bd_get()
+      yml_bd <- .yml_bd_get()
       file.remove("error.Rmd")
       yml_bd[["rmd_files"]] <- c("index.Rmd", "appendix.Rmd")
-      .projr_yml_bd_set(yml_bd)
+      .yml_bd_set(yml_bd)
     },
     quiet = TRUE,
     force = TRUE

@@ -1,14 +1,14 @@
-test_that("projr_renv_test successfully restores renv environment", {
+test_that(.renv_test successfully restores renv environment", {
   skip_if_offline()
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   on.exit(unlink(dir_test, recursive = TRUE), add = TRUE)
   setwd(dir_test)
 
   # Initialize renv and create a snapshot
-  .projr_renv_rest_init()
-  .projr_renv_rest_activate()
-  .projr_renv_test_test_lockfile_create(
+  .renv_rest_init()
+  .renv_rest_activate()
+  .renv_test_test_lockfile_create(
     file.path(dir_test, "renv.lock"),
     bad = FALSE
   )
@@ -20,22 +20,22 @@ test_that("projr_renv_test successfully restores renv environment", {
   expect_true(file.exists("renv.lock"))
 
   # Test restoration
-  result <- projr_renv_test(file = "test.txt", delete_lib = FALSE)
+  result <-.renv_test(file = "test.txt", delete_lib = FALSE)
   
   # Check that the result is TRUE indicating success
   expect_true(result)
 })
 
-test_that("projr_renv_test fails when it should", {
+test_that(.renv_test fails when it should", {
   skip_if_offline()
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   on.exit(unlink(dir_test, recursive = TRUE), add = TRUE)
   setwd(dir_test)
   # Initialize renv and create a snapshot
-  .projr_renv_rest_init()
-  .projr_renv_rest_activate()
-  .projr_renv_test_test_lockfile_create(
+  .renv_rest_init()
+  .renv_rest_activate()
+  .renv_test_test_lockfile_create(
     file.path(dir_test, "renv.lock"),
     bad = TRUE
   )
@@ -47,34 +47,34 @@ test_that("projr_renv_test fails when it should", {
   expect_true(file.exists("renv.lock"))
 
   # Test restoration
-  result <- projr_renv_test(file = "test.txt", delete_lib = FALSE)
+  result <-.renv_test(file = "test.txt", delete_lib = FALSE)
   
   # Check that the result is TRUE indicating success
   expect_false(result)
 })
 
-test_that("projr_renv_restore and projr_renv_update work with mixed repositories", {
+test_that(.renv_restore and.renv_update work with mixed repositories", {
   skip_if_offline()
   skip_if(.is_test_select())
 
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   on.exit(unlink(dir_test, recursive = TRUE), add = TRUE)
   setwd(dir_test)
 
   # Initialize renv and create a snapshot
-  .projr_renv_rest_init()
-  .projr_renv_rest_activate()
+  .renv_rest_init()
+  .renv_rest_activate()
 
   # Create the complex lockfile
-  .projr_renv_test_test_lockfile_create(
+  .renv_test_test_lockfile_create(
     file.path(dir_test, "renv.lock"),
     bad = FALSE
   )
 
   # Run restore and update
-  # projr_renv_restore() and projr_renv_update() should complete without error
-  projr_renv_restore()
-  projr_renv_update()
+  #.renv_restore() and.renv_update() should complete without error
+ .renv_restore()
+ .renv_update()
 
   # If we want to assert success in a more direct way,
   # we could check if the packages are installed

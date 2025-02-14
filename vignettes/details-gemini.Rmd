@@ -40,7 +40,7 @@ This file is your project's command center.  Let's break down its key sections:
         - Simplifies sharing specific parts of your project.
         - `projr` can smartly manage and protect your outputs.
 
-Use `projr_path_get()` to find these folders. Example: `projr_path_get("raw-data") ` will return the path to your `raw-data` directory.
+Use .path_get()` to find these folders. Example: .path_get("raw-data") ` will return the path to your `raw-data` directory.
 
 * **`build`:**
    - **Purpose:** Automates tasks that happen every time you build your project.
@@ -52,11 +52,11 @@ Use `projr_path_get()` to find these folders. Example: `projr_path_get("raw-data
 
 Let's look at the two functions that are the heart of building your project:
 
-* **`projr_build_dev()`**
+* **.build_dev()`**
    - **Purpose:** Your development buddy!  Renders your code documents, with results temporarily saved to the "cache" folder.
    - **Why Use It:**  Test changes safely before finalizing your outputs.
 
-* **`projr_build_output()`**
+* **.build_output()`**
    - **Purpose:** The final production step. This saves results to their final locations *and* handles versioning, uploads, and other tasks you've set in `_projr.yml`.
 
 ## Notes on Git and GitHub

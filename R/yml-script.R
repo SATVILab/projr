@@ -5,13 +5,13 @@
 #' Convenience functions to add or remove scripts
 #' to run before or after the build.
 #'
-#' - `projr_yml_script_add`: Add a script to run before or after the build.
-#' - `projr_yml_script_rm`: Remove scripts to run.
+#' - .yml_script_add`: Add a script to run before or after the build.
+#' - .yml_script_rm`: Remove scripts to run.
 #'
-#' `projr_yml_script_add_pre` and `projr_yml_script_add_post`
-#' are wrappers around `projr_yml_script_add` that set the `stage` argument
+#' .yml_script_add_pre` and .yml_script_add_post`
+#' are wrappers around .yml_script_add` that set the `stage` argument
 #' to `"pre"` or `"post"`, respectively.
-#' `projr_yml_script_rm_all` removes all scripts.
+#' .yml_script_rm_all` removes all scripts.
 #'
 #' @export
 #' @param path character vector.
@@ -60,19 +60,19 @@ projr_yml_script_add <- function(path,
                                  cue = NULL,
                                  overwrite = TRUE,
                                  profile = "default") {
-  .projr_yml_script_check(
+  .yml_script_check(
     path = path, title = title, stage = stage, cue = cue,
     overwrite = overwrite, profile = profile
   )
 
-  .projr_yml_script_add(
+  .yml_script_add(
     path = path, title = title, stage = stage, cue = cue,
     overwrite = overwrite, profile = profile
   ) |>
-    .projr_yml_script_set(profile = profile)
+    .yml_script_set(profile = profile)
 }
 
-.projr_yml_script_check <- function(path,
+.yml_script_check <- function(path,
                                     title,
                                     stage,
                                     cue,
@@ -88,7 +88,7 @@ projr_yml_script_add <- function(path,
   .assert_flag(overwrite, TRUE)
 }
 
-.projr_yml_script_add <- function(path,
+.yml_script_add <- function(path,
                                   title,
                                   stage,
                                   cue,
@@ -96,14 +96,14 @@ projr_yml_script_add <- function(path,
                                   overwrite = TRUE) {
   title <- gsub("^\\s*|\\s*$", "", title) |>
     gsub("\\s+", "-", x = _)
-  .projr_yml_script_check_overwrite(title, overwrite, profile = profile)
-  yml_script <- .projr_yml_script_get(profile)
-  yml_script[[stage]][[title]] <- .projr_yml_script_add_get(
+  .yml_script_check_overwrite(title, overwrite, profile = profile)
+  yml_script <- .yml_script_get(profile)
+  yml_script[[stage]][[title]] <- .yml_script_add_get(
     path = path, title = title, stage = stage, cue = cue
   )
 }
 
-.projr_yml_script_add_get <- function(path, title, stage, cue = NULL) {
+.yml_script_add_get <- function(path, title, stage, cue = NULL) {
   add_list <- list(stage = stage, path = path)
   if (!is.null(cue)) {
     add_list[["cue"]] <- cue
@@ -119,16 +119,16 @@ projr_yml_script_rm <- function(title, path = NULL, profile = "default") {
   if (.is_given_mid(profile)) {
     .assert_string(profile)
   }
-  yml_script <- .projr_yml_script_get(profile)
+  yml_script <- .yml_script_get(profile)
   if (!is.null(path)) {
-    .projr_yml_script_rm_path(title, path, profile = profile)
+    .yml_script_rm_path(title, path, profile = profile)
   } else if (title %in% names(yml_script)) {
-    .projr_yml_script_rm_title(title, profile = profile)
+    .yml_script_rm_title(title, profile = profile)
   }
 }
 
-.projr_yml_script_rm_path <- function(title, path, profile) {
-  yml_script <- .projr_yml_script_get(profile)
+.yml_script_rm_path <- function(title, path, profile) {
+  yml_script <- .yml_script_get(profile)
   if (!title %in% names(yml_script)) {
     return(invisible(FALSE))
   }
@@ -139,30 +139,30 @@ projr_yml_script_rm <- function(title, path = NULL, profile = "default") {
   } else {
     yml_script[[title]][["path"]] <- path_vec
   }
-  .projr_yml_script_set(yml_script, profile)
+  .yml_script_set(yml_script, profile)
 }
 
-.projr_yml_script_rm_title <- function(title, profile) {
-  yml_script <- .projr_yml_script_get(profile)
+.yml_script_rm_title <- function(title, profile) {
+  yml_script <- .yml_script_get(profile)
   if (!title %in% names(yml_script)) {
     return(invisible(FALSE))
   }
   yml_script[[title]] <- NULL
-  .projr_yml_script_set(yml_script, profile)
+  .yml_script_set(yml_script, profile)
 }
 
 #' @rdname yml-script
 #' @export
 projr_yml_script_rm_all <- function(profile = "default") {
-  yml_script <- .projr_yml_script_get(profile)
+  yml_script <- .yml_script_get(profile)
   if (!length(yml_script) > 0) {
     return(invisible(FALSE))
   }
-  .projr_yml_script_set(NULL, profile)
+  .yml_script_set(NULL, profile)
 }
 
-.projr_yml_script_check_overwrite <- function(title, overwrite, profile) {
-  yml_script <- .projr_yml_script_get(profile)
+.yml_script_check_overwrite <- function(title, overwrite, profile) {
+  yml_script <- .yml_script_get(profile)
   if (!overwrite && title %in% names(yml_script)) {
     stop(paste0(
       "Script with title '", title, "' already exists. ",
@@ -172,12 +172,12 @@ projr_yml_script_rm_all <- function(profile = "default") {
   invisible(TRUE)
 }
 
-.projr_yml_script_get <- function(profile) {
-  .projr_yml_build_get_script(profile)
+.yml_script_get <- function(profile) {
+  .yml_build_get_script(profile)
 }
 
-.projr_yml_script_set <- function(yml_script, profile = NULL) {
-  .projr_yml_build_set_nm(yml_script, "script", profile)
+.yml_script_set <- function(yml_script, profile = NULL) {
+  .yml_build_set_nm(yml_script, "script", profile)
 }
 
 #' @rdname yml-script
@@ -187,7 +187,7 @@ projr_yml_script_add_pre <- function(path,
                                      cue = NULL,
                                      overwrite = TRUE,
                                      profile = "default") {
-  projr_yml_script_add(
+ .yml_script_add(
     path = path, title = title,
     stage = "pre", cue = cue, profile = profile, overwrite = overwrite
   )
@@ -200,7 +200,7 @@ projr_yml_script_add_post <- function(path,
                                       cue = NULL,
                                       overwrite = TRUE,
                                       profile = "default") {
-  projr_yml_script_add(
+ .yml_script_add(
     path = path, title = title,
     stage = "post", cue = cue, profile = profile, overwrite = overwrite
   )

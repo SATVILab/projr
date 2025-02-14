@@ -3,13 +3,13 @@
 # =================
 
 # title
-.projr_yml_remote_title_get <- function(title, content) {
+.yml_remote_title_get <- function(title, content) {
   if (!.is_given_mid(title)) paste0(content, collapse = "-") else title
 }
 
 
 # transfer list (get_list or send_list)
-.projr_yml_remote_transfer_get <- function(cue = NULL,
+.yml_remote_transfer_get <- function(cue = NULL,
                                            strategy = NULL,
                                            inspect = NULL,
                                            conflict = NULL) {

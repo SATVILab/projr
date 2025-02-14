@@ -1,10 +1,10 @@
-test_that(".projr_osf_send_fn works", {
+test_that(".osf_send_fn works", {
   # skips
   skip_if_offline()
   skip_if(TRUE)
 
   # setup
-  dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = FALSE)
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
 
   # run from within project
   usethis::with_project(
@@ -13,33 +13,33 @@ test_that(".projr_osf_send_fn works", {
       # setup
       # ----------------
 
-      yml_projr_orig <- .projr_yml_get()
+      yml.orig <- .yml_get()
 
       # create files
-      .projr_test_setup_content("output")
+      .test_setup_content("output")
 
       # create manifest
-      manifest <- .projr_test_manifest_create()
+      manifest <- .test_manifest_create()
 
       # create project
-      osf_tbl_proj <- .projr_test_osf_create_project("ProjectUploadFn")
-      .projr_osf_rm_node_id_defer(osf_tbl_proj[["id"]])
+      osf_tbl_proj <- .test_osf_create_project("ProjectUploadFn")
+      .osf_rm_node_id_defer(osf_tbl_proj[["id"]])
 
-      path_dir_fn <- projr_path_get_dir("output", safe = FALSE)
+      path_dir_fn <-.path_get_dir("output", safe = FALSE)
       fn_vec <- list.files(path_dir_fn, recursive = TRUE)
 
       # upload to node
       # --------------------
 
       # upload
-      .projr_osf_send_fn(
+      .osf_send_fn(
         fn_rel = fn_vec, path_dir_local = path_dir_fn,
         osf_tbl = osf_tbl_proj, conflict = "overwrite"
       )
 
       # check
-      path_dir_save_local <- projr_path_get_dir("cache", "node")
-      .projr_osf_download_osf_tbl(
+      path_dir_save_local <-.path_get_dir("cache", "node")
+      .osf_download_osf_tbl(
         osf_tbl = osf_tbl_proj, path_dir_save_local = path_dir_save_local
       )
       expect_identical(
@@ -52,14 +52,14 @@ test_that(".projr_osf_send_fn works", {
         x = osf_tbl_proj, path = "output/v1.0.0"
       )
       # upload
-      .projr_osf_send_fn(
+      .osf_send_fn(
         fn_rel = fn_vec, path_dir_local = path_dir_fn,
         osf_tbl = osf_tbl_file, conflict = "overwrite"
       )
 
       # check
-      path_dir_save_local <- projr_path_get_dir("cache", "dir")
-      .projr_osf_download_osf_tbl(
+      path_dir_save_local <-.path_get_dir("cache", "dir")
+      .osf_download_osf_tbl(
         osf_tbl = osf_tbl_file, path_dir_save_local = path_dir_save_local
       )
       expect_identical(
@@ -69,13 +69,13 @@ test_that(".projr_osf_send_fn works", {
   )
 })
 
-test_that(".projr_osf_send_dir and _missing work", {
+test_that(".osf_send_dir and _missing work", {
   # skips
   skip_if_offline()
   skip_if(FALSE)
 
   # setup
-  dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = FALSE)
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
 
   # run from within project
   usethis::with_project(
@@ -84,33 +84,33 @@ test_that(".projr_osf_send_dir and _missing work", {
       # setup
       # ----------------
 
-      yml_projr_orig <- .projr_yml_get()
+      yml.orig <- .yml_get()
 
       # create files
-      .projr_test_setup_content("raw-data")
+      .test_setup_content("raw-data")
 
       # create manifest
-      manifest <- .projr_test_manifest_create()
+      manifest <- .test_manifest_create()
 
       # create project
-      osf_tbl_proj <- .projr_test_osf_create_project("ProjectUploadFn")
-      .projr_osf_rm_node_id_defer(osf_tbl_proj[["id"]])
+      osf_tbl_proj <- .test_osf_create_project("ProjectUploadFn")
+      .osf_rm_node_id_defer(osf_tbl_proj[["id"]])
 
-      path_dir_fn <- projr_path_get_dir("raw-data", safe = FALSE)
+      path_dir_fn <-.path_get_dir("raw-data", safe = FALSE)
       fn_vec <- list.files(path_dir_fn, recursive = TRUE)
 
       # upload to node
       # --------------------
 
       # upload
-      .projr_osf_send_dir(
+      .osf_send_dir(
         path_dir_local = path_dir_fn,
         osf_tbl = osf_tbl_proj, conflict = "overwrite"
       )
 
       # check
-      path_dir_save_local <- projr_path_get_dir("cache", "node")
-      .projr_osf_download_osf_tbl(
+      path_dir_save_local <-.path_get_dir("cache", "node")
+      .osf_download_osf_tbl(
         osf_tbl = osf_tbl_proj, path_dir_save_local = path_dir_save_local
       )
       expect_identical(
@@ -123,14 +123,14 @@ test_that(".projr_osf_send_dir and _missing work", {
         x = osf_tbl_proj, path = "output/test_dir"
       )
       # upload
-      .projr_osf_send_dir(
+      .osf_send_dir(
         path_dir_local = path_dir_fn,
         osf_tbl = osf_tbl_file, conflict = "overwrite"
       )
 
       # check
-      path_dir_save_local <- projr_path_get_dir("cache", "dir")
-      .projr_osf_download_osf_tbl(
+      path_dir_save_local <-.path_get_dir("cache", "dir")
+      .osf_download_osf_tbl(
         osf_tbl = osf_tbl_file, path_dir_save_local = path_dir_save_local
       )
       expect_identical(
@@ -141,13 +141,13 @@ test_that(".projr_osf_send_dir and _missing work", {
       # ----------------------
 
       # create extra files
-      path_file_extra_init <- projr_path_get(
+      path_file_extra_init <-.path_get(
         "raw-data", "extra.txt"
       )
-      path_file_extra_sub <- projr_path_get(
+      path_file_extra_sub <-.path_get(
         "raw-data", "altdir1", "extra2.txt"
       )
-      path_file_extra_sub_sub <- projr_path_get(
+      path_file_extra_sub_sub <-.path_get(
         "raw-data", "altdir1", "altdir2", "extra3.txt"
       )
 
@@ -155,12 +155,12 @@ test_that(".projr_osf_send_dir and _missing work", {
         path_file_extra_init, path_file_extra_sub, path_file_extra_sub_sub
       )
       for (x in path_file_extra) file.create(path_file_extra)
-      fn_vec <- list.files(projr_path_get("raw-data"), recursive = TRUE)
-      projr_version_set("0.0.1")
-      .projr_test_manifest_create()
+      fn_vec <- list.files.path_get("raw-data"), recursive = TRUE)
+     .version_set("0.0.1")
+      .test_manifest_create()
 
       # upload
-      .projr_osf_send_missing(
+      .osf_send_missing(
         path_dir_local = path_dir_fn,
         osf_tbl = osf_tbl_file,
         conflict = "overwrite",
@@ -169,8 +169,8 @@ test_that(".projr_osf_send_dir and _missing work", {
       )
 
       # check
-      path_dir_save_local <- projr_path_get_dir("cache", "missing_manifest")
-      .projr_osf_download_osf_tbl(
+      path_dir_save_local <-.path_get_dir("cache", "missing_manifest")
+      .osf_download_osf_tbl(
         osf_tbl = osf_tbl_file,
         path_dir_save_local = path_dir_save_local
       )
@@ -184,15 +184,15 @@ test_that(".projr_osf_send_dir and _missing work", {
 
       # create files
       browser()
-      .projr_test_setup_content("output")
-      path_dir_fn_output <- projr_path_get_dir("output", safe = FALSE)
+      .test_setup_content("output")
+      path_dir_fn_output <-.path_get_dir("output", safe = FALSE)
       fn_vec <- list.files(path_dir_fn_output, recursive = TRUE)
       osf_tbl_file_output <- osfr::osf_mkdir(osf_tbl_proj, "output")
       osfr::osf_rm(osf_tbl_file_output, check = FALSE, recurse = TRUE)
       osf_tbl_file_output <- osfr::osf_mkdir(osf_tbl_proj, "output")
 
       # upload
-      .projr_osf_send_missing(
+      .osf_send_missing(
         path_dir_local = path_dir_fn_output,
         osf_tbl = osf_tbl_file_output,
         conflict = "overwrite",
@@ -201,8 +201,8 @@ test_that(".projr_osf_send_dir and _missing work", {
       )
 
       # check
-      path_dir_save_local <- projr_path_get_dir("cache", "missing_osf")
-      .projr_osf_download_osf_tbl(
+      path_dir_save_local <-.path_get_dir("cache", "missing_osf")
+      .osf_download_osf_tbl(
         osf_tbl = osf_tbl_file_output,
         path_dir_save_local = path_dir_save_local
       )
@@ -216,14 +216,14 @@ test_that(".projr_osf_send_dir and _missing work", {
       # ----------------------
 
       browser()
-      manifest <- .projr_test_manifest_create()
+      manifest <- .test_manifest_create()
 
       # will upload to a different directory as latest two versions
       # on record different, so expect a new versioned directory
       # to appear
 
       # get path to upload to (will be needed)
-      path_dir_osf <- .projr_osf_path_get(
+      path_dir_osf <- .osf_path_get(
         osf_tbl = osf_tbl_proj,
         path = "abc",
         path_append_label = TRUE,
@@ -232,9 +232,9 @@ test_that(".projr_osf_send_dir and _missing work", {
         version = NULL
       )
       osf_tbl_file <- osf_tbl_proj |> osfr::osf_mkdir(path_dir_osf)
-      path_dir_local <- projr_path_get_dir("raw-data")
+      path_dir_local <-.path_get_dir("raw-data")
       # upload
-      .projr_osf_send_version(
+      .osf_send_version(
         path_dir_local = path_dir_local,
         label = "raw-data",
         osf_tbl_upload = osf_tbl_file,
@@ -242,23 +242,23 @@ test_that(".projr_osf_send_dir and _missing work", {
       )
 
       # check
-      path_dir_save_local <- projr_path_get_dir("cache", "version")
-      .projr_osf_download_osf_tbl(
+      path_dir_save_local <-.path_get_dir("cache", "version")
+      .osf_download_osf_tbl(
         osf_tbl = osf_tbl_file,
         path_dir_save_local = path_dir_save_local
       )
-      fn_vec <- list.files(projr_dir_get("raw-data"), recursive = TRUE)
+      fn_vec <- list.files.dir_get("raw-data"), recursive = TRUE)
       expect_identical(
         fn_vec, list.files(path_dir_save_local, recursive = TRUE)
       )
 
       # bump version, but expect no upload as nothing changed
-      projr_version_set("0.0.2")
-      .projr_test_manifest_create()
+     .version_set("0.0.2")
+      .test_manifest_create()
 
-      path_dir_local <- projr_path_get_dir("raw-data")
+      path_dir_local <-.path_get_dir("raw-data")
       # upload
-      .projr_osf_send_version(
+      .osf_send_version(
         path_dir_local = path_dir_local,
         label = "raw-data",
         osf_tbl_upload = osf_tbl_file,
@@ -266,12 +266,12 @@ test_that(".projr_osf_send_dir and _missing work", {
       )
 
       # check
-      path_dir_save_local <- projr_path_get_dir("cache", "version_unchanged")
-      .projr_osf_download_osf_tbl(
+      path_dir_save_local <-.path_get_dir("cache", "version_unchanged")
+      .osf_download_osf_tbl(
         osf_tbl = osf_tbl_file,
         path_dir_save_local = path_dir_save_local
       )
-      fn_vec <- list.files(projr_dir_get("raw-data"), recursive = TRUE)
+      fn_vec <- list.files.dir_get("raw-data"), recursive = TRUE)
       expect_identical(
         fn_vec, list.files(path_dir_save_local, recursive = TRUE)
       )
@@ -280,19 +280,19 @@ test_that(".projr_osf_send_dir and _missing work", {
       expect_identical(osfr::osf_ls_files(osf_tbl_dir)[["name"]], "v0.0.1")
 
 
-      file.remove(projr_path_get("raw-data", "extra.txt"))
-      unlink(projr_dir_get("raw-data", "altdir1"), recursive = TRUE)
+      file.remove.path_get("raw-data", "extra.txt"))
+      unlink.dir_get("raw-data", "altdir1"), recursive = TRUE)
 
       # add a file
-      file.create(projr_path_get("raw-data", "add.txt"))
+      file.create.path_get("raw-data", "add.txt"))
 
       # change a file
-      writeLines(c("change"), projr_path_get("raw-data", "abc.txt"))
+      writeLines(c("change"),.path_get("raw-data", "abc.txt"))
 
-      projr_version_set("v0.0.3")
-      manifest <- .projr_test_manifest_create()
+     .version_set("v0.0.3")
+      manifest <- .test_manifest_create()
       # upload
-      .projr_osf_send_version(
+      .osf_send_version(
         path_dir_local = path_dir_local,
         label = "raw-data",
         osf_tbl_upload = osf_tbl_file,
@@ -300,12 +300,12 @@ test_that(".projr_osf_send_dir and _missing work", {
       )
 
       # check
-      path_dir_save_local <- projr_path_get_dir("cache", "version_changed")
-      .projr_osf_download_osf_tbl(
+      path_dir_save_local <-.path_get_dir("cache", "version_changed")
+      .osf_download_osf_tbl(
         osf_tbl = osf_tbl_file,
         path_dir_save_local = path_dir_save_local
       )
-      fn_vec <- list.files(projr_dir_get("raw-data"), recursive = TRUE)
+      fn_vec <- list.files.dir_get("raw-data"), recursive = TRUE)
       expect_identical(
         fn_vec, list.files(path_dir_save_local, recursive = TRUE)
       )
@@ -322,31 +322,31 @@ test_that(".projr_osf_send_dir and _missing work", {
       # ----------------------
 
       # remove all extra files
-      file.remove(projr_path_get("raw-data", "extra.txt"))
-      unlink(projr_dir_get("raw-data", "altdir1"), recursive = TRUE)
+      file.remove.path_get("raw-data", "extra.txt"))
+      unlink.dir_get("raw-data", "altdir1"), recursive = TRUE)
 
       # add a file
-      file.create(projr_path_get("raw-data", "add.txt"))
+      file.create.path_get("raw-data", "add.txt"))
 
       # change a file
-      writeLines(c("change"), projr_path_get("raw-data", "abc.txt"))
+      writeLines(c("change"),.path_get("raw-data", "abc.txt"))
 
 
 
-      projr_manifest_compare(
+     .manifest_compare(
         manifest_
       )
 
       # upload
-      .projr_osf_send_missing(
+      .osf_send_missing(
         path_dir_local = path_dir_fn,
         osf_tbl = osf_tbl_file,
         conflict = "overwrite"
       )
 
       # check
-      path_dir_save_local <- projr_path_get_dir("cache", "missing")
-      .projr_osf_download_osf_tbl(
+      path_dir_save_local <-.path_get_dir("cache", "missing")
+      .osf_download_osf_tbl(
         osf_tbl = osf_tbl_file,
         path_dir_save_local = path_dir_save_local
       )
@@ -360,13 +360,13 @@ test_that(".projr_osf_send_dir and _missing work", {
   )
 })
 
-test_that(".projr_osf_send_yml_label works", {
+test_that(".osf_send_yml_label works", {
   # skips
   skip_if_offline()
   skip_if(TRUE)
 
   # setup
-  dir_test <- .projr_test_setup_project(git = TRUE, set_env_var = FALSE)
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
 
   # run from within project
   usethis::with_project(
@@ -375,24 +375,24 @@ test_that(".projr_osf_send_yml_label works", {
       # setup
       # ----------------
 
-      yml_projr_orig <- .projr_yml_get()
+      yml.orig <- .yml_get()
 
       # create files
-      .projr_test_setup_content("output")
+      .test_setup_content("output")
 
       # create manifest
-      manifest <- .projr_test_manifest_create()
+      manifest <- .test_manifest_create()
 
       # create project
-      osf_tbl_proj <- .projr_test_osf_create_project("ProjectUpload")
-      .projr_osf_rm_node_id_defer(osf_tbl_proj[["id"]])
+      osf_tbl_proj <- .test_osf_create_project("ProjectUpload")
+      .osf_rm_node_id_defer(osf_tbl_proj[["id"]])
 
       # test
       osf_tbl_file <- osf_tbl_projr |> osfr::osf_ls_files(n_max = Inf)
       path_osf <- NULL
-      path_local <- projr_path_get_dir("output", safe = FALSE)
+      path_local <-.path_get_dir("output", safe = FALSE)
 
-      .projr_osf_send_yml_label(
+      .osf_send_yml_label(
         osf_tbl = osf_tbl,
         osf_tbl_file = osf_tbl_file,
         path_osf = path_osf,

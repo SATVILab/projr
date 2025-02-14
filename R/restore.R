@@ -24,7 +24,7 @@
 #' Invisible returns `TRUE` if successful.
 #'
 #' @examples
-#' \dontrun{projr_restore("raw-data")}
+#' \dontrun.restore("raw-data")}
 #' @export
 projr_restore <- function(label = NULL,
                           type = NULL,
@@ -34,26 +34,26 @@ projr_restore <- function(label = NULL,
       "No manifest.csv file found, so no builds have occurred, so nothing to restore." # nolint
     )
   }
-  label <- .projr_restore_get_label(label)
+  label <- .restore_get_label(label)
   for (i in seq_along(label)) {
-    .projr_restore_label(label[[i]], type, title)
+    .restore_label(label[[i]], type, title)
   }
 }
 
-.projr_restore_get_label <- function(label) {
-  .projr_restore_get_label_check(label)
+.restore_get_label <- function(label) {
+  .restore_get_label_check(label)
   if (!is.null(label)) {
     return(label)
   }
   # default to raw labels, if none other requested
-  nm_vec <- .projr_yml_dir_get(NULL) |>
+  nm_vec <- .yml_dir_get(NULL) |>
     names()
-  nm_vec[grepl("^raw", .projr_dir_label_strip(nm_vec))]
+  nm_vec[grepl("^raw", .dir_label_strip(nm_vec))]
 }
 
-.projr_restore_get_label_check <- function(label) {
+.restore_get_label_check <- function(label) {
   if (!is.null(label)) {
-    opt_vec <- .projr_yml_dir_get(NULL) |>
+    opt_vec <- .yml_dir_get(NULL) |>
       names()
     .assert_len_pos(opt_vec)
     for (x in label){
@@ -63,16 +63,16 @@ projr_restore <- function(label = NULL,
   invisible(TRUE)
 }
 
-.projr_restore_label <- function(label, type, title) {
-  if (!.projr_restore_label_check_non_empty(label)) {
+.restore_label <- function(label, type, title) {
+  if (!.restore_label_check_non_empty(label)) {
     return(invisible(FALSE))
   }
   # get source remote (type and title)
-  source_vec <- .projr_restore_label_get_source(label, type, title)
-  yml_title <- .projr_yml_dest_get_title_complete(
+  source_vec <- .restore_label_get_source(label, type, title)
+  yml_title <- .yml_dest_get_title_complete(
     source_vec[["title"]], source_vec[["type"]], NULL, FALSE, FALSE
   )
-  remote_source <- .projr_remote_get_final_if_exists(
+  remote_source <- .remote_get_final_if_exists(
     source_vec[["type"]], yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
     yml_title[["path-append-label"]], NULL
@@ -83,16 +83,16 @@ projr_restore <- function(label = NULL,
                 " where title is ", source_vec[["title"]], " and type is ",
                 source_vec[["type"]]))
   }
-  path_dir_save_local <- projr_path_get_dir(label)
-  .projr_remote_file_get_all(
+  path_dir_save_local <-.path_get_dir(label)
+  .remote_file_get_all(
     source_vec[["type"]], remote_source, path_dir_save_local
   )
   invisible(TRUE)
 }
 
-.projr_restore_label_check_non_empty <- function(label) {
-  manifest <- .projr_manifest_read(.path_get("manifest.csv")) |>
-    .projr_manifest_filter_label(label)
+.restore_label_check_non_empty <- function(label) {
+  manifest <- .manifest_read(.path_get("manifest.csv")) |>
+    .manifest_filter_label(label)
   fn_vec <- unique(manifest[["fn"]])
   label_recorded_and_unused <- .is_len_1(fn_vec) && fn_vec == ""
   label_unrecorded <- .is_len_0(fn_vec)
@@ -106,13 +106,13 @@ projr_restore <- function(label = NULL,
 }
 
 
-.projr_restore_label_get_source <- function(label, type, title) {
+.restore_label_get_source <- function(label, type, title) {
   # get source remote (type and title)
   if (!is.null(type) && !is.null(title)) {
     return(c("type" = type, "title" = title))
   }
   if (is.null(type)) {
-    nm_vec <- .projr_yml_build_get(NULL) |>
+    nm_vec <- .yml_build_get(NULL) |>
       names()
     type <- nm_vec[grepl("^github$|^local$|^osf", nm_vec)]
     if (.is_len_0(type)) {
@@ -123,11 +123,11 @@ projr_restore <- function(label = NULL,
   tt_first <- NULL
 
   for (tp in type) {
-    yml_type <- .projr_yml_dest_get_type(tp, NULL)
+    yml_type <- .yml_dest_get_type(tp, NULL)
     title <- names(yml_type)
     for (i in seq_along(title)) {
       tt <- title[[i]]
-      yml_title <- .projr_yml_dest_get_title_complete(
+      yml_title <- .yml_dest_get_title_complete(
         tt, tp, NULL, FALSE, FALSE
       )
       if (!label %in% yml_title[["content"]]) {

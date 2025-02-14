@@ -2,24 +2,24 @@
 # we also need functions to download
 # outputs.
 # should both be called restored?
-.projr_checkout_osf <- function(label = NULL,
+.checkout_osf <- function(label = NULL,
                                 version = NULL,
                                 input_only = TRUE) {
   if (is.null(label)) {
-    label <- .projr_yml_get()[["directories"]]
+    label <- .yml_get()[["directories"]]
   }
   if (input_only) {
     match_str <- "^cache|^raw"
   } else {
     match_str <- "^cache|^raw|^output"
   }
-  label <- label[grepl(match_str, .projr_dir_label_strip(label))]
+  label <- label[grepl(match_str, .dir_label_strip(label))]
   for (i in seq_along(label)) {
-    .projr_checkout_osf_label(label[[i]], version = version)
+    .checkout_osf_label(label[[i]], version = version)
   }
 }
 
-.projr_checkout_osf_label <- function(label, version, id_parent_force = NULL) {
+.checkout_osf_label <- function(label, version, id_parent_force = NULL) {
   if (missing(label)) {
     stop("label must be specified")
   }
@@ -29,7 +29,7 @@
       paste0(class(label), collapse = "; ")
     ))
   }
-  yml_label <- .projr_yml_get()[["directories"]][[label]]
+  yml_label <- .yml_get()[["directories"]][[label]]
   if (!"osf" %in% names(yml_label)) {
     return(invisible(FALSE))
   }
@@ -53,7 +53,7 @@
   # do not append label or path as
   # we need to know that for the `download_to_dir`
   # function below
-  osf_tbl <- .projr_osf_get_node(
+  osf_tbl <- .osf_get_node(
     title = names(yml_label[["osf"]]),
     label = label,
     id = yml_osf[["id"]],
@@ -61,10 +61,10 @@
   )
 
   # get download settings
-  yml_osf[["download"]] <- .projr_osf_complete_dnld_list(yml_osf[["download"]])
+  yml_osf[["download"]] <- .osf_complete_dnld_list(yml_osf[["download"]])
 
   # actually download
-  .projr_osf_dnld_to_dir(
+  .osf_dnld_to_dir(
     osf_tbl = osf_tbl,
     version = version,
     # path to save to locally
@@ -82,7 +82,7 @@
   osf_tbl
 }
 
-.projr_osf_dnld_to_dir <- function(osf_tbl,
+.osf_dnld_to_dir <- function(osf_tbl,
                                    version,
                                    sub_dir,
                                    path_save,
@@ -101,7 +101,7 @@
     return(invisible(FALSE))
   }
   if (grepl("download\\-all$", strategy)) {
-    .projr_osf_dnld_to_dir_all(
+    .osf_dnld_to_dir_all(
       osf_tbl_file = osf_tbl_file,
       version = version,
       structure = structure,
@@ -116,7 +116,7 @@
   invisible(TRUE)
 }
 
-.projr_osf_dnld_to_dir_all <- function(osf_tbl_file,
+.osf_dnld_to_dir_all <- function(osf_tbl_file,
                                        version,
                                        structure,
                                        path_save,
@@ -169,7 +169,7 @@
   invisible(TRUE)
 }
 
-.projr_osf_complete_dnld_list <- function(yml_projr) {
+.osf_complete_dnld_list <- function(yml_projr) {
   if (!is.null(yml_projr)) {
     if (is.null(yml_projr[["conflict"]])) {
       yml_projr[["conflict"]] <- "overwrite"
@@ -184,34 +184,34 @@
   yml_projr[c("conflict", "strategy")]
 }
 
-.projr_osf_download_dir <- function() {
-  if (!.projr_osf_download_dir_check_run()) {
+.osf_download_dir <- function() {
+  if (!.osf_download_dir_check_run()) {
     return(invisible(FALSE))
   }
-  yml_projr_dir <- projr_yml_get()[["directories"]]
-  for (i in seq_along(yml_projr_dir)) {
-    .projr_osf_download_dir_label(
-      label = names(yml_projr_dir)[i],
+  yml.dir <-.yml_get()[["directories"]]
+  for (i in seq_along(yml.dir)) {
+    .osf_download_dir_label(
+      label = names(yml.dir)[i],
     )
   }
 }
 
-.projr_osf_download_build <- function(safe) {
-  if (!.projr_osf_download_build_check_run()) {
+.osf_download_build <- function(safe) {
+  if (!.osf_download_build_check_run()) {
     return(invisible(FALSE))
   }
-  yml_projr_build_osf <- projr_yml_get()[["build"]][["osf"]]
-  for (i in seq_along(yml_projr_build_osf)) {
-    .projr_osf_download_build_node(
-      title = names(yml_projr_build_osf)[i],
+  yml.build_osf <-.yml_get()[["build"]][["osf"]]
+  for (i in seq_along(yml.build_osf)) {
+    .osf_download_build_node(
+      title = names(yml.build_osf)[i],
       id_parent = NULL,
       safe = safe
     )
   }
 }
 
-.projr_osf_download_dir_check_run <- function() {
-  yml_projr <- projr_yml_get()
+.osf_download_dir_check_run <- function() {
+  yml_projr <-.yml_get()
   osf_is_source <- vapply(
     yml_projr[["directories"]], function(x) "osf" %in% names(x), logical(1)
   ) |>
@@ -222,8 +222,8 @@
   invisible(TRUE)
 }
 
-.projr_osf_download_build_check_run <- function() {
-  yml_projr <- projr_yml_get()
+.osf_download_build_check_run <- function() {
+  yml_projr <-.yml_get()
   osf_is_dest <- "osf" %in% names(yml_projr[["build"]])
   if (!osf_is_dest) {
     return(invisible(FALSE))
@@ -231,17 +231,17 @@
   invisible(TRUE)
 }
 
-.projr_osf_download_dir_label <- function(label) {
-  yml_param <- .projr_yml_get()[["directories"]][[label]]
+.osf_download_dir_label <- function(label) {
+  yml_param <- .yml_get()[["directories"]][[label]]
   if (!"osf" %in% names(yml_param)) {
     return(invisible(FALSE))
   }
   yml_param_osf <- yml_param[["osf"]]
   # allowed to just specify id
   if (is.character(yml_param_osf)) {
-    osf_tbl <- .projr_osf_get_node_id(yml_param_osf)
+    osf_tbl <- .osf_get_node_id(yml_param_osf)
   } else {
-    osf_tbl <- .projr_osf_get_node_id(yml_param_osf[["id"]])
+    osf_tbl <- .osf_get_node_id(yml_param_osf[["id"]])
   }
   if (is.null(osf_tbl)) {
     stop(paste0("osf node id not specified for label ", label))
@@ -253,7 +253,7 @@
   if (is.character(yml_param_osf)) {
     # use the label if it's a directory automatically
     if ("label" %in% osf_tbl_file[["name"]]) {
-      osf_tbl_file_dir <- .projr_osf_filter_dir(osf_tbl_file)
+      osf_tbl_file_dir <- .osf_filter_dir(osf_tbl_file)
       osf_tbl_file_dir_label <- osf_tbl_file_dir[
         osf_tbl_file_dir[["name"]] == label,
       ]
@@ -267,14 +267,14 @@
     # use sub-directory if specified
     if ("sub-dir" %in% names(yml_param_osf)) {
       dir_vec <- fs::path_split(yml_param_osf[["sub-dir"]])
-      osf_tbl_file_dir <- .projr_osf_filter_dir(osf_tbl_file)
+      osf_tbl_file_dir <- .osf_filter_dir(osf_tbl_file)
       for (x in dir_vec) {
         osf_tbl_file_dir_sub <- osf_tbl_file_dir[
           osf_tbl_file_dir[["name"]] == x,
         ]
         osf_tbl_file_dir <- osf_tbl_file_dir_sub |>
           osfr::osf_ls_files(n_max = Inf) |>
-          .projr_osf_filter_dir()
+          .osf_filter_dir()
       }
       if (nrow(osf_tbl_file_dir) > 0L) {
         osf_tbl_file <- osf_tbl_file_dir
@@ -292,26 +292,26 @@
       conflicts <- yml_param_osf[["conflicts"]]
     }
   }
-  .projr_osf_download_osf_tbl(
+  .osf_download_osf_tbl(
     osf_tbl = osf_tbl_file,
-    path_dir_save_local = projr_path_get_dir(label, safe = TRUE),
+    path_dir_save_local =.path_get_dir(label, safe = TRUE),
     conflicts = "overwrite"
   )
   invisible(TRUE)
 }
 
-.projr_osf_download_build_node <- function(title,
+.osf_download_build_node <- function(title,
                                            id_parent = NULL,
                                            safe) {
-  yml_param <- .projr_yml_get()[["build"]][["osf"]][[title]]
-  id_parent <- .projr_osf_get_id_parent(
+  yml_param <- .yml_get()[["build"]][["osf"]][[title]]
+  id_parent <- .osf_get_id_parent(
     yml_param = yml_param, id_parent = id_parent
   )
   id <- yml_param[["id"]]
   if (!is.null(id)) {
-    osf_tbl <- .projr_osf_get_node_id(id)
+    osf_tbl <- .osf_get_node_id(id)
   } else {
-    osf_tbl <- .projr_osf_get_node_id_parent(title, id_parent)
+    osf_tbl <- .osf_get_node_id_parent(title, id_parent)
   }
   if (is.null(osf_tbl)) {
     stop(paste0("osf node id not found for title ", title))
@@ -322,15 +322,15 @@
     conflicts <- yml_param[["conflicts"]]
   }
   for (i in seq_along(yml_param[["content"]])) {
-    .projr_osf_download_osf_tbl(
+    .osf_download_osf_tbl(
       osf_tbl = osf_tbl,
-      path_dir_save_local = projr_path_get_dir(yml_param[["content"]][i], safe = TRUE),
+      path_dir_save_local =.path_get_dir(yml_param[["content"]][i], safe = TRUE),
       conflicts = conflicts
     )
   }
 }
 
-.projr_osf_download_osf_tbl <- function(osf_tbl,
+.osf_download_osf_tbl <- function(osf_tbl,
                                         path_dir_save_local,
                                         conflicts = "overwrite") {
   .dir_create(path_dir_save_local)

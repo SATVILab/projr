@@ -1,4 +1,4 @@
-.projr_osf_send_yml_content <- function(output_run,
+.osf_send_yml_content <- function(output_run,
                                         id,
                                         structure,
                                         content,
@@ -10,10 +10,10 @@
                                         conflict,
                                         component) {
   # would need to add cue here
-  osf_tbl <- .projr_osf_get_node_id(id = id)
+  osf_tbl <- .osf_get_node_id(id = id)
   osf_tbl_file <- osf_tbl |> osfr::osf_ls_files(n_max = Inf)
   for (label in content) {
-    .projr_osf_send_yml_label(
+    .osf_send_yml_label(
       label,
       osf_tbl,
       osf_tbl_file,
@@ -25,25 +25,25 @@
     )
   }
   for (i in seq_along(component)) {
-    yml_projr_osf_ind <- component[[i]]
-    yml_projr_osf_ind_upload <- yml_projr_osf_ind[["upload"]]
+    yml.osf_ind <- component[[i]]
+    yml.osf_ind_upload <- yml.osf_ind[["upload"]]
     # need to make this recursive
-    .projr_osf_send_yml_content(
-      id = yml_projr_osf_ind[["id"]],
-      structure = yml_projr_osf_ind[["remote-structure"]],
-      content = yml_projr_osf_ind[["content"]],
-      path = yml_projr_osf_ind[["path"]], ,
-      path_append_label = yml_projr_osf_ind[["path_append_label"]], ,
-      cue = yml_projr_osf_ind_upload[["cue"]],
-      strategy = yml_projr_osf_ind_upload[["strategy"]],
-      inspect = yml_projr_osf_ind_upload[["inspect"]],
-      conflict = yml_projr_osf_ind_upload[["conflict"]],
-      component = yml_projr_osf_ind[["component"]]
+    .osf_send_yml_content(
+      id = yml.osf_ind[["id"]],
+      structure = yml.osf_ind[["remote-structure"]],
+      content = yml.osf_ind[["content"]],
+      path = yml.osf_ind[["path"]], ,
+      path_append_label = yml.osf_ind[["path_append_label"]], ,
+      cue = yml.osf_ind_upload[["cue"]],
+      strategy = yml.osf_ind_upload[["strategy"]],
+      inspect = yml.osf_ind_upload[["inspect"]],
+      conflict = yml.osf_ind_upload[["conflict"]],
+      component = yml.osf_ind[["component"]]
     )
   }
 }
 
-.projr_osf_send_yml_label <- function(label,
+.osf_send_yml_label <- function(label,
                                       output_run,
                                       osf_tbl,
                                       path,
@@ -56,7 +56,7 @@
   # ----------------------------
 
   switch(structure,
-    "latest" = .projr_osf_send_yml_latest(
+    "latest" = .osf_send_yml_latest(
       label = label,
       output_run = output_run,
       osf_tbl = osf_tbl,
@@ -66,7 +66,7 @@
       inspect = inspect,
       conflict = conflict
     ),
-    "version" = .projr_osf_send_yml_version(
+    "version" = .osf_send_yml_version(
       label = label,
       output_run = output_run,
       osf_tbl = osf_tbl,
@@ -81,7 +81,7 @@
   invisible(TRUE)
 }
 
-.projr_osf_send_yml_latest <- function(label,
+.osf_send_yml_latest <- function(label,
                                        output_run,
                                        osf_tbl,
                                        path,
@@ -91,7 +91,7 @@
                                        inspect,
                                        conflict) {
   if (is.null(osf_tbl_upload)) {
-    osf_tbl_upload <- .projr_osf_node_dir_get(
+    osf_tbl_upload <- .osf_node_dir_get(
       osf_tbl = osf_tbl,
       path = path,
       path_append_label = path_append_label,
@@ -101,7 +101,7 @@
   }
 
   # get local directory to upload from
-  path_dir_local <- projr_path_get_dir(label, safe = !output_run)
+  path_dir_local <-.path_get_dir(label, safe = !output_run)
 
   # this is effectively just wiping out what's there
   convert_to_sync_using_deletion <- strategy == "sync-using-version" &&
@@ -111,23 +111,23 @@
   }
   # delete what's there if requred
   if (strategy == "sync-using-deletion") {
-    .projr_osf_node_empty(osf_tbl = osf_tbl_upload)
+    .osf_node_empty(osf_tbl = osf_tbl_upload)
   }
   switch(strategy,
     "upload-all" = ,
-    "sync-using-delection" = .projr_osf_send_dir(
+    "sync-using-delection" = .osf_send_dir(
       path_dir_local = path_dir_local,
       osf_tbl = osf_tbl_upload,
       conflict = conflict
     ),
-    "upload-missing" = .projr_osf_send_missing(
+    "upload-missing" = .osf_send_missing(
       path_dir_local = path_dir_local,
       osf_tbl = osf_tbl_upload,
       inspect = inspect,
       label = label,
       conflict = conflict
     ),
-    "sync-using-version" = .projr_osf_send_version(
+    "sync-using-version" = .osf_send_version(
       path_dir_local = path_dir_local,
       label = label,
       osf_tbl_upload = osf_tbl_upload,
@@ -143,7 +143,7 @@
   )
 }
 
-.projr_osf_send_yml_version <- function(label,
+.osf_send_yml_version <- function(label,
                                         output_run,
                                         osf_tbl,
                                         path,
@@ -152,7 +152,7 @@
                                         inspect,
                                         conflict) {
   # avoid creating new version upfront
-  path_dir_osf <- .projr_osf_path_get(
+  path_dir_osf <- .osf_path_get(
     osf_tbl = osf_tbl,
     path = path,
     path_append_label = path_append_label,
@@ -161,7 +161,7 @@
     version = NULL
   )
   # get local directory to upload from
-  path_dir_local <- projr_path_get_dir(label, safe = !output_run)
+  path_dir_local <-.path_get_dir(label, safe = !output_run)
 
   switch(inspect,
     "none" = {
@@ -169,7 +169,7 @@
       # new version if there are changes but
       # whenever we upload
       osf_tbl_upload <- osfr::osf_mkdir(x = osf_tbl, path = path_dir_osf)
-      .projr_osf_send_yml_latest(
+      .osf_send_yml_latest(
         label = label,
         output_run = output_run,
         osf_tbl_upload = osf_tbl_upload,
@@ -178,14 +178,14 @@
         conflict = conflict
       )
     },
-    "manifest" = .projr_osf_send_version(
+    "manifest" = .osf_send_version(
       path_dir_local = path_dir_local,
       label = label,
       osf_tbl = osf_tbl,
       path_dir_osf = path_dir_osf,
       inspect = "manifest"
     ),
-    "osf" = .projr_osf_send_version(
+    "osf" = .osf_send_version(
       path_dir_local = path_dir_local,
       label = label,
       osf_tbl = osf_tbl,
@@ -195,25 +195,25 @@
   )
 }
 
-.projr_osf_send_missing <- function(path_dir_local,
+.osf_send_missing <- function(path_dir_local,
                                     osf_tbl,
                                     inspect,
                                     label,
                                     conflict) {
   fn_vec_local <- list.files(path_dir_local, recursive = TRUE)
   fn_vec_missing <- switch(inspect,
-    "osf" = setdiff(fn_vec_local, .projr_osf_ls_files(osf_tbl)),
+    "osf" = setdiff(fn_vec_local, .osf_ls_files(osf_tbl)),
     "manifest" =
-      .projr_change_get_manifest(label = label)[["added"]][["fn"]],
+      .change_get_manifest(label = label)[["added"]][["fn"]],
     "none" = fn_vec_local
   )
-  .projr_osf_send_file(
+  .osf_send_file(
     fn_rel = fn_vec_missing, path_dir_local = path_dir_local,
     osf_tbl = osf_tbl, conflict = conflict
   )
 }
 
-.projr_osf_send_version <- function(path_dir_local,
+.osf_send_version <- function(path_dir_local,
                                     label,
                                     osf_tbl = NULL,
                                     osf_tbl_upload = NULL,
@@ -232,29 +232,29 @@
     osf_tbl_upload <- osfr::osf_mkdir(x = osf_tbl, path = path_dir_osf)
   }
 
-  .projr_osf_send_file(
+  .osf_send_file(
     fn_rel = change_list[["add"]],
     path_dir_local = path_dir_local,
     osf_tbl = osf_tbl_upload,
     conflict = "overwrite"
   )
-  .projr_osf_remove_fn(fn_rel = change_list[["rm"]], osf_tbl = osf_tbl_upload)
+  .osf_remove_fn(fn_rel = change_list[["rm"]], osf_tbl = osf_tbl_upload)
   invisible(TRUE)
 }
 
 # upload contents of a directory to a node
-.projr_osf_send_dir <- function(path_dir_local,
+.osf_send_dir <- function(path_dir_local,
                                 osf_tbl,
                                 conflict = "overwrite") {
   fn_vec_local <- list.files(path_dir_local, recursive = TRUE)
-  .projr_osf_send_file(
+  .osf_send_file(
     fn_rel = fn_vec_local, path_dir_local = path_dir_local,
     osf_tbl = osf_tbl, conflict = conflict
   )
 }
 
 # upload files within a directory to a node
-.projr_osf_send_file <- function(fn_rel, # relative to directory
+.osf_send_file <- function(fn_rel, # relative to directory
                                  path_dir_local,
                                  osf_tbl,
                                  conflict) {
@@ -281,7 +281,7 @@
 }
 
 # upload files within a directory to a node
-.projr_osf_remove_fn <- function(fn_rel, # relative to directory
+.osf_remove_fn <- function(fn_rel, # relative to directory
                                  osf_tbl) {
   if (length(fn_rel) == 0) {
     return(invisible(FALSE))

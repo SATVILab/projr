@@ -1,13 +1,13 @@
-test_that(".projr_changelog_add works", {
+test_that(".changelog_add works", {
   # setup
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = FALSE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
   usethis::with_project(
     path = dir_test,
     code = {
-      .projr_changelog_add(
+      .changelog_add(
         msg = "Test",
         bump_component = "patch",
         version_run_on_list = list(
@@ -16,7 +16,7 @@ test_that(".projr_changelog_add works", {
           )
         )
       )
-      .projr_changelog_add(
+      .changelog_add(
         msg = "Test",
         bump_component = "minor",
         version_run_on_list = list(
@@ -25,7 +25,7 @@ test_that(".projr_changelog_add works", {
           )
         )
       )
-      .projr_changelog_add(
+      .changelog_add(
         msg = "Test",
         bump_component = "major",
         version_run_on_list = list(
@@ -35,7 +35,7 @@ test_that(".projr_changelog_add works", {
         )
       )
       expect_identical(
-        .projr_changelog_read() |> sub("\\):.*$", "\\)", x = _),
+        .changelog_read() |> sub("\\):.*$", "\\)", x = _),
         c(
           "# CHANGELOG", "", "- **Major** (v1.0.0): Miguel Julio Rodo (14:39:59)", # nolint
           "  - Test", "", "___", "", "- *Minor* (v0.1.0): Miguel Julio Rodo (14:39:59)", # nolint
@@ -44,7 +44,7 @@ test_that(".projr_changelog_add works", {
         ) |>
           sub("\\):.*$", "\\)", x = _)
       )
-      projr_cat_changelog()
+     .cat_changelog()
     }
   )
 })

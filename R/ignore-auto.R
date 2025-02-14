@@ -1,6 +1,6 @@
 #' Update `.gitignore` and `.Rbuildignore` with projr-managed ignores
 #'
-#' The `projr_ignore_auto()` function updates the project’s `.gitignore` and
+#' The .ignore_auto()` function updates the project’s `.gitignore` and
 #' `.Rbuildignore` files to reflect directories and files managed by
 #' projr, as well as
 #' other directories and files that should
@@ -13,29 +13,29 @@
 #'
 #' @examples
 #' \dontrun{
-#'   projr_ignore_auto()
+#'  .ignore_auto()
 #' }
 #'
 #' @export
-#' @seealso projr_ignore_add,projr_ignore_add_git,projr_ignore_add_rbuild
+#' @seealso.ignore_add.ignore_add_git.ignore_add_rbuild
 projr_ignore_auto <- function() {
   # ignore directories specified in
   # `_projr.yml`
-  .projr_ignore_diryml()
+  .ignore_diryml()
   # root level files
-  .projr_ignore_auto_yml()
-  .projr_ignore_auto_env()
-  .projr_ignore_auto_build_source()
-  .projr_ignore_auto_build_tex()
-  .projr_ignore_auto_ext()
+  .ignore_auto_yml()
+  .ignore_auto_env()
+  .ignore_auto_build_source()
+  .ignore_auto_build_tex()
+  .ignore_auto_ext()
   # directories at root level
   # unspecified by `directories` key
   # in `_projr.yml`
-  .projr_ignore_auto_quarto()
-  .projr_ignore_auto_devcontainer()
-  .projr_ignore_auto_github()
-  .projr_ignore_auto_vscode() # also code-workspace files
-  .projr_ignore_auto_build_content_dir()
+  .ignore_auto_quarto()
+  .ignore_auto_devcontainer()
+  .ignore_auto_github()
+  .ignore_auto_vscode() # also code-workspace files
+  .ignore_auto_build_content_dir()
   invisible(TRUE)
 }
 
@@ -45,50 +45,50 @@ projr_ignore_auto <- function() {
 
 # ignore _extensions directory if 
 # projr engine is quarto and _extensions exists
-.projr_ignore_auto_quarto <- function() {
-  .projr_ignore_auto_quarto_rbuild()
-  .projr_ignore_auto_quarto_git()
+.ignore_auto_quarto <- function() {
+  .ignore_auto_quarto_rbuild()
+  .ignore_auto_quarto_git()
 }
 
-.projr_ignore_auto_quarto_rbuild <- function() {
+.ignore_auto_quarto_rbuild <- function() {
   dir_vec <- c("_extensions", "index_files", ".quarto")
   dir_vec <- dir_vec[dir.exists(dir_vec)]
   if (.is_len_0(dir_vec)) {
     return(invisible(FALSE))
   }
-  .projr_ignore_auto_dir_rbuild(dir_vec)
+  .ignore_auto_dir_rbuild(dir_vec)
 }
 
-.projr_ignore_auto_quarto_git <- function() {
+.ignore_auto_quarto_git <- function() {
   dir_vec <- c("index_files", ".quarto")
   dir_vec <- dir_vec[dir.exists(dir_vec)]
   if (.is_len_0(dir_vec)) {
     return(invisible(FALSE))
   }
-  .projr_ignore_auto_dir_git(dir_vec)
+  .ignore_auto_dir_git(dir_vec)
 }
 
-.projr_ignore_auto_devcontainer <- function() {
+.ignore_auto_devcontainer <- function() {
   if (dir.exists(".devcontainer")) {
-    .projr_ignore_auto_dir_rbuild(".devcontainer")
+    .ignore_auto_dir_rbuild(".devcontainer")
     invisible(TRUE)
   } else {
     invisible(FALSE)
   }
 }
 
-.projr_ignore_auto_github <- function() {
+.ignore_auto_github <- function() {
   if (dir.exists(".github")) {
-    .projr_ignore_auto_dir_rbuild(".github")
+    .ignore_auto_dir_rbuild(".github")
     invisible(TRUE)
   } else {
     invisible(FALSE)
   }
 }
 
-.projr_ignore_auto_vscode <- function() {
+.ignore_auto_vscode <- function() {
   if (dir.exists(".vscode")) {
-    .projr_ignore_auto_dir_rbuild(".vscode")
+    .ignore_auto_dir_rbuild(".vscode")
     invisible(TRUE)
   } else {
     invisible(FALSE)
@@ -97,7 +97,7 @@ projr_ignore_auto <- function() {
     path = .path_get(),
     pattern = "\\.code\\-workspace$"
   )
-  .projr_ignore_auto_file_rbuild(path_vec)
+  .ignore_auto_file_rbuild(path_vec)
 }
 
 # ===========================================================================
@@ -107,42 +107,42 @@ projr_ignore_auto <- function() {
 
 # projr config files
 # -------------------------------------------------------------------------
-.projr_ignore_auto_yml <- function() {
+.ignore_auto_yml <- function() {
   path_vec <- list.files(
     path = .path_get(),
     pattern = "^_projr\\.yml$|^_projr-.+\\.yml|^_quarto\\.yml$|^_bookdown\\.yml$"
   )
-  .projr_ignore_auto_file_rbuild(path_vec)
+  .ignore_auto_file_rbuild(path_vec)
   if (file.exists(.path_get(".projr-local.yml"))) {
-    .projr_ignore_auto_file_git(.path_get(".projr-local.yml"))
+    .ignore_auto_file_git(.path_get(".projr-local.yml"))
   }
 }
 
-.projr_ignore_auto_env <- function() {
+.ignore_auto_env <- function() {
   path_vec <- list.files(
     path = .path_get(),
     pattern = "^_environment$|^_environment-[a-zA-Z0-9]+$|^_environment\\.required$|^_environment\\.local$" #nolint
   )
-  .projr_ignore_auto_dir_rbuild(path_vec)
+  .ignore_auto_dir_rbuild(path_vec)
   if (file.exists(.path_get("_environment.local"))) {
-    .projr_ignore_auto_dir_git(.path_get("_environment.local"))
+    .ignore_auto_dir_git(.path_get("_environment.local"))
   }
 }
 
 # projr build files
 # -------------------------------------------------------------------------
-.projr_ignore_auto_build_source <- function() {
+.ignore_auto_build_source <- function() {
   path_vec <- list.files(
     path = .path_get(),
     pattern = "\\.qmd$|\\.rmd$|\\.Rmd$"
   )
-  .projr_ignore_auto_file_rbuild(path_vec)
+  .ignore_auto_file_rbuild(path_vec)
 }
 
 # misc files
 # -------------------------------------------------------------------------
 
-.projr_ignore_auto_misc <- function() {
+.ignore_auto_misc <- function() {
   pattern <- c(
     "\\.Rproj$",
     "\\.Rproj\\.user$",
@@ -157,17 +157,17 @@ projr_ignore_auto <- function() {
     path = .path_get(),
     pattern = pattern
   )
-  .projr_ignore_auto_file_rbuild(path_vec)
+  .ignore_auto_file_rbuild(path_vec)
 }
 
 # content files
 # -------------------------------------------------------------------------
 
-.projr_ignore_auto_ext <- function() {
-  .projr_ignore_auto_ext_rbuild()
-  .projr_ignore_auto_ext_git()
+.ignore_auto_ext <- function() {
+  .ignore_auto_ext_rbuild()
+  .ignore_auto_ext_git()
 }
-.projr_ignore_auto_ext_rbuild <- function() {
+.ignore_auto_ext_rbuild <- function() {
   pattern <- c(
     "\\.log",
     "\\.aux",
@@ -215,10 +215,10 @@ projr_ignore_auto <- function() {
     pattern = pattern
   ) |>
     setdiff("README.md")
-  .projr_ignore_auto_file_rbuild(path_vec)
+  .ignore_auto_file_rbuild(path_vec)
 }
 
-.projr_ignore_auto_ext_git <- function() {
+.ignore_auto_ext_git <- function() {
   pattern <- c(
     "\\.log",
     "\\.aux",
@@ -263,24 +263,24 @@ projr_ignore_auto <- function() {
         "LICENSE", "LICENSE.md", "README.md", "codemeta.json",
         "CITATION.cff")
     )
-  .projr_ignore_auto_path_add(path_vec, .path_get(".gitignore"))
+  .ignore_auto_path_add(path_vec, .path_get(".gitignore"))
 }
 
 # ===========================================================================
 # Ignore tex files based on build files
 # ===========================================================================
 
-.projr_ignore_auto_build_tex <- function() {
-  .projr_ignore_auto_build_tex_bookdown()
-  .projr_ignore_auto_build_tex_quarto()
-  .projr_ignore_auto_build_tex_rqmd()
+.ignore_auto_build_tex <- function() {
+  .ignore_auto_build_tex_bookdown()
+  .ignore_auto_build_tex_quarto()
+  .ignore_auto_build_tex_rqmd()
 }
 
-.projr_ignore_auto_build_tex_bookdown <- function() {
-  if (!.projr_engine_get() == "bookdown") {
+.ignore_auto_build_tex_bookdown <- function() {
+  if (!.engine_get() == "bookdown") {
     return(invisible(FALSE))
   }
-  yml_bd <- .projr_yml_bd_get()
+  yml_bd <- .yml_bd_get()
   # Get the book_filename
   book_filename <- yml_bd$book_filename
 
@@ -293,22 +293,22 @@ projr_ignore_auto <- function() {
     return(invisible(FALSE))
   }
 
-  paste0(book_filename, ".tex") |> .projr_ignore_auto_file_git()
-  paste0(book_filename, ".tex") |> .projr_ignore_auto_file_rbuild()
+  paste0(book_filename, ".tex") |> .ignore_auto_file_git()
+  paste0(book_filename, ".tex") |> .ignore_auto_file_rbuild()
 }
 
-.projr_ignore_auto_build_tex_quarto <- function() {
-  if (!.projr_engine_get() == "quarto_project") {
+.ignore_auto_build_tex_quarto <- function() {
+  if (!.engine_get() == "quarto_project") {
     return(invisible(FALSE))
   }
   if (!file.exists("index.tex")) {
     return(invisible(FALSE))
   }
-  .projr_ignore_auto_file_git("index.tex")
-  .projr_ignore_auto_file_rbuild("index.tex")
+  .ignore_auto_file_git("index.tex")
+  .ignore_auto_file_rbuild("index.tex")
 }
 
-.projr_ignore_auto_build_tex_rqmd <- function() {
+.ignore_auto_build_tex_rqmd <- function() {
   path_vec <- list.files(
     path = .path_get(), pattern = "\\.qmd$|\\.Rmd|\\.rmd"
   ) |>
@@ -320,51 +320,51 @@ projr_ignore_auto <- function() {
   if (.is_len_0(path_vec)) {
     return(invisible(FALSE))
   }
-  .projr_ignore_auto_file_git(path_vec)
-  .projr_ignore_auto_file_rbuild(path_vec)
+  .ignore_auto_file_git(path_vec)
+  .ignore_auto_file_rbuild(path_vec)
 }
 
 # ========================================================================
 # Ignore temporary directories based on build files
 # ========================================================================
 
-.projr_ignore_auto_build_content_dir <- function() {
-  switch(.projr_engine_get(),
+.ignore_auto_build_content_dir <- function() {
+  switch(.engine_get(),
     # bookdown and quarto_project handled by directories key
     "bookdown" = NULL,
     "quarto_project" = NULL,
     # only supporting quarto_document,
     # as rmd's by default are self contained
     "rmd" = NULL, 
-    "quarto_document" = .projr_ignore_auto_build_quarto()
+    "quarto_document" = .ignore_auto_build_quarto()
   )
 }
 
 # ignore - qmd output directories
 # ------------------
 
-.projr_ignore_auto_build_quarto <- function() {
+.ignore_auto_build_quarto <- function() {
   fn_vec_qmd <- list.files(pattern = "\\.qmd$")
   path_vec_dir <- NULL
   for (fn in fn_vec_qmd) {
     path_vec_dir <- c(
       path_vec_dir,
-      .projr_ignore_auto_build_quarto_ind(fn)
+      .ignore_auto_build_quarto_ind(fn)
     )
   }
   path_vec_dir <- unique(path_vec_dir)
-  .projr_ignore_auto_dir_git(path_vec_dir)
-  .projr_ignore_auto_dir_rbuild(path_vec_dir)
+  .ignore_auto_dir_git(path_vec_dir)
+  .ignore_auto_dir_rbuild(path_vec_dir)
   invisible(TRUE)
 }
 
-.projr_ignore_auto_build_quarto_ind <- function(fn) {
-  frontmatter_vec <- .projr_build_frontmatter_get(fn)
-  format <- .projr_build_copy_docs_quarto_format_get(frontmatter_vec)
-  fn_output_prefix <- .projr_build_copy_docs_quarto_fn_prefix_get(
+.ignore_auto_build_quarto_ind <- function(fn) {
+  frontmatter_vec <- .build_frontmatter_get(fn)
+  format <- .build_copy_docs_quarto_format_get(frontmatter_vec)
+  fn_output_prefix <- .build_copy_docs_quarto_fn_prefix_get(
     frontmatter_vec, fn
   )
-  .projr_build_copy_docs_quarto_path_get(format, fn_output_prefix)
+  .build_copy_docs_quarto_path_get(format, fn_output_prefix)
 }
 
 
@@ -372,15 +372,15 @@ projr_ignore_auto <- function() {
 # Ignore specified files/directories from specified paths
 # ===========================================================================
 
-.projr_ignore_auto_file_git <- function(ignore) {
+.ignore_auto_file_git <- function(ignore) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
-  .projr_ignore_auto_path_add(ignore, .path_get(".gitignore"))
+  .ignore_auto_path_add(ignore, .path_get(".gitignore"))
 }
 
-.projr_ignore_auto_dir_git <- function(ignore) {
+.ignore_auto_dir_git <- function(ignore) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
@@ -392,10 +392,10 @@ projr_ignore_auto <- function() {
       paste0(x, "/**")
     }
   }, character(1L))
-  .projr_ignore_auto_path_add(ignore, .path_get(".gitignore"))
+  .ignore_auto_path_add(ignore, .path_get(".gitignore"))
 }
 
-.projr_ignore_auto_file_rbuild <- function(ignore) {
+.ignore_auto_file_rbuild <- function(ignore) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
@@ -403,10 +403,10 @@ projr_ignore_auto <- function() {
   ignore <- gsub("/+$", "", ignore) |>
     trimws() |>
     utils::glob2rx()
-  .projr_ignore_auto_path_add(ignore, .path_get(".Rbuildignore"))
+  .ignore_auto_path_add(ignore, .path_get(".Rbuildignore"))
 }
 
-.projr_ignore_auto_dir_rbuild <- function(ignore) {
+.ignore_auto_dir_rbuild <- function(ignore) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
@@ -427,14 +427,14 @@ projr_ignore_auto <- function() {
     unlist()
 
   # Add the patterns to the .Rbuildignore file
-  .projr_ignore_auto_path_add(patterns, .path_get(".Rbuildignore"))
+  .ignore_auto_path_add(patterns, .path_get(".Rbuildignore"))
 }
 
 # ===========================================================================
 # Ignore specified lines from .gitignore/.Rbuildignore
 # ===========================================================================
 
-.projr_ignore_auto_path_add <- function(ignore, path) {
+.ignore_auto_path_add <- function(ignore, path) {
   # ensure that certain lines are present 
   # in the text file at the specified path
   # (e.g., .gitignore, .Rbuildignore)
@@ -444,14 +444,14 @@ projr_ignore_auto <- function() {
     return(invisible(FALSE))
   }
 
-  file_vec <- .projr_ignore_auto_path_add_get_updated(path, ignore, FALSE)
-  .projr_ignore_path_write(file_vec, path)
+  file_vec <- .ignore_auto_path_add_get_updated(path, ignore, FALSE)
+  .ignore_path_write(file_vec, path)
   invisible(TRUE)
 }
 
-.projr_ignore_auto_path_add_get_updated <- function(path, ignore, override) {
-  ignore_list <- .projr_ignore_path_get_list(path, ignore, override)
-  updated_content <- .projr_ignore_auto_path_get_updated_content(
+.ignore_auto_path_add_get_updated <- function(path, ignore, override) {
+  ignore_list <- .ignore_path_get_list(path, ignore, override)
+  updated_content <- .ignore_auto_path_get_updated_content(
     override, ignore, ignore_list[["content"]]
   )
 
@@ -465,7 +465,7 @@ projr_ignore_auto <- function() {
 
 
 # update the content of the specified file
-.projr_ignore_auto_path_get_updated_content <- function(override,
+.ignore_auto_path_get_updated_content <- function(override,
                                                         ignore,
                                                         content) {
   if (override) {

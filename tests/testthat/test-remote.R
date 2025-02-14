@@ -1,9 +1,9 @@
 # --------------------------
 # creating remotes
 # --------------------------
-test_that(".projr_remote_create works - local", {
+test_that(".remote_create works - local", {
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
   )
   usethis::with_project(
@@ -11,16 +11,16 @@ test_that(".projr_remote_create works - local", {
     code = {
       # local
       # --------------------------
-      path_dir_tmp_random <- .projr_test_dir_create_random(create = FALSE)
+      path_dir_tmp_random <- .test_dir_create_random(create = FALSE)
       withr::defer(unlink(path_dir_tmp_random, recursive = TRUE))
-      .projr_remote_create(type = "local", id = path_dir_tmp_random)
+      .remote_create(type = "local", id = path_dir_tmp_random)
       expect_true(dir.exists(path_dir_tmp_random))
       expect_true(
-        .projr_remote_check_exists(type = "local", id = path_dir_tmp_random)
+        .remote_check_exists(type = "local", id = path_dir_tmp_random)
       )
       unlink(path_dir_tmp_random, recursive = TRUE)
       expect_false(
-        .projr_remote_check_exists(
+        .remote_check_exists(
           type = "local", id = path_dir_tmp_random
         )
       )
@@ -28,12 +28,12 @@ test_that(".projr_remote_create works - local", {
   )
 })
 
-test_that(".projr_remote_create works - remote", {
+test_that(".remote_create works - remote", {
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
   usethis::with_project(
@@ -43,25 +43,25 @@ test_that(".projr_remote_create works - remote", {
       # --------------------------
 
       # project
-      id_parent <- .projr_test_osf_create_project("ProjectParent")
-      expect_true(.projr_remote_check_exists("osf", id_parent))
+      id_parent <- .test_osf_create_project("ProjectParent")
+      expect_true(.remote_check_exists("osf", id_parent))
       env <- environment()
-      .projr_osf_rm_node_id_defer(id_parent, env)
+      .osf_rm_node_id_defer(id_parent, env)
 
       # component
-      id_comp <- try(.projr_remote_create(
+      id_comp <- try(.remote_create(
         type = "osf", name = "CreateComp", id_parent = id_parent,
         category = "data"
       ))
-      expect_true(.projr_remote_check_exists("osf", id_comp))
-      .projr_osf_rm_node_id_defer(id_comp, env)
+      expect_true(.remote_check_exists("osf", id_comp))
+      .osf_rm_node_id_defer(id_comp, env)
 
       # github
       # --------------------------
-      tag_init <- .projr_test_random_string_get()
-      tag <- .projr_remote_create("github", id = tag_init)
+      tag_init <- .test_random_string_get()
+      tag <- .remote_create("github", id = tag_init)
       expect_true(
-        .projr_remote_check_exists("github", id = tag)
+        .remote_check_exists("github", id = tag)
       )
     }
   )
@@ -70,9 +70,9 @@ test_that(".projr_remote_create works - remote", {
 # --------------------------
 # getting remotes
 # --------------------------
-test_that(".projr_remote_get works - local", {
+test_that(".remote_get works - local", {
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
   )
   usethis::with_project(
@@ -81,19 +81,19 @@ test_that(".projr_remote_get works - local", {
       # local
       # --------------------------
       expect_identical(
-        .projr_remote_get("local", "a/b/c"),
+        .remote_get("local", "a/b/c"),
         "a/b/c"
       )
     }
   )
 })
 
-test_that(".projr_remote_get works - remote", {
+test_that(".remote_get works - remote", {
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
   usethis::with_project(
@@ -101,16 +101,16 @@ test_that(".projr_remote_get works - remote", {
     code = {
       # osf
       # --------------------------
-      id <- .projr_test_osf_create_project("ProjectParent")
+      id <- .test_osf_create_project("ProjectParent")
       expect_identical(
-        .projr_remote_get("osf", id)[["id"]],
+        .remote_get("osf", id)[["id"]],
         id
       )
 
       # github
       # --------------------------
       expect_identical(
-        .projr_remote_get("github", "abc"),
+        .remote_get("github", "abc"),
         c("tag" = "abc")
       )
     }
@@ -121,9 +121,9 @@ test_that(".projr_remote_get works - remote", {
 # get final remotes
 # --------------------------
 
-test_that(".projr_remote_get_final works - local", {
+test_that(".remote_get_final works - local", {
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
   )
   usethis::with_project(
@@ -132,7 +132,7 @@ test_that(".projr_remote_get_final works - local", {
       # local
       # --------------------------
       expect_identical(
-        .projr_remote_get_final(
+        .remote_get_final(
           "local",
           id = "a/b/c",
           path = NULL,
@@ -143,7 +143,7 @@ test_that(".projr_remote_get_final works - local", {
         "a/b/c"
       )
       expect_identical(
-        .projr_remote_get_final(
+        .remote_get_final(
           "local",
           id = "a/b/c",
           label = "raw-data",
@@ -156,12 +156,12 @@ test_that(".projr_remote_get_final works - local", {
   )
 })
 
-test_that(".projr_remote_get_final works", {
+test_that(".remote_get_final works", {
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
   usethis::with_project(
@@ -171,15 +171,15 @@ test_that(".projr_remote_get_final works", {
       # --------------------------
 
       # no sub-directory
-      id <- .projr_test_osf_create_project("ProjectParent")
+      id <- .test_osf_create_project("ProjectParent")
       expect_error(
-        .projr_remote_get_final(
+        .remote_get_final(
           "osf",
           id = id, path_append_label = TRUE
         )[["id"]]
       )
       expect_identical(
-        .projr_remote_get_final(
+        .remote_get_final(
           "osf",
           id = id, path_append_label = FALSE,
           structure = "latest"
@@ -189,9 +189,9 @@ test_that(".projr_remote_get_final works", {
 
       # sub-directory
       path_rel <- "a/raw-data/v0.0.0-1"
-      osf_tbl <- .projr_osf_mkdir(.projr_remote_get("osf", id), path_rel)
+      osf_tbl <- .osf_mkdir(.remote_get("osf", id), path_rel)
       expect_identical(
-        .projr_remote_get_final_osf(
+        .remote_get_final_osf(
           id = id,
           path = "a",
           path_append_label = TRUE,
@@ -204,7 +204,7 @@ test_that(".projr_remote_get_final works", {
       # github
       # --------------------------
       expect_identical(
-        .projr_remote_get_final(
+        .remote_get_final(
           "github",
           id = "kablumph", label = "raw-data", structure = "archive"
         ),
@@ -218,9 +218,9 @@ test_that(".projr_remote_get_final works", {
 # removing empty remotes
 # --------------------------
 
-test_that(".projr_remote_rm_final_if_empty works - local", {
+test_that(".remote_rm_final_if_empty works - local", {
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
   )
   usethis::with_project(
@@ -229,14 +229,14 @@ test_that(".projr_remote_rm_final_if_empty works - local", {
       # local
       # --------------------------
 
-      id <- .projr_remote_get_final(
+      id <- .remote_get_final(
         "local",
         id = "a/b/c", path_append_label = FALSE, structure = "latest"
       )
 
       # latest structure
       expect_false(
-        .projr_remote_rm_final_if_empty(
+        .remote_rm_final_if_empty(
           "local",
           remote = id, structure = "latest"
         )
@@ -244,14 +244,14 @@ test_that(".projr_remote_rm_final_if_empty works - local", {
       expect_true(dir.exists(id))
 
       # versioned structure
-      id <- .projr_remote_get_final(
+      id <- .remote_get_final(
         "local",
         id = "a/b/c", path_append_label = FALSE, structure = "archive"
       )
 
       # will remove now
       expect_true(
-        .projr_remote_rm_final_if_empty(
+        .remote_rm_final_if_empty(
           "local",
           remote = id, structure = "archive"
         )
@@ -259,7 +259,7 @@ test_that(".projr_remote_rm_final_if_empty works - local", {
       expect_false(dir.exists(id))
 
       # won't remove if there are contents
-      id <- .projr_remote_get_final(
+      id <- .remote_get_final(
         "local",
         id = "a/b/c", path_append_label = FALSE, structure = "archive"
       )
@@ -267,7 +267,7 @@ test_that(".projr_remote_rm_final_if_empty works - local", {
 
       # will remove now
       expect_false(
-        .projr_remote_rm_final_if_empty(
+        .remote_rm_final_if_empty(
           "local",
           remote = id, structure = "archive"
         )
@@ -277,11 +277,11 @@ test_that(".projr_remote_rm_final_if_empty works - local", {
   )
 })
 
-test_that(".projr_remote_rm_final_if_empty works - remote", {
+test_that(".remote_rm_final_if_empty works - remote", {
   skip_if_offline()
   skip_if(.is_test_select())
   skip_on_cran()
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
   usethis::with_project(
@@ -291,62 +291,62 @@ test_that(".projr_remote_rm_final_if_empty works - remote", {
       # --------------------------
 
       # create node
-      id <- .projr_test_osf_create_project("Project")
-      osf_tbl <- .projr_remote_get("osf", id)
+      id <- .test_osf_create_project("Project")
+      osf_tbl <- .remote_get("osf", id)
 
       # when we pass the node rather than sub-dir
       expect_false(
-        .projr_remote_rm_final_if_empty(
+        .remote_rm_final_if_empty(
           "osf",
           remote = osf_tbl, structure = "archive"
         )
       )
 
       # create the sub-directory
-      osf_tbl_file <- .projr_remote_get_final(
+      osf_tbl_file <- .remote_get_final(
         "osf",
         id = id, path_append_label = FALSE, structure = "archive"
       )
 
       # remove it again
       expect_true(
-        .projr_remote_rm_final_if_empty(
+        .remote_rm_final_if_empty(
           "osf",
           remote = osf_tbl_file, structure = "archive"
         )
       )
-      is_zero <- (.projr_osf_ls_files(osf_tbl) |> nrow()) == 0L
+      is_zero <- (.osf_ls_files(osf_tbl) |> nrow()) == 0L
       n_sec <- 0
       start_time <- proc.time()[3]
       while (!is_zero && n_sec < 15) {
         Sys.sleep(3)
-        is_zero <- (.projr_osf_ls_files(osf_tbl) |> nrow()) == 0L
+        is_zero <- (.osf_ls_files(osf_tbl) |> nrow()) == 0L
         n_sec <- proc.time()[3] - start_time
       }
       expect_true(is_zero)
 
 
       # create the sub-directory, and upload to it
-      osf_tbl_file <- .projr_remote_get_final(
+      osf_tbl_file <- .remote_get_final(
         "osf",
         id = id, path_append_label = FALSE, structure = "archive"
       )
       invisible(file.create("abc.txt"))
-      .projr_osf_upload(x = osf_tbl_file, path = "abc.txt")
+      .osf_upload(x = osf_tbl_file, path = "abc.txt")
 
       # try to remove it, check that it isn't
       expect_false(
-        .projr_remote_rm_final_if_empty(
+        .remote_rm_final_if_empty(
           "osf",
           remote = osf_tbl_file, structure = "archive"
         )
       )
-      expect_identical(.projr_osf_ls_files(osf_tbl) |> nrow(), 1L)
+      expect_identical(.osf_ls_files(osf_tbl) |> nrow(), 1L)
 
       # github
       # --------------------------
       expect_false(
-        .projr_remote_rm_final_if_empty("github", FALSE)
+        .remote_rm_final_if_empty("github", FALSE)
       )
     }
   )
@@ -356,9 +356,9 @@ test_that(".projr_remote_rm_final_if_empty works - remote", {
 # removing all contents of a remote
 # --------------------------
 
-test_that(".projr_remote_file_rm_all works - local", {
+test_that(".remote_file_rm_all works - local", {
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
   )
   usethis::with_project(
@@ -369,16 +369,16 @@ test_that(".projr_remote_file_rm_all works - local", {
       # does not exist
       path_dir_random <- file.path(tempdir(), "random_path_1234i3rknlasdfo")
       expect_false(
-        .projr_remote_file_rm_all(
+        .remote_file_rm_all(
           "local",
           remote = path_dir_random
         )
       )
 
       # has content
-      path_dir <- .projr_test_setup_content_dir()
+      path_dir <- .test_setup_content_dir()
       expect_true(
-        .projr_remote_file_rm_all(
+        .remote_file_rm_all(
           "local",
           remote = path_dir
         )
@@ -390,12 +390,12 @@ test_that(".projr_remote_file_rm_all works - local", {
   )
 })
 
-test_that(".projr_remote_file_rm_all works - remote", {
+test_that(".remote_file_rm_all works - remote", {
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
   usethis::with_project(
@@ -405,48 +405,48 @@ test_that(".projr_remote_file_rm_all works - remote", {
       # --------------------------
 
       # create node
-      id <- .projr_test_osf_create_project("Project")
-      osf_tbl <- .projr_remote_get("osf", id)
+      id <- .test_osf_create_project("Project")
+      osf_tbl <- .remote_get("osf", id)
 
       # when empty
       expect_false(
-        .projr_remote_file_rm_all(
+        .remote_file_rm_all(
           "osf",
           remote = osf_tbl
         )
       )
 
       # clear content
-      osf_tbl_sub_a <- .projr_osf_mkdir(osf_tbl, path = "a")
-      osf_tbl_sub_b <- .projr_osf_mkdir(osf_tbl, path = "a/b")
+      osf_tbl_sub_a <- .osf_mkdir(osf_tbl, path = "a")
+      osf_tbl_sub_b <- .osf_mkdir(osf_tbl, path = "a/b")
       path_tmp_file <- file.path(tempdir(), "abc.txt")
       file.create(path_tmp_file)
-      .projr_osf_upload(
+      .osf_upload(
         x = osf_tbl, path = path_tmp_file, conflicts = "overwrite"
       )
-      .projr_osf_upload(
+      .osf_upload(
         x = osf_tbl_sub_a, path = path_tmp_file,
         conflicts = "overwrite"
       )
-      .projr_osf_upload(
+      .osf_upload(
         x = osf_tbl_sub_b, path = path_tmp_file,
         conflicts = "overwrite"
       )
       expect_true(
-        .projr_remote_file_rm_all(
+        .remote_file_rm_all(
           "osf",
           remote = osf_tbl
         )
       )
-      expect_true(nrow(.projr_osf_ls_files(osf_tbl)) == 0L)
+      expect_true(nrow(.osf_ls_files(osf_tbl)) == 0L)
 
       # github
       # --------------------------
-      id <- .projr_remote_create("github", id = "abc")
+      id <- .remote_create("github", id = "abc")
       Sys.sleep(3)
       path_tmp_file <- file.path(tempdir(), "abc.txt")
       file.create(path_tmp_file)
-      path_zip <- .projr_zip_file(
+      path_zip <- .zip_file(
         fn_rel = basename(path_tmp_file),
         path_dir_fn_rel = dirname(path_tmp_file),
         fn_rel_zip = "abc.zip"
@@ -456,7 +456,7 @@ test_that(".projr_remote_file_rm_all works - remote", {
       content_tbl_pre_delete <- piggyback::pb_list(tag = id)
       expect_identical(nrow(content_tbl_pre_delete), 1L)
       remote_github <- c("tag" = id, fn = basename(path_zip))
-      .projr_remote_file_rm_all(
+      .remote_file_rm_all(
         "github",
         remote = remote_github
       )
@@ -473,7 +473,7 @@ test_that(".projr_remote_file_rm_all works - remote", {
 
 test_that("adding, tallying and removing files from remotes works - local", {
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
   )
   usethis::with_project(
@@ -484,7 +484,7 @@ test_that("adding, tallying and removing files from remotes works - local", {
       # empty
       path_dir_random <- .dir_create_tmp_random()
       expect_identical(
-        .projr_remote_file_ls(
+        .remote_file_ls(
           "local",
           remote = path_dir_random
         ),
@@ -493,26 +493,26 @@ test_that("adding, tallying and removing files from remotes works - local", {
 
 
       # has content
-      path_dir_source <- .projr_test_setup_content_dir()
-      fn_vec_source <- .projr_remote_file_ls("local", path_dir_source)
+      path_dir_source <- .test_setup_content_dir()
+      fn_vec_source <- .remote_file_ls("local", path_dir_source)
       path_dir_dest <- .dir_create_tmp_random()
-      .projr_remote_file_add(
+      .remote_file_add(
         "local",
         fn = fn_vec_source,
         path_dir_local = path_dir_source,
         remote = path_dir_dest
       )
       expect_identical(
-        .projr_remote_file_ls("local", path_dir_dest),
+        .remote_file_ls("local", path_dir_dest),
         fn_vec_source
       )
 
       # remove some content
-      fn_vec_dest_orig <- .projr_remote_file_ls("local", path_dir_dest)
+      fn_vec_dest_orig <- .remote_file_ls("local", path_dir_dest)
       fn_vec_rm <- c("abc.txt", "subdir1/def.txt")
-      .projr_remote_file_rm("local", fn = fn_vec_rm, remote = path_dir_dest)
+      .remote_file_rm("local", fn = fn_vec_rm, remote = path_dir_dest)
       expect_identical(
-        .projr_remote_file_ls(
+        .remote_file_ls(
           "local",
           remote = path_dir_dest
         ),
@@ -529,7 +529,7 @@ test_that("adding, tallying and removing files from remotes works - osf", {
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
   )
   usethis::with_project(
@@ -539,12 +539,12 @@ test_that("adding, tallying and removing files from remotes works - osf", {
       # --------------------------
 
       # create node
-      id <- .projr_test_osf_create_project("Project")
-      osf_tbl <- .projr_remote_get("osf", id)
+      id <- .test_osf_create_project("Project")
+      osf_tbl <- .remote_get("osf", id)
 
       # when empty
       expect_identical(
-        .projr_remote_file_ls(
+        .remote_file_ls(
           "osf",
           remote = osf_tbl
         ),
@@ -552,28 +552,28 @@ test_that("adding, tallying and removing files from remotes works - osf", {
       )
 
       # with content
-      path_dir_source <- .projr_test_setup_content_dir()
-      fn_vec_source <- .projr_remote_file_ls("local", path_dir_source)
+      path_dir_source <- .test_setup_content_dir()
+      fn_vec_source <- .remote_file_ls("local", path_dir_source)
       path_dir_dest <- .dir_create_tmp_random()
-      .projr_remote_file_add(
+      .remote_file_add(
         "osf",
         fn = fn_vec_source,
         path_dir_local = path_dir_source,
         remote = osf_tbl
       )
       expect_identical(
-        .projr_remote_file_ls("osf", osf_tbl),
+        .remote_file_ls("osf", osf_tbl),
         fn_vec_source
       )
 
       # remove some content
-      fn_vec_orig_osf <- .projr_remote_file_ls("osf", osf_tbl)
+      fn_vec_orig_osf <- .remote_file_ls("osf", osf_tbl)
       fn_vec_rm <- c("abc.txt", "subdir1/def.txt")
       expect_true(
-        .projr_remote_file_rm("osf", fn = fn_vec_rm, remote = osf_tbl)
+        .remote_file_rm("osf", fn = fn_vec_rm, remote = osf_tbl)
       )
       expect_identical(
-        .projr_remote_file_ls(
+        .remote_file_ls(
           "osf",
           remote = osf_tbl
         ),
@@ -589,7 +589,7 @@ test_that("adding, tallying and removing files from remotes works - github", {
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
   usethis::with_project(
@@ -598,16 +598,16 @@ test_that("adding, tallying and removing files from remotes works - github", {
       # github
       # --------------------------
       # create release
-      id <- .projr_test_random_string_get()
-      remote <- .projr_remote_get_final(
+      id <- .test_random_string_get()
+      remote <- .remote_get_final(
         "github",
         id = id, label = "raw-data", structure = "latest"
       )
-      .projr_remote_create("github", remote[["tag"]])
+      .remote_create("github", remote[["tag"]])
 
       # when empty
       expect_identical(
-        .projr_remote_file_ls(
+        .remote_file_ls(
           "github",
           remote = remote
         ),
@@ -615,32 +615,32 @@ test_that("adding, tallying and removing files from remotes works - github", {
       )
 
       # with content
-      path_dir_source <- .projr_test_setup_content_dir()
-      remote <- stats::setNames(.projr_test_random_string_get(), "tag")
+      path_dir_source <- .test_setup_content_dir()
+      remote <- stats::setNames(.test_random_string_get(), "tag")
       remote <- remote |> c(c("fn" = "raw-data.zip"))
-      fn_vec <- .projr_remote_file_ls("local", path_dir_source)
-      .projr_remote_file_add(
+      fn_vec <- .remote_file_ls("local", path_dir_source)
+      .remote_file_add(
         "github",
         fn = fn_vec, path_dir_local = path_dir_source, remote = remote
       )
       path_dir_save <- .dir_create_tmp_random()
-      .projr_remote_file_get_all(
+      .remote_file_get_all(
         "github",
         remote = remote, path_dir_save_local = path_dir_save
       )
       expect_identical(
-        .projr_remote_file_ls("local", path_dir_save),
+        .remote_file_ls("local", path_dir_save),
         fn_vec
       )
 
       # remove some content
-      fn_vec_orig_github <- .projr_remote_file_ls("github", remote)
+      fn_vec_orig_github <- .remote_file_ls("github", remote)
       fn_vec_rm <- c("abc.txt", "subdir1/def.txt")
       expect_true(
-        .projr_remote_file_rm("github", fn = fn_vec_rm, remote = remote)
+        .remote_file_rm("github", fn = fn_vec_rm, remote = remote)
       )
       expect_identical(
-        .projr_remote_file_ls("github", remote),
+        .remote_file_ls("github", remote),
         setdiff(fn_vec_orig_github, fn_vec_rm)
       )
     }

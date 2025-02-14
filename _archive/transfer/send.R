@@ -1,4 +1,4 @@
-.projr_send <- function(bump_component,
+.send <- function(bump_component,
                         id,
                         structure,
                         content,
@@ -11,13 +11,13 @@
                         component) {
   # whether to run or not
   switch(remote_type,
-    "osf" = .projr_send_osf(
+    "osf" = .send_osf(
       path_dir_local = path_dir_local,
       osf_tbl = dest,
       conflict = conflict,
       sub_dir = sub_dir
     ),
-    "local" = .projr_send_local(
+    "local" = .send_local(
       path_dir_local = path_dir_local,
       path_dir_local_dest = dest,
       conflict = conflict,
@@ -29,15 +29,15 @@
 # send where we decide what to send based on version
 # ---------------------------
 
-.projr_send_version <- function(label,
+.send_version <- function(label,
                                 bump_component,
                                 remote_type,
                                 remote_base = NULL,
                                 remote_final = NULL,
                                 path_remote_rel = NULL,
                                 inspect) {
-  output_run <- .projr_run_output_check(bump_component)
-  change_list <- .projr_change_get(
+  output_run <- .run_output_check(bump_component)
+  change_list <- .change_get(
     label = label,
     remote_base = remote_base,
     remote_final = remote_final,
@@ -45,16 +45,16 @@
     remote_type = remote_type,
     inspect = inspect
   )
-  .projr_send_file(
+  .send_file(
     fn_rel = change_list[["add"]],
-    path_dir_local = projr::projr_dir_get(),
+    path_dir_local = projr:.dir_get(),
     dest = dest,
     remote_type = remote_type,
     conflict = conflict
   )
 }
 
-.projr_change_get_file_remote <- function(path_dir_local,
+.change_get_file_remote <- function(path_dir_local,
                                           label = NULL,
                                           bump_component = NULL,
                                           remote_type,
@@ -64,7 +64,7 @@
   # download from remote, returns directory where it
   # downloads to
   path_dir_local_from_remote <- switch(remote_type,
-    "local" = .projr_get_dir_local(
+    "local" = .get_dir_local(
       label = label, bump_component = bump_component
     ),
     "osf" = NULL
@@ -75,17 +75,17 @@
 # utility functions
 # --------------------------
 
-.projr_send_dir <- function(path_dir_local,
+.send_dir <- function(path_dir_local,
                             dest,
                             remote_type,
                             conflict = "overwrite") {
   switch(remote_type,
-    "local" = .projr_local_send_dir(
+    "local" = .local_send_dir(
       path_dir_local = path_dir_local,
       path_dir_local_dest = dest,
       conflict = conflict
     ),
-    "osf" = .projr_osf_send_dir(
+    "osf" = .osf_send_dir(
       path_dir_local = path_dir_local,
       osf_tbl = dest,
       conflict = conflict
@@ -93,19 +93,19 @@
   )
 }
 
-.projr_send_file <- function(fn_rel,
+.send_file <- function(fn_rel,
                              path_dir_local,
                              dest,
                              remote_type,
                              conflict) {
   switch(remote_type,
-    "local" = .projr_local_send_file(
+    "local" = .local_send_file(
       fn_rel = fn_rel,
       path_dir_local = path_dir_local,
       path_dir_local_dest = dest,
       conflict = conflict
     ),
-    "osf" = .projr_osf_send_file(
+    "osf" = .osf_send_file(
       fn_rel = fn_rel,
       path_dir_local = path_dir_local,
       osf_tbl = dest,

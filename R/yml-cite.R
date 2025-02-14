@@ -7,7 +7,7 @@
 #'
 #' @description
 #'
-#' `projr_yml_cite_set` sets the citation options in `_projr.yml`.
+#' .yml_cite_set` sets the citation options in `_projr.yml`.
 #'
 #' The options are:
 #' \itemize{
@@ -29,7 +29,7 @@
 #' then the default is to generate a codemeta.json file,
 #' a CITATION.cff file and a CITATION file in the inst/ directory.
 #'
-#' `projr_yml_cite_set_default` sets all citation options to default (`TRUE`).
+#' .yml_cite_set_default` sets all citation options to default (`TRUE`).
 #'
 #' @param all logical.
 #' Whether to set all the options
@@ -61,16 +61,16 @@
 #' @examples
 #' \dontrun{
 #' # set all to TRUE
-#' projr_yml_cite_set(all = TRUE)
+#'.yml_cite_set(all = TRUE)
 #'
 #' # set all to FALSE
-#' projr_yml_cite_set(all = FALSE)
+#'.yml_cite_set(all = FALSE)
 #'
 #' # set only cff to FALSE
-#' projr_yml_cite_set(cff = FALSE)
+#'.yml_cite_set(cff = FALSE)
 #'
 #' # revert to defaults
-#' projr_yml_cite_set_default()
+#'.yml_cite_set_default()
 #' }
 #'
 projr_yml_cite_set <- function(all = NULL,
@@ -80,7 +80,7 @@ projr_yml_cite_set <- function(all = NULL,
                                simplify_identical = TRUE,
                                simplify_default = TRUE,
                                profile = "default") {
-  .projr_yml_cite_set_check(
+  .yml_cite_set_check(
     all = all, codemeta = codemeta, cff = cff,
     inst_citation = inst_citation, profile = profile,
     simplify_identical = simplify_identical,
@@ -93,15 +93,15 @@ projr_yml_cite_set <- function(all = NULL,
     inst_citation <- all
   }
 
-  .projr_yml_cite_set_ind(
+  .yml_cite_set_ind(
     codemeta = codemeta, cff = cff, inst_citation = inst_citation,
     profile = profile, simplify_default = simplify_default
   )
 
-  .projr_yml_cite_simplify(simplify_identical, simplify_default, profile)
+  .yml_cite_simplify(simplify_identical, simplify_default, profile)
 }
 
-.projr_yml_cite_set_check <- function(all,
+.yml_cite_set_check <- function(all,
                                       codemeta,
                                       cff,
                                       inst_citation,
@@ -120,19 +120,19 @@ projr_yml_cite_set <- function(all = NULL,
   .assert_string(profile)
 }
 
-.projr_yml_cite_set_ind <- function(codemeta,
+.yml_cite_set_ind <- function(codemeta,
                                     cff,
                                     inst_citation,
                                     profile,
                                     simplify_default) {
   if (!is.null(codemeta)) {
-    .projr_yml_cite_set_codemeta(codemeta, simplify_default, profile)
+    .yml_cite_set_codemeta(codemeta, simplify_default, profile)
   }
   if (!is.null(cff)) {
-    .projr_yml_cite_set_cff(cff, simplify_default, profile)
+    .yml_cite_set_cff(cff, simplify_default, profile)
   }
   if (!is.null(inst_citation)) {
-    .projr_yml_cite_set_inst_citation(inst_citation, simplify_default, profile)
+    .yml_cite_set_inst_citation(inst_citation, simplify_default, profile)
   }
 }
 
@@ -141,68 +141,68 @@ projr_yml_cite_set <- function(all = NULL,
 projr_yml_cite_set_default <- function(profile = "default",
                                        simplify_identical = TRUE,
                                        simplify_default = TRUE) {
-  projr_yml_cite_set(
+ .yml_cite_set(
     all = TRUE, profile = profile,
     simplify_identical = simplify_identical,
     simplify_default = simplify_default
   )
 }
 
-.projr_yml_cite_set_codemeta <- function(codemeta,
+.yml_cite_set_codemeta <- function(codemeta,
                                          simplify_default,
                                          profile) {
-  codemeta_pre <- .projr_yml_cite_get_codemeta(profile = profile)
+  codemeta_pre <- .yml_cite_get_codemeta(profile = profile)
   if (all(c(codemeta_pre, codemeta)) && simplify_default) {
     return(invisible(FALSE))
   }
-  .projr_yml_cite_set_mix(list("codemeta" = codemeta), profile)
+  .yml_cite_set_mix(list("codemeta" = codemeta), profile)
   invisible(TRUE)
 }
 
-.projr_yml_cite_get_codemeta <- function(profile) {
-  .projr_yml_cite_get_opt("codemeta", profile)
+.yml_cite_get_codemeta <- function(profile) {
+  .yml_cite_get_opt("codemeta", profile)
 }
 
-.projr_yml_cite_set_mix <- function(cite_list_single, profile) {
-  .projr_yml_cite_get_combn_with_written(
+.yml_cite_set_mix <- function(cite_list_single, profile) {
+  .yml_cite_get_combn_with_written(
     cite_list_single, profile
   ) |>
-    .projr_yml_cite_get_ordered() |>
-    .projr_yml_cite_set(profile)
+    .yml_cite_get_ordered() |>
+    .yml_cite_set(profile)
 }
 
-.projr_yml_cite_get_combn_with_written <- function(cite_list_single,
+.yml_cite_get_combn_with_written <- function(cite_list_single,
                                                    profile) {
-  yml_cite <- .projr_yml_cite_get(profile)
+  yml_cite <- .yml_cite_get(profile)
   cite_list_single |> append(
     yml_cite[setdiff(names(yml_cite), names(cite_list_single))]
   )
 }
 
-.projr_yml_cite_get_ordered <- function(yml_cite) {
+.yml_cite_get_ordered <- function(yml_cite) {
   nm_vec_actual <- names(yml_cite)
   nm_vec_possible <- c("codemeta", "cff", "inst-citation")
   nm_vec_ordered <- nm_vec_possible[nm_vec_possible %in% nm_vec_actual]
   yml_cite[nm_vec_ordered]
 }
 
-.projr_yml_cite_set_cff <- function(cff,
+.yml_cite_set_cff <- function(cff,
                                     simplify_default,
                                     profile) {
-  cff_pre <- .projr_yml_cite_get_cff(profile = profile)
+  cff_pre <- .yml_cite_get_cff(profile = profile)
   if (all(c(cff_pre, cff)) && simplify_default) {
     return(invisible(FALSE))
   }
-  .projr_yml_cite_set_mix(list("cff" = cff), profile)
+  .yml_cite_set_mix(list("cff" = cff), profile)
   invisible(TRUE)
 }
 
-.projr_yml_cite_get_cff <- function(profile) {
-  .projr_yml_cite_get_opt("cff", profile)
+.yml_cite_get_cff <- function(profile) {
+  .yml_cite_get_opt("cff", profile)
 }
 
-.projr_yml_cite_get_opt <- function(opt, profile) {
-  yml_cite <- .projr_yml_cite_get(profile)
+.yml_cite_get_opt <- function(opt, profile) {
+  yml_cite <- .yml_cite_get(profile)
   if (is.null(yml_cite) || isTRUE(yml_cite)) {
     return(TRUE)
   }
@@ -215,69 +215,69 @@ projr_yml_cite_set_default <- function(profile = "default",
   yml_cite[[opt]]
 }
 
-.projr_yml_cite_set_inst_citation <- function(inst_citation,
+.yml_cite_set_inst_citation <- function(inst_citation,
                                               simplify_default,
                                               profile) {
-  inst_citation_pre <- .projr_yml_cite_get_inst_citation(profile = profile)
+  inst_citation_pre <- .yml_cite_get_inst_citation(profile = profile)
   if (all(c(inst_citation_pre, inst_citation)) && simplify_default) {
     return(invisible(FALSE))
   }
-  .projr_yml_cite_set_mix(list("inst-citation" = inst_citation), profile)
+  .yml_cite_set_mix(list("inst-citation" = inst_citation), profile)
   invisible(TRUE)
 }
 
-.projr_yml_cite_get_inst_citation <- function(profile) {
-  .projr_yml_cite_get_opt("inst-citation", profile)
+.yml_cite_get_inst_citation <- function(profile) {
+  .yml_cite_get_opt("inst-citation", profile)
 }
 
-.projr_yml_cite_get <- function(profile) {
-  init_list <- .projr_yml_get(profile)[["build"]][["cite"]]
+.yml_cite_get <- function(profile) {
+  init_list <- .yml_get(profile)[["build"]][["cite"]]
   if (length(init_list) == 0L) {
     return(NULL)
   }
   init_list
 }
 
-.projr_yml_cite_set <- function(yml_cite, profile = NULL) {
-  .projr_yml_build_set_nm(yml_cite, "cite", profile)
+.yml_cite_set <- function(yml_cite, profile = NULL) {
+  .yml_build_set_nm(yml_cite, "cite", profile)
 }
 
-.projr_yml_cite_simplify <- function(simplify_identical,
+.yml_cite_simplify <- function(simplify_identical,
                                      simplify_default,
                                      profile) {
-  .projr_yml_cite_simplify_identical(simplify_identical, profile)
-  .projr_yml_cite_simplify_default(simplify_default, profile)
+  .yml_cite_simplify_identical(simplify_identical, profile)
+  .yml_cite_simplify_default(simplify_default, profile)
 }
 
-.projr_yml_cite_simplify_identical <- function(simplify_identical,
+.yml_cite_simplify_identical <- function(simplify_identical,
                                                profile) {
   if (!simplify_identical) {
     return(invisible(FALSE))
   }
 
-  codemeta <- .projr_yml_cite_get_codemeta(profile)
-  cff <- .projr_yml_cite_get_cff(profile)
-  inst_citation <- .projr_yml_cite_get_inst_citation(profile)
+  codemeta <- .yml_cite_get_codemeta(profile)
+  cff <- .yml_cite_get_cff(profile)
+  inst_citation <- .yml_cite_get_inst_citation(profile)
   if (all(c(codemeta, cff, inst_citation))) {
-    .projr_yml_cite_set(TRUE, profile)
+    .yml_cite_set(TRUE, profile)
   } else if (!any(c(codemeta, cff, inst_citation))) {
-    .projr_yml_cite_set(FALSE, profile)
+    .yml_cite_set(FALSE, profile)
   }
 
   invisible(TRUE)
 }
 
-.projr_yml_cite_simplify_default <- function(simplify_default,
+.yml_cite_simplify_default <- function(simplify_default,
                                              profile) {
   if (!simplify_default) {
     return(invisible(FALSE))
   }
 
-  codemeta <- .projr_yml_cite_get_codemeta(profile)
-  cff <- .projr_yml_cite_get_cff(profile)
-  inst_citation <- .projr_yml_cite_get_inst_citation(profile)
+  codemeta <- .yml_cite_get_codemeta(profile)
+  cff <- .yml_cite_get_cff(profile)
+  inst_citation <- .yml_cite_get_inst_citation(profile)
   if (all(c(codemeta, cff, inst_citation))) {
-    .projr_yml_cite_set(NULL, profile)
+    .yml_cite_set(NULL, profile)
   }
 
   invisible(TRUE)

@@ -1,4 +1,4 @@
-.projr_yml_remote_check <- function(role,
+.yml_remote_check <- function(role,
                                     type,
                                     title = NULL,
                                     content = NULL,
@@ -17,17 +17,17 @@
   .assert_string(role, TRUE)
   .assert_string(type, TRUE)
   content_opt <- switch(type,
-    "github" = .projr_opt_dir_get_label_send(NULL) |> c("code"),
-    .projr_opt_dir_get_label_send(NULL)
+    "github" = .opt_dir_get_label_send(NULL) |> c("code"),
+    .opt_dir_get_label_send(NULL)
   ) |>
     unique()
-  .assert_in(content, .projr_opt_dir_get_label_send(NULL), TRUE)
-  .assert_in(structure, .projr_opt_remote_get_structure())
+  .assert_in(content, .opt_dir_get_label_send(NULL), TRUE)
+  .assert_in(structure, .opt_remote_get_structure())
   .assert_string(path, type == "local")
   .assert_flag(path_append_label)
   .assert_flag(overwrite, TRUE)
   .assert_flag(public, type == "osf")
-  .assert_in(category, .projr_opt_remote_get_osf_cat(), type == "osf")
+  .assert_in(category, .opt_remote_get_osf_cat(), type == "osf")
   .assert_string(description)
   .assert_string(id)
   .assert_nchar_single(id, 5L)
@@ -37,22 +37,22 @@
   if (.is_len_pos(get_list)) {
     .assert_in(names(get_list), c("strategy", "conflict"))
     .assert_in(
-      get_list[["strategy"]], .projr_opt_remote_strategy_get()
+      get_list[["strategy"]], .opt_remote_strategy_get()
     )
     .assert_in(
-      get_list[["conflict"]], .projr_opt_remote_conflict_get()
+      get_list[["conflict"]], .opt_remote_conflict_get()
     )
   }
   .assert_class_exact(send_list, "list")
   if (.is_len_pos(send_list)) {
-    .assert_in(names(send_list), .projr_opt_remote_transfer_names_get())
-    .assert_in(send_list[["cue"]], .projr_opt_cue_get())
+    .assert_in(names(send_list), .opt_remote_transfer_names_get())
+    .assert_in(send_list[["cue"]], .opt_cue_get())
     .assert_in(
-      send_list[["strategy"]], .projr_opt_remote_strategy_get()
+      send_list[["strategy"]], .opt_remote_strategy_get()
     )
-    .assert_in(send_list[["conflict"]], .projr_opt_remote_conflict_get())
+    .assert_in(send_list[["conflict"]], .opt_remote_conflict_get())
     .assert_in(
-      send_list[["inspect"]], .projr_opt_remote_inspect_get()
+      send_list[["inspect"]], .opt_remote_inspect_get()
     )
   }
   invisible(TRUE)

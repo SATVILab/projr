@@ -1,32 +1,32 @@
-test_that("projr_build_output works - github - latest", {
+test_that(.build_output works - github - latest", {
   skip_if(.is_test_select())
   skip_if(.is_test_fast())
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
     code = {
       # initialse `projr` project
-      projr_init()
+     .init()
       # remove remotes
-      .projr_test_yml_unset_remote()
-      .projr_yml_git_set_commit(TRUE, TRUE, NULL)
-      .projr_yml_git_set_add_untracked(TRUE, TRUE, NULL)
-      .projr_yml_git_set_push(FALSE, TRUE, NULL)
-      projr_build_output("patch", msg = "test")
-      projr_version_get()
-      expect_identical(projr_version_get(), "0.0.1")
-      yml_bd <- .projr_yml_bd_get()
+      .test_yml_unset_remote()
+      .yml_git_set_commit(TRUE, TRUE, NULL)
+      .yml_git_set_add_untracked(TRUE, TRUE, NULL)
+      .yml_git_set_push(FALSE, TRUE, NULL)
+     .build_output("patch", msg = "test")
+     .version_get()
+      expect_identical.version_get(), "0.0.1")
+      yml_bd <- .yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "_book")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
       # run repeat build
-      projr_build_output("minor", msg = "test")
-      expect_identical(projr_version_get(), "0.1.0")
+     .build_output("minor", msg = "test")
+      expect_identical.version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
       # raw-data and source are empty
-      projr_yml_dest_add_github(
+     .yml_dest_add_github(
         title = "Raw data",
         content = "raw-data",
         structure = "latest"
@@ -34,18 +34,18 @@ test_that("projr_build_output works - github - latest", {
 
       # handle nothing to send
       # ---------------------
-      projr_build_patch(msg = "Vat are you vinking about")
-      release_tbl <- .projr_pb_release_tbl_get()
+     .build_patch(msg = "Vat are you vinking about")
+      release_tbl <- .pb_release_tbl_get()
       expect_true(nrow(release_tbl) == 0L)
 
       # handle something to upload
       # ---------------------
 
-      .projr_test_setup_content("raw-data")
-      projr_build_patch(msg = "Ze data")
-      release_tbl <- .projr_pb_release_tbl_get()
+      .test_setup_content("raw-data")
+     .build_patch(msg = "Ze data")
+      release_tbl <- .pb_release_tbl_get()
       expect_true(nrow(release_tbl) == 1L)
-      fn_vec <- .projr_remote_file_ls(
+      fn_vec <- .remote_file_ls(
         "github",
         remote = c("tag" = "Raw-data", fn = "raw-data.zip")
       )
@@ -55,10 +55,10 @@ test_that("projr_build_output works - github - latest", {
 
       # expect no change
       # ----------------------
-      projr_build_patch(msg = "I love zis data")
-      release_tbl <- .projr_pb_release_tbl_get()
+     .build_patch(msg = "I love zis data")
+      release_tbl <- .pb_release_tbl_get()
       expect_true(nrow(release_tbl) == 1L)
-      fn_vec <- .projr_remote_file_ls(
+      fn_vec <- .remote_file_ls(
         "github",
         remote = c("tag" = "Raw-data", fn = "raw-data.zip")
       )
@@ -67,8 +67,8 @@ test_that("projr_build_output works - github - latest", {
       # add something
       # ----------------------
       file.create("_raw_data/add.txt")
-      projr_build_patch(msg = "More data")
-      fn_vec <- .projr_remote_file_ls(
+     .build_patch(msg = "More data")
+      fn_vec <- .remote_file_ls(
         "github",
         remote = c("tag" = "Raw-data", fn = "raw-data.zip")
       )
@@ -78,8 +78,8 @@ test_that("projr_build_output works - github - latest", {
 
       # do nothing again
       # ----------------------
-      projr_build_patch(msg = "I love zis data")
-      fn_vec <- .projr_remote_file_ls(
+     .build_patch(msg = "I love zis data")
+      fn_vec <- .remote_file_ls(
         "github",
         remote = c("tag" = "Raw-data", fn = "raw-data.zip")
       )
@@ -89,8 +89,8 @@ test_that("projr_build_output works - github - latest", {
       # remove something
       # ----------------------
       file.remove("_raw_data/add.txt")
-      projr_build_patch(msg = "Less data")
-      fn_vec <- .projr_remote_file_ls(
+     .build_patch(msg = "Less data")
+      fn_vec <- .remote_file_ls(
         "github",
         remote = c("tag" = "Raw-data", fn = "raw-data.zip")
       )

@@ -5,23 +5,23 @@
 #' `.gitignore` and `.Rbuildignore` files, outside of the automatic management 
 #' provided by the `projr` package.
 #'
-#' - `projr_ignore_manual`: General function to add both files and directories 
+#' - .ignore_manual`: General function to add both files and directories 
 #'   to both `.gitignore` and `.Rbuildignore`. If a path does not exist, it is 
 #'   treated as a file.
-#' - `projr_ignore_manual_dir`: Specifically adds directories to both `.gitignore` 
+#' - .ignore_manual_dir`: Specifically adds directories to both `.gitignore` 
 #'   and `.Rbuildignore`.
-#' - `projr_ignore_manual_file`: Specifically adds files to both `.gitignore` 
+#' - .ignore_manual_file`: Specifically adds files to both `.gitignore` 
 #'   and `.Rbuildignore`.
-#' - `projr_ignore_manual_dir_git` and `projr_ignore_manual_file_git`: Add 
+#' - .ignore_manual_dir_git` and .ignore_manual_file_git`: Add 
 #'   directories or files explicitly to `.gitignore`.
-#' - `projr_ignore_manual_dir_rbuild` and `projr_ignore_manual_file_rbuild`: Add 
+#' - .ignore_manual_dir_rbuild` and .ignore_manual_file_rbuild`: Add 
 #'   directories or files explicitly to `.Rbuildignore`.
 #'
 #' @details
 #' These functions provide fine-grained control for cases where users want to 
 #' manually ignore specific paths permanently. They do not interact with the 
 #' automated ignore management system of `projr`. 
-#' - Non-existent paths provided to `projr_ignore_manual` are assumed to be files.
+#' - Non-existent paths provided to .ignore_manual` are assumed to be files.
 #' - For `.gitignore`, directories are automatically appended with `/**` if 
 #'   missing, ensuring proper Git ignore syntax.
 #' - For `.Rbuildignore`, paths are converted to regular expressions using 
@@ -35,18 +35,18 @@
 #' contains invalid (empty) paths.
 #'
 #' @seealso
-#' `projr_ignore_auto` for dynamically managed ignore entries, and `projr_unignore_manual`
+#' .ignore_auto` for dynamically managed ignore entries, and .unignore_manual`
 #' for forcing certain paths to not be ignored.
 #'
 #' @examples
 #' # Manually ignore files and directories
-#' projr_ignore_manual(c("output", "tempfile.log"))
+#'.ignore_manual(c("output", "tempfile.log"))
 #'
 #' # Specifically ignore directories
-#' projr_ignore_manual_dir("data")
+#'.ignore_manual_dir("data")
 #'
 #' # Specifically ignore files
-#' projr_ignore_manual_file("README.md")
+#'.ignore_manual_file("README.md")
 #'
 #' @export
 projr_ignore_manual <- function(ignore) {
@@ -61,45 +61,45 @@ projr_ignore_manual <- function(ignore) {
   ignore_nonexistent <- setdiff(
     ignore, c(ignore_file, ignore_dir)
   )
-  projr_ignore_manual_file_git(c(ignore_file, ignore_nonexistent))
-  projr_ignore_manual_dir_git(ignore_dir)
-  projr_ignore_manual_file_rbuild(c(ignore_file, ignore_nonexistent))
-  projr_ignore_manual_dir_rbuild(ignore_dir)
+ .ignore_manual_file_git(c(ignore_file, ignore_nonexistent))
+ .ignore_manual_dir_git(ignore_dir)
+ .ignore_manual_file_rbuild(c(ignore_file, ignore_nonexistent))
+ .ignore_manual_dir_rbuild(ignore_dir)
 }
 
-#' @rdname projr_ignore_manual
+#' @rdname.ignore_manual
 #' @export
 projr_ignore_manual_dir <- function(ignore) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
-  projr_ignore_manual_dir_git(ignore)
-  projr_ignore_manual_dir_rbuild(ignore)
+ .ignore_manual_dir_git(ignore)
+ .ignore_manual_dir_rbuild(ignore)
 }
 
-#' @rdname projr_ignore_manual
+#' @rdname.ignore_manual
 #' @export
 projr_ignore_manual_file <- function(ignore) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
-  projr_ignore_manual_file_git(ignore)
-  projr_ignore_manual_file_rbuild(ignore)
+ .ignore_manual_file_git(ignore)
+ .ignore_manual_file_rbuild(ignore)
 }
 
-#' @rdname projr_ignore_manual
+#' @rdname.ignore_manual
 #' @export
 projr_ignore_manual_file_git <- function(ignore) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
-  .projr_ignore_manual_path_add(ignore, .path_get(".gitignore"))
+  .ignore_manual_path_add(ignore, .path_get(".gitignore"))
 }
 
-#' @rdname projr_ignore_manual
+#' @rdname.ignore_manual
 #' @export
 projr_ignore_manual_dir_git <- function(ignore) {
   ignore <- setdiff(ignore, "")
@@ -113,10 +113,10 @@ projr_ignore_manual_dir_git <- function(ignore) {
       paste0(x, "/**")
     }
   }, character(1L))
-  .projr_ignore_manual_path_add(ignore, .path_get(".gitignore"))
+  .ignore_manual_path_add(ignore, .path_get(".gitignore"))
 }
 
-#' @rdname projr_ignore_manual
+#' @rdname.ignore_manual
 #' @export
 projr_ignore_manual_file_rbuild <- function(ignore) {
   ignore <- setdiff(ignore, "")
@@ -126,10 +126,10 @@ projr_ignore_manual_file_rbuild <- function(ignore) {
   ignore <- gsub("/+$", "", ignore) |>
     trimws() |>
     utils::glob2rx()
-  .projr_ignore_manual_path_add(ignore, .path_get(".Rbuildignore"))
+  .ignore_manual_path_add(ignore, .path_get(".Rbuildignore"))
 }
 
-#' @rdname projr_ignore_manual
+#' @rdname.ignore_manual
 #' @export
 projr_ignore_manual_dir_rbuild <- function(ignore) {
   ignore <- setdiff(ignore, "")
@@ -145,52 +145,52 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
     c(patterns[i], utils::glob2rx(ignore[i]))
   }) |>
     unlist()
-  .projr_ignore_manual_path_add(patterns, .path_get(".Rbuildignore"))
+  .ignore_manual_path_add(patterns, .path_get(".Rbuildignore"))
 }
 
 # ===========================================================================
 # Ignore specified lines from .gitignore/.Rbuildignore
 # ===========================================================================
 
-.projr_ignore_manual_path_add <- function(ignore, path) {
+.ignore_manual_path_add <- function(ignore, path) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
   .assert_string(path, TRUE)
 
-  file_vec <- .projr_ignore_manual_path_add_get_updated(path, ignore)
-  .projr_ignore_path_write(file_vec, path)
+  file_vec <- .ignore_manual_path_add_get_updated(path, ignore)
+  .ignore_path_write(file_vec, path)
   invisible(TRUE)
 }
 
-.projr_ignore_manual_path_add_get_updated <- function(path,
+.ignore_manual_path_add_get_updated <- function(path,
                                                       ignore) {
-  ignore_list <- .projr_ignore_path_get_list(path, ignore)
+  ignore_list <- .ignore_path_get_list(path, ignore)
   
   c(
-    .projr_ignore_manual_path_add_get_updated_start(ignore, ignore_list$start),
+    .ignore_manual_path_add_get_updated_start(ignore, ignore_list$start),
     ignore_list$content |> setdiff("") |> unique(),
     ignore_list$end
   ) 
 }
 
-.projr_ignore_manual_path_add_get_updated_start <- function(ignore, start) {
+.ignore_manual_path_add_get_updated_start <- function(ignore, start) {
   if (.is_len_0(start)) {
     ignore
   } else if (.is_len_1(start)) {
-      .projr_ignore_manual_path_add_get_updated_start_len_1(ignore, start)
+      .ignore_manual_path_add_get_updated_start_len_1(ignore, start)
   } else {
-    .projr_ignore_manual_path_add_get_updated_start_len_g1(ignore, start)
+    .ignore_manual_path_add_get_updated_start_len_g1(ignore, start)
   }
 }
 
-.projr_ignore_manual_path_add_get_updated_start_len_1 <- function(ignore, start) {
-  start <- .projr_ignore_manual_path_add_get_updated_start_len_1_start(start)
+.ignore_manual_path_add_get_updated_start_len_1 <- function(ignore, start) {
+  start <- .ignore_manual_path_add_get_updated_start_len_1_start(start)
   c(ignore[!ignore %in% start], start)
 }
 
-.projr_ignore_manual_path_add_get_updated_start_len_1_start <- function(start) {
+.ignore_manual_path_add_get_updated_start_len_1_start <- function(start) {
   if (grepl(match_str_top, start)) {
       c("", start)
   } else if (start == "") {
@@ -200,13 +200,13 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
   }
 }
 
-.projr_ignore_manual_path_add_get_updated_start_len_g1 <- function(ignore, start) {
+.ignore_manual_path_add_get_updated_start_len_g1 <- function(ignore, start) {
   ignore <- ignore[!ignore %in% start]
-  start <- .projr_ignore_manual_path_add_get_updated_start_len_g1_start(start)
+  start <- .ignore_manual_path_add_get_updated_start_len_g1_start(start)
   c(ignore, start)
 }
 
-.projr_ignore_manual_path_add_get_updated_start_len_g1_start <- function(start) {
+.ignore_manual_path_add_get_updated_start_len_g1_start <- function(start) {
   if (grepl(match_str_top, start[length(start)])) {
     start_pre <- start[-length(start)]
     if (start_pre[length(start_pre)] != "") {

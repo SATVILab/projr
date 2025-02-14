@@ -93,7 +93,7 @@
 #' otherwise written to `_projr-<profile>.yml`.
 #' The default is "default".
 #' @export
-#' @rdname projr_yml_dest_add_osf
+#' @rdname.yml_dest_add_osf
 projr_yml_dest_add_osf <- function(title,
                                    content,
                                    path = NULL,
@@ -110,7 +110,7 @@ projr_yml_dest_add_osf <- function(title,
                                    send_strategy = NULL,
                                    send_inspect = NULL,
                                    profile = "default") {
-  .projr_yml_dest_add(
+  .yml_dest_add(
     role = "destination",
     type = "osf",
     title = title,
@@ -134,14 +134,14 @@ projr_yml_dest_add_osf <- function(title,
   )
 }
 
-#' @rdname projr_yml_dest_add_osf
+#' @rdname.yml_dest_add_osf
 #' @export
 projr_yml_dest_add_osf_proj <- function(title,
                                         description = NULL,
                                         content = NULL,
                                         public = FALSE,
                                         id = NULL) {
-  projr_yml_dest_add_osf(
+ .yml_dest_add_osf(
     title = title,
     description = description,
     content = content,
@@ -151,7 +151,7 @@ projr_yml_dest_add_osf_proj <- function(title,
   )
 }
 
-#' @rdname projr_yml_dest_add_osf
+#' @rdname.yml_dest_add_osf
 #' @export
 projr_yml_dest_add_osf_comp <- function(title,
                                         description = NULL,
@@ -163,7 +163,7 @@ projr_yml_dest_add_osf_comp <- function(title,
   if (missing(id_parent)) {
     stop("id_parent must be specified")
   }
-  projr_yml_dest_add_osf(
+ .yml_dest_add_osf(
     title = title,
     description = description,
     content = content,
@@ -185,7 +185,7 @@ projr_yml_dest_add_osf_comp <- function(title,
 #' to a _projr.yml file.
 #'
 #'
-#' @inheritParams projr_yml_dest_add_osf
+#' @inheritParams.yml_dest_add_osf
 #'
 #' @param title character.
 #' The name of the directory.
@@ -198,7 +198,7 @@ projr_yml_dest_add_osf_comp <- function(title,
 #' Must be supplied.
 #'
 #' @export
-#' @rdname projr_yml_dest_add
+#' @rdname.yml_dest_add
 projr_yml_dest_add_local <- function(title,
                                      content,
                                      path,
@@ -213,10 +213,10 @@ projr_yml_dest_add_local <- function(title,
   .assert_string(title, TRUE)
   .assert_len_1(title, TRUE)
   .assert_chr(content, TRUE)
-  .assert_in(content, .projr_yml_dir_get(NULL) |> names())
+  .assert_in(content, .yml_dir_get(NULL) |> names())
   .assert_string(path, TRUE)
 
-  .projr_yml_dest_add(
+  .yml_dest_add(
     role = "destination",
     type = "local",
     title = title,
@@ -244,7 +244,7 @@ projr_yml_dest_add_local <- function(title,
 #' Add a GitHub release as a destination
 #' to a _projr.yml file.
 #'
-#' @inheritParams projr_yml_dest_add_osf
+#' @inheritParams.yml_dest_add_osf
 #'
 #' @param title character.
 #' Title of the GitHub release.
@@ -270,10 +270,10 @@ projr_yml_dest_add_github <- function(title,
   .assert_len_1(title, TRUE)
   .assert_chr(content, TRUE)
   .assert_in(
-    content, .projr_yml_dir_get(NULL) |> names() |> c("code") |> unique()
+    content, .yml_dir_get(NULL) |> names() |> c("code") |> unique()
   )
 
-  .projr_yml_dest_add(
+  .yml_dest_add(
     role = "destination",
     type = "github",
     title = title,

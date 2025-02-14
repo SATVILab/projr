@@ -1,6 +1,6 @@
 test_that(".path_* functions work", {
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -32,13 +32,13 @@ test_that(".path_* functions work", {
 
 test_that(".file_* and .dir_* functions work", {
   skip_if(.is_test_select())
-  dir_test <- .projr_test_setup_project(git = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
       # filter
       # -------------------
-      dir_tmp <- .projr_test_setup_content_dir()
+      dir_tmp <- .test_setup_content_dir()
       expect_identical(.file_ls(dir_tmp), content_vec_test_file)
       expect_identical(.dir_ls(dir_tmp), content_vec_test_dir)
       expect_identical(
@@ -85,10 +85,10 @@ test_that(".file_* and .dir_* functions work", {
         c("subdir1/def.txt", "subdir1/subdir2/ghi.txt")
       )
       # clearing
-      dir_tmp <- .projr_test_setup_content_dir()
+      dir_tmp <- .test_setup_content_dir()
       expect_true(.dir_create_tmp_random() |> .dir_clear())
       expect_true(dir_tmp |> .dir_clear())
-      dir_tmp <- .projr_test_setup_content_dir()
+      dir_tmp <- .test_setup_content_dir()
       .dir_clear(dir_tmp)
       expect_identical(
         dir_tmp |> .dir_ls(),
@@ -96,7 +96,7 @@ test_that(".file_* and .dir_* functions work", {
       )
       # copying and moving
       # no exclusions
-      dir_tmp <- .projr_test_setup_content_dir()
+      dir_tmp <- .test_setup_content_dir()
       dir_tmp_2 <- .dir_create_tmp_random()
       file.create(file.path(dir_tmp_2, "f1")) |> invisible()
       .dir_copy_exact(dir_tmp, dir_tmp_2)
@@ -105,7 +105,7 @@ test_that(".file_* and .dir_* functions work", {
         dir_tmp_2 |> .dir_ls()
       )
       # exclusions
-      dir_tmp <- .projr_test_setup_content_dir()
+      dir_tmp <- .test_setup_content_dir()
       .dir_create(file.path(dir_tmp, "d1"))
       file.create(file.path(dir_tmp, "d1", "f2")) |> invisible()
       dir_tmp_2 <- .dir_create_tmp_random()
@@ -120,7 +120,7 @@ test_that(".file_* and .dir_* functions work", {
         dir_tmp_2 |> .file_ls(),
       )
       # removing initial, no exclusion
-      dir_tmp <- .projr_test_setup_content_dir()
+      dir_tmp <- .test_setup_content_dir()
       path_vec_dir <- dir_tmp |> .dir_ls()
       path_vec_file <- dir_tmp |> .file_ls()
       dir_tmp_2 <- .dir_create_tmp_random()
@@ -136,7 +136,7 @@ test_that(".file_* and .dir_* functions work", {
       expect_identical(.file_ls(dir_tmp), character())
       expect_identical(.dir_ls(dir_tmp), character())
       # removing initial, with exclusion
-      dir_tmp <- .projr_test_setup_content_dir()
+      dir_tmp <- .test_setup_content_dir()
       path_vec_dir <- dir_tmp |> .dir_ls()
       path_vec_file <- dir_tmp |> .file_ls()
 
@@ -151,7 +151,7 @@ test_that(".file_* and .dir_* functions work", {
       expect_identical(.dir_ls(dir_tmp), "d1")
 
       # not removing initial, no exclusion
-      dir_tmp <- .projr_test_setup_content_dir()
+      dir_tmp <- .test_setup_content_dir()
       path_vec_dir <- dir_tmp |> .dir_ls()
       path_vec_file <- dir_tmp |> .file_ls()
       dir_tmp_2 <- .dir_create_tmp_random()
@@ -168,7 +168,7 @@ test_that(".file_* and .dir_* functions work", {
       expect_identical(.file_ls(dir_tmp), character())
       expect_identical(.dir_ls(dir_tmp), character())
       # removing initial, with exclusion
-      dir_tmp <- .projr_test_setup_content_dir()
+      dir_tmp <- .test_setup_content_dir()
       path_vec_dir <- dir_tmp |> .dir_ls()
       path_vec_file <- dir_tmp |> .file_ls()
 

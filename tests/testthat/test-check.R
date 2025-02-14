@@ -3,7 +3,7 @@ test_that("All assertion functions work as expected", {
   skip_if(.is_test_select())
   
   # Setup a temporary test project directory
-  dir_test <- .projr_test_setup_project(
+  dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
   )
   

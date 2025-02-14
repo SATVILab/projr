@@ -1,7 +1,7 @@
-.projr_ignore_diryml <- function(git_skip_adjust = NULL) {
+.ignore_diryml <- function(git_skip_adjust = NULL) {
   # Update `.gitignore` and `.Rbuildignore` Using Projr Configuration
   #
-  # The `projr_dir_ignore()` function updates the project’s `.gitignore` and
+  # The .dir_ignore()` function updates the project’s `.gitignore` and
   # `.Rbuildignore` files to reflect the directories managed by Projr. 
   #
   # @param git_skip_adjust A logical flag indicating whether to explicitly enable (`TRUE`)
@@ -12,7 +12,7 @@
   # 
   # @details 
   # 
-  # The `projr_dir_ignore()` function updates the project’s `.gitignore` and
+  # The .dir_ignore()` function updates the project’s `.gitignore` and
   # `.Rbuildignore` files to reflect the directories managed by Projr. It does so by:
   #
   # 1. Removing any previously established Projr-managed ignore entries.
@@ -22,7 +22,7 @@
   # excluded from version control (Git) and R package building processes.
   #
   # Optionally, you can control whether files within these directories should have
-  # their Git skip-worktree flags adjusted. By default, `projr_dir_ignore()` will
+  # their Git skip-worktree flags adjusted. By default, .dir_ignore()` will
   # respect the settings derived from the project configuration. However, you may
   # override this behavior using the `git_skip_adjust` argument.
   #
@@ -31,38 +31,38 @@
   # - Ensures `.gitignore` includes Projr-managed directories, keeping them out of Git commits.
   # - Ensures `.Rbuildignore` excludes these directories from R build processes.
   # - Optionally adjusts Git skip-worktree flags for tracked files in these directories.
-  .projr_ignore_diryml_git(git_skip_adjust)
-  .projr_ignore_diryml_rbuild()
+  .ignore_diryml_git(git_skip_adjust)
+  .ignore_diryml_rbuild()
   invisible(TRUE)
 }
 
 
-.projr_ignore_diryml_git <- function(git_skip_adjust = NULL) {
+.ignore_diryml_git <- function(git_skip_adjust = NULL) {
 
-  if (!.projr_git_repo_check_exists() &&
+  if (!.git_repo_check_exists() &&
         !file.exists(.path_get(".gitignore"))) {
     return(invisible(FALSE))
   }
 
   # get paths to ignore, skip and/or unskip
-  instr_list <- .projr_ignore_diryml_git_get_instructions(git_skip_adjust)
+  instr_list <- .ignore_diryml_git_get_instructions(git_skip_adjust)
 
   # ignore, skip and unskip paths
-  .projr_ignore_diryml_git_update_gitignore(instr_list$ignore)
-  .projr_ignore_diryml_git_update_skip(instr_list$skip, instr_list$unskip)
+  .ignore_diryml_git_update_gitignore(instr_list$ignore)
+  .ignore_diryml_git_update_skip(instr_list$skip, instr_list$unskip)
 
   invisible(TRUE)
 }
 
 # .gitignore Management (As previously defined)
-.projr_ignore_diryml_git_get_instructions <- function(git_skip_adjust = NULL) {
+.ignore_diryml_git_get_instructions <- function(git_skip_adjust = NULL) {
   # get which paths to ignore, skip, and/or unskip
-  label_vec <- .projr_ignore_diryml_git_get_instructions_labels()
+  label_vec <- .ignore_diryml_git_get_instructions_labels()
   
   path_ignore <- path_skip <- path_unskip <- character(0)
   
   for (i in seq_along(label_vec)) {
-    instr_list_label <- .projr_ignore_diryml_git_get_instructions_label(
+    instr_list_label <- .ignore_diryml_git_get_instructions_label(
       label_vec[[i]], git_skip_adjust
     )
     path_ignore <- c(path_ignore, instr_list_label$ignore)
@@ -72,12 +72,12 @@
   list(ignore = path_ignore, skip = path_skip, unskip = path_unskip)
 }
 
-.projr_ignore_diryml_git_get_instructions_labels <- function() {
+.ignore_diryml_git_get_instructions_labels <- function() {
   # Get directory labels and their paths,
   # ensuring directory types not specified are also included.
-  yml_dir <- .projr_yml_dir_get(NULL) # Fetch directory labels and paths
+  yml_dir <- .yml_dir_get(NULL) # Fetch directory labels and paths
   label_vec <- names(yml_dir) # Extract the labels
-  label_vec_strip <- .projr_dir_label_strip(label_vec) # Strip unnecessary parts of the labels
+  label_vec_strip <- .dir_label_strip(label_vec) # Strip unnecessary parts of the labels
   
   # Define patterns to match standard directory labels
   label_vec_match <- c("^docs", "^raw", "^cache", "^output")
@@ -93,28 +93,28 @@
   c(label_vec, label_vec_missing)
 }
 
-.projr_ignore_diryml_git_get_instructions_label <- function(label,
+.ignore_diryml_git_get_instructions_label <- function(label,
                                                          git_skip_adjust) {
-  path <- .projr_ignore_diryml_path_get(label)
+  path <- .ignore_diryml_path_get(label)
   if (length(path) == 0) {
     c0 <- character(0L)
     return(list(ignore = c0, skip = c0, unskip = c0))
   }
 
-  .projr_ignore_diryml_git_get_instructions_label_actual(
+  .ignore_diryml_git_get_instructions_label_actual(
     path, label, git_skip_adjust
   )
 }
 
-.projr_ignore_diryml_git_get_instructions_label_actual <- function(path,
+.ignore_diryml_git_get_instructions_label_actual <- function(path,
                                                                 label,
                                                                 git_skip_adjust) {
   # ignore
-  ignore_git <- .projr_ignore_get_git(label)
+  ignore_git <- .ignore_get_git(label)
   path_ignore <- if (ignore_git) paste0(path, "/**") else character(0L)
 
   # skip
-  git_skip_adjust <- .projr_ignore_get_git_skip_adjust(
+  git_skip_adjust <- .ignore_get_git_skip_adjust(
     label, git_skip_adjust
     )
 
@@ -128,7 +128,7 @@
   list(ignore = path_ignore, skip = path_skip, unskip = path_unskip)
 }
 
-.projr_ignore_diryml_git_update_gitignore <- function(ignore) {
+.ignore_diryml_git_update_gitignore <- function(ignore) {
 
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
@@ -136,17 +136,17 @@
   }
   path_gitignore <- .path_get(".gitignore")
 
-  file_vec <- .projr_ignore_auto_path_add_get_updated(path_gitignore, ignore, TRUE)
-  .projr_ignore_path_write(file_vec, path_gitignore)
+  file_vec <- .ignore_auto_path_add_get_updated(path_gitignore, ignore, TRUE)
+  .ignore_path_write(file_vec, path_gitignore)
   invisible(TRUE)
 }
 
 
 
 
-.projr_ignore_get_git <- function(label) {
-  ignore_git <- .projr_yml_dir_get_label(label, NULL)[["ignore-git"]]
-  ignore <- .projr_yml_dir_get_label(label, NULL)[["ignore"]]
+.ignore_get_git <- function(label) {
+  ignore_git <- .yml_dir_get_label(label, NULL)[["ignore-git"]]
+  ignore <- .yml_dir_get_label(label, NULL)[["ignore"]]
   if (is.null(ignore_git) && is.null(ignore)) {
     return(TRUE)
   }
@@ -167,15 +167,15 @@
   ignore_git
 }
 
-.projr_ignore_get_git_skip_adjust <- function(label, git_skip_adjust) {
-  if (!.projr_ignore_check_git_skip_adjust_possible()) {
+.ignore_get_git_skip_adjust <- function(label, git_skip_adjust) {
+  if (!.ignore_check_git_skip_adjust_possible()) {
     return(invisible(FALSE))
   }
   if (!is.null(git_skip_adjust)) {
     .assert_flag(git_skip_adjust)
     return(git_skip_adjust)
   }
-  git_skip_adjust <- .projr_yml_dir_get_label(label, NULL)[["git-skip-adjust"]]
+  git_skip_adjust <- .yml_dir_get_label(label, NULL)[["git-skip-adjust"]]
   if (is.null(git_skip_adjust)) {
     return(TRUE)
   }
@@ -183,28 +183,28 @@
   git_skip_adjust
 }
 
-.projr_ignore_check_git_skip_adjust_possible <- function() {
+.ignore_check_git_skip_adjust_possible <- function() {
   # need to have git installed and in be in a git repo
-  .projr_git_repo_check_exists() && .projr_git_system_check_git()
+  .git_repo_check_exists() && .git_system_check_git()
 }
 
-.projr_ignore_diryml_git_update_skip <- function(paths_to_ignore,
+.ignore_diryml_git_update_skip <- function(paths_to_ignore,
                                               paths_to_unignore) {
   # Adjust skip-worktree flags for ignored paths
   for (i in seq_along(paths_to_ignore)) {
-    .projr_git_skip(paths_to_ignore[[i]])
+    .git_skip(paths_to_ignore[[i]])
   }
   
   # Adjust skip-worktree flags for unignored paths
   for (i in seq_along(paths_to_unignore)) {
-    .projr_git_unskip(paths_to_unignore[[i]])
+    .git_unskip(paths_to_unignore[[i]])
   }
   invisible(TRUE)
 }
 
-.projr_git_skip <- function(path) {
+.git_skip <- function(path) {
   # Set skip-worktree flag on all tracked files within the specified path
-  fn_vec_tracked <- .projr_git_get_tracked(path)
+  fn_vec_tracked <- .git_get_tracked(path)
   if (length(fn_vec_tracked) == 0L) {
     return(invisible(TRUE))
   }
@@ -240,9 +240,9 @@
 
 
 
-.projr_git_unskip <- function(path) {
+.git_unskip <- function(path) {
   # Remove skip-worktree flag from all tracked files within the specified path
-  fn_vec_skipped <- .projr_git_get_skipped(path)
+  fn_vec_skipped <- .git_get_skipped(path)
   if (length(fn_vec_skipped) == 0L) {
     return(invisible(TRUE))
   }
@@ -276,7 +276,7 @@
   invisible(TRUE)
 }
 
-.projr_git_get_tracked <- function(path) {
+.git_get_tracked <- function(path) {
   # Retrieve a list of tracked files within the specified path
   fn_vec <- system2(
     "git",
@@ -293,7 +293,7 @@
   fn_vec
 }
 
-.projr_git_get_skipped <- function(path) {
+.git_get_skipped <- function(path) {
   # Retrieve a list of files with skip-worktree set within the specified path
   fn_vec <- system2(
     "git",
@@ -317,24 +317,24 @@
 
 
 # .Rbuildignore Management
-.projr_ignore_diryml_rbuild <- function() {
+.ignore_diryml_rbuild <- function() {
   if (!file.exists(.path_get("DESCRIPTION")) &&
         !file.exists(.path_get(".Rbuildignore"))) {
     return(invisible(FALSE))
   }
   # Remove all projr-managed entries from .Rbuildignore,
   # then add back applicable ones
-  rbuildignore_list <- .projr_ignore_diryml_rbuildignore_get()
+  rbuildignore_list <- .ignore_diryml_rbuildignore_get()
   
-  yml_dir <- .projr_yml_dir_get(NULL)
+  yml_dir <- .yml_dir_get(NULL)
   ignore_vec_dir <- character(0)
   
   for (i in seq_along(yml_dir)) {
     label <- names(yml_dir)[[i]]
-    if (!.projr_ignore_get_rbuild(label)) {
+    if (!.ignore_get_rbuild(label)) {
       next
     }
-    path <- .projr_ignore_diryml_path_get(label)
+    path <- .ignore_diryml_path_get(label)
     if (length(path) == 0) {
       next
     }
@@ -354,13 +354,13 @@
     rbuildignore_list$end
   )
   
-  .projr_ignore_rbuild_write(rbuildignore_vec, append = FALSE)
+  .ignore_rbuild_write(rbuildignore_vec, append = FALSE)
   invisible(TRUE)
 }
 
-.projr_ignore_get_rbuild <- function(label) {
-  ignore_rbuild <- .projr_yml_dir_get_label(label, NULL)[["ignore-rbuild"]]
-  ignore <- .projr_yml_dir_get_label(label, NULL)[["ignore"]]
+.ignore_get_rbuild <- function(label) {
+  ignore_rbuild <- .yml_dir_get_label(label, NULL)[["ignore-rbuild"]]
+  ignore <- .yml_dir_get_label(label, NULL)[["ignore"]]
   if (is.null(ignore_rbuild) && is.null(ignore)) {
     return(TRUE)
   }
@@ -381,51 +381,51 @@
   if (ignore_rbuild) TRUE else FALSE
 }
 
-.projr_ignore_diryml_rbuildignore_get <- function() {
+.ignore_diryml_rbuildignore_get <- function() {
   # Retrieve the current .Rbuildignore content and extract projr-managed sections
-  rbuildignore_vec <- .projr_ignore_rbuild_read()
+  rbuildignore_vec <- .ignore_rbuild_read()
   
   if (length(rbuildignore_vec) == 0) {
     return(list(start = character(0), end = character(0)))
   }
   
-  .projr_ignore_diryml_rbuildignore_get_check(
+  .ignore_diryml_rbuildignore_get_check(
     match_str_top, match_str_bottom, rbuildignore_vec
   )
   
-  projr_ignore_ind_top <- which(grepl(match_str_top, rbuildignore_vec))
-  projr_ignore_ind_bot <- which(grepl(match_str_bottom, rbuildignore_vec))
+ .ignore_ind_top <- which(grepl(match_str_top, rbuildignore_vec))
+ .ignore_ind_bot <- which(grepl(match_str_bottom, rbuildignore_vec))
 
-  if (length(projr_ignore_ind_top) == 0L) {
+  if (length.ignore_ind_top) == 0L) {
     return(list(
       start = c(
         rbuildignore_vec,
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())"
+        "# Start of projr section: do not edit by hand (update with.ignore_auto())"
       ),
       end = "# End of projr section"
     ))
   }
   
   list(
-    start = rbuildignore_vec[seq_len(projr_ignore_ind_top)],
-    end = rbuildignore_vec[seq(projr_ignore_ind_bot, length(rbuildignore_vec))]
+    start = rbuildignore_vec[seq_len.ignore_ind_top)],
+    end = rbuildignore_vec[seq.ignore_ind_bot, length(rbuildignore_vec))]
   )
 }
 
-.projr_ignore_diryml_rbuildignore_get_check <- function(match_str_top,
+.ignore_diryml_rbuildignore_get_check <- function(match_str_top,
                                                       match_str_bottom,
                                                       rbuildignore_vec) {
   # validate that the Projr-managed section in .Rbuildignore is well-formed
-  projr_ignore_ind_bot <- which(grepl(match_str_bottom, rbuildignore_vec))
-  projr_ignore_ind_top <- which(grepl(match_str_top, rbuildignore_vec))
+ .ignore_ind_bot <- which(grepl(match_str_bottom, rbuildignore_vec))
+ .ignore_ind_top <- which(grepl(match_str_top, rbuildignore_vec))
   
-  if (length(projr_ignore_ind_top) > 1 ||
-      length(projr_ignore_ind_bot) > 1) {
+  if (length.ignore_ind_top) > 1 ||
+      length.ignore_ind_bot) > 1) {
     stop("Multiple projr sections found in .Rbuildignore")
   }
   
-  found_top <- length(projr_ignore_ind_top) == 1
-  found_bottom <- length(projr_ignore_ind_bot) == 1
+  found_top <- length.ignore_ind_top) == 1
+  found_bottom <- length.ignore_ind_bot) == 1
   
   if (found_top && !found_bottom) {
     stop("Found start of projr section but not end in .Rbuildignore")
@@ -436,7 +436,7 @@
   }
   
   if (found_top && found_bottom) {
-    if (projr_ignore_ind_top > projr_ignore_ind_bot) {
+    if .ignore_ind_top >.ignore_ind_bot) {
       stop("Start of projr section found after end in .Rbuildignore")
     }
   }
@@ -445,8 +445,8 @@
 }
 
 # Path Processing Function (Reused)
-.projr_ignore_diryml_path_get <- function(label) {
-  path_dir <- .projr_dir_get(label, safe = FALSE)
+.ignore_diryml_path_get <- function(label) {
+  path_dir <- .dir_get(label, safe = FALSE)
   if (identical(path_dir, ".")) {
     return(character(0))
   }
@@ -463,7 +463,7 @@
 }
 
 # Reading and Writing .Rbuildignore
-.projr_ignore_rbuild_read <- function() {
+.ignore_rbuild_read <- function() {
   # Read the contents of .Rbuildignore, returning an empty
   # character vector if the file doesn't exist
   file_path <- .path_get(".Rbuildignore")
@@ -473,7 +473,7 @@
   suppressWarnings(readLines(file_path, warn = FALSE))
 }
 
-.projr_ignore_rbuild_write <- function(buildignore, append = FALSE) {
+.ignore_rbuild_write <- function(buildignore, append = FALSE) {
   # Write the updated .Rbuildignore content, ensuring it ends with a newline
   file_path <- .path_get(".Rbuildignore")
   # Write the content to .Rbuildignore
@@ -484,6 +484,6 @@
     append = append
   )
   # Ensure the file ends with a newline
-  .projr_newline_append(file_path)
+  .newline_append(file_path)
   invisible(file_path)
 }

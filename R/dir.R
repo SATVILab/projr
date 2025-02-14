@@ -33,39 +33,39 @@
 #' Default is `FALSE`.
 #' @param safe logical.
 #' If \code{TRUE}, then the output directory
-#' is set to be \code{"<path_to_cache>/projr_output"}
+#' is set to be \code{"<path_to_cache>.output"}
 #' instead of \code{<path_to_output>} (as specified in \code{_projr.yml}).
 #' The only time that this should be set to \code{TRUE}
-#' should be when `projr_build_output` is being run, as otherwise
+#' should be when .build_output` is being run, as otherwise
 #' "development" or test runs will add to, delete or overwrite fabciles
-#' from the previous run of `projr_build_output`.
+#' from the previous run of .build_output`.
 #' Default is \code{TRUE}.
 #' Do not change this unless you know what you are doing.
 #' @return Character.
 #' Path to directory requested.
-#' @rdname projr_path_get_dir
+#' @rdname.path_get_dir
 #' @export
 projr_path_get_dir <- function(label, ...,
                                create = TRUE,
                                relative = FALSE,
                                absolute = FALSE,
                                safe = TRUE) {
-  dots_vec <- .projr_dots_get_chr_vec(...)
-  .projr_dir_get_check(label, dots_vec, relative, absolute, safe)
+  dots_vec <- .dots_get_chr_vec(...)
+  .dir_get_check(label, dots_vec, relative, absolute, safe)
 
-  .projr_dir_get(label = label, ..., safe = safe) |>
-    .projr_dir_get_create(create) |>
-    .projr_dir_get_rel(relative) |>
-    .projr_dir_get_abs(absolute)
+  .dir_get(label = label, ..., safe = safe) |>
+    .dir_get_create(create) |>
+    .dir_get_rel(relative) |>
+    .dir_get_abs(absolute)
 }
 
-.projr_dir_get_check <- function(label, dots_list, relative, absolute, safe) {
+.dir_get_check <- function(label, dots_list, relative, absolute, safe) {
   if (.is_len_pos(dots_list)) {
     dots_list |>
       unlist() |>
       .assert_chr()
   }
-  .projr_dir_check_label(label, NULL)
+  .dir_check_label(label, NULL)
   .assert_flag(relative)
   .assert_flag(absolute)
   .assert_flag(safe)
@@ -74,14 +74,14 @@ projr_path_get_dir <- function(label, ...,
   }
 }
 
-.projr_dir_check_label <- function(label, profile) {
+.dir_check_label <- function(label, profile) {
   .assert_string(label)
-  .projr_dir_check_label_found(label, profile)
+  .dir_check_label_found(label, profile)
 }
 
-.projr_dir_check_label_found <- function(label, profile) {
+.dir_check_label_found <- function(label, profile) {
   opt_vec <- c(
-    names(.projr_yml_dir_get(profile)), "docs", "data", "project", "code"
+    names(.yml_dir_get(profile)), "docs", "data", "project", "code"
   )
   label_found <- label %in% opt_vec
   if (!label_found) {
@@ -90,8 +90,8 @@ projr_path_get_dir <- function(label, ...,
   invisible(TRUE)
 }
 
-.projr_dir_check_label_strip <- function(label) {
-  label_strip <- .projr_dir_label_strip(label)
+.dir_check_label_strip <- function(label) {
+  label_strip <- .dir_label_strip(label)
   label_valid <- grepl("^docs|^raw|^cache|^output", label_strip)
   if (!label_valid) {
     stop(
@@ -107,27 +107,27 @@ projr_path_get_dir <- function(label, ...,
   invisible(TRUE)
 }
 
-.projr_dir_label_strip <- function(x) {
+.dir_label_strip <- function(x) {
   gsub("_", "", gsub("-", "", x)) |>
     tolower()
 }
 
 
-.projr_dir_get_create <- function(path, create) {
+.dir_get_create <- function(path, create) {
   if (create) {
     .dir_create(path)
   }
   invisible(path)
 }
 
-.projr_dir_get_rel <- function(path, relative) {
+.dir_get_rel <- function(path, relative) {
   if (!relative) {
     return(path)
   }
   .path_force_rel(path)
 }
 
-.projr_dir_get_abs <- function(path, absolute) {
+.dir_get_abs <- function(path, absolute) {
   if (!absolute) {
     return(path)
   }
@@ -137,7 +137,7 @@ projr_path_get_dir <- function(label, ...,
 #' @title Return path
 #'
 #' @description Returns path to \code{projr} profile-specific directory.
-#' Differs from \code{projr_dir_get} in that it does not assume
+#' Differs from \code.dir_get} in that it does not assume
 #' that the path is to a directory.
 #'
 #' Will create the parent directory of the specified
@@ -160,7 +160,7 @@ projr_path_get_dir <- function(label, ...,
 #' and \code{.Rbuildignore} as specified
 #' in \code{_projr.yml}.
 #' Default is \code{TRUE}.
-#' @inheritParams projr_path_get_dir
+#' @inheritParams.path_get_dir
 #'
 #' @return Character.
 #' Path to directory requested.
@@ -172,7 +172,7 @@ projr_path_get_dir <- function(label, ...,
 #'   # EXAMPLE1
 #' }
 #' }
-#' @rdname projr_path_get
+#' @rdname.path_get
 #' @export
 projr_path_get <- function(label, ...,
                            create = TRUE,
@@ -181,7 +181,7 @@ projr_path_get <- function(label, ...,
                            safe = TRUE) {
   args_dotted <- list(...)
   if (length(args_dotted) == 0) {
-    path_dir <- projr_path_get_dir(
+    path_dir <-.path_get_dir(
       label = label,
       create = create,
       relative = relative,
@@ -192,7 +192,7 @@ projr_path_get <- function(label, ...,
   }
   if (length(args_dotted) > 1) {
     path_dir <- do.call(
-      what = "projr_path_get_dir",
+      what = .path_get_dir",
       args = list(
         label = label,
         args_dotted[-length(args_dotted)] |> unlist(),
@@ -203,7 +203,7 @@ projr_path_get <- function(label, ...,
       )
     )
   } else {
-    path_dir <- projr_path_get_dir(
+    path_dir <-.path_get_dir(
       label = label,
       create = create,
       relative = relative,
@@ -215,10 +215,10 @@ projr_path_get <- function(label, ...,
     as.character()
 }
 
-.projr_dir_create <- function(label, ..., safe = TRUE) {
+.dir_create <- function(label, ..., safe = TRUE) {
   # create directories
   for (x in label) {
-    projr_path_get_dir(
+   .path_get_dir(
       label = x,
       ...,
       create = TRUE,

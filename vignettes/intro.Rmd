@@ -26,28 +26,28 @@ library(projr)
 
 The `projr` workflow:
 
-- **Initialisation**: Run `projr::projr_init()` to set up the project with metadata, `projr`-specific configuration and a Git repo connected to GitHub (if you so choose).
-- **Building the project**: Run `projr::projr_build_output()` to build the project, version the project and its components, and upload the components to GitHub, OSF and/or a local folder.
+- **Initialisation**: Run `projr:.init()` to set up the project with metadata, `projr`-specific configuration and a Git repo connected to GitHub (if you so choose).
+- **Building the project**: Run `projr:.build_output()` to build the project, version the project and its components, and upload the components to GitHub, OSF and/or a local folder.
 
 Project directory structure (e.g. that raw data are kept in the `raw-data` folder) and on-build actions (e.g. uploading to GitHub) are specified in the `_projr.yml` file.
 
-There are only three functions to remember: `projr_init()`, `projr_build_output()` and `projr_path_get()`.
+There are only three functions to remember: .init()`, .build_output()` and .path_get()`.
 The `projr` configuration file, `_projr.yml`, specifies project defaults that are appropriate for the majority of projects, but can be customised to your needs.
 
 ### Less extreme version
 
 `projr` is a package that helps you to set up and maintain a project in a way that is reproducible, shareable and versioned.
 
-- **Initialisation**: An interactive initialisation function, `projr::projr_init()`.
+- **Initialisation**: An interactive initialisation function, `projr:.init()`.
   - This sets up the project with metadata, `projr`-specific configuration and a Git repo connected to GitHub (if you so choose).
 
 - **Project and component versioning**: The project as a whole is given a version (e.g. `v1.2.1`), and the components of the project (e.g. code, data, figures, documents) versioned individually and linked to this version.
   - This means that you can always find the exact inputs that were used to create the outputs.
 
-- **Test builds**: To test build the project, run `projr::projr_build_dev()`.
+- **Test builds**: To test build the project, run `projr:.build_dev()`.
   - This renders the literate programming documents in your project and saves the outputs to a temporary directory (in your workspace).
 
-- **Builds**: To build the project, run `projr::projr_build_output()`.
+- **Builds**: To build the project, run `projr:.build_output()`.
   - This saves the outputs to their final destination (e.g. the `_output` folder), as these are regarded as the latest state of the project (rather than a development version).
   - In addition, a component of the pverall project version is bumped (e.g. `v1.2.1` changes to `v2.0.0` if the major version is bumped), and the individual project components (e.g. code, data, figures, documents) are versioned and linked to this new version.
   - Finally, the project components are uploaded to GitHub, OSF and/or a local folder.
@@ -56,7 +56,7 @@ The `_projr.yml` file specifies the project directory structure and on-build act
 The `directories` key specifies the project directory structure, in terms of where raw data, outputs (intermediate and final) and rendered documents are kept.
 The `build` key specifies on-build actions, such as whether and how the code are versioned, and which project components (raw data, outputs, docs) are uploaded to GitHub, OSF and/or a local folder.
 
-There are only three functions to remember: `projr_init()`, `projr_build_output()` and `projr_path_get()` (which is described later).
+There are only three functions to remember: .init()`, .build_output()` and .path_get()` (which is described later).
 The `projr` configuration file, `_projr.yml`, specifies project defaults that are appropriate for the majority of projects, but is highly customisable for your needs.
 
 ## Install `projr`
@@ -79,18 +79,18 @@ remotes::install_github("SATVILab/projr")
 
 If using `RStudio`, then the easiest way to do this is to open `RStudio`, click `File`, then `New Project` then choose whether you want to open it in an existing directory or create a new one.
 
-2. Run `projr::projr_init()`.
+2. Run `projr:.init()`.
 
 This will prompt you for metadata about your project, such as a description for it as well as your name and email address.
 You are also able to choose whether to create a Git repo and, if so, whether to use GitHub (if not already set up to use GitHub, then see the tips below on creating a GitHub account)
 
-Overall, what `projr_init` does is set up the project with metadata, `projr`-specific configuration and a Git repo connected to GitHub (if you so choose).
+Overall, what .init` does is set up the project with metadata, `projr`-specific configuration and a Git repo connected to GitHub (if you so choose).
 
 ### Building the project
 
-#### `projr_build_output()`
+#### .build_output()`
 
-One can build the project using `projr_build_output()`.
+One can build the project using .build_output()`.
 This will automatically detect whatever literate programming documents are used (Rmd's, Qmd's, Quarto projects, `bookdown` projects) and render all of them.
 By deafult, the rendered documents (e.g. HTML, PDF) are saved to the `_docs` directory.
 
@@ -167,7 +167,7 @@ They are as follows:
 - `output`: This also stores files created during project builds - but these you want to share, e.g. figures or tables.
 - `docs`:  This is where the rendered documents are stored, e.g. the HTML or PDF files.
 
-To access the paths to these folders, use the `projr_path_get` function. For example:
+To access the paths to these folders, use the .path_get` function. For example:
 
 ```r
 projr_path_get("output")
@@ -193,13 +193,13 @@ will return
 So, code saving a figure to this path might look like this:
 
 ```r
-png(filename = projr_path_get("output", "figure", "nobel_prize_winning_plot.png")
+png(filename =.path_get("output", "figure", "nobel_prize_winning_plot.png")
 # ... code to create the plot
 dev.off()
 ```
-In future, if the path to the output folder changes in `_projr.yml` (e.g. to `_output_figures` instead of `_output`), `projr_path_get` will automatically update the path.
+In future, if the path to the output folder changes in `_projr.yml` (e.g. to `_output_figures` instead of `_output`), .path_get` will automatically update the path.
 
-Essentially, `projr_path_get` should replace either hardcoded paths (`"_output/figure/nobel_prize_winning_plot.png"`) or `file.path`/`here::here` calls.
+Essentially, .path_get` should replace either hardcoded paths (`"_output/figure/nobel_prize_winning_plot.png"`) or `file.path`/`here::here` calls.
 
 #### Benefits
 
@@ -208,7 +208,7 @@ Using folders in the manner described (e.g. storing raw data in the `raw-data` f
 - A person new to the project can read one file (`_projr.yml`) rather than trawling through source code to understand the project structure.
 - Sharing parts of the project (e.g. the raw data) and setting up the project again (e.g. on a new computer or on a collaborator's computer) is easier as like things are kept together. This is as opposed to, for example, keeping some raw data in `_raw_data`, others in `inst/extdata` and others at the root of the project, which makes bringing all the pieces together harder.
 - It helps `projr` help you, as it understands your project structure. This takes the following forms:
-  - `projr` can "protect" the output folder. The `projr_build_dev()` function (described more below) builds the project, but saves outputs to the `cache` folder rather than the `output` folder. This prevents you accidentally overwriting outputs from a previous successful build whilst iterating on the code in preparation for the next build.
+  - `projr` can "protect" the output folder. The .build_dev()` function (described more below) builds the project, but saves outputs to the `cache` folder rather than the `output` folder. This prevents you accidentally overwriting outputs from a previous successful build whilst iterating on the code in preparation for the next build.
   - `projr` can upload the data to various places. As described in the next subsection (`build`), `projr` can send data from these folders (`raw-data`, `output`, etc.) to various places - at present, this includes GitHub releases, OSF and local folders (e.g. your OneDrive project folder).
   - `projr` can automatically ignore large files from Git. If you don't understand what this means, then don't worry - in fact, it's *great* that you're here as this means `projr` can help you to use the incredibly useful versioning tool that is Git without having to understand its details.
 
@@ -241,39 +241,39 @@ By default, the `build` key can also specify that the `output` and `docs` folder
 In addition, the build key handles Git settings, such as whether or not Git commits are automatically created before and after each build, and whether they are pushed to GitHub automatically.
 By default, they are, which means that the Git history is updated with each build, and the changes are pushed to GitHub.
 
-## Use `projr_build_` functions to build your project
+## Use .build_` functions to build your project
 
-`projr` provides two main functions to help you build your project, `projr_build_output()` and `projr_build_dev()`.
-In a nutshell, `projr_build_dev()` is for checking code as you write it, and `projr_build_output()` is for snapshotting and sharing your project.
+`projr` provides two main functions to help you build your project, .build_output()` and .build_dev()`.
+In a nutshell, .build_dev()` is for checking code as you write it, and .build_output()` is for snapshotting and sharing your project.
 
 Both will automatically detect the type of source documents you have (Rmd's, Qmd's, Quarto projects, `bookdown` projects) and render them accordingly.
 
-### `projr_build_output()`
+### .build_output()`
 
-`projr_build_output()`
-- This does the same as `projr_build_dev()`, except that the output documents are saved to their final destination (as specified in `docs`/`output`) and the outputs (GitHub/OSF) are sent to, as desired).
+.build_output()`
+- This does the same as .build_dev()`, except that the output documents are saved to their final destination (as specified in `docs`/`output`) and the outputs (GitHub/OSF) are sent to, as desired).
   - If you set the project up with GitHub, then by default the `raw-data`, `docs` and `output` folders are uploaded to GitHub as GitHub releases.
 
-### `projr_build_dev()`
+### .build_dev()`
 
-`projr_build_dev()` renders the literate programming documents in your document.
+.build_dev()` renders the literate programming documents in your document.
 
 Any results are saved to the `cache` directory, under `<cache>/projr/v<project_version>/<directory_label>`.
 For example, suppose we have the code
 
 ```r
-png(filename = projr_path_get("output", "figure", "nobel_prize_winning_plot.png")
+png(filename =.path_get("output", "figure", "nobel_prize_winning_plot.png")
 # ... code to create the plot
 dev.off()
 ```
 
 in our `Rmd` file.
-When using `projr_build_dev`, the plot will be saved to `_tmp/projr/v<project_version>/output/figure/nobel_prize_winning_plot.png`.
+When using .build_dev`, the plot will be saved to `_tmp/projr/v<project_version>/output/figure/nobel_prize_winning_plot.png`.
 This is instead of saving it to `_output/figure/nobel_prize_winning_plot.png`, which is the final destination.
 
 The same goes for the rendered documents (e.g. HTML files), which would be saved to `_tmp/projr/v<project_version>/docs`.
 
-In addition, `projr_build_dev` allows you to render just a chosen selection of documents, e.g. `projr_build_dev("analysis.Rmd")` will render just the `analysis.Rmd` document (can do more than one).
+In addition, .build_dev` allows you to render just a chosen selection of documents, e.g. .build_dev("analysis.Rmd")` will render just the `analysis.Rmd` document (can do more than one).
 
 ## Create a GitHub account, and save GitHub credentials
 

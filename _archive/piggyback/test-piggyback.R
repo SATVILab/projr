@@ -1,4 +1,4 @@
-test_that(".projr_pb_check_run works", {
+test_that(".pb_check_run works", {
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
   .dir_create(dir_test)
@@ -25,30 +25,30 @@ test_that(".projr_pb_check_run works", {
     code = {
       # automatic exits
       # ---------------------
-      yml_projr_init <- .projr_yml_get_default_raw()
-      expect_false(.projr_pb_check_run(output_run = FALSE))
-      yml_projr <- yml_projr_init
+      yml.init <- .yml_get_default_raw()
+      expect_false(.pb_check_run(output_run = FALSE))
+      yml_projr <- yml.init
       yml_projr[["build"]] <- yml_projr[["build"]][c("git", "dev-output")]
-      .projr_yml_set(yml_projr)
-      expect_false(.projr_pb_check_run(output_run = TRUE))
-      .projr_yml_set(yml_projr_init)
+      .yml_set(yml_projr)
+      expect_false(.pb_check_run(output_run = TRUE))
+      .yml_set(yml.init)
       # test zip creation
-      file.create(projr_path_get("cache", "test.txt"))
+      file.create.path_get("cache", "test.txt"))
       expect_identical(
-        .projr_zip_dir_pb(
+        .zip_dir_pb(
           tag = "v1.0.0", label = "cache", output_run = TRUE
         ),
         file.path(
           getwd(),
-          projr_path_get(
-            "cache", "projr", .projr_version_get_v(),
+         .path_get(
+            "cache", "projr", .version_get_v(),
             "gh_release", "v1.0.0", "cache.zip"
           )
         ) |>
           normalizePath(winslash = "/", mustWork = FALSE)
       )
-      expect_true(file.exists(projr_path_get(
-        "cache", "projr", .projr_version_get_v(),
+      expect_true(file.exists.path_get(
+        "cache", "projr", .version_get_v(),
         "gh_release", "v1.0.0", "cache.zip"
       )))
     },

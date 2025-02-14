@@ -1,4 +1,4 @@
-.projr_osf_get_node <- function(title = NULL,
+.osf_get_node <- function(title = NULL,
                                 label = NULL,
                                 id = NULL,
                                 id_parent = NULL,
@@ -9,10 +9,10 @@
                                 path_append_label = NULL,
                                 path = NULL,
                                 create = TRUE) {
-  id_parent <- .projr_osf_get_id_parent(
+  id_parent <- .osf_get_id_parent(
     id_parent_force = id_parent_force, id_parent = id_parent
   )
-  osf_tbl <- .projr_osf_get_node_as_node(
+  osf_tbl <- .osf_get_node_as_node(
     title = title, id = id, id_parent = id_parent,
     category = category,
     body = body,
@@ -22,7 +22,7 @@
   if (is.null(label)) {
     return(osf_tbl)
   }
-  .projr_osf_get_node_sub_dir(
+  .osf_get_node_sub_dir(
     osf_tbl = osf_tbl,
     label = label,
     path_append_label = path_append_label,
@@ -30,7 +30,7 @@
   )
 }
 
-.projr_osf_get_node_as_node <- function(title = NULL,
+.osf_get_node_as_node <- function(title = NULL,
                                         id = NULL,
                                         id_parent = NULL,
                                         category = NULL,
@@ -38,13 +38,13 @@
                                         public = FALSE,
                                         create = TRUE) {
   # get node from id
-  osf_tbl <- .projr_osf_get_node_id(id = id)
+  osf_tbl <- .osf_get_node_id(id = id)
   if (!is.null(osf_tbl)) {
     return(osf_tbl)
   }
 
   # get node from id_parent and title
-  osf_tbl <- .projr_osf_get_node_id_parent(
+  osf_tbl <- .osf_get_node_id_parent(
     title = title, id_parent = id_parent
   )
   if (!is.null(osf_tbl)) {
@@ -54,13 +54,13 @@
   }
 
   # create node
-  .projr_osf_create_node(
+  .osf_create_node(
     title = title, id_parent = id_parent,
     category = category, body = body, public = public
   )
 }
 
-.projr_osf_get_node_id <- function(id) {
+.osf_get_node_id <- function(id) {
   if (is.null(id)) {
     return(NULL)
   }
@@ -75,7 +75,7 @@
 }
 
 
-.projr_osf_get_id_parent <- function(id_parent_force, id_parent) {
+.osf_get_id_parent <- function(id_parent_force, id_parent) {
   # actually, what matters is the parent
   if ((!is.null(id_parent_force)) && (!is.null(id_parent))) {
     stop(
@@ -88,11 +88,11 @@
   id_parent
 }
 
-.projr_osf_get_node_id_parent <- function(title, id_parent) {
+.osf_get_node_id_parent <- function(title, id_parent) {
   if (is.null(id_parent)) {
     return(NULL)
   }
-  osf_tbl_parent <- .projr_osf_get_node_id(id_parent)
+  osf_tbl_parent <- .osf_get_node_id(id_parent)
   osf_tbl_parent_comp <- osf_tbl_parent |>
     osfr::osf_ls_nodes()
   if (nrow(osf_tbl_parent_comp) == 0L) {
@@ -104,10 +104,10 @@
   if (length(id) == 0L) {
     return(NULL)
   }
-  .projr_osf_get_node_id(id)
+  .osf_get_node_id(id)
 }
 
-.projr_osf_create_node <- function(title = NULL,
+.osf_create_node <- function(title = NULL,
                                    id_parent_force = NULL,
                                    id_parent = NULL,
                                    category = NULL,
@@ -128,7 +128,7 @@
     ))
   } else {
     osf_tbl_parent <- tryCatch(
-      .projr_osf_get_node_id(id_parent),
+      .osf_get_node_id(id_parent),
       error = function(e) {
         stop(paste0("Could not get OSF node for id: ", id_parent))
       }
@@ -153,11 +153,11 @@
   osf_tbl
 }
 
-.projr_osf_get_node_sub_dir <- function(osf_tbl,
+.osf_get_node_sub_dir <- function(osf_tbl,
                                         label,
                                         path_append_label,
                                         path) {
-  path_dir_sub <- .projr_osf_get_path_dir_sub(
+  path_dir_sub <- .osf_get_path_dir_sub(
     label = label, path_append_label = path_append_label, path = path
   )
   if (is.null(path_dir_sub)) {
@@ -168,7 +168,7 @@
   )
 }
 
-.projr_osf_get_path_dir_sub <- function(label, path_append_label, path) {
+.osf_get_path_dir_sub <- function(label, path_append_label, path) {
   # set up subdirectories
   append_label <- is.null(path_append_label) ||
     path_append_label
@@ -207,18 +207,18 @@ projr_osf_create_project <- function(title,
   )
 }
 
-.projr_osf_rm_node_id <- function(id) {
+.osf_rm_node_id <- function(id) {
   try(
     {
       osfr::osf_rm(
-        x = .projr_osf_get_node_id(id), recurse = TRUE, check = FALSE
+        x = .osf_get_node_id(id), recurse = TRUE, check = FALSE
       )
     },
     silent = TRUE
   )
 }
 
-.projr_osf_node_empty <- function(osf_tbl) {
+.osf_node_empty <- function(osf_tbl) {
   osf_tbl_file <- osf_tbl |> osfr::osf_ls_files(n_max = Inf)
   if (nrow(osf_tbl_file) == 0L) {
     return(invisible(FALSE))

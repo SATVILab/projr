@@ -1,5 +1,5 @@
 # Helper function to retrieve the entire Quarto YAML configuration
-.projr_yml_quarto_get <- function() {
+.yml_quarto_get <- function() {
   # Construct the path to the `_quarto.yml` file within the project directory
   path_yml <- .path_get("_quarto.yml")
 
@@ -13,7 +13,7 @@
 }
 
 # Helper function to write updates to the Quarto YAML configuration
-.projr_yml_quarto_set <- function(list_save) {
+.yml_quarto_set <- function(list_save) {
   # Construct the path to the `_quarto.yml` file within the project directory
   path_yml <- .path_get("_quarto.yml")
 
@@ -51,20 +51,20 @@
   )
 
   # Append a newline to the YAML file to ensure proper formatting
-  .projr_newline_append(path_yml)
+  .newline_append(path_yml)
 
   # Return TRUE invisibly to indicate that the operation was successful
   invisible(TRUE)
 }
 
 # Function to get the output directory from the Quarto project configuration
-.projr_yml_quarto_get_output_dir <- function() {
+.yml_quarto_get_output_dir <- function() {
   # Access the 'output-dir' field within the 'project' section of the YAML
-  .projr_yml_quarto_get_project()[["output-dir"]]
+  .yml_quarto_get_project()[["output-dir"]]
 }
 
 # Main function to set the output directory in the Quarto project configuration
-.projr_yml_quarto_set_output_dir <- function(path) {
+.yml_quarto_set_output_dir <- function(path) {
   # Define the path to your _quarto.yml file
   path_yml_quarto <- .path_get("_quarto.yml")
 
@@ -78,7 +78,7 @@
   yml_lines <- if (length(proj_line_ind) == 0) {
     c("project:", paste0("  output-dir: ", path), yml_lines)
   } else {
-    .projr_yml_quarto_set_output_dir_present(path, yml_lines, proj_line_ind)
+    .yml_quarto_set_output_dir_present(path, yml_lines, proj_line_ind)
   }
 
   # Write the modified lines back to the file
@@ -87,28 +87,28 @@
 
 # Main function for when the "project:" key is present.
 # This function now uses three sub-functions.
-.projr_yml_quarto_set_output_dir_present <- function(path,
+.yml_quarto_set_output_dir_present <- function(path,
                                                      yml_lines,
                                                      proj_line_ind) {
   # 1. Get project block indices
-  block_indices <- .projr_yml_quarto_get_project_block_indices(
+  block_indices <- .yml_quarto_get_project_block_indices(
     yml_lines, proj_line_ind
   )
 
   # 2. Extract the project block and update it with the new output-dir value
   project_block <- yml_lines[block_indices$start:block_indices$end]
-  updated_project_block <- .projr_yml_quarto_update_project_block(
+  updated_project_block <- .yml_quarto_update_project_block(
     project_block, path
   )
 
   # 3. Rebuild the complete YAML lines with the updated project block
-  .projr_yml_quarto_rebuild_yaml(
+  .yml_quarto_rebuild_yaml(
     yml_lines, updated_project_block, block_indices
   )
 }
 
 # Sub-function 1: Get the indices (start and end) of the "project:" block.
-.projr_yml_quarto_get_project_block_indices <-
+.yml_quarto_get_project_block_indices <-
   function(yml_lines, proj_line_ind) {
     # Use the first occurrence of "project:"
     proj_start <- proj_line_ind[1]
@@ -129,7 +129,7 @@
   }
 
 # Sub-function 2: Update the project block with the new output-dir.
-.projr_yml_quarto_update_project_block <- function(project_block, path) {
+.yml_quarto_update_project_block <- function(project_block, path) {
   output_dir_ind <- which(grepl("^\\s*output-dir:", project_block))
 
   if (length(output_dir_ind) > 0) {
@@ -145,7 +145,7 @@
 
 # Sub-function 3: Rebuild the complete YAML file using
 # the updated project block.
-.projr_yml_quarto_rebuild_yaml <- function(yml_lines,
+.yml_quarto_rebuild_yaml <- function(yml_lines,
                                            updated_project_block,
                                            block_indices) {
   start_index <- block_indices$start
@@ -167,21 +167,21 @@
 
 
 # Function to get the project type from the Quarto configuration
-.projr_yml_quarto_get_project_type <- function() {
+.yml_quarto_get_project_type <- function() {
   # Access the 'type' field within the 'project' section of the YAML
-  .projr_yml_quarto_get_project()[["type"]]
+  .yml_quarto_get_project()[["type"]]
 }
 
 # Function to retrieve the 'project' section from the Quarto YAML
-.projr_yml_quarto_get_project <- function() {
+.yml_quarto_get_project <- function() {
   # Access the 'project' key in the entire YAML configuration
-  .projr_yml_quarto_get()[["project"]]
+  .yml_quarto_get()[["project"]]
 }
 
 # Function to get a top-level named element from the Quarto YAML
-.projr_yml_quarto_get_nm <- function(nm) {
+.yml_quarto_get_nm <- function(nm) {
   # Retrieve the value associated with the specified top-level key `nm` in the YAML
-  .projr_yml_quarto_get()[[nm]]
+  .yml_quarto_get()[[nm]]
 }
 
 # Helper function to wrap a nested element in a list if it’s a string
