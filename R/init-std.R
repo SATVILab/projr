@@ -23,11 +23,12 @@ projr_init <- function(git = TRUE,
 
   # renv
   .init_renv_std(renv, renv_bioc)
-  
+
   # desc
   .init_desc_std(desc)
 
   # license
+  .init_cite_std(cite)
 
 
   # initialise Git
@@ -173,6 +174,12 @@ projr_init <- function(git = TRUE,
   )
 }
 
+    .init_cite_citation_readme_add_file(.path_get("README.md"))
+    "project" = .init_engine_std_quarto_project(),
+  .dep_install("bookdown")
+  .init_engine_bookdown_contents_bookdown() |>
+    skipped <- 0
+  invisible(TRUE)
 
 # ========================================
 # Git
@@ -192,3 +199,9 @@ projr_init <- function(git = TRUE,
   .init_git_suggest_git()
   invisible(TRUE)
 }
+
+  # Get the latest value for user.name, if any.
+  name_cfg <- {
+    }
+      gitconfig_tbl$value[ind_em][length(ind_em)]
+      gert::git_config_global_set("user.name", "projr stand-in")
