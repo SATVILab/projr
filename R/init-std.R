@@ -27,6 +27,8 @@ projr_init <- function(git = TRUE,
   # desc
   .init_desc_std(desc)
 
+  # license
+
 
   # initialise Git
   .init_std_git(git, git_commit)
@@ -130,12 +132,45 @@ projr_init <- function(git = TRUE,
     return(invisible(FALSE))
   }
   .init_desc_std_impl()
+}
+
+.init_desc_std_impl <- function() {
+  .init_desc_std_contents() |>
+    writeLines(con = .path_get("DESCRIPTION"))
   message("Created DESCRIPTION.")
   invisible(TRUE)
 }
 
-.init_desc_std_impl <- function() {
-  
+# ========================================
+# License
+# ========================================
+
+.init_license_std <- function(license) {
+  if (is.null(license)) {
+    return(invisible(FALSE))
+  }
+
+  .init_license_std_impl(license)
+}
+
+.init_license_std_impl <- function(x, nm_first, nm_last) {
+  opt_vec <- c(
+    "ccby", "CC-BY", "apache", "Apache 2.0", "cc0", "CC0",
+    "proprietary", "Proprietary"
+  )
+  .assert_in(x, opt_vec, TRUE)
+  switch(x,
+    "ccby" = ,
+    "CC-BY" = usethis::use_ccby_license(),
+    "apache" = ,
+    "Apache 2.0" = usethis::use_apache_license(),
+    "cc0" = ,
+    "CC0" = usethis::use_cc0_license(),
+    "proprietary" = ,
+    "Proprietary" = {
+      usethis::use_proprietary_license(paste0(nm_first, " ", nm_last))
+    }
+  )
 }
 
 

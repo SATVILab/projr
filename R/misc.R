@@ -602,3 +602,19 @@ projr_use_data <- function(...,
     "`[Methods, timeline, team, data sources, software/tools, etc.]`"
   )
 }
+
+.init_desc_std_contents <- function() {
+  c(
+    "Package: {{ Package }}",
+    "Title: {{ Title }}",
+    "Version: 1.0.0",
+    "Authors@R (parsed):",
+    "    * Jo Doe <jodoe@dom.ain> [aut, cre]",
+    "Maintainer: {{ Maintainer }}",
+    "Description: {{ Description }}",
+    "License: {{ License }}",
+    "URL: {{ URL }}",
+    "BugReports: {{ BugReports }}",
+    "Encoding: UTF-8"
+  )
+}
