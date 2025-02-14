@@ -23,10 +23,10 @@
 #' Default is `FALSE`.
 #' @seealso projr_init_renviron
 #' @export
-projr_init_full <- function(yml_path_from = NULL,
-                            renv_force = FALSE,
-                            renv_bioconductor = TRUE,
-                            public = FALSE) {
+projr_init_prompt <- function(yml_path_from = NULL,
+                              renv_force = FALSE,
+                              renv_bioconductor = TRUE,
+                              public = FALSE) {
   # create initial _proj.yml
   .projr_init_yml(yml_path_from) # nolint: object_usage_linter.
 
@@ -114,4 +114,5 @@ projr_init_renv <- function(force = FALSE, bioc = TRUE) {
   .projr_dep_install_only("renv")
   .projr_init_renv(force, bioc, FALSE)
 }
-                       citation = FALSE {
+
+

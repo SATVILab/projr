@@ -858,13 +858,7 @@ projr_init_renviron <- function() {
     }
     return(invisible(FALSE))
   }
-  .projr_git_system_setup()
-  .projr_git_init()
-  projr_ignore_auto()
-  if (commit) {
-    .projr_init_git_commit()
-  }
-  .projr_init_git_suggest_git()
+  .projr_init_std_git(TRUE, commit)
   invisible(TRUE)
 }
 
