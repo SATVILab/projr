@@ -228,7 +228,7 @@ usethis::with_project(
     expect_true(.remote_final_check_exists_github(
       remote_pre_latest, "latest", "raw-data-empty", NULL
     ))
-    path_dir_save <-.dir_get_tmp_random_path()
+    path_dir_save <- .dir_get_tmp_random_path()
     dir.create(path_dir_save, recursive = TRUE, showWarnings = FALSE)
     .remote_file_get_ind_github(
       remote_pre_latest, "raw-data-empty", path_dir_save

@@ -195,7 +195,7 @@ test_that(".build_copy_to_unsafe works", {
       # and directories are zipped
       # -------------------------------------
       expect_false(.build_copy_to_unsafe(output_run = FALSE))
-      dir_safe <-.path_get("output", safe = TRUE)
+      dir_safe <- projr_path_get("output", safe = TRUE)
       expect_true(file.exists(file.path(dir_safe, "a.txt")))
       expect_true(file.exists(file.path(dir_safe, "b.txt")))
       expect_true(dir.exists(file.path(dir_safe, "dir_c")))
@@ -209,7 +209,7 @@ test_that(".build_copy_to_unsafe works", {
       expect_false(file.exists(file.path(dir_safe, "b.txt")))
       expect_false(file.exists(file.path(dir_safe, "dir_c.zip")))
       expect_false(file.exists(file.path(dir_safe, "dir_d.zip")))
-      dir_output_final <-.path_get("output", safe = FALSE)
+      dir_output_final <- projr_path_get("output", safe = FALSE)
       expect_true(file.exists(file.path(dir_output_final, "a.txt")))
       expect_true(file.exists(file.path(dir_output_final, "b.txt")))
       expect_true(dir.exists(file.path(dir_output_final, "dir_c")))

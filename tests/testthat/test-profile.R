@@ -78,7 +78,7 @@ test_that("projr_profile_get, _set and _create work", {
       # ---------------------
 
       # default
-     .profile <-.profile_get()
+     .profile <- projr_profile_get()
       expect_identical(projr_profile_get(), "default")
       Sys.setenv("PROJR_PROFILE" = "abc")
       expect_identical(projr_profile_get(), "abc")

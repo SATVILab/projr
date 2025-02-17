@@ -141,13 +141,13 @@ test_that(".osf_send_dir and _missing work", {
       # ----------------------
 
       # create extra files
-      path_file_extra_init <-.path_get(
+      path_file_extra_init <- projr_path_get(
         "raw-data", "extra.txt"
       )
-      path_file_extra_sub <-.path_get(
+      path_file_extra_sub <- projr_path_get(
         "raw-data", "altdir1", "extra2.txt"
       )
-      path_file_extra_sub_sub <-.path_get(
+      path_file_extra_sub_sub <- projr_path_get(
         "raw-data", "altdir1", "altdir2", "extra3.txt"
       )
 

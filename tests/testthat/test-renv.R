@@ -20,7 +20,7 @@ test_that("projr_renv_test successfully restores renv environment", {
   expect_true(file.exists("renv.lock"))
 
   # Test restoration
-  result <-.renv_test(file = "test.txt", delete_lib = FALSE)
+  result <- projr_renv_test(file = "test.txt", delete_lib = FALSE)
   
   # Check that the result is TRUE indicating success
   expect_true(result)
@@ -47,7 +47,7 @@ test_that("projr_renv_test fails when it should", {
   expect_true(file.exists("renv.lock"))
 
   # Test restoration
-  result <-.renv_test(file = "test.txt", delete_lib = FALSE)
+  result <- projr_renv_test(file = "test.txt", delete_lib = FALSE)
   
   # Check that the result is TRUE indicating success
   expect_false(result)

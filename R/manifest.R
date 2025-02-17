@@ -236,7 +236,7 @@
 .manifest_get_version_earliest_match <- function(label, # nolint
                                                        version_comp) {
   # begin with latest version (most conservative)
-  version_earliest_match <-.version_get() |>
+  version_earliest_match <- projr_version_get() |>
     .version_v_rm() |>
     package_version()
   # get lowest version available, if version_comp not provided

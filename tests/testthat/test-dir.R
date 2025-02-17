@@ -425,7 +425,7 @@ test_that(".dir_clear works", {
       dir_cache_sub <-projr_path_get_dir("cache", "sub")
       path_cache_sub_fn <- file.path(dir_cache_sub, "test.txt")
       invisible(file.create(path_cache_sub_fn))
-      path_cache_fn <-.path_get("cache", "test2.txt")
+      path_cache_fn <- projr_path_get("cache", "test2.txt")
       invisible(file.create(path_cache_fn))
       .dir_clear(
         path_dir =projr_path_get_dir("cache")
