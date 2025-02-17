@@ -509,7 +509,7 @@
       .manifest_filter_version(projr_version_get())
     rn_vec_init <- rownames(manifest_remote_version_label)
     manifest_remote_version_label <- manifest_remote_version_label[
-      !manifest_remote_version_label[["fn"]] %in% manifest_append[["fn"]]
+      !manifest_remote_version_label[["fn"]] %in% manifest_append[["fn"]],
     ]
     manifest_remote_rm <- setdiff(
       rownames(manifest_remote_version_label), rn_vec_init
