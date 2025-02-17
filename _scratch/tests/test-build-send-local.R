@@ -14,7 +14,7 @@ test_that("projr_build_output works - local - defaults", {
       .yml_git_set_commit(TRUE, TRUE, NULL)
       .yml_git_set_add_untracked(TRUE, TRUE, NULL)
       .yml_git_set_push(FALSE, TRUE, NULL)
-     .build_output("patch", msg = "test")
+     projr_build_output("patch", msg = "test")
      projr_version_get()
       expect_identical(projr_version_get(), "0.0.1")
       yml_bd <- .yml_bd_get()
@@ -22,11 +22,11 @@ test_that("projr_build_output works - local - defaults", {
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
       # run repeat build
-     .build_output("minor", msg = "test")
+     projr_build_output("minor", msg = "test")
       expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
       # raw-data and source are empty
-     .yml_dest_add_local(
+     projr_yml_dest_add_local(
         title = "Raw data",
         content = "raw-data",
         path = "_archive"
@@ -127,19 +127,19 @@ test_that("projr_build_output works - local - latest - file", {
       .yml_git_set_commit(TRUE, TRUE, NULL)
       .yml_git_set_add_untracked(TRUE, TRUE, NULL)
       .yml_git_set_push(FALSE, TRUE, NULL)
-     .build_output("patch", msg = "test")
+     projr_build_output("patch", msg = "test")
      .version_get()
-      expect_identical.version_get(), "0.0.1")
+      expect_identical(projr_version_get(), "0.0.1")
       yml_bd <- .yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "_book")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
       # run repeat build
-     .build_output("minor", msg = "test")
-      expect_identical.version_get(), "0.1.0")
+     projr_build_output("minor", msg = "test")
+      expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
       # raw-data and source are empty
-     .yml_dest_add_local(
+     projr_yml_dest_add_local(
         title = "Raw data",
         content = "raw-data",
         path = "_archive",
@@ -238,19 +238,19 @@ test_that("projr_build_output works - local - latest - <strategy>", {
       .yml_git_set_commit(TRUE, TRUE, NULL)
       .yml_git_set_add_untracked(TRUE, TRUE, NULL)
       .yml_git_set_push(FALSE, TRUE, NULL)
-     .build_output("patch", msg = "test")
+     projr_build_output("patch", msg = "test")
      .version_get()
-      expect_identical.version_get(), "0.0.1")
+      expect_identical(projr_version_get(), "0.0.1")
       yml_bd <- .yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "_book")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
       # run repeat build
-     .build_output("minor", msg = "test")
-      expect_identical.version_get(), "0.1.0")
+     projr_build_output("minor", msg = "test")
+      expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
       # raw-data and source are empty
-     .yml_dest_add_local(
+     projr_yml_dest_add_local(
         title = "Raw data",
         content = "raw-data",
         path = "_archive",
@@ -449,19 +449,19 @@ test_that("projr_build_output works - local - latest - <strategy> - none", {
       .yml_git_set_commit(TRUE, TRUE, NULL)
       .yml_git_set_add_untracked(TRUE, TRUE, NULL)
       .yml_git_set_push(FALSE, TRUE, NULL)
-     .build_output("patch", msg = "test")
+     projr_build_output("patch", msg = "test")
      .version_get()
-      expect_identical.version_get(), "0.0.1")
+      expect_identical(projr_version_get(), "0.0.1")
       yml_bd <- .yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "_book")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
       # run repeat build
-     .build_output("minor", msg = "test")
-      expect_identical.version_get(), "0.1.0")
+     projr_build_output("minor", msg = "test")
+      expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
       # raw-data and source are empty
-     .yml_dest_add_local(
+     projr_yml_dest_add_local(
         title = "Raw data",
         content = "raw-data",
         path = "_archive",
@@ -661,19 +661,19 @@ test_that("projr_build_output works - local - latest - none - <conflict>", {
       .yml_git_set_commit(TRUE, TRUE, NULL)
       .yml_git_set_add_untracked(TRUE, TRUE, NULL)
       .yml_git_set_push(FALSE, TRUE, NULL)
-     .build_output("patch", msg = "test")
+     projr_build_output("patch", msg = "test")
      .version_get()
-      expect_identical.version_get(), "0.0.1")
+      expect_identical(projr_version_get(), "0.0.1")
       yml_bd <- .yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "_book")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
       # run repeat build
-     .build_output("minor", msg = "test")
-      expect_identical.version_get(), "0.1.0")
+     projr_build_output("minor", msg = "test")
+      expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
       # raw-data and source are empty
-     .yml_dest_add_local(
+     projr_yml_dest_add_local(
         title = "Raw data",
         content = "raw-data",
         path = "_archive",
@@ -705,7 +705,7 @@ test_that("projr_build_output works - local - latest - none - <conflict>", {
 
       # error when there is a conflict
       # ---------------------
-      expect_error.build_patch(msg = "Ze data"))
+      expect_error(projr_build_patch(msg = "Ze data"))
 
       # use skip
       # ----------------------
@@ -741,19 +741,19 @@ test_that("projr_build_output works - local - latest - none - <cue>", {
       .yml_git_set_commit(TRUE, TRUE, NULL)
       .yml_git_set_add_untracked(TRUE, TRUE, NULL)
       .yml_git_set_push(FALSE, TRUE, NULL)
-     .build_output("patch", msg = "test")
+     projr_build_output("patch", msg = "test")
      .version_get()
-      expect_identical.version_get(), "0.0.1")
+      expect_identical(projr_version_get(), "0.0.1")
       yml_bd <- .yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "_book")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
       # run repeat build
-     .build_output("minor", msg = "test")
-      expect_identical.version_get(), "0.1.0")
+     projr_build_output("minor", msg = "test")
+      expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
       # raw-data and source are empty
-     .yml_dest_add_local(
+     projr_yml_dest_add_local(
         title = "Raw data",
         content = "raw-data",
         path = "_archive",
@@ -858,19 +858,19 @@ test_that("projr_build_output works - local - latest - none - don't append label
       .yml_git_set_commit(TRUE, TRUE, NULL)
       .yml_git_set_add_untracked(TRUE, TRUE, NULL)
       .yml_git_set_push(FALSE, TRUE, NULL)
-     .build_output("patch", msg = "test")
+     projr_build_output("patch", msg = "test")
      .version_get()
-      expect_identical.version_get(), "0.0.1")
+      expect_identical(projr_version_get(), "0.0.1")
       yml_bd <- .yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "_book")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
       # run repeat build
-     .build_output("minor", msg = "test")
-      expect_identical.version_get(), "0.1.0")
+     projr_build_output("minor", msg = "test")
+      expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
       # raw-data and source are empty
-     .yml_dest_add_local(
+     projr_yml_dest_add_local(
         title = "Raw data",
         content = "raw-data",
         path = "_archive",

@@ -13,7 +13,7 @@ test_that(".osf_send_fn works", {
       # setup
       # ----------------
 
-      yml.orig <- .yml_get()
+      yml_projr_orig <- projr_yml_get()
 
       # create files
       .test_setup_content("output")
@@ -25,7 +25,7 @@ test_that(".osf_send_fn works", {
       osf_tbl_proj <- .test_osf_create_project("ProjectUploadFn")
       .osf_rm_node_id_defer(osf_tbl_proj[["id"]])
 
-      path_dir_fn <-.path_get_dir("output", safe = FALSE)
+      path_dir_fn <-projr_path_get_dir("output", safe = FALSE)
       fn_vec <- list.files(path_dir_fn, recursive = TRUE)
 
       # upload to node
@@ -38,7 +38,7 @@ test_that(".osf_send_fn works", {
       )
 
       # check
-      path_dir_save_local <-.path_get_dir("cache", "node")
+      path_dir_save_local <-projr_path_get_dir("cache", "node")
       .osf_download_osf_tbl(
         osf_tbl = osf_tbl_proj, path_dir_save_local = path_dir_save_local
       )
@@ -58,7 +58,7 @@ test_that(".osf_send_fn works", {
       )
 
       # check
-      path_dir_save_local <-.path_get_dir("cache", "dir")
+      path_dir_save_local <-projr_path_get_dir("cache", "dir")
       .osf_download_osf_tbl(
         osf_tbl = osf_tbl_file, path_dir_save_local = path_dir_save_local
       )
@@ -84,7 +84,7 @@ test_that(".osf_send_dir and _missing work", {
       # setup
       # ----------------
 
-      yml.orig <- .yml_get()
+      yml_projr_orig <- projr_yml_get()
 
       # create files
       .test_setup_content("raw-data")
@@ -96,7 +96,7 @@ test_that(".osf_send_dir and _missing work", {
       osf_tbl_proj <- .test_osf_create_project("ProjectUploadFn")
       .osf_rm_node_id_defer(osf_tbl_proj[["id"]])
 
-      path_dir_fn <-.path_get_dir("raw-data", safe = FALSE)
+      path_dir_fn <-projr_path_get_dir("raw-data", safe = FALSE)
       fn_vec <- list.files(path_dir_fn, recursive = TRUE)
 
       # upload to node
@@ -109,7 +109,7 @@ test_that(".osf_send_dir and _missing work", {
       )
 
       # check
-      path_dir_save_local <-.path_get_dir("cache", "node")
+      path_dir_save_local <-projr_path_get_dir("cache", "node")
       .osf_download_osf_tbl(
         osf_tbl = osf_tbl_proj, path_dir_save_local = path_dir_save_local
       )
@@ -129,7 +129,7 @@ test_that(".osf_send_dir and _missing work", {
       )
 
       # check
-      path_dir_save_local <-.path_get_dir("cache", "dir")
+      path_dir_save_local <-projr_path_get_dir("cache", "dir")
       .osf_download_osf_tbl(
         osf_tbl = osf_tbl_file, path_dir_save_local = path_dir_save_local
       )
@@ -169,7 +169,7 @@ test_that(".osf_send_dir and _missing work", {
       )
 
       # check
-      path_dir_save_local <-.path_get_dir("cache", "missing_manifest")
+      path_dir_save_local <-projr_path_get_dir("cache", "missing_manifest")
       .osf_download_osf_tbl(
         osf_tbl = osf_tbl_file,
         path_dir_save_local = path_dir_save_local
@@ -185,7 +185,7 @@ test_that(".osf_send_dir and _missing work", {
       # create files
       browser()
       .test_setup_content("output")
-      path_dir_fn_output <-.path_get_dir("output", safe = FALSE)
+      path_dir_fn_output <-projr_path_get_dir("output", safe = FALSE)
       fn_vec <- list.files(path_dir_fn_output, recursive = TRUE)
       osf_tbl_file_output <- osfr::osf_mkdir(osf_tbl_proj, "output")
       osfr::osf_rm(osf_tbl_file_output, check = FALSE, recurse = TRUE)
@@ -201,7 +201,7 @@ test_that(".osf_send_dir and _missing work", {
       )
 
       # check
-      path_dir_save_local <-.path_get_dir("cache", "missing_osf")
+      path_dir_save_local <-projr_path_get_dir("cache", "missing_osf")
       .osf_download_osf_tbl(
         osf_tbl = osf_tbl_file_output,
         path_dir_save_local = path_dir_save_local
@@ -232,7 +232,7 @@ test_that(".osf_send_dir and _missing work", {
         version = NULL
       )
       osf_tbl_file <- osf_tbl_proj |> osfr::osf_mkdir(path_dir_osf)
-      path_dir_local <-.path_get_dir("raw-data")
+      path_dir_local <-projr_path_get_dir("raw-data")
       # upload
       .osf_send_version(
         path_dir_local = path_dir_local,
@@ -242,7 +242,7 @@ test_that(".osf_send_dir and _missing work", {
       )
 
       # check
-      path_dir_save_local <-.path_get_dir("cache", "version")
+      path_dir_save_local <-projr_path_get_dir("cache", "version")
       .osf_download_osf_tbl(
         osf_tbl = osf_tbl_file,
         path_dir_save_local = path_dir_save_local
@@ -256,7 +256,7 @@ test_that(".osf_send_dir and _missing work", {
      projr_version_set("0.0.2")
       .test_manifest_create()
 
-      path_dir_local <-.path_get_dir("raw-data")
+      path_dir_local <-projr_path_get_dir("raw-data")
       # upload
       .osf_send_version(
         path_dir_local = path_dir_local,
@@ -266,7 +266,7 @@ test_that(".osf_send_dir and _missing work", {
       )
 
       # check
-      path_dir_save_local <-.path_get_dir("cache", "version_unchanged")
+      path_dir_save_local <-projr_path_get_dir("cache", "version_unchanged")
       .osf_download_osf_tbl(
         osf_tbl = osf_tbl_file,
         path_dir_save_local = path_dir_save_local
@@ -287,7 +287,7 @@ test_that(".osf_send_dir and _missing work", {
       file.create.path_get("raw-data", "add.txt"))
 
       # change a file
-      writeLines(c("change"),.path_get("raw-data", "abc.txt"))
+      writeLines(c("change"), projr_path_get("raw-data", "abc.txt"))
 
      projr_version_set("v0.0.3")
       manifest <- .test_manifest_create()
@@ -300,7 +300,7 @@ test_that(".osf_send_dir and _missing work", {
       )
 
       # check
-      path_dir_save_local <-.path_get_dir("cache", "version_changed")
+      path_dir_save_local <-projr_path_get_dir("cache", "version_changed")
       .osf_download_osf_tbl(
         osf_tbl = osf_tbl_file,
         path_dir_save_local = path_dir_save_local
@@ -329,7 +329,7 @@ test_that(".osf_send_dir and _missing work", {
       file.create.path_get("raw-data", "add.txt"))
 
       # change a file
-      writeLines(c("change"),.path_get("raw-data", "abc.txt"))
+      writeLines(c("change"), projr_path_get("raw-data", "abc.txt"))
 
 
 
@@ -345,7 +345,7 @@ test_that(".osf_send_dir and _missing work", {
       )
 
       # check
-      path_dir_save_local <-.path_get_dir("cache", "missing")
+      path_dir_save_local <-projr_path_get_dir("cache", "missing")
       .osf_download_osf_tbl(
         osf_tbl = osf_tbl_file,
         path_dir_save_local = path_dir_save_local
@@ -375,7 +375,7 @@ test_that(".osf_send_yml_label works", {
       # setup
       # ----------------
 
-      yml.orig <- .yml_get()
+      yml_projr_orig <- projr_yml_get()
 
       # create files
       .test_setup_content("output")
@@ -390,7 +390,7 @@ test_that(".osf_send_yml_label works", {
       # test
       osf_tbl_file <- osf_tbl_projr |> osfr::osf_ls_files(n_max = Inf)
       path_osf <- NULL
-      path_local <-.path_get_dir("output", safe = FALSE)
+      path_local <-projr_path_get_dir("output", safe = FALSE)
 
       .osf_send_yml_label(
         osf_tbl = osf_tbl,

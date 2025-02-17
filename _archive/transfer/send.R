@@ -47,7 +47,7 @@
   )
   .send_file(
     fn_rel = change_list[["add"]],
-    path_dir_local = projr:.dir_get(),
+    path_dir_local = projr::projr_dir_get(),
     dest = dest,
     remote_type = remote_type,
     conflict = conflict

@@ -7,24 +7,24 @@ usethis::with_project(
   path = dir_test,
   code = {
     .yml_dest_rm_type_all("default")
-    file.create(projr:.path_get("raw-data", "data.csv"))
-   .init_git()
-    projr:.build_dev()
-    projr:.build_patch()
+    file.create(projr_path_get("raw-data", "data.csv"))
+   projr_init_git()
+    projr::projr_build_dev()
+    projr::projr_build_patch()
     # check that it runs at all
-   .yml_dest_add_github(
+   projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive",
       overwrite = TRUE
     )
-   .yml_dest_add_github(
+   projr_yml_dest_add_github(
       title = "latest",
       content = "raw-data",
       structure = "latest"
     )
      # expect uploads
-    projr:.build_patch()
+    projr::projr_build_patch()
     expect_true(.remote_check_exists("github", "latest"))
     expect_true(.remote_check_exists("github", "archive"))
     expect_true(.remote_final_check_exists(
@@ -44,7 +44,7 @@ usethis::with_project(
     expect_identical(manifest_archive$fn[[1]], "data.csv")
 
     # expect no upload
-    projr:.build_patch()
+    projr::projr_build_patch()
     expect_true(.remote_final_check_exists(
       "github", "latest", "raw-data", "latest", NULL, NULL, NULL
     ))
@@ -58,14 +58,14 @@ usethis::with_project(
 
 
     # now force upload
-   .yml_dest_add_github(
+   projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive",
       send_cue = "always",
       overwrite = TRUE
     )
-    projr:.build_patch()
+    projr::projr_build_patch()
     expect_true(.remote_final_check_exists(
       "github", "latest", "raw-data", "latest", NULL, NULL, NULL
     ))
@@ -83,14 +83,14 @@ usethis::with_project(
     expect_identical(manifest_archive$fn[[1]], "data.csv")
 
     # use file hashing to check
-   .yml_dest_add_github(
+   projr_yml_dest_add_github(
       title = "latest",
       content = "raw-data",
       structure = "latest",
       send_cue = "always"
     )
 
-   .yml_dest_add_github(
+   projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive",
@@ -98,7 +98,7 @@ usethis::with_project(
       send_inspect = "file",
       overwrite = TRUE
     )
-    projr:.build_patch()
+    projr::projr_build_patch()
     expect_true(.remote_final_check_exists(
       "github", "latest", "raw-data", "latest", NULL, NULL, NULL
     ))
@@ -117,7 +117,7 @@ usethis::with_project(
 
     # use file hashing to check, no upload for archive
     .yml_dest_rm_type_all("default")
-   .yml_dest_add_github(
+   projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive",
@@ -125,7 +125,7 @@ usethis::with_project(
       send_inspect = "file",
       overwrite = TRUE
     )
-    projr:.build_patch()
+    projr::projr_build_patch()
     expect_true(.remote_final_check_exists(
       "github", "latest", "raw-data", "latest", NULL, NULL, NULL
     ))
@@ -134,7 +134,7 @@ usethis::with_project(
     ))
 
     # inspect nothing, so always add
-   .yml_dest_add_github(
+   projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive",
@@ -142,7 +142,7 @@ usethis::with_project(
       send_inspect = "none",
       overwrite = TRUE
     )
-    projr:.build_patch()
+    projr::projr_build_patch()
     expect_true(.remote_final_check_exists(
       "github", "archive", "raw-data", "archive", NULL, NULL, NULL
     ))
@@ -153,14 +153,14 @@ usethis::with_project(
     # handle an empty directory
     .yml_dest_rm_type_all("default")
     unlink("_raw_data", recursive = TRUE)
-   .yml_dest_add_github(
+   projr_yml_dest_add_github(
       title = "latest",
       content = "raw-data",
       structure = "latest",
       send_cue = "if-change",
       overwrite = TRUE
     )
-   .yml_dest_add_github(
+   projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive",
@@ -168,7 +168,7 @@ usethis::with_project(
       overwrite = TRUE
     )
     debugonce(.dest_send_label)
-    projr:.build_patch()
+    projr::projr_build_patch()
     expect_false(.remote_final_check_exists(
       "github", "archive", "raw-data", "archive", NULL, NULL, NULL
     ))
@@ -196,17 +196,17 @@ dir_test <- .test_setup_project(
 usethis::with_project(
   path = dir_test,
   code = {
-   .init_git()
+   projr_init_git()
     .yml_git_set_push(FALSE, TRUE, NULL)
     # remove github remote
     .yml_dest_rm_type_all("default")
     # add a local destination, that is never sent to
-   .yml_dest_add_github(
+   projr_yml_dest_add_github(
       title = "latest",
       content = "raw-data",
       structure = "latest"
     )
-    projr:.build_patch()
+    projr::projr_build_patch()
     # expect that the empty equivalent exists,
     # and that it only contains projr-empty
     expect_true(.remote_check_exists("github", "latest"))
@@ -223,7 +223,7 @@ usethis::with_project(
     unlink(path_dir_save, recursive = TRUE)
 
     # check that we still have the same thing
-    projr:.build_patch()
+    projr::projr_build_patch()
     expect_true(.remote_check_exists("github", "latest"))
     remote_pre_latest <- c("tag" = "latest")
     expect_true(.remote_final_check_exists_github(
@@ -237,8 +237,8 @@ usethis::with_project(
     unlink(path_dir_save, recursive = TRUE)
 
     # add a file, then we need to remove the empty directory
-    file.create(projr:.path_get("raw-data", "data.csv"))
-    projr:.build_patch()
+    file.create(projr_path_get("raw-data", "data.csv"))
+    projr::projr_build_patch()
     expect_false(.remote_final_check_exists_github(
       remote_pre_latest, "latest", "raw-data-empty", NULL
     ))
@@ -253,8 +253,8 @@ usethis::with_project(
 
     # now go from something to nothing,
     # so need to add raw-data-empty
-    file.remove(projr:.path_get("raw-data", "data.csv"))
-    projr:.build_patch()
+    file.remove(projr_path_get("raw-data", "data.csv"))
+    projr::projr_build_patch()
     expect_true(.remote_final_check_exists_github(
       remote_pre_latest, "latest", "raw-data-empty", NULL
     ))
@@ -281,17 +281,17 @@ dir_test <- .test_setup_project(
 usethis::with_project(
   path = dir_test,
   code = {
-   .init_git()
+   projr_init_git()
     .yml_git_set_push(FALSE, TRUE, NULL)
     # remove github remote
     .yml_dest_rm_type_all("default")
     # add a local destination, that is never sent to
-   .yml_dest_add_github(
+   projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive"
     )
-    projr:.build_patch()
+    projr::projr_build_patch()
     # expect that the empty equivalent exists,
     # and that it only contains projr-empty
     expect_true(.remote_check_exists("github", "archive"))
@@ -309,7 +309,7 @@ usethis::with_project(
 
     # check that we do not add v0.0.2, as cue is if-change
 
-    projr:.build_patch()
+    projr::projr_build_patch()
     expect_true(.remote_final_check_exists_github(
       remote_pre_archive, "archive", "raw-data", "v0.0.1-empty"
     ))
@@ -318,9 +318,9 @@ usethis::with_project(
     ))
 
     # add a file, then we need to remove the empty directory
-    file.create(projr:.path_get("raw-data", "data.csv"))
+    file.create(projr_path_get("raw-data", "data.csv"))
 
-    projr:.build_patch()
+    projr::projr_build_patch()
     expect_true(.remote_final_check_exists_github(
       remote_pre_archive, "archive", "raw-data", "v0.0.1-empty"
     ))
@@ -333,8 +333,8 @@ usethis::with_project(
 
     # now go from something to nothing,
     # so need to add raw-data-empty
-    file.remove(projr:.path_get("raw-data", "data.csv"))
-    projr:.build_patch()
+    file.remove(projr_path_get("raw-data", "data.csv"))
+    projr::projr_build_patch()
     expect_true(.remote_final_check_exists_github(
       remote_pre_archive, "archive", "raw-data", "v0.0.4-empty"
     ))
@@ -346,14 +346,14 @@ usethis::with_project(
     ))
 
     # try with cue: always
-   .yml_dest_add_github(
+   projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive",
       send_cue = "always",
       overwrite = TRUE
     )
-    projr:.build_patch()
+    projr::projr_build_patch()
     expect_true(.remote_final_check_exists_github(
       remote_pre_archive, "archive", "raw-data", "v0.0.5-empty"
     ))
@@ -362,14 +362,14 @@ usethis::with_project(
     ))
 
     # try with inspect: file, no change
-   .yml_dest_add_github(
+   projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive",
       send_inspect = "file",
       overwrite = TRUE
     )
-    projr:.build_patch()
+    projr::projr_build_patch()
     expect_false(.remote_final_check_exists_github(
       remote_pre_archive, "archive", "raw-data", "v0.0.6-empty"
     ))
@@ -380,7 +380,7 @@ usethis::with_project(
     # try with inspect: file, add a file
 
     file.create("_raw_data/data.csv")
-    projr:.build_patch()
+    projr::projr_build_patch()
     expect_false(.remote_final_check_exists_github(
       remote_pre_archive, "archive", "raw-data", "v0.0.7-empty"
     ))
@@ -390,7 +390,7 @@ usethis::with_project(
 
     # try with inspect: file, remove a file
     file.remove("_raw_data/data.csv")
-    projr:.build_patch()
+    projr::projr_build_patch()
     expect_true(.remote_final_check_exists_github(
       remote_pre_archive, "archive", "raw-data", "v0.0.8-empty"
     ))
@@ -399,7 +399,7 @@ usethis::with_project(
     ))
 
     # try with inspect: file, no change from no file
-    projr:.build_patch()
+    projr::projr_build_patch()
     expect_false(.remote_final_check_exists_github(
       remote_pre_archive, "archive", "raw-data", "v0.0.9-empty"
     ))

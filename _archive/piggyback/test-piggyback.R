@@ -25,13 +25,13 @@ test_that(".pb_check_run works", {
     code = {
       # automatic exits
       # ---------------------
-      yml.init <- .yml_get_default_raw()
+      yml_projr_init <- .yml_get_default_raw()
       expect_false(.pb_check_run(output_run = FALSE))
-      yml_projr <- yml.init
+      yml_projr <- yml_projr_init
       yml_projr[["build"]] <- yml_projr[["build"]][c("git", "dev-output")]
       .yml_set(yml_projr)
       expect_false(.pb_check_run(output_run = TRUE))
-      .yml_set(yml.init)
+      .yml_set(yml_projr_init)
       # test zip creation
       file.create.path_get("cache", "test.txt"))
       expect_identical(

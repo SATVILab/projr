@@ -66,25 +66,25 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 }
 
 .yml_get_null <- function() {
-  yml.root <- .yml_get_default()
-  yml.profile <- .yml_get_profile_spec()
-  yml.local <- .yml_get_local()
+  yml_projr_root <- .yml_get_default()
+  yml_projr_profile <- .yml_get_profile_spec()
+  yml_projr_local <- .yml_get_local()
 
   .yml_merge(
-    yml.root, yml.profile, yml.local
+    yml_projr_root, yml_projr_profile, yml_projr_local
   )
 }
 
-.yml_merge <- function(yml.root_default,
-                             yml.profile,
-                             yml.local) {
-  nm_vec <- names(yml.root_default) |>
-    c(names(yml.profile), names(yml.local)) |>
+.yml_merge <- function(yml_projr_root_default,
+                             yml_projr_profile,
+                             yml_projr_local) {
+  nm_vec <- names(yml_projr_root_default) |>
+    c(names(yml_projr_profile), names(yml_projr_local)) |>
     unique()
   lapply(nm_vec, function(nm) {
-    elem_default <- yml.root_default[[nm]]
-    elem_profile <- yml.profile[[nm]]
-    elem_local <- yml.local[[nm]]
+    elem_default <- yml_projr_root_default[[nm]]
+    elem_profile <- yml_projr_profile[[nm]]
+    elem_local <- yml_projr_local[[nm]]
     # return early if highest-precedence element
     # is not a list.
     # Otherwise, make any lower-precedence elements
@@ -166,10 +166,10 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   # read in with at least 3
   profile_list <- .yml_get_profile_list_min_3(profile_vec)
 
-  yml.profile <- .yml_merge_list(profile_list[1:3])
+  yml_projr_profile <- .yml_merge_list(profile_list[1:3])
 
   if (length(profile_list) == 3L) {
-    return(yml.profile)
+    return(yml_projr_profile)
   }
 
   n_done <- 3
@@ -181,12 +181,12 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
       profile_list <- profile_list |>
         append(lapply(1, function(x) list()))
     }
-    yml.profile <- .yml_merge_list_add(
-      yml.profile, profile_list[(n_done + 1):end_iter_max]
+    yml_projr_profile <- .yml_merge_list_add(
+      yml_projr_profile, profile_list[(n_done + 1):end_iter_max]
     )
     n_done <- end_iter_max
   }
-  yml.profile
+  yml_projr_profile
 }
 
 .yml_get_profile_ind <- function(profile) {
@@ -223,17 +223,17 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 
 .yml_merge_list <- function(profile_list) {
   .yml_merge(
-    yml.root_default = profile_list[[3]],
-    yml.profile = profile_list[[2]],
-    yml.local = profile_list[[1]]
+    yml_projr_root_default = profile_list[[3]],
+    yml_projr_profile = profile_list[[2]],
+    yml_projr_local = profile_list[[1]]
   )
 }
 
-.yml_merge_list_add <- function(yml.profile, profile_list) {
+.yml_merge_list_add <- function(yml_projr_profile, profile_list) {
   .yml_merge(
-    yml.root_default = profile_list[[3]],
-    yml.profile = profile_list[[2]],
-    yml.local = yml.profile
+    yml_projr_root_default = profile_list[[3]],
+    yml_projr_profile = profile_list[[2]],
+    yml_projr_local = yml_projr_profile
   )
 }
 
@@ -250,14 +250,14 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     "metadata"
   )
   
-  pos_list <- lapply(nm_list,.yml_get_filter_top_level_ind, yml = yml)
+  pos_list <- lapply(nm_list, .yml_get_filter_top_level_ind, yml = yml)
   pos_vec <- unlist(Filter(Negate(is.null), pos_list), use.names = FALSE)
   
   yml[pos_vec]
 }
 
 
-projr_yml_get_filter_top_level_ind <- function(yml, nm) {
+.yml_get_filter_top_level_ind <- function(yml, nm) {
   idx <- match(nm, names(yml), nomatch = 0)
   idx <- idx[idx > 0]
   if (length(idx) > 0) idx[1] else NULL

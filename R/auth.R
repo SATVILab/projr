@@ -62,7 +62,7 @@
   }
   c(
     "After doing the above:\n", # nolint
-    "1. In R, rerun projr:.init()\n", # nolint
+    "1. In R, rerun projr::projr_init()\n", # nolint
     "It will skip what's been done already and try set up GitHub again." # nolint
   )
 }

@@ -193,7 +193,7 @@ projr_yml_git_set_default <- function(profile = "default",
 }
 
 .yml_git_get_ordered <- function(yml_git) {
-  nm_vec_impl <- names(yml_git)
+  nm_vec_actual <- names(yml_git)
   nm_vec_possible <- c("commit", "add-untracked", "push")
   nm_vec_ordered <- nm_vec_possible[nm_vec_possible %in% nm_vec_actual]
   yml_git[nm_vec_ordered]
@@ -301,8 +301,8 @@ projr_yml_git_set_default <- function(profile = "default",
 # --------------------
 
 .yml_unset_github_dest <- function() {
-  yml.root <- .yml_get_default()
-  yml.root[["build"]][["github"]] <- NULL
-  .yml_set_root(yml.root)
+  yml_projr_root <- .yml_get_default()
+  yml_projr_root[["build"]][["github"]] <- NULL
+  .yml_set_root(yml_projr_root)
   invisible(TRUE)
 }

@@ -56,7 +56,7 @@ Let's look at the two functions that are the heart of building your project:
    - **Purpose:** Your development buddy!  Renders your code documents, with results temporarily saved to the "cache" folder.
    - **Why Use It:**  Test changes safely before finalizing your outputs.
 
-* **.build_output()`**
+* **projr_build_output()`**
    - **Purpose:** The final production step. This saves results to their final locations *and* handles versioning, uploads, and other tasks you've set in `_projr.yml`.
 
 ## Notes on Git and GitHub

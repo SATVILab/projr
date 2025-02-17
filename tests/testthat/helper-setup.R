@@ -195,13 +195,13 @@
       )
     }
   }
-  vapply(x,.path_get_dir, character(1), safe = safe) |> invisible()
+  vapply(x, projr_path_get_dir, character(1), safe = safe) |> invisible()
 }
 
 .test_setup_content_dir <- function(path_dir = NULL,
-                                          safe = FALSE,
-                                          dir_sub_lvl = 2,
-                                          dir_sub_prefix = "subdir") {
+                                    safe = FALSE,
+                                    dir_sub_lvl = 2,
+                                    dir_sub_prefix = "subdir") {
   if (is.null(path_dir)) {
     path_dir <- file.path(tempdir(), signif(stats::rnorm(1), 6))
   }
@@ -237,9 +237,9 @@ content_vec_test_dir <- c(
 content_vec <- c(content_vec_test_file, content_vec_test_dir)
 
 .test_manifest_create <- function(pre = TRUE,
-                                        post = TRUE,
-                                        write = TRUE,
-                                        output_run = TRUE) {
+                                  post = TRUE,
+                                  write = TRUE,
+                                  output_run = TRUE) {
   if (pre && !post) {
     manifest <- .build_manifest_pre(output_run)
   } else if (!pre && post) {
@@ -284,7 +284,7 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
 }
 
 .test_yml_dest_remote_rm <- function() {
-  yml_projr <- .yml_get()
+  yml_projr <- projr_yml_get()
   type_vec <- c("local", "github", "osf")
   type_vec <- type_vec[type_vec %in% names(yml_projr[["build"]])]
   for (i in seq_along(type_vec)) {
@@ -328,11 +328,11 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
 }
 
 .test_yml_unset_remote <- function() {
-  yml.build <- .yml_build_get(NULL)
-  yml.build <- yml.build[setdiff(
-    names(yml.build), c("github", "osf", "local")
+  yml_projr_build <- .yml_build_get(NULL)
+  yml_projr_build <- yml_projr_build[setdiff(
+    names(yml_projr_build), c("github", "osf", "local")
   )]
-  .yml_build_set(yml.build, NULL)
+  .yml_build_set(yml_projr_build, NULL)
 }
 
 .test_setup_project()

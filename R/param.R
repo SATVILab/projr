@@ -13,15 +13,15 @@
 #' Default is `NULL`.
 #' @export
 projr_par_get <- function(..., profile = NULL) {
-  yml.param <- .par_get_list(profile)
-  if (is.null(yml.param)) {
+  yml_projr_param <- .par_get_list(profile)
+  if (is.null(yml_projr_param)) {
     return(NULL)
   }
   par_vec <- list(...) |> unlist()
   if (length(par_vec) == 0) {
-    return(yml.param)
+    return(yml_projr_param)
   }
-  .par_get_option(yml.param, par_vec)
+  .par_get_option(yml_projr_param, par_vec)
 }
 
 .par_get_list <- function(profile) {

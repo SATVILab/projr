@@ -394,7 +394,7 @@ projr_init <- function(git = TRUE,
   }
   .git_system_setup()
   .git_init()
- .ignore_auto()
+ projr_ignore_auto()
   if (commit) {
     .init_std_git_config()
     .init_git_commit()
@@ -405,7 +405,7 @@ projr_init <- function(git = TRUE,
 
 .init_std_git_config <- function() {
   # Attempt to get the Git configuration table.
-  .install_dep_only("gert")
+  .dep_install_only("gert")
   gitconfig_tbl <- tryCatch(
     gert::git_config(),
     error = function(e) {

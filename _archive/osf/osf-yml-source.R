@@ -98,7 +98,7 @@ projr_source_add_osf <- function(label,
   if (is.null(title)) {
     title <- label
   }
-  yml_projr <- .yml_get()
+  yml_projr <- projr_yml_get()
 
   download_list <- .osf_yml_add_load_get_list(
     cue = download_cue,
@@ -125,8 +125,8 @@ projr_source_add_osf <- function(label,
 
   # check if going to overwrite
   if (!overwrite) {
-    yml.dir_label <- yml_projr[["directories"]][[label]]
-    if ("osf" %in% names(yml.dir_label)) {
+    yml_projr_dir_label <- yml_projr[["directories"]][[label]]
+    if ("osf" %in% names(yml_projr_dir_label)) {
       stop(paste0(
         "OSF source for label ", label, " already exists in _projr.yml"
       ))

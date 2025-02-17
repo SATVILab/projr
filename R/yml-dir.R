@@ -242,8 +242,8 @@
 }
 
 .yml_dir_get_label_nm_raw <- function(nm, profile) {
-  yml.dir <- .yml_dir_get(profile)
-  label_vec <- names(yml.dir)
+  yml_projr_dir <- .yml_dir_get(profile)
+  label_vec <- names(yml_projr_dir)
   label_vec[
     grepl(nm, .dir_label_strip(label_vec))
   ]

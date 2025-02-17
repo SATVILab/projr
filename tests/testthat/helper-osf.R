@@ -3,7 +3,7 @@
     prefix, stats::rnorm(1) |> signif(15) |> as.character()
   )
   # add it to yml_projr
-  yml_projr <- .yml_get()
+  yml_projr <- projr_yml_get()
   yml_projr[["directories"]][[label]] <- list(
     path = "_some_random_path"
   )

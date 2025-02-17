@@ -9,7 +9,7 @@
 #' .build_major`, .build_minor` and .build_patch`
 #' are wrappers around .build_output` with the version component
 #' bumped set automatically, e.g. .build_major()` is equivalent
-#' .build_output(bump_component = "major")`.
+#' projr_build_output(bump_component = "major")`.
 #'
 #' @param bump_component "major", "minor", "patch" or missing.
 #' Specifies version component to increment.
@@ -86,7 +86,7 @@ projr_build_major <- function(msg = NULL,
                               profile = NULL,
                               upload_github = FALSE,
                               upload_force = TRUE) {
- .build_output(
+ projr_build_output(
     bump_component = "major",
     msg = msg,
     args_engine = args_engine,
@@ -103,7 +103,7 @@ projr_build_minor <- function(msg = NULL,
                               profile = NULL,
                               upload_github = FALSE,
                               upload_force = TRUE) {
- .build_output(
+ projr_build_output(
     bump_component = "minor",
     msg = msg,
     args_engine = args_engine,
@@ -120,7 +120,7 @@ projr_build_patch <- function(msg = NULL,
                               profile = NULL,
                               upload_github = FALSE,
                               upload_force = TRUE) {
- .build_output(
+ projr_build_output(
     bump_component = "patch",
     msg = msg,
     args_engine = args_engine,
@@ -180,19 +180,19 @@ projr_build_dev <- function(file = NULL,
 }
 
 .build <- function(file = NULL,
-                         bump_component,
-                         old_dev_remove = TRUE,
-                         msg = "",
-                         args_engine,
-                         profile,
-                         upload_github = FALSE,
-                         upload_force = TRUE) {
+                   bump_component,
+                   old_dev_remove = TRUE,
+                   msg = "",
+                   args_engine,
+                   profile,
+                   upload_github = FALSE,
+                   upload_force = TRUE) {
   if (!is.null(profile)) {
     old_profile <- Sys.getenv("PROJR_PROFILE")
     Sys.setenv(PROJR_PROFILE = profile)
     on.exit(Sys.setenv(PROJR_PROFILE = old_profile))
   }
- .env_file_activate()
+  projr_env_file_activate()
   version_run_on_list <- .build_pre(bump_component, msg)
   .build_impl(version_run_on_list, file, args_engine)
   .build_post(
@@ -209,7 +209,7 @@ projr_build_dev <- function(file = NULL,
 # pre
 # ------------------------
 .build_pre <- function(bump_component, msg) {
- .yml_check(NULL)
+ projr_yml_check(NULL)
   # whether it's an output run  or not
   output_run <- .build_get_output_run(bump_component)
 

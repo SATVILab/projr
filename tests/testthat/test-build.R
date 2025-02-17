@@ -35,14 +35,14 @@ test_that("projr_build_output works", {
       .yml_git_set_push(FALSE, TRUE, NULL)
       # debugonce(.build_output_get_msg)
       # debugonce(.git_msg_get)
-     .build_output("patch", msg = "test")
+     projr_build_output("patch", msg = "test")
      .version_get()
       yml_bd <- .yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "docs")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
       # run repeat build
-     .build_output("minor", msg = "test")
+     projr_build_output("minor", msg = "test")
     },
     quiet = TRUE,
     force = TRUE
@@ -66,7 +66,7 @@ test_that("projr_build_ works with quarto projects", {
           "_bookdown.yml", "index.Rmd"
         )
       ))
-      Sys.setenv(.TEST_ENGINE" = "Quarto project")
+      Sys.setenv("PROJR_TEST_ENGINE" = "Quarto project")
       # remove the pdf setting
      .init_full()
       yml_quarto <- .yml_quarto_get()
@@ -121,10 +121,10 @@ test_that(".build_clear_pre and _post works", {
      .init_full()
       # pre
       # ------------------------
-      path_safe <-.path_get_dir("output", "a", safe = TRUE)
-      path_output_final <-.path_get_dir("output", "a", safe = FALSE)
-      path_docs <-.path_get_dir("docs", "b")
-      path_data <-.path_get_dir("project", "data", "c")
+      path_safe <-projr_path_get_dir("output", "a", safe = TRUE)
+      path_output_final <-projr_path_get_dir("output", "a", safe = FALSE)
+      path_docs <-projr_path_get_dir("docs", "b")
+      path_data <-projr_path_get_dir("project", "data", "c")
       .build_clear_pre(TRUE)
       expect_false(dir.exists(path_safe))
       expect_true(dir.exists(path_output_final))
@@ -134,14 +134,14 @@ test_that(".build_clear_pre and _post works", {
       # post
       # ------------------------
       # cache
-      path_dir <-.path_get_dir("cache", "projr")
+      path_dir <-projr_path_get_dir("cache", "projr")
       .build_clear_post(FALSE)
       expect_true(dir.exists(path_dir))
       .build_clear_post(TRUE)
       expect_true(dir.exists(path_dir))
       # cache
-      path_safe <-.path_get_dir("output", "a", safe = TRUE)
-      path_output_final <-.path_get_dir("output", "a", safe = FALSE)
+      path_safe <-projr_path_get_dir("output", "a", safe = TRUE)
+      path_output_final <-projr_path_get_dir("output", "a", safe = FALSE)
       .build_clear_post(TRUE)
       expect_true(dir.exists(path_safe))
       expect_false(dir.exists(path_output_final))
@@ -172,7 +172,7 @@ test_that(".build_copy_to_unsafe works", {
     path = dir_test,
     code = {
      .init()
-      yml.init <- .yml_get_default_raw()
+      yml_projr_init <- .yml_get_default_raw()
       yml_bd_init <- .yml_bd_get()
       # run when there are no files in dir_output
       expect_true(.build_copy_to_unsafe(output_run = TRUE))
@@ -245,15 +245,15 @@ test_that("projr_build_copy_pkg works", {
     path = dir_test,
     code = {
      .init()
-      yml.init <- .yml_get_default_raw()
+      yml_projr_init <- .yml_get_default_raw()
 
       # don't build
       # ---------------------
-      yml.error <- yml.init
+      yml.error <- yml_projr_init
       yml.error[["build"]][["package"]] <- FALSE
       .yml_set(yml.error)
       expect_false(.build_copy_pkg(TRUE))
-      .yml_set(yml.init)
+      .yml_set(yml_projr_init)
 
 
       # build
@@ -268,7 +268,7 @@ test_that("projr_build_copy_pkg works", {
       expect_true(.build_copy_pkg(TRUE))
 
       expect_true(file.exists("_output/pkg/report_0.0.0-1.tar.gz"))
-      .yml_set(yml.init)
+      .yml_set(yml_projr_init)
     },
     quiet = TRUE,
     force = TRUE
@@ -296,7 +296,7 @@ test_that("projr_build_copy_dir works when outputting", {
     path = dir_test,
     code = {
      .init()
-      yml.init <- .yml_get_default_raw()
+      yml_projr_init <- .yml_get_default_raw()
       invisible({
         file.create(
          .path_get("raw-data", "a.txt", safe = TRUE)
@@ -354,10 +354,10 @@ test_that("projr_build_copy_dir works when outputting", {
       # check that nothing is copied across when FALSE
       # -------------------
 
-      unlink.path_get_dir("output", safe = TRUE), recursive = TRUE)
-      unlink.path_get_dir("output", safe = FALSE), recursive = TRUE)
+      unlinkprojr_path_get_dir("output", safe = TRUE), recursive = TRUE)
+      unlinkprojr_path_get_dir("output", safe = FALSE), recursive = TRUE)
 
-      yml_projr <- yml.init
+      yml_projr <- yml_projr_init
       yml_projr[["directories"]][["raw-data"]] <- list(
         path = "_raw_data", output = FALSE
       )
@@ -381,12 +381,12 @@ test_that("projr_build_copy_dir works when outputting", {
       expect_false(file.exists(
        .path_get("output", "cache.zip", safe = FALSE)
       ))
-      .yml_set(yml.init)
+      .yml_set(yml_projr_init)
 
       # check that they're copied across correctly when true
       # -------------------
 
-      yml_projr <- yml.init
+      yml_projr <- yml_projr_init
       yml_projr[["directories"]][["raw-data"]] <- list(
         path = "_raw_data", output = TRUE
       )
@@ -402,7 +402,7 @@ test_that("projr_build_copy_dir works when outputting", {
       # check that they're copied across correctly when
       # to different folders
       # -------------------
-      yml_projr <- yml.init
+      yml_projr <- yml_projr_init
       yml_projr[["directories"]][["raw-data"]] <- list(
         path = "_raw_data", output = TRUE
       )
@@ -713,15 +713,15 @@ test_that(".build_copy_docs_quarto_format_get works", {
       invisible(file.create("test.html"))
       dir.create("test_files")
       invisible(file.create("test_files/abc.txt"))
-      dir_docs <-.path_get_dir("docs", safe = TRUE)
+      dir_docs <-projr_path_get_dir("docs", safe = TRUE)
       unlink(dir_docs, recursive = TRUE)
-      dir_docs <-.path_get_dir("docs", safe = TRUE)
+      dir_docs <-projr_path_get_dir("docs", safe = TRUE)
       # invisible(file.create(file.path(dir_docs, "test.html")))
       .build_copy_docs_quarto(FALSE)
       expect_true(file.exists(file.path(dir_docs, "test.html")))
       expect_true(file.exists(file.path(dir_docs, "test_files/abc.txt")))
       # safe output
-      dir_docs <-.path_get_dir("docs", safe = FALSE)
+      dir_docs <-projr_path_get_dir("docs", safe = FALSE)
       invisible(file.create("test.html"))
       dir.create("test_files")
       invisible(file.create("test_files/abc.txt"))
@@ -929,12 +929,12 @@ test_that(".build_copy_docs_rmd_format_get works", {
       invisible(file.create("test.html"))
       dir.create("test_files")
       invisible(file.create("test_files/abc.txt"))
-      dir_docs <-.path_get_dir("docs", safe = TRUE)
+      dir_docs <-projr_path_get_dir("docs", safe = TRUE)
       invisible(file.create(file.path(dir_docs, "test.html")))
       .build_copy_docs_rmd(FALSE)
       expect_true(file.exists(file.path(dir_docs, "test.html")))
       expect_false(file.exists(file.path(dir_docs, "test_files/abc.txt")))
-      dir_docs <-.path_get_dir("docs", safe = FALSE)
+      dir_docs <-projr_path_get_dir("docs", safe = FALSE)
       invisible(file.create(file.path(dir_docs, "test.html")))
       .build_copy_docs_rmd(TRUE)
       expect_true(file.exists(file.path(dir_docs, "test.html")))
@@ -945,7 +945,7 @@ test_that(".build_copy_docs_rmd_format_get works", {
   )
 })
 
-test_that(".env_file_activate works", {
+test_that("projr_env_file_activate works", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
@@ -957,7 +957,7 @@ test_that(".env_file_activate works", {
       Sys.unsetenv("TEST_VAR")
       writeLines(c("TEST_VAR=abc", ""), "_environment")
       env <- environment()
-     .env_file_activate("_environment")
+      env_file_activate("_environment")
       expect_identical(Sys.getenv("TEST_VAR"), "abc")
       .env_file_deactivate()
       expect_identical(Sys.getenv("TEST_VAR"), "")

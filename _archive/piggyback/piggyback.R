@@ -18,9 +18,9 @@
     if (inherits(gh_tbl_release, "try-error")) {
       break
     }
-    yml.gh_ind <-.yml_get()[["build"]][["github"]][[i]]
+    yml_projr_gh_ind <- projr_yml_get()[["build"]][["github"]][[i]]
 
-    body <- yml.gh_ind[["body"]]
+    body <- yml_projr_gh_ind[["body"]]
     if (!tag %in% gh_tbl_release[["release_name"]]) {
       pb_release_create <- try(
         piggyback::pb_release_create(tag = tag, body = body)
@@ -70,11 +70,11 @@
       }
     }
     # no need to upload anything more if a code-only release
-    if (identical("code", yml.gh_ind[["content"]])) {
+    if (identical("code", yml_projr_gh_ind[["content"]])) {
       next
     }
 
-    label_vec <- setdiff(yml.gh_ind[["content"]], "code")
+    label_vec <- setdiff(yml_projr_gh_ind[["content"]], "code")
 
     for (j in seq_along(label_vec)) {
       label <- label_vec[j]
@@ -105,7 +105,7 @@
 }
 
 .pb_check_run <- function(output_run) {
-  yml_projr <-.yml_get()
+  yml_projr <- projr_yml_get()
   # either a dev run or else no github release specified
   if ((!output_run) ||
     (!"github" %in% names(yml_projr[["build"]]))) {
@@ -143,7 +143,7 @@
 }
 
 .pb_path_get_dir <- function(label, output_run) {
-  path_dir <-.path_get_dir(label, safe = !output_run)
+  path_dir <-projr_path_get_dir(label, safe = !output_run)
   if (!fs::is_absolute_path(path_dir)) {
     path_dir <- .path_get(path_dir)
   }
@@ -167,10 +167,10 @@
   if (!grepl("^cache", .dir_label_strip(label))) {
     return(.gh_release")
   }
-  yml.dir <-.yml_get()[["directories"]]
-  key_vec_match_cache <- .dir_label_strip(names(yml.dir))
+  yml_projr_dir <- projr_yml_get()[["directories"]]
+  key_vec_match_cache <- .dir_label_strip(names(yml_projr_dir))
   key_copy_vec_cache_ind <- which(grepl("^output", key_vec_match_cache))
-  key_copy_vec_cache <- names(yml.dir)[key_copy_vec_cache_ind]
+  key_copy_vec_cache <- names(yml_projr_dir)[key_copy_vec_cache_ind]
   dir_exc <- paste0("projr-", key_copy_vec_cache)
   c(dir_exc, .gh_release")
 }

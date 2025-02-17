@@ -400,7 +400,7 @@
     return(list(
       start = c(
         rbuildignore_vec,
-        "# Start of projr section: do not edit by hand (update with.ignore_auto())"
+        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())"
       ),
       end = "# End of projr section"
     ))

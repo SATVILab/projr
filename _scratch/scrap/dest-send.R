@@ -13,7 +13,7 @@
                                    upload_force) {
   force(title)
   # where they should go to
-  path_dir_local <-.path_get_dir(label, safe = !output_run)
+  path_dir_local <-projr_path_get_dir(label, safe = !output_run)
   yml_title <- .yml_dest_get_title_complete(
     title, type, NULL, upload_github, upload_force
     )

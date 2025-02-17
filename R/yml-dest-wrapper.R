@@ -141,7 +141,7 @@ projr_yml_dest_add_osf_proj <- function(title,
                                         content = NULL,
                                         public = FALSE,
                                         id = NULL) {
- .yml_dest_add_osf(
+ projr_yml_dest_add_osf(
     title = title,
     description = description,
     content = content,
@@ -163,7 +163,7 @@ projr_yml_dest_add_osf_comp <- function(title,
   if (missing(id_parent)) {
     stop("id_parent must be specified")
   }
- .yml_dest_add_osf(
+  projr_yml_dest_add_osf(
     title = title,
     description = description,
     content = content,

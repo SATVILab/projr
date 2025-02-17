@@ -181,7 +181,7 @@ projr_path_get <- function(label, ...,
                            safe = TRUE) {
   args_dotted <- list(...)
   if (length(args_dotted) == 0) {
-    path_dir <-.path_get_dir(
+    path_dir <-projr_path_get_dir(
       label = label,
       create = create,
       relative = relative,
@@ -203,7 +203,7 @@ projr_path_get <- function(label, ...,
       )
     )
   } else {
-    path_dir <-.path_get_dir(
+    path_dir <-projr_path_get_dir(
       label = label,
       create = create,
       relative = relative,
@@ -218,7 +218,7 @@ projr_path_get <- function(label, ...,
 .dir_create <- function(label, ..., safe = TRUE) {
   # create directories
   for (x in label) {
-   .path_get_dir(
+   projr_path_get_dir(
       label = x,
       ...,
       create = TRUE,

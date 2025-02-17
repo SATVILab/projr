@@ -16,18 +16,18 @@ projr_env_file_activate <- function(file = NULL) {
   .file_rm(.env_file_get_path_list())
   if (!is.null(file)) {
     for (x in file) {
-      .build_env_file_activate_ind(file = x)
+      .env_file_activate_ind(file = x)
     }
     return(invisible(TRUE))
   }
-  .build_env_file_activate_ind("_environment.local")
+  .env_file_activate_ind("_environment.local")
   env_profile_vec <- .env_profile_get()
   for (i in seq_along(env_profile_vec)) {
-    .build_env_file_activate_ind(
+    .env_file_activate_ind(
       paste0("_environment-", env_profile_vec[[i]])
     )
   }
-  .build_env_file_activate_ind("_environment")
+  .env_file_activate_ind("_environment")
   invisible(TRUE)
 }
 
@@ -62,19 +62,19 @@ projr_env_file_activate <- function(file = NULL) {
   invisible(TRUE)
 }
 
-.build_env_file_activate_ind <- function(file) {
+.env_file_activate_ind <- function(file) {
   path_env <- .path_get(file)
   if (!file.exists(path_env)) {
     return(invisible(FALSE))
   }
-  .build_env_file_activate_ind_ignore(file)
+  .env_file_activate_ind_ignore(file)
   fn_vec_local <- readLines(path_env)
   for (i in seq_along(fn_vec_local)) {
-    .build_env_var_set_line(fn_vec_local[[i]])
+    .env_var_set_line(fn_vec_local[[i]])
   }
 }
 
-.build_env_file_activate_ind_ignore <- function(file) {
+.env_file_activate_ind_ignore <- function(file) {
   if (!fs::path_has_parent(file, .path_get())) {
     return(invisible(FALSE))
   }
@@ -91,7 +91,7 @@ projr_env_file_activate <- function(file = NULL) {
   .ignore_rbuild_write(rbuildignore, append = FALSE)
 }
 
-.build_env_var_set_line <- function(line) {
+.env_var_set_line <- function(line) {
   # handle comments
   line <- sub("^#.*$", "", line)
   line <- sub("\\s+#.*$", "", line)
@@ -103,7 +103,7 @@ projr_env_file_activate <- function(file = NULL) {
     return(invisible(FALSE))
   }
   .env_var_set(nm = env_var_nm, val = env_var_val)
-  .build_env_var_add_to_unset(env_var_nm)
+  .env_var_add_to_unset(env_var_nm)
   invisible(TRUE)
 }
 

@@ -1,6 +1,6 @@
 #' Update `.gitignore` and `.Rbuildignore` with projr-managed ignores
 #'
-#' The .ignore_auto()` function updates the project’s `.gitignore` and
+#' The projr_ignore_auto()` function updates the project’s `.gitignore` and
 #' `.Rbuildignore` files to reflect directories and files managed by
 #' projr, as well as
 #' other directories and files that should
@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' \dontrun{
-#'  .ignore_auto()
+#'  projr_ignore_auto()
 #' }
 #'
 #' @export

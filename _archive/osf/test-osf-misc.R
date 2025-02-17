@@ -13,7 +13,7 @@ test_that(".osf_send_fn works", {
       # setup
       # ----------------
 
-      yml.orig <- .yml_get()
+      yml_projr_orig <- projr_yml_get()
 
       # create files
       .test_setup_content("output")
@@ -25,7 +25,7 @@ test_that(".osf_send_fn works", {
       osf_tbl_proj <- .test_osf_create_project("ProjectUploadFn")
       .osf_rm_node_id_defer(osf_tbl_proj[["id"]])
 
-      path_dir_fn <-.path_get_dir("output", safe = FALSE)
+      path_dir_fn <-projr_path_get_dir("output", safe = FALSE)
       fn_vec <- list.files(path_dir_fn, recursive = TRUE)
 
       # upload to node

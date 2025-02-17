@@ -9,7 +9,7 @@ test_that("projr_init works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      expect_true.init())
+      expect_true(projr_init())
       expect_true(file.exists("_bookdown.yml"))
       expect_true(file.exists("_output.yml"))
       expect_true(file.exists("_projr.yml"))
@@ -51,9 +51,9 @@ test_that(".init_yml works", {
       invisible(file.remove("_projr.yml"))
       path_yml <- file.path(tempdir(), "_projr.yml")
       yaml::write_yaml(list("abc" = 1), path_yml)
-      Sys.setenv(.PATH_YML" = path_yml)
+      Sys.setenv("PROJR_PATH_YML" = path_yml)
       expect_true(.init_yml(NULL))
-      Sys.unsetenv(.PATH_YML")
+      Sys.unsetenv("PROJR_PATH_YML")
       expect_true(file.exists("_projr.yml"))
       expect_identical(yaml::read_yaml("_projr.yml"), list("abc" = 1))
       invisible(file.remove("_projr.yml"))

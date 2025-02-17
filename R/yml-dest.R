@@ -1,22 +1,22 @@
 .yml_dest_add <- function(role,
-                                type,
-                                title,
-                                profile,
-                                content = NULL,
-                                structure = NULL,
-                                path = NULL,
-                                path_append_label = NULL,
-                                overwrite = FALSE,
-                                public = FALSE,
-                                category = NULL,
-                                description = NULL,
-                                id = NULL,
-                                id_parent = NULL,
-                                get_strategy = NULL,
-                                get_conflict = NULL,
-                                send_cue = NULL,
-                                send_strategy = NULL,
-                                send_inspect = NULL) {
+                          type,
+                          title,
+                          profile,
+                          content = NULL,
+                          structure = NULL,
+                          path = NULL,
+                          path_append_label = NULL,
+                          overwrite = FALSE,
+                          public = FALSE,
+                          category = NULL,
+                          description = NULL,
+                          id = NULL,
+                          id_parent = NULL,
+                          get_strategy = NULL,
+                          get_conflict = NULL,
+                          send_cue = NULL,
+                          send_strategy = NULL,
+                          send_inspect = NULL) {
   # gather get and send args
   # ------------------------
   get_list <- .yml_remote_transfer_get(
@@ -76,20 +76,20 @@
 
 # add now
 .yml_dest_add_impl <- function(type,
-                                       title,
-                                       content,
-                                       structure,
-                                       path,
-                                       path_append_label,
-                                       get_list,
-                                       send_list,
-                                       overwrite,
-                                       public,
-                                       category,
-                                       description,
-                                       id,
-                                       id_parent,
-                                       profile) {
+                               title,
+                               content,
+                               structure,
+                               path,
+                               path_append_label,
+                               get_list,
+                               send_list,
+                               overwrite,
+                               public,
+                               category,
+                               description,
+                               id,
+                               id_parent,
+                               profile) {
   title <- .yml_remote_title_get(title = title, content = content)
   .yml_dest_add_get_list_add(
     content = content,
@@ -144,12 +144,12 @@
 }
 
 .yml_dest_add_get_list_add_extra_osf <- function(list_add,
-                                                       id,
-                                                       id_parent,
-                                                       title,
-                                                       category,
-                                                       public,
-                                                       description) {
+                                                 id,
+                                                 id_parent,
+                                                 title,
+                                                 category,
+                                                 public,
+                                                 description) {
   switch(class(id)[[1]],
     "character" = .yml_dest_add_get_list_add_extra_osf_id_chr(
       list_add, id
@@ -170,7 +170,7 @@
 }
 
 .yml_dest_add_get_list_add_extra_osf_id_chr <- function(list_add,
-                                                              id) {
+                                                        id) {
   .assert_string(id, TRUE)
   .assert_nchar_single(id, 5L)
   if (!.yml_dest_add_get_list_add_extra_osf_id_chr_check(id)) {
@@ -188,11 +188,11 @@
 }
 
 .yml_dest_add_get_list_add_extra_osf_id_null <- function(list_add,
-                                                               title,
-                                                               id_parent,
-                                                               category,
-                                                               description,
-                                                               public) {
+                                                         title,
+                                                         id_parent,
+                                                         category,
+                                                         description,
+                                                         public) {
   .remote_create(
     type = "osf",
     name = title,
@@ -222,10 +222,10 @@
 
 # main function
 .yml_dest_get_title_complete <- function(title,
-                                               type,
-                                               profile,
-                                               upload_github,
-                                               upload_force) {
+                                         type,
+                                         profile,
+                                         upload_github,
+                                         upload_force) {
   force(title)
   force(profile)
 
@@ -236,10 +236,10 @@
 }
 
 .yml_dest_get_title_init <- function(title,
-                                           type,
-                                           profile,
-                                           upload_github,
-                                           upload_force) {
+                                     type,
+                                     profile,
+                                     upload_github,
+                                     upload_force) {
   is_github_param <-.yml_dest_get_title_complete_is_github_param(
     type, title, upload_github
   )

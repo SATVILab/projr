@@ -1239,7 +1239,7 @@ projr_osf_create_project <- function(title,
 
 .remote_get_manifest_non_project <- function(type,
                                                    remote_pre) {
-  manifest_impl <- .remote_get_manifest_non_project_raw(
+  manifest_actual <- .remote_get_manifest_non_project_raw(
     type, remote_pre
   )
   if (is.null(manifest_actual)) {
@@ -2076,8 +2076,8 @@ projr_osf_create_project <- function(title,
 }
 
 .remote_ls_source <- function() {
-  yml.dir <- .yml_dir_get(NULL)
-  lapply(yml.dir, function(x) {
+  yml_projr_dir <- .yml_dir_get(NULL)
+  lapply(yml_projr_dir, function(x) {
     remote_vec <- c("github", "osf")
     remote_vec[remote_vec %in% names(x)]
   }) |>
@@ -2086,9 +2086,9 @@ projr_osf_create_project <- function(title,
 }
 
 .remote_ls_dest <- function() {
-  yml.build <- .yml_build_get(NULL)
+  yml_projr_build <- .yml_build_get(NULL)
   remote_vec <- c("github", "osf")
-  remote_vec[remote_vec %in% names(yml.build)]
+  remote_vec[remote_vec %in% names(yml_projr_build)]
 }
 
 .git_push_check <- function() {

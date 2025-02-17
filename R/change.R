@@ -18,7 +18,7 @@
       remote_pre = remote,
       type_post = "local",
       remote_post = path_dir_local %||%
-       .path_get_dir(label, safe = !output_run)
+       projr_path_get_dir(label, safe = !output_run)
     ),
     stop(paste0("inspect '", inspect, "' not recognized"))
   )

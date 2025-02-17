@@ -2,9 +2,9 @@
   # check if `osf` is used, and install if it is
   # and not installed
   # -----------------------------------------------
-  yml.osf <-.yml_get()[["build"]][["osf"]]
+  yml_projr_osf <- projr_yml_get()[["build"]][["osf"]]
 
-  if (is.null(yml.osf)) {
+  if (is.null(yml_projr_osf)) {
     return(invisible(FALSE))
   }
 
@@ -15,7 +15,7 @@
 
   # loop over osf entries
   # -----------------------------------------------
-  for (i in seq_along(yml.osf)) {
-    yml.osf_ind <- yml.osf[[i]]
+  for (i in seq_along(yml_projr_osf)) {
+    yml_projr_osf_ind <- yml_projr_osf[[i]]
   }
 }

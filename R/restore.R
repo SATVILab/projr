@@ -83,7 +83,7 @@ projr_restore <- function(label = NULL,
                 " where title is ", source_vec[["title"]], " and type is ",
                 source_vec[["type"]]))
   }
-  path_dir_save_local <-.path_get_dir(label)
+  path_dir_save_local <-projr_path_get_dir(label)
   .remote_file_get_all(
     source_vec[["type"]], remote_source, path_dir_save_local
   )

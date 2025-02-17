@@ -37,7 +37,7 @@ Think of `projr` as your R project's personal assistant. It helps you:
 ## How does it work? (The Super-Simplified Version)
 
 1. **Start a new project:** .init()` sets the stage with folders for your data, code, and results. It even connects to GitHub if you want.
-2. **Build your project:** .build_output()` runs your code, keeps track of versions, and neatly packages everything up.
+2. **Build your project:** projr_build_output()` runs your code, keeps track of versions, and neatly packages everything up.
 
 That's the gist, but `projr` can do much more. It can automatically share your project on platforms like GitHub or store it locally – all customizable with a simple configuration file.
 
@@ -69,7 +69,7 @@ Now it's time to make your project come alive!
 
 * **Test it out:** Use .build_dev()` to run your code and see how your results look. This is a great way to catch errors as you go.
 
-* **Ready to share?** Use .build_output()` to create the final version of your project. This will automatically version everything, package it up nicely, and even share it on platforms like GitHub if you've set that up.
+* **Ready to share?** Use projr_build_output()` to create the final version of your project. This will automatically version everything, package it up nicely, and even share it on platforms like GitHub if you've set that up.
 
 ## Where can I save my stuff?
 

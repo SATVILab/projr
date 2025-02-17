@@ -6,7 +6,7 @@
                                 version = NULL,
                                 input_only = TRUE) {
   if (is.null(label)) {
-    label <- .yml_get()[["directories"]]
+    label <- projr_yml_get()[["directories"]]
   }
   if (input_only) {
     match_str <- "^cache|^raw"
@@ -29,7 +29,7 @@
       paste0(class(label), collapse = "; ")
     ))
   }
-  yml_label <- .yml_get()[["directories"]][[label]]
+  yml_label <- projr_yml_get()[["directories"]][[label]]
   if (!"osf" %in% names(yml_label)) {
     return(invisible(FALSE))
   }
@@ -188,10 +188,10 @@
   if (!.osf_download_dir_check_run()) {
     return(invisible(FALSE))
   }
-  yml.dir <-.yml_get()[["directories"]]
-  for (i in seq_along(yml.dir)) {
+  yml_projr_dir <- projr_yml_get()[["directories"]]
+  for (i in seq_along(yml_projr_dir)) {
     .osf_download_dir_label(
-      label = names(yml.dir)[i],
+      label = names(yml_projr_dir)[i],
     )
   }
 }
@@ -200,10 +200,10 @@
   if (!.osf_download_build_check_run()) {
     return(invisible(FALSE))
   }
-  yml.build_osf <-.yml_get()[["build"]][["osf"]]
-  for (i in seq_along(yml.build_osf)) {
+  yml_projr_build_osf <- projr_yml_get()[["build"]][["osf"]]
+  for (i in seq_along(yml_projr_build_osf)) {
     .osf_download_build_node(
-      title = names(yml.build_osf)[i],
+      title = names(yml_projr_build_osf)[i],
       id_parent = NULL,
       safe = safe
     )
@@ -211,7 +211,7 @@
 }
 
 .osf_download_dir_check_run <- function() {
-  yml_projr <-.yml_get()
+  yml_projr <- projr_yml_get()
   osf_is_source <- vapply(
     yml_projr[["directories"]], function(x) "osf" %in% names(x), logical(1)
   ) |>
@@ -223,7 +223,7 @@
 }
 
 .osf_download_build_check_run <- function() {
-  yml_projr <-.yml_get()
+  yml_projr <- projr_yml_get()
   osf_is_dest <- "osf" %in% names(yml_projr[["build"]])
   if (!osf_is_dest) {
     return(invisible(FALSE))
@@ -232,7 +232,7 @@
 }
 
 .osf_download_dir_label <- function(label) {
-  yml_param <- .yml_get()[["directories"]][[label]]
+  yml_param <- projr_yml_get()[["directories"]][[label]]
   if (!"osf" %in% names(yml_param)) {
     return(invisible(FALSE))
   }
@@ -294,7 +294,7 @@
   }
   .osf_download_osf_tbl(
     osf_tbl = osf_tbl_file,
-    path_dir_save_local =.path_get_dir(label, safe = TRUE),
+    path_dir_save_local =projr_path_get_dir(label, safe = TRUE),
     conflicts = "overwrite"
   )
   invisible(TRUE)
@@ -303,7 +303,7 @@
 .osf_download_build_node <- function(title,
                                            id_parent = NULL,
                                            safe) {
-  yml_param <- .yml_get()[["build"]][["osf"]][[title]]
+  yml_param <- projr_yml_get()[["build"]][["osf"]][[title]]
   id_parent <- .osf_get_id_parent(
     yml_param = yml_param, id_parent = id_parent
   )
@@ -324,7 +324,7 @@
   for (i in seq_along(yml_param[["content"]])) {
     .osf_download_osf_tbl(
       osf_tbl = osf_tbl,
-      path_dir_save_local =.path_get_dir(yml_param[["content"]][i], safe = TRUE),
+      path_dir_save_local =projr_path_get_dir(yml_param[["content"]][i], safe = TRUE),
       conflicts = conflicts
     )
   }

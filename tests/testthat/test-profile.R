@@ -24,22 +24,22 @@ test_that("projr_profile_get, _set and _create work", {
   usethis::with_project(
     path = dir_test,
     code = {
-      yml.init <- .yml_get_default_raw()
+      yml_projr_init <- .yml_get_default_raw()
       # test getting input and validating
       # --------------------------------
       expect_error(.profile_create(silent = "wingbats"))
-      yml.init <- .yml_get_default_raw()
+      yml_projr_init <- .yml_get_default_raw()
       Sys.unsetenv("PROJR_PROFILE")
-      expect_identical.profile_get(), "default")
+      expect_identical(projr_profile_get(), "default")
       Sys.setenv("PROJR_PROFILE" = "abc")
 
-      expect_identical.profile_get(), "abc")
+      expect_identical(projr_profile_get(), "abc")
       Sys.unsetenv("PROJR_PROFILE")
       # test "protected" profiles
-      expect_error.profile_create("local"))
-      expect_error.profile_create("default"))
-      expect_error.profile_create())
-      expect_error.profile_create(profile = "!"))
+      expect_error(projr_profile_create("local"))
+      expect_error(projr_profile_create("default"))
+      expect_error(projr_profile_create())
+      expect_error(projr_profile_create(profile = "!"))
 
       .test_unset()
       suppressMessages(
@@ -72,22 +72,22 @@ test_that("projr_profile_get, _set and _create work", {
      .profile_create(profile = "test-profile2")
       yml_projr <- .yml_get_default_raw()
       expect_true(file.exists("_projr-test-profile2.yml"))
-      .yml_set(yml.init)
+      .yml_set(yml_projr_init)
 
       # test getting a profile
       # ---------------------
 
       # default
      .profile <-.profile_get()
-      expect_identical.profile_get(), "default")
+      expect_identical(projr_profile_get(), "default")
       Sys.setenv("PROJR_PROFILE" = "abc")
-      expect_identical.profile_get(), "abc")
+      expect_identical(projr_profile_get(), "abc")
       #.PROFILE that exists
      .profile_create(profile = "abc")
-      expect_identical.profile_get(), "abc")
+      expect_identical(projr_profile_get(), "abc")
       Sys.unsetenv("PROJR_PROFILE")
-      expect_identical.profile_get(), "default")
-      .yml_set(yml.init)
+      expect_identical(projr_profile_get(), "default")
+      .yml_set(yml_projr_init)
       invisible(file.remove("_projr-abc.yml"))
       # working directory
       expect_identical(
@@ -97,17 +97,17 @@ test_that("projr_profile_get, _set and _create work", {
      .profile_create("test_profile_hidden")
       # should get the projr profile back
       Sys.setenv("PROJR_PROFILE" = "test_profile_hidden")
-      expect_identical.profile_get(), "test_profile_hidden")
+      expect_identical(projr_profile_get(), "test_profile_hidden")
 
       # delecting a a projr profile
       # ------------------------
-      .yml_set(yml.init)
+      .yml_set(yml_projr_init)
 
       # input validation
-      expect_error.profile_delete(profile = 1))
-      expect_error.profile_delete())
+      expect_error(projr_profile_delete(profile = 1))
+      expect_error(projr_profile_delete())
       # default profile does nothing
-      expect_error.profile_delete("default"))
+      expect_error(projr_profile_delete("default"))
 
       # deleting it anywhere
       Sys.setenv("PROJR_PROFILE" = "xyz")

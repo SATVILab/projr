@@ -11,7 +11,7 @@ Called primarily for its side effects (modifying
 \code{.gitignore} and/or \code{.Rbuildignore}). Returns \code{TRUE} invisibly.
 }
 \description{
-The .ignore_auto()\verb{function updates the project’s}.gitignore\code{and}.Rbuildignore` files to reflect directories and files managed by
+The projr_ignore_auto()\verb{function updates the project’s}.gitignore\code{and}.Rbuildignore` files to reflect directories and files managed by
 projr, as well as
 other directories and files that should
 clearly be ignored.
@@ -20,7 +20,7 @@ and are written within a demarcated section of the file.
 }
 \examples{
 \dontrun{
- .ignore_auto()
+ projr_ignore_auto()
 }
 
 }

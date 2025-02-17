@@ -8,7 +8,7 @@ test_that("projr_yml_dest_add* functions work", {
     code = {
       .yml_dest_rm_type_all("default")
       # add one
-     .yml_dest_add_local(
+     projr_yml_dest_add_local(
         title = "archive",
         content = "raw-data",
         path = "_archive"
@@ -23,7 +23,7 @@ test_that("projr_yml_dest_add* functions work", {
         )
       )
       # add two
-     .yml_dest_add_local(
+     projr_yml_dest_add_local(
         title = "archive second",
         content = "output",
         path = "_archive/second"
@@ -60,7 +60,7 @@ test_that("projr_yml_dest_add* functions work", {
       # test maniup
       .yml_dest_rm_type_all("default")
       # add one
-     .yml_dest_add_github(
+     projr_yml_dest_add_github(
         title = "archive",
         content = "raw-data"
       )
@@ -73,7 +73,7 @@ test_that("projr_yml_dest_add* functions work", {
         )
       )
       # add two
-     .yml_dest_add_github(
+     projr_yml_dest_add_github(
         title = "archive second",
         content = "output"
       )
@@ -114,12 +114,12 @@ test_that("projr_dest_send works - local", {
   usethis::with_project(
     path = dir_test,
     code = {
-      file.create(projr:.path_get("raw-data", "data.csv"))
-     .init_git()
+      file.create(projr_path_get("raw-data", "data.csv"))
+      projr_init_git()
       .yml_git_set_push(FALSE, TRUE, NULL)
-      projr:.build_dev()
+      projr::projr_build_dev()
       # remove github remote
-      yml_projr <-.yml_get()
+      yml_projr <- projr_yml_get()
       github_ind <- which(names(yml_projr[["build"]]) == "github")
       if (length(github_ind) > 0) {
         yml_projr[["build"]] <- yml_projr[["build"]][
@@ -127,36 +127,36 @@ test_that("projr_dest_send works - local", {
         ]
         .yml_set(yml_projr)
       }
-      projr:.build_patch()
+      projr::projr_build_patch()
       # add a local destination, that is never sent to
-     .yml_dest_add_local(
+      projr_yml_dest_add_local(
         title = "latest",
         content = "raw-data",
         path = "_latest",
         structure = "latest"
       )
-      projr:.build_patch()
+      projr::projr_build_patch()
       expect_true(file.exists("_latest/raw-data/data.csv"))
-     .yml_dest_add_local(
+      projr_yml_dest_add_local(
         title = "archive",
         content = "raw-data",
         path = "_archive",
         structure = "archive",
         overwrite = TRUE
       )
-      projr:.build_patch()
+      projr::projr_build_patch()
       expect_true(file.exists("_latest/raw-data/data.csv"))
       expect_true(file.exists("_archive/raw-data/v0.0.3/data.csv"))
 
 
       # expect no upload
-      projr:.build_patch()
+      projr::projr_build_patch()
       expect_true(file.exists("_latest/raw-data/data.csv"))
       expect_true(file.exists("_archive/raw-data/v0.0.3/data.csv"))
       expect_true(!dir.exists("_archive/raw-data/v0.0.4"))
 
       # now force upload
-     .yml_dest_add_local(
+      projr_yml_dest_add_local(
         title = "archive",
         content = "raw-data",
         path = "_archive",
@@ -165,13 +165,13 @@ test_that("projr_dest_send works - local", {
         overwrite = TRUE
       )
 
-      projr:.build_patch()
+      projr::projr_build_patch()
       expect_true(file.exists("_latest/raw-data/data.csv"))
       expect_true(file.exists("_archive/raw-data/v0.0.3/data.csv"))
       expect_true(!dir.exists("_archive/raw-data/v0.0.4"))
       expect_true(file.exists("_archive/raw-data/v0.0.5/data.csv"))
 
-     .yml_dest_add_local(
+      projr_yml_dest_add_local(
         title = "latest",
         content = "raw-data",
         path = "_latest",
@@ -179,7 +179,7 @@ test_that("projr_dest_send works - local", {
         send_cue = "always"
       )
 
-     .yml_dest_add_local(
+      projr_yml_dest_add_local(
         title = "archive",
         content = "raw-data",
         path = "_archive",
@@ -188,7 +188,7 @@ test_that("projr_dest_send works - local", {
         send_inspect = "file",
         overwrite = TRUE
       )
-      projr:.build_patch()
+      projr::projr_build_patch()
       expect_true(file.exists("_latest/raw-data/data.csv"))
       expect_true(file.exists("_archive/raw-data/v0.0.3/data.csv"))
       expect_true(!dir.exists("_archive/raw-data/v0.0.4"))
@@ -196,7 +196,7 @@ test_that("projr_dest_send works - local", {
 
       # new upload, despite no change in project and cue: if-change
       # as remote was changed
-     .yml_dest_add_local(
+      projr_yml_dest_add_local(
         title = "archive",
         content = "raw-data",
         path = "_archive",
@@ -206,12 +206,12 @@ test_that("projr_dest_send works - local", {
         overwrite = TRUE
       )
       file.create("_archive/raw-data/v0.0.6/extra.txt")
-      projr:.build_patch()
+      projr::projr_build_patch()
       expect_true(file.exists("_archive/raw-data/v0.0.7/data.csv"))
       expect_true(!file.exists("_archive/raw-data/v0.0.7/extra.txt"))
 
       # inspect nothing, so always add
-     .yml_dest_add_local(
+      projr_yml_dest_add_local(
         title = "archive",
         content = "raw-data",
         path = "_archive",
@@ -220,12 +220,12 @@ test_that("projr_dest_send works - local", {
         send_inspect = "none",
         overwrite = TRUE
       )
-      projr:.build_patch()
+      projr::projr_build_patch()
       expect_true(file.exists("_archive/raw-data/v0.0.8/data.csv"))
 
       # handle an empty directory
       unlink("_raw_data", recursive = TRUE)
-     .yml_dest_add_local(
+      projr_yml_dest_add_local(
         title = "archive",
         content = "raw-data",
         path = "_archive",
@@ -233,10 +233,9 @@ test_that("projr_dest_send works - local", {
         send_cue = "if-change",
         overwrite = TRUE
       )
-      projr:.build_patch()
+      projr::projr_build_patch()
       expect_true(dir.exists("_archive/raw-data/v0.0.9"))
       expect_true(.is_len_0(list.files("_archive/raw-data/v0.0.9")))
-
     }
   )
 })
@@ -254,27 +253,27 @@ test_that("projr_dest_send works - local - empty dirs", {
   usethis::with_project(
     path = dir_test,
     code = {
-     .init_git()
+     projr_init_git()
       .yml_git_set_push(FALSE, TRUE, NULL)
       # remove github remote
       .yml_dest_rm_type_all("default")
       # add a local destination, that is never sent to
-     .yml_dest_add_local(
+     projr_yml_dest_add_local(
         title = "latest",
         content = "raw-data",
         path = "_latest",
         structure = "latest"
       )
-      projr:.build_patch()
+      projr::projr_build_patch()
       expect_true(dir.exists("_latest/raw-data"))
       expect_false(file.exists("_latest/raw-data/data.csv"))
       # add a file
       file.create("_raw_data/data.csv")
-      projr:.build_patch()
+      projr::projr_build_patch()
       expect_true(file.exists("_latest/raw-data/data.csv"))
       # remove that one file
       file.remove("_raw_data/data.csv")
-      projr:.build_patch()
+      projr::projr_build_patch()
       expect_true(dir.exists("_latest/raw-data"))
       expect_false(file.exists("_latest/raw-data/data.csv"))
 
@@ -283,14 +282,14 @@ test_that("projr_dest_send works - local - empty dirs", {
       # -------------------
 
       .yml_dest_rm_type_all("default")
-     .yml_dest_add_local(
+     projr_yml_dest_add_local(
         title = "archive",
         content = "raw-data",
         path = "_archive",
         structure = "archive",
         overwrite = TRUE
       )
-      projr:.build_patch()
+      projr::projr_build_patch()
       expect_true(dir.exists("_archive/raw-data/v0.0.4"))
       expect_false(file.exists("_archive/raw-data/v0.0.4/data.csv"))
       # add a file
@@ -298,17 +297,17 @@ test_that("projr_dest_send works - local - empty dirs", {
       # debugonce(.dest_send_label)
       # browser()
       file.create("_raw_data/data.csv")
-      projr:.build_patch() # problem isn't here,
+      projr::projr_build_patch() # problem isn't here,
       # it's that manifest.csv for v0.0.4 
       # says that data.csv is there when it isn't
       expect_true(file.exists("_archive/raw-data/v0.0.5/data.csv"))
       # remove that one file
       file.remove("_raw_data/data.csv")
-      projr:.build_patch()
+      projr::projr_build_patch()
       expect_true(dir.exists("_archive/raw-data/v0.0.6"))
       expect_false(file.exists("_archive/raw-data/v0.0.6/data.csv"))
       # keep it removed
-      projr:.build_patch()
+      projr::projr_build_patch()
       expect_false(dir.exists("_archive/raw-data/v0.0.7"))
     }
   )

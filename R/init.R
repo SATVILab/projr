@@ -107,7 +107,7 @@ projr_init_license <- function(license, first_name, last_name) {
 }
 
 projr_init_ignore <- function() {
- .ignore_auto()
+ projr_ignore_auto()
 }
 
 projr_init_renv <- function(force = FALSE, bioc = TRUE) {

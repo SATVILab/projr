@@ -25,20 +25,20 @@
     )
   }
   for (i in seq_along(component)) {
-    yml.osf_ind <- component[[i]]
-    yml.osf_ind_upload <- yml.osf_ind[["upload"]]
+    yml_projr_osf_ind <- component[[i]]
+    yml_projr_osf_ind_upload <- yml_projr_osf_ind[["upload"]]
     # need to make this recursive
     .osf_send_yml_content(
-      id = yml.osf_ind[["id"]],
-      structure = yml.osf_ind[["remote-structure"]],
-      content = yml.osf_ind[["content"]],
-      path = yml.osf_ind[["path"]], ,
-      path_append_label = yml.osf_ind[["path_append_label"]], ,
-      cue = yml.osf_ind_upload[["cue"]],
-      strategy = yml.osf_ind_upload[["strategy"]],
-      inspect = yml.osf_ind_upload[["inspect"]],
-      conflict = yml.osf_ind_upload[["conflict"]],
-      component = yml.osf_ind[["component"]]
+      id = yml_projr_osf_ind[["id"]],
+      structure = yml_projr_osf_ind[["remote-structure"]],
+      content = yml_projr_osf_ind[["content"]],
+      path = yml_projr_osf_ind[["path"]], ,
+      path_append_label = yml_projr_osf_ind[["path_append_label"]], ,
+      cue = yml_projr_osf_ind_upload[["cue"]],
+      strategy = yml_projr_osf_ind_upload[["strategy"]],
+      inspect = yml_projr_osf_ind_upload[["inspect"]],
+      conflict = yml_projr_osf_ind_upload[["conflict"]],
+      component = yml_projr_osf_ind[["component"]]
     )
   }
 }
@@ -101,7 +101,7 @@
   }
 
   # get local directory to upload from
-  path_dir_local <-.path_get_dir(label, safe = !output_run)
+  path_dir_local <-projr_path_get_dir(label, safe = !output_run)
 
   # this is effectively just wiping out what's there
   convert_to_sync_using_deletion <- strategy == "sync-using-version" &&
@@ -161,7 +161,7 @@
     version = NULL
   )
   # get local directory to upload from
-  path_dir_local <-.path_get_dir(label, safe = !output_run)
+  path_dir_local <-projr_path_get_dir(label, safe = !output_run)
 
   switch(inspect,
     "none" = {

@@ -6,13 +6,13 @@ test_that(".yml_metadata_get_version_format_get and _set", {
   usethis::with_project(
     path = dir_test,
     code = {
-      yml.init <- .yml_get_default_raw()
+      yml_projr_init <- .yml_get_default_raw()
       expect_identical(.yml_metadata_get_version_format(NULL), "major.minor.patch-dev")
-      yml_projr <- yml.init
+      yml_projr <- yml_projr_init
       yml_projr[["metadata"]][["version-format"]] <- "major.minor-dev"
       .yml_set(yml_projr)
       expect_identical(.yml_metadata_get_version_format(NULL), "major.minor-dev")
-      .yml_set(yml.init)
+      .yml_set(yml_projr_init)
       yml_projr <- .yml_get_default_raw()
       expect_error(.yml_metadata_set_version_format("abc", NULL))
       expect_error(.yml_metadata_set_version_format("abc"))
@@ -142,15 +142,15 @@ test_that("projr_version_get works", {
         .version_current_vec_get(), c(rep(0L, 3), 1L)
       )
      projr_version_set("7.9.2-1")
-      expect_identical.version_get(), "7.9.2-1")
+      expect_identical(projr_version_get(), "7.9.2-1")
      projr_version_set("7.9.2")
-      expect_identical.version_get(), "7.9.2")
+      expect_identical(projr_version_get(), "7.9.2")
       expect_identical(.version_get(dev_force = TRUE), "7.9.2-1")
-      expect_identical.version_get(), "7.9.2")
+      expect_identical(projr_version_get(), "7.9.2")
       .yml_metadata_set_version_format("major.dev", NULL)
 
      projr_version_set("0.1")
-      expect_identical.version_get(), "0.1")
+      expect_identical(projr_version_get(), "0.1")
       expect_errorprojr_version_set())
     },
     force = TRUE,

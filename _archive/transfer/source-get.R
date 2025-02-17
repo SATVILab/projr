@@ -16,7 +16,7 @@
 
 .source_get_label <- function(label,
                                     bump_component) {
-  yml.label <- .yml_get()[["directories"]][[label]]
+  yml_projr_label <- projr_yml_get()[["directories"]][[label]]
 }
 
 .source_get_check <- function(bump_component) {
@@ -29,7 +29,7 @@
 }
 
 .source_get_get <- function(label) {
-  .yml_get()[["directories"]]
+  projr_yml_get()[["directories"]]
 }
 # TODO: okay, so the logic is a bit messed up here,
 # but I think we're okay generally.
@@ -42,5 +42,5 @@
 
 .source_get_remote <- function(remote_type,
                                      bump_component) {
-  yml.remote <- .yml_get()[["build"]][[remote_type]]
+  yml_projr_remote <- projr_yml_get()[["build"]][[remote_type]]
 }

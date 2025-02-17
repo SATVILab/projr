@@ -187,7 +187,7 @@
     return(invisible(FALSE))
   }
   path_dir_to <- file.path(
-   .path_get_dir("docs", safe = !output_run), path
+   projr_path_get_dir("docs", safe = !output_run), path
   )
   .dir_move_exact(
     path_dir_from = path,

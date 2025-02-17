@@ -58,9 +58,9 @@
 
 # check that the projr-managed section in the specified file is well-formed
 .ignore_path_get_check <- function(match_str_top,
-                                         match_str_bottom,
-                                         file_vec,
-                                         path) {
+                                   match_str_bottom,
+                                   file_vec,
+                                   path) {
   # Validate that the projr-managed section in .gitignore is well-formed                                                 
  ignore_ind_bot <- which(grepl(match_str_bottom, file_vec))
  ignore_ind_top <- which(grepl(match_str_top, file_vec))
@@ -103,7 +103,7 @@
   if (is.na(ind_top)) {
     start <- c(
       file_vec,
-      "# Start of projr section: do not edit by hand (update with.ignore_auto())"
+      "# Start of projr section: do not edit by hand (update with projr_ignore_auto())"
     )
     end <- "# End of projr section"
   } else {
@@ -131,5 +131,5 @@
   invisible(path)
 }
 
-match_str_top <- "^# Start of projr section: do not edit by hand \\(update with.ignore_auto\\(\\))|^# Start of projr section: do not edit by hand \\(update with.ignore\\(\\))|^# Start of projr section: do not edit by hand \\(update with.dir_ignore\\(\\))"
+match_str_top <- "^# Start of projr section: do not edit by hand \\(update with projr_ignore_auto\\(\\))|^# Start of projr section: do not edit by hand \\(update with projr_ignore\\(\\))|^# Start of projr section: do not edit by hand \\(update with projr_dir_ignore\\(\\))"
 match_str_bottom <- "^# End of projr section"

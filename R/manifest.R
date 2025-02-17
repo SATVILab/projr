@@ -6,12 +6,12 @@
   # output is always in safe directory
   # as hashing is done before copying over to final directory
   hash_tbl <- .hash_dir(
-    path_dir =.path_get_dir(label, safe = !output_run),
+    path_dir =projr_path_get_dir(label, safe = !output_run),
     dir_exc = .build_label_get_dir_exc(label)
   ) |>
     .manifest_hash_cache_filter(label)
   if (nrow(hash_tbl) == 0L) {
-    .empty_tbl_get_manifest(label, projr:.version_get())
+    .empty_tbl_get_manifest(label, projr::projr_version_get())
   } else {
     cbind(
       data.frame(label = rep(label, nrow(hash_tbl))),
@@ -65,9 +65,9 @@
   manifest_project <- .manifest_read_project()
   manifest_add <- manifest_project |>
     .manifest_filter_label(label) |>
-    .manifest_filter_version(projr:.version_get())
+    .manifest_filter_version(projr::projr_version_get())
   if (nrow(manifest_add) == 0L) {
-    return(.empty_tbl_get_manifest(label, projr:.version_get()))
+    return(.empty_tbl_get_manifest(label, projr::projr_version_get()))
   }
   manifest_add
 }

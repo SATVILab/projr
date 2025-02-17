@@ -10,35 +10,35 @@
   # ------------------
 
 
-  for (i in seq_along(yml.osf)) {
-    yml.osf_ind <- yml.osf[[i]]
-    yml.osf_ind_upload <- yml.osf_ind[["upload"]]
+  for (i in seq_along(yml_projr_osf)) {
+    yml_projr_osf_ind <- yml_projr_osf[[i]]
+    yml_projr_osf_ind_upload <- yml_projr_osf_ind[["upload"]]
     .osf_send_yml_content(
-      id = yml.osf_ind[["id"]],
-      structure = yml.osf_ind[["remote-structure"]],
-      content = yml.osf_ind[["content"]],
-      path = yml.osf_ind[["path"]], ,
-      path_append_label = yml.osf_ind[["path_append_label"]],
-      cue = yml.osf_ind_upload[["cue"]],
-      strategy = yml.osf_ind_upload[["strategy"]],
-      inspect = yml.osf_ind_upload[["inspect"]],
-      conflict = yml.osf_ind_upload[["conflict"]],
-      component = yml.osf_ind[["component"]]
+      id = yml_projr_osf_ind[["id"]],
+      structure = yml_projr_osf_ind[["remote-structure"]],
+      content = yml_projr_osf_ind[["content"]],
+      path = yml_projr_osf_ind[["path"]], ,
+      path_append_label = yml_projr_osf_ind[["path_append_label"]],
+      cue = yml_projr_osf_ind_upload[["cue"]],
+      strategy = yml_projr_osf_ind_upload[["strategy"]],
+      inspect = yml_projr_osf_ind_upload[["inspect"]],
+      conflict = yml_projr_osf_ind_upload[["conflict"]],
+      component = yml_projr_osf_ind[["component"]]
     )
   }
 
   # upload manifest right at the end,
   # so that it's always the previous version uploaded
   # when comparing
-  for (i in seq_along(yml.osf)) {
+  for (i in seq_along(yml_projr_osf)) {
     .osf_send_node_manifest(
-      title = names(yml.osf)[i], yml.osf[[i]], id_parent = NULL
+      title = names(yml_projr_osf)[i], yml_projr_osf[[i]], id_parent = NULL
     )
   }
 }
 
 .osf_send_check_run <- function(output_run) {
-  yml_projr <-.yml_get()
+  yml_projr <- projr_yml_get()
   # either a dev run or else no osf upload specified
   if ((!output_run) ||
     (!"osf" %in% names(yml_projr[["build"]]))) {
@@ -114,7 +114,7 @@
 .osf_send_node_label_new <- function(osf_tbl,
                                            osf_tbl_file,
                                            label) {
-  dir_label <-.path_get_dir("label", safe = FALSE)
+  dir_label <-projr_path_get_dir("label", safe = FALSE)
   label_present <- label %in% osf_tbl_file[["name"]]
   if (label_present) {
     return(FALSE)
@@ -131,7 +131,7 @@
                                            osf_tbl_file,
                                            manifest_added,
                                            manifest_tbl_osf) {
-  dir_label <-.path_get_dir("label", safe = FALSE)
+  dir_label <-projr_path_get_dir("label", safe = FALSE)
   osf_tbl_file <- osf_tbl |> osfr::osf_ls_files(n_max = Inf)
   label_present <- label %in% osf_tbl_file[["name"]]
 }

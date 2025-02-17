@@ -9,31 +9,31 @@ test_that("projr_path_get_dir works", {
     code = {
       # ensure a docs bug is fixed
       expect_identical(
-       .path_get_dir("docs"), "_tmp/projr/v0.0.0-1/_book"
+       projr_path_get_dir("docs"), "_tmp/projr/v0.0.0-1/_book"
       )
       expect_identical(
         .yml_bd_get()[["output_dir"]], "_tmp/projr/v0.0.0-1/_book"
       )
 
      .init()
-     .path_get_dir("project")
+     projr_path_get_dir("project")
       yml_projr <- .yml_get_default_raw()
-      expect_error.path_get_dir("ailc"))
-      expect_identical.path_get_dir("raw-data"), "_raw_data")
+      expect_errorprojr_path_get_dir("ailc"))
+      expect_identicalprojr_path_get_dir("raw-data"), "_raw_data")
       expect_identical(
-       .path_get_dir("output"), "_tmp/projr/v0.0.0-1/output"
+       projr_path_get_dir("output"), "_tmp/projr/v0.0.0-1/output"
       )
-      expect_identical.path_get_dir(
+      expect_identicalprojr_path_get_dir(
         "output",
         safe = TRUE,
         create = FALSE,
         relative = FALSE
       ), "_tmp/projr/v0.0.0-1/output")
-      expect_identical.path_get_dir("output", safe = FALSE), "_output")
+      expect_identicalprojr_path_get_dir("output", safe = FALSE), "_output")
       if (dir.exists("_tmp")) unlink("_tmp", recursive = TRUE)
-      expect_identical.path_get_dir("cache", create = FALSE), "_tmp")
+      expect_identicalprojr_path_get_dir("cache", create = FALSE), "_tmp")
       expect_true(!dir.exists("_tmp"))
-     .path_get_dir("cache", create = TRUE)
+     projr_path_get_dir("cache", create = TRUE)
       expect_true(dir.exists("_tmp"))
       yml_projr <- .yml_get_default_raw()
       path_tmp_raw_data <- fs::path_abs(dirname(dirname(getwd()))) |>
@@ -44,45 +44,45 @@ test_that("projr_path_get_dir works", {
       )
       .yml_set(yml_projr)
       expect_identical(
-       .path_get_dir("raw-data"),
+       projr_path_get_dir("raw-data"),
         path_tmp_raw_data
       )
 
       expect_identical(
-       .path_get_dir("raw-data", relative = TRUE),
+       projr_path_get_dir("raw-data", relative = TRUE),
         "../.."
       )
 
       expect_identical(
-       .path_get_dir("docs", "abc"), "_tmp/projr/v0.0.0-1/_book/abc"
+       projr_path_get_dir("docs", "abc"), "_tmp/projr/v0.0.0-1/_book/abc"
       )
       expect_identical(
-       .path_get_dir("docs", "abc", safe = FALSE), "_book/abc"
+       projr_path_get_dir("docs", "abc", safe = FALSE), "_book/abc"
       )
       expect_identical(
-       .path_get_dir("raw-data", "abc"),
+       projr_path_get_dir("raw-data", "abc"),
         file.path(path_tmp_raw_data, "abc")
       )
       expect_identical(
-       .path_get_dir("raw-data", "abc", "def", "ghi"),
+       projr_path_get_dir("raw-data", "abc", "def", "ghi"),
         file.path(path_tmp_raw_data, "abc/def/ghi") |>
           fs::path_norm() |>
           as.character()
       )
       expect_identical(
-       .path_get_dir("cache", "abc"), "_tmp/abc"
+       projr_path_get_dir("cache", "abc"), "_tmp/abc"
       )
       expect_identical(
-       .path_get_dir("output", "abc", safe = TRUE),
+       projr_path_get_dir("output", "abc", safe = TRUE),
         "_tmp/projr/v0.0.0-1/output/abc"
       )
       expect_identical(
-       .path_get_dir("cache", "fig", "intro", "p"),
+       projr_path_get_dir("cache", "fig", "intro", "p"),
         "_tmp/fig/intro/p"
       )
       # many levels
       expect_identical(
-       .path_get_dir(
+       projr_path_get_dir(
           "cache", "fig", "intro", "a", "b", "c", "d", "e", "f"
         ),
         "_tmp/fig/intro/a/b/c/d/e/f"
@@ -133,18 +133,18 @@ test_that("projr_path_get works", {
         "_tmp/fig/intro/p.png"
       )
 
-      expect_error.path_get("abc"))
-      expect_identical.path_get("raw-data"), "_raw_data")
-      expect_identical.path_get("output"), "_tmp/projr/v0.0.0-1/output")
-      expect_identical.path_get(
+      expect_error(projr_path_get("abc"))
+      expect_identical(projr_path_get("raw-data"), "_raw_data")
+      expect_identical(projr_path_get("output"), "_tmp/projr/v0.0.0-1/output")
+      expect_identical(projr_path_get(
         "output",
         safe = TRUE,
         create = FALSE,
         relative = FALSE
       ), "_tmp/projr/v0.0.0-1/output")
-      expect_identical.path_get("output", safe = FALSE), "_output")
+      expect_identical(projr_path_get("output", safe = FALSE), "_output")
       if (dir.exists("_tmp")) unlink("_tmp", recursive = TRUE)
-      expect_identical.path_get("cache", create = FALSE), "_tmp")
+      expect_identical(projr_path_get("cache", create = FALSE), "_tmp")
       expect_true(!dir.exists("_tmp"))
      .path_get("cache", create = TRUE)
       expect_true(dir.exists("_tmp"))
@@ -156,7 +156,7 @@ test_that("projr_path_get works", {
       )
       .yml_set(yml_projr)
 
-      expect_identical.path_get("raw-data"), path_raw_data_abc)
+      expect_identical(projr_path_get("raw-data"), path_raw_data_abc)
       expect_identical(
        .path_get("raw-data", relative = TRUE),
         "../.."
@@ -408,27 +408,27 @@ test_that(".dir_clear works", {
       expect_false(.dir_clear(file.path(dir_test, "abc")))
 
       # not deleting directories
-      dir_cache_sub <-.path_get_dir("cache", "sub")
+      dir_cache_sub <-projr_path_get_dir("cache", "sub")
       path_cache_sub_fn <- file.path(dir_cache_sub, "test.txt")
       invisible(file.create(path_cache_sub_fn))
-      .dir_clear_file(path =.path_get_dir("cache"), recursive = TRUE)
+      .dir_clear_file(path =projr_path_get_dir("cache"), recursive = TRUE)
       expect_true(dir.exists((dir_cache_sub)))
       expect_false(file.exists(path_cache_sub_fn))
       .dir_clear(
-        path_dir =.path_get_dir("cache"),
+        path_dir =projr_path_get_dir("cache"),
       )
       expect_false(dir.exists((dir_cache_sub)))
       expect_false(file.exists(path_cache_sub_fn))
-      expect_true(dir.exists.path_get_dir("cache")))
+      expect_true(dir.existsprojr_path_get_dir("cache")))
 
 
-      dir_cache_sub <-.path_get_dir("cache", "sub")
+      dir_cache_sub <-projr_path_get_dir("cache", "sub")
       path_cache_sub_fn <- file.path(dir_cache_sub, "test.txt")
       invisible(file.create(path_cache_sub_fn))
       path_cache_fn <-.path_get("cache", "test2.txt")
       invisible(file.create(path_cache_fn))
       .dir_clear(
-        path_dir =.path_get_dir("cache")
+        path_dir =projr_path_get_dir("cache")
       )
       expect_false(dir.exists((dir_cache_sub)))
       expect_true(dir.exists(dirname(dir_cache_sub)))
