@@ -12,6 +12,6 @@
   ) {
     return("rmd")
   } else {
-    character()
+    character(1L)
   }
 }
