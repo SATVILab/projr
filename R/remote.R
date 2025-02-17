@@ -489,11 +489,19 @@ projr_osf_create_project <- function(title,
 
 .remote_get_final_osf <- function(id,
                                   path,
+                                  path_append_label,
+                                  label,
+                                  structure,
+                                  version,
+                                  pre = NULL) {
   .assert_nchar_single(id, 5L, TRUE)
   .assert_string(path)
   .assert_flag(path_append_label)
   .assert_in(label, .opt_dir_get_label_send(NULL))
   .assert_in_single(structure, .opt_remote_get_structure())
+  if (!is.null(pre)) {
+    stop(paste0("pre not supported for OSF"))
+  }
   label <- .remote_get_final_osf_get_label(
     label, path_append_label
   )
