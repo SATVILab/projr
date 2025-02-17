@@ -105,7 +105,8 @@
     "quarto_project" = .dir_get_docs_quarto_project(),
     "quarto_document" = .dir_get_docs_md(),
     "bookdown" = .dir_get_docs_bookdown(),
-    "rmd" = .dir_get_docs_md()
+    "rmd" = .dir_get_docs_md(),
+    .yml_dir_get_path("docs", NULL)
   )
 }
 
