@@ -194,7 +194,7 @@ projr_osf_create_project <- function(title,
 # ========================
 
 .remote_check_exists <- function(type,
-                                       id) {
+                                 id) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_check_exists_local(path = id),
@@ -233,12 +233,12 @@ projr_osf_create_project <- function(title,
 # ========================
 
 .remote_final_check_exists <- function(type,
-                                             id,
-                                             label,
-                                             structure,
-                                             path,
-                                             path_append_label,
-                                             version) {
+                                       id,
+                                       label,
+                                       structure,
+                                       path,
+                                       path_append_label,
+                                       version) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   version <- if (is.null(version)) {
     .version_get_v()
@@ -1081,8 +1081,8 @@ projr_osf_create_project <- function(title,
 
 # return the path to which it's downloaded
 .remote_file_get_all <- function(type,
-                                       remote,
-                                       path_dir_save_local) {
+                                 remote,
+                                 path_dir_save_local) {
   .assert_string(path_dir_save_local, TRUE)
   .assert_in(type, .opt_remote_get_type(), TRUE)
   .dir_create(path_dir_save_local)
@@ -1242,7 +1242,7 @@ projr_osf_create_project <- function(title,
 }
 
 .remote_get_manifest_non_project <- function(type,
-                                                   remote_pre) {
+                                             remote_pre) {
   manifest_actual <- .remote_get_manifest_non_project_raw(
     type, remote_pre
   )
@@ -1298,9 +1298,9 @@ projr_osf_create_project <- function(title,
 # ========================
 
 .remote_get_version_label <- function(remote_pre,
-                                            type,
-                                            label,
-                                            structure) {
+                                      type,
+                                      label,
+                                      structure) {
   if (type == "project") {
     .remote_get_version_project()
   } else {
@@ -1315,9 +1315,9 @@ projr_osf_create_project <- function(title,
 }
 
 .remote_get_version_label_non_project <- function(remote_pre, # nolint
-                                                        type,
-                                                        label,
-                                                        structure) {
+                                                  type,
+                                                  label,
+                                                  structure) {
 
   # use the versioned files (raw-data-project: v1.0.0)
   version_file <- .remote_get_version_label_non_project_file(
@@ -1373,9 +1373,9 @@ projr_osf_create_project <- function(title,
 }
 
 .remote_get_version_label_non_project_archive <- function(remote_pre,
-                                                                type,
-                                                                label,
-                                                                structure) {
+                                                          type,
+                                                          label,
+                                                          structure) {
   if (structure != "archive") {
     return(character(0L))
   }

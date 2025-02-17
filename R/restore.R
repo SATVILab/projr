@@ -72,21 +72,37 @@ projr_restore <- function(label = NULL,
   yml_title <- .yml_dest_get_title_complete(
     source_vec[["title"]], source_vec[["type"]], NULL, FALSE, FALSE
   )
-  remote_source <- .remote_get_final_if_exists(
+  remote_pre <- .remote_get_final(
+    type, yml_title[["id"]], label,
+    yml_title[["structure"]], yml_title[["path"]],
+    yml_title[["path-append-label"]], NULL, TRUE
+  )
+  version_remote <- if (yml_title[["structure"]] == "latest") {
+    .remote_get_version_label_non_project_file(
+      remote_pre, type, label
+    )
+  } else {
+    .remote_get_version_label_non_project_archive(
+      remote_pre, type, label, "archive"
+    )
+  }
+  if (is.null(version_remote)) {
+    message("No version found for ", label)
+    message("Skipping restore for ", label)
+    return(invisible(FALSE))
+  }
+  message("Restoring ", label, " from ", source_vec[["type"]] , " ", source_vec[["title"]])
+  message("Version: ", version_remote)
+  remote_source <- .remote_get_final(
     source_vec[["type"]], yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
-    yml_title[["path-append-label"]], NULL
+    yml_title[["path-append-label"]], version_remote
   )
-  if (is.null(remote_source)) {
-    stop(paste0(
-                "Remote source does not exist for ", label,
-                " where title is ", source_vec[["title"]], " and type is ",
-                source_vec[["type"]]))
+  path_dir_local <- projr_path_get_dir(label, safe = TRUE)
+  if (!dir.exists(path_dir_local)) {
+    dir.create(path_dir_local, recursive = TRUE)
   }
-  path_dir_save_local <- projr_path_get_dir(label)
-  .remote_file_get_all(
-    source_vec[["type"]], remote_source, path_dir_save_local
-  )
+  .remote_file_get_all(type, remote_source, path_dir_local)
   invisible(TRUE)
 }
 
@@ -150,7 +166,11 @@ projr_restore <- function(label = NULL,
     }
   }
   if (is.null(tt_first)) {
-    stop("No source found for ", label)
+    if (.remote_check_exists("github", "archive")) {
+      return(c("type" = "github", "title" = "archive"))
+    } else {
+      stop("No source found for ", label)
+    }
   }
   c("type" = tp_first, "title" = tt_first)
 }
