@@ -167,7 +167,6 @@ usethis::with_project(
       send_cue = "if-change",
       overwrite = TRUE
     )
-    debugonce(.dest_send_label)
     projr::projr_build_patch()
     expect_false(.remote_final_check_exists(
       "github", "archive", "raw-data", "archive", NULL, NULL, NULL

@@ -291,9 +291,9 @@ projr_osf_create_project <- function(title,
 }
 
 .remote_final_check_exists_github <- function(remote_pre,
-                                                    structure,
-                                                    label,
-                                                    version) {
+                                              structure,
+                                              label,
+                                              version) {
   .assert_attr(remote_pre, "names")
   .assert_has(names(remote_pre), c("tag"))
   .dep_install("piggyback")

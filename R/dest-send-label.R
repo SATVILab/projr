@@ -866,10 +866,10 @@
       # ensure that we remove the empty one
       remote_dest_empty <- remote_dest
       remote_dest_empty["fn"] <- gsub(
-        "\\.zip$", "-empty.zip", remote_dest_empty["fn"]
+        "\\.zip$", "-empty.zip", remote_dest_empty[["fn"]]
       )
-      if (.remote_final_check_exists_github(
-        remote_dest_empty["tag"], "latest", remote_dest_empty[["fn"]], NULL
+      if (.remote_final_check_exists_github_direct(
+        remote_dest_empty[["tag"]], remote_dest_empty[["fn"]]
       )) {
         .remote_file_rm_all_github(remote_dest_empty)
       }
