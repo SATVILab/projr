@@ -1,4 +1,4 @@
-#' @rdname projr_build_output
+#' @rdname projr_build
 #' @title Build project to output
 #'
 #' @description .build_output` Builds project to output, which
@@ -9,7 +9,7 @@
 #' .build_major`, .build_minor` and .build_patch`
 #' are wrappers around .build_output` with the version component
 #' bumped set automatically, e.g. .build_major()` is equivalent
-#' projr_build_output(bump_component = "major")`.
+#' projr_build(bump_component = "major")`.
 #'
 #' @param bump_component "major", "minor", "patch" or missing.
 #' Specifies version component to increment.
@@ -58,7 +58,7 @@
 #' (`rmarkdown::render`, `quarto::render` or `bookdown::render_book`).
 #'
 #' @export
-projr_build_output <- function(bump_component,
+projr_build <- function(bump_component,
                                msg = NULL,
                                args_engine = list(),
                                profile = NULL,
@@ -79,14 +79,14 @@ projr_build_output <- function(bump_component,
   )
 }
 
-#' @rdname projr_build_output
+#' @rdname projr_build
 #' @export
 projr_build_major <- function(msg = NULL,
                               args_engine = list(),
                               profile = NULL,
                               upload_github = FALSE,
                               upload_force = TRUE) {
- projr_build_output(
+ projr_build(
     bump_component = "major",
     msg = msg,
     args_engine = args_engine,
@@ -96,14 +96,14 @@ projr_build_major <- function(msg = NULL,
   )
 }
 
-#' @rdname projr_build_output
+#' @rdname projr_build
 #' @export
 projr_build_minor <- function(msg = NULL,
                               args_engine = list(),
                               profile = NULL,
                               upload_github = FALSE,
                               upload_force = TRUE) {
- projr_build_output(
+ projr_build(
     bump_component = "minor",
     msg = msg,
     args_engine = args_engine,
@@ -113,14 +113,14 @@ projr_build_minor <- function(msg = NULL,
   )
 }
 
-#' @rdname projr_build_output
+#' @rdname projr_build
 #' @export
 projr_build_patch <- function(msg = NULL,
                               args_engine = list(),
                               profile = NULL,
                               upload_github = FALSE,
                               upload_force = TRUE) {
- projr_build_output(
+ projr_build(
     bump_component = "patch",
     msg = msg,
     args_engine = args_engine,

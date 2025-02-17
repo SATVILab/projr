@@ -35,14 +35,14 @@ test_that("projr_build_output works", {
       .yml_git_set_push(FALSE, TRUE, NULL)
       # debugonce(.build_output_get_msg)
       # debugonce(.git_msg_get)
-     projr_build_output("patch", msg = "test")
+     projr_build("patch", msg = "test")
      .version_get()
       yml_bd <- .yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "docs")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
       # run repeat build
-     projr_build_output("minor", msg = "test")
+     projr_build("minor", msg = "test")
     },
     quiet = TRUE,
     force = TRUE
