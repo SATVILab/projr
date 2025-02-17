@@ -73,17 +73,17 @@ projr_restore <- function(label = NULL,
     source_vec[["title"]], source_vec[["type"]], NULL, FALSE, FALSE
   )
   remote_pre <- .remote_get_final(
-    type, yml_title[["id"]], label,
+    source_vec[["type"]], yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
     yml_title[["path-append-label"]], NULL, TRUE
   )
   version_remote <- if (yml_title[["structure"]] == "latest") {
     .remote_get_version_label_non_project_file(
-      remote_pre, type, label
+      remote_pre, source_vec[["type"]], label
     )
   } else {
     .remote_get_version_label_non_project_archive(
-      remote_pre, type, label, "archive"
+      remote_pre, source_vec[["type"]], label, "archive"
     )
   }
   if (is.null(version_remote)) {
@@ -91,7 +91,10 @@ projr_restore <- function(label = NULL,
     message("Skipping restore for ", label)
     return(invisible(FALSE))
   }
-  message("Restoring ", label, " from ", source_vec[["type"]] , " ", source_vec[["title"]])
+  message(
+    "Restoring ", label,
+    " from ", source_vec[["type"]],
+    " ", source_vec[["title"]])
   message("Version: ", version_remote)
   remote_source <- .remote_get_final(
     source_vec[["type"]], yml_title[["id"]], label,
@@ -102,7 +105,7 @@ projr_restore <- function(label = NULL,
   if (!dir.exists(path_dir_local)) {
     dir.create(path_dir_local, recursive = TRUE)
   }
-  .remote_file_get_all(type, remote_source, path_dir_local)
+  .remote_file_get_all(source_vec[["type"]], remote_source, path_dir_local)
   invisible(TRUE)
 }
 
