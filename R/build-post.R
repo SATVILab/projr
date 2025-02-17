@@ -47,9 +47,9 @@
   cite_vec <- .build_cite_get_yml()
   for (i in seq_along(cite_vec)) {
     switch(cite_vec[[i]],
-      "cff" = .cite_cff_set(),
-      "codemeta" = .cite_codemeta_set(),
-      "inst-citation" = .cite_citation_set()
+      "cff" = .cite_cff_set(create = FALSE),
+      "codemeta" = .cite_codemeta_set(create = FALSE),
+      "inst-citation" = .cite_citation_set(create = FALSE)
     )
   }
   invisible(TRUE)

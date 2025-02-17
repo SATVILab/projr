@@ -1,8 +1,12 @@
-.cite_citation_set <- function() {
+.cite_citation_set <- function(create = TRUE) {
   path_inst_citation <- file.path("inst", "CITATION")
+  if (!file.exists(path_inst_citation) && !create) {
+    return(invisible(FALSE))
+  }
   .file_rm(path_inst_citation)
   .cite_citation_inst_write()
   .cite_citation_inst_add_header()
+  invisible(TRUE)
 }
 
 .cite_citation_inst_write <- function() {
@@ -25,9 +29,13 @@
   writeLines(citation_vec, path_citation_inst)
 }
 
-.cite_codemeta_set <- function() {
+.cite_codemeta_set <- function(create = TRUE) {
   .dep_install("codemeta")
+  if (!file.exists(.path_get("codemeta.json")) && !create) {
+    return(invisible(FALSE))
+  }
   try(codemeta::write_codemeta(path = .path_get()))
+  invisible(TRUE)
 }
 
 .cite_bibtex_get <- function() {
@@ -49,7 +57,11 @@
   )
 }
 
-.cite_cff_set <- function() {
+.cite_cff_set <- function(create = TRUE) {
   .dep_install("cffr")
+  if (!file.exists(.path_get("CITATION.cff")) && !create) {
+    return(invisible(FALSE))
+  }
   try(cffr::cff_write())
+  invisible(TRUE)
 }
