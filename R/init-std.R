@@ -77,6 +77,12 @@ projr_init <- function(git = TRUE,
   # try prevent working directory errors
   .init_usethis_std()
 
+  # desc
+  .init_desc_std(desc)
+
+  # initial VERSION file
+  projr_version_set("0.0.1")
+
   # directories
   .init_dir_std(dir)
 
@@ -85,9 +91,6 @@ projr_init <- function(git = TRUE,
 
   # renv
   .init_renv_std(renv, renv_bioc)
-
-  # desc
-  .init_desc_std(desc)
 
   # license
   .init_license_std(license)
