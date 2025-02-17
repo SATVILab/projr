@@ -137,7 +137,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   # taken from renv:::renv_paths_lockfile.
   # we're not finding the lockfile when testing on
   # GH to add dependencies, so we're gonna our
-  # own .dir_proj_get to get the project root
+  # own .path_get to get the project root
   override <- Sys.getenv("RENV_PATHS_LOCKFILE", unset = NA)
   if (!is.na(override)) {
     last <- substr(override, nchar(override), nchar(override))
@@ -380,7 +380,7 @@ projr_use_data <- function(...,
     }
   }
   envir <- parent.frame()
-  paths_project <- vapply(paths, .dir_proj_get, character(1))
+  paths_project <- vapply(paths, .path_get, character(1))
   mapply(save, list = objs, file = paths_project, MoreArgs = list(
     envir = envir,
     compress = compress, version = version, ascii = ascii
