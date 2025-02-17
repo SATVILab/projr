@@ -69,7 +69,7 @@ projr_init_prompt <- function(yml_path_from = NULL,
 }
 
 #' @export
-#' @rdname projr_
+#' @rdname projr_init
 projr_init_git <- function(commit = TRUE, username = NULL, public = FALSE) {
   .git_system_setup()
   .init_git_git(commit)

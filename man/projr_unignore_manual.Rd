@@ -63,13 +63,13 @@ tools.
 }
 \examples{
 # Manually unignore files and directories
-.unignore_manual(c("output", "tempfile.log"))
+projr_unignore_manual(c("output", "tempfile.log"))
 
 # Specifically unignore directories
-.unignore_manual_dir("data")
+projr_unignore_manual_dir("data")
 
 # Specifically unignore files
-.unignore_manual_file("README.md")
+projr_unignore_manual_file("README.md")
 
 }
 \seealso{

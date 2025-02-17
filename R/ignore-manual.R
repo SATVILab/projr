@@ -40,13 +40,13 @@
 #'
 #' @examples
 #' # Manually ignore files and directories
-#'.ignore_manual(c("output", "tempfile.log"))
+#' projr_ignore_manual(c("output", "tempfile.log"))
 #'
 #' # Specifically ignore directories
-#'.ignore_manual_dir("data")
+#' projr_ignore_manual_dir("data")
 #'
 #' # Specifically ignore files
-#'.ignore_manual_file("README.md")
+#' projr_ignore_manual_file("README.md")
 #'
 #' @export
 projr_ignore_manual <- function(ignore) {

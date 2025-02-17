@@ -84,15 +84,15 @@ then the default is to commit, add untracked files and push.
 \examples{
 \dontrun{
 # set all to TRUE
-.yml_git_set(all = TRUE)
+projr_yml_git_set(all = TRUE)
 
 # set all to FALSE
-.yml_git_set(all = FALSE)
+projr_yml_git_set(all = FALSE)
 
 # set only add_untracked to FALSE
-.yml_git_set(add_untracked = FALSE)
+projr_yml_git_set(add_untracked = FALSE)
 
 # revert to defaults
-.yml_git_set_default()
+projr_yml_git_set_default()
 }
 }

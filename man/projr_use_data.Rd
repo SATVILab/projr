@@ -67,8 +67,8 @@ Taken directly from the documentation for the original
 x <- 1:10
 y <- 1:100
 
-.use_data(x, y) # For external use
-.use_data(x, y, internal = TRUE) # For internal use
+projr_use_data(x, y) # For external use
+projr_use_data(x, y, internal = TRUE) # For internal use
 }
 }
 \seealso{

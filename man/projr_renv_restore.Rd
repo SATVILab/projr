@@ -51,19 +51,19 @@ Control whether to process GitHub packages, non-GitHub packages (CRAN and Biocon
 \examples{
 \dontrun{
 # Restore all packages
-.renv_restore()
+projr_renv_restore()
 
 # Update all packages
-.renv_update()
+projr_renv_update()
 
 # Restore and then update all packages
-.renv_restore_and_update()
+projr_renv_restore_and_update()
 
 # Only restore non-GitHub packages
-.renv_restore(github = FALSE)
+projr_renv_restore(github = FALSE)
 
 # Only update GitHub packages
-.renv_update(non_github = FALSE)
+projr_renv_update(non_github = FALSE)
 }
 
 }

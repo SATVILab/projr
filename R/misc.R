@@ -326,8 +326,8 @@ with_dir <- function(new, code) {
 #' x <- 1:10
 #' y <- 1:100
 #'
-#'.use_data(x, y) # For external use
-#'.use_data(x, y, internal = TRUE) # For internal use
+#' projr_use_data(x, y) # For external use
+#' projr_use_data(x, y, internal = TRUE) # For internal use
 #' }
 projr_use_data <- function(...,
                            internal = FALSE,

@@ -2,6 +2,7 @@
 % Please edit documentation in R/init-std.R, R/init.R
 \name{projr_init}
 \alias{projr_init}
+\alias{projr_init_git}
 \alias{projr_init_license}
 \title{Initialize a projr Project}
 \usage{
@@ -22,6 +23,8 @@ projr_init(
   projr_yml = FALSE,
   lit_doc = NULL
 )
+
+projr_init_git(commit = TRUE, username = NULL, public = FALSE)
 
 projr_init_license(license, first_name, last_name)
 }

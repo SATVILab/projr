@@ -83,16 +83,16 @@ a CITATION.cff file and a CITATION file in the inst/ directory.
 \examples{
 \dontrun{
 # set all to TRUE
-.yml_cite_set(all = TRUE)
+projr_yml_cite_set(all = TRUE)
 
 # set all to FALSE
-.yml_cite_set(all = FALSE)
+projr_yml_cite_set(all = FALSE)
 
 # set only cff to FALSE
-.yml_cite_set(cff = FALSE)
+projr_yml_cite_set(cff = FALSE)
 
 # revert to defaults
-.yml_cite_set_default()
+projr_yml_cite_set()
 }
 
 }

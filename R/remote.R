@@ -100,7 +100,7 @@
 #'
 #' @examples
 #' \dontrun{
-#'.osf_create_project(
+#' projr_osf_create_project(
 #'   title = "My New Project",
 #'   description = "This is a description of my new project.",
 #'   public = TRUE # because open science

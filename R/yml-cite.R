@@ -61,16 +61,16 @@
 #' @examples
 #' \dontrun{
 #' # set all to TRUE
-#'.yml_cite_set(all = TRUE)
+#' projr_yml_cite_set(all = TRUE)
 #'
 #' # set all to FALSE
-#'.yml_cite_set(all = FALSE)
+#' projr_yml_cite_set(all = FALSE)
 #'
 #' # set only cff to FALSE
-#'.yml_cite_set(cff = FALSE)
+#' projr_yml_cite_set(cff = FALSE)
 #'
 #' # revert to defaults
-#'.yml_cite_set_default()
+#' projr_yml_cite_set()
 #' }
 #'
 projr_yml_cite_set <- function(all = NULL,
@@ -243,8 +243,8 @@ projr_yml_cite_set_default <- function(profile = "default",
 }
 
 .yml_cite_simplify <- function(simplify_identical,
-                                     simplify_default,
-                                     profile) {
+                               simplify_default,
+                               profile) {
   .yml_cite_simplify_identical(simplify_identical, profile)
   .yml_cite_simplify_default(simplify_default, profile)
 }

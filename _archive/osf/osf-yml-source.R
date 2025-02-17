@@ -66,12 +66,12 @@
 #' @examples
 #'
 #' # add a project as source:
-#'.source_add_osf(
+#' projr_source_add_osf(
 #'   label = "raw-data",
 #'   category = "project"
 #' )
 #' # add a component as source:
-#'.source_add_osf(
+#' projr_source_add_osf(
 #'   label = "raw-data",
 #'   category = "data",
 #'   id_parent = "y235k"
