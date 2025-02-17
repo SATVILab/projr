@@ -488,11 +488,7 @@ projr_osf_create_project <- function(title,
 # ---------------------
 
 .remote_get_final_osf <- function(id,
-                                        path,
-                                        path_append_label,
-                                        label,
-                                        structure,
-                                        version) {
+                                  path,
   .assert_nchar_single(id, 5L, TRUE)
   .assert_string(path)
   .assert_flag(path_append_label)
