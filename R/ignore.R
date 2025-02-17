@@ -131,5 +131,5 @@
   invisible(path)
 }
 
-match_str_top <- "^# Start of projr section: do not edit by hand \\(update with projr_ignore_auto\\(\\))|^# Start of projr section: do not edit by hand \\(update with projr_ignore\\(\\))|^# Start of projr section: do not edit by hand \\(update with projr_dir_ignore\\(\\))"
+match_str_top <- "^# Start of projr section"
 match_str_bottom <- "^# End of projr section"
