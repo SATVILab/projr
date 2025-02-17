@@ -12,9 +12,6 @@
   ) {
     return("rmd")
   } else {
-    stop(
-      "No project engine found
-      (bookdown, quarto project, quarto document or rmd)"
-    )
+    character()
   }
 }
