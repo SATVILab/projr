@@ -292,11 +292,7 @@
     return(yml_title)
   }
   yml_title[["send"]] <- list(
-    "inspect" = "none",
-    "strategy" = "sync-purge",
-    "conflict" = "overwrite"
-  )
-  yml_title
+    "strategy" = "sync-diff"
 }
 
 .yml_dest_get_title_complete_param_nonforce <- function(yml_title) {
