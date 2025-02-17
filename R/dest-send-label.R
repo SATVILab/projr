@@ -1,9 +1,9 @@
 .dest_send_label <- function(label,
-                                   title,
-                                   type,
-                                   output_run,
-                                   upload_github,
-                                   upload_force) {
+                             title,
+                             type,
+                             output_run,
+                             upload_github,
+                             upload_force) {
   force(title)
   # where they should go to
   path_dir_local <-projr_path_get_dir(label, safe = !output_run) # nolint

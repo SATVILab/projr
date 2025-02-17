@@ -132,6 +132,11 @@ projr_restore <- function(label = NULL,
       names()
     type <- nm_vec[grepl("^github$|^local$|^osf", nm_vec)]
     if (.is_len_0(type)) {
+      if (.remote_check_exists("github", "archive")) {
+        return(c("type" = "github", "title" = "archive"))
+      } else {
+        stop("No source found for ", label)
+      }
       stop("No source found for ", label)
     }
   }
@@ -166,11 +171,7 @@ projr_restore <- function(label = NULL,
     }
   }
   if (is.null(tt_first)) {
-    if (.remote_check_exists("github", "archive")) {
-      return(c("type" = "github", "title" = "archive"))
-    } else {
-      stop("No source found for ", label)
-    }
+
   }
   c("type" = tp_first, "title" = tt_first)
 }
