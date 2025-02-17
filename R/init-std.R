@@ -81,7 +81,10 @@ projr_init <- function(git = TRUE,
   .init_desc_std(desc)
 
   # initial VERSION file
-  projr_version_set("0.0.1")
+  if (!file.exists(.path_get("VERSION")) &&
+        !file.exists(.path_get("DESCRIPTION"))) {
+    projr_version_set("0.0.1")
+  }
 
   # directories
   .init_dir_std(dir)

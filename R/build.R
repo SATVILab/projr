@@ -193,6 +193,8 @@ projr_build_dev <- function(file = NULL,
     on.exit(Sys.setenv(PROJR_PROFILE = old_profile))
   }
   projr_env_file_activate()
+  .build_ensure_version()
+
   version_run_on_list <- .build_pre(bump_component, msg)
   .build_impl(version_run_on_list, file, args_engine)
   .build_post(
@@ -204,6 +206,13 @@ projr_build_dev <- function(file = NULL,
 
 .build_get_output_run <- function(bump_component) {
   !(is.null(bump_component) || bump_component == "dev")
+}
+
+.build_ensure_version <- function() {
+  if (!file.exists(.path_get("VERSION")) &&
+        !file.exists(.path_get("DESCRIPTION"))) {
+    projr_version_set("0.0.1")
+  }
 }
 
 # pre
