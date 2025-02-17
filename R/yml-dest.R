@@ -240,7 +240,7 @@
                                      profile,
                                      upload_github,
                                      upload_force) {
-  is_github_param <-.yml_dest_get_title_complete_is_github_param(
+  is_github_param <- .yml_dest_get_title_complete_is_github_param(
     type, title, upload_github
   )
   if (!is_github_param) {
@@ -292,7 +292,10 @@
     return(yml_title)
   }
   yml_title[["send"]] <- list(
+    "inspect" = "manifest",
     "strategy" = "sync-diff"
+  )
+  yml_title
 }
 
 .yml_dest_get_title_complete_param_nonforce <- function(yml_title) {
