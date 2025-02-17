@@ -137,7 +137,7 @@ projr_path_get_dir <- function(label, ...,
 #' @title Return path
 #'
 #' @description Returns path to \code{projr} profile-specific directory.
-#' Differs from \code.dir_get} in that it does not assume
+#' Differs from \code{projr_dir_get} in that it does not assume
 #' that the path is to a directory.
 #'
 #' Will create the parent directory of the specified
@@ -160,7 +160,7 @@ projr_path_get_dir <- function(label, ...,
 #' and \code{.Rbuildignore} as specified
 #' in \code{_projr.yml}.
 #' Default is \code{TRUE}.
-#' @inheritParams.path_get_dir
+#' @inheritParams projr_path_get_dir
 #'
 #' @return Character.
 #' Path to directory requested.
@@ -181,7 +181,7 @@ projr_path_get <- function(label, ...,
                            safe = TRUE) {
   args_dotted <- list(...)
   if (length(args_dotted) == 0) {
-    path_dir <-projr_path_get_dir(
+    path_dir <- projr_path_get_dir(
       label = label,
       create = create,
       relative = relative,
@@ -192,7 +192,7 @@ projr_path_get <- function(label, ...,
   }
   if (length(args_dotted) > 1) {
     path_dir <- do.call(
-      what = ".path_get_dir",
+      what = "projr_path_get_dir",
       args = list(
         label = label,
         args_dotted[-length(args_dotted)] |> unlist(),

@@ -32,13 +32,38 @@ it is ignored (or not) from \code{.gitignore}
 and \code{.Rbuildignore} as specified
 in \code{_projr.yml}.
 Default is \code{TRUE}.}
+
+\item{relative}{logical.
+If \code{TRUE}, then forces that the returned
+path is relative to the project root.
+Default is \code{FALSE}.}
+
+\item{absolute}{logical.
+If \code{TRUE}, then forces the returned path
+to be absolute.
+Default is \code{FALSE}.}
+
+\item{safe}{logical.
+If \code{TRUE}, then the output directory
+is set to be \code{"<path_to_cache>.output"}
+instead of \code{<path_to_output>} (as specified in \code{_projr.yml}).
+The only time that this should be set to \code{TRUE}
+should be when .build_output\verb{ is being run, as otherwise "development" or test runs will add to, delete or overwrite fabciles from the previous run of .build_output}.
+Default is \code{TRUE}.
+Do not change this unless you know what you are doing.}
 }
 \value{
 Character.
 Path to directory requested.
 }
 \description{
+Returns path to \code{projr} profile-specific directory.
+Differs from \code{projr_dir_get} in that it does not assume
+that the path is to a directory.
 
+Will create the parent directory of the specified
+path if it does not exist, and ignore it
+if requested by \verb{_projr.yml}.
 }
 \details{
 DETAILS

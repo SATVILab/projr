@@ -56,6 +56,20 @@ projr_init <- function(git = TRUE,
   usethis::proj_set(force = TRUE)
 }
 
+projr_init_all <- function(github_org,
+                           license = NULL,
+                           lit_doc = NULL) {
+  projr_init(
+    github_org = github_org,
+    renv = TRUE,
+    desc = TRUE,
+    license = license,
+    cite = TRUE,
+    projr_yml = TRUE,
+    lit_doc = lit_doc
+  )
+}
+
 # ========================================
 # Directories
 # ========================================
@@ -71,7 +85,7 @@ projr_init <- function(git = TRUE,
   nm_vec <- .yml_dir_get(NULL) |> names()
   nm_vec[grepl("^raw|^output|^cache", .dir_label_strip(nm_vec))] |>
     lapply(projr_path_get)
-  message("Initialised raw and output directories.")
+  message("Initialised raw, cache and output directories.")
   invisible(TRUE)
 }
 

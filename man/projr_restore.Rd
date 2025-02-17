@@ -35,3 +35,6 @@ Invisible returns \code{TRUE} if successful.
 \description{
 Restore project artefact directory
 }
+\examples{
+\dontrun{projr_restore("raw-data")}
+}

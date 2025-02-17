@@ -24,7 +24,7 @@
 #' Invisible returns `TRUE` if successful.
 #'
 #' @examples
-#' \dontrun.restore("raw-data")}
+#' \dontrun{projr_restore("raw-data")}
 #' @export
 projr_restore <- function(label = NULL,
                           type = NULL,
