@@ -55,7 +55,7 @@
 }
 
 .build_clear_pre_docs_check <- function(output_run) {
-  path_docs <-projr_path_get_dir("docs", safe = !output_run) |>
+  path_docs <- projr_path_get_dir("docs", safe = !output_run) |>
     normalizePath(winslash = "/")
   path_proj_root <- .path_get() |> normalizePath(winslash = "/")
   identical(path_docs, path_proj_root)
@@ -63,12 +63,12 @@
 
 .build_clear_pre_docs_cache <- function(output_run) {
   .dir_copy_exact(
-   projr_path_get_dir("docs", safe = !output_run),
+    projr_path_get_dir("docs", safe = !output_run),
     .path_get_cache_auto_dir("projr", "cleared_docs")
   )
 }
 
 .build_clear_pre_docs_no_cache <- function(output_run) {
- projr_path_get_dir("docs", safe = !output_run) |>
+  projr_path_get_dir("docs", safe = !output_run) |>
     .dir_clear()
 }
