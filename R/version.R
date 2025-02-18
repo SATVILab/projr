@@ -36,7 +36,7 @@ projr_version_set <- function(version, only_if_exists = TRUE) {
   # @param path_dir. character.
   # Specifies the directory path to copy the version to.
   .assert_string(path_dir, TRUE)
- .version_get() |>
+  .version_get() |>
     .version_set_file(path_dir = path_dir)
 }
 
@@ -65,8 +65,6 @@ projr_version_set <- function(version, only_if_exists = TRUE) {
     }
   )
 }
-
-
 
 
 .version_set_file <- function(version, path_dir = NULL, only_if_exists = FALSE) {
