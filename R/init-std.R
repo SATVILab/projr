@@ -74,6 +74,9 @@ projr_init <- function(git = TRUE,
                        projr_yml = FALSE,
                        lit_doc = NULL) {
 
+  # renv
+  .init_renv_std(renv, renv_bioc)
+
   # try prevent working directory errors
   .init_usethis_std()
 
@@ -91,9 +94,6 @@ projr_init <- function(git = TRUE,
 
   # readme
   .init_readme_std(readme, readme_rmd)
-
-  # renv
-  .init_renv_std(renv, renv_bioc)
 
   # license
   .init_license_std(license)
