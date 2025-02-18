@@ -115,9 +115,7 @@ projr_init <- function(git = TRUE,
 }
 
 .init_usethis_std <- function() {
-  if (!requireNamespace("usethis", quietly = TRUE)) {
-    .dep_install_only("usethis")
-  }
+  .dep_install_only("usethis")
   usethis::proj_set(force = TRUE)
 }
 
@@ -259,7 +257,7 @@ projr_init_all <- function(github_org,
     "proprietary", "Proprietary"
   )
   .assert_in(x, opt_vec, TRUE)
-  .dep_install_only("desc")
+  .dep_install_only("usethis")
   switch(x,
     "ccby" = ,
     "CC-BY" = usethis::use_ccby_license(),

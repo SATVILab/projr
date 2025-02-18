@@ -44,6 +44,7 @@
 }
 
 .auth_get_github_pat_instr <- function() {
+  .dep_install_only("usethis")
   c(
     "GITHUB_PAT is needed to create a GitHub repository.\n", # nolint
     "\n", # nolint

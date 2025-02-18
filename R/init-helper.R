@@ -830,7 +830,7 @@ projr_init_renviron <- function() {
     "proprietary", "Proprietary"
   )
   .assert_in(x, opt_vec, TRUE)
-  .dep_install_only("desc")
+  .dep_install_only("usethis")
   switch(x,
     "ccby" = ,
     "CC-BY" = usethis::use_ccby_license(),
