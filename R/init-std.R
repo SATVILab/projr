@@ -27,8 +27,6 @@
 #'   Defaults to \code{FALSE}.
 #' @param license Character or \code{NULL}. Specifies the license to apply (e.g., \code{"ccby"},
 #'   \code{"apache"}, \code{"cc0"}, \code{"proprietary"}). Defaults to \code{NULL}.
-#' @param cite Logical. If \code{TRUE}, sets up citation files for the project.
-#'   Defaults to \code{FALSE}.
 #' @param projr_yml Logical. If \code{TRUE}, creates a \code{projr.yml} configuration file.
 #'   Defaults to \code{FALSE}.
 #' @param lit_doc Character or \code{NULL}. Specifies the type of literate documentation to create.
@@ -68,7 +66,6 @@ projr_init <- function(git = TRUE,
                        readme_rmd = FALSE,
                        desc = FALSE,
                        license = NULL,
-                       cite = FALSE,
                        projr_yml = FALSE,
                        lit_doc = NULL) {
 
@@ -94,9 +91,6 @@ projr_init <- function(git = TRUE,
 
   # license
   .init_license_std(license)
-
-  # citation
-  .init_cite_std(cite)
 
   # projr_yml
   .init_yml_std(projr_yml)
@@ -125,7 +119,6 @@ projr_init_all <- function(github_org,
     github_org = github_org,
     desc = TRUE,
     license = license,
-    cite = TRUE,
     projr_yml = TRUE,
     lit_doc = lit_doc
   )
@@ -135,6 +128,12 @@ projr_init_all <- function(github_org,
 #' @export
 projr_init_renv <- function(bioc = TRUE) {
   .init_renv_std(TRUE, bioc)
+}
+
+#' @rdname projr_init
+#' @export
+projr_init_cite <- function() {
+  .init_cite_std(TRUE)
 }
 
 # ========================================

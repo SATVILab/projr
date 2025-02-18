@@ -4,6 +4,7 @@
 \alias{projr_init}
 \alias{projr_init_all}
 \alias{projr_init_renv}
+\alias{projr_init_cite}
 \alias{projr_init_git}
 \alias{projr_init_license}
 \title{Initialize a projr Project}
@@ -19,7 +20,6 @@ projr_init(
   readme_rmd = FALSE,
   desc = FALSE,
   license = NULL,
-  cite = FALSE,
   projr_yml = FALSE,
   lit_doc = NULL
 )
@@ -27,6 +27,8 @@ projr_init(
 projr_init_all(github_org, license = NULL, lit_doc = NULL)
 
 projr_init_renv(bioc = TRUE)
+
+projr_init_cite()
 
 projr_init_git(commit = TRUE, username = NULL, public = FALSE)
 
@@ -61,9 +63,6 @@ Defaults to \code{FALSE}.}
 
 \item{license}{Character or \code{NULL}. Specifies the license to apply (e.g., \code{"ccby"},
 \code{"apache"}, \code{"cc0"}, \code{"proprietary"}). Defaults to \code{NULL}.}
-
-\item{cite}{Logical. If \code{TRUE}, sets up citation files for the project.
-Defaults to \code{FALSE}.}
 
 \item{projr_yml}{Logical. If \code{TRUE}, creates a \code{projr.yml} configuration file.
 Defaults to \code{FALSE}.}
