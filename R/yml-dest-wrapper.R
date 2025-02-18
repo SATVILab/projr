@@ -129,8 +129,7 @@ projr_yml_dest_add_osf <- function(title,
     send_cue = send_cue,
     send_strategy = send_strategy,
     send_inspect = send_inspect,
-    profile = profile,
-    overwrite = overwrite
+    profile = profile
   )
 }
 
