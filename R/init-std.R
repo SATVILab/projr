@@ -588,6 +588,7 @@ projr_init_all <- function(github_org,
 
 .init_std_github_impl <- function(public, org) {
   .dep_install_only("usethis")
+  .dep_install_only("gh")
   if (is.null(org)) {
     .init_github_actual_user(public)
   } else {
