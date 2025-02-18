@@ -2,6 +2,8 @@
 % Please edit documentation in R/init-std.R, R/init.R
 \name{projr_init}
 \alias{projr_init}
+\alias{projr_init_all}
+\alias{projr_init_renv}
 \alias{projr_init_git}
 \alias{projr_init_license}
 \title{Initialize a projr Project}
@@ -15,14 +17,16 @@ projr_init(
   dir = TRUE,
   readme = TRUE,
   readme_rmd = FALSE,
-  renv = FALSE,
-  renv_bioc = TRUE,
   desc = FALSE,
   license = NULL,
   cite = FALSE,
   projr_yml = FALSE,
   lit_doc = NULL
 )
+
+projr_init_all(github_org, license = NULL, lit_doc = NULL)
+
+projr_init_renv(force = FALSE, bioc = TRUE)
 
 projr_init_git(commit = TRUE, username = NULL, public = FALSE)
 
@@ -52,12 +56,6 @@ cache, output). Defaults to \code{TRUE}.}
 (\code{README.Rmd}); otherwise, a Markdown file (\code{README.md}) is created.
 Defaults to \code{FALSE}.}
 
-\item{renv}{Logical. If \code{TRUE}, initializes a renv environment for dependency management.
-Defaults to \code{FALSE}.}
-
-\item{renv_bioc}{Logical. If \code{TRUE}, includes Bioconductor packages in the renv setup.
-Defaults to \code{TRUE}.}
-
 \item{desc}{Logical. If \code{TRUE}, creates a DESCRIPTION file for the project.
 Defaults to \code{FALSE}.}
 
@@ -73,6 +71,12 @@ Defaults to \code{FALSE}.}
 \item{lit_doc}{Character or \code{NULL}. Specifies the type of literate documentation to create.
 Supported values are \code{"bookdown"}, \code{"project"}, \code{"quarto"}, and \code{"rmd"}.
 Defaults to \code{NULL}.}
+
+\item{bioc}{Logical. If \code{TRUE}, includes Bioconductor packages in the renv setup.
+Defaults to \code{TRUE}.}
+
+\item{renv}{Logical. If \code{TRUE}, initializes a renv environment for dependency management.
+Defaults to \code{FALSE}.}
 }
 \value{
 Invisibly returns \code{TRUE} if initialization is successful, or \code{FALSE} if

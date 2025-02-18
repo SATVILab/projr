@@ -206,7 +206,7 @@
 
 .renv_init_rscript_impl <- function(bioc) {
   cmd_txt <- paste0(
-    "-e \"renv::init(settings = list(snapshot.type = 'implicit'), bioconductor = ",
+    "-e \"renv::init(settings = list(snapshot.type = 'implicit'), bioconductor = ", # nolint
     bioc,
     ")\""
   )
@@ -897,7 +897,26 @@ projr_init_renviron <- function() {
 
 .init_git_file_get_renv <- function() {
   if (dir.exists("renv")) {
-    .file_ls("renv", recursive = TRUE, full.names = TRUE)
+    fn_vec_root <- .file_ls(
+      "renv", recursive = FALSE, full.names = TRUE
+    )
+    dir_vec <- .dir_ls("renv", recursive = FALSE, full.names = FALSE)
+    if (.is_len_0(dir_vec)) {
+      return(fn_vec_root)
+    }
+    ignore_vec <- if (file.exists(.path_get("renv", ".gitignore"))) {
+      readLines(.path_get("renv", ".gitignore")) |> gsub("/$", "", x = _)
+    } else {
+      character(0)
+    }
+
+    dir_vec <- dir_vec[!basename(dir_vec) %in% ignore_vec]
+    if (.is_len_0(dir_vec)) {
+      return(fn_vec_root)
+    }
+    lapply(dir_vec, .file_ls, recursive = TRUE, full.names = TRUE) |>
+      unlist() |>
+      c(fn_vec_root)
   } else {
     character(0)
   }

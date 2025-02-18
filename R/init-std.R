@@ -23,8 +23,6 @@
 #'   Defaults to \code{FALSE}.
 #' @param renv Logical. If \code{TRUE}, initializes a renv environment for dependency management.
 #'   Defaults to \code{FALSE}.
-#' @param renv_bioc Logical. If \code{TRUE}, includes Bioconductor packages in the renv setup.
-#'   Defaults to \code{TRUE}.
 #' @param desc Logical. If \code{TRUE}, creates a DESCRIPTION file for the project.
 #'   Defaults to \code{FALSE}.
 #' @param license Character or \code{NULL}. Specifies the license to apply (e.g., \code{"ccby"},
@@ -36,6 +34,8 @@
 #' @param lit_doc Character or \code{NULL}. Specifies the type of literate documentation to create.
 #'   Supported values are \code{"bookdown"}, \code{"project"}, \code{"quarto"}, and \code{"rmd"}.
 #'   Defaults to \code{NULL}.
+#' @param bioc Logical. If \code{TRUE}, includes Bioconductor packages in the renv setup.
+#'   Defaults to \code{TRUE}.
 #'
 #' @return Invisibly returns \code{TRUE} if initialization is successful, or \code{FALSE} if
 #'   a particular step is skipped.
@@ -66,16 +66,13 @@ projr_init <- function(git = TRUE,
                        dir = TRUE,
                        readme = TRUE,
                        readme_rmd = FALSE,
-                       renv = FALSE,
-                       renv_bioc = TRUE,
                        desc = FALSE,
                        license = NULL,
                        cite = FALSE,
                        projr_yml = FALSE,
                        lit_doc = NULL) {
 
-  # renv
-  .init_renv_std(renv, renv_bioc)
+
 
   # try prevent working directory errors
   .init_usethis_std()
@@ -119,18 +116,25 @@ projr_init <- function(git = TRUE,
   usethis::proj_set(force = TRUE)
 }
 
+#' @rdname projr_init
+#' @export
 projr_init_all <- function(github_org,
                            license = NULL,
                            lit_doc = NULL) {
   projr_init(
     github_org = github_org,
-    renv = TRUE,
     desc = TRUE,
     license = license,
     cite = TRUE,
     projr_yml = TRUE,
     lit_doc = lit_doc
   )
+}
+
+#' @rdname projr_init
+#' @export
+projr_init_renv <- function(bioc = TRUE) {
+  .init_renv_std(TRUE, bioc)
 }
 
 # ========================================
