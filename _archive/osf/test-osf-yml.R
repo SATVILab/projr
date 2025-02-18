@@ -9,7 +9,7 @@ test_that("projr_source_add_osf works", {
       label <- .osf_label_get_random("DataRawProjrOSFTest")
 
       # create a new project as a source
-      id_proj <-.source_add_osf(label = label, category = "project")
+      id_proj <- projr_source_add_osf(label = label, category = "project")
       # extract id, defer the node's deletion and test id
       .osf_rm_node_id_defer(id_proj)
       expect_true(is.character(id_proj))
@@ -23,14 +23,14 @@ test_that("projr_source_add_osf works", {
       expect_error(
        .source_add_osf(label = "data-raw", category = "analysis")
       )
-      id_comp <-.source_add_osf(
+      id_comp <- projr_source_add_osf(
         label = "data-raw", category = "data", id_parent = id_proj
       )
       expect_true(is.character(id_comp))
       expect_true(nchar(id_comp) == 5L)
 
       # add with more things
-      id_comp_overwrite <-.source_add_osf(
+      id_comp_overwrite <- projr_source_add_osf(
         label = "data-raw",
         overwrite = TRUE,
         id = NULL,
@@ -83,7 +83,7 @@ test_that("projr_dest_add_osf works", {
       # ------------------------
 
       # create a new project as a destination
-      id_proj <-.dest_add_osf(
+      id_proj <- projr_dest_add_osf(
         title = title, category = "project"
       )
 
@@ -131,7 +131,7 @@ test_that("projr_dest_add_osf works", {
       )
 
       # id_parent specified
-      id_comp <-.dest_add_osf(
+      id_comp <- projr_dest_add_osf(
         title = "Test", content = "data-raw",
         category = "data", id_parent = id_proj
       )
@@ -144,7 +144,7 @@ test_that("projr_dest_add_osf works", {
       )
 
       # parent_title specified
-      id_comp <-.dest_add_osf(
+      id_comp <- projr_dest_add_osf(
         title = "Test2", content = "data-raw",
         category = "data", parent_title = title
       )
@@ -160,7 +160,7 @@ test_that("projr_dest_add_osf works", {
       # ----------------------------
 
       # id_parent specified
-      id_comp_sub <-.dest_add_osf(
+      id_comp_sub <- projr_dest_add_osf(
         title = "TestSub", content = "data-raw",
         category = "data", id_parent = id_comp
       )
@@ -173,7 +173,7 @@ test_that("projr_dest_add_osf works", {
       )
 
       # parent_title specified
-      id_comp_sub <-.dest_add_osf(
+      id_comp_sub <- projr_dest_add_osf(
         title = "TestSubTitle", content = "data-raw",
         category = "data", parent_title = "Test2"
       )
@@ -197,7 +197,7 @@ test_that("projr_dest_add_osf works", {
       # debugonce(.osf_yml_get_parent_vec)
       # debugonce(.osf_yml_find_parent)
       # debugonce(.osf_yml_find_parent_rec)
-      id_comp_sub_sub <-.dest_add_osf(
+      id_comp_sub_sub <- projr_dest_add_osf(
         title = "TestSubSubId", content = "data-raw",
         category = "data", id_parent = id_comp_sub
       )
@@ -209,7 +209,7 @@ test_that("projr_dest_add_osf works", {
         id_comp_sub_sub
       )
 
-      id_comp_sub_sub <-.dest_add_osf(
+      id_comp_sub_sub <- projr_dest_add_osf(
         title = "TestSubSubTitle", content = "data-raw",
         category = "data", parent_title = "TestSubTitle"
       )

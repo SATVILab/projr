@@ -156,7 +156,7 @@ test_that(".osf_download_node_label works", {
       .osf_rm_node_id_defer(osf_tbl_proj[["id"]])
 
       # add source directory
-      id_source <-.osf_source_add(
+      id_source <- .osf_source_add(
         label = "raw-data",
         parent_id = osf_tbl_proj[["id"]],
         path_append_label = FALSE

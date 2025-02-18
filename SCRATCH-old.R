@@ -216,15 +216,15 @@ test_that("projr_manifest_compare works", {
         unlink.dir_get("raw-data"), recursive = TRUE)
       }
       # create files
-      path_output_kept_unchanged <-.path_get(
+      path_output_kept_unchanged <- projr_path_get(
         "output", "kept_unchanged.txt",
         safe = FALSE
       )
-      path_output_kept_changed <-.path_get(
+      path_output_kept_changed <- projr_path_get(
         "output", "kept_changed.txt",
         safe = FALSE
       )
-      path_output_removed <-.path_get(
+      path_output_removed <- projr_path_get(
         "output", "removed.txt",
         safe = FALSE
       )
@@ -234,7 +234,7 @@ test_that("projr_manifest_compare works", {
       # get manifest beforehand
       manifest_tbl_pre <- .build_manifest_hash_post(output_run = TRUE)
       # add a file, and change a file
-      path_output_add <-.path_get(
+      path_output_add <- projr_path_get(
         "output", "added.txt",
         safe = FALSE
       )
@@ -1423,7 +1423,7 @@ while (x < 10) {
   if (!output_run) {
     return(invisible(FALSE))
   }
-  proj_nm <-.name_get()
+  proj_nm <- projr_name_get()
   version_format_list <- .version_format_list_get()
 
   # clear old docs
@@ -1969,7 +1969,7 @@ yml_projr_dir <- projr_yml_get()[["directories"]]
     version_comp_vec <- rev(version_comp_vec)[
         seq_len(which(rev(version_comp_vec == item_version)))
     ]
-    version_current <-.version_get()
+    version_current <- projr_version_get()
     # ensure `piggyback` is available
     if (!requireNamespace("piggyback", quietly = TRUE)) {
         renv::install("piggyback")

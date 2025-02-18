@@ -419,10 +419,10 @@ projr_use_data <- function(...,
 }
 
 .zip_dir <- function(path_dir,
-                           path_zip,
-                           dir_exc = NULL,
-                           dir_inc = NULL,
-                           fn_exc = NULL) {
+                     path_zip,
+                     dir_exc = NULL,
+                     dir_inc = NULL,
+                     fn_exc = NULL) {
   .file_rm(path_zip)
   .dir_create(dirname(path_zip))
   wd_orig <- getwd()
