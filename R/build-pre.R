@@ -140,7 +140,7 @@
 }
 
 .build_version_set_pre <- function(version_run_on_list) {
- projr_version_set(version_run_on_list$desc[["run"]])
+  projr_version_set(version_run_on_list$desc[["run"]])
   invisible(TRUE)
 }
 
@@ -151,6 +151,6 @@
 
 .build_ensure_dev_version <- function() {
   .version_get(dev_force = TRUE) |>
-   projr_version_set()
+    projr_version_set()
   invisible(TRUE)
 }

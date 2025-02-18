@@ -241,6 +241,10 @@ projr_init_cite <- function() {
   message("Creating DESCRIPTION file.")
   .init_desc_std_contents() |>
     writeLines(con = .path_get("DESCRIPTION"))
+  if (file.exists(.path_get("VERSION"))) {
+    readLines(.path_get("VERSION")) |>
+      projr_version_set(version)
+  }
   message("Created DESCRIPTION.")
   invisible(TRUE)
 }
