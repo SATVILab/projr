@@ -960,7 +960,7 @@ projr_init_renviron <- function() {
 }
 
 .init_github_actual_org <- function(public, username) {
-  if ("username" %in% formals(usethis::use_github)) {
+  if ("username" %in% names(formals(usethis::use_github))) {
     .init_github_actual_org_old(public, username)
   } else {
     .init_github_actual_org_new(public, username)
