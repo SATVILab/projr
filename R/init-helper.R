@@ -962,12 +962,19 @@ projr_init_renviron <- function() {
 }
 
 .init_github_actual_user <- function(public) {
-  tryCatch(
-      usethis::use_github(private = !public),
-      error = function(e) {
-        .init_github_actual_user_error(public)
-      }
-    )
+  message(paste0("Creating GitHub remote for user ", gh::gh_whoami()$login))
+  result <- tryCatch(
+    usethis::use_github(private = !public),
+    error = function(e) {
+      .init_github_actual_user_error(public)
+      NULL
+    }
+  )
+  if (!is.null(result)) {
+    # Do something if the call was successful.
+    message("GitHub remote created successfully!")
+  }
+  invisible(result)
 }
 
 .init_github_actual_user_error <- function(public) {
@@ -979,6 +986,7 @@ projr_init_renviron <- function() {
 }
 
 .init_github_actual_org <- function(public, username) {
+  message(paste0("Creating GitHub remote for organisation ", username))
   if ("username" %in% names(formals(usethis::use_github))) {
     .init_github_actual_org_old(public, username)
   } else {
@@ -987,27 +995,37 @@ projr_init_renviron <- function() {
 }
 
 .init_github_actual_org_new <- function(public, username) {
-  tryCatch(
+  result <- tryCatch(
     usethis::use_github(
       organisation = username,
       private = !public
     ),
     error = function(e) {
       .init_github_actual_org_error(public, username)
+      NULL
     }
   )
+  if (!is.null(result)) {
+    message("GitHub remote for organisation created successfully!")
+  }
+  invisible(result)
 }
 
 .init_github_actual_org_old <- function(public, username) {
-  tryCatch(
+  result <- tryCatch(
     usethis::use_github(
       username = username,
       private = !public
     ),
     error = function(e) {
       .init_github_actual_org_error(public, username)
+      NULL
     }
   )
+  if (!is.null(result)) {
+    message("GitHub remote for user created successfully!")
+  }
+  invisible(result)
 }
 
 .init_github_actual_org_error <- function(public, username) {

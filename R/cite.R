@@ -3,6 +3,7 @@
   if (!file.exists(path_inst_citation) && !create) {
     return(invisible(FALSE))
   }
+  message("Creating CITATION file")
   .file_rm(path_inst_citation)
   .cite_citation_inst_write()
   .cite_citation_inst_add_header()
@@ -18,7 +19,7 @@
 }
 
 .cite_citation_inst_add_header <- function() {
-  path_citation_inst <- .path_get("inst", "CITATION") # nolint: object_usage_linter.
+  path_citation_inst <- .path_get("inst", "CITATION") # nolint object_usage_linter.
   header_txt <- paste0(
     'citHeader("To cite `',
     .pkg_nm_get(), # nolint: object_usage_linter.
@@ -34,6 +35,7 @@
   if (!file.exists(.path_get("codemeta.json")) && !create) {
     return(invisible(FALSE))
   }
+  message("Creating codemeta.json file")
   try(codemeta::write_codemeta(path = .path_get()))
   invisible(TRUE)
 }
@@ -62,6 +64,7 @@
   if (!file.exists(.path_get("CITATION.cff")) && !create) {
     return(invisible(FALSE))
   }
+  message("Creating CITATION.cff file")
   try(cffr::cff_write())
   invisible(TRUE)
 }

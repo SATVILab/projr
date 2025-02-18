@@ -149,6 +149,7 @@ projr_init_renv <- function(bioc = TRUE) {
 }
 
 .init_dir_std_impl <- function() {
+  message("Creating standard artefact directories.")
   nm_vec <- .yml_dir_get(NULL) |> names()
   nm_vec[grepl("^raw|^output|^cache", .dir_label_strip(nm_vec))] |>
     lapply(projr_path_get)
@@ -168,6 +169,7 @@ projr_init_renv <- function(bioc = TRUE) {
 }
 
 .init_readme_std_impl <- function(readme_rmd) {
+  message("Creating README file.")
   .dep_install_only("usethis")
   if (readme_rmd) {
     usethis::use_readme_rmd(open = FALSE)
@@ -237,6 +239,7 @@ projr_init_renv <- function(bioc = TRUE) {
 }
 
 .init_desc_std_impl <- function() {
+  message("Creating DESCRIPTION file.")
   .init_desc_std_contents() |>
     writeLines(con = .path_get("DESCRIPTION"))
   message("Created DESCRIPTION.")
@@ -256,6 +259,7 @@ projr_init_renv <- function(bioc = TRUE) {
 }
 
 .init_license_std_impl <- function(x) {
+  message("Creating LICENSE file.")
   opt_vec <- c(
     "ccby", "CC-BY", "apache", "Apache 2.0", "cc0", "CC0",
     "proprietary", "Proprietary"
@@ -292,9 +296,11 @@ projr_init_renv <- function(bioc = TRUE) {
     message("DESCRIPTION does not exist, so skipping citation files.")
     return(invisible(FALSE))
   }
+  .init_cite_std_impl()
 }
 
 .init_cite_std_impl <- function() {
+  message("Setting up citation files.")
   .init_cite_cff()
   .init_cite_codemeta()
 }
@@ -598,6 +604,5 @@ projr_init_renv <- function(bioc = TRUE) {
   } else {
     .init_github_actual_org(public, org)
   }
-  message("Created GitHub repo.")
   invisible(TRUE)
 }
