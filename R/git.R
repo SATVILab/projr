@@ -1,4 +1,7 @@
 .git_init <- function() {
+  if (dir.exists(.path_get(".git"))) {
+    return(invisible(FALSE))
+  }
   switch(.git_system_get(),
     "git" = .git_init_git(),
     "gert" = .git_init_gert(),

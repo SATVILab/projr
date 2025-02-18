@@ -48,6 +48,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   if (.dep_in_renv(basename(dep))) {
     return(invisible(FALSE))
   }
+
   path_dep <- .path_get("_dependencies.R")
   dep_vec <- readLines(path_dep)
   for (i in seq_along(dep)) {
