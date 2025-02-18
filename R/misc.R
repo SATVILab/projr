@@ -620,7 +620,7 @@ projr_use_data <- function(...,
   c(
     "Package: {{ Package }}",
     "Title: {{ Title }}",
-    "Version: 1.0.0",
+    "Version: 0.0.1",
     "Authors@R (parsed):",
     "    * Jo Doe <jodoe@dom.ain> [aut, cre]",
     "Maintainer: {{ Maintainer }}",
