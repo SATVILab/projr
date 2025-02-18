@@ -244,7 +244,12 @@ with_dir <- function(new, code) {
   if (file.exists(.path_get("DESCRIPTION"))) {
     fn_desc <- readLines(.path_get("DESCRIPTION"))
     line <- fn_desc[grepl("^Package:", fn_desc)][[1]]
-    sub("^Package: ", "", line) |> trimws()
+    pkg_desc <- sub("^Package: ", "", line) |> trimws()
+    if (pkg_desc == "{{ Package }}") {
+      basename(.path_get())
+    } else {
+      pkg_desc
+    }
  } else {
    basename(.path_get())
  }
