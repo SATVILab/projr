@@ -472,7 +472,7 @@ projr_init_all <- function(github_org,
   }
   .git_system_setup()
   .git_init()
- projr_ignore_auto()
+  projr_ignore_auto()
   if (commit) {
     .init_std_git_config()
     .init_git_commit()
