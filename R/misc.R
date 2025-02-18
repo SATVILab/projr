@@ -236,10 +236,13 @@ with_dir <- function(new, code) {
 }
 
 .pkg_nm_get <- function() {
-  desc::desc_get_field(
-    "Package",
-    file = .path_get("DESCRIPTION")
-  )
+  if (file.exists(.path_get("DESCRIPTION"))) {
+    fn_desc <- readLines(.path_get("DESCRIPTION"))
+    line <- fn_desc[grepl("^Package:", fn_desc)][[1]]
+    sub("^Package: ", "", line) |> trimws()
+ else {
+  basename(.path_get())
+ }
 }
 
 .path_rscript_get <- function() {
