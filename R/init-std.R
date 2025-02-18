@@ -259,6 +259,7 @@ projr_init_all <- function(github_org,
     "proprietary", "Proprietary"
   )
   .assert_in(x, opt_vec, TRUE)
+  .dep_install_only("desc")
   switch(x,
     "ccby" = ,
     "CC-BY" = usethis::use_ccby_license(),
