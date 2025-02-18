@@ -146,7 +146,7 @@ projr_yml_git_set <- function(all = NULL,
 projr_yml_git_set_default <- function(profile = "default",
                                       simplify_identical = TRUE,
                                       simplify_default = TRUE) {
- .yml_git_set(
+  projr_yml_git_set(
     all = TRUE, profile = profile, simplify_identical = simplify_identical,
     simplify_default = simplify_default
   )
