@@ -94,7 +94,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 
 .dep_install_only_rscript <- function(dep) {
   do.call(
-    "renv::install",
+    renv::install,
     args = list(dep, prompt = FALSE)
   )
   # cmd_txt <- paste0(
