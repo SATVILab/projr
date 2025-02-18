@@ -241,7 +241,7 @@ with_dir <- function(new, code) {
     line <- fn_desc[grepl("^Package:", fn_desc)][[1]]
     sub("^Package: ", "", line) |> trimws()
  } else {
-  basename(.path_get())
+   basename(.path_get())
  }
 }
 

@@ -206,12 +206,11 @@
 
 .renv_init_rscript_impl <- function(bioc) {
   cmd_txt <- paste0(
-    "-e '",
-    "renv::init(",
-    'settings = list(snapshot.type = "implicit"), ',
-    "bioconductor = ", bioc,
-    ")'"
+    "-e \"renv::init(settings = list(snapshot.type = 'implicit'), bioconductor = ",
+    bioc,
+    ")\""
   )
+
   system2(
     .path_rscript_get(),
     args = cmd_txt, stdout = FALSE
