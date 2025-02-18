@@ -93,16 +93,20 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 }
 
 .dep_install_only_rscript <- function(dep) {
-  cmd_txt <- paste0(
-    "-e '",
-    "renv::install(",
-    paste0('"', dep, '"'),
-    ", prompt = FALSE)'"
+  do.call(
+    "renv::install",
+    args = list(dep, prompt = FALSE)
   )
-  system2(
-    .path_rscript_get(),
-    args = cmd_txt, stdout = FALSE
-  )
+  # cmd_txt <- paste0(
+  #   "-e '",
+  #   "renv::install(",
+  #   paste0('"', dep, '"'),
+  #   ", prompt = FALSE)'"
+  # )
+  # system2(
+  #   .path_rscript_get(),
+  #   args = cmd_txt, stdout = FALSE
+  # )
 }
 
 .dep_rm <- function(dep) {
