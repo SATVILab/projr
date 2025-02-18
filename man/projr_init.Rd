@@ -26,7 +26,7 @@ projr_init(
 
 projr_init_all(github_org, license = NULL, lit_doc = NULL)
 
-projr_init_renv(force = FALSE, bioc = TRUE)
+projr_init_renv(bioc = TRUE)
 
 projr_init_git(commit = TRUE, username = NULL, public = FALSE)
 

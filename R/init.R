@@ -110,9 +110,3 @@ projr_init_ignore <- function() {
  projr_ignore_auto()
 }
 
-projr_init_renv <- function(force = FALSE, bioc = TRUE) {
-  .dep_install_only("renv")
-  .init_renv(force, bioc, FALSE)
-}
-
-
