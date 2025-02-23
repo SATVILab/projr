@@ -4,7 +4,7 @@
 #' `.Rbuildignore` files to reflect directories and files managed by
 #' projr, as well as
 #' other directories and files that should
-#' clearly be ignored. 
+#' clearly be ignored.
 #' They are kept up-to-date with the project's configuration,
 #' and are written within a demarcated section of the file.
 #'
@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' \dontrun{
-#'  projr_ignore_auto()
+#' projr_ignore_auto()
 #' }
 #'
 #' @export
@@ -43,7 +43,7 @@ projr_ignore_auto <- function() {
 # Ignore specified directories
 # ===========================================================================
 
-# ignore _extensions directory if 
+# ignore _extensions directory if
 # projr engine is quarto and _extensions exists
 .ignore_auto_quarto <- function() {
   .ignore_auto_quarto_rbuild()
@@ -121,7 +121,7 @@ projr_ignore_auto <- function() {
 .ignore_auto_env <- function() {
   path_vec <- list.files(
     path = .path_get(),
-    pattern = "^_environment$|^_environment-[a-zA-Z0-9]+$|^_environment\\.required$|^_environment\\.local$" #nolint
+    pattern = "^_environment$|^_environment-[a-zA-Z0-9]+$|^_environment\\.required$|^_environment\\.local$" # nolint
   )
   .ignore_auto_dir_rbuild(path_vec)
   if (file.exists(.path_get("_environment.local"))) {
@@ -189,7 +189,7 @@ projr_ignore_auto <- function() {
     "\\.csv",
     "\\.tsv",
     "\\.json",
-    "\\.md",          # Include .md files here to ignore them in Rbuildignore
+    "\\.md", # Include .md files here to ignore them in Rbuildignore
     "\\.knit\\.md",
     "\\.utf8\\.md",
     "\\.tmp",
@@ -265,9 +265,11 @@ projr_ignore_auto <- function() {
     pattern = pattern
   ) |>
     setdiff(
-      c("manifest.csv", "CHANGELOG.md", "NEWS.md", "CONTRIBUTING.md",
+      c(
+        "manifest.csv", "CHANGELOG.md", "NEWS.md", "CONTRIBUTING.md",
         "LICENSE", "LICENSE.md", "README.md", "codemeta.json",
-        "CITATION.cff")
+        "CITATION.cff"
+      )
     )
   .ignore_auto_path_add(path_vec, .path_get(".gitignore"))
 }
@@ -341,7 +343,7 @@ projr_ignore_auto <- function() {
     "quarto_project" = NULL,
     # only supporting quarto_document,
     # as rmd's by default are self contained
-    "rmd" = NULL, 
+    "rmd" = NULL,
     "quarto_document" = .ignore_auto_build_quarto()
   )
 }
@@ -441,7 +443,7 @@ projr_ignore_auto <- function() {
 # ===========================================================================
 
 .ignore_auto_path_add <- function(ignore, path) {
-  # ensure that certain lines are present 
+  # ensure that certain lines are present
   # in the text file at the specified path
   # (e.g., .gitignore, .Rbuildignore)
 
@@ -472,12 +474,11 @@ projr_ignore_auto <- function() {
 
 # update the content of the specified file
 .ignore_auto_path_get_updated_content <- function(override,
-                                                        ignore,
-                                                        content) {
+                                                  ignore,
+                                                  content) {
   if (override) {
     ignore |> unique()
   } else {
     c(content, ignore) |> unique()
   }
 }
-

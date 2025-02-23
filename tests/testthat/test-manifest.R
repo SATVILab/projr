@@ -5,7 +5,7 @@ test_that(".manifest_hash_label works", {
     path = dir_test,
     code = {
       # test hashing empty directory
-      path_dir_empty <-projr_path_get_dir("raw-data")
+      path_dir_empty <- projr_path_get_dir("raw-data")
       .dir_rm(path_dir_empty)
       dir.create(path_dir_empty)
       manifest <- .manifest_hash_label("raw-data", FALSE)
@@ -42,7 +42,7 @@ test_that(".build_manifest_* works", {
       # no content, except for an ignored label (output)
       label_vec <- c("cache", "raw-data", "output")[-3]
       for (x in label_vec) {
-        .dir_rmprojr_path_get_dir(x, safe = TRUE, create = FALSE))
+        .dir_rm(projr_path_get_dir(x, safe = TRUE, create = FALSE))
         .dir_create(x, safe = TRUE)
       }
       .test_setup_content("output", safe = TRUE)
@@ -83,8 +83,8 @@ test_that(".build_manifest_* works", {
 
       # return zero table
       invisible(.file_rm(.build_manifest_pre_path_get()))
-      .dir_rmprojr_path_get_dir("docs", safe = FALSE))
-      .dir_rmprojr_path_get_dir("output", safe = FALSE))
+      .dir_rm(projr_path_get_dir("docs", safe = FALSE))
+      .dir_rm(projr_path_get_dir("output", safe = FALSE))
       .file_rm(.path_get("manifest.csv"))
       path_manifest <- .build_manifest_post(TRUE)
       expect_identical(nrow(.manifest_read(path_manifest)), 0L)

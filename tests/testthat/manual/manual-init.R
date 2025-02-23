@@ -7,7 +7,7 @@ setwd(path_tmp)
 # package should exist, and be private
 projr_init(
   init_git = TRUE, init_readme = TRUE, init_github = TRUE, github_private = TRUE
-  )
+)
 
 # delete the GitHub repo
 whoami <- gh::gh_whoami()

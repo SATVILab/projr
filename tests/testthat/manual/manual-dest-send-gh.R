@@ -8,22 +8,22 @@ usethis::with_project(
   code = {
     .yml_dest_rm_type_all("default")
     file.create(projr_path_get("raw-data", "data.csv"))
-   projr_init_git()
+    projr_init_git()
     projr::projr_build_dev()
     projr::projr_build_patch()
     # check that it runs at all
-   projr_yml_dest_add_github(
+    projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive",
       overwrite = TRUE
     )
-   projr_yml_dest_add_github(
+    projr_yml_dest_add_github(
       title = "latest",
       content = "raw-data",
       structure = "latest"
     )
-     # expect uploads
+    # expect uploads
     projr::projr_build_patch()
     expect_true(.remote_check_exists("github", "latest"))
     expect_true(.remote_check_exists("github", "archive"))
@@ -58,7 +58,7 @@ usethis::with_project(
 
 
     # now force upload
-   projr_yml_dest_add_github(
+    projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive",
@@ -83,14 +83,14 @@ usethis::with_project(
     expect_identical(manifest_archive$fn[[1]], "data.csv")
 
     # use file hashing to check
-   projr_yml_dest_add_github(
+    projr_yml_dest_add_github(
       title = "latest",
       content = "raw-data",
       structure = "latest",
       send_cue = "always"
     )
 
-   projr_yml_dest_add_github(
+    projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive",
@@ -117,7 +117,7 @@ usethis::with_project(
 
     # use file hashing to check, no upload for archive
     .yml_dest_rm_type_all("default")
-   projr_yml_dest_add_github(
+    projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive",
@@ -134,7 +134,7 @@ usethis::with_project(
     ))
 
     # inspect nothing, so always add
-   projr_yml_dest_add_github(
+    projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive",
@@ -153,14 +153,14 @@ usethis::with_project(
     # handle an empty directory
     .yml_dest_rm_type_all("default")
     unlink("_raw_data", recursive = TRUE)
-   projr_yml_dest_add_github(
+    projr_yml_dest_add_github(
       title = "latest",
       content = "raw-data",
       structure = "latest",
       send_cue = "if-change",
       overwrite = TRUE
     )
-   projr_yml_dest_add_github(
+    projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive",
@@ -171,7 +171,6 @@ usethis::with_project(
     expect_false(.remote_final_check_exists(
       "github", "archive", "raw-data", "archive", NULL, NULL, NULL
     ))
-
   }
 )
 
@@ -195,12 +194,12 @@ dir_test <- .test_setup_project(
 usethis::with_project(
   path = dir_test,
   code = {
-   projr_init_git()
+    projr_init_git()
     .yml_git_set_push(FALSE, TRUE, NULL)
     # remove github remote
     .yml_dest_rm_type_all("default")
     # add a local destination, that is never sent to
-   projr_yml_dest_add_github(
+    projr_yml_dest_add_github(
       title = "latest",
       content = "raw-data",
       structure = "latest"
@@ -280,12 +279,12 @@ dir_test <- .test_setup_project(
 usethis::with_project(
   path = dir_test,
   code = {
-   projr_init_git()
+    projr_init_git()
     .yml_git_set_push(FALSE, TRUE, NULL)
     # remove github remote
     .yml_dest_rm_type_all("default")
     # add a local destination, that is never sent to
-   projr_yml_dest_add_github(
+    projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive"
@@ -345,7 +344,7 @@ usethis::with_project(
     ))
 
     # try with cue: always
-   projr_yml_dest_add_github(
+    projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive",
@@ -361,7 +360,7 @@ usethis::with_project(
     ))
 
     # try with inspect: file, no change
-   projr_yml_dest_add_github(
+    projr_yml_dest_add_github(
       title = "archive",
       content = "raw-data",
       structure = "archive",

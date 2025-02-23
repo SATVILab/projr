@@ -58,7 +58,7 @@
 #' every time, even if there is no change from the previous
 #' build.
 #' For example, if the contents of `raw-data` are the same
-#' between builds `v0.0.1` and `v0.0.2`, then 
+#' between builds `v0.0.1` and `v0.0.2`, then
 #' a local remote would have folders `raw-data/v0.0.1`
 #' and `raw-data/v0.0.2`.
 #' If `if-change`, then a new remote is created
@@ -140,7 +140,7 @@ projr_yml_dest_add_osf_proj <- function(title,
                                         content = NULL,
                                         public = FALSE,
                                         id = NULL) {
- projr_yml_dest_add_osf(
+  projr_yml_dest_add_osf(
     title = title,
     description = description,
     content = content,

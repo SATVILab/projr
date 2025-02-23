@@ -503,7 +503,7 @@
 }
 
 .init_prompt_readme_description <- function(answer_readme,
-                                                  nm_list) {
+                                            nm_list) {
   # no changes if README already exists
   if (answer_readme == 3) {
     return(.readme_render())
@@ -687,8 +687,8 @@ projr_init_renviron <- function() {
 }
 
 .usethis_use_scoped_path_r <- function(scope = c("user", "projr"),
-                                             ...,
-                                             envvar = NULL) {
+                                       ...,
+                                       envvar = NULL) {
   # rewritten because use_scoped_path_r is not exported from
   # usethis and R CMD CHECK complained about
   # usethis use_scoped_path_r
@@ -847,7 +847,7 @@ projr_init_renviron <- function() {
 
 # git
 .init_git_init <- function(answer_git,
-                                 commit = TRUE) {
+                           commit = TRUE) {
   if (answer_git %in% c(2, 3)) {
     .init_git_suggest_git()
     if (answer_git == 2) {
@@ -898,7 +898,8 @@ projr_init_renviron <- function() {
 .init_git_file_get_renv <- function() {
   if (dir.exists("renv")) {
     fn_vec_root <- .file_ls(
-      "renv", recursive = FALSE, full.names = TRUE
+      "renv",
+      recursive = FALSE, full.names = TRUE
     )
     dir_vec <- .dir_ls("renv", recursive = FALSE, full.names = FALSE)
     if (.is_len_0(dir_vec)) {

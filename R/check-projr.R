@@ -5,7 +5,7 @@
   never_act <- .is_opt(cue, "never")
   not_output_build <- is.null(bump_component) ||
     .is_opt(bump_component, c("none", "dev"))
-  
+
   !(never_act || not_output_build)
 }
 

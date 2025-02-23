@@ -81,7 +81,7 @@
     paste0("version: ", projr_version_get()),
     file_vec
   )
-    # Update the preferred-citation version if it exists
+  # Update the preferred-citation version if it exists
   preferred_citation_index <- grep("^preferred-citation:", file_vec)[[1]]
   if (length(preferred_citation_index) > 0) {
     for (i in (preferred_citation_index + 1):length(file_vec)) {
@@ -192,10 +192,10 @@
 # revert version upon failure
 # --------------------
 .build_version_set_post <- function(version_run_on_list,
-                                          success) {
+                                    success) {
   if (success) {
     return(invisible(FALSE))
   }
- projr_version_set(version_run_on_list$desc[["failure"]])
+  projr_version_set(version_run_on_list$desc[["failure"]])
   invisible(TRUE)
 }

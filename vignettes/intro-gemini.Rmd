@@ -47,7 +47,7 @@ That's the gist, but `projr` can do much more. It can automatically share your p
 
 ```{r, eval = FALSE}
 if (!requireNamespace("remotes", quietly = TRUE)) {
-  install.packages("remotes")
+  install.packages("remotes")
 }
 remotes::install_github("SATVILab/projr")
 library(projr)

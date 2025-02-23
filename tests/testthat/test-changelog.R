@@ -44,7 +44,7 @@ test_that(".changelog_add works", {
         ) |>
           sub("\\):.*$", "\\)", x = _)
       )
-     .cat_changelog()
+      .cat_changelog()
     }
   )
 })

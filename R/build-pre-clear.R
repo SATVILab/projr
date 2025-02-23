@@ -37,7 +37,7 @@
 }
 
 .build_clear_pre_output_label <- function(label) {
- projr_path_get_dir(label, safe = TRUE) |>
+  projr_path_get_dir(label, safe = TRUE) |>
     .dir_clear()
 }
 

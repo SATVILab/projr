@@ -1,9 +1,9 @@
 .change_get <- function(label,
-                              output_run,
-                              path_dir_local = NULL,
-                              inspect,
-                              type,
-                              remote) {
+                        output_run,
+                        path_dir_local = NULL,
+                        inspect,
+                        type,
+                        remote) {
   .change_get_check(label, path_dir_local, inspect)
   switch(inspect,
     "manifest" = .change_get_manifest(
@@ -18,15 +18,15 @@
       remote_pre = remote,
       type_post = "local",
       remote_post = path_dir_local %||%
-       projr_path_get_dir(label, safe = !output_run)
+        projr_path_get_dir(label, safe = !output_run)
     ),
     stop(paste0("inspect '", inspect, "' not recognized"))
   )
 }
 
 .change_get_check <- function(label,
-                                    path_dir_local,
-                                    inspect) {
+                              path_dir_local,
+                              inspect) {
   if (is.null(path_dir_local)) {
     .assert_string(label, required = TRUE)
   }
@@ -38,10 +38,10 @@
 # ------------------------
 
 .change_get_manifest <- function(type_pre,
-                                       remote_pre,
-                                       type_post,
-                                       remote_post,
-                                       label = NULL) {
+                                 remote_pre,
+                                 type_post,
+                                 remote_post,
+                                 label = NULL) {
   .assert_given_mid(label)
   version_pre_impl <- .remote_get_version_label(
     remote_pre, type_pre, label
@@ -82,17 +82,17 @@
 }
 
 .change_get_manifest_check_nothing <- function(manifest_pre,
-                                                     manifest_post) {
+                                               manifest_post) {
   nrow(manifest_pre) == 0L && nrow(manifest_post) == 0L
 }
 
 .change_get_manifest_pre_final <- function(version_pre_actual,
-                                                 version_post_actual,
-                                                 manifest_post,
-                                                 manifest_pre_full,
-                                                 manifest_post_full,
-                                                 type_pre,
-                                                 remote_pre) {
+                                           version_post_actual,
+                                           manifest_post,
+                                           manifest_pre_full,
+                                           manifest_post_full,
+                                           type_pre,
+                                           remote_pre) {
   if (.is_len_0(version_pre_actual)) {
     # has it directly if not available
     path_dir_local_pre <- .change_get_file_dir(
@@ -100,7 +100,6 @@
       remote = remote_pre
     )
     .hash_dir(path_dir_local_pre)
-
   } else {
     version_pre_final <- .change_get_manifest_get_closest_mismatch(
       version_pre_actual, version_post_actual, manifest_post,
@@ -113,10 +112,10 @@
 
 
 .change_get_manifest_get_closest_mismatch <- function(version_pre,
-                                                            version_post,
-                                                            manifest_post,
-                                                            manifest_pre_full,
-                                                            manifest_post_full) { # nolint
+                                                      version_post,
+                                                      manifest_post,
+                                                      manifest_pre_full,
+                                                      manifest_post_full) { # nolint
   # get the closest mismatch to the latest version,
   # and if there are no mismatches just return the
   # previous version (furthest away version)
@@ -167,9 +166,9 @@
 # ------------------------
 
 .change_get_file <- function(type_pre = NULL,
-                                   remote_pre = NULL,
-                                   type_post = NULL,
-                                   remote_post = NULL) {
+                             remote_pre = NULL,
+                             type_post = NULL,
+                             remote_post = NULL) {
   # get directories where files are found or saved to,
   # downloading them to there if necessary
   # type_: remote type (local, osf, github)
@@ -189,7 +188,7 @@
 }
 
 .change_get_file_dir <- function(type,
-                                       remote) {
+                                 remote) {
   # to download the data to a local directory,
   # so that we can hash
   switch(type,
@@ -218,7 +217,7 @@
 
 # between two directories
 .change_get_dir <- function(path_dir_pre,
-                                  path_dir_post) {
+                            path_dir_post) {
   hash_tbl_pre <- stop("this should not happen like this")
   hash_tbl_post <- .hash_dir(path_dir_post)
   .change_get_hash(hash_pre = hash_tbl_pre, hash_post = hash_tbl_post)

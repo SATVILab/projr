@@ -111,11 +111,11 @@
 
 # get list to add
 .yml_dest_add_get_list_add <- function(content,
-                                             path,
-                                             path_append_label,
-                                             structure,
-                                             get_list,
-                                             send_list) {
+                                       path,
+                                       path_append_label,
+                                       structure,
+                                       get_list,
+                                       send_list) {
   list() |>
     .list_add(content) |>
     .list_add(path) |>
@@ -127,13 +127,13 @@
 
 
 .yml_dest_add_get_list_add_extra <- function(list_add,
-                                                   type,
-                                                   id,
-                                                   id_parent,
-                                                   title,
-                                                   category,
-                                                   public,
-                                                   description) {
+                                             type,
+                                             id,
+                                             id_parent,
+                                             title,
+                                             category,
+                                             public,
+                                             description) {
   switch(type,
     "osf" = .yml_dest_add_get_list_add_extra_osf(
       list_add = list_add, id = id, id_parent = id_parent, title,
@@ -255,8 +255,8 @@
 }
 
 .yml_dest_get_title_complete_is_github_param <- function(type,
-                                                               title,
-                                                               upload_github) {
+                                                         title,
+                                                         upload_github) {
   is_github <- type == "github"
   is_archive_param <- title == "archive" && !isFALSE(upload_github)
   is_github_param <- is_github && is_archive_param
@@ -264,9 +264,9 @@
 }
 
 .yml_dest_get_title_complete_param <- function(title,
-                                                     type,
-                                                     upload_github,
-                                                     upload_force) {
+                                               type,
+                                               upload_github,
+                                               upload_force) {
   .yml_dest_get_title_complete_param_init(
     title, type, upload_github
   ) |>
@@ -274,8 +274,8 @@
 }
 
 .yml_dest_get_title_complete_param_init <- function(title,
-                                                          type,
-                                                          upload_github) {
+                                                    type,
+                                                    upload_github) {
   content_vec <- .dest_send_title_get_content(
     title, type, upload_github
   )
@@ -287,7 +287,7 @@
 }
 
 .yml_dest_get_title_complete_param_force <- function(yml_title,
-                                                            upload_force) {
+                                                     upload_force) {
   if (!upload_force) {
     return(yml_title)
   }
@@ -407,9 +407,9 @@
 
 # strategy
 .yml_dest_set_send_strategy <- function(strategy,
-                                                   title,
-                                                   type,
-                                                   profile) {
+                                        title,
+                                        type,
+                                        profile) {
   .assert_in(strategy, .opt_remote_strategy_get())
   yml_title <- .yml_dest_get_title(
     title = title, type = type, profile = profile
@@ -439,8 +439,8 @@
 # -----------------
 
 .yml_dest_add_add_default <- function(type,
-                                            list_add,
-                                            profile) {
+                                      list_add,
+                                      profile) {
   .yml_dest_set_title(
     type = type,
     title = names(list_add),

@@ -81,11 +81,10 @@ projr_init_git <- function(commit = TRUE, username = NULL, public = FALSE) {
 .init_git_git <- function(commit) {
   # initialise Git repo
   .init_git_init(answer_git = 1L, commit = commit)
-
 }
 
 .init_git_github <- function(username,
-                                   public) {
+                             public) {
   if (!.git_remote_check_exists()) {
     .dep_install_only("usethis")
     if (!.git_gh_check_auth()) {
@@ -107,6 +106,5 @@ projr_init_license <- function(license, first_name, last_name) {
 }
 
 projr_init_ignore <- function() {
- projr_ignore_auto()
+  projr_ignore_auto()
 }
-

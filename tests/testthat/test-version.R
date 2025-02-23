@@ -20,15 +20,16 @@ test_that(".yml_metadata_get_version_format_get and _set", {
       expect_identical(.yml_metadata_get_version_format(NULL), "major.dev")
       expect_error(
         .yml_metadata_set_version_format(c("abc"), NULL)
-        )
+      )
       expect_error(
         .yml_metadata_set_version_format(c("major.dev", "major.minor-dev"), NULL)
-        )
+      )
       expect_error(
-        .yml_metadata_set_version_format(1, NULL))
+        .yml_metadata_set_version_format(1, NULL)
+      )
       expect_error(
         .yml_metadata_set_version_format(profile = NULL)
-        )
+      )
     },
     force = TRUE,
     quiet = TRUE
@@ -141,17 +142,17 @@ test_that("projr_version_get works", {
       expect_identical(
         .version_current_vec_get(), c(rep(0L, 3), 1L)
       )
-     projr_version_set("7.9.2-1")
+      projr_version_set("7.9.2-1")
       expect_identical(projr_version_get(), "7.9.2-1")
-     projr_version_set("7.9.2")
+      projr_version_set("7.9.2")
       expect_identical(projr_version_get(), "7.9.2")
       expect_identical(.version_get(dev_force = TRUE), "7.9.2-1")
       expect_identical(projr_version_get(), "7.9.2")
       .yml_metadata_set_version_format("major.dev", NULL)
 
-     projr_version_set("0.1")
+      projr_version_set("0.1")
       expect_identical(projr_version_get(), "0.1")
-      expect_errorprojr_version_set())
+      expect_error(projr_version_set())
     },
     force = TRUE,
     quiet = TRUE
@@ -167,7 +168,7 @@ test_that(".version_run_onwards_get works", {
   usethis::with_project(
     path = dir_test,
     code = {
-     projr_version_set("0.42.33-1")
+      projr_version_set("0.42.33-1")
       # debugonce(.version_run_onwards_get)
       # debugonce(.version_run_onwards_get_output)
       expect_identical(
@@ -178,7 +179,7 @@ test_that(".version_run_onwards_get works", {
           )
         )
       )
-     projr_version_set("0.42.33-9001")
+      projr_version_set("0.42.33-9001")
       expect_identical(
         .version_run_onwards_get("major"),
         list(
@@ -187,7 +188,7 @@ test_that(".version_run_onwards_get works", {
           )
         )
       )
-     projr_version_set("0.42.33-1")
+      projr_version_set("0.42.33-1")
       expect_identical(
         .version_run_onwards_get("dev"),
         list(
@@ -204,7 +205,7 @@ test_that(".version_run_onwards_get works", {
           )
         )
       )
-     projr_version_set("0.42.33")
+      projr_version_set("0.42.33")
       expect_identical(
         .version_run_onwards_get(NULL),
         list(
@@ -213,7 +214,7 @@ test_that(".version_run_onwards_get works", {
           )
         )
       )
-     projr_version_set("0.42.33")
+      projr_version_set("0.42.33")
       expect_identical(
         .version_run_onwards_get("patch"),
         list(
@@ -238,10 +239,10 @@ test_that("projr_version_set works", {
     path = dir_test,
     code = {
       .yml_metadata_set_version_format("major.dev", NULL)
-     projr_version_set("1.2")
+      projr_version_set("1.2")
       desc <- .desc_get()
       expect_identical(desc[1, "Version"][[1]], "1.2")
-     projr_version_set("1.4")
+      projr_version_set("1.4")
       desc <- .desc_get()
       expect_identical(desc[1, "Version"][[1]], "1.4")
       invisible(.version_bump_dev())

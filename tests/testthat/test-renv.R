@@ -15,13 +15,13 @@ test_that("projr_renv_test successfully restores renv environment", {
 
   # Create a random file to copy across
   writeLines("blah", "test.txt")
-  
+
   # Ensure that the renv.lock file exists
   expect_true(file.exists("renv.lock"))
 
   # Test restoration
   result <- projr_renv_test(file = "test.txt", delete_lib = FALSE)
-  
+
   # Check that the result is TRUE indicating success
   expect_true(result)
 })
@@ -42,13 +42,13 @@ test_that("projr_renv_test fails when it should", {
 
   # Create a random file to copy across
   writeLines("blah", "test.txt")
-  
+
   # Ensure that the renv.lock file exists
   expect_true(file.exists("renv.lock"))
 
   # Test restoration
   result <- projr_renv_test(file = "test.txt", delete_lib = FALSE)
-  
+
   # Check that the result is TRUE indicating success
   expect_false(result)
 })
@@ -72,9 +72,9 @@ test_that("projr_renv_restore and.renv_update work with mixed repositories", {
   )
 
   # Run restore and update
-  #.renv_restore() and.renv_update() should complete without error
- .renv_restore()
- .renv_update()
+  # .renv_restore() and.renv_update() should complete without error
+  .renv_restore()
+  .renv_update()
 
   # If we want to assert success in a more direct way,
   # we could check if the packages are installed

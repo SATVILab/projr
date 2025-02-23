@@ -11,7 +11,7 @@
     if (!.build_clear_post_check_label(x)) {
       next
     }
-   projr_path_get_dir(x, safe = FALSE) |> .dir_clear()
+    projr_path_get_dir(x, safe = FALSE) |> .dir_clear()
   }
   invisible(TRUE)
 }

@@ -2,11 +2,11 @@
 # ---------------------------
 
 .manifest_hash_label <- function(label,
-                                       output_run) {
+                                 output_run) {
   # output is always in safe directory
   # as hashing is done before copying over to final directory
   hash_tbl <- .hash_dir(
-    path_dir =projr_path_get_dir(label, safe = !output_run),
+    path_dir = projr_path_get_dir(label, safe = !output_run),
     dir_exc = .build_label_get_dir_exc(label)
   ) |>
     .manifest_hash_cache_filter(label)
@@ -21,7 +21,7 @@
 }
 
 .manifest_hash_cache_filter <- function(hash_tbl, # nolint
-                                              label) {
+                                        label) {
   if (!.yml_dir_label_class_detect_cache(label)) {
     return(hash_tbl)
   }
@@ -48,13 +48,12 @@
 }
 
 .manifest_filter_out_version_label <- function(manifest, # nolint
-                                                     version,
-                                                     label) {
+                                               version,
+                                               label) {
   label_vec_non <- manifest[["label"]] != label
   version_vec_non <- manifest[["version"]] != .version_v_add(version)
   manifest[label_vec_non & version_vec_non, ] %@@%
     .zero_tbl_get_manifest()
-
 }
 
 # get what would be added,
@@ -193,12 +192,12 @@
 }
 
 .version_file_update_label_version <- function(version_file, # nolint
-                                                     label,
-                                                     add_asterisk) {
+                                               label,
+                                               add_asterisk) {
   version_add <- if (add_asterisk) {
-   .version_get() |> paste0("*")
+    .version_get() |> paste0("*")
   } else {
-   .version_get()
+    .version_get()
   }
   if (.is_len_0(version_file)) {
     return(paste0(label, ": ", version_add))
@@ -218,8 +217,8 @@
 }
 
 .version_file_check_update_label <- function(fn, # nolint: object_length_linter, line_length_linter.
-                                                   version_file,
-                                                   label) {
+                                             version_file,
+                                             label) {
   is_change <- .is_change(fn) # nolint
   is_label_present <- .version_file_check_update_label_present(
     version_file, label
@@ -228,13 +227,13 @@
 }
 
 .version_file_check_update_label_present <- function(version_file, # nolint
-                                                           label) {
+                                                     label) {
   !.is_len_0(which(grepl(paste0("^", label, ": "), version_file)))
 }
 
 # get minimum acceptable version
 .manifest_get_version_earliest_match <- function(label, # nolint
-                                                       version_comp) {
+                                                 version_comp) {
   # begin with latest version (most conservative)
   version_earliest_match <- projr_version_get() |>
     .version_v_rm() |>

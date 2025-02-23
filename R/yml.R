@@ -76,8 +76,8 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 }
 
 .yml_merge <- function(yml_projr_root_default,
-                             yml_projr_profile,
-                             yml_projr_local) {
+                       yml_projr_profile,
+                       yml_projr_local) {
   nm_vec <- names(yml_projr_root_default) |>
     c(names(yml_projr_profile), names(yml_projr_local)) |>
     unique()
@@ -249,10 +249,10 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     par_nm_vec,
     "metadata"
   )
-  
+
   pos_list <- lapply(nm_list, .yml_get_filter_top_level_ind, yml = yml)
   pos_vec <- unlist(Filter(Negate(is.null), pos_list), use.names = FALSE)
-  
+
   yml[pos_vec]
 }
 

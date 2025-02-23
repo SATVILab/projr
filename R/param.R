@@ -28,10 +28,10 @@ projr_par_get <- function(..., profile = NULL) {
   yml_projr <- .yml_get(profile)
   par_vec_in <- which(par_nm_vec %in% names(yml_projr))
   if (length(par_vec_in) > 1) {
-   stop(paste0(
-     "Multiple `parameters` keys found in `projr` configuration: ",
-     paste0(par_nm_vec[par_vec_in], collapse = ", ")
-   ))
+    stop(paste0(
+      "Multiple `parameters` keys found in `projr` configuration: ",
+      paste0(par_nm_vec[par_vec_in], collapse = ", ")
+    ))
   }
   yml_projr[[par_nm_vec[par_vec_in]]]
 }

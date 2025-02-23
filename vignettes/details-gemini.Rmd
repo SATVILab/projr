@@ -72,7 +72,7 @@ Let's look at the two functions that are the heart of building your project:
 if (!requireNamespace("usethis", quietly = TRUE)) {
   install.packages("usethis")
 }
-usethis::create_github_token() 
+usethis::create_github_token()
 ```
 
 Copy the generated token.

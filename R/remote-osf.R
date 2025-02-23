@@ -8,7 +8,7 @@
 }
 
 .osf_ls_files <- function(osf_tbl,
-                                path_dir_parent = NULL) {
+                          path_dir_parent = NULL) {
   osf_tbl_file <- osf_tbl |> .osf_ls_files(n_max = Inf)
   if (nrow(osf_tbl_file) == 0L) {
     return(invisible(FALSE))

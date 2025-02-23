@@ -26,10 +26,10 @@
   list_save <- .wrap_in_list_if_string(list_save, c("website", "code-links"))
   list_save <- .wrap_in_list_if_string(
     list_save, c("website", "navbar", "right")
-    )
+  )
   list_save <- .wrap_in_list_if_string(
     list_save, c("website", "navbar", "left")
-    )
+  )
 
   # TODO: Extend handling for additional `website` navigation items as needed
 
@@ -88,8 +88,8 @@
 # Main function for when the "project:" key is present.
 # This function now uses three sub-functions.
 .yml_quarto_set_output_dir_present <- function(path,
-                                                     yml_lines,
-                                                     proj_line_ind) {
+                                               yml_lines,
+                                               proj_line_ind) {
   # 1. Get project block indices
   block_indices <- .yml_quarto_get_project_block_indices(
     yml_lines, proj_line_ind
@@ -146,8 +146,8 @@
 # Sub-function 3: Rebuild the complete YAML file using
 # the updated project block.
 .yml_quarto_rebuild_yaml <- function(yml_lines,
-                                           updated_project_block,
-                                           block_indices) {
+                                     updated_project_block,
+                                     block_indices) {
   start_index <- block_indices$start
   end_index <- block_indices$end
 
@@ -204,7 +204,9 @@
   # Iterate through each key in the path to traverse the nested list structure
   for (k in keys) {
     # If the current element is not a list or the key does not exist, return NULL
-    if (!is.list(x) || is.null(x[[k]])) return(NULL)
+    if (!is.list(x) || is.null(x[[k]])) {
+      return(NULL)
+    }
 
     # Move deeper into the nested list by updating `x` to the next level
     x <- x[[k]]

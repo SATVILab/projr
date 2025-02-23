@@ -178,9 +178,9 @@ with_dir <- function(new, code) {
 }
 
 .zip_file <- function(fn_rel,
-                            path_dir_fn_rel,
-                            fn_rel_zip,
-                            path_dir_fn_rel_zip = NULL) {
+                      path_dir_fn_rel,
+                      fn_rel_zip,
+                      path_dir_fn_rel_zip = NULL) {
   if (length(fn_rel) == 0L) {
     return(character())
   }
@@ -250,9 +250,9 @@ with_dir <- function(new, code) {
     } else {
       pkg_desc
     }
- } else {
-   basename(.path_get())
- }
+  } else {
+    basename(.path_get())
+  }
 }
 
 .path_rscript_get <- function() {

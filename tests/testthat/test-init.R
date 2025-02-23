@@ -19,7 +19,7 @@ test_that("projr_init works", {
       expect_true(file.exists("DESCRIPTION"))
       expect_true(file.exists("index.Rmd"))
       expect_true(dir.exists("R"))
-     .init()
+      .init()
       expect_true(file.exists("_bookdown.yml"))
       expect_true(file.exists("_output.yml"))
       expect_true(file.exists("_projr.yml"))

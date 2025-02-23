@@ -10,9 +10,9 @@
 
 # transfer list (get_list or send_list)
 .yml_remote_transfer_get <- function(cue = NULL,
-                                           strategy = NULL,
-                                           inspect = NULL,
-                                           conflict = NULL) {
+                                     strategy = NULL,
+                                     inspect = NULL,
+                                     conflict = NULL) {
   out_list <- list()
   param_vec <- c("cue", "strategy", "inspect", "conflict")
   for (x in param_vec) {

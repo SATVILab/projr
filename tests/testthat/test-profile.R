@@ -44,7 +44,7 @@ test_that("projr_profile_get, _set and _create work", {
       .test_unset()
       suppressMessages(
         expect_message(
-         .profile_create(
+          .profile_create(
             profile = "test_a-bc", silent = FALSE
           ),
           "Added the following profile: test_a-bc"
@@ -52,7 +52,7 @@ test_that("projr_profile_get, _set and _create work", {
       )
       suppressMessages(
         expect_message(
-         .profile_create(
+          .profile_create(
             profile = "test_a-bc", silent = FALSE
           ),
           "projr profile test_a-bc already exists"
@@ -60,7 +60,7 @@ test_that("projr_profile_get, _set and _create work", {
       )
       expect_false(
         suppressMessages(
-         .profile_create(profile = "test_a-bc")
+          .profile_create(profile = "test_a-bc")
         )
       )
       .test_set()
@@ -69,7 +69,7 @@ test_that("projr_profile_get, _set and _create work", {
       # -----------------------
 
       # file method
-     .profile_create(profile = "test-profile2")
+      .profile_create(profile = "test-profile2")
       yml_projr <- .yml_get_default_raw()
       expect_true(file.exists("_projr-test-profile2.yml"))
       .yml_set(yml_projr_init)
@@ -78,12 +78,12 @@ test_that("projr_profile_get, _set and _create work", {
       # ---------------------
 
       # default
-     .profile <- projr_profile_get()
+      .profile <- projr_profile_get()
       expect_identical(projr_profile_get(), "default")
       Sys.setenv("PROJR_PROFILE" = "abc")
       expect_identical(projr_profile_get(), "abc")
-      #.PROFILE that exists
-     .profile_create(profile = "abc")
+      # .PROFILE that exists
+      .profile_create(profile = "abc")
       expect_identical(projr_profile_get(), "abc")
       Sys.unsetenv("PROJR_PROFILE")
       expect_identical(projr_profile_get(), "default")
@@ -91,10 +91,10 @@ test_that("projr_profile_get, _set and _create work", {
       invisible(file.remove("_projr-abc.yml"))
       # working directory
       expect_identical(
-       .profile_get(), "default"
+        .profile_get(), "default"
       )
       # test precedence works correctly
-     .profile_create("test_profile_hidden")
+      .profile_create("test_profile_hidden")
       # should get the projr profile back
       Sys.setenv("PROJR_PROFILE" = "test_profile_hidden")
       expect_identical(projr_profile_get(), "test_profile_hidden")
@@ -111,9 +111,9 @@ test_that("projr_profile_get, _set and _create work", {
 
       # deleting it anywhere
       Sys.setenv("PROJR_PROFILE" = "xyz")
-     .profile_create()
+      .profile_create()
       expect_true(file.exists("_projr-xyz.yml"))
-     .profile_delete.profile_get())
+      .profile_delete(projr_profile_get())
       expect_false(file.exists("_projr-xyz.yml"))
       Sys.unsetenv("PROJR_PROFILE")
       .test_unset()
@@ -149,7 +149,7 @@ test_that("projr_profile_create_local works", {
   usethis::with_project(
     path = dir_test,
     code = {
-     .profile_create_local()
+      .profile_create_local()
       expect_true(file.exists("_projr-local.yml"))
       expect_error(.profile_create_local())
       yml.local <- yaml::read_yaml("_projr-local.yml")

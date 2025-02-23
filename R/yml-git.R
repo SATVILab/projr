@@ -107,12 +107,12 @@ projr_yml_git_set <- function(all = NULL,
 }
 
 .yml_git_set_check <- function(all,
-                                     commit,
-                                     add_untracked,
-                                     push,
-                                     simplify_identical,
-                                     simplify_default,
-                                     profile) {
+                               commit,
+                               add_untracked,
+                               push,
+                               simplify_identical,
+                               simplify_default,
+                               profile) {
   if (!is.null(all)) {
     .assert_flag(all)
   } else {
@@ -126,10 +126,10 @@ projr_yml_git_set <- function(all = NULL,
 }
 
 .yml_git_set_ind <- function(commit,
-                                   add_untracked,
-                                   push,
-                                   simplify_default,
-                                   profile) {
+                             add_untracked,
+                             push,
+                             simplify_default,
+                             profile) {
   if (!is.null(commit)) {
     .yml_git_set_commit(commit, simplify_default, profile)
   }
@@ -153,8 +153,8 @@ projr_yml_git_set_default <- function(profile = "default",
 }
 
 .yml_git_set_commit <- function(commit,
-                                      simplify_default,
-                                      profile) {
+                                simplify_default,
+                                profile) {
   commit_pre <- .yml_git_get_commit(profile = profile)
   if (all(commit_pre, commit) && simplify_default) {
     return(invisible(FALSE))
@@ -200,8 +200,8 @@ projr_yml_git_set_default <- function(profile = "default",
 }
 
 .yml_git_set_add_untracked <- function(add_untracked,
-                                             simplify_default,
-                                             profile) {
+                                       simplify_default,
+                                       profile) {
   add_untracked_pre <- .yml_git_get_add_untracked(profile = profile)
   if (all(add_untracked_pre, add_untracked) && simplify_default) {
     return(invisible(FALSE))
@@ -225,8 +225,8 @@ projr_yml_git_set_default <- function(profile = "default",
 }
 
 .yml_git_set_push <- function(push,
-                                    simplify_default,
-                                    profile) {
+                              simplify_default,
+                              profile) {
   push_pre <- .yml_git_get_push(profile = profile)
   if (all(push_pre, push) && simplify_default) {
     return(invisible(FALSE))
@@ -258,14 +258,14 @@ projr_yml_git_set_default <- function(profile = "default",
 }
 
 .yml_git_simplify <- function(simplify_identical,
-                                    simplify_default,
-                                    profile) {
+                              simplify_default,
+                              profile) {
   .yml_git_simplify_identical(simplify_identical, profile)
   .yml_git_simplify_default(simplify_default, profile)
 }
 
 .yml_git_simplify_identical <- function(simplify_identical,
-                                              profile) {
+                                        profile) {
   if (!simplify_identical) {
     return(invisible(FALSE))
   }
@@ -283,7 +283,7 @@ projr_yml_git_set_default <- function(profile = "default",
 }
 
 .yml_git_simplify_default <- function(simplify_default,
-                                            profile) {
+                                      profile) {
   if (!simplify_default) {
     return(invisible(FALSE))
   }

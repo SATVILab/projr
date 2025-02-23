@@ -8,7 +8,7 @@ test_that("projr_yml_dest_add* functions work", {
     code = {
       .yml_dest_rm_type_all("default")
       # add one
-     projr_yml_dest_add_local(
+      projr_yml_dest_add_local(
         title = "archive",
         content = "raw-data",
         path = "_archive"
@@ -23,7 +23,7 @@ test_that("projr_yml_dest_add* functions work", {
         )
       )
       # add two
-     projr_yml_dest_add_local(
+      projr_yml_dest_add_local(
         title = "archive second",
         content = "output",
         path = "_archive/second"
@@ -60,7 +60,7 @@ test_that("projr_yml_dest_add* functions work", {
       # test maniup
       .yml_dest_rm_type_all("default")
       # add one
-     projr_yml_dest_add_github(
+      projr_yml_dest_add_github(
         title = "archive",
         content = "raw-data"
       )
@@ -73,7 +73,7 @@ test_that("projr_yml_dest_add* functions work", {
         )
       )
       # add two
-     projr_yml_dest_add_github(
+      projr_yml_dest_add_github(
         title = "archive second",
         content = "output"
       )
@@ -253,12 +253,12 @@ test_that("projr_dest_send works - local - empty dirs", {
   usethis::with_project(
     path = dir_test,
     code = {
-     projr_init_git()
+      projr_init_git()
       .yml_git_set_push(FALSE, TRUE, NULL)
       # remove github remote
       .yml_dest_rm_type_all("default")
       # add a local destination, that is never sent to
-     projr_yml_dest_add_local(
+      projr_yml_dest_add_local(
         title = "latest",
         content = "raw-data",
         path = "_latest",
@@ -282,7 +282,7 @@ test_that("projr_dest_send works - local - empty dirs", {
       # -------------------
 
       .yml_dest_rm_type_all("default")
-     projr_yml_dest_add_local(
+      projr_yml_dest_add_local(
         title = "archive",
         content = "raw-data",
         path = "_archive",
@@ -298,7 +298,7 @@ test_that("projr_dest_send works - local - empty dirs", {
       # browser()
       file.create("_raw_data/data.csv")
       projr::projr_build_patch() # problem isn't here,
-      # it's that manifest.csv for v0.0.4 
+      # it's that manifest.csv for v0.0.4
       # says that data.csv is there when it isn't
       expect_true(file.exists("_archive/raw-data/v0.0.5/data.csv"))
       # remove that one file

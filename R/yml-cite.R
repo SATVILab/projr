@@ -102,12 +102,12 @@ projr_yml_cite_set <- function(all = NULL,
 }
 
 .yml_cite_set_check <- function(all,
-                                      codemeta,
-                                      cff,
-                                      inst_citation,
-                                      profile,
-                                      simplify_identical,
-                                      simplify_default) {
+                                codemeta,
+                                cff,
+                                inst_citation,
+                                profile,
+                                simplify_identical,
+                                simplify_default) {
   if (!is.null(all)) {
     .assert_flag(all)
   } else {
@@ -121,10 +121,10 @@ projr_yml_cite_set <- function(all = NULL,
 }
 
 .yml_cite_set_ind <- function(codemeta,
-                                    cff,
-                                    inst_citation,
-                                    profile,
-                                    simplify_default) {
+                              cff,
+                              inst_citation,
+                              profile,
+                              simplify_default) {
   if (!is.null(codemeta)) {
     .yml_cite_set_codemeta(codemeta, simplify_default, profile)
   }
@@ -141,7 +141,7 @@ projr_yml_cite_set <- function(all = NULL,
 projr_yml_cite_set_default <- function(profile = "default",
                                        simplify_identical = TRUE,
                                        simplify_default = TRUE) {
- projr_yml_cite_set(
+  projr_yml_cite_set(
     all = TRUE, profile = profile,
     simplify_identical = simplify_identical,
     simplify_default = simplify_default
@@ -149,8 +149,8 @@ projr_yml_cite_set_default <- function(profile = "default",
 }
 
 .yml_cite_set_codemeta <- function(codemeta,
-                                         simplify_default,
-                                         profile) {
+                                   simplify_default,
+                                   profile) {
   codemeta_pre <- .yml_cite_get_codemeta(profile = profile)
   if (all(c(codemeta_pre, codemeta)) && simplify_default) {
     return(invisible(FALSE))
@@ -172,7 +172,7 @@ projr_yml_cite_set_default <- function(profile = "default",
 }
 
 .yml_cite_get_combn_with_written <- function(cite_list_single,
-                                                   profile) {
+                                             profile) {
   yml_cite <- .yml_cite_get(profile)
   cite_list_single |> append(
     yml_cite[setdiff(names(yml_cite), names(cite_list_single))]
@@ -187,8 +187,8 @@ projr_yml_cite_set_default <- function(profile = "default",
 }
 
 .yml_cite_set_cff <- function(cff,
-                                    simplify_default,
-                                    profile) {
+                              simplify_default,
+                              profile) {
   cff_pre <- .yml_cite_get_cff(profile = profile)
   if (all(c(cff_pre, cff)) && simplify_default) {
     return(invisible(FALSE))
@@ -216,8 +216,8 @@ projr_yml_cite_set_default <- function(profile = "default",
 }
 
 .yml_cite_set_inst_citation <- function(inst_citation,
-                                              simplify_default,
-                                              profile) {
+                                        simplify_default,
+                                        profile) {
   inst_citation_pre <- .yml_cite_get_inst_citation(profile = profile)
   if (all(c(inst_citation_pre, inst_citation)) && simplify_default) {
     return(invisible(FALSE))
@@ -250,7 +250,7 @@ projr_yml_cite_set_default <- function(profile = "default",
 }
 
 .yml_cite_simplify_identical <- function(simplify_identical,
-                                               profile) {
+                                         profile) {
   if (!simplify_identical) {
     return(invisible(FALSE))
   }
@@ -268,7 +268,7 @@ projr_yml_cite_set_default <- function(profile = "default",
 }
 
 .yml_cite_simplify_default <- function(simplify_default,
-                                             profile) {
+                                       profile) {
   if (!simplify_default) {
     return(invisible(FALSE))
   }

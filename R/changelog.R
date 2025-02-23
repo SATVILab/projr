@@ -1,6 +1,6 @@
 .build_changelog_add <- function(msg,
-                                       bump_component,
-                                       version_run_on_list) {
+                                 bump_component,
+                                 version_run_on_list) {
   if (!.build_changelog_check(bump_component)) {
     return(invisible(FALSE))
   }
@@ -36,8 +36,8 @@
 
 
 .changelog_get_line <- function(msg,
-                                      bump_component,
-                                      version_run_on_list) {
+                                bump_component,
+                                version_run_on_list) {
   version_txt <- .changelog_get_version(version_run_on_list)
   bump_txt <- .changelog_get_bump_component(bump_component)
   .change_get_line_final(bump_txt, version_txt, msg)

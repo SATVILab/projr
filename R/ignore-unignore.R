@@ -1,43 +1,43 @@
 #' @title Manually Unignore Files or Directories in `.gitignore` and `.Rbuildignore`
 #'
 #' @description
-#' These functions allow manual addition of files and directories to the 
+#' These functions allow manual addition of files and directories to the
 #' `.gitignore` and `.Rbuildignore` files **after** the projr-managed block,
 #' thereby forcing them to be _not_ ignored.
 #'
-#' - .unignore_manual`: General function to unignore both files and 
-#'   directories in both `.gitignore` and `.Rbuildignore`. If a path does not 
+#' - .unignore_manual`: General function to unignore both files and
+#'   directories in both `.gitignore` and `.Rbuildignore`. If a path does not
 #'   exist, it is treated as a file.
-#' - .unignore_manual_dir`: Specifically unignores directories in both 
+#' - .unignore_manual_dir`: Specifically unignores directories in both
 #'   `.gitignore` and `.Rbuildignore`.
-#' - .unignore_manual_file`: Specifically unignores files in both 
+#' - .unignore_manual_file`: Specifically unignores files in both
 #'   `.gitignore` and `.Rbuildignore`.
-#' - .unignore_manual_dir_git` and .unignore_manual_file_git`: Add 
+#' - .unignore_manual_dir_git` and .unignore_manual_file_git`: Add
 #'   directories or files explicitly (with a `!` prefix) to `.gitignore`.
-#' - .unignore_manual_dir_rbuild` and .unignore_manual_file_rbuild`: 
+#' - .unignore_manual_dir_rbuild` and .unignore_manual_file_rbuild`:
 #'   Add directories or files explicitly (with a `!` prefix) to `.Rbuildignore`.
 #'
 #' @details
 #' These functions provide fine-grained control for cases where users want to
-#' _undo_ any ignoring behavior for specific paths permanently. They do not 
+#' _undo_ any ignoring behavior for specific paths permanently. They do not
 #' interact with the automated ignore management system of `projr`.
 #' - Non-existent paths provided to .unignore_manual` are assumed to be files.
-#' - For `.gitignore`, unignored directories are automatically appended with 
-#'   `/**` if missing, then prepended with `!`, ensuring proper Git _unignore_ 
+#' - For `.gitignore`, unignored directories are automatically appended with
+#'   `/**` if missing, then prepended with `!`, ensuring proper Git _unignore_
 #'   syntax.
-#' - For `.Rbuildignore`, paths are converted to regular expressions using 
-#'   `glob2rx()`, and then prepended with `!` for compatibility with R's build 
+#' - For `.Rbuildignore`, paths are converted to regular expressions using
+#'   `glob2rx()`, and then prepended with `!` for compatibility with R's build
 #'   tools.
 #'
-#' @param unignore A character vector of file or directory paths to be unignored. 
+#' @param unignore A character vector of file or directory paths to be unignored.
 #'   Paths must be valid non-empty strings.
 #'
 #' @return
-#' Invisibly returns `TRUE` if the operation succeeds, or `FALSE` if the input 
+#' Invisibly returns `TRUE` if the operation succeeds, or `FALSE` if the input
 #' contains invalid (empty) paths.
 #'
 #' @seealso
-#' .ignore_manual` for manually ignoring paths, and .ignore_auto` for 
+#' .ignore_manual` for manually ignoring paths, and .ignore_auto` for
 #' dynamically managed ignore entries.
 #'
 #' @examples
@@ -65,10 +65,10 @@ projr_unignore_manual <- function(unignore) {
   )
 
   # Force-unignore files (or nonexistent paths) in .gitignore and .Rbuildignore
- .unignore_manual_file_git(c(unignore_file, unignore_nonexistent))
- .unignore_manual_dir_git(unignore_dir)
- .unignore_manual_file_rbuild(c(unignore_file, unignore_nonexistent))
- .unignore_manual_dir_rbuild(unignore_dir)
+  .unignore_manual_file_git(c(unignore_file, unignore_nonexistent))
+  .unignore_manual_dir_git(unignore_dir)
+  .unignore_manual_file_rbuild(c(unignore_file, unignore_nonexistent))
+  .unignore_manual_dir_rbuild(unignore_dir)
 }
 
 #' @rdname projr_unignore_manual
@@ -78,8 +78,8 @@ projr_unignore_manual_dir <- function(unignore) {
   if (!.is_chr(unignore)) {
     return(invisible(FALSE))
   }
- .unignore_manual_dir_git(unignore)
- .unignore_manual_dir_rbuild(unignore)
+  .unignore_manual_dir_git(unignore)
+  .unignore_manual_dir_rbuild(unignore)
 }
 
 #' @rdname projr_unignore_manual
@@ -89,8 +89,8 @@ projr_unignore_manual_file <- function(unignore) {
   if (!.is_chr(unignore)) {
     return(invisible(FALSE))
   }
- .unignore_manual_file_git(unignore)
- .unignore_manual_file_rbuild(unignore)
+  .unignore_manual_file_git(unignore)
+  .unignore_manual_file_rbuild(unignore)
 }
 
 #' @rdname projr_unignore_manual

@@ -16,7 +16,7 @@
 #' @return
 #' Invisibly returns `TRUE` if the file was created,
 #' and `FALSE` if the file already exists.
-#' 
+#'
 #' @seealso.profile_create_local.profile_get
 #' @export
 projr_profile_create <- function(profile) {
@@ -59,7 +59,7 @@ projr_profile_create <- function(profile) {
 #' Empty settings are by default indicated by `~`.
 #' @seealso.profile_create_local.yml_get
 projr_profile_create_local <- function() {
- .profile_create(local)
+  .profile_create(local)
 }
 
 .list_elem_as_null <- function(x) {
@@ -118,9 +118,9 @@ projr_profile_create_local <- function() {
 #'
 #' @return
 #' Character vector of length equal to number of active profiles.
-#' 
-#' @details 
-#' Note that `local` and `default` are not returned, but are always active (if 
+#'
+#' @details
+#' Note that `local` and `default` are not returned, but are always active (if
 #' they exist).
 #' `local` corresponds to `_projr-local.yml` and `default` to `_projr.yml`.
 #'
@@ -136,10 +136,10 @@ projr_profile_get <- function() {
   if (!nzchar(profile)) {
     return(character())
   }
- profile_vec <- strsplit(profile, ",")[[1]]
- vapply(profile_vec, trimws, character(1)) |>
-   setdiff(c("default", "local", "")) |>
-   stats::setNames(NULL)
+  profile_vec <- strsplit(profile, ",")[[1]]
+  vapply(profile_vec, trimws, character(1)) |>
+    setdiff(c("default", "local", "")) |>
+    stats::setNames(NULL)
 }
 
 .profile_get_var_unsplit <- function() {
@@ -188,5 +188,5 @@ projr_profile_delete <- function(profile) {
 #'
 #' @description Deletes `_projr-local.yml` file.
 projr_profile_delete_local <- function() {
- .profile_delete("local")
+  .profile_delete("local")
 }

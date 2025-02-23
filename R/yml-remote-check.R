@@ -1,18 +1,18 @@
 .yml_remote_check <- function(role,
-                                    type,
-                                    title = NULL,
-                                    content = NULL,
-                                    structure = NULL,
-                                    path = NULL,
-                                    path_append_label = NULL,
-                                    overwrite = FALSE,
-                                    public = FALSE,
-                                    category = NULL,
-                                    description = NULL,
-                                    id = NULL,
-                                    id_parent = NULL,
-                                    get_list = NULL,
-                                    send_list = NULL) {
+                              type,
+                              title = NULL,
+                              content = NULL,
+                              structure = NULL,
+                              path = NULL,
+                              path_append_label = NULL,
+                              overwrite = FALSE,
+                              public = FALSE,
+                              category = NULL,
+                              description = NULL,
+                              id = NULL,
+                              id_parent = NULL,
+                              get_list = NULL,
+                              send_list = NULL) {
   .assert_string(title)
   .assert_string(role, TRUE)
   .assert_string(type, TRUE)

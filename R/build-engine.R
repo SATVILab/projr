@@ -78,7 +78,7 @@
 }
 
 .build_engine_doc_fn_get <- function(file,
-                                           type) {
+                                     type) {
   detect_str <- switch(tolower(type),
     "qmd" = "\\.qmd$",
     "rmd" = "\\.Rmd$|\\.rmd$",

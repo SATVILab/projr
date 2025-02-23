@@ -5,14 +5,15 @@
 .yml_dir_set_docs <- function(path, profile) {
   # this is the profile that we get it from (NULL)
   path_docs <- .yml_dir_get_docs_rel_if_within_cache(
-    path, profile = NULL
-    )
+    path,
+    profile = NULL
+  )
   if (missing(profile) || is.null(profile)) {
     profile_save <- "default"
     # allowing multiple profiles, should
     # make priority match up with quartos.
     # quarto uses the first profile as the dominant one
-   projr_profile_vec <- .profile_get_var() |>
+    projr_profile_vec <- .profile_get_var() |>
       rev()
     for (i in seq_along(projr_profile_vec)) {
       if (!is.null(.yml_dir_get_path("docs", projr_profile_vec[[i]]))) {

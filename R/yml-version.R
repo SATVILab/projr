@@ -19,7 +19,7 @@
 }
 
 # version-format
-# --------------------------- 
+# ---------------------------
 
 .yml_metadata_get_version_format <- function(profile) {
   .yml_metadata_get_nm("version-format", profile) %||% "major.minor.patch-dev"

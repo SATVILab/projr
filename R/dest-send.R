@@ -2,8 +2,8 @@
 # --------------------------
 
 .dest_send <- function(bump_component,
-                             upload_github,
-                             upload_force) {
+                       upload_github,
+                       upload_force) {
   # consider early exit
   # ------------------
   if (!.dest_send_check(bump_component)) {
@@ -46,9 +46,9 @@
 # -----------------------------
 
 .dest_send_type <- function(type,
-                                  bump_component,
-                                  upload_github,
-                                  upload_force) {
+                            bump_component,
+                            upload_github,
+                            upload_force) {
   # ensure that these are not NULL only if not
   # specified in _projr.yml. Reaason is that,
   # if they are specified in the `yml`, the settings
@@ -91,7 +91,7 @@
 }
 
 .dest_send_type_get_title <- function(type,
-                                            upload_github) {
+                                      upload_github) {
   nm_vec_yml <- names(.yml_dest_get_type(type, NULL))
   nm_vec_param <- .dest_send_type_get_title_param(
     type, upload_github
@@ -105,7 +105,7 @@
 }
 
 .dest_send_type_get_title_param <- function(type,
-                                                  upload_github) {
+                                            upload_github) {
   if (type != "github" || isFALSE(upload_github)) {
     return(character(0L))
   }
@@ -116,10 +116,10 @@
 # -----------------------------
 
 .dest_send_title <- function(title,
-                                   type,
-                                   bump_component,
-                                   upload_github,
-                                   upload_force) {
+                             type,
+                             bump_component,
+                             upload_github,
+                             upload_force) {
   force(title)
   may_send <- .dest_send_title_check(
     title, type, bump_component, upload_github, upload_force
@@ -143,10 +143,10 @@
 }
 
 .dest_send_title_check <- function(title,
-                                         type,
-                                         bump_component,
-                                         upload_github,
-                                         upload_force) {
+                                   type,
+                                   bump_component,
+                                   upload_github,
+                                   upload_force) {
   force(title)
   .yml_dest_get_title_complete(
     title, type, NULL, upload_github, upload_force
@@ -155,8 +155,8 @@
 }
 
 .dest_send_title_get_content <- function(title,
-                                               type,
-                                               upload_github) {
+                                         type,
+                                         upload_github) {
   force(title)
   is_yml_content <- .dest_send_title_get_content_check_yml(
     type, title, upload_github
@@ -169,8 +169,8 @@
 }
 
 .dest_send_title_get_content_check_yml <- function(type,
-                                                         title,
-                                                         upload_github) {
+                                                   title,
+                                                   upload_github) {
   is_github <- type == "github"
   is_archive_param <- title == "archive" && !isFALSE(upload_github)
   is_github_param <- is_github && is_archive_param
@@ -187,7 +187,9 @@
     upload_github
   } else {
     yml_dir <- .yml_dir_get(NULL)
-    nm_vec <- names(yml_dir) |> c("docs") |> unique()
+    nm_vec <- names(yml_dir) |>
+      c("docs") |>
+      unique()
     nm_vec_output <- nm_vec[.yml_dir_label_class_detect_output(nm_vec)]
     nm_vec_raw <- nm_vec[.yml_dir_label_class_detect_raw(nm_vec)]
     nm_vec_docs <- nm_vec[.yml_dir_label_class_detect_docs(nm_vec)]

@@ -17,10 +17,10 @@
 
 # commit
 .build_git_commit <- function(output_run,
-                                    bump_component,
-                                    version_run_on_list,
-                                    stage,
-                                    msg) {
+                              bump_component,
+                              version_run_on_list,
+                              stage,
+                              msg) {
   # exit early if required
   if (!.build_git_check(output_run)) {
     return(invisible(FALSE))
@@ -55,9 +55,9 @@
 
 # commit messages
 .build_git_msg_get <- function(stage,
-                                     version_run_on_list,
-                                     bump_component,
-                                     msg) {
+                               version_run_on_list,
+                               bump_component,
+                               msg) {
   switch(stage,
     "pre" = .build_git_msg_get_pre(bump_component),
     "post" = .build_git_msg_get_post(
@@ -74,8 +74,8 @@
 }
 
 .build_git_msg_get_post <- function(bump_component,
-                                          version_run_on_list,
-                                          msg) {
+                                    version_run_on_list,
+                                    msg) {
   msg_append <- ifelse(
     nzchar(msg),
     paste0(": ", msg),

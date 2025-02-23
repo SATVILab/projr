@@ -21,7 +21,6 @@
 }
 
 .build_pre_document <- function(output_run) {
-
   # get version for DESCRIPTION and bookdown from run onwards
   # snapshot if need be
   .build_renv_snapshot(output_run)
@@ -39,7 +38,7 @@
 }
 
 .build_pre_setup_for_output_run <- function(version_run_on_list,
-                                                  output_run) {
+                                            output_run) {
   # set the version pre-run
   .build_version_set_pre(version_run_on_list)
 
@@ -131,11 +130,11 @@
 .build_ignore <- function() {
   old_profile <- .profile_get_raw()
   Sys.unsetenv("PROJR_PROFILE")
- projr_path_get_dir("docs")
+  projr_path_get_dir("docs")
   if (!identical(old_profile, "default")) {
     Sys.setenv("PROJR_PROFILE" = old_profile)
   }
- projr_ignore_auto()
+  projr_ignore_auto()
   invisible(TRUE)
 }
 

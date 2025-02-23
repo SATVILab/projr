@@ -1,4 +1,3 @@
-
 # basic
 # ---------------------------
 
@@ -32,7 +31,7 @@
 # ---------------------------
 
 .yml_metadata_get <- function(profile) {
-  .yml_get(profile)[["metadata"]]  %||% list()
+  .yml_get(profile)[["metadata"]] %||% list()
 }
 
 .yml_metadata_set <- function(yml_metadata, profile) {

@@ -1,8 +1,8 @@
 .test_github_repo_create <- function(user = NULL,
-                                           # token = NULL,
-                                           repo = NULL,
-                                           env = NULL,
-                                           debug = FALSE) {
+                                     # token = NULL,
+                                     repo = NULL,
+                                     env = NULL,
+                                     debug = FALSE) {
   if (debug) {
     print("Running repo creation function")
     print("getwd()")
@@ -171,8 +171,8 @@
 }
 
 .test_github_repo_check_exists <- function(user = NULL,
-                                                 token = NULL,
-                                                 repo = NULL) {
+                                           token = NULL,
+                                           repo = NULL) {
   # set up
   # ----------
   if (!requireNamespace("gh", quietly = TRUE)) {
@@ -208,8 +208,8 @@
 }
 
 .test_github_repo_remote_add <- function(user = NULL,
-                                               token = NULL,
-                                               repo = NULL) {
+                                         token = NULL,
+                                         repo = NULL) {
   if (!requireNamespace("gh", quietly = TRUE)) {
     utils::install.packages("gh")
   }
@@ -249,7 +249,7 @@
 }
 
 .test_git_set_upstream_and_force_push <- function(remote = NULL,
-                                                        branch = NULL) {
+                                                  branch = NULL) {
   remote <- remote %||% .test_git_remote_get()
   remote <- remote[1]
   branch <- branch %||% .test_git_branch_get()

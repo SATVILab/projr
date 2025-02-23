@@ -8,7 +8,7 @@
     .path_filter_spec(dir_exc)
   out_tbl <- data.frame(
     fn = fn_vec |> .path_force_rel(path_dir),
-    version = (version %||%.version_get()) |>
+    version = (version %||% .version_get()) |>
       .version_v_add(),
     hash = .hash_file(fn_vec)
   )

@@ -50,10 +50,10 @@ test_that("projr_yml_check works", {
   usethis::with_project(
     path = dir_test,
     code = {
-     .init()
+      .init()
       expect_true(projr_yml_check())
-     .yml_check()
-     projr_yml_dest_add_local(
+      .yml_check()
+      projr_yml_dest_add_local(
         title = "test",
         content = "raw-data",
         path = "_outputting",
@@ -73,12 +73,12 @@ test_that("projr_yml_dest_add_* functions work", {
     path = dir_test,
     code = {
       .test_yml_unset_remote()
-     projr_yml_dest_add_local(
+      projr_yml_dest_add_local(
         title = "test", content = "raw-data", path = "_archive"
       )
       expect_true(!is.null(.yml_dest_get_type("local", "default")))
 
-     projr_yml_dest_add_osf(
+      projr_yml_dest_add_osf(
         title = "test", content = "raw-data", category = "project"
       )
       expect_true(!is.null(.yml_dest_get_type("osf", "default")))
@@ -87,7 +87,7 @@ test_that("projr_yml_dest_add_* functions work", {
           .yml_dest_get_type("osf", "default")[["test"]][["id"]]
         )
       )
-     projr_yml_dest_add_github(
+      projr_yml_dest_add_github(
         title = "test", content = "raw-data"
       )
       expect_true(!is.null(.yml_dest_get_type("github", "default")))

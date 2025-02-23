@@ -39,8 +39,6 @@
 
 # get the indices of the projr-managed section from the specified file
 .ignore_path_get_ind <- function(file_vec, path) {
-
-  
   .ignore_path_get_check(
     match_str_top, match_str_bottom, file_vec, path
   )
@@ -61,32 +59,32 @@
                                    match_str_bottom,
                                    file_vec,
                                    path) {
-  # Validate that the projr-managed section in .gitignore is well-formed                                                 
- ignore_ind_bot <- which(grepl(match_str_bottom, file_vec))
- ignore_ind_top <- which(grepl(match_str_top, file_vec))
-  
+  # Validate that the projr-managed section in .gitignore is well-formed
+  ignore_ind_bot <- which(grepl(match_str_bottom, file_vec))
+  ignore_ind_top <- which(grepl(match_str_top, file_vec))
+
   if (length(ignore_ind_top) > 1 ||
-        length(ignore_ind_bot) > 1) {
+    length(ignore_ind_bot) > 1) {
     stop(paste0(
       "Multiple projr sections found in ", basename(path)
     ))
   }
-  
+
   found_top <- length(ignore_ind_top) == 1
   found_bottom <- length(ignore_ind_bot) == 1
-  
+
   if (found_top && !found_bottom) {
     stop(paste0(
       "Found start of projr section but not end in ", basename(path)
     ))
   }
-  
+
   if (!found_top && found_bottom) {
     stop(paste0(
       "Found end of projr section but not start in ", basename(path)
     ))
   }
-  
+
   if (found_top && found_bottom) {
     if (ignore_ind_top > ignore_ind_bot) {
       stop(paste0(
@@ -94,7 +92,7 @@
       ))
     }
   }
-  
+
   invisible(TRUE)
 }
 

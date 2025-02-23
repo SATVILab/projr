@@ -1,37 +1,37 @@
 #' @title Manually Ignore Files or Directories in `.gitignore` and `.Rbuildignore`
 #'
 #' @description
-#' These functions allow manual addition of files and directories to the 
-#' `.gitignore` and `.Rbuildignore` files, outside of the automatic management 
+#' These functions allow manual addition of files and directories to the
+#' `.gitignore` and `.Rbuildignore` files, outside of the automatic management
 #' provided by the `projr` package.
 #'
-#' - .ignore_manual`: General function to add both files and directories 
-#'   to both `.gitignore` and `.Rbuildignore`. If a path does not exist, it is 
+#' - .ignore_manual`: General function to add both files and directories
+#'   to both `.gitignore` and `.Rbuildignore`. If a path does not exist, it is
 #'   treated as a file.
-#' - .ignore_manual_dir`: Specifically adds directories to both `.gitignore` 
+#' - .ignore_manual_dir`: Specifically adds directories to both `.gitignore`
 #'   and `.Rbuildignore`.
-#' - .ignore_manual_file`: Specifically adds files to both `.gitignore` 
+#' - .ignore_manual_file`: Specifically adds files to both `.gitignore`
 #'   and `.Rbuildignore`.
-#' - .ignore_manual_dir_git` and .ignore_manual_file_git`: Add 
+#' - .ignore_manual_dir_git` and .ignore_manual_file_git`: Add
 #'   directories or files explicitly to `.gitignore`.
-#' - .ignore_manual_dir_rbuild` and .ignore_manual_file_rbuild`: Add 
+#' - .ignore_manual_dir_rbuild` and .ignore_manual_file_rbuild`: Add
 #'   directories or files explicitly to `.Rbuildignore`.
 #'
 #' @details
-#' These functions provide fine-grained control for cases where users want to 
-#' manually ignore specific paths permanently. They do not interact with the 
-#' automated ignore management system of `projr`. 
+#' These functions provide fine-grained control for cases where users want to
+#' manually ignore specific paths permanently. They do not interact with the
+#' automated ignore management system of `projr`.
 #' - Non-existent paths provided to .ignore_manual` are assumed to be files.
-#' - For `.gitignore`, directories are automatically appended with `/**` if 
+#' - For `.gitignore`, directories are automatically appended with `/**` if
 #'   missing, ensuring proper Git ignore syntax.
-#' - For `.Rbuildignore`, paths are converted to regular expressions using 
+#' - For `.Rbuildignore`, paths are converted to regular expressions using
 #'   `glob2rx` for compatibility with R's build tools.
 #'
-#' @param ignore A character vector of file or directory paths to be ignored. 
+#' @param ignore A character vector of file or directory paths to be ignored.
 #'   Paths must be valid non-empty strings.
 #'
 #' @return
-#' Invisibly returns `TRUE` if the operation succeeds, or `FALSE` if the input 
+#' Invisibly returns `TRUE` if the operation succeeds, or `FALSE` if the input
 #' contains invalid (empty) paths.
 #'
 #' @seealso
@@ -61,10 +61,10 @@ projr_ignore_manual <- function(ignore) {
   ignore_nonexistent <- setdiff(
     ignore, c(ignore_file, ignore_dir)
   )
- .ignore_manual_file_git(c(ignore_file, ignore_nonexistent))
- .ignore_manual_dir_git(ignore_dir)
- .ignore_manual_file_rbuild(c(ignore_file, ignore_nonexistent))
- .ignore_manual_dir_rbuild(ignore_dir)
+  .ignore_manual_file_git(c(ignore_file, ignore_nonexistent))
+  .ignore_manual_dir_git(ignore_dir)
+  .ignore_manual_file_rbuild(c(ignore_file, ignore_nonexistent))
+  .ignore_manual_dir_rbuild(ignore_dir)
 }
 
 #' @rdname projr_ignore_manual
@@ -74,8 +74,8 @@ projr_ignore_manual_dir <- function(ignore) {
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
- .ignore_manual_dir_git(ignore)
- .ignore_manual_dir_rbuild(ignore)
+  .ignore_manual_dir_git(ignore)
+  .ignore_manual_dir_rbuild(ignore)
 }
 
 #' @rdname projr_ignore_manual
@@ -85,8 +85,8 @@ projr_ignore_manual_file <- function(ignore) {
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
- .ignore_manual_file_git(ignore)
- .ignore_manual_file_rbuild(ignore)
+  .ignore_manual_file_git(ignore)
+  .ignore_manual_file_rbuild(ignore)
 }
 
 #' @rdname projr_ignore_manual
@@ -165,21 +165,21 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
 }
 
 .ignore_manual_path_add_get_updated <- function(path,
-                                                      ignore) {
+                                                ignore) {
   ignore_list <- .ignore_path_get_list(path, ignore)
-  
+
   c(
     .ignore_manual_path_add_get_updated_start(ignore, ignore_list$start),
     ignore_list$content |> setdiff("") |> unique(),
     ignore_list$end
-  ) 
+  )
 }
 
 .ignore_manual_path_add_get_updated_start <- function(ignore, start) {
   if (.is_len_0(start)) {
     ignore
   } else if (.is_len_1(start)) {
-      .ignore_manual_path_add_get_updated_start_len_1(ignore, start)
+    .ignore_manual_path_add_get_updated_start_len_1(ignore, start)
   } else {
     .ignore_manual_path_add_get_updated_start_len_g1(ignore, start)
   }
@@ -192,11 +192,11 @@ projr_ignore_manual_dir_rbuild <- function(ignore) {
 
 .ignore_manual_path_add_get_updated_start_len_1_start <- function(start) {
   if (grepl(match_str_top, start)) {
-      c("", start)
+    c("", start)
   } else if (start == "") {
-      start
+    start
   } else {
-      c(start, "")
+    c(start, "")
   }
 }
 

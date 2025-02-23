@@ -73,11 +73,11 @@ projr_yml_script_add <- function(path,
 }
 
 .yml_script_check <- function(path,
-                                    title,
-                                    stage,
-                                    cue,
-                                    overwrite,
-                                    profile) {
+                              title,
+                              stage,
+                              cue,
+                              overwrite,
+                              profile) {
   .assert_chr(path, TRUE)
   .assert_string(title, TRUE)
   .assert_in_single(stage, c("pre", "post"), TRUE)
@@ -89,11 +89,11 @@ projr_yml_script_add <- function(path,
 }
 
 .yml_script_add <- function(path,
-                                  title,
-                                  stage,
-                                  cue,
-                                  profile,
-                                  overwrite = TRUE) {
+                            title,
+                            stage,
+                            cue,
+                            profile,
+                            overwrite = TRUE) {
   title <- gsub("^\\s*|\\s*$", "", title) |>
     gsub("\\s+", "-", x = _)
   .yml_script_check_overwrite(title, overwrite, profile = profile)
@@ -187,7 +187,7 @@ projr_yml_script_add_pre <- function(path,
                                      cue = NULL,
                                      overwrite = TRUE,
                                      profile = "default") {
- .yml_script_add(
+  .yml_script_add(
     path = path, title = title,
     stage = "pre", cue = cue, profile = profile, overwrite = overwrite
   )
@@ -200,7 +200,7 @@ projr_yml_script_add_post <- function(path,
                                       cue = NULL,
                                       overwrite = TRUE,
                                       profile = "default") {
- .yml_script_add(
+  .yml_script_add(
     path = path, title = title,
     stage = "post", cue = cue, profile = profile, overwrite = overwrite
   )

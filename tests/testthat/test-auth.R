@@ -15,8 +15,8 @@ test_that(".change_get_manifest works", {
       Sys.unsetenv("OSF_PAT")
       expect_warning(.auth_get_osf_pat())
       Sys.setenv("OSF_PAT" = pat_old)
-      suppressMessages.instr_auth_github())
-      suppressMessages.instr_auth_osf())
+      suppressMessages(projr_instr_auth_github())
+      suppressMessages(projr_instr_auth_osf())
       expect_warning(.auth_get_osf_pat_warn())
     }
   )

@@ -7,51 +7,51 @@ test_that(".yml_git_ functions work", {
   usethis::with_project(
     path = dir_test,
     code = {
-     .yml_git_set_default()
+      .yml_git_set_default()
       expect_identical(
         .yml_git_get("default"),
         NULL
       )
 
       # set one to FALSE
-     .yml_git_set(push = FALSE)
+      .yml_git_set(push = FALSE)
       expect_identical(
         .yml_git_get("default"),
         list(push = FALSE)
       )
       # set two to FALSE
-     .yml_git_set(commit = FALSE)
+      .yml_git_set(commit = FALSE)
       expect_identical(
         .yml_git_get("default"),
         list(commit = FALSE, push = FALSE)
       )
       # set three to FALSE, no simplify identical
-     .yml_git_set(add_untracked = FALSE, simplify_identical = FALSE)
+      .yml_git_set(add_untracked = FALSE, simplify_identical = FALSE)
       expect_identical(
         .yml_git_get("default"),
         list(commit = FALSE, `add-untracked` = FALSE, push = FALSE)
       )
       # set three to FALSE, simplify identical
-     .yml_git_set(add_untracked = FALSE)
+      .yml_git_set(add_untracked = FALSE)
       expect_identical(
         .yml_git_get("default"),
         FALSE
       )
       # set three to TRUE, no simplify default
-     .yml_git_set(all = TRUE, simplify_default = FALSE)
+      .yml_git_set(all = TRUE, simplify_default = FALSE)
       expect_identical(
         .yml_git_get("default"),
         TRUE
       )
       # set three to TRUE, simplify default
-     .yml_git_set(all = TRUE)
+      .yml_git_set(all = TRUE)
       expect_identical(
         .yml_git_get("default"),
         NULL
       )
       # use meaningful default
-     .yml_git_set(commit = FALSE)
-     .yml_git_set_default()
+      .yml_git_set(commit = FALSE)
+      .yml_git_set_default()
       expect_identical(
         .yml_git_get("default"),
         NULL

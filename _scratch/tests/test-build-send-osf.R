@@ -27,7 +27,7 @@ test_that("projr_build_output works - osf - latest", {
       expect_identical(projr_version_get(), "0.1.0")
       # no add that we're pushing to GitHub, but
       # raw-data and source are empty
-      expect_errorprojr_yml_dest_add_osf(
+      expect_error(projr_yml_dest_add_osf(
         title = "Raw data",
         content = "raw-data",
         structure = "latest",

@@ -6,7 +6,7 @@
                              upload_force) {
   force(title)
   # where they should go to
-  path_dir_local <-projr_path_get_dir(label, safe = !output_run) # nolint
+  path_dir_local <- projr_path_get_dir(label, safe = !output_run) # nolint
   yml_title <- .yml_dest_get_title_complete( # nolint
     title, type, NULL, upload_github, upload_force
   )
@@ -33,7 +33,6 @@
     yml_title[["path-append-label"]],
     path_dir_local, remote_list[["remote_pre"]]
   )
-
 }
 
 # ==========================================================================
@@ -41,14 +40,14 @@
 # ==========================================================================
 
 .dest_send_label_get_remotes <- function(type,
-                                               id,
-                                               path,
-                                               path_append_label,
-                                               label,
-                                               structure,
-                                               strategy,
-                                               inspect,
-                                               cue) {
+                                         id,
+                                         path,
+                                         path_append_label,
+                                         label,
+                                         structure,
+                                         strategy,
+                                         inspect,
+                                         cue) {
   remote_pre <- .remote_get_final(
     type, id, label, structure, path, path_append_label, NULL, TRUE
   )
@@ -71,13 +70,12 @@
 }
 
 .dest_send_label_get_remotes_get_version_comp <- function(remote_pre, # nolint
-                                                                type,
-                                                                label,
-                                                                structure,
-                                                                strategy,
-                                                                inspect,
-                                                                cue) {
-
+                                                          type,
+                                                          label,
+                                                          structure,
+                                                          strategy,
+                                                          inspect,
+                                                          cue) {
   is_nothing <-
     .dest_send_label_get_remotes_get_version_comp_check_nothing(
       remote_pre, inspect, strategy
@@ -146,11 +144,11 @@
   }
 
 .dest_send_label_get_remotes_get_version_comp_archive <- function(cue, # nolint
-                                                                        strategy, # nolint
-                                                                        label,
-                                                                        inspect,
-                                                                        remote_pre, # nolint
-                                                                        type) {
+                                                                  strategy, # nolint
+                                                                  label,
+                                                                  inspect,
+                                                                  remote_pre, # nolint
+                                                                  type) {
   # if `inspect` is `file`, `version_comp` can be returned as `version_project`,
   # as we are always going to hash it, so we don't need to
   # return `NULL` to indicate untrusted manifests.
@@ -183,13 +181,13 @@
 }
 
 .dest_send_label_get_remotes_comp <- function(type,
-                                                    id,
-                                                    label,
-                                                    structure,
-                                                    path,
-                                                    path_append_label,
-                                                    version,
-                                                    remote_dest) {
+                                              id,
+                                              label,
+                                              structure,
+                                              path,
+                                              path_append_label,
+                                              version,
+                                              remote_dest) {
   if (is.null(version)) {
     # if it's `NULL`, then we return remote_dest,
     # as that is the comparison remote, essentially.
@@ -203,7 +201,7 @@
 }
 
 .dest_send_label_get_remotes_comp_empty <- function(remote_comp,
-                                                          type) {
+                                                    type) {
   if (type != "github") {
     return(remote_comp)
   }
@@ -221,14 +219,14 @@
 # ==========================================================================
 
 .dest_send_label_get_plan <- function(strategy,
-                                            inspect,
-                                            version_comp,
-                                            type,
-                                            label,
-                                            remote_pre,
-                                            remote_dest,
-                                            remote_comp,
-                                            cue) {
+                                      inspect,
+                                      version_comp,
+                                      type,
+                                      label,
+                                      remote_pre,
+                                      remote_dest,
+                                      remote_comp,
+                                      cue) {
   plan_fn <- .dest_send_label_get_plan_fn(
     strategy, label, inspect, version_comp, remote_comp, type,
     remote_pre, remote_dest
@@ -240,7 +238,6 @@
     plan_fn[["fn_same"]], plan_fn[["fn_diff"]],
     remote_pre, remote_dest, type, label, version_comp, cue
   )
-
 }
 
 # --------------------------------------------------------------------------
@@ -248,13 +245,13 @@
 # --------------------------------------------------------------------------
 
 .dest_send_label_get_plan_fn <- function(strategy,
-                                               label,
-                                               inspect,
-                                               version_comp,
-                                               remote_comp,
-                                               type,
-                                               remote_pre,
-                                               remote_dest) {
+                                         label,
+                                         inspect,
+                                         version_comp,
+                                         remote_comp,
+                                         type,
+                                         remote_pre,
+                                         remote_dest) {
   switch(strategy,
     "upload-all" = .dest_send_label_get_plan_fn_upload_all(label),
     "upload-missing" = .dest_send_label_get_plan_fn_upload_missing(
@@ -284,10 +281,10 @@
 }
 
 .dest_send_label_get_plan_fn_upload_missing <- function(inspect,
-                                                              version_comp,
-                                                              remote_comp,
-                                                              type,
-                                                              label) {
+                                                        version_comp,
+                                                        remote_comp,
+                                                        type,
+                                                        label) {
   # add all in `fn_souce_extra`, so need `fn_source` and `fn_dest`,
   # and then we diff them.
   fn_source <- .dest_send_label_get_fn_source(label)
@@ -299,11 +296,11 @@
 }
 
 .dest_send_label_get_fn_dest <- function(inspect,
-                                               version_comp,
-                                               type,
-                                               remote_comp,
-                                               remote_pre,
-                                               label) {
+                                         version_comp,
+                                         type,
+                                         remote_comp,
+                                         remote_pre,
+                                         label) {
   # remote_comp does not exist or we ignore it
   if (is.null(remote_comp) || inspect == "none") {
     return(character(0L))
@@ -322,12 +319,12 @@
 }
 
 .dest_send_label_get_plan_fn_sync <- function(inspect, # nolint
-                                                    version_comp,
-                                                    remote_pre,
-                                                    remote_dest,
-                                                    remote_comp,
-                                                    type,
-                                                    label) {
+                                              version_comp,
+                                              remote_pre,
+                                              remote_dest,
+                                              remote_comp,
+                                              type,
+                                              label) {
   if (inspect == "none") {
     # essentially, upload-all
     return(c("fn_source_extra" = .dest_send_label_get_fn_source(label)))
@@ -337,8 +334,8 @@
     version_comp, inspect, remote_comp, type, label, remote_pre
   )
   if (nrow(manifest_remote) == 1 &&
-        !is.na(manifest_remote[["fn"]]) &&
-        manifest_remote[["fn"]] == "projr-empty") {
+    !is.na(manifest_remote[["fn"]]) &&
+    manifest_remote[["fn"]] == "projr-empty") {
     manifest_remote[["fn"]] <- NA_character_
     manifest_remote[["hash"]] <- NA_character_
   }
@@ -392,18 +389,18 @@
 # --------------------------------------------------------------------------
 
 .dest_send_label_get_plan_action <- function(strategy,
-                                                   fn_source,
-                                                   fn_dest,
-                                                   fn_source_extra,
-                                                   fn_dest_extra,
-                                                   fn_same,
-                                                   fn_diff,
-                                                   remote_pre,
-                                                   remote_dest,
-                                                   type,
-                                                   label,
-                                                   version_comp,
-                                                   cue) {
+                                             fn_source,
+                                             fn_dest,
+                                             fn_source_extra,
+                                             fn_dest_extra,
+                                             fn_same,
+                                             fn_diff,
+                                             remote_pre,
+                                             remote_dest,
+                                             type,
+                                             label,
+                                             version_comp,
+                                             cue) {
   switch(strategy,
     "upload-all" = .dest_send_label_get_plan_action_upload_all(
       fn_source, remote_dest, type, remote_pre, label
@@ -421,15 +418,16 @@
 # upload-all
 # ---------------------------
 .dest_send_label_get_plan_action_upload_all <- function(fn_source, # nolint
-                                                              remote_dest,
-                                                              type,
-                                                              remote_pre,
-                                                              label) {
+                                                        remote_dest,
+                                                        type,
+                                                        remote_pre,
+                                                        label) {
   # will add whatever is in `fn_source`, nothing else needed
   create <- !is.null(remote_dest)
   asterisk_label <- !create # don't asterisk if creating it
   version_file <- .dest_send_label_get_plan_action_version_file(
-    type, remote_pre, label, update_label = TRUE,
+    type, remote_pre, label,
+    update_label = TRUE,
     asterisk_label = asterisk_label
   )
   manifest <- .dest_send_label_get_plan_action_manifest(
@@ -447,10 +445,10 @@
 }
 
 .dest_send_label_get_plan_action_version_file <- function(type, # nolint
-                                                                remote_pre,
-                                                                label,
-                                                                update_label = FALSE, # nolint
-                                                                asterisk_label = FALSE) { # nolint
+                                                          remote_pre,
+                                                          label,
+                                                          update_label = FALSE, # nolint
+                                                          asterisk_label = FALSE) { # nolint
   version_remote <- .remote_get_version_file(type, remote_pre)
   version_remote <- .version_file_update_project_version(
     version_remote
@@ -464,11 +462,11 @@
 }
 
 .dest_send_label_get_plan_action_manifest <- function(type,
-                                                            remote_pre,
-                                                            label,
-                                                            rm_existing = FALSE,
-                                                            rm_existing_all = FALSE, # nolint
-                                                            rm_adding = FALSE) { # nolint
+                                                      remote_pre,
+                                                      label,
+                                                      rm_existing = FALSE,
+                                                      rm_existing_all = FALSE, # nolint
+                                                      rm_adding = FALSE) { # nolint
   manifest_remote <- .remote_get_manifest(type, remote_pre)
   manifest_append <- .manifest_get_add_project(manifest_remote, label)
   # remove any entries in manifest_remote
@@ -497,7 +495,6 @@
 
   manifest_append |>
     .manifest_append_previous_impl(manifest_remote)
-
 }
 
 .dest_send_label_get_plan_action_manifest_rm_existing <-
@@ -523,10 +520,10 @@
 # upload_missing
 # ---------------------------
 .dest_send_label_get_plan_action_upload_missing <- function(fn_source_extra, # nolint
-                                                                  remote_dest,
-                                                                  type,
-                                                                  remote_pre,
-                                                                  label) {
+                                                            remote_dest,
+                                                            type,
+                                                            remote_pre,
+                                                            label) {
   # will add whatever is in `fn_source`, nothing else needed
   create <- !is.null(remote_dest)
   asterisk_label <- !create # don't asterisk if creating it
@@ -552,16 +549,16 @@
 # ---------------------------
 
 .dest_send_label_get_plan_action_sync <- function(remote_dest,
-                                                        cue,
-                                                        fn_source_extra,
-                                                        type,
-                                                        remote_pre,
-                                                        label,
-                                                        version_comp,
-                                                        fn_dest_extra,
-                                                        fn_diff,
-                                                        fn_same,
-                                                        strategy) {
+                                                  cue,
+                                                  fn_source_extra,
+                                                  type,
+                                                  remote_pre,
+                                                  label,
+                                                  version_comp,
+                                                  fn_dest_extra,
+                                                  fn_diff,
+                                                  fn_same,
+                                                  strategy) {
   if (is.null(remote_dest)) {
     .dest_send_label_get_plan_action_no_remote(
       cue, fn_source_extra, type, remote_pre, label,
@@ -582,16 +579,17 @@
 }
 
 .dest_send_label_get_plan_action_purge <- function(type, # nolint
-                                                         remote_pre,
-                                                         label,
-                                                         version_comp,
-                                                         fn_source_extra,
-                                                         fn_dest_extra,
-                                                         fn_diff,
-                                                         fn_same,
-                                                         strategy) {
+                                                   remote_pre,
+                                                   label,
+                                                   version_comp,
+                                                   fn_source_extra,
+                                                   fn_dest_extra,
+                                                   fn_diff,
+                                                   fn_same,
+                                                   strategy) {
   version_file <- .dest_send_label_get_plan_action_version_file(
-    type, remote_pre, label, update_label = TRUE
+    type, remote_pre, label,
+    update_label = TRUE
   )
   manifest <- .dest_send_label_get_plan_action_manifest(
     type, remote_pre, label,
@@ -608,12 +606,12 @@
 }
 
 .dest_send_label_get_plan_action_diff <- function(fn_source_extra, # nolint
-                                                        type,
-                                                        remote_pre,
-                                                        label,
-                                                        fn_dest_extra,
-                                                        fn_diff,
-                                                        fn_same) {
+                                                  type,
+                                                  remote_pre,
+                                                  label,
+                                                  fn_dest_extra,
+                                                  fn_diff,
+                                                  fn_same) {
   is_change <- .is_len_pos(c(fn_source_extra, fn_dest_extra, fn_diff))
   if (!is_change) {
     .dest_send_label_get_plan_action_diff_no_change(
@@ -627,10 +625,11 @@
 }
 
 .dest_send_label_get_plan_action_diff_no_change <- function(type, # nolint
-                                                                  remote_pre,
-                                                                  label) {
+                                                            remote_pre,
+                                                            label) {
   version_file <- .dest_send_label_get_plan_action_version_file(
-    type, remote_pre, label, update_label = FALSE
+    type, remote_pre, label,
+    update_label = FALSE
   )
   manifest <- .dest_send_label_get_plan_action_manifest(
     type, remote_pre, label,
@@ -647,14 +646,15 @@
 }
 
 .dest_send_label_get_plan_action_diff_change <- function(type,
-                                                               remote_pre,
-                                                               label,
-                                                               fn_source_extra,
-                                                               fn_diff,
-                                                               fn_same,
-                                                               fn_dest_extra) {
+                                                         remote_pre,
+                                                         label,
+                                                         fn_source_extra,
+                                                         fn_diff,
+                                                         fn_same,
+                                                         fn_dest_extra) {
   version_file <- .dest_send_label_get_plan_action_version_file(
-    type, remote_pre, label, update_label = TRUE
+    type, remote_pre, label,
+    update_label = TRUE
   )
   manifest <- .dest_send_label_get_plan_action_manifest(
     type, remote_pre, label,
@@ -694,11 +694,12 @@
   }
 
 .dest_send_label_get_plan_action_no_remote_always <- function(fn_source_extra, # nolint
-                                                                    type,
-                                                                    remote_pre,
-                                                                    label) {
+                                                              type,
+                                                              remote_pre,
+                                                              label) {
   version_file <- .dest_send_label_get_plan_action_version_file(
-    type, remote_pre, label, update_label = TRUE
+    type, remote_pre, label,
+    update_label = TRUE
   )
   manifest <- .dest_send_label_get_plan_action_manifest(
     type, remote_pre, label,
@@ -715,14 +716,14 @@
 }
 
 .dest_send_label_get_plan_action_no_remote_if_change <- function(version_comp, # nolint
-                                                                       type, # nolint
-                                                                       remote_pre, # nolint
-                                                                       label, # nolint
-                                                                       fn_source_extra, # nolint
-                                                                       fn_dest_extra, # nolint
-                                                                       fn_diff, # nolint
-                                                                       fn_same, # nolint
-                                                                       strategy) { # nolint
+                                                                 type, # nolint
+                                                                 remote_pre, # nolint
+                                                                 label, # nolint
+                                                                 fn_source_extra, # nolint
+                                                                 fn_dest_extra, # nolint
+                                                                 fn_diff, # nolint
+                                                                 fn_same, # nolint
+                                                                 strategy) { # nolint
   if (is.null(version_comp)) {
     .dest_send_label_get_plan_action_no_remote_if_change_null(
       type, remote_pre, label, fn_source_extra
@@ -736,11 +737,12 @@
 }
 
 .dest_send_label_get_plan_action_no_remote_if_change_null <- function(type, # nolint
-                                                                            remote_pre, # nolint
-                                                                            label, # nolint
-                                                                            fn_source_extra) { # nolint
+                                                                      remote_pre, # nolint
+                                                                      label, # nolint
+                                                                      fn_source_extra) { # nolint
   version_file <- .dest_send_label_get_plan_action_version_file(
-    type, remote_pre, label, update_label = TRUE
+    type, remote_pre, label,
+    update_label = TRUE
   )
   manifest <- .dest_send_label_get_plan_action_manifest(
     type, remote_pre, label,
@@ -757,13 +759,13 @@
 }
 
 .dest_send_label_get_plan_action_no_remote_if_change_non_null <- function(fn_source_extra, # nolint
-                                                                                fn_dest_extra, # nolint
-                                                                                fn_diff, # nolint
-                                                                                fn_same, # nolint
-                                                                                type, # nolint
-                                                                                remote_pre, # nolint
-                                                                                label, # nolint
-                                                                                strategy) { # nolint
+                                                                          fn_dest_extra, # nolint
+                                                                          fn_diff, # nolint
+                                                                          fn_same, # nolint
+                                                                          type, # nolint
+                                                                          remote_pre, # nolint
+                                                                          label, # nolint
+                                                                          strategy) { # nolint
   is_change <- .is_len_pos(c(fn_source_extra, fn_dest_extra, fn_diff))
   if (!is_change) {
     .dest_send_label_get_plan_action_no_remote_if_change_non_null_no_change( # nolint
@@ -776,12 +778,13 @@
   }
 }
 
-.dest_send_label_get_plan_action_no_remote_if_change_non_null_no_change <- function(type,# nolint
-                                                                                          remote_pre,# nolint
-                                                                                          label,# nolint
-                                                                                          fn_source_extra) {# nolint
+.dest_send_label_get_plan_action_no_remote_if_change_non_null_no_change <- function(type, # nolint
+                                                                                    remote_pre, # nolint
+                                                                                    label, # nolint
+                                                                                    fn_source_extra) { # nolint
   version_file <- .dest_send_label_get_plan_action_version_file(
-    type, remote_pre, label, update_label = FALSE
+    type, remote_pre, label,
+    update_label = FALSE
   )
   manifest <- .dest_send_label_get_plan_action_manifest(
     type, remote_pre, label,
@@ -798,14 +801,15 @@
 }
 
 .dest_send_label_get_plan_action_no_remote_if_change_non_null_change <- function(type, # nolint
-                                                                                       remote_pre, # nolint
-                                                                                       label, # nolint
-                                                                                       fn_source_extra, # nolint
-                                                                                       fn_diff, # nolint
-                                                                                       fn_same, # nolint
-                                                                                       strategy) { # nolint
+                                                                                 remote_pre, # nolint
+                                                                                 label, # nolint
+                                                                                 fn_source_extra, # nolint
+                                                                                 fn_diff, # nolint
+                                                                                 fn_same, # nolint
+                                                                                 strategy) { # nolint
   version_file <- .dest_send_label_get_plan_action_version_file(
-    type, remote_pre, label, update_label = TRUE
+    type, remote_pre, label,
+    update_label = TRUE
   )
   manifest <- .dest_send_label_get_plan_action_manifest(
     type, remote_pre, label,
@@ -826,20 +830,20 @@
 # ==========================================================================
 
 .dest_send_label_implement_plan <- function(fn_add,
-                                                  fn_rm,
-                                                  version_file,
-                                                  manifest,
-                                                  create,
-                                                  purge,
-                                                  remote_dest,
-                                                  type,
-                                                  id,
-                                                  label,
-                                                  structure,
-                                                  path,
-                                                  path_append_label,
-                                                  path_dir_local,
-                                                  remote_pre) {
+                                            fn_rm,
+                                            version_file,
+                                            manifest,
+                                            create,
+                                            purge,
+                                            remote_dest,
+                                            type,
+                                            id,
+                                            label,
+                                            structure,
+                                            path,
+                                            path_append_label,
+                                            path_dir_local,
+                                            remote_pre) {
   if (purge) {
     .remote_file_rm_all(type, remote_dest)
   }

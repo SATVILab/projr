@@ -1,9 +1,9 @@
 .test_setup_project <- function(git = TRUE,
-                                      github = FALSE,
-                                      set_env_var = TRUE,
-                                      base_name = "test_projr",
-                                      env = rlang::caller_env(),
-                                      rm_engine = FALSE) {
+                                github = FALSE,
+                                set_env_var = TRUE,
+                                base_name = "test_projr",
+                                env = rlang::caller_env(),
+                                rm_engine = FALSE) {
   force(env)
   path_dir_test <- .test_setup_project_dir(base_name, env)
   .test_setup_project_env_var(set_env_var, env)
@@ -104,9 +104,9 @@
 }
 
 .test_setup_project_github <- function(github,
-                                             path_dir,
-                                             env,
-                                             debug = FALSE) {
+                                       path_dir,
+                                       env,
+                                       debug = FALSE) {
   if (!github) {
     return(invisible(TRUE))
   }
@@ -169,17 +169,17 @@
 }
 
 .test_setup_content <- function(label,
-                                      safe = FALSE,
-                                      dir_sub_lvl = 2,
-                                      dir_sub_prefix = "subdir") {
+                                safe = FALSE,
+                                dir_sub_lvl = 2,
+                                dir_sub_prefix = "subdir") {
   for (x in label) {
     # create files
     file.create(
-     .path_get(x, "abc.txt", safe = safe)
+      .path_get(x, "abc.txt", safe = safe)
     )
     if (dir_sub_lvl > 0) {
       file.create(
-       .path_get(
+        .path_get(
           x, paste0(dir_sub_prefix, "1"), "def.txt",
           safe = safe
         )
@@ -187,7 +187,7 @@
     }
     if (dir_sub_lvl > 1) {
       file.create(
-       .path_get(
+        .path_get(
           x, paste0(dir_sub_prefix, "1"),
           paste0(dir_sub_prefix, "2"), "ghi.txt",
           safe = safe

@@ -191,11 +191,11 @@ projr_name_get <- function() basename(.path_get())
 }
 
 .version_run_onwards_get_dev <- function(version_vec,
-                                               version_format_sep) {
+                                         version_format_sep) {
   version_vec <- .version_run_onwards_get_dev_append_dev(
     version_vec, version_format_sep
   )
-  version <- .version_concat(version_vec, version_format_sep) 
+  version <- .version_concat(version_vec, version_format_sep)
   list(
     "desc" = c(
       "run" = version,
@@ -206,7 +206,7 @@ projr_name_get <- function() basename(.path_get())
 }
 
 .version_run_onwards_get_dev_append_dev <- function(version_vec,
-                                                          version_format_sep) {
+                                                    version_format_sep) {
   if (length(version_vec) == length(version_format_sep) + 1) {
     return(version_vec)
   }
@@ -239,11 +239,10 @@ projr_name_get <- function() basename(.path_get())
 }
 
 .version_run_onwards_get_bump <- function(version_vec,
-                                                  version_format_comp,
-                                                  version_format_sep,
-                                                  bump_component) {
-    
-  version_update_vec <- .version_run_onwards_get_bump_update_vec( 
+                                          version_format_comp,
+                                          version_format_sep,
+                                          bump_component) {
+  version_update_vec <- .version_run_onwards_get_bump_update_vec(
     version_vec[-length(version_vec)], version_format_comp, bump_component
   )
   version_failure <- .version_concat(version_vec, version_format_sep)
@@ -259,8 +258,8 @@ projr_name_get <- function() basename(.path_get())
 }
 
 .version_run_onwards_get_bump_update_vec <- function(version_vec,
-                                                             version_format_comp,
-                                                             bump_component) {
+                                                     version_format_comp,
+                                                     bump_component) {
   comp_to_update_ind <- which(version_format_comp == bump_component)
   version_update_vec <- version_vec
   version_update_vec[comp_to_update_ind] <- version_update_vec[
@@ -277,7 +276,7 @@ projr_name_get <- function() basename(.path_get())
 #' @title Returns project version
 #'
 #' @description
-#' Returns project version 
+#' Returns project version
 #'
 #' @return Character.
 #'
@@ -334,12 +333,12 @@ projr_version_get <- function() {
     }
   }
   version_new <- .version_chr_get(version_current_vec)
- projr_version_set(version = version_new)
+  projr_version_set(version = version_new)
   version_new
 }
 
 .version_comp_min_check <- function(bump_component,
-                                          version_min) {
+                                    version_min) {
   version_comp_vec_min <- .version_comp_vec_min_get(version_min)
   bump_component %in% version_comp_vec_min
 }
@@ -378,7 +377,7 @@ projr_version_get <- function() {
 }
 
 .version_get_latest <- function(x) {
-  x |> 
+  x |>
     .version_v_rm() |>
     unique() |>
     package_version() |>

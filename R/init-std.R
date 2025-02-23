@@ -68,9 +68,6 @@ projr_init <- function(git = TRUE,
                        license = NULL,
                        projr_yml = FALSE,
                        lit_doc = NULL) {
-
-
-
   # try prevent working directory errors
   .init_usethis_std()
 
@@ -79,7 +76,7 @@ projr_init <- function(git = TRUE,
 
   # initial VERSION file
   if (!file.exists(.path_get("VERSION")) &&
-        !file.exists(.path_get("DESCRIPTION"))) {
+    !file.exists(.path_get("DESCRIPTION"))) {
     projr_version_set("0.0.1")
   }
 
@@ -505,7 +502,8 @@ projr_init_cite <- function() {
         name = character(),
         value = character(),
         level = character(),
-        stringsAsFactors = FALSE)
+        stringsAsFactors = FALSE
+      )
     }
   )
   # Get the latest value for user.name, if any.
@@ -560,7 +558,7 @@ projr_init_cite <- function() {
       gert::git_config_global_set("user.email", "projr-standin@email.com")
     } else {
       choice <- utils::menu(
-        c("Yes", "No"), 
+        c("Yes", "No"),
         title = "Your Git user email is not set. Would you like to set it now?"
       )
       if (choice == 1) {

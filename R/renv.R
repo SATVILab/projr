@@ -138,7 +138,8 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   )
 
   jsonlite::write_json(
-    renv_lock, path = file_path, pretty = TRUE, auto_unbox = TRUE
+    renv_lock,
+    path = file_path, pretty = TRUE, auto_unbox = TRUE
   )
 }
 
@@ -408,8 +409,8 @@ projr_renv_restore_and_update <- function(github = TRUE,
                                           biocmanager_install = FALSE) {
   # First restores packages to the lockfile versions, then updates them to the latest versions.
 
- .renv_restore(github, non_github, biocmanager_install)
- .renv_update(github, non_github, biocmanager_install)
+  .renv_restore(github, non_github, biocmanager_install)
+  .renv_update(github, non_github, biocmanager_install)
 }
 
 .renv_lockfile_pkg_get <- function() {
@@ -447,10 +448,10 @@ projr_renv_restore_and_update <- function(github = TRUE,
 }
 
 .renv_restore_or_update_impl <- function(package_list,
-                                               github,
-                                               non_github,
-                                               restore,
-                                               biocmanager_install) {
+                                         github,
+                                         non_github,
+                                         restore,
+                                         biocmanager_install) {
   # Internal helper for.renv_restore and.renv_update.
   # Calls the appropriate wrapper for CRAN, Bioconductor, and GitHub packages
   # based on whether restore or update operations are requested.
@@ -482,10 +483,10 @@ projr_renv_restore_and_update <- function(github = TRUE,
 }
 
 .renv_restore_or_update_actual_wrapper <- function(pkg,
-                                                         act,
-                                                         restore,
-                                                         source,
-                                                         biocmanager_install) {
+                                                   act,
+                                                   restore,
+                                                   source,
+                                                   biocmanager_install) {
   # Wraps the restore/update operations for a given source type (CRAN, Bioconductor, GitHub).
   # If 'act' is TRUE, proceed. Otherwise, skip.
 
@@ -523,7 +524,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
 
   pkg_type <- if (is_bioc) { # nolint: object_usage_linter.
     "Bioconductor"
-  }  else if (all(grepl("/", pkg))) {
+  } else if (all(grepl("/", pkg))) {
     "GitHub"
   } else {
     "CRAN"

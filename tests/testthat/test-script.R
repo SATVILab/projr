@@ -8,7 +8,7 @@ test_that(".yml_script_ functions work works", {
     path = dir_test,
     code = {
       # test.yml_script_add
-     .yml_script_add(
+      .yml_script_add(
         path = "tests/testthat/test-script.R",
         title = "test-script",
         stage = "pre"
@@ -24,14 +24,14 @@ test_that(".yml_script_ functions work works", {
       )
 
       # test.yml_script_rm_path
-     .yml_script_rm(title = "test-script", profile = "default")
+      .yml_script_rm(title = "test-script", profile = "default")
       expect_identical(
         .yml_script_get("default"),
         NULL
       )
 
       # test.yml_script_rm_title
-     .yml_script_add(
+      .yml_script_add(
         path = "tests/testthat/test-script.R",
         title = "test-script",
         stage = "pre",
@@ -46,20 +46,20 @@ test_that(".yml_script_ functions work works", {
       )
 
       # test.yml_script_rm_all
-     .yml_script_add(
+      .yml_script_add(
         path = "tests/testthat/test-script.R",
         title = "test-script",
         stage = "pre",
         cue = "minor"
       )
-     .yml_script_rm_all(profile = "default")
+      .yml_script_rm_all(profile = "default")
       expect_identical(
         .yml_script_get("default"),
         NULL
       )
 
       # test.yml_script_rm
-     .yml_script_add(
+      .yml_script_add(
         path = c(
           "tests/testthat/test-script.R", "tests/testthat/test-script-2.R"
         ),
@@ -81,7 +81,7 @@ test_that(".yml_script_ functions work works", {
         )
       )
 
-     .yml_script_rm(
+      .yml_script_rm(
         title = "test-script",
         path = "tests/testthat/test-script.R",
         profile = "default"
@@ -119,7 +119,7 @@ test_that(".yml_script_ functions work works with other profile", {
         list(directories = list(path = "abc")), "_projr-test.yml"
       )
       # test.yml_script_add
-     .yml_script_add(
+      .yml_script_add(
         path = "tests/testthat/test-script.R",
         title = "test-script",
         stage = "pre",
@@ -136,14 +136,14 @@ test_that(".yml_script_ functions work works with other profile", {
       )
 
       # test.yml_script_rm_path
-     .yml_script_rm(title = "test-script", profile = "test")
+      .yml_script_rm(title = "test-script", profile = "test")
       expect_identical(
         .yml_script_get("test"),
         NULL
       )
 
       # test.yml_script_rm_title
-     .yml_script_add(
+      .yml_script_add(
         path = "tests/testthat/test-script.R",
         title = "test-script",
         stage = "pre",
@@ -159,7 +159,7 @@ test_that(".yml_script_ functions work works with other profile", {
       )
 
       # test.yml_script_rm_all
-     .yml_script_add(
+      .yml_script_add(
         path = "tests/testthat/test-script.R",
         title = "test-script",
         stage = "pre",
@@ -167,14 +167,14 @@ test_that(".yml_script_ functions work works with other profile", {
         profile = "test"
       )
 
-     .yml_script_rm_all(profile = "test")
+      .yml_script_rm_all(profile = "test")
       expect_identical(
         .yml_script_get("test"),
         NULL
       )
 
       # test.yml_script_rm
-     .yml_script_add(
+      .yml_script_add(
         path = c(
           "tests/testthat/test-script.R", "tests/testthat/test-script-2.R"
         ),
@@ -197,7 +197,7 @@ test_that(".yml_script_ functions work works with other profile", {
         )
       )
 
-     .yml_script_rm(
+      .yml_script_rm(
         title = "test-script",
         path = "tests/testthat/test-script.R",
         profile = "test"
@@ -225,7 +225,7 @@ test_that(".build_script... functions work works", {
   usethis::with_project(
     path = dir_test,
     code = {
-     .yml_script_add(
+      .yml_script_add(
         "title" = "test-script",
         path = c("script1.R", "script2.R"),
         stage = "pre"

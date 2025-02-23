@@ -4,7 +4,7 @@ test_that(".change_get_manifest works", {
   usethis::with_project(
     path = dir_test,
     code = {
-     projr_version_set("0.0.1")
+      projr_version_set("0.0.1")
       .test_setup_content("output", safe = FALSE)
       .build_manifest_post(TRUE) |> invisible()
 
@@ -108,7 +108,7 @@ test_that(".change_get works for files", {
   usethis::with_project(
     path = dir_test,
     code = {
-     projr_version_set("0.0.1")
+      projr_version_set("0.0.1")
       # nothing before or after
       change_list <- .change_get(
         label = "output",

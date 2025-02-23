@@ -24,7 +24,9 @@
 #' Invisible returns `TRUE` if successful.
 #'
 #' @examples
-#' \dontrun{projr_restore("raw-data")}
+#' \dontrun{
+#' projr_restore("raw-data")
+#' }
 #' @export
 projr_restore <- function(label = NULL,
                           type = NULL,
@@ -56,7 +58,7 @@ projr_restore <- function(label = NULL,
     opt_vec <- .yml_dir_get(NULL) |>
       names()
     .assert_len_pos(opt_vec)
-    for (x in label){
+    for (x in label) {
       .assert_in(x, opt_vec)
     }
   }
@@ -94,7 +96,8 @@ projr_restore <- function(label = NULL,
   message(
     "Restoring ", label,
     " from ", source_vec[["type"]],
-    " ", source_vec[["title"]])
+    " ", source_vec[["title"]]
+  )
   message("Version: ", version_remote)
   remote_source <- .remote_get_final(
     source_vec[["type"]], yml_title[["id"]], label,
@@ -178,5 +181,3 @@ projr_restore <- function(label = NULL,
   }
   c("type" = tp_first, "title" = tt_first)
 }
-
-
