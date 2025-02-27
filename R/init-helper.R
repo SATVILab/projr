@@ -1002,7 +1002,7 @@ projr_init_renviron <- function() {
       private = !public
     ),
     error = function(e) {
-      .init_github_actual_org_error(public, username)
+      .init_github_actual_org_new_error(public, username)
       NULL
     }
   )
@@ -1019,7 +1019,7 @@ projr_init_renviron <- function() {
       private = !public
     ),
     error = function(e) {
-      .init_github_actual_org_error(public, username)
+      .init_github_actual_org_old_error(public, username)
       NULL
     }
   )
@@ -1029,13 +1029,23 @@ projr_init_renviron <- function() {
   invisible(result)
 }
 
-.init_github_actual_org_error <- function(public, username) {
+.init_github_actual_org_old_error <- function(public, username) {
   print("Failed to create GitHub remote")
   print("Can try again later with:")
   print(
     paste0(
-      "usethis::use_github(username = ", username,
-      ", private = ", !public, ")"
+      "usethis::use_github(username = '", username,
+      "', private = ", !public, ")"
+    )
+  )
+}
+.init_github_actual_org_new_error <- function(public, username) {
+  print("Failed to create GitHub remote")
+  print("Can try again later with:")
+  print(
+    paste0(
+      "usethis::use_github(organisation = '", username,
+      "', private = ", !public, ")"
     )
   )
 }

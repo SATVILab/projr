@@ -236,14 +236,21 @@ projr_init_cite <- function() {
 
 .init_desc_std_impl <- function() {
   message("Creating DESCRIPTION file.")
-  .init_desc_std_contents() |>
+  .init_desc_std_impl_get_contents() |>
     writeLines(con = .path_get("DESCRIPTION"))
   if (file.exists(.path_get("VERSION"))) {
     readLines(.path_get("VERSION")) |>
-      projr_version_set("v0.0.1")
+      projr_version_set()
   }
   message("Created DESCRIPTION.")
   invisible(TRUE)
+}
+
+.init_desc_std_impl_get_contents <- function() {
+  c(
+    paste0("Package: ", basename(.path_get())),
+    .init_desc_std_contents()[-1]
+  )
 }
 
 # ========================================
