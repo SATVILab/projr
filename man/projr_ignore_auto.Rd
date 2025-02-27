@@ -20,7 +20,7 @@ and are written within a demarcated section of the file.
 }
 \examples{
 \dontrun{
- projr_ignore_auto()
+projr_ignore_auto()
 }
 
 }

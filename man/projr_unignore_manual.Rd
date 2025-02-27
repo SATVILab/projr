@@ -37,10 +37,10 @@ These functions allow manual addition of files and directories to the
 \code{.gitignore} and \code{.Rbuildignore} files \strong{after} the projr-managed block,
 thereby forcing them to be \emph{not} ignored.
 \itemize{
-\item .unignore_manual\verb{: General function to unignore both files and  directories in both }.gitignore\code{and}.Rbuildignore`. If a path does not
+\item .unignore_manual\verb{: General function to unignore both files and directories in both }.gitignore\code{and}.Rbuildignore`. If a path does not
 exist, it is treated as a file.
-\item .unignore_manual_dir\verb{: Specifically unignores directories in both  }.gitignore\code{and}.Rbuildignore`.
-\item .unignore_manual_file\verb{: Specifically unignores files in both  }.gitignore\code{and}.Rbuildignore`.
+\item .unignore_manual_dir\verb{: Specifically unignores directories in both }.gitignore\code{and}.Rbuildignore`.
+\item .unignore_manual_file\verb{: Specifically unignores files in both }.gitignore\code{and}.Rbuildignore`.
 \item .unignore_manual_dir_git\verb{ and .unignore_manual_file_git}: Add
 directories or files explicitly (with a \code{!} prefix) to \code{.gitignore}.
 \item .unignore_manual_dir_rbuild\verb{ and .unignore_manual_file_rbuild}:

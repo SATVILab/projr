@@ -37,10 +37,10 @@ These functions allow manual addition of files and directories to the
 \code{.gitignore} and \code{.Rbuildignore} files, outside of the automatic management
 provided by the \code{projr} package.
 \itemize{
-\item .ignore_manual\verb{: General function to add both files and directories  to both }.gitignore\code{and}.Rbuildignore`. If a path does not exist, it is
+\item .ignore_manual\verb{: General function to add both files and directories to both }.gitignore\code{and}.Rbuildignore`. If a path does not exist, it is
 treated as a file.
-\item .ignore_manual_dir\verb{: Specifically adds directories to both }.gitignore\code{ and}.Rbuildignore`.
-\item .ignore_manual_file\verb{: Specifically adds files to both }.gitignore\code{ and}.Rbuildignore`.
+\item .ignore_manual_dir\verb{: Specifically adds directories to both }.gitignore\code{and}.Rbuildignore`.
+\item .ignore_manual_file\verb{: Specifically adds files to both }.gitignore\code{and}.Rbuildignore`.
 \item .ignore_manual_dir_git\verb{ and .ignore_manual_file_git}: Add
 directories or files explicitly to \code{.gitignore}.
 \item .ignore_manual_dir_rbuild\verb{ and .ignore_manual_file_rbuild}: Add
