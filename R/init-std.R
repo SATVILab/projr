@@ -76,7 +76,7 @@ projr_init <- function(git = TRUE,
 
   # initial VERSION file
   if (!file.exists(.path_get("VERSION")) &&
-    !file.exists(.path_get("DESCRIPTION"))) {
+        !file.exists(.path_get("DESCRIPTION"))) {
     projr_version_set("0.0.1")
   }
 
@@ -240,7 +240,7 @@ projr_init_cite <- function() {
     writeLines(con = .path_get("DESCRIPTION"))
   if (file.exists(.path_get("VERSION"))) {
     readLines(.path_get("VERSION")) |>
-      projr_version_set(version)
+      projr_version_set("v0.0.1")
   }
   message("Created DESCRIPTION.")
   invisible(TRUE)

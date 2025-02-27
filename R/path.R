@@ -214,19 +214,15 @@
   tryCatch(
     rprojroot::find_root_file(
       ...,
-      criterion = rprojroot::criteria$is_vcs_root |
-        rprojroot::has_file("VERSION") |
-        rprojroot::has_file("README.md") |
-        rprojroot::criteria$is_rstudio_project |
-        rprojroot::has_file("README.Rmd") |
-        rprojroot::criteria$is_renv_project |
-        rprojroot::criteria$is_r_package |
-        rprojroot::criteria$is_quarto_project |
-        rprojroot::has_file("_projr.yml") |
-        rprojroot::has_file("_projr-local.yml") |
-        rprojroot::criteria$is_pkgdown_project
+      criterion = rprojroot::criteria$is_vcs_root ||
+        rprojroot::has_file("VERSION") ||
+        rprojroot::has_file("README.md") ||
+        rprojroot::criteria$is_r_package ||
+        rprojroot::criteria$is_rstudio_project ||
+        rprojroot::criteria$is_renv_project ||
+        rprojroot::criteria$is_quarto_project
     ),
-    error = function(e) file.path(getwd(), "...")
+    error = function(e) file.path(getwd(), ...)
   )
 }
 
