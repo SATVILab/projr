@@ -113,8 +113,8 @@ projr_ignore_auto <- function() {
     pattern = "^_projr\\.yml$|^_projr-.+\\.yml|^_quarto\\.yml$|^_bookdown\\.yml$"
   )
   .ignore_auto_file_rbuild(path_vec)
-  if (file.exists(.path_get(".projr-local.yml"))) {
-    .ignore_auto_file_git(.path_get(".projr-local.yml"))
+  if (file.exists(.path_get("_projr-local.yml"))) {
+    .ignore_auto_file_git(.path_get("_projr-local.yml", relative = TRUE))
   }
 }
 
