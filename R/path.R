@@ -210,8 +210,8 @@
 # get
 # ---------------------
 
-.path_get <- function(...) {
-  tryCatch(
+.path_get <- function(..., relative = FALSE) {
+  path_init <- tryCatch(
     rprojroot::find_root_file(
       ...,
       criterion = rprojroot::criteria$is_vcs_root ||
@@ -224,6 +224,10 @@
     ),
     error = function(e) file.path(getwd(), ...)
   )
+  if (!relative) {
+    return(path_init)
+  }
+  fs::path_rel(path_init, .path_get())
 }
 
 # ---------------------
