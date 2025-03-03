@@ -114,7 +114,7 @@ projr_ignore_auto <- function() {
   )
   .ignore_auto_file_rbuild(path_vec)
   if (file.exists(.path_get("_projr-local.yml"))) {
-    .ignore_auto_file_git(.path_get("_projr-local.yml"))
+    .ignore_auto_file_git(.path_get("_projr-local.yml", relative = TRUE))
   }
 }
 
