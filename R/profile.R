@@ -136,7 +136,7 @@ projr_profile_get <- function() {
   if (!nzchar(profile)) {
     return(character())
   }
-  profile_vec <- strsplit(profile, ",")[[1]]
+  profile_vec <- strsplit(profile, ",|;")[[1]]
   vapply(profile_vec, trimws, character(1)) |>
     setdiff(c("default", "local", "")) |>
     stats::setNames(NULL)
