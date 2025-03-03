@@ -67,7 +67,7 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 
 .yml_get_null <- function() {
   yml_projr_root <- .yml_get_default()
-  yml_projr_profile <- .yml_get_profile_spec(profile)
+  yml_projr_profile <- .yml_get_profile_spec(NULL)
   yml_projr_local <- .yml_get_local()
 
   .yml_merge(
