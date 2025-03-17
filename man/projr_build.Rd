@@ -13,7 +13,8 @@ projr_build(
   args_engine = list(),
   profile = NULL,
   archive_github = FALSE,
-  always_archive = TRUE
+  always_archive = TRUE,
+  clear_output = NULL
 )
 
 projr_build_major(
@@ -21,7 +22,8 @@ projr_build_major(
   args_engine = list(),
   profile = NULL,
   archive_github = FALSE,
-  always_archive = TRUE
+  always_archive = TRUE,
+  clear_output = NULL
 )
 
 projr_build_minor(
@@ -29,7 +31,8 @@ projr_build_minor(
   args_engine = list(),
   profile = NULL,
   archive_github = FALSE,
-  always_archive = TRUE
+  always_archive = TRUE,
+  clear_output = NULL
 )
 
 projr_build_patch(
@@ -37,7 +40,8 @@ projr_build_patch(
   args_engine = list(),
   profile = NULL,
   archive_github = FALSE,
-  always_archive = TRUE
+  always_archive = TRUE,
+  clear_output = NULL
 )
 }
 \arguments{
