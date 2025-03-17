@@ -17,6 +17,9 @@
     archive_type <- .dest_send_get_archive_type(
       type, archive_github, archive_local
     )
+    always_archive <- .dest_send_get_always_archive(
+      type, archive_github, archive_local
+    )
     .dest_send_type(
       type, bump_component, archive_type, always_archive
     )
@@ -63,12 +66,24 @@
                                         archive_local) {
   if (type == "github") {
     # can be character, so just checking they're not FALSE
-    !isFALSE(archive_github) && !is.null(archive_github)
+    !isFALSE(archive_github) && !is.null(archive_github) &&
+      !"archive" %in% names(.yml_dest_get_type(type, NULL))
   } else if (type == "local") {
-    !isFALSE(archive_local) && !is.null(archive_github)
+    !isFALSE(archive_local) && !is.null(archive_github) &&
+      !"archive" %in% names(.yml_dest_get_type(type, NULL))
   } else {
     FALSE
-  } 
+  }
+}
+
+.dest_send_get_always_archive <- function(type, always_archive) {
+  if ("archive" %in% names(.yml_dest_get_type(type, NULL))) {
+    # if it was specified, then we don't want to
+    # override it with the parameter
+    NULL
+  } else {
+    always_archive
+  }
 }
 
 # send to one type of remote
@@ -85,37 +100,11 @@
   # that consistent that the `content` setting is
   # also specified in the `yml`.
   # so, the parameters are not overrides.
-  archive_type <- .dest_send_type_update(type, archive_type)
-  always_archive <- .dest_send_type_update_force(type, always_archive)
   title_vec <- .dest_send_type_get_title(type, archive_type)
   for (x in title_vec) {
     .dest_send_title(
       x, type, bump_component, archive_type, always_archive
     )
-  }
-}
-
-.dest_send_type_update <- function(type, archive_type) {
-  # check if archive was not specified
-  if(!("archive" %in% names(.yml_dest_get_type(type, NULL)))) {
-    # if the archive was not specified in the yml,
-    # then we want to override it with the
-    # parameter
-    archive_type
-  } else {
-    # if it was specified, then we don't want to
-    # override it with the parameter
-    FALSE
-  }
-}
-
-.dest_send_type_update_force <- function(type, always_archive) {
-  if (!("archive" %in% names(.yml_dest_get_type(type, NULL)))) {
-    always_archive
-  } else {
-    # if it was specified, then we don't want to
-    # override it with the parameter
-    NULL
   }
 }
 
