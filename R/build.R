@@ -217,10 +217,12 @@ projr_build_dev <- function(file = NULL,
   version_run_on_list <- .build_pre(
     bump_component, msg, clear_output, archive_local
   )
+  time_start <- Sys.time()
   .build_impl(version_run_on_list, file, args_engine)
+  total_time <- Sys.time() - time_start
   .build_post(
     version_run_on_list, bump_component, msg, old_dev_remove,
-    archive_github, always_archive, clear_output
+    archive_github, always_archive, clear_output, total_time
   )
   .env_file_deactivate()
 }
@@ -311,7 +313,8 @@ projr_build_dev <- function(file = NULL,
                         archive_github,
                         archive_local,
                         always_archive,
-                        clear_output) {
+                        clear_output,
+                        total_time) {
   output_run <- .build_get_output_run(bump_component)
 
   # move artefacts to unsafe, final directories
@@ -320,7 +323,7 @@ projr_build_dev <- function(file = NULL,
   )
 
   # update documentation
-  .build_post_document(bump_component, version_run_on_list, msg)
+  .build_post_document(bump_component, version_run_on_list, msg, total_time)
 
   # record (version, rmd, git)
   .build_post_commit_git(bump_component, version_run_on_list, msg)
@@ -347,7 +350,8 @@ projr_build_dev <- function(file = NULL,
 # and CHANGELOG
 .build_post_document <- function(bump_component,
                                  version_run_on_list,
-                                 msg) {
+                                 msg,
+                                 total_time) {
   output_run <- .build_get_output_run(bump_component)
   .build_renv_snapshot(output_run)
   .build_roxygenise(output_run)
