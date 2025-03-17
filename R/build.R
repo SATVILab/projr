@@ -31,7 +31,7 @@
 #' `projr` profile to use. Will set the environment variable
 #' .PROFILE` to this value at the start of the build,
 #  and set it to what it was before at the end of the build.
-#' @param upload_github `TRUE`,`FALSE` orcharacter vector of
+#' @param archive_github `TRUE`,`FALSE` orcharacter vector of
 #' directory labels.
 #' If `TRUE`, then all directories (`raw-data`, `output`, etc)
 #' are uploaded to a GitHub release named `archive`
@@ -43,7 +43,7 @@
 #' Ignored if there is a release named `archive`
 #' already specified as a destination in
 #' the `projr` configuration file.
-#' @param upload_force logical.
+#' @param always_archive logical.
 #' If `TRUE`, then the directories are uploaded
 #' regardless of whether the directory to be uploaded
 #' has exactly the same contents as the latest version
@@ -62,8 +62,8 @@ projr_build <- function(bump_component,
                         msg = NULL,
                         args_engine = list(),
                         profile = NULL,
-                        upload_github = FALSE,
-                        upload_force = TRUE,
+                        archive_github = FALSE,
+                        always_archive = TRUE,
                         clear_output = NULL) {
   bump_component <- .build_output_get_bump_component(
     bump_component
@@ -75,8 +75,8 @@ projr_build <- function(bump_component,
     msg = msg,
     args_engine = args_engine,
     profile = profile,
-    upload_github = upload_github,
-    upload_force = upload_force,
+    archive_github = archive_github,
+    always_archive = always_archive,
     clear_output = clear_output
   )
 }
@@ -86,16 +86,16 @@ projr_build <- function(bump_component,
 projr_build_major <- function(msg = NULL,
                               args_engine = list(),
                               profile = NULL,
-                              upload_github = FALSE,
-                              upload_force = TRUE,
+                              archive_github = FALSE,
+                              always_archive = TRUE,
                               clear_output = NULL) {
   projr_build(
     bump_component = "major",
     msg = msg,
     args_engine = args_engine,
     profile = profile,
-    upload_github = upload_github,
-    upload_force = upload_force,
+    archive_github = archive_github,
+    always_archive = always_archive,
     clear_output = clear_output
   )
 }
@@ -105,16 +105,16 @@ projr_build_major <- function(msg = NULL,
 projr_build_minor <- function(msg = NULL,
                               args_engine = list(),
                               profile = NULL,
-                              upload_github = FALSE,
-                              upload_force = TRUE,
+                              archive_github = FALSE,
+                              always_archive = TRUE,
                               clear_output = NULL) {
   projr_build(
     bump_component = "minor",
     msg = msg,
     args_engine = args_engine,
     profile = profile,
-    upload_github = upload_github,
-    upload_force = upload_force,
+    archive_github = archive_github,
+    always_archive = always_archive,
     clear_output = clear_output
   )
 }
@@ -124,16 +124,16 @@ projr_build_minor <- function(msg = NULL,
 projr_build_patch <- function(msg = NULL,
                               args_engine = list(),
                               profile = NULL,
-                              upload_github = FALSE,
-                              upload_force = TRUE,
+                              archive_github = FALSE,
+                              always_archive = TRUE,
                               clear_output = NULL) {
   projr_build(
     bump_component = "patch",
     msg = msg,
     args_engine = args_engine,
     profile = profile,
-    upload_github = upload_github,
-    upload_force = upload_force,
+    archive_github = archive_github,
+    always_archive = always_archive,
     clear_output = clear_output
   )
 }
@@ -193,8 +193,8 @@ projr_build_dev <- function(file = NULL,
                    msg = "",
                    args_engine,
                    profile,
-                   upload_github = FALSE,
-                   upload_force = TRUE,
+                   archive_github = FALSE,
+                   always_archive = TRUE,
                    clear_output = NULL) {
   if (!is.null(profile)) {
     old_profile <- Sys.getenv("PROJR_PROFILE")
@@ -209,7 +209,7 @@ projr_build_dev <- function(file = NULL,
   .build_impl(version_run_on_list, file, args_engine)
   .build_post(
     version_run_on_list, bump_component, msg, old_dev_remove,
-    upload_github, upload_force, clear_output
+    archive_github, always_archive, clear_output
   )
   .env_file_deactivate()
 }
@@ -294,8 +294,8 @@ projr_build_dev <- function(file = NULL,
                         bump_component,
                         msg,
                         old_dev_remove,
-                        upload_github,
-                        upload_force,
+                        archive_github,
+                        always_archive,
                         clear_output) {
   output_run <- .build_get_output_run(bump_component)
 
@@ -312,7 +312,7 @@ projr_build_dev <- function(file = NULL,
 
   # send to remotes
   .build_post_send_dest(
-    bump_component, old_dev_remove, upload_github, upload_force
+    bump_component, old_dev_remove, archive_github, always_archive
   )
 
   # run post-build scripts
@@ -410,9 +410,9 @@ projr_build_dev <- function(file = NULL,
 # send to remotes
 .build_post_send_dest <- function(bump_component,
                                   old_dev_remove,
-                                  upload_github,
-                                  upload_force) {
-  .dest_send(bump_component, upload_github, upload_force)
+                                  archive_github,
+                                  always_archive) {
+  .dest_send(bump_component, archive_github, always_archive)
   .build_clear_old(
     .build_get_output_run(bump_component), old_dev_remove
   )

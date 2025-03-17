@@ -2,13 +2,13 @@
                              title,
                              type,
                              output_run,
-                             upload_github,
-                             upload_force) {
+                             archive_github,
+                             always_archive) {
   force(title)
   # where they should go to
   path_dir_local <- projr_path_get_dir(label, safe = !output_run) # nolint
   yml_title <- .yml_dest_get_title_complete( # nolint
-    title, type, NULL, upload_github, upload_force
+    title, type, NULL, archive_github, always_archive
   )
   remote_list <- .dest_send_label_get_remotes(
     type, yml_title[["id"]], yml_title[["path"]],

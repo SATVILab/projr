@@ -224,13 +224,13 @@
 .yml_dest_get_title_complete <- function(title,
                                          type,
                                          profile,
-                                         upload_github,
-                                         upload_force) {
+                                         archive_github,
+                                         always_archive) {
   force(title)
   force(profile)
 
   .yml_dest_get_title_init(
-    title, type, profile, upload_github, upload_force
+    title, type, profile, archive_github, always_archive
   ) |>
     .yml_dest_complete_title(title, type)
 }
@@ -238,10 +238,10 @@
 .yml_dest_get_title_init <- function(title,
                                      type,
                                      profile,
-                                     upload_github,
-                                     upload_force) {
+                                     archive_github,
+                                     always_archive) {
   is_github_param <- .yml_dest_get_title_complete_is_github_param(
-    type, title, upload_github
+    type, title, archive_github
   )
   if (!is_github_param) {
     .yml_dest_get_title(title, type, profile)
@@ -249,35 +249,35 @@
     # construct equivalent yml as only specified via parameter
     # at this stage
     .yml_dest_get_title_complete_param(
-      title, type, upload_github, upload_force
+      title, type, archive_github, always_archive
     )
   }
 }
 
 .yml_dest_get_title_complete_is_github_param <- function(type,
                                                          title,
-                                                         upload_github) {
+                                                         archive_github) {
   is_github <- type == "github"
-  is_archive_param <- title == "archive" && !isFALSE(upload_github)
+  is_archive_param <- title == "archive" && !isFALSE(archive_github)
   is_github_param <- is_github && is_archive_param
   is_github_param
 }
 
 .yml_dest_get_title_complete_param <- function(title,
                                                type,
-                                               upload_github,
-                                               upload_force) {
+                                               archive_github,
+                                               always_archive) {
   .yml_dest_get_title_complete_param_init(
-    title, type, upload_github
+    title, type, archive_github
   ) |>
-    .yml_dest_get_title_complete_param_force(upload_force)
+    .yml_dest_get_title_complete_param_force(always_archive)
 }
 
 .yml_dest_get_title_complete_param_init <- function(title,
                                                     type,
-                                                    upload_github) {
+                                                    archive_github) {
   content_vec <- .dest_send_title_get_content(
-    title, type, upload_github
+    title, type, archive_github
   )
   list(
     "title" = title,
@@ -287,8 +287,8 @@
 }
 
 .yml_dest_get_title_complete_param_force <- function(yml_title,
-                                                     upload_force) {
-  if (!upload_force) {
+                                                     always_archive) {
+  if (!always_archive) {
     return(yml_title)
   }
   yml_title[["send"]] <- list(

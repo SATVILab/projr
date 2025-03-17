@@ -12,32 +12,32 @@ projr_build(
   msg = NULL,
   args_engine = list(),
   profile = NULL,
-  upload_github = FALSE,
-  upload_force = TRUE
+  archive_github = FALSE,
+  always_archive = TRUE
 )
 
 projr_build_major(
   msg = NULL,
   args_engine = list(),
   profile = NULL,
-  upload_github = FALSE,
-  upload_force = TRUE
+  archive_github = FALSE,
+  always_archive = TRUE
 )
 
 projr_build_minor(
   msg = NULL,
   args_engine = list(),
   profile = NULL,
-  upload_github = FALSE,
-  upload_force = TRUE
+  archive_github = FALSE,
+  always_archive = TRUE
 )
 
 projr_build_patch(
   msg = NULL,
   args_engine = list(),
   profile = NULL,
-  upload_github = FALSE,
-  upload_force = TRUE
+  archive_github = FALSE,
+  always_archive = TRUE
 )
 }
 \arguments{
@@ -68,7 +68,7 @@ rendering engine
 \code{projr} profile to use. Will set the environment variable
 .PROFILE` to this value at the start of the build,}
 
-\item{upload_github}{\code{TRUE},\code{FALSE} orcharacter vector of
+\item{archive_github}{\code{TRUE},\code{FALSE} orcharacter vector of
 directory labels.
 If \code{TRUE}, then all directories (\code{raw-data}, \code{output}, etc)
 are uploaded to a GitHub release named \code{archive}
@@ -81,7 +81,7 @@ Ignored if there is a release named \code{archive}
 already specified as a destination in
 the \code{projr} configuration file.}
 
-\item{upload_force}{logical.
+\item{always_archive}{logical.
 If \code{TRUE}, then the directories are uploaded
 regardless of whether the directory to be uploaded
 has exactly the same contents as the latest version
