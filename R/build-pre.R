@@ -38,13 +38,14 @@
 }
 
 .build_pre_setup_for_output_run <- function(version_run_on_list,
-                                            output_run) {
+                                            output_run,
+                                            clear_output) {
   # set the version pre-run
   .build_version_set_pre(version_run_on_list)
 
   # empty output directories
   # (docs, output and data)
-  .build_clear_pre(output_run)
+  .build_clear_pre(output_run, clear_output)
 }
 
 # misc

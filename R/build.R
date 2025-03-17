@@ -63,7 +63,8 @@ projr_build <- function(bump_component,
                         args_engine = list(),
                         profile = NULL,
                         upload_github = FALSE,
-                        upload_force = TRUE) {
+                        upload_force = TRUE,
+                        clear_output = NULL) {
   bump_component <- .build_output_get_bump_component(
     bump_component
   )
@@ -75,7 +76,8 @@ projr_build <- function(bump_component,
     args_engine = args_engine,
     profile = profile,
     upload_github = upload_github,
-    upload_force = upload_force
+    upload_force = upload_force,
+    clear_output = clear_output
   )
 }
 
@@ -85,14 +87,16 @@ projr_build_major <- function(msg = NULL,
                               args_engine = list(),
                               profile = NULL,
                               upload_github = FALSE,
-                              upload_force = TRUE) {
+                              upload_force = TRUE,
+                              clear_output = NULL) {
   projr_build(
     bump_component = "major",
     msg = msg,
     args_engine = args_engine,
     profile = profile,
     upload_github = upload_github,
-    upload_force = upload_force
+    upload_force = upload_force,
+    clear_output = clear_output
   )
 }
 
@@ -102,14 +106,16 @@ projr_build_minor <- function(msg = NULL,
                               args_engine = list(),
                               profile = NULL,
                               upload_github = FALSE,
-                              upload_force = TRUE) {
+                              upload_force = TRUE,
+                              clear_output = NULL) {
   projr_build(
     bump_component = "minor",
     msg = msg,
     args_engine = args_engine,
     profile = profile,
     upload_github = upload_github,
-    upload_force = upload_force
+    upload_force = upload_force,
+    clear_output = clear_output
   )
 }
 
@@ -119,14 +125,16 @@ projr_build_patch <- function(msg = NULL,
                               args_engine = list(),
                               profile = NULL,
                               upload_github = FALSE,
-                              upload_force = TRUE) {
+                              upload_force = TRUE,
+                              clear_output = NULL) {
   projr_build(
     bump_component = "patch",
     msg = msg,
     args_engine = args_engine,
     profile = profile,
     upload_github = upload_github,
-    upload_force = upload_force
+    upload_force = upload_force,
+    clear_output = clear_output
   )
 }
 
@@ -186,7 +194,8 @@ projr_build_dev <- function(file = NULL,
                    args_engine,
                    profile,
                    upload_github = FALSE,
-                   upload_force = TRUE) {
+                   upload_force = TRUE,
+                   clear_output = NULL) {
   if (!is.null(profile)) {
     old_profile <- Sys.getenv("PROJR_PROFILE")
     Sys.setenv(PROJR_PROFILE = profile)
@@ -194,12 +203,13 @@ projr_build_dev <- function(file = NULL,
   }
   projr_env_file_activate()
   .build_ensure_version()
+  clear_output <- .build_get_clear_output()
 
-  version_run_on_list <- .build_pre(bump_component, msg)
+  version_run_on_list <- .build_pre(bump_component, msg, clear_output)
   .build_impl(version_run_on_list, file, args_engine)
   .build_post(
     version_run_on_list, bump_component, msg, old_dev_remove,
-    upload_github, upload_force
+    upload_github, upload_force, clear_output
   )
   .env_file_deactivate()
 }
@@ -210,14 +220,26 @@ projr_build_dev <- function(file = NULL,
 
 .build_ensure_version <- function() {
   if (!file.exists(.path_get("VERSION")) &&
-    !file.exists(.path_get("DESCRIPTION"))) {
+        !file.exists(.path_get("DESCRIPTION"))) {
     projr_version_set("0.0.1")
   }
 }
 
+.build_get_clear_output <- function(clear_output) {
+  if (!is.null(clear_output)) {
+    .assert_string(clear_output, TRUE)
+    .assert_in(clear_output, c("pre", "post", "never"))
+    return(clear_output)
+  }
+  clear_output <- Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "pre")
+  .assert_string(clear_output, TRUE)
+  .assert_in(clear_output, c("pre", "post", "never"))
+  clear_output
+}
+
 # pre
 # ------------------------
-.build_pre <- function(bump_component, msg) {
+.build_pre <- function(bump_component, msg, clear_output) {
   projr_yml_check(NULL)
   # whether it's an output run  or not
   output_run <- .build_get_output_run(bump_component)
@@ -236,16 +258,17 @@ projr_build_dev <- function(file = NULL,
   # run any scripts
   .build_pre_script_run()
 
+  # clear output and docs directories, and set
+  # run version to output run version if need be
+  .build_pre_setup_for_output_run(
+    version_run_on_list, output_run, clear_output
+  )
+
   # commit any unstaged files pre-run
   .build_pre_commit_git(
     bump_component, version_run_on_list, msg
   )
 
-  # clear output and docs directories, and set
-  # run version to output run version if need be
-  .build_pre_setup_for_output_run(
-    version_run_on_list, output_run
-  )
 
   # hash cache and raw directories
   .build_manifest_pre(output_run)
@@ -272,11 +295,14 @@ projr_build_dev <- function(file = NULL,
                         msg,
                         old_dev_remove,
                         upload_github,
-                        upload_force) {
+                        upload_force,
+                        clear_output) {
   output_run <- .build_get_output_run(bump_component)
 
   # move artefacts to unsafe, final directories
-  .build_post_finalise_artefacts(bump_component, version_run_on_list)
+  .build_post_finalise_artefacts(
+    bump_component, version_run_on_list, clear_output
+  )
 
   # update documentation
   .build_post_document(bump_component, version_run_on_list, msg)
@@ -323,9 +349,11 @@ projr_build_dev <- function(file = NULL,
 
 
 # organise files and folders (clear and copy)
-.build_post_finalise_artefacts <- function(bump_component, version_run_on_list) {
+.build_post_finalise_artefacts <- function(bump_component,
+                                           version_run_on_list,
+                                           clear_output) {
   output_run <- .build_get_output_run(bump_component)
-  .build_clear_post(output_run)
+  .build_clear_post(output_run, clear_output)
 
   # copy outputs to (final) output and data directories
   .build_copy(output_run, bump_component, version_run_on_list)

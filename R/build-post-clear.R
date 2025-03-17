@@ -1,4 +1,4 @@
-.build_clear_post <- function(output_run) {
+.build_clear_post <- function(output_run, clear_output) {
   if (!.build_clear_post_check(output_run)) {
     return(invisible(FALSE))
   }
@@ -16,8 +16,8 @@
   invisible(TRUE)
 }
 
-.build_clear_post_check <- function(output_run) {
-  invisible(output_run)
+.build_clear_post_check <- function(output_run, clear_output) {
+  invisible(output_run) && clear_output == "post"
 }
 
 .build_clear_post_check_label <- function(label) {
