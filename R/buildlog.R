@@ -38,11 +38,13 @@
   desc_txt <- .buildlog_get_desc(msg)
   metadata_txt <- .buildlog_get_metadata(total_time)
   projr_yml_txt <- .buildlog_get_projr_yml()
+  session_info_txt <- .buildlog_get_session_info()
   c(
     header_txt,
     desc_txt,
     metadata_txt,
     projr_yml_txt,
+    session_info_txt,
     "----",
     ""
   )
@@ -53,8 +55,7 @@
   c(
     paste0(
       version_txt, ": ",
-      .change_get_author_time(),
-      ""
+      .change_get_author_time()
     )
   )
 }
@@ -69,7 +70,7 @@
   )
 }
 
-.buildlog_get_desc <- function(msg, bu) {
+.buildlog_get_desc <- function(msg) {
   c("**Description**", "", msg, "")
 }
 
@@ -77,19 +78,57 @@
   c(
     "**Metadata**",
     "",
-    "- Total time: ", total_time,
+    "- Total time: ", .buildlog_get_metadata_time(total_time),
     "- `projr` profile: ", projr_profile_get(),
     ""
   )
 }
 
+.buildlog_get_metadata_time <- function(duration) {
+  total_sec <- as.numeric(duration, units = "secs")
+  weeks   <- total_sec %/% 604800
+  days    <- (total_sec %% 604800) %/% 86400
+  hours   <- (total_sec %% 86400) %/% 3600
+  minutes <- (total_sec %% 3600) %/% 60
+  seconds <- round(total_sec %% 60)
+
+  parts <- character()
+  if (weeks > 0) {
+    parts <- c(parts, sprintf("%dw", weeks))
+    # Always include days if weeks are present
+    parts <- c(parts, sprintf("%dd", days))
+    parts <- c(parts, sprintf("%dhr", hours))
+    parts <- c(parts, sprintf("%dmin", minutes))
+  } else if (days > 0) {
+    parts <- c(parts, sprintf("%dd", days))
+    parts <- c(parts, sprintf("%dhr", hours))
+    parts <- c(parts, sprintf("%dmin", minutes))
+  } else if (hours > 0) {
+    parts <- c(parts, sprintf("%dhr", hours))
+    parts <- c(parts, sprintf("%dmin", minutes))
+  } else if (minutes > 0) {
+    parts <- c(parts, sprintf("%dmin", minutes))
+  }
+  # Always include seconds
+  parts <- c(parts, sprintf("%ds", seconds))
+
+  paste(parts, collapse = " ")
+}
+
 .buildlog_get_projr_yml <- function() {
-  yml_projr <- projr_yml_get()
-  path_projr_tmp <- file.path(tempdir(), "_projr_tmp.yml")
-  writeLines(yml_projr, path_projr_tmp)
-  yml_projr <- readLines(path_projr_tmp)
-  invisible(file.remove(path_projr_tmp))
-  c("**`projr` config**", "", "```yml`", yml_projr, "```", "")
+  yml_projr <- yaml::as.yaml(projr::projr_yml_get())
+  c("**`projr` config**", "", "```yaml", yml_projr, "```", "")
+}
+
+.buildlog_get_session_info <- function() {
+  c(
+    "**Session info**",
+    "",
+    "```",
+    utils::capture.output(sessionInfo()),
+    "```",
+    ""
+  )
 }
 
 
