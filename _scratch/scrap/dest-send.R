@@ -9,13 +9,13 @@
                                    title,
                                    type,
                                    output_run,
-                                   archive_github,
+                                   archive_type,
                                    always_archive) {
   force(title)
   # where they should go to
   path_dir_local <-projr_path_get_dir(label, safe = !output_run)
   yml_title <- .yml_dest_get_title_complete(
-    title, type, NULL, archive_github, always_archive
+    title, type, NULL, archive_type, always_archive
     )
   remote <- .remote_get_final(
     type = type,

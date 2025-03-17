@@ -224,13 +224,13 @@
 .yml_dest_get_title_complete <- function(title,
                                          type,
                                          profile,
-                                         archive_github,
+                                         archive_type,
                                          always_archive) {
   force(title)
   force(profile)
 
   .yml_dest_get_title_init(
-    title, type, profile, archive_github, always_archive
+    title, type, profile, archive_type, always_archive
   ) |>
     .yml_dest_complete_title(title, type)
 }
@@ -238,46 +238,40 @@
 .yml_dest_get_title_init <- function(title,
                                      type,
                                      profile,
-                                     archive_github,
+                                     archive_type,
                                      always_archive) {
-  is_github_param <- .yml_dest_get_title_complete_is_github_param(
-    type, title, archive_github
-  )
-  if (!is_github_param) {
+  is_param <- .yml_dest_get_title_complete_is_param(title, archive_type)
+  if (!is_param) {
     .yml_dest_get_title(title, type, profile)
   } else {
     # construct equivalent yml as only specified via parameter
     # at this stage
     .yml_dest_get_title_complete_param(
-      title, type, archive_github, always_archive
+      title, type, archive_type, always_archive
     )
   }
 }
 
-.yml_dest_get_title_complete_is_github_param <- function(type,
-                                                         title,
-                                                         archive_github) {
-  is_github <- type == "github"
-  is_archive_param <- title == "archive" && !isFALSE(archive_github)
-  is_github_param <- is_github && is_archive_param
-  is_github_param
+.yml_dest_get_title_complete_is_param <- function(title,
+                                                  param) {
+  title == "archive" && !isFALSE(param)
 }
 
 .yml_dest_get_title_complete_param <- function(title,
                                                type,
-                                               archive_github,
+                                               archive_type,
                                                always_archive) {
   .yml_dest_get_title_complete_param_init(
-    title, type, archive_github
+    title, type, archive_type
   ) |>
     .yml_dest_get_title_complete_param_force(always_archive)
 }
 
 .yml_dest_get_title_complete_param_init <- function(title,
                                                     type,
-                                                    archive_github) {
+                                                    archive_type) {
   content_vec <- .dest_send_title_get_content(
-    title, type, archive_github
+    title, type, archive_type
   )
   list(
     "title" = title,
@@ -293,14 +287,9 @@
   }
   yml_title[["send"]] <- list(
     "inspect" = "manifest",
-    "strategy" = "sync-diff"
+    "strategy" = "sync-purge"
   )
   yml_title
-}
-
-.yml_dest_get_title_complete_param_nonforce <- function(yml_title) {
-  yml_title |>
-    .yml_dest_complete_title()
 }
 
 

@@ -3,6 +3,7 @@
 
 .dest_send <- function(bump_component,
                        archive_github,
+                       archive_local,
                        always_archive) {
   # consider early exit
   # ------------------
@@ -11,9 +12,14 @@
   }
 
   # loop over types of remotes
-  type_vec <- .dest_send_get_type(archive_github)
+  type_vec <- .dest_send_get_type(archive_github, archive_local)
   for (type in type_vec) {
-    .dest_send_type(type, bump_component, archive_github, always_archive)
+    archive_type <- .dest_send_get_archive_type(
+      type, archive_github, archive_local
+    )
+    .dest_send_type(
+      type, bump_component, archive_type, always_archive
+    )
   }
 }
 
@@ -22,9 +28,9 @@
   .build_get_output_run(bump_component) # nolint
 }
 
-.dest_send_get_type <- function(archive_github) {
+.dest_send_get_type <- function(archive_github, archive_local) {
   type_vec_yml <- .dest_send_get_type_yml()
-  type_vec_param <- .dest_send_get_type_param(archive_github)
+  type_vec_param <- .dest_send_get_type_param(archive_github, archive_local)
   unique(c(type_vec_yml, type_vec_param))
 }
 
@@ -34,12 +40,35 @@
   ]
 }
 
-.dest_send_get_type_param <- function(archive_github) {
-  if (archive_github) "github" else character(0L)
+.dest_send_get_type_param <- function(archive_github, archive_local) {
+  out_vec <- character(0L)
+  if (archive_github) {
+    out_vec <- c(out_vec, "github")
+  }
+  if (archive_local) {
+    out_vec <- c(out_vec, "local")
+  }
+  if (.is_len_0(out_vec)) {
+    return(character(0L))
+  }
+  out_vec
 }
 
 .dest_send_get_type_opt <- function() {
   c("local", "github", "osf")
+}
+
+.dest_send_get_archive_type <- function(type,
+                                        archive_github,
+                                        archive_local) {
+  if (type == "github") {
+    # can be character, so just checking they're not FALSE
+    !isFALSE(archive_github) && !is.null(archive_github)
+  } else if (type == "local") {
+    !isFALSE(archive_local) && !is.null(archive_github)
+  } else {
+    FALSE
+  } 
 }
 
 # send to one type of remote
@@ -47,7 +76,7 @@
 
 .dest_send_type <- function(type,
                             bump_component,
-                            archive_github,
+                            archive_type,
                             always_archive) {
   # ensure that these are not NULL only if not
   # specified in _projr.yml. Reaason is that,
@@ -56,45 +85,46 @@
   # that consistent that the `content` setting is
   # also specified in the `yml`.
   # so, the parameters are not overrides.
-  archive_github <- .dest_send_type_update_github(type, archive_github)
+  archive_type <- .dest_send_type_update(type, archive_type)
   always_archive <- .dest_send_type_update_force(type, always_archive)
-  title_vec <- .dest_send_type_get_title(type, archive_github)
+  title_vec <- .dest_send_type_get_title(type, archive_type)
   for (x in title_vec) {
     .dest_send_title(
-      x, type, bump_component, archive_github, always_archive
+      x, type, bump_component, archive_type, always_archive
     )
   }
 }
 
-.dest_send_type_update_github <- function(type, archive_github) {
-  is_github <- type == "github"
-  archive_not_specified <- !(
-    "archive" %in% names(.yml_dest_get_type("github", NULL))
-  )
-  if (is_github && archive_not_specified) {
-    archive_github
+.dest_send_type_update <- function(type, archive_type) {
+  # check if archive was not specified
+  if(!("archive" %in% names(.yml_dest_get_type(type, NULL)))) {
+    # if the archive was not specified in the yml,
+    # then we want to override it with the
+    # parameter
+    archive_type
   } else {
+    # if it was specified, then we don't want to
+    # override it with the parameter
     FALSE
   }
 }
 
 .dest_send_type_update_force <- function(type, always_archive) {
-  is_github <- type == "github"
-  archive_not_specified <- !(
-    "archive" %in% names(.yml_dest_get_type("github", NULL))
-  )
-  if (is_github && archive_not_specified) {
+  if (!("archive" %in% names(.yml_dest_get_type(type, NULL)))) {
     always_archive
   } else {
+    # if it was specified, then we don't want to
+    # override it with the parameter
     NULL
   }
 }
 
 .dest_send_type_get_title <- function(type,
-                                      archive_github) {
+                                      archive_github,
+                                      archive_local) {
   nm_vec_yml <- names(.yml_dest_get_type(type, NULL))
   nm_vec_param <- .dest_send_type_get_title_param(
-    type, archive_github
+    type, archive_github, archive_local
   )
   unique(c(nm_vec_yml, nm_vec_param))
 }
@@ -105,11 +135,16 @@
 }
 
 .dest_send_type_get_title_param <- function(type,
-                                            archive_github) {
-  if (type != "github" || isFALSE(archive_github)) {
-    return(character(0L))
-  }
-  "archive"
+                                            archive_github,
+                                            archive_local) {
+
+  is_title_param_and_true <- switch(
+    type,
+    github = !isFALSE(archive_github),
+    local  = !isFALSE(archive_local),
+    FALSE
+  )
+  if (is_title_param_and_true) "archive" else character(0L)
 }
 
 # send to one label of a remote
@@ -118,11 +153,11 @@
 .dest_send_title <- function(title,
                              type,
                              bump_component,
-                             archive_github,
+                             archive_type,
                              always_archive) {
   force(title)
   may_send <- .dest_send_title_check(
-    title, type, bump_component, archive_github, always_archive
+    title, type, bump_component, archive_type, always_archive
   )
 
   if (!may_send) {
@@ -130,13 +165,13 @@
   }
 
   content_vec <- .dest_send_title_get_content(
-    title, type, archive_github
+    title, type, archive_type
   )
 
   for (x in content_vec) {
     .dest_send_label(
       x, title, type, .build_get_output_run(bump_component),
-      archive_github, always_archive
+      archive_type, always_archive
     )
   }
   invisible(TRUE)
@@ -145,36 +180,33 @@
 .dest_send_title_check <- function(title,
                                    type,
                                    bump_component,
-                                   archive_github,
+                                   archive_type,
                                    always_archive) {
   force(title)
   .yml_dest_get_title_complete(
-    title, type, NULL, archive_github, always_archive
+    title, type, NULL, archive_type, always_archive
   )[["cue"]] |>
     .is_cue(bump_component)
 }
 
 .dest_send_title_get_content <- function(title,
                                          type,
-                                         archive_github) {
+                                         archive_type) {
   force(title)
   is_yml_content <- .dest_send_title_get_content_check_yml(
-    type, title, archive_github
+    type, title, archive_type
   )
   if (is_yml_content) {
     .dest_send_title_get_content_yml(title, type)
   } else {
-    .dest_send_title_get_content_param(archive_github)
+    .dest_send_title_get_content_param(archive_type)
   }
 }
 
 .dest_send_title_get_content_check_yml <- function(type,
                                                    title,
-                                                   archive_github) {
-  is_github <- type == "github"
-  is_archive_param <- title == "archive" && !isFALSE(archive_github)
-  is_github_param <- is_github && is_archive_param
-  !is_github_param
+                                                   archive_local) {
+  title == "archive" && !isFALSE(archive_local)
 }
 
 .dest_send_title_get_content_yml <- function(title, type) {
@@ -182,9 +214,9 @@
   .yml_dest_get_title(title, type, NULL)[["content"]]
 }
 
-.dest_send_title_get_content_param <- function(archive_github) {
-  if (.is_chr(archive_github)) {
-    archive_github
+.dest_send_title_get_content_param <- function(archive_type) {
+  if (.is_chr(archive_type)) {
+    archive_type
   } else {
     yml_dir <- .yml_dir_get(NULL)
     nm_vec <- names(yml_dir) |>

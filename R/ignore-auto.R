@@ -36,6 +36,7 @@ projr_ignore_auto <- function() {
   .ignore_auto_github()
   .ignore_auto_vscode() # also code-workspace files
   .ignore_auto_build_content_dir()
+  .ignore_auto_dest_local()
   invisible(TRUE)
 }
 
@@ -272,6 +273,23 @@ projr_ignore_auto <- function() {
       )
     )
   .ignore_auto_path_add(path_vec, .path_get(".gitignore"))
+}
+
+.ignore_auto_dest_local <- function() {
+  yml <- .yml_dest_get_type("local", NULL)
+  if (is.null(yml)) {
+    return(invisible(FALSE))
+  }
+  for (i in seq_along(yml)) {
+    .ignore_auto_dest_local_title(
+      yml[i]
+    )
+  }
+  invisible(TRUE)
+}
+
+.ignore_auto_dest_local_title <- function() {
+
 }
 
 # ===========================================================================

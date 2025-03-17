@@ -72,7 +72,7 @@ projr_restore <- function(label = NULL,
   # get source remote (type and title)
   source_vec <- .restore_label_get_source(label, type, title)
   yml_title <- .yml_dest_get_title_complete(
-    source_vec[["title"]], source_vec[["type"]], NULL, FALSE, FALSE
+    source_vec[["title"]], source_vec[["type"]], NULL, FALSE, FALSE, FALSE
   )
   remote_pre <- .remote_get_final(
     source_vec[["type"]], yml_title[["id"]], label,
@@ -155,7 +155,7 @@ projr_restore <- function(label = NULL,
     for (i in seq_along(title)) {
       tt <- title[[i]]
       yml_title <- .yml_dest_get_title_complete(
-        tt, tp, NULL, FALSE, FALSE
+        tt, tp, NULL, FALSE, FALSE, FALSE
       )
       if (!label %in% yml_title[["content"]]) {
         next

@@ -295,6 +295,7 @@ projr_build_dev <- function(file = NULL,
                         msg,
                         old_dev_remove,
                         archive_github,
+                        archive_local,
                         always_archive,
                         clear_output) {
   output_run <- .build_get_output_run(bump_component)
@@ -312,7 +313,8 @@ projr_build_dev <- function(file = NULL,
 
   # send to remotes
   .build_post_send_dest(
-    bump_component, old_dev_remove, archive_github, always_archive
+    bump_component, old_dev_remove, archive_github, archive_local,
+    always_archive
   )
 
   # run post-build scripts
@@ -411,8 +413,9 @@ projr_build_dev <- function(file = NULL,
 .build_post_send_dest <- function(bump_component,
                                   old_dev_remove,
                                   archive_github,
+                                  archive_local,
                                   always_archive) {
-  .dest_send(bump_component, archive_github, always_archive)
+  .dest_send(bump_component, archive_github, archive_local, always_archive)
   .build_clear_old(
     .build_get_output_run(bump_component), old_dev_remove
   )
