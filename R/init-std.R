@@ -177,10 +177,18 @@ projr_init_cite <- function() {
     if (readme_rmd) "Rmd" else "md"
   ) |>
     .path_get()
-  .init_readme_std_contents() |>
+  .init_readme_std_contents(readme_rmd) |>
     writeLines(con = path_overwrite)
   message("Created README.md.")
   invisible(TRUE)
+}
+
+.init_readme_std_contents <- function(readme_rmd) {
+  if (readme_rmd) {
+    .init_readme_std_contents_rmd()
+  } else {
+    .init_readme_std_contents_md()
+  }
 }
 
 .init_readme_std_check <- function(init_readme, readme_rmd) {
