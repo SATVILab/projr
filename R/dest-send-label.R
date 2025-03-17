@@ -3,7 +3,8 @@
                              type,
                              output_run,
                              archive_type,
-                             always_archive) {
+                             always_archive,
+                             changelog) {
   force(title)
   # where they should go to
   path_dir_local <- projr_path_get_dir(label, safe = !output_run) # nolint
@@ -22,12 +23,14 @@
     yml_title[["send"]][["strategy"]], yml_title[["send"]][["inspect"]],
     remote_list[["version_comp"]], type, label,
     remote_list[["remote_pre"]], remote_list[["remote_dest"]],
-    remote_list[["remote_comp"]], yml_title[["send"]][["cue"]]
+    remote_list[["remote_comp"]], yml_title[["send"]][["cue"]],
+    changelog
   )
 
   .dest_send_label_implement_plan(
     plan[["fn_add"]], plan[["fn_rm"]], plan[["version"]],
     plan[["manifest"]], plan[["create"]], plan[["purge"]],
+    plan[["changelog"]],
     remote_list[["remote_dest"]], type, yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
     yml_title[["path-append-label"]],
@@ -226,7 +229,8 @@
                                       remote_pre,
                                       remote_dest,
                                       remote_comp,
-                                      cue) {
+                                      cue,
+                                      changelog) {
   plan_fn <- .dest_send_label_get_plan_fn(
     strategy, label, inspect, version_comp, remote_comp, type,
     remote_pre, remote_dest
@@ -236,7 +240,7 @@
     strategy, plan_fn[["fn_source"]], plan_fn[["fn_dest"]],
     plan_fn[["fn_source_extra"]], plan_fn[["fn_dest_extra"]],
     plan_fn[["fn_same"]], plan_fn[["fn_diff"]],
-    remote_pre, remote_dest, type, label, version_comp, cue
+    remote_pre, remote_dest, type, label, version_comp, cue, changelog
   )
 }
 
@@ -400,8 +404,9 @@
                                              type,
                                              label,
                                              version_comp,
-                                             cue) {
-  switch(strategy,
+                                             cue,
+                                             changelog) {
+  plan <- switch(strategy,
     "upload-all" = .dest_send_label_get_plan_action_upload_all(
       fn_source, remote_dest, type, remote_pre, label
     ),
@@ -413,6 +418,8 @@
       version_comp, fn_dest_extra, fn_diff, fn_same, strategy
     )
   )
+  plan |>
+    append(list("changelog" = changelog))
 }
 
 # upload-all
@@ -835,6 +842,7 @@
                                             manifest,
                                             create,
                                             purge,
+                                            changelog,
                                             remote_dest,
                                             type,
                                             id,
@@ -893,6 +901,9 @@
   # need to use remote_pre and just add an individual file
   .remote_write_manifest(type, remote_pre, manifest)
   .remote_write_version_file(type, remote_pre, version_file)
+  if (changelog) {
+    .remote_write_changelog(type, remote_pre)
+  }
   invisible(TRUE)
 }
 

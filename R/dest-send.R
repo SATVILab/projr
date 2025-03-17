@@ -160,9 +160,15 @@
   for (x in content_vec) {
     .dest_send_label(
       x, title, type, .build_get_output_run(bump_component),
-      archive_type, always_archive
+      archive_type, always_archive, x == content_vec[length(content_vec)]
     )
   }
+
+  .dest_send_type_changelog(
+    title, type, .build_get_output_run(bump_component)
+  )
+
+
   invisible(TRUE)
 }
 

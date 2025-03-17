@@ -1202,6 +1202,23 @@ projr_osf_create_project <- function(title,
 }
 
 # ========================
+# Write CHANGELOG file
+# ========================
+
+.remote_write_changelog <- function(type,
+                                    remote_pre) {
+  remote_pre <- if (type == "github") {
+    remote_pre <- remote_pre |> c("fn" = "CHANGELOG")
+  } else {
+    remote_pre
+  }
+  switch(type,
+    "project" = NULL,
+    .remote_file_add(type, remote_pre, .path_get(), "CHANGELOG.md")
+  )
+}
+
+# ========================
 # Update VERSION file
 # ========================
 

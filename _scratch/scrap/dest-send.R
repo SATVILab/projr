@@ -6,11 +6,11 @@
 # ------------------------
 
 .dest_send_label <- function(label,
-                                   title,
-                                   type,
-                                   output_run,
-                                   archive_type,
-                                   always_archive) {
+                             title,
+                             type,
+                             output_run,
+                             archive_type,
+                             always_archive) {
   force(title)
   # where they should go to
   path_dir_local <-projr_path_get_dir(label, safe = !output_run)
