@@ -361,6 +361,12 @@ projr_build_dev <- function(file = NULL,
     bump_component = bump_component,
     version_run_on_list = version_run_on_list
   )
+  .build_buildlog_add(
+    msg = msg,
+    bump_component = bump_component,
+    version_run_on_list = version_run_on_list,
+    total_time = total_time
+  )
   # hash raw-data and outputs, then save manifest table
   .build_manifest_post(output_run)
   # update README

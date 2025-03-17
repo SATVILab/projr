@@ -11,14 +11,6 @@
   .build_get_output_run(bump_component)
 }
 
-.changelog_read <- function() {
-  path_changelog <- .path_get("CHANGELOG.md")
-  if (!file.exists(path_changelog)) {
-    return(c("# CHANGELOG", ""))
-  }
-  readLines(path_changelog)
-}
-
 .changelog_add <- function(msg, bump_component, version_run_on_list) {
   init_txt <- c("# CHANGELOG", "")
   add_txt <- .changelog_get_add(msg, bump_component, version_run_on_list)
@@ -27,6 +19,14 @@
     .changelog_write()
   .path_get("CHANGELOG.md") |>
     .newline_append()
+}
+
+.changelog_read <- function() {
+  path_changelog <- .path_get("CHANGELOG.md")
+  if (!file.exists(path_changelog)) {
+    return(c("# CHANGELOG", ""))
+  }
+  readLines(path_changelog)
 }
 
 .changelog_get_add <- function(msg, bump_component, version_run_on_list) {
