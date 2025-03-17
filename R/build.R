@@ -63,6 +63,7 @@ projr_build <- function(bump_component,
                         args_engine = list(),
                         profile = NULL,
                         archive_github = FALSE,
+                        archive_local = FALSE,
                         always_archive = TRUE,
                         clear_output = NULL) {
   bump_component <- .build_output_get_bump_component(
@@ -76,6 +77,7 @@ projr_build <- function(bump_component,
     args_engine = args_engine,
     profile = profile,
     archive_github = archive_github,
+    archive_local = archive_local,
     always_archive = always_archive,
     clear_output = clear_output
   )
@@ -87,6 +89,7 @@ projr_build_major <- function(msg = NULL,
                               args_engine = list(),
                               profile = NULL,
                               archive_github = FALSE,
+                              archive_local = FALSE,
                               always_archive = TRUE,
                               clear_output = NULL) {
   projr_build(
@@ -95,6 +98,7 @@ projr_build_major <- function(msg = NULL,
     args_engine = args_engine,
     profile = profile,
     archive_github = archive_github,
+    archive_local = archive_local,
     always_archive = always_archive,
     clear_output = clear_output
   )
@@ -106,6 +110,7 @@ projr_build_minor <- function(msg = NULL,
                               args_engine = list(),
                               profile = NULL,
                               archive_github = FALSE,
+                              archive_local = FALSE,
                               always_archive = TRUE,
                               clear_output = NULL) {
   projr_build(
@@ -114,6 +119,7 @@ projr_build_minor <- function(msg = NULL,
     args_engine = args_engine,
     profile = profile,
     archive_github = archive_github,
+    archive_local = archive_local,
     always_archive = always_archive,
     clear_output = clear_output
   )
@@ -125,6 +131,7 @@ projr_build_patch <- function(msg = NULL,
                               args_engine = list(),
                               profile = NULL,
                               archive_github = FALSE,
+                              archive_local = FALSE,
                               always_archive = TRUE,
                               clear_output = NULL) {
   projr_build(
@@ -133,6 +140,7 @@ projr_build_patch <- function(msg = NULL,
     args_engine = args_engine,
     profile = profile,
     archive_github = archive_github,
+    archive_local = archive_local,
     always_archive = always_archive,
     clear_output = clear_output
   )
@@ -194,6 +202,7 @@ projr_build_dev <- function(file = NULL,
                    args_engine,
                    profile,
                    archive_github = FALSE,
+                   archive_local = FALSE,
                    always_archive = TRUE,
                    clear_output = NULL) {
   if (!is.null(profile)) {
@@ -205,7 +214,9 @@ projr_build_dev <- function(file = NULL,
   .build_ensure_version()
   clear_output <- .build_get_clear_output()
 
-  version_run_on_list <- .build_pre(bump_component, msg, clear_output)
+  version_run_on_list <- .build_pre(
+    bump_component, msg, clear_output, archive_local
+  )
   .build_impl(version_run_on_list, file, args_engine)
   .build_post(
     version_run_on_list, bump_component, msg, old_dev_remove,
@@ -239,7 +250,10 @@ projr_build_dev <- function(file = NULL,
 
 # pre
 # ------------------------
-.build_pre <- function(bump_component, msg, clear_output) {
+.build_pre <- function(bump_component,
+                       msg,
+                       clear_output,
+                       archive_local) {
   projr_yml_check(NULL)
   # whether it's an output run  or not
   output_run <- .build_get_output_run(bump_component)
@@ -249,7 +263,7 @@ projr_build_dev <- function(file = NULL,
   .build_pre_check(output_run)
 
   # update reng, ignore files, doc directory and version
-  .build_pre_document(output_run)
+  .build_pre_document(output_run, archive_local)
 
   # get DESCRIPTION and build versions under all
   # build outcomes

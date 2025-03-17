@@ -19,6 +19,10 @@
 #' @export
 #' @seealso.ignore_add.ignore_add_git.ignore_add_rbuild
 projr_ignore_auto <- function() {
+  .ignore_auto(FALSE)
+}
+
+.ignore_auto <- function(archive_local) {
   # ignore directories specified in
   # `_projr.yml`
   .ignore_diryml()
@@ -36,7 +40,7 @@ projr_ignore_auto <- function() {
   .ignore_auto_github()
   .ignore_auto_vscode() # also code-workspace files
   .ignore_auto_build_content_dir()
-  .ignore_auto_dest_local()
+  .ignore_auto_dest_local(archive_local)
   invisible(TRUE)
 }
 
@@ -111,7 +115,7 @@ projr_ignore_auto <- function() {
 .ignore_auto_yml <- function() {
   path_vec <- list.files(
     path = .path_get(),
-    pattern = "^_projr\\.yml$|^_projr-.+\\.yml|^_quarto\\.yml$|^_bookdown\\.yml$"
+    pattern = "^_projr\\.yml$|^_projr-.+\\.yml|^_quarto\\.yml$|^_bookdown\\.yml$" # nolint
   )
   .ignore_auto_file_rbuild(path_vec)
   if (file.exists(.path_get("_projr-local.yml"))) {
@@ -275,21 +279,30 @@ projr_ignore_auto <- function() {
   .ignore_auto_path_add(path_vec, .path_get(".gitignore"))
 }
 
-.ignore_auto_dest_local <- function() {
+.ignore_auto_dest_local <- function(archive_local) {
   yml <- .yml_dest_get_type("local", NULL)
+  if (archive_local && !"archive" %in% names(yml)) {
+    .ignore_auto_dir("_archive")
+  }
   if (is.null(yml)) {
     return(invisible(FALSE))
   }
   for (i in seq_along(yml)) {
-    .ignore_auto_dest_local_title(
-      yml[i]
-    )
+    .ignore_auto_dest_local_title(yml[[i]])
   }
   invisible(TRUE)
 }
 
-.ignore_auto_dest_local_title <- function() {
-
+.ignore_auto_dest_local_title <- function(yml) {
+  path <- yml[["path"]] %||% "_archive"
+  ignore <- yml[["ignore"]]
+  if (is.null(ignore)) {
+    .ignore_auto_dir(path)
+  } else if (ignore == "git") {
+    .ignore_auto_dir_git(path)
+  } else if (ignore == "rbuild") {
+    .ignore_auto_dir_rbuild(path)
+  }
 }
 
 # ===========================================================================
@@ -398,12 +411,24 @@ projr_ignore_auto <- function() {
 # Ignore specified files/directories from specified paths
 # ===========================================================================
 
+.ignore_auto_file <- function(ignore) {
+  .ignore_auto_file_git(ignore)
+  .ignore_auto_file_rbuild(ignore)
+  invisible(TRUE)
+}
+
 .ignore_auto_file_git <- function(ignore) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
   .ignore_auto_path_add(ignore, .path_get(".gitignore"))
+}
+
+.ignore_auto_dir <- function(ignore) {
+  .ignore_auto_dir_git(ignore)
+  .ignore_auto_dir_rbuild(ignore)
+  invisible(TRUE)
 }
 
 .ignore_auto_dir_git <- function(ignore) {

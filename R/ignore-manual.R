@@ -43,13 +43,13 @@
 #' projr_ignore_manual(c("output", "tempfile.log"))
 #'
 #' # Specifically ignore directories
-#' projr_ignore_manual_dir("data")
+#' projr_ignore_dir("data")
 #'
 #' # Specifically ignore files
-#' projr_ignore_manual_file("README.md")
+#' projr_ignore_file("README.md")
 #'
 #' @export
-projr_ignore_manual <- function(ignore) {
+projr_ignore <- function(ignore) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
@@ -61,15 +61,15 @@ projr_ignore_manual <- function(ignore) {
   ignore_nonexistent <- setdiff(
     ignore, c(ignore_file, ignore_dir)
   )
-  .ignore_manual_file_git(c(ignore_file, ignore_nonexistent))
-  .ignore_manual_dir_git(ignore_dir)
-  .ignore_manual_file_rbuild(c(ignore_file, ignore_nonexistent))
-  .ignore_manual_dir_rbuild(ignore_dir)
+  projr_ignore_file_git(c(ignore_file, ignore_nonexistent))
+  projr_ignore_dir_git(ignore_dir)
+  projr_ignore_file_rbuild(c(ignore_file, ignore_nonexistent))
+  projr_ignore_dir_rbuild(ignore_dir)
 }
 
 #' @rdname projr_ignore_manual
 #' @export
-projr_ignore_manual_dir <- function(ignore) {
+projr_ignore_dir <- function(ignore) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
@@ -80,7 +80,7 @@ projr_ignore_manual_dir <- function(ignore) {
 
 #' @rdname projr_ignore_manual
 #' @export
-projr_ignore_manual_file <- function(ignore) {
+projr_ignore_file <- function(ignore) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
@@ -91,7 +91,7 @@ projr_ignore_manual_file <- function(ignore) {
 
 #' @rdname projr_ignore_manual
 #' @export
-projr_ignore_manual_file_git <- function(ignore) {
+projr_ignore_file_git <- function(ignore) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
@@ -101,7 +101,7 @@ projr_ignore_manual_file_git <- function(ignore) {
 
 #' @rdname projr_ignore_manual
 #' @export
-projr_ignore_manual_dir_git <- function(ignore) {
+projr_ignore_dir_git <- function(ignore) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
@@ -118,7 +118,7 @@ projr_ignore_manual_dir_git <- function(ignore) {
 
 #' @rdname projr_ignore_manual
 #' @export
-projr_ignore_manual_file_rbuild <- function(ignore) {
+projr_ignore_file_rbuild <- function(ignore) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
@@ -131,7 +131,7 @@ projr_ignore_manual_file_rbuild <- function(ignore) {
 
 #' @rdname projr_ignore_manual
 #' @export
-projr_ignore_manual_dir_rbuild <- function(ignore) {
+projr_ignore_dir_rbuild <- function(ignore) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))

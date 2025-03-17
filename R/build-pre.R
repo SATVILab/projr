@@ -20,14 +20,14 @@
   }
 }
 
-.build_pre_document <- function(output_run) {
+.build_pre_document <- function(output_run, archive_local) {
   # get version for DESCRIPTION and bookdown from run onwards
   # snapshot if need be
   .build_renv_snapshot(output_run)
 
   # make sure everything is ignored that should be ignored
   # (including docs directory)
-  .build_ignore()
+  .build_ignore(output_run, archive_local)
 
   # ensure that docs directory is the unsafe directory.
   # will copy docs across upon success.
@@ -128,14 +128,14 @@
 }
 
 # ignore
-.build_ignore <- function() {
+.build_ignore <- function(output_run, archive_local) {
   old_profile <- .profile_get_raw()
   Sys.unsetenv("PROJR_PROFILE")
   projr_path_get_dir("docs")
   if (!identical(old_profile, "default")) {
     Sys.setenv("PROJR_PROFILE" = old_profile)
   }
-  projr_ignore_auto()
+  .ignore_auto(output_run && archive_local)
   invisible(TRUE)
 }
 
