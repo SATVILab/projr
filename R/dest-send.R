@@ -69,7 +69,7 @@
     !isFALSE(archive_github) && !is.null(archive_github) &&
       !"archive" %in% names(.yml_dest_get_type(type, NULL))
   } else if (type == "local") {
-    !isFALSE(archive_local) && !is.null(archive_github) &&
+    !isFALSE(archive_local) && !is.null(archive_local) &&
       !"archive" %in% names(.yml_dest_get_type(type, NULL))
   } else {
     FALSE
