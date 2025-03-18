@@ -127,33 +127,144 @@ projr_restore <- function(label = NULL,
   invisible(TRUE)
 }
 
-
-.restore_label_get_source <- function(label, type, title) {
-  # get source remote (type and title)
-  if (!is.null(type) && !is.null(title)) {
-    return(c("type" = type, "title" = title))
+.restore_label_get_source <- function(pos, label, type, title) {
+  pos <- if (is.null(pos)) c("source", "dest") else pos
+  .assert_in(pos, c("source", "dest"))
+  if ("source" %in% pos) {
+    source_vec <- .restore_label_get_source_source(label, type, title)
+    if (!is.null(source_vec)) {
+      return(source_vec)
+    }
   }
-  if (is.null(type)) {
-    nm_vec <- .yml_build_get(NULL) |>
-      names()
-    type <- nm_vec[grepl("^github$|^local$|^osf", nm_vec)]
-    if (.is_len_0(type)) {
-      if (.remote_check_exists("github", "archive")) {
-        return(c("type" = "github", "title" = "archive"))
-      } else {
-        stop("No source found for ", label)
-      }
+  if ("dest" %in% pos) {
+    source_vec <- .restore_label_get_source_dest(label, type, title)
+    if (!is.null(source_vec)) {
+      return(source_vec)
+    }
+  }
+  # if we get here, then we have no source
+  # to restore from
+  # so we return NULL
+  NULL
+}
+
+.restore_label_get_source_source <- function(label, type, title) {
+  yml_source <- .yml_dir_get_source(label, NULL)
+  # nothing to look at here
+  if (is.null(yml_source)) {
+    return(NULL)
+  }
+  # look within the type
+  .restore_label_get_source_source_type(
+    yml_source, type, title
+  )
+}
+
+.restore_label_get_source_source_type <- function(yml_source, type, title) {
+  if (!is.null(type)) {
+    .restore_label_get_source_source_type_spec(
+      yml_source, type, title
+    )
+  } else {
+    .restore_label_get_source_source_type_first(yml_source, title)
+  }
+}
+
+.restore_label_get_source_source_type_spec <- function(yml_source,
+                                                       type,
+                                                       title) {
+  if ("type" %in% names(yml_source)) {
+    yml_type <- yml_source[[type]]
+    .restore_label_get_source_source_title_spec(
+      yml_type, type, title
+    )
+  } else {
+    NULL
+  }
+}
+
+.restore_label_get_source_source_title <- function(yml_type,
+                                                   type,
+                                                   title) {
+  if (!is.null(title)) {
+    .restore_label_get_source_source_title_spec(yml_type, type, title)
+  } else {
+    .restore_label_get_source_source_title_first(yml_type, type)
+  }
+}
+
+.restore_label_get_source_source_title_spec <- function(yml_type, type, title) {
+  if (is.list(yml_type)) {
+    .restore_label_get_source_source_title_spec_list(
+      yml_type, type, title
+    )
+  } else if (all(is.character(yml_type))) {
+    .restore_label_get_source_source_title_spec_chr(
+      yml_type, type, title
+    )
+  } else {
+    NULL
+  }
+}
+
+.restore_label_get_source_source_title_spec_list <- function(yml_type, type, title) { # nolint
+  if (title %in% names(yml_type)) {
+    c("pos" = "source", "type" = type, "title" = title)
+  } else {
+    NULL
+  }
+}
+
+.restore_label_get_source_source_title_spec_chr <- function(yml_type, type, title) { # nolint
+  if (title %in% yml_type) {
+    c("pos" = "source", "type" = type, "title" = title)
+  } else {
+    NULL
+  }
+}
+
+.restore_label_get_source_source_title_first <- function(yml_type, type) {
+  if (all(is.character(yml_type))) {
+    c("pos" = "source", "type" = type, "title" = yml_type[[1]])
+  } else {
+    c("pos" = "source", "type" = type, "title" = names(yml_type)[[1]])
+  }
+}
+
+.restore_label_get_source_source_type_first <- function(yml_source, title) {
+  type <- names(yml_source)[[1]]
+  .restore_label_get_source_source_type_spec(
+    yml_source[[type]], type, title
+  )
+}
+
+# try find restore from destination
+
+.restore_label_get_dest_no_type <- function(label) {
+  if (.remote_check_exists("github", "archive")) {
+    return(c("pos" = "dest", "type" = "github", "title" = "archive"))
+  } else {
+    if (.remote_check_exists("local", "_archive")) {
+      return(c("pos" = "dest", "type" = "local", "title" = "_archive"))
+    } else {
       stop("No source found for ", label)
     }
+  }
+}
+
+.restore_label_get_source_dest <- function(label, type, title) {
+  type_vec <- .restore_label_get_source_dest_get_type(type, label)
+  if (.is_len_0(type_vec)) {
+    return(.restore_label_get_dest_no_type(label))
   }
   tp_first <- NULL
   tt_first <- NULL
 
-  for (tp in type) {
+  for (tp in type_vec) {
     yml_type <- .yml_dest_get_type(tp, NULL)
-    title <- names(yml_type)
-    for (i in seq_along(title)) {
-      tt <- title[[i]]
+    title_considered <- title %||% names(yml_type)
+    for (i in seq_along(title_considered)) {
+      tt <- title_considered[[i]]
       yml_title <- .yml_dest_get_title_complete(
         tt, tp, NULL, FALSE, FALSE, FALSE
       )
@@ -163,11 +274,11 @@ projr_restore <- function(label = NULL,
       if ("source" %in% names(yml_title)) {
         source_vec <- yml_title[["source"]]
         if (isTRUE(source_vec)) {
-          return(c(type = tp, title = tt))
+          return(c("pos" = "dest", type = tp, title = tt))
         } else if (isFALSE(source_vec)) {
           next
         } else if (label %in% source_vec) {
-          return(c(type = tp, title = tt))
+          return(c("pos" = "dest", type = tp, title = tt))
         }
       }
       if (is.null(tt_first)) {
@@ -176,8 +287,20 @@ projr_restore <- function(label = NULL,
       }
     }
   }
-  if (is.null(tt_first)) {
 
+  c("pos" = "dest",  "type" = tp_first, "title" = tt_first)
+}
+
+.restore_label_get_source_dest_get_type <- function(type, label) {
+  if (!is.null(type)) {
+    return(type)
   }
-  c("type" = tp_first, "title" = tt_first)
+  nm_vec <- .yml_build_get(NULL) |> names()
+  nm_vec[grepl("^github$|^local$|^osf", nm_vec)]
+}
+
+.restore_label_get_source_dest_get_title <- function(type, title) {
+  if (!is.null(title)) {
+    return(title)
+  }
 }

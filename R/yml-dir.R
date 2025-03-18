@@ -293,7 +293,11 @@
   .yml_set(yml_projr, profile)
 }
 
-.yml_dir_add_label <- function(path, package = NULL, output = NULL, label, profile) {
+.yml_dir_add_label <- function(path,
+                               package = NULL,
+                               output = NULL,
+                               label,
+                               profile) {
   .assert_string(path, TRUE)
   .assert_string(label, TRUE)
   .assert_given(profile)

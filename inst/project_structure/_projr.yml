@@ -2,6 +2,8 @@
 directories:
   raw-data:
     path: _raw_data
+    source:
+      github: archive
   cache: 
     path: _tmp
   output: 
