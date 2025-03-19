@@ -23,9 +23,7 @@
                               msg) {
   # exit early if required
   if (!.build_git_check(output_run)) {
-    if (!.git_repo_check_exists()) {
-      stop("Git commits requested but no Git directory found")
-    }
+    .build_git_commit_pre_warn(stage, output_run)
     return(invisible(FALSE))
   }
   if (!.git_repo_check_exists()) {
@@ -41,11 +39,40 @@
   )
 }
 
-.build_git_commit_pre_warn <- function(stage) {
-  if (stage == "pre") {
-    warning("Pre-build commit requested but no Git directory found")
+.build_git_commit_pre_warn <- function(stage, output_run) {
+  if (stage == "pre" && output_run && !.git_repo_check_exists()) {
+    .build_git_commit_pre_warn_impl()
   }
   invisible(TRUE)
+}
+
+.build_git_commit_pre_warn_impl <- function() {
+  # Use a persistent directory in the user's home folder.
+  warning_dir <- file.path(dirname(tempdir()), ".projr")
+  if (!dir.exists(warning_dir)) {
+    dir.create(warning_dir, recursive = TRUE)
+  }
+  
+  # Use the project name and today's date for unique persistent identification.
+  project_id <- basename(getwd())
+  today <- Sys.Date()
+  warning_file <- file.path(
+    warning_dir, paste0("git_warn_", project_id, "_", today, ".txt")
+  )
+  
+  if (!file.exists(warning_file)) {
+    # Create the file to indicate the warning for today has been issued.
+    writeLines(as.character(Sys.time()), con = warning_file)
+    return(FALSE)  # Warning has not been issued before today.
+  }
+}
+
+.bild_git_commit_pre_warn_impl_warn <- function() {
+  warning(
+    "Using Git with projr enhances version control and collaboration.\n",
+    "Please store large files in the '_raw_data', '_output', and '_tmp' folders.\n", # nolint
+    "Then run `projr::projr_init()` to initialize Git.\n"
+  )
 }
 
 .build_git_commit_get_msg <- function(msg, stage) {
