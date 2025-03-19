@@ -498,7 +498,7 @@ projr_init_cite <- function() {
   }
   .git_system_setup()
   .git_init()
-  projr_ignore_auto()
+  .ignore_auto(TRUE)
   if (commit) {
     .init_std_git_config()
     .init_git_commit()
