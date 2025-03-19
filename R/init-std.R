@@ -134,6 +134,19 @@ projr_init_cite <- function() {
   .init_cite_std(TRUE)
 }
 
+#' @rdname projr_init
+#' @export
+projr_init_git <- function(commit = TRUE) {
+  .init_std_git(TRUE, commit)
+}
+
+#' @rdname projr_init
+#' @export
+projr_init_github <- function(username = NULL,
+                              public = FALSE) {
+  .init_std_github(TRUE, public, username)
+}
+
 # ========================================
 # Directories
 # ========================================

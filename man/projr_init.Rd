@@ -6,6 +6,7 @@
 \alias{projr_init_renv}
 \alias{projr_init_cite}
 \alias{projr_init_git}
+\alias{projr_init_github}
 \alias{projr_init_license}
 \title{Initialize a projr Project}
 \usage{
@@ -30,7 +31,9 @@ projr_init_renv(bioc = TRUE)
 
 projr_init_cite()
 
-projr_init_git(commit = TRUE, username = NULL, public = FALSE)
+projr_init_git(commit = TRUE)
+
+projr_init_github(username = NULL, public = FALSE)
 
 projr_init_license(license, first_name, last_name)
 }

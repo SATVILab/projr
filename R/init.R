@@ -65,15 +65,6 @@ projr_init_prompt <- function(y ) {
   invisible(TRUE)
 }
 
-#' @export
-#' @rdname projr_init
-projr_init_git <- function(commit = TRUE, username = NULL, public = FALSE) {
-  .git_system_setup()
-  .init_git_git(commit)
-  if (!is.null(username)) {
-    .init_git_github(username, public)
-  }
-}
 
 .init_git_git <- function(commit) {
   # initialise Git repo
