@@ -1,6 +1,7 @@
 projr_restore_repo <- function(repo,
                                path = NULL,
                                label = NULL,
+                               pos = NULL,
                                type = NULL,
                                title = NULL) {
   .title <- title
@@ -20,6 +21,7 @@ projr_restore_repo_wd <- function(repo, label = TRUE) {
 
 .restore_repo_labels <- function(path,
                                  label,
+                                 pos,
                                  type,
                                  .title) {
   if (!is.null(path)) {
@@ -27,6 +29,6 @@ projr_restore_repo_wd <- function(repo, label = TRUE) {
     on.exit(setwd(orig_wd), add = TRUE)
     setwd(path)
   }
-  projr_restore(label, type, .title)
+  projr_restore(label, pos, type, .title)
   invisible(TRUE)
 }
