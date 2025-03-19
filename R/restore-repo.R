@@ -1,3 +1,5 @@
+#' @rdname projr_restore
+#' @export
 projr_restore_repo <- function(repo,
                                path = NULL,
                                label = NULL,
@@ -15,6 +17,8 @@ projr_restore_repo <- function(repo,
   )
 }
 
+#' @rdname projr_restore
+#' @export
 projr_restore_repo_wd <- function(repo, label = TRUE) {
   projr_restore_repo(repo, label = label, path = ".")
 }

@@ -1,32 +1,42 @@
-#' @title Restore project artefact directory
+#' Restore project artefact directories
 #'
-#' @param label character vector.
-#' Must all be labels found in `_projr.yml` (or
-#' default labels).
-#' If `NULL` (the default), then all `raw` labels
-#' are restored (e.g. `raw-data`, `raw-docs`, `raw`, etc.).
-#' @param type character.
-#' Type of remote to restore from.
-#' One of `local`, `osf` and `github`.
-#' If `NULL`, then an appropriate remote is searched
-#' for.
-#' This is the first destination that has
-#' this `label` in its `source` field (or
-#' has its `source` field as `TRUE`).
-#' If none found, then the first type
-#' and title combination that has this
-#' label in its contents is used.
-#' @param title character.
-#' Title of remote.
-#' Ignored if `type` is not specified.
+#' Use `projr_restore()` to restore all artefacts needed for the current project.
+#' If the project isn't available locally yet, 
+#' `projr_restore_repo()` will clone it and then restore its artefacts.
 #'
-#' @return
-#' Invisible returns `TRUE` if successful.
+#' @param label character vector. Specifies labels of artefacts to restore.
+#'   Default is `NULL`, restoring all `raw` artefacts (e.g. `raw-data`).
+#' @param pos character vector. Specifies preferred source: `"source"` (directories)
+#'   or `"dest"` (build). Default is `NULL`, checking both.
+#' @param type character. Remote type: `"local"`, `"osf"` or `"github"`.
+#'   Default is `NULL`, automatically choosing the first available remote.
+#' @param title character. Remote title as specified in `_projr.yml`. Default is `NULL`.
+#' @param repo character. GitHub repository (`"owner/repo"` or `"repo"`).
+#'   (Only for repository restoration functions.)
+#' @param path character. Local path for cloning the repository. Default is `NULL`,
+#'   creating a subdirectory named after the repo. `"."` restores directly into the current directory.
 #'
+#' @return Invisibly returns `TRUE` if restoration is successful.
+#'
+#' @details
+#' - `projr_restore()` restores artefacts in an existing local project without any cloning required.
+#' - `projr_restore_repo()` clones a GitHub repository into a subdirectory (or specified path), then restores artefacts.
+#' - `projr_restore_repo_wd()` clones directly into the current working directory, then restores artefacts.
+#' 
 #' @examples
 #' \dontrun{
-#' projr_restore("raw-data")
+#'   # Restore all artefacts in existing local project
+#'   projr_restore()
+#'
+#'   # Clone repository into subdirectory and restore artefacts
+#'   projr_restore_repo("owner/repo")
+#'
+#'   # Clone repository into current directory and restore artefacts
+#'   projr_restore_repo_wd("owner/repo")
 #' }
+#'
+#' @name projr_restore
+#' @rdname projr_restore
 #' @export
 projr_restore <- function(label = NULL,
                           pos = NULL,

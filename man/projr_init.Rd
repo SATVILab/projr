@@ -47,7 +47,8 @@ Defaults to \code{TRUE}.}
 Defaults to \code{FALSE}.}
 
 \item{github_org}{Character or \code{NULL}. The GitHub organization under which to create
-the repository. Defaults to \code{NULL}.}
+the repository. Defaults to \code{NULL}, which creates the repository under the user's account
+(as implied by the GitHub token).}
 
 \item{dir}{Logical. If \code{TRUE}, initializes the projr-specified directories (e.g., raw,
 cache, output). Defaults to \code{TRUE}.}
