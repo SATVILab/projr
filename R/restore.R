@@ -29,8 +29,10 @@
 #' }
 #' @export
 projr_restore <- function(label = NULL,
+                          pos = NULL,
                           type = NULL,
                           title = NULL) {
+  .title <- title
   if (!file.exists(.path_get("manifest.csv"))) {
     stop(
       "No manifest.csv file found, so no builds have occurred, so nothing to restore." # nolint
@@ -38,7 +40,12 @@ projr_restore <- function(label = NULL,
   }
   label <- .restore_get_label(label)
   for (i in seq_along(label)) {
-    .restore_label(label[[i]], type, title)
+    tryCatch(
+      .restore_label(label[[i]], pos, type, .title),
+      error = function(e) {
+        message("Error restoring label: ", label[[i]], " - ", e$message)
+      }
+    )
   }
 }
 
@@ -65,12 +72,12 @@ projr_restore <- function(label = NULL,
   invisible(TRUE)
 }
 
-.restore_label <- function(label, type, title) {
+.restore_label <- function(label, pos, type, .title) {
   if (!.restore_label_check_non_empty(label)) {
     return(invisible(FALSE))
   }
   # get source remote (type and title)
-  source_vec <- .restore_label_get_source(label, type, title)
+  source_vec <- .restore_label_get_source(pos, label, type, .title)
   yml_title <- .yml_dest_get_title_complete(
     source_vec[["title"]], source_vec[["type"]], NULL, FALSE, FALSE, FALSE
   )
@@ -127,17 +134,17 @@ projr_restore <- function(label = NULL,
   invisible(TRUE)
 }
 
-.restore_label_get_source <- function(pos, label, type, title) {
+.restore_label_get_source <- function(pos, label, type, .title) {
   pos <- if (is.null(pos)) c("source", "dest") else pos
   .assert_in(pos, c("source", "dest"))
   if ("source" %in% pos) {
-    source_vec <- .restore_label_get_source_source(label, type, title)
+    source_vec <- .restore_label_get_source_source(label, type, .title)
     if (!is.null(source_vec)) {
       return(source_vec)
     }
   }
   if ("dest" %in% pos) {
-    source_vec <- .restore_label_get_source_dest(label, type, title)
+    source_vec <- .restore_label_get_source_dest(label, type, .title)
     if (!is.null(source_vec)) {
       return(source_vec)
     }
@@ -148,7 +155,7 @@ projr_restore <- function(label = NULL,
   NULL
 }
 
-.restore_label_get_source_source <- function(label, type, title) {
+.restore_label_get_source_source <- function(label, type, .title) {
   yml_source <- .yml_dir_get_source(label, NULL)
   # nothing to look at here
   if (is.null(yml_source)) {
@@ -156,27 +163,27 @@ projr_restore <- function(label = NULL,
   }
   # look within the type
   .restore_label_get_source_source_type(
-    yml_source, type, title
+    yml_source, type, .title
   )
 }
 
-.restore_label_get_source_source_type <- function(yml_source, type, title) {
+.restore_label_get_source_source_type <- function(yml_source, type, .title) {
   if (!is.null(type)) {
     .restore_label_get_source_source_type_spec(
-      yml_source, type, title
+      yml_source, type, .title
     )
   } else {
-    .restore_label_get_source_source_type_first(yml_source, title)
+    .restore_label_get_source_source_type_first(yml_source, .title)
   }
 }
 
 .restore_label_get_source_source_type_spec <- function(yml_source,
                                                        type,
-                                                       title) {
-  if ("type" %in% names(yml_source)) {
+                                                       .title) {
+  if (type %in% names(yml_source)) {
     yml_type <- yml_source[[type]]
     .restore_label_get_source_source_title_spec(
-      yml_type, type, title
+      yml_type, type, .title
     )
   } else {
     NULL
@@ -185,39 +192,39 @@ projr_restore <- function(label = NULL,
 
 .restore_label_get_source_source_title <- function(yml_type,
                                                    type,
-                                                   title) {
-  if (!is.null(title)) {
-    .restore_label_get_source_source_title_spec(yml_type, type, title)
+                                                   .title) {
+  if (!is.null(.title)) {
+    .restore_label_get_source_source_title_spec(yml_type, type, .title)
   } else {
     .restore_label_get_source_source_title_first(yml_type, type)
   }
 }
 
-.restore_label_get_source_source_title_spec <- function(yml_type, type, title) {
+.restore_label_get_source_source_title_spec <- function(yml_type, type, .title) {
   if (is.list(yml_type)) {
     .restore_label_get_source_source_title_spec_list(
-      yml_type, type, title
+      yml_type, type, .title
     )
   } else if (all(is.character(yml_type))) {
     .restore_label_get_source_source_title_spec_chr(
-      yml_type, type, title
+      yml_type, type, .title
     )
   } else {
     NULL
   }
 }
 
-.restore_label_get_source_source_title_spec_list <- function(yml_type, type, title) { # nolint
-  if (title %in% names(yml_type)) {
-    c("pos" = "source", "type" = type, "title" = title)
+.restore_label_get_source_source_title_spec_list <- function(yml_type, type, .title) { # nolint
+  if (.title %in% names(yml_type)) {
+    c("pos" = "source", "type" = type, "title" = .title)
   } else {
     NULL
   }
 }
 
-.restore_label_get_source_source_title_spec_chr <- function(yml_type, type, title) { # nolint
-  if (title %in% yml_type) {
-    c("pos" = "source", "type" = type, "title" = title)
+.restore_label_get_source_source_title_spec_chr <- function(yml_type, type, .title) { # nolint
+  if (.title %in% yml_type) {
+    c("pos" = "source", "type" = type, "title" = .title)
   } else {
     NULL
   }
@@ -231,10 +238,10 @@ projr_restore <- function(label = NULL,
   }
 }
 
-.restore_label_get_source_source_type_first <- function(yml_source, title) {
+.restore_label_get_source_source_type_first <- function(yml_source, .title) {
   type <- names(yml_source)[[1]]
   .restore_label_get_source_source_type_spec(
-    yml_source[[type]], type, title
+    yml_source[[type]], type, .title
   )
 }
 
@@ -252,17 +259,34 @@ projr_restore <- function(label = NULL,
   }
 }
 
-.restore_label_get_source_dest <- function(label, type, title) {
+.restore_label_get_source_dest <- function(label, type, .title) {
   type_vec <- .restore_label_get_source_dest_get_type(type, label)
   if (.is_len_0(type_vec)) {
     return(.restore_label_get_dest_no_type(label))
   }
+  # choose the first type and title
+  # provided as the restore destination
+  # if none specifically
   tp_first <- NULL
   tt_first <- NULL
 
   for (tp in type_vec) {
     yml_type <- .yml_dest_get_type(tp, NULL)
-    title_considered <- title %||% names(yml_type)
+    title_vec_type <- names(yml_type)
+    # if no title is provided, then
+    # we need to check all titles
+    if (is.null(.title)) {
+      title_considered <- title_vec_type
+    } else {
+      # if a title is provided, then
+      # we need to check if it is in the
+      # list of titles
+      # if not, then we skip this type
+      if (!.title %in% title_vec_type) {
+        next
+      }
+      title_considered <- .title
+    }
     for (i in seq_along(title_considered)) {
       tt <- title_considered[[i]]
       yml_title <- .yml_dest_get_title_complete(
@@ -274,11 +298,11 @@ projr_restore <- function(label = NULL,
       if ("source" %in% names(yml_title)) {
         source_vec <- yml_title[["source"]]
         if (isTRUE(source_vec)) {
-          return(c("pos" = "dest", type = tp, title = tt))
+          return(c("pos" = "dest", "type" = tp, "title" = tt))
         } else if (isFALSE(source_vec)) {
           next
         } else if (label %in% source_vec) {
-          return(c("pos" = "dest", type = tp, title = tt))
+          return(c("pos" = "dest", "type" = tp, "title" = tt))
         }
       }
       if (is.null(tt_first)) {
@@ -288,7 +312,20 @@ projr_restore <- function(label = NULL,
     }
   }
 
-  c("pos" = "dest",  "type" = tp_first, "title" = tt_first)
+  # if nothing found, try parameter-specified removes
+  if (is.null(tt_first)) {
+    tryCatch(
+      .restore_label_get_dest_no_type(label),
+      error = function(e) {
+        message("No source found for ", label)
+        message("Skipping restore for ", label)
+        return(invisible(FALSE))
+      }
+    )
+  } else {
+    c("pos" = "dest",  "type" = tp_first, "title" = tt_first)
+  }
+
 }
 
 .restore_label_get_source_dest_get_type <- function(type, label) {

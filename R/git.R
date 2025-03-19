@@ -447,3 +447,40 @@
     stdout = TRUE
   )
 }
+
+
+.git_clone <- function(repo, path = NULL) {
+  .assert_string(repo, TRUE)
+  .assert_string(path)
+  if (!grepl("/", repo)) {
+    repo <- paste0(gh::gh_whoami()$login, "/", repo)
+  }
+  if (!is.null(path) && (path == "" || .is_len_0(path))) {
+    path <- NULL
+  }
+  switch(.git_system_get(),
+    "git" = .git_clone_git(repo, path),
+    "gert" = .git_clone_gert(repo, path),
+    stop(paste0(.git_system_get(), " not recognised"))
+  )
+}
+
+.git_clone_git <- function(repo, path = NULL) {
+  url <- paste0("https://github.com/", repo, ".git")
+  args <- c("clone", url, path)
+  system2(
+    "git",
+    args = args,
+    stdout = TRUE
+  )
+}
+
+.git_clone_gert <- function(repo, path) {
+  .dep_install("gert")
+  url <- paste0("https://github.com/", repo, ".git")
+  args_list <- list("url" = url, bare = FALSE)
+  if (!is.null(path)) {
+    args_list[["path"]] <- path
+  }
+  do.call(gert::git_clone, args_list)
+}
