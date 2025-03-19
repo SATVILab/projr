@@ -38,6 +38,7 @@
   )
 }
 
+  invisible(TRUE)
 .build_git_commit_get_msg <- function(msg, stage) {
   if (stage == "pre") {
     "Snapshot pre-build"

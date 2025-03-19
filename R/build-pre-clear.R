@@ -43,6 +43,7 @@
 .build_clear_pre_output_label <- function(label) {
   projr_path_get_dir(label, safe = TRUE) |>
     .dir_clear()
+    # directly
 }
 
 .build_clear_pre_docs <- function(output_run, clear_output) {
