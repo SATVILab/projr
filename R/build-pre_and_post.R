@@ -23,6 +23,9 @@
                               msg) {
   # exit early if required
   if (!.build_git_check(output_run)) {
+    if (!.git_repo_check_exists()) {
+      stop("Git commits requested but no Git directory found")
+    }
     return(invisible(FALSE))
   }
   if (!.git_repo_check_exists()) {
@@ -38,7 +41,13 @@
   )
 }
 
+.build_git_commit_pre_warn <- function(stage) {
+  if (stage == "pre") {
+    warning("Pre-build commit requested but no Git directory found")
+  }
   invisible(TRUE)
+}
+
 .build_git_commit_get_msg <- function(msg, stage) {
   if (stage == "pre") {
     "Snapshot pre-build"

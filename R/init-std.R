@@ -14,7 +14,8 @@
 #' @param github_public Logical. If \code{TRUE}, the GitHub repository will be public.
 #'   Defaults to \code{FALSE}.
 #' @param github_org Character or \code{NULL}. The GitHub organization under which to create
-#'   the repository. Defaults to \code{NULL}.
+#'   the repository. Defaults to \code{NULL}, which creates the repository under the user's account 
+#' (as implied by the GitHub token).
 #' @param dir Logical. If \code{TRUE}, initializes the projr-specified directories (e.g., raw,
 #'   cache, output). Defaults to \code{TRUE}.
 #' @param readme Logical. If \code{TRUE}, creates a README file. Defaults to \code{TRUE}.

@@ -1,5 +1,7 @@
 .build_clear_post <- function(output_run, clear_output) {
-  if (!.build_clear_post_check(output_run)) {
+  # clear final directories, in preparation
+  # for the next build
+  if (!.build_clear_post_check(output_run, clear_output)) {
     return(invisible(FALSE))
   }
   # clear the output folders (output and data),
@@ -11,12 +13,16 @@
     if (!.build_clear_post_check_label(x)) {
       next
     }
-    projr_path_get_dir(x, safe = FALSE) |> .dir_clear()
+    projr_path_get_dir(x, safe = FALSE, create = FALSE) |> .dir_clear()
   }
   invisible(TRUE)
 }
 
 .build_clear_post_check <- function(output_run, clear_output) {
+  # only clear final directories if 
+  # we are clearing after build (i.e. we 
+  # cleared "conservatively") in an output_run (i.e. if we
+  # are going to copy across )
   invisible(output_run) && clear_output == "post"
 }
 
