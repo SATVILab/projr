@@ -212,7 +212,7 @@ projr_build_dev <- function(file = NULL,
   }
   projr_env_file_activate()
   .build_ensure_version()
-  clear_output <- .build_get_clear_output()
+  clear_output <- .build_get_clear_output(clear_output)
 
   version_run_on_list <- .build_pre(
     bump_component, msg, clear_output, archive_local
