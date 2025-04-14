@@ -8,6 +8,7 @@
 
   # check that we have Git if needed
   .build_git_check(output_run)
+  
   # check we are not missing upstream commits
   .build_exit_if_behind_upstream(output_run)
 }
@@ -46,15 +47,15 @@
 }
 
 .build_git_required_setup <- function() {
-  message("Git explicitly required but no Git directory found.")
-  message("Creating a new Git repository.")
+  cli::cli_alert_info("Git is explicitly required but no Git repository was found.")
+  cli::cli_alert_info("Creating a new Git repository...")
   projr_init_git(TRUE)
 }
 
 .build_git_check_depends <- function() {
   # check if we need to set up Git
   yml_git <- .yml_git_get(NULL)
-  # don't if explicitly not requested
+  # do nothing if explicitly not requested
   if (isFALSE(yml_git)) {
     return(FALSE)
   }
@@ -63,12 +64,12 @@
   }
   # check if it's an option
   if (interactive()) {
-    message("Git repository not found.")
-    message("It is not required, but recommended, and projr will handle setup and (by default) commits for you.") # nolint
-    message("If you choose not to create one now, then Git handling by projr will be disabled.") # nolint
+    cli::cli_alert_warning("Git repository not found.")
+    cli::cli_inform("It is not required, but recommended, and projr will handle setup and (by default) commits for you.")
+    cli::cli_inform("If you choose not to create one now, then Git handling by projr will be disabled.")
     choice <- menu(
       c("Yes", "No"),
-      title = "Do you want to create a new Git repository?" # nolint
+      title = "Do you want to create a new Git repository?"
     )
     choice == 1
   } else {
@@ -77,15 +78,15 @@
 }
 
 .build_git_depends_setup <- function() {
-  message("Git repository setup requested.")
-  message("Creating a new Git repository.")
+  cli::cli_alert_info("Git repository setup requested.")
+  cli::cli_alert_info("Creating a new Git repository...")
   projr_init_git(TRUE)
 }
 
 .build_git_depends_disable <- function() {
-  message("Git repository setup not requested.")
-  message("Disabling Git handling by projr.")
-  message("You can re-enable it by running `projr_yml_git_set(TRUE)`.") # nolint
+  cli::cli_alert_info("Git repository setup not requested.")
+  cli::cli_inform("Disabling Git handling by projr.")
+  cli::cli_inform("You can re-enable it by running `projr_yml_git_set(TRUE)`.")
   projr_yml_git_set(FALSE)
   invisible(TRUE)
 }
@@ -133,11 +134,11 @@
   if (is.null(msg) || .is_len_0(msg)) {
     if (!.is_test()) {
       if (interactive()) {
-        cat("Please enter a one-line description of change", "\n")
+        cli::cli_inform("Please enter a one-line description of the change:")
         msg <- readline(prompt = ">> ")
         while (.is_len_0(msg)) {
-          cat("Message cannot be empty", "\n")
-          cat("Please enter a one-line description of change", "\n")
+          cli::cli_alert_warning("Message cannot be empty.")
+          cli::cli_inform("Please enter a one-line description of the change:")
           msg <- readline(prompt = ">> ")
         }
       } else {
