@@ -420,8 +420,6 @@ projr_build_dev <- function(file = NULL,
   )
 }
 
-.build_pre_commit_git_prompt
-
 # record (version, rmd, git)
 .build_post_commit_git <- function(bump_component,
                                    version_run_on_list,
