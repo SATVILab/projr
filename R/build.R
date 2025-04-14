@@ -178,7 +178,7 @@ projr_build_dev <- function(file = NULL,
                             old_dev_remove = TRUE,
                             args_engine = list(),
                             profile = NULL,
-                            clear_output = NULL) {
+                            clear_output = "never") {
   # NULL if FALSE and "dev" if TRUE
   bump_component <- .build_dev_get_bump_component(bump)
   .build(

@@ -23,7 +23,7 @@
   # we are clearing after build (i.e. we 
   # cleared "conservatively") in an output_run (i.e. if we
   # are going to copy across )
-  invisible(output_run) && clear_output == "post"
+  clear_output == "post"
 }
 
 .build_clear_post_check_label <- function(label) {
