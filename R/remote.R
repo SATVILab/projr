@@ -1501,16 +1501,11 @@ projr_osf_create_project <- function(title,
     if (.is_len_0(label_regex)) {
       return(character(0L))
     }
-    # return character() if ends in an asterisk
-    if (grepl("\\*$", label_regex)) {
-      return(character(0L))
-    }
-    gsub(match_str, "", label_regex) |>
-      trimws() |>
-      .version_v_rm()
+    # Extract version, removing the asterisk if present
+    version_with_possible_asterisk <- gsub(match_str, "", label_regex) |> trimws()
+    # Remove asterisk for version comparison purposes but don't mark as trusted
+    gsub("\\*$", "", version_with_possible_asterisk) |> .version_v_rm()
   }
-
-
 
 # ==========================
 # Get the most recent remote

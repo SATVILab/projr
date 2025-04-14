@@ -435,7 +435,7 @@
   version_file <- .dest_send_label_get_plan_action_version_file(
     type, remote_pre, label,
     update_label = TRUE,
-    asterisk_label = asterisk_label
+    asterisk_force_add = asterisk_label
   )
   manifest <- .dest_send_label_get_plan_action_manifest(
     type, remote_pre, label,
@@ -455,17 +455,57 @@
                                                           remote_pre,
                                                           label,
                                                           update_label = FALSE, # nolint
-                                                          asterisk_label = FALSE) { # nolint
+                                                          asterisk_force_add = FALSE,
+                                                          asterisk_force_rm = FALSE) { # nolint
   version_remote <- .remote_get_version_file(type, remote_pre)
   version_remote <- .version_file_update_project_version(
     version_remote
   )
-  if (update_label || asterisk_label) {
+  
+
+  # Only mark as trusted if asterisk_label is FALSE and the previous version wasn't untrusted
+  # or if we're explicitly marking as trusted (e.g., for purge operations)
+  if (update_label) {
+    # Check if the previous version had an asterisk (was untrusted)
+    # Check if we need to force add or remove the asterisk
+    if (asterisk_force_rm) {
+      # here we're forcibly removing it,
+      # regardless of previous status.
+      # so, we trust the remote now.
+      use_asterisk <- FALSE
+    } else {
+      if (asterisk_force_add) {
+        use_asterisk <- TRUE
+      } else {
+        # here we check if the previous version was trusted
+        use_asterisk <-
+          .dest_send_label_get_plan_action_version_file_check_untrusted(
+            version_remote, label
+          )
+      }
+    }
+ 
     version_remote <- .version_file_update_label_version(
-      version_remote, label, asterisk_label
+      version_remote, label, use_asterisk
     )
   }
   version_remote
+}
+
+.dest_send_label_get_plan_action_version_file_check_untrusted <- function(version_file, # nolint
+                                                                          label) { # nolint
+  if (length(version_file) == 0L) {
+    return(FALSE)
+  }
+  match_str <- utils::glob2rx(label) |>
+    gsub("\\$", "", x = _) |>
+    paste0(": ")
+  label_regex <- grep(match_str, version_file, value = TRUE)
+  if (.is_len_0(label_regex)) {
+    return(FALSE)
+  }
+  # Return TRUE if ends in an asterisk
+  grepl("\\*$", label_regex)
 }
 
 .dest_send_label_get_plan_action_manifest <- function(type,
@@ -536,7 +576,7 @@
   asterisk_label <- !create # don't asterisk if creating it
   version_file <- .dest_send_label_get_plan_action_version_file(
     type, remote_pre, label,
-    update_label = TRUE, asterisk_label = asterisk_label
+    update_label = TRUE, asterisk_force_add = asterisk_label
   )
   manifest <- .dest_send_label_get_plan_action_manifest(
     type, remote_pre, label,
@@ -594,9 +634,11 @@
                                                    fn_diff,
                                                    fn_same,
                                                    strategy) {
+  # For purge operations, we explicitly mark as trusted (asterisk_label = FALSE)
   version_file <- .dest_send_label_get_plan_action_version_file(
     type, remote_pre, label,
-    update_label = TRUE
+    update_label = TRUE,
+    asterisk_force_rm = TRUE # Purge operations should be trusted
   )
   manifest <- .dest_send_label_get_plan_action_manifest(
     type, remote_pre, label,
@@ -659,6 +701,7 @@
                                                          fn_diff,
                                                          fn_same,
                                                          fn_dest_extra) {
+  # For diff operations, preserve untrusted status
   version_file <- .dest_send_label_get_plan_action_version_file(
     type, remote_pre, label,
     update_label = TRUE

@@ -21,7 +21,7 @@
 #' @param readme Logical. If \code{TRUE}, creates a README file. Defaults to \code{TRUE}.
 #' @param readme_rmd Logical. If \code{TRUE}, generates a README in R Markdown format
 #'   (\code{README.Rmd}); otherwise, a Markdown file (\code{README.md}) is created.
-#'   Defaults to \code{FALSE}.
+#'   Defaults to \code{TRUE}.
 #' @param renv Logical. If \code{TRUE}, initializes a renv environment for dependency management.
 #'   Defaults to \code{FALSE}.
 #' @param desc Logical. If \code{TRUE}, creates a DESCRIPTION file for the project.
@@ -64,7 +64,7 @@ projr_init <- function(git = TRUE,
                        # whether to initialise projr-specified directories
                        dir = TRUE,
                        readme = TRUE,
-                       readme_rmd = FALSE,
+                       readme_rmd = TRUE,
                        desc = FALSE,
                        license = NULL,
                        projr_yml = FALSE,
@@ -560,7 +560,12 @@ projr_init_github <- function(username = NULL,
     if (Sys.getenv("GITHUB_ACTIONS") == "true") {
       gert::git_config_global_set("user.name", "GitHub Actions")
     } else if (!interactive()) {
-      gert::git_config_global_set("user.name", "projr stand-in")
+      message("Git user name not set and in non-interactive mode.")
+      user_name <- paste0(Sys.info()[["user"]], "_", Sys.info()[["node_name"]])
+      message(paste0(
+        "Using system user name and node name: ", user_name
+      ))
+      gert::git_config_global_set("user.name", user_name)
     } else {
       choice <- utils::menu(
         c("Yes", "No"),
@@ -584,7 +589,15 @@ projr_init_github <- function(username = NULL,
     if (Sys.getenv("GITHUB_ACTIONS") == "true") {
       gert::git_config_global_set("user.email", "filler-email@projr-test.com")
     } else if (!interactive()) {
-      gert::git_config_global_set("user.email", "projr-standin@email.com")
+      message("Git user email not set and in non-interactive mode.")
+      user_email <- paste0(
+        Sys.info()[["user"]], "_", Sys.info()[["node_name"]], "@projr-test.com"
+      )
+      message(paste0(
+        "Using system user name and node name: ", user_email
+      ))
+      # Set a default email address for non-interactive mode.
+      gert::git_config_global_set("user.email", user_email)
     } else {
       choice <- utils::menu(
         c("Yes", "No"),

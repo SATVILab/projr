@@ -116,6 +116,11 @@ projr_restore <- function(label = NULL,
     " ", source_vec[["title"]]
   )
   message("Version: ", version_remote)
+  # Check if version is marked as untrusted in VERSION file
+  untrusted <- .remote_check_version_untrusted(remote_pre, source_vec[["type"]], label)
+  if (untrusted) {
+    message("Note: This version is marked as untrusted")
+  }
   remote_source <- .remote_get_final(
     source_vec[["type"]], yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
@@ -350,4 +355,18 @@ projr_restore <- function(label = NULL,
   if (!is.null(title)) {
     return(title)
   }
+}
+
+# Function to check if a version is marked as untrusted in VERSION file
+.remote_check_version_untrusted <- function(remote_pre, type, label) {
+  version_file <- .remote_get_version_file(type, remote_pre)
+  match_str <- utils::glob2rx(label) |>
+    gsub("\\$", "", x = _) |>
+    paste0(": ")
+  label_regex <- grep(match_str, version_file, value = TRUE)
+  if (.is_len_0(label_regex)) {
+    return(FALSE)
+  }
+  # Return TRUE if ends in an asterisk
+  grepl("\\*$", label_regex)
 }
