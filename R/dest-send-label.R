@@ -461,35 +461,39 @@
   version_remote <- .version_file_update_project_version(
     version_remote
   )
-  
 
-  # Only mark as trusted if asterisk_label is FALSE and the previous version wasn't untrusted
-  # or if we're explicitly marking as trusted (e.g., for purge operations)
   if (update_label) {
     # Check if the previous version had an asterisk (was untrusted)
     # Check if we need to force add or remove the asterisk
-    if (asterisk_force_rm) {
-      # here we're forcibly removing it,
-      # regardless of previous status.
-      # so, we trust the remote now.
-      use_asterisk <- FALSE
-    } else {
-      if (asterisk_force_add) {
-        use_asterisk <- TRUE
-      } else {
-        # here we check if the previous version was trusted
-        use_asterisk <-
-          .dest_send_label_get_plan_action_version_file_check_untrusted(
-            version_remote, label
-          )
-      }
-    }
+    use_asterisk <- .dest_send_label_get_plan_action_version_file_get_use_asterisk(
+      asterisk_force_rm, asterisk_force_add, version_remote, label
+    )
  
     version_remote <- .version_file_update_label_version(
       version_remote, label, use_asterisk
     )
   }
   version_remote
+}
+
+.dest_send_label_get_plan_action_version_file_get_use_asterisk <- function(asterisk_force_rm,
+                                                                           asterisk_force_add,
+                                                                           version_remote,
+                                                                           label) {
+  if (asterisk_force_rm) {
+    # here we're forcibly removing it,
+    # regardless of previous status.
+    # so, we trust the remote now.
+    return(FALSE)
+  }
+  if (asterisk_force_add) {
+    return(TRUE)
+  } 
+  # here we check if the previous version was trusted
+  .dest_send_label_get_plan_action_version_file_check_untrusted(
+    version_remote, label
+  )
+
 }
 
 .dest_send_label_get_plan_action_version_file_check_untrusted <- function(version_file, # nolint
