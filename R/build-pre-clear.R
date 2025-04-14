@@ -1,11 +1,11 @@
 # clear
 # -----------------
 
-.build_clear_pre <- function(clear_output) {
+.build_clear_pre <- function(output_run, clear_output) {
   # output directories
   .build_clear_pre_output(clear_output)
-  # docs
-  .build_clear_pre_docs(clear_output)
+  # never need to clear `docs` directories,
+  # as we control where they're saved to.
   # entire projrect cache, except for `old` directory
   # which is what the above are saving to if they're
   # caching

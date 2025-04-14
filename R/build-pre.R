@@ -222,7 +222,7 @@
 
   # empty output directories
   # (docs, output and data)
-  .build_clear_pre(clear_output)
+  .build_clear_pre(output_run, clear_output)
 }
 
 # misc

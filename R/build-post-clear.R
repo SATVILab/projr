@@ -1,4 +1,5 @@
 .build_clear_post <- function(output_run, clear_output) {
+  .build_clear_post_docs(output_run)
   # clear final directories, in preparation
   # for the next build
   if (!.build_clear_post_check(output_run, clear_output)) {
@@ -7,31 +8,37 @@
   # clear the output folders (output and data),
   # as these would still contain output from
   # previous runs as they're not cleared pre-run
-  label_vec <- c(.yml_dir_get_label_output(NULL), "docs", "data") |>
+  label_vec <- c(.yml_dir_get_label_output(NULL), "data") |>
     unique()
   for (x in label_vec) {
-    if (!.build_clear_post_check_label(x)) {
-      next
-    }
     projr_path_get_dir(x, safe = FALSE, create = FALSE) |> .dir_clear()
   }
   invisible(TRUE)
 }
 
-.build_clear_post_check <- function(output_run, clear_output) {
-  # only clear final directories if 
-  # we are clearing after build (i.e. we 
+.build_clear_post_docs <- function(output_run) {
+  # always clear docs for output directories
+  # if not quarto projects or bookdown projects.
+  # don't clear quarto projects or bookdown projects
+  # as we save directly there.
+  if (output_run && .build_clear_post_check_docs()) {
+    projr_path_get_dir("docs", safe = FALSE, create = FALSE) |> .dir_clear()
+  } else {
+    invisible(FALSE)
+  }
+}
+
+.build_clear_post_check <- function(clear_output) {
+  # only clear final directories if
+  # we are clearing after build (i.e. we
   # cleared "conservatively") in an output_run (i.e. if we
   # are going to copy across )
   clear_output == "post"
 }
 
-.build_clear_post_check_label <- function(label) {
+.build_clear_post_check_docs <- function() {
   # allow the exception that the quarto project
   # and bookdown folders are not cleared
-  if (!label == "docs") {
-    return(TRUE)
-  }
   .engine_get() %in% c("quarto_document", "rmd")
 }
 
