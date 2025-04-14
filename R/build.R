@@ -65,8 +65,7 @@ projr_build <- function(bump_component,
                         archive_github = FALSE,
                         archive_local = FALSE,
                         always_archive = TRUE,
-                        clear_output = NULL,
-                        prompt_git = TRUE) {
+                        clear_output = NULL) {
   bump_component <- .build_output_get_bump_component(
     bump_component
   )
@@ -80,8 +79,7 @@ projr_build <- function(bump_component,
     archive_github = archive_github,
     archive_local = archive_local,
     always_archive = always_archive,
-    clear_output = clear_output,
-    prompt_git = prompt_git
+    clear_output = clear_output
   )
 }
 
@@ -93,8 +91,7 @@ projr_build_major <- function(msg = NULL,
                               archive_github = FALSE,
                               archive_local = FALSE,
                               always_archive = TRUE,
-                              clear_output = NULL,
-                              prompt_git = TRUE) {
+                              clear_output = NULL) {
   projr_build(
     bump_component = "major",
     msg = msg,
@@ -103,8 +100,7 @@ projr_build_major <- function(msg = NULL,
     archive_github = archive_github,
     archive_local = archive_local,
     always_archive = always_archive,
-    clear_output = clear_output,
-    prompt_git = prompt_git
+    clear_output = clear_output
   )
 }
 
@@ -116,8 +112,7 @@ projr_build_minor <- function(msg = NULL,
                               archive_github = FALSE,
                               archive_local = FALSE,
                               always_archive = TRUE,
-                              clear_output = NULL,
-                              prompt_git = TRUE) {
+                              clear_output = NULL) {
   projr_build(
     bump_component = "minor",
     msg = msg,
@@ -126,8 +121,7 @@ projr_build_minor <- function(msg = NULL,
     archive_github = archive_github,
     archive_local = archive_local,
     always_archive = always_archive,
-    clear_output = clear_output,
-    prompt_git = prompt_git
+    clear_output = clear_output
   )
 }
 
@@ -139,8 +133,7 @@ projr_build_patch <- function(msg = NULL,
                               archive_github = FALSE,
                               archive_local = FALSE,
                               always_archive = TRUE,
-                              clear_output = NULL,
-                              prompt_git = TRUE) {
+                              clear_output = NULL) {
   projr_build(
     bump_component = "patch",
     msg = msg,
@@ -149,8 +142,7 @@ projr_build_patch <- function(msg = NULL,
     archive_github = archive_github,
     archive_local = archive_local,
     always_archive = always_archive,
-    clear_output = clear_output,
-    prompt_git = prompt_git
+    clear_output = clear_output
   )
 }
 
@@ -186,7 +178,7 @@ projr_build_dev <- function(file = NULL,
                             old_dev_remove = TRUE,
                             args_engine = list(),
                             profile = NULL,
-                            prompt_git = TRUE) {
+                            clear_output = NULL) {
   # NULL if FALSE and "dev" if TRUE
   bump_component <- .build_dev_get_bump_component(bump)
   .build(
@@ -195,7 +187,7 @@ projr_build_dev <- function(file = NULL,
     old_dev_remove = TRUE,
     args_engine = args_engine,
     profile = profile,
-    prompt_git = prompt_git
+    clear_output = clear_output
   )
 }
 
@@ -214,8 +206,7 @@ projr_build_dev <- function(file = NULL,
                    archive_github = FALSE,
                    archive_local = FALSE,
                    always_archive = TRUE,
-                   clear_output = NULL,
-                   prompt_git = TRUE) {
+                   clear_output = NULL) {
   if (!is.null(profile)) {
     old_profile <- Sys.getenv("PROJR_PROFILE")
     Sys.setenv(PROJR_PROFILE = profile)
@@ -226,7 +217,7 @@ projr_build_dev <- function(file = NULL,
   clear_output <- .build_get_clear_output(clear_output)
 
   version_run_on_list <- .build_pre(
-    bump_component, msg, clear_output, archive_local, prompt_git
+    bump_component, msg, clear_output, archive_local
   )
   time_start <- Sys.time()
   .build_impl(version_run_on_list, file, args_engine)
@@ -266,14 +257,14 @@ projr_build_dev <- function(file = NULL,
 .build_pre <- function(bump_component,
                        msg,
                        clear_output,
-                       archive_local,
-                       prompt_git) {
+                       archive_local) {
   projr_yml_check(NULL)
   # whether it's an output run  or not
   output_run <- .build_get_output_run(bump_component)
 
   # check required env vars are present, and
-  # that we're not behind upstream remote
+  # that we're not behind upstream remote,
+  # and that we have Git and  Git remote setup
   .build_pre_check(output_run)
 
   # update reng, ignore files, doc directory and version
@@ -416,8 +407,7 @@ projr_build_dev <- function(file = NULL,
 # record (version, rmd, git)
 .build_pre_commit_git <- function(bump_component,
                                   version_run_on_list,
-                                  msg,
-                                  prompt_git) {
+                                  msg) {
   output_run <- .build_get_output_run(bump_component)
 
   # commit any files generated by run
@@ -426,8 +416,7 @@ projr_build_dev <- function(file = NULL,
     bump_component = bump_component,
     version_run_on_list = version_run_on_list,
     stage = "pre",
-    msg = msg,
-    prompt_git = prompt_git
+    msg = msg
   )
 }
 
