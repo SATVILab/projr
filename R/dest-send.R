@@ -162,11 +162,6 @@
     )
   }
 
-  .dest_send_type_changelog(
-    title, type, .build_get_output_run(bump_component)
-  )
-
-
   invisible(TRUE)
 }
 
@@ -221,3 +216,4 @@
     c(nm_vec_output, nm_vec_raw, nm_vec_docs)
   }
 }
+
