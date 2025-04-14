@@ -224,7 +224,7 @@ projr_build_dev <- function(file = NULL,
   total_time <- Sys.time() - time_start
   .build_post(
     version_run_on_list, bump_component, msg, old_dev_remove,
-    archive_github, always_archive, clear_output, total_time
+    archive_github, archive_local, always_archive, clear_output, total_time
   )
   .env_file_deactivate()
 }
