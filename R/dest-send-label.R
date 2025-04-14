@@ -465,10 +465,11 @@
   if (update_label) {
     # Check if the previous version had an asterisk (was untrusted)
     # Check if we need to force add or remove the asterisk
-    use_asterisk <- .dest_send_label_get_plan_action_version_file_get_use_asterisk(
-      asterisk_force_rm, asterisk_force_add, version_remote, label
-    )
- 
+    use_asterisk <-
+      .dest_send_label_get_plan_action_version_file_get_use_asterisk(
+        asterisk_force_rm, asterisk_force_add, version_remote, label
+      )
+
     version_remote <- .version_file_update_label_version(
       version_remote, label, use_asterisk
     )
