@@ -56,7 +56,8 @@
     paste0(
       version_txt, ": ",
       .change_get_author_time()
-    )
+    ),
+    ""
   )
 }
 
