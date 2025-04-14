@@ -51,7 +51,7 @@
 }
 
 .buildlog_get_header <- function(version_run_on_list, bump_component) {
-  version_txt <- .buildlog_get_version(version_run_on_list)
+  version_txt <- .buildlog_get_version(version_run_on_list, bump_component)
   c(
     paste0(
       version_txt, ": ",

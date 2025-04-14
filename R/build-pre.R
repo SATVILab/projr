@@ -7,17 +7,87 @@
   .build_env_check(output_run)
 
   # check that we have Git if needed
-
-
+  .build_git_check(output_run)
   # check we are not missing upstream commits
   .build_exit_if_behind_upstream(output_run)
 }
 
 .build_git_check <- function(output_run) {
-  need_git <- output_run && .yml_git_get_commit(NULL)
-  if (need_git && !.git_repo_check_exists()) {
-    stop("Git commits requested but no Git directory found")
+  if (!output_run) {
+    return(invisible(FALSE))
   }
+  if (.git_repo_check_exists()) {
+    return(invisible(FALSE))
+  }
+  # force setup if explicitly required
+  if (.build_git_check_required()) {
+    return(.build_git_required_setup())
+  }
+  if (.build_git_check_depends()) {
+    return(.build_git_depends_setup())
+  } else {
+    return(.build_git_depends_disable())
+  }
+}
+
+.build_git_check_required <- function() {
+  # only return TRUE if explicitly required
+  yml_git <- .yml_git_get(NULL)
+  if (is.null(yml_git)) {
+    return(FALSE)
+  }
+  if (isTRUE(yml_git)) {
+    return(TRUE)
+  }
+  if (is.null(yml_git[["commit"]])) {
+    return(FALSE)
+  }
+  yml_git[["commit"]]
+}
+
+.build_git_required_setup <- function() {
+  message("Git explicitly required but no Git directory found.")
+  message("Creating a new Git repository.")
+  projr_init_git(TRUE)
+}
+
+.build_git_check_depends <- function() {
+  # check if we need to set up Git
+  yml_git <- .yml_git_get(NULL)
+  # don't if explicitly not requested
+  if (isFALSE(yml_git)) {
+    return(FALSE)
+  }
+  if (!is.null(yml_git[["commit"]]) && !yml_git[["commit"]]) {
+    return(FALSE)
+  }
+  # check if it's an option
+  if (interactive()) {
+    message("Git repository not found.")
+    message("It is not required, but recommended, and projr will handle setup and (by default) commits for you.") # nolint
+    message("If you choose not to create one now, then Git handling by projr will be disabled.") # nolint
+    choice <- menu(
+      c("Yes", "No"),
+      title = "Do you want to create a new Git repository?" # nolint
+    )
+    choice == 1
+  } else {
+    TRUE
+  }
+}
+
+.build_git_depends_setup <- function() {
+  message("Git repository setup requested.")
+  message("Creating a new Git repository.")
+  projr_init_git(TRUE)
+}
+
+.build_git_depends_disable <- function() {
+  message("Git repository setup not requested.")
+  message("Disabling Git handling by projr.")
+  message("You can re-enable it by running `projr_yml_git_set(TRUE)`.") # nolint
+  projr_yml_git_set(FALSE)
+  invisible(TRUE)
 }
 
 .build_pre_document <- function(output_run, archive_local) {

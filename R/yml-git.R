@@ -218,6 +218,11 @@ projr_yml_git_set_default <- function(profile = "default",
   if (isFALSE(yml_git)) {
     return(FALSE)
   }
+  # same reasoning as for push:
+  # override add-untracked value if commit is FALSE
+  if (!is.null(yml_git[["commit"]]) && !yml_git[["commit"]]) {
+    return(FALSE)
+  }
   if (is.null(yml_git[["add-untracked"]])) {
     return(TRUE)
   }
@@ -241,6 +246,14 @@ projr_yml_git_set_default <- function(profile = "default",
     return(TRUE)
   }
   if (isFALSE(yml_git)) {
+    return(FALSE)
+  }
+  # override push value if commit is FALSE
+  # (i.e. if commit is FALSE, then push is also FALSE)
+  # as there is no reason to push if not committing,
+  # and this makes the upfront check for Git setup easier
+  # (as we can now rule out the case where commit is FALSE)
+  if (!is.null(yml_git[["commit"]]) && !yml_git[["commit"]]) {
     return(FALSE)
   }
   if (is.null(yml_git[["push"]])) {

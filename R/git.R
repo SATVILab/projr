@@ -240,6 +240,10 @@
       .dep_install("gert")
     }
   )
+  if (!.git_system_check_gert()) {
+    stop("Failed to install gert and Git executable not available")
+  }
+  invisible(TRUE)
 }
 
 .git_system_check_gert <- function() {
@@ -395,6 +399,94 @@
   ][["value"]]
 }
 
+# email
+.git_config_get_email <- function() {
+  switch(.git_system_get(),
+    "git" = .git_config_get_email_git(),
+    "gert" = .git_config_get_email_gert(),
+    stop(paste0(.git_system_get(), " not recognised"))
+  )
+}
+
+.git_config_get_email_git <- function() {
+  nm <- .git_config_get_email_git_local()
+  if (.is_string(nm)) {
+    return(nm)
+  }
+  nm <- .git_config_get_email_git_global()
+  if (.is_string(nm)) {
+    return(nm)
+  }
+  .git_config_get_email_git_system()
+}
+
+.git_config_get_email_git_local <- function() {
+  tryCatch(
+    suppressWarnings(
+      system2("git", args = "config --local user.email", stdout = TRUE)
+    ),
+    error = function(e) character()
+  )
+}
+.git_config_get_email_git_global <- function() {
+  tryCatch(
+    suppressWarnings(
+      system2("git", args = "config --global user.email", stdout = TRUE)
+    ),
+    error = function(e) character()
+  )
+}
+.git_config_get_email_git_system <- function() {
+  tryCatch(
+    suppressWarnings(
+      system2("git", args = "config --system user.email", stdout = TRUE)
+    ),
+    error = function(e) {
+      "anonymous-user"
+    }
+  )
+}
+
+.git_config_get_email_gert <- function() {
+  nm <- .git_config_get_email_gert_local()
+  if (.is_string(nm)) {
+    return(nm)
+  }
+  nm <- .git_config_get_email_gert_global()
+  if (.is_string(nm)) {
+    return(nm)
+  }
+  nm <- .git_config_get_email_gert_system()
+  if (.is_string(nm)) {
+    return(nm)
+  }
+  "anonymous-user"
+}
+
+.git_config_get_email_gert_local <- function() {
+  config_tbl <- gert::git_config()
+  local_vec_ind <- config_tbl[["level"]] == "local"
+  config_tbl[
+    config_tbl[["name"]] == "user.email" & local_vec_ind,
+  ][["value"]]
+}
+
+.git_config_get_email_gert_global <- function() {
+  config_tbl <- gert::git_config()
+  global_vec_ind <- config_tbl[["level"]] == "global"
+  config_tbl[
+    config_tbl[["name"]] == "user.email" & global_vec_ind,
+  ][["value"]]
+}
+.git_config_get_email_gert_system <- function() {
+  config_tbl <- gert::git_config()
+  system_vec_ind <- config_tbl[["level"]] == "system"
+  config_tbl[
+    config_tbl[["name"]] == "user.email" & system_vec_ind,
+  ][["value"]]
+}
+
+# check if behind remote
 .git_check_behind <- function() {
   if (!.git_remote_check_exists()) {
     return(invisible(FALSE))
