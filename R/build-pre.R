@@ -8,7 +8,10 @@
 
   # check that we have Git if needed
   .build_git_check(output_run)
-  
+
+  # check that we have GitHub remote if needed
+  .build_github_check(output_run)
+
   # check we are not missing upstream commits
   .build_exit_if_behind_upstream(output_run)
 }
@@ -73,6 +76,8 @@
     )
     choice == 1
   } else {
+    cli::cli_alert_warning("Git repository not found.")
+    cli::cli_inform("Git repository will be created automatically, as in non-interactive mode.")
     TRUE
   }
 }
@@ -89,6 +94,107 @@
   cli::cli_inform("You can re-enable it by running `projr_yml_git_set(TRUE)`.")
   projr_yml_git_set(FALSE)
   invisible(TRUE)
+}
+
+# github
+# -----------------
+.build_github_check <- function(output_run) {
+  if (!output_run) {
+    return(invisible(FALSE))
+  }
+  if (!.git_repo_check_exists()) {
+    return(invisible(FALSE))
+  }
+  if (.git_remote_check_exists()) {
+    return(invisible(FALSE))
+  }
+  # check if we need to set up GitHub
+  yml_git <- .yml_git_get(NULL)
+  # do nothing if explicitly not requested
+  if (isFALSE(yml_git)) {
+    return(invisible(FALSE))
+  }
+  yml_commit_false <- isFALSE(yml_git[["commit"]])
+  yml_push_false <- isFALSE(yml_git[["push"]])
+  if (yml_commit_false || yml_push_false) {
+    return(invisible(FALSE))
+  }
+  if (isTRUE(yml_git) || isTRUE(yml_git[["push"]])) {
+    cli::cli_alert_warning("GitHub remote required, but not found.")
+    cli::cli_inform("Will attempt to create a new GitHub remote.")
+    return(invisible(TRUE))
+  }
+  # check if it's an option
+  if (interactive()) {
+    cli::cli_alert_warning("GitHub remote not found.")
+    cli::cli_inform("It is not required, but recommended, and projr will help handle setup for you.") # nolint
+    choice <- menu(
+      c("Yes", "No"),
+      title = "Do you want to create a new GitHub remote?"
+    )
+    if (choice == 2) {
+      cli::cli_alert_info("Disabling automated pushes to GitHub by projr.")
+      cli::cli_inform("You can re-enable it by running `projr_yml_git_set(push = TRUE)`.") # nolint
+      projr_yml_git_set(push = FALSE)
+      return(FALSE)
+    }
+    TRUE
+  } else {
+    cli::cli_alert_info("GitHub remote not found.")
+    cli::cli_alert_info("GitHub remote will be created automatically, as in non-interactive mode.") # nolint
+    TRUE
+  }
+}
+
+.build_github_setup <- function() {
+  cli::cli_alert_info("GitHub remote setup requested.")
+  cli::cli_alert_info("Creating a new GitHub remote...")
+  .build_github_setup_check_pat()
+  user <- .build_github_setup_user()
+  .build_github_setup_repo(user)
+  cli::cli_alert_info("GitHub remote created successfully.")
+}
+
+.build_github_setup_check_pat <- function() {
+  if (!.git_gh_check_auth()) {
+    stop("GitHub PAT not found.")
+  }
+  invisible(TRUE)
+}
+
+.build_github_setup_user <- function() {
+  user <- gh::gh_whoami()$login
+  if (!.is_string(user)) {
+    stop("GitHub user not found.")
+  }
+  if (!interactive()) {
+    return(c("user" = user))
+  }
+  choice <- menu(
+    c(user, "Organisation"),
+    title = paste0("Do you want to set up the GitHub remote under user ", user, ", or under an organisation?") # nolint
+  )
+  if (choice == 1) {
+    return(c("user" = user))
+  }
+  cli::cli_alert_info("Please enter the name of the organisation:")
+  org <- readline(prompt = ">> ")
+  while (.is_len_0(org)) {
+    cli::cli_alert_warning("Organisation name cannot be empty.")
+    cli::cli_alert_info("Please enter the name of the organisation:")
+    org <- readline(prompt = ">> ")
+  }
+  c("org" = org)
+}
+
+.build_github_setup_repo <- function(user) {
+  cli::cli_alert_info("Creating new GitHub repository...")
+  if ("user" %in% names(user)) {
+    .init_github_actual_user(FALSE)
+  }
+  if ("org" %in% names(user)) {
+    .init_github_actual_org(FALSE, user[["org"]])
+  }
 }
 
 .build_pre_document <- function(output_run, archive_local) {

@@ -11,9 +11,12 @@
 
 .auth_get_github_pat_find <- function() {
   # try GITHUB_PAT
-  pat <- Sys.getenv("GITHUB_PAT")
-  if (.is_string(pat)) {
-    return(invisible(pat))
+  pat_nm <- c("GITHUB_PAT", "GITHUB_TOKEN")
+  for (x in pat_nm) {
+    pat <- Sys.getenv(x)
+    if (.is_string(pat)) {
+      return(invisible(pat))
+    }
   }
   # try gitcreds
   if (!requireNamespace("gitcreds", quietly = TRUE)) {

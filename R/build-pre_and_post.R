@@ -20,8 +20,7 @@
                               bump_component,
                               version_run_on_list,
                               stage,
-                              msg,
-                              prompt_git) {
+                              msg) {
   # exit early if required
   if (!.build_git_check(output_run)) {
     .build_git_commit_pre_warn(stage, output_run)
