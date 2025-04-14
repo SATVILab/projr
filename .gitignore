@@ -8,3 +8,4 @@ _tmp
 /doc/
 /Meta/
 _scratch/VERSION
+git_diff_output.txt
