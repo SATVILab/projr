@@ -59,7 +59,7 @@
     for (i in seq_along(title)) {
       tt <- title[[i]]
       yml_title <- .yml_dest_get_title_complete(
-        tt, tp, NULL, FALSE, FALSE, FALSE
+        tt, tp, NULL, FALSE, FALSE
       )
       if (!label %in% yml_title[["content"]]) {
         next
