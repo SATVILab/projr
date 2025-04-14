@@ -639,7 +639,6 @@
                                                    fn_diff,
                                                    fn_same,
                                                    strategy) {
-  # For purge operations, we explicitly mark as trusted (asterisk_label = FALSE)
   version_file <- .dest_send_label_get_plan_action_version_file(
     type, remote_pre, label,
     update_label = TRUE,
