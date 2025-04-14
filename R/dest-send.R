@@ -17,9 +17,7 @@
     archive_type <- .dest_send_get_archive_type(
       type, archive_github, archive_local
     )
-    always_archive <- .dest_send_get_always_archive(
-      type, archive_github, archive_local
-    )
+    always_archive <- .dest_send_get_always_archive(type, always_archive)
     .dest_send_type(
       type, bump_component, archive_type, always_archive
     )
