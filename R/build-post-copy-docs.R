@@ -145,7 +145,7 @@
   txt_vec <- gsub("\\s+$", "", txt_vec)
   ind_vec_frontmatter <- which(txt_vec == "---")
   # no frontmatter detected
-  if (length(ind_vec_frontmatter) < 2) {
+  if (!1 %in% ind_vec_frontmatter || length(ind_vec_frontmatter) < 2) {
     return(list())
   }
   # frontmatter detected
