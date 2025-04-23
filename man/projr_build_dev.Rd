@@ -9,7 +9,8 @@ projr_build_dev(
   bump = FALSE,
   old_dev_remove = TRUE,
   args_engine = list(),
-  profile = NULL
+  profile = NULL,
+  clear_output = "never"
 )
 }
 \arguments{

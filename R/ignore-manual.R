@@ -85,8 +85,8 @@ projr_ignore_file <- function(ignore) {
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
-  .ignore_manual_file_git(ignore)
-  .ignore_manual_file_rbuild(ignore)
+  projr_ignore_file_git(ignore)
+  projr_ignore_file_rbuild(ignore)
 }
 
 #' @rdname projr_ignore_manual

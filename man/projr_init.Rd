@@ -18,7 +18,7 @@ projr_init(
   github_org = NULL,
   dir = TRUE,
   readme = TRUE,
-  readme_rmd = FALSE,
+  readme_rmd = TRUE,
   desc = FALSE,
   license = NULL,
   projr_yml = FALSE,
@@ -60,7 +60,7 @@ cache, output). Defaults to \code{TRUE}.}
 
 \item{readme_rmd}{Logical. If \code{TRUE}, generates a README in R Markdown format
 (\code{README.Rmd}); otherwise, a Markdown file (\code{README.md}) is created.
-Defaults to \code{FALSE}.}
+Defaults to \code{TRUE}.}
 
 \item{desc}{Logical. If \code{TRUE}, creates a DESCRIPTION file for the project.
 Defaults to \code{FALSE}.}

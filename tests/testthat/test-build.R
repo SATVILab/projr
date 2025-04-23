@@ -945,7 +945,7 @@ test_that(".build_copy_docs_rmd_format_get works", {
   )
 })
 
-test_that("projr_env_file_activate works", {
+test_that("projr_env_set works", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
@@ -957,8 +957,12 @@ test_that("projr_env_file_activate works", {
       Sys.unsetenv("TEST_VAR")
       writeLines(c("TEST_VAR=abc", ""), "_environment")
       env <- environment()
-      browser()
       projr_env_set("_environment")
+      expect_identical(Sys.getenv("TEST_VAR"), "abc")
+      .env_unset()
+      expect_identical(Sys.getenv("TEST_VAR"), "abc")
+      Sys.unsetenv("TEST_VAR")
+      .env_set("_environment", TRUE)
       expect_identical(Sys.getenv("TEST_VAR"), "abc")
       .env_unset()
       expect_identical(Sys.getenv("TEST_VAR"), "")
@@ -968,7 +972,12 @@ test_that("projr_env_file_activate works", {
       file.create("_environment-test") |> invisible()
       writeLines(c("TEST_VAR_QUARTO=abc", ""), "_environment-test")
       writeLines(c("TEST_VAR_DEFAULT=abc", ""), "_environment")
-      .env_file_activate()
+      # check that we can set and then unset, if requested
+      # to unset
+      Sys.unsetenv("TEST_VAR_LOCAL")
+      Sys.unsetenv("TEST_VAR_QUARTO")
+      Sys.unsetenv("TEST_VAR_DEFAULT")
+      .env_set(unset = TRUE)
       expect_identical(Sys.getenv("TEST_VAR_LOCAL"), "abc")
       expect_identical(Sys.getenv("TEST_VAR_QUARTO"), "abc")
       expect_identical(Sys.getenv("TEST_VAR_DEFAULT"), "abc")
@@ -976,8 +985,18 @@ test_that("projr_env_file_activate works", {
       expect_identical(Sys.getenv("TEST_VAR_LOCAL"), "")
       expect_identical(Sys.getenv("TEST_VAR_QUARTO"), "")
       expect_identical(Sys.getenv("TEST_VAR_DEFAULT"), "")
+      # check that we don't automatically unset
+      projr_env_set()
+      expect_identical(Sys.getenv("TEST_VAR_LOCAL"), "abc")
+      expect_identical(Sys.getenv("TEST_VAR_QUARTO"), "abc")
+      expect_identical(Sys.getenv("TEST_VAR_DEFAULT"), "abc")
+      .env_unset()
+      expect_identical(Sys.getenv("TEST_VAR_LOCAL"), "abc")
+      expect_identical(Sys.getenv("TEST_VAR_QUARTO"), "abc")
+      expect_identical(Sys.getenv("TEST_VAR_DEFAULT"), "abc")
+      # check that we stop unsetting variables of that
+      # name after they've been unset:
       Sys.setenv("TEST_VAR_QUARTO" = "def")
-      .env_file_activate()
       expect_identical(Sys.getenv("TEST_VAR_QUARTO"), "def")
       .env_unset()
       expect_identical(Sys.getenv("TEST_VAR_QUARTO"), "def")
