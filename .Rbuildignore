@@ -29,3 +29,25 @@
 ^_dependencies\.R$
 ^_archive$
 ^SCRATCH-old\.R$
+# Start of projr section: do not edit by hand (update with projr_ignore_auto())
+^_raw_data/
+^_raw_data$
+^_tmp/
+^_tmp$
+^_output/
+^_output$
+^_dependencies\.R$
+^_pkgdown\.yml$
+^codecov\.yml$
+^codemeta\.json$
+^git_diff_output\.txt$
+^LICENSE\.md$
+^NEWS\.md$
+^SCRATCH-old\.R$
+^SCRATCH\.R$
+^\.devcontainer/
+^\.devcontainer$
+^\.github/
+^\.github$
+# End of projr section
+

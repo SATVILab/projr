@@ -1,8 +1,7 @@
 Package: projr
 Title: Facilitate reproducible and archived projects
-Version: 0.2.17
-Authors@R: person("Miguel", "Rodo", , "miguel.rodo@uct.ac.za", role = c("aut", "cre"), comment = c(ORCID =
-              "0000-0002-2036-4878"))
+Version: 0.2.17-1
+Authors@R: person("Miguel", "Rodo", , "miguel.rodo@uct.ac.za", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2036-4878"))
 Maintainer: Miguel Rodo <miguel.rodo@uct.ac.za>
 Description: Facilitate reproducible and archived projects.
 License: file LICENSE
@@ -10,9 +9,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: renv, jsonlite, yaml, rprojroot, desc, fs, digest
-Suggests: remotes, roxygen2, usethis, gert, gh, credentials, gitcreds, piggyback, osfr, codemeta, cffr, pkgbuild, rmarkdown,
-              bookdown, knitr, quarto, testthat (>= 3.0.0), devtools, httr, covr, htmltools, DT, rlang, withr, BiocManager,
-              cli
+Suggests: remotes, roxygen2, usethis, gert, gh, credentials, gitcreds, piggyback, osfr, codemeta, cffr, pkgbuild, rmarkdown, bookdown, knitr, quarto, testthat (>= 3.0.0), devtools, httr, covr, htmltools, DT, rlang, withr, BiocManager, cli
 Config/testthat/edition: 3
 URL: https://satvilab.github.io/projr/
 VignetteBuilder: knitr
