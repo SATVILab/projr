@@ -1,4 +1,5 @@
-#' @title Activate environment variables in files
+#' @rdname projr_env_set
+#' @title Set environment variables in files
 #'
 #' @description
 #' Which file(s) are used to supply
@@ -12,22 +13,26 @@
 #' an activated Quarto profile)
 #'
 #' @export
-projr_env_file_activate <- function(file = NULL) {
+projr_env_set <- function(file = NULL) {
+  .env_set(file, FALSE)
+}
+
+.env_set <- function(file = NULL, unset = FALSE) {
   .file_rm(.env_file_get_path_list())
   if (!is.null(file)) {
     for (x in file) {
-      .env_file_activate_ind(file = x)
+      .env_file_activate_ind(file = x, unset)
     }
     return(invisible(TRUE))
   }
-  .env_file_activate_ind("_environment.local")
+  .env_file_activate_ind("_environment.local", unset)
   env_profile_vec <- .env_profile_get()
   for (i in seq_along(env_profile_vec)) {
     .env_file_activate_ind(
-      paste0("_environment-", env_profile_vec[[i]])
+      paste0("_environment-", env_profile_vec[[i]]), unset
     )
   }
-  .env_file_activate_ind("_environment")
+  .env_file_activate_ind("_environment", unset)
   invisible(TRUE)
 }
 
@@ -62,7 +67,7 @@ projr_env_file_activate <- function(file = NULL) {
   invisible(TRUE)
 }
 
-.env_file_activate_ind <- function(file) {
+.env_file_activate_ind <- function(file, unset) {
   path_env <- .path_get(file)
   if (!file.exists(path_env)) {
     return(invisible(FALSE))
@@ -70,7 +75,7 @@ projr_env_file_activate <- function(file = NULL) {
   .env_file_activate_ind_ignore(file)
   fn_vec_local <- readLines(path_env)
   for (i in seq_along(fn_vec_local)) {
-    .env_var_set_line(fn_vec_local[[i]])
+    .env_var_set_line(fn_vec_local[[i]], unset)
   }
 }
 
@@ -79,19 +84,13 @@ projr_env_file_activate <- function(file = NULL) {
     return(invisible(FALSE))
   }
   if (file == "_environment.local") {
-    gitignore <- .ignore_git_read()
-    if (!file %in% gitignore) {
-      return(invisible(FALSE))
-    }
-    gitignore <- c(gitignore, file)
-    .ignore_git_write(gitignore, append = FALSE)
+    projr_ignore_file(file)
+    return(invisible(TRUE))
   }
-  rbuildignore <- .ignore_rbuild_read()
-  rbuildignore <- c(rbuildignore, utils::glob2rx(file))
-  .ignore_rbuild_write(rbuildignore, append = FALSE)
+  invisible(FALSE)
 }
 
-.env_var_set_line <- function(line) {
+.env_var_set_line <- function(line, unset) {
   # handle comments
   line <- sub("^#.*$", "", line)
   line <- sub("\\s+#.*$", "", line)
@@ -103,7 +102,7 @@ projr_env_file_activate <- function(file = NULL) {
     return(invisible(FALSE))
   }
   .env_var_set(nm = env_var_nm, val = env_var_val)
-  .env_var_add_to_unset(env_var_nm)
+  .env_var_add_to_unset(env_var_nm, unset)
   invisible(TRUE)
 }
 
@@ -130,7 +129,10 @@ projr_env_file_activate <- function(file = NULL) {
   invisible(TRUE)
 }
 
-.build_env_var_add_to_unset <- function(env_var_nm) {
+.env_var_add_to_unset <- function(env_var_nm, unset) {
+  if (!unset) {
+    return(invisible(FALSE))
+  }
   path_file <- .env_file_get_path_list()
   if (!file.exists(path_file)) {
     .dir_create(dirname(path_file))
@@ -150,7 +152,7 @@ projr_env_file_activate <- function(file = NULL) {
   file.path(tempdir(), "projr-env_file", "env.list")
 }
 
-.env_file_deactivate <- function() {
+.env_unset <- function() {
   if (!file.exists(.env_file_get_path_list())) {
     return(invisible(FALSE))
   }
