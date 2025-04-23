@@ -6,8 +6,8 @@ test_that("projr_build_dev works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      .init_full()
-      .build_dev()
+      browser()
+      projr_build_dev()
       .version_get()
       yml_bd <- .yml_bd_get()
       # it's set in _bookdown.yml
@@ -944,8 +944,6 @@ test_that(".build_copy_docs_rmd_format_get works", {
     quiet = TRUE
   )
 })
-
-
 
 test_that(".build_engine works", {
   skip_if(.is_test_select())

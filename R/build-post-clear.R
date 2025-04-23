@@ -2,7 +2,7 @@
   .build_clear_post_docs(output_run)
   # clear final directories, in preparation
   # for the next build
-  if (!.build_clear_post_check(output_run, clear_output)) {
+  if (!.build_clear_post_check(clear_output)) {
     return(invisible(FALSE))
   }
   # clear the output folders (output and data),
