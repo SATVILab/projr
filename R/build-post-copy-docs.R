@@ -1,7 +1,7 @@
 .build_copy_docs <- function(output_run) {
   switch(.engine_get(),
-    "bookdown" = NULL,
-    "quarto_project" = NULL,
+    "bookdown" = .build_copy_docs_bookdown(output_run),
+    "quarto_project" = .build_copy_docs_quarto_project(output_run),
     "quarto_document" = .build_copy_docs_quarto(output_run),
     "rmd" = .build_copy_docs_rmd(output_run)
   )
@@ -135,6 +135,67 @@
     "beamer" = "pdf",
     format
   )
+}
+
+# copy docs - bookdown
+# ------------------
+
+.build_copy_docs_bookdown <- function(output_run) {
+  if (!output_run) {
+    # no copying required as we build directly to the
+    # temporary location, which is final if
+    # not in an output run
+    return(invisible(FALSE))
+  }
+  # Get source directory (temporary build location)
+  source_dir <- file.path(
+    .dir_get_cache_auto_version(profile = NULL), "docs", "_book"
+  )
+
+  if (!dir.exists(source_dir)) {
+    message("Bookdown output directory not found: ", source_dir)
+    return(invisible(FALSE))
+  }
+
+  # Get destination directory (final docs location)
+  dest_dir <- projr_path_get_dir("docs", safe = !output_run)
+
+  # Copy all contents from source to destination
+  .dir_move_exact(source_dir, dest_dir)
+
+  message("Copied bookdown output from ", source_dir, " to ", dest_dir)
+  invisible(TRUE)
+}
+
+# copy docs - quarto project
+# ------------------
+
+.build_copy_docs_quarto_project <- function(output_run) {
+  if (!output_run) {
+    # no copying required as we build directly to the
+    # temporary location, which is final if
+    # not in an output run
+    return(invisible(FALSE))
+  }
+
+  # Get source directory (temporary build location)
+  source_dir <- file.path(
+    .dir_get_cache_auto_version(profile = NULL), "docs"
+  )
+
+  if (!dir.exists(source_dir)) {
+    message("Quarto output directory not found: ", source_dir)
+    stop("Quarto output directory not found")
+  }
+
+  # Get destination directory (final docs location)
+  dest_dir <- projr_path_get_dir("docs", safe = !output_run)
+
+  # Copy all contents from source to destination
+  .dir_move_exact(source_dir, dest_dir)
+
+  message("Copied quarto project output from ", source_dir, " to ", dest_dir)
+  invisible(TRUE)
 }
 
 # copy docs - either
