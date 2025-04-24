@@ -106,5 +106,5 @@ building the actual bookdown document and
 saving and archiving selected output.
 
 .build_major\verb{, .build_minor} and .build_patch\verb{ are wrappers around .build_output} with the version component
-bumped set automatically, e.g. .build_major()\verb{ is equivalent projr_build(bump_component = "major")}.
+bumped set automatically, e.g. projr_build_major()\verb{ is equivalent projr_build(bump_component = "major")}.
 }

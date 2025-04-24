@@ -2,19 +2,46 @@
 % Please edit documentation in R/env.R
 \name{projr_env_set}
 \alias{projr_env_set}
-\title{Set environment variables in files}
+\title{Set environment variables from files}
 \usage{
 projr_env_set(file = NULL)
 }
 \arguments{
 \item{file}{character vector.
-Paths to files to activate.
-Default is NULL, in which case all relevant files that exist are used
-(\code{environment.local}, \verb{_environment-<profile>} and \verb{_environment},
-in order of decreasing priority and where \verb{<profile>} is
-an activated Quarto profile)}
+Paths to files with environment variables to activate.
+If provided, only these files will be read; otherwise the default set
+(\verb{_environment.local}, \verb{_environment-<profile>}, \verb{_environment}) is used.}
+}
+\value{
+Invisibly returns \code{TRUE} if any files were successfully activated,
+or \code{FALSE} if none existed.
 }
 \description{
-Which file(s) are used to supply
-default values for unspecified environment variables.
+Activate environment variables by reading default values from a set of files.
+If \code{file} is \code{NULL},
+all existing files are used in order of decreasing priority:
+first \verb{_environment.local} (machine-specific overrides),
+then any \verb{_environment-<profile>} files (profile-specific),
+and finally \verb{_environment} (global defaults).
+
+The profiles activated are those set in the \code{QUARTO_PROFILE}
+and the \code{PROJR_PROFILE} environment variables, with
+\code{QUARTO_PROFILE} priorities.
+The \code{QUARTO_PROFILE} variable can specify multiple profiles,
+separated by commas.
+The \code{PROJR_PROFILE} variable can also specify multiple profiles,
+separated by either commas or semi-colons.
+In both cases, the earlier profile takes precedence, e.g.
+\verb{QUARTO_PROFILE=test,basic} will activate the \code{test} profile first.
+}
+\examples{
+# Activate only the local overrides
+\dontrun{
+  projr_env_set("_environment.local")
+}
+# Activate all available defaults in the standard order
+\dontrun{
+  projr_env_set()
+}
+
 }
