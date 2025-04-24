@@ -37,7 +37,7 @@
 .build_git_check_required <- function() {
   # only return TRUE if explicitly required
   yml_git <- .yml_git_get(NULL)
-  if (is.null(yml_git)) {
+  if (is.null(yml_git) || isFALSE(yml_git)) {
     return(FALSE)
   }
   if (isTRUE(yml_git)) {
@@ -111,13 +111,15 @@
   # check if we need to set up GitHub
   yml_git <- .yml_git_get(NULL)
   # do nothing if explicitly not requested
-  if (isFALSE(yml_git)) {
+  if (is.null(yml_git) || isFALSE(yml_git)) {
     return(invisible(FALSE))
   }
-  yml_commit_false <- isFALSE(yml_git[["commit"]])
-  yml_push_false <- isFALSE(yml_git[["push"]])
-  if (yml_commit_false || yml_push_false) {
-    return(invisible(FALSE))
+  if (!isTRUE(yml_git)) {
+    yml_commit_false <- isFALSE(yml_git[["commit"]])
+    yml_push_false <- isFALSE(yml_git[["push"]])
+    if (yml_commit_false || yml_push_false) {
+      return(invisible(FALSE))
+    }
   }
   if (isTRUE(yml_git) || isTRUE(yml_git[["push"]])) {
     cli::cli_alert_warning("GitHub remote required, but not found.")

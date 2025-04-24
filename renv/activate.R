@@ -135,12 +135,12 @@ local({
   
     # R help links
     pattern <- "`\\?(renv::(?:[^`])+)`"
-    replacement <- "`\033]8;;ide:help:\\1\a?\\1\033]8;;\a`"
+    replacement <- "`\033]8;;x-r-help:\\1\a?\\1\033]8;;\a`"
     text <- gsub(pattern, replacement, text, perl = TRUE)
   
     # runnable code
     pattern <- "`(renv::(?:[^`])+)`"
-    replacement <- "`\033]8;;ide:run:\\1\a\\1\033]8;;\a`"
+    replacement <- "`\033]8;;x-r-run:\\1\a\\1\033]8;;\a`"
     text <- gsub(pattern, replacement, text, perl = TRUE)
   
     # return ansified text
@@ -559,6 +559,9 @@ local({
   
     # prepare download options
     token <- renv_bootstrap_github_token()
+    if (is.null(token))
+      token <- ""
+  
     if (nzchar(Sys.which("curl")) && nzchar(token)) {
       fmt <- "--location --fail --header \"Authorization: token %s\""
       extra <- sprintf(fmt, token)

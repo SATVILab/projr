@@ -4,11 +4,22 @@
 \alias{projr_ignore}
 \title{Manually Ignore Files or Directories in \code{.gitignore} and \code{.Rbuildignore}}
 \usage{
-projr_ignore(ignore)
+projr_ignore(ignore, force_create = TRUE)
 }
 \arguments{
 \item{ignore}{A character vector of file or directory paths to be ignored.
 Paths must be valid non-empty strings.}
+
+\item{force_create}{logical.
+If \code{FALSE}, then the function will only add to the corresponding
+ignore file (\code{.gitignore}/\code{.Rbuildignore}) if it already exists, OR
+if it is warranted
+(i.e. if there is a Git repository or DESCRIPTION file, respectively).
+If \code{TRUE}, then the function will create the ignore file
+if it does not exist,
+even if there is no Git repository or DESCRIPTION file,
+and will add the specified paths to it.
+Default is \code{TRUE}.}
 }
 \value{
 Invisibly returns \code{TRUE} if the operation succeeds, or \code{FALSE} if the input

@@ -14,6 +14,7 @@
   .test_rm_engine(rm_engine, path_dir_test)
   if (!github) {
     .test_setup_project_github_unset(path_dir_test)
+    .test_setup_project_git_unset_push(path_dir_test)
   }
   invisible(path_dir_test)
 }
@@ -26,6 +27,7 @@
   }
   invisible(FALSE)
 }
+
 
 
 .test_setup_project_dir <- function(base_name, env) {
@@ -199,6 +201,29 @@
   }
   yml_projr <- yaml::read_yaml(path_yml)
   yml_projr[["build"]][["github"]] <- NULL
+  yaml::write_yaml(yml_projr, path_yml)
+  invisible(TRUE)
+}
+
+.test_setup_project_git_unset_push <- function(path_dir_test) {
+  path_yml <- file.path(path_dir_test, "_projr.yml")
+  if (!file.exists(path_yml)) {
+    return(invisible(FALSE))
+  }
+  yml_projr <- yaml::read_yaml(path_yml)
+  yml_git <- yml_projr[["build"]][["git"]]
+  if (is.null(yml_git) || isFALSE(yml_git)) {
+    return(invisible(FALSE))
+  }
+  if (isTRUE(yml_git)) {
+    yml_git <- list(
+      "commit" = TRUE,
+      "push" = FALSE
+    )
+  } else {
+    yml_git[["push"]] <- FALSE
+  }
+  yml_projr[["build"]][["git"]] <- yml_git
   yaml::write_yaml(yml_projr, path_yml)
   invisible(TRUE)
 }

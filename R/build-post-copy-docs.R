@@ -148,9 +148,7 @@
     return(invisible(FALSE))
   }
   # Get source directory (temporary build location)
-  source_dir <- file.path(
-    .dir_get_cache_auto_version(profile = NULL), "docs", "_book"
-  )
+  source_dir <- .yml_bd_get()[["output_dir"]]
 
   if (!dir.exists(source_dir)) {
     message("Bookdown output directory not found: ", source_dir)

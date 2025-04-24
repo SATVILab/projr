@@ -29,6 +29,16 @@
 #'
 #' @param ignore A character vector of file or directory paths to be ignored.
 #'   Paths must be valid non-empty strings.
+#' @param force_create logical.
+#' If `FALSE`, then the function will only add to the corresponding
+#' ignore file (`.gitignore`/`.Rbuildignore`) if it already exists, OR
+#' if it is warranted
+#' (i.e. if there is a Git repository or DESCRIPTION file, respectively).
+#' If `TRUE`, then the function will create the ignore file
+#' if it does not exist,
+#' even if there is no Git repository or DESCRIPTION file,
+#' and will add the specified paths to it.
+#' Default is `TRUE`.
 #'
 #' @return
 #' Invisibly returns `TRUE` if the operation succeeds, or `FALSE` if the input
@@ -49,7 +59,7 @@
 #' projr_ignore_file("README.md")
 #'
 #' @export
-projr_ignore <- function(ignore) {
+projr_ignore <- function(ignore, force_create = TRUE) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
@@ -61,21 +71,21 @@ projr_ignore <- function(ignore) {
   ignore_nonexistent <- setdiff(
     ignore, c(ignore_file, ignore_dir)
   )
-  projr_ignore_file_git(c(ignore_file, ignore_nonexistent))
-  projr_ignore_dir_git(ignore_dir)
-  projr_ignore_file_rbuild(c(ignore_file, ignore_nonexistent))
-  projr_ignore_dir_rbuild(ignore_dir)
+  projr_ignore_file_git(c(ignore_file, ignore_nonexistent), force_create)
+  projr_ignore_dir_git(ignore_dir, force_create)
+  projr_ignore_file_rbuild(c(ignore_file, ignore_nonexistent), force_create)
+  projr_ignore_dir_rbuild(ignore_dir, force_create)
 }
 
 #' @rdname projr_ignore_manual
 #' @export
-projr_ignore_dir <- function(ignore) {
+projr_ignore_dir <- function(ignore, force_create = TRUE) {
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
-  .ignore_manual_dir_git(ignore)
-  .ignore_manual_dir_rbuild(ignore)
+  projr_ignore_dir_git(ignore, force_create)
+  projr_ignore_dir_rbuild(ignore, force_create)
 }
 
 #' @rdname projr_ignore_manual
@@ -91,7 +101,20 @@ projr_ignore_file <- function(ignore) {
 
 #' @rdname projr_ignore_manual
 #' @export
-projr_ignore_file_git <- function(ignore) {
+projr_ignore_file_git <- function(ignore, force_create = TRUE) {
+  if (!force_create) {
+    # don't add if .gitignore doesn't already exist,
+    # unless there is a Git repo
+    if (!fs::file_exists(.path_get(".gitignore"))) {
+      if (!.git_repo_check_exists()) {
+        return(invisible(FALSE))
+      }
+    }
+  }
+  if (!fs::file_exists(.path_get(".gitignore"))) {
+    file.create(.path_get(".gitignore"))
+    .newline_append(.path_get(".gitignore"))
+  }
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
@@ -101,7 +124,20 @@ projr_ignore_file_git <- function(ignore) {
 
 #' @rdname projr_ignore_manual
 #' @export
-projr_ignore_dir_git <- function(ignore) {
+projr_ignore_dir_git <- function(ignore, force_create = TRUE) {
+  if (!force_create) {
+    # don't add if .gitignore doesn't already exist,
+    # unless there is a Git repo
+    if (!fs::file_exists(.path_get(".gitignore"))) {
+      if (!.git_repo_check_exists()) {
+        return(invisible(FALSE))
+      }
+    }
+  }
+  if (!fs::file_exists(.path_get(".gitignore"))) {
+    file.create(.path_get(".gitignore"))
+    .newline_append(.path_get(".gitignore"))
+  }
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
@@ -118,7 +154,21 @@ projr_ignore_dir_git <- function(ignore) {
 
 #' @rdname projr_ignore_manual
 #' @export
-projr_ignore_file_rbuild <- function(ignore) {
+projr_ignore_file_rbuild <- function(ignore, force_create = TRUE) {
+  if (!force_create) {
+    # don't add if rbuild doesn't already exist,
+    # unless there is a DESCRIPTION file
+    # (which is a sign of a package)
+    if (!fs::file_exists(.path_get(".Rbuildignore"))) {
+      if (!fs::file_exists(.path_get("DESCRIPTION"))) {
+        return(invisible(FALSE))
+      }
+    }
+  }
+  if (!fs::file_exists(.path_get(".Rbuildignore"))) {
+    file.create(.path_get(".Rbuildignore"))
+    .newline_append(.path_get(".Rbuildignore"))
+  }
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
@@ -131,7 +181,21 @@ projr_ignore_file_rbuild <- function(ignore) {
 
 #' @rdname projr_ignore_manual
 #' @export
-projr_ignore_dir_rbuild <- function(ignore) {
+projr_ignore_dir_rbuild <- function(ignore, force_create = TRUE) {
+  if (!force_create) {
+    # don't add if rbuild doesn't already exist,
+    # unless there is a DESCRIPTION file
+    # (which is a sign of a package)
+    if (!fs::file_exists(.path_get(".Rbuildignore"))) {
+      if (!fs::file_exists(.path_get("DESCRIPTION"))) {
+        return(invisible(FALSE))
+      }
+    }
+  }
+  if (!fs::file_exists(.path_get(".Rbuildignore"))) {
+    file.create(.path_get(".Rbuildignore"))
+    .newline_append(.path_get(".Rbuildignore"))
+  }
   ignore <- setdiff(ignore, "")
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))

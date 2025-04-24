@@ -29,9 +29,9 @@ projr_profile_create <- function(profile) {
   }
   path_file <- paste0("_projr", profile_spec, ".yml") |>
     .path_get()
-  .ignore_rbuild_set(basename(path_file), "ignore")
+  projr_ignore_file_rbuild(basename(path_file))
   if (profile == "local") {
-    .profile_create_local_ignore_git()
+    projr_ignore_file_git("_projr-local.yml")
   }
   if (file.exists(path_file)) {
     message(paste0("File ", path_file, " already exists"))
@@ -73,18 +73,13 @@ projr_profile_create_local <- function() {
 }
 
 .profile_create_local_ignore <- function() {
-  .profile_create_local_ignore_git()
-  .profile_create_local_ignore_rbuild()
+  projr_ignore_file("_projr-local.yml")
 }
 
 .profile_create_local_ignore_git <- function() {
   gitignore <- readLines(.path_get(".gitignore"))
   if (!"_projr-local.yml" %in% gitignore) {
-    writeLines(
-      c(gitignore, "_projr-local.yml"),
-      .path_get(".gitignore")
-    )
-    .newline_append(.path_get(".gitignore"))
+    projr_ignore_file_git("_projr-local.yml")
   }
 }
 .profile_create_local_ignore_rbuild <- function() {
