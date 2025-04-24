@@ -1,8 +1,16 @@
 .metadata_get_author_host <- function() {
+  if (!.git_repo_check_exists()) {
+    return(.metadata_get_author_host_non_git())
+  }
   user_name <- .git_config_get_name()
   if (.is_len_1(user_name) && .is_string(user_name)) {
     return(user_name)
   }
+
+  .metadata_get_author_host_non_git()
+}
+
+.metadata_get_author_host_non_git <- function() {
   user_name <- .metadata_get_author_host_env()
   if (.is_len_1(user_name) && .is_string(user_name)) {
     return(user_name)
@@ -31,7 +39,7 @@
   ) {
     return(user_name)
   }
-  "anonymous-user"
+  Sys.getenv("HOSTNAME", unset = "anonymous-user")
 }
 
 .metadata_get_os <- function() {
