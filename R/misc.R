@@ -157,7 +157,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 # taken from withr-with_dir
 with_dir <- function(new, code) {
   old <- setwd(dir = new)
-  on.exit(setwd(old))
+  on.exit(setwd(old), add = TRUE)
   force(code)
 }
 

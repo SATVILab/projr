@@ -7,7 +7,7 @@
 #' first `_environment.local` (machine-specific overrides),
 #' then any `_environment-<profile>` files (profile-specific),
 #' and finally `_environment` (global defaults).
-#' 
+#'
 #' The profiles activated are those set in the `QUARTO_PROFILE`
 #' and the `PROJR_PROFILE` environment variables, with
 #' `QUARTO_PROFILE` priorities.
@@ -25,7 +25,6 @@
 #'
 #' @return Invisibly returns `TRUE` if any files were successfully activated,
 #'   or `FALSE` if none existed.
-#'
 #'
 #' @examples
 #' # Activate only the local overrides

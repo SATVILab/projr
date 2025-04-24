@@ -210,9 +210,11 @@ projr_build_dev <- function(file = NULL,
   if (!is.null(profile)) {
     old_profile <- Sys.getenv("PROJR_PROFILE")
     Sys.setenv(PROJR_PROFILE = profile)
-    on.exit(Sys.setenv(PROJR_PROFILE = old_profile))
+    on.exit(Sys.setenv(PROJR_PROFILE = old_profile), add = TRUE)
   }
+  # set and unset environment variables
   .env_set(unset = TRUE)
+  on.exit(.env_unset(), add = TRUE)
   .build_ensure_version()
   clear_output <- .build_get_clear_output(clear_output)
 
@@ -226,7 +228,6 @@ projr_build_dev <- function(file = NULL,
     version_run_on_list, bump_component, msg, old_dev_remove,
     archive_github, archive_local, always_archive, clear_output, total_time
   )
-  .env_unset()
 }
 
 .build_get_output_run <- function(bump_component) {
