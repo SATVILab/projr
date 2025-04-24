@@ -1,11 +1,13 @@
 library(testthat)
 devtools::load_all()
 
-.test_set_select()
-devtools::test()
+testthat::test_file(
+  "tests/testthat/test-build.R",
+)
+testthat::test_file(
+  "tests/testthat/test-auth.R",
+)
 
-renv::install('devtools', prompt = FALSE)
-devtools::load_all()
-projr_renv_update()
-
-
+# working test files
+# auth
+# build

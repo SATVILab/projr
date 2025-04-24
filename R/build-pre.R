@@ -220,6 +220,11 @@
   # set the version pre-run
   .build_version_set_pre(version_run_on_list)
 
+  # ensure that docs directory is the unsafe directory.
+  # will copy docs across upon success.
+  .build_doc_output_dir_update(FALSE)
+
+
   # empty output directories
   # (docs, output and data)
   .build_clear_pre(output_run, clear_output)

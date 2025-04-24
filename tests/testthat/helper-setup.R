@@ -12,6 +12,9 @@
   .test_setup_project_files_create_ignore(path_dir_test)
   .test_setup_project_files_git(git && !github, path_dir_test)
   .test_rm_engine(rm_engine, path_dir_test)
+  if (!github) {
+    .test_setup_project_github_unset(path_dir_test)
+  }
   invisible(path_dir_test)
 }
 
@@ -50,6 +53,67 @@
     withr::defer(.test_unset(), envir = env)
   }
   invisible(TRUE)
+}
+
+.test_setup_project_lit_docs <- function(engine, path_dir_test = NULL) {
+  if (engine == "bookdown") {
+    return(invisible(FALSE))
+  }
+  wd <- path_dir_test %||% .path_get()
+  fn_vec <- file.path(wd, c("_output.yml", "_bookdown.yml"))
+  for (x in fn_vec) {
+    if (file.exists(x)) {
+      invisible(file.remove(x))
+    }
+  }
+  switch(engine,
+    "quarto_project" = .test_setup_project_lit_docs_quarto_project(
+      wd
+    ),
+    "quarto" = .test_setup_project_lit_docs_quarto(wd),
+    "rmarkdown" = NULL
+  )
+}
+
+.test_setup_project_lit_docs_quarto_project <- function(path_dir_test) {
+  .test_setup_project_lit_docs_quarto(path_dir_test)
+  .test_setup_project_lit_docs_quarto_yml(path_dir_test)
+}
+
+.test_setup_project_lit_docs_quarto <- function(path_dir_test) {
+  fn <- file.path(path_dir_test, "index.Rmd")
+  if (file.exists(fn)) {
+    invisible(file.remove(fn))
+  }
+  writeLines(
+    c(
+      "---",
+      "title: \"My first Quarto doc\"",
+      "format: html",
+      "---",
+      "",
+      "# introduction",
+      "",
+      "This file was generated from R with `writeLines()`."
+    ),
+    file.path(path_dir_test, "index.qmd")
+  )
+}
+
+.test_setup_project_lit_docs_quarto_yml <- function(path_dir_test) {
+  writeLines(
+    c(
+      "project:",
+      "  type: website",
+      "",
+      "website:",
+      "  title: \"demo site\"",
+      "  navbar:",
+      "    left:",
+      "      - index.qmd"
+    ),
+    file.path(path_dir_test, "_quarto.yml")
+  )
 }
 
 .test_setup_project_git_config <- function(global_only = FALSE) {
@@ -108,7 +172,8 @@
                                        env,
                                        debug = FALSE) {
   if (!github) {
-    return(invisible(TRUE))
+    .test_setup_project_github_unset(path_dir)
+    return(invisible(FALSE))
   }
   if (debug) {
     print("Beginning GitHub setup")
@@ -124,6 +189,17 @@
     dirname(path_dir),
     .test_github_repo_create(repo = basename(path_dir), env = env)
   )
+  invisible(TRUE)
+}
+
+.test_setup_project_github_unset <- function(path_dir) {
+  path_yml <- file.path(path_dir, "_projr.yml")
+  if (!file.exists(path_yml)) {
+    return(invisible(FALSE))
+  }
+  yml_projr <- yaml::read_yaml(path_yml)
+  yml_projr[["build"]][["github"]] <- NULL
+  yaml::write_yaml(yml_projr, path_yml)
   invisible(TRUE)
 }
 
@@ -153,6 +229,13 @@
 
 .test_setup_project_files_git <- function(git, path_dir) {
   if (!git) {
+    path_yml <- file.path(path_dir, "_projr.yml")
+    if (!file.exists(path_yml)) {
+      return(invisible(FALSE))
+    }
+    yml_projr <- yaml::read_yaml(path_yml)
+    yml_projr[["build"]][["git"]] <- FALSE
+    yaml::write_yaml(yml_projr, path_yml)
     return(invisible(TRUE))
   }
   if (!requireNamespace("gert", quietly = TRUE)) {
