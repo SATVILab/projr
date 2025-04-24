@@ -47,3 +47,5 @@ test_that("projr_build_output works", {
     force = TRUE
   )
 })
+
+      # debugonce(.build_post_document)

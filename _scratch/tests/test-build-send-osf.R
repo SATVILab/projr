@@ -47,7 +47,7 @@ test_that("projr_build_output works - osf - latest", {
 
       # handle nothing to send
       # ---------------------
-     .build_patch(msg = "Vat are you vinking about")
+     projr_build_patch(msg = "Vat are you vinking about")
       osf_tbl <- .remote_get_final_osf(
         id = id,
         path = NULL,
@@ -65,7 +65,7 @@ test_that("projr_build_output works - osf - latest", {
       # ---------------------
 
       .test_setup_content("raw-data")
-     .build_patch(msg = "Ze data")
+     projr_build_patch(msg = "Ze data")
       fn_vec <- .remote_file_ls(
         "osf",
         remote = osf_tbl
@@ -77,7 +77,7 @@ test_that("projr_build_output works - osf - latest", {
 
       # expect no change
       # ----------------------
-     .build_patch(msg = "I love zis data")
+     projr_build_patch(msg = "I love zis data")
       fn_vec <- .remote_file_ls(
         "osf",
         remote = osf_tbl
@@ -90,7 +90,7 @@ test_that("projr_build_output works - osf - latest", {
       # add something
       # ----------------------
       file.create("_raw_data/add.txt")
-     .build_patch(msg = "More data")
+     projr_build_patch(msg = "More data")
       fn_vec <- .remote_file_ls(
         "osf",
         remote = osf_tbl
@@ -103,7 +103,7 @@ test_that("projr_build_output works - osf - latest", {
 
       # do nothing again
       # ----------------------
-     .build_patch(msg = "I love zis data")
+     projr_build_patch(msg = "I love zis data")
       fn_vec <- .remote_file_ls(
         "osf",
         remote = osf_tbl
@@ -116,7 +116,7 @@ test_that("projr_build_output works - osf - latest", {
       # remove something
       # ----------------------
       file.remove("_raw_data/add.txt")
-     .build_patch(msg = "Less data")
+     projr_build_patch(msg = "Less data")
       fn_vec <- .remote_file_ls(
         "osf",
         remote = osf_tbl

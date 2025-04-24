@@ -33,7 +33,7 @@ test_that("projr_build_output works - local - defaults", {
       )
       # handle nothing to send
       # ---------------------
-     .build_patch(msg = "Vat are you vinking about")
+     projr_build_patch(msg = "Vat are you vinking about")
       expect_true(dir.exists(
         file.path(dir_test, "_archive/raw-data")
       ))
@@ -42,7 +42,7 @@ test_that("projr_build_output works - local - defaults", {
       # ---------------------
 
       .test_setup_content("raw-data")
-     .build_patch(msg = "Ze data")
+     projr_build_patch(msg = "Ze data")
       path_sub_dir_2 <- file.path(
         "_archive/raw-data/v0.1.2/subdir1/subdir2"
       )
@@ -55,7 +55,7 @@ test_that("projr_build_output works - local - defaults", {
 
       # expect no change
       # ----------------------
-     .build_patch(msg = "I love zis data")
+     projr_build_patch(msg = "I love zis data")
       expect_true(!dir.exists(
         file.path("_archive/raw-data", .version_get_v())
       ))
@@ -64,7 +64,7 @@ test_that("projr_build_output works - local - defaults", {
       # add something
       # ----------------------
       file.create("_raw_data/add.txt")
-     .build_patch(msg = "More data")
+     projr_build_patch(msg = "More data")
       expect_true(dir.exists(
         file.path("_archive/raw-data", .version_get_v())
       ))
@@ -83,7 +83,7 @@ test_that("projr_build_output works - local - defaults", {
 
       # do nothing again
       # ----------------------
-     .build_patch(msg = "I love zis data")
+     projr_build_patch(msg = "I love zis data")
       expect_true(!dir.exists(
         file.path("_archive/raw-data", .version_get_v())
       ))
@@ -91,7 +91,7 @@ test_that("projr_build_output works - local - defaults", {
       # remove something
       # ----------------------
       file.remove("_raw_data/add.txt")
-     .build_patch(msg = "Less data")
+     projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
         file.path("_archive/raw-data", .version_get_v())
       ))
@@ -148,7 +148,7 @@ test_that("projr_build_output works - local - latest - file", {
       )
       # handle nothing to send
       # ---------------------
-     .build_patch(msg = "Vat are you vinking about")
+     projr_build_patch(msg = "Vat are you vinking about")
       expect_true(dir.exists(
         file.path(dir_test, "_archive/raw-data")
       ))
@@ -157,7 +157,7 @@ test_that("projr_build_output works - local - latest - file", {
       # ---------------------
 
       .test_setup_content("raw-data")
-     .build_patch(msg = "Ze data")
+     projr_build_patch(msg = "Ze data")
       path_sub_dir_2 <- file.path(
         "_archive/raw-data/subdir1/subdir2"
       )
@@ -171,12 +171,12 @@ test_that("projr_build_output works - local - latest - file", {
       # expect no change
       # ----------------------
       # just check this runs without error
-     .build_patch(msg = "I love zis data")
+     projr_build_patch(msg = "I love zis data")
 
       # add something
       # ----------------------
       file.create("_raw_data/add.txt")
-     .build_patch(msg = "More data")
+     projr_build_patch(msg = "More data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -195,7 +195,7 @@ test_that("projr_build_output works - local - latest - file", {
 
       # do nothing again
       # ----------------------
-     .build_patch(msg = "I love zis data")
+     projr_build_patch(msg = "I love zis data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -203,7 +203,7 @@ test_that("projr_build_output works - local - latest - file", {
       # remove something
       # ----------------------
       file.remove("_raw_data/add.txt")
-     .build_patch(msg = "Less data")
+     projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -259,7 +259,7 @@ test_that("projr_build_output works - local - latest - <strategy>", {
       )
       # handle nothing to send
       # ---------------------
-     .build_patch(msg = "Vat are you vinking about")
+     projr_build_patch(msg = "Vat are you vinking about")
       expect_true(dir.exists(
         file.path(dir_test, "_archive/raw-data")
       ))
@@ -268,7 +268,7 @@ test_that("projr_build_output works - local - latest - <strategy>", {
       # ---------------------
 
       .test_setup_content("raw-data")
-     .build_patch(msg = "Ze data")
+     projr_build_patch(msg = "Ze data")
       path_sub_dir_2 <- file.path(
         "_archive/raw-data/subdir1/subdir2"
       )
@@ -282,7 +282,7 @@ test_that("projr_build_output works - local - latest - <strategy>", {
       # add something
       # ----------------------
       file.create("_raw_data/add.txt")
-     .build_patch(msg = "More data")
+     projr_build_patch(msg = "More data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -302,7 +302,7 @@ test_that("projr_build_output works - local - latest - <strategy>", {
       # remove something
       # ----------------------
       file.remove("_raw_data/add.txt")
-     .build_patch(msg = "Less data")
+     projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -323,14 +323,14 @@ test_that("projr_build_output works - local - latest - <strategy>", {
         title = "Raw data", type = "local", profile = "default"
       )
       # just build without anything changing
-     .build_patch(
+     projr_build_patch(
         msg = "The more it changes, the more it stays the same"
       )
 
       # add something
       # ----------------------
       file.create("_raw_data/add2.txt")
-     .build_patch(msg = "More data")
+     projr_build_patch(msg = "More data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -350,7 +350,7 @@ test_that("projr_build_output works - local - latest - <strategy>", {
       # remove something
       # ----------------------
       file.remove("_raw_data/add2.txt")
-     .build_patch(msg = "Less data")
+     projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -370,7 +370,7 @@ test_that("projr_build_output works - local - latest - <strategy>", {
         "sync-using-deletion",
         title = "Raw data", type = "local", profile = "default"
       )
-     .build_patch(msg = "Synchronise")
+     projr_build_patch(msg = "Synchronise")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -391,7 +391,7 @@ test_that("projr_build_output works - local - latest - <strategy>", {
         title = "Raw data", type = "local", profile = "default"
       )
 
-     .build_patch(msg = "Synchronise")
+     projr_build_patch(msg = "Synchronise")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -414,7 +414,7 @@ test_that("projr_build_output works - local - latest - <strategy>", {
       file.create("_raw_data/add2.txt")
       file.remove("_raw_data/abc.txt")
 
-     .build_patch(msg = "Synchronise")
+     projr_build_patch(msg = "Synchronise")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -471,7 +471,7 @@ test_that("projr_build_output works - local - latest - <strategy> - none", {
       )
       # handle nothing to send
       # ---------------------
-     .build_patch(msg = "Vat are you vinking about")
+     projr_build_patch(msg = "Vat are you vinking about")
       expect_true(dir.exists(
         file.path(dir_test, "_archive/raw-data")
       ))
@@ -480,7 +480,7 @@ test_that("projr_build_output works - local - latest - <strategy> - none", {
       # ---------------------
 
       .test_setup_content("raw-data")
-     .build_patch(msg = "Ze data")
+     projr_build_patch(msg = "Ze data")
       path_sub_dir_2 <- file.path(
         "_archive/raw-data/subdir1/subdir2"
       )
@@ -494,7 +494,7 @@ test_that("projr_build_output works - local - latest - <strategy> - none", {
       # add something
       # ----------------------
       file.create("_raw_data/add.txt")
-     .build_patch(msg = "More data")
+     projr_build_patch(msg = "More data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -514,7 +514,7 @@ test_that("projr_build_output works - local - latest - <strategy> - none", {
       # remove something
       # ----------------------
       file.remove("_raw_data/add.txt")
-     .build_patch(msg = "Less data")
+     projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -535,14 +535,14 @@ test_that("projr_build_output works - local - latest - <strategy> - none", {
         title = "Raw data", type = "local", profile = "default"
       )
       # just build without anything changing
-     .build_patch(
+     projr_build_patch(
         msg = "The more it changes, the more it stays the same"
       )
 
       # add something
       # ----------------------
       file.create("_raw_data/add2.txt")
-     .build_patch(msg = "More data")
+     projr_build_patch(msg = "More data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -562,7 +562,7 @@ test_that("projr_build_output works - local - latest - <strategy> - none", {
       # remove something
       # ----------------------
       file.remove("_raw_data/add2.txt")
-     .build_patch(msg = "Less data")
+     projr_build_patch(msg = "Less data")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -582,7 +582,7 @@ test_that("projr_build_output works - local - latest - <strategy> - none", {
         "sync-using-deletion",
         title = "Raw data", type = "local", profile = "default"
       )
-     .build_patch(msg = "Synchronise")
+     projr_build_patch(msg = "Synchronise")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -603,7 +603,7 @@ test_that("projr_build_output works - local - latest - <strategy> - none", {
         title = "Raw data", type = "local", profile = "default"
       )
 
-     .build_patch(msg = "Synchronise")
+     projr_build_patch(msg = "Synchronise")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -626,7 +626,7 @@ test_that("projr_build_output works - local - latest - <strategy> - none", {
       file.create("_raw_data/add2.txt")
       file.remove("_raw_data/abc.txt")
 
-     .build_patch(msg = "Synchronise")
+     projr_build_patch(msg = "Synchronise")
       expect_true(dir.exists(
         file.path("_archive/raw-data/")
       ))
@@ -684,7 +684,7 @@ test_that("projr_build_output works - local - latest - none - <conflict>", {
       )
       # handle nothing to send
       # ---------------------
-     .build_patch(msg = "Vat are you vinking about")
+     projr_build_patch(msg = "Vat are you vinking about")
       expect_true(dir.exists(
         file.path(dir_test, "_archive/raw-data")
       ))
@@ -692,7 +692,7 @@ test_that("projr_build_output works - local - latest - none - <conflict>", {
       # handle something to upload
       # ---------------------
       .test_setup_content("raw-data")
-     .build_patch(msg = "Ze data")
+     projr_build_patch(msg = "Ze data")
       path_sub_dir_2 <- file.path(
         "_archive/raw-data/subdir1/subdir2"
       )
@@ -715,7 +715,7 @@ test_that("projr_build_output works - local - latest - none - <conflict>", {
       )
       .file_ls("_raw_data")
       writeLines("abc", "_raw_data/abc.txt")
-     .build_patch(msg = "Changed but ignored")
+     projr_build_patch(msg = "Changed but ignored")
       expect_identical(
         readLines("_archive/raw-data/abc.txt"), character()
       )
@@ -766,18 +766,18 @@ test_that("projr_build_output works - local - latest - none - <cue>", {
       # ---------------------
       # patch build
       file.create("_raw_data/f1.txt")
-     .build_patch(msg = "Vat are you vinking about")
+     projr_build_patch(msg = "Vat are you vinking about")
       expect_true(file.exists("_archive/raw-data/f1.txt"))
 
       # minor build
       file.create("_raw_data/f2.txt")
-     .build_minor(msg = "Vat are you vinking about")
+     projr_build_minor(msg = "Vat are you vinking about")
       expect_true(file.exists("_archive/raw-data/f1.txt"))
       expect_true(file.exists("_archive/raw-data/f2.txt"))
 
       # major build
       file.create("_raw_data/f3.txt")
-     .build_major(msg = "Vat are you vinking about")
+     projr_build_major(msg = "Vat are you vinking about")
       expect_true(file.exists("_archive/raw-data/f1.txt"))
       expect_true(file.exists("_archive/raw-data/f3.txt"))
 
@@ -794,18 +794,18 @@ test_that("projr_build_output works - local - latest - none - <cue>", {
 
       # patch build
       file.create("_raw_data/f1.txt")
-     .build_patch(msg = "Vat are you vinking about")
+     projr_build_patch(msg = "Vat are you vinking about")
       expect_false(file.exists("_archive/raw-data/f1.txt"))
 
       # minor build
       file.create("_raw_data/f2.txt")
-     .build_minor(msg = "Vat are you vinking about")
+     projr_build_minor(msg = "Vat are you vinking about")
       expect_true(file.exists("_archive/raw-data/f1.txt"))
       expect_true(file.exists("_archive/raw-data/f2.txt"))
 
       # major build
       file.create("_raw_data/f3.txt")
-     .build_major(msg = "Vat are you vinking about")
+     projr_build_major(msg = "Vat are you vinking about")
       expect_true(file.exists("_archive/raw-data/f1.txt"))
       expect_true(file.exists("_archive/raw-data/f3.txt"))
 
@@ -822,18 +822,18 @@ test_that("projr_build_output works - local - latest - none - <cue>", {
 
       # patch build
       file.create("_raw_data/f1.txt")
-     .build_patch(msg = "Vat are you vinking about")
+     projr_build_patch(msg = "Vat are you vinking about")
       expect_false(file.exists("_archive/raw-data/f1.txt"))
 
       # minor build
       file.create("_raw_data/f2.txt")
-     .build_minor(msg = "Vat are you vinking about")
+     projr_build_minor(msg = "Vat are you vinking about")
       expect_false(file.exists("_archive/raw-data/f1.txt"))
       expect_false(file.exists("_archive/raw-data/f2.txt"))
 
       # major build
       file.create("_raw_data/f3.txt")
-     .build_major(msg = "Vat are you vinking about")
+     projr_build_major(msg = "Vat are you vinking about")
       expect_true(file.exists("_archive/raw-data/f1.txt"))
       expect_true(file.exists("_archive/raw-data/f3.txt"))
     },
@@ -880,7 +880,7 @@ test_that("projr_build_output works - local - latest - none - don't append label
       )
       # patch build
       file.create("_raw_data/f1.txt")
-     .build_patch(msg = "Vat are you vinking about")
+     projr_build_patch(msg = "Vat are you vinking about")
       expect_true(file.exists("_archive/f1.txt"))
     },
     quiet = TRUE,

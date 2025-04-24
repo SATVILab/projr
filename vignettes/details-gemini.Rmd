@@ -52,7 +52,7 @@ Use .path_get()` to find these folders. Example: .path_get("raw-data") ` will re
 
 Let's look at the two functions that are the heart of building your project:
 
-* **.build_dev()`**
+* **projr_build_dev()`**
    - **Purpose:** Your development buddy!  Renders your code documents, with results temporarily saved to the "cache" folder.
    - **Why Use It:**  Test changes safely before finalizing your outputs.
 

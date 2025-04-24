@@ -34,7 +34,7 @@ test_that("projr_build_output works - github - latest", {
 
       # handle nothing to send
       # ---------------------
-     .build_patch(msg = "Vat are you vinking about")
+     projr_build_patch(msg = "Vat are you vinking about")
       release_tbl <- .pb_release_tbl_get()
       expect_true(nrow(release_tbl) == 0L)
 
@@ -42,7 +42,7 @@ test_that("projr_build_output works - github - latest", {
       # ---------------------
 
       .test_setup_content("raw-data")
-     .build_patch(msg = "Ze data")
+     projr_build_patch(msg = "Ze data")
       release_tbl <- .pb_release_tbl_get()
       expect_true(nrow(release_tbl) == 1L)
       fn_vec <- .remote_file_ls(
@@ -55,7 +55,7 @@ test_that("projr_build_output works - github - latest", {
 
       # expect no change
       # ----------------------
-     .build_patch(msg = "I love zis data")
+     projr_build_patch(msg = "I love zis data")
       release_tbl <- .pb_release_tbl_get()
       expect_true(nrow(release_tbl) == 1L)
       fn_vec <- .remote_file_ls(
@@ -67,7 +67,7 @@ test_that("projr_build_output works - github - latest", {
       # add something
       # ----------------------
       file.create("_raw_data/add.txt")
-     .build_patch(msg = "More data")
+     projr_build_patch(msg = "More data")
       fn_vec <- .remote_file_ls(
         "github",
         remote = c("tag" = "Raw-data", fn = "raw-data.zip")
@@ -78,7 +78,7 @@ test_that("projr_build_output works - github - latest", {
 
       # do nothing again
       # ----------------------
-     .build_patch(msg = "I love zis data")
+     projr_build_patch(msg = "I love zis data")
       fn_vec <- .remote_file_ls(
         "github",
         remote = c("tag" = "Raw-data", fn = "raw-data.zip")
@@ -89,7 +89,7 @@ test_that("projr_build_output works - github - latest", {
       # remove something
       # ----------------------
       file.remove("_raw_data/add.txt")
-     .build_patch(msg = "Less data")
+     projr_build_patch(msg = "Less data")
       fn_vec <- .remote_file_ls(
         "github",
         remote = c("tag" = "Raw-data", fn = "raw-data.zip")

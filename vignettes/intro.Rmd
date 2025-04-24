@@ -208,7 +208,7 @@ Using folders in the manner described (e.g. storing raw data in the `raw-data` f
 - A person new to the project can read one file (`_projr.yml`) rather than trawling through source code to understand the project structure.
 - Sharing parts of the project (e.g. the raw data) and setting up the project again (e.g. on a new computer or on a collaborator's computer) is easier as like things are kept together. This is as opposed to, for example, keeping some raw data in `_raw_data`, others in `inst/extdata` and others at the root of the project, which makes bringing all the pieces together harder.
 - It helps `projr` help you, as it understands your project structure. This takes the following forms:
-  - `projr` can "protect" the output folder. The .build_dev()` function (described more below) builds the project, but saves outputs to the `cache` folder rather than the `output` folder. This prevents you accidentally overwriting outputs from a previous successful build whilst iterating on the code in preparation for the next build.
+  - `projr` can "protect" the output folder. The projr_build_dev()` function (described more below) builds the project, but saves outputs to the `cache` folder rather than the `output` folder. This prevents you accidentally overwriting outputs from a previous successful build whilst iterating on the code in preparation for the next build.
   - `projr` can upload the data to various places. As described in the next subsection (`build`), `projr` can send data from these folders (`raw-data`, `output`, etc.) to various places - at present, this includes GitHub releases, OSF and local folders (e.g. your OneDrive project folder).
   - `projr` can automatically ignore large files from Git. If you don't understand what this means, then don't worry - in fact, it's *great* that you're here as this means `projr` can help you to use the incredibly useful versioning tool that is Git without having to understand its details.
 
@@ -243,20 +243,20 @@ By default, they are, which means that the Git history is updated with each buil
 
 ## Use .build_` functions to build your project
 
-`projr` provides two main functions to help you build your project, projr_build_output()` and .build_dev()`.
-In a nutshell, .build_dev()` is for checking code as you write it, and projr_build_output()` is for snapshotting and sharing your project.
+`projr` provides two main functions to help you build your project, projr_build_output()` and projr_build_dev()`.
+In a nutshell, projr_build_dev()` is for checking code as you write it, and projr_build_output()` is for snapshotting and sharing your project.
 
 Both will automatically detect the type of source documents you have (Rmd's, Qmd's, Quarto projects, `bookdown` projects) and render them accordingly.
 
 ### projr_build_output()`
 
 projr_build_output()`
-- This does the same as .build_dev()`, except that the output documents are saved to their final destination (as specified in `docs`/`output`) and the outputs (GitHub/OSF) are sent to, as desired).
+- This does the same as projr_build_dev()`, except that the output documents are saved to their final destination (as specified in `docs`/`output`) and the outputs (GitHub/OSF) are sent to, as desired).
   - If you set the project up with GitHub, then by default the `raw-data`, `docs` and `output` folders are uploaded to GitHub as GitHub releases.
 
-### .build_dev()`
+### projr_build_dev()`
 
-.build_dev()` renders the literate programming documents in your document.
+projr_build_dev()` renders the literate programming documents in your document.
 
 Any results are saved to the `cache` directory, under `<cache>/projr/v<project_version>/<directory_label>`.
 For example, suppose we have the code
@@ -273,7 +273,7 @@ This is instead of saving it to `_output/figure/nobel_prize_winning_plot.png`, w
 
 The same goes for the rendered documents (e.g. HTML files), which would be saved to `_tmp/projr/v<project_version>/docs`.
 
-In addition, .build_dev` allows you to render just a chosen selection of documents, e.g. .build_dev("analysis.Rmd")` will render just the `analysis.Rmd` document (can do more than one).
+In addition, .build_dev` allows you to render just a chosen selection of documents, e.g. projr_build_dev("analysis.Rmd")` will render just the `analysis.Rmd` document (can do more than one).
 
 ## Create a GitHub account, and save GitHub credentials
 

@@ -67,7 +67,7 @@ Follow the prompts, and `projr` will take care of the rest!
 
 Now it's time to make your project come alive!
 
-* **Test it out:** Use .build_dev()` to run your code and see how your results look. This is a great way to catch errors as you go.
+* **Test it out:** Use projr_build_dev()` to run your code and see how your results look. This is a great way to catch errors as you go.
 
 * **Ready to share?** Use projr_build_output()` to create the final version of your project. This will automatically version everything, package it up nicely, and even share it on platforms like GitHub if you've set that up.
 

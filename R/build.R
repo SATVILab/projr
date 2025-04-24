@@ -8,7 +8,7 @@
 #'
 #' .build_major`, .build_minor` and .build_patch`
 #' are wrappers around .build_output` with the version component
-#' bumped set automatically, e.g. .build_major()` is equivalent
+#' bumped set automatically, e.g. projr_build_major()` is equivalent
 #' projr_build(bump_component = "major")`.
 #'
 #' @param bump_component "major", "minor", "patch" or missing.
