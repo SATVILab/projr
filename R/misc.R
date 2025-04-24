@@ -237,7 +237,16 @@ with_dir <- function(new, code) {
 }
 
 .env_var_val_get <- function(line) {
-  sub("^.*=", "", line) |> trimws()
+  # must start with a character, then
+  # have just characters, numbers or
+  # underscores until the equals sign
+  if (!grepl("^[a-zA-Z][a-zA-Z0-9_]*=", line)) {
+    return("")
+  }
+  # remove everything before the first
+  # equals sign, and the equals sign
+  sub("^[a-zA-Z][a-zA-Z0-9_]*=", "", line) |>
+    trimws()
 }
 
 .pkg_nm_get <- function() {
