@@ -199,21 +199,31 @@
 
 .dest_send_title_get_content_yml <- function(title, type) {
   force(title)
-  .yml_dest_get_title(title, type, NULL)[["content"]]
+  content <- .yml_dest_get_title(title, type, NULL)[["content"]]
+  if (is.null(content) || isFALSE(content)) {
+    return(character(0L))
+  } else if (isTRUE(content)) {
+    .dest_send_title_get_content_auto()
+  } else {
+    content
+  }
 }
 
 .dest_send_title_get_content_param <- function(archive_type) {
   if (.is_chr(archive_type)) {
     archive_type
   } else {
-    yml_dir <- .yml_dir_get(NULL)
-    nm_vec <- names(yml_dir) |>
-      c("docs") |>
-      unique()
-    nm_vec_output <- nm_vec[.yml_dir_label_class_detect_output(nm_vec)]
-    nm_vec_raw <- nm_vec[.yml_dir_label_class_detect_raw(nm_vec)]
-    nm_vec_docs <- nm_vec[.yml_dir_label_class_detect_docs(nm_vec)]
-    c(nm_vec_output, nm_vec_raw, nm_vec_docs)
+    .dest_send_title_get_content_auto()
   }
 }
 
+.dest_send_title_get_content_auto <- function() {
+  yml_dir <- .yml_dir_get(NULL)
+  nm_vec <- names(yml_dir) |>
+    c("docs") |>
+    unique()
+  nm_vec_output <- nm_vec[.yml_dir_label_class_detect_output(nm_vec)]
+  nm_vec_raw <- nm_vec[.yml_dir_label_class_detect_raw(nm_vec)]
+  nm_vec_docs <- nm_vec[.yml_dir_label_class_detect_docs(nm_vec)]
+  c(nm_vec_output, nm_vec_raw, nm_vec_docs)
+}
