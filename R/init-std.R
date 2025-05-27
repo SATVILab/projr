@@ -110,7 +110,7 @@ projr_init <- function(git = TRUE,
 
 #' @rdname projr_init
 #' @export
-projr_init_all <- function(github_org,
+projr_init_all <- function(github_org = NULL,
                            license = NULL,
                            lit_doc = NULL) {
   projr_init(
