@@ -193,7 +193,7 @@ projr_init_github <- function(username = NULL,
     .path_get()
   .init_readme_std_contents(readme_rmd) |>
     writeLines(con = path_overwrite)
-  message("Created README.md.")
+  .init_readme_std_impl_render()
   invisible(TRUE)
 }
 
@@ -202,6 +202,16 @@ projr_init_github <- function(username = NULL,
     .init_readme_std_contents_rmd()
   } else {
     .init_readme_std_contents_md()
+  }
+}
+
+.init_readme_std_impl_render <- function() {
+  if (file.exists(.path_get("README.Rmd"))) {
+    rmarkdown::render(
+      .path_get("README.Rmd"),
+      output_format = "md_document", quiet = TRUE
+    )
+    cli::cli_inform("Rendered README.Rmd.")
   }
 }
 
