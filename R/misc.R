@@ -629,7 +629,11 @@ projr_use_data <- function(...,
     "For more detailed run information, including scripts run and configurations used, see [BUILDLOG.md](BUILDLOG.md).",
     "",
     "```{r, echo=FALSE, results='asis'}",
-    'cat(readLines("CHANGELOG.md"), sep = "\n")',
+    'if (file.exists("CHANGELOG.md")) {',
+    '  cat(readLines("CHANGELOG.md"), sep = "\n")',
+    "} else {",
+    '  cat("No CHANGELOG.md found.")',
+    "}",
     "```",
     ""
   )
