@@ -221,7 +221,8 @@ projr_init_github <- function(username = NULL,
   }
   if (readme_rmd) {
     if (file.exists(.path_get("README.Rmd"))) {
-      message("README.Rmd already exists, so skipping.")
+      message("README.Rmd already exists, so not creating and not overwriting.")
+      .init_readme_std_impl_render()
       return(invisible(FALSE))
     }
   } else {
