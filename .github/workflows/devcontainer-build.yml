@@ -1,15 +1,6 @@
 name: 'Pre-build Dev Container'
 
 on:
-  push:
-    # By default, this workflow only triggers on pushes to 'main'.
-    # To enable auto-runs on *all* branches, change to:
-    # branches:
-    #   - '**'
-    # To disable (to avoid any auto-runs),
-    # remove this `push` section entirely.
-    branches:
-      - 'main'
   workflow_dispatch:
     inputs:
       branch:
