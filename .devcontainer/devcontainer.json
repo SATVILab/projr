@@ -1,5 +1,5 @@
 {
-  "name": "Modified Rocker Dev Container",
+  "name": "Modified Rocker R Dev Container",
   "build": {
     "dockerfile": "Dockerfile",
     "context": ".."
@@ -16,28 +16,26 @@
 			"installRadian": true,
 			"version": "none",
 			"pakVersion": "auto",
-			"vscodeRSupport": "full",
+			"vscodeRSupport": "minimal",
 			"pandocVersion": "auto"
 		},
-		"ghcr.io/devcontainers-contrib/features/vscode-cli:1": {},
-		"ghcr.io/devcontainers-contrib/features/apt-get-packages:1": {
+		"ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
 			"packages": "xvfb,vim,libcurl4-openssl-dev,libsecret-1-dev"
 		},
     "ghcr.io/rocker-org/devcontainer-features/quarto-cli:1": {
 			"installTinyTex": true
 		}
   },
-	"customizations": {
-		"vscode": {
-			"extensions": [
-        "quarto.quarto",
-        "REditorSupport.r",
-        "mathematic.vscode-pdf",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+				"quarto.quarto",
+				"REditorSupport.r",
+				"mathematic.vscode-pdf",
         "GitHub.copilot",
-        "GitHub.copilot-chat",
-        "bierner.markdown-preview-github-styles",
-        "github.vscode-github-actions"
+				"GitHub.copilot-chat",
+        "bierner.markdown-preview-github-styles"
       ]
-		}
-	}
+    }
+  }
 }
