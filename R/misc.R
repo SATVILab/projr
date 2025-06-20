@@ -50,7 +50,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   }
 
   path_dep <- .path_get("_dependencies.R")
-  dep_vec <- readLines(path_dep)
+  dep_vec <- .dep_read(path_dep)
   for (i in seq_along(dep)) {
     dep_pattern <- paste0(
       "library\\(", basename(dep[[i]]), "\\)",
@@ -111,7 +111,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 
 .dep_rm <- function(dep) {
   path_dep <- .path_get("_dependencies.R")
-  dep_vec <- readLines(path_dep)
+  dep_vec <- .dep_read(path_dep)
   for (i in seq_along(dep)) {
     dep_txt <- paste0("library(", basename(dep[[i]]), ")", collapse = "")
     dep_vec <- dep_vec[!grepl(dep_txt, dep_vec)]
@@ -123,6 +123,10 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 
 .dep_in_renv <- function(dep) {
   dep %in% names(.renv_lockfile_read()$Packages)
+}
+
+.dep_read <- function(path_dep) {
+  dep_vec <- if (file.exists(path_dep)) readLines(path_dep) else character(0)
 }
 
 .renv_lockfile_read <- function() {
