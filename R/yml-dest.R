@@ -240,8 +240,8 @@
                                      profile,
                                      archive_type,
                                      always_archive) {
-  is_param <- .yml_dest_get_title_complete_is_param(title, archive_type)
-  if (!is_param) {
+  if (isFALSE(archive_type)) {
+    # not from parameter, so read from yml
     .yml_dest_get_title(title, type, profile)
   } else {
     # construct equivalent yml as only specified via parameter
@@ -250,11 +250,6 @@
       title, type, archive_type, always_archive
     )
   }
-}
-
-.yml_dest_get_title_complete_is_param <- function(title,
-                                                  param) {
-  title == "archive" && !isFALSE(param)
 }
 
 .yml_dest_get_title_complete_param <- function(title,

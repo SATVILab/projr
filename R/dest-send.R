@@ -14,9 +14,19 @@
   # loop over types of remotes
   type_vec <- .dest_send_get_type(archive_github, archive_local)
   for (type in type_vec) {
+    # force archive_type to FALSE if it
+    # there is a destination with title "archive"
+    # of the same type as `type`.
+    # archive_type essentially replaces
+    # archive_github and archive_local,
+    # and carries info as to which
+    # content to archive (TRUE means all, otherwise
+    # a character vector with the content names).
     archive_type <- .dest_send_get_archive_type(
       type, archive_github, archive_local
     )
+    # check if we are always archiving based on the parameter.
+    # this may not be that important...
     always_archive <- .dest_send_get_always_archive(type, always_archive)
     .dest_send_type(
       type, bump_component, archive_type, always_archive
@@ -62,16 +72,40 @@
 .dest_send_get_archive_type <- function(type,
                                         archive_github,
                                         archive_local) {
-  if (type == "github") {
-    # can be character, so just checking they're not FALSE
-    !isFALSE(archive_github) && !is.null(archive_github) &&
-      !"archive" %in% names(.yml_dest_get_type(type, NULL))
-  } else if (type == "local") {
-    !isFALSE(archive_local) && !is.null(archive_local) &&
-      !"archive" %in% names(.yml_dest_get_type(type, NULL))
-  } else {
+  # Essentially, here we check whether we are
+  # archiving based on a parameter call,
+  # and if we are, we return either TRUE (meaning
+  # archive all content) or a character (archive
+  # only specified contents).
+  # FALSE means we are not archiving based on a parameter call,
+  # which means either the user did not ask for it 
+  # or the _projr.yml file already specifies the archive
+  # with the title "archive" for the type.
+  # Will activate for either only if the 
+  # current type corresponds (e.g. type is "github"
+  # for archive_github) and
+  # if the parameter (archive_github/archive_local) is:
+  # - not FALSE (means we didn't ask for uploads based on the parameter)
+  #   - it could be TRUE (all content) or character
+  # - not NULL (same as above)
+  # - and if the type is not already specified in the _projr.yml
+  #  - _projr.yml takes precedence over the parameters.
+  switch(type,
+    "github" = .dest_send_check_is_archive_param_github(archive_github),
+    "local"  = .dest_send_check_is_archive_param_local(archive_local),
     FALSE
-  }
+  )
+}
+dest_send_check_is_archive_param_github <- function(archive_github) {
+  is_param <- !isFALSE(archive_github) && !is.null(archive_github) &&
+    !"archive" %in% names(.yml_dest_get_type("github", NULL))
+  if (is_param) archive_github else FALSE
+}
+
+.dest_send_check_is_archive_param_local <- function(archive_local) {
+  is_param <- !isFALSE(archive_local) && !is.null(archive_local) &&
+    !"archive" %in% names(.yml_dest_get_type("local", NULL))
+  if (is_param) archive_local else FALSE
 }
 
 .dest_send_get_always_archive <- function(type, always_archive) {
@@ -80,6 +114,7 @@
     # override it with the parameter
     NULL
   } else {
+    # specified based on a parameter
     always_archive
   }
 }
@@ -107,12 +142,10 @@
 }
 
 .dest_send_type_get_title <- function(type,
-                                      archive_github,
-                                      archive_local) {
+                                      archive_type) {     
+  # get all titles to upload, for the type
   nm_vec_yml <- names(.yml_dest_get_type(type, NULL))
-  nm_vec_param <- .dest_send_type_get_title_param(
-    type, archive_github, archive_local
-  )
+  nm_vec_param <- .dest_send_type_get_title_param(archive_type)
   unique(c(nm_vec_yml, nm_vec_param))
 }
 
@@ -121,17 +154,8 @@
     names()
 }
 
-.dest_send_type_get_title_param <- function(type,
-                                            archive_github,
-                                            archive_local) {
-
-  is_title_param_and_true <- switch(
-    type,
-    github = !isFALSE(archive_github),
-    local  = !isFALSE(archive_local),
-    FALSE
-  )
-  if (is_title_param_and_true) "archive" else character(0L)
+.dest_send_type_get_title_param <- function(archive_type) {
+  if (archive_type) "archive" else character(0L)
 }
 
 # send to one label of a remote
@@ -181,20 +205,26 @@
                                          type,
                                          archive_type) {
   force(title)
-  is_yml_content <- .dest_send_title_get_content_check_yml(
-    type, title, archive_type
+  is_param_content <- .dest_send_title_get_content_check_yml(
+    title, archive_type
   )
-  if (is_yml_content) {
-    .dest_send_title_get_content_yml(title, type)
-  } else {
+  if (is_param_content) {
     .dest_send_title_get_content_param(archive_type)
+  } else {
+    .dest_send_title_get_content_yml(title, type)
   }
 }
 
-.dest_send_title_get_content_check_yml <- function(type,
-                                                   title,
-                                                   archive_local) {
-  title == "archive" && !isFALSE(archive_local)
+.dest_send_title_get_content_check_yml <- function(title,
+                                                   archive_type) {
+  # we are not using yml if the title is "archive"
+  # and archive_type is not FALSE (i.e. it has been specified
+  # to request something and we've already confirmed
+  # before that there is not corresponding type with title "archive").
+  # Returns `TRUE` if we are using the parameter
+  # to get the content, and `FALSE` if we are using the
+  # yml file.
+  title == "archive" && !isFALSE(archive_type)
 }
 
 .dest_send_title_get_content_yml <- function(title, type) {
