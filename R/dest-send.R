@@ -96,7 +96,8 @@
     FALSE
   )
 }
-dest_send_check_is_archive_param_github <- function(archive_github) {
+
+.dest_send_check_is_archive_param_github <- function(archive_github) {
   is_param <- !isFALSE(archive_github) && !is.null(archive_github) &&
     !"archive" %in% names(.yml_dest_get_type("github", NULL))
   if (is_param) archive_github else FALSE
