@@ -144,27 +144,6 @@ projr_ignore_auto <- function() {
   .ignore_auto_file_rbuild(path_vec)
 }
 
-# misc files
-# -------------------------------------------------------------------------
-
-.ignore_auto_misc <- function() {
-  pattern <- c(
-    "\\.Rproj$",
-    "\\.Rproj\\.user$",
-    "CHANGELOG\\.md$",
-    "CONTRIBUTING\\.md$",
-    "LICENSE$",
-    "LICENSE\\.md$",
-    "README\\.Rmd$"
-  ) |>
-    paste0(collapse = "|")
-  path_vec <- list.files(
-    path = .path_get(),
-    pattern = pattern
-  )
-  .ignore_auto_file_rbuild(path_vec)
-}
-
 # content files
 # -------------------------------------------------------------------------
 
@@ -271,7 +250,7 @@ projr_ignore_auto <- function() {
   ) |>
     setdiff(
       c(
-        "manifest.csv", "CHANGELOG.md", "NEWS.md", "CONTRIBUTING.md",
+        "manifest.csv", "CHANGELOG.md", "BUILDLOG.md", "NEWS.md", "CONTRIBUTING.md",
         "LICENSE", "LICENSE.md", "README.md", "codemeta.json",
         "CITATION.cff"
       )
