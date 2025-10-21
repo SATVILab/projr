@@ -158,8 +158,8 @@
   # Get destination directory (final docs location)
   dest_dir <- projr_path_get_dir("docs", safe = !output_run)
 
-  # Copy all contents from source to destination
-  .dir_move_exact(source_dir, dest_dir)
+  # Copy all contents from source to destination, excluding CHANGELOG.md
+  .dir_move_exact(source_dir, dest_dir, dir_exc = "CHANGELOG.md")
 
   message("Copied bookdown output from ", source_dir, " to ", dest_dir)
   invisible(TRUE)
@@ -189,8 +189,8 @@
   # Get destination directory (final docs location)
   dest_dir <- projr_path_get_dir("docs", safe = !output_run)
 
-  # Copy all contents from source to destination
-  .dir_move_exact(source_dir, dest_dir)
+  # Copy all contents from source to destination, excluding CHANGELOG.md
+  .dir_move_exact(source_dir, dest_dir, dir_exc = "CHANGELOG.md")
 
   message("Copied quarto project output from ", source_dir, " to ", dest_dir)
   invisible(TRUE)
@@ -250,7 +250,8 @@
   )
   .dir_move_exact(
     path_dir_from = path,
-    path_dir_to = path_dir_to
+    path_dir_to = path_dir_to,
+    dir_exc = "CHANGELOG.md"
   )
   invisible(TRUE)
 }

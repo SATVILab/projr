@@ -896,3 +896,36 @@ test_that(".build_engine works", {
     }
   )
 })
+
+test_that("CHANGELOG.md is excluded from docs copying", {
+  skip_if(.is_test_select())
+  dir_test <- file.path(tempdir(), paste0("test_projr_changelog"))
+
+  .dir_create(dir_test)
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create a simple test scenario
+      source_dir <- file.path(dir_test, "source")
+      dest_dir <- file.path(dir_test, "dest")
+      dir.create(source_dir)
+      
+      # Create some files including CHANGELOG.md
+      writeLines("Test content", file.path(source_dir, "test.html"))
+      writeLines("# CHANGELOG\n\n- Test entry", file.path(source_dir, "CHANGELOG.md"))
+      writeLines("Other content", file.path(source_dir, "other.txt"))
+      
+      # Test the dir_move_exact function with CHANGELOG.md exclusion
+      .dir_move_exact(source_dir, dest_dir, dir_exc = "CHANGELOG.md")
+      
+      # Verify that CHANGELOG.md was excluded but other files were copied
+      expect_true(file.exists(file.path(dest_dir, "test.html")))
+      expect_true(file.exists(file.path(dest_dir, "other.txt")))
+      expect_false(file.exists(file.path(dest_dir, "CHANGELOG.md")))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
