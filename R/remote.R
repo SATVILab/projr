@@ -185,7 +185,9 @@ projr_osf_create_project <- function(title,
 .remote_create_github_attempt <- function(tag, description) {
   piggyback::.pb_cache_clear()
   try(suppressWarnings(suppressMessages(
-    piggyback::pb_release_create(tag = tag, body = description)
+    piggyback::pb_release_create(
+      repo = .pb_repo_get(), tag = tag, body = description
+    )
   )))
 }
 
@@ -971,9 +973,9 @@ projr_osf_create_project <- function(title,
     if (!.remote_file_rm_all_github_check_fn(remote[["fn"]], tag)) {
       return(invisible(FALSE))
     }
-    piggyback::pb_delete(tag = tag, file = remote[["fn"]])
+    piggyback::pb_delete(repo = .pb_repo_get(), tag = tag, file = remote[["fn"]])
   } else {
-    try(piggyback::pb_delete(tag = tag))
+    try(piggyback::pb_delete(repo = .pb_repo_get(), tag = tag))
   }
   invisible(TRUE)
 }
@@ -1155,7 +1157,7 @@ projr_osf_create_project <- function(title,
   .assert_attr(remote, "names")
   .assert_has(names(remote), c("tag", "fn"))
   path_dir_save_init <- .dir_create_tmp_random()
-  fn_vec_release <- piggyback::pb_list(tag = remote[["tag"]])[["file_name"]]
+  fn_vec_release <- piggyback::pb_list(repo = .pb_repo_get(), tag = remote[["tag"]])[["file_name"]]
   if (.is_len_0(fn_vec_release)) {
     return(invisible(path_dir_save_local))
   }
@@ -1166,6 +1168,7 @@ projr_osf_create_project <- function(title,
     file = remote[["fn"]],
     dest = path_dir_save_init,
     tag = remote[["tag"]],
+    repo = .pb_repo_get(),
     overwrite = TRUE,
     use_timestamps = FALSE
   )
@@ -1636,7 +1639,7 @@ projr_osf_create_project <- function(title,
 .remote_final_ls_github <- function(remote_pre) {
   .assert_given_full(remote_pre)
   .dep_install("piggyback")
-  pb_tbl <- piggyback::pb_list(tag = remote_pre[["tag"]])
+  pb_tbl <- piggyback::pb_list(repo = .pb_repo_get(), tag = remote_pre[["tag"]])
   if ("file_name" %in% names(pb_tbl)) {
     fn_vec <- pb_tbl[["file_name"]]
     setdiff(fn_vec, "")
@@ -2071,7 +2074,7 @@ projr_osf_create_project <- function(title,
 
 .remote_file_add_github_zip_attempt <- function(path_zip, tag) {
   try(suppressWarnings(suppressMessages(
-    piggyback::pb_upload(file = path_zip, tag = tag)
+    piggyback::pb_upload(repo = .pb_repo_get(), file = path_zip, tag = tag)
   )))
 }
 

@@ -453,7 +453,9 @@ test_that(".remote_file_rm_all works - remote", {
       )
       piggyback:::.pb_cache_clear()
       piggyback::pb_upload(file = path_zip, tag = id)
-      content_tbl_pre_delete <- piggyback::pb_list(tag = id)
+      content_tbl_pre_delete <- piggyback::pb_list(
+        repo = .pb_repo_get(), tag = id
+      )
       expect_identical(nrow(content_tbl_pre_delete), 1L)
       remote_github <- c("tag" = id, fn = basename(path_zip))
       .remote_file_rm_all(
@@ -461,7 +463,7 @@ test_that(".remote_file_rm_all works - remote", {
         remote = remote_github
       )
       piggyback:::.pb_cache_clear()
-      content_tbl <- piggyback::pb_list(tag = id)
+      content_tbl <- piggyback::pb_list(repo = .pb_repo_get(), tag = id)
       expect_true(is.null(content_tbl) || nrow(content_tbl) == 0L)
     }
   )

@@ -15,8 +15,28 @@
   .pb_release_tbl_get_attempt()
 }
 
+.pb_repo_get <- function() {
+  if (git_repo_is_worktree()) {
+    git_file <- readLines(.path_get(".git"))
+    git_file <- gsub("^gitdir: ", "", git_file)
+    if (!file.exists(git_file)) {
+      stop("Cannot find gitdir: ", git_file)
+    }
+    .pb_guess_repo(git_file)
+  } else {
+    .pb_guess_repo()
+  }
+}
+
+.pb_guess_repo <- function(path = ".") {
+  gh_repo <- gh::gh_tree_remote(path)
+  paste0(gh_repo[[1]], "/", gh_repo[[2]])
+}
+
 .pb_release_tbl_get_attempt <- function() {
-  try(suppressWarnings(suppressMessages(piggyback::pb_releases())))
+  try(suppressWarnings(suppressMessages(
+    piggyback::pb_releases(repo = .pb_repo_get()) #nolint
+  ))) #nolint
 }
 
 .pb_asset_tbl_get <- function(tag, pause_second = 3) {
@@ -46,7 +66,9 @@
 }
 
 .pb_asset_tbl_get_attempt <- function(tag) {
-  try(suppressWarnings(suppressMessages(piggyback::pb_list(tag = tag))))
+  try(suppressWarnings(suppressMessages(piggyback::pb_list(
+    repo = .pb_repo_get(), tag = tag
+  ))))
 }
 
 .pb_tag_format <- function(tag) {

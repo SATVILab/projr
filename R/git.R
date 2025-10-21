@@ -20,6 +20,17 @@
   file.exists(.path_get(".git"))
 }
 
+.git_repo_is_worktree <- function() {
+  if (!.git_repo_check_exists()) {
+    return(invisible(FALSE))
+  }
+  git_dir_path <- .path_get(".git")
+  if (file.info(git_dir_path)[["isdir"]]) {
+    return(FALSE)
+  }
+  invisible(TRUE)
+}
+
 .git_repo_rm <- function() {
   if (.git_repo_check_exists()) {
     unlink(.path_get(".git"), recursive = TRUE)
