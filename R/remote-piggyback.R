@@ -16,7 +16,7 @@
 }
 
 .pb_repo_get <- function() {
-  if (git_repo_is_worktree()) {
+  if (.git_repo_is_worktree()) {
     git_file <- readLines(.path_get(".git"))
     git_file <- gsub("^gitdir: ", "", git_file)
     if (!file.exists(git_file)) {
