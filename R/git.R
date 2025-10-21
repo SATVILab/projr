@@ -1,5 +1,5 @@
 .git_init <- function() {
-  if (dir.exists(.path_get(".git"))) {
+  if (.git_repo_check_exists()) {
     return(invisible(FALSE))
   }
   switch(.git_system_get(),
@@ -16,11 +16,12 @@
 }
 
 .git_repo_check_exists <- function() {
-  dir.exists(.path_get(".git"))
+  # permit worktrees (files) or genuine Git repos (dirs)
+  file.exists(.path_get(".git"))
 }
 
 .git_repo_rm <- function() {
-  if (dir.exists(.path_get(".git"))) {
+  if (.git_repo_check_exists()) {
     unlink(.path_get(".git"), recursive = TRUE)
   }
 }

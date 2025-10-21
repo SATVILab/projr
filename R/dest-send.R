@@ -78,10 +78,10 @@
   # archive all content) or a character (archive
   # only specified contents).
   # FALSE means we are not archiving based on a parameter call,
-  # which means either the user did not ask for it 
+  # which means either the user did not ask for it
   # or the _projr.yml file already specifies the archive
   # with the title "archive" for the type.
-  # Will activate for either only if the 
+  # Will activate for either only if the
   # current type corresponds (e.g. type is "github"
   # for archive_github) and
   # if the parameter (archive_github/archive_local) is:
@@ -143,7 +143,7 @@
 }
 
 .dest_send_type_get_title <- function(type,
-                                      archive_type) {     
+                                      archive_type) {
   # get all titles to upload, for the type
   nm_vec_yml <- names(.yml_dest_get_type(type, NULL))
   nm_vec_param <- .dest_send_type_get_title_param(archive_type)
