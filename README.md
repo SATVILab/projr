@@ -21,7 +21,7 @@
 
 ## Installation
 
-You can install the development version of projr from [GitHub](https://github.com/) with:
+`projr` is currently a development package. You can install it from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("remotes")
@@ -81,9 +81,9 @@ The `_projr.yml` file controls project behavior:
 directories:
   raw-data:
     path: _raw_data
-  cache: 
+  cache:
     path: _tmp
-  output: 
+  output:
     path: _output
   docs:
     path: docs
