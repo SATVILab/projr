@@ -176,6 +176,75 @@ The package heavily uses YAML configuration (`_projr.yml`):
 - Some functions interact with GitHub (using `gh` and `gert` packages)
 - Test functions can create Git repos: `.test_setup_project(git = TRUE)`
 
+### 8. Pre- and Post-Build Scripts
+The package supports custom scripts that run before or after the build process:
+
+#### API Structure
+- **Exported functions**: `projr_yml_script_add()`, `projr_yml_script_add_pre()`, `projr_yml_script_add_post()`, `projr_yml_script_rm()`, `projr_yml_script_rm_all()`
+- **Internal functions**: `.yml_script_add()`, `.yml_script_rm()`, `.yml_script_rm_all()`, `.yml_script_get()`, `.yml_script_set()`
+- **Build execution**: `.build_pre_script_run()` and `.build_post_script_run()` in `R/build-script.R`
+
+#### Key Implementation Details
+1. **Function parameters**:
+   - All internal script functions must have default parameters: `cue = NULL`, `profile = "default"`
+   - This ensures internal functions can be called without explicit parameters in tests
+   
+2. **Data structure**:
+   - Scripts are stored in `_projr.yml` under `build.script`
+   - Structure: `list("title" = list(stage = "pre"/"post", path = character_vector, cue = optional))`
+   - The `.yml_script_add()` function calls `.yml_script_set()` to persist changes
+   
+3. **Script execution timing**:
+   - **Pre-build scripts** run:
+     - After bumping the project version (if done)
+     - Before committing the present state of code to Git
+     - Called by `.build_pre_script_run()` in the build process
+   - **Post-build scripts** run:
+     - After committing the present state of code to Git
+     - Before distributing project artifacts to remotes
+     - Called by `.build_post_script_run()` in the build process
+   
+4. **Script execution context**:
+   - Scripts run in the order specified in `_projr.yml`
+   - Scripts are NOT run in the same environment as the build process
+   - Scripts are executed via `source()` in `.script_run()`
+   
+5. **Cue levels** (controls when scripts run):
+   - `"build"` or `"dev"`: Always trigger scripts
+   - `"patch"`, `"minor"`, `"major"`: Minimum build level that triggers scripts
+
+#### Testing Pattern
+```r
+test_that(".build_script... functions work", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Add scripts using internal functions
+      .yml_script_add(
+        title = "test-script",
+        path = c("script1.R", "script2.R"),
+        stage = "pre"
+        # Note: cue and profile have defaults
+      )
+      
+      # Execute scripts
+      .build_script_run(stage = "pre")
+      
+      # Verify script effects
+      expect_true(exists("x"))
+    }
+  )
+})
+```
+
+#### Common Pitfalls
+- Forgetting to add default parameters (`cue = NULL`, `profile = "default"`) to internal functions
+- Not calling `.yml_script_set()` in functions that modify script configuration
+- Incorrect structure assignment (use `yml_script[[title]]` not `yml_script[[stage]][[title]]`)
+- Missing internal wrapper functions (`.yml_script_rm()`, `.yml_script_rm_all()`) that exported functions rely on
+
 ## File Organization Patterns
 
 Functions are organized by feature/domain:
