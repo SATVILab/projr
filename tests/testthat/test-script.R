@@ -11,7 +11,9 @@ test_that(".yml_script_ functions work works", {
       .yml_script_add(
         path = "tests/testthat/test-script.R",
         title = "test-script",
-        stage = "pre"
+        stage = "pre",
+        cue = NULL,
+        profile = "default"
       )
       expect_identical(
         .yml_script_get("default"),
@@ -35,7 +37,8 @@ test_that(".yml_script_ functions work works", {
         path = "tests/testthat/test-script.R",
         title = "test-script",
         stage = "pre",
-        cue = "major"
+        cue = "major",
+        profile = "default"
       )
       .yml_script_rm_title(
         title = "test-script", profile = "default"
@@ -50,7 +53,8 @@ test_that(".yml_script_ functions work works", {
         path = "tests/testthat/test-script.R",
         title = "test-script",
         stage = "pre",
-        cue = "minor"
+        cue = "minor",
+        profile = "default"
       )
       .yml_script_rm_all(profile = "default")
       expect_identical(
@@ -65,7 +69,8 @@ test_that(".yml_script_ functions work works", {
         ),
         title = "test-script",
         stage = "post",
-        cue = "minor"
+        cue = "minor",
+        profile = "default"
       )
       expect_identical(
         .yml_script_get("default"),
@@ -226,9 +231,11 @@ test_that(".build_script... functions work works", {
     path = dir_test,
     code = {
       .yml_script_add(
-        "title" = "test-script",
+        title = "test-script",
         path = c("script1.R", "script2.R"),
-        stage = "pre"
+        stage = "pre",
+        cue = NULL,
+        profile = "default"
       )
       cat("x <- 1; saveRDS(x, 'x.rds')", file = "script1.R")
       cat("y <- 1; saveRDS(y, 'y.rds')", file = "script2.R")
@@ -260,3 +267,72 @@ test_that(".build_script... functions work works", {
     }
   )
 })
+
+test_that(".build_script_run validates script paths before execution", {
+  skip_if(.is_test_select())
+  # setup
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+
+  # run from within project
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test with non-existent script in pre stage
+      .yml_script_add(
+        title = "test-missing",
+        path = c("missing_script.R"),
+        stage = "pre",
+        cue = NULL,
+        profile = "default",
+        overwrite = TRUE
+      )
+      
+      # Should throw error before attempting to run the script
+      expect_error(
+        .build_script_run(stage = "pre"),
+        "The following script\\(s\\) specified in _projr.yml do not exist"
+      )
+      expect_error(
+        .build_script_run(stage = "pre"),
+        "missing_script.R"
+      )
+      
+      # Test with mix of existing and non-existent scripts
+      cat("x <- 1", file = "existing_script.R")
+      .yml_script_add(
+        title = "test-mixed",
+        path = c("existing_script.R", "another_missing.R"),
+        stage = "post",
+        cue = NULL,
+        profile = "default",
+        overwrite = TRUE
+      )
+      
+      expect_error(
+        .build_script_run(stage = "post"),
+        "another_missing.R"
+      )
+      
+      # Test that scripts in other stages don't cause errors
+      .yml_script_rm_all(profile = "default")
+      .yml_script_add(
+        title = "test-other-stage",
+        path = c("missing_post_script.R"),
+        stage = "post",
+        cue = NULL,
+        profile = "default",
+        overwrite = TRUE
+      )
+      
+      # Running pre-stage should not error for missing post-stage scripts
+      expect_invisible(.build_script_run(stage = "pre"))
+      
+      # But running post-stage should error
+      expect_error(
+        .build_script_run(stage = "post"),
+        "missing_post_script.R"
+      )
+    }
+  )
+})
+
