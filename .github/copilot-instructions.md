@@ -82,7 +82,10 @@ Example from the codebase:
 #' Default is \code{FALSE}.
 #'
 #' @export
-projr_init_prompt <- function(yml_path_from = NULL, renv_force = FALSE) {
+projr_init_prompt <- function(yml_path_from = NULL, 
+                               renv_force = FALSE, 
+                               renv_bioconductor = TRUE,
+                               public = FALSE) {
   # implementation
 }
 ```
@@ -116,6 +119,7 @@ test_that(".build_manifest_* works", {
       expect_identical(nrow(manifest), 0L)
       
       # test with content
+      label_vec <- c("cache", "raw-data")
       invisible(.test_setup_content(label_vec, safe = TRUE))
       path_manifest <- .build_manifest_pre(TRUE)
       manifest <- .manifest_read(path_manifest)
