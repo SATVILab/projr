@@ -99,17 +99,17 @@ projr_yml_script_add <- function(path,
   .yml_script_check_overwrite(title, overwrite, profile = profile)
   yml_script <- .yml_script_get(profile)
   yml_script[[title]] <- .yml_script_add_get(
-    path = path, title = title, stage = stage, cue = cue
-  )[[title]]
+    path = path, stage = stage, cue = cue
+  )
   .yml_script_set(yml_script, profile)
 }
 
-.yml_script_add_get <- function(path, title, stage, cue = NULL) {
+.yml_script_add_get <- function(path, stage, cue = NULL) {
   add_list <- list(stage = stage, path = path)
   if (!is.null(cue)) {
     add_list[["cue"]] <- cue
   }
-  list(add_list) |> stats::setNames(title)
+  add_list
 }
 
 #' @rdname yml-script
