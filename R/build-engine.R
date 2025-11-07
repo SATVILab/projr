@@ -88,11 +88,11 @@
     "TRUE" = list.files(.path_get(), pattern = detect_str),
     "FALSE" = file[grepl(detect_str, file)] |> .file_filter_exists()
   )
-  .build_engine_doc_fn_get_error(fn_vec, type)
+  .build_engine_doc_fn_get_error(fn_vec, type, file)
   fn_vec |> setdiff("README.Rmd")
 }
 
-.build_engine_doc_fn_get_error <- function(fn, type) {
+.build_engine_doc_fn_get_error <- function(fn, type, file) {
   if (.is_given_mid(fn) && .is_len_pos(fn)) {
     return(invisible(TRUE))
   }
@@ -100,11 +100,20 @@
     "qmd" = "Quarto",
     "rmd" = "RMarkdown"
   )
-  stop(
-    paste0("No ", document_type,
-      " documents found that match any files specified: ",
-      paste0(file, collapse = ", "),
-      sep = ""
+  
+  # Create appropriate error message based on whether files were specified
+  if (is.null(file)) {
+    error_msg <- paste0(
+      "No ", document_type, " documents found in the project directory. ",
+      "Please create a ", tolower(type), " file or specify the file path explicitly."
     )
-  )
+  } else {
+    error_msg <- paste0(
+      "No ", document_type, " documents found that match the specified file(s): ",
+      paste0(file, collapse = ", "), ". ",
+      "Please check that the file(s) exist and have the correct extension (", type, ")."
+    )
+  }
+  
+  stop(error_msg, call. = FALSE)
 }
