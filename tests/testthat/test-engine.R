@@ -84,15 +84,15 @@ test_that(".build_engine_doc_fn_get_error shows helpful message when specified f
     code = {
       # Test for Quarto documents - specified files don't exist
       expect_error(
-        .build_engine_doc_fn_get_error(character(0), "qmd", c("doc1.qmd", "doc2.qmd")),
-        regexp = "No Quarto documents found that match the specified file\\(s\\): doc1.qmd, doc2.qmd.*Please check that the file\\(s\\) exist",
+        .build_engine_doc_fn_get_error(character(0), "qmd", c("doc1.qmd", "doc2.qmd"), c("doc1.qmd", "doc2.qmd")),
+        regexp = "The following Quarto document\\(s\\) could not be found: doc1.qmd, doc2.qmd.*Please check that the file\\(s\\) exist",
         fixed = FALSE
       )
       
       # Test for RMarkdown documents - specified files don't exist
       expect_error(
-        .build_engine_doc_fn_get_error(character(0), "rmd", c("report.Rmd")),
-        regexp = "No RMarkdown documents found that match the specified file\\(s\\): report.Rmd.*Please check that the file\\(s\\) exist",
+        .build_engine_doc_fn_get_error(character(0), "rmd", c("report.Rmd"), c("report.Rmd")),
+        regexp = "The following RMarkdown document\\(s\\) could not be found: report.Rmd.*Please check that the file\\(s\\) exist",
         fixed = FALSE
       )
     },
@@ -127,6 +127,53 @@ test_that(".build_engine_doc_fn_get returns files when they exist", {
       # Test explicit file specification
       result_explicit <- .build_engine_doc_fn_get("test1.qmd", "qmd")
       expect_identical(result_explicit, "test1.qmd")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_engine detects when no documents exist", {
+  skip_if(.is_test_select())
+  dir_test <- file.path(tempdir(), paste0("test_projr_no_docs"))
+  
+  .dir_create(dir_test)
+  withr::defer(unlink(dir_test, recursive = TRUE))
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create minimal _projr.yml
+      writeLines("build:\n  cache: []", "_projr.yml")
+      
+      # Test that .engine_get returns empty character when no documents exist
+      engine <- .engine_get()
+      expect_identical(engine, character(1L))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_engine_doc_fn_get reports only missing files when some are specified", {
+  skip_if(.is_test_select())
+  dir_test <- file.path(tempdir(), paste0("test_projr_partial_missing"))
+  
+  .dir_create(dir_test)
+  withr::defer(unlink(dir_test, recursive = TRUE))
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create only one of three files
+      writeLines("# Test", "doc1.qmd")
+      
+      # Test that only missing files are reported in error
+      expect_error(
+        .build_engine_doc_fn_get(c("doc1.qmd", "doc2.qmd", "doc3.qmd"), "qmd"),
+        regexp = "The following Quarto document\\(s\\) could not be found: doc2.qmd, doc3.qmd",
+        fixed = FALSE
+      )
     },
     force = TRUE,
     quiet = TRUE

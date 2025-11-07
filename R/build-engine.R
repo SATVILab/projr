@@ -1,12 +1,23 @@
 .build_engine <- function(file,
                           version_run_on_list,
                           args_engine) {
-  build_error <- switch(.engine_get(),
-    "bookdown" = .build_engine_bookdown(args_engine),
-    "quarto_project" = .build_engine_quarto_project(args_engine),
-    "quarto_document" = .build_engine_qmd(file, args_engine),
-    "rmd" = .build_engine_rmd(file, args_engine)
-  )
+  engine <- .engine_get()
+  
+  # Handle case where no documents are found
+  if (identical(engine, character(1L))) {
+    build_error <- paste0(
+      "No Quarto or RMarkdown documents found in the project directory. ",
+      "Please create either a .qmd or .Rmd file, or specify the file path explicitly."
+    )
+  } else {
+    build_error <- switch(engine,
+      "bookdown" = .build_engine_bookdown(args_engine),
+      "quarto_project" = .build_engine_quarto_project(args_engine),
+      "quarto_document" = .build_engine_qmd(file, args_engine),
+      "rmd" = .build_engine_rmd(file, args_engine)
+    )
+  }
+  
   .build_engine_error(build_error, version_run_on_list)
 }
 
@@ -84,18 +95,42 @@
     "rmd" = "\\.Rmd$|\\.rmd$",
     stop(paste0("Unknown document type: ", type), call. = FALSE)
   )
-  fn_vec <- switch(as.character(is.null(file)),
-    "TRUE" = list.files(.path_get(), pattern = detect_str),
-    "FALSE" = file[grepl(detect_str, file)] |> .file_filter_exists()
-  )
-  .build_engine_doc_fn_get_error(fn_vec, type, file)
+  
+  if (is.null(file)) {
+    fn_vec <- list.files(.path_get(), pattern = detect_str)
+    missing_files <- NULL
+  } else {
+    # Filter files by pattern and check existence
+    file_matching <- file[grepl(detect_str, file)]
+    fn_vec <- .file_filter_exists(file_matching)
+    # Track which files are missing
+    missing_files <- setdiff(file_matching, fn_vec)
+  }
+  
+  .build_engine_doc_fn_get_error(fn_vec, type, file, missing_files)
   fn_vec |> setdiff("README.Rmd")
 }
 
-.build_engine_doc_fn_get_error <- function(fn, type, file) {
+.build_engine_doc_fn_get_error <- function(fn, type, file, missing_files = NULL) {
+  # Check if there are missing files when files were specified
+  if (!is.null(missing_files) && length(missing_files) > 0) {
+    document_type <- switch(tolower(type),
+      "qmd" = "Quarto",
+      "rmd" = "RMarkdown"
+    )
+    error_msg <- paste0(
+      "The following ", document_type, " document(s) could not be found: ",
+      paste0(missing_files, collapse = ", "), ". ",
+      "Please check that the file(s) exist and have the correct extension (", type, ")."
+    )
+    stop(error_msg, call. = FALSE)
+  }
+  
+  # Check if no files were found at all
   if (.is_given_mid(fn) && .is_len_pos(fn)) {
     return(invisible(TRUE))
   }
+  
   document_type <- switch(tolower(type),
     "qmd" = "Quarto",
     "rmd" = "RMarkdown"
@@ -108,8 +143,9 @@
       "Please create a ", tolower(type), " file or specify the file path explicitly."
     )
   } else {
+    # Fallback for when no files match the pattern
     error_msg <- paste0(
-      "No ", document_type, " documents found that match the specified file(s): ",
+      "The following ", document_type, " document(s) could not be found: ",
       paste0(file, collapse = ", "), ". ",
       "Please check that the file(s) exist and have the correct extension (", type, ")."
     )
