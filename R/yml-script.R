@@ -91,16 +91,17 @@ projr_yml_script_add <- function(path,
 .yml_script_add <- function(path,
                             title,
                             stage,
-                            cue,
-                            profile,
+                            cue = NULL,
+                            profile = "default",
                             overwrite = TRUE) {
   title <- gsub("^\\s*|\\s*$", "", title) |>
     gsub("\\s+", "-", x = _)
   .yml_script_check_overwrite(title, overwrite, profile = profile)
   yml_script <- .yml_script_get(profile)
-  yml_script[[stage]][[title]] <- .yml_script_add_get(
+  yml_script[[title]] <- .yml_script_add_get(
     path = path, title = title, stage = stage, cue = cue
-  )
+  )[[title]]
+  .yml_script_set(yml_script, profile)
 }
 
 .yml_script_add_get <- function(path, title, stage, cue = NULL) {
@@ -119,6 +120,10 @@ projr_yml_script_rm <- function(title, path = NULL, profile = "default") {
   if (.is_given_mid(profile)) {
     .assert_string(profile)
   }
+  .yml_script_rm(title = title, path = path, profile = profile)
+}
+
+.yml_script_rm <- function(title, path = NULL, profile = "default") {
   yml_script <- .yml_script_get(profile)
   if (!is.null(path)) {
     .yml_script_rm_path(title, path, profile = profile)
@@ -154,6 +159,10 @@ projr_yml_script_rm <- function(title, path = NULL, profile = "default") {
 #' @rdname yml-script
 #' @export
 projr_yml_script_rm_all <- function(profile = "default") {
+  .yml_script_rm_all(profile = profile)
+}
+
+.yml_script_rm_all <- function(profile = "default") {
   yml_script <- .yml_script_get(profile)
   if (!length(yml_script) > 0) {
     return(invisible(FALSE))
