@@ -45,7 +45,46 @@ test_that(".yml_scripts functions work", {
         "cleanup.R"
       )
       
-      # Test 3: NULL when not specified
+      # Test 3: Dev key format
+      yaml::write_yaml(
+        list(
+          build = list(
+            scripts = list(
+              build = c("full-analysis.qmd"),
+              dev = c("quick-test.qmd", "debug.R"),
+              pre = "setup.R",
+              post = "cleanup.R"
+            )
+          )
+        ),
+        "_projr.yml"
+      )
+      expect_identical(
+        .yml_scripts_get_build("default"),
+        c("full-analysis.qmd")
+      )
+      expect_identical(
+        .yml_scripts_get_dev("default"),
+        c("quick-test.qmd", "debug.R")
+      )
+      
+      # Test 4: Dev falls back to build when no dev key
+      yaml::write_yaml(
+        list(
+          build = list(
+            scripts = list(
+              build = c("analysis.qmd")
+            )
+          )
+        ),
+        "_projr.yml"
+      )
+      expect_identical(
+        .yml_scripts_get_dev("default"),
+        c("analysis.qmd")
+      )
+      
+      # Test 5: NULL when not specified
       yaml::write_yaml(
         list(
           build = list()
@@ -53,6 +92,7 @@ test_that(".yml_scripts functions work", {
         "_projr.yml"
       )
       expect_null(.yml_scripts_get_build("default"))
+      expect_null(.yml_scripts_get_dev("default"))
     }
   )
 })
@@ -81,5 +121,39 @@ test_that(".yml_hooks functions work", {
       projr_yml_hooks_rm(title = "test-hook", profile = "default")
       expect_null(.yml_hooks_get("default"))
     }
+  )
+})
+
+test_that(".engine_get_from_files works correctly", {
+  skip_if(.is_test_select())
+  
+  # Test with .qmd files
+  expect_identical(
+    .engine_get_from_files(c("analysis.qmd", "report.qmd")),
+    "quarto_document"
+  )
+  
+  # Test with .Rmd files
+  expect_identical(
+    .engine_get_from_files(c("analysis.Rmd", "report.Rmd")),
+    "rmd"
+  )
+  
+  # Test with .R files
+  expect_identical(
+    .engine_get_from_files(c("script.R")),
+    "rmd"
+  )
+  
+  # Test with mixed files - qmd takes priority
+  expect_identical(
+    .engine_get_from_files(c("analysis.qmd", "report.Rmd")),
+    "quarto_document"
+  )
+  
+  # Test with NULL
+  expect_identical(
+    .engine_get_from_files(NULL),
+    .engine_get()
   )
 })

@@ -10,7 +10,7 @@
   .yml_build_get_nm("scripts", profile)
 }
 
-#' Get list of scripts to build
+#' Get list of scripts to build for production builds
 #' 
 #' Supports two formats:
 #' 1. Direct list: scripts: [file1.qmd, file2.qmd]
@@ -30,7 +30,7 @@
     return(yml_scripts[["build"]])
   }
   
-  # Otherwise, filter out "pre" and "post" (which are hooks)
+  # Otherwise, filter out "pre", "post", and "dev" (which are hooks or dev-specific)
   # and return the rest as build scripts
   script_names <- names(yml_scripts)
   if (is.null(script_names)) {
@@ -38,8 +38,8 @@
     return(yml_scripts)
   }
   
-  # Filter out pre and post hooks
-  build_scripts <- yml_scripts[!script_names %in% c("pre", "post")]
+  # Filter out pre, post, dev, and build keys
+  build_scripts <- yml_scripts[!script_names %in% c("pre", "post", "dev", "build")]
   
   # If what's left is a plain vector (unnamed), return it
   if (length(build_scripts) > 0 && is.null(names(build_scripts))) {
@@ -52,6 +52,28 @@
   }
   
   NULL
+}
+
+#' Get list of scripts to build for dev builds
+#' 
+#' Checks for build.scripts.dev first, then falls back to build.scripts.build
+#' 
+#' @param profile Profile name
+#' @return Vector of script paths to build or NULL
+#' @keywords internal
+.yml_scripts_get_dev <- function(profile) {
+  yml_scripts <- .yml_scripts_get(profile)
+  if (is.null(yml_scripts)) {
+    return(NULL)
+  }
+  
+  # If yml_scripts has a "dev" element, use that
+  if ("dev" %in% names(yml_scripts)) {
+    return(yml_scripts[["dev"]])
+  }
+  
+  # Otherwise fall back to build key or the general scripts
+  .yml_scripts_get_build(profile)
 }
 
 #' Get pre-build hooks from build.scripts

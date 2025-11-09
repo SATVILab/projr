@@ -2,7 +2,7 @@
 % Please edit documentation in R/yml-scripts.R
 \name{.yml_scripts_get_build}
 \alias{.yml_scripts_get_build}
-\title{Get list of scripts to build}
+\title{Get list of scripts to build for production builds}
 \usage{
 .yml_scripts_get_build(profile)
 }

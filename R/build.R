@@ -219,8 +219,14 @@ projr_build_dev <- function(file = NULL,
   clear_output <- .build_get_clear_output(clear_output)
   
   # If no file specified, check for build.scripts configuration
+  # Use dev scripts for dev builds, build scripts for production builds
   if (is.null(file)) {
-    file <- .yml_scripts_get_build(profile)
+    is_dev_build <- is.null(bump_component) || bump_component == "dev"
+    if (is_dev_build) {
+      file <- .yml_scripts_get_dev(profile)
+    } else {
+      file <- .yml_scripts_get_build(profile)
+    }
   }
 
   version_run_on_list <- .build_pre(
