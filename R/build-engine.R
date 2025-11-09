@@ -1,7 +1,13 @@
 .build_engine <- function(file,
                           version_run_on_list,
                           args_engine) {
-  engine <- .engine_get()
+  # When files are explicitly specified, use document-level rendering
+  # This ensures build.scripts overrides _quarto.yml or _bookdown.yml
+  if (!is.null(file) && length(file) > 0) {
+    engine <- .engine_get_from_files(file)
+  } else {
+    engine <- .engine_get()
+  }
   
   # Handle case where no documents are found
   if (identical(engine, character(1L))) {
