@@ -8,3 +8,7 @@
 .yml_dev_get_scripts <- function(profile) {
   .yml_dev_get(profile)[["scripts"]] %||% NULL
 }
+
+.yml_dev_get_hooks <- function(profile) {
+  .yml_dev_get(profile)[["hooks"]] %||% NULL
+}

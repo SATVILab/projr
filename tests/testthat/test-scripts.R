@@ -5,7 +5,7 @@ test_that(".yml_scripts functions work", {
   usethis::with_project(
     path = dir_test,
     code = {
-      # Test 1: Direct list format
+      # Test 1: Direct list format for build scripts
       yaml::write_yaml(
         list(
           build = list(
@@ -19,14 +19,14 @@ test_that(".yml_scripts functions work", {
         c("script1.qmd", "script2.R")
       )
       
-      # Test 2: Dev key format (new structure without "build" sub-key)
+      # Test 2: Dev scripts use top-level dev.scripts
       yaml::write_yaml(
         list(
           build = list(
-            scripts = list(
-              "full-analysis.qmd",
-              dev = c("quick-test.qmd", "debug.R")
-            )
+            scripts = c("full-analysis.qmd")
+          ),
+          dev = list(
+            scripts = c("quick-test.qmd", "debug.R")
           )
         ),
         "_projr.yml"
@@ -40,7 +40,7 @@ test_that(".yml_scripts functions work", {
         c("quick-test.qmd", "debug.R")
       )
       
-      # Test 3: Dev falls back to build when no dev key
+      # Test 3: No fallback - dev scripts return NULL when not specified
       yaml::write_yaml(
         list(
           build = list(
@@ -49,12 +49,9 @@ test_that(".yml_scripts functions work", {
         ),
         "_projr.yml"
       )
-      expect_identical(
-        .yml_scripts_get_dev("default"),
-        c("analysis.qmd")
-      )
+      expect_null(.yml_scripts_get_dev("default"))
       
-      # Test 4: NULL when not specified
+      # Test 4: NULL when build scripts not specified
       yaml::write_yaml(
         list(
           build = list()
@@ -189,14 +186,14 @@ test_that(".engine_get_from_files works correctly", {
   )
 })
 
-test_that("dev.scripts overrides build.scripts for dev builds", {
+test_that("dev.scripts is used exclusively for dev builds", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
   usethis::with_project(
     path = dir_test,
     code = {
-      # Test 1: dev.scripts overrides build.scripts
+      # Test 1: dev.scripts is used for dev builds
       yaml::write_yaml(
         list(
           build = list(
@@ -215,50 +212,29 @@ test_that("dev.scripts overrides build.scripts for dev builds", {
         c("dev1.qmd", "dev2.R")
       )
       
-      # Production builds should still use build.scripts
+      # Production builds should use build.scripts
       expect_identical(
         .yml_scripts_get_build("default"),
         c("build1.qmd", "build2.qmd")
       )
       
-      # Test 2: dev.scripts overrides build.scripts.dev
+      # Test 2: No fallback when dev.scripts is not specified
       yaml::write_yaml(
         list(
           build = list(
-            scripts = list(
-              "build1.qmd",
-              dev = "build-dev.qmd"
-            )
-          ),
-          dev = list(
-            scripts = c("override-dev.qmd")
+            scripts = c("build1.qmd", "build2.qmd")
           )
         ),
         "_projr.yml"
       )
       
-      # dev.scripts should win over build.scripts.dev
-      expect_identical(
-        .yml_scripts_get_dev("default"),
-        c("override-dev.qmd")
-      )
+      # Without dev.scripts, dev builds get NULL (no fallback)
+      expect_null(.yml_scripts_get_dev("default"))
       
-      # Test 3: Falls back to build.scripts.dev when no dev.scripts
-      yaml::write_yaml(
-        list(
-          build = list(
-            scripts = list(
-              "build1.qmd",
-              dev = c("fallback-dev.qmd", "fallback2.R")
-            )
-          )
-        ),
-        "_projr.yml"
-      )
-      
+      # Production builds still use build.scripts
       expect_identical(
-        .yml_scripts_get_dev("default"),
-        c("fallback-dev.qmd", "fallback2.R")
+        .yml_scripts_get_build("default"),
+        c("build1.qmd", "build2.qmd")
       )
     }
   )
@@ -336,6 +312,55 @@ test_that("File existence checks work for scripts and hooks", {
       )
       
       expect_silent(.yml_scripts_hooks_check_exist("default"))
+    }
+  )
+})
+
+test_that("dev.hooks works for dev builds", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test 1: dev.hooks are used for dev builds, build.hooks ignored
+      yaml::write_yaml(
+        list(
+          build = list(
+            hooks = list(
+              pre = "build-pre.R",
+              post = "build-post.R"
+            )
+          ),
+          dev = list(
+            hooks = list(
+              pre = "dev-pre.R",
+              both = "dev-both.R"
+            )
+          )
+        ),
+        "_projr.yml"
+      )
+      
+      # Check that dev.hooks are accessible
+      dev_hooks <- .yml_dev_get_hooks("default")
+      expect_true(!is.null(dev_hooks))
+      expect_true("pre" %in% names(dev_hooks))
+      expect_true("both" %in% names(dev_hooks))
+      
+      # Test 2: When no dev.hooks, dev builds get no hooks
+      yaml::write_yaml(
+        list(
+          build = list(
+            hooks = list(
+              pre = "build-pre.R"
+            )
+          )
+        ),
+        "_projr.yml"
+      )
+      
+      expect_null(.yml_dev_get_hooks("default"))
     }
   )
 })

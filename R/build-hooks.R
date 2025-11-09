@@ -1,5 +1,43 @@
-.build_hooks_run <- function(stage) {
-  # Try new hooks configuration first (build.hooks.pre, build.hooks.post, build.hooks)
+.build_hooks_run <- function(stage, is_dev_build = FALSE) {
+  # For dev builds, use dev.hooks and ignore build.hooks
+  # For production builds, use build.hooks and ignore dev.hooks
+  if (is_dev_build) {
+    # Use dev.hooks
+    dev_hooks_yml <- .yml_dev_get_hooks(NULL)
+    if (!is.null(dev_hooks_yml)) {
+      # Get hooks for this stage from dev.hooks
+      hooks_list <- c()
+      
+      # Stage-specific hooks
+      if (stage %in% names(dev_hooks_yml)) {
+        stage_hooks <- dev_hooks_yml[[stage]]
+        if (!is.null(stage_hooks)) {
+          hooks_list <- c(hooks_list, as.character(stage_hooks))
+        }
+      }
+      
+      # Hooks that run in both stages
+      if ("both" %in% names(dev_hooks_yml)) {
+        both_hooks <- dev_hooks_yml[["both"]]
+        if (!is.null(both_hooks)) {
+          hooks_list <- c(hooks_list, as.character(both_hooks))
+        }
+      }
+      
+      # Run the hooks
+      if (length(hooks_list) > 0) {
+        for (hook_path in hooks_list) {
+          if (is.character(hook_path)) {
+            .hook_run(hook_path)
+          }
+        }
+      }
+    }
+    return(invisible(TRUE))
+  }
+  
+  # Production builds: use build.hooks
+  # Try new hooks configuration first (build.hooks.pre, build.hooks.post, build.hooks.both)
   hooks_list <- .yml_hooks_get_stage(stage, NULL)
   if (!is.null(hooks_list) && length(hooks_list) > 0) {
     for (hook_path in hooks_list) {
@@ -31,12 +69,12 @@
   invisible(TRUE)
 }
 
-.build_post_hooks_run <- function() {
-  .build_hooks_run("post")
+.build_post_hooks_run <- function(is_dev_build = FALSE) {
+  .build_hooks_run("post", is_dev_build)
 }
 
-.build_pre_hooks_run <- function() {
-  .build_hooks_run("pre")
+.build_pre_hooks_run <- function(is_dev_build = FALSE) {
+  .build_hooks_run("pre", is_dev_build)
 }
 
 .build_hooks_run_title <- function(x, stage) {

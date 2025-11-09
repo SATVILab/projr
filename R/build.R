@@ -289,7 +289,9 @@ projr_build_dev <- function(file = NULL,
   version_run_on_list <- .version_run_onwards_get(bump_component)
 
   # run any pre-build hooks (backward compatible with build.script)
-  .build_pre_hooks_run()
+  # For dev builds, use dev.hooks; for production builds, use build.hooks
+  is_dev_build <- is.null(bump_component) || bump_component == "dev"
+  .build_pre_hooks_run(is_dev_build)
 
   # clear output and docs directories, and set
   # run version to output run version if need be
@@ -352,7 +354,9 @@ projr_build_dev <- function(file = NULL,
   )
 
   # run post-build hooks (backward compatible with build.script)
-  .build_post_hooks_run()
+  # For dev builds, use dev.hooks; for production builds, use build.hooks
+  is_dev_build <- is.null(bump_component) || bump_component == "dev"
+  .build_post_hooks_run(is_dev_build)
 
   # initate dev version
   .build_post_dev(bump_component, version_run_on_list, msg)
