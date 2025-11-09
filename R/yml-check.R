@@ -16,6 +16,7 @@
 projr_yml_check <- function(profile = NULL) {
   .yml_dir_check(profile)
   .yml_build_check(profile)
+  .yml_dev_check(profile)
   invisible(TRUE)
 }
 
@@ -142,7 +143,7 @@ projr_yml_check <- function(profile = NULL) {
   .assert_in(
     nm_vec,
     c(
-      "dev-output", "script", "git",
+      "dev-output", "script", "hooks", "scripts", "git",
       "github", "package", "local", "osf"
     )
   )
@@ -231,5 +232,23 @@ projr_yml_check <- function(profile = NULL) {
       }
     }
   }
+  invisible(TRUE)
+}
+
+# dev
+# ----------------------
+
+.yml_dev_check <- function(profile) {
+  yml_dev <- .yml_dev_get(profile)
+  if (is.null(yml_dev)) {
+    return(invisible(TRUE))
+  }
+  
+  # Only "scripts" key is allowed under dev
+  nm_vec <- names(yml_dev)
+  if (!is.null(nm_vec) && length(nm_vec) > 0) {
+    .assert_in(nm_vec, c("scripts"))
+  }
+  
   invisible(TRUE)
 }

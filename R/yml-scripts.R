@@ -50,12 +50,19 @@
 
 #' Get list of scripts to build for dev builds
 #' 
-#' Checks for build.scripts.dev, then falls back to build.scripts
+#' Checks for dev.scripts first (top-level), then build.scripts.dev, then build.scripts
 #' 
 #' @param profile Profile name
 #' @return Vector of script paths to build or NULL
 #' @keywords internal
 .yml_scripts_get_dev <- function(profile) {
+  # First check top-level dev.scripts (highest priority for dev builds)
+  dev_scripts <- .yml_dev_get_scripts(profile)
+  if (!is.null(dev_scripts)) {
+    return(dev_scripts)
+  }
+  
+  # Fall back to build.scripts.dev
   yml_scripts <- .yml_scripts_get(profile)
   if (is.null(yml_scripts)) {
     return(NULL)

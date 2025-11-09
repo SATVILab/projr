@@ -187,3 +187,78 @@ test_that(".engine_get_from_files works correctly", {
     .engine_get()
   )
 })
+
+test_that("dev.scripts overrides build.scripts for dev builds", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test 1: dev.scripts overrides build.scripts
+      yaml::write_yaml(
+        list(
+          build = list(
+            scripts = c("build1.qmd", "build2.qmd")
+          ),
+          dev = list(
+            scripts = c("dev1.qmd", "dev2.R")
+          )
+        ),
+        "_projr.yml"
+      )
+      
+      # Dev builds should use dev.scripts
+      expect_identical(
+        .yml_scripts_get_dev("default"),
+        c("dev1.qmd", "dev2.R")
+      )
+      
+      # Production builds should still use build.scripts
+      expect_identical(
+        .yml_scripts_get_build("default"),
+        c("build1.qmd", "build2.qmd")
+      )
+      
+      # Test 2: dev.scripts overrides build.scripts.dev
+      yaml::write_yaml(
+        list(
+          build = list(
+            scripts = list(
+              "build1.qmd",
+              dev = "build-dev.qmd"
+            )
+          ),
+          dev = list(
+            scripts = c("override-dev.qmd")
+          )
+        ),
+        "_projr.yml"
+      )
+      
+      # dev.scripts should win over build.scripts.dev
+      expect_identical(
+        .yml_scripts_get_dev("default"),
+        c("override-dev.qmd")
+      )
+      
+      # Test 3: Falls back to build.scripts.dev when no dev.scripts
+      yaml::write_yaml(
+        list(
+          build = list(
+            scripts = list(
+              "build1.qmd",
+              dev = c("fallback-dev.qmd", "fallback2.R")
+            )
+          )
+        ),
+        "_projr.yml"
+      )
+      
+      expect_identical(
+        .yml_scripts_get_dev("default"),
+        c("fallback-dev.qmd", "fallback2.R")
+      )
+    }
+  )
+})
