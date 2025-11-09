@@ -268,3 +268,53 @@ renv::snapshot()
 - The package integrates with multiple services: GitHub, OSF (Open Science Framework)
 - Some functionality requires authentication (GitHub PAT, OSF token)
 - The package supports multiple document engines (R Markdown, Quarto, Bookdown)
+
+## Scripts and Hooks
+
+### Current Behavior (as of issue #550)
+
+The package supports running R scripts at specific points in the build lifecycle:
+
+#### Script Execution
+- **Scripts** are R files that are sourced (`source()`) at specific build stages
+- Scripts are defined in `_projr.yml` under `build/script` section
+- Each script configuration includes:
+  - `title`: A unique identifier for the script set
+  - `stage`: Either `"pre"` (before build) or `"post"` (after build)
+  - `path`: Character vector of script file paths (relative to project root)
+  - `cue`: Optional minimum build level to trigger scripts (`"build"`, `"dev"`, `"patch"`, `"minor"`, `"major"`)
+
+#### Script Validation
+- **Before execution**, all script paths are validated to ensure they exist
+- Validation happens in `.build_script_validate_paths()` which is called by `.build_script_run()`
+- If any script file is missing, an error is thrown with a list of missing files
+- Validation is stage-specific: only scripts for the current stage are checked
+
+#### Script Structure in _projr.yml
+```yaml
+build:
+  script:
+    my-preprocessing:
+      stage: pre
+      path:
+        - scripts/prepare_data.R
+        - scripts/check_inputs.R
+      cue: build
+    my-postprocessing:
+      stage: post
+      path: scripts/cleanup.R
+```
+
+#### Implementation Files
+- `R/build-script.R`: Script execution and validation logic
+- `R/yml-script.R`: YAML configuration management for scripts
+- `tests/testthat/test-script.R`: Test suite for script functionality
+
+#### Key Functions
+- `.build_script_run(stage)`: Main entry point for running scripts
+- `.build_script_validate_paths(yml_script, stage)`: Validates script existence before execution
+- `.script_run(path)`: Executes individual script files
+- `projr_yml_script_add()`: Adds scripts to configuration
+- `.yml_script_add()`: Internal function to add scripts (with defaults for `cue` and `profile`)
+- `.yml_script_rm()`, `.yml_script_rm_all()`: Remove scripts from configuration
+
