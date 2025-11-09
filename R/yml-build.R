@@ -13,6 +13,10 @@
   .yml_build_get_nm("script", profile)
 }
 
+.yml_build_get_hooks <- function(profile) {
+  .yml_build_get_nm("hooks", profile)
+}
+
 .yml_build_get_nm <- function(nm, profile) {
   .yml_build_get(profile)[[nm]] %@@% NULL
 }

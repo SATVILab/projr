@@ -1,0 +1,81 @@
+# Functions for managing build.scripts configuration
+# This specifies which documents/scripts to build explicitly
+
+#' Get build scripts from YAML configuration
+#' 
+#' @param profile Profile name
+#' @return Vector of script paths or NULL
+#' @keywords internal
+.yml_scripts_get <- function(profile) {
+  .yml_build_get_nm("scripts", profile)
+}
+
+#' Get list of scripts to build
+#' 
+#' Supports two formats:
+#' 1. Direct list: scripts: [file1.qmd, file2.qmd]
+#' 2. Under build key: scripts: { build: [file1.qmd, file2.qmd] }
+#' 
+#' @param profile Profile name
+#' @return Vector of script paths to build or NULL
+#' @keywords internal
+.yml_scripts_get_build <- function(profile) {
+  yml_scripts <- .yml_scripts_get(profile)
+  if (is.null(yml_scripts)) {
+    return(NULL)
+  }
+  
+  # If yml_scripts has a "build" element, use that
+  if ("build" %in% names(yml_scripts)) {
+    return(yml_scripts[["build"]])
+  }
+  
+  # Otherwise, filter out "pre" and "post" (which are hooks)
+  # and return the rest as build scripts
+  script_names <- names(yml_scripts)
+  if (is.null(script_names)) {
+    # It's a plain vector of scripts
+    return(yml_scripts)
+  }
+  
+  # Filter out pre and post hooks
+  build_scripts <- yml_scripts[!script_names %in% c("pre", "post")]
+  
+  # If what's left is a plain vector (unnamed), return it
+  if (length(build_scripts) > 0 && is.null(names(build_scripts))) {
+    return(unlist(build_scripts))
+  }
+  
+  # If it's named, return the values
+  if (length(build_scripts) > 0) {
+    return(unlist(build_scripts, use.names = FALSE))
+  }
+  
+  NULL
+}
+
+#' Get pre-build hooks from build.scripts
+#' 
+#' @param profile Profile name
+#' @return Hook configuration or NULL
+#' @keywords internal
+.yml_scripts_get_hooks_pre <- function(profile) {
+  yml_scripts <- .yml_scripts_get(profile)
+  if (is.null(yml_scripts)) {
+    return(NULL)
+  }
+  yml_scripts[["pre"]]
+}
+
+#' Get post-build hooks from build.scripts
+#' 
+#' @param profile Profile name
+#' @return Hook configuration or NULL
+#' @keywords internal
+.yml_scripts_get_hooks_post <- function(profile) {
+  yml_scripts <- .yml_scripts_get(profile)
+  if (is.null(yml_scripts)) {
+    return(NULL)
+  }
+  yml_scripts[["post"]]
+}

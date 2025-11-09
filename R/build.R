@@ -217,6 +217,11 @@ projr_build_dev <- function(file = NULL,
   on.exit(.env_unset(), add = TRUE)
   .build_ensure_version()
   clear_output <- .build_get_clear_output(clear_output)
+  
+  # If no file specified, check for build.scripts configuration
+  if (is.null(file)) {
+    file <- .yml_scripts_get_build(profile)
+  }
 
   version_run_on_list <- .build_pre(
     bump_component, msg, clear_output, archive_local
@@ -275,8 +280,8 @@ projr_build_dev <- function(file = NULL,
   # build outcomes
   version_run_on_list <- .version_run_onwards_get(bump_component)
 
-  # run any scripts
-  .build_pre_script_run()
+  # run any pre-build hooks (backward compatible with build.script)
+  .build_pre_hooks_run()
 
   # clear output and docs directories, and set
   # run version to output run version if need be
@@ -338,8 +343,8 @@ projr_build_dev <- function(file = NULL,
     always_archive
   )
 
-  # run post-build scripts
-  .build_post_script_run()
+  # run post-build hooks (backward compatible with build.script)
+  .build_post_hooks_run()
 
   # initate dev version
   .build_post_dev(bump_component, version_run_on_list, msg)
