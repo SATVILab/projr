@@ -252,3 +252,48 @@ projr_yml_check <- function(profile = NULL) {
   
   invisible(TRUE)
 }
+
+# scripts and hooks existence check
+# ----------------------
+
+.yml_scripts_hooks_check_exist <- function(profile = NULL) {
+  # Check scripts
+  scripts_build <- .yml_scripts_get_build(profile)
+  if (!is.null(scripts_build)) {
+    for (script in scripts_build) {
+      if (!file.exists(script)) {
+        stop(paste0("Build script '", script, "' does not exist."))
+      }
+    }
+  }
+  
+  scripts_dev <- .yml_dev_get_scripts(profile)
+  if (is.null(scripts_dev)) {
+    # Fall back to build.scripts.dev
+    yml_scripts <- .yml_scripts_get(profile)
+    if (!is.null(yml_scripts) && "dev" %in% names(yml_scripts)) {
+      scripts_dev <- yml_scripts[["dev"]]
+    }
+  }
+  if (!is.null(scripts_dev)) {
+    for (script in scripts_dev) {
+      if (!file.exists(script)) {
+        stop(paste0("Dev script '", script, "' does not exist."))
+      }
+    }
+  }
+  
+  # Check hooks
+  for (stage in c("pre", "post")) {
+    hooks <- .yml_hooks_get_stage(stage, profile)
+    if (!is.null(hooks)) {
+      for (hook in hooks) {
+        if (!file.exists(hook)) {
+          stop(paste0("Hook '", hook, "' (stage: ", stage, ") does not exist."))
+        }
+      }
+    }
+  }
+  
+  invisible(TRUE)
+}

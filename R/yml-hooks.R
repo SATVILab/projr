@@ -264,7 +264,7 @@ projr_yml_hooks_rm_all <- function(profile = "default") {
 }
 
 # Get hooks that run in a specific stage
-# New simple structure: build.hooks (array), build.hooks.pre, build.hooks.post
+# Structure: build.hooks.both, build.hooks.pre, build.hooks.post
 # All are simple file paths (strings or arrays), no titles or "path" keys
 .yml_hooks_get_stage <- function(stage, profile) {
   yml_hooks <- .yml_hooks_get(profile)
@@ -283,24 +283,11 @@ projr_yml_hooks_rm_all <- function(profile = "default") {
     }
   }
   
-  # Get hooks that run in both pre and post (direct children of build.hooks)
-  # These are entries that are not "pre" or "post" keys
-  # Handle both array format and direct unnamed elements
-  if (!is.null(names(yml_hooks))) {
-    # Named list - filter out pre and post
-    both_entries <- yml_hooks[!names(yml_hooks) %in% c("pre", "post")]
-    # Check if these are old-style with titles (have nested lists with "path")
-    # vs new-style (direct strings)
-    if (length(both_entries) > 0) {
-      # If it's a simple vector without names, it's new style
-      if (is.null(names(both_entries)) || all(names(both_entries) == "")) {
-        hooks_list <- c(hooks_list, as.character(unlist(both_entries)))
-      }
-    }
-  } else {
-    # Unnamed list/vector - these are hooks that run both
-    if (!is.null(yml_hooks) && !is.list(yml_hooks[[1]]) || is.character(yml_hooks[[1]])) {
-      hooks_list <- c(hooks_list, as.character(unlist(yml_hooks)))
+  # Get hooks that run in both pre and post (from build.hooks.both)
+  if ("both" %in% names(yml_hooks)) {
+    both_hooks <- yml_hooks[["both"]]
+    if (!is.null(both_hooks)) {
+      hooks_list <- c(hooks_list, as.character(both_hooks))
     }
   }
   

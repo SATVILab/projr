@@ -271,6 +271,8 @@ projr_build_dev <- function(file = NULL,
                        clear_output,
                        archive_local) {
   projr_yml_check(NULL)
+  # Check that all scripts and hooks that are to be run exist
+  .yml_scripts_hooks_check_exist(NULL)
   # whether it's an output run  or not
   output_run <- .build_get_output_run(bump_component)
 

@@ -74,13 +74,12 @@ test_that(".yml_hooks simple structure works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      # Test 1: Simple hooks structure
+      # Test 1: Simple hooks structure with both, pre, and post
       yaml::write_yaml(
         list(
           build = list(
             hooks = list(
-              "both1.R",
-              "both2.R",
+              both = c("both1.R", "both2.R"),
               pre = "pre.R",
               post = c("post1.R", "post2.R")
             )
@@ -136,11 +135,13 @@ test_that(".yml_hooks simple structure works", {
       post_hooks <- .yml_hooks_get_stage("post", "default")
       expect_identical(post_hooks, "post.R")
       
-      # Test 4: Only both hooks (unnamed array)
+      # Test 4: Only both hooks
       yaml::write_yaml(
         list(
           build = list(
-            hooks = c("both1.R", "both2.R")
+            hooks = list(
+              both = c("both1.R", "both2.R")
+            )
           )
         ),
         "_projr.yml"
@@ -259,6 +260,82 @@ test_that("dev.scripts overrides build.scripts for dev builds", {
         .yml_scripts_get_dev("default"),
         c("fallback-dev.qmd", "fallback2.R")
       )
+    }
+  )
+})
+
+test_that("File existence checks work for scripts and hooks", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test 1: Non-existent build script should error
+      yaml::write_yaml(
+        list(
+          build = list(
+            scripts = c("nonexistent.qmd")
+          )
+        ),
+        "_projr.yml"
+      )
+      
+      expect_error(
+        .yml_scripts_hooks_check_exist("default"),
+        "Build script 'nonexistent.qmd' does not exist"
+      )
+      
+      # Test 2: Non-existent dev script should error
+      yaml::write_yaml(
+        list(
+          dev = list(
+            scripts = c("nonexistent-dev.R")
+          )
+        ),
+        "_projr.yml"
+      )
+      
+      expect_error(
+        .yml_scripts_hooks_check_exist("default"),
+        "Dev script 'nonexistent-dev.R' does not exist"
+      )
+      
+      # Test 3: Non-existent hook should error
+      yaml::write_yaml(
+        list(
+          build = list(
+            hooks = list(
+              pre = "nonexistent-hook.R"
+            )
+          )
+        ),
+        "_projr.yml"
+      )
+      
+      expect_error(
+        .yml_scripts_hooks_check_exist("default"),
+        "Hook 'nonexistent-hook.R' .* does not exist"
+      )
+      
+      # Test 4: Existing files should not error
+      # Create dummy files
+      file.create("exists.qmd")
+      file.create("exists-hook.R")
+      
+      yaml::write_yaml(
+        list(
+          build = list(
+            scripts = c("exists.qmd"),
+            hooks = list(
+              pre = "exists-hook.R"
+            )
+          )
+        ),
+        "_projr.yml"
+      )
+      
+      expect_silent(.yml_scripts_hooks_check_exist("default"))
     }
   )
 })
