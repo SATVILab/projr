@@ -13,6 +13,16 @@ Each build entry follows this format:
 - **Status**: success/failure
 - **Changes**: Brief description of what changed
 - **Outputs**: What was generated/archived
+
+**System Resources**
+
+- OS: Operating system name and version
+- OS Version: Detailed version string
+- Architecture: CPU architecture
+- Platform: R platform identifier
+- CPU Cores: Number of available CPU cores
+- Total RAM: Total system memory
+- Disk Space: Available disk space
 ```
 
 ## Builds
