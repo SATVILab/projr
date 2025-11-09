@@ -2,3 +2,172 @@ url: https://satvilab.github.io/projr/
 template:
   bootstrap: 5
 
+navbar:
+  structure:
+    left:  [intro, articles, reference, news]
+    right: [github]
+  components:
+    intro:
+      text: Get started
+      href: articles/get-started.html
+    articles:
+      text: Articles
+      menu:
+      - text: How-to guides
+        href: articles/how-to-guides.html
+      - text: Concepts
+        href: articles/concepts.html
+      - text: Design
+        href: articles/design.html
+    news:
+      text: News
+      menu:
+      - text: Changelog
+        href: news/index.html
+      - text: Build log
+        href: BUILDLOG.html
+    github:
+      icon: fab fa-github fa-lg
+      href: https://github.com/SATVILab/projr
+      aria-label: GitHub
+
+reference:
+- title: Core workflow
+  desc: Main functions for project workflow
+  contents:
+  - projr_init
+  - projr_init_prompt
+  - projr_init_all
+  - projr_build
+  - projr_build_dev
+  - projr_build_patch
+  - projr_build_minor
+  - projr_build_major
+  - projr_restore
+  - projr_restore_repo
+  - projr_restore_repo_wd
+
+- title: Path helpers
+  desc: Functions for getting project paths
+  contents:
+  - projr_path_get
+  - projr_path_get_dir
+  - projr_path_get_cache_build
+  - projr_path_get_cache_build_dir
+
+- title: Initialisation helpers
+  desc: Helper functions for project initialisation
+  contents:
+  - projr_init_git
+  - projr_init_github
+  - projr_init_renv
+  - projr_init_renviron
+  - projr_init_cite
+  - projr_init_license
+
+- title: Version management
+  desc: Functions for managing project versions
+  contents:
+  - projr_version_get
+  - projr_version_set
+
+- title: YAML configuration
+  desc: Functions for managing _projr.yml configuration
+  contents:
+  - projr_yml_get
+  - projr_yml_check
+  - projr_yml_git_set
+  - projr_yml_git_set_default
+  - projr_yml_cite_set
+  - projr_yml_cite_set_default
+  - projr_yml_dest_add_github
+  - projr_yml_dest_add_local
+  - projr_yml_dest_add_osf
+  - projr_yml_dest_add_osf_comp
+  - projr_yml_dest_add_osf_proj
+  - projr_yml_par_add
+  - projr_yml_script_add
+  - projr_yml_script_add_pre
+  - projr_yml_script_add_post
+  - projr_yml_script_rm
+  - projr_yml_script_rm_all
+
+- title: Profile management
+  desc: Functions for managing project profiles
+  contents:
+  - projr_profile_create
+  - projr_profile_delete
+  - projr_profile_get
+
+- title: Parameters
+  desc: Functions for managing project parameters
+  contents:
+  - projr_param_get
+  - projr_par_get
+
+- title: Environment management
+  desc: Functions for managing environment variables
+  contents:
+  - projr_env_set
+
+- title: Git ignore management
+  desc: Functions for managing .gitignore and .Rbuildignore
+  contents:
+  - projr_ignore
+  - projr_ignore_auto
+  - projr_ignore_dir
+  - projr_ignore_dir_git
+  - projr_ignore_dir_rbuild
+  - projr_ignore_file
+  - projr_ignore_file_git
+  - projr_ignore_file_rbuild
+  - projr_unignore_manual
+  - projr_unignore_manual_dir
+  - projr_unignore_manual_dir_git
+  - projr_unignore_manual_dir_rbuild
+  - projr_unignore_manual_file
+  - projr_unignore_manual_file_git
+  - projr_unignore_manual_file_rbuild
+
+- title: renv helpers
+  desc: Functions for managing renv dependencies
+  contents:
+  - projr_renv_restore
+  - projr_renv_restore_and_update
+  - projr_renv_test
+  - projr_renv_update
+
+- title: Data helpers
+  desc: Functions for managing project data
+  contents:
+  - projr_use_data
+
+- title: OSF helpers
+  desc: Functions for Open Science Framework integration
+  contents:
+  - projr_osf_create_project
+  - projr_instr_auth_osf
+
+- title: GitHub helpers
+  desc: Functions for GitHub integration
+  contents:
+  - projr_instr_auth_github
+
+- title: Changelog
+  desc: Functions for managing changelog
+  contents:
+  - projr_cat_changelog
+
+footer:
+  structure:
+    left: [developed_by, built_with]
+    right: license
+  components:
+    license: "[License](LICENSE.html) • projr is free and open source software"
+    built_with: "Built with [pkgdown](https://pkgdown.r-lib.org/) and R"
+
+home:
+  title: projr • Reproducible and archived projects
+  description: >
+    A single intuitive build function that automates rendering, versioning,
+    archiving, and restoration for reproducible research projects.
