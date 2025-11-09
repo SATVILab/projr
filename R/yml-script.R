@@ -101,7 +101,6 @@ projr_yml_script_add <- function(path,
   yml_script[[stage]][[title]] <- .yml_script_add_get(
     path = path, title = title, stage = stage, cue = cue
   )
-  yml_script
 }
 
 .yml_script_add_get <- function(path, title, stage, cue = NULL) {
