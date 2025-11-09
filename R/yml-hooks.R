@@ -101,7 +101,7 @@ projr_yml_hooks_add <- function(path,
   yml_hooks[[title]] <- .yml_hooks_add_get(
     path = path, stage = stage, cue = cue
   )
-  .yml_hooks_set(yml_hooks, profile)
+  yml_hooks
 }
 
 .yml_hooks_add_get <- function(path, stage, cue = NULL) {
