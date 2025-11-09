@@ -115,19 +115,7 @@ reference:
   contents:
   - projr_ignore
   - projr_ignore_auto
-  - projr_ignore_dir
-  - projr_ignore_dir_git
-  - projr_ignore_dir_rbuild
-  - projr_ignore_file
-  - projr_ignore_file_git
-  - projr_ignore_file_rbuild
   - projr_unignore_manual
-  - projr_unignore_manual_dir
-  - projr_unignore_manual_dir_git
-  - projr_unignore_manual_dir_rbuild
-  - projr_unignore_manual_file
-  - projr_unignore_manual_file_git
-  - projr_unignore_manual_file_rbuild
 
 - title: renv helpers
   desc: Functions for managing renv dependencies
@@ -157,6 +145,13 @@ reference:
   desc: Functions for managing changelog
   contents:
   - projr_cat_changelog
+
+- title: Internal utilities
+  desc: Internal helper functions (not exported)
+  contents:
+  - .yml_get
+  - projr_profile_create_local
+  - projr_profile_delete_local
 
 footer:
   structure:
