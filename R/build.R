@@ -358,7 +358,7 @@ projr_build_dev <- function(file = NULL,
   is_dev_build <- is.null(bump_component) || bump_component == "dev"
   .build_post_hooks_run(is_dev_build)
 
-  # initate dev version
+  # initiate dev version
   .build_post_dev(bump_component, version_run_on_list, msg)
 
   # push

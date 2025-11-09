@@ -41,28 +41,4 @@
   .yml_dev_get_scripts(profile)
 }
 
-#' Get pre-build hooks from build.scripts
-#' 
-#' @param profile Profile name
-#' @return Hook configuration or NULL
-#' @keywords internal
-.yml_scripts_get_hooks_pre <- function(profile) {
-  yml_scripts <- .yml_scripts_get(profile)
-  if (is.null(yml_scripts)) {
-    return(NULL)
-  }
-  yml_scripts[["pre"]]
-}
 
-#' Get post-build hooks from build.scripts
-#' 
-#' @param profile Profile name
-#' @return Hook configuration or NULL
-#' @keywords internal
-.yml_scripts_get_hooks_post <- function(profile) {
-  yml_scripts <- .yml_scripts_get(profile)
-  if (is.null(yml_scripts)) {
-    return(NULL)
-  }
-  yml_scripts[["post"]]
-}

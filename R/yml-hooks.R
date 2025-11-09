@@ -5,13 +5,13 @@
 #' Convenience functions to add or remove hooks
 #' to run before or after the build.
 #'
-#' - .yml_hooks_add`: Add a script to run before or after the build.
-#' - .yml_hooks_rm`: Remove scripts to run.
+#' - \code{.yml_hooks_add}: Add a script to run before or after the build.
+#' - \code{.yml_hooks_rm}: Remove scripts to run.
 #'
-#' .yml_hooks_add_pre` and .yml_hooks_add_post`
-#' are wrappers around .yml_hooks_add` that set the `stage` argument
-#' to `"pre"` or `"post"`, respectively.
-#' .yml_hooks_rm_all` removes all scripts.
+#' \code{.yml_hooks_add_pre} and \code{.yml_hooks_add_post}
+#' are wrappers around \code{.yml_hooks_add} that set the \code{stage} argument
+#' to \code{"pre"} or \code{"post"}, respectively.
+#' \code{.yml_hooks_rm_all} removes all scripts.
 #'
 #' @export
 #' @param path character vector.
@@ -20,8 +20,8 @@
 #' Title for set of hooks.
 #' Initial and trailing spaces are removed, and
 #' the middle spaces are converted to dashes.
-#' For example, `" a b "` is converted to
-#' `"a-b"`. `
+#' For example, \code{" a b "} is converted to
+#' \code{"a-b"}.
 #' @param stage "pre", "post", or "both".
 #' Whether to run the hook before the build ("pre"), 
 #' after the build ("post"), or in both stages ("both").
@@ -312,7 +312,8 @@ projr_yml_hooks_add_pre <- function(path,
   .yml_hooks_add(
     path = path, title = title,
     stage = "pre", cue = cue, profile = profile, overwrite = overwrite
-  )
+  ) |>
+    .yml_hooks_set(profile = profile)
 }
 
 #' @rdname yml-hooks
@@ -325,5 +326,6 @@ projr_yml_hooks_add_post <- function(path,
   .yml_hooks_add(
     path = path, title = title,
     stage = "post", cue = cue, profile = profile, overwrite = overwrite
-  )
+  ) |>
+    .yml_hooks_set(profile = profile)
 }

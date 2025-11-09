@@ -46,7 +46,7 @@ Title for set of hooks.
 Initial and trailing spaces are removed, and
 the middle spaces are converted to dashes.
 For example, \code{" a b "} is converted to
-\code{"a-b"}. `}
+\code{"a-b"}.}
 
 \item{stage}{"pre", "post", or "both".
 Whether to run the hook before the build ("pre"),
@@ -77,12 +77,14 @@ If \verb{"default"`` (the default), the hook is added to the default profile, wh
 Convenience functions to add or remove hooks
 to run before or after the build.
 \itemize{
-\item .yml_hooks_add`: Add a script to run before or after the build.
-\item .yml_hooks_rm`: Remove scripts to run.
+\item \code{.yml_hooks_add}: Add a script to run before or after the build.
+\item \code{.yml_hooks_rm}: Remove scripts to run.
 }
 
-.yml_hooks_add_pre\verb{ and .yml_hooks_add_post}
-are wrappers around .yml_hooks_add\verb{that set the}stage\verb{argument to}"pre"\code{or}"post"\verb{, respectively. .yml_hooks_rm_all} removes all scripts.
+\code{.yml_hooks_add_pre} and \code{.yml_hooks_add_post}
+are wrappers around \code{.yml_hooks_add} that set the \code{stage} argument
+to \code{"pre"} or \code{"post"}, respectively.
+\code{.yml_hooks_rm_all} removes all scripts.
 }
 \details{
 Within a stage (pre- or post-build), hooks
