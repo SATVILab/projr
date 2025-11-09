@@ -9,6 +9,8 @@ This is an R package that facilitates reproducible and archived projects. The pa
 - Run `devtools::test()` to ensure all tests pass
 - Run `devtools::check()` to ensure package passes R CMD check
 - Ensure code follows the existing style conventions (see below)
+- **Update copilot instructions** (`.github/copilot-instructions.md`) when making changes that affect development workflow, code standards, or best practices
+- **Update pkgdown website** (rebuild with `pkgdown::build_site()`) when making changes to package documentation, vignettes, or exported functions
 
 ### Development Flow
 - **Install dependencies**: `renv::restore()`
@@ -66,6 +68,8 @@ All exported functions **must** include:
 - `#' @export`: For exported functions only
 - `#' @examples`: Provide working examples (wrap in `\dontrun{}` if needed)
 - `#' @seealso`: Link to related functions when appropriate
+
+**IMPORTANT**: After updating roxygen2 documentation comments in any `R/` file, you **must** run `devtools::document()` to regenerate the corresponding `.Rd` files in `man/`. The `man/` directory is auto-generated and should never be edited directly.
 
 Example from the codebase:
 ```r
@@ -282,6 +286,8 @@ Functions are organized by feature/domain:
    - Function docs: Edit roxygen2 comments in `R/` files
    - README: Edit `README.md` directly
    - Run `devtools::document()` after roxygen2 changes
+   - Update copilot instructions (`.github/copilot-instructions.md`) when changes affect development practices or workflow
+   - Rebuild pkgdown website with `pkgdown::build_site()` when documentation changes are significant
 
 ## Build and Test Commands
 
@@ -337,3 +343,27 @@ renv::snapshot()
 - The package integrates with multiple services: GitHub, OSF (Open Science Framework)
 - Some functionality requires authentication (GitHub PAT, OSF token)
 - The package supports multiple document engines (R Markdown, Quarto, Bookdown)
+
+## Maintaining Documentation and Instructions
+
+### Copilot Instructions
+When making changes that affect how developers should work with this codebase, update this file (`.github/copilot-instructions.md`):
+- New code standards or style guidelines
+- Changes to build/test/deployment processes
+- New dependencies or tools
+- Common patterns or best practices
+- File organization changes
+
+### pkgdown Website
+The package documentation website is built with pkgdown and hosted at https://satvilab.github.io/projr/. Update the website when:
+- Adding or modifying exported functions
+- Changing function signatures or behavior
+- Adding or updating vignettes
+- Making significant changes to README or other user-facing documentation
+
+To rebuild the website locally:
+```r
+pkgdown::build_site()
+```
+
+The website configuration is in `_pkgdown.yml`. GitHub Pages deployment is typically handled by GitHub Actions.
