@@ -260,3 +260,68 @@ test_that(".build_script... functions work works", {
     }
   )
 })
+
+test_that(".build_script_run validates script paths before execution", {
+  skip_if(.is_test_select())
+  # setup
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+
+  # run from within project
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test with non-existent script in pre stage
+      .yml_script_add(
+        title = "test-missing",
+        path = c("missing_script.R"),
+        stage = "pre"
+      )
+      
+      # Should throw error before attempting to run the script
+      expect_error(
+        .build_script_run(stage = "pre"),
+        "The following script\\(s\\) specified in _projr.yml do not exist"
+      )
+      expect_error(
+        .build_script_run(stage = "pre"),
+        "missing_script.R"
+      )
+      
+      # Clean up
+      .yml_script_rm_all(profile = "default")
+      
+      # Test with mix of existing and non-existent scripts
+      cat("x <- 1", file = "existing_script.R")
+      .yml_script_add(
+        title = "test-mixed",
+        path = c("existing_script.R", "another_missing.R"),
+        stage = "post"
+      )
+      
+      expect_error(
+        .build_script_run(stage = "post"),
+        "another_missing.R"
+      )
+      
+      # Clean up
+      .yml_script_rm_all(profile = "default")
+      
+      # Test that scripts in other stages don't cause errors
+      .yml_script_add(
+        title = "test-other-stage",
+        path = c("missing_post_script.R"),
+        stage = "post"
+      )
+      
+      # Running pre-stage should not error for missing post-stage scripts
+      expect_invisible(.build_script_run(stage = "pre"))
+      
+      # But running post-stage should error
+      expect_error(
+        .build_script_run(stage = "post"),
+        "missing_post_script.R"
+      )
+    }
+  )
+})
+
