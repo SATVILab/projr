@@ -1,0 +1,589 @@
+---
+title: "Concepts"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Concepts}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Core concepts
+
+This article explains the key concepts behind projr's approach to reproducible research.
+
+---
+
+## Single-purpose directories
+
+### The problem
+
+Research projects often have an ad-hoc structure where:
+
+- Data files are scattered across multiple locations
+- Output files mix with source code
+- Temporary files clutter the repository
+- It's unclear what each directory contains
+
+This makes it difficult to:
+
+- Share specific parts of the project
+- Restore the project on a new machine
+- Understand the project structure at a glance
+
+### The projr solution
+
+projr organises projects into **single-purpose directories**, each with a clear role:
+
+```
+my-project/
+├── _raw_data/          # Source data (never modified)
+├── _output/            # Final outputs (figures, tables)
+├── _tmp/               # Temporary/cache files
+├── docs/               # Rendered documents (HTML, PDF)
+├── R/                  # Source code
+├── analysis.Rmd        # Analysis documents
+└── _projr.yml          # Configuration
+```
+
+**Benefits:**
+
+1. **Clarity**: Anyone can understand the structure from `_projr.yml`
+2. **Selective sharing**: Archive only what's needed (e.g., data + outputs)
+3. **Restoration**: Easily restore projects on new machines
+4. **Automation**: projr can manage these directories automatically
+
+### Directory labels
+
+Each directory has a **label** that describes its purpose:
+
+- `raw-data` → source data
+- `cache` → temporary files
+- `output` → final outputs
+- `docs` → rendered documents
+
+Labels have **prefixes** that determine their role:
+
+- `raw-*` → source inputs
+- `cache-*` → temporary storage
+- `output-*` → final outputs
+- `docs-*` → documentation
+
+**Custom labels:**
+
+You can create custom labels following the prefix rules:
+
+```yaml
+directories:
+  raw-data-public:
+    path: _raw_data_public
+  raw-data-sensitive:
+    path: _raw_data_sensitive
+  output-figures:
+    path: _output/figures
+  output-tables:
+    path: _output/tables
+```
+
+---
+
+## Versioned builds
+
+### The problem
+
+In typical research projects:
+
+- It's unclear which version of data produced which outputs
+- Reproducing an earlier analysis requires Git archaeology
+- Dependencies (R packages) change over time
+- No formal link between code version and outputs
+
+### The projr solution
+
+projr implements **versioned builds** that:
+
+1. Assign a version to the entire project (e.g., `v0.1.0`)
+2. Version individual components (code, data, outputs)
+3. Link outputs to specific input versions via a manifest
+4. Optionally capture R dependencies with renv
+
+**Version numbers:**
+
+projr uses semantic versioning (x.y.z):
+
+- **Major** (x): Breaking changes or major milestones
+- **Minor** (y): New features or analyses
+- **Patch** (z): Small changes or bug fixes
+
+**Example progression:**
+
+```
+v0.1.0  Initial analysis
+  ↓
+v0.1.1  Fix typo in figure
+  ↓
+v0.2.0  Add sensitivity analysis
+  ↓
+v1.0.0  Final publication version
+```
+
+### Component versioning
+
+Each build versions:
+
+- **Code**: Git commit SHA
+- **Raw data**: Directory hash (SHA-256)
+- **Outputs**: Directory hash
+- **Documents**: Directory hash
+- **R packages**: renv.lock file (optional)
+
+These are linked in the **manifest**:
+
+```
+output/manifest.csv:
+  version: v0.1.0
+  code_sha: abc123...
+  raw_data_hash: def456...
+  output_hash: ghi789...
+```
+
+**Traceability:**
+
+Given an output file, you can trace back to:
+
+1. Which project version created it
+2. Which raw data was used
+3. Which code (Git commit) generated it
+4. Which R packages were installed
+
+---
+
+## Development vs final builds
+
+### Development builds
+
+**Purpose**: Safe iteration whilst coding
+
+```{r eval=FALSE}
+projr_build_dev()
+```
+
+**Characteristics:**
+
+- Routes outputs to cache (`_tmp/projr/v<version>/`)
+- Doesn't modify `_output` or `docs`
+- No version bump
+- No archiving
+- Fast feedback loop
+
+**Use when:**
+
+- Testing code changes
+- Debugging analysis
+- Iterating on documents
+- Checking output before committing
+
+### Final builds
+
+**Purpose**: Create versioned releases
+
+```{r eval=FALSE}
+projr_build()        # patch bump
+projr_build_minor()  # minor bump
+projr_build_major()  # major bump
+```
+
+**Characteristics:**
+
+- Clears and populates `_output` and `docs`
+- Bumps version number
+- Creates manifest
+- Archives to GitHub/OSF/local
+- Commits to Git (if configured)
+
+**Use when:**
+
+- Ready to share results
+- Creating a milestone
+- Publishing results
+- Archiving for posterity
+
+---
+
+## Manifests
+
+### What is a manifest?
+
+A manifest is a CSV file that records:
+
+- What was built
+- Which inputs were used
+- When it was built
+- SHA-256 checksums for verification
+
+**Example manifest:**
+
+```csv
+label,path,hash,version,timestamp
+raw-data,_raw_data,abc123...,v0.1.0,2024-01-15T10:30:00Z
+output,_output,def456...,v0.1.0,2024-01-15T10:35:00Z
+docs,docs,ghi789...,v0.1.0,2024-01-15T10:35:00Z
+```
+
+### Why manifests matter
+
+**Verification**: Check if files have been modified
+
+```{r eval=FALSE}
+# Compare current hash with manifest
+tools::md5sum("_output/figure.png")
+# vs hash in manifest
+```
+
+**Traceability**: Link outputs to inputs
+
+"This figure was generated from raw data version abc123... using code commit def456..."
+
+**Reproducibility**: Ensure the right inputs
+
+"To reproduce this analysis, restore raw-data v0.1.0"
+
+### Manifest location
+
+Manifests are stored in:
+
+- `_output/manifest.csv` (final builds)
+- `_tmp/projr/v<version>/output/manifest.csv` (dev builds)
+
+---
+
+## Archiving and restoration
+
+### Archive strategies
+
+projr supports two archiving strategies:
+
+**1. Versioned archives** (default)
+
+Each build creates a new archive:
+
+```
+GitHub Releases:
+  v0.1.0/raw-data-v0.1.0.zip
+  v0.1.1/raw-data-v0.1.1.zip
+  v0.2.0/raw-data-v0.2.0.zip
+```
+
+- Preserves all versions
+- Enables time travel
+- Uses more storage
+
+**2. Latest-only archives**
+
+Each build overwrites the previous:
+
+```
+GitHub Releases:
+  latest/raw-data-latest.zip  (always current)
+```
+
+- Saves storage space
+- Loses history
+- Faster downloads
+
+**Configure in `_projr.yml`:**
+
+```yaml
+build:
+  github:
+    raw-data:
+      content: [raw-data]
+      strategy: "archive"  # or "latest"
+```
+
+### Archive cues
+
+Control when archives are uploaded:
+
+- `"always"` - Upload on every build
+- `"new"` - Upload only if content changed (default)
+- `"never"` - Don't upload
+
+```yaml
+build:
+  github:
+    raw-data:
+      content: [raw-data]
+      cue: "new"  # Only upload if raw data changed
+```
+
+### Restoration
+
+Restoration pulls archived content back:
+
+```{r eval=FALSE}
+# Restore from GitHub
+projr_restore_repo("owner/repo")
+
+# Restore specific version
+projr_restore(label = "raw-data", version = "v0.1.0")
+
+# Restore specific label
+projr_restore(label = "output")
+```
+
+**Restoration order:**
+
+projr checks sources in order:
+
+1. GitHub Releases
+2. OSF
+3. Local archives
+
+The first available source is used.
+
+---
+
+## Profiles
+
+### What are profiles?
+
+Profiles are alternative configurations for different contexts:
+
+- **Development** vs **production**
+- **Public** vs **private** sharing
+- **Individual** vs **collaborative** workflows
+
+### How profiles work
+
+A profile is a separate YAML file:
+
+```
+_projr.yml         # Default configuration
+_projr-dev.yml     # Development profile
+_projr-public.yml  # Public sharing profile
+```
+
+**Activate a profile:**
+
+```{r eval=FALSE}
+Sys.setenv(PROJR_PROFILE = "dev")
+```
+
+Or in `.Renviron`:
+
+```
+PROJR_PROFILE=dev
+```
+
+### Profile inheritance
+
+Profiles only specify **differences** from `_projr.yml`:
+
+**`_projr.yml`:**
+
+```yaml
+build:
+  github:
+    enabled: true
+    raw-data:
+      content: [raw-data]
+directories:
+  output:
+    path: _output
+```
+
+**`_projr-dev.yml`:**
+
+```yaml
+build:
+  github:
+    enabled: false  # Override: disable GitHub in dev
+# All other settings inherited from _projr.yml
+```
+
+### Example profiles
+
+**Development profile** (`_projr-dev.yml`):
+
+```yaml
+build:
+  github:
+    enabled: false
+  git:
+    commit: false
+```
+
+**Public sharing profile** (`_projr-public.yml`):
+
+```yaml
+directories:
+  raw-data:
+    path: _raw_data_public  # Only public data
+build:
+  github:
+    raw-data:
+      content: [raw-data]  # Share public data only
+```
+
+---
+
+## Environment variables
+
+### Configuration via environment
+
+projr reads these environment variables:
+
+**`PROJR_PROFILE`**
+
+Activate a profile:
+
+```bash
+export PROJR_PROFILE=dev
+```
+
+**`PROJR_OUTPUT_CLEAR`**
+
+Control when `_output` is cleared:
+
+- `"pre"` - Clear before build (default)
+- `"post"` - Clear after build
+- `"none"` - Never clear
+
+```bash
+export PROJR_OUTPUT_CLEAR=pre
+```
+
+**`PROJR_CACHE_CLEAR`**
+
+Control cache clearing (same options as above).
+
+### Setting environment variables
+
+**In R:**
+
+```{r eval=FALSE}
+Sys.setenv(PROJR_PROFILE = "dev")
+Sys.setenv(PROJR_OUTPUT_CLEAR = "pre")
+```
+
+**In `.Renviron`:**
+
+```
+PROJR_PROFILE=dev
+PROJR_OUTPUT_CLEAR=pre
+```
+
+**Helper function:**
+
+```{r eval=FALSE}
+projr_env_set(
+  profile = "dev",
+  output_clear = "pre"
+)
+```
+
+---
+
+## Dependencies and renv
+
+### Why renv?
+
+R package versions change over time. Code that works today might break in 6 months due to package updates.
+
+**renv** locks package versions:
+
+```
+renv.lock:
+  {
+    "R": {"Version": "4.3.0"},
+    "Packages": {
+      "dplyr": {"Version": "1.1.0"},
+      "ggplot2": {"Version": "3.4.0"}
+    }
+  }
+```
+
+### projr + renv
+
+projr integrates with renv:
+
+**Initialise:**
+
+```{r eval=FALSE}
+projr_init_renv()
+```
+
+**Update lockfile:**
+
+```{r eval=FALSE}
+projr_renv_update()  # Wrapper for renv::snapshot()
+```
+
+**Restore packages:**
+
+```{r eval=FALSE}
+projr_renv_restore()  # Wrapper for renv::restore()
+```
+
+### When to use renv
+
+**Use renv when:**
+
+- Long-term reproducibility is critical
+- Collaborating across machines/time
+- Submitting to journals requiring reproducibility
+
+**Skip renv when:**
+
+- Quick exploratory projects
+- Sharing code is low priority
+- Package versions are stable
+
+---
+
+## The whole game
+
+Putting it all together:
+
+```{r eval=FALSE}
+# 1. Initialise
+projr_init()
+
+# 2. Add raw data to _raw_data/
+
+# 3. Write analysis code in .Rmd files
+
+# 4. Iterate with dev builds
+projr_build_dev("analysis.Rmd")
+# Check outputs in _tmp/projr/v0.0.1/
+
+# 5. When ready, create first release
+projr_build()
+# Outputs in _output/, archived to GitHub
+
+# 6. Continue development
+# ... edit code ...
+projr_build_dev()
+
+# 7. Create minor release with new analysis
+projr_build_minor()
+
+# 8. Share repository
+# Collaborators run:
+projr_restore_repo("you/your-project")
+```
+
+**Key takeaways:**
+
+- **Directories**: Organise by purpose (raw, cache, output, docs)
+- **Versions**: Link outputs to inputs via manifests
+- **Dev builds**: Safe iteration without overwriting releases
+- **Final builds**: Versioned, archived, traceable releases
+- **Restoration**: One command to reconstruct project

@@ -10,3 +10,4 @@ _tmp
 _scratch/VERSION
 git_diff_output.txt
 
+*.tar.gz
