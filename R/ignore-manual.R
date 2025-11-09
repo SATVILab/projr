@@ -273,10 +273,16 @@ projr_ignore_dir_rbuild <- function(ignore, force_create = TRUE) {
 .ignore_manual_path_add_get_updated_start_len_g1_start <- function(start) {
   if (grepl(match_str_top, start[length(start)])) {
     start_pre <- start[-length(start)]
-    if (start_pre[length(start_pre)] != "") {
-      start_pre <- c(start_pre, "")
+    if (length(start_pre) == 0) {
+      # If there's only the marker, just add a blank line before it
+      c("", start[length(start)])
+    } else if (start_pre[length(start_pre)] != "") {
+      # If the line before the marker is not blank, add a blank line
+      c(start_pre, "", start[length(start)])
+    } else {
+      # There's already a blank line before the marker
+      c(start_pre, start[length(start)])
     }
-    c(start_pre, start[length(start)])
   } else {
     if (start[length(start)] != "") {
       c(start, "")

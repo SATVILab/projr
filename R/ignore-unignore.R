@@ -65,10 +65,10 @@ projr_unignore_manual <- function(unignore) {
   )
 
   # Force-unignore files (or nonexistent paths) in .gitignore and .Rbuildignore
-  .unignore_manual_file_git(c(unignore_file, unignore_nonexistent))
-  .unignore_manual_dir_git(unignore_dir)
-  .unignore_manual_file_rbuild(c(unignore_file, unignore_nonexistent))
-  .unignore_manual_dir_rbuild(unignore_dir)
+  projr_unignore_manual_file_git(c(unignore_file, unignore_nonexistent))
+  projr_unignore_manual_dir_git(unignore_dir)
+  projr_unignore_manual_file_rbuild(c(unignore_file, unignore_nonexistent))
+  projr_unignore_manual_dir_rbuild(unignore_dir)
 }
 
 #' @rdname projr_unignore_manual
@@ -78,8 +78,8 @@ projr_unignore_manual_dir <- function(unignore) {
   if (!.is_chr(unignore)) {
     return(invisible(FALSE))
   }
-  .unignore_manual_dir_git(unignore)
-  .unignore_manual_dir_rbuild(unignore)
+  projr_unignore_manual_dir_git(unignore)
+  projr_unignore_manual_dir_rbuild(unignore)
 }
 
 #' @rdname projr_unignore_manual
@@ -89,8 +89,8 @@ projr_unignore_manual_file <- function(unignore) {
   if (!.is_chr(unignore)) {
     return(invisible(FALSE))
   }
-  .unignore_manual_file_git(unignore)
-  .unignore_manual_file_rbuild(unignore)
+  projr_unignore_manual_file_git(unignore)
+  projr_unignore_manual_file_rbuild(unignore)
 }
 
 #' @rdname projr_unignore_manual

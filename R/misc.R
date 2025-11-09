@@ -222,7 +222,7 @@ with_dir <- function(new, code) {
 
 .newline_append <- function(path) {
   txt <- readLines(path)
-  if (!identical(txt[[length(txt)]], "")) {
+  if (length(txt) == 0 || !identical(txt[[length(txt)]], "")) {
     txt <- c(txt, "")
     writeLines(txt, path)
   }
