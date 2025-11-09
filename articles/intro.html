@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.17-18</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.18-14</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,24 +29,26 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
+<li class="nav-item"><a class="nav-link" href="../articles/get-started.html">Get started</a></li>
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/cloud-storage.html">Storing and downloading project artefacts on the cloud</a></li>
-    <li><a class="dropdown-item" href="../articles/details-gemini.html">Streamlining Your Project Workflow with `projr`</a></li>
-    <li><a class="dropdown-item" href="../articles/directories.html">directories</a></li>
-    <li><a class="dropdown-item" href="../articles/environment-variables.html">Environment variables</a></li>
-    <li><a class="dropdown-item" href="../articles/intro-gemini.html">Project in Chaos? Get Organized with `projr`!</a></li>
-    <li><a class="dropdown-item" href="../articles/intro.html">intro</a></li>
+<li><a class="dropdown-item" href="../articles/how-to-guides.html">How-to guides</a></li>
+    <li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
+    <li><a class="dropdown-item" href="../articles/design.html">Design</a></li>
   </ul>
 </li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-news">
+<li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
+    <li><a class="dropdown-item" href="../BUILDLOG.html">Build log</a></li>
+  </ul>
+</li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><form class="form-inline" role="search">
- <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
-</form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/SATVILab/projr" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -89,7 +91,7 @@
 GitHub (if you so choose).</li>
 <li>
 <strong>Building the project</strong>: Run
-<code><a href="../reference/projr_build_output.html">projr::projr_build_output()</a></code> to build the project, version
+<code>projr::projr_build_output()</code> to build the project, version
 the project and its components, and upload the components to GitHub, OSF
 and/or a local folder.</li>
 </ul>
@@ -97,11 +99,10 @@ and/or a local folder.</li>
 <code>raw-data</code> folder) and on-build actions (e.g. uploading to
 GitHub) are specified in the <code>_projr.yml</code> file.</p>
 <p>There are only three functions to remember:
-<code><a href="../reference/projr_init.html">projr_init()</a></code>, <code><a href="../reference/projr_build_output.html">projr_build_output()</a></code> and
-<code><a href="../reference/projr_path_get.html">projr_path_get()</a></code>. The <code>projr</code> configuration
-file, <code>_projr.yml</code>, specifies project defaults that are
-appropriate for the majority of projects, but can be customised to your
-needs.</p>
+.init()<code>, projr_build_output()</code> and
+.path_get()<code>. The</code>projr<code>configuration file,</code>_projr.yml`,
+specifies project defaults that are appropriate for the majority of
+projects, but can be customised to your needs.</p>
 </div>
 <div class="section level4">
 <h4 id="less-extreme-version">Less extreme version<a class="anchor" aria-label="anchor" href="#less-extreme-version"></a>
@@ -138,7 +139,7 @@ saves the outputs to a temporary directory (in your workspace).</li>
 </li>
 <li>
 <strong>Builds</strong>: To build the project, run
-<code><a href="../reference/projr_build_output.html">projr::projr_build_output()</a></code>.
+<code>projr::projr_build_output()</code>.
 <ul>
 <li>This saves the outputs to their final destination (e.g. the
 <code>_output</code> folder), as these are regarded as the latest state
@@ -161,9 +162,8 @@ outputs (intermediate and final) and rendered documents are kept. The
 how the code are versioned, and which project components (raw data,
 outputs, docs) are uploaded to GitHub, OSF and/or a local folder.</p>
 <p>There are only three functions to remember:
-<code><a href="../reference/projr_init.html">projr_init()</a></code>, <code><a href="../reference/projr_build_output.html">projr_build_output()</a></code> and
-<code><a href="../reference/projr_path_get.html">projr_path_get()</a></code> (which is described later). The
-<code>projr</code> configuration file, <code>_projr.yml</code>,
+.init()<code>, projr_build_output()</code> and
+.path_get()<code>(which is described later). The</code>projr<code>configuration file,</code>_projr.yml`,
 specifies project defaults that are appropriate for the majority of
 projects, but is highly customisable for your needs.</p>
 </div>
@@ -200,22 +200,19 @@ description for it as well as your name and email address. You are also
 able to choose whether to create a Git repo and, if so, whether to use
 GitHub (if not already set up to use GitHub, then see the tips below on
 creating a GitHub account)</p>
-<p>Overall, what <code>projr_init</code> does is set up the project with
-metadata, <code>projr</code>-specific configuration and a Git repo
-connected to GitHub (if you so choose).</p>
+<p>Overall, what
+.init<code>does is set up the project with metadata,</code>projr`-specific
+configuration and a Git repo connected to GitHub (if you so choose).</p>
 </div>
 <div class="section level4">
 <h4 id="building-the-project">Building the project<a class="anchor" aria-label="anchor" href="#building-the-project"></a>
 </h4>
 <div class="section level5">
-<h5 id="projr_build_output">
-<code>projr_build_output()</code><a class="anchor" aria-label="anchor" href="#projr_build_output"></a>
+<h5 id="projr_build_output">projr_build_output()`<a class="anchor" aria-label="anchor" href="#projr_build_output"></a>
 </h5>
-<p>One can build the project using <code><a href="../reference/projr_build_output.html">projr_build_output()</a></code>.
-This will automatically detect whatever literate programming documents
-are used (Rmd’s, Qmd’s, Quarto projects, <code>bookdown</code> projects)
-and render all of them. By deafult, the rendered documents (e.g. HTML,
-PDF) are saved to the <code>_docs</code> directory.</p>
+<p>One can build the project using
+projr_build_output()<code>. This will automatically detect whatever literate programming documents are used (Rmd's, Qmd's, Quarto projects,</code>bookdown<code>projects) and render all of them. By deafult, the rendered documents (e.g. HTML, PDF) are saved to the</code>_docs`
+directory.</p>
 </div>
 <div class="section level5">
 <h5 id="versioning">Versioning<a class="anchor" aria-label="anchor" href="#versioning"></a>
@@ -329,8 +326,8 @@ builds - but these you want to share, e.g. figures or tables.</li>
 <code>docs</code>: This is where the rendered documents are stored,
 e.g. the HTML or PDF files.</li>
 </ul>
-<p>To access the paths to these folders, use the
-<code>projr_path_get</code> function. For example:</p>
+<p>To access the paths to these folders, use the .path_get` function.
+For example:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_path_get.html">projr_path_get</a></span><span class="op">(</span><span class="st">"output"</span><span class="op">)</span></span></code></pre></div>
 <p>will return</p>
@@ -344,17 +341,16 @@ file names. For example:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="st">"_output/figure/nobel_prize_winning_plot.png"</span></span></code></pre></div>
 <p>So, code saving a figure to this path might look like this:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">png</span>(<span class="at">filename =</span> <span class="fu">projr_path_get</span>(<span class="st">"output"</span>, <span class="st">"figure"</span>, <span class="st">"nobel_prize_winning_plot.png"</span>)</span>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">png</span>(<span class="at">filename =</span><span class="fu">.path_get</span>(<span class="st">"output"</span>, <span class="st">"figure"</span>, <span class="st">"nobel_prize_winning_plot.png"</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co"># ... code to create the plot</span></span>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div>
 <p>In future, if the path to the output folder changes in
 <code>_projr.yml</code> (e.g. to <code>_output_figures</code> instead of
-<code>_output</code>), <code>projr_path_get</code> will automatically
-update the path.</p>
-<p>Essentially, <code>projr_path_get</code> should replace either
-hardcoded paths
-(<code>"_output/figure/nobel_prize_winning_plot.png"</code>) or
-<code>file.path</code>/<code>here::here</code> calls.</p>
+<code>_output</code>), .path_get` will automatically update the
+path.</p>
+<p>Essentially,
+.path_get<code>should replace either hardcoded paths (</code>“_output/figure/nobel_prize_winning_plot.png”<code>) or</code>file.path<code>/</code>here::here`
+calls.</p>
 </div>
 <div class="section level5">
 <h5 id="benefits">Benefits<a class="anchor" aria-label="anchor" href="#benefits"></a>
@@ -377,11 +373,10 @@ structure. This takes the following forms:
 <ul>
 <li>
 <code>projr</code> can “protect” the output folder. The
-<code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code> function (described more below) builds
-the project, but saves outputs to the <code>cache</code> folder rather
-than the <code>output</code> folder. This prevents you accidentally
-overwriting outputs from a previous successful build whilst iterating on
-the code in preparation for the next build.</li>
+projr_build_dev()<code>function (described more below) builds the project, but saves outputs to the</code>cache<code>folder rather than the</code>output`
+folder. This prevents you accidentally overwriting outputs from a
+previous successful build whilst iterating on the code in preparation
+for the next build.</li>
 <li>
 <code>projr</code> can upload the data to various places. As
 described in the next subsection (<code>build</code>),
@@ -440,55 +435,48 @@ the changes are pushed to GitHub.</p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="use-projr_build_-functions-to-build-your-project">Use <code>projr_build_</code> functions to build your project<a class="anchor" aria-label="anchor" href="#use-projr_build_-functions-to-build-your-project"></a>
+<h3 id="use--build_-functions-to-build-your-project">Use .build_` functions to build your project<a class="anchor" aria-label="anchor" href="#use--build_-functions-to-build-your-project"></a>
 </h3>
 <p><code>projr</code> provides two main functions to help you build your
-project, <code><a href="../reference/projr_build_output.html">projr_build_output()</a></code> and
-<code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code>. In a nutshell,
-<code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code> is for checking code as you write it, and
-<code><a href="../reference/projr_build_output.html">projr_build_output()</a></code> is for snapshotting and sharing your
-project.</p>
+project, projr_build_output()<code>and projr_build_dev()</code>. In a
+nutshell,
+projr_build_dev()<code>is for checking code as you write it, and projr_build_output()</code>
+is for snapshotting and sharing your project.</p>
 <p>Both will automatically detect the type of source documents you have
 (Rmd’s, Qmd’s, Quarto projects, <code>bookdown</code> projects) and
 render them accordingly.</p>
 <div class="section level4">
-<h4 id="projr_build_output-1">
-<code>projr_build_output()</code><a class="anchor" aria-label="anchor" href="#projr_build_output-1"></a>
+<h4 id="projr_build_output-1">projr_build_output()`<a class="anchor" aria-label="anchor" href="#projr_build_output-1"></a>
 </h4>
-<p><code><a href="../reference/projr_build_output.html">projr_build_output()</a></code> - This does the same as
-<code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code>, except that the output documents are
-saved to their final destination (as specified in
-<code>docs</code>/<code>output</code>) and the outputs (GitHub/OSF) are
-sent to, as desired). - If you set the project up with GitHub, then by
-default the <code>raw-data</code>, <code>docs</code> and
+<p>projr_build_output()<code>- This does the same as projr_build_dev()</code>,
+except that the output documents are saved to their final destination
+(as specified in <code>docs</code>/<code>output</code>) and the outputs
+(GitHub/OSF) are sent to, as desired). - If you set the project up with
+GitHub, then by default the <code>raw-data</code>, <code>docs</code> and
 <code>output</code> folders are uploaded to GitHub as GitHub
 releases.</p>
 </div>
 <div class="section level4">
-<h4 id="projr_build_dev">
-<code>projr_build_dev()</code><a class="anchor" aria-label="anchor" href="#projr_build_dev"></a>
+<h4 id="projr_build_dev">projr_build_dev()`<a class="anchor" aria-label="anchor" href="#projr_build_dev"></a>
 </h4>
-<p><code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code> renders the literate programming
-documents in your document.</p>
+<p>projr_build_dev()` renders the literate programming documents in your
+document.</p>
 <p>Any results are saved to the <code>cache</code> directory, under
 <code>&lt;cache&gt;/projr/v&lt;project_version&gt;/&lt;directory_label&gt;</code>.
 For example, suppose we have the code</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">png</span>(<span class="at">filename =</span> <span class="fu">projr_path_get</span>(<span class="st">"output"</span>, <span class="st">"figure"</span>, <span class="st">"nobel_prize_winning_plot.png"</span>)</span>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">png</span>(<span class="at">filename =</span><span class="fu">.path_get</span>(<span class="st">"output"</span>, <span class="st">"figure"</span>, <span class="st">"nobel_prize_winning_plot.png"</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co"># ... code to create the plot</span></span>
 <span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div>
 <p>in our <code>Rmd</code> file. When using
-<code>projr_build_dev</code>, the plot will be saved to
-<code>_tmp/projr/v&lt;project_version&gt;/output/figure/nobel_prize_winning_plot.png</code>.
-This is instead of saving it to
-<code>_output/figure/nobel_prize_winning_plot.png</code>, which is the
-final destination.</p>
+.build_dev<code>, the plot will be saved to</code>_tmp/projr/v<project_version>/output/figure/nobel_prize_winning_plot.png<code>. This is instead of saving it to</code>_output/figure/nobel_prize_winning_plot.png`,
+which is the final destination.</project_version></p>
 <p>The same goes for the rendered documents (e.g. HTML files), which
 would be saved to
 <code>_tmp/projr/v&lt;project_version&gt;/docs</code>.</p>
-<p>In addition, <code>projr_build_dev</code> allows you to render just a
-chosen selection of documents,
-e.g. <code>projr_build_dev("analysis.Rmd")</code> will render just the
-<code>analysis.Rmd</code> document (can do more than one).</p>
+<p>In addition,
+.build_dev<code>allows you to render just a chosen selection of documents, e.g. projr_build_dev("analysis.Rmd")</code>
+will render just the <code>analysis.Rmd</code> document (can do more
+than one).</p>
 </div>
 </div>
 <div class="section level3">
@@ -560,11 +548,11 @@ slightly more details.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Miguel Rodo.</p>
+  <p>Developed by Miguel Rodo. Built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> and R</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p><a href="LICENSE.html">License</a> • projr is free and open source software</p>
 </div>
 
     </footer>

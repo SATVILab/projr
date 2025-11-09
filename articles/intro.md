@@ -1,0 +1,452 @@
+# intro
+
+``` r
+library(projr)
+```
+
+## Introduction
+
+### TL;DR
+
+#### Extreme version
+
+The `projr` workflow:
+
+- **Initialisation**: Run
+  [`projr::projr_init()`](https://satvilab.github.io/projr/reference/projr_init.md)
+  to set up the project with metadata, `projr`-specific configuration
+  and a Git repo connected to GitHub (if you so choose).
+- **Building the project**: Run `projr::projr_build_output()` to build
+  the project, version the project and its components, and upload the
+  components to GitHub, OSF and/or a local folder.
+
+Project directory structure (e.g. that raw data are kept in the
+`raw-data` folder) and on-build actions (e.g. uploading to GitHub) are
+specified in the `_projr.yml` file.
+
+There are only three functions to remember:
+.init()`, projr_build_output()` and
+.path_get()`. The`projr`configuration file,`\_projr.yml\`, specifies
+project defaults that are appropriate for the majority of projects, but
+can be customised to your needs.
+
+#### Less extreme version
+
+`projr` is a package that helps you to set up and maintain a project in
+a way that is reproducible, shareable and versioned.
+
+- **Initialisation**: An interactive initialisation function,
+  [`projr::projr_init()`](https://satvilab.github.io/projr/reference/projr_init.md).
+  - This sets up the project with metadata, `projr`-specific
+    configuration and a Git repo connected to GitHub (if you so choose).
+- **Project and component versioning**: The project as a whole is given
+  a version (e.g. `v1.2.1`), and the components of the project
+  (e.g. code, data, figures, documents) versioned individually and
+  linked to this version.
+  - This means that you can always find the exact inputs that were used
+    to create the outputs.
+- **Test builds**: To test build the project, run
+  [`projr::projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md).
+  - This renders the literate programming documents in your project and
+    saves the outputs to a temporary directory (in your workspace).
+- **Builds**: To build the project, run `projr::projr_build_output()`.
+  - This saves the outputs to their final destination (e.g. the
+    `_output` folder), as these are regarded as the latest state of the
+    project (rather than a development version).
+  - In addition, a component of the pverall project version is bumped
+    (e.g. `v1.2.1` changes to `v2.0.0` if the major version is bumped),
+    and the individual project components (e.g. code, data, figures,
+    documents) are versioned and linked to this new version.
+  - Finally, the project components are uploaded to GitHub, OSF and/or a
+    local folder.
+
+The `_projr.yml` file specifies the project directory structure and
+on-build actions. The `directories` key specifies the project directory
+structure, in terms of where raw data, outputs (intermediate and final)
+and rendered documents are kept. The `build` key specifies on-build
+actions, such as whether and how the code are versioned, and which
+project components (raw data, outputs, docs) are uploaded to GitHub, OSF
+and/or a local folder.
+
+There are only three functions to remember:
+.init()`, projr_build_output()` and
+.path_get()`(which is described later). The`projr`configuration file,`\_projr.yml\`,
+specifies project defaults that are appropriate for the majority of
+projects, but is highly customisable for your needs.
+
+### Install `projr`
+
+Install `projr`:
+
+``` r
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
+remotes::install_github("SATVILab/projr")
+```
+
+### The `projr` workflow
+
+#### Initialising the project
+
+1.  Open `R` in the working directory you want to use it in.
+
+If using `RStudio`, then the easiest way to do this is to open
+`RStudio`, click `File`, then `New Project` then choose whether you want
+to open it in an existing directory or create a new one.
+
+2.  Run
+    [`projr::projr_init()`](https://satvilab.github.io/projr/reference/projr_init.md).
+
+This will prompt you for metadata about your project, such as a
+description for it as well as your name and email address. You are also
+able to choose whether to create a Git repo and, if so, whether to use
+GitHub (if not already set up to use GitHub, then see the tips below on
+creating a GitHub account)
+
+Overall, what
+.init`does is set up the project with metadata,`projr\`-specific
+configuration and a Git repo connected to GitHub (if you so choose).
+
+#### Building the project
+
+##### projr_build_output()\`
+
+One can build the project using
+projr_build_output()`. This will automatically detect whatever literate programming documents are used (Rmd's, Qmd's, Quarto projects,`bookdown`projects) and render all of them. By deafult, the rendered documents (e.g. HTML, PDF) are saved to the`\_docs\`
+directory.
+
+##### Versioning
+
+###### Project versioning
+
+The project, as whole, is versioned. This version is specified in the
+`DESCRIPTION` file, and is updated automatically by `projr` at each
+build.
+
+Semantic versioning is used, so the version is of the form `x.y.z`,
+where `x` is the major version, `y` is the minor version and `z` is the
+patch version. For example, a project version (before a build) might be
+`0.1.0`.
+
+- If the `patch` version is updated, then the version would become
+  `0.1.1`.
+- If the `minor` version is updated, then the version would become
+  `0.2.0`.
+- If the `major` version is updated, then the version would become
+  `1.0.0`.
+
+This helps communicate the size of the changes made in a build. In
+software development, the `patch` version is updated for small changes,
+the `minor` version for new features and the `major` version for
+breaking changes.
+
+For analysis projects (including, e.g. data processing sub-projects),
+the `patch` version might be updated for small changes, the `minor`
+version for new analyses and the `major` version for changes to the data
+processing pipeline. It’s up to you to decide what each one means - just
+communicate it to your collaborators.
+
+###### Component versioning
+
+At each build, `projr` also versions project components (code, `R`
+packages and files). This ensures that the outputs (e.g. figures, tables
+and documents) are linked to versioned inputs (e.g. raw data and code).
+They are linked by the project version, so that you can always find the
+exact inputs that were used to create the outputs.
+
+##### Sharing the project
+
+Optionally, immediately after each build `projr` uploads these
+components to GitHub, OSF and/or a local folder. For example, by default
+the raw data, output (e.g. figures) and rendered documents (e.g. HTMLs,
+PDFs)s are uploaded to GitHub as GitHub releases.
+
+It is not important to understand exactly what a GitHub release is at
+this point, other than to note that it is a free, easy, secure way to
+share non-code files (e.g. data, documents) with others.
+
+This is done automatically at each build, and is highly customisable.
+Uploads to the Open Science Foundation (OSF) and local folders are also
+supported.
+
+To understand and customise the above process further, it’s important to
+familiarse yourself with the `projr` configuration file, `_projr.yml`.
+Details of all the options are available in later vignettes.
+
+### `_projr.yml`
+
+The `projr` configuration file, `_projr.yml`, specifies two main things:
+
+- What is kept where (e.g. which folder contains the raw data). This
+  falls under the `directories` key.
+- If and how project inputs and outputs are shared and stored (e.g. on
+  GitHub, OSF or a local path). This falls under the `build` key.
+
+#### `directories`
+
+##### Structure
+
+Here is the default `directories` key:
+
+``` yaml
+# default directory settings:
+directories:
+  raw-data:
+    path: _raw_data
+  cache: 
+    path: _tmp
+  output: 
+    path: _output
+  docs:
+    path: docs
+```
+
+The purpose is to specify the paths to the key folders in your project.
+They are as follows:
+
+- `raw-data`: The folder where raw data is stored.
+- `cache`: This stores files created during project builds that you do
+  not want to share. For example, if you use the `R` package `targets`
+  to cache intermediate output, the cached intermediate output will go
+  here.
+- `output`: This also stores files created during project builds - but
+  these you want to share, e.g. figures or tables.
+- `docs`: This is where the rendered documents are stored, e.g. the HTML
+  or PDF files.
+
+To access the paths to these folders, use the .path_get\` function. For
+example:
+
+``` r
+projr_path_get("output")
+```
+
+will return
+
+``` r
+"_output"
+```
+
+It can be given further arguments, specifying sub-directories and file
+names. For example:
+
+``` r
+projr_path_get("output", "figure", "nobel_prize_winning_plot.png")
+```
+
+will return
+
+``` r
+"_output/figure/nobel_prize_winning_plot.png"
+```
+
+So, code saving a figure to this path might look like this:
+
+``` r
+png(filename =.path_get("output", "figure", "nobel_prize_winning_plot.png")
+# ... code to create the plot
+dev.off()
+```
+
+In future, if the path to the output folder changes in `_projr.yml`
+(e.g. to `_output_figures` instead of `_output`), .path_get\` will
+automatically update the path.
+
+Essentially,
+.path_get`should replace either hardcoded paths (`“\_output/figure/nobel_prize_winning_plot.png”`) or`file.path`/`here::here\`
+calls.
+
+##### Benefits
+
+Using folders in the manner described (e.g. storing raw data in the
+`raw-data` folder and outputs in the `output` folder) has the following
+benefits:
+
+- A person new to the project can read one file (`_projr.yml`) rather
+  than trawling through source code to understand the project structure.
+- Sharing parts of the project (e.g. the raw data) and setting up the
+  project again (e.g. on a new computer or on a collaborator’s computer)
+  is easier as like things are kept together. This is as opposed to, for
+  example, keeping some raw data in `_raw_data`, others in
+  `inst/extdata` and others at the root of the project, which makes
+  bringing all the pieces together harder.
+- It helps `projr` help you, as it understands your project structure.
+  This takes the following forms:
+  - `projr` can “protect” the output folder. The
+    projr_build_dev()`function (described more below) builds the project, but saves outputs to the`cache`folder rather than the`output\`
+    folder. This prevents you accidentally overwriting outputs from a
+    previous successful build whilst iterating on the code in
+    preparation for the next build.
+  - `projr` can upload the data to various places. As described in the
+    next subsection (`build`), `projr` can send data from these folders
+    (`raw-data`, `output`, etc.) to various places - at present, this
+    includes GitHub releases, OSF and local folders (e.g. your OneDrive
+    project folder).
+  - `projr` can automatically ignore large files from Git. If you don’t
+    understand what this means, then don’t worry - in fact, it’s *great*
+    that you’re here as this means `projr` can help you to use the
+    incredibly useful versioning tool that is Git without having to
+    understand its details.
+
+There are other benefits, but they rely on understanding some more
+advanced `projr` features, which are not covered in this vignette.
+
+#### `build`
+
+The `build` key specifies actions that take place automatically when you
+build the project.
+
+Here is the first part of the default `build` key (if the project is
+connected to GitHub):
+
+``` yaml
+build:
+  github:
+    input:
+      content: [raw-data]
+      description: "Project inputs"
+```
+
+This specifies that, after the project is built, the `raw-data`
+directory (i.e. the contents of `_raw_data`) is uploaded to GitHub as a
+release whose name is `input`.
+
+By default, it is uploaded to a file called
+`raw-data-v<project_version>.zip`, where `<project_version>` is the
+version of the project (e.g. `0.1.0`). Furthermore, by default this only
+takes place when anything changes within `raw-data`, i.e. file(s) are
+added, removed or changed.
+
+These uploads are designed to be highly flexible, and can be customised
+to your needs. Please see the `destination` vignette for more details
+(`evignette("destination")`).
+
+By default, the `build` key can also specify that the `output` and
+`docs` folders are uploaded to GitHub as releases, or alternatively to
+OSF or a local folder.
+
+In addition, the build key handles Git settings, such as whether or not
+Git commits are automatically created before and after each build, and
+whether they are pushed to GitHub automatically. By default, they are,
+which means that the Git history is updated with each build, and the
+changes are pushed to GitHub.
+
+### Use .build\_\` functions to build your project
+
+`projr` provides two main functions to help you build your project,
+projr_build_output()`and projr_build_dev()`. In a nutshell,
+projr_build_dev()`is for checking code as you write it, and projr_build_output()`
+is for snapshotting and sharing your project.
+
+Both will automatically detect the type of source documents you have
+(Rmd’s, Qmd’s, Quarto projects, `bookdown` projects) and render them
+accordingly.
+
+#### projr_build_output()\`
+
+projr_build_output()`- This does the same as projr_build_dev()`, except
+that the output documents are saved to their final destination (as
+specified in `docs`/`output`) and the outputs (GitHub/OSF) are sent to,
+as desired). - If you set the project up with GitHub, then by default
+the `raw-data`, `docs` and `output` folders are uploaded to GitHub as
+GitHub releases.
+
+#### projr_build_dev()\`
+
+projr_build_dev()\` renders the literate programming documents in your
+document.
+
+Any results are saved to the `cache` directory, under
+`<cache>/projr/v<project_version>/<directory_label>`. For example,
+suppose we have the code
+
+``` r
+png(filename =.path_get("output", "figure", "nobel_prize_winning_plot.png")
+# ... code to create the plot
+dev.off()
+```
+
+in our `Rmd` file. When using
+.build_dev`, the plot will be saved to`\_tmp/projr/v/output/figure/nobel_prize_winning_plot.png`. This is instead of saving it to`\_output/figure/nobel_prize_winning_plot.png\`,
+which is the final destination.
+
+The same goes for the rendered documents (e.g. HTML files), which would
+be saved to `_tmp/projr/v<project_version>/docs`.
+
+In addition,
+.build_dev`allows you to render just a chosen selection of documents, e.g. projr_build_dev("analysis.Rmd")`
+will render just the `analysis.Rmd` document (can do more than one).
+
+### Create a GitHub account, and save GitHub credentials
+
+This section is not really necessary to introduct `projr`, but Git and
+GitHub are so useful for code versioning and sharing that it’s worth
+mentioning here.
+
+#### Do I need Git and GitHub?
+
+Strictly speaking, you do not *need* a GitHub account. However, it is a
+good idea to have one, as it is a great way to collaborate with and
+share with others. Don’t worry about learning Git - `projr` can (and
+will by default) handle that for you.
+
+There are three steps to setting up Git and GitHub:
+
+1.  Create a GitHub account.
+2.  Generate a GitHub personal authentication token (PAT).
+3.  Save this token to your computer.
+
+One does not need to install Git, as `projr` reverts to the `gert` `R`
+package if `Git` is not installed.
+
+##### The steps
+
+**Create a GitHub account**
+
+If you don’t have a GitHub account, create one
+[here](https://github.com). You can follow the advice
+[here](https://happygitwithr.com/github-acct) for choosing a user name.
+
+**Generate a GitHub PAT**
+
+If you have not set up your GitHub credentials, do the following:
+
+1.  Install the `usethis` package:
+
+``` r
+if (!requireNamespace("usethis", quietly = TRUE)) {
+  install.packages("usethis")
+}
+```
+
+2.  Use `usethis` to set up your GitHub credentials:
+
+Run the following in `R`:
+
+``` r
+usethis::create_github_token()
+```
+
+Your browser should open to GitHub. At the bottom of the page, click
+`Generate token`. Then, copy the token.
+
+**Save your GitHub PAT**
+
+3.  Use `usethis` to save your GitHub credentials:
+
+Run the following in `R`:
+
+``` r
+gitcreds::gitcreds_set()
+```
+
+Paste your Git credentials when prompted.
+
+You should now be able to download and upload private repositories to
+GitHub (i.e. repositories that are only accessible to you and those you
+give access to).
+
+*Note*: The above instructions are taken from
+[here](https://happygitwithr.com/https-pat#tldr), which provides
+slightly more details.

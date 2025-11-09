@@ -1,14 +1,13 @@
 pandoc: 3.1.11
-pkgdown: 2.1.1
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
-  cloud-storage: cloud-storage.html
-  details-gemini: details-gemini.html
-  directories: directories.html
-  environment-variables: environment-variables.html
-  intro-gemini: intro-gemini.html
+  concepts: concepts.html
+  design: design.html
+  get-started: get-started.html
+  how-to-guides: how-to-guides.html
   intro: intro.html
-last_built: 2025-01-07T11:38Z
+last_built: 2025-11-09T13:10Z
 urls:
   reference: https://satvilab.github.io/projr/reference
   article: https://satvilab.github.io/projr/articles

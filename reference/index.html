@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.17-18</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.18-14</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -15,19 +15,20 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/get-started.html">Get started</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/cloud-storage.html">Storing and downloading project artefacts on the cloud</a></li>
-    <li><a class="dropdown-item" href="../articles/details-gemini.html">Streamlining Your Project Workflow with `projr`</a></li>
-    <li><a class="dropdown-item" href="../articles/directories.html">directories</a></li>
-    <li><a class="dropdown-item" href="../articles/environment-variables.html">Environment variables</a></li>
-    <li><a class="dropdown-item" href="../articles/intro-gemini.html">Project in Chaos? Get Organized with `projr`!</a></li>
-    <li><a class="dropdown-item" href="../articles/intro.html">intro</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/how-to-guides.html">How-to guides</a></li>
+    <li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
+    <li><a class="dropdown-item" href="../articles/design.html">Design</a></li>
   </ul></li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
- <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-news"><li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
+    <li><a class="dropdown-item" href="../BUILDLOG.html">Build log</a></li>
+  </ul></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/SATVILab/projr" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -40,12 +41,373 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="core-workflow">Core workflow<a class="anchor" aria-label="anchor" href="#core-workflow"></a></h2>
+
+      <div class="section-desc"><p>Main functions for project workflow</p></div>
+
+      <dl></dl></div><div class="section level2">
 
 
 
 
-    </div><div class="section level2">
+      <dl><dt>
+
+          <code><a href="projr_init.html">projr_init()</a></code> <code><a href="projr_init.html">projr_init_all()</a></code> <code><a href="projr_init.html">projr_init_renv()</a></code> <code><a href="projr_init.html">projr_init_cite()</a></code> <code><a href="projr_init.html">projr_init_git()</a></code> <code><a href="projr_init.html">projr_init_github()</a></code> <code><a href="projr_init.html">projr_init_license()</a></code>
+
+        </dt>
+        <dd>Initialize a projr Project</dd>
+
+        <dt>
+
+          <code><a href="projr_init_prompt.html">projr_init_prompt()</a></code>
+
+        </dt>
+        <dd>Initialise project</dd>
+
+        <dt>
+
+          <code><a href="projr_build.html">projr_build()</a></code> <code><a href="projr_build.html">projr_build_major()</a></code> <code><a href="projr_build.html">projr_build_minor()</a></code> <code><a href="projr_build.html">projr_build_patch()</a></code>
+
+        </dt>
+        <dd>Build project to output</dd>
+
+        <dt>
+
+          <code><a href="projr_build_dev.html">projr_build_dev()</a></code>
+
+        </dt>
+        <dd>Build dev project</dd>
+
+        <dt>
+
+          <code><a href="projr_restore.html">projr_restore_repo()</a></code> <code><a href="projr_restore.html">projr_restore_repo_wd()</a></code> <code><a href="projr_restore.html">projr_restore()</a></code>
+
+        </dt>
+        <dd>Restore project artefact directories</dd>
+      </dl></div><div class="section level2">
+      <h2 id="path-helpers">Path helpers<a class="anchor" aria-label="anchor" href="#path-helpers"></a></h2>
+
+      <div class="section-desc"><p>Functions for getting project paths</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="projr_path_get.html">projr_path_get()</a></code>
+
+        </dt>
+        <dd>Return path</dd>
+
+        <dt>
+
+          <code><a href="projr_path_get_dir.html">projr_path_get_dir()</a></code>
+
+        </dt>
+        <dd>Return path to profile-specific directory</dd>
+
+        <dt>
+
+          <code><a href="projr_path_get_cache_build.html">projr_path_get_cache_build_dir()</a></code> <code><a href="projr_path_get_cache_build.html">projr_path_get_cache_build()</a></code>
+
+        </dt>
+        <dd>Get <code>projr</code> build cache directory</dd>
+      </dl></div><div class="section level2">
+      <h2 id="initialisation-helpers">Initialisation helpers<a class="anchor" aria-label="anchor" href="#initialisation-helpers"></a></h2>
+
+      <div class="section-desc"><p>Helper functions for project initialisation</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="projr_init.html">projr_init()</a></code> <code><a href="projr_init.html">projr_init_all()</a></code> <code><a href="projr_init.html">projr_init_renv()</a></code> <code><a href="projr_init.html">projr_init_cite()</a></code> <code><a href="projr_init.html">projr_init_git()</a></code> <code><a href="projr_init.html">projr_init_github()</a></code> <code><a href="projr_init.html">projr_init_license()</a></code>
+
+        </dt>
+        <dd>Initialize a projr Project</dd>
+
+        <dt>
+
+          <code><a href="projr_init_renviron.html">projr_init_renviron()</a></code>
+
+        </dt>
+        <dd>Set environment variables for projr_init</dd>
+      </dl></div><div class="section level2">
+      <h2 id="version-management">Version management<a class="anchor" aria-label="anchor" href="#version-management"></a></h2>
+
+      <div class="section-desc"><p>Functions for managing project versions</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="projr_version_get.html">projr_version_get()</a></code>
+
+        </dt>
+        <dd>Returns project version</dd>
+
+        <dt>
+
+          <code><a href="projr_version_set.html">projr_version_set()</a></code>
+
+        </dt>
+        <dd>Set Project Version</dd>
+      </dl></div><div class="section level2">
+      <h2 id="yaml-configuration">YAML configuration<a class="anchor" aria-label="anchor" href="#yaml-configuration"></a></h2>
+
+      <div class="section-desc"><p>Functions for managing _projr.yml configuration</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="projr_yml_get.html">projr_yml_get()</a></code>
+
+        </dt>
+        <dd>Get active <code>projr</code> settings and checks for validity</dd>
+
+        <dt>
+
+          <code><a href="projr_yml_check.html">projr_yml_check()</a></code>
+
+        </dt>
+        <dd>Check active <code>projr</code> settings.</dd>
+
+        <dt>
+
+          <code><a href="yml-git.html">projr_yml_git_set()</a></code> <code><a href="yml-git.html">projr_yml_git_set_default()</a></code>
+
+        </dt>
+        <dd>Set Git options</dd>
+
+        <dt>
+
+          <code><a href="yml-cite.html">projr_yml_cite_set()</a></code> <code><a href="yml-cite.html">projr_yml_cite_set_default()</a></code>
+
+        </dt>
+        <dd>Set citation options</dd>
+
+        <dt>
+
+          <code><a href="projr_yml_dest_add_github.html">projr_yml_dest_add_github()</a></code>
+
+        </dt>
+        <dd>Add a GitHub release as a destination</dd>
+
+        <dt>
+
+          <code><a href="projr_yml_dest_add.html">projr_yml_dest_add_local()</a></code>
+
+        </dt>
+        <dd>Add a local directory as a destination</dd>
+
+        <dt>
+
+          <code><a href="projr_yml_dest_add_osf.html">projr_yml_dest_add_osf()</a></code> <code><a href="projr_yml_dest_add_osf.html">projr_yml_dest_add_osf_proj()</a></code> <code><a href="projr_yml_dest_add_osf.html">projr_yml_dest_add_osf_comp()</a></code>
+
+        </dt>
+        <dd>Add an OSF node as a destination</dd>
+
+        <dt>
+
+          <code><a href="projr_yml_par_add.html">projr_yml_par_add()</a></code>
+
+        </dt>
+        <dd>Add the <code>parameters</code> key</dd>
+
+        <dt>
+
+          <code><a href="yml-script.html">projr_yml_script_add()</a></code> <code><a href="yml-script.html">projr_yml_script_rm()</a></code> <code><a href="yml-script.html">projr_yml_script_rm_all()</a></code> <code><a href="yml-script.html">projr_yml_script_add_pre()</a></code> <code><a href="yml-script.html">projr_yml_script_add_post()</a></code>
+
+        </dt>
+        <dd>Build script-related functions</dd>
+      </dl></div><div class="section level2">
+      <h2 id="profile-management">Profile management<a class="anchor" aria-label="anchor" href="#profile-management"></a></h2>
+
+      <div class="section-desc"><p>Functions for managing project profiles</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="projr_profile_create.html">projr_profile_create()</a></code>
+
+        </dt>
+        <dd>Add projr profile file</dd>
+
+        <dt>
+
+          <code><a href="projr_profile_delete.html">projr_profile_delete()</a></code>
+
+        </dt>
+        <dd>Delete a projr profile from _projr.yml</dd>
+
+        <dt>
+
+          <code><a href="projr_profile_get.html">projr_profile_get()</a></code>
+
+        </dt>
+        <dd>Get active projr profile</dd>
+      </dl></div><div class="section level2">
+      <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
+
+      <div class="section-desc"><p>Functions for managing project parameters</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="projr_par_get.html">projr_par_get()</a></code> <code><a href="projr_par_get.html">projr_param_get()</a></code>
+
+        </dt>
+        <dd>Get project parameters</dd>
+      </dl></div><div class="section level2">
+      <h2 id="environment-management">Environment management<a class="anchor" aria-label="anchor" href="#environment-management"></a></h2>
+
+      <div class="section-desc"><p>Functions for managing environment variables</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="projr_env_set.html">projr_env_set()</a></code>
+
+        </dt>
+        <dd>Set environment variables from files</dd>
+      </dl></div><div class="section level2">
+      <h2 id="git-ignore-management">Git ignore management<a class="anchor" aria-label="anchor" href="#git-ignore-management"></a></h2>
+
+      <div class="section-desc"><p>Functions for managing .gitignore and .Rbuildignore</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="projr_ignore.html">projr_ignore()</a></code>
+
+        </dt>
+        <dd>Manually Ignore Files or Directories in <code>.gitignore</code> and <code>.Rbuildignore</code></dd>
+
+        <dt>
+
+          <code><a href="projr_ignore_auto.html">projr_ignore_auto()</a></code>
+
+        </dt>
+        <dd>Update <code>.gitignore</code> and <code>.Rbuildignore</code> with projr-managed ignores</dd>
+
+        <dt>
+
+          <code><a href="projr_unignore_manual.html">projr_unignore_manual()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_dir()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_file()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_file_git()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_dir_git()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_file_rbuild()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_dir_rbuild()</a></code>
+
+        </dt>
+        <dd>Manually Unignore Files or Directories in <code>.gitignore</code> and <code>.Rbuildignore</code></dd>
+      </dl></div><div class="section level2">
+      <h2 id="renv-helpers">renv helpers<a class="anchor" aria-label="anchor" href="#renv-helpers"></a></h2>
+
+      <div class="section-desc"><p>Functions for managing renv dependencies</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="projr_renv_restore.html">projr_renv_restore()</a></code> <code><a href="projr_renv_restore.html">projr_renv_update()</a></code> <code><a href="projr_renv_restore.html">projr_renv_restore_and_update()</a></code>
+
+        </dt>
+        <dd>Restore or Update renv Lockfile Packages</dd>
+
+        <dt>
+
+          <code><a href="projr_renv_test.html">projr_renv_test()</a></code>
+
+        </dt>
+        <dd>Test renv restore</dd>
+      </dl></div><div class="section level2">
+      <h2 id="data-helpers">Data helpers<a class="anchor" aria-label="anchor" href="#data-helpers"></a></h2>
+
+      <div class="section-desc"><p>Functions for managing project data</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="projr_use_data.html">projr_use_data()</a></code>
+
+        </dt>
+        <dd><code>projr</code> drop-in replacement for usethis::use_data</dd>
+      </dl></div><div class="section level2">
+      <h2 id="osf-helpers">OSF helpers<a class="anchor" aria-label="anchor" href="#osf-helpers"></a></h2>
+
+      <div class="section-desc"><p>Functions for Open Science Framework integration</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="projr_osf_create_project.html">projr_osf_create_project()</a></code>
+
+        </dt>
+        <dd>Create a new project on OSF</dd>
+
+        <dt>
+
+          <code><a href="instr_auth.html">projr_instr_auth_github()</a></code> <code><a href="instr_auth.html">projr_instr_auth_osf()</a></code>
+
+        </dt>
+        <dd>Two-minutes or less authorisation instructions</dd>
+      </dl></div><div class="section level2">
+      <h2 id="github-helpers">GitHub helpers<a class="anchor" aria-label="anchor" href="#github-helpers"></a></h2>
+
+      <div class="section-desc"><p>Functions for GitHub integration</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="instr_auth.html">projr_instr_auth_github()</a></code> <code><a href="instr_auth.html">projr_instr_auth_osf()</a></code>
+
+        </dt>
+        <dd>Two-minutes or less authorisation instructions</dd>
+      </dl></div><div class="section level2">
+      <h2 id="changelog">Changelog<a class="anchor" aria-label="anchor" href="#changelog"></a></h2>
+
+      <div class="section-desc"><p>Functions for managing changelog</p></div>
+
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -56,220 +418,47 @@
 
         </dt>
         <dd>Cat useful information</dd>
-      </dl><dl><dt>
+      </dl></div><div class="section level2">
+      <h2 id="internal-utilities">Internal utilities<a class="anchor" aria-label="anchor" href="#internal-utilities"></a></h2>
 
-          <code><a href="dot-projr_yml_get.html">.projr_yml_get()</a></code>
+      <div class="section-desc"><p>Internal helper functions (not exported)</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="dot-yml_get.html">.yml_get()</a></code>
 
         </dt>
         <dd>Get active <code>projr</code> settings and do no check</dd>
-      </dl><dl><dt>
 
-          <code><a href="instr_auth.html">projr_instr_auth_github()</a></code> <code><a href="instr_auth.html">projr_instr_auth_osf()</a></code>
-
-        </dt>
-        <dd>Two-minutes or less authorisation instructions</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_build_dev.html">projr_build_dev()</a></code>
-
-        </dt>
-        <dd>Build dev project</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_build_output.html">projr_build_output()</a></code> <code><a href="projr_build_output.html">projr_build_major()</a></code> <code><a href="projr_build_output.html">projr_build_minor()</a></code> <code><a href="projr_build_output.html">projr_build_patch()</a></code>
-
-        </dt>
-        <dd>Build project to output</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_env_file_activate.html">projr_env_file_activate()</a></code>
-
-        </dt>
-        <dd>Activate environment variables in files</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_ignore_auto.html">projr_ignore_auto()</a></code>
-
-        </dt>
-        <dd>Update <code>.gitignore</code> and <code>.Rbuildignore</code> with projr-managed ignores</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_ignore_manual.html">projr_ignore_manual()</a></code> <code><a href="projr_ignore_manual.html">projr_ignore_manual_dir()</a></code> <code><a href="projr_ignore_manual.html">projr_ignore_manual_file()</a></code> <code><a href="projr_ignore_manual.html">projr_ignore_manual_file_git()</a></code> <code><a href="projr_ignore_manual.html">projr_ignore_manual_dir_git()</a></code> <code><a href="projr_ignore_manual.html">projr_ignore_manual_file_rbuild()</a></code> <code><a href="projr_ignore_manual.html">projr_ignore_manual_dir_rbuild()</a></code>
-
-        </dt>
-        <dd>Manually Ignore Files or Directories in <code>.gitignore</code> and <code>.Rbuildignore</code></dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_init.html">projr_init()</a></code>
-
-        </dt>
-        <dd>Initialise project</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_init_renviron.html">projr_init_renviron()</a></code>
-
-        </dt>
-        <dd>Set environment variables for projr_init</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_osf_create_project.html">projr_osf_create_project()</a></code>
-
-        </dt>
-        <dd>Create a new project on OSF</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_par_get.html">projr_par_get()</a></code> <code><a href="projr_par_get.html">projr_param_get()</a></code>
-
-        </dt>
-        <dd>Get project parameters</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_path_get.html">projr_path_get()</a></code>
-
-        </dt>
-        <dd>Return path</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_path_get_cache_build.html">projr_path_get_cache_build_dir()</a></code> <code><a href="projr_path_get_cache_build.html">projr_path_get_cache_build()</a></code>
-
-        </dt>
-        <dd>Get <code>projr</code> build cache directory</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_path_get_dir.html">projr_path_get_dir()</a></code>
-
-        </dt>
-        <dd>Return path to profile-specific directory</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_profile_create.html">projr_profile_create()</a></code>
-
-        </dt>
-        <dd>Add projr profile file</dd>
-      </dl><dl><dt>
+        <dt>
 
           <code><a href="projr_profile_create_local.html">projr_profile_create_local()</a></code>
 
         </dt>
         <dd>Create a local <code>projr</code> profile</dd>
-      </dl><dl><dt>
 
-          <code><a href="projr_profile_delete.html">projr_profile_delete()</a></code>
-
-        </dt>
-        <dd>Delete a projr profile from _projr.yml</dd>
-      </dl><dl><dt>
+        <dt>
 
           <code><a href="projr_profile_delete_local.html">projr_profile_delete_local()</a></code>
 
         </dt>
         <dd>Delete local <code>projr</code> settings file.</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_profile_get.html">projr_profile_get()</a></code>
-
-        </dt>
-        <dd>Get active projr profile</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_renv_restore.html">projr_renv_restore()</a></code> <code><a href="projr_renv_restore.html">projr_renv_update()</a></code> <code><a href="projr_renv_restore.html">projr_renv_restore_and_update()</a></code>
-
-        </dt>
-        <dd>Restore or Update renv Lockfile Packages</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_renv_test.html">projr_renv_test()</a></code>
-
-        </dt>
-        <dd>Test renv restore</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_unignore_manual.html">projr_unignore_manual()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_dir()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_file()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_file_git()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_dir_git()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_file_rbuild()</a></code> <code><a href="projr_unignore_manual.html">projr_unignore_manual_dir_rbuild()</a></code>
-
-        </dt>
-        <dd>Manually Unignore Files or Directories in <code>.gitignore</code> and <code>.Rbuildignore</code></dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_use_data.html">projr_use_data()</a></code>
-
-        </dt>
-        <dd><code>projr</code> drop-in replacement for usethis::use_data</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_version_get.html">projr_version_get()</a></code>
-
-        </dt>
-        <dd>Returns project version</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_version_set.html">projr_version_set()</a></code>
-
-        </dt>
-        <dd>Set Project Version</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_yml_check.html">projr_yml_check()</a></code>
-
-        </dt>
-        <dd>Check active <code>projr</code> settings.</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_yml_dest_add.html">projr_yml_dest_add_local()</a></code>
-
-        </dt>
-        <dd>Add a local directory as a destination</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_yml_dest_add_github.html">projr_yml_dest_add_github()</a></code>
-
-        </dt>
-        <dd>Add a GitHub release as a destination</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_yml_dest_add_osf.html">projr_yml_dest_add_osf()</a></code> <code><a href="projr_yml_dest_add_osf.html">projr_yml_dest_add_osf_proj()</a></code> <code><a href="projr_yml_dest_add_osf.html">projr_yml_dest_add_osf_comp()</a></code>
-
-        </dt>
-        <dd>Add an OSF node as a destination</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_yml_get.html">projr_yml_get()</a></code>
-
-        </dt>
-        <dd>Get active <code>projr</code> settings and checks for validity</dd>
-      </dl><dl><dt>
-
-          <code><a href="projr_yml_par_add.html">projr_yml_par_add()</a></code>
-
-        </dt>
-        <dd>Add the <code>parameters</code> key</dd>
-      </dl><dl><dt>
-
-          <code><a href="yml-cite.html">projr_yml_cite_set()</a></code> <code><a href="yml-cite.html">projr_yml_cite_set_default()</a></code>
-
-        </dt>
-        <dd>Set citation options</dd>
-      </dl><dl><dt>
-
-          <code><a href="yml-git.html">projr_yml_git_set()</a></code> <code><a href="yml-git.html">projr_yml_git_set_default()</a></code>
-
-        </dt>
-        <dd>Set Git options</dd>
-      </dl><dl><dt>
-
-          <code><a href="yml-script.html">projr_yml_script_add()</a></code> <code><a href="yml-script.html">projr_yml_script_rm()</a></code> <code><a href="yml-script.html">projr_yml_script_rm_all()</a></code> <code><a href="yml-script.html">projr_yml_script_add_pre()</a></code> <code><a href="yml-script.html">projr_yml_script_add_post()</a></code>
-
-        </dt>
-        <dd>Build script-related functions</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Miguel Rodo.</p>
+  <p>Developed by Miguel Rodo. Built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> and R</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p><a href="LICENSE.html">License</a> • projr is free and open source software</p>
 </div>
 
     </footer></div>
