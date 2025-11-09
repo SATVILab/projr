@@ -12,9 +12,8 @@
 
 #' Get list of scripts to build for production builds
 #' 
-#' Supports two formats:
-#' 1. Direct list: scripts: [file1.qmd, file2.qmd]
-#' 2. Under build key: scripts: { build: [file1.qmd, file2.qmd] }
+#' Scripts go directly under build.scripts (no "build" sub-key)
+#' Format: scripts: [file1.qmd, file2.qmd]
 #' 
 #' @param profile Profile name
 #' @return Vector of script paths to build or NULL
@@ -25,21 +24,16 @@
     return(NULL)
   }
   
-  # If yml_scripts has a "build" element, use that
-  if ("build" %in% names(yml_scripts)) {
-    return(yml_scripts[["build"]])
-  }
-  
-  # Otherwise, filter out "pre", "post", and "dev" (which are hooks or dev-specific)
-  # and return the rest as build scripts
+  # Filter out "dev" key (dev-specific scripts)
+  # All other entries are build scripts
   script_names <- names(yml_scripts)
   if (is.null(script_names)) {
     # It's a plain vector of scripts
     return(yml_scripts)
   }
   
-  # Filter out pre, post, dev, and build keys
-  build_scripts <- yml_scripts[!script_names %in% c("pre", "post", "dev", "build")]
+  # Filter out dev key
+  build_scripts <- yml_scripts[!script_names %in% c("dev")]
   
   # If what's left is a plain vector (unnamed), return it
   if (length(build_scripts) > 0 && is.null(names(build_scripts))) {
@@ -56,7 +50,7 @@
 
 #' Get list of scripts to build for dev builds
 #' 
-#' Checks for build.scripts.dev first, then falls back to build.scripts.build
+#' Checks for build.scripts.dev, then falls back to build.scripts
 #' 
 #' @param profile Profile name
 #' @return Vector of script paths to build or NULL
@@ -72,7 +66,7 @@
     return(yml_scripts[["dev"]])
   }
   
-  # Otherwise fall back to build key or the general scripts
+  # Otherwise fall back to the general scripts
   .yml_scripts_get_build(profile)
 }
 

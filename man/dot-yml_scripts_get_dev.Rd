@@ -13,6 +13,6 @@
 Vector of script paths to build or NULL
 }
 \description{
-Checks for build.scripts.dev first, then falls back to build.scripts.build
+Checks for build.scripts.dev, then falls back to build.scripts
 }
 \keyword{internal}

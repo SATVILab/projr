@@ -19,41 +19,13 @@ test_that(".yml_scripts functions work", {
         c("script1.qmd", "script2.R")
       )
       
-      # Test 2: Build sub-key format
+      # Test 2: Dev key format (new structure without "build" sub-key)
       yaml::write_yaml(
         list(
           build = list(
             scripts = list(
-              build = c("analysis.qmd", "report.Rmd"),
-              pre = "setup.R",
-              post = "cleanup.R"
-            )
-          )
-        ),
-        "_projr.yml"
-      )
-      expect_identical(
-        .yml_scripts_get_build("default"),
-        c("analysis.qmd", "report.Rmd")
-      )
-      expect_identical(
-        .yml_scripts_get_hooks_pre("default"),
-        "setup.R"
-      )
-      expect_identical(
-        .yml_scripts_get_hooks_post("default"),
-        "cleanup.R"
-      )
-      
-      # Test 3: Dev key format
-      yaml::write_yaml(
-        list(
-          build = list(
-            scripts = list(
-              build = c("full-analysis.qmd"),
-              dev = c("quick-test.qmd", "debug.R"),
-              pre = "setup.R",
-              post = "cleanup.R"
+              "full-analysis.qmd",
+              dev = c("quick-test.qmd", "debug.R")
             )
           )
         ),
@@ -68,13 +40,11 @@ test_that(".yml_scripts functions work", {
         c("quick-test.qmd", "debug.R")
       )
       
-      # Test 4: Dev falls back to build when no dev key
+      # Test 3: Dev falls back to build when no dev key
       yaml::write_yaml(
         list(
           build = list(
-            scripts = list(
-              build = c("analysis.qmd")
-            )
+            scripts = c("analysis.qmd")
           )
         ),
         "_projr.yml"
@@ -84,7 +54,7 @@ test_that(".yml_scripts functions work", {
         c("analysis.qmd")
       )
       
-      # Test 5: NULL when not specified
+      # Test 4: NULL when not specified
       yaml::write_yaml(
         list(
           build = list()
@@ -97,64 +67,89 @@ test_that(".yml_scripts functions work", {
   )
 })
 
-test_that(".yml_hooks functions work", {
+test_that(".yml_hooks simple structure works", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
   usethis::with_project(
     path = dir_test,
     code = {
-      # Test 1: Add a pre-only hook
-      projr_yml_hooks_add(
-        path = "test-hook-pre.R",
-        title = "test-hook-pre",
-        stage = "pre",
-        profile = "default"
+      # Test 1: Simple hooks structure
+      yaml::write_yaml(
+        list(
+          build = list(
+            hooks = list(
+              "both1.R",
+              "both2.R",
+              pre = "pre.R",
+              post = c("post1.R", "post2.R")
+            )
+          )
+        ),
+        "_projr.yml"
       )
       
-      yml_hooks <- .yml_hooks_get("default")
-      expect_true(!is.null(yml_hooks))
-      expect_true(!is.null(yml_hooks[["pre"]]))
-      expect_identical(yml_hooks[["pre"]][["test-hook-pre"]][["path"]], "test-hook-pre.R")
+      # Check that hooks are read correctly
+      pre_hooks <- .yml_hooks_get_stage("pre", "default")
+      expect_true(!is.null(pre_hooks))
+      expect_true("pre.R" %in% pre_hooks)
+      expect_true("both1.R" %in% pre_hooks)
+      expect_true("both2.R" %in% pre_hooks)
       
-      # Test 2: Add a post-only hook
-      projr_yml_hooks_add(
-        path = "test-hook-post.R",
-        title = "test-hook-post",
-        stage = "post",
-        profile = "default"
+      post_hooks <- .yml_hooks_get_stage("post", "default")
+      expect_true(!is.null(post_hooks))
+      expect_true("post1.R" %in% post_hooks)
+      expect_true("post2.R" %in% post_hooks)
+      expect_true("both1.R" %in% post_hooks)
+      expect_true("both2.R" %in% post_hooks)
+      
+      # Test 2: Only pre hooks
+      yaml::write_yaml(
+        list(
+          build = list(
+            hooks = list(
+              pre = c("pre1.R", "pre2.R")
+            )
+          )
+        ),
+        "_projr.yml"
       )
       
-      yml_hooks <- .yml_hooks_get("default")
-      expect_true(!is.null(yml_hooks[["post"]]))
-      expect_identical(yml_hooks[["post"]][["test-hook-post"]][["path"]], "test-hook-post.R")
+      pre_hooks <- .yml_hooks_get_stage("pre", "default")
+      expect_identical(pre_hooks, c("pre1.R", "pre2.R"))
       
-      # Test 3: Add a both hook (runs in pre and post)
-      projr_yml_hooks_add(
-        path = "test-hook-both.R",
-        title = "test-hook-both",
-        stage = "both",
-        profile = "default"
+      post_hooks <- .yml_hooks_get_stage("post", "default")
+      expect_null(post_hooks)
+      
+      # Test 3: Only post hooks
+      yaml::write_yaml(
+        list(
+          build = list(
+            hooks = list(
+              post = "post.R"
+            )
+          )
+        ),
+        "_projr.yml"
       )
       
-      yml_hooks <- .yml_hooks_get("default")
-      expect_true(!is.null(yml_hooks[["test-hook-both"]]))
-      expect_identical(yml_hooks[["test-hook-both"]][["path"]], "test-hook-both.R")
+      post_hooks <- .yml_hooks_get_stage("post", "default")
+      expect_identical(post_hooks, "post.R")
       
-      # Test 4: Remove the pre hook
-      projr_yml_hooks_rm(title = "test-hook-pre", profile = "default")
-      yml_hooks <- .yml_hooks_get("default")
-      expect_true(is.null(yml_hooks[["pre"]][["test-hook-pre"]]))
+      # Test 4: Only both hooks (unnamed array)
+      yaml::write_yaml(
+        list(
+          build = list(
+            hooks = c("both1.R", "both2.R")
+          )
+        ),
+        "_projr.yml"
+      )
       
-      # Test 5: Remove the both hook
-      projr_yml_hooks_rm(title = "test-hook-both", profile = "default")
-      yml_hooks <- .yml_hooks_get("default")
-      expect_true(is.null(yml_hooks[["test-hook-both"]]))
-      
-      # Test 6: Remove the post hook
-      projr_yml_hooks_rm(title = "test-hook-post", profile = "default")
-      yml_hooks <- .yml_hooks_get("default")
-      expect_true(is.null(yml_hooks[["post"]][["test-hook-post"]]))
+      pre_hooks <- .yml_hooks_get_stage("pre", "default")
+      post_hooks <- .yml_hooks_get_stage("post", "default")
+      expect_identical(pre_hooks, c("both1.R", "both2.R"))
+      expect_identical(post_hooks, c("both1.R", "both2.R"))
     }
   )
 })
