@@ -7,100 +7,85 @@
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 <!-- badges: end -->
 
-`projr` is an R package that facilitates reproducible and archived projects. It provides a streamlined workflow for managing project structure, versioning, building, and sharing research outputs.
+## What is projr?
 
-## Key Features
+`projr` provides a single intuitive build function that automates rendering, versioning, archiving, and restoration for reproducible research projects. With projr, you can focus on your research whilst it handles the infrastructure.
 
-- **Easy initialization**: Set up projects with metadata, configuration, and version control via `projr_init()`
-- **Project versioning**: Semantic versioning (x.y.z) for the entire project
-- **Component versioning**: Individual versioning of code, data, figures, and documents
-- **Automated builds**: Render literate programming documents (R Markdown, Quarto, Bookdown)
-- **Flexible sharing**: Upload project components to GitHub Releases, OSF, or local folders
-- **Structured workflow**: Manage project directories through `_projr.yml` configuration
-- **Path helpers**: Use `projr_path_get()` to maintain portable, configuration-aware file paths
+## The whole game
+
+```r
+# Put raw data in _raw_data/, outputs in _output/, analysis docs in project root:
+projr_build()
+```
+
+This one function:
+
+- Clears `_output` directory
+- Renders all documents (R Markdown, Quarto, Bookdown)
+- Versions raw data, outputs, and project
+- Manages Git/GitHub commits (if configured)
+- Archives to GitHub Releases, OSF, or local storage (optional)
+
+## Try a development build
+
+```r
+projr_build_dev()
+```
+
+Development builds:
+
+- Route outputs to cache (`_tmp/`) for inspection
+- Don't bump version numbers
+- Don't upload to archives
+- Let you iterate safely without overwriting released outputs
+
+## Restore later
+
+```r
+projr_restore_repo("owner/my-amazing-repo")
+```
+
+Restoration:
+
+- Clones the repository from GitHub
+- Restores raw data from configured archives
+- Reconstructs the full project structure
+- Ready to reproduce the analysis
+
+## Why it helps
+
+1. **Code and data availability**: Automatic archiving to GitHub Releases or OSF makes sharing complete research projects effortless
+
+2. **Correctness via version-linked inputs/outputs**: Manifests link every output to the exact version of raw data and code that created it, ensuring traceability
+
+3. **Dependency capture**: Optional renv integration locks R package versions for long-term reproducibility
+
+> **Tip**: You can adopt projr at any project stage—whether starting fresh or adding structure to existing work.
+
+> **Note**: Git/GitHub prompts are guided; no prior Git knowledge needed.
 
 ## Installation
 
-`projr` is currently a development package. You can install it from [GitHub](https://github.com/) with:
+```r
+# Once on CRAN (future):
+# install.packages("projr")
 
-``` r
-# install.packages("remotes")
+# For now, install from GitHub:
 remotes::install_github("SATVILab/projr")
-```
-
-## Quick Start
-
-### Initialize a new project
-
-```r
-library(projr)
-
-# Interactive setup with prompts for metadata, Git, and GitHub
-projr_init()
-```
-
-This sets up:
-- Project metadata (DESCRIPTION file)
-- `projr` configuration (`_projr.yml`)
-- Git repository (optional)
-- GitHub connection (optional)
-- Directory structure for data, outputs, and documents
-
-### Build your project
-
-```r
-# Test build (outputs to temporary directory)
-projr_build_dev()
-
-# Production build with versioning and uploads
-projr_build()  # or projr_build_patch(), projr_build_minor(), projr_build_major()
-```
-
-Building automatically:
-- Renders all literate programming documents
-- Updates project version
-- Versions project components
-- Uploads to configured destinations (GitHub, OSF, local folders)
-
-### Use portable paths
-
-```r
-# Get project-relative paths defined in _projr.yml
-projr_path_get("output")
-# "_output"
-
-projr_path_get("output", "figures", "plot.png")
-# "_output/figures/plot.png"
-```
-
-## Configuration
-
-The `_projr.yml` file controls project behavior:
-
-```yaml
-directories:
-  raw-data:
-    path: _raw_data
-  cache:
-    path: _tmp
-  output:
-    path: _output
-  docs:
-    path: docs
-
-build:
-  # Configure versioning, uploads to GitHub/OSF, etc.
 ```
 
 ## Documentation
 
-- [Introduction vignette](https://satvilab.github.io/projr/articles/intro.html) - comprehensive guide to `projr` workflow
-- [Package website](https://satvilab.github.io/projr/) - full documentation with function reference
+- **[Get started](https://satvilab.github.io/projr/articles/get-started.html)** - Quick setup guide
+- **[How-to guides](https://satvilab.github.io/projr/articles/how-to-guides.html)** - Task-focused recipes  
+- **[Concepts](https://satvilab.github.io/projr/articles/concepts.html)** - Understanding projr's approach
+- **[Design](https://satvilab.github.io/projr/articles/design.html)** - Design philosophy and architecture
+- **[Reference](https://satvilab.github.io/projr/reference/index.html)** - Complete function documentation
 
-## Getting Help
+## Getting help
 
 If you encounter a bug or have a feature request, please [file an issue](https://github.com/SATVILab/projr/issues).
 
-## License
+## Licence
 
 See [LICENSE](LICENSE) file for details.
