@@ -104,22 +104,57 @@ test_that(".yml_hooks functions work", {
   usethis::with_project(
     path = dir_test,
     code = {
-      # Add a hook
+      # Test 1: Add a pre-only hook
       projr_yml_hooks_add(
-        path = "test-hook.R",
-        title = "test-hook",
+        path = "test-hook-pre.R",
+        title = "test-hook-pre",
         stage = "pre",
         profile = "default"
       )
       
       yml_hooks <- .yml_hooks_get("default")
       expect_true(!is.null(yml_hooks))
-      expect_identical(yml_hooks[["test-hook"]][["stage"]], "pre")
-      expect_identical(yml_hooks[["test-hook"]][["path"]], "test-hook.R")
+      expect_true(!is.null(yml_hooks[["pre"]]))
+      expect_identical(yml_hooks[["pre"]][["test-hook-pre"]][["path"]], "test-hook-pre.R")
       
-      # Remove the hook
-      projr_yml_hooks_rm(title = "test-hook", profile = "default")
-      expect_null(.yml_hooks_get("default"))
+      # Test 2: Add a post-only hook
+      projr_yml_hooks_add(
+        path = "test-hook-post.R",
+        title = "test-hook-post",
+        stage = "post",
+        profile = "default"
+      )
+      
+      yml_hooks <- .yml_hooks_get("default")
+      expect_true(!is.null(yml_hooks[["post"]]))
+      expect_identical(yml_hooks[["post"]][["test-hook-post"]][["path"]], "test-hook-post.R")
+      
+      # Test 3: Add a both hook (runs in pre and post)
+      projr_yml_hooks_add(
+        path = "test-hook-both.R",
+        title = "test-hook-both",
+        stage = "both",
+        profile = "default"
+      )
+      
+      yml_hooks <- .yml_hooks_get("default")
+      expect_true(!is.null(yml_hooks[["test-hook-both"]]))
+      expect_identical(yml_hooks[["test-hook-both"]][["path"]], "test-hook-both.R")
+      
+      # Test 4: Remove the pre hook
+      projr_yml_hooks_rm(title = "test-hook-pre", profile = "default")
+      yml_hooks <- .yml_hooks_get("default")
+      expect_true(is.null(yml_hooks[["pre"]][["test-hook-pre"]]))
+      
+      # Test 5: Remove the both hook
+      projr_yml_hooks_rm(title = "test-hook-both", profile = "default")
+      yml_hooks <- .yml_hooks_get("default")
+      expect_true(is.null(yml_hooks[["test-hook-both"]]))
+      
+      # Test 6: Remove the post hook
+      projr_yml_hooks_rm(title = "test-hook-post", profile = "default")
+      yml_hooks <- .yml_hooks_get("default")
+      expect_true(is.null(yml_hooks[["post"]][["test-hook-post"]]))
     }
   )
 })

@@ -48,8 +48,12 @@ the middle spaces are converted to dashes.
 For example, \code{" a b "} is converted to
 \code{"a-b"}. `}
 
-\item{stage}{"pre" or "post".
-Whether to run the hook before or after the build.}
+\item{stage}{"pre", "post", or "both".
+Whether to run the hook before the build ("pre"),
+after the build ("post"), or in both stages ("both").
+Hooks with stage "pre" are stored under \code{build.hooks.pre},
+hooks with stage "post" are stored under \code{build.hooks.post},
+and hooks with stage "both" are stored directly under \code{build.hooks}.}
 
 \item{cue}{"build", "dev", "patch", "minor" or "major".
 Which minimum build level triggers the hooks.

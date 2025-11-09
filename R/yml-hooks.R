@@ -22,8 +22,12 @@
 #' the middle spaces are converted to dashes.
 #' For example, `" a b "` is converted to
 #' `"a-b"`. `
-#' @param stage "pre" or "post".
-#' Whether to run the hook before or after the build.
+#' @param stage "pre", "post", or "both".
+#' Whether to run the hook before the build ("pre"), 
+#' after the build ("post"), or in both stages ("both").
+#' Hooks with stage "pre" are stored under `build.hooks.pre`,
+#' hooks with stage "post" are stored under `build.hooks.post`,
+#' and hooks with stage "both" are stored directly under `build.hooks`.
 #' @param cue "build", "dev", "patch", "minor" or "major".
 #' Which minimum build level triggers the hooks.
 #' "build" and "dev" are equivalent, and
@@ -80,7 +84,7 @@ projr_yml_hooks_add <- function(path,
                               profile) {
   .assert_chr(path, TRUE)
   .assert_string(title, TRUE)
-  .assert_in_single(stage, c("pre", "post"), TRUE)
+  .assert_in_single(stage, c("pre", "post", "both"), TRUE)
   if (.is_given_mid(profile)) {
     .assert_string(profile)
   }
@@ -96,16 +100,26 @@ projr_yml_hooks_add <- function(path,
                             overwrite = TRUE) {
   title <- gsub("^\\s*|\\s*$", "", title) |>
     gsub("\\s+", "-", x = _)
-  .yml_hooks_check_overwrite(title, overwrite, profile = profile)
+  .yml_hooks_check_overwrite(title, stage, overwrite, profile = profile)
   yml_hooks <- .yml_hooks_get(profile)
-  yml_hooks[[title]] <- .yml_hooks_add_get(
-    path = path, stage = stage, cue = cue
-  )
+  
+  # For "both" stage, add to root level (not under pre or post)
+  # For "pre" or "post", add under that sub-key
+  if (stage == "both") {
+    yml_hooks[[title]] <- .yml_hooks_add_get(path = path, cue = cue)
+  } else {
+    # Add under build.hooks.pre or build.hooks.post
+    if (is.null(yml_hooks[[stage]])) {
+      yml_hooks[[stage]] <- list()
+    }
+    yml_hooks[[stage]][[title]] <- .yml_hooks_add_get(path = path, cue = cue)
+  }
+  
   yml_hooks
 }
 
-.yml_hooks_add_get <- function(path, stage, cue = NULL) {
-  add_list <- list(stage = stage, path = path)
+.yml_hooks_add_get <- function(path, cue = NULL) {
+  add_list <- list(path = path)
   if (!is.null(cue)) {
     add_list[["cue"]] <- cue
   }
@@ -125,34 +139,84 @@ projr_yml_hooks_rm <- function(title, path = NULL, profile = "default") {
 
 .yml_hooks_rm <- function(title, path = NULL, profile = "default") {
   yml_hooks <- .yml_hooks_get(profile)
-  if (!is.null(path)) {
-    .yml_hooks_rm_path(title, path, profile = profile)
-  } else if (title %in% names(yml_hooks)) {
-    .yml_hooks_rm_title(title, profile = profile)
-  }
-}
-
-.yml_hooks_rm_path <- function(title, path, profile) {
-  yml_hooks <- .yml_hooks_get(profile)
-  if (!title %in% names(yml_hooks)) {
+  if (is.null(yml_hooks)) {
     return(invisible(FALSE))
   }
-  path_vec <- yml_hooks[[title]][["path"]] |>
-    setdiff(path)
-  if (length(path_vec) == 0) {
-    yml_hooks[[title]] <- NULL
-  } else {
-    yml_hooks[[title]][["path"]] <- path_vec
+  
+  # Check if title exists at root level (both pre and post)
+  if (title %in% names(yml_hooks)) {
+    if (!is.null(path)) {
+      .yml_hooks_rm_path(title, path, profile = profile, stage = NULL)
+    } else {
+      .yml_hooks_rm_title(title, profile = profile, stage = NULL)
+    }
+    return(invisible(TRUE))
   }
+  
+  # Check in pre and post sub-keys
+  for (stage in c("pre", "post")) {
+    if (!is.null(yml_hooks[[stage]]) && title %in% names(yml_hooks[[stage]])) {
+      if (!is.null(path)) {
+        .yml_hooks_rm_path(title, path, profile = profile, stage = stage)
+      } else {
+        .yml_hooks_rm_title(title, profile = profile, stage = stage)
+      }
+      return(invisible(TRUE))
+    }
+  }
+  
+  invisible(FALSE)
+}
+
+.yml_hooks_rm_path <- function(title, path, profile, stage = NULL) {
+  yml_hooks <- .yml_hooks_get(profile)
+  
+  if (is.null(stage)) {
+    # Remove from root level
+    if (!title %in% names(yml_hooks)) {
+      return(invisible(FALSE))
+    }
+    path_vec <- yml_hooks[[title]][["path"]] |>
+      setdiff(path)
+    if (length(path_vec) == 0) {
+      yml_hooks[[title]] <- NULL
+    } else {
+      yml_hooks[[title]][["path"]] <- path_vec
+    }
+  } else {
+    # Remove from pre or post sub-key
+    if (is.null(yml_hooks[[stage]]) || !title %in% names(yml_hooks[[stage]])) {
+      return(invisible(FALSE))
+    }
+    path_vec <- yml_hooks[[stage]][[title]][["path"]] |>
+      setdiff(path)
+    if (length(path_vec) == 0) {
+      yml_hooks[[stage]][[title]] <- NULL
+    } else {
+      yml_hooks[[stage]][[title]][["path"]] <- path_vec
+    }
+  }
+  
   .yml_hooks_set(yml_hooks, profile)
 }
 
-.yml_hooks_rm_title <- function(title, profile) {
+.yml_hooks_rm_title <- function(title, profile, stage = NULL) {
   yml_hooks <- .yml_hooks_get(profile)
-  if (!title %in% names(yml_hooks)) {
-    return(invisible(FALSE))
+  
+  if (is.null(stage)) {
+    # Remove from root level
+    if (!title %in% names(yml_hooks)) {
+      return(invisible(FALSE))
+    }
+    yml_hooks[[title]] <- NULL
+  } else {
+    # Remove from pre or post sub-key
+    if (is.null(yml_hooks[[stage]]) || !title %in% names(yml_hooks[[stage]])) {
+      return(invisible(FALSE))
+    }
+    yml_hooks[[stage]][[title]] <- NULL
   }
-  yml_hooks[[title]] <- NULL
+  
   .yml_hooks_set(yml_hooks, profile)
 }
 
@@ -170,19 +234,68 @@ projr_yml_hooks_rm_all <- function(profile = "default") {
   .yml_hooks_set(NULL, profile)
 }
 
-.yml_hooks_check_overwrite <- function(title, overwrite, profile) {
+.yml_hooks_check_overwrite <- function(title, stage, overwrite, profile) {
   yml_hooks <- .yml_hooks_get(profile)
-  if (!overwrite && title %in% names(yml_hooks)) {
-    stop(paste0(
-      "Hook with title '", title, "' already exists. ",
-      "Set overwrite = TRUE to overwrite."
-    ))
+  
+  # Check based on stage
+  if (stage == "both") {
+    # Check root level
+    if (!overwrite && title %in% names(yml_hooks)) {
+      stop(paste0(
+        "Hook with title '", title, "' already exists at root level. ",
+        "Set overwrite = TRUE to overwrite."
+      ))
+    }
+  } else {
+    # Check in pre or post sub-key
+    if (!is.null(yml_hooks[[stage]]) && !overwrite && title %in% names(yml_hooks[[stage]])) {
+      stop(paste0(
+        "Hook with title '", title, "' already exists in ", stage, " hooks. ",
+        "Set overwrite = TRUE to overwrite."
+      ))
+    }
   }
+  
   invisible(TRUE)
 }
 
 .yml_hooks_get <- function(profile) {
   .yml_build_get_hooks(profile)
+}
+
+# Get hooks that run in a specific stage
+# Supports new structure: build.hooks.pre, build.hooks.post, and build.hooks (both)
+.yml_hooks_get_stage <- function(stage, profile) {
+  yml_hooks <- .yml_hooks_get(profile)
+  if (is.null(yml_hooks)) {
+    return(NULL)
+  }
+  
+  hooks_list <- list()
+  
+  # Get stage-specific hooks from build.hooks.pre or build.hooks.post
+  if (stage %in% names(yml_hooks)) {
+    stage_hooks <- yml_hooks[[stage]]
+    if (!is.null(stage_hooks)) {
+      hooks_list <- c(hooks_list, as.list(stage_hooks))
+    }
+  }
+  
+  # Get hooks that run in both pre and post (direct children of build.hooks)
+  # These are entries that are not "pre" or "post" keys
+  both_hooks <- yml_hooks[!names(yml_hooks) %in% c("pre", "post")]
+  if (length(both_hooks) > 0) {
+    # If there are unnamed elements, they run in both stages
+    if (is.null(names(both_hooks)) || any(names(both_hooks) == "")) {
+      hooks_list <- c(hooks_list, both_hooks)
+    }
+  }
+  
+  if (length(hooks_list) == 0) {
+    return(NULL)
+  }
+  
+  hooks_list
 }
 
 .yml_hooks_set <- function(yml_hooks, profile = NULL) {
