@@ -68,8 +68,7 @@ projr_yml_script_add <- function(path,
   .yml_script_add(
     path = path, title = title, stage = stage, cue = cue,
     overwrite = overwrite, profile = profile
-  ) |>
-    .yml_script_set(profile = profile)
+  )
 }
 
 .yml_script_check <- function(path,
@@ -91,16 +90,22 @@ projr_yml_script_add <- function(path,
 .yml_script_add <- function(path,
                             title,
                             stage,
-                            cue,
-                            profile,
+                            cue = NULL,
+                            profile = "default",
                             overwrite = TRUE) {
   title <- gsub("^\\s*|\\s*$", "", title) |>
     gsub("\\s+", "-", x = _)
   .yml_script_check_overwrite(title, overwrite, profile = profile)
   yml_script <- .yml_script_get(profile)
-  yml_script[[stage]][[title]] <- .yml_script_add_get(
-    path = path, title = title, stage = stage, cue = cue
-  )
+  # Don't nest by stage - just use title as the key
+  add_list <- list(stage = stage, path = path)
+  if (!is.null(cue)) {
+    add_list[["cue"]] <- cue
+  }
+  yml_script[[title]] <- add_list
+  # Persist changes and return yml_script
+  .yml_script_set(yml_script, profile)
+  invisible(yml_script)
 }
 
 .yml_script_add_get <- function(path, title, stage, cue = NULL) {
@@ -125,6 +130,10 @@ projr_yml_script_rm <- function(title, path = NULL, profile = "default") {
   } else if (title %in% names(yml_script)) {
     .yml_script_rm_title(title, profile = profile)
   }
+}
+
+.yml_script_rm <- function(title, path = NULL, profile = "default") {
+  projr_yml_script_rm(title = title, path = path, profile = profile)
 }
 
 .yml_script_rm_path <- function(title, path, profile) {
@@ -159,6 +168,10 @@ projr_yml_script_rm_all <- function(profile = "default") {
     return(invisible(FALSE))
   }
   .yml_script_set(NULL, profile)
+}
+
+.yml_script_rm_all <- function(profile = "default") {
+  projr_yml_script_rm_all(profile = profile)
 }
 
 .yml_script_check_overwrite <- function(title, overwrite, profile) {
