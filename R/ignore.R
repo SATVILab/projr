@@ -115,7 +115,8 @@
 .ignore_path_get_content <- function(ind_top, ind_bot, file_vec) {
   if (is.na(ind_top)) {
     character(0)
-  } else if (ind_top == ind_bot) {
+  } else if (ind_top >= ind_bot - 1) {
+    # If markers are adjacent or overlapping, there's no content between them
     character(0)
   } else {
     file_vec[seq(ind_top + 1, ind_bot - 1)]
