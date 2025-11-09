@@ -2,99 +2,68 @@
 % Please edit documentation in R/yml-hooks.R
 \name{projr_yml_hooks_add}
 \alias{projr_yml_hooks_add}
-\alias{projr_yml_hooks_rm}
 \alias{projr_yml_hooks_rm_all}
 \alias{projr_yml_hooks_add_pre}
 \alias{projr_yml_hooks_add_post}
 \title{Build hook-related functions}
 \usage{
-projr_yml_hooks_add(
-  path,
-  title,
-  stage,
-  cue = NULL,
-  overwrite = TRUE,
-  profile = "default"
-)
-
-projr_yml_hooks_rm(title, path = NULL, profile = "default")
+projr_yml_hooks_add(path, stage, overwrite = TRUE, profile = "default")
 
 projr_yml_hooks_rm_all(profile = "default")
 
-projr_yml_hooks_add_pre(
-  path,
-  title,
-  cue = NULL,
-  overwrite = TRUE,
-  profile = "default"
-)
+projr_yml_hooks_add_pre(path, overwrite = TRUE, profile = "default")
 
-projr_yml_hooks_add_post(
-  path,
-  title,
-  cue = NULL,
-  overwrite = TRUE,
-  profile = "default"
-)
+projr_yml_hooks_add_post(path, overwrite = TRUE, profile = "default")
 }
 \arguments{
 \item{path}{character vector.
-Path(s) to hooks, relative to project root (if not absolute).}
-
-\item{title}{character.
-Title for set of hooks.
-Initial and trailing spaces are removed, and
-the middle spaces are converted to dashes.
-For example, \code{" a b "} is converted to
-\code{"a-b"}.}
+Path(s) to hook scripts, relative to project root (if not absolute).}
 
 \item{stage}{"pre", "post", or "both".
 Whether to run the hook before the build ("pre"),
 after the build ("post"), or in both stages ("both").
 Hooks with stage "pre" are stored under \code{build.hooks.pre},
 hooks with stage "post" are stored under \code{build.hooks.post},
-and hooks with stage "both" are stored directly under \code{build.hooks}.}
-
-\item{cue}{"build", "dev", "patch", "minor" or "major".
-Which minimum build level triggers the hooks.
-"build" and "dev" are equivalent, and
-always trigger the scripts.}
+and hooks with stage "both" are stored under \code{build.hooks.both}.}
 
 \item{overwrite}{logical.
-Whether to overwrite any hook settings
-of the same title in the \code{projr}
-configuration file.
-If \code{FALSE} and there already exists
-a key under \code{build/hooks} with the name
-\code{title}, an error is thrown.
+Whether to overwrite existing hooks or append to them.
 Default is \code{TRUE}.}
 
 \item{profile}{character.
 Profile to add the hook to.
-If \verb{"default"`` (the default), the hook is added to the default profile, which is }_projr.yml`.}
+If \code{"default"} (the default),
+the hook is added to the default profile,
+which is \code{_projr.yml}.}
 }
 \description{
 Convenience functions to add or remove hooks
 to run before or after the build.
 \itemize{
-\item \code{.yml_hooks_add}: Add a script to run before or after the build.
-\item \code{.yml_hooks_rm}: Remove scripts to run.
+\item \code{projr_yml_hooks_add}: Add hook script(s) to run before or after the build.
+\item \code{projr_yml_hooks_rm_all}: Remove all hooks.
+\item \code{projr_yml_hooks_add_pre}: Add hook(s) to run before the build.
+\item \code{projr_yml_hooks_add_post}: Add hook(s) to run after the build.
 }
-
-\code{.yml_hooks_add_pre} and \code{.yml_hooks_add_post}
-are wrappers around \code{.yml_hooks_add} that set the \code{stage} argument
-to \code{"pre"} or \code{"post"}, respectively.
-\code{.yml_hooks_rm_all} removes all scripts.
 }
 \details{
 Within a stage (pre- or post-build), hooks
-are run in the order set in \verb{_projr.yml}.
+are run in the order specified in \code{_projr.yml}.
 They are not run in the same environment as the
 build process.
-The pre-build scripts are run immediately after
+The pre-build hooks are run immediately after
 bumping the project version (if that is done) and immediately
 before committing the present state of the code to Git.
-The post-build scripts are run immediately after
+The post-build hooks are run immediately after
 committing the present state of the code to Git,
-and before distributing project artefacts to the remotes.
+and before distributing project artifacts to the remotes.
+
+Hooks are stored as simple character vectors in the YAML:
+\preformatted{
+build:
+  hooks:
+    pre: ["pre-hook.R"]
+    post: ["post-hook.R"]
+    both: ["both-hook.R"]
+}
 }
