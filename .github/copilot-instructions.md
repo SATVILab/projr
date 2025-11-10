@@ -180,74 +180,155 @@ The package heavily uses YAML configuration (`_projr.yml`):
 - Some functions interact with GitHub (using `gh` and `gert` packages)
 - Test functions can create Git repos: `.test_setup_project(git = TRUE)`
 
-### 8. Pre- and Post-Build Scripts
-The package supports custom scripts that run before or after the build process:
+### 8. Build Scripts and Hooks Configuration
 
-#### API Structure
-- **Exported functions**: `projr_yml_script_add()`, `projr_yml_script_add_pre()`, `projr_yml_script_add_post()`, `projr_yml_script_rm()`, `projr_yml_script_rm_all()`
-- **Internal functions**: `.yml_script_add()`, `.yml_script_rm()`, `.yml_script_rm_all()`, `.yml_script_get()`, `.yml_script_set()`
-- **Build execution**: `.build_pre_script_run()` and `.build_post_script_run()` in `R/build-script.R`
+The package supports explicit specification of which files to build and hooks that run before/after the build process.
 
-#### Key Implementation Details
-1. **Function parameters**:
-   - All internal script functions must have default parameters: `cue = NULL`, `profile = "default"`
-   - This ensures internal functions can be called without explicit parameters in tests
-   
-2. **Data structure**:
-   - Scripts are stored in `_projr.yml` under `build.script`
-   - Structure: `list("title" = list(stage = "pre"/"post", path = character_vector, cue = optional))`
-   - The `.yml_script_add()` function calls `.yml_script_set()` to persist changes
-   
-3. **Script execution timing**:
-   - **Pre-build scripts** run:
-     - After bumping the project version (if done)
-     - Before committing the present state of code to Git
-     - Called by `.build_pre_script_run()` in the build process
-   - **Post-build scripts** run:
-     - After committing the present state of code to Git
-     - Before distributing project artifacts to remotes
-     - Called by `.build_post_script_run()` in the build process
-   
-4. **Script execution context**:
-   - Scripts run in the order specified in `_projr.yml`
-   - Scripts are NOT run in the same environment as the build process
-   - Scripts are executed via `source()` in `.script_run()`
-   
-5. **Cue levels** (controls when scripts run):
-   - `"build"` or `"dev"`: Always trigger scripts
-   - `"patch"`, `"minor"`, `"major"`: Minimum build level that triggers scripts
+#### Build Scripts (`build.scripts` and `dev.scripts`)
+
+**Purpose**: Explicitly specify which documents/scripts to build instead of relying on automatic detection or `_quarto.yml`/`_bookdown.yml`.
+
+**YAML Structure**:
+```yaml
+# Production build scripts
+build:
+  scripts:
+    - analysis.qmd
+    - report.Rmd
+    - data-processing.R
+
+# Development build scripts (exclusive override)
+dev:
+  scripts:
+    - quick-test.qmd
+    - debug.R
+```
+
+**Key Points**:
+- `build.scripts` only accepts plain character vectors (no sub-keys or named lists)
+- `dev.scripts` provides exclusive control for dev builds (no fallback to `build.scripts`)
+- Scripts specified in `_projr.yml` override `_quarto.yml` and `_bookdown.yml` configurations
+- Priority order for dev builds: file param → dev.scripts → _quarto/_bookdown → auto-detect
+- Priority order for production builds: file param → build.scripts → _quarto/_bookdown → auto-detect
+
+**API Functions**:
+- `.yml_scripts_get_build(profile)` - Get build scripts
+- `.yml_scripts_get_dev(profile)` - Get dev scripts (exclusive, no fallback)
+- `.yml_build_get_scripts(profile)` - Get build.scripts configuration
+
+#### Build Hooks (`build.hooks` and `dev.hooks`)
+
+**Purpose**: Run custom scripts before (pre) or after (post) the build process.
+
+**YAML Structure**:
+```yaml
+build:
+  hooks:
+    pre:
+      - setup.R
+      - download-data.R
+    post:
+      - cleanup.R
+      - send-notifications.R
+    both:
+      - log-timestamp.R
+
+dev:
+  hooks:
+    pre: dev-setup.R
+    both: dev-logger.R
+```
+
+**Key Points**:
+- Hooks are stored as **simple character vectors** (no titles, no "path" keys)
+- Three stage keys: `pre` (before build), `post` (after build), `both` (both stages)
+- `build.hooks` are **always ignored** in dev runs
+- `dev.hooks` are **always ignored** in production runs
+- Hooks run in the order specified in `_projr.yml`
+- Hooks are NOT run in the same environment as the build process
+
+**Hook Execution Timing**:
+- **Pre-build hooks**: Run after version bump, before Git commit
+- **Post-build hooks**: Run after Git commit, before distributing artifacts
+
+**API Structure**:
+- **Exported functions**: `projr_yml_hooks_add()`, `projr_yml_hooks_add_pre()`, `projr_yml_hooks_add_post()`, `projr_yml_hooks_rm_all()`
+- **Internal functions**: `.yml_hooks_add()`, `.yml_hooks_get()`, `.yml_hooks_get_stage()`, `.yml_hooks_set()`, `.yml_hooks_rm_all()`
+- **Build execution**: `.build_hooks_run()` in `R/build-hooks.R`
+
+**API Usage**:
+```r
+# Add hooks (simplified API - no title or cue parameters)
+projr_yml_hooks_add(path = "setup.R", stage = "pre")
+projr_yml_hooks_add(path = c("log1.R", "log2.R"), stage = "both")
+
+# Convenience wrappers
+projr_yml_hooks_add_pre(path = "pre-hook.R")
+projr_yml_hooks_add_post(path = "post-hook.R")
+```
+
+#### File Existence Validation
+
+Before any build starts, all scripts and hooks are validated:
+- Build scripts from `build.scripts`
+- Dev scripts from `dev.scripts`
+- Build hooks from `build.hooks` (pre, post, both)
+- Dev hooks from `dev.hooks` (pre, post, both)
+
+Function: `.yml_scripts_hooks_check_exist(is_dev_build)` in `R/yml-check.R`
 
 #### Testing Pattern
 ```r
-test_that(".build_script... functions work", {
+test_that("build.scripts works", {
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
-      # Add scripts using internal functions
-      .yml_script_add(
-        title = "test-script",
-        path = c("script1.R", "script2.R"),
-        stage = "pre"
-        # Note: cue and profile have defaults
+      # Write scripts to YAML
+      yaml::write_yaml(
+        list(build = list(scripts = c("file1.qmd", "file2.R"))),
+        "_projr.yml"
       )
       
-      # Execute scripts
-      .build_script_run(stage = "pre")
+      # Read and verify
+      scripts <- .yml_scripts_get_build("default")
+      expect_identical(scripts, c("file1.qmd", "file2.R"))
+    }
+  )
+})
+
+test_that("build.hooks works", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Write hooks to YAML (simple vectors)
+      yaml::write_yaml(
+        list(build = list(hooks = list(
+          pre = c("pre1.R", "pre2.R"),
+          post = "post.R",
+          both = "both.R"
+        ))),
+        "_projr.yml"
+      )
       
-      # Verify script effects
-      expect_true(exists("x"))
+      # Read and verify
+      pre_hooks <- .yml_hooks_get_stage("pre", "default")
+      expect_true("pre1.R" %in% pre_hooks)
+      expect_true("both.R" %in% pre_hooks) # both runs in pre too
     }
   )
 })
 ```
 
 #### Common Pitfalls
-- Forgetting to add default parameters (`cue = NULL`, `profile = "default"`) to internal functions
-- Not calling `.yml_script_set()` in functions that modify script configuration
-- Incorrect structure assignment (use `yml_script[[title]]` not `yml_script[[stage]][[title]]`)
-- Missing internal wrapper functions (`.yml_script_rm()`, `.yml_script_rm_all()`) that exported functions rely on
+- Don't add sub-keys under `build.scripts` - it only accepts plain vectors
+- Don't create nested structures for hooks - they're simple character vectors
+- Remember `dev.scripts` is exclusive (no fallback to `build.scripts`)
+- Remember `build.hooks` are ignored in dev runs; use `dev.hooks` for dev-specific hooks
+- File paths in scripts/hooks are relative to project root
 
 ## File Organization Patterns
 

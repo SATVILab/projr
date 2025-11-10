@@ -217,6 +217,17 @@ projr_build_dev <- function(file = NULL,
   on.exit(.env_unset(), add = TRUE)
   .build_ensure_version()
   clear_output <- .build_get_clear_output(clear_output)
+  
+  # If no file specified, check for build.scripts configuration
+  # Use dev scripts for dev builds, build scripts for production builds
+  if (is.null(file)) {
+    is_dev_build <- is.null(bump_component) || bump_component == "dev"
+    if (is_dev_build) {
+      file <- .yml_scripts_get_dev(profile)
+    } else {
+      file <- .yml_scripts_get_build(profile)
+    }
+  }
 
   version_run_on_list <- .build_pre(
     bump_component, msg, clear_output, archive_local
@@ -260,6 +271,8 @@ projr_build_dev <- function(file = NULL,
                        clear_output,
                        archive_local) {
   projr_yml_check(NULL)
+  # Check that all scripts and hooks that are to be run exist
+  .yml_scripts_hooks_check_exist(NULL)
   # whether it's an output run  or not
   output_run <- .build_get_output_run(bump_component)
 
@@ -275,8 +288,10 @@ projr_build_dev <- function(file = NULL,
   # build outcomes
   version_run_on_list <- .version_run_onwards_get(bump_component)
 
-  # run any scripts
-  .build_pre_script_run()
+  # run any pre-build hooks (backward compatible with build.script)
+  # For dev builds, use dev.hooks; for production builds, use build.hooks
+  is_dev_build <- is.null(bump_component) || bump_component == "dev"
+  .build_pre_hooks_run(is_dev_build)
 
   # clear output and docs directories, and set
   # run version to output run version if need be
@@ -338,10 +353,12 @@ projr_build_dev <- function(file = NULL,
     always_archive
   )
 
-  # run post-build scripts
-  .build_post_script_run()
+  # run post-build hooks (backward compatible with build.script)
+  # For dev builds, use dev.hooks; for production builds, use build.hooks
+  is_dev_build <- is.null(bump_component) || bump_component == "dev"
+  .build_post_hooks_run(is_dev_build)
 
-  # initate dev version
+  # initiate dev version
   .build_post_dev(bump_component, version_run_on_list, msg)
 
   # push

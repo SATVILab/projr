@@ -16,6 +16,7 @@
 projr_yml_check <- function(profile = NULL) {
   .yml_dir_check(profile)
   .yml_build_check(profile)
+  .yml_dev_check(profile)
   invisible(TRUE)
 }
 
@@ -142,7 +143,7 @@ projr_yml_check <- function(profile = NULL) {
   .assert_in(
     nm_vec,
     c(
-      "dev-output", "script", "git",
+      "dev-output", "script", "hooks", "scripts", "git",
       "github", "package", "local", "osf"
     )
   )
@@ -231,5 +232,79 @@ projr_yml_check <- function(profile = NULL) {
       }
     }
   }
+  invisible(TRUE)
+}
+
+# dev
+# ----------------------
+
+.yml_dev_check <- function(profile) {
+  yml_dev <- .yml_dev_get(profile)
+  if (is.null(yml_dev)) {
+    return(invisible(TRUE))
+  }
+  
+  # Only "scripts" and "hooks" keys are allowed under dev
+  nm_vec <- names(yml_dev)
+  if (!is.null(nm_vec) && length(nm_vec) > 0) {
+    .assert_in(nm_vec, c("scripts", "hooks"))
+  }
+  
+  invisible(TRUE)
+}
+
+# scripts and hooks existence check
+# ----------------------
+
+.yml_scripts_hooks_check_exist <- function(profile = NULL) {
+  # Check scripts
+  scripts_build <- .yml_scripts_get_build(profile)
+  if (!is.null(scripts_build)) {
+    for (script in scripts_build) {
+      if (!file.exists(script)) {
+        stop(paste0("Build script '", script, "' does not exist."))
+      }
+    }
+  }
+  
+  # Check dev scripts (only from dev.scripts, no fallback)
+  scripts_dev <- .yml_dev_get_scripts(profile)
+  if (!is.null(scripts_dev)) {
+    for (script in scripts_dev) {
+      if (!file.exists(script)) {
+        stop(paste0("Dev script '", script, "' does not exist."))
+      }
+    }
+  }
+  
+  # Check hooks (from build.hooks)
+  for (stage in c("pre", "post")) {
+    hooks <- .yml_hooks_get_stage(stage, profile)
+    if (!is.null(hooks)) {
+      for (hook in hooks) {
+        if (!file.exists(hook)) {
+          stop(paste0("Hook '", hook, "' (stage: ", stage, ") does not exist."))
+        }
+      }
+    }
+  }
+  
+  # Check dev hooks (from dev.hooks)
+  dev_hooks_yml <- .yml_dev_get_hooks(profile)
+  if (!is.null(dev_hooks_yml)) {
+    for (stage in c("both", "pre", "post")) {
+      if (stage %in% names(dev_hooks_yml)) {
+        dev_hooks <- dev_hooks_yml[[stage]]
+        if (!is.null(dev_hooks)) {
+          for (hook in dev_hooks) {
+            if (!file.exists(hook)) {
+              stop(paste0("Dev hook '", hook, "' (stage: ", stage, ") does not exist."))
+            }
+          }
+        }
+      }
+    }
+  }
+  
   invisible(TRUE)
 }
