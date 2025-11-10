@@ -31,14 +31,19 @@
 
 #' Get list of scripts to build for dev builds
 #' 
-#' Only checks dev.scripts (top-level), no fallback to build.scripts
+#' Checks dev.scripts first, falls back to build.scripts if not set
 #' 
 #' @param profile Profile name
 #' @return Vector of script paths to build or NULL
 #' @keywords internal
 .yml_scripts_get_dev <- function(profile) {
-  # Only check top-level dev.scripts (no fallback)
-  .yml_dev_get_scripts(profile)
+  # Check top-level dev.scripts first, fall back to build.scripts
+  dev_scripts <- .yml_dev_get_scripts(profile)
+  if (!is.null(dev_scripts)) {
+    return(dev_scripts)
+  }
+  # Fall back to build.scripts when dev.scripts is not set
+  .yml_scripts_get_build(profile)
 }
 
 
