@@ -246,6 +246,7 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   nm_list <- list(
     "directories",
     "build",
+    "dev",
     par_nm_vec,
     "metadata"
   )
