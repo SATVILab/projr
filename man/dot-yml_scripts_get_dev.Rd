@@ -13,6 +13,6 @@
 Vector of script paths to build or NULL
 }
 \description{
-Only checks dev.scripts (top-level), no fallback to build.scripts
+Checks dev.scripts first, falls back to build.scripts if not set
 }
 \keyword{internal}

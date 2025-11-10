@@ -40,7 +40,7 @@ test_that(".yml_scripts functions work", {
         c("quick-test.qmd", "debug.R")
       )
       
-      # Test 3: No fallback - dev scripts return NULL when not specified
+      # Test 3: Fallback to build.scripts when dev.scripts not specified
       yaml::write_yaml(
         list(
           build = list(
@@ -49,7 +49,7 @@ test_that(".yml_scripts functions work", {
         ),
         "_projr.yml"
       )
-      expect_null(.yml_scripts_get_dev("default"))
+      expect_identical(.yml_scripts_get_dev("default"), c("analysis.qmd"))
       
       # Test 4: NULL when build scripts not specified
       yaml::write_yaml(
@@ -218,7 +218,7 @@ test_that("dev.scripts is used exclusively for dev builds", {
         c("build1.qmd", "build2.qmd")
       )
       
-      # Test 2: No fallback when dev.scripts is not specified
+      # Test 2: Fallback to build.scripts when dev.scripts is not specified
       yaml::write_yaml(
         list(
           build = list(
@@ -228,8 +228,11 @@ test_that("dev.scripts is used exclusively for dev builds", {
         "_projr.yml"
       )
       
-      # Without dev.scripts, dev builds get NULL (no fallback)
-      expect_null(.yml_scripts_get_dev("default"))
+      # Without dev.scripts, dev builds fall back to build.scripts
+      expect_identical(
+        .yml_scripts_get_dev("default"),
+        c("build1.qmd", "build2.qmd")
+      )
       
       # Production builds still use build.scripts
       expect_identical(
@@ -361,6 +364,66 @@ test_that("dev.hooks works for dev builds", {
       )
       
       expect_null(.yml_dev_get_hooks("default"))
+    }
+  )
+})
+
+test_that("Issue scenario: build.scripts used as fallback for dev builds", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Scenario from issue: only build.scripts is set, no dev.scripts
+      # When files parameter is NULL, dev build should use build.scripts
+      yaml::write_yaml(
+        list(
+          build = list(
+            scripts = "ExtraULW1S1ClusterIntro.qmd",
+            git = TRUE
+          )
+        ),
+        "_projr.yml"
+      )
+      
+      # Dev build should use build.scripts as fallback
+      expect_identical(
+        .yml_scripts_get_dev("default"),
+        "ExtraULW1S1ClusterIntro.qmd"
+      )
+      
+      # Production build should use build.scripts
+      expect_identical(
+        .yml_scripts_get_build("default"),
+        "ExtraULW1S1ClusterIntro.qmd"
+      )
+      
+      # When dev.scripts is explicitly set, it takes precedence
+      yaml::write_yaml(
+        list(
+          build = list(
+            scripts = "ExtraULW1S1ClusterIntro.qmd",
+            git = TRUE
+          ),
+          dev = list(
+            scripts = "ExtraULW1S2ClusterHier.qmd"
+          )
+        ),
+        "_projr.yml"
+      )
+      
+      # Dev build should use dev.scripts (not build.scripts)
+      expect_identical(
+        .yml_scripts_get_dev("default"),
+        "ExtraULW1S2ClusterHier.qmd"
+      )
+      
+      # Production build should still use build.scripts
+      expect_identical(
+        .yml_scripts_get_build("default"),
+        "ExtraULW1S1ClusterIntro.qmd"
+      )
     }
   )
 })
