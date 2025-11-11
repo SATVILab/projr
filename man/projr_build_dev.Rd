@@ -10,7 +10,8 @@ projr_build_dev(
   old_dev_remove = TRUE,
   args_engine = list(),
   profile = NULL,
-  clear_output = "never"
+  clear_output = "never",
+  output_level = NULL
 )
 }
 \arguments{
@@ -35,6 +36,11 @@ rendering engine
 \item{profile}{character.
 \code{projr} profile to use. Will set the environment variable
 .PROFILE` to this value at the start of the build,}
+
+\item{output_level}{character.
+Level of CLI output: "none" (no additional messages, default for dev builds),
+"std" (standard messages), or "debug" (verbose messages for debugging).
+Can also be set via PROJR_OUTPUT_LEVEL environment variable.}
 }
 \description{
 Builds project to output, which

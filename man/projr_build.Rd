@@ -15,7 +15,8 @@ projr_build(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = NULL
+  clear_output = NULL,
+  output_level = NULL
 )
 
 projr_build_major(
@@ -25,7 +26,8 @@ projr_build_major(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = NULL
+  clear_output = NULL,
+  output_level = NULL
 )
 
 projr_build_minor(
@@ -35,7 +37,8 @@ projr_build_minor(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = NULL
+  clear_output = NULL,
+  output_level = NULL
 )
 
 projr_build_patch(
@@ -45,7 +48,8 @@ projr_build_patch(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = NULL
+  clear_output = NULL,
+  output_level = NULL
 )
 }
 \arguments{
@@ -98,6 +102,12 @@ Default is \code{TRUE}.
 Ignored if there is a release named \code{archive}
 already specified as a destination in
 the \code{projr} configuration file.}
+
+\item{output_level}{character.
+Level of CLI output: "none" (no additional messages),
+"std" (standard messages, default for output builds), or
+"debug" (verbose messages for debugging).
+Can also be set via PROJR_OUTPUT_LEVEL environment variable.}
 }
 \description{
 .build_output` Builds project to output, which
