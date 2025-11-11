@@ -47,6 +47,13 @@ projr_manifest_changes <- function(version_from = NULL,
     return(.zero_tbl_get_manifest_changes())
   }
   
+  # Filter out empty manifest entries (used for empty directories)
+  manifest <- manifest[!is.na(manifest$fn) & manifest$fn != "", , drop = FALSE]
+  
+  if (nrow(manifest) == 0) {
+    return(.zero_tbl_get_manifest_changes())
+  }
+  
   # Normalize versions
   version_from <- .manifest_query_normalize_version(
     version_from, manifest, use_earliest = TRUE
@@ -107,6 +114,13 @@ projr_manifest_range <- function(version_start = NULL,
                                  version_end = NULL,
                                  label = NULL) {
   manifest <- .manifest_read_project()
+  
+  if (nrow(manifest) == 0) {
+    return(.zero_tbl_get_manifest_range())
+  }
+  
+  # Filter out empty manifest entries (used for empty directories)
+  manifest <- manifest[!is.na(manifest$fn) & manifest$fn != "", , drop = FALSE]
   
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_range())
@@ -178,6 +192,13 @@ projr_manifest_last_change <- function(version = NULL) {
     return(.zero_tbl_get_manifest_last_change())
   }
   
+  # Filter out empty manifest entries (used for empty directories)
+  manifest <- manifest[!is.na(manifest$fn) & manifest$fn != "", , drop = FALSE]
+  
+  if (nrow(manifest) == 0) {
+    return(.zero_tbl_get_manifest_last_change())
+  }
+  
   # Normalize version
   version <- .manifest_query_normalize_version(
     version, manifest, use_earliest = FALSE
@@ -206,6 +227,10 @@ projr_manifest_last_change <- function(version = NULL) {
                                               use_earliest = TRUE) {
   if (is.null(version)) {
     versions <- unique(manifest$version)
+    if (length(versions) == 0) {
+      # If no versions available, use current project version
+      return(paste0("v", projr_version_get()))
+    }
     versions_pkg <- package_version(.version_v_rm(versions))
     if (use_earliest) {
       version <- min(versions_pkg)
@@ -254,8 +279,11 @@ projr_manifest_last_change <- function(version = NULL) {
     from_common <- from_common[order(from_common$key), , drop = FALSE]
     to_common <- to_common[order(to_common$key), , drop = FALSE]
     
-    modified_mask <- from_common$hash != to_common$hash
-    if (any(modified_mask)) {
+    # Compare hashes, handling empty strings and NAs
+    modified_mask <- !is.na(from_common$hash) & !is.na(to_common$hash) & 
+                     from_common$hash != "" & to_common$hash != "" &
+                     from_common$hash != to_common$hash
+    if (any(modified_mask, na.rm = TRUE)) {
       modified <- to_common[modified_mask, , drop = FALSE]
       modified$change_type <- "modified"
       modified$hash_from <- from_common$hash[modified_mask]

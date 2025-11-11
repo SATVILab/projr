@@ -4,16 +4,20 @@ test_that(".manifest_hash_label works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      # test hashing empty directory
+      # test hashing empty directory - returns 1 row with empty fn and hash
       path_dir_empty <- projr_path_get_dir("raw-data")
       .dir_rm(path_dir_empty)
       dir.create(path_dir_empty)
       manifest <- .manifest_hash_label("raw-data", FALSE)
-      expect_identical(nrow(manifest), 0L)
-      # test hashing empty directory with a sub-directory
+      expect_identical(nrow(manifest), 1L)
+      expect_identical(manifest$fn, "")
+      expect_identical(manifest$hash, "")
+      # test hashing empty directory with a sub-directory - still 1 row
       dir.create(file.path(path_dir_empty, "def"))
       manifest <- .manifest_hash_label("raw-data", TRUE)
-      expect_identical(nrow(manifest), 0L)
+      expect_identical(nrow(manifest), 1L)
+      expect_identical(manifest$fn, "")
+      expect_identical(manifest$hash, "")
 
       # test hashing non-empty directories
       path_dir <- .test_setup_content("output", safe = FALSE)
@@ -49,7 +53,8 @@ test_that(".build_manifest_* works", {
       expect_false(.build_manifest_pre(FALSE))
       path_manifest <- .build_manifest_pre(TRUE)
       manifest <- .manifest_read(path_manifest)
-      expect_identical(nrow(manifest), 0L)
+      # Only raw-data is hashed (cache not by default), empty dir = 1 row
+      expect_identical(nrow(manifest), 1L)
 
       # content, but ignore cache by default
       invisible(.test_setup_content(label_vec, safe = TRUE))
@@ -69,25 +74,31 @@ test_that(".build_manifest_* works", {
       # --------------------------
       expect_false(.build_manifest_post(FALSE))
       path_manifest <- .build_manifest_post(TRUE)
-      expect_identical(nrow(.manifest_read(path_manifest)), 6L)
+      # Pre (6) + empty docs (1) + empty output (1) = 8
+      expect_identical(nrow(.manifest_read(path_manifest)), 8L)
 
       # now add output content
       .test_setup_content("output", safe = FALSE)
       path_manifest <- .build_manifest_post(TRUE)
-      expect_identical(nrow(.manifest_read(path_manifest)), 9L)
+      # Pre (6 duplicates of previous) + output (3) + empty docs (1 duplicate) + prev (8) 
+      # After dedup: prev (8) + output (3) = 11
+      expect_identical(nrow(.manifest_read(path_manifest)), 11L)
 
       # now add doc content
       .test_setup_content("docs", safe = FALSE)
       path_manifest <- .build_manifest_post(TRUE)
-      expect_identical(nrow(.manifest_read(path_manifest)), 12L)
+      # Pre (6 duplicates) + output (3 duplicates) + docs (3) + prev (11)
+      # After dedup: prev (11) + docs (3) = 14
+      expect_identical(nrow(.manifest_read(path_manifest)), 14L)
 
-      # return zero table
+      # return table with empty directories
       invisible(.file_rm(.build_manifest_pre_path_get()))
       .dir_rm(projr_path_get_dir("docs", safe = FALSE))
       .dir_rm(projr_path_get_dir("output", safe = FALSE))
       .file_rm(.path_get("manifest.csv"))
       path_manifest <- .build_manifest_post(TRUE)
-      expect_identical(nrow(.manifest_read(path_manifest)), 0L)
+      # Empty docs (1) + empty output (1) = 2
+      expect_identical(nrow(.manifest_read(path_manifest)), 2L)
     }
   )
 })
