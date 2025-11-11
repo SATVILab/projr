@@ -248,7 +248,42 @@ The package heavily uses YAML configuration (`_projr.yml`):
 - Some functions interact with GitHub (using `gh` and `gert` packages)
 - Test functions can create Git repos: `.test_setup_project(git = TRUE)`
 
-### 8. Build Scripts and Hooks Configuration
+### 8. Version Functions
+
+The package includes comprehensive version management functions in `R/version.R` and `R/yml-version.R`.
+
+#### Version Function Guidelines
+
+**Input Validation**:
+- All version helper functions validate their inputs using `.assert_*()` functions
+- `.version_v_rm()` and `.version_v_add()` require non-empty single strings
+- `.version_get_earliest()` and `.version_get_latest()` require non-empty character vectors
+- `.version_concat()` accepts numeric or character vectors, automatically converts numeric to character
+- `.version_current_vec_get_init_file()` validates VERSION file exists, is not empty, and contains valid content (trims whitespace)
+
+**Version Format**:
+- Version format is defined in `_projr.yml` under `metadata.version-format`
+- Default format: `"major.minor.patch-dev"`
+- Valid formats include: `major.minor.patch-dev`, `major.minor.patch.dev`, `major.minor-dev`, `major.minor.dev`, `major-dev`, `major.dev`
+- Format can also use numeric suffixes like `9000` or `1` instead of `dev`
+
+**Key Functions**:
+- `projr_version_get()`: Returns current project version (exported)
+- `projr_version_set(version, only_if_exists)`: Sets project version (exported)
+- `.version_check(version)`: Validates version format against `_projr.yml` configuration
+- `.version_check_error_free(version)`: Returns TRUE if valid, FALSE if invalid (safe validation)
+- `.version_concat(version_vec, split_vec)`: Concatenates version components with separators
+- `.version_get_earliest(x)` / `.version_get_latest(x)`: Find earliest/latest version from vector
+
+**Testing Edge Cases**:
+- Test empty/NULL inputs
+- Test whitespace-only VERSION files
+- Test numeric vs. character input handling
+- Test version format validation
+- Test version bumping logic
+- See `tests/testthat/test-version-validation.R` for comprehensive examples
+
+### 9. Build Scripts and Hooks Configuration
 
 The package supports explicit specification of which files to build and hooks that run before/after the build process.
 
