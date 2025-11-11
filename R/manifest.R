@@ -11,7 +11,7 @@
   ) |>
     .manifest_hash_cache_filter(label)
   if (nrow(hash_tbl) == 0L) {
-    .empty_tbl_get_manifest(label, projr::projr_version_get())
+    .zero_tbl_get_manifest()
   } else {
     cbind(
       data.frame(label = rep(label, nrow(hash_tbl))),
