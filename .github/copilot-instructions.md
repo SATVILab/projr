@@ -519,6 +519,84 @@ renv::snapshot()
 - Some functionality requires authentication (GitHub PAT, OSF token)
 - The package supports multiple document engines (R Markdown, Quarto, Bookdown)
 
+## Authentication System
+
+The package includes comprehensive authentication checks for GitHub and OSF operations to ensure API calls fail gracefully with helpful error messages when credentials are missing.
+
+### Authentication Functions
+
+**Core Functions** (`R/auth.R`):
+- `.auth_get_github_pat()` - Retrieves GitHub PAT from environment or gitcreds
+- `.auth_get_osf_pat()` - Retrieves OSF PAT from environment
+- `.auth_check_github(context)` - **Checks and throws error if GitHub auth missing**
+- `.auth_check_osf(context)` - **Checks and throws error if OSF auth missing**
+
+**Exported Functions**:
+- `projr_instr_auth_github()` - Prints GitHub authentication instructions
+- `projr_instr_auth_osf()` - Prints OSF authentication instructions
+
+### Where Auth Checks Are Required
+
+**GitHub Operations** - All functions that call `gh::` or `gitcreds::` must have `.auth_check_github()`:
+- `.git_clone()` - When inferring username from `gh::gh_whoami()`
+- `.init_github_impl()` - Before creating GitHub repository
+- `.remote_host_rm_github()` - Before deleting GitHub repository
+- `.pb_guess_repo()` - When using `gh::gh_tree_remote()`
+- `.build_github_setup_user()` - Already protected via `.build_github_setup_check_pat()`
+
+**OSF Operations** - All OSF wrapper functions have `.auth_check_osf()`:
+- `.remote_create_osf()` - Creating OSF nodes
+- `.remote_get_osf()` - Retrieving OSF nodes
+- `.remote_host_rm_osf()` - Deleting OSF nodes
+- `.osf_upload()`, `.osf_download()`, `.osf_ls_files()`, etc. - All OSF wrappers in `R/remote-osf.R`
+
+### Authentication Check Pattern
+
+When adding new functions that call GitHub or OSF APIs:
+
+```r
+# GitHub operations
+.my_github_function <- function(...) {
+  .auth_check_github("operation description")
+  # Now safe to call gh:: functions
+  user <- gh::gh_whoami()$login
+  # ...
+}
+
+# OSF operations
+.my_osf_function <- function(...) {
+  .auth_check_osf("operation description")
+  # Now safe to call osfr:: functions
+  node <- osfr::osf_retrieve_node(id)
+  # ...
+}
+```
+
+### Testing Authentication
+
+Tests should handle both authenticated and unauthenticated scenarios:
+
+```r
+test_that("function works with auth", {
+  skip_if(!nzchar(Sys.getenv("GITHUB_PAT")))
+  # Test with credentials available
+  expect_true(.my_github_function())
+})
+
+test_that("function fails gracefully without auth", {
+  pat_old <- Sys.getenv("GITHUB_PAT")
+  Sys.unsetenv("GITHUB_PAT")
+  
+  expect_error(.auth_check_github(), "GitHub authentication is required")
+  
+  if (nzchar(pat_old)) Sys.setenv("GITHUB_PAT" = pat_old)
+})
+```
+
+### Build-Time Auth Checks
+
+During builds, `.build_check_auth_remote()` is called via `.build_env_check()` to verify that required credentials are available for configured remote destinations.
+
 ## Build Logging System
 
 The package includes a comprehensive build logging system that captures detailed information about each build:
