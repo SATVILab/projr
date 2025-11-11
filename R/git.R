@@ -588,3 +588,144 @@
   }
   do.call(gert::git_clone, args_list)
 }
+
+# Git information for debug output
+# ---------------------------------
+
+#' Get current Git branch name
+#'
+#' @return Character string with branch name, or NULL if not in a Git repo
+#' @keywords internal
+.git_branch_get <- function() {
+  if (!.git_repo_check_exists()) {
+    return(NULL)
+  }
+  
+  switch(.git_system_get(),
+    "git" = .git_branch_get_git(),
+    "gert" = .git_branch_get_gert(),
+    NULL
+  )
+}
+
+.git_branch_get_git <- function() {
+  branch <- system2(
+    "git",
+    args = c("rev-parse", "--abbrev-ref", "HEAD"),
+    stdout = TRUE,
+    stderr = FALSE
+  )
+  if (length(branch) == 0 || !nzchar(branch)) {
+    return(NULL)
+  }
+  branch
+}
+
+.git_branch_get_gert <- function() {
+  tryCatch({
+    info <- gert::git_info()
+    if (!is.null(info$shorthand)) {
+      return(info$shorthand)
+    }
+    NULL
+  }, error = function(e) NULL)
+}
+
+#' Get last commit information
+#'
+#' @return List with sha and message, or NULL if not in a Git repo
+#' @keywords internal
+.git_last_commit_get <- function() {
+  if (!.git_repo_check_exists()) {
+    return(NULL)
+  }
+  
+  switch(.git_system_get(),
+    "git" = .git_last_commit_get_git(),
+    "gert" = .git_last_commit_get_gert(),
+    NULL
+  )
+}
+
+.git_last_commit_get_git <- function() {
+  sha <- system2(
+    "git",
+    args = c("rev-parse", "--short", "HEAD"),
+    stdout = TRUE,
+    stderr = FALSE
+  )
+  
+  message <- system2(
+    "git",
+    args = c("log", "-1", "--pretty=format:%s"),
+    stdout = TRUE,
+    stderr = FALSE
+  )
+  
+  if (length(sha) == 0 || length(message) == 0) {
+    return(NULL)
+  }
+  
+  list(sha = sha, message = message)
+}
+
+.git_last_commit_get_gert <- function() {
+  tryCatch({
+    log <- gert::git_log(max = 1)
+    if (nrow(log) == 0) {
+      return(NULL)
+    }
+    list(
+      sha = substr(log$commit[1], 1, 7),
+      message = log$message[1]
+    )
+  }, error = function(e) NULL)
+}
+
+#' Get untracked files that are not ignored
+#'
+#' @return Character vector of untracked file paths that are not ignored
+#' @keywords internal
+.git_untracked_not_ignored_get <- function() {
+  if (!.git_repo_check_exists()) {
+    return(character(0))
+  }
+  
+  switch(.git_system_get(),
+    "git" = .git_untracked_not_ignored_get_git(),
+    "gert" = .git_untracked_not_ignored_get_gert(),
+    character(0)
+  )
+}
+
+.git_untracked_not_ignored_get_git <- function() {
+  # Get all untracked files (not ignored by default)
+  # Using --others --exclude-standard shows untracked files not in .gitignore
+  git_output <- system2(
+    "git",
+    args = c("ls-files", "--others", "--exclude-standard"),
+    stdout = TRUE,
+    stderr = FALSE
+  )
+  
+  if (length(git_output) == 0) {
+    return(character(0))
+  }
+  
+  # Filter out empty strings
+  git_output[nzchar(git_output)]
+}
+
+.git_untracked_not_ignored_get_gert <- function() {
+  tryCatch({
+    git_tbl_status <- gert::git_status()
+    # Get files with status "new" (untracked)
+    untracked <- git_tbl_status[["file"]][git_tbl_status[["status"]] == "new"]
+    
+    if (length(untracked) == 0) {
+      return(character(0))
+    }
+    
+    untracked
+  }, error = function(e) character(0))
+}
