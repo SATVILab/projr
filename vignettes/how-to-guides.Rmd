@@ -518,3 +518,78 @@ projr_profile_delete("dev")
 - `?projr_profile_create`
 - `?projr_profile_get`
 - `?projr_env_set`
+
+---
+
+## 8. View and manage build logs
+
+### When to use
+
+When you need to review build history, debug issues, or maintain clean log files.
+
+### Steps
+
+**View build history:**
+
+All builds are automatically logged to `_tmp/projr/log/{dev,output}/history/builds.md`:
+
+```{r eval=FALSE}
+# View dev build history
+file.edit("_tmp/projr/log/dev/history/builds.md")
+
+# View output build history
+file.edit("_tmp/projr/log/output/history/builds.md")
+```
+
+**View detailed build logs:**
+
+Each build creates a detailed Quarto log file organized by date:
+
+```{r eval=FALSE}
+# List recent dev build logs
+list.files("_tmp/projr/log/dev/output", 
+           recursive = TRUE, pattern = "\\.qmd$")
+
+# Render a log file to HTML
+quarto::quarto_render("_tmp/projr/log/dev/output/2025-Nov-11/14-07-00.qmd")
+```
+
+**Control logging:**
+
+```{r eval=FALSE}
+# Disable detailed log file creation (history still maintained)
+Sys.setenv(PROJR_LOG_DETAILED = "FALSE")
+projr_build_dev()
+
+# Re-enable detailed logging
+Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+```
+
+**Clear old logs:**
+
+```{r eval=FALSE}
+# Clear all logs
+projr_log_clear()
+
+# Clear only dev logs
+projr_log_clear(build_type = "dev")
+
+# Keep history, clear detailed logs only
+projr_log_clear(history = FALSE, output = TRUE)
+
+# Clear logs before a specific date
+projr_log_clear(before_date = "2025-01-01")
+```
+
+### Pitfalls
+
+- **Log directory location**: Logs are in `_tmp/projr/log`, not the regular `_cache` directory.
+- **Never auto-cleared**: Unlike cache, logs are never cleared automatically—manage manually.
+- **Disk space**: Logs accumulate over time; clear old logs periodically.
+
+### See also
+
+- `?projr_log_clear`
+- `?projr_build`
+- Console output control: Use `output_level` parameter in build functions
+

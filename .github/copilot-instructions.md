@@ -425,6 +425,65 @@ renv::snapshot()
 - Some functionality requires authentication (GitHub PAT, OSF token)
 - The package supports multiple document engines (R Markdown, Quarto, Bookdown)
 
+## Build Logging System
+
+The package includes a comprehensive build logging system that captures detailed information about each build:
+
+### Log Directory Structure
+
+Logs are stored in `cache/projr/log/` which is **never automatically cleared** by projr:
+
+```
+cache/projr/log/
+├── output/                    # Production build logs
+│   ├── history/
+│   │   └── builds.md         # All build records, newest first
+│   └── output/
+│       └── YYYY-MMM-DD/      # Daily log folders
+│           └── HH-MM-SS.qmd  # Detailed log for each build
+└── dev/                       # Development build logs
+    ├── history/
+    │   └── builds.md
+    └── output/
+        └── YYYY-MMM-DD/
+            └── HH-MM-SS.qmd
+```
+
+### Key Features
+
+- **Automatic Logging**: All builds create log files automatically
+- **Separate Dev/Output Logs**: Development and production builds logged separately
+- **History Tracking**: `builds.md` tracks all builds (always maintained)
+- **Detailed Logs**: Quarto-formatted `.qmd` files with full build output
+- **Controllable**: Use `PROJR_OUTPUT_LEVEL` env var for console output level
+- **Detailed Logging Control**: Use `PROJR_LOG_DETAILED` env var to disable detailed log files (history always maintained)
+
+### Usage
+
+```r
+# Control console output level
+Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")  # or "std", "none"
+projr_build_dev()
+
+# Disable detailed log file creation (history still maintained)
+Sys.setenv(PROJR_LOG_DETAILED = "FALSE")
+projr_build_dev()
+
+# Clear logs
+projr_log_clear()                          # Clear all logs
+projr_log_clear(build_type = "dev")        # Clear dev logs only
+projr_log_clear(history = FALSE)           # Keep history, clear output logs
+projr_log_clear(before_date = "2025-01-01") # Clear logs before date
+```
+
+### Implementation Files
+
+- `R/log.R`: Core logging functions (.log_* internal functions)
+- `R/cli-output.R`: CLI output with integrated logging
+- `R/build.R`: Build process with log initialization and finalization
+
+**Important**: When modifying build-related code, ensure log messages are properly passed through the `log_file` parameter to maintain logging functionality.
+
 ## Maintaining Documentation and Instructions
 
 ### Copilot Instructions

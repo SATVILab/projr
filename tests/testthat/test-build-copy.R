@@ -859,7 +859,11 @@ test_that(".build_engine works", {
       version_run_on_list <- .version_run_onwards_get("patch")
 
       # bookdowwn
-      .build_engine(args_engine = list())
+      .build_engine(
+        file = NULL,
+        version_run_on_list = version_run_on_list,
+        args_engine = list()
+      )
       expect_true(file.exists("docs/reportV0.0.0-1/index.html"))
       # now rmarkdown only
       .file_rm("_bookdown.yml")

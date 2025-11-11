@@ -2,17 +2,21 @@
 # Pre-build
 # ==========================
 
-.build_pre_check <- function(output_run) {
+.build_pre_check <- function(output_run, output_level = "std", log_file = NULL) {
   # set and check authorisation is available
+  .cli_debug("Checking environment variables", output_level = output_level, log_file = log_file)
   .build_env_check(output_run)
 
   # check that we have Git if needed
+  .cli_debug("Checking Git repository", output_level = output_level, log_file = log_file)
   .build_git_check(output_run)
 
   # check that we have GitHub remote if needed
+  .cli_debug("Checking GitHub remote", output_level = output_level, log_file = log_file)
   .build_github_check(output_run)
 
   # check we are not missing upstream commits
+  .cli_debug("Checking upstream commits", output_level = output_level, log_file = log_file)
   .build_exit_if_behind_upstream(output_run)
 }
 
@@ -199,36 +203,45 @@
   }
 }
 
-.build_pre_document <- function(output_run, archive_local) {
+.build_pre_document <- function(output_run, archive_local, output_level = "std", log_file = NULL) {
   # get version for DESCRIPTION and bookdown from run onwards
   # snapshot if need be
+  .cli_debug("Snapshotting renv", output_level = output_level, log_file = log_file)
   .build_renv_snapshot(output_run)
 
   # make sure everything is ignored that should be ignored
   # (including docs directory)
+  .cli_debug("Updating ignore files", output_level = output_level, log_file = log_file)
   .build_ignore(output_run, archive_local)
 
   # ensure that docs directory is the unsafe directory.
   # will copy docs across upon success.
+  .cli_debug("Updating documentation output directory", output_level = output_level, log_file = log_file)
   .build_doc_output_dir_update(FALSE)
 
   # ensure that pre-build, we are on dev version
+  .cli_debug("Ensuring development version", output_level = output_level, log_file = log_file)
   .build_ensure_dev_version()
 }
 
 .build_pre_setup_for_output_run <- function(version_run_on_list,
                                             output_run,
-                                            clear_output) {
+                                            clear_output,
+                                            output_level = "std",
+                                            log_file = NULL) {
   # set the version pre-run
+  .cli_debug("Setting build version", output_level = output_level, log_file = log_file)
   .build_version_set_pre(version_run_on_list)
 
   # ensure that docs directory is the unsafe directory.
   # will copy docs across upon success.
+  .cli_debug("Configuring documentation directory", output_level = output_level, log_file = log_file)
   .build_doc_output_dir_update(FALSE)
 
 
   # empty output directories
   # (docs, output and data)
+  .cli_debug("Clearing output directories (pre-build)", output_level = output_level, log_file = log_file)
   .build_clear_pre(output_run, clear_output)
 }
 
