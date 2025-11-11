@@ -443,4 +443,50 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
   .yml_build_set(yml_projr_build, NULL)
 }
 
+# ============================
+# test initialization helper functions
+# ============================
+
+# Minimal initialization for tests
+# Used in tests that need a basic projr setup
+.init <- function() {
+  # Set up usethis project
+  .init_usethis_std()
+  
+  # Create initial VERSION if needed
+  if (!file.exists(.path_get("VERSION")) &&
+        !file.exists(.path_get("DESCRIPTION"))) {
+    projr_version_set("0.0.0-1")
+  }
+  
+  # Initialize directories
+  .init_dir_std(TRUE)
+  
+  # Copy _projr.yml if not exists
+  .init_yml_std(TRUE)
+  
+  invisible(TRUE)
+}
+
+# Full initialization for tests
+# Used in tests that need a complete projr setup with all features
+.init_full <- function() {
+  # Set up usethis project
+  .init_usethis_std()
+  
+  # Create initial VERSION if needed
+  if (!file.exists(.path_get("VERSION")) &&
+        !file.exists(.path_get("DESCRIPTION"))) {
+    projr_version_set("0.0.0-1")
+  }
+  
+  # Initialize directories
+  .init_dir_std(TRUE)
+  
+  # Copy _projr.yml if not exists
+  .init_yml_std(TRUE)
+  
+  invisible(TRUE)
+}
+
 .test_setup_project()
