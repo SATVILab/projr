@@ -147,3 +147,58 @@ projr_instr_auth_github <- function() {
 projr_instr_auth_osf <- function() {
   message(.auth_get_osf_pat_instr())
 }
+
+# auth check functions
+# ---------------------
+
+#' Check if GitHub authentication is available
+#'
+#' @return Logical indicating if GitHub authentication is available
+#' @keywords internal
+.auth_check_github <- function() {
+  pat <- .auth_get_github_pat_find()
+  .is_string(pat)
+}
+
+#' Check if OSF authentication is available
+#'
+#' @return Logical indicating if OSF authentication is available
+#' @keywords internal
+.auth_check_osf <- function() {
+  pat <- .auth_get_osf_pat_find()
+  .is_string(pat) && nzchar(pat)
+}
+
+#' Require GitHub authentication or stop with error
+#'
+#' @param context Character. Context message for the error
+#' @return Invisible TRUE if auth is available, stops otherwise
+#' @keywords internal
+.auth_require_github <- function(context = "GitHub operation") {
+  if (!.auth_check_github()) {
+    stop(
+      context, " requires GitHub authentication.\n",
+      "Please set GITHUB_PAT or GITHUB_TOKEN environment variable.\n",
+      "Run projr_instr_auth_github() for instructions.",
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+#' Require OSF authentication or stop with error
+#'
+#' @param context Character. Context message for the error
+#' @return Invisible TRUE if auth is available, stops otherwise
+#' @keywords internal
+.auth_require_osf <- function(context = "OSF operation") {
+  if (!.auth_check_osf()) {
+    stop(
+      context, " requires OSF authentication.\n",
+      "Please set OSF_PAT environment variable.\n",
+      "Run projr_instr_auth_osf() for instructions.",
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
