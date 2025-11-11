@@ -410,6 +410,7 @@
                             path_dir_to,
                             dir_exc = NULL) {
   .dir_clear(path_dir_to)
+  .dir_create(path_dir_to)
   .dir_move(path_dir_from, path_dir_to, dir_exc = dir_exc)
 }
 
@@ -542,15 +543,9 @@
 }
 
 .path_filter_spec_add_back_file <- function(fn, path_dir, path_exc) {
-  if (is.null(path_exc)) {
-    return(fn)
-  }
-  # Check if the excluded path exists as a non-directory file
-  exc_path <- file.path(path_dir, path_exc)
-  if (length(.file_filter_dir_non(exc_path)) > 0) {
-    # Return relative path, not absolute
-    fn <- c(fn, path_exc)
-  }
+  # This function previously added back files that were in the exclusion list,
+  # but this conflicts with the intended usage where files like CHANGELOG.md
+  # should be excluded. Removing the add-back logic.
   fn
 }
 

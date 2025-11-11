@@ -28,7 +28,7 @@ test_that(".build_clear_pre and _post works", {
       path_output_final <- projr_path_get_dir("output", "a", safe = FALSE)
       path_docs <- projr_path_get_dir("docs", "b")
       path_data <- projr_path_get_dir("project", "data", "c")
-      .build_clear_pre(TRUE)
+      .build_clear_pre(output_run = TRUE, clear_output = "pre")
       expect_false(dir.exists(path_safe))
       expect_true(dir.exists(path_output_final))
       expect_false(dir.exists(path_docs))
@@ -38,14 +38,14 @@ test_that(".build_clear_pre and _post works", {
       # ------------------------
       # cache
       path_dir <- projr_path_get_dir("cache", "projr")
-      .build_clear_post(FALSE)
+      .build_clear_post(output_run = FALSE, clear_output = "never")
       expect_true(dir.exists(path_dir))
-      .build_clear_post(TRUE)
+      .build_clear_post(output_run = TRUE, clear_output = "never")
       expect_true(dir.exists(path_dir))
       # cache
       path_safe <- projr_path_get_dir("output", "a", safe = TRUE)
       path_output_final <- projr_path_get_dir("output", "a", safe = FALSE)
-      .build_clear_post(TRUE)
+      .build_clear_post(output_run = TRUE, clear_output = "post")
       expect_true(dir.exists(path_safe))
       expect_false(dir.exists(path_output_final))
     },
