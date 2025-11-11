@@ -8,7 +8,15 @@
 .remote_create <- function(type,
                            id,
                            name,
+                           output_level = "std",
+                           log_file = NULL,
                            ...) {
+  .cli_debug(
+    "Remote create: type={type}, id={id}",
+    output_level = output_level,
+    log_file = log_file
+  )
+  
   switch(type,
     "local" = .remote_create_local(path = id),
     "osf" = .remote_create_osf(title = name, ...),
@@ -1654,13 +1662,24 @@ projr_osf_create_project <- function(title,
 # ========================
 
 .remote_file_ls <- function(type,
-                            remote) {
+                            remote,
+                            output_level = "std",
+                            log_file = NULL) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
-  switch(type,
+  
+  result <- switch(type,
     "local" = .remote_file_ls_local(remote),
     "osf" = .remote_file_ls_osf(remote),
     "github" = .remote_file_ls_github(remote)
   )
+  
+  .cli_debug(
+    "Remote file list: type={type}, found {length(result)} file(s)",
+    output_level = output_level,
+    log_file = log_file
+  )
+  
+  result
 }
 
 # local
@@ -1791,8 +1810,17 @@ projr_osf_create_project <- function(title,
 # pre-specified files
 .remote_file_rm <- function(type,
                             fn,
-                            remote) {
+                            remote,
+                            output_level = "std",
+                            log_file = NULL) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
+  
+  .cli_debug(
+    "Remote file remove: type={type}, removing {length(fn)} file(s)",
+    output_level = output_level,
+    log_file = log_file
+  )
+  
   switch(type,
     "local" = .remote_file_rm_local(fn = fn, remote = remote),
     "osf" = .remote_file_rm_osf(fn = fn, remote = remote),
@@ -1942,8 +1970,17 @@ projr_osf_create_project <- function(title,
 .remote_file_add <- function(type,
                              remote,
                              path_dir_local,
-                             fn) {
+                             fn,
+                             output_level = "std",
+                             log_file = NULL) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
+  
+  .cli_debug(
+    "Remote file add: type={type}, adding {length(fn)} file(s) from {path_dir_local}",
+    output_level = output_level,
+    log_file = log_file
+  )
+  
   switch(type,
     "local" = .remote_file_add_local(
       fn = fn, path_dir_local = path_dir_local, remote = remote
