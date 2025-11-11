@@ -374,6 +374,9 @@ projr_build_dev <- function(file = NULL,
   .build_pre_commit_git(
     bump_component, version_run_on_list, msg
   )
+  
+  # Output Git information for debug (after pre-build commit)
+  .build_debug_git_info(output_level, log_file)
 
 
   # hash cache and raw directories

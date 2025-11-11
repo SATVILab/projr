@@ -334,9 +334,6 @@
   }
   .ignore_auto(output_run && archive_local)
   
-  # Add Git information to debug output after ignore_auto
-  .build_debug_git_info(output_level, log_file)
-  
   invisible(TRUE)
 }
 
@@ -376,7 +373,7 @@
     )
   }
   
-  # Get modified tracked files
+  # Get modified tracked files (after pre-build commit)
   modified_files <- .git_modified_get()
   if (length(modified_files) > 0) {
     .cli_debug(
@@ -387,6 +384,22 @@
   } else {
     .cli_debug(
       "Modified tracked files: None",
+      output_level = output_level,
+      log_file = log_file
+    )
+  }
+  
+  # Get untracked files that are not ignored
+  untracked_files <- .git_untracked_not_ignored_get()
+  if (length(untracked_files) > 0) {
+    .cli_debug(
+      "Untracked files (not ignored) ({length(untracked_files)}): {paste(head(untracked_files, 10), collapse = ', ')}{if (length(untracked_files) > 10) '...' else ''}",
+      output_level = output_level,
+      log_file = log_file
+    )
+  } else {
+    .cli_debug(
+      "Untracked files (not ignored): None",
       output_level = output_level,
       log_file = log_file
     )

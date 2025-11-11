@@ -681,3 +681,51 @@
     )
   }, error = function(e) NULL)
 }
+
+#' Get untracked files that are not ignored
+#'
+#' @return Character vector of untracked file paths that are not ignored
+#' @keywords internal
+.git_untracked_not_ignored_get <- function() {
+  if (!.git_repo_check_exists()) {
+    return(character(0))
+  }
+  
+  switch(.git_system_get(),
+    "git" = .git_untracked_not_ignored_get_git(),
+    "gert" = .git_untracked_not_ignored_get_gert(),
+    character(0)
+  )
+}
+
+.git_untracked_not_ignored_get_git <- function() {
+  # Get all untracked files (not ignored by default)
+  # Using --others --exclude-standard shows untracked files not in .gitignore
+  git_output <- system2(
+    "git",
+    args = c("ls-files", "--others", "--exclude-standard"),
+    stdout = TRUE,
+    stderr = FALSE
+  )
+  
+  if (length(git_output) == 0) {
+    return(character(0))
+  }
+  
+  # Filter out empty strings
+  git_output[nzchar(git_output)]
+}
+
+.git_untracked_not_ignored_get_gert <- function() {
+  tryCatch({
+    git_tbl_status <- gert::git_status()
+    # Get files with status "new" (untracked)
+    untracked <- git_tbl_status[["file"]][git_tbl_status[["status"]] == "new"]
+    
+    if (length(untracked) == 0) {
+      return(character(0))
+    }
+    
+    untracked
+  }, error = function(e) character(0))
+}
