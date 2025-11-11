@@ -4,7 +4,12 @@
 \alias{.cli_success}
 \title{Show a success message}
 \usage{
-.cli_success(..., output_level = "std", .envir = parent.frame())
+.cli_success(
+  ...,
+  output_level = "std",
+  .envir = parent.frame(),
+  log_file = NULL
+)
 }
 \arguments{
 \item{...}{Message components passed to cli::cli_alert_success}
@@ -12,6 +17,8 @@
 \item{output_level}{Character. Current output level.}
 
 \item{.envir}{Environment for variable evaluation}
+
+\item{log_file}{Character. Path to log file (optional).}
 }
 \description{
 Show a success message

@@ -4,7 +4,7 @@
 \alias{.cli_step}
 \title{Show a step message (sub-item in a stage)}
 \usage{
-.cli_step(..., output_level = "std", .envir = parent.frame())
+.cli_step(..., output_level = "std", .envir = parent.frame(), log_file = NULL)
 }
 \arguments{
 \item{...}{Message components passed to cli::cli_li}
@@ -12,6 +12,8 @@
 \item{output_level}{Character. Current output level.}
 
 \item{.envir}{Environment for variable evaluation}
+
+\item{log_file}{Character. Path to log file (optional).}
 }
 \description{
 Show a step message (sub-item in a stage)

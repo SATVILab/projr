@@ -1,4 +1,4 @@
-.build_hooks_run <- function(stage, is_dev_build = FALSE, output_level = "std") {
+.build_hooks_run <- function(stage, is_dev_build = FALSE, output_level = "std", log_file = NULL) {
   # For dev builds, use dev.hooks and ignore build.hooks
   # For production builds, use build.hooks and ignore dev.hooks
   if (is_dev_build) {
@@ -28,15 +28,15 @@
       if (length(hooks_list) > 0) {
         for (hook_path in hooks_list) {
           if (is.character(hook_path)) {
-            .cli_debug("Running dev hook: {hook_path}", output_level = output_level)
+            .cli_debug("Running dev hook: {hook_path}", output_level = output_level, log_file = log_file)
             .hook_run(hook_path)
           }
         }
       } else {
-        .cli_debug("No dev hooks to run for stage: {stage}", output_level = output_level)
+        .cli_debug("No dev hooks to run for stage: {stage}", output_level = output_level, log_file = log_file)
       }
     } else {
-      .cli_debug("No dev.hooks configuration found", output_level = output_level)
+      .cli_debug("No dev.hooks configuration found", output_level = output_level, log_file = log_file)
     }
     return(invisible(TRUE))
   }
@@ -47,7 +47,7 @@
   if (!is.null(hooks_list) && length(hooks_list) > 0) {
     for (hook_path in hooks_list) {
       if (is.character(hook_path)) {
-        .cli_debug("Running build hook: {hook_path}", output_level = output_level)
+        .cli_debug("Running build hook: {hook_path}", output_level = output_level, log_file = log_file)
         .hook_run(hook_path)
       }
     }
@@ -59,7 +59,7 @@
   if (!.is_len_0(yml_hooks)) {
     for (x in yml_hooks) {
       if (is.list(x) && !is.null(x[["stage"]])) {
-        .build_hooks_run_title(x, stage = stage, output_level = output_level)
+        .build_hooks_run_title(x, stage = stage, output_level = output_level, log_file = log_file)
       }
     }
     return(invisible(TRUE))
@@ -69,28 +69,28 @@
   yml_script <- .yml_script_get(NULL)
   if (!.is_len_0(yml_script)) {
     for (x in yml_script) {
-      .build_hooks_run_title(x, stage = stage, output_level = output_level)
+      .build_hooks_run_title(x, stage = stage, output_level = output_level, log_file = log_file)
     }
   } else {
-    .cli_debug("No hooks to run for stage: {stage}", output_level = output_level)
+    .cli_debug("No hooks to run for stage: {stage}", output_level = output_level, log_file = log_file)
   }
   invisible(TRUE)
 }
 
-.build_post_hooks_run <- function(is_dev_build = FALSE, output_level = "std") {
-  .build_hooks_run("post", is_dev_build, output_level)
+.build_post_hooks_run <- function(is_dev_build = FALSE, output_level = "std", log_file = NULL) {
+  .build_hooks_run("post", is_dev_build, output_level, log_file)
 }
 
-.build_pre_hooks_run <- function(is_dev_build = FALSE, output_level = "std") {
-  .build_hooks_run("pre", is_dev_build, output_level)
+.build_pre_hooks_run <- function(is_dev_build = FALSE, output_level = "std", log_file = NULL) {
+  .build_hooks_run("pre", is_dev_build, output_level, log_file)
 }
 
-.build_hooks_run_title <- function(x, stage, output_level = "std") {
+.build_hooks_run_title <- function(x, stage, output_level = "std", log_file = NULL) {
   if (!.is_opt(x[["stage"]], stage)) {
     return(invisible(FALSE))
   }
   for (i in seq_along(x[["path"]])) {
-    .cli_debug("Running hook (legacy format): {x[['path']][i]}", output_level = output_level)
+    .cli_debug("Running hook (legacy format): {x[['path']][i]}", output_level = output_level, log_file = log_file)
     .hook_run(x[["path"]][i])
   }
 }
