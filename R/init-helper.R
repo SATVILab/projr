@@ -1164,3 +1164,47 @@ projr_init_renviron <- function() {
   .dep_install("cboettig/codemeta")
   .cite_codemeta_set()
 }
+
+# ============================
+# test helper functions
+# ============================
+
+# Minimal initialization for tests
+.init <- function() {
+  # Set up usethis project
+  .init_usethis_std()
+  
+  # Create initial VERSION if needed
+  if (!file.exists(.path_get("VERSION")) &&
+        !file.exists(.path_get("DESCRIPTION"))) {
+    projr_version_set("0.0.0-1")
+  }
+  
+  # Initialize directories
+  .init_dir_std(TRUE)
+  
+  # Copy _projr.yml if not exists
+  .init_yml_std(TRUE)
+  
+  invisible(TRUE)
+}
+
+# Full initialization for tests
+.init_full <- function() {
+  # Set up usethis project
+  .init_usethis_std()
+  
+  # Create initial VERSION if needed
+  if (!file.exists(.path_get("VERSION")) &&
+        !file.exists(.path_get("DESCRIPTION"))) {
+    projr_version_set("0.0.0-1")
+  }
+  
+  # Initialize directories
+  .init_dir_std(TRUE)
+  
+  # Copy _projr.yml if not exists
+  .init_yml_std(TRUE)
+  
+  invisible(TRUE)
+}

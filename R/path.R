@@ -545,10 +545,13 @@
   if (is.null(path_exc)) {
     return(fn)
   }
-  fn |>
-    c(
-      file.path(path_dir, path_exc) |> .file_filter_dir_non()
-    )
+  # Check if the excluded path exists as a non-directory file
+  exc_path <- file.path(path_dir, path_exc)
+  if (length(.file_filter_dir_non(exc_path)) > 0) {
+    # Return relative path, not absolute
+    fn <- c(fn, path_exc)
+  }
+  fn
 }
 
 .dir_move_dir <- function(path_dir = NULL,
