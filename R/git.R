@@ -557,6 +557,7 @@
   .assert_string(repo, TRUE)
   .assert_string(path)
   if (!grepl("/", repo)) {
+    .auth_check_github("cloning repository")
     repo <- paste0(gh::gh_whoami()$login, "/", repo)
   }
   if (!is.null(path) && (path == "" || .is_len_0(path))) {
