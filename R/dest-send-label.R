@@ -1005,7 +1005,7 @@
       output_level = output_level,
       log_file = log_file
     )
-    .remote_file_rm(type, fn_rm, remote_dest)
+    .remote_file_rm(type, fn_rm, remote_dest, output_level, log_file)
   }
 
   if (.is_len_pos(fn_add)) {
@@ -1014,7 +1014,7 @@
       output_level = output_level,
       log_file = log_file
     )
-    .remote_file_add(type, remote_dest, path_dir_local, fn_add)
+    .remote_file_add(type, remote_dest, path_dir_local, fn_add, output_level, log_file)
     if (type == "github") {
       # ensure that we remove the empty one
       remote_dest_empty <- remote_dest
@@ -1082,7 +1082,8 @@
     path_tmp <- tempdir()
     file.create(file.path(path_tmp, "projr-empty"))
     .remote_file_add(
-      "github", remote_dest_empty, path_tmp, "projr-empty"
+      "github", remote_dest_empty, path_tmp, "projr-empty",
+      output_level, log_file
     )
   }
 }

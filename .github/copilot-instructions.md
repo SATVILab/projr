@@ -117,6 +117,66 @@ Internal functions (starting with `.`) should NOT have `@export` tags.
   - `expect_error()` for error conditions
   - Test edge cases: empty directories, missing files, NULL values
 
+#### Testing Local Remotes Comprehensively
+
+When testing local remote functionality (see `test-local-remote-comprehensive.R`), test all combinations of YML parameters:
+
+**Structure Options**:
+- `structure = "latest"` - Overwrites files at destination
+- `structure = "archive"` - Creates versioned subdirectories (v0.0.1, v0.0.2, etc.)
+
+**Send Cue Options**:
+- `send_cue = "always"` - Always creates new remote version, even without changes
+- `send_cue = "if-change"` - Only creates new version when content changes
+- `send_cue = "never"` - Never sends to remote (NOTE: implementation may need updates)
+
+**Send Strategy Options**:
+- `send_strategy = "sync-diff"` - Syncs only changed files (adds new, removes deleted, updates modified)
+- `send_strategy = "sync-purge"` - Removes all files then uploads all local files
+- `send_strategy = "upload-all"` - Uploads all files (may overwrite)
+- `send_strategy = "upload-missing"` - Only uploads files not present on remote
+
+**Send Inspect Options**:
+- `send_inspect = "manifest"` - Uses manifest.csv to track versions (recommended)
+- `send_inspect = "file"` - Inspects actual files on remote
+- `send_inspect = "none"` - Treats remote as empty (NOTE: may have implementation issues)
+
+**Content Types**:
+Test with different content types: `raw-data`, `output`, `cache`, `docs`, `code`
+
+**Test Pattern Example**:
+```r
+test_that("local remote with archive + sync-diff + if-change", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create test content
+      .create_test_content("raw-data")
+      projr_init_git()
+      .yml_git_set_push(FALSE, TRUE, NULL)
+      .yml_dest_rm_type_all("default")
+      
+      # Add local destination with specific parameters
+      projr_yml_dest_add_local(
+        title = "test-dest",
+        content = "raw-data",
+        path = "_archive",
+        structure = "archive",
+        send_strategy = "sync-diff",
+        send_cue = "if-change",
+        send_inspect = "manifest"
+      )
+      
+      # Test builds and verify behavior
+      projr::projr_build_patch()
+      expect_true(dir.exists("_archive/raw-data/v0.0.1"))
+    }
+  )
+})
+```
+
 Example test pattern from the codebase:
 ```r
 test_that(".build_manifest_* works", {
@@ -508,6 +568,49 @@ projr_log_clear()                          # Clear all logs
 projr_log_clear(build_type = "dev")        # Clear dev logs only
 projr_log_clear(history = FALSE)           # Keep history, clear output logs
 projr_log_clear(before_date = "2025-01-01") # Clear logs before date
+```
+
+### Debug Output for Remote Operations
+
+The build system includes detailed debug logging for remote operations (local, OSF, GitHub) that can be enabled for troubleshooting:
+
+**Output Levels**:
+- `"none"` - No additional messages (default for dev builds)
+- `"std"` - Standard messaging (default for output builds)
+- `"debug"` - Verbose messaging including remote operations details
+
+**Debug Messages for Remotes**:
+When `PROJR_OUTPUT_LEVEL="debug"`, the following remote operations are logged:
+- Remote creation: Type and ID
+- File addition: Type, number of files, source path
+- File removal: Type, number of files being removed
+- File listing: Type, number of files found
+- Destination processing: Remote configuration details, upload plans, file counts
+
+**Example Debug Session**:
+```r
+# Enable debug output
+Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
+
+# Add local destination
+projr_yml_dest_add_local(
+  title = "archive",
+  content = "raw-data",
+  path = "_archive",
+  structure = "archive",
+  send_cue = "if-change",
+  send_strategy = "sync-diff",
+  send_inspect = "manifest"
+)
+
+# Build - will show detailed remote operations
+projr_build_patch()
+
+# Output will include:
+# - "Content 'raw-data': Starting processing for destination 'archive' (type: local)"
+# - "Content 'raw-data': Remote configuration - id: _archive, structure: archive, strategy: sync-diff, inspect: manifest"
+# - "Content 'raw-data': Upload plan - X file(s) to add, Y file(s) to remove, create: TRUE/FALSE, purge: TRUE/FALSE"
+# - "Remote file add: type=local, adding X file(s) from /path/to/source"
 ```
 
 ### Implementation Files
