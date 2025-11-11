@@ -26,7 +26,7 @@
   if (!file.exists(path_changelog)) {
     return(c("# CHANGELOG", ""))
   }
-  readLines(path_changelog)
+  readLines(path_changelog, warn = FALSE)
 }
 
 .changelog_get_add <- function(msg, bump_component, version_run_on_list) {

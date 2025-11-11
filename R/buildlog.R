@@ -248,7 +248,7 @@
   if (!file.exists(path_buildlog)) {
     return(c("# BUILDLOG", ""))
   }
-  readLines(path_buildlog)
+  readLines(path_buildlog, warn = FALSE)
 }
 
 .buildlog_write <- function(txt) {

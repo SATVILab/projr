@@ -31,7 +31,7 @@
   if (!file.exists(fn)) {
     return(invisible(FALSE))
   }
-  txt <- readLines(fn)
+  txt <- readLines(fn, warn = FALSE)
   if (length(txt) == 0) {
     return(invisible(FALSE))
   }
@@ -75,7 +75,7 @@
 }
 
 .build_cite_cff_update_file <- function() {
-  file_vec <- readLines(.path_get("CITATION.cff"))
+  file_vec <- readLines(.path_get("CITATION.cff"), warn = FALSE)
   file_vec <- gsub(
     "^version::\\s*\"?[^\"]*\"",
     paste0("version: ", projr_version_get()),
@@ -108,7 +108,7 @@
 }
 
 .build_cite_inst_citation_update_file <- function() {
-  file_vec <- readLines(.path_get("inst", "CITATION"))
+  file_vec <- readLines(.path_get("inst", "CITATION"), warn = FALSE)
   file_vec <- gsub(
     "^\\s*version\\s*=\\s*\"[^\"]*\"(,?)",
     paste0("version = ", projr_version_get(), "\\1"),
@@ -126,7 +126,7 @@
 }
 
 .build_cite_codemeta_update_file <- function() {
-  file_vec <- readLines(.path_get("codemeta.json"))
+  file_vec <- readLines(.path_get("codemeta.json"), warn = FALSE)
   file_vec <- gsub(
     "^\\s*\"version\"\\s*:\\s*\"[^\"]*\"(,?)",
     paste0("\"version\": \"", projr_version_get(), "\"\\1"),
@@ -156,7 +156,7 @@
 }
 
 .build_readme_rmd_render_detect_pkg_use <- function() {
-  readme_rmd <- readLines(.path_get("README.Rmd"))
+  readme_rmd <- readLines(.path_get("README.Rmd"), warn = FALSE)
   pkg_use_detected_lib <- grepl(
     paste0(
       "library\\(", projr_name_get(), "\\)|",

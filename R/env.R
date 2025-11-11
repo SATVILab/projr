@@ -97,7 +97,7 @@ projr_env_set <- function(file = NULL) {
     return(invisible(FALSE))
   }
   .env_file_activate_ind_ignore(file)
-  fn_vec_local <- readLines(path_env)
+  fn_vec_local <- readLines(path_env, warn = FALSE)
   for (i in seq_along(fn_vec_local)) {
     .env_var_set_line(fn_vec_local[[i]], unset)
   }
@@ -135,7 +135,7 @@ projr_env_set <- function(file = NULL) {
   if (!file.exists(path_required)) {
     return(invisible(FALSE))
   }
-  fn_vec_required <- readLines(path_required)
+  fn_vec_required <- readLines(path_required, warn = FALSE)
   for (i in seq_along(fn_vec_required)) {
     .build_env_var_required_check(fn_vec_required[[i]])
   }
@@ -162,7 +162,7 @@ projr_env_set <- function(file = NULL) {
     .dir_create(dirname(path_file))
     invisible(file.create(path_file))
   }
-  fn_vec <- readLines(path_file)
+  fn_vec <- readLines(path_file, warn = FALSE)
   if (env_var_nm %in% fn_vec) {
     return(invisible(FALSE))
   }
@@ -180,7 +180,7 @@ projr_env_set <- function(file = NULL) {
   if (!file.exists(.env_file_get_path_list())) {
     return(invisible(FALSE))
   }
-  fn_vec <- readLines(.env_file_get_path_list())
+  fn_vec <- readLines(.env_file_get_path_list(), warn = FALSE)
   for (i in seq_along(fn_vec)) {
     if (.is_string(fn_vec[[i]])) {
       eval(parse(text = paste0("Sys.unsetenv('", fn_vec[[i]], "')")))

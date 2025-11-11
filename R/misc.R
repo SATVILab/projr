@@ -126,7 +126,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 }
 
 .dep_read <- function(path_dep) {
-  dep_vec <- if (file.exists(path_dep)) readLines(path_dep) else character(0)
+  dep_vec <- if (file.exists(path_dep)) readLines(path_dep, warn = FALSE) else character(0)
 }
 
 .renv_lockfile_read <- function() {
@@ -221,7 +221,7 @@ with_dir <- function(new, code) {
 }
 
 .newline_append <- function(path) {
-  txt <- readLines(path)
+  txt <- readLines(path, warn = FALSE)
   if (length(txt) == 0 || !identical(txt[[length(txt)]], "")) {
     txt <- c(txt, "")
     writeLines(txt, path)
@@ -255,7 +255,7 @@ with_dir <- function(new, code) {
 
 .pkg_nm_get <- function() {
   if (file.exists(.path_get("DESCRIPTION"))) {
-    fn_desc <- readLines(.path_get("DESCRIPTION"))
+    fn_desc <- readLines(.path_get("DESCRIPTION"), warn = FALSE)
     line <- fn_desc[grepl("^Package:", fn_desc)][[1]]
     pkg_desc <- sub("^Package: ", "", line) |> trimws()
     if (pkg_desc == "{{ Package }}") {
@@ -634,7 +634,7 @@ projr_use_data <- function(...,
     "",
     "```{r, echo=FALSE, results='asis'}",
     'if (file.exists("CHANGELOG.md")) {',
-    '  cat(readLines("CHANGELOG.md"), sep = "\n")',
+    '  cat(readLines("CHANGELOG.md", warn = FALSE), sep = "\n")',
     "} else {",
     '  cat("No CHANGELOG.md found.")',
     "}",

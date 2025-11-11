@@ -154,7 +154,7 @@ projr_name_get <- function() basename(.path_get())
   if (!file.exists(.path_get("VERSION"))) {
     stop("VERSION file not found")
   }
-  version_file <- readLines("VERSION")
+  version_file <- readLines("VERSION", warn = FALSE)
   version_file <- version_file[[1]]
   version_file <- .version_v_rm(version_file)
   strsplit(version_file, split = "\\-|\\.")[[1]]

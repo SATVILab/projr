@@ -75,7 +75,7 @@
   index <- readLines(system.file(
     "project_structure", "index.Rmd",
     package = "projr"
-  ))
+  ), warn = FALSE)
   index[2] <- paste0("title: ", nm_list[["pkg"]])
   author_ind <- which(grepl("^author", index))
   # last name
