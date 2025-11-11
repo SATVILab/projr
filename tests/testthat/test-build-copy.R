@@ -29,9 +29,12 @@ test_that(".build_clear_pre and _post works", {
       path_docs <- projr_path_get_dir("docs", "b")
       path_data <- projr_path_get_dir("project", "data", "c")
       .build_clear_pre(output_run = TRUE, clear_output = "pre")
-      expect_false(dir.exists(path_safe))
+      # After clearing with clear_output="pre", both safe and unsafe output dirs should exist but be empty
+      expect_true(dir.exists(path_safe))
       expect_true(dir.exists(path_output_final))
-      expect_false(dir.exists(path_docs))
+      # Docs directory should still exist (not cleared by build_clear_pre)
+      expect_true(dir.exists(path_docs))
+      # Data directory should still exist (not an output directory)
       expect_true(dir.exists(path_data))
 
       # post
@@ -81,16 +84,16 @@ test_that(".build_copy_to_unsafe works", {
       expect_true(.build_copy_to_unsafe(output_run = TRUE))
       invisible({
         file.create(
-          .path_get("output", "a.txt", safe = TRUE)
+          projr_path_get("output", "a.txt", safe = TRUE)
         )
         file.create(
-          .path_get("output", "b.txt", safe = TRUE)
+          projr_path_get("output", "b.txt", safe = TRUE)
         )
         file.create(
-          .path_get("output", "dir_c", "c.txt", safe = TRUE)
+          projr_path_get("output", "dir_c", "c.txt", safe = TRUE)
         )
         file.create(
-          .path_get("output", "dir_d", "d.txt", safe = TRUE)
+          projr_path_get("output", "dir_d", "d.txt", safe = TRUE)
         )
       })
 
@@ -165,7 +168,8 @@ test_that("projr_build_copy_pkg works", {
       .yml_dir_set_pkg(TRUE, "output", "default")
       # ensure there is something to build the package out of
       x <- "1"
-      .use_data(x, safe = FALSE)
+      dir.create("data", showWarnings = FALSE)
+      saveRDS(x, "data/x.rds")
       dir.create("inst")
       file.create("inst/f1")
       expect_true(.build_copy_pkg(TRUE))
@@ -202,44 +206,44 @@ test_that("projr_build_copy_dir works when outputting", {
       yml_projr_init <- .yml_get_default_raw()
       invisible({
         file.create(
-          .path_get("raw-data", "a.txt", safe = TRUE)
+          projr_path_get("raw-data", "a.txt", safe = TRUE)
         )
         file.create(
-          .path_get("raw-data", "b.txt", safe = TRUE)
+          projr_path_get("raw-data", "b.txt", safe = TRUE)
         )
         file.create(
-          .path_get("raw-data", "dir_c", "c.txt", safe = TRUE)
+          projr_path_get("raw-data", "dir_c", "c.txt", safe = TRUE)
         )
         file.create(
-          .path_get("raw-data", "dir_d", "d.txt", safe = TRUE)
-        )
-      })
-      invisible({
-        file.create(
-          .path_get("cache", "a.txt", safe = TRUE)
-        )
-        file.create(
-          .path_get("cache", "b.txt", safe = TRUE)
-        )
-        file.create(
-          .path_get("cache", "dir_c", "c.txt", safe = TRUE)
-        )
-        file.create(
-          .path_get("cache", "dir_d", "d.txt", safe = TRUE)
+          projr_path_get("raw-data", "dir_d", "d.txt", safe = TRUE)
         )
       })
       invisible({
         file.create(
-          .path_get("docs", "a.txt", safe = TRUE)
+          projr_path_get("cache", "a.txt", safe = TRUE)
         )
         file.create(
-          .path_get("docs", "b.txt", safe = TRUE)
+          projr_path_get("cache", "b.txt", safe = TRUE)
         )
         file.create(
-          .path_get("docs", "dir_c", "c.txt", safe = TRUE)
+          projr_path_get("cache", "dir_c", "c.txt", safe = TRUE)
         )
         file.create(
-          .path_get("docs", "dir_d", "d.txt", safe = TRUE)
+          projr_path_get("cache", "dir_d", "d.txt", safe = TRUE)
+        )
+      })
+      invisible({
+        file.create(
+          projr_path_get("docs", "a.txt", safe = TRUE)
+        )
+        file.create(
+          projr_path_get("docs", "b.txt", safe = TRUE)
+        )
+        file.create(
+          projr_path_get("docs", "dir_c", "c.txt", safe = TRUE)
+        )
+        file.create(
+          projr_path_get("docs", "dir_d", "d.txt", safe = TRUE)
         )
         file.create(
           .path_get(
@@ -250,7 +254,7 @@ test_that("projr_build_copy_dir works when outputting", {
           )
         )
         file.create(
-          .path_get("docs", "dir_d", "d.txt", safe = TRUE)
+          projr_path_get("docs", "dir_d", "d.txt", safe = TRUE)
         )
       })
 
@@ -273,16 +277,16 @@ test_that("projr_build_copy_dir works when outputting", {
       .yml_set(yml_projr)
       expect_true(.build_copy_dir(output_run = TRUE))
       expect_false(file.exists(
-        .path_get("output", "raw-data.zip", safe = TRUE)
+        projr_path_get("output", "raw-data.zip", safe = TRUE)
       ))
       expect_false(file.exists(
-        .path_get("output", "raw-data.zip", safe = FALSE)
+        projr_path_get("output", "raw-data.zip", safe = FALSE)
       ))
       expect_false(file.exists(
-        .path_get("output", "docs.zip", safe = FALSE)
+        projr_path_get("output", "docs.zip", safe = FALSE)
       ))
       expect_false(file.exists(
-        .path_get("output", "cache.zip", safe = FALSE)
+        projr_path_get("output", "cache.zip", safe = FALSE)
       ))
       .yml_set(yml_projr_init)
 
@@ -299,7 +303,7 @@ test_that("projr_build_copy_dir works when outputting", {
       .yml_set(yml_projr)
       expect_true(.build_copy_dir(output_run = TRUE))
       expect_true(dir.exists(
-        .path_get("output", "raw-data", safe = FALSE)
+        projr_path_get("output", "raw-data", safe = FALSE)
       ))
 
       # check that they're copied across correctly when
@@ -320,16 +324,16 @@ test_that("projr_build_copy_dir works when outputting", {
       .dir_rm("_output2")
       expect_true(.build_copy_dir(output_run = TRUE))
       expect_true(dir.exists(
-        .path_get("output", "raw-data", safe = FALSE, create = FALSE)
+        projr_path_get("output", "raw-data", safe = FALSE, create = FALSE)
       ))
       expect_false(dir.exists(
-        .path_get("output", "cache", safe = FALSE, create = FALSE)
+        projr_path_get("output", "cache", safe = FALSE, create = FALSE)
       ))
       expect_true(dir.exists(
-        .path_get("output2", "raw-data", safe = FALSE, create = FALSE)
+        projr_path_get("output2", "raw-data", safe = FALSE, create = FALSE)
       ))
       expect_true(dir.exists(
-        .path_get("output2", "cache", safe = FALSE, create = FALSE)
+        projr_path_get("output2", "cache", safe = FALSE, create = FALSE)
       ))
     },
     quiet = TRUE,
