@@ -91,3 +91,68 @@ test_that(".build_manifest_* works", {
     }
   )
 })
+
+test_that("manifest tracks changes across multiple builds", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Check initial version
+      initial_version <- projr_version_get()
+      
+      # Setup: Create initial content in raw-data and output
+      .test_setup_content("raw-data", safe = FALSE)
+      .test_setup_content("output", safe = FALSE)
+      
+      # First build - with initial version
+      .build_manifest_pre(TRUE)
+      .build_manifest_post(TRUE)
+      
+      manifest_v1 <- .manifest_read_project()
+      expect_true(nrow(manifest_v1) > 0)
+      expected_v1 <- paste0("v", initial_version)
+      expect_true(all(manifest_v1$version == expected_v1))
+      n_files_v1 <- nrow(manifest_v1)
+      
+      # Bump version to 0.0.1
+      projr_version_set("0.0.1")
+      
+      # Second build - same files, new version
+      .build_manifest_pre(TRUE)
+      .build_manifest_post(TRUE)
+      
+      manifest_v2 <- .manifest_read_project()
+      # Should have entries from both versions
+      expect_true(nrow(manifest_v2) >= n_files_v1)
+      # Should have initial version and v0.0.1 entries
+      versions <- unique(manifest_v2$version)
+      expect_true(expected_v1 %in% versions)
+      expect_true("v0.0.1" %in% versions)
+      
+      # Add new file to output
+      output_dir <- projr_path_get_dir("output", safe = FALSE)
+      file.create(file.path(output_dir, "new_file.txt"))
+      
+      # Bump version to 0.0.2
+      projr_version_set("0.0.2")
+      
+      # Third build - with new file
+      .build_manifest_pre(TRUE)
+      .build_manifest_post(TRUE)
+      
+      manifest_v3 <- .manifest_read_project()
+      # Should have more files now
+      expect_true(nrow(manifest_v3) > nrow(manifest_v2))
+      # Should have all three versions
+      versions <- unique(manifest_v3$version)
+      expect_true(all(c(expected_v1, "v0.0.1", "v0.0.2") %in% versions))
+      
+      # Check that new_file.txt only appears in v0.0.2
+      new_file_entries <- manifest_v3[
+        grepl("new_file.txt", manifest_v3$fn), 
+      ]
+      expect_identical(unique(new_file_entries$version), "v0.0.2")
+    }
+  )
+})
