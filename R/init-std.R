@@ -83,6 +83,11 @@ projr_init <- function(git = TRUE,
 
   # directories
   .init_dir_std(dir)
+  
+  # R directory for package structure
+  if (!dir.exists(.path_get("R"))) {
+    dir.create(.path_get("R"))
+  }
 
   # readme
   .init_readme_std(readme, readme_rmd)
@@ -105,7 +110,8 @@ projr_init <- function(git = TRUE,
 
 .init_usethis_std <- function() {
   .dep_install_only("usethis")
-  usethis::proj_set(force = TRUE)
+  # Set project to current directory with force=TRUE
+  usethis::proj_set(.path_get(), force = TRUE)
 }
 
 #' @rdname projr_init
@@ -180,19 +186,16 @@ projr_init_github <- function(username = NULL,
 
 .init_readme_std_impl <- function(readme_rmd) {
   message("Creating README file.")
-  .dep_install_only("usethis")
-  if (readme_rmd) {
-    usethis::use_readme_rmd(open = FALSE)
-  } else {
-    usethis::use_readme_md(open = FALSE)
-  }
-  path_overwrite <- paste0(
+  # Create the README file directly instead of using usethis
+  # to avoid project validation issues
+  path_readme <- paste0(
     "README.",
     if (readme_rmd) "Rmd" else "md"
   ) |>
     .path_get()
+  
   .init_readme_std_contents(readme_rmd) |>
-    writeLines(con = path_overwrite)
+    writeLines(con = path_readme)
   .init_readme_std_impl_render()
   invisible(TRUE)
 }
@@ -396,7 +399,9 @@ projr_init_github <- function(username = NULL,
 # bookdown
 .init_engine_std_bookdown <- function() {
   .dep_install("bookdown")
-  .init_engine_bookdown_bookdown()
+  .init_engine_std_bookdown_bookdown()
+  .init_engine_std_bookdown_output()
+  .init_engine_std_bookdown_index()
 }
 
 .init_engine_std_bookdown_bookdown <- function() {
@@ -404,8 +409,12 @@ projr_init_github <- function(username = NULL,
     message("_bookdown.yml already exists, so skipping.")
     return(invisible(FALSE))
   }
-  .init_engine_bookdown_contents_bookdown() |>
-    .yml_bd_set()
+  # Read the template from inst/project_structure
+  yml_bd <- yaml::read_yaml(system.file(
+    "project_structure", "_bookdown.yml",
+    package = "projr"
+  ))
+  .yml_bd_set(yml_bd)
   message("Created _bookdown.yml.")
   invisible(TRUE)
 }
@@ -424,14 +433,14 @@ projr_init_github <- function(username = NULL,
 }
 
 .init_engine_std_bookdown_index <- function() {
-  path_index <- .path_get("_index.Rmd")
+  path_index <- .path_get("index.Rmd")
   if (file.exists(path_index)) {
-    message("_index.Rmd already exists, so skipping.")
+    message("index.Rmd already exists, so skipping.")
     return(invisible(FALSE))
   }
-  .init_engine_bookdown_contents_index() |>
+  init_engine_bookdown_contents_index() |>
     writeLines(con = path_index)
-  message("Created _index.Rmd.")
+  message("Created index.Rmd.")
   invisible(TRUE)
 }
 
