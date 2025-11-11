@@ -751,6 +751,72 @@ v1_files <- .manifest_filter_version(manifest, "0.0.1")
 .zero_tbl_get_manifest_changes()  # 0-row changes table
 ```
 
+## renv Package Management Functions
+
+The package includes several exported functions to manage renv environments and package installations from lockfiles.
+
+### Main Functions
+
+#### `projr_renv_restore(github, non_github, biocmanager_install)`
+Restores packages from the lockfile, attempting to install the exact versions specified.
+
+**Parameters**:
+- `github` (logical): Whether to restore GitHub packages. Default is `TRUE`.
+- `non_github` (logical): Whether to restore non-GitHub packages (CRAN and Bioconductor). Default is `TRUE`.
+- `biocmanager_install` (logical): If `TRUE`, Bioconductor packages are installed using `BiocManager::install()`; otherwise, uses `renv::install("bioc::<package>")`. Default is `FALSE`.
+
+**Validation**:
+- All parameters must be single logical values
+- At least one of `github` or `non_github` must be `TRUE`
+- Checks for `renv.lock` file existence
+
+#### `projr_renv_update(github, non_github, biocmanager_install)`
+Updates packages to their latest available versions, ignoring the lockfile versions.
+
+**Parameters**: Same as `projr_renv_restore()`
+
+**Validation**: Same as `projr_renv_restore()`
+
+#### `projr_renv_restore_and_update(github, non_github, biocmanager_install)`
+First restores packages from the lockfile, then updates them to the latest versions.
+
+**Parameters**: Same as `projr_renv_restore()`
+
+**Validation**: Same as `projr_renv_restore()`
+
+#### `projr_renv_test(files_to_copy, delete_lib)`
+Tests `renv::restore()` in a clean, isolated temporary environment without using the cache.
+
+**Parameters**:
+- `files_to_copy` (character vector): Paths to files to copy into the temporary directory. `renv.lock` is always copied.
+- `delete_lib` (logical): If `TRUE`, the restored library path is deleted after the test. Default is `TRUE`.
+
+**Returns**: `TRUE` if `renv::restore()` succeeds, `FALSE` otherwise.
+
+### Internal Validation Functions
+
+- `.check_renv()`: Checks if renv package is installed
+- `.check_renv_params()`: Validates all parameters for renv functions
+- `.check_renv_lockfile()`: Checks for renv.lock file existence
+
+### Error Messages
+
+The functions provide informative error messages for:
+- Invalid parameter types (non-logical values, vectors with length > 1)
+- Both package sources disabled (`github = FALSE` and `non_github = FALSE`)
+- Missing renv.lock file
+- renv package not installed
+
+### Testing
+
+Tests for renv functions are in `tests/testthat/test-renv.R`:
+- Parameter validation tests for all three main functions
+- Edge case tests (missing lockfile, invalid parameters)
+- Integration tests (restore and update workflows)
+- Tests use `.renv_rest_init()` and `.renv_test_test_lockfile_create()` helper functions
+
+**Note**: Some tests are skipped in offline mode using `skip_if_offline()`.
+
 ## Maintaining Documentation and Instructions
 
 ### Copilot Instructions

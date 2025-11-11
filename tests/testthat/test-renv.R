@@ -89,9 +89,8 @@ test_that("projr_renv_restore validates github parameter", {
   on.exit(unlink(dir_test, recursive = TRUE), add = TRUE)
   setwd(dir_test)
   
-  # Create a minimal lockfile
-  .renv_rest_init()
-  .renv_test_test_lockfile_create(file.path(dir_test, "renv.lock"), bad = FALSE)
+  # Create a minimal lockfile (just needs to exist for validation)
+  writeLines('{"R": {"Version": "4.0"}, "Packages": {}}', "renv.lock")
   
   # Test with non-logical github parameter
   expect_error(
@@ -113,8 +112,7 @@ test_that("projr_renv_restore validates non_github parameter", {
   setwd(dir_test)
   
   # Create a minimal lockfile
-  .renv_rest_init()
-  .renv_test_test_lockfile_create(file.path(dir_test, "renv.lock"), bad = FALSE)
+  writeLines('{"R": {"Version": "4.0"}, "Packages": {}}', "renv.lock")
   
   # Test with non-logical non_github parameter
   expect_error(
@@ -136,8 +134,7 @@ test_that("projr_renv_restore validates biocmanager_install parameter", {
   setwd(dir_test)
   
   # Create a minimal lockfile
-  .renv_rest_init()
-  .renv_test_test_lockfile_create(file.path(dir_test, "renv.lock"), bad = FALSE)
+  writeLines('{"R": {"Version": "4.0"}, "Packages": {}}', "renv.lock")
   
   # Test with non-logical biocmanager_install parameter
   expect_error(
@@ -159,8 +156,7 @@ test_that("projr_renv_restore requires at least one package source", {
   setwd(dir_test)
   
   # Create a minimal lockfile
-  .renv_rest_init()
-  .renv_test_test_lockfile_create(file.path(dir_test, "renv.lock"), bad = FALSE)
+  writeLines('{"R": {"Version": "4.0"}, "Packages": {}}', "renv.lock")
   
   # Test with both github and non_github set to FALSE
   expect_error(
@@ -189,8 +185,7 @@ test_that("projr_renv_update validates parameters", {
   setwd(dir_test)
   
   # Create a minimal lockfile
-  .renv_rest_init()
-  .renv_test_test_lockfile_create(file.path(dir_test, "renv.lock"), bad = FALSE)
+  writeLines('{"R": {"Version": "4.0"}, "Packages": {}}', "renv.lock")
   
   # Test with invalid parameters (same validation as restore)
   expect_error(
@@ -211,8 +206,7 @@ test_that("projr_renv_restore_and_update validates parameters", {
   setwd(dir_test)
   
   # Create a minimal lockfile
-  .renv_rest_init()
-  .renv_test_test_lockfile_create(file.path(dir_test, "renv.lock"), bad = FALSE)
+  writeLines('{"R": {"Version": "4.0"}, "Packages": {}}', "renv.lock")
   
   # Test with invalid parameters
   expect_error(
