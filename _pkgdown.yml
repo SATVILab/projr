@@ -146,6 +146,11 @@ reference:
   contents:
   - projr_cat_changelog
 
+- title: Build logging
+  desc: Functions for managing build logs
+  contents:
+  - projr_log_clear
+
 - title: Internal utilities
   desc: Internal helper functions (not exported)
   contents:
