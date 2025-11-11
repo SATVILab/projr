@@ -408,21 +408,40 @@
 # whilst removing contents from first
 .dir_move_exact <- function(path_dir_from,
                             path_dir_to,
-                            dir_exc = NULL) {
+                            dir_exc = NULL,
+                            fn_exc = NULL) {
+  # Check if there are any files to move
+  files_to_move <- .file_ls(path_dir_from) |>
+    .path_filter_spec(dir_exc) |>
+    .path_filter_spec(fn_exc) |>
+    .path_filter_spec_add_back_file(path_dir_from, dir_exc)
+  
+  dirs_to_move <- .dir_ls(path_dir_from) |>
+    .path_filter_spec(dir_exc) |>
+    .path_filter_spec_add_back_file(path_dir_from, dir_exc)
+  
+  # Only create destination if there are files or directories to move
+  if (.is_len_0(files_to_move) && .is_len_0(dirs_to_move)) {
+    return(invisible(FALSE))
+  }
+  
   .dir_clear(path_dir_to)
   .dir_create(path_dir_to)
-  .dir_move(path_dir_from, path_dir_to, dir_exc = dir_exc)
+  .dir_move(path_dir_from, path_dir_to, dir_exc = dir_exc, fn_exc = fn_exc)
 }
 
 # copy across, retaining relative paths
 .dir_copy <- function(path_dir_from,
                       path_dir_to,
-                      dir_exc = NULL) {
+                      dir_exc = NULL,
+                      fn_exc = NULL) {
   .assert_string(path_dir_from, TRUE)
   .assert_string(path_dir_to, TRUE)
   .assert_chr(dir_exc)
+  .assert_chr(fn_exc)
   .file_ls(path_dir_from) |>
     .path_filter_spec(dir_exc) |>
+    .path_filter_spec(fn_exc) |>
     .path_filter_spec_add_back_file(path_dir_from, dir_exc) |>
     .dir_copy_file(path_dir_from, path_dir_to)
   # .dir_copy_tree(
@@ -497,11 +516,13 @@
 
 .dir_move <- function(path_dir_from,
                       path_dir_to,
-                      dir_exc = NULL) {
+                      dir_exc = NULL,
+                      fn_exc = NULL) {
   .dir_move_file(
     path_dir_from = path_dir_from,
     path_dir_to = path_dir_to,
-    dir_exc = dir_exc
+    dir_exc = dir_exc,
+    fn_exc = fn_exc
   )
   .dir_move_dir(
     path_dir_from = path_dir_from,
@@ -513,11 +534,13 @@
 .dir_move_file <- function(fn = NULL,
                            path_dir_from,
                            path_dir_to,
-                           dir_exc = dir_exc) {
+                           dir_exc = NULL,
+                           fn_exc = NULL) {
   .assert_string(path_dir_from)
   if (is.null(fn)) {
     fn <- .file_ls(path_dir_from) |>
       .path_filter_spec(dir_exc) |>
+      .path_filter_spec(fn_exc) |>
       .path_filter_spec_add_back_file(path_dir_from, dir_exc)
   } else {
     .assert_chr_min(fn)
@@ -526,6 +549,7 @@
       .file_filter_dir_non() |>
       .path_force_rel(path_dir_from) |>
       .path_filter_spec(dir_exc) |>
+      .path_filter_spec(fn_exc) |>
       .path_filter_spec_add_back_file(path_dir_from, dir_exc)
   }
   if (.is_len_0(fn)) {
@@ -543,9 +567,15 @@
 }
 
 .path_filter_spec_add_back_file <- function(fn, path_dir, path_exc) {
-  # This function previously added back files that were in the exclusion list,
-  # but this conflicts with the intended usage where files like CHANGELOG.md
-  # should be excluded. Removing the add-back logic.
+  if (is.null(path_exc)) {
+    return(fn)
+  }
+  # Check if the excluded path exists as a non-directory file
+  exc_path <- file.path(path_dir, path_exc)
+  if (length(.file_filter_dir_non(exc_path)) > 0) {
+    # Return relative path, not absolute
+    fn <- c(fn, path_exc)
+  }
   fn
 }
 

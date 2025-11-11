@@ -24,17 +24,28 @@ test_that(".build_clear_pre and _post works", {
       .init_full()
       # pre
       # ------------------------
+      # Get parent directories
+      path_safe_parent <- projr_path_get_dir("output", safe = TRUE)
+      path_output_final_parent <- projr_path_get_dir("output", safe = FALSE)
+      path_docs <- projr_path_get_dir("docs")
+      path_data <- projr_path_get_dir("project", "data")
+      
+      # Create subdirectories
       path_safe <- projr_path_get_dir("output", "a", safe = TRUE)
       path_output_final <- projr_path_get_dir("output", "a", safe = FALSE)
-      path_docs <- projr_path_get_dir("docs", "b")
-      path_data <- projr_path_get_dir("project", "data", "c")
+      projr_path_get_dir("docs", "b")
+      projr_path_get_dir("project", "data", "c")
+      
       .build_clear_pre(output_run = TRUE, clear_output = "pre")
-      # After clearing with clear_output="pre", both safe and unsafe output dirs should exist but be empty
-      expect_true(dir.exists(path_safe))
-      expect_true(dir.exists(path_output_final))
-      # Docs directory should still exist (not cleared by build_clear_pre)
+      
+      # After clearing with clear_output="pre", parent output dirs should exist but subdirs are cleared
+      expect_true(dir.exists(path_safe_parent))
+      expect_true(dir.exists(path_output_final_parent))
+      # Subdirectories should be removed after clearing
+      expect_false(dir.exists(path_safe))
+      expect_false(dir.exists(path_output_final))
+      # Docs and data directories should still exist (not output directories)
       expect_true(dir.exists(path_docs))
-      # Data directory should still exist (not an output directory)
       expect_true(dir.exists(path_data))
 
       # post
@@ -151,6 +162,15 @@ test_that("projr_build_copy_pkg works", {
     path = dir_test,
     code = {
       .init()
+      
+      # Create DESCRIPTION file for projr_use_data
+      writeLines(c(
+        "Package: report",
+        "Title: Test Package",
+        "Version: 0.0.0-1",
+        "Description: Test package for building."
+      ), "DESCRIPTION")
+      
       yml_projr_init <- .yml_get_default_raw()
 
       # don't build
@@ -168,9 +188,8 @@ test_that("projr_build_copy_pkg works", {
       .yml_dir_set_pkg(TRUE, "output", "default")
       # ensure there is something to build the package out of
       x <- "1"
-      dir.create("data", showWarnings = FALSE)
-      saveRDS(x, "data/x.rds")
-      dir.create("inst")
+      projr_use_data(x, safe = FALSE)
+      dir.create("inst", showWarnings = FALSE)
       file.create("inst/f1")
       expect_true(.build_copy_pkg(TRUE))
 
@@ -926,7 +945,7 @@ test_that("CHANGELOG.md is excluded from docs copying", {
       writeLines("Other content", file.path(source_dir, "other.txt"))
       
       # Test the dir_move_exact function with CHANGELOG.md exclusion
-      .dir_move_exact(source_dir, dest_dir, dir_exc = "CHANGELOG.md")
+      .dir_move_exact(source_dir, dest_dir, fn_exc = "CHANGELOG.md")
       
       # Verify that CHANGELOG.md was excluded but other files were copied
       expect_true(file.exists(file.path(dest_dir, "test.html")))

@@ -407,7 +407,7 @@ test_that("dir_exc parameter properly excludes multiple files", {
   file.create(file.path(source_dir, "keep2.txt"))
   
   # Exclude multiple files
-  .dir_move_exact(source_dir, dest_dir, dir_exc = c("CHANGELOG.md", "README.md"))
+  .dir_move_exact(source_dir, dest_dir, fn_exc = c("CHANGELOG.md", "README.md"))
   
   # Check exclusions
   expect_true(file.exists(file.path(dest_dir, "keep1.txt")))
