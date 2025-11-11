@@ -212,7 +212,7 @@
   # make sure everything is ignored that should be ignored
   # (including docs directory)
   .cli_debug("Updating ignore files", output_level = output_level, log_file = log_file)
-  .build_ignore(output_run, archive_local)
+  .build_ignore(output_run, archive_local, output_level, log_file)
 
   # ensure that docs directory is the unsafe directory.
   # will copy docs across upon success.
@@ -325,7 +325,7 @@
 }
 
 # ignore
-.build_ignore <- function(output_run, archive_local) {
+.build_ignore <- function(output_run, archive_local, output_level = "std", log_file = NULL) {
   old_profile <- .profile_get_raw()
   Sys.unsetenv("PROJR_PROFILE")
   projr_path_get_dir("docs")
@@ -333,7 +333,66 @@
     Sys.setenv("PROJR_PROFILE" = old_profile)
   }
   .ignore_auto(output_run && archive_local)
+  
+  # Add Git information to debug output after ignore_auto
+  .build_debug_git_info(output_level, log_file)
+  
   invisible(TRUE)
+}
+
+#' Output Git information for debug
+#'
+#' @param output_level Character. Current output level
+#' @param log_file Character. Path to log file
+#'
+#' @keywords internal
+.build_debug_git_info <- function(output_level = "std", log_file = NULL) {
+  if (!.git_repo_check_exists()) {
+    .cli_debug(
+      "Git repository: Not a Git repository",
+      output_level = output_level,
+      log_file = log_file
+    )
+    return(invisible(NULL))
+  }
+  
+  # Get branch name
+  branch <- .git_branch_get()
+  if (!is.null(branch)) {
+    .cli_debug(
+      "Git branch: {branch}",
+      output_level = output_level,
+      log_file = log_file
+    )
+  }
+  
+  # Get last commit info
+  commit_info <- .git_last_commit_get()
+  if (!is.null(commit_info)) {
+    .cli_debug(
+      "Last commit: {commit_info$sha} - {commit_info$message}",
+      output_level = output_level,
+      log_file = log_file
+    )
+  }
+  
+  # Get modified tracked files
+  modified_files <- .git_modified_get()
+  if (length(modified_files) > 0) {
+    .cli_debug(
+      "Modified tracked files ({length(modified_files)}): {paste(head(modified_files, 10), collapse = ', ')}{if (length(modified_files) > 10) '...' else ''}",
+      output_level = output_level,
+      log_file = log_file
+    )
+  } else {
+    .cli_debug(
+      "Modified tracked files: None",
+      output_level = output_level,
+      log_file = log_file
+    )
+  }
+  
+  invisible(NULL)
 }
 
 .build_version_set_pre <- function(version_run_on_list) {

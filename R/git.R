@@ -588,3 +588,96 @@
   }
   do.call(gert::git_clone, args_list)
 }
+
+# Git information for debug output
+# ---------------------------------
+
+#' Get current Git branch name
+#'
+#' @return Character string with branch name, or NULL if not in a Git repo
+#' @keywords internal
+.git_branch_get <- function() {
+  if (!.git_repo_check_exists()) {
+    return(NULL)
+  }
+  
+  switch(.git_system_get(),
+    "git" = .git_branch_get_git(),
+    "gert" = .git_branch_get_gert(),
+    NULL
+  )
+}
+
+.git_branch_get_git <- function() {
+  branch <- system2(
+    "git",
+    args = c("rev-parse", "--abbrev-ref", "HEAD"),
+    stdout = TRUE,
+    stderr = FALSE
+  )
+  if (length(branch) == 0 || !nzchar(branch)) {
+    return(NULL)
+  }
+  branch
+}
+
+.git_branch_get_gert <- function() {
+  tryCatch({
+    info <- gert::git_info()
+    if (!is.null(info$shorthand)) {
+      return(info$shorthand)
+    }
+    NULL
+  }, error = function(e) NULL)
+}
+
+#' Get last commit information
+#'
+#' @return List with sha and message, or NULL if not in a Git repo
+#' @keywords internal
+.git_last_commit_get <- function() {
+  if (!.git_repo_check_exists()) {
+    return(NULL)
+  }
+  
+  switch(.git_system_get(),
+    "git" = .git_last_commit_get_git(),
+    "gert" = .git_last_commit_get_gert(),
+    NULL
+  )
+}
+
+.git_last_commit_get_git <- function() {
+  sha <- system2(
+    "git",
+    args = c("rev-parse", "--short", "HEAD"),
+    stdout = TRUE,
+    stderr = FALSE
+  )
+  
+  message <- system2(
+    "git",
+    args = c("log", "-1", "--pretty=format:%s"),
+    stdout = TRUE,
+    stderr = FALSE
+  )
+  
+  if (length(sha) == 0 || length(message) == 0) {
+    return(NULL)
+  }
+  
+  list(sha = sha, message = message)
+}
+
+.git_last_commit_get_gert <- function() {
+  tryCatch({
+    log <- gert::git_log(max = 1)
+    if (nrow(log) == 0) {
+      return(NULL)
+    }
+    list(
+      sha = substr(log$commit[1], 1, 7),
+      message = log$message[1]
+    )
+  }, error = function(e) NULL)
+}
