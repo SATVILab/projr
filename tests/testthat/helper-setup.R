@@ -281,29 +281,27 @@
                                 dir_sub_lvl = 2,
                                 dir_sub_prefix = "subdir") {
   for (x in label) {
-    # create files
-    file.create(
-      .path_get(x, "abc.txt", safe = safe)
-    )
+    # create directories and files
+    base_dir <- projr_path_get_dir(x, safe = safe, create = TRUE)
+    file.create(file.path(base_dir, "abc.txt"))
+    
     if (dir_sub_lvl > 0) {
-      file.create(
-        .path_get(
-          x, paste0(dir_sub_prefix, "1"), "def.txt",
-          safe = safe
-        )
+      subdir1 <- projr_path_get_dir(
+        x, paste0(dir_sub_prefix, "1"),
+        safe = safe, create = TRUE
       )
+      file.create(file.path(subdir1, "def.txt"))
     }
     if (dir_sub_lvl > 1) {
-      file.create(
-        .path_get(
-          x, paste0(dir_sub_prefix, "1"),
-          paste0(dir_sub_prefix, "2"), "ghi.txt",
-          safe = safe
-        )
+      subdir2 <- projr_path_get_dir(
+        x, paste0(dir_sub_prefix, "1"),
+        paste0(dir_sub_prefix, "2"),
+        safe = safe, create = TRUE
       )
+      file.create(file.path(subdir2, "ghi.txt"))
     }
   }
-  vapply(x, projr_path_get_dir, character(1), safe = safe) |> invisible()
+  vapply(label, projr_path_get_dir, character(1), safe = safe) |> invisible()
 }
 
 .test_setup_content_dir <- function(path_dir = NULL,
