@@ -570,7 +570,10 @@ projr_build_dev <- function(file = NULL,
                                   output_level = "std",
                                   log_file = NULL) {
   .cli_debug("Sending to remote destinations", output_level = output_level, log_file = log_file)
-  .dest_send(bump_component, archive_github, archive_local, always_archive)
+  .dest_send(
+    bump_component, archive_github, archive_local, always_archive,
+    output_level, log_file
+  )
   .cli_debug("Clearing old development builds", output_level = output_level, log_file = log_file)
   .build_clear_old(
     .build_get_output_run(bump_component), old_dev_remove
