@@ -59,7 +59,10 @@ projr_version_set <- function(version, only_if_exists = TRUE) {
 
 .version_check_error_free <- function(version) {
   tryCatch(
-    .version_check(version),
+    {
+      .version_check(version)
+      TRUE
+    },
     error = function(e) {
       FALSE
     }
