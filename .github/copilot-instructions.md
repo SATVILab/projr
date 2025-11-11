@@ -518,6 +518,136 @@ projr_log_clear(before_date = "2025-01-01") # Clear logs before date
 
 **Important**: When modifying build-related code, ensure log messages are properly passed through the `log_file` parameter to maintain logging functionality.
 
+## Manifest System
+
+The package includes a manifest system that tracks file hashes across different project versions. This allows users to query which files changed between versions, understand the history of their project data, and ensure reproducibility.
+
+### Manifest Structure
+
+The manifest is stored in `manifest.csv` at the project root. Each row represents a file at a specific version:
+
+| Column | Description |
+|--------|-------------|
+| `label` | Directory label (e.g., "output", "raw-data", "cache", "docs") |
+| `fn` | File path relative to directory |
+| `version` | Project version when file was hashed (e.g., "v0.0.1") |
+| `hash` | MD5 hash of file content |
+
+### How Manifests Are Built
+
+Manifests are automatically updated during builds:
+
+1. **Pre-build phase** (`.build_manifest_pre()`):
+   - Hashes files in input directories (raw-data, cache if configured)
+   - Stores hashes in a temporary manifest file in cache
+
+2. **Post-build phase** (`.build_manifest_post()`):
+   - Hashes files in output directories (output, docs)
+   - Merges with pre-build manifest
+   - Appends to previous manifest versions
+   - Writes to `manifest.csv` at project root
+
+### User-Facing Query Functions
+
+Three exported functions allow users to query the manifest (in `R/manifest-query.R`):
+
+#### `projr_manifest_changes(version_from, version_to, label)`
+Query which files changed between two versions.
+
+```r
+# Changes between v0.0.1 and v0.0.2
+projr_manifest_changes("0.0.1", "0.0.2")
+
+# Changes in output directory only
+projr_manifest_changes("0.0.1", "0.0.2", label = "output")
+```
+
+Returns a data.frame with:
+- `label`: Directory label
+- `fn`: File path
+- `change_type`: "added", "modified", or "removed"
+- `hash_from`: Hash in version_from (NA for added files)
+- `hash_to`: Hash in version_to (NA for removed files)
+
+#### `projr_manifest_range(version_start, version_end, label)`
+Query which files changed across a version range.
+
+```r
+# All changes from v0.0.1 to current
+projr_manifest_range("0.0.1")
+
+# Changes in specific range
+projr_manifest_range("0.0.1", "0.0.5")
+```
+
+Returns a data.frame with:
+- `label`: Directory label
+- `fn`: File path
+- `version_first`: First version where file appeared
+- `version_last_change`: Last version where file was modified
+- `hash`: Current file hash
+
+#### `projr_manifest_last_change(version)`
+Query when files in each directory last changed.
+
+```r
+# Last changes for current version
+projr_manifest_last_change()
+
+# Last changes as of v0.0.5
+projr_manifest_last_change("0.0.5")
+```
+
+Returns a data.frame with:
+- `label`: Directory label
+- `version_last_change`: Most recent version with changes
+- `n_files`: Number of files in directory at this version
+
+### Internal Functions
+
+- `R/manifest.R`: Core manifest operations
+  - `.manifest_hash_label()`: Hash files in a directory
+  - `.manifest_read()`: Read manifest from file
+  - `.manifest_write()`: Write manifest to file
+  - `.manifest_filter_*()`: Filter manifest by label/version
+  
+- `R/build-manifest.R`: Build-time manifest operations
+  - `.build_manifest_pre()`: Pre-build manifest creation
+  - `.build_manifest_post()`: Post-build manifest creation
+
+- `R/manifest-query.R`: User-facing query functions
+  - Helper functions for version normalization and comparison
+
+### Testing
+
+Tests for manifest functionality are in:
+- `tests/testthat/test-manifest.R`: Core manifest operations
+- `tests/testthat/test-manifest-query.R`: Query functions (34 tests)
+
+Tests verify:
+- Empty directory handling (returns 0-row tables)
+- Multi-version tracking across builds
+- File change detection (added, modified, removed)
+- Version range queries
+- Edge cases (empty manifests, same version comparisons)
+
+### Common Patterns
+
+```r
+# Read project manifest
+manifest <- .manifest_read_project()
+
+# Filter by label
+output_files <- .manifest_filter_label(manifest, "output")
+
+# Filter by version
+v1_files <- .manifest_filter_version(manifest, "0.0.1")
+
+# Get empty tables
+.zero_tbl_get_manifest()  # 0-row manifest table
+.zero_tbl_get_manifest_changes()  # 0-row changes table
+```
+
 ## Maintaining Documentation and Instructions
 
 ### Copilot Instructions
