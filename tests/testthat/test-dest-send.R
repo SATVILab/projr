@@ -312,3 +312,81 @@ test_that("projr_dest_send works - local - empty dirs", {
     }
   )
 })
+
+# --------------------------
+# debug output test
+# --------------------------
+
+test_that("dest_send debug output works correctly", {
+  # skip_if(.is_test_select())
+  dir_test <- .test_setup_project(
+    git = TRUE, github = FALSE, set_env_var = TRUE
+  )
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Setup
+      file.create(projr_path_get("raw-data", "data.csv"))
+      projr_init_git()
+      .yml_git_set_push(FALSE, TRUE, NULL)
+      
+      # Remove github remote
+      .yml_dest_rm_type_all("default")
+      
+      # Add a local destination
+      projr_yml_dest_add_local(
+        title = "latest",
+        content = "raw-data",
+        path = "_latest",
+        structure = "latest"
+      )
+      
+      # Capture output with debug level
+      old_output_level <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = NA)
+      old_log_detailed <- Sys.getenv("PROJR_LOG_DETAILED", unset = NA)
+      
+      Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
+      Sys.setenv(PROJR_LOG_DETAILED = "FALSE")
+      
+      output <- capture.output({
+        projr::projr_build_patch()
+      }, type = "message")
+      
+      # Restore env vars
+      if (is.na(old_output_level)) {
+        Sys.unsetenv("PROJR_OUTPUT_LEVEL")
+      } else {
+        Sys.setenv(PROJR_OUTPUT_LEVEL = old_output_level)
+      }
+      if (is.na(old_log_detailed)) {
+        Sys.unsetenv("PROJR_LOG_DETAILED")
+      } else {
+        Sys.setenv(PROJR_LOG_DETAILED = old_log_detailed)
+      }
+      
+      # Join output into a single string for easier searching
+      output_text <- paste(output, collapse = "\n")
+      
+      # Verify debug output contains expected messages
+      expect_true(
+        grepl("Starting destination send process", output_text, fixed = TRUE),
+        info = "Should log start of destination send"
+      )
+      expect_true(
+        grepl("remote type", output_text, ignore.case = TRUE),
+        info = "Should log remote type being processed"
+      )
+      expect_true(
+        grepl("Destination", output_text, fixed = TRUE),
+        info = "Should log destination processing"
+      )
+      expect_true(
+        grepl("Content", output_text, fixed = TRUE),
+        info = "Should log content processing"
+      )
+      
+      # Verify file was created
+      expect_true(file.exists("_latest/raw-data/data.csv"))
+    }
+  )
+})
