@@ -9,7 +9,8 @@ test_that("projr_init works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      expect_true(projr_init())
+      # Call projr_init_all with bookdown to match test expectations
+      expect_true(projr_init_all(lit_doc = "bookdown"))
       expect_true(file.exists("_bookdown.yml"))
       expect_true(file.exists("_output.yml"))
       expect_true(file.exists("_projr.yml"))

@@ -32,12 +32,14 @@ The repository uses GitHub Actions for CI/CD:
 - `R/`: R source code - all package functions (70+ files)
 - `tests/testthat/`: Unit tests using testthat 3e
   - Test files named `test-*.R` corresponding to source files
+  - Test helper files: `helper-setup.R`, `helper-github.R`, `helper-osf.R`, `helper-debug.R`
   - Manual tests in `tests/testthat/manual/`
+  - Project structure templates in `tests/testthat/project_structure/`
 - `man/`: Auto-generated documentation (DO NOT edit directly - use roxygen2)
 - `vignettes/`: Package vignettes (R Markdown format)
 - `inst/`: Package installation files
   - `inst/CITATION`: Citation information
-  - `inst/project_structure/`: Project structure templates
+  - `inst/project_structure/`: Project structure templates (used by initialization)
 - `renv/`: renv package management
 - `.github/workflows/`: GitHub Actions workflows
 
@@ -102,7 +104,13 @@ Internal functions (starting with `.`) should NOT have `@export` tags.
 - Use `test_that()` for each test case with descriptive names
 - Use `skip_if(.is_test_select())` for tests that should be skipped in certain conditions
 - Use `usethis::with_project()` for tests that need a temporary project environment
-- Test helpers available: `.test_setup_project()`, `.test_setup_content()`
+- **Test helpers** (located in `tests/testthat/helper-setup.R`):
+  - `.test_setup_project()` - Creates a complete test project with git, files, and configuration
+  - `.init()` - Minimal initialization for tests (creates directories, VERSION, _projr.yml)
+  - `.init_full()` - Full initialization for tests (same as `.init()` currently)
+  - `.test_setup_content()` - Creates test content in project directories
+  - `.test_setup_project_lit_docs()` - Sets up document engine files (quarto, rmarkdown)
+- **IMPORTANT**: Test helper functions should be added to `tests/testthat/helper-*.R` files, NOT to `R/` files
 - Common expect functions:
   - `expect_identical()` for exact matches
   - `expect_true()` / `expect_false()` for logical values
@@ -329,6 +337,32 @@ test_that("build.hooks works", {
 - Remember `dev.scripts` is exclusive (no fallback to `build.scripts`)
 - Remember `build.hooks` are ignored in dev runs; use `dev.hooks` for dev-specific hooks
 - File paths in scripts/hooks are relative to project root
+
+## Initialization Functions
+
+The package has two main initialization paths:
+
+### Production Initialization (R/init-std.R)
+- `projr_init()` - Main initialization function with granular control
+- `projr_init_all()` - Convenience wrapper that enables all features
+- `.init_*_std()` - Internal functions for each initialization step
+- Used by end users to set up new projects
+
+### Test Initialization (tests/testthat/helper-setup.R)
+- `.test_setup_project()` - Creates a complete test project (copies from `tests/testthat/project_structure/`)
+- `.init()` - Minimal initialization for tests (directories + VERSION + _projr.yml)
+- `.init_full()` - Full initialization for tests
+- `.test_setup_project_lit_docs()` - Sets up document engine files
+- **IMPORTANT**: Test helper functions belong in `tests/testthat/helper-*.R`, NOT in `R/` files
+
+### Document Engine Initialization
+Each engine type has initialization functions:
+- **Bookdown**: Creates `_bookdown.yml`, `_output.yml`, and `index.Rmd`
+- **Quarto Project**: Creates `_quarto.yml` and `index.qmd`
+- **Quarto Document**: Creates a standalone `.qmd` file
+- **RMarkdown**: Creates a standalone `.Rmd` file
+
+Templates are stored in `inst/project_structure/` for production and `tests/testthat/project_structure/` for tests.
 
 ## File Organization Patterns
 
