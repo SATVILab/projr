@@ -137,7 +137,7 @@
 
 .init_dep <- function() {
   if (file.exists(.path_get("_dependencies.R"))) {
-    dep <- readLines(.path_get("_dependencies.R"))
+    dep <- readLines(.path_get("_dependencies.R"), warn = FALSE)
   } else {
     dep <- NULL
   }
@@ -152,7 +152,7 @@
 
 .init_ignore <- function() {
   if (file.exists(.path_get(".gitignore"))) {
-    gitignore <- readLines(.path_get(".gitignore"))
+    gitignore <- readLines(.path_get(".gitignore"), warn = FALSE)
   } else {
     gitignore <- NULL
   }
@@ -166,7 +166,7 @@
   .newline_append(.path_get(".gitignore"))
 
   if (file.exists(.path_get(".Rbuildignore"))) {
-    rbuildignore <- readLines(.path_get(".Rbuildignore"))
+    rbuildignore <- readLines(.path_get(".Rbuildignore"), warn = FALSE)
   } else {
     rbuildignore <- NULL
   }
@@ -530,7 +530,7 @@
 
 .readme_read <- function() {
   .readme_get_path() |>
-    readLines()
+    readLines(warn = FALSE)
 }
 
 .readme_get_path <- function() {
@@ -707,7 +707,7 @@ projr_init_renviron <- function() {
 }
 
 .init_renviron_add <- function(path) {
-  renviron_txt <- readLines(path)
+  renviron_txt <- readLines(path, warn = FALSE)
   renviron_txt <- .init_renviron_txt_update(renviron_txt)
   writeLines(renviron_txt, path)
   .newline_append(path)
@@ -785,7 +785,7 @@ projr_init_renviron <- function() {
   answer_readme <- 2
   fn_readme <- paste0("README.", ifelse(answer_readme == 1, "Rmd", "md"))
   path_readme <- .path_get(fn_readme)
-  readme <- readLines(path_readme)
+  readme <- readLines(path_readme, warn = FALSE)
   list(readme = readme, path_readme = path_readme)
 }
 
@@ -794,12 +794,12 @@ projr_init_renviron <- function() {
   if (any(grepl("^README\\.md$", fn_vec))) {
     fn_readme <- "README.md"
     path_readme <- .path_get(fn_readme)
-    readme <- readLines(path_readme)
+    readme <- readLines(path_readme, warn = FALSE)
     return(list(readme = readme, path_readme = path_readme))
   } else if (any(grepl("^README\\.Rmd$", fn_vec))) {
     fn_readme <- "README.Rmd"
     path_readme <- .path_get(fn_readme)
-    readme <- readLines(path_readme)
+    readme <- readLines(path_readme, warn = FALSE)
     return(list(readme = readme, path_readme = path_readme))
   }
   list(readme = NULL, path_readme = NULL)
@@ -906,7 +906,7 @@ projr_init_renviron <- function() {
       return(fn_vec_root)
     }
     ignore_vec <- if (file.exists(.path_get("renv", ".gitignore"))) {
-      readLines(.path_get("renv", ".gitignore")) |> gsub("/$", "", x = _)
+      readLines(.path_get("renv", ".gitignore"), warn = FALSE) |> gsub("/$", "", x = _)
     } else {
       character(0)
     }
@@ -1116,7 +1116,7 @@ projr_init_renviron <- function() {
 .init_cite_citation_readme_add_rmd <- function() {
   .dep_add("cffr")
   path_readme <- .path_get("README.Rmd")
-  readme_vec <- readLines(path_readme)
+  readme_vec <- readLines(path_readme, warn = FALSE)
   writeLines(
     c(
       readme_vec,
@@ -1137,7 +1137,7 @@ projr_init_renviron <- function() {
 }
 
 .init_cite_citation_readme_add_file <- function(path_readme) {
-  readme_vec <- readLines(path_readme)
+  readme_vec <- readLines(path_readme, warn = FALSE)
   writeLines(
     c(readme_vec, "", "## Citation", "", .cite_bibtex_get()),
     path_readme

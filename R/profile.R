@@ -77,14 +77,15 @@ projr_profile_create_local <- function() {
 }
 
 .profile_create_local_ignore_git <- function() {
-  gitignore <- readLines(.path_get(".gitignore"))
+  gitignore <- readLines(.path_get(".gitignore"), warn = FALSE)
   if (!"_projr-local.yml" %in% gitignore) {
     projr_ignore_file_git("_projr-local.yml")
   }
 }
 .profile_create_local_ignore_rbuild <- function() {
   rbuildignore <- readLines(
-    .path_get(".Rbuildignore")
+    .path_get(".Rbuildignore"),
+    warn = FALSE
   )
   if (!"^_projr-local\\.yml$" %in% rbuildignore) {
     writeLines(

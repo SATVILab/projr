@@ -272,7 +272,7 @@ projr_init_github <- function(username = NULL,
   .init_desc_std_impl_get_contents() |>
     writeLines(con = .path_get("DESCRIPTION"))
   if (file.exists(.path_get("VERSION"))) {
-    readLines(.path_get("VERSION")) |>
+    readLines(.path_get("VERSION"), warn = FALSE) |>
       projr_version_set()
   }
   message("Created DESCRIPTION.")

@@ -69,7 +69,7 @@
   path_yml_quarto <- .path_get("_quarto.yml")
 
   # Read the YAML file into R as lines
-  yml_lines <- readLines(path_yml_quarto)
+  yml_lines <- readLines(path_yml_quarto, warn = FALSE)
 
   # Look for a line that starts with "project:"
   proj_line_ind <- grep("^project:", yml_lines)

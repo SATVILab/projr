@@ -200,7 +200,7 @@
 # ------------------
 
 .build_frontmatter_get <- function(path) {
-  txt_vec <- readLines(path)
+  txt_vec <- readLines(path, warn = FALSE)
   txt_vec <- gsub("\\s+$", "", txt_vec)
   ind_vec_frontmatter <- which(txt_vec == "---")
   # no frontmatter detected

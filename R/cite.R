@@ -25,7 +25,7 @@
     .pkg_nm_get(), # nolint: object_usage_linter.
     '` in publications use:")'
   )
-  citation_vec_init <- readLines(path_citation_inst)
+  citation_vec_init <- readLines(path_citation_inst, warn = FALSE)
   citation_vec <- c(header_txt, citation_vec_init)
   writeLines(citation_vec, path_citation_inst)
 }
