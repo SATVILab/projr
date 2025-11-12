@@ -23,7 +23,10 @@
 #' Default is `FALSE`.
 #' @seealso.init_renviron
 #' @export
-projr_init_prompt <- function(y ) {
+projr_init_prompt <- function(yml_path_from = NULL,
+                              renv_force = FALSE,
+                              renv_bioconductor = TRUE,
+                              public = FALSE) {
   # create initial _proj.yml
   .init_yml(yml_path_from) # nolint: object_usage_linter.
 
