@@ -1012,6 +1012,252 @@ v1_files <- .manifest_filter_version(manifest, "0.0.1")
 .zero_tbl_get_manifest_changes()  # 0-row changes table
 ```
 
+## Directory Functions
+
+The package includes a comprehensive directory management system that handles project directory paths with support for safe/unsafe modes, creation, and various directory labels.
+
+### Core Exported Functions
+
+#### `projr_path_get_dir(label, ..., create, relative, absolute, safe)`
+
+Returns path to a profile-specific directory. The primary function for getting directory paths.
+
+**Parameters**:
+- `label` (character): Directory label - one of "raw-data", "cache", "output", "docs", "project", "code", or "data"
+- `...`: Optional subdirectory path components (passed to `file.path`)
+- `create` (logical): If TRUE, creates the directory if it doesn't exist. Default: TRUE
+- `relative` (logical): If TRUE, returns path relative to project root. Default: FALSE
+- `absolute` (logical): If TRUE, forces absolute path. Default: FALSE
+- `safe` (logical): If TRUE, uses safe cache directory for output/docs. Default: TRUE
+
+**Examples**:
+```r
+# Get cache directory (created if doesn't exist)
+projr_path_get_dir("cache")
+
+# Get cache subdirectory
+projr_path_get_dir("cache", "figures", "plot1")
+
+# Get output directory (safe mode - in cache/projr/v0.0.0-1/output)
+projr_path_get_dir("output", safe = TRUE)
+
+# Get output directory (unsafe mode - actual _output directory)
+projr_path_get_dir("output", safe = FALSE)
+
+# Get relative path
+projr_path_get_dir("cache", relative = TRUE)
+
+# Get without creating
+projr_path_get_dir("cache", create = FALSE)
+```
+
+**Important Notes**:
+- Cannot specify both `relative = TRUE` and `absolute = TRUE` (will error)
+- The `safe` parameter affects `output`, `docs`, and `data` directories
+  - `safe = TRUE`: Returns cache build directory (e.g., `_tmp/projr/v0.0.0-1/output`)
+  - `safe = FALSE`: Returns actual directory (e.g., `_output`)
+- The `create` parameter adds directory to `.gitignore` and `.Rbuildignore` as specified in `_projr.yml`
+
+#### `projr_path_get(label, ..., create, relative, absolute, safe)`
+
+Returns path to a file (or directory). Similar to `projr_path_get_dir` but for file paths.
+
+**Difference from `projr_path_get_dir`**:
+- When `create = TRUE`, creates the **parent directory**, not the full path
+- Last argument in `...` is treated as the filename
+- If no additional arguments, behaves identically to `projr_path_get_dir`
+
+**Examples**:
+```r
+# Get path to a file in cache (creates parent directory)
+projr_path_get("cache", "data", "results.csv", create = TRUE)
+
+# Equivalent to projr_path_get_dir when no filename
+projr_path_get("cache")
+```
+
+#### `projr_path_get_cache_build_dir(..., create, profile)`
+
+Get the cache directory for `projr` builds. This is a sub-directory of the cache directory.
+
+**Parameters**:
+- `...`: Optional subdirectory path components
+- `create` (logical): If TRUE, creates directory if it doesn't exist
+- `profile` (character): Profile name. Default: NULL (uses current profile)
+
+**Usage**:
+- For development builds: This is the final directory for output and docs items
+- For production builds: This is the staging directory
+
+**Examples**:
+```r
+# Get cache build directory
+projr_path_get_cache_build_dir(profile = NULL)
+
+# Get cache build output subdirectory
+projr_path_get_cache_build_dir("output", profile = NULL)
+```
+
+#### `projr_path_get_cache_build(..., create, profile)`
+
+Similar to `projr_path_get_cache_build_dir` but for file paths.
+
+### Directory Labels
+
+Valid directory labels and their meanings:
+
+| Label | Description | Default Path |
+|-------|-------------|--------------|
+| `"raw-data"` | Raw data directory | `_raw_data` |
+| `"cache"` | Cache directory | `_tmp` |
+| `"output"` | Output directory | `_output` (unsafe) or `_tmp/projr/vX.Y.Z/output` (safe) |
+| `"docs"` | Documentation output | Depends on engine (`_book`, `_site`, or `docs`) |
+| `"project"` | Project root | `.` |
+| `"code"` | Code directory (temporary) | Random temp directory |
+| `"data"` | Data directory | `data` (unsafe) or `_tmp/projr/vX.Y.Z/data` (safe) |
+
+**Label Validation**:
+- Labels are stripped of hyphens, underscores, and case for matching
+- Example: "raw-data", "raw_data", "rawdata", and "RAW-DATA" all resolve to the same directory
+- Invalid labels will error with a helpful message
+
+### Safe vs Unsafe Modes
+
+The `safe` parameter controls where output-related directories are located:
+
+**Safe Mode (`safe = TRUE`)** - Default:
+- Used during builds to avoid overwriting production files
+- Paths go to versioned cache directory: `_tmp/projr/v0.0.0-1/<label>`
+- Applies to: `output`, `docs`, `data` directories
+
+**Unsafe Mode (`safe = FALSE`)**:
+- Points to actual production directories
+- Use when you want to work with final output locations
+- Paths go to configured directory: `_output`, `_book`, `data`, etc.
+
+### Internal Directory Functions
+
+#### Core Path Resolution Functions (R/dir-get.R)
+
+- `.dir_get(label, ..., safe)` - Get directory path for a label
+- `.dir_get_label(label, safe)` - Get label path with safe/unsafe handling
+- `.dir_get_label_safe(label)` - Get safe (cache build) path for label
+- `.dir_get_label_unsafe(label)` - Get unsafe (actual) path for label
+- `.dir_get_code()` - Get temporary code directory
+- `.dir_get_tmp_random(...)` - Get random temporary directory
+
+#### Document Engine Specific Functions
+
+- `.dir_get_docs_quarto_project()` - Get Quarto project docs directory
+- `.dir_get_docs_bookdown()` - Get Bookdown docs directory
+- `.dir_get_docs_md()` - Get Rmd/qmd docs directory
+- `.dir_set_docs_quarto_project(path)` - Set Quarto output directory in config
+- `.dir_set_docs_bookdown(path)` - Set Bookdown output directory in config
+
+#### Cache Build Directory Functions
+
+- `.dir_get_cache_auto_version(..., create, profile)` - Get versioned cache build directory
+- `.path_get_cache_auto_version(..., create, profile)` - Get versioned cache build file path
+- `.dir_get_cache_auto_path(profile)` - Get base cache path
+- `.dir_get_cache_auto_check(profile)` - Validate cache directory exists
+- `.dir_get_cache_auto_ind(profile)` - Get index of cache directory in yml
+
+#### Validation Functions (R/dir.R)
+
+- `.dir_get_check(label, dots_list, relative, absolute, safe)` - Validate parameters
+- `.dir_check_label(label, profile)` - Validate label is a string
+- `.dir_check_label_found(label, profile)` - Validate label exists in yml
+- `.dir_check_label_strip(label)` - Validate stripped label format
+- `.dir_label_strip(x)` - Strip hyphens/underscores and lowercase
+
+#### Path Transformation Functions
+
+- `.dir_get_create(path, create)` - Create directory if requested
+- `.dir_get_rel(path, relative)` - Convert to relative path if requested
+- `.dir_get_abs(path, absolute)` - Convert to absolute path if requested
+
+#### Directory Creation Functions
+
+**Note**: There are TWO different `.dir_create` functions in different files:
+
+1. **R/path.R** - `.dir_create(path_dir)`:
+   - Takes actual directory paths as input
+   - Creates directories recursively
+   - Used by most internal functions
+   - Loaded later, so this is the active version
+
+2. **R/dir.R** - `.dir_create(label, ..., safe = TRUE)`:
+   - Takes directory labels as input
+   - Calls `projr_path_get_dir` internally
+   - Intended for creating directories by label
+   - Overridden by path.R version in current codebase
+
+**Best Practice**: Use `projr_path_get_dir(label, create = TRUE)` to create directories by label.
+
+### Testing Directory Functions
+
+Comprehensive tests are in `tests/testthat/test-dir-comprehensive.R` covering:
+
+1. **Basic functionality**: All directory labels work correctly
+2. **Safe/unsafe modes**: Correct paths returned for each mode
+3. **Create parameter**: Directories created when `create = TRUE`, not created when `FALSE`
+4. **Relative/absolute paths**: Path transformation works correctly
+5. **Subdirectories**: Multiple path components handled correctly
+6. **File paths**: `projr_path_get` works for file paths
+7. **Cache build functions**: Both dir and file variants work with profile parameter
+8. **Label validation**: Invalid labels error appropriately
+9. **Edge cases**: Special labels (code, project, data) behave correctly
+10. **Path normalization**: Paths don't contain double slashes or trailing slashes
+
+Example test pattern:
+```r
+test_that("projr_path_get_dir works with safe parameter", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+      
+      # Test safe vs unsafe paths for output
+      path_safe <- projr_path_get_dir("output", safe = TRUE, create = FALSE)
+      path_unsafe <- projr_path_get_dir("output", safe = FALSE, create = FALSE)
+      
+      expect_false(identical(path_safe, path_unsafe))
+      expect_true(grepl("projr", path_safe))
+      expect_false(grepl("projr", path_unsafe))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+```
+
+### Common Patterns
+
+```r
+# Get cache directory for saving temporary files
+cache_dir <- projr_path_get_dir("cache", "temp")
+
+# Get output directory during builds (safe mode)
+output_dir <- projr_path_get_dir("output", safe = TRUE)
+
+# Get actual output directory for final deployment
+output_final <- projr_path_get_dir("output", safe = FALSE)
+
+# Get path to a specific file
+cache_file <- projr_path_get("cache", "results", "data.csv")
+
+# Check if directory exists without creating
+if (dir.exists(projr_path_get_dir("cache", create = FALSE))) {
+  # Do something
+}
+
+# Get cache build directory for current version
+build_dir <- projr_path_get_cache_build_dir(profile = NULL)
+```
+
 ## Metadata System
 
 The package includes a metadata system that collects information about the author, host system, and timestamps for use in changelogs and build tracking.
