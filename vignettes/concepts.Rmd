@@ -216,6 +216,122 @@ projr_build_major()  # major bump
 
 ---
 
+## Build clearing behavior
+
+### Overview
+
+projr manages when and how output directories are cleared during builds to ensure clean, reproducible results while preventing accidental data loss.
+
+### Clearing modes
+
+The `clear_output` parameter controls when directories are cleared:
+
+```{r eval=FALSE}
+# Clear before build (default)
+projr_build_patch(clear_output = "pre")
+
+# Clear after build
+projr_build_patch(clear_output = "post")
+
+# Never clear automatically
+projr_build_patch(clear_output = "never")
+```
+
+You can also set this globally via environment variable:
+
+```{r eval=FALSE}
+Sys.setenv(PROJR_CLEAR_OUTPUT = "post")
+projr_build_patch()  # Uses "post" mode
+```
+
+### Mode comparison
+
+| Mode | When cleared | Safe for iteration? | Use case |
+|------|--------------|---------------------|----------|
+| `"pre"` | Before build starts | ✓ Yes | Default: Clean slate, save directly to final locations |
+| `"post"` | After build completes | ✓ Yes | Conservative: Preserve outputs until after successful build |
+| `"never"` | Never | ✗ Manual control needed | Advanced: User manages all clearing |
+
+### What gets cleared?
+
+**In development builds (`projr_build_dev()`):**
+
+- Cache directories are cleared
+- Final `_output` and `docs` directories are never touched
+- Safe for rapid iteration
+
+**In final builds (`projr_build()`, etc.):**
+
+Mode `"pre"`:
+- Before build: Clears cache AND final `_output` directories
+- During build: Renders to final locations directly
+- After build: Final outputs contain only current build results
+
+Mode `"post"`:
+- Before build: Clears cache only (preserves final `_output`)
+- During build: Renders to cache
+- After build: Clears final directories, then copies from cache
+
+Mode `"never"`:
+- No automatic clearing
+- New files may mix with old files
+- Requires manual directory management
+
+### Example workflows
+
+**Workflow 1: Default (clear before)**
+
+```{r eval=FALSE}
+# Clean slate approach
+projr_build_patch(clear_output = "pre")
+
+# 1. Clears _output/ completely
+# 2. Builds analysis
+# 3. Saves outputs directly to _output/
+# 4. Archives to remotes (if configured)
+```
+
+**Workflow 2: Conservative (clear after)**
+
+```{r eval=FALSE}
+# Safety-first approach
+projr_build_patch(clear_output = "post")
+
+# 1. Keeps existing _output/ intact
+# 2. Builds to cache (_tmp/projr/v0.0.1/)
+# 3. After successful build, clears _output/
+# 4. Copies from cache to _output/
+# 5. Archives to remotes (if configured)
+```
+
+**Workflow 3: Manual control**
+
+```{r eval=FALSE}
+# Advanced: Manual clearing
+unlink("_output", recursive = TRUE)  # Clear manually
+projr_build_patch(clear_output = "never")
+
+# 1. No automatic clearing
+# 2. Builds to specified locations
+# 3. User responsible for cleanup
+```
+
+### Special: "old" directory preservation
+
+The cache clearing process preserves a special `old/` subdirectory for archival purposes:
+
+```
+_tmp/projr/v0.0.1/
+├── output/           # Cleared each build
+├── docs/             # Cleared each build
+└── old/              # Never cleared automatically
+    └── archived_results.csv
+```
+
+This allows you to manually preserve important intermediate results across builds.
+
+---
+
 ## Manifests
 
 ### What is a manifest?
