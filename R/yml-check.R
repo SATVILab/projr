@@ -17,6 +17,10 @@ projr_yml_check <- function(profile = NULL) {
   .yml_dir_check(profile)
   .yml_build_check(profile)
   .yml_dev_check(profile)
+  .yml_metadata_check(profile)
+  .yml_scripts_check(profile)
+  .yml_hooks_check_config(profile)
+  .yml_cite_check_config(profile)
   invisible(TRUE)
 }
 
@@ -144,7 +148,7 @@ projr_yml_check <- function(profile = NULL) {
     nm_vec,
     c(
       "dev-output", "script", "hooks", "scripts", "git",
-      "github", "package", "local", "osf"
+      "github", "package", "local", "osf", "cite"
     )
   )
   .assert_flag(.yml_build_get_dev_output(profile))
@@ -251,6 +255,123 @@ projr_yml_check <- function(profile = NULL) {
   }
   
   invisible(TRUE)
+}
+
+# metadata
+# ----------------------
+
+.yml_metadata_check <- function(profile) {
+  yml_metadata <- .yml_metadata_get(profile)
+  if (is.null(yml_metadata) || length(yml_metadata) == 0) {
+    return(invisible(TRUE))
+  }
+  
+  # Check version-format if present
+  if ("version-format" %in% names(yml_metadata)) {
+    .yml_version_format_set_check(yml_metadata[["version-format"]])
+  }
+  
+  invisible(TRUE)
+}
+
+# scripts
+# ----------------------
+
+.yml_scripts_check <- function(profile) {
+  # Check build.scripts structure
+  yml_scripts <- .yml_scripts_get(profile)
+  if (!is.null(yml_scripts)) {
+    # build.scripts should be a plain character vector
+    if (!is.character(yml_scripts)) {
+      stop("build.scripts must be a character vector")
+    }
+  }
+  
+  # Check dev.scripts structure
+  yml_dev_scripts <- .yml_dev_get_scripts(profile)
+  if (!is.null(yml_dev_scripts)) {
+    # dev.scripts should be a plain character vector
+    if (!is.character(yml_dev_scripts)) {
+      stop("dev.scripts must be a character vector")
+    }
+  }
+  
+  invisible(TRUE)
+}
+
+# hooks config
+# ----------------------
+
+.yml_hooks_check_config <- function(profile) {
+  # Check build.hooks structure
+  yml_hooks <- .yml_hooks_get(profile)
+  if (!is.null(yml_hooks)) {
+    # Validate that only valid stage keys exist
+    valid_stages <- c("pre", "post", "both")
+    .assert_in(names(yml_hooks), valid_stages)
+    
+    # Validate that each stage contains character vectors
+    for (stage in names(yml_hooks)) {
+      stage_hooks <- yml_hooks[[stage]]
+      if (!is.null(stage_hooks)) {
+        if (!is.character(stage_hooks)) {
+          stop(paste0("build.hooks.", stage, " must be a character vector"))
+        }
+      }
+    }
+  }
+  
+  # Check dev.hooks structure
+  yml_dev_hooks <- .yml_dev_get_hooks(profile)
+  if (!is.null(yml_dev_hooks)) {
+    # Validate that only valid stage keys exist
+    valid_stages <- c("pre", "post", "both")
+    .assert_in(names(yml_dev_hooks), valid_stages)
+    
+    # Validate that each stage contains character vectors
+    for (stage in names(yml_dev_hooks)) {
+      stage_hooks <- yml_dev_hooks[[stage]]
+      if (!is.null(stage_hooks)) {
+        if (!is.character(stage_hooks)) {
+          stop(paste0("dev.hooks.", stage, " must be a character vector"))
+        }
+      }
+    }
+  }
+  
+  invisible(TRUE)
+}
+
+# cite config
+# ----------------------
+
+.yml_cite_check_config <- function(profile) {
+  yml_cite <- .yml_cite_get(profile)
+  if (is.null(yml_cite)) {
+    return(invisible(TRUE))
+  }
+  
+  # If it's a logical, that's valid (TRUE or FALSE)
+  if (is.logical(yml_cite)) {
+    .assert_flag(yml_cite)
+    return(invisible(TRUE))
+  }
+  
+  # If it's a list, check the structure
+  if (is.list(yml_cite)) {
+    valid_keys <- c("codemeta", "cff", "inst-citation")
+    .assert_in(names(yml_cite), valid_keys)
+    
+    # Check each value is logical
+    for (key in names(yml_cite)) {
+      .assert_flag(yml_cite[[key]])
+    }
+    
+    return(invisible(TRUE))
+  }
+  
+  # If it's neither logical nor list, it's invalid
+  stop("build.cite must be either a logical value or a list with keys: codemeta, cff, inst-citation")
 }
 
 # scripts and hooks existence check

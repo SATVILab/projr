@@ -52,14 +52,12 @@ test_that("projr_yml_check works", {
     code = {
       .init()
       expect_true(projr_yml_check())
-      .yml_check()
       projr_yml_dest_add_local(
         title = "test",
         content = "raw-data",
         path = "_outputting",
         send_inspect = "file",
-        send_strategy = "upload-all",
-        send_conflict = "overwrite"
+        send_strategy = "upload-all"
       )
       expect_true(projr_yml_check())
     }

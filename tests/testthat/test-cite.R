@@ -7,50 +7,50 @@ test_that("projr_yml_cite_ functions work works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      .yml_cite_set_default()
+      projr_yml_cite_set_default()
       expect_identical(
         .yml_cite_get("default"),
         NULL
       )
       # set one to FALSE
-      .yml_cite_set(cff = FALSE)
+      projr_yml_cite_set(cff = FALSE)
       expect_identical(
         .yml_cite_get("default"),
         list(cff = FALSE)
       )
       # set two to FALSE
-      .yml_cite_set(codemeta = FALSE)
+      projr_yml_cite_set(codemeta = FALSE)
       expect_identical(
         .yml_cite_get("default"),
         list(codemeta = FALSE, cff = FALSE)
       )
       # set three to FALSE, no simplify identical
-      .yml_cite_set(inst_citation = FALSE, simplify_identical = FALSE)
+      projr_yml_cite_set(inst_citation = FALSE, simplify_identical = FALSE)
       expect_identical(
         .yml_cite_get("default"),
         list(codemeta = FALSE, cff = FALSE, `inst-citation` = FALSE)
       )
       # set three to FALSE, simplify identical
-      .yml_cite_set(inst_citation = FALSE)
+      projr_yml_cite_set(inst_citation = FALSE)
       expect_identical(
         .yml_cite_get("default"),
         FALSE
       )
       # set three to TRUE, no simplify default
-      .yml_cite_set(all = TRUE, simplify_default = FALSE)
+      projr_yml_cite_set(all = TRUE, simplify_default = FALSE)
       expect_identical(
         .yml_cite_get("default"),
         TRUE
       )
       # set three to TRUE, simplify default
-      .yml_cite_set(all = TRUE)
+      projr_yml_cite_set(all = TRUE)
       expect_identical(
         .yml_cite_get("default"),
         NULL
       )
       # use meaningful default
-      .yml_cite_set(cff = FALSE)
-      .yml_cite_set_default()
+      projr_yml_cite_set(cff = FALSE)
+      projr_yml_cite_set_default()
       expect_identical(
         .yml_cite_get("default"),
         NULL
