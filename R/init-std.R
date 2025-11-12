@@ -31,6 +31,18 @@
 #' @param lit_doc Character or \code{NULL}. Specifies the type of literate documentation to create.
 #'   Supported values are \code{"bookdown"}, \code{"project"}, \code{"quarto"}, and \code{"rmd"}.
 #'   Defaults to \code{NULL}.
+#' @param bioc Logical. If \code{TRUE}, includes Bioconductor packages in the renv setup.
+#'   Used by \code{projr_init_renv()}. Defaults to \code{TRUE}.
+#' @param commit Logical. If \code{TRUE}, makes an initial commit after Git initialization.
+#'   Used by \code{projr_init_git()}. Defaults to \code{TRUE}.
+#' @param username Character or \code{NULL}. GitHub username for repository creation.
+#'   Used by \code{projr_init_github()}. Defaults to \code{NULL}.
+#' @param public Logical. If \code{TRUE}, the GitHub repository will be public.
+#'   Used by \code{projr_init_github()}. Defaults to \code{FALSE}.
+#' @param first_name Character. First name for license file.
+#'   Used by \code{projr_init_license()}. Required parameter.
+#' @param last_name Character. Last name for license file.
+#'   Used by \code{projr_init_license()}. Required parameter.
 #'
 #' @return Invisibly returns \code{TRUE} if initialization is successful, or \code{FALSE} if
 #'   a particular step is skipped.
