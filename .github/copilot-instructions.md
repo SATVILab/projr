@@ -1078,6 +1078,147 @@ Tests for renv functions are in `tests/testthat/test-renv.R`:
 
 **Note**: Some tests are skipped in offline mode using `skip_if_offline()`.
 
+## Environment Variables
+
+The package uses several environment variables to control behavior. All environment variables are optional and have sensible defaults.
+
+### Project Configuration
+
+#### PROJR_PROFILE
+- **Purpose**: Specifies which profile-specific YAML configurations to load
+- **Format**: Comma or semicolon-separated list of profile names
+- **Default**: None (uses `_projr.yml` only)
+- **Example**: `PROJR_PROFILE="test,dev"` or `PROJR_PROFILE="test;dev"`
+- **Behavior**:
+  - Supports both comma (`,`) and semicolon (`;`) separators
+  - Whitespace around values is automatically trimmed
+  - Earlier profiles take precedence over later ones
+  - The values `"default"` and `"local"` are filtered out (handled separately)
+  - Profiles are loaded in this order:
+    1. `_environment.local` (highest precedence, git-ignored)
+    2. `_environment-<QUARTO_PROFILE>` (if set)
+    3. `_environment-<PROJR_PROFILE>` (if set)
+    4. `_environment` (lowest precedence)
+
+#### QUARTO_PROFILE
+- **Purpose**: Quarto profile that also affects environment file loading
+- **Format**: Comma-separated list of profile names
+- **Default**: None
+- **Behavior**: Takes precedence over `PROJR_PROFILE` for environment file loading
+
+### Build Control
+
+#### PROJR_OUTPUT_LEVEL
+- **Purpose**: Controls verbosity of console output during builds
+- **Values**: `"none"`, `"std"`, `"debug"`
+- **Default**: `"none"` for dev builds, `"std"` for output builds
+- **Behavior**:
+  - `"none"`: No additional console output
+  - `"std"`: Standard informational messages
+  - `"debug"`: Verbose output including debug messages
+  - Case-sensitive (must be lowercase)
+  - Can be overridden by explicit `output_level` parameter in build functions
+
+#### PROJR_LOG_DETAILED
+- **Purpose**: Controls whether detailed build logs are written to files
+- **Values**: TRUE/FALSE representations
+- **Default**: `"TRUE"`
+- **Behavior**:
+  - TRUE values: `"TRUE"`, `"true"`, `"1"`, `"YES"`, `"yes"`, `"Y"`, `"y"`
+  - FALSE values: `"FALSE"`, `"false"`, `"0"`, `"NO"`, `"no"`, `"N"`, `"n"`
+  - Case-insensitive for boolean values
+  - When `TRUE`: Creates detailed `.qmd` log files in `cache/projr/log/`
+  - When `FALSE`: Still maintains build history but skips detailed logs
+  - History tracking (`builds.md`) is always maintained regardless of this setting
+
+#### PROJR_CLEAR_OUTPUT
+- **Purpose**: Controls when to clear output directories during builds
+- **Values**: `"pre"`, `"post"`, `"never"`
+- **Default**: `"pre"`
+- **Behavior**:
+  - `"pre"`: Clear output before build starts
+  - `"post"`: Clear output after build completes
+  - `"never"`: Never automatically clear output
+  - Case-sensitive (must be lowercase)
+  - Can be overridden by explicit `clear_output` parameter in build functions
+
+### Authentication
+
+#### GITHUB_PAT
+- **Purpose**: GitHub Personal Access Token for GitHub API operations
+- **Default**: None
+- **Behavior**:
+  - Checked before `GITHUB_TOKEN`
+  - Falls back to `gitcreds` package if not set
+  - Required for creating GitHub repositories and releases
+  - Should have appropriate scopes (repo, workflow, etc.)
+
+#### GITHUB_TOKEN
+- **Purpose**: Alternative GitHub token (lower precedence than GITHUB_PAT)
+- **Default**: None
+- **Behavior**: Used only if `GITHUB_PAT` is not set
+
+#### OSF_PAT
+- **Purpose**: Open Science Framework Personal Access Token
+- **Default**: None
+- **Behavior**: Required for OSF remote destinations
+
+### Testing Control
+
+#### R_PKG_TEST_IN_PROGRESS
+- **Purpose**: Indicates tests are running
+- **Values**: `"TRUE"` or unset
+- **Usage**: Internal, set by test runner
+
+#### R_PKG_TEST_FAST
+- **Purpose**: Skip slow tests
+- **Values**: `"TRUE"` or unset
+- **Usage**: Set to skip integration and slow tests
+
+#### R_PKG_TEST_SELECT
+- **Purpose**: Skip most tests (for targeted testing)
+- **Values**: `"TRUE"` or unset
+- **Usage**: Set to run only specific tests
+
+### Environment Variable Files
+
+The package supports loading environment variables from files:
+
+1. **`_environment.local`**: Machine-specific overrides (git-ignored, highest precedence)
+2. **`_environment-<profile>`**: Profile-specific variables
+3. **`_environment`**: Global defaults (lowest precedence)
+
+**Behavior**:
+- Variables are only set if not already defined (existing values are preserved)
+- Comments are supported (lines starting with `#` or inline after `#`)
+- Format: `VARIABLE_NAME=value` (one per line)
+- Empty values and invalid formats are silently ignored
+- Special characters in values are preserved (spaces, URLs, paths)
+- The `_environment.local` file is automatically added to `.gitignore`
+
+**Example `_environment` file**:
+```bash
+# Project configuration
+PROJR_OUTPUT_LEVEL=debug
+PROJR_LOG_DETAILED=TRUE
+
+# Authentication (use _environment.local for actual tokens)
+# GITHUB_PAT=your_token_here
+
+# URLs and paths work too
+API_URL=https://api.example.com?param=value
+DATA_PATH=/path/to/data
+```
+
+### Testing Environment Variables
+
+Comprehensive tests for environment variables are in:
+- `tests/testthat/test-env.R`: Environment file loading and profile handling
+- `tests/testthat/test-cli-output.R`: PROJR_OUTPUT_LEVEL behavior
+- `tests/testthat/test-log.R`: PROJR_LOG_DETAILED behavior
+- `tests/testthat/test-build.R`: PROJR_CLEAR_OUTPUT behavior
+- `tests/testthat/test-auth.R`: Authentication token handling
+
 ## Maintaining Documentation and Instructions
 
 ### Copilot Instructions
