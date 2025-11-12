@@ -1,5 +1,22 @@
 # Comprehensive tests for GitHub release remote functionality
 # Tests all combinations of YML parameters and content types similar to local tests
+#
+# This file tests GitHub releases as both destinations and sources for restore operations.
+# All tests are designed to skip when:
+#   - Offline (no network connection)
+#   - On CRAN
+#   - In fast test mode
+#   - In test select mode
+#   - No GitHub PAT is available
+#
+# Test coverage includes:
+#   - Structure options (latest vs archive)
+#   - Send_cue options (always, if-change, never)
+#   - Send_strategy options (sync-diff, sync-purge)
+#   - Send_inspect options (manifest, file, none)
+#   - Different content types (raw-data, cache, output, code)
+#   - Restore operations from GitHub releases
+#   - Special features (@version tag, code content type)
 
 # Test helper to create sample content in a directory
 .create_test_content_github <- function(label, n_files = 3) {
