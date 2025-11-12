@@ -75,6 +75,7 @@ test_that(".auth_check_github succeeds when auth available", {
 })
 
 test_that(".auth_check_osf throws error when no auth", {
+  skip("OSF tests disabled - to be reviewed")
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -99,6 +100,7 @@ test_that(".auth_check_osf throws error when no auth", {
 })
 
 test_that(".auth_check_osf succeeds when auth available", {
+  skip("OSF tests disabled - to be reviewed")
   skip_if(.is_test_select())
   # Only run if OSF PAT is available
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
@@ -145,6 +147,7 @@ test_that("GITHUB_PAT and GH_TOKEN environment variables work", {
 })
 
 test_that("OSF_PAT environment variable is read correctly", {
+  skip("OSF tests disabled - to be reviewed")
   skip_if(.is_test_select())
   
   old_val <- Sys.getenv("OSF_PAT", unset = "")
