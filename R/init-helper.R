@@ -485,16 +485,14 @@
 
 .init_prompt_readme_create <- function() {
   if (.is_test()) {
-    return(list("answer_readme" = 2))
+    return(2)
   }
   if (.init_prompt_readme_check_exists()) {
-    return(list("answer_readme" = 3))
+    return(3)
   }
-  list(
-    "answer_readme" = utils::menu(
-      c("Yes (can run R code)", "No (cannot run R code)"),
-      title = "Do you want use RMarkdown to create the README?"
-    )
+  utils::menu(
+    c("Yes (can run R code)", "No (cannot run R code)"),
+    title = "Do you want use RMarkdown to create the README?"
   )
 }
 
@@ -541,6 +539,9 @@
 }
 
 .readme_add_description <- function(readme, answer_readme, pkg) {
+  # Replace {{ Package }} placeholders with actual package name
+  readme <- gsub("\\{\\{ Package \\}\\}", pkg, readme)
+  
   readme_rep <- .init_prompt_readme_description_get(pkg, answer_readme)
   answer_readme_correct <-
     .init_prompt_readme_description_check(readme_rep)
@@ -578,7 +579,7 @@
     paste0("The purpose of ", pkg, " is to...")
   )
   if (.is_test()) {
-    return("The purpose of projr is to facilitate reproducible and archived projects") # nolint
+    return(paste0("The purpose of ", pkg, " is to facilitate reproducible and archived projects")) # nolint
   }
   readme_add <- readline(prompt = ">> ")
   paste0("The purpose of ", pkg, " is to ", readme_add)

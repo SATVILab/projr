@@ -4,7 +4,12 @@
 \alias{projr_init_prompt}
 \title{Initialise project}
 \usage{
-projr_init_prompt(y)
+projr_init_prompt(
+  yml_path_from = NULL,
+  renv_force = FALSE,
+  renv_bioconductor = TRUE,
+  public = FALSE
+)
 }
 \arguments{
 \item{yml_path_from}{character.
