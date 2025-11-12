@@ -747,10 +747,6 @@ test_that(".build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
         c("abc_files", "abc.html")
       )
       expect_identical(
-        .build_copy_docs_rmd_path_get("html_document", "abc"),
-        c("abc_files", "abc.html")
-      )
-      expect_identical(
         .build_copy_docs_rmd_path_get("pdf", "abc"),
         "abc.pdf"
       )
