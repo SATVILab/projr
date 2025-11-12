@@ -68,7 +68,7 @@ projr_yml_hooks_add <- function(path,
                               profile) {
   .assert_chr(path, TRUE)
   .assert_in_single(stage, c("pre", "post", "both"), TRUE)
-  .assert_lgl_single(overwrite, TRUE)
+  .assert_flag(overwrite, TRUE)
   if (.is_given_mid(profile)) {
     .assert_string(profile)
   }

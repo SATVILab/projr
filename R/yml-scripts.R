@@ -13,7 +13,7 @@
 #' Get list of scripts to build for production builds
 #' 
 #' Scripts go directly under build.scripts (no sub-keys allowed)
-#' Format: scripts: [file1.qmd, file2.qmd]
+#' Format: scripts: c("file1.qmd", "file2.qmd")
 #' 
 #' @param profile Profile name
 #' @return Vector of script paths to build or NULL

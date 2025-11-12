@@ -195,8 +195,8 @@
 }
 
 .git_changed_filter_gert <- function(path) {
-  path_known <- path_rel[path_rel %in% git_ls()[["path"]]]
-  git_status_tbl <- git_status(pathspec = path_known)
+  path_known <- path_rel[path_rel %in% gert::git_ls()[["path"]]]
+  git_status_tbl <- gert::git_status(pathspec = path_known)
   # check if known files have been modified
   path_known_changed <- path_known[
     path_known %in% git_status_tbl[["file"]] &

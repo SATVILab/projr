@@ -14,6 +14,6 @@ Vector of script paths to build or NULL
 }
 \description{
 Scripts go directly under build.scripts (no sub-keys allowed)
-Format: scripts: \link{file1.qmd, file2.qmd}
+Format: scripts: c("file1.qmd", "file2.qmd")
 }
 \keyword{internal}

@@ -223,7 +223,7 @@
 .version_file_check_update_label <- function(fn, # nolint: object_length_linter, line_length_linter.
                                              version_file,
                                              label) {
-  is_change <- .is_change(fn) # nolint
+  is_change <- .is_len_pos(fn) # nolint
   is_label_present <- .version_file_check_update_label_present(
     version_file, label
   )

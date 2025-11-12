@@ -10,12 +10,12 @@
 #'
 #' The options are:
 #' \itemize{
-#' \item{commit: }{whether to commit changes automatically upon
-#' project builds.}
-#' \item{add_untracked: }{whether to add untracked files automatically upon
-#' project builds.}
-#' \item{push: }{whether to push changes automatically upon
-#' project builds.}
+#' \item commit: whether to commit changes automatically upon
+#' project builds.
+#' \item add_untracked: whether to add untracked files automatically upon
+#' project builds.
+#' \item push: whether to push changes automatically upon
+#' project builds.
 #' }
 #' The default is to leave all the settings unchanged.
 #'

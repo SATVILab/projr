@@ -78,6 +78,15 @@ Defaults to \code{NULL}.}
 \item{bioc}{Logical. If \code{TRUE}, includes Bioconductor packages in the renv setup.
 Defaults to \code{TRUE}.}
 
+\item{commit}{Logical (for \code{projr_init_git}). If \code{TRUE}, commits the initial changes
+to the Git repository. Defaults to \code{TRUE}.}
+
+\item{username}{Character or \code{NULL} (for \code{projr_init_github}). The GitHub username or
+organization under which to create the repository. Defaults to \code{NULL}.}
+
+\item{public}{Logical (for \code{projr_init_github}). If \code{TRUE}, the GitHub repository will
+be public. Defaults to \code{FALSE}.}
+
 \item{renv}{Logical. If \code{TRUE}, initializes a renv environment for dependency management.
 Defaults to \code{FALSE}.}
 }

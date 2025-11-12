@@ -43,6 +43,14 @@
 #' Ignored if there is a release named `archive`
 #' already specified as a destination in
 #' the `projr` configuration file.
+#' @param archive_local `TRUE`, `FALSE` or character vector of
+#' directory labels.
+#' If `TRUE`, then all directories (`raw-data`, `output`, etc)
+#' are archived to a local directory.
+#' If `FALSE`, then no directories are archived locally.
+#' If a character vector, then only the directories
+#' specified are archived.
+#' Default is `FALSE`.
 #' @param always_archive logical.
 #' If `TRUE`, then the directories are uploaded
 #' regardless of whether the directory to be uploaded
@@ -56,6 +64,10 @@
 #' Arguments passed to the
 #' rendering engine
 #' (`rmarkdown::render`, `quarto::render` or `bookdown::render_book`).
+#' @param clear_output character.
+#' When to clear output directories: "pre" (before build, default),
+#' "post" (after build), or "never".
+#' Can also be set via PROJR_CLEAR_OUTPUT environment variable.
 #' @param output_level character.
 #' Level of CLI output: "none" (no additional messages),
 #' "std" (standard messages, default for output builds), or
@@ -184,6 +196,10 @@ projr_build_patch <- function(msg = NULL,
 #' `projr` profile to use. Will set the environment variable
 #' .PROFILE` to this value at the start of the build,
 #  and set it to what it was before at the end of the build.
+#' @param clear_output character.
+#' When to clear output directories: "pre" (before build),
+#' "post" (after build), or "never" (default for dev builds).
+#' Can also be set via PROJR_CLEAR_OUTPUT environment variable.
 #' @param output_level character.
 #' Level of CLI output: "none" (no additional messages, default for dev builds),
 #' "std" (standard messages), or "debug" (verbose messages for debugging).
