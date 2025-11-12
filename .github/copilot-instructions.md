@@ -1012,6 +1012,98 @@ v1_files <- .manifest_filter_version(manifest, "0.0.1")
 .zero_tbl_get_manifest_changes()  # 0-row changes table
 ```
 
+## Metadata System
+
+The package includes a metadata system that collects information about the author, host system, and timestamps for use in changelogs and build tracking.
+
+### Metadata Functions
+
+Core metadata functions are in `R/metadata.R`:
+
+- `.metadata_get_author_host()` - Get author/username (primary function)
+- `.metadata_get_host()` - Get hostname/machine name
+- `.metadata_get_date()` - Get current date in UTC (YYYY-MM-DD format)
+- `.metadata_get_time()` - Get current time in UTC (HH:MM:SS format)
+- `.metadata_get_os()` - Get operating system name
+
+### Author Detection Hierarchy
+
+The `.metadata_get_author_host()` function uses a sophisticated fallback mechanism to detect the author:
+
+1. **Git config** (if git repo exists): Check git user.name from config
+2. **Environment variable**: Check `USERNAME` (Windows) or `USER` (Linux/Darwin)
+3. **System info**: Check `Sys.info()[["user"]]`
+4. **System login**: Check `Sys.info()[["login"]]` (excluding "unknown")
+5. **Hostname fallback**: Use `HOSTNAME` environment variable or "anonymous-user"
+
+**Implementation detail**: The `.metadata_get_author_sys_info()` function checks both `Sys.info()[["user"]]` and `Sys.info()[["login"]]` as separate fallback steps. This is intentional - the first returns early if valid, the second has additional validation (excludes "unknown").
+
+### Metadata Configuration (YAML)
+
+Metadata can be stored in `_projr.yml` under the `metadata` key. Functions in `R/yml-metadata.R` handle reading/writing:
+
+- `.yml_metadata_get(profile)` - Get entire metadata section
+- `.yml_metadata_set(yml_metadata, profile)` - Set entire metadata section
+- `.yml_metadata_get_nm(nm, profile)` - Get specific metadata field by name
+- `.yml_metadata_set_nm(yml, nm, profile)` - Set specific metadata field
+
+Common metadata fields:
+- `version-format` - Version string format (e.g., "major.minor.patch-dev")
+
+### Testing Metadata Functions
+
+Test pattern for metadata functions (see `tests/testthat/test-metadata.R`):
+
+```r
+test_that(".metadata_get_author_host works without git", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(
+    git = FALSE, github = FALSE, set_env_var = FALSE
+  )
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Should fall back to non-git method
+      author <- .metadata_get_author_host()
+      expect_true(.is_chr(author))
+      expect_true(length(author) == 1)
+    }
+  )
+})
+
+test_that(".metadata_get_date works", {
+  skip_if(.is_test_select())
+
+  date_str <- .metadata_get_date()
+  expect_true(.is_chr(date_str))
+  
+  # Verify YYYY-MM-DD format
+  expect_true(grepl("^\\d{4}-\\d{2}-\\d{2}$", date_str))
+})
+```
+
+Key testing considerations:
+- Test both git and non-git scenarios for author detection
+- Verify format patterns for date/time strings (regex matching)
+- Test fallback logic thoroughly
+- Don't assume specific values - check types and formats instead
+
+### Common Usage
+
+Metadata functions are primarily used in:
+- **Changelog generation** (`R/changelog.R`): Author, date, and time stamping
+- **Build process** (`R/build-pre.R`): Tracking who initiated builds
+- **Version management** (`R/version.R`): Version format configuration
+
+Example from changelog:
+```r
+author <- .metadata_get_author_host()
+date <- .metadata_get_date()
+time <- .metadata_get_time()
+```
+
 ## renv Package Management Functions
 
 The package includes several exported functions to manage renv environments and package installations from lockfiles.
