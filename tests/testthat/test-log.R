@@ -395,7 +395,7 @@ test_that(".log_history_add creates history file", {
       expect_true(any(grepl("Test build", content)))
       expect_true(any(grepl("output", content)))
       expect_true(any(grepl("patch", content)))
-      expect_true(any(grepl("✓", content)))
+      expect_true(any(grepl("\\[OK\\]", content)))
     }
   )
 })
@@ -432,8 +432,8 @@ test_that(".log_history_add handles multiple entries", {
       expect_true(any(grepl("Second build", content)))
       
       # Should have success and failure markers
-      expect_true(any(grepl("✓", content)))
-      expect_true(any(grepl("✗", content)))
+      expect_true(any(grepl("\\[OK\\]", content)))
+      expect_true(any(grepl("\\[FAIL\\]", content)))
       
       # Second entry should come before first (newest first)
       first_pos <- which(grepl("First build", content))[1]
@@ -629,7 +629,7 @@ test_that("log system integrates with build process", {
       history_file <- .log_file_get_history("output")
       history_content <- readLines(history_file, warn = FALSE)
       expect_true(any(grepl("Integration test build", history_content)))
-      expect_true(any(grepl("✓", history_content)))
+      expect_true(any(grepl("\\[OK\\]", history_content)))
     }
   )
 })

@@ -78,6 +78,6 @@
     tag
   )
   tag <- gsub("^ +", "", tag)
-  tag < gsub(" +$", "", tag)
+  tag <- gsub(" +$", "", tag)
   gsub(" ", "-", tag)
 }
