@@ -75,23 +75,23 @@ Defaults to \code{FALSE}.}
 Supported values are \code{"bookdown"}, \code{"project"}, \code{"quarto"}, and \code{"rmd"}.
 Defaults to \code{NULL}.}
 
-\item{bioc}{Logical. If \code{TRUE}, includes Bioconductor packages in the renv setup.
-Used by \code{projr_init_renv()}. Defaults to \code{TRUE}.}
+\item{bioc}{Logical (for \code{projr_init_renv}). If \code{TRUE}, includes Bioconductor packages
+in the renv setup. Defaults to \code{TRUE}.}
 
-\item{commit}{Logical. If \code{TRUE}, makes an initial commit after Git initialization.
-Used by \code{projr_init_git()}. Defaults to \code{TRUE}.}
+\item{commit}{Logical (for \code{projr_init_git}). If \code{TRUE}, commits the initial changes
+to the Git repository. Defaults to \code{TRUE}.}
 
-\item{username}{Character or \code{NULL}. GitHub username for repository creation.
-Used by \code{projr_init_github()}. Defaults to \code{NULL}.}
+\item{username}{Character or \code{NULL} (for \code{projr_init_github}). The GitHub username or
+organization under which to create the repository. Defaults to \code{NULL}.}
 
-\item{public}{Logical. If \code{TRUE}, the GitHub repository will be public.
-Used by \code{projr_init_github()}. Defaults to \code{FALSE}.}
+\item{public}{Logical (for \code{projr_init_github}). If \code{TRUE}, the GitHub repository will
+be public. Defaults to \code{FALSE}.}
 
-\item{first_name}{Character. First name for license file.
-Used by \code{projr_init_license()}. Required parameter.}
+\item{first_name}{Character (for \code{projr_init_license}). First name for proprietary license.
+Required when \code{license = "proprietary"}.}
 
-\item{last_name}{Character. Last name for license file.
-Used by \code{projr_init_license()}. Required parameter.}
+\item{last_name}{Character (for \code{projr_init_license}). Last name for proprietary license.
+Required when \code{license = "proprietary"}.}
 }
 \value{
 Invisibly returns \code{TRUE} if initialization is successful, or \code{FALSE} if
@@ -100,7 +100,7 @@ a particular step is skipped.
 \description{
 This function performs a full initialization of a projr project. It sets up the project
 structure by creating directories, generating a README (in Markdown or R Markdown format),
-writing a DESCRIPTION file, applying a license (if provided),
+configuring a renv environment, writing a DESCRIPTION file, applying a license (if provided),
 setting up citation files, creating a projr configuration YAML file, establishing literate documentation,
 and configuring both Git and GitHub repositories.
 }
@@ -111,6 +111,7 @@ perform the following tasks:
 \item Prevent working directory errors by ensuring the \pkg{usethis} project is set.
 \item Create project directories.
 \item Generate a README file (in Markdown or R Markdown format).
+\item Initialize a renv environment, optionally with Bioconductor support.
 \item Write a DESCRIPTION file for project metadata.
 \item Apply a specified license.
 \item Configure citation files (if a DESCRIPTION file exists).

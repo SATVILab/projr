@@ -95,7 +95,11 @@ the \code{projr} configuration file.}
 
 \item{archive_local}{\code{TRUE}, \code{FALSE} or character vector of
 directory labels.
-Similar to \code{archive_github} but for local archiving.
+If \code{TRUE}, then all directories (\code{raw-data}, \code{output}, etc)
+are archived to a local directory.
+If \code{FALSE}, then no directories are archived locally.
+If a character vector, then only the directories
+specified are archived.
 Default is \code{FALSE}.}
 
 \item{always_archive}{logical.

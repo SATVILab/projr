@@ -128,7 +128,7 @@
     "**Session info**",
     "",
     "```",
-    utils::capture.output(sessionInfo()),
+    utils::capture.output(utils::sessionInfo()),
     "```",
     ""
   )
@@ -203,7 +203,7 @@
   } else if (sys_info[["sysname"]] == "Windows") {
     # Windows: memory.limit() returns memory in MB
     mem_mb <- tryCatch(
-      suppressWarnings(memory.limit()),
+      suppressWarnings(utils::memory.limit()),
       error = function(e) NULL
     )
     if (!is.null(mem_mb) && is.finite(mem_mb)) {
