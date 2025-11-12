@@ -216,3 +216,33 @@ test_that("Empty authentication tokens are handled correctly", {
   token <- .auth_get_github_pat_find()
   expect_identical(token, "")
 })
+
+test_that(".auth_token_normalize handles various inputs correctly", {
+  skip_if(.is_test_select())
+  
+  # Test with NULL
+  result <- .auth_token_normalize(NULL)
+  expect_identical(result, "")
+  
+  # Test with character() (zero-length vector)
+  result <- .auth_token_normalize(character())
+  expect_identical(result, "")
+  
+  # Test with empty string
+  result <- .auth_token_normalize("")
+  expect_identical(result, "")
+  
+  # Test with NA
+  result <- .auth_token_normalize(NA_character_)
+  expect_identical(result, "")
+  
+  # Test with valid token
+  result <- .auth_token_normalize("valid_token_123")
+  expect_identical(result, "valid_token_123")
+  
+  # Test that result is always length 1
+  expect_identical(length(.auth_token_normalize(NULL)), 1L)
+  expect_identical(length(.auth_token_normalize(character())), 1L)
+  expect_identical(length(.auth_token_normalize("")), 1L)
+  expect_identical(length(.auth_token_normalize("token")), 1L)
+})

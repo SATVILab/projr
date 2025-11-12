@@ -1,3 +1,18 @@
+# Helper function to normalize authentication tokens
+# Ensures consistent representation of empty/missing tokens as ""
+.auth_token_normalize <- function(token) {
+  # If token is NULL, NA, or zero-length vector, return ""
+  if (is.null(token) || length(token) == 0 || is.na(token)) {
+    return("")
+  }
+  # If token is a character string, return as-is
+  if (is.character(token) && length(token) == 1) {
+    return(token)
+  }
+  # Fallback to empty string for any other case
+  return("")
+}
+
 # github
 # works - 2025 02 12
 .auth_get_github_pat <- function(init = FALSE) {
@@ -25,14 +40,16 @@
     .dep_add("gitcreds")
   }
   # taken from rstudio/renv and modified
-  tryCatch(
-    invisible(gitcreds::gitcreds_get()$password),
+  pat <- tryCatch(
+    gitcreds::gitcreds_get()$password,
     error = function(e) {
       # remove as a forced dependency if this didn't work
       .dep_rm("gitcreds")
-      invisible(character())
+      character()
     }
   )
+  # Normalize the result to ensure consistent "" for missing/empty tokens
+  invisible(.auth_token_normalize(pat))
 }
 
 .auth_get_github_pat_warn <- function(init = FALSE) {
@@ -84,11 +101,13 @@
     .auth_get_osf_pat_instr(),
     call. = FALSE
   )
-  invisible(character())
+  invisible("")
 }
 
 .auth_get_osf_pat_find <- function() {
-  Sys.getenv("OSF_PAT")
+  pat <- Sys.getenv("OSF_PAT")
+  # Normalize the result to ensure consistent "" for missing/empty tokens
+  .auth_token_normalize(pat)
 }
 
 .auth_get_osf_pat_warn <- function() {
