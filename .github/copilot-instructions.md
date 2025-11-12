@@ -864,7 +864,179 @@ v1_files <- .manifest_filter_version(manifest, "0.0.1")
 .zero_tbl_get_manifest_changes()  # 0-row changes table
 ```
 
+## Restore Functions
+
+The package includes functions to restore project artefact directories from remote sources. These functions allow users to download and restore data that was previously sent to remote destinations.
+
+### Exported Functions
+
+#### `projr_restore(label, pos, type, title)`
+Restores artefacts in an existing local project from configured remote sources.
+
+**Parameters:**
+- `label`: NULL or character vector of directory labels to restore (default: all "raw" directories)
+- `pos`: NULL or character vector specifying source preference ("source" or "dest", default: both)
+- `type`: NULL or single character specifying remote type ("local", "osf", "github")
+- `title`: NULL or single character specifying remote title from `_projr.yml`
+
+**Returns:** Invisibly returns `TRUE` if all restorations succeed, `FALSE` otherwise
+
+**Requirements:**
+- Must have a `manifest.csv` file in the project root
+- Configured remote sources in `_projr.yml`
+
+#### `projr_restore_repo(repo, path, label, pos, type, title)`
+Clones a GitHub repository and restores its artefacts from remote sources.
+
+**Parameters:**
+- `repo`: Single character string for GitHub repository ("owner/repo")
+- `path`: NULL or single character for clone destination (default: subdirectory named after repo)
+- `label`, `pos`, `type`, `title`: Same as `projr_restore()`
+
+**Returns:** Invisibly returns `TRUE` if clone and restoration succeed, `FALSE` otherwise
+
+#### `projr_restore_repo_wd(repo, label, pos, type, title)`
+Convenience wrapper that clones repository into current working directory and restores artefacts.
+
+**Parameters:**
+- `repo`: Single character string for GitHub repository
+- `label`, `pos`, `type`, `title`: Same as `projr_restore()`
+
+**Returns:** Same as `projr_restore_repo()`
+
+### Input Validation
+
+All restore functions perform comprehensive input validation:
+
+**Parameter Type Checks:**
+- All parameters must be either NULL or the expected type (character)
+- No numeric, logical, or list types accepted (except where specified)
+
+**Parameter Length Checks:**
+- `label`: Can be vector with multiple values or NULL
+- `pos`: Can be vector with multiple values ("source" and/or "dest") or NULL
+- `type`: Must be single value or NULL
+- `title`: Must be single value or NULL
+- `repo`: Must be single value (cannot be NULL)
+- `path`: Must be single value or NULL
+
+**Parameter Value Checks:**
+- `pos`: Must only contain "source" and/or "dest"
+- `type`: Must be one of "local", "osf", or "github"
+- `label`: Must be valid directory labels defined in `_projr.yml`
+- `repo`, `path`, `title`: Cannot be empty strings
+
+**Example validation errors:**
+```r
+# Invalid type
+projr_restore(label = 123)  # Error: 'label' must be NULL or a character vector
+
+# Invalid pos value
+projr_restore(pos = "invalid")  # Error: 'pos' must be 'source' or 'dest'
+
+# Invalid type value
+projr_restore(type = "invalid")  # Error: 'type' must be one of: local, osf, github
+
+# Multiple values where single expected
+projr_restore(type = c("local", "osf"))  # Error: 'type' must be a single character value
+
+# Empty vector
+projr_restore(label = character(0))  # Error: 'label' must have at least one element
+```
+
+### Error Handling and Edge Cases
+
+The restore functions handle errors gracefully:
+
+**Missing Files:**
+- Missing `manifest.csv`: Stops with informative error
+- No labels to restore: Returns `FALSE` with message
+
+**Invalid Sources:**
+- No restore source found for label: Skips with message, continues with other labels
+- Invalid remote configuration: Caught and reported per label
+
+**Git Clone Failures:**
+- Wrapped in tryCatch to prevent crashes
+- Returns `FALSE` with error message
+
+**Partial Success:**
+- Errors in one label don't prevent restoration of others
+- Overall success is `FALSE` if any label fails
+- Each failure is logged with descriptive message
+
+**Example error handling:**
+```r
+# Missing manifest
+projr_restore()  # Error: No manifest.csv file found
+
+# No labels to restore
+projr_restore(label = NULL)  # If no raw directories exist
+# Message: "No labels to restore"
+# Returns: FALSE
+
+# Label with no files
+projr_restore(label = "empty-dir")
+# Message: "No files kept in empty-dir"
+# Message: "Skipping restore for empty-dir"
+# Returns: FALSE
+
+# Git clone failure
+projr_restore_repo("nonexistent/repo")
+# Message: "Error in projr_restore_repo: ..."
+# Returns: FALSE
+```
+
+### Internal Functions
+
+Key internal functions (not exported):
+
+- `.restore_get_label()`: Gets labels to restore (defaults to raw directories)
+- `.restore_label()`: Restores a single label from remote source
+- `.restore_label_check_non_empty()`: Checks if label has files to restore
+- `.restore_label_get_source()`: Finds appropriate remote source for label
+- `.restore_repo_labels()`: Helper for repository restoration functions
+
+### Testing Pattern
+
+When testing restore functions:
+
+```r
+test_that("projr_restore validates parameters", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+      # Create minimal manifest
+      writeLines("label,fn,version,hash\nraw-data,test.txt,v0.0.1,abc", "manifest.csv")
+      
+      # Test valid inputs
+      expect_error(projr_restore(label = NULL), NA)
+      expect_error(projr_restore(label = "raw-data"), NA)
+      
+      # Test invalid inputs
+      expect_error(projr_restore(label = 123), "'label' must be NULL or a character vector")
+      expect_error(projr_restore(pos = "invalid"), "'pos' must be 'source' or 'dest'")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+```
+
+### Common Pitfalls
+
+- Don't forget to create `manifest.csv` before calling `projr_restore()`
+- Validate all parameters before calling git operations
+- Use tryCatch to handle errors gracefully per label
+- Return meaningful success/failure values (TRUE/FALSE)
+- Provide informative error messages for debugging
+
 ## renv Package Management Functions
+
 
 The package includes several exported functions to manage renv environments and package installations from lockfiles.
 
