@@ -954,6 +954,7 @@ projr_init_renviron <- function() {
 .init_github_impl <- function(username, public) {
   .dep_install_only("usethis")
   .dep_install_only("gh")
+  .auth_check_github("creating GitHub repository")
   if (identical(username, gh::gh_whoami()$login)) {
     .init_github_actual_user(public)
   } else {

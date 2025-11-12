@@ -248,7 +248,42 @@ The package heavily uses YAML configuration (`_projr.yml`):
 - Some functions interact with GitHub (using `gh` and `gert` packages)
 - Test functions can create Git repos: `.test_setup_project(git = TRUE)`
 
-### 8. Build Scripts and Hooks Configuration
+### 8. Version Functions
+
+The package includes comprehensive version management functions in `R/version.R` and `R/yml-version.R`.
+
+#### Version Function Guidelines
+
+**Input Validation**:
+- All version helper functions validate their inputs using `.assert_*()` functions
+- `.version_v_rm()` and `.version_v_add()` require non-empty single strings
+- `.version_get_earliest()` and `.version_get_latest()` require non-empty character vectors
+- `.version_concat()` accepts numeric or character vectors, automatically converts numeric to character
+- `.version_current_vec_get_init_file()` validates VERSION file exists, is not empty, and contains valid content (trims whitespace)
+
+**Version Format**:
+- Version format is defined in `_projr.yml` under `metadata.version-format`
+- Default format: `"major.minor.patch-dev"`
+- Valid formats include: `major.minor.patch-dev`, `major.minor.patch.dev`, `major.minor-dev`, `major.minor.dev`, `major-dev`, `major.dev`
+- Format can also use numeric suffixes like `9000` or `1` instead of `dev`
+
+**Key Functions**:
+- `projr_version_get()`: Returns current project version (exported)
+- `projr_version_set(version, only_if_exists)`: Sets project version (exported)
+- `.version_check(version)`: Validates version format against `_projr.yml` configuration
+- `.version_check_error_free(version)`: Returns TRUE if valid, FALSE if invalid (safe validation)
+- `.version_concat(version_vec, split_vec)`: Concatenates version components with separators
+- `.version_get_earliest(x)` / `.version_get_latest(x)`: Find earliest/latest version from vector
+
+**Testing Edge Cases**:
+- Test empty/NULL inputs
+- Test whitespace-only VERSION files
+- Test numeric vs. character input handling
+- Test version format validation
+- Test version bumping logic
+- See `tests/testthat/test-version-validation.R` for comprehensive examples
+
+### 9. Build Scripts and Hooks Configuration
 
 The package supports explicit specification of which files to build and hooks that run before/after the build process.
 
@@ -519,6 +554,84 @@ renv::snapshot()
 - Some functionality requires authentication (GitHub PAT, OSF token)
 - The package supports multiple document engines (R Markdown, Quarto, Bookdown)
 
+## Authentication System
+
+The package includes comprehensive authentication checks for GitHub and OSF operations to ensure API calls fail gracefully with helpful error messages when credentials are missing.
+
+### Authentication Functions
+
+**Core Functions** (`R/auth.R`):
+- `.auth_get_github_pat()` - Retrieves GitHub PAT from environment or gitcreds
+- `.auth_get_osf_pat()` - Retrieves OSF PAT from environment
+- `.auth_check_github(context)` - **Checks and throws error if GitHub auth missing**
+- `.auth_check_osf(context)` - **Checks and throws error if OSF auth missing**
+
+**Exported Functions**:
+- `projr_instr_auth_github()` - Prints GitHub authentication instructions
+- `projr_instr_auth_osf()` - Prints OSF authentication instructions
+
+### Where Auth Checks Are Required
+
+**GitHub Operations** - All functions that call `gh::` or `gitcreds::` must have `.auth_check_github()`:
+- `.git_clone()` - When inferring username from `gh::gh_whoami()`
+- `.init_github_impl()` - Before creating GitHub repository
+- `.remote_host_rm_github()` - Before deleting GitHub repository
+- `.pb_guess_repo()` - When using `gh::gh_tree_remote()`
+- `.build_github_setup_user()` - Already protected via `.build_github_setup_check_pat()`
+
+**OSF Operations** - All OSF wrapper functions have `.auth_check_osf()`:
+- `.remote_create_osf()` - Creating OSF nodes
+- `.remote_get_osf()` - Retrieving OSF nodes
+- `.remote_host_rm_osf()` - Deleting OSF nodes
+- `.osf_upload()`, `.osf_download()`, `.osf_ls_files()`, etc. - All OSF wrappers in `R/remote-osf.R`
+
+### Authentication Check Pattern
+
+When adding new functions that call GitHub or OSF APIs:
+
+```r
+# GitHub operations
+.my_github_function <- function(...) {
+  .auth_check_github("operation description")
+  # Now safe to call gh:: functions
+  user <- gh::gh_whoami()$login
+  # ...
+}
+
+# OSF operations
+.my_osf_function <- function(...) {
+  .auth_check_osf("operation description")
+  # Now safe to call osfr:: functions
+  node <- osfr::osf_retrieve_node(id)
+  # ...
+}
+```
+
+### Testing Authentication
+
+Tests should handle both authenticated and unauthenticated scenarios:
+
+```r
+test_that("function works with auth", {
+  skip_if(!nzchar(Sys.getenv("GITHUB_PAT")))
+  # Test with credentials available
+  expect_true(.my_github_function())
+})
+
+test_that("function fails gracefully without auth", {
+  pat_old <- Sys.getenv("GITHUB_PAT")
+  Sys.unsetenv("GITHUB_PAT")
+  
+  expect_error(.auth_check_github(), "GitHub authentication is required")
+  
+  if (nzchar(pat_old)) Sys.setenv("GITHUB_PAT" = pat_old)
+})
+```
+
+### Build-Time Auth Checks
+
+During builds, `.build_check_auth_remote()` is called via `.build_env_check()` to verify that required credentials are available for configured remote destinations.
+
 ## Build Logging System
 
 The package includes a comprehensive build logging system that captures detailed information about each build:
@@ -750,6 +863,72 @@ v1_files <- .manifest_filter_version(manifest, "0.0.1")
 .zero_tbl_get_manifest()  # 0-row manifest table
 .zero_tbl_get_manifest_changes()  # 0-row changes table
 ```
+
+## renv Package Management Functions
+
+The package includes several exported functions to manage renv environments and package installations from lockfiles.
+
+### Main Functions
+
+#### `projr_renv_restore(github, non_github, biocmanager_install)`
+Restores packages from the lockfile, attempting to install the exact versions specified.
+
+**Parameters**:
+- `github` (logical): Whether to restore GitHub packages. Default is `TRUE`.
+- `non_github` (logical): Whether to restore non-GitHub packages (CRAN and Bioconductor). Default is `TRUE`.
+- `biocmanager_install` (logical): If `TRUE`, Bioconductor packages are installed using `BiocManager::install()`; otherwise, uses `renv::install("bioc::<package>")`. Default is `FALSE`.
+
+**Validation**:
+- All parameters must be single logical values
+- At least one of `github` or `non_github` must be `TRUE`
+- Checks for `renv.lock` file existence
+
+#### `projr_renv_update(github, non_github, biocmanager_install)`
+Updates packages to their latest available versions, ignoring the lockfile versions.
+
+**Parameters**: Same as `projr_renv_restore()`
+
+**Validation**: Same as `projr_renv_restore()`
+
+#### `projr_renv_restore_and_update(github, non_github, biocmanager_install)`
+First restores packages from the lockfile, then updates them to the latest versions.
+
+**Parameters**: Same as `projr_renv_restore()`
+
+**Validation**: Same as `projr_renv_restore()`
+
+#### `projr_renv_test(files_to_copy, delete_lib)`
+Tests `renv::restore()` in a clean, isolated temporary environment without using the cache.
+
+**Parameters**:
+- `files_to_copy` (character vector): Paths to files to copy into the temporary directory. `renv.lock` is always copied.
+- `delete_lib` (logical): If `TRUE`, the restored library path is deleted after the test. Default is `TRUE`.
+
+**Returns**: `TRUE` if `renv::restore()` succeeds, `FALSE` otherwise.
+
+### Internal Validation Functions
+
+- `.check_renv()`: Checks if renv package is installed
+- `.check_renv_params()`: Validates all parameters for renv functions
+- `.check_renv_lockfile()`: Checks for renv.lock file existence
+
+### Error Messages
+
+The functions provide informative error messages for:
+- Invalid parameter types (non-logical values, vectors with length > 1)
+- Both package sources disabled (`github = FALSE` and `non_github = FALSE`)
+- Missing renv.lock file
+- renv package not installed
+
+### Testing
+
+Tests for renv functions are in `tests/testthat/test-renv.R`:
+- Parameter validation tests for all three main functions
+- Edge case tests (missing lockfile, invalid parameters)
+- Integration tests (restore and update workflows)
+- Tests use `.renv_rest_init()` and `.renv_test_test_lockfile_create()` helper functions
+
+**Note**: Some tests are skipped in offline mode using `skip_if_offline()`.
 
 ## Maintaining Documentation and Instructions
 
