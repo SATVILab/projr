@@ -29,7 +29,13 @@
 
 .build_copy_docs_rmd_path_get <- function(format, fn_prefix) {
   fn_suffix <- .build_copy_docs_rmd_fn_suffix_get(format)
-  paste0(fn_prefix, ".", fn_suffix)
+  fn <- paste0(fn_prefix, ".", fn_suffix)
+  # For HTML-based formats, also include the _files directory
+  # (created when self_contained: false is used)
+  if (fn_suffix == "html" || fn_suffix == "nb.html") {
+    return(c(paste0(fn_prefix, "_files"), fn))
+  }
+  fn
 }
 
 .build_copy_docs_rmd_format_get <- function(frontmatter) {

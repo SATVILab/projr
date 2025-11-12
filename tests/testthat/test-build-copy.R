@@ -744,7 +744,11 @@ test_that(".build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
       # paths
       expect_identical(
         .build_copy_docs_rmd_path_get("html", "abc"),
-        "abc.html"
+        c("abc_files", "abc.html")
+      )
+      expect_identical(
+        .build_copy_docs_rmd_path_get("html_document", "abc"),
+        c("abc_files", "abc.html")
       )
       expect_identical(
         .build_copy_docs_rmd_path_get("pdf", "abc"),
@@ -803,15 +807,19 @@ test_that(".build_copy_docs_rmd_format_get works", {
       dir.create("test_files")
       invisible(file.create("test_files/abc.txt"))
       dir_docs <- projr_path_get_dir("docs", safe = TRUE)
-      invisible(file.create(file.path(dir_docs, "test.html")))
+      unlink(dir_docs, recursive = TRUE)
+      dir_docs <- projr_path_get_dir("docs", safe = TRUE)
       .build_copy_docs_rmd(FALSE)
       expect_true(file.exists(file.path(dir_docs, "test.html")))
-      expect_false(file.exists(file.path(dir_docs, "test_files/abc.txt")))
+      expect_true(file.exists(file.path(dir_docs, "test_files/abc.txt")))
+      # safe output
       dir_docs <- projr_path_get_dir("docs", safe = FALSE)
-      invisible(file.create(file.path(dir_docs, "test.html")))
+      invisible(file.create("test.html"))
+      dir.create("test_files")
+      invisible(file.create("test_files/abc.txt"))
       .build_copy_docs_rmd(TRUE)
       expect_true(file.exists(file.path(dir_docs, "test.html")))
-      expect_false(file.exists(file.path(dir_docs, "test_files/abc.txt")))
+      expect_true(file.exists(file.path(dir_docs, "test_files/abc.txt")))
     },
     force = TRUE,
     quiet = TRUE
@@ -898,6 +906,64 @@ test_that("CHANGELOG.md is excluded from docs copying", {
       expect_true(file.exists(file.path(dest_dir, "test.html")))
       expect_true(file.exists(file.path(dest_dir, "other.txt")))
       expect_false(file.exists(file.path(dest_dir, "CHANGELOG.md")))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("Rmd with self_contained: false copies _files directory", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create an Rmd file with self_contained: false
+      rmd_content <- '---
+title: "Test Self-Contained"
+output:
+  html_document:
+    self_contained: false
+---
+
+```{r}
+plot(1:10)
+```
+'
+      writeLines(rmd_content, "test.Rmd")
+      
+      # Render it
+      rmarkdown::render("test.Rmd", quiet = TRUE)
+      
+      # Verify _files directory was created
+      expect_true(dir.exists("test_files"))
+      
+      # Test that both the HTML file and _files directory are copied
+      docs_dir <- projr_path_get_dir("docs", safe = TRUE)
+      unlink(docs_dir, recursive = TRUE)
+      docs_dir <- projr_path_get_dir("docs", safe = TRUE)
+      
+      .build_copy_docs_rmd(FALSE)
+      
+      expect_true(file.exists(file.path(docs_dir, "test.html")))
+      expect_true(dir.exists(file.path(docs_dir, "test_files")))
+      
+      # Verify files were actually copied
+      files_in_root <- list.files("test_files", recursive = TRUE)
+      files_in_docs <- list.files(file.path(docs_dir, "test_files"), recursive = TRUE)
+      expect_true(length(files_in_docs) > 0)
+      
+      # Test with output_run = TRUE (safe = FALSE)
+      docs_dir_unsafe <- projr_path_get_dir("docs", safe = FALSE)
+      
+      # Create fresh HTML and _files for this test
+      rmarkdown::render("test.Rmd", quiet = TRUE)
+      
+      .build_copy_docs_rmd(TRUE)
+      
+      expect_true(file.exists(file.path(docs_dir_unsafe, "test.html")))
+      expect_true(dir.exists(file.path(docs_dir_unsafe, "test_files")))
     },
     force = TRUE,
     quiet = TRUE
