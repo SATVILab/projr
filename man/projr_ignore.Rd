@@ -2,9 +2,27 @@
 % Please edit documentation in R/ignore-manual.R
 \name{projr_ignore}
 \alias{projr_ignore}
+\alias{projr_ignore_dir}
+\alias{projr_ignore_file}
+\alias{projr_ignore_file_git}
+\alias{projr_ignore_dir_git}
+\alias{projr_ignore_file_rbuild}
+\alias{projr_ignore_dir_rbuild}
 \title{Manually Ignore Files or Directories in \code{.gitignore} and \code{.Rbuildignore}}
 \usage{
 projr_ignore(ignore, force_create = TRUE)
+
+projr_ignore_dir(ignore, force_create = TRUE)
+
+projr_ignore_file(ignore)
+
+projr_ignore_file_git(ignore, force_create = TRUE)
+
+projr_ignore_dir_git(ignore, force_create = TRUE)
+
+projr_ignore_file_rbuild(ignore, force_create = TRUE)
+
+projr_ignore_dir_rbuild(ignore, force_create = TRUE)
 }
 \arguments{
 \item{ignore}{A character vector of file or directory paths to be ignored.
@@ -54,7 +72,7 @@ missing, ensuring proper Git ignore syntax.
 }
 \examples{
 # Manually ignore files and directories
-projr_ignore_manual(c("output", "tempfile.log"))
+projr_ignore(c("output", "tempfile.log"))
 
 # Specifically ignore directories
 projr_ignore_dir("data")

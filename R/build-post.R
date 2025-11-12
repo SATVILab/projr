@@ -69,7 +69,7 @@
 
 .build_cite_cff <- function() {
   if (!file.exists(.path_get("CITATION.cff"))) {
-    return(invsiible(FALSE))
+    return(invisible(FALSE))
   }
   .build_cite_cff_update_file()
 }

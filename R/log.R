@@ -6,18 +6,18 @@
 #
 # Directory structure:
 # cache/projr/log/
-#   ├── output/
-#   │   ├── history/
-#   │   │   └── builds.md (all build records, newest first)
-#   │   └── output/
-#   │       └── YYYY-MMM-DD/
-#   │           └── HH-MM-SS.qmd (detailed log for each build)
-#   └── dev/
-#       ├── history/
-#       │   └── builds.md
-#       └── output/
-#           └── YYYY-MMM-DD/
-#               └── HH-MM-SS.qmd
+#   +-- output/
+#   |   +-- history/
+#   |   |   +-- builds.md (all build records, newest first)
+#   |   +-- output/
+#   |       +-- YYYY-MMM-DD/
+#   |           +-- HH-MM-SS.qmd (detailed log for each build)
+#   +-- dev/
+#       +-- history/
+#       |   +-- builds.md
+#       +-- output/
+#           +-- YYYY-MMM-DD/
+#               +-- HH-MM-SS.qmd
 
 # Get log directory paths
 # -----------------------
@@ -210,7 +210,7 @@
     "",
     "# Build Summary",
     "",
-    paste0("- **Status**: ", if (success) "✓ SUCCESS" else "✗ FAILED"),
+    paste0("- **Status**: ", if (success) "[SUCCESS]" else "[FAILED]"),
     if (!is.null(start_time)) {
       duration <- difftime(Sys.time(), start_time, units = "secs")
       paste0("- **Duration**: ", round(as.numeric(duration), 2), " seconds")
@@ -250,7 +250,7 @@
   
   # Create new entry
   timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-  status <- if (success) "✓" else "✗"
+  status <- if (success) "[OK]" else "[FAIL]"
   
   entry <- c(
     paste0("## ", timestamp, " ", status),

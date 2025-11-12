@@ -37,6 +37,11 @@ rendering engine
 \code{projr} profile to use. Will set the environment variable
 .PROFILE` to this value at the start of the build,}
 
+\item{clear_output}{character.
+When to clear output directories: "pre" (before build),
+"post" (after build), or "never" (default for dev builds).
+Can also be set via PROJR_CLEAR_OUTPUT environment variable.}
+
 \item{output_level}{character.
 Level of CLI output: "none" (no additional messages, default for dev builds),
 "std" (standard messages), or "debug" (verbose messages for debugging).

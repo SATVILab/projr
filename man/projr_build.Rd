@@ -93,6 +93,11 @@ Ignored if there is a release named \code{archive}
 already specified as a destination in
 the \code{projr} configuration file.}
 
+\item{archive_local}{\code{TRUE}, \code{FALSE} or character vector of
+directory labels.
+Similar to \code{archive_github} but for local archiving.
+Default is \code{FALSE}.}
+
 \item{always_archive}{logical.
 If \code{TRUE}, then the directories are uploaded
 regardless of whether the directory to be uploaded
@@ -102,6 +107,11 @@ Default is \code{TRUE}.
 Ignored if there is a release named \code{archive}
 already specified as a destination in
 the \code{projr} configuration file.}
+
+\item{clear_output}{character.
+When to clear output directories: "pre" (before build, default),
+"post" (after build), or "never".
+Can also be set via PROJR_CLEAR_OUTPUT environment variable.}
 
 \item{output_level}{character.
 Level of CLI output: "none" (no additional messages),
