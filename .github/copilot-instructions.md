@@ -287,6 +287,30 @@ The package heavily uses YAML configuration (`_projr.yml`):
 - Functions like `.yml_dir_get_label_*()` retrieve configuration values
 - Use existing YAML helper functions rather than reading files directly
 
+#### YAML Validation with projr_yml_check
+
+The `projr_yml_check()` function validates the entire `_projr.yml` configuration. It checks:
+
+**Core Structure** (always checked):
+- **Directories** (`.yml_dir_check`): Validates directory labels, paths, ignore settings
+- **Build settings** (`.yml_build_check`): Validates git, dest, and label configurations
+- **Dev settings** (`.yml_dev_check`): Validates dev.scripts and dev.hooks keys
+
+**Additional Validations** (added for comprehensive checking):
+- **Metadata** (`.yml_metadata_check`): Validates metadata.version-format
+- **Scripts** (`.yml_scripts_check`): Validates build.scripts and dev.scripts are character vectors
+- **Hooks** (`.yml_hooks_check_config`): Validates build.hooks and dev.hooks structure (pre/post/both stages)
+- **Cite** (`.yml_cite_check_config`): Validates build.cite is either logical or list with valid keys
+
+**Valid build.* keys**:
+- "dev-output", "script", "hooks", "scripts", "git", "github", "package", "local", "osf", "cite"
+
+**Testing validation**:
+When adding new yml configuration options:
+1. Add validation logic to appropriate check function in `R/yml-check.R`
+2. Add the check function to `projr_yml_check()` if it's a new top-level category
+3. Write tests in `tests/testthat/test-yml-check.R` covering valid and invalid configurations
+
 ### 7. Version Control and Git
 
 The package includes comprehensive Git integration (see `R/git.R` and `R/yml-git.R`) that works with both Git CLI and the `gert` R package.
