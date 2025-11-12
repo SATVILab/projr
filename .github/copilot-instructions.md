@@ -244,9 +244,113 @@ The package heavily uses YAML configuration (`_projr.yml`):
 - Use existing YAML helper functions rather than reading files directly
 
 ### 7. Version Control and Git
-- The package includes Git integration (see `R/git.R`)
-- Some functions interact with GitHub (using `gh` and `gert` packages)
-- Test functions can create Git repos: `.test_setup_project(git = TRUE)`
+
+The package includes comprehensive Git integration (see `R/git.R` and `R/yml-git.R`) that works with both Git CLI and the `gert` R package.
+
+#### Git System Selection
+
+The package automatically selects between Git CLI and `gert`:
+- `.git_system_get()` - Returns `"git"` if Git CLI is available, otherwise `"gert"`
+- `.git_system_check_git()` - Checks if Git CLI is available
+- `.git_system_check_gert()` - Checks if `gert` package is available
+- `.git_system_setup()` - Installs `gert` if Git CLI is not available
+
+#### Repository Operations
+
+**Initialization and Status**:
+- `.git_init()` - Initialize a Git repository (uses Git CLI or gert)
+- `.git_repo_check_exists()` - Check if `.git` exists (file or directory)
+- `.git_repo_is_worktree()` - Check if the repo is a Git worktree
+- `.git_repo_rm()` - Remove `.git` directory
+
+**File Operations**:
+- `.git_commit_file(file, msg)` - Commit specific file(s)
+- `.git_commit_file_git(file, msg)` - Commit using Git CLI
+- `.git_commit_file_gert(file, msg)` - Commit using gert
+- `.git_add_file_git(file)` - Stage files using Git CLI
+- `.git_commit_all(msg, add_untracked)` - Commit all modified and optionally untracked files
+
+**Status Queries**:
+- `.git_modified_get()` - Get modified files
+- `.git_new_get()` - Get new/untracked files
+- `.git_untracked_not_ignored_get()` - Get untracked files that aren't ignored
+- `.git_changed_filter(path)` - Filter paths to only those that are changed (modified or new)
+
+**Branch and Commit Info**:
+- `.git_branch_get()` - Get current branch name
+- `.git_last_commit_get()` - Get last commit info (sha and message)
+- `.git_get_commit_hash_local()` - Get local commit hashes
+- `.git_get_commit_hash_remote()` - Get remote commit hashes
+
+**Remote Operations**:
+- `.git_remote_check_exists()` - Check if remote exists
+- `.git_remote_check_upstream()` - Check if upstream remote is configured
+- `.git_push()` - Push to remote
+- `.git_fetch()` - Fetch from remote
+- `.git_check_behind()` - Check if local is behind remote
+- `.git_clone(repo, path)` - Clone a repository (requires GitHub auth if inferring username)
+
+**Configuration**:
+- `.git_config_get_name()` - Get user.name (checks local, global, system)
+- `.git_config_get_email()` - Get user.email (checks local, global, system)
+- Each has `_git` and `_gert` variants, plus `_local`, `_global`, `_system` variants
+
+#### YAML Git Configuration
+
+Functions in `R/yml-git.R` manage Git settings in `_projr.yml`:
+
+**Exported Functions**:
+- `projr_yml_git_set(all, commit, add_untracked, push, ...)` - Set Git options
+- `projr_yml_git_set_default(profile)` - Set all options to TRUE (default)
+
+**Internal Functions**:
+- `.yml_git_get(profile)` - Get Git configuration from YAML
+- `.yml_git_get_commit(profile)` - Get commit setting (default: TRUE)
+- `.yml_git_get_push(profile)` - Get push setting (default: TRUE)
+- `.yml_git_get_add_untracked(profile)` - Get add_untracked setting (default: TRUE)
+- `.yml_git_set(yml_git, profile)` - Write Git configuration to YAML
+
+**Settings**:
+- `build.git.commit` - Automatically commit changes during builds (default: TRUE)
+- `build.git.add-untracked` - Add untracked files during commits (default: TRUE)
+- `build.git.push` - Automatically push after commits (default: TRUE)
+
+**Simplification**:
+- If all settings are identical, can be simplified to `git: TRUE` or `git: FALSE`
+- If all settings are default (TRUE), the entire section is omitted
+- `simplify_identical` parameter controls whether to simplify when all match
+- `simplify_default` parameter controls whether to remove when all are default
+
+#### Testing Patterns
+
+```r
+test_that("git function works", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Initialize git
+      .git_init()
+      .test_setup_project_git_config()
+      
+      # Test operations
+      writeLines("test", "test.txt")
+      .git_commit_file("test.txt", "commit message")
+      
+      # Verify
+      expect_true(.git_repo_check_exists())
+    }
+  )
+})
+```
+
+**Important Notes**:
+- Use `.test_setup_project_git_config()` to set test user credentials
+- Git operations using `_git` variants may produce warnings for deleted files - use `suppressWarnings()` where appropriate
+- Remote operations require GitHub authentication - use `skip_if_not(nzchar(Sys.getenv("GITHUB_PAT")))`
+- `.git_changed_filter()` returns `fs_path` class, not plain character - use `as.character()` or `expect_length()` in tests
 
 ### 8. Version Functions
 
