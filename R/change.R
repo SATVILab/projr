@@ -66,10 +66,10 @@
 
   # filter for actual version
   manifest_post <- manifest_post_full |>
-    .manifest_filter_version(version_post_actual)
+    .manifest_filter_version(version_post_impl)
 
   manifest_pre <- .change_get_manifest_pre_final(
-    version_pre_actual, version_post_actual, manifest_post,
+    version_pre_impl, version_post_impl, manifest_post,
     manifest_pre_full, manifest_post_full, type_pre, remote_pre
   )
 
@@ -220,7 +220,7 @@
 # between two directories
 .change_get_dir <- function(path_dir_pre,
                             path_dir_post) {
-  hash_tbl_pre <- stop("this should not happen like this")
+  hash_tbl_pre <- .hash_dir(path_dir_pre)
   hash_tbl_post <- .hash_dir(path_dir_post)
   .change_get_hash(hash_pre = hash_tbl_pre, hash_post = hash_tbl_post)
 }

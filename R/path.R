@@ -425,11 +425,24 @@
   if (!.dir_clear_check(path)) {
     return(invisible(FALSE))
   }
-  .file_ls(path, recursive, all.files = delete_hidden, full.names = TRUE) |>
-    .file_filter_dir_non() |>
+  
+  # Get files with full paths
+  files_full <- .file_ls(path, recursive, all.files = delete_hidden, full.names = TRUE) |>
+    .file_filter_dir_non()
+  
+  # Convert to relative paths for filtering (dir_exc expects relative paths)
+  files_rel <- .path_force_rel(files_full, path)
+  
+  # Filter using relative paths
+  files_rel_filtered <- files_rel |>
     .path_filter_spec(dir_exc) |>
-    .path_filter_spec_add_back_file(path, dir_exc) |>
-    .file_rm()
+    .path_filter_spec_add_back_file(path, dir_exc)
+  
+  # Convert back to full paths for removal
+  files_full_filtered <- file.path(path, files_rel_filtered)
+  
+  # Remove files
+  .file_rm(files_full_filtered)
   invisible(TRUE)
 }
 
@@ -444,12 +457,25 @@
   if (!.dir_clear_check(path)) {
     return(invisible(FALSE))
   }
-  path_vec_dir <- .dir_ls(path, recursive = recursive, full.names = TRUE) |>
-    .dir_filter_removable() |>
+  
+  # Get directories with full paths
+  dirs_full <- .dir_ls(path, recursive = recursive, full.names = TRUE) |>
+    .dir_filter_removable()
+  
+  # Convert to relative paths for filtering (dir_exc expects relative paths)
+  dirs_rel <- .path_force_rel(dirs_full, path)
+  
+  # Filter using relative paths
+  dirs_rel_filtered <- dirs_rel |>
     .path_filter_spec(dir_exc) |>
     .path_filter_spec_add_back_file(path, dir_exc)
-  for (i in seq_along(path_vec_dir)) {
-    unlink(path_vec_dir[i], recursive = TRUE)
+  
+  # Convert back to full paths for removal
+  dirs_full_filtered <- file.path(path, dirs_rel_filtered)
+  
+  # Remove directories
+  for (i in seq_along(dirs_full_filtered)) {
+    unlink(dirs_full_filtered[i], recursive = TRUE)
   }
   invisible(TRUE)
 }
