@@ -33,6 +33,9 @@ projr_par_get <- function(..., profile = NULL) {
       paste0(par_nm_vec[par_vec_in], collapse = ", ")
     ))
   }
+  if (length(par_vec_in) == 0) {
+    return(NULL)
+  }
   yml_projr[[par_nm_vec[par_vec_in]]]
 }
 
@@ -43,7 +46,10 @@ projr_par_get <- function(..., profile = NULL) {
     "']]",
     collapse = ""
   )
-  eval(parse(text = parse_txt))
+  tryCatch(
+    eval(parse(text = parse_txt)),
+    error = function(e) NULL
+  )
 }
 
 #' @rdname projr_par_get
