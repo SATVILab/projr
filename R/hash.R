@@ -4,8 +4,9 @@
   if (.is_len_0(fn_vec)) {
     return(.zero_tbl_get_hash())
   }
-  fn_vec <- file.path(path_dir, fn_vec) |>
-    .path_filter_spec(dir_exc)
+  # Filter before converting to absolute paths
+  fn_vec <- .path_filter_spec(fn_vec, dir_exc)
+  fn_vec <- file.path(path_dir, fn_vec)
   out_tbl <- data.frame(
     fn = fn_vec |> .path_force_rel(path_dir),
     version = (version %||% .version_get()) |>
