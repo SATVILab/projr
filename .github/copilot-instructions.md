@@ -1143,7 +1143,6 @@ test_that("projr_restore validates parameters", {
 
 
 The package includes several exported functions to manage renv environments and package installations from lockfiles.
-
 ### Main Functions
 
 #### `projr_renv_restore(github, non_github, biocmanager_install)`
@@ -1337,6 +1336,577 @@ PROJR_LOG_DETAILED=TRUE
 API_URL=https://api.example.com?param=value
 DATA_PATH=/path/to/data
 ```
+
+
+## Hash Functions
+
+The package includes comprehensive file and directory hashing functionality used throughout the manifest and change detection systems. Hash functions compute MD5 hashes of file contents to track changes over time.
+
+### Core Hash Functions (R/hash.R)
+
+#### `.hash_file(fn)`
+Hash one or more files and return their MD5 hashes.
+
+**Parameters**:
+- `fn` (character vector): File path(s) to hash
+
+**Returns**: Named character vector with hashes (names are file paths)
+
+**Examples**:
+```r
+# Hash a single file
+hash <- .hash_file("path/to/file.txt")
+
+# Hash multiple files
+hashes <- .hash_file(c("file1.txt", "file2.txt", "file3.txt"))
+
+# Files with identical content have identical hashes
+all(hashes[c(1, 3)] == hashes[1])  # TRUE if file1 and file3 have same content
+```
+
+**Implementation Notes**:
+- Uses `digest::digest()` with `serialize = FALSE` and `file = TRUE`
+- Vectorized via `vapply()` over input files
+- Returns character vector with file paths as names
+- Use `unname()` for comparison if names interfere
+
+#### `.hash_dir(path_dir, version = NULL, dir_exc = NULL)`
+Hash all files in a directory recursively and return a data frame with file paths, versions, and hashes.
+
+**Parameters**:
+- `path_dir` (character): Directory path to hash
+- `version` (character, optional): Version to assign (defaults to current project version)
+- `dir_exc` (character vector, optional): Directory names to exclude from hashing
+
+**Returns**: Data frame with columns `fn` (relative path), `version`, `hash`
+
+**Examples**:
+```r
+# Hash all files in a directory
+hash_tbl <- .hash_dir("_output")
+
+# Hash with specific version
+hash_tbl <- .hash_dir("_output", version = "1.0.0")
+
+# Hash with exclusions (excludes "projr" subdirectory from cache)
+hash_tbl <- .hash_dir("_tmp", dir_exc = "projr")
+
+# Empty directory returns 0-row data frame
+hash_tbl <- .hash_dir("empty_dir")  # nrow(hash_tbl) == 0
+```
+
+**Implementation Notes**:
+- Uses `.file_ls()` to recursively list files
+- Filters excluded directories using `.path_filter_spec()` **before** converting to absolute paths
+- Returns relative paths in `fn` column
+- Includes hidden files (starting with `.`)
+- Version is prefixed with "v" automatically via `.version_v_add()`
+
+**Bug Fix History**:
+- **Fixed in this PR**: `dir_exc` filtering was applied after `file.path()` call, preventing exclusions from working. Now filters relative paths before making them absolute.
+
+#### `.zero_tbl_get_hash()`
+Return an empty hash table with the correct structure.
+
+**Returns**: 0-row data frame with columns `fn`, `version`, `hash` (all character)
+
+### Change Detection Functions (R/change.R)
+
+#### `.change_get_hash(hash_pre, hash_post)`
+Compare two hash tables and identify added, removed, unchanged, and modified files.
+
+**Parameters**:
+- `hash_pre` (data frame): Hash table for "before" state (must have `fn` and `hash` columns)
+- `hash_post` (data frame): Hash table for "after" state (must have `fn` and `hash` columns)
+
+**Returns**: List with 4 character vectors:
+- `fn_dest_extra`: Files removed (in pre but not in post)
+- `fn_same`: Files unchanged (in both with same hash)
+- `fn_diff`: Files modified (in both with different hash)
+- `fn_source_extra`: Files added (in post but not in pre)
+
+**Examples**:
+```r
+# Create hash tables
+hash_pre <- data.frame(
+  fn = c("file1.txt", "file2.txt"),
+  version = c("v1.0.0", "v1.0.0"),
+  hash = c("hash1", "hash2"),
+  stringsAsFactors = FALSE
+)
+
+hash_post <- data.frame(
+  fn = c("file1.txt", "file2.txt", "file3.txt"),
+  version = c("v1.0.0", "v1.0.0", "v1.0.0"),
+  hash = c("hash1", "hash2_modified", "hash3"),
+  stringsAsFactors = FALSE
+)
+
+# Compare
+result <- .change_get_hash(hash_pre, hash_post)
+
+# result$fn_same: "file1.txt" (unchanged)
+# result$fn_diff: "file2.txt" (modified)
+# result$fn_source_extra: "file3.txt" (added)
+# result$fn_dest_extra: character(0) (none removed)
+```
+
+**Implementation Notes**:
+- Uses `%in%` operator for set operations
+- Handles empty hash tables correctly (returns appropriate empty vectors)
+- Applies `.filter_filter_non_na()` to clean up NA values
+
+#### `.change_get_dir(path_dir_pre, path_dir_post)`
+Compare two directories by hashing their contents and detecting changes.
+
+**Parameters**:
+- `path_dir_pre` (character): "Before" directory path
+- `path_dir_post` (character): "After" directory path
+
+**Returns**: Same structure as `.change_get_hash()` (list with 4 character vectors)
+
+**Examples**:
+```r
+# Compare two directories
+result <- .change_get_dir("_output_v1", "_output_v2")
+
+# Files in result$fn_same have not changed
+# Files in result$fn_diff have been modified
+# Files in result$fn_source_extra are new
+# Files in result$fn_dest_extra were removed
+```
+
+**Implementation Notes**:
+- Hashes both directories using `.hash_dir()`
+- Calls `.change_get_hash()` to compare the hash tables
+
+**Bug Fix History**:
+- **Fixed in this PR**: Function had `stop("this should not happen like this")` instead of actually hashing the pre directory
+
+### Testing Hash Functions
+
+Comprehensive tests are in `tests/testthat/test-hash.R` (84 assertions across 13 test cases):
+
+**`.hash_file()` tests**:
+- Single file hashing
+- Multiple file hashing (with name handling)
+- Different file types (empty, binary, large text)
+- Identical content produces identical hashes
+- Different content produces different hashes
+
+**`.hash_dir()` tests**:
+- Empty directories (returns 0-row table)
+- Nested directory structures
+- Directory exclusion (`dir_exc` parameter)
+- Hidden files (included in hash)
+- Version assignment
+- Relative paths in output
+
+**`.change_get_hash()` tests**:
+- Detecting added files (empty pre, populated post)
+- Detecting removed files (populated pre, empty post)
+- Detecting unchanged files (identical hashes)
+- Detecting modified files (same filename, different hash)
+- Mixed changes (combination of all types)
+
+**`.change_get_dir()` tests**:
+- Directory comparison end-to-end
+- Correctly identifies all change types
+
+**Test Patterns**:
+```r
+test_that(".hash_file works with single file", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      test_file <- file.path(tempdir(), "test.txt")
+      writeLines("content", test_file)
+      
+      hash_result <- .hash_file(test_file)
+      
+      expect_true(is.character(hash_result))
+      expect_identical(length(hash_result), 1L)
+      
+      # Verify same content = same hash
+      hash_result2 <- .hash_file(test_file)
+      expect_identical(hash_result, hash_result2)
+      
+      unlink(test_file)
+    }
+  )
+})
+```
+
+### Common Patterns
+
+```r
+# Hash a directory for tracking changes
+hash_tbl <- .hash_dir(projr_path_get_dir("output"))
+
+# Compare two versions
+hash_pre <- .hash_dir(projr_path_get_dir("output", safe = TRUE))
+hash_post <- .hash_dir("_output")
+changes <- .change_get_hash(hash_pre, hash_post)
+
+# Check if files changed
+if (length(changes$fn_diff) > 0) {
+  message("Modified files: ", paste(changes$fn_diff, collapse = ", "))
+}
+
+# Exclude specific directories from hashing
+hash_tbl <- .hash_dir("_tmp", dir_exc = c("projr", "cache_old"))
+```
+
+### Key Design Principles
+
+1. **Relative Paths**: Hash tables always store relative paths (relative to hashed directory)
+2. **Version Prefixing**: Versions are always prefixed with "v" in hash tables
+3. **Empty Handling**: Empty directories and comparisons return well-structured 0-row tables
+4. **Filter Before Absolute**: Directory exclusions must be filtered before converting paths to absolute
+5. **Named Vectors**: `.hash_file()` returns named vectors (file paths as names) - use `unname()` for comparisons
+
+
+## Directory Functions
+
+The package includes a comprehensive directory management system that handles project directory paths with support for safe/unsafe modes, creation, and various directory labels.
+
+### Core Exported Functions
+
+#### `projr_path_get_dir(label, ..., create, relative, absolute, safe)`
+
+Returns path to a profile-specific directory. The primary function for getting directory paths.
+
+**Parameters**:
+- `label` (character): Directory label - one of "raw-data", "cache", "output", "docs", "project", "code", or "data"
+- `...`: Optional subdirectory path components (passed to `file.path`)
+- `create` (logical): If TRUE, creates the directory if it doesn't exist. Default: TRUE
+- `relative` (logical): If TRUE, returns path relative to project root. Default: FALSE
+- `absolute` (logical): If TRUE, forces absolute path. Default: FALSE
+- `safe` (logical): If TRUE, uses safe cache directory for output/docs. Default: TRUE
+
+**Examples**:
+```r
+# Get cache directory (created if doesn't exist)
+projr_path_get_dir("cache")
+
+# Get cache subdirectory
+projr_path_get_dir("cache", "figures", "plot1")
+
+# Get output directory (safe mode - in cache/projr/v0.0.0-1/output)
+projr_path_get_dir("output", safe = TRUE)
+
+# Get output directory (unsafe mode - actual _output directory)
+projr_path_get_dir("output", safe = FALSE)
+
+# Get relative path
+projr_path_get_dir("cache", relative = TRUE)
+
+# Get without creating
+projr_path_get_dir("cache", create = FALSE)
+```
+
+**Important Notes**:
+- Cannot specify both `relative = TRUE` and `absolute = TRUE` (will error)
+- The `safe` parameter affects `output`, `docs`, and `data` directories
+  - `safe = TRUE`: Returns cache build directory (e.g., `_tmp/projr/v0.0.0-1/output`)
+  - `safe = FALSE`: Returns actual directory (e.g., `_output`)
+- The `create` parameter adds directory to `.gitignore` and `.Rbuildignore` as specified in `_projr.yml`
+
+#### `projr_path_get(label, ..., create, relative, absolute, safe)`
+
+Returns path to a file (or directory). Similar to `projr_path_get_dir` but for file paths.
+
+**Difference from `projr_path_get_dir`**:
+- When `create = TRUE`, creates the **parent directory**, not the full path
+- Last argument in `...` is treated as the filename
+- If no additional arguments, behaves identically to `projr_path_get_dir`
+
+**Examples**:
+```r
+# Get path to a file in cache (creates parent directory)
+projr_path_get("cache", "data", "results.csv", create = TRUE)
+
+# Equivalent to projr_path_get_dir when no filename
+projr_path_get("cache")
+```
+
+#### `projr_path_get_cache_build_dir(..., create, profile)`
+
+Get the cache directory for `projr` builds. This is a sub-directory of the cache directory.
+
+**Parameters**:
+- `...`: Optional subdirectory path components
+- `create` (logical): If TRUE, creates directory if it doesn't exist
+- `profile` (character): Profile name. Default: NULL (uses current profile)
+
+**Usage**:
+- For development builds: This is the final directory for output and docs items
+- For production builds: This is the staging directory
+
+**Examples**:
+```r
+# Get cache build directory
+projr_path_get_cache_build_dir(profile = NULL)
+
+# Get cache build output subdirectory
+projr_path_get_cache_build_dir("output", profile = NULL)
+```
+
+#### `projr_path_get_cache_build(..., create, profile)`
+
+Similar to `projr_path_get_cache_build_dir` but for file paths.
+
+### Directory Labels
+
+Valid directory labels and their meanings:
+
+| Label | Description | Default Path |
+|-------|-------------|--------------|
+| `"raw-data"` | Raw data directory | `_raw_data` |
+| `"cache"` | Cache directory | `_tmp` |
+| `"output"` | Output directory | `_output` (unsafe) or `_tmp/projr/vX.Y.Z/output` (safe) |
+| `"docs"` | Documentation output | Depends on engine (`_book`, `_site`, or `docs`) |
+| `"project"` | Project root | `.` |
+| `"code"` | Code directory (temporary) | Random temp directory |
+| `"data"` | Data directory | `data` (unsafe) or `_tmp/projr/vX.Y.Z/data` (safe) |
+
+**Label Validation**:
+- Labels are stripped of hyphens, underscores, and case for matching
+- Example: "raw-data", "raw_data", "rawdata", and "RAW-DATA" all resolve to the same directory
+- Invalid labels will error with a helpful message
+
+### Safe vs Unsafe Modes
+
+The `safe` parameter controls where output-related directories are located:
+
+**Safe Mode (`safe = TRUE`)** - Default:
+- Used during builds to avoid overwriting production files
+- Paths go to versioned cache directory: `_tmp/projr/v0.0.0-1/<label>`
+- Applies to: `output`, `docs`, `data` directories
+
+**Unsafe Mode (`safe = FALSE`)**:
+- Points to actual production directories
+- Use when you want to work with final output locations
+- Paths go to configured directory: `_output`, `_book`, `data`, etc.
+
+### Internal Directory Functions
+
+#### Core Path Resolution Functions (R/dir-get.R)
+
+- `.dir_get(label, ..., safe)` - Get directory path for a label
+- `.dir_get_label(label, safe)` - Get label path with safe/unsafe handling
+- `.dir_get_label_safe(label)` - Get safe (cache build) path for label
+- `.dir_get_label_unsafe(label)` - Get unsafe (actual) path for label
+- `.dir_get_code()` - Get temporary code directory
+- `.dir_get_tmp_random(...)` - Get random temporary directory
+
+#### Document Engine Specific Functions
+
+- `.dir_get_docs_quarto_project()` - Get Quarto project docs directory
+- `.dir_get_docs_bookdown()` - Get Bookdown docs directory
+- `.dir_get_docs_md()` - Get Rmd/qmd docs directory
+- `.dir_set_docs_quarto_project(path)` - Set Quarto output directory in config
+- `.dir_set_docs_bookdown(path)` - Set Bookdown output directory in config
+
+#### Cache Build Directory Functions
+
+- `.dir_get_cache_auto_version(..., create, profile)` - Get versioned cache build directory
+- `.path_get_cache_auto_version(..., create, profile)` - Get versioned cache build file path
+- `.dir_get_cache_auto_path(profile)` - Get base cache path
+- `.dir_get_cache_auto_check(profile)` - Validate cache directory exists
+- `.dir_get_cache_auto_ind(profile)` - Get index of cache directory in yml
+
+#### Validation Functions (R/dir.R)
+
+- `.dir_get_check(label, dots_list, relative, absolute, safe)` - Validate parameters
+- `.dir_check_label(label, profile)` - Validate label is a string
+- `.dir_check_label_found(label, profile)` - Validate label exists in yml
+- `.dir_check_label_strip(label)` - Validate stripped label format
+- `.dir_label_strip(x)` - Strip hyphens/underscores and lowercase
+
+#### Path Transformation Functions
+
+- `.dir_get_create(path, create)` - Create directory if requested
+- `.dir_get_rel(path, relative)` - Convert to relative path if requested
+- `.dir_get_abs(path, absolute)` - Convert to absolute path if requested
+
+#### Directory Creation Functions
+
+**Note**: There are TWO different `.dir_create` functions in different files:
+
+1. **R/path.R** - `.dir_create(path_dir)`:
+   - Takes actual directory paths as input
+   - Creates directories recursively
+   - Used by most internal functions
+   - Loaded later, so this is the active version
+
+2. **R/dir.R** - `.dir_create(label, ..., safe = TRUE)`:
+   - Takes directory labels as input
+   - Calls `projr_path_get_dir` internally
+   - Intended for creating directories by label
+   - Overridden by path.R version in current codebase
+
+**Best Practice**: Use `projr_path_get_dir(label, create = TRUE)` to create directories by label.
+
+### Testing Directory Functions
+
+Comprehensive tests are in `tests/testthat/test-dir-comprehensive.R` covering:
+
+1. **Basic functionality**: All directory labels work correctly
+2. **Safe/unsafe modes**: Correct paths returned for each mode
+3. **Create parameter**: Directories created when `create = TRUE`, not created when `FALSE`
+4. **Relative/absolute paths**: Path transformation works correctly
+5. **Subdirectories**: Multiple path components handled correctly
+6. **File paths**: `projr_path_get` works for file paths
+7. **Cache build functions**: Both dir and file variants work with profile parameter
+8. **Label validation**: Invalid labels error appropriately
+9. **Edge cases**: Special labels (code, project, data) behave correctly
+10. **Path normalization**: Paths don't contain double slashes or trailing slashes
+
+Example test pattern:
+```r
+test_that("projr_path_get_dir works with safe parameter", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+      
+      # Test safe vs unsafe paths for output
+      path_safe <- projr_path_get_dir("output", safe = TRUE, create = FALSE)
+      path_unsafe <- projr_path_get_dir("output", safe = FALSE, create = FALSE)
+      
+      expect_false(identical(path_safe, path_unsafe))
+      expect_true(grepl("projr", path_safe))
+      expect_false(grepl("projr", path_unsafe))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+```
+
+### Common Patterns
+
+```r
+# Get cache directory for saving temporary files
+cache_dir <- projr_path_get_dir("cache", "temp")
+
+# Get output directory during builds (safe mode)
+output_dir <- projr_path_get_dir("output", safe = TRUE)
+
+# Get actual output directory for final deployment
+output_final <- projr_path_get_dir("output", safe = FALSE)
+
+# Get path to a specific file
+cache_file <- projr_path_get("cache", "results", "data.csv")
+
+# Check if directory exists without creating
+if (dir.exists(projr_path_get_dir("cache", create = FALSE))) {
+  # Do something
+}
+
+# Get cache build directory for current version
+build_dir <- projr_path_get_cache_build_dir(profile = NULL)
+```
+
+
+## Metadata System
+
+The package includes a metadata system that collects information about the author, host system, and timestamps for use in changelogs and build tracking.
+
+### Metadata Functions
+
+Core metadata functions are in `R/metadata.R`:
+
+- `.metadata_get_author_host()` - Get author/username (primary function)
+- `.metadata_get_host()` - Get hostname/machine name
+- `.metadata_get_date()` - Get current date in UTC (YYYY-MM-DD format)
+- `.metadata_get_time()` - Get current time in UTC (HH:MM:SS format)
+- `.metadata_get_os()` - Get operating system name
+
+### Author Detection Hierarchy
+
+The `.metadata_get_author_host()` function uses a sophisticated fallback mechanism to detect the author:
+
+1. **Git config** (if git repo exists): Check git user.name from config
+2. **Environment variable**: Check `USERNAME` (Windows) or `USER` (Linux/Darwin)
+3. **System info**: Check `Sys.info()[["user"]]`
+4. **System login**: Check `Sys.info()[["login"]]` (excluding "unknown")
+5. **Hostname fallback**: Use `HOSTNAME` environment variable or "anonymous-user"
+
+**Implementation detail**: The `.metadata_get_author_sys_info()` function checks both `Sys.info()[["user"]]` and `Sys.info()[["login"]]` as separate fallback steps. This is intentional - the first returns early if valid, the second has additional validation (excludes "unknown").
+
+### Metadata Configuration (YAML)
+
+Metadata can be stored in `_projr.yml` under the `metadata` key. Functions in `R/yml-metadata.R` handle reading/writing:
+
+- `.yml_metadata_get(profile)` - Get entire metadata section
+- `.yml_metadata_set(yml_metadata, profile)` - Set entire metadata section
+- `.yml_metadata_get_nm(nm, profile)` - Get specific metadata field by name
+- `.yml_metadata_set_nm(yml, nm, profile)` - Set specific metadata field
+
+Common metadata fields:
+- `version-format` - Version string format (e.g., "major.minor.patch-dev")
+
+### Testing Metadata Functions
+
+Test pattern for metadata functions (see `tests/testthat/test-metadata.R`):
+
+```r
+test_that(".metadata_get_author_host works without git", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(
+    git = FALSE, github = FALSE, set_env_var = FALSE
+  )
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Should fall back to non-git method
+      author <- .metadata_get_author_host()
+      expect_true(.is_chr(author))
+      expect_true(length(author) == 1)
+    }
+  )
+})
+
+test_that(".metadata_get_date works", {
+  skip_if(.is_test_select())
+
+  date_str <- .metadata_get_date()
+  expect_true(.is_chr(date_str))
+  
+  # Verify YYYY-MM-DD format
+  expect_true(grepl("^\\d{4}-\\d{2}-\\d{2}$", date_str))
+})
+```
+
+Key testing considerations:
+- Test both git and non-git scenarios for author detection
+- Verify format patterns for date/time strings (regex matching)
+- Test fallback logic thoroughly
+- Don't assume specific values - check types and formats instead
+
+### Common Usage
+
+Metadata functions are primarily used in:
+- **Changelog generation** (`R/changelog.R`): Author, date, and time stamping
+- **Build process** (`R/build-pre.R`): Tracking who initiated builds
+- **Version management** (`R/version.R`): Version format configuration
+
+Example from changelog:
+```r
+author <- .metadata_get_author_host()
+date <- .metadata_get_date()
+time <- .metadata_get_time()
+```
+
 
 ### Testing Environment Variables
 
