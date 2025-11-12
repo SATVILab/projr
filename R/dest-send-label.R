@@ -200,10 +200,15 @@
            label) { # nolint
     version_project <- projr_version_get() |> .version_v_rm()
     version_comp_untrusted <- if (inspect == "file") version_project else NULL
-    version_remote <- .remote_get_version_label(
+    version_remote_raw <- .remote_get_version_label(
       remote_pre, type, label, "latest"
-    ) |>
-      .version_v_rm()
+    )
+    # Only call .version_v_rm if we have a valid value
+    version_remote <- if (.is_string(version_remote_raw)) {
+      version_remote_raw |> .version_v_rm()
+    } else {
+      NULL
+    }
     if (!.is_string(version_remote)) {
       version_comp_untrusted
     } else {
@@ -324,7 +329,7 @@
   switch(strategy,
     "upload-all" = .dest_send_label_get_plan_fn_upload_all(label),
     "upload-missing" = .dest_send_label_get_plan_fn_upload_missing(
-      inspect, version_comp, remote_comp, type, label
+      inspect, version_comp, remote_comp, remote_pre, type, label
     ),
     .dest_send_label_get_plan_fn_sync(
       inspect, version_comp, remote_pre, remote_dest, remote_comp,
@@ -352,13 +357,14 @@
 .dest_send_label_get_plan_fn_upload_missing <- function(inspect,
                                                         version_comp,
                                                         remote_comp,
+                                                        remote_pre,
                                                         type,
                                                         label) {
   # add all in `fn_souce_extra`, so need `fn_source` and `fn_dest`,
   # and then we diff them.
   fn_source <- .dest_send_label_get_fn_source(label)
   fn_dest <- .dest_send_label_get_fn_dest(
-    inspect, version_comp, remote_comp, type, label
+    inspect, version_comp, type, remote_comp, remote_pre, label
   )
   fn_source_extra <- setdiff(fn_source, fn_dest)
   list("fn_source_extra" = fn_source_extra)

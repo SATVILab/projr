@@ -1143,6 +1143,376 @@ v1_files <- .manifest_filter_version(manifest, "0.0.1")
 .zero_tbl_get_manifest_changes()  # 0-row changes table
 ```
 
+## Restore Functions
+
+The package includes functions to restore project artefact directories from remote sources. These functions allow users to download and restore data that was previously sent to remote destinations.
+
+### Exported Functions
+
+#### `projr_restore(label, pos, type, title)`
+Restores artefacts in an existing local project from configured remote sources.
+
+**Parameters:**
+- `label`: NULL or character vector of directory labels to restore (default: all "raw" directories)
+- `pos`: NULL or character vector specifying source preference ("source" or "dest", default: both)
+- `type`: NULL or single character specifying remote type ("local", "osf", "github")
+- `title`: NULL or single character specifying remote title from `_projr.yml`
+
+**Returns:** Invisibly returns `TRUE` if all restorations succeed, `FALSE` otherwise
+
+**Requirements:**
+- Must have a `manifest.csv` file in the project root
+- Configured remote sources in `_projr.yml`
+
+#### `projr_restore_repo(repo, path, label, pos, type, title)`
+Clones a GitHub repository and restores its artefacts from remote sources.
+
+**Parameters:**
+- `repo`: Single character string for GitHub repository ("owner/repo")
+- `path`: NULL or single character for clone destination (default: subdirectory named after repo)
+- `label`, `pos`, `type`, `title`: Same as `projr_restore()`
+
+**Returns:** Invisibly returns `TRUE` if clone and restoration succeed, `FALSE` otherwise
+
+#### `projr_restore_repo_wd(repo, label, pos, type, title)`
+Convenience wrapper that clones repository into current working directory and restores artefacts.
+
+**Parameters:**
+- `repo`: Single character string for GitHub repository
+- `label`, `pos`, `type`, `title`: Same as `projr_restore()`
+
+**Returns:** Same as `projr_restore_repo()`
+
+### Input Validation
+
+All restore functions perform comprehensive input validation:
+
+**Parameter Type Checks:**
+- All parameters must be either NULL or the expected type (character)
+- No numeric, logical, or list types accepted (except where specified)
+
+**Parameter Length Checks:**
+- `label`: Can be vector with multiple values or NULL
+- `pos`: Can be vector with multiple values ("source" and/or "dest") or NULL
+- `type`: Must be single value or NULL
+- `title`: Must be single value or NULL
+- `repo`: Must be single value (cannot be NULL)
+- `path`: Must be single value or NULL
+
+**Parameter Value Checks:**
+- `pos`: Must only contain "source" and/or "dest"
+- `type`: Must be one of "local", "osf", or "github"
+- `label`: Must be valid directory labels defined in `_projr.yml`
+- `repo`, `path`, `title`: Cannot be empty strings
+
+**Example validation errors:**
+```r
+# Invalid type
+projr_restore(label = 123)  # Error: 'label' must be NULL or a character vector
+
+# Invalid pos value
+projr_restore(pos = "invalid")  # Error: 'pos' must be 'source' or 'dest'
+
+# Invalid type value
+projr_restore(type = "invalid")  # Error: 'type' must be one of: local, osf, github
+
+# Multiple values where single expected
+projr_restore(type = c("local", "osf"))  # Error: 'type' must be a single character value
+
+# Empty vector
+projr_restore(label = character(0))  # Error: 'label' must have at least one element
+```
+
+### Error Handling and Edge Cases
+
+The restore functions handle errors gracefully:
+
+**Missing Files:**
+- Missing `manifest.csv`: Stops with informative error
+- No labels to restore: Returns `FALSE` with message
+
+**Invalid Sources:**
+- No restore source found for label: Skips with message, continues with other labels
+- Invalid remote configuration: Caught and reported per label
+
+**Git Clone Failures:**
+- Wrapped in tryCatch to prevent crashes
+- Returns `FALSE` with error message
+
+**Partial Success:**
+- Errors in one label don't prevent restoration of others
+- Overall success is `FALSE` if any label fails
+- Each failure is logged with descriptive message
+
+**Example error handling:**
+```r
+# Missing manifest
+projr_restore()  # Error: No manifest.csv file found
+
+# No labels to restore
+projr_restore(label = NULL)  # If no raw directories exist
+# Message: "No labels to restore"
+# Returns: FALSE
+
+# Label with no files
+projr_restore(label = "empty-dir")
+# Message: "No files kept in empty-dir"
+# Message: "Skipping restore for empty-dir"
+# Returns: FALSE
+
+# Git clone failure
+projr_restore_repo("nonexistent/repo")
+# Message: "Error in projr_restore_repo: ..."
+# Returns: FALSE
+```
+
+### Internal Functions
+
+Key internal functions (not exported):
+
+- `.restore_get_label()`: Gets labels to restore (defaults to raw directories)
+- `.restore_label()`: Restores a single label from remote source
+- `.restore_label_check_non_empty()`: Checks if label has files to restore
+- `.restore_label_get_source()`: Finds appropriate remote source for label
+- `.restore_repo_labels()`: Helper for repository restoration functions
+
+### Testing Pattern
+
+When testing restore functions:
+
+```r
+test_that("projr_restore validates parameters", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+      # Create minimal manifest
+      writeLines("label,fn,version,hash\nraw-data,test.txt,v0.0.1,abc", "manifest.csv")
+      
+      # Test valid inputs
+      expect_error(projr_restore(label = NULL), NA)
+      expect_error(projr_restore(label = "raw-data"), NA)
+      
+      # Test invalid inputs
+      expect_error(projr_restore(label = 123), "'label' must be NULL or a character vector")
+      expect_error(projr_restore(pos = "invalid"), "'pos' must be 'source' or 'dest'")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+```
+
+### Common Pitfalls
+
+- Don't forget to create `manifest.csv` before calling `projr_restore()`
+- Validate all parameters before calling git operations
+- Use tryCatch to handle errors gracefully per label
+- Return meaningful success/failure values (TRUE/FALSE)
+- Provide informative error messages for debugging
+
+## renv Package Management Functions
+
+
+The package includes several exported functions to manage renv environments and package installations from lockfiles.
+### Main Functions
+
+#### `projr_renv_restore(github, non_github, biocmanager_install)`
+Restores packages from the lockfile, attempting to install the exact versions specified.
+
+**Parameters**:
+- `github` (logical): Whether to restore GitHub packages. Default is `TRUE`.
+- `non_github` (logical): Whether to restore non-GitHub packages (CRAN and Bioconductor). Default is `TRUE`.
+- `biocmanager_install` (logical): If `TRUE`, Bioconductor packages are installed using `BiocManager::install()`; otherwise, uses `renv::install("bioc::<package>")`. Default is `FALSE`.
+
+**Validation**:
+- All parameters must be single logical values
+- At least one of `github` or `non_github` must be `TRUE`
+- Checks for `renv.lock` file existence
+
+#### `projr_renv_update(github, non_github, biocmanager_install)`
+Updates packages to their latest available versions, ignoring the lockfile versions.
+
+**Parameters**: Same as `projr_renv_restore()`
+
+**Validation**: Same as `projr_renv_restore()`
+
+#### `projr_renv_restore_and_update(github, non_github, biocmanager_install)`
+First restores packages from the lockfile, then updates them to the latest versions.
+
+**Parameters**: Same as `projr_renv_restore()`
+
+**Validation**: Same as `projr_renv_restore()`
+
+#### `projr_renv_test(files_to_copy, delete_lib)`
+Tests `renv::restore()` in a clean, isolated temporary environment without using the cache.
+
+**Parameters**:
+- `files_to_copy` (character vector): Paths to files to copy into the temporary directory. `renv.lock` is always copied.
+- `delete_lib` (logical): If `TRUE`, the restored library path is deleted after the test. Default is `TRUE`.
+
+**Returns**: `TRUE` if `renv::restore()` succeeds, `FALSE` otherwise.
+
+### Internal Validation Functions
+
+- `.check_renv()`: Checks if renv package is installed
+- `.check_renv_params()`: Validates all parameters for renv functions
+- `.check_renv_lockfile()`: Checks for renv.lock file existence
+
+### Error Messages
+
+The functions provide informative error messages for:
+- Invalid parameter types (non-logical values, vectors with length > 1)
+- Both package sources disabled (`github = FALSE` and `non_github = FALSE`)
+- Missing renv.lock file
+- renv package not installed
+
+### Testing
+
+Tests for renv functions are in `tests/testthat/test-renv.R`:
+- Parameter validation tests for all three main functions
+- Edge case tests (missing lockfile, invalid parameters)
+- Integration tests (restore and update workflows)
+- Tests use `.renv_rest_init()` and `.renv_test_test_lockfile_create()` helper functions
+
+**Note**: Some tests are skipped in offline mode using `skip_if_offline()`.
+
+## Environment Variables
+
+The package uses several environment variables to control behavior. All environment variables are optional and have sensible defaults.
+
+### Project Configuration
+
+#### PROJR_PROFILE
+- **Purpose**: Specifies which profile-specific YAML configurations to load
+- **Format**: Comma or semicolon-separated list of profile names
+- **Default**: None (uses `_projr.yml` only)
+- **Example**: `PROJR_PROFILE="test,dev"` or `PROJR_PROFILE="test;dev"`
+- **Behavior**:
+  - Supports both comma (`,`) and semicolon (`;`) separators
+  - Whitespace around values is automatically trimmed
+  - Earlier profiles take precedence over later ones
+  - The values `"default"` and `"local"` are filtered out (handled separately)
+  - Profiles are loaded in this order:
+    1. `_environment.local` (highest precedence, git-ignored)
+    2. `_environment-<QUARTO_PROFILE>` (if set)
+    3. `_environment-<PROJR_PROFILE>` (if set)
+    4. `_environment` (lowest precedence)
+
+#### QUARTO_PROFILE
+- **Purpose**: Quarto profile that also affects environment file loading
+- **Format**: Comma-separated list of profile names
+- **Default**: None
+- **Behavior**: Takes precedence over `PROJR_PROFILE` for environment file loading
+
+### Build Control
+
+#### PROJR_OUTPUT_LEVEL
+- **Purpose**: Controls verbosity of console output during builds
+- **Values**: `"none"`, `"std"`, `"debug"`
+- **Default**: `"none"` for dev builds, `"std"` for output builds
+- **Behavior**:
+  - `"none"`: No additional console output
+  - `"std"`: Standard informational messages
+  - `"debug"`: Verbose output including debug messages
+  - Case-sensitive (must be lowercase)
+  - Can be overridden by explicit `output_level` parameter in build functions
+
+#### PROJR_LOG_DETAILED
+- **Purpose**: Controls whether detailed build logs are written to files
+- **Values**: TRUE/FALSE representations
+- **Default**: `"TRUE"`
+- **Behavior**:
+  - TRUE values: `"TRUE"`, `"true"`, `"1"`, `"YES"`, `"yes"`, `"Y"`, `"y"`
+  - FALSE values: `"FALSE"`, `"false"`, `"0"`, `"NO"`, `"no"`, `"N"`, `"n"`
+  - Case-insensitive for boolean values
+  - When `TRUE`: Creates detailed `.qmd` log files in `cache/projr/log/`
+  - When `FALSE`: Still maintains build history but skips detailed logs
+  - History tracking (`builds.md`) is always maintained regardless of this setting
+
+#### PROJR_CLEAR_OUTPUT
+- **Purpose**: Controls when to clear output directories during builds
+- **Values**: `"pre"`, `"post"`, `"never"`
+- **Default**: `"pre"`
+- **Behavior**:
+  - `"pre"`: Clear output before build starts
+  - `"post"`: Clear output after build completes
+  - `"never"`: Never automatically clear output
+  - Case-sensitive (must be lowercase)
+  - Can be overridden by explicit `clear_output` parameter in build functions
+
+### Authentication
+
+#### GITHUB_PAT
+- **Purpose**: GitHub Personal Access Token for GitHub API operations
+- **Default**: None
+- **Behavior**:
+  - Checked before `GITHUB_TOKEN`
+  - Falls back to `gitcreds` package if not set
+  - Required for creating GitHub repositories and releases
+  - Should have appropriate scopes (repo, workflow, etc.)
+
+#### GITHUB_TOKEN
+- **Purpose**: Alternative GitHub token (lower precedence than GITHUB_PAT)
+- **Default**: None
+- **Behavior**: Used only if `GITHUB_PAT` is not set
+
+#### OSF_PAT
+- **Purpose**: Open Science Framework Personal Access Token
+- **Default**: None
+- **Behavior**: Required for OSF remote destinations
+
+### Testing Control
+
+#### R_PKG_TEST_IN_PROGRESS
+- **Purpose**: Indicates tests are running
+- **Values**: `"TRUE"` or unset
+- **Usage**: Internal, set by test runner
+
+#### R_PKG_TEST_FAST
+- **Purpose**: Skip slow tests
+- **Values**: `"TRUE"` or unset
+- **Usage**: Set to skip integration and slow tests
+
+#### R_PKG_TEST_SELECT
+- **Purpose**: Skip most tests (for targeted testing)
+- **Values**: `"TRUE"` or unset
+- **Usage**: Set to run only specific tests
+
+### Environment Variable Files
+
+The package supports loading environment variables from files:
+
+1. **`_environment.local`**: Machine-specific overrides (git-ignored, highest precedence)
+2. **`_environment-<profile>`**: Profile-specific variables
+3. **`_environment`**: Global defaults (lowest precedence)
+
+**Behavior**:
+- Variables are only set if not already defined (existing values are preserved)
+- Comments are supported (lines starting with `#` or inline after `#`)
+- Format: `VARIABLE_NAME=value` (one per line)
+- Empty values and invalid formats are silently ignored
+- Special characters in values are preserved (spaces, URLs, paths)
+- The `_environment.local` file is automatically added to `.gitignore`
+
+**Example `_environment` file**:
+```bash
+# Project configuration
+PROJR_OUTPUT_LEVEL=debug
+PROJR_LOG_DETAILED=TRUE
+
+# Authentication (use _environment.local for actual tokens)
+# GITHUB_PAT=your_token_here
+
+# URLs and paths work too
+API_URL=https://api.example.com?param=value
+DATA_PATH=/path/to/data
+```
+
+
 ## Hash Functions
 
 The package includes comprehensive file and directory hashing functionality used throughout the manifest and change detection systems. Hash functions compute MD5 hashes of file contents to track changes over time.
@@ -1371,6 +1741,7 @@ hash_tbl <- .hash_dir("_tmp", dir_exc = c("projr", "cache_old"))
 3. **Empty Handling**: Empty directories and comparisons return well-structured 0-row tables
 4. **Filter Before Absolute**: Directory exclusions must be filtered before converting paths to absolute
 5. **Named Vectors**: `.hash_file()` returns named vectors (file paths as names) - use `unname()` for comparisons
+
 
 ## Directory Functions
 
@@ -1618,6 +1989,7 @@ if (dir.exists(projr_path_get_dir("cache", create = FALSE))) {
 build_dir <- projr_path_get_cache_build_dir(profile = NULL)
 ```
 
+
 ## Metadata System
 
 The package includes a metadata system that collects information about the author, host system, and timestamps for use in changelogs and build tracking.
@@ -1710,203 +2082,6 @@ date <- .metadata_get_date()
 time <- .metadata_get_time()
 ```
 
-## renv Package Management Functions
-
-The package includes several exported functions to manage renv environments and package installations from lockfiles.
-
-### Main Functions
-
-#### `projr_renv_restore(github, non_github, biocmanager_install)`
-Restores packages from the lockfile, attempting to install the exact versions specified.
-
-**Parameters**:
-- `github` (logical): Whether to restore GitHub packages. Default is `TRUE`.
-- `non_github` (logical): Whether to restore non-GitHub packages (CRAN and Bioconductor). Default is `TRUE`.
-- `biocmanager_install` (logical): If `TRUE`, Bioconductor packages are installed using `BiocManager::install()`; otherwise, uses `renv::install("bioc::<package>")`. Default is `FALSE`.
-
-**Validation**:
-- All parameters must be single logical values
-- At least one of `github` or `non_github` must be `TRUE`
-- Checks for `renv.lock` file existence
-
-#### `projr_renv_update(github, non_github, biocmanager_install)`
-Updates packages to their latest available versions, ignoring the lockfile versions.
-
-**Parameters**: Same as `projr_renv_restore()`
-
-**Validation**: Same as `projr_renv_restore()`
-
-#### `projr_renv_restore_and_update(github, non_github, biocmanager_install)`
-First restores packages from the lockfile, then updates them to the latest versions.
-
-**Parameters**: Same as `projr_renv_restore()`
-
-**Validation**: Same as `projr_renv_restore()`
-
-#### `projr_renv_test(files_to_copy, delete_lib)`
-Tests `renv::restore()` in a clean, isolated temporary environment without using the cache.
-
-**Parameters**:
-- `files_to_copy` (character vector): Paths to files to copy into the temporary directory. `renv.lock` is always copied.
-- `delete_lib` (logical): If `TRUE`, the restored library path is deleted after the test. Default is `TRUE`.
-
-**Returns**: `TRUE` if `renv::restore()` succeeds, `FALSE` otherwise.
-
-### Internal Validation Functions
-
-- `.check_renv()`: Checks if renv package is installed
-- `.check_renv_params()`: Validates all parameters for renv functions
-- `.check_renv_lockfile()`: Checks for renv.lock file existence
-
-### Error Messages
-
-The functions provide informative error messages for:
-- Invalid parameter types (non-logical values, vectors with length > 1)
-- Both package sources disabled (`github = FALSE` and `non_github = FALSE`)
-- Missing renv.lock file
-- renv package not installed
-
-### Testing
-
-Tests for renv functions are in `tests/testthat/test-renv.R`:
-- Parameter validation tests for all three main functions
-- Edge case tests (missing lockfile, invalid parameters)
-- Integration tests (restore and update workflows)
-- Tests use `.renv_rest_init()` and `.renv_test_test_lockfile_create()` helper functions
-
-**Note**: Some tests are skipped in offline mode using `skip_if_offline()`.
-
-## Environment Variables
-
-The package uses several environment variables to control behavior. All environment variables are optional and have sensible defaults.
-
-### Project Configuration
-
-#### PROJR_PROFILE
-- **Purpose**: Specifies which profile-specific YAML configurations to load
-- **Format**: Comma or semicolon-separated list of profile names
-- **Default**: None (uses `_projr.yml` only)
-- **Example**: `PROJR_PROFILE="test,dev"` or `PROJR_PROFILE="test;dev"`
-- **Behavior**:
-  - Supports both comma (`,`) and semicolon (`;`) separators
-  - Whitespace around values is automatically trimmed
-  - Earlier profiles take precedence over later ones
-  - The values `"default"` and `"local"` are filtered out (handled separately)
-  - Profiles are loaded in this order:
-    1. `_environment.local` (highest precedence, git-ignored)
-    2. `_environment-<QUARTO_PROFILE>` (if set)
-    3. `_environment-<PROJR_PROFILE>` (if set)
-    4. `_environment` (lowest precedence)
-
-#### QUARTO_PROFILE
-- **Purpose**: Quarto profile that also affects environment file loading
-- **Format**: Comma-separated list of profile names
-- **Default**: None
-- **Behavior**: Takes precedence over `PROJR_PROFILE` for environment file loading
-
-### Build Control
-
-#### PROJR_OUTPUT_LEVEL
-- **Purpose**: Controls verbosity of console output during builds
-- **Values**: `"none"`, `"std"`, `"debug"`
-- **Default**: `"none"` for dev builds, `"std"` for output builds
-- **Behavior**:
-  - `"none"`: No additional console output
-  - `"std"`: Standard informational messages
-  - `"debug"`: Verbose output including debug messages
-  - Case-sensitive (must be lowercase)
-  - Can be overridden by explicit `output_level` parameter in build functions
-
-#### PROJR_LOG_DETAILED
-- **Purpose**: Controls whether detailed build logs are written to files
-- **Values**: TRUE/FALSE representations
-- **Default**: `"TRUE"`
-- **Behavior**:
-  - TRUE values: `"TRUE"`, `"true"`, `"1"`, `"YES"`, `"yes"`, `"Y"`, `"y"`
-  - FALSE values: `"FALSE"`, `"false"`, `"0"`, `"NO"`, `"no"`, `"N"`, `"n"`
-  - Case-insensitive for boolean values
-  - When `TRUE`: Creates detailed `.qmd` log files in `cache/projr/log/`
-  - When `FALSE`: Still maintains build history but skips detailed logs
-  - History tracking (`builds.md`) is always maintained regardless of this setting
-
-#### PROJR_CLEAR_OUTPUT
-- **Purpose**: Controls when to clear output directories during builds
-- **Values**: `"pre"`, `"post"`, `"never"`
-- **Default**: `"pre"`
-- **Behavior**:
-  - `"pre"`: Clear output before build starts
-  - `"post"`: Clear output after build completes
-  - `"never"`: Never automatically clear output
-  - Case-sensitive (must be lowercase)
-  - Can be overridden by explicit `clear_output` parameter in build functions
-
-### Authentication
-
-#### GITHUB_PAT
-- **Purpose**: GitHub Personal Access Token for GitHub API operations
-- **Default**: None
-- **Behavior**:
-  - Checked before `GITHUB_TOKEN`
-  - Falls back to `gitcreds` package if not set
-  - Required for creating GitHub repositories and releases
-  - Should have appropriate scopes (repo, workflow, etc.)
-
-#### GITHUB_TOKEN
-- **Purpose**: Alternative GitHub token (lower precedence than GITHUB_PAT)
-- **Default**: None
-- **Behavior**: Used only if `GITHUB_PAT` is not set
-
-#### OSF_PAT
-- **Purpose**: Open Science Framework Personal Access Token
-- **Default**: None
-- **Behavior**: Required for OSF remote destinations
-
-### Testing Control
-
-#### R_PKG_TEST_IN_PROGRESS
-- **Purpose**: Indicates tests are running
-- **Values**: `"TRUE"` or unset
-- **Usage**: Internal, set by test runner
-
-#### R_PKG_TEST_FAST
-- **Purpose**: Skip slow tests
-- **Values**: `"TRUE"` or unset
-- **Usage**: Set to skip integration and slow tests
-
-#### R_PKG_TEST_SELECT
-- **Purpose**: Skip most tests (for targeted testing)
-- **Values**: `"TRUE"` or unset
-- **Usage**: Set to run only specific tests
-
-### Environment Variable Files
-
-The package supports loading environment variables from files:
-
-1. **`_environment.local`**: Machine-specific overrides (git-ignored, highest precedence)
-2. **`_environment-<profile>`**: Profile-specific variables
-3. **`_environment`**: Global defaults (lowest precedence)
-
-**Behavior**:
-- Variables are only set if not already defined (existing values are preserved)
-- Comments are supported (lines starting with `#` or inline after `#`)
-- Format: `VARIABLE_NAME=value` (one per line)
-- Empty values and invalid formats are silently ignored
-- Special characters in values are preserved (spaces, URLs, paths)
-- The `_environment.local` file is automatically added to `.gitignore`
-
-**Example `_environment` file**:
-```bash
-# Project configuration
-PROJR_OUTPUT_LEVEL=debug
-PROJR_LOG_DETAILED=TRUE
-
-# Authentication (use _environment.local for actual tokens)
-# GITHUB_PAT=your_token_here
-
-# URLs and paths work too
-API_URL=https://api.example.com?param=value
-DATA_PATH=/path/to/data
-```
 
 ### Testing Environment Variables
 

@@ -119,8 +119,10 @@
   # get the closest mismatch to the latest version,
   # and if there are no mismatches just return the
   # previous version (furthest away version)
-  version_vec_pre <- manifest_pre_full[["version"]] |> .version_v_rm()
-  version_vec_post <- manifest_post_full[["version"]] |> .version_v_rm()
+  version_vec_pre <- manifest_pre_full[["version"]] |>
+    vapply(.version_v_rm, character(1), USE.NAMES = FALSE)
+  version_vec_post <- manifest_post_full[["version"]] |>
+    vapply(.version_v_rm, character(1), USE.NAMES = FALSE)
   version_vec <- c(version_vec_pre, version_vec_post) |>
     unique() |>
     sort() |>

@@ -15,30 +15,46 @@ projr_restore_repo(
   title = NULL
 )
 
-projr_restore_repo_wd(repo, label = TRUE)
+projr_restore_repo_wd(
+  repo,
+  label = NULL,
+  pos = NULL,
+  type = NULL,
+  title = NULL
+)
 
 projr_restore(label = NULL, pos = NULL, type = NULL, title = NULL)
 }
 \arguments{
 \item{repo}{character. GitHub repository (\code{"owner/repo"} or \code{"repo"}).
-(Only for repository restoration functions.)}
+(Only for repository restoration functions.)
+Must be a single non-empty character string.}
 
-\item{path}{character. Local path for cloning the repository. Default is \code{NULL},
-creating a subdirectory named after the repo. \code{"."} restores directly into the current directory.}
+\item{path}{character or NULL. Local path for cloning the repository. Default is \code{NULL},
+creating a subdirectory named after the repo. \code{"."} restores directly into the
+current directory. Must be NULL or a single non-empty character string.}
 
-\item{label}{character vector. Specifies labels of artefacts to restore.
-Default is \code{NULL}, restoring all \code{raw} artefacts (e.g. \code{raw-data}).}
+\item{label}{character vector or NULL. Specifies labels of artefacts to restore.
+Default is \code{NULL}, restoring all \code{raw} artefacts (e.g. \code{raw-data}).
+Must be NULL or a non-empty character vector with valid directory labels.}
 
-\item{pos}{character vector. Specifies preferred source: \code{"source"} (directories)
-or \code{"dest"} (build). Default is \code{NULL}, checking both.}
+\item{pos}{character vector or NULL. Specifies preferred source: \code{"source"} (directories)
+or \code{"dest"} (build destinations). Default is \code{NULL}, checking both in order.
+Must be NULL or one/both of \code{"source"} and \code{"dest"}.}
 
-\item{type}{character. Remote type: \code{"local"}, \code{"osf"} or \code{"github"}.
-Default is \code{NULL}, automatically choosing the first available remote.}
+\item{type}{character or NULL. Remote type: \code{"local"}, \code{"osf"} or \code{"github"}.
+Default is \code{NULL}, automatically choosing the first available remote.
+Must be NULL or one of the valid remote types.}
 
-\item{title}{character. Remote title as specified in \verb{_projr.yml}. Default is \code{NULL}.}
+\item{title}{character or NULL. Remote title as specified in \verb{_projr.yml}.
+Default is \code{NULL}, using the first available title for the selected type.
+Must be NULL or a single non-empty character string.}
 }
 \value{
-Invisibly returns \code{TRUE} if restoration is successful.
+Invisibly returns \code{TRUE} if all restorations are successful, \code{FALSE} otherwise.
+For \code{projr_restore()}, returns \code{FALSE} if no labels are found to restore or if any
+restoration fails. For \code{projr_restore_repo()}, returns \code{FALSE} if cloning or
+restoration fails.
 }
 \description{
 Use \code{projr_restore()} to restore all artefacts needed for the current project.
@@ -46,19 +62,51 @@ If the project isn't available locally yet,
 \code{projr_restore_repo()} will clone it and then restore its artefacts.
 }
 \details{
+These functions restore artefact directories from remote sources:
 \itemize{
 \item \code{projr_restore()} restores artefacts in an existing local project without any cloning required.
-\item \code{projr_restore_repo()} clones a GitHub repository into a subdirectory (or specified path), then restores artefacts.
+Requires a \code{manifest.csv} file in the project root.
+\item \code{projr_restore_repo()} clones a GitHub repository into a subdirectory (or specified path),
+then restores artefacts from that repository's remote sources.
 \item \code{projr_restore_repo_wd()} clones directly into the current working directory, then restores artefacts.
+}
+
+\strong{Input Validation:}
+All parameters are validated before execution:
+\itemize{
+\item \code{label}: Must be NULL or a non-empty character vector of valid directory labels
+\item \code{pos}: Must be NULL or contain only "source" and/or "dest"
+\item \code{type}: Must be NULL or one of "local", "osf", or "github"
+\item \code{title}: Must be NULL or a single character string
+\item \code{repo}: Must be a single non-empty character string
+\item \code{path}: Must be NULL or a single non-empty character string
+}
+
+\strong{Error Handling:}
+The functions handle errors gracefully:
+\itemize{
+\item Missing \code{manifest.csv} triggers an informative error
+\item Invalid labels or missing remote sources result in warning messages and skipped restoration
+\item Git clone failures are caught and reported
+\item Errors during restoration are caught per label, allowing partial success
 }
 }
 \examples{
 \dontrun{
-  # Restore all artefacts in existing local project
+  # Restore all raw artefacts in existing local project
   projr_restore()
+  
+  # Restore specific labels
+  projr_restore(label = c("raw-data", "cache"))
+  
+  # Restore from specific source type
+  projr_restore(type = "local", title = "archive")
 
   # Clone repository into subdirectory and restore artefacts
   projr_restore_repo("owner/repo")
+  
+  # Clone to specific path
+  projr_restore_repo("owner/repo", path = "my-project")
 
   # Clone repository into current directory and restore artefacts
   projr_restore_repo_wd("owner/repo")

@@ -4,32 +4,71 @@
 #' If the project isn't available locally yet, 
 #' `projr_restore_repo()` will clone it and then restore its artefacts.
 #'
-#' @param label character vector. Specifies labels of artefacts to restore.
+#' @param label character vector or NULL. Specifies labels of artefacts to restore.
 #'   Default is `NULL`, restoring all `raw` artefacts (e.g. `raw-data`).
-#' @param pos character vector. Specifies preferred source: `"source"` (directories)
-#'   or `"dest"` (build). Default is `NULL`, checking both.
-#' @param type character. Remote type: `"local"`, `"osf"` or `"github"`.
+#'   Must be NULL or a non-empty character vector with valid directory labels.
+#' @param pos character vector or NULL. Specifies preferred source: `"source"` (directories)
+#'   or `"dest"` (build destinations). Default is `NULL`, checking both in order.
+#'   Must be NULL or one/both of `"source"` and `"dest"`.
+#' @param type character or NULL. Remote type: `"local"`, `"osf"` or `"github"`.
 #'   Default is `NULL`, automatically choosing the first available remote.
-#' @param title character. Remote title as specified in `_projr.yml`. Default is `NULL`.
+#'   Must be NULL or one of the valid remote types.
+#' @param title character or NULL. Remote title as specified in `_projr.yml`. 
+#'   Default is `NULL`, using the first available title for the selected type.
+#'   Must be NULL or a single non-empty character string.
 #' @param repo character. GitHub repository (`"owner/repo"` or `"repo"`).
 #'   (Only for repository restoration functions.)
-#' @param path character. Local path for cloning the repository. Default is `NULL`,
-#'   creating a subdirectory named after the repo. `"."` restores directly into the current directory.
+#'   Must be a single non-empty character string.
+#' @param path character or NULL. Local path for cloning the repository. Default is `NULL`,
+#'   creating a subdirectory named after the repo. `"."` restores directly into the 
+#'   current directory. Must be NULL or a single non-empty character string.
 #'
-#' @return Invisibly returns `TRUE` if restoration is successful.
+#' @return Invisibly returns `TRUE` if all restorations are successful, `FALSE` otherwise.
+#'   For `projr_restore()`, returns `FALSE` if no labels are found to restore or if any
+#'   restoration fails. For `projr_restore_repo()`, returns `FALSE` if cloning or
+#'   restoration fails.
 #'
 #' @details
+#' These functions restore artefact directories from remote sources:
+#' 
 #' - `projr_restore()` restores artefacts in an existing local project without any cloning required.
-#' - `projr_restore_repo()` clones a GitHub repository into a subdirectory (or specified path), then restores artefacts.
+#'   Requires a `manifest.csv` file in the project root.
+#' - `projr_restore_repo()` clones a GitHub repository into a subdirectory (or specified path), 
+#'   then restores artefacts from that repository's remote sources.
 #' - `projr_restore_repo_wd()` clones directly into the current working directory, then restores artefacts.
+#' 
+#' **Input Validation:**
+#' All parameters are validated before execution:
+#' - `label`: Must be NULL or a non-empty character vector of valid directory labels
+#' - `pos`: Must be NULL or contain only "source" and/or "dest"
+#' - `type`: Must be NULL or one of "local", "osf", or "github"
+#' - `title`: Must be NULL or a single character string
+#' - `repo`: Must be a single non-empty character string
+#' - `path`: Must be NULL or a single non-empty character string
+#' 
+#' **Error Handling:**
+#' The functions handle errors gracefully:
+#' - Missing `manifest.csv` triggers an informative error
+#' - Invalid labels or missing remote sources result in warning messages and skipped restoration
+#' - Git clone failures are caught and reported
+#' - Errors during restoration are caught per label, allowing partial success
 #' 
 #' @examples
 #' \dontrun{
-#'   # Restore all artefacts in existing local project
+#'   # Restore all raw artefacts in existing local project
 #'   projr_restore()
+#'   
+#'   # Restore specific labels
+#'   projr_restore(label = c("raw-data", "cache"))
+#'   
+#'   # Restore from specific source type
+#'   projr_restore(type = "local", title = "archive")
 #'
 #'   # Clone repository into subdirectory and restore artefacts
 #'   projr_restore_repo("owner/repo")
+#'   
+#'   # Clone to specific path
+#'   projr_restore_repo("owner/repo", path = "my-project")
 #'
 #'   # Clone repository into current directory and restore artefacts
 #'   projr_restore_repo_wd("owner/repo")
@@ -42,6 +81,60 @@ projr_restore <- function(label = NULL,
                           pos = NULL,
                           type = NULL,
                           title = NULL) {
+  # Input validation
+  if (!is.null(label)) {
+    if (!is.character(label)) {
+      stop("'label' must be NULL or a character vector")
+    }
+    if (length(label) == 0) {
+      stop("'label' must have at least one element if not NULL")
+    }
+  }
+  if (!is.null(pos)) {
+    if (!is.character(pos)) {
+      stop("'pos' must be NULL or a character vector")
+    }
+    if (length(pos) == 0) {
+      stop("'pos' must have at least one element if not NULL")
+    }
+    invalid_pos <- pos[!pos %in% c("source", "dest")]
+    if (length(invalid_pos) > 0) {
+      stop(
+        "'pos' must be 'source' or 'dest'. Invalid values: ",
+        paste(invalid_pos, collapse = ", ")
+      )
+    }
+  }
+  if (!is.null(type)) {
+    if (!is.character(type)) {
+      stop("'type' must be NULL or a character vector")
+    }
+    if (length(type) == 0) {
+      stop("'type' must have at least one element if not NULL")
+    }
+    if (length(type) > 1) {
+      stop("'type' must be a single character value")
+    }
+    valid_types <- c("local", "osf", "github")
+    if (!type %in% valid_types) {
+      stop(
+        "'type' must be one of: ",
+        paste(valid_types, collapse = ", ")
+      )
+    }
+  }
+  if (!is.null(title)) {
+    if (!is.character(title)) {
+      stop("'title' must be NULL or a character vector")
+    }
+    if (length(title) == 0) {
+      stop("'title' must have at least one element if not NULL")
+    }
+    if (length(title) > 1) {
+      stop("'title' must be a single character value")
+    }
+  }
+  
   .title <- title
   if (!file.exists(.path_get("manifest.csv"))) {
     stop(
@@ -49,14 +142,27 @@ projr_restore <- function(label = NULL,
     )
   }
   label <- .restore_get_label(label)
+  
+  # Handle case where no labels to restore
+  if (length(label) == 0) {
+    message("No labels to restore")
+    return(invisible(FALSE))
+  }
+  
+  success <- TRUE
   for (i in seq_along(label)) {
-    tryCatch(
+    result <- tryCatch(
       .restore_label(label[[i]], pos, type, .title),
       error = function(e) {
         message("Error restoring label: ", label[[i]], " - ", e$message)
+        return(FALSE)
       }
     )
+    if (isFALSE(result)) {
+      success <- FALSE
+    }
   }
+  invisible(success)
 }
 
 .restore_get_label <- function(label) {
@@ -88,6 +194,14 @@ projr_restore <- function(label = NULL,
   }
   # get source remote (type and title)
   source_vec <- .restore_label_get_source(pos, label, type, .title)
+  
+  # Check if source was found
+  if (is.null(source_vec)) {
+    message("No restore source found for label: ", label)
+    message("Skipping restore for ", label)
+    return(invisible(FALSE))
+  }
+  
   yml_title <- .yml_dest_get_title_complete(
     source_vec[["title"]], source_vec[["type"]], NULL, FALSE, FALSE
   )
