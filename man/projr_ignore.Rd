@@ -48,13 +48,16 @@ These functions allow manual addition of files and directories to the
 \code{.gitignore} and \code{.Rbuildignore} files, outside of the automatic management
 provided by the \code{projr} package.
 \itemize{
-\item .ignore_manual\verb{: General function to add both files and directories to both }.gitignore\code{and}.Rbuildignore`. If a path does not exist, it is
+\item \code{projr_ignore}: General function to add both files and directories
+to both \code{.gitignore} and \code{.Rbuildignore}. If a path does not exist, it is
 treated as a file.
-\item .ignore_manual_dir\verb{: Specifically adds directories to both }.gitignore\code{and}.Rbuildignore`.
-\item .ignore_manual_file\verb{: Specifically adds files to both }.gitignore\code{and}.Rbuildignore`.
-\item .ignore_manual_dir_git\verb{ and .ignore_manual_file_git}: Add
+\item \code{projr_ignore_dir}: Specifically adds directories to both \code{.gitignore}
+and \code{.Rbuildignore}.
+\item \code{projr_ignore_file}: Specifically adds files to both \code{.gitignore}
+and \code{.Rbuildignore}.
+\item \code{projr_ignore_dir_git} and \code{projr_ignore_file_git}: Add
 directories or files explicitly to \code{.gitignore}.
-\item .ignore_manual_dir_rbuild\verb{ and .ignore_manual_file_rbuild}: Add
+\item \code{projr_ignore_dir_rbuild} and \code{projr_ignore_file_rbuild}: Add
 directories or files explicitly to \code{.Rbuildignore}.
 }
 }
@@ -63,7 +66,7 @@ These functions provide fine-grained control for cases where users want to
 manually ignore specific paths permanently. They do not interact with the
 automated ignore management system of \code{projr}.
 \itemize{
-\item Non-existent paths provided to .ignore_manual` are assumed to be files.
+\item Non-existent paths provided to \code{projr_ignore} are assumed to be files.
 \item For \code{.gitignore}, directories are automatically appended with \verb{/**} if
 missing, ensuring proper Git ignore syntax.
 \item For \code{.Rbuildignore}, paths are converted to regular expressions using
@@ -82,6 +85,6 @@ projr_ignore_file("README.md")
 
 }
 \seealso{
-.ignore_auto\verb{ for dynamically managed ignore entries, and .unignore_manual}
+\code{projr_ignore_auto} for dynamically managed ignore entries, and \code{projr_unignore_manual}
 for forcing certain paths to not be ignored.
 }

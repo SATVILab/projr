@@ -9,13 +9,13 @@
 #' .yml_git_set` sets Git options for the project.
 #'
 #' The options are:
-#' \describe{
-#' \item{commit}{whether to commit changes automatically upon
-#' project builds.}
-#' \item{add_untracked}{whether to add untracked files automatically upon
-#' project builds.}
-#' \item{push}{whether to push changes automatically upon
-#' project builds.}
+#' \itemize{
+#' \item commit: whether to commit changes automatically upon
+#' project builds.
+#' \item add_untracked: whether to add untracked files automatically upon
+#' project builds.
+#' \item push: whether to push changes automatically upon
+#' project builds.
 #' }
 #' The default is to leave all the settings unchanged.
 #'

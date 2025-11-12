@@ -74,7 +74,7 @@
     cli::cli_alert_warning("Git repository not found.")
     cli::cli_inform("It is not required, but recommended, and projr will handle setup and (by default) commits for you.")
     cli::cli_inform("If you choose not to create one now, then Git handling by projr will be disabled.")
-    choice <- menu(
+    choice <- utils::menu(
       c("Yes", "No"),
       title = "Do you want to create a new Git repository?"
     )
@@ -134,7 +134,7 @@
   if (interactive()) {
     cli::cli_alert_warning("GitHub remote not found.")
     cli::cli_inform("It is not required, but recommended, and projr will help handle setup for you.") # nolint
-    choice <- menu(
+    choice <- utils::menu(
       c("Yes", "No"),
       title = "Do you want to create a new GitHub remote?"
     )
@@ -176,7 +176,7 @@
   if (!interactive()) {
     return(c("user" = user))
   }
-  choice <- menu(
+  choice <- utils::menu(
     c(user, "Organisation"),
     title = paste0("Do you want to set up the GitHub remote under user ", user, ", or under an organisation?") # nolint
   )

@@ -45,7 +45,11 @@
 #' the `projr` configuration file.
 #' @param archive_local `TRUE`, `FALSE` or character vector of
 #' directory labels.
-#' Similar to `archive_github` but for local archiving.
+#' If `TRUE`, then all directories (`raw-data`, `output`, etc)
+#' are archived to a local directory.
+#' If `FALSE`, then no directories are archived locally.
+#' If a character vector, then only the directories
+#' specified are archived.
 #' Default is `FALSE`.
 #' @param always_archive logical.
 #' If `TRUE`, then the directories are uploaded

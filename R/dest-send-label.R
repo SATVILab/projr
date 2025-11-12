@@ -1072,8 +1072,8 @@
 }
 
 .dest_send_label_implement_plan_github_empty <- function(remote_dest,
-                                                         output_level = "std",
-                                                         log_file = NULL) {
+                                                        output_level = "std",
+                                                        log_file = NULL) {
   # this only happens if the remote doesn't exist,
   # what if we in the end end up with no remote, what then?
   # shouldn't we always have some sort of remote?

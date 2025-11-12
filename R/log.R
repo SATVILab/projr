@@ -210,7 +210,7 @@
     "",
     "# Build Summary",
     "",
-    paste0("- **Status**: ", if (success) "[SUCCESS]" else "[FAILED]"),
+    paste0("- **Status**: ", if (success) "[OK] SUCCESS" else "[X] FAILED"),
     if (!is.null(start_time)) {
       duration <- difftime(Sys.time(), start_time, units = "secs")
       paste0("- **Duration**: ", round(as.numeric(duration), 2), " seconds")
@@ -250,7 +250,7 @@
   
   # Create new entry
   timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-  status <- if (success) "[OK]" else "[FAIL]"
+  status <- if (success) "[OK]" else "[X]"
   
   entry <- c(
     paste0("## ", timestamp, " ", status),
