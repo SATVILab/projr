@@ -20,30 +20,28 @@
 #' @seealso.profile_create_local.profile_get
 #' @export
 projr_profile_create <- function(profile) {
+  # Validate that profile is provided
+  if (missing(profile)) {
+    stop("profile parameter is required", call. = FALSE)
+  }
+  
   .assert_len_1(profile)
-  if (missing(profile) || profile == "default") {
-    profile_spec <- ""
-  } else {
-    .assert_string(profile)
-    profile_spec <- paste0("-", profile)
+  .assert_string(profile, required = TRUE)
+  
+  # Reject protected profile names
+  if (profile %in% c("local", "default")) {
+    stop(
+      "Cannot create profile named '", profile, 
+      "' as it is reserved for internal use.",
+      call. = FALSE
+    )
   }
-  path_file <- paste0("_projr", profile_spec, ".yml") |>
-    .path_get()
-  projr_ignore_file_rbuild(basename(path_file))
-  if (profile == "local") {
-    projr_ignore_file_git("_projr-local.yml")
-  }
-  if (file.exists(path_file)) {
-    message(paste0("File ", path_file, " already exists"))
-    return(invisible(FALSE))
-  }
-  file.create(path_file)
-
-  message(paste0(
-    "Created file ", basename(path_file), " in root of project"
-  ))
-
-  invisible(TRUE)
+  
+  # Validate profile name characters
+  .profile_check(profile)
+  
+  # Create the profile file
+  .profile_create(profile = profile, silent = TRUE)
 }
 
 #' @title Create a local `projr` profile
@@ -58,8 +56,79 @@ projr_profile_create <- function(profile) {
 #' (i.e. from `_projr-<profile>.yml` or `_projr.yml`) is used.
 #' Empty settings are by default indicated by `~`.
 #' @seealso.profile_create_local.yml_get
+#' @export
 projr_profile_create_local <- function() {
-  .profile_create(local)
+  .profile_create_local()
+}
+
+# Internal function to create a profile file
+.profile_create <- function(profile, silent = TRUE) {
+  # Validate input
+  if (missing(profile)) {
+    # Get profile from environment if not provided
+    profile <- .profile_get_raw()
+    if (!nzchar(profile)) {
+      profile <- "default"
+    }
+  }
+  
+  # Validate silent parameter
+  if (!is.logical(silent) || length(silent) != 1) {
+    stop("silent must be a single logical value", call. = FALSE)
+  }
+  
+  .assert_string(profile, required = TRUE)
+  
+  # Check if profile name is valid
+  .profile_check(profile)
+  
+  # Create profile file
+  profile_spec <- paste0("-", profile)
+  path_file <- paste0("_projr", profile_spec, ".yml") |>
+    .path_get()
+  
+  # Add to rbuildignore
+  projr_ignore_file_rbuild(basename(path_file))
+  
+  # Check if file already exists
+  if (file.exists(path_file)) {
+    if (!silent) {
+      message(paste0("projr profile ", profile, " already exists"))
+    }
+    return(invisible(FALSE))
+  }
+  
+  # Create the file
+  file.create(path_file)
+  
+  if (!silent) {
+    message(paste0("Added the following profile: ", profile))
+  }
+  
+  invisible(TRUE)
+}
+
+# Internal function to create local profile with proper structure
+.profile_create_local <- function() {
+  path_file <- .path_get("_projr-local.yml")
+  
+  # Check if file already exists
+  if (file.exists(path_file)) {
+    stop("_projr-local.yml already exists", call. = FALSE)
+  }
+  
+  # Get the default yml structure and make elements NULL
+  yml_default <- .yml_get_default_raw()
+  yml_local <- .list_elem_as_null(yml_default)
+  
+  # Write the file
+  yaml::write_yaml(yml_local, path_file)
+  
+  # Add to gitignore and rbuildignore
+  .profile_create_local_ignore_git()
+  .profile_create_local_ignore_rbuild()
+  
+  invisible(TRUE)
 }
 
 .list_elem_as_null <- function(x) {
@@ -122,7 +191,21 @@ projr_profile_create_local <- function() {
 #'
 #' @export
 projr_profile_get <- function() {
-  .profile_get_var()
+  profile <- .profile_get_var()
+  # Return "default" if no profile is set
+  if (length(profile) == 0) {
+    return("default")
+  }
+  profile
+}
+
+# Internal function to get the active profile name (including "default")
+.profile_get <- function() {
+  profile <- .profile_get_raw()
+  if (!nzchar(profile)) {
+    return("default")
+  }
+  profile
 }
 
 .profile_get_var <- function() {
@@ -180,9 +263,15 @@ projr_profile_delete <- function(profile) {
   invisible(file.remove(path_fn))
 }
 
+# Internal wrapper function for profile deletion
+.profile_delete <- function(profile) {
+  .profile_delete_impl(profile)
+}
+
 #' @title Delete local `projr` settings file.
 #'
 #' @description Deletes `_projr-local.yml` file.
+#' @export
 projr_profile_delete_local <- function() {
   .profile_delete("local")
 }
