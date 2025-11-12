@@ -1012,6 +1012,235 @@ v1_files <- .manifest_filter_version(manifest, "0.0.1")
 .zero_tbl_get_manifest_changes()  # 0-row changes table
 ```
 
+## Hash Functions
+
+The package includes comprehensive file and directory hashing functionality used throughout the manifest and change detection systems. Hash functions compute MD5 hashes of file contents to track changes over time.
+
+### Core Hash Functions (R/hash.R)
+
+#### `.hash_file(fn)`
+Hash one or more files and return their MD5 hashes.
+
+**Parameters**:
+- `fn` (character vector): File path(s) to hash
+
+**Returns**: Named character vector with hashes (names are file paths)
+
+**Examples**:
+```r
+# Hash a single file
+hash <- .hash_file("path/to/file.txt")
+
+# Hash multiple files
+hashes <- .hash_file(c("file1.txt", "file2.txt", "file3.txt"))
+
+# Files with identical content have identical hashes
+all(hashes[c(1, 3)] == hashes[1])  # TRUE if file1 and file3 have same content
+```
+
+**Implementation Notes**:
+- Uses `digest::digest()` with `serialize = FALSE` and `file = TRUE`
+- Vectorized via `vapply()` over input files
+- Returns character vector with file paths as names
+- Use `unname()` for comparison if names interfere
+
+#### `.hash_dir(path_dir, version = NULL, dir_exc = NULL)`
+Hash all files in a directory recursively and return a data frame with file paths, versions, and hashes.
+
+**Parameters**:
+- `path_dir` (character): Directory path to hash
+- `version` (character, optional): Version to assign (defaults to current project version)
+- `dir_exc` (character vector, optional): Directory names to exclude from hashing
+
+**Returns**: Data frame with columns `fn` (relative path), `version`, `hash`
+
+**Examples**:
+```r
+# Hash all files in a directory
+hash_tbl <- .hash_dir("_output")
+
+# Hash with specific version
+hash_tbl <- .hash_dir("_output", version = "1.0.0")
+
+# Hash with exclusions (excludes "projr" subdirectory from cache)
+hash_tbl <- .hash_dir("_tmp", dir_exc = "projr")
+
+# Empty directory returns 0-row data frame
+hash_tbl <- .hash_dir("empty_dir")  # nrow(hash_tbl) == 0
+```
+
+**Implementation Notes**:
+- Uses `.file_ls()` to recursively list files
+- Filters excluded directories using `.path_filter_spec()` **before** converting to absolute paths
+- Returns relative paths in `fn` column
+- Includes hidden files (starting with `.`)
+- Version is prefixed with "v" automatically via `.version_v_add()`
+
+**Bug Fix History**:
+- **Fixed in this PR**: `dir_exc` filtering was applied after `file.path()` call, preventing exclusions from working. Now filters relative paths before making them absolute.
+
+#### `.zero_tbl_get_hash()`
+Return an empty hash table with the correct structure.
+
+**Returns**: 0-row data frame with columns `fn`, `version`, `hash` (all character)
+
+### Change Detection Functions (R/change.R)
+
+#### `.change_get_hash(hash_pre, hash_post)`
+Compare two hash tables and identify added, removed, unchanged, and modified files.
+
+**Parameters**:
+- `hash_pre` (data frame): Hash table for "before" state (must have `fn` and `hash` columns)
+- `hash_post` (data frame): Hash table for "after" state (must have `fn` and `hash` columns)
+
+**Returns**: List with 4 character vectors:
+- `fn_dest_extra`: Files removed (in pre but not in post)
+- `fn_same`: Files unchanged (in both with same hash)
+- `fn_diff`: Files modified (in both with different hash)
+- `fn_source_extra`: Files added (in post but not in pre)
+
+**Examples**:
+```r
+# Create hash tables
+hash_pre <- data.frame(
+  fn = c("file1.txt", "file2.txt"),
+  version = c("v1.0.0", "v1.0.0"),
+  hash = c("hash1", "hash2"),
+  stringsAsFactors = FALSE
+)
+
+hash_post <- data.frame(
+  fn = c("file1.txt", "file2.txt", "file3.txt"),
+  version = c("v1.0.0", "v1.0.0", "v1.0.0"),
+  hash = c("hash1", "hash2_modified", "hash3"),
+  stringsAsFactors = FALSE
+)
+
+# Compare
+result <- .change_get_hash(hash_pre, hash_post)
+
+# result$fn_same: "file1.txt" (unchanged)
+# result$fn_diff: "file2.txt" (modified)
+# result$fn_source_extra: "file3.txt" (added)
+# result$fn_dest_extra: character(0) (none removed)
+```
+
+**Implementation Notes**:
+- Uses `%in%` operator for set operations
+- Handles empty hash tables correctly (returns appropriate empty vectors)
+- Applies `.filter_filter_non_na()` to clean up NA values
+
+#### `.change_get_dir(path_dir_pre, path_dir_post)`
+Compare two directories by hashing their contents and detecting changes.
+
+**Parameters**:
+- `path_dir_pre` (character): "Before" directory path
+- `path_dir_post` (character): "After" directory path
+
+**Returns**: Same structure as `.change_get_hash()` (list with 4 character vectors)
+
+**Examples**:
+```r
+# Compare two directories
+result <- .change_get_dir("_output_v1", "_output_v2")
+
+# Files in result$fn_same have not changed
+# Files in result$fn_diff have been modified
+# Files in result$fn_source_extra are new
+# Files in result$fn_dest_extra were removed
+```
+
+**Implementation Notes**:
+- Hashes both directories using `.hash_dir()`
+- Calls `.change_get_hash()` to compare the hash tables
+
+**Bug Fix History**:
+- **Fixed in this PR**: Function had `stop("this should not happen like this")` instead of actually hashing the pre directory
+
+### Testing Hash Functions
+
+Comprehensive tests are in `tests/testthat/test-hash.R` (84 assertions across 13 test cases):
+
+**`.hash_file()` tests**:
+- Single file hashing
+- Multiple file hashing (with name handling)
+- Different file types (empty, binary, large text)
+- Identical content produces identical hashes
+- Different content produces different hashes
+
+**`.hash_dir()` tests**:
+- Empty directories (returns 0-row table)
+- Nested directory structures
+- Directory exclusion (`dir_exc` parameter)
+- Hidden files (included in hash)
+- Version assignment
+- Relative paths in output
+
+**`.change_get_hash()` tests**:
+- Detecting added files (empty pre, populated post)
+- Detecting removed files (populated pre, empty post)
+- Detecting unchanged files (identical hashes)
+- Detecting modified files (same filename, different hash)
+- Mixed changes (combination of all types)
+
+**`.change_get_dir()` tests**:
+- Directory comparison end-to-end
+- Correctly identifies all change types
+
+**Test Patterns**:
+```r
+test_that(".hash_file works with single file", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      test_file <- file.path(tempdir(), "test.txt")
+      writeLines("content", test_file)
+      
+      hash_result <- .hash_file(test_file)
+      
+      expect_true(is.character(hash_result))
+      expect_identical(length(hash_result), 1L)
+      
+      # Verify same content = same hash
+      hash_result2 <- .hash_file(test_file)
+      expect_identical(hash_result, hash_result2)
+      
+      unlink(test_file)
+    }
+  )
+})
+```
+
+### Common Patterns
+
+```r
+# Hash a directory for tracking changes
+hash_tbl <- .hash_dir(projr_path_get_dir("output"))
+
+# Compare two versions
+hash_pre <- .hash_dir(projr_path_get_dir("output", safe = TRUE))
+hash_post <- .hash_dir("_output")
+changes <- .change_get_hash(hash_pre, hash_post)
+
+# Check if files changed
+if (length(changes$fn_diff) > 0) {
+  message("Modified files: ", paste(changes$fn_diff, collapse = ", "))
+}
+
+# Exclude specific directories from hashing
+hash_tbl <- .hash_dir("_tmp", dir_exc = c("projr", "cache_old"))
+```
+
+### Key Design Principles
+
+1. **Relative Paths**: Hash tables always store relative paths (relative to hashed directory)
+2. **Version Prefixing**: Versions are always prefixed with "v" in hash tables
+3. **Empty Handling**: Empty directories and comparisons return well-structured 0-row tables
+4. **Filter Before Absolute**: Directory exclusions must be filtered before converting paths to absolute
+5. **Named Vectors**: `.hash_file()` returns named vectors (file paths as names) - use `unname()` for comparisons
+
 ## Directory Functions
 
 The package includes a comprehensive directory management system that handles project directory paths with support for safe/unsafe modes, creation, and various directory labels.
