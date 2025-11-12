@@ -7,7 +7,7 @@ test_that("projr_yml_cite_ functions work works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      .yml_cite_set_default()
+      projr_yml_cite_set_default()
       expect_identical(
         .yml_cite_get("default"),
         NULL
@@ -50,7 +50,7 @@ test_that("projr_yml_cite_ functions work works", {
       )
       # use meaningful default
       .yml_cite_set(cff = FALSE)
-      .yml_cite_set_default()
+      projr_yml_cite_set_default()
       expect_identical(
         .yml_cite_get("default"),
         NULL
