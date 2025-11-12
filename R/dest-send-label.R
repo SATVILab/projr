@@ -200,10 +200,15 @@
            label) { # nolint
     version_project <- projr_version_get() |> .version_v_rm()
     version_comp_untrusted <- if (inspect == "file") version_project else NULL
-    version_remote <- .remote_get_version_label(
+    version_remote_raw <- .remote_get_version_label(
       remote_pre, type, label, "latest"
-    ) |>
-      .version_v_rm()
+    )
+    # Only call .version_v_rm if we have a valid value
+    version_remote <- if (.is_string(version_remote_raw)) {
+      version_remote_raw |> .version_v_rm()
+    } else {
+      NULL
+    }
     if (!.is_string(version_remote)) {
       version_comp_untrusted
     } else {

@@ -160,6 +160,10 @@
 }
 
 .empty_tbl_get_manifest <- function(label, version) {
+  # If version is NULL, use current project version
+  if (is.null(version)) {
+    version <- projr_version_get()
+  }
   out_df <- data.frame(
     label = label,
     fn = character(1),
