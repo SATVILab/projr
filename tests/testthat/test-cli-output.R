@@ -123,3 +123,101 @@ test_that("CLI output works in actual build (integration test)", {
     force = TRUE
   )
 })
+
+test_that("PROJR_OUTPUT_LEVEL validates input correctly", {
+  skip_if(.is_test_select())
+  
+  old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
+  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_OUTPUT_LEVEL = old_val) else Sys.unsetenv("PROJR_OUTPUT_LEVEL"))
+  
+  # Valid values should work
+  Sys.setenv(PROJR_OUTPUT_LEVEL = "none")
+  expect_identical(.cli_output_level_get(NULL, FALSE), "none")
+  
+  Sys.setenv(PROJR_OUTPUT_LEVEL = "std")
+  expect_identical(.cli_output_level_get(NULL, FALSE), "std")
+  
+  Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
+  expect_identical(.cli_output_level_get(NULL, FALSE), "debug")
+  
+  # Invalid value should error
+  Sys.setenv(PROJR_OUTPUT_LEVEL = "invalid")
+  expect_error(.cli_output_level_get(NULL, FALSE))
+  
+  # Case sensitivity check
+  Sys.setenv(PROJR_OUTPUT_LEVEL = "DEBUG")
+  expect_error(.cli_output_level_get(NULL, FALSE))
+})
+
+test_that("PROJR_OUTPUT_LEVEL explicit parameter overrides env var", {
+  skip_if(.is_test_select())
+  
+  old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
+  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_OUTPUT_LEVEL = old_val) else Sys.unsetenv("PROJR_OUTPUT_LEVEL"))
+  
+  # Set env var to one value
+  Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
+  
+  # Explicit parameter should override
+  expect_identical(.cli_output_level_get("none", FALSE), "none")
+  expect_identical(.cli_output_level_get("std", TRUE), "std")
+})
+
+test_that("PROJR_OUTPUT_LEVEL defaults work correctly", {
+  skip_if(.is_test_select())
+  
+  old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
+  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_OUTPUT_LEVEL = old_val) else Sys.unsetenv("PROJR_OUTPUT_LEVEL"))
+  
+  # Unset env var should use defaults
+  Sys.unsetenv("PROJR_OUTPUT_LEVEL")
+  
+  # Dev build default is "none"
+  expect_identical(.cli_output_level_get(NULL, FALSE), "none")
+  
+  # Output build default is "std"
+  expect_identical(.cli_output_level_get(NULL, TRUE), "std")
+})
+
+test_that("CLI functions handle NULL log_file parameter", {
+  skip_if(.is_test_select())
+  
+  # All CLI functions should handle NULL log_file gracefully
+  expect_silent(.cli_info("test", output_level = "none", log_file = NULL))
+  expect_silent(.cli_success("test", output_level = "none", log_file = NULL))
+  expect_silent(.cli_debug("test", output_level = "none", log_file = NULL))
+  expect_silent(.cli_step("test", output_level = "none", log_file = NULL))
+  expect_silent(.cli_stage_header("test", "dev", "none", log_file = NULL))
+})
+
+test_that("CLI debug messages only show at debug level", {
+  skip_if(.is_test_select())
+  
+  # At "none" level, debug should be silent
+  expect_silent(.cli_debug("debug msg", output_level = "none"))
+  
+  # At "std" level, debug should be silent
+  expect_silent(.cli_debug("debug msg", output_level = "std"))
+  
+  # At "debug" level, debug should produce output
+  expect_error(.cli_debug("debug msg", output_level = "debug"), NA)
+})
+
+test_that("CLI message hierarchy works correctly", {
+  skip_if(.is_test_select())
+  
+  # none level - nothing shows
+  expect_silent(.cli_info("info", output_level = "none"))
+  expect_silent(.cli_success("success", output_level = "none"))
+  expect_silent(.cli_debug("debug", output_level = "none"))
+  
+  # std level - info and success show, debug doesn't
+  expect_error(.cli_info("info", output_level = "std"), NA)
+  expect_error(.cli_success("success", output_level = "std"), NA)
+  expect_silent(.cli_debug("debug", output_level = "std"))
+  
+  # debug level - all show
+  expect_error(.cli_info("info", output_level = "debug"), NA)
+  expect_error(.cli_success("success", output_level = "debug"), NA)
+  expect_error(.cli_debug("debug", output_level = "debug"), NA)
+})
