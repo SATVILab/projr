@@ -314,6 +314,39 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   }
 }
 
+.check_renv_params <- function(github, non_github, biocmanager_install) {
+  # Validates parameters for renv functions.
+  # Checks that parameters are logical and at least one package source is selected.
+  
+  if (!is.logical(github) || length(github) != 1L) {
+    stop("'github' must be a single logical value (TRUE or FALSE).")
+  }
+  
+  if (!is.logical(non_github) || length(non_github) != 1L) {
+    stop("'non_github' must be a single logical value (TRUE or FALSE).")
+  }
+  
+  if (!is.logical(biocmanager_install) || length(biocmanager_install) != 1L) {
+    stop("'biocmanager_install' must be a single logical value (TRUE or FALSE).")
+  }
+  
+  if (!github && !non_github) {
+    stop("At least one of 'github' or 'non_github' must be TRUE.")
+  }
+}
+
+.check_renv_lockfile <- function() {
+  # Checks if renv.lock file exists in the current project.
+  # Stops execution if not found.
+  
+  if (!file.exists("renv.lock")) {
+    stop(
+      "renv.lock file not found in the current directory. ",
+      "Please ensure you are in a project with an renv lockfile."
+    )
+  }
+}
+
 
 #' @title Restore or Update renv Lockfile Packages
 #'
@@ -362,6 +395,8 @@ projr_renv_restore <- function(github = TRUE,
   # Restores packages from the lockfile, installing specified versions.
 
   .check_renv()
+  .check_renv_params(github, non_github, biocmanager_install)
+  .check_renv_lockfile()
   .ensure_cli()
 
   cli::cli_h1("Starting renv environment restoration")
@@ -386,6 +421,8 @@ projr_renv_update <- function(github = TRUE,
   # Updates packages to their latest versions, ignoring the lockfile.
 
   .check_renv()
+  .check_renv_params(github, non_github, biocmanager_install)
+  .check_renv_lockfile()
   .ensure_cli()
 
   cli::cli_h1("Starting renv environment update")
@@ -409,8 +446,12 @@ projr_renv_restore_and_update <- function(github = TRUE,
                                           biocmanager_install = FALSE) {
   # First restores packages to the lockfile versions, then updates them to the latest versions.
 
-  .renv_restore(github, non_github, biocmanager_install)
-  .renv_update(github, non_github, biocmanager_install)
+  .check_renv()
+  .check_renv_params(github, non_github, biocmanager_install)
+  .check_renv_lockfile()
+
+  projr_renv_restore(github, non_github, biocmanager_install)
+  projr_renv_update(github, non_github, biocmanager_install)
 }
 
 .renv_lockfile_pkg_get <- function() {
