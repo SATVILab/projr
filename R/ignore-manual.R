@@ -50,7 +50,7 @@
 #'
 #' @examples
 #' # Manually ignore files and directories
-#' projr_ignore_manual(c("output", "tempfile.log"))
+#' projr_ignore(c("output", "tempfile.log"))
 #'
 #' # Specifically ignore directories
 #' projr_ignore_dir("data")
@@ -77,7 +77,7 @@ projr_ignore <- function(ignore, force_create = TRUE) {
   projr_ignore_dir_rbuild(ignore_dir, force_create)
 }
 
-#' @rdname projr_ignore_manual
+#' @rdname projr_ignore
 #' @export
 projr_ignore_dir <- function(ignore, force_create = TRUE) {
   ignore <- setdiff(ignore, "")
@@ -88,7 +88,7 @@ projr_ignore_dir <- function(ignore, force_create = TRUE) {
   projr_ignore_dir_rbuild(ignore, force_create)
 }
 
-#' @rdname projr_ignore_manual
+#' @rdname projr_ignore
 #' @export
 projr_ignore_file <- function(ignore) {
   ignore <- setdiff(ignore, "")
@@ -99,7 +99,7 @@ projr_ignore_file <- function(ignore) {
   projr_ignore_file_rbuild(ignore)
 }
 
-#' @rdname projr_ignore_manual
+#' @rdname projr_ignore
 #' @export
 projr_ignore_file_git <- function(ignore, force_create = TRUE) {
   if (!force_create) {
@@ -122,7 +122,7 @@ projr_ignore_file_git <- function(ignore, force_create = TRUE) {
   .ignore_manual_path_add(ignore, .path_get(".gitignore"))
 }
 
-#' @rdname projr_ignore_manual
+#' @rdname projr_ignore
 #' @export
 projr_ignore_dir_git <- function(ignore, force_create = TRUE) {
   if (!force_create) {
@@ -152,7 +152,7 @@ projr_ignore_dir_git <- function(ignore, force_create = TRUE) {
   .ignore_manual_path_add(ignore, .path_get(".gitignore"))
 }
 
-#' @rdname projr_ignore_manual
+#' @rdname projr_ignore
 #' @export
 projr_ignore_file_rbuild <- function(ignore, force_create = TRUE) {
   if (!force_create) {
@@ -179,7 +179,7 @@ projr_ignore_file_rbuild <- function(ignore, force_create = TRUE) {
   .ignore_manual_path_add(ignore, .path_get(".Rbuildignore"))
 }
 
-#' @rdname projr_ignore_manual
+#' @rdname projr_ignore
 #' @export
 projr_ignore_dir_rbuild <- function(ignore, force_create = TRUE) {
   if (!force_create) {

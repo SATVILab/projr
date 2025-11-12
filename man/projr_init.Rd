@@ -74,12 +74,6 @@ Defaults to \code{FALSE}.}
 \item{lit_doc}{Character or \code{NULL}. Specifies the type of literate documentation to create.
 Supported values are \code{"bookdown"}, \code{"project"}, \code{"quarto"}, and \code{"rmd"}.
 Defaults to \code{NULL}.}
-
-\item{bioc}{Logical. If \code{TRUE}, includes Bioconductor packages in the renv setup.
-Defaults to \code{TRUE}.}
-
-\item{renv}{Logical. If \code{TRUE}, initializes a renv environment for dependency management.
-Defaults to \code{FALSE}.}
 }
 \value{
 Invisibly returns \code{TRUE} if initialization is successful, or \code{FALSE} if
@@ -88,7 +82,7 @@ a particular step is skipped.
 \description{
 This function performs a full initialization of a projr project. It sets up the project
 structure by creating directories, generating a README (in Markdown or R Markdown format),
-configuring a renv environment, writing a DESCRIPTION file, applying a license (if provided),
+writing a DESCRIPTION file, applying a license (if provided),
 setting up citation files, creating a projr configuration YAML file, establishing literate documentation,
 and configuring both Git and GitHub repositories.
 }
@@ -99,7 +93,6 @@ perform the following tasks:
 \item Prevent working directory errors by ensuring the \pkg{usethis} project is set.
 \item Create project directories.
 \item Generate a README file (in Markdown or R Markdown format).
-\item Initialize a renv environment, optionally with Bioconductor support.
 \item Write a DESCRIPTION file for project metadata.
 \item Apply a specified license.
 \item Configure citation files (if a DESCRIPTION file exists).
