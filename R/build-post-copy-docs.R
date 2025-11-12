@@ -147,9 +147,13 @@
     # not in an output run
     return(invisible(FALSE))
   }
-  # Get source directory (temporary build location)
-  source_dir <- .yml_bd_get()[["output_dir"]]
-
+  
+  # Get source directory (temporary build location in cache)
+  source_dir <- file.path(
+    .dir_get_cache_auto_version(profile = NULL),
+    .dir_get_docs_bookdown()  # Gets the bookdown output directory name
+  )
+  
   if (!dir.exists(source_dir)) {
     message("Bookdown output directory not found: ", source_dir)
     return(invisible(FALSE))
@@ -183,7 +187,7 @@
 
   if (!dir.exists(source_dir)) {
     message("Quarto output directory not found: ", source_dir)
-    stop("Quarto output directory not found")
+    return(invisible(FALSE))
   }
 
   # Get destination directory (final docs location)

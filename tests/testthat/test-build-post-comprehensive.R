@@ -111,14 +111,12 @@ test_that(".build_copy_docs_rmd handles different output formats", {
       # Create the output file
       file.create("test.html")
       
-      # Create docs directory
-      dir.create("docs", showWarnings = FALSE)
-      
-      # Copy docs
+      # Copy docs in dev mode (safe = TRUE)
       .build_copy_docs_rmd(output_run = FALSE)
       
-      # Should have copied html file to docs
-      expect_true(file.exists("docs/test.html"))
+      # Should have copied html file to safe cache directory
+      safe_docs_path <- projr_path_get_dir("docs", safe = TRUE)
+      expect_true(file.exists(file.path(safe_docs_path, "test.html")))
     },
     force = TRUE,
     quiet = TRUE
@@ -151,15 +149,13 @@ test_that(".build_copy_docs_quarto handles html format with _files directory", {
       dir.create("test_files", showWarnings = FALSE)
       file.create("test_files/test.js")
       
-      # Create docs directory
-      dir.create("docs", showWarnings = FALSE)
-      
-      # Copy docs
+      # Copy docs in dev mode (safe = TRUE)
       .build_copy_docs_quarto(output_run = FALSE)
       
-      # Should have copied both html and _files directory
-      expect_true(file.exists("docs/test.html"))
-      expect_true(dir.exists("docs/test_files"))
+      # Should have copied both html and _files directory to safe cache
+      safe_docs_path <- projr_path_get_dir("docs", safe = TRUE)
+      expect_true(file.exists(file.path(safe_docs_path, "test.html")))
+      expect_true(dir.exists(file.path(safe_docs_path, "test_files")))
     },
     force = TRUE,
     quiet = TRUE
@@ -178,22 +174,26 @@ test_that(".build_copy_docs_bookdown excludes CHANGELOG.md", {
       # Create minimal DESCRIPTION
       writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
       
-      # Create _bookdown.yml
-      writeLines(c("output_dir: _book"), "_bookdown.yml")
+      # Create _bookdown.yml with output_dir
+      writeLines(c("output_dir: '_book'"), "_bookdown.yml")
       
-      # Create book directory with files
-      dir.create("_book", showWarnings = FALSE)
-      file.create("_book/index.html")
-      file.create("_book/CHANGELOG.md")
-      file.create("_book/chapter1.html")
+      # Create book directory in cache (where builds actually go in production mode)
+      cache_book <- file.path(
+        projr_path_get_cache_build_dir(profile = NULL), "_book"
+      )
+      dir.create(cache_book, recursive = TRUE, showWarnings = FALSE)
+      file.create(file.path(cache_book, "index.html"))
+      file.create(file.path(cache_book, "CHANGELOG.md"))
+      file.create(file.path(cache_book, "chapter1.html"))
       
-      # Copy in output mode
+      # Copy in output mode (should copy to unsafe docs directory)
       .build_copy_docs_bookdown(output_run = TRUE)
       
+      # Check that files were copied to final docs location
+      expect_true(file.exists("_book/index.html"))
+      expect_true(file.exists("_book/chapter1.html"))
       # Check that CHANGELOG.md was excluded
-      expect_true(file.exists("docs/index.html"))
-      expect_true(file.exists("docs/chapter1.html"))
-      expect_false(file.exists("docs/CHANGELOG.md"))
+      expect_false(file.exists("_book/CHANGELOG.md"))
     },
     force = TRUE,
     quiet = TRUE
@@ -212,19 +212,22 @@ test_that(".build_copy_docs_quarto_project excludes CHANGELOG.md", {
       # Create minimal DESCRIPTION
       writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
       
-      # Create cache directory structure
-      cache_docs <- file.path(".cache", "projr", "v0.0.1", "docs")
+      # Create cache directory structure where quarto project builds to
+      cache_docs <- file.path(
+        projr_path_get_cache_build_dir(profile = NULL), "docs"
+      )
       dir.create(cache_docs, recursive = TRUE, showWarnings = FALSE)
       file.create(file.path(cache_docs, "index.html"))
       file.create(file.path(cache_docs, "CHANGELOG.md"))
       file.create(file.path(cache_docs, "page1.html"))
       
-      # Copy in output mode
+      # Copy in output mode (should copy to unsafe docs directory)
       .build_copy_docs_quarto_project(output_run = TRUE)
       
-      # Check that CHANGELOG.md was excluded
+      # Check that files were copied to docs (unsafe mode)
       expect_true(file.exists("docs/index.html"))
       expect_true(file.exists("docs/page1.html"))
+      # Check that CHANGELOG.md was excluded
       expect_false(file.exists("docs/CHANGELOG.md"))
     },
     force = TRUE,
@@ -310,17 +313,30 @@ test_that(".build_clear_old removes old dev builds", {
   usethis::with_project(
     path = dir_test,
     code = {
-      # Create old version directories
+      # Get current version
+      current_version <- .version_get_v()
+      
+      # Create old version directories (different from current)
       cache_base <- dirname(.dir_get_cache_auto_version(profile = NULL))
-      old_version <- file.path(cache_base, "v0.0.0-1")
+      old_version_name <- "v0.0.0-2"  # Different from current v0.0.0-1
+      old_version <- file.path(cache_base, old_version_name)
       dir.create(old_version, recursive = TRUE, showWarnings = FALSE)
       file.create(file.path(old_version, "old.txt"))
+      
+      # Verify old version exists before clearing
+      expect_true(dir.exists(old_version))
       
       # Clear old dev builds
       .build_clear_old(output_run = FALSE, old_dev_remove = TRUE)
       
       # Old version should be removed
       expect_false(dir.exists(old_version))
+      
+      # Current version directory should still exist (if it was created)
+      current_dir <- file.path(cache_base, current_version)
+      if (dir.exists(current_dir)) {
+        expect_true(dir.exists(current_dir))
+      }
     }
   )
 })

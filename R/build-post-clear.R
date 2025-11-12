@@ -70,7 +70,9 @@
   if (.is_len_0(path_dir_vec)) {
     return(invisible(FALSE))
   }
-  .dir_rm(path_dir_vec)
+  # Convert relative paths to full paths
+  path_dir_vec_full <- file.path(path_dir, path_dir_vec)
+  .dir_rm(path_dir_vec_full)
   invisible(TRUE)
 }
 

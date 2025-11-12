@@ -8,11 +8,7 @@
 }
 
 .yml_bd_get_output_dir <- function() {
-  .yml_bd_get_project()[["output_dir"]]
-}
-
-.yml_bd_get_project <- function() {
-  .yml_bd_get()[["project"]]
+  .yml_bd_get()[["output_dir"]]
 }
 
 .yml_bd_get_nm <- function(nm) {
