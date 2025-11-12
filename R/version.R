@@ -380,11 +380,19 @@ projr_version_get <- function() {
 }
 
 .version_v_rm <- function(x) {
+  # Convert package_version/numeric_version to character
+  if (inherits(x, "package_version") || inherits(x, "numeric_version")) {
+    x <- as.character(x)
+  }
   .assert_string(x, required = TRUE)
   gsub("^v+", "", tolower(x))
 }
 
 .version_v_add <- function(x) {
+  # Convert package_version/numeric_version to character
+  if (inherits(x, "package_version") || inherits(x, "numeric_version")) {
+    x <- as.character(x)
+  }
   .assert_string(x, required = TRUE)
   x_rm <- .version_v_rm(x)
   paste0("v", x_rm)
