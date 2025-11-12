@@ -29,6 +29,7 @@
 }
 
 .pb_guess_repo <- function(path = ".") {
+  .auth_check_github("accessing GitHub repository information")
   gh_repo <- gh::gh_tree_remote(path)
   paste0(gh_repo[[1]], "/", gh_repo[[2]])
 }

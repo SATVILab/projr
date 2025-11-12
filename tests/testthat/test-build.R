@@ -331,3 +331,69 @@ test_that("args_engine parameter works correctly", {
     force = TRUE
   )
 })
+
+test_that("PROJR_CLEAR_OUTPUT environment variable works correctly", {
+  skip_if(.is_test_select())
+  
+  old_val <- Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "")
+  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_CLEAR_OUTPUT = old_val) else Sys.unsetenv("PROJR_CLEAR_OUTPUT"))
+  
+  # Test default value
+  Sys.unsetenv("PROJR_CLEAR_OUTPUT")
+  expect_identical(.build_get_clear_output(NULL), "pre")
+  
+  # Test "pre" value
+  Sys.setenv(PROJR_CLEAR_OUTPUT = "pre")
+  expect_identical(.build_get_clear_output(NULL), "pre")
+  
+  # Test "post" value
+  Sys.setenv(PROJR_CLEAR_OUTPUT = "post")
+  expect_identical(.build_get_clear_output(NULL), "post")
+  
+  # Test "never" value
+  Sys.setenv(PROJR_CLEAR_OUTPUT = "never")
+  expect_identical(.build_get_clear_output(NULL), "never")
+  
+  # Test invalid value
+  Sys.setenv(PROJR_CLEAR_OUTPUT = "invalid")
+  expect_error(.build_get_clear_output(NULL))
+})
+
+test_that("PROJR_CLEAR_OUTPUT explicit parameter overrides env var", {
+  skip_if(.is_test_select())
+  
+  old_val <- Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "")
+  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_CLEAR_OUTPUT = old_val) else Sys.unsetenv("PROJR_CLEAR_OUTPUT"))
+  
+  # Set env var to one value
+  Sys.setenv(PROJR_CLEAR_OUTPUT = "never")
+  
+  # Explicit parameter should override
+  expect_identical(.build_get_clear_output("pre"), "pre")
+  expect_identical(.build_get_clear_output("post"), "post")
+  expect_identical(.build_get_clear_output("never"), "never")
+})
+
+test_that("PROJR_CLEAR_OUTPUT validates input strictly", {
+  skip_if(.is_test_select())
+  
+  old_val <- Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "")
+  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_CLEAR_OUTPUT = old_val) else Sys.unsetenv("PROJR_CLEAR_OUTPUT"))
+  
+  # Test case sensitivity
+  Sys.setenv(PROJR_CLEAR_OUTPUT = "PRE")
+  expect_error(.build_get_clear_output(NULL))
+  
+  Sys.setenv(PROJR_CLEAR_OUTPUT = "Post")
+  expect_error(.build_get_clear_output(NULL))
+  
+  Sys.setenv(PROJR_CLEAR_OUTPUT = "NEVER")
+  expect_error(.build_get_clear_output(NULL))
+  
+  # Test other invalid values
+  Sys.setenv(PROJR_CLEAR_OUTPUT = "always")
+  expect_error(.build_get_clear_output(NULL))
+  
+  Sys.setenv(PROJR_CLEAR_OUTPUT = "")
+  expect_error(.build_get_clear_output(NULL))
+})

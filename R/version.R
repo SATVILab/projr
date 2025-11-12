@@ -59,7 +59,10 @@ projr_version_set <- function(version, only_if_exists = TRUE) {
 
 .version_check_error_free <- function(version) {
   tryCatch(
-    .version_check(version),
+    {
+      .version_check(version)
+      TRUE
+    },
     error = function(e) {
       FALSE
     }
@@ -155,7 +158,13 @@ projr_name_get <- function() basename(.path_get())
     stop("VERSION file not found")
   }
   version_file <- readLines("VERSION", warn = FALSE)
-  version_file <- version_file[[1]]
+  if (length(version_file) == 0) {
+    stop("VERSION file is empty")
+  }
+  version_file <- trimws(version_file[[1]])
+  if (is.na(version_file) || version_file == "") {
+    stop("VERSION file contains invalid content")
+  }
   version_file <- .version_v_rm(version_file)
   strsplit(version_file, split = "\\-|\\.")[[1]]
 }
@@ -216,11 +225,30 @@ projr_name_get <- function() basename(.path_get())
 }
 
 .version_concat <- function(version_vec, split_vec) {
+  # First check if version_vec is empty before type validation
+  if (length(version_vec) == 0) {
+    stop("version_vec must have at least one element")
+  }
+  
+  # Convert numeric to character if needed
+  if (is.numeric(version_vec)) {
+    version_vec <- as.character(version_vec)
+  }
+  
+  # Validate input types
+  .assert_chr(version_vec, required = TRUE)
+  
+  # Special case: single element version (no separators needed)
   if (.is_len_1(version_vec)) {
-    # major-version only format
-    # output build
     return(version_vec)
   }
+  
+  # For multi-element versions, validate split_vec
+  if (length(split_vec) == 0) {
+    stop("split_vec must have at least one element when version_vec has more than one element")
+  }
+  .assert_chr(split_vec, required = TRUE)
+  
   version <- paste0(
     version_vec[seq_along(split_vec)],
     collapse = split_vec[-length(split_vec)]
@@ -352,17 +380,24 @@ projr_version_get <- function() {
 }
 
 .version_v_rm <- function(x) {
+  .assert_string(x, required = TRUE)
   gsub("^v+", "", tolower(x))
 }
 
 .version_v_add <- function(x) {
+  .assert_string(x, required = TRUE)
   x_rm <- .version_v_rm(x)
   paste0("v", x_rm)
 }
 
 .version_get_earliest <- function(x) {
-  x |>
-    .version_v_rm() |>
+  .assert_chr(x, required = TRUE)
+  if (length(x) == 0) {
+    stop("x must have at least one element")
+  }
+  # Apply .version_v_rm to each element
+  x_clean <- vapply(x, .version_v_rm, character(1), USE.NAMES = FALSE)
+  x_clean |>
     unique() |>
     package_version() |>
     min() |>
@@ -370,6 +405,7 @@ projr_version_get <- function() {
 }
 
 .version_append <- function(path) {
+  .assert_string(path, required = TRUE)
   file.path(path, .version_get_v())
 }
 .version_get_v <- function() {
@@ -377,8 +413,13 @@ projr_version_get <- function() {
 }
 
 .version_get_latest <- function(x) {
-  x |>
-    .version_v_rm() |>
+  .assert_chr(x, required = TRUE)
+  if (length(x) == 0) {
+    stop("x must have at least one element")
+  }
+  # Apply .version_v_rm to each element
+  x_clean <- vapply(x, .version_v_rm, character(1), USE.NAMES = FALSE)
+  x_clean |>
     unique() |>
     package_version() |>
     max() |>

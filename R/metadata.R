@@ -32,7 +32,7 @@
   if (.is_len_1(user_name) && .is_string(user_name)) {
     return(user_name)
   }
-  user_name <- Sys.info()[["user"]]
+  user_name <- Sys.info()[["login"]]
   if (
     .is_len_1(user_name) && !identical(user_name, "unknown") &&
       .is_string(user_name)
