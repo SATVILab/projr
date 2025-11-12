@@ -1,5 +1,8 @@
 .version_format_list_get <- function(profile) {
   version_format <- .yml_metadata_get_version_format(profile)
+  if (is.null(version_format) || length(version_format) == 0 || version_format == "") {
+    stop("version_format cannot be empty or NULL")
+  }
   version_format_vec_sep <- strsplit(
     version_format, "major|minor|patch|dev"
   )[[1]][-1]

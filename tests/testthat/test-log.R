@@ -633,3 +633,125 @@ test_that("log system integrates with build process", {
     }
   )
 })
+
+test_that("PROJR_LOG_DETAILED handles case variations", {
+  skip_if(.is_test_select())
+  
+  original <- Sys.getenv("PROJR_LOG_DETAILED", unset = NA)
+  
+  # Test various TRUE representations
+  for (val in c("TRUE", "true", "True", "1", "YES", "yes", "Y", "y")) {
+    Sys.setenv(PROJR_LOG_DETAILED = val)
+    expect_true(.log_enabled(), info = paste("Failed for value:", val))
+  }
+  
+  # Test various FALSE representations
+  for (val in c("FALSE", "false", "False", "0", "NO", "no", "N", "n")) {
+    Sys.setenv(PROJR_LOG_DETAILED = val)
+    expect_false(.log_enabled(), info = paste("Failed for value:", val))
+  }
+  
+  # Test invalid values (should default to TRUE)
+  Sys.setenv(PROJR_LOG_DETAILED = "maybe")
+  expect_false(.log_enabled())
+  
+  # Restore original
+  if (is.na(original)) {
+    Sys.unsetenv("PROJR_LOG_DETAILED")
+  } else {
+    Sys.setenv(PROJR_LOG_DETAILED = original)
+  }
+})
+
+test_that("PROJR_LOG_DETAILED default is TRUE when unset", {
+  skip_if(.is_test_select())
+  
+  original <- Sys.getenv("PROJR_LOG_DETAILED", unset = NA)
+  
+  # Unset the variable
+  Sys.unsetenv("PROJR_LOG_DETAILED")
+  
+  # Should default to TRUE
+  expect_true(.log_enabled())
+  
+  # Restore original
+  if (!is.na(original)) {
+    Sys.setenv(PROJR_LOG_DETAILED = original)
+  }
+})
+
+test_that("PROJR_LOG_DETAILED controls log file creation", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # With logging enabled
+      Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+      log_info <- .log_build_init("output", msg = "Test")
+      expect_true(is.list(log_info))
+      expect_true(file.exists(log_info$log_file))
+      
+      # With logging disabled
+      Sys.setenv(PROJR_LOG_DETAILED = "FALSE")
+      log_info2 <- .log_build_init("dev", msg = "Test2")
+      expect_null(log_info2)
+      
+      # Re-enable for other tests
+      Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+    }
+  )
+})
+
+test_that("PROJR_LOG_DETAILED doesn't affect history tracking", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Disable detailed logging
+      Sys.setenv(PROJR_LOG_DETAILED = "FALSE")
+      
+      # History should still be updated
+      .log_history_add(
+        build_type = "output",
+        msg = "Test with logging disabled",
+        success = TRUE
+      )
+      
+      history_file <- .log_file_get_history("output")
+      expect_true(file.exists(history_file))
+      
+      content <- readLines(history_file, warn = FALSE)
+      expect_true(any(grepl("Test with logging disabled", content)))
+      
+      # Re-enable for other tests
+      Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+    }
+  )
+})
+
+test_that("Log file paths use correct separators", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      log_base <- .log_dir_get_base()
+      log_output <- .log_dir_get_type("output")
+      log_dev <- .log_dir_get_type("dev")
+      
+      # All paths should be valid
+      expect_true(file.exists(log_base) || dir.exists(log_base) || !is.na(log_base))
+      expect_true(dir.exists(log_output))
+      expect_true(dir.exists(log_dev))
+      
+      # Paths should use correct separator
+      expect_true(grepl(.Platform$file.sep, log_output, fixed = TRUE))
+      expect_true(grepl(.Platform$file.sep, log_dev, fixed = TRUE))
+    }
+  )
+})

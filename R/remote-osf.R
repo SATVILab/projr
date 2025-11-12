@@ -54,6 +54,7 @@
 }
 
 .osf_upload <- function(..., n_try = NULL, n_sleep = 3) {
+  .auth_check_osf("uploading to OSF")
   args_list <- list(...)
   .try_repeat(
     osfr::osf_upload,
@@ -65,6 +66,7 @@
 
 .osf_create_project <- function(..., n_try = NULL, n_sleep = 3) {
   .dep_install("osfr")
+  .auth_check_osf("creating OSF project")
   args_list <- list(...)
   .try_repeat(
     osfr::osf_create_project,
@@ -75,6 +77,7 @@
 }
 
 .osf_create_component <- function(..., n_try = NULL, n_sleep = 3) {
+  .auth_check_osf("creating OSF component")
   args_list <- list(...)
   .try_repeat(
     osfr::osf_create_component,
@@ -85,6 +88,7 @@
 }
 
 .osf_retrieve_node <- function(..., n_try = NULL, n_sleep = 3) {
+  .auth_check_osf("retrieving OSF node")
   args_list <- list(...)
   .try_repeat(
     osfr::osf_retrieve_node,
@@ -95,6 +99,7 @@
 }
 
 .osf_mkdir <- function(..., n_try = NULL, n_sleep = 3) {
+  .auth_check_osf("creating OSF directory")
   args_list <- list(...)
   .try_repeat(
     osfr::osf_mkdir,
@@ -105,6 +110,7 @@
 }
 
 .osf_ls_files <- function(..., n_try = NULL, n_sleep = 3) {
+  .auth_check_osf("listing OSF files")
   args_list <- list(...)
   .try_repeat(
     osfr::osf_ls_files,
@@ -115,6 +121,7 @@
 }
 
 .osf_rm <- function(..., n_try = NULL, n_sleep = 3) {
+  .auth_check_osf("removing OSF files")
   args_list <- list(...)
   .try_repeat(
     osfr::osf_rm,
@@ -125,6 +132,7 @@
 }
 
 .osf_download <- function(..., n_try = NULL, n_sleep = 3) {
+  .auth_check_osf("downloading from OSF")
   args_list <- list(...)
   .try_repeat(
     osfr::osf_download,
@@ -135,6 +143,7 @@
 }
 
 .osf_retrieve_user <- function(..., n_try = NULL, n_sleep = 3) {
+  .auth_check_osf("retrieving OSF user")
   args_list <- list(...)
   .try_repeat(
     osfr::osf_retrieve_user,
@@ -145,6 +154,7 @@
 }
 
 .osf_ls_nodes <- function(..., n_try = NULL, n_sleep = 3) {
+  .auth_check_osf("listing OSF nodes")
   args_list <- list(...)
   .try_repeat(
     osfr::osf_ls_nodes,

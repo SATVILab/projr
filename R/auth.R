@@ -147,3 +147,66 @@ projr_instr_auth_github <- function() {
 projr_instr_auth_osf <- function() {
   message(.auth_get_osf_pat_instr())
 }
+
+# auth check functions (throw errors if auth is missing)
+# ------------------------------------------------------
+
+#' Check GitHub authentication
+#'
+#' @description
+#' Checks if GitHub authentication is available. Throws an error if not.
+#' Used internally before making GitHub API calls.
+#'
+#' @param context Character string describing the operation context for error messages.
+#' Default is NULL.
+#'
+#' @return Invisible TRUE if authentication is available.
+#' @keywords internal
+.auth_check_github <- function(context = NULL) {
+  pat <- .auth_get_github_pat_find()
+  if (.is_string(pat)) {
+    return(invisible(TRUE))
+  }
+  
+  context_msg <- if (!is.null(context)) {
+    paste0("GitHub authentication is required for: ", context, "\n\n")
+  } else {
+    "GitHub authentication is required.\n\n"
+  }
+  
+  stop(
+    context_msg,
+    paste(.auth_get_github_pat_instr(), collapse = ""),
+    call. = FALSE
+  )
+}
+
+#' Check OSF authentication
+#'
+#' @description
+#' Checks if OSF authentication is available. Throws an error if not.
+#' Used internally before making OSF API calls.
+#'
+#' @param context Character string describing the operation context for error messages.
+#' Default is NULL.
+#'
+#' @return Invisible TRUE if authentication is available.
+#' @keywords internal
+.auth_check_osf <- function(context = NULL) {
+  pat <- .auth_get_osf_pat_find()
+  if (.is_string(pat)) {
+    return(invisible(TRUE))
+  }
+  
+  context_msg <- if (!is.null(context)) {
+    paste0("OSF authentication is required for: ", context, "\n\n")
+  } else {
+    "OSF authentication is required.\n\n"
+  }
+  
+  stop(
+    context_msg,
+    paste(.auth_get_osf_pat_instr(), collapse = ""),
+    call. = FALSE
+  )
+}
