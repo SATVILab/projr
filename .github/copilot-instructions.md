@@ -227,6 +227,50 @@ Many functions have an `output_run` parameter:
 - Use `.dir_get_cache_auto_version()` for cache directories
 - Use `projr_path_get_dir()` for directory paths
 
+**Input Validation for Path Functions**:
+Following the patterns established for version, profile, and renv functions, all path manipulation functions include comprehensive input validation:
+
+- **Type validation**: Use `.assert_chr()` or `.assert_chr_min()` for character inputs, `.assert_string()` for single strings, `.assert_flag()` for logical flags
+- **Empty vector handling**: Most filter and transformation functions accept empty character vectors (using `.assert_chr_min()`) and return appropriate empty results
+- **NULL handling**: Functions that accept NULL parameters (like `path_dir` in `.path_force_rel()`) validate only when not NULL
+- **Required parameters**: Use `required = TRUE` in assertion functions for mandatory parameters
+- **Early validation**: Validate inputs at the start of functions before any processing
+
+**Common validation patterns**:
+```r
+# Filter functions - allow empty vectors
+.path_filter_spec <- function(fn, exc = NULL) {
+  .assert_chr_min(fn, required = TRUE)  # Allows empty vectors
+  if (is.null(exc)) return(fn)
+  .assert_chr(exc, required = TRUE)     # Non-empty when provided
+  # ... processing
+}
+
+# Path transformation - handle empty vectors
+.path_force_rel <- function(path, path_dir = NULL) {
+  .assert_chr_min(path, required = TRUE)
+  .assert_string(path_dir)  # Optional, validates if not NULL
+  if (length(path) == 0) return(character(0))
+  # ... processing
+}
+
+# Directory operations - strict validation
+.dir_ls <- function(path_dir, recursive = TRUE, full.names = FALSE) {
+  .assert_string(path_dir, TRUE)        # Must be single non-empty string
+  .assert_dir_exists(path_dir, TRUE)    # Must exist
+  .assert_flag(recursive, TRUE)         # Must be TRUE/FALSE
+  .assert_flag(full.names, TRUE)
+  # ... processing
+}
+```
+
+**Test coverage**: Path validation tests are in `tests/testthat/test-path-validation.R` covering:
+- Edge cases (empty vectors, NULL, NA)
+- Invalid input types (numeric, list, wrong length)
+- Logical flag validation
+- Special characters in paths
+- Return type consistency
+
 #### Data structures
 - Use tibbles/data.frames for tabular data (manifests, etc.)
 - Return empty tables with `.zero_tbl_get_manifest()` when appropriate
