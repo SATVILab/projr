@@ -744,7 +744,7 @@ test_that(".build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
       # paths
       expect_identical(
         .build_copy_docs_rmd_path_get("html", "abc"),
-        "abc.html"
+        c("abc_files", "abc.html")
       )
       expect_identical(
         .build_copy_docs_rmd_path_get("pdf", "abc"),
@@ -806,12 +806,16 @@ test_that(".build_copy_docs_rmd_format_get works", {
       invisible(file.create(file.path(dir_docs, "test.html")))
       .build_copy_docs_rmd(FALSE)
       expect_true(file.exists(file.path(dir_docs, "test.html")))
-      expect_false(file.exists(file.path(dir_docs, "test_files/abc.txt")))
+      expect_true(file.exists(file.path(dir_docs, "test_files/abc.txt")))
+      # Recreate test files for second test (they were moved in first test)
+      invisible(file.create("test.html"))
+      dir.create("test_files", showWarnings = FALSE)
+      invisible(file.create("test_files/abc.txt"))
       dir_docs <- projr_path_get_dir("docs", safe = FALSE)
       invisible(file.create(file.path(dir_docs, "test.html")))
       .build_copy_docs_rmd(TRUE)
       expect_true(file.exists(file.path(dir_docs, "test.html")))
-      expect_false(file.exists(file.path(dir_docs, "test_files/abc.txt")))
+      expect_true(file.exists(file.path(dir_docs, "test_files/abc.txt")))
     },
     force = TRUE,
     quiet = TRUE
