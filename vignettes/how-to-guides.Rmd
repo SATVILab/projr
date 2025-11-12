@@ -595,6 +595,102 @@ projr_log_clear(before_date = "2025-01-01")
 
 ---
 
+## 9. Query manifest to track file changes
+
+### When to use
+
+When you need to:
+- Understand which files changed between versions
+- Track when specific outputs were last modified
+- Verify data provenance and reproducibility
+- Audit project history
+
+### Steps
+
+**1. Compare two versions:**
+
+```{r eval=FALSE}
+# See what files changed between v0.0.1 and v0.0.2
+changes <- projr_manifest_changes("0.0.1", "0.0.2")
+
+# View the results
+changes
+# Returns: label, fn, change_type (added/modified/removed), 
+#          hash_from, hash_to
+
+# Filter by directory
+output_changes <- projr_manifest_changes(
+  "0.0.1", "0.0.2", 
+  label = "output"
+)
+```
+
+**2. Track files across multiple versions:**
+
+```{r eval=FALSE}
+# See all files and when they last changed from v0.0.1 to current
+file_history <- projr_manifest_range("0.0.1")
+
+# View the results
+file_history
+# Returns: label, fn, version_first, version_last_change, hash
+
+# Limit to specific directory and version range
+raw_data_history <- projr_manifest_range(
+  "0.0.1", "0.0.5",
+  label = "raw-data"
+)
+```
+
+**3. Check when directories last changed:**
+
+```{r eval=FALSE}
+# See most recent changes for each directory
+last_changes <- projr_manifest_last_change()
+
+# View the results
+last_changes
+# Returns: label, version_last_change, n_files
+
+# Check status as of a specific version
+historical_status <- projr_manifest_last_change("0.0.3")
+```
+
+**4. Practical examples:**
+
+```{r eval=FALSE}
+# Did any raw data change since last release?
+raw_changes <- projr_manifest_changes(
+  "0.1.0", 
+  projr_version_get(), 
+  label = "raw-data"
+)
+if (nrow(raw_changes) > 0) {
+  message("Raw data has changed - outputs may need regeneration")
+}
+
+# Find files that haven't changed in a while
+old_files <- projr_manifest_range("0.0.1")
+old_files[old_files$version_last_change < "v0.0.5", ]
+```
+
+### Pitfalls
+
+- **Version format**: Can use "0.0.1" or "v0.0.1" - both work
+- **Empty manifests**: Returns 0-row data.frame if no changes found
+- **Manifest location**: Manifest is at project root (`manifest.csv`)
+- **Only tracks builds**: Files are only tracked after running `projr_build()`
+  - Dev builds create temporary manifests but don't update the main one
+
+### See also
+
+- `?projr_manifest_changes`
+- `?projr_manifest_range`
+- `?projr_manifest_last_change`
+- `?projr_version_get`
+
+---
+
 ## 11. Configure environment variables
 
 ### When to use

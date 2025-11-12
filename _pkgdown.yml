@@ -71,6 +71,13 @@ reference:
   - projr_version_get
   - projr_version_set
 
+- title: Manifest queries
+  desc: Functions for querying manifest to track file changes across versions
+  contents:
+  - projr_manifest_changes
+  - projr_manifest_range
+  - projr_manifest_last_change
+
 - title: YAML configuration
   desc: Functions for managing _projr.yml configuration
   contents:
