@@ -431,3 +431,295 @@ test_that("dir_exc parameter properly excludes multiple files", {
   expect_false(file.exists(file.path(dest_dir, "CHANGELOG.md")))
   expect_false(file.exists(file.path(dest_dir, "README.md")))
 })
+
+# Additional comprehensive edge case tests
+# ========================================
+
+test_that(".build_copy_docs_bookdown handles missing _bookdown.yml gracefully", {
+  skip_if(.is_test_select())
+  dir_test <- tempfile("test_bookdown_no_yml")
+  dir.create(dir_test)
+  withr::defer(unlink(dir_test, recursive = TRUE))
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create minimal DESCRIPTION
+      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
+      
+      # Don't create _bookdown.yml - should use defaults
+      cache_book <- file.path(
+        projr_path_get_cache_build_dir(profile = NULL), "_book"
+      )
+      dir.create(cache_book, recursive = TRUE, showWarnings = FALSE)
+      file.create(file.path(cache_book, "index.html"))
+      
+      # Should not error (messages are expected)
+      expect_error(.build_copy_docs_bookdown(output_run = TRUE), NA)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_copy_docs_quarto_project handles missing source directory", {
+  skip_if(.is_test_select())
+  dir_test <- tempfile("test_quarto_missing")
+  dir.create(dir_test)
+  withr::defer(unlink(dir_test, recursive = TRUE))
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create minimal DESCRIPTION
+      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
+      
+      # Don't create source directory
+      result <- .build_copy_docs_quarto_project(output_run = TRUE)
+      
+      # Should return FALSE without error
+      expect_false(result)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_copy_docs_bookdown handles empty source directory", {
+  skip_if(.is_test_select())
+  dir_test <- tempfile("test_bookdown_empty")
+  dir.create(dir_test)
+  withr::defer(unlink(dir_test, recursive = TRUE))
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create minimal DESCRIPTION
+      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
+      
+      # Create _bookdown.yml
+      writeLines(c("output_dir: '_book'"), "_bookdown.yml")
+      
+      # Create empty cache directory
+      cache_book <- file.path(
+        projr_path_get_cache_build_dir(profile = NULL), "_book"
+      )
+      dir.create(cache_book, recursive = TRUE, showWarnings = FALSE)
+      
+      # Should handle empty directory gracefully
+      result <- .build_copy_docs_bookdown(output_run = TRUE)
+      
+      # Function should still return TRUE even with no files
+      expect_true(result)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_clear_old handles cache_base that doesn't exist", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Get cache base path
+      cache_base <- dirname(.dir_get_cache_auto_version(profile = NULL))
+      
+      # Remove cache base if it exists
+      if (dir.exists(cache_base)) {
+        unlink(cache_base, recursive = TRUE)
+      }
+      
+      # Should not error
+      result <- .build_clear_old(output_run = FALSE, old_dev_remove = TRUE)
+      
+      # Should return FALSE since directory doesn't exist
+      expect_false(result)
+    }
+  )
+})
+
+test_that(".build_clear_old_dev handles empty cache directory", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Ensure cache base exists but is empty (no version subdirectories)
+      cache_base <- dirname(.dir_get_cache_auto_version(profile = NULL))
+      dir.create(cache_base, recursive = TRUE, showWarnings = FALSE)
+      
+      # Remove any existing version directories
+      existing_dirs <- list.dirs(cache_base, recursive = FALSE, full.names = TRUE)
+      if (length(existing_dirs) > 0) {
+        unlink(existing_dirs, recursive = TRUE)
+      }
+      
+      # Should not error with empty cache
+      result <- .build_clear_old_dev()
+      
+      # Should return FALSE since there's nothing to clear
+      expect_false(result)
+    }
+  )
+})
+
+test_that(".build_copy_docs_rmd handles multiple Rmd files", {
+  skip_if(.is_test_select())
+  dir_test <- tempfile("test_multiple_rmd")
+  dir.create(dir_test)
+  withr::defer(unlink(dir_test, recursive = TRUE))
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create minimal DESCRIPTION
+      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
+      
+      # Create multiple Rmd files
+      writeLines(c("---", "title: Test1", "output: html_document", "---", "# Test1"), "test1.Rmd")
+      writeLines(c("---", "title: Test2", "output: html_document", "---", "# Test2"), "test2.Rmd")
+      
+      # Create output files
+      file.create("test1.html")
+      file.create("test2.html")
+      
+      # Copy docs
+      .build_copy_docs_rmd(output_run = FALSE)
+      
+      # Both should be copied to safe cache
+      safe_docs_path <- projr_path_get_dir("docs", safe = TRUE)
+      expect_true(file.exists(file.path(safe_docs_path, "test1.html")))
+      expect_true(file.exists(file.path(safe_docs_path, "test2.html")))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_copy_docs_quarto handles multiple qmd files", {
+  skip_if(.is_test_select())
+  dir_test <- tempfile("test_multiple_qmd")
+  dir.create(dir_test)
+  withr::defer(unlink(dir_test, recursive = TRUE))
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create minimal DESCRIPTION
+      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
+      
+      # Create multiple qmd files
+      writeLines(c("---", "title: Test1", "format: html", "---", "# Test1"), "test1.qmd")
+      writeLines(c("---", "title: Test2", "format: html", "---", "# Test2"), "test2.qmd")
+      
+      # Create output files
+      file.create("test1.html")
+      file.create("test2.html")
+      
+      # Copy docs
+      .build_copy_docs_quarto(output_run = FALSE)
+      
+      # Both should be copied to safe cache
+      safe_docs_path <- projr_path_get_dir("docs", safe = TRUE)
+      expect_true(file.exists(file.path(safe_docs_path, "test1.html")))
+      expect_true(file.exists(file.path(safe_docs_path, "test2.html")))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_clear_post_docs clears docs for rmd engine", {
+  skip_if(.is_test_select())
+  dir_test <- tempfile("test_clear_docs_rmd")
+  dir.create(dir_test)
+  withr::defer(unlink(dir_test, recursive = TRUE))
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create minimal DESCRIPTION
+      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
+      
+      # Create an Rmd file to set engine
+      writeLines(c("---", "title: Test", "---", "# Test"), "test.Rmd")
+      
+      # Create docs with content
+      dir.create("docs", showWarnings = FALSE)
+      file.create("docs/test.html")
+      file.create("docs/old.html")
+      
+      # Clear docs in output mode (should clear for rmd engine)
+      .build_clear_post_docs(output_run = TRUE)
+      
+      # Check that docs was cleared
+      expect_false(file.exists("docs/test.html"))
+      expect_false(file.exists("docs/old.html"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_clear_post_docs does not clear for bookdown engine", {
+  skip_if(.is_test_select())
+  dir_test <- tempfile("test_no_clear_bookdown")
+  dir.create(dir_test)
+  withr::defer(unlink(dir_test, recursive = TRUE))
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create minimal DESCRIPTION
+      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
+      
+      # Create _bookdown.yml to set engine
+      writeLines(c("output_dir: '_book'"), "_bookdown.yml")
+      writeLines(c("---", "title: Test", "---", "# Test"), "index.Rmd")
+      
+      # Create _book with content
+      dir.create("_book", showWarnings = FALSE)
+      file.create("_book/index.html")
+      
+      # Clear docs in output mode (should NOT clear for bookdown)
+      result <- .build_clear_post_docs(output_run = TRUE)
+      
+      # Should return FALSE (no clearing happened)
+      expect_false(result)
+      # Files should still exist
+      expect_true(file.exists("_book/index.html"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_clear_old_output clears entire cache for output builds", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create multiple version directories
+      cache_base <- dirname(.dir_get_cache_auto_version(profile = NULL))
+      
+      version1 <- file.path(cache_base, "v0.0.1")
+      version2 <- file.path(cache_base, "v0.0.2")
+      
+      dir.create(version1, recursive = TRUE, showWarnings = FALSE)
+      dir.create(version2, recursive = TRUE, showWarnings = FALSE)
+      file.create(file.path(version1, "test1.txt"))
+      file.create(file.path(version2, "test2.txt"))
+      
+      # Clear for output build
+      .build_clear_old(output_run = TRUE, old_dev_remove = TRUE)
+      
+      # Cache base should be empty
+      if (dir.exists(cache_base)) {
+        expect_equal(length(list.files(cache_base)), 0)
+      }
+    }
+  )
+})
