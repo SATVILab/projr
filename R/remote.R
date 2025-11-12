@@ -41,6 +41,7 @@
                                description = NULL,
                                public = FALSE) {
   .dep_install("osfr")
+  .auth_check_osf("creating OSF node")
   category <- .remote_complete_osf_category(
     category = category
   )
@@ -371,6 +372,7 @@ projr_osf_create_project <- function(title,
 # osf
 .remote_get_osf <- function(id) {
   .assert_nchar_single(id, 5L, TRUE)
+  .auth_check_osf("retrieving OSF node")
   tryCatch(
     .osf_retrieve_node(paste0("https://osf.io/", id)),
     error = function(e) {
@@ -857,6 +859,7 @@ projr_osf_create_project <- function(title,
 # osf
 .remote_host_rm_osf <- function(host) {
   .assert_given_full(host)
+  .auth_check_osf("deleting OSF node")
   .osf_rm(
     x = .osf_retrieve_node(host), check = FALSE, recurse = TRUE
   )
@@ -871,6 +874,9 @@ projr_osf_create_project <- function(title,
   if (!requireNamespace("gh", quietly = TRUE)) {
     .dep_install_only("gh")
   }
+
+  # Check authentication before any GitHub API calls
+  .auth_check_github("deleting GitHub repository")
 
   # defaults
   user <- if ("user" %in% names(host)) host[["user"]] else NULL

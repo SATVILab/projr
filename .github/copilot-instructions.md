@@ -227,6 +227,50 @@ Many functions have an `output_run` parameter:
 - Use `.dir_get_cache_auto_version()` for cache directories
 - Use `projr_path_get_dir()` for directory paths
 
+**Input Validation for Path Functions**:
+Following the patterns established for version, profile, and renv functions, all path manipulation functions include comprehensive input validation:
+
+- **Type validation**: Use `.assert_chr()` or `.assert_chr_min()` for character inputs, `.assert_string()` for single strings, `.assert_flag()` for logical flags
+- **Empty vector handling**: Most filter and transformation functions accept empty character vectors (using `.assert_chr_min()`) and return appropriate empty results
+- **NULL handling**: Functions that accept NULL parameters (like `path_dir` in `.path_force_rel()`) validate only when not NULL
+- **Required parameters**: Use `required = TRUE` in assertion functions for mandatory parameters
+- **Early validation**: Validate inputs at the start of functions before any processing
+
+**Common validation patterns**:
+```r
+# Filter functions - allow empty vectors
+.path_filter_spec <- function(fn, exc = NULL) {
+  .assert_chr_min(fn, required = TRUE)  # Allows empty vectors
+  if (is.null(exc)) return(fn)
+  .assert_chr(exc, required = TRUE)     # Non-empty when provided
+  # ... processing
+}
+
+# Path transformation - handle empty vectors
+.path_force_rel <- function(path, path_dir = NULL) {
+  .assert_chr_min(path, required = TRUE)
+  .assert_string(path_dir)  # Optional, validates if not NULL
+  if (length(path) == 0) return(character(0))
+  # ... processing
+}
+
+# Directory operations - strict validation
+.dir_ls <- function(path_dir, recursive = TRUE, full.names = FALSE) {
+  .assert_string(path_dir, TRUE)        # Must be single non-empty string
+  .assert_dir_exists(path_dir, TRUE)    # Must exist
+  .assert_flag(recursive, TRUE)         # Must be TRUE/FALSE
+  .assert_flag(full.names, TRUE)
+  # ... processing
+}
+```
+
+**Test coverage**: Path validation tests are in `tests/testthat/test-path-validation.R` covering:
+- Edge cases (empty vectors, NULL, NA)
+- Invalid input types (numeric, list, wrong length)
+- Logical flag validation
+- Special characters in paths
+- Return type consistency
+
 #### Data structures
 - Use tibbles/data.frames for tabular data (manifests, etc.)
 - Return empty tables with `.zero_tbl_get_manifest()` when appropriate
@@ -244,11 +288,150 @@ The package heavily uses YAML configuration (`_projr.yml`):
 - Use existing YAML helper functions rather than reading files directly
 
 ### 7. Version Control and Git
-- The package includes Git integration (see `R/git.R`)
-- Some functions interact with GitHub (using `gh` and `gert` packages)
-- Test functions can create Git repos: `.test_setup_project(git = TRUE)`
 
-### 8. Build Scripts and Hooks Configuration
+The package includes comprehensive Git integration (see `R/git.R` and `R/yml-git.R`) that works with both Git CLI and the `gert` R package.
+
+#### Git System Selection
+
+The package automatically selects between Git CLI and `gert`:
+- `.git_system_get()` - Returns `"git"` if Git CLI is available, otherwise `"gert"`
+- `.git_system_check_git()` - Checks if Git CLI is available
+- `.git_system_check_gert()` - Checks if `gert` package is available
+- `.git_system_setup()` - Installs `gert` if Git CLI is not available
+
+#### Repository Operations
+
+**Initialization and Status**:
+- `.git_init()` - Initialize a Git repository (uses Git CLI or gert)
+- `.git_repo_check_exists()` - Check if `.git` exists (file or directory)
+- `.git_repo_is_worktree()` - Check if the repo is a Git worktree
+- `.git_repo_rm()` - Remove `.git` directory
+
+**File Operations**:
+- `.git_commit_file(file, msg)` - Commit specific file(s)
+- `.git_commit_file_git(file, msg)` - Commit using Git CLI
+- `.git_commit_file_gert(file, msg)` - Commit using gert
+- `.git_add_file_git(file)` - Stage files using Git CLI
+- `.git_commit_all(msg, add_untracked)` - Commit all modified and optionally untracked files
+
+**Status Queries**:
+- `.git_modified_get()` - Get modified files
+- `.git_new_get()` - Get new/untracked files
+- `.git_untracked_not_ignored_get()` - Get untracked files that aren't ignored
+- `.git_changed_filter(path)` - Filter paths to only those that are changed (modified or new)
+
+**Branch and Commit Info**:
+- `.git_branch_get()` - Get current branch name
+- `.git_last_commit_get()` - Get last commit info (sha and message)
+- `.git_get_commit_hash_local()` - Get local commit hashes
+- `.git_get_commit_hash_remote()` - Get remote commit hashes
+
+**Remote Operations**:
+- `.git_remote_check_exists()` - Check if remote exists
+- `.git_remote_check_upstream()` - Check if upstream remote is configured
+- `.git_push()` - Push to remote
+- `.git_fetch()` - Fetch from remote
+- `.git_check_behind()` - Check if local is behind remote
+- `.git_clone(repo, path)` - Clone a repository (requires GitHub auth if inferring username)
+
+**Configuration**:
+- `.git_config_get_name()` - Get user.name (checks local, global, system)
+- `.git_config_get_email()` - Get user.email (checks local, global, system)
+- Each has `_git` and `_gert` variants, plus `_local`, `_global`, `_system` variants
+
+#### YAML Git Configuration
+
+Functions in `R/yml-git.R` manage Git settings in `_projr.yml`:
+
+**Exported Functions**:
+- `projr_yml_git_set(all, commit, add_untracked, push, ...)` - Set Git options
+- `projr_yml_git_set_default(profile)` - Set all options to TRUE (default)
+
+**Internal Functions**:
+- `.yml_git_get(profile)` - Get Git configuration from YAML
+- `.yml_git_get_commit(profile)` - Get commit setting (default: TRUE)
+- `.yml_git_get_push(profile)` - Get push setting (default: TRUE)
+- `.yml_git_get_add_untracked(profile)` - Get add_untracked setting (default: TRUE)
+- `.yml_git_set(yml_git, profile)` - Write Git configuration to YAML
+
+**Settings**:
+- `build.git.commit` - Automatically commit changes during builds (default: TRUE)
+- `build.git.add-untracked` - Add untracked files during commits (default: TRUE)
+- `build.git.push` - Automatically push after commits (default: TRUE)
+
+**Simplification**:
+- If all settings are identical, can be simplified to `git: TRUE` or `git: FALSE`
+- If all settings are default (TRUE), the entire section is omitted
+- `simplify_identical` parameter controls whether to simplify when all match
+- `simplify_default` parameter controls whether to remove when all are default
+
+#### Testing Patterns
+
+```r
+test_that("git function works", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Initialize git
+      .git_init()
+      .test_setup_project_git_config()
+      
+      # Test operations
+      writeLines("test", "test.txt")
+      .git_commit_file("test.txt", "commit message")
+      
+      # Verify
+      expect_true(.git_repo_check_exists())
+    }
+  )
+})
+```
+
+**Important Notes**:
+- Use `.test_setup_project_git_config()` to set test user credentials
+- Git operations using `_git` variants may produce warnings for deleted files - use `suppressWarnings()` where appropriate
+- Remote operations require GitHub authentication - use `skip_if_not(nzchar(Sys.getenv("GITHUB_PAT")))`
+- `.git_changed_filter()` returns `fs_path` class, not plain character - use `as.character()` or `expect_length()` in tests
+
+### 8. Version Functions
+
+The package includes comprehensive version management functions in `R/version.R` and `R/yml-version.R`.
+
+#### Version Function Guidelines
+
+**Input Validation**:
+- All version helper functions validate their inputs using `.assert_*()` functions
+- `.version_v_rm()` and `.version_v_add()` require non-empty single strings
+- `.version_get_earliest()` and `.version_get_latest()` require non-empty character vectors
+- `.version_concat()` accepts numeric or character vectors, automatically converts numeric to character
+- `.version_current_vec_get_init_file()` validates VERSION file exists, is not empty, and contains valid content (trims whitespace)
+
+**Version Format**:
+- Version format is defined in `_projr.yml` under `metadata.version-format`
+- Default format: `"major.minor.patch-dev"`
+- Valid formats include: `major.minor.patch-dev`, `major.minor.patch.dev`, `major.minor-dev`, `major.minor.dev`, `major-dev`, `major.dev`
+- Format can also use numeric suffixes like `9000` or `1` instead of `dev`
+
+**Key Functions**:
+- `projr_version_get()`: Returns current project version (exported)
+- `projr_version_set(version, only_if_exists)`: Sets project version (exported)
+- `.version_check(version)`: Validates version format against `_projr.yml` configuration
+- `.version_check_error_free(version)`: Returns TRUE if valid, FALSE if invalid (safe validation)
+- `.version_concat(version_vec, split_vec)`: Concatenates version components with separators
+- `.version_get_earliest(x)` / `.version_get_latest(x)`: Find earliest/latest version from vector
+
+**Testing Edge Cases**:
+- Test empty/NULL inputs
+- Test whitespace-only VERSION files
+- Test numeric vs. character input handling
+- Test version format validation
+- Test version bumping logic
+- See `tests/testthat/test-version-validation.R` for comprehensive examples
+
+### 9. Build Scripts and Hooks Configuration
 
 The package supports explicit specification of which files to build and hooks that run before/after the build process.
 
@@ -519,6 +702,84 @@ renv::snapshot()
 - Some functionality requires authentication (GitHub PAT, OSF token)
 - The package supports multiple document engines (R Markdown, Quarto, Bookdown)
 
+## Authentication System
+
+The package includes comprehensive authentication checks for GitHub and OSF operations to ensure API calls fail gracefully with helpful error messages when credentials are missing.
+
+### Authentication Functions
+
+**Core Functions** (`R/auth.R`):
+- `.auth_get_github_pat()` - Retrieves GitHub PAT from environment or gitcreds
+- `.auth_get_osf_pat()` - Retrieves OSF PAT from environment
+- `.auth_check_github(context)` - **Checks and throws error if GitHub auth missing**
+- `.auth_check_osf(context)` - **Checks and throws error if OSF auth missing**
+
+**Exported Functions**:
+- `projr_instr_auth_github()` - Prints GitHub authentication instructions
+- `projr_instr_auth_osf()` - Prints OSF authentication instructions
+
+### Where Auth Checks Are Required
+
+**GitHub Operations** - All functions that call `gh::` or `gitcreds::` must have `.auth_check_github()`:
+- `.git_clone()` - When inferring username from `gh::gh_whoami()`
+- `.init_github_impl()` - Before creating GitHub repository
+- `.remote_host_rm_github()` - Before deleting GitHub repository
+- `.pb_guess_repo()` - When using `gh::gh_tree_remote()`
+- `.build_github_setup_user()` - Already protected via `.build_github_setup_check_pat()`
+
+**OSF Operations** - All OSF wrapper functions have `.auth_check_osf()`:
+- `.remote_create_osf()` - Creating OSF nodes
+- `.remote_get_osf()` - Retrieving OSF nodes
+- `.remote_host_rm_osf()` - Deleting OSF nodes
+- `.osf_upload()`, `.osf_download()`, `.osf_ls_files()`, etc. - All OSF wrappers in `R/remote-osf.R`
+
+### Authentication Check Pattern
+
+When adding new functions that call GitHub or OSF APIs:
+
+```r
+# GitHub operations
+.my_github_function <- function(...) {
+  .auth_check_github("operation description")
+  # Now safe to call gh:: functions
+  user <- gh::gh_whoami()$login
+  # ...
+}
+
+# OSF operations
+.my_osf_function <- function(...) {
+  .auth_check_osf("operation description")
+  # Now safe to call osfr:: functions
+  node <- osfr::osf_retrieve_node(id)
+  # ...
+}
+```
+
+### Testing Authentication
+
+Tests should handle both authenticated and unauthenticated scenarios:
+
+```r
+test_that("function works with auth", {
+  skip_if(!nzchar(Sys.getenv("GITHUB_PAT")))
+  # Test with credentials available
+  expect_true(.my_github_function())
+})
+
+test_that("function fails gracefully without auth", {
+  pat_old <- Sys.getenv("GITHUB_PAT")
+  Sys.unsetenv("GITHUB_PAT")
+  
+  expect_error(.auth_check_github(), "GitHub authentication is required")
+  
+  if (nzchar(pat_old)) Sys.setenv("GITHUB_PAT" = pat_old)
+})
+```
+
+### Build-Time Auth Checks
+
+During builds, `.build_check_auth_remote()` is called via `.build_env_check()` to verify that required credentials are available for configured remote destinations.
+
 ## Build Logging System
 
 The package includes a comprehensive build logging system that captures detailed information about each build:
@@ -750,6 +1011,72 @@ v1_files <- .manifest_filter_version(manifest, "0.0.1")
 .zero_tbl_get_manifest()  # 0-row manifest table
 .zero_tbl_get_manifest_changes()  # 0-row changes table
 ```
+
+## renv Package Management Functions
+
+The package includes several exported functions to manage renv environments and package installations from lockfiles.
+
+### Main Functions
+
+#### `projr_renv_restore(github, non_github, biocmanager_install)`
+Restores packages from the lockfile, attempting to install the exact versions specified.
+
+**Parameters**:
+- `github` (logical): Whether to restore GitHub packages. Default is `TRUE`.
+- `non_github` (logical): Whether to restore non-GitHub packages (CRAN and Bioconductor). Default is `TRUE`.
+- `biocmanager_install` (logical): If `TRUE`, Bioconductor packages are installed using `BiocManager::install()`; otherwise, uses `renv::install("bioc::<package>")`. Default is `FALSE`.
+
+**Validation**:
+- All parameters must be single logical values
+- At least one of `github` or `non_github` must be `TRUE`
+- Checks for `renv.lock` file existence
+
+#### `projr_renv_update(github, non_github, biocmanager_install)`
+Updates packages to their latest available versions, ignoring the lockfile versions.
+
+**Parameters**: Same as `projr_renv_restore()`
+
+**Validation**: Same as `projr_renv_restore()`
+
+#### `projr_renv_restore_and_update(github, non_github, biocmanager_install)`
+First restores packages from the lockfile, then updates them to the latest versions.
+
+**Parameters**: Same as `projr_renv_restore()`
+
+**Validation**: Same as `projr_renv_restore()`
+
+#### `projr_renv_test(files_to_copy, delete_lib)`
+Tests `renv::restore()` in a clean, isolated temporary environment without using the cache.
+
+**Parameters**:
+- `files_to_copy` (character vector): Paths to files to copy into the temporary directory. `renv.lock` is always copied.
+- `delete_lib` (logical): If `TRUE`, the restored library path is deleted after the test. Default is `TRUE`.
+
+**Returns**: `TRUE` if `renv::restore()` succeeds, `FALSE` otherwise.
+
+### Internal Validation Functions
+
+- `.check_renv()`: Checks if renv package is installed
+- `.check_renv_params()`: Validates all parameters for renv functions
+- `.check_renv_lockfile()`: Checks for renv.lock file existence
+
+### Error Messages
+
+The functions provide informative error messages for:
+- Invalid parameter types (non-logical values, vectors with length > 1)
+- Both package sources disabled (`github = FALSE` and `non_github = FALSE`)
+- Missing renv.lock file
+- renv package not installed
+
+### Testing
+
+Tests for renv functions are in `tests/testthat/test-renv.R`:
+- Parameter validation tests for all three main functions
+- Edge case tests (missing lockfile, invalid parameters)
+- Integration tests (restore and update workflows)
+- Tests use `.renv_rest_init()` and `.renv_test_test_lockfile_create()` helper functions
+
+**Note**: Some tests are skipped in offline mode using `skip_if_offline()`.
 
 ## Maintaining Documentation and Instructions
 
