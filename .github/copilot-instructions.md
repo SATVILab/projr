@@ -874,6 +874,137 @@ projr_build_patch()
 # - "Remote file add: type=local, adding X file(s) from /path/to/source"
 ```
 
+## Build Directory Clearing System
+
+The package includes a sophisticated directory clearing system that manages when and how output directories are cleared during builds.
+
+### Clear Output Modes
+
+The `clear_output` parameter (or `PROJR_CLEAR_OUTPUT` environment variable) controls when directories are cleared:
+
+| Mode | When Cleared | Safe Directories | Unsafe Directories | Use Case |
+|------|--------------|------------------|-------------------|----------|
+| `"pre"` | Before build starts | ✓ Cleared | ✓ Cleared | Default: Ensures clean slate, allows saving directly to final locations |
+| `"post"` | After build completes | ✓ Cleared | ✗ Not cleared | Conservative: Preserves final outputs until after successful build |
+| `"never"` | Never | ✗ Not cleared | ✗ Not cleared | Manual control: User manages clearing |
+
+**Safe vs Unsafe Directories**:
+- **Safe directories**: Temporary build locations in cache (e.g., `_tmp/projr/v0.0.1/output`)
+- **Unsafe directories**: Final output locations (e.g., `_output`, `docs`)
+
+### Build Pre-Clear Behavior
+
+The `.build_clear_pre()` function is called at the start of builds and performs these operations:
+
+1. **Clears output directories** (via `.build_clear_pre_output()`):
+   - Gets all output labels from `_projr.yml` (excluding docs)
+   - For each output label:
+     - **Always** clears safe (cache) directory
+     - **Only** clears unsafe (final) directory if `clear_output = "pre"`
+   
+2. **Clears cache version directory** (via `.dir_clear_pre_cache_version()`):
+   - Clears versioned cache directory (e.g., `_tmp/projr/v0.0.1/`)
+   - **Preserves** "old" subdirectory for archival purposes
+   - Removes all other subdirectories and files
+
+3. **Does NOT clear docs directories**:
+   - Docs clearing is handled separately in post-build phase
+   - Allows different rendering engines to control their own output
+
+### Implementation Details
+
+**Key Functions** (in `R/build-pre-clear.R`):
+- `.build_clear_pre(output_run, clear_output)` - Main pre-clear function
+- `.build_clear_pre_output(clear_output)` - Clears output directories
+- `.build_clear_pre_output_label(label, clear_output)` - Clears specific output label
+- `.dir_clear_pre_cache_version()` - Clears cache with "old" preservation
+
+**Directory Exclusion** (in `R/path.R`):
+- `.dir_clear_dir(path, dir_exc)` - Clears directories, excluding specified subdirectories
+- `.dir_clear_file(path, dir_exc)` - Clears files, excluding those in specified subdirectories
+- The `dir_exc` parameter uses **relative paths** (e.g., `"old"`, not `/full/path/to/old`)
+
+### Testing Patterns
+
+Comprehensive tests are in `tests/testthat/test-build-pre-clear-comprehensive.R`:
+
+```r
+test_that(".build_clear_pre clears based on clear_output parameter", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create content
+      .create_clear_test_content("output", safe = TRUE)
+      .create_clear_test_content("output", safe = FALSE)
+      
+      # Test with clear_output = "pre" (clears both)
+      .build_clear_pre(output_run = TRUE, clear_output = "pre")
+      expect_true(.check_dir_cleared("output", safe = TRUE))
+      expect_true(.check_dir_cleared("output", safe = FALSE))
+      
+      # Test with clear_output = "post" (clears only safe)
+      .create_clear_test_content("output", safe = TRUE)
+      .create_clear_test_content("output", safe = FALSE)
+      .build_clear_pre(output_run = TRUE, clear_output = "post")
+      expect_true(.check_dir_cleared("output", safe = TRUE))
+      expect_false(.check_dir_cleared("output", safe = FALSE))
+      
+      # Test with clear_output = "never"
+      .create_clear_test_content("output", safe = FALSE)
+      .build_clear_pre(output_run = TRUE, clear_output = "never")
+      expect_false(.check_dir_cleared("output", safe = FALSE))
+    }
+  )
+})
+```
+
+### Common Issues and Solutions
+
+**Issue**: Files remain after build with `clear_output = "pre"`
+- **Cause**: Files created after the pre-clear phase
+- **Solution**: Use `clear_output = "post"` to clear after build completion
+
+**Issue**: Need to preserve specific subdirectories during clear
+- **Cause**: Default behavior clears all subdirectories
+- **Solution**: Use `dir_exc` parameter in custom clear functions (relative paths only)
+
+**Issue**: Cache fills up with old build artifacts
+- **Cause**: "old" directory preserved indefinitely
+- **Solution**: Manually clear `_tmp/projr/*/old/` or use `projr_log_clear()`
+
+### Related Environment Variables
+
+See [PROJR_CLEAR_OUTPUT](#projr_clear_output) for configuration details.
+
+
+**Example Debug Session**:
+```r
+# Enable debug output
+Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
+
+# Add local destination
+projr_yml_dest_add_local(
+  title = "archive",
+  content = "raw-data",
+  path = "_archive",
+  structure = "archive",
+  send_cue = "if-change",
+  send_strategy = "sync-diff",
+  send_inspect = "manifest"
+)
+
+# Build - will show detailed remote operations
+projr_build_patch()
+
+# Output will include:
+# - "Content 'raw-data': Starting processing for destination 'archive' (type: local)"
+# - "Content 'raw-data': Remote configuration - id: _archive, structure: archive, strategy: sync-diff, inspect: manifest"
+# - "Content 'raw-data': Upload plan - X file(s) to add, Y file(s) to remove, create: TRUE/FALSE, purge: TRUE/FALSE"
+# - "Remote file add: type=local, adding X file(s) from /path/to/source"
+```
+
 ### Implementation Files
 
 - `R/log.R`: Core logging functions (.log_* internal functions)
