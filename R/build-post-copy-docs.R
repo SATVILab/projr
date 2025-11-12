@@ -30,9 +30,8 @@
 .build_copy_docs_rmd_path_get <- function(format, fn_prefix) {
   fn_suffix <- .build_copy_docs_rmd_fn_suffix_get(format)
   fn <- paste0(fn_prefix, ".", fn_suffix)
-  # For HTML-based formats, also include the _files directory
-  # (created when self_contained: false is used)
-  if (fn_suffix == "html" || fn_suffix == "nb.html") {
+  # Check if this format produces HTML output that may have a _files folder
+  if (.build_copy_docs_rmd_is_html_format(format)) {
     return(c(paste0(fn_prefix, "_files"), fn))
   }
   fn
@@ -54,6 +53,35 @@
 
 .build_copy_docs_rmd_fn_prefix_get <- function(fn) {
   gsub("\\.Rmd$|\\.rmd$", "", fn)
+}
+
+.build_copy_docs_rmd_is_html_format <- function(format) {
+  # Check if the format produces HTML output that may have a _files folder
+  html_formats <- c(
+    "html_notebook",
+    "revealjs::revealjs_presentation",
+    "revealjs_presentation",
+    "slidy_presentation",
+    "flexdashboard::flex_dashboard",
+    "flex_dashboard",
+    "tufte::tufte_html",
+    "tufte_html",
+    "html_vignette",
+    "ioslides_presentation",
+    "html_document"
+  )
+  
+  # Check exact match with HTML formats
+  if (format %in% html_formats) {
+    return(TRUE)
+  }
+  
+  # Check if it's an html_document variant (e.g., prettydoc::html_pretty)
+  if (grepl("html", format, ignore.case = TRUE)) {
+    return(TRUE)
+  }
+  
+  FALSE
 }
 
 .build_copy_docs_rmd_fn_suffix_get <- function(format) {
