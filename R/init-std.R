@@ -22,19 +22,21 @@
 #' @param readme_rmd Logical. If \code{TRUE}, generates a README in R Markdown format
 #'   (\code{README.Rmd}); otherwise, a Markdown file (\code{README.md}) is created.
 #'   Defaults to \code{TRUE}.
-#' @param renv Logical. If \code{TRUE}, initializes a renv environment for dependency management.
-#'   Defaults to \code{FALSE}.
 #' @param desc Logical. If \code{TRUE}, creates a DESCRIPTION file for the project.
 #'   Defaults to \code{FALSE}.
 #' @param license Character or \code{NULL}. Specifies the license to apply (e.g., \code{"ccby"},
 #'   \code{"apache"}, \code{"cc0"}, \code{"proprietary"}). Defaults to \code{NULL}.
+#' @param first_name Character (for \code{projr_init_license}). First name for proprietary license.
+#'   Required when \code{license = "proprietary"}.
+#' @param last_name Character (for \code{projr_init_license}). Last name for proprietary license.
+#'   Required when \code{license = "proprietary"}.
 #' @param projr_yml Logical. If \code{TRUE}, creates a \code{projr.yml} configuration file.
 #'   Defaults to \code{FALSE}.
 #' @param lit_doc Character or \code{NULL}. Specifies the type of literate documentation to create.
 #'   Supported values are \code{"bookdown"}, \code{"project"}, \code{"quarto"}, and \code{"rmd"}.
 #'   Defaults to \code{NULL}.
-#' @param bioc Logical. If \code{TRUE}, includes Bioconductor packages in the renv setup.
-#'   Defaults to \code{TRUE}.
+#' @param bioc Logical (for \code{projr_init_renv}). If \code{TRUE}, includes Bioconductor packages 
+#'   in the renv setup. Defaults to \code{TRUE}.
 #' @param commit Logical (for \code{projr_init_git}). If \code{TRUE}, commits the initial changes 
 #'   to the Git repository. Defaults to \code{TRUE}.
 #' @param username Character or \code{NULL} (for \code{projr_init_github}). The GitHub username or 
