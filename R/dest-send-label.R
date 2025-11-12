@@ -324,7 +324,7 @@
   switch(strategy,
     "upload-all" = .dest_send_label_get_plan_fn_upload_all(label),
     "upload-missing" = .dest_send_label_get_plan_fn_upload_missing(
-      inspect, version_comp, remote_comp, type, label
+      inspect, version_comp, remote_comp, remote_pre, type, label
     ),
     .dest_send_label_get_plan_fn_sync(
       inspect, version_comp, remote_pre, remote_dest, remote_comp,
@@ -352,13 +352,14 @@
 .dest_send_label_get_plan_fn_upload_missing <- function(inspect,
                                                         version_comp,
                                                         remote_comp,
+                                                        remote_pre,
                                                         type,
                                                         label) {
   # add all in `fn_souce_extra`, so need `fn_source` and `fn_dest`,
   # and then we diff them.
   fn_source <- .dest_send_label_get_fn_source(label)
   fn_dest <- .dest_send_label_get_fn_dest(
-    inspect, version_comp, remote_comp, type, label
+    inspect, version_comp, type, remote_comp, remote_pre, label
   )
   fn_source_extra <- setdiff(fn_source, fn_dest)
   list("fn_source_extra" = fn_source_extra)

@@ -247,8 +247,15 @@
   manifest_latest <- manifest_project |>
     .manifest_filter_version(projr_version_get())
   manifest_latest <- manifest_latest[, c("label", "fn", "hash")]
-  version_vec <- manifest_project[["version"]] |>
-    .version_v_rm() |>
+  
+  # Handle empty manifest case
+  version_raw <- manifest_project[["version"]]
+  if (.is_len_0(version_raw)) {
+    return(version_earliest_match)
+  }
+  
+  version_vec <- version_raw |>
+    vapply(.version_v_rm, character(1), USE.NAMES = FALSE) |>
     package_version() |>
     sort()
   version_vec <- version_vec[version_vec >= package_version(version_comp)]
