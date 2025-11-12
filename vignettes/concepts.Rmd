@@ -258,8 +258,39 @@ tools::md5sum("_output/figure.png")
 
 Manifests are stored in:
 
-- `_output/manifest.csv` (final builds)
-- `_tmp/projr/v<version>/output/manifest.csv` (dev builds)
+- `manifest.csv` at project root (tracks all versions)
+- Dev builds also create temporary manifests in cache
+
+### Querying manifests
+
+projr provides functions to query the manifest and track changes across versions:
+
+**Find what changed between versions:**
+
+```{r eval=FALSE}
+# See what files changed between v0.0.1 and v0.0.2
+changes <- projr_manifest_changes("0.0.1", "0.0.2")
+# Returns: label, fn, change_type (added/modified/removed), hash_from, hash_to
+
+# Filter by directory
+output_changes <- projr_manifest_changes("0.0.1", "0.0.2", label = "output")
+```
+
+**Track files across a version range:**
+
+```{r eval=FALSE}
+# See all files and when they last changed from v0.0.1 to current
+file_history <- projr_manifest_range("0.0.1")
+# Returns: label, fn, version_first, version_last_change, hash
+```
+
+**Check when directories last changed:**
+
+```{r eval=FALSE}
+# See most recent changes for each directory
+last_changes <- projr_manifest_last_change()
+# Returns: label, version_last_change, n_files
+```
 
 ---
 
