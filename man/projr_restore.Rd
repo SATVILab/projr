@@ -15,7 +15,13 @@ projr_restore_repo(
   title = NULL
 )
 
-projr_restore_repo_wd(repo, label = TRUE)
+projr_restore_repo_wd(
+  repo,
+  label = NULL,
+  pos = NULL,
+  type = NULL,
+  title = NULL
+)
 
 projr_restore(label = NULL, pos = NULL, type = NULL, title = NULL)
 }

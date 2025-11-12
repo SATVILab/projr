@@ -42,6 +42,60 @@ projr_restore <- function(label = NULL,
                           pos = NULL,
                           type = NULL,
                           title = NULL) {
+  # Input validation
+  if (!is.null(label)) {
+    if (!is.character(label)) {
+      stop("'label' must be NULL or a character vector")
+    }
+    if (length(label) == 0) {
+      stop("'label' must have at least one element if not NULL")
+    }
+  }
+  if (!is.null(pos)) {
+    if (!is.character(pos)) {
+      stop("'pos' must be NULL or a character vector")
+    }
+    if (length(pos) == 0) {
+      stop("'pos' must have at least one element if not NULL")
+    }
+    invalid_pos <- pos[!pos %in% c("source", "dest")]
+    if (length(invalid_pos) > 0) {
+      stop(
+        "'pos' must be 'source' or 'dest'. Invalid values: ",
+        paste(invalid_pos, collapse = ", ")
+      )
+    }
+  }
+  if (!is.null(type)) {
+    if (!is.character(type)) {
+      stop("'type' must be NULL or a character vector")
+    }
+    if (length(type) == 0) {
+      stop("'type' must have at least one element if not NULL")
+    }
+    if (length(type) > 1) {
+      stop("'type' must be a single character value")
+    }
+    valid_types <- c("local", "osf", "github")
+    if (!type %in% valid_types) {
+      stop(
+        "'type' must be one of: ",
+        paste(valid_types, collapse = ", ")
+      )
+    }
+  }
+  if (!is.null(title)) {
+    if (!is.character(title)) {
+      stop("'title' must be NULL or a character vector")
+    }
+    if (length(title) == 0) {
+      stop("'title' must have at least one element if not NULL")
+    }
+    if (length(title) > 1) {
+      stop("'title' must be a single character value")
+    }
+  }
+  
   .title <- title
   if (!file.exists(.path_get("manifest.csv"))) {
     stop(
@@ -49,14 +103,27 @@ projr_restore <- function(label = NULL,
     )
   }
   label <- .restore_get_label(label)
+  
+  # Handle case where no labels to restore
+  if (length(label) == 0) {
+    message("No labels to restore")
+    return(invisible(FALSE))
+  }
+  
+  success <- TRUE
   for (i in seq_along(label)) {
-    tryCatch(
+    result <- tryCatch(
       .restore_label(label[[i]], pos, type, .title),
       error = function(e) {
         message("Error restoring label: ", label[[i]], " - ", e$message)
+        return(FALSE)
       }
     )
+    if (isFALSE(result)) {
+      success <- FALSE
+    }
   }
+  invisible(success)
 }
 
 .restore_get_label <- function(label) {
@@ -88,6 +155,14 @@ projr_restore <- function(label = NULL,
   }
   # get source remote (type and title)
   source_vec <- .restore_label_get_source(pos, label, type, .title)
+  
+  # Check if source was found
+  if (is.null(source_vec)) {
+    message("No restore source found for label: ", label)
+    message("Skipping restore for ", label)
+    return(invisible(FALSE))
+  }
+  
   yml_title <- .yml_dest_get_title_complete(
     source_vec[["title"]], source_vec[["type"]], NULL, FALSE, FALSE
   )
