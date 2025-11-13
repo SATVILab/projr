@@ -41,6 +41,12 @@ test_that(".auth_check_github throws error when no auth", {
     code = {
       # Save current PAT
       pat_old <- Sys.getenv("GITHUB_PAT")
+      withr::local_options(
+        list(
+          projr.disable_gitcreds = TRUE,
+          projr.gitcreds_override = NULL
+        )
+      )
       
       # Unset all possible GitHub tokens
       Sys.unsetenv("GITHUB_PAT")
@@ -182,6 +188,12 @@ test_that("Authentication checks handle missing tokens correctly", {
     if (nzchar(old_gh_token)) Sys.setenv(GITHUB_TOKEN = old_gh_token) else Sys.unsetenv("GITHUB_TOKEN")
     if (nzchar(old_osf_pat)) Sys.setenv(OSF_PAT = old_osf_pat) else Sys.unsetenv("OSF_PAT")
   })
+  withr::local_options(
+    list(
+      projr.disable_gitcreds = TRUE,
+      projr.gitcreds_override = NULL
+    )
+  )
   
   # Unset all tokens
   Sys.unsetenv("GITHUB_PAT")
@@ -203,6 +215,12 @@ test_that("Empty authentication tokens are handled correctly", {
     if (nzchar(old_github_pat)) Sys.setenv(GITHUB_PAT = old_github_pat) else Sys.unsetenv("GITHUB_PAT")
     if (nzchar(old_gh_token)) Sys.setenv(GITHUB_TOKEN = old_gh_token) else Sys.unsetenv("GITHUB_TOKEN")
   })
+  withr::local_options(
+    list(
+      projr.disable_gitcreds = TRUE,
+      projr.gitcreds_override = NULL
+    )
+  )
   
   # Empty GITHUB_PAT should fallback to GITHUB_TOKEN
   Sys.setenv(GITHUB_PAT = "")

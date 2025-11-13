@@ -240,10 +240,8 @@ projr_restore <- function(label = NULL,
     yml_title[["structure"]], yml_title[["path"]],
     yml_title[["path-append-label"]], version_remote
   )
-  path_dir_local <- projr_path_get_dir(label, safe = TRUE)
-  if (!dir.exists(path_dir_local)) {
-    dir.create(path_dir_local, recursive = TRUE)
-  }
+  # Restore directly into the project directory rather than the cache build area
+  path_dir_local <- projr_path_get_dir(label, safe = FALSE)
   .remote_file_get_all(source_vec[["type"]], remote_source, path_dir_local)
   invisible(TRUE)
 }

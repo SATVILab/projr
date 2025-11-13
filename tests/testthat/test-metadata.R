@@ -49,13 +49,20 @@ test_that(".metadata_get_author_host_non_git works", {
 test_that(".metadata_get_author_host_env works", {
   skip_if(.is_test_select())
 
+  # Ensure environment variable is set so function returns a non-empty value
+  os <- .metadata_get_os()
+  if (identical(os, "Windows")) {
+    withr::local_envvar(USERNAME = "projr-test-user")
+  } else if (identical(os, "Linux") || identical(os, "Darwin")) {
+    withr::local_envvar(USER = "projr-test-user")
+  }
+
   # Should return username from environment variable
   author <- .metadata_get_author_host_env()
   expect_true(.is_chr(author))
   expect_true(length(author) == 1)
-  
+
   # Should match system environment
-  os <- .metadata_get_os()
   expected <- switch(os,
     "Windows" = Sys.getenv("USERNAME"),
     "Linux" = Sys.getenv("USER"),

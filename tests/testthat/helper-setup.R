@@ -119,53 +119,100 @@
 }
 
 .test_setup_project_git_config <- function(global_only = FALSE) {
-  if (!Sys.getenv("GITHUB_ACTIONS") == "true") {
-    return(invisible(TRUE))
-  }
-  gert_config_global <- gert::git_config_global()[
-    gert::git_config_global()[["level"]] == "global", ,
-    drop = FALSE
-  ]
-  nm <- gert_config_global[["value"]][
-    gert_config_global[["name"]] == "user.name"
-  ]
-  if (!.is_string(nm)) {
-    gert::git_config_global_set(
-      "user.name", "DarthVader"
-    )
-    system2("git", c("config", "--global", "user.name", "DarthVader"))
-  }
-  email <- gert_config_global[["value"]][
-    gert_config_global[["name"]] == "user.email"
-  ]
-  if (!.is_string(email)) {
-    gert::git_config_global_set(
-      "user.email", "number_one_fan@tellytubbies.com"
-    )
-    system2(
-      "git", c(
-        "config", "--global", "user.email",
-        "number_one_fan@tellytubbies.com"
+  env <- parent.frame()
+  .test_git_identity_env_set(env)
+
+  if (Sys.getenv("GITHUB_ACTIONS") == "true") {
+    gert_config_global <- gert::git_config_global()[
+      gert::git_config_global()[["level"]] == "global", ,
+      drop = FALSE
+    ]
+    nm <- gert_config_global[["value"]][
+      gert_config_global[["name"]] == "user.name"
+    ]
+    if (!.is_string(nm)) {
+      gert::git_config_global_set(
+        "user.name", "DarthVader"
       )
-    )
+      system2(
+        "git",
+        c("config", "--global", "user.name", "DarthVader"),
+        stdout = NULL, stderr = NULL
+      )
+    }
+    email <- gert_config_global[["value"]][
+      gert_config_global[["name"]] == "user.email"
+    ]
+    if (!.is_string(email)) {
+      gert::git_config_global_set(
+        "user.email", "number_one_fan@tellytubbies.com"
+      )
+      system2(
+        "git",
+        c("config", "--global", "user.email", "number_one_fan@tellytubbies.com"),
+        stdout = NULL, stderr = NULL
+      )
+    }
   }
+
   if (global_only) {
     return(invisible(TRUE))
   }
 
-  gert::git_config_set(
-    "user.name", "DarthVader"
+  .test_git_identity_local_set()
+  invisible(TRUE)
+}
+
+.test_git_identity_env_set <- function(env) {
+  env_vars <- c(
+    "GIT_AUTHOR_NAME", "GIT_AUTHOR_EMAIL",
+    "GIT_COMMITTER_NAME", "GIT_COMMITTER_EMAIL"
   )
-  system2("git", c("config", "--local", "user.name", "DarthVader"))
-  gert::git_config_set(
-    "user.email", "number_one_fan@tellytubbies.com"
+  old_values <- Sys.getenv(env_vars, unset = NA_character_)
+  withr::defer({
+    to_restore <- !is.na(old_values)
+    if (any(to_restore)) {
+      restore_list <- as.list(stats::setNames(old_values[to_restore], env_vars[to_restore]))
+      do.call(Sys.setenv, restore_list)
+    }
+    to_clear <- is.na(old_values)
+    if (any(to_clear)) {
+      Sys.unsetenv(env_vars[to_clear])
+    }
+  }, envir = env)
+
+  new_vals <- as.list(stats::setNames(
+    c(
+      "DarthVader", "number_one_fan@tellytubbies.com",
+      "DarthVader", "number_one_fan@tellytubbies.com"
+    ),
+    env_vars
+  ))
+  do.call(Sys.setenv, new_vals)
+  invisible(TRUE)
+}
+
+.test_git_identity_local_set <- function() {
+  cfg <- list(
+    list(name = "user.name", value = "DarthVader"),
+    list(name = "user.email", value = "number_one_fan@tellytubbies.com")
   )
-  system2(
-    "git", c(
-      "config", "--local", "user.email",
-      shQuote("number_one_fan@tellytubbies.com")
+
+  for (item in cfg) {
+    tryCatch(
+      gert::git_config_set(item$name, item$value),
+      error = function(e) invisible(NULL)
     )
-  )
+    tryCatch(
+      system2(
+        "git",
+        c("config", "--local", item$name, item$value),
+        stdout = NULL, stderr = NULL
+      ),
+      warning = function(w) invisible(NULL),
+      error = function(e) invisible(NULL)
+    )
+  }
   invisible(TRUE)
 }
 
@@ -176,6 +223,9 @@
   if (!github) {
     .test_setup_project_github_unset(path_dir)
     return(invisible(FALSE))
+  }
+  if (!nzchar(Sys.getenv("GITHUB_PAT")) && !nzchar(Sys.getenv("GITHUB_TOKEN"))) {
+    testthat::skip("GITHUB_PAT not available - skipping GitHub remote tests")
   }
   if (debug) {
     print("Beginning GitHub setup")

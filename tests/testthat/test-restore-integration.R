@@ -25,6 +25,7 @@ test_that("restore from local archive remote places files directly in target dir
     code = {
       # Setup - use exact pattern from comprehensive test
       .create_test_content_restore("raw-data")
+      path_raw <- projr_path_get_dir("raw-data", safe = FALSE, create = FALSE)
       projr_init_git()
       .yml_git_set_push(FALSE, TRUE, NULL)
       .yml_dest_rm_type_all("default")
@@ -50,21 +51,21 @@ test_that("restore from local archive remote places files directly in target dir
       expect_true(file.exists("_archive/raw-data/v0.0.1/file1.txt"))
       
       # Delete raw-data contents
-      unlink("raw-data", recursive = TRUE)
-      expect_false(file.exists("raw-data/file1.txt"))
+  unlink(path_raw, recursive = TRUE)
+  expect_false(file.exists(file.path(path_raw, "file1.txt")))
       
       # Restore from archive
       result <- projr_restore(label = "raw-data")
       
       # Verify files are directly in raw-data, not in a subdirectory
-      expect_true(file.exists("raw-data/file1.txt"))
-      expect_true(file.exists("raw-data/subdir/nested.txt"))
-      expect_false(file.exists("raw-data/raw-data/file1.txt"))
-      expect_false(file.exists("raw-data/v0.0.1/file1.txt"))
-      expect_false(file.exists("raw-data/raw-data-v0.0.1/file1.txt"))
+  expect_true(file.exists(file.path(path_raw, "file1.txt")))
+  expect_true(file.exists(file.path(path_raw, "subdir", "nested.txt")))
+  expect_false(file.exists(file.path(path_raw, basename(path_raw), "file1.txt")))
+  expect_false(file.exists(file.path(path_raw, "v0.0.1", "file1.txt")))
+  expect_false(file.exists(file.path(path_raw, paste0(basename(path_raw), "-v0.0.1"), "file1.txt")))
       
       # Verify content is correct
-      content <- readLines("raw-data/file1.txt")
+  content <- readLines(file.path(path_raw, "file1.txt"))
       expect_identical(content, "Content 1")
       
       # Verify restoration was successful
@@ -84,6 +85,7 @@ test_that("restore from local latest remote places files directly in target dire
     code = {
       # Setup - use exact pattern from comprehensive test
       .create_test_content_restore("raw-data")
+      path_raw <- projr_path_get_dir("raw-data", safe = FALSE, create = FALSE)
       projr_init_git()
       .yml_git_set_push(FALSE, TRUE, NULL)
       .yml_dest_rm_type_all("default")
@@ -108,20 +110,20 @@ test_that("restore from local latest remote places files directly in target dire
       expect_true(file.exists("_latest/raw-data/file1.txt"))
       
       # Delete raw-data contents
-      unlink("raw-data", recursive = TRUE)
-      expect_false(file.exists("raw-data/file1.txt"))
+  unlink(path_raw, recursive = TRUE)
+  expect_false(file.exists(file.path(path_raw, "file1.txt")))
       
       # Restore from latest
       result <- projr_restore(label = "raw-data")
       
       # Verify files are directly in raw-data, not in a subdirectory
-      expect_true(file.exists("raw-data/file1.txt"))
-      expect_true(file.exists("raw-data/subdir/nested.txt"))
-      expect_false(file.exists("raw-data/raw-data/file1.txt"))
-      expect_false(file.exists("raw-data/v0.0.1/file1.txt"))
+  expect_true(file.exists(file.path(path_raw, "file1.txt")))
+  expect_true(file.exists(file.path(path_raw, "subdir", "nested.txt")))
+  expect_false(file.exists(file.path(path_raw, basename(path_raw), "file1.txt")))
+  expect_false(file.exists(file.path(path_raw, "v0.0.1", "file1.txt")))
       
       # Verify content is correct
-      content <- readLines("raw-data/file1.txt")
+  content <- readLines(file.path(path_raw, "file1.txt"))
       expect_identical(content, "Content 1")
       
       # Verify restoration was successful
@@ -141,6 +143,7 @@ test_that("restore and build integration test with archive remote", {
     code = {
       # Setup - use exact pattern from comprehensive test
       .create_test_content_restore("raw-data")
+      path_raw <- projr_path_get_dir("raw-data", safe = FALSE, create = FALSE)
       projr_init_git()
       .yml_git_set_push(FALSE, TRUE, NULL)
       .yml_dest_rm_type_all("default")
@@ -177,15 +180,15 @@ test_that("restore and build integration test with archive remote", {
       expect_true(file.exists("_archive/raw-data/v0.0.1/file1.txt"))
       
       # Delete raw-data contents
-      unlink("raw-data", recursive = TRUE)
-      expect_false(dir.exists("raw-data"))
+  unlink(path_raw, recursive = TRUE)
+  expect_false(dir.exists(path_raw))
       
       # Restore from archive
       restore_result <- projr_restore(label = "raw-data")
       expect_true(restore_result)
       
       # Verify data was restored correctly
-      expect_true(file.exists("raw-data/file1.txt"))
+  expect_true(file.exists(file.path(path_raw, "file1.txt")))
       
       # Try to build again - this should work if restore was successful
       build_result <- tryCatch({
@@ -197,8 +200,8 @@ test_that("restore and build integration test with archive remote", {
       })
       
       # Verify the data is there
-      expect_true(file.exists("raw-data/file1.txt"))
-      content <- readLines("raw-data/file1.txt")
+  expect_true(file.exists(file.path(path_raw, "file1.txt")))
+  content <- readLines(file.path(path_raw, "file1.txt"))
       expect_identical(content, "Content 1")
     },
     force = TRUE,
@@ -215,6 +218,7 @@ test_that("restore and build integration test with latest remote", {
     code = {
       # Setup - use exact pattern from comprehensive test
       .create_test_content_restore("raw-data")
+      path_raw <- projr_path_get_dir("raw-data", safe = FALSE, create = FALSE)
       projr_init_git()
       .yml_git_set_push(FALSE, TRUE, NULL)
       .yml_dest_rm_type_all("default")
@@ -251,15 +255,15 @@ test_that("restore and build integration test with latest remote", {
       expect_true(file.exists("_latest/raw-data/file1.txt"))
       
       # Delete raw-data contents
-      unlink("raw-data", recursive = TRUE)
-      expect_false(dir.exists("raw-data"))
+  unlink(path_raw, recursive = TRUE)
+  expect_false(dir.exists(path_raw))
       
       # Restore from latest
       restore_result <- projr_restore(label = "raw-data")
       expect_true(restore_result)
       
       # Verify data was restored correctly
-      expect_true(file.exists("raw-data/file1.txt"))
+  expect_true(file.exists(file.path(path_raw, "file1.txt")))
       
       # Try to build again - this should work if restore was successful
       build_result <- tryCatch({
@@ -271,8 +275,8 @@ test_that("restore and build integration test with latest remote", {
       })
       
       # Verify the data is there
-      expect_true(file.exists("raw-data/file1.txt"))
-      content <- readLines("raw-data/file1.txt")
+  expect_true(file.exists(file.path(path_raw, "file1.txt")))
+  content <- readLines(file.path(path_raw, "file1.txt"))
       expect_identical(content, "Content 1")
     },
     force = TRUE,

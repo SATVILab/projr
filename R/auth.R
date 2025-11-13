@@ -33,6 +33,20 @@
       return(invisible(pat))
     }
   }
+
+  override_pat <- getOption("projr.gitcreds_override", NULL)
+  if (!is.null(override_pat)) {
+    return(invisible(.auth_token_normalize(override_pat)))
+  }
+
+  disable_gitcreds <- getOption("projr.disable_gitcreds", FALSE)
+  if (!isTRUE(disable_gitcreds)) {
+    disable_gitcreds <- tolower(Sys.getenv("PROJR_DISABLE_GITCREDS")) %in%
+      c("1", "true", "yes", "on")
+  }
+  if (isTRUE(disable_gitcreds)) {
+    return(invisible(""))
+  }
   # try gitcreds
   if (!requireNamespace("gitcreds", quietly = TRUE)) {
     .dep_install("gitcreds")

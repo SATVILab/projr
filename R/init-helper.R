@@ -1080,12 +1080,10 @@ projr_init_renviron <- function() {
 # citations
 # --------------------------
 .init_cite <- function(answer_readme) {
-  if (.is_test()) {
-    return(invisible(FALSE))
-  }
   .init_cite_citation(answer_readme)
   .init_cite_cff()
   .init_cite_codemeta()
+  invisible(TRUE)
 }
 
 .init_cite_citation <- function(answer_readme) {

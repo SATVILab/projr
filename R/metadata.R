@@ -19,12 +19,16 @@
 }
 
 .metadata_get_author_host_env <- function() {
-  switch(.metadata_get_os(),
+  env_user <- switch(.metadata_get_os(),
     "Windows" = Sys.getenv("USERNAME"),
-    "Linux" = ,
+    "Linux" = Sys.getenv("USER"),
     "Darwin" = Sys.getenv("USER"),
     stop(paste0(.metadata_get_os(), " not recognised"))
   )
+  if (!is.character(env_user) || length(env_user) == 0 || !nzchar(env_user)) {
+    return(Sys.info()[["user"]])
+  }
+  env_user
 }
 
 .metadata_get_author_sys_info <- function() {
