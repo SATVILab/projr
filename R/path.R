@@ -322,7 +322,9 @@
 
 .dir_filter_removable <- function(path, path_dir_base = NULL) {
   .assert_chr_min(path, TRUE)
-  .assert_string(path_dir_base)
+  if (!is.null(path_dir_base)) {
+    .assert_string(path_dir_base)
+  }
   path[
     !fs::path_abs(path) %in% .dir_ls_unremovable(path_dir_base)
   ]
