@@ -142,7 +142,7 @@ projr_manifest_range <- function(version_start = NULL,
   
   # Filter by version range
   versions <- unique(manifest$version)
-  versions_sorted <- sort(package_version(.version_v_rm(versions)))
+  versions_sorted <- sort(package_version(vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE)))
   version_start_pkg <- package_version(.version_v_rm(version_start))
   version_end_pkg <- package_version(.version_v_rm(version_end))
   
@@ -206,7 +206,7 @@ projr_manifest_last_change <- function(version = NULL) {
   
   # Get all versions up to and including the target version
   versions <- unique(manifest$version)
-  versions_sorted <- sort(package_version(.version_v_rm(versions)))
+  versions_sorted <- sort(package_version(vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE)))
   version_pkg <- package_version(.version_v_rm(version))
   
   versions_up_to <- versions_sorted[versions_sorted <= version_pkg]
@@ -231,7 +231,7 @@ projr_manifest_last_change <- function(version = NULL) {
       # If no versions available, use current project version
       return(paste0("v", projr_version_get()))
     }
-    versions_pkg <- package_version(.version_v_rm(versions))
+    versions_pkg <- package_version(vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE))
     if (use_earliest) {
       version <- min(versions_pkg)
     } else {
@@ -320,7 +320,7 @@ projr_manifest_last_change <- function(version = NULL) {
   
   result_list <- lapply(keys, function(k) {
     file_history <- manifest_range[manifest_range$key == k, , drop = FALSE]
-    file_history <- file_history[order(package_version(.version_v_rm(file_history$version))), , drop = FALSE]
+    file_history <- file_history[order(package_version(vapply(file_history$version, .version_v_rm, character(1), USE.NAMES = FALSE))), , drop = FALSE]
     
     # Find when hash last changed
     hashes <- file_history$hash
@@ -357,7 +357,7 @@ projr_manifest_last_change <- function(version = NULL) {
     
     # Find most recent version for this label
     versions <- unique(label_data$version)
-    versions_pkg <- package_version(.version_v_rm(versions))
+    versions_pkg <- package_version(vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE))
     version_last <- paste0("v", as.character(max(versions_pkg)))
     
     # Count files at this version
