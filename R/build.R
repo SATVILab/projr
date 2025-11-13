@@ -511,6 +511,10 @@ projr_build_dev <- function(file = NULL,
   # hash raw-data and outputs, then save manifest table
   .cli_debug("Updating manifest (hashing outputs)", output_level = output_level, log_file = log_file)
   .build_manifest_post(output_run)
+  
+  # Display change summary at debug level
+  .build_change_summary_display(bump_component, output_level, log_file)
+  
   # update README
   .cli_debug("Rendering README.Rmd if present", output_level = output_level, log_file = log_file)
   .build_readme_rmd_render(output_run)
