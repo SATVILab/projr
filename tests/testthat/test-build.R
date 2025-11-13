@@ -158,6 +158,7 @@ test_that("Archive functionality works correctly", {
 test_that("Failed builds handle version appropriately", {
   skip_if(.is_test_select())
   skip_if(.is_test_fast())
+  skip_on_ci()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,

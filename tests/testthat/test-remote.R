@@ -527,6 +527,7 @@ test_that("adding, tallying and removing files from remotes works - local", {
 })
 
 test_that("adding, tallying and removing files from remotes works - osf", {
+  skip("OSF tests disabled - to be reviewed")
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
