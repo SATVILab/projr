@@ -15,7 +15,7 @@
 
 .dir_clear_pre_cache_version <- function() {
   .dir_get_cache_auto_version(profile = NULL) |>
-    .dir_clear_dir(dir_exc = "old")
+    .dir_clear_dir(dir_exc = c("old", "docs"))
 }
 
 .build_clear_pre_output <- function(clear_output) {

@@ -61,11 +61,11 @@
 .build_clear_old_dev <- function() {
   path_dir <- .dir_get_cache_auto_version(profile = NULL) |>
     dirname()
-  if (!dir.exists(path_dir)) {
+  if (!dir.exists(path_dir) || !nzchar(path_dir)) {
     return(invisible(FALSE))
   }
   path_dir_vec <- path_dir |>
-    .dir_ls() |>
+    .dir_ls(recursive = FALSE) |>
     setdiff(.version_get_v())
   if (.is_len_0(path_dir_vec)) {
     return(invisible(FALSE))
