@@ -52,10 +52,10 @@ test_that("projr_use_data works", {
       expect_identical(length(paths_tmp), 2L)
       expect_true(all(file.exists(paths_tmp)))
       expect_true(all(fs::path_has_parent(path_tmp, "_tmp")))
-      paths_final <- projr_use_data(x, y)
+      paths_final <- projr_use_data(x, y, safe = FALSE)
       expect_identical(length(paths_final), 2L)
       expect_true(all(file.exists(paths_final)))
-      expect_true(all(fs::path_has_parent(paths_final, "_tmp")))
+      expect_true(all(fs::path_has_parent(paths_final, "data")))
     }
   )
 })
