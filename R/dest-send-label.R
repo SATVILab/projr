@@ -238,10 +238,14 @@
     return(version_comp_no_trusted_archive)
   }
   # now, we need to see if an earlier version might work
-  version_remote <- .remote_get_version_label(
+  version_remote_raw <- .remote_get_version_label(
     remote_pre, type, label, "archive"
-  ) |>
-    .version_v_rm()
+  )
+  # Check if version_remote_raw is empty before calling .version_v_rm()
+  if (.is_len_0(version_remote_raw)) {
+    return(version_comp_no_trusted_archive)
+  }
+  version_remote <- version_remote_raw |> .version_v_rm()
   # earliest version does not work if it's not trusted
   # or none are avaialble (version_remote is NULL),
   # or if the version is too old

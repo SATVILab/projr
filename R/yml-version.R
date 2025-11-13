@@ -25,7 +25,12 @@
 # ---------------------------
 
 .yml_metadata_get_version_format <- function(profile) {
-  .yml_metadata_get_nm("version-format", profile) %||% "major.minor.patch-dev"
+  version_format <- .yml_metadata_get_nm("version-format", profile)
+  # Return default if version_format is NULL or empty string
+  if (is.null(version_format) || !.is_string(version_format)) {
+    return("major.minor.patch-dev")
+  }
+  version_format
 }
 
 .yml_metadata_set_version_format <- function(version_format, profile) {
