@@ -862,7 +862,7 @@ The build system includes detailed debug logging for remote operations (local, O
 **Output Levels**:
 - `"none"` - No additional messages (default for dev builds)
 - `"std"` - Standard messaging (default for output builds)
-- `"debug"` - Verbose messaging including remote operations details
+- `"debug"` - Verbose messaging including remote operations details and change summaries
 
 **Debug Messages for Remotes**:
 When `PROJR_OUTPUT_LEVEL="debug"`, the following remote operations are logged:
@@ -897,6 +897,46 @@ projr_build_patch()
 # - "Content 'raw-data': Upload plan - X file(s) to add, Y file(s) to remove, create: TRUE/FALSE, purge: TRUE/FALSE"
 # - "Remote file add: type=local, adding X file(s) from /path/to/source"
 ```
+
+### Build Change Summary
+
+The build system automatically tracks and reports changes in input and output files between builds:
+
+**BUILDLOG.md Integration**:
+- Change summaries are automatically added to `BUILDLOG.md` for each production build
+- Compares current build with previous version using manifest hashes
+- Tracks changes in both input directories (raw-data, cache) and output directories (output, docs)
+- Shows added, removed, modified, and unchanged file counts
+
+**Debug Console Output**:
+When `PROJR_OUTPUT_LEVEL="debug"`, change summaries are displayed in the console during the build
+
+**Change Summary Format**:
+- If total changes < 10: Shows individual file names for added, removed, and modified files
+- If total changes ≥ 10: Shows only counts to avoid cluttering the log
+- Organized by section: "Inputs Changes" and "Outputs Changes"
+- Displays version comparison (e.g., "v0.0.1 → v0.0.2")
+
+**Example Change Summary in BUILDLOG.md**:
+```markdown
+**Inputs Changes (v0.0.1 → v0.0.2)**
+
+- No changes detected in inputs
+
+**Outputs Changes (v0.0.1 → v0.0.2)**
+
+- `output`:
+  - 1 added, 1 modified, 2 unchanged
+  - Added: newfile.txt
+  - Modified: report.html
+```
+
+**Implementation**:
+- Core functions in `R/build-change-summary.R`
+- `.build_change_summary_get()` - Generates change summary by comparing manifests
+- `.build_change_summary_display()` - Displays changes at debug level
+- `.buildlog_get_change_summary()` - Integrates into BUILDLOG.md
+- Tests in `tests/testthat/test-build-change-summary.R`
 
 ## Build Directory Clearing System
 
