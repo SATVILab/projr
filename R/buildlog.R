@@ -37,6 +37,7 @@
   )
   desc_txt <- .buildlog_get_desc(msg)
   metadata_txt <- .buildlog_get_metadata(total_time)
+  change_summary_txt <- .buildlog_get_change_summary(bump_component)
   system_resources_txt <- .buildlog_get_system_resources()
   projr_yml_txt <- .buildlog_get_projr_yml()
   session_info_txt <- .buildlog_get_session_info()
@@ -44,6 +45,7 @@
     header_txt,
     desc_txt,
     metadata_txt,
+    change_summary_txt,
     system_resources_txt,
     projr_yml_txt,
     session_info_txt,
@@ -85,6 +87,17 @@
     "- `projr` profile: ", projr_profile_get(),
     ""
   )
+}
+
+.buildlog_get_change_summary <- function(bump_component) {
+  output_run <- .build_get_output_run(bump_component)
+  summary <- .build_change_summary_get(output_run)
+  
+  if (is.null(summary)) {
+    return(character(0))
+  }
+  
+  summary
 }
 
 .buildlog_get_metadata_time <- function(duration) {
