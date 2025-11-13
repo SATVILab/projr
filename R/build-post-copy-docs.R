@@ -199,7 +199,35 @@
   # Copy all contents from source to destination, excluding CHANGELOG.md
   .dir_move_exact(source_dir, dest_dir, fn_exc = "CHANGELOG.md")
 
+  # Copy the <book_filename>_files directory if it exists
+  # This contains knitr cache files (figures, etc.) from the working directory
+  .build_copy_docs_bookdown_files(output_run)
+
   message("Copied bookdown output from ", source_dir, " to ", dest_dir)
+  invisible(TRUE)
+}
+
+.build_copy_docs_bookdown_files <- function(output_run) {
+  # Get the book filename from _bookdown.yml
+  book_filename <- .yml_bd_get_book_filename()
+  files_dir_name <- paste0(book_filename, "_files")
+  
+  # Source is in the cache build directory (working directory during build)
+  cache_dir <- .dir_get_cache_auto_version(profile = NULL)
+  source_files_dir <- file.path(cache_dir, files_dir_name)
+  
+  # Skip if the _files directory doesn't exist
+  if (!dir.exists(source_files_dir)) {
+    return(invisible(FALSE))
+  }
+  
+  # Destination is in the final docs directory
+  dest_dir <- projr_path_get_dir("docs", safe = !output_run)
+  dest_files_dir <- file.path(dest_dir, files_dir_name)
+  
+  # Copy the _files directory
+  .dir_move_exact(source_files_dir, dest_files_dir)
+  
   invisible(TRUE)
 }
 
