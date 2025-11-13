@@ -433,7 +433,7 @@ test_that(".log_history_add handles multiple entries", {
       
       # Should have success and failure markers
       expect_true(any(grepl("\\[OK\\]", content)))
-      expect_true(any(grepl("\\[FAIL\\]", content)))
+      expect_true(any(grepl("\\[X\\]", content)))
       
       # Second entry should come before first (newest first)
       first_pos <- which(grepl("First build", content))[1]
