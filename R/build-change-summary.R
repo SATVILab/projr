@@ -124,7 +124,7 @@
 .build_change_summary_format_section <- function(section_name, labels, 
                                                  manifest_all, version_prev, 
                                                  version_curr) {
-  lines <- c(paste0("**", section_name, " Changes (v", version_prev, " → v", version_curr, ")**"), "")
+  lines <- c(paste0("**", section_name, " Changes (v", version_prev, " -> v", version_curr, ")**"), "")
   
   has_changes <- FALSE
   
