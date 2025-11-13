@@ -81,6 +81,55 @@ test_that("Version bumping works correctly for each component", {
   )
 })
 
+# Test bookdown _files directory copying
+test_that("bookdown _files directory is copied correctly", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Modify index.Rmd to include a code chunk with a plot
+      # This will cause bookdown to create a _files directory
+      index_content <- c(
+        "---",
+        "title: \"Test Book\"",
+        "author: \"Test Author\"",
+        "description: \"Test\"",
+        "---",
+        "",
+        "# Chapter 1",
+        "",
+        "This is a test with a plot:",
+        "",
+        "```{r test-plot, fig.cap=\"Test Plot\"}",
+        "plot(1:10, 1:10)",
+        "```"
+      )
+      writeLines(index_content, "index.Rmd")
+      
+      # Run build - this will render bookdown and create the _files directory
+      projr_build_patch(msg = "Test bookdown files")
+      
+      # Get book filename from _bookdown.yml
+      book_filename <- .yml_bd_get_book_filename()
+      files_dir_name <- paste0(book_filename, "_files")
+      
+      # Check that _files directory was copied to final docs location
+      docs_dir <- projr_path_get_dir("docs", safe = FALSE)
+      dest_files_dir <- file.path(docs_dir, files_dir_name)
+      
+      # The _files directory should exist in the final docs location
+      expect_true(dir.exists(dest_files_dir))
+      
+      # There should be figure files inside
+      figure_files <- list.files(dest_files_dir, recursive = TRUE, pattern = "\\.(png|jpg|jpeg)$")
+      expect_true(length(figure_files) > 0)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
 # Test that pre-existing files are cleared
 # Note: does not test whether they're cleared at the
 # correct stage.
