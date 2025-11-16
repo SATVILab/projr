@@ -916,12 +916,18 @@ projr_osf_create_project <- function(title,
 # the above will only delete the remote if
 # it's actually got nothing, so it's very different)
 .remote_file_rm_all <- function(type,
-                                remote) {
+                                remote,
+                                output_level = "std",
+                                log_file = NULL) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_file_rm_all_local(remote),
     "osf" = .remote_file_rm_all_osf(remote),
-    "github" = .remote_file_rm_all_github(remote)
+    "github" = .remote_file_rm_all_github(
+      remote,
+      output_level = output_level,
+      log_file = log_file
+    )
   )
 }
 
@@ -957,7 +963,9 @@ projr_osf_create_project <- function(title,
 }
 
 # github
-.remote_file_rm_all_github <- function(remote) {
+.remote_file_rm_all_github <- function(remote,
+                                       output_level = "std",
+                                       log_file = NULL) {
   # here, if remote specifies the file, it will only remove
   # that file, but if remote doesn't, then
   # it removes every file.
@@ -975,40 +983,127 @@ projr_osf_create_project <- function(title,
   # pb_release_delete deletes the release itself,
   # so this should still just empty it
   piggyback::.pb_cache_clear()
-  release_tbl <- try(.pb_release_tbl_get())
+  
+  .cli_debug(
+    "Piggyback: Checking if tag '{tag}' exists for deletion",
+    output_level = output_level,
+    log_file = log_file
+  )
+  
+  release_tbl <- try(.pb_release_tbl_get(
+    output_level = output_level,
+    log_file = log_file
+  ))
   if (inherits(release_tbl, "try-error")) {
     stop("Could not get GitHub release table")
   }
   if (!(tag %in% release_tbl[["release_name"]])) {
+    .cli_debug(
+      "Piggyback: Tag '{tag}' not found in releases, nothing to delete",
+      output_level = output_level,
+      log_file = log_file
+    )
     return(invisible(FALSE))
   }
   # delete individual zipped file
   # if it is in the release
   if ("fn" %in% names(remote)) {
-    if (!.remote_file_rm_all_github_check_fn(remote[["fn"]], tag)) {
+    if (!.remote_file_rm_all_github_check_fn(
+      remote[["fn"]],
+      tag,
+      output_level = output_level,
+      log_file = log_file
+    )) {
       return(invisible(FALSE))
     }
-    piggyback::pb_delete(repo = .pb_repo_get(), tag = tag, file = remote[["fn"]])
+    .cli_debug(
+      "Piggyback: Deleting file {remote[['fn']]} from tag '{tag}'",
+      output_level = output_level,
+      log_file = log_file
+    )
+    tryCatch({
+      piggyback::pb_delete(repo = .pb_repo_get(), tag = tag, file = remote[["fn"]])
+      .cli_debug(
+        "Piggyback: Successfully deleted {remote[['fn']]} from tag '{tag}'",
+        output_level = output_level,
+        log_file = log_file
+      )
+    }, error = function(e) {
+      .cli_debug(
+        "Piggyback: Failed to delete {remote[['fn']]} from tag '{tag}': {e$message}",
+        output_level = output_level,
+        log_file = log_file
+      )
+    })
   } else {
-    try(piggyback::pb_delete(repo = .pb_repo_get(), tag = tag))
+    .cli_debug(
+      "Piggyback: Deleting all files from tag '{tag}'",
+      output_level = output_level,
+      log_file = log_file
+    )
+    tryCatch({
+      piggyback::pb_delete(repo = .pb_repo_get(), tag = tag)
+      .cli_debug(
+        "Piggyback: Successfully deleted all files from tag '{tag}'",
+        output_level = output_level,
+        log_file = log_file
+      )
+    }, error = function(e) {
+      .cli_debug(
+        "Piggyback: Failed to delete files from tag '{tag}': {e$message}",
+        output_level = output_level,
+        log_file = log_file
+      )
+    })
   }
   invisible(TRUE)
 }
 
-.remote_file_rm_all_github_check_fn <- function(fn, tag) {
+.remote_file_rm_all_github_check_fn <- function(fn,
+                                                tag,
+                                                output_level = "std",
+                                                log_file = NULL) {
   .dep_install("piggyback")
-  asset_tbl <- try(.pb_asset_tbl_get(tag = tag))
+  
+  .cli_debug(
+    "Piggyback: Checking if file {fn} exists in tag '{tag}'",
+    output_level = output_level,
+    log_file = log_file
+  )
+  
+  asset_tbl <- try(.pb_asset_tbl_get(
+    tag = tag,
+    output_level = output_level,
+    log_file = log_file
+  ))
   if (inherits(asset_tbl, "try-error")) {
     stop("Could not get the assets for the GitHub release")
   }
   # assume that NULL asset tbl's mean nothing is there
   if (is.null(asset_tbl)) {
+    .cli_debug(
+      "Piggyback: No assets found for tag '{tag}'",
+      output_level = output_level,
+      log_file = log_file
+    )
     return(invisible(FALSE))
   }
   if (nrow(asset_tbl) == 0L) {
+    .cli_debug(
+      "Piggyback: Empty asset table for tag '{tag}'",
+      output_level = output_level,
+      log_file = log_file
+    )
     return(invisible(FALSE))
   }
-  fn %in% asset_tbl[["file_name"]]
+  
+  exists <- fn %in% asset_tbl[["file_name"]]
+  .cli_debug(
+    "Piggyback: File {fn} {if (exists) 'found' else 'not found'} in tag '{tag}'",
+    output_level = output_level,
+    log_file = log_file
+  )
+  exists
 }
 
 # ========================
@@ -1076,7 +1171,9 @@ projr_osf_create_project <- function(title,
 
 .remote_file_get_ind_github <- function(remote,
                                         fn,
-                                        path_dir_save_local) {
+                                        path_dir_save_local,
+                                        output_level = "std",
+                                        log_file = NULL) {
   .dep_install("piggyback")
   if (!.remote_check_exists("github", remote[["tag"]])) {
     return(character(0L))
@@ -1085,7 +1182,10 @@ projr_osf_create_project <- function(title,
   fn_no_zip <- if (grepl("\\.zip$", fn)) gsub("\\.zip$", "", fn) else fn
   remote[["fn"]] <- fn_zip
   .remote_file_get_all_github_file(
-    remote = remote, path_dir_save_local = path_dir_save_local
+    remote = remote,
+    path_dir_save_local = path_dir_save_local,
+    output_level = output_level,
+    log_file = log_file
   )
   path_fn <- file.path(path_dir_save_local, fn_no_zip)
   if (file.exists(path_fn)) path_fn else character(0L)
@@ -1153,7 +1253,10 @@ projr_osf_create_project <- function(title,
 # github
 # ---------------------
 
-.remote_file_get_all_github <- function(remote, path_dir_save_local) {
+.remote_file_get_all_github <- function(remote,
+                                        path_dir_save_local,
+                                        output_level = "std",
+                                        log_file = NULL) {
   .dep_install("piggyback")
   .assert_given_full(remote)
 
@@ -1161,37 +1264,116 @@ projr_osf_create_project <- function(title,
     return(invisible(FALSE))
   }
   .remote_file_get_all_github_file(
-    remote = remote, path_dir_save_local = path_dir_save_local
+    remote = remote,
+    path_dir_save_local = path_dir_save_local,
+    output_level = output_level,
+    log_file = log_file
   )
 }
 
 .remote_file_get_all_github_file <- function(remote,
-                                             path_dir_save_local) {
+                                             path_dir_save_local,
+                                             output_level = "std",
+                                             log_file = NULL) {
   .dep_install("piggyback")
   piggyback::.pb_cache_clear()
   .assert_attr(remote, "names")
   .assert_has(names(remote), c("tag", "fn"))
+  
+  .cli_debug(
+    "Piggyback: Downloading {remote[['fn']]} from tag '{remote[['tag']]}'",
+    output_level = output_level,
+    log_file = log_file
+  )
+  
   path_dir_save_init <- .dir_create_tmp_random()
-  fn_vec_release <- piggyback::pb_list(repo = .pb_repo_get(), tag = remote[["tag"]])[["file_name"]]
+  
+  # Get list of files in release
+  fn_vec_release_result <- tryCatch(
+    piggyback::pb_list(repo = .pb_repo_get(), tag = remote[["tag"]]),
+    error = function(e) {
+      .cli_debug(
+        "Piggyback: Failed to list files for tag '{remote[['tag']]}': {e$message}",
+        output_level = output_level,
+        log_file = log_file
+      )
+      data.frame(file_name = character(0), stringsAsFactors = FALSE)
+    }
+  )
+  fn_vec_release <- fn_vec_release_result[["file_name"]]
+  
   if (.is_len_0(fn_vec_release)) {
+    .cli_debug(
+      "Piggyback: No files found in release tag '{remote[['tag']]}'",
+      output_level = output_level,
+      log_file = log_file
+    )
     return(invisible(path_dir_save_local))
   }
+  
   if (!remote[["fn"]] %in% fn_vec_release) {
+    .cli_debug(
+      "Piggyback: File {remote[['fn']]} not found in release (available: {paste(fn_vec_release, collapse = ', ')})",
+      output_level = output_level,
+      log_file = log_file
+    )
     return(invisible(path_dir_save_local))
   }
-  piggyback::pb_download(
-    file = remote[["fn"]],
-    dest = path_dir_save_init,
-    tag = remote[["tag"]],
-    repo = .pb_repo_get(),
-    overwrite = TRUE,
-    use_timestamps = FALSE
-  )
-  utils::unzip(
-    file.path(path_dir_save_init, remote[["fn"]]),
-    exdir = path_dir_save_local
-  )
-  file.remove(file.path(path_dir_save_init, remote[["fn"]]))
+  
+  # Download the file
+  download_result <- tryCatch({
+    piggyback::pb_download(
+      file = remote[["fn"]],
+      dest = path_dir_save_init,
+      tag = remote[["tag"]],
+      repo = .pb_repo_get(),
+      overwrite = TRUE,
+      use_timestamps = FALSE
+    )
+    .cli_debug(
+      "Piggyback: Successfully downloaded {remote[['fn']]} ({file.size(file.path(path_dir_save_init, remote[['fn']]))} bytes)",
+      output_level = output_level,
+      log_file = log_file
+    )
+    TRUE
+  }, error = function(e) {
+    .cli_debug(
+      "Piggyback: Download failed for {remote[['fn']]}: {e$message}",
+      output_level = output_level,
+      log_file = log_file
+    )
+    FALSE
+  })
+  
+  if (!download_result) {
+    return(invisible(path_dir_save_local))
+  }
+  
+  # Unzip the file
+  zip_path <- file.path(path_dir_save_init, remote[["fn"]])
+  if (file.exists(zip_path)) {
+    .cli_debug(
+      "Piggyback: Unzipping {remote[['fn']]} to {path_dir_save_local}",
+      output_level = output_level,
+      log_file = log_file
+    )
+    tryCatch({
+      utils::unzip(zip_path, exdir = path_dir_save_local)
+      .cli_debug(
+        "Piggyback: Successfully unzipped {remote[['fn']]}",
+        output_level = output_level,
+        log_file = log_file
+      )
+    }, error = function(e) {
+      .cli_debug(
+        "Piggyback: Failed to unzip {remote[['fn']]}: {e$message}",
+        output_level = output_level,
+        log_file = log_file
+      )
+    })
+    file.remove(zip_path)
+  }
+  
   invisible(path_dir_save_local)
 }
 
@@ -2092,34 +2274,95 @@ projr_osf_create_project <- function(title,
 
 .remote_file_add_github_zip <- function(path_zip,
                                         tag,
-                                        pause_second = 3) {
+                                        pause_second = 3,
+                                        output_level = "std",
+                                        log_file = NULL) {
   .dep_install("piggyback")
+  
+  .cli_debug(
+    "Piggyback: Uploading {basename(path_zip)} ({file.size(path_zip)} bytes) to tag '{tag}'",
+    output_level = output_level,
+    log_file = log_file
+  )
+  
   pb_upload <- .remote_file_add_github_zip_attempt(
-    path_zip = path_zip, tag = tag
+    path_zip = path_zip,
+    tag = tag,
+    output_level = output_level,
+    log_file = log_file
   )
   if (!inherits(pb_upload, "try-error")) {
+    .cli_debug(
+      "Piggyback: Successfully uploaded {basename(path_zip)} on first attempt",
+      output_level = output_level,
+      log_file = log_file
+    )
     return(invisible(TRUE))
   }
+  
+  .cli_debug(
+    "Piggyback: First upload attempt failed, retrying after {pause_second}s...",
+    output_level = output_level,
+    log_file = log_file
+  )
   Sys.sleep(pause_second)
   pb_upload <- .remote_file_add_github_zip_attempt(
-    path_zip = path_zip, tag = tag
+    path_zip = path_zip,
+    tag = tag,
+    output_level = output_level,
+    log_file = log_file
   )
   if (!inherits(pb_upload, "try-error")) {
+    .cli_debug(
+      "Piggyback: Successfully uploaded {basename(path_zip)} on second attempt",
+      output_level = output_level,
+      log_file = log_file
+    )
     return(invisible(TRUE))
   }
+  
+  error_msg <- if (inherits(pb_upload, "try-error")) {
+    attr(pb_upload, "condition")$message
+  } else {
+    "Unknown error"
+  }
+  
+  .cli_debug(
+    "Piggyback: All upload attempts failed for {basename(path_zip)}: {error_msg}",
+    output_level = output_level,
+    log_file = log_file
+  )
+  
   warning(paste0(
     "Could not upload ", # nolint
     basename(path_zip),
     " to GitHub release with tag ", # nolint
-    tag
+    tag,
+    ": ",
+    error_msg
   ))
   invisible(FALSE)
 }
 
-.remote_file_add_github_zip_attempt <- function(path_zip, tag) {
-  try(suppressWarnings(suppressMessages(
-    piggyback::pb_upload(repo = .pb_repo_get(), file = path_zip, tag = tag)
-  )))
+.remote_file_add_github_zip_attempt <- function(path_zip,
+                                                tag,
+                                                output_level = "std",
+                                                log_file = NULL) {
+  repo <- .pb_repo_get()
+  result <- try(suppressWarnings(suppressMessages(
+    piggyback::pb_upload(repo = repo, file = path_zip, tag = tag)
+  )), silent = TRUE)
+  
+  if (inherits(result, "try-error")) {
+    error_msg <- attr(result, "condition")$message
+    .cli_debug(
+      "Piggyback: pb_upload() failed for {basename(path_zip)} to tag '{tag}': {error_msg}",
+      output_level = output_level,
+      log_file = log_file
+    )
+  }
+  
+  result
 }
 
 # ===================================
