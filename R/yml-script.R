@@ -95,7 +95,7 @@ projr_yml_script_add <- function(path,
                             profile = "default",
                             overwrite = TRUE) {
   title <- gsub("^\\s*|\\s*$", "", title) |>
-    gsub("\\s+", "-", x = _)
+    (\(x) gsub("\\s+", "-", x))()
   .yml_script_check_overwrite(title, overwrite, profile = profile)
   yml_script <- .yml_script_get(profile)
   yml_script[[title]] <- .yml_script_add_get(

@@ -9,6 +9,7 @@ _tmp
 /Meta/
 _scratch/VERSION
 git_diff_output.txt
+check_output.log
 
 *.tar.gz
 test_debug_output.R

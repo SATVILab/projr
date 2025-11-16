@@ -473,7 +473,7 @@ projr_restore <- function(label = NULL,
 .remote_check_version_untrusted <- function(remote_pre, type, label) {
   version_file <- .remote_get_version_file(type, remote_pre)
   match_str <- utils::glob2rx(label) |>
-    gsub("\\$", "", x = _) |>
+    (\(x) gsub("\\$", "", x))() |>
     paste0(": ")
   label_regex <- grep(match_str, version_file, value = TRUE)
   if (.is_len_0(label_regex)) {

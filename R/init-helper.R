@@ -907,7 +907,7 @@ projr_init_renviron <- function() {
       return(fn_vec_root)
     }
     ignore_vec <- if (file.exists(.path_get("renv", ".gitignore"))) {
-      readLines(.path_get("renv", ".gitignore"), warn = FALSE) |> gsub("/$", "", x = _)
+      readLines(.path_get("renv", ".gitignore"), warn = FALSE) |> (\(x) gsub("/$", "", x))()
     } else {
       character(0)
     }

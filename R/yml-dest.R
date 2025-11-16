@@ -202,7 +202,7 @@
     description = description
   ) |>
     .yml_dest_add_get_list_add_extra_osf_id_null_check_success() |>
-    .list_add(list_base = list_add, x = _, nm = "id")
+    (\(x) .list_add(list_base = list_add, x = x, nm = "id"))()
 }
 
 .yml_dest_add_get_list_add_extra_osf_id_null_check_success <-
