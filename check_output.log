@@ -1,0 +1,163 @@
+── R CMD build ─────────────────────────────────────────────────────────────────
+pdflatex not found! Not building PDF manual.
+* checking for file ‘.../DESCRIPTION’ ... OK
+* preparing ‘projr’:
+* checking DESCRIPTION meta-information ... OK
+* installing the package to build vignettes
+* creating vignettes ... OK
+* checking for LF line-endings in source and make files and shell scripts
+* checking for empty or unneeded directories
+  NB: this package now depends on R (>= 4.2.0)
+  WARNING: Added dependency on R >= 4.2.0 because package code uses the
+  pipe placeholder syntax added in R 4.2.0
+  File(s) using such syntax:
+    ‘dest-send-label.R’ ‘dir-get.R’ ‘ignore-auto.R’ ‘init-helper.R’
+    ‘remote.R’ ‘restore.R’ ‘yml-dest.R’ ‘yml-script.R’
+* building ‘projr_0.3.0-1.tar.gz’
+
+── R CMD check ─────────────────────────────────────────────────────────────────
+* using log directory ‘/tmp/Rtmpm4Q62a/file23d5493398ab/projr.Rcheck’
+* using R version 4.5.2 (2025-10-31)
+* using platform: x86_64-pc-linux-gnu
+* R was compiled by
+    gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0
+    GNU Fortran (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0
+* running under: Ubuntu 24.04.3 LTS
+* using session charset: UTF-8
+* using options ‘--no-manual --as-cran’
+* checking for file ‘projr/DESCRIPTION’ ... OK
+* this is package ‘projr’ version ‘0.3.0-1’
+* package encoding: UTF-8
+* checking CRAN incoming feasibility ... NOTE
+Maintainer: ‘Miguel Rodo <miguel.rodo@uct.ac.za>’
+New submission
+Non-FOSS package license (file LICENSE)
+Found the following (possibly) invalid URLs:
+  URL: https://app.codecov.io/gh/SATVILab/projr?branch=main
+    From: README.md
+    Status: Error
+    Message: libcurl error code 6:
+      	Could not resolve host: app.codecov.io
+  URL: https://happygitwithr.com/github-acct
+    From: inst/doc/intro.html
+    Status: Error
+    Message: libcurl error code 6:
+      	Could not resolve host: happygitwithr.com
+  URL: https://happygitwithr.com/https-pat#tldr
+    From: inst/doc/intro.html
+    Status: Error
+    Message: libcurl error code 6:
+      	Could not resolve host: happygitwithr.com
+  URL: https://orcid.org/0000-0002-2036-4878
+    From: man/projr-package.Rd
+    Status: Error
+    Message: libcurl error code 6:
+      	Could not resolve host: orcid.org
+  URL: https://osf.io/
+    From: man/projr_osf_create_project.Rd
+    Status: Error
+    Message: libcurl error code 6:
+      	Could not resolve host: osf.io
+  URL: https://r-pkgs.org
+    From: man/projr_use_data.Rd
+    Status: Error
+    Message: libcurl error code 6:
+      	Could not resolve host: r-pkgs.org
+  URL: https://r-pkgs.org/data.html
+    From: man/projr_use_data.Rd
+    Status: Error
+    Message: libcurl error code 6:
+      	Could not resolve host: r-pkgs.org
+  URL: https://satvilab.github.io/projr/
+    From: DESCRIPTION
+          man/projr-package.Rd
+          inst/CITATION
+    Status: Error
+    Message: libcurl error code 6:
+      	Could not resolve host: satvilab.github.io
+  URL: https://satvilab.github.io/projr/articles/concepts.html
+    From: README.md
+    Status: Error
+    Message: libcurl error code 6:
+      	Could not resolve host: satvilab.github.io
+  URL: https://satvilab.github.io/projr/articles/design.html
+    From: README.md
+    Status: Error
+    Message: libcurl error code 6:
+      	Could not resolve host: satvilab.github.io
+  URL: https://satvilab.github.io/projr/articles/get-started.html
+    From: README.md
+    Status: Error
+    Message: libcurl error code 6:
+      	Could not resolve host: satvilab.github.io
+  URL: https://satvilab.github.io/projr/articles/how-to-guides.html
+    From: README.md
+    Status: Error
+    Message: libcurl error code 6:
+      	Could not resolve host: satvilab.github.io
+  URL: https://satvilab.github.io/projr/reference/index.html
+    From: README.md
+    Status: Error
+    Message: libcurl error code 6:
+      	Could not resolve host: satvilab.github.io
+  URL: https://www.repostatus.org/#active
+    From: README.md
+    Status: Error
+    Message: libcurl error code 6:
+      	Could not resolve host: www.repostatus.org
+Found the following (possibly) invalid ORCID iDs:
+  iD: 0000-0002-2036-4878	(from: DESCRIPTION)
+  iD: 0000-0002-2036-4878	(from: inst/CITATION)
+The Title field should be in title case. Current version is:
+  ‘Facilitate reproducible and archived projects’
+In title case that is:
+  ‘Facilitate Reproducible and Archived Projects’
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking whether package ‘projr’ can be installed ... OK
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking for future file timestamps ... OK
+* checking ‘build’ directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... NOTE
+Non-standard file/directory found at top level:
+  ‘check_output.log’
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking code files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
+* checking use of S3 registration ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... [16s/13s] OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd line widths ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking installed files from ‘inst/doc’ ... OK
+* checking files in ‘vignettes’ ... OK
+* checking examples ... OK
+* checking for unstated dependencies in ‘tests’ ... OK
+* checking tests ...
+  Running ‘testthat.R’
