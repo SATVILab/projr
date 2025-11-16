@@ -671,7 +671,7 @@ projr_init_github <- function(username = NULL,
   .dep_install_only("usethis")
   .dep_install_only("gh")
   if (is.null(org)) {
-    .init_github_actual_user(public)
+    .init_github_impl(NULL, public)
   } else {
     .init_github_actual_org(public, org)
   }

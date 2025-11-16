@@ -962,9 +962,9 @@ projr_init_renviron <- function() {
     NULL
   })
   if (!.is_string(current_user)) {
-    stop("GitHub user not found")
+    stop("Failed to get GitHub user information. Please check your GitHub authentication.")
   }
-  if (identical(username, current_user)) {
+  if (is.null(username) || identical(username, current_user)) {
     .init_github_actual_user(public, current_user)
   } else {
     .init_github_actual_org(public, username)

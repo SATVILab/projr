@@ -200,7 +200,11 @@
 .build_github_setup_repo <- function(user) {
   cli::cli_alert_info("Creating new GitHub repository...")
   if ("user" %in% names(user)) {
-    .init_github_actual_user(FALSE)
+    username <- user[["user"]]
+    if (!.is_string(username)) {
+      stop("GitHub user not found")
+    }
+    .init_github_actual_user(FALSE, username)
   }
   if ("org" %in% names(user)) {
     .init_github_actual_org(FALSE, user[["org"]])
