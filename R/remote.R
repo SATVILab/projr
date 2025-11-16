@@ -1435,7 +1435,15 @@ projr_osf_create_project <- function(title,
 
 .remote_write_manifest <- function(type,
                                    remote_pre,
-                                   manifest) {
+                                   manifest,
+                                   output_level = "std",
+                                   log_file = NULL) {
+  .cli_debug(
+    "Writing manifest.csv to {type} remote",
+    output_level = output_level,
+    log_file = log_file
+  )
+  
   path_dir_save <- .dir_create_tmp_random()
   .manifest_write(manifest, file.path(path_dir_save, "manifest.csv"))
   remote_pre <- if (type == "github") {
@@ -1446,10 +1454,22 @@ projr_osf_create_project <- function(title,
   switch(type,
     "project" = NULL,
     .remote_file_add(
-      type, remote_pre, path_dir_save, "manifest.csv"
+      type,
+      remote_pre,
+      path_dir_save,
+      "manifest.csv",
+      output_level = output_level,
+      log_file = log_file
     )
   )
   unlink(path_dir_save, recursive = TRUE)
+  
+  .cli_debug(
+    "Successfully wrote manifest.csv to {type} remote",
+    output_level = output_level,
+    log_file = log_file
+  )
+  
   invisible(TRUE)
 }
 
@@ -1476,7 +1496,15 @@ projr_osf_create_project <- function(title,
 
 .remote_write_version_file <- function(type,
                                        remote_pre,
-                                       version_file) {
+                                       version_file,
+                                       output_level = "std",
+                                       log_file = NULL) {
+  .cli_debug(
+    "Writing VERSION file to {type} remote",
+    output_level = output_level,
+    log_file = log_file
+  )
+  
   path_dir_save <- .dir_create_tmp_random()
   writeLines(version_file, file.path(path_dir_save, "VERSION"))
   remote_pre <- if (type == "github") {
@@ -1487,8 +1515,19 @@ projr_osf_create_project <- function(title,
   switch(type,
     "project" = NULL,
     .remote_file_add(
-      type, remote_pre, path_dir_save, "VERSION"
+      type,
+      remote_pre,
+      path_dir_save,
+      "VERSION",
+      output_level = output_level,
+      log_file = log_file
     )
+  )
+  
+  .cli_debug(
+    "Successfully wrote VERSION file to {type} remote",
+    output_level = output_level,
+    log_file = log_file
   )
 }
 
@@ -1497,11 +1536,32 @@ projr_osf_create_project <- function(title,
 # ========================
 
 .remote_get_manifest <- function(type,
-                                 remote_pre) {
-  switch(type,
-    "project" = .remote_get_manifest_project(),
-    .remote_get_manifest_non_project(type, remote_pre)
+                                 remote_pre,
+                                 output_level = "std",
+                                 log_file = NULL) {
+  .cli_debug(
+    "Getting manifest.csv from {type} remote",
+    output_level = output_level,
+    log_file = log_file
   )
+  
+  result <- switch(type,
+    "project" = .remote_get_manifest_project(),
+    .remote_get_manifest_non_project(
+      type,
+      remote_pre,
+      output_level = output_level,
+      log_file = log_file
+    )
+  )
+  
+  .cli_debug(
+    "Retrieved manifest with {nrow(result)} row(s) from {type} remote",
+    output_level = output_level,
+    log_file = log_file
+  )
+  
+  result
 }
 
 .remote_get_manifest_project <- function() {
@@ -1510,22 +1570,71 @@ projr_osf_create_project <- function(title,
 }
 
 .remote_get_manifest_non_project <- function(type,
-                                             remote_pre) {
+                                             remote_pre,
+                                             output_level = "std",
+                                             log_file = NULL) {
   manifest_actual <- .remote_get_manifest_non_project_raw(
-    type, remote_pre
+    type,
+    remote_pre,
+    output_level = output_level,
+    log_file = log_file
   )
   if (is.null(manifest_actual)) {
+    .cli_debug(
+      "No manifest found on {type} remote, using project manifest",
+      output_level = output_level,
+      log_file = log_file
+    )
     .remote_get_manifest_project()
   } else {
     manifest_actual
   }
 }
 
-.remote_get_manifest_non_project_raw <- function(type, remote_pre) {
+.remote_get_manifest_non_project_raw <- function(type,
+                                                 remote_pre,
+                                                 output_level = "std",
+                                                 log_file = NULL) {
   path_dir_save <- .dir_create_tmp_random()
-  path_manifest <- .remote_file_get_ind(
-    type, remote_pre, "manifest.csv", path_dir_save
+  
+  .cli_debug(
+    "Attempting to download manifest.csv from {type} remote",
+    output_level = output_level,
+    log_file = log_file
   )
+  
+  path_manifest <- tryCatch({
+    .remote_file_get_ind(
+      type,
+      remote_pre,
+      "manifest.csv",
+      path_dir_save
+    )
+  }, error = function(e) {
+    .cli_debug(
+      "Error downloading manifest.csv from {type} remote: {e$message}",
+      output_level = output_level,
+      log_file = log_file
+    )
+    character(0L)
+  })
+  
+  if (length(path_manifest) == 0 || !file.exists(path_manifest)) {
+    .cli_debug(
+      "manifest.csv not found on {type} remote",
+      output_level = output_level,
+      log_file = log_file
+    )
+    unlink(path_dir_save, recursive = TRUE)
+    return(NULL)
+  }
+  
+  .cli_debug(
+    "Successfully downloaded manifest.csv from {type} remote",
+    output_level = output_level,
+    log_file = log_file
+  )
+  
   manifest <- .manifest_read(path_manifest)
   unlink(path_dir_save, recursive = TRUE)
   manifest
@@ -1536,19 +1645,86 @@ projr_osf_create_project <- function(title,
 # ========================
 
 .remote_get_version_file <- function(type,
-                                     remote_pre) {
-  switch(type,
-    "project" = character(0L),
-    .remote_get_version_file_non_project(type, remote_pre)
+                                     remote_pre,
+                                     output_level = "std",
+                                     log_file = NULL) {
+  .cli_debug(
+    "Getting VERSION file from {type} remote",
+    output_level = output_level,
+    log_file = log_file
   )
+  
+  result <- switch(type,
+    "project" = character(0L),
+    .remote_get_version_file_non_project(
+      type,
+      remote_pre,
+      output_level = output_level,
+      log_file = log_file
+    )
+  )
+  
+  if (length(result) > 0) {
+    .cli_debug(
+      "Retrieved VERSION file from {type} remote ({length(result)} line(s))",
+      output_level = output_level,
+      log_file = log_file
+    )
+  } else {
+    .cli_debug(
+      "No VERSION file found on {type} remote",
+      output_level = output_level,
+      log_file = log_file
+    )
+  }
+  
+  result
 }
 
 .remote_get_version_file_non_project <- function(type,
-                                                 remote_pre) {
+                                                 remote_pre,
+                                                 output_level = "std",
+                                                 log_file = NULL) {
   path_dir_save <- .dir_create_tmp_random()
-  path_version <- .remote_file_get_ind(
-    type, remote_pre, "VERSION", path_dir_save
+  
+  .cli_debug(
+    "Attempting to download VERSION file from {type} remote",
+    output_level = output_level,
+    log_file = log_file
   )
+  
+  path_version <- tryCatch({
+    .remote_file_get_ind(
+      type,
+      remote_pre,
+      "VERSION",
+      path_dir_save
+    )
+  }, error = function(e) {
+    .cli_debug(
+      "Error downloading VERSION file from {type} remote: {e$message}",
+      output_level = output_level,
+      log_file = log_file
+    )
+    character(0L)
+  })
+  
+  if (length(path_version) == 0 || !file.exists(path_version)) {
+    .cli_debug(
+      "VERSION file not found on {type} remote",
+      output_level = output_level,
+      log_file = log_file
+    )
+    unlink(path_dir_save, recursive = TRUE)
+    return(character(0L))
+  }
+  
+  .cli_debug(
+    "Successfully downloaded VERSION file from {type} remote",
+    output_level = output_level,
+    log_file = log_file
+  )
+  
   version_file <- .remote_get_version_file_read(path_version)
   unlink(path_dir_save, recursive = TRUE)
   version_file
