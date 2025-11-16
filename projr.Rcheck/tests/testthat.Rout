@@ -1,0 +1,3373 @@
+
+R version 4.5.2 (2025-10-31) -- "[Not] Part in a Rumble"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # This file is part of the standard setup for testthat.
+> # It is recommended that you do not modify it.
+> #
+> # Where should you do additional test configuration?
+> # Learn more about the roles of various files in:
+> # * https://r-pkgs.org/tests.html
+> # * https://testthat.r-lib.org/reference/test_package.html#special-files
+> 
+> library(testthat)
+> library(projr)
+> 
+> test_check("projr")
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.11117".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.215451".
+v Setting active project to "<no active project>".
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+[DEBUG] No changes detected since previous build
+[DEBUG] **Inputs Changes (v0.0.1 -> v0.0.2)**
+[DEBUG] - No changes detected in inputs
+[DEBUG] **Outputs Changes (v0.0.1 -> v0.0.2)**
+[DEBUG] - `docs`:
+[DEBUG] - 1 added
+[DEBUG] - Added:
+[DEBUG] - `output`:
+[DEBUG] - 3 added
+[DEBUG] - Added: abc.txt, subdir1/def.txt, subdir1/subdir2/ghi.txt
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.774121".
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f325c3829 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f3dcac616.html 
+
+Output created: docs/reportV0.0.0-1/index.html
+i Using rendering engine: rmd
+
+
+processing file: index.Rmd
+output file: index.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS index.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output index.html --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --embed-resources --standalone --variable bs3=TRUE --section-divs --template /home/runner/work/_temp/Library/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --variable theme=bootstrap --mathjax --variable 'mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f2eb1868d.html 
+
+Output created: index.html
+i Using rendering engine: quarto_document
+[1mpandoc [22m
+  to: html
+  output-file: quarto.html
+  standalone: true
+  section-divs: true
+  html-math-method: mathjax
+  wrap: none
+  default-image-extension: png
+  variables: {}
+  
+[1mmetadata[22m
+  document-css: false
+  link-citations: true
+  date-format: long
+  lang: en
+  title: quarto
+  
+Output created: quarto.html
+
+i Using rendering engine: quarto_document
+[1mpandoc [22m
+  to: html
+  output-file: quarto.html
+  standalone: true
+  section-divs: true
+  html-math-method: mathjax
+  wrap: none
+  default-image-extension: png
+  variables: {}
+  
+[1mmetadata[22m
+  document-css: false
+  link-citations: true
+  date-format: long
+  lang: en
+  title: quarto
+  
+Output created: quarto.html
+
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.337886".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.18036".
+Bookdown output directory not found: _tmp/projr/v0.0.0-1/docs
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.656075".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.0375583".
+v Setting active project to "<no active project>".
+Copied bookdown output from _tmp/projr/v0.0.1/_book to _book
+Copied quarto project output from _tmp/projr/v0.0.1/docs to docs
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.903463".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-2.27967".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.75384".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.268836".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.912521".
+v Setting active project to "<no active project>".
+Copied bookdown output from _tmp/projr/v0.0.1/_book to docs
+Quarto output directory not found: _tmp/projr/v0.0.1/docs
+Copied bookdown output from _tmp/projr/v0.0.1/_book to _book
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.206996".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.14557".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.561326".
+v Setting active project to "<no active project>".
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f30a0d9b3 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f717469b9.html 
+
+Output created: docs/reportV0.0.0-1/index.html
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master f1fe0ed] Snapshot pre-build
+ 5 files changed, 39 insertions(+), 15 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f742fdafc --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f39d37166.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 0f2d527] Build v0.0.1: test
+ 4 files changed, 122 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 0cef61e] Snapshot pre-build
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f59a475b9 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f4e1abe69.html 
+
+Output created: _tmp/projr/v0.1.0/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.1.0/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 12c563d] Build v0.1.0: test
+ 4 files changed, 117 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 128485c] Snapshot pre-build
+ 5 files changed, 39 insertions(+), 15 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f708f2982 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f70f83f87.html 
+
+Output created: _tmp/projr/v1.2.4/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v1.2.4/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 1078991] Build v1.2.4: Patch bump test
+ 4 files changed, 122 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 86cf79d] Snapshot pre-build
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f78ca30b7 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f4b139f6e.html 
+
+Output created: _tmp/projr/v1.3.0/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v1.3.0/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master ab71262] Build v1.3.0: Minor bump test
+ 4 files changed, 117 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master e1a5b67] Snapshot pre-build
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f39504c56 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f2d7dbefc.html 
+
+Output created: _tmp/projr/v2.0.0/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v2.0.0/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 94077e7] Build v2.0.0: Major bump test
+ 4 files changed, 131 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 6393a91] Snapshot pre-build
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f61d9387a --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f7d1b436.html 
+
+Output created: _tmp/projr/v3.4.6/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v3.4.6/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 56112ff] Build v3.4.6: Custom patch
+ 4 files changed, 128 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 021fd3f] Snapshot pre-build
+ 6 files changed, 49 insertions(+), 26 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f64d555f0 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f2401ae6.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 29520d7] Build v0.0.1: Test bookdown files
+ 5 files changed, 123 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+ create mode 100644 reportV0.0.0-1_files/figure-html/test-plot-1.png
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f42c5b0a3 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f58dfcf87.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f136d3a4d --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f8dea27d.html 
+
+Output created: _tmp/projr/v0.0.2/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.2/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f10b056b3 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f47bf6005.html 
+
+Output created: _tmp/projr/v0.0.3/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.3/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+
+processing file: index.Rmd
+output file: index.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS index.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output index.html --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --embed-resources --standalone --variable bs3=TRUE --section-divs --template /home/runner/work/_temp/Library/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --variable theme=bootstrap --mathjax --variable 'mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f4fe4246c.html 
+
+Output created: index.html
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: rmd
+
+
+processing file: index.Rmd
+output file: index.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS index.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output index.html --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --embed-resources --standalone --variable bs3=TRUE --section-divs --template /home/runner/work/_temp/Library/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --variable theme=bootstrap --mathjax --variable 'mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f423deeea.html 
+
+Output created: index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+* Updating documentation and metadata
+* Committing post-build changes to Git
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+[1mpandoc [22m
+  to: html
+  output-file: index.html
+  standalone: true
+  title-prefix: demo site
+  section-divs: true
+  html-math-method: mathjax
+  wrap: none
+  default-image-extension: png
+  variables: {}
+  
+[1mmetadata[22m
+  document-css: false
+  link-citations: true
+  date-format: long
+  lang: en
+  title: My first Quarto doc
+  
+Output created: _tmp/projr/v0.0.0-1/docs/index.html
+
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: quarto_project
+[1mpandoc [22m
+  to: html
+  output-file: index.html
+  standalone: true
+  title-prefix: demo site
+  section-divs: true
+  html-math-method: mathjax
+  wrap: none
+  default-image-extension: png
+  variables: {}
+  
+[1mmetadata[22m
+  document-css: false
+  link-citations: true
+  date-format: long
+  lang: en
+  title: My first Quarto doc
+  
+Output created: _tmp/projr/v0.0.1/docs/index.html
+
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied quarto project output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+[1mpandoc [22m
+  to: html
+  output-file: index.html
+  standalone: true
+  section-divs: true
+  html-math-method: mathjax
+  wrap: none
+  default-image-extension: png
+  variables: {}
+  
+[1mmetadata[22m
+  document-css: false
+  link-citations: true
+  date-format: long
+  lang: en
+  title: My first Quarto doc
+  
+Output created: index.html
+
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: quarto_document
+[1mpandoc [22m
+  to: html
+  output-file: index.html
+  standalone: true
+  section-divs: true
+  html-math-method: mathjax
+  wrap: none
+  default-image-extension: png
+  variables: {}
+  
+[1mmetadata[22m
+  document-css: false
+  link-citations: true
+  date-format: long
+  lang: en
+  title: My first Quarto doc
+  
+Output created: index.html
+
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+* Updating documentation and metadata
+* Committing post-build changes to Git
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f55745bc9 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f7188316d.html 
+
+Output created: _tmp/projr/v0.0.0-1/docs/index.html
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.00812447".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr2.26177".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.41954".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.0795327".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.03473".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.299186".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.183081".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.01362".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.218493".
+# CHANGELOG  - **Major** (v1.0.0): runner (2025-11-16 19:06:58)   - Test v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.482573".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.0255502".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.06223".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.377783".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.0842028".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.13125".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.925491".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.27622".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr2.37885".
+Creating CITATION file
+i Creating directory '/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr2.37885/inst'
+i Writing 1 entry ...
+v Results written to '/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr2.37885/inst/CITATION'
+Creating codemeta.json file
+Creating CITATION.cff file
+v 'CITATION.cff' generated
+i Adding "CITATION.cff" to '.Rbuildignore'
+== Validating cff ==============================================================
+v Congratulations! 'CITATION.cff' is valid
+v Setting active project to "<no active project>".
+i test message
+i test message
+[DEBUG] test debug message
+
+-- Output Build: Test Stage ----------------------------------------------------
+
+-- Development Build: Test Stage -----------------------------------------------
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f1c74dad2 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f4323b7a2.html 
+
+Output created: _tmp/projr/v0.0.0-1/docs/index.html
+
+-- Development Build: Pre-Build Preparation ------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+v Pre-build preparation completed
+
+-- Development Build: Build ----------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f423ab9b5 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f323abecb.html 
+
+Output created: _tmp/projr/v0.0.0-1/docs/index.html
+v Document rendering completed
+
+-- Development Build: Post-Build -----------------------------------------------
+* Finalizing build artifacts
+* Updating documentation and metadata
+* Committing post-build changes to Git
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+[DEBUG] debug msg
+i info
+v success
+i info
+v success
+[DEBUG] debug
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.779719".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.0205538".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.945239".
+[master 5f5bc5a] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f681746f5 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f555a2190.html 
+
+Output created: _tmp/projr/v0.0.0-1/docs/index.html
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master b8f6502] Snapshot pre-build
+ 4 files changed, 4 insertions(+), 7 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f78657c43 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f36fd1dfd.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 1cec2cc] Build v0.0.1: Build project
+ 4 files changed, 123 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master a7348b5] Snapshot pre-build
+ 5 files changed, 13 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f5495e804 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f7d27e30e.html 
+
+Output created: _tmp/projr/v0.0.2/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.2/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 3e07b5e] Build v0.0.2: Build project
+ 4 files changed, 122 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master d601cec] Snapshot pre-build
+ 5 files changed, 9 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f5f7d1e50 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f7171c88b.html 
+
+Output created: _tmp/projr/v0.0.3/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.3/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master ac73961] Build v0.0.3: Build project
+ 4 files changed, 140 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 499286f] Snapshot pre-build
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f661726a8 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f6135e86a.html 
+
+Output created: _tmp/projr/v0.0.4/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.4/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 103ade4] Build v0.0.4: Build project
+ 4 files changed, 140 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 91763a0] Snapshot pre-build
+ 3 files changed, 4 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f429adc43 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521fc73cd16.html 
+
+Output created: _tmp/projr/v0.0.5/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.5/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master b1ff4c3] Build v0.0.5: Build project
+ 4 files changed, 142 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 906f039] Snapshot pre-build
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f5966d306 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f1e576b2d.html 
+
+Output created: _tmp/projr/v0.0.6/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.6/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master dfcf079] Build v0.0.6: Build project
+ 4 files changed, 145 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 004f313] Snapshot pre-build
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f5839e5fa --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f111b7879.html 
+
+Output created: _tmp/projr/v0.0.7/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.7/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master c4e81c5] Build v0.0.7: Build project
+ 4 files changed, 145 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master f14ace2] Snapshot pre-build
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f6144f655 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f5ee49a22.html 
+
+Output created: _tmp/projr/v0.0.8/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.8/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master d1b2059] Build v0.0.8: Build project
+ 4 files changed, 145 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master e075fd9] Snapshot pre-build
+ 3 files changed, 2 insertions(+), 3 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f33df3031 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f57f9126d.html 
+
+Output created: _tmp/projr/v0.0.9/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.9/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 6ed4ae5] Build v0.0.9: Build project
+ 4 files changed, 144 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.334121".
+[master c7e7d92] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 668ab50] Snapshot pre-build
+ 5 files changed, 12 insertions(+), 7 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f62182a11 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f68af58e6.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master f1f5368] Build v0.0.1: Build project
+ 4 files changed, 128 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 43c6129] Snapshot pre-build
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f7460bbb6 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f7f82d44c.html 
+
+Output created: _tmp/projr/v0.0.2/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.2/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master b551a4c] Build v0.0.2: Build project
+ 4 files changed, 122 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master ad7ee59] Snapshot pre-build
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f178882fb --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f30ecfdcd.html 
+
+Output created: _tmp/projr/v0.0.3/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.3/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master f03684f] Build v0.0.3: Build project
+ 4 files changed, 134 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 0354be6] Snapshot pre-build
+ 8 files changed, 23 insertions(+), 8 deletions(-)
+ create mode 100644 _latest/CHANGELOG.md
+ create mode 100644 _latest/VERSION
+ create mode 100644 _latest/manifest.csv
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f70e36b53 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f72cf1951.html 
+
+Output created: _tmp/projr/v0.0.4/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.4/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master d5d7c59] Build v0.0.4: Build project
+ 4 files changed, 136 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master f40214c] Snapshot pre-build
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f616a6d61 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f24add1dc.html 
+
+Output created: _tmp/projr/v0.0.5/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.5/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 785a7e1] Build v0.0.5: Build project
+ 4 files changed, 134 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 0dd5d16] Snapshot pre-build
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f6c5fbed --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f59e7c2c8.html 
+
+Output created: _tmp/projr/v0.0.6/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.6/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 9581ee0] Build v0.0.6: Build project
+ 4 files changed, 134 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 55a9f09] Snapshot pre-build
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f143c17f0 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f6297b175.html 
+
+Output created: _tmp/projr/v0.0.7/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.7/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master ce87ec5] Build v0.0.7: Build project
+ 4 files changed, 136 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.186323".
+[master ef426ab] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+[master f874bcf] Snapshot pre-build
+ 5 files changed, 12 insertions(+), 7 deletions(-)
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f313974d9 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f12204187.html 
+[master 20adcd1] Build v0.0.1: Build project
+ 4 files changed, 128 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+v Setting active project to "<no active project>".
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.88446".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.69502".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.522387".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.97948".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.15826".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.61167".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.43883".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.435805".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.124723".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.948216".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.32404".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.48381".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.692929".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.341542".
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.341542/.git/
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.341542/.git/
+[master (root-commit) 3a88882] Have fun
+ 1 file changed, 3 insertions(+)
+ create mode 100644 .Rbuildignore
+[1] "first commit out"
+[1] 0
+[1] "first error message"
+character(0)
+[1] "second commit out"
+[1] "87af283ec35dba033383a11b45faad10e913909b"
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.459442".
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.459442/.git/
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.12911".
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.12911/.git/
+[master (root-commit) 482ea54] initial commit
+ 1 file changed, 1 insertion(+)
+ create mode 100644 test.txt
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.666149".
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.666149/.git/
+[master (root-commit) ceb417f] first commit
+ 1 file changed, 1 insertion(+)
+ create mode 100644 file1.txt
+[master 25e8c72] commit all
+ 12 files changed, 97 insertions(+), 1 deletion(-)
+ create mode 100644 .Rbuildignore
+ create mode 100644 .gitignore
+ create mode 100644 DESCRIPTION
+ create mode 100644 _bookdown.yml
+ create mode 100644 _dependencies.R
+ create mode 100644 _output.yml
+ create mode 100644 _projr.yml
+ create mode 100644 file2.txt
+ create mode 100644 file3.txt
+ create mode 100644 index.Rmd
+ create mode 100644 renv_repos.R
+[master 1d93d74] commit file1 only
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.204672".
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.204672/.git/
+[master (root-commit) 482ea54] initial commit
+ 1 file changed, 1 insertion(+)
+ create mode 100644 test.txt
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.613668".
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.613668/.git/
+[master (root-commit) b86c164] test commit message
+ 1 file changed, 1 insertion(+)
+ create mode 100644 test.txt
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.541153".
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.541153/.git/
+[master (root-commit) b323e33] commit test
+ 1 file changed, 1 insertion(+)
+ create mode 100644 test.txt
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.0202575".
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.0202575/.git/
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-2.39564".
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-2.39564/.git/
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.01441".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.108526".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.16929".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.319143".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.565503".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.5902".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.163876".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.13027".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.103755".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.14067".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.257013".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.737109".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.297505".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.45416".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.562441".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.0244041".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.22129".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.01501".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.41725".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.0378591".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.01242".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.178651".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.0386191".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.228698".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.872424".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.778787".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.116103".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.257092".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.490342".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.103158".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr2.08178".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.631581".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.468133".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.497737".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.905133".
+v Setting active project to "<no active project>".
+Please finish the following sentence:
+ The purpose of mytestpackage is to...Please finish the following sentence:
+ The purpose of testProjrInitPrompt is to...Creating CITATION file
+i Creating directory '/tmp/RtmpU5Zqy9/testProjrInitPrompt/inst'
+i Writing 1 entry ...
+v Results written to '/tmp/RtmpU5Zqy9/testProjrInitPrompt/inst/CITATION'
+Creating CITATION.cff file
+v 'CITATION.cff' generated
+i Adding "CITATION.cff" to '.Rbuildignore'
+== Validating cff ==============================================================
+v Congratulations! 'CITATION.cff' is valid
+Using GitHub PAT from the git credential store.
+Downloading GitHub repo cboettig/codemeta@HEAD
+Error in utils::download.file(url, path, method = method, quiet = quiet,  : 
+  cannot open URL 'https://api.github.com/repos/cboettig/codemeta/tarball/HEAD'
+Creating codemeta.json file
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /tmp/RtmpU5Zqy9/testProjrInitPrompt/.git/
+[master (root-commit) 613941e] Initial projr commit
+ 13 files changed, 631 insertions(+)
+ create mode 100644 .Rbuildignore
+ create mode 100644 .gitignore
+ create mode 100644 CITATION.cff
+ create mode 100644 DESCRIPTION
+ create mode 100644 LICENSE.md
+ create mode 100644 README.md
+ create mode 100644 _bookdown.yml
+ create mode 100644 _dependencies.R
+ create mode 100644 _output.yml
+ create mode 100644 _projr.yml
+ create mode 100644 codemeta.json
+ create mode 100644 index.Rmd
+ create mode 100644 inst/CITATION
+Creating DESCRIPTION file.
+Created DESCRIPTION.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating README file.
+Rendered README.Rmd.
+Created _bookdown.yml.
+Created _output.yml.
+Created index.Rmd.
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /tmp/RtmpU5Zqy9/testProjr2/.git/
+[master (root-commit) dcba881] Initial projr commit
+ 9 files changed, 194 insertions(+)
+ create mode 100644 .Rbuildignore
+ create mode 100644 .gitignore
+ create mode 100644 DESCRIPTION
+ create mode 100644 README.Rmd
+ create mode 100644 README.md
+ create mode 100644 _bookdown.yml
+ create mode 100644 _output.yml
+ create mode 100644 _projr.yml
+ create mode 100644 index.Rmd
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating README file.
+Rendered README.Rmd.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating README file.
+Rendered README.Rmd.
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /tmp/RtmpU5Zqy9/testProjrGit/.git/
+[master (root-commit) 65799eb] Initial projr commit
+ 6 files changed, 136 insertions(+)
+ create mode 100644 .Rbuildignore
+ create mode 100644 .gitignore
+ create mode 100644 README.Rmd
+ create mode 100644 README.md
+ create mode 100644 VERSION
+ create mode 100644 _projr.yml
+Creating DESCRIPTION file.
+Created DESCRIPTION.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating README file.
+Rendered README.Rmd.
+Creating LICENSE file.
+Created LICENSE.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating README file.
+Rendered README.Rmd.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating README file.
+Rendered README.Rmd.
+Created intro.qmd.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating README file.
+Creating DESCRIPTION file.
+Created DESCRIPTION.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating README file.
+Rendered README.Rmd.
+Creating LICENSE file.
+Created LICENSE.
+Created intro.Rmd.
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /tmp/RtmpU5Zqy9/testProjrInitAll/.git/
+[master (root-commit) ef226c5] Initial projr commit
+ 8 files changed, 213 insertions(+)
+ create mode 100644 .Rbuildignore
+ create mode 100644 .gitignore
+ create mode 100644 DESCRIPTION
+ create mode 100644 LICENSE.md
+ create mode 100644 README.Rmd
+ create mode 100644 README.md
+ create mode 100644 _projr.yml
+ create mode 100644 intro.Rmd
+Creating DESCRIPTION file.
+Created DESCRIPTION.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating README file.
+Rendered README.Rmd.
+Setting up citation files.
+Creating CITATION.cff file
+v 'CITATION.cff' generated
+== Validating cff ==============================================================
+v Congratulations! 'CITATION.cff' is valid
+Using GitHub PAT from the git credential store.
+Downloading GitHub repo cboettig/codemeta@HEAD
+Error in utils::download.file(url, path, method = method, quiet = quiet,  : 
+  cannot open URL 'https://api.github.com/repos/cboettig/codemeta/tarball/HEAD'
+Creating codemeta.json file
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /tmp/RtmpU5Zqy9/testProjrGitInit/.git/
+[master (root-commit) 927c8c0] Initial projr commit
+ 2 files changed, 12 insertions(+)
+ create mode 100644 .Rbuildignore
+ create mode 100644 .gitignore
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /tmp/RtmpU5Zqy9/testProjrGitNoCommit/.git/
+Creating DESCRIPTION file.
+Created DESCRIPTION.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating README file.
+Rendered README.Rmd.
+Creating DESCRIPTION file.
+Created DESCRIPTION.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating README file.
+Rendered README.Rmd.
+Creating DESCRIPTION file.
+Created DESCRIPTION.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating README file.
+Rendered README.Rmd.
+Creating DESCRIPTION file.
+Created DESCRIPTION.
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Creating README file.
+Rendered README.Rmd.
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.34208".
+[master e760ec4] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 373c4d1] Snapshot pre-build
+ 5 files changed, 12 insertions(+), 7 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f114aef52 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f6687891e.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master ee01316] Build v0.0.1: Build project
+ 4 files changed, 133 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 41e8c03] Snapshot pre-build
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f51d9b175 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f28b6f262.html 
+
+Output created: _tmp/projr/v0.0.2/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.2/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 5bc5612] Build v0.0.2: Build project
+ 4 files changed, 127 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.877931".
+[master bd48d00] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 695812e] Snapshot pre-build
+ 3 files changed, 11 insertions(+), 4 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f35866b94 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f45bf5688.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 323d7f3] Build v0.0.1: Build project
+ 4 files changed, 135 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 253c515] Snapshot pre-build
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f79a8ef82 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f6cc38bc4.html 
+
+Output created: _tmp/projr/v0.0.2/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.2/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 2bdece0] Build v0.0.2: Build project
+ 4 files changed, 129 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.433177".
+[master 2269c78] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master bf0db30] Snapshot pre-build
+ 3 files changed, 11 insertions(+), 4 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f28bb2a24 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f4ff5c42a.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master bd231c5] Build v0.0.1: Build project
+ 4 files changed, 135 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master c543808] Snapshot pre-build
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f143ca8ae --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f6acf2013.html 
+
+Output created: _tmp/projr/v0.0.2/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.2/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master e3b3282] Build v0.0.2: Build project
+ 4 files changed, 129 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 0114e88] Snapshot pre-build
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f409ebbca --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f14d7803c.html 
+
+Output created: _tmp/projr/v0.0.3/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.3/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master dd3d412] Build v0.0.3: Build project
+ 4 files changed, 143 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.241376".
+[master a37656d] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master ddb0693] Snapshot pre-build
+ 3 files changed, 11 insertions(+), 4 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f7c224121 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f2b6ef44f.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master f873b30] Build v0.0.1: Build project
+ 4 files changed, 135 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 6b4edbb] Snapshot pre-build
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521fde119fe --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f39fb8be2.html 
+
+Output created: _tmp/projr/v0.0.2/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.2/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master cf46b2d] Build v0.0.2: Build project
+ 4 files changed, 129 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 1bee228] Snapshot pre-build
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f6916030 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f6b1ca465.html 
+
+Output created: _tmp/projr/v0.0.3/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.3/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master fc2a77a] Build v0.0.3: Build project
+ 4 files changed, 143 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.208762".
+[master aea368c] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master b510270] Snapshot pre-build
+ 5 files changed, 15 insertions(+), 7 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521fd0488e8 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f4230f1e2.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 99f3ad9] Build v0.0.1: Build project
+ 4 files changed, 136 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 1100637] Snapshot pre-build
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f6e3345ca --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f6582d49a.html 
+
+Output created: _tmp/projr/v0.0.2/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.2/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 07de89b] Build v0.0.2: Build project
+ 4 files changed, 130 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.52453".
+[master ca11fa3] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 9f29df6] Snapshot pre-build
+ 5 files changed, 15 insertions(+), 7 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f895ae9d --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f9fd4fd4.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 0dd6e26] Build v0.0.1: Build project
+ 4 files changed, 136 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master ff1610d] Snapshot pre-build
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f6d6bb2c3 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f1cda3d6.html 
+
+Output created: _tmp/projr/v0.0.2/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.2/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 66f66bf] Build v0.0.2: Build project
+ 4 files changed, 130 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.973307".
+[master 300b192] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 409eb16] Snapshot pre-build
+ 3 files changed, 12 insertions(+), 4 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f399d4ddf --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f57b1fce8.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 5637b68] Build v0.0.1: Build project
+ 4 files changed, 136 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.553401".
+[master fd31751] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master cef3c08] Snapshot pre-build
+ 3 files changed, 12 insertions(+), 4 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f6e1b7a26 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f119df7d6.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 49b33fe] Build v0.0.1: Build project
+ 4 files changed, 136 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master e7b892d] Snapshot pre-build
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f4382e5f2 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f3242db7f.html 
+
+Output created: _tmp/projr/v0.0.2/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.2/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master d7b693d] Build v0.0.2: Build project
+ 4 files changed, 130 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.796971".
+[master f3e68ce] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 93ccc74] Snapshot pre-build
+ 5 files changed, 23 insertions(+), 7 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f6dea5775 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f403ed13e.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 3d1209b] Build v0.0.1: Build project
+ 4 files changed, 141 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.464768".
+[master d30c088] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 624b933] Snapshot pre-build
+ 3 files changed, 9 insertions(+), 4 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f6b977c62 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f72b79af7.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 1810b4f] Build v0.0.1: Build project
+ 4 files changed, 133 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.580071".
+[master 1fd520c] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 22c38f6] Snapshot pre-build
+ 3 files changed, 13 insertions(+), 4 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f5fbf34b1 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f58fe46e8.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 5ca0b42] Build v0.0.1: Build project
+ 4 files changed, 137 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 00a25b6] Snapshot pre-build
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f2bd8278 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f1fd283b6.html 
+
+Output created: _tmp/projr/v0.0.2/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.2/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master dd4c8e8] Build v0.0.2: Build project
+ 4 files changed, 131 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 5418be7] Snapshot pre-build
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521fb6a0018 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f7009c103.html 
+
+Output created: _tmp/projr/v0.0.3/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.3/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 038c292] Build v0.0.3: Build project
+ 4 files changed, 145 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.797732".
+[master e691cfa] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master cc2007e] Snapshot pre-build
+ 3 files changed, 13 insertions(+), 4 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f3a33fa2b --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f3530150c.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 5b09c29] Build v0.0.1: Build project
+ 4 files changed, 137 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 44b1d35] Snapshot pre-build
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f3214e007 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f783b52f8.html 
+
+Output created: _tmp/projr/v0.0.2/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.2/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master af3abf5] Build v0.0.2: Build project
+ 4 files changed, 131 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.612276".
+[master 2ad47e3] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master b12608d] Snapshot pre-build
+ 3 files changed, 9 insertions(+), 4 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f3e8ae0f8 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f3031a49a.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 3ca5f63] Build v0.0.1: Build project
+ 4 files changed, 130 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.607933".
+[master 9c75c3f] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.401581".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.0592".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.340952".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.48542".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.43229".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.22721".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.40158".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.560285".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.897245".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.81516".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.671044".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.705853".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.22454".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-2.09597".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.577536".
+v Logs cleared successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.0354823".
+v Logs cleared successfully
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.218439".
+v Logs cleared successfully
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr2.23812".
+v Logs cleared successfully
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.83799".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.574909".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.364727".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.319354".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.135575".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.112587".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.09575".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.535232".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.4504".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.944997".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.09905".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.423765".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.237155".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.713336".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.371076".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.61199".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.664294".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.567204".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.54115".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.70761".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.12681".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-1.01245".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.855706".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.303756".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.679133".
+v Setting active project to "<no active project>".
+v Setting active project to "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr1.09217".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.184613".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.554552".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.408277".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr0.481413".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.483952".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.520943".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.750764".
+v Setting active project to "<no active project>".
+v Setting active project to
+  "/tmp/RtmpU5Zqy9/ProjrGitHubTesttest_projr-0.998868".
+v Setting active project to "<no active project>".
+[master 4b44132] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 3cdd85f] Snapshot pre-build
+ 5 files changed, 15 insertions(+), 4 deletions(-)
+ create mode 100644 test.qmd
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f3374d8a0 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521fe01c727.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 62666a9] Build v0.0.1: Build project
+ 4 files changed, 133 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+Restoring raw-data from local test-archive
+Version: 0.0.1
+[master 9d3dbb8] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 62042e4] Snapshot pre-build
+ 6 files changed, 18 insertions(+), 7 deletions(-)
+ create mode 100644 test.qmd
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f61353cd4 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521fb677812.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 6051fc8] Build v0.0.1: Build project
+ 4 files changed, 133 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+Restoring raw-data from local test-latest
+Version: 0.0.1
+[master 634b12e] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 0a27985] Snapshot pre-build
+ 5 files changed, 22 insertions(+), 4 deletions(-)
+ create mode 100644 test.qmd
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f862fd1 --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f30d57059.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master e7dd08b] Build v0.0.1: Build project
+ 4 files changed, 133 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+Restoring raw-data from local test-archive
+Version: 0.0.1
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 9795fe6] Snapshot pre-build
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f55a8d64c --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f1ba342ec.html 
+
+Output created: _tmp/projr/v0.1.0/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.1.0/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master 697c559] Build v0.1.0: Build project
+ 4 files changed, 128 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+[master b37d8d4] Initial projr commit
+ 4 files changed, 39 insertions(+), 12 deletions(-)
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 7200781] Snapshot pre-build
+ 6 files changed, 25 insertions(+), 7 deletions(-)
+ create mode 100644 test.qmd
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f7e6ce40a --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f760b6355.html 
+
+Output created: _tmp/projr/v0.0.1/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.0.1/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master c67c020] Build v0.0.1: Build project
+ 4 files changed, 133 insertions(+), 1 deletion(-)
+ create mode 100644 BUILDLOG.md
+ create mode 100644 CHANGELOG.md
+ create mode 100644 manifest.csv
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+Restoring raw-data from local test-latest
+Version: 0.0.1
+
+-- Output Build: Pre-Build Preparation -----------------------------------------
+* Checking prerequisites (Git, GitHub, upstream)
+* Updating documentation and version information
+* Running pre-build hooks
+* Committing pre-build changes to Git
+[master 4796b02] Snapshot pre-build
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+v Pre-build preparation completed
+
+-- Output Build: Build ---------------------------------------------------------
+i Using rendering engine: bookdown
+Rendering book in directory '.'
+
+
+processing file: reportV0.0.0-1.Rmd
+output file: reportV0.0.0-1.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS reportV0.0.0-1.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output reportV0.0.0-1.html --lua-filter /home/runner/work/_temp/Library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /home/runner/work/_temp/Library/rmarkdown/rmarkdown/lua/anchor-sections.lua --metadata-file /tmp/RtmpU5Zqy9/file521f1671e1ab --wrap preserve --standalone --section-divs --table-of-contents --toc-depth 6 --template /home/runner/work/_temp/Library/bookdown/templates/gitbook.html --highlight-style pygments --number-sections --css style.css --mathjax --include-in-header /tmp/RtmpU5Zqy9/rmarkdown-str521f4daebce0.html 
+
+Output created: _tmp/projr/v0.1.0/docs/index.html
+v Document rendering completed
+
+-- Output Build: Post-Build ----------------------------------------------------
+* Finalizing build artifacts
+Copied bookdown output from _tmp/projr/v0.1.0/docs to docs
+* Updating documentation and metadata
+* Committing post-build changes to Git
+[master a84e4ca] Build v0.1.0: Build project
+ 4 files changed, 128 insertions(+), 1 deletion(-)
+* Sending artifacts to remote destinations
+* Running post-build hooks
+* Pushing to Git remote
+v Post-build completed successfully
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error restoring label: raw-data - Could not get GitHub release table
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error restoring label: raw-data - Could not get GitHub release table
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error restoring label: raw-data - Could not get GitHub release table
+No restore source found for label: raw-data
+Skipping restore for raw-data
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error restoring label: raw-data - Could not get GitHub release table
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error restoring label: raw-data - Could not get GitHub release table
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error restoring label: raw-data - Could not get GitHub release table
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+No source found for raw-data
+Skipping restore for raw-data
+Error restoring label: raw-data - subscript out of bounds
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+No source found for raw-data
+Skipping restore for raw-data
+Error restoring label: raw-data - subscript out of bounds
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+No source found for raw-data
+Skipping restore for raw-data
+Error restoring label: raw-data - subscript out of bounds
+Creating standard artefact directories.
+Initialised raw, cache and output directories.
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
+Error restoring label: raw-data - Could not get GitHub release table
+Error in repo_root(path) : Could not find git root from '.'.
+Error in repo_root(path) : Could not find git root from '.'.
