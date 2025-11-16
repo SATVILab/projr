@@ -523,7 +523,8 @@ projr_osf_create_project <- function(title,
     path_append_label = path_append_label,
     label = label,
     structure = structure,
-    version = version
+    version = version,
+    pre = FALSE
   )
   osf_tbl <- .remote_get(id = id, type = "osf")
   if (length(path_rel) > 0L) {
