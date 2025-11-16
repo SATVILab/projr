@@ -558,7 +558,15 @@
   .assert_string(path)
   if (!grepl("/", repo)) {
     .auth_check_github("cloning repository")
-    repo <- paste0(gh::gh_whoami()$login, "/", repo)
+    user <- tryCatch({
+      gh::gh_whoami()$login
+    }, error = function(e) {
+      NULL
+    })
+    if (!.is_string(user)) {
+      stop("GitHub user not found for repository cloning")
+    }
+    repo <- paste0(user, "/", repo)
   }
   if (!is.null(path) && (path == "" || .is_len_0(path))) {
     path <- NULL

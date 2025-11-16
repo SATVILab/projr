@@ -12,4 +12,5 @@ git_diff_output.txt
 check_output.log
 
 *.tar.gz
+..Rcheck/
 test_debug_output.R
