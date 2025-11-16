@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>How-to guides</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">How-to guides</h1>
+
+
+
+<div id="how-to-guides" class="section level1">
+<h1>How-to guides</h1>
+<p>Short, task-focused guides for common projr workflows. Each section
+follows the pattern: <strong>When to use</strong>,
+<strong>Steps</strong>, <strong>Pitfalls</strong>, and <strong>See
+also</strong>.</p>
+<hr />
+<div id="initialise-a-project" class="section level2">
+<h2>1. Initialise a project</h2>
+<div id="when-to-use" class="section level3">
+<h3>When to use</h3>
+<p>When starting a new research project or adopting projr in an existing
+project.</p>
+</div>
+<div id="steps" class="section level3">
+<h3>Steps</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(projr)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># Option 1: Interactive prompts (recommended for first-time users)</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">projr_init_prompt</span>()</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co"># Option 2: Sensible defaults</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="fu">projr_init</span>()</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co"># Option 3: Full setup with extras</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="fu">projr_init_full</span>()</span></code></pre></div>
+<p><strong>What gets created:</strong></p>
+<ul>
+<li><code>_projr.yml</code> - Project configuration</li>
+<li><code>DESCRIPTION</code> - Project metadata</li>
+<li><code>README.md</code> - Project documentation</li>
+<li>Directory structure (<code>_raw_data</code>, <code>_output</code>,
+<code>_tmp</code>, <code>docs</code>)</li>
+<li>Git repository (optional, prompted)</li>
+<li>GitHub repository (optional, prompted)</li>
+<li>License file (optional, prompted)</li>
+<li>Citation file (optional, prompted)</li>
+</ul>
+<p><strong>Customising metadata:</strong></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Set license</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">projr_init_license</span>(<span class="at">license =</span> <span class="st">&quot;MIT&quot;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># Set up citation</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">projr_init_cite</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">&quot;My Research Project&quot;</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="at">authors =</span> <span class="st">&quot;Jane Doe&quot;</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="pitfalls" class="section level3">
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Git/GitHub prompts</strong>: If you haven’t set up GitHub
+credentials, the initialisation may fail. See
+<code>projr_instr_auth_github()</code> for setup instructions.</li>
+<li><strong>Existing files</strong>: Initialisation won’t overwrite
+existing configuration files. Delete or rename them first if you want
+fresh defaults.</li>
+</ul>
+</div>
+<div id="see-also" class="section level3">
+<h3>See also</h3>
+<ul>
+<li><code>?projr_init</code> - Full documentation</li>
+<li><code>?projr_init_git</code> - Git-specific initialisation</li>
+<li><code>?projr_init_github</code> - GitHub-specific
+initialisation</li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="run-a-development-build-safely" class="section level2">
+<h2>2. Run a development build safely</h2>
+<div id="when-to-use-1" class="section level3">
+<h3>When to use</h3>
+<p>When iterating on code and documents, before you’re ready to create a
+new versioned release.</p>
+</div>
+<div id="steps-1" class="section level3">
+<h3>Steps</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Build all documents, route outputs to cache</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">projr_build_dev</span>()</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># Build specific documents only</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">projr_build_dev</span>(<span class="st">&quot;analysis.Rmd&quot;</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="fu">projr_build_dev</span>(<span class="fu">c</span>(<span class="st">&quot;methods.Rmd&quot;</span>, <span class="st">&quot;results.Rmd&quot;</span>))</span></code></pre></div>
+<p><strong>Where outputs go:</strong></p>
+<p>Development builds route everything to
+<code>_tmp/projr/v&lt;version&gt;/</code>:</p>
+<pre><code>_tmp/projr/v0.1.0/
+├── output/         # Your _output directory content
+└── docs/           # Rendered documents</code></pre>
+<p>**Clearing _output before dev builds:**</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Clear _output before building (useful for testing)</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">projr_build_dev</span>(<span class="at">clear_output =</span> <span class="st">&quot;pre&quot;</span>)</span></code></pre></div>
+<p><strong>Using paths in your code:</strong></p>
+<p>Always use <code>projr_path_get()</code> to ensure paths work
+correctly in both dev and final builds:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># In your R Markdown or scripts:</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>fig_path <span class="ot">&lt;-</span> <span class="fu">projr_path_get</span>(<span class="st">&quot;output&quot;</span>, <span class="st">&quot;figures&quot;</span>, <span class="st">&quot;plot.png&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">png</span>(<span class="at">filename =</span> fig_path)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co"># ... plotting code ...</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="fu">dev.off</span>()</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co"># During dev build: saves to _tmp/projr/v0.1.0/output/figures/plot.png</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co"># During final build: saves to _output/figures/plot.png</span></span></code></pre></div>
+</div>
+<div id="pitfalls-1" class="section level3">
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Forgetting <code>projr_path_get()</code></strong>: If you
+use hardcoded paths like <code>&quot;_output/plot.png&quot;</code>, dev builds
+will still write to <code>_output</code> instead of the cache.</li>
+<li><strong>Cache directory growth</strong>: The cache can grow large
+over time. Clean it periodically with
+<code>unlink(&quot;_tmp/projr&quot;, recursive = TRUE)</code>.</li>
+</ul>
+</div>
+<div id="see-also-1" class="section level3">
+<h3>See also</h3>
+<ul>
+<li><code>?projr_build_dev</code> - Full documentation</li>
+<li><code>?projr_path_get</code> - Path helper documentation</li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="run-a-final-build" class="section level2">
+<h2>3. Run a final build</h2>
+<div id="when-to-use-2" class="section level3">
+<h3>When to use</h3>
+<p>When you’ve completed and tested changes and want to create a new
+versioned release.</p>
+</div>
+<div id="steps-2" class="section level3">
+<h3>Steps</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Patch version bump (0.1.0 -&gt; 0.1.1)</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">projr_build</span>()</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co"># or explicitly:</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">projr_build_patch</span>()</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co"># Minor version bump (0.1.0 -&gt; 0.2.0)</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="fu">projr_build_minor</span>()</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co"># Major version bump (0.1.0 -&gt; 1.0.0)</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="fu">projr_build_major</span>()</span></code></pre></div>
+<p><strong>What happens:</strong></p>
+<ol style="list-style-type: decimal">
+<li><strong>Pre-build</strong>: Clears <code>_output</code>
+(configurable via <code>PROJR_OUTPUT_CLEAR</code> env var)</li>
+<li><strong>Build</strong>: Renders all documents</li>
+<li><strong>Version bump</strong>: Updates project version in
+<code>DESCRIPTION</code></li>
+<li><strong>Manifest</strong>: Creates manifest linking inputs to
+outputs</li>
+<li><strong>Post-build</strong>: Copies outputs to <code>_output</code>
+and <code>docs</code></li>
+<li><strong>Archive</strong>: Uploads to configured destinations
+(GitHub, OSF, local)</li>
+<li><strong>Git commit</strong>: Creates commit with version bump (if
+configured)</li>
+</ol>
+<p><strong>Controlling output clearing:</strong></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Set environment variable to control clearing behaviour</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co"># Options: &quot;pre&quot; (before build), &quot;post&quot; (after build), &quot;none&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">PROJR_OUTPUT_CLEAR =</span> <span class="st">&quot;pre&quot;</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="fu">projr_build</span>()</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co"># Or set in .Renviron file:</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co"># PROJR_OUTPUT_CLEAR=pre</span></span></code></pre></div>
+<p><strong>Customising commit messages:</strong></p>
+<p>The default commit message is “Build v<version>”. Configure this in
+<code>_projr.yml</code>:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="at">  </span><span class="fu">git</span><span class="kw">:</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="at">    </span><span class="fu">commit</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="at">    </span><span class="fu">push</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="at">    </span><span class="fu">commit_msg</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Release v{version}&quot;</span></span></code></pre></div>
+</div>
+<div id="pitfalls-2" class="section level3">
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Uncommitted changes</strong>: If you have uncommitted Git
+changes, the build may fail. Commit or stash changes first.</li>
+<li><strong>Missing archives</strong>: If GitHub/OSF uploads fail, check
+your credentials and network connection.</li>
+<li><strong>Version conflicts</strong>: Ensure the version in
+<code>DESCRIPTION</code> matches your expectations before building.</li>
+</ul>
+</div>
+<div id="see-also-2" class="section level3">
+<h3>See also</h3>
+<ul>
+<li><code>?projr_build</code> - Full documentation</li>
+<li><code>?projr_version_set</code> - Manually set version</li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="archive-artefacts" class="section level2">
+<h2>4. Archive artefacts</h2>
+<div id="when-to-use-3" class="section level3">
+<h3>When to use</h3>
+<p>When you want to configure where and how project components are
+archived after builds.</p>
+</div>
+<div id="steps-3" class="section level3">
+<h3>Steps</h3>
+<p><strong>Archive structure:</strong></p>
+<p>projr supports three archive types:</p>
+<ol style="list-style-type: decimal">
+<li><strong>GitHub Releases</strong> - Version-controlled releases on
+GitHub</li>
+<li><strong>OSF</strong> - Open Science Framework storage</li>
+<li><strong>Local</strong> - Local directory (e.g., network drive, cloud
+sync folder)</li>
+</ol>
+<p><strong>Configure in <code>_projr.yml</code>:</strong></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">  # GitHub Releases</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="at">    </span><span class="fu">raw-data</span><span class="kw">:</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="at">      </span><span class="fu">description</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Raw data files&quot;</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="at">      </span><span class="fu">cue</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;always&quot;</span><span class="co">  # or &quot;new&quot; (default)</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="at">    </span><span class="fu">output</span><span class="kw">:</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output</span><span class="kw">]</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="at">      </span><span class="fu">description</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Analysis outputs&quot;</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="at">    </span><span class="fu">docs</span><span class="kw">:</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">docs</span><span class="kw">]</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="at">      </span><span class="fu">description</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Rendered documents&quot;</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="at">  </span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">  # OSF</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="at">  </span><span class="fu">osf</span><span class="kw">:</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="at">    </span><span class="fu">project</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;abc123&quot;</span><span class="co">  # OSF project ID</span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="at">    </span><span class="fu">raw-data</span><span class="kw">:</span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="at">      </span><span class="fu">component</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;data&quot;</span><span class="co">  # OSF component name</span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="at">    </span></span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co">  # Local directory</span></span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;~/Dropbox/my-project-archive&quot;</span></span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="at">    </span><span class="fu">raw-data</span><span class="kw">:</span></span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;data&quot;</span></span>
+<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a><span class="at">    </span><span class="fu">output</span><span class="kw">:</span></span>
+<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output</span><span class="kw">]</span></span>
+<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;outputs&quot;</span></span></code></pre></div>
+<p><strong>Add destinations programmatically:</strong></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Add GitHub archive</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">projr_yml_dest_add_github</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;raw-data&quot;</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="at">content =</span> <span class="st">&quot;raw-data&quot;</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="at">description =</span> <span class="st">&quot;Raw data files&quot;</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>)</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co"># Add OSF archive</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="fu">projr_yml_dest_add_osf</span>(</span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;raw-data&quot;</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>  <span class="at">content =</span> <span class="st">&quot;raw-data&quot;</span>,</span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>  <span class="at">project =</span> <span class="st">&quot;abc123&quot;</span>,</span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>  <span class="at">component =</span> <span class="st">&quot;data&quot;</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>)</span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a></span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a><span class="co"># Add local archive</span></span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a><span class="fu">projr_yml_dest_add_local</span>(</span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;raw-data&quot;</span>,</span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a>  <span class="at">content =</span> <span class="st">&quot;raw-data&quot;</span>,</span>
+<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">&quot;~/archive/data&quot;</span></span>
+<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a>)</span></code></pre></div>
+<p><strong>Archive parameters:</strong></p>
+<ul>
+<li><code>content</code>: Which directory to archive (raw-data, output,
+docs, cache)</li>
+<li><code>cue</code>: When to upload - “always”, “new” (only if content
+changed), “never”</li>
+<li><code>strategy</code>: “archive” (versioned) or “latest”
+(overwrite)</li>
+<li><code>description</code>: Human-readable description</li>
+</ul>
+<p><strong>Inspecting archives:</strong></p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># View current YAML configuration</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="fu">projr_yml_get</span>()</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co"># Check if files will be uploaded</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co"># (Run a dev build to see what would happen without actually uploading)</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="fu">projr_build_dev</span>()</span></code></pre></div>
+</div>
+<div id="pitfalls-3" class="section level3">
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Large files on GitHub</strong>: GitHub has a 2GB limit for
+release assets. Use OSF or local for larger datasets.</li>
+<li><strong>OSF authentication</strong>: Set up OSF credentials first
+with <code>projr_instr_auth_osf()</code>.</li>
+<li><strong>Network failures</strong>: Archives may fail silently. Check
+the build log for errors.</li>
+</ul>
+</div>
+<div id="see-also-3" class="section level3">
+<h3>See also</h3>
+<ul>
+<li><code>?projr_yml_dest_add_github</code></li>
+<li><code>?projr_yml_dest_add_osf</code></li>
+<li><code>?projr_yml_dest_add_local</code></li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="restore-artefacts" class="section level2">
+<h2>5. Restore artefacts</h2>
+<div id="when-to-use-4" class="section level3">
+<h3>When to use</h3>
+<p>When setting up a project on a new machine or restoring an archived
+version.</p>
+</div>
+<div id="steps-4" class="section level3">
+<h3>Steps</h3>
+<p><strong>Restore entire repository:</strong></p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># Clone repo and restore raw data</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="fu">projr_restore_repo</span>(<span class="st">&quot;owner/repo&quot;</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co"># Clone to specific directory</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="fu">projr_restore_repo</span>(<span class="st">&quot;owner/repo&quot;</span>, <span class="at">path =</span> <span class="st">&quot;~/projects/my-project&quot;</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co"># Restore from current working directory (if already cloned)</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="fu">projr_restore_repo_wd</span>()</span></code></pre></div>
+<p><strong>Restore specific directories:</strong></p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co"># Restore raw data only</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="fu">projr_restore</span>(<span class="at">label =</span> <span class="st">&quot;raw-data&quot;</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co"># Restore multiple directories</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="fu">projr_restore</span>(<span class="at">label =</span> <span class="fu">c</span>(<span class="st">&quot;raw-data&quot;</span>, <span class="st">&quot;output&quot;</span>))</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co"># Restore specific version</span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="fu">projr_restore</span>(<span class="at">label =</span> <span class="st">&quot;raw-data&quot;</span>, <span class="at">version =</span> <span class="st">&quot;v0.1.0&quot;</span>)</span></code></pre></div>
+<p><strong>Restoration sources:</strong></p>
+<p>projr checks these sources in order:</p>
+<ol style="list-style-type: decimal">
+<li>GitHub Releases (if configured in <code>_projr.yml</code>)</li>
+<li>OSF (if configured)</li>
+<li>Local archives (if configured)</li>
+</ol>
+<p><strong>Mapping labels to paths:</strong></p>
+<p>The <code>_projr.yml</code> file defines where each label’s content
+is stored:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-data</span><span class="kw">:</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _raw_data</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _output</span></span></code></pre></div>
+</div>
+<div id="pitfalls-4" class="section level3">
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Missing archives</strong>: If no archive is found for a
+label, restoration fails silently.</li>
+<li><strong>Version mismatches</strong>: Ensure you’re restoring the
+correct version. Check available versions on GitHub Releases.</li>
+<li><strong>Authentication</strong>: Ensure GitHub/OSF credentials are
+set up before restoring.</li>
+</ul>
+</div>
+<div id="see-also-4" class="section level3">
+<h3>See also</h3>
+<ul>
+<li><code>?projr_restore_repo</code></li>
+<li><code>?projr_restore</code></li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="define-directories-and-labels" class="section level2">
+<h2>6. Define directories and labels</h2>
+<div id="when-to-use-5" class="section level3">
+<h3>When to use</h3>
+<p>When customising project directory structure beyond the defaults.</p>
+</div>
+<div id="steps-5" class="section level3">
+<h3>Steps</h3>
+<p><strong>Default labels:</strong></p>
+<p>projr provides these default labels:</p>
+<ul>
+<li><code>raw-data</code> → <code>_raw_data</code></li>
+<li><code>cache</code> → <code>_tmp</code></li>
+<li><code>output</code> → <code>_output</code></li>
+<li><code>docs</code> → <code>docs</code></li>
+</ul>
+<p><strong>Add custom labels in <code>_projr.yml</code>:</strong></p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-data</span><span class="kw">:</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _raw_data</span></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-data-public</span><span class="kw">:</span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _raw_data_public</span></span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-data-private</span><span class="kw">:</span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _raw_data_private</span></span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="at">  </span><span class="fu">cache</span><span class="kw">:</span></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _tmp</span></span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span></span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _output</span></span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="at">  </span><span class="fu">output-figures</span><span class="kw">:</span></span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _output/figures</span></span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a><span class="at">  </span><span class="fu">docs</span><span class="kw">:</span></span>
+<span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> docs</span></span></code></pre></div>
+<p><strong>Rules for directory labels:</strong></p>
+<ol style="list-style-type: decimal">
+<li><strong>No nesting</strong>: Each label maps to a single path</li>
+<li><strong>Unique labels</strong>: Each label must be unique</li>
+<li><strong>Fixed prefixes</strong>: Labels must start with
+<code>raw</code>, <code>cache</code>, <code>output</code>, or
+<code>docs</code></li>
+<li><strong>Auto-creation</strong>: Directories are created
+automatically on build</li>
+</ol>
+<p><strong>Using custom labels:</strong></p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="co"># Access custom paths</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="fu">projr_path_get</span>(<span class="st">&quot;raw-data-public&quot;</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="co"># &quot;_raw_data_public&quot;</span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="fu">projr_path_get</span>(<span class="st">&quot;output-figures&quot;</span>, <span class="st">&quot;plot.png&quot;</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="co"># &quot;_output/figures/plot.png&quot;</span></span></code></pre></div>
+</div>
+<div id="pitfalls-5" class="section level3">
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Invalid prefixes</strong>: Labels like <code>my-data</code>
+will fail. Use <code>raw-my-data</code> instead.</li>
+<li><strong>Nested conflicts</strong>: Don’t create labels that point to
+subdirectories of other labels.</li>
+</ul>
+</div>
+<div id="see-also-5" class="section level3">
+<h3>See also</h3>
+<ul>
+<li><code>?projr_path_get</code></li>
+<li><code>?projr_yml_get</code></li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="use-profiles" class="section level2">
+<h2>7. Use profiles</h2>
+<div id="when-to-use-6" class="section level3">
+<h3>When to use</h3>
+<p>When you need different configurations for different contexts (e.g.,
+development vs production, different collaborators).</p>
+</div>
+<div id="steps-6" class="section level3">
+<h3>Steps</h3>
+<p><strong>Create a profile:</strong></p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="co"># Create a profile based on _projr.yml</span></span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="fu">projr_profile_create</span>(<span class="st">&quot;dev&quot;</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co"># This creates _projr-dev.yml</span></span></code></pre></div>
+<p><strong>Customise the profile:</strong></p>
+<p>Edit <code>_projr-dev.yml</code> to override specific settings:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="co"># Only differences from _projr.yml</span></span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">  # Disable GitHub uploads in dev profile</span></span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a><span class="at">  </span></span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span></span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _output_dev</span><span class="co">  # Use different output directory</span></span></code></pre></div>
+<p><strong>Use a profile:</strong></p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="co"># Set environment variable</span></span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">PROJR_PROFILE =</span> <span class="st">&quot;dev&quot;</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co"># Or set in .Renviron:</span></span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="co"># PROJR_PROFILE=dev</span></span>
+<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a><span class="co"># Now all projr functions use _projr-dev.yml</span></span>
+<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a><span class="fu">projr_build</span>()</span></code></pre></div>
+<p><strong>Check active profile:</strong></p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">projr_profile_get</span>()</span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="co"># &quot;dev&quot;</span></span></code></pre></div>
+<p><strong>Delete a profile:</strong></p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="fu">projr_profile_delete</span>(<span class="st">&quot;dev&quot;</span>)</span></code></pre></div>
+</div>
+<div id="pitfalls-6" class="section level3">
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Forgetting to switch back</strong>: Remember to unset
+<code>PROJR_PROFILE</code> when done.</li>
+<li><strong>Partial overrides</strong>: Profiles only override specified
+keys. Unspecified keys fall back to <code>_projr.yml</code>.</li>
+</ul>
+</div>
+<div id="see-also-6" class="section level3">
+<h3>See also</h3>
+<ul>
+<li><code>?projr_profile_create</code></li>
+<li><code>?projr_profile_get</code></li>
+<li><code>?projr_env_set</code></li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="view-and-manage-build-logs" class="section level2">
+<h2>8. View and manage build logs</h2>
+<div id="when-to-use-7" class="section level3">
+<h3>When to use</h3>
+<p>When you need to review build history, debug issues, or maintain
+clean log files.</p>
+</div>
+<div id="steps-7" class="section level3">
+<h3>Steps</h3>
+<p><strong>View build history:</strong></p>
+<p>All builds are automatically logged to
+<code>cache/projr/log/{dev,output}/history/builds.md</code>:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="co"># View dev build history</span></span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a><span class="fu">file.edit</span>(<span class="st">&quot;cache/projr/log/dev/history/builds.md&quot;</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a><span class="co"># View output build history</span></span>
+<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a><span class="fu">file.edit</span>(<span class="st">&quot;cache/projr/log/output/history/builds.md&quot;</span>)</span></code></pre></div>
+<p><strong>View detailed build logs:</strong></p>
+<p>Each build creates a detailed Quarto log file organized by date:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="co"># List recent dev build logs</span></span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a><span class="fu">list.files</span>(<span class="st">&quot;cache/projr/log/dev/output&quot;</span>, </span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>           <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">pattern =</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">.qmd$&quot;</span>)</span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a><span class="co"># Render a log file to HTML</span></span>
+<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a>quarto<span class="sc">::</span><span class="fu">quarto_render</span>(<span class="st">&quot;cache/projr/log/dev/output/2025-Nov-11/14-07-00.qmd&quot;</span>)</span></code></pre></div>
+<p><strong>Control logging:</strong></p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="co"># Disable detailed log file creation (history still maintained)</span></span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">PROJR_LOG_DETAILED =</span> <span class="st">&quot;FALSE&quot;</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a><span class="fu">projr_build_dev</span>()</span>
+<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a><span class="co"># Re-enable detailed logging</span></span>
+<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">PROJR_LOG_DETAILED =</span> <span class="st">&quot;TRUE&quot;</span>)</span></code></pre></div>
+<p><strong>Clear old logs:</strong></p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="co"># Clear all logs</span></span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="fu">projr_log_clear</span>()</span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a><span class="co"># Clear only dev logs</span></span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="fu">projr_log_clear</span>(<span class="at">build_type =</span> <span class="st">&quot;dev&quot;</span>)</span>
+<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a><span class="co"># Keep history, clear detailed logs only</span></span>
+<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a><span class="fu">projr_log_clear</span>(<span class="at">history =</span> <span class="cn">FALSE</span>, <span class="at">output =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb26-9"><a href="#cb26-9" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" tabindex="-1"></a><span class="co"># Clear logs before a specific date</span></span>
+<span id="cb26-11"><a href="#cb26-11" tabindex="-1"></a><span class="fu">projr_log_clear</span>(<span class="at">before_date =</span> <span class="st">&quot;2025-01-01&quot;</span>)</span></code></pre></div>
+</div>
+<div id="pitfalls-7" class="section level3">
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Log directory location</strong>: Logs are in
+<code>cache/projr/log</code>, not in <code>_tmp</code>.</li>
+<li><strong>Never auto-cleared</strong>: Unlike cache, logs are never
+cleared automatically—manage manually.</li>
+<li><strong>Disk space</strong>: Logs accumulate over time; clear old
+logs periodically.</li>
+</ul>
+</div>
+<div id="see-also-7" class="section level3">
+<h3>See also</h3>
+<ul>
+<li><code>?projr_log_clear</code></li>
+<li><code>?projr_build</code></li>
+<li>Console output control: Use <code>output_level</code> parameter in
+build functions</li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="query-manifest-to-track-file-changes" class="section level2">
+<h2>9. Query manifest to track file changes</h2>
+<div id="when-to-use-8" class="section level3">
+<h3>When to use</h3>
+<p>When you need to: - Understand which files changed between versions -
+Track when specific outputs were last modified - Verify data provenance
+and reproducibility - Audit project history</p>
+</div>
+<div id="steps-8" class="section level3">
+<h3>Steps</h3>
+<p><strong>1. Compare two versions:</strong></p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a><span class="co"># See what files changed between v0.0.1 and v0.0.2</span></span>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a>changes <span class="ot">&lt;-</span> <span class="fu">projr_manifest_changes</span>(<span class="st">&quot;0.0.1&quot;</span>, <span class="st">&quot;0.0.2&quot;</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a><span class="co"># View the results</span></span>
+<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a>changes</span>
+<span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a><span class="co"># Returns: label, fn, change_type (added/modified/removed), </span></span>
+<span id="cb27-7"><a href="#cb27-7" tabindex="-1"></a><span class="co">#          hash_from, hash_to</span></span>
+<span id="cb27-8"><a href="#cb27-8" tabindex="-1"></a></span>
+<span id="cb27-9"><a href="#cb27-9" tabindex="-1"></a><span class="co"># Filter by directory</span></span>
+<span id="cb27-10"><a href="#cb27-10" tabindex="-1"></a>output_changes <span class="ot">&lt;-</span> <span class="fu">projr_manifest_changes</span>(</span>
+<span id="cb27-11"><a href="#cb27-11" tabindex="-1"></a>  <span class="st">&quot;0.0.1&quot;</span>, <span class="st">&quot;0.0.2&quot;</span>, </span>
+<span id="cb27-12"><a href="#cb27-12" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;output&quot;</span></span>
+<span id="cb27-13"><a href="#cb27-13" tabindex="-1"></a>)</span></code></pre></div>
+<p><strong>2. Track files across multiple versions:</strong></p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a><span class="co"># See all files and when they last changed from v0.0.1 to current</span></span>
+<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a>file_history <span class="ot">&lt;-</span> <span class="fu">projr_manifest_range</span>(<span class="st">&quot;0.0.1&quot;</span>)</span>
+<span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a><span class="co"># View the results</span></span>
+<span id="cb28-5"><a href="#cb28-5" tabindex="-1"></a>file_history</span>
+<span id="cb28-6"><a href="#cb28-6" tabindex="-1"></a><span class="co"># Returns: label, fn, version_first, version_last_change, hash</span></span>
+<span id="cb28-7"><a href="#cb28-7" tabindex="-1"></a></span>
+<span id="cb28-8"><a href="#cb28-8" tabindex="-1"></a><span class="co"># Limit to specific directory and version range</span></span>
+<span id="cb28-9"><a href="#cb28-9" tabindex="-1"></a>raw_data_history <span class="ot">&lt;-</span> <span class="fu">projr_manifest_range</span>(</span>
+<span id="cb28-10"><a href="#cb28-10" tabindex="-1"></a>  <span class="st">&quot;0.0.1&quot;</span>, <span class="st">&quot;0.0.5&quot;</span>,</span>
+<span id="cb28-11"><a href="#cb28-11" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;raw-data&quot;</span></span>
+<span id="cb28-12"><a href="#cb28-12" tabindex="-1"></a>)</span></code></pre></div>
+<p><strong>3. Check when directories last changed:</strong></p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="co"># See most recent changes for each directory</span></span>
+<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a>last_changes <span class="ot">&lt;-</span> <span class="fu">projr_manifest_last_change</span>()</span>
+<span id="cb29-3"><a href="#cb29-3" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" tabindex="-1"></a><span class="co"># View the results</span></span>
+<span id="cb29-5"><a href="#cb29-5" tabindex="-1"></a>last_changes</span>
+<span id="cb29-6"><a href="#cb29-6" tabindex="-1"></a><span class="co"># Returns: label, version_last_change, n_files</span></span>
+<span id="cb29-7"><a href="#cb29-7" tabindex="-1"></a></span>
+<span id="cb29-8"><a href="#cb29-8" tabindex="-1"></a><span class="co"># Check status as of a specific version</span></span>
+<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a>historical_status <span class="ot">&lt;-</span> <span class="fu">projr_manifest_last_change</span>(<span class="st">&quot;0.0.3&quot;</span>)</span></code></pre></div>
+<p><strong>4. Practical examples:</strong></p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="co"># Did any raw data change since last release?</span></span>
+<span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a>raw_changes <span class="ot">&lt;-</span> <span class="fu">projr_manifest_changes</span>(</span>
+<span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a>  <span class="st">&quot;0.1.0&quot;</span>, </span>
+<span id="cb30-4"><a href="#cb30-4" tabindex="-1"></a>  <span class="fu">projr_version_get</span>(), </span>
+<span id="cb30-5"><a href="#cb30-5" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">&quot;raw-data&quot;</span></span>
+<span id="cb30-6"><a href="#cb30-6" tabindex="-1"></a>)</span>
+<span id="cb30-7"><a href="#cb30-7" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">nrow</span>(raw_changes) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb30-8"><a href="#cb30-8" tabindex="-1"></a>  <span class="fu">message</span>(<span class="st">&quot;Raw data has changed - outputs may need regeneration&quot;</span>)</span>
+<span id="cb30-9"><a href="#cb30-9" tabindex="-1"></a>}</span>
+<span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a></span>
+<span id="cb30-11"><a href="#cb30-11" tabindex="-1"></a><span class="co"># Find files that haven&#39;t changed in a while</span></span>
+<span id="cb30-12"><a href="#cb30-12" tabindex="-1"></a>old_files <span class="ot">&lt;-</span> <span class="fu">projr_manifest_range</span>(<span class="st">&quot;0.0.1&quot;</span>)</span>
+<span id="cb30-13"><a href="#cb30-13" tabindex="-1"></a>old_files[old_files<span class="sc">$</span>version_last_change <span class="sc">&lt;</span> <span class="st">&quot;v0.0.5&quot;</span>, ]</span></code></pre></div>
+</div>
+<div id="pitfalls-8" class="section level3">
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Version format</strong>: Can use “0.0.1” or “v0.0.1” - both
+work</li>
+<li><strong>Empty manifests</strong>: Returns 0-row data.frame if no
+changes found</li>
+<li><strong>Manifest location</strong>: Manifest is at project root
+(<code>manifest.csv</code>)</li>
+<li><strong>Only tracks builds</strong>: Files are only tracked after
+running <code>projr_build()</code>
+<ul>
+<li>Dev builds create temporary manifests but don’t update the main
+one</li>
+</ul></li>
+</ul>
+</div>
+<div id="see-also-8" class="section level3">
+<h3>See also</h3>
+<ul>
+<li><code>?projr_manifest_changes</code></li>
+<li><code>?projr_manifest_range</code></li>
+<li><code>?projr_manifest_last_change</code></li>
+<li><code>?projr_version_get</code></li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="configure-environment-variables" class="section level2">
+<h2>11. Configure environment variables</h2>
+<div id="when-to-use-9" class="section level3">
+<h3>When to use</h3>
+<p>When you need to: - Control build verbosity and logging behavior -
+Set up different configurations for development vs. production - Store
+authentication tokens securely - Override default build behaviors</p>
+</div>
+<div id="steps-9" class="section level3">
+<h3>Steps</h3>
+<p><strong>1. Create environment files</strong></p>
+<p>projr uses three types of environment files (in order of
+precedence):</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a><span class="co"># Create files manually or use:</span></span>
+<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a><span class="fu">file.create</span>(<span class="st">&quot;_environment.local&quot;</span>)  <span class="co"># Machine-specific (git-ignored)</span></span>
+<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a><span class="fu">file.create</span>(<span class="st">&quot;_environment-dev&quot;</span>)     <span class="co"># Profile-specific</span></span>
+<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a><span class="fu">file.create</span>(<span class="st">&quot;_environment&quot;</span>)         <span class="co"># Global defaults</span></span></code></pre></div>
+<p><strong>2. Add variables to files</strong></p>
+<p>Format: <code>VARIABLE_NAME=value</code> (one per line)</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="co"># _environment</span></span>
+<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a><span class="va">PROJR_OUTPUT_LEVEL</span><span class="op">=</span>std</span>
+<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a><span class="va">PROJR_LOG_DETAILED</span><span class="op">=</span>TRUE</span>
+<span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a><span class="va">PROJR_CLEAR_OUTPUT</span><span class="op">=</span>pre</span>
+<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a></span>
+<span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a><span class="co"># _environment-dev  </span></span>
+<span id="cb32-7"><a href="#cb32-7" tabindex="-1"></a><span class="va">PROJR_OUTPUT_LEVEL</span><span class="op">=</span>debug</span>
+<span id="cb32-8"><a href="#cb32-8" tabindex="-1"></a><span class="va">PROJR_CLEAR_OUTPUT</span><span class="op">=</span>never</span>
+<span id="cb32-9"><a href="#cb32-9" tabindex="-1"></a></span>
+<span id="cb32-10"><a href="#cb32-10" tabindex="-1"></a><span class="co"># _environment.local (for secrets - git-ignored)</span></span>
+<span id="cb32-11"><a href="#cb32-11" tabindex="-1"></a><span class="va">GITHUB_PAT</span><span class="op">=</span>ghp_your_token_here</span>
+<span id="cb32-12"><a href="#cb32-12" tabindex="-1"></a><span class="va">OSF_PAT</span><span class="op">=</span>your_osf_token_here</span></code></pre></div>
+<p><strong>3. Activate environment files</strong></p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a><span class="co"># Load all environment files</span></span>
+<span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a><span class="fu">projr_env_set</span>()</span>
+<span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" tabindex="-1"></a><span class="co"># Load specific files</span></span>
+<span id="cb33-5"><a href="#cb33-5" tabindex="-1"></a><span class="fu">projr_env_set</span>(<span class="st">&quot;_environment.local&quot;</span>)</span>
+<span id="cb33-6"><a href="#cb33-6" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" tabindex="-1"></a><span class="co"># Set profile to load profile-specific files</span></span>
+<span id="cb33-8"><a href="#cb33-8" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">PROJR_PROFILE =</span> <span class="st">&quot;dev&quot;</span>)</span>
+<span id="cb33-9"><a href="#cb33-9" tabindex="-1"></a><span class="fu">projr_env_set</span>()  <span class="co"># Will load _environment-dev</span></span></code></pre></div>
+<p><strong>4. Use key environment variables</strong></p>
+<p><strong>Build control:</strong></p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="co"># Control console output</span></span>
+<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">PROJR_OUTPUT_LEVEL =</span> <span class="st">&quot;debug&quot;</span>)  <span class="co"># &quot;none&quot;, &quot;std&quot;, or &quot;debug&quot;</span></span>
+<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a><span class="fu">projr_build_dev</span>()</span>
+<span id="cb34-4"><a href="#cb34-4" tabindex="-1"></a></span>
+<span id="cb34-5"><a href="#cb34-5" tabindex="-1"></a><span class="co"># Control detailed logging</span></span>
+<span id="cb34-6"><a href="#cb34-6" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">PROJR_LOG_DETAILED =</span> <span class="st">&quot;FALSE&quot;</span>)  <span class="co"># Disable detailed log files</span></span>
+<span id="cb34-7"><a href="#cb34-7" tabindex="-1"></a><span class="fu">projr_build_dev</span>()</span>
+<span id="cb34-8"><a href="#cb34-8" tabindex="-1"></a></span>
+<span id="cb34-9"><a href="#cb34-9" tabindex="-1"></a><span class="co"># Control output clearing</span></span>
+<span id="cb34-10"><a href="#cb34-10" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">PROJR_CLEAR_OUTPUT =</span> <span class="st">&quot;never&quot;</span>)  <span class="co"># &quot;pre&quot;, &quot;post&quot;, or &quot;never&quot;</span></span>
+<span id="cb34-11"><a href="#cb34-11" tabindex="-1"></a><span class="fu">projr_build_dev</span>()</span></code></pre></div>
+<p><strong>Profile configuration:</strong></p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="co"># Use multiple profiles (comma or semicolon separated)</span></span>
+<span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">PROJR_PROFILE =</span> <span class="st">&quot;test,dev&quot;</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">PROJR_PROFILE =</span> <span class="st">&quot;test;dev&quot;</span>)  <span class="co"># Equivalent</span></span>
+<span id="cb35-4"><a href="#cb35-4" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" tabindex="-1"></a><span class="co"># Quarto profiles are also respected</span></span>
+<span id="cb35-6"><a href="#cb35-6" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">QUARTO_PROFILE =</span> <span class="st">&quot;production&quot;</span>)</span></code></pre></div>
+<p><strong>5. Environment variable precedence</strong></p>
+<p>Variables are only set if not already defined:</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a><span class="co"># Pre-set value is preserved</span></span>
+<span id="cb36-2"><a href="#cb36-2" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">MY_VAR =</span> <span class="st">&quot;original&quot;</span>)</span>
+<span id="cb36-3"><a href="#cb36-3" tabindex="-1"></a><span class="co"># _environment contains: MY_VAR=new</span></span>
+<span id="cb36-4"><a href="#cb36-4" tabindex="-1"></a><span class="fu">projr_env_set</span>()</span>
+<span id="cb36-5"><a href="#cb36-5" tabindex="-1"></a><span class="fu">Sys.getenv</span>(<span class="st">&quot;MY_VAR&quot;</span>)  <span class="co"># Still &quot;original&quot;, not &quot;new&quot;</span></span></code></pre></div>
+<p>File precedence (highest to lowest): 1.
+<code>_environment.local</code> (machine-specific) 2.
+<code>_environment-&lt;QUARTO_PROFILE&gt;</code> 3.
+<code>_environment-&lt;PROJR_PROFILE&gt;</code> 4.
+<code>_environment</code> (global)</p>
+</div>
+<div id="pitfalls-9" class="section level3">
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Case sensitivity</strong>: Most environment variables are
+case-sensitive
+<ul>
+<li><code>PROJR_OUTPUT_LEVEL=&quot;debug&quot;</code> works, <code>&quot;DEBUG&quot;</code>
+does not</li>
+<li>Exception: Boolean values in <code>PROJR_LOG_DETAILED</code> are
+case-insensitive</li>
+</ul></li>
+<li><strong>Secrets in version control</strong>: Always use
+<code>_environment.local</code> for tokens
+<ul>
+<li>This file is automatically added to <code>.gitignore</code></li>
+<li>Never commit <code>GITHUB_PAT</code> or <code>OSF_PAT</code> to
+Git</li>
+</ul></li>
+<li><strong>Parameter priority</strong>: Function parameters override
+environment variables
+<ul>
+<li><code>projr_build_dev(output_level = &quot;std&quot;)</code> ignores
+<code>PROJR_OUTPUT_LEVEL</code></li>
+</ul></li>
+<li><strong>Profile name restrictions</strong>: Avoid using
+<code>&quot;default&quot;</code> or <code>&quot;local&quot;</code> as profile names
+<ul>
+<li>These are filtered out automatically</li>
+</ul></li>
+<li><strong>Empty values</strong>: Empty values in environment files are
+silently ignored
+<ul>
+<li><code>VAR=</code> does not set <code>VAR</code> to empty string,
+it’s skipped</li>
+</ul></li>
+</ul>
+</div>
+<div id="see-also-9" class="section level3">
+<h3>See also</h3>
+<ul>
+<li><code>?projr_env_set</code></li>
+<li><code>?projr_profile_get</code></li>
+<li><code>?projr_build</code></li>
+<li>Environment files support comments: Lines starting with
+<code>#</code> are ignored</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

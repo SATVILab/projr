@@ -1,0 +1,17 @@
+^README\.md$
+^data/
+^data$
+^output$
+^tempfile\.log$
+
+# Start of projr section: do not edit by hand (update with projr_ignore_auto())
+# End of projr section
+
+!^output$
+!^tempfile\.log$
+
+!^data/
+!^data$
+
+!^README\.md$
+

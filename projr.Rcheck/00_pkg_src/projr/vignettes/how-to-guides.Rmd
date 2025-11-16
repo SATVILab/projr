@@ -1,0 +1,817 @@
+---
+title: "How-to guides"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{How-to guides}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# How-to guides
+
+Short, task-focused guides for common projr workflows. Each section follows the pattern: **When to use**, **Steps**, **Pitfalls**, and **See also**.
+
+---
+
+## 1. Initialise a project
+
+### When to use
+
+When starting a new research project or adopting projr in an existing project.
+
+### Steps
+
+```{r eval=FALSE}
+library(projr)
+
+# Option 1: Interactive prompts (recommended for first-time users)
+projr_init_prompt()
+
+# Option 2: Sensible defaults
+projr_init()
+
+# Option 3: Full setup with extras
+projr_init_full()
+```
+
+**What gets created:**
+
+- `_projr.yml` - Project configuration
+- `DESCRIPTION` - Project metadata
+- `README.md` - Project documentation
+- Directory structure (`_raw_data`, `_output`, `_tmp`, `docs`)
+- Git repository (optional, prompted)
+- GitHub repository (optional, prompted)
+- License file (optional, prompted)
+- Citation file (optional, prompted)
+
+**Customising metadata:**
+
+```{r eval=FALSE}
+# Set license
+projr_init_license(license = "MIT")
+
+# Set up citation
+projr_init_cite(
+  title = "My Research Project",
+  authors = "Jane Doe"
+)
+```
+
+### Pitfalls
+
+- **Git/GitHub prompts**: If you haven't set up GitHub credentials, the initialisation may fail. See `projr_instr_auth_github()` for setup instructions.
+- **Existing files**: Initialisation won't overwrite existing configuration files. Delete or rename them first if you want fresh defaults.
+
+### See also
+
+- `?projr_init` - Full documentation
+- `?projr_init_git` - Git-specific initialisation
+- `?projr_init_github` - GitHub-specific initialisation
+
+---
+
+## 2. Run a development build safely
+
+### When to use
+
+When iterating on code and documents, before you're ready to create a new versioned release.
+
+### Steps
+
+```{r eval=FALSE}
+# Build all documents, route outputs to cache
+projr_build_dev()
+
+# Build specific documents only
+projr_build_dev("analysis.Rmd")
+projr_build_dev(c("methods.Rmd", "results.Rmd"))
+```
+
+**Where outputs go:**
+
+Development builds route everything to `_tmp/projr/v<version>/`:
+
+```
+_tmp/projr/v0.1.0/
+├── output/         # Your _output directory content
+└── docs/           # Rendered documents
+```
+
+**Clearing _output before dev builds:**
+
+```{r eval=FALSE}
+# Clear _output before building (useful for testing)
+projr_build_dev(clear_output = "pre")
+```
+
+**Using paths in your code:**
+
+Always use `projr_path_get()` to ensure paths work correctly in both dev and final builds:
+
+```{r eval=FALSE}
+# In your R Markdown or scripts:
+fig_path <- projr_path_get("output", "figures", "plot.png")
+png(filename = fig_path)
+# ... plotting code ...
+dev.off()
+
+# During dev build: saves to _tmp/projr/v0.1.0/output/figures/plot.png
+# During final build: saves to _output/figures/plot.png
+```
+
+### Pitfalls
+
+- **Forgetting `projr_path_get()`**: If you use hardcoded paths like `"_output/plot.png"`, dev builds will still write to `_output` instead of the cache.
+- **Cache directory growth**: The cache can grow large over time. Clean it periodically with `unlink("_tmp/projr", recursive = TRUE)`.
+
+### See also
+
+- `?projr_build_dev` - Full documentation
+- `?projr_path_get` - Path helper documentation
+
+---
+
+## 3. Run a final build
+
+### When to use
+
+When you've completed and tested changes and want to create a new versioned release.
+
+### Steps
+
+```{r eval=FALSE}
+# Patch version bump (0.1.0 -> 0.1.1)
+projr_build()
+# or explicitly:
+projr_build_patch()
+
+# Minor version bump (0.1.0 -> 0.2.0)
+projr_build_minor()
+
+# Major version bump (0.1.0 -> 1.0.0)
+projr_build_major()
+```
+
+**What happens:**
+
+1. **Pre-build**: Clears `_output` (configurable via `PROJR_OUTPUT_CLEAR` env var)
+2. **Build**: Renders all documents
+3. **Version bump**: Updates project version in `DESCRIPTION`
+4. **Manifest**: Creates manifest linking inputs to outputs
+5. **Post-build**: Copies outputs to `_output` and `docs`
+6. **Archive**: Uploads to configured destinations (GitHub, OSF, local)
+7. **Git commit**: Creates commit with version bump (if configured)
+
+**Controlling output clearing:**
+
+```{r eval=FALSE}
+# Set environment variable to control clearing behaviour
+# Options: "pre" (before build), "post" (after build), "none"
+Sys.setenv(PROJR_OUTPUT_CLEAR = "pre")
+projr_build()
+
+# Or set in .Renviron file:
+# PROJR_OUTPUT_CLEAR=pre
+```
+
+**Customising commit messages:**
+
+The default commit message is "Build v<version>". Configure this in `_projr.yml`:
+
+```yaml
+build:
+  git:
+    commit: true
+    push: true
+    commit_msg: "Release v{version}"
+```
+
+### Pitfalls
+
+- **Uncommitted changes**: If you have uncommitted Git changes, the build may fail. Commit or stash changes first.
+- **Missing archives**: If GitHub/OSF uploads fail, check your credentials and network connection.
+- **Version conflicts**: Ensure the version in `DESCRIPTION` matches your expectations before building.
+
+### See also
+
+- `?projr_build` - Full documentation
+- `?projr_version_set` - Manually set version
+
+---
+
+## 4. Archive artefacts
+
+### When to use
+
+When you want to configure where and how project components are archived after builds.
+
+### Steps
+
+**Archive structure:**
+
+projr supports three archive types:
+
+1. **GitHub Releases** - Version-controlled releases on GitHub
+2. **OSF** - Open Science Framework storage
+3. **Local** - Local directory (e.g., network drive, cloud sync folder)
+
+**Configure in `_projr.yml`:**
+
+```yaml
+build:
+  # GitHub Releases
+  github:
+    raw-data:
+      content: [raw-data]
+      description: "Raw data files"
+      cue: "always"  # or "new" (default)
+    output:
+      content: [output]
+      description: "Analysis outputs"
+    docs:
+      content: [docs]
+      description: "Rendered documents"
+  
+  # OSF
+  osf:
+    project: "abc123"  # OSF project ID
+    raw-data:
+      content: [raw-data]
+      component: "data"  # OSF component name
+    
+  # Local directory
+  local:
+    path: "~/Dropbox/my-project-archive"
+    raw-data:
+      content: [raw-data]
+      path: "data"
+    output:
+      content: [output]
+      path: "outputs"
+```
+
+**Add destinations programmatically:**
+
+```{r eval=FALSE}
+# Add GitHub archive
+projr_yml_dest_add_github(
+  label = "raw-data",
+  content = "raw-data",
+  description = "Raw data files"
+)
+
+# Add OSF archive
+projr_yml_dest_add_osf(
+  label = "raw-data",
+  content = "raw-data",
+  project = "abc123",
+  component = "data"
+)
+
+# Add local archive
+projr_yml_dest_add_local(
+  label = "raw-data",
+  content = "raw-data",
+  path = "~/archive/data"
+)
+```
+
+**Archive parameters:**
+
+- `content`: Which directory to archive (raw-data, output, docs, cache)
+- `cue`: When to upload - "always", "new" (only if content changed), "never"
+- `strategy`: "archive" (versioned) or "latest" (overwrite)
+- `description`: Human-readable description
+
+**Inspecting archives:**
+
+```{r eval=FALSE}
+# View current YAML configuration
+projr_yml_get()
+
+# Check if files will be uploaded
+# (Run a dev build to see what would happen without actually uploading)
+projr_build_dev()
+```
+
+### Pitfalls
+
+- **Large files on GitHub**: GitHub has a 2GB limit for release assets. Use OSF or local for larger datasets.
+- **OSF authentication**: Set up OSF credentials first with `projr_instr_auth_osf()`.
+- **Network failures**: Archives may fail silently. Check the build log for errors.
+
+### See also
+
+- `?projr_yml_dest_add_github`
+- `?projr_yml_dest_add_osf`
+- `?projr_yml_dest_add_local`
+
+---
+
+## 5. Restore artefacts
+
+### When to use
+
+When setting up a project on a new machine or restoring an archived version.
+
+### Steps
+
+**Restore entire repository:**
+
+```{r eval=FALSE}
+# Clone repo and restore raw data
+projr_restore_repo("owner/repo")
+
+# Clone to specific directory
+projr_restore_repo("owner/repo", path = "~/projects/my-project")
+
+# Restore from current working directory (if already cloned)
+projr_restore_repo_wd()
+```
+
+**Restore specific directories:**
+
+```{r eval=FALSE}
+# Restore raw data only
+projr_restore(label = "raw-data")
+
+# Restore multiple directories
+projr_restore(label = c("raw-data", "output"))
+
+# Restore specific version
+projr_restore(label = "raw-data", version = "v0.1.0")
+```
+
+**Restoration sources:**
+
+projr checks these sources in order:
+
+1. GitHub Releases (if configured in `_projr.yml`)
+2. OSF (if configured)
+3. Local archives (if configured)
+
+**Mapping labels to paths:**
+
+The `_projr.yml` file defines where each label's content is stored:
+
+```yaml
+directories:
+  raw-data:
+    path: _raw_data
+  output:
+    path: _output
+```
+
+### Pitfalls
+
+- **Missing archives**: If no archive is found for a label, restoration fails silently.
+- **Version mismatches**: Ensure you're restoring the correct version. Check available versions on GitHub Releases.
+- **Authentication**: Ensure GitHub/OSF credentials are set up before restoring.
+
+### See also
+
+- `?projr_restore_repo`
+- `?projr_restore`
+
+---
+
+## 6. Define directories and labels
+
+### When to use
+
+When customising project directory structure beyond the defaults.
+
+### Steps
+
+**Default labels:**
+
+projr provides these default labels:
+
+- `raw-data` → `_raw_data`
+- `cache` → `_tmp`
+- `output` → `_output`
+- `docs` → `docs`
+
+**Add custom labels in `_projr.yml`:**
+
+```yaml
+directories:
+  raw-data:
+    path: _raw_data
+  raw-data-public:
+    path: _raw_data_public
+  raw-data-private:
+    path: _raw_data_private
+  cache:
+    path: _tmp
+  output:
+    path: _output
+  output-figures:
+    path: _output/figures
+  docs:
+    path: docs
+```
+
+**Rules for directory labels:**
+
+1. **No nesting**: Each label maps to a single path
+2. **Unique labels**: Each label must be unique
+3. **Fixed prefixes**: Labels must start with `raw`, `cache`, `output`, or `docs`
+4. **Auto-creation**: Directories are created automatically on build
+
+**Using custom labels:**
+
+```{r eval=FALSE}
+# Access custom paths
+projr_path_get("raw-data-public")
+# "_raw_data_public"
+
+projr_path_get("output-figures", "plot.png")
+# "_output/figures/plot.png"
+```
+
+### Pitfalls
+
+- **Invalid prefixes**: Labels like `my-data` will fail. Use `raw-my-data` instead.
+- **Nested conflicts**: Don't create labels that point to subdirectories of other labels.
+
+### See also
+
+- `?projr_path_get`
+- `?projr_yml_get`
+
+---
+
+## 7. Use profiles
+
+### When to use
+
+When you need different configurations for different contexts (e.g., development vs production, different collaborators).
+
+### Steps
+
+**Create a profile:**
+
+```{r eval=FALSE}
+# Create a profile based on _projr.yml
+projr_profile_create("dev")
+
+# This creates _projr-dev.yml
+```
+
+**Customise the profile:**
+
+Edit `_projr-dev.yml` to override specific settings:
+
+```yaml
+# Only differences from _projr.yml
+build:
+  github:
+    enabled: false  # Disable GitHub uploads in dev profile
+  
+directories:
+  output:
+    path: _output_dev  # Use different output directory
+```
+
+**Use a profile:**
+
+```{r eval=FALSE}
+# Set environment variable
+Sys.setenv(PROJR_PROFILE = "dev")
+
+# Or set in .Renviron:
+# PROJR_PROFILE=dev
+
+# Now all projr functions use _projr-dev.yml
+projr_build()
+```
+
+**Check active profile:**
+
+```{r eval=FALSE}
+projr_profile_get()
+# "dev"
+```
+
+**Delete a profile:**
+
+```{r eval=FALSE}
+projr_profile_delete("dev")
+```
+
+### Pitfalls
+
+- **Forgetting to switch back**: Remember to unset `PROJR_PROFILE` when done.
+- **Partial overrides**: Profiles only override specified keys. Unspecified keys fall back to `_projr.yml`.
+
+### See also
+
+- `?projr_profile_create`
+- `?projr_profile_get`
+- `?projr_env_set`
+
+---
+
+## 8. View and manage build logs
+
+### When to use
+
+When you need to review build history, debug issues, or maintain clean log files.
+
+### Steps
+
+**View build history:**
+
+All builds are automatically logged to `cache/projr/log/{dev,output}/history/builds.md`:
+
+```{r eval=FALSE}
+# View dev build history
+file.edit("cache/projr/log/dev/history/builds.md")
+
+# View output build history
+file.edit("cache/projr/log/output/history/builds.md")
+```
+
+**View detailed build logs:**
+
+Each build creates a detailed Quarto log file organized by date:
+
+```{r eval=FALSE}
+# List recent dev build logs
+list.files("cache/projr/log/dev/output", 
+           recursive = TRUE, pattern = "\\.qmd$")
+
+# Render a log file to HTML
+quarto::quarto_render("cache/projr/log/dev/output/2025-Nov-11/14-07-00.qmd")
+```
+
+**Control logging:**
+
+```{r eval=FALSE}
+# Disable detailed log file creation (history still maintained)
+Sys.setenv(PROJR_LOG_DETAILED = "FALSE")
+projr_build_dev()
+
+# Re-enable detailed logging
+Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+```
+
+**Clear old logs:**
+
+```{r eval=FALSE}
+# Clear all logs
+projr_log_clear()
+
+# Clear only dev logs
+projr_log_clear(build_type = "dev")
+
+# Keep history, clear detailed logs only
+projr_log_clear(history = FALSE, output = TRUE)
+
+# Clear logs before a specific date
+projr_log_clear(before_date = "2025-01-01")
+```
+
+### Pitfalls
+
+- **Log directory location**: Logs are in `cache/projr/log`, not in `_tmp`.
+- **Never auto-cleared**: Unlike cache, logs are never cleared automatically—manage manually.
+- **Disk space**: Logs accumulate over time; clear old logs periodically.
+
+### See also
+
+- `?projr_log_clear`
+- `?projr_build`
+- Console output control: Use `output_level` parameter in build functions
+
+---
+
+## 9. Query manifest to track file changes
+
+### When to use
+
+When you need to:
+- Understand which files changed between versions
+- Track when specific outputs were last modified
+- Verify data provenance and reproducibility
+- Audit project history
+
+### Steps
+
+**1. Compare two versions:**
+
+```{r eval=FALSE}
+# See what files changed between v0.0.1 and v0.0.2
+changes <- projr_manifest_changes("0.0.1", "0.0.2")
+
+# View the results
+changes
+# Returns: label, fn, change_type (added/modified/removed), 
+#          hash_from, hash_to
+
+# Filter by directory
+output_changes <- projr_manifest_changes(
+  "0.0.1", "0.0.2", 
+  label = "output"
+)
+```
+
+**2. Track files across multiple versions:**
+
+```{r eval=FALSE}
+# See all files and when they last changed from v0.0.1 to current
+file_history <- projr_manifest_range("0.0.1")
+
+# View the results
+file_history
+# Returns: label, fn, version_first, version_last_change, hash
+
+# Limit to specific directory and version range
+raw_data_history <- projr_manifest_range(
+  "0.0.1", "0.0.5",
+  label = "raw-data"
+)
+```
+
+**3. Check when directories last changed:**
+
+```{r eval=FALSE}
+# See most recent changes for each directory
+last_changes <- projr_manifest_last_change()
+
+# View the results
+last_changes
+# Returns: label, version_last_change, n_files
+
+# Check status as of a specific version
+historical_status <- projr_manifest_last_change("0.0.3")
+```
+
+**4. Practical examples:**
+
+```{r eval=FALSE}
+# Did any raw data change since last release?
+raw_changes <- projr_manifest_changes(
+  "0.1.0", 
+  projr_version_get(), 
+  label = "raw-data"
+)
+if (nrow(raw_changes) > 0) {
+  message("Raw data has changed - outputs may need regeneration")
+}
+
+# Find files that haven't changed in a while
+old_files <- projr_manifest_range("0.0.1")
+old_files[old_files$version_last_change < "v0.0.5", ]
+```
+
+### Pitfalls
+
+- **Version format**: Can use "0.0.1" or "v0.0.1" - both work
+- **Empty manifests**: Returns 0-row data.frame if no changes found
+- **Manifest location**: Manifest is at project root (`manifest.csv`)
+- **Only tracks builds**: Files are only tracked after running `projr_build()`
+  - Dev builds create temporary manifests but don't update the main one
+
+### See also
+
+- `?projr_manifest_changes`
+- `?projr_manifest_range`
+- `?projr_manifest_last_change`
+- `?projr_version_get`
+
+---
+
+## 11. Configure environment variables
+
+### When to use
+
+When you need to:
+- Control build verbosity and logging behavior
+- Set up different configurations for development vs. production
+- Store authentication tokens securely
+- Override default build behaviors
+
+### Steps
+
+**1. Create environment files**
+
+projr uses three types of environment files (in order of precedence):
+
+```{r eval=FALSE}
+# Create files manually or use:
+file.create("_environment.local")  # Machine-specific (git-ignored)
+file.create("_environment-dev")     # Profile-specific
+file.create("_environment")         # Global defaults
+```
+
+**2. Add variables to files**
+
+Format: `VARIABLE_NAME=value` (one per line)
+
+```bash
+# _environment
+PROJR_OUTPUT_LEVEL=std
+PROJR_LOG_DETAILED=TRUE
+PROJR_CLEAR_OUTPUT=pre
+
+# _environment-dev  
+PROJR_OUTPUT_LEVEL=debug
+PROJR_CLEAR_OUTPUT=never
+
+# _environment.local (for secrets - git-ignored)
+GITHUB_PAT=ghp_your_token_here
+OSF_PAT=your_osf_token_here
+```
+
+**3. Activate environment files**
+
+```{r eval=FALSE}
+# Load all environment files
+projr_env_set()
+
+# Load specific files
+projr_env_set("_environment.local")
+
+# Set profile to load profile-specific files
+Sys.setenv(PROJR_PROFILE = "dev")
+projr_env_set()  # Will load _environment-dev
+```
+
+**4. Use key environment variables**
+
+**Build control:**
+```{r eval=FALSE}
+# Control console output
+Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")  # "none", "std", or "debug"
+projr_build_dev()
+
+# Control detailed logging
+Sys.setenv(PROJR_LOG_DETAILED = "FALSE")  # Disable detailed log files
+projr_build_dev()
+
+# Control output clearing
+Sys.setenv(PROJR_CLEAR_OUTPUT = "never")  # "pre", "post", or "never"
+projr_build_dev()
+```
+
+**Profile configuration:**
+```{r eval=FALSE}
+# Use multiple profiles (comma or semicolon separated)
+Sys.setenv(PROJR_PROFILE = "test,dev")
+Sys.setenv(PROJR_PROFILE = "test;dev")  # Equivalent
+
+# Quarto profiles are also respected
+Sys.setenv(QUARTO_PROFILE = "production")
+```
+
+**5. Environment variable precedence**
+
+Variables are only set if not already defined:
+
+```{r eval=FALSE}
+# Pre-set value is preserved
+Sys.setenv(MY_VAR = "original")
+# _environment contains: MY_VAR=new
+projr_env_set()
+Sys.getenv("MY_VAR")  # Still "original", not "new"
+```
+
+File precedence (highest to lowest):
+1. `_environment.local` (machine-specific)
+2. `_environment-<QUARTO_PROFILE>`
+3. `_environment-<PROJR_PROFILE>`
+4. `_environment` (global)
+
+### Pitfalls
+
+- **Case sensitivity**: Most environment variables are case-sensitive
+  - `PROJR_OUTPUT_LEVEL="debug"` works, `"DEBUG"` does not
+  - Exception: Boolean values in `PROJR_LOG_DETAILED` are case-insensitive
+- **Secrets in version control**: Always use `_environment.local` for tokens
+  - This file is automatically added to `.gitignore`
+  - Never commit `GITHUB_PAT` or `OSF_PAT` to Git
+- **Parameter priority**: Function parameters override environment variables
+  - `projr_build_dev(output_level = "std")` ignores `PROJR_OUTPUT_LEVEL`
+- **Profile name restrictions**: Avoid using `"default"` or `"local"` as profile names
+  - These are filtered out automatically
+- **Empty values**: Empty values in environment files are silently ignored
+  - `VAR=` does not set `VAR` to empty string, it's skipped
+
+### See also
+
+- `?projr_env_set`
+- `?projr_profile_get`
+- `?projr_build`
+- Environment files support comments: Lines starting with `#` are ignored
+
+
