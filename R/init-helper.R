@@ -956,16 +956,24 @@ projr_init_renviron <- function() {
   .dep_install_only("usethis")
   .dep_install_only("gh")
   .auth_check_github("creating GitHub repository")
-  if (identical(username, gh::gh_whoami()$login)) {
-    .init_github_actual_user(public)
+  current_user <- tryCatch({
+    gh::gh_whoami()$login
+  }, error = function(e) {
+    NULL
+  })
+  if (!.is_string(current_user)) {
+    stop("GitHub user not found")
+  }
+  if (identical(username, current_user)) {
+    .init_github_actual_user(public, current_user)
   } else {
     .init_github_actual_org(public, username)
   }
   invisible(TRUE)
 }
 
-.init_github_actual_user <- function(public) {
-  message(paste0("Creating GitHub remote for user ", gh::gh_whoami()$login))
+.init_github_actual_user <- function(public, username) {
+  message(paste0("Creating GitHub remote for user ", username))
   result <- tryCatch(
     usethis::use_github(private = !public),
     error = function(e) {

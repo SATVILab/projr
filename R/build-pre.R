@@ -169,7 +169,11 @@
 }
 
 .build_github_setup_user <- function() {
-  user <- gh::gh_whoami()$login
+  user <- tryCatch({
+    gh::gh_whoami()$login
+  }, error = function(e) {
+    NULL
+  })
   if (!.is_string(user)) {
     stop("GitHub user not found.")
   }

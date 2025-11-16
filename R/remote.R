@@ -882,7 +882,13 @@ projr_osf_create_project <- function(title,
   # defaults
   user <- if ("user" %in% names(host)) host[["user"]] else NULL
   .dep_install("gh")
-  user <- user %||% gh::gh_whoami()[["login"]]
+  if (is.null(user)) {
+    user <- tryCatch({
+      gh::gh_whoami()[["login"]]
+    }, error = function(e) {
+      NULL
+    })
+  }
   if (!.is_string(user)) stop("No GitHub user found")
   token <- if ("token" %in% names(host)) host[["token"]] else NULL # nolint
   token <- token %||% Sys.getenv("GITHUB_PAT")
