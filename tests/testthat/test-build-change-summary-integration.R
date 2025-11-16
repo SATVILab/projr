@@ -56,8 +56,13 @@ test_that("build change summary integrates correctly into full build workflow", 
       # Verify first version has no change summary (no previous version)
       # Use more specific pattern to match section headers only
       v1_section_start <- grep("^#### v0\\.0\\.1:", buildlog_content)[1]
-      v2_section_start <- grep("^#### v0\\.0\\.2:", buildlog_content)[1]
-      v1_content <- buildlog_content[v1_section_start:(v2_section_start - 1)]
+      
+      # Find the next separator after v1 section start
+      separators <- grep("^----$", buildlog_content)
+      v1_section_end <- separators[separators > v1_section_start][1]
+      
+      # Extract v1 content from header to separator
+      v1_content <- buildlog_content[v1_section_start:v1_section_end]
       
       # First version should not have change summary
       expect_false(any(grepl("Inputs Changes", v1_content)))
