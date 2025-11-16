@@ -99,10 +99,43 @@ projr_init_prompt <- function(yml_path_from = NULL,
 Internal functions (starting with `.`) should NOT have `@export` tags.
 
 ### 3. Testing with testthat
+
+The package has a tiered test suite to accommodate different testing needs:
+
+#### Test Suite Levels
+
+**CRAN Mode** (`R_PKG_TEST_CRAN=TRUE` or `NOT_CRAN=false`):
+- Runs only fast, essential tests (~364 tests)
+- Skips comprehensive tests (exhaustive parameter combinations)
+- Skips integration tests
+- Skips remote-dependent tests (GitHub/OSF)
+- Target: Complete in <2 minutes for CRAN submission
+- Auto-activates when `NOT_CRAN` is false/unset
+- Use `skip_if(.is_test_cran())` to skip tests in CRAN mode
+
+**Debug Mode** (`R_PKG_TEST_DEBUG=TRUE`):
+- Runs core functionality tests (~364 tests)
+- Skips comprehensive tests (exhaustive parameter combinations)
+- Includes integration tests
+- Includes remote tests if credentials available
+- Target: Faster validation when debugging, not full comprehensive testing
+- Use `skip_if(.is_test_debug())` to skip tests in debug mode
+
+**Full Mode** (default):
+- Runs all tests (452 tests)
+- Includes comprehensive tests
+- Includes integration tests
+- Includes remote tests if credentials available
+- Used for complete validation before releases
+
+#### Test Guidelines
+
 - Use testthat 3e (Config/testthat/edition: 3)
 - Test file naming: `test-{feature}.R` (e.g., `test-manifest.R` for manifest-related functions)
 - Use `test_that()` for each test case with descriptive names
 - Use `skip_if(.is_test_select())` for tests that should be skipped in certain conditions
+- Use `skip_if(.is_test_cran())` for comprehensive/integration/remote tests
+- Use `skip_if(.is_test_debug())` for comprehensive tests
 - Use `usethis::with_project()` for tests that need a temporary project environment
 - **Test helpers** (located in `tests/testthat/helper-setup.R`):
   - `.test_setup_project()` - Creates a complete test project with git, files, and configuration
@@ -116,6 +149,28 @@ Internal functions (starting with `.`) should NOT have `@export` tags.
   - `expect_true()` / `expect_false()` for logical values
   - `expect_error()` for error conditions
   - Test edge cases: empty directories, missing files, NULL values
+
+#### When Adding New Tests
+
+- **Comprehensive tests** (exhaustive parameter combinations):
+  - Add to files named `test-*-comprehensive.R`
+  - Add `skip_if(.is_test_cran())` AND `skip_if(.is_test_debug())`
+  - These test all combinations of YML parameters
+  
+- **Integration tests** (multi-component workflows):
+  - Add to files named `test-*-integration.R`
+  - Add `skip_if(.is_test_cran())` only
+  - Run in debug mode to catch integration issues
+  
+- **Regular tests** (core functionality):
+  - No special skip conditions needed
+  - Should run in all modes
+  - Focus on essential functionality
+
+- **Remote-dependent tests** (GitHub/OSF):
+  - Add `skip_if(!nzchar(Sys.getenv("GITHUB_PAT")))` or equivalent
+  - Add `skip_if(.is_test_cran())` for CRAN compatibility
+  - May run in debug mode if credentials available
 
 #### Testing Local Remotes Comprehensively
 
@@ -147,6 +202,8 @@ Test with different content types: `raw-data`, `output`, `cache`, `docs`, `code`
 **Test Pattern Example**:
 ```r
 test_that("local remote with archive + sync-diff + if-change", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_debug())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   usethis::with_project(
