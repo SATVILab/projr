@@ -11,3 +11,4 @@ _scratch/VERSION
 git_diff_output.txt
 
 *.tar.gz
+*.Rcheck

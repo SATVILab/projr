@@ -17,7 +17,7 @@ Config/testthat/edition: 3
 URL: https://satvilab.github.io/projr/
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2025-11-16 19:02:53 UTC; runner
+Packaged: 2025-11-16 19:16:04 UTC; runner
 Author: Miguel Rodo [aut, cre] (ORCID: <https://orcid.org/0000-0002-2036-4878>)
 Depends: R (>= 4.2.0)
-Built: R 4.5.2; ; 2025-11-16 19:03:17 UTC; unix
+Built: R 4.5.2; ; 2025-11-16 19:16:19 UTC; unix

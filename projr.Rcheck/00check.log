@@ -130,7 +130,7 @@ In title case that is:
 * checking S3 generic/method consistency ... OK
 * checking replacement functions ... OK
 * checking foreign function calls ... OK
-* checking R code for possible problems ... [19s/15s] OK
+* checking R code for possible problems ... [18s/14s] OK
 * checking Rd files ... OK
 * checking Rd metadata ... OK
 * checking Rd line widths ... OK
@@ -144,22 +144,22 @@ In title case that is:
 * checking files in ‘vignettes’ ... OK
 * checking examples ... OK
 * checking for unstated dependencies in ‘tests’ ... OK
-* checking tests ... [112s/175s] ERROR
-  Running ‘testthat.R’ [112s/174s]
+* checking tests ... [112s/176s] ERROR
+  Running ‘testthat.R’ [112s/176s]
 Running the tests in ‘tests/testthat.R’ failed.
 Last 13 lines of output:
-  Expected `result` to be TRUE.
-  Differences:
-  `actual`:   FALSE
-  `expected`: TRUE 
+    9.       └─projr:::.init_std_github_impl(public, org)
+   10.         └─projr:::.init_github_actual_user(public)
+   11.           ├─base::message(paste0("Creating GitHub remote for user ", gh::gh_whoami()$login))
+   12.           ├─base::paste0("Creating GitHub remote for user ", gh::gh_whoami()$login)
+   13.           └─gh::gh_whoami()
+   14.             └─gh::gh(endpoint = "/user", .token = .token, .api_url = .api_url, .send_headers = .send_headers)
+   15.               └─gh:::gh_make_request(req)
+   16.                 └─gh:::gh_error(resp, gh_req = x, error_call = error_call)
+   17.                   └─cli::cli_abort(...)
+   18.                     └─rlang::abort(...)
   
-  Backtrace:
-      ▆
-   1. ├─usethis::with_project(...) at test-init-readme-completion.R:60:3
-   2. │ └─base::force(code)
-   3. └─testthat::expect_true(result) at test-init-readme-completion.R:72:7
-  
-  [ FAIL 1 | WARN 13 | SKIP 44 | PASS 1920 ]
+  [ FAIL 2 | WARN 13 | SKIP 43 | PASS 1896 ]
   Error:
   ! Test failures.
   Execution halted
@@ -177,7 +177,7 @@ Please obtain a recent version of HTML Tidy by downloading a binary
 release or compiling the source code from <https://www.html-tidy.org/>.
 * checking for non-standard things in the check directory ... NOTE
 Found the following files/directories:
-  ‘.Rbuildignore’ ‘.gitignore’ ‘projr-manual.tex’
+  ‘projr-manual.tex’
 * checking for detritus in the temp directory ... OK
 * DONE
 Status: 2 ERRORs, 1 WARNING, 3 NOTEs
