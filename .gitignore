@@ -12,3 +12,4 @@ git_diff_output.txt
 
 *.tar.gz
 ..Rcheck/
+test_debug_output.R
