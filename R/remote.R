@@ -696,7 +696,7 @@ projr_osf_create_project <- function(title,
   # NULL (otherwise it's character(),
   # which triggers an error when checking for a string later)
   if (!is.null(path)) {
-    path <- path |> gsub(pattern = "\\.zip$", replacement = "", x = _)
+    path <- path |> (\(x) gsub(pattern = "\\.zip$", replacement = "", x))()
   }
   paste0(
     .remote_get_path_rel_flat(
@@ -1513,7 +1513,7 @@ projr_osf_create_project <- function(title,
   function(version_file,
            label) {
     match_str <- utils::glob2rx(label) |>
-      gsub("\\$", "", x = _) |>
+      (\(x) gsub("\\$", "", x))() |>
       paste0(": ")
     label_regex <- grep(match_str, version_file, value = TRUE)
     if (.is_len_0(label_regex)) {
