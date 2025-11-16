@@ -19,6 +19,12 @@
   invisible(path_dir_test)
 }
 
+.test_should_run_renv <- function() {
+  val <- tolower(Sys.getenv("PROJR_TEST_RENV", "false"))
+  val %in% c("true", "1", "yes", "y")
+}
+
+
 .test_rm_engine <- function(rm_engine, path_dir_test) {
   if (rm_engine) {
     .file_rm(file.path(path_dir_test, "_bookdown.yml"))

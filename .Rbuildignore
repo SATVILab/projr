@@ -29,5 +29,7 @@
 ^_dependencies\.R$
 ^_archive$
 ^SCRATCH-old\.R$
+^\.gitignore$
+^\.Rbuildignore$
 
 

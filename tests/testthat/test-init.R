@@ -705,6 +705,9 @@ test_that("projr_init_license works with different license types", {
 
 test_that("projr_init_renv works", {
   skip_if(.is_test_select())
+  skip_if_not(.test_should_run_renv(),
+    "Set PROJR_TEST_RENV=TRUE to run renv initialization tests"
+  )
   dir_test <- file.path(tempdir(), "testProjrRenv")
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .dir_create(dir_test)
