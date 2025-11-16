@@ -167,7 +167,9 @@ projr_osf_create_project <- function(title,
 # github
 .remote_create_github <- function(tag,
                                   description = NULL,
-                                  pause_second = 3) {
+                                  pause_second = 3,
+                                  output_level = "std",
+                                  log_file = NULL) {
   .dep_install("piggyback")
   .assert_string(tag, TRUE)
   .assert_string(description)
@@ -175,29 +177,79 @@ projr_osf_create_project <- function(title,
   if (is.null(description)) {
     description <- "Release created automatically by `projr`"
   }
+  
+  .cli_debug(
+    "Piggyback: Creating GitHub release with tag '{tag}'",
+    output_level = output_level,
+    log_file = log_file
+  )
+  
   pb_release_create <- .remote_create_github_attempt(
-    tag = tag, description = description
+    tag = tag,
+    description = description,
+    output_level = output_level,
+    log_file = log_file
   )
   if (!.is_try_error(pb_release_create)) {
+    .cli_debug(
+      "Piggyback: Successfully created release '{tag}' on first attempt",
+      output_level = output_level,
+      log_file = log_file
+    )
     return(invisible(tag))
   }
+  
+  .cli_debug(
+    "Piggyback: First attempt to create release failed, retrying after {pause_second}s...",
+    output_level = output_level,
+    log_file = log_file
+  )
   Sys.sleep(pause_second)
   pb_release_create <- .remote_create_github_attempt(
-    tag = tag, description = description
+    tag = tag,
+    description = description,
+    output_level = output_level,
+    log_file = log_file
   )
   if (!.is_try_error(pb_release_create)) {
+    .cli_debug(
+      "Piggyback: Successfully created release '{tag}' on second attempt",
+      output_level = output_level,
+      log_file = log_file
+    )
     return(invisible(tag))
   }
+  
+  .cli_debug(
+    "Piggyback: All attempts to create release '{tag}' failed",
+    output_level = output_level,
+    log_file = log_file
+  )
   invisible(character())
 }
 
-.remote_create_github_attempt <- function(tag, description) {
+.remote_create_github_attempt <- function(tag,
+                                          description,
+                                          output_level = "std",
+                                          log_file = NULL) {
   piggyback::.pb_cache_clear()
-  try(suppressWarnings(suppressMessages(
+  repo <- .pb_repo_get()
+  result <- try(suppressWarnings(suppressMessages(
     piggyback::pb_release_create(
-      repo = .pb_repo_get(), tag = tag, body = description
+      repo = repo, tag = tag, body = description
     )
-  )))
+  )), silent = TRUE)
+  
+  if (inherits(result, "try-error")) {
+    error_msg <- attr(result, "condition")$message
+    .cli_debug(
+      "Piggyback: pb_release_create() failed for tag '{tag}': {error_msg}",
+      output_level = output_level,
+      log_file = log_file
+    )
+  }
+  
+  result
 }
 
 # ========================
@@ -2178,7 +2230,11 @@ projr_osf_create_project <- function(title,
       fn = fn, path_dir_local = path_dir_local, remote = remote
     ),
     "github" = .remote_file_add_github(
-      fn = fn, path_dir_local = path_dir_local, remote = remote
+      fn = fn,
+      path_dir_local = path_dir_local,
+      remote = remote,
+      output_level = output_level,
+      log_file = log_file
     )
   )
 }
@@ -2236,7 +2292,9 @@ projr_osf_create_project <- function(title,
 # github
 .remote_file_add_github <- function(fn, # nolint: cyclocomp_linter.
                                     path_dir_local,
-                                    remote) {
+                                    remote,
+                                    output_level = "std",
+                                    log_file = NULL) {
   .assert_chr_min(fn, TRUE)
   if (.is_len_0(fn)) {
     return(invisible(FALSE))
@@ -2259,9 +2317,12 @@ projr_osf_create_project <- function(title,
     return(invisible(FALSE))
   }
   tag <- .pb_tag_format(remote[["tag"]])
-  release_tbl <- .pb_release_tbl_get()
+  release_tbl <- .pb_release_tbl_get(
+    output_level = output_level,
+    log_file = log_file
+  )
   if (!tag %in% release_tbl[["release_name"]]) {
-    .remote_create("github", id = tag)
+    .remote_create("github", id = tag, output_level = output_level, log_file = log_file)
     Sys.sleep(3)
   }
   # if only needing code uploaded, then it's done already
@@ -2269,7 +2330,12 @@ projr_osf_create_project <- function(title,
   if (length(path_zip) == 0L && label == "code") {
     return(invisible(TRUE))
   }
-  .remote_file_add_github_zip(path_zip = path_zip, tag = tag)
+  .remote_file_add_github_zip(
+    path_zip = path_zip,
+    tag = tag,
+    output_level = output_level,
+    log_file = log_file
+  )
 }
 
 .remote_file_add_github_zip <- function(path_zip,
