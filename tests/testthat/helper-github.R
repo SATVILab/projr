@@ -40,7 +40,13 @@
     print("getting upload stuff")
   }
   .dep_install_only("gh")
-  user <- user %||% gh::gh_whoami()[["login"]]
+  if (is.null(user)) {
+    user <- tryCatch({
+      gh::gh_whoami()[["login"]]
+    }, error = function(e) {
+      NULL
+    })
+  }
   if (!.is_string(user)) stop("No GitHub user found")
 
   # credentials::set_github_pat()
@@ -184,7 +190,13 @@
 
   # defaults
   .dep_install_only("gh")
-  user <- user %||% gh::gh_whoami()[["login"]]
+  if (is.null(user)) {
+    user <- tryCatch({
+      gh::gh_whoami()[["login"]]
+    }, error = function(e) {
+      NULL
+    })
+  }
   if (!.is_string(user)) stop("No GitHub user found")
   token <- token %||% Sys.getenv("GITHUB_PAT")
   token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
@@ -219,7 +231,13 @@
 
   # defaults
   .dep_install_only("gh")
-  user <- user %||% gh::gh_whoami()[["login"]]
+  if (is.null(user)) {
+    user <- tryCatch({
+      gh::gh_whoami()[["login"]]
+    }, error = function(e) {
+      NULL
+    })
+  }
   if (!.is_string(user)) stop("No GitHub user found")
   token <- token %||% Sys.getenv("GITHUB_PAT")
   token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
@@ -274,7 +292,13 @@
 
   # defaults
   .dep_install_only("gh")
-  user <- user %||% gh::gh_whoami()[["login"]]
+  if (is.null(user)) {
+    user <- tryCatch({
+      gh::gh_whoami()[["login"]]
+    }, error = function(e) {
+      NULL
+    })
+  }
   if (!.is_string(user)) stop("No GitHub user found")
 
   # Initialize an empty list to store the repositories

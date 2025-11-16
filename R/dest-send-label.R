@@ -578,7 +578,7 @@
     return(FALSE)
   }
   match_str <- utils::glob2rx(label) |>
-    gsub("\\$", "", x = _) |>
+    (\(x) gsub("\\$", "", x))() |>
     paste0(": ")
   label_regex <- grep(match_str, version_file, value = TRUE)
   if (.is_len_0(label_regex)) {

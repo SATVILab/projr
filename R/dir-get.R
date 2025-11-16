@@ -67,7 +67,7 @@
 
 .dir_get_label_safe_check_unsafe <- function(label) {
   .dir_label_strip(label) |>
-    grepl("^output|^docs$|^data$", x = _)
+    (\(x) grepl("^output|^docs$|^data$", x))()
 }
 
 .dir_get_label_safe_path <- function(label) {
@@ -141,7 +141,7 @@
 
 .dir_set_docs_safe_check <- function(label) {
   .dir_label_strip(label) |>
-    grepl("^docs$", x = _)
+    (\(x) grepl("^docs$", x))()
 }
 
 
