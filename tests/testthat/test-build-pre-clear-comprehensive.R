@@ -29,6 +29,8 @@
 # =============================================================================
 
 test_that(".build_clear_pre_output clears nothing when clear_output='never'", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_debug())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -52,6 +54,8 @@ test_that(".build_clear_pre_output clears nothing when clear_output='never'", {
 })
 
 test_that(".build_clear_pre_output clears only safe when clear_output='post'", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_debug())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -75,6 +79,8 @@ test_that(".build_clear_pre_output clears only safe when clear_output='post'", {
 })
 
 test_that(".build_clear_pre_output clears both safe and unsafe when clear_output='pre'", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_debug())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -102,6 +108,8 @@ test_that(".build_clear_pre_output clears both safe and unsafe when clear_output
 # =============================================================================
 
 test_that(".build_clear_pre_output_label clears safe directory for all clear_output values", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_debug())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -136,6 +144,8 @@ test_that(".build_clear_pre_output_label clears safe directory for all clear_out
 # =============================================================================
 
 test_that(".build_clear_pre clears output dirs based on clear_output parameter", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_debug())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -179,6 +189,8 @@ test_that(".build_clear_pre clears output dirs based on clear_output parameter",
 # =============================================================================
 
 test_that(".dir_clear_pre_cache_version clears cache version directory except 'old'", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_debug())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -226,6 +238,8 @@ test_that(".dir_clear_pre_cache_version clears cache version directory except 'o
 # =============================================================================
 
 test_that(".build_clear_pre clears all output labels", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_debug())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -259,6 +273,8 @@ test_that(".build_clear_pre clears all output labels", {
 # =============================================================================
 
 test_that(".build_clear_pre works with non-existent directories", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_debug())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -276,6 +292,8 @@ test_that(".build_clear_pre works with non-existent directories", {
 })
 
 test_that(".build_clear_pre preserves nested directory structure", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_debug())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -303,6 +321,8 @@ test_that(".build_clear_pre preserves nested directory structure", {
 # =============================================================================
 
 test_that(".build_clear_pre respects clear_output parameter over env var", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_debug())
   skip_if(.is_test_select())
   
   old_val <- Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "")
@@ -335,6 +355,8 @@ test_that(".build_clear_pre respects clear_output parameter over env var", {
 # =============================================================================
 
 test_that(".build_clear_pre does not clear docs directory", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_debug())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -362,6 +384,8 @@ test_that(".build_clear_pre does not clear docs directory", {
 # =============================================================================
 
 test_that(".build_clear_pre_docs_check returns correct value based on docs path", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_debug())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -377,6 +401,8 @@ test_that(".build_clear_pre_docs_check returns correct value based on docs path"
 })
 
 test_that(".build_clear_pre_docs clears appropriate docs directory", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_debug())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
