@@ -1,74 +1,125 @@
-.pb_release_tbl_get <- function(pause_second = 3,
-                                output_level = "std",
-                                log_file = NULL) {
+# Helper function for retry logic with exponential backoff
+.pb_retry_with_backoff <- function(fn,
+                                   max_attempts = 6,
+                                   initial_delay = 2,
+                                   max_delay = 60,
+                                   backoff_factor = 2,
+                                   operation_name = "operation",
+                                   output_level = "std",
+                                   log_file = NULL,
+                                   check_success = function(x) !.pb_tbl_redo_check(x)) {
   .dep_install("piggyback")
   
   .cli_debug(
-    "Piggyback: Getting release table from {.pb_repo_get()}",
+    "Piggyback: Starting {operation_name} (max {max_attempts} attempts)",
     output_level = output_level,
     log_file = log_file
   )
   
-  gh_tbl_release <- .pb_release_tbl_get_attempt(
-    output_level = output_level,
-    log_file = log_file
-  )
-  if (!.pb_tbl_redo_check(gh_tbl_release)) {
+  delay <- initial_delay
+  
+  for (attempt in seq_len(max_attempts)) {
+    # Clear cache before each attempt (except first)
+    if (attempt > 1) {
+      piggyback::.pb_cache_clear()
+      
+      # Apply delay with exponential backoff
+      actual_delay <- min(delay, max_delay)
+      .cli_debug(
+        "Piggyback: Waiting {actual_delay}s before attempt {attempt}/{max_attempts}...",
+        output_level = output_level,
+        log_file = log_file
+      )
+      Sys.sleep(actual_delay)
+      delay <- delay * backoff_factor
+    }
+    
+    # Execute the operation
+    result <- fn()
+    
+    # Check if successful
+    if (check_success(result)) {
+      .cli_debug(
+        "Piggyback: {operation_name} succeeded on attempt {attempt}/{max_attempts}",
+        output_level = output_level,
+        log_file = log_file
+      )
+      return(result)
+    }
+    
+    # Log the failure with error details
+    error_type <- .pb_error_classify(result)
     .cli_debug(
-      "Piggyback: Successfully retrieved release table ({nrow(gh_tbl_release)} release(s))",
+      "Piggyback: Attempt {attempt}/{max_attempts} failed ({error_type})",
       output_level = output_level,
       log_file = log_file
     )
-    return(gh_tbl_release)
   }
   
+  # All attempts exhausted
   .cli_debug(
-    "Piggyback: First attempt failed, clearing cache and retrying...",
+    "Piggyback: All {max_attempts} attempts for {operation_name} failed",
     output_level = output_level,
     log_file = log_file
   )
-  piggyback::.pb_cache_clear()
-  Sys.sleep(pause_second)
-  gh_tbl_release <- .pb_release_tbl_get_attempt(
-    output_level = output_level,
-    log_file = log_file
-  )
-  if (!.pb_tbl_redo_check(gh_tbl_release)) {
-    .cli_debug(
-      "Piggyback: Successfully retrieved release table on retry ({nrow(gh_tbl_release)} release(s))",
-      output_level = output_level,
-      log_file = log_file
-    )
-    return(gh_tbl_release)
-  }
-  
-  .cli_debug(
-    "Piggyback: Second attempt failed, clearing cache and trying one more time...",
-    output_level = output_level,
-    log_file = log_file
-  )
-  piggyback::.pb_cache_clear()
-  Sys.sleep(pause_second)
-  result <- .pb_release_tbl_get_attempt(
-    output_level = output_level,
-    log_file = log_file
-  )
-  
-  if (.pb_tbl_redo_check(result)) {
-    .cli_debug(
-      "Piggyback: All attempts to get release table failed",
-      output_level = output_level,
-      log_file = log_file
-    )
-  } else {
-    .cli_debug(
-      "Piggyback: Successfully retrieved release table on final retry ({nrow(result)} release(s))",
-      output_level = output_level,
-      log_file = log_file
-    )
-  }
   
   result
+}
+
+# Classify error type for better debugging
+.pb_error_classify <- function(result) {
+  if (is.null(result)) {
+    return("null result")
+  }
+  if (!inherits(result, "try-error")) {
+    if (is.data.frame(result) && nrow(result) == 0L) {
+      return("empty result")
+    }
+    return("unknown")
+  }
+  
+  error_msg <- attr(result, "condition")$message
+  
+  # Check for common error patterns
+  if (grepl("429|rate.?limit", error_msg, ignore.case = TRUE)) {
+    return("rate limit exceeded")
+  }
+  if (grepl("timeout|timed out", error_msg, ignore.case = TRUE)) {
+    return("timeout")
+  }
+  if (grepl("connection|network|socket", error_msg, ignore.case = TRUE)) {
+    return("network error")
+  }
+  if (grepl("403|forbidden", error_msg, ignore.case = TRUE)) {
+    return("permission denied")
+  }
+  if (grepl("404|not found", error_msg, ignore.case = TRUE)) {
+    return("not found")
+  }
+  if (grepl("500|502|503|504|server error", error_msg, ignore.case = TRUE)) {
+    return("server error")
+  }
+  
+  "unknown error"
+}
+
+.pb_release_tbl_get <- function(pause_second = 3,
+                                output_level = "std",
+                                log_file = NULL) {
+  .pb_retry_with_backoff(
+    fn = function() {
+      .pb_release_tbl_get_attempt(
+        output_level = output_level,
+        log_file = log_file
+      )
+    },
+    max_attempts = 6,
+    initial_delay = pause_second,
+    operation_name = "get release table",
+    output_level = output_level,
+    log_file = log_file,
+    check_success = function(x) !.pb_tbl_redo_check(x)
+  )
 }
 
 .pb_repo_get <- function() {
@@ -113,85 +164,24 @@
                               pause_second = 3,
                               output_level = "std",
                               log_file = NULL) {
-  .dep_install("piggyback")
-  
-  .cli_debug(
-    "Piggyback: Getting asset list for tag '{tag}' from {.pb_repo_get()}",
+  result <- .pb_retry_with_backoff(
+    fn = function() {
+      .pb_asset_tbl_get_attempt(
+        tag = tag,
+        output_level = output_level,
+        log_file = log_file
+      )
+    },
+    max_attempts = 6,
+    initial_delay = pause_second,
+    operation_name = paste0("get asset list for tag '", tag, "'"),
     output_level = output_level,
-    log_file = log_file
+    log_file = log_file,
+    check_success = function(x) !.pb_tbl_redo_check(x)
   )
   
-  gh_tbl_asset <- .pb_asset_tbl_get_attempt(
-    tag = tag,
-    output_level = output_level,
-    log_file = log_file
-  )
-  if (!.pb_tbl_redo_check(gh_tbl_asset)) {
-    result <- .pb_asset_tbl_normalize(gh_tbl_asset)
-    .cli_debug(
-      "Piggyback: Successfully retrieved {nrow(result)} asset(s) for tag '{tag}'",
-      output_level = output_level,
-      log_file = log_file
-    )
-    return(result)
-  }
-  
-  .cli_debug(
-    "Piggyback: First attempt failed, clearing cache and retrying...",
-    output_level = output_level,
-    log_file = log_file
-  )
-  piggyback::.pb_cache_clear()
-  Sys.sleep(pause_second)
-  gh_tbl_asset <- .pb_asset_tbl_get_attempt(
-    tag = tag,
-    output_level = output_level,
-    log_file = log_file
-  )
-  if (!.pb_tbl_redo_check(gh_tbl_asset)) {
-    result <- .pb_asset_tbl_normalize(gh_tbl_asset)
-    .cli_debug(
-      "Piggyback: Successfully retrieved {nrow(result)} asset(s) for tag '{tag}' on retry",
-      output_level = output_level,
-      log_file = log_file
-    )
-    return(result)
-  }
-  
-  .cli_debug(
-    "Piggyback: Second attempt failed, clearing cache and trying one more time...",
-    output_level = output_level,
-    log_file = log_file
-  )
-  piggyback::.pb_cache_clear()
-  Sys.sleep(pause_second)
-  result <- .pb_asset_tbl_normalize(.pb_asset_tbl_get_attempt(
-    tag = tag,
-    output_level = output_level,
-    log_file = log_file
-  ))
-  
-  if (nrow(result) == 0 && !inherits(gh_tbl_asset, "try-error")) {
-    .cli_debug(
-      "Piggyback: Retrieved empty asset list for tag '{tag}'",
-      output_level = output_level,
-      log_file = log_file
-    )
-  } else if (nrow(result) > 0) {
-    .cli_debug(
-      "Piggyback: Successfully retrieved {nrow(result)} asset(s) for tag '{tag}' on final retry",
-      output_level = output_level,
-      log_file = log_file
-    )
-  } else {
-    .cli_debug(
-      "Piggyback: All attempts to get assets for tag '{tag}' failed",
-      output_level = output_level,
-      log_file = log_file
-    )
-  }
-  
-  result
+  # Normalize the result
+  .pb_asset_tbl_normalize(result)
 }
 
 .pb_tbl_redo_check <- function(tbl) {
