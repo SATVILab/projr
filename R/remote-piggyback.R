@@ -44,17 +44,17 @@
   .dep_install("piggyback")
   gh_tbl_asset <- .pb_asset_tbl_get_attempt(tag = tag)
   if (!.pb_tbl_redo_check(gh_tbl_asset)) {
-    return(gh_tbl_asset)
+    return(.pb_asset_tbl_normalize(gh_tbl_asset))
   }
   piggyback::.pb_cache_clear()
   Sys.sleep(pause_second)
   gh_tbl_asset <- .pb_asset_tbl_get_attempt(tag = tag)
   if (!.pb_tbl_redo_check(gh_tbl_asset)) {
-    return(gh_tbl_asset)
+    return(.pb_asset_tbl_normalize(gh_tbl_asset))
   }
   piggyback::.pb_cache_clear()
   Sys.sleep(pause_second)
-  .pb_asset_tbl_get_attempt(tag = tag)
+  .pb_asset_tbl_normalize(.pb_asset_tbl_get_attempt(tag = tag))
 }
 
 .pb_tbl_redo_check <- function(tbl) {
@@ -64,6 +64,23 @@
   error_lgl <- inherits(tbl, "try-error")
   zero_row_lgl <- nrow(tbl) == 0L
   error_lgl || zero_row_lgl
+}
+
+.pb_asset_tbl_normalize <- function(tbl) {
+  # Ensure the result is always a data frame with file_name column
+  if (is.null(tbl) || inherits(tbl, "try-error")) {
+    return(data.frame(
+      file_name = character(0),
+      stringsAsFactors = FALSE
+    ))
+  }
+  
+  # If the table exists but doesn't have file_name column, add it
+  if (!("file_name" %in% names(tbl))) {
+    tbl[["file_name"]] <- character(0)
+  }
+  
+  tbl
 }
 
 .pb_asset_tbl_get_attempt <- function(tag) {
