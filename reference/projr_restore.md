@@ -123,16 +123,16 @@ These functions restore artefact directories from remote sources:
 if (FALSE) { # \dontrun{
   # Restore all raw artefacts in existing local project
   projr_restore()
-  
+
   # Restore specific labels
   projr_restore(label = c("raw-data", "cache"))
-  
+
   # Restore from specific source type
   projr_restore(type = "local", title = "archive")
 
   # Clone repository into subdirectory and restore artefacts
   projr_restore_repo("owner/repo")
-  
+
   # Clone to specific path
   projr_restore_repo("owner/repo", path = "my-project")
 

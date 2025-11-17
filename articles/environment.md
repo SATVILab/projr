@@ -26,10 +26,11 @@ projr uses three types of environment files (in order of precedence):
 3.  **`_environment`** - Global defaults
 
 **Important**: Variables defined in files are only set if not already
-defined in your system environment. This means: - System-level
-environment variables always take precedence - Already-set session
-variables are never overridden by file values - Files with higher
-precedence override files with lower precedence
+defined in your system environment. This means:
+
+- System-level environment variables always take precedence
+- Already-set session variables are never overridden by file values
+- Files with higher precedence override files with lower precedence
 
 ## Defining Environment Variables
 
@@ -41,17 +42,24 @@ Environment files use a simple format with one variable per line:
 VARIABLE_NAME=value
 ```
 
-**Variable name requirements**: - Must start with a letter (a-z, A-Z) -
-Can contain letters, numbers, and underscores - Pattern:
-`[a-zA-Z][a-zA-Z0-9_]*`
+**Variable name requirements**:
 
-**Value handling**: - Values are taken as-is after the `=` sign (with
-leading/trailing whitespace trimmed) - Special characters in values are
-preserved (spaces, URLs, paths, etc.) - **No quotes needed** - quotes
-become part of the value - Empty values (`VAR=`) are silently ignored
+- Must start with a letter (a-z, A-Z)
+- Can contain letters, numbers, and underscores
+- Pattern: `[a-zA-Z][a-zA-Z0-9_]*`
 
-**Comments**: - Lines starting with `#` are ignored - Inline comments
-after `#` are also ignored
+**Value handling**:
+
+- Values are taken as-is after the `=` sign (with leading/trailing
+  whitespace trimmed)
+- Special characters in values are preserved (spaces, URLs, paths, etc.)
+- **No quotes needed** - quotes become part of the value
+- Empty values (`VAR=`) are silently ignored
+
+**Comments**:
+
+- Lines starting with `#` are ignored
+- Inline comments after `#` are also ignored
 
 ``` bash
 # Build configuration (this is a comment)
@@ -131,18 +139,23 @@ projr_env_set(c("_environment", "_environment-dev"))
 
 The standard loading order when calling
 [`projr_env_set()`](https://satvilab.github.io/projr/reference/projr_env_set.md)
-without arguments is: 1. **`_environment.local`** (highest priority,
-machine-specific) 2. **`_environment-<QUARTO_PROFILE>`** (if
-`QUARTO_PROFILE` environment variable is set) 3.
-**`_environment-<PROJR_PROFILE>`** (if `PROJR_PROFILE` environment
-variable is set) 4. **`_environment`** (lowest priority, global
-defaults)
+without arguments is:
 
-**Key behaviors**: - Files are processed in order, with earlier files
-taking precedence - If a variable is already set in your environment, it
-is **never overridden** - Non-existent files are silently skipped - The
-`_environment.local` file is automatically added to `.gitignore` when
-created
+1.  **`_environment.local`** (highest priority, machine-specific)
+2.  **`_environment-<QUARTO_PROFILE>`** (if `QUARTO_PROFILE` environment
+    variable is set)
+3.  **`_environment-<PROJR_PROFILE>`** (if `PROJR_PROFILE` environment
+    variable is set)
+4.  **`_environment`** (lowest priority, global defaults)
+
+**Key behaviors**:
+
+- Files are processed in order, with earlier files taking precedence
+- If a variable is already set in your environment, it is **never
+  overridden**
+- Non-existent files are silently skipped
+- The `_environment.local` file is automatically added to `.gitignore`
+  when created
 
 ### Using Profiles
 
@@ -162,13 +175,18 @@ Sys.setenv(PROJR_PROFILE = "test;dev")  # Equivalent
 projr_env_set()  # Loads _environment-test, then _environment-dev
 ```
 
-**Profile format**: - Comma-separated: `"profile1,profile2,profile3"` -
-Semicolon-separated: `"profile1;profile2;profile3"` - Whitespace around
-profile names is automatically trimmed - Earlier profiles take
-precedence (e.g., in `"test,dev"`, test overrides dev)
+**Profile format**:
 
-**Special profile names**: - `"default"` and `"local"` are filtered out
-(handled separately) - Avoid using these as custom profile names
+- Comma-separated: `"profile1,profile2,profile3"`
+- Semicolon-separated: `"profile1;profile2;profile3"`
+- Whitespace around profile names is automatically trimmed
+- Earlier profiles take precedence (e.g., in `"test,dev"`, test
+  overrides dev)
+
+**Special profile names**:
+
+- `"default"` and `"local"` are filtered out (handled separately)
+- Avoid using these as custom profile names
 
 #### QUARTO_PROFILE
 
@@ -182,10 +200,12 @@ Sys.setenv(QUARTO_PROFILE = "test,production")
 projr_env_set()
 ```
 
-**Key differences from PROJR_PROFILE**: - Only supports comma separation
-(not semicolon) - Takes precedence over `PROJR_PROFILE` in the loading
-order - When both are set, `QUARTO_PROFILE` files are loaded before
-`PROJR_PROFILE` files
+**Key differences from PROJR_PROFILE**:
+
+- Only supports comma separation (not semicolon)
+- Takes precedence over `PROJR_PROFILE` in the loading order
+- When both are set, `QUARTO_PROFILE` files are loaded before
+  `PROJR_PROFILE` files
 
 ## Key Environment Variables
 
@@ -455,9 +475,12 @@ Sys.setenv(PROJR_CLEAR_OUTPUT = "NEVER")    # Won't work
 ```
 
 **Exception:** Boolean values in `PROJR_LOG_DETAILED` are
-case-insensitive: - `"TRUE"`, `"true"`, `"True"`, `"1"`, `"YES"`,
-`"yes"`, `"Y"`, `"y"` all work - `"FALSE"`, `"false"`, `"False"`, `"0"`,
-`"NO"`, `"no"`, `"N"`, `"n"` all work
+case-insensitive:
+
+- `"TRUE"`, `"true"`, `"True"`, `"1"`, `"YES"`, `"yes"`, `"Y"`, `"y"`
+  all work
+- `"FALSE"`, `"false"`, `"False"`, `"0"`, `"NO"`, `"no"`, `"N"`, `"n"`
+  all work
 
 ### Variable Name Format
 

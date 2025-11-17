@@ -45,6 +45,29 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.8.9002" id="projr-0089002">projr 0.0.8.9002<a class="anchor" aria-label="anchor" href="#projr-0089002"></a></h2>
 <div class="section level3">
+<h3 id="breaking-changes-0-0-8-9002">Breaking Changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-0-8-9002"></a></h3>
+<div class="section level4">
+<h4 id="cran-compliance-removed-automatic-package-installation-0-0-8-9002">CRAN Compliance: Removed Automatic Package Installation<a class="anchor" aria-label="anchor" href="#cran-compliance-removed-automatic-package-installation-0-0-8-9002"></a></h4>
+<ul><li><p><strong>Removed automatic package installation from all package code</strong> to comply with CRAN policy that prohibits writing to user filespace during checks.</p></li>
+<li><p><strong>Pre-build package validation</strong>: Builds now check for all required packages (build engines, remote destinations) BEFORE starting the build process. If packages are missing, you get a clear error with a copy-paste installation command for all missing packages at once.</p></li>
+<li><p><strong>Improved error messages</strong>: When running interactively and a package is needed but not installed, projr provides clear, actionable error messages with exact installation commands. No automatic installation occurs to ensure CRAN compliance.</p></li>
+<li><p><code>.dep_install_only()</code> and <code>.renv_lockfile_read()</code> no longer automatically install missing packages. Instead, they throw clear, informative errors with installation instructions when required packages are missing.</p></li>
+<li><p>Users must now manually install required optional dependencies before using features that depend on them. The error messages provide exact installation commands.</p></li>
+<li>
+<p>This change affects functions that previously auto-installed packages like:</p>
+<ul><li>Build engines (quarto, rmarkdown, bookdown)</li>
+<li>Remote destinations (piggyback for GitHub, osfr for OSF)</li>
+<li>GitHub operations (requires <code>gh</code> package)</li>
+<li>Git operations in test mode (requires <code>gert</code> package)<br></li>
+<li>License creation (requires <code>usethis</code> package)</li>
+<li>Documentation generation (requires <code>roxygen2</code> package)</li>
+<li>And other optional features</li>
+</ul></li>
+<li><p><strong>For renv projects</strong>: Use <code><a href="https://rstudio.github.io/renv/reference/install.html" class="external-link">renv::install()</a></code> to install dependencies</p></li>
+<li><p><strong>For non-renv projects</strong>: Use <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> or <code><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">remotes::install_github()</a></code> as shown in error messages</p></li>
+</ul></div>
+</div>
+<div class="section level3">
 <h3 id="bug-fixes-and-improvements-0-0-8-9002">Bug Fixes and Improvements<a class="anchor" aria-label="anchor" href="#bug-fixes-and-improvements-0-0-8-9002"></a></h3>
 <div class="section level4">
 <h4 id="piggyback-github-releases-operations-0-0-8-9002">Piggyback (GitHub Releases) Operations<a class="anchor" aria-label="anchor" href="#piggyback-github-releases-operations-0-0-8-9002"></a></h4>

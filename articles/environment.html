@@ -102,10 +102,14 @@ Profile-specific configurations</li>
 <strong><code>_environment</code></strong> - Global defaults</li>
 </ol>
 <p><strong>Important</strong>: Variables defined in files are only set
-if not already defined in your system environment. This means: -
-System-level environment variables always take precedence - Already-set
-session variables are never overridden by file values - Files with
-higher precedence override files with lower precedence</p>
+if not already defined in your system environment. This means:</p>
+<ul>
+<li>System-level environment variables always take precedence</li>
+<li>Already-set session variables are never overridden by file
+values</li>
+<li>Files with higher precedence override files with lower
+precedence</li>
+</ul>
 </div>
 </div>
 <div class="section level2">
@@ -116,16 +120,29 @@ higher precedence override files with lower precedence</p>
 </h3>
 <p>Environment files use a simple format with one variable per line:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="va">VARIABLE_NAME</span><span class="op">=</span>value</span></code></pre></div>
-<p><strong>Variable name requirements</strong>: - Must start with a
-letter (a-z, A-Z) - Can contain letters, numbers, and underscores -
-Pattern: <code>[a-zA-Z][a-zA-Z0-9_]*</code></p>
-<p><strong>Value handling</strong>: - Values are taken as-is after the
-<code>=</code> sign (with leading/trailing whitespace trimmed) - Special
-characters in values are preserved (spaces, URLs, paths, etc.) -
-<strong>No quotes needed</strong> - quotes become part of the value -
-Empty values (<code>VAR=</code>) are silently ignored</p>
-<p><strong>Comments</strong>: - Lines starting with <code>#</code> are
-ignored - Inline comments after <code>#</code> are also ignored</p>
+<p><strong>Variable name requirements</strong>:</p>
+<ul>
+<li>Must start with a letter (a-z, A-Z)</li>
+<li>Can contain letters, numbers, and underscores</li>
+<li>Pattern: <code>[a-zA-Z][a-zA-Z0-9_]*</code>
+</li>
+</ul>
+<p><strong>Value handling</strong>:</p>
+<ul>
+<li>Values are taken as-is after the <code>=</code> sign (with
+leading/trailing whitespace trimmed)</li>
+<li>Special characters in values are preserved (spaces, URLs, paths,
+etc.)</li>
+<li>
+<strong>No quotes needed</strong> - quotes become part of the
+value</li>
+<li>Empty values (<code>VAR=</code>) are silently ignored</li>
+</ul>
+<p><strong>Comments</strong>:</p>
+<ul>
+<li>Lines starting with <code>#</code> are ignored</li>
+<li>Inline comments after <code>#</code> are also ignored</li>
+</ul>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Build configuration (this is a comment)</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="va">PROJR_OUTPUT_LEVEL</span><span class="op">=</span>std</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="va">PROJR_LOG_DETAILED</span><span class="op">=</span>TRUE  <span class="co"># Enable detailed logging (inline comment)</span></span>
@@ -190,20 +207,32 @@ files:</p>
 <span><span class="co"># Load multiple specific files</span></span>
 <span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"_environment"</span>, <span class="st">"_environment-dev"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>The standard loading order when calling <code><a href="../reference/projr_env_set.html">projr_env_set()</a></code>
-without arguments is: 1.
+without arguments is:</p>
+<ol style="list-style-type: decimal">
+<li>
 <strong><code>_environment.local</code></strong> (highest priority,
-machine-specific) 2.
-<strong><code>_environment-&lt;QUARTO_PROFILE&gt;</code></strong> (if
-<code>QUARTO_PROFILE</code> environment variable is set) 3.
+machine-specific)</li>
+<li>
+<strong><code>_environment-&lt;QUARTO_PROFILE&gt;</code></strong>
+(if <code>QUARTO_PROFILE</code> environment variable is set)</li>
+<li>
 <strong><code>_environment-&lt;PROJR_PROFILE&gt;</code></strong> (if
-<code>PROJR_PROFILE</code> environment variable is set) 4.
+<code>PROJR_PROFILE</code> environment variable is set)</li>
+<li>
 <strong><code>_environment</code></strong> (lowest priority, global
-defaults)</p>
-<p><strong>Key behaviors</strong>: - Files are processed in order, with
-earlier files taking precedence - If a variable is already set in your
-environment, it is <strong>never overridden</strong> - Non-existent
-files are silently skipped - The <code>_environment.local</code> file is
-automatically added to <code>.gitignore</code> when created</p>
+defaults)</li>
+</ol>
+<p><strong>Key behaviors</strong>:</p>
+<ul>
+<li>Files are processed in order, with earlier files taking
+precedence</li>
+<li>If a variable is already set in your environment, it is
+<strong>never overridden</strong>
+</li>
+<li>Non-existent files are silently skipped</li>
+<li>The <code>_environment.local</code> file is automatically added to
+<code>.gitignore</code> when created</li>
+</ul>
 </div>
 <div class="section level3">
 <h3 id="using-profiles">Using Profiles<a class="anchor" aria-label="anchor" href="#using-profiles"></a>
@@ -223,14 +252,23 @@ scenarios. Both <code>PROJR_PROFILE</code> and
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"test,dev"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"test;dev"</span><span class="op">)</span>  <span class="co"># Equivalent</span></span>
 <span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Loads _environment-test, then _environment-dev</span></span></code></pre></div>
-<p><strong>Profile format</strong>: - Comma-separated:
-<code>"profile1,profile2,profile3"</code> - Semicolon-separated:
-<code>"profile1;profile2;profile3"</code> - Whitespace around profile
-names is automatically trimmed - Earlier profiles take precedence (e.g.,
-in <code>"test,dev"</code>, test overrides dev)</p>
-<p><strong>Special profile names</strong>: - <code>"default"</code> and
-<code>"local"</code> are filtered out (handled separately) - Avoid using
-these as custom profile names</p>
+<p><strong>Profile format</strong>:</p>
+<ul>
+<li>Comma-separated: <code>"profile1,profile2,profile3"</code>
+</li>
+<li>Semicolon-separated: <code>"profile1;profile2;profile3"</code>
+</li>
+<li>Whitespace around profile names is automatically trimmed</li>
+<li>Earlier profiles take precedence (e.g., in <code>"test,dev"</code>,
+test overrides dev)</li>
+</ul>
+<p><strong>Special profile names</strong>:</p>
+<ul>
+<li>
+<code>"default"</code> and <code>"local"</code> are filtered out
+(handled separately)</li>
+<li>Avoid using these as custom profile names</li>
+</ul>
 </div>
 <div class="section level4">
 <h4 id="quarto_profile">QUARTO_PROFILE<a class="anchor" aria-label="anchor" href="#quarto_profile"></a>
@@ -243,11 +281,14 @@ these as custom profile names</p>
 <span><span class="co"># Multiple Quarto profiles (comma-separated only)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>QUARTO_PROFILE <span class="op">=</span> <span class="st">"test,production"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Key differences from PROJR_PROFILE</strong>: - Only supports
-comma separation (not semicolon) - Takes precedence over
-<code>PROJR_PROFILE</code> in the loading order - When both are set,
-<code>QUARTO_PROFILE</code> files are loaded before
-<code>PROJR_PROFILE</code> files</p>
+<p><strong>Key differences from PROJR_PROFILE</strong>:</p>
+<ul>
+<li>Only supports comma separation (not semicolon)</li>
+<li>Takes precedence over <code>PROJR_PROFILE</code> in the loading
+order</li>
+<li>When both are set, <code>QUARTO_PROFILE</code> files are loaded
+before <code>PROJR_PROFILE</code> files</li>
+</ul>
 </div>
 </div>
 </div>
@@ -616,13 +657,17 @@ names and values):</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"DEBUG"</span><span class="op">)</span>    <span class="co"># Won't work</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_CLEAR_OUTPUT <span class="op">=</span> <span class="st">"NEVER"</span><span class="op">)</span>    <span class="co"># Won't work</span></span></code></pre></div>
 <p><strong>Exception:</strong> Boolean values in
-<code>PROJR_LOG_DETAILED</code> are case-insensitive: -
+<code>PROJR_LOG_DETAILED</code> are case-insensitive:</p>
+<ul>
+<li>
 <code>"TRUE"</code>, <code>"true"</code>, <code>"True"</code>,
 <code>"1"</code>, <code>"YES"</code>, <code>"yes"</code>,
-<code>"Y"</code>, <code>"y"</code> all work - <code>"FALSE"</code>,
-<code>"false"</code>, <code>"False"</code>, <code>"0"</code>,
-<code>"NO"</code>, <code>"no"</code>, <code>"N"</code>, <code>"n"</code>
-all work</p>
+<code>"Y"</code>, <code>"y"</code> all work</li>
+<li>
+<code>"FALSE"</code>, <code>"false"</code>, <code>"False"</code>,
+<code>"0"</code>, <code>"NO"</code>, <code>"no"</code>,
+<code>"N"</code>, <code>"n"</code> all work</li>
+</ul>
 </div>
 <div class="section level3">
 <h3 id="variable-name-format">Variable Name Format<a class="anchor" aria-label="anchor" href="#variable-name-format"></a>
