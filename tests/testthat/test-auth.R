@@ -66,7 +66,7 @@ test_that(".auth_check_github throws error when no auth", {
 
 test_that(".auth_check_github succeeds when auth available", {
   skip_if(.is_test_select())
-  # Only run if GitHub PAT is available
+  # Only run if GitHub PAT |>is available
   skip_if(!nzchar(.auth_get_github_pat_find()))
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -141,9 +141,9 @@ test_that("GITHUB_PAT and GH_TOKEN environment variables work", {
 
   # Test GITHUB_TOKEN is used as fallback
   Sys.unsetenv("GITHUB_PAT")
-  Sys.setenv(GITHUB_TOKEN = "test_gh_token")
+  Sys.setenv(GITHUB_TOKEN = "ghp_1234567890123456789012345678901234567890")
   token <- .auth_get_github_pat_find()
-  expect_identical(token, "test_gh_token")
+  expect_identical(token, "ghp_1234567890123456789012345678901234567890")
 
   # Test GITHUB_PAT takes precedence over GITHUB_TOKEN
   Sys.setenv(GITHUB_PAT = "test_pat_priority")
