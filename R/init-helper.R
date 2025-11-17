@@ -1169,6 +1169,21 @@ projr_init_renviron <- function() {
     return(invisible(FALSE))
   }
   projr_yml_cite_set(codemeta = TRUE)
-  .dep_install("cboettig/codemeta")
-  .cite_codemeta_set()
+  
+  # Try to install and create codemeta.json
+  # May fail in CI environments without GitHub authentication
+  result <- tryCatch(
+    {
+      .dep_install("cboettig/codemeta")
+      .cite_codemeta_set()
+      TRUE
+    },
+    error = function(e) {
+      message("Note: Could not install 'codemeta' package. Skipping codemeta.json creation.")
+      message("Error: ", e$message)
+      FALSE
+    }
+  )
+  
+  invisible(result)
 }
