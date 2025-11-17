@@ -1583,11 +1583,11 @@ projr_osf_create_project <- function(title,
   )
   if (is.null(manifest_actual)) {
     .cli_debug(
-      "No manifest found on {type} remote, using project manifest",
+      "No manifest found on {type} remote, returning empty manifest",
       output_level = output_level,
       log_file = log_file
     )
-    .remote_get_manifest_project()
+    .zero_tbl_get_manifest()
   } else {
     manifest_actual
   }
