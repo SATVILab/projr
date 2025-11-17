@@ -7,7 +7,7 @@
     if (!is.null(dev_hooks_yml)) {
       # Get hooks for this stage from dev.hooks
       hooks_list <- c()
-      
+
       # Stage-specific hooks
       if (stage %in% names(dev_hooks_yml)) {
         stage_hooks <- dev_hooks_yml[[stage]]
@@ -15,7 +15,7 @@
           hooks_list <- c(hooks_list, as.character(stage_hooks))
         }
       }
-      
+
       # Hooks that run in both stages
       if ("both" %in% names(dev_hooks_yml)) {
         both_hooks <- dev_hooks_yml[["both"]]
@@ -23,7 +23,7 @@
           hooks_list <- c(hooks_list, as.character(both_hooks))
         }
       }
-      
+
       # Run the hooks
       if (length(hooks_list) > 0) {
         for (hook_path in hooks_list) {
@@ -40,7 +40,7 @@
     }
     return(invisible(TRUE))
   }
-  
+
   # Production builds: use build.hooks
   # Try new hooks configuration first (build.hooks.pre, build.hooks.post, build.hooks.both)
   hooks_list <- .yml_hooks_get_stage(stage, NULL)
@@ -53,7 +53,7 @@
     }
     return(invisible(TRUE))
   }
-  
+
   # Fall back to old structure with stage attribute for backward compatibility
   yml_hooks <- .yml_hooks_get(NULL)
   if (!.is_len_0(yml_hooks)) {
@@ -64,7 +64,7 @@
     }
     return(invisible(TRUE))
   }
-  
+
   # Fall back to old script configuration for backward compatibility
   yml_script <- .yml_script_get(NULL)
   if (!.is_len_0(yml_script)) {

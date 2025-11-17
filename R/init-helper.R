@@ -541,7 +541,7 @@
 .readme_add_description <- function(readme, answer_readme, pkg) {
   # Replace {{ Package }} placeholders with actual package name
   readme <- gsub("\\{\\{ Package \\}\\}", pkg, readme)
-  
+
   readme_rep <- .init_prompt_readme_description_get(pkg, answer_readme)
   answer_readme_correct <-
     .init_prompt_readme_description_check(readme_rep)
@@ -1169,7 +1169,7 @@ projr_init_renviron <- function() {
     return(invisible(FALSE))
   }
   projr_yml_cite_set(codemeta = TRUE)
-  
+
   # Try to install and create codemeta.json
   # May fail in CI environments without GitHub authentication
   result <- tryCatch(
@@ -1184,6 +1184,6 @@ projr_init_renviron <- function() {
       FALSE
     }
   )
-  
+
   invisible(result)
 }

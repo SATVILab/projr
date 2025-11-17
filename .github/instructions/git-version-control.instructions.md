@@ -149,18 +149,18 @@ suppressWarnings(.git_commit_file(deleted_files, "message"))
 test_that("git function works", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  
+
   usethis::with_project(
     path = dir_test,
     code = {
       # Initialize git
       .git_init()
       .test_setup_project_git_config()
-      
+
       # Test operations
       writeLines("test", "test.txt")
       .git_commit_file("test.txt", "commit message")
-      
+
       # Verify
       expect_true(.git_repo_check_exists())
     }

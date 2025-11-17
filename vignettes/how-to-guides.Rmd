@@ -14,8 +14,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-# How-to guides
-
 Short, task-focused guides for common projr workflows. Each section follows the pattern: **When to use**, **Steps**, **Pitfalls**, and **See also**.
 
 ---
@@ -239,14 +237,14 @@ build:
     docs:
       content: [docs]
       description: "Rendered documents"
-  
+
   # OSF
   osf:
     project: "abc123"  # OSF project ID
     raw-data:
       content: [raw-data]
       component: "data"  # OSF component name
-    
+
   # Local directory
   local:
     path: "~/Dropbox/my-project-archive"
@@ -476,7 +474,7 @@ Edit `_projr-dev.yml` to override specific settings:
 build:
   github:
     enabled: false  # Disable GitHub uploads in dev profile
-  
+
 directories:
   output:
     path: _output_dev  # Use different output directory
@@ -547,7 +545,7 @@ Each build creates a detailed Quarto log file organized by date:
 
 ```{r eval=FALSE}
 # List recent dev build logs
-list.files("cache/projr/log/dev/output", 
+list.files("cache/projr/log/dev/output",
            recursive = TRUE, pattern = "\\.qmd$")
 
 # Render a log file to HTML
@@ -615,12 +613,12 @@ changes <- projr_manifest_changes("0.0.1", "0.0.2")
 
 # View the results
 changes
-# Returns: label, fn, change_type (added/modified/removed), 
+# Returns: label, fn, change_type (added/modified/removed),
 #          hash_from, hash_to
 
 # Filter by directory
 output_changes <- projr_manifest_changes(
-  "0.0.1", "0.0.2", 
+  "0.0.1", "0.0.2",
   label = "output"
 )
 ```
@@ -661,8 +659,8 @@ historical_status <- projr_manifest_last_change("0.0.3")
 ```{r eval=FALSE}
 # Did any raw data change since last release?
 raw_changes <- projr_manifest_changes(
-  "0.1.0", 
-  projr_version_get(), 
+  "0.1.0",
+  projr_version_get(),
   label = "raw-data"
 )
 if (nrow(raw_changes) > 0) {

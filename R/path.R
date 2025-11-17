@@ -9,10 +9,10 @@
 .path_filter_spec <- function(fn, exc = NULL) {
   # filter based on a character vector of
   # paths to exclude
-  
+
   # Validate fn input - allow empty vectors
   .assert_chr_min(fn, required = TRUE)
-  
+
   if (is.null(exc)) {
     return(fn)
   }
@@ -34,12 +34,12 @@
   # Validate inputs - allow empty character vectors
   .assert_chr_min(path, required = TRUE)
   .assert_string(path_dir)
-  
+
   # Handle empty path
   if (length(path) == 0) {
     return(character(0))
   }
-  
+
   path |>
     fs::path_rel(path_dir %||% .path_get()) |>
     as.character()
@@ -75,12 +75,12 @@
 .path_get_full <- function(path_dir, ...) {
   .assert_string(path_dir, TRUE)
   path_append <- list(...) |> unlist()
-  
+
   # Validate path_append if not empty
   if (length(path_append) > 0) {
     .assert_chr(path_append, required = TRUE)
   }
-  
+
   do.call(
     "file.path",
     args = list(path_dir) |> append(path_append)
@@ -115,10 +115,10 @@
   # files that do not exist, so ensuring that
   # the files exist makes this match file_filter_dir
   # better
-  
+
   # Validate input - allow empty vectors
   .assert_chr_min(x, required = TRUE)
-  
+
   x[!fs::is_dir(x) & file.exists(x)]
 }
 
@@ -158,7 +158,7 @@
   .assert_chr_min(fn, required = TRUE)
   .assert_string(path_dir, required = TRUE)
   .assert_flag(full.names, required = TRUE)
-  
+
   if (!full.names) {
     fn_full <- file.path(path_dir, fn)
   } else {
@@ -234,7 +234,7 @@
   if (!is.null(path_dir)) {
     .assert_chr(path_dir, required = TRUE)
   }
-  
+
   c(
     ".", "..", .path_get(),
     dirname(.path_get()), path_dir
@@ -253,7 +253,7 @@
 .path_get <- function(..., relative = FALSE) {
   # Validate relative flag
   .assert_flag(relative, required = TRUE)
-  
+
   path_init <- tryCatch(
     rprojroot::find_root_file(
       ...,
@@ -385,7 +385,7 @@
 .dir_clear_check <- function(path_dir) {
   # Validate input
   .assert_string(path_dir, required = TRUE)
-  
+
   if (!dir.exists(path_dir)) {
     return(invisible(FALSE))
   }
@@ -415,7 +415,7 @@
                             recursive = TRUE,
                             dir_exc = NULL) {
   # delete all files within a directory
-  
+
   # Validate inputs
   .assert_string(path, required = TRUE)
   .assert_flag(delete_hidden, required = TRUE)
@@ -423,26 +423,26 @@
   if (!is.null(dir_exc)) {
     .assert_chr(dir_exc, required = TRUE)
   }
-  
+
   if (!.dir_clear_check(path)) {
     return(invisible(FALSE))
   }
-  
+
   # Get files with full paths
   files_full <- .file_ls(path, recursive, all.files = delete_hidden, full.names = TRUE) |>
     .file_filter_dir_non()
-  
+
   # Convert to relative paths for filtering (dir_exc expects relative paths)
   files_rel <- .path_force_rel(files_full, path)
-  
+
   # Filter using relative paths
   files_rel_filtered <- files_rel |>
     .path_filter_spec(dir_exc) |>
     .path_filter_spec_add_back_file(path, dir_exc)
-  
+
   # Convert back to full paths for removal
   files_full_filtered <- file.path(path, files_rel_filtered)
-  
+
   # Remove files
   .file_rm(files_full_filtered)
   invisible(TRUE)
@@ -455,26 +455,26 @@
   if (!is.null(dir_exc)) {
     .assert_chr(dir_exc, required = TRUE)
   }
-  
+
   if (!.dir_clear_check(path)) {
     return(invisible(FALSE))
   }
-  
+
   # Get directories with full paths
   dirs_full <- .dir_ls(path, recursive = recursive, full.names = TRUE) |>
     .dir_filter_removable()
-  
+
   # Convert to relative paths for filtering (dir_exc expects relative paths)
   dirs_rel <- .path_force_rel(dirs_full, path)
-  
+
   # Filter using relative paths
   dirs_rel_filtered <- dirs_rel |>
     .path_filter_spec(dir_exc) |>
     .path_filter_spec_add_back_file(path, dir_exc)
-  
+
   # Convert back to full paths for removal
   dirs_full_filtered <- file.path(path, dirs_rel_filtered)
-  
+
   # Remove directories
   for (i in seq_along(dirs_full_filtered)) {
     unlink(dirs_full_filtered[i], recursive = TRUE)
@@ -506,16 +506,16 @@
     .path_filter_spec(dir_exc) |>
     .path_filter_spec(fn_exc) |>
     .path_filter_spec_add_back_file(path_dir_from, dir_exc)
-  
+
   dirs_to_move <- .dir_ls(path_dir_from) |>
     .path_filter_spec(dir_exc) |>
     .path_filter_spec_add_back_file(path_dir_from, dir_exc)
-  
+
   # Only create destination if there are files or directories to move
   if (.is_len_0(files_to_move) && .is_len_0(dirs_to_move)) {
     return(invisible(FALSE))
   }
-  
+
   .dir_clear(path_dir_to)
   .dir_create(path_dir_to)
   .dir_move(path_dir_from, path_dir_to, dir_exc = dir_exc, fn_exc = fn_exc)
@@ -554,12 +554,12 @@
                            path_dir_from,
                            path_dir_to) {
   # relative paths within a particular directory
-  
+
   # Validate inputs - allow empty fn vector
   .assert_chr_min(fn, required = TRUE)
   .assert_string(path_dir_from, required = TRUE)
   .assert_string(path_dir_to, required = TRUE)
-  
+
   if (!.dir_copy_file_check(fn, path_dir_from)) {
     return(invisible(FALSE))
   }
@@ -577,7 +577,7 @@
   # Validate inputs - allow empty fn vector
   .assert_chr_min(fn, required = TRUE)
   .assert_string(path_dir_from, required = TRUE)
-  
+
   if (.is_len_0(fn)) {
     return(invisible(FALSE))
   }
@@ -589,11 +589,11 @@
 .dir_copy_file_tree <- function(fn,
                                 path_dir_to) {
   # copy the required directory tree across
-  
+
   # Validate inputs - allow empty fn vector
   .assert_chr_min(fn, required = TRUE)
   .assert_string(path_dir_to, required = TRUE)
-  
+
   dirname(fn) |>
     setdiff(c(".", "..")) |>
     unique() |>
@@ -676,13 +676,13 @@
   # Validate inputs - allow empty fn vector
   .assert_chr_min(fn, required = TRUE)
   .assert_string(path_dir, required = TRUE)
-  
+
   if (is.null(path_exc)) {
     return(fn)
   }
-  
+
   .assert_chr(path_exc, required = TRUE)
-  
+
   # Check if the excluded path exists as a non-directory file
   exc_path <- file.path(path_dir, path_exc)
   if (length(.file_filter_dir_non(exc_path)) > 0) {

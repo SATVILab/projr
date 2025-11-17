@@ -24,10 +24,13 @@ See detailed guidelines in `.github/instructions/`:
 ## Core Principles
 
 ### Code Quality
+
 - Make minimal, surgical changes to fix issues
 - Maintain backward compatibility when possible
 - Follow existing patterns in the codebase
 - Add tests for new functionality or bug fixes
+- **Never leave trailing whitespace** at the end of lines or on blank lines
+- **Always add a blank line** between headings (ending with `**`) and bullet points
 
 ### Before Committing
 - Run `devtools::document()` to update documentation
@@ -75,7 +78,7 @@ See detailed guidelines in `.github/instructions/`:
 - Instructions: `projr_instr_auth_github()`
 
 ### OSF
-- Set `OSF_PAT` environment variable  
+- Set `OSF_PAT` environment variable
 - All `osfr::` calls must have `.auth_check_osf()` before use
 - Instructions: `projr_instr_auth_osf()`
 

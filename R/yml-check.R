@@ -247,13 +247,13 @@ projr_yml_check <- function(profile = NULL) {
   if (is.null(yml_dev)) {
     return(invisible(TRUE))
   }
-  
+
   # Only "scripts" and "hooks" keys are allowed under dev
   nm_vec <- names(yml_dev)
   if (!is.null(nm_vec) && length(nm_vec) > 0) {
     .assert_in(nm_vec, c("scripts", "hooks"))
   }
-  
+
   invisible(TRUE)
 }
 
@@ -265,12 +265,12 @@ projr_yml_check <- function(profile = NULL) {
   if (is.null(yml_metadata) || length(yml_metadata) == 0) {
     return(invisible(TRUE))
   }
-  
+
   # Check version-format if present
   if ("version-format" %in% names(yml_metadata)) {
     .yml_version_format_set_check(yml_metadata[["version-format"]])
   }
-  
+
   invisible(TRUE)
 }
 
@@ -286,7 +286,7 @@ projr_yml_check <- function(profile = NULL) {
       stop("build.scripts must be a character vector")
     }
   }
-  
+
   # Check dev.scripts structure
   yml_dev_scripts <- .yml_dev_get_scripts(profile)
   if (!is.null(yml_dev_scripts)) {
@@ -295,7 +295,7 @@ projr_yml_check <- function(profile = NULL) {
       stop("dev.scripts must be a character vector")
     }
   }
-  
+
   invisible(TRUE)
 }
 
@@ -309,7 +309,7 @@ projr_yml_check <- function(profile = NULL) {
     # Validate that only valid stage keys exist
     valid_stages <- c("pre", "post", "both")
     .assert_in(names(yml_hooks), valid_stages)
-    
+
     # Validate that each stage contains character vectors
     for (stage in names(yml_hooks)) {
       stage_hooks <- yml_hooks[[stage]]
@@ -320,14 +320,14 @@ projr_yml_check <- function(profile = NULL) {
       }
     }
   }
-  
+
   # Check dev.hooks structure
   yml_dev_hooks <- .yml_dev_get_hooks(profile)
   if (!is.null(yml_dev_hooks)) {
     # Validate that only valid stage keys exist
     valid_stages <- c("pre", "post", "both")
     .assert_in(names(yml_dev_hooks), valid_stages)
-    
+
     # Validate that each stage contains character vectors
     for (stage in names(yml_dev_hooks)) {
       stage_hooks <- yml_dev_hooks[[stage]]
@@ -338,7 +338,7 @@ projr_yml_check <- function(profile = NULL) {
       }
     }
   }
-  
+
   invisible(TRUE)
 }
 
@@ -350,26 +350,26 @@ projr_yml_check <- function(profile = NULL) {
   if (is.null(yml_cite)) {
     return(invisible(TRUE))
   }
-  
+
   # If it's a logical, that's valid (TRUE or FALSE)
   if (is.logical(yml_cite)) {
     .assert_flag(yml_cite)
     return(invisible(TRUE))
   }
-  
+
   # If it's a list, check the structure
   if (is.list(yml_cite)) {
     valid_keys <- c("codemeta", "cff", "inst-citation")
     .assert_in(names(yml_cite), valid_keys)
-    
+
     # Check each value is logical
     for (key in names(yml_cite)) {
       .assert_flag(yml_cite[[key]])
     }
-    
+
     return(invisible(TRUE))
   }
-  
+
   # If it's neither logical nor list, it's invalid
   stop("build.cite must be either a logical value or a list with keys: codemeta, cff, inst-citation")
 }
@@ -387,7 +387,7 @@ projr_yml_check <- function(profile = NULL) {
       }
     }
   }
-  
+
   # Check dev scripts (only from dev.scripts, no fallback)
   scripts_dev <- .yml_dev_get_scripts(profile)
   if (!is.null(scripts_dev)) {
@@ -397,7 +397,7 @@ projr_yml_check <- function(profile = NULL) {
       }
     }
   }
-  
+
   # Check hooks (from build.hooks)
   for (stage in c("pre", "post")) {
     hooks <- .yml_hooks_get_stage(stage, profile)
@@ -409,7 +409,7 @@ projr_yml_check <- function(profile = NULL) {
       }
     }
   }
-  
+
   # Check dev hooks (from dev.hooks)
   dev_hooks_yml <- .yml_dev_get_hooks(profile)
   if (!is.null(dev_hooks_yml)) {
@@ -426,6 +426,6 @@ projr_yml_check <- function(profile = NULL) {
       }
     }
   }
-  
+
   invisible(TRUE)
 }

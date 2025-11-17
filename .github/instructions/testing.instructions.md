@@ -95,7 +95,7 @@ test_that(".build_manifest_* works", {
       path_manifest <- .build_manifest_pre(TRUE)
       manifest <- .manifest_read(path_manifest)
       expect_identical(nrow(manifest), 0L)
-      
+
       label_vec <- c("cache", "raw-data")
       invisible(.test_setup_content(label_vec, safe = TRUE))
       path_manifest <- .build_manifest_pre(TRUE)

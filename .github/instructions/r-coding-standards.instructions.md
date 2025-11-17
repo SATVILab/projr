@@ -72,7 +72,7 @@ Internal functions (starting with `.`) should NOT have `@export` tags.
 #' Default is \code{FALSE}.
 #'
 #' @export
-projr_init_prompt <- function(yml_path_from = NULL, 
+projr_init_prompt <- function(yml_path_from = NULL,
                                renv_force = FALSE) {
   # implementation
 }
