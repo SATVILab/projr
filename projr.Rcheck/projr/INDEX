@@ -1,0 +1,56 @@
+.yml_get                Get active 'projr' settings and do no check
+projr_build             Build project to output
+projr_build_dev         Build dev project
+projr_cat_changelog     Cat useful information
+projr_env_set           Set environment variables from files
+projr_ignore            Manually Ignore Files or Directories in
+                        '.gitignore' and '.Rbuildignore'
+projr_ignore_auto       Update '.gitignore' and '.Rbuildignore' with
+                        projr-managed ignores
+projr_init              Initialize a projr Project
+projr_init_prompt       Initialise project
+projr_init_renviron     Set environment variables for projr_init
+projr_instr_auth_github
+                        Two-minutes or less authorisation instructions
+projr_log_clear         Clear build logs
+projr_manifest_changes
+                        Query Files Changed Between Versions
+projr_manifest_file_last_change
+                        Query When a Specific File Last Changed
+projr_osf_create_project
+                        Create a new project on OSF
+projr_par_get           Get project parameters
+projr_path_get          Return path
+projr_path_get_cache_build_dir
+                        Get 'projr' build cache directory
+projr_path_get_dir      Return path to profile-specific directory
+projr_profile_create    Add projr profile file
+projr_profile_create_local
+                        Create a local 'projr' profile
+projr_profile_delete    Delete a projr profile from _projr.yml
+projr_profile_delete_local
+                        Delete local 'projr' settings file.
+projr_profile_get       Get active projr profile
+projr_renv_restore      Restore or Update renv Lockfile Packages
+projr_renv_test         Test renv restore
+projr_restore_repo      Restore project artefact directories
+projr_unignore_manual   Manually Unignore Files or Directories in
+                        '.gitignore' and '.Rbuildignore'
+projr_use_data          'projr' drop-in replacement for
+                        usethis::use_data
+projr_version_get       Returns project version
+projr_version_set       Set Project Version
+projr_yml_check         Check active 'projr' settings.
+projr_yml_cite_set      Set citation options
+projr_yml_dest_add_github
+                        Add a GitHub release as a destination
+projr_yml_dest_add_local
+                        Add a local directory as a destination
+projr_yml_dest_add_osf
+                        Add an OSF node as a destination
+projr_yml_get           Get active 'projr' settings and checks for
+                        validity
+projr_yml_git_set       Set Git options
+projr_yml_hooks_add     Build hook-related functions
+projr_yml_par_add       Add the 'parameters' key
+projr_yml_script_add    Build script-related functions
