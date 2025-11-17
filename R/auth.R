@@ -14,12 +14,12 @@
   url  <- api_url %||% Sys.getenv("GITHUB_API_URL", "https://api.github.com")
   host <- sub("^https?://api\\.", "https://", url)
 
-  creds <- tryCatch(
+  creds <- suppressWarnings(tryCatch(
     gitcreds::gitcreds_get(host),
     gitcreds_nogit_error    = function(e) NULL,
     gitcreds_no_credentials = function(e) NULL,
     error                   = function(e) NULL
-  )
+  ))
 
   if (is.null(creds)) "" else .auth_token_normalize(creds$password)
 }
@@ -35,7 +35,7 @@
 
   # 2. Prefer gh if installed, but do not require it
   if (requireNamespace("gh", quietly = TRUE) && use_gh_if_available) {
-    token <- gh::gh_token(api_url) |>
+    token <- suppressWarnings(gh::gh_token(api_url)) |>
       .auth_token_normalize()
     if (nzchar(token)) {
       return(token)
