@@ -184,7 +184,6 @@ test_that(".remote_get_final works", {
       # --------------------------
 
       if (suppressWarnings(nzchar(.auth_get_osf_pat()))) {
-        skip("OSF_PAT not available - skipping OSF remote tests")
         # no sub-directory
         id <- .test_osf_create_project("ProjectParent")
         expect_error(
