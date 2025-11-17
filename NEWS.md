@@ -1,5 +1,25 @@
 # projr 0.0.8.9002
 
+## Breaking Changes
+
+### CRAN Compliance: Removed Automatic Package Installation
+
+* **Removed automatic package installation from all package code** to comply with CRAN policy that prohibits writing to user filespace during checks.
+
+* `.dep_install_only()` and `.renv_lockfile_read()` no longer automatically install missing packages. Instead, they now throw clear, informative errors with installation instructions when required packages are missing.
+
+* Users must now manually install required optional dependencies before using features that depend on them. The error messages provide exact installation commands.
+
+* This change affects functions that previously auto-installed packages like:
+  - GitHub operations (requires `gh` package)
+  - Git operations in test mode (requires `gert` package)  
+  - License creation (requires `usethis` package)
+  - Documentation generation (requires `roxygen2` package)
+  - And other optional features
+
+* **For renv projects**: Use `renv::install()` to install dependencies
+* **For non-renv projects**: Use `install.packages()` or `remotes::install_github()` as shown in error messages
+
 ## Bug Fixes and Improvements
 
 ### Piggyback (GitHub Releases) Operations
