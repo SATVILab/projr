@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.18-14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0-1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/how-to-guides.html">How-to guides</a></li>
+    <li><a class="dropdown-item" href="../articles/environment.html">Environment Variables</a></li>
     <li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
     <li><a class="dropdown-item" href="../articles/design.html">Design</a></li>
   </ul>
@@ -672,6 +673,247 @@ keys. Unspecified keys fall back to <code>_projr.yml</code>.</li>
 <li><code><a href="../reference/projr_profile_create.html">?projr_profile_create</a></code></li>
 <li><code><a href="../reference/projr_profile_get.html">?projr_profile_get</a></code></li>
 <li><code><a href="../reference/projr_env_set.html">?projr_env_set</a></code></li>
+</ul>
+<hr>
+</div>
+</div>
+<div class="section level3">
+<h3 id="view-and-manage-build-logs">8. View and manage build logs<a class="anchor" aria-label="anchor" href="#view-and-manage-build-logs"></a>
+</h3>
+<div class="section level4">
+<h4 id="when-to-use-7">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-7"></a>
+</h4>
+<p>When you need to review build history, debug issues, or maintain
+clean log files.</p>
+</div>
+<div class="section level4">
+<h4 id="steps-7">Steps<a class="anchor" aria-label="anchor" href="#steps-7"></a>
+</h4>
+<p><strong>View build history:</strong></p>
+<p>All builds are automatically logged to
+<code>cache/projr/log/{dev,output}/history/builds.md</code>:</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># View dev build history</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/file.edit.html" class="external-link">file.edit</a></span><span class="op">(</span><span class="st">"cache/projr/log/dev/history/builds.md"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># View output build history</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/file.edit.html" class="external-link">file.edit</a></span><span class="op">(</span><span class="st">"cache/projr/log/output/history/builds.md"</span><span class="op">)</span></span></code></pre></div>
+<p><strong>View detailed build logs:</strong></p>
+<p>Each build creates a detailed Quarto log file organized by date:</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># List recent dev build logs</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"cache/projr/log/dev/output"</span>, </span>
+<span>           recursive <span class="op">=</span> <span class="cn">TRUE</span>, pattern <span class="op">=</span> <span class="st">"\\.qmd$"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Render a log file to HTML</span></span>
+<span><span class="fu">quarto</span><span class="fu">::</span><span class="fu"><a href="https://quarto-dev.github.io/quarto-r/reference/quarto_render.html" class="external-link">quarto_render</a></span><span class="op">(</span><span class="st">"cache/projr/log/dev/output/2025-Nov-11/14-07-00.qmd"</span><span class="op">)</span></span></code></pre></div>
+<p><strong>Control logging:</strong></p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Disable detailed log file creation (history still maintained)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_LOG_DETAILED <span class="op">=</span> <span class="st">"FALSE"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Re-enable detailed logging</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_LOG_DETAILED <span class="op">=</span> <span class="st">"TRUE"</span><span class="op">)</span></span></code></pre></div>
+<p><strong>Clear old logs:</strong></p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Clear all logs</span></span>
+<span><span class="fu"><a href="../reference/projr_log_clear.html">projr_log_clear</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Clear only dev logs</span></span>
+<span><span class="fu"><a href="../reference/projr_log_clear.html">projr_log_clear</a></span><span class="op">(</span>build_type <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Keep history, clear detailed logs only</span></span>
+<span><span class="fu"><a href="../reference/projr_log_clear.html">projr_log_clear</a></span><span class="op">(</span>history <span class="op">=</span> <span class="cn">FALSE</span>, output <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Clear logs before a specific date</span></span>
+<span><span class="fu"><a href="../reference/projr_log_clear.html">projr_log_clear</a></span><span class="op">(</span>before_date <span class="op">=</span> <span class="st">"2025-01-01"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="pitfalls-7">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-7"></a>
+</h4>
+<ul>
+<li>
+<strong>Log directory location</strong>: Logs are in
+<code>cache/projr/log</code>, not in <code>_tmp</code>.</li>
+<li>
+<strong>Never auto-cleared</strong>: Unlike cache, logs are never
+cleared automatically—manage manually.</li>
+<li>
+<strong>Disk space</strong>: Logs accumulate over time; clear old
+logs periodically.</li>
+</ul>
+</div>
+<div class="section level4">
+<h4 id="see-also-7">See also<a class="anchor" aria-label="anchor" href="#see-also-7"></a>
+</h4>
+<ul>
+<li><code><a href="../reference/projr_log_clear.html">?projr_log_clear</a></code></li>
+<li><code><a href="../reference/projr_build.html">?projr_build</a></code></li>
+<li>Console output control: Use <code>output_level</code> parameter in
+build functions</li>
+</ul>
+<hr>
+</div>
+</div>
+<div class="section level3">
+<h3 id="query-manifest-to-track-file-changes">9. Query manifest to track file changes<a class="anchor" aria-label="anchor" href="#query-manifest-to-track-file-changes"></a>
+</h3>
+<div class="section level4">
+<h4 id="when-to-use-8">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-8"></a>
+</h4>
+<p>When you need to: - Understand which files changed between versions -
+Track when specific outputs were last modified - Verify data provenance
+and reproducibility - Audit project history</p>
+</div>
+<div class="section level4">
+<h4 id="steps-8">Steps<a class="anchor" aria-label="anchor" href="#steps-8"></a>
+</h4>
+<p><strong>1. Compare two versions:</strong></p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># See what files changed between v0.0.1 and v0.0.2</span></span>
+<span><span class="va">changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.2"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># View the results</span></span>
+<span><span class="va">changes</span></span>
+<span><span class="co"># Returns: label, fn, change_type (added/modified/removed), </span></span>
+<span><span class="co">#          hash_from, hash_to</span></span>
+<span></span>
+<span><span class="co"># Filter by directory</span></span>
+<span><span class="va">output_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span></span>
+<span>  <span class="st">"0.0.1"</span>, <span class="st">"0.0.2"</span>, </span>
+<span>  label <span class="op">=</span> <span class="st">"output"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><strong>2. Track files across multiple versions:</strong></p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># See all files and when they last changed from v0.0.1 to current</span></span>
+<span><span class="va">file_history</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_range</a></span><span class="op">(</span><span class="st">"0.0.1"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># View the results</span></span>
+<span><span class="va">file_history</span></span>
+<span><span class="co"># Returns: label, fn, version_first, version_last_change, hash</span></span>
+<span></span>
+<span><span class="co"># Limit to specific directory and version range</span></span>
+<span><span class="va">raw_data_history</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_range</a></span><span class="op">(</span></span>
+<span>  <span class="st">"0.0.1"</span>, <span class="st">"0.0.5"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"raw-data"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><strong>3. Check when directories last changed:</strong></p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># See most recent changes for each directory</span></span>
+<span><span class="va">last_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_last_change</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># View the results</span></span>
+<span><span class="va">last_changes</span></span>
+<span><span class="co"># Returns: label, version_last_change, n_files</span></span>
+<span></span>
+<span><span class="co"># Check status as of a specific version</span></span>
+<span><span class="va">historical_status</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_last_change</a></span><span class="op">(</span><span class="st">"0.0.3"</span><span class="op">)</span></span></code></pre></div>
+<p><strong>4. Practical examples:</strong></p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Did any raw data change since last release?</span></span>
+<span><span class="va">raw_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span></span>
+<span>  <span class="st">"0.1.0"</span>, </span>
+<span>  <span class="fu"><a href="../reference/projr_version_get.html">projr_version_get</a></span><span class="op">(</span><span class="op">)</span>, </span>
+<span>  label <span class="op">=</span> <span class="st">"raw-data"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">raw_changes</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Raw data has changed - outputs may need regeneration"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Find files that haven't changed in a while</span></span>
+<span><span class="va">old_files</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_range</a></span><span class="op">(</span><span class="st">"0.0.1"</span><span class="op">)</span></span>
+<span><span class="va">old_files</span><span class="op">[</span><span class="va">old_files</span><span class="op">$</span><span class="va">version_last_change</span> <span class="op">&lt;</span> <span class="st">"v0.0.5"</span>, <span class="op">]</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="pitfalls-8">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-8"></a>
+</h4>
+<ul>
+<li>
+<strong>Version format</strong>: Can use “0.0.1” or “v0.0.1” - both
+work</li>
+<li>
+<strong>Empty manifests</strong>: Returns 0-row data.frame if no
+changes found</li>
+<li>
+<strong>Manifest location</strong>: Manifest is at project root
+(<code>manifest.csv</code>)</li>
+<li>
+<strong>Only tracks builds</strong>: Files are only tracked after
+running <code><a href="../reference/projr_build.html">projr_build()</a></code>
+<ul>
+<li>Dev builds create temporary manifests but don’t update the main
+one</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section level4">
+<h4 id="see-also-8">See also<a class="anchor" aria-label="anchor" href="#see-also-8"></a>
+</h4>
+<ul>
+<li><code><a href="../reference/projr_manifest_query.html">?projr_manifest_changes</a></code></li>
+<li><code><a href="../reference/projr_manifest_query.html">?projr_manifest_range</a></code></li>
+<li><code><a href="../reference/projr_manifest_query.html">?projr_manifest_last_change</a></code></li>
+<li><code><a href="../reference/projr_version_get.html">?projr_version_get</a></code></li>
+</ul>
+<hr>
+</div>
+</div>
+<div class="section level3">
+<h3 id="configure-environment-variables">11. Configure environment variables<a class="anchor" aria-label="anchor" href="#configure-environment-variables"></a>
+</h3>
+<div class="section level4">
+<h4 id="when-to-use-9">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-9"></a>
+</h4>
+<p>When you need to: - Control build verbosity and logging behavior -
+Set up different configurations for development vs. production - Store
+authentication tokens securely - Override default build behaviors</p>
+</div>
+<div class="section level4">
+<h4 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+</h4>
+<p><strong>1. Create environment files</strong></p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment"</span><span class="op">)</span>         <span class="co"># Global defaults</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment-dev"</span><span class="op">)</span>     <span class="co"># Profile-specific</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment.local"</span><span class="op">)</span>   <span class="co"># Machine-specific (git-ignored)</span></span></code></pre></div>
+<p><strong>2. Add variables (format:
+<code>KEY=value</code>)</strong></p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="co"># _environment</span></span>
+<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a><span class="va">PROJR_OUTPUT_LEVEL</span><span class="op">=</span>std</span>
+<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a><span class="va">PROJR_LOG_DETAILED</span><span class="op">=</span>TRUE</span>
+<span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a><span class="co"># _environment.local (for secrets)</span></span>
+<span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a><span class="va">GITHUB_PAT</span><span class="op">=</span>your_token_here</span></code></pre></div>
+<p><strong>3. Activate environment variables</strong></p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Loads all files in order of precedence</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="key-environment-variables">Key environment variables<a class="anchor" aria-label="anchor" href="#key-environment-variables"></a>
+</h4>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Build control</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span>    <span class="co"># "none", "std", "debug"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_LOG_DETAILED <span class="op">=</span> <span class="st">"FALSE"</span><span class="op">)</span>    <span class="co"># TRUE/FALSE</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_CLEAR_OUTPUT <span class="op">=</span> <span class="st">"never"</span><span class="op">)</span>    <span class="co"># "pre", "post", "never"</span></span>
+<span></span>
+<span><span class="co"># Profile selection</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>QUARTO_PROFILE <span class="op">=</span> <span class="st">"production"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="see-also-9">See also<a class="anchor" aria-label="anchor" href="#see-also-9"></a>
+</h4>
+<ul>
+<li>
+<a href="environment.html"><strong>Environment Variables
+article</strong></a> - Complete documentation</li>
+<li>
+<code><a href="../reference/projr_env_set.html">?projr_env_set</a></code> - Load environment variables</li>
+<li>
+<code><a href="../reference/projr_profile_get.html">?projr_profile_get</a></code> - Get current profile</li>
 </ul>
 </div>
 </div>

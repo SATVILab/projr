@@ -26,7 +26,12 @@ projr_init(
   lit_doc = NULL
 )
 
-projr_init_all(github_org = NULL, license = NULL, lit_doc = NULL)
+projr_init_all(
+  github = TRUE,
+  github_org = NULL,
+  license = NULL,
+  lit_doc = NULL
+)
 
 projr_init_renv(bioc = TRUE)
 
@@ -104,13 +109,33 @@ projr_init_license(license, first_name, last_name)
 
 - bioc:
 
-  Logical. If `TRUE`, includes Bioconductor packages in the renv setup.
-  Defaults to `TRUE`.
+  Logical (for `projr_init_renv`). If `TRUE`, includes Bioconductor
+  packages in the renv setup. Defaults to `TRUE`.
 
-- renv:
+- commit:
 
-  Logical. If `TRUE`, initializes a renv environment for dependency
-  management. Defaults to `FALSE`.
+  Logical (for `projr_init_git`). If `TRUE`, commits the initial changes
+  to the Git repository. Defaults to `TRUE`.
+
+- username:
+
+  Character or `NULL` (for `projr_init_github`). The GitHub username or
+  organization under which to create the repository. Defaults to `NULL`.
+
+- public:
+
+  Logical (for `projr_init_github`). If `TRUE`, the GitHub repository
+  will be public. Defaults to `FALSE`.
+
+- first_name:
+
+  Character (for `projr_init_license`). First name for proprietary
+  license. Required when `license = "proprietary"`.
+
+- last_name:
+
+  Character (for `projr_init_license`). Last name for proprietary
+  license. Required when `license = "proprietary"`.
 
 ## Value
 

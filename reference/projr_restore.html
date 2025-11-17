@@ -11,7 +11,7 @@ projr_restore_repo() will clone it and then restore its artefacts."></head><body
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.18-14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0-1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,6 +23,7 @@ projr_restore_repo() will clone it and then restore its artefacts."></head><body
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/how-to-guides.html">How-to guides</a></li>
+    <li><a class="dropdown-item" href="../articles/environment.html">Environment Variables</a></li>
     <li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
     <li><a class="dropdown-item" href="../articles/design.html">Design</a></li>
   </ul></li>
@@ -63,7 +64,13 @@ If the project isn't available locally yet,
 <span>  title <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">projr_restore_repo_wd</span><span class="op">(</span><span class="va">repo</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu">projr_restore_repo_wd</span><span class="op">(</span></span>
+<span>  <span class="va">repo</span>,</span>
+<span>  label <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pos <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  type <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  title <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">projr_restore</span><span class="op">(</span>label <span class="op">=</span> <span class="cn">NULL</span>, pos <span class="op">=</span> <span class="cn">NULL</span>, type <span class="op">=</span> <span class="cn">NULL</span>, title <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -74,53 +81,85 @@ If the project isn't available locally yet,
 
 <dl><dt id="arg-repo">repo<a class="anchor" aria-label="anchor" href="#arg-repo"></a></dt>
 <dd><p>character. GitHub repository (<code>"owner/repo"</code> or <code>"repo"</code>).
-(Only for repository restoration functions.)</p></dd>
+(Only for repository restoration functions.)
+Must be a single non-empty character string.</p></dd>
 
 
 <dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
-<dd><p>character. Local path for cloning the repository. Default is <code>NULL</code>,
-creating a subdirectory named after the repo. <code>"."</code> restores directly into the current directory.</p></dd>
+<dd><p>character or NULL. Local path for cloning the repository. Default is <code>NULL</code>,
+creating a subdirectory named after the repo. <code>"."</code> restores directly into the
+current directory. Must be NULL or a single non-empty character string.</p></dd>
 
 
 <dt id="arg-label">label<a class="anchor" aria-label="anchor" href="#arg-label"></a></dt>
-<dd><p>character vector. Specifies labels of artefacts to restore.
-Default is <code>NULL</code>, restoring all <code>raw</code> artefacts (e.g. <code>raw-data</code>).</p></dd>
+<dd><p>character vector or NULL. Specifies labels of artefacts to restore.
+Default is <code>NULL</code>, restoring all <code>raw</code> artefacts (e.g. <code>raw-data</code>).
+Must be NULL or a non-empty character vector with valid directory labels.</p></dd>
 
 
 <dt id="arg-pos">pos<a class="anchor" aria-label="anchor" href="#arg-pos"></a></dt>
-<dd><p>character vector. Specifies preferred source: <code>"source"</code> (directories)
-or <code>"dest"</code> (build). Default is <code>NULL</code>, checking both.</p></dd>
+<dd><p>character vector or NULL. Specifies preferred source: <code>"source"</code> (directories)
+or <code>"dest"</code> (build destinations). Default is <code>NULL</code>, checking both in order.
+Must be NULL or one/both of <code>"source"</code> and <code>"dest"</code>.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>character. Remote type: <code>"local"</code>, <code>"osf"</code> or <code>"github"</code>.
-Default is <code>NULL</code>, automatically choosing the first available remote.</p></dd>
+<dd><p>character or NULL. Remote type: <code>"local"</code>, <code>"osf"</code> or <code>"github"</code>.
+Default is <code>NULL</code>, automatically choosing the first available remote.
+Must be NULL or one of the valid remote types.</p></dd>
 
 
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
-<dd><p>character. Remote title as specified in <code>_projr.yml</code>. Default is <code>NULL</code>.</p></dd>
+<dd><p>character or NULL. Remote title as specified in <code>_projr.yml</code>.
+Default is <code>NULL</code>, using the first available title for the selected type.
+Must be NULL or a single non-empty character string.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Invisibly returns <code>TRUE</code> if restoration is successful.</p>
+    <p>Invisibly returns <code>TRUE</code> if all restorations are successful, <code>FALSE</code> otherwise.
+For <code>projr_restore()</code>, returns <code>FALSE</code> if no labels are found to restore or if any
+restoration fails. For <code>projr_restore_repo()</code>, returns <code>FALSE</code> if cloning or
+restoration fails.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-
-<ul><li><p><code>projr_restore()</code> restores artefacts in an existing local project without any cloning required.</p></li>
-<li><p><code>projr_restore_repo()</code> clones a GitHub repository into a subdirectory (or specified path), then restores artefacts.</p></li>
+    <p>These functions restore artefact directories from remote sources:</p><ul><li><p><code>projr_restore()</code> restores artefacts in an existing local project without any cloning required.
+Requires a <code>manifest.csv</code> file in the project root.</p></li>
+<li><p><code>projr_restore_repo()</code> clones a GitHub repository into a subdirectory (or specified path),
+then restores artefacts from that repository's remote sources.</p></li>
 <li><p><code>projr_restore_repo_wd()</code> clones directly into the current working directory, then restores artefacts.</p></li>
+</ul><p><strong>Input Validation:</strong>
+All parameters are validated before execution:</p><ul><li><p><code>label</code>: Must be NULL or a non-empty character vector of valid directory labels</p></li>
+<li><p><code>pos</code>: Must be NULL or contain only "source" and/or "dest"</p></li>
+<li><p><code>type</code>: Must be NULL or one of "local", "osf", or "github"</p></li>
+<li><p><code>title</code>: Must be NULL or a single character string</p></li>
+<li><p><code>repo</code>: Must be a single non-empty character string</p></li>
+<li><p><code>path</code>: Must be NULL or a single non-empty character string</p></li>
+</ul><p><strong>Error Handling:</strong>
+The functions handle errors gracefully:</p><ul><li><p>Missing <code>manifest.csv</code> triggers an informative error</p></li>
+<li><p>Invalid labels or missing remote sources result in warning messages and skipped restoration</p></li>
+<li><p>Git clone failures are caught and reported</p></li>
+<li><p>Errors during restoration are caught per label, allowing partial success</p></li>
 </ul></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span>  <span class="co"># Restore all artefacts in existing local project</span></span></span>
+<span class="r-in"><span>  <span class="co"># Restore all raw artefacts in existing local project</span></span></span>
 <span class="r-in"><span>  <span class="fu">projr_restore</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  </span></span>
+<span class="r-in"><span>  <span class="co"># Restore specific labels</span></span></span>
+<span class="r-in"><span>  <span class="fu">projr_restore</span><span class="op">(</span>label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"raw-data"</span>, <span class="st">"cache"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  </span></span>
+<span class="r-in"><span>  <span class="co"># Restore from specific source type</span></span></span>
+<span class="r-in"><span>  <span class="fu">projr_restore</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"local"</span>, title <span class="op">=</span> <span class="st">"archive"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># Clone repository into subdirectory and restore artefacts</span></span></span>
 <span class="r-in"><span>  <span class="fu">projr_restore_repo</span><span class="op">(</span><span class="st">"owner/repo"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  </span></span>
+<span class="r-in"><span>  <span class="co"># Clone to specific path</span></span></span>
+<span class="r-in"><span>  <span class="fu">projr_restore_repo</span><span class="op">(</span><span class="st">"owner/repo"</span>, path <span class="op">=</span> <span class="st">"my-project"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># Clone repository into current directory and restore artefacts</span></span></span>
 <span class="r-in"><span>  <span class="fu">projr_restore_repo_wd</span><span class="op">(</span><span class="st">"owner/repo"</span><span class="op">)</span></span></span>

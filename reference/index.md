@@ -66,6 +66,20 @@ Functions for managing project versions
 - [`projr_version_set()`](https://satvilab.github.io/projr/reference/projr_version_set.md)
   : Set Project Version
 
+## Manifest queries
+
+Functions for querying manifest to track file changes across versions
+
+- [`projr_manifest_changes()`](https://satvilab.github.io/projr/reference/projr_manifest_query.md)
+  [`projr_manifest_range()`](https://satvilab.github.io/projr/reference/projr_manifest_query.md)
+  [`projr_manifest_last_change()`](https://satvilab.github.io/projr/reference/projr_manifest_query.md)
+  : Query Files Changed Between Versions
+- [`projr_manifest_file_last_change()`](https://satvilab.github.io/projr/reference/projr_manifest_file_query.md)
+  [`projr_manifest_file_changed()`](https://satvilab.github.io/projr/reference/projr_manifest_file_query.md)
+  [`projr_manifest_file_history()`](https://satvilab.github.io/projr/reference/projr_manifest_file_query.md)
+  [`projr_manifest_file_first()`](https://satvilab.github.io/projr/reference/projr_manifest_file_query.md)
+  : Query When a Specific File Last Changed
+
 ## YAML configuration
 
 Functions for managing \_projr.yml configuration
@@ -111,6 +125,12 @@ Functions for managing \_projr.yml configuration
   [`projr_yml_script_add_post()`](https://satvilab.github.io/projr/reference/yml-script.md)
   : Build script-related functions
 
+- [`projr_yml_hooks_add()`](https://satvilab.github.io/projr/reference/yml-hooks.md)
+  [`projr_yml_hooks_rm_all()`](https://satvilab.github.io/projr/reference/yml-hooks.md)
+  [`projr_yml_hooks_add_pre()`](https://satvilab.github.io/projr/reference/yml-hooks.md)
+  [`projr_yml_hooks_add_post()`](https://satvilab.github.io/projr/reference/yml-hooks.md)
+  : Build hook-related functions
+
 ## Profile management
 
 Functions for managing project profiles
@@ -142,6 +162,12 @@ Functions for managing environment variables
 Functions for managing .gitignore and .Rbuildignore
 
 - [`projr_ignore()`](https://satvilab.github.io/projr/reference/projr_ignore.md)
+  [`projr_ignore_dir()`](https://satvilab.github.io/projr/reference/projr_ignore.md)
+  [`projr_ignore_file()`](https://satvilab.github.io/projr/reference/projr_ignore.md)
+  [`projr_ignore_file_git()`](https://satvilab.github.io/projr/reference/projr_ignore.md)
+  [`projr_ignore_dir_git()`](https://satvilab.github.io/projr/reference/projr_ignore.md)
+  [`projr_ignore_file_rbuild()`](https://satvilab.github.io/projr/reference/projr_ignore.md)
+  [`projr_ignore_dir_rbuild()`](https://satvilab.github.io/projr/reference/projr_ignore.md)
   :
 
   Manually Ignore Files or Directories in `.gitignore` and
@@ -208,6 +234,13 @@ Functions for managing changelog
 
 - [`projr_cat_changelog()`](https://satvilab.github.io/projr/reference/cat.md)
   : Cat useful information
+
+## Build logging
+
+Functions for managing build logs
+
+- [`projr_log_clear()`](https://satvilab.github.io/projr/reference/projr_log_clear.md)
+  : Clear build logs
 
 ## Internal utilities
 

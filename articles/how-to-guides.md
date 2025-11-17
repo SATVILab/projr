@@ -544,3 +544,238 @@ projr_profile_delete("dev")
 - [`?projr_profile_create`](https://satvilab.github.io/projr/reference/projr_profile_create.md)
 - [`?projr_profile_get`](https://satvilab.github.io/projr/reference/projr_profile_get.md)
 - [`?projr_env_set`](https://satvilab.github.io/projr/reference/projr_env_set.md)
+
+------------------------------------------------------------------------
+
+### 8. View and manage build logs
+
+#### When to use
+
+When you need to review build history, debug issues, or maintain clean
+log files.
+
+#### Steps
+
+**View build history:**
+
+All builds are automatically logged to
+`cache/projr/log/{dev,output}/history/builds.md`:
+
+``` r
+# View dev build history
+file.edit("cache/projr/log/dev/history/builds.md")
+
+# View output build history
+file.edit("cache/projr/log/output/history/builds.md")
+```
+
+**View detailed build logs:**
+
+Each build creates a detailed Quarto log file organized by date:
+
+``` r
+# List recent dev build logs
+list.files("cache/projr/log/dev/output", 
+           recursive = TRUE, pattern = "\\.qmd$")
+
+# Render a log file to HTML
+quarto::quarto_render("cache/projr/log/dev/output/2025-Nov-11/14-07-00.qmd")
+```
+
+**Control logging:**
+
+``` r
+# Disable detailed log file creation (history still maintained)
+Sys.setenv(PROJR_LOG_DETAILED = "FALSE")
+projr_build_dev()
+
+# Re-enable detailed logging
+Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+```
+
+**Clear old logs:**
+
+``` r
+# Clear all logs
+projr_log_clear()
+
+# Clear only dev logs
+projr_log_clear(build_type = "dev")
+
+# Keep history, clear detailed logs only
+projr_log_clear(history = FALSE, output = TRUE)
+
+# Clear logs before a specific date
+projr_log_clear(before_date = "2025-01-01")
+```
+
+#### Pitfalls
+
+- **Log directory location**: Logs are in `cache/projr/log`, not in
+  `_tmp`.
+- **Never auto-cleared**: Unlike cache, logs are never cleared
+  automatically—manage manually.
+- **Disk space**: Logs accumulate over time; clear old logs
+  periodically.
+
+#### See also
+
+- [`?projr_log_clear`](https://satvilab.github.io/projr/reference/projr_log_clear.md)
+- [`?projr_build`](https://satvilab.github.io/projr/reference/projr_build.md)
+- Console output control: Use `output_level` parameter in build
+  functions
+
+------------------------------------------------------------------------
+
+### 9. Query manifest to track file changes
+
+#### When to use
+
+When you need to: - Understand which files changed between versions -
+Track when specific outputs were last modified - Verify data provenance
+and reproducibility - Audit project history
+
+#### Steps
+
+**1. Compare two versions:**
+
+``` r
+# See what files changed between v0.0.1 and v0.0.2
+changes <- projr_manifest_changes("0.0.1", "0.0.2")
+
+# View the results
+changes
+# Returns: label, fn, change_type (added/modified/removed), 
+#          hash_from, hash_to
+
+# Filter by directory
+output_changes <- projr_manifest_changes(
+  "0.0.1", "0.0.2", 
+  label = "output"
+)
+```
+
+**2. Track files across multiple versions:**
+
+``` r
+# See all files and when they last changed from v0.0.1 to current
+file_history <- projr_manifest_range("0.0.1")
+
+# View the results
+file_history
+# Returns: label, fn, version_first, version_last_change, hash
+
+# Limit to specific directory and version range
+raw_data_history <- projr_manifest_range(
+  "0.0.1", "0.0.5",
+  label = "raw-data"
+)
+```
+
+**3. Check when directories last changed:**
+
+``` r
+# See most recent changes for each directory
+last_changes <- projr_manifest_last_change()
+
+# View the results
+last_changes
+# Returns: label, version_last_change, n_files
+
+# Check status as of a specific version
+historical_status <- projr_manifest_last_change("0.0.3")
+```
+
+**4. Practical examples:**
+
+``` r
+# Did any raw data change since last release?
+raw_changes <- projr_manifest_changes(
+  "0.1.0", 
+  projr_version_get(), 
+  label = "raw-data"
+)
+if (nrow(raw_changes) > 0) {
+  message("Raw data has changed - outputs may need regeneration")
+}
+
+# Find files that haven't changed in a while
+old_files <- projr_manifest_range("0.0.1")
+old_files[old_files$version_last_change < "v0.0.5", ]
+```
+
+#### Pitfalls
+
+- **Version format**: Can use “0.0.1” or “v0.0.1” - both work
+- **Empty manifests**: Returns 0-row data.frame if no changes found
+- **Manifest location**: Manifest is at project root (`manifest.csv`)
+- **Only tracks builds**: Files are only tracked after running
+  [`projr_build()`](https://satvilab.github.io/projr/reference/projr_build.md)
+  - Dev builds create temporary manifests but don’t update the main one
+
+#### See also
+
+- [`?projr_manifest_changes`](https://satvilab.github.io/projr/reference/projr_manifest_query.md)
+- [`?projr_manifest_range`](https://satvilab.github.io/projr/reference/projr_manifest_query.md)
+- [`?projr_manifest_last_change`](https://satvilab.github.io/projr/reference/projr_manifest_query.md)
+- [`?projr_version_get`](https://satvilab.github.io/projr/reference/projr_version_get.md)
+
+------------------------------------------------------------------------
+
+### 11. Configure environment variables
+
+#### When to use
+
+When you need to: - Control build verbosity and logging behavior - Set
+up different configurations for development vs. production - Store
+authentication tokens securely - Override default build behaviors
+
+#### Quick start
+
+**1. Create environment files**
+
+``` r
+file.create("_environment")         # Global defaults
+file.create("_environment-dev")     # Profile-specific
+file.create("_environment.local")   # Machine-specific (git-ignored)
+```
+
+**2. Add variables (format: `KEY=value`)**
+
+``` bash
+# _environment
+PROJR_OUTPUT_LEVEL=std
+PROJR_LOG_DETAILED=TRUE
+
+# _environment.local (for secrets)
+GITHUB_PAT=your_token_here
+```
+
+**3. Activate environment variables**
+
+``` r
+projr_env_set()  # Loads all files in order of precedence
+```
+
+#### Key environment variables
+
+``` r
+# Build control
+Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")    # "none", "std", "debug"
+Sys.setenv(PROJR_LOG_DETAILED = "FALSE")    # TRUE/FALSE
+Sys.setenv(PROJR_CLEAR_OUTPUT = "never")    # "pre", "post", "never"
+
+# Profile selection
+Sys.setenv(PROJR_PROFILE = "dev")
+Sys.setenv(QUARTO_PROFILE = "production")
+```
+
+#### See also
+
+- [**Environment Variables
+  article**](https://satvilab.github.io/projr/articles/environment.md) -
+  Complete documentation
+- [`?projr_env_set`](https://satvilab.github.io/projr/reference/projr_env_set.md) -
+  Load environment variables
+- [`?projr_profile_get`](https://satvilab.github.io/projr/reference/projr_profile_get.md) -
+  Get current profile

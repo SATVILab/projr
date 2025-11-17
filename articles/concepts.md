@@ -199,6 +199,123 @@ projr_build_major()  # major bump
 
 ------------------------------------------------------------------------
 
+### Build clearing behavior
+
+#### Overview
+
+projr manages when and how output directories are cleared during builds
+to ensure clean, reproducible results while preventing accidental data
+loss.
+
+#### Clearing modes
+
+The `clear_output` parameter controls when directories are cleared:
+
+``` r
+# Clear before build (default)
+projr_build_patch(clear_output = "pre")
+
+# Clear after build
+projr_build_patch(clear_output = "post")
+
+# Never clear automatically
+projr_build_patch(clear_output = "never")
+```
+
+You can also set this globally via environment variable:
+
+``` r
+Sys.setenv(PROJR_CLEAR_OUTPUT = "post")
+projr_build_patch()  # Uses "post" mode
+```
+
+#### Mode comparison
+
+| Mode      | When cleared          | Safe for iteration?     | Use case                                                    |
+|-----------|-----------------------|-------------------------|-------------------------------------------------------------|
+| `"pre"`   | Before build starts   | ✓ Yes                   | Default: Clean slate, save directly to final locations      |
+| `"post"`  | After build completes | ✓ Yes                   | Conservative: Preserve outputs until after successful build |
+| `"never"` | Never                 | ✗ Manual control needed | Advanced: User manages all clearing                         |
+
+#### What gets cleared?
+
+**In development builds
+([`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md)):**
+
+- Cache directories are cleared
+- Final `_output` and `docs` directories are never touched
+- Safe for rapid iteration
+
+**In final builds
+([`projr_build()`](https://satvilab.github.io/projr/reference/projr_build.md),
+etc.):**
+
+Mode `"pre"`: - Before build: Clears cache AND final `_output`
+directories - During build: Renders to final locations directly - After
+build: Final outputs contain only current build results
+
+Mode `"post"`: - Before build: Clears cache only (preserves final
+`_output`) - During build: Renders to cache - After build: Clears final
+directories, then copies from cache
+
+Mode `"never"`: - No automatic clearing - New files may mix with old
+files - Requires manual directory management
+
+#### Example workflows
+
+**Workflow 1: Default (clear before)**
+
+``` r
+# Clean slate approach
+projr_build_patch(clear_output = "pre")
+
+# 1. Clears _output/ completely
+# 2. Builds analysis
+# 3. Saves outputs directly to _output/
+# 4. Archives to remotes (if configured)
+```
+
+**Workflow 2: Conservative (clear after)**
+
+``` r
+# Safety-first approach
+projr_build_patch(clear_output = "post")
+
+# 1. Keeps existing _output/ intact
+# 2. Builds to cache (_tmp/projr/v0.0.1/)
+# 3. After successful build, clears _output/
+# 4. Copies from cache to _output/
+# 5. Archives to remotes (if configured)
+```
+
+**Workflow 3: Manual control**
+
+``` r
+# Advanced: Manual clearing
+unlink("_output", recursive = TRUE)  # Clear manually
+projr_build_patch(clear_output = "never")
+
+# 1. No automatic clearing
+# 2. Builds to specified locations
+# 3. User responsible for cleanup
+```
+
+#### Special: “old” directory preservation
+
+The cache clearing process preserves a special `old/` subdirectory for
+archival purposes:
+
+    _tmp/projr/v0.0.1/
+    ├── output/           # Cleared each build
+    ├── docs/             # Cleared each build
+    └── old/              # Never cleared automatically
+        └── archived_results.csv
+
+This allows you to manually preserve important intermediate results
+across builds.
+
+------------------------------------------------------------------------
+
 ### Manifests
 
 #### What is a manifest?
@@ -242,8 +359,40 @@ commit def456…”
 
 Manifests are stored in:
 
-- `_output/manifest.csv` (final builds)
-- `_tmp/projr/v<version>/output/manifest.csv` (dev builds)
+- `manifest.csv` at project root (tracks all versions)
+- Dev builds also create temporary manifests in cache
+
+#### Querying manifests
+
+projr provides functions to query the manifest and track changes across
+versions:
+
+**Find what changed between versions:**
+
+``` r
+# See what files changed between v0.0.1 and v0.0.2
+changes <- projr_manifest_changes("0.0.1", "0.0.2")
+# Returns: label, fn, change_type (added/modified/removed), hash_from, hash_to
+
+# Filter by directory
+output_changes <- projr_manifest_changes("0.0.1", "0.0.2", label = "output")
+```
+
+**Track files across a version range:**
+
+``` r
+# See all files and when they last changed from v0.0.1 to current
+file_history <- projr_manifest_range("0.0.1")
+# Returns: label, fn, version_first, version_last_change, hash
+```
+
+**Check when directories last changed:**
+
+``` r
+# See most recent changes for each directory
+last_changes <- projr_manifest_last_change()
+# Returns: label, version_last_change, n_files
+```
 
 ------------------------------------------------------------------------
 

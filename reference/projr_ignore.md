@@ -4,23 +4,38 @@ These functions allow manual addition of files and directories to the
 `.gitignore` and `.Rbuildignore` files, outside of the automatic
 management provided by the `projr` package.
 
-- .ignore_manual`: General function to add both files and directories to both `.gitignore`and`.Rbuildignore\`.
-  If a path does not exist, it is treated as a file.
+- `projr_ignore`: General function to add both files and directories to
+  both `.gitignore` and `.Rbuildignore`. If a path does not exist, it is
+  treated as a file.
 
-- .ignore_manual_dir`: Specifically adds directories to both `.gitignore`and`.Rbuildignore\`.
+- `projr_ignore_dir`: Specifically adds directories to both `.gitignore`
+  and `.Rbuildignore`.
 
-- .ignore_manual_file`: Specifically adds files to both `.gitignore`and`.Rbuildignore\`.
+- `projr_ignore_file`: Specifically adds files to both `.gitignore` and
+  `.Rbuildignore`.
 
-- .ignore_manual_dir_git` and .ignore_manual_file_git`: Add directories
-  or files explicitly to `.gitignore`.
+- `projr_ignore_dir_git` and `projr_ignore_file_git`: Add directories or
+  files explicitly to `.gitignore`.
 
-- .ignore_manual_dir_rbuild` and .ignore_manual_file_rbuild`: Add
+- `projr_ignore_dir_rbuild` and `projr_ignore_file_rbuild`: Add
   directories or files explicitly to `.Rbuildignore`.
 
 ## Usage
 
 ``` r
 projr_ignore(ignore, force_create = TRUE)
+
+projr_ignore_dir(ignore, force_create = TRUE)
+
+projr_ignore_file(ignore)
+
+projr_ignore_file_git(ignore, force_create = TRUE)
+
+projr_ignore_dir_git(ignore, force_create = TRUE)
+
+projr_ignore_file_rbuild(ignore, force_create = TRUE)
+
+projr_ignore_dir_rbuild(ignore, force_create = TRUE)
 ```
 
 ## Arguments
@@ -51,8 +66,7 @@ These functions provide fine-grained control for cases where users want
 to manually ignore specific paths permanently. They do not interact with
 the automated ignore management system of `projr`.
 
-- Non-existent paths provided to .ignore_manual\` are assumed to be
-  files.
+- Non-existent paths provided to `projr_ignore` are assumed to be files.
 
 - For `.gitignore`, directories are automatically appended with `/**` if
   missing, ensuring proper Git ignore syntax.
@@ -62,15 +76,14 @@ the automated ignore management system of `projr`.
 
 ## See also
 
-.ignore_auto` for dynamically managed ignore entries, and .unignore_manual`
-for forcing certain paths to not be ignored.
+`projr_ignore_auto` for dynamically managed ignore entries, and
+`projr_unignore_manual` for forcing certain paths to not be ignored.
 
 ## Examples
 
 ``` r
 # Manually ignore files and directories
-projr_ignore_manual(c("output", "tempfile.log"))
-#> Error in projr_ignore_manual(c("output", "tempfile.log")): could not find function "projr_ignore_manual"
+projr_ignore(c("output", "tempfile.log"))
 
 # Specifically ignore directories
 projr_ignore_dir("data")

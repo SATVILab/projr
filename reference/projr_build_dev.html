@@ -13,7 +13,7 @@ saving and archiving selected output."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.18-14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0-1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,6 +25,7 @@ saving and archiving selected output."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/how-to-guides.html">How-to guides</a></li>
+    <li><a class="dropdown-item" href="../articles/environment.html">Environment Variables</a></li>
     <li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
     <li><a class="dropdown-item" href="../articles/design.html">Design</a></li>
   </ul></li>
@@ -63,7 +64,8 @@ saving and archiving selected output.</p>
 <span>  old_dev_remove <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  args_engine <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  profile <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  clear_output <span class="op">=</span> <span class="st">"never"</span></span>
+<span>  clear_output <span class="op">=</span> <span class="st">"never"</span>,</span>
+<span>  output_level <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -101,6 +103,20 @@ rendering engine
 <dd><p>character.
 <code>projr</code> profile to use. Will set the environment variable
 .PROFILE` to this value at the start of the build,</p></dd>
+
+
+<dt id="arg-clear-output">clear_output<a class="anchor" aria-label="anchor" href="#arg-clear-output"></a></dt>
+<dd><p>character.
+When to clear output directories: "pre" (before build),
+"post" (after build), or "never" (default for dev builds).
+Can also be set via PROJR_CLEAR_OUTPUT environment variable.</p></dd>
+
+
+<dt id="arg-output-level">output_level<a class="anchor" aria-label="anchor" href="#arg-output-level"></a></dt>
+<dd><p>character.
+Level of CLI output: "none" (no additional messages, default for dev builds),
+"std" (standard messages), or "debug" (verbose messages for debugging).
+Can also be set via PROJR_OUTPUT_LEVEL environment variable.</p></dd>
 
 </dl></div>
 

@@ -1,5 +1,7 @@
 README.md
 data/**
+output
+tempfile.log
 
 # Start of projr section: do not edit by hand (update with projr_ignore_auto())
 # End of projr section

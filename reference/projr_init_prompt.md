@@ -5,7 +5,12 @@ Initialise project
 ## Usage
 
 ``` r
-projr_init_prompt(y)
+projr_init_prompt(
+  yml_path_from = NULL,
+  renv_force = FALSE,
+  renv_bioconductor = TRUE,
+  public = FALSE
+)
 ```
 
 ## Arguments

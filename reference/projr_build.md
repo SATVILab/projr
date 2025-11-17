@@ -20,7 +20,8 @@ projr_build(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = NULL
+  clear_output = NULL,
+  output_level = NULL
 )
 
 projr_build_major(
@@ -30,7 +31,8 @@ projr_build_major(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = NULL
+  clear_output = NULL,
+  output_level = NULL
 )
 
 projr_build_minor(
@@ -40,7 +42,8 @@ projr_build_minor(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = NULL
+  clear_output = NULL,
+  output_level = NULL
 )
 
 projr_build_patch(
@@ -50,7 +53,8 @@ projr_build_patch(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = NULL
+  clear_output = NULL,
+  output_level = NULL
 )
 ```
 
@@ -94,6 +98,14 @@ projr_build_patch(
   Ignored if there is a release named `archive` already specified as a
   destination in the `projr` configuration file.
 
+- archive_local:
+
+  `TRUE`, `FALSE` or character vector of directory labels. If `TRUE`,
+  then all directories (`raw-data`, `output`, etc) are archived to a
+  local directory. If `FALSE`, then no directories are archived locally.
+  If a character vector, then only the directories specified are
+  archived. Default is `FALSE`.
+
 - always_archive:
 
   logical. If `TRUE`, then the directories are uploaded regardless of
@@ -101,3 +113,16 @@ projr_build_patch(
   the latest version of the directory on the GitHub release. Default is
   `TRUE`. Ignored if there is a release named `archive` already
   specified as a destination in the `projr` configuration file.
+
+- clear_output:
+
+  character. When to clear output directories: "pre" (before build,
+  default), "post" (after build), or "never". Can also be set via
+  PROJR_CLEAR_OUTPUT environment variable.
+
+- output_level:
+
+  character. Level of CLI output: "none" (no additional messages), "std"
+  (standard messages, default for output builds), or "debug" (verbose
+  messages for debugging). Can also be set via PROJR_OUTPUT_LEVEL
+  environment variable.

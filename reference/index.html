@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.18-14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0-1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,6 +19,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/how-to-guides.html">How-to guides</a></li>
+    <li><a class="dropdown-item" href="../articles/environment.html">Environment Variables</a></li>
     <li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
     <li><a class="dropdown-item" href="../articles/design.html">Design</a></li>
   </ul></li>
@@ -161,6 +162,29 @@
         </dt>
         <dd>Set Project Version</dd>
       </dl></div><div class="section level2">
+      <h2 id="manifest-queries">Manifest queries<a class="anchor" aria-label="anchor" href="#manifest-queries"></a></h2>
+
+      <div class="section-desc"><p>Functions for querying manifest to track file changes across versions</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="projr_manifest_query.html">projr_manifest_changes()</a></code> <code><a href="projr_manifest_query.html">projr_manifest_range()</a></code> <code><a href="projr_manifest_query.html">projr_manifest_last_change()</a></code>
+
+        </dt>
+        <dd>Query Files Changed Between Versions</dd>
+
+        <dt>
+
+          <code><a href="projr_manifest_file_query.html">projr_manifest_file_last_change()</a></code> <code><a href="projr_manifest_file_query.html">projr_manifest_file_changed()</a></code> <code><a href="projr_manifest_file_query.html">projr_manifest_file_history()</a></code> <code><a href="projr_manifest_file_query.html">projr_manifest_file_first()</a></code>
+
+        </dt>
+        <dd>Query When a Specific File Last Changed</dd>
+      </dl></div><div class="section level2">
       <h2 id="yaml-configuration">YAML configuration<a class="anchor" aria-label="anchor" href="#yaml-configuration"></a></h2>
 
       <div class="section-desc"><p>Functions for managing _projr.yml configuration</p></div>
@@ -232,6 +256,13 @@
 
         </dt>
         <dd>Build script-related functions</dd>
+
+        <dt>
+
+          <code><a href="yml-hooks.html">projr_yml_hooks_add()</a></code> <code><a href="yml-hooks.html">projr_yml_hooks_rm_all()</a></code> <code><a href="yml-hooks.html">projr_yml_hooks_add_pre()</a></code> <code><a href="yml-hooks.html">projr_yml_hooks_add_post()</a></code>
+
+        </dt>
+        <dd>Build hook-related functions</dd>
       </dl></div><div class="section level2">
       <h2 id="profile-management">Profile management<a class="anchor" aria-label="anchor" href="#profile-management"></a></h2>
 
@@ -306,7 +337,7 @@
 
       <dl><dt>
 
-          <code><a href="projr_ignore.html">projr_ignore()</a></code>
+          <code><a href="projr_ignore.html">projr_ignore()</a></code> <code><a href="projr_ignore.html">projr_ignore_dir()</a></code> <code><a href="projr_ignore.html">projr_ignore_file()</a></code> <code><a href="projr_ignore.html">projr_ignore_file_git()</a></code> <code><a href="projr_ignore.html">projr_ignore_dir_git()</a></code> <code><a href="projr_ignore.html">projr_ignore_file_rbuild()</a></code> <code><a href="projr_ignore.html">projr_ignore_dir_rbuild()</a></code>
 
         </dt>
         <dd>Manually Ignore Files or Directories in <code>.gitignore</code> and <code>.Rbuildignore</code></dd>
@@ -418,6 +449,22 @@
 
         </dt>
         <dd>Cat useful information</dd>
+      </dl></div><div class="section level2">
+      <h2 id="build-logging">Build logging<a class="anchor" aria-label="anchor" href="#build-logging"></a></h2>
+
+      <div class="section-desc"><p>Functions for managing build logs</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="projr_log_clear.html">projr_log_clear()</a></code>
+
+        </dt>
+        <dd>Clear build logs</dd>
       </dl></div><div class="section level2">
       <h2 id="internal-utilities">Internal utilities<a class="anchor" aria-label="anchor" href="#internal-utilities"></a></h2>
 

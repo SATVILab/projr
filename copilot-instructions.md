@@ -1,410 +1,236 @@
-# Copilot Instructions for projr
+# projr Package Development Guidelines
 
-This is an R package that facilitates reproducible and archived
-projects. The package helps users manage project structure, build
-processes, versioning, and deployment.
+## Purpose & Scope
 
-## Code Standards
+Core development standards for the projr R package. This package manages
+reproducible research projects with version control, automated builds,
+and multi-destination deployment (local, GitHub, OSF).
 
-### Required Before Each Commit
+For language-specific and topic-specific guidelines, see
+`.github/instructions/` directory.
+
+------------------------------------------------------------------------
+
+## Topic-Specific Instructions
+
+See detailed guidelines in `.github/instructions/`: -
+`r-coding-standards.instructions.md` - R code style and patterns
+(applies to `**/*.R`) - `testing.instructions.md` - Test suite
+guidelines (applies to `tests/**/*`) -
+`package-development.instructions.md` - Development workflow -
+`yaml-configuration.instructions.md` - YAML config guidelines (applies
+to `**/*.{yml,yaml}`) - `build-system.instructions.md` - Build process,
+logging, manifest system (applies to build/manifest/hash files) -
+`git-version-control.instructions.md` - Git integration and version
+management (applies to git files) - `authentication.instructions.md` -
+Authentication for GitHub/OSF (applies to auth files)
+
+------------------------------------------------------------------------
+
+## Core Principles
+
+### Code Quality
+
+- Make minimal, surgical changes to fix issues
+- Maintain backward compatibility when possible
+- Follow existing patterns in the codebase
+- Add tests for new functionality or bug fixes
+
+### Before Committing
 
 - Run
   [`devtools::document()`](https://devtools.r-lib.org/reference/document.html)
-  to update roxygen2 documentation in `man/`
+  to update documentation
 - Run
   [`devtools::test()`](https://devtools.r-lib.org/reference/test.html)
-  to ensure all tests pass
+  with LITE mode for faster iteration
 - Run
   [`devtools::check()`](https://devtools.r-lib.org/reference/check.html)
   to ensure package passes R CMD check
-- Ensure code follows the existing style conventions (see below)
 
-### Development Flow
+### Package Structure
 
-- **Install dependencies**:
-  [`renv::restore()`](https://rstudio.github.io/renv/reference/restore.html)
-- **Load package**:
-  [`devtools::load_all()`](https://devtools.r-lib.org/reference/load_all.html)
-- **Document**:
-  [`devtools::document()`](https://devtools.r-lib.org/reference/document.html)
-  (updates `man/` and `NAMESPACE`)
-- **Test**:
-  [`devtools::test()`](https://devtools.r-lib.org/reference/test.html)
-- **Check**:
-  [`devtools::check()`](https://devtools.r-lib.org/reference/check.html)
-- **Build**:
-  [`devtools::build()`](https://devtools.r-lib.org/reference/build.html)
+- `R/` - Source code (use `.` prefix for internal, `projr_` for exported
+  functions)
+- `tests/testthat/` - Tests (use helper functions from `helper-*.R`)
+- `man/` - Auto-generated docs (DO NOT edit directly)
+- `_projr.yml` - Project configuration
 
-### Testing with GitHub Actions
+------------------------------------------------------------------------
 
-The repository uses GitHub Actions for CI/CD: - R CMD check runs on
-push/PR - Test coverage is tracked with codecov - The workflow is
-defined in `.github/workflows/R-CMD-check.yaml`
+## Key Systems
 
-## Repository Structure
+### Version Management
 
-### Core Directories
+- Versions follow format in `metadata.version-format` (default:
+  `major.minor.patch-dev`)
+- Functions:
+  [`projr_version_get()`](https://satvilab.github.io/projr/reference/projr_version_get.md),
+  [`projr_version_set()`](https://satvilab.github.io/projr/reference/projr_version_set.md)
 
-- `R/`: R source code - all package functions (70+ files)
-- `tests/testthat/`: Unit tests using testthat 3e
-  - Test files named `test-*.R` corresponding to source files
-  - Manual tests in `tests/testthat/manual/`
-- `man/`: Auto-generated documentation (DO NOT edit directly - use
-  roxygen2)
-- `vignettes/`: Package vignettes (R Markdown format)
-- `inst/`: Package installation files
-  - `inst/CITATION`: Citation information
-  - `inst/project_structure/`: Project structure templates
-- `renv/`: renv package management
-- `.github/workflows/`: GitHub Actions workflows
+### Build System
 
-### Configuration Files
+- Production builds:
+  [`projr_build_patch()`](https://satvilab.github.io/projr/reference/projr_build.md),
+  [`projr_build_minor()`](https://satvilab.github.io/projr/reference/projr_build.md),
+  [`projr_build_major()`](https://satvilab.github.io/projr/reference/projr_build.md)
+- Development builds:
+  [`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md)
+- Environment variables: `PROJR_OUTPUT_LEVEL`, `PROJR_CLEAR_OUTPUT`,
+  `PROJR_LOG_DETAILED`
 
-- `DESCRIPTION`: Package metadata, dependencies, and configuration
-- `NAMESPACE`: Auto-generated exports (managed by roxygen2)
-- `_pkgdown.yml`: pkgdown website configuration
-- `codecov.yml`: Code coverage configuration
-- `renv.lock`: Locked package versions
-- `.Rbuildignore`: Files to exclude from R package build
+### Manifest System
 
-## Key Guidelines
+- Tracks file hashes across versions in `manifest.csv`
+- Query functions:
+  [`projr_manifest_changes()`](https://satvilab.github.io/projr/reference/projr_manifest_query.md),
+  [`projr_manifest_range()`](https://satvilab.github.io/projr/reference/projr_manifest_query.md),
+  [`projr_manifest_last_change()`](https://satvilab.github.io/projr/reference/projr_manifest_query.md)
 
-### 1. Coding Style
+### Git Integration
 
-- Use `.` prefix for internal (non-exported) functions (e.g.,
-  `.build_manifest_pre()`)
-- Use `snake_case` for function and variable names
-- Exported functions use the pattern `projr_*` (e.g.,
-  [`projr_init_prompt()`](https://satvilab.github.io/projr/reference/projr_init_prompt.md),
-  [`projr_path_get_dir()`](https://satvilab.github.io/projr/reference/projr_path_get_dir.md))
-- Use the native pipe `|>` for function composition
-- Keep functions focused and modular
-- Use descriptive variable names (e.g., `label_vec`, `path_manifest`,
-  `dir_test`)
+- Auto-commits and pushes based on `build.git` settings in `_projr.yml`
+- Works with both Git CLI and `gert` R package
 
-### 2. Documentation (roxygen2)
+### Remote Destinations
 
-All exported functions **must** include: - `#' @title`: Short one-line
-title - `#' @description`: Detailed description - `#' @param`: Document
-all parameters with type and description - `#' @return`: Describe what
-the function returns (use `invisible(...)` when appropriate) -
-`#' @export`: For exported functions only - `#' @examples`: Provide
-working examples (wrap in `\dontrun{}` if needed) - `#' @seealso`: Link
-to related functions when appropriate
+- Local, GitHub, OSF destinations supported
+- Restore functions:
+  [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md),
+  [`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_restore.md)
 
-Example from the codebase:
+------------------------------------------------------------------------
+
+## Authentication
+
+### GitHub
+
+- Set `GITHUB_PAT` environment variable
+- All `gh::` or `gitcreds::` calls must have
+  [`.auth_check_github()`](https://satvilab.github.io/projr/reference/dot-auth_check_github.md)
+  before use
+- Instructions:
+  [`projr_instr_auth_github()`](https://satvilab.github.io/projr/reference/instr_auth.md)
+
+### OSF
+
+- Set `OSF_PAT` environment variable  
+- All `osfr::` calls must have
+  [`.auth_check_osf()`](https://satvilab.github.io/projr/reference/dot-auth_check_osf.md)
+  before use
+- Instructions:
+  [`projr_instr_auth_osf()`](https://satvilab.github.io/projr/reference/instr_auth.md)
+
+------------------------------------------------------------------------
+
+## Environment Variables
+
+### Build Control
+
+- `PROJR_OUTPUT_LEVEL` - Console verbosity: `"none"`, `"std"`, `"debug"`
+  (default: `"none"` for dev, `"std"` for output)
+- `PROJR_CLEAR_OUTPUT` - When to clear output: `"pre"`, `"post"`,
+  `"never"` (default: `"pre"`)
+- `PROJR_LOG_DETAILED` - Create detailed log files: `TRUE`/`FALSE`
+  (default: `"TRUE"`)
+
+### Testing Control
+
+- `R_PKG_TEST_LITE` - Enable LITE test mode (skip comprehensive tests)
+- `R_PKG_TEST_CRAN` - Enable CRAN test mode (skip slow/integration
+  tests)
+- `R_PKG_TEST_SELECT` - Skip most tests (for targeted testing)
+
+### Environment Files
+
+- `_environment.local` - Machine-specific (git-ignored, highest
+  precedence)
+- `_environment-<profile>` - Profile-specific variables
+- `_environment` - Global defaults (lowest precedence)
+
+------------------------------------------------------------------------
+
+## Common Patterns
+
+### YAML Configuration
 
 ``` r
-#' @title Initialise project
-#'
-#' @description Initialise project
-#'
-#' @param yml_path_from character.
-#' Path to YAML file to use as `_projr.yml`.
-#' If not supplied, then default `_projr.yml` file is used.
-#'
-#' @param renv_force Logical.
-#' Passed to `renv::init()`.
-#' Default is \code{FALSE}.
-#'
-#' @export
-projr_init_prompt <- function(yml_path_from = NULL, 
-                               renv_force = FALSE, 
-                               renv_bioconductor = TRUE,
-                               public = FALSE) {
+# Get directory path
+projr_path_get_dir("output", safe = TRUE)
+
+# Set Git options
+projr_yml_git_set(commit = TRUE, push = TRUE, add_untracked = TRUE)
+
+# Add build hook
+projr_yml_hooks_add(path = "setup.R", stage = "pre")
+```
+
+### Input Validation
+
+``` r
+.my_function <- function(param) {
+  .assert_string(param, required = TRUE)
   # implementation
 }
 ```
 
-Internal functions (starting with `.`) should NOT have `@export` tags.
-
-### 3. Testing with testthat
-
-- Use testthat 3e (Config/testthat/edition: 3)
-- Test file naming: `test-{feature}.R` (e.g., `test-manifest.R` for
-  manifest-related functions)
-- Use `test_that()` for each test case with descriptive names
-- Use `skip_if(.is_test_select())` for tests that should be skipped in
-  certain conditions
-- Use
-  [`usethis::with_project()`](https://usethis.r-lib.org/reference/proj_utils.html)
-  for tests that need a temporary project environment
-- Test helpers available: `.test_setup_project()`,
-  `.test_setup_content()`
-- Common expect functions:
-  - `expect_identical()` for exact matches
-  - `expect_true()` / `expect_false()` for logical values
-  - `expect_error()` for error conditions
-  - Test edge cases: empty directories, missing files, NULL values
-
-Example test pattern from the codebase:
+### Error Handling
 
 ``` r
-test_that(".build_manifest_* works", {
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # test setup
-      path_manifest <- .build_manifest_pre(TRUE)
-      manifest <- .manifest_read(path_manifest)
-      expect_identical(nrow(manifest), 0L)
-      
-      # test with content
-      label_vec <- c("cache", "raw-data")
-      invisible(.test_setup_content(label_vec, safe = TRUE))
-      path_manifest <- .build_manifest_pre(TRUE)
-      manifest <- .manifest_read(path_manifest)
-      expect_identical(nrow(manifest), 3L)
-    }
-  )
-})
-```
-
-### 4. Dependencies
-
-- **Core imports** (always available): renv, jsonlite, yaml, rprojroot,
-  desc, fs, digest
-- **Suggests** (optional): testthat, devtools, usethis, gert, gh,
-  quarto, knitr, etc.
-- When adding dependencies:
-  - Add to `DESCRIPTION` under `Imports:` or `Suggests:`
-  - Use `package::function()` notation for suggested packages
-  - Update `renv.lock` with
-    [`renv::snapshot()`](https://rstudio.github.io/renv/reference/snapshot.html)
-
-### 5. Common Patterns in the Codebase
-
-#### Conditional execution with output_run
-
-Many functions have an `output_run` parameter:
-
-``` r
-.build_manifest_pre <- function(output_run) {
-  if (!output_run) {
-    return(invisible(FALSE))
-  }
-  # actual implementation
+if (!file.exists(path)) {
+  stop("File not found: ", path)
 }
 ```
 
-#### Path handling
+------------------------------------------------------------------------
 
-- Use `.path_get()` for project-relative paths
-- Use `.dir_get_cache_auto_version()` for cache directories
-- Use
-  [`projr_path_get_dir()`](https://satvilab.github.io/projr/reference/projr_path_get_dir.md)
-  for directory paths
+## Key Concepts
 
-#### Data structures
+### Safe vs Unsafe Directories
 
-- Use tibbles/data.frames for tabular data (manifests, etc.)
-- Return empty tables with `.zero_tbl_get_manifest()` when appropriate
-- Use lists for configurations (e.g., `nm_list`)
+- **Safe** (`safe = TRUE`): Build directory in cache (e.g.,
+  `_tmp/projr/v0.0.1/output`)
+- **Unsafe** (`safe = FALSE`): Actual directory (e.g., `_output`)
+- Applies to `output`, `docs`, `data` directories
 
-#### Error handling
+### Test Modes
 
-- Use [`stop()`](https://rdrr.io/r/base/stop.html) for errors in
-  internal functions
-- Provide informative error messages
-- Check for file/directory existence before operations
+- **LITE**: Fast, core tests (~364 tests, ~2.5 min) - recommended for
+  development
+- **FULL**: All tests including comprehensive (~452 tests, ~5+ min) -
+  for releases
+- **CRAN**: Minimal tests for CRAN submission (\<2 min)
 
-### 6. YAML Configuration
+### Directory Labels
 
-The package heavily uses YAML configuration (`_projr.yml`): -
-Configuration is read and managed through `yml-*.R` files - Functions
-like `.yml_dir_get_label_*()` retrieve configuration values - Use
-existing YAML helper functions rather than reading files directly
+- `raw-data`, `cache`, `output`, `docs`, `project`, `code`, `data`
+- Labels are case-insensitive and ignore hyphens/underscores
 
-### 7. Version Control and Git
+------------------------------------------------------------------------
 
-- The package includes Git integration (see `R/git.R`)
-- Some functions interact with GitHub (using `gh` and `gert` packages)
-- Test functions can create Git repos: `.test_setup_project(git = TRUE)`
+## Maintaining These Instructions
 
-### 8. Pre- and Post-Build Scripts
+When updating copilot instructions, follow GitHub’s best practices:
 
-The package supports custom scripts that run before or after the build
-process:
+- **Keep it concise** - Files under 1000 lines (ideally under 250)
+- **Structure matters** - Use headings, bullets, clear sections
+- **Be direct** - Short, imperative rules over long paragraphs
+- **Show examples** - Include code samples (correct and incorrect
+  patterns)
+- **No external links** - Copilot won’t follow them; copy info instead
+- **No vague language** - Avoid “be more accurate”, “identify all
+  issues”, etc.
+- **Path-specific** - Use `applyTo` frontmatter in topic files
 
-#### API Structure
+See `.github/instructions/README.md` for detailed maintenance
+guidelines.
 
-- **Exported functions**:
-  [`projr_yml_script_add()`](https://satvilab.github.io/projr/reference/yml-script.md),
-  [`projr_yml_script_add_pre()`](https://satvilab.github.io/projr/reference/yml-script.md),
-  [`projr_yml_script_add_post()`](https://satvilab.github.io/projr/reference/yml-script.md),
-  [`projr_yml_script_rm()`](https://satvilab.github.io/projr/reference/yml-script.md),
-  [`projr_yml_script_rm_all()`](https://satvilab.github.io/projr/reference/yml-script.md)
-- **Internal functions**: `.yml_script_add()`, `.yml_script_rm()`,
-  `.yml_script_rm_all()`, `.yml_script_get()`, `.yml_script_set()`
-- **Build execution**: `.build_pre_script_run()` and
-  `.build_post_script_run()` in `R/build-script.R`
+------------------------------------------------------------------------
 
-#### Key Implementation Details
+## Resources
 
-1.  **Function parameters**:
-    - All internal script functions must have default parameters:
-      `cue = NULL`, `profile = "default"`
-    - This ensures internal functions can be called without explicit
-      parameters in tests
-2.  **Data structure**:
-    - Scripts are stored in `_projr.yml` under `build.script`
-    - Structure:
-      `list("title" = list(stage = "pre"/"post", path = character_vector, cue = optional))`
-    - The `.yml_script_add()` function calls `.yml_script_set()` to
-      persist changes
-3.  **Script execution timing**:
-    - **Pre-build scripts** run:
-      - After bumping the project version (if done)
-      - Before committing the present state of code to Git
-      - Called by `.build_pre_script_run()` in the build process
-    - **Post-build scripts** run:
-      - After committing the present state of code to Git
-      - Before distributing project artifacts to remotes
-      - Called by `.build_post_script_run()` in the build process
-4.  **Script execution context**:
-    - Scripts run in the order specified in `_projr.yml`
-    - Scripts are NOT run in the same environment as the build process
-    - Scripts are executed via
-      [`source()`](https://rdrr.io/r/base/source.html) in
-      `.script_run()`
-5.  **Cue levels** (controls when scripts run):
-    - `"build"` or `"dev"`: Always trigger scripts
-    - `"patch"`, `"minor"`, `"major"`: Minimum build level that triggers
-      scripts
-
-#### Testing Pattern
-
-``` r
-test_that(".build_script... functions work", {
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Add scripts using internal functions
-      .yml_script_add(
-        title = "test-script",
-        path = c("script1.R", "script2.R"),
-        stage = "pre"
-        # Note: cue and profile have defaults
-      )
-      
-      # Execute scripts
-      .build_script_run(stage = "pre")
-      
-      # Verify script effects
-      expect_true(exists("x"))
-    }
-  )
-})
-```
-
-#### Common Pitfalls
-
-- Forgetting to add default parameters (`cue = NULL`,
-  `profile = "default"`) to internal functions
-- Not calling `.yml_script_set()` in functions that modify script
-  configuration
-- Incorrect structure assignment (use `yml_script[[title]]` not
-  `yml_script[[stage]][[title]]`)
-- Missing internal wrapper functions (`.yml_script_rm()`,
-  `.yml_script_rm_all()`) that exported functions rely on
-
-## File Organization Patterns
-
-Functions are organized by feature/domain: - `build*.R`: Build process
-functions - `init*.R`: Initialization functions - `yml*.R`: YAML
-configuration handling - `dest*.R`: Destination/deployment functions -
-`git*.R`: Git integration - `manifest*.R`: Manifest management -
-`auth.R`: Authentication helpers
-
-## When Making Changes
-
-1.  **New functions**:
-    - Add to appropriate `R/*.R` file or create new file
-    - Use `.` prefix for internal functions
-    - Use `projr_` prefix for exported functions
-    - Add roxygen2 documentation for exports
-    - Add corresponding tests in `tests/testthat/test-*.R`
-2.  **Modifying existing functions**:
-    - Maintain backward compatibility when possible
-    - Update tests to cover new behavior
-    - Update roxygen2 documentation if parameters/return values change
-    - Run
-      [`devtools::document()`](https://devtools.r-lib.org/reference/document.html)
-      after roxygen2 changes
-3.  **Bug fixes**:
-    - Add a test that reproduces the bug first
-    - Fix the bug
-    - Verify the test now passes
-    - Ensure existing tests still pass
-4.  **Documentation changes**:
-    - Vignettes: Edit `.Rmd` files in `vignettes/`
-    - Function docs: Edit roxygen2 comments in `R/` files
-    - README: Edit `README.md` directly
-    - Run
-      [`devtools::document()`](https://devtools.r-lib.org/reference/document.html)
-      after roxygen2 changes
-
-## Build and Test Commands
-
-``` r
-# Load package for interactive development
-devtools::load_all()
-
-# Run all tests
-devtools::test()
-
-# Run tests for specific file
-devtools::test_file("tests/testthat/test-manifest.R")
-
-# Update documentation
-devtools::document()
-
-# Check package (comprehensive)
-devtools::check()
-
-# Install package locally
-devtools::install()
-
-# Build package
-devtools::build()
-
-# Update renv lockfile after adding dependencies
-renv::snapshot()
-```
-
-## Common Issues and Solutions
-
-1.  **Test failures**:
-    - Check if tests need project setup:
-      [`usethis::with_project()`](https://usethis.r-lib.org/reference/proj_utils.html)
-    - Some tests may be skipped with `skip_if(.is_test_select())`
-2.  **Documentation not updating**:
-    - Run
-      [`devtools::document()`](https://devtools.r-lib.org/reference/document.html)
-      to regenerate `man/` files
-    - Check roxygen2 comments syntax
-3.  **Dependency issues**:
-    - Run
-      [`renv::restore()`](https://rstudio.github.io/renv/reference/restore.html)
-      to sync with `renv.lock`
-    - Check `DESCRIPTION` for package requirements
-4.  **Check failures**:
-    - Review output of
-      [`devtools::check()`](https://devtools.r-lib.org/reference/check.html)
-    - Common issues: missing documentation, unused imports, test
-      failures
-
-## Additional Notes
-
-- The package uses `renv` for reproducible dependency management
-- The package has a pkgdown website (configured in `_pkgdown.yml`)
-- Code coverage is tracked and should be maintained/improved
-- The package integrates with multiple services: GitHub, OSF (Open
-  Science Framework)
-- Some functionality requires authentication (GitHub PAT, OSF token)
-- The package supports multiple document engines (R Markdown, Quarto,
-  Bookdown)
+- pkgdown config: `_pkgdown.yml`
+- CI/CD: `.github/workflows/R-CMD-check.yaml`
+- Package documentation: Run
+  [`pkgdown::build_site()`](https://pkgdown.r-lib.org/reference/build_site.html)
+  to build locally

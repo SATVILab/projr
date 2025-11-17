@@ -15,7 +15,7 @@ and configuring both Git and GitHub repositories."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.18-14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0-1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,6 +27,7 @@ and configuring both Git and GitHub repositories."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/how-to-guides.html">How-to guides</a></li>
+    <li><a class="dropdown-item" href="../articles/environment.html">Environment Variables</a></li>
     <li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
     <li><a class="dropdown-item" href="../articles/design.html">Design</a></li>
   </ul></li>
@@ -75,7 +76,12 @@ and configuring both Git and GitHub repositories.</p>
 <span>  lit_doc <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">projr_init_all</span><span class="op">(</span>github_org <span class="op">=</span> <span class="cn">NULL</span>, license <span class="op">=</span> <span class="cn">NULL</span>, lit_doc <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="fu">projr_init_all</span><span class="op">(</span></span>
+<span>  github <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  github_org <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  license <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  lit_doc <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">projr_init_renv</span><span class="op">(</span>bioc <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -154,13 +160,33 @@ Defaults to <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-bioc">bioc<a class="anchor" aria-label="anchor" href="#arg-bioc"></a></dt>
-<dd><p>Logical. If <code>TRUE</code>, includes Bioconductor packages in the renv setup.
-Defaults to <code>TRUE</code>.</p></dd>
+<dd><p>Logical (for <code>projr_init_renv</code>). If <code>TRUE</code>, includes Bioconductor packages
+in the renv setup. Defaults to <code>TRUE</code>.</p></dd>
 
 
-<dt id="arg-renv">renv<a class="anchor" aria-label="anchor" href="#arg-renv"></a></dt>
-<dd><p>Logical. If <code>TRUE</code>, initializes a renv environment for dependency management.
-Defaults to <code>FALSE</code>.</p></dd>
+<dt id="arg-commit">commit<a class="anchor" aria-label="anchor" href="#arg-commit"></a></dt>
+<dd><p>Logical (for <code>projr_init_git</code>). If <code>TRUE</code>, commits the initial changes
+to the Git repository. Defaults to <code>TRUE</code>.</p></dd>
+
+
+<dt id="arg-username">username<a class="anchor" aria-label="anchor" href="#arg-username"></a></dt>
+<dd><p>Character or <code>NULL</code> (for <code>projr_init_github</code>). The GitHub username or
+organization under which to create the repository. Defaults to <code>NULL</code>.</p></dd>
+
+
+<dt id="arg-public">public<a class="anchor" aria-label="anchor" href="#arg-public"></a></dt>
+<dd><p>Logical (for <code>projr_init_github</code>). If <code>TRUE</code>, the GitHub repository will
+be public. Defaults to <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-first-name">first_name<a class="anchor" aria-label="anchor" href="#arg-first-name"></a></dt>
+<dd><p>Character (for <code>projr_init_license</code>). First name for proprietary license.
+Required when <code>license = "proprietary"</code>.</p></dd>
+
+
+<dt id="arg-last-name">last_name<a class="anchor" aria-label="anchor" href="#arg-last-name"></a></dt>
+<dd><p>Character (for <code>projr_init_license</code>). Last name for proprietary license.
+Required when <code>license = "proprietary"</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
