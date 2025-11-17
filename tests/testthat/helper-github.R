@@ -1,3 +1,23 @@
+# Skip wrapper for tests that modify GitHub repositories
+# Ensures tests only run when:
+# 1. A token is detectable via .auth_get_github_pat_find()
+# 2. The token is NOT the same as GITHUB_TOKEN (prevents using CI tokens)
+.test_skip_if_cannot_modify_github <- function() {
+  # Check if token is detectable
+  token <- .auth_get_github_pat_find()
+  if (!nzchar(token)) {
+    testthat::skip("No GitHub token found")
+  }
+
+  # Check if token is same as GITHUB_TOKEN
+  github_token <- Sys.getenv("GITHUB_TOKEN", "")
+  if (nzchar(github_token) && identical(token, github_token)) {
+    testthat::skip("Cannot modify GitHub repos with GITHUB_TOKEN (use GITHUB_PAT instead)")
+  }
+
+  invisible(TRUE)
+}
+
 .test_github_repo_create <- function(user = NULL,
                                      # token = NULL,
                                      repo = NULL,

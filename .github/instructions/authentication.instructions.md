@@ -95,10 +95,14 @@ All OSF wrapper functions must have `.auth_check_osf()`:
 
 ### GitHub Authentication
 
-Priority order:
-1. `GITHUB_PAT` - Checked first
-2. `GITHUB_TOKEN` - Checked if GITHUB_PAT not set
-3. `gitcreds` package - Fallback if neither env var set
+**Token Search Priority** (implemented in `.auth_get_github_pat_find()`):
+
+1. `GITHUB_PAT` environment variable - Checked first, highest priority
+2. `gh::gh_token()` - Uses gh package to retrieve token if available (may check GITHUB_TOKEN, gitcreds, etc.)
+3. `gitcreds::gitcreds_get()` - Fallback to gitcreds credential manager if gh package not available
+4. `GITHUB_TOKEN` environment variable - Final fallback, lowest priority
+
+This precedence ensures user-specific tokens (`GITHUB_PAT`) take priority over system tokens (`GITHUB_TOKEN`), which is important for CI/CD environments where `GITHUB_TOKEN` may have limited permissions.
 
 The token should have appropriate scopes:
 - `repo` - For repository operations
@@ -120,7 +124,7 @@ Tests should handle both authenticated and unauthenticated scenarios:
 ```r
 # Test with authentication
 test_that("function works with auth", {
-  skip_if(!nzchar(Sys.getenv("GITHUB_PAT")))
+  skip_if(!nzchar(.auth_get_github_pat_find()))
   # Test with credentials available
   expect_true(.my_github_function())
 })
@@ -145,6 +149,29 @@ test_that("OSF operation works", {
   # Test implementation
 })
 ```
+
+### Tests That Modify GitHub Repositories
+
+Tests that create, delete, or modify GitHub repositories (not SATVILab/projr) must:
+
+1. Check that a token is detectable via `.auth_get_github_pat_find()`
+2. Check that this token is NOT the same as `GITHUB_TOKEN` (to prevent using CI tokens with limited permissions)
+
+Use the helper wrapper `.test_skip_if_cannot_modify_github()`:
+
+```r
+test_that("creates and deletes GitHub repo", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
+  .test_skip_if_cannot_modify_github()
+
+  # Test that creates/deletes a GitHub repository
+  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
+  # ... test implementation
+})
+```
+
+This ensures tests that modify GitHub repositories only run when a user-specific token (not GITHUB_TOKEN) is available.
 
 ---
 
