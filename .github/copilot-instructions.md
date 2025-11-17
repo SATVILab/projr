@@ -149,6 +149,22 @@ if (!file.exists(path)) {
 
 ---
 
+## Maintaining These Instructions
+
+When updating copilot instructions, follow GitHub's best practices:
+
+- **Keep it concise** - Files under 1000 lines (ideally under 250)
+- **Structure matters** - Use headings, bullets, clear sections
+- **Be direct** - Short, imperative rules over long paragraphs
+- **Show examples** - Include code samples (correct and incorrect patterns)
+- **No external links** - Copilot won't follow them; copy info instead
+- **No vague language** - Avoid "be more accurate", "identify all issues", etc.
+- **Path-specific** - Use `applyTo` frontmatter in topic files
+
+See `.github/instructions/README.md` for detailed maintenance guidelines.
+
+---
+
 ## Resources
 
 - pkgdown config: `_pkgdown.yml`

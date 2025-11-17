@@ -63,13 +63,30 @@ More guidelines...
 
 ## Maintenance
 
-When updating these files:
+When updating these files, **follow GitHub's best practices** for Copilot instructions:
 
-1. Keep the same structure and format
-2. Ensure `applyTo` patterns are correct
-3. Add examples for new concepts
-4. Keep files focused on their specific topic
-5. Update the main `copilot-instructions.md` if adding new topic files
+### General Guidelines
+
+1. **Keep it concise** - Files under 250 lines ideal, never exceed 1000 lines
+2. **Structure matters** - Use clear headings, bullet points, and sections
+3. **Be direct** - Short, imperative rules are more effective than long paragraphs
+4. **Show examples** - Demonstrate concepts with sample code (correct and incorrect patterns)
+
+### Specific Requirements
+
+1. **Keep the same structure and format** - All files follow the template below
+2. **Ensure `applyTo` patterns are correct** - Target only relevant files
+3. **Add examples for new concepts** - Include code blocks showing usage
+4. **Keep files focused on their specific topic** - Don't mix concerns
+5. **Update the main `copilot-instructions.md`** if adding new topic files
+
+### What NOT to Do
+
+❌ **Don't include external links** - Copilot won't follow them; copy relevant info instead
+❌ **Don't use vague language** - Avoid "be more accurate", "identify all issues", etc.
+❌ **Don't try to change Copilot's UX** - Can't change comment formatting, fonts, etc.
+❌ **Don't request product behavior changes** - Can't block PRs, modify overview comments, etc.
+❌ **Don't create long dense paragraphs** - Use bullets and short sections instead
 
 ## References
 
