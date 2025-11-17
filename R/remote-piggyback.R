@@ -9,20 +9,20 @@
                                    log_file = NULL,
                                    check_success = function(x) !.pb_tbl_redo_check(x)) {
   .dep_install("piggyback")
-  
+
   .cli_debug(
     "Piggyback: Starting {operation_name} (max {max_attempts} attempts)",
     output_level = output_level,
     log_file = log_file
   )
-  
+
   delay <- initial_delay
-  
+
   for (attempt in seq_len(max_attempts)) {
     # Clear cache before each attempt (except first)
     if (attempt > 1) {
       piggyback::.pb_cache_clear()
-      
+
       # Apply delay with exponential backoff
       actual_delay <- min(delay, max_delay)
       .cli_debug(
@@ -33,10 +33,10 @@
       Sys.sleep(actual_delay)
       delay <- delay * backoff_factor
     }
-    
+
     # Execute the operation
     result <- fn()
-    
+
     # Check if successful
     if (check_success(result)) {
       .cli_debug(
@@ -46,7 +46,7 @@
       )
       return(result)
     }
-    
+
     # Log the failure with error details
     error_type <- .pb_error_classify(result)
     .cli_debug(
@@ -55,14 +55,14 @@
       log_file = log_file
     )
   }
-  
+
   # All attempts exhausted
   .cli_debug(
     "Piggyback: All {max_attempts} attempts for {operation_name} failed",
     output_level = output_level,
     log_file = log_file
   )
-  
+
   result
 }
 
@@ -77,9 +77,9 @@
     }
     return("unknown")
   }
-  
+
   error_msg <- attr(result, "condition")$message
-  
+
   # Check for common error patterns
   if (grepl("429|rate.?limit", error_msg, ignore.case = TRUE)) {
     return("rate limit exceeded")
@@ -99,7 +99,7 @@
   if (grepl("500|502|503|504|server error", error_msg, ignore.case = TRUE)) {
     return("server error")
   }
-  
+
   "unknown error"
 }
 
@@ -138,25 +138,25 @@
 .pb_guess_repo <- function(path = ".") {
   .auth_check_github("accessing GitHub repository information")
   gh_repo <- gh::gh_tree_remote(path)
-  
+
   # Validate that we got valid owner and repo names
   owner <- gh_repo[[1]]
   repo <- gh_repo[[2]]
-  
+
   if (is.null(owner) || !nzchar(owner)) {
     stop(
       "Failed to get GitHub repository owner from git remote. ",
       "Please ensure the repository has a valid GitHub remote configured."
     )
   }
-  
+
   if (is.null(repo) || !nzchar(repo)) {
     stop(
       "Failed to get GitHub repository name from git remote. ",
       "Please ensure the repository has a valid GitHub remote configured."
     )
   }
-  
+
   paste0(owner, "/", repo)
 }
 
@@ -166,7 +166,7 @@
   result <- try(suppressWarnings(suppressMessages(
     piggyback::pb_releases(repo = repo) #nolint
   )), silent = TRUE) #nolint
-  
+
   if (inherits(result, "try-error")) {
     error_msg <- attr(result, "condition")$message
     .cli_debug(
@@ -175,7 +175,7 @@
       log_file = log_file
     )
   }
-  
+
   result
 }
 
@@ -198,7 +198,7 @@
     log_file = log_file,
     check_success = function(x) !.pb_tbl_redo_check(x)
   )
-  
+
   # Normalize the result
   .pb_asset_tbl_normalize(result)
 }
@@ -220,12 +220,12 @@
       stringsAsFactors = FALSE
     ))
   }
-  
+
   # If the table exists but doesn't have file_name column, add it
   if (!("file_name" %in% names(tbl))) {
     tbl[["file_name"]] <- character(0)
   }
-  
+
   tbl
 }
 
@@ -236,7 +236,7 @@
   result <- try(suppressWarnings(suppressMessages(piggyback::pb_list(
     repo = repo, tag = tag
   ))), silent = TRUE)
-  
+
   if (inherits(result, "try-error")) {
     error_msg <- attr(result, "condition")$message
     .cli_debug(
@@ -245,7 +245,7 @@
       log_file = log_file
     )
   }
-  
+
   result
 }
 

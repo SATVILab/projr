@@ -609,7 +609,7 @@
   if (!.git_repo_check_exists()) {
     return(NULL)
   }
-  
+
   switch(.git_system_get(),
     "git" = .git_branch_get_git(),
     "gert" = .git_branch_get_gert(),
@@ -648,7 +648,7 @@
   if (!.git_repo_check_exists()) {
     return(NULL)
   }
-  
+
   switch(.git_system_get(),
     "git" = .git_last_commit_get_git(),
     "gert" = .git_last_commit_get_gert(),
@@ -663,18 +663,18 @@
     stdout = TRUE,
     stderr = FALSE
   )
-  
+
   message <- system2(
     "git",
     args = c("log", "-1", "--pretty=format:%s"),
     stdout = TRUE,
     stderr = FALSE
   )
-  
+
   if (length(sha) == 0 || length(message) == 0) {
     return(NULL)
   }
-  
+
   list(sha = sha, message = message)
 }
 
@@ -699,7 +699,7 @@
   if (!.git_repo_check_exists()) {
     return(character(0))
   }
-  
+
   switch(.git_system_get(),
     "git" = .git_untracked_not_ignored_get_git(),
     "gert" = .git_untracked_not_ignored_get_gert(),
@@ -716,11 +716,11 @@
     stdout = TRUE,
     stderr = FALSE
   )
-  
+
   if (length(git_output) == 0) {
     return(character(0))
   }
-  
+
   # Filter out empty strings
   git_output[nzchar(git_output)]
 }
@@ -730,11 +730,11 @@
     git_tbl_status <- gert::git_status()
     # Get files with status "new" (untracked)
     untracked <- git_tbl_status[["file"]][git_tbl_status[["status"]] == "new"]
-    
+
     if (length(untracked) == 0) {
       return(character(0))
     }
-    
+
     untracked
   }, error = function(e) character(0))
 }

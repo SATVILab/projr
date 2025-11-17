@@ -15,20 +15,20 @@
 
   # loop over types of remotes
   type_vec <- .dest_send_get_type(archive_github, archive_local)
-  
+
   .cli_debug(
     "Starting destination send process for {length(type_vec)} remote type(s): {paste(type_vec, collapse = ', ')}",
     output_level = output_level,
     log_file = log_file
   )
-  
+
   for (type in type_vec) {
     .cli_debug(
       "Processing remote type: {type}",
       output_level = output_level,
       log_file = log_file
     )
-    
+
     # force archive_type to FALSE if it
     # there is a destination with title "archive"
     # of the same type as `type`.
@@ -153,13 +153,13 @@
   # also specified in the `yml`.
   # so, the parameters are not overrides.
   title_vec <- .dest_send_type_get_title(type, archive_type)
-  
+
   .cli_debug(
     "Remote type '{type}': Processing {length(title_vec)} destination(s): {paste(title_vec, collapse = ', ')}",
     output_level = output_level,
     log_file = log_file
   )
-  
+
   for (x in title_vec) {
     .dest_send_title(
       x, type, bump_component, archive_type, always_archive,
@@ -196,13 +196,13 @@
                              output_level = "std",
                              log_file = NULL) {
   force(title)
-  
+
   .cli_debug(
     "Destination '{title}' (type: {type}): Checking if send is needed",
     output_level = output_level,
     log_file = log_file
   )
-  
+
   may_send <- .dest_send_title_check(
     title, type, bump_component, archive_type, always_archive
   )
@@ -219,7 +219,7 @@
   content_vec <- .dest_send_title_get_content(
     title, type, archive_type
   )
-  
+
   .cli_debug(
     "Destination '{title}': Send APPROVED - Processing {length(content_vec)} content label(s): {paste(content_vec, collapse = ', ')}",
     output_level = output_level,

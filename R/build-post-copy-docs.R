@@ -70,17 +70,17 @@
     "ioslides_presentation",
     "html_document"
   )
-  
+
   # Check exact match with HTML formats
   if (format %in% html_formats) {
     return(TRUE)
   }
-  
+
   # Check if it's an html_document variant (e.g., prettydoc::html_pretty)
   if (grepl("html", format, ignore.case = TRUE)) {
     return(TRUE)
   }
-  
+
   FALSE
 }
 
@@ -181,13 +181,13 @@
     # not in an output run
     return(invisible(FALSE))
   }
-  
+
   # Get source directory (temporary build location in cache)
   source_dir <- file.path(
     .dir_get_cache_auto_version(profile = NULL),
     .dir_get_docs_bookdown()  # Gets the bookdown output directory name
   )
-  
+
   if (!dir.exists(source_dir)) {
     message("Bookdown output directory not found: ", source_dir)
     return(invisible(FALSE))
@@ -211,23 +211,23 @@
   # Get the book filename from _bookdown.yml
   book_filename <- .yml_bd_get_book_filename()
   files_dir_name <- paste0(book_filename, "_files")
-  
+
   # Source is in the cache build directory (working directory during build)
   cache_dir <- .dir_get_cache_auto_version(profile = NULL)
   source_files_dir <- file.path(cache_dir, files_dir_name)
-  
+
   # Skip if the _files directory doesn't exist
   if (!dir.exists(source_files_dir)) {
     return(invisible(FALSE))
   }
-  
+
   # Destination is in the final docs directory
   dest_dir <- projr_path_get_dir("docs", safe = !output_run)
   dest_files_dir <- file.path(dest_dir, files_dir_name)
-  
+
   # Copy the _files directory
   .dir_move_exact(source_files_dir, dest_files_dir)
-  
+
   invisible(TRUE)
 }
 

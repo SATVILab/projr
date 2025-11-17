@@ -129,12 +129,12 @@ test_that("function works with auth", {
 test_that("function fails gracefully without auth", {
   pat_old <- Sys.getenv("GITHUB_PAT")
   Sys.unsetenv("GITHUB_PAT")
-  
+
   expect_error(
     .auth_check_github(),
     "GitHub authentication is required"
   )
-  
+
   if (nzchar(pat_old)) Sys.setenv(GITHUB_PAT = pat_old)
 })
 
@@ -185,7 +185,7 @@ stop("Auth failed")  # Not helpful!
 # Correct: Full auth check pattern
 .init_github_impl <- function(repo_name, private = FALSE) {
   .auth_check_github("creating GitHub repository")
-  
+
   # Now safe to use gh:: functions
   user <- gh::gh_whoami()$login
   repo <- gh::gh(
@@ -193,14 +193,14 @@ stop("Auth failed")  # Not helpful!
     name = repo_name,
     private = private
   )
-  
+
   return(repo)
 }
 
 # Correct: OSF operation with auth check
 .remote_create_osf <- function(title) {
   .auth_check_osf("creating OSF node")
-  
+
   # Now safe to use osfr:: functions
   node <- osfr::osf_create_project(title)
   return(node)

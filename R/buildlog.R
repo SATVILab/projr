@@ -92,11 +92,11 @@
 .buildlog_get_change_summary <- function(bump_component) {
   output_run <- .build_get_output_run(bump_component)
   summary <- .build_change_summary_get(output_run)
-  
+
   if (is.null(summary)) {
     return(character(0))
   }
-  
+
   summary
 }
 
@@ -150,25 +150,25 @@
 .buildlog_get_system_resources <- function() {
   # Get system information
   sys_info <- Sys.info()
-  
+
   # Get OS information
   os_name <- sys_info[["sysname"]]
   os_release <- sys_info[["release"]]
   os_version <- sys_info[["version"]]
-  
+
   # Get CPU information
   cpu_cores <- parallel::detectCores(logical = TRUE)
-  
+
   # Get memory information (platform-specific)
   memory_info <- .buildlog_get_memory_info()
-  
+
   # Get disk space information
   disk_info <- .buildlog_get_disk_info()
-  
+
   # Get R platform information
   r_platform <- R.version$platform
   r_arch <- R.version$arch
-  
+
   c(
     "**System Resources**",
     "",
@@ -186,12 +186,12 @@
 .buildlog_get_memory_info <- function() {
   # Try to get memory information based on platform
   sys_info <- Sys.info()
-  
+
   if (sys_info[["sysname"]] == "Linux") {
     # Linux: use /proc/meminfo or free command
     mem_output <- tryCatch(
       {
-        system("free -h 2>/dev/null | grep '^Mem:' | awk '{print $2}'", 
+        system("free -h 2>/dev/null | grep '^Mem:' | awk '{print $2}'",
                intern = TRUE)
       },
       error = function(e) NULL
@@ -224,7 +224,7 @@
       return(paste0("- Total RAM: ", mem_gb, " GB"))
     }
   }
-  
+
   # Fallback if unable to determine memory
   return("- Total RAM: Unable to determine")
 }
@@ -238,13 +238,13 @@
         system("wmic logicaldisk get size,freespace 2>nul", intern = TRUE)
       } else {
         # Unix-like: use df
-        system("df -h . 2>/dev/null | tail -1 | awk '{print $2\" total, \"$4\" available\"}'", 
+        system("df -h . 2>/dev/null | tail -1 | awk '{print $2\" total, \"$4\" available\"}'",
                intern = TRUE)
       }
     },
     error = function(e) NULL
   )
-  
+
   if (!is.null(disk_output) && length(disk_output) > 0 && disk_output != "") {
     if (Sys.info()[["sysname"]] == "Windows") {
       return("- Disk Space: See Windows disk info")
@@ -252,7 +252,7 @@
       return(paste0("- Disk Space: ", disk_output))
     }
   }
-  
+
   return("- Disk Space: Unable to determine")
 }
 

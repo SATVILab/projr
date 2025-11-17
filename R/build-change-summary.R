@@ -19,37 +19,37 @@
     # Dev builds don't track changes in the same way
     return(NULL)
   }
-  
+
   # Safely get current version - return NULL if not available
   version_current <- tryCatch(
     projr_version_get(),
     error = function(e) NULL
   )
-  
+
   if (is.null(version_current)) {
     return(NULL)
   }
-  
+
   version_previous <- .build_change_summary_get_previous_version()
-  
+
   if (is.null(version_previous)) {
     return(NULL)
   }
-  
+
   # Get manifest for both versions
   manifest_all <- tryCatch(
     .manifest_read_project(),
     error = function(e) NULL
   )
-  
+
   if (is.null(manifest_all) || nrow(manifest_all) == 0) {
     return(NULL)
   }
-  
+
   # Get labels to check (inputs and outputs)
   labels_input <- c(.yml_dir_get_label_cache(NULL), .yml_dir_get_label_raw(NULL))
   labels_output <- c(.yml_dir_get_label_docs(NULL), .yml_dir_get_label_output(NULL))
-  
+
   # Filter to only those that are hashed
   labels_input <- labels_input[vapply(
     labels_input, .yml_dir_get_hash_complete, logical(1), profile = NULL
@@ -57,10 +57,10 @@
   labels_output <- labels_output[vapply(
     labels_output, .yml_dir_get_hash_complete, logical(1), profile = NULL
   )]
-  
+
   # Build summary
   summary_lines <- c()
-  
+
   if (length(labels_input) > 0) {
     summary_lines <- c(
       summary_lines,
@@ -69,7 +69,7 @@
       )
     )
   }
-  
+
   if (length(labels_output) > 0) {
     summary_lines <- c(
       summary_lines,
@@ -78,11 +78,11 @@
       )
     )
   }
-  
+
   if (length(summary_lines) == 0) {
     return(NULL)
   }
-  
+
   summary_lines
 }
 
@@ -92,22 +92,22 @@
 #' @keywords internal
 .build_change_summary_get_previous_version <- function() {
   manifest <- .manifest_read_project()
-  
+
   if (nrow(manifest) == 0) {
     return(NULL)
   }
-  
+
   # Get all unique versions
   versions <- unique(manifest[["version"]])
   versions <- vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE)
-  
+
   # Sort and get the second-most recent (previous to current)
   versions_sorted <- sort(versions, decreasing = TRUE)
-  
+
   if (length(versions_sorted) < 2) {
     return(NULL)
   }
-  
+
   versions_sorted[2]
 }
 
@@ -121,31 +121,31 @@
 #'
 #' @return Character vector of formatted lines for this section.
 #' @keywords internal
-.build_change_summary_format_section <- function(section_name, labels, 
-                                                 manifest_all, version_prev, 
+.build_change_summary_format_section <- function(section_name, labels,
+                                                 manifest_all, version_prev,
                                                  version_curr) {
   lines <- c(paste0("**", section_name, " Changes (v", version_prev, " -> v", version_curr, ")**"), "")
-  
+
   has_changes <- FALSE
-  
+
   for (label in labels) {
     manifest_prev <- manifest_all |>
       .manifest_filter_label(label) |>
       .manifest_filter_version(version_prev)
-    
+
     manifest_curr <- manifest_all |>
       .manifest_filter_label(label) |>
       .manifest_filter_version(version_curr)
-    
+
     # Compare using existing change detection
     change_list <- .change_get_hash(manifest_prev, manifest_curr)
-    
+
     # Count changes
     n_added <- length(change_list[["fn_source_extra"]])
     n_removed <- length(change_list[["fn_dest_extra"]])
     n_modified <- length(change_list[["fn_diff"]])
     n_unchanged <- length(change_list[["fn_same"]])
-    
+
     # Skip if no changes
     if (n_added == 0 && n_removed == 0 && n_modified == 0) {
       if (n_unchanged > 0) {
@@ -153,21 +153,21 @@
       }
       next
     }
-    
+
     has_changes <- TRUE
-    
+
     # Format changes for this label
     label_lines <- .build_change_summary_format_label(
       label, change_list, n_added, n_removed, n_modified, n_unchanged
     )
-    
+
     lines <- c(lines, label_lines)
   }
-  
+
   if (!has_changes) {
     lines <- c(lines, paste0("- No changes detected in ", tolower(section_name)))
   }
-  
+
   c(lines, "")
 }
 
@@ -182,19 +182,19 @@
 #'
 #' @return Character vector of formatted lines.
 #' @keywords internal
-.build_change_summary_format_label <- function(label, change_list, n_added, 
+.build_change_summary_format_label <- function(label, change_list, n_added,
                                                n_removed, n_modified, n_unchanged) {
   lines <- c(paste0("- `", label, "`:"))
-  
+
   # Summary counts
   summary_parts <- c()
   if (n_added > 0) summary_parts <- c(summary_parts, paste0(n_added, " added"))
   if (n_removed > 0) summary_parts <- c(summary_parts, paste0(n_removed, " removed"))
   if (n_modified > 0) summary_parts <- c(summary_parts, paste0(n_modified, " modified"))
   if (n_unchanged > 0) summary_parts <- c(summary_parts, paste0(n_unchanged, " unchanged"))
-  
+
   lines <- c(lines, paste0("  - ", paste(summary_parts, collapse = ", ")))
-  
+
   # Show file details if total changes < 10
   total_changes <- n_added + n_removed + n_modified
   if (total_changes < 10) {
@@ -208,7 +208,7 @@
       lines <- c(lines, paste0("  - Modified: ", paste(change_list[["fn_diff"]], collapse = ", ")))
     }
   }
-  
+
   lines
 }
 
@@ -223,15 +223,15 @@
 #' @keywords internal
 .build_change_summary_get_debug <- function(output_run) {
   summary <- .build_change_summary_get(output_run)
-  
+
   if (is.null(summary)) {
     return(list(has_changes = FALSE, message = NULL))
   }
-  
+
   # Extract key info for console output
   # Look for counts in the summary
   has_changes <- any(grepl("added|removed|modified", summary))
-  
+
   list(
     has_changes = has_changes,
     message = summary
@@ -250,19 +250,19 @@
 #' @keywords internal
 .build_change_summary_display <- function(bump_component, output_level = "std", log_file = NULL) {
   output_run <- .build_get_output_run(bump_component)
-  
+
   # Only display for output builds
   if (!output_run) {
     return(invisible(NULL))
   }
-  
+
   summary_info <- .build_change_summary_get_debug(output_run)
-  
+
   if (!summary_info$has_changes || is.null(summary_info$message)) {
     .cli_debug("No changes detected since previous build", output_level = output_level, log_file = log_file)
     return(invisible(NULL))
   }
-  
+
   # Display each line of the summary
   for (line in summary_info$message) {
     # Skip empty lines in console output but keep in log
@@ -270,6 +270,6 @@
       .cli_debug(line, output_level = output_level, log_file = log_file)
     }
   }
-  
+
   invisible(NULL)
 }

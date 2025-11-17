@@ -200,13 +200,13 @@ projr_instr_auth_osf <- function() {
   if (.is_string(pat)) {
     return(invisible(TRUE))
   }
-  
+
   context_msg <- if (!is.null(context)) {
     paste0("GitHub authentication is required for: ", context, "\n\n")
   } else {
     "GitHub authentication is required.\n\n"
   }
-  
+
   stop(
     context_msg,
     paste(.auth_get_github_pat_instr(), collapse = ""),
@@ -230,13 +230,13 @@ projr_instr_auth_osf <- function() {
   if (.is_string(pat)) {
     return(invisible(TRUE))
   }
-  
+
   context_msg <- if (!is.null(context)) {
     paste0("OSF authentication is required for: ", context, "\n\n")
   } else {
     "OSF authentication is required.\n\n"
   }
-  
+
   stop(
     context_msg,
     paste(.auth_get_osf_pat_instr(), collapse = ""),

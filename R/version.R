@@ -229,26 +229,26 @@ projr_name_get <- function() basename(.path_get())
   if (length(version_vec) == 0) {
     stop("version_vec must have at least one element")
   }
-  
+
   # Convert numeric to character if needed
   if (is.numeric(version_vec)) {
     version_vec <- as.character(version_vec)
   }
-  
+
   # Validate input types
   .assert_chr(version_vec, required = TRUE)
-  
+
   # Special case: single element version (no separators needed)
   if (.is_len_1(version_vec)) {
     return(version_vec)
   }
-  
+
   # For multi-element versions, validate split_vec
   if (length(split_vec) == 0) {
     stop("split_vec must have at least one element when version_vec has more than one element")
   }
   .assert_chr(split_vec, required = TRUE)
-  
+
   version <- paste0(
     version_vec[seq_along(split_vec)],
     collapse = split_vec[-length(split_vec)]
