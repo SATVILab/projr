@@ -61,6 +61,10 @@
 <li>Maintain backward compatibility when possible</li>
 <li>Follow existing patterns in the codebase</li>
 <li>Add tests for new functionality or bug fixes</li>
+<li>
+<strong>Never leave trailing whitespace</strong> at the end of lines or on blank lines</li>
+<li>
+<strong>Always add a blank line</strong> between headings (ending with <code>**</code>) and bullet points</li>
 </ul></div>
 <div class="section level3">
 <h3 id="before-committing">Before Committing<a class="anchor" aria-label="anchor" href="#before-committing"></a></h3>
@@ -128,7 +132,7 @@
 </ul></div>
 <div class="section level3">
 <h3 id="osf">OSF<a class="anchor" aria-label="anchor" href="#osf"></a></h3>
-<ul><li>Set <code>OSF_PAT</code> environment variable<br></li>
+<ul><li>Set <code>OSF_PAT</code> environment variable</li>
 <li>All <code>osfr::</code> calls must have <code><a href="reference/dot-auth_check_osf.html">.auth_check_osf()</a></code> before use</li>
 <li>Instructions: <code><a href="reference/instr_auth.html">projr_instr_auth_osf()</a></code>
 </li>

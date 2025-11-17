@@ -146,8 +146,8 @@ applicable)
 
 After each build, projr creates a manifest (`_output/manifest.csv`) that
 records: - Which version of raw data was used - Which version of code
-was used  
-- Which outputs were generated - SHA-256 checksums for verification
+was used - Which outputs were generated - SHA-256 checksums for
+verification
 
 This ensures you can always trace outputs back to their exact inputs.
 

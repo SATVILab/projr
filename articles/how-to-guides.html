@@ -72,26 +72,23 @@
 
     
     
-<div class="section level2">
-<h2 id="how-to-guides">How-to guides<a class="anchor" aria-label="anchor" href="#how-to-guides"></a>
-</h2>
 <p>Short, task-focused guides for common projr workflows. Each section
 follows the pattern: <strong>When to use</strong>,
 <strong>Steps</strong>, <strong>Pitfalls</strong>, and <strong>See
 also</strong>.</p>
 <hr>
+<div class="section level2">
+<h2 id="initialise-a-project">1. Initialise a project<a class="anchor" aria-label="anchor" href="#initialise-a-project"></a>
+</h2>
 <div class="section level3">
-<h3 id="initialise-a-project">1. Initialise a project<a class="anchor" aria-label="anchor" href="#initialise-a-project"></a>
+<h3 id="when-to-use">When to use<a class="anchor" aria-label="anchor" href="#when-to-use"></a>
 </h3>
-<div class="section level4">
-<h4 id="when-to-use">When to use<a class="anchor" aria-label="anchor" href="#when-to-use"></a>
-</h4>
 <p>When starting a new research project or adopting projr in an existing
 project.</p>
 </div>
-<div class="section level4">
-<h4 id="steps">Steps<a class="anchor" aria-label="anchor" href="#steps"></a>
-</h4>
+<div class="section level3">
+<h3 id="steps">Steps<a class="anchor" aria-label="anchor" href="#steps"></a>
+</h3>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://satvilab.github.io/projr/">projr</a></span><span class="op">)</span></span>
 <span></span>
@@ -129,9 +126,9 @@ project.</p>
 <span>  authors <span class="op">=</span> <span class="st">"Jane Doe"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="pitfalls">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls"></a>
-</h4>
+<div class="section level3">
+<h3 id="pitfalls">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls"></a>
+</h3>
 <ul>
 <li>
 <strong>Git/GitHub prompts</strong>: If you haven’t set up GitHub
@@ -143,9 +140,9 @@ existing configuration files. Delete or rename them first if you want
 fresh defaults.</li>
 </ul>
 </div>
-<div class="section level4">
-<h4 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a>
-</h4>
+<div class="section level3">
+<h3 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a>
+</h3>
 <ul>
 <li>
 <code><a href="../reference/projr_init.html">?projr_init</a></code> - Full documentation</li>
@@ -158,18 +155,18 @@ initialisation</li>
 <hr>
 </div>
 </div>
+<div class="section level2">
+<h2 id="run-a-development-build-safely">2. Run a development build safely<a class="anchor" aria-label="anchor" href="#run-a-development-build-safely"></a>
+</h2>
 <div class="section level3">
-<h3 id="run-a-development-build-safely">2. Run a development build safely<a class="anchor" aria-label="anchor" href="#run-a-development-build-safely"></a>
+<h3 id="when-to-use-1">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-1"></a>
 </h3>
-<div class="section level4">
-<h4 id="when-to-use-1">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-1"></a>
-</h4>
 <p>When iterating on code and documents, before you’re ready to create a
 new versioned release.</p>
 </div>
-<div class="section level4">
-<h4 id="steps-1">Steps<a class="anchor" aria-label="anchor" href="#steps-1"></a>
-</h4>
+<div class="section level3">
+<h3 id="steps-1">Steps<a class="anchor" aria-label="anchor" href="#steps-1"></a>
+</h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Build all documents, route outputs to cache</span></span>
 <span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -200,9 +197,9 @@ correctly in both dev and final builds:</p>
 <span><span class="co"># During dev build: saves to _tmp/projr/v0.1.0/output/figures/plot.png</span></span>
 <span><span class="co"># During final build: saves to _output/figures/plot.png</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="pitfalls-1">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-1"></a>
-</h4>
+<div class="section level3">
+<h3 id="pitfalls-1">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-1"></a>
+</h3>
 <ul>
 <li>
 <strong>Forgetting <code><a href="../reference/projr_path_get.html">projr_path_get()</a></code></strong>: If you
@@ -214,9 +211,9 @@ over time. Clean it periodically with
 <code>unlink("_tmp/projr", recursive = TRUE)</code>.</li>
 </ul>
 </div>
-<div class="section level4">
-<h4 id="see-also-1">See also<a class="anchor" aria-label="anchor" href="#see-also-1"></a>
-</h4>
+<div class="section level3">
+<h3 id="see-also-1">See also<a class="anchor" aria-label="anchor" href="#see-also-1"></a>
+</h3>
 <ul>
 <li>
 <code><a href="../reference/projr_build_dev.html">?projr_build_dev</a></code> - Full documentation</li>
@@ -226,18 +223,18 @@ over time. Clean it periodically with
 <hr>
 </div>
 </div>
+<div class="section level2">
+<h2 id="run-a-final-build">3. Run a final build<a class="anchor" aria-label="anchor" href="#run-a-final-build"></a>
+</h2>
 <div class="section level3">
-<h3 id="run-a-final-build">3. Run a final build<a class="anchor" aria-label="anchor" href="#run-a-final-build"></a>
+<h3 id="when-to-use-2">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-2"></a>
 </h3>
-<div class="section level4">
-<h4 id="when-to-use-2">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-2"></a>
-</h4>
 <p>When you’ve completed and tested changes and want to create a new
 versioned release.</p>
 </div>
-<div class="section level4">
-<h4 id="steps-2">Steps<a class="anchor" aria-label="anchor" href="#steps-2"></a>
-</h4>
+<div class="section level3">
+<h3 id="steps-2">Steps<a class="anchor" aria-label="anchor" href="#steps-2"></a>
+</h3>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Patch version bump (0.1.0 -&gt; 0.1.1)</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -292,9 +289,9 @@ configured)</li>
 <span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="at">    </span><span class="fu">push</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
 <span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="at">    </span><span class="fu">commit_msg</span><span class="kw">:</span><span class="at"> </span><span class="st">"Release v{version}"</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="pitfalls-2">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-2"></a>
-</h4>
+<div class="section level3">
+<h3 id="pitfalls-2">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-2"></a>
+</h3>
 <ul>
 <li>
 <strong>Uncommitted changes</strong>: If you have uncommitted Git
@@ -307,9 +304,9 @@ your credentials and network connection.</li>
 <code>DESCRIPTION</code> matches your expectations before building.</li>
 </ul>
 </div>
-<div class="section level4">
-<h4 id="see-also-2">See also<a class="anchor" aria-label="anchor" href="#see-also-2"></a>
-</h4>
+<div class="section level3">
+<h3 id="see-also-2">See also<a class="anchor" aria-label="anchor" href="#see-also-2"></a>
+</h3>
 <ul>
 <li>
 <code><a href="../reference/projr_build.html">?projr_build</a></code> - Full documentation</li>
@@ -319,18 +316,18 @@ your credentials and network connection.</li>
 <hr>
 </div>
 </div>
+<div class="section level2">
+<h2 id="archive-artefacts">4. Archive artefacts<a class="anchor" aria-label="anchor" href="#archive-artefacts"></a>
+</h2>
 <div class="section level3">
-<h3 id="archive-artefacts">4. Archive artefacts<a class="anchor" aria-label="anchor" href="#archive-artefacts"></a>
+<h3 id="when-to-use-3">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-3"></a>
 </h3>
-<div class="section level4">
-<h4 id="when-to-use-3">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-3"></a>
-</h4>
 <p>When you want to configure where and how project components are
 archived after builds.</p>
 </div>
-<div class="section level4">
-<h4 id="steps-3">Steps<a class="anchor" aria-label="anchor" href="#steps-3"></a>
-</h4>
+<div class="section level3">
+<h3 id="steps-3">Steps<a class="anchor" aria-label="anchor" href="#steps-3"></a>
+</h3>
 <p><strong>Archive structure:</strong></p>
 <p>projr supports three archive types:</p>
 <ol style="list-style-type: decimal">
@@ -357,14 +354,14 @@ sync folder)</li>
 <span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="at">    </span><span class="fu">docs</span><span class="kw">:</span></span>
 <span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">docs</span><span class="kw">]</span></span>
 <span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="at">      </span><span class="fu">description</span><span class="kw">:</span><span class="at"> </span><span class="st">"Rendered documents"</span></span>
-<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="at">  </span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a></span>
 <span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">  # OSF</span></span>
 <span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="at">  </span><span class="fu">osf</span><span class="kw">:</span></span>
 <span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="at">    </span><span class="fu">project</span><span class="kw">:</span><span class="at"> </span><span class="st">"abc123"</span><span class="co">  # OSF project ID</span></span>
 <span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="at">    </span><span class="fu">raw-data</span><span class="kw">:</span></span>
 <span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
 <span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="at">      </span><span class="fu">component</span><span class="kw">:</span><span class="at"> </span><span class="st">"data"</span><span class="co">  # OSF component name</span></span>
-<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="at">    </span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a></span>
 <span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co">  # Local directory</span></span>
 <span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
 <span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> </span><span class="st">"~/Dropbox/my-project-archive"</span></span>
@@ -420,9 +417,9 @@ changed), “never”</li>
 <span><span class="co"># (Run a dev build to see what would happen without actually uploading)</span></span>
 <span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="pitfalls-3">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-3"></a>
-</h4>
+<div class="section level3">
+<h3 id="pitfalls-3">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-3"></a>
+</h3>
 <ul>
 <li>
 <strong>Large files on GitHub</strong>: GitHub has a 2GB limit for
@@ -435,9 +432,9 @@ with <code><a href="../reference/instr_auth.html">projr_instr_auth_osf()</a></co
 the build log for errors.</li>
 </ul>
 </div>
-<div class="section level4">
-<h4 id="see-also-3">See also<a class="anchor" aria-label="anchor" href="#see-also-3"></a>
-</h4>
+<div class="section level3">
+<h3 id="see-also-3">See also<a class="anchor" aria-label="anchor" href="#see-also-3"></a>
+</h3>
 <ul>
 <li><code><a href="../reference/projr_yml_dest_add_github.html">?projr_yml_dest_add_github</a></code></li>
 <li><code><a href="../reference/projr_yml_dest_add_osf.html">?projr_yml_dest_add_osf</a></code></li>
@@ -446,18 +443,18 @@ the build log for errors.</li>
 <hr>
 </div>
 </div>
+<div class="section level2">
+<h2 id="restore-artefacts">5. Restore artefacts<a class="anchor" aria-label="anchor" href="#restore-artefacts"></a>
+</h2>
 <div class="section level3">
-<h3 id="restore-artefacts">5. Restore artefacts<a class="anchor" aria-label="anchor" href="#restore-artefacts"></a>
+<h3 id="when-to-use-4">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-4"></a>
 </h3>
-<div class="section level4">
-<h4 id="when-to-use-4">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-4"></a>
-</h4>
 <p>When setting up a project on a new machine or restoring an archived
 version.</p>
 </div>
-<div class="section level4">
-<h4 id="steps-4">Steps<a class="anchor" aria-label="anchor" href="#steps-4"></a>
-</h4>
+<div class="section level3">
+<h3 id="steps-4">Steps<a class="anchor" aria-label="anchor" href="#steps-4"></a>
+</h3>
 <p><strong>Restore entire repository:</strong></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Clone repo and restore raw data</span></span>
@@ -494,9 +491,9 @@ is stored:</p>
 <span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span></span>
 <span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _output</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="pitfalls-4">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-4"></a>
-</h4>
+<div class="section level3">
+<h3 id="pitfalls-4">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-4"></a>
+</h3>
 <ul>
 <li>
 <strong>Missing archives</strong>: If no archive is found for a
@@ -509,9 +506,9 @@ correct version. Check available versions on GitHub Releases.</li>
 set up before restoring.</li>
 </ul>
 </div>
-<div class="section level4">
-<h4 id="see-also-4">See also<a class="anchor" aria-label="anchor" href="#see-also-4"></a>
-</h4>
+<div class="section level3">
+<h3 id="see-also-4">See also<a class="anchor" aria-label="anchor" href="#see-also-4"></a>
+</h3>
 <ul>
 <li><code><a href="../reference/projr_restore.html">?projr_restore_repo</a></code></li>
 <li><code><a href="../reference/projr_restore.html">?projr_restore</a></code></li>
@@ -519,17 +516,17 @@ set up before restoring.</li>
 <hr>
 </div>
 </div>
+<div class="section level2">
+<h2 id="define-directories-and-labels">6. Define directories and labels<a class="anchor" aria-label="anchor" href="#define-directories-and-labels"></a>
+</h2>
 <div class="section level3">
-<h3 id="define-directories-and-labels">6. Define directories and labels<a class="anchor" aria-label="anchor" href="#define-directories-and-labels"></a>
+<h3 id="when-to-use-5">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-5"></a>
 </h3>
-<div class="section level4">
-<h4 id="when-to-use-5">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-5"></a>
-</h4>
 <p>When customising project directory structure beyond the defaults.</p>
 </div>
-<div class="section level4">
-<h4 id="steps-5">Steps<a class="anchor" aria-label="anchor" href="#steps-5"></a>
-</h4>
+<div class="section level3">
+<h3 id="steps-5">Steps<a class="anchor" aria-label="anchor" href="#steps-5"></a>
+</h3>
 <p><strong>Default labels:</strong></p>
 <p>projr provides these default labels:</p>
 <ul>
@@ -586,9 +583,9 @@ automatically on build</li>
 <span><span class="fu"><a href="../reference/projr_path_get.html">projr_path_get</a></span><span class="op">(</span><span class="st">"output-figures"</span>, <span class="st">"plot.png"</span><span class="op">)</span></span>
 <span><span class="co"># "_output/figures/plot.png"</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="pitfalls-5">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-5"></a>
-</h4>
+<div class="section level3">
+<h3 id="pitfalls-5">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-5"></a>
+</h3>
 <ul>
 <li>
 <strong>Invalid prefixes</strong>: Labels like <code>my-data</code>
@@ -598,9 +595,9 @@ will fail. Use <code>raw-my-data</code> instead.</li>
 subdirectories of other labels.</li>
 </ul>
 </div>
-<div class="section level4">
-<h4 id="see-also-5">See also<a class="anchor" aria-label="anchor" href="#see-also-5"></a>
-</h4>
+<div class="section level3">
+<h3 id="see-also-5">See also<a class="anchor" aria-label="anchor" href="#see-also-5"></a>
+</h3>
 <ul>
 <li><code><a href="../reference/projr_path_get.html">?projr_path_get</a></code></li>
 <li><code><a href="../reference/projr_yml_get.html">?projr_yml_get</a></code></li>
@@ -608,18 +605,18 @@ subdirectories of other labels.</li>
 <hr>
 </div>
 </div>
+<div class="section level2">
+<h2 id="use-profiles">7. Use profiles<a class="anchor" aria-label="anchor" href="#use-profiles"></a>
+</h2>
 <div class="section level3">
-<h3 id="use-profiles">7. Use profiles<a class="anchor" aria-label="anchor" href="#use-profiles"></a>
+<h3 id="when-to-use-6">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-6"></a>
 </h3>
-<div class="section level4">
-<h4 id="when-to-use-6">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-6"></a>
-</h4>
 <p>When you need different configurations for different contexts (e.g.,
 development vs production, different collaborators).</p>
 </div>
-<div class="section level4">
-<h4 id="steps-6">Steps<a class="anchor" aria-label="anchor" href="#steps-6"></a>
-</h4>
+<div class="section level3">
+<h3 id="steps-6">Steps<a class="anchor" aria-label="anchor" href="#steps-6"></a>
+</h3>
 <p><strong>Create a profile:</strong></p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create a profile based on _projr.yml</span></span>
@@ -632,7 +629,7 @@ development vs production, different collaborators).</p>
 <span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
 <span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
 <span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">  # Disable GitHub uploads in dev profile</span></span>
-<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a><span class="at">  </span></span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a></span>
 <span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
 <span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span></span>
 <span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _output_dev</span><span class="co">  # Use different output directory</span></span></code></pre></div>
@@ -654,9 +651,9 @@ development vs production, different collaborators).</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_profile_delete.html">projr_profile_delete</a></span><span class="op">(</span><span class="st">"dev"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="pitfalls-6">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-6"></a>
-</h4>
+<div class="section level3">
+<h3 id="pitfalls-6">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-6"></a>
+</h3>
 <ul>
 <li>
 <strong>Forgetting to switch back</strong>: Remember to unset
@@ -666,9 +663,9 @@ development vs production, different collaborators).</p>
 keys. Unspecified keys fall back to <code>_projr.yml</code>.</li>
 </ul>
 </div>
-<div class="section level4">
-<h4 id="see-also-6">See also<a class="anchor" aria-label="anchor" href="#see-also-6"></a>
-</h4>
+<div class="section level3">
+<h3 id="see-also-6">See also<a class="anchor" aria-label="anchor" href="#see-also-6"></a>
+</h3>
 <ul>
 <li><code><a href="../reference/projr_profile_create.html">?projr_profile_create</a></code></li>
 <li><code><a href="../reference/projr_profile_get.html">?projr_profile_get</a></code></li>
@@ -677,18 +674,18 @@ keys. Unspecified keys fall back to <code>_projr.yml</code>.</li>
 <hr>
 </div>
 </div>
+<div class="section level2">
+<h2 id="view-and-manage-build-logs">8. View and manage build logs<a class="anchor" aria-label="anchor" href="#view-and-manage-build-logs"></a>
+</h2>
 <div class="section level3">
-<h3 id="view-and-manage-build-logs">8. View and manage build logs<a class="anchor" aria-label="anchor" href="#view-and-manage-build-logs"></a>
+<h3 id="when-to-use-7">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-7"></a>
 </h3>
-<div class="section level4">
-<h4 id="when-to-use-7">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-7"></a>
-</h4>
 <p>When you need to review build history, debug issues, or maintain
 clean log files.</p>
 </div>
-<div class="section level4">
-<h4 id="steps-7">Steps<a class="anchor" aria-label="anchor" href="#steps-7"></a>
-</h4>
+<div class="section level3">
+<h3 id="steps-7">Steps<a class="anchor" aria-label="anchor" href="#steps-7"></a>
+</h3>
 <p><strong>View build history:</strong></p>
 <p>All builds are automatically logged to
 <code>cache/projr/log/{dev,output}/history/builds.md</code>:</p>
@@ -702,7 +699,7 @@ clean log files.</p>
 <p>Each build creates a detailed Quarto log file organized by date:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># List recent dev build logs</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"cache/projr/log/dev/output"</span>, </span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"cache/projr/log/dev/output"</span>,</span>
 <span>           recursive <span class="op">=</span> <span class="cn">TRUE</span>, pattern <span class="op">=</span> <span class="st">"\\.qmd$"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Render a log file to HTML</span></span>
@@ -729,9 +726,9 @@ clean log files.</p>
 <span><span class="co"># Clear logs before a specific date</span></span>
 <span><span class="fu"><a href="../reference/projr_log_clear.html">projr_log_clear</a></span><span class="op">(</span>before_date <span class="op">=</span> <span class="st">"2025-01-01"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="pitfalls-7">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-7"></a>
-</h4>
+<div class="section level3">
+<h3 id="pitfalls-7">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-7"></a>
+</h3>
 <ul>
 <li>
 <strong>Log directory location</strong>: Logs are in
@@ -744,9 +741,9 @@ cleared automatically—manage manually.</li>
 logs periodically.</li>
 </ul>
 </div>
-<div class="section level4">
-<h4 id="see-also-7">See also<a class="anchor" aria-label="anchor" href="#see-also-7"></a>
-</h4>
+<div class="section level3">
+<h3 id="see-also-7">See also<a class="anchor" aria-label="anchor" href="#see-also-7"></a>
+</h3>
 <ul>
 <li><code><a href="../reference/projr_log_clear.html">?projr_log_clear</a></code></li>
 <li><code><a href="../reference/projr_build.html">?projr_build</a></code></li>
@@ -756,19 +753,19 @@ build functions</li>
 <hr>
 </div>
 </div>
+<div class="section level2">
+<h2 id="query-manifest-to-track-file-changes">9. Query manifest to track file changes<a class="anchor" aria-label="anchor" href="#query-manifest-to-track-file-changes"></a>
+</h2>
 <div class="section level3">
-<h3 id="query-manifest-to-track-file-changes">9. Query manifest to track file changes<a class="anchor" aria-label="anchor" href="#query-manifest-to-track-file-changes"></a>
+<h3 id="when-to-use-8">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-8"></a>
 </h3>
-<div class="section level4">
-<h4 id="when-to-use-8">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-8"></a>
-</h4>
 <p>When you need to: - Understand which files changed between versions -
 Track when specific outputs were last modified - Verify data provenance
 and reproducibility - Audit project history</p>
 </div>
-<div class="section level4">
-<h4 id="steps-8">Steps<a class="anchor" aria-label="anchor" href="#steps-8"></a>
-</h4>
+<div class="section level3">
+<h3 id="steps-8">Steps<a class="anchor" aria-label="anchor" href="#steps-8"></a>
+</h3>
 <p><strong>1. Compare two versions:</strong></p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># See what files changed between v0.0.1 and v0.0.2</span></span>
@@ -776,12 +773,12 @@ and reproducibility - Audit project history</p>
 <span></span>
 <span><span class="co"># View the results</span></span>
 <span><span class="va">changes</span></span>
-<span><span class="co"># Returns: label, fn, change_type (added/modified/removed), </span></span>
+<span><span class="co"># Returns: label, fn, change_type (added/modified/removed),</span></span>
 <span><span class="co">#          hash_from, hash_to</span></span>
 <span></span>
 <span><span class="co"># Filter by directory</span></span>
 <span><span class="va">output_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span></span>
-<span>  <span class="st">"0.0.1"</span>, <span class="st">"0.0.2"</span>, </span>
+<span>  <span class="st">"0.0.1"</span>, <span class="st">"0.0.2"</span>,</span>
 <span>  label <span class="op">=</span> <span class="st">"output"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><strong>2. Track files across multiple versions:</strong></p>
@@ -813,8 +810,8 @@ and reproducibility - Audit project history</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Did any raw data change since last release?</span></span>
 <span><span class="va">raw_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span></span>
-<span>  <span class="st">"0.1.0"</span>, </span>
-<span>  <span class="fu"><a href="../reference/projr_version_get.html">projr_version_get</a></span><span class="op">(</span><span class="op">)</span>, </span>
+<span>  <span class="st">"0.1.0"</span>,</span>
+<span>  <span class="fu"><a href="../reference/projr_version_get.html">projr_version_get</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  label <span class="op">=</span> <span class="st">"raw-data"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">raw_changes</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
@@ -825,9 +822,9 @@ and reproducibility - Audit project history</p>
 <span><span class="va">old_files</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_range</a></span><span class="op">(</span><span class="st">"0.0.1"</span><span class="op">)</span></span>
 <span><span class="va">old_files</span><span class="op">[</span><span class="va">old_files</span><span class="op">$</span><span class="va">version_last_change</span> <span class="op">&lt;</span> <span class="st">"v0.0.5"</span>, <span class="op">]</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="pitfalls-8">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-8"></a>
-</h4>
+<div class="section level3">
+<h3 id="pitfalls-8">Pitfalls<a class="anchor" aria-label="anchor" href="#pitfalls-8"></a>
+</h3>
 <ul>
 <li>
 <strong>Version format</strong>: Can use “0.0.1” or “v0.0.1” - both
@@ -848,9 +845,9 @@ one</li>
 </li>
 </ul>
 </div>
-<div class="section level4">
-<h4 id="see-also-8">See also<a class="anchor" aria-label="anchor" href="#see-also-8"></a>
-</h4>
+<div class="section level3">
+<h3 id="see-also-8">See also<a class="anchor" aria-label="anchor" href="#see-also-8"></a>
+</h3>
 <ul>
 <li><code><a href="../reference/projr_manifest_query.html">?projr_manifest_changes</a></code></li>
 <li><code><a href="../reference/projr_manifest_query.html">?projr_manifest_range</a></code></li>
@@ -860,19 +857,19 @@ one</li>
 <hr>
 </div>
 </div>
+<div class="section level2">
+<h2 id="configure-environment-variables">11. Configure environment variables<a class="anchor" aria-label="anchor" href="#configure-environment-variables"></a>
+</h2>
 <div class="section level3">
-<h3 id="configure-environment-variables">11. Configure environment variables<a class="anchor" aria-label="anchor" href="#configure-environment-variables"></a>
+<h3 id="when-to-use-9">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-9"></a>
 </h3>
-<div class="section level4">
-<h4 id="when-to-use-9">When to use<a class="anchor" aria-label="anchor" href="#when-to-use-9"></a>
-</h4>
 <p>When you need to: - Control build verbosity and logging behavior -
 Set up different configurations for development vs. production - Store
 authentication tokens securely - Override default build behaviors</p>
 </div>
-<div class="section level4">
-<h4 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
-</h4>
+<div class="section level3">
+<h3 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+</h3>
 <p><strong>1. Create environment files</strong></p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment"</span><span class="op">)</span>         <span class="co"># Global defaults</span></span>
@@ -890,9 +887,9 @@ authentication tokens securely - Override default build behaviors</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Loads all files in order of precedence</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="key-environment-variables">Key environment variables<a class="anchor" aria-label="anchor" href="#key-environment-variables"></a>
-</h4>
+<div class="section level3">
+<h3 id="key-environment-variables">Key environment variables<a class="anchor" aria-label="anchor" href="#key-environment-variables"></a>
+</h3>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Build control</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span>    <span class="co"># "none", "std", "debug"</span></span>
@@ -903,9 +900,9 @@ authentication tokens securely - Override default build behaviors</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>QUARTO_PROFILE <span class="op">=</span> <span class="st">"production"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="see-also-9">See also<a class="anchor" aria-label="anchor" href="#see-also-9"></a>
-</h4>
+<div class="section level3">
+<h3 id="see-also-9">See also<a class="anchor" aria-label="anchor" href="#see-also-9"></a>
+</h3>
 <ul>
 <li>
 <a href="environment.html"><strong>Environment Variables
@@ -915,7 +912,6 @@ article</strong></a> - Complete documentation</li>
 <li>
 <code><a href="../reference/projr_profile_get.html">?projr_profile_get</a></code> - Get current profile</li>
 </ul>
-</div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

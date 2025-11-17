@@ -1,21 +1,19 @@
 # How-to guides
 
-## How-to guides
-
 Short, task-focused guides for common projr workflows. Each section
 follows the pattern: **When to use**, **Steps**, **Pitfalls**, and **See
 also**.
 
 ------------------------------------------------------------------------
 
-### 1. Initialise a project
+## 1. Initialise a project
 
-#### When to use
+### When to use
 
 When starting a new research project or adopting projr in an existing
 project.
 
-#### Steps
+### Steps
 
 ``` r
 library(projr)
@@ -54,7 +52,7 @@ projr_init_cite(
 )
 ```
 
-#### Pitfalls
+### Pitfalls
 
 - **Git/GitHub prompts**: If you haven’t set up GitHub credentials, the
   initialisation may fail. See
@@ -64,7 +62,7 @@ projr_init_cite(
   configuration files. Delete or rename them first if you want fresh
   defaults.
 
-#### See also
+### See also
 
 - [`?projr_init`](https://satvilab.github.io/projr/reference/projr_init.md) -
   Full documentation
@@ -75,14 +73,14 @@ projr_init_cite(
 
 ------------------------------------------------------------------------
 
-### 2. Run a development build safely
+## 2. Run a development build safely
 
-#### When to use
+### When to use
 
 When iterating on code and documents, before you’re ready to create a
 new versioned release.
 
-#### Steps
+### Steps
 
 ``` r
 # Build all documents, route outputs to cache
@@ -125,7 +123,7 @@ dev.off()
 # During final build: saves to _output/figures/plot.png
 ```
 
-#### Pitfalls
+### Pitfalls
 
 - **Forgetting
   [`projr_path_get()`](https://satvilab.github.io/projr/reference/projr_path_get.md)**:
@@ -134,7 +132,7 @@ dev.off()
 - **Cache directory growth**: The cache can grow large over time. Clean
   it periodically with `unlink("_tmp/projr", recursive = TRUE)`.
 
-#### See also
+### See also
 
 - [`?projr_build_dev`](https://satvilab.github.io/projr/reference/projr_build_dev.md) -
   Full documentation
@@ -143,14 +141,14 @@ dev.off()
 
 ------------------------------------------------------------------------
 
-### 3. Run a final build
+## 3. Run a final build
 
-#### When to use
+### When to use
 
 When you’ve completed and tested changes and want to create a new
 versioned release.
 
-#### Steps
+### Steps
 
 ``` r
 # Patch version bump (0.1.0 -> 0.1.1)
@@ -200,7 +198,7 @@ build:
     commit_msg: "Release v{version}"
 ```
 
-#### Pitfalls
+### Pitfalls
 
 - **Uncommitted changes**: If you have uncommitted Git changes, the
   build may fail. Commit or stash changes first.
@@ -209,7 +207,7 @@ build:
 - **Version conflicts**: Ensure the version in `DESCRIPTION` matches
   your expectations before building.
 
-#### See also
+### See also
 
 - [`?projr_build`](https://satvilab.github.io/projr/reference/projr_build.md) -
   Full documentation
@@ -218,14 +216,14 @@ build:
 
 ------------------------------------------------------------------------
 
-### 4. Archive artefacts
+## 4. Archive artefacts
 
-#### When to use
+### When to use
 
 When you want to configure where and how project components are archived
 after builds.
 
-#### Steps
+### Steps
 
 **Archive structure:**
 
@@ -251,14 +249,14 @@ build:
     docs:
       content: [docs]
       description: "Rendered documents"
-  
+
   # OSF
   osf:
     project: "abc123"  # OSF project ID
     raw-data:
       content: [raw-data]
       component: "data"  # OSF component name
-    
+
   # Local directory
   local:
     path: "~/Dropbox/my-project-archive"
@@ -315,7 +313,7 @@ projr_yml_get()
 projr_build_dev()
 ```
 
-#### Pitfalls
+### Pitfalls
 
 - **Large files on GitHub**: GitHub has a 2GB limit for release assets.
   Use OSF or local for larger datasets.
@@ -324,7 +322,7 @@ projr_build_dev()
 - **Network failures**: Archives may fail silently. Check the build log
   for errors.
 
-#### See also
+### See also
 
 - [`?projr_yml_dest_add_github`](https://satvilab.github.io/projr/reference/projr_yml_dest_add_github.md)
 - [`?projr_yml_dest_add_osf`](https://satvilab.github.io/projr/reference/projr_yml_dest_add_osf.md)
@@ -332,14 +330,14 @@ projr_build_dev()
 
 ------------------------------------------------------------------------
 
-### 5. Restore artefacts
+## 5. Restore artefacts
 
-#### When to use
+### When to use
 
 When setting up a project on a new machine or restoring an archived
 version.
 
-#### Steps
+### Steps
 
 **Restore entire repository:**
 
@@ -387,7 +385,7 @@ directories:
     path: _output
 ```
 
-#### Pitfalls
+### Pitfalls
 
 - **Missing archives**: If no archive is found for a label, restoration
   fails silently.
@@ -396,20 +394,20 @@ directories:
 - **Authentication**: Ensure GitHub/OSF credentials are set up before
   restoring.
 
-#### See also
+### See also
 
 - [`?projr_restore_repo`](https://satvilab.github.io/projr/reference/projr_restore.md)
 - [`?projr_restore`](https://satvilab.github.io/projr/reference/projr_restore.md)
 
 ------------------------------------------------------------------------
 
-### 6. Define directories and labels
+## 6. Define directories and labels
 
-#### When to use
+### When to use
 
 When customising project directory structure beyond the defaults.
 
-#### Steps
+### Steps
 
 **Default labels:**
 
@@ -459,28 +457,28 @@ projr_path_get("output-figures", "plot.png")
 # "_output/figures/plot.png"
 ```
 
-#### Pitfalls
+### Pitfalls
 
 - **Invalid prefixes**: Labels like `my-data` will fail. Use
   `raw-my-data` instead.
 - **Nested conflicts**: Don’t create labels that point to subdirectories
   of other labels.
 
-#### See also
+### See also
 
 - [`?projr_path_get`](https://satvilab.github.io/projr/reference/projr_path_get.md)
 - [`?projr_yml_get`](https://satvilab.github.io/projr/reference/projr_yml_get.md)
 
 ------------------------------------------------------------------------
 
-### 7. Use profiles
+## 7. Use profiles
 
-#### When to use
+### When to use
 
 When you need different configurations for different contexts (e.g.,
 development vs production, different collaborators).
 
-#### Steps
+### Steps
 
 **Create a profile:**
 
@@ -500,7 +498,7 @@ Edit `_projr-dev.yml` to override specific settings:
 build:
   github:
     enabled: false  # Disable GitHub uploads in dev profile
-  
+
 directories:
   output:
     path: _output_dev  # Use different output directory
@@ -532,14 +530,14 @@ projr_profile_get()
 projr_profile_delete("dev")
 ```
 
-#### Pitfalls
+### Pitfalls
 
 - **Forgetting to switch back**: Remember to unset `PROJR_PROFILE` when
   done.
 - **Partial overrides**: Profiles only override specified keys.
   Unspecified keys fall back to `_projr.yml`.
 
-#### See also
+### See also
 
 - [`?projr_profile_create`](https://satvilab.github.io/projr/reference/projr_profile_create.md)
 - [`?projr_profile_get`](https://satvilab.github.io/projr/reference/projr_profile_get.md)
@@ -547,14 +545,14 @@ projr_profile_delete("dev")
 
 ------------------------------------------------------------------------
 
-### 8. View and manage build logs
+## 8. View and manage build logs
 
-#### When to use
+### When to use
 
 When you need to review build history, debug issues, or maintain clean
 log files.
 
-#### Steps
+### Steps
 
 **View build history:**
 
@@ -575,7 +573,7 @@ Each build creates a detailed Quarto log file organized by date:
 
 ``` r
 # List recent dev build logs
-list.files("cache/projr/log/dev/output", 
+list.files("cache/projr/log/dev/output",
            recursive = TRUE, pattern = "\\.qmd$")
 
 # Render a log file to HTML
@@ -609,7 +607,7 @@ projr_log_clear(history = FALSE, output = TRUE)
 projr_log_clear(before_date = "2025-01-01")
 ```
 
-#### Pitfalls
+### Pitfalls
 
 - **Log directory location**: Logs are in `cache/projr/log`, not in
   `_tmp`.
@@ -618,7 +616,7 @@ projr_log_clear(before_date = "2025-01-01")
 - **Disk space**: Logs accumulate over time; clear old logs
   periodically.
 
-#### See also
+### See also
 
 - [`?projr_log_clear`](https://satvilab.github.io/projr/reference/projr_log_clear.md)
 - [`?projr_build`](https://satvilab.github.io/projr/reference/projr_build.md)
@@ -627,15 +625,15 @@ projr_log_clear(before_date = "2025-01-01")
 
 ------------------------------------------------------------------------
 
-### 9. Query manifest to track file changes
+## 9. Query manifest to track file changes
 
-#### When to use
+### When to use
 
 When you need to: - Understand which files changed between versions -
 Track when specific outputs were last modified - Verify data provenance
 and reproducibility - Audit project history
 
-#### Steps
+### Steps
 
 **1. Compare two versions:**
 
@@ -645,12 +643,12 @@ changes <- projr_manifest_changes("0.0.1", "0.0.2")
 
 # View the results
 changes
-# Returns: label, fn, change_type (added/modified/removed), 
+# Returns: label, fn, change_type (added/modified/removed),
 #          hash_from, hash_to
 
 # Filter by directory
 output_changes <- projr_manifest_changes(
-  "0.0.1", "0.0.2", 
+  "0.0.1", "0.0.2",
   label = "output"
 )
 ```
@@ -691,8 +689,8 @@ historical_status <- projr_manifest_last_change("0.0.3")
 ``` r
 # Did any raw data change since last release?
 raw_changes <- projr_manifest_changes(
-  "0.1.0", 
-  projr_version_get(), 
+  "0.1.0",
+  projr_version_get(),
   label = "raw-data"
 )
 if (nrow(raw_changes) > 0) {
@@ -704,7 +702,7 @@ old_files <- projr_manifest_range("0.0.1")
 old_files[old_files$version_last_change < "v0.0.5", ]
 ```
 
-#### Pitfalls
+### Pitfalls
 
 - **Version format**: Can use “0.0.1” or “v0.0.1” - both work
 - **Empty manifests**: Returns 0-row data.frame if no changes found
@@ -713,7 +711,7 @@ old_files[old_files$version_last_change < "v0.0.5", ]
   [`projr_build()`](https://satvilab.github.io/projr/reference/projr_build.md)
   - Dev builds create temporary manifests but don’t update the main one
 
-#### See also
+### See also
 
 - [`?projr_manifest_changes`](https://satvilab.github.io/projr/reference/projr_manifest_query.md)
 - [`?projr_manifest_range`](https://satvilab.github.io/projr/reference/projr_manifest_query.md)
@@ -722,15 +720,15 @@ old_files[old_files$version_last_change < "v0.0.5", ]
 
 ------------------------------------------------------------------------
 
-### 11. Configure environment variables
+## 11. Configure environment variables
 
-#### When to use
+### When to use
 
 When you need to: - Control build verbosity and logging behavior - Set
 up different configurations for development vs. production - Store
 authentication tokens securely - Override default build behaviors
 
-#### Quick start
+### Quick start
 
 **1. Create environment files**
 
@@ -757,7 +755,7 @@ GITHUB_PAT=your_token_here
 projr_env_set()  # Loads all files in order of precedence
 ```
 
-#### Key environment variables
+### Key environment variables
 
 ``` r
 # Build control
@@ -770,7 +768,7 @@ Sys.setenv(PROJR_PROFILE = "dev")
 Sys.setenv(QUARTO_PROFILE = "production")
 ```
 
-#### See also
+### See also
 
 - [**Environment Variables
   article**](https://satvilab.github.io/projr/articles/environment.md) -

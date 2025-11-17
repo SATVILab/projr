@@ -194,9 +194,9 @@ Here is the default `directories` key:
 directories:
   raw-data:
     path: _raw_data
-  cache: 
+  cache:
     path: _tmp
-  output: 
+  output:
     path: _output
   docs:
     path: docs

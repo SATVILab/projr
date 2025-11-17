@@ -343,8 +343,7 @@ output directories are cleared during builds</p>
 <li>
 <code>"pre"</code>: Clear output before build starts</li>
 <li>
-<code>"post"</code>: Clear output after build completes<br>
-</li>
+<code>"post"</code>: Clear output after build completes</li>
 <li>
 <code>"never"</code>: Never automatically clear output</li>
 </ul>
@@ -430,8 +429,7 @@ Personal Access Token</p>
 <ul>
 <li>
 <strong>Purpose</strong>: Open Science Framework Personal Access
-Token<br>
-</li>
+Token</li>
 <li>
 <strong>Default</strong>: None</li>
 <li>
@@ -477,8 +475,7 @@ overrides</li>
 Quarto profile-specific</li>
 <li>
 <strong><code>_environment-&lt;PROJR_PROFILE&gt;</code></strong> -
-projr profile-specific<br>
-</li>
+projr profile-specific</li>
 <li>
 <strong><code>_environment</code></strong> - Global defaults</li>
 </ol>
@@ -507,14 +504,22 @@ properly.</p>
 <span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="ex">GITHUB_PAT</span></span>
 <span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="ex">DATABASE_URL</span></span>
 <span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="ex">API_KEY</span></span></code></pre></div>
-<p><strong>Behavior:</strong> - During builds, projr automatically
-checks that all listed variables are set - If a required variable is
-missing, a <strong>warning</strong> is issued (build continues) -
-Comments are supported (lines starting with <code>#</code>) - This file
-serves as both documentation and a validation mechanism</p>
-<p><strong>Use cases:</strong> - Document mandatory configuration for
-team members - Ensure critical credentials are configured before
-deployment - Provide a template for local environment setup</p>
+<p><strong>Behavior:</strong></p>
+<ul>
+<li>During builds, projr automatically checks that all listed variables
+are set</li>
+<li>If a required variable is missing, a <strong>warning</strong> is
+issued (build continues)</li>
+<li>Comments are supported (lines starting with <code>#</code>)</li>
+<li>This file serves as both documentation and a validation
+mechanism</li>
+</ul>
+<p><strong>Use cases:</strong></p>
+<ul>
+<li>Document mandatory configuration for team members</li>
+<li>Ensure critical credentials are configured before deployment</li>
+<li>Provide a template for local environment setup</li>
+</ul>
 <p><strong>Example workflow:</strong></p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 1. Create _environment.required with mandatory variables</span></span>
@@ -532,11 +537,15 @@ deployment - Provide a template for local environment setup</p>
 <div class="section level3">
 <h3 id="security">Security<a class="anchor" aria-label="anchor" href="#security"></a>
 </h3>
-<p><strong>Never commit secrets to version control:</strong> - Always
-use <code>_environment.local</code> for tokens, passwords, and API keys
-- This file is automatically added to <code>.gitignore</code> by projr -
-Never commit <code>GITHUB_PAT</code>, <code>OSF_PAT</code>, or similar
-sensitive values</p>
+<p><strong>Never commit secrets to version control:</strong></p>
+<ul>
+<li>Always use <code>_environment.local</code> for tokens, passwords,
+and API keys</li>
+<li>This file is automatically added to <code>.gitignore</code> by
+projr</li>
+<li>Never commit <code>GITHUB_PAT</code>, <code>OSF_PAT</code>, or
+similar sensitive values</li>
+</ul>
 <p><strong>Example safe setup:</strong></p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="co"># In _environment (committed to git)</span></span>
 <span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>API_BASE_URL<span class="ot">=</span>https<span class="sc">:</span><span class="er">//</span>api.example.com</span>
@@ -547,23 +556,38 @@ sensitive values</p>
 <div class="section level3">
 <h3 id="organization">Organization<a class="anchor" aria-label="anchor" href="#organization"></a>
 </h3>
-<p><strong>Use profiles for different environments:</strong> -
-<code>_environment-dev</code> - Development settings (verbose output,
-debug mode) - <code>_environment-test</code> - Testing settings
-(moderate output) - <code>_environment-prod</code> - Production settings
-(minimal output)</p>
-<p><strong>Keep global defaults minimal:</strong> - Use
-<code>_environment</code> only for settings that apply across all
-contexts - Put environment-specific settings in profile files - Use
-<code>_environment.local</code> for machine-specific overrides</p>
+<p><strong>Use profiles for different environments:</strong></p>
+<ul>
+<li>
+<code>_environment-dev</code> - Development settings (verbose
+output, debug mode)</li>
+<li>
+<code>_environment-test</code> - Testing settings (moderate
+output)</li>
+<li>
+<code>_environment-prod</code> - Production settings (minimal
+output)</li>
+</ul>
+<p><strong>Keep global defaults minimal:</strong></p>
+<ul>
+<li>Use <code>_environment</code> only for settings that apply across
+all contexts</li>
+<li>Put environment-specific settings in profile files</li>
+<li>Use <code>_environment.local</code> for machine-specific
+overrides</li>
+</ul>
 </div>
 <div class="section level3">
 <h3 id="validation">Validation<a class="anchor" aria-label="anchor" href="#validation"></a>
 </h3>
-<p><strong>Document requirements:</strong> - List required variables in
-<code>_environment.required</code> - Provide example values in
-<code>_environment</code> (commented out for secrets) - Include setup
-instructions in your project README</p>
+<p><strong>Document requirements:</strong></p>
+<ul>
+<li>List required variables in <code>_environment.required</code>
+</li>
+<li>Provide example values in <code>_environment</code> (commented out
+for secrets)</li>
+<li>Include setup instructions in your project README</li>
+</ul>
 <p><strong>Test your configuration:</strong></p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Verify variables are set correctly</span></span>

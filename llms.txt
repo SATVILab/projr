@@ -83,7 +83,7 @@ remotes::install_github("SATVILab/projr")
   Quick setup guide
 - **[How-to
   guides](https://satvilab.github.io/projr/articles/how-to-guides.html)** -
-  Task-focused recipes  
+  Task-focused recipes
 - **[Concepts](https://satvilab.github.io/projr/articles/concepts.html)** -
   Understanding projr’s approach
 - **[Design](https://satvilab.github.io/projr/articles/design.html)** -

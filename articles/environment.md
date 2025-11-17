@@ -239,7 +239,7 @@ during builds
 - **Case-sensitive** (must be lowercase)
 - **Behaviors**:
   - `"pre"`: Clear output before build starts
-  - `"post"`: Clear output after build completes  
+  - `"post"`: Clear output after build completes
   - `"never"`: Never automatically clear output
 - Can be overridden by explicit `clear_output` parameter in build
   functions
@@ -287,7 +287,7 @@ projr_build_dev()  # Never clears output automatically
 
 **`OSF_PAT`** - Open Science Framework Personal Access Token
 
-- **Purpose**: Open Science Framework Personal Access Token  
+- **Purpose**: Open Science Framework Personal Access Token
 - **Default**: None
 - **Behavior**: Required for OSF remote destinations
 - **Storage**: Should always be stored in `_environment.local` (never
@@ -325,7 +325,7 @@ When loading from files, precedence is (highest to lowest):
 
 1.  **`_environment.local`** - Machine-specific overrides
 2.  **`_environment-<QUARTO_PROFILE>`** - Quarto profile-specific
-3.  **`_environment-<PROJR_PROFILE>`** - projr profile-specific  
+3.  **`_environment-<PROJR_PROFILE>`** - projr profile-specific
 4.  **`_environment`** - Global defaults
 
 ### Function Parameters vs Environment Variables
@@ -355,15 +355,20 @@ DATABASE_URL
 API_KEY
 ```
 
-**Behavior:** - During builds, projr automatically checks that all
-listed variables are set - If a required variable is missing, a
-**warning** is issued (build continues) - Comments are supported (lines
-starting with `#`) - This file serves as both documentation and a
-validation mechanism
+**Behavior:**
 
-**Use cases:** - Document mandatory configuration for team members -
-Ensure critical credentials are configured before deployment - Provide a
-template for local environment setup
+- During builds, projr automatically checks that all listed variables
+  are set
+- If a required variable is missing, a **warning** is issued (build
+  continues)
+- Comments are supported (lines starting with `#`)
+- This file serves as both documentation and a validation mechanism
+
+**Use cases:**
+
+- Document mandatory configuration for team members
+- Ensure critical credentials are configured before deployment
+- Provide a template for local environment setup
 
 **Example workflow:**
 
@@ -382,10 +387,11 @@ projr_build_dev()
 
 ### Security
 
-**Never commit secrets to version control:** - Always use
-`_environment.local` for tokens, passwords, and API keys - This file is
-automatically added to `.gitignore` by projr - Never commit
-`GITHUB_PAT`, `OSF_PAT`, or similar sensitive values
+**Never commit secrets to version control:**
+
+- Always use `_environment.local` for tokens, passwords, and API keys
+- This file is automatically added to `.gitignore` by projr
+- Never commit `GITHUB_PAT`, `OSF_PAT`, or similar sensitive values
 
 **Example safe setup:**
 
@@ -399,21 +405,25 @@ API_KEY=your_secret_key_here
 
 ### Organization
 
-**Use profiles for different environments:** - `_environment-dev` -
-Development settings (verbose output, debug mode) -
-`_environment-test` - Testing settings (moderate output) -
-`_environment-prod` - Production settings (minimal output)
+**Use profiles for different environments:**
 
-**Keep global defaults minimal:** - Use `_environment` only for settings
-that apply across all contexts - Put environment-specific settings in
-profile files - Use `_environment.local` for machine-specific overrides
+- `_environment-dev` - Development settings (verbose output, debug mode)
+- `_environment-test` - Testing settings (moderate output)
+- `_environment-prod` - Production settings (minimal output)
+
+**Keep global defaults minimal:**
+
+- Use `_environment` only for settings that apply across all contexts
+- Put environment-specific settings in profile files
+- Use `_environment.local` for machine-specific overrides
 
 ### Validation
 
-**Document requirements:** - List required variables in
-`_environment.required` - Provide example values in `_environment`
-(commented out for secrets) - Include setup instructions in your project
-README
+**Document requirements:**
+
+- List required variables in `_environment.required`
+- Provide example values in `_environment` (commented out for secrets)
+- Include setup instructions in your project README
 
 **Test your configuration:**
 

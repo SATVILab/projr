@@ -35,6 +35,10 @@ Authentication for GitHub/OSF (applies to auth files)
 - Maintain backward compatibility when possible
 - Follow existing patterns in the codebase
 - Add tests for new functionality or bug fixes
+- **Never leave trailing whitespace** at the end of lines or on blank
+  lines
+- **Always add a blank line** between headings (ending with `**`) and
+  bullet points
 
 ### Before Committing
 
@@ -114,7 +118,7 @@ Authentication for GitHub/OSF (applies to auth files)
 
 ### OSF
 
-- Set `OSF_PAT` environment variable  
+- Set `OSF_PAT` environment variable
 - All `osfr::` calls must have
   [`.auth_check_osf()`](https://satvilab.github.io/projr/reference/dot-auth_check_osf.md)
   before use
