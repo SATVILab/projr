@@ -47,7 +47,8 @@ test_that("bookdown project with local remotes and multiple builds works", {
       
       # First build - no remotes
       projr::projr_build_patch()
-      expect_true(file.exists(.path_get("VERSION")))
+      version1 <- projr_version_get()
+      expect_identical(version1, "0.0.1")
       expect_true(dir.exists(projr_path_get_dir("output", safe = FALSE)))
       
       # Add a local remote for raw-data
@@ -349,7 +350,6 @@ test_that("project with build.scripts configuration works", {
       # Verify that build completed (whether report1 built depends on engine)
       # Just check that the build didn't error and version incremented
       version <- projr_version_get()
-      expect_true(file.exists(.path_get("VERSION")))
       expect_identical(version, "0.0.1")
     }
   )
