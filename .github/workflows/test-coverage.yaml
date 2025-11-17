@@ -13,7 +13,6 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_PAT: ${{ secrets.GH_TOKEN }}
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
       OSF_PAT: ${{ secrets.OSF_PAT }}
       NOT_CRAN: true
 

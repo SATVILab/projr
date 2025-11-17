@@ -8,7 +8,7 @@
   fn_vec <- list.files(.test_osf_remote_dir_get_tmp())
   for (i in seq_along(fn_vec)) {
     try(
-      .remote_host_rm(remote_type = "osf", fn_vec[i]),
+      .test_remote_host_rm(remote_type = "osf", fn_vec[i]),
       silent = TRUE
     )
   }
@@ -19,7 +19,7 @@
   fn_vec <- setdiff(fn_vec, "projr")
   for (i in seq_along(fn_vec)) {
     try(
-      .remote_host_rm(remote_type = "github", fn_vec[i]),
+      .test_remote_host_rm(remote_type = "github", fn_vec[i]),
       silent = TRUE
     )
   }

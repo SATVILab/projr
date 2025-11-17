@@ -156,7 +156,7 @@
       {
         try(
           {
-            .remote_host_rm(
+            .test_remote_host_rm(
               type = "github",
               host = c("repo" = basename(repo))
             )
