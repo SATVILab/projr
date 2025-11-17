@@ -38,7 +38,7 @@
 
 test_that("GitHub release works with structure='latest'", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
@@ -86,7 +86,7 @@ test_that("GitHub release works with structure='latest'", {
 
 test_that("GitHub release works with structure='archive'", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
@@ -138,7 +138,7 @@ test_that("GitHub release works with structure='archive'", {
 
 test_that("GitHub release send_cue='always' creates new archive every build", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
@@ -179,7 +179,7 @@ test_that("GitHub release send_cue='always' creates new archive every build", {
 
 test_that("GitHub release send_cue='if-change' only creates archive if content changed", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
@@ -226,7 +226,7 @@ test_that("GitHub release send_cue='if-change' only creates archive if content c
 
 test_that("GitHub release send_cue='never' never sends to remote", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip("send_cue='never' implementation needs verification")
   skip_if_offline()
   skip_on_cran()
@@ -268,7 +268,7 @@ test_that("GitHub release send_cue='never' never sends to remote", {
 
 test_that("GitHub release send_strategy='sync-diff' updates only changed files", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
@@ -328,7 +328,7 @@ test_that("GitHub release send_strategy='sync-diff' updates only changed files",
 
 test_that("GitHub release send_strategy='sync-purge' removes all then uploads all", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
@@ -378,7 +378,7 @@ test_that("GitHub release send_strategy='sync-purge' removes all then uploads al
 
 test_that("GitHub release send_inspect='manifest' uses manifest for version tracking", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
@@ -418,7 +418,7 @@ test_that("GitHub release send_inspect='manifest' uses manifest for version trac
 
 test_that("GitHub release send_inspect='file' inspects actual files", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
@@ -460,7 +460,7 @@ test_that("GitHub release send_inspect='file' inspects actual files", {
 
 test_that("GitHub release send_inspect='none' treats remote as empty", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip("send_inspect='none' may have implementation issues - needs investigation")
   skip_if_offline()
   skip_on_cran()
@@ -507,7 +507,7 @@ test_that("GitHub release send_inspect='none' treats remote as empty", {
 
 test_that("GitHub release works with different content types", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
@@ -553,7 +553,7 @@ test_that("GitHub release works with different content types", {
 
 test_that("projr_restore works with GitHub release source", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
@@ -609,7 +609,7 @@ test_that("projr_restore works with GitHub release source", {
 
 test_that("GitHub release restore works with archive structure", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
@@ -660,7 +660,7 @@ test_that("GitHub release restore works with archive structure", {
 
 test_that("GitHub release works with @version tag", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())
@@ -704,7 +704,7 @@ test_that("GitHub release works with @version tag", {
 
 test_that("GitHub release works with code content type", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if_offline()
   skip_on_cran()
   skip_if(.is_test_fast())

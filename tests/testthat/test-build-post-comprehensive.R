@@ -6,7 +6,7 @@
 
 test_that(".build_copy works with output_run = FALSE (dev build)", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -31,7 +31,7 @@ test_that(".build_copy works with output_run = FALSE (dev build)", {
 
 test_that(".build_copy works with output_run = TRUE (production build)", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -54,7 +54,7 @@ test_that(".build_copy works with output_run = TRUE (production build)", {
 
 test_that(".build_copy_dir copies configured directories", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -79,7 +79,7 @@ test_that(".build_copy_dir copies configured directories", {
 
 test_that(".build_copy_docs dispatches correctly based on engine", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -97,7 +97,7 @@ test_that(".build_copy_docs dispatches correctly based on engine", {
 
 test_that(".build_copy_docs_rmd handles different output formats", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_rmd")
   dir.create(dir_test)
@@ -135,7 +135,7 @@ test_that(".build_copy_docs_rmd handles different output formats", {
 
 test_that(".build_copy_docs_quarto handles html format with _files directory", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_quarto")
   dir.create(dir_test)
@@ -176,7 +176,7 @@ test_that(".build_copy_docs_quarto handles html format with _files directory", {
 
 test_that(".build_copy_docs_bookdown excludes CHANGELOG.md", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_bookdown")
   dir.create(dir_test)
@@ -216,7 +216,7 @@ test_that(".build_copy_docs_bookdown excludes CHANGELOG.md", {
 
 test_that(".build_copy_docs_quarto_project excludes CHANGELOG.md", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_quarto_proj")
   dir.create(dir_test)
@@ -256,7 +256,7 @@ test_that(".build_copy_docs_quarto_project excludes CHANGELOG.md", {
 
 test_that(".build_clear_post with clear_output = 'never' does not clear", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -276,7 +276,7 @@ test_that(".build_clear_post with clear_output = 'never' does not clear", {
 
 test_that(".build_clear_post with clear_output = 'post' clears output dirs", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -297,7 +297,7 @@ test_that(".build_clear_post with clear_output = 'post' clears output dirs", {
 
 test_that(".build_clear_post_docs clears for quarto_document engine", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_clear_docs")
   dir.create(dir_test)
@@ -331,7 +331,7 @@ test_that(".build_clear_post_docs clears for quarto_document engine", {
 
 test_that(".build_clear_old removes old dev builds", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -367,7 +367,7 @@ test_that(".build_clear_old removes old dev builds", {
 
 test_that(".build_clear_old clears all cache for output builds", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -392,7 +392,7 @@ test_that(".build_clear_old clears all cache for output builds", {
 
 test_that(".build_copy handles empty directories", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -413,7 +413,7 @@ test_that(".build_copy handles empty directories", {
 
 test_that(".build_copy_docs handles missing output files gracefully", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_missing")
   dir.create(dir_test)
@@ -438,7 +438,7 @@ test_that(".build_copy_docs handles missing output files gracefully", {
 
 test_that("dir_exc parameter properly excludes multiple files", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_multi_exc")
   dir.create(dir_test)
@@ -469,7 +469,7 @@ test_that("dir_exc parameter properly excludes multiple files", {
 
 test_that(".build_copy_docs_bookdown handles missing _bookdown.yml gracefully", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_bookdown_no_yml")
   dir.create(dir_test)
@@ -498,7 +498,7 @@ test_that(".build_copy_docs_bookdown handles missing _bookdown.yml gracefully", 
 
 test_that(".build_copy_docs_quarto_project handles missing source directory", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_quarto_missing")
   dir.create(dir_test)
@@ -523,7 +523,7 @@ test_that(".build_copy_docs_quarto_project handles missing source directory", {
 
 test_that(".build_copy_docs_bookdown handles empty source directory", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_bookdown_empty")
   dir.create(dir_test)
@@ -557,7 +557,7 @@ test_that(".build_copy_docs_bookdown handles empty source directory", {
 
 test_that(".build_clear_old handles cache_base that doesn't exist", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -582,7 +582,7 @@ test_that(".build_clear_old handles cache_base that doesn't exist", {
 
 test_that(".build_clear_old_dev handles empty cache directory", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -609,7 +609,7 @@ test_that(".build_clear_old_dev handles empty cache directory", {
 
 test_that(".build_copy_docs_rmd handles multiple Rmd files", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_multiple_rmd")
   dir.create(dir_test)
@@ -644,7 +644,7 @@ test_that(".build_copy_docs_rmd handles multiple Rmd files", {
 
 test_that(".build_copy_docs_quarto handles multiple qmd files", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_multiple_qmd")
   dir.create(dir_test)
@@ -679,7 +679,7 @@ test_that(".build_copy_docs_quarto handles multiple qmd files", {
 
 test_that(".build_clear_post_docs clears docs for rmd engine", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_clear_docs_rmd")
   dir.create(dir_test)
@@ -713,7 +713,7 @@ test_that(".build_clear_post_docs clears docs for rmd engine", {
 
 test_that(".build_clear_post_docs does not clear for bookdown engine", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_no_clear_bookdown")
   dir.create(dir_test)
@@ -748,7 +748,7 @@ test_that(".build_clear_post_docs does not clear for bookdown engine", {
 
 test_that(".build_clear_old_output clears entire cache for output builds", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

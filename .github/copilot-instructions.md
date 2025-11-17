@@ -113,13 +113,14 @@ The package has a tiered test suite to accommodate different testing needs:
 - Auto-activates when `NOT_CRAN` is false/unset
 - Use `skip_if(.is_test_cran())` to skip tests in CRAN mode
 
-**Debug Mode** (`R_PKG_TEST_DEBUG=TRUE`):
+**Lite Mode** (`R_PKG_TEST_LITE=TRUE`):
 - Runs core functionality tests (~364 tests)
 - Skips comprehensive tests (exhaustive parameter combinations)
 - Includes integration tests
 - Includes remote tests if credentials available
-- Target: Faster validation when debugging, not full comprehensive testing
-- Use `skip_if(.is_test_debug())` to skip tests in debug mode
+- Target: Faster validation for regular development, not full comprehensive testing
+- Use `skip_if(.is_test_lite())` to skip tests in lite mode
+- Note: `R_PKG_TEST_DEBUG` is deprecated but still works for backward compatibility
 
 **Full Mode** (default):
 - Runs all tests (452 tests)
@@ -135,7 +136,7 @@ The package has a tiered test suite to accommodate different testing needs:
 - Use `test_that()` for each test case with descriptive names
 - Use `skip_if(.is_test_select())` for tests that should be skipped in certain conditions
 - Use `skip_if(.is_test_cran())` for comprehensive/integration/remote tests
-- Use `skip_if(.is_test_debug())` for comprehensive tests
+- Use `skip_if(.is_test_lite())` for comprehensive tests (use `.is_test_debug()` for backward compatibility)
 - Use `usethis::with_project()` for tests that need a temporary project environment
 - **Test helpers** (located in `tests/testthat/helper-setup.R`):
   - `.test_setup_project()` - Creates a complete test project with git, files, and configuration
@@ -154,13 +155,13 @@ The package has a tiered test suite to accommodate different testing needs:
 
 - **Comprehensive tests** (exhaustive parameter combinations):
   - Add to files named `test-*-comprehensive.R`
-  - Add `skip_if(.is_test_cran())` AND `skip_if(.is_test_debug())`
+  - Add `skip_if(.is_test_cran())` AND `skip_if(.is_test_lite())`
   - These test all combinations of YML parameters
   
 - **Integration tests** (multi-component workflows):
   - Add to files named `test-*-integration.R`
   - Add `skip_if(.is_test_cran())` only
-  - Run in debug mode to catch integration issues
+  - Run in lite mode to catch integration issues
   
 - **Regular tests** (core functionality):
   - No special skip conditions needed
@@ -170,7 +171,7 @@ The package has a tiered test suite to accommodate different testing needs:
 - **Remote-dependent tests** (GitHub/OSF):
   - Add `skip_if(!nzchar(Sys.getenv("GITHUB_PAT")))` or equivalent
   - Add `skip_if(.is_test_cran())` for CRAN compatibility
-  - May run in debug mode if credentials available
+  - May run in lite mode if credentials available
 
 #### Testing Local Remotes Comprehensively
 
@@ -203,7 +204,7 @@ Test with different content types: `raw-data`, `output`, `cache`, `docs`, `code`
 ```r
 test_that("local remote with archive + sync-diff + if-change", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   usethis::with_project(

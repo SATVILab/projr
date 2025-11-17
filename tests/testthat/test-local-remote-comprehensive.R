@@ -21,7 +21,7 @@
 
 test_that("local remote works with structure='latest'", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -58,7 +58,7 @@ test_that("local remote works with structure='latest'", {
 
 test_that("local remote works with structure='archive'", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -100,7 +100,7 @@ test_that("local remote works with structure='archive'", {
 
 test_that("local remote send_cue='always' creates new archive every build", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -138,7 +138,7 @@ test_that("local remote send_cue='always' creates new archive every build", {
 
 test_that("local remote send_cue='if-change' only creates archive when content changes", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -179,7 +179,7 @@ test_that("local remote send_cue='if-change' only creates archive when content c
 
 test_that("local remote send_cue='never' does not send", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip("send_cue='never' implementation may need update")
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
@@ -215,7 +215,7 @@ test_that("local remote send_cue='never' does not send", {
 
 test_that("local remote send_strategy='sync-diff' updates only changed files", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -260,7 +260,7 @@ test_that("local remote send_strategy='sync-diff' updates only changed files", {
 
 test_that("local remote send_strategy='sync-purge' removes all then uploads all", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -305,7 +305,7 @@ test_that("local remote send_strategy='sync-purge' removes all then uploads all"
 
 test_that("local remote send_inspect='manifest' uses manifest for version tracking", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -341,7 +341,7 @@ test_that("local remote send_inspect='manifest' uses manifest for version tracki
 
 test_that("local remote send_inspect='file' inspects actual files", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -376,7 +376,7 @@ test_that("local remote send_inspect='file' inspects actual files", {
 
 test_that("local remote send_inspect='none' treats remote as empty", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip("send_inspect='none' may have implementation issues - needs investigation")
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
@@ -417,7 +417,7 @@ test_that("local remote send_inspect='none' treats remote as empty", {
 
 test_that("local remote works with different content types", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -467,7 +467,7 @@ test_that("local remote works with different content types", {
 
 test_that("local remote path_append_label=TRUE appends label to path", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -501,7 +501,7 @@ test_that("local remote path_append_label=TRUE appends label to path", {
 
 test_that("archive_local parameter creates local archive", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip("archive_local requires proper YML configuration or path setup - needs investigation")
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
@@ -528,7 +528,7 @@ test_that("archive_local parameter creates local archive", {
 
 test_that("archive_local and always_archive parameters work together", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip("archive_local requires proper YML configuration or path setup - needs investigation")
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
@@ -560,7 +560,7 @@ test_that("archive_local and always_archive parameters work together", {
 
 test_that("local remote works with archive + sync-diff + if-change + manifest", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -604,7 +604,7 @@ test_that("local remote works with archive + sync-diff + if-change + manifest", 
 
 test_that("local remote works with latest + sync-purge + always + file", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -648,7 +648,7 @@ test_that("local remote works with latest + sync-purge + always + file", {
 
 test_that("local remote handles empty directories correctly", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -684,7 +684,7 @@ test_that("local remote handles empty directories correctly", {
 
 test_that("local remote overwrite parameter works correctly", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_debug())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   usethis::with_project(

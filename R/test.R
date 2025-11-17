@@ -36,16 +36,21 @@
   Sys.setenv("R_PKG_TEST_CRAN" = "TRUE")
 }
 
-# Debug test mode: runs core functionality tests
+# Lite test mode: runs core functionality tests
 # without exhaustive parameter combinations.
 # Faster than full suite for quick validation.
-# if you add skip_if(.is_test_debug())
+# if you add skip_if(.is_test_lite())
 # to comprehensive tests, they will be skipped
-# when running in debug mode.
-# Set with .test_set_debug()
-# Undo with .test_unset_debug()
+# when running in lite mode.
+# Set with .test_set_lite()
+# Undo with .test_unset_lite()
+.test_set_lite <- function() {
+  Sys.setenv("R_PKG_TEST_LITE" = "TRUE")
+}
+
+# Kept for backward compatibility - use .test_set_lite() instead
 .test_set_debug <- function() {
-  Sys.setenv("R_PKG_TEST_DEBUG" = "TRUE")
+  .test_set_lite()
 }
 
 .test_unset <- function() {
@@ -64,8 +69,13 @@
   Sys.unsetenv("R_PKG_TEST_CRAN")
 }
 
+.test_unset_lite <- function() {
+  Sys.unsetenv("R_PKG_TEST_LITE")
+}
+
+# Kept for backward compatibility - use .test_unset_lite() instead
 .test_unset_debug <- function() {
-  Sys.unsetenv("R_PKG_TEST_DEBUG")
+  .test_unset_lite()
 }
 
 .is_test <- function() {
@@ -102,11 +112,15 @@
   FALSE
 }
 
-# Check if running in debug test mode
-# Debug mode skips:
+# Check if running in lite test mode
+# Lite mode skips:
 # - Comprehensive tests (exhaustive parameter combinations)
-# - Some integration tests
-# Includes: Core functionality tests, selected remote tests
+# Includes: Core functionality tests, integration tests, selected remote tests
+.is_test_lite <- function() {
+  Sys.getenv("R_PKG_TEST_LITE") == "TRUE"
+}
+
+# Kept for backward compatibility - use .is_test_lite() instead
 .is_test_debug <- function() {
-  Sys.getenv("R_PKG_TEST_DEBUG") == "TRUE"
+  .is_test_lite()
 }
