@@ -1,4 +1,5 @@
 test_that(".is_cue works", {
+  skip_if(.is_test_cran())
   # skips
   skip_if(FALSE)
   skip_if(.is_test_select())

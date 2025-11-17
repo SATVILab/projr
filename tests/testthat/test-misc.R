@@ -1,4 +1,5 @@
 test_that(".local_dir_create works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   # skips
 
@@ -25,6 +26,7 @@ test_that(".local_dir_create works", {
 })
 
 test_that("projr_use_data works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   # skips
 
@@ -61,6 +63,7 @@ test_that("projr_use_data works", {
 })
 
 test_that(".list_add_list works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   expect_true(
     "a" %in% names(

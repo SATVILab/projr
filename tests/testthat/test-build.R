@@ -21,6 +21,7 @@ test_that("projr_build_dev works", {
 })
 
 test_that("projr_build_output works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -175,6 +176,7 @@ test_that("Pre/post/never clearing options work correctly", {
 
 # Test archive functionality
 test_that("Archive functionality works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(.is_test_fast())
   skip() # fails at present, worth fixing
@@ -250,6 +252,7 @@ test_that("Failed builds handle version appropriately", {
 
 # rmarkdown
 test_that("projr_build_ works with rmarkdown", {
+  skip_if(.is_test_cran())
   dir_test <- .test_setup_project(
     git = FALSE, set_env_var = TRUE
   )
@@ -282,6 +285,7 @@ test_that("projr_build_ works with rmarkdown", {
 
 # quarto projects
 test_that("projr_build_ works with quarto projects", {
+  skip_if(.is_test_cran())
   dir_test <- .test_setup_project(
     git = FALSE, set_env_var = TRUE
   )
@@ -318,6 +322,7 @@ test_that("projr_build_ works with quarto projects", {
 
 # quarto
 test_that("projr_build_ works with quarto", {
+  skip_if(.is_test_cran())
   dir_test <- .test_setup_project(
     git = FALSE, set_env_var = TRUE
   )
@@ -350,6 +355,7 @@ test_that("projr_build_ works with quarto", {
 
 # Test args_engine parameter passing
 test_that("args_engine parameter works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(.is_test_fast())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -387,6 +393,7 @@ test_that("args_engine parameter works correctly", {
 })
 
 test_that("PROJR_CLEAR_OUTPUT environment variable works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   old_val <- Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "")
@@ -414,6 +421,7 @@ test_that("PROJR_CLEAR_OUTPUT environment variable works correctly", {
 })
 
 test_that("PROJR_CLEAR_OUTPUT explicit parameter overrides env var", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   old_val <- Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "")
@@ -429,6 +437,7 @@ test_that("PROJR_CLEAR_OUTPUT explicit parameter overrides env var", {
 })
 
 test_that("PROJR_CLEAR_OUTPUT validates input strictly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   old_val <- Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "")

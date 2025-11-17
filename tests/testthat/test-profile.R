@@ -1,4 +1,5 @@
 test_that("projr_profile_get, _set and _create work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
   withr::defer(.test_unset())
@@ -124,6 +125,7 @@ test_that("projr_profile_get, _set and _create work", {
 })
 
 test_that("projr_profile_create_local works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
   withr::defer(unlink(dir_test, recursive = TRUE))

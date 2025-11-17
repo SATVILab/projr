@@ -49,6 +49,7 @@ test_that("README placeholders are replaced after .init_prompt_readme", {
 })
 
 test_that("projr_init_prompt creates README without placeholders", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), "testProjrInitPrompt")
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -92,6 +93,7 @@ test_that("projr_init_prompt creates README without placeholders", {
 })
 
 test_that(".init_prompt_readme_create returns numeric not list", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), "testReadmeCreateReturn")
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
