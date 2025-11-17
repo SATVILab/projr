@@ -2,6 +2,7 @@
 # Ensures tests only run when:
 # 1. A token is detectable via .auth_get_github_pat_find()
 # 2. The token is NOT the same as GITHUB_TOKEN (prevents using CI tokens)
+# 3. gh::gh_whoami() can successfully retrieve the username
 .test_skip_if_cannot_modify_github <- function() {
   # Check if token is detectable
   token <- .auth_get_github_pat_find()
@@ -13,6 +14,22 @@
   github_token <- Sys.getenv("GITHUB_TOKEN", "")
   if (nzchar(github_token) && identical(token, github_token)) {
     testthat::skip("Cannot modify GitHub repos with GITHUB_TOKEN (use GITHUB_PAT instead)")
+  }
+
+  # Verify that gh::gh_whoami() works with the available credentials
+  # This prevents tests from running when auth exists but gh_whoami() fails,
+  # which would cause malformed GitHub URLs
+  if (requireNamespace("gh", quietly = TRUE)) {
+    user <- tryCatch({
+      gh::gh_whoami()[["login"]]
+    }, error = function(e) {
+      NULL
+    })
+    if (!.is_string(user)) {
+      testthat::skip("gh::gh_whoami() failed to retrieve GitHub username")
+    }
+  } else {
+    testthat::skip("gh package not available")
   }
 
   invisible(TRUE)
