@@ -182,8 +182,6 @@
   .dep_install_only("gh")
   .dep_install_only("httr")
 
-  # defaults
-  .dep_install_only("gh")
   # gh prefers github_pat over github_token.
   if (!gh::gh_token_exists()) stop("No GitHub token found")
   if (is.null(user)) {
