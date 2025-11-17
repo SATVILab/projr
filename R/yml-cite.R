@@ -24,10 +24,9 @@
 #' The default is to leave all the settings unchanged.
 #'
 #' If these settings are not setting in `_projr.yml`,
-#' then the default is to generate a codemeta.json file,
-#' a CITATION.cff file and a CITATION file in the inst/ directory.
+#' then the default is to not generate any citation files.
 #'
-#' .yml_cite_set_default` sets all citation options to default (`TRUE`).
+#' .yml_cite_set_default` sets all citation options to default (`FALSE`).
 #'
 #' @param all logical.
 #' Whether to set all the options
@@ -49,7 +48,7 @@
 #' Default is `TRUE`.
 #' @param simplify_default logical.
 #' If `TRUE`, then if all the settings are the same
-#' and equl to the default (`TRUE`),
+#' and equl to the default (`FALSE`),
 #' then the settings are not recorded in the `projr`
 #' configuration file (as the default will be equal to it).
 #' @param profile character.
@@ -140,7 +139,7 @@ projr_yml_cite_set_default <- function(profile = "default",
                                        simplify_identical = TRUE,
                                        simplify_default = TRUE) {
   projr_yml_cite_set(
-    all = TRUE, profile = profile,
+    all = FALSE, profile = profile,
     simplify_identical = simplify_identical,
     simplify_default = simplify_default
   )
@@ -150,7 +149,7 @@ projr_yml_cite_set_default <- function(profile = "default",
                                    simplify_default,
                                    profile) {
   codemeta_pre <- .yml_cite_get_codemeta(profile = profile)
-  if (all(c(codemeta_pre, codemeta)) && simplify_default) {
+  if (!any(c(codemeta_pre, codemeta)) && simplify_default) {
     return(invisible(FALSE))
   }
   .yml_cite_set_mix(list("codemeta" = codemeta), profile)
@@ -188,7 +187,7 @@ projr_yml_cite_set_default <- function(profile = "default",
                               simplify_default,
                               profile) {
   cff_pre <- .yml_cite_get_cff(profile = profile)
-  if (all(c(cff_pre, cff)) && simplify_default) {
+  if (!any(c(cff_pre, cff)) && simplify_default) {
     return(invisible(FALSE))
   }
   .yml_cite_set_mix(list("cff" = cff), profile)
@@ -201,14 +200,17 @@ projr_yml_cite_set_default <- function(profile = "default",
 
 .yml_cite_get_opt <- function(opt, profile) {
   yml_cite <- .yml_cite_get(profile)
-  if (is.null(yml_cite) || isTRUE(yml_cite)) {
+  if (is.null(yml_cite)) {
+    return(FALSE)
+  }
+  if (isTRUE(yml_cite)) {
     return(TRUE)
   }
   if (isFALSE(yml_cite)) {
     return(FALSE)
   }
   if (is.null(yml_cite[[opt]])) {
-    return(TRUE)
+    return(FALSE)
   }
   yml_cite[[opt]]
 }
@@ -217,7 +219,7 @@ projr_yml_cite_set_default <- function(profile = "default",
                                         simplify_default,
                                         profile) {
   inst_citation_pre <- .yml_cite_get_inst_citation(profile = profile)
-  if (all(c(inst_citation_pre, inst_citation)) && simplify_default) {
+  if (!any(c(inst_citation_pre, inst_citation)) && simplify_default) {
     return(invisible(FALSE))
   }
   .yml_cite_set_mix(list("inst-citation" = inst_citation), profile)
@@ -274,7 +276,7 @@ projr_yml_cite_set_default <- function(profile = "default",
   codemeta <- .yml_cite_get_codemeta(profile)
   cff <- .yml_cite_get_cff(profile)
   inst_citation <- .yml_cite_get_inst_citation(profile)
-  if (all(c(codemeta, cff, inst_citation))) {
+  if (!any(c(codemeta, cff, inst_citation))) {
     .yml_cite_set(NULL, profile)
   }
 
