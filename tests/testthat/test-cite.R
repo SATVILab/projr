@@ -1,4 +1,5 @@
 test_that("projr_yml_cite_ functions work works", {
+  skip_if(.is_test_cran())
   # setup
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -60,6 +61,7 @@ test_that("projr_yml_cite_ functions work works", {
 })
 
 test_that(".cite_ functions work works", {
+  skip_if(.is_test_cran())
   # setup
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)

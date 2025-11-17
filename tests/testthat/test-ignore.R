@@ -37,6 +37,7 @@ test_that("projr_ignore works with files and directories", {
 })
 
 test_that("projr_ignore handles empty input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -101,6 +102,7 @@ test_that("projr_ignore_file works", {
 })
 
 test_that("projr_ignore_file_git works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -125,6 +127,7 @@ test_that("projr_ignore_file_git works", {
 })
 
 test_that("projr_ignore_dir_git works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -144,6 +147,7 @@ test_that("projr_ignore_dir_git works", {
 })
 
 test_that("projr_ignore_file_rbuild works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -164,6 +168,7 @@ test_that("projr_ignore_file_rbuild works", {
 })
 
 test_that("projr_ignore_dir_rbuild works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -183,6 +188,7 @@ test_that("projr_ignore_dir_rbuild works", {
 })
 
 test_that("projr_ignore with force_create = FALSE respects existing files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -237,6 +243,7 @@ test_that("projr_ignore_auto works", {
 })
 
 test_that("projr_unignore_manual works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -283,6 +290,7 @@ test_that("projr_unignore_manual works", {
 })
 
 test_that("projr_unignore_manual_dir works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -303,6 +311,7 @@ test_that("projr_unignore_manual_dir works", {
 })
 
 test_that("projr_unignore_manual_file works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -323,6 +332,7 @@ test_that("projr_unignore_manual_file works", {
 })
 
 test_that("projr_unignore_manual_file_git works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -339,6 +349,7 @@ test_that("projr_unignore_manual_file_git works", {
 })
 
 test_that("projr_unignore_manual_dir_git works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -355,6 +366,7 @@ test_that("projr_unignore_manual_dir_git works", {
 })
 
 test_that("projr_unignore_manual_file_rbuild works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -371,6 +383,7 @@ test_that("projr_unignore_manual_file_rbuild works", {
 })
 
 test_that("projr_unignore_manual_dir_rbuild works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -387,6 +400,7 @@ test_that("projr_unignore_manual_dir_rbuild works", {
 })
 
 test_that("ignore functions handle paths with trailing slashes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -407,6 +421,7 @@ test_that("ignore functions handle paths with trailing slashes", {
 })
 
 test_that("ignore functions are idempotent", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -440,6 +455,7 @@ test_that("ignore functions are idempotent", {
 })
 
 test_that("projr_ignore_auto handles multiple calls correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

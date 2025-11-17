@@ -107,6 +107,7 @@ test_that("projr_yml_dest_add* functions work", {
 # --------------------------
 
 test_that("projr_dest_send works - local", {
+  skip_if(.is_test_cran())
   # skip_if(.is_test_select()
   dir_test <- .test_setup_project(
     git = TRUE, github = FALSE, set_env_var = TRUE
@@ -246,6 +247,7 @@ test_that("projr_dest_send works - local", {
 # --------------------------
 
 test_that("projr_dest_send works - local - empty dirs", {
+  skip_if(.is_test_cran())
   # skip_if(.is_test_select()
   dir_test <- .test_setup_project(
     git = TRUE, github = FALSE, set_env_var = TRUE
@@ -318,6 +320,7 @@ test_that("projr_dest_send works - local - empty dirs", {
 # --------------------------
 
 test_that("dest_send debug output works correctly", {
+  skip_if(.is_test_cran())
   # skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = TRUE, github = FALSE, set_env_var = TRUE

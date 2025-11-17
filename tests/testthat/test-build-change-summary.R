@@ -1,4 +1,5 @@
 test_that(".build_change_summary_get_previous_version works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -42,6 +43,7 @@ test_that(".build_change_summary_get_previous_version works", {
 })
 
 test_that(".build_change_summary_get returns NULL for dev builds", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -60,6 +62,7 @@ test_that(".build_change_summary_get returns NULL for dev builds", {
 })
 
 test_that(".build_change_summary_get returns NULL for first build", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -79,6 +82,7 @@ test_that(".build_change_summary_get returns NULL for first build", {
 })
 
 test_that(".build_change_summary_get detects added files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -109,6 +113,7 @@ test_that(".build_change_summary_get detects added files", {
 })
 
 test_that(".build_change_summary_get detects modified files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -143,6 +148,7 @@ test_that(".build_change_summary_get detects modified files", {
 })
 
 test_that(".build_change_summary_get detects removed files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -176,6 +182,7 @@ test_that(".build_change_summary_get detects removed files", {
 })
 
 test_that(".build_change_summary_get shows file names for <10 changes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -208,6 +215,7 @@ test_that(".build_change_summary_get shows file names for <10 changes", {
 })
 
 test_that(".build_change_summary_get shows counts for >=10 changes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -240,6 +248,7 @@ test_that(".build_change_summary_get shows counts for >=10 changes", {
 })
 
 test_that(".build_change_summary_get handles no changes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -268,6 +277,7 @@ test_that(".build_change_summary_get handles no changes", {
 })
 
 test_that(".build_change_summary_format_section formats correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -303,6 +313,7 @@ test_that(".build_change_summary_format_section formats correctly", {
 })
 
 test_that(".build_change_summary_get_debug returns correct structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -337,6 +348,7 @@ test_that(".build_change_summary_get_debug returns correct structure", {
 })
 
 test_that(".buildlog_get_change_summary integrates correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -368,6 +380,7 @@ test_that(".buildlog_get_change_summary integrates correctly", {
 })
 
 test_that(".build_change_summary_display works at debug level", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
