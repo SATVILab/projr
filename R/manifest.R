@@ -337,6 +337,111 @@
   !.is_len_0(which(grepl(paste0("^", label, ": "), version_file)))
 }
 
+# Utility functions for split manifests
+# --------------------------------
+
+#' @title List Available Manifest Versions
+#'
+#' @description
+#' Lists all versions that have split manifest files in the `_projr/manifest/` directory.
+#' Useful for understanding what historical manifest data is available.
+#'
+#' @return Character vector of version strings (with 'v' prefix), or NULL if no split manifests exist.
+#'
+#' @examples
+#' \dontrun{
+#' # List all versions with split manifests
+#' projr_manifest_versions()
+#' }
+#'
+#' @export
+projr_manifest_versions <- function() {
+  split_dir <- .manifest_split_get_dir()
+
+  if (!dir.exists(split_dir)) {
+    return(NULL)
+  }
+
+  # Get all .csv files in the split manifest directory
+  manifest_files <- list.files(
+    split_dir,
+    pattern = "^v.*\\.csv$"
+  )
+
+  if (length(manifest_files) == 0) {
+    return(NULL)
+  }
+
+  # Extract version from filenames (remove .csv extension)
+  versions <- sub("\\.csv$", "", manifest_files)
+
+  # Sort versions properly
+  versions_pkg <- package_version(vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE))
+  versions_sorted <- versions[order(versions_pkg)]
+
+  versions_sorted
+}
+
+
+#' @title Get Manifest Storage Information
+#'
+#' @description
+#' Returns information about manifest storage, including the number of versions,
+#' file sizes, and storage format (split vs consolidated).
+#'
+#' @return A list with components:
+#' \describe{
+#'   \item{versions}{Character vector of available versions}
+#'   \item{n_versions}{Number of versions with split manifests}
+#'   \item{split_manifest_exists}{Logical - whether split manifest directory exists}
+#'   \item{consolidated_exists}{Logical - whether consolidated manifest.csv exists}
+#'   \item{split_total_size}{Total size of split manifest files in bytes}
+#'   \item{consolidated_size}{Size of consolidated manifest.csv in bytes}
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' # Get manifest storage info
+#' info <- projr_manifest_info()
+#' print(info)
+#' }
+#'
+#' @export
+projr_manifest_info <- function() {
+  split_dir <- .manifest_split_get_dir()
+  consolidated_path <- .path_get("manifest.csv")
+
+  # Check split manifests
+  split_exists <- dir.exists(split_dir)
+  versions <- NULL
+  n_versions <- 0L
+  split_total_size <- 0L
+
+  if (split_exists) {
+    versions <- projr_manifest_versions()
+    n_versions <- length(versions)
+
+    if (n_versions > 0) {
+      manifest_files <- list.files(split_dir, full.names = TRUE, pattern = "^v.*\\.csv$")
+      split_total_size <- sum(file.size(manifest_files))
+    }
+  }
+
+  # Check consolidated manifest
+  consolidated_exists <- file.exists(consolidated_path)
+  consolidated_size <- if (consolidated_exists) file.size(consolidated_path) else 0L
+
+  list(
+    versions = versions,
+    n_versions = n_versions,
+    split_manifest_exists = split_exists,
+    consolidated_exists = consolidated_exists,
+    split_total_size = split_total_size,
+    consolidated_size = consolidated_size
+  )
+}
+
+
 # get minimum acceptable version
 .manifest_get_version_earliest_match <- function(label, # nolint
                                                  version_comp) {
