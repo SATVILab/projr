@@ -69,8 +69,8 @@ projr_manifest_changes <- function(version_from = NULL,
   }
 
   # Get files for each version
-  files_from <- manifest[manifest$version == version_from, , drop = FALSE]
-  files_to <- manifest[manifest$version == version_to, , drop = FALSE]
+  files_from <- .manifest_filter_version(manifest, .version_v_rm(version_from))
+  files_to <- .manifest_filter_version(manifest, .version_v_rm(version_to))
 
   # Find changes
   .manifest_query_compare_versions(files_from, files_to, version_from, version_to)
@@ -600,8 +600,8 @@ projr_manifest_file_changed <- function(fn, label = NULL,
   )
 
   # Get files for each version
-  files_from <- manifest[manifest$version == version_from, , drop = FALSE]
-  files_to <- manifest[manifest$version == version_to, , drop = FALSE]
+  files_from <- .manifest_filter_version(manifest, .version_v_rm(version_from))
+  files_to <- .manifest_filter_version(manifest, .version_v_rm(version_to))
 
   # Compare
   .manifest_file_query_compare(files_from, files_to, fn, label)

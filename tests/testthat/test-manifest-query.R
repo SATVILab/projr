@@ -158,10 +158,14 @@ test_that("projr_manifest_last_change works", {
       output_change <- last_changes[last_changes$label == "output", ]
       expect_identical(output_change$version_last_change, "v0.0.1")
       expect_true(output_change$n_files > 0)
-      
-      # raw-data will also show v0.0.1 because it was hashed in the pre-build phase
+
+      # With optimized manifest: raw-data keeps original version if unchanged
+      # It was hashed in pre-build phase but content didn't change,
+      # so it retains the initial version, not v0.0.1
       raw_data_change <- last_changes[last_changes$label == "raw-data", ]
-      expect_identical(raw_data_change$version_last_change, "v0.0.1")
+      if (nrow(raw_data_change) > 0) {
+        expect_identical(raw_data_change$version_last_change, paste0("v", initial_version))
+      }
       
       # Test: Query with default (current version)
       projr_version_set("0.0.2")

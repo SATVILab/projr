@@ -54,10 +54,99 @@
   if (!output_run) {
     return(invisible(FALSE))
   }
-  .build_manifest_pre_read() |>
-    rbind(.build_manifest_post_get_manifest(output_run)) |>
-    rbind(.build_manifest_post_get_manifest_previous_version()) |>
+  
+  # Get current and previous manifests
+  manifest_pre <- .build_manifest_pre_read()
+  manifest_current <- .build_manifest_post_get_manifest(output_run)
+  manifest_previous <- .build_manifest_post_get_manifest_previous_version()
+  
+  # Detect and mark removed files
+  manifest_removals <- .build_manifest_detect_removals(
+    manifest_current,
+    manifest_previous,
+    .build_manifest_post_get_label()
+  )
+  
+  # Combine all manifests
+  manifest_pre |>
+    rbind(manifest_current) |>
+    rbind(manifest_removals) |>
+    rbind(manifest_previous) |>
     .manifest_write(.build_manifest_post_get_path(output_run))
+}
+
+.build_manifest_detect_removals <- function(manifest_current,
+                                           manifest_previous,
+                                           current_labels) {
+  # Detect files that existed in previous version but are missing now
+  # Add entries with empty hash to mark removal
+
+  if (nrow(manifest_previous) == 0) {
+    return(.zero_tbl_get_manifest())
+  }
+
+  if (length(current_labels) == 0) {
+    return(.zero_tbl_get_manifest())
+  }
+
+  # Get current version
+  current_version <- projr::projr_version_get() |> .version_v_add()
+
+  # Filter previous manifest to relevant labels and get latest state
+  manifest_previous_filtered <- manifest_previous[
+    manifest_previous[["label"]] %in% current_labels,
+    , drop = FALSE
+  ]
+
+  if (nrow(manifest_previous_filtered) == 0) {
+    return(.zero_tbl_get_manifest())
+  }
+
+  # Handle case where manifest_current has 0 rows (all files removed)
+  if (nrow(manifest_current) == 0) {
+    current_keys <- character(0)
+  } else {
+    current_keys <- paste(manifest_current[["label"]],
+                         manifest_current[["fn"]],
+                         sep = ":::")
+  }
+
+  # For each label+fn in previous, check if it exists in current
+  previous_keys <- paste(manifest_previous_filtered[["label"]],
+                        manifest_previous_filtered[["fn"]],
+                        sep = ":::")
+
+  # Find files that were in previous but not in current (removed)
+  removed_keys <- setdiff(previous_keys, current_keys)
+
+  if (length(removed_keys) == 0) {
+    return(.zero_tbl_get_manifest())
+  }
+
+  # Create removal entries (empty hash to indicate removal)
+  removal_indices <- which(previous_keys %in% removed_keys)
+
+  # Get unique removed files (latest version of each)
+  removed_files <- manifest_previous_filtered[removal_indices, , drop = FALSE]
+  removed_files[["file_key"]] <- paste(removed_files[["label"]],
+                                       removed_files[["fn"]],
+                                       sep = ":::")
+
+  # Sort and keep only most recent version of each file
+  removed_files <- removed_files[order(
+    package_version(vapply(removed_files[["version"]], .version_v_rm, character(1), USE.NAMES = FALSE)),
+    decreasing = TRUE
+  ), , drop = FALSE]
+  removed_files <- removed_files[!duplicated(removed_files[["file_key"]]), , drop = FALSE]
+  removed_files[["file_key"]] <- NULL
+
+  # Mark as removed by setting version to current and hash to empty
+  # This creates a "tombstone" entry
+  removed_files[["version"]] <- current_version
+  removed_files[["hash"]] <- ""
+
+  rownames(removed_files) <- NULL
+  removed_files
 }
 
 .build_manifest_pre_read <- function() {
