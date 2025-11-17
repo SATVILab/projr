@@ -95,53 +95,30 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 }
 
 .dep_install_only_interactive <- function(dep_required) {
-  for (pkg in dep_required) {
-    # Determine installation command
-    if (grepl("^\\w+/\\w+", gsub("\\.", "", pkg))) {
-      install_cmd <- paste0("remotes::install_github(\"", pkg, "\")")
-      install_type <- "GitHub"
-    } else {
-      install_cmd <- paste0("install.packages(\"", pkg, "\")")
-      install_type <- "CRAN"
-    }
-    
-    # Ask user
+  # In interactive mode, provide clear instructions but don't auto-install
+  # This ensures CRAN compliance (no install.packages in package code)
+  
+  install_cmds <- .dep_get_install_cmds(dep_required)
+  
+  if (length(dep_required) == 1) {
     cat(paste0(
-      "\nPackage '", pkg, "' is required but not installed.\n",
-      "Would you like to install it from ", install_type, "? (y/n): "
+      "\nPackage '", dep_required, "' is required but not installed.\n",
+      "To install it, please run:\n  ",
+      install_cmds, "\n"
     ))
-    
-    response <- readline()
-    
-    if (tolower(trimws(response)) == "y") {
-      cat(paste0("Installing '", pkg, "'...\n"))
-      
-      # Actually install the package
-      if (grepl("^\\w+/\\w+", gsub("\\.", "", pkg))) {
-        if (!requireNamespace("remotes", quietly = TRUE)) {
-          cat("Installing 'remotes' package first...\n")
-          utils::install.packages("remotes")
-        }
-        remotes::install_github(pkg)
-      } else {
-        utils::install.packages(pkg)
-      }
-      
-      # Verify installation
-      if (!requireNamespace(pkg, quietly = TRUE)) {
-        stop("Installation of '", pkg, "' failed.", call. = FALSE)
-      }
-      cat(paste0("Successfully installed '", pkg, "'\n"))
-    } else {
-      stop(
-        "Package '", pkg, "' is required but not installed.\n",
-        "Please install it using: ", install_cmd,
-        call. = FALSE
-      )
-    }
+  } else {
+    cat(paste0(
+      "\nRequired packages are not installed: ", paste(dep_required, collapse = ", "), "\n",
+      "To install them, please run:\n  ",
+      paste(install_cmds, collapse = "\n  "), "\n"
+    ))
   }
   
-  invisible(TRUE)
+  # Stop execution with informative message
+  stop(
+    "Missing required package(s). Please install and try again.",
+    call. = FALSE
+  )
 }
 
 .dep_get_install_cmds <- function(pkg_vec) {

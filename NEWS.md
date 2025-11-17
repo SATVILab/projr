@@ -8,9 +8,9 @@
 
 * **Pre-build package validation**: Builds now check for all required packages (build engines, remote destinations) BEFORE starting the build process. If packages are missing, you get a clear error with a copy-paste installation command for all missing packages at once.
 
-* **Interactive installation prompting**: When running interactively and a package is needed but not installed, projr will ask if you want to install it. This only applies to cases not caught during pre-build validation.
+* **Improved error messages**: When running interactively and a package is needed but not installed, projr provides clear, actionable error messages with exact installation commands. No automatic installation occurs to ensure CRAN compliance.
 
-* `.dep_install_only()` and `.renv_lockfile_read()` no longer automatically install missing packages in non-interactive mode. Instead, they throw clear, informative errors with installation instructions when required packages are missing.
+* `.dep_install_only()` and `.renv_lockfile_read()` no longer automatically install missing packages. Instead, they throw clear, informative errors with installation instructions when required packages are missing.
 
 * Users must now manually install required optional dependencies before using features that depend on them. The error messages provide exact installation commands.
 
