@@ -20,9 +20,10 @@ jobs:
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PAT: ${{ secrets.GH_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
       NOT_CRAN: false
-      R_PKG_TEST_CRAN: true
+      R_PKG_TEST_LITE: true
 
     steps:
       - uses: actions/checkout@v4

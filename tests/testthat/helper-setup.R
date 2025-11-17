@@ -230,8 +230,8 @@
     .test_setup_project_github_unset(path_dir)
     return(invisible(FALSE))
   }
-  if (!nzchar(Sys.getenv("GITHUB_PAT")) && !nzchar(Sys.getenv("GITHUB_TOKEN"))) {
-    testthat::skip("GITHUB_PAT not available - skipping GitHub remote tests")
+  if (!nzchar(.auth_get_github_pat_find())) {
+    testthat::skip("Cannot detect GitHub token - skipping GitHub remote tests")
   }
   if (debug) {
     print("Beginning GitHub setup")

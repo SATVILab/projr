@@ -50,7 +50,7 @@
   if (!.is_string(user)) stop("No GitHub user found")
 
   # credentials::set_github_pat()
-  token <- Sys.getenv("GITHUB_PAT")
+  token <- .auth_get_github_pat_find()
   if (!nzchar(token)) stop("No GitHub token found")
   if (debug) {
     print("ending upload stuff")
@@ -190,6 +190,8 @@
 
   # defaults
   .dep_install_only("gh")
+  # gh prefers github_pat over github_token.
+  if (!gh::gh_token_exists()) stop("No GitHub token found")
   if (is.null(user)) {
     user <- tryCatch({
       gh::gh_whoami()[["login"]]
@@ -198,9 +200,7 @@
     })
   }
   if (!.is_string(user)) stop("No GitHub user found")
-  token <- token %||% Sys.getenv("GITHUB_PAT")
-  token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
-  if (!nzchar(token)) stop("No GitHub token found")
+
   repo <- repo %||% "test.alt"
 
   # Define the URL of the GitHub API
@@ -239,8 +239,7 @@
     })
   }
   if (!.is_string(user)) stop("No GitHub user found")
-  token <- token %||% Sys.getenv("GITHUB_PAT")
-  token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
+  token <- .auth_get_github_pat_find()
   if (!nzchar(token)) stop("No GitHub token found")
   repo <- repo %||% "test.alt"
 
