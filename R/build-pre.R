@@ -443,93 +443,22 @@
   if (!output_run) {
     return(invisible(FALSE))
   }
-  
-  # Collect all packages that will be needed during the build
-  pkg_required <- character(0)
-  
-  # Check for packages needed by build engines
-  pkg_required <- c(pkg_required, .build_check_packages_engine())
-  
-  # Check for packages needed by remote destinations
-  pkg_required <- c(pkg_required, .build_check_packages_remote())
-  
-  # Remove duplicates
-  pkg_required <- unique(pkg_required)
-  
-  # Check which packages are missing
-  pkg_missing <- pkg_required[
-    vapply(pkg_required, function(x) !requireNamespace(x, quietly = TRUE), logical(1))
-  ]
-  
-  if (length(pkg_missing) == 0L) {
+
+  # Use the new exported function to get package status
+  pkg_status <- projr_build_check_packages()
+
+  if (pkg_status$available) {
     return(invisible(TRUE))
   }
-  
-  # Create installation commands
-  install_cmds <- .dep_get_install_cmds(pkg_missing)
-  
+
   # Build error message with copy-paste command
-  if (length(pkg_missing) == 1L) {
-    msg <- paste0(
-      "Required package '", pkg_missing, "' is not installed.\n",
-      "Please install it before building:\n  ",
-      install_cmds
-    )
-  } else {
-    msg <- paste0(
-      "Required packages are not installed: ", paste(pkg_missing, collapse = ", "), "\n",
-      "Please install them before building:\n  ",
-      paste(install_cmds, collapse = "\n  ")
-    )
-  }
-  
+  msg <- paste0(
+    pkg_status$message,
+    "\n\nFor programmatic access to installation commands, use:\n",
+    "  pkg_status <- projr::projr_build_check_packages()\n",
+    "  pkg_status$install_cmds"
+  )
+
   stop(msg, call. = FALSE)
 }
 
-.build_check_packages_engine <- function() {
-  pkg_needed <- character(0)
-  
-  # Check if we'll be using any build engines
-  script_vec <- .build_script_get(is_dev_build = FALSE)
-  if (length(script_vec) == 0L) {
-    return(pkg_needed)
-  }
-  
-  # Check file extensions to determine engines needed
-  for (script in script_vec) {
-    ext <- tolower(tools::file_ext(script))
-    if (ext == "qmd") {
-      pkg_needed <- c(pkg_needed, "quarto")
-    } else if (ext == "rmd") {
-      # Could be bookdown or rmarkdown - check for bookdown config
-      if (file.exists(.path_get("_bookdown.yml"))) {
-        pkg_needed <- c(pkg_needed, "bookdown")
-      } else {
-        pkg_needed <- c(pkg_needed, "rmarkdown")
-      }
-    }
-  }
-  
-  unique(pkg_needed)
-}
-
-.build_check_packages_remote <- function() {
-  pkg_needed <- character(0)
-  
-  # Get list of remote destinations
-  remote_vec <- .remote_ls()
-  if (length(remote_vec) == 0L) {
-    return(pkg_needed)
-  }
-  
-  # Check which packages are needed for each remote type
-  for (remote in remote_vec) {
-    if (remote == "github") {
-      pkg_needed <- c(pkg_needed, "piggyback", "gh")
-    } else if (remote == "osf") {
-      pkg_needed <- c(pkg_needed, "osfr")
-    }
-  }
-  
-  unique(pkg_needed)
-}
