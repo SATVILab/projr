@@ -54,19 +54,19 @@
   if (!output_run) {
     return(invisible(FALSE))
   }
-  
+
   # Get current and previous manifests
   manifest_pre <- .build_manifest_pre_read()
   manifest_current <- .build_manifest_post_get_manifest(output_run)
   manifest_previous <- .build_manifest_post_get_manifest_previous_version()
-  
+
   # Detect and mark removed files
   manifest_removals <- .build_manifest_detect_removals(
     manifest_current,
     manifest_previous,
     .build_manifest_post_get_label()
   )
-  
+
   # Combine all manifests
   manifest_pre |>
     rbind(manifest_current) |>
