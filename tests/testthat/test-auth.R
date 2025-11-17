@@ -67,7 +67,7 @@ test_that(".auth_check_github throws error when no auth", {
 test_that(".auth_check_github succeeds when auth available", {
   skip_if(.is_test_select())
   # Only run if GitHub PAT is available
-  skip_if(!.auth_get_github_pat_find())
+  skip_if(!nzchar(.auth_get_github_pat_find()))
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
