@@ -15,6 +15,8 @@ navbar:
       menu:
       - text: How-to guides
         href: articles/how-to-guides.html
+      - text: Environment Variables
+        href: articles/environment.html
       - text: Concepts
         href: articles/concepts.html
       - text: Design
