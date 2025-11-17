@@ -114,6 +114,8 @@ projr_init <- function(git = TRUE,
 
   # initial GitHub
   .init_std_github(github, github_public, github_org)
+  
+  invisible(TRUE)
 }
 
 .init_usethis_std <- function() {
@@ -124,10 +126,12 @@ projr_init <- function(git = TRUE,
 
 #' @rdname projr_init
 #' @export
-projr_init_all <- function(github_org = NULL,
+projr_init_all <- function(github = TRUE,
+                           github_org = NULL,
                            license = NULL,
                            lit_doc = NULL) {
   projr_init(
+    github = github,
     github_org = github_org,
     desc = TRUE,
     license = license,

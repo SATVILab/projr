@@ -10,7 +10,7 @@ test_that("projr_init works", {
     path = dir_test,
     code = {
       # Call projr_init_all with bookdown to match test expectations
-      expect_true(projr_init_all(lit_doc = "bookdown"))
+      expect_true(projr_init_all(github = FALSE, lit_doc = "bookdown"))
       expect_true(file.exists("_bookdown.yml"))
       expect_true(file.exists("_output.yml"))
       expect_true(file.exists("_projr.yml"))
@@ -529,7 +529,7 @@ test_that("projr_init_all works", {
     path = dir_test,
     code = {
       # projr_init_all should enable desc, projr_yml, and optionally lit_doc and license
-      expect_true(projr_init_all(license = "cc0", lit_doc = "rmd"))
+      expect_true(projr_init_all(github = FALSE, license = "cc0", lit_doc = "rmd"))
       expect_true(file.exists("DESCRIPTION"))
       expect_true(file.exists("_projr.yml"))
       expect_true(file.exists("LICENSE.md"))
