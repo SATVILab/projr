@@ -138,7 +138,26 @@
 .pb_guess_repo <- function(path = ".") {
   .auth_check_github("accessing GitHub repository information")
   gh_repo <- gh::gh_tree_remote(path)
-  paste0(gh_repo[[1]], "/", gh_repo[[2]])
+  
+  # Validate that we got valid owner and repo names
+  owner <- gh_repo[[1]]
+  repo <- gh_repo[[2]]
+  
+  if (is.null(owner) || !nzchar(owner)) {
+    stop(
+      "Failed to get GitHub repository owner from git remote. ",
+      "Please ensure the repository has a valid GitHub remote configured."
+    )
+  }
+  
+  if (is.null(repo) || !nzchar(repo)) {
+    stop(
+      "Failed to get GitHub repository name from git remote. ",
+      "Please ensure the repository has a valid GitHub remote configured."
+    )
+  }
+  
+  paste0(owner, "/", repo)
 }
 
 .pb_release_tbl_get_attempt <- function(output_level = "std",
