@@ -1,18 +1,23 @@
-# projr Package - General Guidelines
+# projr Package Development Guidelines
 
-## About projr
+## Purpose & Scope
 
-An R package for reproducible and archived research projects. Manages project structure, build processes, versioning, and deployment to multiple destinations (local, GitHub, OSF).
+Core development standards for the projr R package. This package manages reproducible research projects with version control, automated builds, and multi-destination deployment (local, GitHub, OSF).
+
+For language-specific and topic-specific guidelines, see `.github/instructions/` directory.
 
 ---
 
-## Quick Reference
+## Topic-Specific Instructions
 
-For detailed guidelines, see topic-specific instruction files in `.github/instructions/`:
-- `r-coding-standards.instructions.md` - R code style and patterns
-- `testing.instructions.md` - Test suite guidelines
+See detailed guidelines in `.github/instructions/`:
+- `r-coding-standards.instructions.md` - R code style and patterns (applies to `**/*.R`)
+- `testing.instructions.md` - Test suite guidelines (applies to `tests/**/*`)
 - `package-development.instructions.md` - Development workflow
-- `yaml-configuration.instructions.md` - YAML config guidelines
+- `yaml-configuration.instructions.md` - YAML config guidelines (applies to `**/*.{yml,yaml}`)
+- `build-system.instructions.md` - Build process, logging, manifest system (applies to build/manifest/hash files)
+- `git-version-control.instructions.md` - Git integration and version management (applies to git files)
+- `authentication.instructions.md` - Authentication for GitHub/OSF (applies to auth files)
 
 ---
 
@@ -144,8 +149,8 @@ if (!file.exists(path)) {
 
 ---
 
-## Additional Resources
+## Resources
 
-- Package website: https://satvilab.github.io/projr/
 - pkgdown config: `_pkgdown.yml`
 - CI/CD: `.github/workflows/R-CMD-check.yaml`
+- Package documentation: Run `pkgdown::build_site()` to build locally
