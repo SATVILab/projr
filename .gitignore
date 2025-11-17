@@ -15,3 +15,11 @@ check_output.log
 *.Rcheck
 ..Rcheck/
 test_debug_output.R
+
+# Test and check output files
+test_output.txt
+test_lite_output.txt
+test_debug.txt
+check_output.txt
+final_check_output.txt
+full_test_output.txt
