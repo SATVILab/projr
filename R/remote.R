@@ -178,54 +178,28 @@ projr_osf_create_project <- function(title,
     description <- "Release created automatically by `projr`"
   }
   
-  .cli_debug(
-    "Piggyback: Creating GitHub release with tag '{tag}'",
+  result <- .pb_retry_with_backoff(
+    fn = function() {
+      .remote_create_github_attempt(
+        tag = tag,
+        description = description,
+        output_level = output_level,
+        log_file = log_file
+      )
+    },
+    max_attempts = 6,
+    initial_delay = pause_second,
+    operation_name = paste0("create GitHub release '", tag, "'"),
     output_level = output_level,
-    log_file = log_file
+    log_file = log_file,
+    check_success = function(x) !.is_try_error(x)
   )
   
-  pb_release_create <- .remote_create_github_attempt(
-    tag = tag,
-    description = description,
-    output_level = output_level,
-    log_file = log_file
-  )
-  if (!.is_try_error(pb_release_create)) {
-    .cli_debug(
-      "Piggyback: Successfully created release '{tag}' on first attempt",
-      output_level = output_level,
-      log_file = log_file
-    )
-    return(invisible(tag))
+  if (.is_try_error(result)) {
+    invisible(character())
+  } else {
+    invisible(tag)
   }
-  
-  .cli_debug(
-    "Piggyback: First attempt to create release failed, retrying after {pause_second}s...",
-    output_level = output_level,
-    log_file = log_file
-  )
-  Sys.sleep(pause_second)
-  pb_release_create <- .remote_create_github_attempt(
-    tag = tag,
-    description = description,
-    output_level = output_level,
-    log_file = log_file
-  )
-  if (!.is_try_error(pb_release_create)) {
-    .cli_debug(
-      "Piggyback: Successfully created release '{tag}' on second attempt",
-      output_level = output_level,
-      log_file = log_file
-    )
-    return(invisible(tag))
-  }
-  
-  .cli_debug(
-    "Piggyback: All attempts to create release '{tag}' failed",
-    output_level = output_level,
-    log_file = log_file
-  )
-  invisible(character())
 }
 
 .remote_create_github_attempt <- function(tag,
@@ -1378,32 +1352,54 @@ projr_osf_create_project <- function(title,
     return(invisible(path_dir_save_local))
   }
   
-  # Download the file
-  download_result <- tryCatch({
-    piggyback::pb_download(
-      file = remote[["fn"]],
-      dest = path_dir_save_init,
-      tag = remote[["tag"]],
-      repo = .pb_repo_get(),
-      overwrite = TRUE,
-      use_timestamps = FALSE
-    )
-    .cli_debug(
-      "Piggyback: Successfully downloaded {remote[['fn']]} ({file.size(file.path(path_dir_save_init, remote[['fn']]))} bytes)",
-      output_level = output_level,
-      log_file = log_file
-    )
-    TRUE
-  }, error = function(e) {
-    .cli_debug(
-      "Piggyback: Download failed for {remote[['fn']]}: {e$message}",
-      output_level = output_level,
-      log_file = log_file
-    )
-    FALSE
-  })
+  # Download the file with retry logic
+  download_result <- .pb_retry_with_backoff(
+    fn = function() {
+      result <- try(suppressWarnings(suppressMessages(
+        piggyback::pb_download(
+          file = remote[["fn"]],
+          dest = path_dir_save_init,
+          tag = remote[["tag"]],
+          repo = .pb_repo_get(),
+          overwrite = TRUE,
+          use_timestamps = FALSE
+        )
+      )), silent = TRUE)
+      
+      if (inherits(result, "try-error")) {
+        error_msg <- attr(result, "condition")$message
+        .cli_debug(
+          "Piggyback: pb_download() failed for {remote[['fn']]}: {error_msg}",
+          output_level = output_level,
+          log_file = log_file
+        )
+        return(result)
+      }
+      
+      # Check if file actually downloaded
+      zip_path <- file.path(path_dir_save_init, remote[["fn"]])
+      if (!file.exists(zip_path)) {
+        return(structure(list(), class = "try-error", 
+                        condition = list(message = "Downloaded file not found")))
+      }
+      
+      .cli_debug(
+        "Piggyback: Successfully downloaded {remote[['fn']]} ({file.size(zip_path)} bytes)",
+        output_level = output_level,
+        log_file = log_file
+      )
+      
+      TRUE
+    },
+    max_attempts = 6,
+    initial_delay = 3,
+    operation_name = paste0("download ", remote[["fn"]], " from tag '", remote[["tag"]], "'"),
+    output_level = output_level,
+    log_file = log_file,
+    check_success = function(x) !inherits(x, "try-error") && isTRUE(x)
+  )
   
-  if (!download_result) {
+  if (!isTRUE(download_result)) {
     return(invisible(path_dir_save_local))
   }
   
@@ -2533,63 +2529,37 @@ projr_osf_create_project <- function(title,
     log_file = log_file
   )
   
-  pb_upload <- .remote_file_add_github_zip_attempt(
-    path_zip = path_zip,
-    tag = tag,
+  result <- .pb_retry_with_backoff(
+    fn = function() {
+      .remote_file_add_github_zip_attempt(
+        path_zip = path_zip,
+        tag = tag,
+        output_level = output_level,
+        log_file = log_file
+      )
+    },
+    max_attempts = 6,
+    initial_delay = pause_second,
+    operation_name = paste0("upload ", basename(path_zip), " to tag '", tag, "'"),
     output_level = output_level,
-    log_file = log_file
+    log_file = log_file,
+    check_success = function(x) !inherits(x, "try-error")
   )
-  if (!inherits(pb_upload, "try-error")) {
-    .cli_debug(
-      "Piggyback: Successfully uploaded {basename(path_zip)} on first attempt",
-      output_level = output_level,
-      log_file = log_file
-    )
-    return(invisible(TRUE))
-  }
   
-  .cli_debug(
-    "Piggyback: First upload attempt failed, retrying after {pause_second}s...",
-    output_level = output_level,
-    log_file = log_file
-  )
-  Sys.sleep(pause_second)
-  pb_upload <- .remote_file_add_github_zip_attempt(
-    path_zip = path_zip,
-    tag = tag,
-    output_level = output_level,
-    log_file = log_file
-  )
-  if (!inherits(pb_upload, "try-error")) {
-    .cli_debug(
-      "Piggyback: Successfully uploaded {basename(path_zip)} on second attempt",
-      output_level = output_level,
-      log_file = log_file
-    )
-    return(invisible(TRUE))
-  }
-  
-  error_msg <- if (inherits(pb_upload, "try-error")) {
-    attr(pb_upload, "condition")$message
+  if (inherits(result, "try-error")) {
+    error_msg <- attr(result, "condition")$message
+    warning(paste0(
+      "Could not upload ", # nolint
+      basename(path_zip),
+      " to GitHub release with tag ", # nolint
+      tag,
+      ": ",
+      error_msg
+    ))
+    invisible(FALSE)
   } else {
-    "Unknown error"
+    invisible(TRUE)
   }
-  
-  .cli_debug(
-    "Piggyback: All upload attempts failed for {basename(path_zip)}: {error_msg}",
-    output_level = output_level,
-    log_file = log_file
-  )
-  
-  warning(paste0(
-    "Could not upload ", # nolint
-    basename(path_zip),
-    " to GitHub release with tag ", # nolint
-    tag,
-    ": ",
-    error_msg
-  ))
-  invisible(FALSE)
 }
 
 .remote_file_add_github_zip_attempt <- function(path_zip,
