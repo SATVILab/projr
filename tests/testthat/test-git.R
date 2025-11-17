@@ -219,7 +219,7 @@ test_that(".git_ functions work with GitHub", { # setup
         print("Use plain-text credential store")
       }
 
-      system2("git", args = c("config", "--local", "credential.helper", "store"))
+      # system2("git", args = c("config", "--local", "credential.helper", "store"))
       .dep_install_only("gh")
       username <- tryCatch({
         gh::gh_whoami()[["login"]]
@@ -562,8 +562,7 @@ test_that(".git_system_get and .git_system_check_git work", {
 
 test_that(".git_clone works", {
   skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-  skip("Skipping git clone test - requires network and GitHub authentication")
+  skip()
 
   # This test is skipped by default as it requires network access
   # and GitHub authentication. Uncomment to run manually if needed.
@@ -580,7 +579,7 @@ test_that(".git_clone works", {
 
 test_that(".git_fetch works with remote", {
   skip_if(.is_test_select())
-  skip("Skipping fetch test - requires remote repository")
+  skip()
 
   # This test requires a remote repository setup
   # Would test .git_fetch(), .git_fetch_git(), .git_fetch_gert()
