@@ -17,6 +17,7 @@
 }
 
 test_that("restore from local archive remote places files directly in target directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   
@@ -77,6 +78,7 @@ test_that("restore from local archive remote places files directly in target dir
 })
 
 test_that("restore from local latest remote places files directly in target directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   
@@ -135,6 +137,7 @@ test_that("restore from local latest remote places files directly in target dire
 })
 
 test_that("restore and build integration test with archive remote", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   
@@ -212,6 +215,7 @@ test_that("restore and build integration test with archive remote", {
 })
 
 test_that("restore and build integration test with latest remote", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   

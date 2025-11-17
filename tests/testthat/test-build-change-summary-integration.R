@@ -2,6 +2,7 @@
 # Tests the full workflow from build to BUILDLOG
 
 test_that("build change summary integrates correctly into full build workflow", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if_not(nzchar(Sys.getenv("GITHUB_PAT")))
   
@@ -73,6 +74,7 @@ test_that("build change summary integrates correctly into full build workflow", 
 })
 
 test_that("change summary handles mixed input and output changes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
@@ -128,6 +130,7 @@ test_that("change summary handles mixed input and output changes", {
 })
 
 test_that("change summary respects hashing configuration", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
