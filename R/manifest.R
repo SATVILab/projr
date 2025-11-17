@@ -139,7 +139,109 @@
 }
 
 .manifest_read_project <- function() {
+  # Try to read from split manifests first, fall back to consolidated
+  .manifest_read_project_impl()
+}
+
+# Read manifest from split files or consolidated file
+.manifest_read_project_impl <- function() {
+  # Check if split manifest directory exists
+  split_dir <- .manifest_split_get_dir()
+
+  if (dir.exists(split_dir)) {
+    # Read all split manifest files
+    manifest_split <- .manifest_split_read_all()
+    if (nrow(manifest_split) > 0) {
+      return(manifest_split)
+    }
+  }
+
+  # Fall back to reading consolidated manifest.csv
   .manifest_read(.path_get("manifest.csv"))
+}
+
+# Get the directory path for split manifests
+.manifest_split_get_dir <- function() {
+  file.path(.path_get(), "_projr", "manifest")
+}
+
+# Get the file path for a specific version's split manifest
+.manifest_split_get_path <- function(version) {
+  version <- .version_v_add(version)
+  file.path(.manifest_split_get_dir(), paste0(version, ".csv"))
+}
+
+# Read all split manifest files and combine them
+.manifest_split_read_all <- function() {
+  split_dir <- .manifest_split_get_dir()
+
+  if (!dir.exists(split_dir)) {
+    return(.zero_tbl_get_manifest())
+  }
+
+  # Get all .csv files in the split manifest directory
+  manifest_files <- list.files(
+    split_dir,
+    pattern = "^v.*\\.csv$",
+    full.names = TRUE
+  )
+
+  if (length(manifest_files) == 0) {
+    return(.zero_tbl_get_manifest())
+  }
+
+  # Read all manifest files
+  manifest_list <- lapply(manifest_files, function(path) {
+    tryCatch(
+      .manifest_read(path),
+      error = function(e) .zero_tbl_get_manifest()
+    )
+  })
+
+  # Combine all manifests
+  if (length(manifest_list) == 0) {
+    return(.zero_tbl_get_manifest())
+  }
+
+  manifest_combined <- Reduce(rbind, manifest_list)
+  rownames(manifest_combined) <- NULL
+  manifest_combined
+}
+
+# Read a single version's split manifest
+.manifest_split_read_version <- function(version) {
+  path <- .manifest_split_get_path(version)
+  .manifest_read(path)
+}
+
+# Write a single version's split manifest
+.manifest_split_write_version <- function(manifest, version) {
+  # Filter manifest to only this version
+  version_str <- .version_v_add(version)
+  manifest_version <- manifest[manifest$version == version_str, , drop = FALSE]
+
+  if (nrow(manifest_version) == 0) {
+    return(invisible(NULL))
+  }
+
+  # Create split manifest directory
+  split_dir <- .manifest_split_get_dir()
+  .dir_create(split_dir)
+
+  # Get path for this version's manifest
+  path <- .manifest_split_get_path(version)
+
+  # If the file already exists, read it and merge
+  # This handles cases where the build is run multiple times with the same version
+  if (file.exists(path)) {
+    manifest_existing <- .manifest_read(path)
+    manifest_version <- rbind(manifest_existing, manifest_version)
+  }
+
+  # Write this version's manifest (deduplication happens in .manifest_write)
+  .manifest_write(manifest_version, path, overwrite = TRUE)
+
+  invisible(path)
 }
 
 .manifest_get_path_dir <- function(path_dir) {

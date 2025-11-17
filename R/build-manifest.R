@@ -54,10 +54,26 @@
   if (!output_run) {
     return(invisible(FALSE))
   }
-  .build_manifest_pre_read() |>
-    rbind(.build_manifest_post_get_manifest(output_run)) |>
-    rbind(.build_manifest_post_get_manifest_previous_version()) |>
-    .manifest_write(.build_manifest_post_get_path(output_run))
+
+  # Build current version's manifest (pre + post)
+  manifest_current <- .build_manifest_pre_read() |>
+    rbind(.build_manifest_post_get_manifest(output_run))
+
+  # Get current version
+  version_current <- projr_version_get()
+
+  # Write split manifest for current version
+  # This merges with existing data if the file exists (for re-builds)
+  .manifest_split_write_version(manifest_current, version_current)
+
+  # For backward compatibility, also write consolidated manifest
+  # Read all previous data and add current, then deduplicate
+  manifest_all <- .build_manifest_post_get_manifest_previous_version() |>
+    rbind(manifest_current) |>
+    .manifest_remove_duplicate()
+
+  # Write consolidated manifest (overwrite = TRUE, no dedup since we just did it)
+  .manifest_write_impl(manifest_all, .build_manifest_post_get_path(output_run), overwrite = TRUE)
 }
 
 .build_manifest_pre_read <- function() {
@@ -112,9 +128,11 @@
 }
 
 .build_manifest_post_get_manifest_previous_version <- function() {
+  # Simply read the consolidated manifest.csv
+  # Don't exclude current version - let deduplication handle it
   path <- .path_get("manifest.csv")
   if (!file.exists(path)) {
     return(.zero_tbl_get_manifest())
   }
-  .manifest_read(.path_get("manifest.csv"))
+  .manifest_read(path)
 }

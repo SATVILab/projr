@@ -120,6 +120,7 @@ test_that("projr_manifest_range works", {
       
       # Test: Empty range (no versions)
       .file_rm(.path_get("manifest.csv"))
+      .dir_rm(file.path(.path_get(), "_projr", "manifest"))
       empty_range <- projr_manifest_range()
       expect_identical(nrow(empty_range), 0L)
     }
@@ -177,6 +178,7 @@ test_that("projr_manifest_last_change works", {
       
       # Test: Empty manifest
       .file_rm(.path_get("manifest.csv"))
+      .dir_rm(file.path(.path_get(), "_projr", "manifest"))
       empty_last <- projr_manifest_last_change()
       expect_identical(nrow(empty_last), 0L)
     }
