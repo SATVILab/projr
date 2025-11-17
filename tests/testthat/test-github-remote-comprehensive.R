@@ -43,7 +43,7 @@ test_that("GitHub release works with structure='latest'", {
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -91,7 +91,7 @@ test_that("GitHub release works with structure='archive'", {
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  skip_if(!gh::gh_token_exists())
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -143,7 +143,7 @@ test_that("GitHub release send_cue='always' creates new archive every build", {
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -184,7 +184,7 @@ test_that("GitHub release send_cue='if-change' only creates archive if content c
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -232,7 +232,7 @@ test_that("GitHub release send_cue='never' never sends to remote", {
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -273,7 +273,7 @@ test_that("GitHub release send_strategy='sync-diff' updates only changed files",
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -333,7 +333,7 @@ test_that("GitHub release send_strategy='sync-purge' removes all then uploads al
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -383,7 +383,7 @@ test_that("GitHub release send_inspect='manifest' uses manifest for version trac
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -423,7 +423,7 @@ test_that("GitHub release send_inspect='file' inspects actual files", {
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -466,7 +466,7 @@ test_that("GitHub release send_inspect='none' treats remote as empty", {
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -512,7 +512,7 @@ test_that("GitHub release works with different content types", {
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -558,7 +558,7 @@ test_that("projr_restore works with GitHub release source", {
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -614,7 +614,7 @@ test_that("GitHub release restore works with archive structure", {
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -665,7 +665,7 @@ test_that("GitHub release works with @version tag", {
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -709,7 +709,7 @@ test_that("GitHub release works with code content type", {
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
