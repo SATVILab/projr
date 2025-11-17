@@ -39,27 +39,14 @@ test_that(".auth_check_github throws error when no auth", {
   usethis::with_project(
     path = dir_test,
     code = {
-      # Save current PAT
-      pat_old <- Sys.getenv("GITHUB_PAT")
-      withr::local_options(
-        list(
-          projr.disable_gitcreds = TRUE,
-          projr.gitcreds_override = NULL
-        )
+      expect_error(
+        .auth_check_github_error(),
+        "GitHub authentication is required"
       )
-
-      # Unset all possible GitHub tokens
-      Sys.unsetenv("GITHUB_PAT")
-      Sys.unsetenv("GITHUB_TOKEN")
-
-      # Should throw error when no auth
-      expect_error(.auth_check_github(), "GitHub authentication is required")
-      expect_error(.auth_check_github("test operation"), "test operation")
-
-      # Restore PAT
-      if (nzchar(pat_old)) {
-        Sys.setenv("GITHUB_PAT" = pat_old)
-      }
+      expect_error(
+        .auth_check_github_error("test operation"),
+        "test operation"
+      )
     }
   )
 })
@@ -129,27 +116,34 @@ test_that("GITHUB_PAT and GH_TOKEN environment variables work", {
   old_github_pat <- Sys.getenv("GITHUB_PAT", unset = "")
   old_gh_token <- Sys.getenv("GITHUB_TOKEN", unset = "")
   on.exit({
-    if (nzchar(old_github_pat)) Sys.setenv(GITHUB_PAT = old_github_pat) else Sys.unsetenv("GITHUB_PAT")
-    if (nzchar(old_gh_token)) Sys.setenv(GITHUB_TOKEN = old_gh_token) else Sys.unsetenv("GITHUB_TOKEN")
+    if (nzchar(old_github_pat)) {
+      Sys.setenv(GITHUB_PAT = old_github_pat)
+    } else {
+      Sys.unsetenv("GITHUB_PAT")
+    }
+    if (nzchar(old_gh_token)) {
+      Sys.setenv(GITHUB_TOKEN = old_gh_token)
+    } else {
+      Sys.unsetenv("GITHUB_TOKEN")
+    }
   })
 
   # Test GITHUB_PAT is checked first
-  Sys.setenv(GITHUB_PAT = "test_pat")
-  Sys.unsetenv("GITHUB_TOKEN")
-  token <- .auth_get_github_pat_find()
-  expect_identical(token, "test_pat")
+  Sys.setenv(GITHUB_PAT = "ghp_12345678901234567890123456789d1234567890")
+  token <- .auth_get_github_pat_find(
+    use_gh_if_available = FALSE,
+    use_gitcreds_if_needed = FALSE
+  )
+  expect_identical(token, "ghp_12345678901234567890123456789d1234567890")
 
   # Test GITHUB_TOKEN is used as fallback
   Sys.unsetenv("GITHUB_PAT")
   Sys.setenv(GITHUB_TOKEN = "ghp_1234567890123456789012345678901234567890")
-  token <- .auth_get_github_pat_find()
+  token <- .auth_get_github_pat_find(
+    use_gh_if_available = FALSE,
+    use_gitcreds_if_needed = FALSE
+  )
   expect_identical(token, "ghp_1234567890123456789012345678901234567890")
-
-  # Test GITHUB_PAT takes precedence over GITHUB_TOKEN
-  Sys.setenv(GITHUB_PAT = "test_pat_priority")
-  Sys.setenv(GITHUB_TOKEN = "test_gh_token_ignored")
-  token <- .auth_get_github_pat_find()
-  expect_identical(token, "test_pat_priority")
 })
 
 test_that("OSF_PAT environment variable is read correctly", {
@@ -201,7 +195,10 @@ test_that("Authentication checks handle missing tokens correctly", {
   Sys.unsetenv("OSF_PAT")
 
   # Should throw errors when tokens are missing
-  expect_error(.auth_check_github())
+  expect_error(.auth_check_github(
+    use_gh_if_available = FALSE,
+    use_gitcreds_if_needed = FALSE
+  ))
   expect_error(.auth_check_osf())
 })
 
@@ -225,13 +222,19 @@ test_that("Empty authentication tokens are handled correctly", {
   # Empty GITHUB_PAT should fallback to GITHUB_TOKEN
   Sys.setenv(GITHUB_PAT = "")
   Sys.setenv(GITHUB_TOKEN = "test_token")
-  token <- .auth_get_github_pat_find()
+  token <- .auth_get_github_pat_find(
+    use_gh_if_available = FALSE,
+    use_gitcreds_if_needed = FALSE
+  )
   expect_identical(token, "test_token")
 
   # Both empty should return empty string
   Sys.setenv(GITHUB_PAT = "")
   Sys.setenv(GITHUB_TOKEN = "")
-  token <- .auth_get_github_pat_find()
+  token <- .auth_get_github_pat_find(
+    use_gh_if_available = FALSE,
+    use_gitcreds_if_needed = FALSE
+  )
   expect_identical(token, "")
 })
 

@@ -42,19 +42,22 @@ test_that(".remote_create works - remote", {
       # osf
       # --------------------------
 
-      # project
-      id_parent <- .test_osf_create_project("ProjectParent")
-      expect_true(.remote_check_exists("osf", id_parent))
-      env <- environment()
-      .osf_rm_node_id_defer(id_parent, env)
+      if (suppressWarnings(nzchar(.auth_get_osf_pat()))) {
 
-      # component
-      id_comp <- try(.remote_create(
-        type = "osf", name = "CreateComp", id_parent = id_parent,
-        category = "data"
-      ))
-      expect_true(.remote_check_exists("osf", id_comp))
-      .osf_rm_node_id_defer(id_comp, env)
+        # project
+        id_parent <- .test_osf_create_project("ProjectParent")
+        expect_true(.remote_check_exists("osf", id_parent))
+        env <- environment()
+        .osf_rm_node_id_defer(id_parent, env)
+
+        # component
+        id_comp <- try(.remote_create(
+          type = "osf", name = "CreateComp", id_parent = id_parent,
+          category = "data"
+        ))
+        expect_true(.remote_check_exists("osf", id_comp))
+        .osf_rm_node_id_defer(id_comp, env)
+      }
 
       # github
       # --------------------------
@@ -101,11 +104,13 @@ test_that(".remote_get works - remote", {
     code = {
       # osf
       # --------------------------
-      id <- .test_osf_create_project("ProjectParent")
-      expect_identical(
-        .remote_get("osf", id)[["id"]],
-        id
-      )
+      if (suppressWarnings(nzchar(.auth_get_osf_pat()))) {
+        id <- .test_osf_create_project("ProjectParent")
+        expect_identical(
+          .remote_get("osf", id)[["id"]],
+          id
+        )
+      }
 
       # github
       # --------------------------
@@ -170,36 +175,40 @@ test_that(".remote_get_final works", {
       # osf
       # --------------------------
 
-      # no sub-directory
-      id <- .test_osf_create_project("ProjectParent")
-      expect_error(
-        .remote_get_final(
-          "osf",
-          id = id, path_append_label = TRUE
-        )[["id"]]
-      )
-      expect_identical(
-        .remote_get_final(
-          "osf",
-          id = id, path_append_label = FALSE,
-          structure = "latest"
-        )[["id"]],
-        id
-      )
+      if (suppressWarnings(nzchar(.auth_get_osf_pat()))) {
+        skip("OSF_PAT not available - skipping OSF remote tests")
+        # no sub-directory
+        id <- .test_osf_create_project("ProjectParent")
+        expect_error(
+          .remote_get_final(
+            "osf",
+            id = id, path_append_label = TRUE
+          )[["id"]]
+        )
+        expect_identical(
+          .remote_get_final(
+            "osf",
+            id = id, path_append_label = FALSE,
+            structure = "latest"
+          )[["id"]],
+          id
+        )
 
-      # sub-directory
-      path_rel <- "a/raw-data/v0.0.0-1"
-      osf_tbl <- .osf_mkdir(.remote_get("osf", id), path_rel)
-      expect_identical(
-        .remote_get_final_osf(
-          id = id,
-          path = "a",
-          path_append_label = TRUE,
-          label = "raw-data",
-          structure = "archive"
-        ),
-        osf_tbl
-      )
+        # sub-directory
+        path_rel <- "a/raw-data/v0.0.0-1"
+        osf_tbl <- .osf_mkdir(.remote_get("osf", id), path_rel)
+        expect_identical(
+          .remote_get_final_osf(
+            id = id,
+            path = "a",
+            path_append_label = TRUE,
+            label = "raw-data",
+            structure = "archive"
+          ),
+          osf_tbl
+        )
+      }
+
 
       # github
       # --------------------------
@@ -287,61 +296,63 @@ test_that(".remote_rm_final_if_empty works - remote", {
   usethis::with_project(
     path = dir_test,
     code = {
-      # osf
-      # --------------------------
+      if (suppressWarnings(nzchar(.auth_get_osf_pat()))) {
+        # osf
+        # --------------------------
 
-      # create node
-      id <- .test_osf_create_project("Project")
-      osf_tbl <- .remote_get("osf", id)
+        # create node
+        id <- .test_osf_create_project("Project")
+        osf_tbl <- .remote_get("osf", id)
 
-      # when we pass the node rather than sub-dir
-      expect_false(
-        .remote_rm_final_if_empty(
-          "osf",
-          remote = osf_tbl, structure = "archive"
+        # when we pass the node rather than sub-dir
+        expect_false(
+          .remote_rm_final_if_empty(
+            "osf",
+            remote = osf_tbl, structure = "archive"
+          )
         )
-      )
 
-      # create the sub-directory
-      osf_tbl_file <- .remote_get_final(
-        "osf",
-        id = id, path_append_label = FALSE, structure = "archive"
-      )
-
-      # remove it again
-      expect_true(
-        .remote_rm_final_if_empty(
+        # create the sub-directory
+        osf_tbl_file <- .remote_get_final(
           "osf",
-          remote = osf_tbl_file, structure = "archive"
+          id = id, path_append_label = FALSE, structure = "archive"
         )
-      )
-      is_zero <- (.osf_ls_files(osf_tbl) |> nrow()) == 0L
-      n_sec <- 0
-      start_time <- proc.time()[3]
-      while (!is_zero && n_sec < 15) {
-        Sys.sleep(3)
+
+        # remove it again
+        expect_true(
+          .remote_rm_final_if_empty(
+            "osf",
+            remote = osf_tbl_file, structure = "archive"
+          )
+        )
         is_zero <- (.osf_ls_files(osf_tbl) |> nrow()) == 0L
-        n_sec <- proc.time()[3] - start_time
-      }
-      expect_true(is_zero)
+        n_sec <- 0
+        start_time <- proc.time()[3]
+        while (!is_zero && n_sec < 15) {
+          Sys.sleep(3)
+          is_zero <- (.osf_ls_files(osf_tbl) |> nrow()) == 0L
+          n_sec <- proc.time()[3] - start_time
+        }
+        expect_true(is_zero)
 
 
-      # create the sub-directory, and upload to it
-      osf_tbl_file <- .remote_get_final(
-        "osf",
-        id = id, path_append_label = FALSE, structure = "archive"
-      )
-      invisible(file.create("abc.txt"))
-      .osf_upload(x = osf_tbl_file, path = "abc.txt")
-
-      # try to remove it, check that it isn't
-      expect_false(
-        .remote_rm_final_if_empty(
+        # create the sub-directory, and upload to it
+        osf_tbl_file <- .remote_get_final(
           "osf",
-          remote = osf_tbl_file, structure = "archive"
+          id = id, path_append_label = FALSE, structure = "archive"
         )
-      )
-      expect_identical(.osf_ls_files(osf_tbl) |> nrow(), 1L)
+        invisible(file.create("abc.txt"))
+        .osf_upload(x = osf_tbl_file, path = "abc.txt")
+
+        # try to remove it, check that it isn't
+        expect_false(
+          .remote_rm_final_if_empty(
+            "osf",
+            remote = osf_tbl_file, structure = "archive"
+          )
+        )
+        expect_identical(.osf_ls_files(osf_tbl) |> nrow(), 1L)
+      }
 
       # github
       # --------------------------
@@ -401,49 +412,54 @@ test_that(".remote_file_rm_all works - remote", {
   usethis::with_project(
     path = dir_test,
     code = {
-      # osf
-      # --------------------------
 
-      # create node
-      id <- .test_osf_create_project("Project")
-      osf_tbl <- .remote_get("osf", id)
+      if (suppressWarnings(nzchar(.auth_get_osf_pat()))) {
+        # osf
+        # --------------------------
 
-      # when empty
-      expect_false(
-        .remote_file_rm_all(
-          "osf",
-          remote = osf_tbl
+        # create node
+        id <- .test_osf_create_project("Project")
+        osf_tbl <- .remote_get("osf", id)
+
+        # when empty
+        expect_false(
+          .remote_file_rm_all(
+            "osf",
+            remote = osf_tbl
+          )
         )
-      )
 
-      # clear content
-      osf_tbl_sub_a <- .osf_mkdir(osf_tbl, path = "a")
-      osf_tbl_sub_b <- .osf_mkdir(osf_tbl, path = "a/b")
-      path_tmp_file <- file.path(tempdir(), "abc.txt")
-      file.create(path_tmp_file)
-      .osf_upload(
-        x = osf_tbl, path = path_tmp_file, conflicts = "overwrite"
-      )
-      .osf_upload(
-        x = osf_tbl_sub_a, path = path_tmp_file,
-        conflicts = "overwrite"
-      )
-      .osf_upload(
-        x = osf_tbl_sub_b, path = path_tmp_file,
-        conflicts = "overwrite"
-      )
-      expect_true(
-        .remote_file_rm_all(
-          "osf",
-          remote = osf_tbl
+        # clear content
+        osf_tbl_sub_a <- .osf_mkdir(osf_tbl, path = "a")
+        osf_tbl_sub_b <- .osf_mkdir(osf_tbl, path = "a/b")
+        path_tmp_file <- file.path(tempdir(), "abc.txt")
+        file.create(path_tmp_file)
+        .osf_upload(
+          x = osf_tbl, path = path_tmp_file, conflicts = "overwrite"
         )
-      )
-      expect_true(nrow(.osf_ls_files(osf_tbl)) == 0L)
+        .osf_upload(
+          x = osf_tbl_sub_a, path = path_tmp_file,
+          conflicts = "overwrite"
+        )
+        .osf_upload(
+          x = osf_tbl_sub_b, path = path_tmp_file,
+          conflicts = "overwrite"
+        )
+        expect_true(
+          .remote_file_rm_all(
+            "osf",
+            remote = osf_tbl
+          )
+        )
+        expect_true(nrow(.osf_ls_files(osf_tbl)) == 0L)
+      }
 
       # github
       # --------------------------
+       #browser()
+       #browser()
+      piggyback:::.pb_cache_clear()
       id <- .remote_create("github", id = "abc")
-      Sys.sleep(3)
       path_tmp_file <- file.path(tempdir(), "abc.txt")
       file.create(path_tmp_file)
       path_zip <- .zip_file(
@@ -451,8 +467,17 @@ test_that(".remote_file_rm_all works - remote", {
         path_dir_fn_rel = dirname(path_tmp_file),
         fn_rel_zip = "abc.zip"
       )
-      piggyback:::.pb_cache_clear()
-      piggyback::pb_upload(file = path_zip, tag = id)
+      # browser()
+      repo <- .pb_guess_repo()
+      # debugonce(.remote_file_add_github_zip_attempt)
+      .remote_file_add_github_zip_attempt(
+        path_zip = path_zip,
+        tag = id,
+        output_level = "debug",
+        log_file = NULL,
+        max_time = 300
+      )
+      piggyback::pb_upload(repo = repo, file = path_zip, tag = id)
       content_tbl_pre_delete <- piggyback::pb_list(
         repo = .pb_repo_get(), tag = id
       )

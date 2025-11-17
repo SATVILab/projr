@@ -113,7 +113,7 @@
         log_file = log_file
       )
     },
-    max_attempts = 6,
+    max_attempts = 3,
     initial_delay = pause_second,
     operation_name = "get release table",
     output_level = output_level,
@@ -191,7 +191,7 @@
         log_file = log_file
       )
     },
-    max_attempts = 6,
+    max_attempts = 3,
     initial_delay = pause_second,
     operation_name = paste0("get asset list for tag '", tag, "'"),
     output_level = output_level,

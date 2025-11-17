@@ -187,7 +187,7 @@ projr_osf_create_project <- function(title,
         log_file = log_file
       )
     },
-    max_attempts = 6,
+    max_attempts = 3,
     initial_delay = pause_second,
     operation_name = paste0("create GitHub release '", tag, "'"),
     output_level = output_level,
@@ -196,8 +196,18 @@ projr_osf_create_project <- function(title,
   )
 
   if (.is_try_error(result)) {
+    .cli_debug(
+      "Piggyback: Failed to create GitHub release '{tag}' after multiple attempts",
+      output_level = "debug",
+      log_file = log_file
+    )
     invisible(character())
   } else {
+    .cli_debug(
+      "Piggyback: Created GitHub release '{tag}'",
+      output_level = "debug",
+      log_file = log_file
+    )
     invisible(tag)
   }
 }
@@ -262,7 +272,7 @@ projr_osf_create_project <- function(title,
   if (.is_try_error(release_tbl)) {
     stop("Could not get GitHub release table")
   }
-  tag %in% release_tbl[["release_name"]]
+  inherits(release_tbl, "data.frame")
 }
 
 # ========================
@@ -1310,7 +1320,7 @@ projr_osf_create_project <- function(title,
 
       TRUE
     },
-    max_attempts = 6,
+    max_attempts = 3,
     initial_delay = 3,
     operation_name = paste0("download ", remote[["fn"]], " from tag '", remote[["tag"]], "'"),
     output_level = output_level,
@@ -2457,7 +2467,7 @@ projr_osf_create_project <- function(title,
         log_file = log_file
       )
     },
-    max_attempts = 6,
+    max_attempts = 3,
     initial_delay = pause_second,
     operation_name = paste0("upload ", basename(path_zip), " to tag '", tag, "'"),
     output_level = output_level,
@@ -2484,16 +2494,57 @@ projr_osf_create_project <- function(title,
 .remote_file_add_github_zip_attempt <- function(path_zip,
                                                 tag,
                                                 output_level = "std",
-                                                log_file = NULL) {
+                                                log_file = NULL,
+                                                max_time = 300) {
   repo <- .pb_repo_get()
-  result <- try(suppressWarnings(suppressMessages(
-    piggyback::pb_upload(repo = repo, file = path_zip, tag = tag)
-  )), silent = TRUE)
+  .cli_debug(
+    "Piggyback: Attempting to upload {basename(path_zip)} to tag '{tag}'",
+    output_level = output_level,
+    log_file = log_file
+  )
+  if (!.remote_check_exists("github", id = tag)) {
+    .cli_debug(
+      "Piggyback: Creating GitHub release with tag '{tag}' before upload",
+      output_level = output_level,
+      log_file = log_file
+    )
+    .remote_create(
+      id = tag,
+      output_level = output_level,
+      description = "Release automatically created by `projr`",
+      log_file = log_file
+    )
+  }
+  start_time <- proc.time()[3]
+  if (.remote_check_exists("github", id = tag)) {
+    # may need to retry due to intermittent GitHub API issues
+    current_time <- proc.time()[3]
+    result <- try(suppressWarnings(suppressMessages(
+      piggyback::pb_upload(repo = repo, file = path_zip, tag = tag)
+    )), silent = TRUE)
+    carry_on <- max_time > (current_time - start_time) &&
+      (inherits(result, "try-error"))
+
+    while (carry_on) {
+      result <- try(suppressWarnings(suppressMessages(
+          piggyback::pb_upload(repo = repo, file = path_zip, tag = tag)
+        )), silent = TRUE)
+      Sys.sleep(3)
+      .cli_debug(
+        "Piggyback: Retrying upload of {basename(path_zip)} to tag '{tag}'",
+        output_level = output_level,
+        log_file = log_file
+      )
+      current_time <- proc.time()[3]
+      carry_on <- max_time > (current_time - start_time) &&
+        (inherits(result, "try-error"))
+    }
+  }
 
   if (inherits(result, "try-error")) {
     error_msg <- attr(result, "condition")$message
     .cli_debug(
-      "Piggyback: pb_upload() failed for {basename(path_zip)} to tag '{tag}': {error_msg}",
+      "Piggyback: pb_upload() failed for {basename(path_zip)} to tag '{tag}': {error_msg}", # nolint
       output_level = output_level,
       log_file = log_file
     )

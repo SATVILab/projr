@@ -24,7 +24,9 @@
   if (is.null(creds)) "" else .auth_token_normalize(creds$password)
 }
 
-.auth_get_github_pat_find <- function(api_url = NULL) {
+.auth_get_github_pat_find <- function(api_url = NULL,
+                                      use_gh_if_available = TRUE,
+                                      use_gitcreds_if_needed = TRUE) {
   # 1. Direct env vars we explicitly honour
   pat <- .auth_token_normalize(Sys.getenv("GITHUB_PAT", unset = ""))
   if (.is_string(pat)) {
@@ -32,7 +34,7 @@
   }
 
   # 2. Prefer gh if installed, but do not require it
-  if (requireNamespace("gh", quietly = TRUE)) {
+  if (requireNamespace("gh", quietly = TRUE) && use_gh_if_available) {
     token <- gh::gh_token(api_url) |>
       .auth_token_normalize()
     if (nzchar(token)) {
@@ -41,7 +43,7 @@
   }
 
   # 3. Fallback: gitcreds, if available
-  if (requireNamespace("gitcreds", quietly = TRUE)) {
+  if (requireNamespace("gitcreds", quietly = TRUE) && use_gitcreds_if_needed) {
     .auth_get_github_pat_find_gitcreds(api_url)
   }
   Sys.getenv("GITHUB_TOKEN", "") |>
@@ -202,7 +204,10 @@ projr_instr_auth_osf <- function() {
   if (.is_string(pat)) {
     return(invisible(TRUE))
   }
+  .auth_check_github_error(context)
+}
 
+.auth_check_github_error <- function(context = NULL) {
   context_msg <- if (!is.null(context)) {
     paste0("GitHub authentication is required for: ", context, "\n\n")
   } else {
