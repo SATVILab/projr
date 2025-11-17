@@ -1,9 +1,11 @@
-name: R-CMD-check.yaml
-
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   workflow_dispatch:
   push:
     branches: [main, master]
+
+name: R-CMD-check.yaml
 
 permissions: read-all
 
@@ -13,21 +15,19 @@ jobs:
     name: ${{ matrix.config.name }} - ${{ matrix.config.os }} (${{ matrix.config.r }})
 
     # Only run dispatch-only configs on manual dispatch
-    if: ${{ !matrix.config.dispatch_only || github.event_name == 'workflow_dispatch' }}
+    if: ${{ matrix.config.dispatch_only == false || github.event_name == 'workflow_dispatch' }}
 
     strategy:
       fail-fast: false
       matrix:
         config:
-          # CRAN-like check (NOT_CRAN=false, R_PKG_TEST_LITE=true, no OSF_PAT)
-          - {os: ubuntu-latest, r: 'release', name: 'CRAN-like check', dispatch_only: false, not_cran: 'false', pkg_test_lite: 'true', has_osf: false}
           # Auto check (NOT_CRAN=true, has OSF_PAT, no R_PKG_TEST_LITE)
           - {os: ubuntu-latest, r: 'release', name: 'Auto check', dispatch_only: false, not_cran: 'true', pkg_test_lite: 'true', has_osf: false}
           # All OS checks (only on workflow_dispatch, NOT_CRAN=true, has OSF_PAT)
           - {os: ubuntu-latest,   r: 'release', name: 'All OS check', dispatch_only: true, not_cran: 'true', pkg_test_lite: '', has_osf: false}
           - {os: windows-latest, r: 'release', name: 'All OS check', dispatch_only: true, not_cran: 'true', pkg_test_lite: '', has_osf: false}
           - {os: macos-latest,   r: 'release', name: 'All OS check', dispatch_only: true, not_cran: 'true', pkg_test_lite: '', has_osf: false}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release', name: 'All OS check', dispatch_only: true, not_cran: '', pkg_test_lite: '', has_osf: false}
+          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release', name: 'All OS check', dispatch_only: true, not_cran: 'true', pkg_test_lite: '', has_osf: false}
           - {os: ubuntu-latest,   r: 'oldrel-1', name: 'All OS check', dispatch_only: true, not_cran: 'true', pkg_test_lite: '', has_osf: false}
 
     env:
