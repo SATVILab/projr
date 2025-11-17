@@ -16,9 +16,37 @@ This is an R package that facilitates reproducible and archived projects. The pa
 - **Install dependencies**: `renv::restore()`
 - **Load package**: `devtools::load_all()`
 - **Document**: `devtools::document()` (updates `man/` and `NAMESPACE`)
-- **Test**: `devtools::test()`
+- **Test**: `devtools::test()` - **Use LITE mode by default for faster iteration** (see Testing Guidelines below)
 - **Check**: `devtools::check()`
 - **Build**: `devtools::build()`
+
+### Testing Guidelines for Development
+
+**When running tests during development, use LITE mode unless otherwise specified:**
+
+```r
+# Enable LITE test mode for faster testing (recommended default)
+devtools::load_all()
+.test_set_lite()
+devtools::test()
+```
+
+**Use FULL mode (all tests) only when:**
+- Preparing for a release or major version bump
+- Explicitly requested by the issue or PR
+- Working on comprehensive parameter combination testing
+
+**When working on specific functionality, run all tests for that functionality:**
+```r
+# Example: Testing specific file with all its tests (including comprehensive)
+devtools::load_all()
+# Don't set .test_set_lite() to run all tests
+devtools::test()  # or testthat::test_file("tests/testthat/test-manifest.R")
+```
+
+**Test mode selection:**
+- **LITE mode** (default): Skips comprehensive tests, faster for development iteration (~364 tests, ~2.5 minutes)
+- **FULL mode**: Runs all tests including comprehensive parameter combinations (~452 tests, ~5+ minutes)
 
 ### Testing with GitHub Actions
 The repository uses GitHub Actions for CI/CD:
@@ -113,21 +141,29 @@ The package has a tiered test suite to accommodate different testing needs:
 - Auto-activates when `NOT_CRAN` is false/unset
 - Use `skip_if(.is_test_cran())` to skip tests in CRAN mode
 
-**Lite Mode** (`R_PKG_TEST_LITE=TRUE`):
-- Runs core functionality tests (~364 tests)
+**Lite Mode** (`R_PKG_TEST_LITE=TRUE`) - **RECOMMENDED FOR DEVELOPMENT**:
+- Runs core functionality tests (~364 tests, ~2.5 minutes)
 - Skips comprehensive tests (exhaustive parameter combinations)
 - Includes integration tests
 - Includes remote tests if credentials available
-- Target: Faster validation for regular development, not full comprehensive testing
+- **Use this mode by default when running tests during development** unless:
+  - Preparing for a release (use Full mode)
+  - Explicitly working on comprehensive parameter testing (use Full mode for that specific file)
+  - Requested otherwise in the issue/PR
+- Enable with: `devtools::load_all(); .test_set_lite(); devtools::test()`
 - Use `skip_if(.is_test_lite())` to skip tests in lite mode
 - Note: `R_PKG_TEST_DEBUG` is deprecated but still works for backward compatibility
 
-**Full Mode** (default):
-- Runs all tests (452 tests)
+**Full Mode** (default when no test mode is set):
+- Runs all tests (452 tests, ~5+ minutes)
 - Includes comprehensive tests
 - Includes integration tests
 - Includes remote tests if credentials available
-- Used for complete validation before releases
+- **Use for:**
+  - Pre-release validation
+  - When working on comprehensive parameter combination testing
+  - When explicitly requested in the issue/PR
+- Enable by running tests without calling `.test_set_lite()` or `.test_set_cran()`
 
 #### Test Guidelines
 
