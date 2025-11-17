@@ -15,7 +15,7 @@ jobs:
     name: ${{ matrix.config.name }} - ${{ matrix.config.os }} (${{ matrix.config.r }})
 
     # Only run dispatch-only configs on manual dispatch
-    if: ${{ matrix.config.dispatch_only == false || github.event_name == 'workflow_dispatch' }}
+    if: ${{ not(matrix.config.dispatch_only) or (github.event_name == 'workflow_dispatch') }}
 
     strategy:
       fail-fast: false
