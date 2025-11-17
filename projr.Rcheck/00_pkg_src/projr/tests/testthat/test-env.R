@@ -54,6 +54,7 @@ test_that("projr_env_set works", {
 })
 
 test_that("projr_env_set handles invalid environment variable lines", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
@@ -88,6 +89,7 @@ test_that("projr_env_set handles invalid environment variable lines", {
 })
 
 test_that("projr_env_set handles comments in environment files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
@@ -122,6 +124,7 @@ test_that("projr_env_set handles comments in environment files", {
 })
 
 test_that("projr_env_set handles multiple profiles correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
@@ -174,6 +177,7 @@ test_that("projr_env_set handles multiple profiles correctly", {
 })
 
 test_that("projr_env_set respects local file precedence", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
@@ -208,6 +212,7 @@ test_that("projr_env_set respects local file precedence", {
 })
 
 test_that("projr_env_set only sets unspecified variables", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
@@ -236,6 +241,7 @@ test_that("projr_env_set only sets unspecified variables", {
 })
 
 test_that("projr_env_set handles empty environment files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
@@ -256,6 +262,7 @@ test_that("projr_env_set handles empty environment files", {
 })
 
 test_that("projr_env_set handles special characters in values", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
@@ -287,6 +294,7 @@ test_that("projr_env_set handles special characters in values", {
 })
 
 test_that("projr_env_set handles missing files gracefully", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
@@ -304,6 +312,7 @@ test_that("projr_env_set handles missing files gracefully", {
 })
 
 test_that("projr_env_set ignores _environment.local in git", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = TRUE, github = FALSE, set_env_var = TRUE
@@ -327,6 +336,7 @@ test_that("projr_env_set ignores _environment.local in git", {
 })
 
 test_that("PROJR_PROFILE handles comma and semicolon separators", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Save original
@@ -350,6 +360,7 @@ test_that("PROJR_PROFILE handles comma and semicolon separators", {
 })
 
 test_that("PROJR_PROFILE filters out default and local", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   old_val <- Sys.getenv("PROJR_PROFILE", unset = "")
@@ -365,6 +376,7 @@ test_that("PROJR_PROFILE filters out default and local", {
 })
 
 test_that("PROJR_PROFILE handles whitespace correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   old_val <- Sys.getenv("PROJR_PROFILE", unset = "")
@@ -384,6 +396,7 @@ test_that("PROJR_PROFILE handles whitespace correctly", {
 })
 
 test_that("QUARTO_PROFILE takes precedence over PROJR_PROFILE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
@@ -414,6 +427,7 @@ test_that("QUARTO_PROFILE takes precedence over PROJR_PROFILE", {
 })
 
 test_that("Environment variable name parsing handles edge cases", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE

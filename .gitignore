@@ -24,3 +24,5 @@ test_debug.txt
 check_output.txt
 final_check_output.txt
 full_test_output.txt
+*.Rcheck/
+*.tar.gz

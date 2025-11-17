@@ -243,47 +243,20 @@ knitr::opts_chunk$set(
 # old_files[old_files$version_last_change < "v0.0.5", ]
 
 ## ----eval=FALSE---------------------------------------------------------------
-# # Create files manually or use:
-# file.create("_environment.local")  # Machine-specific (git-ignored)
-# file.create("_environment-dev")     # Profile-specific
 # file.create("_environment")         # Global defaults
+# file.create("_environment-dev")     # Profile-specific
+# file.create("_environment.local")   # Machine-specific (git-ignored)
 
 ## ----eval=FALSE---------------------------------------------------------------
-# # Load all environment files
-# projr_env_set()
+# projr_env_set()  # Loads all files in order of precedence
+
+## ----eval=FALSE---------------------------------------------------------------
+# # Build control
+# Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")    # "none", "std", "debug"
+# Sys.setenv(PROJR_LOG_DETAILED = "FALSE")    # TRUE/FALSE
+# Sys.setenv(PROJR_CLEAR_OUTPUT = "never")    # "pre", "post", "never"
 # 
-# # Load specific files
-# projr_env_set("_environment.local")
-# 
-# # Set profile to load profile-specific files
+# # Profile selection
 # Sys.setenv(PROJR_PROFILE = "dev")
-# projr_env_set()  # Will load _environment-dev
-
-## ----eval=FALSE---------------------------------------------------------------
-# # Control console output
-# Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")  # "none", "std", or "debug"
-# projr_build_dev()
-# 
-# # Control detailed logging
-# Sys.setenv(PROJR_LOG_DETAILED = "FALSE")  # Disable detailed log files
-# projr_build_dev()
-# 
-# # Control output clearing
-# Sys.setenv(PROJR_CLEAR_OUTPUT = "never")  # "pre", "post", or "never"
-# projr_build_dev()
-
-## ----eval=FALSE---------------------------------------------------------------
-# # Use multiple profiles (comma or semicolon separated)
-# Sys.setenv(PROJR_PROFILE = "test,dev")
-# Sys.setenv(PROJR_PROFILE = "test;dev")  # Equivalent
-# 
-# # Quarto profiles are also respected
 # Sys.setenv(QUARTO_PROFILE = "production")
-
-## ----eval=FALSE---------------------------------------------------------------
-# # Pre-set value is preserved
-# Sys.setenv(MY_VAR = "original")
-# # _environment contains: MY_VAR=new
-# projr_env_set()
-# Sys.getenv("MY_VAR")  # Still "original", not "new"
 

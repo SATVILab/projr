@@ -52,14 +52,14 @@
   if (!dir.exists(warning_dir)) {
     dir.create(warning_dir, recursive = TRUE)
   }
-  
+
   # Use the project name and today's date for unique persistent identification.
   project_id <- basename(getwd())
   today <- Sys.Date()
   warning_file <- file.path(
     warning_dir, paste0("git_warn_", project_id, "_", today, ".txt")
   )
-  
+
   if (!file.exists(warning_file)) {
     # Create the file to indicate the warning for today has been issued.
     writeLines(as.character(Sys.time()), con = warning_file)

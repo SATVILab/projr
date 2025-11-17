@@ -73,6 +73,7 @@ test_that("projr_manifest_changes works", {
 
 
 test_that("projr_manifest_range works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -127,6 +128,7 @@ test_that("projr_manifest_range works", {
 
 
 test_that("projr_manifest_last_change works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -183,6 +185,7 @@ test_that("projr_manifest_last_change works", {
 
 
 test_that("manifest query functions handle edge cases", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

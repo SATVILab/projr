@@ -24,6 +24,7 @@ test_that(".path_force_rel handles empty vectors", {
 })
 
 test_that(".path_force_rel validates input types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -42,6 +43,7 @@ test_that(".path_force_rel validates input types", {
 })
 
 test_that(".path_force_abs validates input types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -64,6 +66,7 @@ test_that(".path_force_abs validates input types", {
 })
 
 test_that(".path_force_abs handles path_dir correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -87,6 +90,7 @@ test_that(".path_force_abs handles path_dir correctly", {
 })
 
 test_that(".path_get_full validates inputs", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -124,6 +128,7 @@ test_that(".path_filter_spec handles empty vectors", {
 })
 
 test_that(".path_filter_spec validates inputs", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Invalid fn should error
@@ -138,6 +143,7 @@ test_that(".path_filter_spec validates inputs", {
 })
 
 test_that(".path_get validates relative parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -172,6 +178,7 @@ test_that(".file_filter_dir handles empty vectors", {
 })
 
 test_that(".file_filter_dir validates inputs", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -200,6 +207,7 @@ test_that(".file_filter_dir_non handles empty vectors", {
 })
 
 test_that(".file_filter_dir_non validates inputs", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Invalid input should error
@@ -217,6 +225,7 @@ test_that(".file_filter_exists handles empty vectors", {
 })
 
 test_that(".file_filter_exists validates inputs", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Invalid input should error
@@ -227,6 +236,7 @@ test_that(".file_filter_exists validates inputs", {
 })
 
 test_that(".file_ls validates all parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -271,6 +281,7 @@ test_that(".dir_filter_exists handles empty vectors", {
 })
 
 test_that(".dir_filter_exists validates inputs", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Invalid input should error
@@ -281,6 +292,7 @@ test_that(".dir_filter_exists validates inputs", {
 })
 
 test_that(".dir_ls validates all parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -312,6 +324,7 @@ test_that(".dir_ls validates all parameters", {
 })
 
 test_that(".dir_ls_unremovable handles NULL path_dir", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # NULL path_dir should be allowed
@@ -322,6 +335,7 @@ test_that(".dir_ls_unremovable handles NULL path_dir", {
 })
 
 test_that(".dir_ls_unremovable validates inputs", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Invalid input should error
@@ -331,6 +345,7 @@ test_that(".dir_ls_unremovable validates inputs", {
 })
 
 test_that(".dir_clear validates all parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -365,6 +380,7 @@ test_that(".dir_clear validates all parameters", {
 })
 
 test_that(".dir_clear_check validates path_dir", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Invalid input should error
@@ -380,6 +396,7 @@ test_that(".dir_clear_check validates path_dir", {
 # ==============================================================================
 
 test_that(".dir_copy_file validates all parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -418,6 +435,7 @@ test_that(".dir_copy_file validates all parameters", {
 })
 
 test_that(".path_filter_spec_add_back_file validates inputs", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -462,6 +480,7 @@ test_that(".path_filter_spec_add_back_file validates inputs", {
 # ==============================================================================
 
 test_that("path functions handle paths with special characters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -484,6 +503,7 @@ test_that("path functions handle paths with special characters", {
 })
 
 test_that("filter functions return correct types for edge cases", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # All filter functions should return character vectors

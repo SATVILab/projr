@@ -1,5 +1,5 @@
 Package: projr
-Title: Facilitate reproducible and archived projects
+Title: Facilitate Reproducible and Archived Projects
 Version: 0.3.0-1
 Authors@R: person("Miguel", "Rodo", , "miguel.rodo@uct.ac.za", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2036-4878"))
 Maintainer: Miguel Rodo <miguel.rodo@uct.ac.za>
@@ -17,6 +17,6 @@ Config/testthat/edition: 3
 URL: https://satvilab.github.io/projr/
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2025-11-16 19:35:17 UTC; runner
+Packaged: 2025-11-17 11:41:27 UTC; runner
 Author: Miguel Rodo [aut, cre] (ORCID: <https://orcid.org/0000-0002-2036-4878>)
-Depends: R (>= 4.2.0)
+Depends: R (>= 4.1.0)

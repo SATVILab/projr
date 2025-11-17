@@ -4,7 +4,7 @@
 \name{projr-package}
 \alias{projr}
 \alias{projr-package}
-\title{projr: Facilitate reproducible and archived projects}
+\title{projr: Facilitate Reproducible and Archived Projects}
 \description{
 Facilitate reproducible and archived projects.
 }

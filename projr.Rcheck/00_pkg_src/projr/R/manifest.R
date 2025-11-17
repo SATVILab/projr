@@ -251,13 +251,13 @@
   manifest_latest <- manifest_project |>
     .manifest_filter_version(projr_version_get())
   manifest_latest <- manifest_latest[, c("label", "fn", "hash")]
-  
+
   # Handle empty manifest case
   version_raw <- manifest_project[["version"]]
   if (.is_len_0(version_raw)) {
     return(version_earliest_match)
   }
-  
+
   version_vec <- version_raw |>
     vapply(.version_v_rm, character(1), USE.NAMES = FALSE) |>
     package_version() |>

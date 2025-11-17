@@ -169,7 +169,11 @@
 }
 
 .build_github_setup_user <- function() {
-  user <- gh::gh_whoami()$login
+  user <- tryCatch({
+    gh::gh_whoami()$login
+  }, error = function(e) {
+    NULL
+  })
   if (!.is_string(user)) {
     stop("GitHub user not found.")
   }
@@ -196,7 +200,11 @@
 .build_github_setup_repo <- function(user) {
   cli::cli_alert_info("Creating new GitHub repository...")
   if ("user" %in% names(user)) {
-    .init_github_actual_user(FALSE)
+    username <- user[["user"]]
+    if (!.is_string(username)) {
+      stop("GitHub user not found")
+    }
+    .init_github_actual_user(FALSE, username)
   }
   if ("org" %in% names(user)) {
     .init_github_actual_org(FALSE, user[["org"]])
@@ -333,7 +341,7 @@
     Sys.setenv("PROJR_PROFILE" = old_profile)
   }
   .ignore_auto(output_run && archive_local)
-  
+
   invisible(TRUE)
 }
 
@@ -352,7 +360,7 @@
     )
     return(invisible(NULL))
   }
-  
+
   # Get branch name
   branch <- .git_branch_get()
   if (!is.null(branch)) {
@@ -362,7 +370,7 @@
       log_file = log_file
     )
   }
-  
+
   # Get last commit info
   commit_info <- .git_last_commit_get()
   if (!is.null(commit_info)) {
@@ -372,7 +380,7 @@
       log_file = log_file
     )
   }
-  
+
   # Get modified tracked files (after pre-build commit)
   modified_files <- .git_modified_get()
   if (length(modified_files) > 0) {
@@ -388,7 +396,7 @@
       log_file = log_file
     )
   }
-  
+
   # Get untracked files that are not ignored
   untracked_files <- .git_untracked_not_ignored_get()
   if (length(untracked_files) > 0) {
@@ -404,7 +412,7 @@
       log_file = log_file
     )
   }
-  
+
   invisible(NULL)
 }
 

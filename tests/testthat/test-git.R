@@ -288,12 +288,9 @@ test_that(".git_ functions work with GitHub", { # setup
         print("gert::git_info()")
         print(gert::git_info())
       }
-      if (!requireNamespace("gitcreds", quietly = TRUE)) {
-        utils::install.packages("gitcreds")
-      }
-      if (!requireNamespace("credentials", quietly = TRUE)) {
-        utils::install.packages("credentials")
-      }
+      # Packages should be installed via Suggests
+      .dep_install_only("gitcreds")
+      .dep_install_only("credentials")
       if (debug) {
         print("gitcreds::gitcreds_get")
       }

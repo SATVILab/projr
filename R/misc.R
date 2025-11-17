@@ -75,21 +75,78 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   if (.is_len_0(dep_required)) {
     return(invisible(TRUE))
   }
-  for (i in seq_along(dep_required)) {
-    if (.renv_detect()) {
-      .dep_install_only_rscript(dep_required[[i]])
+  
+  # If interactive, ask user if they want to install
+  if (interactive()) {
+    return(.dep_install_only_interactive(dep_required))
+  }
+  
+  # Non-interactive: throw error with installation instructions
+  install_cmds <- .dep_get_install_cmds(dep_required)
+  
+  # Throw error with clear installation instructions
+  stop(
+    "Required package(s) not available: ", paste(dep_required, collapse = ", "), "\n",
+    "Please install manually using:\n  ",
+    paste(install_cmds, collapse = "\n  "),
+    "\nOr use renv::install() if working in an renv project.",
+    call. = FALSE
+  )
+}
+
+.dep_install_only_interactive <- function(dep_required) {
+  # In interactive mode, provide clear instructions but don't auto-install
+  # This ensures CRAN compliance (no install.packages in package code)
+  
+  install_cmds <- .dep_get_install_cmds(dep_required)
+  
+  if (length(dep_required) == 1) {
+    cat(paste0(
+      "\nPackage '", dep_required, "' is required but not installed.\n",
+      "To install it, please run:\n  ",
+      install_cmds, "\n"
+    ))
+  } else {
+    cat(paste0(
+      "\nRequired packages are not installed: ", paste(dep_required, collapse = ", "), "\n",
+      "To install them, please run:\n  ",
+      paste(install_cmds, collapse = "\n  "), "\n"
+    ))
+  }
+  
+  # Stop execution with informative message
+  stop(
+    "Missing required package(s). Please install and try again.",
+    call. = FALSE
+  )
+}
+
+.dep_get_install_cmds <- function(pkg_vec) {
+  # Check if any are GitHub packages
+  github_pkgs <- pkg_vec[grepl("^\\w+/\\w+", gsub("\\.", "", pkg_vec))]
+  cran_pkgs <- setdiff(pkg_vec, github_pkgs)
+  
+  cmds <- character(0)
+  
+  if (length(cran_pkgs) > 0) {
+    if (length(cran_pkgs) == 1) {
+      cmds <- c(cmds, paste0("install.packages(\"", cran_pkgs, "\")"))
     } else {
-      if (grepl("^\\w+/\\w+", gsub("\\.", "", dep_required[[i]]))) {
-        if (!requireNamespace("remotes", quietly = TRUE)) {
-          utils::install.packages("remotes")
-        }
-        remotes::install_github(dep_required[[i]])
-      } else {
-        utils::install.packages(dep_required[[i]])
-      }
+      cmds <- c(cmds, paste0(
+        "install.packages(c(\"",
+        paste(cran_pkgs, collapse = "\", \""),
+        "\"))"
+      ))
     }
   }
-  invisible(TRUE)
+  
+  if (length(github_pkgs) > 0) {
+    for (pkg in github_pkgs) {
+      cmds <- c(cmds, paste0("remotes::install_github(\"", pkg, "\")"))
+    }
+  }
+  
+  cmds
 }
 
 .dep_install_only_rscript <- function(dep) {
@@ -137,7 +194,11 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   # we'll just skip whatever is done there and
   # read in using the same json function as them:
   if (!requireNamespace("jsonlite", quietly = TRUE)) {
-    utils::install.packages("jsonlite")
+    stop(
+      "Package 'jsonlite' is required but not installed.\n",
+      "Please install it using: install.packages(\"jsonlite\")",
+      call. = FALSE
+    )
   }
   jsonlite::fromJSON(txt = path_lockfile)
 }

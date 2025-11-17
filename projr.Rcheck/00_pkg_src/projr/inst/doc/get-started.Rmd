@@ -169,7 +169,7 @@ projr automatically configures:
 
 After each build, projr creates a manifest (`_output/manifest.csv`) that records:
 - Which version of raw data was used
-- Which version of code was used  
+- Which version of code was used
 - Which outputs were generated
 - SHA-256 checksums for verification
 

@@ -22,12 +22,12 @@
   if (is.null(files) || length(files) == 0) {
     return(.engine_get())
   }
-  
+
   # Check file extensions to determine engine
   has_qmd <- any(grepl("\\.qmd$", files, ignore.case = TRUE))
   has_rmd <- any(grepl("\\.Rmd$|\\.rmd$", files, ignore.case = TRUE))
   has_r <- any(grepl("\\.R$", files, ignore.case = TRUE))
-  
+
   # Prioritize Quarto if any .qmd files
   if (has_qmd) {
     return("quarto_document")

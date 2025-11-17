@@ -319,9 +319,8 @@
     yaml::write_yaml(yml_projr, path_yml)
     return(invisible(TRUE))
   }
-  if (!requireNamespace("gert", quietly = TRUE)) {
-    utils::install.packages("gert")
-  }
+  # Package should be installed via Suggests
+  .dep_install_only("gert")
   .test_setup_project_git_config(TRUE)
   gert::git_init(path_dir)
   with_dir(path_dir, .test_setup_project_git_config(FALSE))
@@ -459,15 +458,10 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
 
 .test_coverage <- function() {
   devtools::load_all()
-  if (!requireNamespace("covr")) {
-    utils::install.packages("covr")
-  }
-  if (!requireNamespace("DT")) {
-    utils::install.packages("DT")
-  }
-  if (!requireNamespace("htmltools")) {
-    utils::install.packages("htmltools")
-  }
+  # Packages should be installed via Suggests
+  .dep_install_only("covr")
+  .dep_install_only("DT")
+  .dep_install_only("htmltools")
   .dir_rm("_tmp/coverage")
   .dir_create("_tmp/coverage")
   .test_unset_select()

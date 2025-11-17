@@ -35,6 +35,7 @@ test_that(".manifest_hash_label works", {
 })
 
 test_that(".build_manifest_* works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -104,6 +105,7 @@ test_that(".build_manifest_* works", {
 })
 
 test_that("manifest tracks changes across multiple builds", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

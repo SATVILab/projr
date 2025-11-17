@@ -51,6 +51,7 @@ test_that(".changelog_add works", {
 })
 
 test_that(".changelog_read works with empty file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -65,6 +66,7 @@ test_that(".changelog_read works with empty file", {
 })
 
 test_that(".changelog_write creates file correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -86,6 +88,7 @@ test_that(".changelog_write creates file correctly", {
 })
 
 test_that(".changelog_get_version works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -100,6 +103,7 @@ test_that(".changelog_get_version works correctly", {
 })
 
 test_that(".changelog_get_bump_component formats correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -114,6 +118,7 @@ test_that(".changelog_get_bump_component formats correctly", {
 })
 
 test_that(".changelog_get_entry formats entries correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   

@@ -8,22 +8,22 @@
                              output_level = "std",
                              log_file = NULL) {
   force(title)
-  
+
   .cli_debug(
     "Content '{label}': Starting processing for destination '{title}' (type: {type})",
     output_level = output_level,
     log_file = log_file
   )
-  
+
   # where they should go to
   path_dir_local <- projr_path_get_dir(label, safe = !output_run) # nolint
-  
+
   .cli_debug(
     "Content '{label}': Local path is {path_dir_local}",
     output_level = output_level,
     log_file = log_file
   )
-  
+
   yml_title <- .yml_dest_get_title_complete( # nolint
     title, type, NULL, archive_type, always_archive
   )
@@ -34,13 +34,13 @@
     yml_title[["send"]][["strategy"]], yml_title[["send"]][["inspect"]],
     yml_title[["send"]][["cue"]]
   )
-  
+
   .cli_debug(
     "Content '{label}': Remote configuration - id: {yml_title[['id']]}, structure: {yml_title[['structure']]}, strategy: {yml_title[['send']][['strategy']]}, inspect: {yml_title[['send']][['inspect']]}",
     output_level = output_level,
     log_file = log_file
   )
-  
+
   if (!is.null(remote_list[["remote_dest"]])) {
     .cli_debug(
       "Content '{label}': Remote destination exists at path: {remote_list[['remote_dest']][['path']]}",
@@ -62,13 +62,13 @@
     remote_list[["remote_comp"]], yml_title[["send"]][["cue"]],
     changelog
   )
-  
+
   .cli_debug(
     "Content '{label}': Upload plan - {length(plan[['fn_add']])} file(s) to add, {length(plan[['fn_rm']])} file(s) to remove, create: {plan[['create']]}, purge: {plan[['purge']]}",
     output_level = output_level,
     log_file = log_file
   )
-  
+
   if (length(plan[["fn_add"]]) > 0) {
     .cli_debug(
       "Content '{label}': Files to add: {paste(head(plan[['fn_add']], 10), collapse = ', ')}{if (length(plan[['fn_add']]) > 10) '...' else ''}",
@@ -76,7 +76,7 @@
       log_file = log_file
     )
   }
-  
+
   if (length(plan[["fn_rm"]]) > 0) {
     .cli_debug(
       "Content '{label}': Files to remove: {paste(head(plan[['fn_rm']], 10), collapse = ', ')}{if (length(plan[['fn_rm']]) > 10) '...' else ''}",
@@ -95,7 +95,7 @@
     path_dir_local, remote_list[["remote_pre"]],
     output_level, log_file
   )
-  
+
   .cli_debug(
     "Content '{label}': Processing completed successfully",
     output_level = output_level,
@@ -505,7 +505,7 @@
                                                         remote_pre,
                                                         label) {
   # will add whatever is in `fn_source`, nothing else needed
-  create <- !is.null(remote_dest)
+  create <- is.null(remote_dest)
   asterisk_label <- !create # don't asterisk if creating it
   version_file <- .dest_send_label_get_plan_action_version_file(
     type, remote_pre, label,
@@ -564,7 +564,7 @@
   }
   if (asterisk_force_add) {
     return(TRUE)
-  } 
+  }
   # here we check if the previous version was trusted
   .dest_send_label_get_plan_action_version_file_check_untrusted(
     version_remote, label
@@ -578,7 +578,7 @@
     return(FALSE)
   }
   match_str <- utils::glob2rx(label) |>
-    gsub("\\$", "", x = _) |>
+    (\(x) gsub("\\$", "", x))() |>
     paste0(": ")
   label_regex <- grep(match_str, version_file, value = TRUE)
   if (.is_len_0(label_regex)) {
@@ -652,7 +652,7 @@
                                                             remote_pre,
                                                             label) {
   # will add whatever is in `fn_source`, nothing else needed
-  create <- !is.null(remote_dest)
+  create <- is.null(remote_dest)
   asterisk_label <- !create # don't asterisk if creating it
   version_file <- .dest_send_label_get_plan_action_version_file(
     type, remote_pre, label,
@@ -981,7 +981,7 @@
     output_level = output_level,
     log_file = log_file
   )
-  
+
   if (purge) {
     .cli_debug(
       "Content '{label}': Purging all existing remote files",
@@ -990,7 +990,7 @@
     )
     .remote_file_rm_all(type, remote_dest)
   }
-  
+
   if (create || type == "github") {
     .cli_debug(
       "Content '{label}': Creating/updating remote destination",

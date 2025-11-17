@@ -1,6 +1,7 @@
 # Test buildlog system resources functionality
 
 test_that(".buildlog_get_system_resources works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Get system resources
@@ -25,6 +26,7 @@ test_that(".buildlog_get_system_resources works", {
 })
 
 test_that(".buildlog_get_memory_info works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Get memory info
@@ -39,6 +41,7 @@ test_that(".buildlog_get_memory_info works", {
 })
 
 test_that(".buildlog_get_disk_info works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Get disk info
@@ -53,6 +56,7 @@ test_that(".buildlog_get_disk_info works", {
 })
 
 test_that(".buildlog_get_add includes system resources", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Create sample inputs
@@ -73,6 +77,7 @@ test_that(".buildlog_get_add includes system resources", {
 })
 
 test_that(".buildlog_read works with empty file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -87,6 +92,7 @@ test_that(".buildlog_read works with empty file", {
 })
 
 test_that(".buildlog_write creates file correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -137,6 +143,7 @@ test_that(".buildlog_add creates entries correctly", {
 })
 
 test_that(".buildlog_get_metadata_time formats correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Test various durations
@@ -147,6 +154,7 @@ test_that(".buildlog_get_metadata_time formats correctly", {
 })
 
 test_that(".buildlog_get_version formats correctly for different bump types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -171,6 +179,7 @@ test_that(".buildlog_get_version formats correctly for different bump types", {
 })
 
 test_that(".buildlog_get_projr_yml includes yaml content", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -187,6 +196,7 @@ test_that(".buildlog_get_projr_yml includes yaml content", {
 })
 
 test_that(".buildlog_get_session_info includes session information", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   result <- .buildlog_get_session_info()

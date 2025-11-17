@@ -2,6 +2,8 @@
 # Tests for projr_path_get_dir, projr_path_get, and related functions
 
 test_that("projr_path_get_dir works with different labels", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   
@@ -28,6 +30,8 @@ test_that("projr_path_get_dir works with different labels", {
 })
 
 test_that("projr_path_get_dir works with safe parameter", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   
@@ -57,6 +61,8 @@ test_that("projr_path_get_dir works with safe parameter", {
 })
 
 test_that("projr_path_get_dir create parameter works", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   
@@ -85,6 +91,8 @@ test_that("projr_path_get_dir create parameter works", {
 })
 
 test_that("projr_path_get_dir relative and absolute parameters work", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   
@@ -113,6 +121,8 @@ test_that("projr_path_get_dir relative and absolute parameters work", {
 })
 
 test_that("projr_path_get_dir works with subdirectories", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   
@@ -137,6 +147,8 @@ test_that("projr_path_get_dir works with subdirectories", {
 })
 
 test_that("projr_path_get works for file paths", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   
@@ -169,6 +181,8 @@ test_that("projr_path_get works for file paths", {
 })
 
 test_that("directory creation works", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   
@@ -202,6 +216,8 @@ test_that("directory creation works", {
 })
 
 test_that("projr_path_get_cache_build_dir works", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   
@@ -230,6 +246,8 @@ test_that("projr_path_get_cache_build_dir works", {
 })
 
 test_that("projr_path_get_cache_build works for files", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   
@@ -257,6 +275,8 @@ test_that("projr_path_get_cache_build works for files", {
 })
 
 test_that("directory label validation works", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   
@@ -284,6 +304,8 @@ test_that("directory label validation works", {
 })
 
 test_that("directory functions handle edge cases", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   
@@ -314,6 +336,8 @@ test_that("directory functions handle edge cases", {
 })
 
 test_that("directory path normalization works", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   
