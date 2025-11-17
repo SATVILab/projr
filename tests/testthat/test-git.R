@@ -308,6 +308,7 @@ test_that(".git_ functions work with GitHub", { # setup
 # =======================================
 
 test_that(".git_repo_is_worktree works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -325,6 +326,7 @@ test_that(".git_repo_is_worktree works", {
 })
 
 test_that(".git_changed_filter works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -367,6 +369,7 @@ test_that(".git_changed_filter works", {
 })
 
 test_that(".git_commit_all works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -407,6 +410,7 @@ test_that(".git_commit_all works", {
 })
 
 test_that(".git_branch_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -433,6 +437,7 @@ test_that(".git_branch_get works", {
 })
 
 test_that(".git_last_commit_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -465,6 +470,7 @@ test_that(".git_last_commit_get works", {
 })
 
 test_that(".git_untracked_not_ignored_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -505,6 +511,7 @@ test_that(".git_untracked_not_ignored_get works", {
 })
 
 test_that(".git_config_get_name and .git_config_get_email work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   

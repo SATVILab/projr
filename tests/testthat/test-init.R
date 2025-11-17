@@ -37,6 +37,7 @@ test_that("projr_init works", {
 })
 
 test_that(".init_yml works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -72,6 +73,7 @@ test_that(".init_yml works", {
 })
 
 test_that(".init_description works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -101,6 +103,7 @@ test_that(".init_description works", {
 })
 
 test_that(".init_dep works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -129,6 +132,7 @@ test_that(".init_dep works", {
 })
 
 test_that(".init_ignore works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -187,6 +191,7 @@ test_that(".init_renv works", {
 })
 
 test_that(".init_license works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -214,6 +219,7 @@ test_that(".init_license works", {
 })
 
 test_that(".init_readme works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -242,6 +248,7 @@ test_that(".init_readme works", {
 })
 
 test_that("projr_init_bookdown works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -277,6 +284,7 @@ test_that("projr_init_bookdown works", {
 })
 
 test_that("projr_init_quarto_project works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)

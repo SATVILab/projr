@@ -48,6 +48,7 @@ test_that("projr_build_output works", {
 
 # Test version bumping behavior
 test_that("Version bumping works correctly for each component", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -83,6 +84,7 @@ test_that("Version bumping works correctly for each component", {
 
 # Test bookdown _files directory copying
 test_that("bookdown _files directory is copied correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -134,6 +136,7 @@ test_that("bookdown _files directory is copied correctly", {
 # Note: does not test whether they're cleared at the
 # correct stage.
 test_that("Pre/post/never clearing options work correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(.is_test_fast())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -205,6 +208,7 @@ test_that("Archive functionality works correctly", {
 
 # Test error handling and version recovery
 test_that("Failed builds handle version appropriately", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(.is_test_fast())
   skip_on_ci()
