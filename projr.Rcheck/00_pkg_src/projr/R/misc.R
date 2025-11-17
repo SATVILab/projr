@@ -75,21 +75,28 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   if (.is_len_0(dep_required)) {
     return(invisible(TRUE))
   }
+  
+  # Determine installation instructions for missing packages
+  install_cmds <- character(length(dep_required))
   for (i in seq_along(dep_required)) {
-    if (.renv_detect()) {
-      .dep_install_only_rscript(dep_required[[i]])
+    pkg <- dep_required[[i]]
+    if (grepl("^\\w+/\\w+", gsub("\\.", "", pkg))) {
+      # GitHub package
+      install_cmds[[i]] <- paste0("remotes::install_github(\"", pkg, "\")")
     } else {
-      if (grepl("^\\w+/\\w+", gsub("\\.", "", dep_required[[i]]))) {
-        if (!requireNamespace("remotes", quietly = TRUE)) {
-          utils::install.packages("remotes")
-        }
-        remotes::install_github(dep_required[[i]])
-      } else {
-        utils::install.packages(dep_required[[i]])
-      }
+      # CRAN package
+      install_cmds[[i]] <- paste0("install.packages(\"", pkg, "\")")
     }
   }
-  invisible(TRUE)
+  
+  # Throw error with clear installation instructions
+  stop(
+    "Required package(s) not available: ", paste(dep_required, collapse = ", "), "\n",
+    "Please install manually using:\n  ",
+    paste(install_cmds, collapse = "\n  "),
+    "\nOr use renv::install() if working in an renv project.",
+    call. = FALSE
+  )
 }
 
 .dep_install_only_rscript <- function(dep) {
@@ -137,7 +144,11 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   # we'll just skip whatever is done there and
   # read in using the same json function as them:
   if (!requireNamespace("jsonlite", quietly = TRUE)) {
-    utils::install.packages("jsonlite")
+    stop(
+      "Package 'jsonlite' is required but not installed.\n",
+      "Please install it using: install.packages(\"jsonlite\")",
+      call. = FALSE
+    )
   }
   jsonlite::fromJSON(txt = path_lockfile)
 }

@@ -21,10 +21,10 @@
 .build_clear_pre_output <- function(clear_output) {
   # clear all the output directories
   # to which the user may be saving.
-  # if clearing beforehand, then this is 
+  # if clearing beforehand, then this is
   # the temporary and final output directories.
   # if clearing afterwards, then this is just
-  # the final output directories (as 
+  # the final output directories (as
   # we assume the user knows the final output
   # directories will be cleared before
   # copying stuff across).

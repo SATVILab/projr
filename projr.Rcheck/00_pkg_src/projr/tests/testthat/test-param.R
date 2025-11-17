@@ -27,6 +27,7 @@ test_that("projr_yml_par_add adds parameters key", {
 })
 
 test_that("projr_yml_par_add works with NULL profile", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -45,6 +46,7 @@ test_that("projr_yml_par_add works with NULL profile", {
 })
 
 test_that("projr_yml_par_add handles alternative param names", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -68,6 +70,7 @@ test_that("projr_yml_par_add handles alternative param names", {
 })
 
 test_that("projr_par_get returns NULL when no parameters exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -86,6 +89,7 @@ test_that("projr_par_get returns NULL when no parameters exist", {
 })
 
 test_that("projr_par_get returns entire parameters list when no path given", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -154,6 +158,7 @@ test_that("projr_par_get retrieves nested values correctly", {
 })
 
 test_that("projr_par_get returns NULL for nonexistent keys", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -182,6 +187,7 @@ test_that("projr_par_get returns NULL for nonexistent keys", {
 })
 
 test_that("projr_par_get works with alternative parameter key names", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -217,6 +223,7 @@ test_that("projr_par_get works with alternative parameter key names", {
 })
 
 test_that(".par_get_list handles parameter key variations", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -250,6 +257,7 @@ test_that(".par_get_list handles parameter key variations", {
 })
 
 test_that("projr_param_get is an alias for projr_par_get", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -277,6 +285,7 @@ test_that("projr_param_get is an alias for projr_par_get", {
 })
 
 test_that("projr_par_get works with profile parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -303,6 +312,7 @@ test_that("projr_par_get works with profile parameter", {
 })
 
 test_that("projr_par_get handles various data types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -336,6 +346,7 @@ test_that("projr_par_get handles various data types", {
 })
 
 test_that("projr_yml_par_add validates input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -351,6 +362,7 @@ test_that("projr_yml_par_add validates input", {
 })
 
 test_that(".par_get_option handles edge cases correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -388,6 +400,7 @@ test_that(".par_get_option handles edge cases correctly", {
 })
 
 test_that("param functions work in realistic scenario", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

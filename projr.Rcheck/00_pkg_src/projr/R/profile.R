@@ -24,22 +24,22 @@ projr_profile_create <- function(profile) {
   if (missing(profile)) {
     stop("profile parameter is required", call. = FALSE)
   }
-  
+
   .assert_len_1(profile)
   .assert_string(profile, required = TRUE)
-  
+
   # Reject protected profile names
   if (profile %in% c("local", "default")) {
     stop(
-      "Cannot create profile named '", profile, 
+      "Cannot create profile named '", profile,
       "' as it is reserved for internal use.",
       call. = FALSE
     )
   }
-  
+
   # Validate profile name characters
   .profile_check(profile)
-  
+
   # Create the profile file
   .profile_create(profile = profile, silent = TRUE)
 }
@@ -71,25 +71,25 @@ projr_profile_create_local <- function() {
       profile <- "default"
     }
   }
-  
+
   # Validate silent parameter
   if (!is.logical(silent) || length(silent) != 1) {
     stop("silent must be a single logical value", call. = FALSE)
   }
-  
+
   .assert_string(profile, required = TRUE)
-  
+
   # Check if profile name is valid
   .profile_check(profile)
-  
+
   # Create profile file
   profile_spec <- paste0("-", profile)
   path_file <- paste0("_projr", profile_spec, ".yml") |>
     .path_get()
-  
+
   # Add to rbuildignore
   projr_ignore_file_rbuild(basename(path_file))
-  
+
   # Check if file already exists
   if (file.exists(path_file)) {
     if (!silent) {
@@ -97,37 +97,37 @@ projr_profile_create_local <- function() {
     }
     return(invisible(FALSE))
   }
-  
+
   # Create the file
   file.create(path_file)
-  
+
   if (!silent) {
     message(paste0("Added the following profile: ", profile))
   }
-  
+
   invisible(TRUE)
 }
 
 # Internal function to create local profile with proper structure
 .profile_create_local <- function() {
   path_file <- .path_get("_projr-local.yml")
-  
+
   # Check if file already exists
   if (file.exists(path_file)) {
     stop("_projr-local.yml already exists", call. = FALSE)
   }
-  
+
   # Get the default yml structure and make elements NULL
   yml_default <- .yml_get_default_raw()
   yml_local <- .list_elem_as_null(yml_default)
-  
+
   # Write the file
   yaml::write_yaml(yml_local, path_file)
-  
+
   # Add to gitignore and rbuildignore
   .profile_create_local_ignore_git()
   .profile_create_local_ignore_rbuild()
-  
+
   invisible(TRUE)
 }
 

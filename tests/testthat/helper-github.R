@@ -25,12 +25,8 @@
   if (debug) {
     print("beginning install")
   }
-  if (!requireNamespace("gh", quietly = TRUE)) {
-    utils::install.packages("gh")
-  }
-  if (!requireNamespace("httr", quietly = TRUE)) {
-    utils::install.packages("httr")
-  }
+  # Packages should be installed via Suggests dependencies
+  # If not available, .dep_install_only will throw informative error
   if (is.null(env)) {
     env <- rlang::caller_env()
   }
@@ -40,6 +36,7 @@
     print("getting upload stuff")
   }
   .dep_install_only("gh")
+  .dep_install_only("httr")
   if (is.null(user)) {
     user <- tryCatch({
       gh::gh_whoami()[["login"]]
@@ -150,9 +147,9 @@
       envir = env
     )
 
-    if (!requireNamespace("gert", quietly = TRUE)) {
-      utils::install.packages("gert")
-    }
+    # Package should be installed via Suggests
+    # If not available, will get clear error
+    .dep_install_only("gert")
 
     if (debug) {
       print("cloning repo")
@@ -181,15 +178,11 @@
                                            repo = NULL) {
   # set up
   # ----------
-  if (!requireNamespace("gh", quietly = TRUE)) {
-    utils::install.packages("gh")
-  }
-  if (!requireNamespace("httr", quietly = TRUE)) {
-    utils::install.packages("httr")
-  }
+  # Packages should be installed via Suggests
+  .dep_install_only("gh")
+  .dep_install_only("httr")
 
   # defaults
-  .dep_install_only("gh")
   if (is.null(user)) {
     user <- tryCatch({
       gh::gh_whoami()[["login"]]
@@ -222,15 +215,11 @@
 .test_github_repo_remote_add <- function(user = NULL,
                                          token = NULL,
                                          repo = NULL) {
-  if (!requireNamespace("gh", quietly = TRUE)) {
-    utils::install.packages("gh")
-  }
-  if (!requireNamespace("httr", quietly = TRUE)) {
-    utils::install.packages("httr")
-  }
+  # Packages should be installed via Suggests
+  .dep_install_only("gh")
+  .dep_install_only("httr")
 
   # defaults
-  .dep_install_only("gh")
   if (is.null(user)) {
     user <- tryCatch({
       gh::gh_whoami()[["login"]]
@@ -283,15 +272,11 @@
 .remote_host_rm_all_github <- function(user = NULL) {
   # set up
   # ----------
-  if (!requireNamespace("gh", quietly = TRUE)) {
-    utils::install.packages("gh")
-  }
-  if (!requireNamespace("httr", quietly = TRUE)) {
-    utils::install.packages("httr")
-  }
+  # Packages should be installed via Suggests
+  .dep_install_only("gh")
+  .dep_install_only("httr")
 
   # defaults
-  .dep_install_only("gh")
   if (is.null(user)) {
     user <- tryCatch({
       gh::gh_whoami()[["login"]]

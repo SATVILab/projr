@@ -221,7 +221,14 @@ test_that(".git_ functions work with GitHub", { # setup
 
       system2("git", args = c("config", "--local", "credential.helper", "store"))
       .dep_install_only("gh")
-      username <- gh::gh_whoami()[["login"]]
+      username <- tryCatch({
+        gh::gh_whoami()[["login"]]
+      }, error = function(e) {
+        NULL
+      })
+      if (!.is_string(username)) {
+        skip("GitHub user not found")
+      }
       PAT <- Sys.getenv("GITHUB_PAT")
 
       # Create a credential string
@@ -281,12 +288,9 @@ test_that(".git_ functions work with GitHub", { # setup
         print("gert::git_info()")
         print(gert::git_info())
       }
-      if (!requireNamespace("gitcreds", quietly = TRUE)) {
-        utils::install.packages("gitcreds")
-      }
-      if (!requireNamespace("credentials", quietly = TRUE)) {
-        utils::install.packages("credentials")
-      }
+      # Packages should be installed via Suggests
+      .dep_install_only("gitcreds")
+      .dep_install_only("credentials")
       if (debug) {
         print("gitcreds::gitcreds_get")
       }
@@ -301,6 +305,7 @@ test_that(".git_ functions work with GitHub", { # setup
 # =======================================
 
 test_that(".git_repo_is_worktree works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -318,6 +323,7 @@ test_that(".git_repo_is_worktree works", {
 })
 
 test_that(".git_changed_filter works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -360,6 +366,7 @@ test_that(".git_changed_filter works", {
 })
 
 test_that(".git_commit_all works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -400,6 +407,7 @@ test_that(".git_commit_all works", {
 })
 
 test_that(".git_branch_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -426,6 +434,7 @@ test_that(".git_branch_get works", {
 })
 
 test_that(".git_last_commit_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -458,6 +467,7 @@ test_that(".git_last_commit_get works", {
 })
 
 test_that(".git_untracked_not_ignored_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -498,6 +508,7 @@ test_that(".git_untracked_not_ignored_get works", {
 })
 
 test_that(".git_config_get_name and .git_config_get_email work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   

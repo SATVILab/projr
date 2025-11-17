@@ -22,7 +22,7 @@ projr_restore_repo <- function(repo,
   if (nchar(repo) == 0) {
     stop("'repo' cannot be an empty string")
   }
-  
+
   if (!is.null(path)) {
     if (!is.character(path)) {
       stop("'path' must be NULL or a character string")
@@ -34,7 +34,7 @@ projr_restore_repo <- function(repo,
       stop("'path' cannot be an empty string")
     }
   }
-  
+
   # Validate label, pos, type, title (same as projr_restore)
   if (!is.null(label)) {
     if (!is.character(label)) {
@@ -88,7 +88,7 @@ projr_restore_repo <- function(repo,
       stop("'title' must be a single character value")
     }
   }
-  
+
   .title <- title
   result <- tryCatch(
     {

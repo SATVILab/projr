@@ -272,7 +272,11 @@
   }
   .assert_chr(sub, TRUE)
   if (!requireNamespace("fs", quietly = TRUE)) {
-    utils::install.packages("fs")
+    stop(
+      "Package 'fs' is required but not installed.\n",
+      "Please install it using: install.packages(\"fs\")",
+      call. = FALSE
+    )
   }
 
   if (any(vapply(sub, function(y) fs::path_has_parent(x, y), logical(1)))) {

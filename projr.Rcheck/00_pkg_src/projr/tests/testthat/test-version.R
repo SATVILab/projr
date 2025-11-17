@@ -68,6 +68,7 @@ svp <- c(".", ".", ".")
 fn <- fn_mmp
 
 test_that(".version_format_list_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -112,6 +113,7 @@ test_that(".version_format_list_get works", {
 })
 
 test_that(".version_format_check works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -161,6 +163,7 @@ test_that("projr_version_get works", {
 
 
 test_that(".version_run_onwards_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -231,6 +234,7 @@ test_that(".version_run_onwards_get works", {
 
 
 test_that("projr_version_set works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -257,6 +261,7 @@ test_that("projr_version_set works", {
 
 
 test_that("checking min version works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   expect_identical(
     .version_comp_vec_min_get(version_min = "patch"),

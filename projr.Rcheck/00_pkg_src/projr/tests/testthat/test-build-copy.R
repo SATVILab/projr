@@ -2,6 +2,7 @@
 # ------------------------E
 
 test_that(".build_clear_pre and _post works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -47,6 +48,7 @@ test_that(".build_clear_pre and _post works", {
 })
 
 test_that(".build_copy_to_unsafe works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -105,6 +107,7 @@ test_that(".build_copy_to_unsafe works", {
 })
 
 test_that("projr_build_copy_pkg works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -149,6 +152,7 @@ test_that("projr_build_copy_pkg works", {
 })
 
 test_that("projr_build_copy_dir works when outputting", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("report"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -308,6 +312,7 @@ test_that("projr_build_copy_dir works when outputting", {
 })
 
 test_that("projr_build_frontmatter_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
@@ -397,6 +402,7 @@ test_that("projr_build_frontmatter_get works", {
 })
 
 test_that(".build_copy_docs_quarto_format_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
@@ -475,6 +481,7 @@ test_that(".build_copy_docs_quarto_format_get works", {
 })
 
 test_that(".build_copy_docs_quarto_fn_prefix/suffix/path_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
@@ -697,6 +704,7 @@ test_that(".build_copy_docs_rmd_format_get works", {
 })
 
 test_that(".build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
@@ -757,6 +765,7 @@ test_that(".build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
 })
 
 test_that(".build_copy_docs_rmd_format_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
 
@@ -823,6 +832,7 @@ test_that(".build_copy_docs_rmd_format_get works", {
 })
 
 test_that(".build_engine works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
@@ -876,6 +886,7 @@ test_that(".build_engine works", {
 })
 
 test_that("CHANGELOG.md is excluded from docs copying", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr_changelog"))
 
@@ -909,6 +920,7 @@ test_that("CHANGELOG.md is excluded from docs copying", {
 })
 
 test_that("Rmd with self_contained: false copies _files directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   

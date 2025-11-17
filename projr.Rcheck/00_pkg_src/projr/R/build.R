@@ -253,12 +253,12 @@ projr_build_dev <- function(file = NULL,
   on.exit(.env_unset(), add = TRUE)
   .build_ensure_version()
   clear_output <- .build_get_clear_output(clear_output)
-  
+
   # Determine output_run and get appropriate output level
   output_run <- .build_get_output_run(bump_component)
   output_level <- .cli_output_level_get(output_level, output_run)
   build_type <- if (output_run) "output" else "dev"
-  
+
   # Initialize build log
   log_info <- .log_build_init(
     build_type = build_type,
@@ -267,16 +267,16 @@ projr_build_dev <- function(file = NULL,
     output_level = output_level
   )
   log_file <- if (!is.null(log_info)) log_info$log_file else NULL
-  
+
   # Track build success for logging
   build_success <- FALSE
   time_start <- Sys.time()
-  
+
   # Use tryCatch to ensure log is finalized even on error
   tryCatch({
     # Show initial build stage header
     .cli_stage_header("Pre-Build Preparation", build_type, output_level, log_file)
-    
+
     # If no file specified, check for build.scripts configuration
     # Use dev scripts for dev builds, build scripts for production builds
     if (is.null(file)) {
@@ -291,11 +291,11 @@ projr_build_dev <- function(file = NULL,
     version_run_on_list <- .build_pre(
       bump_component, msg, clear_output, archive_local, output_level, log_file
     )
-    
+
     # Build stage
     .cli_stage_header("Build", build_type, output_level, log_file)
     .build_impl(version_run_on_list, file, args_engine, output_level, log_file)
-    
+
     # Post-build stage
     .cli_stage_header("Post-Build", build_type, output_level, log_file)
     total_time <- Sys.time() - time_start
@@ -304,7 +304,7 @@ projr_build_dev <- function(file = NULL,
       archive_github, archive_local, always_archive, clear_output, total_time,
       output_level, log_file
     )
-    
+
     build_success <- TRUE
   }, error = function(e) {
     # Log the error
@@ -350,7 +350,7 @@ projr_build_dev <- function(file = NULL,
                        output_level = "std",
                        log_file = NULL) {
   .cli_debug("Starting pre-build checks and setup", output_level = output_level, log_file = log_file)
-  
+
   projr_yml_check(NULL)
   # Check that all scripts and hooks that are to be run exist
   .yml_scripts_hooks_check_exist(NULL)
@@ -390,7 +390,7 @@ projr_build_dev <- function(file = NULL,
   .build_pre_commit_git(
     bump_component, version_run_on_list, msg
   )
-  
+
   # Output Git information for debug (after pre-build commit)
   .build_debug_git_info(output_level, log_file)
 
@@ -400,7 +400,7 @@ projr_build_dev <- function(file = NULL,
   .build_manifest_pre(output_run)
 
   .cli_success("Pre-build preparation completed", output_level = output_level, log_file = log_file)
-  
+
   # return version_run_on_list
   invisible(version_run_on_list)
 }
@@ -412,7 +412,7 @@ projr_build_dev <- function(file = NULL,
   if (!is.null(file) && length(file) > 0) {
     .cli_info("Building specified files: {paste(file, collapse = ', ')}", output_level = output_level, log_file = log_file)
   }
-  
+
   .build_engine(
     file = file,
     version_run_on_list = version_run_on_list,
@@ -420,7 +420,7 @@ projr_build_dev <- function(file = NULL,
     output_level = output_level,
     log_file = log_file
   )
-  
+
   .cli_success("Document rendering completed", output_level = output_level, log_file = log_file)
   invisible(version_run_on_list)
 }
@@ -476,7 +476,7 @@ projr_build_dev <- function(file = NULL,
   .build_git_push(output_run)
 
   .cli_success("Post-build completed successfully", output_level = output_level, log_file = log_file)
-  
+
   invisible(TRUE)
 }
 
@@ -511,10 +511,10 @@ projr_build_dev <- function(file = NULL,
   # hash raw-data and outputs, then save manifest table
   .cli_debug("Updating manifest (hashing outputs)", output_level = output_level, log_file = log_file)
   .build_manifest_post(output_run)
-  
+
   # Display change summary at debug level
   .build_change_summary_display(bump_component, output_level, log_file)
-  
+
   # update README
   .cli_debug("Rendering README.Rmd if present", output_level = output_level, log_file = log_file)
   .build_readme_rmd_render(output_run)

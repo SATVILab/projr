@@ -1,7 +1,7 @@
 #' Restore project artefact directories
 #'
 #' Use `projr_restore()` to restore all artefacts needed for the current project.
-#' If the project isn't available locally yet, 
+#' If the project isn't available locally yet,
 #' `projr_restore_repo()` will clone it and then restore its artefacts.
 #'
 #' @param label character vector or NULL. Specifies labels of artefacts to restore.
@@ -13,14 +13,14 @@
 #' @param type character or NULL. Remote type: `"local"`, `"osf"` or `"github"`.
 #'   Default is `NULL`, automatically choosing the first available remote.
 #'   Must be NULL or one of the valid remote types.
-#' @param title character or NULL. Remote title as specified in `_projr.yml`. 
+#' @param title character or NULL. Remote title as specified in `_projr.yml`.
 #'   Default is `NULL`, using the first available title for the selected type.
 #'   Must be NULL or a single non-empty character string.
 #' @param repo character. GitHub repository (`"owner/repo"` or `"repo"`).
 #'   (Only for repository restoration functions.)
 #'   Must be a single non-empty character string.
 #' @param path character or NULL. Local path for cloning the repository. Default is `NULL`,
-#'   creating a subdirectory named after the repo. `"."` restores directly into the 
+#'   creating a subdirectory named after the repo. `"."` restores directly into the
 #'   current directory. Must be NULL or a single non-empty character string.
 #'
 #' @return Invisibly returns `TRUE` if all restorations are successful, `FALSE` otherwise.
@@ -30,13 +30,13 @@
 #'
 #' @details
 #' These functions restore artefact directories from remote sources:
-#' 
+#'
 #' - `projr_restore()` restores artefacts in an existing local project without any cloning required.
 #'   Requires a `manifest.csv` file in the project root.
-#' - `projr_restore_repo()` clones a GitHub repository into a subdirectory (or specified path), 
+#' - `projr_restore_repo()` clones a GitHub repository into a subdirectory (or specified path),
 #'   then restores artefacts from that repository's remote sources.
 #' - `projr_restore_repo_wd()` clones directly into the current working directory, then restores artefacts.
-#' 
+#'
 #' **Input Validation:**
 #' All parameters are validated before execution:
 #' - `label`: Must be NULL or a non-empty character vector of valid directory labels
@@ -45,28 +45,28 @@
 #' - `title`: Must be NULL or a single character string
 #' - `repo`: Must be a single non-empty character string
 #' - `path`: Must be NULL or a single non-empty character string
-#' 
+#'
 #' **Error Handling:**
 #' The functions handle errors gracefully:
 #' - Missing `manifest.csv` triggers an informative error
 #' - Invalid labels or missing remote sources result in warning messages and skipped restoration
 #' - Git clone failures are caught and reported
 #' - Errors during restoration are caught per label, allowing partial success
-#' 
+#'
 #' @examples
 #' \dontrun{
 #'   # Restore all raw artefacts in existing local project
 #'   projr_restore()
-#'   
+#'
 #'   # Restore specific labels
 #'   projr_restore(label = c("raw-data", "cache"))
-#'   
+#'
 #'   # Restore from specific source type
 #'   projr_restore(type = "local", title = "archive")
 #'
 #'   # Clone repository into subdirectory and restore artefacts
 #'   projr_restore_repo("owner/repo")
-#'   
+#'
 #'   # Clone to specific path
 #'   projr_restore_repo("owner/repo", path = "my-project")
 #'
@@ -134,7 +134,7 @@ projr_restore <- function(label = NULL,
       stop("'title' must be a single character value")
     }
   }
-  
+
   .title <- title
   if (!file.exists(.path_get("manifest.csv"))) {
     stop(
@@ -142,13 +142,13 @@ projr_restore <- function(label = NULL,
     )
   }
   label <- .restore_get_label(label)
-  
+
   # Handle case where no labels to restore
   if (length(label) == 0) {
     message("No labels to restore")
     return(invisible(FALSE))
   }
-  
+
   success <- TRUE
   for (i in seq_along(label)) {
     result <- tryCatch(
@@ -194,14 +194,14 @@ projr_restore <- function(label = NULL,
   }
   # get source remote (type and title)
   source_vec <- .restore_label_get_source(pos, label, type, .title)
-  
+
   # Check if source was found
   if (is.null(source_vec)) {
     message("No restore source found for label: ", label)
     message("Skipping restore for ", label)
     return(invisible(FALSE))
   }
-  
+
   yml_title <- .yml_dest_get_title_complete(
     source_vec[["title"]], source_vec[["type"]], NULL, FALSE, FALSE
   )
@@ -473,7 +473,7 @@ projr_restore <- function(label = NULL,
 .remote_check_version_untrusted <- function(remote_pre, type, label) {
   version_file <- .remote_get_version_file(type, remote_pre)
   match_str <- utils::glob2rx(label) |>
-    gsub("\\$", "", x = _) |>
+    (\(x) gsub("\\$", "", x))() |>
     paste0(": ")
   label_regex <- grep(match_str, version_file, value = TRUE)
   if (.is_len_0(label_regex)) {

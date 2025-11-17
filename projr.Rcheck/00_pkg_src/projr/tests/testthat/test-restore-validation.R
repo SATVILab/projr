@@ -237,7 +237,7 @@ test_that("projr_restore_repo validates repo parameter", {
   
   # Valid input (will fail at git clone but should pass validation)
   expect_error(
-    projr_restore_repo(repo = "owner/repo"),
+    suppressWarnings(projr_restore_repo(repo = "owner/repo")),
     regexp = NA,
     class = "validation_error"
   )
@@ -274,12 +274,12 @@ test_that("projr_restore_repo validates path parameter", {
   
   # Valid inputs
   expect_error(
-    projr_restore_repo(repo = "owner/repo", path = NULL),
+    suppressWarnings(projr_restore_repo(repo = "owner/repo", path = NULL)),
     regexp = NA,
     class = "validation_error"
   )
   expect_error(
-    projr_restore_repo(repo = "owner/repo", path = "."),
+    suppressWarnings(projr_restore_repo(repo = "owner/repo", path = ".")),
     regexp = NA,
     class = "validation_error"
   )
@@ -308,12 +308,12 @@ test_that("projr_restore_repo validates label parameter", {
   
   # Valid inputs
   expect_error(
-    projr_restore_repo(repo = "owner/repo", label = NULL),
+    suppressWarnings(projr_restore_repo(repo = "owner/repo", label = NULL)),
     regexp = NA,
     class = "validation_error"
   )
   expect_error(
-    projr_restore_repo(repo = "owner/repo", label = "raw-data"),
+    suppressWarnings(projr_restore_repo(repo = "owner/repo", label = "raw-data")),
     regexp = NA,
     class = "validation_error"
   )
@@ -334,12 +334,12 @@ test_that("projr_restore_repo validates pos parameter", {
   
   # Valid inputs
   expect_error(
-    projr_restore_repo(repo = "owner/repo", pos = NULL),
+    suppressWarnings(projr_restore_repo(repo = "owner/repo", pos = NULL)),
     regexp = NA,
     class = "validation_error"
   )
   expect_error(
-    projr_restore_repo(repo = "owner/repo", pos = "source"),
+    suppressWarnings(projr_restore_repo(repo = "owner/repo", pos = "source")),
     regexp = NA,
     class = "validation_error"
   )
@@ -360,12 +360,12 @@ test_that("projr_restore_repo validates type parameter", {
   
   # Valid inputs
   expect_error(
-    projr_restore_repo(repo = "owner/repo", type = NULL),
+    suppressWarnings(projr_restore_repo(repo = "owner/repo", type = NULL)),
     regexp = NA,
     class = "validation_error"
   )
   expect_error(
-    projr_restore_repo(repo = "owner/repo", type = "local"),
+    suppressWarnings(projr_restore_repo(repo = "owner/repo", type = "local")),
     regexp = NA,
     class = "validation_error"
   )
@@ -386,12 +386,12 @@ test_that("projr_restore_repo validates title parameter", {
   
   # Valid inputs
   expect_error(
-    projr_restore_repo(repo = "owner/repo", title = NULL),
+    suppressWarnings(projr_restore_repo(repo = "owner/repo", title = NULL)),
     regexp = NA,
     class = "validation_error"
   )
   expect_error(
-    projr_restore_repo(repo = "owner/repo", title = "mytitle"),
+    suppressWarnings(projr_restore_repo(repo = "owner/repo", title = "mytitle")),
     regexp = NA,
     class = "validation_error"
   )
@@ -413,13 +413,13 @@ test_that("projr_restore_repo_wd accepts all parameters", {
   
   # Should accept all parameters that projr_restore_repo accepts
   expect_error(
-    projr_restore_repo_wd(
+    suppressWarnings(projr_restore_repo_wd(
       repo = "owner/repo",
       label = NULL,
       pos = NULL,
       type = NULL,
       title = NULL
-    ),
+    )),
     regexp = NA,
     class = "validation_error"
   )
@@ -440,7 +440,7 @@ test_that("projr_restore_repo returns success/failure correctly", {
   
   # When git clone fails, should return FALSE
   expect_message(
-    result <- projr_restore_repo(repo = "nonexistent/repo"),
+    result <- suppressWarnings(projr_restore_repo(repo = "nonexistent/repo")),
     regexp = "Error in projr_restore_repo"
   )
   # The function should complete and return a value
