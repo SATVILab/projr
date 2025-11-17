@@ -505,7 +505,7 @@
                                                         remote_pre,
                                                         label) {
   # will add whatever is in `fn_source`, nothing else needed
-  create <- !is.null(remote_dest)
+  create <- is.null(remote_dest)
   asterisk_label <- !create # don't asterisk if creating it
   version_file <- .dest_send_label_get_plan_action_version_file(
     type, remote_pre, label,
@@ -652,7 +652,7 @@
                                                             remote_pre,
                                                             label) {
   # will add whatever is in `fn_source`, nothing else needed
-  create <- !is.null(remote_dest)
+  create <- is.null(remote_dest)
   asterisk_label <- !create # don't asterisk if creating it
   version_file <- .dest_send_label_get_plan_action_version_file(
     type, remote_pre, label,
