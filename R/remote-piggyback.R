@@ -2,7 +2,7 @@
 .pb_retry_with_backoff <- function(fn,
                                    max_attempts = 3,
                                    initial_delay = 2,
-                                   max_delay = 10,
+                                   max_delay = 60,
                                    backoff_factor = 2,
                                    operation_name = "operation",
                                    output_level = "std",

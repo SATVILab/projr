@@ -33,6 +33,7 @@ test_that(".remote_create works - remote", {
   skip_on_cran()
   skip_if(.is_test_fast())
   skip_if(.is_test_select())
+  skip_if(.is_test_lite())
   dir_test <- .test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
   )
@@ -63,9 +64,16 @@ test_that(".remote_create works - remote", {
       # --------------------------
       tag_init <- .test_random_string_get()
       tag <- .remote_create("github", id = tag_init)
-      expect_true(
-        .remote_check_exists("github", id = tag)
-      )
+      start_time <- proc.time()[3]
+      max_wait <- 600
+      remote_exists <- .remote_check_exists("github", id = tag)
+      carry_on <- !remote_exists && (proc.time()[3] - start_time < max_wait)
+      while (carry_on) {
+        Sys.sleep(10)
+        remote_exists <- .remote_check_exists("github", id = tag)
+        carry_on <- !remote_exists && (proc.time()[3] - start_time < max_wait)
+      }
+      expect_true(remote_exists)
     }
   )
 })
@@ -456,8 +464,6 @@ test_that(".remote_file_rm_all works - remote", {
 
       # github
       # --------------------------
-       #browser()
-       #browser()
       piggyback:::.pb_cache_clear()
       id <- .remote_create("github", id = "abc")
       path_tmp_file <- file.path(tempdir(), "abc.txt")
@@ -467,9 +473,6 @@ test_that(".remote_file_rm_all works - remote", {
         path_dir_fn_rel = dirname(path_tmp_file),
         fn_rel_zip = "abc.zip"
       )
-      # browser()
-      repo <- .pb_guess_repo()
-      # debugonce(.remote_file_add_github_zip_attempt)
       .remote_file_add_github_zip_attempt(
         path_zip = path_zip,
         tag = id,
@@ -477,9 +480,9 @@ test_that(".remote_file_rm_all works - remote", {
         log_file = NULL,
         max_time = 300
       )
-      piggyback::pb_upload(repo = repo, file = path_zip, tag = id)
+      repo <- .pb_guess_repo()
       content_tbl_pre_delete <- piggyback::pb_list(
-        repo = .pb_repo_get(), tag = id
+        repo = repo, tag = id
       )
       expect_identical(nrow(content_tbl_pre_delete), 1L)
       remote_github <- c("tag" = id, fn = basename(path_zip))
@@ -487,8 +490,7 @@ test_that(".remote_file_rm_all works - remote", {
         "github",
         remote = remote_github
       )
-      piggyback:::.pb_cache_clear()
-      content_tbl <- piggyback::pb_list(repo = .pb_repo_get(), tag = id)
+      content_tbl <- piggyback::pb_list(repo = repo, tag = id)
       expect_true(is.null(content_tbl) || nrow(content_tbl) == 0L)
     }
   )
