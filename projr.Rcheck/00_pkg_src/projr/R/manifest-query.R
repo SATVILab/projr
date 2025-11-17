@@ -42,18 +42,18 @@ projr_manifest_changes <- function(version_from = NULL,
                                    version_to = NULL,
                                    label = NULL) {
   manifest <- .manifest_read_project()
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_changes())
   }
-  
+
   # Filter out empty manifest entries (used for empty directories)
   manifest <- manifest[!is.na(manifest$fn) & manifest$fn != "", , drop = FALSE]
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_changes())
   }
-  
+
   # Normalize versions
   version_from <- .manifest_query_normalize_version(
     version_from, manifest, use_earliest = TRUE
@@ -61,17 +61,17 @@ projr_manifest_changes <- function(version_from = NULL,
   version_to <- .manifest_query_normalize_version(
     version_to, manifest, use_earliest = FALSE
   )
-  
+
   # Filter by label if provided
   if (!is.null(label)) {
     .assert_string(label)
     manifest <- manifest[manifest$label == label, , drop = FALSE]
   }
-  
+
   # Get files for each version
   files_from <- manifest[manifest$version == version_from, , drop = FALSE]
   files_to <- manifest[manifest$version == version_to, , drop = FALSE]
-  
+
   # Find changes
   .manifest_query_compare_versions(files_from, files_to, version_from, version_to)
 }
@@ -114,18 +114,18 @@ projr_manifest_range <- function(version_start = NULL,
                                  version_end = NULL,
                                  label = NULL) {
   manifest <- .manifest_read_project()
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_range())
   }
-  
+
   # Filter out empty manifest entries (used for empty directories)
   manifest <- manifest[!is.na(manifest$fn) & manifest$fn != "", , drop = FALSE]
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_range())
   }
-  
+
   # Normalize versions
   version_start <- .manifest_query_normalize_version(
     version_start, manifest, use_earliest = TRUE
@@ -133,26 +133,26 @@ projr_manifest_range <- function(version_start = NULL,
   version_end <- .manifest_query_normalize_version(
     version_end, manifest, use_earliest = FALSE
   )
-  
+
   # Filter by label if provided
   if (!is.null(label)) {
     .assert_string(label)
     manifest <- manifest[manifest$label == label, , drop = FALSE]
   }
-  
+
   # Filter by version range
   versions <- unique(manifest$version)
   versions_sorted <- sort(package_version(vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE)))
   version_start_pkg <- package_version(.version_v_rm(version_start))
   version_end_pkg <- package_version(.version_v_rm(version_end))
-  
+
   versions_in_range <- versions_sorted[
     versions_sorted >= version_start_pkg & versions_sorted <= version_end_pkg
   ]
   versions_in_range <- paste0("v", as.character(versions_in_range))
-  
+
   manifest_range <- manifest[manifest$version %in% versions_in_range, , drop = FALSE]
-  
+
   # For each unique file (label + fn), find first and last change
   .manifest_query_summarize_range(manifest_range)
 }
@@ -187,33 +187,33 @@ projr_manifest_range <- function(version_start = NULL,
 #' @export
 projr_manifest_last_change <- function(version = NULL) {
   manifest <- .manifest_read_project()
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_last_change())
   }
-  
+
   # Filter out empty manifest entries (used for empty directories)
   manifest <- manifest[!is.na(manifest$fn) & manifest$fn != "", , drop = FALSE]
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_last_change())
   }
-  
+
   # Normalize version
   version <- .manifest_query_normalize_version(
     version, manifest, use_earliest = FALSE
   )
-  
+
   # Get all versions up to and including the target version
   versions <- unique(manifest$version)
   versions_sorted <- sort(package_version(vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE)))
   version_pkg <- package_version(.version_v_rm(version))
-  
+
   versions_up_to <- versions_sorted[versions_sorted <= version_pkg]
   versions_up_to <- paste0("v", as.character(versions_up_to))
-  
+
   manifest_up_to <- manifest[manifest$version %in% versions_up_to, , drop = FALSE]
-  
+
   # For each label, find the most recent version with changes
   .manifest_query_last_change_by_label(manifest_up_to)
 }
@@ -226,11 +226,11 @@ projr_manifest_last_change <- function(version = NULL) {
   if (nrow(manifest) == 0) {
     return(manifest)
   }
-  
+
   # Get all unique versions and compare them properly
   versions <- unique(manifest$version)
   version_end_pkg <- package_version(.version_v_rm(version_end))
-  
+
   # Filter versions that are <= version_end
   # Keep the original version strings for filtering the manifest
   versions_to_keep <- character(0)
@@ -240,12 +240,12 @@ projr_manifest_last_change <- function(version = NULL) {
       versions_to_keep <- c(versions_to_keep, v)
     }
   }
-  
+
   manifest[manifest$version %in% versions_to_keep, , drop = FALSE]
 }
 
 
-.manifest_query_normalize_version <- function(version, 
+.manifest_query_normalize_version <- function(version,
                                               manifest,
                                               use_earliest = TRUE) {
   if (is.null(version)) {
@@ -262,20 +262,20 @@ projr_manifest_last_change <- function(version = NULL) {
     }
     return(paste0("v", as.character(version)))
   }
-  
+
   .assert_string(version)
   .version_v_add(version)
 }
 
 
-.manifest_query_compare_versions <- function(files_from, 
+.manifest_query_compare_versions <- function(files_from,
                                              files_to,
                                              version_from,
                                              version_to) {
   # Create unique keys for matching
   files_from$key <- paste(files_from$label, files_from$fn, sep = ":::")
   files_to$key <- paste(files_to$label, files_to$fn, sep = ":::")
-  
+
   # Find added files (in to but not in from)
   added <- files_to[!(files_to$key %in% files_from$key), , drop = FALSE]
   if (nrow(added) > 0) {
@@ -283,7 +283,7 @@ projr_manifest_last_change <- function(version = NULL) {
     added$hash_from <- NA_character_
     added$hash_to <- added$hash
   }
-  
+
   # Find removed files (in from but not in to)
   removed <- files_from[!(files_from$key %in% files_to$key), , drop = FALSE]
   if (nrow(removed) > 0) {
@@ -291,19 +291,19 @@ projr_manifest_last_change <- function(version = NULL) {
     removed$hash_from <- removed$hash
     removed$hash_to <- NA_character_
   }
-  
+
   # Find modified files (in both but different hash)
   common_keys <- intersect(files_from$key, files_to$key)
   if (length(common_keys) > 0) {
     from_common <- files_from[files_from$key %in% common_keys, , drop = FALSE]
     to_common <- files_to[files_to$key %in% common_keys, , drop = FALSE]
-    
+
     # Match by key and compare hashes
     from_common <- from_common[order(from_common$key), , drop = FALSE]
     to_common <- to_common[order(to_common$key), , drop = FALSE]
-    
+
     # Compare hashes, handling empty strings and NAs
-    modified_mask <- !is.na(from_common$hash) & !is.na(to_common$hash) & 
+    modified_mask <- !is.na(from_common$hash) & !is.na(to_common$hash) &
                      from_common$hash != "" & to_common$hash != "" &
                      from_common$hash != to_common$hash
     if (any(modified_mask, na.rm = TRUE)) {
@@ -317,14 +317,14 @@ projr_manifest_last_change <- function(version = NULL) {
   } else {
     modified <- .zero_tbl_get_manifest_changes()
   }
-  
+
   # Combine results
   result <- rbind(
     if (nrow(added) > 0) added[, c("label", "fn", "change_type", "hash_from", "hash_to"), drop = FALSE] else .zero_tbl_get_manifest_changes(),
     if (nrow(removed) > 0) removed[, c("label", "fn", "change_type", "hash_from", "hash_to"), drop = FALSE] else .zero_tbl_get_manifest_changes(),
     if (nrow(modified) > 0) modified[, c("label", "fn", "change_type", "hash_from", "hash_to"), drop = FALSE] else .zero_tbl_get_manifest_changes()
   )
-  
+
   rownames(result) <- NULL
   result
 }
@@ -334,24 +334,24 @@ projr_manifest_last_change <- function(version = NULL) {
   if (nrow(manifest_range) == 0) {
     return(.zero_tbl_get_manifest_range())
   }
-  
+
   # Create unique key for each file
   manifest_range$key <- paste(manifest_range$label, manifest_range$fn, sep = ":::")
-  
+
   # Split by key and process each file
   keys <- unique(manifest_range$key)
-  
+
   result_list <- lapply(keys, function(k) {
     file_history <- manifest_range[manifest_range$key == k, , drop = FALSE]
     file_history <- file_history[order(package_version(vapply(file_history$version, .version_v_rm, character(1), USE.NAMES = FALSE))), , drop = FALSE]
-    
+
     # Find when hash last changed
     hashes <- file_history$hash
     versions <- file_history$version
-    
+
     # Last change is the most recent version (assuming manifest only adds new entries when hash changes)
     version_last_change <- versions[length(versions)]
-    
+
     data.frame(
       label = file_history$label[1],
       fn = file_history$fn[1],
@@ -361,7 +361,7 @@ projr_manifest_last_change <- function(version = NULL) {
       stringsAsFactors = FALSE
     )
   })
-  
+
   result <- do.call(rbind, result_list)
   rownames(result) <- NULL
   result
@@ -372,20 +372,20 @@ projr_manifest_last_change <- function(version = NULL) {
   if (nrow(manifest_up_to) == 0) {
     return(.zero_tbl_get_manifest_last_change())
   }
-  
+
   labels <- unique(manifest_up_to$label)
-  
+
   result_list <- lapply(labels, function(lbl) {
     label_data <- manifest_up_to[manifest_up_to$label == lbl, , drop = FALSE]
-    
+
     # Find most recent version for this label
     versions <- unique(label_data$version)
     versions_pkg <- package_version(vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE))
     version_last <- paste0("v", as.character(max(versions_pkg)))
-    
+
     # Count files at this version
     files_at_version <- label_data[label_data$version == version_last, , drop = FALSE]
-    
+
     data.frame(
       label = lbl,
       version_last_change = version_last,
@@ -393,7 +393,7 @@ projr_manifest_last_change <- function(version = NULL) {
       stringsAsFactors = FALSE
     )
   })
-  
+
   result <- do.call(rbind, result_list)
   rownames(result) <- NULL
   result
@@ -477,27 +477,27 @@ projr_manifest_last_change <- function(version = NULL) {
 #' @export
 projr_manifest_file_last_change <- function(fn, label = NULL, version_end = NULL) {
   .assert_string(fn)
-  
+
   manifest <- .manifest_read_project()
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_file_query())
   }
-  
+
   # Filter out empty manifest entries
   manifest <- manifest[!is.na(manifest$fn) & manifest$fn != "", , drop = FALSE]
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_file_query())
   }
-  
+
   # Filter by file name
   manifest <- manifest[manifest$fn == fn, , drop = FALSE]
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_file_query())
   }
-  
+
   # Filter by label if provided
   if (!is.null(label)) {
     .assert_string(label)
@@ -506,16 +506,16 @@ projr_manifest_file_last_change <- function(fn, label = NULL, version_end = NULL
       return(.zero_tbl_get_manifest_file_query())
     }
   }
-  
+
   # Normalize version_end
   version_end <- .manifest_query_normalize_version(
     version_end, manifest, use_earliest = FALSE
   )
-  
+
   # Filter by version range (up to version_end)
   # Keep original version strings to avoid conversion issues
   manifest <- .manifest_filter_up_to_version(manifest, version_end)
-  
+
   # For each unique label+fn combo, find the last change
   .manifest_file_query_last_change(manifest)
 }
@@ -557,31 +557,31 @@ projr_manifest_file_last_change <- function(fn, label = NULL, version_end = NULL
 #' }
 #'
 #' @export
-projr_manifest_file_changed <- function(fn, label = NULL, 
-                                       version_from = NULL, 
+projr_manifest_file_changed <- function(fn, label = NULL,
+                                       version_from = NULL,
                                        version_to = NULL) {
   .assert_string(fn)
-  
+
   manifest <- .manifest_read_project()
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_file_changed())
   }
-  
+
   # Filter out empty manifest entries
   manifest <- manifest[!is.na(manifest$fn) & manifest$fn != "", , drop = FALSE]
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_file_changed())
   }
-  
+
   # Filter by file name
   manifest <- manifest[manifest$fn == fn, , drop = FALSE]
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_file_changed())
   }
-  
+
   # Filter by label if provided
   if (!is.null(label)) {
     .assert_string(label)
@@ -590,7 +590,7 @@ projr_manifest_file_changed <- function(fn, label = NULL,
       return(.zero_tbl_get_manifest_file_changed())
     }
   }
-  
+
   # Normalize versions
   version_from <- .manifest_query_normalize_version(
     version_from, manifest, use_earliest = TRUE
@@ -598,11 +598,11 @@ projr_manifest_file_changed <- function(fn, label = NULL,
   version_to <- .manifest_query_normalize_version(
     version_to, manifest, use_earliest = FALSE
   )
-  
+
   # Get files for each version
   files_from <- manifest[manifest$version == version_from, , drop = FALSE]
   files_to <- manifest[manifest$version == version_to, , drop = FALSE]
-  
+
   # Compare
   .manifest_file_query_compare(files_from, files_to, fn, label)
 }
@@ -638,27 +638,27 @@ projr_manifest_file_changed <- function(fn, label = NULL,
 #' @export
 projr_manifest_file_history <- function(fn, label = NULL) {
   .assert_string(fn)
-  
+
   manifest <- .manifest_read_project()
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_file_history())
   }
-  
+
   # Filter out empty manifest entries
   manifest <- manifest[!is.na(manifest$fn) & manifest$fn != "", , drop = FALSE]
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_file_history())
   }
-  
+
   # Filter by file name
   manifest <- manifest[manifest$fn == fn, , drop = FALSE]
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_file_history())
   }
-  
+
   # Filter by label if provided
   if (!is.null(label)) {
     .assert_string(label)
@@ -667,7 +667,7 @@ projr_manifest_file_history <- function(fn, label = NULL) {
       return(.zero_tbl_get_manifest_file_history())
     }
   }
-  
+
   # Build history
   .manifest_file_query_history(manifest)
 }
@@ -700,27 +700,27 @@ projr_manifest_file_history <- function(fn, label = NULL) {
 #' @export
 projr_manifest_file_first <- function(fn, label = NULL) {
   .assert_string(fn)
-  
+
   manifest <- .manifest_read_project()
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_file_first())
   }
-  
+
   # Filter out empty manifest entries
   manifest <- manifest[!is.na(manifest$fn) & manifest$fn != "", , drop = FALSE]
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_file_first())
   }
-  
+
   # Filter by file name
   manifest <- manifest[manifest$fn == fn, , drop = FALSE]
-  
+
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_file_first())
   }
-  
+
   # Filter by label if provided
   if (!is.null(label)) {
     .assert_string(label)
@@ -729,7 +729,7 @@ projr_manifest_file_first <- function(fn, label = NULL) {
       return(.zero_tbl_get_manifest_file_first())
     }
   }
-  
+
   # Find first appearance for each label+fn combo
   .manifest_file_query_first(manifest)
 }
@@ -742,20 +742,20 @@ projr_manifest_file_first <- function(fn, label = NULL) {
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_file_query())
   }
-  
+
   # Group by label
   labels <- unique(manifest$label)
-  
+
   result_list <- lapply(labels, function(lbl) {
     label_data <- manifest[manifest$label == lbl, , drop = FALSE]
-    
+
     # Sort by version
     label_data <- label_data[order(package_version(vapply(label_data$version, .version_v_rm, character(1), USE.NAMES = FALSE))), , drop = FALSE]
-    
+
     # Find when hash last changed
     versions <- label_data$version
     hashes <- label_data$hash
-    
+
     # Start from the end and work backwards to find last change
     if (length(versions) == 1) {
       # Only one version, so it's the last change
@@ -770,10 +770,10 @@ projr_manifest_file_first <- function(fn, label = NULL) {
         }
       }
     }
-    
+
     # Get the index for the last change version
     last_idx <- which(label_data$version == version_last_change)[1]
-    
+
     data.frame(
       label = lbl,
       fn = label_data$fn[1],
@@ -782,7 +782,7 @@ projr_manifest_file_first <- function(fn, label = NULL) {
       stringsAsFactors = FALSE
     )
   })
-  
+
   result <- do.call(rbind, result_list)
   rownames(result) <- NULL
   result
@@ -793,12 +793,12 @@ projr_manifest_file_first <- function(fn, label = NULL) {
   # Determine if file exists in each version
   in_from <- nrow(files_from) > 0
   in_to <- nrow(files_to) > 0
-  
+
   if (!in_from && !in_to) {
     # File not found in either version
     return(.zero_tbl_get_manifest_file_changed())
   }
-  
+
   # Use the first label found if label is NULL
   if (is.null(label)) {
     if (in_from) {
@@ -807,7 +807,7 @@ projr_manifest_file_first <- function(fn, label = NULL) {
       label <- files_to$label[1]
     }
   }
-  
+
   if (!in_from) {
     # File added
     return(data.frame(
@@ -820,7 +820,7 @@ projr_manifest_file_first <- function(fn, label = NULL) {
       stringsAsFactors = FALSE
     ))
   }
-  
+
   if (!in_to) {
     # File removed
     return(data.frame(
@@ -833,11 +833,11 @@ projr_manifest_file_first <- function(fn, label = NULL) {
       stringsAsFactors = FALSE
     ))
   }
-  
+
   # File exists in both - check if hash changed
   hash_from <- files_from$hash[1]
   hash_to <- files_to$hash[1]
-  
+
   if (hash_from == hash_to) {
     return(data.frame(
       label = label,
@@ -866,24 +866,24 @@ projr_manifest_file_first <- function(fn, label = NULL) {
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_file_history())
   }
-  
+
   # Group by label
   labels <- unique(manifest$label)
-  
+
   result_list <- lapply(labels, function(lbl) {
     label_data <- manifest[manifest$label == lbl, , drop = FALSE]
-    
+
     # Sort by version
     label_data <- label_data[order(package_version(vapply(label_data$version, .version_v_rm, character(1), USE.NAMES = FALSE))), , drop = FALSE]
-    
+
     # Track changes
     versions <- label_data$version
     hashes <- label_data$hash
-    
+
     # First version is always included
     change_indices <- c(1)
     change_types <- c("first_appearance")
-    
+
     # Find all versions where hash changed
     if (length(versions) > 1) {
       for (i in 2:length(versions)) {
@@ -893,12 +893,12 @@ projr_manifest_file_first <- function(fn, label = NULL) {
         }
       }
     }
-    
+
     # Mark the last one as current if it's the most recent in manifest
     if (length(change_types) > 0 && change_indices[length(change_indices)] == nrow(label_data)) {
       change_types[length(change_types)] <- "current"
     }
-    
+
     data.frame(
       label = lbl,
       fn = label_data$fn[change_indices],
@@ -908,7 +908,7 @@ projr_manifest_file_first <- function(fn, label = NULL) {
       stringsAsFactors = FALSE
     )
   })
-  
+
   result <- do.call(rbind, result_list)
   rownames(result) <- NULL
   result
@@ -919,16 +919,16 @@ projr_manifest_file_first <- function(fn, label = NULL) {
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest_file_first())
   }
-  
+
   # Group by label
   labels <- unique(manifest$label)
-  
+
   result_list <- lapply(labels, function(lbl) {
     label_data <- manifest[manifest$label == lbl, , drop = FALSE]
-    
+
     # Sort by version and get the first
     label_data <- label_data[order(package_version(vapply(label_data$version, .version_v_rm, character(1), USE.NAMES = FALSE))), , drop = FALSE]
-    
+
     data.frame(
       label = lbl,
       fn = label_data$fn[1],
@@ -937,7 +937,7 @@ projr_manifest_file_first <- function(fn, label = NULL) {
       stringsAsFactors = FALSE
     )
   })
-  
+
   result <- do.call(rbind, result_list)
   rownames(result) <- NULL
   result

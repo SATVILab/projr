@@ -41,6 +41,7 @@ test_that(".log_dir_get_type creates directories correctly", {
 })
 
 test_that(".log_dir_get_type without create doesn't create directories", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -61,6 +62,7 @@ test_that(".log_dir_get_type without create doesn't create directories", {
 })
 
 test_that(".log_file_get_history returns correct path", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -86,6 +88,7 @@ test_that(".log_file_get_history returns correct path", {
 })
 
 test_that(".log_dir_get_output_date creates date directories", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -110,6 +113,7 @@ test_that(".log_dir_get_output_date creates date directories", {
 })
 
 test_that(".log_file_get_output returns correct file path", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -221,6 +225,7 @@ test_that(".log_build_init creates log file correctly", {
 })
 
 test_that(".log_build_init returns NULL when logging disabled", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -280,6 +285,7 @@ test_that(".log_build_append adds messages to log", {
 })
 
 test_that(".log_build_append handles NULL log_file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Should not error with NULL log file
@@ -287,6 +293,7 @@ test_that(".log_build_append handles NULL log_file", {
 })
 
 test_that(".log_build_section adds section headers", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -341,6 +348,7 @@ test_that(".log_build_finalize adds summary", {
 })
 
 test_that(".log_build_finalize marks failures", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -401,6 +409,7 @@ test_that(".log_history_add creates history file", {
 })
 
 test_that(".log_history_add handles multiple entries", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -480,6 +489,7 @@ test_that("projr_log_clear clears all logs", {
 })
 
 test_that("projr_log_clear clears only output logs", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -510,6 +520,7 @@ test_that("projr_log_clear clears only output logs", {
 })
 
 test_that("projr_log_clear can preserve history", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -535,6 +546,7 @@ test_that("projr_log_clear can preserve history", {
 })
 
 test_that("projr_log_clear with before_date filters correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -573,6 +585,7 @@ test_that("projr_log_clear with before_date filters correctly", {
 })
 
 test_that("log system integrates with build process", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -635,6 +648,7 @@ test_that("log system integrates with build process", {
 })
 
 test_that("PROJR_LOG_DETAILED handles case variations", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   original <- Sys.getenv("PROJR_LOG_DETAILED", unset = NA)
@@ -664,6 +678,7 @@ test_that("PROJR_LOG_DETAILED handles case variations", {
 })
 
 test_that("PROJR_LOG_DETAILED default is TRUE when unset", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   original <- Sys.getenv("PROJR_LOG_DETAILED", unset = NA)
@@ -681,6 +696,7 @@ test_that("PROJR_LOG_DETAILED default is TRUE when unset", {
 })
 
 test_that("PROJR_LOG_DETAILED controls log file creation", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -705,6 +721,7 @@ test_that("PROJR_LOG_DETAILED controls log file creation", {
 })
 
 test_that("PROJR_LOG_DETAILED doesn't affect history tracking", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   
@@ -734,6 +751,7 @@ test_that("PROJR_LOG_DETAILED doesn't affect history tracking", {
 })
 
 test_that("Log file paths use correct separators", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   

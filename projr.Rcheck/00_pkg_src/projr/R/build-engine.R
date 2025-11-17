@@ -12,9 +12,9 @@
     .cli_debug("Detecting engine from project configuration", output_level = output_level, log_file = log_file)
     engine <- .engine_get()
   }
-  
+
   .cli_info("Using rendering engine: {engine}", output_level = output_level, log_file = log_file)
-  
+
   # Handle case where no documents are found
   if (identical(engine, character(1L))) {
     build_error <- paste0(
@@ -29,7 +29,7 @@
       "rmd" = .build_engine_rmd(file, args_engine, output_level, log_file)
     )
   }
-  
+
   .build_engine_error(build_error, version_run_on_list)
 }
 
@@ -113,7 +113,7 @@
     "rmd" = "\\.Rmd$|\\.rmd$",
     stop(paste0("Unknown document type: ", type), call. = FALSE)
   )
-  
+
   if (is.null(file)) {
     fn_vec <- list.files(.path_get(), pattern = detect_str)
     missing_files <- NULL
@@ -124,7 +124,7 @@
     # Track which files are missing
     missing_files <- setdiff(file_matching, fn_vec)
   }
-  
+
   .build_engine_doc_fn_get_error(fn_vec, type, file, missing_files)
   fn_vec |> setdiff("README.Rmd")
 }
@@ -143,17 +143,17 @@
     )
     stop(error_msg, call. = FALSE)
   }
-  
+
   # Check if no files were found at all
   if (.is_given_mid(fn) && .is_len_pos(fn)) {
     return(invisible(TRUE))
   }
-  
+
   document_type <- switch(tolower(type),
     "qmd" = "Quarto",
     "rmd" = "RMarkdown"
   )
-  
+
   # Create appropriate error message based on whether files were specified
   if (is.null(file)) {
     error_msg <- paste0(
@@ -168,6 +168,6 @@
       "Please check that the file(s) exist and have the correct extension (", type, ")."
     )
   }
-  
+
   stop(error_msg, call. = FALSE)
 }

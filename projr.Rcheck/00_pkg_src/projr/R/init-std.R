@@ -14,7 +14,7 @@
 #' @param github_public Logical. If \code{TRUE}, the GitHub repository will be public.
 #'   Defaults to \code{FALSE}.
 #' @param github_org Character or \code{NULL}. The GitHub organization under which to create
-#'   the repository. Defaults to \code{NULL}, which creates the repository under the user's account 
+#'   the repository. Defaults to \code{NULL}, which creates the repository under the user's account
 #' (as implied by the GitHub token).
 #' @param dir Logical. If \code{TRUE}, initializes the projr-specified directories (e.g., raw,
 #'   cache, output). Defaults to \code{TRUE}.
@@ -35,13 +35,13 @@
 #' @param lit_doc Character or \code{NULL}. Specifies the type of literate documentation to create.
 #'   Supported values are \code{"bookdown"}, \code{"project"}, \code{"quarto"}, and \code{"rmd"}.
 #'   Defaults to \code{NULL}.
-#' @param bioc Logical (for \code{projr_init_renv}). If \code{TRUE}, includes Bioconductor packages 
+#' @param bioc Logical (for \code{projr_init_renv}). If \code{TRUE}, includes Bioconductor packages
 #'   in the renv setup. Defaults to \code{TRUE}.
-#' @param commit Logical (for \code{projr_init_git}). If \code{TRUE}, commits the initial changes 
+#' @param commit Logical (for \code{projr_init_git}). If \code{TRUE}, commits the initial changes
 #'   to the Git repository. Defaults to \code{TRUE}.
-#' @param username Character or \code{NULL} (for \code{projr_init_github}). The GitHub username or 
+#' @param username Character or \code{NULL} (for \code{projr_init_github}). The GitHub username or
 #'   organization under which to create the repository. Defaults to \code{NULL}.
-#' @param public Logical (for \code{projr_init_github}). If \code{TRUE}, the GitHub repository will 
+#' @param public Logical (for \code{projr_init_github}). If \code{TRUE}, the GitHub repository will
 #'   be public. Defaults to \code{FALSE}.
 #'
 #' @return Invisibly returns \code{TRUE} if initialization is successful, or \code{FALSE} if
@@ -91,7 +91,7 @@ projr_init <- function(git = TRUE,
 
   # directories
   .init_dir_std(dir)
-  
+
   # R directory for package structure
   if (!dir.exists(.path_get("R"))) {
     dir.create(.path_get("R"))
@@ -114,6 +114,8 @@ projr_init <- function(git = TRUE,
 
   # initial GitHub
   .init_std_github(github, github_public, github_org)
+
+  invisible(TRUE)
 }
 
 .init_usethis_std <- function() {
@@ -124,10 +126,12 @@ projr_init <- function(git = TRUE,
 
 #' @rdname projr_init
 #' @export
-projr_init_all <- function(github_org = NULL,
+projr_init_all <- function(github = TRUE,
+                           github_org = NULL,
                            license = NULL,
                            lit_doc = NULL) {
   projr_init(
+    github = github,
     github_org = github_org,
     desc = TRUE,
     license = license,
@@ -201,7 +205,7 @@ projr_init_github <- function(username = NULL,
     if (readme_rmd) "Rmd" else "md"
   ) |>
     .path_get()
-  
+
   .init_readme_std_contents(readme_rmd) |>
     writeLines(con = path_readme)
   .init_readme_std_impl_render()
@@ -671,7 +675,7 @@ projr_init_github <- function(username = NULL,
   .dep_install_only("usethis")
   .dep_install_only("gh")
   if (is.null(org)) {
-    .init_github_actual_user(public)
+    .init_github_impl(NULL, public)
   } else {
     .init_github_actual_org(public, org)
   }

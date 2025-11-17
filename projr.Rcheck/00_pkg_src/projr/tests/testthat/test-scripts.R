@@ -65,6 +65,7 @@ test_that(".yml_scripts functions work", {
 })
 
 test_that(".yml_hooks simple structure works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -153,6 +154,7 @@ test_that(".yml_hooks simple structure works", {
 })
 
 test_that(".engine_get_from_files works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Test with .qmd files
@@ -187,6 +189,7 @@ test_that(".engine_get_from_files works correctly", {
 })
 
 test_that("dev.scripts is used exclusively for dev builds", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -244,6 +247,7 @@ test_that("dev.scripts is used exclusively for dev builds", {
 })
 
 test_that("File existence checks work for scripts and hooks", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   
@@ -320,6 +324,7 @@ test_that("File existence checks work for scripts and hooks", {
 })
 
 test_that("dev.hooks works for dev builds", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   

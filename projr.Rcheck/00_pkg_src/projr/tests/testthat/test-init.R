@@ -10,7 +10,7 @@ test_that("projr_init works", {
     path = dir_test,
     code = {
       # Call projr_init_all with bookdown to match test expectations
-      expect_true(projr_init_all(lit_doc = "bookdown"))
+      expect_true(projr_init_all(github = FALSE, lit_doc = "bookdown"))
       expect_true(file.exists("_bookdown.yml"))
       expect_true(file.exists("_output.yml"))
       expect_true(file.exists("_projr.yml"))
@@ -37,6 +37,7 @@ test_that("projr_init works", {
 })
 
 test_that(".init_yml works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -72,6 +73,7 @@ test_that(".init_yml works", {
 })
 
 test_that(".init_description works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -101,6 +103,7 @@ test_that(".init_description works", {
 })
 
 test_that(".init_dep works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -129,6 +132,7 @@ test_that(".init_dep works", {
 })
 
 test_that(".init_ignore works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -187,6 +191,7 @@ test_that(".init_renv works", {
 })
 
 test_that(".init_license works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -214,6 +219,7 @@ test_that(".init_license works", {
 })
 
 test_that(".init_readme works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -242,6 +248,7 @@ test_that(".init_readme works", {
 })
 
 test_that("projr_init_bookdown works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -277,6 +284,7 @@ test_that("projr_init_bookdown works", {
 })
 
 test_that("projr_init_quarto_project works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -318,6 +326,7 @@ test_that("projr_init_quarto_project works", {
 })
 
 test_that("projr_init_quarto_document works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -352,6 +361,7 @@ test_that("projr_init_quarto_document works", {
 })
 
 test_that("projr_init_rmd works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -390,6 +400,7 @@ test_that("projr_init_rmd works", {
 # ========================================
 
 test_that("projr_init with various parameters works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Test with minimal parameters (defaults)
@@ -517,6 +528,7 @@ test_that("projr_init with various parameters works", {
 })
 
 test_that("projr_init_all works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), "testProjrInitAll")
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -529,7 +541,7 @@ test_that("projr_init_all works", {
     path = dir_test,
     code = {
       # projr_init_all should enable desc, projr_yml, and optionally lit_doc and license
-      expect_true(projr_init_all(license = "cc0", lit_doc = "rmd"))
+      expect_true(projr_init_all(github = FALSE, license = "cc0", lit_doc = "rmd"))
       expect_true(file.exists("DESCRIPTION"))
       expect_true(file.exists("_projr.yml"))
       expect_true(file.exists("LICENSE.md"))
@@ -543,6 +555,7 @@ test_that("projr_init_all works", {
 })
 
 test_that("projr_init_cite works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), "testProjrCite")
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -583,6 +596,7 @@ test_that("projr_init_cite works", {
 })
 
 test_that("projr_init_git works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), "testProjrGitInit")
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -627,6 +641,7 @@ test_that("projr_init_git works", {
 })
 
 test_that("projr_init_license works with different license types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Test CC-BY license
@@ -733,6 +748,7 @@ test_that("projr_init_renv works", {
 })
 
 test_that("projr_init_renviron works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # This function creates/updates user .Renviron, so we need to be careful

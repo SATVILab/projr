@@ -51,6 +51,7 @@ test_that("projr_manifest_file_last_change works", {
 
 
 test_that("projr_manifest_file_changed works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -118,6 +119,7 @@ test_that("projr_manifest_file_changed works", {
 
 
 test_that("projr_manifest_file_history works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -173,6 +175,7 @@ test_that("projr_manifest_file_history works", {
 
 
 test_that("projr_manifest_file_first works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -222,6 +225,7 @@ test_that("projr_manifest_file_first works", {
 
 
 test_that("file query functions handle edge cases", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -268,6 +272,7 @@ test_that("file query functions handle edge cases", {
 
 
 test_that("file query functions work without label parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

@@ -14,7 +14,7 @@
 #' @param path character vector.
 #' Path(s) to hook scripts, relative to project root (if not absolute).
 #' @param stage "pre", "post", or "both".
-#' Whether to run the hook before the build ("pre"), 
+#' Whether to run the hook before the build ("pre"),
 #' after the build ("post"), or in both stages ("both").
 #' Hooks with stage "pre" are stored under \code{build.hooks.pre},
 #' hooks with stage "post" are stored under \code{build.hooks.post},
@@ -39,7 +39,7 @@
 #' The post-build hooks are run immediately after
 #' committing the present state of the code to Git,
 #' and before distributing project artifacts to the remotes.
-#' 
+#'
 #' Hooks are stored as simple character vectors in the YAML:
 #' \preformatted{
 #' build:
@@ -79,13 +79,13 @@ projr_yml_hooks_add <- function(path,
                             profile = "default",
                             overwrite = TRUE) {
   yml_hooks <- .yml_hooks_get(profile)
-  
+
   # Add path to the appropriate stage vector
   # stage can be "both", "pre", or "post"
   if (is.null(yml_hooks[[stage]])) {
     yml_hooks[[stage]] <- character(0)
   }
-  
+
   # Add paths to the vector
   if (overwrite) {
     yml_hooks[[stage]] <- path
@@ -95,7 +95,7 @@ projr_yml_hooks_add <- function(path,
     new_paths <- setdiff(path, existing_paths)
     yml_hooks[[stage]] <- c(existing_paths, new_paths)
   }
-  
+
   yml_hooks
 }
 
@@ -125,9 +125,9 @@ projr_yml_hooks_rm_all <- function(profile = "default") {
   if (is.null(yml_hooks)) {
     return(NULL)
   }
-  
+
   hooks_list <- c()
-  
+
   # Get stage-specific hooks from build.hooks.pre or build.hooks.post
   if (stage %in% names(yml_hooks)) {
     stage_hooks <- yml_hooks[[stage]]
@@ -136,7 +136,7 @@ projr_yml_hooks_rm_all <- function(profile = "default") {
       hooks_list <- c(hooks_list, as.character(stage_hooks))
     }
   }
-  
+
   # Get hooks that run in both pre and post (from build.hooks.both)
   if ("both" %in% names(yml_hooks)) {
     both_hooks <- yml_hooks[["both"]]
@@ -144,11 +144,11 @@ projr_yml_hooks_rm_all <- function(profile = "default") {
       hooks_list <- c(hooks_list, as.character(both_hooks))
     }
   }
-  
+
   if (length(hooks_list) == 0) {
     return(NULL)
   }
-  
+
   hooks_list
 }
 

@@ -25,14 +25,14 @@
     .assert_in(output_level, c("none", "std", "debug"))
     return(output_level)
   }
-  
+
   # Check environment variable
   env_level <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
   if (nzchar(env_level)) {
     .assert_in(env_level, c("none", "std", "debug"))
     return(env_level)
   }
-  
+
   # Default based on build type
   if (output_run) {
     return("std")
@@ -67,17 +67,17 @@
 .cli_stage_header <- function(stage_name, build_type = "output", output_level = "std", log_file = NULL) {
   build_label <- if (build_type == "dev") "Development" else "Output"
   message_text <- paste0(build_label, " Build: ", stage_name)
-  
+
   # Write to log file
   if (!is.null(log_file)) {
     .log_build_section(log_file, message_text)
   }
-  
+
   # Show in console if appropriate
   if (!.cli_should_show("std", output_level)) {
     return(invisible(NULL))
   }
-  
+
   # Use cli::cli_h1 which doesn't need .envir since we're constructing the full string
   cli::cli_h1(message_text)
 }
@@ -96,13 +96,13 @@
   if (length(message_parts) > 0) {
     # Convert message to string
     message_text <- paste(unlist(message_parts), collapse = " ")
-    
+
     # Write to log file
     if (!is.null(log_file)) {
       .log_build_append(log_file, message_text, "info")
     }
   }
-  
+
   # Show in console if appropriate
   if (!.cli_should_show("std", output_level)) {
     return(invisible(NULL))
@@ -123,13 +123,13 @@
   message_parts <- list(...)
   if (length(message_parts) > 0) {
     message_text <- paste(unlist(message_parts), collapse = " ")
-    
+
     # Write to log file
     if (!is.null(log_file)) {
       .log_build_append(log_file, message_text, "success")
     }
   }
-  
+
   # Show in console if appropriate
   if (!.cli_should_show("std", output_level)) {
     return(invisible(NULL))
@@ -150,13 +150,13 @@
   message_parts <- list(...)
   if (length(message_parts) > 0) {
     message_text <- paste(unlist(message_parts), collapse = " ")
-    
+
     # Write to log file
     if (!is.null(log_file)) {
       .log_build_append(log_file, message_text, "debug")
     }
   }
-  
+
   # Show in console only at debug level
   if (!.cli_should_show("debug", output_level)) {
     return(invisible(NULL))
@@ -177,13 +177,13 @@
   message_parts <- list(...)
   if (length(message_parts) > 0) {
     message_text <- paste(unlist(message_parts), collapse = " ")
-    
+
     # Write to log file
     if (!is.null(log_file)) {
       .log_build_append(log_file, message_text, "step")
     }
   }
-  
+
   # Show in console if appropriate
   if (!.cli_should_show("std", output_level)) {
     return(invisible(NULL))
@@ -214,7 +214,7 @@
 #' @param output_level Character. Current output level.
 #'
 #' @keywords internal
-.cli_process_done <- function(id = NULL, msg_done = NULL, msg_failed = NULL, 
+.cli_process_done <- function(id = NULL, msg_done = NULL, msg_failed = NULL,
                               .envir = parent.frame(), output_level = "std") {
   if (!.cli_should_show("std", output_level)) {
     return(invisible(NULL))

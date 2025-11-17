@@ -76,18 +76,13 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
     return(invisible(TRUE))
   }
   
-  # Determine installation instructions for missing packages
-  install_cmds <- character(length(dep_required))
-  for (i in seq_along(dep_required)) {
-    pkg <- dep_required[[i]]
-    if (grepl("^\\w+/\\w+", gsub("\\.", "", pkg))) {
-      # GitHub package
-      install_cmds[[i]] <- paste0("remotes::install_github(\"", pkg, "\")")
-    } else {
-      # CRAN package
-      install_cmds[[i]] <- paste0("install.packages(\"", pkg, "\")")
-    }
+  # If interactive, ask user if they want to install
+  if (interactive()) {
+    return(.dep_install_only_interactive(dep_required))
   }
+  
+  # Non-interactive: throw error with installation instructions
+  install_cmds <- .dep_get_install_cmds(dep_required)
   
   # Throw error with clear installation instructions
   stop(
@@ -97,6 +92,84 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
     "\nOr use renv::install() if working in an renv project.",
     call. = FALSE
   )
+}
+
+.dep_install_only_interactive <- function(dep_required) {
+  for (pkg in dep_required) {
+    # Determine installation command
+    if (grepl("^\\w+/\\w+", gsub("\\.", "", pkg))) {
+      install_cmd <- paste0("remotes::install_github(\"", pkg, "\")")
+      install_type <- "GitHub"
+    } else {
+      install_cmd <- paste0("install.packages(\"", pkg, "\")")
+      install_type <- "CRAN"
+    }
+    
+    # Ask user
+    cat(paste0(
+      "\nPackage '", pkg, "' is required but not installed.\n",
+      "Would you like to install it from ", install_type, "? (y/n): "
+    ))
+    
+    response <- readline()
+    
+    if (tolower(trimws(response)) == "y") {
+      cat(paste0("Installing '", pkg, "'...\n"))
+      
+      # Actually install the package
+      if (grepl("^\\w+/\\w+", gsub("\\.", "", pkg))) {
+        if (!requireNamespace("remotes", quietly = TRUE)) {
+          cat("Installing 'remotes' package first...\n")
+          utils::install.packages("remotes")
+        }
+        remotes::install_github(pkg)
+      } else {
+        utils::install.packages(pkg)
+      }
+      
+      # Verify installation
+      if (!requireNamespace(pkg, quietly = TRUE)) {
+        stop("Installation of '", pkg, "' failed.", call. = FALSE)
+      }
+      cat(paste0("Successfully installed '", pkg, "'\n"))
+    } else {
+      stop(
+        "Package '", pkg, "' is required but not installed.\n",
+        "Please install it using: ", install_cmd,
+        call. = FALSE
+      )
+    }
+  }
+  
+  invisible(TRUE)
+}
+
+.dep_get_install_cmds <- function(pkg_vec) {
+  # Check if any are GitHub packages
+  github_pkgs <- pkg_vec[grepl("^\\w+/\\w+", gsub("\\.", "", pkg_vec))]
+  cran_pkgs <- setdiff(pkg_vec, github_pkgs)
+  
+  cmds <- character(0)
+  
+  if (length(cran_pkgs) > 0) {
+    if (length(cran_pkgs) == 1) {
+      cmds <- c(cmds, paste0("install.packages(\"", cran_pkgs, "\")"))
+    } else {
+      cmds <- c(cmds, paste0(
+        "install.packages(c(\"",
+        paste(cran_pkgs, collapse = "\", \""),
+        "\"))"
+      ))
+    }
+  }
+  
+  if (length(github_pkgs) > 0) {
+    for (pkg in github_pkgs) {
+      cmds <- c(cmds, paste0("remotes::install_github(\"", pkg, "\")"))
+    }
+  }
+  
+  cmds
 }
 
 .dep_install_only_rscript <- function(dep) {

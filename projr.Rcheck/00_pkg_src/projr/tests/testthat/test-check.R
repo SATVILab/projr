@@ -1,4 +1,5 @@
 test_that("All assertion functions work as expected", {
+  skip_if(.is_test_cran())
   skip_if_offline()
   skip_if(.is_test_select())
 

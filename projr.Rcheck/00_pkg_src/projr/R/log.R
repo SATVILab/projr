@@ -125,10 +125,10 @@
   if (!.log_enabled()) {
     return(NULL)
   }
-  
+
   timestamp <- format(Sys.time(), "%H-%M-%S")
   log_file <- .log_file_get_output(build_type, timestamp)
-  
+
   # Create header for the log file
   header <- c(
     "---",
@@ -149,9 +149,9 @@
     "# Build Output",
     ""
   )
-  
+
   writeLines(header, log_file)
-  
+
   list(log_file = log_file, timestamp = timestamp)
 }
 
@@ -166,11 +166,11 @@
   if (is.null(log_file) || !file.exists(log_file)) {
     return(invisible(NULL))
   }
-  
+
   # Format message with timestamp and level
   timestamp <- format(Sys.time(), "%H:%M:%S")
   formatted <- paste0("[", timestamp, "] **", toupper(level), "**: ", message)
-  
+
   # Append to file
   cat(formatted, "\n", file = log_file, append = TRUE)
   invisible(NULL)
@@ -186,7 +186,7 @@
   if (is.null(log_file) || !file.exists(log_file)) {
     return(invisible(NULL))
   }
-  
+
   header <- paste0("\n## ", section_name, "\n")
   cat(header, file = log_file, append = TRUE)
   invisible(NULL)
@@ -203,7 +203,7 @@
   if (is.null(log_file) || !file.exists(log_file)) {
     return(invisible(NULL))
   }
-  
+
   footer <- c(
     "",
     "---",
@@ -218,7 +218,7 @@
     paste0("- **Completed**: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S")),
     ""
   )
-  
+
   cat(paste(footer, collapse = "\n"), file = log_file, append = TRUE)
   invisible(NULL)
 }
@@ -235,7 +235,7 @@
 .log_history_add <- function(build_type = "output", bump_component = NULL,
                              msg = "", success = TRUE, log_file = NULL) {
   history_file <- .log_file_get_history(build_type)
-  
+
   # Read existing history or create header
   if (file.exists(history_file)) {
     existing <- readLines(history_file, warn = FALSE)
@@ -247,11 +247,11 @@
       ""
     )
   }
-  
+
   # Create new entry
   timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
   status <- if (success) "[OK]" else "[X]"
-  
+
   entry <- c(
     paste0("## ", timestamp, " ", status),
     "",
@@ -262,10 +262,10 @@
     if (!is.null(log_file)) paste0("- **Log**: `", basename(dirname(log_file)), "/", basename(log_file), "`") else NULL,
     ""
   )
-  
+
   # Insert at position after header (line 4)
   updated <- c(existing[1:4], entry, existing[5:length(existing)])
-  
+
   writeLines(updated, history_file)
   invisible(NULL)
 }
@@ -297,27 +297,27 @@ projr_log_clear <- function(build_type = "all",
   .assert_in(build_type, c("all", "output", "dev"))
   .assert_lgl(history)
   .assert_lgl(output)
-  
+
   # Determine which build types to clear
   types <- if (build_type == "all") c("output", "dev") else build_type
-  
+
   for (type in types) {
     type_dir <- .log_dir_get_type(type, create = FALSE)
     if (!dir.exists(type_dir)) {
       next
     }
-    
+
     # Clear history
     if (history) {
       .log_clear_history(type, before_date, before_version)
     }
-    
+
     # Clear output logs
     if (output) {
       .log_clear_output(type, before_date, before_version)
     }
   }
-  
+
   cli::cli_alert_success("Logs cleared successfully")
   invisible(TRUE)
 }
@@ -327,17 +327,17 @@ projr_log_clear <- function(build_type = "all",
 #' @keywords internal
 .log_clear_history <- function(build_type, before_date = NULL, before_version = NULL) {
   history_file <- .log_file_get_history(build_type)
-  
+
   if (!file.exists(history_file)) {
     return(invisible(NULL))
   }
-  
+
   # If no filters, just delete the file
   if (is.null(before_date) && is.null(before_version)) {
     unlink(history_file)
     return(invisible(NULL))
   }
-  
+
   # TODO: Implement filtered deletion based on date/version
   # For now, if filters are specified, we don't delete
   cli::cli_alert_info("Filtered history clearing not yet implemented")
@@ -350,27 +350,27 @@ projr_log_clear <- function(build_type = "all",
 .log_clear_output <- function(build_type, before_date = NULL, before_version = NULL) {
   type_dir <- .log_dir_get_type(build_type, create = FALSE)
   output_dir <- file.path(type_dir, "output")
-  
+
   if (!dir.exists(output_dir)) {
     return(invisible(NULL))
   }
-  
+
   # If no filters, delete entire output directory
   if (is.null(before_date) && is.null(before_version)) {
     unlink(output_dir, recursive = TRUE)
     return(invisible(NULL))
   }
-  
+
   # Filter by date if specified
   if (!is.null(before_date)) {
     .log_clear_output_by_date(output_dir, before_date)
   }
-  
+
   # TODO: Implement version-based filtering
   if (!is.null(before_version)) {
     cli::cli_alert_info("Version-based log clearing not yet implemented")
   }
-  
+
   invisible(NULL)
 }
 
@@ -380,10 +380,10 @@ projr_log_clear <- function(build_type = "all",
 .log_clear_output_by_date <- function(output_dir, before_date) {
   # Parse the before_date
   cutoff <- as.Date(before_date)
-  
+
   # List all date directories
   date_dirs <- list.dirs(output_dir, full.names = TRUE, recursive = FALSE)
-  
+
   for (dir in date_dirs) {
     dir_name <- basename(dir)
     # Try to parse directory name as date (format: YYYY-MMM-DD)
@@ -391,11 +391,11 @@ projr_log_clear <- function(build_type = "all",
       as.Date(dir_name, format = "%Y-%b-%d"),
       error = function(e) NULL
     )
-    
+
     if (!is.null(dir_date) && dir_date <= cutoff) {
       unlink(dir, recursive = TRUE)
     }
   }
-  
+
   invisible(NULL)
 }

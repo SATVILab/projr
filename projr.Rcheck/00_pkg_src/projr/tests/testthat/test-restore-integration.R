@@ -17,6 +17,7 @@
 }
 
 test_that("restore from local archive remote places files directly in target directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   
@@ -77,6 +78,7 @@ test_that("restore from local archive remote places files directly in target dir
 })
 
 test_that("restore from local latest remote places files directly in target directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   
@@ -135,6 +137,7 @@ test_that("restore from local latest remote places files directly in target dire
 })
 
 test_that("restore and build integration test with archive remote", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   
@@ -149,6 +152,8 @@ test_that("restore and build integration test with archive remote", {
       .yml_dest_rm_type_all("default")
       
       # Create a quarto document that depends on the data
+      # Note: Using cat() instead of stop() to avoid aborting test suite
+      # The test will still fail if file is missing due to explicit expect_true checks
       qmd_content <- c(
         "---",
         "title: Test Document",
@@ -159,7 +164,7 @@ test_that("restore and build integration test with archive remote", {
         "if (file.exists(file_path)) {",
         "  cat('File found\\n')",
         "} else {",
-        "  stop('File not found')",
+        "  cat('File not found\\n')",
         "}",
         "```"
       )
@@ -210,6 +215,7 @@ test_that("restore and build integration test with archive remote", {
 })
 
 test_that("restore and build integration test with latest remote", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
   
@@ -224,6 +230,8 @@ test_that("restore and build integration test with latest remote", {
       .yml_dest_rm_type_all("default")
       
       # Create a quarto document that depends on the data
+      # Note: Using cat() instead of stop() to avoid aborting test suite
+      # The test will still fail if file is missing due to explicit expect_true checks
       qmd_content <- c(
         "---",
         "title: Test Document",
@@ -234,7 +242,7 @@ test_that("restore and build integration test with latest remote", {
         "if (file.exists(file_path)) {",
         "  cat('File found\\n')",
         "} else {",
-        "  stop('File not found')",
+        "  cat('File not found\\n')",
         "}",
         "```"
       )

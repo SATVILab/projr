@@ -330,7 +330,7 @@ projr_ignore_auto <- function() {
   path_vec <- list.files(
     path = .path_get(), pattern = "\\.qmd$|\\.Rmd|\\.rmd"
   ) |>
-    gsub("\\.qmd$|\\.Rmd$|\\.rmd$", ".tex", x = _)
+    (\(x) gsub("\\.qmd$|\\.Rmd$|\\.rmd$", ".tex", x))()
   if (.is_len_0(path_vec)) {
     return(invisible(FALSE))
   }

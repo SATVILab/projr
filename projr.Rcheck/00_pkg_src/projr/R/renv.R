@@ -317,19 +317,19 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
 .check_renv_params <- function(github, non_github, biocmanager_install) {
   # Validates parameters for renv functions.
   # Checks that parameters are logical and at least one package source is selected.
-  
+
   if (!is.logical(github) || length(github) != 1L) {
     stop("'github' must be a single logical value (TRUE or FALSE).")
   }
-  
+
   if (!is.logical(non_github) || length(non_github) != 1L) {
     stop("'non_github' must be a single logical value (TRUE or FALSE).")
   }
-  
+
   if (!is.logical(biocmanager_install) || length(biocmanager_install) != 1L) {
     stop("'biocmanager_install' must be a single logical value (TRUE or FALSE).")
   }
-  
+
   if (!github && !non_github) {
     stop("At least one of 'github' or 'non_github' must be TRUE.")
   }
@@ -338,7 +338,7 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
 .check_renv_lockfile <- function() {
   # Checks if renv.lock file exists in the current project.
   # Stops execution if not found.
-  
+
   if (!file.exists("renv.lock")) {
     stop(
       "renv.lock file not found in the current directory. ",

@@ -20,6 +20,7 @@ test_that(".metadata_get_author_host works with git", {
 })
 
 test_that(".metadata_get_author_host works without git", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -38,6 +39,7 @@ test_that(".metadata_get_author_host works without git", {
 })
 
 test_that(".metadata_get_author_host_non_git works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Should return a character string from environment or system
@@ -47,6 +49,7 @@ test_that(".metadata_get_author_host_non_git works", {
 })
 
 test_that(".metadata_get_author_host_env works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Ensure environment variable is set so function returns a non-empty value
@@ -75,6 +78,7 @@ test_that(".metadata_get_author_host_env works", {
 })
 
 test_that(".metadata_get_author_sys_info works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Should return a character string
@@ -97,6 +101,7 @@ test_that(".metadata_get_author_sys_info works", {
 })
 
 test_that(".metadata_get_os works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   os <- .metadata_get_os()
@@ -109,6 +114,7 @@ test_that(".metadata_get_os works", {
 })
 
 test_that(".metadata_get_host works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   host <- .metadata_get_host()
@@ -118,6 +124,7 @@ test_that(".metadata_get_host works", {
 })
 
 test_that(".metadata_get_time works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   time_str <- .metadata_get_time()
