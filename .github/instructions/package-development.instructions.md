@@ -17,6 +17,7 @@ Development workflow guidelines for the projr R package, including build command
 - Run `devtools::test()` to ensure all tests pass (use LITE mode for faster iteration)
 - Run `devtools::check()` to ensure package passes R CMD check
 - Ensure code follows the existing style conventions
+- **If export status changed**: Update `_pkgdown.yml` and verify with `pkgdown::check_pkgdown()`
 
 ---
 
@@ -125,6 +126,7 @@ Functions are organized by feature/domain:
 - Use `projr_` prefix for exported functions
 - Add roxygen2 documentation for exports
 - Add corresponding tests in `tests/testthat/test-*.R`
+- **Add to `_pkgdown.yml` reference index** in the appropriate section when exported
 
 ### Modifying Existing Functions
 
@@ -132,6 +134,7 @@ Functions are organized by feature/domain:
 - Update tests to cover new behavior
 - Update roxygen2 documentation if parameters/return values change
 - Run `devtools::document()` after roxygen2 changes
+- **Update `_pkgdown.yml` reference index** if function export status changes (newly exported, no longer exported, or deleted)
 
 ### Bug Fixes
 
@@ -148,6 +151,26 @@ Functions are organized by feature/domain:
 - Run `devtools::document()` after roxygen2 changes
 - Update copilot instructions when changes affect development practices
 - Rebuild pkgdown website with `pkgdown::build_site()` when documentation changes are significant
+
+### pkgdown Reference Index Maintenance
+
+The `_pkgdown.yml` file contains the reference index for the package documentation website. **Always keep it synchronized with exported functions:**
+
+- **When adding exported functions**: Add them to the appropriate section in `_pkgdown.yml`
+- **When removing exported functions**: Remove them from `_pkgdown.yml`
+- **When changing export status**: Update `_pkgdown.yml` accordingly
+- Functions grouped by `@rdname` in roxygen2 should be listed together in pkgdown
+- Verify with `pkgdown::check_pkgdown()` to catch missing or invalid entries
+- Build the site locally with `pkgdown::build_site()` to ensure no errors
+
+Common pkgdown reference sections in this package:
+- Core workflow - Main build/init/restore functions
+- Path helpers - Functions for getting project paths
+- Version management - Version get/set functions
+- Manifest queries - Functions for querying file changes
+- YAML configuration - Functions for managing `_projr.yml`
+- Profile management - Profile create/delete/get
+- And others (see `_pkgdown.yml` for full list)
 
 ---
 

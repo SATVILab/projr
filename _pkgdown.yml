@@ -79,6 +79,10 @@ reference:
   - projr_manifest_changes
   - projr_manifest_range
   - projr_manifest_last_change
+  - projr_manifest_file_last_change
+  - projr_manifest_file_changed
+  - projr_manifest_file_history
+  - projr_manifest_file_first
 
 - title: YAML configuration
   desc: Functions for managing _projr.yml configuration
@@ -100,6 +104,10 @@ reference:
   - projr_yml_script_add_post
   - projr_yml_script_rm
   - projr_yml_script_rm_all
+  - projr_yml_hooks_add
+  - projr_yml_hooks_add_pre
+  - projr_yml_hooks_add_post
+  - projr_yml_hooks_rm_all
 
 - title: Profile management
   desc: Functions for managing project profiles
