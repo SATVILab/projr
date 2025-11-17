@@ -78,7 +78,27 @@ When `PROJR_OUTPUT_LEVEL="debug"`, detailed messages include:
 
 ### Purpose
 
-Tracks file hashes across versions in `manifest.csv` at project root.
+Tracks file hashes across versions to enable change detection, version comparison, and efficient remote synchronization.
+
+### Storage Format
+
+**Split Manifests (New System)**
+
+Each version gets its own manifest file in `_projr/manifest/`:
+- `_projr/manifest/v0.0.1.csv` - Contains only v0.0.1 file hashes
+- `_projr/manifest/v0.0.2.csv` - Contains only v0.0.2 file hashes
+- etc.
+
+**Consolidated Manifest (Backward Compatibility)**
+
+`manifest.csv` at project root contains ALL versions for backward compatibility and easy inspection.
+
+**Benefits of Split Manifests**
+- Smaller individual files checked into Git
+- Better Git delta compression across versions
+- Each version is self-contained
+- Easier to archive old versions
+- Backward compatible with projects using single manifest.csv
 
 ### Manifest Structure
 
@@ -98,8 +118,17 @@ Tracks file hashes across versions in `manifest.csv` at project root.
 2. **Post-build phase** (`.build_manifest_post()`):
    - Hashes files in output directories (output, docs)
    - Merges with pre-build manifest
-   - Appends to previous manifest versions
-   - Writes to `manifest.csv`
+   - **Writes split manifest** for current version to `_projr/manifest/v{version}.csv`
+   - **Writes consolidated manifest** to `manifest.csv` (all versions, deduplicated)
+
+### Reading Manifests
+
+`.manifest_read_project()` automatically:
+1. Checks for split manifests in `_projr/manifest/`
+2. If found, reads and combines all version files
+3. If not found, falls back to reading `manifest.csv`
+
+This provides automatic backward compatibility with older projects.
 
 ### User-Facing Query Functions
 
@@ -113,6 +142,28 @@ projr_manifest_range("0.0.1", "0.0.5")
 
 # Last changes for current version
 projr_manifest_last_change()
+
+# List all available versions
+projr_manifest_versions()
+
+# Get manifest storage information
+projr_manifest_info()
+```
+
+### Helper Functions for Split Manifests
+
+```r
+# Get storage information
+info <- projr_manifest_info()
+# $versions - character vector of available versions
+# $n_versions - number of versions
+# $split_manifest_exists - logical
+# $consolidated_exists - logical  
+# $split_total_size - total bytes of split files
+# $consolidated_size - bytes of consolidated file
+
+# List versions with split manifests
+versions <- projr_manifest_versions()  # Returns c("v0.0.1", "v0.0.2", ...)
 ```
 
 ---
