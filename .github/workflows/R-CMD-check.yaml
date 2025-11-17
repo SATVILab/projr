@@ -1,44 +1,31 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+name: R-CMD-check
+
 on:
   workflow_dispatch:
-  push:
-    branches: [main, master]
-
-name: R-CMD-check.yaml
+  # push:
+  #  branches: [main, master]
 
 permissions: read-all
 
 jobs:
-  R-CMD-check:
+  R-CMD-check-auto:
     runs-on: ${{ matrix.config.os }}
-    name: ${{ matrix.config.name }} - ${{ matrix.config.os }} (${{ matrix.config.r }})
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
-    # Only run dispatch-only configs on manual dispatch
-    if: ${{ not(matrix.config.dispatch_only) or (github.event_name == 'workflow_dispatch') }}
+    if: github.event_name != 'workflow_dispatch'
 
     strategy:
       fail-fast: false
       matrix:
         config:
-          # Auto check (NOT_CRAN=true, has OSF_PAT, no R_PKG_TEST_LITE)
-          - {os: ubuntu-latest, r: 'release', name: 'Auto check', dispatch_only: false, not_cran: 'true', pkg_test_lite: 'true', has_osf: false}
-          # All OS checks (only on workflow_dispatch, NOT_CRAN=true, has OSF_PAT)
-          - {os: ubuntu-latest,   r: 'release', name: 'All OS check', dispatch_only: true, not_cran: 'true', pkg_test_lite: '', has_osf: false}
-          - {os: windows-latest, r: 'release', name: 'All OS check', dispatch_only: true, not_cran: 'true', pkg_test_lite: '', has_osf: false}
-          - {os: macos-latest,   r: 'release', name: 'All OS check', dispatch_only: true, not_cran: 'true', pkg_test_lite: '', has_osf: false}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release', name: 'All OS check', dispatch_only: true, not_cran: 'true', pkg_test_lite: '', has_osf: false}
-          - {os: ubuntu-latest,   r: 'oldrel-1', name: 'All OS check', dispatch_only: true, not_cran: 'true', pkg_test_lite: '', has_osf: false}
+          - {os: ubuntu-latest, r: 'release'}
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_PAT: ${{ secrets.GH_TOKEN }}
-      # Conditionally set OSF_PAT only for configs that need it
-      OSF_PAT: ${{ matrix.config.has_osf && secrets.OSF_PAT || '' }}
+      OSF_PAT: ${{ secrets.OSF_PAT }}
       R_KEEP_PKG_SOURCE: yes
-      NOT_CRAN: ${{ matrix.config.not_cran }}
-      # Conditionally set R_PKG_TEST_LITE only for CRAN-like check
-      R_PKG_TEST_LITE: ${{ matrix.config.pkg_test_lite }}
+      NOT_CRAN: true
 
     steps:
       - uses: actions/checkout@v4
@@ -63,4 +50,49 @@ jobs:
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
-          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+
+  R-CMD-check-all:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ${{ matrix.config.os }}
+    name: All OS's - ${{ matrix.config.os }} (${{ matrix.config.r }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: ubuntu-latest,   r: 'release'}
+          - {os: windows-latest, r: 'release'}
+          - {os: macos-latest,   r: 'release'}
+          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
+          - {os: ubuntu-latest,   r: 'oldrel-1'}
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PAT: ${{ secrets.GH_TOKEN }}
+      OSF_PAT: ${{ secrets.OSF_PAT }}
+      R_KEEP_PKG_SOURCE: yes
+      NOT_CRAN: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          tinytex: false
+
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
