@@ -25,7 +25,7 @@ jobs:
       GITHUB_PAT: ${{ secrets.GH_TOKEN }}
       OSF_PAT: ${{ secrets.OSF_PAT }}
       R_KEEP_PKG_SOURCE: yes
-      NOT_CRAN: true
+      R_PKG_TEST_LITE: true
 
     steps:
       - uses: actions/checkout@v4
@@ -71,7 +71,6 @@ jobs:
       GITHUB_PAT: ${{ secrets.GH_TOKEN }}
       OSF_PAT: ${{ secrets.OSF_PAT }}
       R_KEEP_PKG_SOURCE: yes
-      NOT_CRAN: true
 
     steps:
       - uses: actions/checkout@v4
