@@ -243,62 +243,106 @@
 
 .manifest_remove_duplicate <- function(manifest) { # nolint: object_length_linter, line_length_linter.
   # Multi-version deduplication strategy:
-  # - For each unique (label, fn, hash), combine all versions into a single row
+  # - For each (label, fn) file, merge CONTIGUOUS versions with same hash
   # - Version column stores semicolon-separated list of versions
-  # - This handles incomplete manifests and efficiently tracks version history
+  # - IMPORTANT: Only merge consecutive occurrences of the same hash
+  # - If hash changes then reverts (A→B→A), keep both A occurrences as separate rows
   #
-  # Example: file.txt hash_A in v1, v2, v3 → single row with versions="v0.0.1;v0.0.2;v0.0.3"
+  # Example 1: file.txt hash_A in v1, v2, v3 → single row with versions="v0.0.1;v0.0.2;v0.0.3"
+  # Example 2: file.txt A→B→A across v1, v2, v3 → THREE rows (A@v1, B@v2, A@v3)
 
   if (nrow(manifest) == 0) {
     return(manifest)
   }
 
-  # Create content key for grouping
-  manifest[["content_key"]] <- paste(
-    manifest[["label"]],
-    manifest[["fn"]],
-    ifelse(is.na(manifest[["hash"]]) | manifest[["hash"]] == "", "", manifest[["hash"]]),
-    sep = ":::"
-  )
-
-  # Split by content key and aggregate versions
-  content_keys <- unique(manifest[["content_key"]])
-  result_list <- list()
-
-  for (i in seq_along(content_keys)) {
-    ckey <- content_keys[i]
-    rows <- manifest[manifest[["content_key"]] == ckey, , drop = FALSE]
-
-    # Parse existing version lists and collect all unique versions
-    all_versions <- character(0)
-    for (j in seq_len(nrow(rows))) {
-      ver_str <- rows[["version"]][j]
-      if (!is.na(ver_str) && nzchar(ver_str)) {
-        # Split by semicolon to handle both single and multi-version entries
-        versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
-        all_versions <- c(all_versions, versions)
+  # First, expand any existing multi-version rows into individual rows
+  expanded_rows <- list()
+  for (i in seq_len(nrow(manifest))) {
+    ver_str <- manifest[["version"]][i]
+    if (!is.na(ver_str) && nzchar(ver_str)) {
+      versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+      for (v in versions) {
+        expanded_rows[[length(expanded_rows) + 1]] <- data.frame(
+          label = manifest[["label"]][i],
+          fn = manifest[["fn"]][i],
+          version = v,
+          hash = manifest[["hash"]][i],
+          stringsAsFactors = FALSE
+        )
       }
     }
-
-    # Remove duplicates and sort versions
-    all_versions <- unique(all_versions)
-    if (length(all_versions) > 0) {
-      # Sort versions properly
-      all_versions <- all_versions[order(package_version(vapply(
-        all_versions, .version_v_rm, character(1), USE.NAMES = FALSE
-      )))]
+  }
+  
+  if (length(expanded_rows) == 0) {
+    return(manifest)
+  }
+  
+  manifest_expanded <- do.call(rbind, expanded_rows)
+  rownames(manifest_expanded) <- NULL
+  
+  # Sort by label, fn, and version
+  manifest_expanded <- manifest_expanded[order(
+    manifest_expanded[["label"]],
+    manifest_expanded[["fn"]],
+    package_version(vapply(manifest_expanded[["version"]], .version_v_rm, character(1), USE.NAMES = FALSE))
+  ), , drop = FALSE]
+  
+  # Group by (label, fn) and merge contiguous same-hash rows
+  file_keys <- unique(paste(manifest_expanded[["label"]], manifest_expanded[["fn"]], sep = ":::"))
+  result_list <- list()
+  
+  for (fkey in file_keys) {
+    # Get all rows for this file
+    file_rows <- manifest_expanded[
+      paste(manifest_expanded[["label"]], manifest_expanded[["fn"]], sep = ":::") == fkey,
+      , drop = FALSE
+    ]
+    
+    if (nrow(file_rows) == 0) next
+    
+    # Merge contiguous rows with same hash
+    current_hash <- file_rows[["hash"]][1]
+    current_versions <- file_rows[["version"]][1]
+    
+    if (nrow(file_rows) > 1) {
+      for (i in 2:nrow(file_rows)) {
+        # Compare hashes, handling NA values
+        hash_i <- file_rows[["hash"]][i]
+        hash_matches <- (!is.na(current_hash) && !is.na(hash_i) && current_hash == hash_i) ||
+                        (is.na(current_hash) && is.na(hash_i))
+        
+        if (hash_matches) {
+          # Same hash - add version to current group
+          current_versions <- c(current_versions, file_rows[["version"]][i])
+        } else {
+          # Hash changed - save current group and start new one
+          result_list[[length(result_list) + 1]] <- data.frame(
+            label = file_rows[["label"]][1],
+            fn = file_rows[["fn"]][1],
+            version = paste(current_versions, collapse = ";"),
+            hash = current_hash,
+            stringsAsFactors = FALSE
+          )
+          current_hash <- file_rows[["hash"]][i]
+          current_versions <- file_rows[["version"]][i]
+        }
+      }
     }
-
-    # Create single row with combined versions
-    result_list[[i]] <- data.frame(
-      label = rows[["label"]][1],
-      fn = rows[["fn"]][1],
-      version = paste(all_versions, collapse = ";"),
-      hash = rows[["hash"]][1],
+    
+    # Don't forget the last group (or the only group if nrow == 1)
+    result_list[[length(result_list) + 1]] <- data.frame(
+      label = file_rows[["label"]][1],
+      fn = file_rows[["fn"]][1],
+      version = paste(current_versions, collapse = ";"),
+      hash = current_hash,
       stringsAsFactors = FALSE
     )
   }
-
+  
+  if (length(result_list) == 0) {
+    return(.zero_tbl_get_manifest())
+  }
+  
   manifest <- do.call(rbind, result_list)
   rownames(manifest) <- NULL
   manifest
