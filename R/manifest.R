@@ -147,17 +147,42 @@
 .manifest_read_project_impl <- function() {
   # Check if split manifest directory exists
   split_dir <- .manifest_split_get_dir()
+  consolidated_path <- .path_get("manifest.csv")
 
+  # Read split manifests if they exist
+  manifest_split <- .zero_tbl_get_manifest()
   if (dir.exists(split_dir)) {
-    # Read all split manifest files
     manifest_split <- .manifest_split_read_all()
-    if (nrow(manifest_split) > 0) {
-      return(manifest_split)
-    }
   }
 
-  # Fall back to reading consolidated manifest.csv
-  .manifest_read(.path_get("manifest.csv"))
+  # Read consolidated manifest if it exists
+  manifest_consolidated <- .zero_tbl_get_manifest()
+  if (file.exists(consolidated_path)) {
+    manifest_consolidated <- .manifest_read(consolidated_path)
+  }
+
+  # If we have split manifests, merge with consolidated to preserve
+  # historical versions during migration period
+  if (nrow(manifest_split) > 0 && nrow(manifest_consolidated) > 0) {
+    # Merge both sources and remove duplicates
+    # Split manifests take precedence for versions they contain
+    manifest_merged <- rbind(manifest_consolidated, manifest_split) |>
+      .manifest_remove_duplicate()
+    return(manifest_merged)
+  }
+
+  # If only split manifests exist, return them
+  if (nrow(manifest_split) > 0) {
+    return(manifest_split)
+  }
+
+  # If only consolidated exists, return it
+  if (nrow(manifest_consolidated) > 0) {
+    return(manifest_consolidated)
+  }
+
+  # No manifests exist
+  .zero_tbl_get_manifest()
 }
 
 # Get the directory path for split manifests

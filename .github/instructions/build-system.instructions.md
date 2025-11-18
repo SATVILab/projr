@@ -123,12 +123,20 @@ Each version gets its own manifest file in `_projr/manifest/`:
 
 ### Reading Manifests
 
-`.manifest_read_project()` automatically:
-1. Checks for split manifests in `_projr/manifest/`
-2. If found, reads and combines all version files
-3. If not found, falls back to reading `manifest.csv`
+`.manifest_read_project()` provides seamless migration from consolidated to split storage:
 
-This provides automatic backward compatibility with older projects.
+1. Reads split manifests from `_projr/manifest/` if they exist
+2. Reads consolidated `manifest.csv` if it exists
+3. **Merges both sources** during migration period to preserve all historical versions
+4. Once all versions have split files, only split manifests are used
+
+This ensures backward compatibility and prevents loss of historical data during the upgrade process.
+
+**Migration behavior:**
+- Old projects with only `manifest.csv`: Reads from consolidated file
+- First build after upgrade: Creates split file for new version, merges with historical data from consolidated
+- Subsequent builds: Each adds a new split file, continues merging with consolidated
+- Eventually: All versions have split files, system primarily uses split storage
 
 ### User-Facing Query Functions
 
