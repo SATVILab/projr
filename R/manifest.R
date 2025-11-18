@@ -69,7 +69,7 @@
   }
 
   target_version <- .version_v_add(version)
-  target_version_pkg <- package_version(.version_v_rm(target_version))
+  target_version_pkg <- .version_to_package_version(target_version)
 
   # Check each row to see if target version is in the version list
   keep_rows <- logical(nrow(manifest))
@@ -88,7 +88,7 @@
     # Keep the row if target version exists in list OR if latest version <= target
     has_match <- FALSE
     for (v in versions) {
-      v_pkg <- package_version(.version_v_rm(v))
+      v_pkg <- .version_to_package_version(v)
       if (v_pkg <= target_version_pkg) {
         has_match <- TRUE
         break
@@ -132,7 +132,7 @@
         # Find the highest version in this row's list that is <= target
         matching_versions <- character(0)
         for (v in versions) {
-          v_pkg <- package_version(.version_v_rm(v))
+          v_pkg <- .version_to_package_version(v)
           if (v_pkg <= target_version_pkg) {
             matching_versions <- c(matching_versions, v)
           }
@@ -141,13 +141,13 @@
         if (length(matching_versions) > 0) {
           # Sort and get highest
           matching_versions <- matching_versions[order(
-            package_version(vapply(matching_versions, .version_v_rm, character(1), USE.NAMES = FALSE)),
+            package_version(vapply(matching_versions, function(v) as.character(.version_to_package_version(v)), character(1), USE.NAMES = FALSE)),
             decreasing = TRUE
           )]
           row_best_version <- matching_versions[1]
           
           if (is.null(best_version) || 
-              package_version(.version_v_rm(row_best_version)) > package_version(.version_v_rm(best_version))) {
+              .version_to_package_version(row_best_version) > .version_to_package_version(best_version)) {
             best_version <- row_best_version
             best_row <- rows[j, c("label", "fn", "version", "hash"), drop = FALSE]
           }
@@ -284,7 +284,7 @@
   manifest_expanded <- manifest_expanded[order(
     manifest_expanded[["label"]],
     manifest_expanded[["fn"]],
-    package_version(vapply(manifest_expanded[["version"]], .version_v_rm, character(1), USE.NAMES = FALSE))
+    package_version(vapply(manifest_expanded[["version"]], function(v) as.character(.version_to_package_version(v)), character(1), USE.NAMES = FALSE))
   ), , drop = FALSE]
   
   # Group by (label, fn) and merge contiguous same-hash rows
@@ -479,8 +479,7 @@
                                                  version_comp) {
   # begin with latest version (most conservative)
   version_earliest_match <- projr_version_get() |>
-    .version_v_rm() |>
-    package_version()
+    .version_to_package_version()
   # get lowest version available, if version_comp not provided
   version_comp <-
     .manifest_get_version_earliest_match_get_version_comp(version_comp)
@@ -498,10 +497,10 @@
   }
 
   version_vec <- version_raw |>
-    vapply(.version_v_rm, character(1), USE.NAMES = FALSE) |>
+    vapply(function(v) as.character(.version_to_package_version(v)), character(1), USE.NAMES = FALSE) |>
     package_version() |>
     sort()
-  version_vec <- version_vec[version_vec >= package_version(version_comp)]
+  version_vec <- version_vec[version_vec >= .version_to_package_version(version_comp)]
   if (.is_len_0(version_vec)) {
     return(version_earliest_match)
   }

@@ -417,13 +417,45 @@ projr_version_get <- function() {
     stop("No valid versions found")
   }
   
-  # Apply .version_v_rm to each element
-  x_clean <- vapply(all_versions, .version_v_rm, character(1), USE.NAMES = FALSE)
-  x_clean |>
+  # Apply .version_to_package_version to each element
+  vers_pkg <- vapply(all_versions, function(v) as.character(.version_to_package_version(v)), character(1), USE.NAMES = FALSE)
+  vers_pkg |>
     unique() |>
     package_version() |>
     min() |>
     utils::tail(1)
+}
+
+.version_to_package_version <- function(version) {
+  # Convert projr version (with dev suffix) to package_version compatible format
+  # Handles versions like "v0.0.1-dev", "v0.0.1-1", "0.0.1-dev" etc.
+  # Converts dev components to numeric for comparison
+  # Examples: "0.0.1-dev" -> "0.0.1.9000", "0.0.1-1" -> "0.0.1.1"
+  
+  .assert_string(version, required = TRUE)
+  
+  # Remove leading "v" if present
+  version_clean <- .version_v_rm(version)
+  
+  # Check if there's a dev component
+  if (grepl("-", version_clean)) {
+    parts <- strsplit(version_clean, "-", fixed = TRUE)[[1]]
+    base_version <- parts[1]
+    dev_part <- parts[2]
+    
+    # Convert dev suffix to numeric
+    if (dev_part == "dev") {
+      # Convert "-dev" to ".9000" (R convention for development versions)
+      version_numeric <- paste0(base_version, ".9000")
+    } else {
+      # Convert "-N" to ".N"
+      version_numeric <- paste0(base_version, ".", dev_part)
+    }
+  } else {
+    version_numeric <- version_clean
+  }
+  
+  package_version(version_numeric)
 }
 
 .version_append <- function(path) {
@@ -453,9 +485,9 @@ projr_version_get <- function() {
     stop("No valid versions found")
   }
   
-  # Apply .version_v_rm to each element
-  x_clean <- vapply(all_versions, .version_v_rm, character(1), USE.NAMES = FALSE)
-  x_clean |>
+  # Apply .version_to_package_version to each element
+  vers_pkg <- vapply(all_versions, function(v) as.character(.version_to_package_version(v)), character(1), USE.NAMES = FALSE)
+  vers_pkg |>
     unique() |>
     package_version() |>
     max() |>
