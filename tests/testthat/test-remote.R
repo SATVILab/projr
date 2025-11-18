@@ -476,8 +476,7 @@ test_that(".remote_file_rm_all works - remote", {
         path_zip = path_zip,
         tag = id,
         output_level = "debug",
-        log_file = NULL,
-        max_time = 300
+        log_file = NULL
       )
       repo <- .pb_guess_repo()
       content_tbl_pre_delete <- piggyback::pb_list(
