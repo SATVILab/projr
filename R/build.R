@@ -289,7 +289,7 @@ projr_build_dev <- function(file = NULL,
     }
 
     version_run_on_list <- .build_pre(
-      bump_component, msg, clear_output, archive_local, output_level, log_file
+      bump_component, msg, clear_output, archive_github, archive_local, output_level, log_file
     )
 
     # Build stage
@@ -346,6 +346,7 @@ projr_build_dev <- function(file = NULL,
 .build_pre <- function(bump_component,
                        msg,
                        clear_output,
+                       archive_github,
                        archive_local,
                        output_level = "std",
                        log_file = NULL) {
@@ -362,6 +363,16 @@ projr_build_dev <- function(file = NULL,
   # and that we have Git and  Git remote setup
   .cli_step("Checking prerequisites (Git, GitHub, upstream)", output_level = output_level, log_file = log_file)
   .build_pre_check(output_run, output_level, log_file)
+
+  # Prepare remote destinations (GitHub releases)
+  .cli_step("Preparing remote destinations", output_level = output_level, log_file = log_file)
+  .build_pre_prepare_remotes(
+    bump_component = bump_component,
+    archive_github = archive_github,
+    archive_local = archive_local,
+    output_level = output_level,
+    log_file = log_file
+  )
 
   # update reng, ignore files, doc directory and version
   .cli_step("Updating documentation and version information", output_level = output_level, log_file = log_file)
@@ -593,6 +604,14 @@ projr_build_dev <- function(file = NULL,
                                   output_level = "std",
                                   log_file = NULL) {
   .cli_debug("Sending to remote destinations", output_level = output_level, log_file = log_file)
+
+  # Lenient: prepare all required GitHub releases for this build (non-blocking)
+  .dest_prepare_github_releases(
+    bump_component, archive_github, archive_local,
+    strict = FALSE,
+    output_level, log_file
+  )
+
   .dest_send(
     bump_component, archive_github, archive_local, always_archive,
     output_level, log_file

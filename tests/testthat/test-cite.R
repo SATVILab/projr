@@ -13,44 +13,44 @@ test_that("projr_yml_cite_ functions work works", {
         .yml_cite_get("default"),
         NULL
       )
-      # set one to FALSE
-      projr_yml_cite_set(cff = FALSE)
+      # set one to TRUE
+      projr_yml_cite_set(cff = TRUE)
       expect_identical(
         .yml_cite_get("default"),
-        list(cff = FALSE)
+        list(cff = TRUE)
       )
-      # set two to FALSE
-      projr_yml_cite_set(codemeta = FALSE)
+      # set two to TRUE
+      projr_yml_cite_set(codemeta = TRUE)
       expect_identical(
         .yml_cite_get("default"),
-        list(codemeta = FALSE, cff = FALSE)
+        list(codemeta = TRUE, cff = TRUE)
       )
-      # set three to FALSE, no simplify identical
-      projr_yml_cite_set(inst_citation = FALSE, simplify_identical = FALSE)
+      # set three to TRUE, no simplify identical
+      projr_yml_cite_set(inst_citation = TRUE, simplify_identical = FALSE)
       expect_identical(
         .yml_cite_get("default"),
-        list(codemeta = FALSE, cff = FALSE, `inst-citation` = FALSE)
+        list(codemeta = TRUE, cff = TRUE, `inst-citation` = TRUE)
       )
-      # set three to FALSE, simplify identical
-      projr_yml_cite_set(inst_citation = FALSE)
-      expect_identical(
-        .yml_cite_get("default"),
-        FALSE
-      )
-      # set three to TRUE, no simplify default
-      projr_yml_cite_set(all = TRUE, simplify_default = FALSE)
+      # set three to TRUE, simplify identical
+      projr_yml_cite_set(inst_citation = TRUE)
       expect_identical(
         .yml_cite_get("default"),
         TRUE
       )
-      # set three to TRUE, simplify default
-      projr_yml_cite_set(all = TRUE)
+      # set three to FALSE, no simplify default
+      projr_yml_cite_set(all = FALSE, simplify_default = FALSE)
+      expect_identical(
+        .yml_cite_get("default"),
+        FALSE
+      )
+      # set three to FALSE, simplify default
+      projr_yml_cite_set(all = FALSE)
       expect_identical(
         .yml_cite_get("default"),
         NULL
       )
       # use meaningful default
-      projr_yml_cite_set(cff = FALSE)
+      projr_yml_cite_set(cff = TRUE)
       projr_yml_cite_set_default()
       expect_identical(
         .yml_cite_get("default"),

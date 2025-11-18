@@ -156,6 +156,7 @@ Tests that create, delete, or modify GitHub repositories (not SATVILab/projr) mu
 
 1. Check that a token is detectable via `.auth_get_github_pat_find()`
 2. Check that this token is NOT the same as `GITHUB_TOKEN` (to prevent using CI tokens with limited permissions)
+3. Verify that `gh::gh_whoami()` can successfully retrieve the username (prevents malformed GitHub URLs)
 
 Use the helper wrapper `.test_skip_if_cannot_modify_github()`:
 
@@ -171,7 +172,10 @@ test_that("creates and deletes GitHub repo", {
 })
 ```
 
-This ensures tests that modify GitHub repositories only run when a user-specific token (not GITHUB_TOKEN) is available.
+This ensures tests that modify GitHub repositories only run when:
+- A user-specific token (not GITHUB_TOKEN) is available
+- The `gh` package can successfully retrieve the username
+- This prevents tests from attempting to run with invalid credentials that would result in malformed GitHub URLs
 
 ---
 

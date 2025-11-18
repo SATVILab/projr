@@ -499,7 +499,7 @@ projr_osf_create_project <- function(title,
                                     path_append_label,
                                     label,
                                     structure,
-                                    version,
+                                    version = NULL,
                                     pre) {
   .assert_string(path, TRUE)
   .assert_path_not_file(path)
@@ -542,7 +542,7 @@ projr_osf_create_project <- function(title,
                                   path_append_label,
                                   label,
                                   structure,
-                                  version,
+                                  version = NULL,
                                   pre = NULL) {
   .assert_nchar_single(id, 5L, TRUE)
   .assert_string(path)
@@ -591,17 +591,19 @@ projr_osf_create_project <- function(title,
                                      path_append_label,
                                      label,
                                      structure,
-                                     version,
+                                     version = NULL,
                                      pre) {
   .assert_string(id, TRUE)
   .assert_in(label, .opt_dir_get_label_send(NULL), TRUE)
   tag <- .remote_misc_get_github_tag(id)
-  if (!pre) {
-    .remote_create_github(tag = tag)
-  }
+
+  # For pre=TRUE, just return tag
   if (pre) {
     return(c("tag" = id))
   }
+
+  # Note: GitHub release preparation now happens in .build_pre_prepare_remotes()
+  # via .dest_prepare_github_releases(), so we don't need to register here.
 
   fn <- .remote_get_path_rel(
     type = "github",
@@ -2426,19 +2428,22 @@ projr_osf_create_project <- function(title,
     return(invisible(FALSE))
   }
   tag <- .pb_tag_format(remote[["tag"]])
-  release_tbl <- .pb_release_tbl_get(
-    output_level = output_level,
-    log_file = log_file
-  )
-  if (!tag %in% release_tbl[["release_name"]]) {
-    .remote_create("github", id = tag, output_level = output_level, log_file = log_file)
-    Sys.sleep(3)
+
+  # Just check that the release exists
+  if (!.remote_check_exists("github", tag)) {
+    stop(paste0(
+      "GitHub release '", tag, "' does not exist. ",
+      "This should have been created during the preparation phase. ",
+      "Please rerun the build or report this issue if it persists."
+    ))
   }
+
   # if only needing code uploaded, then it's done already
   # by creating the release
   if (length(path_zip) == 0L && label == "code") {
     return(invisible(TRUE))
   }
+
   .remote_file_add_github_zip(
     path_zip = path_zip,
     tag = tag,
