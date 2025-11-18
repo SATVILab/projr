@@ -1,6 +1,47 @@
 # send to all remotes when they're the destination
 # --------------------------
 
+# Prepare GitHub releases before sending to destinations
+.dest_prepare_github_releases <- function(bump_component,
+                                          archive_github,
+                                          archive_local,
+                                          output_level = "std",
+                                          log_file = NULL) {
+  # Early exit if not an output build
+  if (!.dest_send_check(bump_component)) {
+    return(invisible(FALSE))
+  }
+
+  # Check if GitHub is one of the destination types
+  type_vec <- .dest_send_get_type(archive_github, archive_local)
+
+  if (!"github" %in% type_vec) {
+    .cli_debug(
+      "GitHub release preparation: Skipped (no GitHub destinations)",
+      output_level = output_level,
+      log_file = log_file
+    )
+    return(invisible(FALSE))
+  }
+
+  .cli_debug(
+    "GitHub release preparation: Starting preparation phase",
+    output_level = output_level,
+    log_file = log_file
+  )
+
+  # Prepare all required GitHub releases
+  .gh_release_prepare_all(output_level, log_file)
+
+  .cli_debug(
+    "GitHub release preparation: Completed successfully",
+    output_level = output_level,
+    log_file = log_file
+  )
+
+  invisible(TRUE)
+}
+
 .dest_send <- function(bump_component,
                        archive_github,
                        archive_local,

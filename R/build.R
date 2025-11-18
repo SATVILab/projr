@@ -254,6 +254,10 @@ projr_build_dev <- function(file = NULL,
   .build_ensure_version()
   clear_output <- .build_get_clear_output(clear_output)
 
+  # Initialize GitHub release state for this build
+  .gh_release_state_init()
+  on.exit(.gh_release_state_clear(), add = TRUE)
+
   # Determine output_run and get appropriate output level
   output_run <- .build_get_output_run(bump_component)
   output_level <- .cli_output_level_get(output_level, output_run)
@@ -593,6 +597,13 @@ projr_build_dev <- function(file = NULL,
                                   output_level = "std",
                                   log_file = NULL) {
   .cli_debug("Sending to remote destinations", output_level = output_level, log_file = log_file)
+
+  # New: prepare all required GitHub releases for this build
+  .dest_prepare_github_releases(
+    bump_component, archive_github, archive_local,
+    output_level, log_file
+  )
+
   .dest_send(
     bump_component, archive_github, archive_local, always_archive,
     output_level, log_file
