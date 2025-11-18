@@ -126,17 +126,13 @@
   # Create removal entries (empty hash to indicate removal)
   removal_indices <- which(previous_keys %in% removed_keys)
 
-  # Get unique removed files (latest version of each)
+  # Get unique removed files (one entry per file)
   removed_files <- manifest_previous_filtered[removal_indices, , drop = FALSE]
   removed_files[["file_key"]] <- paste(removed_files[["label"]],
                                        removed_files[["fn"]],
                                        sep = ":::")
 
-  # Sort and keep only most recent version of each file
-  removed_files <- removed_files[order(
-    package_version(vapply(removed_files[["version"]], .version_v_rm, character(1), USE.NAMES = FALSE)),
-    decreasing = TRUE
-  ), , drop = FALSE]
+  # Keep only one entry per file (deduplicate by file_key)
   removed_files <- removed_files[!duplicated(removed_files[["file_key"]]), , drop = FALSE]
   removed_files[["file_key"]] <- NULL
 

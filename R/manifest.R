@@ -1,6 +1,23 @@
 # hashing
 # ---------------------------
 
+# Helper to extract all unique versions from manifest with multi-version rows
+.manifest_get_all_versions <- function(manifest) {
+  if (nrow(manifest) == 0) {
+    return(character(0))
+  }
+  
+  all_versions <- character(0)
+  for (ver_str in manifest[["version"]]) {
+    if (!is.na(ver_str) && nzchar(ver_str)) {
+      versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+      all_versions <- c(all_versions, versions)
+    }
+  }
+  
+  unique(all_versions)
+}
+
 .manifest_hash_label <- function(label,
                                  output_run) {
   # output is always in safe directory
@@ -43,9 +60,8 @@
 }
 
 .manifest_filter_version <- function(manifest, version) {
-  # With optimized manifest, we need to find files "active" at this version
-  # This means: most recent entry with version <= target version
-  # for each unique (label, fn) combination
+  # With multi-version manifest, check if target version is in version list
+  # Returns files where the target version appears in the semicolon-separated version list
   # Entries with empty hash indicate file removal (tombstones)
 
   if (nrow(manifest) == 0) {
@@ -55,33 +71,97 @@
   target_version <- .version_v_add(version)
   target_version_pkg <- package_version(.version_v_rm(target_version))
 
-  # Filter to entries at or before the target version
-  manifest_filtered <- manifest[
-    package_version(vapply(manifest[["version"]], .version_v_rm, character(1), USE.NAMES = FALSE)) <= target_version_pkg,
-    , drop = FALSE
-  ]
+  # Check each row to see if target version is in the version list
+  keep_rows <- logical(nrow(manifest))
+  
+  for (i in seq_len(nrow(manifest))) {
+    ver_str <- manifest[["version"]][i]
+    if (is.na(ver_str) || ver_str == "") {
+      keep_rows[i] <- FALSE
+      next
+    }
+    
+    # Split version list
+    versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+    
+    # Check if any version in list is <= target_version
+    # Keep the row if target version exists in list OR if latest version <= target
+    has_match <- FALSE
+    for (v in versions) {
+      v_pkg <- package_version(.version_v_rm(v))
+      if (v_pkg <= target_version_pkg) {
+        has_match <- TRUE
+        break
+      }
+    }
+    keep_rows[i] <- has_match
+  }
+
+  manifest_filtered <- manifest[keep_rows, , drop = FALSE]
 
   if (nrow(manifest_filtered) == 0) {
     return(.zero_tbl_get_manifest())
   }
 
-  # For each unique (label, fn), keep only the most recent entry
-  manifest_filtered[["file_key"]] <- paste(manifest_filtered[["label"]],
-                                           manifest_filtered[["fn"]],
-                                           sep = ":::")
-
-  # Sort by version (descending) to get most recent first
-  version_order <- order(
-    package_version(vapply(manifest_filtered[["version"]], .version_v_rm, character(1), USE.NAMES = FALSE)),
-    decreasing = TRUE
+  # For files with multiple hash states, keep only the most recent one <= target version
+  # Group by (label, fn) and select the appropriate hash
+  manifest_filtered[["file_key"]] <- paste(
+    manifest_filtered[["label"]],
+    manifest_filtered[["fn"]],
+    sep = ":::"
   )
-  manifest_filtered <- manifest_filtered[version_order, , drop = FALSE]
 
-  # Keep first occurrence (most recent) of each file_key
-  manifest_filtered <- manifest_filtered[!duplicated(manifest_filtered[["file_key"]]), , drop = FALSE]
+  file_keys <- unique(manifest_filtered[["file_key"]])
+  result_list <- list()
 
-  # Remove temporary column
-  manifest_filtered[["file_key"]] <- NULL
+  for (i in seq_along(file_keys)) {
+    fkey <- file_keys[i]
+    rows <- manifest_filtered[manifest_filtered[["file_key"]] == fkey, , drop = FALSE]
+
+    if (nrow(rows) == 1) {
+      result_list[[i]] <- rows[1, c("label", "fn", "version", "hash"), drop = FALSE]
+    } else {
+      # Multiple hash states for this file - find the most recent one <= target
+      best_row <- NULL
+      best_version <- NULL
+
+      for (j in seq_len(nrow(rows))) {
+        ver_str <- rows[["version"]][j]
+        versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+        
+        # Find the highest version in this row's list that is <= target
+        matching_versions <- character(0)
+        for (v in versions) {
+          v_pkg <- package_version(.version_v_rm(v))
+          if (v_pkg <= target_version_pkg) {
+            matching_versions <- c(matching_versions, v)
+          }
+        }
+        
+        if (length(matching_versions) > 0) {
+          # Sort and get highest
+          matching_versions <- matching_versions[order(
+            package_version(vapply(matching_versions, .version_v_rm, character(1), USE.NAMES = FALSE)),
+            decreasing = TRUE
+          )]
+          row_best_version <- matching_versions[1]
+          
+          if (is.null(best_version) || 
+              package_version(.version_v_rm(row_best_version)) > package_version(.version_v_rm(best_version))) {
+            best_version <- row_best_version
+            best_row <- rows[j, c("label", "fn", "version", "hash"), drop = FALSE]
+          }
+        }
+      }
+
+      if (!is.null(best_row)) {
+        result_list[[i]] <- best_row
+      }
+    }
+  }
+
+  manifest_filtered <- do.call(rbind, result_list)
+  rownames(manifest_filtered) <- NULL
 
   # Filter out tombstone entries (removed files have empty hash)
   manifest_filtered <- manifest_filtered[
@@ -149,64 +229,64 @@
 }
 
 .manifest_remove_duplicate <- function(manifest) { # nolint: object_length_linter, line_length_linter.
-  # Optimized deduplication strategy:
-  # - For each (label, fn) file, keep entries where hash changes from previous version
-  # - This correctly handles reversions (A→B→A keeps all 3 entries)
-  # - Removes redundant entries when hash unchanged across versions
+  # Multi-version deduplication strategy:
+  # - For each unique (label, fn, hash), combine all versions into a single row
+  # - Version column stores semicolon-separated list of versions
+  # - This handles incomplete manifests and efficiently tracks version history
   #
-  # Example 1 (no changes): hash A @ v1, v2, v3 → keep only v1 entry
-  # Example 2 (reversion): hash A @ v1, hash B @ v2, hash A @ v3 → keep all 3
-  # Example 3 (modification): hash A @ v1, hash B @ v2, hash B @ v3 → keep v1, v2
+  # Example: file.txt hash_A in v1, v2, v3 → single row with versions="v0.0.1;v0.0.2;v0.0.3"
 
   if (nrow(manifest) == 0) {
     return(manifest)
   }
 
-  # Sort by file and version
-  manifest <- manifest[order(
+  # Create content key for grouping
+  manifest[["content_key"]] <- paste(
     manifest[["label"]],
     manifest[["fn"]],
-    package_version(vapply(manifest[["version"]], .version_v_rm, character(1), USE.NAMES = FALSE))
-  ), , drop = FALSE]
+    ifelse(is.na(manifest[["hash"]]) | manifest[["hash"]] == "", "", manifest[["hash"]]),
+    sep = ":::"
+  )
 
-  # For each unique (label, fn), keep entries where hash changes from previous
-  manifest[["file_key"]] <- paste(manifest[["label"]], manifest[["fn"]], sep = ":::")
+  # Split by content key and aggregate versions
+  content_keys <- unique(manifest[["content_key"]])
+  result_list <- list()
 
-  keep_indices <- c()
-  file_keys <- unique(manifest[["file_key"]])
+  for (i in seq_along(content_keys)) {
+    ckey <- content_keys[i]
+    rows <- manifest[manifest[["content_key"]] == ckey, , drop = FALSE]
 
-  for (fkey in file_keys) {
-    file_rows <- which(manifest[["file_key"]] == fkey)
-
-    if (length(file_rows) == 1) {
-      # Single entry - always keep
-      keep_indices <- c(keep_indices, file_rows[1])
-    } else {
-      # Multiple entries - keep first and any where hash changes from immediate previous
-      keep_indices <- c(keep_indices, file_rows[1])  # Always keep first
-
-      for (i in 2:length(file_rows)) {
-        curr_idx <- file_rows[i]
-        prev_idx <- file_rows[i - 1]
-
-        curr_hash <- manifest[["hash"]][curr_idx]
-        prev_hash <- manifest[["hash"]][prev_idx]
-
-        # Normalize NA and empty as equivalent
-        if (is.na(curr_hash)) curr_hash <- ""
-        if (is.na(prev_hash)) prev_hash <- ""
-
-        # Keep if hash changed from immediate previous version
-        if (curr_hash != prev_hash) {
-          keep_indices <- c(keep_indices, curr_idx)
-        }
+    # Parse existing version lists and collect all unique versions
+    all_versions <- character(0)
+    for (j in seq_len(nrow(rows))) {
+      ver_str <- rows[["version"]][j]
+      if (!is.na(ver_str) && nzchar(ver_str)) {
+        # Split by semicolon to handle both single and multi-version entries
+        versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+        all_versions <- c(all_versions, versions)
       }
     }
+
+    # Remove duplicates and sort versions
+    all_versions <- unique(all_versions)
+    if (length(all_versions) > 0) {
+      # Sort versions properly
+      all_versions <- all_versions[order(package_version(vapply(
+        all_versions, .version_v_rm, character(1), USE.NAMES = FALSE
+      )))]
+    }
+
+    # Create single row with combined versions
+    result_list[[i]] <- data.frame(
+      label = rows[["label"]][1],
+      fn = rows[["fn"]][1],
+      version = paste(all_versions, collapse = ";"),
+      hash = rows[["hash"]][1],
+      stringsAsFactors = FALSE
+    )
   }
 
-  manifest <- manifest[keep_indices, , drop = FALSE]
-  manifest[["file_key"]] <- NULL
-
+  manifest <- do.call(rbind, result_list)
   rownames(manifest) <- NULL
   manifest
 }

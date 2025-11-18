@@ -140,9 +140,9 @@ projr_manifest_range <- function(version_start = NULL,
     manifest <- manifest[manifest$label == label, , drop = FALSE]
   }
 
-  # Filter by version range
-  versions <- unique(manifest$version)
-  versions_sorted <- sort(package_version(vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE)))
+  # Filter by version range - extract all unique versions from multi-version rows
+  all_versions <- .manifest_get_all_versions(manifest)
+  versions_sorted <- sort(package_version(vapply(all_versions, .version_v_rm, character(1), USE.NAMES = FALSE)))
   version_start_pkg <- package_version(.version_v_rm(version_start))
   version_end_pkg <- package_version(.version_v_rm(version_end))
 
@@ -151,7 +151,16 @@ projr_manifest_range <- function(version_start = NULL,
   ]
   versions_in_range <- paste0("v", as.character(versions_in_range))
 
-  manifest_range <- manifest[manifest$version %in% versions_in_range, , drop = FALSE]
+  # Filter manifest rows that contain any version in range
+  keep_rows <- logical(nrow(manifest))
+  for (i in seq_len(nrow(manifest))) {
+    ver_str <- manifest[["version"]][i]
+    if (!is.na(ver_str) && nzchar(ver_str)) {
+      row_versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+      keep_rows[i] <- any(row_versions %in% versions_in_range)
+    }
+  }
+  manifest_range <- manifest[keep_rows, , drop = FALSE]
 
   # For each unique file (label + fn), find first and last change
   .manifest_query_summarize_range(manifest_range)
@@ -205,8 +214,8 @@ projr_manifest_last_change <- function(version = NULL) {
   )
 
   # Get all versions up to and including the target version
-  versions <- unique(manifest$version)
-  versions_sorted <- sort(package_version(vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE)))
+  all_versions <- .manifest_get_all_versions(manifest)
+  versions_sorted <- sort(package_version(vapply(all_versions, .version_v_rm, character(1), USE.NAMES = FALSE)))
   version_pkg <- package_version(.version_v_rm(version))
 
   versions_up_to <- versions_sorted[versions_sorted <= version_pkg]
@@ -227,21 +236,30 @@ projr_manifest_last_change <- function(version = NULL) {
     return(manifest)
   }
 
-  # Get all unique versions and compare them properly
-  versions <- unique(manifest$version)
+  # Get all unique versions from multi-version rows and compare them properly
+  all_versions <- .manifest_get_all_versions(manifest)
   version_end_pkg <- package_version(.version_v_rm(version_end))
 
   # Filter versions that are <= version_end
-  # Keep the original version strings for filtering the manifest
   versions_to_keep <- character(0)
-  for (v in versions) {
+  for (v in all_versions) {
     v_pkg <- package_version(.version_v_rm(v))
     if (v_pkg <= version_end_pkg) {
       versions_to_keep <- c(versions_to_keep, v)
     }
   }
 
-  manifest[manifest$version %in% versions_to_keep, , drop = FALSE]
+  # Keep rows that contain any of the versions to keep
+  keep_rows <- logical(nrow(manifest))
+  for (i in seq_len(nrow(manifest))) {
+    ver_str <- manifest[["version"]][i]
+    if (!is.na(ver_str) && nzchar(ver_str)) {
+      row_versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+      keep_rows[i] <- any(row_versions %in% versions_to_keep)
+    }
+  }
+
+  manifest[keep_rows, , drop = FALSE]
 }
 
 
@@ -249,12 +267,12 @@ projr_manifest_last_change <- function(version = NULL) {
                                               manifest,
                                               use_earliest = TRUE) {
   if (is.null(version)) {
-    versions <- unique(manifest$version)
-    if (length(versions) == 0) {
+    all_versions <- .manifest_get_all_versions(manifest)
+    if (length(all_versions) == 0) {
       # If no versions available, use current project version
       return(paste0("v", projr_version_get()))
     }
-    versions_pkg <- package_version(vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE))
+    versions_pkg <- package_version(vapply(all_versions, .version_v_rm, character(1), USE.NAMES = FALSE))
     if (use_earliest) {
       version <- min(versions_pkg)
     } else {
@@ -343,19 +361,35 @@ projr_manifest_last_change <- function(version = NULL) {
 
   result_list <- lapply(keys, function(k) {
     file_history <- manifest_range[manifest_range$key == k, , drop = FALSE]
-    file_history <- file_history[order(package_version(vapply(file_history$version, .version_v_rm, character(1), USE.NAMES = FALSE))), , drop = FALSE]
+    
+    # With multi-version rows, extract version info differently
+    # Each row represents a different hash state
+    # Sort by the earliest version in each row's version list
+    earliest_versions <- vapply(file_history$version, function(ver_str) {
+      versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+      if (length(versions) == 0) return("v0.0.0")
+      versions_sorted <- versions[order(package_version(vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE)))]
+      versions_sorted[1]
+    }, character(1))
+    
+    file_history <- file_history[order(package_version(vapply(earliest_versions, .version_v_rm, character(1), USE.NAMES = FALSE))), , drop = FALSE]
 
-    # Find when hash last changed
+    # Find when hash last changed - it's the last row
     hashes <- file_history$hash
-    versions <- file_history$version
-
-    # Last change is the most recent version (assuming manifest only adds new entries when hash changes)
-    version_last_change <- versions[length(versions)]
+    
+    # For version_first and version_last_change, extract from version lists
+    first_row_versions <- strsplit(file_history$version[1], ";", fixed = TRUE)[[1]]
+    first_row_versions_sorted <- first_row_versions[order(package_version(vapply(first_row_versions, .version_v_rm, character(1), USE.NAMES = FALSE)))]
+    version_first <- first_row_versions_sorted[1]
+    
+    last_row_versions <- strsplit(file_history$version[nrow(file_history)], ";", fixed = TRUE)[[1]]
+    last_row_versions_sorted <- last_row_versions[order(package_version(vapply(last_row_versions, .version_v_rm, character(1), USE.NAMES = FALSE)), decreasing = TRUE)]
+    version_last_change <- last_row_versions_sorted[1]
 
     data.frame(
       label = file_history$label[1],
       fn = file_history$fn[1],
-      version_first = versions[1],
+      version_first = version_first,
       version_last_change = version_last_change,
       hash = hashes[length(hashes)],
       stringsAsFactors = FALSE
