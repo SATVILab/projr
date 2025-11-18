@@ -585,7 +585,7 @@ test_that("projr_restore works with GitHub release source", {
 
       # Clear local data
       unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
-      dir.create(projr_path_get_dir("raw-data", safe = FALSE))
+      dir.create(projr_path_get_dir("raw-data", safe = FALSE), showWarnings = FALSE)
 
       # Configure for restore
       .yml_dest_rm_type_all("default")
@@ -642,7 +642,7 @@ test_that("GitHub release restore works with archive structure", {
 
       # Clear local data
       unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
-      dir.create(projr_path_get_dir("raw-data", safe = FALSE))
+      dir.create(projr_path_get_dir("raw-data", safe = FALSE), showWarnings = FALSE)
 
       # Restore from archived GitHub release
       result <- projr_restore(label = "raw-data", type = "github", title = tag_name)

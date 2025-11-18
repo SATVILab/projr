@@ -499,7 +499,7 @@ projr_osf_create_project <- function(title,
                                     path_append_label,
                                     label,
                                     structure,
-                                    version,
+                                    version = NULL,
                                     pre) {
   .assert_string(path, TRUE)
   .assert_path_not_file(path)
@@ -542,7 +542,7 @@ projr_osf_create_project <- function(title,
                                   path_append_label,
                                   label,
                                   structure,
-                                  version,
+                                  version = NULL,
                                   pre = NULL) {
   .assert_nchar_single(id, 5L, TRUE)
   .assert_string(path)
@@ -591,7 +591,7 @@ projr_osf_create_project <- function(title,
                                      path_append_label,
                                      label,
                                      structure,
-                                     version,
+                                     version = NULL,
                                      pre) {
   .assert_string(id, TRUE)
   .assert_in(label, .opt_dir_get_label_send(NULL), TRUE)
