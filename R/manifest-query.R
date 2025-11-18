@@ -393,7 +393,8 @@ projr_manifest_last_change <- function(version = NULL) {
     version_first <- first_row_versions_sorted[1]
     
     last_row_versions <- strsplit(file_history$version[nrow(file_history)], ";", fixed = TRUE)[[1]]
-    last_row_versions_sorted <- last_row_versions[order(package_version(vapply(last_row_versions, .version_v_rm, character(1), USE.NAMES = FALSE)), decreasing = TRUE)]
+    last_row_versions_sorted <- last_row_versions[order(package_version(vapply(last_row_versions, .version_v_rm, character(1), USE.NAMES = FALSE)))]
+    # Use the FIRST version in the last hash state (when that change happened), not the latest
     version_last_change <- last_row_versions_sorted[1]
 
     data.frame(
@@ -427,12 +428,13 @@ projr_manifest_last_change <- function(version = NULL) {
     unique_files <- unique(file_keys)
     
     last_change_versions <- character(length(unique_files))
+    is_file_active <- logical(length(unique_files))
     
     for (i in seq_along(unique_files)) {
       file_key <- unique_files[i]
       file_rows <- label_data[file_keys == file_key, , drop = FALSE]
       
-      # Collect all (min_version, max_version) for each hash state of this file
+      # Collect all (min_version, max_version, hash) for each hash state of this file
       hash_states <- list()
       for (j in seq_len(nrow(file_rows))) {
         ver_str <- file_rows$version[j]
@@ -446,7 +448,8 @@ projr_manifest_last_change <- function(version = NULL) {
             # Use original version strings (with "v" prefix)
             hash_states[[j]] <- list(
               min_ver = versions[sorted_indices[1]],
-              max_ver = versions[sorted_indices[length(sorted_indices)]]
+              max_ver = versions[sorted_indices[length(sorted_indices)]],
+              hash = file_rows$hash[j]
             )
           }
         }
@@ -468,10 +471,16 @@ projr_manifest_last_change <- function(version = NULL) {
         }
         # The last change is when that hash was first introduced (use original format from manifest)
         last_change_versions[i] <- hash_states[[latest_idx]]$min_ver
+        # File is active if the latest hash is not empty (not a tombstone)
+        is_file_active[i] <- nzchar(hash_states[[latest_idx]]$hash)
       } else {
         last_change_versions[i] <- "v0.0.0"
+        is_file_active[i] <- FALSE
       }
     }
+    
+    # Count only active files (exclude tombstones)
+    n_active_files <- sum(is_file_active)
     
     # Overall last change for this label is the max across all files
     if (length(last_change_versions) > 0) {
@@ -492,7 +501,7 @@ projr_manifest_last_change <- function(version = NULL) {
     data.frame(
       label = lbl,
       version_last_change = version_last,
-      n_files = length(unique_files),
+      n_files = n_active_files,
       stringsAsFactors = FALSE
     )
   })
@@ -867,21 +876,34 @@ projr_manifest_file_first <- function(fn, label = NULL) {
 
     # Start from the end and work backwards to find last change
     if (length(versions) == 1) {
-      # Only one version, so it's the last change
-      version_last_change <- versions[1]
+      # Only one version - extract the first version from the multi-version string
+      ver_list <- strsplit(versions[1], ";", fixed = TRUE)[[1]]
+      if (length(ver_list) > 0) {
+        ver_sorted <- ver_list[order(package_version(vapply(ver_list, .version_v_rm, character(1), USE.NAMES = FALSE)))]
+        version_last_change <- ver_sorted[1]
+      } else {
+        version_last_change <- "v0.0.0"
+      }
+      last_idx <- 1
     } else {
       # Multiple versions - find where hash differs from next
-      version_last_change <- versions[length(versions)]
+      change_idx <- length(versions)
       for (i in length(versions):2) {
         if (hashes[i] != hashes[i - 1]) {
-          version_last_change <- versions[i]
+          change_idx <- i
           break
         }
       }
+      # Extract the first version from the change row's multi-version string
+      ver_list <- strsplit(versions[change_idx], ";", fixed = TRUE)[[1]]
+      if (length(ver_list) > 0) {
+        ver_sorted <- ver_list[order(package_version(vapply(ver_list, .version_v_rm, character(1), USE.NAMES = FALSE)))]
+        version_last_change <- ver_sorted[1]
+      } else {
+        version_last_change <- "v0.0.0"
+      }
+      last_idx <- change_idx
     }
-
-    # Get the index for the last change version
-    last_idx <- which(label_data$version == version_last_change)[1]
 
     data.frame(
       label = lbl,
@@ -1014,10 +1036,24 @@ projr_manifest_file_first <- function(fn, label = NULL) {
       change_types[length(change_types)] <- "current"
     }
 
+    # Extract individual change versions from multi-version strings
+    change_versions <- character(length(change_indices))
+    for (j in seq_along(change_indices)) {
+      idx <- change_indices[j]
+      ver_list <- strsplit(label_data$version[idx], ";", fixed = TRUE)[[1]]
+      if (length(ver_list) > 0) {
+        # For a change row, use the first (earliest) version when that hash appeared
+        ver_sorted <- ver_list[order(package_version(vapply(ver_list, .version_v_rm, character(1), USE.NAMES = FALSE)))]
+        change_versions[j] <- ver_sorted[1]
+      } else {
+        change_versions[j] <- "v0.0.0"
+      }
+    }
+
     data.frame(
       label = lbl,
       fn = label_data$fn[change_indices],
-      version = label_data$version[change_indices],
+      version = change_versions,
       hash = label_data$hash[change_indices],
       change_type = change_types,
       stringsAsFactors = FALSE
