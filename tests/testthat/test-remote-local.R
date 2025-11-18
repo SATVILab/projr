@@ -275,6 +275,4 @@ test_that("adding, tallying and removing files from remotes works - local", {
   )
 })
 
-# OSF file operations tests have been moved to test-remote-osf.R
 
-# GitHub file operations tests have been moved to test-remote-github.R
