@@ -268,7 +268,7 @@ projr_osf_create_project <- function(title,
 .remote_check_exists_github <- function(tag) {
   .assert_string(tag, TRUE)
   
-  # Try fast path with .release_exists() if httr is available
+  # Try fast path with .github_release_exists() if httr is available
   if (requireNamespace("httr", quietly = TRUE)) {
     repo <- tryCatch(
       .pb_repo_get(),
@@ -277,10 +277,12 @@ projr_osf_create_project <- function(title,
     
     if (!is.null(repo)) {
       result <- tryCatch(
-        .release_exists(repo, tag),
+        .github_release_exists(repo, tag),
         error = function(e) NULL
       )
       
+      # Only use fast path result if not NULL (NULL means auth error)
+      # If NULL, fall back to piggyback which has its own auth handling
       if (!is.null(result)) {
         return(result)
       }
@@ -2491,7 +2493,7 @@ projr_osf_create_project <- function(title,
     if (!is.null(repo)) {
       # Check if release exists using fast path
       release_exists <- tryCatch(
-        .release_exists(repo, tag),
+        .github_release_exists(repo, tag),
         error = function(e) {
           .cli_debug(
             "Could not check release existence via API: {e$message}",
