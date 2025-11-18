@@ -61,10 +61,12 @@
   manifest_previous <- .build_manifest_post_get_manifest_previous_version()
 
   # Detect and mark removed files
+  # Check both pre-build and post-build labels for removals
+  all_current_labels <- c(.build_manifest_pre_get_label(), .build_manifest_post_get_label())
   manifest_removals <- .build_manifest_detect_removals(
-    manifest_current,
+    rbind(manifest_pre, manifest_current),  # Combine pre and post manifests
     manifest_previous,
-    .build_manifest_post_get_label()
+    all_current_labels
   )
 
   # Combine all manifests
