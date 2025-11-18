@@ -465,7 +465,6 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
   .dir_rm("_tmp/coverage")
   .dir_create("_tmp/coverage")
   .test_unset_select()
-  .test_unset_fast()
   withr::with_envvar(
     c(NOT_CRAN = "true"),
     {

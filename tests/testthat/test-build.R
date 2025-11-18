@@ -139,7 +139,6 @@ test_that("bookdown _files directory is copied correctly", {
 test_that("Pre/post/never clearing options work correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  skip_if(.is_test_fast())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
@@ -178,7 +177,6 @@ test_that("Pre/post/never clearing options work correctly", {
 test_that("Archive functionality works correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  skip_if(.is_test_fast())
   skip() # fails at present, worth fixing
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
   usethis::with_project(
@@ -212,7 +210,6 @@ test_that("Archive functionality works correctly", {
 test_that("Failed builds handle version appropriately", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  skip_if(.is_test_fast())
   skip_on_ci()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -256,7 +253,6 @@ test_that("projr_build_ works with rmarkdown", {
   dir_test <- .test_setup_project(
     git = FALSE, set_env_var = TRUE
   )
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   usethis::with_project(
     path = dir_test,
@@ -289,7 +285,6 @@ test_that("projr_build_ works with quarto projects", {
   dir_test <- .test_setup_project(
     git = FALSE, set_env_var = TRUE
   )
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   usethis::with_project(
     path = dir_test,
@@ -326,7 +321,6 @@ test_that("projr_build_ works with quarto", {
   dir_test <- .test_setup_project(
     git = FALSE, set_env_var = TRUE
   )
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   usethis::with_project(
     path = dir_test,
@@ -357,7 +351,6 @@ test_that("projr_build_ works with quarto", {
 test_that("args_engine parameter works correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  skip_if(.is_test_fast())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,

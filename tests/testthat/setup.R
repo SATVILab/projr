@@ -41,7 +41,6 @@ withr::defer(
     .test_osf_rm()
     .test_github_rm()
     .test_unset()
-    # .test_unset_fast()
     # .test_unset_select()
     try(.test_rm_random_abc(), silent = TRUE)
     try(.test_cleanup_ignore_files(), silent = TRUE)
