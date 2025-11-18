@@ -266,8 +266,29 @@ projr_osf_create_project <- function(title,
 
 # github
 .remote_check_exists_github <- function(tag) {
-  .dep_install("piggyback")
   .assert_string(tag, TRUE)
+  
+  # Try fast path with .release_exists() if httr is available
+  if (requireNamespace("httr", quietly = TRUE)) {
+    repo <- tryCatch(
+      .pb_repo_get(),
+      error = function(e) NULL
+    )
+    
+    if (!is.null(repo)) {
+      result <- tryCatch(
+        .release_exists(repo, tag),
+        error = function(e) NULL
+      )
+      
+      if (!is.null(result)) {
+        return(result)
+      }
+    }
+  }
+  
+  # Fallback to piggyback approach
+  .dep_install("piggyback")
   release_tbl <- .pb_release_tbl_get()
   if (.is_try_error(release_tbl)) {
     stop("Could not get GitHub release table")
@@ -2542,7 +2563,13 @@ projr_osf_create_project <- function(title,
   result <- .pb_retry_with_backoff(
     fn = function() {
       try(suppressWarnings(suppressMessages(
-        piggyback::pb_upload(repo = repo, file = path_zip, tag = tag)
+        piggyback::pb_upload(
+          repo = repo,
+          file = path_zip,
+          tag = tag,
+          overwrite = TRUE,
+          show_progress = FALSE
+        )
       )), silent = TRUE)
     },
     max_attempts = 6,
