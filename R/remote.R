@@ -2554,14 +2554,23 @@ projr_osf_create_project <- function(title,
     log_file = log_file
   )
 
+  repo <- .pb_repo_get()
   result <- .pb_retry_with_backoff(
     fn = function() {
-      .remote_check_exists(type = "github", id = tag)
+      try(suppressWarnings(suppressMessages(
+        piggyback::pb_upload(
+          repo = repo,
+          file = path_zip,
+          tag = tag,
+          overwrite = TRUE,
+          show_progress = FALSE
+        )
+      )), silent = TRUE)
     },
     max_attempts = 6,
     initial_delay = pause_second,
     operation_name = paste0(
-      "upload ", basename(path_zip), " to tag '", tag, "'"
+      "upload ", basename(path_zip), " to GitHub release with tag ", tag
     ),
     output_level = output_level,
     log_file = log_file,
