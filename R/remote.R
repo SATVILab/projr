@@ -1786,8 +1786,16 @@ projr_osf_create_project <- function(title,
     return(character(0L))
   }
   if (type != "github") {
-    fn <- vapply(fn, .version_v_rm, character(1L))
-    return(fn |> package_version() |> max())
+    # Handle multi-version strings (e.g., "v0.0.1;v0.0.2") by splitting and extracting all versions
+    all_versions <- character(0)
+    for (f in fn) {
+      # Split by semicolon in case of multi-version strings
+      version_parts <- strsplit(f, ";", fixed = TRUE)[[1]]
+      # Remove "v" prefix from each part
+      versions_clean <- vapply(version_parts, .version_v_rm, character(1L))
+      all_versions <- c(all_versions, versions_clean)
+    }
+    return(all_versions |> package_version() |> max())
   }
   fn <- .remote_version_latest_filter(fn, type, label)
   .remote_version_latest_extract(fn, label)

@@ -203,9 +203,17 @@
     version_remote_raw <- .remote_get_version_label(
       remote_pre, type, label, "latest"
     )
-    # Only call .version_v_rm if we have a valid value
+    # Handle multi-version strings (e.g., "v0.0.1;v0.0.2") by extracting latest
     version_remote <- if (.is_string(version_remote_raw)) {
-      version_remote_raw |> .version_v_rm()
+      if (grepl(";", version_remote_raw, fixed = TRUE)) {
+        tryCatch({
+          .version_get_latest(version_remote_raw) |> .version_v_rm()
+        }, error = function(e) {
+          NULL
+        })
+      } else {
+        version_remote_raw |> .version_v_rm()
+      }
     } else {
       NULL
     }
@@ -245,7 +253,20 @@
   if (.is_len_0(version_remote_raw)) {
     return(version_comp_no_trusted_archive)
   }
-  version_remote <- version_remote_raw |> .version_v_rm()
+  # Handle multi-version strings (e.g., "v0.0.1;v0.0.2") by extracting latest
+  if (grepl(";", version_remote_raw, fixed = TRUE)) {
+    version_remote <- tryCatch({
+      .version_get_latest(version_remote_raw)
+    }, error = function(e) {
+      return(character(0L))
+    })
+    if (.is_len_0(version_remote)) {
+      return(version_comp_no_trusted_archive)
+    }
+    version_remote <- .version_v_rm(version_remote)
+  } else {
+    version_remote <- version_remote_raw |> .version_v_rm()
+  }
   # earliest version does not work if it's not trusted
   # or none are avaialble (version_remote is NULL),
   # or if the version is too old
