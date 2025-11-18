@@ -5,12 +5,13 @@
 # - Calls GitHub-specific remote helpers (.remote_file_add_github(), etc.)
 # - Tests GitHub release functionality
 #
-# All tests skip in CRAN and LITE modes, and require GitHub credentials.
+# All tests skip in CRAN, LITE, and FAST modes, and require GitHub credentials.
 #
 # Test strategy:
 # - Create two fixed GitHub releases for testing (projr-test-release-a, projr-test-release-b)
 # - Reuse these releases across tests to avoid repeated creation/wait cycles
-# - Tests are idempotent - releases may already exist from previous runs
+# - Tests are idempotent when run sequentially - releases may already exist from previous runs
+# - Some tests clear/modify release content; run tests sequentially to avoid interference
 
 # =============================================================================
 # GitHub Release Setup and Reuse
@@ -19,6 +20,8 @@
 test_that("GitHub test releases are created and reusable", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -76,6 +79,8 @@ test_that("GitHub test releases are created and reusable", {
 test_that(".remote_create works for GitHub", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -103,6 +108,8 @@ test_that(".remote_create works for GitHub", {
 test_that(".remote_get works for GitHub", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -122,6 +129,8 @@ test_that(".remote_get works for GitHub", {
 test_that(".remote_get_final works for GitHub", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -148,6 +157,8 @@ test_that(".remote_get_final works for GitHub", {
 test_that("adding, listing and removing files works on GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -161,13 +172,29 @@ test_that("adding, listing and removing files works on GitHub releases", {
       # Ensure release exists
       if (!.remote_check_exists("github", tag)) {
         .remote_create("github", tag)
-        Sys.sleep(30)
+        # Poll for existence
+        start_time <- proc.time()[3]
+        max_wait <- 180
+        remote_exists <- .remote_check_exists("github", id = tag)
+        while (!remote_exists && (proc.time()[3] - start_time < max_wait)) {
+          Sys.sleep(10)
+          remote_exists <- .remote_check_exists("github", id = tag)
+        }
       }
 
       # Clear any existing content first
       remote <- c("tag" = tag, "fn" = "test-data.zip")
       .remote_file_rm_all("github", remote = remote)
-      Sys.sleep(10)
+      
+      # Poll for removal to complete
+      start_time <- proc.time()[3]
+      max_wait <- 60
+      repo <- .pb_guess_repo()
+      content_tbl <- piggyback::pb_list(repo = repo, tag = tag)
+      while (!is.null(content_tbl) && nrow(content_tbl) > 0L && (proc.time()[3] - start_time < max_wait)) {
+        Sys.sleep(5)
+        content_tbl <- piggyback::pb_list(repo = repo, tag = tag)
+      }
 
       # Create test content
       path_dir_source <- .test_setup_content_dir()
@@ -181,8 +208,18 @@ test_that("adding, listing and removing files works on GitHub releases", {
         remote = remote
       )
 
-      # Wait for upload to be reflected
-      Sys.sleep(20)
+      # Poll for upload to be reflected
+      start_time <- proc.time()[3]
+      max_wait <- 120
+      asset_exists <- FALSE
+      while (!asset_exists && (proc.time()[3] - start_time < max_wait)) {
+        Sys.sleep(5)
+        content_tbl <- tryCatch(
+          piggyback::pb_list(repo = repo, tag = tag),
+          error = function(e) NULL
+        )
+        asset_exists <- !is.null(content_tbl) && nrow(content_tbl) > 0L
+      }
 
       # Download and verify
       path_dir_save <- .dir_create_tmp_random()
@@ -202,12 +239,16 @@ test_that("adding, listing and removing files works on GitHub releases", {
         .remote_file_rm("github", fn = fn_vec_rm, remote = remote)
       )
 
-      # Verify removal
-      Sys.sleep(10)
-      expect_identical(
-        .remote_file_ls("github", remote),
-        setdiff(fn_vec, fn_vec_rm)
-      )
+      # Poll for removal to be reflected
+      start_time <- proc.time()[3]
+      max_wait <- 60
+      file_list <- .remote_file_ls("github", remote)
+      expected_list <- setdiff(fn_vec, fn_vec_rm)
+      while (!identical(file_list, expected_list) && (proc.time()[3] - start_time < max_wait)) {
+        Sys.sleep(5)
+        file_list <- .remote_file_ls("github", remote)
+      }
+      expect_identical(file_list, expected_list)
 
       # Cleanup
       unlink(path_dir_source, recursive = TRUE)
@@ -219,6 +260,8 @@ test_that("adding, listing and removing files works on GitHub releases", {
 test_that(".remote_file_rm_all works for GitHub", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -269,9 +312,14 @@ test_that(".remote_file_rm_all works for GitHub", {
       remote_github <- c("tag" = tag, "fn" = basename(path_zip))
       .remote_file_rm_all("github", remote = remote_github)
 
-      # Verify removal
-      Sys.sleep(20)
+      # Poll for removal
+      max_time_rm <- 60
+      start_time_rm <- proc.time()[3]
       content_tbl <- piggyback::pb_list(repo = repo, tag = tag)
+      while (!is.null(content_tbl) && nrow(content_tbl) > 0L && (proc.time()[3] - start_time_rm) < max_time_rm) {
+        Sys.sleep(5)
+        content_tbl <- piggyback::pb_list(repo = repo, tag = tag)
+      }
       expect_true(is.null(content_tbl) || nrow(content_tbl) == 0L)
     }
   )
@@ -284,6 +332,8 @@ test_that(".remote_file_rm_all works for GitHub", {
 test_that("manifest round-trip works for GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -297,7 +347,14 @@ test_that("manifest round-trip works for GitHub releases", {
       # Ensure release exists and is empty
       if (!.remote_check_exists("github", tag)) {
         .remote_create("github", tag)
-        Sys.sleep(30)
+        # Poll for existence
+        start_time <- proc.time()[3]
+        max_wait <- 180
+        remote_exists <- .remote_check_exists("github", id = tag)
+        while (!remote_exists && (proc.time()[3] - start_time < max_wait)) {
+          Sys.sleep(10)
+          remote_exists <- .remote_check_exists("github", id = tag)
+        }
       }
 
       # Create a test manifest
@@ -313,8 +370,18 @@ test_that("manifest round-trip works for GitHub releases", {
       remote_pre <- c("tag" = tag, "fn" = "test-manifest.zip")
       .remote_write_manifest("github", remote_pre, manifest)
 
-      # Wait for upload
-      Sys.sleep(30)
+      # Poll for upload
+      start_time <- proc.time()[3]
+      max_wait <- 120
+      manifest_uploaded <- FALSE
+      while (!manifest_uploaded && (proc.time()[3] - start_time < max_wait)) {
+        Sys.sleep(5)
+        manifest_retrieved <- tryCatch(
+          .remote_get_manifest("github", remote_pre),
+          error = function(e) NULL
+        )
+        manifest_uploaded <- !is.null(manifest_retrieved) && nrow(manifest_retrieved) > 0L
+      }
 
       # Read manifest back
       manifest_retrieved <- .remote_get_manifest("github", remote_pre)
@@ -330,6 +397,8 @@ test_that("manifest round-trip works for GitHub releases", {
 test_that("VERSION file round-trip works for GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -343,7 +412,14 @@ test_that("VERSION file round-trip works for GitHub releases", {
       # Ensure release exists
       if (!.remote_check_exists("github", tag)) {
         .remote_create("github", tag)
-        Sys.sleep(30)
+        # Poll for existence
+        start_time <- proc.time()[3]
+        max_wait <- 180
+        remote_exists <- .remote_check_exists("github", id = tag)
+        while (!remote_exists && (proc.time()[3] - start_time < max_wait)) {
+          Sys.sleep(10)
+          remote_exists <- .remote_check_exists("github", id = tag)
+        }
       }
 
       # Write version to GitHub release
@@ -351,8 +427,18 @@ test_that("VERSION file round-trip works for GitHub releases", {
       version_to_write <- "v1.2.3"
       .remote_write_version_file("github", remote, version_to_write, trusted = TRUE)
 
-      # Wait for upload
-      Sys.sleep(30)
+      # Poll for upload
+      start_time <- proc.time()[3]
+      max_wait <- 120
+      version_uploaded <- FALSE
+      while (!version_uploaded && (proc.time()[3] - start_time < max_wait)) {
+        Sys.sleep(5)
+        version_retrieved <- tryCatch(
+          .remote_get_version_file("github", remote),
+          error = function(e) NULL
+        )
+        version_uploaded <- !is.null(version_retrieved) && nzchar(version_retrieved)
+      }
 
       # Read version back
       version_retrieved <- .remote_get_version_file("github", remote)
@@ -370,6 +456,8 @@ test_that("VERSION file round-trip works for GitHub releases", {
 test_that(".remote_final_check_exists_github works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -403,6 +491,8 @@ test_that(".remote_final_check_exists_github works", {
 test_that(".remote_final_ls_github works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -433,6 +523,8 @@ test_that(".remote_final_ls_github works", {
 test_that("projr_restore works with GitHub release source", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -500,6 +592,8 @@ test_that("projr_restore works with GitHub release source", {
 test_that(".remote_rm_final_if_empty works for GitHub", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 

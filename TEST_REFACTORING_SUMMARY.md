@@ -9,6 +9,7 @@ This document summarizes the refactoring of GitHub and OSF remote tests to impro
 ### 1. New Test Files Created
 
 #### `tests/testthat/test-remote-github.R`
+
 - **Purpose**: Dedicated file for GitHub release-specific tests
 - **Key Features**:
   - Creates and reuses two fixed GitHub releases (`projr-test-release-a` and `projr-test-release-b`)
@@ -22,11 +23,14 @@ This document summarizes the refactoring of GitHub and OSF remote tests to impro
 - **Skip Conditions**:
   - `skip_if(.is_test_cran())`
   - `skip_if(.is_test_lite())`
+  - `skip_if(.is_test_fast())`
+  - `skip_if(.is_test_select())`
   - `skip_if_offline()`
   - `.test_skip_if_cannot_modify_github()`
 - **Test Count**: 12 tests (all skip when GitHub credentials unavailable)
 
 #### `tests/testthat/test-remote-osf.R`
+
 - **Purpose**: Dedicated file for OSF node-specific tests
 - **Key Features**:
   - Tests basic OSF remote operations:
@@ -36,6 +40,8 @@ This document summarizes the refactoring of GitHub and OSF remote tests to impro
 - **Skip Conditions**:
   - `skip_if(.is_test_cran())`
   - `skip_if(.is_test_lite())`
+  - `skip_if(.is_test_fast())`
+  - `skip_if(.is_test_select())`
   - `skip_if_offline()`
   - `skip_if(!nzchar(Sys.getenv("OSF_PAT")))`
 - **Test Count**: 6 tests (all skip when OSF credentials unavailable)
@@ -43,6 +49,7 @@ This document summarizes the refactoring of GitHub and OSF remote tests to impro
 ### 2. Updated Test Files
 
 #### `tests/testthat/test-remote.R`
+
 - **Before**: Mixed local, GitHub, and OSF remote tests
 - **After**: Local-only remote tests
 - **Changes**:
@@ -64,6 +71,8 @@ This document summarizes the refactoring of GitHub and OSF remote tests to impro
 ### 3. Files Verified (No Changes Needed)
 
 The following files were audited and confirmed to be local-only or have proper skip conditions:
+
+
 - `tests/testthat/test-dest-send.R` - Local-only destination send tests
 - `tests/testthat/test-build-post-comprehensive.R` - No remote creation
 - `tests/testthat/test-integration-comprehensive.R` - No remote creation
@@ -72,11 +81,14 @@ The following files were audited and confirmed to be local-only or have proper s
 ## Benefits
 
 ### 1. Faster Test Execution
+
+
 - Local tests run without waiting for GitHub/OSF API responses
 - Reduced repeated creation of GitHub releases
 - Fixed releases can be reused across test runs
 
 ### 2. Better Test Organization
+
 - Clear separation of concerns:
   - Local-only tests in `test-remote.R`
   - GitHub-specific tests in `test-remote-github.R`

@@ -5,7 +5,7 @@
 # - Calls OSF-specific remote helpers (.remote_file_add_osf(), etc.)
 # - Tests OSF node functionality
 #
-# All tests skip in CRAN and LITE modes, and require OSF credentials.
+# All tests skip in CRAN, LITE, and FAST modes, and require OSF credentials.
 
 # =============================================================================
 # Basic OSF Remote Creation and Existence
@@ -14,6 +14,8 @@
 test_that(".remote_create works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
@@ -41,6 +43,8 @@ test_that(".remote_create works for OSF", {
 test_that(".remote_get works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
@@ -63,6 +67,8 @@ test_that(".remote_get works for OSF", {
 test_that(".remote_get_final works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
@@ -115,6 +121,8 @@ test_that(".remote_get_final works for OSF", {
 test_that("adding, listing and removing files works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
@@ -144,14 +152,17 @@ test_that("adding, listing and removing files works for OSF", {
         remote = osf_tbl
       )
 
-      # Wait for upload
-      Sys.sleep(10)
+      # Poll for upload
+      start_time <- proc.time()[3]
+      max_wait <- 60
+      file_list <- .remote_file_ls("osf", osf_tbl)
+      while (length(file_list) == 0L && (proc.time()[3] - start_time < max_wait)) {
+        Sys.sleep(3)
+        file_list <- .remote_file_ls("osf", osf_tbl)
+      }
 
       # Verify upload
-      expect_identical(
-        .remote_file_ls("osf", osf_tbl),
-        fn_vec_source
-      )
+      expect_identical(file_list, fn_vec_source)
 
       # Remove some content
       fn_vec_orig_osf <- .remote_file_ls("osf", osf_tbl)
@@ -160,14 +171,18 @@ test_that("adding, listing and removing files works for OSF", {
         .remote_file_rm("osf", fn = fn_vec_rm, remote = osf_tbl)
       )
 
-      # Wait for removal
-      Sys.sleep(5)
+      # Poll for removal
+      start_time <- proc.time()[3]
+      max_wait <- 30
+      file_list <- .remote_file_ls("osf", remote = osf_tbl)
+      expected_list <- setdiff(fn_vec_orig_osf, fn_vec_rm)
+      while (!identical(file_list, expected_list) && (proc.time()[3] - start_time < max_wait)) {
+        Sys.sleep(3)
+        file_list <- .remote_file_ls("osf", remote = osf_tbl)
+      }
 
       # Verify removal
-      expect_identical(
-        .remote_file_ls("osf", remote = osf_tbl),
-        setdiff(fn_vec_orig_osf, fn_vec_rm)
-      )
+      expect_identical(file_list, expected_list)
 
       # Cleanup
       unlink(path_dir_source, recursive = TRUE)
@@ -178,6 +193,8 @@ test_that("adding, listing and removing files works for OSF", {
 test_that(".remote_file_rm_all works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
@@ -207,19 +224,31 @@ test_that(".remote_file_rm_all works for OSF", {
       .osf_upload(x = osf_tbl_sub_a, path = path_tmp_file, conflicts = "overwrite")
       .osf_upload(x = osf_tbl_sub_b, path = path_tmp_file, conflicts = "overwrite")
 
-      # Wait for uploads
-      Sys.sleep(10)
+      # Poll for uploads
+      start_time <- proc.time()[3]
+      max_wait <- 60
+      file_count <- nrow(.osf_ls_files(osf_tbl))
+      while (file_count == 0L && (proc.time()[3] - start_time < max_wait)) {
+        Sys.sleep(3)
+        file_count <- nrow(.osf_ls_files(osf_tbl))
+      }
 
       # Remove all content
       expect_true(
         .remote_file_rm_all("osf", remote = osf_tbl)
       )
 
-      # Wait for removal
-      Sys.sleep(10)
+      # Poll for removal (reuse existing pattern from later in file)
+      start_time <- proc.time()[3]
+      max_wait <- 60
+      is_zero <- (nrow(.osf_ls_files(osf_tbl)) == 0L)
+      while (!is_zero && (proc.time()[3] - start_time) < max_wait) {
+        Sys.sleep(3)
+        is_zero <- (nrow(.osf_ls_files(osf_tbl)) == 0L)
+      }
 
       # Verify removal
-      expect_true(nrow(.osf_ls_files(osf_tbl)) == 0L)
+      expect_true(is_zero)
     }
   )
 })
@@ -231,6 +260,8 @@ test_that(".remote_file_rm_all works for OSF", {
 test_that(".remote_rm_final_if_empty works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_test_fast())
+  skip_if(.is_test_select())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
