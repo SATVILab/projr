@@ -2478,10 +2478,76 @@ projr_osf_create_project <- function(title,
                                         pause_second = 3,
                                         output_level = "std",
                                         log_file = NULL) {
-  .dep_install("piggyback")
-
   .cli_debug(
-    "Piggyback: Uploading {basename(path_zip)} ({file.size(path_zip)} bytes) to tag '{tag}'",
+    "Uploading {basename(path_zip)} ({file.size(path_zip)} bytes) to tag '{tag}'",
+    output_level = output_level,
+    log_file = log_file
+  )
+
+  # Try direct API upload if httr is available and release exists
+  if (requireNamespace("httr", quietly = TRUE)) {
+    repo <- tryCatch(.pb_repo_get(), error = function(e) NULL)
+    
+    if (!is.null(repo)) {
+      # Check if release exists using fast path
+      release_exists <- tryCatch(
+        .release_exists(repo, tag),
+        error = function(e) {
+          .cli_debug(
+            "Could not check release existence via API: {e$message}",
+            output_level = output_level,
+            log_file = log_file
+          )
+          NULL
+        }
+      )
+      
+      if (isTRUE(release_exists)) {
+        # Use direct API upload
+        .cli_debug(
+          "Using direct GitHub API upload for {basename(path_zip)}",
+          output_level = output_level,
+          log_file = log_file
+        )
+        
+        upload_result <- tryCatch(
+          {
+            .github_asset_upload(
+              repo = repo,
+              tag = tag,
+              file_path = path_zip,
+              asset_name = basename(path_zip),
+              overwrite = TRUE
+            )
+            TRUE
+          },
+          error = function(e) {
+            .cli_debug(
+              "Direct API upload failed: {e$message}, falling back to piggyback",
+              output_level = output_level,
+              log_file = log_file
+            )
+            NULL
+          }
+        )
+        
+        if (isTRUE(upload_result)) {
+          .cli_debug(
+            "Successfully uploaded {basename(path_zip)} via direct API",
+            output_level = output_level,
+            log_file = log_file
+          )
+          return(invisible(TRUE))
+        }
+      }
+    }
+  }
+  
+  # Fallback to piggyback approach
+  .dep_install("piggyback")
+  
+  .cli_debug(
+    "Piggyback: Uploading {basename(path_zip)} to tag '{tag}'",
     output_level = output_level,
     log_file = log_file
   )
