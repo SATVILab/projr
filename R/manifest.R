@@ -177,7 +177,20 @@
                                                version,
                                                label) {
   label_vec_non <- manifest[["label"]] != label
-  version_vec_non <- manifest[["version"]] != .version_v_add(version)
+  
+  # Check if version is NOT in the version list (handle multi-version strings)
+  target_version <- .version_v_add(version)
+  version_vec_non <- logical(nrow(manifest))
+  for (i in seq_len(nrow(manifest))) {
+    ver_str <- manifest[["version"]][i]
+    if (is.na(ver_str) || ver_str == "") {
+      version_vec_non[i] <- TRUE
+    } else {
+      versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+      version_vec_non[i] <- !(target_version %in% versions)
+    }
+  }
+  
   manifest[label_vec_non & version_vec_non, ] %@@%
     .zero_tbl_get_manifest()
 }

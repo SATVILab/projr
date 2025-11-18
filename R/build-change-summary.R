@@ -97,12 +97,12 @@
     return(NULL)
   }
 
-  # Get all unique versions
-  versions <- unique(manifest[["version"]])
-  versions <- vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE)
+  # Get all unique versions from multi-version rows
+  all_versions <- .manifest_get_all_versions(manifest)
+  all_versions_clean <- vapply(all_versions, .version_v_rm, character(1), USE.NAMES = FALSE)
 
   # Sort and get the second-most recent (previous to current)
-  versions_sorted <- sort(versions, decreasing = TRUE)
+  versions_sorted <- sort(all_versions_clean, decreasing = TRUE)
 
   if (length(versions_sorted) < 2) {
     return(NULL)

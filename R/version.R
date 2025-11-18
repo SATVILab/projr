@@ -403,8 +403,22 @@ projr_version_get <- function() {
   if (length(x) == 0) {
     stop("x must have at least one element")
   }
+  
+  # Handle multi-version strings (semicolon-separated)
+  all_versions <- character(0)
+  for (ver_str in x) {
+    if (!is.na(ver_str) && nzchar(ver_str)) {
+      versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+      all_versions <- c(all_versions, versions)
+    }
+  }
+  
+  if (length(all_versions) == 0) {
+    stop("No valid versions found")
+  }
+  
   # Apply .version_v_rm to each element
-  x_clean <- vapply(x, .version_v_rm, character(1), USE.NAMES = FALSE)
+  x_clean <- vapply(all_versions, .version_v_rm, character(1), USE.NAMES = FALSE)
   x_clean |>
     unique() |>
     package_version() |>
@@ -425,8 +439,22 @@ projr_version_get <- function() {
   if (length(x) == 0) {
     stop("x must have at least one element")
   }
+  
+  # Handle multi-version strings (semicolon-separated)
+  all_versions <- character(0)
+  for (ver_str in x) {
+    if (!is.na(ver_str) && nzchar(ver_str)) {
+      versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+      all_versions <- c(all_versions, versions)
+    }
+  }
+  
+  if (length(all_versions) == 0) {
+    stop("No valid versions found")
+  }
+  
   # Apply .version_v_rm to each element
-  x_clean <- vapply(x, .version_v_rm, character(1), USE.NAMES = FALSE)
+  x_clean <- vapply(all_versions, .version_v_rm, character(1), USE.NAMES = FALSE)
   x_clean |>
     unique() |>
     package_version() |>
