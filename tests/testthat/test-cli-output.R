@@ -103,7 +103,6 @@ test_that("Build functions accept output_level parameter", {
 
 test_that("CLI output works in actual build (integration test)", {
   skip_if(.is_test_select())
-  skip_if(.is_test_fast())
   
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

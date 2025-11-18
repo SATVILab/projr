@@ -20,7 +20,6 @@
 test_that("GitHub test releases are created and reusable", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -79,7 +78,6 @@ test_that("GitHub test releases are created and reusable", {
 test_that(".remote_create works for GitHub", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -108,7 +106,6 @@ test_that(".remote_create works for GitHub", {
 test_that(".remote_get works for GitHub", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -129,7 +126,6 @@ test_that(".remote_get works for GitHub", {
 test_that(".remote_get_final works for GitHub", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -157,7 +153,6 @@ test_that(".remote_get_final works for GitHub", {
 test_that("adding, listing and removing files works on GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -260,7 +255,6 @@ test_that("adding, listing and removing files works on GitHub releases", {
 test_that(".remote_file_rm_all works for GitHub", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -332,7 +326,6 @@ test_that(".remote_file_rm_all works for GitHub", {
 test_that("manifest round-trip works for GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -397,7 +390,6 @@ test_that("manifest round-trip works for GitHub releases", {
 test_that("VERSION file round-trip works for GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -456,7 +448,6 @@ test_that("VERSION file round-trip works for GitHub releases", {
 test_that(".remote_final_check_exists_github works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -491,7 +482,6 @@ test_that(".remote_final_check_exists_github works", {
 test_that(".remote_final_ls_github works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -523,7 +513,6 @@ test_that(".remote_final_ls_github works", {
 test_that("projr_restore works with GitHub release source", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -592,7 +581,6 @@ test_that("projr_restore works with GitHub release source", {
 test_that(".remote_rm_final_if_empty works for GitHub", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -636,7 +624,6 @@ test_that(".remote_rm_final_if_empty works for GitHub", {
 test_that("GitHub release works with structure='latest'", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -689,7 +676,6 @@ test_that("GitHub release works with structure='latest'", {
 test_that("GitHub release works with structure='archive'", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -747,7 +733,6 @@ test_that("GitHub release works with structure='archive'", {
 test_that("GitHub release send_cue='always' creates new archive every build", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -793,7 +778,6 @@ test_that("GitHub release send_cue='always' creates new archive every build", {
 test_that("GitHub release send_cue='if-change' only creates archive if content changed", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -849,7 +833,6 @@ test_that("GitHub release send_cue='if-change' only creates archive if content c
 test_that("GitHub release send_strategy='sync-diff' updates only changed files", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -894,7 +877,6 @@ test_that("GitHub release send_strategy='sync-diff' updates only changed files",
 test_that("GitHub release send_strategy='sync-purge' removes all then uploads all", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -948,7 +930,6 @@ test_that("GitHub release send_strategy='sync-purge' removes all then uploads al
 test_that("GitHub release send_inspect='manifest' uses manifest for version tracking", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -993,7 +974,6 @@ test_that("GitHub release send_inspect='manifest' uses manifest for version trac
 test_that("GitHub release send_inspect='file' inspects actual files", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -1042,7 +1022,6 @@ test_that("GitHub release send_inspect='file' inspects actual files", {
 test_that("projr_restore works with GitHub release source (latest structure)", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -1089,7 +1068,6 @@ test_that("projr_restore works with GitHub release source (latest structure)", {
 test_that("GitHub release restore works with archive structure", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -1140,7 +1118,6 @@ test_that("GitHub release restore works with archive structure", {
 test_that("GitHub release works with different content types", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
