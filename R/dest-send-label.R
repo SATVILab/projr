@@ -242,7 +242,7 @@
     .version_v_rm() # nolint
   # if the archives are all out of date, then
   # we require the latest version
-  if (version_min_acceptable == version_project) {
+  if (.version_to_package_version(version_min_acceptable) == .version_to_package_version(version_project)) {
     return(version_comp_no_trusted_archive)
   }
   # now, we need to see if an earlier version might work
@@ -270,7 +270,7 @@
   # earliest version does not work if it's not trusted
   # or none are avaialble (version_remote is NULL),
   # or if the version is too old
-  if (!.is_string(version_remote) || version_remote < version_min_acceptable) {
+  if (!.is_string(version_remote) || .version_to_package_version(version_remote) < .version_to_package_version(version_min_acceptable)) {
     return(version_comp_no_trusted_archive)
   }
   # at this point, this is simply the latest remote.
