@@ -31,5 +31,7 @@
 ^SCRATCH-old\.R$
 ^\.gitignore$
 ^\.Rbuildignore$
+^GITHUB_TESTS_FINDINGS\.md$
+^INVESTIGATION_SUMMARY\.md$
 
 
