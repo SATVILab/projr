@@ -44,7 +44,7 @@ test_that("GitHub releases are created before uploads", {
         structure = "latest"
       )
 
-      # Build - should create release up front
+      # Build - should create release up front in pre-build phase
       projr::projr_build_patch()
 
       # Verify release exists
@@ -99,7 +99,7 @@ test_that("Multiple GitHub releases are prepared together", {
         structure = "latest"
       )
 
-      # Build - should create both releases up front
+      # Build - should create both releases up front in pre-build phase
       projr::projr_build_patch()
 
       # Verify both releases exist
@@ -116,29 +116,47 @@ test_that("Multiple GitHub releases are prepared together", {
   )
 })
 
-test_that("State is initialized and cleared properly", {
+test_that("Config-driven tag derivation works correctly", {
   skip_if(.is_test_select())
 
-  # Initialize state
-  .gh_release_state_init()
+  # This test doesn't create actual releases, just tests the tag derivation logic
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Clear all destinations first
+      .yml_dest_rm_type_all("default")
 
-  # Verify state is initialized
-  expect_length(.projr_state$gh_releases_required, 0)
-  expect_length(.projr_state$gh_releases_verified, 0)
-  expect_null(.projr_state$gh_release_tbl)
+      # Test 1: No destinations configured
+      tags <- .dest_github_tags_needed(FALSE)
+      expect_length(tags, 0)
 
-  # Register a required release (mock - manually add to state)
-  .projr_state$gh_releases_required <- c("owner/repo::test-tag")
+      # Test 2: Add a YAML destination
+      projr_yml_dest_add_github(
+        title = "my-release",
+        content = "output",
+        structure = "latest"
+      )
+      tags <- .dest_github_tags_needed(FALSE)
+      expect_length(tags, 1)
+      expect_true("my-release" %in% tags)
 
-  # Verify registration
-  expect_true(length(.projr_state$gh_releases_required) > 0)
-  expect_equal(.projr_state$gh_releases_required, "owner/repo::test-tag")
+      # Test 3: Add archive_github parameter (no YAML archive destination)
+      tags <- .dest_github_tags_needed(TRUE)
+      expect_length(tags, 2)
+      expect_true("my-release" %in% tags)
+      expect_true("archive" %in% tags)
 
-  # Clear state
-  .gh_release_state_clear()
-
-  # Verify state is cleared
-  expect_null(.projr_state$gh_releases_required)
-  expect_null(.projr_state$gh_releases_verified)
-  expect_null(.projr_state$gh_release_tbl)
+      # Test 4: Add YAML archive destination - parameter should be ignored
+      projr_yml_dest_add_github(
+        title = "archive",
+        content = "output",
+        structure = "archive"
+      )
+      tags <- .dest_github_tags_needed(TRUE)
+      expect_length(tags, 2)
+      expect_true("my-release" %in% tags)
+      expect_true("archive" %in% tags)
+    }
+  )
 })

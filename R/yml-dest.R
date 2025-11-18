@@ -277,7 +277,7 @@
 
 .yml_dest_get_title_complete_param_force <- function(yml_title,
                                                      always_archive) {
-  if (!always_archive) {
+  if (is.null(always_archive) || !always_archive) {
     return(yml_title)
   }
   yml_title[["send"]] <- list(
