@@ -462,12 +462,14 @@ projr_log_clear <- function(build_type = "all",
       # Read log file to extract version
       tryCatch({
         lines <- readLines(log_file, warn = FALSE)
-        version_line <- lines[grepl("^version:", lines, ignore.case = TRUE)]
+        # Look for projr version in the format: - **projr Version**: X.Y.Z
+        version_line <- lines[grepl("^-\\s*\\*\\*projr Version\\*\\*:", lines, ignore.case = TRUE)]
         
         if (length(version_line) > 0) {
-          # Extract version from YAML frontmatter or metadata
-          version_str <- sub("^version:\\s*", "", version_line[1], ignore.case = TRUE)
+          # Extract version from bullet point format
+          version_str <- sub("^-\\s*\\*\\*projr Version\\*\\*:\\s*", "", version_line[1], ignore.case = TRUE)
           version_str <- gsub("[\"\']", "", version_str)  # Remove quotes
+          version_str <- trimws(version_str)  # Remove whitespace
           
           log_ver_clean <- .version_v_rm(version_str)
           log_ver <- package_version(log_ver_clean)
