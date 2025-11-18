@@ -783,8 +783,14 @@ projr_manifest_file_first <- function(fn, label = NULL) {
   result_list <- lapply(labels, function(lbl) {
     label_data <- manifest[manifest$label == lbl, , drop = FALSE]
 
-    # Sort by version
-    label_data <- label_data[order(package_version(vapply(label_data$version, .version_v_rm, character(1), USE.NAMES = FALSE))), , drop = FALSE]
+    # Sort by earliest version in each row's version list
+    earliest_versions <- vapply(label_data$version, function(ver_str) {
+      versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+      if (length(versions) == 0) return("v0.0.0")
+      versions_sorted <- versions[order(package_version(vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE)))]
+      versions_sorted[1]
+    }, character(1))
+    label_data <- label_data[order(package_version(vapply(earliest_versions, .version_v_rm, character(1), USE.NAMES = FALSE))), , drop = FALSE]
 
     # Find when hash last changed
     versions <- label_data$version
@@ -907,8 +913,14 @@ projr_manifest_file_first <- function(fn, label = NULL) {
   result_list <- lapply(labels, function(lbl) {
     label_data <- manifest[manifest$label == lbl, , drop = FALSE]
 
-    # Sort by version
-    label_data <- label_data[order(package_version(vapply(label_data$version, .version_v_rm, character(1), USE.NAMES = FALSE))), , drop = FALSE]
+    # Sort by earliest version in each row's version list
+    earliest_versions <- vapply(label_data$version, function(ver_str) {
+      versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+      if (length(versions) == 0) return("v0.0.0")
+      versions_sorted <- versions[order(package_version(vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE)))]
+      versions_sorted[1]
+    }, character(1))
+    label_data <- label_data[order(package_version(vapply(earliest_versions, .version_v_rm, character(1), USE.NAMES = FALSE))), , drop = FALSE]
 
     # Track changes
     versions <- label_data$version
@@ -960,13 +972,24 @@ projr_manifest_file_first <- function(fn, label = NULL) {
   result_list <- lapply(labels, function(lbl) {
     label_data <- manifest[manifest$label == lbl, , drop = FALSE]
 
-    # Sort by version and get the first
-    label_data <- label_data[order(package_version(vapply(label_data$version, .version_v_rm, character(1), USE.NAMES = FALSE))), , drop = FALSE]
+    # Sort by earliest version in each row's version list
+    earliest_versions <- vapply(label_data$version, function(ver_str) {
+      versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+      if (length(versions) == 0) return("v0.0.0")
+      versions_sorted <- versions[order(package_version(vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE)))]
+      versions_sorted[1]
+    }, character(1))
+    label_data <- label_data[order(package_version(vapply(earliest_versions, .version_v_rm, character(1), USE.NAMES = FALSE))), , drop = FALSE]
+
+    # Extract the actual first version from the version list
+    first_row_versions <- strsplit(label_data$version[1], ";", fixed = TRUE)[[1]]
+    first_row_versions_sorted <- first_row_versions[order(package_version(vapply(first_row_versions, .version_v_rm, character(1), USE.NAMES = FALSE)))]
+    version_first <- first_row_versions_sorted[1]
 
     data.frame(
       label = lbl,
       fn = label_data$fn[1],
-      version_first = label_data$version[1],
+      version_first = version_first,
       hash = label_data$hash[1],
       stringsAsFactors = FALSE
     )
