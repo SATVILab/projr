@@ -33,7 +33,7 @@
   invisible(file.create(path_file_rm, showWarnings = FALSE))
   withr::defer(
     {
-      try(.remote_host_rm("osf", id), silent = TRUE)
+      try(.test_remote_host_rm("osf", id), silent = TRUE)
       eval(parse(text = paste0("unlink('", path_file_rm, "')")))
     },
     envir = env
@@ -78,7 +78,7 @@
     }
   }
   for (id in id_vec) {
-    .remote_host_rm("osf", host = id)
+    .test-remote_host_rm("osf", host = id)
   }
 }
 

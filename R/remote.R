@@ -602,10 +602,8 @@ projr_osf_create_project <- function(title,
     return(c("tag" = id))
   }
 
-  # Register this tag as required for the build
-  # (Creation happens in preparation phase)
-  # Use default output_level/log_file since this can be called from many places
-  .gh_release_register_required(tag, output_level = "std", log_file = NULL)
+  # Note: GitHub release preparation now happens in .build_pre_prepare_remotes()
+  # via .dest_prepare_github_releases(), so we don't need to register here.
 
   fn <- .remote_get_path_rel(
     type = "github",

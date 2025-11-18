@@ -164,7 +164,7 @@
   } else {
     fn_full <- fn
   }
-  fn <- fn[!fs::is_dir(fn) & file.exists(fn_full)]
+  fn <- fn[!fs::is_dir(fn_full) & file.exists(fn_full)]
   fn |>
     fs::path_expand() |>
     fs::path_norm() |>

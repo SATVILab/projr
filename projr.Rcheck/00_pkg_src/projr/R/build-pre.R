@@ -3,6 +3,10 @@
 # ==========================
 
 .build_pre_check <- function(output_run, output_level = "std", log_file = NULL) {
+  # Check required packages are available BEFORE starting build
+  .cli_debug("Checking required packages", output_level = output_level, log_file = log_file)
+  .build_check_packages_available(output_run)
+  
   # set and check authorisation is available
   .cli_debug("Checking environment variables", output_level = output_level, log_file = log_file)
   .build_env_check(output_run)
@@ -18,6 +22,27 @@
   # check we are not missing upstream commits
   .cli_debug("Checking upstream commits", output_level = output_level, log_file = log_file)
   .build_exit_if_behind_upstream(output_run)
+}
+
+.build_pre_prepare_remotes <- function(bump_component,
+                                       archive_github,
+                                       archive_local,
+                                       output_level = "std",
+                                       log_file = NULL) {
+  output_run <- .build_get_output_run(bump_component)
+  if (!output_run) {
+    return(invisible(FALSE))
+  }
+
+  # For now, only GitHub releases
+  .dest_prepare_github_releases(
+    bump_component = bump_component,
+    archive_github = archive_github,
+    archive_local = archive_local,
+    strict = TRUE,
+    output_level = output_level,
+    log_file = log_file
+  )
 }
 
 .build_git_check <- function(output_run) {
@@ -431,3 +456,30 @@
     projr_version_set()
   invisible(TRUE)
 }
+
+# Package availability checking
+# ==============================
+
+.build_check_packages_available <- function(output_run) {
+  if (!output_run) {
+    return(invisible(FALSE))
+  }
+
+  # Use the new exported function to get package status
+  pkg_status <- projr_build_check_packages()
+
+  if (pkg_status$available) {
+    return(invisible(TRUE))
+  }
+
+  # Build error message with copy-paste command
+  msg <- paste0(
+    pkg_status$message,
+    "\n\nFor programmatic access to installation commands, use:\n",
+    "  pkg_status <- projr::projr_build_check_packages()\n",
+    "  pkg_status$install_cmds"
+  )
+
+  stop(msg, call. = FALSE)
+}
+
