@@ -2429,34 +2429,13 @@ projr_osf_create_project <- function(title,
   }
   tag <- .pb_tag_format(remote[["tag"]])
 
-  # Verify the release exists (should have been created in preparation phase)
-  # Perform a lightweight check with cached table first
-  if (!is.null(.projr_state$gh_release_tbl)) {
-    existing_tags <- .projr_state$gh_release_tbl[["tag_name"]]
-    if (!tag %in% existing_tags) {
-      # Re-check with fresh fetch in case release was deleted mid-build
-      release_tbl <- .pb_release_tbl_get(
-        output_level = output_level,
-        log_file = log_file
-      )
-      .projr_state$gh_release_tbl <- release_tbl
-      if (!tag %in% release_tbl[["tag_name"]]) {
-        stop(paste0(
-          "GitHub release '", tag, "' disappeared mid-build. ",
-          "This indicates external intervention (manual deletion or API issue). ",
-          "Please rerun the build."
-        ))
-      }
-    }
-  } else {
-    # No cached table - verify release exists
-    if (!.remote_check_exists("github", tag)) {
-      stop(paste0(
-        "GitHub release '", tag, "' does not exist. ",
-        "This should have been created during the preparation phase. ",
-        "This is an internal error - please report this issue."
-      ))
-    }
+  # Just check that the release exists
+  if (!.remote_check_exists("github", tag)) {
+    stop(paste0(
+      "GitHub release '", tag, "' does not exist. ",
+      "This should have been created during the preparation phase. ",
+      "Please rerun the build or report this issue if it persists."
+    ))
   }
 
   # if only needing code uploaded, then it's done already
@@ -2464,6 +2443,7 @@ projr_osf_create_project <- function(title,
   if (length(path_zip) == 0L && label == "code") {
     return(invisible(TRUE))
   }
+
   .remote_file_add_github_zip(
     path_zip = path_zip,
     tag = tag,

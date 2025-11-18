@@ -479,16 +479,31 @@ test_that(".remote_file_rm_all works - remote", {
         log_file = NULL
       )
       repo <- .pb_guess_repo()
+      max_time <- 300
+      start_time <- proc.time()[3]
       content_tbl_pre_delete <- piggyback::pb_list(
         repo = repo, tag = id
       )
+      re_try <- nrow(content_tbl_pre_delete) == 0L &&
+        (proc.time()[3] - start_time) < max_time
+      while (re_try) {
+        Sys.sleep(10)
+        content_tbl_pre_delete <- piggyback::pb_list(
+          repo = repo, tag = id
+        )
+        re_try <- nrow(content_tbl_pre_delete) == 0L &&
+          (proc.time()[3] - start_time) < max_time
+      }
       expect_identical(nrow(content_tbl_pre_delete), 1L)
       remote_github <- c("tag" = id, fn = basename(path_zip))
       .remote_file_rm_all(
         "github",
         remote = remote_github
       )
-      content_tbl <- piggyback::pb_list(repo = repo, tag = id)
+      Sys.sleep(30)
+      content_tbl <- piggyback::pb_list(
+        repo = repo, tag = id
+      )
       expect_true(is.null(content_tbl) || nrow(content_tbl) == 0L)
     }
   )
