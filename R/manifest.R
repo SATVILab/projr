@@ -150,41 +150,62 @@
 
 .manifest_remove_duplicate <- function(manifest) { # nolint: object_length_linter, line_length_linter.
   # Optimized deduplication strategy:
-  # - Remove exact duplicate rows
-  # - For each (label, fn, hash) combination, keep FIRST occurrence
-  # - This reduces redundancy significantly while preserving version history
-  # - Tombstone entries (empty hash) are preserved as unique entries
+  # - For each (label, fn) file, keep entries where hash changes from previous version
+  # - This correctly handles reversions (A→B→A keeps all 3 entries)
+  # - Removes redundant entries when hash unchanged across versions
   #
-  # Example: file.txt with hash ABC appears in v0.0.1, v0.0.2, v0.0.3
-  # Result: Only entry at v0.0.1 is kept (first occurrence)
-  # Benefit: Query for any version >= v0.0.1 will find file.txt
+  # Example 1 (no changes): hash A @ v1, v2, v3 → keep only v1 entry
+  # Example 2 (reversion): hash A @ v1, hash B @ v2, hash A @ v3 → keep all 3
+  # Example 3 (modification): hash A @ v1, hash B @ v2, hash B @ v3 → keep v1, v2
 
   if (nrow(manifest) == 0) {
     return(manifest)
   }
 
-  # Create content-based key: (label, fn, hash)
-  manifest[["content_key"]] <- paste(
+  # Sort by file and version
+  manifest <- manifest[order(
     manifest[["label"]],
     manifest[["fn"]],
-    ifelse(is.na(manifest[["hash"]]) | manifest[["hash"]] == "", "", manifest[["hash"]]),
-    sep = ":::"
-  )
+    package_version(vapply(manifest[["version"]], .version_v_rm, character(1), USE.NAMES = FALSE))
+  ), , drop = FALSE]
 
-  # Sort by version to keep earliest occurrence
-  version_order <- order(package_version(vapply(
-    manifest[["version"]],
-    .version_v_rm,
-    character(1),
-    USE.NAMES = FALSE
-  )))
-  manifest <- manifest[version_order, , drop = FALSE]
+  # For each unique (label, fn), keep entries where hash changes from previous
+  manifest[["file_key"]] <- paste(manifest[["label"]], manifest[["fn"]], sep = ":::")
 
-  # Keep first occurrence of each content_key
-  manifest <- manifest[!duplicated(manifest[["content_key"]]), , drop = FALSE]
+  keep_indices <- c()
+  file_keys <- unique(manifest[["file_key"]])
 
-  # Remove temporary column
-  manifest[["content_key"]] <- NULL
+  for (fkey in file_keys) {
+    file_rows <- which(manifest[["file_key"]] == fkey)
+
+    if (length(file_rows) == 1) {
+      # Single entry - always keep
+      keep_indices <- c(keep_indices, file_rows[1])
+    } else {
+      # Multiple entries - keep first and any where hash changes from immediate previous
+      keep_indices <- c(keep_indices, file_rows[1])  # Always keep first
+
+      for (i in 2:length(file_rows)) {
+        curr_idx <- file_rows[i]
+        prev_idx <- file_rows[i - 1]
+
+        curr_hash <- manifest[["hash"]][curr_idx]
+        prev_hash <- manifest[["hash"]][prev_idx]
+
+        # Normalize NA and empty as equivalent
+        if (is.na(curr_hash)) curr_hash <- ""
+        if (is.na(prev_hash)) prev_hash <- ""
+
+        # Keep if hash changed from immediate previous version
+        if (curr_hash != prev_hash) {
+          keep_indices <- c(keep_indices, curr_idx)
+        }
+      }
+    }
+  }
+
+  manifest <- manifest[keep_indices, , drop = FALSE]
+  manifest[["file_key"]] <- NULL
 
   rownames(manifest) <- NULL
   manifest
