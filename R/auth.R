@@ -44,8 +44,20 @@
 
   # 3. Fallback: gitcreds, if available
   if (requireNamespace("gitcreds", quietly = TRUE) && use_gitcreds_if_needed) {
-    .auth_get_github_pat_find_gitcreds(api_url)
+    token <- .auth_get_github_pat_find_gitcreds(api_url)
+    if (nzchar(token)) {
+      return(token)
+    }
   }
+
+  # 4. Fallback to GH_TOKEN
+  token <- Sys.getenv("GH_TOKEN", "") |>
+    .auth_token_normalize()
+  if (nzchar(token)) {
+    return(token)
+  }
+
+  # 5. Final fallback to GITHUB_TOKEN
   Sys.getenv("GITHUB_TOKEN", "") |>
     .auth_token_normalize()
 }

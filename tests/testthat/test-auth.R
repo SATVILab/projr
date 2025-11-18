@@ -267,3 +267,5 @@ test_that(".auth_token_normalize handles various inputs correctly", {
   expect_identical(length(.auth_token_normalize("")), 1L)
   expect_identical(length(.auth_token_normalize("token")), 1L)
 })
+
+

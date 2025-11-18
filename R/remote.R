@@ -266,8 +266,31 @@ projr_osf_create_project <- function(title,
 
 # github
 .remote_check_exists_github <- function(tag) {
-  .dep_install("piggyback")
   .assert_string(tag, TRUE)
+  
+  # Try fast path with .github_release_exists() if httr is available
+  if (requireNamespace("httr", quietly = TRUE)) {
+    repo <- tryCatch(
+      .pb_repo_get(),
+      error = function(e) NULL
+    )
+    
+    if (!is.null(repo)) {
+      result <- tryCatch(
+        .github_release_exists(repo, tag),
+        error = function(e) NULL
+      )
+      
+      # Only use fast path result if not NULL (NULL means auth error)
+      # If NULL, fall back to piggyback which has its own auth handling
+      if (!is.null(result)) {
+        return(result)
+      }
+    }
+  }
+  
+  # Fallback to piggyback approach
+  .dep_install("piggyback")
   release_tbl <- .pb_release_tbl_get()
   if (.is_try_error(release_tbl)) {
     stop("Could not get GitHub release table")
@@ -2457,22 +2480,97 @@ projr_osf_create_project <- function(title,
                                         pause_second = 3,
                                         output_level = "std",
                                         log_file = NULL) {
-  .dep_install("piggyback")
-
   .cli_debug(
-    "Piggyback: Uploading {basename(path_zip)} ({file.size(path_zip)} bytes) to tag '{tag}'",
+    "Uploading {basename(path_zip)} ({file.size(path_zip)} bytes) to tag '{tag}'",
     output_level = output_level,
     log_file = log_file
   )
 
+  # Try direct API upload if httr is available and release exists
+  if (requireNamespace("httr", quietly = TRUE)) {
+    repo <- tryCatch(.pb_repo_get(), error = function(e) NULL)
+    
+    if (!is.null(repo)) {
+      # Check if release exists using fast path
+      release_exists <- tryCatch(
+        .github_release_exists(repo, tag),
+        error = function(e) {
+          .cli_debug(
+            "Could not check release existence via API: {e$message}",
+            output_level = output_level,
+            log_file = log_file
+          )
+          NULL
+        }
+      )
+      
+      if (isTRUE(release_exists)) {
+        # Use direct API upload
+        .cli_debug(
+          "Using direct GitHub API upload for {basename(path_zip)}",
+          output_level = output_level,
+          log_file = log_file
+        )
+        
+        upload_result <- tryCatch(
+          {
+            .github_asset_upload(
+              repo = repo,
+              tag = tag,
+              file_path = path_zip,
+              asset_name = basename(path_zip),
+              overwrite = TRUE
+            )
+            TRUE
+          },
+          error = function(e) {
+            .cli_debug(
+              "Direct API upload failed: {e$message}, falling back to piggyback",
+              output_level = output_level,
+              log_file = log_file
+            )
+            NULL
+          }
+        )
+        
+        if (isTRUE(upload_result)) {
+          .cli_debug(
+            "Successfully uploaded {basename(path_zip)} via direct API",
+            output_level = output_level,
+            log_file = log_file
+          )
+          return(invisible(TRUE))
+        }
+      }
+    }
+  }
+  
+  # Fallback to piggyback approach
+  .dep_install("piggyback")
+  
+  .cli_debug(
+    "Piggyback: Uploading {basename(path_zip)} to tag '{tag}'",
+    output_level = output_level,
+    log_file = log_file
+  )
+
+  repo <- .pb_repo_get()
   result <- .pb_retry_with_backoff(
     fn = function() {
-      .remote_check_exists(type = "github", id = tag)
+      try(suppressWarnings(suppressMessages(
+        piggyback::pb_upload(
+          repo = repo,
+          file = path_zip,
+          tag = tag,
+          overwrite = TRUE,
+          show_progress = FALSE
+        )
+      )), silent = TRUE)
     },
     max_attempts = 6,
     initial_delay = pause_second,
     operation_name = paste0(
-      "upload ", basename(path_zip), " to tag '", tag, "'"
+      "upload ", basename(path_zip), " to GitHub release with tag ", tag
     ),
     output_level = output_level,
     log_file = log_file,
@@ -2542,7 +2640,13 @@ projr_osf_create_project <- function(title,
   result <- .pb_retry_with_backoff(
     fn = function() {
       try(suppressWarnings(suppressMessages(
-        piggyback::pb_upload(repo = repo, file = path_zip, tag = tag)
+        piggyback::pb_upload(
+          repo = repo,
+          file = path_zip,
+          tag = tag,
+          overwrite = TRUE,
+          show_progress = FALSE
+        )
       )), silent = TRUE)
     },
     max_attempts = 6,
