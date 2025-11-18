@@ -6,91 +6,72 @@
     GNU Fortran (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0
 * running under: Ubuntu 24.04.3 LTS
 * using session charset: UTF-8
-* using option ‘--as-cran’
+* using options ‘--no-manual --no-build-vignettes’
 * checking for file ‘projr/DESCRIPTION’ ... OK
-* this is package ‘projr’ version ‘0.3.0-1’
+* this is package ‘projr’ version ‘0.3.1-2’
 * package encoding: UTF-8
-* checking CRAN incoming feasibility ... NOTE
-Maintainer: ‘Miguel Rodo <miguel.rodo@uct.ac.za>’
-
-New submission
-
-Non-FOSS package license (file LICENSE)
-
-Found the following (possibly) invalid URLs:
-  URL: https://app.codecov.io/gh/SATVILab/projr?branch=main
-    From: README.md
-    Status: Error
-    Message: libcurl error code 6:
-      	Could not resolve host: app.codecov.io
-  URL: https://happygitwithr.com/github-acct
-    From: inst/doc/intro.html
-    Status: Error
-    Message: libcurl error code 6:
-      	Could not resolve host: happygitwithr.com
-  URL: https://happygitwithr.com/https-pat#tldr
-    From: inst/doc/intro.html
-    Status: Error
-    Message: libcurl error code 6:
-      	Could not resolve host: happygitwithr.com
-  URL: https://orcid.org/0000-0002-2036-4878
-    From: man/projr-package.Rd
-    Status: Error
-    Message: libcurl error code 6:
-      	Could not resolve host: orcid.org
-  URL: https://osf.io/
-    From: man/projr_osf_create_project.Rd
-    Status: Error
-    Message: libcurl error code 6:
-      	Could not resolve host: osf.io
-  URL: https://r-pkgs.org
-    From: man/projr_use_data.Rd
-    Status: Error
-    Message: libcurl error code 6:
-      	Could not resolve host: r-pkgs.org
-  URL: https://r-pkgs.org/data.html
-    From: man/projr_use_data.Rd
-    Status: Error
-    Message: libcurl error code 6:
-      	Could not resolve host: r-pkgs.org
-  URL: https://satvilab.github.io/projr/
-    From: DESCRIPTION
-          man/projr-package.Rd
-          inst/CITATION
-    Status: Error
-    Message: libcurl error code 6:
-      	Could not resolve host: satvilab.github.io
-  URL: https://satvilab.github.io/projr/articles/concepts.html
-    From: README.md
-    Status: Error
-    Message: libcurl error code 6:
-      	Could not resolve host: satvilab.github.io
-  URL: https://satvilab.github.io/projr/articles/design.html
-    From: README.md
-    Status: Error
-    Message: libcurl error code 6:
-      	Could not resolve host: satvilab.github.io
-  URL: https://satvilab.github.io/projr/articles/get-started.html
-    From: README.md
-    Status: Error
-    Message: libcurl error code 6:
-      	Could not resolve host: satvilab.github.io
-  URL: https://satvilab.github.io/projr/articles/how-to-guides.html
-    From: README.md
-    Status: Error
-    Message: libcurl error code 6:
-      	Could not resolve host: satvilab.github.io
-  URL: https://satvilab.github.io/projr/reference/index.html
-    From: README.md
-    Status: Error
-    Message: libcurl error code 6:
-      	Could not resolve host: satvilab.github.io
-  URL: https://www.repostatus.org/#active
-    From: README.md
-    Status: Error
-    Message: libcurl error code 6:
-      	Could not resolve host: www.repostatus.org
-
-Found the following (possibly) invalid ORCID iDs:
-  iD: 0000-0002-2036-4878	(from: DESCRIPTION)
-  iD: 0000-0002-2036-4878	(from: inst/CITATION)
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking whether package ‘projr’ can be installed ... OK
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking code files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking files in ‘vignettes’ ... WARNING
+Files in the 'vignettes' directory but no files in 'inst/doc':
+  ‘concepts.Rmd’ ‘design.Rmd’ ‘environment.Rmd’ ‘get-started.Rmd’
+  ‘how-to-guides.Rmd’ ‘intro.Rmd’
+* checking examples ... OK
+* checking for unstated dependencies in ‘tests’ ... OK
+* checking tests ... OK
+  Running ‘testthat.R’
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes ... WARNING
+Directory 'inst/doc' does not exist.
+Package vignettes without corresponding single PDF/HTML:
+  ‘concepts.Rmd’
+  ‘design.Rmd’
+  ‘environment.Rmd’
+  ‘get-started.Rmd’
+  ‘how-to-guides.Rmd’
+  ‘intro.Rmd’
+* checking running R code from vignettes ... OK
+  ‘concepts.Rmd’ using ‘UTF-8’... OK
+  ‘design.Rmd’ using ‘UTF-8’... OK
+  ‘environment.Rmd’ using ‘UTF-8’... OK
+  ‘get-started.Rmd’ using ‘UTF-8’... OK
+  ‘how-to-guides.Rmd’ using ‘UTF-8’... OK
+  ‘intro.Rmd’ using ‘UTF-8’... OK
+* checking re-building of vignette outputs ... SKIPPED
+* DONE
+Status: 2 WARNINGs

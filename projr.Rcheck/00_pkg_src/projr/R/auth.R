@@ -1,20 +1,6 @@
-# Helper function to normalize authentication tokens
-# Ensures consistent representation of empty/missing tokens as ""
-.auth_token_normalize <- function(token) {
-  # If token is NULL, NA, or zero-length vector, return ""
-  if (is.null(token) || length(token) == 0 || is.na(token)) {
-    return("")
-  }
-  # If token is a character string, return as-is
-  if (is.character(token) && length(token) == 1) {
-    return(token)
-  }
-  # Fallback to empty string for any other case
-  return("")
-}
+
 
 # github
-# works - 2025 02 12
 .auth_get_github_pat <- function(init = FALSE) {
   pat <- .auth_get_github_pat_find()
   if (.is_string(pat)) {
@@ -24,54 +10,64 @@
   pat
 }
 
-.auth_get_github_pat_find <- function() {
-  # try GITHUB_PAT
-  pat_nm <- c("GITHUB_PAT", "GITHUB_TOKEN")
-  for (x in pat_nm) {
-    pat <- Sys.getenv(x)
-    if (.is_string(pat)) {
-      return(invisible(pat))
+.auth_get_github_pat_find_gitcreds <- function(api_url = NULL) {
+  url  <- api_url %||% Sys.getenv("GITHUB_API_URL", "https://api.github.com")
+  host <- sub("^https?://api\\.", "https://", url)
+
+  creds <- suppressWarnings(tryCatch(
+    gitcreds::gitcreds_get(host),
+    gitcreds_nogit_error    = function(e) NULL,
+    gitcreds_no_credentials = function(e) NULL,
+    error                   = function(e) NULL
+  ))
+
+  if (is.null(creds)) "" else .auth_token_normalize(creds$password)
+}
+
+.auth_get_github_pat_find <- function(api_url = NULL,
+                                      use_gh_if_available = TRUE,
+                                      use_gitcreds_if_needed = TRUE) {
+  # 1. Direct env vars we explicitly honour
+  pat <- .auth_token_normalize(Sys.getenv("GITHUB_PAT", unset = ""))
+  if (.is_string(pat)) {
+    return(pat)
+  }
+
+  # 2. Prefer gh if installed, but do not require it
+  if (requireNamespace("gh", quietly = TRUE) && use_gh_if_available) {
+    token <- suppressWarnings(gh::gh_token(api_url)) |>
+      .auth_token_normalize()
+    if (nzchar(token)) {
+      return(token)
     }
   }
 
-  override_pat <- getOption("projr.gitcreds_override", NULL)
-  if (!is.null(override_pat)) {
-    return(invisible(.auth_token_normalize(override_pat)))
+  # 3. Fallback: gitcreds, if available
+  if (requireNamespace("gitcreds", quietly = TRUE) && use_gitcreds_if_needed) {
+    .auth_get_github_pat_find_gitcreds(api_url)
   }
+  Sys.getenv("GITHUB_TOKEN", "") |>
+    .auth_token_normalize()
+}
 
-  disable_gitcreds <- getOption("projr.disable_gitcreds", FALSE)
-  if (!isTRUE(disable_gitcreds)) {
-    disable_gitcreds <- tolower(Sys.getenv("PROJR_DISABLE_GITCREDS")) %in%
-      c("1", "true", "yes", "on")
+# Helper function to normalize authentication tokens
+# Ensures consistent representation of empty/missing tokens as ""
+.auth_token_normalize <- function(token) {
+  if (is.null(token) || length(token) != 1L || is.na(token)) {
+    return("")
   }
-  if (isTRUE(disable_gitcreds)) {
-    return(invisible(""))
+  if (!is.character(token)) {
+    return("")
   }
-  # try gitcreds
-  if (!requireNamespace("gitcreds", quietly = TRUE)) {
-    .dep_install("gitcreds")
-  } else {
-    .dep_add("gitcreds")
-  }
-  # taken from rstudio/renv and modified
-  pat <- tryCatch(
-    gitcreds::gitcreds_get()$password,
-    error = function(e) {
-      # remove as a forced dependency if this didn't work
-      .dep_rm("gitcreds")
-      character()
-    }
-  )
-  # Normalize the result to ensure consistent "" for missing/empty tokens
-  invisible(.auth_token_normalize(pat))
+  token
 }
 
 .auth_get_github_pat_warn <- function(init = FALSE) {
   warning(
-    "GITHUB_PAT environment variable not found.\n", # nolint
-    "\n", # nolint
+    "No GitHub authentication could be found.\n", # nolint
+    "\n",                                         # nolint
     .auth_get_github_pat_instr(),
-    "\n", # nolint
+    "\n",                                         # nolint
     .auth_get_github_pat_instr_init(init),
     call. = FALSE
   )
@@ -80,14 +76,22 @@
 .auth_get_github_pat_instr <- function() {
   .dep_install_only("usethis")
   c(
-    "GITHUB_PAT is needed to create a GitHub repository.\n", # nolint
-    "\n", # nolint
-    "Please set it (in less than two minutes) by doing the following:\n", # nolint
-    "1. If you do not have a GitHub account, create one here: https://github.com\n", # nolint
-    "2. In R, run usethis::create_github_token()\n", # nolint
-    "3. In R, run gitcreds::gitcreds_set()\n", # nolint
-    "4. Paste the token from step 1 into the R command line (terminal), and press enter\n", # nolint
-    "For more details, see https://happygitwithr.com/https-pat#tldr\n" # nolint
+    "GitHub authentication is required to create or use a GitHub ",      # nolint
+    "repository.\n",                                                     # nolint
+    "\n",                                                                # nolint
+    "You can set this up in under two minutes:\n",                       # nolint
+    "1. If you do not have a GitHub account, create one at ",           # nolint
+    "https://github.com\n",                                              # nolint
+    "2. In R, run usethis::create_github_token() and follow the ",      # nolint
+    "   prompts in your browser to create a personal access token\n",    # nolint
+    "3. In R, run gitcreds::gitcreds_set()\n",                           # nolint
+    "4. Paste the token you copied from your browser into the R ",      # nolint
+    "   console and press Enter\n",                                      # nolint
+    "\n",                                                                # nolint
+    "After this, projr will automatically detect your GitHub ",         # nolint
+    "credentials when needed.\n",                                        # nolint
+    "\n",                                                                # nolint
+    "For more details, see https://happygitwithr.com/https-pat#tldr\n"   # nolint
   )
 }
 
@@ -200,7 +204,10 @@ projr_instr_auth_osf <- function() {
   if (.is_string(pat)) {
     return(invisible(TRUE))
   }
+  .auth_check_github_error(context)
+}
 
+.auth_check_github_error <- function(context = NULL) {
   context_msg <- if (!is.null(context)) {
     paste0("GitHub authentication is required for: ", context, "\n\n")
   } else {

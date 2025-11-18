@@ -6,11 +6,17 @@
 
 * **Removed automatic package installation from all package code** to comply with CRAN policy that prohibits writing to user filespace during checks.
 
-* `.dep_install_only()` and `.renv_lockfile_read()` no longer automatically install missing packages. Instead, they now throw clear, informative errors with installation instructions when required packages are missing.
+* **Pre-build package validation**: Builds now check for all required packages (build engines, remote destinations) BEFORE starting the build process. If packages are missing, you get a clear error with a copy-paste installation command for all missing packages at once.
+
+* **Improved error messages**: When running interactively and a package is needed but not installed, projr provides clear, actionable error messages with exact installation commands. No automatic installation occurs to ensure CRAN compliance.
+
+* `.dep_install_only()` and `.renv_lockfile_read()` no longer automatically install missing packages. Instead, they throw clear, informative errors with installation instructions when required packages are missing.
 
 * Users must now manually install required optional dependencies before using features that depend on them. The error messages provide exact installation commands.
 
 * This change affects functions that previously auto-installed packages like:
+  - Build engines (quarto, rmarkdown, bookdown)
+  - Remote destinations (piggyback for GitHub, osfr for OSF)
   - GitHub operations (requires `gh` package)
   - Git operations in test mode (requires `gert` package)  
   - License creation (requires `usethis` package)

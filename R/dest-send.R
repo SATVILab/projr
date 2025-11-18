@@ -1,10 +1,45 @@
 # send to all remotes when they're the destination
 # --------------------------
 
+# Derive needed GitHub tags from configuration
+.dest_github_tags_needed <- function(archive_github, profile = NULL) {
+  # 1. From YAML-configured build.github destinations
+  yml_github <- .yml_dest_get_type("github", profile)
+  titles <- names(yml_github)
+
+  # 2. From archive_github parameter, if no "archive" title already
+  if (!isFALSE(archive_github) && !is.null(archive_github) && !"archive" %in% titles) {
+    titles <- c(titles, "archive")
+  }
+
+  if (.is_len_0(titles)) {
+    return(character(0L))
+  }
+
+  tag_vec <- character(0L)
+  for (title in titles) {
+    yml_title <- .yml_dest_get_title_complete(
+      title = title,
+      type  = "github",
+      profile = profile,
+      archive_type = archive_github,
+      always_archive = NULL
+    )
+
+    id <- yml_title[["id"]]  # configured id/title
+    tag <- .remote_misc_get_github_tag(id)
+    tag <- .pb_tag_format(tag)
+    tag_vec <- c(tag_vec, tag)
+  }
+
+  unique(tag_vec)
+}
+
 # Prepare GitHub releases before sending to destinations
 .dest_prepare_github_releases <- function(bump_component,
                                           archive_github,
                                           archive_local,
+                                          strict,
                                           output_level = "std",
                                           log_file = NULL) {
   # Early exit if not an output build
@@ -24,22 +59,28 @@
     return(invisible(FALSE))
   }
 
+  tags <- .dest_github_tags_needed(archive_github)
+  if (.is_len_0(tags)) {
+    .cli_debug(
+      "GitHub release preparation: No tags required (from config)",
+      output_level = output_level,
+      log_file = log_file
+    )
+    return(invisible(FALSE))
+  }
+
   .cli_debug(
-    "GitHub release preparation: Starting preparation phase",
+    "GitHub release preparation: Starting for {length(tags)} tag(s)",
     output_level = output_level,
     log_file = log_file
   )
 
-  # Prepare all required GitHub releases
-  .gh_release_prepare_all(output_level, log_file)
-
-  .cli_debug(
-    "GitHub release preparation: Completed successfully",
+  .gh_release_prepare_tags(
+    tags = tags,
+    strict = strict,
     output_level = output_level,
     log_file = log_file
   )
-
-  invisible(TRUE)
 }
 
 .dest_send <- function(bump_component,

@@ -24,6 +24,27 @@
   .build_exit_if_behind_upstream(output_run)
 }
 
+.build_pre_prepare_remotes <- function(bump_component,
+                                       archive_github,
+                                       archive_local,
+                                       output_level = "std",
+                                       log_file = NULL) {
+  output_run <- .build_get_output_run(bump_component)
+  if (!output_run) {
+    return(invisible(FALSE))
+  }
+
+  # For now, only GitHub releases
+  .dest_prepare_github_releases(
+    bump_component = bump_component,
+    archive_github = archive_github,
+    archive_local = archive_local,
+    strict = TRUE,
+    output_level = output_level,
+    log_file = log_file
+  )
+}
+
 .build_git_check <- function(output_run) {
   if (!output_run) {
     return(invisible(FALSE))

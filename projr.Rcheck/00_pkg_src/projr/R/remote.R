@@ -187,7 +187,7 @@ projr_osf_create_project <- function(title,
         log_file = log_file
       )
     },
-    max_attempts = 6,
+    max_attempts = 3,
     initial_delay = pause_second,
     operation_name = paste0("create GitHub release '", tag, "'"),
     output_level = output_level,
@@ -196,8 +196,18 @@ projr_osf_create_project <- function(title,
   )
 
   if (.is_try_error(result)) {
+    .cli_debug(
+      "Piggyback: Failed to create GitHub release '{tag}' after multiple attempts",
+      output_level = "debug",
+      log_file = log_file
+    )
     invisible(character())
   } else {
+    .cli_debug(
+      "Piggyback: Created GitHub release '{tag}'",
+      output_level = "debug",
+      log_file = log_file
+    )
     invisible(tag)
   }
 }
@@ -262,7 +272,9 @@ projr_osf_create_project <- function(title,
   if (.is_try_error(release_tbl)) {
     stop("Could not get GitHub release table")
   }
-  tag %in% release_tbl[["release_name"]]
+  inherits(release_tbl, "data.frame") &&
+    nrow(release_tbl) > 0L &&
+    tag %in% release_tbl[["tag_name"]]
 }
 
 # ========================
@@ -487,7 +499,7 @@ projr_osf_create_project <- function(title,
                                     path_append_label,
                                     label,
                                     structure,
-                                    version,
+                                    version = NULL,
                                     pre) {
   .assert_string(path, TRUE)
   .assert_path_not_file(path)
@@ -530,7 +542,7 @@ projr_osf_create_project <- function(title,
                                   path_append_label,
                                   label,
                                   structure,
-                                  version,
+                                  version = NULL,
                                   pre = NULL) {
   .assert_nchar_single(id, 5L, TRUE)
   .assert_string(path)
@@ -579,17 +591,19 @@ projr_osf_create_project <- function(title,
                                      path_append_label,
                                      label,
                                      structure,
-                                     version,
+                                     version = NULL,
                                      pre) {
   .assert_string(id, TRUE)
   .assert_in(label, .opt_dir_get_label_send(NULL), TRUE)
   tag <- .remote_misc_get_github_tag(id)
-  if (!pre) {
-    .remote_create_github(tag = tag)
-  }
+
+  # For pre=TRUE, just return tag
   if (pre) {
     return(c("tag" = id))
   }
+
+  # Note: GitHub release preparation now happens in .build_pre_prepare_remotes()
+  # via .dest_prepare_github_releases(), so we don't need to register here.
 
   fn <- .remote_get_path_rel(
     type = "github",
@@ -855,88 +869,7 @@ projr_osf_create_project <- function(title,
   }
 }
 
-# ========================
-# delete a remote host
-# ========================
 
-# this is different to deleting a remote,
-# at least for GitHub as we don't in that case
-# delete the release itself - we actually delete the repo.
-
-.remote_host_rm <- function(type,
-                            host) {
-  .assert_in(type, .opt_remote_get_type(), TRUE)
-  switch(type,
-    "local" = .remote_host_rm_local(host),
-    "osf" = .remote_host_rm_osf(host),
-    "github" = .remote_host_rm_github(host)
-  )
-}
-
-# local
-.remote_host_rm_local <- function(host) {
-  .assert_string(host, TRUE)
-  if (!dir.exists(host)) {
-    return(invisible(FALSE))
-  }
-  unlink(host, recursive = TRUE)
-  invisible(TRUE)
-}
-
-# osf
-.remote_host_rm_osf <- function(host) {
-  .assert_given_full(host)
-  .auth_check_osf("deleting OSF node")
-  .osf_rm(
-    x = .osf_retrieve_node(host), check = FALSE, recurse = TRUE
-  )
-  invisible(TRUE)
-}
-
-# github
-.remote_host_rm_github <- function(host) {
-  .assert_given_full(host)
-  # set up
-  # ----------
-  if (!requireNamespace("gh", quietly = TRUE)) {
-    .dep_install_only("gh")
-  }
-
-  # Check authentication before any GitHub API calls
-  .auth_check_github("deleting GitHub repository")
-
-  # defaults
-  user <- if ("user" %in% names(host)) host[["user"]] else NULL
-  .dep_install("gh")
-  if (is.null(user)) {
-    user <- tryCatch({
-      gh::gh_whoami()[["login"]]
-    }, error = function(e) {
-      NULL
-    })
-  }
-  if (!.is_string(user)) stop("No GitHub user found")
-  token <- if ("token" %in% names(host)) host[["token"]] else NULL # nolint
-  token <- token %||% Sys.getenv("GITHUB_PAT")
-  token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
-  if (!.is_string(token)) stop("No GitHub token found")
-  repo <- if ("repo" %in% names(host)) host[["repo"]] else NULL
-  if (!.is_string(repo)) stop("No GitHub repo specified")
-  # Define the URL of the GitHub API
-  # take basename in case we've accidentally specified
-  # the user as well in the repo specification
-  repo <- basename(repo)
-  if (repo == "projr") stop("Cannot delete the projr repo")
-
-  try(
-    gh::gh(
-      "DELETE /repos/{username}/{pkg}",
-      username = user,
-      pkg = repo
-    ),
-    silent = TRUE
-  )
-}
 
 # ========================
 # delete all contents of a remote
@@ -1391,7 +1324,7 @@ projr_osf_create_project <- function(title,
 
       TRUE
     },
-    max_attempts = 6,
+    max_attempts = 3,
     initial_delay = 3,
     operation_name = paste0("download ", remote[["fn"]], " from tag '", remote[["tag"]], "'"),
     output_level = output_level,
@@ -2495,14 +2428,37 @@ projr_osf_create_project <- function(title,
     return(invisible(FALSE))
   }
   tag <- .pb_tag_format(remote[["tag"]])
-  release_tbl <- .pb_release_tbl_get(
-    output_level = output_level,
-    log_file = log_file
-  )
-  if (!tag %in% release_tbl[["release_name"]]) {
-    .remote_create("github", id = tag, output_level = output_level, log_file = log_file)
-    Sys.sleep(3)
+
+  # Verify the release exists (should have been created in preparation phase)
+  # Perform a lightweight check with cached table first
+  if (!is.null(.projr_state$gh_release_tbl)) {
+    existing_tags <- .projr_state$gh_release_tbl[["tag_name"]]
+    if (!tag %in% existing_tags) {
+      # Re-check with fresh fetch in case release was deleted mid-build
+      release_tbl <- .pb_release_tbl_get(
+        output_level = output_level,
+        log_file = log_file
+      )
+      .projr_state$gh_release_tbl <- release_tbl
+      if (!tag %in% release_tbl[["tag_name"]]) {
+        stop(paste0(
+          "GitHub release '", tag, "' disappeared mid-build. ",
+          "This indicates external intervention (manual deletion or API issue). ",
+          "Please rerun the build."
+        ))
+      }
+    }
+  } else {
+    # No cached table - verify release exists
+    if (!.remote_check_exists("github", tag)) {
+      stop(paste0(
+        "GitHub release '", tag, "' does not exist. ",
+        "This should have been created during the preparation phase. ",
+        "This is an internal error - please report this issue."
+      ))
+    }
   }
+
   # if only needing code uploaded, then it's done already
   # by creating the release
   if (length(path_zip) == 0L && label == "code") {
@@ -2531,16 +2487,13 @@ projr_osf_create_project <- function(title,
 
   result <- .pb_retry_with_backoff(
     fn = function() {
-      .remote_file_add_github_zip_attempt(
-        path_zip = path_zip,
-        tag = tag,
-        output_level = output_level,
-        log_file = log_file
-      )
+      .remote_check_exists(type = "github", id = tag)
     },
     max_attempts = 6,
     initial_delay = pause_second,
-    operation_name = paste0("upload ", basename(path_zip), " to tag '", tag, "'"),
+    operation_name = paste0(
+      "upload ", basename(path_zip), " to tag '", tag, "'"
+    ),
     output_level = output_level,
     log_file = log_file,
     check_success = function(x) !inherits(x, "try-error")
@@ -2566,15 +2519,66 @@ projr_osf_create_project <- function(title,
                                                 tag,
                                                 output_level = "std",
                                                 log_file = NULL) {
+
   repo <- .pb_repo_get()
-  result <- try(suppressWarnings(suppressMessages(
-    piggyback::pb_upload(repo = repo, file = path_zip, tag = tag)
-  )), silent = TRUE)
+  .cli_debug(
+    "Piggyback: Attempting to upload {basename(path_zip)} to tag '{tag}'",
+    output_level = output_level,
+    log_file = log_file
+  )
+
+  result <- .pb_retry_with_backoff(
+    fn = function() {
+      remote_github <- .remote_create(
+        type = "github",
+        id = tag,
+        output_level = output_level,
+        description = "Release automatically created by `projr`",
+        log_file = log_file
+      )
+      if (!nzchar(remote_github)) {
+        return(try(stop(), silent = TRUE))
+      }
+      try(.remote_check_exists(type = "github", id = tag), silent = TRUE)
+    },
+    max_attempts = 3,
+    initial_delay = 3,
+    operation_name = paste0("create github release with tag ", tag),
+    output_level = output_level,
+    log_file = log_file,
+    check_success = function(x) !inherits(x, "try-error")
+  )
+
+  if (inherits(result, "try-error")) {
+    .cli_debug(
+      "Piggyback: Failed to create GitHub release '{tag}' after multiple attempts", # nolint
+      output_level = "debug",
+      log_file = log_file
+    )
+    return(invisible(FALSE))
+  }
+
+  # ensure github
+  result <- .pb_retry_with_backoff(
+    fn = function() {
+      try(suppressWarnings(suppressMessages(
+        piggyback::pb_upload(repo = repo, file = path_zip, tag = tag)
+      )), silent = TRUE)
+    },
+    max_attempts = 6,
+    initial_delay = 3,
+    operation_name = paste0(
+      "upload ", basename(path_zip), " to Github release with tag ", tag
+    ),
+    output_level = output_level,
+    log_file = log_file,
+    check_success = function(x) !inherits(x, "try-error")
+  )
 
   if (inherits(result, "try-error")) {
     error_msg <- attr(result, "condition")$message
     .cli_debug(
-      "Piggyback: pb_upload() failed for {basename(path_zip)} to tag '{tag}': {error_msg}",
+      "Piggyback: pb_upload() failed for {basename(path_zip)} to tag '{tag}': {error_msg}", # nolint
       output_level = output_level,
       log_file = log_file
     )
