@@ -596,12 +596,16 @@ projr_osf_create_project <- function(title,
   .assert_string(id, TRUE)
   .assert_in(label, .opt_dir_get_label_send(NULL), TRUE)
   tag <- .remote_misc_get_github_tag(id)
-  if (!pre) {
-    .remote_create_github(tag = tag)
-  }
+
+  # For pre=TRUE, just return tag
   if (pre) {
     return(c("tag" = id))
   }
+
+  # Register this tag as required for the build
+  # (Creation happens in preparation phase)
+  # Use default output_level/log_file since this can be called from many places
+  .gh_release_register_required(tag, output_level = "std", log_file = NULL)
 
   fn <- .remote_get_path_rel(
     type = "github",
@@ -2426,14 +2430,37 @@ projr_osf_create_project <- function(title,
     return(invisible(FALSE))
   }
   tag <- .pb_tag_format(remote[["tag"]])
-  release_tbl <- .pb_release_tbl_get(
-    output_level = output_level,
-    log_file = log_file
-  )
-  if (!tag %in% release_tbl[["release_name"]]) {
-    .remote_create("github", id = tag, output_level = output_level, log_file = log_file)
-    Sys.sleep(3)
+
+  # Verify the release exists (should have been created in preparation phase)
+  # Perform a lightweight check with cached table first
+  if (!is.null(.projr_state$gh_release_tbl)) {
+    existing_tags <- .projr_state$gh_release_tbl[["tag_name"]]
+    if (!tag %in% existing_tags) {
+      # Re-check with fresh fetch in case release was deleted mid-build
+      release_tbl <- .pb_release_tbl_get(
+        output_level = output_level,
+        log_file = log_file
+      )
+      .projr_state$gh_release_tbl <- release_tbl
+      if (!tag %in% release_tbl[["tag_name"]]) {
+        stop(paste0(
+          "GitHub release '", tag, "' disappeared mid-build. ",
+          "This indicates external intervention (manual deletion or API issue). ",
+          "Please rerun the build."
+        ))
+      }
+    }
+  } else {
+    # No cached table - verify release exists
+    if (!.remote_check_exists("github", tag)) {
+      stop(paste0(
+        "GitHub release '", tag, "' does not exist. ",
+        "This should have been created during the preparation phase. ",
+        "This is an internal error - please report this issue."
+      ))
+    }
   }
+
   # if only needing code uploaded, then it's done already
   # by creating the release
   if (length(path_zip) == 0L && label == "code") {
