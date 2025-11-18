@@ -942,13 +942,23 @@ projr_init_renviron <- function() {
 # --------------------------
 .init_github <- function(username,
                          public) {
-  if (!.git_repo_check_exists() || is.null(username)) {
+  # Check if git repo exists
+  if (!.git_repo_check_exists()) {
     .yml_unset_github_dest()
     return(invisible(FALSE))
   }
+  
+  # Check if username is NULL or a placeholder value
+  if (is.null(username) || identical(username, "GITHUB_USER_NAME")) {
+    .yml_unset_github_dest()
+    return(invisible(FALSE))
+  }
+  
+  # Check if remote already exists
   if (.git_remote_check_exists()) {
     return(invisible(FALSE))
   }
+  
   .init_github_impl(username, public)
 }
 
