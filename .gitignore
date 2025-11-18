@@ -10,7 +10,6 @@ _tmp
 _scratch/VERSION
 git_diff_output.txt
 check_output.log
-docs/
 
 *.tar.gz
 *.Rcheck
