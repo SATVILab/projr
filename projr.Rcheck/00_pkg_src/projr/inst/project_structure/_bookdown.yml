@@ -1,8 +1,0 @@
-book_filename: docs
-delete_merged_file: yes
-language:
-  ui:
-    chapter_name: 'Chapter '
-rmd_files: 
-- index.Rmd
-output_dir: docs
