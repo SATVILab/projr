@@ -1,3 +1,12 @@
+# Local Remote Tests
+#
+# This file tests local remote functionality only.
+# All GitHub-specific tests have been moved to test-remote-github.R
+# All OSF-specific tests have been moved to test-remote-osf.R
+#
+# These tests run in all modes (CRAN, LITE, full) and do not require
+# any external credentials or network access.
+
 # --------------------------
 # creating remotes
 # --------------------------
@@ -28,55 +37,9 @@ test_that(".remote_create works - local", {
   )
 })
 
-test_that(".remote_create works - remote", {
-  skip_if_offline()
-  skip_on_cran()
-  skip_if(.is_test_fast())
-  skip_if(.is_test_select())
-  skip_if(.is_test_lite())
-  dir_test <- .test_setup_project(
-    git = TRUE, github = TRUE, set_env_var = TRUE
-  )
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # osf
-      # --------------------------
-
-      if (suppressWarnings(nzchar(.auth_get_osf_pat()))) {
-
-        # project
-        id_parent <- .test_osf_create_project("ProjectParent")
-        expect_true(.remote_check_exists("osf", id_parent))
-        env <- environment()
-        .osf_rm_node_id_defer(id_parent, env)
-
-        # component
-        id_comp <- try(.remote_create(
-          type = "osf", name = "CreateComp", id_parent = id_parent,
-          category = "data"
-        ))
-        expect_true(.remote_check_exists("osf", id_comp))
-        .osf_rm_node_id_defer(id_comp, env)
-      }
-
-      # github
-      # --------------------------
-      tag_init <- .test_random_string_get()
-      tag <- .remote_create("github", id = tag_init)
-      start_time <- proc.time()[3]
-      max_wait <- 600
-      remote_exists <- .remote_check_exists("github", id = tag)
-      carry_on <- !remote_exists && (proc.time()[3] - start_time < max_wait)
-      while (carry_on) {
-        Sys.sleep(10)
-        remote_exists <- .remote_check_exists("github", id = tag)
-        carry_on <- !remote_exists && (proc.time()[3] - start_time < max_wait)
-      }
-      expect_true(remote_exists)
-    }
-  )
-})
+# Remote creation tests for GitHub and OSF have been moved to:
+# - test-remote-github.R (GitHub-specific tests)
+# - test-remote-osf.R (OSF-specific tests)
 
 # --------------------------
 # getting remotes
@@ -99,36 +62,9 @@ test_that(".remote_get works - local", {
   )
 })
 
-test_that(".remote_get works - remote", {
-  skip_if_offline()
-  skip_on_cran()
-  skip_if(.is_test_fast())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(
-    git = TRUE, github = TRUE, set_env_var = TRUE
-  )
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # osf
-      # --------------------------
-      if (suppressWarnings(nzchar(.auth_get_osf_pat()))) {
-        id <- .test_osf_create_project("ProjectParent")
-        expect_identical(
-          .remote_get("osf", id)[["id"]],
-          id
-        )
-      }
-
-      # github
-      # --------------------------
-      expect_identical(
-        .remote_get("github", "abc"),
-        c("tag" = "abc")
-      )
-    }
-  )
-})
+# Remote get tests for GitHub and OSF have been moved to:
+# - test-remote-github.R (GitHub-specific tests)
+# - test-remote-osf.R (OSF-specific tests)
 
 # --------------------------
 # get final remotes
@@ -169,66 +105,9 @@ test_that(".remote_get_final works - local", {
   )
 })
 
-test_that(".remote_get_final works", {
-  skip_if_offline()
-  skip_on_cran()
-  skip_if(.is_test_fast())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(
-    git = TRUE, github = TRUE, set_env_var = TRUE
-  )
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # osf
-      # --------------------------
-
-      if (suppressWarnings(nzchar(.auth_get_osf_pat()))) {
-        # no sub-directory
-        id <- .test_osf_create_project("ProjectParent")
-        expect_error(
-          .remote_get_final(
-            "osf",
-            id = id, path_append_label = TRUE
-          )[["id"]]
-        )
-        expect_identical(
-          .remote_get_final(
-            "osf",
-            id = id, path_append_label = FALSE,
-            structure = "latest"
-          )[["id"]],
-          id
-        )
-
-        # sub-directory
-        path_rel <- "a/raw-data/v0.0.0-1"
-        osf_tbl <- .osf_mkdir(.remote_get("osf", id), path_rel)
-        expect_identical(
-          .remote_get_final_osf(
-            id = id,
-            path = "a",
-            path_append_label = TRUE,
-            label = "raw-data",
-            structure = "archive"
-          ),
-          osf_tbl
-        )
-      }
-
-
-      # github
-      # --------------------------
-      expect_identical(
-        .remote_get_final(
-          "github",
-          id = "kablumph", label = "raw-data", structure = "archive"
-        ),
-        c("tag" = "kablumph", fn = "raw-data-v0.0.0-1.zip")
-      )
-    }
-  )
-})
+# Remote get_final tests for GitHub and OSF have been moved to:
+# - test-remote-github.R (GitHub-specific tests)
+# - test-remote-osf.R (OSF-specific tests)
 
 # --------------------------
 # removing empty remotes
@@ -293,82 +172,9 @@ test_that(".remote_rm_final_if_empty works - local", {
   )
 })
 
-test_that(".remote_rm_final_if_empty works - remote", {
-  skip_if_offline()
-  skip_if(.is_test_select())
-  skip_on_cran()
-  dir_test <- .test_setup_project(
-    git = TRUE, github = TRUE, set_env_var = TRUE
-  )
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      if (suppressWarnings(nzchar(.auth_get_osf_pat()))) {
-        # osf
-        # --------------------------
-
-        # create node
-        id <- .test_osf_create_project("Project")
-        osf_tbl <- .remote_get("osf", id)
-
-        # when we pass the node rather than sub-dir
-        expect_false(
-          .remote_rm_final_if_empty(
-            "osf",
-            remote = osf_tbl, structure = "archive"
-          )
-        )
-
-        # create the sub-directory
-        osf_tbl_file <- .remote_get_final(
-          "osf",
-          id = id, path_append_label = FALSE, structure = "archive"
-        )
-
-        # remove it again
-        expect_true(
-          .remote_rm_final_if_empty(
-            "osf",
-            remote = osf_tbl_file, structure = "archive"
-          )
-        )
-        is_zero <- (.osf_ls_files(osf_tbl) |> nrow()) == 0L
-        n_sec <- 0
-        start_time <- proc.time()[3]
-        while (!is_zero && n_sec < 15) {
-          Sys.sleep(3)
-          is_zero <- (.osf_ls_files(osf_tbl) |> nrow()) == 0L
-          n_sec <- proc.time()[3] - start_time
-        }
-        expect_true(is_zero)
-
-
-        # create the sub-directory, and upload to it
-        osf_tbl_file <- .remote_get_final(
-          "osf",
-          id = id, path_append_label = FALSE, structure = "archive"
-        )
-        invisible(file.create("abc.txt"))
-        .osf_upload(x = osf_tbl_file, path = "abc.txt")
-
-        # try to remove it, check that it isn't
-        expect_false(
-          .remote_rm_final_if_empty(
-            "osf",
-            remote = osf_tbl_file, structure = "archive"
-          )
-        )
-        expect_identical(.osf_ls_files(osf_tbl) |> nrow(), 1L)
-      }
-
-      # github
-      # --------------------------
-      expect_false(
-        .remote_rm_final_if_empty("github", FALSE)
-      )
-    }
-  )
-})
+# Remote rm_final_if_empty tests for GitHub and OSF have been moved to:
+# - test-remote-github.R (GitHub-specific tests)
+# - test-remote-osf.R (OSF-specific tests)
 
 # --------------------------
 # removing all contents of a remote
@@ -408,106 +214,9 @@ test_that(".remote_file_rm_all works - local", {
   )
 })
 
-test_that(".remote_file_rm_all works - remote", {
-  skip_if_offline()
-  skip_on_cran()
-  skip_if(.is_test_fast())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(
-    git = TRUE, github = TRUE, set_env_var = TRUE
-  )
-  usethis::with_project(
-    path = dir_test,
-    code = {
-
-      if (suppressWarnings(nzchar(.auth_get_osf_pat()))) {
-        # osf
-        # --------------------------
-
-        # create node
-        id <- .test_osf_create_project("Project")
-        osf_tbl <- .remote_get("osf", id)
-
-        # when empty
-        expect_false(
-          .remote_file_rm_all(
-            "osf",
-            remote = osf_tbl
-          )
-        )
-
-        # clear content
-        osf_tbl_sub_a <- .osf_mkdir(osf_tbl, path = "a")
-        osf_tbl_sub_b <- .osf_mkdir(osf_tbl, path = "a/b")
-        path_tmp_file <- file.path(tempdir(), "abc.txt")
-        file.create(path_tmp_file)
-        .osf_upload(
-          x = osf_tbl, path = path_tmp_file, conflicts = "overwrite"
-        )
-        .osf_upload(
-          x = osf_tbl_sub_a, path = path_tmp_file,
-          conflicts = "overwrite"
-        )
-        .osf_upload(
-          x = osf_tbl_sub_b, path = path_tmp_file,
-          conflicts = "overwrite"
-        )
-        expect_true(
-          .remote_file_rm_all(
-            "osf",
-            remote = osf_tbl
-          )
-        )
-        expect_true(nrow(.osf_ls_files(osf_tbl)) == 0L)
-      }
-
-      # github
-      # --------------------------
-      piggyback:::.pb_cache_clear()
-      id <- .remote_create("github", id = "abc")
-      path_tmp_file <- file.path(tempdir(), "abc.txt")
-      file.create(path_tmp_file)
-      path_zip <- .zip_file(
-        fn_rel = basename(path_tmp_file),
-        path_dir_fn_rel = dirname(path_tmp_file),
-        fn_rel_zip = "abc.zip"
-      )
-      .remote_file_add_github_zip_attempt(
-        path_zip = path_zip,
-        tag = id,
-        output_level = "debug",
-        log_file = NULL
-      )
-      repo <- .pb_guess_repo()
-      max_time <- 300
-      start_time <- proc.time()[3]
-      content_tbl_pre_delete <- piggyback::pb_list(
-        repo = repo, tag = id
-      )
-      re_try <- nrow(content_tbl_pre_delete) == 0L &&
-        (proc.time()[3] - start_time) < max_time
-      while (re_try) {
-        Sys.sleep(10)
-        content_tbl_pre_delete <- piggyback::pb_list(
-          repo = repo, tag = id
-        )
-        re_try <- nrow(content_tbl_pre_delete) == 0L &&
-          (proc.time()[3] - start_time) < max_time
-      }
-      expect_identical(nrow(content_tbl_pre_delete), 1L)
-      remote_github <- c("tag" = id, fn = basename(path_zip))
-      .remote_file_rm_all(
-        "github",
-        remote = remote_github
-      )
-      Sys.sleep(30)
-      content_tbl <- piggyback::pb_list(
-        repo = repo, tag = id
-      )
-      expect_true(is.null(content_tbl) || nrow(content_tbl) == 0L)
-    }
-  )
-})
+# Remote file_rm_all tests for GitHub and OSF have been moved to:
+# - test-remote-github.R (GitHub-specific tests)
+# - test-remote-osf.R (OSF-specific tests)
 
 # --------------------------
 # editing files on remotes
@@ -566,126 +275,6 @@ test_that("adding, tallying and removing files from remotes works - local", {
   )
 })
 
-test_that("adding, tallying and removing files from remotes works - osf", {
-  skip("OSF tests disabled - to be reviewed")
-  skip_if_offline()
-  skip_on_cran()
-  skip_if(.is_test_fast())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
-  )
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # osf
-      # --------------------------
+# OSF file operations tests have been moved to test-remote-osf.R
 
-      # create node
-      id <- .test_osf_create_project("Project")
-      osf_tbl <- .remote_get("osf", id)
-
-      # when empty
-      expect_identical(
-        .remote_file_ls(
-          "osf",
-          remote = osf_tbl
-        ),
-        character()
-      )
-
-      # with content
-      path_dir_source <- .test_setup_content_dir()
-      fn_vec_source <- .remote_file_ls("local", path_dir_source)
-      path_dir_dest <- .dir_create_tmp_random()
-      .remote_file_add(
-        "osf",
-        fn = fn_vec_source,
-        path_dir_local = path_dir_source,
-        remote = osf_tbl
-      )
-      expect_identical(
-        .remote_file_ls("osf", osf_tbl),
-        fn_vec_source
-      )
-
-      # remove some content
-      fn_vec_orig_osf <- .remote_file_ls("osf", osf_tbl)
-      fn_vec_rm <- c("abc.txt", "subdir1/def.txt")
-      expect_true(
-        .remote_file_rm("osf", fn = fn_vec_rm, remote = osf_tbl)
-      )
-      expect_identical(
-        .remote_file_ls(
-          "osf",
-          remote = osf_tbl
-        ),
-        fn_vec_orig_osf |> setdiff(fn_vec_rm)
-      )
-      unlink(path_dir_source, recursive = TRUE)
-    }
-  )
-})
-
-test_that("adding, tallying and removing files from remotes works - github", {
-  skip_if_offline()
-  skip_on_cran()
-  skip_if(.is_test_fast())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(
-    git = TRUE, github = TRUE, set_env_var = TRUE
-  )
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # github
-      # --------------------------
-      # create release
-      id <- .test_random_string_get()
-      remote <- .remote_get_final(
-        "github",
-        id = id, label = "raw-data", structure = "latest"
-      )
-      .remote_create("github", remote[["tag"]])
-
-      # when empty
-      expect_identical(
-        .remote_file_ls(
-          "github",
-          remote = remote
-        ),
-        character()
-      )
-
-      # with content
-      path_dir_source <- .test_setup_content_dir()
-      remote <- stats::setNames(.test_random_string_get(), "tag")
-      remote <- remote |> c(c("fn" = "raw-data.zip"))
-      fn_vec <- .remote_file_ls("local", path_dir_source)
-      .remote_file_add(
-        "github",
-        fn = fn_vec, path_dir_local = path_dir_source, remote = remote
-      )
-      path_dir_save <- .dir_create_tmp_random()
-      .remote_file_get_all(
-        "github",
-        remote = remote, path_dir_save_local = path_dir_save
-      )
-      expect_identical(
-        .remote_file_ls("local", path_dir_save),
-        fn_vec
-      )
-
-      # remove some content
-      fn_vec_orig_github <- .remote_file_ls("github", remote)
-      fn_vec_rm <- c("abc.txt", "subdir1/def.txt")
-      expect_true(
-        .remote_file_rm("github", fn = fn_vec_rm, remote = remote)
-      )
-      expect_identical(
-        .remote_file_ls("github", remote),
-        setdiff(fn_vec_orig_github, fn_vec_rm)
-      )
-    }
-  )
-})
+# GitHub file operations tests have been moved to test-remote-github.R
