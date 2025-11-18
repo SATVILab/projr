@@ -24,14 +24,31 @@
   # Ensure 'website' related keys are lists
   list_save <- .wrap_in_list_if_string(list_save, c("website", "other-links"))
   list_save <- .wrap_in_list_if_string(list_save, c("website", "code-links"))
+  list_save <- .wrap_in_list_if_string(list_save, c("website", "repo-actions"))
+  list_save <- .wrap_in_list_if_string(list_save, c("website", "reader-mode"))
+  
+  # Navbar navigation keys
   list_save <- .wrap_in_list_if_string(
     list_save, c("website", "navbar", "right")
   )
   list_save <- .wrap_in_list_if_string(
     list_save, c("website", "navbar", "left")
   )
-
-  # TODO: Extend handling for additional `website` navigation items as needed
+  list_save <- .wrap_in_list_if_string(
+    list_save, c("website", "navbar", "tools")
+  )
+  list_save <- .wrap_in_list_if_string(
+    list_save, c("website", "navbar", "pinned")
+  )
+  
+  # Sidebar navigation keys
+  list_save <- .wrap_in_list_if_string(list_save, c("website", "sidebar"))
+  list_save <- .wrap_in_list_if_string(
+    list_save, c("website", "sidebar", "contents")
+  )
+  list_save <- .wrap_in_list_if_string(
+    list_save, c("website", "sidebar", "tools")
+  )
 
   # Ensure 'book' related keys are lists
   list_save <- .wrap_in_list_if_string(list_save, c("book", "chapters"))
