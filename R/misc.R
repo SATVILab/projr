@@ -778,7 +778,12 @@ projr_use_data <- function(...,
   )
 }
 
-.init_engine_bookdown_contents_bookdown <- function() {
+.init_engine_bookdown_contents_bookdown <- function(nm_list = NULL) {
+  # Extract metadata with fallback to placeholders
+  title <- if (!is.null(nm_list)) nm_list[["title"]] else "Project Title"
+  gh_user <- if (!is.null(nm_list)) nm_list[["gh"]] else "username"
+  pkg_name <- if (!is.null(nm_list)) nm_list[["pkg"]] else "repository"
+  
   c(
     "bookdown::gitbook:",
     "  toc_depth: 6",
@@ -786,9 +791,9 @@ projr_use_data <- function(...,
     "  config:",
     "    toc:",
     "      before: |",
-    "        <li><a href=\"./\">TODO: ADD SHORT DESCRIPTION</a></li>",
+    paste0("        <li><a href=\"./\">", title, "</a></li>"),
     "      after: |",
-    "        <li><a href=\"https://github.com/[GITHUB_USER]/[GITHUB_REPO]\" target=\"blank\">SATVILab/TODO:_ADD_REPO_NAME</a></li>", # nolint
+    paste0("        <li><a href=\"https://github.com/", gh_user, "/", pkg_name, "\" target=\"blank\">", gh_user, "/", pkg_name, "</a></li>"), # nolint
     "    download: [\"pdf\", \"epub\"]",
     "bookdown::pdf_book:",
     "  latex_engine: xelatex",
@@ -798,7 +803,7 @@ projr_use_data <- function(...,
   )
 }
 
-init_engine_bookdown_contents_output <- function() {
+init_engine_bookdown_contents_output <- function(nm_list = NULL) {
   c(
     "book_filename: docs",
     "delete_merged_file: yes",
@@ -811,11 +816,19 @@ init_engine_bookdown_contents_output <- function() {
   )
 }
 
-init_engine_bookdown_contents_index <- function() {
+init_engine_bookdown_contents_index <- function(nm_list = NULL) {
+  # Extract metadata with fallback to placeholders
+  title <- if (!is.null(nm_list)) nm_list[["pkg"]] else "Project Title"
+  author <- if (!is.null(nm_list)) {
+    paste0(nm_list[["first"]], " ", nm_list[["last"]])
+  } else {
+    "Author Name"
+  }
+  
   c(
     "---",
-    "title: \"[Title]\"",
-    "author: \"[Author]\"",
+    paste0("title: \"", title, "\""),
+    paste0("author: \"", author, "\""),
     "date: \"`r Sys.Date()`\"",
     "site: bookdown::bookdown_site",
     "documentclass: book",
