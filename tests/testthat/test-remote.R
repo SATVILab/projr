@@ -1,3 +1,12 @@
+# Local Remote Tests
+#
+# This file tests local remote functionality only.
+# All GitHub-specific tests have been moved to test-remote-github.R
+# All OSF-specific tests have been moved to test-remote-osf.R
+#
+# These tests run in all modes (CRAN, LITE, full) and do not require
+# any external credentials or network access.
+
 # --------------------------
 # creating remotes
 # --------------------------
