@@ -287,12 +287,22 @@
   )
 }
 
+# MANUAL CLEANUP FUNCTION - USE WITH CAUTION
+# This function is for manual cleanup of ALL ProjrGitHubTest repos
+# for the authenticated user. Unlike the automatic cleanup in setup.R
+# which only deletes repos from the current test run, this function
+# finds and deletes ALL repos starting with "ProjrGitHubTest".
+# Use this when you need to clean up orphaned test repos from failed
+# test runs or other manual cleanup scenarios.
 .remote_host_rm_all_github <- function(user = NULL) {
   # set up
   # ----------
   # Packages should be installed via Suggests
   .dep_install_only("gh")
   .dep_install_only("httr")
+
+  # Check authentication before any GitHub API calls
+  .auth_check_github("listing and deleting GitHub repositories")
 
   # defaults
   if (is.null(user)) {
@@ -334,11 +344,16 @@
   # Get the names of repositories
   repo_vec <- vapply(repo_list, function(x) x$name, character(1))
 
-  # choose which to delete
+  # choose which to delete - only those starting with ProjrGitHubTest
   repo_vec_ind_del <- grepl("^ProjrGitHubTest", repo_vec)
   name_vec <- repo_vec[repo_vec_ind_del]
   # make sure we cannot actually delete everything
   rm(repo_vec)
+
+  if (length(name_vec) == 0L) {
+    message("No GitHub repositories to delete.")
+    return(invisible(FALSE))
+  }
   cat(name_vec, sep = "\n")
   opt_vec <- c("Yes", "No", "Definitely not")[sample(1:3, size = 3)]
   yes_ind <- which(opt_vec == "Yes")
@@ -360,9 +375,10 @@
     if (delete_opt != yes_ind) {
       return(invisible(FALSE))
     }
-    for (repo in name_vec) {
-      .remote_host_rm_github(host = c("repo" = repo))
-    }
+  }
+  # Delete all confirmed repos
+  for (repo in name_vec) {
+    .test_remote_host_rm_github(host = c("repo" = repo))
   }
 }
 
