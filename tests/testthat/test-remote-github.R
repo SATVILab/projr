@@ -123,14 +123,12 @@ test_that("adding, listing and removing files works on GitHub releases", {
         "github",
         remote = c("tag" = tag, "fn" = "abc.zip"),
         path_dir_local = ".",
-        fn = "abc.txt",
+        fn = "abc.txt"
       )
 
       expect_true(
         "abc.txt" %in% .remote_file_ls("github", remote = c("tag" = tag, "fn" = "abc.zip"))
       )
-
-      browser()
 
       # Clear existing content
       .remote_final_empty("github", remote = c("tag" = tag, "fn" = "abc.zip"))
@@ -154,7 +152,7 @@ test_that("adding, listing and removing files works on GitHub releases", {
         "github",
         fn = fn_vec,
         path_dir_local = path_dir_source,
-        remote = remote
+        remote = c("tag" = tag, "fn" = "abc.zip")
       )
 
       # Poll for upload to be reflected
@@ -174,7 +172,7 @@ test_that("adding, listing and removing files works on GitHub releases", {
       path_dir_save <- .dir_create_tmp_random()
       .remote_file_get_all(
         "github",
-        remote = remote,
+        remote = c("tag" = tag, "fn" = "abc.zip"),
         path_dir_save_local = path_dir_save
       )
       expect_identical(
@@ -185,17 +183,17 @@ test_that("adding, listing and removing files works on GitHub releases", {
       # Remove some content
       fn_vec_rm <- c("abc.txt", "subdir1/def.txt")
       expect_true(
-        .remote_file_rm("github", fn = fn_vec_rm, remote = remote)
+        .remote_file_rm("github", fn = fn_vec_rm, remote = c("tag" = tag, "fn" = "abc.zip"))
       )
 
       # Poll for removal to be reflected
       start_time <- proc.time()[3]
       max_wait <- 60
-      file_list <- .remote_file_ls("github", remote)
+      file_list <- .remote_file_ls("github", remote = c("tag" = tag, "fn" = "abc.zip"))
       expected_list <- setdiff(fn_vec, fn_vec_rm)
       while (!identical(file_list, expected_list) && (proc.time()[3] - start_time < max_wait)) {
         Sys.sleep(5)
-        file_list <- .remote_file_ls("github", remote)
+        file_list <- .remote_file_ls("github", remote = c("tag" = tag, "fn" = "abc.zip"))
       }
       expect_identical(file_list, expected_list)
 

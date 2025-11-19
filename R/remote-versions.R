@@ -408,7 +408,7 @@
   if (is.null(remote_pre)) {
     return(character(0L))
   }
-  remote_final_vec_basename <- .(
+  remote_final_vec_basename <- .remote_final_ls(
     type, remote_pre_down
   )
   .remote_version_latest_get(remote_final_vec_basename, type, label) |>
