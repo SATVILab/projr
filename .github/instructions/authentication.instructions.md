@@ -41,6 +41,7 @@ All functions that call `gh::` or `gitcreds::` must have `.auth_check_github()`:
 .auth_check_github("operation description")
 
 # Examples of functions requiring auth check:
+
 # - .git_clone() - When inferring username from gh::gh_whoami()
 # - .init_github_impl() - Before creating GitHub repository
 # - .remote_host_rm_github() - Before deleting GitHub repository

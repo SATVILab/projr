@@ -69,6 +69,11 @@
   .assert_attr(remote_pre, "names")
   .assert_has(names(remote_pre), c("tag"))
   if (!.remote_check_exists("github", remote_pre[["tag"]], max_attempts = 2)) {
+    .cli_debug(
+      "GitHub release: Release '{tag}' does not exist, returning FALSE",
+      tag = remote_pre[["tag"]],
+      output_level = "debug"
+    )
     return(FALSE)
   }
   # if there's an error for some reason, assume it's not there
@@ -505,6 +510,10 @@
                                    remote) {
   .assert_chr_min(fn, TRUE)
   if (.is_len_0(fn)) {
+    .cli_debug(
+      "GitHub release: No files specified for removal, returning FALSE",
+      output_level = "debug"
+    )
     return(invisible(FALSE))
   }
   .assert_given_full(remote)
@@ -517,6 +526,10 @@
   fn_vec <- .remote_file_ls("local", path_dir_save_local)
   fn_vec_to_rm <- fn_vec[fn_vec %in% fn]
   if (length(fn_vec_to_rm) == 0L) {
+    .cli_debug(
+      "GitHub release: No matching files found to remove in remote, returning FALSE",
+      output_level = "debug"
+    )
     return(invisible(FALSE))
   }
 
@@ -551,11 +564,21 @@
                                     log_file = NULL) {
   .assert_chr_min(fn, TRUE)
   if (.is_len_0(fn)) {
+    .cli_debug(
+      "GitHub release: No files specified for addition, returning FALSE",
+      output_level = output_level,
+      log_file = log_file
+    )
     return(invisible(FALSE))
   }
   .assert_given_full(remote)
   label <- gsub("\\.zip", "", remote[["fn"]])
   if (length(fn) == 0L && label != "code") {
+    .cli_debug(
+      "GitHub release: No files to add and label is not 'code', returning FALSE",
+      output_level = output_level,
+      log_file = log_file
+    )
     return(invisible(FALSE))
   }
   .assert_string(path_dir_local, TRUE)
@@ -567,6 +590,11 @@
     fn_rel_zip = remote[["fn"]]
   )
   if (length(path_zip) == 0L && label != "code") {
+    .cli_debug(
+      "GitHub release: Failed to create zip file and label is not 'code', returning FALSE",
+      output_level = output_level,
+      log_file = log_file
+    )
     return(invisible(FALSE))
   }
   tag <- .remote_misc_github_tag_format(remote[["tag"]])

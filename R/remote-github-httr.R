@@ -359,6 +359,7 @@
 #'
 #' @param repo Character string. Repository in format "owner/repo".
 #' @param tag Character string. Release tag.
+#' @param fn Character string. Asset filename to download.
 #' @param dest_dir Character string. Local directory to save assets into.
 #'   Created if it does not exist.
 #' @param api_url Character string. Optional GitHub API URL.

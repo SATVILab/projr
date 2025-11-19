@@ -18,6 +18,7 @@ See detailed guidelines in `.github/instructions/`:
 - `build-system.instructions.md` - Build process, logging, manifest system (applies to build/manifest/hash files)
 - `git-version-control.instructions.md` - Git integration and version management (applies to git files)
 - `authentication.instructions.md` - Authentication for GitHub/OSF (applies to auth files)
+- `remote-system.instructions.md` - Remote destinations (GitHub, OSF, local) and file operations (applies to `R/remote*.R`)
 
 ---
 
