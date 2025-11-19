@@ -263,7 +263,8 @@
     if (.is_len_0(version_remote)) {
       return(version_comp_no_trusted_archive)
     }
-    version_remote <- .version_v_rm(version_remote)
+    # .version_get_latest returns package_version object, convert to character without "v"
+    version_remote <- as.character(version_remote)
   } else {
     version_remote <- version_remote_raw |> .version_v_rm()
   }
