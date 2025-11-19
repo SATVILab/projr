@@ -29,9 +29,14 @@
 }
 
 .build_label_get_dir_exc <- function(label) {
-  switch(.yml_dir_label_class_get(label),
-    "cache" = "projr"
+  exc_vec <- switch(.yml_dir_label_class_get(label),
+    "cache" = "projr",
+    NULL
   )
+
+  # Always exclude LICENSE files
+  exc_vec <- c(exc_vec, "LICENSE")
+  exc_vec
 }
 
 # misc operations
