@@ -164,7 +164,15 @@
 }
 
 .dir_get_docs_quarto_project_unset_default <- function() {
-  switch(.yml_quarto_get_project_type(),
+  project_type <- .yml_quarto_get_project_type()
+
+  # Handle case where _quarto.yml exists but has no project type specified
+  # Default to "website" behavior (outputs to _site)
+  if (is.null(project_type)) {
+    return("_site")
+  }
+
+  switch(project_type,
     "book" = "_book",
     "website" = ,
     "site" = "_site",
