@@ -151,7 +151,7 @@ test_that(".license_dir_create works with yml config", {
       dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
       # Generate license
-      result <- .license_dir_create("output", "default")
+      result <- .license_dir_create("output", safe = FALSE, "default")
 
       # Verify license was created
       license_path <- file.path(output_dir, "LICENSE")
@@ -177,7 +177,7 @@ test_that(".license_dir_create returns FALSE when no config", {
       dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
       # Should return FALSE
-      result <- .license_dir_create("output", "default")
+      result <- .license_dir_create("output", safe = FALSE, "default")
       expect_false(result)
 
       # LICENSE should not exist
@@ -215,7 +215,7 @@ test_that("LICENSE files excluded from manifest", {
       dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
       # Create license and some content
-      .license_dir_create("output", "default")
+      .license_dir_create("output", safe = TRUE, "default")
       writeLines("test content", file.path(output_dir, "test.txt"))
 
       # Hash the directory

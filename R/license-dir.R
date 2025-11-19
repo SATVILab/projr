@@ -4,7 +4,7 @@
 # Core license generation
 # -----------------------
 
-.license_dir_create <- function(label, profile = NULL) {
+.license_dir_create <- function(label, safe, profile = NULL) {
   # Get license configuration for this label
   license_config <- .yml_dir_get_license(label, profile)
   if (is.null(license_config)) {
@@ -12,9 +12,10 @@
   }
 
   # Get directory path
-  path_dir <- projr_path_get_dir(label, safe = FALSE)
+  path_dir <- projr_path_get_dir(label, safe = safe)
   if (!dir.exists(path_dir)) {
-    return(invisible(FALSE))
+    # Create directory if it doesn't exist
+    dir.create(path_dir, recursive = TRUE, showWarnings = FALSE)
   }
 
   # Generate and write license
@@ -144,8 +145,9 @@
   # Get input labels (raw-data, cache)
   label_vec <- .yml_dir_get_label_in(profile)
 
+  # For input directories, always use unsafe (final) directories
   for (label in label_vec) {
-    .license_dir_create(label, profile)
+    .license_dir_create(label, safe = FALSE, profile)
   }
 
   invisible(TRUE)
@@ -159,8 +161,12 @@
   # Get output labels (output, docs, data)
   label_vec <- .yml_dir_get_label_out(profile)
 
+  # For output directories, use safe for dev builds, unsafe for production builds
+  # This matches the manifest hashing logic: safe = !output_run
+  safe_val <- !output_run
+
   for (label in label_vec) {
-    .license_dir_create(label, profile)
+    .license_dir_create(label, safe = safe_val, profile)
   }
 
   invisible(TRUE)
