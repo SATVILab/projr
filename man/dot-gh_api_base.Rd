@@ -4,7 +4,7 @@
 \alias{.gh_api_base}
 \title{Get GitHub API base URL}
 \usage{
-.gh_api_base(api_url = NULL)
+.github_api_base(api_url = NULL)
 }
 \arguments{
 \item{api_url}{Character string. Explicit API URL to use.

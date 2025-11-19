@@ -44,7 +44,7 @@ All functions that call `gh::` or `gitcreds::` must have `.auth_check_github()`:
 # - .git_clone() - When inferring username from gh::gh_whoami()
 # - .init_github_impl() - Before creating GitHub repository
 # - .remote_host_rm_github() - Before deleting GitHub repository
-# - .pb_guess_repo() - When using gh::gh_tree_remote()
+# - .gh_guess_repo() - When using gh::gh_tree_remote()
 ```
 
 ### OSF Operations

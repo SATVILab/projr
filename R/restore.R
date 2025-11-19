@@ -205,7 +205,7 @@ projr_restore <- function(label = NULL,
   yml_title <- .yml_dest_get_title_complete(
     source_vec[["title"]], source_vec[["type"]], NULL, FALSE, FALSE
   )
-  remote_pre <- .remote_get_final(
+  remote_pre <- .remote_final_get(
     source_vec[["type"]], yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
     yml_title[["path-append-label"]], NULL, TRUE
@@ -235,7 +235,7 @@ projr_restore <- function(label = NULL,
   if (untrusted) {
     message("Note: This version is marked as untrusted")
   }
-  remote_source <- .remote_get_final(
+  remote_source <- .remote_final_get(
     source_vec[["type"]], yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
     yml_title[["path-append-label"]], version_remote

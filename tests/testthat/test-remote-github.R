@@ -14,8 +14,10 @@
 # - Some tests clear/modify release content; run tests sequentially to avoid interference
 
 # =============================================================================
-# GitHub Release Setup and Reuse
+# Creation and existence
 # =============================================================================
+
+dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
 
 test_that("GitHub test releases are created and reusable", {
   skip_if(.is_test_cran())
@@ -23,8 +25,6 @@ test_that("GitHub test releases are created and reusable", {
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
-
-  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -32,73 +32,26 @@ test_that("GitHub test releases are created and reusable", {
       tag_a <- "projr-test-release-a"
       tag_b <- "projr-test-release-b"
 
-      # Create tag_a if it doesn't exist
-      if (!.remote_check_exists("github", tag_a)) {
-        .remote_create("github", id = tag_a)
-        # Poll for existence with timeout
-        start_time <- proc.time()[3]
-        max_wait <- 300
-        remote_exists <- .remote_check_exists("github", id = tag_a)
-        while (!remote_exists && (proc.time()[3] - start_time < max_wait)) {
-          Sys.sleep(10)
-          remote_exists <- .remote_check_exists("github", id = tag_a)
-        }
-        expect_true(remote_exists)
-      } else {
-        expect_true(.remote_check_exists("github", tag_a))
+      # create both, neither will exist at this stage
+      .remote_create("github", id = tag_a)
+      .remote_create(
+        "github", id = tag_b, max_attempts = 15, ensure_exists = TRUE
+      )
+      remote_exists_a <- .remote_check_exists("github", tag_a)
+      if (!remote_exists_a) {
+        # don't have to wait as long for a because we already
+        # would have waited for b
+        .remote_create("github", id = tag_a, max_attempts = 5)
       }
-
-      # Create tag_b if it doesn't exist
-      if (!.remote_check_exists("github", tag_b)) {
-        .remote_create("github", id = tag_b)
-        # Poll for existence with timeout
-        start_time <- proc.time()[3]
-        max_wait <- 300
-        remote_exists <- .remote_check_exists("github", id = tag_b)
-        while (!remote_exists && (proc.time()[3] - start_time < max_wait)) {
-          Sys.sleep(10)
-          remote_exists <- .remote_check_exists("github", id = tag_b)
-        }
-        expect_true(remote_exists)
+      remote_exists_a <- if (!remote_exists_a) {
+        .remote_check_exists("github", tag_a)
       } else {
-        expect_true(.remote_check_exists("github", tag_b))
+        TRUE
       }
-
+      remote_exists_b <- .remote_check_exists("github", tag_b)
       # Verify both releases exist
       expect_true(.remote_check_exists("github", tag_a))
       expect_true(.remote_check_exists("github", tag_b))
-    }
-  )
-})
-
-# =============================================================================
-# Basic Remote Creation and Existence
-# =============================================================================
-
-test_that(".remote_create works for GitHub", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if_offline()
-  .test_skip_if_cannot_modify_github()
-
-  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create a new release (not one of the fixed test releases)
-      tag_init <- paste0("projr-test-create-", .test_random_string_get())
-      tag <- .remote_create("github", id = tag_init)
-
-      # Poll for existence
-      start_time <- proc.time()[3]
-      max_wait <- 300
-      remote_exists <- .remote_check_exists("github", id = tag)
-      while (!remote_exists && (proc.time()[3] - start_time < max_wait)) {
-        Sys.sleep(10)
-        remote_exists <- .remote_check_exists("github", id = tag)
-      }
-      expect_true(remote_exists)
     }
   )
 })
@@ -136,7 +89,7 @@ test_that(".remote_get_final works for GitHub", {
     code = {
       # Test archive structure
       expect_identical(
-        .remote_get_final(
+        .remote_final_get(
           "github",
           id = "kablumph", label = "raw-data", structure = "archive"
         ),
@@ -157,34 +110,35 @@ test_that("adding, listing and removing files works on GitHub releases", {
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
-  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
       # Use one of the fixed test releases
       tag <- "projr-test-release-a"
 
-      # Ensure release exists
-      if (!.remote_check_exists("github", tag)) {
-        .remote_create("github", tag)
-        # Poll for existence
-        start_time <- proc.time()[3]
-        max_wait <- 180
-        remote_exists <- .remote_check_exists("github", id = tag)
-        while (!remote_exists && (proc.time()[3] - start_time < max_wait)) {
-          Sys.sleep(10)
-          remote_exists <- .remote_check_exists("github", id = tag)
-        }
-      }
+      writeLines("test content", "abc.txt")
 
-      # Clear any existing content first
-      remote <- c("tag" = tag, "fn" = "test-data.zip")
-      .remote_file_rm_all("github", remote = remote)
-      
+      # upload a single file
+      .remote_file_add(
+        "github",
+        remote = c("tag" = tag, "fn" = "abc.zip"),
+        path_dir_local = ".",
+        fn = "abc.txt",
+      )
+
+      expect_true(
+        "abc.txt" %in% .remote_file_ls("github", remote = c("tag" = tag, "fn" = "abc.zip"))
+      )
+
+      browser()
+
+      # Clear existing content
+      .remote_final_empty("github", remote = c("tag" = tag, "fn" = "abc.zip"))
+
       # Poll for removal to complete
       start_time <- proc.time()[3]
       max_wait <- 60
-      repo <- .pb_guess_repo()
+      repo <- .gh_guess_repo()
       content_tbl <- piggyback::pb_list(repo = repo, tag = tag)
       while (!is.null(content_tbl) && nrow(content_tbl) > 0L && (proc.time()[3] - start_time < max_wait)) {
         Sys.sleep(5)
@@ -292,7 +246,7 @@ test_that(".remote_file_rm_all works for GitHub", {
       )
 
       # Wait for upload
-      repo <- .pb_guess_repo()
+      repo <- .gh_guess_repo()
       max_time <- 180
       start_time <- proc.time()[3]
       content_tbl_pre_delete <- piggyback::pb_list(repo = repo, tag = tag)
@@ -304,7 +258,7 @@ test_that(".remote_file_rm_all works for GitHub", {
 
       # Remove all files
       remote_github <- c("tag" = tag, "fn" = basename(path_zip))
-      .remote_file_rm_all("github", remote = remote_github)
+      .remote_final_empty("github", remote = remote_github)
 
       # Poll for removal
       max_time_rm <- 60
@@ -467,7 +421,7 @@ test_that(".remote_final_check_exists_github works", {
 
       # Test latest structure
       remote_latest <- c("tag" = tag, "fn" = "output.zip")
-      
+
       # Test archive structure
       remote_archive <- c("tag" = tag, "fn" = "output-v0.0.1.zip")
 
@@ -479,7 +433,7 @@ test_that(".remote_final_check_exists_github works", {
   )
 })
 
-test_that(".remote_final_ls_github works", {
+test_that(".remote_ls_final_github works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
@@ -500,7 +454,7 @@ test_that(".remote_final_ls_github works", {
       }
 
       # List assets (may be empty or have previous test artifacts)
-      assets <- .remote_final_ls_github(tag)
+      assets <- .remote_ls_final_github(tag)
       expect_true(is.character(assets) || is.null(assets))
     }
   )
@@ -531,10 +485,10 @@ test_that("projr_restore works with GitHub release source", {
       .yml_dest_rm_type_all("default")
 
       tag_name <- "projr-test-release-a"
-      
+
       # Clear any existing content in this release for this test
       remote_clear <- c("tag" = tag_name, "fn" = "raw-data.zip")
-      suppressWarnings(.remote_file_rm_all("github", remote = remote_clear))
+      suppressWarnings(.remote_final_empty("github", remote = remote_clear))
       Sys.sleep(10)
 
       projr_yml_dest_add_github(
@@ -578,7 +532,7 @@ test_that("projr_restore works with GitHub release source", {
 # Remove Empty Remotes
 # =============================================================================
 
-test_that(".remote_rm_final_if_empty works for GitHub", {
+test_that(".remote_final_rm_if_empty works for GitHub", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
@@ -592,7 +546,7 @@ test_that(".remote_rm_final_if_empty works for GitHub", {
       # GitHub releases are never removed by this function
       # It always returns FALSE for GitHub
       expect_false(
-        .remote_rm_final_if_empty("github", FALSE)
+        .remote_final_rm_if_empty("github", FALSE)
       )
     }
   )
@@ -634,11 +588,11 @@ test_that("GitHub release works with structure='latest'", {
     code = {
       # Use one of the fixed test releases
       tag_name <- "projr-test-release-a"
-      
+
       # Clear any existing content
       remote <- c("tag" = tag_name, "fn" = "raw-data.zip")
-      .remote_file_rm_all("github", remote = remote)
-      
+      .remote_final_empty("github", remote = remote)
+
       # Setup
       .create_test_content_github("raw-data")
       projr_init_git()
@@ -686,11 +640,11 @@ test_that("GitHub release works with structure='archive'", {
     code = {
       # Use one of the fixed test releases
       tag_name <- "projr-test-release-b"
-      
+
       # Clear any existing content
       remote <- c("tag" = tag_name, "fn" = "raw-data-v0.0.1.zip")
-      .remote_file_rm_all("github", remote = remote)
-      
+      .remote_final_empty("github", remote = remote)
+
       # Setup
       .create_test_content_github("raw-data")
       projr_init_git()
@@ -743,11 +697,11 @@ test_that("GitHub release send_cue='always' creates new archive every build", {
     code = {
       # Use one of the fixed test releases
       tag_name <- "projr-test-release-a"
-      
+
       # Clear any existing content
       remote <- c("tag" = tag_name, "fn" = "raw-data.zip")
-      .remote_file_rm_all("github", remote = remote)
-      
+      .remote_final_empty("github", remote = remote)
+
       # Setup
       .create_test_content_github("raw-data")
       projr_init_git()
@@ -788,11 +742,11 @@ test_that("GitHub release send_cue='if-change' only creates archive if content c
     code = {
       # Use one of the fixed test releases
       tag_name <- "projr-test-release-b"
-      
+
       # Clear any existing content
       remote <- c("tag" = tag_name, "fn" = "raw-data.zip")
-      .remote_file_rm_all("github", remote = remote)
-      
+      .remote_final_empty("github", remote = remote)
+
       # Setup
       .create_test_content_github("raw-data")
       projr_init_git()
@@ -843,11 +797,11 @@ test_that("GitHub release send_strategy='sync-diff' updates only changed files",
     code = {
       # Use one of the fixed test releases
       tag_name <- "projr-test-release-a"
-      
+
       # Clear any existing content
       remote <- c("tag" = tag_name, "fn" = "raw-data.zip")
-      .remote_file_rm_all("github", remote = remote)
-      
+      .remote_final_empty("github", remote = remote)
+
       # Setup
       .create_test_content_github("raw-data", n_files = 3)
       projr_init_git()
@@ -887,11 +841,11 @@ test_that("GitHub release send_strategy='sync-purge' removes all then uploads al
     code = {
       # Use one of the fixed test releases
       tag_name <- "projr-test-release-b"
-      
+
       # Clear any existing content
       remote <- c("tag" = tag_name, "fn" = "raw-data.zip")
-      .remote_file_rm_all("github", remote = remote)
-      
+      .remote_final_empty("github", remote = remote)
+
       # Setup
       .create_test_content_github("raw-data", n_files = 3)
       projr_init_git()
@@ -940,11 +894,11 @@ test_that("GitHub release send_inspect='manifest' uses manifest for version trac
     code = {
       # Use one of the fixed test releases
       tag_name <- "projr-test-release-a"
-      
+
       # Clear any existing content
       remote <- c("tag" = tag_name, "fn" = "raw-data.zip")
-      .remote_file_rm_all("github", remote = remote)
-      
+      .remote_final_empty("github", remote = remote)
+
       # Setup
       .create_test_content_github("raw-data")
       projr_init_git()
@@ -984,11 +938,11 @@ test_that("GitHub release send_inspect='file' inspects actual files", {
     code = {
       # Use one of the fixed test releases
       tag_name <- "projr-test-release-b"
-      
+
       # Clear any existing content
       remote <- c("tag" = tag_name, "fn" = "raw-data.zip")
-      .remote_file_rm_all("github", remote = remote)
-      
+      .remote_final_empty("github", remote = remote)
+
       # Setup
       .create_test_content_github("raw-data")
       projr_init_git()
@@ -1032,11 +986,11 @@ test_that("projr_restore works with GitHub release source (latest structure)", {
     code = {
       # Use one of the fixed test releases
       tag_name <- "projr-test-release-a"
-      
+
       # Clear any existing content
       remote <- c("tag" = tag_name, "fn" = "raw-data.zip")
-      .remote_file_rm_all("github", remote = remote)
-      
+      .remote_final_empty("github", remote = remote)
+
       # Setup and build
       .create_test_content_github("raw-data")
       projr_init_git()
@@ -1078,11 +1032,11 @@ test_that("GitHub release restore works with archive structure", {
     code = {
       # Use one of the fixed test releases
       tag_name <- "projr-test-release-b"
-      
+
       # Clear any existing content
       remote <- c("tag" = tag_name, "fn" = "raw-data.zip")
-      .remote_file_rm_all("github", remote = remote)
-      
+      .remote_final_empty("github", remote = remote)
+
       # Setup and build
       .create_test_content_github("raw-data")
       projr_init_git()
@@ -1128,11 +1082,11 @@ test_that("GitHub release works with different content types", {
     code = {
       # Use one of the fixed test releases
       tag_name <- "projr-test-release-a"
-      
+
       # Clear any existing content
       remote <- c("tag" = tag_name, "fn" = "output.zip")
-      .remote_file_rm_all("github", remote = remote)
-      
+      .remote_final_empty("github", remote = remote)
+
       # Test with output content
       .create_test_content_github("output")
       projr_init_git()
@@ -1294,13 +1248,13 @@ test_that(".github_api_base resolves URLs correctly", {
   expect_identical(result, "https://custom.api.com")
 })
 
-test_that(".github_release_exists requires httr", {
+test_that(".gh_release_exists requires httr", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
 
   # Just verify the function exists and has correct signature
-  expect_true(is.function(.github_release_exists))
+  expect_true(is.function(.gh_release_exists))
 
   # If httr is available, verify basic functionality
   if (requireNamespace("httr", quietly = TRUE)) {
@@ -1309,7 +1263,7 @@ test_that(".github_release_exists requires httr", {
   }
 })
 
-test_that(".github_release_exists returns correct values for known repos", {
+test_that(".gh_release_exists returns correct values for known repos", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
@@ -1319,13 +1273,13 @@ test_that(".github_release_exists returns correct values for known repos", {
   # Test with a well-known public repo that has releases
   # Using a stable public repo as reference
   # Note: This test may fail if the repo changes or API is down
-  
+
   # We'll use SATVILab/projr as test repo if we can access it
   repo <- "SATVILab/projr"
-  
+
   # Try to check for a likely non-existent tag
   result <- tryCatch(
-    .github_release_exists(repo, "definitely-not-a-real-tag-xyz-12345"),
+    .gh_release_exists(repo, "definitely-not-a-real-tag-xyz-12345"),
     error = function(e) {
       # If we get an error other than 404, skip the test
       if (!grepl("404", e$message, ignore.case = TRUE)) {
@@ -1334,12 +1288,12 @@ test_that(".github_release_exists returns correct values for known repos", {
       FALSE
     }
   )
-  
+
   # Should return FALSE for non-existent tag
   expect_false(result)
 })
 
-test_that(".github_release_exists returns NULL on auth errors", {
+test_that(".gh_release_exists returns NULL on auth errors", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
@@ -1348,17 +1302,26 @@ test_that(".github_release_exists returns NULL on auth errors", {
   # Test with invalid token to trigger auth error
   # Using empty string as token to simulate no auth
   repo <- "SATVILab/projr"  # Private repo or any repo
-  
+
   # With no/invalid token, should return NULL for private repos
   # (or FALSE for public repos that don't exist)
   result <- tryCatch(
-    .github_release_exists(repo, "test-tag", token = ""),
+    .gh_release_exists(repo, "test-tag", token = ""),
     error = function(e) {
       # Should not error on auth failure, should return NULL
       NULL
     }
   )
-  
+
   # Result should be NULL (auth error) or FALSE (public repo, tag doesn't exist)
   expect_true(is.null(result) || isFALSE(result))
+})
+
+
+test_that(".gh_repo_from_remote_url handles common remote formats", {
+  expect_equal(.gh_repo_from_remote_url("https://github.com/owner/repo.git"), "owner/repo")
+  expect_equal(.gh_repo_from_remote_url("git@github.com:owner/repo.git"), "owner/repo")
+  expect_equal(.gh_repo_from_remote_url("https://www.github.com/owner/repo"), "owner/repo")
+  expect_equal(.gh_repo_from_remote_url("https://github.enterprise.com/owner/repo"), "owner/repo")
+  expect_equal(.gh_repo_from_remote_url("ssh://git@github.com/owner/repo.git"), "owner/repo")
 })
