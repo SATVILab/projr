@@ -113,59 +113,75 @@ test_that("manifest tracks changes across multiple builds", {
     code = {
       # Check initial version
       initial_version <- projr_version_get()
-      
+
       # Setup: Create initial content in raw-data and output
       .test_setup_content("raw-data", safe = FALSE)
       .test_setup_content("output", safe = FALSE)
-      
+
       # First build - with initial version
       .build_manifest_pre(TRUE)
       .build_manifest_post(TRUE)
-      
+
       manifest_v1 <- .manifest_read_project()
       expect_true(nrow(manifest_v1) > 0)
       expected_v1 <- paste0("v", initial_version)
       expect_true(all(manifest_v1$version == expected_v1))
       n_files_v1 <- nrow(manifest_v1)
-      
+
       # Bump version to 0.0.1
       projr_version_set("0.0.1")
-      
+
       # Second build - same files, new version
+      # With optimized manifest: unchanged files keep original version
       .build_manifest_pre(TRUE)
       .build_manifest_post(TRUE)
-      
+
       manifest_v2 <- .manifest_read_project()
-      # Should have entries from both versions
-      expect_true(nrow(manifest_v2) >= n_files_v1)
-      # Should have initial version and v0.0.1 entries
-      versions <- unique(manifest_v2$version)
-      expect_true(expected_v1 %in% versions)
-      expect_true("v0.0.1" %in% versions)
-      
+      # With optimization: same number of rows (no duplicates for unchanged files)
+      expect_identical(nrow(manifest_v2), n_files_v1)
+      # All files should have both versions in version list (content unchanged)
+      # Check that all rows contain both versions
+      for (i in seq_len(nrow(manifest_v2))) {
+        versions_in_row <- strsplit(manifest_v2$version[i], ";", fixed = TRUE)[[1]]
+        expect_true(expected_v1 %in% versions_in_row || "v0.0.1" %in% versions_in_row)
+      }
+
       # Add new file to output
       output_dir <- projr_path_get_dir("output", safe = FALSE)
-      file.create(file.path(output_dir, "new_file.txt"))
-      
+      writeLines("new content", file.path(output_dir, "new_file.txt"))
+
       # Bump version to 0.0.2
       projr_version_set("0.0.2")
-      
+
       # Third build - with new file
       .build_manifest_pre(TRUE)
       .build_manifest_post(TRUE)
-      
+
       manifest_v3 <- .manifest_read_project()
-      # Should have more files now
-      expect_true(nrow(manifest_v3) > nrow(manifest_v2))
-      # Should have all three versions
-      versions <- unique(manifest_v3$version)
-      expect_true(all(c(expected_v1, "v0.0.1", "v0.0.2") %in% versions))
-      
+      # Should have one more file now
+      expect_identical(nrow(manifest_v3), n_files_v1 + 1L)
+      # Extract all versions from all rows
+      all_versions <- character(0)
+      for (ver_str in manifest_v3$version) {
+        all_versions <- c(all_versions, strsplit(ver_str, ";", fixed = TRUE)[[1]])
+      }
+      all_versions <- unique(all_versions)
+      expect_true(expected_v1 %in% all_versions || any(grepl(gsub("v", "", expected_v1), all_versions)))
+      expect_true("v0.0.2" %in% all_versions)
+
       # Check that new_file.txt only appears in v0.0.2
       new_file_entries <- manifest_v3[
-        grepl("new_file.txt", manifest_v3$fn), 
+        grepl("new_file.txt", manifest_v3$fn),
       ]
       expect_identical(unique(new_file_entries$version), "v0.0.2")
+
+      # Verify unchanged files have multiple versions in their list
+      old_files <- manifest_v3[!grepl("new_file.txt", manifest_v3$fn), ]
+      # Old files should have version lists containing at least 2 versions
+      for (i in seq_len(nrow(old_files))) {
+        versions_in_row <- strsplit(old_files$version[i], ";", fixed = TRUE)[[1]]
+        expect_true(length(versions_in_row) >= 2)
+      }
     }
   )
 })

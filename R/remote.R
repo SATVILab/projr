@@ -1692,7 +1692,51 @@ projr_osf_create_project <- function(title,
   if (!.is_string(path) || !file.exists(path)) {
     return(character(0L))
   }
-  readLines(path, warn = FALSE)
+  versions <- readLines(path, warn = FALSE)
+  
+  # VERSION files can have lines like "output: v0.0.1" or just "v0.0.1"
+  # We need to handle multi-version strings in the version part only
+  result <- character(0)
+  for (line in versions) {
+    # Check if line has "Label: " format
+    if (grepl("^[a-zA-Z-]+: ", line)) {
+      # Extract label and version part
+      parts_line <- strsplit(line, ": ", fixed = TRUE)[[1]]
+      if (length(parts_line) >= 2) {
+        label <- parts_line[1]
+        version_part <- paste(parts_line[-1], collapse = ": ")  # In case : appears in version
+        
+        # Handle multi-version strings in version part (e.g., "v0.0.1;v0.0.2")
+        # For VERSION files with labels, keep multi-version on same line but fix formatting
+        if (grepl(";", version_part, fixed = TRUE)) {
+          # Split, ensure each has "v" prefix, rejoin
+          version_parts <- strsplit(version_part, ";", fixed = TRUE)[[1]]
+          version_parts_clean <- vapply(version_parts, function(v) {
+            v <- trimws(v)
+            if (nzchar(v) && !startsWith(v, "v")) paste0("v", v) else v
+          }, character(1))
+          version_part <- paste(version_parts_clean, collapse = ";")
+        }
+        result <- c(result, paste0(label, ": ", version_part))
+      } else {
+        result <- c(result, line)
+      }
+    } else {
+      # Plain version line without label - still handle multi-version strings
+      if (grepl(";", line, fixed = TRUE)) {
+        # Multi-version string - split and expand into separate lines
+        parts <- strsplit(line, ";", fixed = TRUE)[[1]]
+        parts_with_v <- vapply(parts, function(p) {
+          p <- trimws(p)
+          if (nzchar(p) && !startsWith(p, "v")) paste0("v", p) else p
+        }, character(1))
+        result <- c(result, parts_with_v)
+      } else {
+        result <- c(result, line)
+      }
+    }
+  }
+  result
 }
 
 # ========================
@@ -1800,8 +1844,14 @@ projr_osf_create_project <- function(title,
   remote_final_vec_basename <- .remote_final_ls(
     type, remote_pre_down
   )
-  .remote_version_latest_get(remote_final_vec_basename, type, label) |>
-    .version_v_rm()
+  # .remote_version_latest_get already handles version cleaning for non-GitHub
+  version_latest <- .remote_version_latest_get(remote_final_vec_basename, type, label)
+  # For GitHub, apply version_v_rm; for others, version is already cleaned
+  if (type == "github") {
+    .version_v_rm(version_latest)
+  } else {
+    version_latest
+  }
 }
 
 .remote_version_latest_get <- function(fn, type, label) {
@@ -1809,8 +1859,25 @@ projr_osf_create_project <- function(title,
     return(character(0L))
   }
   if (type != "github") {
-    fn <- vapply(fn, .version_v_rm, character(1L))
-    return(fn |> package_version() |> max())
+    # Handle multi-version strings (e.g., "v0.0.1;v0.0.2") by splitting and extracting all versions
+    all_versions <- character(0)
+    for (f in fn) {
+      # Split by semicolon in case of multi-version strings
+      version_parts <- strsplit(f, ";", fixed = TRUE)[[1]]
+      # Remove "v" prefix from each part
+      versions_clean <- vapply(version_parts, .version_v_rm, character(1L))
+      all_versions <- c(all_versions, versions_clean)
+    }
+    # Convert each version individually before taking max
+    versions_as_char <- vapply(
+      all_versions,
+      function(v) as.character(.version_to_package_version(v)),
+      character(1),
+      USE.NAMES = FALSE
+    )
+    max_version <- as.character(max(package_version(versions_as_char)))
+    # Add "v" prefix back
+    return(paste0("v", max_version))
   }
   fn <- .remote_version_latest_filter(fn, type, label)
   .remote_version_latest_extract(fn, label)
@@ -1889,8 +1956,11 @@ projr_osf_create_project <- function(title,
     }
     # Extract version, removing the asterisk if present
     version_with_possible_asterisk <- gsub(match_str, "", label_regex) |> trimws()
-    # Remove asterisk for version comparison purposes but don't mark as trusted
-    gsub("\\*$", "", version_with_possible_asterisk) |> .version_v_rm()
+    # Remove asterisk
+    version_clean <- gsub("\\*$", "", version_with_possible_asterisk)
+    # Return version string as-is (don't strip "v" prefixes)
+    # Calling code expects versions with "v" prefix
+    version_clean
   }
 
 # ==========================

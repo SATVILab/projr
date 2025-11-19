@@ -203,9 +203,17 @@
     version_remote_raw <- .remote_get_version_label(
       remote_pre, type, label, "latest"
     )
-    # Only call .version_v_rm if we have a valid value
+    # Handle multi-version strings (e.g., "v0.0.1;v0.0.2") by extracting latest
     version_remote <- if (.is_string(version_remote_raw)) {
-      version_remote_raw |> .version_v_rm()
+      if (grepl(";", version_remote_raw, fixed = TRUE)) {
+        tryCatch({
+          .version_get_latest(version_remote_raw) |> .version_v_rm()
+        }, error = function(e) {
+          NULL
+        })
+      } else {
+        version_remote_raw |> .version_v_rm()
+      }
     } else {
       NULL
     }
@@ -234,7 +242,7 @@
     .version_v_rm() # nolint
   # if the archives are all out of date, then
   # we require the latest version
-  if (version_min_acceptable == version_project) {
+  if (.version_to_package_version(version_min_acceptable) == .version_to_package_version(version_project)) {
     return(version_comp_no_trusted_archive)
   }
   # now, we need to see if an earlier version might work
@@ -245,11 +253,25 @@
   if (.is_len_0(version_remote_raw)) {
     return(version_comp_no_trusted_archive)
   }
-  version_remote <- version_remote_raw |> .version_v_rm()
+  # Handle multi-version strings (e.g., "v0.0.1;v0.0.2") by extracting latest
+  if (grepl(";", version_remote_raw, fixed = TRUE)) {
+    version_remote_pkg <- tryCatch({
+      .version_get_latest(version_remote_raw)
+    }, error = function(e) {
+      return(NULL)
+    })
+    if (is.null(version_remote_pkg)) {
+      return(version_comp_no_trusted_archive)
+    }
+    # Extract the numeric version without "v" prefix
+    version_remote <- gsub("^v", "", as.character(version_remote_pkg))
+  } else {
+    version_remote <- version_remote_raw |> .version_v_rm()
+  }
   # earliest version does not work if it's not trusted
   # or none are avaialble (version_remote is NULL),
   # or if the version is too old
-  if (!.is_string(version_remote) || version_remote < version_min_acceptable) {
+  if (!.is_string(version_remote) || .version_to_package_version(version_remote) < .version_to_package_version(version_min_acceptable)) {
     return(version_comp_no_trusted_archive)
   }
   # at this point, this is simply the latest remote.
