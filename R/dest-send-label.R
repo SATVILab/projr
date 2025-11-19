@@ -116,10 +116,10 @@
                                          strategy,
                                          inspect,
                                          cue) {
-  remote_pre <- .remote_get_final(
+  remote_pre <- .remote_final_get(
     type, id, label, structure, path, path_append_label, NULL, TRUE
   )
-  remote_dest <- .remote_get_final_if_exists(
+  remote_dest <- .remote_final_get_if_exists(
     type, id, label, structure, path, path_append_label, NULL
   )
   version_comp <- .dest_send_label_get_remotes_get_version_comp(
@@ -270,7 +270,7 @@
     # as that is the comparison remote, essentially.
     remote_dest
   } else {
-    remote_comp <- .remote_get_final(
+    remote_comp <- .remote_final_get(
       type, id, label, structure, path, path_append_label, version
     )
     .dest_send_label_get_remotes_comp_empty(remote_comp, type)
@@ -988,7 +988,7 @@
       output_level = output_level,
       log_file = log_file
     )
-    .remote_file_rm_all(type, remote_dest)
+    .remote_final_empty(type, remote_dest)
   }
 
   if (create || type == "github") {
@@ -1004,7 +1004,7 @@
     # and .is_len_pos(fn_add) is FALSE,
     # then we need to create an empty
     # GitHub remote. Could do that later, I guess?
-    remote_dest <- .remote_get_final(
+    remote_dest <- .remote_final_get(
       type, id, label, structure, path, path_append_label, NULL
     )
   }
@@ -1034,7 +1034,7 @@
       if (.remote_final_check_exists_github_direct(
         remote_dest_empty[["tag"]], remote_dest_empty[["fn"]]
       )) {
-        .remote_file_rm_all_github(remote_dest_empty)
+        .remote_final_empty_github(remote_dest_empty)
       }
     }
   }

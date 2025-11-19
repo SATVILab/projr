@@ -506,46 +506,68 @@ projr_use_data <- function(...,
                      path_zip,
                      dir_exc = NULL,
                      dir_inc = NULL,
-                     fn_exc = NULL) {
+                     fn_exc  = NULL) {
+  # Normalise output path so setwd() does not confuse where we write
+  path_zip <- normalizePath(path_zip, winslash = "/", mustWork = FALSE)
+
   .file_rm(path_zip)
   .dir_create(dirname(path_zip))
+
   wd_orig <- getwd()
+  on.exit(setwd(wd_orig), add = TRUE)
+
   setwd(path_dir)
-  sink(file.path(tempdir(), "zip123"))
+
+  sink_file <- file.path(tempdir(), "zip123")
+  sink(sink_file)
+  on.exit({
+    # Be defensive in case there is no active sink
+    if (sink.number() > 0L) {
+      try(sink(NULL), silent = TRUE)
+    }
+  }, add = TRUE)
+
   fn_vec <- .file_ls(getwd())
+
   if (!is.null(dir_exc)) {
     for (x in dir_exc) {
       fn_vec <- fn_vec[!grepl(paste0("^", x, "/"), fn_vec)]
     }
   }
+
   if (!is.null(dir_inc)) {
-    for (x in dir_inc) {
-      fn_vec <- fn_vec[grepl(paste0("^", x, "/"), fn_vec)]
-    }
+    # keep files that are in ANY of the included dirs
+    keep <- Reduce(
+      `|`,
+      lapply(dir_inc, function(x) grepl(paste0("^", x, "/"), fn_vec))
+    )
+    fn_vec <- fn_vec[keep]
   }
+
   if (!is.null(fn_exc)) {
     fn_vec <- fn_vec[!fn_vec %in% fn_exc]
   }
-  if (length(fn_vec) == 0) {
-    setwd(wd_orig)
-    return(invisible(FALSE))
+
+  if (length(fn_vec) == 0L) {
+    # nothing to zip
+    return(invisible(character(0)))
   }
+
   path_zip_temp <- basename(path_zip)
+
   utils::zip(
-    path_zip_temp,
-    files = fn_vec,
-    flags = "-r9Xq"
+    zipfile = path_zip_temp,
+    files   = fn_vec,
+    flags   = "-r9Xq"
   )
-  sink(NULL)
+
   if (!identical(path_zip_temp, path_zip)) {
-    file.rename(
-      from = path_zip_temp,
-      to = path_zip
-    )
+    file.rename(from = path_zip_temp, to = path_zip)
   }
-  setwd(wd_orig)
-  invisible(TRUE)
+
+  invisible(path_zip)
 }
+
 
 # options
 # -------
