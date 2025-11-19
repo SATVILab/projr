@@ -1,0 +1,1283 @@
+---
+title: "Scripts and Hooks"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Scripts and Hooks}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Build scripts and hooks allow you to customize projr's build process. Scripts specify which documents to render, while hooks let you run custom code before or after builds.
+
+This documentation is modeled after [Quarto's environment variables documentation](https://quarto.org/docs/projects/environment.html), adapted for projr's build customization features.
+
+## Overview
+
+projr provides two key customization mechanisms:
+
+- **Build scripts** (`build.scripts`, `dev.scripts`) - Control which documents/scripts are rendered during builds
+- **Build hooks** (`build.hooks`, `dev.hooks`) - Run custom R scripts before or after the build process
+
+Both are configured in `_projr.yml` and support separate settings for production builds (versioned releases) and development builds (iterative testing).
+
+### Why Use Scripts and Hooks?
+
+**Build scripts** are useful when you want to:
+
+- Explicitly control which documents are built instead of relying on auto-detection
+- Build only a subset of documents (e.g., skip time-consuming analyses during development)
+- Override Quarto or Bookdown project configurations
+
+**Build hooks** are useful when you want to:
+
+- Set up data or configuration before builds (e.g., download data, check credentials)
+- Clean up or process outputs after builds (e.g., compress files, send notifications)
+- Run validation checks or tests as part of the build process
+
+## Build Scripts Configuration
+
+Build scripts specify exactly which documents or scripts projr should render during a build.
+
+### Basic Structure
+
+```yaml
+# Production build scripts
+build:
+  scripts:
+    - analysis.qmd
+    - report.Rmd
+    - data-processing.R
+
+# Development build scripts (optional, exclusive override)
+dev:
+  scripts:
+    - quick-test.qmd
+    - debug.R
+```
+
+### Key Behaviors
+
+**Production builds** (`projr_build_patch()`, `projr_build_minor()`, `projr_build_major()`):
+
+- Use `build.scripts` if specified
+- Fall back to `_quarto.yml` or `_bookdown.yml` if no `build.scripts`
+- Auto-detect documents if no configuration found
+
+**Development builds** (`projr_build_dev()`):
+
+- Use `dev.scripts` if specified (no fallback to `build.scripts`)
+- Fall back to `_quarto.yml` or `_bookdown.yml` if no `dev.scripts`
+- Auto-detect documents if no configuration found
+
+**Important**: `dev.scripts` provides *exclusive* control. If you set `dev.scripts`, `build.scripts` is completely ignored during development builds.
+
+### Script Priority Order
+
+For **production builds**:
+
+1. `file` parameter in build function (e.g., `projr_build_patch("specific.Rmd")`)
+2. `build.scripts` in `_projr.yml`
+3. Quarto project (`_quarto.yml`) or Bookdown project (`_bookdown.yml`)
+4. Auto-detection (finds `.Rmd`, `.qmd`, `.R` files)
+
+For **development builds**:
+
+1. `file` parameter in build function (e.g., `projr_build_dev("test.Rmd")`)
+2. `dev.scripts` in `_projr.yml`
+3. Quarto project (`_quarto.yml`) or Bookdown project (`_bookdown.yml`)
+4. Auto-detection
+
+### File Format Requirements
+
+- Scripts must be specified as a **plain character vector**
+- File paths are relative to the project root
+- Paths can be absolute if needed
+- No sub-keys or nested structures allowed
+
+```yaml
+# Correct: Plain vector
+build:
+  scripts:
+    - analysis.qmd
+    - report.Rmd
+
+# Incorrect: Don't add sub-keys
+build:
+  scripts:
+    - path: analysis.qmd  # Wrong!
+      title: "Analysis"  # Wrong!
+```
+
+### Practical Examples
+
+**Example 1: Separate dev and production scripts**
+
+```yaml
+# _projr.yml
+build:
+  scripts:
+    - full-analysis.qmd
+    - supplementary.Rmd
+    - appendix.Rmd
+
+dev:
+  scripts:
+    - quick-test.qmd  # Only build this during development
+```
+
+```{r eval=FALSE}
+# Development build (uses dev.scripts)
+projr_build_dev()  # Only builds quick-test.qmd
+
+# Production build (uses build.scripts)
+projr_build_patch()  # Builds all three documents
+```
+
+**Example 2: Override Quarto project**
+
+If you have a `_quarto.yml` that lists many documents but only want to build specific ones:
+
+```yaml
+# _projr.yml
+build:
+  scripts:
+    - chapter1.qmd
+    - chapter2.qmd
+    # Chapters 3-10 will be skipped
+```
+
+**Example 3: Use function parameters for one-off builds**
+
+```{r eval=FALSE}
+# Build just one document, regardless of configuration
+projr_build_dev("exploratory-analysis.Rmd")
+
+# Build multiple specific documents
+projr_build_dev(c("methods.Rmd", "results.Rmd"))
+```
+
+### File Existence Validation
+
+Before any build starts, projr validates that all specified scripts exist. If a script is missing, the build fails with a clear error message.
+
+```{r eval=FALSE}
+# In _projr.yml
+build:
+  scripts:
+    - analysis.qmd
+    - missing.Rmd  # This file doesn't exist
+
+projr_build_patch()
+# Error: Script 'missing.Rmd' does not exist
+```
+
+## Build Hooks Configuration
+
+Build hooks let you run custom R scripts at specific points in the build process.
+
+### Basic Structure
+
+```yaml
+build:
+  hooks:
+    pre:
+      - setup.R
+      - download-data.R
+    post:
+      - cleanup.R
+      - send-notifications.R
+    both:
+      - log-timestamp.R
+
+dev:
+  hooks:
+    pre: dev-setup.R
+    post: dev-cleanup.R
+    both: dev-logger.R
+```
+
+### Hook Stages
+
+Hooks can run at three stages:
+
+- **`pre`** - Before the build starts (after version bump, before Git commit)
+- **`post`** - After the build completes (after Git commit, before distributing to remotes)
+- **`both`** - In both pre and post stages
+
+### Key Behaviors
+
+**Production builds** use `build.hooks`:
+
+```yaml
+build:
+  hooks:
+    pre: ["check-credentials.R", "setup-data.R"]
+    post: ["compress-outputs.R"]
+```
+
+**Development builds** use `dev.hooks`:
+
+```yaml
+dev:
+  hooks:
+    pre: "dev-setup.R"
+    post: "dev-cleanup.R"
+```
+
+**Important separation**:
+
+- `build.hooks` are **always ignored** in development builds
+- `dev.hooks` are **always ignored** in production builds
+- This ensures complete independence between development and production workflows
+
+### Hook Execution Details
+
+**Execution order**:
+
+Hooks within a stage run in the order listed in `_projr.yml`:
+
+```yaml
+build:
+  hooks:
+    pre:
+      - first.R   # Runs first
+      - second.R  # Runs second
+      - third.R   # Runs third
+```
+
+**Execution environment**:
+
+- Hooks run in a **separate environment** from the build process
+- They have access to the project directory and all installed packages
+- Use `source()` to load functions if needed
+- Any objects created are not available to subsequent hooks
+
+**Execution timing**:
+
+```
+Production Build Flow:
+1. Clear output directories (if configured)
+2. Bump version (e.g., 0.0.1 → 0.0.2)
+3. ▶ Run pre-build hooks ◀
+4. Git commit (if configured)
+5. Build scripts (render documents)
+6. Git commit build outputs (if configured)
+7. ▶ Run post-build hooks ◀
+8. Distribute to remotes (GitHub, OSF, local)
+
+Development Build Flow:
+1. Clear output directories (if configured)
+2. ▶ Run dev pre-build hooks ◀
+3. Build scripts (render documents)
+4. ▶ Run dev post-build hooks ◀
+5. (No Git commit or version bump)
+```
+
+### File Format Requirements
+
+- Hooks must be specified as **plain character vectors**
+- File paths are relative to the project root
+- Paths can be absolute if needed
+- No sub-keys or nested structures allowed
+
+```yaml
+# Correct: Plain vector
+build:
+  hooks:
+    pre:
+      - setup.R
+
+# Correct: Single file as string
+build:
+  hooks:
+    post: cleanup.R
+
+# Incorrect: Don't add sub-keys
+build:
+  hooks:
+    pre:
+      - path: setup.R   # Wrong!
+        title: "Setup"  # Wrong!
+```
+
+### Practical Examples
+
+**Example 1: Data preparation hook**
+
+Create a pre-build hook to download and prepare data:
+
+```{r eval=FALSE}
+# File: hooks/prepare-data.R
+message("Downloading data...")
+
+# Download data from remote source
+data_url <- "https://example.com/data.csv"
+download.file(data_url, destfile = "_raw_data/data.csv")
+
+# Validate data
+data <- read.csv("_raw_data/data.csv")
+stopifnot(nrow(data) > 0)
+
+message("Data preparation complete")
+```
+
+```yaml
+# _projr.yml
+build:
+  hooks:
+    pre: hooks/prepare-data.R
+```
+
+**Example 2: Credential validation**
+
+Check that required credentials are set before building:
+
+```{r eval=FALSE}
+# File: hooks/check-auth.R
+required_vars <- c("GITHUB_PAT", "API_KEY")
+
+missing <- required_vars[!nzchar(Sys.getenv(required_vars))]
+
+if (length(missing) > 0) {
+  stop(
+    "Missing required environment variables: ",
+    paste(missing, collapse = ", "),
+    "\nSee ?projr_env_set for setup instructions"
+  )
+}
+
+message("All required credentials are set")
+```
+
+```yaml
+# _projr.yml
+build:
+  hooks:
+    pre: hooks/check-auth.R
+```
+
+**Example 3: Post-build notifications**
+
+Send a notification when the build completes:
+
+```{r eval=FALSE}
+# File: hooks/notify.R
+version <- projr_version_get()
+
+# Send email (pseudo-code)
+send_email(
+  to = "team@example.com",
+  subject = paste("Build completed:", version),
+  body = paste("Project built successfully at", Sys.time())
+)
+
+message("Notification sent")
+```
+
+```yaml
+# _projr.yml
+build:
+  hooks:
+    post: hooks/notify.R
+```
+
+**Example 4: Timestamp logging in both stages**
+
+Log timestamps before and after the build:
+
+```{r eval=FALSE}
+# File: hooks/timestamp.R
+stage <- if (file.exists("_tmp/build_started.txt")) "POST" else "PRE"
+
+log_msg <- paste(Sys.time(), "-", stage, "build stage")
+
+if (stage == "PRE") {
+  writeLines(as.character(Sys.time()), "_tmp/build_started.txt")
+} else {
+  start_time <- readLines("_tmp/build_started.txt")
+  duration <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
+  log_msg <- paste(log_msg, sprintf("(%.1f seconds)", duration))
+  unlink("_tmp/build_started.txt")
+}
+
+message(log_msg)
+```
+
+```yaml
+# _projr.yml
+build:
+  hooks:
+    both: hooks/timestamp.R
+```
+
+**Example 5: Development-specific hooks**
+
+Use different hooks for development and production:
+
+```{r eval=FALSE}
+# File: hooks/dev-setup.R
+# Lightweight setup for development
+message("Setting up development environment...")
+Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
+```
+
+```{r eval=FALSE}
+# File: hooks/prod-setup.R
+# More comprehensive setup for production
+message("Setting up production environment...")
+
+# Validate all credentials
+source("hooks/check-auth.R")
+
+# Download latest data
+source("hooks/prepare-data.R")
+
+# Check disk space
+disk_space <- as.numeric(system("df -h . | tail -1 | awk '{print $5}' | sed 's/%//'", intern = TRUE))
+if (disk_space > 90) {
+  stop("Insufficient disk space (", 100 - disk_space, "% free)")
+}
+```
+
+```yaml
+# _projr.yml
+build:
+  hooks:
+    pre: hooks/prod-setup.R
+
+dev:
+  hooks:
+    pre: hooks/dev-setup.R
+```
+
+### Managing Hooks with R Functions
+
+You can also manage hooks programmatically:
+
+```{r eval=FALSE}
+# Add a pre-build hook
+projr_yml_hooks_add(path = "setup.R", stage = "pre")
+
+# Add a post-build hook
+projr_yml_hooks_add_post("cleanup.R")
+
+# Add multiple hooks
+projr_yml_hooks_add(
+  path = c("hook1.R", "hook2.R", "hook3.R"),
+  stage = "pre"
+)
+
+# Overwrite existing hooks (default behavior)
+projr_yml_hooks_add("new-setup.R", stage = "pre", overwrite = TRUE)
+
+# Append to existing hooks
+projr_yml_hooks_add("additional.R", stage = "pre", overwrite = FALSE)
+
+# Remove all hooks
+projr_yml_hooks_rm_all()
+```
+
+### File Existence Validation
+
+Like scripts, hooks are validated before the build starts. If a hook file is missing, the build fails immediately:
+
+```{r eval=FALSE}
+# In _projr.yml
+build:
+  hooks:
+    pre: missing-hook.R
+
+projr_build_patch()
+# Error: Hook 'missing-hook.R' does not exist.
+```
+
+## Common Patterns
+
+### Pattern 1: Fast Development, Comprehensive Production
+
+Build only essential documents during development, but build everything for releases:
+
+```yaml
+build:
+  scripts:
+    - introduction.qmd
+    - methods.qmd
+    - results.qmd
+    - discussion.qmd
+    - appendix.qmd
+
+dev:
+  scripts:
+    - results.qmd  # Only rebuild results during development
+```
+
+### Pattern 2: Environment-Specific Setup
+
+Use hooks to configure the environment differently for development and production:
+
+```yaml
+build:
+  hooks:
+    pre: hooks/prod-setup.R
+    post: hooks/prod-cleanup.R
+
+dev:
+  hooks:
+    pre: hooks/dev-setup.R
+    # No cleanup hook for dev (faster iteration)
+```
+
+### Pattern 3: Validation Pipeline
+
+Use hooks to validate inputs before building and outputs after building:
+
+```yaml
+build:
+  hooks:
+    pre:
+      - hooks/validate-credentials.R
+      - hooks/validate-data.R
+      - hooks/check-dependencies.R
+    post:
+      - hooks/validate-outputs.R
+      - hooks/check-file-sizes.R
+      - hooks/run-tests.R
+```
+
+### Pattern 4: Data Synchronization
+
+Keep data synchronized with remote sources:
+
+```yaml
+build:
+  hooks:
+    pre:
+      - hooks/download-latest-data.R
+      - hooks/update-models.R
+    post:
+      - hooks/upload-results.R
+```
+
+### Pattern 5: Conditional Hooks
+
+Create hooks that behave differently based on environment variables or build state:
+
+```{r eval=FALSE}
+# File: hooks/conditional-setup.R
+if (nzchar(Sys.getenv("SKIP_DATA_DOWNLOAD"))) {
+  message("Skipping data download (SKIP_DATA_DOWNLOAD is set)")
+} else {
+  message("Downloading data...")
+  source("hooks/download-data.R")
+}
+
+# Check if this is a major version bump
+version <- projr_version_get()
+is_major <- endsWith(version, ".0.0")
+
+if (is_major) {
+  message("Major release detected - running full validation")
+  source("hooks/comprehensive-validation.R")
+}
+```
+
+## Best Practices
+
+### Scripts
+
+**Be explicit when needed:**
+
+- Use `build.scripts` when you have specific build requirements
+- Use `dev.scripts` to speed up development by building only what you're actively working on
+- Rely on auto-detection for simple projects with obvious structure
+
+**Keep paths relative:**
+
+- Use project-relative paths (e.g., `analysis/report.Rmd`) for portability
+- Avoid absolute paths unless necessary
+
+**Validate your configuration:**
+
+```{r eval=FALSE}
+# Check that your configuration is valid
+projr_yml_check()
+
+# View what would be built
+projr_build_dev()  # Runs without committing
+```
+
+### Hooks
+
+**Keep hooks focused:**
+
+- Each hook should do one thing well
+- Break complex operations into multiple hook files
+- Use descriptive names (e.g., `validate-credentials.R`, not `hook1.R`)
+
+**Handle errors gracefully:**
+
+```{r eval=FALSE}
+# Good: Provide helpful error messages
+if (!file.exists("_raw_data/data.csv")) {
+  stop(
+    "Required data file not found: _raw_data/data.csv\n",
+    "Run download-data.R first or check your data source"
+  )
+}
+
+# Good: Use tryCatch for external operations
+tryCatch(
+  download.file(url, destfile),
+  error = function(e) {
+    stop("Failed to download data: ", e$message)
+  }
+)
+```
+
+**Provide feedback:**
+
+```{r eval=FALSE}
+# Good: Show progress
+message("Starting credential validation...")
+# ... validation code ...
+message("✓ All credentials validated")
+
+# Good: Show what's happening
+message("Downloading data from ", url, "...")
+download.file(url, destfile)
+message("✓ Downloaded ", file.size(destfile), " bytes")
+```
+
+**Test hooks independently:**
+
+```{r eval=FALSE}
+# You can test hooks by sourcing them directly
+source("hooks/validate-credentials.R")
+
+# Or use them in an interactive session
+projr_env_set()  # Load environment variables
+source("hooks/prepare-data.R")
+```
+
+**Use environment variables for configuration:**
+
+```{r eval=FALSE}
+# File: hooks/download-data.R
+data_url <- Sys.getenv("DATA_URL")
+if (!nzchar(data_url)) {
+  stop("DATA_URL environment variable not set")
+}
+
+download.file(data_url, "_raw_data/data.csv")
+```
+
+```bash
+# _environment
+DATA_URL=https://example.com/data.csv
+```
+
+**Document your hooks:**
+
+Add comments at the top of each hook file explaining its purpose:
+
+```{r eval=FALSE}
+# hooks/validate-credentials.R
+#
+# Purpose: Validate that all required credentials are set
+# Stage: pre-build
+# Required environment variables:
+#   - GITHUB_PAT: GitHub personal access token
+#   - API_KEY: External API key
+#
+# This hook stops the build if any required credentials are missing,
+# preventing partial builds with incomplete data access.
+
+required_vars <- c("GITHUB_PAT", "API_KEY")
+# ... validation code ...
+```
+
+### Organization
+
+**Use a dedicated hooks directory:**
+
+```
+my-project/
+├── hooks/
+│   ├── pre-build/
+│   │   ├── 01-validate-credentials.R
+│   │   ├── 02-download-data.R
+│   │   └── 03-check-dependencies.R
+│   ├── post-build/
+│   │   ├── 01-validate-outputs.R
+│   │   └── 02-send-notifications.R
+│   └── both/
+│       └── timestamp.R
+└── _projr.yml
+```
+
+```yaml
+# _projr.yml
+build:
+  hooks:
+    pre:
+      - hooks/pre-build/01-validate-credentials.R
+      - hooks/pre-build/02-download-data.R
+      - hooks/pre-build/03-check-dependencies.R
+    post:
+      - hooks/post-build/01-validate-outputs.R
+      - hooks/post-build/02-send-notifications.R
+```
+
+**Version control:**
+
+- Commit hook scripts to version control
+- Document hook requirements in README
+- Include example environment files showing required variables
+
+## Common Pitfalls
+
+### Scripts
+
+**Pitfall 1: Forgetting dev.scripts is exclusive**
+
+```yaml
+# This configuration:
+build:
+  scripts:
+    - analysis.qmd
+    - report.Rmd
+
+dev:
+  scripts:
+    - quick-test.qmd
+
+# Means:
+# - Production builds: analysis.qmd + report.Rmd
+# - Development builds: ONLY quick-test.qmd (build.scripts ignored)
+```
+
+If you want `dev.scripts` to *add* to `build.scripts`, you must list all files:
+
+```yaml
+dev:
+  scripts:
+    - analysis.qmd    # Must repeat
+    - report.Rmd      # Must repeat
+    - quick-test.qmd  # Additional file
+```
+
+**Pitfall 2: Using sub-keys in scripts**
+
+```yaml
+# Wrong: Don't add sub-keys
+build:
+  scripts:
+    - path: analysis.qmd
+      title: "Analysis"
+
+# Correct: Plain vector
+build:
+  scripts:
+    - analysis.qmd
+```
+
+**Pitfall 3: Absolute paths reduce portability**
+
+```yaml
+# Less portable
+build:
+  scripts:
+    - /home/user/project/analysis.qmd
+
+# More portable
+build:
+  scripts:
+    - analysis.qmd
+```
+
+### Hooks
+
+**Pitfall 1: Expecting shared state between hooks**
+
+```{r eval=FALSE}
+# hooks/setup.R
+my_data <- read.csv("data.csv")
+
+# hooks/process.R
+# Error: my_data doesn't exist!
+processed <- transform(my_data)
+```
+
+**Solution**: Save to disk or re-load in each hook:
+
+```{r eval=FALSE}
+# hooks/setup.R
+my_data <- read.csv("data.csv")
+saveRDS(my_data, "_tmp/data.rds")
+
+# hooks/process.R
+my_data <- readRDS("_tmp/data.rds")
+processed <- transform(my_data)
+```
+
+**Pitfall 2: Forgetting hooks are environment-separate**
+
+Hooks don't have access to objects created during the build process:
+
+```{r eval=FALSE}
+# Your analysis.Rmd creates an object:
+results <- expensive_analysis()
+
+# hooks/post-build.R
+# Error: results doesn't exist!
+summary(results)
+```
+
+**Solution**: Save objects in the analysis, load in the hook:
+
+```{r eval=FALSE}
+# In analysis.Rmd
+results <- expensive_analysis()
+saveRDS(results, "_output/results.rds")
+
+# hooks/post-build.R
+results <- readRDS("_output/results.rds")
+summary(results)
+```
+
+**Pitfall 3: Not handling hook failures**
+
+If a hook fails, the entire build stops:
+
+```{r eval=FALSE}
+# hooks/download.R
+download.file(url, destfile)  # If this fails, build stops
+```
+
+**Solution**: Add error handling:
+
+```{r eval=FALSE}
+# hooks/download.R
+if (file.exists(destfile)) {
+  message("Using cached data file")
+} else {
+  tryCatch(
+    {
+      download.file(url, destfile)
+      message("Data downloaded successfully")
+    },
+    error = function(e) {
+      stop(
+        "Failed to download required data from ", url, "\n",
+        "Error: ", e$message, "\n",
+        "Please check your internet connection and data source"
+      )
+    }
+  )
+}
+```
+
+**Pitfall 4: Mixing build.hooks and dev.hooks expectations**
+
+```yaml
+# Wrong expectation: "dev builds will use build.hooks"
+build:
+  hooks:
+    pre: setup-production-data.R  # Downloads 10GB of data
+
+dev:
+  # I didn't specify dev.hooks, so dev builds will be slow!
+```
+
+**Solution**: Specify lightweight dev hooks:
+
+```yaml
+build:
+  hooks:
+    pre: setup-production-data.R
+
+dev:
+  hooks:
+    pre: setup-dev-data.R  # Uses cached or sample data
+```
+
+**Pitfall 5: Using sub-keys in hooks**
+
+```yaml
+# Wrong: Don't add sub-keys
+build:
+  hooks:
+    pre:
+      - path: setup.R
+        description: "Setup script"
+
+# Correct: Plain vector
+build:
+  hooks:
+    pre:
+      - setup.R
+```
+
+**Pitfall 6: File paths relative to wrong directory**
+
+Hooks run with the project root as the working directory:
+
+```{r eval=FALSE}
+# Correct: Relative to project root
+file.exists("_raw_data/data.csv")
+
+# Wrong: Relative to hooks directory
+file.exists("../raw_data/data.csv")  # Assumes hook is in hooks/
+```
+
+## Validation and Debugging
+
+### Check Your Configuration
+
+Before building, verify your configuration is correct:
+
+```{r eval=FALSE}
+# Validate entire configuration
+projr_yml_check()
+
+# Check what scripts would be built
+projr_build_dev()  # Development build (doesn't commit)
+projr_build_patch()  # Production build (commits with version bump)
+```
+
+### Debug Hook Execution
+
+To see which hooks are running:
+
+```{r eval=FALSE}
+# Set debug output level
+Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
+
+# Run build - hooks will be logged
+projr_build_dev()
+# Output: "Running dev hook: hooks/setup.R"
+# Output: "Running dev hook: hooks/timestamp.R"
+```
+
+### Test Hooks Independently
+
+Run hooks outside the build process:
+
+```{r eval=FALSE}
+# Test a hook directly
+source("hooks/validate-credentials.R")
+
+# Set up environment first if needed
+projr_env_set()
+source("hooks/download-data.R")
+```
+
+### View Configuration
+
+Examine your current configuration:
+
+```{r eval=FALSE}
+# Read _projr.yml
+yml <- yaml::read_yaml("_projr.yml")
+
+# Check build scripts
+yml$build$scripts
+
+# Check build hooks
+yml$build$hooks
+
+# Check dev configuration
+yml$dev
+```
+
+## Integration with Other Features
+
+### Environment Variables
+
+Combine hooks with environment variables for flexible configuration:
+
+```{r eval=FALSE}
+# _environment
+DATA_SOURCE=https://api.example.com/data
+API_KEY=your_key_here
+
+# hooks/download.R
+source_url <- Sys.getenv("DATA_SOURCE")
+api_key <- Sys.getenv("API_KEY")
+
+if (!nzchar(source_url)) {
+  stop("DATA_SOURCE environment variable not set")
+}
+
+# Download using credentials
+download.file(
+  paste0(source_url, "?key=", api_key),
+  "_raw_data/data.csv"
+)
+```
+
+See `vignette("environment")` for details on environment variables.
+
+### Git Integration
+
+Hooks run at specific points relative to Git operations:
+
+```yaml
+build:
+  git:
+    commit: true
+    push: true
+  hooks:
+    pre:
+      - validate.R  # Runs after version bump, BEFORE Git commit
+    post:
+      - notify.R    # Runs AFTER Git commit, before push
+```
+
+### Remote Destinations
+
+Post-build hooks run before distributing to remotes:
+
+```yaml
+build:
+  hooks:
+    post: hooks/prepare-for-upload.R
+  github:
+    send: true
+  osf:
+    send: true
+
+# Execution order:
+# 1. Build completes
+# 2. Git commit
+# 3. Post-build hooks run
+# 4. Push to GitHub
+# 5. Upload to OSF
+```
+
+### Profiles
+
+Both scripts and hooks support profiles:
+
+```{r eval=FALSE}
+# Create a profile with specific hooks
+projr_profile_create("production")
+
+# Add hooks to that profile
+projr_yml_hooks_add(
+  path = "hooks/production-setup.R",
+  stage = "pre",
+  profile = "production"
+)
+
+# Use the profile
+Sys.setenv(PROJR_PROFILE = "production")
+projr_build_patch()
+```
+
+## Advanced Examples
+
+### Example 1: Conditional Data Download
+
+Download data only if it's outdated:
+
+```{r eval=FALSE}
+# hooks/smart-download.R
+data_file <- "_raw_data/data.csv"
+max_age_hours <- 24
+
+should_download <- TRUE
+
+if (file.exists(data_file)) {
+  file_age <- difftime(
+    Sys.time(),
+    file.info(data_file)$mtime,
+    units = "hours"
+  )
+
+  if (file_age < max_age_hours) {
+    message("Using cached data (", round(file_age, 1), " hours old)")
+    should_download <- FALSE
+  }
+}
+
+if (should_download) {
+  message("Downloading fresh data...")
+  download.file(
+    Sys.getenv("DATA_URL"),
+    data_file
+  )
+  message("✓ Data downloaded")
+}
+```
+
+### Example 2: Multi-Stage Data Pipeline
+
+Set up a complex data pipeline with multiple hooks:
+
+```yaml
+build:
+  hooks:
+    pre:
+      - hooks/01-validate-environment.R
+      - hooks/02-download-raw-data.R
+      - hooks/03-validate-raw-data.R
+      - hooks/04-preprocess-data.R
+      - hooks/05-validate-processed-data.R
+```
+
+```{r eval=FALSE}
+# hooks/01-validate-environment.R
+required_packages <- c("dplyr", "ggplot2", "tidyr")
+missing <- required_packages[!sapply(required_packages, requireNamespace, quietly = TRUE)]
+if (length(missing) > 0) {
+  stop("Missing required packages: ", paste(missing, collapse = ", "))
+}
+
+# hooks/02-download-raw-data.R
+source("hooks/smart-download.R")
+
+# hooks/03-validate-raw-data.R
+data <- read.csv("_raw_data/data.csv")
+required_cols <- c("id", "date", "value")
+missing_cols <- setdiff(required_cols, names(data))
+if (length(missing_cols) > 0) {
+  stop("Data missing required columns: ", paste(missing_cols, collapse = ", "))
+}
+if (nrow(data) == 0) {
+  stop("Data file is empty")
+}
+message("✓ Raw data validated (", nrow(data), " rows)")
+
+# hooks/04-preprocess-data.R
+library(dplyr)
+data <- read.csv("_raw_data/data.csv")
+processed <- data |>
+  filter(!is.na(value)) |>
+  mutate(date = as.Date(date))
+saveRDS(processed, "_raw_data/processed.rds")
+message("✓ Data preprocessed (", nrow(processed), " rows)")
+
+# hooks/05-validate-processed-data.R
+processed <- readRDS("_raw_data/processed.rds")
+if (any(is.na(processed$date))) {
+  stop("Processed data contains invalid dates")
+}
+message("✓ Processed data validated")
+```
+
+### Example 3: Automated Testing
+
+Run tests as a post-build hook:
+
+```{r eval=FALSE}
+# hooks/run-tests.R
+message("Running post-build tests...")
+
+test_dir <- "tests/integration"
+
+if (!dir.exists(test_dir)) {
+  message("No integration tests found")
+  return(invisible(TRUE))
+}
+
+test_files <- list.files(test_dir, pattern = "\\.R$", full.names = TRUE)
+
+failed_tests <- c()
+
+for (test_file in test_files) {
+  message("Running ", basename(test_file), "...")
+
+  result <- tryCatch(
+    {
+      source(test_file)
+      message("✓ ", basename(test_file), " passed")
+      TRUE
+    },
+    error = function(e) {
+      message("✗ ", basename(test_file), " failed: ", e$message)
+      FALSE
+    }
+  )
+
+  if (!result) {
+    failed_tests <- c(failed_tests, basename(test_file))
+  }
+}
+
+if (length(failed_tests) > 0) {
+  stop(
+    "Build tests failed: ",
+    paste(failed_tests, collapse = ", "),
+    "\nPlease fix errors before releasing"
+  )
+}
+
+message("✓ All build tests passed")
+```
+
+```yaml
+# _projr.yml
+build:
+  hooks:
+    post: hooks/run-tests.R
+```
+
+### Example 4: Build Notifications with Status
+
+Send different notifications based on build success:
+
+```{r eval=FALSE}
+# hooks/notify.R
+version <- projr_version_get()
+timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+
+# Check if build was successful by looking for expected outputs
+outputs_dir <- "_output"
+expected_files <- c("report.html", "figures/plot.png", "tables/results.csv")
+
+all_exist <- all(file.exists(file.path(outputs_dir, expected_files)))
+
+if (all_exist) {
+  status <- "SUCCESS"
+  message_body <- paste(
+    "Build", version, "completed successfully at", timestamp,
+    "\nAll expected outputs generated"
+  )
+} else {
+  status <- "WARNING"
+  missing <- expected_files[!file.exists(file.path(outputs_dir, expected_files))]
+  message_body <- paste(
+    "Build", version, "completed with warnings at", timestamp,
+    "\nMissing outputs:", paste(missing, collapse = ", ")
+  )
+}
+
+# Log to file
+log_file <- "_tmp/build-notifications.log"
+cat(paste(timestamp, status, version, "\n"), file = log_file, append = TRUE)
+
+# Send notification (pseudo-code)
+# send_notification(
+#   title = paste("Build", status, "-", version),
+#   body = message_body
+# )
+
+message("✓ Notification logged: ", status)
+```
+
+## See Also
+
+- `?projr_yml_hooks_add` - Add hooks programmatically
+- `?projr_build_dev` - Development builds
+- `?projr_build_patch` - Production builds
+- `vignette("environment")` - Environment variables
+- `vignette("how-to-guides")` - Step-by-step guides
+- `vignette("concepts")` - Core concepts
