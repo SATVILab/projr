@@ -280,8 +280,7 @@
   }
 
   .cli_debug(
-    "Asset '{asset_name}' not found in release '{tag}' for repo '{repo}'",
-    url = url
+    "Asset '{asset_name}' not found in release '{tag}' for repo '{repo}'"
   )
   stop("", call. = FALSE)
 }
@@ -472,25 +471,13 @@
                                  api_url = NULL,
                                  token = NULL) {
   # about all assets in the release
-  release_info <- .remote_final_get_info_github_httr(
+  .remote_final_get_info_github_httr(
     repo = repo,
     tag  = tag,
     asset_name = asset_name,
     api_url = api_url,
     token = token
-  )
-  idx <- vapply(
-    asset_name,
-    function(x) vapply(
-      release_info, function(y) which(y$name == x), logical(1)
-    ),
-    integer(1L)
-  )
-
-  vapply(
-    idx, function(i) release_info[[i]]$id, character(1)
-  ) |>
-    stats::setNames(asset_name)
+  )$id
 }
 
 #' Upload an asset to a GitHub release using httr
