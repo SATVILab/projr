@@ -14,104 +14,128 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(projr)
-```
+Artifact restoration allows you to download versioned project components from remote sources. This is useful for setting up projects on new machines, sharing reproducible research with collaborators, and recovering data from archived versions.
 
-# Introduction
+This documentation covers the three restoration workflows and their configuration options.
 
-This vignette provides a comprehensive guide to restoring project artifacts in projr. Artifact restoration allows you to:
+## Overview
 
-- Set up a project on a new machine
-- Recover data from archived versions
-- Share reproducible research with collaborators
-- Restore specific components without cloning everything
+projr provides functions to restore project artifacts (raw data, outputs, documents) from remote sources. These functions download versioned files that were previously archived during builds.
 
-## What Are Artifacts?
+### What Are Artifacts?
 
 In projr, **artifacts** are the versioned components of your project:
 
-- **Raw data** (`raw-data`): Source data files
-- **Cache** (`cache`): Intermediate computation results
-- **Output** (`output`): Final analysis outputs (figures, tables)
-- **Docs** (`docs`): Rendered documents (HTML, PDF)
-- **Code** (`code`): All Git-tracked source files
+- **raw-data** - Source data files
+- **cache** - Intermediate computation results  
+- **output** - Final analysis outputs (figures, tables)
+- **docs** - Rendered documents (HTML, PDF)
+- **code** - All Git-tracked source files
 
-These artifacts are archived to remote destinations during builds and can be restored later.
+These artifacts are archived to remote destinations during production builds and can be restored later.
 
-## When to Restore Artifacts
+### When to Restore
 
-Common scenarios:
+Common scenarios for restoration:
 
-1. **New machine setup**: Clone repository and restore data to start working
-2. **Collaboration**: Team member needs project data to reproduce analysis
-3. **Disaster recovery**: Lost local files need to be recovered from archives
-4. **Version comparison**: Restore specific version to compare results
-5. **Reproducibility**: Restore exact inputs that created published outputs
+- **New machine setup** - Clone repository and restore data to start working
+- **Collaboration** - Team member needs project data to reproduce analysis
+- **Disaster recovery** - Lost local files need to be recovered from archives
+- **Version comparison** - Restore specific version to compare results
+- **Reproducibility** - Restore exact inputs that created published outputs
 
----
+## Restoration Functions
 
-# Restoration Workflows
+projr provides three restoration functions for different workflows:
 
-projr provides three main restoration functions:
+1. **`projr_restore_repo()`** - Clone repository and restore artifacts (most common)
+2. **`projr_restore_repo_wd()`** - Restore into current directory
+3. **`projr_restore()`** - Restore artifacts in existing local project
 
-1. `projr_restore_repo()`: Clone repository and restore artifacts (most common)
-2. `projr_restore_repo_wd()`: Restore into current directory
-3. `projr_restore()`: Restore artifacts in existing local project
+### projr_restore_repo()
 
-## Workflow 1: Clone and Restore (Most Common)
+Clone a GitHub repository and restore artifacts in one step.
 
-**Scenario**: You want to set up a project on a new machine.
+**Syntax:**
 
 ```{r eval=FALSE}
-# Clone repository into subdirectory and restore raw data
-projr_restore_repo("owner/repo")
+library(projr)
 
-# This will:
-# 1. Clone github.com/owner/repo into ./repo/
-# 2. Read _projr.yml to find configured remotes
-# 3. Restore all raw artifacts (raw-data, cache, etc.)
-# 4. You're ready to work!
+projr_restore_repo(
+  repo,              # "owner/repo" or "repo"
+  path = NULL,       # Where to clone (default: creates subdirectory)
+  label = NULL,      # Which artifacts (default: all raw artifacts)
+  pos = NULL,        # Source position (default: both "source" and "dest")
+  type = NULL,       # Remote type (default: first available)
+  title = NULL       # Remote title (default: first available for type)
+)
 ```
 
-**With custom path:**
+**Basic usage:**
 
 ```{r eval=FALSE}
-# Clone to specific directory
+# Clone into subdirectory and restore all raw artifacts
+projr_restore_repo("owner/repo")
+
+# Clone to specific location
 projr_restore_repo("owner/repo", path = "~/projects/my-analysis")
 
 # Clone into current directory (use with caution!)
 projr_restore_repo("owner/repo", path = ".")
 ```
 
-**Output:**
+**What it does:**
 
-```
-✔ Cloning repository owner/repo
-✔ Restoring raw-data from github (release: raw-data-v0.1.0)
-✔ Restoring cache from local (path: ~/archive/cache)
-✔ All artifacts restored successfully
-```
+1. Clones repository into specified directory (or creates subdirectory)
+2. Reads `_projr.yml` to find configured remotes
+3. Restores artifacts (default: all raw artifacts like raw-data, cache)
+4. Returns `TRUE` if successful, `FALSE` otherwise
 
-## Workflow 2: Restore into Current Directory
+### projr_restore_repo_wd()
 
-**Scenario**: You've already navigated to where you want the project.
+Clone directly into current working directory, then restore artifacts.
+
+**Syntax:**
 
 ```{r eval=FALSE}
-# From within target directory:
+projr_restore_repo_wd(
+  repo,              # "owner/repo" or "repo"
+  label = NULL,      # Which artifacts
+  pos = NULL,        # Source position
+  type = NULL,       # Remote type
+  title = NULL       # Remote title
+)
+```
+
+**Usage:**
+
+```{r eval=FALSE}
+# From within target directory
+setwd("~/projects/my-analysis")
 projr_restore_repo_wd("owner/repo")
-
-# This clones directly into current directory (no subdirectory created)
 ```
 
-**Warning**: This will create files in your current directory. Ensure you're in the right location!
+**Warning:** This creates files directly in your current directory. Ensure you're in the right location!
 
-## Workflow 3: Restore in Existing Project
+### projr_restore()
 
-**Scenario**: You already have the repository cloned and just need to update artifacts.
+Restore artifacts in an existing project without cloning.
+
+**Syntax:**
 
 ```{r eval=FALSE}
-# Navigate to project directory first
+projr_restore(
+  label = NULL,      # Which artifacts (default: all raw artifacts)
+  pos = NULL,        # Source position (default: both)
+  type = NULL,       # Remote type (default: first available)
+  title = NULL       # Remote title (default: first available for type)
+)
+```
+
+**Usage:**
+
+```{r eval=FALSE}
+# Navigate to project first
 setwd("~/projects/my-analysis")
 
 # Restore all raw artifacts
@@ -122,74 +146,28 @@ projr_restore(label = "raw-data")
 projr_restore(label = c("raw-data", "cache"))
 ```
 
----
+**Requires:** Project must have `manifest.csv` file in root directory.
 
-# Understanding Restoration Sources
+## Parameters
 
-## Source Types
+### label Parameter
 
-projr checks remote sources in this order:
+Controls which artifacts are restored.
 
-1. **GitHub Releases**: If configured in `_projr.yml`
-2. **OSF**: If configured in `_projr.yml`
-3. **Local directories**: If configured in `_projr.yml`
-
-The first available source is used for each artifact.
-
-## Source Configuration
-
-Your `_projr.yml` file specifies where artifacts can be restored from:
-
-```yaml
-build:
-  github:
-    raw-data-release:
-      title: "raw-data-@version"
-      content: [raw-data]
-  local:
-    cache-backup:
-      title: "cache-backup"
-      content: [cache]
-      path: "~/archive/cache"
-```
-
-This configuration tells projr:
-
-- Restore `raw-data` from GitHub releases
-- Restore `cache` from local directory at `~/archive/cache`
-
-## Checking Available Sources
+**`label = NULL`** (default) - Restore all raw artifacts
 
 ```{r eval=FALSE}
-# View your project's remote configuration
-projr_yml_get()$build
-
-# Check what will be restored
-projr_restore()  # Shows what would be restored
-```
-
----
-
-# Restoration Parameters
-
-## Label: Which Artifacts to Restore
-
-The `label` parameter controls which artifacts are restored:
-
-**Restore all raw artifacts (default):**
-
-```{r eval=FALSE}
-projr_restore()
 # Restores: raw-data, cache, and any other raw-* directories
+projr_restore()
 ```
 
-**Restore specific artifact:**
+**`label = "raw-data"`** - Restore specific artifact
 
 ```{r eval=FALSE}
 projr_restore(label = "raw-data")
 ```
 
-**Restore multiple artifacts:**
+**`label = c("raw-data", "cache")`** - Restore multiple artifacts
 
 ```{r eval=FALSE}
 projr_restore(label = c("raw-data", "cache"))
@@ -197,34 +175,45 @@ projr_restore(label = c("raw-data", "cache"))
 
 **Valid labels:**
 
-Any directory label defined in your `_projr.yml`, typically:
+Any directory label defined in your `_projr.yml`:
 
-- `raw-data`: Source data files
-- `cache`: Cached computation results
-- `output`: Analysis outputs (use cautiously - usually regenerated)
-- `docs`: Rendered documents (use cautiously - usually regenerated)
+- `raw-data` - Source data files
+- `cache` - Cached computation results
+- `output` - Analysis outputs (use cautiously - usually regenerated)
+- `docs` - Rendered documents (use cautiously - usually regenerated)
 
-## Type: Which Remote Source
+**When to restore outputs/docs:**
 
-The `type` parameter specifies which remote type to use:
+- Comparing results across versions
+- When computation is expensive and results are archived
+- Generally, prefer regenerating outputs with `projr_build_dev()`
 
-**Automatic (default):**
+### type Parameter
+
+Specifies which remote type to use.
+
+**`type = NULL`** (default) - Use first available remote
 
 ```{r eval=FALSE}
+# Checks in order: github -> osf -> local
 projr_restore()
-# Uses first available: github -> osf -> local
 ```
 
-**Specific remote type:**
+**`type = "github"`** - Use GitHub releases only
 
 ```{r eval=FALSE}
-# Restore from GitHub only
 projr_restore(type = "github")
+```
 
-# Restore from local directory only
+**`type = "local"`** - Use local directory only
+
+```{r eval=FALSE}
 projr_restore(type = "local")
+```
 
-# Restore from OSF only
+**`type = "osf"`** - Use OSF only
+
+```{r eval=FALSE}
 projr_restore(type = "osf")
 ```
 
@@ -234,27 +223,26 @@ projr_restore(type = "osf")
 - Testing specific remote sources
 - One remote is faster or more reliable
 
-## Title: Which Remote Configuration
+### title Parameter
 
-The `title` parameter selects a specific remote configuration:
+Selects a specific remote configuration when multiple exist.
 
-**Automatic (default):**
+**`title = NULL`** (default) - Use first available title for selected type
 
 ```{r eval=FALSE}
 projr_restore()
-# Uses first available title for selected type
 ```
 
-**Specific title:**
+**`title = "network-backup"`** - Use specific remote
 
 ```{r eval=FALSE}
-# Use specific remote configuration
 projr_restore(type = "local", title = "network-backup")
 ```
 
 **Example with multiple local remotes:**
 
 ```yaml
+# _projr.yml
 build:
   local:
     local-backup:
@@ -275,36 +263,33 @@ projr_restore(type = "local", title = "local-backup")
 projr_restore(type = "local", title = "network-backup")
 ```
 
-## Pos: Source vs Destination
+### pos Parameter
 
-The `pos` parameter controls whether to restore from source directories or build destinations:
+Controls whether to restore from source directories or build destinations.
 
-**Default (both):**
+**`pos = NULL`** (default) - Check both in order
 
 ```{r eval=FALSE}
-projr_restore()
 # Checks "source" first, then "dest"
+projr_restore()
 ```
 
-**Source only:**
+**`pos = "source"`** - Source directories only
 
 ```{r eval=FALSE}
 projr_restore(pos = "source")
-# Only restore from source directories
 ```
 
-**Destination only:**
+**`pos = "dest"`** - Build destinations only
 
 ```{r eval=FALSE}
 projr_restore(pos = "dest")
-# Only restore from build destinations
 ```
 
-**Both (explicit):**
+**`pos = c("source", "dest")`** - Both (explicit)
 
 ```{r eval=FALSE}
 projr_restore(pos = c("source", "dest"))
-# Check both in order
 ```
 
 **When to use:**
@@ -313,45 +298,104 @@ projr_restore(pos = c("source", "dest"))
 - Use `pos = "dest"` if you specifically archived outputs and want to restore them
 - Use `pos = "source"` if you only want original source artifacts
 
----
+## Authentication
 
-# Complete Examples
+### GitHub Authentication
 
-## Example 1: New Collaborator Setup
+Restoring from GitHub requires authentication.
 
-**Scenario**: A collaborator needs to reproduce your analysis on their machine.
+**Required:** GitHub Personal Access Token (PAT)
+
+**Setup:**
 
 ```{r eval=FALSE}
-# Step 1: Clone repository and restore all artifacts
+# Get detailed instructions
+projr_instr_auth_github()
+```
+
+**Set environment variable:**
+
+```bash
+# In _environment.local (never commit!)
+GITHUB_PAT=ghp_your_token_here
+```
+
+**Verify:**
+
+```{r eval=FALSE}
+# Check token is set
+Sys.getenv("GITHUB_PAT")  # Should show your token
+```
+
+### OSF Authentication
+
+Restoring from OSF requires authentication.
+
+**Required:** OSF Personal Access Token
+
+**Setup:**
+
+```{r eval=FALSE}
+# Get detailed instructions
+projr_instr_auth_osf()
+```
+
+**Set environment variable:**
+
+```bash
+# In _environment.local
+OSF_PAT=your_osf_token_here
+```
+
+### Local Directories
+
+No authentication needed, but ensure:
+
+- Directory paths are accessible
+- You have read permissions
+- Network drives are mounted (if applicable)
+
+## Complete Examples
+
+### Example 1: New Collaborator Setup
+
+Set up a project on a new machine:
+
+```{r eval=FALSE}
+# Step 1: Clone and restore
 projr_restore_repo("satvilab/my-study")
 
 # Step 2: Navigate into project
 setwd("my-study")
 
-# Step 3: Install R package dependencies
+# Step 3: Install R dependencies
 renv::restore()
 
 # Step 4: Run analysis
-projr_build_dev()  # Test build first
+projr_build_dev()  # Test build
 projr_build_patch()  # Production build when ready
 ```
 
-## Example 2: Restore Specific Version
+### Example 2: Restore Specific Version
 
-**Scenario**: You need to recover the exact data from version 0.1.0.
+Restore data from a specific version:
 
 ```{r eval=FALSE}
-# First, check out the git tag for v0.1.0
+# Step 1: Clone repository
+projr_restore_repo("owner/repo")
+setwd("repo")
+
+# Step 2: Check out specific version
 system("git checkout v0.1.0")
 
-# Restore artifacts for this version
-projr_restore()
+# Step 3: Restore artifacts for this version
 # projr reads manifest.csv to determine which version to restore
+projr_restore()
 ```
 
-## Example 3: Selective Restoration
+### Example 3: Selective Restoration
 
-**Scenario**: You only need raw data, not cached results.
+Restore only raw data, not cached results:
 
 ```{r eval=FALSE}
 # Restore only raw data
@@ -361,23 +405,26 @@ projr_restore(label = "raw-data")
 projr_build_dev()
 ```
 
-## Example 4: Multiple Remote Sources
+### Example 4: Fallback to Different Remote
 
-**Scenario**: You have GitHub and local remotes configured.
+Try multiple remote sources:
 
 ```{r eval=FALSE}
-# Try GitHub first (default)
-result <- projr_restore()
+# Try GitHub first
+result <- tryCatch(
+  projr_restore(type = "github"),
+  error = function(e) FALSE
+)
 
-# If GitHub fails, try local explicitly
+# Fallback to local if GitHub fails
 if (!result) {
   projr_restore(type = "local")
 }
 ```
 
-## Example 5: Network Drive Restoration
+### Example 5: Network Drive Restoration
 
-**Scenario**: Your team uses a shared network drive for data.
+Restore from shared network drive:
 
 ```yaml
 # _projr.yml configuration
@@ -394,94 +441,36 @@ build:
 projr_restore(type = "local", title = "network-data")
 ```
 
----
+## How Restoration Works
 
-# Authentication for Restoration
+### The Manifest System
 
-## GitHub Authentication
-
-Restoring from GitHub requires authentication:
-
-**Set up GitHub PAT:**
-
-```{r eval=FALSE}
-# Get instructions
-projr_instr_auth_github()
-
-# Set environment variable (add to ~/.Renviron)
-# GITHUB_PAT=ghp_your_token_here
-```
-
-**Verify authentication:**
-
-```{r eval=FALSE}
-# Test that authentication works
-Sys.getenv("GITHUB_PAT")  # Should show your token
-```
-
-## OSF Authentication
-
-Restoring from OSF requires authentication:
-
-**Set up OSF PAT:**
-
-```{r eval=FALSE}
-# Get instructions
-projr_instr_auth_osf()
-
-# Set environment variable (add to ~/.Renviron)
-# OSF_PAT=your_token_here
-```
-
-## Local Directories
-
-No authentication needed for local directories, but ensure:
-
-- Directory paths are accessible
-- You have read permissions
-- Network drives are mounted (if applicable)
-
----
-
-# How Restoration Works
-
-## The Manifest System
-
-projr uses `manifest.csv` to track file versions:
+projr uses `manifest.csv` to track file versions and hashes.
 
 **Manifest structure:**
 
-| label     | fn                | version | hash                             |
-|-----------|-------------------|---------|----------------------------------|
-| raw-data  | data/survey.csv   | v0.1.0  | 5d41402abc4b2a76b9719d911017c592 |
-| raw-data  | data/survey.csv   | v0.2.0  | 5d41402abc4b2a76b9719d911017c592 |
-| output    | figures/plot.png  | v0.1.0  | 098f6bcd4621d373cade4e832627b4f6 |
+```
+label      | fn                | version | hash
+-----------|-------------------|---------|----------------------------------
+raw-data   | data/survey.csv   | v0.1.0  | 5d41402abc4b2a76b9719d911017c592
+raw-data   | data/survey.csv   | v0.2.0  | 5d41402abc4b2a76b9719d911017c592
+output     | figures/plot.png  | v0.1.0  | 098f6bcd4621d373cade4e832627b4f6
+```
 
-**How it's used in restoration:**
+**How it's used:**
 
 1. projr reads `manifest.csv` from your project
-2. Finds the latest version for each file
+2. Determines which version to restore (based on current project version)
 3. Downloads files from configured remotes
 4. Verifies file hashes match manifest
 
-## Restoration Process
+### Version Resolution
 
-**Step-by-step:**
+projr determines which version to restore:
 
-1. **Read configuration**: Parse `_projr.yml` to find remote sources
-2. **Read manifest**: Load `manifest.csv` to determine file versions
-3. **Select sources**: Choose appropriate remotes for each label
-4. **Download files**: Retrieve files from remotes
-5. **Verify integrity**: Check file hashes against manifest
-6. **Extract/place files**: Put files in correct local directories
-
-## Version Resolution
-
-**How projr determines which version to restore:**
-
-1. Checks current project version from `VERSION` file or `DESCRIPTION`
+1. Reads current project version from `VERSION` file or `DESCRIPTION`
 2. Looks for files with that version in manifest
-3. Falls back to latest available version if specific version not found
+3. Falls back to latest available if specific version not found
 
 **Example:**
 
@@ -491,98 +480,30 @@ Manifest has: v0.1.0, v0.2.0, v0.3.0
 Result: Restores v0.2.0
 ```
 
----
+### Restoration Process
 
-# Troubleshooting
+Step-by-step restoration:
 
-## Common Issues
+1. **Read configuration** - Parse `_projr.yml` to find remote sources
+2. **Read manifest** - Load `manifest.csv` to determine file versions
+3. **Select sources** - Choose appropriate remotes for each label
+4. **Download files** - Retrieve files from remotes
+5. **Verify integrity** - Check file hashes against manifest
+6. **Place files** - Put files in correct local directories
 
-**"No manifest.csv found"**
+### Remote Source Priority
 
-- Solution: The project needs to have been built at least once with projr
-- Alternative: Clone a project that has already been built
+projr checks remote sources in order:
 
-**"No remote sources configured"**
+1. **GitHub Releases** - If configured in `_projr.yml`
+2. **OSF** - If configured
+3. **Local directories** - If configured
 
-- Solution: Check `_projr.yml` has remote destinations under `build:`
-- Alternative: Manually download files from GitHub releases
+The first available source is used for each artifact type.
 
-**"Authentication required for GitHub"**
+## Best Practices
 
-- Solution: Set up `GITHUB_PAT` environment variable
-- Run: `projr_instr_auth_github()` for instructions
-
-**"Failed to download from remote"**
-
-- Check internet connection
-- Verify remote still exists (GitHub release, local path)
-- Check authentication if required
-
-**"File hash mismatch"**
-
-- File on remote may be corrupted or modified
-- Try restoring from different remote type
-- Check if remote was updated outside of projr
-
-## Restoration Failures
-
-**Partial restoration:**
-
-If some artifacts restore successfully but others fail:
-
-```{r eval=FALSE}
-# projr continues with available artifacts
-# Check which failed in the output messages
-```
-
-**Recovery strategies:**
-
-```{r eval=FALSE}
-# Try different remote type
-projr_restore(type = "local")  # Instead of GitHub
-
-# Try specific artifact
-projr_restore(label = "raw-data")  # One at a time
-
-# Manual download as last resort
-# Download from GitHub releases manually, then:
-# Place files in appropriate directories
-```
-
-## Debugging Restoration
-
-**Check configuration:**
-
-```{r eval=FALSE}
-# View remote configuration
-projr_yml_get()$build$github
-projr_yml_get()$build$local
-
-# Validate configuration
-projr_yml_check()
-```
-
-**Check manifest:**
-
-```{r eval=FALSE}
-# Read manifest to see available versions
-manifest <- read.csv("manifest.csv")
-manifest[manifest$label == "raw-data", ]
-```
-
-**Verbose output:**
-
-```{r eval=FALSE}
-# Set environment variable for detailed output
-Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
-projr_restore()
-```
-
----
-
-# Best Practices
-
-## For Project Setup
+### For Project Setup
 
 **Archive raw data:**
 
@@ -602,62 +523,36 @@ Add to your project `README.md`:
 ```markdown
 ## Setup
 
-1. Clone repository: `projr::projr_restore_repo("owner/repo")`
-2. Restore dependencies: `renv::restore()`
+1. Restore project: `projr::projr_restore_repo("owner/repo")`
+2. Install dependencies: `renv::restore()`
 3. Build project: `projr::projr_build_dev()`
 ```
 
-## For Collaborators
+### For Collaborators
 
 **Share restoration instructions:**
 
 ```{r eval=FALSE}
-# In project README or setup script:
-
-# Option 1: Full automated setup
+# Option 1: Automated setup
 projr::projr_restore_repo("owner/repo")
+setwd("repo")
+renv::restore()
 
 # Option 2: Manual clone, then restore
 # git clone https://github.com/owner/repo
 # cd repo
-# R
-# projr::projr_restore()
+# R -e "projr::projr_restore()"
 ```
 
-**Test restoration process:**
+**Test restoration:**
 
 ```{r eval=FALSE}
-# Before sharing, test in clean environment
-# Create new directory, test full workflow
+# Test in clean environment before sharing
 tempdir <- tempdir()
 projr::projr_restore_repo("owner/repo", path = tempdir)
 ```
 
-## For Version Control
-
-**Archive at meaningful milestones:**
-
-```{r eval=FALSE}
-# After major analysis completion
-projr_build_minor()  # Bumps version, archives artifacts
-
-# After data updates
-projr_build_patch()  # Bumps patch, archives if changed
-```
-
-**Document version history:**
-
-Keep notes on what changed in each version:
-
-```markdown
-## Version History
-
-- v0.3.0: Updated analysis with new data from 2024
-- v0.2.0: Added sensitivity analyses
-- v0.1.0: Initial analysis with 2023 data
-```
-
-## For Reproducibility
+### For Reproducibility
 
 **Archive everything needed:**
 
@@ -683,22 +578,25 @@ projr_yml_dest_add_github(
 
 **Document dependencies:**
 
-```{r eval=FALSE}
-# Use renv for R package versions
-renv::snapshot()
+Use `renv` for R package versions:
 
-# Document system dependencies in README
-# - R version 4.3.0
-# - System libraries: libcurl, libxml2
+```{r eval=FALSE}
+renv::snapshot()
 ```
 
----
+Document system dependencies in `README.md`:
 
-# Advanced Topics
+```markdown
+## System Requirements
 
-## Restoring from Specific Versions
+- R version 4.3.0 or higher
+- System libraries: libcurl, libxml2
+- pandoc (for rendering documents)
+```
 
-**Checkout specific Git version:**
+### For Version Control
+
+**Restore specific versions:**
 
 ```{r eval=FALSE}
 # View available versions
@@ -711,128 +609,206 @@ system("git checkout v0.2.0")
 projr_restore()
 ```
 
-## Custom Restoration Workflows
+**Document version history:**
 
-**Restore only if needed:**
+Keep notes in `NEWS.md` or `CHANGELOG.md`:
 
-```{r eval=FALSE}
-# Check if raw data exists
-if (!dir.exists("_raw_data") || length(list.files("_raw_data")) == 0) {
-  message("Restoring raw data...")
-  projr_restore(label = "raw-data")
-} else {
-  message("Raw data already present, skipping restoration.")
-}
+```markdown
+## Version 0.3.0
+
+- Updated analysis with 2024 data
+- Added sensitivity analyses
+
+## Version 0.2.0
+
+- Revised methods based on reviewer feedback
 ```
 
-**Restore with error handling:**
+## Common Pitfalls
+
+### No Manifest File
+
+**Problem:** `"No manifest.csv found"`
+
+**Solutions:**
+
+- The project needs to have been built at least once with projr
+- Clone a project that has manifest in its repository
+- If manifest is missing, manually download files from GitHub releases
+
+### No Remote Sources
+
+**Problem:** `"No remote sources configured"`
+
+**Solutions:**
+
+- Check `_projr.yml` has remote destinations under `build:`
+- Verify remote configurations are valid with `projr_yml_check()`
+- Manually download files from remote sources
+
+### Authentication Errors
+
+**Problem:** `"Authentication required for GitHub"`
+
+**Solutions:**
+
+- Set up `GITHUB_PAT` environment variable
+- Run `projr_instr_auth_github()` for instructions
+- Verify token with `Sys.getenv("GITHUB_PAT")`
+- Ensure token has `repo` scope
+
+### Download Failures
+
+**Problem:** Failed to download from remote
+
+**Solutions:**
+
+- Check internet connection
+- Verify remote still exists (GitHub release, local path)
+- Check authentication if required
+- Try different remote type: `projr_restore(type = "local")`
+
+### Hash Mismatches
+
+**Problem:** `"File hash mismatch"`
+
+**Solutions:**
+
+- File on remote may be corrupted
+- File may have been modified outside projr
+- Try restoring from different remote
+- Check if remote was updated manually
+
+### Partial Restoration
+
+**Problem:** Some artifacts restore, others fail
+
+**Behavior:** projr continues with available artifacts
+
+**Recovery:**
 
 ```{r eval=FALSE}
-# Try multiple sources
-restore_with_fallback <- function() {
-  # Try GitHub first
-  result <- tryCatch(
-    projr_restore(type = "github"),
-    error = function(e) {
-      message("GitHub restoration failed: ", e$message)
-      FALSE
-    }
-  )
-  
-  # Fall back to local
-  if (!result) {
-    message("Trying local restoration...")
-    projr_restore(type = "local")
+# Try different remote type
+projr_restore(type = "local")
+
+# Try specific artifact
+projr_restore(label = "raw-data")
+
+# Manual download as last resort
+# Download from GitHub releases manually
+```
+
+## Troubleshooting
+
+### Check Configuration
+
+View remote configuration:
+
+```{r eval=FALSE}
+# View entire configuration
+projr_yml_get()
+
+# View specific sections
+projr_yml_get()$build$github
+projr_yml_get()$build$local
+
+# Validate configuration
+projr_yml_check()
+```
+
+### Check Manifest
+
+Inspect manifest contents:
+
+```{r eval=FALSE}
+# Read manifest
+manifest <- read.csv("manifest.csv")
+
+# View entries for specific label
+manifest[manifest$label == "raw-data", ]
+
+# View available versions
+unique(manifest$version)
+```
+
+### Verbose Output
+
+Enable detailed output:
+
+```{r eval=FALSE}
+# Set environment variable
+Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
+
+# Run restoration
+projr_restore()
+
+# Check detailed logs
+# Located in _tmp/projr/log/
+```
+
+### Test Restoration
+
+Test in isolated environment:
+
+```{r eval=FALSE}
+# Create test directory
+test_dir <- tempfile()
+dir.create(test_dir)
+
+# Test restoration
+result <- tryCatch(
+  projr_restore_repo("owner/repo", path = test_dir),
+  error = function(e) {
+    message("Restoration failed: ", e$message)
+    FALSE
   }
+)
+
+# Clean up
+if (result) {
+  message("Restoration successful!")
+  unlink(test_dir, recursive = TRUE)
 }
-
-restore_with_fallback()
 ```
 
-## Restoration in CI/CD
+## Summary
 
-**GitHub Actions example:**
-
-```yaml
-# .github/workflows/analysis.yml
-name: Run Analysis
-on: [push]
-
-jobs:
-  analyze:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      
-      - name: Setup R
-        uses: r-lib/actions/setup-r@v2
-      
-      - name: Restore artifacts
-        env:
-          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          Rscript -e "projr::projr_restore()"
-      
-      - name: Build project
-        run: |
-          Rscript -e "projr::projr_build_dev()"
-```
-
----
-
-# Summary
-
-**Key Concepts:**
-
-- **Artifacts**: Versioned project components (raw-data, output, etc.)
-- **Manifest**: CSV file tracking file versions and hashes
-- **Remotes**: Sources from which artifacts can be restored
-- **Restoration**: Downloading and placing artifacts from remotes
-
-**Main Functions:**
+### Quick Start
 
 ```{r eval=FALSE}
-# Clone repository and restore artifacts
+# Most common: Clone and restore
 projr_restore_repo("owner/repo")
 
-# Restore in existing project
+# In existing project: Restore artifacts
 projr_restore()
 
-# Restore specific artifacts
-projr_restore(label = "raw-data")
-
-# Restore from specific remote
-projr_restore(type = "github", title = "raw-data-release")
-```
-
-**Quick Start:**
-
-```{r eval=FALSE}
-# New machine setup (most common)
-projr_restore_repo("owner/repo")
-setwd("repo")
-renv::restore()
-
-# Restore in existing project
-projr_restore()
-
-# Restore specific artifact
+# Specific artifact: Restore raw data only
 projr_restore(label = "raw-data")
 ```
 
-**Troubleshooting Checklist:**
+### Key Functions
 
-1. Check `manifest.csv` exists in project root
-2. Verify `_projr.yml` has remote configurations
-3. Ensure authentication is set up (GitHub PAT, OSF PAT)
-4. Check internet connection
-5. Verify remote sources still exist
-6. Try different remote type or title
+- **`projr_restore_repo()`** - Clone repository and restore artifacts
+- **`projr_restore_repo_wd()`** - Restore into current directory
+- **`projr_restore()`** - Restore in existing project
 
-**See Also:**
+### Key Parameters
 
-- `?projr_restore` - Restoration function documentation
+- **label** - Which artifacts to restore (default: all raw artifacts)
+- **type** - Which remote type (github, local, osf; default: first available)
+- **title** - Which remote configuration (default: first available for type)
+- **pos** - Source position (source, dest; default: both)
+
+### Key Concepts
+
+- **Artifacts** - Versioned project components (raw-data, output, docs, code)
+- **Manifest** - CSV file tracking file versions and hashes
+- **Remotes** - Sources from which artifacts can be restored
+- **Version resolution** - Determining which version to restore
+
+### See Also
+
+- `?projr_restore` - Full restoration documentation
 - `?projr_restore_repo` - Repository restoration documentation
 - `vignette("send-to-remotes")` - Configuring remotes for archiving
-- `vignette("concepts")` - Core projr concepts
-- `vignette("how-to-guides")` - Task-focused guides
+- `vignette("environment")` - Environment variables including `GITHUB_PAT`
