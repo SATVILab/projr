@@ -21,6 +21,8 @@
 
 \item{tag}{Character string. Release tag.}
 
+\item{fn}{Character string. Asset filename to download.}
+
 \item{dest_dir}{Character string. Local directory to save assets into.
 Created if it does not exist.}
 
