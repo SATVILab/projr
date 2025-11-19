@@ -255,16 +255,16 @@
   }
   # Handle multi-version strings (e.g., "v0.0.1;v0.0.2") by extracting latest
   if (grepl(";", version_remote_raw, fixed = TRUE)) {
-    version_remote <- tryCatch({
+    version_remote_pkg <- tryCatch({
       .version_get_latest(version_remote_raw)
     }, error = function(e) {
-      return(character(0L))
+      return(NULL)
     })
-    if (.is_len_0(version_remote)) {
+    if (is.null(version_remote_pkg)) {
       return(version_comp_no_trusted_archive)
     }
-    # .version_get_latest returns package_version object, convert to character without "v"
-    version_remote <- as.character(version_remote)
+    # Extract the numeric version without "v" prefix
+    version_remote <- gsub("^v", "", as.character(version_remote_pkg))
   } else {
     version_remote <- version_remote_raw |> .version_v_rm()
   }

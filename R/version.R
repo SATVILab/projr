@@ -385,6 +385,16 @@ projr_version_get <- function() {
     x <- as.character(x)
   }
   .assert_string(x, required = TRUE)
+  
+  # Handle multi-version strings (semicolon-separated)
+  if (grepl(";", x, fixed = TRUE)) {
+    version_parts <- strsplit(x, ";", fixed = TRUE)[[1]]
+    versions_clean <- vapply(version_parts, function(v) {
+      gsub("^v+", "", tolower(v))
+    }, character(1L), USE.NAMES = FALSE)
+    return(paste(versions_clean, collapse = ";"))
+  }
+  
   gsub("^v+", "", tolower(x))
 }
 
@@ -394,6 +404,17 @@ projr_version_get <- function() {
     x <- as.character(x)
   }
   .assert_string(x, required = TRUE)
+  
+  # Handle multi-version strings (semicolon-separated)
+  if (grepl(";", x, fixed = TRUE)) {
+    version_parts <- strsplit(x, ";", fixed = TRUE)[[1]]
+    versions_with_v <- vapply(version_parts, function(v) {
+      v_clean <- gsub("^v+", "", tolower(v))
+      paste0("v", v_clean)
+    }, character(1L), USE.NAMES = FALSE)
+    return(paste(versions_with_v, collapse = ";"))
+  }
+  
   x_rm <- .version_v_rm(x)
   paste0("v", x_rm)
 }
@@ -485,11 +506,18 @@ projr_version_get <- function() {
     stop("No valid versions found")
   }
   
-  # Apply .version_to_package_version to each element
+  # Apply .version_to_package_version to each element and find max
   vers_pkg <- vapply(all_versions, function(v) as.character(.version_to_package_version(v)), character(1), USE.NAMES = FALSE)
-  vers_pkg |>
-    unique() |>
-    package_version() |>
-    max() |>
-    utils::tail(1)
+  max_ver <- max(package_version(unique(vers_pkg)))
+  
+  # Return the original version string (with "v" prefix) that corresponds to max
+  max_ver_str <- as.character(max_ver)
+  for (v in all_versions) {
+    if (as.character(.version_to_package_version(v)) == max_ver_str) {
+      return(v)  # Return original with "v" prefix
+    }
+  }
+  
+  # Fallback: return with "v" prefix
+  paste0("v", max_ver_str)
 }

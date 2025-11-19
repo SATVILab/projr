@@ -425,22 +425,52 @@
 }
 
 .version_file_update_project_version <- function(version_file) { # nolint: object_length_linter, line_length_linter.
+  # Get current version and ensure it's a single version (not multi-version string)
+  version_current <- projr_version_get()
+  
+  # If version contains semicolons (multi-version string), extract latest version
+  # and ensure all "v" prefixes are properly handled
+  if (grepl(";", version_current, fixed = TRUE)) {
+    version_parts <- strsplit(version_current, ";", fixed = TRUE)[[1]]
+    # Ensure all parts have "v" prefix, then extract latest
+    version_parts <- vapply(version_parts, function(v) {
+      if (!startsWith(v, "v")) paste0("v", v) else v
+    }, character(1), USE.NAMES = FALSE)
+    # Get latest version (last in the list)
+    version_current <- version_parts[length(version_parts)]
+  }
+  
   if (.is_len_0(version_file)) {
-    return(paste0("Project: ", projr_version_get()))
+    return(paste0("Project: ", version_current))
   }
   if (any(grepl("^Project: ", version_file))) {
     version_file <- version_file[!grepl("^Project: ", version_file)]
   }
-  c(paste0("Project: ", projr_version_get()), version_file)
+  c(paste0("Project: ", version_current), version_file)
 }
 
 .version_file_update_label_version <- function(version_file, # nolint
                                                label,
                                                add_asterisk) {
+  # Get current version and ensure it's a single version (not multi-version string)
+  version_current <- .version_get()
+  
+  # If version contains semicolons (multi-version string), extract latest version
+  # and ensure all "v" prefixes are properly handled
+  if (grepl(";", version_current, fixed = TRUE)) {
+    version_parts <- strsplit(version_current, ";", fixed = TRUE)[[1]]
+    # Ensure all parts have "v" prefix, then extract latest
+    version_parts <- vapply(version_parts, function(v) {
+      if (!startsWith(v, "v")) paste0("v", v) else v
+    }, character(1), USE.NAMES = FALSE)
+    # Get latest version (last in the list)
+    version_current <- version_parts[length(version_parts)]
+  }
+  
   version_add <- if (add_asterisk) {
-    .version_get() |> paste0("*")
+    paste0(version_current, "*")
   } else {
-    .version_get()
+    version_current
   }
   if (.is_len_0(version_file)) {
     return(paste0(label, ": ", version_add))
