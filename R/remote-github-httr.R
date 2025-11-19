@@ -84,8 +84,7 @@
   if (length(assets) == 0L) {
     return(FALSE)
   }
-  asset_names <- vapply(assets, function(x) x[["name"]], character(1))
-  asset %in% asset_names
+  asset %in% assets
 }
 
 # ========================
@@ -403,7 +402,7 @@
     )
     return(invisible(character()))
   }
-  
+
   # Ensure destination directory exists
   if (!dir.exists(dest_dir)) {
     dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
@@ -608,10 +607,6 @@
     stop("Failed to upload asset: HTTP ", status, " (url: ", upload_url, ")", call. = FALSE)
   }
 }
-
-# ========================
-# Download all files
-# ========================
 
 # ========================
 # Miscellaneous

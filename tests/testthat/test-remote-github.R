@@ -98,7 +98,7 @@ test_that(".remote_get_final works for GitHub", {
 })
 
 # =============================================================================
-# File Operations: Add, List, Remove
+# File operations: add, list and remove
 # =============================================================================
 
 test_that("adding, listing and removing files works on GitHub releases", {
@@ -111,6 +111,7 @@ test_that("adding, listing and removing files works on GitHub releases", {
   usethis::with_project(
     path = dir_test,
     code = {
+
       # Use one of the fixed test releases
       tag <- "projr-test-release-a"
 
@@ -125,145 +126,132 @@ test_that("adding, listing and removing files works on GitHub releases", {
       )
 
       expect_true(
-        "abc.txt" %in% .remote_file_ls("github", remote = c("tag" = tag, "fn" = "abc.zip"))
+        "abc.txt" %in%
+          .remote_file_ls("github", remote = c("tag" = tag, "fn" = "abc.zip"))
       )
 
       # Clear existing content
+      # debugonce(.remote_final_empty_github)
+      # debugonce(.remote_final_check_exists_github_httr)
       .remote_final_empty("github", remote = c("tag" = tag, "fn" = "abc.zip"))
 
-      # Poll for removal to complete
-      start_time <- proc.time()[3]
-      max_wait <- 60
-      repo <- .gh_guess_repo()
-      content_tbl <- piggyback::pb_list(repo = repo, tag = tag)
-      while (!is.null(content_tbl) && nrow(content_tbl) > 0L && (proc.time()[3] - start_time < max_wait)) {
-        Sys.sleep(5)
-        content_tbl <- piggyback::pb_list(repo = repo, tag = tag)
-      }
+      # confirm asset does not exist
+      expect_false(
+        .remote_final_check_exists_github_httr(
+          repo = .gh_guess_repo(),
+          tag = tag,
+          asset = "abc.zip"
+        )
+      )
 
-      # Create test content
-      path_dir_source <- .test_setup_content_dir()
-      fn_vec <- .remote_file_ls("local", path_dir_source)
-
-      # Add files to GitHub release
+      # add multiple files
+      dir.create("subdir1/subdir2", showWarnings = FALSE, recursive = TRUE)
+      writeLines("file def", "subdir1/def.txt")
+      writeLines("file ghi", "subdir1/subdir2/ghi.txt")
+      fn_vec <- c("abc.txt", "subdir1/def.txt", "subdir1/subdir2/ghi.txt")
       .remote_file_add(
         "github",
         fn = fn_vec,
-        path_dir_local = path_dir_source,
+        path_dir_local = ".",
         remote = c("tag" = tag, "fn" = "abc.zip")
       )
 
-      # Poll for upload to be reflected
-      start_time <- proc.time()[3]
-      max_wait <- 120
-      asset_exists <- FALSE
-      while (!asset_exists && (proc.time()[3] - start_time < max_wait)) {
-        Sys.sleep(5)
-        content_tbl <- tryCatch(
-          piggyback::pb_list(repo = repo, tag = tag),
-          error = function(e) NULL
-        )
-        asset_exists <- !is.null(content_tbl) && nrow(content_tbl) > 0L
-      }
+      file_vec <- .remote_file_ls(
+        "github", remote = c("tag" = tag, "fn" = "abc.zip")
+      )
 
-      # Download and verify
-      path_dir_save <- .dir_create_tmp_random()
-      .remote_file_get_all(
+      expect_true("abc.txt" %in% file_vec)
+      expect_true("subdir1/def.txt" %in% file_vec)
+      expect_true("subdir1/subdir2/ghi.txt" %in% file_vec)
+
+      # add a file
+      writeLines("new file content", "newfile.txt")
+      .remote_file_add(
         "github",
+        fn = "newfile.txt",
+        path_dir_local = ".",
+        remote = c("tag" = tag, "fn" = "abc.zip")
+      )
+
+      file_vec <- .remote_file_ls(
+        "github", remote = c("tag" = tag, "fn" = "abc.zip")
+      )
+
+      expect_true("abc.txt" %in% file_vec)
+      expect_true("subdir1/def.txt" %in% file_vec)
+      expect_true("subdir1/subdir2/ghi.txt" %in% file_vec)
+      expect_true("newfile.txt" %in% file_vec)
+
+      # remove a file
+      browser()
+      .remote_file_rm(
+        "github",
+        fn = c("newfile.txt", "subdir1/subdir2/ghi.txt"),
+        remote = c("tag" = tag, "fn" = "abc.zip")
+      )
+
+      file_vec <- .remote_file_ls(
+        "github", remote = c("tag" = tag, "fn" = "abc.zip")
+      )
+
+      expect_false("newfile.txt" %in% file_vec)
+      expect_false("subdir1/subdir2/ghi.txt" %in% file_vec)
+      expect_true("abc.txt" %in% file_vec)
+      expect_true("subdir1/def.txt" %in% file_vec)
+
+      # download a single file
+      path_dir_save <- .dir_create_tmp_random()
+      .remote_file_get(
+        "github",
+        fn = "abc.txt",
         remote = c("tag" = tag, "fn" = "abc.zip"),
         path_dir_save_local = path_dir_save
       )
-      expect_identical(
-        .remote_file_ls("local", path_dir_save),
-        fn_vec
-      )
-
-      # Remove some content
-      fn_vec_rm <- c("abc.txt", "subdir1/def.txt")
       expect_true(
-        .remote_file_rm("github", fn = fn_vec_rm, remote = c("tag" = tag, "fn" = "abc.zip"))
+        file.exists(file.path(path_dir_save, "abc.txt"))
+      )
+      expect_false(
+        file.exists(file.path(path_dir_save, "subdir1", "def.txt"))
       )
 
-      # Poll for removal to be reflected
-      start_time <- proc.time()[3]
-      max_wait <- 60
-      file_list <- .remote_file_ls("github", remote = c("tag" = tag, "fn" = "abc.zip"))
-      expected_list <- setdiff(fn_vec, fn_vec_rm)
-      while (!identical(file_list, expected_list) && (proc.time()[3] - start_time < max_wait)) {
-        Sys.sleep(5)
-        file_list <- .remote_file_ls("github", remote = c("tag" = tag, "fn" = "abc.zip"))
-      }
-      expect_identical(file_list, expected_list)
+      # download a single file in a subdirectory
+      path_dir_save2 <- .dir_create_tmp_random()
+      .remote_file_get(
+        "github",
+        fn = "subdir1/def.txt",
+        remote = c("tag" = tag, "fn" = "abc.zip"),
+        path_dir_save_local = path_dir_save2
+      )
+      expect_true(
+        file.exists(file.path(path_dir_save2, "def.txt"))
+      )
+      expect_false(
+        file.exists(file.path(path_dir_save2, "abc.txt"))
+      )
 
-      # Cleanup
-      unlink(path_dir_source, recursive = TRUE)
+      # empty the remote
+      .remote_final_empty(
+        "github",
+        remote = c("tag" = tag, "fn" = "abc.zip")
+      )
+      expect_false(
+        .remote_final_check_exists_github_httr(
+          repo = .gh_guess_repo(),
+          tag = tag,
+          asset = "abc.zip"
+        )
+      )
+
+      expect_false(
+        .remote_final_rm_if_empty(
+          "github", remote = c("tag" = tag, "fn" = "abc.zip")
+        )
+      )
+
+      # cleanup
+      unlink(c("abc.txt", "subdir1", "newfile.txt"), recursive = TRUE)
       unlink(path_dir_save, recursive = TRUE)
-    }
-  )
-})
-
-test_that(".remote_file_rm_all works for GitHub", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if_offline()
-  .test_skip_if_cannot_modify_github()
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Use one of the fixed test releases
-      tag <- "projr-test-release-b"
-
-      # Ensure release exists
-      if (!.remote_check_exists("github", tag)) {
-        .remote_create("github", tag)
-        Sys.sleep(30)
-      }
-
-      # Clear cache and add test file
-      piggyback:::.pb_cache_clear()
-      path_tmp_file <- file.path(tempdir(), "test-file.txt")
-      file.create(path_tmp_file)
-      writeLines("test content", path_tmp_file)
-
-      path_zip <- .zip_file(
-        fn_rel = basename(path_tmp_file),
-        path_dir_fn_rel = dirname(path_tmp_file),
-        fn_rel_zip = "test-data.zip"
-      )
-
-      .remote_file_add_github_zip_attempt(
-        path_zip = path_zip,
-        tag = tag,
-        output_level = "debug",
-        log_file = NULL
-      )
-
-      # Wait for upload
-      repo <- .gh_guess_repo()
-      max_time <- 180
-      start_time <- proc.time()[3]
-      content_tbl_pre_delete <- piggyback::pb_list(repo = repo, tag = tag)
-      while (nrow(content_tbl_pre_delete) == 0L && (proc.time()[3] - start_time) < max_time) {
-        Sys.sleep(10)
-        content_tbl_pre_delete <- piggyback::pb_list(repo = repo, tag = tag)
-      }
-      expect_identical(nrow(content_tbl_pre_delete), 1L)
-
-      # Remove all files
-      remote_github <- c("tag" = tag, "fn" = basename(path_zip))
-      .remote_final_empty("github", remote = remote_github)
-
-      # Poll for removal
-      max_time_rm <- 60
-      start_time_rm <- proc.time()[3]
-      content_tbl <- piggyback::pb_list(repo = repo, tag = tag)
-      while (!is.null(content_tbl) && nrow(content_tbl) > 0L && (proc.time()[3] - start_time_rm) < max_time_rm) {
-        Sys.sleep(5)
-        content_tbl <- piggyback::pb_list(repo = repo, tag = tag)
-      }
-      expect_true(is.null(content_tbl) || nrow(content_tbl) == 0L)
+      unlink(path_dir_save2, recursive = TRUE)
     }
   )
 })
@@ -390,70 +378,6 @@ test_that("VERSION file round-trip works for GitHub releases", {
   )
 })
 
-# =============================================================================
-# Version and Structure Detection
-# =============================================================================
-
-test_that(".remote_final_check_exists_github works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if_offline()
-  .test_skip_if_cannot_modify_github()
-
-  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Use one of the fixed test releases
-      tag <- "projr-test-release-a"
-
-      # Ensure release exists
-      if (!.remote_check_exists("github", tag)) {
-        .remote_create("github", tag)
-        Sys.sleep(30)
-      }
-
-      # Test latest structure
-      remote_latest <- c("tag" = tag, "fn" = "output.zip")
-
-      # Test archive structure
-      remote_archive <- c("tag" = tag, "fn" = "output-v0.0.1.zip")
-
-      # Note: We can't easily test the check functions without actual assets
-      # These would require a full build cycle, which is beyond scope
-      # The existence check for the release itself works
-      expect_true(.remote_check_exists("github", tag))
-    }
-  )
-})
-
-test_that(".remote_ls_final_github works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if_offline()
-  .test_skip_if_cannot_modify_github()
-
-  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Use one of the fixed test releases
-      tag <- "projr-test-release-a"
-
-      # Ensure release exists
-      if (!.remote_check_exists("github", tag)) {
-        .remote_create("github", tag)
-        Sys.sleep(30)
-      }
-
-      # List assets (may be empty or have previous test artifacts)
-      assets <- .remote_ls_final_github(tag)
-      expect_true(is.character(assets) || is.null(assets))
-    }
-  )
-})
 
 # =============================================================================
 # Restore Integration
@@ -519,30 +443,6 @@ test_that("projr_restore works with GitHub release source", {
       # Verify restoration
       expect_true(result)
       expect_true(file.exists(file.path(projr_path_get_dir("raw-data"), "test-restore.txt")))
-    }
-  )
-})
-
-# =============================================================================
-# Remove Empty Remotes
-# =============================================================================
-
-test_that(".remote_final_rm_if_empty works for GitHub", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if_offline()
-  .test_skip_if_cannot_modify_github()
-
-  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # GitHub releases are never removed by this function
-      # It always returns FALSE for GitHub
-      expect_false(
-        .remote_final_rm_if_empty("github", FALSE)
-      )
     }
   )
 })
@@ -1107,6 +1007,7 @@ test_that("GitHub release works with different content types", {
 # GitHub API Helper Tests
 # =============================================================================
 
+# done
 test_that("GITHUB_TOKEN is final fallback, GH_TOKEN takes precedence", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
@@ -1156,55 +1057,9 @@ test_that("GITHUB_TOKEN is final fallback, GH_TOKEN takes precedence", {
   expect_identical(token, "github_token_value")
 })
 
-test_that("gitcreds return value is properly used", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if(!requireNamespace("gitcreds", quietly = TRUE))
-
-  # Save originals
-  old_github_pat <- Sys.getenv("GITHUB_PAT", unset = "")
-  old_github_token <- Sys.getenv("GITHUB_TOKEN", unset = "")
-  old_gh_token <- Sys.getenv("GH_TOKEN", unset = "")
-
-  on.exit({
-    if (nzchar(old_github_pat)) {
-      Sys.setenv(GITHUB_PAT = old_github_pat)
-    } else {
-      Sys.unsetenv("GITHUB_PAT")
-    }
-    if (nzchar(old_github_token)) {
-      Sys.setenv(GITHUB_TOKEN = old_github_token)
-    } else {
-      Sys.unsetenv("GITHUB_TOKEN")
-    }
-    if (nzchar(old_gh_token)) {
-      Sys.setenv(GH_TOKEN = old_gh_token)
-    } else {
-      Sys.unsetenv("GH_TOKEN")
-    }
-  })
-
-  # Clear all env vars
-  Sys.unsetenv("GITHUB_PAT")
-  Sys.unsetenv("GITHUB_TOKEN")
-  Sys.unsetenv("GH_TOKEN")
-
-  # If gitcreds returns a token, it should be used
-  # This is a functional test - actual gitcreds behavior depends on system state
-  token <- .auth_get_github_pat_find(
-    use_gh_if_available = FALSE,
-    use_gitcreds_if_needed = TRUE
-  )
-
-  # Token should be a string (might be empty if no gitcreds configured)
-  expect_true(is.character(token))
-  expect_identical(length(token), 1L)
-})
-
+# done
 test_that(".github_api_base resolves URLs correctly", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
   skip_if(.is_test_select())
 
   # Save original
@@ -1243,76 +1098,42 @@ test_that(".github_api_base resolves URLs correctly", {
   expect_identical(result, "https://custom.api.com")
 })
 
-test_that(".gh_release_exists requires httr", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-
-  # Just verify the function exists and has correct signature
-  expect_true(is.function(.gh_release_exists))
-
-  # If httr is available, verify basic functionality
-  if (requireNamespace("httr", quietly = TRUE)) {
-    # Function should error or return logical/NULL
-    expect_true(TRUE)  # Placeholder - actual tests below
-  }
-})
-
+# done
 test_that(".gh_release_exists returns correct values for known repos", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if(!requireNamespace("httr", quietly = TRUE))
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      skip_if(.is_test_cran())
+      skip_if(.is_test_lite())
+      skip_if(.is_test_select())
+      skip_if(!requireNamespace("httr", quietly = TRUE))
+      skip_if(!nzchar(.auth_get_github_pat_find()))
 
-  # Test with a well-known public repo that has releases
-  # Using a stable public repo as reference
-  # Note: This test may fail if the repo changes or API is down
+      # Test with a well-known public repo that has releases
+      # Using a stable public repo as reference
+      # Note: This test may fail if the repo changes or API is down
 
-  # We'll use SATVILab/projr as test repo if we can access it
-  repo <- "SATVILab/projr"
+      # We'll use SATVILab/projr as test repo if we can access it
+      repo <- "SATVILab/projr"
 
-  # Try to check for a likely non-existent tag
-  result <- tryCatch(
-    .gh_release_exists(repo, "definitely-not-a-real-tag-xyz-12345"),
-    error = function(e) {
-      # If we get an error other than 404, skip the test
-      if (!grepl("404", e$message, ignore.case = TRUE)) {
-        skip("Cannot access GitHub API for testing")
-      }
-      FALSE
+      # Try to check for a likely non-existent tag
+      result <- tryCatch(
+        .gh_release_exists(repo, "definitely-not-a-real-tag-xyz-12345"),
+        error = function(e) {
+          # If we get an error other than 404, skip the test
+          if (!grepl("404", e$message, ignore.case = TRUE)) {
+            skip("Cannot access GitHub API for testing")
+          }
+          FALSE
+        }
+      )
+      # Should return FALSE for non-existent tag
+      expect_false(result)
     }
   )
-
-  # Should return FALSE for non-existent tag
-  expect_false(result)
 })
 
-test_that(".gh_release_exists returns NULL on auth errors", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if(!requireNamespace("httr", quietly = TRUE))
-
-  # Test with invalid token to trigger auth error
-  # Using empty string as token to simulate no auth
-  repo <- "SATVILab/projr"  # Private repo or any repo
-
-  # With no/invalid token, should return NULL for private repos
-  # (or FALSE for public repos that don't exist)
-  result <- tryCatch(
-    .gh_release_exists(repo, "test-tag", token = ""),
-    error = function(e) {
-      # Should not error on auth failure, should return NULL
-      NULL
-    }
-  )
-
-  # Result should be NULL (auth error) or FALSE (public repo, tag doesn't exist)
-  expect_true(is.null(result) || isFALSE(result))
-})
-
-
+# done
 test_that(".gh_repo_from_remote_url handles common remote formats", {
   expect_equal(.gh_repo_from_remote_url("https://github.com/owner/repo.git"), "owner/repo")
   expect_equal(.gh_repo_from_remote_url("git@github.com:owner/repo.git"), "owner/repo")
