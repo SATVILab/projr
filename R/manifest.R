@@ -189,15 +189,54 @@
   if (.is_len_0(version_file)) {
     return(paste0("Project: ", projr_version_get()))
   }
+  
+  # Get current and previous project versions
+  current_version <- projr_version_get()
+  previous_version <- NULL
+  
   if (any(grepl("^Project: ", version_file))) {
+    project_line <- grep("^Project: ", version_file, value = TRUE)[[1]]
+    previous_version <- gsub("^Project: ", "", project_line) |> trimws()
     version_file <- version_file[!grepl("^Project: ", version_file)]
   }
-  c(paste0("Project: ", projr_version_get()), version_file)
+  
+  # If project version has changed, mark existing labels with # to indicate
+  # they may be out of date with the new project version
+  if (!is.null(previous_version) && previous_version != current_version) {
+    version_file <- .version_file_mark_labels_stale(version_file)
+  }
+  
+  c(paste0("Project: ", current_version), version_file)
+}
+
+# Mark label versions with # to indicate they may be stale relative to new project version
+.version_file_mark_labels_stale <- function(version_file) {
+  if (.is_len_0(version_file)) {
+    return(version_file)
+  }
+  
+  # Process each line
+  vapply(version_file, function(line) {
+    # Skip if not a label line
+    if (!grepl(": ", line)) {
+      return(line)
+    }
+    
+    # Skip if already marked with # or *
+    if (grepl("#$|\\*$", line)) {
+      return(line)
+    }
+    
+    # Add # to indicate this version may be stale
+    paste0(line, "#")
+  }, character(1), USE.NAMES = FALSE)
 }
 
 .version_file_update_label_version <- function(version_file, # nolint
                                                label,
                                                add_asterisk) {
+  # When updating a label, remove the # marker (if present) since we're now uploading it
+  # The # marker indicates a label that may be stale relative to the current project version
   version_add <- if (add_asterisk) {
     .version_get() |> paste0("*")
   } else {
