@@ -63,7 +63,6 @@ test_that(".remote_get works for GitHub", {
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
-  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -83,7 +82,6 @@ test_that(".remote_get_final works for GitHub", {
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
-  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -211,7 +209,6 @@ test_that(".remote_file_rm_all works for GitHub", {
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
-  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
