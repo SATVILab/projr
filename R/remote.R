@@ -1795,7 +1795,14 @@ projr_osf_create_project <- function(title,
       versions_clean <- vapply(version_parts, .version_v_rm, character(1L))
       all_versions <- c(all_versions, versions_clean)
     }
-    return(all_versions |> .version_to_package_version() |> max())
+    # Convert each version individually before taking max
+    versions_as_char <- vapply(
+      all_versions,
+      function(v) as.character(.version_to_package_version(v)),
+      character(1),
+      USE.NAMES = FALSE
+    )
+    return(max(package_version(versions_as_char)))
   }
   fn <- .remote_version_latest_filter(fn, type, label)
   .remote_version_latest_extract(fn, label)

@@ -142,7 +142,14 @@ projr_manifest_range <- function(version_start = NULL,
 
   # Filter by version range - extract all unique versions from multi-version rows
   all_versions <- .manifest_get_all_versions(manifest)
-  versions_sorted <- sort(package_version(vapply(all_versions, function(v) as.character(.version_to_package_version(v)), character(1), USE.NAMES = FALSE)))
+  # Convert each version individually to character, then to package_version
+  versions_as_char <- vapply(
+    all_versions,
+    function(v) as.character(.version_to_package_version(v)),
+    character(1),
+    USE.NAMES = FALSE
+  )
+  versions_sorted <- sort(package_version(versions_as_char))
   version_start_pkg <- .version_to_package_version(version_start)
   version_end_pkg <- .version_to_package_version(version_end)
 
