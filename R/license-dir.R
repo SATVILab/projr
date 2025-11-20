@@ -143,9 +143,13 @@
   label_vec <- .yml_dir_get_label_in(profile)
 
   # For input directories, always use unsafe (final) directories
-  # Always create/update licenses to match projr config, even in dev builds
+  # Only create/update licenses if a license config exists in YAML
+  # This allows users to manually create and edit licenses without them being overwritten
   for (label in label_vec) {
-    .license_dir_create(label, safe = FALSE, profile)
+    # Only create if config exists
+    if (!is.null(.yml_dir_get_license(label, profile))) {
+      .license_dir_create(label, safe = FALSE, profile)
+    }
   }
 
   invisible(TRUE)

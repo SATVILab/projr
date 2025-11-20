@@ -300,6 +300,165 @@ test_that("Raw directory licenses always match config", {
   )
 })
 
+test_that("projr_license_create_manual creates licenses without YAML config", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create manual license
+      suppressMessages(
+        created <- projr_license_create_manual("MIT", "raw-data")
+      )
+
+      # Verify it was created
+      expect_true("raw-data" %in% created)
+
+      raw_dir <- projr_path_get_dir("raw-data", safe = FALSE)
+      expect_true(file.exists(file.path(raw_dir, "LICENSE")))
+
+      # Verify no YAML config was added
+      expect_true(is.null(projr_yml_dir_license_get("raw-data")))
+
+      # Check content
+      license <- readLines(file.path(raw_dir, "LICENSE"), warn = FALSE)
+      expect_true(any(grepl("MIT License", license)))
+    }
+  )
+})
+
+test_that("projr_license_create_manual skips if LICENSE exists", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      raw_dir <- projr_path_get_dir("raw-data", safe = FALSE)
+      dir.create(raw_dir, recursive = TRUE, showWarnings = FALSE)
+
+      # Create existing LICENSE
+      writeLines("Existing license", file.path(raw_dir, "LICENSE"))
+
+      # Try to create manual license
+      suppressMessages(
+        expect_warning(
+          created <- projr_license_create_manual("MIT", "raw-data"),
+          "already exists"
+        )
+      )
+
+      # Verify nothing was created
+      expect_identical(length(created), 0L)
+
+      # Verify existing license wasn't overwritten
+      license <- readLines(file.path(raw_dir, "LICENSE"), warn = FALSE)
+      expect_true(any(grepl("Existing license", license)))
+    }
+  )
+})
+
+test_that("projr_license_create_manual warns if YAML config exists", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set YAML config
+      projr_yml_dir_license_set("CC-BY", "raw-data")
+
+      # Try to create manual license
+      suppressMessages(
+        expect_warning(
+          created <- projr_license_create_manual("MIT", "raw-data"),
+          "has license config in YAML"
+        )
+      )
+
+      # Verify nothing was created
+      expect_identical(length(created), 0L)
+    }
+  )
+})
+
+test_that("Manual licenses not overwritten during builds", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create manual license
+      raw_dir <- projr_path_get_dir("raw-data", safe = FALSE)
+      dir.create(raw_dir, recursive = TRUE, showWarnings = FALSE)
+
+      suppressMessages(
+        projr_license_create_manual("MIT", "raw-data", authors = c("Manual Author"))
+      )
+
+      # Verify it was created
+      expect_true(file.exists(file.path(raw_dir, "LICENSE")))
+      license1 <- readLines(file.path(raw_dir, "LICENSE"), warn = FALSE)
+      expect_true(any(grepl("Manual Author", license1)))
+
+      # Create content and build
+      .test_setup_content("raw-data", safe = FALSE)
+      writeLines(
+        c("---", "title: Test", "---", "", "Test content"),
+        file.path(.path_get(), "test.qmd")
+      )
+
+      suppressMessages(projr_build_dev())
+
+      # Verify license wasn't overwritten
+      license2 <- readLines(file.path(raw_dir, "LICENSE"), warn = FALSE)
+      expect_true(any(grepl("Manual Author", license2)))
+    }
+  )
+})
+
+test_that("YAML config overrides manual licenses", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create manual license
+      raw_dir <- projr_path_get_dir("raw-data", safe = FALSE)
+      dir.create(raw_dir, recursive = TRUE, showWarnings = FALSE)
+
+      suppressMessages(
+        projr_license_create_manual("MIT", "raw-data", authors = c("Manual Author"))
+      )
+
+      license1 <- readLines(file.path(raw_dir, "LICENSE"), warn = FALSE)
+      expect_true(any(grepl("Manual Author", license1)))
+
+      # Now add YAML config
+      projr_yml_dir_license_set("CC-BY", "raw-data", authors = c("Config Author"))
+
+      # Build
+      writeLines(
+        c("---", "title: Test", "---", "", "Test content"),
+        file.path(.path_get(), "test.qmd")
+      )
+
+      suppressMessages(projr_build_dev())
+
+      # Verify license was overwritten by YAML config
+      license2 <- readLines(file.path(raw_dir, "LICENSE"), warn = FALSE)
+      expect_true(any(grepl("Creative Commons Attribution", license2)))
+      expect_true(any(grepl("Config Author", license2)))
+      expect_false(any(grepl("Manual Author", license2)))
+    }
+  )
+})
+
 test_that("License integration with build creates files", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())

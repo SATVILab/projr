@@ -228,3 +228,128 @@ projr_yml_dir_license_update <- function(labels = NULL, profile = "default") {
 
   invisible(updated_labels)
 }
+
+#' Manually create LICENSE files without YAML configuration
+#'
+#' @description
+#' Creates LICENSE files in directories without adding license configuration
+#' to `_projr.yml`. This allows manual editing of licenses without them being
+#' overwritten during builds. If a license configuration exists in the YAML
+#' for a directory, it will take precedence and overwrite the manual license.
+#'
+#' @param type character.
+#' License type. Supported types: "CC-BY", "CC0", "Apache-2.0", "MIT", "Proprietary".
+#'
+#' @param labels character vector.
+#' Directory labels to create licenses for. If NULL, creates for all
+#' raw data directories (raw-data, cache).
+#'
+#' @param authors character vector.
+#' Authors or copyright holders. If NULL, attempts to get from DESCRIPTION file
+#' or uses "Project Authors" as default.
+#'
+#' @param year integer.
+#' Copyright year. If NULL, uses current year.
+#'
+#' @param profile character.
+#' Profile to use. Default is "default".
+#'
+#' @return
+#' Invisible character vector of labels where licenses were created.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Create MIT license in raw-data directory
+#' projr_license_create_manual("MIT", "raw-data")
+#'
+#' # Create CC-BY license in all raw data directories
+#' projr_license_create_manual("CC-BY")
+#'
+#' # Create with custom authors
+#' projr_license_create_manual(
+#'   "Apache-2.0",
+#'   "raw-data",
+#'   authors = c("Jane Doe", "John Smith"),
+#'   year = 2024
+#' )
+#' }
+projr_license_create_manual <- function(type,
+                                        labels = NULL,
+                                        authors = NULL,
+                                        year = NULL,
+                                        profile = "default") {
+  .assert_string(type, TRUE)
+  .assert_chr(labels)
+  .assert_chr(authors)
+  if (!is.null(year)) {
+    if (!is.numeric(year) || length(year) != 1) {
+      stop("year must be a single numeric value", call. = FALSE)
+    }
+  }
+  .assert_string(profile)
+
+  # Validate license type
+  type <- .license_type_normalize(type)
+
+  # Get default labels if not specified (all raw data directories)
+  if (is.null(labels)) {
+    labels <- .yml_dir_get_label_in(profile)
+  }
+
+  # Create license config (without adding to YAML)
+  license_config <- list(
+    type = type,
+    authors = authors %||% .license_get_default_authors(),
+    year = year %||% .license_get_default_year()
+  )
+
+  # Track created licenses
+  created_labels <- character()
+
+  for (label in labels) {
+    # Check if YAML config exists - if so, warn and skip
+    if (!is.null(.yml_dir_get_license(label, profile))) {
+      warning(
+        "Directory '", label, "' has license config in YAML. ",
+        "Use projr_yml_dir_license_set() to modify it, or remove the config first.",
+        call. = FALSE
+      )
+      next
+    }
+
+    # Get directory path
+    path_dir <- projr_path_get_dir(label, safe = FALSE)
+    if (!dir.exists(path_dir)) {
+      dir.create(path_dir, recursive = TRUE, showWarnings = FALSE)
+    }
+
+    # Check if LICENSE already exists
+    license_path <- file.path(path_dir, "LICENSE")
+    if (file.exists(license_path)) {
+      warning(
+        "LICENSE file already exists in '", label, "' directory. ",
+        "Skipping to avoid overwriting manual edits.",
+        call. = FALSE
+      )
+      next
+    }
+
+    # Create license
+    .license_dir_write(path_dir, license_config)
+    created_labels <- c(created_labels, label)
+  }
+
+  if (length(created_labels) > 0) {
+    message("Created LICENSE files for: ", paste(created_labels, collapse = ", "))
+    message(
+      "These licenses are not in YAML config and can be manually edited. ",
+      "They will not be overwritten during builds."
+    )
+  } else {
+    message("No LICENSE files created")
+  }
+
+  invisible(created_labels)
+}
