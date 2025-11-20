@@ -16,11 +16,11 @@ Guidelines for working with the projr build system, including build processes, l
 - `projr_build_patch()` - Increment patch version (0.0.X)
 - `projr_build_minor()` - Increment minor version (0.X.0)
 - `projr_build_major()` - Increment major version (X.0.0)
-- **Important**: Production builds can only run when current version is NOT a dev version
+- Can run from either release or dev versions
 
 ### Development Builds
 - `projr_build_dev()` - Development build without version increment
-- **Important**: If current version is a dev version (e.g., 0.0.2-1), only dev builds are allowed
+- Automatically bumps to dev version if not already on one (e.g., 0.0.1 → 0.0.1-1)
 
 ### Build Phases
 

@@ -30,9 +30,11 @@ projr supports two types of builds:
 - `projr_build_major()` - Increment major version (X.0.0)
 - `projr_build_minor()` - Increment minor version (0.X.0)
 - `projr_build_patch()` - Increment patch version (0.0.X)
+- Can run from either release or dev versions
 
 **Development Builds** - Quick iterations without version changes:
 - `projr_build_dev()` - Build without incrementing version
+- Automatically bumps to dev version if not already on one (e.g., 0.0.1 → 0.0.1-1)
 
 ### Build Architecture
 
@@ -134,12 +136,15 @@ projr calculates three version numbers:
 **Example version transitions:**
 
 ```
-Production build (patch):
-  0.0.1-dev → 0.0.2 → 0.0.3-dev (success)
-  0.0.1-dev → 0.0.2 → 0.0.1-dev (failure)
+Production build (patch) from dev version:
+  0.0.1-1 → 0.0.2 → 0.0.2-1 (success)
+  0.0.1-1 → 0.0.2 → 0.0.1-1 (failure)
 
-Development build:
-  0.0.1-dev → 0.0.1-dev → 0.0.1-dev (no version change)
+Development build from release version (auto-bumps to dev):
+  0.0.1 → 0.0.1-1 → 0.0.1-1 (auto-bump)
+
+Development build from dev version (no change):
+  0.0.1-1 → 0.0.1-1 → 0.0.1-1 (no version change)
 ```
 
 ### 1.5 Pre-Build Hooks
