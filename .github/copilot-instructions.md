@@ -73,7 +73,7 @@ See detailed guidelines in `.github/instructions/`:
 - Two approaches: YAML configuration (automatic) or manual creation
 - Templates: CC-BY, CC0, Apache-2.0, MIT, Proprietary
 - Functions: `projr_yml_dir_license_set()`, `projr_license_create_manual()`, `projr_yml_dir_license_update()`
-- LICENSE files excluded from manifest tracking
+- LICENSE files are tracked in manifest for versioning
 
 ---
 
@@ -188,7 +188,7 @@ if (!file.exists(path)) {
   - Allows manual editing and customization
   - Good for raw data with complex licensing needs
 - Both approaches can coexist; YAML takes precedence when specified
-- LICENSE files always excluded from manifest tracking
+- LICENSE files are tracked in manifest for versioning
 
 ---
 

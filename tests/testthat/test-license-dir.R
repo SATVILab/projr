@@ -187,22 +187,23 @@ test_that(".license_dir_create returns FALSE when no config", {
   )
 })
 
-test_that(".build_label_get_dir_exc excludes LICENSE", {
+test_that(".build_label_get_dir_exc does not exclude LICENSE", {
   skip_if(.is_test_select())
 
-  # Test that LICENSE is excluded for various labels
+  # Test that LICENSE is NOT excluded for various labels
   exc_output <- .build_label_get_dir_exc("output")
-  expect_true("LICENSE" %in% exc_output)
+  expect_false("LICENSE" %in% exc_output %||% character(0))
 
   exc_raw <- .build_label_get_dir_exc("raw-data")
-  expect_true("LICENSE" %in% exc_raw)
+  expect_false("LICENSE" %in% exc_raw %||% character(0))
 
+  # Cache should still exclude "projr" but not LICENSE
   exc_cache <- .build_label_get_dir_exc("cache")
-  expect_true("LICENSE" %in% exc_cache)
   expect_true("projr" %in% exc_cache)
+  expect_false("LICENSE" %in% exc_cache)
 })
 
-test_that("LICENSE files excluded from manifest", {
+test_that("LICENSE files included in manifest", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -221,10 +222,10 @@ test_that("LICENSE files excluded from manifest", {
       # Hash the directory
       manifest <- .manifest_hash_label("output", FALSE)
 
-      # LICENSE should not be in manifest
-      expect_false(any(grepl("LICENSE", manifest$fn)))
+      # LICENSE should be in manifest now
+      expect_true(any(grepl("LICENSE", manifest$fn)))
 
-      # test.txt should be in manifest
+      # test.txt should also be in manifest
       expect_true(any(grepl("test.txt", manifest$fn)))
     }
   )

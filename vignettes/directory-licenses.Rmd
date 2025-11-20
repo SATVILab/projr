@@ -123,7 +123,7 @@ When licenses are configured in YAML:
 - Occurs only in **production builds** (not dev builds)
 - Files generated fresh for each build
 
-**Key point**: LICENSE files are **automatically excluded** from manifest tracking, so they won't be versioned with your project outputs.
+**Key point**: LICENSE files are **tracked in the manifest** and versioned with your project, ensuring license information is preserved across versions.
 
 ### Managing YAML Configurations
 
