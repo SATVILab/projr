@@ -15,6 +15,10 @@ navbar:
       menu:
       - text: How-to guides
         href: articles/how-to-guides.html
+      - text: Sending to Remotes
+        href: articles/send-to-remotes.html
+      - text: Restoring Artifacts
+        href: articles/restore-artifacts.html
       - text: Environment Variables
         href: articles/environment.html
       - text: Scripts and Hooks

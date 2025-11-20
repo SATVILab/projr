@@ -6,7 +6,11 @@
   # Check required packages are available BEFORE starting build
   .cli_debug("Checking required packages", output_level = output_level, log_file = log_file)
   .build_check_packages_available(output_run)
-  
+
+  # check build restrictions (branch)
+  .cli_debug("Checking build restrictions", output_level = output_level, log_file = log_file)
+  .build_check_restrictions(output_run)
+
   # set and check authorisation is available
   .cli_debug("Checking environment variables", output_level = output_level, log_file = log_file)
   .build_env_check(output_run)
@@ -337,11 +341,21 @@
   if (!.build_exit_if_behind_upstream_check(output_run)) {
     return(invisible(FALSE))
   }
+  
+  # Check if not_behind restriction is enabled
+  not_behind <- .yml_restrictions_get_not_behind(NULL)
+  if (!isTRUE(not_behind)) {
+    # Check is disabled
+    return(invisible(FALSE))
+  }
+  
   if (.git_check_behind()) {
     stop(
       "Remote is ahead of local.\n",
       "Merge remote changes before proceeding\n",
-      "(e.g by running `git fetch`, then `git merge`)."
+      "(e.g by running `git fetch`, then `git merge`).\n",
+      "To disable this check, set build.restrictions.not_behind to FALSE in _projr.yml",
+      call. = FALSE
     )
   }
   invisible(TRUE)
@@ -481,5 +495,73 @@
   )
 
   stop(msg, call. = FALSE)
+}
+
+# Build restrictions checking
+# ============================
+
+.build_check_restrictions <- function(output_run) {
+  if (!output_run) {
+    return(invisible(FALSE))
+  }
+
+  # Check branch restrictions
+  .build_check_branch_restriction()
+
+  invisible(TRUE)
+}
+
+.build_check_branch_restriction <- function() {
+  # Get branch restriction from YAML
+  branch_restriction <- .yml_restrictions_get_branch(NULL)
+
+  # If TRUE, no restrictions
+  if (isTRUE(branch_restriction)) {
+    return(invisible(TRUE))
+  }
+
+  # Get current branch
+  current_branch <- .git_branch_get()
+
+  # If not in a Git repo, allow build
+  if (is.null(current_branch)) {
+    return(invisible(TRUE))
+  }
+
+  # If FALSE (logical), restrict on all branches
+  if (isFALSE(branch_restriction)) {
+    stop(
+      "Builds are restricted on all branches.\n",
+      "Current branch: ", current_branch, "\n",
+      "To allow builds, update build.restrictions.branch in _projr.yml",
+      call. = FALSE
+    )
+  }
+
+  # If empty character vector or empty list, restrict on all branches
+  if ((is.character(branch_restriction) && length(branch_restriction) == 0) ||
+      (is.list(branch_restriction) && length(branch_restriction) == 0)) {
+    stop(
+      "Builds are restricted on all branches.\n",
+      "Current branch: ", current_branch, "\n",
+      "To allow builds, update build.restrictions.branch in _projr.yml",
+      call. = FALSE
+    )
+  }
+
+  # Check if current branch matches any allowed branches
+  if ((is.character(branch_restriction) || is.list(branch_restriction)) &&
+      length(branch_restriction) > 0 &&
+      !current_branch %in% branch_restriction) {
+    stop(
+      "Builds are restricted to specific branches.\n",
+      "Current branch: ", current_branch, "\n",
+      "Allowed branches: ", paste(branch_restriction, collapse = ", "), "\n",
+      "To allow builds on this branch, update build.restrictions.branch in _projr.yml",
+      call. = FALSE
+    )
+  }
+
+  invisible(TRUE)
 }
 
