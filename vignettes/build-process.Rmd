@@ -401,16 +401,14 @@ Build completed in 45.2 seconds
 **What happens:**
 
 - Commits output files, documentation, manifest, and metadata
-- Commit message includes version and "post-build" designation
+- Commit message format: "Build v{version}: {message}"
 - Only runs if `build.git.commit` is `TRUE`
 - Does NOT push yet (push happens later)
 
 **Example commit message:**
 
 ```
-post-build v0.0.2
-
-Build message here
+Build v0.0.2: Build message here
 ```
 
 ### 3.5 Remote Distribution
