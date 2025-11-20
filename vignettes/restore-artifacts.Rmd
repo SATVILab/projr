@@ -154,11 +154,15 @@ projr_restore(label = c("raw-data", "cache"))
 
 Controls which artifacts are restored.
 
-**`label = NULL`** (default) - Restore all raw artifacts
+**`label = NULL`** (default) - Restore all raw-* artifacts
 
 ```{r eval=FALSE}
-# Restores: raw-data, cache, and any other raw-* directories
+# Restores: raw-data and any other raw-* directories
+# Note: cache is NOT restored by default (not a raw-* label)
 projr_restore()
+
+# To restore cache explicitly:
+projr_restore(label = c("raw-data", "cache"))
 ```
 
 **`label = "raw-data"`** - Restore specific artifact
@@ -195,7 +199,8 @@ Specifies which remote type to use.
 **`type = NULL`** (default) - Use first available remote
 
 ```{r eval=FALSE}
-# Checks in order: github -> osf -> local
+# Checks remotes in the order they appear in _projr.yml
+# (not a fixed order - depends on your configuration)
 projr_restore()
 ```
 
@@ -493,13 +498,14 @@ Step-by-step restoration:
 
 ### Remote Source Priority
 
-projr checks remote sources in order:
+projr checks remote sources in the order they appear in your `_projr.yml` configuration. The order depends on how you've configured your remotes and is not fixed.
 
-1. **GitHub Releases** - If configured in `_projr.yml`
-2. **OSF** - If configured
-3. **Local directories** - If configured
+When `type = NULL` (default), projr:
 
-The first available source is used for each artifact type.
+1. Looks for sources or destinations in the order listed under `build:` in `_projr.yml`
+2. Uses the first remote that has the requested artifact configured
+
+The specific order depends on your project's configuration.
 
 ## Best Practices
 
@@ -794,7 +800,7 @@ projr_restore(label = "raw-data")
 
 ### Key Parameters
 
-- **label** - Which artifacts to restore (default: all raw artifacts)
+- **label** - Which artifacts to restore (default: all raw-* artifacts)
 - **type** - Which remote type (github, local, osf; default: first available)
 - **title** - Which remote configuration (default: first available for type)
 - **pos** - Source position (source, dest; default: both)

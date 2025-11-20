@@ -185,18 +185,7 @@ projr_yml_dest_add_github(
 
 Controls when new versions are created on the remote.
 
-**`send_cue = "always"`** (default) - Create new version with every build
-
-```{r eval=FALSE}
-projr_yml_dest_add_github(
-  title = "output-@version",
-  content = "output",
-  send_cue = "always"
-)
-# Creates release even if content is unchanged
-```
-
-**`send_cue = "if-change"`** - Only create version when content has changed
+**`send_cue = "if-change"`** (default) - Only create version when content has changed
 
 ```{r eval=FALSE}
 projr_yml_dest_add_github(
@@ -205,6 +194,17 @@ projr_yml_dest_add_github(
   send_cue = "if-change"
 )
 # Skips upload if raw-data is unchanged since last version
+```
+
+**`send_cue = "always"`** - Create new version with every build
+
+```{r eval=FALSE}
+projr_yml_dest_add_github(
+  title = "output-@version",
+  content = "output",
+  send_cue = "always"
+)
+# Creates release even if content is unchanged
 ```
 
 **`send_cue = "never"`** - Never upload (temporarily disable remote)
@@ -220,8 +220,8 @@ projr_yml_dest_add_github(
 
 **When to use:**
 
-- Use `"always"` when you want complete version history
-- Use `"if-change"` for large datasets that rarely change (saves time and space)
+- Use `"if-change"` (default) for efficient archiving - skips unchanged content
+- Use `"always"` when you want to create a release for every version, even if unchanged
 - Use `"never"` to temporarily disable without removing configuration
 
 **Note:** Most useful with `structure = "archive"`. With `structure = "latest"`, `send_cue` still affects whether upload occurs.
@@ -665,7 +665,7 @@ projr_build_patch()
 ### Recommended Defaults
 
 - **structure**: `"archive"` (for version tracking)
-- **send_cue**: `"always"` (complete history) or `"if-change"` (efficiency)
+- **send_cue**: `"if-change"` (default - efficient, skips unchanged content)
 - **send_strategy**: `"sync-diff"` (most efficient)
 - **send_inspect**: `"manifest"` (fastest)
 
