@@ -88,7 +88,7 @@ projr_restore_repo("owner/repo", path = ".")
 
 1. Clones repository into specified directory (or creates subdirectory)
 2. Reads `_projr.yml` to find configured remotes
-3. Restores artifacts (default: all raw artifacts like raw-data, cache)
+3. Restores artifacts (default: all `raw-*` labels like raw-data; cache is NOT included)
 4. Returns `TRUE` if successful, `FALSE` otherwise
 
 ### projr_restore_repo_wd()
@@ -464,37 +464,36 @@ output     | figures/plot.png  | v0.1.0  | 098f6bcd4621d373cade4e832627b4f6
 
 **How it's used:**
 
-1. projr reads `manifest.csv` from your project
-2. Determines which version to restore (based on current project version)
+1. projr reads `manifest.csv` from your project to identify available artifacts
+2. Determines which remote version to restore (latest for archive remotes)
 3. Downloads files from configured remotes
-4. Verifies file hashes match manifest
 
 ### Version Resolution
 
-projr determines which version to restore:
+projr determines which version to restore from remotes:
 
-1. Reads current project version from `VERSION` file or `DESCRIPTION`
-2. Looks for files with that version in manifest
-3. Falls back to latest available if specific version not found
+**For archive remotes** (most common): Restores the latest available version from the remote, regardless of your current project version.
+
+**For latest remotes**: Restores the current snapshot.
 
 **Example:**
 
 ```
-Current version: v0.2.0
-Manifest has: v0.1.0, v0.2.0, v0.3.0
-Result: Restores v0.2.0
+Remote has archived versions: v0.1.0, v0.2.0, v0.3.0
+Result: Restores v0.3.0 (latest available on remote)
 ```
+
+**Note:** To restore a specific older version, check out that Git tag first (`git checkout v0.2.0`), then run `projr_restore()`.
 
 ### Restoration Process
 
 Step-by-step restoration:
 
 1. **Read configuration** - Parse `_projr.yml` to find remote sources
-2. **Read manifest** - Load `manifest.csv` to determine file versions
+2. **Read manifest** - Load `manifest.csv` to identify available artifacts
 3. **Select sources** - Choose appropriate remotes for each label
-4. **Download files** - Retrieve files from remotes
-5. **Verify integrity** - Check file hashes against manifest
-6. **Place files** - Put files in correct local directories
+4. **Determine version** - Identify which remote version to restore (latest for archives)
+5. **Download files** - Retrieve files from remotes and place in local directories
 
 ### Remote Source Priority
 
