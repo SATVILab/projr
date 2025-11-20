@@ -344,6 +344,54 @@ test_that("projr_build_copy_dir works when outputting", {
       expect_true(file.exists(
         projr_path_get("output2", "docs", "b.txt", safe = FALSE, create = FALSE)
       ))
+      
+      # check that custom directory labels can be copied
+      # -------------------
+      yml_projr <- yml_projr_init
+      # Add a custom directory label "raw2"
+      .yml_dir_add_label(
+        path = "_raw2", label = "raw2", profile = "default"
+      )
+      # Create files in raw2
+      file.create(projr_path_get("raw2", "custom.txt", safe = FALSE))
+      # Set output for raw2
+      yml_projr[["directories"]][["raw2"]] <- list(
+        path = "_raw2", output = TRUE
+      )
+      .yml_set(yml_projr)
+      .dir_rm("_output")
+      expect_true(.build_copy_dir(output_run = TRUE))
+      expect_true(dir.exists(
+        projr_path_get("output", "raw2", safe = FALSE, create = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "raw2", "custom.txt", safe = FALSE, create = FALSE)
+      ))
+      
+      # check that multiple custom labels can be copied to different outputs
+      # -------------------
+      # Add custom labels (use raw-extra and output3 since label patterns are restrictive)
+      .yml_dir_add_label(
+        path = "_raw_extra", label = "raw-extra", profile = "default"
+      )
+      .yml_dir_add_label(
+        path = "_output3", label = "output3", profile = "default"
+      )
+      # Create files
+      file.create(projr_path_get("raw-extra", "extra.txt", safe = FALSE))
+      # Configure outputs - need to get fresh yml after adding labels
+      yml_projr <- .yml_get(NULL)
+      yml_projr[["directories"]][["raw-extra"]][["output"]] <- "output3"
+      .yml_set(yml_projr)
+      .dir_rm("_output")
+      .dir_rm("_output3")
+      expect_true(.build_copy_dir(output_run = TRUE))
+      expect_true(dir.exists(
+        projr_path_get("output3", "raw-extra", safe = FALSE, create = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output3", "raw-extra", "extra.txt", safe = FALSE, create = FALSE)
+      ))
     },
     quiet = TRUE,
     force = TRUE
