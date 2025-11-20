@@ -103,3 +103,32 @@ test_that("projr_yml_dir_path_set works with different profiles", {
     }
   )
 })
+
+test_that("projr_yml_dir_path_rm preserves other directory config", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create a custom directory with path and license config
+      projr_yml_dir_path_set("output-results", "_my_results")
+      projr_yml_dir_license_set("MIT", "output-results", authors = c("Test Author"))
+
+      # Verify both settings exist
+      yml_dir_before <- .yml_dir_get_label("output-results", "default")
+      expect_identical(yml_dir_before[["path"]], "_my_results")
+      expect_true(!is.null(yml_dir_before[["license"]]))
+      expect_identical(yml_dir_before[["license"]][["type"]], "MIT")
+
+      # Remove the path
+      projr_yml_dir_path_rm("output-results")
+
+      # Verify license config is still present
+      yml_dir_after <- .yml_dir_get_label("output-results", "default")
+      expect_true(is.null(yml_dir_after[["path"]]))
+      expect_true(!is.null(yml_dir_after[["license"]]))
+      expect_identical(yml_dir_after[["license"]][["type"]], "MIT")
+    }
+  )
+})
