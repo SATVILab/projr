@@ -117,6 +117,7 @@ reference:
   - projr_yml_hooks_add_pre
   - projr_yml_hooks_add_post
   - projr_yml_hooks_rm_all
+  - projr_yml_restrictions_set
 
 - title: Profile management
   desc: Functions for managing project profiles
