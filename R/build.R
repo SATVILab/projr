@@ -412,6 +412,9 @@ projr_build_dev <- function(file = NULL,
   # Output Git information for debug (after pre-build commit)
   .build_debug_git_info(output_level, log_file)
 
+  # create licenses for input directories (raw-data, cache)
+  .cli_debug("Creating licenses for input directories", output_level = output_level, log_file = log_file)
+  .license_dir_create_all_pre(output_run)
 
   # hash cache and raw directories
   .cli_debug("Building manifest (hashing cache and raw directories)", output_level = output_level, log_file = log_file)
@@ -526,6 +529,10 @@ projr_build_dev <- function(file = NULL,
     version_run_on_list = version_run_on_list,
     total_time = total_time
   )
+  # create licenses for output directories (output, docs, data)
+  .cli_debug("Creating licenses for output directories", output_level = output_level, log_file = log_file)
+  .license_dir_create_all_post(output_run)
+
   # hash raw-data and outputs, then save manifest table
   .cli_debug("Updating manifest (hashing outputs)", output_level = output_level, log_file = log_file)
   .build_manifest_post(output_run)

@@ -27,8 +27,8 @@
     )
 
     id <- yml_title[["id"]]  # configured id/title
-    tag <- .remote_misc_get_github_tag(id)
-    tag <- .pb_tag_format(tag)
+    tag <- .remote_misc_github_tag_get(id)
+    tag <- .remote_misc_github_tag_format(tag)
     tag_vec <- c(tag_vec, tag)
   }
 

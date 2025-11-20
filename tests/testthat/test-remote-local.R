@@ -81,7 +81,7 @@ test_that(".remote_get_final works - local", {
       # local
       # --------------------------
       expect_identical(
-        .remote_get_final(
+        .remote_final_get(
           "local",
           id = "a/b/c",
           path = NULL,
@@ -92,7 +92,7 @@ test_that(".remote_get_final works - local", {
         "a/b/c"
       )
       expect_identical(
-        .remote_get_final(
+        .remote_final_get(
           "local",
           id = "a/b/c",
           label = "raw-data",
@@ -113,7 +113,7 @@ test_that(".remote_get_final works - local", {
 # removing empty remotes
 # --------------------------
 
-test_that(".remote_rm_final_if_empty works - local", {
+test_that(".remote_final_rm_if_empty works - local", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
@@ -124,14 +124,14 @@ test_that(".remote_rm_final_if_empty works - local", {
       # local
       # --------------------------
 
-      id <- .remote_get_final(
+      id <- .remote_final_get(
         "local",
         id = "a/b/c", path_append_label = FALSE, structure = "latest"
       )
 
       # latest structure
       expect_false(
-        .remote_rm_final_if_empty(
+        .remote_final_rm_if_empty(
           "local",
           remote = id, structure = "latest"
         )
@@ -139,14 +139,14 @@ test_that(".remote_rm_final_if_empty works - local", {
       expect_true(dir.exists(id))
 
       # versioned structure
-      id <- .remote_get_final(
+      id <- .remote_final_get(
         "local",
         id = "a/b/c", path_append_label = FALSE, structure = "archive"
       )
 
       # will remove now
       expect_true(
-        .remote_rm_final_if_empty(
+        .remote_final_rm_if_empty(
           "local",
           remote = id, structure = "archive"
         )
@@ -154,7 +154,7 @@ test_that(".remote_rm_final_if_empty works - local", {
       expect_false(dir.exists(id))
 
       # won't remove if there are contents
-      id <- .remote_get_final(
+      id <- .remote_final_get(
         "local",
         id = "a/b/c", path_append_label = FALSE, structure = "archive"
       )
@@ -162,7 +162,7 @@ test_that(".remote_rm_final_if_empty works - local", {
 
       # will remove now
       expect_false(
-        .remote_rm_final_if_empty(
+        .remote_final_rm_if_empty(
           "local",
           remote = id, structure = "archive"
         )
@@ -193,7 +193,7 @@ test_that(".remote_file_rm_all works - local", {
       # does not exist
       path_dir_random <- file.path(tempdir(), "random_path_1234i3rknlasdfo")
       expect_false(
-        .remote_file_rm_all(
+        .remote_final_empty(
           "local",
           remote = path_dir_random
         )
@@ -202,7 +202,7 @@ test_that(".remote_file_rm_all works - local", {
       # has content
       path_dir <- .test_setup_content_dir()
       expect_true(
-        .remote_file_rm_all(
+        .remote_final_empty(
           "local",
           remote = path_dir
         )

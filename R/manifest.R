@@ -29,9 +29,13 @@
 }
 
 .build_label_get_dir_exc <- function(label) {
-  switch(.yml_dir_label_class_get(label),
-    "cache" = "projr"
-  )
+  # Return directories to exclude when copying/hashing this label
+  # For cache labels, exclude the "projr" subdirectory
+  # For other labels (including custom ones), return NULL (no exclusions)
+  if (.yml_dir_label_class_detect_cache(label)) {
+    return("projr")
+  }
+  NULL
 }
 
 # misc operations

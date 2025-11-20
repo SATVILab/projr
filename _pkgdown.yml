@@ -17,8 +17,14 @@ navbar:
         href: articles/how-to-guides.html
       - text: Build Process
         href: articles/build-process.html
+      - text: Sending to Remotes
+        href: articles/send-to-remotes.html
+      - text: Restoring Artifacts
+        href: articles/restore-artifacts.html
       - text: Environment Variables
         href: articles/environment.html
+      - text: Scripts and Hooks
+        href: articles/scripts-and-hooks.html
       - text: Concepts
         href: articles/concepts.html
       - text: Design
@@ -96,6 +102,8 @@ reference:
   - projr_yml_git_set_default
   - projr_yml_cite_set
   - projr_yml_cite_set_default
+  - projr_yml_dir_path_set
+  - projr_yml_dir_path_rm
   - projr_yml_dest_add_github
   - projr_yml_dest_add_local
   - projr_yml_dest_add_osf
@@ -111,6 +119,7 @@ reference:
   - projr_yml_hooks_add_pre
   - projr_yml_hooks_add_post
   - projr_yml_hooks_rm_all
+  - projr_yml_restrictions_set
 
 - title: Profile management
   desc: Functions for managing project profiles
