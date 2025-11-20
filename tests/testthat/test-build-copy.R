@@ -398,6 +398,47 @@ test_that("projr_build_copy_dir works when outputting", {
   )
 })
 
+test_that(".build_copy_dir works with non-standard label names", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Add a label that doesn't match any standard pattern
+      # (not raw*, cache*, output*, docs, data, code, project)
+      .yml_dir_add_label(
+        path = "_foo", label = "foo", profile = "default"
+      )
+      
+      # Create files in foo directory
+      file.create(projr_path_get("foo", "test.txt", safe = FALSE))
+      file.create(projr_path_get("foo", "test2.txt", safe = FALSE))
+      
+      # Configure output for foo
+      yml_projr <- .yml_get(NULL)
+      yml_projr[["directories"]][["foo"]][["output"]] <- TRUE
+      .yml_set(yml_projr)
+      
+      # This should not crash with "label 'foo' not valid"
+      expect_true(.build_copy_dir(output_run = TRUE))
+      
+      # Verify files were copied
+      expect_true(dir.exists(
+        projr_path_get("output", "foo", safe = FALSE, create = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "foo", "test.txt", safe = FALSE, create = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "foo", "test2.txt", safe = FALSE, create = FALSE)
+      ))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
 test_that("projr_build_frontmatter_get works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
