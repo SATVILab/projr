@@ -21,6 +21,7 @@ projr_yml_check <- function(profile = NULL) {
   .yml_scripts_check(profile)
   .yml_hooks_check_config(profile)
   .yml_cite_check_config(profile)
+  .yml_restrictions_check_config(profile)
   invisible(TRUE)
 }
 
@@ -148,7 +149,7 @@ projr_yml_check <- function(profile = NULL) {
     nm_vec,
     c(
       "dev-output", "script", "hooks", "scripts", "git",
-      "github", "package", "local", "osf", "cite"
+      "github", "package", "local", "osf", "cite", "restrictions"
     )
   )
   .assert_flag(.yml_build_get_dev_output(profile))
@@ -424,6 +425,48 @@ projr_yml_check <- function(profile = NULL) {
           }
         }
       }
+    }
+  }
+
+  invisible(TRUE)
+}
+
+# restrictions config
+# ----------------------
+
+.yml_restrictions_check_config <- function(profile) {
+  yml_restrictions <- .yml_restrictions_get(profile)
+  if (is.null(yml_restrictions)) {
+    return(invisible(TRUE))
+  }
+
+  # Check that only valid keys exist
+  valid_keys <- c("branch", "not_behind")
+  .assert_in(names(yml_restrictions), valid_keys)
+
+  # Check branch restriction if present
+  if ("branch" %in% names(yml_restrictions)) {
+    branch <- yml_restrictions[["branch"]]
+    if (!is.null(branch)) {
+      # Must be logical, character, or empty list (from YAML serialization)
+      is_empty_list <- is.list(branch) && length(branch) == 0
+      if (!is.logical(branch) && !is.character(branch) && !is_empty_list) {
+        stop("build.restrictions.branch must be logical or character")
+      }
+      if (is.logical(branch)) {
+        .assert_flag(branch)
+      }
+      if (is.character(branch)) {
+        .assert_chr(branch)
+      }
+    }
+  }
+
+  # Check not_behind restriction if present
+  if ("not_behind" %in% names(yml_restrictions)) {
+    not_behind <- yml_restrictions[["not_behind"]]
+    if (!is.null(not_behind)) {
+      .assert_flag(not_behind)
     }
   }
 
