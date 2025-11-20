@@ -199,3 +199,35 @@ test_that(".build_check_branch_restriction works correctly", {
     quiet = TRUE
   )
 })
+
+test_that(".build_check_branch_restriction enforces logical FALSE from YAML", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+
+      # Get current branch
+      current_branch <- .git_branch_get()
+      expect_true(!is.null(current_branch))
+
+      # Manually set branch to logical FALSE in YAML (simulating direct YAML edit)
+      yml <- .yml_get("default")
+      yml[["build"]][["restrictions"]] <- list(branch = FALSE)
+      .yml_set(yml, "default")
+
+      # Verify getter returns FALSE
+      expect_false(.yml_restrictions_get_branch("default"))
+
+      # Should fail with restriction error
+      expect_error(
+        .build_check_branch_restriction(),
+        "Builds are restricted on all branches"
+      )
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})

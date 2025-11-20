@@ -528,6 +528,16 @@
     return(invisible(TRUE))
   }
 
+  # If FALSE (logical), restrict on all branches
+  if (isFALSE(branch_restriction)) {
+    stop(
+      "Builds are restricted on all branches.\n",
+      "Current branch: ", current_branch, "\n",
+      "To allow builds, update build.restrictions.branch in _projr.yml",
+      call. = FALSE
+    )
+  }
+
   # If empty character vector or empty list, restrict on all branches
   if ((is.character(branch_restriction) && length(branch_restriction) == 0) ||
       (is.list(branch_restriction) && length(branch_restriction) == 0)) {
