@@ -41,8 +41,7 @@ Common scenarios for restoration:
 - **New machine setup** - Clone repository and restore data to start working
 - **Collaboration** - Team member needs project data to reproduce analysis
 - **Disaster recovery** - Lost local files need to be recovered from archives
-- **Version comparison** - Restore specific version to compare results
-- **Reproducibility** - Restore exact inputs that created published outputs
+- **Reproducibility** - Restore inputs that created published outputs (always gets latest remote version)
 
 ## Restoration Functions
 
@@ -381,21 +380,20 @@ projr_build_dev()  # Test build
 projr_build_patch()  # Production build when ready
 ```
 
-### Example 2: Restore Specific Version
+### Example 2: Selective Restoration
 
-Restore data from a specific version:
+Restore only specific artifacts, not all:
 
 ```{r eval=FALSE}
 # Step 1: Clone repository
 projr_restore_repo("owner/repo")
 setwd("repo")
 
-# Step 2: Check out specific version
-system("git checkout v0.1.0")
+# Step 2: Restore only raw data (not cache or other artifacts)
+projr_restore(label = "raw-data")
 
-# Step 3: Restore artifacts for this version
-# projr reads manifest.csv to determine which version to restore
-projr_restore()
+# Step 3: Regenerate other artifacts by running analysis
+projr_build_dev()
 ```
 
 ### Example 3: Selective Restoration
@@ -472,7 +470,7 @@ output     | figures/plot.png  | v0.1.0  | 098f6bcd4621d373cade4e832627b4f6
 
 projr determines which version to restore from remotes:
 
-**For archive remotes** (most common): Restores the latest available version from the remote, regardless of your current project version.
+**For archive remotes** (most common): Always restores the latest available version from the remote, regardless of your current Git checkout or project version.
 
 **For latest remotes**: Restores the current snapshot.
 
@@ -480,10 +478,11 @@ projr determines which version to restore from remotes:
 
 ```
 Remote has archived versions: v0.1.0, v0.2.0, v0.3.0
-Result: Restores v0.3.0 (latest available on remote)
+Your Git checkout: v0.1.0
+Result: Still restores v0.3.0 (latest available on remote)
 ```
 
-**Note:** To restore a specific older version, check out that Git tag first (`git checkout v0.2.0`), then run `projr_restore()`.
+**Note:** `projr_restore()` always fetches the newest remote version for archive remotes. To work with older artifact versions, manually download them from the remote source (e.g., GitHub Releases).
 
 ### Restoration Process
 
@@ -601,18 +600,9 @@ Document system dependencies in `README.md`:
 
 ### For Version Control
 
-**Restore specific versions:**
+**Note on version history:**
 
-```{r eval=FALSE}
-# View available versions
-system("git tag")
-
-# Checkout specific version
-system("git checkout v0.2.0")
-
-# Restore artifacts for this version
-projr_restore()
-```
+`projr_restore()` always fetches the latest remote version for archive remotes. To work with artifacts from older versions, you'll need to manually download them from the remote source or implement custom restoration logic.
 
 **Document version history:**
 
