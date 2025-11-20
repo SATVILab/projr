@@ -208,15 +208,13 @@ projr_build_patch(clear_output = "pre")
 **What happens:**
 
 - Commits changes to version files, ignore files, and documentation
-- Commit message includes version and "pre-build" designation
+- Commit message is the fixed text "Snapshot pre-build"
 - Only runs if `build.git.commit` is `TRUE` in `_projr.yml`
 
 **Example commit message:**
 
 ```
-pre-build to v0.0.2
-
-Build message here
+Snapshot pre-build
 ```
 
 ### 1.8 Manifest Creation (Pre-Build)
@@ -250,8 +248,8 @@ The build phase executes the actual document rendering or script execution.
 **Priority order:**
 
 1. **`file` parameter** - Explicitly specified files
-2. **`dev.scripts`** (dev builds only) - Scripts configured for development
-3. **`build.scripts`** (production builds only) - Scripts configured for production
+2. **`dev.scripts`** (dev builds) - Scripts configured for development
+3. **`build.scripts`** (production builds, or dev builds when `dev.scripts` not set) - Scripts configured for production
 4. **Engine-specific config** - `_quarto.yml` or `_bookdown.yml` project
 5. **Auto-detection** - Finds `.Rmd`, `.qmd`, or `.R` files in project root
 
@@ -264,7 +262,7 @@ build:
     - analysis.qmd
     - report.Rmd
 
-# Development scripts (no fallback to build.scripts)
+# Development scripts (if not set, falls back to build.scripts)
 dev:
   scripts:
     - quick-analysis.qmd
