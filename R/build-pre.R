@@ -281,12 +281,31 @@
 # misc
 # -----------------
 .build_output_get_bump_component <- function(bump_component) {
+  # If current version is a dev version, force dev build
+  if (.build_is_current_version_dev()) {
+    if (!missing(bump_component) && !is.null(bump_component) && bump_component != "dev") {
+      stop(
+        "Cannot run production build when current version is a development version. ",
+        "Current version: ", projr_version_get(), "\n",
+        "Either run projr_build_dev() or bump to a release version first."
+      )
+    }
+    return(NULL)  # NULL means dev build
+  }
+  
   if (missing(bump_component)) {
     version <- .yml_metadata_get_version_format(NULL)
     version_vec <- strsplit(version, split = "\\.|\\-")[[1]]
     bump_component <- version_vec[length(version_vec) - 1]
   }
   bump_component
+}
+
+.build_is_current_version_dev <- function() {
+  version_vec_current <- .version_current_vec_get(dev_force = FALSE)
+  version_format <- .version_format_list_get(NULL)[["component"]]
+  # If current version vector length matches format length, it has dev component
+  length(version_vec_current) == length(version_format)
 }
 
 .build_output_get_msg <- function(msg) {
