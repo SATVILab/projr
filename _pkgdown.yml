@@ -17,6 +17,8 @@ navbar:
         href: articles/how-to-guides.html
       - text: Environment Variables
         href: articles/environment.html
+      - text: Scripts and Hooks
+        href: articles/scripts-and-hooks.html
       - text: Concepts
         href: articles/concepts.html
       - text: Design
@@ -45,6 +47,7 @@ reference:
   - projr_build_patch
   - projr_build_minor
   - projr_build_major
+  - projr_build_check_packages
   - projr_restore
   - projr_restore_repo
   - projr_restore_repo_wd

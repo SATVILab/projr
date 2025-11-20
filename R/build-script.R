@@ -29,5 +29,9 @@
   if (!file.exists(path)) {
     stop(paste0("Script '", path, "' does not exist."))
   }
-  source(path)
+  # Run script in an isolated child environment of the global environment
+  # This prevents scripts from cluttering the global environment or affecting each other
+  script_env <- new.env(parent = .GlobalEnv)
+  source(path, local = script_env)
+  invisible(NULL)
 }
