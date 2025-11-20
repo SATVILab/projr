@@ -29,13 +29,14 @@
 }
 
 .build_label_get_dir_exc <- function(label) {
-  exc_vec <- switch(.yml_dir_label_class_get(label),
-    "cache" = "projr",
-    NULL
-  )
-
-  # Always exclude LICENSE files
-  exc_vec <- c(exc_vec, "LICENSE")
+  # Return directories and files to exclude when copying/hashing this label
+  # For cache labels, exclude the "projr" subdirectory
+  # Always exclude LICENSE files from all labels
+  exc_vec <- if (.yml_dir_label_class_detect_cache(label)) {
+    c("projr", "LICENSE")
+  } else {
+    "LICENSE"
+  }
   exc_vec
 }
 

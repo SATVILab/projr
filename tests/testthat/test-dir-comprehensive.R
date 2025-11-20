@@ -355,8 +355,45 @@ test_that("directory path normalization works", {
       
       # Test path_get file normalization
       path_file <- projr_path_get("cache", "dir1", "file.txt", create = FALSE)
-      expect_true(file.path("cache", "dir1", "file.txt") != path_file || 
+      expect_true(file.path("cache", "dir1", "file.txt") != path_file ||
                   grepl("cache.*dir1.*file\\.txt", path_file))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".dir_get_docs_quarto_project_unset_default handles NULL project type", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create minimal _projr.yml WITHOUT docs path
+      writeLines("build:\n  cache: []", "_projr.yml")
+      writeLines("0.0.0-1", "VERSION")
+
+      # Create a _quarto.yml WITHOUT project type specified
+      # This is an edge case that can happen in real projects
+      writeLines("format:\n  html: default", "_quarto.yml")
+
+      # Create a quarto document
+      writeLines(c("---", "title: Test", "---", "", "# Hello"), "test.qmd")
+
+      # Engine should be detected as quarto_project (because _quarto.yml exists)
+      expect_identical(.engine_get(), "quarto_project")
+
+      # This should not error - should return "_site" as default
+      result <- .dir_get_docs_quarto_project_unset_default()
+      expect_identical(result, "_site")
+
+      # Verify the full path retrieval also works without error
+      docs_path <- projr_path_get_dir("docs", safe = FALSE, create = FALSE)
+      expect_true(is.character(docs_path))
+      expect_identical(docs_path, "_site")
     },
     force = TRUE,
     quiet = TRUE

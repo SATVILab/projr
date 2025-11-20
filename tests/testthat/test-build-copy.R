@@ -204,27 +204,27 @@ test_that("projr_build_copy_dir works when outputting", {
       })
       invisible({
         file.create(
-          projr_path_get("docs", "a.txt", safe = TRUE)
+          projr_path_get("docs", "a.txt", safe = FALSE)
         )
         file.create(
-          projr_path_get("docs", "b.txt", safe = TRUE)
+          projr_path_get("docs", "b.txt", safe = FALSE)
         )
         file.create(
-          projr_path_get("docs", "dir_c", "c.txt", safe = TRUE)
+          projr_path_get("docs", "dir_c", "c.txt", safe = FALSE)
         )
         file.create(
-          projr_path_get("docs", "dir_d", "d.txt", safe = TRUE)
+          projr_path_get("docs", "dir_d", "d.txt", safe = FALSE)
         )
         file.create(
           projr_path_get(
             "docs",
             paste0(projr_name_get(), "V", projr_version_get()),
             "c.txt",
-            safe = TRUE
+            safe = FALSE
           )
         )
         file.create(
-          projr_path_get("docs", "dir_d", "d.txt", safe = TRUE)
+          projr_path_get("docs", "dir_d", "d.txt", safe = FALSE)
         )
       })
 
@@ -304,6 +304,134 @@ test_that("projr_build_copy_dir works when outputting", {
       ))
       expect_true(dir.exists(
         projr_path_get("output2", "cache", safe = FALSE, create = FALSE)
+      ))
+      
+      # check that docs are copied when output: TRUE
+      # -------------------
+      yml_projr <- yml_projr_init
+      yml_projr[["directories"]][["docs"]] <- list(
+        path = "docs", output = TRUE
+      )
+      .yml_set(yml_projr)
+      .dir_rm("_output")
+      expect_true(.build_copy_dir(output_run = TRUE))
+      expect_true(dir.exists(
+        projr_path_get("output", "docs", safe = FALSE, create = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "docs", "a.txt", safe = FALSE, create = FALSE)
+      ))
+      
+      # check that docs are copied to specified output directory
+      # -------------------
+      yml_projr <- yml_projr_init
+      yml_projr[["directories"]][["docs"]] <- list(
+        path = "docs", output = "output2"
+      )
+      .yml_set(yml_projr)
+      .yml_dir_add_label(
+        path = "_output2", label = "output2", profile = "default"
+      )
+      .dir_rm("_output")
+      .dir_rm("_output2")
+      expect_true(.build_copy_dir(output_run = TRUE))
+      expect_false(dir.exists(
+        projr_path_get("output", "docs", safe = FALSE, create = FALSE)
+      ))
+      expect_true(dir.exists(
+        projr_path_get("output2", "docs", safe = FALSE, create = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output2", "docs", "b.txt", safe = FALSE, create = FALSE)
+      ))
+      
+      # check that custom directory labels can be copied
+      # -------------------
+      yml_projr <- yml_projr_init
+      # Add a custom directory label "raw2"
+      .yml_dir_add_label(
+        path = "_raw2", label = "raw2", profile = "default"
+      )
+      # Create files in raw2
+      file.create(projr_path_get("raw2", "custom.txt", safe = FALSE))
+      # Set output for raw2
+      yml_projr[["directories"]][["raw2"]] <- list(
+        path = "_raw2", output = TRUE
+      )
+      .yml_set(yml_projr)
+      .dir_rm("_output")
+      expect_true(.build_copy_dir(output_run = TRUE))
+      expect_true(dir.exists(
+        projr_path_get("output", "raw2", safe = FALSE, create = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "raw2", "custom.txt", safe = FALSE, create = FALSE)
+      ))
+      
+      # check that multiple custom labels can be copied to different outputs
+      # -------------------
+      # Add custom labels (use raw-extra and output3 since label patterns are restrictive)
+      .yml_dir_add_label(
+        path = "_raw_extra", label = "raw-extra", profile = "default"
+      )
+      .yml_dir_add_label(
+        path = "_output3", label = "output3", profile = "default"
+      )
+      # Create files
+      file.create(projr_path_get("raw-extra", "extra.txt", safe = FALSE))
+      # Configure outputs - need to get fresh yml after adding labels
+      yml_projr <- .yml_get(NULL)
+      yml_projr[["directories"]][["raw-extra"]][["output"]] <- "output3"
+      .yml_set(yml_projr)
+      .dir_rm("_output")
+      .dir_rm("_output3")
+      expect_true(.build_copy_dir(output_run = TRUE))
+      expect_true(dir.exists(
+        projr_path_get("output3", "raw-extra", safe = FALSE, create = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output3", "raw-extra", "extra.txt", safe = FALSE, create = FALSE)
+      ))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that(".build_copy_dir works with non-standard label names", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Add a label that doesn't match any standard pattern
+      # (not raw*, cache*, output*, docs, data, code, project)
+      .yml_dir_add_label(
+        path = "_foo", label = "foo", profile = "default"
+      )
+      
+      # Create files in foo directory
+      file.create(projr_path_get("foo", "test.txt", safe = FALSE))
+      file.create(projr_path_get("foo", "test2.txt", safe = FALSE))
+      
+      # Configure output for foo
+      yml_projr <- .yml_get(NULL)
+      yml_projr[["directories"]][["foo"]][["output"]] <- TRUE
+      .yml_set(yml_projr)
+      
+      # This should not crash with "label 'foo' not valid"
+      expect_true(.build_copy_dir(output_run = TRUE))
+      
+      # Verify files were copied
+      expect_true(dir.exists(
+        projr_path_get("output", "foo", safe = FALSE, create = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "foo", "test.txt", safe = FALSE, create = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "foo", "test2.txt", safe = FALSE, create = FALSE)
       ))
     },
     quiet = TRUE,

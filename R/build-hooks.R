@@ -99,5 +99,9 @@
   if (!file.exists(path)) {
     stop(paste0("Hook '", path, "' does not exist."))
   }
-  source(path)
+  # Run hook in an isolated child environment of the global environment
+  # This prevents hooks from cluttering the global environment or affecting each other
+  hook_env <- new.env(parent = .GlobalEnv)
+  source(path, local = hook_env)
+  invisible(NULL)
 }
