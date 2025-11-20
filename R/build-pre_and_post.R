@@ -126,7 +126,7 @@
 }
 
 .build_git_msg_get_dev <- function(version_run_on_list) {
-  paste0("Begin v", version_run_on_list$bd[["success"]])
+  paste0("Begin v", projr_version_get())
 }
 
 # commit

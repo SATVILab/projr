@@ -293,6 +293,18 @@
   bump_component
 }
 
+.build_is_current_version_dev <- function() {
+  # Return FALSE if no version file exists yet (not a dev version)
+  if (!file.exists(.path_get("VERSION")) && !file.exists(.path_get("DESCRIPTION"))) {
+    return(FALSE)
+  }
+  
+  version_vec_current <- .version_current_vec_get(dev_force = FALSE)
+  version_format <- .version_format_list_get(NULL)[["component"]]
+  # If current version vector length matches format length, it has dev component
+  length(version_vec_current) == length(version_format)
+}
+
 .build_output_get_msg <- function(msg) {
   if (is.null(msg) || .is_len_0(msg)) {
     if (!.is_test()) {

@@ -227,6 +227,13 @@ projr_build_dev <- function(file = NULL,
 }
 
 .build_dev_get_bump_component <- function(bump) {
+  # Auto-bump to dev if not already on a dev version
+  # Return NULL (not "dev") to just add dev component without incrementing
+  if (!.build_is_current_version_dev()) {
+    return(NULL)
+  }
+  
+  # If already on dev version, respect the bump parameter
   switch(bump,
     "dev"
   )
@@ -633,15 +640,30 @@ projr_build_dev <- function(file = NULL,
 .build_post_dev <- function(bump_component,
                             version_run_on_list,
                             msg) {
-  # set version
-  .build_version_set_post(
-    version_run_on_list = version_run_on_list,
-    success = TRUE
+  output_run <- .build_get_output_run(bump_component)
+  
+  # Only bump to dev version for production builds
+  if (!output_run) {
+    return(invisible(FALSE))
+  }
+  
+  # Get current version and append dev component
+  version_current_vec <- .version_current_vec_get(dev_force = FALSE)
+  version_format_list <- .version_format_list_get(NULL)
+  
+  # Append dev component if not already there
+  version_dev_vec <- .version_run_onwards_get_dev_append_dev(
+    version_current_vec,
+    version_format_list$sep
   )
-
-  # commit dev version
+  version_dev <- .version_concat(version_dev_vec, version_format_list$sep)
+  
+  # Set the dev version
+  projr_version_set(version_dev)
+  
+  # Commit dev version
   .build_git_commit(
-    output_run = .build_get_output_run(bump_component),
+    output_run = output_run,
     bump_component = bump_component,
     version_run_on_list = version_run_on_list,
     stage = "dev",
