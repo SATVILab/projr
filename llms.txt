@@ -211,6 +211,18 @@ Functions for managing \_projr.yml configuration
   [`projr_yml_dir_path_rm()`](https://satvilab.github.io/projr/reference/yml-dir-path.md)
   : Set directory path
 
+- [`projr_yml_dir_license_set()`](https://satvilab.github.io/projr/reference/projr_yml_dir_license_set.md)
+  : Set license for a directory
+
+- [`projr_yml_dir_license_get()`](https://satvilab.github.io/projr/reference/projr_yml_dir_license_get.md)
+  : Get license configuration for a directory
+
+- [`projr_yml_dir_license_rm()`](https://satvilab.github.io/projr/reference/projr_yml_dir_license_rm.md)
+  : Remove license configuration for a directory
+
+- [`projr_yml_dir_license_update()`](https://satvilab.github.io/projr/reference/projr_yml_dir_license_update.md)
+  : Update LICENSE files with current DESCRIPTION authors
+
 - [`projr_yml_dest_add_github()`](https://satvilab.github.io/projr/reference/projr_yml_dest_add_github.md)
   : Add a GitHub release as a destination
 
@@ -239,6 +251,12 @@ Functions for managing \_projr.yml configuration
   [`projr_yml_hooks_add_pre()`](https://satvilab.github.io/projr/reference/yml-hooks.md)
   [`projr_yml_hooks_add_post()`](https://satvilab.github.io/projr/reference/yml-hooks.md)
   : Build hook-related functions
+
+- [`projr_yml_restrictions_set()`](https://satvilab.github.io/projr/reference/yml-restrictions.md)
+  : Set build restrictions
+
+- [`projr_license_create_manual()`](https://satvilab.github.io/projr/reference/projr_license_create_manual.md)
+  : Manually create LICENSE files without YAML configuration
 
 ## Profile management
 
@@ -374,8 +392,12 @@ Internal helper functions (not exported)
 
 ### All vignettes
 
+- [Build
+  Process](https://satvilab.github.io/projr/articles/build-process.md):
 - [Concepts](https://satvilab.github.io/projr/articles/concepts.md):
 - [Design](https://satvilab.github.io/projr/articles/design.md):
+- [Directory
+  Licenses](https://satvilab.github.io/projr/articles/directory-licenses.md):
 - [Environment
   Variables](https://satvilab.github.io/projr/articles/environment.md):
 - [Get
@@ -383,5 +405,9 @@ Internal helper functions (not exported)
 - [How-to
   guides](https://satvilab.github.io/projr/articles/how-to-guides.md):
 - [intro](https://satvilab.github.io/projr/articles/intro.md):
+- [Restoring
+  Artifacts](https://satvilab.github.io/projr/articles/restore-artifacts.md):
 - [Scripts and
   Hooks](https://satvilab.github.io/projr/articles/scripts-and-hooks.md):
+- [Sending to
+  Remotes](https://satvilab.github.io/projr/articles/send-to-remotes.md):

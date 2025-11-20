@@ -2,14 +2,18 @@ pandoc: 3.1.11
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
+  build-process: build-process.html
   concepts: concepts.html
   design: design.html
+  directory-licenses: directory-licenses.html
   environment: environment.html
   get-started: get-started.html
   how-to-guides: how-to-guides.html
   intro: intro.html
+  restore-artifacts: restore-artifacts.html
   scripts-and-hooks: scripts-and-hooks.html
-last_built: 2025-11-20T06:48Z
+  send-to-remotes: send-to-remotes.html
+last_built: 2025-11-20T10:09Z
 urls:
   reference: https://satvilab.github.io/projr/reference
   article: https://satvilab.github.io/projr/articles

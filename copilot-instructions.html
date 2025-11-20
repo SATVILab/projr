@@ -19,6 +19,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="articles/how-to-guides.html">How-to guides</a></li>
+    <li><a class="dropdown-item" href="articles/build-process.html">Build Process</a></li>
+    <li><a class="dropdown-item" href="articles/send-to-remotes.html">Sending to Remotes</a></li>
+    <li><a class="dropdown-item" href="articles/restore-artifacts.html">Restoring Artifacts</a></li>
     <li><a class="dropdown-item" href="articles/environment.html">Environment Variables</a></li>
     <li><a class="dropdown-item" href="articles/scripts-and-hooks.html">Scripts and Hooks</a></li>
     <li><a class="dropdown-item" href="articles/concepts.html">Concepts</a></li>
@@ -120,6 +123,15 @@
 <ul><li>Local, GitHub, OSF destinations supported</li>
 <li>Restore functions: <code><a href="reference/projr_restore.html">projr_restore()</a></code>, <code><a href="reference/projr_restore.html">projr_restore_repo()</a></code>
 </li>
+</ul></div>
+<div class="section level3">
+<h3 id="directory-licenses">Directory Licenses<a class="anchor" aria-label="anchor" href="#directory-licenses"></a></h3>
+<ul><li>Per-directory LICENSE files for raw data, outputs, and docs</li>
+<li>Two approaches: YAML configuration (automatic) or manual creation</li>
+<li>Templates: CC-BY, CC0, Apache-2.0, MIT, Proprietary</li>
+<li>Functions: <code><a href="reference/projr_yml_dir_license_set.html">projr_yml_dir_license_set()</a></code>, <code><a href="reference/projr_license_create_manual.html">projr_license_create_manual()</a></code>, <code><a href="reference/projr_yml_dir_license_update.html">projr_yml_dir_license_update()</a></code>
+</li>
+<li>LICENSE files are tracked in manifest for versioning</li>
 </ul><hr></div>
 </div>
 <div class="section level2">
@@ -181,11 +193,31 @@
 <span><span class="fu"><a href="reference/yml-git.html">projr_yml_git_set</a></span><span class="op">(</span>commit <span class="op">=</span> <span class="cn">TRUE</span>, push <span class="op">=</span> <span class="cn">TRUE</span>, add_untracked <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Add build hook</span></span>
-<span><span class="fu"><a href="reference/yml-hooks.html">projr_yml_hooks_add</a></span><span class="op">(</span>path <span class="op">=</span> <span class="st">"setup.R"</span>, stage <span class="op">=</span> <span class="st">"pre"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/yml-hooks.html">projr_yml_hooks_add</a></span><span class="op">(</span>path <span class="op">=</span> <span class="st">"setup.R"</span>, stage <span class="op">=</span> <span class="st">"pre"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Set directory license (automatic approach)</span></span>
+<span><span class="fu"><a href="reference/projr_yml_dir_license_set.html">projr_yml_dir_license_set</a></span><span class="op">(</span><span class="st">"CC-BY"</span>, <span class="st">"output"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/projr_yml_dir_license_set.html">projr_yml_dir_license_set</a></span><span class="op">(</span><span class="st">"MIT"</span>, <span class="st">"raw-data"</span>, authors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Author Name"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="directory-licenses-1">Directory Licenses<a class="anchor" aria-label="anchor" href="#directory-licenses-1"></a></h3>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Automatic approach - managed in YAML, regenerated during builds</span></span>
+<span><span class="fu"><a href="reference/projr_yml_dir_license_set.html">projr_yml_dir_license_set</a></span><span class="op">(</span><span class="st">"CC-BY"</span>, <span class="st">"output"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Manual approach - created once, preserved across builds</span></span>
+<span><span class="fu"><a href="reference/projr_license_create_manual.html">projr_license_create_manual</a></span><span class="op">(</span><span class="st">"MIT"</span>, <span class="st">"raw-data"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Update all YAML-configured licenses with DESCRIPTION authors</span></span>
+<span><span class="fu"><a href="reference/projr_yml_dir_license_update.html">projr_yml_dir_license_update</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Get/remove license configuration</span></span>
+<span><span class="fu"><a href="reference/projr_yml_dir_license_get.html">projr_yml_dir_license_get</a></span><span class="op">(</span><span class="st">"output"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/projr_yml_dir_license_rm.html">projr_yml_dir_license_rm</a></span><span class="op">(</span><span class="st">"output"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="input-validation">Input Validation<a class="anchor" aria-label="anchor" href="#input-validation"></a></h3>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">.my_function</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">param</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">.assert_string</span><span class="op">(</span><span class="va">param</span>, required <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span>  <span class="co"># implementation</span></span>
@@ -193,7 +225,7 @@
 </div>
 <div class="section level3">
 <h3 id="error-handling">Error Handling<a class="anchor" aria-label="anchor" href="#error-handling"></a></h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">path</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"File not found: "</span>, <span class="va">path</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
@@ -224,6 +256,24 @@
 <code>raw-data</code>, <code>cache</code>, <code>output</code>, <code>docs</code>, <code>project</code>, <code>code</code>, <code>data</code>
 </li>
 <li>Labels are case-insensitive and ignore hyphens/underscores</li>
+</ul></div>
+<div class="section level3">
+<h3 id="directory-licensing-approaches">Directory Licensing Approaches<a class="anchor" aria-label="anchor" href="#directory-licensing-approaches"></a></h3>
+<ul><li>
+<strong>YAML Configuration</strong>: Licenses managed in <code>_projr.yml</code>, regenerated during builds
+<ul><li>Only created/updated if YAML config exists</li>
+<li>Ensures consistency with project metadata</li>
+<li>Good for outputs that regenerate each build</li>
+</ul></li>
+<li>
+<strong>Manual Creation</strong>: Licenses created with <code><a href="reference/projr_license_create_manual.html">projr_license_create_manual()</a></code>
+<ul><li>NOT in YAML configuration</li>
+<li>Never overwritten during builds (unless YAML config added)</li>
+<li>Allows manual editing and customization</li>
+<li>Good for raw data with complex licensing needs</li>
+</ul></li>
+<li>Both approaches can coexist; YAML takes precedence when specified</li>
+<li>LICENSE files are tracked in manifest for versioning</li>
 </ul><hr></div>
 </div>
 <div class="section level2">

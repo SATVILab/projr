@@ -2,14 +2,18 @@
 <url><loc>https://satvilab.github.io/projr/404.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/LICENSE-text.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/LICENSE.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/articles/build-process.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/articles/concepts.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/articles/design.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/articles/directory-licenses.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/articles/environment.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/articles/get-started.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/articles/how-to-guides.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/articles/index.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/articles/intro.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/articles/restore-artifacts.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/articles/scripts-and-hooks.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/articles/send-to-remotes.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/authors.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/copilot-instructions.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/index.html</loc></url>
@@ -74,6 +78,7 @@
 <url><loc>https://satvilab.github.io/projr/reference/projr_init.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_init_prompt.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_init_renviron.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/projr_license_create_manual.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_log_clear.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_manifest_file_query.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_manifest_query.html</loc></url>
@@ -98,12 +103,17 @@
 <url><loc>https://satvilab.github.io/projr/reference/projr_yml_dest_add.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_yml_dest_add_github.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_yml_dest_add_osf.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/projr_yml_dir_license_get.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/projr_yml_dir_license_rm.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/projr_yml_dir_license_set.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/projr_yml_dir_license_update.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_yml_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_yml_par_add.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/yml-cite.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/yml-dir-path.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/yml-git.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/yml-hooks.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/yml-restrictions.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/yml-script.html</loc></url>
 </urlset>
 

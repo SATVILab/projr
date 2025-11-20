@@ -103,6 +103,17 @@ Authentication for GitHub/OSF (applies to auth files)
   [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md),
   [`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_restore.md)
 
+### Directory Licenses
+
+- Per-directory LICENSE files for raw data, outputs, and docs
+- Two approaches: YAML configuration (automatic) or manual creation
+- Templates: CC-BY, CC0, Apache-2.0, MIT, Proprietary
+- Functions:
+  [`projr_yml_dir_license_set()`](https://satvilab.github.io/projr/reference/projr_yml_dir_license_set.md),
+  [`projr_license_create_manual()`](https://satvilab.github.io/projr/reference/projr_license_create_manual.md),
+  [`projr_yml_dir_license_update()`](https://satvilab.github.io/projr/reference/projr_yml_dir_license_update.md)
+- LICENSE files are tracked in manifest for versioning
+
 ------------------------------------------------------------------------
 
 ## Authentication
@@ -167,6 +178,27 @@ projr_yml_git_set(commit = TRUE, push = TRUE, add_untracked = TRUE)
 
 # Add build hook
 projr_yml_hooks_add(path = "setup.R", stage = "pre")
+
+# Set directory license (automatic approach)
+projr_yml_dir_license_set("CC-BY", "output")
+projr_yml_dir_license_set("MIT", "raw-data", authors = c("Author Name"))
+```
+
+### Directory Licenses
+
+``` r
+# Automatic approach - managed in YAML, regenerated during builds
+projr_yml_dir_license_set("CC-BY", "output")
+
+# Manual approach - created once, preserved across builds
+projr_license_create_manual("MIT", "raw-data")
+
+# Update all YAML-configured licenses with DESCRIPTION authors
+projr_yml_dir_license_update()
+
+# Get/remove license configuration
+projr_yml_dir_license_get("output")
+projr_yml_dir_license_rm("output")
 ```
 
 ### Input Validation
@@ -209,6 +241,22 @@ if (!file.exists(path)) {
 
 - `raw-data`, `cache`, `output`, `docs`, `project`, `code`, `data`
 - Labels are case-insensitive and ignore hyphens/underscores
+
+### Directory Licensing Approaches
+
+- **YAML Configuration**: Licenses managed in `_projr.yml`, regenerated
+  during builds
+  - Only created/updated if YAML config exists
+  - Ensures consistency with project metadata
+  - Good for outputs that regenerate each build
+- **Manual Creation**: Licenses created with
+  [`projr_license_create_manual()`](https://satvilab.github.io/projr/reference/projr_license_create_manual.md)
+  - NOT in YAML configuration
+  - Never overwritten during builds (unless YAML config added)
+  - Allows manual editing and customization
+  - Good for raw data with complex licensing needs
+- Both approaches can coexist; YAML takes precedence when specified
+- LICENSE files are tracked in manifest for versioning
 
 ------------------------------------------------------------------------
 

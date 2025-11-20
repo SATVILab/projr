@@ -1,0 +1,1080 @@
+# Build Process
+
+## The projr Build Process
+
+This article provides a comprehensive guide to how projr builds work,
+covering all three major stages (Pre-Build, Build, and Post-Build) and
+what happens at each step.
+
+------------------------------------------------------------------------
+
+### Overview
+
+#### Build Types
+
+projr supports two types of builds:
+
+**Production Builds** - Create versioned releases with full tracking: -
+[`projr_build_major()`](https://satvilab.github.io/projr/reference/projr_build.md) -
+Increment major version (X.0.0) -
+[`projr_build_minor()`](https://satvilab.github.io/projr/reference/projr_build.md) -
+Increment minor version (0.X.0) -
+[`projr_build_patch()`](https://satvilab.github.io/projr/reference/projr_build.md) -
+Increment patch version (0.0.X) - Can run from either release or dev
+versions
+
+**Development Builds** - Quick iterations without version changes: -
+[`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md) -
+Build without incrementing version - Automatically bumps to dev version
+if not already on one (e.g., 0.0.1 → 0.0.1-1)
+
+#### Build Architecture
+
+Each build follows a three-stage architecture:
+
+    ┌─────────────┐
+    │  Pre-Build  │ ─── Preparation, validation, versioning
+    └──────┬──────┘
+           │
+           ▼
+    ┌─────────────┐
+    │    Build    │ ─── Document rendering and script execution
+    └──────┬──────┘
+           │
+           ▼
+    ┌─────────────┐
+    │ Post-Build  │ ─── Finalization, distribution, commits
+    └─────────────┘
+
+------------------------------------------------------------------------
+
+### Stage 1: Pre-Build Phase
+
+The pre-build phase prepares the project environment and validates that
+everything is ready for the build.
+
+#### 1.1 Validation and Checks
+
+**Purpose:** Ensure all prerequisites are met before starting the build.
+
+**What happens:**
+
+1.  **Configuration validation** -
+    [`projr_yml_check()`](https://satvilab.github.io/projr/reference/projr_yml_check.md)
+    validates `_projr.yml`
+2.  **Scripts and hooks validation** - Verifies all configured scripts
+    and hooks exist
+3.  **Package availability check** - Ensures required packages (quarto,
+    rmarkdown, etc.) are installed
+4.  **Authentication checks** - Verifies GitHub PAT and OSF tokens if
+    needed for remote destinations
+5.  **Git repository check** - Ensures Git is initialized (creates it if
+    needed and configured)
+6.  **GitHub remote check** - Verifies GitHub remote exists if push is
+    enabled
+7.  **Upstream check** - Ensures local repository is not behind remote
+
+**Example error handling:**
+
+``` r
+# If packages are missing, build will stop with installation instructions
+projr_build_patch()
+#> Error: Required packages not available for build:
+#>   - quarto (install with: install.packages("quarto"))
+#> Run projr_build_check_packages() to see all requirements
+```
+
+#### 1.2 Remote Destination Preparation
+
+**Purpose:** Set up GitHub releases or other remote destinations for
+artifact distribution.
+
+**What happens:**
+
+- Creates GitHub releases if configured with `archive_github` parameter
+- Prepares local archive directories if configured with `archive_local`
+  parameter
+
+**Configuration:**
+
+``` yaml
+# In _projr.yml
+build:
+  github:
+    release: "archive"  # Create release named "archive"
+```
+
+#### 1.3 Documentation and Version Updates
+
+**Purpose:** Update documentation and version tracking files before the
+build.
+
+**What happens:**
+
+1.  **renv snapshot** - Captures current package dependencies (if renv
+    is used)
+2.  **Ignore files update** - Ensures `.gitignore` and `.Rbuildignore`
+    are current
+3.  **Documentation directory setup** - Configures docs directory (safe
+    vs unsafe paths)
+4.  **Version enforcement** - Ensures project is on a development
+    version before build
+
+**Key files affected:**
+
+- `renv.lock` - Package dependencies snapshot
+- `.gitignore` - Ensures docs and output directories are properly
+  ignored
+- `VERSION` or `DESCRIPTION` - Version tracking
+
+#### 1.4 Version Calculation
+
+**Purpose:** Calculate the version numbers for different build outcomes.
+
+**What happens:**
+
+projr calculates three version numbers:
+
+1.  **Pre-run version** - Current version (e.g., “0.0.1-dev”)
+2.  **Run version** - Version during build (e.g., “0.0.2” for
+    production, “0.0.1-dev” for dev)
+3.  **Failure version** - Version to revert to if build fails (e.g.,
+    “0.0.1-dev”)
+
+**Example version transitions:**
+
+    Production build (patch) from dev version:
+      0.0.1-1 → 0.0.2 → 0.0.2-1 (success)
+      0.0.1-1 → 0.0.2 → 0.0.1-1 (failure)
+
+    Development build from release version (auto-bumps to dev):
+      0.0.1 → 0.0.1-1 → 0.0.1-1 (auto-bump)
+
+    Development build from dev version (no change):
+      0.0.1-1 → 0.0.1-1 → 0.0.1-1 (no version change)
+
+#### 1.5 Pre-Build Hooks
+
+**Purpose:** Run custom scripts before the main build.
+
+**What happens:**
+
+- Executes scripts configured in `build.hooks.pre` (production) or
+  `dev.hooks.pre` (development)
+- Scripts in `build.hooks.both` or `dev.hooks.both` also run here
+- Hooks run in the order specified in `_projr.yml`
+- Each hook is executed via
+  [`source()`](https://rdrr.io/r/base/source.html) in the project
+  environment
+
+**Configuration examples:**
+
+``` yaml
+# Production hooks
+build:
+  hooks:
+    pre:
+      - setup-data.R
+      - check-dependencies.R
+    both:
+      - log-timestamp.R
+
+# Development hooks (exclusive for dev builds)
+dev:
+  hooks:
+    pre: quick-setup.R
+    both: dev-logger.R
+```
+
+**Important:** `build.hooks` are ignored in dev builds, and `dev.hooks`
+are ignored in production builds.
+
+#### 1.6 Output Directory Preparation
+
+**Purpose:** Clear and prepare output directories based on
+configuration.
+
+**What happens:**
+
+1.  **Version setting** - Sets project to run version (e.g., “0.0.2”)
+2.  **Directory clearing** - Based on `clear_output` setting:
+    - `"pre"` (default for production): Clear output directories now
+    - `"post"`: Clear after build completes
+    - `"never"`: Don’t clear directories
+
+**Directory types:**
+
+- **Safe directories** - Temporary build locations in cache (e.g.,
+  `_tmp/projr/v0.0.2/output`)
+- **Unsafe directories** - Final output locations (e.g., `_output`,
+  `docs`)
+
+**Environment variable:**
+
+``` r
+# Set via environment variable
+Sys.setenv(PROJR_CLEAR_OUTPUT = "pre")
+
+# Or via function parameter
+projr_build_patch(clear_output = "pre")
+```
+
+#### 1.7 Pre-Build Git Commit
+
+**Purpose:** Commit all changes made during pre-build preparation.
+
+**What happens:**
+
+- Commits changes to version files, ignore files, and documentation
+- Commit message is the fixed text “Snapshot pre-build”
+- Only runs if `build.git.commit` is `TRUE` in `_projr.yml`
+
+**Example commit message:**
+
+    Snapshot pre-build
+
+#### 1.8 Manifest Creation (Pre-Build)
+
+**Purpose:** Record the state of input files before the build.
+
+**What happens:**
+
+- Hashes all files in input directories (`raw-data`, `cache`)
+- Creates temporary manifest file in cache directory
+- Stores relative file paths and MD5 hashes
+- This manifest will be merged with output hashes after the build
+
+**Manifest structure:**
+
+| label    | fn            | version | hash    |
+|----------|---------------|---------|---------|
+| raw-data | dataset.csv   | v0.0.2  | abc123… |
+| cache    | processed.rds | v0.0.2  | def456… |
+
+------------------------------------------------------------------------
+
+### Stage 2: Build Phase
+
+The build phase executes the actual document rendering or script
+execution.
+
+#### 2.1 Script Selection
+
+**Purpose:** Determine which documents or scripts to build.
+
+**Priority order:**
+
+1.  **`file` parameter** - Explicitly specified files
+2.  **`dev.scripts`** (dev builds) - Scripts configured for development
+3.  **`build.scripts`** (production builds, or dev builds when
+    `dev.scripts` not set) - Scripts configured for production
+4.  **Engine-specific config** - `_quarto.yml` or `_bookdown.yml`
+    project
+5.  **Auto-detection** - Finds `.Rmd`, `.qmd`, or `.R` files in project
+    root
+
+**Configuration examples:**
+
+``` yaml
+# Production scripts
+build:
+  scripts:
+    - analysis.qmd
+    - report.Rmd
+
+# Development scripts (if not set, falls back to build.scripts)
+dev:
+  scripts:
+    - quick-analysis.qmd
+```
+
+#### 2.2 Document Rendering
+
+**Purpose:** Render documents using the appropriate engine.
+
+**Supported engines:**
+
+1.  **Quarto** - For `.qmd` files or Quarto projects
+2.  **Bookdown** - For bookdown projects (detected via `_bookdown.yml`)
+3.  **R Markdown** - For `.Rmd` files
+
+**What happens:**
+
+- Engine is detected automatically or specified via configuration
+- Documents are rendered with arguments from `args_engine` parameter
+- Output goes to the appropriate safe directory (cache-based temporary
+  location)
+- Rendering respects the project’s configuration files (`_quarto.yml`,
+  `_bookdown.yml`, etc.)
+
+**Custom engine arguments:**
+
+``` r
+# Pass custom arguments to the rendering engine
+projr_build_patch(args_engine = list(
+  quiet = FALSE,
+  clean = TRUE
+))
+```
+
+#### 2.3 Script Execution
+
+**Purpose:** Execute R scripts that generate outputs.
+
+**What happens:**
+
+- Plain `.R` files are executed via
+  [`source()`](https://rdrr.io/r/base/source.html)
+- Scripts run in the project environment
+- Outputs should be written to appropriate directories (`_output`,
+  `docs`)
+
+**Best practices:**
+
+- Use
+  [`projr_path_get_dir()`](https://satvilab.github.io/projr/reference/projr_path_get_dir.md)
+  to get correct output paths
+- Write outputs to version-specific directories when needed
+- Keep scripts focused and modular
+
+------------------------------------------------------------------------
+
+### Stage 3: Post-Build Phase
+
+The post-build phase finalizes artifacts, updates documentation, and
+distributes outputs.
+
+#### 3.1 Artifact Finalization
+
+**Purpose:** Move built artifacts from temporary to final locations.
+
+**What happens:**
+
+1.  **Output copying** - Copies files from safe directories to unsafe
+    directories
+    - `_tmp/projr/v0.0.2/output` → `_output`
+2.  **Docs copying** - Copies documentation from safe to unsafe
+    directories
+    - Safe `docs` directory → `docs` (project root)
+3.  **Directory clearing (if “post”)** - Clears directories if
+    `clear_output = "post"`
+
+**Clearing behavior:**
+
+    clear_output = "pre":  Clear before, final dirs contain latest + previous
+    clear_output = "post": Clear after, final dirs contain only latest
+    clear_output = "never": Never clear, all versions accumulate
+
+#### 3.2 Manifest Creation (Post-Build)
+
+**Purpose:** Record the state of output files after the build.
+
+**What happens:**
+
+1.  **Hash output files** - Hashes files in `output` and `docs`
+    directories
+2.  **Merge manifests** - Combines pre-build and post-build hashes
+3.  **Append to history** - Adds current version to `manifest.csv` at
+    project root
+4.  **Preserve history** - Maintains all previous versions in the
+    manifest
+
+**Query functions:**
+
+``` r
+# Changes between two versions
+projr_manifest_changes("0.0.1", "0.0.2")
+
+# Changes across a range
+projr_manifest_range("0.0.1", "0.0.5")
+
+# Last changes
+projr_manifest_last_change()
+```
+
+#### 3.3 Documentation Updates
+
+**Purpose:** Update project documentation and metadata files.
+
+**What happens:**
+
+1.  **roxygen2 documentation** - Regenerates `.Rd` files if roxygen
+    comments found
+2.  **Citation files** - Updates version in:
+    - `CITATION.cff`
+    - `codemeta.json`
+    - `inst/CITATION`
+3.  **README rendering** - Renders `README.Rmd` if it exists
+4.  **BUILDLOG update** - Adds build record with change summary
+    (production builds only)
+5.  **CHANGELOG update** - Adds version entry if configured
+
+**BUILDLOG entry structure:**
+
+``` markdown
+## v0.0.2 (2024-01-15)
+
+Build completed in 45.2 seconds
+
+### Changes from v0.0.1 → v0.0.2
+
+#### Input Changes
+- Modified: 2 files
+- Added: 1 file
+
+#### Output Changes
+- Modified: 5 files
+- Added: 3 files
+```
+
+#### 3.4 Post-Build Git Commit
+
+**Purpose:** Commit all changes made during the build.
+
+**What happens:**
+
+- Commits output files, documentation, manifest, and metadata
+- Commit message format: “Build v{version}: {message}”
+- Only runs if `build.git.commit` is `TRUE`
+- Does NOT push yet (push happens later)
+
+**Example commit message:**
+
+    Build v0.0.2: Build message here
+
+#### 3.5 Remote Distribution
+
+**Purpose:** Send artifacts to remote destinations (GitHub, OSF, local
+archives).
+
+**What happens:**
+
+For each configured remote destination:
+
+1.  **Determine send strategy**:
+    - `"sync-diff"` - Sync only changed files
+    - `"sync-purge"` - Remove all, then upload all
+    - `"upload-all"` - Upload all files (may overwrite)
+    - `"upload-missing"` - Upload only files not on remote
+2.  **Inspect remote** (based on `send_inspect`):
+    - `"manifest"` - Use manifest.csv to track versions
+    - `"file"` - Inspect actual files on remote
+    - `"none"` - Treat remote as empty
+3.  **Apply send cue**:
+    - `"always"` - Always create new remote version
+    - `"if-change"` - Only if content changed
+    - `"never"` - Never send
+4.  **Create structure**:
+    - `"latest"` - Overwrite files at destination
+    - `"archive"` - Create versioned subdirectories
+
+**Configuration example:**
+
+``` yaml
+build:
+  github:
+    release: "archive"
+    structure: "archive"
+    send_cue: "if-change"
+    send_strategy: "sync-diff"
+    send_inspect: "manifest"
+```
+
+**Debug output:**
+
+When `PROJR_OUTPUT_LEVEL="debug"`, you’ll see detailed information:
+
+    Remote: github/archive (type: github, structure: archive)
+    Files to upload: 12
+    Strategy: sync-diff
+    Changed files: 3 modified, 2 added, 1 removed
+
+#### 3.6 Post-Build Hooks
+
+**Purpose:** Run custom scripts after the main build and distribution.
+
+**What happens:**
+
+- Executes scripts configured in `build.hooks.post` (production) or
+  `dev.hooks.post` (development)
+- Scripts in `build.hooks.both` or `dev.hooks.both` also run here
+- Hooks run in the order specified
+- Useful for notifications, cleanup, or additional processing
+
+**Example use cases:**
+
+- Send email notifications
+- Update external dashboards
+- Create summary reports
+- Clean up temporary files
+- Trigger downstream processes
+
+#### 3.7 Development Version Setup
+
+**Purpose:** Set project back to a development version after production
+build.
+
+**What happens:**
+
+- Only for production builds (not dev builds)
+- Appends development suffix to current version (e.g., “0.0.2” →
+  “0.0.2-1”)
+- Commits the version change with message “Begin v{version}”
+- Ensures project is ready for next development cycle
+- Any changes after this commit are segmented from the released version
+
+**Version progression:**
+
+    Build v0.0.2:
+      Pre-build:  0.0.1-1 → 0.0.2
+      Post-build: 0.0.2 → 0.0.2-1
+
+#### 3.8 Git Push
+
+**Purpose:** Push all commits to the remote repository.
+
+**What happens:**
+
+- Pushes all commits made during the build
+- Only runs if `build.git.push` is `TRUE`
+- Includes pre-build, post-build, and dev version commits
+
+**Configuration:**
+
+``` yaml
+build:
+  git:
+    commit: true
+    push: true
+    add-untracked: true
+```
+
+------------------------------------------------------------------------
+
+### Manifest System
+
+The manifest system tracks all file changes across versions.
+
+#### How It Works
+
+**Pre-build:** 1. Hash files in `raw-data` and `cache` directories 2.
+Store in temporary manifest: `_tmp/projr/{version}/manifest_pre.csv`
+
+**Post-build:** 1. Hash files in `output` and `docs` directories 2.
+Merge with pre-build manifest 3. Append to project manifest:
+`manifest.csv`
+
+#### Manifest Structure
+
+``` csv
+label,fn,version,hash
+raw-data,dataset.csv,v0.0.1,abc123def456
+cache,processed.rds,v0.0.1,789012ghi345
+output,figure1.png,v0.0.1,jkl678mno901
+docs,index.html,v0.0.1,pqr234stu567
+```
+
+#### Querying Changes
+
+``` r
+# What changed between versions?
+changes <- projr_manifest_changes("0.0.1", "0.0.2")
+changes$added      # New files
+changes$removed    # Deleted files
+changes$modified   # Changed files
+
+# What changed across multiple versions?
+range_changes <- projr_manifest_range("0.0.1", "0.0.5")
+
+# What changed in the last build?
+last <- projr_manifest_last_change()
+```
+
+#### Benefits
+
+1.  **Reproducibility** - Know exactly what changed between versions
+2.  **Efficiency** - Only upload changed files to remotes
+3.  **Transparency** - Clear audit trail of all changes
+4.  **Restoration** - Can identify files to restore from archives
+
+------------------------------------------------------------------------
+
+### Build Hooks System
+
+Hooks allow you to run custom scripts at specific points in the build
+process.
+
+#### Hook Stages
+
+**Pre-build hooks** - Run after validation but before document
+rendering: - Setup tasks - Data preparation - Environment configuration
+
+**Post-build hooks** - Run after distribution but before final push: -
+Notifications - Cleanup - Post-processing
+
+**Both-stage hooks** - Run in both pre and post stages: - Logging - Time
+tracking - Common setup/teardown
+
+#### Configuration Patterns
+
+**Production builds** - Use `build.hooks`:
+
+``` yaml
+build:
+  hooks:
+    pre:
+      - setup-data.R
+      - validate-inputs.R
+    post:
+      - send-notification.R
+      - cleanup-temp.R
+    both:
+      - log-timestamp.R
+```
+
+**Development builds** - Use `dev.hooks` (exclusive):
+
+``` yaml
+dev:
+  hooks:
+    pre: quick-setup.R
+    both: dev-logger.R
+```
+
+#### Hook Execution
+
+- Hooks execute via [`source()`](https://rdrr.io/r/base/source.html) in
+  the project environment
+- All hooks must exist or build will fail (validated in pre-build)
+- Hooks have access to all project functions and environment
+- Execution order: stage-specific hooks first, then “both” hooks
+
+#### Best Practices
+
+1.  **Keep hooks focused** - Each hook should do one thing
+2.  **Handle errors** - Use
+    [`tryCatch()`](https://rdrr.io/r/base/conditions.html) for
+    non-critical hooks
+3.  **Log activity** - Help debug issues by logging hook execution
+4.  **Test independently** - Ensure hooks work standalone
+5.  **Document purpose** - Add comments explaining what each hook does
+
+------------------------------------------------------------------------
+
+### Logging and Debugging
+
+projr provides comprehensive logging to help understand and debug
+builds.
+
+#### Output Levels
+
+Control console verbosity via `PROJR_OUTPUT_LEVEL` environment variable:
+
+**`"none"`** - No additional messages (default for dev builds):
+
+``` r
+# Only errors are shown
+```
+
+**`"std"`** - Standard progress messages (default for production
+builds):
+
+``` r
+# Shows major steps
+✔ Pre-build preparation completed
+✔ Document rendering completed
+✔ Post-build completed successfully
+```
+
+**`"debug"`** - Verbose debugging information:
+
+``` r
+# Shows detailed operations
+→ Checking required packages
+→ Snapshotting renv
+→ Setting build version
+→ Running build hook: setup.R
+→ Remote: github/archive (12 files)
+```
+
+#### Log Files
+
+Detailed logs are written to the cache directory:
+
+    cache/projr/log/
+    ├── output/                    # Production build logs
+    │   ├── history/builds.md      # All build records
+    │   └── output/2024-Jan-15/
+    │       └── 14-30-45.qmd       # Detailed log
+    └── dev/                       # Development build logs
+        └── ...
+
+#### Log File Control
+
+**`PROJR_LOG_DETAILED`** - Control detailed log file creation:
+
+``` r
+# Create detailed logs (default)
+Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+
+# Skip detailed logs (history still maintained)
+Sys.setenv(PROJR_LOG_DETAILED = "FALSE")
+```
+
+#### Build History
+
+The `builds.md` file maintains a record of all builds:
+
+``` markdown
+# Build History
+
+## 2024-01-15 14:30:45 - v0.0.2 (SUCCESS)
+Build message here
+Duration: 45.2 seconds
+
+## 2024-01-14 09:15:30 - v0.0.1 (SUCCESS)
+Initial release
+Duration: 52.1 seconds
+```
+
+#### Debug Workflow
+
+**When a build fails:**
+
+1.  **Check the error message** - Often points to the exact issue
+
+2.  **Enable debug output**:
+
+    ``` r
+    Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
+    projr_build_patch()
+    ```
+
+3.  **Review the log file** - Check detailed log in cache
+
+4.  **Check Git status**:
+
+    ``` r
+    # What changed?
+    system("git status")
+    system("git diff")
+    ```
+
+5.  **Verify packages**:
+
+    ``` r
+    projr_build_check_packages()
+    ```
+
+------------------------------------------------------------------------
+
+### Configuration Options
+
+#### Environment Variables
+
+**Build behavior:**
+
+- `PROJR_OUTPUT_LEVEL` - Console verbosity: `"none"`, `"std"`, `"debug"`
+- `PROJR_CLEAR_OUTPUT` - When to clear: `"pre"`, `"post"`, `"never"`
+- `PROJR_LOG_DETAILED` - Detailed logs: `"TRUE"`, `"FALSE"`
+
+**Authentication:**
+
+- `GITHUB_PAT` - GitHub Personal Access Token
+- `OSF_PAT` - Open Science Framework token
+
+**Testing:**
+
+- `R_PKG_TEST_LITE` - Enable LITE test mode
+- `R_PKG_TEST_CRAN` - Enable CRAN test mode
+
+#### YAML Configuration
+
+**Git settings:**
+
+``` yaml
+build:
+  git:
+    commit: true           # Auto-commit during build
+    push: true             # Auto-push after build
+    add-untracked: true    # Include untracked files
+```
+
+**Build scripts:**
+
+``` yaml
+build:
+  scripts:
+    - analysis.qmd
+    - report.Rmd
+
+dev:
+  scripts:
+    - quick-test.qmd
+```
+
+**Build hooks:**
+
+``` yaml
+build:
+  hooks:
+    pre:
+      - setup.R
+    post:
+      - cleanup.R
+    both:
+      - logger.R
+```
+
+**Remote destinations:**
+
+``` yaml
+build:
+  github:
+    release: "archive"
+    structure: "archive"      # or "latest"
+    send_cue: "if-change"     # or "always", "never"
+    send_strategy: "sync-diff" # or "sync-purge", "upload-all", "upload-missing"
+    send_inspect: "manifest"  # or "file", "none"
+```
+
+#### Function Parameters
+
+**Build functions:**
+
+``` r
+projr_build_patch(
+  msg = "Build message",              # Git commit message
+  args_engine = list(),               # Arguments for rendering engine
+  profile = NULL,                     # projr profile to use
+  archive_github = FALSE,             # Quick GitHub archiving
+  archive_local = FALSE,              # Quick local archiving
+  always_archive = TRUE,              # Archive even if no changes
+  clear_output = "pre",               # When to clear directories
+  output_level = "std"                # Console verbosity
+)
+
+projr_build_dev(
+  file = NULL,                        # Specific file to build
+  bump = FALSE,                       # Whether to bump dev version
+  old_dev_remove = TRUE,              # Remove old dev versions
+  args_engine = list(),
+  profile = NULL,
+  clear_output = "never",             # Default for dev builds
+  output_level = "none"               # Default for dev builds
+)
+```
+
+------------------------------------------------------------------------
+
+### Common Patterns and Examples
+
+#### Basic Production Build
+
+``` r
+library(projr)
+
+# Build with patch version increment
+projr_build_patch(msg = "Fix analysis bug")
+
+# Build with minor version increment
+projr_build_minor(msg = "Add new analysis section")
+
+# Build with major version increment
+projr_build_major(msg = "Complete rewrite")
+```
+
+#### Development Build
+
+``` r
+# Quick dev build
+projr_build_dev()
+
+# Build specific file
+projr_build_dev(file = "analysis.qmd")
+
+# Dev build with debug output
+Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
+projr_build_dev()
+```
+
+#### Build with Custom Options
+
+``` r
+# Build with custom engine arguments
+projr_build_patch(
+  msg = "Update analysis",
+  args_engine = list(
+    quiet = FALSE,
+    clean = TRUE
+  )
+)
+
+# Build with different output level
+projr_build_patch(
+  msg = "Release",
+  output_level = "debug"
+)
+
+# Build without clearing output
+projr_build_patch(
+  msg = "Incremental update",
+  clear_output = "never"
+)
+```
+
+#### Build with Archiving
+
+``` r
+# Archive to GitHub release
+projr_build_patch(
+  msg = "Release v0.0.2",
+  archive_github = TRUE
+)
+
+# Archive specific directories
+projr_build_patch(
+  msg = "Archive outputs only",
+  archive_github = c("output", "docs")
+)
+
+# Archive locally
+projr_build_patch(
+  msg = "Create local backup",
+  archive_local = TRUE
+)
+```
+
+#### Build with Profiles
+
+``` r
+# Use production profile
+projr_build_patch(
+  msg = "Production release",
+  profile = "production"
+)
+
+# Use testing profile
+projr_build_patch(
+  msg = "Test build",
+  profile = "testing"
+)
+```
+
+------------------------------------------------------------------------
+
+### Troubleshooting
+
+#### Build Fails with Package Error
+
+**Problem:** Required packages not available
+
+**Solution:**
+
+``` r
+# Check package requirements
+pkg_status <- projr_build_check_packages()
+
+# See what's needed
+pkg_status$missing_pkgs
+
+# Get installation commands
+pkg_status$install_cmds
+```
+
+#### Build Fails with Git Error
+
+**Problem:** Git repository not initialized
+
+**Solution:**
+
+``` r
+# Initialize Git
+projr_init_git(TRUE)
+
+# Or disable Git handling
+projr_yml_git_set(FALSE)
+```
+
+#### Build Fails with Authentication Error
+
+**Problem:** GitHub or OSF authentication missing
+
+**Solution:**
+
+``` r
+# See GitHub auth instructions
+projr_instr_auth_github()
+
+# See OSF auth instructions
+projr_instr_auth_osf()
+
+# Set tokens
+Sys.setenv(GITHUB_PAT = "your_token_here")
+Sys.setenv(OSF_PAT = "your_token_here")
+```
+
+#### Build Succeeds but Files Not Where Expected
+
+**Problem:** Safe vs unsafe directory confusion
+
+**Solution:**
+
+``` r
+# Get safe directory (in cache)
+projr_path_get_dir("output", safe = TRUE)
+
+# Get unsafe directory (final location)
+projr_path_get_dir("output", safe = FALSE)
+
+# Check clear_output setting
+Sys.getenv("PROJR_CLEAR_OUTPUT")
+```
+
+#### Want to See What Changed
+
+**Problem:** Need to understand what files changed in last build
+
+**Solution:**
+
+``` r
+# Check last changes
+changes <- projr_manifest_last_change()
+changes$added
+changes$modified
+changes$removed
+
+# Compare two specific versions
+projr_manifest_changes("0.0.1", "0.0.2")
+```
+
+------------------------------------------------------------------------
+
+### Summary
+
+The projr build process provides a comprehensive, automated workflow for
+reproducible research:
+
+1.  **Pre-Build** validates, prepares, and versions your project
+2.  **Build** renders documents and executes scripts
+3.  **Post-Build** finalizes, documents, and distributes outputs
+
+Key features:
+
+- **Automated versioning** with manifest tracking
+- **Flexible hooks** for customization
+- **Multiple remotes** for distribution (GitHub, OSF, local)
+- **Comprehensive logging** for debugging
+- **Git integration** for version control
+
+This architecture ensures that every build is: - **Reproducible** - Full
+record of what changed - **Traceable** - Complete audit trail via
+manifests and logs - **Reliable** - Validation and error handling at
+each step - **Flexible** - Configurable for different workflows
+
+For more information:
+
+- **How-to guides** - Task-focused guides for common workflows
+- **Concepts** - Core concepts behind projr
+- **Environment** - Environment variables reference
+- **Design** - Architecture and design decisions
