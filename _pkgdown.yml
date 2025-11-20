@@ -104,6 +104,10 @@ reference:
   - projr_yml_cite_set_default
   - projr_yml_dir_path_set
   - projr_yml_dir_path_rm
+  - projr_yml_dir_license_set
+  - projr_yml_dir_license_get
+  - projr_yml_dir_license_rm
+  - projr_yml_dir_license_update
   - projr_yml_dest_add_github
   - projr_yml_dest_add_local
   - projr_yml_dest_add_osf
@@ -120,6 +124,7 @@ reference:
   - projr_yml_hooks_add_post
   - projr_yml_hooks_rm_all
   - projr_yml_restrictions_set
+  - projr_license_create_manual
 
 - title: Profile management
   desc: Functions for managing project profiles
