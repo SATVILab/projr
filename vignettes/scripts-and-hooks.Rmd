@@ -267,13 +267,13 @@ build:
 ```
 Production Build Flow:
 1. ▶ Run pre-build hooks ◀
-2. Clear output directories (if configured)
-3. Bump version (e.g., 0.0.1 → 0.0.2)
+2. Bump version (e.g., 0.0.1 → 0.0.2)
+3. Clear output directories (if configured)
 4. Git commit (if configured)
 5. Build scripts (render documents)
 6. Git commit build outputs (if configured)
-7. ▶ Run post-build hooks ◀
-8. Distribute to remotes (GitHub, OSF, local)
+7. Distribute to remotes (GitHub, OSF, local)
+8. ▶ Run post-build hooks ◀
 
 Development Build Flow:
 1. ▶ Run dev pre-build hooks ◀
