@@ -232,31 +232,28 @@ test_that(".build_script... functions work works", {
       )
       cat("x <- 1; saveRDS(x, 'x.rds')", file = "script1.R")
       cat("y <- 1; saveRDS(y, 'y.rds')", file = "script2.R")
-      # nothing done
-      if (exists("x", envir = .GlobalEnv)) {
-        rm(x, envir = .GlobalEnv)
-      }
-      if (exists("y", envir = .GlobalEnv)) {
-        rm(y, envir = .GlobalEnv)
-      }
+      # Clean up any existing RDS files
+      if (file.exists("x.rds")) unlink("x.rds")
+      if (file.exists("y.rds")) unlink("y.rds")
+      # Nothing done for "post" stage
       .build_script_run(
         stage = "post"
       )
-      expect_false(exists("x"))
-      expect_false(exists("y"))
-      # nothing done
-      if (exists("x")) {
-        rm(x)
-      }
-      if (exists("y")) {
-        rm(y)
-      }
-      # something done
+      expect_false(file.exists("x.rds"))
+      expect_false(file.exists("y.rds"))
+      # Scripts run for "pre" stage
       .build_script_run(
         stage = "pre"
       )
-      expect_true(exists("x"))
-      expect_true(exists("y"))
+      # Scripts should run in isolated environments, so x and y are NOT in global env
+      expect_false(exists("x"))
+      expect_false(exists("y"))
+      # But the RDS files should be created
+      expect_true(file.exists("x.rds"))
+      expect_true(file.exists("y.rds"))
+      # Clean up
+      unlink("x.rds")
+      unlink("y.rds")
     }
   )
 })
