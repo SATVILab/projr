@@ -61,10 +61,21 @@ Common variations are also accepted (e.g., "ccby", "apache", "mit").
 
 When you run a build (`projr_build_dev()`, `projr_build_patch()`, etc.), `projr` will:
 
-1. **Pre-build**: Create LICENSE files in input directories (raw-data, cache)
+1. **Pre-build**: Create/update LICENSE files in input directories (raw-data, cache)
+   - This happens for ALL builds, including dev builds
+   - LICENSE files are ALWAYS regenerated to match the current config
+   - This ensures raw directory licenses stay in sync with your project configuration
 2. **Post-build**: Create LICENSE files in output directories (output, docs, data)
+   - Only happens for production builds (not dev builds)
 
 The LICENSE files are automatically excluded from manifest tracking, so they won't be versioned with your project outputs.
+
+### Author Precedence
+
+Authors are determined in the following order:
+1. Authors explicitly specified in the directory's license configuration (highest priority)
+2. Authors from the DESCRIPTION file
+3. "Project Authors" as a fallback (lowest priority)
 
 ## Configuration Format
 

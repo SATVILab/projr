@@ -25,6 +25,7 @@
 
 .license_dir_write <- function(path_dir, license_config) {
   # Parse license config
+  # Authors from config take precedence over DESCRIPTION file
   license_info <- .license_config_parse(license_config)
 
   # Get template path
@@ -41,7 +42,7 @@
     license_info$year
   )
 
-  # Write to directory
+  # Write to directory (always overwrites to ensure consistency with config)
   license_path <- file.path(path_dir, "LICENSE")
   writeLines(license_text, license_path)
   invisible(license_path)
@@ -138,14 +139,11 @@
 # -----------------------
 
 .license_dir_create_all_pre <- function(output_run, profile = NULL) {
-  if (!output_run) {
-    return(invisible(FALSE))
-  }
-
   # Get input labels (raw-data, cache)
   label_vec <- .yml_dir_get_label_in(profile)
 
   # For input directories, always use unsafe (final) directories
+  # Always create/update licenses to match projr config, even in dev builds
   for (label in label_vec) {
     .license_dir_create(label, safe = FALSE, profile)
   }

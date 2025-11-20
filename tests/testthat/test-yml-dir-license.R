@@ -213,6 +213,93 @@ test_that("projr_yml_dir_license_update skips directories without config", {
   )
 })
 
+test_that("Raw directory licenses created during dev builds", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set license for raw-data
+      projr_yml_dir_license_set("MIT", "raw-data")
+
+      # Create some content in raw-data
+      .test_setup_content("raw-data", safe = FALSE)
+      raw_dir <- projr_path_get_dir("raw-data", safe = FALSE)
+
+      # Create a simple document to build
+      writeLines(
+        c("---", "title: Test", "---", "", "Test content"),
+        file.path(.path_get(), "test.qmd")
+      )
+
+      # Run a dev build (output_run = FALSE)
+      suppressMessages(projr_build_dev())
+
+      # Verify LICENSE was created in raw-data
+      expect_true(file.exists(file.path(raw_dir, "LICENSE")))
+
+      # Check content
+      raw_license <- readLines(file.path(raw_dir, "LICENSE"), warn = FALSE)
+      expect_true(any(grepl("MIT License", raw_license)))
+    }
+  )
+})
+
+test_that("Raw directory licenses always match config", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set initial license
+      projr_yml_dir_license_set(
+        "CC-BY",
+        "raw-data",
+        authors = c("Initial Author"),
+        year = 2023
+      )
+
+      raw_dir <- projr_path_get_dir("raw-data", safe = FALSE)
+      dir.create(raw_dir, recursive = TRUE, showWarnings = FALSE)
+
+      # Create a simple document
+      writeLines(
+        c("---", "title: Test", "---", "", "Test content"),
+        file.path(.path_get(), "test.qmd")
+      )
+
+      # First build
+      suppressMessages(projr_build_dev())
+
+      # Verify initial license
+      expect_true(file.exists(file.path(raw_dir, "LICENSE")))
+      license1 <- readLines(file.path(raw_dir, "LICENSE"), warn = FALSE)
+      expect_true(any(grepl("Initial Author", license1)))
+
+      # Change license config
+      projr_yml_dir_license_set(
+        "MIT",
+        "raw-data",
+        authors = c("Updated Author"),
+        year = 2024
+      )
+
+      # Build again
+      suppressMessages(projr_build_dev())
+
+      # Verify license was updated to match new config
+      license2 <- readLines(file.path(raw_dir, "LICENSE"), warn = FALSE)
+      expect_true(any(grepl("MIT License", license2)))
+      expect_true(any(grepl("Updated Author", license2)))
+      expect_false(any(grepl("Initial Author", license2)))
+    }
+  )
+})
+
 test_that("License integration with build creates files", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
