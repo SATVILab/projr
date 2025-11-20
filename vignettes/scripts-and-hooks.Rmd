@@ -72,11 +72,12 @@ dev:
 
 **Development builds** (`projr_build_dev()`):
 
-- Use `dev.scripts` if specified (no fallback to `build.scripts`)
-- Fall back to `_quarto.yml` or `_bookdown.yml` if no `dev.scripts`
+- Use `dev.scripts` if specified
+- Fall back to `build.scripts` if no `dev.scripts`
+- Fall back to `_quarto.yml` or `_bookdown.yml` if no scripts configuration
 - Auto-detect documents if no configuration found
 
-**Important**: `dev.scripts` provides *exclusive* control. If you set `dev.scripts`, `build.scripts` is completely ignored during development builds.
+**Important**: `dev.scripts` provides *exclusive* control only when explicitly set. If you set `dev.scripts`, it completely overrides `build.scripts`. However, if `dev.scripts` is not set at all, `build.scripts` will be used as a fallback.
 
 ### Script Priority Order
 
@@ -91,8 +92,9 @@ For **development builds**:
 
 1. `file` parameter in build function (e.g., `projr_build_dev("test.Rmd")`)
 2. `dev.scripts` in `_projr.yml`
-3. Quarto project (`_quarto.yml`) or Bookdown project (`_bookdown.yml`)
-4. Auto-detection
+3. `build.scripts` in `_projr.yml` (fallback if no `dev.scripts`)
+4. Quarto project (`_quarto.yml`) or Bookdown project (`_bookdown.yml`)
+5. Auto-detection
 
 ### File Format Requirements
 
@@ -254,18 +256,19 @@ build:
 
 **Execution environment**:
 
-- Hooks run in a **separate environment** from the build process
+- Hooks run in an **isolated child environment** of the global environment
+- Each hook gets its own fresh environment, preventing interference between hooks
 - They have access to the project directory and all installed packages
-- Use `source()` to load functions if needed
-- Any objects created are not available to subsequent hooks
+- Objects created in one hook are not available to subsequent hooks
+- This isolation prevents hooks from cluttering the global environment
 
 **Execution timing**:
 
 ```
 Production Build Flow:
-1. Clear output directories (if configured)
-2. Bump version (e.g., 0.0.1 → 0.0.2)
-3. ▶ Run pre-build hooks ◀
+1. ▶ Run pre-build hooks ◀
+2. Clear output directories (if configured)
+3. Bump version (e.g., 0.0.1 → 0.0.2)
 4. Git commit (if configured)
 5. Build scripts (render documents)
 6. Git commit build outputs (if configured)
@@ -273,8 +276,8 @@ Production Build Flow:
 8. Distribute to remotes (GitHub, OSF, local)
 
 Development Build Flow:
-1. Clear output directories (if configured)
-2. ▶ Run dev pre-build hooks ◀
+1. ▶ Run dev pre-build hooks ◀
+2. Clear output directories (if configured)
 3. Build scripts (render documents)
 4. ▶ Run dev post-build hooks ◀
 5. (No Git commit or version bump)
