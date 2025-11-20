@@ -441,7 +441,7 @@ projr_yml_check <- function(profile = NULL) {
   }
 
   # Check that only valid keys exist
-  valid_keys <- c("branch")
+  valid_keys <- c("branch", "not_behind")
   .assert_in(names(yml_restrictions), valid_keys)
 
   # Check branch restriction if present
@@ -459,6 +459,14 @@ projr_yml_check <- function(profile = NULL) {
       if (is.character(branch)) {
         .assert_chr(branch)
       }
+    }
+  }
+
+  # Check not_behind restriction if present
+  if ("not_behind" %in% names(yml_restrictions)) {
+    not_behind <- yml_restrictions[["not_behind"]]
+    if (!is.null(not_behind)) {
+      .assert_flag(not_behind)
     }
   }
 

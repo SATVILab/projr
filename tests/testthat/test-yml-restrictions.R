@@ -42,6 +42,25 @@ test_that(".yml_restrictions_check_config validates restrictions structure", {
       yml[["build"]][["restrictions"]] <- list(invalid_key = TRUE)
       .yml_set(yml, "default")
       expect_error(projr_yml_check(), "invalid_key")
+
+      # Valid not_behind restriction should pass
+      yml[["build"]][["restrictions"]] <- list(not_behind = TRUE)
+      .yml_set(yml, "default")
+      expect_true(projr_yml_check())
+
+      yml[["build"]][["restrictions"]] <- list(not_behind = FALSE)
+      .yml_set(yml, "default")
+      expect_true(projr_yml_check())
+
+      # Invalid not_behind (non-logical) should fail
+      yml[["build"]][["restrictions"]] <- list(not_behind = "yes")
+      .yml_set(yml, "default")
+      expect_error(projr_yml_check())
+
+      # Valid combination of restrictions should pass
+      yml[["build"]][["restrictions"]] <- list(branch = "main", not_behind = FALSE)
+      .yml_set(yml, "default")
+      expect_true(projr_yml_check())
     },
     force = TRUE,
     quiet = TRUE
@@ -78,13 +97,29 @@ test_that("projr_yml_restrictions_set works correctly", {
       projr_yml_restrictions_set(branch = TRUE)
       yml <- .yml_get("default")
       expect_true(is.null(yml[["build"]][["restrictions"]]))
+
+      # Test not_behind setting
+      projr_yml_restrictions_set(not_behind = FALSE)
+      yml <- .yml_get("default")
+      expect_equal(yml[["build"]][["restrictions"]][["not_behind"]], FALSE)
+
+      # Set not_behind to TRUE (default, should remove)
+      projr_yml_restrictions_set(not_behind = TRUE)
+      yml <- .yml_get("default")
+      expect_true(is.null(yml[["build"]][["restrictions"]]))
+
+      # Test setting both branch and not_behind
+      projr_yml_restrictions_set(branch = "main", not_behind = FALSE)
+      yml <- .yml_get("default")
+      expect_equal(yml[["build"]][["restrictions"]][["branch"]], "main")
+      expect_equal(yml[["build"]][["restrictions"]][["not_behind"]], FALSE)
     },
     force = TRUE,
     quiet = TRUE
   )
 })
 
-test_that(".yml_restrictions_get_branch returns correct defaults", {
+test_that(".yml_restrictions_get_branch and get_not_behind return correct defaults", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -95,6 +130,7 @@ test_that(".yml_restrictions_get_branch returns correct defaults", {
 
       # Default should be TRUE (no restrictions)
       expect_true(.yml_restrictions_get_branch("default"))
+      expect_true(.yml_restrictions_get_not_behind("default"))
 
       # After setting to character vector
       projr_yml_restrictions_set(branch = c("main"))
@@ -103,6 +139,14 @@ test_that(".yml_restrictions_get_branch returns correct defaults", {
       # After setting to FALSE
       projr_yml_restrictions_set(branch = FALSE)
       expect_equal(.yml_restrictions_get_branch("default"), character(0))
+
+      # Test not_behind getter
+      projr_yml_restrictions_set(not_behind = FALSE)
+      expect_false(.yml_restrictions_get_not_behind("default"))
+
+      # After setting back to TRUE (default)
+      projr_yml_restrictions_set(not_behind = TRUE)
+      expect_true(.yml_restrictions_get_not_behind("default"))
     },
     force = TRUE,
     quiet = TRUE

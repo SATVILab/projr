@@ -4,7 +4,11 @@
 \alias{projr_yml_restrictions_set}
 \title{Set build restrictions}
 \usage{
-projr_yml_restrictions_set(branch = NULL, profile = "default")
+projr_yml_restrictions_set(
+  branch = NULL,
+  not_behind = NULL,
+  profile = "default"
+)
 }
 \arguments{
 \item{branch}{logical or character.
@@ -12,6 +16,13 @@ Controls which branches can perform builds.
 If \code{TRUE}, builds allowed on any branch (default).
 If a character vector, builds only allowed on these branches.
 If \code{FALSE}, builds restricted on all branches.
+If \code{NULL}, setting is not changed.
+Default is \code{NULL}.}
+
+\item{not_behind}{logical.
+Controls whether to check if branch is behind remote upstream.
+If \code{TRUE} (default), build fails if branch is behind.
+If \code{FALSE}, no check is performed.
 If \code{NULL}, setting is not changed.
 Default is \code{NULL}.}
 
@@ -28,6 +39,9 @@ The options are:
 If \code{TRUE} (default), builds are allowed on any branch.
 If a character vector, builds are only allowed on matching branches.
 If \code{FALSE}, builds are restricted (treated as empty character vector).
+\item not_behind: whether to check if branch is behind remote upstream.
+If \code{TRUE} (default), build fails if branch is behind remote.
+If \code{FALSE}, no check is performed.
 }
 }
 \examples{
@@ -40,6 +54,12 @@ projr_yml_restrictions_set(branch = c("main", "dev"))
 
 # Restrict builds on all branches
 projr_yml_restrictions_set(branch = FALSE)
+
+# Disable check for being behind remote
+projr_yml_restrictions_set(not_behind = FALSE)
+
+# Enable check for being behind remote (default)
+projr_yml_restrictions_set(not_behind = TRUE)
 }
 
 }
