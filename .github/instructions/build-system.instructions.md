@@ -16,9 +16,11 @@ Guidelines for working with the projr build system, including build processes, l
 - `projr_build_patch()` - Increment patch version (0.0.X)
 - `projr_build_minor()` - Increment minor version (0.X.0)
 - `projr_build_major()` - Increment major version (X.0.0)
+- **Important**: Production builds can only run when current version is NOT a dev version
 
 ### Development Builds
 - `projr_build_dev()` - Development build without version increment
+- **Important**: If current version is a dev version (e.g., 0.0.2-1), only dev builds are allowed
 
 ### Build Phases
 
@@ -37,6 +39,8 @@ Guidelines for working with the projr build system, including build processes, l
    - Commit changes to git (if enabled)
    - Run post-build hooks
    - Distribute to remote destinations
+   - Bump to dev version (production builds only): e.g., 0.0.2 → 0.0.2-1
+   - Commit dev version with message "Begin v{version}"
 
 ---
 
