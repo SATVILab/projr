@@ -14,26 +14,57 @@ knitr::opts_chunk$set(
 )
 ```
 
+Separate licensing for raw data, outputs, and documentation allows for appropriate intellectual property management across different components of your research project. This is especially useful when data has different licensing requirements than code, or when outputs need specific attribution.
+
+This documentation provides a comprehensive guide to projr's directory licensing system, enabling both automated and manual license management.
+
 ## Overview
 
-The `projr` package allows you to automatically add license files to specific directories in your project. This is particularly useful for:
+projr allows you to add license files to specific directories in your project:
 
-- Licensing raw data separately from code
-- Licensing outputs/results separately from code
-- Licensing documentation separately from code
-- Using different licenses for different parts of your project
+- **Raw data directories** (e.g., `raw-data`, `cache`)
+- **Output directories** (e.g., `output`, `docs`, `data`)
+- **Any labeled directory** in your project configuration
 
-## Setting Directory Licenses
+### Two Approaches to Directory Licensing
 
-You can set licenses for directories using the `projr_yml_dir_license_set()` function:
+projr supports two distinct approaches to license management:
+
+1. **YAML Configuration (Automatic)** - Licenses managed through `_projr.yml` and regenerated during builds
+2. **Manual Creation** - Licenses created independently and preserved across builds
+
+Both approaches can coexist, with YAML configuration taking precedence when specified.
+
+## Supported License Types
+
+projr includes templates for common open-source and proprietary licenses:
+
+| License Type | Common Use Case |
+|--------------|----------------|
+| **CC-BY** (Creative Commons Attribution 4.0) | Research data and analysis outputs |
+| **CC0** (Creative Commons Zero) | Public domain dedication for data |
+| **Apache-2.0** | Code with patent protection |
+| **MIT** | Permissive code licensing |
+| **Proprietary** | Private or restricted-use content |
+
+**License type variations**: Common variations are automatically normalized:
+- `"ccby"`, `"cc-by"` → `"CC-BY"`
+- `"apache"`, `"Apache 2.0"` → `"Apache-2.0"`
+- `"mit"` → `"MIT"`
+
+## YAML Configuration (Automatic Approach)
+
+### Setting License Configurations
+
+Use `projr_yml_dir_license_set()` to configure licenses in `_projr.yml`:
 
 ```{r eval=FALSE}
 library(projr)
 
-# Set a license for output directory (simple format)
+# Simple format - just specify license type
 projr_yml_dir_license_set("CC-BY", "output")
 
-# Set a license for raw data with custom authors and year
+# Full format with custom authors and year
 projr_yml_dir_license_set(
   "MIT",
   "raw-data",
@@ -41,74 +72,29 @@ projr_yml_dir_license_set(
   year = 2024
 )
 
-# Set a license for docs directory
+# Set licenses for multiple directories
+projr_yml_dir_license_set("Apache-2.0", "output")
 projr_yml_dir_license_set("Apache-2.0", "docs")
+projr_yml_dir_license_set("CC0", "raw-data")
 ```
 
-## Supported License Types
+### YAMLConfiguration Format
 
-The following license types are supported:
+Licenses can be specified in simple or full format in `_projr.yml`:
 
-- **CC-BY** (Creative Commons Attribution 4.0) - Good for data and analysis projects
-- **CC0** (Creative Commons Zero) - Dedicates to public domain
-- **Apache-2.0** - Permissive with patent protection
-- **MIT** - Simple permissive license
-- **Proprietary** - Private code/data
-
-Common variations are also accepted (e.g., "ccby", "apache", "mit").
-
-## How It Works
-
-When you run a build (`projr_build_dev()`, `projr_build_patch()`, etc.), `projr` will:
-
-1. **Pre-build**: Create/update LICENSE files in input directories (raw-data, cache)
-   - This happens for ALL builds, including dev builds
-   - LICENSE files are ONLY created/updated if a license config exists in `_projr.yml`
-   - If no config exists, existing LICENSE files are left untouched
-   - This allows manual license creation and editing
-2. **Post-build**: Create LICENSE files in output directories (output, docs, data)
-   - Only happens for production builds (not dev builds)
-
-The LICENSE files are automatically excluded from manifest tracking, so they won't be versioned with your project outputs.
-
-### Two Approaches to Licensing
-
-**Approach 1: YAML Configuration (Automatic)**
-- Add license config to `_projr.yml` using `projr_yml_dir_license_set()`
-- Licenses are automatically regenerated during builds
-- Ensures consistency with project metadata
-- Good for output directories and when you want automatic updates
-
-**Approach 2: Manual Creation**
-- Create licenses using `projr_license_create_manual()`
-- Licenses are NOT managed by builds
-- You can manually edit them
-- They won't be overwritten unless you add YAML config
-- Good for raw data directories with custom licensing needs
-
-### Author Precedence
-
-Authors are determined in the following order:
-1. Authors explicitly specified in the directory's license configuration (highest priority)
-2. Authors from the DESCRIPTION file
-3. "Project Authors" as a fallback (lowest priority)
-
-## Configuration Format
-
-### Simple Format
-
-Use just the license type. Authors and year are automatically determined:
+**Simple format:**
 
 ```yaml
 directories:
   output:
     path: _output
     license: CC-BY
+  docs:
+    path: docs
+    license: Apache-2.0
 ```
 
-### Full Format
-
-Specify type, authors, and year explicitly:
+**Full format:**
 
 ```yaml
 directories:
@@ -122,76 +108,71 @@ directories:
       year: 2024
 ```
 
-## Checking and Removing Licenses
+### Build-Time Behavior
 
-Get the current license configuration:
+When licenses are configured in YAML:
+
+**Pre-build phase** (input directories):
+- LICENSE files created/updated in `raw-data` and `cache` directories
+- Occurs in **all builds** (both dev and production)
+- Files **always regenerated** to match current configuration
+- Ensures consistency with project metadata
+
+**Post-build phase** (output directories):
+- LICENSE files created in `output`, `docs`, and `data` directories  
+- Occurs only in **production builds** (not dev builds)
+- Files generated fresh for each build
+
+**Key point**: LICENSE files are **automatically excluded** from manifest tracking, so they won't be versioned with your project outputs.
+
+### Managing YAML Configurations
+
+**Retrieve current configuration:**
 
 ```{r eval=FALSE}
-# Get license for a directory
+# Get license configuration for a directory
 projr_yml_dir_license_get("output")
 ```
 
-Remove a license configuration:
+**Remove configuration:**
 
 ```{r eval=FALSE}
-# Remove license for a directory
+# Remove license configuration
 projr_yml_dir_license_rm("output")
 ```
 
-## Updating Licenses with DESCRIPTION Authors
-
-If you update the authors in your DESCRIPTION file, you can propagate those changes to all LICENSE files:
+**Update all configurations with current authors:**
 
 ```{r eval=FALSE}
-# Update all directories with license configurations
+# Update all directories with DESCRIPTION file authors
 projr_yml_dir_license_update()
 
 # Update specific directories only
 projr_yml_dir_license_update(c("raw-data", "output"))
 ```
 
-This is particularly useful for:
-- Updating author information after personnel changes
-- Propagating authors to raw data directories (since they aren't regenerated on each build)
-- Ensuring consistency across all LICENSE files in your project
+### Author Precedence
 
-## Example Workflow
+When using YAML configuration, authors are determined in the following order:
 
-Here's a typical workflow for setting up licenses:
-
-```{r eval=FALSE}
-# Initialize project
-projr_init()
-
-# Set licenses for different directories
-projr_yml_dir_license_set("CC-BY", "output")
-projr_yml_dir_license_set("CC0", "raw-data")
-projr_yml_dir_license_set("Apache-2.0", "docs")
-
-# Create some content
-# ... your analysis code ...
-
-# Run build - LICENSE files will be automatically created
-projr_build_dev()
-```
-
-After the build, you'll find LICENSE files in:
-- `_raw_data/LICENSE` (CC0)
-- `_output/LICENSE` (CC-BY)
-- `docs/LICENSE` (Apache-2.0)
+1. **Authors in license configuration** (highest priority)
+2. **Authors from DESCRIPTION file** (if exists)
+3. **"Project Authors" fallback** (lowest priority)
 
 ## Manual License Creation
 
-For situations where you want to create and manually edit licenses without them being overwritten during builds, use `projr_license_create_manual()`:
+### Creating Manual Licenses
+
+Use `projr_license_create_manual()` to create licenses **outside** of the YAML configuration:
 
 ```{r eval=FALSE}
-# Create a manual license in raw-data directory
+# Create MIT license in raw-data directory
 projr_license_create_manual("MIT", "raw-data")
 
-# Create in all raw data directories
+# Create CC-BY license in all raw data directories
 projr_license_create_manual("CC-BY")
 
-# With custom authors
+# Create with custom authors and year
 projr_license_create_manual(
   "Apache-2.0",
   "raw-data",
@@ -200,29 +181,110 @@ projr_license_create_manual(
 )
 ```
 
-**Key behaviors:**
-- Licenses created this way are NOT added to `_projr.yml`
-- They will NOT be overwritten during builds
-- You can manually edit them without worrying about builds changing them
-- If you later add a license config to YAML, it will override the manual license
+### Manual License Behavior
 
-This is useful when:
-- You want to maintain custom license text
-- Author lists are complex and change frequently
-- You don't want builds to trigger new versions from minor license tweaks
+**Key characteristics**:
+
+- **Not in YAML configuration** - No entry added to `_projr.yml`
+- **Build-time preservation** - Never overwritten during builds (unless YAML config added)
+- **Manual editing allowed** - You can modify the LICENSE file directly
+- **YAML override** - If you later add YAML configuration, it takes precedence
+
+## Choosing an Approach
+
+**Use YAML configuration when:**
+- Licenses should stay synchronized with project metadata
+- You want automated updates when authors change
+- Standard license templates meet your needs
+
+**Use manual creation when:**
+- You need custom license text or modifications
+- Author attribution is complex or frequently changing
+- You want manual control over license content
+
+## Example Workflows
+
+### Workflow 1: Automatic Licensing
+
+```{r eval=FALSE}
+library(projr)
+
+# Configure licenses
+projr_yml_dir_license_set("CC-BY", "output")
+projr_yml_dir_license_set("CC0", "raw-data")
+projr_yml_dir_license_set("Apache-2.0", "docs")
+
+# Run build - LICENSE files automatically created
+projr_build_dev()
+```
+
+### Workflow 2: Manual Licensing
+
+```{r eval=FALSE}
+# Create manual license for raw data
+projr_license_create_manual(
+  "MIT",
+  "raw-data",
+  authors = c("Original Researcher", "Data Curator"),
+  year = 2020
+)
+
+# Build project - manual LICENSE preserved
+projr_build_dev()
+```
+
+### Workflow 3: Mixed Approach
+
+```{r eval=FALSE}
+# Automatic licensing for outputs
+projr_yml_dir_license_set("CC-BY", "output")
+
+# Manual licensing for curated datasets
+projr_license_create_manual("MIT", "raw-data")
+
+# Build - automatic licenses regenerate, manual license preserved
+projr_build_patch()
+```
 
 ## Best Practices
 
 1. **Choose appropriate licenses**: Use CC-BY or CC0 for data, Apache-2.0 or MIT for code
-2. **Decide on approach**:
-   - Use YAML config for licenses that should stay in sync with project metadata
-   - Use manual creation for licenses you want to customize and control
+2. **Decide on approach**: YAML for automation, manual for custom control
 3. **Be consistent**: Use the same license type across similar directories
-4. **Document your choices**: Explain why you chose particular licenses in your README
+4. **Document your choices**: Explain licensing decisions in your README
 
-## Notes
+## Troubleshooting
 
-- LICENSE files are automatically excluded from manifest tracking
-- Default authors are taken from the DESCRIPTION file if available
-- Default year is the current year
-- License templates are stored in the package and can be customized
+### License Not Created During Build
+
+Check if YAML configuration exists:
+
+```{r eval=FALSE}
+projr_yml_dir_license_get("raw-data")
+```
+
+### Manual License Overwritten
+
+Remove YAML configuration to preserve manual edits:
+
+```{r eval=FALSE}
+projr_yml_dir_license_rm("raw-data")
+```
+
+### Wrong Authors in License
+
+For YAML licenses, specify authors explicitly or update DESCRIPTION file:
+
+```{r eval=FALSE}
+projr_yml_dir_license_set(
+  "CC-BY",
+  "output",
+  authors = c("Correct Author")
+)
+```
+
+## See Also
+
+- **Environment Variables**: `vignette("environment")` for build control
+- **Build System**: `vignette("design")` for build process details
+- **YAML Configuration**: `vignette("concepts")` for `_projr.yml` structure
