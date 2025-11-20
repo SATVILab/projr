@@ -121,7 +121,9 @@
     authors <- desc$get_authors()
     if (length(authors) > 0) {
       author_names <- vapply(authors, function(a) {
-        paste(a$given, a$family)
+        # Collapse given names (handles multi-part given names like c("Jean", "Luc"))
+        given <- paste(a$given, collapse = " ")
+        paste(given, a$family)
       }, character(1))
       return(author_names)
     }

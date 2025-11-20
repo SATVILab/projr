@@ -229,3 +229,46 @@ test_that("LICENSE files excluded from manifest", {
     }
   )
 })
+
+test_that(".license_get_default_authors handles multi-part given names", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create DESCRIPTION with multi-part given name
+      desc::desc_set_authors(c(
+        person(given = c("Jean", "Luc"), family = "Picard", role = "aut"),
+        person(given = "Data", family = "Soong", role = "ctb"),
+        person(given = c("Beverly", "Crusher"), family = "Howard", role = "aut")
+      ))
+
+      # Get authors
+      authors <- .license_get_default_authors()
+
+      # Should return character vector with properly formatted names
+      expect_true(is.character(authors))
+      expect_identical(length(authors), 3L)
+
+      # Check that multi-part given names are properly collapsed
+      expect_true("Jean Luc Picard" %in% authors)
+      expect_true("Data Soong" %in% authors)
+      expect_true("Beverly Crusher Howard" %in% authors)
+
+      # Verify it doesn't throw error during license creation
+      expect_no_error({
+        projr_yml_dir_license_set("MIT", "raw-data")
+        .license_dir_create("raw-data", safe = FALSE)
+      })
+
+      # Verify license was created with correct authors
+      raw_dir <- projr_path_get_dir("raw-data", safe = FALSE)
+      license_path <- file.path(raw_dir, "LICENSE")
+      expect_true(file.exists(license_path))
+
+      license_text <- readLines(license_path, warn = FALSE)
+      expect_true(any(grepl("Jean Luc Picard", license_text)))
+    }
+  )
+})
