@@ -154,9 +154,8 @@
 }
 
 .build_copy_dir_get_label <- function() {
-  c(
-    .yml_dir_get_label_output(NULL),
-    .yml_dir_get_label_raw(NULL),
-    .yml_dir_get_label_cache(NULL)
-  )
+  # Return all directory labels that can be copied
+  # Excludes "code" and "project" which are not meant for copying
+  # The actual filtering by output configuration happens in .build_copy_dir()
+  .opt_dir_get_label_get(NULL)
 }
