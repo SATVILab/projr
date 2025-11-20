@@ -57,11 +57,21 @@ projr_yml_dir_path_rm <- function(label, profile = "default") {
     # If there's a default path, set it explicitly
     .yml_dir_set_path(default_path, label, profile)
   } else {
-    # If no default path, remove the label configuration entirely
+    # If no default path, remove only the path key while preserving other config
     yml_projr <- .yml_get(profile)
     if (!is.null(yml_projr[["directories"]]) &&
       label %in% names(yml_projr[["directories"]])) {
-      yml_projr[["directories"]][[label]] <- NULL
+      # Remove only the path key, not the entire directory entry
+      if (is.list(yml_projr[["directories"]][[label]])) {
+        yml_projr[["directories"]][[label]][["path"]] <- NULL
+        # If the directory config is now empty, remove the entire entry
+        if (length(yml_projr[["directories"]][[label]]) == 0) {
+          yml_projr[["directories"]][[label]] <- NULL
+        }
+      } else {
+        # If it's just a path string, remove the entire entry
+        yml_projr[["directories"]][[label]] <- NULL
+      }
       .yml_set(yml_projr, profile)
     }
   }

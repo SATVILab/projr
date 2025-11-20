@@ -48,7 +48,7 @@ projr_yml_check <- function(profile = NULL) {
   yml_label <- .yml_dir_get_label(label, profile)
   .assert_in(
     names(yml_label),
-    c("path", "ignore-git", "ignore-rbuild", "ignore", "output", "source")
+    c("path", "ignore-git", "ignore-rbuild", "ignore", "output", "source", "license", "hash", "package")
   )
   yml_label |>
     .yml_dir_check_label_path(label, profile) |>

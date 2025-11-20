@@ -51,6 +51,17 @@
   .yml_dir_get_label(label, profile)[["hash"]] %@@% NULL
 }
 
+# license
+.yml_dir_set_license <- function(license, label, profile) {
+  yml_dir <- .yml_dir_get_label(label, profile)
+  yml_dir[["license"]] <- license
+  .yml_dir_set_label(yml_dir, label, profile)
+}
+
+.yml_dir_get_license <- function(label, profile) {
+  .yml_dir_get_label(label, profile)[["license"]] %@@% NULL
+}
+
 .yml_dir_get_hash_complete <- function(label, profile) {
   .yml_dir_get_hash(label, profile) |>
     .yml_dir_complete_hash(label)
