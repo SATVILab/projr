@@ -11,3 +11,5 @@
 - [How-to
   guides](https://satvilab.github.io/projr/articles/how-to-guides.md):
 - [intro](https://satvilab.github.io/projr/articles/intro.md):
+- [Scripts and
+  Hooks](https://satvilab.github.io/projr/articles/scripts-and-hooks.md):

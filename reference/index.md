@@ -21,6 +21,8 @@ Main functions for project workflow
   : Build project to output
 - [`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md)
   : Build dev project
+- [`projr_build_check_packages()`](https://satvilab.github.io/projr/reference/projr_build_check_packages.md)
+  : Check if required packages for build are available
 - [`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_restore.md)
   [`projr_restore_repo_wd()`](https://satvilab.github.io/projr/reference/projr_restore.md)
   [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
@@ -101,6 +103,10 @@ Functions for managing \_projr.yml configuration
 - [`projr_yml_cite_set()`](https://satvilab.github.io/projr/reference/yml-cite.md)
   [`projr_yml_cite_set_default()`](https://satvilab.github.io/projr/reference/yml-cite.md)
   : Set citation options
+
+- [`projr_yml_dir_path_set()`](https://satvilab.github.io/projr/reference/yml-dir-path.md)
+  [`projr_yml_dir_path_rm()`](https://satvilab.github.io/projr/reference/yml-dir-path.md)
+  : Set directory path
 
 - [`projr_yml_dest_add_github()`](https://satvilab.github.io/projr/reference/projr_yml_dest_add_github.md)
   : Add a GitHub release as a destination

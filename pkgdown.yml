@@ -8,7 +8,8 @@ articles:
   get-started: get-started.html
   how-to-guides: how-to-guides.html
   intro: intro.html
-last_built: 2025-11-17T12:18Z
+  scripts-and-hooks: scripts-and-hooks.html
+last_built: 2025-11-20T06:48Z
 urls:
   reference: https://satvilab.github.io/projr/reference
   article: https://satvilab.github.io/projr/articles

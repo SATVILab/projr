@@ -17,10 +17,9 @@ The options are:
 The default is to leave all the settings unchanged.
 
 If these settings are not setting in `_projr.yml`, then the default is
-to generate a codemeta.json file, a CITATION.cff file and a CITATION
-file in the inst/ directory.
+to not generate any citation files.
 
-.yml_cite_set_default` sets all citation options to default (`TRUE\`).
+.yml_cite_set_default` sets all citation options to default (`FALSE\`).
 
 ## Usage
 
@@ -74,7 +73,7 @@ projr_yml_cite_set_default(
 - simplify_default:
 
   logical. If `TRUE`, then if all the settings are the same and equl to
-  the default (`TRUE`), then the settings are not recorded in the
+  the default (`FALSE`), then the settings are not recorded in the
   `projr` configuration file (as the default will be equal to it).
 
 - profile:

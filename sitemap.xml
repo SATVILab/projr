@@ -9,6 +9,7 @@
 <url><loc>https://satvilab.github.io/projr/articles/how-to-guides.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/articles/index.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/articles/intro.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/articles/scripts-and-hooks.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/authors.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/copilot-instructions.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/index.html</loc></url>
@@ -32,9 +33,12 @@
 <url><loc>https://satvilab.github.io/projr/reference/dot-cli_stage_header.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-cli_step.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-cli_success.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/dot-gh_release_asset_upload_httr.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/dot-gh_release_create_httr.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-git_branch_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-git_last_commit_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-git_untracked_not_ignored_get.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/dot-github_api_base.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_build_append.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_build_finalize.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_build_init.html</loc></url>
@@ -42,6 +46,7 @@
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_clear_history.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_clear_output.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_clear_output_by_date.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/dot-log_clear_output_by_version.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_dir_get_base.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_dir_get_output_date.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_dir_get_type.html</loc></url>
@@ -49,6 +54,10 @@
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_file_get_history.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_file_get_output.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_history_add.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/dot-remote_check_exists_github_httr.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/dot-remote_file_get_all_github_httr.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/dot-remote_final_empty_github_httr.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/dot-remote_ls_final_github_httr.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-yml_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-yml_scripts_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-yml_scripts_get_build.html</loc></url>
@@ -57,6 +66,7 @@
 <url><loc>https://satvilab.github.io/projr/reference/instr_auth.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr-package.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_build.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/projr_build_check_packages.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_build_dev.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_env_set.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_ignore.html</loc></url>
@@ -91,6 +101,7 @@
 <url><loc>https://satvilab.github.io/projr/reference/projr_yml_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_yml_par_add.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/yml-cite.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/yml-dir-path.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/yml-git.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/yml-hooks.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/yml-script.html</loc></url>
