@@ -228,8 +228,9 @@ projr_build_dev <- function(file = NULL,
 
 .build_dev_get_bump_component <- function(bump) {
   # Auto-bump to dev if not already on a dev version
+  # Return NULL (not "dev") to just add dev component without incrementing
   if (!.build_is_current_version_dev()) {
-    return("dev")
+    return(NULL)
   }
   
   # If already on dev version, respect the bump parameter
