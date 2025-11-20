@@ -139,3 +139,92 @@ projr_yml_dir_license_rm <- function(label, profile = "default") {
 
   invisible(TRUE)
 }
+
+#' Update LICENSE files with current DESCRIPTION authors
+#'
+#' @description
+#' Regenerates LICENSE files for directories with existing license configurations,
+#' using authors from the DESCRIPTION file. This is useful after updating
+#' package authors or for propagating authors to raw data directories.
+#'
+#' @param labels character vector.
+#' Directory labels to update. If NULL (default), updates all directories
+#' with license configurations.
+#'
+#' @param profile character.
+#' Profile to use. Default is "default".
+#'
+#' @return
+#' Invisible character vector of labels that were updated.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Update all directories with license configurations
+#' projr_yml_dir_license_update()
+#'
+#' # Update specific directories
+#' projr_yml_dir_license_update(c("raw-data", "output"))
+#' }
+projr_yml_dir_license_update <- function(labels = NULL, profile = "default") {
+  .assert_chr(labels)
+  .assert_string(profile)
+
+  # Get all directory labels if not specified
+  if (is.null(labels)) {
+    yml_dir <- .yml_dir_get(profile)
+    labels <- names(yml_dir)
+  }
+
+  # Track which labels were updated
+  updated_labels <- character()
+
+  for (label in labels) {
+    license_config <- .yml_dir_get_license(label, profile)
+
+    # Skip if no license configured
+    if (is.null(license_config)) {
+      next
+    }
+
+    # Parse config to get current settings
+    parsed_config <- .license_config_parse(license_config)
+
+    # Update authors from DESCRIPTION
+    new_authors <- .license_get_default_authors()
+
+    # Create updated config with new authors
+    if (is.character(license_config) && length(license_config) == 1) {
+      # Simple format - convert to full format with new authors
+      new_config <- list(
+        type = parsed_config$type,
+        authors = new_authors,
+        year = parsed_config$year
+      )
+    } else {
+      # Full format - update authors
+      new_config <- license_config
+      new_config[["authors"]] <- new_authors
+    }
+
+    # Set updated config
+    .yml_dir_set_license(new_config, label, profile)
+
+    # Regenerate LICENSE file
+    path_dir <- projr_path_get_dir(label, safe = FALSE)
+    if (dir.exists(path_dir)) {
+      .license_dir_write(path_dir, new_config)
+    }
+
+    updated_labels <- c(updated_labels, label)
+  }
+
+  if (length(updated_labels) > 0) {
+    message("Updated LICENSE files for: ", paste(updated_labels, collapse = ", "))
+  } else {
+    message("No directories with license configurations found")
+  }
+
+  invisible(updated_labels)
+}

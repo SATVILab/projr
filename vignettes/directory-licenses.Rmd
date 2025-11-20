@@ -111,6 +111,23 @@ Remove a license configuration:
 projr_yml_dir_license_rm("output")
 ```
 
+## Updating Licenses with DESCRIPTION Authors
+
+If you update the authors in your DESCRIPTION file, you can propagate those changes to all LICENSE files:
+
+```{r eval=FALSE}
+# Update all directories with license configurations
+projr_yml_dir_license_update()
+
+# Update specific directories only
+projr_yml_dir_license_update(c("raw-data", "output"))
+```
+
+This is particularly useful for:
+- Updating author information after personnel changes
+- Propagating authors to raw data directories (since they aren't regenerated on each build)
+- Ensuring consistency across all LICENSE files in your project
+
 ## Example Workflow
 
 Here's a typical workflow for setting up licenses:

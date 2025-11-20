@@ -93,6 +93,126 @@ test_that("projr_yml_dir_license_get returns NULL when no license", {
   )
 })
 
+test_that("projr_yml_dir_license_update updates authors from DESCRIPTION", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set initial licenses with custom authors
+      projr_yml_dir_license_set(
+        "CC-BY",
+        "output",
+        authors = c("Old Author"),
+        year = 2023
+      )
+      projr_yml_dir_license_set(
+        "MIT",
+        "raw-data",
+        authors = c("Old Author"),
+        year = 2023
+      )
+
+      # Create directories
+      output_dir <- projr_path_get_dir("output", safe = FALSE)
+      raw_dir <- projr_path_get_dir("raw-data", safe = FALSE)
+      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+      dir.create(raw_dir, recursive = TRUE, showWarnings = FALSE)
+
+      # Create initial LICENSE files
+      .license_dir_create("output", safe = FALSE, "default")
+      .license_dir_create("raw-data", safe = FALSE, "default")
+
+      # Verify initial content
+      output_license <- readLines(file.path(output_dir, "LICENSE"), warn = FALSE)
+      expect_true(any(grepl("Old Author", output_license)))
+
+      # Update DESCRIPTION with new authors
+      desc <- desc::description$new("!new")
+      desc$set("Package", "testpkg")
+      desc$add_author("New", "Author", email = "new@example.com", role = "aut")
+      desc$write(file = .path_get("DESCRIPTION"))
+
+      # Update licenses
+      suppressMessages(updated <- projr_yml_dir_license_update())
+
+      # Verify updates
+      expect_true("output" %in% updated)
+      expect_true("raw-data" %in% updated)
+
+      # Check LICENSE files were updated
+      output_license <- readLines(file.path(output_dir, "LICENSE"), warn = FALSE)
+      expect_true(any(grepl("New Author", output_license)))
+
+      raw_license <- readLines(file.path(raw_dir, "LICENSE"), warn = FALSE)
+      expect_true(any(grepl("New Author", raw_license)))
+
+      # Check YAML was updated
+      output_config <- projr_yml_dir_license_get("output")
+      expect_true("New Author" %in% output_config$authors)
+    }
+  )
+})
+
+test_that("projr_yml_dir_license_update works with specific labels", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set licenses for multiple directories
+      projr_yml_dir_license_set("CC-BY", "output", authors = c("Old Author"))
+      projr_yml_dir_license_set("MIT", "raw-data", authors = c("Old Author"))
+      projr_yml_dir_license_set("Apache-2.0", "docs", authors = c("Old Author"))
+
+      # Create directories
+      output_dir <- projr_path_get_dir("output", safe = FALSE)
+      raw_dir <- projr_path_get_dir("raw-data", safe = FALSE)
+      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+      dir.create(raw_dir, recursive = TRUE, showWarnings = FALSE)
+
+      # Create LICENSE files
+      .license_dir_create("output", safe = FALSE, "default")
+      .license_dir_create("raw-data", safe = FALSE, "default")
+
+      # Update DESCRIPTION
+      desc <- desc::description$new("!new")
+      desc$set("Package", "testpkg")
+      desc$add_author("New", "Author", email = "new@example.com", role = "aut")
+      desc$write(file = .path_get("DESCRIPTION"))
+
+      # Update only specific labels
+      suppressMessages(updated <- projr_yml_dir_license_update(c("output", "raw-data")))
+
+      # Verify only specified labels were updated
+      expect_identical(sort(updated), sort(c("output", "raw-data")))
+      expect_false("docs" %in% updated)
+
+      # Check LICENSE files
+      output_license <- readLines(file.path(output_dir, "LICENSE"), warn = FALSE)
+      expect_true(any(grepl("New Author", output_license)))
+    }
+  )
+})
+
+test_that("projr_yml_dir_license_update skips directories without config", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # No licenses configured
+      suppressMessages(updated <- projr_yml_dir_license_update())
+
+      # Should return empty vector
+      expect_identical(length(updated), 0L)
+    }
+  )
+})
+
 test_that("License integration with build creates files", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
