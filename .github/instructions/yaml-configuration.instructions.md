@@ -18,6 +18,7 @@ The package uses YAML configuration (`_projr.yml`) for project settings.
 
 - `directories` - Directory labels, paths, ignore settings
 - `build.git` - Git commit, push, add-untracked settings
+- `build.restrictions` - Build restrictions (e.g., branch restrictions)
 - `build.scripts` - Scripts to build (overrides auto-detection)
 - `build.hooks` - Pre/post build hooks
 - `dev.scripts` - Development-specific build scripts
@@ -101,6 +102,51 @@ dev:
 
 ---
 
+## Build Restrictions Configuration
+
+### Purpose
+
+Control which branches can perform production builds. Allows restricting builds to specific branches (e.g., `main`, `release`) while allowing development builds on any branch.
+
+### YAML Structure
+
+```yaml
+build:
+  restrictions:
+    branch: main  # Only allow builds on main branch
+    # OR
+    branch:       # Allow builds on multiple branches
+      - main
+      - release
+      - hotfix
+    # OR
+    branch: true  # Allow builds on any branch (default, can be omitted)
+```
+
+### Key Points
+
+- Restrictions only apply to production builds (`projr_build_*()` functions), NOT dev builds (`projr_build_dev()`)
+- `branch: true` (default) - Allows builds on any branch
+- `branch: c("main", "dev")` - Only allows builds on specified branches
+- `branch: false` - Restricts builds on all branches (rarely useful)
+- If not in a Git repository, restrictions are not enforced
+- Error messages clearly indicate current branch and allowed branches
+
+### Setting Restrictions
+
+```r
+# Allow builds only on main branch
+projr_yml_restrictions_set(branch = "main")
+
+# Allow builds on multiple branches
+projr_yml_restrictions_set(branch = c("main", "dev", "release"))
+
+# Remove restrictions (allow on any branch)
+projr_yml_restrictions_set(branch = TRUE)
+```
+
+---
+
 ## File Existence Validation
 
 Before any build starts, all scripts and hooks are validated:
@@ -121,6 +167,7 @@ The `projr_yml_check()` function validates the entire `_projr.yml` configuration
 
 - **Directories** - Directory labels, paths, ignore settings
 - **Build settings** - Git, dest, and label configurations
+- **Build restrictions** - build.restrictions.branch is logical or character
 - **Dev settings** - dev.scripts and dev.hooks keys
 - **Metadata** - metadata.version-format
 - **Scripts** - build.scripts and dev.scripts are character vectors
@@ -129,7 +176,7 @@ The `projr_yml_check()` function validates the entire `_projr.yml` configuration
 
 ### Valid build.* Keys
 
-"dev-output", "script", "hooks", "scripts", "git", "github", "package", "local", "osf", "cite"
+"dev-output", "script", "hooks", "scripts", "git", "github", "package", "local", "osf", "cite", "restrictions"
 
 ### When Adding New YAML Options
 
