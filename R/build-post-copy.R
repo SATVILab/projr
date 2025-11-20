@@ -139,6 +139,7 @@
 .build_copy_dir_get_label <- function() {
   c(
     .yml_dir_get_label_output(NULL),
+    .yml_dir_get_label_docs(NULL),
     .yml_dir_get_label_raw(NULL),
     .yml_dir_get_label_cache(NULL)
   )

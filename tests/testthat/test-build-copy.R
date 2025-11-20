@@ -204,27 +204,27 @@ test_that("projr_build_copy_dir works when outputting", {
       })
       invisible({
         file.create(
-          projr_path_get("docs", "a.txt", safe = TRUE)
+          projr_path_get("docs", "a.txt", safe = FALSE)
         )
         file.create(
-          projr_path_get("docs", "b.txt", safe = TRUE)
+          projr_path_get("docs", "b.txt", safe = FALSE)
         )
         file.create(
-          projr_path_get("docs", "dir_c", "c.txt", safe = TRUE)
+          projr_path_get("docs", "dir_c", "c.txt", safe = FALSE)
         )
         file.create(
-          projr_path_get("docs", "dir_d", "d.txt", safe = TRUE)
+          projr_path_get("docs", "dir_d", "d.txt", safe = FALSE)
         )
         file.create(
           projr_path_get(
             "docs",
             paste0(projr_name_get(), "V", projr_version_get()),
             "c.txt",
-            safe = TRUE
+            safe = FALSE
           )
         )
         file.create(
-          projr_path_get("docs", "dir_d", "d.txt", safe = TRUE)
+          projr_path_get("docs", "dir_d", "d.txt", safe = FALSE)
         )
       })
 
@@ -304,6 +304,45 @@ test_that("projr_build_copy_dir works when outputting", {
       ))
       expect_true(dir.exists(
         projr_path_get("output2", "cache", safe = FALSE, create = FALSE)
+      ))
+      
+      # check that docs are copied when output: TRUE
+      # -------------------
+      yml_projr <- yml_projr_init
+      yml_projr[["directories"]][["docs"]] <- list(
+        path = "docs", output = TRUE
+      )
+      .yml_set(yml_projr)
+      .dir_rm("_output")
+      expect_true(.build_copy_dir(output_run = TRUE))
+      expect_true(dir.exists(
+        projr_path_get("output", "docs", safe = FALSE, create = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output", "docs", "a.txt", safe = FALSE, create = FALSE)
+      ))
+      
+      # check that docs are copied to specified output directory
+      # -------------------
+      yml_projr <- yml_projr_init
+      yml_projr[["directories"]][["docs"]] <- list(
+        path = "docs", output = "output2"
+      )
+      .yml_set(yml_projr)
+      .yml_dir_add_label(
+        path = "_output2", label = "output2", profile = "default"
+      )
+      .dir_rm("_output")
+      .dir_rm("_output2")
+      expect_true(.build_copy_dir(output_run = TRUE))
+      expect_false(dir.exists(
+        projr_path_get("output", "docs", safe = FALSE, create = FALSE)
+      ))
+      expect_true(dir.exists(
+        projr_path_get("output2", "docs", safe = FALSE, create = FALSE)
+      ))
+      expect_true(file.exists(
+        projr_path_get("output2", "docs", "b.txt", safe = FALSE, create = FALSE)
       ))
     },
     quiet = TRUE,
