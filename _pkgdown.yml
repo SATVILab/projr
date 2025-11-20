@@ -93,6 +93,8 @@ reference:
   - projr_yml_git_set_default
   - projr_yml_cite_set
   - projr_yml_cite_set_default
+  - projr_yml_dir_path_set
+  - projr_yml_dir_path_rm
   - projr_yml_dest_add_github
   - projr_yml_dest_add_local
   - projr_yml_dest_add_osf
