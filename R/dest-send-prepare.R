@@ -3,8 +3,8 @@
                                           archive_github,
                                           archive_local,
                                           strict,
-                                          output_level = "std",
-                                          log_file = NULL) {
+                                          output_level = "std"
+                                          ) {
   # Early exit if not an output build
   if (!.dest_send_check(bump_component)) {
     return(invisible(FALSE))

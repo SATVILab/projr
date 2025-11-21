@@ -7,8 +7,8 @@
                        archive_github,
                        archive_local,
                        always_archive,
-                       output_level = "std",
-                       log_file = NULL) {
+                       output_level = "std"
+                       ) {
   # consider early exit
   # ------------------
   if (!.dest_send_check(bump_component)) {
@@ -145,8 +145,8 @@
                             bump_component,
                             archive_type,
                             always_archive,
-                            output_level = "std",
-                            log_file = NULL) {
+                            output_level = "std"
+                            ) {
   # ensure that these are not NULL only if not
   # specified in _projr.yml. Reaason is that,
   # if they are specified in the `yml`, the settings
@@ -195,8 +195,8 @@
                              bump_component,
                              archive_type,
                              always_archive,
-                             output_level = "std",
-                             log_file = NULL) {
+                             output_level = "std"
+                             ) {
   force(title)
 
   .cli_debug(

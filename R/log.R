@@ -566,6 +566,39 @@ projr_log_clear <- function(build_type = "all",
   most_recent
 }
 
+#' Get the most recent log file across both output and dev builds
+#'
+#' @return Character or NULL. Path to the most recent log file, or NULL if none found.
+#' @keywords internal
+.log_file_get_most_recent <- function() {
+  # Get most recent from both build types
+  output_log <- .log_file_get_current("output")
+  dev_log <- .log_file_get_current("dev")
+  
+  # If neither exists, return NULL
+  if (is.null(output_log) && is.null(dev_log)) {
+    return(NULL)
+  }
+  
+  # If only one exists, return it
+  if (is.null(output_log)) {
+    return(dev_log)
+  }
+  if (is.null(dev_log)) {
+    return(output_log)
+  }
+  
+  # Both exist, return the most recent
+  fi_output <- file.info(output_log, extra_cols = FALSE)
+  fi_dev <- file.info(dev_log, extra_cols = FALSE)
+  
+  if (fi_output$mtime >= fi_dev$mtime) {
+    return(output_log)
+  } else {
+    return(dev_log)
+  }
+}
+
 #' View build log (last n lines)
 #'
 #' Display the last N lines of a detailed build log file.

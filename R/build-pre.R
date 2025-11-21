@@ -2,37 +2,36 @@
 # Pre-build
 # ==========================
 
-.build_pre_check <- function(output_run, output_level = "std", log_file = NULL) {
+.build_pre_check <- function(output_run, output_level = "std") {
   # Check required packages are available BEFORE starting build
-  .cli_debug("Checking required packages", output_level = output_level, log_file = log_file)
+  .cli_debug("Checking required packages", output_level = output_level)
   .build_check_packages_available(output_run)
 
   # check build restrictions (branch)
-  .cli_debug("Checking build restrictions", output_level = output_level, log_file = log_file)
+  .cli_debug("Checking build restrictions", output_level = output_level)
   .build_check_restrictions(output_run)
 
   # set and check authorisation is available
-  .cli_debug("Checking environment variables", output_level = output_level, log_file = log_file)
+  .cli_debug("Checking environment variables", output_level = output_level)
   .build_env_check(output_run)
 
   # check that we have Git if needed
-  .cli_debug("Checking Git repository", output_level = output_level, log_file = log_file)
+  .cli_debug("Checking Git repository", output_level = output_level)
   .build_git_check(output_run)
 
   # check that we have GitHub remote if needed
-  .cli_debug("Checking GitHub remote", output_level = output_level, log_file = log_file)
+  .cli_debug("Checking GitHub remote", output_level = output_level)
   .build_github_check(output_run)
 
   # check we are not missing upstream commits
-  .cli_debug("Checking upstream commits", output_level = output_level, log_file = log_file)
+  .cli_debug("Checking upstream commits", output_level = output_level)
   .build_exit_if_behind_upstream(output_run)
 }
 
 .build_pre_remotes_prepare <- function(bump_component,
                                        archive_github,
                                        archive_local,
-                                       output_level = "std",
-                                       log_file = NULL) {
+                                       output_level = "std") {
   output_run <- .build_get_output_run(bump_component)
   if (!output_run) {
     return(invisible(FALSE))
@@ -240,45 +239,44 @@
   }
 }
 
-.build_pre_document <- function(output_run, archive_local, output_level = "std", log_file = NULL) {
+.build_pre_document <- function(output_run, archive_local, output_level = "std") {
   # get version for DESCRIPTION and bookdown from run onwards
   # snapshot if need be
-  .cli_debug("Snapshotting renv", output_level = output_level, log_file = log_file)
+  .cli_debug("Snapshotting renv", output_level = output_level)
   .build_renv_snapshot(output_run)
 
   # make sure everything is ignored that should be ignored
   # (including docs directory)
-  .cli_debug("Updating ignore files", output_level = output_level, log_file = log_file)
-  .build_ignore(output_run, archive_local, output_level, log_file)
+  .cli_debug("Updating ignore files", output_level = output_level)
+  .build_ignore(output_run, archive_local, output_level)
 
   # ensure that docs directory is the unsafe directory.
   # will copy docs across upon success.
-  .cli_debug("Updating documentation output directory", output_level = output_level, log_file = log_file)
+  .cli_debug("Updating documentation output directory", output_level = output_level)
   .build_doc_output_dir_update(FALSE)
 
   # ensure that pre-build, we are on dev version
-  .cli_debug("Ensuring development version", output_level = output_level, log_file = log_file)
+  .cli_debug("Ensuring development version", output_level = output_level)
   .build_ensure_dev_version()
 }
 
 .build_pre_setup_for_output_run <- function(version_run_on_list,
                                             output_run,
                                             clear_output,
-                                            output_level = "std",
-                                            log_file = NULL) {
+                                            output_level = "std") {
   # set the version pre-run
-  .cli_debug("Setting build version", output_level = output_level, log_file = log_file)
+  .cli_debug("Setting build version", output_level = output_level)
   .build_version_set_pre(version_run_on_list)
 
   # ensure that docs directory is the unsafe directory.
   # will copy docs across upon success.
-  .cli_debug("Configuring documentation directory", output_level = output_level, log_file = log_file)
+  .cli_debug("Configuring documentation directory", output_level = output_level)
   .build_doc_output_dir_update(FALSE)
 
 
   # empty output directories
   # (docs, output and data)
-  .cli_debug("Clearing output directories (pre-build)", output_level = output_level, log_file = log_file)
+  .cli_debug("Clearing output directories (pre-build)", output_level = output_level)
   .build_clear_pre(output_run, clear_output)
 }
 
@@ -384,7 +382,7 @@
 }
 
 # ignore
-.build_ignore <- function(output_run, archive_local, output_level = "std", log_file = NULL) {
+.build_ignore <- function(output_run, archive_local, output_level = "std") {
   old_profile <- .profile_get_raw()
   Sys.unsetenv("PROJR_PROFILE")
   projr_path_get_dir("docs")
@@ -402,7 +400,7 @@
 #' @param log_file Character. Path to log file
 #'
 #' @keywords internal
-.build_debug_git_info <- function(output_level = "std", log_file = NULL) {
+.build_debug_git_info <- function(output_level = "std") {
   if (!.git_repo_check_exists()) {
     .cli_debug(
       "Git repository: Not a Git repository",

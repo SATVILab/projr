@@ -61,14 +61,14 @@
 #' @param stage_name Character. Name of the build stage.
 #' @param build_type Character. Type of build ("dev" or "output").
 #' @param output_level Character. Current output level.
-#' @param log_file Character. Path to log file (optional).
 #'
 #' @keywords internal
-.cli_stage_header <- function(stage_name, build_type = "output", output_level = "std", log_file = NULL) {
+.cli_stage_header <- function(stage_name, build_type = "output", output_level = "std") {
   build_label <- if (build_type == "dev") "Development" else "Output"
   message_text <- paste0(build_label, " Build: ", stage_name)
 
-  # Write to log file
+  # Write to most recent log file if it exists
+  log_file <- .log_file_get_most_recent()
   if (!is.null(log_file)) {
     .log_build_section(log_file, message_text)
   }
@@ -87,17 +87,17 @@
 #' @param ... Message components passed to cli::cli_alert_info
 #' @param output_level Character. Current output level.
 #' @param .envir Environment for variable evaluation
-#' @param log_file Character. Path to log file (optional).
 #'
 #' @keywords internal
-.cli_info <- function(..., output_level = "std", .envir = parent.frame(), log_file = NULL) {
+.cli_info <- function(..., output_level = "std", .envir = parent.frame()) {
   # Capture message for logging
   message_parts <- list(...)
   if (length(message_parts) > 0) {
     # Convert message to string
     message_text <- paste(unlist(message_parts), collapse = " ")
 
-    # Write to log file
+    # Write to most recent log file if it exists
+    log_file <- .log_file_get_most_recent()
     if (!is.null(log_file)) {
       .log_build_append(log_file, message_text, "info")
     }
@@ -115,16 +115,16 @@
 #' @param ... Message components passed to cli::cli_alert_success
 #' @param output_level Character. Current output level.
 #' @param .envir Environment for variable evaluation
-#' @param log_file Character. Path to log file (optional).
 #'
 #' @keywords internal
-.cli_success <- function(..., output_level = "std", .envir = parent.frame(), log_file = NULL) {
+.cli_success <- function(..., output_level = "std", .envir = parent.frame()) {
   # Capture message for logging
   message_parts <- list(...)
   if (length(message_parts) > 0) {
     message_text <- paste(unlist(message_parts), collapse = " ")
 
-    # Write to log file
+    # Write to most recent log file if it exists
+    log_file <- .log_file_get_most_recent()
     if (!is.null(log_file)) {
       .log_build_append(log_file, message_text, "success")
     }
@@ -142,16 +142,16 @@
 #' @param ... Message components passed to cli::cli_text
 #' @param output_level Character. Current output level.
 #' @param .envir Environment for variable evaluation
-#' @param log_file Character. Path to log file (optional).
 #'
 #' @keywords internal
-.cli_debug <- function(..., output_level = "std", .envir = parent.frame(), log_file = NULL) {
+.cli_debug <- function(..., output_level = "std", .envir = parent.frame()) {
   # Capture message for logging (always log debug messages)
   message_parts <- list(...)
   if (length(message_parts) > 0) {
     message_text <- paste(unlist(message_parts), collapse = " ")
 
-    # Write to log file
+    # Write to most recent log file if it exists
+    log_file <- .log_file_get_most_recent()
     if (!is.null(log_file)) {
       .log_build_append(log_file, message_text, "debug")
     }
@@ -169,16 +169,16 @@
 #' @param ... Message components passed to cli::cli_li
 #' @param output_level Character. Current output level.
 #' @param .envir Environment for variable evaluation
-#' @param log_file Character. Path to log file (optional).
 #'
 #' @keywords internal
-.cli_step <- function(..., output_level = "std", .envir = parent.frame(), log_file = NULL) {
+.cli_step <- function(..., output_level = "std", .envir = parent.frame()) {
   # Capture message for logging
   message_parts <- list(...)
   if (length(message_parts) > 0) {
     message_text <- paste(unlist(message_parts), collapse = " ")
 
-    # Write to log file
+    # Write to most recent log file if it exists
+    log_file <- .log_file_get_most_recent()
     if (!is.null(log_file)) {
       .log_build_append(log_file, message_text, "step")
     }
