@@ -7,7 +7,8 @@
 .cli_eval_message(..., .envir = parent.frame())
 }
 \arguments{
-\item{...}{Message components that may contain glue expressions}
+\item{...}{Message components that may contain glue expressions.
+Can include named arguments for glue substitution.}
 
 \item{.envir}{Environment for variable evaluation}
 }

@@ -247,6 +247,14 @@ test_that(".cli_eval_message evaluates glue expressions", {
   # Test empty message
   result <- .cli_eval_message()
   expect_identical(result, "")
+  
+  # Test with named arguments (like cli functions support)
+  result <- .cli_eval_message("Path is '{remote_path}'", remote_path = "/tmp/test")
+  expect_identical(result, "Path is '/tmp/test'")
+  
+  # Test with multiple named arguments
+  result <- .cli_eval_message("Found {count} items at '{path}'", count = 5, path = "/data")
+  expect_identical(result, "Found 5 items at '/data'")
 })
 
 test_that("CLI functions log evaluated glue expressions", {

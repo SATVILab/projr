@@ -58,23 +58,42 @@
 
 #' Evaluate glue expressions in message
 #'
-#' @param ... Message components that may contain glue expressions
+#' @param ... Message components that may contain glue expressions.
+#'   Can include named arguments for glue substitution.
 #' @param .envir Environment for variable evaluation
 #'
 #' @return Character. The evaluated message string.
 #' @keywords internal
 .cli_eval_message <- function(..., .envir = parent.frame()) {
-  message_parts <- list(...)
-  if (length(message_parts) == 0) {
+  dots <- list(...)
+  if (length(dots) == 0) {
     return("")
   }
   
-  # Combine all parts into a single string
-  message_text <- paste(unlist(message_parts), collapse = " ")
+  # Separate named and unnamed arguments
+  # Handle case where names(dots) might be NULL
+  dot_names <- names(dots)
+  if (is.null(dot_names)) {
+    # No named arguments, all are unnamed
+    named_args <- list()
+    unnamed_args <- dots
+  } else {
+    named_args <- dots[dot_names != ""]
+    unnamed_args <- dots[dot_names == ""]
+  }
   
-  # Evaluate glue expressions in the provided environment
+  # Combine unnamed parts into a single string
+  message_text <- paste(unlist(unnamed_args), collapse = " ")
+  
+  # Create a temporary environment with named arguments
+  eval_env <- new.env(parent = .envir)
+  for (name in names(named_args)) {
+    eval_env[[name]] <- named_args[[name]]
+  }
+  
+  # Evaluate glue expressions in the combined environment
   tryCatch(
-    as.character(glue::glue(message_text, .envir = .envir)),
+    as.character(glue::glue(message_text, .envir = eval_env)),
     error = function(e) {
       # If glue fails, return the original text
       # This handles cases where there are no glue expressions
@@ -114,13 +133,13 @@
 #'
 #' @keywords internal
 .cli_info <- function(..., output_level = "std", .envir = parent.frame()) {
-  # Capture message for logging
-  message_parts <- list(...)
-  if (length(message_parts) > 0) {
-    # Evaluate glue expressions and convert to string
+  # Capture all arguments
+  dots <- list(...)
+  
+  # Evaluate glue expressions (handles both named and unnamed)
+  message_text <- ""
+  if (length(dots) > 0) {
     message_text <- .cli_eval_message(..., .envir = .envir)
-
-    # Write to most recent log file if it exists
     .log_build_append(message_text, "info")
   }
 
@@ -128,7 +147,9 @@
   if (!.cli_should_show("std", output_level)) {
     return(invisible(NULL))
   }
-  cli::cli_alert_info(..., .envir = .envir)
+  
+  # Use the evaluated message text for console output
+  cli::cli_alert_info(message_text)
 }
 
 #' Show a success message
@@ -139,13 +160,13 @@
 #'
 #' @keywords internal
 .cli_success <- function(..., output_level = "std", .envir = parent.frame()) {
-  # Capture message for logging
-  message_parts <- list(...)
-  if (length(message_parts) > 0) {
-    # Evaluate glue expressions and convert to string
+  # Capture all arguments
+  dots <- list(...)
+  
+  # Evaluate glue expressions (handles both named and unnamed)
+  message_text <- ""
+  if (length(dots) > 0) {
     message_text <- .cli_eval_message(..., .envir = .envir)
-
-    # Write to most recent log file if it exists
     .log_build_append(message_text, "success")
   }
 
@@ -153,7 +174,9 @@
   if (!.cli_should_show("std", output_level)) {
     return(invisible(NULL))
   }
-  cli::cli_alert_success(..., .envir = .envir)
+  
+  # Use the evaluated message text for console output
+  cli::cli_alert_success(message_text)
 }
 
 #' Show a debug message (only shown at debug level)
@@ -164,13 +187,13 @@
 #'
 #' @keywords internal
 .cli_debug <- function(..., output_level = "std", .envir = parent.frame()) {
-  # Capture message for logging (always log debug messages)
-  message_parts <- list(...)
-  if (length(message_parts) > 0) {
-    # Evaluate glue expressions and convert to string
+  # Capture all arguments
+  dots <- list(...)
+  
+  # Evaluate glue expressions (handles both named and unnamed)
+  message_text <- ""
+  if (length(dots) > 0) {
     message_text <- .cli_eval_message(..., .envir = .envir)
-
-    # Write to most recent log file if it exists
     .log_build_append(message_text, "debug")
   }
 
@@ -178,7 +201,9 @@
   if (!.cli_should_show("debug", output_level)) {
     return(invisible(NULL))
   }
-  cli::cli_text("[DEBUG] ", ..., .envir = .envir)
+  
+  # Use the evaluated message text for console output
+  cli::cli_text("[DEBUG] ", message_text)
 }
 
 #' Show a step message (sub-item in a stage)
@@ -189,13 +214,13 @@
 #'
 #' @keywords internal
 .cli_step <- function(..., output_level = "std", .envir = parent.frame()) {
-  # Capture message for logging
-  message_parts <- list(...)
-  if (length(message_parts) > 0) {
-    # Evaluate glue expressions and convert to string
+  # Capture all arguments
+  dots <- list(...)
+  
+  # Evaluate glue expressions (handles both named and unnamed)
+  message_text <- ""
+  if (length(dots) > 0) {
     message_text <- .cli_eval_message(..., .envir = .envir)
-
-    # Write to most recent log file if it exists
     .log_build_append(message_text, "step")
   }
 
@@ -203,7 +228,9 @@
   if (!.cli_should_show("std", output_level)) {
     return(invisible(NULL))
   }
-  cli::cli_li(..., .envir = .envir)
+  
+  # Use the evaluated message text for console output
+  cli::cli_li(message_text)
 }
 
 #' Start a process with a spinner/status indicator
