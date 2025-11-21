@@ -220,3 +220,105 @@ test_that("CLI message hierarchy works correctly", {
   expect_error(.cli_success("success", output_level = "debug"), NA)
   expect_error(.cli_debug("debug", output_level = "debug"), NA)
 })
+
+test_that(".cli_eval_message evaluates glue expressions", {
+  skip_if(.is_test_select())
+  
+  # Test simple glue expression
+  test_var <- 5
+  result <- .cli_eval_message("There are {test_var} items")
+  expect_identical(result, "There are 5 items")
+  
+  # Test with multiple variables
+  x <- "tag1"
+  tags <- c("tag1", "tag2", "tag3")
+  result <- .cli_eval_message("Processing {x} from {length(tags)} tags")
+  expect_identical(result, "Processing tag1 from 3 tags")
+  
+  # Test with complex expressions
+  files <- c("file1.txt", "file2.txt")
+  result <- .cli_eval_message("Found {length(files)} file{if(length(files) != 1) 's' else ''}")
+  expect_identical(result, "Found 2 files")
+  
+  # Test without glue expressions
+  result <- .cli_eval_message("Plain text message")
+  expect_identical(result, "Plain text message")
+  
+  # Test empty message
+  result <- .cli_eval_message()
+  expect_identical(result, "")
+  
+  # Test with named arguments (like cli functions support)
+  result <- .cli_eval_message("Path is '{remote_path}'", remote_path = "/tmp/test")
+  expect_identical(result, "Path is '/tmp/test'")
+  
+  # Test with multiple named arguments
+  result <- .cli_eval_message("Found {count} items at '{path}'", count = 5, path = "/data")
+  expect_identical(result, "Found 5 items at '/data'")
+})
+
+test_that("CLI functions log evaluated glue expressions", {
+  skip_if(.is_test_select())
+  
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Initialize a log file
+      log_info <- .log_build_init("dev", bump_component = "test", msg = "test", output_level = "debug")
+      expect_false(is.null(log_info))
+      
+      # Test debug message with glue expressions
+      test_count <- 10
+      test_name <- "example"
+      .cli_debug("Processing {test_count} items named {test_name}", output_level = "debug")
+      
+      # Read the log file
+      log_content <- readLines(log_info$log_file)
+      
+      # Check that the glue expressions were evaluated in the log
+      expect_true(any(grepl("Processing 10 items named example", log_content, fixed = TRUE)))
+      expect_false(any(grepl("\\{test_count\\}", log_content)))
+      expect_false(any(grepl("\\{test_name\\}", log_content)))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that("CLI functions handle complex glue expressions in logs", {
+  skip_if(.is_test_select())
+  
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Initialize a log file
+      log_info <- .log_build_init("dev", bump_component = "test", msg = "test", output_level = "std")
+      expect_false(is.null(log_info))
+      
+      # Test various message types with glue expressions
+      tags <- c("v0.0.1", "v0.0.2", "v0.0.3")
+      x <- "v0.0.1"
+      
+      .cli_info("Found {length(tags)} tags", output_level = "std")
+      .cli_success("Successfully processed tag {x}", output_level = "std")
+      .cli_step("Step {1 + 1} of {length(tags) + 1}", output_level = "std")
+      
+      # Read the log file
+      log_content <- readLines(log_info$log_file)
+      log_text <- paste(log_content, collapse = "\n")
+      
+      # Check that all glue expressions were evaluated
+      expect_true(grepl("Found 3 tags", log_text, fixed = TRUE))
+      expect_true(grepl("Successfully processed tag v0.0.1", log_text, fixed = TRUE))
+      expect_true(grepl("Step 2 of 4", log_text, fixed = TRUE))
+      
+      # Ensure no unevaluated expressions remain
+      expect_false(grepl("\\{length\\(tags\\)\\}", log_text))
+      expect_false(grepl("\\{x\\}", log_text))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
