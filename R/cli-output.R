@@ -241,6 +241,13 @@
 #' @return Process ID for cli_process_done
 #' @keywords internal
 .cli_process_start <- function(..., output_level = "std") {
+  # Log the process start
+  dots <- list(...)
+  if (length(dots) > 0) {
+    message_text <- paste(unlist(dots), collapse = " ")
+    .log_build_append(paste0("Process started: ", message_text), "process")
+  }
+  
   if (!.cli_should_show("std", output_level)) {
     return(invisible(NULL))
   }
@@ -258,6 +265,15 @@
 #' @keywords internal
 .cli_process_done <- function(id = NULL, msg_done = NULL, msg_failed = NULL,
                               .envir = parent.frame(), output_level = "std") {
+  # Log the process completion
+  if (!is.null(msg_done)) {
+    .log_build_append(paste0("Process done: ", msg_done), "process")
+  } else if (!is.null(msg_failed)) {
+    .log_build_append(paste0("Process failed: ", msg_failed), "process")
+  } else {
+    .log_build_append("Process completed", "process")
+  }
+  
   if (!.cli_should_show("std", output_level)) {
     return(invisible(NULL))
   }

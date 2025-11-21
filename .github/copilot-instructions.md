@@ -64,7 +64,21 @@ See detailed guidelines in `.github/instructions/`:
 
 ### Debugging
 
-- When running builds (`projr_build_*`), a log file is created; get the path with `.log_file_get_most_recent()` and inspect it for detailed DEBUG-level output.
+**Log Files for Debugging:**
+- Log files are **automatically created during builds** (`projr_build_*` functions) and contain all CLI output (info, debug, success, step messages)
+- Log files are **NOT automatically created** outside of builds (e.g., during manual function testing)
+- To enable logging outside of builds for debugging:
+  1. Create a log file using `.log_build_init()`: `log_info <- .log_build_init(build_type = "dev", msg = "Manual debugging")`
+  2. Get the log file path from the returned list: `log_info$log_file`
+  3. All subsequent `.cli_*()` calls will write to this log file
+  4. Inspect the log with `.log_file_get_most_recent()` or `projr_log_view()`
+- **All `.cli_*()` functions write to the log file** (not just `.cli_debug()`):
+  - `.cli_info()` - Standard messages
+  - `.cli_success()` - Success messages
+  - `.cli_debug()` - Debug messages (only shown in console at debug level)
+  - `.cli_step()` - Step/progress messages
+  - `.cli_stage_header()` - Section headers
+  - `.cli_process_start()` / `.cli_process_done()` - Process status
 - Use `.cli_debug()` to add lightweight debug logging (variable values, progress). Prefer committing these when they aid future debugging, but:
   - Avoid logging secrets, large binary blobs, or excessive output that clutters CI logs.
 - Use `debugonce()` for short, local function-level debugging; it does not persist across sessions.
