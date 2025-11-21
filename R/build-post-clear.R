@@ -77,7 +77,12 @@
 }
 
 .build_clear_old_output <- function() {
-  .dir_get_cache_auto_version(profile = NULL) |>
+  dir_vec <- .dir_get_cache_auto_version(profile = NULL) |>
     dirname() |>
-    .dir_clear()
+    .dir_ls(recursive = FALSE) |>
+    setdiff("log")
+  for (i in seq_along(dir_vec)) {
+    unlink(dir_vec[i], recursive = TRUE, force = TRUE)
+  }
+  invisible(TRUE)
 }

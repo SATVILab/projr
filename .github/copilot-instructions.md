@@ -34,11 +34,19 @@ See detailed guidelines in `.github/instructions/`:
 - **Always add a blank line** between headings (ending with `**`) and bullet points
 
 ### Before Committing
-- Run `devtools::document()` to update documentation
-- Run `devtools::test()` with LITE mode for faster iteration
-- Run `devtools::check()` to ensure package passes R CMD check
+
+- Run `devtools::document()` to update `man/` and `NAMESPACE`.
+- Run `devtools::test()` (LITE mode during development).
+- Update `_pkgdown.yml` when adding/removing/exporting functions:
+  - Add exported function names or `@rdname`s to the appropriate `reference → sections → contents` section.
+  - Verify with `pkgdown::check_pkgdown()` and `pkgdown::build_site()`.
+- Ensure file formatting:
+  - Files must end with a single newline (empty line at end).
+  - No trailing whitespace anywhere.
+- Update copilot instructions in this file or relevant topics files as needed, following maintenance guidelines at the end of this document.
 
 ### Package Structure
+
 - `R/` - Source code (use `.` prefix for internal, `projr_` for exported functions)
 - `tests/testthat/` - Tests (use helper functions from `helper-*.R`)
 - `man/` - Auto-generated docs (DO NOT edit directly)
@@ -204,6 +212,7 @@ When updating copilot instructions, follow GitHub's best practices:
 - **No external links** - Copilot won't follow them; copy info instead
 - **No vague language** - Avoid "be more accurate", "identify all issues", etc.
 - **Path-specific** - Use `applyTo` frontmatter in topic files
+- **Review regularly** - Update as package evolves.
 
 See `.github/instructions/README.md` for detailed maintenance guidelines.
 

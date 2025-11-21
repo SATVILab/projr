@@ -554,7 +554,7 @@ test_that("upload and restore from `archive` GitHub releases", {
     path = dir_test,
     code = {
 
-      browser()
+      # browser()
 
       # convert to archive structure
       .yml_dest_rm_type_all("default")
@@ -567,6 +567,7 @@ test_that("upload and restore from `archive` GitHub releases", {
 
       # Build to upload to GitHub
       projr::projr_build_patch(msg = "test")
+      browser()
 
       # Verify upload
       remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
@@ -578,7 +579,7 @@ test_that("upload and restore from `archive` GitHub releases", {
       expect_true(.test_label_version_get("raw-data") %in% remote_vec_final)
       expect_false(
         .test_label_version_get("raw-data", TRUE) %in% remote_vec_final
-        )
+      )
 
       # Clear local data
       unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
