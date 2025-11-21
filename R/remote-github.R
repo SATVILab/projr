@@ -243,7 +243,8 @@
                                      label,
                                      structure,
                                      version = NULL,
-                                     pre) {
+                                     pre,
+                                     empty) {
   .assert_string(id, TRUE)
   .assert_in(label, .opt_dir_get_label_send(NULL), TRUE)
   tag <- .remote_misc_github_tag_get(id)
@@ -259,7 +260,8 @@
     path_append_label = path_append_label,
     label = label,
     structure = structure,
-    version = version
+    version = version,
+    empty = empty
   )
 
   # everything uploaded to a gh release
@@ -280,14 +282,15 @@
                                         path_append_label,
                                         label,
                                         structure,
-                                        version) {
+                                        version,
+                                        empty) {
   # keep it as NULL this way if it's already
   # NULL (otherwise it's character(),
   # which triggers an error when checking for a string later)
   if (!is.null(path)) {
     path <- path |> (\(x) gsub(pattern = "\\.zip$", replacement = "", x))()
   }
-  paste0(
+  non_empty_fn <- paste0(
     .remote_get_path_rel_flat(
       path = path,
       path_append_label = path_append_label,
@@ -297,6 +300,10 @@
     ),
     ".zip"
   )
+  if (empty) {
+    return(gzip("\\.zip$", "-empty.zip", non_empty_fn))
+  }
+  non_empty_fn
 }
 
 # ========================

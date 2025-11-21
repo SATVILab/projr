@@ -442,7 +442,6 @@ test_that("upload and restore from `latest` GitHub releases", {
       expect_identical(fn_vec, content_vec_test_file_adj)
 
       # Add an extra file and overwrite, and don't clear
-      browser()
       writeLines(
         "extra file content", projr_path_get("raw-data", "extrafile.txt")
       )
@@ -535,8 +534,6 @@ test_that("upload and restore from `archive` GitHub releases", {
     path = dir_test,
     code = {
 
-      browser()
-
       # convert to archive structure
       .yml_dest_rm_type_all("default")
       tag_name <- "projr-test-release-a"
@@ -550,6 +547,7 @@ test_that("upload and restore from `archive` GitHub releases", {
       projr::projr_build_patch(msg = "test")
 
       # Verify upload
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
       expect_true(
         .remote_check_exists("github", tag_name, max_attempts = 4)
       )
@@ -568,6 +566,8 @@ test_that("upload and restore from `archive` GitHub releases", {
       fn_vec <- .file_ls(projr_path_get("raw-data"))
       expect_identical(fn_vec, content_vec_test_file)
 
+      browser()
+
       # add and remove files
       content_vec_test_file_adj <- .test_content_adjust_label("raw-data")
 
@@ -577,6 +577,11 @@ test_that("upload and restore from `archive` GitHub releases", {
       # Verify remote still exists
       expect_true(
         .remote_check_exists("github", tag_name, max_attempts = 4)
+      )
+      expect_false(
+        .remote_final_check_exists_github_direct(
+          c("tag" = tag_name, "fn" = "raw-data-v0.0.0-1.zip")
+        )
       )
 
       # Clear local data

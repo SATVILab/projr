@@ -151,7 +151,8 @@
                               path = NULL,
                               path_append_label = TRUE,
                               version = NULL,
-                              pre = FALSE) {
+                              pre = FALSE,
+                              empty = FALSE) {
   # pre: "one up" from the final remote, e.g. the directory
   # above for hierarchical. Does not apply to flat.
   switch(type,
@@ -179,7 +180,8 @@
       path = path,
       path_append_label = path_append_label,
       version = version,
-      pre = pre
+      pre = pre,
+      empty = empty
     ),
     stop(paste0("type '", type, "' not recognized"))
   )
@@ -217,7 +219,8 @@
                                  structure,
                                  type,
                                  version,
-                                 pre) {
+                                 pre,
+                                 empty) {
   switch(type,
     "osf" = , # same as local
     "local" = .remote_get_path_rel_hierarchy(
@@ -233,7 +236,8 @@
       path_append_label = path_append_label,
       label = label,
       structure = structure,
-      version = version
+      version = version,
+      empty = empty
     )
   )
 }
