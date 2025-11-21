@@ -267,7 +267,8 @@ projr_content_update <- function(label = NULL,
   remote_exists <- .remote_final_check_exists(
     source_vec[["type"]], yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
-    yml_title[["path-append-label"]], version_remote
+    yml_title[["path-append-label"]], version_remote,
+    empty = FALSE
   )
   if (!remote_exists) {
     .cli_debug("Remote source does not exist for ", label)

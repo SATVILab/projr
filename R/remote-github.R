@@ -16,10 +16,9 @@
                                         token   = NULL,
                                         pause_second = 2,
                                         output_level = "std",
-                                        max_attempts = 1,
+                                        max_attempts = 3,
                                         max_delay = 300,
-                                        max_total_time = 600
-                                        ) {
+                                        max_total_time = 600) {
   .assert_string(tag, TRUE)
 
   repo <- tryCatch(

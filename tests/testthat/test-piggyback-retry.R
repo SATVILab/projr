@@ -81,7 +81,7 @@ test_that(".pb_retry_with_backoff respects max_attempts", {
   result <- .pb_retry_with_backoff(
     fn = failing_fn,
     max_attempts = 3,
-    initial_delay = 0.1,
+    exponential_base = 0.1,
     operation_name = "test operation",
     output_level = "none",
     check_success = function(x) !inherits(x, "try-error")
@@ -112,7 +112,7 @@ test_that(".pb_retry_with_backoff succeeds on retry", {
   result <- .pb_retry_with_backoff(
     fn = retry_fn,
     max_attempts = 5,
-    initial_delay = 0.1,
+    exponential_base = 0.1,
     operation_name = "test retry",
     output_level = "none",
     check_success = function(x) !inherits(x, "try-error")
@@ -139,7 +139,7 @@ test_that(".pb_retry_with_backoff applies exponential backoff", {
   result <- .pb_retry_with_backoff(
     fn = timing_fn,
     max_attempts = 4,
-    initial_delay = 0.5,
+    exponential_base = 0.5,
     backoff_factor = 2,
     operation_name = "test backoff",
     output_level = "none",

@@ -1,6 +1,7 @@
 .retry_with_backoff <- function(fn,
                                 max_attempts    = 3,
-                                initial_delay   = 2,
+                                initial_delay   = 0,
+                                exponential_base = 2,
                                 max_delay       = 60,
                                 backoff_factor  = 2,
                                 max_total_time  = Inf,  # overall cap in seconds
@@ -42,13 +43,13 @@
 
       if (actual_delay > 0) {
         .cli_debug(
-          "{operation_name}: waiting {actual_delay}s before attempt {attempt}/{max_attempts}...",
+          "{operation_name}: waiting {actual_delay}s before attempt {attempt}/{max_attempts}...", # nolint
           output_level = output_level
         )
         Sys.sleep(actual_delay)
       }
 
-      delay <- delay * backoff_factor
+      delay <- exponential_base * backoff_factor
     }
 
     last_result <- fn()
