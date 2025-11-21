@@ -180,9 +180,9 @@ test_that(".log_file_get_most_recent returns most recent across types", {
       most_recent <- .log_file_get_most_recent()
       expect_equal(most_recent, dev_path)
       
-      # Modify output log to be more recent
+      # Modify output log to be more recent by appending to it directly
       Sys.sleep(1)
-      .log_build_append(output_path, "Updated", "info")
+      cat("Updated\n", file = output_path, append = TRUE)
       
       # Should now return output path
       most_recent2 <- .log_file_get_most_recent()
