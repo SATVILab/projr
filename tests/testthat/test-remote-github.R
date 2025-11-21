@@ -597,14 +597,11 @@ test_that("upload and restore from `archive` GitHub releases", {
       # Build to upload to GitHub
       projr::projr_build_minor(msg = "test")
 
-      # Verify remote still exists
-      expect_true(
-        .remote_check_exists("github", tag_name, max_attempts = 4)
-      )
+      # Verify upload - should have the new version
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      expect_true(.test_label_version_get("raw-data") %in% remote_vec_final)
       expect_false(
-        .remote_final_check_exists_github_direct(
-          c("tag" = tag_name, "fn" = "raw-data-v0.0.0-1.zip")
-        )
+        .test_label_version_get("raw-data", TRUE) %in% remote_vec_final
       )
 
       # Clear local data
@@ -621,8 +618,12 @@ test_that("upload and restore from `archive` GitHub releases", {
       fn_vec <- .file_ls(projr_path_get("raw-data"))
       expect_identical(fn_vec, content_vec_test_file_adj)
 
-      # Build with no changes
+      # Build with no changes - should not create new archive with default send_cue
       projr::projr_build_minor(msg = "test")
+
+      # Verify upload - should still have latest version
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      expect_true(.test_label_version_get("raw-data") %in% remote_vec_final)
 
       # Clear local data
       unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
@@ -696,13 +697,15 @@ test_that("upload and restore from `archive` GitHub releases via parameter", {
       # add and remove files
       content_vec_test_file_adj <- .test_content_adjust_label("raw-data")
 
-      # Build to upload to GitHub
-      projr::projr_build_minor(msg = "test")
+      # Build to upload to GitHub (archive_github parameter persists in config)
+      projr::projr_build_minor(msg = "test", archive_github = TRUE)
 
-      # Verify remote still exists
+      # Verify remote still exists and has the new version
       expect_true(
         .remote_check_exists("github", tag_name, max_attempts = 4)
       )
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      expect_true(.test_label_version_get("raw-data") %in% remote_vec_final)
 
       # Clear local data
       unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
