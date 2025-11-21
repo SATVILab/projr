@@ -56,6 +56,33 @@
 # Message wrappers
 # ----------------
 
+#' Evaluate glue expressions in message
+#'
+#' @param ... Message components that may contain glue expressions
+#' @param .envir Environment for variable evaluation
+#'
+#' @return Character. The evaluated message string.
+#' @keywords internal
+.cli_eval_message <- function(..., .envir = parent.frame()) {
+  message_parts <- list(...)
+  if (length(message_parts) == 0) {
+    return("")
+  }
+  
+  # Combine all parts into a single string
+  message_text <- paste(unlist(message_parts), collapse = " ")
+  
+  # Evaluate glue expressions in the provided environment
+  tryCatch(
+    as.character(glue::glue(message_text, .envir = .envir)),
+    error = function(e) {
+      # If glue fails, return the original text
+      # This handles cases where there are no glue expressions
+      message_text
+    }
+  )
+}
+
 #' Show a stage header
 #'
 #' @param stage_name Character. Name of the build stage.
@@ -90,11 +117,11 @@
   # Capture message for logging
   message_parts <- list(...)
   if (length(message_parts) > 0) {
-    # Convert message to string
-    message_text <- paste(unlist(message_parts), collapse = " ")
+    # Evaluate glue expressions and convert to string
+    message_text <- .cli_eval_message(..., .envir = .envir)
 
     # Write to most recent log file if it exists
-    .log_build_append( message_text, "info")
+    .log_build_append(message_text, "info")
   }
 
   # Show in console if appropriate
@@ -115,7 +142,8 @@
   # Capture message for logging
   message_parts <- list(...)
   if (length(message_parts) > 0) {
-    message_text <- paste(unlist(message_parts), collapse = " ")
+    # Evaluate glue expressions and convert to string
+    message_text <- .cli_eval_message(..., .envir = .envir)
 
     # Write to most recent log file if it exists
     .log_build_append(message_text, "success")
@@ -139,7 +167,8 @@
   # Capture message for logging (always log debug messages)
   message_parts <- list(...)
   if (length(message_parts) > 0) {
-    message_text <- paste(unlist(message_parts), collapse = " ")
+    # Evaluate glue expressions and convert to string
+    message_text <- .cli_eval_message(..., .envir = .envir)
 
     # Write to most recent log file if it exists
     .log_build_append(message_text, "debug")
@@ -163,7 +192,8 @@
   # Capture message for logging
   message_parts <- list(...)
   if (length(message_parts) > 0) {
-    message_text <- paste(unlist(message_parts), collapse = " ")
+    # Evaluate glue expressions and convert to string
+    message_text <- .cli_eval_message(..., .envir = .envir)
 
     # Write to most recent log file if it exists
     .log_build_append(message_text, "step")
