@@ -198,7 +198,7 @@
 
   .cli_debug(
     "Destination '{title}' (type: {type}): Checking if send is needed",
-    output_level = output_level,
+    output_level = output_level
   )
 
   may_send <- .dest_send_title_check(

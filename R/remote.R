@@ -75,7 +75,6 @@
     "osf" = .remote_create_osf(title = name, ...),
     "github" = .remote_create_github(
       tag = .remote_misc_github_tag_get(id),
-      
       output_level = output_level,
       ...
     )

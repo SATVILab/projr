@@ -162,6 +162,10 @@
 #'
 #' @keywords internal
 .log_build_append <- function(message, level = "info") {
+  log_file <- .log_file_get_most_recent()
+  if (is.null(log_file)) {
+    return(invisible(NULL))
+  }
 
   # Format message with timestamp and level
   timestamp <- format(Sys.time(), "%H:%M:%S")
@@ -172,7 +176,7 @@
   # Append to file
   cat(
     formatted, "\n",
-    file = .log_file_get_most_recent(), append = TRUE
+    file = log_file, append = TRUE
   )
   invisible(NULL)
 }
@@ -183,8 +187,12 @@
 #'
 #' @keywords internal
 .log_build_section <- function(section_name) {
+  log_file <- .log_file_get_most_recent()
+  if (is.null(log_file)) {
+    return(invisible(NULL))
+  }
   header <- paste0("\n## ", section_name, "\n")
-  cat(header, file = .log_file_get_most_recent(), append = TRUE)
+  cat(header, file = log_file, append = TRUE)
   invisible(NULL)
 }
 
@@ -195,6 +203,10 @@
 #'
 #' @keywords internal
 .log_build_finalize <- function(success = TRUE, start_time = NULL) {
+  log_file <- .log_file_get_most_recent()
+  if (is.null(log_file)) {
+    return(invisible(NULL))
+  }
 
   footer <- c(
     "",
@@ -213,7 +225,7 @@
 
   cat(
     paste(footer, collapse = "\n"),
-    file = .log_file_get_most_recent(),
+    file = log_file,
     append = TRUE
   )
   invisible(NULL)
