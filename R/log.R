@@ -94,7 +94,7 @@
     timestamp <- format(Sys.time(), "%H-%M-%S")
   }
   date_dir <- .log_dir_get_output_date(build_type)
-  file.path(date_dir, paste0(timestamp, ".md"))
+  file.path(date_dir, paste0(timestamp, ".qmd"))
 }
 
 # Log writing functions
