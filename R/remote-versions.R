@@ -408,7 +408,7 @@
   if (is.null(remote_pre)) {
     return(character(0L))
   }
-  remote_final_vec_basename <- .(
+  remote_final_vec_basename <- .remote_final_ls(
     type, remote_pre_down
   )
   .remote_version_latest_get(remote_final_vec_basename, type, label) |>
@@ -498,10 +498,12 @@
     if (.is_len_0(label_regex)) {
       return(character(0L))
     }
-    # Extract version, removing the asterisk if present
-    version_with_possible_asterisk <- gsub(match_str, "", label_regex) |> trimws()
-    # Remove asterisk for version comparison purposes but don't mark as trusted
-    gsub("\\*$", "", version_with_possible_asterisk) |> .version_v_rm()
+    # Extract version, removing the asterisk and hash if present
+    # * indicates untrusted upload
+    # # indicates potentially stale (not checked against current project version)
+    version_with_markers <- gsub(match_str, "", label_regex) |> trimws()
+    # Remove asterisk and hash for version comparison purposes
+    gsub("\\*$|#$", "", version_with_markers) |> .version_v_rm()
   }
 
 
