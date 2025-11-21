@@ -31,6 +31,46 @@ Testing standards and patterns for the projr package test suite, including test 
 
 ---
 
+## Debugging Specific Tests
+
+When debugging a specific issue, use the test selection approach:
+
+### Debugging Workflow
+
+1. **Turn off LITE mode** to ensure all relevant tests run:
+   ```r
+   devtools::load_all()
+   .test_unset_lite()  # Disable LITE mode
+   ```
+
+2. **Enable test selection** to skip most tests:
+   ```r
+   .test_set_select()
+   ```
+
+3. **Temporarily remove** `skip_if(.is_test_select())` from the specific test(s) you want to debug
+
+4. **Run tests** - only tests without `skip_if(.is_test_select())` will run:
+   ```r
+   devtools::test()
+   # Or run specific test file:
+   devtools::test_file("tests/testthat/test-manifest.R")
+   ```
+
+5. **After debugging**, restore the skip condition and unset select mode:
+   ```r
+   # Re-add skip_if(.is_test_select()) to the test
+   .test_unset_select()
+   ```
+
+### When to Use Each Mode
+
+- **LITE mode (default)**: General development, quick validation of changes
+- **FULL mode**: Pre-release testing, comprehensive parameter testing
+- **SELECT mode**: Debugging specific failing tests, investigating issues in particular test cases
+
+---
+
 ## Test Guidelines
 
 - Use testthat 3e (Config/testthat/edition: 3)
