@@ -43,10 +43,10 @@ test_that(".cli_debug logging works in assertion functions", {
                    regexp = "must exist")
       
       # Finalize log
-      .log_build_finalize(success = TRUE, start_time = Sys.time())
-      
-      # Verify that a log file was created
       if (!is.null(log_info)) {
+        .log_build_finalize(log_info$log_file, success = TRUE, start_time = Sys.time())
+        
+        # Verify that a log file was created
         expect_true(file.exists(log_info$log_file))
       }
     }
