@@ -192,7 +192,7 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
       if (file.exists("manifest.csv")) {
         # Try to restore raw-data from local archive
         result <- tryCatch({
-          projr_restore(label = "raw-data", type = "local")
+          projr_content_update(label = "raw-data", type = "local")
         }, error = function(e) {
           FALSE
         })
@@ -346,7 +346,7 @@ test_that("comprehensive workflow: rmarkdown with dev builds, iterative changes,
       
       # Try to restore from backup
       result <- tryCatch({
-        projr_restore(label = "raw-data", type = "local")
+        projr_content_update(label = "raw-data", type = "local")
       }, error = function(e) {
         FALSE
       })
@@ -484,13 +484,13 @@ test_that("comprehensive workflow: quarto with multiple content types, configura
       # ========== Phase 7: Test restoring multiple content types ==========
       # Try to restore both raw-data and cache if possible
       result_raw <- tryCatch({
-        projr_restore(label = "raw-data", type = "local")
+        projr_content_update(label = "raw-data", type = "local")
       }, error = function(e) {
         FALSE
       })
       
       result_cache <- tryCatch({
-        projr_restore(label = "cache", type = "local")
+        projr_content_update(label = "cache", type = "local")
       }, error = function(e) {
         FALSE
       })
@@ -651,7 +651,7 @@ test_that("comprehensive workflow: from scratch with extensive iteration, clone 
         
         # Attempt restore
         result <- tryCatch({
-          projr_restore(label = "raw-data", type = "local")
+          projr_content_update(label = "raw-data", type = "local")
         }, error = function(e) {
           FALSE
         })

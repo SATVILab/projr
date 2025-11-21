@@ -69,7 +69,7 @@ Located in `tests/testthat/helper-*.R`:
 - `.test_setup_project()` - Creates complete test project with git, files, configuration
 - `.init()` - Minimal initialization (creates directories, VERSION, _projr.yml)
 - `.init_full()` - Full initialization for tests
-- `.test_setup_content()` - Creates test content in project directories
+- `.test_content_setup_label()` - Creates test content in project directories
 - `.test_setup_project_lit_docs()` - Sets up document engine files (quarto, rmarkdown)
 
 Test helper functions belong in `tests/testthat/helper-*.R`, NOT in `R/` files.
@@ -97,7 +97,7 @@ test_that(".build_manifest_* works", {
       expect_identical(nrow(manifest), 0L)
 
       label_vec <- c("cache", "raw-data")
-      invisible(.test_setup_content(label_vec, safe = TRUE))
+      invisible(.test_content_setup_label(label_vec, safe = TRUE))
       path_manifest <- .build_manifest_pre(TRUE)
       manifest <- .manifest_read(path_manifest)
       expect_identical(nrow(manifest), 3L)

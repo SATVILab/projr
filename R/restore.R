@@ -1,6 +1,6 @@
 #' Restore project artefact directories
 #'
-#' Use `projr_restore()` to restore all artefacts needed for the current project.
+#' Use `projr_content_update()` to restore all artefacts needed for the current project.
 #' If the project isn't available locally yet,
 #' `projr_restore_repo()` will clone it and then restore its artefacts.
 #'
@@ -22,16 +22,18 @@
 #' @param path character or NULL. Local path for cloning the repository. Default is `NULL`,
 #'   creating a subdirectory named after the repo. `"."` restores directly into the
 #'   current directory. Must be NULL or a single non-empty character string.
+#' @param clear logical. If `TRUE`, clears existing local artefact directories
+#'   before restoration. Default is `FALSE`.
 #'
 #' @return Invisibly returns `TRUE` if all restorations are successful, `FALSE` otherwise.
-#'   For `projr_restore()`, returns `FALSE` if no labels are found to restore or if any
+#'   For `projr_content_update()`, returns `FALSE` if no labels are found to restore or if any
 #'   restoration fails. For `projr_restore_repo()`, returns `FALSE` if cloning or
 #'   restoration fails.
 #'
 #' @details
 #' These functions restore artefact directories from remote sources:
 #'
-#' - `projr_restore()` restores artefacts in an existing local project without any cloning required.
+#' - `projr_content_update()` restores artefacts in an existing local project without any cloning required.
 #'   Requires a `manifest.csv` file in the project root.
 #' - `projr_restore_repo()` clones a GitHub repository into a subdirectory (or specified path),
 #'   then restores artefacts from that repository's remote sources.
@@ -56,13 +58,13 @@
 #' @examples
 #' \dontrun{
 #'   # Restore all raw artefacts in existing local project
-#'   projr_restore()
+#'   projr_content_update()
 #'
 #'   # Restore specific labels
-#'   projr_restore(label = c("raw-data", "cache"))
+#'   projr_content_update(label = c("raw-data", "cache"))
 #'
 #'   # Restore from specific source type
-#'   projr_restore(type = "local", title = "archive")
+#'   projr_content_update(type = "local", title = "archive")
 #'
 #'   # Clone repository into subdirectory and restore artefacts
 #'   projr_restore_repo("owner/repo")
@@ -77,10 +79,11 @@
 #' @name projr_restore
 #' @rdname projr_restore
 #' @export
-projr_restore <- function(label = NULL,
-                          pos = NULL,
-                          type = NULL,
-                          title = NULL) {
+projr_content_update <- function(label = NULL,
+                                 pos = NULL,
+                                 type = NULL,
+                                 title = NULL,
+                                 clear = FALSE) {
   # Input validation
   if (!is.null(label)) {
     if (!is.character(label)) {
@@ -137,25 +140,45 @@ projr_restore <- function(label = NULL,
 
   .title <- title
   if (!file.exists(.path_get("manifest.csv"))) {
-    stop(
-      "No manifest.csv file found, so no builds have occurred, so nothing to restore." # nolint
-    )
+    msg <- "No manifest.csv file found, so no builds have occurred, so nothing to restore." # nolint
+    msg <- if (clear) paste0(msg, " No files cleared.") else msg
+    .cli_debug(msg)
+    stop("", .call = FALSE)
   }
-  label <- .restore_get_label(label)
+
+  label <- .content_update_get_label(label)
 
   # Handle case where no labels to restore
   if (length(label) == 0) {
-    message("No labels to restore")
+    msg <- "No labels found to restore."
+    msg <- if (clear) paste0(msg, " No files cleared.") else msg
+    .cli_debug(msg)
     return(invisible(FALSE))
   }
 
   success <- TRUE
   for (i in seq_along(label)) {
+    if (clear) {
+      .cli_debug(
+        "Clearing existing files for label: ", label[[i]]
+      )
+      path_dir_local <- projr_path_get_dir(
+        label[[i]], safe = FALSE, create = FALSE
+      )
+      if (dir.exists(path_dir_local)) {
+        unlink(path_dir_local, recursive = TRUE, force = TRUE)
+      }
+    }
+    .cli_debug(
+      "Restoring label: ", label[[i]]
+    )
     result <- tryCatch(
-      .restore_label(label[[i]], pos, type, .title),
+      .content_update_label(label[[i]], pos, type, .title),
       error = function(e) {
-        message("Error restoring label: ", label[[i]], " - ", e$message)
-        return(FALSE)
+        .cli_debug(
+          "Error restoring label: ", label[[i]], " - ", e$message
+        )
+        FALSE
       }
     )
     if (isFALSE(result)) {
@@ -165,8 +188,8 @@ projr_restore <- function(label = NULL,
   invisible(success)
 }
 
-.restore_get_label <- function(label) {
-  .restore_get_label_check(label)
+.content_update_get_label <- function(label) {
+  .content_update_get_label_check(label)
   if (!is.null(label)) {
     return(label)
   }
@@ -176,7 +199,7 @@ projr_restore <- function(label = NULL,
   nm_vec[grepl("^raw", .dir_label_strip(nm_vec))]
 }
 
-.restore_get_label_check <- function(label) {
+.content_update_get_label_check <- function(label) {
   if (!is.null(label)) {
     opt_vec <- .yml_dir_get(NULL) |>
       names()
@@ -188,17 +211,21 @@ projr_restore <- function(label = NULL,
   invisible(TRUE)
 }
 
-.restore_label <- function(label, pos, type, .title) {
-  if (!.restore_label_check_non_empty(label)) {
+.content_update_label <- function(label, pos, type, .title) {
+  if (!.content_update_label_check_non_empty(label)) {
     return(invisible(FALSE))
   }
   # get source remote (type and title)
-  source_vec <- .restore_label_get_source(pos, label, type, .title)
+  source_vec <- .content_update_label_get_source(pos, label, type, .title)
 
   # Check if source was found
   if (is.null(source_vec)) {
-    message("No restore source found for label: ", label)
-    message("Skipping restore for ", label)
+    .cli_debug(
+      "No source found for label: ", label
+    )
+    .cli_debug(
+      "Skipping restore for label: ", label
+    )
     return(invisible(FALSE))
   }
 
@@ -220,33 +247,65 @@ projr_restore <- function(label = NULL,
     )
   }
   if (is.null(version_remote)) {
-    message("No version found for ", label)
-    message("Skipping restore for ", label)
+    .cli_debug("No version found for ", label)
+    .cli_debug("Skipping restore for ", label)
     return(invisible(FALSE))
   }
-  message(
-    "Restoring ", label,
+  .cli_debug(
+    "Restoring version ", version_remote, " of ", label,
     " from ", source_vec[["type"]],
     " ", source_vec[["title"]]
   )
-  message("Version: ", version_remote)
   # Check if version is marked as untrusted in VERSION file
-  untrusted <- .remote_check_version_untrusted(remote_pre, source_vec[["type"]], label)
+  untrusted <- .remote_check_version_untrusted(
+    remote_pre, source_vec[["type"]], label
+  )
   if (untrusted) {
     message("Note: This version is marked as untrusted")
   }
-  remote_source <- .remote_final_get(
+
+  remote_exists <- .remote_final_check_exists(
     source_vec[["type"]], yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
     yml_title[["path-append-label"]], version_remote
   )
+  if (!remote_exists) {
+    .cli_debug("Remote source does not exist for ", label)
+    if (source_vec[["type"]] == "github") {
+      .cli_debug("Checking GitHub direct for empty asset for ", label)
+      remote_empty <- remote_source
+      remote_empty[["fn"]] <- gsub(
+        "\\.zip$", "-empty.zip", remote_empty[["fn"]]
+      )
+      remote_empty_exists <- .remote_final_check_exists_github_direct(
+        source_vec[["type"]], remote_empty
+      )
+      if (remote_empty_exists) {
+        .cli_debug("Remote source is empty for ", label)
+        return(invisible(FALSE))
+      } else {
+        .cli_debug("Empty remote source does not exist for ", label)
+        return(invisible(FALSE))
+      }
+    } else {
+      .cli_debug("Remote source does not exist for ", label)
+      return(invisible(FALSE))
+    }
+  }
+
   # Restore directly into the project directory rather than the cache build area
+  remote_source <- .remote_final_get(
+    source_vec[["type"]], yml_title[["id"]], label,
+    yml_title[["structure"]], yml_title[["path"]],
+    yml_title[["path-append-label"]], version_remote, FALSE
+  )
   path_dir_local <- projr_path_get_dir(label, safe = FALSE)
   .remote_file_get_all(source_vec[["type"]], remote_source, path_dir_local)
+
   invisible(TRUE)
 }
 
-.restore_label_check_non_empty <- function(label) {
+.content_update_label_check_non_empty <- function(label) {
   manifest <- .manifest_read(.path_get("manifest.csv")) |>
     .manifest_filter_label(label)
   fn_vec <- unique(manifest[["fn"]])
@@ -261,17 +320,17 @@ projr_restore <- function(label = NULL,
   invisible(TRUE)
 }
 
-.restore_label_get_source <- function(pos, label, type, .title) {
+.content_update_label_get_source <- function(pos, label, type, .title) {
   pos <- if (is.null(pos)) c("source", "dest") else pos
   .assert_in(pos, c("source", "dest"))
   if ("source" %in% pos) {
-    source_vec <- .restore_label_get_source_source(label, type, .title)
+    source_vec <- .content_update_label_get_source_source(label, type, .title)
     if (!is.null(source_vec)) {
       return(source_vec)
     }
   }
   if ("dest" %in% pos) {
-    source_vec <- .restore_label_get_source_dest(label, type, .title)
+    source_vec <- .content_update_label_get_source_dest(label, type, .title)
     if (!is.null(source_vec)) {
       return(source_vec)
     }
@@ -282,34 +341,34 @@ projr_restore <- function(label = NULL,
   NULL
 }
 
-.restore_label_get_source_source <- function(label, type, .title) {
+.content_update_label_get_source_source <- function(label, type, .title) {
   yml_source <- .yml_dir_get_source(label, NULL)
   # nothing to look at here
   if (is.null(yml_source)) {
     return(NULL)
   }
   # look within the type
-  .restore_label_get_source_source_type(
+  .content_update_label_get_source_source_type(
     yml_source, type, .title
   )
 }
 
-.restore_label_get_source_source_type <- function(yml_source, type, .title) {
+.content_update_label_get_source_source_type <- function(yml_source, type, .title) {
   if (!is.null(type)) {
-    .restore_label_get_source_source_type_spec(
+    .content_update_label_get_source_source_type_spec(
       yml_source, type, .title
     )
   } else {
-    .restore_label_get_source_source_type_first(yml_source, .title)
+    .content_update_label_get_source_source_type_first(yml_source, .title)
   }
 }
 
-.restore_label_get_source_source_type_spec <- function(yml_source,
+.content_update_label_get_source_source_type_spec <- function(yml_source,
                                                        type,
                                                        .title) {
   if (type %in% names(yml_source)) {
     yml_type <- yml_source[[type]]
-    .restore_label_get_source_source_title_spec(
+    .content_update_label_get_source_source_title_spec(
       yml_type, type, .title
     )
   } else {
@@ -317,23 +376,23 @@ projr_restore <- function(label = NULL,
   }
 }
 
-.restore_label_get_source_source_title <- function(yml_type,
+.content_update_label_get_source_source_title <- function(yml_type,
                                                    type,
                                                    .title) {
   if (!is.null(.title)) {
-    .restore_label_get_source_source_title_spec(yml_type, type, .title)
+    .content_update_label_get_source_source_title_spec(yml_type, type, .title)
   } else {
-    .restore_label_get_source_source_title_first(yml_type, type)
+    .content_update_label_get_source_source_title_first(yml_type, type)
   }
 }
 
-.restore_label_get_source_source_title_spec <- function(yml_type, type, .title) {
+.content_update_label_get_source_source_title_spec <- function(yml_type, type, .title) {
   if (is.list(yml_type)) {
-    .restore_label_get_source_source_title_spec_list(
+    .content_update_label_get_source_source_title_spec_list(
       yml_type, type, .title
     )
   } else if (all(is.character(yml_type))) {
-    .restore_label_get_source_source_title_spec_chr(
+    .content_update_label_get_source_source_title_spec_chr(
       yml_type, type, .title
     )
   } else {
@@ -341,7 +400,7 @@ projr_restore <- function(label = NULL,
   }
 }
 
-.restore_label_get_source_source_title_spec_list <- function(yml_type, type, .title) { # nolint
+.content_update_label_get_source_source_title_spec_list <- function(yml_type, type, .title) { # nolint
   if (.title %in% names(yml_type)) {
     c("pos" = "source", "type" = type, "title" = .title)
   } else {
@@ -349,7 +408,7 @@ projr_restore <- function(label = NULL,
   }
 }
 
-.restore_label_get_source_source_title_spec_chr <- function(yml_type, type, .title) { # nolint
+.content_update_label_get_source_source_title_spec_chr <- function(yml_type, type, .title) { # nolint
   if (.title %in% yml_type) {
     c("pos" = "source", "type" = type, "title" = .title)
   } else {
@@ -357,7 +416,7 @@ projr_restore <- function(label = NULL,
   }
 }
 
-.restore_label_get_source_source_title_first <- function(yml_type, type) {
+.content_update_label_get_source_source_title_first <- function(yml_type, type) {
   if (all(is.character(yml_type))) {
     c("pos" = "source", "type" = type, "title" = yml_type[[1]])
   } else {
@@ -365,16 +424,16 @@ projr_restore <- function(label = NULL,
   }
 }
 
-.restore_label_get_source_source_type_first <- function(yml_source, .title) {
+.content_update_label_get_source_source_type_first <- function(yml_source, .title) {
   type <- names(yml_source)[[1]]
-  .restore_label_get_source_source_type_spec(
+  .content_update_label_get_source_source_type_spec(
     yml_source[[type]], type, .title
   )
 }
 
 # try find restore from destination
 
-.restore_label_get_dest_no_type <- function(label) {
+.content_update_label_get_dest_no_type <- function(label) {
   if (.remote_check_exists("github", "archive")) {
     return(c("pos" = "dest", "type" = "github", "title" = "archive"))
   } else {
@@ -386,10 +445,10 @@ projr_restore <- function(label = NULL,
   }
 }
 
-.restore_label_get_source_dest <- function(label, type, .title) {
-  type_vec <- .restore_label_get_source_dest_get_type(type, label)
+.content_update_label_get_source_dest <- function(label, type, .title) {
+  type_vec <- .content_update_label_get_source_dest_get_type(type, label)
   if (.is_len_0(type_vec)) {
-    return(.restore_label_get_dest_no_type(label))
+    return(.content_update_label_get_dest_no_type(label))
   }
   # choose the first type and title
   # provided as the restore destination
@@ -442,7 +501,7 @@ projr_restore <- function(label = NULL,
   # if nothing found, try parameter-specified removes
   if (is.null(tt_first)) {
     tryCatch(
-      .restore_label_get_dest_no_type(label),
+      .content_update_label_get_dest_no_type(label),
       error = function(e) {
         message("No source found for ", label)
         message("Skipping restore for ", label)
@@ -455,7 +514,7 @@ projr_restore <- function(label = NULL,
 
 }
 
-.restore_label_get_source_dest_get_type <- function(type, label) {
+.content_update_label_get_source_dest_get_type <- function(type, label) {
   if (!is.null(type)) {
     return(type)
   }
@@ -463,7 +522,7 @@ projr_restore <- function(label = NULL,
   nm_vec[grepl("^github$|^local$|^osf", nm_vec)]
 }
 
-.restore_label_get_source_dest_get_title <- function(type, title) {
+.content_update_label_get_source_dest_get_title <- function(type, title) {
   if (!is.null(title)) {
     return(title)
   }

@@ -69,11 +69,6 @@
   .assert_attr(remote_pre, "names")
   .assert_has(names(remote_pre), c("tag"))
   if (!.remote_check_exists("github", remote_pre[["tag"]], max_attempts = 2)) {
-    .cli_debug(
-      "GitHub release: Release '{tag}' does not exist, returning FALSE",
-      tag = remote_pre[["tag"]],
-      output_level = "debug"
-    )
     return(FALSE)
   }
   # if there's an error for some reason, assume it's not there
@@ -82,11 +77,11 @@
   } else {
     paste0(label, ".zip")
   }
+  remote <- remote_pre
+  remote[["fn"]] <- fn
   tryCatch(
-    .remote_final_check_exists_github_httr(
-      repo = .gh_repo_get(),
-      tag  =   remote_pre[["tag"]],
-      asset = fn,
+    .remote_final_check_exists_github_direct(
+      remote = remote,
       api_url = api_url,
       token  = token
     ),
@@ -98,6 +93,18 @@
       )
       FALSE
     }
+  )
+}
+
+.remote_final_check_exists_github_direct <- function(remote,
+                                                     api_url = NULL,
+                                                     token   = NULL) {
+  .remote_final_check_exists_github_httr(
+    repo = .gh_repo_get(),
+    tag  = remote[["tag"]],
+    asset = remote[["fn"]],
+    api_url = api_url,
+    token  = token
   )
 }
 
@@ -341,6 +348,7 @@
   # which is different.
   .assert_chr_mid(remote, TRUE)
   tag <- .remote_misc_github_tag_get(remote)
+  remote[["tag"]] <- tag
   .assert_chr_mid(tag, TRUE)
 
   .cli_debug(
@@ -358,12 +366,10 @@
     return(invisible(FALSE))
   }
 
-  if (!.remote_final_check_exists_github_httr(
-    repo = .gh_repo_get(),
-    tag = tag,
-    asset = remote[["fn"]],
+  if (!.remote_final_check_exists_github_direct(
+    remote = remote,
     api_url = api_url,
-    token = token
+    token  = token
   )) {
     fn <- remote[["fn"]]
     .cli_debug(
@@ -452,34 +458,47 @@
 # Download a single file
 # ========================
 
-.remote_file_get_ind_github <- function(remote,
-                                        fn,
-                                        path_dir_save_local,
-                                        output_level = "std",
-                                        log_file = NULL) {
+.remote_file_get_github <- function(remote,
+                                    fn,
+                                    path_dir_save_local,
+                                    output_level = "std",
+                                    log_file = NULL) {
   if (!.remote_check_exists("github", remote[["tag"]])) {
     return(character(0L))
   }
   # I think this is to handle VERSION and manifest.csv entris
-  fn_zip <- if (!grepl("\\.zip$", fn)) paste0(fn, ".zip") else fn
-  fn_no_zip <- if (grepl("\\.zip$", fn)) gsub("\\.zip$", "", fn) else fn
-  remote[["fn"]] <- fn_zip
-  path_dir_save_tmp <- .remote_file_get_all_github(
+  path_dir_save_tmp <- .dir_get_tmp_random_path()
+  .remote_file_get_all_github(
     remote = remote,
-    path_dir_save_local = .dir_get_tmp_random_path(),
+    path_dir_save_local = path_dir_save_tmp,
     output_level = output_level,
     log_file = log_file
   )
-  path_fn <- file.path(path_dir_save_tmp, fn_no_zip)
+  path_fn <- file.path(path_dir_save_tmp, fn)
   if (!file.exists(path_fn)) {
+    .cli_debug(
+      "GitHub release: File '{fn}' does not exist in release '{tag}'",
+      fn = fn,
+      tag = remote[["tag"]],
+      output_level = output_level,
+      log_file = log_file
+    )
     unlink(path_dir_save_tmp, recursive = TRUE, force = TRUE)
     return(character(0L))
   }
   if (!dir.exists(path_dir_save_local)) {
     dir.create(path_dir_save_local, recursive = TRUE, showWarnings = FALSE)
   }
-  path_to <- file.path(path_dir_save_local, basename(fn_no_zip))
+  path_to <- file.path(path_dir_save_local, basename(fn))
+  .cli_debug(
+    "GitHub release: Moving file '{fn}' to '{path_to}'",
+    fn = fn,
+    path_to = path_dir_save_local,
+    output_level = output_level,
+    log_file = log_file
+  )
   invisible(file.rename(from = path_fn, to = path_to))
+  unlink(path_dir_save_tmp, recursive = TRUE, force = TRUE)
   invisible(path_to)
 }
 
@@ -510,10 +529,6 @@
                                    remote) {
   .assert_chr_min(fn, TRUE)
   if (.is_len_0(fn)) {
-    .cli_debug(
-      "GitHub release: No files specified for removal, returning FALSE",
-      output_level = "debug"
-    )
     return(invisible(FALSE))
   }
   .assert_given_full(remote)
@@ -526,17 +541,15 @@
   fn_vec <- .remote_file_ls("local", path_dir_save_local)
   fn_vec_to_rm <- fn_vec[fn_vec %in% fn]
   if (length(fn_vec_to_rm) == 0L) {
-    .cli_debug(
-      "GitHub release: No matching files found to remove in remote, returning FALSE",
-      output_level = "debug"
-    )
     return(invisible(FALSE))
   }
 
   fn_vec_to_upload <- setdiff(fn_vec, fn_vec_to_rm)
-  if (.is_len_0(fn_vec_to_upload)) {
-    .remote_final_empty_github(remote)
-  } else {
+  .remote_final_empty(
+    "github",
+    remote = remote
+  )
+  if (!.is_len_0(fn_vec_to_upload)) {
     .remote_file_rm(
       "local",
       fn = fn_vec_to_rm,
@@ -561,24 +574,16 @@
                                     path_dir_local,
                                     remote,
                                     output_level = "std",
-                                    log_file = NULL) {
+                                    log_file = NULL,
+                                    api_url = NULL,
+                                    token   = NULL) {
   .assert_chr_min(fn, TRUE)
   if (.is_len_0(fn)) {
-    .cli_debug(
-      "GitHub release: No files specified for addition, returning FALSE",
-      output_level = output_level,
-      log_file = log_file
-    )
     return(invisible(FALSE))
   }
   .assert_given_full(remote)
   label <- gsub("\\.zip", "", remote[["fn"]])
   if (length(fn) == 0L && label != "code") {
-    .cli_debug(
-      "GitHub release: No files to add and label is not 'code', returning FALSE",
-      output_level = output_level,
-      log_file = log_file
-    )
     return(invisible(FALSE))
   }
   .assert_string(path_dir_local, TRUE)
@@ -590,11 +595,6 @@
     fn_rel_zip = remote[["fn"]]
   )
   if (length(path_zip) == 0L && label != "code") {
-    .cli_debug(
-      "GitHub release: Failed to create zip file and label is not 'code', returning FALSE",
-      output_level = output_level,
-      log_file = log_file
-    )
     return(invisible(FALSE))
   }
   tag <- .remote_misc_github_tag_format(remote[["tag"]])
@@ -610,17 +610,15 @@
   # files, plus the new ones (that overwrite
   # any old ones)
   path_dir_tmp_save <- .dir_create_tmp_random()
-  if (.remote_final_check_exists_github_httr(
-      repo = .gh_repo_get(),
-      tag = tag,
-      asset = remote[["fn"]],
-      api_url = NULL,
-      token = NULL
-    )) {
-      .remote_file_get_all(
-        "github", remote, path_dir_tmp_save
-      )
-    }
+  if (.remote_final_check_exists_github_direct(
+    remote = remote,
+    api_url = api_url,
+    token  = token
+  )) {
+    .remote_file_get_all(
+      "github", remote, path_dir_tmp_save
+    )
+  }
 
   for (fn_curr in fn) {
     path_fn_curr <- file.path(path_dir_local, fn_curr)

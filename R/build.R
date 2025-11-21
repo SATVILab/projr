@@ -282,7 +282,9 @@ projr_build_dev <- function(file = NULL,
   # Use tryCatch to ensure log is finalized even on error
   tryCatch({
     # Show initial build stage header
-    .cli_stage_header("Pre-Build Preparation", build_type, output_level, log_file)
+    .cli_stage_header(
+      "Pre-Build Preparation", build_type, output_level, log_file
+    )
 
     # If no file specified, check for build.scripts configuration
     # Use dev scripts for dev builds, build scripts for production builds
@@ -368,12 +370,18 @@ projr_build_dev <- function(file = NULL,
   # check required env vars are present, and
   # that we're not behind upstream remote,
   # and that we have Git and  Git remote setup
-  .cli_step("Checking prerequisites (Git, GitHub, upstream)", output_level = output_level, log_file = log_file)
+  .cli_step(
+    "Checking prerequisites (Git, GitHub, upstream)",
+    output_level = output_level, log_file = log_file
+  )
   .build_pre_check(output_run, output_level, log_file)
 
   # Prepare remote destinations (GitHub releases)
-  .cli_step("Preparing remote destinations", output_level = output_level, log_file = log_file)
-  .build_pre_prepare_remotes(
+  .cli_step(
+    "Preparing remote destinations",
+    output_level = output_level, log_file = log_file
+  )
+  .build_pre_remotes_prepare(
     bump_component = bump_component,
     archive_github = archive_github,
     archive_local = archive_local,
@@ -617,7 +625,10 @@ projr_build_dev <- function(file = NULL,
                                   always_archive,
                                   output_level = "std",
                                   log_file = NULL) {
-  .cli_debug("Sending to remote destinations", output_level = output_level, log_file = log_file)
+  .cli_debug(
+    "Sending to remote destinations",
+    output_level = output_level, log_file = log_file
+  )
 
   # Lenient: prepare all required GitHub releases for this build (non-blocking)
   .dest_prepare_github_releases(

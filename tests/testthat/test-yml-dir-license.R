@@ -225,7 +225,7 @@ test_that("Raw directory licenses created during dev builds", {
       projr_yml_dir_license_set("MIT", "raw-data")
 
       # Create some content in raw-data
-      .test_setup_content("raw-data", safe = FALSE)
+      .test_content_setup_label("raw-data", safe = FALSE)
       raw_dir <- projr_path_get_dir("raw-data", safe = FALSE)
 
       # Create a simple document to build
@@ -405,7 +405,7 @@ test_that("Manual licenses not overwritten during builds", {
       expect_true(any(grepl("Manual Author", license1)))
 
       # Create content and build
-      .test_setup_content("raw-data", safe = FALSE)
+      .test_content_setup_label("raw-data", safe = FALSE)
       writeLines(
         c("---", "title: Test", "---", "", "Test content"),
         file.path(.path_get(), "test.qmd")
@@ -476,7 +476,7 @@ test_that("License integration with build creates files", {
       expect_false(is.null(projr_yml_dir_license_get("raw-data")))
 
       # Create some content
-      .test_setup_content("raw-data", safe = FALSE)
+      .test_content_setup_label("raw-data", safe = FALSE)
       raw_dir <- projr_path_get_dir("raw-data", safe = FALSE)
 
       # Create a simple document to build

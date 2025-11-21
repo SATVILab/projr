@@ -75,11 +75,23 @@
       output_level = output_level,
       log_file = log_file
     )
+  } else {
+    .cli_debug(
+      "Content '{label}': No files to add",
+      output_level = output_level,
+      log_file = log_file
+    )
   }
 
   if (length(plan[["fn_rm"]]) > 0) {
     .cli_debug(
       "Content '{label}': Files to remove: {paste(head(plan[['fn_rm']], 10), collapse = ', ')}{if (length(plan[['fn_rm']]) > 10) '...' else ''}",
+      output_level = output_level,
+      log_file = log_file
+    )
+  } else {
+    .cli_debug(
+      "Content '{label}': No files to remove",
       output_level = output_level,
       log_file = log_file
     )
@@ -282,7 +294,7 @@
   if (type != "github") {
     return(remote_comp)
   }
-  remote_comp_exists <- .remote_final_check_exists_github_direct(
+  remote_comp_exists <- .remote_check_exists_github_httr(
     remote_comp[["tag"]], remote_comp[["fn"]]
   )
   if (!remote_comp_exists) {
@@ -1031,7 +1043,7 @@
       remote_dest_empty["fn"] <- gsub(
         "\\.zip$", "-empty.zip", remote_dest_empty[["fn"]]
       )
-      if (.remote_final_check_exists_github_direct(
+      if (.remote_check_exists_github_httr(
         remote_dest_empty[["tag"]], remote_dest_empty[["fn"]]
       )) {
         .remote_final_empty_github(remote_dest_empty)
@@ -1081,7 +1093,7 @@
   # this only happens if the remote doesn't exist,
   # what if we in the end end up with no remote, what then?
   # shouldn't we always have some sort of remote?
-  if (!.remote_final_check_exists_github_direct(
+  if (!.remote_check_exists_github_httr(
     remote_dest[["tag"]], remote_dest[["fn"]]
   )) {
     # create release if it doesn't exist

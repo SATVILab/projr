@@ -331,36 +331,9 @@
   invisible(TRUE)
 }
 
-.test_setup_content <- function(label,
-                                safe = FALSE,
-                                dir_sub_lvl = 2,
-                                dir_sub_prefix = "subdir") {
-  for (x in label) {
-    # create directories and files
-    base_dir <- projr_path_get_dir(x, safe = safe, create = TRUE)
-    file.create(file.path(base_dir, "abc.txt"))
-    
-    if (dir_sub_lvl > 0) {
-      subdir1 <- projr_path_get_dir(
-        x, paste0(dir_sub_prefix, "1"),
-        safe = safe, create = TRUE
-      )
-      file.create(file.path(subdir1, "def.txt"))
-    }
-    if (dir_sub_lvl > 1) {
-      subdir2 <- projr_path_get_dir(
-        x, paste0(dir_sub_prefix, "1"),
-        paste0(dir_sub_prefix, "2"),
-        safe = safe, create = TRUE
-      )
-      file.create(file.path(subdir2, "ghi.txt"))
-    }
-  }
-  vapply(label, projr_path_get_dir, character(1), safe = safe) |> invisible()
-}
 
-.test_setup_content_dir <- function(path_dir = NULL,
-                                    safe = FALSE,
+
+.test_content_setup_dir <- function(path_dir = NULL,
                                     dir_sub_lvl = 2,
                                     dir_sub_prefix = "subdir") {
   if (is.null(path_dir)) {
@@ -386,16 +359,59 @@
   path_dir |> invisible()
 }
 
-content_vec_test_file <- c(
-  ".hidden.txt", "abc.txt",
-  "subdir1/def.txt", "subdir1/subdir2/ghi.txt"
-)
+.test_content_setup_label <- function(label,
+                                      safe = FALSE,
+                                      dir_sub_lvl = 2,
+                                      dir_sub_prefix = "subdir") {
+  .test_content_setup_dir(
+    path_dir = projr_path_get(label, safe = safe),
+    dir_sub_lvl = dir_sub_lvl,
+    dir_sub_prefix = dir_sub_prefix
+  )
+}
 
-content_vec_test_dir <- c(
-  "subdir1", "subdir1/subdir2"
-)
+.test_content_adjust_dir <- function(path_dir = NULL,
+                                     safe = FALSE,
+                                     dir_sub_lvl = 2,
+                                     dir_sub_prefix = "subdir") {
+  if (is.null(path_dir)) {
+    path_dir <- file.path(tempdir(), signif(stats::rnorm(1), 6))
+  }
+  if (!dir.exists(path_dir)) {
+    dir.create(path_dir, recursive = TRUE)
+  }
+  file.create(file.path(path_dir, "file1.txt"))
+  if (dir_sub_lvl == 1) {
+    path_dir_sub1 <- file.path(path_dir, paste0(dir_sub_prefix, "1"))
+    if (!dir.exists(path_dir_sub1)) {
+      dir.create(path_dir_sub1)
+    }
+    file.create(file.path(path_dir_sub1, "file2.txt"))
+  }
+  if (dir_sub_lvl == 2) {
+    path_dir_sub2 <- file.path(
+      path_dir, paste0(dir_sub_prefix, "1"), paste0(dir_sub_prefix, "2")
+    )
+    if (!dir.exists(path_dir_sub2)) {
+      dir.create(path_dir_sub2, recursive = TRUE)
+    }
+    file.create(file.path(path_dir_sub2, "file3.txt"))
+  }
+  .file_ls(path_dir) |> invisible()
+}
 
-content_vec <- c(content_vec_test_file, content_vec_test_dir)
+.test_content_adjust_label <- function(label,
+                                       safe = FALSE,
+                                       dir_sub_lvl = 2,
+                                       dir_sub_prefix = "subdir") {
+  .test_content_adjust_dir(
+    path_dir = projr_path_get(label, safe = safe),
+    safe = safe,
+    dir_sub_lvl = dir_sub_lvl,
+    dir_sub_prefix = dir_sub_prefix
+  )
+}
+
 
 .test_manifest_create <- function(pre = TRUE,
                                   post = TRUE,

@@ -3,7 +3,7 @@
 # ========================
 
 .remote_write_manifest <- function(type,
-                                   remote_pre,
+                                   remote,
                                    manifest,
                                    output_level = "std",
                                    log_file = NULL) {
@@ -15,16 +15,17 @@
 
   path_dir_save <- .dir_create_tmp_random()
   .manifest_write(manifest, file.path(path_dir_save, "manifest.csv"))
-  remote_pre <- if (type == "github") {
-    remote_pre <- remote_pre |> c("fn" = "manifest.csv")
+  remote <- if (type == "github") {
+    remote[["fn"]] <- "manifest.zip"
+    remote
   } else {
-    remote_pre
+    remote
   }
   switch(type,
     "project" = NULL,
     .remote_file_add(
       type,
-      remote_pre,
+      remote,
       path_dir_save,
       "manifest.csv",
       output_level = output_level,
@@ -48,14 +49,15 @@
 
 .remote_write_changelog <- function(type,
                                     remote_pre) {
-  remote_pre <- if (type == "github") {
-    remote_pre <- remote_pre |> c("fn" = "CHANGELOG")
+  remote <- if (type == "github") {
+    remote_pre[["fn"]] <- "CHANGELOG.zip"
+    remote_pre
   } else {
     remote_pre
   }
   switch(type,
     "project" = NULL,
-    .remote_file_add(type, remote_pre, .path_get(), "CHANGELOG.md")
+    .remote_file_add(type, remote, .path_get(), "CHANGELOG.md")
   )
 }
 
@@ -76,8 +78,9 @@
 
   path_dir_save <- .dir_create_tmp_random()
   writeLines(version_file, file.path(path_dir_save, "VERSION"))
-  remote_pre <- if (type == "github") {
-    remote_pre <- remote_pre |> c("fn" = "VERSION")
+  remote <- if (type == "github") {
+    remote_pre[["fn"]] <- "VERSION.zip"
+    remote_pre
   } else {
     remote_pre
   }
@@ -85,7 +88,7 @@
     "project" = NULL,
     .remote_file_add(
       type,
-      remote_pre,
+      remote,
       path_dir_save,
       "VERSION",
       output_level = output_level,
@@ -172,10 +175,17 @@
     log_file = log_file
   )
 
+  remote <- if (type == "github") {
+    remote_pre[["fn"]] <- "manifest.zip"
+    remote_pre
+  } else {
+    remote_pre
+  }
+
   path_manifest <- tryCatch({
-    .remote_file_get_ind(
+    .remote_file_get(
       type,
-      remote_pre,
+      remote,
       "manifest.csv",
       path_dir_save
     )
@@ -262,10 +272,17 @@
     log_file = log_file
   )
 
+  remote <- if (type == "github") {
+    remote_pre[["fn"]] <- "VERSION.zip"
+    remote_pre
+  } else {
+    remote_pre
+  }
+
   path_version <- tryCatch({
-    .remote_file_get_ind(
+    .remote_file_get(
       type,
-      remote_pre,
+      remote,
       "VERSION",
       path_dir_save
     )
@@ -363,7 +380,7 @@
   manifest_project <- .remote_get_manifest_project() |>
     .manifest_filter_label(label) |>
     .manifest_filter_version(version_file)
-  manifest_remote <- .remote_get_manifest(type, remote_pre) |>
+  manifest_remote <- .remote_get_manifest(type, remote) |>
     .manifest_filter_label(label) |>
     .manifest_filter_version(version_file)
   rownames(manifest_project) <- NULL
@@ -408,7 +425,7 @@
   if (is.null(remote_pre)) {
     return(character(0L))
   }
-  remote_final_vec_basename <- .remote_final_ls(
+  remote_final_vec_basename <- .remote_ls_final(
     type, remote_pre_down
   )
   .remote_version_latest_get(remote_final_vec_basename, type, label) |>

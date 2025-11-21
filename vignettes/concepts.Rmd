@@ -479,10 +479,10 @@ Restoration pulls archived content back:
 projr_restore_repo("owner/repo")
 
 # Restore specific version
-projr_restore(label = "raw-data", version = "v0.1.0")
+projr_content_update(label = "raw-data", version = "v0.1.0")
 
 # Restore specific label
-projr_restore(label = "output")
+projr_content_update(label = "output")
 ```
 
 **Restoration order:**

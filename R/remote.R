@@ -87,7 +87,7 @@
 # List all final remotes in a particular pre-remote
 # ========================
 
-.remote_final_ls <- function(type,
+.remote_ls_final <- function(type,
                              remote_pre) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
@@ -432,25 +432,25 @@
 # Download a single file
 # ========================
 
-.remote_file_get_ind <- function(type,
-                                 remote,
-                                 fn,
-                                 path_dir_save_local) {
+.remote_file_get <- function(type,
+                             remote,
+                             fn,
+                             path_dir_save_local) {
   .assert_string(path_dir_save_local, TRUE)
   .assert_in(type, .opt_remote_get_type(), TRUE)
   .dir_create(path_dir_save_local)
   switch(type,
-    "local" = .remote_file_get_ind_local(
+    "local" = .remote_file_get_local(
       remote = remote,
       fn = fn,
       path_dir_save_local = path_dir_save_local
     ),
-    "osf" = .remote_file_get_ind_osf(
+    "osf" = .remote_file_get_osf(
       remote = remote,
       fn = fn,
       path_dir_save_local = path_dir_save_local
     ),
-    "github" = .remote_file_get_ind_github(
+    "github" = .remote_file_get_github(
       remote = remote,
       fn = fn,
       path_dir_save_local = path_dir_save_local

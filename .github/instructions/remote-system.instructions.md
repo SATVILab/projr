@@ -73,7 +73,7 @@ Remotes support two structure types (set in `_projr.yml`):
 **Dispatcher pattern** (in R/remote.R):
 ```r
 .remote_check_exists(type, ...)  # Dispatcher
-.remote_final_ls(type, ...)      # Dispatcher
+.remote_ls_final(type, ...)      # Dispatcher
 ```
 
 **Type-specific implementations:**
@@ -108,9 +108,6 @@ The package previously used the `piggyback` package for GitHub release operation
 - Add new dependencies on `piggyback` 
 - Use `piggyback::pb_*()` functions in new code
 - Mix piggyback and httr approaches
-
-**Exception:**
-- Test files may still reference `piggyback::pb_list()` for verification purposes while tests are being migrated
 
 ### GitHub API Authentication
 
@@ -235,7 +232,7 @@ remote_final <- .remote_final_get(
 
 ```r
 # List all final remotes in a remote_pre
-.remote_final_ls("github", remote_pre = c("tag" = "v0.0.1"))
+.remote_ls_final("github", remote_pre = c("tag" = "v0.0.1"))
 # Returns vector of asset filenames
 
 # List files within a specific final remote

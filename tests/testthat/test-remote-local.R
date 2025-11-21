@@ -200,7 +200,7 @@ test_that(".remote_file_rm_all works - local", {
       )
 
       # has content
-      path_dir <- .test_setup_content_dir()
+      path_dir <- .test_content_setup_dir()
       expect_true(
         .remote_final_empty(
           "local",
@@ -244,7 +244,7 @@ test_that("adding, tallying and removing files from remotes works - local", {
 
 
       # has content
-      path_dir_source <- .test_setup_content_dir()
+      path_dir_source <- .test_content_setup_dir()
       fn_vec_source <- .remote_file_ls("local", path_dir_source)
       path_dir_dest <- .dir_create_tmp_random()
       .remote_file_add(

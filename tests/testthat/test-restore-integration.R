@@ -56,7 +56,7 @@ test_that("restore from local archive remote places files directly in target dir
   expect_false(file.exists(file.path(path_raw, "file1.txt")))
       
       # Restore from archive
-      result <- projr_restore(label = "raw-data")
+      result <- projr_content_update(label = "raw-data")
       
       # Verify files are directly in raw-data, not in a subdirectory
   expect_true(file.exists(file.path(path_raw, "file1.txt")))
@@ -116,7 +116,7 @@ test_that("restore from local latest remote places files directly in target dire
   expect_false(file.exists(file.path(path_raw, "file1.txt")))
       
       # Restore from latest
-      result <- projr_restore(label = "raw-data")
+      result <- projr_content_update(label = "raw-data")
       
       # Verify files are directly in raw-data, not in a subdirectory
   expect_true(file.exists(file.path(path_raw, "file1.txt")))
@@ -189,7 +189,7 @@ test_that("restore and build integration test with archive remote", {
   expect_false(dir.exists(path_raw))
       
       # Restore from archive
-      restore_result <- projr_restore(label = "raw-data")
+      restore_result <- projr_content_update(label = "raw-data")
       expect_true(restore_result)
       
       # Verify data was restored correctly
@@ -267,7 +267,7 @@ test_that("restore and build integration test with latest remote", {
   expect_false(dir.exists(path_raw))
       
       # Restore from latest
-      restore_result <- projr_restore(label = "raw-data")
+      restore_result <- projr_content_update(label = "raw-data")
       expect_true(restore_result)
       
       # Verify data was restored correctly

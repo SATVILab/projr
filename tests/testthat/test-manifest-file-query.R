@@ -6,7 +6,7 @@ test_that("projr_manifest_file_last_change works", {
     code = {
       # Create initial files
       initial_version <- projr_version_get()
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_pre(TRUE)
       .build_manifest_post(TRUE)
       
@@ -59,7 +59,7 @@ test_that("projr_manifest_file_changed works", {
     code = {
       # Create initial files
       initial_version <- projr_version_get()
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_pre(TRUE)
       .build_manifest_post(TRUE)
       
@@ -127,7 +127,7 @@ test_that("projr_manifest_file_history works", {
     code = {
       # Create initial files
       initial_version <- projr_version_get()
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_pre(TRUE)
       .build_manifest_post(TRUE)
       
@@ -183,7 +183,7 @@ test_that("projr_manifest_file_first works", {
     code = {
       # Create initial files
       initial_version <- projr_version_get()
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_pre(TRUE)
       .build_manifest_post(TRUE)
       
@@ -245,7 +245,7 @@ test_that("file query functions handle edge cases", {
       expect_identical(nrow(empty_first), 0L)
       
       # Create a single version
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_pre(TRUE)
       .build_manifest_post(TRUE)
       
@@ -279,7 +279,7 @@ test_that("file query functions work without label parameter", {
     path = dir_test,
     code = {
       # Create files in multiple directories
-      .test_setup_content(c("output", "raw-data"), safe = FALSE)
+      .test_content_setup_label(c("output", "raw-data"), safe = FALSE)
       .build_manifest_pre(TRUE)
       .build_manifest_post(TRUE)
       

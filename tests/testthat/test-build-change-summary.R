@@ -14,7 +14,7 @@ test_that(".build_change_summary_get_previous_version works", {
       
       # Create first version
       projr_version_set("0.0.1")
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_post(TRUE)
       
       # Still only one version - should return NULL
@@ -97,7 +97,7 @@ test_that(".build_change_summary_get detects added files", {
       
       # Second version - add output files
       projr_version_set("0.0.2")
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_post(TRUE)
       
       # Should detect added files
@@ -124,7 +124,7 @@ test_that(".build_change_summary_get detects modified files", {
       
       # First version with output
       projr_version_set("0.0.1")
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_post(TRUE)
       
       # Modify a file
@@ -159,7 +159,7 @@ test_that(".build_change_summary_get detects removed files", {
       
       # First version with output
       projr_version_set("0.0.1")
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_post(TRUE)
       
       # Remove files
@@ -259,7 +259,7 @@ test_that(".build_change_summary_get handles no changes", {
       
       # First version with output
       projr_version_set("0.0.1")
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_post(TRUE)
       
       # Second version - no changes
@@ -288,7 +288,7 @@ test_that(".build_change_summary_format_section formats correctly", {
       
       # Create test manifest data
       projr_version_set("0.0.1")
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_post(TRUE)
       
       projr_version_set("0.0.2")
@@ -335,7 +335,7 @@ test_that(".build_change_summary_get_debug returns correct structure", {
       .build_manifest_post(TRUE)
       
       projr_version_set("0.0.2")
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_post(TRUE)
       
       result <- .build_change_summary_get_debug(output_run = TRUE)
@@ -366,7 +366,7 @@ test_that(".buildlog_get_change_summary integrates correctly", {
       .build_manifest_post(TRUE)
       
       projr_version_set("0.0.2")
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_post(TRUE)
       
       # Should return change summary
@@ -400,7 +400,7 @@ test_that(".build_change_summary_display works at debug level", {
       .build_manifest_post(TRUE)
       
       projr_version_set("0.0.2")
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_post(TRUE)
       
       # Should work with changes

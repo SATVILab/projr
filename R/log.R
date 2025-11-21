@@ -94,7 +94,7 @@
     timestamp <- format(Sys.time(), "%H-%M-%S")
   }
   date_dir <- .log_dir_get_output_date(build_type)
-  file.path(date_dir, paste0(timestamp, ".qmd"))
+  file.path(date_dir, paste0(timestamp, ".md"))
 }
 
 # Log writing functions
@@ -517,4 +517,116 @@ projr_log_clear <- function(build_type = "all",
   }
 
   invisible(NULL)
+}
+
+#' Get the most recent detailed log file path for the current build
+#'
+#' @param build_type Character. Either "output" or "dev".
+#' @param date Character. Optional date (YYYY-MMM-DD) to restrict search to a single
+#'   date directory. Default is NULL (search across all date directories).
+#' @return Character or NULL. Path to the most recent log file, or NULL if none found.
+#' @keywords internal
+.log_file_get_current <- function(build_type = "output", date = NULL) {
+  .assert_in(build_type, c("output", "dev"))
+
+  type_dir <- .log_dir_get_type(build_type, create = FALSE)
+  if (!dir.exists(type_dir)) {
+    return(NULL)
+  }
+
+  output_dir <- file.path(type_dir, "output")
+  if (!dir.exists(output_dir)) {
+    return(NULL)
+  }
+
+  # If a date is provided, only look in that directory
+  date_dirs <- if (!is.null(date)) {
+    d <- file.path(output_dir, date)
+    if (dir.exists(d)) d else character(0)
+  } else {
+    list.dirs(output_dir, full.names = TRUE, recursive = FALSE)
+  }
+
+  if (length(date_dirs) == 0) {
+    return(NULL)
+  }
+
+  # Collect all qmd files under the chosen date directories
+  log_files <- unlist(lapply(date_dirs, function(dd) {
+    list.files(dd, pattern = "\\.qmd$", full.names = TRUE, recursive = FALSE)
+  }), use.names = FALSE)
+
+  if (length(log_files) == 0) {
+    return(NULL)
+  }
+
+  # Pick the most recently modified file
+  fi <- file.info(log_files, extra_cols = FALSE)
+  most_recent <- log_files[which.max(fi$mtime)]
+  most_recent
+}
+
+#' View build log (last n lines)
+#'
+#' Display the last N lines of a detailed build log file.
+#'
+#' @param log_file Character. Path to a log file. If NULL, the latest build log for
+#'   the given build_type will be used.
+#' @param build_type Character. Either "output" or "dev". Used when log_file is NULL.
+#' @param n_lines Integer. Number of lines to show from the end of the file.
+#'   Default is 10. Set to NULL or NA to show the entire file.
+#' @param show_header Logical. Whether to print a short header including the
+#'   logfile path and last modification time. Default is TRUE.
+#' @export
+projr_log_view <- function(log_file = NULL,
+                           build_type = "output",
+                           n_lines = 10,
+                           show_header = TRUE) {
+  .assert_in(build_type, c("output", "dev"))
+  .assert_lgl(show_header)
+
+  if (is.null(log_file)) {
+    log_file <- .log_file_get_current(build_type)
+  } else {
+    .assert_string(log_file, required = TRUE)
+  }
+
+  if (is.null(log_file) || !file.exists(log_file)) {
+    cli::cli_alert_info("No log file found for build type '{build_type}'")
+    return(invisible(NULL))
+  }
+
+  # Read file safely
+  lines <- tryCatch(
+    readLines(log_file, warn = FALSE),
+    error = function(e) {
+      cli::cli_alert_danger("Could not read log file: {e$message}")
+      return(character(0))
+    }
+  )
+
+  if (length(lines) == 0) {
+    cli::cli_alert_info("Log file is empty: {log_file}")
+    return(invisible(NULL))
+  }
+
+  # Determine lines to display
+  if (is.null(n_lines) || is.na(n_lines) || n_lines <= 0) {
+    to_show <- lines
+  } else {
+    to_show <- tail(lines, n_lines)
+  }
+
+  if (show_header) {
+    fi <- file.info(log_file, extra_cols = FALSE)
+    cli::cat_line("Log file: {cli::col_green(log_file)}")
+    if (!is.na(fi$mtime)) {
+      cli::cat_line("Modified: {format(fi$mtime, '%Y-%m-%d %H:%M:%S')}")
+    }
+    cli::cat_line("")
+  }
+
+  # Print the selected lines
+  cat(paste(to_show, collapse = "\n"), "\n")
+  invisible(to_show)
 }

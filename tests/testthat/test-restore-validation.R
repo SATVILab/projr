@@ -14,24 +14,24 @@ test_that("projr_restore validates label parameter", {
       writeLines("label,fn,version,hash\nraw-data,test.txt,v0.0.1,abc123", "manifest.csv")
       
       # Valid inputs
-      expect_error(projr_restore(label = NULL), NA)  # NULL is valid
-      expect_error(projr_restore(label = "raw-data"), NA)  # character vector is valid
+      expect_error(projr_content_update(label = NULL), NA)  # NULL is valid
+      expect_error(projr_content_update(label = "raw-data"), NA)  # character vector is valid
       
       # Invalid inputs
       expect_error(
-        projr_restore(label = 123),
+        projr_content_update(label = 123),
         "'label' must be NULL or a character vector"
       )
       expect_error(
-        projr_restore(label = TRUE),
+        projr_content_update(label = TRUE),
         "'label' must be NULL or a character vector"
       )
       expect_error(
-        projr_restore(label = character(0)),
+        projr_content_update(label = character(0)),
         "'label' must have at least one element if not NULL"
       )
       expect_error(
-        projr_restore(label = list("raw-data")),
+        projr_content_update(label = list("raw-data")),
         "'label' must be NULL or a character vector"
       )
     },
@@ -53,30 +53,30 @@ test_that("projr_restore validates pos parameter", {
       writeLines("label,fn,version,hash\nraw-data,test.txt,v0.0.1,abc123", "manifest.csv")
       
       # Valid inputs
-      expect_error(projr_restore(pos = NULL), NA)  # NULL is valid
-      expect_error(projr_restore(pos = "source"), NA)  # valid value
-      expect_error(projr_restore(pos = "dest"), NA)  # valid value
-      expect_error(projr_restore(pos = c("source", "dest")), NA)  # both valid
+      expect_error(projr_content_update(pos = NULL), NA)  # NULL is valid
+      expect_error(projr_content_update(pos = "source"), NA)  # valid value
+      expect_error(projr_content_update(pos = "dest"), NA)  # valid value
+      expect_error(projr_content_update(pos = c("source", "dest")), NA)  # both valid
       
       # Invalid inputs
       expect_error(
-        projr_restore(pos = 123),
+        projr_content_update(pos = 123),
         "'pos' must be NULL or a character vector"
       )
       expect_error(
-        projr_restore(pos = TRUE),
+        projr_content_update(pos = TRUE),
         "'pos' must be NULL or a character vector"
       )
       expect_error(
-        projr_restore(pos = character(0)),
+        projr_content_update(pos = character(0)),
         "'pos' must have at least one element if not NULL"
       )
       expect_error(
-        projr_restore(pos = "invalid"),
+        projr_content_update(pos = "invalid"),
         "'pos' must be 'source' or 'dest'"
       )
       expect_error(
-        projr_restore(pos = c("source", "invalid")),
+        projr_content_update(pos = c("source", "invalid")),
         "'pos' must be 'source' or 'dest'"
       )
     },
@@ -98,30 +98,30 @@ test_that("projr_restore validates type parameter", {
       writeLines("label,fn,version,hash\nraw-data,test.txt,v0.0.1,abc123", "manifest.csv")
       
       # Valid inputs
-      expect_error(projr_restore(type = NULL), NA)  # NULL is valid
-      expect_error(projr_restore(type = "local"), NA)  # valid value
-      expect_error(projr_restore(type = "osf"), NA)  # valid value
-      expect_error(projr_restore(type = "github"), NA)  # valid value
+      expect_error(projr_content_update(type = NULL), NA)  # NULL is valid
+      expect_error(projr_content_update(type = "local"), NA)  # valid value
+      expect_error(projr_content_update(type = "osf"), NA)  # valid value
+      expect_error(projr_content_update(type = "github"), NA)  # valid value
       
       # Invalid inputs
       expect_error(
-        projr_restore(type = 123),
+        projr_content_update(type = 123),
         "'type' must be NULL or a character vector"
       )
       expect_error(
-        projr_restore(type = TRUE),
+        projr_content_update(type = TRUE),
         "'type' must be NULL or a character vector"
       )
       expect_error(
-        projr_restore(type = character(0)),
+        projr_content_update(type = character(0)),
         "'type' must have at least one element if not NULL"
       )
       expect_error(
-        projr_restore(type = "invalid"),
+        projr_content_update(type = "invalid"),
         "'type' must be one of: local, osf, github"
       )
       expect_error(
-        projr_restore(type = c("local", "osf")),
+        projr_content_update(type = c("local", "osf")),
         "'type' must be a single character value"
       )
     },
@@ -143,24 +143,24 @@ test_that("projr_restore validates title parameter", {
       writeLines("label,fn,version,hash\nraw-data,test.txt,v0.0.1,abc123", "manifest.csv")
       
       # Valid inputs
-      expect_error(projr_restore(title = NULL), NA)  # NULL is valid
-      expect_error(projr_restore(title = "mytitle"), NA)  # character is valid
+      expect_error(projr_content_update(title = NULL), NA)  # NULL is valid
+      expect_error(projr_content_update(title = "mytitle"), NA)  # character is valid
       
       # Invalid inputs
       expect_error(
-        projr_restore(title = 123),
+        projr_content_update(title = 123),
         "'title' must be NULL or a character vector"
       )
       expect_error(
-        projr_restore(title = TRUE),
+        projr_content_update(title = TRUE),
         "'title' must be NULL or a character vector"
       )
       expect_error(
-        projr_restore(title = character(0)),
+        projr_content_update(title = character(0)),
         "'title' must have at least one element if not NULL"
       )
       expect_error(
-        projr_restore(title = c("title1", "title2")),
+        projr_content_update(title = c("title1", "title2")),
         "'title' must be a single character value"
       )
     },
@@ -180,7 +180,7 @@ test_that("projr_restore handles missing manifest.csv", {
       .init()
       # Don't create manifest.csv
       expect_error(
-        projr_restore(),
+        projr_content_update(),
         "No manifest.csv file found"
       )
     },
@@ -201,7 +201,7 @@ test_that("projr_restore handles empty label vector", {
       writeLines("label,fn,version,hash", "manifest.csv")
       
       # Should return FALSE with message (or no raw labels found)
-      result <- projr_restore()
+      result <- projr_content_update()
       expect_false(result)
     },
     force = TRUE,
@@ -223,7 +223,7 @@ test_that("projr_restore returns correct success/failure values", {
       writeLines("label,fn,version,hash\nraw-data,,v0.0.1,", "manifest.csv")
       
       # Should return FALSE when nothing to restore
-      result <- projr_restore(label = "raw-data")
+      result <- projr_content_update(label = "raw-data")
       expect_false(result)
     },
     force = TRUE,

@@ -28,7 +28,7 @@
   .build_exit_if_behind_upstream(output_run)
 }
 
-.build_pre_prepare_remotes <- function(bump_component,
+.build_pre_remotes_prepare <- function(bump_component,
                                        archive_github,
                                        archive_local,
                                        output_level = "std",

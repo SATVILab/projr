@@ -67,7 +67,7 @@ See detailed guidelines in `.github/instructions/`:
 
 ### Remote Destinations
 - Local, GitHub, OSF destinations supported
-- Restore functions: `projr_restore()`, `projr_restore_repo()`
+- Restore functions: `projr_content_update()`, `projr_restore_repo()`
 
 ### Directory Licenses
 - Per-directory LICENSE files for raw data, outputs, and docs

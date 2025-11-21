@@ -473,7 +473,7 @@ projr_osf_create_project <- function(title,
 # ========================
 
 
-.remote_file_get_ind_osf <- function(remote,
+.remote_file_get_osf <- function(remote,
                                      fn,
                                      path_dir_save_local) {
   .assert_given_full(remote)

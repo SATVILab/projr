@@ -83,15 +83,7 @@
 # Automatically enabled when NOT_CRAN is false/unset
 .is_test_cran <- function() {
   # Explicitly set via R_PKG_TEST_CRAN
-  if (Sys.getenv("R_PKG_TEST_CRAN") == "TRUE") {
-    return(TRUE)
-  }
-  # Auto-detect: if NOT_CRAN is not "true", we're in CRAN mode
-  not_cran <- tolower(Sys.getenv("NOT_CRAN", ""))
-  if (not_cran %in% c("", "false", "f", "0")) {
-    return(TRUE)
-  }
-  FALSE
+  Sys.getenv("R_PKG_TEST_CRAN") == "TRUE"
 }
 
 # Check if running in lite test mode

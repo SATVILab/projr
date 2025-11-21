@@ -193,7 +193,7 @@
 # Download a single file
 # ========================
 
-.remote_file_get_ind_local <- function(remote,
+.remote_file_get_local <- function(remote,
                                        fn,
                                        path_dir_save_local) {
   path_remote_fn <- file.path(remote, fn)
@@ -239,10 +239,10 @@
     )
     return(invisible(FALSE))
   }
+  count <- length(fn_vec)
+  remote_path <- remote
   .cli_debug(
     "Local remote: Removing {count} file(s) from '{remote_path}'",
-    count = length(fn_vec),
-    remote_path = remote,
     output_level = "debug"
   )
   suppressWarnings(file.remove(fn_vec))
@@ -264,11 +264,11 @@
     )
     return(invisible(FALSE))
   }
+  count <- length(fn)
+  from_path <- path_dir_local
+  to_path <- remote
   .cli_debug(
     "Local remote: Adding {count} file(s) from '{from_path}' to '{to_path}'",
-    count = length(fn),
-    from_path = path_dir_local,
-    to_path = remote,
     output_level = "debug"
   )
   .assert_string(path_dir_local, TRUE)

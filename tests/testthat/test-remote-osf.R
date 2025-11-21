@@ -139,7 +139,7 @@ test_that("adding, listing and removing files works for OSF", {
       )
 
       # Add content
-      path_dir_source <- .test_setup_content_dir()
+      path_dir_source <- .test_content_setup_dir()
       fn_vec_source <- .remote_file_ls("local", path_dir_source)
       .remote_file_add(
         "osf",
