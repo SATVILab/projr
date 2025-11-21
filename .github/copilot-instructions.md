@@ -54,6 +54,31 @@ See detailed guidelines in `.github/instructions/`:
 
 ---
 
+## Advice
+
+### Input Validation
+
+- Use `.assert_*()` and other functions from the `R/check.R` file for input validation to fail early with clear messages.
+- Validate all user inputs, including internal function calls
+- Provide clear error messages for invalid inputs
+
+### Debugging
+
+- When running builds (`projr_build_*`), a log file is created; get the path with `.log_file_get_most_recent()` and inspect it for detailed DEBUG-level output.
+- Use `.cli_debug()` to add lightweight debug logging (variable values, progress). Prefer committing these when they aid future debugging, but:
+  - Avoid logging secrets, large binary blobs, or excessive output that clutters CI logs.
+- Use `debugonce()` for short, local function-level debugging; it does not persist across sessions.
+- Use `browser()` only for interactive local debugging. Guard calls to avoid CI/test hangs:
+  - e.g. `if (interactive()) browser()`.
+  - Always remove or guard `browser()` calls before committing.
+- Use post-mortem tools for non-interactive diagnostics:
+  - `traceback()`, `rlang::last_error()`, `rlang::last_trace()`.
+  - Consider `options(error = rlang::entrace)` during ad-hoc debugging.
+- Avoid committing interactive debug statements in code or tests; guard or remove them.
+- For tests, use `skip_on_noninteractive()` or `skip_if_not(interactive())` to avoid CI failures.
+
+---
+
 ## Key Systems
 
 ### Version Management
