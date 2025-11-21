@@ -353,7 +353,7 @@
 .init_prompt_metadata <- function() {
   nm_pkg <- basename(.path_get())
   if (!.is_test()) {
-    cat("Project name is", paste0("`", nm_pkg, "`"), "\n")
+    .cli_info("Project name is `{nm_pkg}`")
   }
   if (!.is_file_exists_description()) {
     nm_first <- .init_prompt_ind_first()
@@ -712,12 +712,7 @@ projr_init_renviron <- function() {
   renviron_txt <- .init_renviron_txt_update(renviron_txt)
   writeLines(renviron_txt, path)
   .newline_append(path)
-  message(
-    paste0(
-      "Edit the .Renviron file at ", path,
-      "to have default options for projr_init setup metadata.\n"
-    ),
-    "The following variables are availabe:\n",
+  .cli_info("Edit the .Renviron file at {path} to have default options for projr_init setup metadata.\nThe following variables are availabe:\n",
     paste0(
       "  - PROJR_PATH_YML\n",
       "  - PROJR_FIRST_NAME\n",
@@ -928,12 +923,7 @@ projr_init_renviron <- function() {
   if (.git_system_get() == "git") {
     return(invisible(FALSE))
   }
-  message(
-    "You can use `projr` without the program git\n",
-    "(and setup is going fine!),\n",
-    "but RStudio (and VS Code) like it.\n",
-    "It's easy to install, instructions here:\n",
-    "https://happygitwithr.com/install-git"
+  .cli_info("You can use `projr` without the program git\n(and setup is going fine!),\nbut RStudio (and VS Code) like it.\nIt's easy to install, instructions here:\nhttps://happygitwithr.com/install-git"
   )
 }
 
@@ -983,7 +973,7 @@ projr_init_renviron <- function() {
 }
 
 .init_github_actual_user <- function(public, username) {
-  message(paste0("Creating GitHub remote for user ", username))
+  .cli_info("Creating GitHub remote for user {username}")
   result <- tryCatch(
     usethis::use_github(private = !public),
     error = function(e) {
@@ -993,7 +983,7 @@ projr_init_renviron <- function() {
   )
   if (!is.null(result)) {
     # Do something if the call was successful.
-    message("GitHub remote created successfully!")
+    .cli_info("GitHub remote created successfully!")
   }
   invisible(result)
 }
@@ -1005,7 +995,7 @@ projr_init_renviron <- function() {
 }
 
 .init_github_actual_org <- function(public, username) {
-  message(paste0("Creating GitHub remote for organisation ", username))
+  .cli_info("Creating GitHub remote for organisation {username}")
   if ("username" %in% names(formals(usethis::use_github))) {
     .init_github_actual_org_old(public, username)
   } else {
@@ -1025,7 +1015,7 @@ projr_init_renviron <- function() {
     }
   )
   if (!is.null(result)) {
-    message("GitHub remote for organisation created successfully!")
+    .cli_info("GitHub remote for organisation created successfully!")
   }
   invisible(result)
 }
@@ -1042,7 +1032,7 @@ projr_init_renviron <- function() {
     }
   )
   if (!is.null(result)) {
-    message("GitHub remote for user created successfully!")
+    .cli_info("GitHub remote for user created successfully!")
   }
   invisible(result)
 }
@@ -1177,8 +1167,8 @@ projr_init_renviron <- function() {
       TRUE
     },
     error = function(e) {
-      message("Note: Could not install 'codemeta' package. Skipping codemeta.json creation.")
-      message("Error: ", e$message)
+      .cli_info("Note: Could not install 'codemeta' package. Skipping codemeta.json creation.")
+      .cli_info("Error: {e$message}")
       FALSE
     }
   )

@@ -96,7 +96,7 @@ projr_restore_repo <- function(repo,
       .restore_repo_labels(path, label, pos, type, .title)
     },
     error = function(e) {
-      message("Error in projr_restore_repo: ", e$message)
+      .cli_info("Error in projr_restore_repo: {e$message}")
       return(FALSE)
     }
   )

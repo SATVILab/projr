@@ -101,17 +101,9 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   install_cmds <- .dep_get_install_cmds(dep_required)
   
   if (length(dep_required) == 1) {
-    cat(paste0(
-      "\nPackage '", dep_required, "' is required but not installed.\n",
-      "To install it, please run:\n  ",
-      install_cmds, "\n"
-    ))
+    .cli_info("\nPackage '{dep_required}' is required but not installed.\nTo install it, please run:\n  {install_cmds}\n")
   } else {
-    cat(paste0(
-      "\nRequired packages are not installed: ", paste(dep_required, collapse = ", "), "\n",
-      "To install them, please run:\n  ",
-      paste(install_cmds, collapse = "\n  "), "\n"
-    ))
+    .cli_info("\nRequired packages are not installed: {paste(dep_required, collapse = ', ')}\nTo install them, please run:\n  {paste(install_cmds, collapse = '\n  ')}\n")
   }
   
   # Stop execution with informative message
