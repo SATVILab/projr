@@ -77,6 +77,17 @@ See detailed guidelines in `.github/instructions/`:
 - Avoid committing interactive debug statements in code or tests; guard or remove them.
 - For tests, use `skip_on_noninteractive()` or `skip_if_not(interactive())` to avoid CI failures.
 
+### Debugging Tests
+
+- **General test runs**: Use LITE mode (`.test_set_lite()`) for faster iteration during development
+- **Debugging specific test failures**: 
+  - Turn off LITE mode (`.test_unset_lite()`) to ensure relevant tests run
+  - Use SELECT mode (`.test_set_select()`) to skip most tests
+  - Comment out `skip_if(.is_test_select())` in only the specific tests you need to debug
+  - Run `devtools::test()` to execute only selected tests
+  - When done, run `.test_unset_select()` and restore `skip_if(.is_test_select())` lines
+- See `testing.instructions.md` for detailed workflow and examples
+
 ---
 
 ## Key Systems

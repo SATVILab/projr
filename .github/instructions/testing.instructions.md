@@ -29,6 +29,14 @@ Testing standards and patterns for the projr package test suite, including test 
 - Use for pre-release validation or comprehensive parameter testing
 - Enable by running tests without calling `.test_set_lite()` or `.test_set_cran()`
 
+### Select Mode (For Debugging Specific Issues)
+- Skips all tests that have `skip_if(.is_test_select())` guard
+- Used to run only specific tests when debugging a particular issue
+- Enable with: `devtools::load_all(); .test_set_select(); devtools::test()`
+- Disable with: `.test_unset_select()`
+- Most tests include `skip_if(.is_test_select())` to allow selective debugging
+- When debugging, comment out `skip_if(.is_test_select())` in only the tests you want to run
+
 ---
 
 ## Test Guidelines
@@ -38,6 +46,48 @@ Testing standards and patterns for the projr package test suite, including test 
 - Use `test_that()` for each test case with descriptive names
 - Use `usethis::with_project()` for tests that need a temporary project environment
 - Test edge cases: empty directories, missing files, NULL values
+
+## Debugging with Selective Test Running
+
+When debugging specific test failures or issues:
+
+1. **Turn off LITE mode** - Run `.test_unset_lite()` to ensure the relevant tests will run
+2. **Enable SELECT mode** - Run `.test_set_select()` to skip most tests
+3. **Select tests to run** - In the test files, comment out `skip_if(.is_test_select())` for ONLY the tests you want to debug
+4. **Run tests** - Run `devtools::test()` to execute only your selected tests
+5. **Clean up** - When done debugging, uncomment the `skip_if(.is_test_select())` lines and run `.test_unset_select()`
+
+### Workflow Example
+
+```r
+# 1. Load package and disable LITE mode
+devtools::load_all()
+.test_unset_lite()  # Ensure comprehensive tests can run if needed
+
+# 2. Enable SELECT mode
+.test_set_select()
+
+# 3. Edit test file - comment out skip_if(.is_test_select()) in specific tests
+# In tests/testthat/test-manifest.R:
+#   test_that("manifest tracking works", {
+#     # skip_if(.is_test_select())  <- Comment this out
+#     # ... test code ...
+#   })
+
+# 4. Run tests - only selected tests will run
+devtools::test()
+
+# 5. Clean up when done
+.test_unset_select()
+# Uncomment skip_if(.is_test_select()) in test files
+```
+
+### When to Use Each Mode
+
+- **General test runs during development**: Use LITE mode (`.test_set_lite()`)
+- **Debugging specific failing tests**: Turn off LITE (`.test_unset_lite()`), use SELECT mode (`.test_set_select()`), and narrow down with `skip_if(.is_test_select())`
+- **Pre-release validation**: Use FULL mode (no test mode set)
+- **CRAN submission**: Use CRAN mode (`.test_set_cran()`)
 
 ## When Adding New Tests
 
