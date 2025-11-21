@@ -355,7 +355,7 @@ test_that("VERSION file round-trip works for GitHub releases", {
       # Verify round-trip
       expect_identical(version_retrieved, version_to_write)
 
-      remote_final_empty(
+      .remote_final_empty(
         "github",
         remote = c("tag" = tag, "fn" = "VERSION.zip")
       )
@@ -546,15 +546,13 @@ test_that("upload and restore from `latest` GitHub releases", {
 test_that("upload and restore from `archive` GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
     path = dir_test,
     code = {
-
-      # browser()
 
       # convert to archive structure
       .yml_dest_rm_type_all("default")
@@ -567,10 +565,8 @@ test_that("upload and restore from `archive` GitHub releases", {
 
       # Build to upload to GitHub
       projr::projr_build_patch(msg = "test")
-      browser()
 
       # Verify upload
-      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
       expect_true(
         .remote_check_exists("github", tag_name, max_attempts = 4)
       )
@@ -594,8 +590,6 @@ test_that("upload and restore from `archive` GitHub releases", {
       expect_true(result)
       fn_vec <- .file_ls(projr_path_get("raw-data"))
       expect_identical(fn_vec, content_vec_test_file)
-
-      
 
       # add and remove files
       content_vec_test_file_adj <- .test_content_adjust_label("raw-data")
@@ -660,10 +654,10 @@ test_that("upload and restore from `archive` GitHub releases", {
 # `archive` structure via parameter: upload and restore
 # =============================================================================
 
-test_that("upload and restore from `archive` GitHub releases", {
+test_that("upload and restore from `archive` GitHub releases via parameter", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -671,7 +665,6 @@ test_that("upload and restore from `archive` GitHub releases", {
     path = dir_test,
     code = {
 
-      browser()
       # Use archive structure via parameter
       tag_name <- "archive"
 
@@ -748,7 +741,6 @@ test_that("GitHub release send_cue='always' creates new archive every build", {
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
-  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -756,13 +748,15 @@ test_that("GitHub release send_cue='always' creates new archive every build", {
       tag_name <- "projr-test-release-a"
 
       # Clear any existing content
-      remote <- c("tag" = tag_name, "fn" = "raw-data.zip")
-      .remote_final_empty("github", remote = remote)
+      remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
+      for (fn in remote_final_vec) {
+        .remote_final_empty(
+          "github",
+          remote = c("tag" = tag_name, "fn" = fn)
+        )
+      }
 
       # Setup
-      .create_test_content_github("raw-data")
-      projr_init_git()
-      .yml_git_set_push(FALSE, TRUE, NULL)
       .yml_dest_rm_type_all("default")
 
       # Add with send_cue = "always"
@@ -774,14 +768,16 @@ test_that("GitHub release send_cue='always' creates new archive every build", {
       )
 
       # First build
-      projr::projr_build_patch()
-      asset_tbl <- .pb_asset_tbl_get(tag_name)
-      expect_true("raw-data-v0.0.1.zip" %in% asset_tbl[["file_name"]])
+      projr::projr_build_patch(msg = "test")
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      expect_true(any(grepl("raw-data-v.*\\.zip", remote_vec_final)))
 
       # Second build without changes - should still create new version
-      projr::projr_build_patch()
-      asset_tbl <- .pb_asset_tbl_get(tag_name)
-      expect_true("raw-data-v0.0.2.zip" %in% asset_tbl[["file_name"]])
+      projr::projr_build_patch(msg = "test")
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      # Should have two different versioned archives now
+      raw_data_assets <- grep("raw-data-v.*\\.zip", remote_vec_final, value = TRUE)
+      expect_true(length(raw_data_assets) >= 2)
     }
   )
 })
@@ -793,7 +789,6 @@ test_that("GitHub release send_cue='if-change' only creates archive if content c
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
-  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -801,13 +796,15 @@ test_that("GitHub release send_cue='if-change' only creates archive if content c
       tag_name <- "projr-test-release-b"
 
       # Clear any existing content
-      remote <- c("tag" = tag_name, "fn" = "raw-data.zip")
-      .remote_final_empty("github", remote = remote)
+      remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
+      for (fn in remote_final_vec) {
+        .remote_final_empty(
+          "github",
+          remote = c("tag" = tag_name, "fn" = fn)
+        )
+      }
 
       # Setup
-      .create_test_content_github("raw-data")
-      projr_init_git()
-      .yml_git_set_push(FALSE, TRUE, NULL)
       .yml_dest_rm_type_all("default")
 
       # Add with send_cue = "if-change"
@@ -818,21 +815,30 @@ test_that("GitHub release send_cue='if-change' only creates archive if content c
         send_cue = "if-change"
       )
 
+      # Get current version before builds
+      version_before <- projr_version_get()
+
       # First build
-      projr::projr_build_patch()
-      asset_tbl <- .pb_asset_tbl_get(tag_name)
-      expect_true("raw-data-v0.0.1.zip" %in% asset_tbl[["file_name"]])
+      projr::projr_build_patch(msg = "test")
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      raw_data_assets <- grep("raw-data-v.*\\.zip", remote_vec_final, value = TRUE)
+      expect_true(length(raw_data_assets) >= 1)
+      first_asset <- raw_data_assets[1]
 
       # Second build without changes - should NOT create new version
-      projr::projr_build_patch()
-      asset_tbl <- .pb_asset_tbl_get(tag_name)
-      expect_false("raw-data-v0.0.2.zip" %in% asset_tbl[["file_name"]])
+      projr::projr_build_patch(msg = "test")
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      raw_data_assets <- grep("raw-data-v.*\\.zip", remote_vec_final, value = TRUE)
+      # Should still have just the first asset (no new version created)
+      expect_identical(length(raw_data_assets), 1L)
 
       # Third build with changes - should create new version
       writeLines("Modified content", file.path(projr_path_get_dir("raw-data"), "file1.txt"))
-      projr::projr_build_patch()
-      asset_tbl <- .pb_asset_tbl_get(tag_name)
-      expect_true("raw-data-v0.0.3.zip" %in% asset_tbl[["file_name"]])
+      projr::projr_build_patch(msg = "test")
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      raw_data_assets <- grep("raw-data-v.*\\.zip", remote_vec_final, value = TRUE)
+      # Should now have 2 assets (original + new version after change)
+      expect_true(length(raw_data_assets) >= 2)
     }
   )
 })
@@ -848,7 +854,6 @@ test_that("GitHub release send_strategy='sync-diff' updates only changed files",
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
-  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -856,13 +861,15 @@ test_that("GitHub release send_strategy='sync-diff' updates only changed files",
       tag_name <- "projr-test-release-a"
 
       # Clear any existing content
-      remote <- c("tag" = tag_name, "fn" = "raw-data.zip")
-      .remote_final_empty("github", remote = remote)
+      remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
+      for (fn in remote_final_vec) {
+        .remote_final_empty(
+          "github",
+          remote = c("tag" = tag_name, "fn" = fn)
+        )
+      }
 
       # Setup
-      .create_test_content_github("raw-data", n_files = 3)
-      projr_init_git()
-      .yml_git_set_push(FALSE, TRUE, NULL)
       .yml_dest_rm_type_all("default")
 
       # Add with send_strategy = "sync-diff", structure = "latest"
@@ -875,12 +882,12 @@ test_that("GitHub release send_strategy='sync-diff' updates only changed files",
       )
 
       # First build
-      projr::projr_build_patch()
+      projr::projr_build_patch(msg = "test")
       expect_true(.remote_check_exists("github", tag_name))
 
       # Verify asset exists
-      asset_tbl <- .pb_asset_tbl_get(tag_name)
-      expect_true("raw-data.zip" %in% asset_tbl[["file_name"]])
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      expect_true("raw-data.zip" %in% remote_vec_final)
     }
   )
 })
@@ -892,7 +899,6 @@ test_that("GitHub release send_strategy='sync-purge' removes all then uploads al
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
-  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -900,13 +906,15 @@ test_that("GitHub release send_strategy='sync-purge' removes all then uploads al
       tag_name <- "projr-test-release-b"
 
       # Clear any existing content
-      remote <- c("tag" = tag_name, "fn" = "raw-data.zip")
-      .remote_final_empty("github", remote = remote)
+      remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
+      for (fn in remote_final_vec) {
+        .remote_final_empty(
+          "github",
+          remote = c("tag" = tag_name, "fn" = fn)
+        )
+      }
 
       # Setup
-      .create_test_content_github("raw-data", n_files = 3)
-      projr_init_git()
-      .yml_git_set_push(FALSE, TRUE, NULL)
       .yml_dest_rm_type_all("default")
 
       # Add with send_strategy = "sync-purge"
@@ -919,17 +927,17 @@ test_that("GitHub release send_strategy='sync-purge' removes all then uploads al
       )
 
       # First build
-      projr::projr_build_patch()
+      projr::projr_build_patch(msg = "test")
       expect_true(.remote_check_exists("github", tag_name))
 
       # Verify asset was created
-      asset_tbl <- .pb_asset_tbl_get(tag_name)
-      expect_true("raw-data.zip" %in% asset_tbl[["file_name"]])
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      expect_true("raw-data.zip" %in% remote_vec_final)
 
       # Second build - should purge and re-upload
-      projr::projr_build_patch()
-      asset_tbl <- .pb_asset_tbl_get(tag_name)
-      expect_true("raw-data.zip" %in% asset_tbl[["file_name"]])
+      projr::projr_build_patch(msg = "test")
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      expect_true("raw-data.zip" %in% remote_vec_final)
     }
   )
 })
@@ -945,7 +953,6 @@ test_that("GitHub release send_inspect='manifest' uses manifest for version trac
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
-  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -953,13 +960,15 @@ test_that("GitHub release send_inspect='manifest' uses manifest for version trac
       tag_name <- "projr-test-release-a"
 
       # Clear any existing content
-      remote <- c("tag" = tag_name, "fn" = "raw-data.zip")
-      .remote_final_empty("github", remote = remote)
+      remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
+      for (fn in remote_final_vec) {
+        .remote_final_empty(
+          "github",
+          remote = c("tag" = tag_name, "fn" = fn)
+        )
+      }
 
       # Setup
-      .create_test_content_github("raw-data")
-      projr_init_git()
-      .yml_git_set_push(FALSE, TRUE, NULL)
       .yml_dest_rm_type_all("default")
 
       # Add with send_inspect = "manifest"
@@ -972,12 +981,12 @@ test_that("GitHub release send_inspect='manifest' uses manifest for version trac
       )
 
       # Build
-      projr::projr_build_patch()
+      projr::projr_build_patch(msg = "test")
       expect_true(.remote_check_exists("github", tag_name))
 
       # Verify asset and manifest exist
-      asset_tbl <- .pb_asset_tbl_get(tag_name)
-      expect_true(any(grepl("raw-data-v.*\\.zip", asset_tbl[["file_name"]])))
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      expect_true(any(grepl("raw-data-v.*\\.zip", remote_vec_final)))
     }
   )
 })
@@ -989,7 +998,6 @@ test_that("GitHub release send_inspect='file' inspects actual files", {
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
-  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -997,13 +1005,15 @@ test_that("GitHub release send_inspect='file' inspects actual files", {
       tag_name <- "projr-test-release-b"
 
       # Clear any existing content
-      remote <- c("tag" = tag_name, "fn" = "raw-data.zip")
-      .remote_final_empty("github", remote = remote)
+      remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
+      for (fn in remote_final_vec) {
+        .remote_final_empty(
+          "github",
+          remote = c("tag" = tag_name, "fn" = fn)
+        )
+      }
 
       # Setup
-      .create_test_content_github("raw-data")
-      projr_init_git()
-      .yml_git_set_push(FALSE, TRUE, NULL)
       .yml_dest_rm_type_all("default")
 
       # Add with send_inspect = "file"
@@ -1016,12 +1026,12 @@ test_that("GitHub release send_inspect='file' inspects actual files", {
       )
 
       # Build
-      projr::projr_build_patch()
+      projr::projr_build_patch(msg = "test")
       expect_true(.remote_check_exists("github", tag_name))
 
       # Verify asset exists
-      asset_tbl <- .pb_asset_tbl_get(tag_name)
-      expect_true(any(grepl("raw-data-v.*\\.zip", asset_tbl[["file_name"]])))
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      expect_true(any(grepl("raw-data-v.*\\.zip", remote_vec_final)))
     }
   )
 })
