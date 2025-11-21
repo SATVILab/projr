@@ -5,14 +5,13 @@
                              archive_type,
                              always_archive,
                              changelog,
-                             output_level = "std",
-                             log_file = NULL) {
+                             output_level = "std") {
   force(title)
 
   .cli_debug(
     "Content '{label}': Starting processing for destination '{title}' (type: {type})",
     output_level = output_level,
-    log_file = log_file
+    
   )
 
   # where they should go to
@@ -21,7 +20,7 @@
   .cli_debug(
     "Content '{label}': Local path is {path_dir_local}",
     output_level = output_level,
-    log_file = log_file
+    
   )
 
   yml_title <- .yml_dest_get_title_complete( # nolint
@@ -38,20 +37,20 @@
   .cli_debug(
     "Content '{label}': Remote configuration - id: {yml_title[['id']]}, structure: {yml_title[['structure']]}, strategy: {yml_title[['send']][['strategy']]}, inspect: {yml_title[['send']][['inspect']]}",
     output_level = output_level,
-    log_file = log_file
+    
   )
 
   if (!is.null(remote_list[["remote_dest"]])) {
     .cli_debug(
       "Content '{label}': Remote destination exists at path: {remote_list[['remote_dest']][['path']]}",
       output_level = output_level,
-      log_file = log_file
+      
     )
   } else {
     .cli_debug(
       "Content '{label}': Remote destination does not exist yet (will be created)",
       output_level = output_level,
-      log_file = log_file
+      
     )
   }
 
@@ -66,20 +65,20 @@
   .cli_debug(
     "Content '{label}': Upload plan - {length(plan[['fn_add']])} file(s) to add, {length(plan[['fn_rm']])} file(s) to remove, create: {plan[['create']]}, purge: {plan[['purge']]}",
     output_level = output_level,
-    log_file = log_file
+    
   )
 
   if (length(plan[["fn_add"]]) > 0) {
     .cli_debug(
       "Content '{label}': Files to add: {paste(head(plan[['fn_add']], 10), collapse = ', ')}{if (length(plan[['fn_add']]) > 10) '...' else ''}",
       output_level = output_level,
-      log_file = log_file
+      
     )
   } else {
     .cli_debug(
       "Content '{label}': No files to add",
       output_level = output_level,
-      log_file = log_file
+      
     )
   }
 
@@ -87,13 +86,13 @@
     .cli_debug(
       "Content '{label}': Files to remove: {paste(head(plan[['fn_rm']], 10), collapse = ', ')}{if (length(plan[['fn_rm']]) > 10) '...' else ''}",
       output_level = output_level,
-      log_file = log_file
+      
     )
   } else {
     .cli_debug(
       "Content '{label}': No files to remove",
       output_level = output_level,
-      log_file = log_file
+      
     )
   }
 
@@ -111,7 +110,7 @@
   .cli_debug(
     "Content '{label}': Processing completed successfully",
     output_level = output_level,
-    log_file = log_file
+    
   )
 }
 
@@ -986,19 +985,18 @@
                                             path_append_label,
                                             path_dir_local,
                                             remote_pre,
-                                            output_level = "std",
-                                            log_file = NULL) {
+                                            output_level = "std") {
   .cli_debug(
     "Content '{label}': Implementing upload plan",
     output_level = output_level,
-    log_file = log_file
+    
   )
 
   if (purge) {
     .cli_debug(
       "Content '{label}': Purging all existing remote files",
       output_level = output_level,
-      log_file = log_file
+      
     )
     .remote_final_empty(type, remote_dest)
   }
@@ -1007,7 +1005,7 @@
     .cli_debug(
       "Content '{label}': Creating/updating remote destination",
       output_level = output_level,
-      log_file = log_file
+      
     )
     # will create for OSF and local,
     # but not GitHub, so GitHub remote
@@ -1025,7 +1023,7 @@
     .cli_debug(
       "Content '{label}': Removing {length(fn_rm)} file(s) from remote",
       output_level = output_level,
-      log_file = log_file
+      
     )
     .remote_file_rm(type, fn_rm, remote_dest, output_level, log_file)
   }
@@ -1034,7 +1032,7 @@
     .cli_debug(
       "Content '{label}': Adding {length(fn_add)} file(s) to remote",
       output_level = output_level,
-      log_file = log_file
+      
     )
     .remote_file_add(type, remote_dest, path_dir_local, fn_add, output_level, log_file)
     if (type == "github") {
@@ -1058,12 +1056,12 @@
       .cli_debug(
         "Content '{label}': Ensuring GitHub empty placeholder exists",
         output_level = output_level,
-        log_file = log_file
+        
       )
       .dest_send_label_implement_plan_github_empty(
         remote_dest,
         output_level = output_level,
-        log_file = log_file
+        
       )
     }
   }
@@ -1072,7 +1070,7 @@
   .cli_debug(
     "Content '{label}': Updating remote manifest and version files",
     output_level = output_level,
-    log_file = log_file
+    
   )
   .remote_write_manifest(type, remote_pre, manifest)
   .remote_write_version_file(type, remote_pre, version_file)
@@ -1080,7 +1078,7 @@
     .cli_debug(
       "Content '{label}': Writing changelog to remote",
       output_level = output_level,
-      log_file = log_file
+      
     )
     .remote_write_changelog(type, remote_pre)
   }
@@ -1088,8 +1086,8 @@
 }
 
 .dest_send_label_implement_plan_github_empty <- function(remote_dest,
-                                                        output_level = "std",
-                                                        log_file = NULL) {
+                                                        output_level = "std"
+                                                        ) {
   # this only happens if the remote doesn't exist,
   # what if we in the end end up with no remote, what then?
   # shouldn't we always have some sort of remote?

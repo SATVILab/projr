@@ -94,7 +94,7 @@
     timestamp <- format(Sys.time(), "%H-%M-%S")
   }
   date_dir <- .log_dir_get_output_date(build_type)
-  file.path(date_dir, paste0(timestamp, ".md"))
+  file.path(date_dir, paste0(timestamp, ".qmd"))
 }
 
 # Log writing functions
@@ -566,33 +566,77 @@ projr_log_clear <- function(build_type = "all",
   most_recent
 }
 
+#' Get the most recent log file across both output and dev builds
+#'
+#' @return Character or NULL. Path to the most recent log file, or NULL if none found.
+#' @keywords internal
+.log_file_get_most_recent <- function() {
+  # Get most recent from both build types
+  output_log <- .log_file_get_current("output")
+  dev_log <- .log_file_get_current("dev")
+  
+  # If neither exists, return NULL
+  if (is.null(output_log) && is.null(dev_log)) {
+    return(NULL)
+  }
+  
+  # If only one exists, return it
+  if (is.null(output_log)) {
+    return(dev_log)
+  }
+  if (is.null(dev_log)) {
+    return(output_log)
+  }
+  
+  # Both exist, return the most recent
+  fi_output <- file.info(output_log, extra_cols = FALSE)
+  fi_dev <- file.info(dev_log, extra_cols = FALSE)
+  
+  if (fi_output$mtime >= fi_dev$mtime) {
+    return(output_log)
+  } else {
+    return(dev_log)
+  }
+}
+
 #' View build log (last n lines)
 #'
 #' Display the last N lines of a detailed build log file.
 #'
-#' @param log_file Character. Path to a log file. If NULL, the latest build log for
-#'   the given build_type will be used.
-#' @param build_type Character. Either "output" or "dev". Used when log_file is NULL.
+#' @param log_file Character. Path to a log file. If NULL, the most recent log file
+#'   across both output and dev builds will be used. To view a specific build type,
+#'   use the build_type parameter.
+#' @param build_type Character. Either "output", "dev", or "auto" (default). When "auto",
+#'   selects the most recent log across both types. When "output" or "dev", selects
+#'   the most recent log of that specific type.
 #' @param n_lines Integer. Number of lines to show from the end of the file.
 #'   Default is 10. Set to NULL or NA to show the entire file.
 #' @param show_header Logical. Whether to print a short header including the
 #'   logfile path and last modification time. Default is TRUE.
 #' @export
 projr_log_view <- function(log_file = NULL,
-                           build_type = "output",
+                           build_type = "auto",
                            n_lines = 10,
                            show_header = TRUE) {
-  .assert_in(build_type, c("output", "dev"))
+  .assert_in(build_type, c("auto", "output", "dev"))
   .assert_lgl(show_header)
 
   if (is.null(log_file)) {
-    log_file <- .log_file_get_current(build_type)
+    if (build_type == "auto") {
+      log_file <- .log_file_get_most_recent()
+    } else {
+      log_file <- .log_file_get_current(build_type)
+    }
   } else {
     .assert_string(log_file, required = TRUE)
   }
 
   if (is.null(log_file) || !file.exists(log_file)) {
-    cli::cli_alert_info("No log file found for build type '{build_type}'")
+    if (build_type == "auto") {
+      cli::cli_alert_info("No log files found")
+    } else {
+      cli::cli_alert_info("No log file found for build type '{build_type}'")
+    }
     return(invisible(NULL))
   }
 

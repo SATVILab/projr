@@ -62,7 +62,7 @@
                            id,
                            name,
                            output_level = "std",
-                           log_file = NULL,
+                           
                            ...) {
   .cli_debug(
     "Remote create: type={type}, id={id}",
@@ -75,7 +75,7 @@
     "osf" = .remote_create_osf(title = name, ...),
     "github" = .remote_create_github(
       tag = .remote_misc_github_tag_get(id),
-      log_file = log_file,
+      
       output_level = output_level,
       ...
     )
@@ -367,8 +367,8 @@
 # a specific asset in a GitHub release.
 .remote_final_empty <- function(type,
                           remote,
-                          output_level = "std",
-                          log_file = NULL) {
+                          output_level = "std"
+                          ) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_empty_local(remote),
@@ -468,8 +468,8 @@
 
 .remote_file_ls <- function(type,
                             remote,
-                            output_level = "std",
-                            log_file = NULL) {
+                            output_level = "std"
+                            ) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
 
   result <- switch(type,
@@ -495,8 +495,8 @@
 .remote_file_rm <- function(type,
                             fn,
                             remote,
-                            output_level = "std",
-                            log_file = NULL) {
+                            output_level = "std"
+                            ) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
 
   .cli_debug(
@@ -520,8 +520,8 @@
                              remote,
                              path_dir_local,
                              fn,
-                             output_level = "std",
-                             log_file = NULL) {
+                             output_level = "std"
+                             ) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
 
   .cli_debug(
