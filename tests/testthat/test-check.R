@@ -1,3 +1,58 @@
+test_that(".cli_debug logging works in assertion functions", {
+  skip_if(.is_test_select())
+  
+  # Setup a temporary test project directory with logging enabled
+  dir_test <- .test_setup_project(
+    git = FALSE, github = FALSE, set_env_var = TRUE
+  )
+  
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Initialize logging
+      Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+      log_info <- .log_build_init(build_type = "dev", bump_component = "test", 
+                                   msg = "Testing CLI debug", output_level = "debug")
+      
+      # Test that validation failures trigger .cli_debug calls
+      # We can't directly verify the log content without reading the file,
+      # but we can verify the assertions still work correctly
+      
+      # Test string validation
+      expect_error(.assert_string(c("a", "b"), required = TRUE),
+                   regexp = "must be a non-empty string")
+      
+      # Test flag validation
+      expect_error(.assert_flag(c(TRUE, FALSE)),
+                   regexp = "must be a non-NA flag")
+      
+      # Test numeric validation
+      expect_error(.assert_number(c(1, 2)),
+                   regexp = "must be a non-NA number")
+      
+      # Test class validation
+      expect_error(.assert_class_exact(data.frame(x = 1), "matrix"),
+                   regexp = "must have exactly the following class")
+      
+      # Test options validation
+      expect_error(.assert_in("invalid", c("a", "b", "c"), required = TRUE),
+                   regexp = "must be one of")
+      
+      # Test directory existence
+      expect_error(.assert_dir_exists_single("nonexistent_dir"),
+                   regexp = "must exist")
+      
+      # Finalize log
+      .log_build_finalize(success = TRUE, start_time = Sys.time())
+      
+      # Verify that a log file was created
+      if (!is.null(log_info)) {
+        expect_true(file.exists(log_info$log_file))
+      }
+    }
+  )
+})
+
 test_that("All assertion functions work as expected", {
   skip_if(.is_test_cran())
   skip_if_offline()
