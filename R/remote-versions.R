@@ -5,8 +5,8 @@
 .remote_write_manifest <- function(type,
                                    remote,
                                    manifest,
-                                   output_level = "std",
-                                   log_file = NULL) {
+                                   output_level = "std"
+                                   ) {
   .cli_debug(
     "Writing manifest.csv to {type} remote",
     output_level = output_level,
@@ -68,8 +68,8 @@
 .remote_write_version_file <- function(type,
                                        remote_pre,
                                        version_file,
-                                       output_level = "std",
-                                       log_file = NULL) {
+                                       output_level = "std"
+                                       ) {
   .cli_debug(
     "Writing VERSION file to {type} remote",
     output_level = output_level,
@@ -109,8 +109,8 @@
 
 .remote_get_manifest <- function(type,
                                  remote_pre,
-                                 output_level = "std",
-                                 log_file = NULL) {
+                                 output_level = "std"
+                                 ) {
   .cli_debug(
     "Getting manifest.csv from {type} remote",
     output_level = output_level,
@@ -143,8 +143,8 @@
 
 .remote_get_manifest_non_project <- function(type,
                                              remote_pre,
-                                             output_level = "std",
-                                             log_file = NULL) {
+                                             output_level = "std"
+                                             ) {
   manifest_actual <- .remote_get_manifest_non_project_raw(
     type,
     remote_pre,
@@ -165,8 +165,8 @@
 
 .remote_get_manifest_non_project_raw <- function(type,
                                                  remote_pre,
-                                                 output_level = "std",
-                                                 log_file = NULL) {
+                                                 output_level = "std"
+                                                 ) {
   path_dir_save <- .dir_create_tmp_random()
 
   .cli_debug(
@@ -225,8 +225,8 @@
 
 .remote_get_version_file <- function(type,
                                      remote_pre,
-                                     output_level = "std",
-                                     log_file = NULL) {
+                                     output_level = "std"
+                                     ) {
   .cli_debug(
     "Getting VERSION file from {type} remote",
     output_level = output_level,
@@ -262,8 +262,8 @@
 
 .remote_get_version_file_non_project <- function(type,
                                                  remote_pre,
-                                                 output_level = "std",
-                                                 log_file = NULL) {
+                                                 output_level = "std"
+                                                 ) {
   path_dir_save <- .dir_create_tmp_random()
 
   .cli_debug(

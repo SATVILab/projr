@@ -18,8 +18,8 @@
                                         output_level = "std",
                                         max_attempts = 1,
                                         max_delay = 300,
-                                        max_total_time = 600,
-                                        log_file = NULL) {
+                                        max_total_time = 600
+                                        ) {
   .assert_string(tag, TRUE)
 
   repo <- tryCatch(
@@ -335,7 +335,7 @@
 # github
 .remote_final_empty_github <- function(remote,
                                        output_level = "std",
-                                       log_file = NULL,
+                                       
                                        api_url = NULL,
                                        token   = NULL) {
   # here, if remote specifies the file, it will only remove
@@ -397,7 +397,7 @@
 .remote_file_get_all_github <- function(remote,
                                         path_dir_save_local,
                                         output_level = "std",
-                                        log_file = NULL,
+                                        
                                         api_url = NULL,
                                         token = NULL,
                                         overwrite = TRUE) {
@@ -413,7 +413,7 @@
     fn = remote[["fn"]],
     dest_dir = dir_save_zip,
     output_level = output_level,
-    log_file = log_file,
+    
     overwrite = overwrite,
     api_url = api_url,
     token = token
@@ -461,8 +461,8 @@
 .remote_file_get_github <- function(remote,
                                     fn,
                                     path_dir_save_local,
-                                    output_level = "std",
-                                    log_file = NULL) {
+                                    output_level = "std"
+                                    ) {
   if (!.remote_check_exists("github", remote[["tag"]])) {
     return(character(0L))
   }
@@ -574,7 +574,7 @@
                                     path_dir_local,
                                     remote,
                                     output_level = "std",
-                                    log_file = NULL,
+                                    
                                     api_url = NULL,
                                     token   = NULL) {
   .assert_chr_min(fn, TRUE)
