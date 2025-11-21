@@ -189,7 +189,7 @@
   )
 
   if (!dir.exists(source_dir)) {
-    message("Bookdown output directory not found: ", source_dir)
+    .cli_info("Bookdown output directory not found: {source_dir}")
     return(invisible(FALSE))
   }
 
@@ -203,7 +203,7 @@
   # This contains knitr cache files (figures, etc.) from the working directory
   .build_copy_docs_bookdown_files(output_run)
 
-  message("Copied bookdown output from ", source_dir, " to ", dest_dir)
+  .cli_info("Copied bookdown output from {source_dir} to {dest_dir}")
   invisible(TRUE)
 }
 
@@ -248,7 +248,7 @@
   )
 
   if (!dir.exists(source_dir)) {
-    message("Quarto output directory not found: ", source_dir)
+    .cli_info("Quarto output directory not found: {source_dir}")
     return(invisible(FALSE))
   }
 
@@ -258,7 +258,7 @@
   # Copy all contents from source to destination, excluding CHANGELOG.md
   .dir_move_exact(source_dir, dest_dir, fn_exc = "CHANGELOG.md")
 
-  message("Copied quarto project output from ", source_dir, " to ", dest_dir)
+  .cli_info("Copied quarto project output from {source_dir} to {dest_dir}")
   invisible(TRUE)
 }
 

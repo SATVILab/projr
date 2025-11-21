@@ -93,7 +93,7 @@ projr_profile_create_local <- function() {
   # Check if file already exists
   if (file.exists(path_file)) {
     if (!silent) {
-      message(paste0("projr profile ", profile, " already exists"))
+      .cli_info("projr profile {profile} already exists")
     }
     return(invisible(FALSE))
   }
@@ -102,7 +102,7 @@ projr_profile_create_local <- function() {
   file.create(path_file)
 
   if (!silent) {
-    message(paste0("Added the following profile: ", profile))
+    .cli_info("Added the following profile: {profile}")
   }
 
   invisible(TRUE)
@@ -257,7 +257,7 @@ projr_profile_delete <- function(profile) {
 .profile_delete_impl <- function(profile) {
   path_fn <- .path_get(paste0("_projr-", profile, ".yml"))
   if (!file.exists(path_fn)) {
-    message("No such profile detected: ", profile)
+    .cli_info("No such profile detected: {profile}")
     return(invisible(FALSE))
   }
   invisible(file.remove(path_fn))

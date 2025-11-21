@@ -195,7 +195,7 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
 
   if (!res$success) {
     cli::cli_alert_danger("renv::restore() failed.")
-    message("res$error")
+    .cli_info("res$error")
     return(FALSE)
   } else {
     cli::cli_alert_success("renv::restore() successful.")
