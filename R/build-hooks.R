@@ -78,11 +78,11 @@
 }
 
 .build_post_hooks_run <- function(is_dev_build = FALSE, output_level = "std") {
-  .build_hooks_run("post", is_dev_build, output_level, log_file)
+  .build_hooks_run("post", is_dev_build, output_level)
 }
 
 .build_pre_hooks_run <- function(is_dev_build = FALSE, output_level = "std") {
-  .build_hooks_run("pre", is_dev_build, output_level, log_file)
+  .build_hooks_run("pre", is_dev_build, output_level)
 }
 
 .build_hooks_run_title <- function(x, stage, output_level = "std") {

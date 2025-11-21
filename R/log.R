@@ -157,52 +157,44 @@
 
 #' Append message to build log
 #'
-#' @param log_file Character. Path to log file.
 #' @param message Character. Message to append.
 #' @param level Character. Message level (info, debug, success, etc.)
 #'
 #' @keywords internal
-.log_build_append <- function(log_file, message, level = "info") {
-  if (is.null(log_file) || !file.exists(log_file)) {
-    return(invisible(NULL))
-  }
+.log_build_append <- function(message, level = "info") {
 
   # Format message with timestamp and level
   timestamp <- format(Sys.time(), "%H:%M:%S")
-  formatted <- paste0("[", timestamp, "] **", toupper(level), "**: ", message)
+  formatted <- paste0(
+    "[", timestamp, "] **", toupper(level), "**: ", message
+  )
 
   # Append to file
-  cat(formatted, "\n", file = log_file, append = TRUE)
+  cat(
+    formatted, "\n",
+    file = .log_file_get_most_recent(), append = TRUE
+  )
   invisible(NULL)
 }
 
 #' Append section header to build log
 #'
-#' @param log_file Character. Path to log file.
 #' @param section_name Character. Name of the section.
 #'
 #' @keywords internal
-.log_build_section <- function(log_file, section_name) {
-  if (is.null(log_file) || !file.exists(log_file)) {
-    return(invisible(NULL))
-  }
-
+.log_build_section <- function(section_name) {
   header <- paste0("\n## ", section_name, "\n")
-  cat(header, file = log_file, append = TRUE)
+  cat(header, file = .log_file_get_most_recent(), append = TRUE)
   invisible(NULL)
 }
 
 #' Finalize build log with summary
 #'
-#' @param log_file Character. Path to log file.
 #' @param success Logical. Whether build succeeded.
 #' @param start_time POSIXct. Build start time.
 #'
 #' @keywords internal
-.log_build_finalize <- function(log_file, success = TRUE, start_time = NULL) {
-  if (is.null(log_file) || !file.exists(log_file)) {
-    return(invisible(NULL))
-  }
+.log_build_finalize <- function(success = TRUE, start_time = NULL) {
 
   footer <- c(
     "",
@@ -219,7 +211,11 @@
     ""
   )
 
-  cat(paste(footer, collapse = "\n"), file = log_file, append = TRUE)
+  cat(
+    paste(footer, collapse = "\n"),
+    file = .log_file_get_most_recent(),
+    append = TRUE
+  )
   invisible(NULL)
 }
 
@@ -229,11 +225,10 @@
 #' @param bump_component Character. Version bump component.
 #' @param msg Character. Build message.
 #' @param success Logical. Whether build succeeded.
-#' @param log_file Character. Path to detailed log file.
 #'
 #' @keywords internal
 .log_history_add <- function(build_type = "output", bump_component = NULL,
-                             msg = "", success = TRUE, log_file = NULL) {
+                             msg = "", success = TRUE) {
   history_file <- .log_file_get_history(build_type)
 
   # Read existing history or create header
@@ -251,6 +246,7 @@
   # Create new entry
   timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
   status <- if (success) "[OK]" else "[X]"
+  log_file <- .log_file_get_most_recent()
 
   entry <- c(
     paste0("## ", timestamp, " ", status),

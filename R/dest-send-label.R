@@ -104,7 +104,7 @@
     yml_title[["structure"]], yml_title[["path"]],
     yml_title[["path-append-label"]],
     path_dir_local, remote_list[["remote_pre"]],
-    output_level, log_file
+    output_level
   )
 
   .cli_debug(
@@ -1025,7 +1025,7 @@
       output_level = output_level,
       
     )
-    .remote_file_rm(type, fn_rm, remote_dest, output_level, log_file)
+    .remote_file_rm(type, fn_rm, remote_dest, output_level)
   }
 
   if (.is_len_pos(fn_add)) {
@@ -1034,7 +1034,7 @@
       output_level = output_level,
       
     )
-    .remote_file_add(type, remote_dest, path_dir_local, fn_add, output_level, log_file)
+    .remote_file_add(type, remote_dest, path_dir_local, fn_add, output_level)
     if (type == "github") {
       # ensure that we remove the empty one
       remote_dest_empty <- remote_dest
@@ -1107,7 +1107,7 @@
     file.create(file.path(path_tmp, "projr-empty"))
     .remote_file_add(
       "github", remote_dest_empty, path_tmp, "projr-empty",
-      output_level, log_file
+      output_level
     )
   }
 }

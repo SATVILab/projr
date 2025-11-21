@@ -6,7 +6,6 @@
                                 max_total_time  = Inf,  # overall cap in seconds
                                 operation_name  = "operation",
                                 output_level    = "std",
-                                log_file        = NULL,
                                 check_success   = function(x) TRUE,
                                 on_retry        = NULL,
                                 error_classifier = NULL) {
@@ -15,8 +14,7 @@
 
   .cli_debug(
     "{operation_name}: starting (max {max_attempts} attempts, max {max_total_time}s total)",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   delay <- initial_delay
@@ -28,8 +26,7 @@
     if (elapsed >= max_total_time) {
       .cli_debug(
         "{operation_name}: stopping before attempt {attempt} as max_total_time ({max_total_time}s) exceeded",
-        output_level = output_level,
-        log_file = log_file
+        output_level = output_level
       )
       break
     }
@@ -46,8 +43,7 @@
       if (actual_delay > 0) {
         .cli_debug(
           "{operation_name}: waiting {actual_delay}s before attempt {attempt}/{max_attempts}...",
-          output_level = output_level,
-          log_file = log_file
+          output_level = output_level
         )
         Sys.sleep(actual_delay)
       }
@@ -60,8 +56,7 @@
     if (check_success(last_result)) {
       .cli_debug(
         "{operation_name}: succeeded on attempt {attempt}/{max_attempts}",
-        output_level = output_level,
-        log_file = log_file
+        output_level = output_level
       )
       return(last_result)
     }
@@ -70,22 +65,19 @@
       error_type <- error_classifier(last_result)
       .cli_debug(
         "{operation_name}: attempt {attempt}/{max_attempts} failed ({error_type})",
-        output_level = output_level,
-        log_file = log_file
+        output_level = output_level
       )
     } else {
       .cli_debug(
         "{operation_name}: attempt {attempt}/{max_attempts} failed",
-        output_level = output_level,
-        log_file = log_file
+        output_level = output_level
       )
     }
   }
 
   .cli_debug(
     "{operation_name}: all attempts exhausted or max_total_time reached",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   last_result

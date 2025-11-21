@@ -43,8 +43,7 @@
     archive_github = archive_github,
     archive_local = archive_local,
     strict = TRUE,
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 }
 
@@ -397,15 +396,13 @@
 #' Output Git information for debug
 #'
 #' @param output_level Character. Current output level
-#' @param log_file Character. Path to log file
 #'
 #' @keywords internal
 .build_debug_git_info <- function(output_level = "std") {
   if (!.git_repo_check_exists()) {
     .cli_debug(
       "Git repository: Not a Git repository",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     return(invisible(NULL))
   }
@@ -415,8 +412,7 @@
   if (!is.null(branch)) {
     .cli_debug(
       "Git branch: {branch}",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
   }
 
@@ -425,8 +421,7 @@
   if (!is.null(commit_info)) {
     .cli_debug(
       "Last commit: {commit_info$sha} - {commit_info$message}",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
   }
 
@@ -435,14 +430,12 @@
   if (length(modified_files) > 0) {
     .cli_debug(
       "Modified tracked files ({length(modified_files)}): {paste(head(modified_files, 10), collapse = ', ')}{if (length(modified_files) > 10) '...' else ''}",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
   } else {
     .cli_debug(
       "Modified tracked files: None",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
   }
 
@@ -451,14 +444,12 @@
   if (length(untracked_files) > 0) {
     .cli_debug(
       "Untracked files (not ignored) ({length(untracked_files)}): {paste(head(untracked_files, 10), collapse = ', ')}{if (length(untracked_files) > 10) '...' else ''}",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
   } else {
     .cli_debug(
       "Untracked files (not ignored): None",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
   }
 

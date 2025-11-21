@@ -4,12 +4,7 @@
 \alias{.cli_stage_header}
 \title{Show a stage header}
 \usage{
-.cli_stage_header(
-  stage_name,
-  build_type = "output",
-  output_level = "std",
-  log_file = NULL
-)
+.cli_stage_header(stage_name, build_type = "output", output_level = "std")
 }
 \arguments{
 \item{stage_name}{Character. Name of the build stage.}
@@ -17,8 +12,6 @@
 \item{build_type}{Character. Type of build ("dev" or "output").}
 
 \item{output_level}{Character. Current output level.}
-
-\item{log_file}{Character. Path to log file (optional).}
 }
 \description{
 Show a stage header

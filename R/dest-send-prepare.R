@@ -16,8 +16,7 @@
   if (!"github" %in% type_vec) {
     .cli_debug(
       "GitHub release preparation: Skipped (no GitHub destinations)",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     return(invisible(FALSE))
   }
@@ -26,36 +25,31 @@
   if (.is_len_0(tags)) {
     .cli_debug(
       "GitHub release preparation: No tags required (from config)",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     return(invisible(FALSE))
   }
 
   .cli_debug(
     "GitHub release preparation: Starting for {length(tags)} tag(s)",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   for (x in tags) {
     .cli_debug(
       "GitHub release preparation: Preparing tag '{x}'",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     if (!.remote_check_exists("github", id = x)) {
       .cli_debug(
         "GitHub release preparation: Creating missing tag '{x}'",
-        output_level = output_level,
-        log_file = log_file
+        output_level = output_level
       )
       .remote_create("github", x)
     } else {
       .cli_debug(
         "GitHub release preparation: Tag '{x}' already exists",
-        output_level = output_level,
-        log_file = log_file
+        output_level = output_level
       )
     }
   }

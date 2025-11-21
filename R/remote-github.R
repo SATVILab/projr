@@ -30,8 +30,7 @@
   if (is.null(repo)) {
     .cli_debug(
       "GitHub release: Could not get repo info when checking existence of GitHub release '{tag}'", # nolint
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     stop(call. = FALSE)
   }
@@ -51,7 +50,6 @@
       "check if release '", tag, "' exists in repo '", repo, "'"
     ),
     output_level   = output_level,
-    log_file       = log_file,
     check_success  = function(x) TRUE
   )
 }
@@ -64,6 +62,7 @@
                                               structure,
                                               label,
                                               version,
+                                              empty,
                                               api_url = NULL,
                                               token   = NULL) {
   .assert_attr(remote_pre, "names")
@@ -76,6 +75,11 @@
     paste0(label, "-", version, ".zip")
   } else {
     paste0(label, ".zip")
+  }
+  fn <- if (empty) {
+    gsub("\\.zip$", "-empty.zip", fn)
+  } else {
+    fn
   }
   remote <- remote_pre
   remote[["fn"]] <- fn
@@ -119,7 +123,6 @@
                                   max_delay     = 300,
                                   max_total_time = 600,
                                   output_level  = "std",
-                                  log_file      = NULL,
                                   ensure_exists = FALSE) {
   .assert_string(tag, TRUE)
   .assert_string(description)
@@ -133,15 +136,13 @@
   result <- .remote_create_github_attempt(
     tag          = tag,
     description  = description,
-    output_level = output_level,
-    log_file     = log_file
+    output_level = output_level
   )
 
   if (.is_try_error(result)) {
     .cli_debug(
       "GitHub release: Failed to create GitHub release '{tag}'",
-      output_level = "debug",
-      log_file = log_file
+      output_level = "debug"
     )
     return(invisible(character()))
   }
@@ -150,8 +151,7 @@
   if (isTRUE(ensure_exists)) {
     .cli_debug(
       "GitHub release: Confirming existence of GitHub release '{tag}'",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
 
     # Approximate previous 300s wait, but via retry helper
@@ -162,21 +162,18 @@
       max_attempts  = max_attempts,
       max_delay     = max_delay,
       max_total_time = max_total_time,
-      output_level  = output_level,
-      log_file = log_file
+      output_level  = output_level
     )
 
     if (isTRUE(remote_exists)) {
       .cli_debug(
         "GitHub release: Confirmed existence of GitHub release '{tag}'",
-        output_level = output_level,
-        log_file = log_file
+        output_level = output_level
       )
     } else {
       .cli_debug(
         "GitHub release: Could not confirm existence of GitHub release '{tag}' after waiting", # nolint
-        output_level = output_level,
-        log_file = log_file
+        output_level = output_level
       )
     }
   }
@@ -186,8 +183,7 @@
 
 .remote_create_github_attempt <- function(tag,
                                           description,
-                                          output_level = "std",
-                                          log_file     = NULL) {
+                                          output_level = "std") {
   repo <- .gh_repo_get()
 
   result <- try(
@@ -203,8 +199,7 @@
     error_msg <- attr(result, "condition")$message
     .cli_debug(
       "GitHub release: pb_release_create() failed for tag '{tag}': {error_msg}",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
   }
 
@@ -282,8 +277,7 @@
                                         path_append_label,
                                         label,
                                         structure,
-                                        version,
-                                        empty) {
+                                        version) {
   # keep it as NULL this way if it's already
   # NULL (otherwise it's character(),
   # which triggers an error when checking for a string later)
@@ -300,9 +294,6 @@
     ),
     ".zip"
   )
-  if (empty) {
-    return(gzip("\\.zip$", "-empty.zip", non_empty_fn))
-  }
   non_empty_fn
 }
 
@@ -360,15 +351,13 @@
 
   .cli_debug(
     "GitHub release: Checking if tag '{tag}' exists for deletion",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   if (!.remote_check_exists("github", tag, max_attempts = 2)) {
     .cli_debug(
       "GitHub release: Tag '{tag}' does not exist, nothing to delete",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     return(invisible(FALSE))
   }
@@ -381,8 +370,7 @@
     fn <- remote[["fn"]]
     .cli_debug(
       "GitHub release: Asset '{fn}' not found in tag '{tag}', so no need to delete.", # nolint
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     return(invisible(FALSE))
   }
@@ -420,7 +408,6 @@
     fn = remote[["fn"]],
     dest_dir = dir_save_zip,
     output_level = output_level,
-    
     overwrite = overwrite,
     api_url = api_url,
     token = token
@@ -431,29 +418,25 @@
     if (file.exists(path_zip)) {
       .cli_debug(
         "GitHub release: Unzipping {basename(path_zip)} to {path_dir_save_local}",
-        output_level = output_level,
-        log_file = log_file
+        output_level = output_level
       )
       tryCatch({
         utils::unzip(path_zip, exdir = path_dir_save_local)
         .cli_debug(
           "GitHub release: Successfully unzipped {basename(path_zip)}",
-          output_level = output_level,
-          log_file = log_file
+          output_level = output_level
         )
       }, error = function(e) {
         .cli_debug(
           "GitHub release: Failed to unzip {basename(path_zip)}: {e$message}",
-          output_level = output_level,
-          log_file = log_file
+          output_level = output_level
         )
       })
       file.remove(path_zip)
     } else {
       .cli_debug(
         "GitHub release: Zip file {basename(path_zip)} does not exist, cannot unzip.",
-        output_level = output_level,
-        log_file = log_file
+        output_level = output_level
       )
     }
   }
@@ -478,8 +461,7 @@
   .remote_file_get_all_github(
     remote = remote,
     path_dir_save_local = path_dir_save_tmp,
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
   path_fn <- file.path(path_dir_save_tmp, fn)
   if (!file.exists(path_fn)) {
@@ -487,8 +469,7 @@
       "GitHub release: File '{fn}' does not exist in release '{tag}'",
       fn = fn,
       tag = remote[["tag"]],
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     unlink(path_dir_save_tmp, recursive = TRUE, force = TRUE)
     return(character(0L))
@@ -501,8 +482,7 @@
     "GitHub release: Moving file '{fn}' to '{path_to}'",
     fn = fn,
     path_to = path_dir_save_local,
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
   invisible(file.rename(from = path_fn, to = path_to))
   unlink(path_dir_save_tmp, recursive = TRUE, force = TRUE)

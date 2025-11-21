@@ -11,14 +11,14 @@ test_that("projr_log_view displays most recent log by default", {
       
       # Create output log
       log_info1 <- .log_build_init("output", msg = "Output build")
-      .log_build_append(log_info1$log_file, "Output message", "info")
-      .log_build_finalize(log_info1$log_file, TRUE, Sys.time() - 5)
+      .log_build_append("Output message", "info")
+      .log_build_finalize(TRUE, Sys.time() - 5)
       
       Sys.sleep(1)
       
       # Create dev log (more recent)
       log_info2 <- .log_build_init("dev", msg = "Dev build")
-      .log_build_append(log_info2$log_file, "Dev message", "info")
+      .log_build_append("Dev message", "info")
       
       # Should return dev log (most recent)
       result <- projr_log_view(n_lines = NULL, show_header = FALSE)
@@ -43,12 +43,12 @@ test_that("projr_log_view can filter by build_type", {
       
       # Create output log
       log_info1 <- .log_build_init("output", msg = "Output build")
-      .log_build_append(log_info1$log_file, "Output specific message", "info")
-      .log_build_finalize(log_info1$log_file, TRUE, Sys.time() - 5)
+      .log_build_append("Output specific message", "info")
+      .log_build_finalize(TRUE, Sys.time() - 5)
       
       # Create dev log (more recent)
       log_info2 <- .log_build_init("dev", msg = "Dev build")
-      .log_build_append(log_info2$log_file, "Dev specific message", "info")
+      .log_build_append("Dev specific message", "info")
       
       # Get output log specifically
       result_output <- projr_log_view(build_type = "output", n_lines = NULL, show_header = FALSE)
@@ -74,7 +74,7 @@ test_that("projr_log_view handles n_lines parameter", {
       # Create log with multiple lines
       log_info <- .log_build_init("output", msg = "Test")
       for (i in 1:20) {
-        .log_build_append(log_info$log_file, paste("Message", i), "info")
+        .log_build_append(paste("Message", i), "info")
       }
       
       # Get last 5 lines
@@ -104,12 +104,12 @@ test_that("projr_log_view works with explicit log_file path", {
       
       # Create multiple logs
       log_info1 <- .log_build_init("output", msg = "First")
-      .log_build_append(log_info1$log_file, "First message", "info")
+      .log_build_append("First message", "info")
       
       Sys.sleep(1)
       
       log_info2 <- .log_build_init("dev", msg = "Second")
-      .log_build_append(log_info2$log_file, "Second message", "info")
+      .log_build_append("Second message", "info")
       
       # View specific log file
       result <- projr_log_view(log_file = log_info1$log_file, n_lines = 5, show_header = FALSE)
@@ -146,7 +146,7 @@ test_that("projr_log_view shows header by default", {
       
       # Create log
       log_info <- .log_build_init("output", msg = "Test")
-      .log_build_append(log_info$log_file, "Test message", "info")
+      .log_build_append("Test message", "info")
       
       # Capture output with header
       output <- capture.output(projr_log_view(n_lines = 2))

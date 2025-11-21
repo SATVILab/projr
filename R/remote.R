@@ -27,7 +27,8 @@
                                        structure,
                                        path,
                                        path_append_label,
-                                       version) {
+                                       version,
+                                       empty) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   version <- if (is.null(version)) {
     .version_get_v()
@@ -36,7 +37,7 @@
   }
   remote_pre <- .remote_final_get(
     type, id, label, structure, path, path_append_label,
-    version, TRUE
+    version, TRUE, empty
   )
   switch(type,
     "local" = .remote_final_check_exists_local(
@@ -46,7 +47,7 @@
       remote_pre, structure, label, version
     ),
     "github" = .remote_final_check_exists_github(
-      remote_pre, structure, label, version
+      remote_pre, structure, label, version, empty
     )
   )
 }
@@ -66,8 +67,7 @@
                            ...) {
   .cli_debug(
     "Remote create: type={type}, id={id}",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   switch(type,
@@ -196,15 +196,16 @@
                                         path = NULL,
                                         path_append_label = TRUE,
                                         version = NULL,
-                                        pre = FALSE) {
+                                        pre = FALSE,
+                                        empty = FALSE) {
   exists <- .remote_final_check_exists(
-    type, id, label, structure, path, path_append_label, version
+    type, id, label, structure, path, path_append_label, version, empty
   )
   if (!exists) {
     return(NULL)
   }
   .remote_final_get(
-    type, id, label, structure, path, path_append_label, version, pre
+    type, id, label, structure, path, path_append_label, version, pre, empty
   )
 }
 
@@ -296,7 +297,8 @@
                                       path_append_label,
                                       label,
                                       structure,
-                                      version) {
+                                      version,
+                                      empty) {
   .assert_string(path)
   .assert_flag(path_append_label, TRUE)
   .assert_in_single(structure, .opt_remote_get_structure(), TRUE)
@@ -319,6 +321,9 @@
       version |> .version_v_add()
     }
     path_rel <- paste0(path_rel, "-", version_add)
+  }
+  if (empty) {
+    path_rel <- paste0(path_rel, "-empty")
   }
   path_rel
 }
@@ -366,17 +371,15 @@
 # it will delete the final remote, e.g.
 # a specific asset in a GitHub release.
 .remote_final_empty <- function(type,
-                          remote,
-                          output_level = "std"
-                          ) {
+                                remote,
+                                output_level = "std") {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_empty_local(remote),
     "osf" = .remote_final_empty_osf(remote),
     "github" = .remote_final_empty_github(
       remote,
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
   )
 }
@@ -480,8 +483,7 @@
 
   .cli_debug(
     "Remote file list: type={type}, found {length(result)} file(s)",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   result
@@ -495,14 +497,12 @@
 .remote_file_rm <- function(type,
                             fn,
                             remote,
-                            output_level = "std"
-                            ) {
+                            output_level = "std") {
   .assert_in(type, .opt_remote_get_type(), TRUE)
 
   .cli_debug(
     "Remote file remove: type={type}, removing {length(fn)} file(s)",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   switch(type,
@@ -526,8 +526,7 @@
 
   .cli_debug(
     "Remote file add: type={type}, adding {length(fn)} file(s) from {path_dir_local}",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   switch(type,
@@ -541,8 +540,7 @@
       fn = fn,
       path_dir_local = path_dir_local,
       remote = remote,
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
   )
 }

@@ -20,15 +20,13 @@
 
   .cli_debug(
     "Starting destination send process for {length(type_vec)} remote type(s): {paste(type_vec, collapse = ', ')}",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   for (type in type_vec) {
     .cli_debug(
       "Processing remote type: {type}",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
 
     # force archive_type to FALSE if it
@@ -47,7 +45,7 @@
     always_archive <- .dest_send_get_always_archive(type, always_archive)
     .dest_send_type(
       type, bump_component, archive_type, always_archive,
-      output_level, log_file
+      output_level
     )
   }
 }
@@ -158,14 +156,13 @@
 
   .cli_debug(
     "Remote type '{type}': Processing {length(title_vec)} destination(s): {paste(title_vec, collapse = ', ')}",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   for (x in title_vec) {
     .dest_send_title(
       x, type, bump_component, archive_type, always_archive,
-      output_level, log_file
+      output_level
     )
   }
 }
@@ -202,7 +199,6 @@
   .cli_debug(
     "Destination '{title}' (type: {type}): Checking if send is needed",
     output_level = output_level,
-    log_file = log_file
   )
 
   may_send <- .dest_send_title_check(
@@ -212,8 +208,7 @@
   if (!may_send) {
     .cli_debug(
       "Destination '{title}': Send SKIPPED (cue condition not met)",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     return(invisible(FALSE))
   }
@@ -224,15 +219,14 @@
 
   .cli_debug(
     "Destination '{title}': Send APPROVED - Processing {length(content_vec)} content label(s): {paste(content_vec, collapse = ', ')}",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   for (x in content_vec) {
     .dest_send_label(
       x, title, type, .build_get_output_run(bump_component),
       archive_type, always_archive, x == content_vec[length(content_vec)],
-      output_level, log_file
+      output_level
     )
   }
 

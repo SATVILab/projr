@@ -182,11 +182,11 @@ test_that("CLI functions handle NULL log_file parameter", {
   skip_if(.is_test_select())
   
   # All CLI functions should handle NULL log_file gracefully
-  expect_silent(.cli_info("test", output_level = "none", log_file = NULL))
-  expect_silent(.cli_success("test", output_level = "none", log_file = NULL))
-  expect_silent(.cli_debug("test", output_level = "none", log_file = NULL))
-  expect_silent(.cli_step("test", output_level = "none", log_file = NULL))
-  expect_silent(.cli_stage_header("test", "dev", "none", log_file = NULL))
+  expect_silent(.cli_info("test", output_level = "none"))
+  expect_silent(.cli_success("test", output_level = "none"))
+  expect_silent(.cli_debug("test", output_level = "none"))
+  expect_silent(.cli_step("test", output_level = "none"))
+  expect_silent(.cli_stage_header("test", "dev", "none"))
 })
 
 test_that("CLI debug messages only show at debug level", {

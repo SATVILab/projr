@@ -33,6 +33,7 @@ test_that("GitHub test releases are created and reusable", {
   usethis::with_project(
     path = dir_test,
     code = {
+      browser()
 
       # Define two fixed tags for testing
       tag_a <- "projr-test-release-a"
@@ -77,7 +78,8 @@ test_that("GitHub test releases are created and reusable", {
 })
 
 test_that(".remote_get works for GitHub", {
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
+  browser()
   expect_identical(
     .remote_get("github", "abc"),
     c("tag" = "abc")
@@ -87,11 +89,12 @@ test_that(".remote_get works for GitHub", {
 test_that(".remote_get_final works for GitHub", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
 
   usethis::with_project(
     path = dir_test,
     code = {
+      browser()
       # Test archive structure
       expect_identical(
         .remote_final_get(
@@ -99,6 +102,15 @@ test_that(".remote_get_final works for GitHub", {
           id = "kablumph", label = "raw-data", structure = "archive"
         ),
         c("tag" = "kablumph", fn = "raw-data-v0.0.0-1.zip")
+      )
+      # Test archive structure
+      expect_identical(
+        .remote_final_get(
+          "github",
+          id = "kablumph", label = "raw-data", structure = "archive",
+          empty = TRUE
+        ),
+        c("tag" = "kablumph", fn = "raw-data-v0.0.0-1-empty.zip")
       )
     }
   )
@@ -111,13 +123,14 @@ test_that(".remote_get_final works for GitHub", {
 test_that("adding, listing and removing files works on GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
     path = dir_test,
     code = {
+      browser()
 
       # Use one of the fixed test releases
       tag <- "projr-test-release-a"
@@ -270,13 +283,14 @@ test_that("adding, listing and removing files works on GitHub releases", {
 test_that("manifest round-trip works for GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
     path = dir_test,
     code = {
+      browser()
       # Use one of the fixed test releases
       tag <- "projr-test-release-a"
       remote_pre <- c("tag" = tag)
@@ -317,13 +331,14 @@ test_that("manifest round-trip works for GitHub releases", {
 test_that("VERSION file round-trip works for GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
     path = dir_test,
     code = {
+      browser()
       # Use one of the fixed test releases
       tag <- "projr-test-release-b"
       remote_pre <- c("tag" = tag)
@@ -378,7 +393,7 @@ usethis::with_project(
 test_that("upload and restore from `latest` GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 

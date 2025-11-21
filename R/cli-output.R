@@ -68,10 +68,7 @@
   message_text <- paste0(build_label, " Build: ", stage_name)
 
   # Write to most recent log file if it exists
-  log_file <- .log_file_get_most_recent()
-  if (!is.null(log_file)) {
-    .log_build_section(log_file, message_text)
-  }
+  .log_build_section(message_text)
 
   # Show in console if appropriate
   if (!.cli_should_show("std", output_level)) {
@@ -97,10 +94,7 @@
     message_text <- paste(unlist(message_parts), collapse = " ")
 
     # Write to most recent log file if it exists
-    log_file <- .log_file_get_most_recent()
-    if (!is.null(log_file)) {
-      .log_build_append(log_file, message_text, "info")
-    }
+    .log_build_append( message_text, "info")
   }
 
   # Show in console if appropriate
@@ -124,10 +118,7 @@
     message_text <- paste(unlist(message_parts), collapse = " ")
 
     # Write to most recent log file if it exists
-    log_file <- .log_file_get_most_recent()
-    if (!is.null(log_file)) {
-      .log_build_append(log_file, message_text, "success")
-    }
+    .log_build_append(message_text, "success")
   }
 
   # Show in console if appropriate
@@ -151,10 +142,7 @@
     message_text <- paste(unlist(message_parts), collapse = " ")
 
     # Write to most recent log file if it exists
-    log_file <- .log_file_get_most_recent()
-    if (!is.null(log_file)) {
-      .log_build_append(log_file, message_text, "debug")
-    }
+    .log_build_append(message_text, "debug")
   }
 
   # Show in console only at debug level
@@ -178,10 +166,7 @@
     message_text <- paste(unlist(message_parts), collapse = " ")
 
     # Write to most recent log file if it exists
-    log_file <- .log_file_get_most_recent()
-    if (!is.null(log_file)) {
-      .log_build_append(log_file, message_text, "step")
-    }
+    .log_build_append(message_text, "step")
   }
 
   # Show in console if appropriate

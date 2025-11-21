@@ -297,7 +297,8 @@ projr_build_dev <- function(file = NULL,
     }
 
     version_run_on_list <- .build_pre(
-      bump_component, msg, clear_output, archive_github, archive_local, output_level
+      bump_component, msg, clear_output,
+      archive_github, archive_local, output_level
     )
 
     # Build stage
@@ -316,15 +317,13 @@ projr_build_dev <- function(file = NULL,
     build_success <- TRUE
   }, error = function(e) {
     # Log the error
-    log_file <- .log_file_get_most_recent()
-    .log_build_append(log_file, paste("ERROR:", e$message), "error")
+    .log_build_append(paste("ERROR:", e$message), "error")
     # Re-throw the error
     stop(e)
   }, finally = {
     # Finalize log
-    log_file <- .log_file_get_most_recent()
-    .log_build_finalize(log_file, build_success, time_start)
-    .log_history_add(build_type, bump_component, msg, build_success, log_file)
+    .log_build_finalize(build_success, time_start)
+    .log_history_add(build_type, bump_component, msg, build_success)
   })
 }
 
@@ -542,7 +541,7 @@ projr_build_dev <- function(file = NULL,
   .build_manifest_post(output_run)
 
   # Display change summary at debug level
-  .build_change_summary_display(bump_component, output_level, log_file)
+  .build_change_summary_display(bump_component, output_level)
 
   # update README
   .cli_debug("Rendering README.Rmd if present", output_level = output_level)
@@ -628,12 +627,12 @@ projr_build_dev <- function(file = NULL,
   .dest_prepare_github_releases(
     bump_component, archive_github, archive_local,
     strict = FALSE,
-    output_level, log_file
+    output_level
   )
 
   .dest_send(
     bump_component, archive_github, archive_local, always_archive,
-    output_level, log_file
+    output_level
   )
   .cli_debug("Clearing old development builds", output_level = output_level)
   .build_clear_old(

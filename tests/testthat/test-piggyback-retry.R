@@ -84,7 +84,6 @@ test_that(".pb_retry_with_backoff respects max_attempts", {
     initial_delay = 0.1,
     operation_name = "test operation",
     output_level = "none",
-    log_file = NULL,
     check_success = function(x) !inherits(x, "try-error")
   )
 
@@ -116,7 +115,6 @@ test_that(".pb_retry_with_backoff succeeds on retry", {
     initial_delay = 0.1,
     operation_name = "test retry",
     output_level = "none",
-    log_file = NULL,
     check_success = function(x) !inherits(x, "try-error")
   )
 
@@ -145,7 +143,6 @@ test_that(".pb_retry_with_backoff applies exponential backoff", {
     backoff_factor = 2,
     operation_name = "test backoff",
     output_level = "none",
-    log_file = NULL,
     check_success = function(x) FALSE  # Always fail to test all delays
   )
 

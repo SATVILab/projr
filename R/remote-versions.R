@@ -9,8 +9,7 @@
                                    ) {
   .cli_debug(
     "Writing manifest.csv to {type} remote",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   path_dir_save <- .dir_create_tmp_random()
@@ -28,16 +27,14 @@
       remote,
       path_dir_save,
       "manifest.csv",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
   )
   unlink(path_dir_save, recursive = TRUE)
 
   .cli_debug(
     "Successfully wrote manifest.csv to {type} remote",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   invisible(TRUE)
@@ -72,8 +69,7 @@
                                        ) {
   .cli_debug(
     "Writing VERSION file to {type} remote",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   path_dir_save <- .dir_create_tmp_random()
@@ -91,15 +87,13 @@
       remote,
       path_dir_save,
       "VERSION",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
   )
 
   .cli_debug(
     "Successfully wrote VERSION file to {type} remote",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 }
 
@@ -113,8 +107,7 @@
                                  ) {
   .cli_debug(
     "Getting manifest.csv from {type} remote",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   result <- switch(type,
@@ -122,15 +115,13 @@
     .remote_get_manifest_non_project(
       type,
       remote_pre,
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
   )
 
   .cli_debug(
     "Retrieved manifest with {nrow(result)} row(s) from {type} remote",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   result
@@ -148,14 +139,12 @@
   manifest_actual <- .remote_get_manifest_non_project_raw(
     type,
     remote_pre,
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
   if (is.null(manifest_actual)) {
     .cli_debug(
       "No manifest found on {type} remote, returning empty manifest",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     .zero_tbl_get_manifest()
   } else {
@@ -171,8 +160,7 @@
 
   .cli_debug(
     "Attempting to download manifest.csv from {type} remote",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   remote <- if (type == "github") {
@@ -192,8 +180,7 @@
   }, error = function(e) {
     .cli_debug(
       "Error downloading manifest.csv from {type} remote: {e$message}",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     character(0L)
   })
@@ -201,8 +188,7 @@
   if (length(path_manifest) == 0 || !file.exists(path_manifest)) {
     .cli_debug(
       "manifest.csv not found on {type} remote",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     unlink(path_dir_save, recursive = TRUE)
     return(NULL)
@@ -210,8 +196,7 @@
 
   .cli_debug(
     "Successfully downloaded manifest.csv from {type} remote",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   manifest <- .manifest_read(path_manifest)
@@ -229,8 +214,7 @@
                                      ) {
   .cli_debug(
     "Getting VERSION file from {type} remote",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   result <- switch(type,
@@ -238,22 +222,19 @@
     .remote_get_version_file_non_project(
       type,
       remote_pre,
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
   )
 
   if (length(result) > 0) {
     .cli_debug(
       "Retrieved VERSION file from {type} remote ({length(result)} line(s))",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
   } else {
     .cli_debug(
       "No VERSION file found on {type} remote",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
   }
 
@@ -268,8 +249,7 @@
 
   .cli_debug(
     "Attempting to download VERSION file from {type} remote",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   remote <- if (type == "github") {
@@ -289,8 +269,7 @@
   }, error = function(e) {
     .cli_debug(
       "Error downloading VERSION file from {type} remote: {e$message}",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     character(0L)
   })
@@ -298,8 +277,7 @@
   if (length(path_version) == 0 || !file.exists(path_version)) {
     .cli_debug(
       "VERSION file not found on {type} remote",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     unlink(path_dir_save, recursive = TRUE)
     return(character(0L))
@@ -307,8 +285,7 @@
 
   .cli_debug(
     "Successfully downloaded VERSION file from {type} remote",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   version_file <- .remote_get_version_file_read(path_version)
