@@ -671,9 +671,9 @@ projr_log_view <- function(log_file = NULL,
 
   if (show_header) {
     fi <- file.info(log_file, extra_cols = FALSE)
-    cli::cat_line("Log file: {cli::col_green(log_file)}")
+    cat(glue::glue("Log file: {cli::col_green(log_file)}"), "\n", sep = "")
     if (!is.na(fi$mtime)) {
-      cli::cat_line("Modified: {format(fi$mtime, '%Y-%m-%d %H:%M:%S')}")
+      cat(glue::glue("Modified: {format(fi$mtime, '%Y-%m-%d %H:%M:%S')}"), "\n", sep = "")
     }
     cli::cat_line("")
   }
