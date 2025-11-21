@@ -261,7 +261,7 @@ projr_content_update <- function(label = NULL,
     remote_pre, source_vec[["type"]], label
   )
   if (untrusted) {
-    message("Note: This version is marked as untrusted")
+    .cli_info("Note: This version is marked as untrusted")
   }
 
   remote_exists <- .remote_final_check_exists(
@@ -314,8 +314,8 @@ projr_content_update <- function(label = NULL,
   label_unrecorded <- .is_len_0(fn_vec)
   nothing_to_restore <- label_recorded_and_unused || label_unrecorded
   if (nothing_to_restore) {
-    message("No files kept in ", label)
-    message("Skipping restore for ", label)
+    .cli_info("No files kept in {label}")
+    .cli_info("Skipping restore for {label}")
     return(invisible(FALSE))
   }
   invisible(TRUE)
@@ -504,8 +504,8 @@ projr_content_update <- function(label = NULL,
     tryCatch(
       .content_update_label_get_dest_no_type(label),
       error = function(e) {
-        message("No source found for ", label)
-        message("Skipping restore for ", label)
+        .cli_info("No source found for {label}")
+        .cli_info("Skipping restore for {label}")
         return(invisible(FALSE))
       }
     )

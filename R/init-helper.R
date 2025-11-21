@@ -999,11 +999,9 @@ projr_init_renviron <- function() {
 }
 
 .init_github_actual_user_error <- function(public) {
-  print("Failed to create GitHub remote")
-  print("Can try again later with:")
-  print(
-    paste0("usethis::use_github(private = ", !public, ")")
-  )
+  .cli_info("Failed to create GitHub remote")
+  .cli_info("Can try again later with:")
+  .cli_info("usethis::use_github(private = {!public})")
 }
 
 .init_github_actual_org <- function(public, username) {
@@ -1050,24 +1048,14 @@ projr_init_renviron <- function() {
 }
 
 .init_github_actual_org_old_error <- function(public, username) {
-  print("Failed to create GitHub remote")
-  print("Can try again later with:")
-  print(
-    paste0(
-      "usethis::use_github(username = '", username,
-      "', private = ", !public, ")"
-    )
-  )
+  .cli_info("Failed to create GitHub remote")
+  .cli_info("Can try again later with:")
+  .cli_info("usethis::use_github(username = '{username}', private = {!public})")
 }
 .init_github_actual_org_new_error <- function(public, username) {
-  print("Failed to create GitHub remote")
-  print("Can try again later with:")
-  print(
-    paste0(
-      "usethis::use_github(organisation = '", username,
-      "', private = ", !public, ")"
-    )
-  )
+  .cli_info("Failed to create GitHub remote")
+  .cli_info("Can try again later with:")
+  .cli_info("usethis::use_github(organisation = '{username}', private = {!public})")
 }
 
 .git_gh_check_auth <- function() {
