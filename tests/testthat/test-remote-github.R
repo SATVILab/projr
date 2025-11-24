@@ -151,8 +151,8 @@ test_that("adding, listing and removing files works on GitHub releases", {
 
       # confirm asset does not exist
       expect_false(
-        .remote_final_check_exists_github_direct(
-          c("tag" = tag, fn = "abc.zip")
+        .remote_final_check_exists_direct(
+          "github", c("tag" = tag, fn = "abc.zip")
         )
       )
 
@@ -250,8 +250,8 @@ test_that("adding, listing and removing files works on GitHub releases", {
         remote = c("tag" = tag, "fn" = "abc.zip")
       )
       expect_false(
-        .remote_final_check_exists_github_direct(
-          c("tag" = tag, "fn" = "abc.zip")
+        .remote_final_check_exists_direct(
+          "github", c("tag" = tag, "fn" = "abc.zip")
         )
       )
       expect_true(
@@ -546,13 +546,18 @@ test_that("upload and restore from `latest` GitHub releases", {
 test_that("upload and restore from `archive` GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
     path = dir_test,
     code = {
+
+      # --- entirely empty remote ----
+      if (dir.exists(projr_path_get("raw-data"))) {
+        unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
+      }
 
       # convert to archive structure
       .yml_dest_rm_type_all("default")
@@ -563,7 +568,44 @@ test_that("upload and restore from `archive` GitHub releases", {
         structure = "archive"
       )
 
+      # Error because nothing is uploaded yet (no manifest.csv)
+      .remote_file_rm(
+        "github",
+        fn = "manifest.csv",
+        remote = c("tag" = "manifest.zip")
+      )
+      expect_error(projr_content_update(
+        label = "raw-data", type = "github", title = tag_name
+      ))
+
+      # Expect error because there are no labels uploaded yet
+      .remote_write_manifest(
+        "github",
+        remote = c("tag" = tag_name),
+        manifest = .manifest_read_project()
+      )
+      expect_error(projr_content_update(
+        label = "raw-data", type = "github", title = tag_name
+      ))
+
+      # no remotes exist yet
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      version_no_build_label <- .test_label_version_get(
+        "raw-data", empty = FALSE
+      )
+      version_no_build_label_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      expect_false(version_no_build_label %in% remote_vec_final)
+      expect_false(version_no_build_label_empty %in% remote_vec_final)
+
+      # no files restored
+      expect_identical(.file_ls(projr_path_get("raw-data")), character(0L))
+
+      # --- Upload empty directory ----
+
       # Build to upload to GitHub
+      # debugonce(.dest_send_label)
       projr::projr_build_patch(msg = "test")
 
       # Verify upload
@@ -571,15 +613,14 @@ test_that("upload and restore from `archive` GitHub releases", {
         .remote_check_exists("github", tag_name, max_attempts = 4)
       )
       remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
-
-      expect_true(.test_label_version_get("raw-data") %in% remote_vec_final)
-      expect_false(
-        .test_label_version_get("raw-data", TRUE) %in% remote_vec_final
+      version_empty_build_label <- .test_label_version_get(
+        "raw-data", empty = FALSE
       )
-
-      # Clear local data
-      unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
-      projr_path_get_dir("raw-data", safe = FALSE)
+      version_empty_build_label_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      expect_false(version_empty_build_label %in% remote_vec_final)
+      expect_true(version_empty_build_label_empty %in% remote_vec_final)
 
       # Restore from GitHub
       result <- projr_content_update(
@@ -587,12 +628,55 @@ test_that("upload and restore from `archive` GitHub releases", {
       )
 
       # Verify restoration
-      expect_true(result)
-      fn_vec <- .file_ls(projr_path_get("raw-data"))
-      expect_identical(fn_vec, content_vec_test_file)
+      expect_false(result)
+      expect_identical(.file_ls(projr_path_get("raw-data")), character(0L))
+
+      # add files
+      content_vec_test_file <- .test_content_setup_label("raw-data") |>
+        .file_ls()
+
+      # --- Upload with files ----
+
+      # Build to upload to GitHub
+      projr::projr_build_minor(msg = "test")
+
+      # Verify upload - should have the new version
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      version_files_build_label <- .test_label_version_get(
+        "raw-data", empty = FALSE
+      )
+      version_files_build_label_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      expect_true(version_files_build_label %in% remote_vec_final)
+      expect_false(version_files_build_label_empty %in% remote_vec_final)
+      expect_false(version_empty_build_label %in% remote_vec_final)
+      expect_true(version_empty_build_label_empty %in% remote_vec_final)
+
+      # --- Upload with the same files ----
+
+      browser()
+
+      # Build to upload to GitHub
+      projr::projr_build_major(msg = "test")
+
+      # Verify upload - should have the new version
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      version_same_build_label <- .test_label_version_get(
+        "raw-data", empty = FALSE
+      )
+      version_same_build_label_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      expect_false(version_same_build_label %in% remote_vec_final)
+      expect_false(version_same_build_label_empty %in% remote_vec_final)
+      expect_true(version_files_build_label %in% remote_vec_final)
+      expect_false(version_files_build_label_empty %in% remote_vec_final)
 
       # add and remove files
       content_vec_test_file_adj <- .test_content_adjust_label("raw-data")
+
+
 
       # Build to upload to GitHub
       projr::projr_build_minor(msg = "test")
@@ -618,7 +702,7 @@ test_that("upload and restore from `archive` GitHub releases", {
       fn_vec <- .file_ls(projr_path_get("raw-data"))
       expect_identical(fn_vec, content_vec_test_file_adj)
 
-      # Build with no changes - should not create new archive with default send_cue
+      # Build with no changes - should not create new archive with default send_cue # nolint
       projr::projr_build_minor(msg = "test")
 
       # Verify upload - should still have latest version

@@ -83,7 +83,8 @@
   remote <- remote_pre
   remote[["fn"]] <- fn
   tryCatch(
-    .remote_final_check_exists_github_direct(
+    .remote_final_check_exists_direct(
+      "github",
       remote = remote,
       api_url = api_url,
       token  = token
@@ -362,7 +363,8 @@
     return(invisible(FALSE))
   }
 
-  if (!.remote_final_check_exists_github_direct(
+  if (!.remote_final_check_exists_direct(
+    "github",
     remote = remote,
     api_url = api_url,
     token  = token
@@ -597,7 +599,8 @@
   # files, plus the new ones (that overwrite
   # any old ones)
   path_dir_tmp_save <- .dir_create_tmp_random()
-  if (.remote_final_check_exists_github_direct(
+  if (.remote_final_check_exists_direct(
+    "github",
     remote = remote,
     api_url = api_url,
     token  = token

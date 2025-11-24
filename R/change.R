@@ -46,9 +46,29 @@
   version_pre_impl <- .remote_get_version_label(
     remote_pre, type_pre, label
   )
+  if (is.null(version_pre_impl)) {
+    .cli_debug_message(
+      "No previous version found for label '", label, "' ",
+      "in the specified remote '", remote_pre, "'"
+    )
+    stop(
+      "No previous version found for label '", label, "' ",
+      "in the specified remote '", remote_pre, "'"
+    )
+  }
   version_post_impl <- .remote_get_version_label(
     remote_post, type_post, label
   )
+  if (is.null(version_post_impl)) {
+    .cli_debug_message(
+      "No current version found for label '", label, "' ",
+      "in the specified project"
+    )
+    stop(
+      "No current version found for label '", label, "' ",
+      "in the specified project"
+    )
+  }
   # this differs from .change_get_hash
   # as it will filter on version
   # get manifests from previous version and current version

@@ -554,18 +554,3 @@
 
 .test_setup_project()
 
-.test_projr_version_v_get <- function(empty = FALSE) {
-  paste0("v", gsub("-\\d+$", "", projr_version_get()))
-}
-
-.test_label_version_get <- function(label, empty = FALSE) {
-  version_suffix <- if (empty) {
-    "-empty"
-  } else {
-    ""
-  }
-  paste0(
-    label, "-", .test_projr_version_v_get(empty),
-    version_suffix, ".zip"
-  )
-}

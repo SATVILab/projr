@@ -153,7 +153,7 @@ projr_content_update <- function(label = NULL,
     msg <- "No labels found to restore."
     msg <- if (clear) paste0(msg, " No files cleared.") else msg
     .cli_debug(msg)
-    return(invisible(FALSE))
+    stop("", .call = FALSE)
   }
 
   success <- TRUE
@@ -274,12 +274,11 @@ projr_content_update <- function(label = NULL,
     .cli_debug("Remote source does not exist for ", label)
     if (source_vec[["type"]] == "github") {
       .cli_debug("Checking GitHub direct for empty asset for ", label)
-      remote_empty <- remote_source
-      remote_empty[["fn"]] <- gsub(
-        "\\.zip$", "-empty.zip", remote_empty[["fn"]]
-      )
-      remote_empty_exists <- .remote_final_check_exists_github_direct(
-        source_vec[["type"]], remote_empty
+      remote_empty_exists <- .remote_final_check_exists(
+        source_vec[["type"]], yml_title[["id"]], label,
+        yml_title[["structure"]], yml_title[["path"]],
+        yml_title[["path-append-label"]], version_remote,
+        TRUE
       )
       if (remote_empty_exists) {
         .cli_debug("Remote source is empty for ", label)
@@ -298,7 +297,8 @@ projr_content_update <- function(label = NULL,
   remote_source <- .remote_final_get(
     source_vec[["type"]], yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
-    yml_title[["path-append-label"]], version_remote, FALSE
+    yml_title[["path-append-label"]], version_remote,
+    FALSE, FALSE
   )
   path_dir_local <- projr_path_get_dir(label, safe = FALSE)
   .remote_file_get_all(source_vec[["type"]], remote_source, path_dir_local)

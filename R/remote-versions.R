@@ -357,7 +357,7 @@
   manifest_project <- .remote_get_manifest_project() |>
     .manifest_filter_label(label) |>
     .manifest_filter_version(version_file)
-  manifest_remote <- .remote_get_manifest(type, remote) |>
+  manifest_remote <- .remote_get_manifest(type, remote_pre) |>
     .manifest_filter_label(label) |>
     .manifest_filter_version(version_file)
   rownames(manifest_project) <- NULL
