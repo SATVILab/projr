@@ -3,6 +3,17 @@
 # check existence
 # ========================
 
+#' @title Check whether a remote exists
+#' @description Verifies that the requested remote (local directory, OSF node,
+#'   or GitHub release/tag) exists before attempting downstream operations.
+#' @param type Character scalar identifying the remote backend (`local`,
+#'   `github`, or `osf`).
+#' @param id Backend-specific identifier (filesystem path, GitHub tag, OSF id).
+#' @param ... Additional arguments forwarded to backend-specific helpers (e.g.,
+#'   authentication or API parameters).
+#' @return Logical flag indicating whether the remote exists.
+#' @keywords internal
+#' @noRd
 .remote_check_exists <- function(type,
                                  id,
                                  ...) {
@@ -21,6 +32,13 @@
 # check existence of remote_final
 # ========================
 
+#' @title Check whether a final remote destination exists
+#' @description Determines whether the fully qualified destination (label +
+#'   version + optional sub-path) already exists for the requested remote type.
+#' @inheritParams .remote_final_get
+#' @return Logical flag indicating whether the final remote exists.
+#' @keywords internal
+#' @noRd
 .remote_final_check_exists <- function(type,
                                        id,
                                        label,
@@ -56,6 +74,15 @@
 # check existence of remote_final directly
 # ========================
 
+#' @title Check existence of a fully specified remote object
+#' @description Skips remote composition logic and directly checks whether the
+#'   supplied remote handle exists for the backend.
+#' @inheritParams .remote_check_exists
+#' @param remote Backend-specific remote handle produced by helper functions.
+#' @return Logical flag indicating whether the handle targets an existing
+#'   remote.
+#' @keywords internal
+#' @noRd
 .remote_final_check_exists_direct <- function(type,
                                               remote,
                                               ...) {
@@ -75,11 +102,21 @@
 # return a character giving us the key information to
 # find the remote again
 
+#' @title Create a new remote resource
+#' @description Creates the underlying remote container (local directory, OSF
+#'   node, or GitHub release) needed for subsequent uploads.
+#' @inheritParams .remote_check_exists
+#' @param name Human readable name/title for the remote destination.
+#' @param output_level Character verbosity level passed to CLI helpers.
+#' @param ... Additional backend-specific arguments (e.g., OSF parent, GitHub
+#'   release settings).
+#' @return Backend-specific identifier for the created remote.
+#' @keywords internal
+#' @noRd
 .remote_create <- function(type,
                            id,
                            name,
                            output_level = "std",
-                           
                            ...) {
   .cli_debug(
     "Remote create: type={type}, id={id}",
@@ -102,6 +139,16 @@
 # List all final remotes in a particular pre-remote
 # ========================
 
+#' @title List final remotes underneath a pre-remote
+#' @description Enumerates all final remote destinations (e.g., assets inside a
+#'   release or directories inside a destination path).
+#' @inheritParams .remote_check_exists
+#' @param remote_pre Backend-specific object representing the parent remote
+#'   (e.g., base path, OSF node, GitHub release tag).
+#' @return Character vector or list of backend objects describing available
+#'   final remotes.
+#' @keywords internal
+#' @noRd
 .remote_ls_final <- function(type,
                              remote_pre) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
@@ -125,6 +172,14 @@
 # we can use to interact with the remote,
 # such as checking existence of files,
 # uploading files, etc.
+
+#' @title Retrieve a backend-specific remote handle
+#' @description Resolves the identifier for a remote into an object that helper
+#'   functions can use for file and metadata operations.
+#' @inheritParams .remote_check_exists
+#' @return Backend-specific remote handle (path, GitHub tag list, OSF object).
+#' @keywords internal
+#' @noRd
 
 .remote_get <- function(type,
                         id) {
@@ -159,6 +214,26 @@
 # - if path_append_label is FALSE and path
 #   is not supplied, then is treated as if
 #   path_append_label is TRUE.
+#' @title Compose a final remote destination
+#' @description Creates the backend-specific representation of a final remote
+#'   destination (path, OSF object, GitHub asset name) using consistent rules
+#'   for labels, versions, and optional custom paths.
+#' @inheritParams .remote_check_exists
+#' @param label Directory label whose contents will live at the remote.
+#' @param structure Remote structure (`latest` or `archive`).
+#' @param path Optional base path or prefix configured in `_projr.yml`.
+#' @param path_append_label Logical flag indicating whether the label should be
+#'   appended when composing hierarchical paths or filenames.
+#' @param version Optional project version override; defaults to the current
+#'   package version when `NULL`.
+#' @param pre Logical flag requesting the parent of the final remote (e.g.
+#'   directory containing label/version).
+#' @param empty Logical flag indicating whether an "empty" variant (used for
+#'   GitHub placeholder assets) should be produced.
+#' @return Backend-specific remote handle suitable for existence checks and
+#'   file operations.
+#' @keywords internal
+#' @noRd
 .remote_final_get <- function(type,
                               id,
                               label,
@@ -204,6 +279,14 @@
 
 # wrapper if it returns NULL because we
 # already know it does not exist
+#' @title Retrieve a final remote if it exists
+#' @description Returns the composed remote handle only when the remote already
+#'   exists, otherwise `NULL` to avoid creating invalid handles.
+#' @inheritParams .remote_final_get
+#' @return Backend-specific remote handle or `NULL` if the destination does not
+#'   exist.
+#' @keywords internal
+#' @noRd
 .remote_final_get_if_exists <- function(type,
                                         id,
                                         label,
@@ -228,7 +311,24 @@
 # get relative paths
 # =====================
 
-# overall function
+#' @title Build relative path or asset name for a remote
+#' @description Helper that composes the relative path/filename fragment used by
+#'   backend-specific implementations, delegating to hierarchy or flat helpers as
+#'   needed.
+#' @param path Optional user-specified path prefix.
+#' @param path_append_label Logical flag indicating whether to append the label
+#'   when composing the path.
+#' @param label Directory label associated with the remote.
+#' @param structure Remote structure (`latest` or `archive`).
+#' @param type Remote type identifier.
+#' @param version Optional version override.
+#' @param pre Logical flag requesting the parent directory/asset prefix rather
+#'   than the final destination.
+#' @param empty Logical flag indicating whether the empty placeholder variant is
+#'   required (GitHub only).
+#' @return Character scalar representing the relative path/asset fragment.
+#' @keywords internal
+#' @noRd
 .remote_get_path_rel <- function(path,
                                  path_append_label,
                                  label,
@@ -259,6 +359,13 @@
 }
 
 # hierarchical remotes
+#' @title Compose relative paths for hierarchical remotes
+#' @description Implements the label/version stacking rules for hierarchical
+#'   remotes (local directories and OSF objects).
+#' @inheritParams .remote_get_path_rel
+#' @return Character relative path built according to structure/pre options.
+#' @keywords internal
+#' @noRd
 .remote_get_path_rel_hierarchy <- function(path,
                                            path_append_label,
                                            label,
@@ -308,6 +415,13 @@
 
 
 # flat remotes
+#' @title Compose relative asset names for flat remotes
+#' @description Handles naming for flat remotes (GitHub assets) including label
+#'   suffixes, version postfixes, and optional "-empty" variants.
+#' @inheritParams .remote_get_path_rel
+#' @return Character scalar describing the asset filename prefix.
+#' @keywords internal
+#' @noRd
 .remote_get_path_rel_flat <- function(path,
                                       path_append_label,
                                       label,
@@ -347,6 +461,15 @@
 # Delete an unused empty remote directory
 # ========================
 
+#' @title Remove empty remote destinations
+#' @description Deletes backend-specific remotes when they are empty and no
+#'   longer needed (e.g., cleanup for cache directories or OSF folders).
+#' @inheritParams .remote_final_get
+#' @param remote Backend-specific remote handle produced by
+#'   `.remote_final_get()`.
+#' @return Invisibly returns `TRUE` when removal succeeds.
+#' @keywords internal
+#' @noRd
 .remote_final_rm_if_empty <- function(type,
                                       remote,
                                       structure) {
@@ -366,6 +489,15 @@
 # Get information about the final remote
 # =======================
 
+#' @title Gather metadata about a final remote
+#' @description Retrieves backend-specific information (currently GitHub asset
+#'   metadata) about a final remote destination.
+#' @inheritParams .remote_final_get
+#' @param remote_final Backend-specific object returned by
+#'   `.remote_final_get()`.
+#' @return Metadata list or `NULL` when the backend does not expose information.
+#' @keywords internal
+#' @noRd
 .remote_final_get_info <- function(type,
                                    remote_final) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
@@ -385,6 +517,14 @@
 # In the case of flat remotes, however,
 # it will delete the final remote, e.g.
 # a specific asset in a GitHub release.
+#' @title Empty a final remote destination
+#' @description Removes all contents from the supplied remote handle. For flat
+#'   remotes (GitHub assets) this deletes the asset entirely.
+#' @inheritParams .remote_final_rm_if_empty
+#' @param output_level Character verbosity level for CLI logging.
+#' @return Invisibly returns `TRUE` after the remote is emptied.
+#' @keywords internal
+#' @noRd
 .remote_final_empty <- function(type,
                                 remote,
                                 output_level = "std") {
@@ -403,6 +543,16 @@
 # Hash a particular remote
 # ========================
 
+#' @title Hash files inside a remote destination
+#' @description Calculates file hashes for a remote handle and formats them for
+#'   manifest comparisons.
+#' @inheritParams .remote_final_get
+#' @param remote_final Backend-specific handle returned by
+#'   `.remote_final_get()`.
+#' @param version Version string used when labelling hashes.
+#' @return Manifest-like tibble containing filename/hash pairs.
+#' @keywords internal
+#' @noRd
 .remote_hash <- function(type,
                          remote_final,
                          version,
@@ -428,6 +578,15 @@
 # ========================
 
 # return the path to which it's downloaded
+#' @title Download all files from a remote destination
+#' @description Fetches every file from the supplied remote handle and stores
+#'   them in a local directory, creating it if needed.
+#' @inheritParams .remote_final_get
+#' @param remote Backend-specific remote handle (final destination).
+#' @param path_dir_save_local Local directory where files should be written.
+#' @return Absolute path to the directory containing downloaded files.
+#' @keywords internal
+#' @noRd
 .remote_file_get_all <- function(type,
                                  remote,
                                  path_dir_save_local) {
@@ -454,6 +613,14 @@
 # Download a single file
 # ========================
 
+#' @title Download a single file from a remote
+#' @description Retrieves one file from the remote and saves it inside the
+#'   provided directory.
+#' @inheritParams .remote_file_get_all
+#' @param fn Filename (relative to the remote) to download.
+#' @return Absolute path to the saved file.
+#' @keywords internal
+#' @noRd
 .remote_file_get <- function(type,
                              remote,
                              fn,
@@ -484,6 +651,14 @@
 # List all contents
 # ========================
 
+#' @title List files contained in a remote
+#' @description Enumerates files (or asset entries) stored at the remote and
+#'   logs the count for debugging purposes.
+#' @inheritParams .remote_file_get_all
+#' @param output_level Character verbosity level used for logging.
+#' @return Character vector (or list for complex backends) of filenames.
+#' @keywords internal
+#' @noRd
 .remote_file_ls <- function(type,
                             remote,
                             output_level = "std"
@@ -509,6 +684,14 @@
 # ========================
 
 # pre-specified files
+#' @title Remove specific files from a remote
+#' @description Deletes the requested filenames from the remote destination,
+#'   logging the count removed.
+#' @inheritParams .remote_file_ls
+#' @param fn Character vector of filenames to delete.
+#' @return Invisibly returns `TRUE` after deletion completes.
+#' @keywords internal
+#' @noRd
 .remote_file_rm <- function(type,
                             fn,
                             remote,
@@ -531,6 +714,14 @@
 # Add individual files
 # ========================
 
+#' @title Upload files to a remote destination
+#' @description Adds specific files from a local directory to the remote
+#'   destination, logging how many are uploaded.
+#' @inheritParams .remote_file_rm
+#' @param path_dir_local Local directory containing the files listed in `fn`.
+#' @return Invisibly returns `TRUE` after uploads finish.
+#' @keywords internal
+#' @noRd
 .remote_file_add <- function(type,
                              remote,
                              path_dir_local,

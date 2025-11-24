@@ -34,7 +34,7 @@
   force(title)
 
   .cli_debug(
-    "Content '{label}': Starting processing for destination '{title}' (type: {type})",
+    "Content '{label}': Starting processing for destination '{title}' (type: {type})", # nolint
     output_level = output_level
   )
 
@@ -101,7 +101,7 @@
 
   if (length(plan[["fn_rm"]]) > 0) {
     .cli_debug(
-      "Content '{label}': Files to remove: {paste(head(plan[['fn_rm']], 10), collapse = ', ')}{if (length(plan[['fn_rm']]) > 10) '...' else ''}",
+      "Content '{label}': Files to remove: {paste(head(plan[['fn_rm']], 10), collapse = ', ')}{if (length(plan[['fn_rm']]) > 10) '...' else ''}", # nolint
       output_level = output_level
     )
   } else {
@@ -133,9 +133,11 @@
 # ==========================================================================
 
 #' @title Resolve remotes for a destination label
+#'
 #' @description Builds the remote objects needed to evaluate send plans by
 #'   retrieving the pre-remote, destination remote, comparison target, and
 #'   comparison version identifier.
+#'
 #' @param type Remote type identifier (`local`, `github`, or `osf`).
 #' @param id Remote id from `_projr.yml` (e.g. filesystem path or GitHub tag).
 #' @param path Optional relative path within the remote definition.
@@ -148,6 +150,31 @@
 #' @param inspect Inspection mode describing how remote state should be
 #'   inspected (`manifest`, `file`, or `none`).
 #' @param cue Cue describing when to send (always, if-change, etc.).
+#'
+#' @details
+#' - remote_dest uses the latest version but assumes non-empty, and so
+#'   is tweaked later on if it needs to be empty.
+#' - remote_dest is NULL if it does not exist, which happens
+#'   for `local` structure remotes if this is the first time
+#'   we're uploading to there or the previous remote was empty
+#'   (and it's GitHub),
+#' - `remote_dest` is where we would upload to, if it already existed.
+#'   So, it does often for latest remotes but not usually for `archive`
+#'   remotes.
+#'   or usually always for `archive` remotes.
+#' - `version_comp` is critical, in that it tells us whether there is
+#'   a trusted remote. If it's NULL, then there is no trusted remote, either
+#'   because it does not eixst or because we don't trust its manifest if
+#'   we're using manifest-based uploads.
+#'   What this means is that if we are not inspecting, then
+#'   `version_comp` is NULL, and we will upload everything.
+#'   What this means then is that if the `version_comp` is NULL, then
+#'   for `archive` remotes we will have to upload and the version will
+#'   be trusted.
+#'   For latest remotes, we will lose trusted remote status if the
+#'   remote already exists, but if it's being created for the first time
+#'   the remote will be trusted.
+#' -
 #' @return List containing `remote_pre`, `remote_dest`, `remote_comp`, and
 #'   `version_comp` entries.
 #' @keywords internal
@@ -166,7 +193,7 @@
   )
   remote_dest <- .dest_send_label_get_remotes_get_remote_dest(
     type, id, label, structure, path, path_append_label,
-    NULL, FALSE
+    projr_version_get(), FALSE, FALSE
   )
   version_comp <- .dest_send_label_get_remotes_get_version_comp(
     remote_pre, type, label, structure, strategy, inspect, cue
@@ -216,6 +243,14 @@
 #' @param remote_pre Remote pre-object produced by `.remote_final_get()`.
 #' @return Character version string (without suffix) or `NULL` when no trusted
 #'   comparison exists.
+#'
+#' @details
+#'
+#' If no inspection is done, then there is no remote to compare against,
+#' and so we return NULL.
+#'
+#' If
+#'
 #' @keywords internal
 #' @noRd
 .dest_send_label_get_remotes_get_version_comp <- function(remote_pre, # nolint
@@ -225,6 +260,9 @@
                                                           strategy,
                                                           inspect,
                                                           cue) {
+  # exit early with NULL when no comparison remote is needed,
+  # usually because the upload strategy does not involve
+  # inspecting the remote at all
   is_nothing <-
     .dest_send_label_get_remotes_get_version_comp_check_nothing(
       remote_pre, inspect, strategy
@@ -286,8 +324,13 @@
 #'   against a `latest` remote structure, honoring inspection mode and manifest
 #'   trust rules.
 #' @inheritParams .dest_send_label_get_remotes_get_version_comp
+#'
+#' @details
+#'
+#'
 #' @return Character version string or `NULL` when no trusted version is
 #'   available.
+#'
 #' @keywords internal
 #' @noRd
 .dest_send_label_get_remotes_get_version_comp_latest <-
@@ -295,7 +338,16 @@
            remote_pre,
            type,
            label) { # nolint
+    # project version
     version_project <- projr_version_get() |> .version_v_rm()
+    # if we inspect by "file" (and not "manifest"; we already know it's not "none"),
+    # then the final remote we compare against is independent
+    # of the version (as the versoin does not from a part of 
+    # "latest" final remotes), so the point of returning version_project
+    # for latest is that we are saying that we have something to compare against.
+    # The only reason we do not return straight away is that
+    # we have to check that this remote exists first,
+    # which we do via `.remote_get_version_label`.
     version_comp_untrusted <- if (inspect == "file") version_project else NULL
     version_remote_raw <- .remote_get_version_label(
       remote_pre, type, label, "latest"
