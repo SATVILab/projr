@@ -177,7 +177,7 @@ The `projr_yml_check()` function validates the entire `_projr.yml` configuration
 
 ### Validated Sections
 
-- **Directories** - Directory labels, paths, ignore settings
+- **Directories** - Directory labels, paths, ignore settings (labels must not end in `-empty`)
 - **Build settings** - Git, dest, and label configurations
 - **Build restrictions** - build.restrictions.branch is logical or character
 - **Dev settings** - dev.scripts and dev.hooks keys
@@ -238,6 +238,7 @@ build:
 - Remember `dev.scripts` is exclusive (no fallback to `build.scripts`)
 - Remember `build.hooks` are ignored in dev runs; use `dev.hooks` for dev-specific hooks
 - File paths in scripts/hooks are relative to project root
+- Directory labels must not end in `-empty` (e.g., `output-empty` is invalid)
 
 ## Working with YAML in R
 

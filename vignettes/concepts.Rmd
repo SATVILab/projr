@@ -91,6 +91,10 @@ directories:
     path: _output/tables
 ```
 
+**Label restrictions:**
+
+Directory labels must not end in `-empty`. This suffix is reserved for internal use by projr. For example, `output-empty` or `cache-empty` are invalid labels and will cause `projr_yml_check()` to fail.
+
 ---
 
 ## Versioned builds
