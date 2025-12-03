@@ -249,6 +249,17 @@
 #' If no inspection is done, then there is no remote to compare against,
 #' and so we return NULL.
 #'
+#' If the structure is `latest`, then for `file` inspections
+#' we always compare against the latest verison of the remote,
+#' and for `manifest` inspections we need the manifest to
+#' be trustworthy to use them.
+#' 
+#' If the structure is `archive`, then for `file` inspections
+#' we accept whatever the most recent remote is that is 
+#' above the minimum accepted version.
+#' For `manifest` inpsections, however, the remote needs
+#' to be sufficiently frequent and have valid manifest.
+#'
 #' If
 #'
 #' @keywords internal
@@ -279,25 +290,13 @@
   # same as now), and we also don't care about
   # checking what the versioned uploaded file/folder
   # is
-  if (structure == "latest") {
-    return(.dest_send_label_get_remotes_get_version_comp_latest(
+  switch(structure,
+    "latest" = .dest_send_label_get_remotes_get_version_comp_latest(
       inspect, remote_pre, type, label
-    ))
-  }
-  # now, it's archive, but we compare
-  # against the latest version to see what
-  # we should upload, as now we're not interested
-  # in old remotes, but the latest one
-  # does upload-missing become upload-all here?
-  # yes, essentially, with cue: always, as we're
-  # not going to adjust old versions so it's basically
-  # just upload all
-  if (cue == "always" || strategy %in% c("upload-missing", "upload-all")) {
-    return(projr_version_get() |> .version_v_rm())
-  }
-  # now we see if we can compare against an archived remote
-  .dest_send_label_get_remotes_get_version_comp_archive(
-    cue, strategy, label, inspect, remote_pre, type
+    ),
+    "archive" =  .dest_send_label_get_remotes_get_version_comp_archive(
+      cue, strategy, label, inspect, remote_pre, type
+    )
   )
 }
 
@@ -326,7 +325,13 @@
 #' @inheritParams .dest_send_label_get_remotes_get_version_comp
 #'
 #' @details
-#'
+#' The idea is that when `NULL` is returned, no comparison
+#' (either file-based or manifest-based) will take place,
+#' whereas if a version string is returned, that version
+#' is to be used for comparisons.
+#' 
+#' Note that this flow assumes that the `remote_dest` does not exist
+#' for `archive` structure remotes.
 #'
 #' @return Character version string or `NULL` when no trusted version is
 #'   available.
@@ -338,32 +343,39 @@
            remote_pre,
            type,
            label) { # nolint
-    # project version
-    version_project <- projr_version_get() |> .version_v_rm()
-    # if we inspect by "file" (and not "manifest"; we already know it's not "none"),
-    # then the final remote we compare against is independent
-    # of the version (as the versoin does not from a part of 
-    # "latest" final remotes), so the point of returning version_project
-    # for latest is that we are saying that we have something to compare against.
-    # The only reason we do not return straight away is that
-    # we have to check that this remote exists first,
-    # which we do via `.remote_get_version_label`.
-    version_comp_untrusted <- if (inspect == "file") version_project else NULL
-    version_remote_raw <- .remote_get_version_label(
-      remote_pre, type, label, "latest"
+    switch(inspect,
+      "file" = .dest_send_label_get_remotes_get_version_comp_latest_file(),
+      .dest_send_label_get_remotes_get_version_comp_latest_manifest(
+        remote_pre, type, label
+      )
     )
-    # Only call .version_v_rm if we have a valid value
-    version_remote <- if (.is_string(version_remote_raw)) {
-      version_remote_raw |> .version_v_rm()
-    } else {
-      NULL
-    }
-    if (!.is_string(version_remote)) {
-      version_comp_untrusted
-    } else {
-      version_remote
-    }
   }
+
+.dest_send_label_get_remotes_get_version_comp_latest_file <- function() {
+  # final remotes for `latest` structure do not have the version embedded,
+  # so the version to compare against is irrelevant.
+  # But we don't return NULL because we do want to compare.
+  projr_version_get() |> .version_v_rm()
+}
+
+.dest_send_label_get_remotes_get_version_comp_latest_manifest <-
+  function(remote_pre,
+           type,
+           label) {
+  # will be character(0L) if:
+  # - VERSION file does not exist or is corrupt
+  # - manifest on remote does not match manifest locally
+  #   for the relevant versions
+  version_remote_raw <- .remote_get_version_label(
+    remote_pre, type, label, "latest"
+  )
+  # not valid if no string returned
+  if (!.is_string(version_remote_raw)) {
+    return(NULL)
+  }
+  version_remote_raw |>
+    .version_v_rm()
+}
 
 #' @title Resolve comparison version for archive remotes
 #' @description Selects the remote archive version that can be trusted during
@@ -379,6 +391,16 @@
                                                                   inspect,
                                                                   remote_pre, # nolint
                                                                   type) {
+  # against the latest version to see what
+  # we should upload, as now we're not interested
+  # in old remotes, but the latest one
+  # does upload-missing become upload-all here?
+  # yes, essentially, with cue: always, as we're
+  # not going to adjust old versions so it's basically
+  # just upload all.
+  if (cue == "always") {
+    return(projr_version_get() |> .version_v_rm())
+  }
   # if `inspect` is `file`, `version_comp` can be returned as `version_project`,
   # as we are always going to hash it, so we don't need to
   # return `NULL` to indicate untrusted manifests.
@@ -389,7 +411,8 @@
   version_min_acceptable <-
     .manifest_get_version_earliest_match(label, NULL) |>
     .version_v_rm() # nolint
-  # if the archives are all out of date, then
+  # if the archives are all out of date
+  # (there has been a change in the last build), then
   # we require the latest version
   if (version_min_acceptable == version_project) {
     return(version_comp_no_trusted_archive)
@@ -434,6 +457,7 @@
   if (is.null(version)) {
     # if it's `NULL`, then we return remote_dest,
     # as that is the comparison remote, essentially.
+    # only matters when inspecting.
     remote_dest
   } else {
     remote_comp <- .remote_final_get(
