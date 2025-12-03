@@ -33,6 +33,17 @@ projr_yml_check <- function(profile = NULL) {
   nm_vec_strip <- .dir_label_strip(nm_vec)
   .assert_len(nm_vec, unique(nm_vec) |> length())
   .assert_len(nm_vec, nm_vec[nzchar(nm_vec)] |> length())
+
+  # Check that no directory label ends in "-empty"
+  labels_ending_empty <- nm_vec[grepl("-empty$", nm_vec)]
+  if (length(labels_ending_empty) > 0) {
+    stop(
+      "Directory labels must not end in '-empty'. ",
+      "Invalid label(s): ", paste0(labels_ending_empty, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
   .assert_nz(nm_vec)
   .assert_detect_any(nm_vec_strip, "^cache")
   .assert_detect_any(nm_vec_strip, "^output")

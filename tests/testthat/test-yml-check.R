@@ -136,12 +136,12 @@ test_that(".yml_cite_check_config validates cite structure", {
 test_that("projr_yml_check runs all validations", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  
+
   usethis::with_project(
     path = dir_test,
     code = {
       .init()
-      
+
       # Add various yml configurations
       yml <- .yml_get("default")
       yml[["metadata"]] <- list("version-format" = "major.minor.patch-dev")
@@ -149,8 +149,46 @@ test_that("projr_yml_check runs all validations", {
       yml[["build"]][["hooks"]] <- list(pre = c("hook.R"))
       yml[["build"]][["cite"]] <- TRUE
       .yml_set(yml, "default")
-      
+
       # Should pass all checks
+      expect_true(projr_yml_check())
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".yml_dir_check rejects directory labels ending in -empty", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+
+      # Valid directory labels should pass
+      yml <- .yml_get("default")
+      expect_true(projr_yml_check())
+
+      # Directory label ending in "-empty" should fail
+      yml <- .yml_get("default")
+      yml[["directories"]][["output-empty"]] <- list(path = "_output_empty")
+      .yml_set(yml, "default")
+      expect_error(projr_yml_check(), "-empty")
+
+      # Restore valid config and verify another invalid label also fails
+      yml <- .yml_get("default")
+      yml[["directories"]][["output-empty"]] <- NULL
+      yml[["directories"]][["cache-empty"]] <- list(path = "_cache_empty")
+      .yml_set(yml, "default")
+      expect_error(projr_yml_check(), "-empty")
+
+      # Labels that contain "empty" but don't end in "-empty" should pass
+      yml <- .yml_get("default")
+      yml[["directories"]][["cache-empty"]] <- NULL
+      yml[["directories"]][["empty-output"]] <- list(path = "_empty_output")
+      .yml_set(yml, "default")
       expect_true(projr_yml_check())
     },
     force = TRUE,
