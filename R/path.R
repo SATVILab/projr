@@ -563,7 +563,9 @@
   if (!.dir_copy_file_check(fn, path_dir_from)) {
     return(invisible(FALSE))
   }
-  # ensure relevant directories are available
+  # ensure destination base directory exists
+  .dir_create(path_dir_to)
+  # ensure relevant subdirectories are available
   .dir_copy_file_tree(fn, path_dir_to)
   fs::file_copy(
     file.path(path_dir_from, fn) |> .path_force_abs(),
