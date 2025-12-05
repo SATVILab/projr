@@ -124,6 +124,7 @@
     yml_title[["structure"]], yml_title[["path"]],
     yml_title[["path-append-label"]],
     path_dir_local, remote_list[["remote_pre"]],
+    yml_title[["send"]][["cue"]],
     output_level
   )
 
@@ -375,11 +376,9 @@
   projr_version_get() |> .version_v_rm()
 }
 
-.dsl_gr_gvc_latest_manifest <- function(
-  remote_pre,
-  type,
-  label
-) {
+.dsl_gr_gvc_latest_manifest <- function(remote_pre,
+                                        type,
+                                        label) {
   # will be character(0L) if:
   # - VERSION file does not exist or is corrupt
   # - manifest on remote does not match manifest locally
@@ -1510,7 +1509,8 @@
                                     remote_pre,
                                     label) {
   # check whether the remote exists in either form
-  remote_exists_either <- !is.null(remote_dest_full) || !is.null(remote_dest_empty)
+  remote_exists_either <- !is.null(remote_dest_full) ||
+    !is.null(remote_dest_empty)
 
   # update label if we actually do something, or are creating the remote
   update_label <- .is_len_pos(c(fn_add, fn_rm)) ||
@@ -1618,6 +1618,7 @@
                                 path_append_label,
                                 path_dir_local,
                                 remote_pre,
+                                cue,
                                 output_level = "std") {
   .cli_debug(
     "Content '{label}': Implementing upload plan",
@@ -1625,104 +1626,40 @@
   )
 
   # purge
-  .dsl_ip_purge(purge, type, remote_dest_full, output_level)
+  remote_dest_full <- .dsl_ip_purge(
+    purge, type, remote_dest_full, output_level
+  )
 
   # add files
-  .dsl_ip_add(
-    fn_add, remote_dest_full, type, id, label,
+  remote_dest_full <- .dsl_ip_add(
+    fn_add, remote_dest_full,
+    type, id, label,
     structure, path, path_append_label,
     projr_version_get(), output_level
   )
 
   # remove files
-  .dsl_ip_rm(
-    fn_rm, type, id, label,
+  remote_dest_full <- .dsl_ip_rm(
+    fn_rm, remote_dest_full,
+    type, id, label,
     structure, path, path_append_label,
+    projr_version_get(),
     output_level
   )
 
-
-  if (create || type == "github") {
-    .cli_debug(
-      "Content '{label}': Creating/updating remote destination",
-      output_level = output_level
-    )
-    # will create for OSF and local,
-    # but not GitHub, so GitHub remote
-    # is only created if there is a file to add
-    # this means if the create is TRUE
-    # and .is_len_pos(fn_add) is FALSE,
-    # then we need to create an empty
-    # GitHub remote. Could do that later, I guess?
-    remote_dest <- .remote_final_get(
-      type, id, label, structure, path, path_append_label, NULL
-    )
-  }
-
-  if (.is_len_pos(fn_rm)) {
-    .cli_debug(
-      "Content '{label}': Removing {length(fn_rm)} file(s) from remote",
-      output_level = output_level
-    )
-    .remote_file_rm(type, fn_rm, remote_dest, output_level)
-  }
-
-  if (.is_len_pos(fn_add)) {
-    .cli_debug(
-      "Content '{label}': Adding {length(fn_add)} file(s) to remote",
-      output_level = output_level
-    )
-    .remote_file_add(type, remote_dest, path_dir_local, fn_add, output_level)
-    if (type == "github") {
-      # ensure that we remove the empty one
-      remote_dest_empty <- remote_dest
-      remote_dest_empty["fn"] <- gsub(
-        "\\.zip$", "-empty.zip", remote_dest_empty[["fn"]]
-      )
-      if (.remote_check_exists_github_httr(
-        remote_dest_empty[["tag"]], remote_dest_empty[["fn"]]
-      )) {
-        .remote_final_empty_github(remote_dest_empty)
-      }
-    }
-  }
-
-  if (type == "github") {
-    remote_exists <- .remote_final_check_exists_direct("github", remote_dest)
-    remote_dest_empty <- remote_dest
-    remote_dest_empty["fn"] <- gsub(
-      "\\.zip$", "-empty.zip", remote_dest_empty[["fn"]]
-    )
-    remote_empty_exists <- .remote_final_check_exists_direct(
-      "github", remote_dest_empty
-    )
-    if (remote_exists) {
-      .cli_debug(
-        "Content '{label}': Remote destination exists after upload, so removing empty placeholder", # nolint
-        output_level = output_level
-      )
-      if (remote_empty_exists) {
-        .remote_final_empty("github", remote_dest_empty)
-      }
-    } else {
-      # will need to create an empty placeholder, if the
-      if (create || structure == "latest") {
-        .cli_debug(
-          "Content '{label}': Remote destination does not exist after upload, so ensuring an empty placeholder", # nolint
-          output_level = output_level
-        )
-        if (!remote_empty_exists) {
-          path_fn <- file.create(
-            file.path(tempdir(), "projr-empty"),
-            showWarnings = FALSE
-          )
-          .remote_file_add(
-            "github", remote_dest_empty, tempdir(), "projr-empty", output_level
-          )
-        }
-      }
-    }
-  }
+  # remove unncecessary empty remote
+  # or ensure at least an empty remote exists
+  # if required
+  remote_dest_empty <- .dsl_ip_finalise_remotes(
+    remote_dest_full,
+    remote_dest_empty,
+    is_remote_dest_empty,
+    ensure_remote_dest_exists,
+    type, id, label,
+    structure, path, path_append_label,
+    fn_rm, cue,
+    output_level
+  )
 
   # add log files
   .dsl_ip_log(
@@ -1730,7 +1667,6 @@
     remote_pre, changelog, output_level
   )
 }
-
 
 .dsl_ip_purge <- function(purge,
                           type,
@@ -1742,13 +1678,16 @@
       "Not purging remote destination",
       output_level = output_level
     )
-    return(invisible(FALSE))
+    return(remote_dest_full)
   }
   .cli_debug(
     "Purging remote destination",
     output_level = output_level
   )
   .remote_final_empty(type, remote_dest_full)
+  # remote_dest_full becomes this now,
+  # as it will no longer exist
+  NULL
 }
 
 .dsl_ip_add <- function(fn_add,
@@ -1766,32 +1705,35 @@
       "Content '{label}': No files to add to remote",
       output_level = output_level
     )
-    return(invisible(FALSE))
+    return(remote_dest_full)
   }
   .cli_debug(
     "Content '{label}': Adding {length(fn_add)} file(s) to remote",
     output_level = output_level
   )
-  remote_dest <- .dsl_ip_a_get_remote_dest(
+  remote_add <- .dsl_ip_a_get_remote_add(
     remote_dest_full, type, id, label, structure, path,
     path_append_label, version
   )
-
-  .remote_file_add(type, remote_dest_add, path_dir_local, fn_add, output_level)
+  path_dir_local <- projr::projr_path_get(
+    label,
+    safe = FALSE
+  )
+  .remote_file_add(type, remote_add, path_dir_local, fn_add, output_level)
+  remote_add
 }
 
-.dsl_ip_a_get_remote_dest <- function(remote_dest_full,
-                                      type,
-                                      id,
-                                      label,
-                                      structure,
-                                      path,
-                                      path_append_label,
-                                      version) {
+.dsl_ip_a_get_remote_add <- function(remote_dest_full,
+                                     type,
+                                     id,
+                                     label,
+                                     structure,
+                                     path,
+                                     path_append_label,
+                                     version) {
   if (!is.null(remote_dest_full)) {
     return(remote_dest_full)
   }
-
   .remote_final_get(
     type, id, label, structure, path,
     path_append_label, version, FALSE, FALSE
@@ -1801,27 +1743,55 @@
 .dsl_ip_rm <- function(fn_rm,
                        remote_dest_full,
                        type,
+                       id,
                        label,
+                       structure,
+                       path,
+                       path_append_label,
+                       version,
                        output_level = "std") {
   if (!.is_len_pos(fn_rm)) {
     .cli_debug(
       "Content '{label}': No files to remove from remote",
       output_level = output_level
     )
-    return(invisible(FALSE))
+    return(remote_dest_full)
   }
-  if (is.null(remote_dest_full)) {
+  remote_rm <- .dsl_ip_r_get_remote_rm(
+    remote_dest_full, type, id, label,
+    structure, path, path_append_label, version
+  )
+  if (is.null(remote_rm)) {
     .cli_debug(
       "Content '{label}': Remote destination does not exist; skipping file removals", # nolint
       output_level = output_level
     )
-    return(invisible(FALSE))
+    return(remote_dest_full)
   }
   .cli_debug(
     "Content '{label}': Removing {length(fn_rm)} file(s) from remote",
     output_level = output_level
   )
-  .remote_file_rm(type, fn_rm, remote_dest_full, output_level)
+  .remote_file_rm(type, fn_rm, remote_rm, output_level)
+  remote_dest_full
+}
+
+.dsl_ip_r_get_remote_rm <- function(remote_dest_full,
+                                    type,
+                                    id,
+                                    label,
+                                    structure,
+                                    path,
+                                    path_append_label,
+                                    version) {
+  if (!is.null(remote_dest_full)) {
+    return(remote_dest_full)
+  }
+
+  .remote_final_get_if_exists(
+    type, id, label, structure, path,
+    path_append_label, version, FALSE, FALSE
+  )
 }
 
 .dsl_ip_log <- function(version_file,
@@ -1848,4 +1818,118 @@
     .remote_write_changelog(type, remote_pre)
   }
   invisible(TRUE)
+}
+
+.dsl_ip_finalise_remotes <- function(remote_dest_full,
+                                     remote_dest_empty,
+                                     type,
+                                     ensure_remote_dest_exists,
+                                     id,
+                                     label,
+                                     structure,
+                                     path,
+                                     path_append_label,
+                                     version,
+                                     fn_rm,
+                                     cue,
+                                     output_level = "std") {
+  # if both exist, then we remove the empty remote
+  remote_dest_empty <- .dsl_ip_fr_remove_empty(
+    remote_dest_full, remote_dest_empty,
+    type, output_level = output_level
+  )
+
+  # ensure at least the empty remote exists,
+  # if a remote is required
+  remote_dest_empty <- .dsl_ip_fr_ensure_exists(
+    remote_dest_full,
+    remote_dest_empty,
+    type, id, label, structure,
+    path, path_append_label,
+    version,
+    fn_rm,
+    cue,
+    output_level = output_level
+  )
+  remote_dest_empty
+}
+
+.dsl_ip_fr_remove_empty <- function(remote_dest_full,
+                                    remote_dest_empty,
+                                    type,
+                                    output_level = "std") {
+  .cli_debug(
+    "Removing empty remote destination if full destination exists",
+    output_level = output_level
+  )
+  full_exists <- !is.null(remote_dest_full)
+  empty_exists <- !is.null(is_remote_dest_empty)
+  remove_empty <- full_exists && empty_exists
+  if (!remove_empty) {
+    return(remote_dest_empty)
+  }
+  .cli_debug(
+    "Full remote exists; removing empty remote",
+    output_level = output_level
+  )
+  .remote_final_rm(
+    type, remote_dest_empty
+  )
+  NULL
+}
+
+.dsl_ip_fr_ensure_exists <- function(remote_dest_full,
+                                     remote_dest_empty,
+                                     type,
+                                     id,
+                                     label,
+                                     structure,
+                                     path,
+                                     path_append_label,
+                                     version,
+                                     fn_rm,
+                                     cue,
+                                     output_level = "std") {
+  .cli_debug(
+    "Ensuring a remote exists if required",
+    output_level = output_level
+  )
+  full_exists <- !is.null(remote_dest_full)
+  empty_exists <- !is.null(remote_dest_empty)
+  if (full_exists || empty_exists) {
+    .cli_debug(
+      "Remote destination already exists; no need to create",
+      output_level = output_level
+    )
+    return(remote_dest_empty)
+  }
+
+  create_empty <-
+    # latest remotes should always have at least one of the two
+    structure == "latest" ||
+    # if something was removed, we need to ensure it exists
+    .is_len_pos(fn_rm) ||
+    # if the cue is always, we need to ensure it exists
+    cue == "always" ||
+    # if no final remotes exist for archive structures
+    .is_len_0(.remote_ls_final(type, remote_pre))
+  if (!create_empty) {
+    .cli_debug(
+      "No need to create empty remote destination",
+      output_level = output_level
+    )
+    return(NULL)
+  }
+
+  # create empty remote now, as clearly
+  # we cannot upload anything at this point
+  .cli_debug(
+    "Creating empty remote destination",
+    output_level = output_level
+  )
+  .remote_final_get(
+    type, id, label, structure,
+    path, path_append_label,
+    version, FALSE, TRUE
+  )
 }

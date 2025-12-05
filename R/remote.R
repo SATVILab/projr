@@ -553,6 +553,28 @@
   )
 }
 
+# ========================
+# Delete a final remote
+# ========================
+
+.remote_final_rm <- function(type,
+                             remote,
+                             structure) {
+  .assert_in(type, .opt_remote_get_type(), TRUE)
+  switch(type,
+    "local" = .remote_final_rm_local(
+      remote = remote, structure = structure
+    ),
+    "osf" = .remote_final_rm_osf(
+      remote = remote, structure = structure
+    ),
+    "github" = .remote_final_rm_github(
+      remote = remote, structure = structure
+    )
+  )
+}
+
+
 # =======================
 # Get information about the final remote
 # =======================

@@ -309,6 +309,52 @@
   invisible(FALSE)
 }
 
+# ========================
+# Delete a final remote
+# ========================
+
+.remote_final_rm_github <- function(remote,
+                                    output_level = "std",
+                                    api_url = NULL,
+                                    token   = NULL) {
+  .assert_given_full(remote)
+  tag <- remote[["tag"]]
+  fn  <- remote[["fn"]]
+
+  if (!.remote_check_exists("github", tag, max_attempts = 2)) {
+    .cli_debug(
+      "GitHub release: Release '{tag}' does not exist, nothing to delete",
+      tag = tag,
+      output_level = output_level
+    )
+    return(invisible(FALSE))
+  }
+
+  if (!.remote_final_check_exists_direct(
+    "github",
+    remote = remote,
+    api_url = api_url,
+    token  = token
+  )) {
+    .cli_debug(
+      "GitHub release: Asset '{fn}' not found in release '{tag}', so no need to delete.", # nolint
+      fn = fn,
+      tag = tag,
+      output_level = output_level
+    )
+    return(invisible(FALSE))
+  }
+
+  .remote_final_rm_github_httr(
+    repo = .gh_repo_get(),
+    tag  = tag,
+    fn   = fn,
+    api_url = api_url,
+    token  = token
+  )
+  invisible(TRUE)
+}
+
 # =======================
 # Get information about the remote
 # =======================
@@ -334,7 +380,6 @@
 # github
 .remote_final_empty_github <- function(remote,
                                        output_level = "std",
-                                       
                                        api_url = NULL,
                                        token   = NULL) {
   # here, if remote specifies the file, it will only remove
