@@ -430,7 +430,7 @@ Remote versions are tracked in `R/remote-versions.R`:
 
 ```r
 # Get latest version from remote
-.remote_get_version_label(remote_pre, type, label, structure)
+.remote_get_version_latest_label(remote_pre, type, label, structure)
 
 # Get version file from remote
 .remote_get_version_file(remote_pre, type, structure)

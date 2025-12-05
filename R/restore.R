@@ -238,11 +238,11 @@ projr_content_update <- function(label = NULL,
     yml_title[["path-append-label"]], NULL, TRUE
   )
   version_remote <- if (yml_title[["structure"]] == "latest") {
-    .remote_get_version_label_non_project_file(
+    .remote_get_version_latest_label_non_project_file(
       remote_pre, source_vec[["type"]], label
     )
   } else {
-    .remote_get_version_label_non_project_archive(
+    .remote_get_version_latest_label_non_project_archive(
       remote_pre, source_vec[["type"]], label, "archive"
     )
   }

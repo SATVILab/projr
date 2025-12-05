@@ -100,7 +100,7 @@
   )
 }
 
-.remote_final_check_exists_github_direct <- function(remote,
+.remote_final_check_exists_direct_github <- function(remote,
                                                      api_url = NULL,
                                                      token   = NULL) {
   .remote_final_check_exists_github_httr(
@@ -606,7 +606,7 @@
     token  = token
   )) {
     .remote_file_get_all(
-      "github", remote, path_dir_tmp_save
+      "github", path_dir_local, path_dir_tmp_save
     )
   }
 

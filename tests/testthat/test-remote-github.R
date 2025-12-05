@@ -387,7 +387,7 @@ usethis::with_project(
 test_that("upload and restore from `latest` GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -404,6 +404,7 @@ test_that("upload and restore from `latest` GitHub releases", {
       )
 
       # Build to upload to GitHub
+      browser()
       projr::projr_build_patch(msg = "test")
 
       # Verify upload
@@ -554,11 +555,6 @@ test_that("upload and restore from `archive` GitHub releases", {
     path = dir_test,
     code = {
 
-      # --- entirely empty remote ----
-      if (dir.exists(projr_path_get("raw-data"))) {
-        unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
-      }
-
       # convert to archive structure
       .yml_dest_rm_type_all("default")
       tag_name <- "projr-test-release-a"
@@ -567,6 +563,24 @@ test_that("upload and restore from `archive` GitHub releases", {
         content = "raw-data",
         structure = "archive"
       )
+
+      # --- ensure remote is cleared ---
+      if (.remote_check_exists("github", tag_name)) {
+        remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
+        for (fn in remote_final_vec) {
+          .remote_final_empty(
+            "github",
+            remote = c("tag" = tag_name, "fn" = fn)
+          )
+        }
+      }
+
+      # --- entirely empty raw data ----
+      if (dir.exists(projr_path_get("raw-data"))) {
+        unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
+      }
+
+
 
       # Error because nothing is uploaded yet (no manifest.csv)
       .remote_file_rm(

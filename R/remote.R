@@ -252,7 +252,8 @@
       structure = structure,
       path_append_label = path_append_label,
       version = version,
-      pre = pre
+      pre = pre,
+      empty = empty
     ),
     "osf" = .remote_final_get_osf(
       id = id,
@@ -261,7 +262,8 @@
       path = path,
       path_append_label = path_append_label,
       version = version,
-      pre = pre
+      pre = pre,
+      empty = empty
     ),
     "github" = .remote_final_get_github(
       id = .remote_misc_github_tag_get(id),
@@ -280,22 +282,81 @@
 # wrapper if it returns NULL because we
 # already know it does not exist
 #' @title Retrieve a final remote if it exists
-#' @description Returns the composed remote handle only when the remote already
-#'   exists, otherwise `NULL` to avoid creating invalid handles.
+#' @description Resolve and return the composed final remote handle only when
+#'   the destination actually exists; otherwise return `NULL` to avoid
+#'   creating handles that point at non-existent destinations. By default the
+#'   function prefers the non-empty variant of a remote; when `empty` is
+#'   supplied as `TRUE` or `FALSE` the function will only test that specific
+#'   variant. When `empty` is `NULL` (the default) a non-empty remote is
+#'   attempted first and, if missing, the empty variant is tried.
 #' @inheritParams .remote_final_get
+#' @param empty Logical (or `NULL`) indicating whether to test the empty
+#'   placeholder variant of the final remote. When `NULL`, attempt non-empty
+#'   variant then fallback to empty variant if not found. When `TRUE`/`FALSE`,
+#'   test only that variant.
 #' @return Backend-specific remote handle or `NULL` if the destination does not
 #'   exist.
+#' @details The `pre` parameter (inherited from `.remote_final_get`) requests
+#'   the parent (pre-)remote rather than the final handle; this behavior is
+#'   preserved by this helper. The `empty` flag is mainly relevant for flat
+#'   remotes (GitHub asset names) and is ignored for hierarchical backends.
 #' @keywords internal
 #' @noRd
 .remote_final_get_if_exists <- function(type,
                                         id,
                                         label,
                                         structure,
-                                        path = NULL,
-                                        path_append_label = TRUE,
-                                        version = NULL,
-                                        pre = FALSE,
-                                        empty = FALSE) {
+                                        path,
+                                        path_append_label,
+                                        version,
+                                        pre,
+                                        empty = NULL) {
+  # always work with non-empty remote, and adapt it to be empty
+  # remote if that is what is needed
+  empty_init <- empty %||% FALSE
+  remote_final_empty_init <- .remote_final_get_if_exists_impl(
+    type, id, label, structure, path, path_append_label,
+    version, pre, empty_init
+  )
+  if (!is.null(remote_final_empty_init)) {
+    return(remote_final_empty_init)
+  }
+  if (is.null(empty)) {
+    return(NULL)
+  }
+  .remote_final_get_if_exists_impl(
+    type, id, label, structure, path, path_append_label,
+    version, pre, !empty_init
+  )
+}
+
+#' @title Internal helper: Retrieve a final remote if it exists (impl)
+#' @description Low-level implementation used by
+#'   `.remote_final_get_if_exists()`.
+#'   Performs a direct existence check for the composed final remote and, when
+#'   present, returns the backend-specific final remote handle created by
+#'   `.remote_final_get()`. Returns `NULL` when the destination is absent.
+#' @inheritParams .remote_final_get
+#' @param empty Logical indicating whether to test the "empty" placeholder
+#'   variant (`-empty`) of the final remote; defaults to `FALSE` for the
+#'   implementation. This field is mainly relevant for flat remotes (GitHub
+#'   assets) and is ignored for hierarchical backends.
+#' @return Backend-specific remote handle or `NULL` if the destination does not
+#'   exist.
+#' @details This implementation performs the actual existence check and
+#'   composition; the public wrapper `.remote_final_get_if_exists()` implements
+#'   fallback logic when `empty = NULL` (attempt non-empty then empty).
+#' @keywords internal
+#' @noRd
+.remote_final_get_if_exists_impl <- function(type,
+                                             id,
+                                             label,
+                                             structure,
+                                             path = NULL,
+                                             path_append_label = TRUE,
+                                             version = NULL,
+                                             pre = FALSE,
+                                             empty = FALSE) {
   exists <- .remote_final_check_exists(
     type, id, label, structure, path, path_append_label, version, empty
   )
@@ -345,7 +406,8 @@
       label = label,
       structure = structure,
       version = version,
-      pre = pre
+      pre = pre,
+      empty = empty
     ),
     "github" = .remote_get_path_rel_github(
       path = path,
@@ -371,7 +433,8 @@
                                            label,
                                            structure,
                                            version,
-                                           pre) {
+                                           pre,
+                                           empty) {
   .assert_string(path)
   .assert_flag(path_append_label, TRUE)
   .assert_in_single(structure, .opt_remote_get_structure(), TRUE)
@@ -408,6 +471,11 @@
       # if it's an archive
       args_list <- args_list[-length(args_list)]
     }
+  }
+  if (empty) {
+    args_list[[length(args_list)]] <- paste0(
+      args_list[[length(args_list)]], "-empty"
+    )
   }
 
   do.call(file.path, args_list)

@@ -75,7 +75,8 @@
                                     label,
                                     structure,
                                     version = NULL,
-                                    pre) {
+                                    pre,
+                                    empty) {
   .assert_string(path, TRUE)
   .assert_path_not_file(path)
   .assert_flag(path_append_label)
@@ -99,7 +100,8 @@
     structure = structure,
     type = "local",
     version = version,
-    pre = pre
+    pre = pre,
+    empty = empty
   )
   # create this, as we create the OSF sub-directory
   # if specified. Needs to be automated

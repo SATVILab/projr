@@ -43,7 +43,7 @@
                                  remote_post,
                                  label = NULL) {
   .assert_given_mid(label)
-  version_pre_impl <- .remote_get_version_label(
+  version_pre_impl <- .remote_get_version_latest_label(
     remote_pre, type_pre, label
   )
   if (is.null(version_pre_impl)) {
@@ -56,7 +56,7 @@
       "in the specified remote '", remote_pre, "'"
     )
   }
-  version_post_impl <- .remote_get_version_label(
+  version_post_impl <- .remote_get_version_latest_label(
     remote_post, type_post, label
   )
   if (is.null(version_post_impl)) {

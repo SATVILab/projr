@@ -67,7 +67,12 @@
 #' @keywords internal
 #' @noRd
 .remote_write_changelog <- function(type,
-                                    remote_pre) {
+                                    remote_pre,
+                                    output_level = "std") {
+  .cli_debug(
+    "Writing CHANGELOG file to {type} remote",
+    output_level = output_level
+  )
   remote <- if (type == "github") {
     remote_pre[["fn"]] <- "CHANGELOG.zip"
     remote_pre
@@ -76,7 +81,10 @@
   }
   switch(type,
     "project" = NULL,
-    .remote_file_add(type, remote, .path_get(), "CHANGELOG.md")
+    .remote_file_add(
+      type, remote, .path_get(), "CHANGELOG.md",
+      output_level = output_level
+    )
   )
   invisible(TRUE)
 }
@@ -403,14 +411,14 @@
 #' @return Version string stripped of suffixes, or empty when unavailable.
 #' @keywords internal
 #' @noRd
-.remote_get_version_label <- function(remote_pre,
-                                      type,
-                                      label,
-                                      structure) {
+.remote_get_version_latest_label <- function(remote_pre,
+                                             type,
+                                             label,
+                                             structure) {
   if (type == "project") {
     .remote_get_version_project()
   } else {
-    .remote_get_version_label_non_project(
+    .remote_get_version_latest_label_non_project(
       remote_pre, type, label, structure
     )
   }
@@ -430,17 +438,17 @@
 #' @description Uses remote version files, manifest comparisons, and structure
 #'   rules to decide whether a label/version pair can be trusted for
 #'   comparisons.
-#' @inheritParams .remote_get_version_label
+#' @inheritParams .remote_get_version_latest_label
 #' @return Character version string or empty vector when no trusted version is
 #'   available.
 #' @keywords internal
 #' @noRd
-.remote_get_version_label_non_project <- function(remote_pre, # nolint
-                                                  type,
-                                                  label,
-                                                  structure) {
+.remote_get_version_latest_label_non_project <- function(remote_pre, # nolint
+                                                         type,
+                                                         label,
+                                                         structure) {
   # use the versioned files (raw-data-project: v1.0.0)
-  version_file <- .remote_get_version_label_non_project_file(
+  version_file <- .remote_get_version_latest_label_non_project_file(
     remote_pre, type, label
   )
 
@@ -453,7 +461,7 @@
 
   # check what is the version indicated by the file structure
   if (structure == "archive") {
-    version_archive <- .remote_get_version_label_non_project_archive(
+    version_archive <- .remote_get_version_latest_label_non_project_archive(
       remote_pre, type, label, structure
     )
     if (
@@ -495,11 +503,11 @@
 #' @title Inspect archive directories for version inference
 #' @description Examines archive-style remotes to determine which versions are
 #'   available, returning the newest version present.
-#' @inheritParams .remote_get_version_label
+#' @inheritParams .remote_get_version_latest_label
 #' @return Version string (without suffix) or empty vector when unavailable.
 #' @keywords internal
 #' @noRd
-.remote_get_version_label_non_project_archive <- function(remote_pre,
+.remote_get_version_latest_label_non_project_archive <- function(remote_pre,
                                                           type,
                                                           label,
                                                           structure) {
@@ -633,11 +641,11 @@
 #' @return Character version string (without suffix) or empty vector.
 #' @keywords internal
 #' @noRd
-.remote_get_version_label_non_project_file <- function(remote_pre,
+.remote_get_version_latest_label_non_project_file <- function(remote_pre,
                                                        type,
                                                        label) {
   version_file <- .remote_get_version_file(type, remote_pre)
-  .remote_get_version_label_non_project_file_extract(
+  .remote_get_version_latest_label_non_project_file_extract(
     version_file, label
   )
 }
@@ -650,7 +658,7 @@
 #' @return Version string (without suffix) or empty vector when missing.
 #' @keywords internal
 #' @noRd
-.remote_get_version_label_non_project_file_extract <-
+.remote_get_version_latest_label_non_project_file_extract <-
   function(version_file,
            label) {
     match_str <- utils::glob2rx(label) |>
