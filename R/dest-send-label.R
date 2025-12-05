@@ -1653,8 +1653,7 @@
   remote_dest_empty <- .dsl_ip_finalise_remotes(
     remote_dest_full,
     remote_dest_empty,
-    is_remote_dest_empty,
-    ensure_remote_dest_exists,
+    remote_pre,
     type, id, label,
     structure, path, path_append_label,
     fn_rm, cue,
@@ -1822,14 +1821,13 @@
 
 .dsl_ip_finalise_remotes <- function(remote_dest_full,
                                      remote_dest_empty,
+                                     remote_pre,
                                      type,
-                                     ensure_remote_dest_exists,
                                      id,
                                      label,
                                      structure,
                                      path,
                                      path_append_label,
-                                     version,
                                      fn_rm,
                                      cue,
                                      output_level = "std") {
@@ -1844,6 +1842,7 @@
   remote_dest_empty <- .dsl_ip_fr_ensure_exists(
     remote_dest_full,
     remote_dest_empty,
+    remote_pre,
     type, id, label, structure,
     path, path_append_label,
     version,
@@ -1863,7 +1862,7 @@
     output_level = output_level
   )
   full_exists <- !is.null(remote_dest_full)
-  empty_exists <- !is.null(is_remote_dest_empty)
+  empty_exists <- !is.null(remote_dest_empty)
   remove_empty <- full_exists && empty_exists
   if (!remove_empty) {
     return(remote_dest_empty)
@@ -1880,13 +1879,13 @@
 
 .dsl_ip_fr_ensure_exists <- function(remote_dest_full,
                                      remote_dest_empty,
+                                     remote_pre,
                                      type,
                                      id,
                                      label,
                                      structure,
                                      path,
                                      path_append_label,
-                                     version,
                                      fn_rm,
                                      cue,
                                      output_level = "std") {
@@ -1930,6 +1929,6 @@
   .remote_final_get(
     type, id, label, structure,
     path, path_append_label,
-    version, FALSE, TRUE
+    projr_version_get(), FALSE, TRUE
   )
 }
