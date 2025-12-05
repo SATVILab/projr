@@ -272,6 +272,8 @@
   )
   suppressWarnings(file.remove(fn_vec))
   if (rm_if_empty) {
+    # Use default structure="archive" since we don't have structure info here
+    # This is safe: only archives get removed when empty, not "latest" remotes
     .remote_final_rm_if_empty("local", remote_path)
   }
   invisible(TRUE)
