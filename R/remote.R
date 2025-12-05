@@ -540,7 +540,7 @@
 #' @noRd
 .remote_final_rm_if_empty <- function(type,
                                       remote,
-                                      structure) {
+                                      structure = "archive") {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_rm_if_empty_local(
@@ -559,18 +559,12 @@
 
 .remote_final_rm <- function(type,
                              remote,
-                             structure) {
+                             structure = NULL) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
-    "local" = .remote_final_rm_local(
-      remote = remote, structure = structure
-    ),
-    "osf" = .remote_final_rm_osf(
-      remote = remote, structure = structure
-    ),
-    "github" = .remote_final_rm_github(
-      remote = remote, structure = structure
-    )
+    "local" = .remote_final_rm_local(remote = remote),
+    "osf" = .remote_final_rm_osf(remote = remote),
+    "github" = .remote_final_rm_github(remote = remote)
   )
 }
 

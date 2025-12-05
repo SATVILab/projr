@@ -116,8 +116,18 @@
 
 # local
 .remote_final_rm_if_empty_local <- function(remote,
+                                            structure,
                                             output_level = "std") {
   .assert_string(remote, TRUE)
+  .assert_in(structure, .opt_remote_get_structure(), TRUE)
+  # Only remove empty remotes for archive structure, not latest
+  if (structure != "archive") {
+    .cli_debug(
+      "Local remote: Structure is '{structure}', not removing, returning FALSE",
+      output_level = output_level
+    )
+    return(invisible(FALSE))
+  }
   if (!dir.exists(remote)) {
     .cli_debug(
       "Local remote: Directory '{remote}' does not exist, returning FALSE",
@@ -262,7 +272,7 @@
   )
   suppressWarnings(file.remove(fn_vec))
   if (rm_if_empty) {
-    .remote_final_rm_if_empty("local", remote_path, output_level)
+    .remote_final_rm_if_empty("local", remote_path)
   }
   invisible(TRUE)
 }
