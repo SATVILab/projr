@@ -222,13 +222,13 @@
   # if the uploads have been performed in a trusted manner
   # (typically, either sync-purge or sync-diff with
   # inspect set to either manifest or file).
-  version_comp <- .dsl_get_remotes_get_version_comp(
+  version_comp <- .dsl_gr_get_version_comp(
     remote_pre, remote_dest_full, remote_dest_empty,
     type, label, structure, strategy, inspect, cue
   )
   # if version_comp is not NULL, this is the remote to
   # compare against.
-  remote_comp <- .dsl_get_remotes_comp(
+  remote_comp <- .dsl_gr_comp(
     type, id, label, structure, path, path_append_label, version_comp,
     remote_dest_full, remote_dest_empty
   )
@@ -269,20 +269,20 @@
 #'
 #' @keywords internal
 #' @noRd
-.dsl_get_remotes_get_version_comp <- function(remote_pre, # nolint
-                                                          remote_dest_full,
-                                                          remote_dest_empty,
-                                                          type,
-                                                          label,
-                                                          structure,
-                                                          strategy,
-                                                          inspect,
-                                                          cue) {
+.dsl_gr_get_version_comp <- function(remote_pre, # nolint
+                                              remote_dest_full,
+                                              remote_dest_empty,
+                                              type,
+                                              label,
+                                              structure,
+                                              strategy,
+                                              inspect,
+                                              cue) {
   # exit early with NULL when no comparison remote is needed,
   # usually because the upload strategy does not involve
   # inspecting the remote at all
   is_nothing <-
-    .dsl_get_remotes_get_version_comp_check_nothing(
+    .dsl_gr_get_version_comp_check_nothing(
       remote_pre, inspect, strategy
     )
   if (is_nothing) {
@@ -298,11 +298,11 @@
   # checking what the versioned uploaded file/folder
   # is
   switch(structure,
-    "latest" = .dsl_get_remotes_get_version_comp_latest(
+    "latest" = .dsl_gr_get_version_comp_latest(
       inspect, remote_pre, remote_dest_full, remote_dest_empty,
       type, label
     ),
-    "archive" =  .dsl_get_remotes_get_version_comp_archive(
+    "archive" =  .dsl_gr_get_version_comp_archive(
       cue, strategy, label, inspect, remote_pre, remote_dest_full,
       remote_dest_empty, type
     )
@@ -312,11 +312,11 @@
 #' @title Check whether comparison logic can be skipped
 #' @description Evaluates early-exit conditions that make remote comparisons
 #'   unnecessary (no remote, no inspection, or upload-all strategy).
-#' @inheritParams .dsl_get_remotes_get_version_comp
+#' @inheritParams .dsl_gr_get_version_comp
 #' @return Logical flag indicating whether comparison work should be skipped.
 #' @keywords internal
 #' @noRd
-.dsl_get_remotes_get_version_comp_check_nothing <- # nolint
+.dsl_gr_get_version_comp_check_nothing <- # nolint
   function(remote_pre,
            inspect,
            strategy) {
@@ -331,7 +331,7 @@
 #' @description Determines which version string should be used when comparing
 #'   against a `latest` remote structure, honoring inspection mode and manifest
 #'   trust rules.
-#' @inheritParams .dsl_get_remotes_get_version_comp
+#' @inheritParams .dsl_gr_get_version_comp
 #'
 #' @details
 #' The idea is that when `NULL` is returned, no comparison
@@ -347,7 +347,7 @@
 #'
 #' @keywords internal
 #' @noRd
-.dsl_get_remotes_get_version_comp_latest <-
+.dsl_gr_get_version_comp_latest <-
   function(inspect,
            remote_pre,
            remote_dest_full,
@@ -362,21 +362,21 @@
       return(NULL)
     }
     switch(inspect,
-      "file" = .dsl_get_remotes_get_version_comp_latest_file(),
-      .dsl_get_remotes_get_version_comp_latest_manifest(
+      "file" = .dsl_gr_get_version_comp_latest_file(),
+      .dsl_gr_get_version_comp_latest_manifest(
         remote_pre, type, label
       )
     )
   }
 
-.dsl_get_remotes_get_version_comp_latest_file <- function() {
+.dsl_gr_get_version_comp_latest_file <- function() {
   # final remotes for `latest` structure do not have the version embedded,
   # so the version to compare against is irrelevant.
   # But we don't return NULL because we do want to compare.
   projr_version_get() |> .version_v_rm()
 }
 
-.dsl_get_remotes_get_version_comp_latest_manifest <-
+.dsl_gr_get_version_comp_latest_manifest <-
   function(remote_pre,
            type,
            label) {
@@ -399,11 +399,11 @@
 #' @description Selects the remote archive version that can be trusted during
 #'   comparisons, accounting for cues, strategies, manifests, and acceptable
 #'   version ranges.
-#' @inheritParams .dsl_get_remotes_get_version_comp
+#' @inheritParams .dsl_gr_get_version_comp
 #' @return Trusted version string or `NULL` if no archive is suitable.
 #' @keywords internal
 #' @noRd
-.dsl_get_remotes_get_version_comp_archive <- function(cue, # nolint
+.dsl_gr_get_version_comp_archive <- function(cue, # nolint
                                                                   strategy, # nolint
                                                                   label,
                                                                   inspect,
@@ -499,7 +499,7 @@
 #' @return Remote object suitable for comparison.
 #' @keywords internal
 #' @noRd
-.dsl_get_remotes_comp <- function(type,
+.dsl_gr_comp <- function(type,
                                               id,
                                               label,
                                               structure,
@@ -855,15 +855,15 @@
                                              inspect,
                                              changelog) {
   plan <- switch(strategy,
-    "upload-all" = .dsl_get_plan_action_upload_all(
+    "upload-all" = .dsl_gpa_upload_all(
       fn_source, remote_dest_full, remote_dest_empty,
       type, remote_pre, label, cue, version_comp
     ),
-    "upload-missing" = .dsl_get_plan_action_upload_missing(
+    "upload-missing" = .dsl_gpa_upload_missing(
       fn_source_extra, remote_dest_full, remote_dest_empty,
       type, remote_pre, label, cue, version_comp
     ),
-    .dsl_get_plan_action_sync(
+    .dsl_gpa_sync(
       cue, fn_source_extra, type,
       remote_pre, remote_dest_full, remote_dest_empty, label,
       version_comp, fn_dest_extra, fn_diff, fn_same, strategy,
@@ -883,7 +883,7 @@
 #' @return Named list describing adds, manifest updates, and version metadata.
 #' @keywords internal
 #' @noRd
-.dsl_get_plan_action_upload_all <- function(fn_source, # nolint
+.dsl_gpa_upload_all <- function(fn_source, # nolint
                                                         remote_dest_full,
                                                         remote_dest_empty,
                                                         type,
@@ -898,22 +898,22 @@
   # we only need to make sure it
   # exists if we are uploading to it.
   ensure_remote_dest_exists <-
-    .dsl_get_plan_action_upload_all_ensure_exists(
+    .dsl_gpa_upload_all_ensure_exists(
       fn_add, version_comp, cue
     )
 
-  version_file <- .dsl_get_plan_action_upload_all_version_file(
+  version_file <- .dsl_gpa_upload_all_version_file(
     fn_add, remote_dest_full, remote_dest_empty,
     ensure_remote_dest_exists, type, remote_pre, label
   )
 
-  manifest <- .dsl_get_plan_action_manifest(
+  manifest <- .dsl_gpa_manifest(
     type, remote_pre, label,
     rm_existing = TRUE
   )
 
   is_remote_dest_empty <-
-    .dsl_get_plan_action_get_is_remote_dest_empty(
+    .dsl_gpa_get_is_remote_dest_empty(
       fn_add, fn_rm, label, version_file, manifest, remote_dest_full,
       remote_dest_empty
     )
@@ -929,7 +929,7 @@
   )
 }
 
-.dsl_get_plan_action_upload_all_ensure_exists <- function(fn_add,
+.dsl_gpa_upload_all_ensure_exists <- function(fn_add,
                                                                       version_comp,
                                                                       cue) {
   # if we're adding anything, we need to ensure it exists
@@ -962,7 +962,7 @@
   FALSE
 }
 
-.dsl_get_plan_action_upload_all_version_file <- function(fn_add,
+.dsl_gpa_upload_all_version_file <- function(fn_add,
                                                                      remote_dest_full,
                                                                      remote_dest_empty,
                                                                      ensure_remote_dest_exists,
@@ -983,7 +983,7 @@
   # add the asterisk if it existed before
   asterisk_force_add <- remote_exists_either
 
-  .dsl_get_plan_action_version_file(
+  .dsl_gpa_version_file(
     type, remote_pre, label,
     update_label = update_label,
     asterisk_force_rm = asterisk_force_rm,
@@ -995,7 +995,7 @@
 #' @description Loads the remote version file, updates the project version, and
 #'   optionally refreshes the label entry while applying trust (asterisk)
 #'   overrides.
-#' @inheritParams .dsl_get_plan_action_upload_all
+#' @inheritParams .dsl_gpa_upload_all
 #' @param update_label Logical flag indicating whether the label entry should be
 #'   rewritten.
 #' @param asterisk_force_add Logical flag forcing the untrusted indicator.
@@ -1004,7 +1004,7 @@
 #' @return Character vector content of the updated version file.
 #' @keywords internal
 #' @noRd
-.dsl_get_plan_action_version_file <- function(type, # nolint
+.dsl_gpa_version_file <- function(type, # nolint
                                                           remote_pre,
                                                           label,
                                                           update_label = FALSE, # nolint
@@ -1019,7 +1019,7 @@
     # Check if the previous version had an asterisk (was untrusted)
     # Check if we need to force add or remove the asterisk
     use_asterisk <-
-      .dsl_get_plan_action_version_file_get_use_asterisk(
+      .dsl_gpa_version_file_get_use_asterisk(
         asterisk_force_rm, asterisk_force_add, version_remote, label
       )
 
@@ -1033,14 +1033,14 @@
 #' @title Decide whether the version entry should be marked untrusted
 #' @description Combines forced overrides with prior version file state to
 #'   determine whether an asterisk should appear next to the label entry.
-#' @inheritParams .dsl_get_plan_action_version_file
+#' @inheritParams .dsl_gpa_version_file
 #' @param asterisk_force_rm Logical flag forcing removal.
 #' @param asterisk_force_add Logical flag forcing addition.
 #' @param version_remote Character vector representation of the version file.
 #' @return Logical flag indicating whether the entry should include an asterisk.
 #' @keywords internal
 #' @noRd
-.dsl_get_plan_action_version_file_get_use_asterisk <- function(asterisk_force_rm,
+.dsl_gpa_version_file_get_use_asterisk <- function(asterisk_force_rm,
                                                                            asterisk_force_add,
                                                                            version_remote,
                                                                            label) {
@@ -1054,7 +1054,7 @@
     return(TRUE)
   }
   # here we check if the previous version was trusted
-  .dsl_get_plan_action_version_file_check_untrusted(
+  .dsl_gpa_version_file_check_untrusted(
     version_remote, label
   )
 
@@ -1063,13 +1063,13 @@
 #' @title Inspect version file for trust markers
 #' @description Checks whether the existing version file already marks the label
 #'   as untrusted.
-#' @inheritParams .dsl_get_plan_action_version_file
+#' @inheritParams .dsl_gpa_version_file
 #' @param version_file Character vector contents of the version file.
 #' @return Logical flag indicating whether the label entry currently ends with
 #'   an asterisk.
 #' @keywords internal
 #' @noRd
-.dsl_get_plan_action_version_file_check_untrusted <- function(version_file, # nolint
+.dsl_gpa_version_file_check_untrusted <- function(version_file, # nolint
                                                                           label) { # nolint
   if (length(version_file) == 0L) {
     return(FALSE)
@@ -1088,7 +1088,7 @@
 #' @title Build manifest updates for a destination
 #' @description Combines existing remote manifest entries with the current
 #'   project manifest to reflect the new upload plan.
-#' @inheritParams .dsl_get_plan_action_upload_all
+#' @inheritParams .dsl_gpa_upload_all
 #' @param rm_existing Logical flag to remove any entries that will be overwritten.
 #' @param rm_existing_all Logical flag removing all current rows for the version
 #'   and label before appending.
@@ -1098,7 +1098,7 @@
 #'   the remote.
 #' @keywords internal
 #' @noRd
-.dsl_get_plan_action_manifest <- function(type,
+.dsl_gpa_manifest <- function(type,
                                                       remote_pre,
                                                       label,
                                                       rm_existing = FALSE,
@@ -1110,7 +1110,7 @@
   # that are in manifest_append (as we are going to overwrite them)
   if (rm_existing) {
     manifest_remote <-
-      .dsl_get_plan_action_manifest_rm_existing(
+      .dsl_gpa_manifest_rm_existing(
         manifest_remote, label, manifest_append
       )
   }
@@ -1125,7 +1125,7 @@
       .manifest_filter_label(label) |>
       .manifest_filter_version(projr_version_get())
     manifest_append <-
-      .dsl_get_plan_action_manifest_rm_existing(
+      .dsl_gpa_manifest_rm_existing(
         manifest_append, label, manifest_remote_existing
       )
   }
@@ -1138,12 +1138,12 @@
 #' @description Helper that strips any remote manifest rows overlapping with the
 #'   current append set, ensuring the resulting manifest has unique filenames.
 #' @param manifest_remote Existing remote manifest tibble.
-#' @inheritParams .dsl_get_plan_action_upload_all
+#' @inheritParams .dsl_gpa_upload_all
 #' @param manifest_append Manifest rows that will be appended.
 #' @return Remote manifest tibble with overlapping rows removed.
 #' @keywords internal
 #' @noRd
-.dsl_get_plan_action_manifest_rm_existing <-
+.dsl_gpa_manifest_rm_existing <-
   function(manifest_remote,
            label,
            manifest_append) {
@@ -1172,7 +1172,7 @@
 #' @return Named list describing files to add plus manifest/version updates.
 #' @keywords internal
 #' @noRd
-.dsl_get_plan_action_upload_missing <- function(fn_source_extra, # nolint
+.dsl_gpa_upload_missing <- function(fn_source_extra, # nolint
                                                             remote_dest_full,
                                                             remote_dest_empty,
                                                             type,
@@ -1187,23 +1187,23 @@
   # we only need to make sure it
   # exists if we are uploading to it.
   ensure_remote_dest_exists <-
-    .dsl_get_plan_action_upload_missing_ensure_exists(
+    .dsl_gpa_upload_missing_ensure_exists(
       fn_add, version_comp, cue
     )
 
   #
-  version_file <- .dsl_get_plan_action_upload_missing_version_file(
+  version_file <- .dsl_gpa_upload_missing_version_file(
     fn_add, remote_dest_full, remote_dest_empty,
     ensure_remote_dest_exists, type, remote_pre, label
   )
 
-  manifest <- .dsl_get_plan_action_manifest(
+  manifest <- .dsl_gpa_manifest(
     type, remote_pre, label,
     rm_existing = TRUE
   )
 
   is_remote_dest_empty <-
-    .dsl_get_plan_action_get_is_remote_dest_empty(
+    .dsl_gpa_get_is_remote_dest_empty(
       fn_add, fn_rm, label, version_file, manifest, remote_dest_full,
       remote_dest_empty
     )
@@ -1219,7 +1219,7 @@
   )
 }
 
-.dsl_get_plan_action_upload_missing_ensure_exists <- function(fn_add,
+.dsl_gpa_upload_missing_ensure_exists <- function(fn_add,
                                                                           version_comp,
                                                                           cue) {
   # same as for upload all
@@ -1237,7 +1237,7 @@
   FALSE
 }
 
-.dsl_get_plan_action_upload_missing_version_file <- function(fn_add,
+.dsl_gpa_upload_missing_version_file <- function(fn_add,
                                                                          remote_dest_full,
                                                                          remote_dest_empty,
                                                                          ensure_remote_dest_exists,
@@ -1260,7 +1260,7 @@
   # add the asterisk if it existed before
   asterisk_force_add <- remote_exists_either
 
-  .dsl_get_plan_action_version_file(
+  .dsl_gpa_version_file(
     type, remote_pre, label,
     update_label = update_label,
     asterisk_force_rm = asterisk_force_rm,
@@ -1278,7 +1278,7 @@
 #' @return Named list describing the resulting action plan.
 #' @keywords internal
 #' @noRd
-.dsl_get_plan_action_sync <- function(cue,
+.dsl_gpa_sync <- function(cue,
                                                   fn_source_extra,
                                                   type,
                                                   remote_pre,
@@ -1292,7 +1292,7 @@
                                                   strategy,
                                                   inspect) {
   if (strategy == "sync-purge") {
-    .dsl_get_plan_action_purge(
+    .dsl_gpa_purge(
       type, remote_pre,
       remote_dest_full, remote_dest_empty,
       label, version_comp,
@@ -1301,7 +1301,7 @@
     )
   } else {
     .assert_has(strategy, "sync-diff")
-    .dsl_get_plan_action_diff(
+    .dsl_gpa_diff(
       fn_source_extra, type,
       remote_pre, remote_dest_full, remote_dest_empty,
       label, version_comp,
@@ -1319,7 +1319,7 @@
 #' @return Named list describing purge operations and metadata changes.
 #' @keywords internal
 #' @noRd
-.dsl_get_plan_action_purge <- function(type, # nolint
+.dsl_gpa_purge <- function(type, # nolint
                                                    remote_pre,
                                                    remote_dest_full,
                                                    remote_dest_empty,
@@ -1338,18 +1338,18 @@
   fn_rm <- character(0L)
 
   ensure_remote_dest_exists <-
-    .dsl_get_plan_action_purge_ensure_exists(
+    .dsl_gpa_purge_ensure_exists(
       fn_add, fn_dest_extra, cue, version_comp
     )
 
-  version_file <- .dsl_get_plan_action_purge_version_file(
+  version_file <- .dsl_gpa_purge_version_file(
     fn_add, fn_dest_extra,
     remote_dest_full, remote_dest_empty,
     ensure_remote_dest_exists,
     type, remote_pre, label
   )
 
-  manifest <- .dsl_get_plan_action_manifest(
+  manifest <- .dsl_gpa_manifest(
     type, remote_pre, label,
     rm_existing = TRUE
   )
@@ -1380,7 +1380,7 @@
   )
 }
 
-.dsl_get_plan_action_purge_ensure_exists <- function(fn_add,
+.dsl_gpa_purge_ensure_exists <- function(fn_add,
                                                                  fn_dest_extra,
                                                                  cue,
                                                                  version_comp) {
@@ -1393,14 +1393,14 @@
     cue == "always" || is.null(version_comp)
   }
 
-.dsl_get_plan_action_purge_version_file <- function(fn_add,
-                                                                fn_dest_extra,
-                                                                remote_dest_full,
-                                                                remote_dest_empty,
-                                                                ensure_remote_dest_exists,
-                                                                type,
-                                                                remote_pre,
-                                                                label) {
+.dsl_gpa_purge_version_file <- function(fn_add,
+                                                    fn_dest_extra,
+                                                    remote_dest_full,
+                                                    remote_dest_empty,
+                                                    ensure_remote_dest_exists,
+                                                    type,
+                                                    remote_pre,
+                                                    label) {
   # check whether the remote exists in either form
   remote_exists_either <- !is.null(remote_dest_full) ||
     !is.null(remote_dest_empty)
@@ -1414,7 +1414,7 @@
   asterisk_force_rm <- !remote_exists_either ||
     (.is_len_pos(fn_add) || .is_len_pos(fn_dest_extra))
 
-  .dsl_get_plan_action_version_file(
+  .dsl_gpa_version_file(
     type, remote_pre, label,
     update_label = update_label,
     asterisk_force_rm = asterisk_force_rm,
@@ -1430,18 +1430,18 @@
 #' @return Named list describing diff-based uploads/removals plus metadata.
 #' @keywords internal
 #' @noRd
-.dsl_get_plan_action_diff <- function(fn_source_extra, # nolint
-                                                  type,
-                                                  remote_pre,
-                                                  remote_dest_full,
-                                                  remote_dest_empty,
-                                                  label,
-                                                  version_comp,
-                                                  fn_dest_extra,
-                                                  fn_diff,
-                                                  fn_same,
-                                                  cue,
-                                                  inspect) {
+.dsl_gpa_diff <- function(fn_source_extra, # nolint
+                                      type,
+                                      remote_pre,
+                                      remote_dest_full,
+                                      remote_dest_empty,
+                                      label,
+                                      version_comp,
+                                      fn_dest_extra,
+                                      fn_diff,
+                                      fn_same,
+                                      cue,
+                                      inspect) {
   # get what to add and remove
   fn_add <- c(fn_source_extra, fn_diff)
   fn_rm <- fn_dest_extra
@@ -1449,11 +1449,11 @@
   # we only need to make sure it
   # exists if we are uploading to it.
   ensure_remote_dest_exists <-
-    .dsl_get_plan_action_diff_ensure_exists(
+    .dsl_gpa_diff_ensure_exists(
       fn_add, fn_rm, version_comp, cue
     )
 
-  version_file <- .dsl_get_plan_action_diff_version_file(
+  version_file <- .dsl_gpa_diff_version_file(
     fn_add, fn_rm,
     remote_dest_full, remote_dest_empty,
     inspect, version_comp,
@@ -1461,13 +1461,13 @@
     type, remote_pre, label
   )
 
-  manifest <- .dsl_get_plan_action_manifest(
+  manifest <- .dsl_gpa_manifest(
     type, remote_pre, label,
     rm_existing = TRUE
   )
 
   is_remote_dest_empty <-
-    .dsl_get_plan_action_get_is_remote_dest_empty(
+    .dsl_gpa_get_is_remote_dest_empty(
       fn_add, fn_rm, label, version_file, manifest, remote_dest_full,
       remote_dest_empty
     )
@@ -1483,10 +1483,10 @@
   )
 }
 
-.dsl_get_plan_action_diff_ensure_exists <- function(fn_add,
-                                                                fn_rm,
-                                                                version_comp,
-                                                                cue) {
+.dsl_gpa_diff_ensure_exists <- function(fn_add,
+                                                    fn_rm,
+                                                    version_comp,
+                                                    cue) {
   # check if there is a change
   is_change <- .is_len_pos(c(fn_add, fn_rm))
 
@@ -1500,7 +1500,7 @@
     cue == "always"
 }
 
-.dsl_get_plan_action_diff_version_file <- function(fn_add,
+.dsl_gpa_diff_version_file <- function(fn_add,
                                                                fn_rm,
                                                                remote_dest_full,
                                                                remote_dest_empty,
@@ -1527,7 +1527,7 @@
   # add it if it was not inspected and it's not new
   asterisk_force_add <- remote_exists_either && inspect == "none"
 
-  .dsl_get_plan_action_version_file(
+  .dsl_gpa_version_file(
     type, remote_pre, label,
     update_label = update_label,
     asterisk_force_rm = asterisk_force_rm,
@@ -1536,7 +1536,7 @@
 }
 
 
-.dsl_get_plan_action_get_is_remote_dest_empty <- function(fn_add,
+.dsl_gpa_get_is_remote_dest_empty <- function(fn_add,
                                                                       fn_rm,
                                                                       label,
                                                                       version_file,
