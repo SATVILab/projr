@@ -115,7 +115,8 @@
 
   .dsl_implement_plan(
     plan[["fn_add"]], plan[["fn_rm"]], plan[["version"]],
-    plan[["manifest"]], plan[["create"]], plan[["purge"]],
+    plan[["manifest"]], plan[["purge"]],
+    plan[["is_remote_dest_empty"]], plan[["ensure_remote_dest_exists"]],
     plan[["changelog"]],
     remote_list[["remote_dest_full"]],
     remote_list[["remote_dest_empty"]],
@@ -1604,8 +1605,9 @@
                                 fn_rm,
                                 version_file,
                                 manifest,
-                                create,
                                 purge,
+                                is_remote_dest_empty,
+                                ensure_remote_dest_exists,
                                 changelog,
                                 remote_dest_full,
                                 remote_dest_empty,
@@ -1623,19 +1625,23 @@
     output_level = output_level
   )
 
-  remote_dest_working <- if (!is.null(remote_dest_full)) {
-    remote_dest_full
-  } else {
-    remote_dest_empty
-  }
+  # purge
+  .dsl_ip_purge(purge, type, remote_dest_full, output_level)
 
-  if (purge) {
-    .cli_debug(
-      "Content '{label}': Purging all existing remote files",
-      output_level = output_level
-    )
-    .remote_final_empty(type, remote_dest_working)
-  }
+  # add files
+  .dsl_ip_add(
+    fn_add, remote_dest_full, type, id, label,
+    structure, path, path_append_label,
+    projr_version_get(), output_level
+  )
+
+  # remove files
+  .dsl_ip_rm(
+    fn_rm, type, id, label,
+    structure, path, path_append_label,
+    output_level
+  )
+
 
   if (create || type == "github") {
     .cli_debug(
@@ -1719,22 +1725,128 @@
     }
   }
 
-  # need to use remote_pre and just add an individual file
-  .cli_debug(
-    "Content '{label}': Updating remote manifest and version files",
-    output_level = output_level
-  )
-
   # add log files
-  .remote_write_manifest(type, remote_pre, manifest)
-  .remote_write_version_file(type, remote_pre, version_file)
+ .dsl_ip_log(
+    version_file, manifest, type,
+    remote_pre, changelog, output_level
+  )
+}
 
-  if (changelog) {
+
+.dsl_ip_purge <- function(purge,
+                          type,
+                          remote_dest_full,
+                          output_level = "std") {
+  dont_purge <- is.null(remote_dest_full) || !purge
+  if (dont_purge) {
     .cli_debug(
-      "Content '{label}': Writing changelog to remote",
+      "Not purging remote destination",
       output_level = output_level
     )
-    .remote_write_changelog(type, remote_pre)
+    return(invisible(FALSE))
   }
-  invisible(TRUE)
+  .cli_debug(
+    "Purging remote destination",
+    output_level = output_level
+  )
+  .remote_final_empty(type, remote_dest_full)
+}
+
+.dsl_ip_add <- function(fn_add,
+                        remote_dest_full,
+                        type,
+                        id,
+                        label,
+                        structure,
+                        path,
+                        path_append_label,
+                        version,
+                        output_level = "std") {
+  if (!.is_len_pos(fn_add)) {
+    .cli_debug(
+      "Content '{label}': No files to add to remote",
+      output_level = output_level
+    )
+    return(invisible(FALSE))
+  }
+  .cli_debug(
+    "Content '{label}': Adding {length(fn_add)} file(s) to remote",
+    output_level = output_level
+  )
+  remote_dest <- .dsl_ip_a_get_remote_dest(
+    remote_dest_full, type, id, label, structure, path,
+    path_append_label, version
+  )
+
+  .remote_file_add(type, remote_dest_add, path_dir_local, fn_add, output_level)
+}
+
+.dsl_ip_a_get_remote_dest <- function(remote_dest_full,
+                                      type,
+                                      id,
+                                      label,
+                                      structure,
+                                      path,
+                                      path_append_label,
+                                      version) {
+  if (!is.null(remote_dest_full)) {
+    return(remote_dest_full)
+  }
+
+  .remote_final_get(
+    type, id, label, structure, path,
+    path_append_label, version, FALSE, FALSE
+  )
+}
+
+.dsl_ip_rm <- function(fn_rm,
+                       remote_dest_full,
+                       type,
+                       label,
+                       output_level = "std") {
+  if (!.is_len_pos(fn_rm)) {
+    .cli_debug(
+      "Content '{label}': No files to remove from remote",
+      output_level = output_level
+    )
+    return(invisible(FALSE))
+  }
+  if (is.null(remote_dest_full)) {
+    .cli_debug(
+      "Content '{label}': Remote destination does not exist; skipping file removals", # nolint
+      output_level = output_level
+    )
+    return(invisible(FALSE))
+  }
+  .cli_debug(
+    "Content '{label}': Removing {length(fn_rm)} file(s) from remote",
+    output_level = output_level
+  )
+  .remote_file_rm(type, fn_rm, remote_dest_full, output_level)
+}
+
+.dsl_ip_log <- function(version_file,
+                        manifest,
+                        type,
+                        remote_pre,
+                        changelog,
+                        output_level = "std") {
+   .cli_debug(
+    "Uploading manifest",
+    output_level = output_level
+  )
+   .remote_write_manifest(type, remote_pre, manifest)
+   .cli_debug(
+    "Uploading version file",
+    output_level = output_level
+   )
+   .remote_write_version_file(type, remote_pre, version_file)
+   if (changelog) {
+     .cli_debug(
+      "Writing changelog to remote",
+      output_level = output_level
+     )
+     .remote_write_changelog(type, remote_pre)
+   }
+   invisible(TRUE)
 }
