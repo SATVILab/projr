@@ -1832,6 +1832,42 @@
                                      fn_rm,
                                      cue,
                                      output_level = "std") {
+  # Re-check if empty remote exists (might have been created in previous build)
+  # even if remote_dest_empty was NULL from initial check.
+  # For archive structures, we need to check for the empty variant of the
+  # version that was just uploaded (remote_dest_full), not the current version
+  # which may have already been bumped to dev.
+  if (is.null(remote_dest_empty) && !is.null(remote_dest_full) && structure == "archive") {
+    .cli_debug(
+      "Re-checking for empty remote variant after adding files",
+      output_level = output_level
+    )
+    # Extract version from remote_dest_full path
+    # For local: path ends with v<version>, for github: it's in the "fn" component
+    version_from_full <- .dsl_ip_fr_extract_version(remote_dest_full, type)
+    .cli_debug(
+      "Extracted version from full remote: {version_from_full}",
+      output_level = output_level
+    )
+    if (!is.null(version_from_full)) {
+      remote_dest_empty <- .remote_final_get_if_exists(
+        type, id, label, structure, path, path_append_label,
+        version_from_full, FALSE, TRUE
+      )
+      if (!is.null(remote_dest_empty)) {
+        .cli_debug(
+          "Found empty remote variant: {remote_dest_empty}",
+          output_level = output_level
+        )
+      } else {
+        .cli_debug(
+          "No empty remote variant found",
+          output_level = output_level
+        )
+      }
+    }
+  }
+  
   # if both exist, then we remove the empty remote
   remote_dest_empty <- .dsl_ip_fr_remove_empty(
     remote_dest_full, remote_dest_empty,
@@ -1851,6 +1887,31 @@
     output_level = output_level
   )
   remote_dest_empty
+}
+
+.dsl_ip_fr_extract_version <- function(remote, type) {
+  # Extract version string from remote object
+  if (type == "github") {
+    # GitHub: remote is c("tag" = "v0.0.1", "fn" = "output-v0.0.1.zip")
+    # Extract from fn component, strip .zip
+    fn <- remote[["fn"]]
+    if (is.null(fn)) return(NULL)
+    # Remove .zip extension and extract version
+    fn_no_zip <- sub("\\.zip$", "", fn)
+    # Extract v<version> pattern from end
+    version_match <- regmatches(fn_no_zip, regexpr("v[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9]+)?$", fn_no_zip))
+    if (length(version_match) == 0) return(NULL)
+    sub("^v", "", version_match)
+  } else if (type %in% c("local", "osf")) {
+    # Local/OSF: remote is a path ending with v<version>
+    # Extract v<version> from the basename
+    basename_remote <- basename(remote)
+    version_match <- regmatches(basename_remote, regexpr("v[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9]+)?$", basename_remote))
+    if (length(version_match) == 0) return(NULL)
+    sub("^v", "", version_match)
+  } else {
+    NULL
+  }
 }
 
 .dsl_ip_fr_remove_empty <- function(remote_dest_full,
@@ -1895,9 +1956,13 @@
   )
   full_exists <- !is.null(remote_dest_full)
   empty_exists <- !is.null(remote_dest_empty)
+  .cli_debug(
+    "full_exists: {full_exists}, empty_exists: {empty_exists}",
+    output_level = output_level
+  )
   if (full_exists || empty_exists) {
     .cli_debug(
-      "Remote destination already exists; no need to create",
+      "Remote destination already exists; no need to create empty",
       output_level = output_level
     )
     return(remote_dest_empty)
