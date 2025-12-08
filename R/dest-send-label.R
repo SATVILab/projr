@@ -1954,8 +1954,13 @@
     "Ensuring a remote exists if required",
     output_level = output_level
   )
-  full_exists <- !is.null(remote_dest_full)
-  empty_exists <- !is.null(remote_dest_empty)
+  # Check if remotes actually exist (not just if the variable is non-null)
+  # After adding files, remote_dest_full is a path string but may not have
+  # been verified to exist yet. We need to check actual existence.
+  full_exists <- !is.null(remote_dest_full) && 
+    .remote_final_check_exists_direct(type, remote_dest_full, output_level = output_level)
+  empty_exists <- !is.null(remote_dest_empty) &&
+    .remote_final_check_exists_direct(type, remote_dest_empty, output_level = output_level)
   .cli_debug(
     "full_exists: {full_exists}, empty_exists: {empty_exists}",
     output_level = output_level
