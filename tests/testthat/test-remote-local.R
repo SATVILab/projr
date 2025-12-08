@@ -130,10 +130,10 @@ test_that(".remote_final_rm_if_empty works - local", {
       )
 
       # latest structure
-      expect_false(
+      expect_true(
         .remote_final_rm_if_empty(
           "local",
-          remote = id, structure = "latest"
+          remote = id
         )
       )
       expect_true(dir.exists(id))
@@ -141,14 +141,14 @@ test_that(".remote_final_rm_if_empty works - local", {
       # versioned structure
       id <- .remote_final_get(
         "local",
-        id = "a/b/c", path_append_label = FALSE, structure = "archive"
+        id = "a/b/c", path_append_label = FALSE
       )
 
       # will remove now
       expect_true(
         .remote_final_rm_if_empty(
           "local",
-          remote = id, structure = "archive"
+          remote = id
         )
       )
       expect_false(dir.exists(id))
@@ -164,7 +164,7 @@ test_that(".remote_final_rm_if_empty works - local", {
       expect_false(
         .remote_final_rm_if_empty(
           "local",
-          remote = id, structure = "archive"
+          remote = id
         )
       )
       expect_true(dir.exists(id))

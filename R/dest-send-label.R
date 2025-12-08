@@ -200,7 +200,7 @@
   # what versions are available.
   remote_pre <- .remote_final_get(
     type, id, label, structure, path, path_append_label,
-    NULL, TRUE, FALSE, FALSE
+    NULL, TRUE, FALSE
   )
   # Mainly a check on whether the remote exists or not,
   # but also useful for investigating the remote.
@@ -1845,7 +1845,6 @@
     remote_pre,
     type, id, label, structure,
     path, path_append_label,
-    version,
     fn_rm,
     cue,
     output_level = output_level

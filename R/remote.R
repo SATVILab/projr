@@ -540,14 +540,14 @@
 #' @noRd
 .remote_final_rm_if_empty <- function(type,
                                       remote,
-                                      structure) {
+                                      output_level = "std") {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_rm_if_empty_local(
-      remote = remote, structure = structure
+      remote = remote, output_level = output_level
     ),
     "osf" = .remote_final_rm_if_empty_osf(
-      remote = remote, structure = structure
+      remote = remote, output_level = output_level
     ),
     "github" = .remote_final_rm_if_empty_github()
   )
@@ -559,17 +559,17 @@
 
 .remote_final_rm <- function(type,
                              remote,
-                             structure) {
+                             output_level = "std") {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_rm_local(
-      remote = remote, structure = structure
+      remote = remote, output_level = output_level
     ),
     "osf" = .remote_final_rm_osf(
-      remote = remote, structure = structure
+      remote = remote, output_level = output_level
     ),
     "github" = .remote_final_rm_github(
-      remote = remote, structure = structure
+      remote = remote, output_level = output_level
     )
   )
 }
