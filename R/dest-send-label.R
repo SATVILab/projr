@@ -1968,15 +1968,24 @@
     return(remote_dest_empty)
   }
 
-  create_empty <-
-    # latest remotes should always have at least one of the two
-    structure == "latest" ||
-    # if something was removed, we need to ensure it exists
-    .is_len_pos(fn_rm) ||
-    # if the cue is always, we need to ensure it exists
-    cue == "always" ||
-    # if no final remotes exist for archive structures
-    .is_len_0(.remote_ls_final(type, remote_pre))
+  # Check conditions for creating empty remote
+  cond_latest <- structure == "latest"
+  cond_fn_rm <- .is_len_pos(fn_rm)
+  cond_always <- cue == "always"
+  final_remotes <- .remote_ls_final(type, remote_pre)
+  cond_no_remotes <- .is_len_0(final_remotes)
+  
+  .cli_debug(
+    "Conditions: latest={latest}, fn_rm_len={fn_rm_len}, cue={cue}, final_remotes={num_final}",
+    latest = cond_latest,
+    fn_rm_len = length(fn_rm),
+    cue = cue,
+    num_final = length(final_remotes),
+    output_level = output_level
+  )
+  
+  create_empty <- cond_latest || cond_fn_rm || cond_always || cond_no_remotes
+  
   if (!create_empty) {
     .cli_debug(
       "No need to create empty remote destination",
@@ -1988,7 +1997,8 @@
   # create empty remote now, as clearly
   # we cannot upload anything at this point
   .cli_debug(
-    "Creating empty remote destination",
+    "Creating empty remote destination for version={version}",
+    version = projr_version_get(),
     output_level = output_level
   )
   .remote_final_empty_get(

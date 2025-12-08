@@ -302,7 +302,19 @@
                                     structure,
                                     path = NULL,
                                     path_append_label = TRUE,
-                                    version = NULL) {
+                                    version = NULL,
+                                    output_level = "std",
+                                    log_file = NULL) {
+  .cli_debug(
+    "remote_final_empty_get: type={type}, label={label}, structure={structure}, version={version}",
+    type = type,
+    label = label,
+    structure = structure,
+    version = version,
+    output_level = output_level,
+    log_file = log_file
+  )
+  
   # pre: "one up" from the final remote, e.g. the directory
   # above for hierarchical. Does not apply to flat.
   switch(type,
@@ -311,7 +323,9 @@
       label = label,
       structure = structure,
       path_append_label = path_append_label,
-      version = version
+      version = version,
+      output_level = output_level,
+      log_file = log_file
     ),
     "osf" = .remote_final_get_osf(
       id = id,
@@ -873,17 +887,24 @@
                              remote,
                              path_dir_local,
                              fn,
-                             output_level = "std") {
+                             output_level = "std",
+                             log_file = NULL) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
 
   .cli_debug(
-    "Remote file add: type={type}, adding {length(fn)} file(s) from {path_dir_local}",
-    output_level = output_level
+    "Remote file add: type={type}, adding {num_files} file(s) from '{path}' to remote='{remote}'",
+    type = type,
+    num_files = length(fn),
+    path = path_dir_local,
+    remote = remote,
+    output_level = output_level,
+    log_file = log_file
   )
 
   switch(type,
     "local" = .remote_file_add_local(
-      fn = fn, path_dir_local = path_dir_local, remote = remote
+      fn = fn, path_dir_local = path_dir_local, remote = remote,
+      output_level = output_level, log_file = log_file
     ),
     "osf" = .remote_file_add_osf(
       fn = fn, path_dir_local = path_dir_local, remote = remote
