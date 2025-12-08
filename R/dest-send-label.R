@@ -1656,7 +1656,7 @@
     remote_pre,
     type, id, label,
     structure, path, path_append_label,
-    fn_rm, cue,
+    fn_add, fn_rm, cue,
     output_level
   )
 
@@ -1770,6 +1770,9 @@
   )
   .remote_file_rm(type, fn_rm, remote_rm, output_level)
   Sys.sleep(1) # ensure remote consistency
+  
+  # Check if remote still exists after removal
+  # (may have been automatically deleted if it became empty)
   .remote_final_get_if_exists(
     type, id, label, structure, path,
     path_append_label, version, FALSE, FALSE
@@ -1829,6 +1832,7 @@
                                      structure,
                                      path,
                                      path_append_label,
+                                     fn_add,
                                      fn_rm,
                                      cue,
                                      output_level = "std") {
@@ -1882,7 +1886,7 @@
     remote_pre,
     type, id, label, structure,
     path, path_append_label,
-    fn_rm,
+    fn_add, fn_rm,
     cue,
     output_level = output_level
   )
@@ -1947,6 +1951,7 @@
                                      structure,
                                      path,
                                      path_append_label,
+                                     fn_add,
                                      fn_rm,
                                      cue,
                                      output_level = "std") {
@@ -1954,20 +1959,24 @@
     "Ensuring a remote exists if required",
     output_level = output_level
   )
-  # Check if remotes actually exist (not just if the variable is non-null)
-  # After adding files, remote_dest_full is a path string but may not have
-  # been verified to exist yet. We need to check actual existence.
-  full_exists <- !is.null(remote_dest_full) && 
-    .remote_final_check_exists_direct(type, remote_dest_full, output_level = output_level)
-  empty_exists <- !is.null(remote_dest_empty) &&
-    .remote_final_check_exists_direct(type, remote_dest_empty, output_level = output_level)
+  # If we just added files, we definitely have a full remote (don't create empty)
+  added_files <- .is_len_pos(fn_add)
+  full_exists <- !is.null(remote_dest_full)
+  empty_exists <- !is.null(remote_dest_empty)
+  .cli_debug(
+    "added_files: {added}, remote_dest_full: {full}, remote_dest_empty: {empty}",
+    added = added_files,
+    full = if(is.null(remote_dest_full)) "NULL" else as.character(remote_dest_full),
+    empty = if(is.null(remote_dest_empty)) "NULL" else as.character(remote_dest_empty),
+    output_level = output_level
+  )
   .cli_debug(
     "full_exists: {full_exists}, empty_exists: {empty_exists}",
     output_level = output_level
   )
-  if (full_exists || empty_exists) {
+  if (added_files || full_exists || empty_exists) {
     .cli_debug(
-      "Remote destination already exists; no need to create empty",
+      "Remote destination already exists (or files were just added); no need to create empty",
       output_level = output_level
     )
     return(remote_dest_empty)

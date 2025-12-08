@@ -173,13 +173,22 @@
     )
     return(invisible(FALSE))
   }
-  if (.is_len_pos(list.files(remote))) {
+  # Check for FILES only (not directories) - empty directories don't count
+  all_entries <- list.files(remote, full.names = TRUE, recursive = TRUE, all.files = TRUE)
+  files_only <- all_entries[!dir.exists(all_entries)]
+  
+  if (.is_len_pos(files_only)) {
     .cli_debug(
-      "Local remote: Directory '{remote}' is not empty, not removing, returning FALSE",
+      "Local remote: Directory '{remote}' has {num_files} file(s), not removing, returning FALSE",
+      num_files = length(files_only),
       output_level = output_level
     )
     return(invisible(FALSE))
   }
+  .cli_debug(
+    "Local remote: Directory '{remote}' is empty (no files), removing it",
+    output_level = output_level
+  )
   .remote_final_rm_local(remote, output_level)
   invisible(TRUE)
 }
