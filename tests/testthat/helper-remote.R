@@ -59,10 +59,10 @@
     })
   }
   if (!.is_string(user)) stop("No GitHub user found")
-  token <- if ("token" %in% names(host)) host[["token"]] else NULL # nolint
-  token <- token %||% Sys.getenv("GITHUB_PAT")
-  token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
-  if (!.is_string(token)) stop("No GitHub token found")
+  token <- .auth_get_github_pat_find()
+  if (!.is_string(token)) {
+    stop("No GitHub token found")
+  }
   repo <- if ("repo" %in% names(host)) host[["repo"]] else NULL
   if (!.is_string(repo)) stop("No GitHub repo specified")
   # Define the URL of the GitHub API
