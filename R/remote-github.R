@@ -439,7 +439,6 @@
 .remote_file_get_all_github <- function(remote,
                                         path_dir_save_local,
                                         output_level = "std",
-                                        
                                         api_url = NULL,
                                         token = NULL,
                                         overwrite = TRUE) {
