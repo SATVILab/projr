@@ -177,6 +177,7 @@ test_that("adding, listing and removing files works on GitHub releases", {
       expect_true("subdir1/subdir2/ghi.txt" %in% file_vec)
 
       # add a file
+      # debugonce(.remote_file_get_all_github)
       writeLines("new file content", "newfile.txt")
       .remote_file_add(
         "github",
@@ -279,7 +280,7 @@ test_that("adding, listing and removing files works on GitHub releases", {
 test_that("manifest round-trip works for GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -326,7 +327,7 @@ test_that("manifest round-trip works for GitHub releases", {
 test_that("VERSION file round-trip works for GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -547,7 +548,7 @@ test_that("upload and restore from `latest` GitHub releases", {
 test_that("upload and restore from `archive` GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 

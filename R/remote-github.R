@@ -644,15 +644,16 @@
   # files, plus the new ones (that overwrite
   # any old ones)
   path_dir_tmp_save <- .dir_create_tmp_random()
-  if (.remote_final_check_exists_direct(
+  on.exit(
+    try(unlink(path_dir_tmp_save, recursive = TRUE), silent = TRUE),
+    add = TRUE
+  )
+  remote_exists <- .remote_final_check_exists_direct(
     "github",
-    remote = remote,
-    api_url = api_url,
-    token  = token
-  )) {
-    .remote_file_get_all(
-      "github", path_dir_local, path_dir_tmp_save
-    )
+    remote = remote, api_url = api_url, token  = token
+  )
+  if (remote_exists) {
+    .remote_file_get_all("github", remote, path_dir_tmp_save)
   }
 
   for (fn_curr in fn) {
@@ -672,7 +673,6 @@
     path_dir = path_dir_tmp_save,
     path_zip = file.path(tempdir(), remote[["fn"]])
   )
-
 
   .gh_release_asset_upload_httr(
     repo = .gh_repo_get(),

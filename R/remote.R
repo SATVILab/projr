@@ -816,8 +816,7 @@
                              remote,
                              path_dir_local,
                              fn,
-                             output_level = "std"
-                             ) {
+                             output_level = "std") {
   .assert_in(type, .opt_remote_get_type(), TRUE)
 
   .cli_debug(
