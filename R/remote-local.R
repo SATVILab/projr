@@ -120,8 +120,7 @@
                                           label,
                                           structure,
                                           version = NULL,
-                                          output_level = "std",
-                                          log_file = NULL) {
+                                          output_level = "std") {
   # Get the path for the empty remote
   remote_empty <- .remote_final_get_local(
     path = path,
@@ -136,8 +135,7 @@
   .cli_debug(
     "remote_final_empty_get_local: Creating empty at '{path}'",
     path = remote_empty,
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
   
   # Check if it already exists
@@ -145,8 +143,7 @@
     .cli_debug(
       "remote_final_empty_get_local: Already exists at '{path}'",
       path = remote_empty,
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     return(remote_empty)
   }
@@ -156,8 +153,7 @@
   .cli_debug(
     "remote_final_empty_get_local: Created empty directory at '{path}'",
     path = remote_empty,
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
   remote_empty
 }
@@ -343,14 +339,12 @@
 .remote_file_add_local <- function(fn,
                                    path_dir_local,
                                    remote,
-                                   output_level = "std",
-                                   log_file = NULL) {
+                                   output_level = "std") {
   .assert_chr_min(fn, TRUE)
   if (.is_len_0(fn)) {
     .cli_debug(
       "Local remote: No files specified for addition, returning FALSE",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     return(invisible(FALSE))
   }
@@ -359,8 +353,7 @@
   to_path <- remote
   .cli_debug(
     "Local remote: Adding {count} file(s) from '{from_path}' to '{to_path}'",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
   .assert_string(path_dir_local, TRUE)
   .assert_path_not_file(path_dir_local)
@@ -369,8 +362,7 @@
   # This will create the directory if it doesn't exist
   .cli_debug(
     "Local remote: Calling .dir_copy_file to copy files",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
   .dir_copy_file(
     fn = fn,
