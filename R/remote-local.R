@@ -197,8 +197,16 @@
 # ========================
 
 .remote_file_get_all_local <- function(remote,
-                                       path_dir_save_local) {
+                                       path_dir_save_local,
+                                       output_level = "std") {
   .assert_string(remote, TRUE)
+  if (grepl("-empty$", remote)) {
+    .cli_debug(
+      "Local remote: Remote is by definition empty, no files to get, returning character(0L)", # nolint
+      output_level = output_level
+    )
+    return(character(0L))
+  }
   .dir_copy(remote, path_dir_save_local)
 }
 
@@ -207,8 +215,17 @@
 # ========================
 
 .remote_file_get_local <- function(remote,
-                                       fn,
-                                       path_dir_save_local) {
+                                   fn,
+                                   path_dir_save_local,
+                                   output_level = "std") {
+  .assert_string(remote, TRUE)
+  if (grepl("-empty$", remote)) {
+    .cli_debug(
+      "Local remote: Remote is empty, no files to get, returning character(0L)", # nolint
+      output_level = output_level
+    )
+    return(character(0L))
+  }
   path_remote_fn <- file.path(remote, fn)
   if (!file.exists(path_remote_fn)) {
     return(character(0L))

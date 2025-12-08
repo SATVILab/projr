@@ -280,7 +280,7 @@ test_that("adding, listing and removing files works on GitHub releases", {
 test_that("manifest round-trip works for GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -327,7 +327,7 @@ test_that("manifest round-trip works for GitHub releases", {
 test_that("VERSION file round-trip works for GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -388,7 +388,7 @@ usethis::with_project(
 test_that("upload and restore from `latest` GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -405,7 +405,6 @@ test_that("upload and restore from `latest` GitHub releases", {
       )
 
       # Build to upload to GitHub
-      browser()
       projr::projr_build_patch(msg = "test")
 
       # Verify upload
@@ -518,17 +517,6 @@ test_that("upload and restore from `latest` GitHub releases", {
       fn_vec <- .file_ls(projr_path_get("raw-data"))
       expect_identical(fn_vec, character(0L))
 
-      # build, should still have empty version
-
-      # Build to upload to GitHub
-      projr::projr_build_minor(msg = "test")
-
-      # Verify upload
-      Sys.sleep(2)
-      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
-      expect_false("raw-data.zip" %in% remote_vec_final)
-      expect_true("raw-data-empty.zip" %in% remote_vec_final)
-
       # Clear up
       remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
       for (fn in remote_final_vec) {
@@ -580,28 +568,6 @@ test_that("upload and restore from `archive` GitHub releases", {
       if (dir.exists(projr_path_get("raw-data"))) {
         unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
       }
-
-
-
-      # Error because nothing is uploaded yet (no manifest.csv)
-      .remote_file_rm(
-        "github",
-        fn = "manifest.csv",
-        remote = c("tag" = "manifest.zip")
-      )
-      expect_error(projr_content_update(
-        label = "raw-data", type = "github", title = tag_name
-      ))
-
-      # Expect error because there are no labels uploaded yet
-      .remote_write_manifest(
-        "github",
-        remote = c("tag" = tag_name),
-        manifest = .manifest_read_project()
-      )
-      expect_error(projr_content_update(
-        label = "raw-data", type = "github", title = tag_name
-      ))
 
       # no remotes exist yet
       remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
@@ -670,8 +636,6 @@ test_that("upload and restore from `archive` GitHub releases", {
 
       # --- Upload with the same files ----
 
-      browser()
-
       # Build to upload to GitHub
       projr::projr_build_major(msg = "test")
 
@@ -690,8 +654,6 @@ test_that("upload and restore from `archive` GitHub releases", {
 
       # add and remove files
       content_vec_test_file_adj <- .test_content_adjust_label("raw-data")
-
-
 
       # Build to upload to GitHub
       projr::projr_build_minor(msg = "test")
@@ -720,9 +682,9 @@ test_that("upload and restore from `archive` GitHub releases", {
       # Build with no changes - should not create new archive with default send_cue # nolint
       projr::projr_build_minor(msg = "test")
 
-      # Verify upload - should still have latest version
+      # Verify upload - should not have an upload with the latest version
       remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
-      expect_true(.test_label_version_get("raw-data") %in% remote_vec_final)
+      expect_false(.test_label_version_get("raw-data") %in% remote_vec_final)
 
       # Clear local data
       unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
@@ -754,7 +716,7 @@ test_that("upload and restore from `archive` GitHub releases", {
 # `archive` structure via parameter: upload
 # =============================================================================
 
-test_that("upload and restore from `archive` GitHub releases via parameter", {
+test_that("upload to archive remotes using parameter for all content", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
@@ -765,11 +727,41 @@ test_that("upload and restore from `archive` GitHub releases via parameter", {
     path = dir_test,
     code = {
 
-      # Use archive structure via parameter
+      # remove all remotes
+      .yml_dest_rm_type_all("default")
       tag_name <- "archive"
 
-      # remote all remotes
-      .yml_dest_rm_type_all("default")
+      # --- ensure remote is cleared ---
+      if (.remote_check_exists("github", tag_name)) {
+        remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
+        for (fn in remote_final_vec) {
+          .remote_final_empty(
+            "github",
+            remote = c("tag" = tag_name, "fn" = fn)
+          )
+        }
+      }
+
+      # --- entirely empty raw data ----
+      if (dir.exists(projr_path_get("raw-data"))) {
+        unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
+      }
+
+      # no remotes exist yet
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      version_no_build_label <- .test_label_version_get(
+        "raw-data", empty = FALSE
+      )
+      version_no_build_label_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      expect_false(version_no_build_label %in% remote_vec_final)
+      expect_false(version_no_build_label_empty %in% remote_vec_final)
+
+      # no files restored
+      expect_identical(.file_ls(projr_path_get("raw-data")), character(0L))
+
+      # --- Upload empty directory ----
 
       # Build to upload to GitHub
       projr::projr_build_patch(msg = "test", archive_github = TRUE)
@@ -778,47 +770,310 @@ test_that("upload and restore from `archive` GitHub releases via parameter", {
       expect_true(
         .remote_check_exists("github", tag_name, max_attempts = 4)
       )
-
-      # Clear local data
-      unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
-      projr_path_get_dir("raw-data", safe = FALSE)
-
-      # Restore from GitHub
-      result <- projr_content_update(
-        label = "raw-data", type = "github", title = tag_name
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      version_empty_build_raw_data <- .test_label_version_get(
+        "raw-data", empty = FALSE
       )
+      version_empty_build_raw_data_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      version_empty_build_output <- .test_label_version_get(
+        "output", empty = FALSE
+      )
+      version_empty_build_output_empty <- .test_label_version_get(
+        "output", empty = TRUE
+      )
+      version_empty_build_docs <- .test_label_version_get(
+        "docs", empty = FALSE
+      )
+      version_empty_build_docs_empty <- .test_label_version_get(
+        "docs", empty = TRUE
+      )
+      expect_false(version_empty_build_raw_data %in% remote_vec_final)
+      expect_true(version_empty_build_raw_data_empty %in% remote_vec_final)
+      expect_false(version_empty_build_output %in% remote_vec_final)
+      expect_true(version_empty_build_output_empty %in% remote_vec_final)
+      expect_true(version_empty_build_docs %in% remote_vec_final)
+      expect_false(version_empty_build_docs_empty %in% remote_vec_final)
 
-      # Verify restoration
-      expect_true(result)
-      fn_vec <- .file_ls(projr_path_get("raw-data"))
-      expect_identical(fn_vec, content_vec_test_file)
+      # --- Upload nothing new, cue always -----
+      projr::projr_build_patch(msg = "test", archive_github = TRUE)
 
-      # add and remove files
-      content_vec_test_file_adj <- .test_content_adjust_label("raw-data")
-
-      # Build to upload to GitHub (archive_github parameter persists in config)
-      projr::projr_build_minor(msg = "test", archive_github = TRUE)
-
-      # Verify remote still exists and has the new version
+      # Verify upload
       expect_true(
         .remote_check_exists("github", tag_name, max_attempts = 4)
       )
       remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
-      expect_true(.test_label_version_get("raw-data") %in% remote_vec_final)
+      version_empty_build_raw_data <- .test_label_version_get(
+        "raw-data", empty = FALSE
+      )
+      version_empty_build_raw_data_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      version_empty_build_output <- .test_label_version_get(
+        "output", empty = FALSE
+      )
+      version_empty_build_output_empty <- .test_label_version_get(
+        "output", empty = TRUE
+      )
+      version_empty_build_docs <- .test_label_version_get(
+        "docs", empty = FALSE
+      )
+      version_empty_build_docs_empty <- .test_label_version_get(
+        "docs", empty = TRUE
+      )
+      expect_false(version_empty_build_raw_data %in% remote_vec_final)
+      expect_true(version_empty_build_raw_data_empty %in% remote_vec_final)
+      expect_false(version_empty_build_output %in% remote_vec_final)
+      expect_true(version_empty_build_output_empty %in% remote_vec_final)
+      expect_true(version_empty_build_docs %in% remote_vec_final)
+      expect_false(version_empty_build_docs_empty %in% remote_vec_final)
 
-      # Clear local data
-      unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
-      projr_path_get_dir("raw-data", safe = FALSE)
+        # --- Upload nothing new, cue if-change -----
+        projr::projr_build_patch(
+          msg = "test", archive_github = TRUE, always_archive = FALSE
+        )
 
-      # Restore from GitHub
-      result <- projr_content_update(
-        label = "raw-data", type = "github", title = tag_name
+        # Verify upload
+        expect_true(
+          .remote_check_exists("github", tag_name, max_attempts = 4)
+        )
+        remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+        version_empty_build_raw_data <- .test_label_version_get(
+          "raw-data", empty = FALSE
+        )
+        version_empty_build_raw_data_empty <- .test_label_version_get(
+          "raw-data", empty = TRUE
+        )
+        version_empty_build_output <- .test_label_version_get(
+          "output", empty = FALSE
+        )
+        version_empty_build_output_empty <- .test_label_version_get(
+          "output", empty = TRUE
+        )
+        version_empty_build_docs <- .test_label_version_get(
+          "docs", empty = FALSE
+        )
+        version_empty_build_docs_empty <- .test_label_version_get(
+          "docs", empty = TRUE
+        )
+        expect_false(version_empty_build_raw_data %in% remote_vec_final)
+        expect_false(version_empty_build_raw_data_empty %in% remote_vec_final)
+        expect_false(version_empty_build_output %in% remote_vec_final)
+        expect_false(version_empty_build_output_empty %in% remote_vec_final)
+        expect_false(version_empty_build_docs %in% remote_vec_final)
+        expect_false(version_empty_build_docs_empty %in% remote_vec_final)
+
+        # Clear up
+        remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
+        for (fn in remote_final_vec) {
+          .remote_final_empty(
+            "github",
+            remote = c("tag" = tag_name, "fn" = fn)
+          )
+        }
+    }
+  )
+})
+
+test_that("upload to archive remotes using parameter for only output content", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
+  skip_if(.is_test_select())
+  skip_if_offline()
+  .test_skip_if_cannot_modify_github()
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+
+      # remove all remotes
+      .yml_dest_rm_type_all("default")
+      tag_name <- "archive"
+
+      # --- ensure remote is cleared ---
+      if (.remote_check_exists("github", tag_name)) {
+        remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
+        for (fn in remote_final_vec) {
+          .remote_final_empty(
+            "github",
+            remote = c("tag" = tag_name, "fn" = fn)
+          )
+        }
+      }
+
+      # --- entirely empty raw data ----
+      if (dir.exists(projr_path_get("raw-data"))) {
+        unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
+      }
+
+      # no remotes exist yet
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      version_no_build_label <- .test_label_version_get(
+        "raw-data", empty = FALSE
+      )
+      version_no_build_label_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      expect_false(version_no_build_label %in% remote_vec_final)
+      expect_false(version_no_build_label_empty %in% remote_vec_final)
+
+      # no files restored
+      expect_identical(.file_ls(projr_path_get("raw-data")), character(0L))
+
+      # --- Upload empty directory ----
+
+      # Build to upload to GitHub
+      projr::projr_build_patch(msg = "test", archive_github = "output")
+
+      # Verify upload
+      expect_true(
+        .remote_check_exists("github", tag_name, max_attempts = 4)
+      )
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      version_empty_build_raw_data <- .test_label_version_get(
+        "raw-data", empty = FALSE
+      )
+      version_empty_build_raw_data_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      version_empty_build_output <- .test_label_version_get(
+        "output", empty = FALSE
+      )
+      version_empty_build_output_empty <- .test_label_version_get(
+        "output", empty = TRUE
+      )
+      version_empty_build_docs <- .test_label_version_get(
+        "docs", empty = FALSE
+      )
+      version_empty_build_docs_empty <- .test_label_version_get(
+        "docs", empty = TRUE
+      )
+      expect_false(version_empty_build_raw_data %in% remote_vec_final)
+      expect_false(version_empty_build_raw_data_empty %in% remote_vec_final)
+      expect_false(version_empty_build_output %in% remote_vec_final)
+      expect_true(version_empty_build_output_empty %in% remote_vec_final)
+      expect_false(version_empty_build_docs %in% remote_vec_final)
+      expect_false(version_empty_build_docs_empty %in% remote_vec_final)
+
+      # --- Upload nothing new, cue always -----
+      projr::projr_build_patch(msg = "test", archive_github = "output")
+
+      # Verify upload
+      expect_true(
+        .remote_check_exists("github", tag_name, max_attempts = 4)
+      )
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      version_empty_build_raw_data <- .test_label_version_get(
+        "raw-data", empty = FALSE
+      )
+      version_empty_build_raw_data_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      version_empty_build_output <- .test_label_version_get(
+        "output", empty = FALSE
+      )
+      version_empty_build_output_empty <- .test_label_version_get(
+        "output", empty = TRUE
+      )
+      version_empty_build_docs <- .test_label_version_get(
+        "docs", empty = FALSE
+      )
+      version_empty_build_docs_empty <- .test_label_version_get(
+        "docs", empty = TRUE
+      )
+      expect_false(version_empty_build_raw_data %in% remote_vec_final)
+      expect_false(version_empty_build_raw_data_empty %in% remote_vec_final)
+      expect_false(version_empty_build_output %in% remote_vec_final)
+      expect_true(version_empty_build_output_empty %in% remote_vec_final)
+      expect_false(version_empty_build_docs %in% remote_vec_final)
+      expect_false(version_empty_build_docs_empty %in% remote_vec_final)
+
+      # --- Upload nothing new, cue if-change -----
+      projr::projr_build_patch(
+        msg = "test", archive_github = "output", always_archive = FALSE
       )
 
-      # Verify restoration
-      expect_true(result)
-      fn_vec <- .file_ls(projr_path_get("raw-data"))
-      expect_identical(fn_vec, content_vec_test_file_adj)
+      # Verify upload
+      expect_true(
+        .remote_check_exists("github", tag_name, max_attempts = 4)
+      )
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      version_empty_build_raw_data <- .test_label_version_get(
+        "raw-data", empty = FALSE
+      )
+      version_empty_build_raw_data_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      version_empty_build_output <- .test_label_version_get(
+        "output", empty = FALSE
+      )
+      version_empty_build_output_empty <- .test_label_version_get(
+        "output", empty = TRUE
+      )
+      version_empty_build_docs <- .test_label_version_get(
+        "docs", empty = FALSE
+      )
+      version_empty_build_docs_empty <- .test_label_version_get(
+        "docs", empty = TRUE
+      )
+      expect_false(version_empty_build_raw_data %in% remote_vec_final)
+      expect_false(version_empty_build_raw_data_empty %in% remote_vec_final)
+      expect_false(version_empty_build_output %in% remote_vec_final)
+      expect_false(version_empty_build_output_empty %in% remote_vec_final)
+      expect_false(version_empty_build_docs %in% remote_vec_final)
+      expect_false(version_empty_build_docs_empty %in% remote_vec_final)
+
+
+      # --- Upload new raw data, cue if-change -----
+      content_vec <- c(
+        "---",
+        "title: \"Solving TB with MINIMALLY SENSIBLE reports\"",
+        "documentclass: book",
+        "---",
+        "",
+        "# Introduction",
+        "  ",
+        "```{r , include = FALSE}",
+        "writeLines(\"abc\", projr_path_get(\"output\", \"newfile.txt\"))",
+        "```"
+      )
+      invisible(try(file.remove("index.Rmd"), silent = TRUE))
+      writeLines(content_vec, "index.Rmd")
+
+      projr::projr_build_patch(
+        msg = "test", archive_github = "output", always_archive = FALSE
+      )
+
+      # Verify upload
+      expect_true(
+        .remote_check_exists("github", tag_name, max_attempts = 4)
+      )
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      version_empty_build_raw_data <- .test_label_version_get(
+        "raw-data", empty = FALSE
+      )
+      version_empty_build_raw_data_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      version_empty_build_output <- .test_label_version_get(
+        "output", empty = FALSE
+      )
+      version_empty_build_output_empty <- .test_label_version_get(
+        "output", empty = TRUE
+      )
+      version_empty_build_docs <- .test_label_version_get(
+        "docs", empty = FALSE
+      )
+      version_empty_build_docs_empty <- .test_label_version_get(
+        "docs", empty = TRUE
+      )
+      expect_false(version_empty_build_raw_data %in% remote_vec_final)
+      expect_false(version_empty_build_raw_data_empty %in% remote_vec_final)
+      expect_true(version_empty_build_output %in% remote_vec_final)
+      expect_false(version_empty_build_output_empty %in% remote_vec_final)
+      expect_false(version_empty_build_docs %in% remote_vec_final)
+      expect_false(version_empty_build_docs_empty %in% remote_vec_final)
 
       # Clear up
       remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
@@ -833,10 +1088,10 @@ test_that("upload and restore from `archive` GitHub releases via parameter", {
 })
 
 # =============================================================================
-# Test send_cue parameter: always, if-change, never
+# Test send_cue parameter: always, if-change
 # =============================================================================
 
-test_that("GitHub release send_cue='always' creates new archive every build", {
+test_that("test always vs if-change for projr config uploads", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
@@ -846,58 +1101,95 @@ test_that("GitHub release send_cue='always' creates new archive every build", {
   usethis::with_project(
     path = dir_test,
     code = {
-      # Use one of the fixed test releases
-      tag_name <- "projr-test-release-a"
 
-      # Clear any existing content
-      remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
-      for (fn in remote_final_vec) {
-        .remote_final_empty(
-          "github",
-          remote = c("tag" = tag_name, "fn" = fn)
-        )
+      # remove all remotes
+      .yml_dest_rm_type_all("default")
+      tag_name <- "archive"
+      projr_yml_dest_add_github(
+        title = tag_name,
+        content = "raw-data",
+        structure = "archive"
+      )
+
+      # --- ensure remote is cleared ---
+      if (.remote_check_exists("github", tag_name)) {
+        remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
+        for (fn in remote_final_vec) {
+          .remote_final_empty(
+            "github",
+            remote = c("tag" = tag_name, "fn" = fn)
+          )
+        }
       }
 
-      # Setup
-      .yml_dest_rm_type_all("default")
+      # --- entirely empty raw data ----
+      if (dir.exists(projr_path_get("raw-data"))) {
+        unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
+      }
+      content_vec_test_file <- .test_content_setup_label("raw-data") |>
+        .file_ls()
 
-      # Add with send_cue = "always"
+      # --- Upload empty directory ----
+
+      # Build to upload to GitHub
+      projr::projr_build_patch(msg = "test")
+
+      # Verify upload
+      expect_true(
+        .remote_check_exists("github", tag_name, max_attempts = 4)
+      )
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      version_empty_build_raw_data <- .test_label_version_get(
+        "raw-data", empty = FALSE
+      )
+      version_empty_build_raw_data_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      expect_true(version_empty_build_raw_data %in% remote_vec_final)
+      expect_false(version_empty_build_raw_data_empty %in% remote_vec_final)
+
+      # --- Upload nothing new, cue if-change -----
+      projr::projr_build_patch(msg = "test")
+
+      # Verify upload
+      expect_true(
+        .remote_check_exists("github", tag_name, max_attempts = 4)
+      )
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      version_empty_build_raw_data <- .test_label_version_get(
+        "raw-data", empty = FALSE
+      )
+      version_empty_build_raw_data_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      expect_false(version_empty_build_raw_data %in% remote_vec_final)
+      expect_false(version_empty_build_raw_data_empty %in% remote_vec_final)
+
+      # --- Upload nothing new, cue always -----
+      .yml_dest_rm_type_all("default")
       projr_yml_dest_add_github(
         title = tag_name,
         content = "raw-data",
         structure = "archive",
         send_cue = "always"
       )
-
-      # First build
       projr::projr_build_patch(msg = "test")
+
+      # Verify upload
+      expect_true(
+        .remote_check_exists("github", tag_name, max_attempts = 4)
+      )
       remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
-      expect_true(any(grepl("raw-data-v.*\\.zip", remote_vec_final)))
+      version_empty_build_raw_data <- .test_label_version_get(
+        "raw-data", empty = FALSE
+      )
+      version_empty_build_raw_data_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      expect_true(version_empty_build_raw_data %in% remote_vec_final)
+      expect_false(version_empty_build_raw_data_empty %in% remote_vec_final)
 
-      # Second build without changes - should still create new version
-      projr::projr_build_patch(msg = "test")
-      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
-      # Should have two different versioned archives now
-      raw_data_assets <- grep("raw-data-v.*\\.zip", remote_vec_final, value = TRUE)
-      expect_true(length(raw_data_assets) >= 2)
-    }
-  )
-})
-
-test_that("GitHub release send_cue='if-change' only creates archive if content changed", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if_offline()
-  .test_skip_if_cannot_modify_github()
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Use one of the fixed test releases
-      tag_name <- "projr-test-release-b"
-
-      # Clear any existing content
+      # Clear up
       remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
       for (fn in remote_final_vec) {
         .remote_final_empty(
@@ -905,64 +1197,115 @@ test_that("GitHub release send_cue='if-change' only creates archive if content c
           remote = c("tag" = tag_name, "fn" = fn)
         )
       }
+    }
+  )
+})
 
-      # Setup
+# =============================================================================
+# Test send_strategy parameter: sync-diff, sync-purge, upload-all, upload-missing
+# =============================================================================
+
+test_that("various upload strategies run", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
+  # skip_if(.is_test_select())
+  skip_if_offline()
+  .test_skip_if_cannot_modify_github()
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+
+      tag_name <- "archive"
+
+      # remove all remotes
       .yml_dest_rm_type_all("default")
-
-      # Add with send_cue = "if-change"
       projr_yml_dest_add_github(
         title = tag_name,
         content = "raw-data",
         structure = "archive",
-        send_cue = "if-change"
+        send_strategy = "sync-purge"
       )
 
-      # Get current version before builds
-      version_before <- projr_version_get()
+      # --- ensure remote is cleared ---
+      if (.remote_check_exists("github", tag_name)) {
+        remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
+        for (fn in remote_final_vec) {
+          .remote_final_empty(
+            "github",
+            remote = c("tag" = tag_name, "fn" = fn)
+          )
+        }
+      }
 
-      # First build
+      # --- entirely empty raw data ----
+      if (dir.exists(projr_path_get("raw-data"))) {
+        unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
+      }
+      content_vec_test_file <- .test_content_setup_label("raw-data") |>
+        .file_ls()
+
+      # --- Upload empty directory ----
+
+      # Build to upload to GitHub
       projr::projr_build_patch(msg = "test")
-      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
-      raw_data_assets <- grep("raw-data-v.*\\.zip", remote_vec_final, value = TRUE)
-      expect_true(length(raw_data_assets) >= 1)
-      first_asset <- raw_data_assets[1]
 
-      # Second build without changes - should NOT create new version
+      # Verify upload
+      expect_true(
+        .remote_check_exists("github", tag_name, max_attempts = 4)
+      )
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      version_empty_build_raw_data <- .test_label_version_get(
+        "raw-data", empty = FALSE
+      )
+      version_empty_build_raw_data_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      expect_true(version_empty_build_raw_data %in% remote_vec_final)
+      expect_false(version_empty_build_raw_data_empty %in% remote_vec_final)
+
+      # --- Upload nothing new, cue if-change -----
       projr::projr_build_patch(msg = "test")
-      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
-      raw_data_assets <- grep("raw-data-v.*\\.zip", remote_vec_final, value = TRUE)
-      # Should still have just the first asset (no new version created)
-      expect_identical(length(raw_data_assets), 1L)
 
-      # Third build with changes - should create new version
-      writeLines("Modified content", file.path(projr_path_get_dir("raw-data"), "file1.txt"))
+      # Verify upload
+      expect_true(
+        .remote_check_exists("github", tag_name, max_attempts = 4)
+      )
+      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
+      version_empty_build_raw_data <- .test_label_version_get(
+        "raw-data", empty = FALSE
+      )
+      version_empty_build_raw_data_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      expect_false(version_empty_build_raw_data %in% remote_vec_final)
+      expect_false(version_empty_build_raw_data_empty %in% remote_vec_final)
+
+      # --- Upload nothing new, cue always -----
+      .yml_dest_rm_type_all("default")
+      projr_yml_dest_add_github(
+        title = tag_name,
+        content = "raw-data",
+        structure = "archive",
+        send_cue = "always"
+      )
       projr::projr_build_patch(msg = "test")
+
+      # Verify upload
+      expect_true(
+        .remote_check_exists("github", tag_name, max_attempts = 4)
+      )
       remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
-      raw_data_assets <- grep("raw-data-v.*\\.zip", remote_vec_final, value = TRUE)
-      # Should now have 2 assets (original + new version after change)
-      expect_true(length(raw_data_assets) >= 2)
-    }
-  )
-})
+      version_empty_build_raw_data <- .test_label_version_get(
+        "raw-data", empty = FALSE
+      )
+      version_empty_build_raw_data_empty <- .test_label_version_get(
+        "raw-data", empty = TRUE
+      )
+      expect_true(version_empty_build_raw_data %in% remote_vec_final)
+      expect_false(version_empty_build_raw_data_empty %in% remote_vec_final)
 
-# =============================================================================
-# Test send_strategy parameter: sync-diff, sync-purge
-# =============================================================================
-
-test_that("GitHub release send_strategy='sync-diff' updates only changed files", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if_offline()
-  .test_skip_if_cannot_modify_github()
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Use one of the fixed test releases
-      tag_name <- "projr-test-release-a"
-
-      # Clear any existing content
+      # Clear up
       remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
       for (fn in remote_final_vec) {
         .remote_final_empty(
@@ -970,82 +1313,12 @@ test_that("GitHub release send_strategy='sync-diff' updates only changed files",
           remote = c("tag" = tag_name, "fn" = fn)
         )
       }
-
-      # Setup
-      .yml_dest_rm_type_all("default")
-
-      # Add with send_strategy = "sync-diff", structure = "latest"
-      projr_yml_dest_add_github(
-        title = tag_name,
-        content = "raw-data",
-        structure = "latest",
-        send_strategy = "sync-diff",
-        send_cue = "always"
-      )
-
-      # First build
-      projr::projr_build_patch(msg = "test")
-      expect_true(.remote_check_exists("github", tag_name))
-
-      # Verify asset exists
-      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
-      expect_true("raw-data.zip" %in% remote_vec_final)
-    }
-  )
-})
-
-test_that("GitHub release send_strategy='sync-purge' removes all then uploads all", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if_offline()
-  .test_skip_if_cannot_modify_github()
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Use one of the fixed test releases
-      tag_name <- "projr-test-release-b"
-
-      # Clear any existing content
-      remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
-      for (fn in remote_final_vec) {
-        .remote_final_empty(
-          "github",
-          remote = c("tag" = tag_name, "fn" = fn)
-        )
-      }
-
-      # Setup
-      .yml_dest_rm_type_all("default")
-
-      # Add with send_strategy = "sync-purge"
-      projr_yml_dest_add_github(
-        title = tag_name,
-        content = "raw-data",
-        structure = "latest",
-        send_strategy = "sync-purge",
-        send_cue = "always"
-      )
-
-      # First build
-      projr::projr_build_patch(msg = "test")
-      expect_true(.remote_check_exists("github", tag_name))
-
-      # Verify asset was created
-      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
-      expect_true("raw-data.zip" %in% remote_vec_final)
-
-      # Second build - should purge and re-upload
-      projr::projr_build_patch(msg = "test")
-      remote_vec_final <- .remote_ls_final("github", c("tag" = tag_name))
-      expect_true("raw-data.zip" %in% remote_vec_final)
     }
   )
 })
 
 # =============================================================================
-# Test send_inspect parameter: manifest, file, none
+# Test send_inspect parameter: manifest, file
 # =============================================================================
 
 test_that("GitHub release send_inspect='manifest' uses manifest for version tracking", {

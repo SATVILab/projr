@@ -134,7 +134,6 @@
   )
 }
 
-
 # ========================
 # List all final remotes in a particular pre-remote
 # ========================
@@ -196,24 +195,6 @@
 # Get final remote
 # =====================
 
-# wrapper functions to get the "final" remote.
-# For hierarchical remotes, this essentially
-# means creating sub-directories,
-# where the following rules are observed:
-# - the path is the first part
-# - the label comes next
-# - the version comes last
-# For GitHub, this means creating
-# the file name of the asset,
-# where the following rules are observed:
-# - any path is prepended
-# - the label is appended ot the path
-# - the version is appended thereafter
-#   (if it's a versioned structure).
-# - it then ends in `.zip`.
-# - if path_append_label is FALSE and path
-#   is not supplied, then is treated as if
-#   path_append_label is TRUE.
 #' @title Compose a final remote destination
 #' @description Creates the backend-specific representation of a final remote
 #'   destination (path, OSF object, GitHub asset name) using consistent rules
@@ -230,8 +211,14 @@
 #'   directory containing label/version).
 #' @param empty Logical flag indicating whether an "empty" variant (used for
 #'   GitHub placeholder assets) should be produced.
+#' @details 
+#' The final remote is created for hierarchical remotes (local, OSF),
+#' but not for flat remotes (GitHub assets), as such a final
+#' remote cannot be created empty.
 #' @return Backend-specific remote handle suitable for existence checks and
-#'   file operations.
+#'   file operations. For local remotes, this is a path; for OSF, an `osf_tbl_file`
+#'   object; for GitHub, a character vector with names `tag` and `fn` for
+#'   the release tag and asset name, respectively.
 #' @keywords internal
 #' @noRd
 .remote_final_get <- function(type,
@@ -279,8 +266,81 @@
   )
 }
 
-# wrapper if it returns NULL because we
-# already know it does not exist
+# =====================
+# Get final remote
+# =====================
+
+#' @title Compose a final remote destination
+#' @description Creates the backend-specific representation of a final remote
+#'   destination (path, OSF object, GitHub asset name) using consistent rules
+#'   for labels, versions, and optional custom paths.
+#' @inheritParams .remote_check_exists
+#' @param label Directory label whose contents will live at the remote.
+#' @param structure Remote structure (`latest` or `archive`).
+#' @param path Optional base path or prefix configured in `_projr.yml`.
+#' @param path_append_label Logical flag indicating whether the label should be
+#'   appended when composing hierarchical paths or filenames.
+#' @param version Optional project version override; defaults to the current
+#'   package version when `NULL`.
+#' @param pre Logical flag requesting the parent of the final remote (e.g.
+#'   directory containing label/version).
+#' @param empty Logical flag indicating whether an "empty" variant (used for
+#'   GitHub placeholder assets) should be produced.
+#' @details 
+#' The final remote is created for hierarchical remotes (local, OSF),
+#' but not for flat remotes (GitHub assets), as such a final
+#' remote cannot be created empty.
+#' @return Backend-specific remote handle suitable for existence checks and
+#'   file operations. For local remotes, this is a path; for OSF, an `osf_tbl_file`
+#'   object; for GitHub, a character vector with names `tag` and `fn` for
+#'   the release tag and asset name, respectively.
+#' @keywords internal
+#' @noRd
+.remote_final_empty_get <- function(type,
+                                    id,
+                                    label,
+                                    structure,
+                                    path = NULL,
+                                    path_append_label = TRUE,
+                                    version = NULL) {
+  # pre: "one up" from the final remote, e.g. the directory
+  # above for hierarchical. Does not apply to flat.
+  switch(type,
+    "local" = .remote_final_get_local(
+      path = id,
+      label = label,
+      structure = structure,
+      path_append_label = path_append_label,
+      version = version,
+      pre = FALSE,
+      empty = TRUE
+    ),
+    "osf" = .remote_final_get_osf(
+      id = id,
+      label = label,
+      structure = structure,
+      path = path,
+      path_append_label = path_append_label,
+      version = version,
+      pre = FALSE,
+      empty = TRUE
+    ),
+    "github" = .remote_final_empty_get_github(
+      id = .remote_misc_github_tag_get(id),
+      label = label,
+      structure = structure,
+      path = path,
+      path_append_label = path_append_label,
+      version = version
+    ),
+    stop(paste0("type '", type, "' not recognized"))
+  )
+}
+
+# =====================
+# Get final remote, if it exists
+# =====================
+
 #' @title Retrieve a final remote if it exists
 #' @description Resolve and return the composed final remote handle only when
 #'   the destination actually exists; otherwise return `NULL` to avoid
@@ -318,11 +378,10 @@
     type, id, label, structure, path, path_append_label,
     version, pre, empty_init
   )
-  if (!is.null(remote_final_empty_init)) {
+  remote_exists <- !is.null(remote_final_empty_init)
+  empty_specified <- !is.null(empty)
+  if (remote_exists || empty_specified) {
     return(remote_final_empty_init)
-  }
-  if (is.null(empty)) {
-    return(NULL)
   }
   .remote_final_get_if_exists_impl(
     type, id, label, structure, path, path_append_label,

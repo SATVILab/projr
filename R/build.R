@@ -298,7 +298,8 @@ projr_build_dev <- function(file = NULL,
 
     version_run_on_list <- .build_pre(
       bump_component, msg, clear_output,
-      archive_github, archive_local, output_level
+      archive_github, archive_local, always_archive,
+      output_level
     )
 
     # Build stage
@@ -357,6 +358,7 @@ projr_build_dev <- function(file = NULL,
                        clear_output,
                        archive_github,
                        archive_local,
+                       always_archive,
                        output_level = "std") {
   .cli_debug("Starting pre-build checks and setup", output_level = output_level)
 
@@ -384,6 +386,7 @@ projr_build_dev <- function(file = NULL,
     bump_component = bump_component,
     archive_github = archive_github,
     archive_local = archive_local,
+    always_archive = always_archive,
     output_level = output_level
   )
 
@@ -625,7 +628,7 @@ projr_build_dev <- function(file = NULL,
 
   # Lenient: prepare all required GitHub releases for this build (non-blocking)
   .dest_prepare_github_releases(
-    bump_component, archive_github, archive_local,
+    bump_component, archive_github, archive_local, always_archive,
     strict = FALSE,
     output_level
   )

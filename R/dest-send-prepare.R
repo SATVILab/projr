@@ -2,6 +2,7 @@
 .dest_prepare_github_releases <- function(bump_component,
                                           archive_github,
                                           archive_local,
+                                          always_archive,
                                           strict,
                                           output_level = "std"
                                           ) {
@@ -21,7 +22,7 @@
     return(invisible(FALSE))
   }
 
-  tags <- .dest_github_tags_needed(archive_github)
+  tags <- .dest_github_tags_needed(archive_github, always_archive)
   if (.is_len_0(tags)) {
     .cli_debug(
       "GitHub release preparation: No tags required (from config)",
@@ -56,7 +57,9 @@
 }
 
 # Derive needed GitHub tags from configuration
-.dest_github_tags_needed <- function(archive_github, profile = NULL) {
+.dest_github_tags_needed <- function(archive_github,
+                                     always_archive,
+                                     profile = NULL) {
   # 1. From YAML-configured build.github destinations
   yml_github <- .yml_dest_get_type("github", profile)
   titles <- names(yml_github)
@@ -79,7 +82,7 @@
       type  = "github",
       profile = profile,
       archive_type = archive_github,
-      always_archive = NULL
+      always_archive = always_archive
     )
 
     id <- yml_title[["id"]]  # configured id/title

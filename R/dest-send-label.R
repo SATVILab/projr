@@ -210,7 +210,7 @@
   )
   remote_dest_empty <- .remote_final_get_if_exists(
     type, id, label, structure, path, path_append_label,
-    projr_version_get(), TRUE, FALSE
+    projr_version_get(), FALSE, TRUE
   )
   # Version on the remote to be compared against.
   # NULL if there is no sufficiently up-to-date and
@@ -1635,7 +1635,7 @@
     fn_add, remote_dest_full,
     type, id, label,
     structure, path, path_append_label,
-    projr_version_get(), output_level
+    projr_version_get(), path_dir_local, output_level
   )
 
   # remove files
@@ -1698,6 +1698,7 @@
                         path,
                         path_append_label,
                         version,
+                        path_dir_local,
                         output_level = "std") {
   if (!.is_len_pos(fn_add)) {
     .cli_debug(
@@ -1713,10 +1714,6 @@
   remote_add <- .dsl_ip_a_get_remote_add(
     remote_dest_full, type, id, label, structure, path,
     path_append_label, version
-  )
-  path_dir_local <- projr::projr_path_get(
-    label,
-    safe = FALSE
   )
   .remote_file_add(type, remote_add, path_dir_local, fn_add, output_level)
   remote_add
@@ -1772,7 +1769,11 @@
     output_level = output_level
   )
   .remote_file_rm(type, fn_rm, remote_rm, output_level)
-  remote_dest_full
+  Sys.sleep(1) # ensure remote consistency
+  .remote_final_get_if_exists(
+    type, id, label, structure, path,
+    path_append_label, version, FALSE, FALSE
+  )
 }
 
 .dsl_ip_r_get_remote_rm <- function(remote_dest_full,
@@ -1925,9 +1926,9 @@
     "Creating empty remote destination",
     output_level = output_level
   )
-  .remote_final_get(
+  .remote_final_empty_get(
     type, id, label, structure,
     path, path_append_label,
-    projr_version_get(), FALSE, TRUE
+    projr_version_get()
   )
 }

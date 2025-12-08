@@ -111,10 +111,14 @@
 #' @noRd
 .dest_send_get_type_param <- function(archive_github, archive_local) {
   out_vec <- character(0L)
-  if (archive_github) {
+  archive_github_lgl <- isTRUE(archive_github) ||
+    (is.character(archive_github) && length(archive_github) > 0L)
+  archive_local_lgl <- isTRUE(archive_local) ||
+    (is.character(archive_local) && length(archive_local) > 0L)
+  if (archive_github_lgl) {
     out_vec <- c(out_vec, "github")
   }
-  if (archive_local) {
+  if (archive_local_lgl) {
     out_vec <- c(out_vec, "local")
   }
   if (.is_len_0(out_vec)) {
@@ -297,7 +301,9 @@
 #' @keywords internal
 #' @noRd
 .dest_send_type_get_title_param <- function(archive_type) {
-  if (archive_type) "archive" else character(0L)
+  is_archive_lgl <- isTRUE(archive_type) ||
+    (is.character(archive_type) && length(archive_type) > 0L)
+  if (is_archive_lgl) "archive" else character(0L)
 }
 
 # ====================================================

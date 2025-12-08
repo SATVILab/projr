@@ -34,8 +34,6 @@
   invisible(FALSE)
 }
 
-
-
 .test_setup_project_dir <- function(base_name, env) {
   # set up directory
   base_name <- .test_setup_project_basename(base_name)

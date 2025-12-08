@@ -277,13 +277,7 @@
 
 .yml_dest_get_title_complete_param_force <- function(yml_title,
                                                      always_archive) {
-  if (is.null(always_archive) || !always_archive) {
-    return(yml_title)
-  }
-  yml_title[["send"]] <- list(
-    "inspect" = "manifest",
-    "strategy" = "sync-purge"
-  )
+  yml_title[["send"]][["cue"]] <- if (always_archive) "always" else "if-change"
   yml_title
 }
 

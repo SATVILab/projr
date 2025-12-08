@@ -602,7 +602,7 @@ projr_use_data <- function(...,
 }
 
 .opt_cue_get <- function() {
-  c("if-change", "always", "never")
+  c("if-change", "always")
 }
 
 .opt_remote_strategy_get <- function() {

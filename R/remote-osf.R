@@ -474,8 +474,10 @@ projr_osf_create_project <- function(title,
 
 
 .remote_file_get_osf <- function(remote,
-                                     fn,
-                                     path_dir_save_local) {
+                                 fn,
+                                 path_dir_save_local) {
+  # TODO: Add a check that this isn't an empty remote
+  # (ends with -empty; not sure how you do that here)
   .assert_given_full(remote)
   osf_tbl_file <- remote |> .osf_ls_files(n_max = Inf)
   if (nrow(osf_tbl_file) == 0L) {

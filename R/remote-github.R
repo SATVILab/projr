@@ -269,6 +269,57 @@
   c("tag" = tag, "fn" = fn)
 }
 
+# ========================
+# Get final remote that is empty
+# =======================
+
+.remote_final_empty_get_github <- function(id,
+                                           path,
+                                           path_append_label,
+                                           label,
+                                           structure,
+                                           version = NULL) {
+  remote_empty <- .remote_final_get(
+    "github",
+    id = id,
+    path = path,
+    path_append_label = path_append_label,
+    label = label,
+    structure = structure,
+    version = version,
+    pre = FALSE,
+    empty = TRUE
+  )
+  remote_exists <- .remote_final_check_exists_direct(
+    "github",
+    remote = remote_empty
+  )
+  if (remote_exists) {
+    return(remote_empty)
+  }
+  # Ensure release exists before we try to upload an asset
+  if (!.remote_check_exists("github", remote_empty[["tag"]], max_attempts = 2)) {
+    .cli_debug(
+      "GitHub release: Creating release '{tag}' to host empty asset",
+      tag = remote_empty[["tag"]]
+    )
+    # use dispatcher
+    .remote_create("github", id = remote_empty[["tag"]], output_level = "debug")
+  }
+  path_dir_tmp_save <- .dir_create_tmp_random()
+  on.exit(
+    try(unlink(path_dir_tmp_save, recursive = TRUE), silent = TRUE),
+    add = TRUE
+  )
+  file.create(file.path(path_dir_tmp_save, "projr-empty"))
+  .remote_file_add_github(
+    fn = "projr-empty",
+    path_dir_local = path_dir_tmp_save,
+    remote = remote_empty
+  )
+  remote_empty
+}
+
 # =====================
 # Get relative paths
 # =====================
@@ -296,17 +347,6 @@
     ),
     ".zip"
   )
-}
-
-# ========================
-# Delete an unused empty remote directory
-# ========================
-
-# github
-.remote_final_rm_if_empty_github <- function() {
-  # never any need to, as the release is only
-  # created if it's to be uploaded to
-  invisible(FALSE)
 }
 
 # ========================
@@ -422,7 +462,7 @@
     return(invisible(FALSE))
   }
 
-  .remote_final_empty_github_httr(
+  .remote_final_rm_github_httr(
     repo = .gh_repo_get(),
     tag = tag,
     fn = remote[["fn"]],
@@ -445,6 +485,13 @@
   .assert_given_full(remote)
 
   if (!.remote_check_exists("github", remote[["tag"]])) {
+    return(invisible(path_dir_save_local))
+  }
+  if (grepl("-empty\\.zip$", remote[["fn"]])) {
+    .cli_debug(
+      "GitHub release: Remote is by definition empty, no files to get, returning character(0L)", # nolint
+      output_level = output_level
+    )
     return(invisible(path_dir_save_local))
   }
   dir_save_zip <- .dir_get_tmp_random_path()
@@ -500,6 +547,13 @@
                                     output_level = "std"
                                     ) {
   if (!.remote_check_exists("github", remote[["tag"]])) {
+    return(character(0L))
+  }
+  if (grepl("-empty\\.zip$", remote[["fn"]])) {
+    .cli_debug(
+      "GitHub release: Remote is by definition empty, no files to get, returning character(0L)", # nolint
+      output_level = output_level
+    )
     return(character(0L))
   }
   # I think this is to handle VERSION and manifest.csv entris
@@ -607,7 +661,6 @@
                                     path_dir_local,
                                     remote,
                                     output_level = "std",
-                                    
                                     api_url = NULL,
                                     token   = NULL) {
   .assert_chr_min(fn, TRUE)

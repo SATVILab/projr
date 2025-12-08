@@ -300,7 +300,7 @@
 #'
 #' @return Logical. TRUE if successful.
 #' @keywords internal
-.remote_final_empty_github_httr <- function(
+.remote_final_rm_github_httr <- function(
   repo,
   tag,
   fn,
@@ -308,7 +308,7 @@
   token = NULL
 ) {
   if (!requireNamespace("httr", quietly = TRUE)) {
-    stop("httr is required for .remote_final_empty_github_httr(); please install it.")
+    stop("httr is required for .remote_final_rm_github_httr(); please install it.")
   }
   if (length(fn) != 1L) {
     stop("Expected exactly one fn to delete, got ", length(fn), call. = FALSE)
@@ -526,7 +526,7 @@
         asset_name = asset_name,
         tag = tag
       )
-      .remote_final_empty_github_httr(repo = repo, tag = tag, fn = asset_name, api_url = api_url, token = token)
+      .remote_final_rm_github_httr(repo = repo, tag = tag, fn = asset_name, api_url = api_url, token = token)
     } else {
       stop(
         "Asset '", asset_name, "' already exists in release '", tag,

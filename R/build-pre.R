@@ -31,6 +31,7 @@
 .build_pre_remotes_prepare <- function(bump_component,
                                        archive_github,
                                        archive_local,
+                                       always_archive,
                                        output_level = "std") {
   output_run <- .build_get_output_run(bump_component)
   if (!output_run) {
@@ -42,6 +43,7 @@
     bump_component = bump_component,
     archive_github = archive_github,
     archive_local = archive_local,
+    always_archive = always_archive,
     strict = TRUE,
     output_level = output_level
   )

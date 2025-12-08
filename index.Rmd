@@ -1,0 +1,10 @@
+---
+title: "Solving TB with MINIMALLY SENSIBLE reports"
+documentclass: book
+---
+
+# Introduction
+  
+```{r , include = FALSE}
+writeLines("abc", projr_path_get("output", "newfile.txt"))
+```
