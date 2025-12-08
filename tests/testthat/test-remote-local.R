@@ -73,7 +73,8 @@ test_that(".remote_get_final works for local", {
         structure = "archive",
         version = "0.0.0-1"
       )
-      expect_true(dir.exists(result_archive))
+      # .remote_final_get() returns path but doesn't create directory
+      # (directory created when files are actually written)
       expect_true(grepl("raw-data", result_archive))
       expect_true(grepl("v0\\.0\\.0-1$", result_archive))
       
@@ -86,7 +87,7 @@ test_that(".remote_get_final works for local", {
         version = "0.0.0-1",
         empty = TRUE
       )
-      expect_true(dir.exists(result_archive_empty))
+      # .remote_final_get() returns path but doesn't create directory
       expect_true(grepl("raw-data", result_archive_empty))
       expect_true(grepl("v0\\.0\\.0-1-empty$", result_archive_empty))
       

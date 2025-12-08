@@ -104,10 +104,41 @@
     pre = pre,
     empty = empty
   )
-  # create this, as we create the OSF sub-directory
-  # if specified. Needs to be automated
-  # due to versioning
-  .remote_create("local", path_dir)
+  # Don't automatically create directory here - it will be created when files
+  # are actually written via .remote_file_add() -> .dir_copy_file().
+  # This prevents creating both empty and full remotes when only checking
+  # for existence.
+  path_dir
+}
+
+# ========================
+# Create empty remote directory marker
+# ========================
+
+.remote_final_empty_get_local <- function(path,
+                                          path_append_label,
+                                          label,
+                                          structure,
+                                          version = NULL) {
+  # Get the path for the empty remote
+  remote_empty <- .remote_final_get_local(
+    path = path,
+    label = label,
+    structure = structure,
+    path_append_label = path_append_label,
+    version = version,
+    pre = FALSE,
+    empty = TRUE
+  )
+  
+  # Check if it already exists
+  if (dir.exists(remote_empty)) {
+    return(remote_empty)
+  }
+  
+  # Create the empty directory as a marker (like GitHub creates projr-empty file)
+  .dir_create(remote_empty)
+  remote_empty
 }
 
 # ========================

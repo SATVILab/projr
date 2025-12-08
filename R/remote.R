@@ -306,14 +306,12 @@
   # pre: "one up" from the final remote, e.g. the directory
   # above for hierarchical. Does not apply to flat.
   switch(type,
-    "local" = .remote_final_get_local(
+    "local" = .remote_final_empty_get_local(
       path = id,
       label = label,
       structure = structure,
       path_append_label = path_append_label,
-      version = version,
-      pre = FALSE,
-      empty = TRUE
+      version = version
     ),
     "osf" = .remote_final_get_osf(
       id = id,
