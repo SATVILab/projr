@@ -528,8 +528,9 @@ test_that("upload and restore from `archive` local remotes", {
       } else {
         remote_vec_final <- character(0L)
       }
-      version_no_build_label <- paste0("v", projr_version_get())
-      version_no_build_label_empty <- paste0(version_no_build_label, "-empty")
+      # Use helper to get version without dev suffix
+      version_no_build_label <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
+      version_no_build_label_empty <- .test_version_v_get(empty = TRUE, not_dev = TRUE)
       expect_false(version_no_build_label %in% remote_vec_final)
       expect_false(version_no_build_label_empty %in% remote_vec_final)
 
@@ -546,8 +547,9 @@ test_that("upload and restore from `archive` local remotes", {
       } else {
         character(0L)
       }
-      version_empty_build_label <- paste0("v", projr_version_get())
-      version_empty_build_label_empty <- paste0(version_empty_build_label, "-empty")
+      # Use helper to get version without dev suffix
+      version_empty_build_label <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
+      version_empty_build_label_empty <- .test_version_v_get(empty = TRUE, not_dev = TRUE)
       # Should not have regular version, should have -empty version
       expect_false(version_empty_build_label %in% remote_vec_final)
       expect_true(version_empty_build_label_empty %in% remote_vec_final)
@@ -570,8 +572,9 @@ test_that("upload and restore from `archive` local remotes", {
 
       # Verify upload - should have the new version
       remote_vec_final <- list.dirs(raw_data_dir, full.names = FALSE, recursive = FALSE)
-      version_files_build_label <- paste0("v", projr_version_get())
-      version_files_build_label_empty <- paste0(version_files_build_label, "-empty")
+      # Use helper to get version without dev suffix
+      version_files_build_label <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
+      version_files_build_label_empty <- .test_version_v_get(empty = TRUE, not_dev = TRUE)
       # Should have the regular version with files, not -empty
       expect_true(version_files_build_label %in% remote_vec_final)
       expect_false(version_files_build_label_empty %in% remote_vec_final)
@@ -584,8 +587,9 @@ test_that("upload and restore from `archive` local remotes", {
 
       # Verify upload - should not have new version (no changes)
       remote_vec_final <- list.dirs(raw_data_dir, full.names = FALSE, recursive = FALSE)
-      version_same_build_label <- paste0("v", projr_version_get())
-      version_same_build_label_empty <- paste0(version_same_build_label, "-empty")
+      # Use helper to get version without dev suffix
+      version_same_build_label <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
+      version_same_build_label_empty <- .test_version_v_get(empty = TRUE, not_dev = TRUE)
       expect_false(version_same_build_label %in% remote_vec_final)
       expect_false(version_same_build_label_empty %in% remote_vec_final)
       expect_true(version_files_build_label %in% remote_vec_final)
@@ -599,10 +603,11 @@ test_that("upload and restore from `archive` local remotes", {
 
       # Verify upload - should have the new version
       remote_vec_final <- list.dirs(raw_data_dir, full.names = FALSE, recursive = FALSE)
-      version_adj_label <- paste0("v", projr_version_get())
+      # Use helper to get version without dev suffix
+      version_adj_label <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
       expect_true(version_adj_label %in% remote_vec_final)
       expect_false(
-        paste0(version_adj_label, "-empty") %in% remote_vec_final
+        .test_version_v_get(empty = TRUE, not_dev = TRUE) %in% remote_vec_final
       )
 
       # Clear local data
@@ -624,7 +629,8 @@ test_that("upload and restore from `archive` local remotes", {
 
       # Verify upload - should not have an upload with the latest version
       remote_vec_final <- list.dirs(raw_data_dir, full.names = FALSE, recursive = FALSE)
-      version_no_change_label <- paste0("v", projr_version_get())
+      # Use helper to get version without dev suffix
+      version_no_change_label <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
       expect_false(version_no_change_label %in% remote_vec_final)
 
       # Clear local data
