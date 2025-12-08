@@ -751,7 +751,7 @@ test_that("upload and restore from `archive` GitHub releases", {
 })
 
 # =============================================================================
-# `archive` structure via parameter: upload and restore
+# `archive` structure via parameter: upload
 # =============================================================================
 
 test_that("upload and restore from `archive` GitHub releases via parameter", {
