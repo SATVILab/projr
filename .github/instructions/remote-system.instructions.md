@@ -322,12 +322,18 @@ build:
 ### Test Structure
 
 - **test-remote-github.R** - The ONLY file that creates/deletes GitHub releases
-- Uses fixed test releases (`projr-test-release-a`, `projr-test-release-b`)
-- Tests are idempotent - can be re-run safely
-- All tests skip in CRAN and LITE modes
+  - Uses fixed test releases (`projr-test-release-a`, `projr-test-release-b`)
+  - Tests are idempotent - can be re-run safely
+  - All tests skip in CRAN and LITE modes
+- **test-remote-local.R** - Tests local remote operations
+  - Tests core file operations, manifest, and VERSION handling
+  - Uses temporary directories for testing
+  - Can run on CRAN and CI (no external dependencies)
+  - Comprehensive integration tests are in test-local-remote-comprehensive.R
 
 ### Test Requirements
 
+**GitHub tests:**
 ```r
 test_that("GitHub operation", {
   skip_if(.is_test_cran())
@@ -337,6 +343,16 @@ test_that("GitHub operation", {
   .test_skip_if_cannot_modify_github()
   
   # Test implementation
+})
+```
+
+**Local remote tests:**
+```r
+test_that("local remote operation", {
+  skip_if(.is_test_select())
+  
+  # Test implementation
+  # Uses temporary directories, cleans up after itself
 })
 ```
 
