@@ -65,11 +65,13 @@ test_that(".remote_get_final works for local", {
       temp_base <- .dir_create_tmp_random()
       
       # Test archive structure - local uses directory paths, not zip files
+      # Provide explicit version to avoid needing VERSION file
       result_archive <- .remote_final_get(
         "local",
         id = temp_base,
         label = "raw-data",
-        structure = "archive"
+        structure = "archive",
+        version = "0.0.0-1"
       )
       expect_true(dir.exists(result_archive))
       expect_true(grepl("raw-data", result_archive))
@@ -81,6 +83,7 @@ test_that(".remote_get_final works for local", {
         id = temp_base,
         label = "raw-data",
         structure = "archive",
+        version = "0.0.0-1",
         empty = TRUE
       )
       expect_true(dir.exists(result_archive_empty))
