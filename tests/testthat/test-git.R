@@ -144,7 +144,7 @@ test_that(".git_ functions work", { # setup
 
 test_that(".git_ functions work with GitHub", { # setup
   skip_if(.is_test_select())
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE

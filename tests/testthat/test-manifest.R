@@ -75,21 +75,21 @@ test_that(".build_manifest_* works", {
       # --------------------------
       expect_false(.build_manifest_post(FALSE))
       path_manifest <- .build_manifest_post(TRUE)
-      # Pre (8) + empty docs (1) + empty output (1) = 10
+      # Pre (8) + empty docs (1) + output with 1 empty marker (1) = 10
       expect_identical(nrow(.manifest_read(path_manifest)), 10L)
 
       # now add output content
       .test_content_setup_label("output", safe = FALSE)
       path_manifest <- .build_manifest_post(TRUE)
-      # Pre (8 duplicates of previous) + output (4) + empty docs (1 duplicate) + prev (10)
-      # After dedup: prev (10) + output (4) = 14
+      # Pre (8 duplicates of previous) + output (4 files) + empty docs (1 duplicate) + prev (10) 
+      # After dedup: prev (10) + output (4 new files) = 14
       expect_identical(nrow(.manifest_read(path_manifest)), 14L)
 
       # now add doc content
       .test_content_setup_label("docs", safe = FALSE)
       path_manifest <- .build_manifest_post(TRUE)
-      # Pre (8 duplicates) + output (4 duplicates) + docs (4) + prev (14)
-      # After dedup: prev (14) + docs (4) = 18
+      # Pre (8 duplicates) + output (4 duplicates) + docs (4 files) + prev (14)
+      # After dedup: prev (14) + docs (4 new files) = 18
       expect_identical(nrow(.manifest_read(path_manifest)), 18L)
 
       # return table with empty directories
