@@ -375,7 +375,7 @@ usethis::with_project(
 - GitHub API operations are asynchronous - may need polling/waiting
 - Use retry logic when checking for uploaded assets
 - Clean up test artifacts but reuse releases across tests
-- Test files may temporarily reference `piggyback::pb_list()` for verification during migration
+- All GitHub operations now use httr exclusively (piggyback migration complete)
 
 ---
 
@@ -460,23 +460,21 @@ Remote versions are tracked in `R/remote-versions.R`:
 
 ### From piggyback to httr
 
-The codebase is transitioning from piggyback to httr for GitHub operations:
+The migration from piggyback to httr for GitHub operations is **COMPLETE**.
 
-**Completed:**
+**All GitHub operations now use httr:**
 - Release existence checks
 - Release creation
 - Asset listing
 - Asset uploads/downloads
 - Asset deletion
+- All functions implemented in `R/remote-github-httr.R`
 
-**In Progress:**
-- Test file cleanup to remove piggyback references
-
-**When updating code:**
-- Use functions in `R/remote-github-httr.R`
-- Remove `piggyback::` calls
+**When working with GitHub remotes:**
+- Always use functions in `R/remote-github-httr.R`
+- Never add new `piggyback::` calls
 - Use `.retry_with_backoff()` for reliability
-- Ensure proper authentication checks
+- Ensure proper authentication checks with `.auth_check_github()`
 
 ---
 
