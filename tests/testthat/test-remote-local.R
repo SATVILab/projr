@@ -715,11 +715,11 @@ test_that("upload to archive local remotes using parameter for all content", {
         remote_vec_docs <- character(0L)
       }
 
-      version_empty_build_raw_data <- paste0("v", projr_version_get())
+      version_empty_build_raw_data <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
       version_empty_build_raw_data_empty <- paste0(version_empty_build_raw_data, "-empty")
-      version_empty_build_output <- paste0("v", projr_version_get())
+      version_empty_build_output <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
       version_empty_build_output_empty <- paste0(version_empty_build_output, "-empty")
-      version_empty_build_docs <- paste0("v", projr_version_get())
+      version_empty_build_docs <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
       version_empty_build_docs_empty <- paste0(version_empty_build_docs, "-empty")
       
       expect_false(version_empty_build_raw_data %in% remote_vec_raw)
@@ -786,7 +786,7 @@ test_that("upload to archive local remotes using parameter for only output conte
         remote_vec_output <- character(0L)
       }
 
-      version_empty_build_output <- paste0("v", projr_version_get())
+      version_empty_build_output <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
       version_empty_build_output_empty <- paste0(version_empty_build_output, "-empty")
       
       expect_false(version_empty_build_output %in% remote_vec_output)
@@ -797,7 +797,7 @@ test_that("upload to archive local remotes using parameter for only output conte
 
       # Verify still has empty version
       remote_vec_output <- list.dirs(output_dir, full.names = FALSE, recursive = FALSE)
-      version_second_build_output <- paste0("v", projr_version_get())
+      version_second_build_output <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
       version_second_build_output_empty <- paste0(version_second_build_output, "-empty")
       expect_false(version_second_build_output %in% remote_vec_output)
       expect_true(version_second_build_output_empty %in% remote_vec_output)
@@ -824,7 +824,7 @@ test_that("upload to archive local remotes using parameter for only output conte
 
       # Verify upload - should now have actual output
       remote_vec_output <- list.dirs(output_dir, full.names = FALSE, recursive = FALSE)
-      version_new_build_output <- paste0("v", projr_version_get())
+      version_new_build_output <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
       version_new_build_output_empty <- paste0(version_new_build_output, "-empty")
       expect_true(version_new_build_output %in% remote_vec_output)
       expect_false(version_new_build_output_empty %in% remote_vec_output)
@@ -870,7 +870,7 @@ test_that("test always vs if-change for local remotes", {
       # Verify upload
       raw_data_dir <- file.path(remote_base, "raw-data")
       remote_vec_final <- list.dirs(raw_data_dir, full.names = FALSE, recursive = FALSE)
-      version_first <- paste0("v", projr_version_get())
+      version_first <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
       expect_true(version_first %in% remote_vec_final)
 
       # --- Upload nothing new, cue if-change -----
@@ -878,7 +878,7 @@ test_that("test always vs if-change for local remotes", {
 
       # Verify no new upload (default send_cue is "if-change")
       remote_vec_final <- list.dirs(raw_data_dir, full.names = FALSE, recursive = FALSE)
-      version_second <- paste0("v", projr_version_get())
+      version_second <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
       expect_false(version_second %in% remote_vec_final)
 
       # --- Upload nothing new, cue always -----
@@ -894,7 +894,7 @@ test_that("test always vs if-change for local remotes", {
 
       # Verify upload (should create new version even without changes)
       remote_vec_final <- list.dirs(raw_data_dir, full.names = FALSE, recursive = FALSE)
-      version_third <- paste0("v", projr_version_get())
+      version_third <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
       expect_true(version_third %in% remote_vec_final)
 
       # Clear up
@@ -939,7 +939,7 @@ test_that("various upload strategies run for local remotes", {
       # Verify upload
       raw_data_dir <- file.path(remote_base, "raw-data")
       remote_vec_final <- list.dirs(raw_data_dir, full.names = FALSE, recursive = FALSE)
-      version_first <- paste0("v", projr_version_get())
+      version_first <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
       expect_true(version_first %in% remote_vec_final)
       
       # Verify files exist
@@ -952,7 +952,7 @@ test_that("various upload strategies run for local remotes", {
 
       # Verify no new upload
       remote_vec_final <- list.dirs(raw_data_dir, full.names = FALSE, recursive = FALSE)
-      version_second <- paste0("v", projr_version_get())
+      version_second <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
       expect_false(version_second %in% remote_vec_final)
 
       # --- Upload nothing new, cue always -----
@@ -969,7 +969,7 @@ test_that("various upload strategies run for local remotes", {
 
       # Verify upload
       remote_vec_final <- list.dirs(raw_data_dir, full.names = FALSE, recursive = FALSE)
-      version_third <- paste0("v", projr_version_get())
+      version_third <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
       expect_true(version_third %in% remote_vec_final)
 
       # Clear up
@@ -1020,7 +1020,7 @@ test_that("local remote send_inspect='manifest' uses manifest for version tracki
       
       # Verify version directory exists
       remote_vec_final <- list.dirs(raw_data_dir, full.names = FALSE, recursive = FALSE)
-      version_current <- paste0("v", projr_version_get())
+      version_current <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
       # Fix: version_current already has "v", don't add another one
       expect_true(any(grepl(paste0("^", gsub("\\.", "\\\\.", version_current)), remote_vec_final)))
 
@@ -1068,7 +1068,7 @@ test_that("local remote send_inspect='file' inspects actual files", {
       
       # Verify version directory exists
       remote_vec_final <- list.dirs(raw_data_dir, full.names = FALSE, recursive = FALSE)
-      version_current <- paste0("v", projr_version_get())
+      version_current <- .test_version_v_get(empty = FALSE, not_dev = TRUE)
       # Fix: version_current already has "v", don't add another one
       expect_true(any(grepl(paste0("^", gsub("\\.", "\\\\.", version_current)), remote_vec_final)))
 
