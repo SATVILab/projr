@@ -26,3 +26,4 @@ final_check_output.txt
 full_test_output.txt
 *.Rcheck/
 *.tar.gz
+_raw_data/
