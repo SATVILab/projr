@@ -132,7 +132,13 @@
 #' @param .envir Environment for variable evaluation
 #'
 #' @keywords internal
-.cli_info <- function(..., output_level = "std", .envir = parent.frame()) {
+# Generic CLI message function for logging and console output
+.cli_message <- function(...,
+                         log_type,
+                         console_level = "std",
+                         console_fn,
+                         output_level = "std",
+                         .envir = parent.frame()) {
   # Capture all arguments
   dots <- list(...)
   
@@ -140,16 +146,27 @@
   message_text <- ""
   if (length(dots) > 0) {
     message_text <- .cli_eval_message(..., .envir = .envir)
-    .log_build_append(message_text, "info")
+    .log_build_append(message_text, log_type)
   }
 
   # Show in console if appropriate
-  if (!.cli_should_show("std", output_level)) {
+  if (!.cli_should_show(console_level, output_level)) {
     return(invisible(NULL))
   }
   
   # Use the evaluated message text for console output
-  cli::cli_alert_info(message_text)
+  console_fn(message_text)
+}
+
+.cli_info <- function(..., output_level = "std", .envir = parent.frame()) {
+  .cli_message(
+    ...,
+    log_type = "info",
+    console_level = "std",
+    console_fn = cli::cli_alert_info,
+    output_level = output_level,
+    .envir = .envir
+  )
 }
 
 #' Show a success message
@@ -160,23 +177,14 @@
 #'
 #' @keywords internal
 .cli_success <- function(..., output_level = "std", .envir = parent.frame()) {
-  # Capture all arguments
-  dots <- list(...)
-  
-  # Evaluate glue expressions (handles both named and unnamed)
-  message_text <- ""
-  if (length(dots) > 0) {
-    message_text <- .cli_eval_message(..., .envir = .envir)
-    .log_build_append(message_text, "success")
-  }
-
-  # Show in console if appropriate
-  if (!.cli_should_show("std", output_level)) {
-    return(invisible(NULL))
-  }
-  
-  # Use the evaluated message text for console output
-  cli::cli_alert_success(message_text)
+  .cli_message(
+    ...,
+    log_type = "success",
+    console_level = "std",
+    console_fn = cli::cli_alert_success,
+    output_level = output_level,
+    .envir = .envir
+  )
 }
 
 #' Show a debug message (only shown at debug level)
@@ -187,23 +195,14 @@
 #'
 #' @keywords internal
 .cli_debug <- function(..., output_level = "std", .envir = parent.frame()) {
-  # Capture all arguments
-  dots <- list(...)
-  
-  # Evaluate glue expressions (handles both named and unnamed)
-  message_text <- ""
-  if (length(dots) > 0) {
-    message_text <- .cli_eval_message(..., .envir = .envir)
-    .log_build_append(message_text, "debug")
-  }
-
-  # Show in console only at debug level
-  if (!.cli_should_show("debug", output_level)) {
-    return(invisible(NULL))
-  }
-  
-  # Use the evaluated message text for console output
-  cli::cli_text("[DEBUG] ", message_text)
+  .cli_message(
+    ...,
+    log_type = "debug",
+    console_level = "debug",
+    console_fn = function(msg) cli::cli_text("[DEBUG] ", msg),
+    output_level = output_level,
+    .envir = .envir
+  )
 }
 
 #' Show a step message (sub-item in a stage)
@@ -214,23 +213,14 @@
 #'
 #' @keywords internal
 .cli_step <- function(..., output_level = "std", .envir = parent.frame()) {
-  # Capture all arguments
-  dots <- list(...)
-  
-  # Evaluate glue expressions (handles both named and unnamed)
-  message_text <- ""
-  if (length(dots) > 0) {
-    message_text <- .cli_eval_message(..., .envir = .envir)
-    .log_build_append(message_text, "step")
-  }
-
-  # Show in console if appropriate
-  if (!.cli_should_show("std", output_level)) {
-    return(invisible(NULL))
-  }
-  
-  # Use the evaluated message text for console output
-  cli::cli_li(message_text)
+  .cli_message(
+    ...,
+    log_type = "step",
+    console_level = "std",
+    console_fn = cli::cli_li,
+    output_level = output_level,
+    .envir = .envir
+  )
 }
 
 #' Start a process with a spinner/status indicator
