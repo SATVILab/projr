@@ -1656,7 +1656,7 @@
     remote_pre,
     type, id, label,
     structure, path, path_append_label,
-    fn_rm, cue,
+    fn_add, fn_rm, cue,
     output_level
   )
 
@@ -1770,6 +1770,9 @@
   )
   .remote_file_rm(type, fn_rm, remote_rm, output_level)
   Sys.sleep(1) # ensure remote consistency
+  
+  # Check if remote still exists after removal
+  # (may have been automatically deleted if it became empty)
   .remote_final_get_if_exists(
     type, id, label, structure, path,
     path_append_label, version, FALSE, FALSE
@@ -1829,9 +1832,46 @@
                                      structure,
                                      path,
                                      path_append_label,
+                                     fn_add,
                                      fn_rm,
                                      cue,
                                      output_level = "std") {
+  # Re-check if empty remote exists (might have been created in previous build)
+  # even if remote_dest_empty was NULL from initial check.
+  # For archive structures, we need to check for the empty variant of the
+  # version that was just uploaded (remote_dest_full), not the current version
+  # which may have already been bumped to dev.
+  if (is.null(remote_dest_empty) && !is.null(remote_dest_full) && structure == "archive") {
+    .cli_debug(
+      "Re-checking for empty remote variant after adding files",
+      output_level = output_level
+    )
+    # Extract version from remote_dest_full path
+    # For local: path ends with v<version>, for github: it's in the "fn" component
+    version_from_full <- .dsl_ip_fr_extract_version(remote_dest_full, type)
+    .cli_debug(
+      "Extracted version from full remote: {version_from_full}",
+      output_level = output_level
+    )
+    if (!is.null(version_from_full)) {
+      remote_dest_empty <- .remote_final_get_if_exists(
+        type, id, label, structure, path, path_append_label,
+        version_from_full, FALSE, TRUE
+      )
+      if (!is.null(remote_dest_empty)) {
+        .cli_debug(
+          "Found empty remote variant: {remote_dest_empty}",
+          output_level = output_level
+        )
+      } else {
+        .cli_debug(
+          "No empty remote variant found",
+          output_level = output_level
+        )
+      }
+    }
+  }
+  
   # if both exist, then we remove the empty remote
   remote_dest_empty <- .dsl_ip_fr_remove_empty(
     remote_dest_full, remote_dest_empty,
@@ -1846,11 +1886,36 @@
     remote_pre,
     type, id, label, structure,
     path, path_append_label,
-    fn_rm,
+    fn_add, fn_rm,
     cue,
     output_level = output_level
   )
   remote_dest_empty
+}
+
+.dsl_ip_fr_extract_version <- function(remote, type) {
+  # Extract version string from remote object
+  if (type == "github") {
+    # GitHub: remote is c("tag" = "v0.0.1", "fn" = "output-v0.0.1.zip")
+    # Extract from fn component, strip .zip
+    fn <- remote[["fn"]]
+    if (is.null(fn)) return(NULL)
+    # Remove .zip extension and extract version
+    fn_no_zip <- sub("\\.zip$", "", fn)
+    # Extract v<version> pattern from end
+    version_match <- regmatches(fn_no_zip, regexpr("v[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9]+)?$", fn_no_zip))
+    if (length(version_match) == 0) return(NULL)
+    sub("^v", "", version_match)
+  } else if (type %in% c("local", "osf")) {
+    # Local/OSF: remote is a path ending with v<version>
+    # Extract v<version> from the basename
+    basename_remote <- basename(remote)
+    version_match <- regmatches(basename_remote, regexpr("v[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9]+)?$", basename_remote))
+    if (length(version_match) == 0) return(NULL)
+    sub("^v", "", version_match)
+  } else {
+    NULL
+  }
 }
 
 .dsl_ip_fr_remove_empty <- function(remote_dest_full,
@@ -1886,6 +1951,7 @@
                                      structure,
                                      path,
                                      path_append_label,
+                                     fn_add,
                                      fn_rm,
                                      cue,
                                      output_level = "std") {
@@ -1893,25 +1959,47 @@
     "Ensuring a remote exists if required",
     output_level = output_level
   )
+  # If we just added files, we definitely have a full remote (don't create empty)
+  added_files <- .is_len_pos(fn_add)
   full_exists <- !is.null(remote_dest_full)
   empty_exists <- !is.null(remote_dest_empty)
-  if (full_exists || empty_exists) {
+  .cli_debug(
+    "added_files: {added}, remote_dest_full: {full}, remote_dest_empty: {empty}",
+    added = added_files,
+    full = if(is.null(remote_dest_full)) "NULL" else as.character(remote_dest_full),
+    empty = if(is.null(remote_dest_empty)) "NULL" else as.character(remote_dest_empty),
+    output_level = output_level
+  )
+  .cli_debug(
+    "full_exists: {full_exists}, empty_exists: {empty_exists}",
+    output_level = output_level
+  )
+  if (added_files || full_exists || empty_exists) {
     .cli_debug(
-      "Remote destination already exists; no need to create",
+      "Remote destination already exists (or files were just added); no need to create empty",
       output_level = output_level
     )
     return(remote_dest_empty)
   }
 
-  create_empty <-
-    # latest remotes should always have at least one of the two
-    structure == "latest" ||
-    # if something was removed, we need to ensure it exists
-    .is_len_pos(fn_rm) ||
-    # if the cue is always, we need to ensure it exists
-    cue == "always" ||
-    # if no final remotes exist for archive structures
-    .is_len_0(.remote_ls_final(type, remote_pre))
+  # Check conditions for creating empty remote
+  cond_latest <- structure == "latest"
+  cond_fn_rm <- .is_len_pos(fn_rm)
+  cond_always <- cue == "always"
+  final_remotes <- .remote_ls_final(type, remote_pre)
+  cond_no_remotes <- .is_len_0(final_remotes)
+  
+  .cli_debug(
+    "Conditions: latest={latest}, fn_rm_len={fn_rm_len}, cue={cue}, final_remotes={num_final}",
+    latest = cond_latest,
+    fn_rm_len = length(fn_rm),
+    cue = cue,
+    num_final = length(final_remotes),
+    output_level = output_level
+  )
+  
+  create_empty <- cond_latest || cond_fn_rm || cond_always || cond_no_remotes
+  
   if (!create_empty) {
     .cli_debug(
       "No need to create empty remote destination",
@@ -1923,7 +2011,8 @@
   # create empty remote now, as clearly
   # we cannot upload anything at this point
   .cli_debug(
-    "Creating empty remote destination",
+    "Creating empty remote destination for version={version}",
+    version = projr_version_get(),
     output_level = output_level
   )
   .remote_final_empty_get(
