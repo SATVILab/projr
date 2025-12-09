@@ -370,7 +370,8 @@ projr_osf_create_project <- function(title,
                                   label,
                                   structure,
                                   version = NULL,
-                                  pre = NULL) {
+                                  pre = NULL,
+                                  empty = NULL) {
   .assert_nchar_single(id, 5L, TRUE)
   .assert_string(path)
   .assert_flag(path_append_label)
@@ -389,7 +390,8 @@ projr_osf_create_project <- function(title,
     label = label,
     structure = structure,
     version = version,
-    pre = FALSE
+    pre = FALSE,
+    empty = empty
   )
   osf_tbl <- .remote_get(id = id, type = "osf")
   if (length(path_rel) > 0L) {
@@ -407,6 +409,10 @@ projr_osf_create_project <- function(title,
     }
   }
   label
+}
+
+.remote_final_check_exists_direct_osf <- function() {
+  stop(paste0("Direct final remote existence check not supported for OSF"))
 }
 
 # ========================
@@ -428,6 +434,14 @@ projr_osf_create_project <- function(title,
   }
   .osf_rm(x = remote, check = FALSE)
   invisible(TRUE)
+}
+
+# ========================
+# Delete a final remote
+# ========================
+
+.remote_final_rm_osf <- function() {
+  stop("Final remote deletion not supported for OSF")
 }
 
 

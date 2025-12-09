@@ -27,14 +27,30 @@
   exists <- dir.exists(remote_final)
   if (exists) {
     .cli_debug(
-      "Local remote: Final remote exists at '{remote_path}'",
-      remote_path = remote_final,
+      "Local remote: Final remote exists at '{remote_final}'",
       output_level = output_level
     )
   } else {
     .cli_debug(
-      "Local remote: Final remote does not exist at '{remote_path}'",
-      remote_path = remote_final,
+      "Local remote: Final remote does not exist at '{remote_final}'",
+      output_level = output_level
+    )
+  }
+  exists
+}
+
+.remote_final_check_exists_direct_local <- function(remote,
+                                                    output_level = "std") {
+  .assert_string(remote, TRUE)
+  exists <- dir.exists(remote)
+  if (exists) {
+    .cli_debug(
+      "Local remote: Direct remote exists at '{remote}'",
+      output_level = output_level
+    )
+  } else {
+    .cli_debug(
+      "Local remote: Direct remote does not exist at '{remote}'",
       output_level = output_level
     )
   }
@@ -180,9 +196,9 @@
   files_only <- all_entries[!dir.exists(all_entries)]
   
   if (.is_len_pos(files_only)) {
+    num_files <- length(files_only)
     .cli_debug(
       "Local remote: Directory '{remote}' has {num_files} file(s), not removing, returning FALSE",
-      num_files = length(files_only),
       output_level = output_level
     )
     return(invisible(FALSE))
@@ -204,15 +220,13 @@
   .assert_string(remote, TRUE)
   if (!dir.exists(remote)) {
     .cli_debug(
-      "Local remote: Directory '{remote_path}' does not exist, cannot remove, returning FALSE",
-      remote_path = remote,
+      "Local remote: Directory '{remote}' does not exist, cannot remove, returning FALSE",
       output_level = output_level
     )
     return(invisible(FALSE))
   }
   .cli_debug(
-    "Local remote: Removing directory '{remote_path}'",
-    remote_path = remote,
+    "Local remote: Removing directory '{remote}'",
     output_level = output_level
   )
   unlink(remote, recursive = TRUE)
@@ -228,15 +242,13 @@
   .assert_string(remote, TRUE)
   if (!dir.exists(remote)) {
     .cli_debug(
-      "Local remote: Directory '{remote_path}' does not exist, cannot empty, returning FALSE",
-      remote_path = remote,
+      "Local remote: Directory '{remote}' does not exist, cannot empty, returning FALSE",
       output_level = output_level
     )
     return(invisible(FALSE))
   }
   .cli_debug(
-    "Local remote: Emptying directory '{remote_path}'",
-    remote_path = remote,
+    "Local remote: Emptying directory '{remote}'",
     output_level = output_level
   )
   dir_vec <- list.dirs(remote, recursive = TRUE)[-1]
@@ -324,21 +336,19 @@
   fn_vec <- .file_filter_exists(file.path(remote, fn))
   if (length(fn_vec) == 0L) {
     .cli_debug(
-      "Local remote: No matching files found to remove in '{remote_path}', returning FALSE",
-      remote_path = remote,
+      "Local remote: No matching files found to remove in '{remote}', returning FALSE",
       output_level = output_level
     )
     return(invisible(FALSE))
   }
   count <- length(fn_vec)
-  remote_path <- remote
   .cli_debug(
-    "Local remote: Removing {count} file(s) from '{remote_path}'",
+    "Local remote: Removing {count} file(s) from '{remote}'",
     output_level = output_level
   )
   suppressWarnings(file.remove(fn_vec))
   if (rm_if_empty) {
-    .remote_final_rm_if_empty("local", remote_path, output_level)
+    .remote_final_rm_if_empty("local", remote, output_level)
   }
   invisible(TRUE)
 }

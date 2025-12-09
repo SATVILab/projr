@@ -666,7 +666,7 @@ projr_log_view <- function(log_file = NULL,
   if (is.null(n_lines) || is.na(n_lines) || n_lines <= 0) {
     to_show <- lines
   } else {
-    to_show <- tail(lines, n_lines)
+    to_show <- utils::tail(lines, n_lines)
   }
 
   if (show_header) {

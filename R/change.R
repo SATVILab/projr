@@ -47,7 +47,7 @@
     remote_pre, type_pre, label
   )
   if (is.null(version_pre_impl)) {
-    .cli_debug_message(
+    .cli_debug(
       "No previous version found for label '", label, "' ",
       "in the specified remote '", remote_pre, "'"
     )
@@ -60,7 +60,7 @@
     remote_post, type_post, label
   )
   if (is.null(version_post_impl)) {
-    .cli_debug_message(
+    .cli_debug(
       "No current version found for label '", label, "' ",
       "in the specified project"
     )
