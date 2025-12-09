@@ -1046,6 +1046,7 @@ This architecture ensures that every build is:
 For more information:
 
 - **How-to guides** - Task-focused guides for common workflows
+- **Destination Send Workflow** - `vignette("dest-send-workflow")` for detailed workflow diagrams
 - **Concepts** - Core concepts behind projr
 - **Environment** - Environment variables reference
 - **Design** - Architecture and design decisions
