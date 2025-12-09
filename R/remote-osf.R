@@ -411,7 +411,7 @@ projr_osf_create_project <- function(title,
   label
 }
 
-.remote_final_check_exists_direct_osf <- function() {
+.remote_final_check_exists_direct_osf <- function(remote) {
   stop(paste0("Direct final remote existence check not supported for OSF"))
 }
 
@@ -440,7 +440,7 @@ projr_osf_create_project <- function(title,
 # Delete a final remote
 # ========================
 
-.remote_final_rm_osf <- function() {
+.remote_final_rm_osf <- function(remote, output_level = "std") {
   stop("Final remote deletion not supported for OSF")
 }
 
