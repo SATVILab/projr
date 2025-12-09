@@ -19,11 +19,16 @@
 
 setup_github <- (!.is_test_cran() &&
                    !.is_test_lite() &&
-                   .has_internet())
+                   .has_internet() &&
+                   nzchar(.auth_get_github_pat_find()))
 
-dir_test <- .test_setup_project(
-  git = TRUE, github = setup_github, set_env_var = TRUE
-)
+dir_test <- if (setup_github) {
+  .test_setup_project(
+    git = TRUE, github = TRUE, set_env_var = TRUE
+  )
+} else {
+  NULL
+}
 test_that("GitHub test releases are created and reusable", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
