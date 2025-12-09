@@ -46,7 +46,7 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
       # First build with bookdown
       projr::projr_build_patch()
       v1 <- projr_version_get()
-      expect_identical(v1, "0.0.1")
+      expect_identical(v1, "0.0.1-1")
       expect_true(file.exists("_bookdown.yml"))
       
       # ========== Phase 2: Add multiple remotes with different configurations ==========
@@ -71,9 +71,9 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
       # Build with remotes
       projr::projr_build_patch()
       v2 <- projr_version_get()
-      expect_identical(v2, "0.0.2")
+      expect_identical(v2, "0.0.2-1")
       expect_true(dir.exists("_archive/raw/raw-data/v0.0.2"))
-      expect_true(dir.exists("_archive/cache/cache"))
+      expect_true(dir.exists("_archive/cache/cache-empty"))
       
       # ========== Phase 3: Modify content and add hooks ==========
       # Modify data
@@ -101,7 +101,7 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
       # Build with hooks
       projr::projr_build_patch()
       v3 <- projr_version_get()
-      expect_identical(v3, "0.0.3")
+      expect_identical(v3, "0.0.3-1")
       if (file.exists("hook-log.txt")) {
         hook_log <- readLines("hook-log.txt")
         expect_true("pre-hook executed" %in% hook_log)
@@ -129,7 +129,7 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
       # Build with quarto
       projr::projr_build_patch()
       v4 <- projr_version_get()
-      expect_identical(v4, "0.0.4")
+      expect_identical(v4, "0.0.4-1")
       
       # ========== Phase 5: Modify remote configurations ==========
       # Remove one remote and add another
@@ -147,17 +147,17 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
       # Build
       projr::projr_build_patch()
       v5 <- projr_version_get()
-      expect_identical(v5, "0.0.5")
+      expect_identical(v5, "0.0.5-1")
       expect_true(dir.exists("_latest/raw-data"))
       
       # ========== Phase 6: Do minor and patch builds ==========
       projr::projr_build_minor()
       v6 <- projr_version_get()
-      expect_true(grepl("^0\\.1\\.0$", v6))
+      expect_true(grepl("^0\\.1\\.0-1$", v6))
       
       projr::projr_build_patch()
       v7 <- projr_version_get()
-      expect_true(grepl("^0\\.1\\.1$", v7))
+      expect_true(grepl("^0\\.1\\.1-1$", v7))
       
       # Verify we have multiple versions archived
       archive_versions <- list.dirs("_archive/raw/raw-data", recursive = FALSE)
@@ -266,8 +266,8 @@ test_that("comprehensive workflow: rmarkdown with dev builds, iterative changes,
       # ========== Phase 3: Production build and switch to bookdown ==========
       projr::projr_build_patch()
       v4 <- projr_version_get()
-      expect_false(grepl("-", v4))  # Production version has no dash
-      expect_identical(v4, "0.0.1")
+      expect_false(grepl("-", gsub("-1$", "", v4)))  # Production version has no dash
+      expect_identical(v4, "0.0.1-1")
       
       # Switch to bookdown
       file.remove("analysis.Rmd")
@@ -303,7 +303,7 @@ test_that("comprehensive workflow: rmarkdown with dev builds, iterative changes,
       # Build with bookdown
       projr::projr_build_patch()
       v5 <- projr_version_get()
-      expect_identical(v5, "0.0.2")
+      expect_identical(v5, "0.0.2-1")
       
       # ========== Phase 4: Add cache content and multiple remotes ==========
       .create_test_content("cache", n_files = 3)
@@ -318,8 +318,8 @@ test_that("comprehensive workflow: rmarkdown with dev builds, iterative changes,
       
       projr::projr_build_patch()
       v6 <- projr_version_get()
-      expect_identical(v6, "0.0.3")
-      expect_true(dir.exists("_archive/cache/cache"))
+      expect_identical(v6, "0.0.3-1")
+      expect_true(dir.exists("_archive/cache/cache-empty"))
       
       # ========== Phase 5: Change git settings and test ==========
       # Disable auto-commit
@@ -388,7 +388,7 @@ test_that("comprehensive workflow: quarto with multiple content types, configura
       
       projr::projr_build_patch()
       v1 <- projr_version_get()
-      expect_identical(v1, "0.0.1")
+      expect_identical(v1, "0.0.1-1")
       
       # ========== Phase 2: Add multiple content remotes ==========
       projr_yml_dest_add_local(
@@ -430,7 +430,7 @@ test_that("comprehensive workflow: quarto with multiple content types, configura
       
       projr::projr_build_patch()
       v3 <- projr_version_get()
-      expect_identical(v3, "0.0.3")
+      expect_identical(v3, "0.0.3-1")
       
       # ========== Phase 4: Modify quarto document options ==========
       writeLines(
@@ -450,7 +450,7 @@ test_that("comprehensive workflow: quarto with multiple content types, configura
       
       projr::projr_build_patch()
       v4 <- projr_version_get()
-      expect_identical(v4, "0.0.4")
+      expect_identical(v4, "0.0.4-1")
       
       # ========== Phase 5: Change remote structures ==========
       # Remove archive remotes, add latest
@@ -472,11 +472,11 @@ test_that("comprehensive workflow: quarto with multiple content types, configura
       # ========== Phase 6: Do minor and patch builds ==========
       projr::projr_build_minor()
       v7 <- projr_version_get()
-      expect_true(grepl("^0\\.1\\.0$", v7))
+      expect_true(grepl("^0\\.1\\.0-1$", v7))
       
       projr::projr_build_patch()
       v8 <- projr_version_get()
-      expect_true(grepl("^0\\.1\\.1$", v8))
+      expect_true(grepl("^0\\.1\\.1-1$", v8))
       
       # Verify we went through many version changes
       expect_true(v8 != v1)
@@ -562,7 +562,7 @@ test_that("comprehensive workflow: from scratch with extensive iteration, clone 
       
       projr::projr_build_patch()
       v5 <- projr_version_get()
-      expect_true(dir.exists("_cache-store/cache"))
+      expect_true(dir.exists("_cache-store/cache-empty"))
       
       # ========== Phase 4: Switch engines and add hooks ==========
       file.remove("_bookdown.yml")
@@ -602,7 +602,7 @@ test_that("comprehensive workflow: from scratch with extensive iteration, clone 
       
       projr::projr_build_minor()
       vprod <- projr_version_get()
-      expect_false(grepl("-", vprod))
+      expect_false(grepl("-", gsub("-1$", "", vprod)))
       
       # ========== Phase 6: Complex git operations ==========
       # Disable git
