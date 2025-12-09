@@ -270,6 +270,50 @@
 }
 
 # ========================
+# Delete an unused empty remote directory
+# ========================
+
+# local
+.remote_final_rm_if_empty_github <- function(remote,
+                                             output_level = "std") {
+  .assert_given_full(remote)
+  .assert_in(names(remote), c("tag", "fn"), TRUE)
+  .assert_has(names(remote), c("tag", "fn"), TRUE)
+
+  remote_exists <- .remote_final_check_exists_direct(
+    "github",
+    remote = remote
+  )
+  if (!remote_exists) {
+    .cli_debug(
+      "GitHub release: Asset '{fn}' in release '{tag}' does not exist, nothing to remove.", # nolint
+      fn = remote[["fn"]],
+      tag = remote[["tag"]],
+      output_level = output_level
+    )
+    return(invisible(FALSE))
+  }
+  fn <- remote[["fn"]]
+  tag <- remote[["tag"]] # nolint
+  if (!grepl("-empty\\.zip$", fn)) {
+    .cli_debug(
+      "GitHub release: Asset '{fn}' in release '{tag}' is not an empty asset, will not remove.", # nolint
+      output_level = output_level
+    )
+    return(invisible(FALSE))
+  }
+  .cli_debug(
+    "GitHub release: Removing empty asset '{fn}' from release '{tag}'",
+    output_level = output_level
+  )
+  .remote_final_rm_github(
+    remote = remote,
+    output_level = output_level
+  )
+  invisible(TRUE)
+}
+
+# ========================
 # Get final remote that is empty
 # =======================
 

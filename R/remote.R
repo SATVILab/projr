@@ -602,13 +602,9 @@
                                       output_level = "std") {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
-    "local" = .remote_final_rm_if_empty_local(
-      remote = remote, output_level = output_level
-    ),
-    "osf" = .remote_final_rm_if_empty_osf(
-      remote = remote, output_level = output_level
-    ),
-    "github" = .remote_final_rm_if_empty_github()
+    "local" = .remote_final_rm_if_empty_local(remote, output_level),
+    "osf" = .remote_final_rm_if_empty_osf(remote, output_level),
+    "github" = .remote_final_rm_if_empty_github(remote, output_level)
   )
 }
 
