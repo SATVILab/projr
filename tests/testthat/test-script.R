@@ -225,6 +225,8 @@ test_that(".build_script... functions work works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      if (exists("x", inherits = FALSE)) rm(x)
+      if (exists("y", inherits = FALSE)) rm(y)
       .yml_script_add(
         "title" = "test-script",
         path = c("script1.R", "script2.R"),
@@ -246,8 +248,8 @@ test_that(".build_script... functions work works", {
         stage = "pre"
       )
       # Scripts should run in isolated environments, so x and y are NOT in global env
-      expect_false(exists("x"))
-      expect_false(exists("y"))
+      expect_false(exists("x", inherits = FALSE))
+      expect_false(exists("y", inherits = FALSE))
       # But the RDS files should be created
       expect_true(file.exists("x.rds"))
       expect_true(file.exists("y.rds"))

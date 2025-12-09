@@ -172,8 +172,7 @@ test_that(".version_run_onwards_get works", {
     path = dir_test,
     code = {
       projr_version_set("0.42.33-1")
-      # debugonce(.version_run_onwards_get)
-      # debugonce(.version_run_onwards_get_output)
+
       expect_identical(
         .version_run_onwards_get("major"),
         list(

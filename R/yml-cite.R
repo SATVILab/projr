@@ -29,9 +29,7 @@
 #' .yml_cite_set_default` sets all citation options to default (`FALSE`).
 #'
 #' @param all logical.
-#' Whether to set all the options
-#' to `TRUE` or `FALSE`.
-#' If `NULL`, then `codemeta`, `cff` and `inst_citation` are used.
+#' If not `NULL`, then all citation options are set to this value.
 #' Default is `NULL`.
 #' @param codemeta logical.
 #' Whether to generate a codemeta.json file.

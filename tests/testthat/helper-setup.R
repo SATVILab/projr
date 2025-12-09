@@ -361,11 +361,17 @@
                                       safe = FALSE,
                                       dir_sub_lvl = 2,
                                       dir_sub_prefix = "subdir") {
-  .test_content_setup_dir(
-    path_dir = projr_path_get(label, safe = safe),
-    dir_sub_lvl = dir_sub_lvl,
-    dir_sub_prefix = dir_sub_prefix
+  path_vec <- vapply(
+    label, function(x) projr_path_get(x, safe = safe), character(1L)
   )
+  for (x in label) {
+    .test_content_setup_dir(
+      path_dir = path_vec,
+      dir_sub_lvl = dir_sub_lvl,
+      dir_sub_prefix = dir_sub_prefix
+    )
+  }
+  path_vec
 }
 
 .test_content_adjust_dir <- function(path_dir = NULL,

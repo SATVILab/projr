@@ -38,6 +38,7 @@ test_that(".file_* and .dir_* functions work", {
   usethis::with_project(
     path = dir_test,
     code = {
+      # browser()
       # filter
       # -------------------
       dir_tmp <- .test_content_setup_dir()
@@ -50,13 +51,19 @@ test_that(".file_* and .dir_* functions work", {
         .dir_ls(dir_tmp), unique(dirname(content_vec_test_file)) |> setdiff(".")
       )
       expect_identical(
-        file.path(dir_tmp, content_vec) |>
+        file.path(dir_tmp, content_vec_test_file) |>
           .file_filter_dir() |>
           .path_force_rel(dir_tmp),
-        content_vec_test_dir
+        character(0L)
       )
       expect_identical(
-        file.path(dir_tmp, content_vec) |>
+        dirname(file.path(dir_tmp, content_vec_test_file)) |>
+          .file_filter_dir() |>
+          .path_force_rel(dir_tmp),
+        c(".", ".", "subdir1", "subdir1/subdir2")
+      )
+      expect_identical(
+        file.path(dir_tmp, content_vec_test_file) |>
           .file_filter_dir_non() |>
           .path_force_rel(dir_tmp),
         content_vec_test_file

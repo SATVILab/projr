@@ -37,6 +37,7 @@ See detailed guidelines in `.github/instructions/`:
 
 - Run `devtools::document()` to update `man/` and `NAMESPACE`.
 - Run `devtools::test()` (LITE mode during development).
+- Run `styler::style_pkg()` to ensure code style compliance.
 - Update `_pkgdown.yml` when adding/removing/exporting functions:
   - Add exported function names or `@rdname`s to the appropriate `reference → sections → contents` section.
   - Verify with `pkgdown::check_pkgdown()` and `pkgdown::build_site()`.

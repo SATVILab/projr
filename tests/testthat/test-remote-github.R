@@ -553,7 +553,7 @@ test_that("upload and restore from `archive` GitHub releases", {
       )
 
       # --- ensure remote is cleared ---
-      if (.remote_check_exists("github", tag_name)) {
+      if (.remote_check_exists("github", c("tag" = tag_name))) {
         remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
         for (fn in remote_final_vec) {
           .remote_final_empty(
@@ -730,7 +730,7 @@ test_that("upload to archive remotes using parameter for all content", {
       tag_name <- "archive"
 
       # --- ensure remote is cleared ---
-      if (.remote_check_exists("github", tag_name)) {
+      if (.remote_check_exists("github", c("tag" = tag_name))) {
         remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
         for (fn in remote_final_vec) {
           .remote_final_empty(
@@ -890,7 +890,7 @@ test_that("upload to archive remotes using parameter for only output content", {
       tag_name <- "archive"
 
       # --- ensure remote is cleared ---
-      if (.remote_check_exists("github", tag_name)) {
+      if (.remote_check_exists("github", c("tag" = tag_name))) {
         remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
         for (fn in remote_final_vec) {
           .remote_final_empty(
@@ -1110,7 +1110,7 @@ test_that("test always vs if-change for projr config uploads", {
       )
 
       # --- ensure remote is cleared ---
-      if (.remote_check_exists("github", tag_name)) {
+      if (.remote_check_exists("github", c("tag" = tag_name))) {
         remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
         for (fn in remote_final_vec) {
           .remote_final_empty(
@@ -1221,7 +1221,7 @@ test_that("various upload strategies run", {
 
 
       # --- ensure remote is cleared ---
-      if (.remote_check_exists("github", tag_name)) {
+      if (.remote_check_exists("github", c("tag" = tag_name))) {
         remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
         for (fn in remote_final_vec) {
           .remote_final_empty(
@@ -1417,7 +1417,7 @@ test_that("various upload strategies run", {
 # Test send_inspect parameter: file, none
 # =============================================================================
 
-test_that("various upload strategies run", {
+test_that("various inspection methods run", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
@@ -1434,7 +1434,7 @@ test_that("various upload strategies run", {
       .yml_dest_rm_type_all("default")
 
       # --- ensure remote is cleared ---
-      if (.remote_check_exists("github", tag_name)) {
+      if (.remote_check_exists("github", c("tag" = tag_name))) {
         remote_final_vec <- .remote_ls_final("github", c("tag" = tag_name))
         for (fn in remote_final_vec) {
           .remote_final_empty(

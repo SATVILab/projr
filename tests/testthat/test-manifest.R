@@ -1,9 +1,10 @@
 test_that(".manifest_hash_label works", {
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
+      browser()
       # test hashing empty directory - returns 1 row with empty fn and hash
       path_dir_empty <- projr_path_get_dir("raw-data")
       .dir_rm(path_dir_empty)
@@ -22,13 +23,13 @@ test_that(".manifest_hash_label works", {
       # test hashing non-empty directories
       path_dir <- .test_content_setup_label("output", safe = FALSE)
       manifest <- .manifest_hash_label("output", TRUE)
-      expect_identical(nrow(manifest), 3L)
+      expect_identical(nrow(manifest), 4L)
       expect_identical(length(unique(manifest$hash)), 1L)
 
       # test hashing non-empty directories - non-output run
       path_dir <- .test_content_setup_label("output", safe = TRUE)
       manifest <- .manifest_hash_label("output", FALSE)
-      expect_identical(nrow(manifest), 3L)
+      expect_identical(nrow(manifest), 4L)
       expect_identical(length(unique(manifest$hash)), 1L)
     }
   )

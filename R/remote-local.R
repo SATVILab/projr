@@ -12,27 +12,29 @@
 # check existence of final remote
 # ========================
 
-.remote_final_check_exists_local <- function(remote_pre,
-                                             structure,
+.remote_final_check_exists_local <- function(id,
                                              label,
+                                             structure,
+                                             path,
+                                             path_append_label,
                                              version,
+                                             empty,
                                              output_level = "std") {
-  remote_final_pseudo <- if (structure == "archive") {
-    file.path(remote_pre, .version_v_add(version))
-  } else {
-    file.path(remote_pre, label)
-  }
-  exists <- .remote_check_exists("local", remote_final_pseudo)
+  remote_final <- .remote_final_get(
+    "local", id, label, structure, path, path_append_label,
+    version, FALSE, empty
+  )
+  exists <- dir.exists(remote_final)
   if (exists) {
     .cli_debug(
       "Local remote: Final remote exists at '{remote_path}'",
-      remote_path = remote_final_pseudo,
+      remote_path = remote_final,
       output_level = output_level
     )
   } else {
     .cli_debug(
       "Local remote: Final remote does not exist at '{remote_path}'",
-      remote_path = remote_final_pseudo,
+      remote_path = remote_final,
       output_level = output_level
     )
   }

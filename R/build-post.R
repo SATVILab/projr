@@ -57,9 +57,10 @@
 
 .build_cite_get_yml <- function() {
   cite_vec <- .yml_cite_get(NULL)
-  if (is.null(cite_vec) || isTRUE(cite_vec)) {
+  
+  if (isTRUE(cite_vec)) {
     return(c("cff", "codemeta", "inst-citation"))
-  } else if (isFALSE(cite_vec)) {
+  } else if (is.null(cite_vec) || isFALSE(cite_vec)) {
     return(character(0))
   } else {
     .assert_chr(cite_vec)

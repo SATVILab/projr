@@ -59,7 +59,8 @@
   )
   switch(type,
     "local" = .remote_final_check_exists_local(
-      remote_pre, structure, label, version
+      id, label, structure, path, path_append_label,
+      version, empty
     ),
     "osf" = .remote_final_check_exists_osf(
       remote_pre, structure, label, version

@@ -85,8 +85,15 @@
     .dir_ls(recursive = FALSE) |>
     setdiff("log")
   for (i in seq_along(dir_vec)) {
+    path_dir <- projr_path_get_dir(
+      "cache", "projr", dir_vec[[i]],
+      create = FALSE
+    )
+    if (!file.exists(path_dir)) {
+      next
+    }
     unlink(
-      projr_path_get_dir("cache", "projr", dir_vec[[i]], create = FALSE),
+      path_dir,
       recursive = TRUE, force = TRUE
     )
   }

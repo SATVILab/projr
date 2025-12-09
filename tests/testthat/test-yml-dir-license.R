@@ -392,9 +392,17 @@ test_that("Manual licenses not overwritten during builds", {
     path = dir_test,
     code = {
       # Create manual license
-      raw_dir <- projr_path_get_dir("raw-data", safe = FALSE)
+      raw_dir <- projr_path_get_dir("raw-data")
       dir.create(raw_dir, recursive = TRUE, showWarnings = FALSE)
 
+      # Create content and build
+      .test_content_setup_label("raw-data")
+      writeLines(
+        c("---", "title: Test", "---", "", "Test content"),
+        file.path(.path_get(), "test.qmd")
+      )
+      
+      # add license
       suppressMessages(
         projr_license_create_manual("MIT", "raw-data", authors = c("Manual Author"))
       )
@@ -403,13 +411,6 @@ test_that("Manual licenses not overwritten during builds", {
       expect_true(file.exists(file.path(raw_dir, "LICENSE")))
       license1 <- readLines(file.path(raw_dir, "LICENSE"), warn = FALSE)
       expect_true(any(grepl("Manual Author", license1)))
-
-      # Create content and build
-      .test_content_setup_label("raw-data", safe = FALSE)
-      writeLines(
-        c("---", "title: Test", "---", "", "Test content"),
-        file.path(.path_get(), "test.qmd")
-      )
 
       suppressMessages(projr_build_dev())
 
