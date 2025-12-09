@@ -682,5 +682,6 @@ projr_build_patch()
 
 - `?projr_yml_dest_add_github` - GitHub remote documentation
 - `?projr_yml_dest_add_local` - Local remote documentation
+- `vignette("dest-send-workflow")` - Internal workflow for sending to destinations (with diagrams)
 - `vignette("restore-artifacts")` - Restoring archived artifacts
 - `vignette("environment")` - Environment variables including `GITHUB_PAT`
