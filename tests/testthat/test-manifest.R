@@ -81,14 +81,14 @@ test_that(".build_manifest_* works", {
       # now add output content
       .test_content_setup_label("output", safe = FALSE)
       path_manifest <- .build_manifest_post(TRUE)
-      # Pre (8 duplicates of previous) + output (4 files + 1 hidden) + empty docs (1 duplicate) + prev (10) 
+      # Pre (8 duplicates of previous) + output (4 files) + empty docs (1 duplicate) + prev (10) 
       # After dedup: prev (10) + output (4 new files) = 14
       expect_identical(nrow(.manifest_read(path_manifest)), 14L)
 
       # now add doc content
       .test_content_setup_label("docs", safe = FALSE)
       path_manifest <- .build_manifest_post(TRUE)
-      # Pre (8 duplicates) + output (4 duplicates) + docs (4 files + 1 hidden) + prev (14)
+      # Pre (8 duplicates) + output (4 duplicates) + docs (4 files) + prev (14)
       # After dedup: prev (14) + docs (4 new files) = 18
       expect_identical(nrow(.manifest_read(path_manifest)), 18L)
 
