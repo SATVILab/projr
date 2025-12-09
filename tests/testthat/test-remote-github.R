@@ -17,10 +17,13 @@
 # Creation and existence
 # ======================`=======================================================
 
-setup_github <- (!.is_test_cran() &&
-                   !.is_test_lite() &&
-                   .has_internet() &&
-                   nzchar(.auth_get_github_pat_find()))
+# Only setup GitHub test environment if all conditions are met
+setup_github <- tryCatch({
+  !.is_test_cran() &&
+    !.is_test_lite() &&
+    .has_internet() &&
+    nzchar(.auth_get_github_pat_find())
+}, error = function(e) FALSE)
 
 dir_test <- if (setup_github) {
   .test_setup_project(
@@ -93,6 +96,7 @@ test_that(".remote_get_final works for GitHub", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(is.null(dir_test), "No GitHub test environment available")
 
   usethis::with_project(
     path = dir_test,
@@ -1732,14 +1736,15 @@ test_that(".github_api_base resolves URLs correctly", {
 
 # done
 test_that(".gh_release_exists returns correct values for known repos", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
+  skip_if(.is_test_select())
+  skip_if(!requireNamespace("httr", quietly = TRUE))
+  skip_if(is.null(dir_test), "No GitHub test environment available")
+  
   usethis::with_project(
     path = dir_test,
     code = {
-      skip_if(.is_test_cran())
-      skip_if(.is_test_lite())
-      skip_if(.is_test_select())
-      skip_if(!requireNamespace("httr", quietly = TRUE))
-      skip_if(!nzchar(.auth_get_github_pat_find()))
 
       # Test with a well-known public repo that has releases
       # Using a stable public repo as reference
