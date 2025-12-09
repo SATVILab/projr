@@ -6,6 +6,8 @@
   Process](https://satvilab.github.io/projr/articles/build-process.md):
 - [Concepts](https://satvilab.github.io/projr/articles/concepts.md):
 - [Design](https://satvilab.github.io/projr/articles/design.md):
+- [Destination Send
+  Workflow](https://satvilab.github.io/projr/articles/dest-send-workflow.md):
 - [Directory
   Licenses](https://satvilab.github.io/projr/articles/directory-licenses.md):
 - [Environment

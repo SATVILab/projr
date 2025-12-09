@@ -5,6 +5,7 @@ articles:
   build-process: build-process.html
   concepts: concepts.html
   design: design.html
+  dest-send-workflow: dest-send-workflow.html
   directory-licenses: directory-licenses.html
   environment: environment.html
   get-started: get-started.html
@@ -13,7 +14,7 @@ articles:
   restore-artifacts: restore-artifacts.html
   scripts-and-hooks: scripts-and-hooks.html
   send-to-remotes: send-to-remotes.html
-last_built: 2025-12-09T18:36Z
+last_built: 2025-12-09T20:02Z
 urls:
   reference: https://satvilab.github.io/projr/reference
   article: https://satvilab.github.io/projr/articles

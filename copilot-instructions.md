@@ -31,228 +31,117 @@ local) and file operations (applies to `R/remote*.R`)
 
 ## Core Principles
 
-### Code Quality
+- Make minimal, surgical changes
+- Maintain backward compatibility
+- Follow existing patterns
+- Add tests for new functionality/bug fixes
+- Never leave trailing whitespace
+- Always add blank line between headings and bullets
 
-- Make minimal, surgical changes to fix issues
-- Maintain backward compatibility when possible
-- Follow existing patterns in the codebase
-- Add tests for new functionality or bug fixes
-- **Never leave trailing whitespace** at the end of lines or on blank
-  lines
-- **Always add a blank line** between headings (ending with `**`) and
-  bullet points
+**Before committing:** - Run
+[`devtools::document()`](https://devtools.r-lib.org/reference/document.html),
+[`devtools::test()`](https://devtools.r-lib.org/reference/test.html)
+(LITE mode), `styler::style_pkg()` - Update `_pkgdown.yml` when
+adding/removing exported functions - Verify with
+[`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html) -
+Ensure files end with single newline, no trailing whitespace - Update
+copilot instructions as needed
 
-### Before Committing
-
-- Run
-  [`devtools::document()`](https://devtools.r-lib.org/reference/document.html)
-  to update `man/` and `NAMESPACE`.
-- Run
-  [`devtools::test()`](https://devtools.r-lib.org/reference/test.html)
-  (LITE mode during development).
-- Run `styler::style_pkg()` to ensure code style compliance.
-- Update `_pkgdown.yml` when adding/removing/exporting functions:
-  - Add exported function names or `@rdname`s to the appropriate
-    `reference → sections → contents` section.
-  - Verify with
-    [`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
-    and
-    [`pkgdown::build_site()`](https://pkgdown.r-lib.org/reference/build_site.html).
-- Ensure file formatting:
-  - Files must end with a single newline (empty line at end).
-  - No trailing whitespace anywhere.
-- Update copilot instructions in this file or relevant topics files as
-  needed, following maintenance guidelines at the end of this document.
-
-### Package Structure
-
-- `R/` - Source code (use `.` prefix for internal, `projr_` for exported
-  functions)
-- `tests/testthat/` - Tests (use helper functions from `helper-*.R`)
-- `man/` - Auto-generated docs (DO NOT edit directly)
-- `_projr.yml` - Project configuration
+**Package structure:** - `R/` - Source (`.` prefix internal, `projr_`
+exported) - `tests/testthat/` - Tests (use `helper-*.R` functions) -
+`man/` - Auto-generated docs (DO NOT edit) - `_projr.yml` - Project
+configuration
 
 ------------------------------------------------------------------------
 
-## Advice
+## Development Practices
 
-### Input Validation
+**Input validation:** - Use `.assert_*()` functions from `R/check.R` -
+Validate all user inputs and internal calls - Provide clear error
+messages
 
-- Use `.assert_*()` and other functions from the `R/check.R` file for
-  input validation to fail early with clear messages.
-- Validate all user inputs, including internal function calls
-- Provide clear error messages for invalid inputs
-
-### Debugging
-
-**Log Files for Debugging:** - Log files are **automatically created
-during builds** (`projr_build_*` functions) and contain all CLI output
-(info, debug, success, step messages) - Log files are **NOT
-automatically created** outside of builds (e.g., during manual function
-testing) - To enable logging outside of builds for debugging: 1. Create
-a log file using
-[`.log_build_init()`](https://satvilab.github.io/projr/reference/dot-log_build_init.md):
-`log_info <- .log_build_init(build_type = "dev", msg = "Manual debugging")`
-2. Get the log file path from the returned list: `log_info$log_file` 3.
-All subsequent `.cli_*()` calls will write to this log file 4. Inspect
-the log with
-[`.log_file_get_most_recent()`](https://satvilab.github.io/projr/reference/dot-log_file_get_most_recent.md)
-or
-[`projr_log_view()`](https://satvilab.github.io/projr/reference/projr_log_view.md) -
-**All `.cli_*()` functions write to the log file** (not just
-[`.cli_debug()`](https://satvilab.github.io/projr/reference/dot-cli_debug.md)): -
-[`.cli_info()`](https://satvilab.github.io/projr/reference/dot-cli_info.md) -
-Standard messages -
-[`.cli_success()`](https://satvilab.github.io/projr/reference/dot-cli_success.md) -
-Success messages -
-[`.cli_debug()`](https://satvilab.github.io/projr/reference/dot-cli_debug.md) -
-Debug messages (only shown in console at debug level) -
+**Logging:** - Log files auto-created during builds (`projr_build_*`) -
+Outside builds: Use
+[`.log_build_init()`](https://satvilab.github.io/projr/reference/dot-log_build_init.md)
+to enable logging - All `.cli_*()` functions write to log:
+[`.cli_info()`](https://satvilab.github.io/projr/reference/dot-cli_info.md),
+[`.cli_success()`](https://satvilab.github.io/projr/reference/dot-cli_success.md),
+[`.cli_debug()`](https://satvilab.github.io/projr/reference/dot-cli_debug.md),
 [`.cli_step()`](https://satvilab.github.io/projr/reference/dot-cli_step.md) -
-Step/progress messages -
-[`.cli_stage_header()`](https://satvilab.github.io/projr/reference/dot-cli_stage_header.md) -
-Section headers -
-[`.cli_process_start()`](https://satvilab.github.io/projr/reference/dot-cli_process_start.md)
-/
-[`.cli_process_done()`](https://satvilab.github.io/projr/reference/dot-cli_process_done.md) -
-Process status - Use
+Commit useful
 [`.cli_debug()`](https://satvilab.github.io/projr/reference/dot-cli_debug.md)
-to add lightweight debug logging (variable values, progress). Prefer
-committing these when they aid future debugging, but: - Avoid logging
-secrets, large binary blobs, or excessive output that clutters CI
-logs. - Use [`debugonce()`](https://rdrr.io/r/base/debug.html) for
-short, local function-level debugging; it does not persist across
-sessions. - Use [`browser()`](https://rdrr.io/r/base/browser.html) only
-for interactive local debugging. Guard calls to avoid CI/test hangs: -
-e.g. `if (interactive()) browser()`. - Always remove or guard
-[`browser()`](https://rdrr.io/r/base/browser.html) calls before
-committing. - Use post-mortem tools for non-interactive diagnostics: -
+calls; avoid logging secrets or large output
+
+**Interactive debugging:** - Use
+[`debugonce()`](https://rdrr.io/r/base/debug.html) for function-level
+debugging - Guard [`browser()`](https://rdrr.io/r/base/browser.html)
+calls: `if (interactive()) browser()` - Use
 [`traceback()`](https://rdrr.io/r/base/traceback.html),
 [`rlang::last_error()`](https://rlang.r-lib.org/reference/last_error.html),
-[`rlang::last_trace()`](https://rlang.r-lib.org/reference/last_error.html). -
-Consider `options(error = rlang::entrace)` during ad-hoc debugging. -
-Avoid committing interactive debug statements in code or tests; guard or
-remove them. - For tests, use `skip_on_noninteractive()` or
-`skip_if_not(interactive())` to avoid CI failures.
+[`rlang::last_trace()`](https://rlang.r-lib.org/reference/last_error.html)
+for diagnostics - Remove/guard interactive statements before committing
 
-### Debugging Tests
-
-- **General test runs**: Use LITE mode (`.test_set_lite()`) for faster
-  iteration during development
-- **Debugging specific test failures**:
-  - Turn off LITE mode (`.test_unset_lite()`) to ensure relevant tests
-    run
-  - Use SELECT mode (`.test_set_select()`) to skip most tests
-  - Comment out `skip_if(.is_test_select())` in only the specific tests
-    you need to debug
-  - Run
-    [`devtools::test()`](https://devtools.r-lib.org/reference/test.html)
-    to execute only selected tests
-  - When done, run `.test_unset_select()` and restore
-    `skip_if(.is_test_select())` lines
-- See `testing.instructions.md` for detailed workflow and examples
+**Test debugging:** - General runs: Use LITE mode (`.test_set_lite()`) -
+Specific failures: Turn off LITE (`.test_unset_lite()`), use SELECT
+(`.test_set_select()`), comment out `skip_if(.is_test_select())` in
+target tests - See `testing.instructions.md` for details
 
 ------------------------------------------------------------------------
 
 ## Key Systems
 
-### Version Management
+**Version management:** `major.minor.patch-dev` format;
+[`projr_version_get()`](https://satvilab.github.io/projr/reference/projr_version_get.md),
+[`projr_version_set()`](https://satvilab.github.io/projr/reference/projr_version_set.md)
 
-- Versions follow format in `metadata.version-format` (default:
-  `major.minor.patch-dev`)
-- Functions:
-  [`projr_version_get()`](https://satvilab.github.io/projr/reference/projr_version_get.md),
-  [`projr_version_set()`](https://satvilab.github.io/projr/reference/projr_version_set.md)
+**Build system:** Production (`projr_build_patch/minor/major()`), dev
+([`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md));
+env vars: `PROJR_OUTPUT_LEVEL`, `PROJR_CLEAR_OUTPUT`,
+`PROJR_LOG_DETAILED`
 
-### Build System
+**Manifest:** Tracks file hashes in `manifest.csv`; query:
+[`projr_manifest_changes()`](https://satvilab.github.io/projr/reference/projr_manifest_query.md),
+[`projr_manifest_range()`](https://satvilab.github.io/projr/reference/projr_manifest_query.md),
+[`projr_manifest_last_change()`](https://satvilab.github.io/projr/reference/projr_manifest_query.md)
 
-- Production builds:
-  [`projr_build_patch()`](https://satvilab.github.io/projr/reference/projr_build.md),
-  [`projr_build_minor()`](https://satvilab.github.io/projr/reference/projr_build.md),
-  [`projr_build_major()`](https://satvilab.github.io/projr/reference/projr_build.md)
-- Development builds:
-  [`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md)
-- Environment variables: `PROJR_OUTPUT_LEVEL`, `PROJR_CLEAR_OUTPUT`,
-  `PROJR_LOG_DETAILED`
+**Git:** Auto-commits/pushes via `build.git` settings; uses Git CLI or
+`gert`
 
-### Manifest System
+**Remotes:** Local, GitHub, OSF destinations; restore:
+[`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_restore.md),
+[`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_restore.md)
 
-- Tracks file hashes across versions in `manifest.csv`
-- Query functions:
-  [`projr_manifest_changes()`](https://satvilab.github.io/projr/reference/projr_manifest_query.md),
-  [`projr_manifest_range()`](https://satvilab.github.io/projr/reference/projr_manifest_query.md),
-  [`projr_manifest_last_change()`](https://satvilab.github.io/projr/reference/projr_manifest_query.md)
-
-### Git Integration
-
-- Auto-commits and pushes based on `build.git` settings in `_projr.yml`
-- Works with both Git CLI and `gert` R package
-
-### Remote Destinations
-
-- Local, GitHub, OSF destinations supported
-- Restore functions:
-  [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_restore.md),
-  [`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_restore.md)
-
-### Directory Licenses
-
-- Per-directory LICENSE files for raw data, outputs, and docs
-- Two approaches: YAML configuration (automatic) or manual creation
-- Templates: CC-BY, CC0, Apache-2.0, MIT, Proprietary
-- Functions:
-  [`projr_yml_dir_license_set()`](https://satvilab.github.io/projr/reference/projr_yml_dir_license_set.md),
-  [`projr_license_create_manual()`](https://satvilab.github.io/projr/reference/projr_license_create_manual.md),
-  [`projr_yml_dir_license_update()`](https://satvilab.github.io/projr/reference/projr_yml_dir_license_update.md)
-- LICENSE files are tracked in manifest for versioning
+**Directory licenses:** Per-directory LICENSE files; YAML
+(auto-regenerated) or manual
+([`projr_license_create_manual()`](https://satvilab.github.io/projr/reference/projr_license_create_manual.md));
+templates: CC-BY, CC0, Apache-2.0, MIT, Proprietary
 
 ------------------------------------------------------------------------
 
 ## Authentication
 
-### GitHub
+**GitHub:** Set `GITHUB_PAT`; use
+[`.auth_check_github()`](https://satvilab.github.io/projr/reference/dot-auth_check_github.md)
+before `gh::`/`gitcreds::` calls; see
+[`projr_instr_auth_github()`](https://satvilab.github.io/projr/reference/instr_auth.md)
 
-- Set `GITHUB_PAT` environment variable
-- All `gh::` or `gitcreds::` calls must have
-  [`.auth_check_github()`](https://satvilab.github.io/projr/reference/dot-auth_check_github.md)
-  before use
-- Instructions:
-  [`projr_instr_auth_github()`](https://satvilab.github.io/projr/reference/instr_auth.md)
-
-### OSF
-
-- Set `OSF_PAT` environment variable
-- All `osfr::` calls must have
-  [`.auth_check_osf()`](https://satvilab.github.io/projr/reference/dot-auth_check_osf.md)
-  before use
-- Instructions:
-  [`projr_instr_auth_osf()`](https://satvilab.github.io/projr/reference/instr_auth.md)
+**OSF:** Set `OSF_PAT`; use
+[`.auth_check_osf()`](https://satvilab.github.io/projr/reference/dot-auth_check_osf.md)
+before `osfr::` calls; see
+[`projr_instr_auth_osf()`](https://satvilab.github.io/projr/reference/instr_auth.md)
 
 ------------------------------------------------------------------------
 
 ## Environment Variables
 
-### Build Control
+**Build:** `PROJR_OUTPUT_LEVEL` (none/std/debug), `PROJR_CLEAR_OUTPUT`
+(pre/post/never), `PROJR_LOG_DETAILED` (TRUE/FALSE)
 
-- `PROJR_OUTPUT_LEVEL` - Console verbosity: `"none"`, `"std"`, `"debug"`
-  (default: `"none"` for dev, `"std"` for output)
-- `PROJR_CLEAR_OUTPUT` - When to clear output: `"pre"`, `"post"`,
-  `"never"` (default: `"pre"`)
-- `PROJR_LOG_DETAILED` - Create detailed log files: `TRUE`/`FALSE`
-  (default: `"TRUE"`)
+**Testing:** `R_PKG_TEST_LITE` (skip comprehensive), `R_PKG_TEST_CRAN`
+(skip slow), `R_PKG_TEST_SELECT` (targeted)
 
-### Testing Control
-
-- `R_PKG_TEST_LITE` - Enable LITE test mode (skip comprehensive tests)
-- `R_PKG_TEST_CRAN` - Enable CRAN test mode (skip slow/integration
-  tests)
-- `R_PKG_TEST_SELECT` - Skip most tests (for targeted testing)
-
-### Environment Files
-
-- `_environment.local` - Machine-specific (git-ignored, highest
-  precedence)
-- `_environment-<profile>` - Profile-specific variables
-- `_environment` - Global defaults (lowest precedence)
+**Files:** `_environment.local` (git-ignored, highest),
+`_environment-<profile>` (profile), `_environment` (global, lowest)
 
 ------------------------------------------------------------------------
 
@@ -313,61 +202,35 @@ if (!file.exists(path)) {
 
 ## Key Concepts
 
-### Safe vs Unsafe Directories
+**Safe vs Unsafe directories:** - Safe (`safe = TRUE`): Cache build dir
+(e.g., `_tmp/projr/v0.0.1/output`) - Unsafe (`safe = FALSE`): Actual dir
+(e.g., `_output`)
 
-- **Safe** (`safe = TRUE`): Build directory in cache (e.g.,
-  `_tmp/projr/v0.0.1/output`)
-- **Unsafe** (`safe = FALSE`): Actual directory (e.g., `_output`)
-- Applies to `output`, `docs`, `data` directories
+**Test modes:** - LITE: Core tests (~364, ~2.5 min) - for development -
+FULL: All tests (~452, ~5+ min) - for releases - CRAN: Minimal (\<2
+min) - for submission
 
-### Test Modes
+**Directory labels:** `raw-data`, `cache`, `output`, `docs`, `project`,
+`code`, `data` (case-insensitive, ignore hyphens/underscores)
 
-- **LITE**: Fast, core tests (~364 tests, ~2.5 min) - recommended for
-  development
-- **FULL**: All tests including comprehensive (~452 tests, ~5+ min) -
-  for releases
-- **CRAN**: Minimal tests for CRAN submission (\<2 min)
-
-### Directory Labels
-
-- `raw-data`, `cache`, `output`, `docs`, `project`, `code`, `data`
-- Labels are case-insensitive and ignore hyphens/underscores
-
-### Directory Licensing Approaches
-
-- **YAML Configuration**: Licenses managed in `_projr.yml`, regenerated
-  during builds
-  - Only created/updated if YAML config exists
-  - Ensures consistency with project metadata
-  - Good for outputs that regenerate each build
-- **Manual Creation**: Licenses created with
-  [`projr_license_create_manual()`](https://satvilab.github.io/projr/reference/projr_license_create_manual.md)
-  - NOT in YAML configuration
-  - Never overwritten during builds (unless YAML config added)
-  - Allows manual editing and customization
-  - Good for raw data with complex licensing needs
-- Both approaches can coexist; YAML takes precedence when specified
-- LICENSE files are tracked in manifest for versioning
+**Directory licensing:** - YAML: Managed in `_projr.yml`,
+auto-regenerated (good for outputs) - Manual:
+[`projr_license_create_manual()`](https://satvilab.github.io/projr/reference/projr_license_create_manual.md),
+never overwritten (good for raw data) - Both coexist; YAML takes
+precedence
 
 ------------------------------------------------------------------------
 
-## Maintaining These Instructions
+## Maintaining Instructions
 
-When updating copilot instructions, follow GitHub’s best practices:
+Follow GitHub best practices: - Keep concise (under 250 lines ideal, max
+1000) - Use clear structure: headings, bullets, sections - Be direct:
+short, imperative rules - Show examples: code samples
+(correct/incorrect) - No external links (copy info instead) - No vague
+language (“be more accurate”, etc.) - Use `applyTo` frontmatter in topic
+files - Review regularly
 
-- **Keep it concise** - Files under 1000 lines (ideally under 250)
-- **Structure matters** - Use headings, bullets, clear sections
-- **Be direct** - Short, imperative rules over long paragraphs
-- **Show examples** - Include code samples (correct and incorrect
-  patterns)
-- **No external links** - Copilot won’t follow them; copy info instead
-- **No vague language** - Avoid “be more accurate”, “identify all
-  issues”, etc.
-- **Path-specific** - Use `applyTo` frontmatter in topic files
-- **Review regularly** - Update as package evolves.
-
-See `.github/instructions/README.md` for detailed maintenance
-guidelines.
+See `.github/instructions/README.md` for details.
 
 ------------------------------------------------------------------------
 

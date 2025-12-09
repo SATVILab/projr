@@ -21,6 +21,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="articles/how-to-guides.html">How-to guides</a></li>
     <li><a class="dropdown-item" href="articles/build-process.html">Build Process</a></li>
     <li><a class="dropdown-item" href="articles/send-to-remotes.html">Sending to Remotes</a></li>
+    <li><a class="dropdown-item" href="articles/dest-send-workflow.html">Destination Send Workflow</a></li>
     <li><a class="dropdown-item" href="articles/restore-artifacts.html">Restoring Artifacts</a></li>
     <li><a class="dropdown-item" href="articles/environment.html">Environment Variables</a></li>
     <li><a class="dropdown-item" href="articles/scripts-and-hooks.html">Scripts and Hooks</a></li>
@@ -59,164 +60,42 @@
 <hr></div>
 <div class="section level2">
 <h2 id="core-principles">Core Principles<a class="anchor" aria-label="anchor" href="#core-principles"></a></h2>
-<div class="section level3">
-<h3 id="code-quality">Code Quality<a class="anchor" aria-label="anchor" href="#code-quality"></a></h3>
-<ul><li>Make minimal, surgical changes to fix issues</li>
-<li>Maintain backward compatibility when possible</li>
-<li>Follow existing patterns in the codebase</li>
-<li>Add tests for new functionality or bug fixes</li>
-<li>
-<strong>Never leave trailing whitespace</strong> at the end of lines or on blank lines</li>
-<li>
-<strong>Always add a blank line</strong> between headings (ending with <code>**</code>) and bullet points</li>
-</ul></div>
-<div class="section level3">
-<h3 id="before-committing">Before Committing<a class="anchor" aria-label="anchor" href="#before-committing"></a></h3>
-<ul><li>Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> to update <code>man/</code> and <code>NAMESPACE</code>.</li>
-<li>Run <code><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">devtools::test()</a></code> (LITE mode during development).</li>
-<li>Run <code>styler::style_pkg()</code> to ensure code style compliance.</li>
-<li>Update <code>_pkgdown.yml</code> when adding/removing/exporting functions:
-<ul><li>Add exported function names or <code>@rdname</code>s to the appropriate <code>reference → sections → contents</code> section.</li>
-<li>Verify with <code><a href="https://pkgdown.r-lib.org/reference/check_pkgdown.html" class="external-link">pkgdown::check_pkgdown()</a></code> and <code><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">pkgdown::build_site()</a></code>.</li>
-</ul></li>
-<li>Ensure file formatting:
-<ul><li>Files must end with a single newline (empty line at end).</li>
-<li>No trailing whitespace anywhere.</li>
-</ul></li>
-<li>Update copilot instructions in this file or relevant topics files as needed, following maintenance guidelines at the end of this document.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="package-structure">Package Structure<a class="anchor" aria-label="anchor" href="#package-structure"></a></h3>
-<ul><li>
-<code>R/</code> - Source code (use <code>.</code> prefix for internal, <code>projr_</code> for exported functions)</li>
-<li>
-<code>tests/testthat/</code> - Tests (use helper functions from <code>helper-*.R</code>)</li>
-<li>
-<code>man/</code> - Auto-generated docs (DO NOT edit directly)</li>
-<li>
-<code>_projr.yml</code> - Project configuration</li>
-</ul><hr></div>
-</div>
+<ul><li>Make minimal, surgical changes</li>
+<li>Maintain backward compatibility</li>
+<li>Follow existing patterns</li>
+<li>Add tests for new functionality/bug fixes</li>
+<li>Never leave trailing whitespace</li>
+<li>Always add blank line between headings and bullets</li>
+</ul><p><strong>Before committing:</strong> - Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code>, <code><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">devtools::test()</a></code> (LITE mode), <code>styler::style_pkg()</code> - Update <code>_pkgdown.yml</code> when adding/removing exported functions - Verify with <code><a href="https://pkgdown.r-lib.org/reference/check_pkgdown.html" class="external-link">pkgdown::check_pkgdown()</a></code> - Ensure files end with single newline, no trailing whitespace - Update copilot instructions as needed</p>
+<p><strong>Package structure:</strong> - <code>R/</code> - Source (<code>.</code> prefix internal, <code>projr_</code> exported) - <code>tests/testthat/</code> - Tests (use <code>helper-*.R</code> functions) - <code>man/</code> - Auto-generated docs (DO NOT edit) - <code>_projr.yml</code> - Project configuration</p>
+<hr></div>
 <div class="section level2">
-<h2 id="advice">Advice<a class="anchor" aria-label="anchor" href="#advice"></a></h2>
-<div class="section level3">
-<h3 id="input-validation">Input Validation<a class="anchor" aria-label="anchor" href="#input-validation"></a></h3>
-<ul><li>Use <code>.assert_*()</code> and other functions from the <code>R/check.R</code> file for input validation to fail early with clear messages.</li>
-<li>Validate all user inputs, including internal function calls</li>
-<li>Provide clear error messages for invalid inputs</li>
-</ul></div>
-<div class="section level3">
-<h3 id="debugging">Debugging<a class="anchor" aria-label="anchor" href="#debugging"></a></h3>
-<p><strong>Log Files for Debugging:</strong> - Log files are <strong>automatically created during builds</strong> (<code>projr_build_*</code> functions) and contain all CLI output (info, debug, success, step messages) - Log files are <strong>NOT automatically created</strong> outside of builds (e.g., during manual function testing) - To enable logging outside of builds for debugging: 1. Create a log file using <code><a href="reference/dot-log_build_init.html">.log_build_init()</a></code>: <code>log_info &lt;- .log_build_init(build_type = "dev", msg = "Manual debugging")</code> 2. Get the log file path from the returned list: <code>log_info$log_file</code> 3. All subsequent <code>.cli_*()</code> calls will write to this log file 4. Inspect the log with <code><a href="reference/dot-log_file_get_most_recent.html">.log_file_get_most_recent()</a></code> or <code><a href="reference/projr_log_view.html">projr_log_view()</a></code> - <strong>All <code>.cli_*()</code> functions write to the log file</strong> (not just <code><a href="reference/dot-cli_debug.html">.cli_debug()</a></code>): - <code><a href="reference/dot-cli_info.html">.cli_info()</a></code> - Standard messages - <code><a href="reference/dot-cli_success.html">.cli_success()</a></code> - Success messages - <code><a href="reference/dot-cli_debug.html">.cli_debug()</a></code> - Debug messages (only shown in console at debug level) - <code><a href="reference/dot-cli_step.html">.cli_step()</a></code> - Step/progress messages - <code><a href="reference/dot-cli_stage_header.html">.cli_stage_header()</a></code> - Section headers - <code><a href="reference/dot-cli_process_start.html">.cli_process_start()</a></code> / <code><a href="reference/dot-cli_process_done.html">.cli_process_done()</a></code> - Process status - Use <code><a href="reference/dot-cli_debug.html">.cli_debug()</a></code> to add lightweight debug logging (variable values, progress). Prefer committing these when they aid future debugging, but: - Avoid logging secrets, large binary blobs, or excessive output that clutters CI logs. - Use <code><a href="https://rdrr.io/r/base/debug.html" class="external-link">debugonce()</a></code> for short, local function-level debugging; it does not persist across sessions. - Use <code><a href="https://rdrr.io/r/base/browser.html" class="external-link">browser()</a></code> only for interactive local debugging. Guard calls to avoid CI/test hangs: - e.g. <code>if (interactive()) browser()</code>. - Always remove or guard <code><a href="https://rdrr.io/r/base/browser.html" class="external-link">browser()</a></code> calls before committing. - Use post-mortem tools for non-interactive diagnostics: - <code><a href="https://rdrr.io/r/base/traceback.html" class="external-link">traceback()</a></code>, <code><a href="https://rlang.r-lib.org/reference/last_error.html" class="external-link">rlang::last_error()</a></code>, <code><a href="https://rlang.r-lib.org/reference/last_error.html" class="external-link">rlang::last_trace()</a></code>. - Consider <code>options(error = rlang::entrace)</code> during ad-hoc debugging. - Avoid committing interactive debug statements in code or tests; guard or remove them. - For tests, use <code>skip_on_noninteractive()</code> or <code>skip_if_not(interactive())</code> to avoid CI failures.</p>
-</div>
-<div class="section level3">
-<h3 id="debugging-tests">Debugging Tests<a class="anchor" aria-label="anchor" href="#debugging-tests"></a></h3>
-<ul><li>
-<strong>General test runs</strong>: Use LITE mode (<code>.test_set_lite()</code>) for faster iteration during development</li>
-<li>
-<strong>Debugging specific test failures</strong>:
-<ul><li>Turn off LITE mode (<code>.test_unset_lite()</code>) to ensure relevant tests run</li>
-<li>Use SELECT mode (<code>.test_set_select()</code>) to skip most tests</li>
-<li>Comment out <code>skip_if(.is_test_select())</code> in only the specific tests you need to debug</li>
-<li>Run <code><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">devtools::test()</a></code> to execute only selected tests</li>
-<li>When done, run <code>.test_unset_select()</code> and restore <code>skip_if(.is_test_select())</code> lines</li>
-</ul></li>
-<li>See <code>testing.instructions.md</code> for detailed workflow and examples</li>
-</ul><hr></div>
-</div>
+<h2 id="development-practices">Development Practices<a class="anchor" aria-label="anchor" href="#development-practices"></a></h2>
+<p><strong>Input validation:</strong> - Use <code>.assert_*()</code> functions from <code>R/check.R</code> - Validate all user inputs and internal calls - Provide clear error messages</p>
+<p><strong>Logging:</strong> - Log files auto-created during builds (<code>projr_build_*</code>) - Outside builds: Use <code><a href="reference/dot-log_build_init.html">.log_build_init()</a></code> to enable logging - All <code>.cli_*()</code> functions write to log: <code><a href="reference/dot-cli_info.html">.cli_info()</a></code>, <code><a href="reference/dot-cli_success.html">.cli_success()</a></code>, <code><a href="reference/dot-cli_debug.html">.cli_debug()</a></code>, <code><a href="reference/dot-cli_step.html">.cli_step()</a></code> - Commit useful <code><a href="reference/dot-cli_debug.html">.cli_debug()</a></code> calls; avoid logging secrets or large output</p>
+<p><strong>Interactive debugging:</strong> - Use <code><a href="https://rdrr.io/r/base/debug.html" class="external-link">debugonce()</a></code> for function-level debugging - Guard <code><a href="https://rdrr.io/r/base/browser.html" class="external-link">browser()</a></code> calls: <code>if (interactive()) browser()</code> - Use <code><a href="https://rdrr.io/r/base/traceback.html" class="external-link">traceback()</a></code>, <code><a href="https://rlang.r-lib.org/reference/last_error.html" class="external-link">rlang::last_error()</a></code>, <code><a href="https://rlang.r-lib.org/reference/last_error.html" class="external-link">rlang::last_trace()</a></code> for diagnostics - Remove/guard interactive statements before committing</p>
+<p><strong>Test debugging:</strong> - General runs: Use LITE mode (<code>.test_set_lite()</code>) - Specific failures: Turn off LITE (<code>.test_unset_lite()</code>), use SELECT (<code>.test_set_select()</code>), comment out <code>skip_if(.is_test_select())</code> in target tests - See <code>testing.instructions.md</code> for details</p>
+<hr></div>
 <div class="section level2">
 <h2 id="key-systems">Key Systems<a class="anchor" aria-label="anchor" href="#key-systems"></a></h2>
-<div class="section level3">
-<h3 id="version-management">Version Management<a class="anchor" aria-label="anchor" href="#version-management"></a></h3>
-<ul><li>Versions follow format in <code>metadata.version-format</code> (default: <code>major.minor.patch-dev</code>)</li>
-<li>Functions: <code><a href="reference/projr_version_get.html">projr_version_get()</a></code>, <code><a href="reference/projr_version_set.html">projr_version_set()</a></code>
-</li>
-</ul></div>
-<div class="section level3">
-<h3 id="build-system">Build System<a class="anchor" aria-label="anchor" href="#build-system"></a></h3>
-<ul><li>Production builds: <code><a href="reference/projr_build.html">projr_build_patch()</a></code>, <code><a href="reference/projr_build.html">projr_build_minor()</a></code>, <code><a href="reference/projr_build.html">projr_build_major()</a></code>
-</li>
-<li>Development builds: <code><a href="reference/projr_build_dev.html">projr_build_dev()</a></code>
-</li>
-<li>Environment variables: <code>PROJR_OUTPUT_LEVEL</code>, <code>PROJR_CLEAR_OUTPUT</code>, <code>PROJR_LOG_DETAILED</code>
-</li>
-</ul></div>
-<div class="section level3">
-<h3 id="manifest-system">Manifest System<a class="anchor" aria-label="anchor" href="#manifest-system"></a></h3>
-<ul><li>Tracks file hashes across versions in <code>manifest.csv</code>
-</li>
-<li>Query functions: <code><a href="reference/projr_manifest_query.html">projr_manifest_changes()</a></code>, <code><a href="reference/projr_manifest_query.html">projr_manifest_range()</a></code>, <code><a href="reference/projr_manifest_query.html">projr_manifest_last_change()</a></code>
-</li>
-</ul></div>
-<div class="section level3">
-<h3 id="git-integration">Git Integration<a class="anchor" aria-label="anchor" href="#git-integration"></a></h3>
-<ul><li>Auto-commits and pushes based on <code>build.git</code> settings in <code>_projr.yml</code>
-</li>
-<li>Works with both Git CLI and <code>gert</code> R package</li>
-</ul></div>
-<div class="section level3">
-<h3 id="remote-destinations">Remote Destinations<a class="anchor" aria-label="anchor" href="#remote-destinations"></a></h3>
-<ul><li>Local, GitHub, OSF destinations supported</li>
-<li>Restore functions: <code><a href="reference/projr_restore.html">projr_content_update()</a></code>, <code><a href="reference/projr_restore.html">projr_restore_repo()</a></code>
-</li>
-</ul></div>
-<div class="section level3">
-<h3 id="directory-licenses">Directory Licenses<a class="anchor" aria-label="anchor" href="#directory-licenses"></a></h3>
-<ul><li>Per-directory LICENSE files for raw data, outputs, and docs</li>
-<li>Two approaches: YAML configuration (automatic) or manual creation</li>
-<li>Templates: CC-BY, CC0, Apache-2.0, MIT, Proprietary</li>
-<li>Functions: <code><a href="reference/projr_yml_dir_license_set.html">projr_yml_dir_license_set()</a></code>, <code><a href="reference/projr_license_create_manual.html">projr_license_create_manual()</a></code>, <code><a href="reference/projr_yml_dir_license_update.html">projr_yml_dir_license_update()</a></code>
-</li>
-<li>LICENSE files are tracked in manifest for versioning</li>
-</ul><hr></div>
-</div>
+<p><strong>Version management:</strong> <code>major.minor.patch-dev</code> format; <code><a href="reference/projr_version_get.html">projr_version_get()</a></code>, <code><a href="reference/projr_version_set.html">projr_version_set()</a></code></p>
+<p><strong>Build system:</strong> Production (<code>projr_build_patch/minor/major()</code>), dev (<code><a href="reference/projr_build_dev.html">projr_build_dev()</a></code>); env vars: <code>PROJR_OUTPUT_LEVEL</code>, <code>PROJR_CLEAR_OUTPUT</code>, <code>PROJR_LOG_DETAILED</code></p>
+<p><strong>Manifest:</strong> Tracks file hashes in <code>manifest.csv</code>; query: <code><a href="reference/projr_manifest_query.html">projr_manifest_changes()</a></code>, <code><a href="reference/projr_manifest_query.html">projr_manifest_range()</a></code>, <code><a href="reference/projr_manifest_query.html">projr_manifest_last_change()</a></code></p>
+<p><strong>Git:</strong> Auto-commits/pushes via <code>build.git</code> settings; uses Git CLI or <code>gert</code></p>
+<p><strong>Remotes:</strong> Local, GitHub, OSF destinations; restore: <code><a href="reference/projr_restore.html">projr_content_update()</a></code>, <code><a href="reference/projr_restore.html">projr_restore_repo()</a></code></p>
+<p><strong>Directory licenses:</strong> Per-directory LICENSE files; YAML (auto-regenerated) or manual (<code><a href="reference/projr_license_create_manual.html">projr_license_create_manual()</a></code>); templates: CC-BY, CC0, Apache-2.0, MIT, Proprietary</p>
+<hr></div>
 <div class="section level2">
 <h2 id="authentication">Authentication<a class="anchor" aria-label="anchor" href="#authentication"></a></h2>
-<div class="section level3">
-<h3 id="github">GitHub<a class="anchor" aria-label="anchor" href="#github"></a></h3>
-<ul><li>Set <code>GITHUB_PAT</code> environment variable</li>
-<li>All <code>gh::</code> or <code>gitcreds::</code> calls must have <code><a href="reference/dot-auth_check_github.html">.auth_check_github()</a></code> before use</li>
-<li>Instructions: <code><a href="reference/instr_auth.html">projr_instr_auth_github()</a></code>
-</li>
-</ul></div>
-<div class="section level3">
-<h3 id="osf">OSF<a class="anchor" aria-label="anchor" href="#osf"></a></h3>
-<ul><li>Set <code>OSF_PAT</code> environment variable</li>
-<li>All <code>osfr::</code> calls must have <code><a href="reference/dot-auth_check_osf.html">.auth_check_osf()</a></code> before use</li>
-<li>Instructions: <code><a href="reference/instr_auth.html">projr_instr_auth_osf()</a></code>
-</li>
-</ul><hr></div>
-</div>
+<p><strong>GitHub:</strong> Set <code>GITHUB_PAT</code>; use <code><a href="reference/dot-auth_check_github.html">.auth_check_github()</a></code> before <code>gh::</code>/<code>gitcreds::</code> calls; see <code><a href="reference/instr_auth.html">projr_instr_auth_github()</a></code></p>
+<p><strong>OSF:</strong> Set <code>OSF_PAT</code>; use <code><a href="reference/dot-auth_check_osf.html">.auth_check_osf()</a></code> before <code>osfr::</code> calls; see <code><a href="reference/instr_auth.html">projr_instr_auth_osf()</a></code></p>
+<hr></div>
 <div class="section level2">
 <h2 id="environment-variables">Environment Variables<a class="anchor" aria-label="anchor" href="#environment-variables"></a></h2>
-<div class="section level3">
-<h3 id="build-control">Build Control<a class="anchor" aria-label="anchor" href="#build-control"></a></h3>
-<ul><li>
-<code>PROJR_OUTPUT_LEVEL</code> - Console verbosity: <code>"none"</code>, <code>"std"</code>, <code>"debug"</code> (default: <code>"none"</code> for dev, <code>"std"</code> for output)</li>
-<li>
-<code>PROJR_CLEAR_OUTPUT</code> - When to clear output: <code>"pre"</code>, <code>"post"</code>, <code>"never"</code> (default: <code>"pre"</code>)</li>
-<li>
-<code>PROJR_LOG_DETAILED</code> - Create detailed log files: <code>TRUE</code>/<code>FALSE</code> (default: <code>"TRUE"</code>)</li>
-</ul></div>
-<div class="section level3">
-<h3 id="testing-control">Testing Control<a class="anchor" aria-label="anchor" href="#testing-control"></a></h3>
-<ul><li>
-<code>R_PKG_TEST_LITE</code> - Enable LITE test mode (skip comprehensive tests)</li>
-<li>
-<code>R_PKG_TEST_CRAN</code> - Enable CRAN test mode (skip slow/integration tests)</li>
-<li>
-<code>R_PKG_TEST_SELECT</code> - Skip most tests (for targeted testing)</li>
-</ul></div>
-<div class="section level3">
-<h3 id="environment-files">Environment Files<a class="anchor" aria-label="anchor" href="#environment-files"></a></h3>
-<ul><li>
-<code>_environment.local</code> - Machine-specific (git-ignored, highest precedence)</li>
-<li>
-<code>_environment-&lt;profile&gt;</code> - Profile-specific variables</li>
-<li>
-<code>_environment</code> - Global defaults (lowest precedence)</li>
-</ul><hr></div>
-</div>
+<p><strong>Build:</strong> <code>PROJR_OUTPUT_LEVEL</code> (none/std/debug), <code>PROJR_CLEAR_OUTPUT</code> (pre/post/never), <code>PROJR_LOG_DETAILED</code> (TRUE/FALSE)</p>
+<p><strong>Testing:</strong> <code>R_PKG_TEST_LITE</code> (skip comprehensive), <code>R_PKG_TEST_CRAN</code> (skip slow), <code>R_PKG_TEST_SELECT</code> (targeted)</p>
+<p><strong>Files:</strong> <code>_environment.local</code> (git-ignored, highest), <code>_environment-&lt;profile&gt;</code> (profile), <code>_environment</code> (global, lowest)</p>
+<hr></div>
 <div class="section level2">
 <h2 id="common-patterns">Common Patterns<a class="anchor" aria-label="anchor" href="#common-patterns"></a></h2>
 <div class="section level3">
@@ -236,7 +115,7 @@
 <span><span class="fu"><a href="reference/projr_yml_dir_license_set.html">projr_yml_dir_license_set</a></span><span class="op">(</span><span class="st">"MIT"</span>, <span class="st">"raw-data"</span>, authors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Author Name"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="directory-licenses-1">Directory Licenses<a class="anchor" aria-label="anchor" href="#directory-licenses-1"></a></h3>
+<h3 id="directory-licenses">Directory Licenses<a class="anchor" aria-label="anchor" href="#directory-licenses"></a></h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Automatic approach - managed in YAML, regenerated during builds</span></span>
 <span><span class="fu"><a href="reference/projr_yml_dir_license_set.html">projr_yml_dir_license_set</a></span><span class="op">(</span><span class="st">"CC-BY"</span>, <span class="st">"output"</span><span class="op">)</span></span>
@@ -252,7 +131,7 @@
 <span><span class="fu"><a href="reference/projr_yml_dir_license_rm.html">projr_yml_dir_license_rm</a></span><span class="op">(</span><span class="st">"output"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="input-validation-1">Input Validation<a class="anchor" aria-label="anchor" href="#input-validation-1"></a></h3>
+<h3 id="input-validation">Input Validation<a class="anchor" aria-label="anchor" href="#input-validation"></a></h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">.my_function</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">param</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">.assert_string</span><span class="op">(</span><span class="va">param</span>, required <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -269,69 +148,15 @@
 </div>
 <div class="section level2">
 <h2 id="key-concepts">Key Concepts<a class="anchor" aria-label="anchor" href="#key-concepts"></a></h2>
-<div class="section level3">
-<h3 id="safe-vs-unsafe-directories">Safe vs Unsafe Directories<a class="anchor" aria-label="anchor" href="#safe-vs-unsafe-directories"></a></h3>
-<ul><li>
-<strong>Safe</strong> (<code>safe = TRUE</code>): Build directory in cache (e.g., <code>_tmp/projr/v0.0.1/output</code>)</li>
-<li>
-<strong>Unsafe</strong> (<code>safe = FALSE</code>): Actual directory (e.g., <code>_output</code>)</li>
-<li>Applies to <code>output</code>, <code>docs</code>, <code>data</code> directories</li>
-</ul></div>
-<div class="section level3">
-<h3 id="test-modes">Test Modes<a class="anchor" aria-label="anchor" href="#test-modes"></a></h3>
-<ul><li>
-<strong>LITE</strong>: Fast, core tests (~364 tests, ~2.5 min) - recommended for development</li>
-<li>
-<strong>FULL</strong>: All tests including comprehensive (~452 tests, ~5+ min) - for releases</li>
-<li>
-<strong>CRAN</strong>: Minimal tests for CRAN submission (&lt;2 min)</li>
-</ul></div>
-<div class="section level3">
-<h3 id="directory-labels">Directory Labels<a class="anchor" aria-label="anchor" href="#directory-labels"></a></h3>
-<ul><li>
-<code>raw-data</code>, <code>cache</code>, <code>output</code>, <code>docs</code>, <code>project</code>, <code>code</code>, <code>data</code>
-</li>
-<li>Labels are case-insensitive and ignore hyphens/underscores</li>
-</ul></div>
-<div class="section level3">
-<h3 id="directory-licensing-approaches">Directory Licensing Approaches<a class="anchor" aria-label="anchor" href="#directory-licensing-approaches"></a></h3>
-<ul><li>
-<strong>YAML Configuration</strong>: Licenses managed in <code>_projr.yml</code>, regenerated during builds
-<ul><li>Only created/updated if YAML config exists</li>
-<li>Ensures consistency with project metadata</li>
-<li>Good for outputs that regenerate each build</li>
-</ul></li>
-<li>
-<strong>Manual Creation</strong>: Licenses created with <code><a href="reference/projr_license_create_manual.html">projr_license_create_manual()</a></code>
-<ul><li>NOT in YAML configuration</li>
-<li>Never overwritten during builds (unless YAML config added)</li>
-<li>Allows manual editing and customization</li>
-<li>Good for raw data with complex licensing needs</li>
-</ul></li>
-<li>Both approaches can coexist; YAML takes precedence when specified</li>
-<li>LICENSE files are tracked in manifest for versioning</li>
-</ul><hr></div>
-</div>
+<p><strong>Safe vs Unsafe directories:</strong> - Safe (<code>safe = TRUE</code>): Cache build dir (e.g., <code>_tmp/projr/v0.0.1/output</code>) - Unsafe (<code>safe = FALSE</code>): Actual dir (e.g., <code>_output</code>)</p>
+<p><strong>Test modes:</strong> - LITE: Core tests (~364, ~2.5 min) - for development - FULL: All tests (~452, ~5+ min) - for releases - CRAN: Minimal (&lt;2 min) - for submission</p>
+<p><strong>Directory labels:</strong> <code>raw-data</code>, <code>cache</code>, <code>output</code>, <code>docs</code>, <code>project</code>, <code>code</code>, <code>data</code> (case-insensitive, ignore hyphens/underscores)</p>
+<p><strong>Directory licensing:</strong> - YAML: Managed in <code>_projr.yml</code>, auto-regenerated (good for outputs) - Manual: <code><a href="reference/projr_license_create_manual.html">projr_license_create_manual()</a></code>, never overwritten (good for raw data) - Both coexist; YAML takes precedence</p>
+<hr></div>
 <div class="section level2">
-<h2 id="maintaining-these-instructions">Maintaining These Instructions<a class="anchor" aria-label="anchor" href="#maintaining-these-instructions"></a></h2>
-<p>When updating copilot instructions, follow GitHub’s best practices:</p>
-<ul><li>
-<strong>Keep it concise</strong> - Files under 1000 lines (ideally under 250)</li>
-<li>
-<strong>Structure matters</strong> - Use headings, bullets, clear sections</li>
-<li>
-<strong>Be direct</strong> - Short, imperative rules over long paragraphs</li>
-<li>
-<strong>Show examples</strong> - Include code samples (correct and incorrect patterns)</li>
-<li>
-<strong>No external links</strong> - Copilot won’t follow them; copy info instead</li>
-<li>
-<strong>No vague language</strong> - Avoid “be more accurate”, “identify all issues”, etc.</li>
-<li>
-<strong>Path-specific</strong> - Use <code>applyTo</code> frontmatter in topic files</li>
-<li>
-<strong>Review regularly</strong> - Update as package evolves.</li>
-</ul><p>See <code>.github/instructions/README.md</code> for detailed maintenance guidelines.</p>
+<h2 id="maintaining-instructions">Maintaining Instructions<a class="anchor" aria-label="anchor" href="#maintaining-instructions"></a></h2>
+<p>Follow GitHub best practices: - Keep concise (under 250 lines ideal, max 1000) - Use clear structure: headings, bullets, sections - Be direct: short, imperative rules - Show examples: code samples (correct/incorrect) - No external links (copy info instead) - No vague language (“be more accurate”, etc.) - Use <code>applyTo</code> frontmatter in topic files - Review regularly</p>
+<p>See <code>.github/instructions/README.md</code> for details.</p>
 <hr></div>
 <div class="section level2">
 <h2 id="resources">Resources<a class="anchor" aria-label="anchor" href="#resources"></a></h2>

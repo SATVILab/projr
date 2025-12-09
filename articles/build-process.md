@@ -1075,6 +1075,9 @@ each step - **Flexible** - Configurable for different workflows
 For more information:
 
 - **How-to guides** - Task-focused guides for common workflows
+- **Destination Send Workflow** -
+  [`vignette("dest-send-workflow")`](https://satvilab.github.io/projr/articles/dest-send-workflow.md)
+  for detailed workflow diagrams
 - **Concepts** - Core concepts behind projr
 - **Environment** - Environment variables reference
 - **Design** - Architecture and design decisions

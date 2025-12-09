@@ -714,6 +714,8 @@ projr_build_patch()
   GitHub remote documentation
 - [`?projr_yml_dest_add_local`](https://satvilab.github.io/projr/reference/projr_yml_dest_add.md) -
   Local remote documentation
+- [`vignette("dest-send-workflow")`](https://satvilab.github.io/projr/articles/dest-send-workflow.md) -
+  Internal workflow for sending to destinations (with diagrams)
 - [`vignette("restore-artifacts")`](https://satvilab.github.io/projr/articles/restore-artifacts.md) -
   Restoring archived artifacts
 - [`vignette("environment")`](https://satvilab.github.io/projr/articles/environment.md) -
