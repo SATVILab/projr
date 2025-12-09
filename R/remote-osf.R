@@ -370,7 +370,8 @@ projr_osf_create_project <- function(title,
                                   label,
                                   structure,
                                   version = NULL,
-                                  pre = NULL) {
+                                  pre = NULL,
+                                  empty = NULL) {
   .assert_nchar_single(id, 5L, TRUE)
   .assert_string(path)
   .assert_flag(path_append_label)
@@ -389,7 +390,8 @@ projr_osf_create_project <- function(title,
     label = label,
     structure = structure,
     version = version,
-    pre = FALSE
+    pre = FALSE,
+    empty = empty
   )
   osf_tbl <- .remote_get(id = id, type = "osf")
   if (length(path_rel) > 0L) {
@@ -407,6 +409,10 @@ projr_osf_create_project <- function(title,
     }
   }
   label
+}
+
+.remote_final_check_exists_direct_osf <- function(remote) {
+  stop(paste0("Direct final remote existence check not supported for OSF"))
 }
 
 # ========================
@@ -428,6 +434,14 @@ projr_osf_create_project <- function(title,
   }
   .osf_rm(x = remote, check = FALSE)
   invisible(TRUE)
+}
+
+# ========================
+# Delete a final remote
+# ========================
+
+.remote_final_rm_osf <- function(remote, output_level = "std") {
+  stop("Final remote deletion not supported for OSF")
 }
 
 
@@ -473,9 +487,11 @@ projr_osf_create_project <- function(title,
 # ========================
 
 
-.remote_file_get_ind_osf <- function(remote,
-                                     fn,
-                                     path_dir_save_local) {
+.remote_file_get_osf <- function(remote,
+                                 fn,
+                                 path_dir_save_local) {
+  # TODO: Add a check that this isn't an empty remote
+  # (ends with -empty; not sure how you do that here)
   .assert_given_full(remote)
   osf_tbl_file <- remote |> .osf_ls_files(n_max = Inf)
   if (nrow(osf_tbl_file) == 0L) {
@@ -601,7 +617,9 @@ projr_osf_create_project <- function(title,
 # ========================
 
 .remote_file_rm_osf <- function(fn,
-                                remote) {
+                                remote,
+                                rm_if_empty = TRUE,
+                                output_level = "std") {
   .assert_chr_min(fn, TRUE)
   if (length(fn) == 0) {
     return(invisible(FALSE))
@@ -617,6 +635,15 @@ projr_osf_create_project <- function(title,
     dir_vec, .remote_file_rm_osf_dir, logical(1),
     osf_tbl = remote, fn = fn
   )
+  if (rm_if_empty) {
+    .cli_debug(
+      "Checking to remove empty OSF directories after file removal",
+      output_level = output_level
+    )
+    .remote_final_rm_if_empty(
+      "osf", remote
+    )
+  }
   invisible(TRUE)
 }
 
@@ -711,3 +738,7 @@ projr_osf_create_project <- function(title,
   }
   invisible(TRUE)
 }
+
+# ========================
+# Delete a final remote
+# ========================

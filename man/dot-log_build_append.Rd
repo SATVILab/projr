@@ -4,11 +4,9 @@
 \alias{.log_build_append}
 \title{Append message to build log}
 \usage{
-.log_build_append(log_file, message, level = "info")
+.log_build_append(message, level = "info")
 }
 \arguments{
-\item{log_file}{Character. Path to log file.}
-
 \item{message}{Character. Message to append.}
 
 \item{level}{Character. Message level (info, debug, success, etc.)}

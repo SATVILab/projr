@@ -277,13 +277,7 @@
 
 .yml_dest_get_title_complete_param_force <- function(yml_title,
                                                      always_archive) {
-  if (is.null(always_archive) || !always_archive) {
-    return(yml_title)
-  }
-  yml_title[["send"]] <- list(
-    "inspect" = "manifest",
-    "strategy" = "sync-purge"
-  )
+  yml_title[["send"]][["cue"]] <- if (always_archive) "always" else "if-change"
   yml_title
 }
 
@@ -334,29 +328,24 @@
 
 .yml_dest_complete_title_strategy_hierarchy <-
   function(strategy, inspect) {
-    # default is sync-diff
-    strategy <- strategy %||% "sync-diff"
-    inspect <- inspect %||% "manifest"
-    # if we cannot use versioning but must sync, the only option is
-    # sync-purge
-    if (inspect == "none" && strategy == "sync-diff") {
-      return("sync-purge")
+    if (!is.null(strategy)) {
+      return(strategy)
     }
-    strategy
+    if (inspect == "none") {
+      return("upload-all")
+    }
+    "sync-diff"
   }
 
 .yml_dest_complete_title_strategy_github <-
   function(strategy, inspect) {
-    # default is sync-diff, for speeds
-    strategy <- strategy %||% "sync-diff"
-    inspect <- inspect %||% "manifest"
-    # only if we're allowed to use versioning and we're syncing
-    # do we use sync-diff (which is the default).
-    # Otherwise, we use sync-purge
-    if (strategy == "sync-diff" && inspect != "none") {
-      return("sync-diff")
+    if (!is.null(strategy)) {
+      return(strategy)
     }
-    "sync-purge"
+    if (inspect == "none") {
+      return("upload-all")
+    }
+    "sync-diff"
   }
 
 .yml_dest_complete_title_path_append_label <- function(yml, type) {

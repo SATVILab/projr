@@ -4,6 +4,7 @@
 ^\.Rproj\.user$
 ^\.devcontainer
 ^\.vscode
+^\_tmp
 ^LICENSE\.md$
 ^SCRATCH\.R$
 ^\.gitpod

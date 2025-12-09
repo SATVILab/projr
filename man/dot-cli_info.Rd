@@ -4,7 +4,7 @@
 \alias{.cli_info}
 \title{Show a standard informational message}
 \usage{
-.cli_info(..., output_level = "std", .envir = parent.frame(), log_file = NULL)
+.cli_info(..., output_level = "std", .envir = parent.frame())
 }
 \arguments{
 \item{...}{Message components passed to cli::cli_alert_info}
@@ -12,8 +12,6 @@
 \item{output_level}{Character. Current output level.}
 
 \item{.envir}{Environment for variable evaluation}
-
-\item{log_file}{Character. Path to log file (optional).}
 }
 \description{
 Show a standard informational message

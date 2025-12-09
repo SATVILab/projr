@@ -58,7 +58,7 @@
     # Move files from safe to unsafe directory
     .dir_move(source_dir, dest_dir)
     
-    message("Copied ", x, " from ", source_dir, " to ", dest_dir)
+    .cli_info("Copied {x} from {source_dir} to {dest_dir}")
   }
   invisible(TRUE)
 }

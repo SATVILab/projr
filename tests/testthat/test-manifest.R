@@ -20,15 +20,15 @@ test_that(".manifest_hash_label works", {
       expect_identical(manifest$hash, "")
 
       # test hashing non-empty directories
-      path_dir <- .test_setup_content("output", safe = FALSE)
+      path_dir <- .test_content_setup_label("output", safe = FALSE)
       manifest <- .manifest_hash_label("output", TRUE)
-      expect_identical(nrow(manifest), 3L)
+      expect_identical(nrow(manifest), 4L)
       expect_identical(length(unique(manifest$hash)), 1L)
 
       # test hashing non-empty directories - non-output run
-      path_dir <- .test_setup_content("output", safe = TRUE)
+      path_dir <- .test_content_setup_label("output", safe = TRUE)
       manifest <- .manifest_hash_label("output", FALSE)
-      expect_identical(nrow(manifest), 3L)
+      expect_identical(nrow(manifest), 4L)
       expect_identical(length(unique(manifest$hash)), 1L)
     }
   )
@@ -50,7 +50,7 @@ test_that(".build_manifest_* works", {
         .dir_rm(projr_path_get_dir(x, safe = TRUE, create = FALSE))
         projr_path_get_dir(x, safe = TRUE, create = TRUE)
       }
-      .test_setup_content("output", safe = TRUE)
+      .test_content_setup_label("output", safe = TRUE)
       expect_false(.build_manifest_pre(FALSE))
       path_manifest <- .build_manifest_pre(TRUE)
       manifest <- .manifest_read(path_manifest)
@@ -58,7 +58,7 @@ test_that(".build_manifest_* works", {
       expect_identical(nrow(manifest), 1L)
 
       # content, but ignore cache by default
-      invisible(.test_setup_content(label_vec, safe = TRUE))
+      invisible(.test_content_setup_label(label_vec, safe = TRUE))
       expect_false(.build_manifest_pre(FALSE))
       path_manifest <- .build_manifest_pre(TRUE)
       manifest <- .manifest_read(path_manifest)
@@ -66,7 +66,7 @@ test_that(".build_manifest_* works", {
 
       # content, but now explicitly version cache
       .yml_dir_nm_set_hash(TRUE, "cache", "default")
-      invisible(.test_setup_content(label_vec, safe = TRUE))
+      invisible(.test_content_setup_label(label_vec, safe = TRUE))
       path_manifest <- .build_manifest_pre(TRUE)
       manifest <- .manifest_read(path_manifest)
       expect_identical(nrow(manifest), 6L)
@@ -79,14 +79,14 @@ test_that(".build_manifest_* works", {
       expect_identical(nrow(.manifest_read(path_manifest)), 8L)
 
       # now add output content
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       path_manifest <- .build_manifest_post(TRUE)
       # Pre (6 duplicates of previous) + output (3) + empty docs (1 duplicate) + prev (8) 
       # After dedup: prev (8) + output (3) = 11
       expect_identical(nrow(.manifest_read(path_manifest)), 11L)
 
       # now add doc content
-      .test_setup_content("docs", safe = FALSE)
+      .test_content_setup_label("docs", safe = FALSE)
       path_manifest <- .build_manifest_post(TRUE)
       # Pre (6 duplicates) + output (3 duplicates) + docs (3) + prev (11)
       # After dedup: prev (11) + docs (3) = 14
@@ -115,8 +115,8 @@ test_that("manifest tracks changes across multiple builds", {
       initial_version <- projr_version_get()
       
       # Setup: Create initial content in raw-data and output
-      .test_setup_content("raw-data", safe = FALSE)
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("raw-data", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       
       # First build - with initial version
       .build_manifest_pre(TRUE)

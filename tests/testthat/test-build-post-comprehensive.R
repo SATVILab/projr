@@ -266,7 +266,7 @@ test_that(".build_clear_post with clear_output = 'never' does not clear", {
       file.create(projr_path_get("output", "test.txt", safe = FALSE))
       
       # Clear with "never"
-      .build_clear_post(output_run = TRUE, clear_output = "never")
+      .build_clear_post_safe(output_run = TRUE, clear_output = "never")
       
       # File should still exist
       expect_true(file.exists(projr_path_get("output", "test.txt", safe = FALSE)))
@@ -286,7 +286,7 @@ test_that(".build_clear_post with clear_output = 'post' clears output dirs", {
       file.create(projr_path_get("output", "test.txt", safe = FALSE))
       
       # Clear with "post"
-      .build_clear_post(output_run = TRUE, clear_output = "post")
+      .build_clear_post_safe(output_run = TRUE, clear_output = "post")
       
       # Directory should exist but be empty
       expect_true(dir.exists(projr_path_get_dir("output", safe = FALSE)))
@@ -317,7 +317,7 @@ test_that(".build_clear_post_docs clears for quarto_document engine", {
       file.create("docs/test.html")
       
       # Clear docs in output mode
-      .build_clear_post_docs(output_run = TRUE)
+      .build_clear_post_safe_docs(output_run = TRUE)
       
       # For quarto_document, docs should be cleared
       if (.engine_get() == "quarto_document") {
@@ -700,7 +700,7 @@ test_that(".build_clear_post_docs clears docs for rmd engine", {
       file.create("docs/old.html")
       
       # Clear docs in output mode (should clear for rmd engine)
-      .build_clear_post_docs(output_run = TRUE)
+      .build_clear_post_safe_docs(output_run = TRUE)
       
       # Check that docs was cleared
       expect_false(file.exists("docs/test.html"))
@@ -734,7 +734,7 @@ test_that(".build_clear_post_docs does not clear for bookdown engine", {
       file.create("_book/index.html")
       
       # Clear docs in output mode (should NOT clear for bookdown)
-      result <- .build_clear_post_docs(output_run = TRUE)
+      result <- .build_clear_post_safe_docs(output_run = TRUE)
       
       # Should return FALSE (no clearing happened)
       expect_false(result)

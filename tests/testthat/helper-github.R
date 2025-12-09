@@ -395,7 +395,12 @@
   }
   # Delete all confirmed repos
   for (repo in name_vec) {
-    .test_remote_host_rm_github(host = c("repo" = repo))
+    .test_remote_host_rm_github(
+      host = list(
+        user = user,
+        repo = repo
+      )
+    )
   }
 }
 

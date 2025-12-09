@@ -137,11 +137,21 @@
 }
 
 .buildlog_get_session_info <- function() {
+  session_info_txt <- tryCatch(
+    {
+      suppressWarnings(utils::capture.output(
+        utils::sessionInfo()
+      ))
+    },
+    error = function(e) {
+      c("Unable to capture session info")
+    }
+  )
   c(
     "**Session info**",
     "",
     "```",
-    utils::capture.output(utils::sessionInfo()),
+    session_info_txt,
     "```",
     ""
   )

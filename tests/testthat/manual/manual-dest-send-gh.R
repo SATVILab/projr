@@ -214,7 +214,7 @@ usethis::with_project(
     ))
     path_dir_save <- .dir_get_tmp_random_path()
     dir.create(path_dir_save, recursive = TRUE, showWarnings = FALSE)
-    .remote_file_get_ind_github(
+    .remote_file_get_github(
       remote_pre_latest, "raw-data-empty", path_dir_save
     )
     expect_true(file.exists(file.path(path_dir_save, "projr-empty")))
@@ -229,7 +229,7 @@ usethis::with_project(
     ))
     path_dir_save <- .dir_get_tmp_random_path()
     dir.create(path_dir_save, recursive = TRUE, showWarnings = FALSE)
-    .remote_file_get_ind_github(
+    .remote_file_get_github(
       remote_pre_latest, "raw-data-empty", path_dir_save
     )
     unlink(path_dir_save, recursive = TRUE)
@@ -245,7 +245,7 @@ usethis::with_project(
     ))
     path_dir_save <- .dir_get_tmp_random_path()
     dir.create(path_dir_save, recursive = TRUE, showWarnings = FALSE)
-    .remote_file_get_ind_github(
+    .remote_file_get_github(
       remote_pre_latest, "raw-data", path_dir_save
     )
 
@@ -299,7 +299,7 @@ usethis::with_project(
     ))
     path_dir_save <- .dir_get_tmp_random_path()
     dir.create(path_dir_save, recursive = TRUE, showWarnings = FALSE)
-    .remote_file_get_ind_github(
+    .remote_file_get_github(
       remote_pre_archive, "raw-data-v0.0.1-empty", path_dir_save
     )
     expect_true(file.exists(file.path(path_dir_save, "projr-empty")))

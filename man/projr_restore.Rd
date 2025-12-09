@@ -4,6 +4,7 @@
 \alias{projr_restore_repo}
 \alias{projr_restore_repo_wd}
 \alias{projr_restore}
+\alias{projr_content_update}
 \title{Restore project artefact directories}
 \usage{
 projr_restore_repo(
@@ -23,7 +24,13 @@ projr_restore_repo_wd(
   title = NULL
 )
 
-projr_restore(label = NULL, pos = NULL, type = NULL, title = NULL)
+projr_content_update(
+  label = NULL,
+  pos = NULL,
+  type = NULL,
+  title = NULL,
+  clear = FALSE
+)
 }
 \arguments{
 \item{repo}{character. GitHub repository (\code{"owner/repo"} or \code{"repo"}).
@@ -49,22 +56,25 @@ Must be NULL or one of the valid remote types.}
 \item{title}{character or NULL. Remote title as specified in \verb{_projr.yml}.
 Default is \code{NULL}, using the first available title for the selected type.
 Must be NULL or a single non-empty character string.}
+
+\item{clear}{logical. If \code{TRUE}, clears existing local artefact directories
+before restoration. Default is \code{FALSE}.}
 }
 \value{
 Invisibly returns \code{TRUE} if all restorations are successful, \code{FALSE} otherwise.
-For \code{projr_restore()}, returns \code{FALSE} if no labels are found to restore or if any
+For \code{projr_content_update()}, returns \code{FALSE} if no labels are found to restore or if any
 restoration fails. For \code{projr_restore_repo()}, returns \code{FALSE} if cloning or
 restoration fails.
 }
 \description{
-Use \code{projr_restore()} to restore all artefacts needed for the current project.
+Use \code{projr_content_update()} to restore all artefacts needed for the current project.
 If the project isn't available locally yet,
 \code{projr_restore_repo()} will clone it and then restore its artefacts.
 }
 \details{
 These functions restore artefact directories from remote sources:
 \itemize{
-\item \code{projr_restore()} restores artefacts in an existing local project without any cloning required.
+\item \code{projr_content_update()} restores artefacts in an existing local project without any cloning required.
 Requires a \code{manifest.csv} file in the project root.
 \item \code{projr_restore_repo()} clones a GitHub repository into a subdirectory (or specified path),
 then restores artefacts from that repository's remote sources.
@@ -94,13 +104,13 @@ The functions handle errors gracefully:
 \examples{
 \dontrun{
   # Restore all raw artefacts in existing local project
-  projr_restore()
+  projr_content_update()
 
   # Restore specific labels
-  projr_restore(label = c("raw-data", "cache"))
+  projr_content_update(label = c("raw-data", "cache"))
 
   # Restore from specific source type
-  projr_restore(type = "local", title = "archive")
+  projr_content_update(type = "local", title = "archive")
 
   # Clone repository into subdirectory and restore artefacts
   projr_restore_repo("owner/repo")

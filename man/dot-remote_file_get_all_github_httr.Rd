@@ -12,14 +12,15 @@
   api_url = NULL,
   token = NULL,
   overwrite = TRUE,
-  output_level = "std",
-  log_file = NULL
+  output_level = "std"
 )
 }
 \arguments{
 \item{repo}{Character string. Repository in format "owner/repo".}
 
 \item{tag}{Character string. Release tag.}
+
+\item{fn}{Character string. Asset filename to download.}
 
 \item{dest_dir}{Character string. Local directory to save assets into.
 Created if it does not exist.}
@@ -32,8 +33,6 @@ Created if it does not exist.}
 \item{overwrite}{Logical. If FALSE, existing files are left untouched.}
 
 \item{output_level}{Character. Verbosity control passed to \code{.cli_debug()}.}
-
-\item{log_file}{Optional log file path for \code{.cli_debug()}.}
 }
 \value{
 Character vector of downloaded file paths (invisibly).

@@ -96,7 +96,7 @@ projr_restore_repo <- function(repo,
       .restore_repo_labels(path, label, pos, type, .title)
     },
     error = function(e) {
-      message("Error in projr_restore_repo: ", e$message)
+      .cli_info("Error in projr_restore_repo: {e$message}")
       return(FALSE)
     }
   )
@@ -123,6 +123,6 @@ projr_restore_repo_wd <- function(repo,
     on.exit(setwd(orig_wd), add = TRUE)
     setwd(path)
   }
-  projr_restore(label, pos, type, .title)
+  projr_content_update(label, pos, type, .title)
   invisible(TRUE)
 }

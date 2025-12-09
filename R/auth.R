@@ -194,14 +194,14 @@
 #' @export
 #' @rdname instr_auth
 projr_instr_auth_github <- function() {
-  message(.auth_get_github_pat_instr())
+  .cli_info(.auth_get_github_pat_instr())
 }
 
 #' @title Authorisation instructions
 #' @export
 #' @rdname instr_auth
 projr_instr_auth_osf <- function() {
-  message(.auth_get_osf_pat_instr())
+  .cli_info(.auth_get_osf_pat_instr())
 }
 
 # auth check functions (throw errors if auth is missing)

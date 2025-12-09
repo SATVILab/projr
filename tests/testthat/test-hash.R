@@ -16,7 +16,7 @@ test_that("projr_hash_dir works", {
       expect_identical(nrow(hash_tbl), 0L)
 
       # test hashing non-empty directories
-      path_dir <- .test_setup_content_dir()
+      path_dir <- .test_content_setup_dir()
       hash_tbl <- .hash_dir(path_dir)
       expect_identical(nrow(hash_tbl), 4L)
       expect_identical(length(unique(hash_tbl$hash)), 1L)
@@ -146,7 +146,7 @@ test_that(".hash_dir works with nested directories", {
     path = dir_test,
     code = {
       # Use test helper to create nested structure
-      path_dir <- .test_setup_content_dir(dir_sub_lvl = 2)
+      path_dir <- .test_content_setup_dir(dir_sub_lvl = 2)
       
       # Hash the directory
       hash_tbl <- .hash_dir(path_dir)

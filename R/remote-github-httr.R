@@ -84,8 +84,7 @@
   if (length(assets) == 0L) {
     return(FALSE)
   }
-  asset_names <- vapply(assets, function(x) x[["name"]], character(1))
-  asset %in% asset_names
+  asset %in% assets
 }
 
 # ========================
@@ -301,7 +300,7 @@
 #'
 #' @return Logical. TRUE if successful.
 #' @keywords internal
-.remote_final_empty_github_httr <- function(
+.remote_final_rm_github_httr <- function(
   repo,
   tag,
   fn,
@@ -309,7 +308,7 @@
   token = NULL
 ) {
   if (!requireNamespace("httr", quietly = TRUE)) {
-    stop("httr is required for .remote_final_empty_github_httr(); please install it.")
+    stop("httr is required for .remote_final_rm_github_httr(); please install it.")
   }
   if (length(fn) != 1L) {
     stop("Expected exactly one fn to delete, got ", length(fn), call. = FALSE)
@@ -359,6 +358,7 @@
 #'
 #' @param repo Character string. Repository in format "owner/repo".
 #' @param tag Character string. Release tag.
+#' @param fn Character string. Asset filename to download.
 #' @param dest_dir Character string. Local directory to save assets into.
 #'   Created if it does not exist.
 #' @param api_url Character string. Optional GitHub API URL.
@@ -366,7 +366,6 @@
 #'   `.auth_get_github_pat_find()` is used.
 #' @param overwrite Logical. If FALSE, existing files are left untouched.
 #' @param output_level Character. Verbosity control passed to `.cli_debug()`.
-#' @param log_file Optional log file path for `.cli_debug()`.
 #'
 #' @return Character vector of downloaded file paths (invisibly).
 #' @keywords internal
@@ -378,8 +377,7 @@
   api_url      = NULL,
   token        = NULL,
   overwrite    = TRUE,
-  output_level = "std",
-  log_file     = NULL
+  output_level = "std"
 ) {
   if (!requireNamespace("httr", quietly = TRUE)) {
     stop("httr is required for .remote_file_get_all_github_httr(); please install it.")
@@ -397,12 +395,11 @@
   if (length(asset) == 0L) {
     .cli_debug(
       "GitHub release: No assets found in release '{tag}' for repo '{repo}'",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     return(invisible(character()))
   }
-  
+
   # Ensure destination directory exists
   if (!dir.exists(dest_dir)) {
     dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
@@ -425,8 +422,7 @@
   if (!overwrite && file.exists(dest_file)) {
     .cli_debug(
       "GitHub release: Skipping existing asset '{asset_name}' in '{dest_file}'",
-      output_level = output_level,
-      log_file = log_file
+      output_level = output_level
     )
     downloaded <- c(downloaded, dest_file)
     next
@@ -434,8 +430,7 @@
 
   .cli_debug(
     "GitHub release: Downloading asset '{asset_name}' from tag '{tag}' to '{dest_file}'",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   resp <- httr::GET(
@@ -458,8 +453,7 @@
 
   .cli_debug(
     "GitHub release: Downloaded {length(downloaded)} asset(s) from tag '{tag}'",
-    output_level = output_level,
-    log_file = log_file
+    output_level = output_level
   )
 
   invisible(downloaded)
@@ -532,7 +526,7 @@
         asset_name = asset_name,
         tag = tag
       )
-      .remote_final_empty_github_httr(repo = repo, tag = tag, fn = asset_name, api_url = api_url, token = token)
+      .remote_final_rm_github_httr(repo = repo, tag = tag, fn = asset_name, api_url = api_url, token = token)
     } else {
       stop(
         "Asset '", asset_name, "' already exists in release '", tag,
@@ -607,10 +601,6 @@
     stop("Failed to upload asset: HTTP ", status, " (url: ", upload_url, ")", call. = FALSE)
   }
 }
-
-# ========================
-# Download all files
-# ========================
 
 # ========================
 # Miscellaneous

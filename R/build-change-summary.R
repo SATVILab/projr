@@ -245,10 +245,9 @@
 #'
 #' @param bump_component Character. Version bump component.
 #' @param output_level Character. Current output level.
-#' @param log_file Character. Path to log file (optional).
 #'
 #' @keywords internal
-.build_change_summary_display <- function(bump_component, output_level = "std", log_file = NULL) {
+.build_change_summary_display <- function(bump_component, output_level = "std") {
   output_run <- .build_get_output_run(bump_component)
 
   # Only display for output builds
@@ -259,15 +258,15 @@
   summary_info <- .build_change_summary_get_debug(output_run)
 
   if (!summary_info$has_changes || is.null(summary_info$message)) {
-    .cli_debug("No changes detected since previous build", output_level = output_level, log_file = log_file)
+    .cli_debug("No changes detected since previous build", output_level = output_level)
     return(invisible(NULL))
   }
 
   # Display each line of the summary
   for (line in summary_info$message) {
     # Skip empty lines in console output but keep in log
-    if (nzchar(line) || !is.null(log_file)) {
-      .cli_debug(line, output_level = output_level, log_file = log_file)
+    if (nzchar(line)) {
+      .cli_debug(line, output_level = output_level)
     }
   }
 

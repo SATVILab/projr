@@ -6,7 +6,7 @@ test_that(".change_get_manifest works", {
     path = dir_test,
     code = {
       projr_version_set("0.0.1")
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_post(TRUE) |> invisible()
 
       # only one version
@@ -68,7 +68,7 @@ test_that(".change_get_manifest works", {
       # added category, three versions
       # ------------------------------
       .version_bump_patch() |> invisible()
-      .test_setup_content("raw-data")
+      .test_content_setup_label("raw-data")
       .build_manifest_pre(TRUE) |> invisible()
       .build_manifest_post(TRUE) |> invisible()
       expect_true(
@@ -110,7 +110,7 @@ test_that(".change_get_file works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      path_pre <- .test_setup_content_dir()
+      path_pre <- .test_content_setup_dir()
       path_post <- .test_dir_create_random()
       change_list <- .change_get_file(
         type_pre = "local",
@@ -150,7 +150,7 @@ test_that(".change_get works for files", {
 
       # add something
       .version_bump_minor()
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_post(TRUE) |> invisible()
       change_list <- .change_get(
         label = "output",
@@ -164,7 +164,7 @@ test_that(".change_get works for files", {
       expect_identical(length(change_list[["fn_same"]]), 0L)
       expect_identical(length(change_list[["fn_dest_extra"]]), 0L)
       expect_identical(length(change_list[["fn_diff"]]), 0L)
-      expect_identical(length(change_list[["fn_source_extra"]]), 3L)
+      expect_identical(length(change_list[["fn_source_extra"]]), 4L)
       change_list <- .change_get(
         label = "output",
         output_run = TRUE,
@@ -177,7 +177,7 @@ test_that(".change_get works for files", {
       expect_identical(length(change_list[["fn_same"]]), 0L)
       expect_identical(length(change_list[["fn_dest_extra"]]), 0L)
       expect_identical(length(change_list[["fn_diff"]]), 0L)
-      expect_identical(length(change_list[["fn_source_extra"]]), 3L)
+      expect_identical(length(change_list[["fn_source_extra"]]), 4L)
 
       # remove and change
       .version_bump_major()
@@ -195,7 +195,7 @@ test_that(".change_get works for files", {
       )
 
       expect_identical(length(change_list), 4L)
-      expect_identical(length(change_list[["fn_same"]]), 1L)
+      expect_identical(length(change_list[["fn_same"]]), 2L)
       expect_identical(length(change_list[["fn_dest_extra"]]), 1L)
       expect_identical(length(change_list[["fn_diff"]]), 1L)
       expect_identical(length(change_list[["fn_source_extra"]]), 0L)

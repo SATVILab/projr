@@ -52,6 +52,8 @@ renv::snapshot()
 
 ## Testing During Development
 
+### General Testing (Recommended)
+
 Use LITE mode by default for faster testing:
 
 ```r
@@ -60,7 +62,26 @@ devtools::load_all()
 devtools::test()
 ```
 
-Use FULL mode only when:
+### Debugging Specific Test Failures
+
+When debugging a specific test issue, turn off LITE mode and use SELECT mode:
+
+```r
+devtools::load_all()
+.test_unset_lite()       # Ensure relevant tests will run
+.test_set_select()       # Skip most tests
+
+# Edit test file(s): comment out skip_if(.is_test_select()) in tests you want to debug
+devtools::test()         # Run only selected tests
+
+# When done debugging:
+.test_unset_select()     # Re-enable skipped tests
+# Restore skip_if(.is_test_select()) lines in test files
+```
+
+### Full Mode Testing
+
+Use FULL mode (no test mode set) only when:
 - Preparing for a release or major version bump
 - Explicitly requested by the issue or PR
 - Working on comprehensive parameter combination testing

@@ -8,7 +8,7 @@ test_that("projr_manifest_changes works", {
       initial_version <- projr_version_get()
       
       # Create initial files
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_pre(TRUE)
       .build_manifest_post(TRUE)
       
@@ -83,7 +83,7 @@ test_that("projr_manifest_range works", {
       initial_version <- projr_version_get()
       
       # Create files across multiple versions
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_pre(TRUE)
       .build_manifest_post(TRUE)
       
@@ -138,7 +138,7 @@ test_that("projr_manifest_last_change works", {
       initial_version <- projr_version_get()
       
       # Create files in multiple directories
-      .test_setup_content(c("output", "raw-data"), safe = FALSE)
+      .test_content_setup_label(c("output", "raw-data"), safe = FALSE)
       .build_manifest_pre(TRUE)
       .build_manifest_post(TRUE)
       
@@ -202,7 +202,7 @@ test_that("manifest query functions handle edge cases", {
       expect_identical(nrow(empty_last), 0L)
       
       # Create a single version
-      .test_setup_content("output", safe = FALSE)
+      .test_content_setup_label("output", safe = FALSE)
       .build_manifest_pre(TRUE)
       .build_manifest_post(TRUE)
       

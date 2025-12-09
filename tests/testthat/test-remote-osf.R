@@ -139,7 +139,7 @@ test_that("adding, listing and removing files works for OSF", {
       )
 
       # Add content
-      path_dir_source <- .test_setup_content_dir()
+      path_dir_source <- .test_content_setup_dir()
       fn_vec_source <- .remote_file_ls("local", path_dir_source)
       .remote_file_add(
         "osf",
@@ -271,7 +271,7 @@ test_that(".remote_final_rm_if_empty works for OSF", {
 
       # Test with node (not sub-dir) - should return FALSE
       expect_false(
-        .remote_final_rm_if_empty("osf", remote = osf_tbl, structure = "archive")
+        .remote_final_rm_if_empty("osf", remote = osf_tbl)
       )
 
       # Create sub-directory
@@ -282,7 +282,7 @@ test_that(".remote_final_rm_if_empty works for OSF", {
 
       # Remove empty sub-directory - should return TRUE
       expect_true(
-        .remote_final_rm_if_empty("osf", remote = osf_tbl_file, structure = "archive")
+        .remote_final_rm_if_empty("osf", remote = osf_tbl_file)
       )
 
       # Wait for removal
@@ -308,7 +308,7 @@ test_that(".remote_final_rm_if_empty works for OSF", {
 
       # Try to remove non-empty sub-directory - should return FALSE
       expect_false(
-        .remote_final_rm_if_empty("osf", remote = osf_tbl_file, structure = "archive")
+        .remote_final_rm_if_empty("osf", remote = osf_tbl_file)
       )
       expect_identical(nrow(.osf_ls_files(osf_tbl)), 1L)
     }
