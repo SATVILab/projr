@@ -104,10 +104,58 @@
     pre = pre,
     empty = empty
   )
-  # create this, as we create the OSF sub-directory
-  # if specified. Needs to be automated
-  # due to versioning
-  .remote_create("local", path_dir)
+  # Don't automatically create directory here - it will be created when files
+  # are actually written via .remote_file_add() -> .dir_copy_file().
+  # This prevents creating both empty and full remotes when only checking
+  # for existence.
+  path_dir
+}
+
+# ========================
+# Create empty remote directory marker
+# ========================
+
+.remote_final_empty_get_local <- function(path,
+                                          path_append_label,
+                                          label,
+                                          structure,
+                                          version = NULL,
+                                          output_level = "std") {
+  # Get the path for the empty remote
+  remote_empty <- .remote_final_get_local(
+    path = path,
+    label = label,
+    structure = structure,
+    path_append_label = path_append_label,
+    version = version,
+    pre = FALSE,
+    empty = TRUE
+  )
+  
+  .cli_debug(
+    "remote_final_empty_get_local: Creating empty at '{path}'",
+    path = remote_empty,
+    output_level = output_level
+  )
+  
+  # Check if it already exists
+  if (dir.exists(remote_empty)) {
+    .cli_debug(
+      "remote_final_empty_get_local: Already exists at '{path}'",
+      path = remote_empty,
+      output_level = output_level
+    )
+    return(remote_empty)
+  }
+  
+  # Create the empty directory as a marker (like GitHub creates projr-empty file)
+  .dir_create(remote_empty)
+  .cli_debug(
+    "remote_final_empty_get_local: Created empty directory at '{path}'",
+    path = remote_empty,
+    output_level = output_level
+  )
+  remote_empty
 }
 
 # ========================
@@ -125,13 +173,22 @@
     )
     return(invisible(FALSE))
   }
-  if (.is_len_pos(list.files(remote))) {
+  # Check for FILES only (not directories) - empty directories don't count
+  all_entries <- list.files(remote, full.names = TRUE, recursive = TRUE, all.files = TRUE)
+  files_only <- all_entries[!dir.exists(all_entries)]
+  
+  if (.is_len_pos(files_only)) {
     .cli_debug(
-      "Local remote: Directory '{remote}' is not empty, not removing, returning FALSE",
+      "Local remote: Directory '{remote}' has {num_files} file(s), not removing, returning FALSE",
+      num_files = length(files_only),
       output_level = output_level
     )
     return(invisible(FALSE))
   }
+  .cli_debug(
+    "Local remote: Directory '{remote}' is empty (no files), removing it",
+    output_level = output_level
+  )
   .remote_final_rm_local(remote, output_level)
   invisible(TRUE)
 }
@@ -310,6 +367,12 @@
   .assert_string(path_dir_local, TRUE)
   .assert_path_not_file(path_dir_local)
   .assert_string(remote, TRUE)
+  
+  # This will create the directory if it doesn't exist
+  .cli_debug(
+    "Local remote: Calling .dir_copy_file to copy files",
+    output_level = output_level
+  )
   .dir_copy_file(
     fn = fn,
     path_dir_from = path_dir_local,

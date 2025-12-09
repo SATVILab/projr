@@ -553,6 +553,8 @@
   }
   if (type != "github") {
     fn <- vapply(fn, .version_v_rm, character(1L))
+    # Strip -empty suffix for local/osf remotes (not needed for GitHub .zip files)
+    fn <- gsub("-empty$", "", fn)
     return(fn |> package_version() |> max())
   }
   fn <- .remote_version_latest_filter(fn, type, label)

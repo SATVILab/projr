@@ -302,18 +302,27 @@
                                     structure,
                                     path = NULL,
                                     path_append_label = TRUE,
-                                    version = NULL) {
+                                    version = NULL,
+                                    output_level = "std") {
+  .cli_debug(
+    "remote_final_empty_get: type={type}, label={label}, structure={structure}, version={version}",
+    type = type,
+    label = label,
+    structure = structure,
+    version = version,
+    output_level = output_level
+  )
+  
   # pre: "one up" from the final remote, e.g. the directory
   # above for hierarchical. Does not apply to flat.
   switch(type,
-    "local" = .remote_final_get_local(
+    "local" = .remote_final_empty_get_local(
       path = id,
       label = label,
       structure = structure,
       path_append_label = path_append_label,
       version = version,
-      pre = FALSE,
-      empty = TRUE
+      output_level = output_level
     ),
     "osf" = .remote_final_get_osf(
       id = id,
@@ -879,13 +888,18 @@
   .assert_in(type, .opt_remote_get_type(), TRUE)
 
   .cli_debug(
-    "Remote file add: type={type}, adding {length(fn)} file(s) from {path_dir_local}",
+    "Remote file add: type={type}, adding {num_files} file(s) from '{path}' to remote='{remote}'",
+    type = type,
+    num_files = length(fn),
+    path = path_dir_local,
+    remote = remote,
     output_level = output_level
   )
 
   switch(type,
     "local" = .remote_file_add_local(
-      fn = fn, path_dir_local = path_dir_local, remote = remote
+      fn = fn, path_dir_local = path_dir_local, remote = remote,
+      output_level = output_level
     ),
     "osf" = .remote_file_add_osf(
       fn = fn, path_dir_local = path_dir_local, remote = remote
