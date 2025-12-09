@@ -366,7 +366,7 @@
   )
   for (x in label) {
     .test_content_setup_dir(
-      path_dir = path_vec,
+      path_dir = x,
       dir_sub_lvl = dir_sub_lvl,
       dir_sub_prefix = dir_sub_prefix
     )
