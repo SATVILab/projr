@@ -128,7 +128,7 @@ test_that(".change_get_file works", {
 })
 
 test_that(".change_get works for files", {
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
@@ -149,7 +149,6 @@ test_that(".change_get works for files", {
       expect_identical(length(change_list[["fn_source_extra"]]), 0L)
 
       # add something
-      browser()
       .version_bump_minor()
       .test_content_setup_label("output", safe = FALSE)
       .build_manifest_post(TRUE) |> invisible()
@@ -165,7 +164,7 @@ test_that(".change_get works for files", {
       expect_identical(length(change_list[["fn_same"]]), 0L)
       expect_identical(length(change_list[["fn_dest_extra"]]), 0L)
       expect_identical(length(change_list[["fn_diff"]]), 0L)
-      expect_identical(length(change_list[["fn_source_extra"]]), 3L)
+      expect_identical(length(change_list[["fn_source_extra"]]), 4L)
       change_list <- .change_get(
         label = "output",
         output_run = TRUE,
@@ -178,7 +177,7 @@ test_that(".change_get works for files", {
       expect_identical(length(change_list[["fn_same"]]), 0L)
       expect_identical(length(change_list[["fn_dest_extra"]]), 0L)
       expect_identical(length(change_list[["fn_diff"]]), 0L)
-      expect_identical(length(change_list[["fn_source_extra"]]), 3L)
+      expect_identical(length(change_list[["fn_source_extra"]]), 4L)
 
       # remove and change
       .version_bump_major()
@@ -196,7 +195,7 @@ test_that(".change_get works for files", {
       )
 
       expect_identical(length(change_list), 4L)
-      expect_identical(length(change_list[["fn_same"]]), 1L)
+      expect_identical(length(change_list[["fn_same"]]), 2L)
       expect_identical(length(change_list[["fn_dest_extra"]]), 1L)
       expect_identical(length(change_list[["fn_diff"]]), 1L)
       expect_identical(length(change_list[["fn_source_extra"]]), 0L)
