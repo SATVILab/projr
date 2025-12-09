@@ -62,35 +62,35 @@ test_that(".build_manifest_* works", {
       expect_false(.build_manifest_pre(FALSE))
       path_manifest <- .build_manifest_pre(TRUE)
       manifest <- .manifest_read(path_manifest)
-      expect_identical(nrow(manifest), 3L)
+      expect_identical(nrow(manifest), 4L)
 
       # content, but now explicitly version cache
       .yml_dir_nm_set_hash(TRUE, "cache", "default")
       invisible(.test_content_setup_label(label_vec, safe = TRUE))
       path_manifest <- .build_manifest_pre(TRUE)
       manifest <- .manifest_read(path_manifest)
-      expect_identical(nrow(manifest), 6L)
+      expect_identical(nrow(manifest), 8L)
 
       # post
       # --------------------------
       expect_false(.build_manifest_post(FALSE))
       path_manifest <- .build_manifest_post(TRUE)
-      # Pre (6) + empty docs (1) + empty output (1) = 8
-      expect_identical(nrow(.manifest_read(path_manifest)), 8L)
+      # Pre (8) + empty docs (1) + output with 1 empty marker (1) = 10
+      expect_identical(nrow(.manifest_read(path_manifest)), 10L)
 
       # now add output content
       .test_content_setup_label("output", safe = FALSE)
       path_manifest <- .build_manifest_post(TRUE)
-      # Pre (6 duplicates of previous) + output (3) + empty docs (1 duplicate) + prev (8) 
-      # After dedup: prev (8) + output (3) = 11
-      expect_identical(nrow(.manifest_read(path_manifest)), 11L)
+      # Pre (8 duplicates of previous) + output (4 files + 1 hidden) + empty docs (1 duplicate) + prev (10) 
+      # After dedup: prev (10) + output (4 new files) = 14
+      expect_identical(nrow(.manifest_read(path_manifest)), 14L)
 
       # now add doc content
       .test_content_setup_label("docs", safe = FALSE)
       path_manifest <- .build_manifest_post(TRUE)
-      # Pre (6 duplicates) + output (3 duplicates) + docs (3) + prev (11)
-      # After dedup: prev (11) + docs (3) = 14
-      expect_identical(nrow(.manifest_read(path_manifest)), 14L)
+      # Pre (8 duplicates) + output (4 duplicates) + docs (4 files + 1 hidden) + prev (14)
+      # After dedup: prev (14) + docs (4 new files) = 18
+      expect_identical(nrow(.manifest_read(path_manifest)), 18L)
 
       # return table with empty directories
       invisible(.file_rm(.build_manifest_pre_path_get()))
