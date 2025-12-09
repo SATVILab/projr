@@ -116,27 +116,31 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   github_pkgs <- pkg_vec[grepl("^\\w+/\\w+", gsub("\\.", "", pkg_vec))]
   cran_pkgs <- setdiff(pkg_vec, github_pkgs)
   
-  cmds <- character(0)
+  # Pre-allocate with maximum possible size
+  cmds <- character(as.integer(length(cran_pkgs) > 0) + length(github_pkgs))
+  cmd_idx <- 0
   
   if (length(cran_pkgs) > 0) {
+    cmd_idx <- cmd_idx + 1
     if (length(cran_pkgs) == 1) {
-      cmds <- c(cmds, paste0("install.packages(\"", cran_pkgs, "\")"))
+      cmds[cmd_idx] <- paste0("install.packages(\"", cran_pkgs, "\")")
     } else {
-      cmds <- c(cmds, paste0(
+      cmds[cmd_idx] <- paste0(
         "install.packages(c(\"",
         paste(cran_pkgs, collapse = "\", \""),
         "\"))"
-      ))
+      )
     }
   }
   
   if (length(github_pkgs) > 0) {
-    for (pkg in github_pkgs) {
-      cmds <- c(cmds, paste0("remotes::install_github(\"", pkg, "\")"))
-    }
+    # Vectorize the GitHub package command construction
+    github_cmds <- paste0("remotes::install_github(\"", github_pkgs, "\")")
+    cmds[(cmd_idx + 1):(cmd_idx + length(github_pkgs))] <- github_cmds
+    cmd_idx <- cmd_idx + length(github_pkgs)
   }
   
-  cmds
+  cmds[seq_len(cmd_idx)]
 }
 
 .dep_install_only_rscript <- function(dep) {

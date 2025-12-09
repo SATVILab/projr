@@ -97,12 +97,13 @@
 }
 
 .build_copy_pkg_get_label <- function() {
+  # sapply needed here as function can return character() (length 0)
   sapply(
     .yml_dir_get_label_output(NULL),
     .yml_dir_get_pkg_complete,
-    profile = NULL
-  ) |>
-    stats::setNames(NULL)
+    profile = NULL,
+    USE.NAMES = FALSE
+  )
 }
 
 .build_copy_pkg_build <- function() {

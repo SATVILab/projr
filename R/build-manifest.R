@@ -54,10 +54,22 @@
   if (!output_run) {
     return(invisible(FALSE))
   }
-  .build_manifest_pre_read() |>
-    rbind(.build_manifest_post_get_manifest(output_run)) |>
-    rbind(.build_manifest_post_get_manifest_previous_version()) |>
-    .manifest_write(.build_manifest_post_get_path(output_run))
+  # Combine all manifests at once for better performance
+  manifest_parts <- list(
+    .build_manifest_pre_read(),
+    .build_manifest_post_get_manifest(output_run),
+    .build_manifest_post_get_manifest_previous_version()
+  )
+  # Filter out empty manifests
+  manifest_parts <- Filter(function(x) nrow(x) > 0, manifest_parts)
+  if (length(manifest_parts) == 0) {
+    combined_manifest <- .zero_tbl_get_manifest()
+  } else if (length(manifest_parts) == 1) {
+    combined_manifest <- manifest_parts[[1]]
+  } else {
+    combined_manifest <- do.call(rbind, manifest_parts)
+  }
+  .manifest_write(combined_manifest, .build_manifest_post_get_path(output_run))
 }
 
 .build_manifest_pre_read <- function() {
@@ -86,7 +98,14 @@
   if (.is_len(manifest_list, 1L)) {
     return(manifest_list[[1]])
   }
-  Reduce(rbind, manifest_list)
+  # Filter out empty manifests and use do.call for better performance
+  manifest_list <- Filter(function(x) nrow(x) > 0, manifest_list)
+  if (length(manifest_list) == 0) {
+    return(.zero_tbl_get_manifest())
+  } else if (length(manifest_list) == 1) {
+    return(manifest_list[[1]])
+  }
+  do.call(rbind, manifest_list)
 }
 
 .build_manifest_post_get_label <- function() {
