@@ -558,11 +558,11 @@ projr_build_dev <- function(file = NULL,
                                            clear_output,
                                            output_level = "std") {
   output_run <- .build_get_output_run(bump_component)
-  .cli_debug("Clearing output directories (if needed)", output_level = output_level)
-  .build_clear_post(output_run, clear_output)
+  .cli_debug("Clearing safe directories (if needed)", output_level = output_level)
+  .build_clear_post_safe(output_run, clear_output)
 
   # copy outputs to (final) output and data directories
-  .cli_debug("Copying outputs to final directories", output_level = output_level)
+  .cli_debug("Copying outputs and docs to final directories", output_level = output_level)
   .build_copy(output_run, bump_component, version_run_on_list)
 }
 

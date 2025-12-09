@@ -1,8 +1,11 @@
-.build_clear_post <- function(output_run, clear_output) {
-  .build_clear_post_docs(output_run)
+.build_clear_post_safe <- function(output_run, clear_output) {
+  # clear safe directories before moving new docs and outputs into them
+  # move rmd and qmd's (not bookdown or quarto projects)
+  # to the final docs directories
+  .build_clear_post_safe_docs(output_run)
   # clear final directories, in preparation
   # for the next build
-  if (!.build_clear_post_check(clear_output)) {
+  if (!.build_clear_post_safe_check(clear_output)) {
     return(invisible(FALSE))
   }
   # clear the output folders (output and data),
@@ -16,19 +19,19 @@
   invisible(TRUE)
 }
 
-.build_clear_post_docs <- function(output_run) {
+.build_clear_post_safe_docs <- function(output_run) {
   # always clear docs for output directories
   # if not quarto projects or bookdown projects.
   # don't clear quarto projects or bookdown projects
   # as we save directly there.
-  if (output_run && .build_clear_post_check_docs()) {
+  if (output_run && .build_clear_post_safe_check_docs()) {
     projr_path_get_dir("docs", safe = FALSE, create = FALSE) |> .dir_clear()
   } else {
     invisible(FALSE)
   }
 }
 
-.build_clear_post_check <- function(clear_output) {
+.build_clear_post_safe_check <- function(clear_output) {
   # only clear final directories if
   # we are clearing after build (i.e. we
   # cleared "conservatively") in an output_run (i.e. if we
@@ -36,7 +39,7 @@
   clear_output == "post"
 }
 
-.build_clear_post_check_docs <- function() {
+.build_clear_post_safe_check_docs <- function() {
   # allow the exception that the quarto project
   # and bookdown folders are not cleared
   .engine_get() %in% c("quarto_document", "rmd")
@@ -82,7 +85,10 @@
     .dir_ls(recursive = FALSE) |>
     setdiff("log")
   for (i in seq_along(dir_vec)) {
-    unlink(dir_vec[i], recursive = TRUE, force = TRUE)
+    unlink(
+      projr_path_get_dir("cache", "projr", dir_vec[[i]], create = FALSE),
+      recursive = TRUE, force = TRUE
+    )
   }
   invisible(TRUE)
 }

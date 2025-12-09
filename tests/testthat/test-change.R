@@ -128,7 +128,7 @@ test_that(".change_get_file works", {
 })
 
 test_that(".change_get works for files", {
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
@@ -149,6 +149,7 @@ test_that(".change_get works for files", {
       expect_identical(length(change_list[["fn_source_extra"]]), 0L)
 
       # add something
+      browser()
       .version_bump_minor()
       .test_content_setup_label("output", safe = FALSE)
       .build_manifest_post(TRUE) |> invisible()

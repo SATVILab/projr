@@ -38,7 +38,7 @@ test_that("projr_build_output works", {
       yml_bd <- .yml_bd_get()
       expect_identical(basename(yml_bd$output_dir), "docs")
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
-      expect_identical(desc_file[1, "Version"][[1]], "0.0.1")
+      expect_identical(desc_file[1, "Version"][[1]], "0.0.1-1")
       # run repeat build
       projr_build("minor", msg = "test")
     },
@@ -63,20 +63,20 @@ test_that("Version bumping works correctly for each component", {
       # debugonce(.build_post_finalise_artefacts)
       # debugonce(.build_copy_docs_bookdown)
       projr_build_patch(msg = "Patch bump test")
-      expect_identical(projr_version_get(), "1.2.4")
+      expect_identical(projr_version_get(), "1.2.4-1")
 
       # Test minor bump
       projr_build_minor(msg = "Minor bump test")
-      expect_identical(projr_version_get(), "1.3.0")
+      expect_identical(projr_version_get(), "1.3.0-1")
 
       # Test major bump
       projr_build_major(msg = "Major bump test")
-      expect_identical(projr_version_get(), "2.0.0")
+      expect_identical(projr_version_get(), "2.0.0-1")
 
       # Test custom bump_component parameter
       desc::desc_set_version("3.4.5")
       projr_build(bump_component = "patch", msg = "Custom patch")
-      expect_identical(projr_version_get(), "3.4.6")
+      expect_identical(projr_version_get(), "3.4.6-1")
     },
     quiet = TRUE,
     force = TRUE
@@ -182,7 +182,6 @@ test_that("Archive functionality works correctly", {
   usethis::with_project(
     path = dir_test,
     code = {
-      browser()
       # Create output content
       output_dir <- projr_path_get_dir("output", safe = FALSE, create = TRUE)
       writeLines("test content", file.path(output_dir, "test.txt"))
@@ -253,7 +252,7 @@ test_that("projr_build_ works with rmarkdown", {
   dir_test <- .test_setup_project(
     git = FALSE, set_env_var = TRUE
   )
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   usethis::with_project(
     path = dir_test,
     code = {
@@ -268,9 +267,7 @@ test_that("projr_build_ works with rmarkdown", {
         unlink("docs", recursive = TRUE)
       }
       projr_build_patch(msg = "Test")
-      expect_true(
-        !dir.exists("_tmp/projr/v0.0.0-1/docs")
-      )
+      expect_true(!dir.exists("_tmp/projr/v0.0.0-1/docs"))
       expect_true(dir.exists("docs"))
       expect_true(file.exists("docs/index.html"))
     },
@@ -291,7 +288,6 @@ test_that("projr_build_ works with quarto projects", {
     code = {
       .test_setup_project_lit_docs("quarto_project")
       # dev build
-      # browser()
       projr_build_dev()
       expect_true(
         dir.exists("_tmp/projr/v0.0.0-1/docs")
@@ -301,7 +297,6 @@ test_that("projr_build_ works with quarto projects", {
       )
 
       # output build
-      # debugonce(.build_copy_docs_quarto_project)
       projr_build_patch(msg = "Test")
       expect_true(
         !dir.exists("_tmp/projr/v0.0.0-1/docs")
