@@ -23,7 +23,9 @@ to `**/*.{yml,yaml}`) - `build-system.instructions.md` - Build process,
 logging, manifest system (applies to build/manifest/hash files) -
 `git-version-control.instructions.md` - Git integration and version
 management (applies to git files) - `authentication.instructions.md` -
-Authentication for GitHub/OSF (applies to auth files)
+Authentication for GitHub/OSF (applies to auth files) -
+`remote-system.instructions.md` - Remote destinations (GitHub, OSF,
+local) and file operations (applies to `R/remote*.R`)
 
 ------------------------------------------------------------------------
 
@@ -44,13 +46,23 @@ Authentication for GitHub/OSF (applies to auth files)
 
 - Run
   [`devtools::document()`](https://devtools.r-lib.org/reference/document.html)
-  to update documentation
+  to update `man/` and `NAMESPACE`.
 - Run
   [`devtools::test()`](https://devtools.r-lib.org/reference/test.html)
-  with LITE mode for faster iteration
-- Run
-  [`devtools::check()`](https://devtools.r-lib.org/reference/check.html)
-  to ensure package passes R CMD check
+  (LITE mode during development).
+- Run `styler::style_pkg()` to ensure code style compliance.
+- Update `_pkgdown.yml` when adding/removing/exporting functions:
+  - Add exported function names or `@rdname`s to the appropriate
+    `reference → sections → contents` section.
+  - Verify with
+    [`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
+    and
+    [`pkgdown::build_site()`](https://pkgdown.r-lib.org/reference/build_site.html).
+- Ensure file formatting:
+  - Files must end with a single newline (empty line at end).
+  - No trailing whitespace anywhere.
+- Update copilot instructions in this file or relevant topics files as
+  needed, following maintenance guidelines at the end of this document.
 
 ### Package Structure
 
@@ -59,6 +71,85 @@ Authentication for GitHub/OSF (applies to auth files)
 - `tests/testthat/` - Tests (use helper functions from `helper-*.R`)
 - `man/` - Auto-generated docs (DO NOT edit directly)
 - `_projr.yml` - Project configuration
+
+------------------------------------------------------------------------
+
+## Advice
+
+### Input Validation
+
+- Use `.assert_*()` and other functions from the `R/check.R` file for
+  input validation to fail early with clear messages.
+- Validate all user inputs, including internal function calls
+- Provide clear error messages for invalid inputs
+
+### Debugging
+
+**Log Files for Debugging:** - Log files are **automatically created
+during builds** (`projr_build_*` functions) and contain all CLI output
+(info, debug, success, step messages) - Log files are **NOT
+automatically created** outside of builds (e.g., during manual function
+testing) - To enable logging outside of builds for debugging: 1. Create
+a log file using
+[`.log_build_init()`](https://satvilab.github.io/projr/reference/dot-log_build_init.md):
+`log_info <- .log_build_init(build_type = "dev", msg = "Manual debugging")`
+2. Get the log file path from the returned list: `log_info$log_file` 3.
+All subsequent `.cli_*()` calls will write to this log file 4. Inspect
+the log with
+[`.log_file_get_most_recent()`](https://satvilab.github.io/projr/reference/dot-log_file_get_most_recent.md)
+or
+[`projr_log_view()`](https://satvilab.github.io/projr/reference/projr_log_view.md) -
+**All `.cli_*()` functions write to the log file** (not just
+[`.cli_debug()`](https://satvilab.github.io/projr/reference/dot-cli_debug.md)): -
+[`.cli_info()`](https://satvilab.github.io/projr/reference/dot-cli_info.md) -
+Standard messages -
+[`.cli_success()`](https://satvilab.github.io/projr/reference/dot-cli_success.md) -
+Success messages -
+[`.cli_debug()`](https://satvilab.github.io/projr/reference/dot-cli_debug.md) -
+Debug messages (only shown in console at debug level) -
+[`.cli_step()`](https://satvilab.github.io/projr/reference/dot-cli_step.md) -
+Step/progress messages -
+[`.cli_stage_header()`](https://satvilab.github.io/projr/reference/dot-cli_stage_header.md) -
+Section headers -
+[`.cli_process_start()`](https://satvilab.github.io/projr/reference/dot-cli_process_start.md)
+/
+[`.cli_process_done()`](https://satvilab.github.io/projr/reference/dot-cli_process_done.md) -
+Process status - Use
+[`.cli_debug()`](https://satvilab.github.io/projr/reference/dot-cli_debug.md)
+to add lightweight debug logging (variable values, progress). Prefer
+committing these when they aid future debugging, but: - Avoid logging
+secrets, large binary blobs, or excessive output that clutters CI
+logs. - Use [`debugonce()`](https://rdrr.io/r/base/debug.html) for
+short, local function-level debugging; it does not persist across
+sessions. - Use [`browser()`](https://rdrr.io/r/base/browser.html) only
+for interactive local debugging. Guard calls to avoid CI/test hangs: -
+e.g. `if (interactive()) browser()`. - Always remove or guard
+[`browser()`](https://rdrr.io/r/base/browser.html) calls before
+committing. - Use post-mortem tools for non-interactive diagnostics: -
+[`traceback()`](https://rdrr.io/r/base/traceback.html),
+[`rlang::last_error()`](https://rlang.r-lib.org/reference/last_error.html),
+[`rlang::last_trace()`](https://rlang.r-lib.org/reference/last_error.html). -
+Consider `options(error = rlang::entrace)` during ad-hoc debugging. -
+Avoid committing interactive debug statements in code or tests; guard or
+remove them. - For tests, use `skip_on_noninteractive()` or
+`skip_if_not(interactive())` to avoid CI failures.
+
+### Debugging Tests
+
+- **General test runs**: Use LITE mode (`.test_set_lite()`) for faster
+  iteration during development
+- **Debugging specific test failures**:
+  - Turn off LITE mode (`.test_unset_lite()`) to ensure relevant tests
+    run
+  - Use SELECT mode (`.test_set_select()`) to skip most tests
+  - Comment out `skip_if(.is_test_select())` in only the specific tests
+    you need to debug
+  - Run
+    [`devtools::test()`](https://devtools.r-lib.org/reference/test.html)
+    to execute only selected tests
+  - When done, run `.test_unset_select()` and restore
+    `skip_if(.is_test_select())` lines
+- See `testing.instructions.md` for detailed workflow and examples
 
 ------------------------------------------------------------------------
 
@@ -100,7 +191,7 @@ Authentication for GitHub/OSF (applies to auth files)
 
 - Local, GitHub, OSF destinations supported
 - Restore functions:
-  [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md),
+  [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_restore.md),
   [`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_restore.md)
 
 ### Directory Licenses
@@ -273,6 +364,7 @@ When updating copilot instructions, follow GitHub’s best practices:
 - **No vague language** - Avoid “be more accurate”, “identify all
   issues”, etc.
 - **Path-specific** - Use `applyTo` frontmatter in topic files
+- **Review regularly** - Update as package evolves.
 
 See `.github/instructions/README.md` for detailed maintenance
 guidelines.

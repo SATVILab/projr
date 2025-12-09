@@ -29,6 +29,7 @@
 <url><loc>https://satvilab.github.io/projr/reference/dot-build_change_summary_get_previous_version.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-build_debug_git_info.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-cli_debug.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/dot-cli_eval_message.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-cli_info.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-cli_output_level_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-cli_process_done.html</loc></url>
@@ -55,12 +56,14 @@
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_dir_get_output_date.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_dir_get_type.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_enabled.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/dot-log_file_get_current.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_file_get_history.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/dot-log_file_get_most_recent.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_file_get_output.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_history_add.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-remote_check_exists_github_httr.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-remote_file_get_all_github_httr.html</loc></url>
-<url><loc>https://satvilab.github.io/projr/reference/dot-remote_final_empty_github_httr.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/dot-remote_final_rm_github_httr.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-remote_ls_final_github_httr.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-yml_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-yml_scripts_get.html</loc></url>
@@ -80,6 +83,7 @@
 <url><loc>https://satvilab.github.io/projr/reference/projr_init_renviron.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_license_create_manual.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_log_clear.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/projr_log_view.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_manifest_file_query.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_manifest_query.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_osf_create_project.html</loc></url>

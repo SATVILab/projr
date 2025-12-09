@@ -5,12 +5,7 @@ Show a stage header
 ## Usage
 
 ``` r
-.cli_stage_header(
-  stage_name,
-  build_type = "output",
-  output_level = "std",
-  log_file = NULL
-)
+.cli_stage_header(stage_name, build_type = "output", output_level = "std")
 ```
 
 ## Arguments
@@ -26,7 +21,3 @@ Show a stage header
 - output_level:
 
   Character. Current output level.
-
-- log_file:
-
-  Character. Path to log file (optional).

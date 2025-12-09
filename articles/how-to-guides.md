@@ -356,13 +356,13 @@ projr_restore_repo_wd()
 
 ``` r
 # Restore raw data only
-projr_restore(label = "raw-data")
+projr_content_update(label = "raw-data")
 
 # Restore multiple directories
-projr_restore(label = c("raw-data", "output"))
+projr_content_update(label = c("raw-data", "output"))
 
 # Restore specific version
-projr_restore(label = "raw-data", version = "v0.1.0")
+projr_content_update(label = "raw-data", version = "v0.1.0")
 ```
 
 **Restoration sources:**

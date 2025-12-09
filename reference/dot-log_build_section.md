@@ -5,14 +5,10 @@ Append section header to build log
 ## Usage
 
 ``` r
-.log_build_section(log_file, section_name)
+.log_build_section(section_name)
 ```
 
 ## Arguments
-
-- log_file:
-
-  Character. Path to log file.
 
 - section_name:
 

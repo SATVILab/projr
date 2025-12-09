@@ -5,11 +5,7 @@ Shows change summary at debug output level during the build process.
 ## Usage
 
 ``` r
-.build_change_summary_display(
-  bump_component,
-  output_level = "std",
-  log_file = NULL
-)
+.build_change_summary_display(bump_component, output_level = "std")
 ```
 
 ## Arguments
@@ -21,7 +17,3 @@ Shows change summary at debug output level during the build process.
 - output_level:
 
   Character. Current output level.
-
-- log_file:
-
-  Character. Path to log file (optional).

@@ -5,14 +5,10 @@ Finalize build log with summary
 ## Usage
 
 ``` r
-.log_build_finalize(log_file, success = TRUE, start_time = NULL)
+.log_build_finalize(success = TRUE, start_time = NULL)
 ```
 
 ## Arguments
-
-- log_file:
-
-  Character. Path to log file.
 
 - success:
 

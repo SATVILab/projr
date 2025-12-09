@@ -5,7 +5,7 @@ Show a standard informational message
 ## Usage
 
 ``` r
-.cli_info(..., output_level = "std", .envir = parent.frame(), log_file = NULL)
+.cli_info(..., output_level = "std", .envir = parent.frame())
 ```
 
 ## Arguments
@@ -21,7 +21,3 @@ Show a standard informational message
 - .envir:
 
   Environment for variable evaluation
-
-- log_file:
-
-  Character. Path to log file (optional).

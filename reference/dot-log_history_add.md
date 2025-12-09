@@ -9,8 +9,7 @@ Update build history file
   build_type = "output",
   bump_component = NULL,
   msg = "",
-  success = TRUE,
-  log_file = NULL
+  success = TRUE
 )
 ```
 
@@ -31,7 +30,3 @@ Update build history file
 - success:
 
   Logical. Whether build succeeded.
-
-- log_file:
-
-  Character. Path to detailed log file.

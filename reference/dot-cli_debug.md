@@ -5,7 +5,7 @@ Show a debug message (only shown at debug level)
 ## Usage
 
 ``` r
-.cli_debug(..., output_level = "std", .envir = parent.frame(), log_file = NULL)
+.cli_debug(..., output_level = "std", .envir = parent.frame())
 ```
 
 ## Arguments
@@ -21,7 +21,3 @@ Show a debug message (only shown at debug level)
 - .envir:
 
   Environment for variable evaluation
-
-- log_file:
-
-  Character. Path to log file (optional).

@@ -5,7 +5,7 @@ Show a step message (sub-item in a stage)
 ## Usage
 
 ``` r
-.cli_step(..., output_level = "std", .envir = parent.frame(), log_file = NULL)
+.cli_step(..., output_level = "std", .envir = parent.frame())
 ```
 
 ## Arguments
@@ -21,7 +21,3 @@ Show a step message (sub-item in a stage)
 - .envir:
 
   Environment for variable evaluation
-
-- log_file:
-
-  Character. Path to log file (optional).

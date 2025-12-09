@@ -5,14 +5,10 @@ Append message to build log
 ## Usage
 
 ``` r
-.log_build_append(log_file, message, level = "info")
+.log_build_append(message, level = "info")
 ```
 
 ## Arguments
-
-- log_file:
-
-  Character. Path to log file.
 
 - message:
 

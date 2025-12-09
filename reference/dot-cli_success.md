@@ -5,12 +5,7 @@ Show a success message
 ## Usage
 
 ``` r
-.cli_success(
-  ...,
-  output_level = "std",
-  .envir = parent.frame(),
-  log_file = NULL
-)
+.cli_success(..., output_level = "std", .envir = parent.frame())
 ```
 
 ## Arguments
@@ -26,7 +21,3 @@ Show a success message
 - .envir:
 
   Environment for variable evaluation
-
-- log_file:
-
-  Character. Path to log file (optional).

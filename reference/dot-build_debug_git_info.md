@@ -5,7 +5,7 @@ Output Git information for debug
 ## Usage
 
 ``` r
-.build_debug_git_info(output_level = "std", log_file = NULL)
+.build_debug_git_info(output_level = "std")
 ```
 
 ## Arguments
@@ -13,7 +13,3 @@ Output Git information for debug
 - output_level:
 
   Character. Current output level
-
-- log_file:
-
-  Character. Path to log file

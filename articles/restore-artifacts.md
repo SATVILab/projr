@@ -48,7 +48,7 @@ projr provides three restoration functions for different workflows:
     Clone repository and restore artifacts (most common)
 2.  **[`projr_restore_repo_wd()`](https://satvilab.github.io/projr/reference/projr_restore.md)** -
     Restore into current directory
-3.  **[`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)** -
+3.  **[`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_restore.md)** -
     Restore artifacts in existing local project
 
 ### projr_restore_repo()
@@ -118,14 +118,14 @@ projr_restore_repo_wd("owner/repo")
 **Warning:** This creates files directly in your current directory.
 Ensure you’re in the right location!
 
-### projr_restore()
+### projr_content_update()
 
 Restore artifacts in an existing project without cloning.
 
 **Syntax:**
 
 ``` r
-projr_restore(
+projr_content_update(
   label = NULL,      # Which artifacts (default: all raw artifacts)
   pos = NULL,        # Source position (default: both)
   type = NULL,       # Remote type (default: first available)
@@ -140,11 +140,11 @@ projr_restore(
 setwd("~/projects/my-analysis")
 
 # Restore all raw artifacts
-projr_restore()
+projr_content_update()
 
 # Restore specific artifacts
-projr_restore(label = "raw-data")
-projr_restore(label = c("raw-data", "cache"))
+projr_content_update(label = "raw-data")
+projr_content_update(label = c("raw-data", "cache"))
 ```
 
 **Requires:** Project must have `manifest.csv` file in root directory.
@@ -160,22 +160,22 @@ Controls which artifacts are restored.
 ``` r
 # Restores: raw-data and any other raw-* directories
 # Note: cache is NOT restored by default (not a raw-* label)
-projr_restore()
+projr_content_update()
 
 # To restore cache explicitly:
-projr_restore(label = c("raw-data", "cache"))
+projr_content_update(label = c("raw-data", "cache"))
 ```
 
 **`label = "raw-data"`** - Restore specific artifact
 
 ``` r
-projr_restore(label = "raw-data")
+projr_content_update(label = "raw-data")
 ```
 
 **`label = c("raw-data", "cache")`** - Restore multiple artifacts
 
 ``` r
-projr_restore(label = c("raw-data", "cache"))
+projr_content_update(label = c("raw-data", "cache"))
 ```
 
 **Valid labels:**
@@ -203,25 +203,25 @@ Specifies which remote type to use.
 ``` r
 # Checks remotes in the order they appear in _projr.yml
 # (not a fixed order - depends on your configuration)
-projr_restore()
+projr_content_update()
 ```
 
 **`type = "github"`** - Use GitHub releases only
 
 ``` r
-projr_restore(type = "github")
+projr_content_update(type = "github")
 ```
 
 **`type = "local"`** - Use local directory only
 
 ``` r
-projr_restore(type = "local")
+projr_content_update(type = "local")
 ```
 
 **`type = "osf"`** - Use OSF only
 
 ``` r
-projr_restore(type = "osf")
+projr_content_update(type = "osf")
 ```
 
 **When to specify:**
@@ -238,13 +238,13 @@ Selects a specific remote configuration when multiple exist.
 type
 
 ``` r
-projr_restore()
+projr_content_update()
 ```
 
 **`title = "network-backup"`** - Use specific remote
 
 ``` r
-projr_restore(type = "local", title = "network-backup")
+projr_content_update(type = "local", title = "network-backup")
 ```
 
 **Example with multiple local remotes:**
@@ -265,10 +265,10 @@ build:
 
 ``` r
 # Restore from local backup
-projr_restore(type = "local", title = "local-backup")
+projr_content_update(type = "local", title = "local-backup")
 
 # Restore from network backup
-projr_restore(type = "local", title = "network-backup")
+projr_content_update(type = "local", title = "network-backup")
 ```
 
 ### pos Parameter
@@ -280,25 +280,25 @@ destinations.
 
 ``` r
 # Checks "source" first, then "dest"
-projr_restore()
+projr_content_update()
 ```
 
 **`pos = "source"`** - Source directories only
 
 ``` r
-projr_restore(pos = "source")
+projr_content_update(pos = "source")
 ```
 
 **`pos = "dest"`** - Build destinations only
 
 ``` r
-projr_restore(pos = "dest")
+projr_content_update(pos = "dest")
 ```
 
 **`pos = c("source", "dest")`** - Both (explicit)
 
 ``` r
-projr_restore(pos = c("source", "dest"))
+projr_content_update(pos = c("source", "dest"))
 ```
 
 **When to use:**
@@ -396,7 +396,7 @@ projr_restore_repo("owner/repo")
 setwd("repo")
 
 # Step 2: Restore only raw data (not cache or other artifacts)
-projr_restore(label = "raw-data")
+projr_content_update(label = "raw-data")
 
 # Step 3: Regenerate other artifacts by running analysis
 projr_build_dev()
@@ -408,7 +408,7 @@ Restore only raw data, not cached results:
 
 ``` r
 # Restore only raw data
-projr_restore(label = "raw-data")
+projr_content_update(label = "raw-data")
 
 # Regenerate cache by running analysis
 projr_build_dev()
@@ -421,13 +421,13 @@ Try multiple remote sources:
 ``` r
 # Try GitHub first
 result <- tryCatch(
-  projr_restore(type = "github"),
+  projr_content_update(type = "github"),
   error = function(e) FALSE
 )
 
 # Fallback to local if GitHub fails
 if (!result) {
-  projr_restore(type = "local")
+  projr_content_update(type = "local")
 }
 ```
 
@@ -447,7 +447,7 @@ build:
 
 ``` r
 # Restore from network drive
-projr_restore(type = "local", title = "network-data")
+projr_content_update(type = "local", title = "network-data")
 ```
 
 ## How Restoration Works
@@ -489,7 +489,7 @@ checkout or project version.
     Result: Still restores v0.3.0 (latest available on remote)
 
 **Note:**
-[`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+[`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_restore.md)
 always fetches the newest remote version for archive remotes. To work
 with older artifact versions, manually download them from the remote
 source (e.g., GitHub Releases).
@@ -561,7 +561,7 @@ renv::restore()
 # Option 2: Manual clone, then restore
 # git clone https://github.com/owner/repo
 # cd repo
-# R -e "projr::projr_restore()"
+# R -e "projr::projr_content_update()"
 ```
 
 **Test restoration:**
@@ -618,7 +618,7 @@ Document system dependencies in `README.md`:
 
 **Note on version history:**
 
-[`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+[`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_restore.md)
 always fetches the latest remote version for archive remotes. To work
 with artifacts from older versions, you’ll need to manually download
 them from the remote source or implement custom restoration logic.
@@ -683,7 +683,7 @@ Keep notes in `NEWS.md` or `CHANGELOG.md`:
 - Check internet connection
 - Verify remote still exists (GitHub release, local path)
 - Check authentication if required
-- Try different remote type: `projr_restore(type = "local")`
+- Try different remote type: `projr_content_update(type = "local")`
 
 ### Hash Mismatches
 
@@ -706,10 +706,10 @@ Keep notes in `NEWS.md` or `CHANGELOG.md`:
 
 ``` r
 # Try different remote type
-projr_restore(type = "local")
+projr_content_update(type = "local")
 
 # Try specific artifact
-projr_restore(label = "raw-data")
+projr_content_update(label = "raw-data")
 
 # Manual download as last resort
 # Download from GitHub releases manually
@@ -757,7 +757,7 @@ Enable detailed output:
 Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
 
 # Run restoration
-projr_restore()
+projr_content_update()
 
 # Check detailed logs
 # Located in _tmp/projr/log/
@@ -797,10 +797,10 @@ if (result) {
 projr_restore_repo("owner/repo")
 
 # In existing project: Restore artifacts
-projr_restore()
+projr_content_update()
 
 # Specific artifact: Restore raw data only
-projr_restore(label = "raw-data")
+projr_content_update(label = "raw-data")
 ```
 
 ### Key Functions
@@ -809,7 +809,7 @@ projr_restore(label = "raw-data")
   Clone repository and restore artifacts
 - **[`projr_restore_repo_wd()`](https://satvilab.github.io/projr/reference/projr_restore.md)** -
   Restore into current directory
-- **[`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)** -
+- **[`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_restore.md)** -
   Restore in existing project
 
 ### Key Parameters

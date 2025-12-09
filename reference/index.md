@@ -25,7 +25,7 @@ Main functions for project workflow
   : Check if required packages for build are available
 - [`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_restore.md)
   [`projr_restore_repo_wd()`](https://satvilab.github.io/projr/reference/projr_restore.md)
-  [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+  [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_restore.md)
   : Restore project artefact directories
 
 ## Path helpers
@@ -265,6 +265,8 @@ Functions for managing build logs
 
 - [`projr_log_clear()`](https://satvilab.github.io/projr/reference/projr_log_clear.md)
   : Clear build logs
+- [`projr_log_view()`](https://satvilab.github.io/projr/reference/projr_log_view.md)
+  : View build log (last n lines)
 
 ## Internal utilities
 

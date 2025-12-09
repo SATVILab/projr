@@ -15,8 +15,7 @@ GitHub Enterprise via `api_url`.
   api_url = NULL,
   token = NULL,
   overwrite = TRUE,
-  output_level = "std",
-  log_file = NULL
+  output_level = "std"
 )
 ```
 
@@ -29,6 +28,10 @@ GitHub Enterprise via `api_url`.
 - tag:
 
   Character string. Release tag.
+
+- fn:
+
+  Character string. Asset filename to download.
 
 - dest_dir:
 
@@ -51,11 +54,6 @@ GitHub Enterprise via `api_url`.
 - output_level:
 
   Character. Verbosity control passed to
-  [`.cli_debug()`](https://satvilab.github.io/projr/reference/dot-cli_debug.md).
-
-- log_file:
-
-  Optional log file path for
   [`.cli_debug()`](https://satvilab.github.io/projr/reference/dot-cli_debug.md).
 
 ## Value

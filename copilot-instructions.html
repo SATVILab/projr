@@ -55,7 +55,7 @@
 <hr></div>
 <div class="section level2">
 <h2 id="topic-specific-instructions">Topic-Specific Instructions<a class="anchor" aria-label="anchor" href="#topic-specific-instructions"></a></h2>
-<p>See detailed guidelines in <code>.github/instructions/</code>: - <code>r-coding-standards.instructions.md</code> - R code style and patterns (applies to <code>**/*.R</code>) - <code>testing.instructions.md</code> - Test suite guidelines (applies to <code>tests/**/*</code>) - <code>package-development.instructions.md</code> - Development workflow - <code>yaml-configuration.instructions.md</code> - YAML config guidelines (applies to <code>**/*.{yml,yaml}</code>) - <code>build-system.instructions.md</code> - Build process, logging, manifest system (applies to build/manifest/hash files) - <code>git-version-control.instructions.md</code> - Git integration and version management (applies to git files) - <code>authentication.instructions.md</code> - Authentication for GitHub/OSF (applies to auth files)</p>
+<p>See detailed guidelines in <code>.github/instructions/</code>: - <code>r-coding-standards.instructions.md</code> - R code style and patterns (applies to <code>**/*.R</code>) - <code>testing.instructions.md</code> - Test suite guidelines (applies to <code>tests/**/*</code>) - <code>package-development.instructions.md</code> - Development workflow - <code>yaml-configuration.instructions.md</code> - YAML config guidelines (applies to <code>**/*.{yml,yaml}</code>) - <code>build-system.instructions.md</code> - Build process, logging, manifest system (applies to build/manifest/hash files) - <code>git-version-control.instructions.md</code> - Git integration and version management (applies to git files) - <code>authentication.instructions.md</code> - Authentication for GitHub/OSF (applies to auth files) - <code>remote-system.instructions.md</code> - Remote destinations (GitHub, OSF, local) and file operations (applies to <code>R/remote*.R</code>)</p>
 <hr></div>
 <div class="section level2">
 <h2 id="core-principles">Core Principles<a class="anchor" aria-label="anchor" href="#core-principles"></a></h2>
@@ -72,9 +72,18 @@
 </ul></div>
 <div class="section level3">
 <h3 id="before-committing">Before Committing<a class="anchor" aria-label="anchor" href="#before-committing"></a></h3>
-<ul><li>Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> to update documentation</li>
-<li>Run <code><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">devtools::test()</a></code> with LITE mode for faster iteration</li>
-<li>Run <code><a href="https://devtools.r-lib.org/reference/check.html" class="external-link">devtools::check()</a></code> to ensure package passes R CMD check</li>
+<ul><li>Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> to update <code>man/</code> and <code>NAMESPACE</code>.</li>
+<li>Run <code><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">devtools::test()</a></code> (LITE mode during development).</li>
+<li>Run <code>styler::style_pkg()</code> to ensure code style compliance.</li>
+<li>Update <code>_pkgdown.yml</code> when adding/removing/exporting functions:
+<ul><li>Add exported function names or <code>@rdname</code>s to the appropriate <code>reference → sections → contents</code> section.</li>
+<li>Verify with <code><a href="https://pkgdown.r-lib.org/reference/check_pkgdown.html" class="external-link">pkgdown::check_pkgdown()</a></code> and <code><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">pkgdown::build_site()</a></code>.</li>
+</ul></li>
+<li>Ensure file formatting:
+<ul><li>Files must end with a single newline (empty line at end).</li>
+<li>No trailing whitespace anywhere.</li>
+</ul></li>
+<li>Update copilot instructions in this file or relevant topics files as needed, following maintenance guidelines at the end of this document.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="package-structure">Package Structure<a class="anchor" aria-label="anchor" href="#package-structure"></a></h3>
@@ -86,6 +95,33 @@
 <code>man/</code> - Auto-generated docs (DO NOT edit directly)</li>
 <li>
 <code>_projr.yml</code> - Project configuration</li>
+</ul><hr></div>
+</div>
+<div class="section level2">
+<h2 id="advice">Advice<a class="anchor" aria-label="anchor" href="#advice"></a></h2>
+<div class="section level3">
+<h3 id="input-validation">Input Validation<a class="anchor" aria-label="anchor" href="#input-validation"></a></h3>
+<ul><li>Use <code>.assert_*()</code> and other functions from the <code>R/check.R</code> file for input validation to fail early with clear messages.</li>
+<li>Validate all user inputs, including internal function calls</li>
+<li>Provide clear error messages for invalid inputs</li>
+</ul></div>
+<div class="section level3">
+<h3 id="debugging">Debugging<a class="anchor" aria-label="anchor" href="#debugging"></a></h3>
+<p><strong>Log Files for Debugging:</strong> - Log files are <strong>automatically created during builds</strong> (<code>projr_build_*</code> functions) and contain all CLI output (info, debug, success, step messages) - Log files are <strong>NOT automatically created</strong> outside of builds (e.g., during manual function testing) - To enable logging outside of builds for debugging: 1. Create a log file using <code><a href="reference/dot-log_build_init.html">.log_build_init()</a></code>: <code>log_info &lt;- .log_build_init(build_type = "dev", msg = "Manual debugging")</code> 2. Get the log file path from the returned list: <code>log_info$log_file</code> 3. All subsequent <code>.cli_*()</code> calls will write to this log file 4. Inspect the log with <code><a href="reference/dot-log_file_get_most_recent.html">.log_file_get_most_recent()</a></code> or <code><a href="reference/projr_log_view.html">projr_log_view()</a></code> - <strong>All <code>.cli_*()</code> functions write to the log file</strong> (not just <code><a href="reference/dot-cli_debug.html">.cli_debug()</a></code>): - <code><a href="reference/dot-cli_info.html">.cli_info()</a></code> - Standard messages - <code><a href="reference/dot-cli_success.html">.cli_success()</a></code> - Success messages - <code><a href="reference/dot-cli_debug.html">.cli_debug()</a></code> - Debug messages (only shown in console at debug level) - <code><a href="reference/dot-cli_step.html">.cli_step()</a></code> - Step/progress messages - <code><a href="reference/dot-cli_stage_header.html">.cli_stage_header()</a></code> - Section headers - <code><a href="reference/dot-cli_process_start.html">.cli_process_start()</a></code> / <code><a href="reference/dot-cli_process_done.html">.cli_process_done()</a></code> - Process status - Use <code><a href="reference/dot-cli_debug.html">.cli_debug()</a></code> to add lightweight debug logging (variable values, progress). Prefer committing these when they aid future debugging, but: - Avoid logging secrets, large binary blobs, or excessive output that clutters CI logs. - Use <code><a href="https://rdrr.io/r/base/debug.html" class="external-link">debugonce()</a></code> for short, local function-level debugging; it does not persist across sessions. - Use <code><a href="https://rdrr.io/r/base/browser.html" class="external-link">browser()</a></code> only for interactive local debugging. Guard calls to avoid CI/test hangs: - e.g. <code>if (interactive()) browser()</code>. - Always remove or guard <code><a href="https://rdrr.io/r/base/browser.html" class="external-link">browser()</a></code> calls before committing. - Use post-mortem tools for non-interactive diagnostics: - <code><a href="https://rdrr.io/r/base/traceback.html" class="external-link">traceback()</a></code>, <code><a href="https://rlang.r-lib.org/reference/last_error.html" class="external-link">rlang::last_error()</a></code>, <code><a href="https://rlang.r-lib.org/reference/last_error.html" class="external-link">rlang::last_trace()</a></code>. - Consider <code>options(error = rlang::entrace)</code> during ad-hoc debugging. - Avoid committing interactive debug statements in code or tests; guard or remove them. - For tests, use <code>skip_on_noninteractive()</code> or <code>skip_if_not(interactive())</code> to avoid CI failures.</p>
+</div>
+<div class="section level3">
+<h3 id="debugging-tests">Debugging Tests<a class="anchor" aria-label="anchor" href="#debugging-tests"></a></h3>
+<ul><li>
+<strong>General test runs</strong>: Use LITE mode (<code>.test_set_lite()</code>) for faster iteration during development</li>
+<li>
+<strong>Debugging specific test failures</strong>:
+<ul><li>Turn off LITE mode (<code>.test_unset_lite()</code>) to ensure relevant tests run</li>
+<li>Use SELECT mode (<code>.test_set_select()</code>) to skip most tests</li>
+<li>Comment out <code>skip_if(.is_test_select())</code> in only the specific tests you need to debug</li>
+<li>Run <code><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">devtools::test()</a></code> to execute only selected tests</li>
+<li>When done, run <code>.test_unset_select()</code> and restore <code>skip_if(.is_test_select())</code> lines</li>
+</ul></li>
+<li>See <code>testing.instructions.md</code> for detailed workflow and examples</li>
 </ul><hr></div>
 </div>
 <div class="section level2">
@@ -121,7 +157,7 @@
 <div class="section level3">
 <h3 id="remote-destinations">Remote Destinations<a class="anchor" aria-label="anchor" href="#remote-destinations"></a></h3>
 <ul><li>Local, GitHub, OSF destinations supported</li>
-<li>Restore functions: <code><a href="reference/projr_restore.html">projr_restore()</a></code>, <code><a href="reference/projr_restore.html">projr_restore_repo()</a></code>
+<li>Restore functions: <code><a href="reference/projr_restore.html">projr_content_update()</a></code>, <code><a href="reference/projr_restore.html">projr_restore_repo()</a></code>
 </li>
 </ul></div>
 <div class="section level3">
@@ -216,7 +252,7 @@
 <span><span class="fu"><a href="reference/projr_yml_dir_license_rm.html">projr_yml_dir_license_rm</a></span><span class="op">(</span><span class="st">"output"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="input-validation">Input Validation<a class="anchor" aria-label="anchor" href="#input-validation"></a></h3>
+<h3 id="input-validation-1">Input Validation<a class="anchor" aria-label="anchor" href="#input-validation-1"></a></h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">.my_function</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">param</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">.assert_string</span><span class="op">(</span><span class="va">param</span>, required <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -293,6 +329,8 @@
 <strong>No vague language</strong> - Avoid “be more accurate”, “identify all issues”, etc.</li>
 <li>
 <strong>Path-specific</strong> - Use <code>applyTo</code> frontmatter in topic files</li>
+<li>
+<strong>Review regularly</strong> - Update as package evolves.</li>
 </ul><p>See <code>.github/instructions/README.md</code> for detailed maintenance guidelines.</p>
 <hr></div>
 <div class="section level2">

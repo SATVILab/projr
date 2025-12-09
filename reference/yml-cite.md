@@ -45,9 +45,8 @@ projr_yml_cite_set_default(
 
 - all:
 
-  logical. Whether to set all the options to `TRUE` or `FALSE`. If
-  `NULL`, then `codemeta`, `cff` and `inst_citation` are used. Default
-  is `NULL`.
+  logical. If not `NULL`, then all citation options are set to this
+  value. Default is `NULL`.
 
 - codemeta:
 

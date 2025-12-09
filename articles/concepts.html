@@ -169,6 +169,11 @@ purpose:</p>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _output/figures</span></span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="at">  </span><span class="fu">output-tables</span><span class="kw">:</span></span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _output/tables</span></span></code></pre></div>
+<p><strong>Label restrictions:</strong></p>
+<p>Directory labels must not end in <code>-empty</code>. This suffix is
+reserved for internal use by projr. For example,
+<code>output-empty</code> or <code>cache-empty</code> are invalid labels
+and will cause <code><a href="../reference/projr_yml_check.html">projr_yml_check()</a></code> to fail.</p>
 <hr>
 </div>
 </div>
@@ -571,10 +576,10 @@ across versions:</p>
 <span><span class="fu"><a href="../reference/projr_restore.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"owner/repo"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Restore specific version</span></span>
-<span><span class="fu"><a href="../reference/projr_restore.html">projr_restore</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span>, version <span class="op">=</span> <span class="st">"v0.1.0"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_restore.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span>, version <span class="op">=</span> <span class="st">"v0.1.0"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Restore specific label</span></span>
-<span><span class="fu"><a href="../reference/projr_restore.html">projr_restore</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"output"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/projr_restore.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"output"</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Restoration order:</strong></p>
 <p>projr checks sources in order:</p>
 <ol style="list-style-type: decimal">

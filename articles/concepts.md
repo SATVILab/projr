@@ -78,6 +78,14 @@ directories:
     path: _output/tables
 ```
 
+**Label restrictions:**
+
+Directory labels must not end in `-empty`. This suffix is reserved for
+internal use by projr. For example, `output-empty` or `cache-empty` are
+invalid labels and will cause
+[`projr_yml_check()`](https://satvilab.github.io/projr/reference/projr_yml_check.md)
+to fail.
+
 ------------------------------------------------------------------------
 
 ### Versioned builds
@@ -461,10 +469,10 @@ Restoration pulls archived content back:
 projr_restore_repo("owner/repo")
 
 # Restore specific version
-projr_restore(label = "raw-data", version = "v0.1.0")
+projr_content_update(label = "raw-data", version = "v0.1.0")
 
 # Restore specific label
-projr_restore(label = "output")
+projr_content_update(label = "output")
 ```
 
 **Restoration order:**
