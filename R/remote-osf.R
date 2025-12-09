@@ -444,6 +444,7 @@ projr_osf_create_project <- function(title,
   }
   
   # Check if name matches version pattern (e.g., "v0.0.1", "v0.0.0-1")
+  # Archive directories have names starting with "v" followed by a digit
   is_archive <- grepl("^v[0-9]", remote_name)
   
   if (!is_archive) {
@@ -455,8 +456,9 @@ projr_osf_create_project <- function(title,
   }
   
   # Check if empty
-  if (nrow(.osf_ls_files(remote)) > 0L) {
-    num_files <- nrow(.osf_ls_files(remote))
+  osf_files <- .osf_ls_files(remote)
+  if (nrow(osf_files) > 0L) {
+    num_files <- nrow(osf_files)
     .cli_debug(
       "OSF remote: Directory '{remote_name}' has {num_files} file(s), not removing, returning FALSE",
       output_level = output_level
