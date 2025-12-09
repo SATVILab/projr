@@ -117,7 +117,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   cran_pkgs <- setdiff(pkg_vec, github_pkgs)
   
   # Pre-allocate with maximum possible size
-  cmds <- character(length(cran_pkgs) > 0 + length(github_pkgs))
+  cmds <- character(as.integer(length(cran_pkgs) > 0) + length(github_pkgs))
   cmd_idx <- 0
   
   if (length(cran_pkgs) > 0) {
