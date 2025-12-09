@@ -420,18 +420,56 @@ projr_osf_create_project <- function(title,
 # ========================
 
 # osf
-.remote_final_rm_if_empty_osf <- function(remote, structure) {
-  .assert_in(structure, .opt_remote_get_structure(), TRUE)
+.remote_final_rm_if_empty_osf <- function(remote, output_level = "std") {
   .assert_given_full(remote)
-  if (!structure == "archive") {
-    return(invisible(FALSE))
-  }
+  
+  # Only process if it's a file/directory object (not a node)
   if (!inherits(remote, "osf_tbl_file")) {
+    .cli_debug(
+      "OSF remote: Not an osf_tbl_file, returning FALSE",
+      output_level = output_level
+    )
     return(invisible(FALSE))
   }
-  if (nrow(.osf_ls_files(remote)) > 0L) {
+  
+  # Infer structure from the remote's name
+  # If name starts with "v" followed by version pattern, it's archive
+  remote_name <- remote[["name"]]
+  if (is.null(remote_name) || length(remote_name) == 0L || !nzchar(remote_name)) {
+    .cli_debug(
+      "OSF remote: No name found, returning FALSE",
+      output_level = output_level
+    )
     return(invisible(FALSE))
   }
+  
+  # Check if name matches version pattern (e.g., "v0.0.1", "v0.0.0-1")
+  # Archive directories have names starting with "v" followed by a digit
+  is_archive <- grepl("^v[0-9]", remote_name)
+  
+  if (!is_archive) {
+    .cli_debug(
+      "OSF remote: Name '{remote_name}' does not match archive pattern, returning FALSE",
+      output_level = output_level
+    )
+    return(invisible(FALSE))
+  }
+  
+  # Check if empty
+  osf_files <- .osf_ls_files(remote)
+  if (nrow(osf_files) > 0L) {
+    num_files <- nrow(osf_files)
+    .cli_debug(
+      "OSF remote: Directory '{remote_name}' has {num_files} file(s), not removing, returning FALSE",
+      output_level = output_level
+    )
+    return(invisible(FALSE))
+  }
+  
+  .cli_debug(
+    "OSF remote: Directory '{remote_name}' is empty archive directory, removing it",
+    output_level = output_level
+  )
   .osf_rm(x = remote, check = FALSE)
   invisible(TRUE)
 }

@@ -541,7 +541,7 @@
       args_list <- args_list[-length(args_list)]
     }
   }
-  if (empty) {
+  if (!is.null(empty) && isTRUE(empty)) {
     args_list[[length(args_list)]] <- paste0(
       args_list[[length(args_list)]], "-empty"
     )
