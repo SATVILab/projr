@@ -426,7 +426,7 @@
       output_level = output_level
     )
     downloaded <- c(downloaded, dest_file)
-    next
+    return(invisible(downloaded))
   }
 
   .cli_debug(
