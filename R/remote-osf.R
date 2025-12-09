@@ -411,11 +411,7 @@ projr_osf_create_project <- function(title,
   label
 }
 
-<<<<<<< HEAD
-.remote_final_check_exists_direct_osf <- function(remote, ...) {
-=======
 .remote_final_check_exists_direct_osf <- function(remote) {
->>>>>>> origin/main
   stop(paste0("Direct final remote existence check not supported for OSF"))
 }
 
