@@ -24,7 +24,7 @@ dir_test <- .test_setup_project(
 )
 
 test_that("Local test remotes are ready", {
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
 
   usethis::with_project(
     path = dir_test,
@@ -495,7 +495,7 @@ test_that("upload and restore from `latest` local remotes", {
 # =============================================================================
 
 test_that("upload and restore from `archive` local remotes", {
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
 
   usethis::with_project(
     path = dir_test,
@@ -1127,7 +1127,7 @@ test_that("various upload strategies run", {
 test_that("various inspection methods run", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 

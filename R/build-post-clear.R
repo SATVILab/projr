@@ -80,8 +80,12 @@
 }
 
 .build_clear_old_output <- function() {
-  dir_vec <- .dir_get_cache_auto_version(profile = NULL) |>
-    dirname() |>
+  path_dir <- .dir_get_cache_auto_version(profile = NULL) |>
+    dirname()
+  if (!dir.exists(path_dir) || !nzchar(path_dir)) {
+    return(invisible(FALSE))
+  }
+   dir_vec <- path_dir |>
     .dir_ls(recursive = FALSE) |>
     setdiff("log")
   for (i in seq_along(dir_vec)) {

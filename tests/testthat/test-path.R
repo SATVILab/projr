@@ -38,7 +38,6 @@ test_that(".file_* and .dir_* functions work", {
   usethis::with_project(
     path = dir_test,
     code = {
-      # browser()
       # filter
       # -------------------
       dir_tmp <- .test_content_setup_dir()

@@ -1,10 +1,9 @@
 test_that(".manifest_hash_label works", {
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
-      browser()
       # test hashing empty directory - returns 1 row with empty fn and hash
       path_dir_empty <- projr_path_get_dir("raw-data")
       .dir_rm(path_dir_empty)

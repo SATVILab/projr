@@ -252,7 +252,7 @@ test_that("projr_build_ works with rmarkdown", {
   dir_test <- .test_setup_project(
     git = FALSE, set_env_var = TRUE
   )
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   usethis::with_project(
     path = dir_test,
     code = {

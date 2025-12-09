@@ -70,7 +70,7 @@ devtools::load_all()
 # 3. Edit test file - comment out skip_if(.is_test_select()) in specific tests
 # In tests/testthat/test-manifest.R:
 #   test_that("manifest tracking works", {
-#     # skip_if(.is_test_select())  <- Comment this out
+#     skip_if(.is_test_select())  <- Comment this out
 #     # ... test code ...
 #   })
 

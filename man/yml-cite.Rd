@@ -23,9 +23,7 @@ projr_yml_cite_set_default(
 }
 \arguments{
 \item{all}{logical.
-Whether to set all the options
-to \code{TRUE} or \code{FALSE}.
-If \code{NULL}, then \code{codemeta}, \code{cff} and \code{inst_citation} are used.
+If not \code{NULL}, then all citation options are set to this value.
 Default is \code{NULL}.}
 
 \item{codemeta}{logical.
