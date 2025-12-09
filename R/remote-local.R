@@ -278,6 +278,14 @@
     )
     return(character(0L))
   }
+  # Check if remote directory exists
+  if (!dir.exists(remote)) {
+    .cli_debug(
+      "Local remote: Remote directory '{remote}' does not exist, returning character(0L)",
+      output_level = output_level
+    )
+    return(character(0L))
+  }
   .dir_copy(remote, path_dir_save_local)
 }
 
