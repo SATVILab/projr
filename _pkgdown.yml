@@ -19,6 +19,8 @@ navbar:
         href: articles/build-process.html
       - text: Sending to Remotes
         href: articles/send-to-remotes.html
+      - text: Destination Send Workflow
+        href: articles/dest-send-workflow.html
       - text: Restoring Artifacts
         href: articles/restore-artifacts.html
       - text: Environment Variables

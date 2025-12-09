@@ -7,7 +7,7 @@ excludeAgent: copilot_code_review
 
 ## Purpose & Scope
 
-Guidelines for working with the projr remote destination system, including GitHub releases, OSF nodes, and local remotes. This covers remote creation, file operations, version tracking, and the httr-based GitHub implementation.
+Guidelines for working with projr remote destinations: GitHub releases, OSF nodes, and local filesystem. Covers remote creation, file operations, version tracking, and httr-based GitHub implementation.
 
 ---
 
@@ -15,268 +15,104 @@ Guidelines for working with the projr remote destination system, including GitHu
 
 ### Remote Types
 
-projr supports three remote destination types:
-
 - **local** - Local filesystem directories
-- **github** - GitHub releases (using httr API, not piggyback)
+- **github** - GitHub releases (httr API, not piggyback)
 - **osf** - Open Science Framework nodes
 
 ### Remote Hierarchy
 
-The remote system uses a two-level hierarchy:
+Two-level hierarchy:
 
-1. **remote_pre** - The "parent" remote (e.g., GitHub release tag, OSF node, or local directory)
-2. **remote_final** - The actual destination within the parent (e.g., specific asset file in a release, subdirectory in local filesystem)
+1. **remote_pre** - Parent remote (GitHub tag, OSF node, or local directory)
+2. **remote_final** - Destination within parent (specific asset/file/subdirectory)
 
-#### Examples
-
-**GitHub:**
-- `remote_pre`: `c("tag" = "v0.0.1")`
-- `remote_final`: `c("tag" = "v0.0.1", "fn" = "output-v0.0.1.zip")`
-
-**Local:**
-- `remote_pre`: `/path/to/destination`
-- `remote_final`: `/path/to/destination/output/v0.0.1`
-
-**OSF:**
-- `remote_pre`: `osf_tbl_node` object
-- `remote_final`: `osf_tbl_file` object within the node
+Examples:
+- GitHub: `remote_pre = c("tag" = "v0.0.1")`, `remote_final = c("tag" = "v0.0.1", "fn" = "output-v0.0.1.zip")`
+- Local: `remote_pre = "/path/to/dest"`, `remote_final = "/path/to/dest/output/v0.0.1"`
+- OSF: `remote_pre = osf_tbl_node`, `remote_final = osf_tbl_file`
 
 ### Structure Types
 
-Remotes support two structure types (set in `_projr.yml`):
-
-- **latest** - Overwrites files at destination (no versioning)
-  - Local: `/dest/output/` (files overwritten)
-  - GitHub: `output.zip` in release (asset overwritten)
-  
+- **latest** - Overwrites files (no versioning)
 - **archive** - Creates versioned subdirectories/files
-  - Local: `/dest/output/v0.0.1/`, `/dest/output/v0.0.2/`, etc.
-  - GitHub: `output-v0.0.1.zip`, `output-v0.0.2.zip` in release
 
 ---
 
 ## File Organization
 
-### Remote Files by Purpose
+**Key files:**
+- `R/remote.R` - Dispatcher functions (take `type` first, use `switch()`)
+- `R/remote-github.R` - GitHub logic (wraps httr with retry)
+- `R/remote-github-httr.R` - Direct httr API implementations
+- `R/remote-local.R` - Local filesystem operations
+- `R/remote-osf.R` - OSF operations
+- `R/remote-misc.R` - Utilities (tag handling)
+- `R/remote-versions.R` - Version tracking, manifest operations
 
-- **R/remote.R** - Core dispatcher functions that delegate to type-specific implementations
-- **R/remote-github.R** - GitHub-specific logic (delegates to httr implementations)
-- **R/remote-github-httr.R** - Direct httr API implementations for GitHub releases
-- **R/remote-local.R** - Local filesystem remote operations
-- **R/remote-osf.R** - OSF remote operations
-- **R/remote-misc.R** - Utility functions (tag handling, etc.)
-- **R/remote-versions.R** - Version tracking and manifest operations for remotes
-
-### Function Naming Conventions
-
-**Dispatcher pattern** (in R/remote.R):
-```r
-.remote_check_exists(type, ...)  # Dispatcher
-.remote_ls_final(type, ...)      # Dispatcher
-```
-
-**Type-specific implementations:**
-```r
-.remote_check_exists_github(tag, ...)        # In R/remote-github.R
-.remote_check_exists_github_httr(repo, tag, ...) # In R/remote-github-httr.R
-.remote_ls_final_github(remote_pre)          # In R/remote-github.R
-.remote_ls_final_github_httr(repo, tag)      # In R/remote-github-httr.R
-```
-
-**Key patterns:**
-
-- Functions in `R/remote.R` take `type` as first argument and dispatch via `switch()`
-- Type-specific functions in `R/remote-{type}.R` don't take `type` argument
-- `*_httr` suffix indicates direct httr implementation (GitHub only)
-- Order matters: `remote_final_*` vs `.remote_*_final` - use existing patterns consistently
+**Naming conventions:**
+- Dispatchers: `.remote_check_exists(type, ...)`
+- Type-specific: `.remote_check_exists_github(tag, ...)`
+- httr implementations: `.remote_check_exists_github_httr(repo, tag, ...)`
+- Type-specific functions don't take `type` argument
+- Use existing patterns consistently
 
 ---
 
-## GitHub Implementation Details
+## GitHub Implementation
 
-### httr vs piggyback
+**Use httr, not piggyback:**
+- All GitHub operations use `httr` directly
+- `R/remote-github-httr.R` has API implementations
+- `R/remote-github.R` wraps with retry logic
+- DO NOT use `piggyback::pb_*()` functions
 
-The package previously used the `piggyback` package for GitHub release operations but has migrated to direct `httr` API calls for better performance and control.
-
-**Current approach:**
-- All GitHub release operations use `httr` package directly
-- Functions in `R/remote-github-httr.R` contain the actual API implementations
-- Functions in `R/remote-github.R` wrap httr functions with retry logic and validation
-
-**Do NOT:**
-- Add new dependencies on `piggyback` 
-- Use `piggyback::pb_*()` functions in new code
-- Mix piggyback and httr approaches
-
-### GitHub API Authentication
-
-All GitHub API calls require authentication:
-
+**Authentication:**
 ```r
-# Before any GitHub API operation
-.auth_check_github("operation description")
-
-# Get token with fallback
+.auth_check_github("operation description")  # Required before any gh:: call
 token <- .auth_get_github_pat_find(api_url = api_url)
 ```
 
-Token precedence (implemented in `.auth_get_github_pat_find()`):
-1. `GITHUB_PAT` environment variable (highest priority)
-2. `gh::gh_token()` if available
-3. `gitcreds::gitcreds_get()` if available
-4. `GITHUB_TOKEN` environment variable (lowest priority)
+Token precedence: `GITHUB_PAT` > `gh::gh_token()` > `gitcreds::gitcreds_get()` > `GITHUB_TOKEN`
 
-### GitHub API Base URL
+**API Base URL:**
+`.github_api_base()` resolves: `api_url` arg > `GITHUB_API_URL` env > `"https://api.github.com"`
 
-```r
-.github_api_base(api_url = NULL)
-```
-
-Returns the GitHub API base URL, resolving in order:
-1. Explicit `api_url` argument
-2. `GITHUB_API_URL` environment variable  
-3. Default: `"https://api.github.com"`
-
-Always removes trailing slashes for consistent URL construction.
-
-### Retry Mechanism
-
-GitHub operations use retry with exponential backoff:
-
-```r
-.retry_with_backoff(
-  fn = function() { /* operation */ },
-  max_attempts = 3,
-  max_delay = 300,
-  initial_delay = 2,
-  operation_name = "operation description",
-  output_level = "std",
-  log_file = NULL,
-  check_success = function(x) TRUE
-)
-```
-
-Applied to:
-- Release creation
-- Release existence checks
-- Asset uploads/downloads
-- Asset listing
+**Retry mechanism:**
+Use `.retry_with_backoff()` for release creation, existence checks, asset operations
 
 ---
 
 ## Common Operations
 
-### Check Remote Existence
-
 ```r
-# Check if a remote exists
+# Check existence
 .remote_check_exists("github", id = "v0.0.1")
-.remote_check_exists("local", id = "/path/to/dir")
-.remote_check_exists("osf", id = "abc123")
+.remote_final_check_exists("github", id = "v0.0.1", label = "output", structure = "archive", version = "0.0.1")
 
-# Check if a specific final remote exists
-.remote_final_check_exists(
-  "github",
-  id = "v0.0.1",
-  label = "output",
-  structure = "archive",
-  path = NULL,
-  path_append_label = TRUE,
-  version = "0.0.1"
-)
-```
-
-### Create Remote
-
-```r
-# Create a GitHub release
-.remote_create(
-  "github",
-  id = "v0.0.1",
-  name = "Version 0.0.1",
-  output_level = "std",
-  log_file = NULL
-)
-
-# Create OSF node
-.remote_create(
-  "osf",
-  id = NULL,  # Auto-generated
-  name = "My Project"
-)
-
-# Create local directory
+# Create
+.remote_create("github", id = "v0.0.1", name = "Version 0.0.1")
 .remote_create("local", id = "/path/to/dir")
-```
 
-### Get Remote Objects
+# Get objects
+remote_pre <- .remote_get("github", id = "v0.0.1")  # Returns: c("tag" = "v0.0.1")
+remote_final <- .remote_final_get("github", id = "v0.0.1", label = "output", structure = "archive", version = "0.0.1")
 
-```r
-# Get remote_pre object
-remote_pre <- .remote_get("github", id = "v0.0.1")
-# Returns: c("tag" = "v0.0.1")
+# List files
+.remote_ls_final("github", remote_pre = c("tag" = "v0.0.1"))  # Lists assets
+.remote_file_ls("github", remote = c("tag" = "v0.0.1", "fn" = "output.zip"))  # Lists files in zip
 
-# Get remote_final object
-remote_final <- .remote_final_get(
-  "github",
-  id = "v0.0.1",
-  label = "output",
-  structure = "archive",
-  version = "0.0.1"
-)
-# Returns: c("tag" = "v0.0.1", "fn" = "output-v0.0.1.zip")
-```
-
-### List Files in Remote
-
-```r
-# List all final remotes in a remote_pre
-.remote_ls_final("github", remote_pre = c("tag" = "v0.0.1"))
-# Returns vector of asset filenames
-
-# List files within a specific final remote
-.remote_file_ls("github", remote = c("tag" = "v0.0.1", "fn" = "output.zip"))
-# Returns vector of file paths inside the zip
-```
-
-### File Operations
-
-```r
-# Add files to remote
-.remote_file_add(
-  "github",
-  fn = c("file1.txt", "file2.txt"),
-  path_dir_local = "/local/path",
-  remote = c("tag" = "v0.0.1", "fn" = "output.zip")
-)
-
-# Download all files from remote
-.remote_file_get_all(
-  "github",
-  remote = c("tag" = "v0.0.1", "fn" = "output.zip"),
-  path_dir_save_local = "/save/path"
-)
-
-# Remove specific files
-.remote_file_rm(
-  "github",
-  fn = c("file1.txt", "file2.txt"),
-  remote = c("tag" = "v0.0.1", "fn" = "output.zip")
-)
-
-# Empty a remote (remove all content)
-.remote_final_empty(
-  "github",
-  remote = c("tag" = "v0.0.1", "fn" = "output.zip")
-)
+# File operations
+.remote_file_add("github", fn = c("file1.txt"), path_dir_local = "/local", remote = c("tag" = "v0.0.1", "fn" = "output.zip"))
+.remote_file_get_all("github", remote = c("tag" = "v0.0.1", "fn" = "output.zip"), path_dir_save_local = "/save")
+.remote_file_rm("github", fn = c("file1.txt"), remote = c("tag" = "v0.0.1", "fn" = "output.zip"))
+.remote_final_empty("github", remote = c("tag" = "v0.0.1", "fn" = "output.zip"))
 ```
 
 ---
 
-## Remote Configuration in YAML
+## YAML Configuration
 
-Remotes are configured in `_projr.yml` under `build.{type}` keys:
+Configure remotes in `_projr.yml`:
 
 ```yaml
 build:
@@ -284,206 +120,97 @@ build:
     id: "my-release"
     send:
       - label: output
-        structure: archive
-        send_cue: if-change
-        send_strategy: sync-diff
-        send_inspect: manifest
-  
-  local:
-    id: "/path/to/destination"
-    send:
-      - label: output
-        structure: latest
-        send_cue: always
+        structure: archive          # archive or latest
+        send_cue: if-change        # always, if-change, never
+        send_strategy: sync-diff   # sync-diff, sync-purge, upload-all, upload-missing
+        send_inspect: manifest     # manifest, file, none
 ```
 
-### Send Configuration Options
-
-**send_cue** - When to send to remote:
-- `always` - Creates new remote version every build
-- `if-change` - Only sends when content changes
-- `never` - Never sends (useful for dev builds)
-
-**send_strategy** - How to update remote:
-- `sync-diff` - Upload only changed files (efficient)
-- `sync-purge` - Remove all, then upload all
-- `upload-all` - Upload all files (may overwrite)
-- `upload-missing` - Only upload files not present on remote
-
-**send_inspect** - How to detect existing versions:
-- `manifest` - Use manifest.csv to track versions
-- `file` - Inspect actual files on remote
-- `none` - Treat remote as empty
+**send_cue:** When to send (`always`, `if-change`, `never`)
+**send_strategy:** How to update (`sync-diff`, `sync-purge`, `upload-all`, `upload-missing`)
+**send_inspect:** How to detect versions (`manifest`, `file`, `none`)
 
 ---
 
-## Testing Guidelines
+## Testing
 
-### Test Structure
+**test-remote-github.R** - Only file that creates/deletes GitHub releases
+- Uses fixed test releases (`projr-test-release-a`, `projr-test-release-b`)
+- Idempotent, skips in CRAN/LITE modes
+- GitHub operations are async - use polling/retry logic
 
-- **test-remote-github.R** - The ONLY file that creates/deletes GitHub releases
-  - Uses fixed test releases (`projr-test-release-a`, `projr-test-release-b`)
-  - Tests are idempotent - can be re-run safely
-  - All tests skip in CRAN and LITE modes
-- **test-remote-local.R** - Tests local remote operations
-  - Tests core file operations, manifest, and VERSION handling
-  - Uses temporary directories for testing
-  - Can run on CRAN and CI (no external dependencies)
-  - Comprehensive integration tests are in test-local-remote-comprehensive.R
+**test-remote-local.R** - Local remote operations
+- Uses temporary directories, runs on CRAN/CI
+- Comprehensive tests in test-local-remote-comprehensive.R
 
-### Test Requirements
-
-**GitHub tests:**
+**Test patterns:**
 ```r
+# GitHub tests
 test_that("GitHub operation", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
-  
   # Test implementation
 })
-```
 
-**Local remote tests:**
-```r
-test_that("local remote operation", {
+# Local tests
+test_that("local operation", {
   skip_if(.is_test_select())
-  
-  # Test implementation
-  # Uses temporary directories, cleans up after itself
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
+  usethis::with_project(dir_test, { /* tests */ })
 })
 ```
-
-### Test Helper Pattern
-
-```r
-# Create test project (reuse across tests)
-dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
-
-usethis::with_project(
-  path = dir_test,
-  code = {
-    # Test operations within project context
-  }
-)
-```
-
-### GitHub Test Caveats
-
-- GitHub API operations are asynchronous - may need polling/waiting
-- Use retry logic when checking for uploaded assets
-- Clean up test artifacts but reuse releases across tests
-- All GitHub operations now use httr exclusively (piggyback migration complete)
 
 ---
 
 ## Common Patterns
 
-### Error Handling
-
+**Error handling:**
 ```r
-# Check existence before operations
-if (!.remote_check_exists("github", tag)) {
-  .remote_create("github", tag)
-}
-
-# Use tryCatch for optional operations
-tryCatch(
-  .remote_file_get_all("github", remote, path_save),
-  error = function(e) {
-    .cli_debug("Download failed: {e$message}")
-    FALSE
-  }
-)
+if (!.remote_check_exists("github", tag)) .remote_create("github", tag)
+tryCatch(.remote_file_get_all("github", remote, path), error = function(e) FALSE)
 ```
 
-### Polling for Async Operations
-
+**Polling async operations:**
 ```r
-# Poll for GitHub asset availability
 start_time <- proc.time()[3]
-max_wait <- 120
-asset_exists <- FALSE
-
-while (!asset_exists && (proc.time()[3] - start_time < max_wait)) {
+while (!asset_exists && (proc.time()[3] - start_time < 120)) {
   Sys.sleep(5)
   asset_exists <- .remote_final_check_exists("github", ...)
 }
 ```
 
-### Logging
-
-All remote operations support logging:
-
-```r
-.remote_create(
-  "github",
-  id = tag,
-  output_level = "debug",  # "none", "std", "debug"
-  log_file = "/path/to/log.txt"
-)
-```
+**Logging:**
+All operations support `output_level` ("none", "std", "debug") and `log_file` parameters.
 
 ---
 
-## When Adding New Remote Operations
+## Adding New Operations
 
-1. Add dispatcher function to `R/remote.R` if needed
-2. Implement type-specific functions in `R/remote-{type}.R`
-3. For GitHub, implement httr API calls in `R/remote-github-httr.R`
-4. Add authentication checks using `.auth_check_github()` or `.auth_check_osf()`
-5. Add retry logic with `.retry_with_backoff()` for network operations
-6. Update tests in appropriate test files
-7. Document in roxygen2 with `@keywords internal`
+1. Add dispatcher to `R/remote.R` (takes `type`, uses `switch()`)
+2. Implement type-specific in `R/remote-{type}.R`
+3. For GitHub: implement httr in `R/remote-github-httr.R`
+4. Add auth checks: `.auth_check_github()` or `.auth_check_osf()`
+5. Add retry logic: `.retry_with_backoff()`
+6. Update tests with proper skip conditions
+7. Document with `@keywords internal`
 
 ---
 
 ## Version Tracking
 
-Remote versions are tracked in `R/remote-versions.R`:
-
-```r
-# Get latest version from remote
-.remote_get_version_latest_label(remote_pre, type, label, structure)
-
-# Get version file from remote
-.remote_get_version_file(remote_pre, type, structure)
-
-# Functions handle both archive and latest structures
-```
+Use `R/remote-versions.R` functions:
+- `.remote_get_version_latest_label(remote_pre, type, label, structure)`
+- `.remote_get_version_file(remote_pre, type, structure)`
 
 ---
 
-## Migration Notes
+## Key Rules
 
-### From piggyback to httr
-
-The migration from piggyback to httr for GitHub operations is **COMPLETE**.
-
-**All GitHub operations now use httr:**
-- Release existence checks
-- Release creation
-- Asset listing
-- Asset uploads/downloads
-- Asset deletion
-- All functions implemented in `R/remote-github-httr.R`
-
-**When working with GitHub remotes:**
-- Always use functions in `R/remote-github-httr.R`
-- Never add new `piggyback::` calls
-- Use `.retry_with_backoff()` for reliability
-- Ensure proper authentication checks with `.auth_check_github()`
-
----
-
-## Common Pitfalls
-
-- **Don't** use `piggyback` for new GitHub operations
-- **Don't** forget authentication checks before API calls
-- **Don't** assume GitHub operations are synchronous - use polling
-- **Do** use retry logic for network operations
-- **Do** maintain consistent naming: type-specific functions don't take `type` argument
-- **Do** test with skip conditions: CRAN, LITE, offline, auth checks
-- **Do** use `remote_pre` and `remote_final` terminology consistently
+- Use httr, not piggyback for GitHub operations (migration complete)
+- Always add auth checks before API calls
+- Use polling for async GitHub operations
+- Add retry logic for network operations
+- Type-specific functions don't take `type` argument
+- Test with proper skip conditions
+- Use `remote_pre` and `remote_final` terminology consistently

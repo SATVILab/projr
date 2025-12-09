@@ -570,7 +570,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
   } else {
     "CRAN"
   }
-  pkg_names <- sapply(pkg, function(x) sub("^.*/", "", x))
+  pkg_names <- vapply(pkg, function(x) sub("^.*/", "", x), character(1), USE.NAMES = FALSE)
 
   if (restore) {
     cli::cli_alert_info("Attempting to restore {pkg_type} packages: {.pkg {pkg_names}}")
@@ -665,9 +665,9 @@ projr_renv_restore_and_update <- function(github = TRUE,
   .ensure_cli()
 
   installed_pkgs <- rownames(utils::installed.packages())
-  pkg_remaining <- pkg[
-    !sapply(pkg, function(x) sub("^.*/", "", x)) %in% installed_pkgs
-  ]
+  # Extract package names once to avoid repeated sub() calls
+  pkg_names <- vapply(pkg, function(x) sub("^.*/", "", x), character(1), USE.NAMES = FALSE)
+  pkg_remaining <- pkg[!pkg_names %in% installed_pkgs]
 
   if (length(pkg_remaining) == 0L) {
     cli::cli_alert_success("All packages are installed.")
@@ -678,10 +678,10 @@ projr_renv_restore_and_update <- function(github = TRUE,
   cli::cli_alert_info("Attempting to install remaining packages.")
   .renv_install(pkg_remaining, biocmanager_install, is_bioc)
 
+  # Extract package names for remaining packages
+  pkg_remaining_names <- vapply(pkg_remaining, function(x) sub("^.*/", "", x), character(1), USE.NAMES = FALSE)
   pkg_still_missing <- pkg_remaining[
-    !sapply(pkg_remaining, function(x) {
-      requireNamespace(sub("^.*/", "", x), quietly = TRUE)
-    })
+    !vapply(pkg_remaining_names, function(x) requireNamespace(x, quietly = TRUE), logical(1), USE.NAMES = FALSE)
   ]
 
   if (length(pkg_still_missing) == 0L) {
@@ -692,16 +692,16 @@ projr_renv_restore_and_update <- function(github = TRUE,
   cli::cli_alert_warning("Packages that failed to install: {.pkg {pkg_still_missing}}")
   cli::cli_alert_info("Attempting to install missing packages individually.")
 
-  for (x in pkg_still_missing) {
-    if (!requireNamespace(sub("^.*/", "", x), quietly = TRUE)) {
-      .renv_install(x, biocmanager_install, is_bioc)
+  # Extract package names once for loop and final check
+  pkg_still_missing_names <- vapply(pkg_still_missing, function(x) sub("^.*/", "", x), character(1), USE.NAMES = FALSE)
+  for (i in seq_along(pkg_still_missing)) {
+    if (!requireNamespace(pkg_still_missing_names[i], quietly = TRUE)) {
+      .renv_install(pkg_still_missing[i], biocmanager_install, is_bioc)
     }
   }
 
   pkg_final_missing <- pkg_still_missing[
-    !sapply(pkg_still_missing, function(x) {
-      requireNamespace(sub("^.*/", "", x), quietly = TRUE)
-    })
+    !vapply(pkg_still_missing_names, function(x) requireNamespace(x, quietly = TRUE), logical(1), USE.NAMES = FALSE)
   ]
 
   if (length(pkg_final_missing) == 0L) {

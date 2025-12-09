@@ -16,7 +16,8 @@ Development workflow guidelines for the projr R package, including build command
 - Run `devtools::document()` to update roxygen2 documentation in `man/`
 - Run `devtools::test()` to ensure all tests pass (use LITE mode for faster iteration)
 - Run `devtools::check()` to ensure package passes R CMD check
-- Ensure code follows the existing style conventions
+- Ensure code follows the existing style conventions (see `r-coding-standards.instructions.md`)
+- Follow naming conventions (see `NAMING_SUGGESTIONS.md` for comprehensive guidelines)
 - **If export status changed**: Update `_pkgdown.yml` and verify with `pkgdown::check_pkgdown()`
 
 ---

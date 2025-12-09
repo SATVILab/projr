@@ -326,7 +326,8 @@
   yml
 }
 
-.yml_dest_complete_title_strategy_hierarchy <-
+# Generic strategy completion function for all remote types
+.yml_dest_complete_title_strategy_default <-
   function(strategy, inspect) {
     if (!is.null(strategy)) {
       return(strategy)
@@ -337,16 +338,12 @@
     "sync-diff"
   }
 
+# Wrappers for backward compatibility and clarity
+.yml_dest_complete_title_strategy_hierarchy <-
+  .yml_dest_complete_title_strategy_default
+
 .yml_dest_complete_title_strategy_github <-
-  function(strategy, inspect) {
-    if (!is.null(strategy)) {
-      return(strategy)
-    }
-    if (inspect == "none") {
-      return("upload-all")
-    }
-    "sync-diff"
-  }
+  .yml_dest_complete_title_strategy_default
 
 .yml_dest_complete_title_path_append_label <- function(yml, type) {
   .yml_complete(yml, "path-append-label", TRUE)
