@@ -86,11 +86,32 @@ Use FULL mode (no test mode set) only when:
 - Explicitly requested by the issue or PR
 - Working on comprehensive parameter combination testing
 
-```r
-devtools::load_all()
-# Don't call .test_set_lite() or .test_set_cran()
-devtools::test()
-```
+### Debugging Specific Test Failures
+
+When debugging a specific test failure or issue:
+
+1. **Turn off LITE mode** to ensure the relevant test runs:
+   ```r
+   devtools::load_all()
+   .test_unset_lite()
+   ```
+
+2. **Use test selection** to run only specific tests:
+   ```r
+   .test_set_select()
+   # Temporarily remove skip_if(.is_test_select()) from the test you're debugging
+   devtools::test()
+   # Or run specific file:
+   devtools::test_file("tests/testthat/test-specific.R")
+   ```
+
+3. **After debugging**, restore skip conditions and unset select mode:
+   ```r
+   # Re-add skip_if(.is_test_select()) to the test
+   .test_unset_select()
+   ```
+
+This approach allows you to focus on specific failing tests without running the entire suite.
 
 ## Common Development Commands
 

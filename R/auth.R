@@ -12,7 +12,14 @@
 
 .auth_get_github_pat_find_gitcreds <- function(api_url = NULL) {
   url  <- api_url %||% Sys.getenv("GITHUB_API_URL", "https://api.github.com")
-  host <- sub("^https?://api\\.", "https://", url)
+
+  # Logic update: Robustly handle Standard vs Enterprise GitHub hosts
+  if (grepl("api.github.com", url, fixed = TRUE)) {
+    host <- "https://github.com"
+  } else {
+    # For Enterprise, strip the /api/v3 suffix (and optional trailing slash)
+    host <- sub("/api/v3/?$", "", url)
+  }
 
   creds <- suppressWarnings(tryCatch(
     gitcreds::gitcreds_get(host),
