@@ -184,6 +184,7 @@ reference:
   desc: Functions for managing build logs
   contents:
   - projr_log_clear
+  - projr_log_view
 
 - title: Internal utilities
   desc: Internal helper functions (not exported)
