@@ -9,16 +9,18 @@
 \arguments{
 \item{repo}{Character string. Repository in format "owner/repo".}
 
+\item{tag}{Character string. Release tag.}
+
+\item{fn}{Character string. Filename of the asset to delete.}
+
 \item{api_url}{Character string. Optional GitHub API URL.}
 
 \item{token}{Character string. Optional GitHub token.}
-
-\item{asset_id}{Numeric. Asset ID to delete.}
 }
 \value{
 Logical. TRUE if successful.
 }
 \description{
-Deletes an asset from a GitHub release by asset ID.
+Deletes an asset from a GitHub release by filename.
 }
 \keyword{internal}

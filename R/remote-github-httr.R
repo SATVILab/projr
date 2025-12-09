@@ -291,10 +291,11 @@
 #' Delete a release asset using httr
 #'
 #' @description
-#' Deletes an asset from a GitHub release by asset ID.
+#' Deletes an asset from a GitHub release by filename.
 #'
 #' @param repo Character string. Repository in format "owner/repo".
-#' @param asset_id Numeric. Asset ID to delete.
+#' @param tag Character string. Release tag.
+#' @param fn Character string. Filename of the asset to delete.
 #' @param api_url Character string. Optional GitHub API URL.
 #' @param token Character string. Optional GitHub token.
 #'
@@ -425,7 +426,7 @@
       output_level = output_level
     )
     downloaded <- c(downloaded, dest_file)
-    next
+    return(invisible(downloaded))
   }
 
   .cli_debug(
