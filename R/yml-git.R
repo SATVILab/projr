@@ -152,18 +152,25 @@ projr_yml_git_set_default <- function(profile = "default",
   )
 }
 
-.yml_git_set_commit <- function(commit,
-                                simplify_default,
-                                profile) {
-  commit_pre <- .yml_git_get_commit(profile = profile)
-  if (all(commit_pre, commit) && simplify_default) {
+# Generic setter for git fields (commit, add-untracked, push)
+.yml_git_set_field <- function(field_name,
+                               field_value,
+                               simplify_default,
+                               profile) {
+  field_value_pre <- .yml_git_get_field(field_name, profile)
+  if (all(field_value_pre, field_value) && simplify_default) {
     return(invisible(FALSE))
   }
-  .yml_git_set_mix(list("commit" = commit), profile)
+  field_list <- list()
+  field_list[[field_name]] <- field_value
+  .yml_git_set_mix(field_list, profile)
   invisible(TRUE)
 }
 
-.yml_git_get_commit <- function(profile) {
+# Generic getter for git fields with optional override logic
+.yml_git_get_field <- function(field_name,
+                               profile,
+                               override_if_commit_false = FALSE) {
   yml_git <- .yml_git_get(profile)
   if (is.null(yml_git) || isTRUE(yml_git)) {
     return(TRUE)
@@ -171,10 +178,25 @@ projr_yml_git_set_default <- function(profile = "default",
   if (isFALSE(yml_git)) {
     return(FALSE)
   }
-  if (is.null(yml_git[["commit"]])) {
+  # Handle override logic for add-untracked and push
+  if (override_if_commit_false &&
+      !is.null(yml_git[["commit"]]) && !yml_git[["commit"]]) {
+    return(FALSE)
+  }
+  if (is.null(yml_git[[field_name]])) {
     return(TRUE)
   }
-  yml_git[["commit"]]
+  yml_git[[field_name]]
+}
+
+.yml_git_set_commit <- function(commit,
+                                simplify_default,
+                                profile) {
+  .yml_git_set_field("commit", commit, simplify_default, profile)
+}
+
+.yml_git_get_commit <- function(profile) {
+  .yml_git_get_field("commit", profile)
 }
 
 .yml_git_set_mix <- function(git_list_single, profile) {
@@ -202,64 +224,27 @@ projr_yml_git_set_default <- function(profile = "default",
 .yml_git_set_add_untracked <- function(add_untracked,
                                        simplify_default,
                                        profile) {
-  add_untracked_pre <- .yml_git_get_add_untracked(profile = profile)
-  if (all(add_untracked_pre, add_untracked) && simplify_default) {
-    return(invisible(FALSE))
-  }
-  .yml_git_set_mix(list("add-untracked" = add_untracked), profile)
-  invisible(TRUE)
+  .yml_git_set_field("add-untracked", add_untracked, simplify_default, profile)
 }
 
 .yml_git_get_add_untracked <- function(profile) {
-  yml_git <- .yml_git_get(profile)
-  if (is.null(yml_git) || isTRUE(yml_git)) {
-    return(TRUE)
-  }
-  if (isFALSE(yml_git)) {
-    return(FALSE)
-  }
-  # same reasoning as for push:
   # override add-untracked value if commit is FALSE
-  if (!is.null(yml_git[["commit"]]) && !yml_git[["commit"]]) {
-    return(FALSE)
-  }
-  if (is.null(yml_git[["add-untracked"]])) {
-    return(TRUE)
-  }
-  yml_git[["add-untracked"]]
+  .yml_git_get_field("add-untracked", profile, override_if_commit_false = TRUE)
 }
 
 .yml_git_set_push <- function(push,
                               simplify_default,
                               profile) {
-  push_pre <- .yml_git_get_push(profile = profile)
-  if (all(push_pre, push) && simplify_default) {
-    return(invisible(FALSE))
-  }
-  .yml_git_set_mix(list("push" = push), profile)
-  invisible(TRUE)
+  .yml_git_set_field("push", push, simplify_default, profile)
 }
 
 .yml_git_get_push <- function(profile) {
-  yml_git <- .yml_git_get(profile)
-  if (is.null(yml_git) || isTRUE(yml_git)) {
-    return(TRUE)
-  }
-  if (isFALSE(yml_git)) {
-    return(FALSE)
-  }
   # override push value if commit is FALSE
   # (i.e. if commit is FALSE, then push is also FALSE)
   # as there is no reason to push if not committing,
   # and this makes the upfront check for Git setup easier
   # (as we can now rule out the case where commit is FALSE)
-  if (!is.null(yml_git[["commit"]]) && !yml_git[["commit"]]) {
-    return(FALSE)
-  }
-  if (is.null(yml_git[["push"]])) {
-    return(TRUE)
-  }
-  yml_git[["push"]]
+  .yml_git_get_field("push", profile, override_if_commit_false = TRUE)
 }
 
 .yml_git_get <- function(profile) {
