@@ -918,7 +918,6 @@ test_that("test always vs if-change for local remotes", {
 
 test_that("various upload strategies run", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -1125,7 +1124,6 @@ test_that("various upload strategies run", {
 
 test_that("various inspection methods run", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
   skip_if(.is_test_select())
 
   usethis::with_project(
