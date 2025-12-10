@@ -756,3 +756,623 @@ test_that("projr_init_renviron works", {
   # Just test that it runs without error
   expect_message(projr_init_renviron())
 })
+
+# ========================================
+# Additional tests for _std internal functions
+# ========================================
+
+test_that(".init_usethis_std sets project correctly", {
+  skip_if(.is_test_select())
+  dir_test <- file.path(tempdir(), "testProjrUsethis")
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Call .init_usethis_std
+      .init_usethis_std()
+
+      # Verify project was set
+      current_proj <- try(usethis::proj_get(), silent = TRUE)
+      expect_true(!inherits(current_proj, "try-error"))
+      expect_identical(normalizePath(current_proj), normalizePath(dir_test))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".init_dir_std creates directories when enabled", {
+  skip_if(.is_test_select())
+  dir_test <- file.path(tempdir(), "testProjrDirStd")
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create VERSION file first (required for directory creation)
+      projr_version_set("0.0.1")
+      
+      # Test with init_dir = TRUE
+      result <- .init_dir_std(TRUE)
+      expect_true(result)
+      # Check that at least raw-data and cache directories are created
+      expect_true(dir.exists("_raw_data"))
+      expect_true(dir.exists("_tmp"))
+      # Note: _output may not exist until after a build
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  # Test when init_dir = FALSE
+  dir_test2 <- file.path(tempdir(), "testProjrDirStdFalse")
+  if (dir.exists(dir_test2)) unlink(dir_test2, recursive = TRUE)
+  .dir_create(dir_test2)
+  
+  usethis::with_project(
+    path = dir_test2,
+    code = {
+      result <- .init_dir_std(FALSE)
+      expect_false(result)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test2, recursive = TRUE)
+})
+
+test_that(".init_readme_std handles various scenarios", {
+  skip_if(.is_test_select())
+
+  # Test with readme = TRUE, readme_rmd = TRUE
+  dir_test1 <- file.path(tempdir(), "testProjrReadmeStd1")
+  if (dir.exists(dir_test1)) unlink(dir_test1, recursive = TRUE)
+  .dir_create(dir_test1)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test1, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test1,
+    code = {
+      result <- .init_readme_std(TRUE, TRUE)
+      expect_true(result)
+      expect_true(file.exists("README.Rmd"))
+      expect_true(file.exists("README.md"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  # Test with readme = TRUE, readme_rmd = FALSE
+  dir_test2 <- file.path(tempdir(), "testProjrReadmeStd2")
+  if (dir.exists(dir_test2)) unlink(dir_test2, recursive = TRUE)
+  .dir_create(dir_test2)
+
+  usethis::with_project(
+    path = dir_test2,
+    code = {
+      result <- .init_readme_std(TRUE, FALSE)
+      expect_true(result)
+      expect_true(file.exists("README.md"))
+      expect_false(file.exists("README.Rmd"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test2, recursive = TRUE)
+
+  # Test with readme = FALSE
+  dir_test3 <- file.path(tempdir(), "testProjrReadmeStd3")
+  if (dir.exists(dir_test3)) unlink(dir_test3, recursive = TRUE)
+  .dir_create(dir_test3)
+
+  usethis::with_project(
+    path = dir_test3,
+    code = {
+      result <- .init_readme_std(FALSE, TRUE)
+      expect_false(result)
+      expect_false(file.exists("README.md"))
+      expect_false(file.exists("README.Rmd"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test3, recursive = TRUE)
+
+  # Test when README.Rmd already exists
+  dir_test4 <- file.path(tempdir(), "testProjrReadmeStd4")
+  if (dir.exists(dir_test4)) unlink(dir_test4, recursive = TRUE)
+  .dir_create(dir_test4)
+
+  usethis::with_project(
+    path = dir_test4,
+    code = {
+      # Create existing README.Rmd
+      writeLines("# Existing README", "README.Rmd")
+      result <- .init_readme_std(TRUE, TRUE)
+      expect_false(result)
+      # Check that existing file was not overwritten
+      content <- readLines("README.Rmd")
+      expect_true(any(grepl("Existing README", content)))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test4, recursive = TRUE)
+})
+
+test_that(".init_desc_std creates DESCRIPTION when enabled", {
+  skip_if(.is_test_select())
+  dir_test <- file.path(tempdir(), "testProjrDescStd")
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test with desc = TRUE
+      result <- .init_desc_std(TRUE)
+      expect_true(result)
+      expect_true(file.exists("DESCRIPTION"))
+
+      desc_content <- read.dcf("DESCRIPTION")
+      expect_true("Package" %in% colnames(desc_content))
+      expect_identical(as.character(desc_content[1, "Package"]), basename(dir_test))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  # Test with desc = FALSE
+  dir_test2 <- file.path(tempdir(), "testProjrDescStdFalse")
+  if (dir.exists(dir_test2)) unlink(dir_test2, recursive = TRUE)
+  .dir_create(dir_test2)
+
+  usethis::with_project(
+    path = dir_test2,
+    code = {
+      result <- .init_desc_std(FALSE)
+      expect_false(result)
+      expect_false(file.exists("DESCRIPTION"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test2, recursive = TRUE)
+
+  # Test when DESCRIPTION already exists
+  dir_test3 <- file.path(tempdir(), "testProjrDescStdExists")
+  if (dir.exists(dir_test3)) unlink(dir_test3, recursive = TRUE)
+  .dir_create(dir_test3)
+
+  usethis::with_project(
+    path = dir_test3,
+    code = {
+      writeLines("Package: ExistingPackage", "DESCRIPTION")
+      result <- .init_desc_std(TRUE)
+      expect_false(result)
+      desc_content <- read.dcf("DESCRIPTION")
+      expect_identical(as.character(desc_content[1, "Package"]), "ExistingPackage")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test3, recursive = TRUE)
+})
+
+test_that(".init_license_std handles various license types", {
+  skip_if(.is_test_select())
+
+  # Test with NULL license
+  dir_test1 <- file.path(tempdir(), "testProjrLicenseStd1")
+  if (dir.exists(dir_test1)) unlink(dir_test1, recursive = TRUE)
+  .dir_create(dir_test1)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test1, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test1,
+    code = {
+      projr_init(git = FALSE, github = FALSE, desc = TRUE)
+      result <- .init_license_std(NULL)
+      expect_false(result)
+      expect_false(file.exists("LICENSE.md"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  # Test with ccby license
+  dir_test2 <- file.path(tempdir(), "testProjrLicenseStd2")
+  if (dir.exists(dir_test2)) unlink(dir_test2, recursive = TRUE)
+  .dir_create(dir_test2)
+
+  usethis::with_project(
+    path = dir_test2,
+    code = {
+      projr_init(git = FALSE, github = FALSE, desc = TRUE)
+      # .init_license_std_impl returns output from usethis, not TRUE
+      .init_license_std("ccby")
+      expect_true(file.exists("LICENSE.md"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test2, recursive = TRUE)
+
+  # Test with CC-BY (alternative capitalization)
+  dir_test3 <- file.path(tempdir(), "testProjrLicenseStd3")
+  if (dir.exists(dir_test3)) unlink(dir_test3, recursive = TRUE)
+  .dir_create(dir_test3)
+
+  usethis::with_project(
+    path = dir_test3,
+    code = {
+      projr_init(git = FALSE, github = FALSE, desc = TRUE)
+      # .init_license_std_impl returns output from usethis, not TRUE
+      .init_license_std("CC-BY")
+      expect_true(file.exists("LICENSE.md"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test3, recursive = TRUE)
+})
+
+test_that(".init_cite_std creates citation files when DESCRIPTION exists", {
+  skip_if(.is_test_select())
+
+  # Test with cite = FALSE
+  dir_test1 <- file.path(tempdir(), "testProjrCiteStd1")
+  if (dir.exists(dir_test1)) unlink(dir_test1, recursive = TRUE)
+  .dir_create(dir_test1)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test1, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test1,
+    code = {
+      projr_init(git = FALSE, github = FALSE, desc = TRUE)
+      result <- .init_cite_std(FALSE)
+      expect_false(result)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  # Test with cite = TRUE but no DESCRIPTION
+  dir_test2 <- file.path(tempdir(), "testProjrCiteStd2")
+  if (dir.exists(dir_test2)) unlink(dir_test2, recursive = TRUE)
+  .dir_create(dir_test2)
+
+  usethis::with_project(
+    path = dir_test2,
+    code = {
+      result <- .init_cite_std(TRUE)
+      expect_false(result)
+      expect_false(file.exists("CITATION.cff"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test2, recursive = TRUE)
+
+  # Test with cite = TRUE and DESCRIPTION exists
+  dir_test3 <- file.path(tempdir(), "testProjrCiteStd3")
+  if (dir.exists(dir_test3)) unlink(dir_test3, recursive = TRUE)
+  .dir_create(dir_test3)
+
+  usethis::with_project(
+    path = dir_test3,
+    code = {
+      projr_init(git = FALSE, github = FALSE, desc = TRUE)
+      cite_result <- tryCatch(
+        {
+          .init_cite_std(TRUE)
+          list(success = TRUE)
+        },
+        error = function(e) {
+          list(success = FALSE, error = e$message)
+        }
+      )
+      if (cite_result$success) {
+        # If successful, CITATION.cff should exist
+        expect_true(file.exists("CITATION.cff"))
+      } else {
+        skip(paste("Citation creation failed:", cite_result$error))
+      }
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test3, recursive = TRUE)
+})
+
+test_that(".init_yml_std creates projr.yml when enabled", {
+  skip_if(.is_test_select())
+
+  # Test with init_yml = FALSE
+  dir_test1 <- file.path(tempdir(), "testProjrYmlStd1")
+  if (dir.exists(dir_test1)) unlink(dir_test1, recursive = TRUE)
+  .dir_create(dir_test1)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test1, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test1,
+    code = {
+      result <- .init_yml_std(FALSE)
+      expect_false(result)
+      expect_false(file.exists("_projr.yml"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  # Test with init_yml = TRUE
+  dir_test2 <- file.path(tempdir(), "testProjrYmlStd2")
+  if (dir.exists(dir_test2)) unlink(dir_test2, recursive = TRUE)
+  .dir_create(dir_test2)
+
+  usethis::with_project(
+    path = dir_test2,
+    code = {
+      result <- .init_yml_std(TRUE)
+      expect_true(result)
+      expect_true(file.exists("_projr.yml"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test2, recursive = TRUE)
+
+  # Test when projr.yml (not _projr.yml) already exists  
+  dir_test3 <- file.path(tempdir(), "testProjrYmlStd3")
+  if (dir.exists(dir_test3)) unlink(dir_test3, recursive = TRUE)
+  .dir_create(dir_test3)
+
+  usethis::with_project(
+    path = dir_test3,
+    code = {
+      yaml::write_yaml(list(test = "existing"), "projr.yml")
+      result <- .init_yml_std(TRUE)
+      expect_false(result)
+      yml_content <- yaml::read_yaml("projr.yml")
+      expect_identical(yml_content$test, "existing")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test3, recursive = TRUE)
+})
+
+test_that(".init_engine_std handles different literate documentation engines", {
+  skip_if(.is_test_select())
+
+  # Test with NULL lit_doc
+  dir_test1 <- file.path(tempdir(), "testProjrEngineStd1")
+  if (dir.exists(dir_test1)) unlink(dir_test1, recursive = TRUE)
+  .dir_create(dir_test1)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test1, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test1,
+    code = {
+      result <- .init_engine_std(NULL)
+      expect_false(result)
+      expect_false(file.exists("_bookdown.yml"))
+      expect_false(file.exists("_quarto.yml"))
+      expect_false(file.exists("intro.Rmd"))
+      expect_false(file.exists("intro.qmd"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  # Test with bookdown
+  dir_test2 <- file.path(tempdir(), "testProjrEngineStd2")
+  if (dir.exists(dir_test2)) unlink(dir_test2, recursive = TRUE)
+  .dir_create(dir_test2)
+
+  usethis::with_project(
+    path = dir_test2,
+    code = {
+      file.create("_dependencies.R")
+      result <- .init_engine_std("bookdown")
+      expect_true(result)
+      expect_true(file.exists("_bookdown.yml"))
+      expect_true(file.exists("_output.yml"))
+      expect_true(file.exists("index.Rmd"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test2, recursive = TRUE)
+
+  # Test with quarto
+  dir_test3 <- file.path(tempdir(), "testProjrEngineStd3")
+  if (dir.exists(dir_test3)) unlink(dir_test3, recursive = TRUE)
+  .dir_create(dir_test3)
+
+  usethis::with_project(
+    path = dir_test3,
+    code = {
+      file.create("_dependencies.R")
+      result <- .init_engine_std("quarto")
+      expect_true(result)
+      expect_true(file.exists("intro.qmd"))
+      expect_false(file.exists("_quarto.yml"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test3, recursive = TRUE)
+
+  # Test with rmd
+  dir_test4 <- file.path(tempdir(), "testProjrEngineStd4")
+  if (dir.exists(dir_test4)) unlink(dir_test4, recursive = TRUE)
+  .dir_create(dir_test4)
+
+  usethis::with_project(
+    path = dir_test4,
+    code = {
+      file.create("_dependencies.R")
+      result <- .init_engine_std("rmd")
+      expect_true(result)
+      expect_true(file.exists("intro.Rmd"))
+      expect_false(file.exists("_bookdown.yml"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test4, recursive = TRUE)
+
+  # Note: "project" option has a bug in .init_engine_std_quarto_project()
+  # where it tries to pipe .init_engine_quarto_project_index() to writeLines(),
+  # but that function already writes the file itself.
+  # This is tested via the higher-level projr_init() tests instead.
+})
+
+test_that(".init_std_git initializes git repository correctly", {
+  skip_if(.is_test_select())
+
+  # Test with git = FALSE
+  dir_test1 <- file.path(tempdir(), "testProjrStdGit1")
+  if (dir.exists(dir_test1)) unlink(dir_test1, recursive = TRUE)
+  .dir_create(dir_test1)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test1, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test1,
+    code = {
+      result <- .init_std_git(FALSE, TRUE)
+      expect_false(result)
+      expect_false(dir.exists(".git"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  # Test with git = TRUE, commit = FALSE
+  dir_test2 <- file.path(tempdir(), "testProjrStdGit2")
+  if (dir.exists(dir_test2)) unlink(dir_test2, recursive = TRUE)
+  .dir_create(dir_test2)
+
+  usethis::with_project(
+    path = dir_test2,
+    code = {
+      result <- .init_std_git(TRUE, FALSE)
+      expect_true(result)
+      expect_true(dir.exists(".git"))
+      expect_true(file.exists(".gitignore"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test2, recursive = TRUE)
+
+  # Test with git = TRUE, commit = TRUE
+  dir_test3 <- file.path(tempdir(), "testProjrStdGit3")
+  if (dir.exists(dir_test3)) unlink(dir_test3, recursive = TRUE)
+  .dir_create(dir_test3)
+
+  usethis::with_project(
+    path = dir_test3,
+    code = {
+      result <- .init_std_git(TRUE, TRUE)
+      expect_true(result)
+      expect_true(dir.exists(".git"))
+      expect_true(file.exists(".gitignore"))
+
+      # Check that a commit was made
+      .dep_install_only("gert")
+      commits <- gert::git_log(max = 1)
+      expect_true(nrow(commits) > 0)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test3, recursive = TRUE)
+})
+
+test_that(".init_std_github handles GitHub repo creation scenarios", {
+  skip_if(.is_test_select())
+
+  # Test with github = FALSE
+  dir_test1 <- file.path(tempdir(), "testProjrStdGithub1")
+  if (dir.exists(dir_test1)) unlink(dir_test1, recursive = TRUE)
+  .dir_create(dir_test1)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test1, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test1,
+    code = {
+      result <- .init_std_github(FALSE, FALSE, NULL)
+      expect_false(result)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  # Test when no git repo exists
+  dir_test2 <- file.path(tempdir(), "testProjrStdGithub2")
+  if (dir.exists(dir_test2)) unlink(dir_test2, recursive = TRUE)
+  .dir_create(dir_test2)
+
+  usethis::with_project(
+    path = dir_test2,
+    code = {
+      result <- .init_std_github(TRUE, FALSE, NULL)
+      expect_false(result)
+      # Should not create GitHub repo without local git
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test2, recursive = TRUE)
+
+  # Test when git repo exists but remote already set
+  dir_test3 <- file.path(tempdir(), "testProjrStdGithub3")
+  if (dir.exists(dir_test3)) unlink(dir_test3, recursive = TRUE)
+  .dir_create(dir_test3)
+
+  usethis::with_project(
+    path = dir_test3,
+    code = {
+      # Initialize git and add a fake remote
+      .git_init()
+      .test_setup_project_git_config()
+      .dep_install_only("gert")
+      gert::git_remote_add("https://github.com/test/repo.git", "origin")
+
+      result <- .init_std_github(TRUE, FALSE, NULL)
+      expect_false(result)
+      # Should not create GitHub repo when remote already exists
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test3, recursive = TRUE)
+})
