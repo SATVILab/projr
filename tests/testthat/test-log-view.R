@@ -51,11 +51,15 @@ test_that("projr_log_view can filter by build_type", {
       .log_build_append("Dev specific message", "info")
 
       # Get output log specifically
-      result_output <- projr_log_view(build_type = "output", n_lines = NULL, show_header = FALSE)
+      result_output <- projr_log_view(
+        build_type = "output", n_lines = NULL, show_header = FALSE
+      )
       expect_true(any(grepl("Output specific message", result_output)))
 
       # Get dev log specifically
-      result_dev <- projr_log_view(build_type = "dev", n_lines = NULL, show_header = FALSE)
+      result_dev <- projr_log_view(
+        build_type = "dev", n_lines = NULL, show_header = FALSE
+      )
       expect_true(any(grepl("Dev specific message", result_dev)))
     }
   )

@@ -244,9 +244,18 @@
   }
   # .dir_rm(path_dir)
   # create github repo if required
+  token <- .auth_get_github_pat_find()
+  user <- tryCatch(
+    gh::gh_whoami(.token = token)[["login"]],
+    error = function(e) NULL
+  )
   with_dir(
     dirname(path_dir),
-    .test_github_repo_create(repo = basename(path_dir), env = env)
+    .test_github_repo_create(
+      repo = basename(path_dir),
+      user = user,
+      env = env
+    )
   )
   invisible(TRUE)
 }

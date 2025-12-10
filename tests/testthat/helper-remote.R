@@ -52,7 +52,7 @@
   }
 
   # Identify user
-  user <- try(host[["user"]])
+  user <- try(host[["user"]], silent = TRUE)
   if (inherits(user, "try-error") || is.null(user)) {
     user <- tryCatch(
       gh::gh_whoami(.token = token)[["login"]],
