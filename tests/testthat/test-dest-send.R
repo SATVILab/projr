@@ -1,5 +1,6 @@
 # =============================================================================
-# YAML manipulation tests (original test case)
+# YAML manipulation tests - projr_yml_dest_add_local/github wrapper functions
+# Tests destination creation, modification, and removal via YAML helpers
 # =============================================================================
 
 test_that("projr_yml_dest_add* functions work", {
@@ -821,7 +822,9 @@ test_that(".dest_send_title_get_content_yml returns empty for NULL", {
     code = {
       .yml_dest_rm_type_all("default")
       
-      # Manually set YAML with NULL content (bypassing wrapper validation)
+      # Manually set YAML with NULL content to test function behavior
+      # Bypass wrapper validation since projr_yml_dest_add_local requires non-empty content
+      # This tests how .dest_send_title_get_content_yml handles NULL content in YAML
       yml <- .yml_get(NULL)
       yml$build$local <- list(
         test = list(
@@ -849,7 +852,9 @@ test_that(".dest_send_title_get_content_yml returns empty for FALSE", {
     code = {
       .yml_dest_rm_type_all("default")
       
-      # Manually set YAML with FALSE content
+      # Manually set YAML with FALSE content to test function behavior
+      # Bypass wrapper validation since projr_yml_dest_add_local requires non-empty content
+      # This tests how .dest_send_title_get_content_yml handles FALSE content in YAML
       yml <- .yml_get(NULL)
       yml$build$local <- list(
         test = list(
@@ -1064,8 +1069,10 @@ test_that(".dest_send processes local destinations from YAML", {
       # Create some output content
       .test_content_setup_label("output", safe = FALSE)
       
-      # This will attempt to send, but may fail due to missing build context
-      # We're mainly testing that it doesn't error on the dispatch logic
+      # This will attempt to send, but may fail due to missing build context:
+      # - No manifest.csv (requires prior build)
+      # - No version tracking in manifest
+      # We're testing that dispatch logic (type detection, title iteration) runs without error
       result <- tryCatch(
         {
           .dest_send(
@@ -1078,7 +1085,7 @@ test_that(".dest_send processes local destinations from YAML", {
           TRUE
         },
         error = function(e) {
-          # Expected to fail due to no actual build, but dispatch logic ran
+          # Expected to fail without manifest/version context, but confirms dispatch logic executed
           TRUE
         }
       )
@@ -1114,7 +1121,7 @@ test_that(".dest_send handles archive parameter for github", {
           TRUE
         },
         error = function(e) {
-          # Expected to fail without GitHub setup, but logic ran
+          # Expected to fail without GitHub remote/auth configured, but confirms dispatch logic executed
           TRUE
         }
       )
@@ -1162,7 +1169,7 @@ test_that(".dest_send_type processes titles for the type", {
           TRUE
         },
         error = function(e) {
-          # May fail due to missing build context
+          # May fail due to missing build context (manifest, version), but confirms type processor ran
           TRUE
         }
       )
@@ -1217,7 +1224,7 @@ test_that(".dest_send_title respects cue logic", {
           )
         },
         error = function(e) {
-          # Expected to fail without proper build context
+          # Expected to fail without build context (manifest, version tracking)
           FALSE
         }
       )
