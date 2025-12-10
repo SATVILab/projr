@@ -103,23 +103,23 @@ The functions handle errors gracefully:
 }
 \examples{
 \dontrun{
-  # Restore all raw artefacts in existing local project
-  projr_content_update()
+# Restore all raw artefacts in existing local project
+projr_content_update()
 
-  # Restore specific labels
-  projr_content_update(label = c("raw-data", "cache"))
+# Restore specific labels
+projr_content_update(label = c("raw-data", "cache"))
 
-  # Restore from specific source type
-  projr_content_update(type = "local", title = "archive")
+# Restore from specific source type
+projr_content_update(type = "local", title = "archive")
 
-  # Clone repository into subdirectory and restore artefacts
-  projr_restore_repo("owner/repo")
+# Clone repository into subdirectory and restore artefacts
+projr_restore_repo("owner/repo")
 
-  # Clone to specific path
-  projr_restore_repo("owner/repo", path = "my-project")
+# Clone to specific path
+projr_restore_repo("owner/repo", path = "my-project")
 
-  # Clone repository into current directory and restore artefacts
-  projr_restore_repo_wd("owner/repo")
+# Clone repository into current directory and restore artefacts
+projr_restore_repo_wd("owner/repo")
 }
 
 }
