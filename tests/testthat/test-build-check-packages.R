@@ -219,3 +219,270 @@ test_that("projr_build_check_packages works with profile parameter", {
     }
   )
 })
+
+# Tests for .build_check_packages_engine
+
+test_that(".build_check_packages_engine detects bookdown engine", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create _bookdown.yml file
+      writeLines("book_filename: 'test'", "_bookdown.yml")
+
+      pkg_needed <- .build_check_packages_engine()
+      expect_identical(pkg_needed, "bookdown")
+    }
+  )
+})
+
+test_that(".build_check_packages_engine detects quarto_project engine", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create _quarto.yml file
+      writeLines(
+        c("project:", "  type: book"),
+        "_quarto.yml"
+      )
+
+      pkg_needed <- .build_check_packages_engine()
+      expect_identical(pkg_needed, "quarto")
+    }
+  )
+})
+
+test_that(".build_check_packages_engine detects quarto_document engine", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Remove bookdown file if it exists from previous tests
+      if (file.exists("_bookdown.yml")) file.remove("_bookdown.yml")
+
+      # Create a .qmd file without _quarto.yml
+      writeLines(
+        c("---", "title: Test", "---", "", "# Test"),
+        "test.qmd"
+      )
+
+      pkg_needed <- .build_check_packages_engine()
+      expect_identical(pkg_needed, "quarto")
+    }
+  )
+})
+
+test_that(".build_check_packages_engine detects rmd engine", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Remove any leftover bookdown files from previous tests
+      if (file.exists("_bookdown.yml")) file.remove("_bookdown.yml")
+      if (file.exists("_quarto.yml")) file.remove("_quarto.yml")
+
+      # Create an .Rmd file without _bookdown.yml or .qmd files
+      writeLines(
+        c("---", "title: Test", "---", "", "# Test"),
+        "test.Rmd"
+      )
+
+      pkg_needed <- .build_check_packages_engine()
+      expect_identical(pkg_needed, "rmarkdown")
+    }
+  )
+})
+
+test_that(".build_check_packages_engine returns empty for no engine", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Clean up any engine-related files
+      if (file.exists("_bookdown.yml")) file.remove("_bookdown.yml")
+      if (file.exists("_quarto.yml")) file.remove("_quarto.yml")
+      rmd_files <- list.files(pattern = "\\.Rmd$|\\.rmd$")
+      if (length(rmd_files) > 0) file.remove(rmd_files)
+      qmd_files <- list.files(pattern = "\\.qmd$")
+      if (length(qmd_files) > 0) file.remove(qmd_files)
+
+      # No engine files present
+      pkg_needed <- .build_check_packages_engine()
+      expect_identical(pkg_needed, character(0))
+    }
+  )
+})
+
+# Tests for .build_check_packages_remote
+
+test_that(".build_check_packages_remote detects GitHub remote", {
+  skip_if(.is_test_select())
+  skip_if(.is_test_cran())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Add GitHub remote with valid send_cue
+      projr::projr_yml_dest_add_github(
+        title = "test",
+        content = "output",
+        structure = "latest",
+        send_cue = "if-change"
+      )
+
+      pkg_needed <- .build_check_packages_remote()
+      expect_true("gh" %in% pkg_needed)
+    }
+  )
+})
+
+test_that(".build_check_packages_remote detects OSF remote", {
+  skip_if(.is_test_select())
+  skip_if(.is_test_cran())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Manually add OSF configuration to YAML to avoid auth checks
+      yml_path <- file.path(getwd(), "_projr.yml")
+      yml <- yaml::read_yaml(yml_path)
+      if (is.null(yml$build)) yml$build <- list()
+      yml$build$osf <- list(
+        id = "abc12",
+        send = list(
+          list(
+            label = "output",
+            structure = "latest",
+            cue = "if-change"
+          )
+        )
+      )
+      yaml::write_yaml(yml, yml_path)
+
+      pkg_needed <- .build_check_packages_remote()
+      expect_true("osfr" %in% pkg_needed)
+    }
+  )
+})
+
+test_that(".build_check_packages_remote returns empty for no remotes", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # No remotes configured
+      pkg_needed <- .build_check_packages_remote()
+      expect_identical(pkg_needed, character(0))
+    }
+  )
+})
+
+# Tests for .build_check_packages_citations
+
+test_that(".build_check_packages_citations detects cff requirement", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Enable cff citation
+      projr::projr_yml_cite_set(cff = TRUE)
+
+      pkg_needed <- .build_check_packages_citations()
+      expect_true("cffr" %in% pkg_needed)
+    }
+  )
+})
+
+test_that(".build_check_packages_citations detects codemeta requirement", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Enable codemeta citation
+      projr::projr_yml_cite_set(codemeta = TRUE)
+
+      pkg_needed <- .build_check_packages_citations()
+      expect_true("codemetar" %in% pkg_needed)
+    }
+  )
+})
+
+test_that(".build_check_packages_citations detects both cff and codemeta", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Enable both citation types
+      projr::projr_yml_cite_set(cff = TRUE, codemeta = TRUE)
+
+      pkg_needed <- .build_check_packages_citations()
+      expect_true("cffr" %in% pkg_needed)
+      expect_true("codemetar" %in% pkg_needed)
+      expect_length(pkg_needed, 2)
+    }
+  )
+})
+
+test_that(".build_check_packages_citations returns empty when citations disabled", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # No citations configured (default)
+      pkg_needed <- .build_check_packages_citations()
+      expect_identical(pkg_needed, character(0))
+    }
+  )
+})
+
+test_that(".build_check_packages_citations returns empty when cite is FALSE", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Explicitly disable citations
+      projr::projr_yml_cite_set(cff = FALSE)
+
+      pkg_needed <- .build_check_packages_citations()
+      expect_identical(pkg_needed, character(0))
+    }
+  )
+})
