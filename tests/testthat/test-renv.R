@@ -103,16 +103,16 @@ test_that("projr_renv_restore validates github parameter", {
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   on.exit(unlink(dir_test, recursive = TRUE), add = TRUE)
   setwd(dir_test)
-  
+
   # Create a minimal lockfile (just needs to exist for validation)
   writeLines('{"R": {"Version": "4.0"}, "Packages": {}}', "renv.lock")
-  
+
   # Test with non-logical github parameter
   expect_error(
     projr_renv_restore(github = "yes"),
     "'github' must be a single logical value"
   )
-  
+
   # Test with multiple values
   expect_error(
     projr_renv_restore(github = c(TRUE, FALSE)),
@@ -126,16 +126,16 @@ test_that("projr_renv_restore validates non_github parameter", {
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   on.exit(unlink(dir_test, recursive = TRUE), add = TRUE)
   setwd(dir_test)
-  
+
   # Create a minimal lockfile
   writeLines('{"R": {"Version": "4.0"}, "Packages": {}}', "renv.lock")
-  
+
   # Test with non-logical non_github parameter
   expect_error(
     projr_renv_restore(non_github = "yes"),
     "'non_github' must be a single logical value"
   )
-  
+
   # Test with multiple values
   expect_error(
     projr_renv_restore(non_github = c(TRUE, FALSE)),
@@ -149,16 +149,16 @@ test_that("projr_renv_restore validates biocmanager_install parameter", {
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   on.exit(unlink(dir_test, recursive = TRUE), add = TRUE)
   setwd(dir_test)
-  
+
   # Create a minimal lockfile
   writeLines('{"R": {"Version": "4.0"}, "Packages": {}}', "renv.lock")
-  
+
   # Test with non-logical biocmanager_install parameter
   expect_error(
     projr_renv_restore(biocmanager_install = "yes"),
     "'biocmanager_install' must be a single logical value"
   )
-  
+
   # Test with multiple values
   expect_error(
     projr_renv_restore(biocmanager_install = c(TRUE, FALSE)),
@@ -172,10 +172,10 @@ test_that("projr_renv_restore requires at least one package source", {
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   on.exit(unlink(dir_test, recursive = TRUE), add = TRUE)
   setwd(dir_test)
-  
+
   # Create a minimal lockfile
   writeLines('{"R": {"Version": "4.0"}, "Packages": {}}', "renv.lock")
-  
+
   # Test with both github and non_github set to FALSE
   expect_error(
     projr_renv_restore(github = FALSE, non_github = FALSE),
@@ -189,7 +189,7 @@ test_that("projr_renv_restore checks for lockfile existence", {
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   on.exit(unlink(dir_test, recursive = TRUE), add = TRUE)
   setwd(dir_test)
-  
+
   # Don't create a lockfile
   expect_error(
     projr_renv_restore(),
@@ -203,16 +203,16 @@ test_that("projr_renv_update validates parameters", {
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   on.exit(unlink(dir_test, recursive = TRUE), add = TRUE)
   setwd(dir_test)
-  
+
   # Create a minimal lockfile
   writeLines('{"R": {"Version": "4.0"}, "Packages": {}}', "renv.lock")
-  
+
   # Test with invalid parameters (same validation as restore)
   expect_error(
     projr_renv_update(github = "yes"),
     "'github' must be a single logical value"
   )
-  
+
   expect_error(
     projr_renv_update(github = FALSE, non_github = FALSE),
     "At least one of 'github' or 'non_github' must be TRUE"
@@ -225,16 +225,16 @@ test_that("projr_renv_restore_and_update validates parameters", {
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   on.exit(unlink(dir_test, recursive = TRUE), add = TRUE)
   setwd(dir_test)
-  
+
   # Create a minimal lockfile
   writeLines('{"R": {"Version": "4.0"}, "Packages": {}}', "renv.lock")
-  
+
   # Test with invalid parameters
   expect_error(
     projr_renv_restore_and_update(github = "yes"),
     "'github' must be a single logical value"
   )
-  
+
   expect_error(
     projr_renv_restore_and_update(github = FALSE, non_github = FALSE),
     "At least one of 'github' or 'non_github' must be TRUE"

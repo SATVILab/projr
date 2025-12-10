@@ -107,7 +107,6 @@ test_that("adding, listing and removing files works on local remotes", {
   usethis::with_project(
     path = dir_test,
     code = {
-
       # Create a temp directory for the local remote
       remote_dir <- .dir_create_tmp_random()
 
@@ -148,7 +147,8 @@ test_that("adding, listing and removing files works on local remotes", {
       )
 
       file_vec <- .remote_file_ls(
-        "local", remote = remote_dir
+        "local",
+        remote = remote_dir
       )
 
       expect_true("abc.txt" %in% file_vec)
@@ -165,7 +165,8 @@ test_that("adding, listing and removing files works on local remotes", {
       )
 
       file_vec <- .remote_file_ls(
-        "local", remote = remote_dir
+        "local",
+        remote = remote_dir
       )
 
       expect_true("abc.txt" %in% file_vec)
@@ -181,7 +182,8 @@ test_that("adding, listing and removing files works on local remotes", {
       )
 
       file_vec <- .remote_file_ls(
-        "local", remote = remote_dir
+        "local",
+        remote = remote_dir
       )
 
       expect_false("newfile.txt" %in% file_vec)
@@ -241,7 +243,8 @@ test_that("adding, listing and removing files works on local remotes", {
 
       # Remove if empty
       result_rm <- .remote_final_rm_if_empty(
-        "local", remote = remote_dir
+        "local",
+        remote = remote_dir
       )
       expect_true(result_rm)
       expect_false(dir.exists(remote_dir))
@@ -280,7 +283,8 @@ test_that("manifest round-trip works for local remotes", {
       .remote_write_manifest("local", remote_dir, manifest)
       expect_true(
         "manifest.csv" %in% .remote_file_ls(
-          "local", remote = remote_dir
+          "local",
+          remote = remote_dir
         )
       )
 
@@ -315,7 +319,8 @@ test_that("VERSION file round-trip works for local remotes", {
       )
       expect_true(
         "VERSION" %in% .remote_file_ls(
-          "local", remote = remote_dir
+          "local",
+          remote = remote_dir
         )
       )
 
@@ -672,7 +677,6 @@ test_that("upload to archive local remotes using parameter for all content", {
   usethis::with_project(
     path = dir_test,
     code = {
-
       # remove all remotes
       .yml_dest_rm_type_all("default")
 
@@ -729,7 +733,7 @@ test_that("upload to archive local remotes using parameter for all content", {
       expect_true(version_empty_build_output_empty %in% remote_vec_output)
       # docs may have content from build
       expect_true(version_empty_build_docs %in% remote_vec_docs ||
-                  version_empty_build_docs_empty %in% remote_vec_docs)
+        version_empty_build_docs_empty %in% remote_vec_docs)
 
       # --- Upload nothing new, cue always -----
       projr::projr_build_patch(msg = "test", archive_local = remote_base)
@@ -750,7 +754,6 @@ test_that("upload to archive local remotes using parameter for only output conte
   usethis::with_project(
     path = dir_test,
     code = {
-
       # remove all remotes
       .yml_dest_rm_type_all("default")
 
@@ -846,7 +849,6 @@ test_that("test always vs if-change for local remotes", {
   usethis::with_project(
     path = dir_test,
     code = {
-
       # remove all remotes
       .yml_dest_rm_type_all("default")
       remote_base <- .dir_create_tmp_random()
@@ -924,7 +926,6 @@ test_that("various upload strategies run", {
   usethis::with_project(
     path = dir_test,
     code = {
-
       remote_base <- .dir_create_tmp_random()
       on.exit(
         unlink(remote_base, recursive = TRUE),
@@ -1134,7 +1135,6 @@ test_that("various inspection methods run", {
   usethis::with_project(
     path = dir_test,
     code = {
-
       remote_base <- .dir_create_tmp_random()
       on.exit(
         unlink(remote_base, recursive = TRUE),
@@ -1329,8 +1329,6 @@ test_that("various inspection methods run", {
       expect_true("tempfile.txt" %in% fn_vec)
       expect_true(length(fn_vec) > 1)
       expect_true("no-inspect.txt" %in% fn_vec)
-
     }
   )
 })
-

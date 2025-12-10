@@ -221,11 +221,14 @@ test_that(".git_ functions work with GitHub", { # setup
 
       # system2("git", args = c("config", "--local", "credential.helper", "store"))
       .dep_install_only("gh")
-      username <- tryCatch({
-        gh::gh_whoami()[["login"]]
-      }, error = function(e) {
-        NULL
-      })
+      username <- tryCatch(
+        {
+          gh::gh_whoami()[["login"]]
+        },
+        error = function(e) {
+          NULL
+        }
+      )
       if (!.is_string(username)) {
         skip("GitHub user not found")
       }

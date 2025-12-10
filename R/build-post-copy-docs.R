@@ -185,7 +185,7 @@
   # Get source directory (temporary build location in cache)
   source_dir <- file.path(
     .dir_get_cache_auto_version(profile = NULL),
-    .dir_get_docs_bookdown()  # Gets the bookdown output directory name
+    .dir_get_docs_bookdown() # Gets the bookdown output directory name
   )
 
   if (!dir.exists(source_dir)) {

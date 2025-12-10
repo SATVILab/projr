@@ -57,23 +57,23 @@
 #'
 #' @examples
 #' \dontrun{
-#'   # Restore all raw artefacts in existing local project
-#'   projr_content_update()
+#' # Restore all raw artefacts in existing local project
+#' projr_content_update()
 #'
-#'   # Restore specific labels
-#'   projr_content_update(label = c("raw-data", "cache"))
+#' # Restore specific labels
+#' projr_content_update(label = c("raw-data", "cache"))
 #'
-#'   # Restore from specific source type
-#'   projr_content_update(type = "local", title = "archive")
+#' # Restore from specific source type
+#' projr_content_update(type = "local", title = "archive")
 #'
-#'   # Clone repository into subdirectory and restore artefacts
-#'   projr_restore_repo("owner/repo")
+#' # Clone repository into subdirectory and restore artefacts
+#' projr_restore_repo("owner/repo")
 #'
-#'   # Clone to specific path
-#'   projr_restore_repo("owner/repo", path = "my-project")
+#' # Clone to specific path
+#' projr_restore_repo("owner/repo", path = "my-project")
 #'
-#'   # Clone repository into current directory and restore artefacts
-#'   projr_restore_repo_wd("owner/repo")
+#' # Clone repository into current directory and restore artefacts
+#' projr_restore_repo_wd("owner/repo")
 #' }
 #'
 #' @name projr_restore
@@ -163,7 +163,8 @@ projr_content_update <- function(label = NULL,
         "Clearing existing files for label: ", label[[i]]
       )
       path_dir_local <- projr_path_get_dir(
-        label[[i]], safe = FALSE, create = FALSE
+        label[[i]],
+        safe = FALSE, create = FALSE
       )
       if (dir.exists(path_dir_local)) {
         unlink(path_dir_local, recursive = TRUE, force = TRUE)
@@ -365,8 +366,8 @@ projr_content_update <- function(label = NULL,
 }
 
 .content_update_label_get_source_source_type_spec <- function(yml_source,
-                                                       type,
-                                                       .title) {
+                                                              type,
+                                                              .title) {
   if (type %in% names(yml_source)) {
     yml_type <- yml_source[[type]]
     .content_update_label_get_source_source_title_spec(
@@ -378,8 +379,8 @@ projr_content_update <- function(label = NULL,
 }
 
 .content_update_label_get_source_source_title <- function(yml_type,
-                                                   type,
-                                                   .title) {
+                                                          type,
+                                                          .title) {
   if (!is.null(.title)) {
     .content_update_label_get_source_source_title_spec(yml_type, type, .title)
   } else {
@@ -510,9 +511,8 @@ projr_content_update <- function(label = NULL,
       }
     )
   } else {
-    c("pos" = "dest",  "type" = tp_first, "title" = tt_first)
+    c("pos" = "dest", "type" = tp_first, "title" = tt_first)
   }
-
 }
 
 .content_update_label_get_source_dest_get_type <- function(type, label) {

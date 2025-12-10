@@ -232,7 +232,7 @@ projr_build_dev <- function(file = NULL,
   if (!.build_is_current_version_dev()) {
     return(NULL)
   }
-  
+
   # If already on dev version, respect the bump parameter
   switch(bump,
     "dev"
@@ -334,7 +334,7 @@ projr_build_dev <- function(file = NULL,
 
 .build_ensure_version <- function() {
   if (!file.exists(.path_get("VERSION")) &&
-        !file.exists(.path_get("DESCRIPTION"))) {
+    !file.exists(.path_get("DESCRIPTION"))) {
     projr_version_set("0.0.1")
   }
 }
@@ -648,26 +648,26 @@ projr_build_dev <- function(file = NULL,
                             version_run_on_list,
                             msg) {
   output_run <- .build_get_output_run(bump_component)
-  
+
   # Only bump to dev version for production builds
   if (!output_run) {
     return(invisible(FALSE))
   }
-  
+
   # Get current version and append dev component
   version_current_vec <- .version_current_vec_get(dev_force = FALSE)
   version_format_list <- .version_format_list_get(NULL)
-  
+
   # Append dev component if not already there
   version_dev_vec <- .version_run_onwards_get_dev_append_dev(
     version_current_vec,
     version_format_list$sep
   )
   version_dev <- .version_concat(version_dev_vec, version_format_list$sep)
-  
+
   # Set the dev version
   projr_version_set(version_dev)
-  
+
   # Commit dev version
   .build_git_commit(
     output_run = output_run,

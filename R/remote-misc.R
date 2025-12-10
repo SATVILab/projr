@@ -60,11 +60,14 @@
   }
 
   # prefer 'origin', fallback to first remote returned by `git remote`
-  remote_url <- tryCatch({
-    system2("git", args = c(git_args, "remote", "get-url", "origin"), stdout = TRUE, stderr = TRUE)
-  }, error = function(e) {
-    character(0)
-  })
+  remote_url <- tryCatch(
+    {
+      system2("git", args = c(git_args, "remote", "get-url", "origin"), stdout = TRUE, stderr = TRUE)
+    },
+    error = function(e) {
+      character(0)
+    }
+  )
 
   if (length(remote_url) == 0 || !nzchar(remote_url)) {
     # fallback: pick the first remote name, then get-url

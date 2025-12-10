@@ -1770,7 +1770,7 @@
   )
   .remote_file_rm(type, fn_rm, remote_rm, output_level)
   Sys.sleep(1) # ensure remote consistency
-  
+
   # Check if remote still exists after removal
   # (may have been automatically deleted if it became empty)
   .remote_final_get_if_exists(
@@ -1871,11 +1871,12 @@
       }
     }
   }
-  
+
   # if both exist, then we remove the empty remote
   remote_dest_empty <- .dsl_ip_fr_remove_empty(
     remote_dest_full, remote_dest_empty,
-    type, output_level = output_level
+    type,
+    output_level = output_level
   )
 
   # ensure at least the empty remote exists,
@@ -1899,19 +1900,25 @@
     # GitHub: remote is c("tag" = "v0.0.1", "fn" = "output-v0.0.1.zip")
     # Extract from fn component, strip .zip
     fn <- remote[["fn"]]
-    if (is.null(fn)) return(NULL)
+    if (is.null(fn)) {
+      return(NULL)
+    }
     # Remove .zip extension and extract version
     fn_no_zip <- sub("\\.zip$", "", fn)
     # Extract v<version> pattern from end
     version_match <- regmatches(fn_no_zip, regexpr("v[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9]+)?$", fn_no_zip))
-    if (length(version_match) == 0) return(NULL)
+    if (length(version_match) == 0) {
+      return(NULL)
+    }
     sub("^v", "", version_match)
   } else if (type %in% c("local", "osf")) {
     # Local/OSF: remote is a path ending with v<version>
     # Extract v<version> from the basename
     basename_remote <- basename(remote)
     version_match <- regmatches(basename_remote, regexpr("v[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9]+)?$", basename_remote))
-    if (length(version_match) == 0) return(NULL)
+    if (length(version_match) == 0) {
+      return(NULL)
+    }
     sub("^v", "", version_match)
   } else {
     NULL
@@ -1966,8 +1973,8 @@
   .cli_debug(
     "added_files: {added}, remote_dest_full: {full}, remote_dest_empty: {empty}",
     added = added_files,
-    full = if(is.null(remote_dest_full)) "NULL" else as.character(remote_dest_full),
-    empty = if(is.null(remote_dest_empty)) "NULL" else as.character(remote_dest_empty),
+    full = if (is.null(remote_dest_full)) "NULL" else as.character(remote_dest_full),
+    empty = if (is.null(remote_dest_empty)) "NULL" else as.character(remote_dest_empty),
     output_level = output_level
   )
   .cli_debug(
@@ -1988,7 +1995,7 @@
   cond_always <- cue == "always"
   final_remotes <- .remote_ls_final(type, remote_pre)
   cond_no_remotes <- .is_len_0(final_remotes)
-  
+
   .cli_debug(
     "Conditions: latest={latest}, fn_rm_len={fn_rm_len}, cue={cue}, final_remotes={num_final}",
     latest = cond_latest,
@@ -1997,9 +2004,9 @@
     num_final = length(final_remotes),
     output_level = output_level
   )
-  
+
   create_empty <- cond_latest || cond_fn_rm || cond_always || cond_no_remotes
-  
+
   if (!create_empty) {
     .cli_debug(
       "No need to create empty remote destination",

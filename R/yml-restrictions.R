@@ -143,10 +143,10 @@ projr_yml_restrictions_set <- function(branch = NULL,
 .yml_restrictions_get_branch <- function(profile) {
   yml_restrictions <- .yml_restrictions_get(profile)
   if (is.null(yml_restrictions)) {
-    return(TRUE)  # Default: no restrictions
+    return(TRUE) # Default: no restrictions
   }
   if (is.null(yml_restrictions[["branch"]])) {
-    return(TRUE)  # Default: no restrictions
+    return(TRUE) # Default: no restrictions
   }
   branch <- yml_restrictions[["branch"]]
   # Convert empty list to empty character vector for consistency
@@ -159,10 +159,10 @@ projr_yml_restrictions_set <- function(branch = NULL,
 .yml_restrictions_get_not_behind <- function(profile) {
   yml_restrictions <- .yml_restrictions_get(profile)
   if (is.null(yml_restrictions)) {
-    return(TRUE)  # Default: check enabled
+    return(TRUE) # Default: check enabled
   }
   if (is.null(yml_restrictions[["not_behind"]])) {
-    return(TRUE)  # Default: check enabled
+    return(TRUE) # Default: check enabled
   }
   yml_restrictions[["not_behind"]]
 }

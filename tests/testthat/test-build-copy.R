@@ -16,13 +16,13 @@ test_that(".build_clear_pre and _post works", {
       projr_path_get_dir("output", "a", safe = FALSE)
       projr_path_get_dir("docs", "b")
       projr_path_get_dir("project", "data", "c")
-      
+
       path_docs <- projr_path_get_dir("docs", create = FALSE)
       path_data <- projr_path_get_dir("project", "data", create = FALSE)
-      
+
       # Clear should work without errors
       expect_silent(.build_clear_pre(output_run = TRUE, clear_output = "pre"))
-      
+
       # Docs and data directories should still exist (not output directories)
       expect_true(dir.exists(path_docs))
       expect_true(dir.exists(path_data))
@@ -120,7 +120,7 @@ test_that("projr_build_copy_pkg works", {
         "Version: 0.0.0-1",
         "Description: Test package for building."
       ), "DESCRIPTION")
-      
+
       yml_projr_init <- .yml_get_default_raw()
 
       # don't build
@@ -305,7 +305,7 @@ test_that("projr_build_copy_dir works when outputting", {
       expect_true(dir.exists(
         projr_path_get("output2", "cache", safe = FALSE, create = FALSE)
       ))
-      
+
       # check that docs are copied when output: TRUE
       # -------------------
       yml_projr <- yml_projr_init
@@ -321,7 +321,7 @@ test_that("projr_build_copy_dir works when outputting", {
       expect_true(file.exists(
         projr_path_get("output", "docs", "a.txt", safe = FALSE, create = FALSE)
       ))
-      
+
       # check that docs are copied to specified output directory
       # -------------------
       yml_projr <- yml_projr_init
@@ -344,7 +344,7 @@ test_that("projr_build_copy_dir works when outputting", {
       expect_true(file.exists(
         projr_path_get("output2", "docs", "b.txt", safe = FALSE, create = FALSE)
       ))
-      
+
       # check that custom directory labels can be copied
       # -------------------
       yml_projr <- yml_projr_init
@@ -367,7 +367,7 @@ test_that("projr_build_copy_dir works when outputting", {
       expect_true(file.exists(
         projr_path_get("output", "raw2", "custom.txt", safe = FALSE, create = FALSE)
       ))
-      
+
       # check that multiple custom labels can be copied to different outputs
       # -------------------
       # Add custom labels (use raw-extra and output3 since label patterns are restrictive)
@@ -410,19 +410,19 @@ test_that(".build_copy_dir works with non-standard label names", {
       .yml_dir_add_label(
         path = "_foo", label = "foo", profile = "default"
       )
-      
+
       # Create files in foo directory
       file.create(projr_path_get("foo", "test.txt", safe = FALSE))
       file.create(projr_path_get("foo", "test2.txt", safe = FALSE))
-      
+
       # Configure output for foo
       yml_projr <- .yml_get(NULL)
       yml_projr[["directories"]][["foo"]][["output"]] <- TRUE
       .yml_set(yml_projr)
-      
+
       # This should not crash with "label 'foo' not valid"
       expect_true(.build_copy_dir(output_run = TRUE))
-      
+
       # Verify files were copied
       expect_true(dir.exists(
         projr_path_get("output", "foo", safe = FALSE, create = FALSE)
@@ -1028,15 +1028,15 @@ test_that("CHANGELOG.md is excluded from docs copying", {
       source_dir <- file.path(dir_test, "source")
       dest_dir <- file.path(dir_test, "dest")
       dir.create(source_dir)
-      
+
       # Create some files including CHANGELOG.md
       writeLines("Test content", file.path(source_dir, "test.html"))
       writeLines("# CHANGELOG\n\n- Test entry", file.path(source_dir, "CHANGELOG.md"))
       writeLines("Other content", file.path(source_dir, "other.txt"))
-      
+
       # Test the dir_move_exact function with CHANGELOG.md exclusion
       .dir_move_exact(source_dir, dest_dir, fn_exc = "CHANGELOG.md")
-      
+
       # Verify that CHANGELOG.md was excluded but other files were copied
       expect_true(file.exists(file.path(dest_dir, "test.html")))
       expect_true(file.exists(file.path(dest_dir, "other.txt")))
@@ -1051,7 +1051,7 @@ test_that("Rmd with self_contained: false copies _files directory", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  
+
   usethis::with_project(
     path = dir_test,
     code = {
@@ -1068,36 +1068,36 @@ plot(1:10)
 ```
 '
       writeLines(rmd_content, "test.Rmd")
-      
+
       # Render it
       rmarkdown::render("test.Rmd", quiet = TRUE)
-      
+
       # Verify _files directory was created
       expect_true(dir.exists("test_files"))
-      
+
       # Test that both the HTML file and _files directory are copied
       docs_dir <- projr_path_get_dir("docs", safe = TRUE)
       unlink(docs_dir, recursive = TRUE)
       docs_dir <- projr_path_get_dir("docs", safe = TRUE)
-      
+
       .build_copy_docs_rmd(FALSE)
-      
+
       expect_true(file.exists(file.path(docs_dir, "test.html")))
       expect_true(dir.exists(file.path(docs_dir, "test_files")))
-      
+
       # Verify files were actually copied
       files_in_root <- list.files("test_files", recursive = TRUE)
       files_in_docs <- list.files(file.path(docs_dir, "test_files"), recursive = TRUE)
       expect_true(length(files_in_docs) > 0)
-      
+
       # Test with output_run = TRUE (safe = FALSE)
       docs_dir_unsafe <- projr_path_get_dir("docs", safe = FALSE)
-      
+
       # Create fresh HTML and _files for this test
       rmarkdown::render("test.Rmd", quiet = TRUE)
-      
+
       .build_copy_docs_rmd(TRUE)
-      
+
       expect_true(file.exists(file.path(docs_dir_unsafe, "test.html")))
       expect_true(dir.exists(file.path(docs_dir_unsafe, "test_files")))
     },

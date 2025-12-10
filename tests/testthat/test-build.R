@@ -109,21 +109,21 @@ test_that("bookdown _files directory is copied correctly", {
         "```"
       )
       writeLines(index_content, "index.Rmd")
-      
+
       # Run build - this will render bookdown and create the _files directory
       projr_build_patch(msg = "Test bookdown files")
-      
+
       # Get book filename from _bookdown.yml
       book_filename <- .yml_bd_get_book_filename()
       files_dir_name <- paste0(book_filename, "_files")
-      
+
       # Check that _files directory was copied to final docs location
       docs_dir <- projr_path_get_dir("docs", safe = FALSE)
       dest_files_dir <- file.path(docs_dir, files_dir_name)
-      
+
       # The _files directory should exist in the final docs location
       expect_true(dir.exists(dest_files_dir))
-      
+
       # There should be figure files inside
       figure_files <- list.files(dest_files_dir, recursive = TRUE, pattern = "\\.(png|jpg|jpeg)$")
       expect_true(length(figure_files) > 0)
@@ -231,12 +231,15 @@ test_that("Failed builds handle version appropriately", {
       initial_version <- projr_version_get()
 
       # Define custom error handler to prevent test from failing
-      tryCatch({
-        # This build should fail
-        projr_build_patch(msg = "This should fail")
-      }, error = function(e) {
-        # Do nothing, we expect an error
-      })
+      tryCatch(
+        {
+          # This build should fail
+          projr_build_patch(msg = "This should fail")
+        },
+        error = function(e) {
+          # Do nothing, we expect an error
+        }
+      )
 
       # Version should be back to initial version after failed build
       expect_identical(projr_version_get(), initial_version)
@@ -383,26 +386,26 @@ test_that("args_engine parameter works correctly", {
 test_that("PROJR_CLEAR_OUTPUT environment variable works correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  
+
   old_val <- Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "")
   on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_CLEAR_OUTPUT = old_val) else Sys.unsetenv("PROJR_CLEAR_OUTPUT"))
-  
+
   # Test default value
   Sys.unsetenv("PROJR_CLEAR_OUTPUT")
   expect_identical(.build_get_clear_output(NULL), "pre")
-  
+
   # Test "pre" value
   Sys.setenv(PROJR_CLEAR_OUTPUT = "pre")
   expect_identical(.build_get_clear_output(NULL), "pre")
-  
+
   # Test "post" value
   Sys.setenv(PROJR_CLEAR_OUTPUT = "post")
   expect_identical(.build_get_clear_output(NULL), "post")
-  
+
   # Test "never" value
   Sys.setenv(PROJR_CLEAR_OUTPUT = "never")
   expect_identical(.build_get_clear_output(NULL), "never")
-  
+
   # Test invalid value
   Sys.setenv(PROJR_CLEAR_OUTPUT = "invalid")
   expect_error(.build_get_clear_output(NULL))
@@ -411,13 +414,13 @@ test_that("PROJR_CLEAR_OUTPUT environment variable works correctly", {
 test_that("PROJR_CLEAR_OUTPUT explicit parameter overrides env var", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  
+
   old_val <- Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "")
   on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_CLEAR_OUTPUT = old_val) else Sys.unsetenv("PROJR_CLEAR_OUTPUT"))
-  
+
   # Set env var to one value
   Sys.setenv(PROJR_CLEAR_OUTPUT = "never")
-  
+
   # Explicit parameter should override
   expect_identical(.build_get_clear_output("pre"), "pre")
   expect_identical(.build_get_clear_output("post"), "post")
@@ -427,24 +430,24 @@ test_that("PROJR_CLEAR_OUTPUT explicit parameter overrides env var", {
 test_that("PROJR_CLEAR_OUTPUT validates input strictly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  
+
   old_val <- Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "")
   on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_CLEAR_OUTPUT = old_val) else Sys.unsetenv("PROJR_CLEAR_OUTPUT"))
-  
+
   # Test case sensitivity
   Sys.setenv(PROJR_CLEAR_OUTPUT = "PRE")
   expect_error(.build_get_clear_output(NULL))
-  
+
   Sys.setenv(PROJR_CLEAR_OUTPUT = "Post")
   expect_error(.build_get_clear_output(NULL))
-  
+
   Sys.setenv(PROJR_CLEAR_OUTPUT = "NEVER")
   expect_error(.build_get_clear_output(NULL))
-  
+
   # Test other invalid values
   Sys.setenv(PROJR_CLEAR_OUTPUT = "always")
   expect_error(.build_get_clear_output(NULL))
-  
+
   Sys.setenv(PROJR_CLEAR_OUTPUT = "")
   expect_error(.build_get_clear_output(NULL))
 })

@@ -175,7 +175,6 @@ projr_profile_create_local <- function() {
 }
 
 
-
 #' @title Get active projr profile
 #'
 #' @description

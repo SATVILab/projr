@@ -401,7 +401,7 @@ test_that("Manual licenses not overwritten during builds", {
         c("---", "title: Test", "---", "", "Test content"),
         file.path(.path_get(), "test.qmd")
       )
-      
+
       # add license
       suppressMessages(
         projr_license_create_manual("MIT", "raw-data", authors = c("Manual Author"))

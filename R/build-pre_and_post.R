@@ -63,7 +63,7 @@
   if (!file.exists(warning_file)) {
     # Create the file to indicate the warning for today has been issued.
     writeLines(as.character(Sys.time()), con = warning_file)
-    return(FALSE)  # Warning has not been issued before today.
+    return(FALSE) # Warning has not been issued before today.
   }
 }
 

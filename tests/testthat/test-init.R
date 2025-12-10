@@ -402,7 +402,7 @@ test_that("projr_init_rmd works", {
 test_that("projr_init with various parameters works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  
+
   # Test with minimal parameters (defaults)
   dir_test <- file.path(tempdir(), "testProjrMinimal")
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -410,7 +410,7 @@ test_that("projr_init with various parameters works", {
   .test_set()
   withr::defer(.test_unset())
   withr::defer(unlink(dir_test, recursive = TRUE))
-  
+
   usethis::with_project(
     path = dir_test,
     code = {
@@ -425,12 +425,12 @@ test_that("projr_init with various parameters works", {
     force = TRUE,
     quiet = TRUE
   )
-  
+
   # Test with git enabled
   dir_test2 <- file.path(tempdir(), "testProjrGit")
   if (dir.exists(dir_test2)) unlink(dir_test2, recursive = TRUE)
   .dir_create(dir_test2)
-  
+
   usethis::with_project(
     path = dir_test2,
     code = {
@@ -442,19 +442,19 @@ test_that("projr_init with various parameters works", {
     quiet = TRUE
   )
   unlink(dir_test2, recursive = TRUE)
-  
+
   # Test with DESCRIPTION and license
   dir_test3 <- file.path(tempdir(), "testProjrDesc")
   if (dir.exists(dir_test3)) unlink(dir_test3, recursive = TRUE)
   .dir_create(dir_test3)
-  
+
   usethis::with_project(
     path = dir_test3,
     code = {
       projr_init(
-        git = FALSE, 
-        github = FALSE, 
-        desc = TRUE, 
+        git = FALSE,
+        github = FALSE,
+        desc = TRUE,
         license = "ccby"
       )
       expect_true(file.exists("DESCRIPTION"))
@@ -464,12 +464,12 @@ test_that("projr_init with various parameters works", {
     quiet = TRUE
   )
   unlink(dir_test3, recursive = TRUE)
-  
+
   # Test with projr_yml
   dir_test4 <- file.path(tempdir(), "testProjrYml")
   if (dir.exists(dir_test4)) unlink(dir_test4, recursive = TRUE)
   .dir_create(dir_test4)
-  
+
   usethis::with_project(
     path = dir_test4,
     code = {
@@ -484,12 +484,12 @@ test_that("projr_init with various parameters works", {
     quiet = TRUE
   )
   unlink(dir_test4, recursive = TRUE)
-  
+
   # Test with lit_doc options
   dir_test5 <- file.path(tempdir(), "testProjrQuarto")
   if (dir.exists(dir_test5)) unlink(dir_test5, recursive = TRUE)
   .dir_create(dir_test5)
-  
+
   usethis::with_project(
     path = dir_test5,
     code = {
@@ -504,12 +504,12 @@ test_that("projr_init with various parameters works", {
     quiet = TRUE
   )
   unlink(dir_test5, recursive = TRUE)
-  
+
   # Test with readme_rmd = FALSE
   dir_test6 <- file.path(tempdir(), "testProjrReadmeMd")
   if (dir.exists(dir_test6)) unlink(dir_test6, recursive = TRUE)
   .dir_create(dir_test6)
-  
+
   usethis::with_project(
     path = dir_test6,
     code = {
@@ -536,7 +536,7 @@ test_that("projr_init_all works", {
   .test_set()
   withr::defer(.test_unset())
   withr::defer(unlink(dir_test, recursive = TRUE))
-  
+
   usethis::with_project(
     path = dir_test,
     code = {
@@ -563,13 +563,13 @@ test_that("projr_init_cite works", {
   .test_set()
   withr::defer(.test_unset())
   withr::defer(unlink(dir_test, recursive = TRUE))
-  
+
   usethis::with_project(
     path = dir_test,
     code = {
       # Create DESCRIPTION first (required for cite)
       projr_init(git = FALSE, github = FALSE, desc = TRUE)
-      
+
       # Try to run projr_init_cite
       # May fail due to package installation issues in CI
       cite_result <- tryCatch(
@@ -581,7 +581,7 @@ test_that("projr_init_cite works", {
           list(success = FALSE, error = e$message)
         }
       )
-      
+
       # If it succeeded, CITATION.cff should exist
       if (cite_result$success) {
         expect_true(file.exists("CITATION.cff"))
@@ -604,7 +604,7 @@ test_that("projr_init_git works", {
   .test_set()
   withr::defer(.test_unset())
   withr::defer(unlink(dir_test, recursive = TRUE))
-  
+
   usethis::with_project(
     path = dir_test,
     code = {
@@ -612,7 +612,7 @@ test_that("projr_init_git works", {
       expect_true(projr_init_git(commit = TRUE))
       expect_true(dir.exists(".git"))
       expect_true(file.exists(".gitignore"))
-      
+
       # Check that a commit was made
       .dep_install_only("gert")
       commits <- gert::git_log(max = 1)
@@ -621,12 +621,12 @@ test_that("projr_init_git works", {
     force = TRUE,
     quiet = TRUE
   )
-  
+
   # Test git init without commit
   dir_test2 <- file.path(tempdir(), "testProjrGitNoCommit")
   if (dir.exists(dir_test2)) unlink(dir_test2, recursive = TRUE)
   .dir_create(dir_test2)
-  
+
   usethis::with_project(
     path = dir_test2,
     code = {
@@ -643,7 +643,7 @@ test_that("projr_init_git works", {
 test_that("projr_init_license works with different license types", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  
+
   # Test CC-BY license
   dir_test1 <- file.path(tempdir(), "testProjrLicenseCCBY")
   if (dir.exists(dir_test1)) unlink(dir_test1, recursive = TRUE)
@@ -651,7 +651,7 @@ test_that("projr_init_license works with different license types", {
   .test_set()
   withr::defer(.test_unset())
   withr::defer(unlink(dir_test1, recursive = TRUE))
-  
+
   usethis::with_project(
     path = dir_test1,
     code = {
@@ -665,12 +665,12 @@ test_that("projr_init_license works with different license types", {
     force = TRUE,
     quiet = TRUE
   )
-  
+
   # Test Apache license
   dir_test2 <- file.path(tempdir(), "testProjrLicenseApache")
   if (dir.exists(dir_test2)) unlink(dir_test2, recursive = TRUE)
   .dir_create(dir_test2)
-  
+
   usethis::with_project(
     path = dir_test2,
     code = {
@@ -682,12 +682,12 @@ test_that("projr_init_license works with different license types", {
     quiet = TRUE
   )
   unlink(dir_test2, recursive = TRUE)
-  
+
   # Test CC0 license
   dir_test3 <- file.path(tempdir(), "testProjrLicenseCC0")
   if (dir.exists(dir_test3)) unlink(dir_test3, recursive = TRUE)
   .dir_create(dir_test3)
-  
+
   usethis::with_project(
     path = dir_test3,
     code = {
@@ -699,12 +699,12 @@ test_that("projr_init_license works with different license types", {
     quiet = TRUE
   )
   unlink(dir_test3, recursive = TRUE)
-  
+
   # Test proprietary license
   dir_test4 <- file.path(tempdir(), "testProjrLicenseProp")
   if (dir.exists(dir_test4)) unlink(dir_test4, recursive = TRUE)
   .dir_create(dir_test4)
-  
+
   usethis::with_project(
     path = dir_test4,
     code = {
@@ -720,7 +720,8 @@ test_that("projr_init_license works with different license types", {
 
 test_that("projr_init_renv works", {
   skip_if(.is_test_select())
-  skip_if_not(.test_should_run_renv(),
+  skip_if_not(
+    .test_should_run_renv(),
     "Set PROJR_TEST_RENV=TRUE to run renv initialization tests"
   )
   dir_test <- file.path(tempdir(), "testProjrRenv")
@@ -729,13 +730,13 @@ test_that("projr_init_renv works", {
   .test_set()
   withr::defer(.test_unset())
   withr::defer(unlink(dir_test, recursive = TRUE))
-  
+
   usethis::with_project(
     path = dir_test,
     code = {
       # Create basic structure first
       projr_init(git = FALSE, github = FALSE, desc = TRUE)
-      
+
       # Test renv initialization with bioc = FALSE
       expect_true(projr_init_renv(bioc = FALSE))
       expect_true(file.exists("renv.lock"))
@@ -750,7 +751,7 @@ test_that("projr_init_renv works", {
 test_that("projr_init_renviron works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  
+
   # This function creates/updates user .Renviron, so we need to be careful
   # Just test that it runs without error
   expect_message(projr_init_renviron())

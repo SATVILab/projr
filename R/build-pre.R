@@ -198,11 +198,14 @@
 }
 
 .build_github_setup_user <- function() {
-  user <- tryCatch({
-    gh::gh_whoami()$login
-  }, error = function(e) {
-    NULL
-  })
+  user <- tryCatch(
+    {
+      gh::gh_whoami()$login
+    },
+    error = function(e) {
+      NULL
+    }
+  )
   if (!.is_string(user)) {
     stop("GitHub user not found.")
   }
@@ -297,7 +300,7 @@
   if (!file.exists(.path_get("VERSION")) && !file.exists(.path_get("DESCRIPTION"))) {
     return(FALSE)
   }
-  
+
   version_vec_current <- .version_current_vec_get(dev_force = FALSE)
   version_format <- .version_format_list_get(NULL)[["component"]]
   # If current version vector length matches format length, it has dev component
@@ -352,14 +355,14 @@
   if (!.build_exit_if_behind_upstream_check(output_run)) {
     return(invisible(FALSE))
   }
-  
+
   # Check if not_behind restriction is enabled
   not_behind <- .yml_restrictions_get_not_behind(NULL)
   if (!isTRUE(not_behind)) {
     # Check is disabled
     return(invisible(FALSE))
   }
-  
+
   if (.git_check_behind()) {
     stop(
       "Remote is ahead of local.\n",
@@ -543,7 +546,7 @@
 
   # If empty character vector or empty list, restrict on all branches
   if ((is.character(branch_restriction) && length(branch_restriction) == 0) ||
-      (is.list(branch_restriction) && length(branch_restriction) == 0)) {
+    (is.list(branch_restriction) && length(branch_restriction) == 0)) {
     stop(
       "Builds are restricted on all branches.\n",
       "Current branch: ", current_branch, "\n",
@@ -554,8 +557,8 @@
 
   # Check if current branch matches any allowed branches
   if ((is.character(branch_restriction) || is.list(branch_restriction)) &&
-      length(branch_restriction) > 0 &&
-      !current_branch %in% branch_restriction) {
+    length(branch_restriction) > 0 &&
+    !current_branch %in% branch_restriction) {
     stop(
       "Builds are restricted to specific branches.\n",
       "Current branch: ", current_branch, "\n",
@@ -567,4 +570,3 @@
 
   invisible(TRUE)
 }
-

@@ -57,7 +57,7 @@
 
 .build_cite_get_yml <- function() {
   cite_vec <- .yml_cite_get(NULL)
-  
+
   if (isTRUE(cite_vec)) {
     return(c("cff", "codemeta", "inst-citation"))
   } else if (is.null(cite_vec) || isFALSE(cite_vec)) {
@@ -136,7 +136,6 @@
   writeLines(file_vec, .path_get("codemeta.json"))
   invisible(TRUE)
 }
-
 
 
 # readme

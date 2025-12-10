@@ -1,5 +1,3 @@
-
-
 # github
 .auth_get_github_pat <- function(init = FALSE) {
   pat <- .auth_get_github_pat_find()
@@ -11,7 +9,7 @@
 }
 
 .auth_get_github_pat_find_gitcreds <- function(api_url = NULL) {
-  url  <- api_url %||% Sys.getenv("GITHUB_API_URL", "https://api.github.com")
+  url <- api_url %||% Sys.getenv("GITHUB_API_URL", "https://api.github.com")
 
   # Logic update: Robustly handle Standard vs Enterprise GitHub hosts
   if (grepl("api.github.com", url, fixed = TRUE)) {
@@ -89,9 +87,9 @@
 .auth_get_github_pat_warn <- function(init = FALSE) {
   warning(
     "No GitHub authentication could be found.\n", # nolint
-    "\n",                                         # nolint
+    "\n", # nolint
     .auth_get_github_pat_instr(),
-    "\n",                                         # nolint
+    "\n", # nolint
     .auth_get_github_pat_instr_init(init),
     call. = FALSE
   )
@@ -100,22 +98,22 @@
 .auth_get_github_pat_instr <- function() {
   .dep_install_only("usethis")
   c(
-    "GitHub authentication is required to create or use a GitHub ",      # nolint
-    "repository.\n",                                                     # nolint
-    "\n",                                                                # nolint
-    "You can set this up in under two minutes:\n",                       # nolint
-    "1. If you do not have a GitHub account, create one at ",           # nolint
-    "https://github.com\n",                                              # nolint
-    "2. In R, run usethis::create_github_token() and follow the ",      # nolint
-    "   prompts in your browser to create a personal access token\n",    # nolint
-    "3. In R, run gitcreds::gitcreds_set()\n",                           # nolint
-    "4. Paste the token you copied from your browser into the R ",      # nolint
-    "   console and press Enter\n",                                      # nolint
-    "\n",                                                                # nolint
-    "After this, projr will automatically detect your GitHub ",         # nolint
-    "credentials when needed.\n",                                        # nolint
-    "\n",                                                                # nolint
-    "For more details, see https://happygitwithr.com/https-pat#tldr\n"   # nolint
+    "GitHub authentication is required to create or use a GitHub ", # nolint
+    "repository.\n", # nolint
+    "\n", # nolint
+    "You can set this up in under two minutes:\n", # nolint
+    "1. If you do not have a GitHub account, create one at ", # nolint
+    "https://github.com\n", # nolint
+    "2. In R, run usethis::create_github_token() and follow the ", # nolint
+    "   prompts in your browser to create a personal access token\n", # nolint
+    "3. In R, run gitcreds::gitcreds_set()\n", # nolint
+    "4. Paste the token you copied from your browser into the R ", # nolint
+    "   console and press Enter\n", # nolint
+    "\n", # nolint
+    "After this, projr will automatically detect your GitHub ", # nolint
+    "credentials when needed.\n", # nolint
+    "\n", # nolint
+    "For more details, see https://happygitwithr.com/https-pat#tldr\n" # nolint
   )
 }
 

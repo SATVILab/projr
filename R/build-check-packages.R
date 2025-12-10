@@ -67,7 +67,8 @@ projr_build_check_packages <- function(profile = NULL) {
     vapply(
       pkg_required,
       function(x) !requireNamespace(x, quietly = TRUE),
-      logical(1))
+      logical(1)
+    )
   ]
 
   # If all packages are available

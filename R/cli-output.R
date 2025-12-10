@@ -69,7 +69,7 @@
   if (length(dots) == 0) {
     return("")
   }
-  
+
   # Separate named and unnamed arguments
   # Handle case where names(dots) might be NULL
   dot_names <- names(dots)
@@ -81,16 +81,16 @@
     named_args <- dots[dot_names != ""]
     unnamed_args <- dots[dot_names == ""]
   }
-  
+
   # Combine unnamed parts into a single string
   message_text <- paste(unlist(unnamed_args), collapse = " ")
-  
+
   # Create a temporary environment with named arguments
   eval_env <- new.env(parent = .envir)
   for (name in names(named_args)) {
     eval_env[[name]] <- named_args[[name]]
   }
-  
+
   # Evaluate glue expressions in the combined environment
   tryCatch(
     as.character(glue::glue(message_text, .envir = eval_env)),
@@ -141,7 +141,7 @@
                          .envir = parent.frame()) {
   # Capture all arguments
   dots <- list(...)
-  
+
   # Evaluate glue expressions (handles both named and unnamed)
   message_text <- ""
   if (length(dots) > 0) {
@@ -153,7 +153,7 @@
   if (!.cli_should_show(console_level, output_level)) {
     return(invisible(NULL))
   }
-  
+
   # Use the evaluated message text for console output
   console_fn(message_text)
 }
@@ -237,7 +237,7 @@
     message_text <- paste(unlist(dots), collapse = " ")
     .log_build_append(paste0("Process started: ", message_text), "process")
   }
-  
+
   if (!.cli_should_show("std", output_level)) {
     return(invisible(NULL))
   }
@@ -263,7 +263,7 @@
   } else {
     .log_build_append("Process completed", "process")
   }
-  
+
   if (!.cli_should_show("std", output_level)) {
     return(invisible(NULL))
   }

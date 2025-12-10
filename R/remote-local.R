@@ -149,13 +149,13 @@
     pre = FALSE,
     empty = TRUE
   )
-  
+
   .cli_debug(
     "remote_final_empty_get_local: Creating empty at '{path}'",
     path = remote_empty,
     output_level = output_level
   )
-  
+
   # Check if it already exists
   if (dir.exists(remote_empty)) {
     .cli_debug(
@@ -165,7 +165,7 @@
     )
     return(remote_empty)
   }
-  
+
   # Create the empty directory as a marker (like GitHub creates projr-empty file)
   .dir_create(remote_empty)
   .cli_debug(
@@ -194,7 +194,7 @@
   # Check for FILES only (not directories) - empty directories don't count
   all_entries <- list.files(remote, full.names = TRUE, recursive = TRUE, all.files = TRUE)
   files_only <- all_entries[!dir.exists(all_entries)]
-  
+
   if (.is_len_pos(files_only)) {
     num_files <- length(files_only)
     .cli_debug(
@@ -387,7 +387,7 @@
   .assert_string(path_dir_local, TRUE)
   .assert_path_not_file(path_dir_local)
   .assert_string(remote, TRUE)
-  
+
   # This will create the directory if it doesn't exist
   .cli_debug(
     "Local remote: Calling .dir_copy_file to copy files",

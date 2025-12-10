@@ -335,7 +335,6 @@ projr_version_get <- function() {
 }
 
 
-
 .version_bump_dev <- function() {
   .version_bump("dev")
 }

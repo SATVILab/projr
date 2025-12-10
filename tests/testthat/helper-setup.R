@@ -173,17 +173,20 @@
     "GIT_COMMITTER_NAME", "GIT_COMMITTER_EMAIL"
   )
   old_values <- Sys.getenv(env_vars, unset = NA_character_)
-  withr::defer({
-    to_restore <- !is.na(old_values)
-    if (any(to_restore)) {
-      restore_list <- as.list(stats::setNames(old_values[to_restore], env_vars[to_restore]))
-      do.call(Sys.setenv, restore_list)
-    }
-    to_clear <- is.na(old_values)
-    if (any(to_clear)) {
-      Sys.unsetenv(env_vars[to_clear])
-    }
-  }, envir = env)
+  withr::defer(
+    {
+      to_restore <- !is.na(old_values)
+      if (any(to_restore)) {
+        restore_list <- as.list(stats::setNames(old_values[to_restore], env_vars[to_restore]))
+        do.call(Sys.setenv, restore_list)
+      }
+      to_clear <- is.na(old_values)
+      if (any(to_clear)) {
+        Sys.unsetenv(env_vars[to_clear])
+      }
+    },
+    envir = env
+  )
 
   new_vals <- as.list(stats::setNames(
     c(
@@ -328,7 +331,6 @@
   )
   invisible(TRUE)
 }
-
 
 
 .test_content_setup_dir <- function(path_dir = NULL,
@@ -519,19 +521,19 @@
 .init <- function() {
   # Set up usethis project
   .init_usethis_std()
-  
+
   # Create initial VERSION if needed
   if (!file.exists(.path_get("VERSION")) &&
-        !file.exists(.path_get("DESCRIPTION"))) {
+    !file.exists(.path_get("DESCRIPTION"))) {
     projr_version_set("0.0.0-1")
   }
-  
+
   # Initialize directories
   .init_dir_std(TRUE)
-  
+
   # Copy _projr.yml if not exists
   .init_yml_std(TRUE)
-  
+
   invisible(TRUE)
 }
 
@@ -540,21 +542,20 @@
 .init_full <- function() {
   # Set up usethis project
   .init_usethis_std()
-  
+
   # Create initial VERSION if needed
   if (!file.exists(.path_get("VERSION")) &&
-        !file.exists(.path_get("DESCRIPTION"))) {
+    !file.exists(.path_get("DESCRIPTION"))) {
     projr_version_set("0.0.0-1")
   }
-  
+
   # Initialize directories
   .init_dir_std(TRUE)
-  
+
   # Copy _projr.yml if not exists
   .init_yml_std(TRUE)
-  
+
   invisible(TRUE)
 }
 
 .test_setup_project()
-

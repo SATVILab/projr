@@ -1,16 +1,15 @@
 .retry_with_backoff <- function(fn,
-                                max_attempts    = 3,
-                                initial_delay   = 0,
+                                max_attempts = 3,
+                                initial_delay = 0,
                                 exponential_base = 2,
-                                max_delay       = 60,
-                                backoff_factor  = 2,
-                                max_total_time  = Inf,  # overall cap in seconds
-                                operation_name  = "operation",
-                                output_level    = "std",
-                                check_success   = function(x) TRUE,
-                                on_retry        = NULL,
+                                max_delay = 60,
+                                backoff_factor = 2,
+                                max_total_time = Inf, # overall cap in seconds
+                                operation_name = "operation",
+                                output_level = "std",
+                                check_success = function(x) TRUE,
+                                on_retry = NULL,
                                 error_classifier = NULL) {
-
   start_time <- proc.time()[3]
 
   .cli_debug(
@@ -22,7 +21,6 @@
   last_result <- NULL
 
   for (attempt in seq_len(max_attempts)) {
-
     elapsed <- proc.time()[3] - start_time
     if (elapsed >= max_total_time) {
       .cli_debug(

@@ -20,11 +20,14 @@
   # This prevents tests from running when auth exists but gh_whoami() fails,
   # which would cause malformed GitHub URLs
   if (requireNamespace("gh", quietly = TRUE)) {
-    user <- tryCatch({
-      gh::gh_whoami()[["login"]]
-    }, error = function(e) {
-      NULL
-    })
+    user <- tryCatch(
+      {
+        gh::gh_whoami()[["login"]]
+      },
+      error = function(e) {
+        NULL
+      }
+    )
     if (!.is_string(user)) {
       testthat::skip("gh::gh_whoami() failed to retrieve GitHub username")
     }
@@ -75,11 +78,14 @@
   .dep_install_only("gh")
   .dep_install_only("httr")
   if (is.null(user)) {
-    user <- tryCatch({
-      gh::gh_whoami()[["login"]]
-    }, error = function(e) {
-      NULL
-    })
+    user <- tryCatch(
+      {
+        gh::gh_whoami()[["login"]]
+      },
+      error = function(e) {
+        NULL
+      }
+    )
   }
   if (!.is_string(user)) stop("No GitHub user found")
 
@@ -116,7 +122,6 @@
   if (debug) {
     print("setting up fn body")
   }
-
 
 
   # Define the URL of the GitHub API
@@ -222,11 +227,14 @@
   # gh prefers github_pat over github_token.
   if (!gh::gh_token_exists()) stop("No GitHub token found")
   if (is.null(user)) {
-    user <- tryCatch({
-      gh::gh_whoami()[["login"]]
-    }, error = function(e) {
-      NULL
-    })
+    user <- tryCatch(
+      {
+        gh::gh_whoami()[["login"]]
+      },
+      error = function(e) {
+        NULL
+      }
+    )
   }
   if (!.is_string(user)) stop("No GitHub user found")
 
@@ -257,11 +265,14 @@
 
   # defaults
   if (is.null(user)) {
-    user <- tryCatch({
-      gh::gh_whoami()[["login"]]
-    }, error = function(e) {
-      NULL
-    })
+    user <- tryCatch(
+      {
+        gh::gh_whoami()[["login"]]
+      },
+      error = function(e) {
+        NULL
+      }
+    )
   }
   if (!.is_string(user)) stop("No GitHub user found")
   token <- .auth_get_github_pat_find()
@@ -323,11 +334,14 @@
 
   # defaults
   if (is.null(user)) {
-    user <- tryCatch({
-      gh::gh_whoami()[["login"]]
-    }, error = function(e) {
-      NULL
-    })
+    user <- tryCatch(
+      {
+        gh::gh_whoami()[["login"]]
+      },
+      error = function(e) {
+        NULL
+      }
+    )
   }
   if (!.is_string(user)) stop("No GitHub user found")
 

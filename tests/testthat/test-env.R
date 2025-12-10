@@ -250,10 +250,10 @@ test_that("projr_env_set handles empty environment files", {
     path = dir_test,
     code = {
       invisible(file.create("_environment"))
-      
+
       # Empty file should not error
       expect_error(projr_env_set("_environment"), NA)
-      
+
       # File with only whitespace
       writeLines(c("", "   ", "\t"), "_environment")
       expect_error(projr_env_set("_environment"), NA)
@@ -272,20 +272,20 @@ test_that("projr_env_set handles special characters in values", {
     code = {
       invisible(file.create("_environment"))
       Sys.unsetenv("SPECIAL_VAR")
-      
+
       # Test with special characters
       writeLines(c(
         "SPECIAL_VAR=value with spaces",
         "PATH_VAR=/path/to/file",
         "URL_VAR=https://example.com?param=value&other=123"
       ), "_environment")
-      
+
       projr_env_set("_environment")
-      
+
       expect_identical(Sys.getenv("SPECIAL_VAR"), "value with spaces")
       expect_identical(Sys.getenv("PATH_VAR"), "/path/to/file")
       expect_identical(Sys.getenv("URL_VAR"), "https://example.com?param=value&other=123")
-      
+
       Sys.unsetenv("SPECIAL_VAR")
       Sys.unsetenv("PATH_VAR")
       Sys.unsetenv("URL_VAR")
@@ -304,7 +304,7 @@ test_that("projr_env_set handles missing files gracefully", {
     code = {
       # Non-existent file should not error
       expect_error(projr_env_set("_environment_nonexistent"), NA)
-      
+
       # Multiple non-existent files
       expect_error(projr_env_set(c("_env1", "_env2", "_env3")), NA)
     }
@@ -322,14 +322,14 @@ test_that("projr_env_set ignores _environment.local in git", {
     code = {
       invisible(file.create("_environment.local"))
       writeLines("LOCAL_VAR=test", "_environment.local")
-      
+
       Sys.unsetenv("LOCAL_VAR")
       projr_env_set("_environment.local")
-      
+
       # Check that file is in .gitignore
       gitignore_content <- readLines(".gitignore", warn = FALSE)
       expect_true("_environment.local" %in% gitignore_content)
-      
+
       Sys.unsetenv("LOCAL_VAR")
     }
   )
@@ -338,21 +338,21 @@ test_that("projr_env_set ignores _environment.local in git", {
 test_that("PROJR_PROFILE handles comma and semicolon separators", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  
+
   # Save original
   old_val <- Sys.getenv("PROJR_PROFILE", unset = "")
   on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_PROFILE = old_val) else Sys.unsetenv("PROJR_PROFILE"))
-  
+
   # Test comma separator
   Sys.setenv(PROJR_PROFILE = "test,dev,prod")
   profiles <- projr_profile_get()
   expect_identical(profiles, c("test", "dev", "prod"))
-  
+
   # Test semicolon separator
   Sys.setenv(PROJR_PROFILE = "test;dev;prod")
   profiles <- projr_profile_get()
   expect_identical(profiles, c("test", "dev", "prod"))
-  
+
   # Test mixed separators
   Sys.setenv(PROJR_PROFILE = "test,dev;prod")
   profiles <- projr_profile_get()
@@ -362,10 +362,10 @@ test_that("PROJR_PROFILE handles comma and semicolon separators", {
 test_that("PROJR_PROFILE filters out default and local", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  
+
   old_val <- Sys.getenv("PROJR_PROFILE", unset = "")
   on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_PROFILE = old_val) else Sys.unsetenv("PROJR_PROFILE"))
-  
+
   # Test that default and local are filtered
   Sys.setenv(PROJR_PROFILE = "default,test,local,dev")
   profiles <- projr_profile_get()
@@ -378,15 +378,15 @@ test_that("PROJR_PROFILE filters out default and local", {
 test_that("PROJR_PROFILE handles whitespace correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  
+
   old_val <- Sys.getenv("PROJR_PROFILE", unset = "")
   on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_PROFILE = old_val) else Sys.unsetenv("PROJR_PROFILE"))
-  
+
   # Test with whitespace around values
   Sys.setenv(PROJR_PROFILE = " test , dev , prod ")
   profiles <- projr_profile_get()
   expect_identical(profiles, c("test", "dev", "prod"))
-  
+
   # Test with empty values
   Sys.setenv(PROJR_PROFILE = "test,,dev")
   profiles <- projr_profile_get()
@@ -406,19 +406,19 @@ test_that("QUARTO_PROFILE takes precedence over PROJR_PROFILE", {
     code = {
       invisible(file.create("_environment-quarto"))
       invisible(file.create("_environment-projr"))
-      
+
       writeLines("VAR=quarto", "_environment-quarto")
       writeLines("VAR=projr", "_environment-projr")
-      
+
       Sys.unsetenv("VAR")
       Sys.setenv(QUARTO_PROFILE = "quarto")
       Sys.setenv(PROJR_PROFILE = "projr")
-      
+
       projr_env_set()
-      
+
       # QUARTO_PROFILE should take precedence
       expect_identical(Sys.getenv("VAR"), "quarto")
-      
+
       Sys.unsetenv("VAR")
       Sys.unsetenv("QUARTO_PROFILE")
       Sys.unsetenv("PROJR_PROFILE")
@@ -436,26 +436,26 @@ test_that("Environment variable name parsing handles edge cases", {
     path = dir_test,
     code = {
       invisible(file.create("_environment"))
-      
+
       # Test various edge cases
       writeLines(c(
         "UNDERSCORE_VAR=value1",
         "NUMBER123=value2",
         "MixedCase=value3",
-        "DOTS.NOT.VALID=should_not_set",  # Invalid name
-        "DASH-NOT-VALID=should_not_set"   # Invalid name
+        "DOTS.NOT.VALID=should_not_set", # Invalid name
+        "DASH-NOT-VALID=should_not_set" # Invalid name
       ), "_environment")
-      
+
       Sys.unsetenv("UNDERSCORE_VAR")
       Sys.unsetenv("NUMBER123")
       Sys.unsetenv("MixedCase")
-      
+
       projr_env_set("_environment")
-      
+
       expect_identical(Sys.getenv("UNDERSCORE_VAR"), "value1")
       expect_identical(Sys.getenv("NUMBER123"), "value2")
       expect_identical(Sys.getenv("MixedCase"), "value3")
-      
+
       Sys.unsetenv("UNDERSCORE_VAR")
       Sys.unsetenv("NUMBER123")
       Sys.unsetenv("MixedCase")

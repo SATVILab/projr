@@ -7,7 +7,7 @@
 # delete the release itself - we actually delete the repo.
 
 .test_remote_host_rm <- function(type,
-                            host) {
+                                 host) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .test_remote_host_rm_local(host),

@@ -218,7 +218,9 @@
     if (!is.null(start_time)) {
       duration <- difftime(Sys.time(), start_time, units = "secs")
       paste0("- **Duration**: ", round(as.numeric(duration), 2), " seconds")
-    } else NULL,
+    } else {
+      NULL
+    },
     paste0("- **Completed**: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S")),
     ""
   )
@@ -348,13 +350,13 @@ projr_log_clear <- function(build_type = "all",
 
   # Read and parse history file
   lines <- readLines(history_file, warn = FALSE)
-  
+
   # Find entry boundaries (lines starting with ##)
   entry_starts <- which(grepl("^## ", lines))
   if (length(entry_starts) == 0) {
     return(invisible(NULL))
   }
-  
+
   # Determine which entries to keep
   keep_entries <- logical(length(entry_starts))
   for (i in seq_along(entry_starts)) {
@@ -362,11 +364,11 @@ projr_log_clear <- function(build_type = "all",
     start_idx <- entry_starts[i]
     end_idx <- if (i < length(entry_starts)) entry_starts[i + 1] - 1 else length(lines)
     entry_lines <- lines[start_idx:end_idx]
-    
+
     # Extract timestamp from header line (## YYYY-MM-DD HH:MM:SS [OK/X])
     header <- entry_lines[1]
     timestamp_match <- regmatches(header, regexpr("\\d{4}-\\d{2}-\\d{2}", header))
-    
+
     # Extract version from entry
     version_line <- entry_lines[grepl("^- \\*\\*Version\\*\\*:", entry_lines)]
     version_match <- if (length(version_line) > 0) {
@@ -374,10 +376,10 @@ projr_log_clear <- function(build_type = "all",
     } else {
       NULL
     }
-    
+
     # Determine if entry should be kept
     keep <- TRUE
-    
+
     # Check date filter
     if (!is.null(before_date) && length(timestamp_match) > 0) {
       entry_date <- as.Date(timestamp_match[1])
@@ -386,7 +388,7 @@ projr_log_clear <- function(build_type = "all",
         keep <- FALSE
       }
     }
-    
+
     # Check version filter
     if (!is.null(before_version) && !is.null(version_match)) {
       # Compare versions (keep if entry version >= before_version)
@@ -396,10 +398,10 @@ projr_log_clear <- function(build_type = "all",
         keep <- FALSE
       }
     }
-    
+
     keep_entries[i] <- keep
   }
-  
+
   # Rebuild history file with kept entries
   if (!any(keep_entries)) {
     # Delete file if no entries remain
@@ -408,16 +410,16 @@ projr_log_clear <- function(build_type = "all",
     # Keep header (first 4 lines) and selected entries
     header_lines <- lines[1:min(4, length(lines))]
     kept_lines <- character(0)
-    
+
     for (i in which(keep_entries)) {
       start_idx <- entry_starts[i]
       end_idx <- if (i < length(entry_starts)) entry_starts[i + 1] - 1 else length(lines)
       kept_lines <- c(kept_lines, lines[start_idx:end_idx])
     }
-    
+
     writeLines(c(header_lines, kept_lines), history_file)
   }
-  
+
   invisible(NULL)
 }
 
@@ -458,46 +460,49 @@ projr_log_clear <- function(build_type = "all",
   # Parse the cutoff version
   cutoff_ver_clean <- .version_v_rm(before_version)
   cutoff_ver <- package_version(cutoff_ver_clean)
-  
+
   # List all date directories
   date_dirs <- list.dirs(output_dir, full.names = TRUE, recursive = FALSE)
-  
+
   for (date_dir in date_dirs) {
     # List all log files in this date directory
     log_files <- list.files(date_dir, pattern = "\\.qmd$", full.names = TRUE)
-    
+
     for (log_file in log_files) {
       # Read log file to extract version
-      tryCatch({
-        lines <- readLines(log_file, warn = FALSE)
-        # Look for projr version in the format: - **projr Version**: X.Y.Z
-        version_line <- lines[grepl("^-\\s*\\*\\*projr Version\\*\\*:", lines, ignore.case = TRUE)]
-        
-        if (length(version_line) > 0) {
-          # Extract version from bullet point format
-          version_str <- sub("^-\\s*\\*\\*projr Version\\*\\*:\\s*", "", version_line[1], ignore.case = TRUE)
-          version_str <- gsub("[\"\']", "", version_str)  # Remove quotes
-          version_str <- trimws(version_str)  # Remove whitespace
-          
-          log_ver_clean <- .version_v_rm(version_str)
-          log_ver <- package_version(log_ver_clean)
-          
-          # Delete if log version is before cutoff
-          if (log_ver < cutoff_ver) {
-            unlink(log_file)
+      tryCatch(
+        {
+          lines <- readLines(log_file, warn = FALSE)
+          # Look for projr version in the format: - **projr Version**: X.Y.Z
+          version_line <- lines[grepl("^-\\s*\\*\\*projr Version\\*\\*:", lines, ignore.case = TRUE)]
+
+          if (length(version_line) > 0) {
+            # Extract version from bullet point format
+            version_str <- sub("^-\\s*\\*\\*projr Version\\*\\*:\\s*", "", version_line[1], ignore.case = TRUE)
+            version_str <- gsub("[\"\']", "", version_str) # Remove quotes
+            version_str <- trimws(version_str) # Remove whitespace
+
+            log_ver_clean <- .version_v_rm(version_str)
+            log_ver <- package_version(log_ver_clean)
+
+            # Delete if log version is before cutoff
+            if (log_ver < cutoff_ver) {
+              unlink(log_file)
+            }
           }
+        },
+        error = function(e) {
+          # Skip files that can't be parsed
         }
-      }, error = function(e) {
-        # Skip files that can't be parsed
-      })
+      )
     }
-    
+
     # Remove empty date directories
     if (length(list.files(date_dir)) == 0) {
       unlink(date_dir, recursive = TRUE)
     }
   }
-  
+
   invisible(NULL)
 }
 
@@ -582,12 +587,12 @@ projr_log_clear <- function(build_type = "all",
   # Get most recent from both build types
   output_log <- .log_file_get_current("output")
   dev_log <- .log_file_get_current("dev")
-  
+
   # If neither exists, return NULL
   if (is.null(output_log) && is.null(dev_log)) {
     return(NULL)
   }
-  
+
   # If only one exists, return it
   if (is.null(output_log)) {
     return(dev_log)
@@ -595,11 +600,11 @@ projr_log_clear <- function(build_type = "all",
   if (is.null(dev_log)) {
     return(output_log)
   }
-  
+
   # Both exist, return the most recent
   fi_output <- file.info(output_log, extra_cols = FALSE)
   fi_dev <- file.info(dev_log, extra_cols = FALSE)
-  
+
   if (fi_output$mtime >= fi_dev$mtime) {
     return(output_log)
   } else {

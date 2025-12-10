@@ -1,4 +1,3 @@
-
 # ========================
 # check existence
 # ========================
@@ -21,7 +20,7 @@
   repo,
   tag,
   api_url = NULL,
-  token  = NULL
+  token = NULL
 ) {
   if (!requireNamespace("httr", quietly = TRUE)) {
     stop("httr is required for .gh_release_exists_httr(); please install it.")
@@ -77,7 +76,7 @@
                                                    token = NULL) {
   assets <- .remote_ls_final_github_httr(
     repo = repo,
-    tag  = tag,
+    tag = tag,
     api_url = api_url,
     token = token
   )
@@ -113,10 +112,10 @@
   repo,
   tag,
   description,
-  api_url          = NULL,
-  token            = NULL,
-  draft            = FALSE,
-  prerelease       = FALSE,
+  api_url = NULL,
+  token = NULL,
+  draft = FALSE,
+  prerelease = FALSE,
   target_commitish = NULL
 ) {
   if (!requireNamespace("httr", quietly = TRUE)) {
@@ -124,7 +123,7 @@
   }
 
   base <- .github_api_base(api_url)
-  url  <- sprintf("%s/repos/%s/releases", base, repo)
+  url <- sprintf("%s/repos/%s/releases", base, repo)
 
   tok <- token %||% .auth_get_github_pat_find(api_url = api_url)
 
@@ -138,7 +137,7 @@
 
   body <- list(
     tag_name   = tag,
-    name       = tag,          # you can change this if you want a nicer title
+    name       = tag, # you can change this if you want a nicer title
     body       = description,
     draft      = isTRUE(draft),
     prerelease = isTRUE(prerelease)
@@ -150,7 +149,7 @@
   resp <- httr::POST(
     url,
     httr::add_headers(.headers = headers),
-    body   = body,
+    body = body,
     encode = "json"
   )
 
@@ -203,7 +202,7 @@
 ) {
   asset_list <- .remote_get_info_github_httr(
     repo = repo,
-    tag  = tag,
+    tag = tag,
     api_url = api_url,
     token = token
   )
@@ -263,7 +262,7 @@
                                                token = NULL) {
   asset_list <- .remote_get_info_github_httr(
     repo = repo,
-    tag  = tag,
+    tag = tag,
     api_url = api_url,
     token = token
   )
@@ -375,9 +374,9 @@
   tag,
   fn,
   dest_dir,
-  api_url      = NULL,
-  token        = NULL,
-  overwrite    = TRUE,
+  api_url = NULL,
+  token = NULL,
+  overwrite = TRUE,
   output_level = "std"
 ) {
   if (!requireNamespace("httr", quietly = TRUE)) {
@@ -386,11 +385,11 @@
 
   # Get release info (includes assets) using existing helper
   asset <- .remote_final_get_info_github_httr(
-    repo   = repo,
-    tag    = tag,
+    repo = repo,
+    tag = tag,
     asset_name = fn,
     api_url = api_url,
-    token   = token
+    token = token
   ) %||% character()
 
   if (length(asset) == 0L) {
@@ -468,7 +467,7 @@
   # about all assets in the release
   .remote_final_get_info_github_httr(
     repo = repo,
-    tag  = tag,
+    tag = tag,
     asset_name = asset_name,
     api_url = api_url,
     token = token
@@ -558,7 +557,7 @@
     }
     # strip template placeholder and add name
     upload_url <- sub("\\{\\?name,label\\}$", "", upload_url)
-    upload_url <-  httr::modify_url(
+    upload_url <- httr::modify_url(
       upload_url,
       query = list(name = utils::URLencode(asset_name, reserved = TRUE))
     )
@@ -646,7 +645,7 @@
   }
 
   owner <- parts[length(parts) - 1]
-  repo  <- parts[length(parts)]
+  repo <- parts[length(parts)]
 
   paste0(owner, "/", repo)
 }

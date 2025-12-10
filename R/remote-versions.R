@@ -18,8 +18,7 @@
 .remote_write_manifest <- function(type,
                                    remote,
                                    manifest,
-                                   output_level = "std"
-                                   ) {
+                                   output_level = "std") {
   .cli_debug(
     "Writing manifest.csv to {type} remote",
     output_level = output_level
@@ -107,8 +106,7 @@
 .remote_write_version_file <- function(type,
                                        remote_pre,
                                        version_file,
-                                       output_level = "std"
-                                       ) {
+                                       output_level = "std") {
   .cli_debug(
     "Writing VERSION file to {type} remote",
     output_level = output_level
@@ -158,8 +156,7 @@
 #' @noRd
 .remote_get_manifest <- function(type,
                                  remote_pre,
-                                 output_level = "std"
-                                 ) {
+                                 output_level = "std") {
   .cli_debug(
     "Getting manifest.csv from {type} remote",
     output_level = output_level
@@ -202,8 +199,7 @@
 #' @noRd
 .remote_get_manifest_non_project <- function(type,
                                              remote_pre,
-                                             output_level = "std"
-                                             ) {
+                                             output_level = "std") {
   manifest_actual <- .remote_get_manifest_non_project_raw(
     type,
     remote_pre,
@@ -228,8 +224,7 @@
 #' @noRd
 .remote_get_manifest_non_project_raw <- function(type,
                                                  remote_pre,
-                                                 output_level = "std"
-                                                 ) {
+                                                 output_level = "std") {
   path_dir_save <- .dir_create_tmp_random()
 
   .cli_debug(
@@ -244,20 +239,23 @@
     remote_pre
   }
 
-  path_manifest <- tryCatch({
-    .remote_file_get(
-      type,
-      remote,
-      "manifest.csv",
-      path_dir_save
-    )
-  }, error = function(e) {
-    .cli_debug(
-      "Error downloading manifest.csv from {type} remote: {e$message}",
-      output_level = output_level
-    )
-    character(0L)
-  })
+  path_manifest <- tryCatch(
+    {
+      .remote_file_get(
+        type,
+        remote,
+        "manifest.csv",
+        path_dir_save
+      )
+    },
+    error = function(e) {
+      .cli_debug(
+        "Error downloading manifest.csv from {type} remote: {e$message}",
+        output_level = output_level
+      )
+      character(0L)
+    }
+  )
 
   if (length(path_manifest) == 0 || !file.exists(path_manifest)) {
     .cli_debug(
@@ -291,8 +289,7 @@
 #' @noRd
 .remote_get_version_file <- function(type,
                                      remote_pre,
-                                     output_level = "std"
-                                     ) {
+                                     output_level = "std") {
   .cli_debug(
     "Getting VERSION file from {type} remote",
     output_level = output_level
@@ -320,7 +317,7 @@
   }
 
   result
-  }
+}
 
 
 #' @title Download VERSION file from non-project remotes
@@ -332,8 +329,7 @@
 #' @noRd
 .remote_get_version_file_non_project <- function(type,
                                                  remote_pre,
-                                                 output_level = "std"
-                                                 ) {
+                                                 output_level = "std") {
   path_dir_save <- .dir_create_tmp_random()
 
   .cli_debug(
@@ -348,20 +344,23 @@
     remote_pre
   }
 
-  path_version <- tryCatch({
-    .remote_file_get(
-      type,
-      remote,
-      "VERSION",
-      path_dir_save
-    )
-  }, error = function(e) {
-    .cli_debug(
-      "Error downloading VERSION file from {type} remote: {e$message}",
-      output_level = output_level
-    )
-    character(0L)
-  })
+  path_version <- tryCatch(
+    {
+      .remote_file_get(
+        type,
+        remote,
+        "VERSION",
+        path_dir_save
+      )
+    },
+    error = function(e) {
+      .cli_debug(
+        "Error downloading VERSION file from {type} remote: {e$message}",
+        output_level = output_level
+      )
+      character(0L)
+    }
+  )
 
   if (length(path_version) == 0 || !file.exists(path_version)) {
     .cli_debug(
@@ -508,9 +507,9 @@
 #' @keywords internal
 #' @noRd
 .remote_get_version_latest_label_non_project_archive <- function(remote_pre,
-                                                          type,
-                                                          label,
-                                                          structure) {
+                                                                 type,
+                                                                 label,
+                                                                 structure) {
   if (structure != "archive") {
     return(character(0L))
   }
@@ -644,8 +643,8 @@
 #' @keywords internal
 #' @noRd
 .remote_get_version_latest_label_non_project_file <- function(remote_pre,
-                                                       type,
-                                                       label) {
+                                                              type,
+                                                              label) {
   version_file <- .remote_get_version_file(type, remote_pre)
   .remote_get_version_latest_label_non_project_file_extract(
     version_file, label

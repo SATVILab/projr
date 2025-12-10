@@ -85,7 +85,7 @@
   if (!dir.exists(path_dir) || !nzchar(path_dir)) {
     return(invisible(FALSE))
   }
-   dir_vec <- path_dir |>
+  dir_vec <- path_dir |>
     .dir_ls(recursive = FALSE) |>
     setdiff("log")
   for (i in seq_along(dir_vec)) {

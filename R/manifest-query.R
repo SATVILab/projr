@@ -56,10 +56,12 @@ projr_manifest_changes <- function(version_from = NULL,
 
   # Normalize versions
   version_from <- .manifest_query_normalize_version(
-    version_from, manifest, use_earliest = TRUE
+    version_from, manifest,
+    use_earliest = TRUE
   )
   version_to <- .manifest_query_normalize_version(
-    version_to, manifest, use_earliest = FALSE
+    version_to, manifest,
+    use_earliest = FALSE
   )
 
   # Filter by label if provided
@@ -128,10 +130,12 @@ projr_manifest_range <- function(version_start = NULL,
 
   # Normalize versions
   version_start <- .manifest_query_normalize_version(
-    version_start, manifest, use_earliest = TRUE
+    version_start, manifest,
+    use_earliest = TRUE
   )
   version_end <- .manifest_query_normalize_version(
-    version_end, manifest, use_earliest = FALSE
+    version_end, manifest,
+    use_earliest = FALSE
   )
 
   # Filter by label if provided
@@ -201,7 +205,8 @@ projr_manifest_last_change <- function(version = NULL) {
 
   # Normalize version
   version <- .manifest_query_normalize_version(
-    version, manifest, use_earliest = FALSE
+    version, manifest,
+    use_earliest = FALSE
   )
 
   # Get all versions up to and including the target version
@@ -299,8 +304,8 @@ projr_manifest_last_change <- function(version = NULL) {
 
     # Compare hashes, handling empty strings and NAs
     modified_mask <- !is.na(from_common$hash) & !is.na(to_common$hash) &
-                     from_common$hash != "" & to_common$hash != "" &
-                     from_common$hash != to_common$hash
+      from_common$hash != "" & to_common$hash != "" &
+      from_common$hash != to_common$hash
     if (any(modified_mask, na.rm = TRUE)) {
       modified <- to_common[modified_mask, , drop = FALSE]
       modified$change_type <- "modified"
@@ -539,7 +544,8 @@ projr_manifest_file_last_change <- function(fn, label = NULL, version_end = NULL
 
   # Normalize version_end
   version_end <- .manifest_query_normalize_version(
-    version_end, manifest, use_earliest = FALSE
+    version_end, manifest,
+    use_earliest = FALSE
   )
 
   # Filter by version range (up to version_end)
@@ -588,8 +594,8 @@ projr_manifest_file_last_change <- function(fn, label = NULL, version_end = NULL
 #'
 #' @export
 projr_manifest_file_changed <- function(fn, label = NULL,
-                                       version_from = NULL,
-                                       version_to = NULL) {
+                                        version_from = NULL,
+                                        version_to = NULL) {
   .assert_string(fn)
 
   manifest <- .manifest_read_project()
@@ -623,10 +629,12 @@ projr_manifest_file_changed <- function(fn, label = NULL,
 
   # Normalize versions
   version_from <- .manifest_query_normalize_version(
-    version_from, manifest, use_earliest = TRUE
+    version_from, manifest,
+    use_earliest = TRUE
   )
   version_to <- .manifest_query_normalize_version(
-    version_to, manifest, use_earliest = FALSE
+    version_to, manifest,
+    use_earliest = FALSE
   )
 
   # Get files for each version
@@ -945,7 +953,7 @@ projr_manifest_file_first <- function(fn, label = NULL) {
     # Find all versions where hash changed (vectorized comparison)
     if (n_versions > 1) {
       hash_changed <- hashes[-1] != hashes[-n_versions]
-      changed_idx <- which(hash_changed) + 1  # +1 because we removed first element
+      changed_idx <- which(hash_changed) + 1 # +1 because we removed first element
       n_new_changes <- length(changed_idx)
       if (n_new_changes > 0) {
         change_indices[(n_changes + 1):(n_changes + n_new_changes)] <- changed_idx

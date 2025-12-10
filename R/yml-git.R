@@ -180,7 +180,7 @@ projr_yml_git_set_default <- function(profile = "default",
   }
   # Handle override logic for add-untracked and push
   if (override_if_commit_false &&
-      !is.null(yml_git[["commit"]]) && isFALSE(yml_git[["commit"]])) {
+    !is.null(yml_git[["commit"]]) && isFALSE(yml_git[["commit"]])) {
     return(FALSE)
   }
   if (is.null(yml_git[[field_name]])) {

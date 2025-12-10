@@ -7,16 +7,16 @@ test_that("projr_yml_par_add adds parameters key", {
       # Test that parameters key doesn't exist initially
       yml_before <- .yml_get("default")
       expect_false("parameters" %in% names(yml_before))
-      
+
       # Add parameters key
       result <- projr_yml_par_add("default")
       expect_true(result)
-      
+
       # Verify parameters key was added
       yml_after <- .yml_get("default")
       expect_true("parameters" %in% names(yml_after))
       expect_identical(yml_after[["parameters"]], list())
-      
+
       # Test that adding again returns FALSE (already exists)
       result2 <- projr_yml_par_add("default")
       expect_false(result2)
@@ -36,7 +36,7 @@ test_that("projr_yml_par_add works with NULL profile", {
       # Test with NULL profile (should default to "default")
       result <- projr_yml_par_add(NULL)
       expect_true(result)
-      
+
       yml <- .yml_get("default")
       expect_true("parameters" %in% names(yml))
     },
@@ -56,10 +56,10 @@ test_that("projr_yml_par_add handles alternative param names", {
       yml <- .yml_get("default")
       yml[["param"]] <- list(test = "value")
       .yml_set(yml, "default")
-      
+
       result <- projr_yml_par_add("default")
       expect_false(result)
-      
+
       yml_after <- .yml_get("default")
       expect_true("param" %in% names(yml_after))
       expect_false("parameters" %in% names(yml_after))
@@ -79,7 +79,7 @@ test_that("projr_par_get returns NULL when no parameters exist", {
       # No parameters key exists
       result <- projr_par_get()
       expect_null(result)
-      
+
       result2 <- projr_par_get("a", "b")
       expect_null(result2)
     },
@@ -102,7 +102,7 @@ test_that("projr_par_get returns entire parameters list when no path given", {
         d = "value_d"
       )
       .yml_set(yml, "default")
-      
+
       # Get entire parameters list
       result <- projr_par_get()
       expect_identical(result, yml[["parameters"]])
@@ -131,23 +131,23 @@ test_that("projr_par_get retrieves nested values correctly", {
         f = "value_f"
       )
       .yml_set(yml, "default")
-      
+
       # Test single level
       result_f <- projr_par_get("f")
       expect_identical(result_f, "value_f")
-      
+
       # Test two levels
       result_e <- projr_par_get("a", "e")
       expect_identical(result_e, "value_e")
-      
+
       # Test three levels - string
       result_c <- projr_par_get("a", "b", "c")
       expect_identical(result_c, "value_c")
-      
+
       # Test three levels - numeric
       result_d <- projr_par_get("a", "b", "d")
       expect_identical(result_d, 123)
-      
+
       # Test intermediate list
       result_b <- projr_par_get("a", "b")
       expect_identical(result_b, list(c = "value_c", d = 123))
@@ -168,15 +168,15 @@ test_that("projr_par_get returns NULL for nonexistent keys", {
       yml <- .yml_get("default")
       yml[["parameters"]] <- list(a = list(b = "value_b"))
       .yml_set(yml, "default")
-      
+
       # Test nonexistent top level
       result <- projr_par_get("nonexistent")
       expect_null(result)
-      
+
       # Test nonexistent nested
       result2 <- projr_par_get("a", "nonexistent")
       expect_null(result2)
-      
+
       # Test deeper nonexistent
       result3 <- projr_par_get("a", "b", "c")
       expect_null(result3)
@@ -197,23 +197,23 @@ test_that("projr_par_get works with alternative parameter key names", {
       yml <- .yml_get("default")
       yml[["param"]] <- list(a = "value_a")
       .yml_set(yml, "default")
-      
+
       result <- projr_par_get("a")
       expect_identical(result, "value_a")
-      
+
       # Test with "params" key
       yml[["params"]] <- list(b = "value_b")
       yml[["param"]] <- NULL
       .yml_set(yml, "default")
-      
+
       result2 <- projr_par_get("b")
       expect_identical(result2, "value_b")
-      
+
       # Test with "par" key
       yml[["par"]] <- list(c = "value_c")
       yml[["params"]] <- NULL
       .yml_set(yml, "default")
-      
+
       result3 <- projr_par_get("c")
       expect_identical(result3, "value_c")
     },
@@ -231,14 +231,14 @@ test_that(".par_get_list handles parameter key variations", {
     code = {
       # Test that different parameter key names work correctly
       # and only one is present at a time (which is the normal case)
-      
+
       # Test with "parameters"
       yml <- .yml_get("default")
       yml[["parameters"]] <- list(a = "value_a")
       .yml_set(yml, "default")
       result <- projr_par_get("a")
       expect_identical(result, "value_a")
-      
+
       # Test with "param" (overwriting previous)
       yml <- .yml_get("default")
       yml[["parameters"]] <- NULL
@@ -246,7 +246,7 @@ test_that(".par_get_list handles parameter key variations", {
       .yml_set(yml, "default")
       result2 <- projr_par_get("b")
       expect_identical(result2, "value_b")
-      
+
       # Verify old key is gone
       result3 <- projr_par_get("a")
       expect_null(result3)
@@ -271,11 +271,11 @@ test_that("projr_param_get is an alias for projr_par_get", {
         )
       )
       .yml_set(yml, "default")
-      
+
       # Both functions should return same result
       result1 <- projr_par_get("test", "value")
       result2 <- projr_param_get("test", "value")
-      
+
       expect_identical(result1, result2)
       expect_identical(result1, "test_value")
     },
@@ -293,15 +293,15 @@ test_that("projr_par_get works with profile parameter", {
     code = {
       # Create a custom profile with parameters
       projr_profile_create("custom")
-      
+
       yml <- .yml_get("custom")
       yml[["parameters"]] <- list(custom_param = "custom_value")
       .yml_set(yml, "custom")
-      
+
       # Get from custom profile
       result <- projr_par_get("custom_param", profile = "custom")
       expect_identical(result, "custom_value")
-      
+
       # Verify default profile doesn't have this
       result_default <- projr_par_get("custom_param", profile = "default")
       expect_null(result_default)
@@ -330,7 +330,7 @@ test_that("projr_par_get handles various data types", {
         null_val = NULL
       )
       .yml_set(yml, "default")
-      
+
       # Test each type
       expect_identical(projr_par_get("string"), "text")
       expect_identical(projr_par_get("number"), 42)
@@ -377,19 +377,19 @@ test_that(".par_get_option handles edge cases correctly", {
         ),
         single = "simple_value"
       )
-      
+
       # Test single level access
       result <- .par_get_option(par_list, "single")
       expect_identical(result, "simple_value")
-      
+
       # Test deep nested access
       result2 <- .par_get_option(par_list, c("a", "b", "c"))
       expect_identical(result2, "deep_value")
-      
+
       # Test nonexistent key returns NULL
       result3 <- .par_get_option(par_list, "nonexistent")
       expect_null(result3)
-      
+
       # Test partial path to nonexistent
       result4 <- .par_get_option(par_list, c("a", "nonexistent"))
       expect_null(result4)
@@ -408,7 +408,7 @@ test_that("param functions work in realistic scenario", {
     code = {
       # Realistic scenario: API configuration
       projr_yml_par_add()
-      
+
       yml <- .yml_get("default")
       yml[["parameters"]] <- list(
         api = list(
@@ -426,7 +426,7 @@ test_that("param functions work in realistic scenario", {
         )
       )
       .yml_set(yml, "default")
-      
+
       # Retrieve various parameters
       expect_identical(
         projr_par_get("api", "base_url"),
@@ -440,7 +440,7 @@ test_that("param functions work in realistic scenario", {
         projr_par_get("database", "port"),
         5432
       )
-      
+
       # Get entire sections
       api_config <- projr_par_get("api")
       expect_true(is.list(api_config))

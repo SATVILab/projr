@@ -563,7 +563,7 @@
   if (!.dir_copy_file_check(fn, path_dir_from)) {
     return(invisible(FALSE))
   }
-   .dir_create(path_dir_to)
+  .dir_create(path_dir_to)
   # ensure relevant directories are available
   .dir_copy_file_tree(fn, path_dir_to)
   fs::file_copy(

@@ -295,5 +295,3 @@ test_that(".auth_get_github_pat_find_gitcreds derives correct host from URL", {
   result <- .auth_get_github_pat_find_gitcreds("https://git.enterprise.org/api/v3")
   expect_true(is.character(result))
 })
-
-

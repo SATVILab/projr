@@ -4,8 +4,7 @@
                                           archive_local,
                                           always_archive,
                                           strict,
-                                          output_level = "std"
-                                          ) {
+                                          output_level = "std") {
   # Early exit if not an output build
   if (!.dest_send_check(bump_component)) {
     return(invisible(FALSE))
@@ -66,8 +65,8 @@
 
   # 2. From archive_github parameter, if no "archive" title already
   if (!isFALSE(archive_github) &&
-        !is.null(archive_github) &&
-        !"archive" %in% titles) {
+    !is.null(archive_github) &&
+    !"archive" %in% titles) {
     titles <- c(titles, "archive")
   }
 
@@ -79,13 +78,13 @@
   for (title in titles) {
     yml_title <- .yml_dest_get_title_complete(
       title = title,
-      type  = "github",
+      type = "github",
       profile = profile,
       archive_type = archive_github,
       always_archive = always_archive
     )
 
-    id <- yml_title[["id"]]  # configured id/title
+    id <- yml_title[["id"]] # configured id/title
     tag <- .remote_misc_github_tag_get(id)
     tag <- .remote_misc_github_tag_format(tag)
     tag_vec <- c(tag_vec, tag)
@@ -93,5 +92,3 @@
 
   unique(tag_vec)
 }
-
-

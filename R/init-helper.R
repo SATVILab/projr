@@ -82,7 +82,6 @@
 }
 
 
-
 .init_description <- function(nm_list) {
   if (!.init_description_check()) {
     return(invisible(FALSE))
@@ -712,7 +711,8 @@ projr_init_renviron <- function() {
   renviron_txt <- .init_renviron_txt_update(renviron_txt)
   writeLines(renviron_txt, path)
   .newline_append(path)
-  .cli_info("Edit the .Renviron file at {path} to have default options for projr_init setup metadata.\nThe following variables are availabe:\n",
+  .cli_info(
+    "Edit the .Renviron file at {path} to have default options for projr_init setup metadata.\nThe following variables are availabe:\n",
     paste0(
       "  - PROJR_PATH_YML\n",
       "  - PROJR_FIRST_NAME\n",
@@ -923,8 +923,7 @@ projr_init_renviron <- function() {
   if (.git_system_get() == "git") {
     return(invisible(FALSE))
   }
-  .cli_info("You can use `projr` without the program git\n(and setup is going fine!),\nbut RStudio (and VS Code) like it.\nIt's easy to install, instructions here:\nhttps://happygitwithr.com/install-git"
-  )
+  .cli_info("You can use `projr` without the program git\n(and setup is going fine!),\nbut RStudio (and VS Code) like it.\nIt's easy to install, instructions here:\nhttps://happygitwithr.com/install-git")
 }
 
 
@@ -937,18 +936,18 @@ projr_init_renviron <- function() {
     .yml_unset_github_dest()
     return(invisible(FALSE))
   }
-  
+
   # Check if username is NULL or a placeholder value
   if (is.null(username) || identical(username, "GITHUB_USER_NAME")) {
     .yml_unset_github_dest()
     return(invisible(FALSE))
   }
-  
+
   # Check if remote already exists
   if (.git_remote_check_exists()) {
     return(invisible(FALSE))
   }
-  
+
   .init_github_impl(username, public)
 }
 
@@ -956,11 +955,14 @@ projr_init_renviron <- function() {
   .dep_install_only("usethis")
   .dep_install_only("gh")
   .auth_check_github("creating GitHub repository")
-  current_user <- tryCatch({
-    gh::gh_whoami()$login
-  }, error = function(e) {
-    NULL
-  })
+  current_user <- tryCatch(
+    {
+      gh::gh_whoami()$login
+    },
+    error = function(e) {
+      NULL
+    }
+  )
   if (!.is_string(current_user)) {
     stop("Failed to get GitHub user information. Please check your GitHub authentication.")
   }

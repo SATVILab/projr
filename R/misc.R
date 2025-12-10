@@ -73,15 +73,15 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   if (.is_len_0(dep_required)) {
     return(invisible(TRUE))
   }
-  
+
   # If interactive, ask user if they want to install
   if (interactive()) {
     return(.dep_install_only_interactive(dep_required))
   }
-  
+
   # Non-interactive: throw error with installation instructions
   install_cmds <- .dep_get_install_cmds(dep_required)
-  
+
   # Throw error with clear installation instructions
   stop(
     "Required package(s) not available: ", paste(dep_required, collapse = ", "), "\n",
@@ -95,15 +95,15 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 .dep_install_only_interactive <- function(dep_required) {
   # In interactive mode, provide clear instructions but don't auto-install
   # This ensures CRAN compliance (no install.packages in package code)
-  
+
   install_cmds <- .dep_get_install_cmds(dep_required)
-  
+
   if (length(dep_required) == 1) {
     .cli_info("\nPackage '{dep_required}' is required but not installed.\nTo install it, please run:\n  {install_cmds}\n")
   } else {
     .cli_info("\nRequired packages are not installed: {paste(dep_required, collapse = ', ')}\nTo install them, please run:\n  {paste(install_cmds, collapse = '\n  ')}\n")
   }
-  
+
   # Stop execution with informative message
   stop(
     "Missing required package(s). Please install and try again.",
@@ -115,11 +115,11 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   # Check if any are GitHub packages
   github_pkgs <- pkg_vec[grepl("^\\w+/\\w+", gsub("\\.", "", pkg_vec))]
   cran_pkgs <- setdiff(pkg_vec, github_pkgs)
-  
+
   # Pre-allocate with maximum possible size
   cmds <- character(as.integer(length(cran_pkgs) > 0) + length(github_pkgs))
   cmd_idx <- 0
-  
+
   if (length(cran_pkgs) > 0) {
     cmd_idx <- cmd_idx + 1
     if (length(cran_pkgs) == 1) {
@@ -132,14 +132,14 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
       )
     }
   }
-  
+
   if (length(github_pkgs) > 0) {
     # Vectorize the GitHub package command construction
     github_cmds <- paste0("remotes::install_github(\"", github_pkgs, "\")")
     cmds[(cmd_idx + 1):(cmd_idx + length(github_pkgs))] <- github_cmds
     cmd_idx <- cmd_idx + length(github_pkgs)
   }
-  
+
   cmds[seq_len(cmd_idx)]
 }
 
@@ -500,7 +500,7 @@ projr_use_data <- function(...,
                      path_zip,
                      dir_exc = NULL,
                      dir_inc = NULL,
-                     fn_exc  = NULL) {
+                     fn_exc = NULL) {
   # Normalise output path so setwd() does not confuse where we write
   path_zip <- normalizePath(path_zip, winslash = "/", mustWork = FALSE)
 
@@ -514,12 +514,15 @@ projr_use_data <- function(...,
 
   sink_file <- file.path(tempdir(), "zip123")
   sink(sink_file)
-  on.exit({
-    # Be defensive in case there is no active sink
-    if (sink.number() > 0L) {
-      try(sink(NULL), silent = TRUE)
-    }
-  }, add = TRUE)
+  on.exit(
+    {
+      # Be defensive in case there is no active sink
+      if (sink.number() > 0L) {
+        try(sink(NULL), silent = TRUE)
+      }
+    },
+    add = TRUE
+  )
 
   fn_vec <- .file_ls(getwd())
 
@@ -799,7 +802,7 @@ projr_use_data <- function(...,
   title <- if (!is.null(nm_list)) nm_list[["title"]] else "Project Title"
   gh_user <- if (!is.null(nm_list)) nm_list[["gh"]] else "username"
   pkg_name <- if (!is.null(nm_list)) nm_list[["pkg"]] else "repository"
-  
+
   c(
     "bookdown::gitbook:",
     "  toc_depth: 6",
@@ -840,7 +843,7 @@ init_engine_bookdown_contents_index <- function(nm_list = NULL) {
   } else {
     "Author Name"
   }
-  
+
   c(
     "---",
     paste0("title: \"", title, "\""),

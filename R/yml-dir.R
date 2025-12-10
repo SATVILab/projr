@@ -141,10 +141,7 @@
 }
 
 
-
-.yml_dir_label_detect <- function(x, label) {
-
-}
+.yml_dir_label_detect <- function(x, label) {}
 
 .yml_dir_complete_hash_output <- function(hash) {
   hash %||% TRUE
@@ -364,7 +361,6 @@
 
   yml_dir |> append(default_list[nm_vec_missing_lgl])
 }
-
 
 
 .yml_dir_set <- function(yml_dir, profile) {

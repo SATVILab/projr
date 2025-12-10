@@ -1,4 +1,3 @@
-
 # ========================
 # check existence
 # ========================
@@ -212,7 +211,7 @@
 #'   directory containing label/version).
 #' @param empty Logical flag indicating whether an "empty" variant (used for
 #'   GitHub placeholder assets) should be produced.
-#' @details 
+#' @details
 #' The final remote is created for hierarchical remotes (local, OSF),
 #' but not for flat remotes (GitHub assets), as such a final
 #' remote cannot be created empty.
@@ -287,7 +286,7 @@
 #'   directory containing label/version).
 #' @param empty Logical flag indicating whether an "empty" variant (used for
 #'   GitHub placeholder assets) should be produced.
-#' @details 
+#' @details
 #' The final remote is created for hierarchical remotes (local, OSF),
 #' but not for flat remotes (GitHub assets), as such a final
 #' remote cannot be created empty.
@@ -313,7 +312,7 @@
     version = version,
     output_level = output_level
   )
-  
+
   # pre: "one up" from the final remote, e.g. the directory
   # above for hierarchical. Does not apply to flat.
   switch(type,
@@ -816,8 +815,7 @@
 #' @noRd
 .remote_file_ls <- function(type,
                             remote,
-                            output_level = "std"
-                            ) {
+                            output_level = "std") {
   .assert_in(type, .opt_remote_get_type(), TRUE)
 
   result <- switch(type,

@@ -85,11 +85,11 @@ test_that(".metadata_get_author_sys_info works", {
   author <- .metadata_get_author_sys_info()
   expect_true(.is_chr(author))
   expect_true(length(author) == 1)
-  
+
   # Test fallback logic: tries user, then login, then HOSTNAME
   user_info <- Sys.info()[["user"]]
   login_info <- Sys.info()[["login"]]
-  
+
   if (.is_len_1(user_info) && .is_string(user_info)) {
     expect_identical(author, user_info)
   } else if (.is_len_1(login_info) && !identical(login_info, "unknown") && .is_string(login_info)) {
@@ -108,7 +108,7 @@ test_that(".metadata_get_os works", {
   expect_true(.is_chr(os))
   expect_true(length(os) == 1)
   expect_identical(os, Sys.info()[["sysname"]])
-  
+
   # Should be one of the common OS names
   expect_true(os %in% c("Windows", "Linux", "Darwin", "SunOS", "FreeBSD"))
 })
@@ -130,10 +130,10 @@ test_that(".metadata_get_time works", {
   time_str <- .metadata_get_time()
   expect_true(.is_chr(time_str))
   expect_true(length(time_str) == 1)
-  
+
   # Should match HH:MM:SS format
   expect_true(grepl("^\\d{2}:\\d{2}:\\d{2}$", time_str))
-  
+
   # Parse and check it's a valid time
   time_parts <- strsplit(time_str, ":")[[1]]
   expect_identical(length(time_parts), 3L)
@@ -151,10 +151,10 @@ test_that(".metadata_get_date works", {
   date_str <- .metadata_get_date()
   expect_true(.is_chr(date_str))
   expect_true(length(date_str) == 1)
-  
+
   # Should match YYYY-MM-DD format
   expect_true(grepl("^\\d{4}-\\d{2}-\\d{2}$", date_str))
-  
+
   # Parse and check it's a valid date
   date_parts <- strsplit(date_str, "-")[[1]]
   expect_identical(length(date_parts), 3L)
@@ -183,7 +183,7 @@ test_that(".yml_metadata_get_nm works", {
       # Test with non-existent key
       result <- .yml_metadata_get_nm("nonexistent", "default")
       expect_null(result)
-      
+
       # Test with version-format (common metadata key)
       version_format <- .yml_metadata_get_nm("version-format", "default")
       # Should be NULL or a string
@@ -204,7 +204,7 @@ test_that(".yml_metadata_set_nm works with non-empty value", {
     code = {
       # Set a metadata value
       .yml_metadata_set_nm("test-value", "test-key", "default")
-      
+
       # Read it back
       result <- .yml_metadata_get_nm("test-key", "default")
       expect_identical(result, "test-value")
@@ -226,7 +226,7 @@ test_that(".yml_metadata_set_nm works with empty value", {
       .yml_metadata_set_nm("test-value", "test-key", "default")
       result <- .yml_metadata_get_nm("test-key", "default")
       expect_identical(result, "test-value")
-      
+
       # Now set it to NULL (should remove it)
       .yml_metadata_set_nm(NULL, "test-key", "default")
       result <- .yml_metadata_get_nm("test-key", "default")
@@ -268,12 +268,12 @@ test_that(".yml_metadata_set works", {
         "key2" = "value2"
       )
       .yml_metadata_set(new_metadata, "default")
-      
+
       # Read it back
       metadata <- .yml_metadata_get("default")
       expect_identical(metadata[["key1"]], "value1")
       expect_identical(metadata[["key2"]], "value2")
-      
+
       # Can also retrieve individual keys
       key1 <- .yml_metadata_get_nm("key1", "default")
       expect_identical(key1, "value1")

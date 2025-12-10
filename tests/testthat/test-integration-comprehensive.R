@@ -191,11 +191,14 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
       # Restore should work with the manifest
       if (file.exists("manifest.csv")) {
         # Try to restore raw-data from local archive
-        result <- tryCatch({
-          projr_content_update(label = "raw-data", type = "local")
-        }, error = function(e) {
-          FALSE
-        })
+        result <- tryCatch(
+          {
+            projr_content_update(label = "raw-data", type = "local")
+          },
+          error = function(e) {
+            FALSE
+          }
+        )
 
         # Even if it fails (no archive available), the function should handle it gracefully
         expect_true(is.logical(result))
@@ -239,7 +242,7 @@ test_that("comprehensive workflow: rmarkdown with dev builds, iterative changes,
       # Dev build
       projr::projr_build_dev()
       v1 <- projr_version_get()
-      expect_true(grepl("-", v1))  # Dev version has dash
+      expect_true(grepl("-", v1)) # Dev version has dash
 
       # ========== Phase 2: Add remotes with different cues ==========
       projr_yml_dest_add_local(
@@ -266,7 +269,7 @@ test_that("comprehensive workflow: rmarkdown with dev builds, iterative changes,
       # ========== Phase 3: Production build and switch to bookdown ==========
       projr::projr_build_patch()
       v4 <- projr_version_get()
-      expect_false(grepl("-", gsub("-1$", "", v4)))  # Production version has no dash
+      expect_false(grepl("-", gsub("-1$", "", v4))) # Production version has no dash
       expect_identical(v4, "0.0.1-1")
 
       # Switch to bookdown
@@ -345,11 +348,14 @@ test_that("comprehensive workflow: rmarkdown with dev builds, iterative changes,
       file.remove(raw_data_files[!file.info(raw_data_files)$isdir])
 
       # Try to restore from backup
-      result <- tryCatch({
-        projr_content_update(label = "raw-data", type = "local")
-      }, error = function(e) {
-        FALSE
-      })
+      result <- tryCatch(
+        {
+          projr_content_update(label = "raw-data", type = "local")
+        },
+        error = function(e) {
+          FALSE
+        }
+      )
 
       # Should return a result (TRUE or FALSE)
       expect_true(is.logical(result))
@@ -483,17 +489,23 @@ test_that("comprehensive workflow: quarto with multiple content types, configura
 
       # ========== Phase 7: Test restoring multiple content types ==========
       # Try to restore both raw-data and cache if possible
-      result_raw <- tryCatch({
-        projr_content_update(label = "raw-data", type = "local")
-      }, error = function(e) {
-        FALSE
-      })
+      result_raw <- tryCatch(
+        {
+          projr_content_update(label = "raw-data", type = "local")
+        },
+        error = function(e) {
+          FALSE
+        }
+      )
 
-      result_cache <- tryCatch({
-        projr_content_update(label = "cache", type = "local")
-      }, error = function(e) {
-        FALSE
-      })
+      result_cache <- tryCatch(
+        {
+          projr_content_update(label = "cache", type = "local")
+        },
+        error = function(e) {
+          FALSE
+        }
+      )
 
       # Both should return logical values
       expect_true(is.logical(result_raw))
@@ -650,14 +662,16 @@ test_that("comprehensive workflow: from scratch with extensive iteration, clone 
         }
 
         # Attempt restore
-        result <- tryCatch({
-          projr_content_update(label = "raw-data", type = "local")
-        }, error = function(e) {
-          FALSE
-        })
+        result <- tryCatch(
+          {
+            projr_content_update(label = "raw-data", type = "local")
+          },
+          error = function(e) {
+            FALSE
+          }
+        )
 
         expect_true(is.logical(result))
-
       }, finally = {
         setwd(old_wd)
         unlink(clone_dir, recursive = TRUE)

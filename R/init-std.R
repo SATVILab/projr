@@ -85,7 +85,7 @@ projr_init <- function(git = TRUE,
 
   # initial VERSION file
   if (!file.exists(.path_get("VERSION")) &&
-        !file.exists(.path_get("DESCRIPTION"))) {
+    !file.exists(.path_get("DESCRIPTION"))) {
     projr_version_set("0.0.1")
   }
 

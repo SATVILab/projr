@@ -13,12 +13,13 @@ Development workflow guidelines for the projr R package, including build command
 
 ## Required Before Each Commit
 
-- Run `devtools::document()` to update roxygen2 documentation in `man/`
-- Run `devtools::test()` to ensure all tests pass (use LITE mode for faster iteration)
-- Run `devtools::check()` to ensure package passes R CMD check
-- Ensure code follows the existing style conventions (see `r-coding-standards.instructions.md`)
-- Follow naming conventions (see `NAMING_SUGGESTIONS.md` for comprehensive guidelines)
-- **If export status changed**: Update `_pkgdown.yml` and verify with `pkgdown::check_pkgdown()`
+- Run `devtools::document()` to update roxygen2 documentation in `man/`.
+- Run `devtools::test()` to ensure all tests pass (use LITE mode for faster iteration).
+- Run `devtools::check()` to ensure package passes R CMD check.
+- Run `styler::style_pkg()` to format code according to style guidelines.
+- Ensure code follows the existing style conventions (see `r-coding-standards.instructions.md`).
+- Follow naming conventions (see `NAMING_SUGGESTIONS.md` for comprehensive guidelines).
+- **If export status changed**: Update `_pkgdown.yml` and verify with `pkgdown::check_pkgdown()`.
 
 ---
 
@@ -103,7 +104,7 @@ When debugging a specific test failure or issue:
    # Temporarily remove skip_if(.is_test_select()) from the test you're debugging
    devtools::test()
    # Or run specific file:
-   devtools::test_file("tests/testthat/test-specific.R")
+   devtools::test_active_file("tests/testthat/test-specific.R")
    ```
 
 3. **After debugging**, restore skip conditions and unset select mode:
@@ -118,7 +119,7 @@ This approach allows you to focus on specific failing tests without running the 
 
 ```r
 # Run tests for specific file
-devtools::test_file("tests/testthat/test-manifest.R")
+devtools::test_active_file("tests/testthat/test-manifest.R")
 
 # Install package locally
 devtools::install()
@@ -244,6 +245,7 @@ Common pkgdown reference sections in this package:
 
 - Review output of `devtools::check()`
 - Common issues: missing documentation, unused imports, test failures
+- If run a `projr_build_*` command, check the log via `projr_log_view()`.
 
 ---
 

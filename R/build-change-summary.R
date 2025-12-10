@@ -52,10 +52,12 @@
 
   # Filter to only those that are hashed
   labels_input <- labels_input[vapply(
-    labels_input, .yml_dir_get_hash_complete, logical(1), profile = NULL
+    labels_input, .yml_dir_get_hash_complete, logical(1),
+    profile = NULL
   )]
   labels_output <- labels_output[vapply(
-    labels_output, .yml_dir_get_hash_complete, logical(1), profile = NULL
+    labels_output, .yml_dir_get_hash_complete, logical(1),
+    profile = NULL
   )]
 
   # Build summary
