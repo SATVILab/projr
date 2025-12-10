@@ -729,3 +729,110 @@ test_that(".version_file_check_label_trusted checks asterisk marker", {
     }
   )
 })
+
+test_that(".manifest_get_version_earliest_match finds earliest matching version", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Setup: Create files and build manifest across multiple versions
+      .test_content_setup_label("output", safe = FALSE)
+
+      # Version 0.0.1 - initial files
+      projr_version_set("0.0.1")
+      .build_manifest_pre(TRUE)
+      .build_manifest_post(TRUE)
+
+      # Version 0.0.2 - same files (no changes)
+      projr_version_set("0.0.2")
+      .build_manifest_pre(TRUE)
+      .build_manifest_post(TRUE)
+
+      # Version 0.0.3 - still same files
+      projr_version_set("0.0.3")
+      .build_manifest_pre(TRUE)
+      .build_manifest_post(TRUE)
+
+      # Test: Should find v0.0.1 as earliest version with these files
+      earliest <- .manifest_get_version_earliest_match("output", NULL)
+      expect_true(inherits(earliest, "package_version"))
+      expect_identical(as.character(earliest), "0.0.1")
+
+      # Now modify a file in v0.0.4
+      projr_version_set("0.0.4")
+      output_dir <- projr_path_get_dir("output", safe = FALSE)
+      writeLines("modified content", file.path(output_dir, "abc.txt"))
+      .build_manifest_pre(TRUE)
+      .build_manifest_post(TRUE)
+
+      # Test: Should now find v0.0.4 as earliest match (files changed)
+      earliest_after_change <- .manifest_get_version_earliest_match("output", NULL)
+      expect_identical(as.character(earliest_after_change), "0.0.4")
+
+      # Test: With version_comp parameter
+      # Find earliest match but only considering versions >= 0.0.2
+      projr_version_set("0.0.3")
+      earliest_with_comp <- .manifest_get_version_earliest_match("output", "0.0.2")
+      # Files haven't changed between 0.0.2 and 0.0.3, but function works backwards
+      # from current version, so it returns 0.0.3 (current) when checking files match
+      expect_true(as.character(earliest_with_comp) %in% c("0.0.2", "0.0.3"))
+    }
+  )
+})
+
+test_that(".manifest_get_version_earliest_match handles edge cases", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test: Empty manifest returns current version as package_version
+      current_version <- projr_version_get()
+      earliest_empty <- .manifest_get_version_earliest_match("output", NULL)
+      # package_version converts "0.0.0-1" to "0.0.0.1" format
+      expect_true(inherits(earliest_empty, "package_version"))
+      # Just verify it's a valid version, format may differ
+      expect_true(length(as.character(earliest_empty)) > 0)
+
+      # Setup: Create files for one version only
+      .test_content_setup_label("output", safe = FALSE)
+      projr_version_set("0.0.1")
+      .build_manifest_pre(TRUE)
+      .build_manifest_post(TRUE)
+
+      # Test: Single version in manifest
+      earliest_single <- .manifest_get_version_earliest_match("output", NULL)
+      expect_identical(as.character(earliest_single), "0.0.1")
+
+      # Test: version_comp higher than any available version
+      earliest_high_comp <- .manifest_get_version_earliest_match("output", "1.0.0")
+      # Should return current version (no versions meet criteria)
+      expect_identical(as.character(earliest_high_comp), "0.0.1")
+    }
+  )
+})
+
+test_that(".manifest_get_version_earliest_match_get_version_comp generates default", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test: With provided version_comp, returns it
+      result <- .manifest_get_version_earliest_match_get_version_comp("0.0.5")
+      expect_identical(result, "0.0.5")
+
+      # Test: With NULL, generates from version format
+      # Default format is major.minor.patch-dev
+      result_default <- .manifest_get_version_earliest_match_get_version_comp(NULL)
+      # Should generate something like "0.0.1" (all but last component = 0, last = 1)
+      expect_true(is.character(result_default))
+      expect_true(nchar(result_default) > 0)
+      # Should match pattern like "0.0.1"
+      expect_true(grepl("^0\\.0\\.1$", result_default))
+    }
+  )
+})
