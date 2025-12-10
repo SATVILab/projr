@@ -19,7 +19,7 @@ test_that("projr_unignore_manual handles empty strings", {
 
       # Test with only empty strings
       result <- projr_unignore_manual(c("", ""))
-      expect_identical(result, FALSE)
+      expect_false(result)
 
       # Test with mix of empty and valid - function doesn't return invisible(TRUE)
       # It calls sub-functions that may return invisible(TRUE), but main function doesn't
@@ -40,15 +40,15 @@ test_that("projr_unignore_manual handles non-character input", {
     code = {
       # Test with numeric input
       result <- projr_unignore_manual(123)
-      expect_identical(result, FALSE)
+      expect_false(result)
 
       # Test with NULL
       result <- projr_unignore_manual(NULL)
-      expect_identical(result, FALSE)
+      expect_false(result)
 
       # Test with list
       result <- projr_unignore_manual(list("test"))
-      expect_identical(result, FALSE)
+      expect_false(result)
     }
   )
 })
@@ -83,10 +83,10 @@ test_that("projr_unignore_manual distinguishes files and directories", {
       # Check .gitignore
       gitignore <- readLines(".gitignore")
       # File should not have /**
-      expect_true(any(grepl("!myfile.txt", gitignore)))
-      expect_false(any(grepl("!myfile.txt/\\*\\*", gitignore)))
+      expect_true(any(grepl("!myfile.txt", gitignore, fixed = TRUE)))
+      expect_false(any(grepl("!myfile.txt/**", gitignore, fixed = TRUE)))
       # Directory should have /**
-      expect_true(any(grepl("!mydir/\\*\\*", gitignore)))
+      expect_true(any(grepl("!mydir/**", gitignore, fixed = TRUE)))
     }
   )
 })
@@ -160,11 +160,11 @@ test_that("projr_unignore_manual_dir handles empty strings", {
     code = {
       # Test with only empty strings
       result <- projr_unignore_manual_dir(c("", ""))
-      expect_identical(result, FALSE)
+      expect_false(result)
 
       # Test with character(0)
       result <- projr_unignore_manual_dir(character(0))
-      expect_identical(result, FALSE)
+      expect_false(result)
     }
   )
 })
@@ -177,11 +177,11 @@ test_that("projr_unignore_manual_dir handles non-character input", {
     code = {
       # Test with numeric
       result <- projr_unignore_manual_dir(456)
-      expect_identical(result, FALSE)
+      expect_false(result)
 
       # Test with NULL
       result <- projr_unignore_manual_dir(NULL)
-      expect_identical(result, FALSE)
+      expect_false(result)
     }
   )
 })
@@ -194,11 +194,11 @@ test_that("projr_unignore_manual_file handles empty strings", {
     code = {
       # Test with only empty strings
       result <- projr_unignore_manual_file(c("", ""))
-      expect_identical(result, FALSE)
+      expect_false(result)
 
       # Test with character(0)
       result <- projr_unignore_manual_file(character(0))
-      expect_identical(result, FALSE)
+      expect_false(result)
     }
   )
 })
@@ -211,11 +211,11 @@ test_that("projr_unignore_manual_file handles non-character input", {
     code = {
       # Test with numeric
       result <- projr_unignore_manual_file(789)
-      expect_identical(result, FALSE)
+      expect_false(result)
 
       # Test with NULL
       result <- projr_unignore_manual_file(NULL)
-      expect_identical(result, FALSE)
+      expect_false(result)
     }
   )
 })
@@ -339,8 +339,9 @@ test_that("projr_unignore_manual_file_rbuild handles trailing slashes", {
       projr_unignore_manual_file_rbuild("myfile.txt///")
 
       # Check .Rbuildignore - trailing slashes should be removed
+      # glob2rx creates anchored patterns like ^myfile\.txt$
       rbuildignore <- readLines(".Rbuildignore")
-      expect_true(any(grepl("!.*myfile", rbuildignore)))
+      expect_true(any(grepl("!^myfile\\.txt$", rbuildignore, fixed = TRUE)))
     }
   )
 })
@@ -437,11 +438,11 @@ test_that(".unignore_manual_path_add handles empty input", {
 
       # Try to add empty vector
       result <- .unignore_manual_path_add(character(0), ".gitignore")
-      expect_identical(result, FALSE)
+      expect_false(result)
 
       # Try to add only empty strings
       result <- .unignore_manual_path_add(c("", ""), ".gitignore")
-      expect_identical(result, FALSE)
+      expect_false(result)
     }
   )
 })
@@ -668,11 +669,11 @@ test_that("projr_unignore_manual_file_git handles empty and non-character input"
     code = {
       # Empty strings
       result <- projr_unignore_manual_file_git(c("", ""))
-      expect_identical(result, FALSE)
+      expect_false(result)
 
       # Non-character
       result <- projr_unignore_manual_file_git(456)
-      expect_identical(result, FALSE)
+      expect_false(result)
     }
   )
 })
@@ -685,11 +686,11 @@ test_that("projr_unignore_manual_dir_git handles empty and non-character input",
     code = {
       # Empty strings
       result <- projr_unignore_manual_dir_git(c("", ""))
-      expect_identical(result, FALSE)
+      expect_false(result)
 
       # Non-character
       result <- projr_unignore_manual_dir_git(NULL)
-      expect_identical(result, FALSE)
+      expect_false(result)
     }
   )
 })
@@ -702,11 +703,11 @@ test_that("projr_unignore_manual_file_rbuild handles empty and non-character inp
     code = {
       # Empty strings
       result <- projr_unignore_manual_file_rbuild(c("", ""))
-      expect_identical(result, FALSE)
+      expect_false(result)
 
       # Non-character
       result <- projr_unignore_manual_file_rbuild(list("test"))
-      expect_identical(result, FALSE)
+      expect_false(result)
     }
   )
 })
@@ -719,11 +720,11 @@ test_that("projr_unignore_manual_dir_rbuild handles empty and non-character inpu
     code = {
       # Empty strings
       result <- projr_unignore_manual_dir_rbuild(c("", ""))
-      expect_identical(result, FALSE)
+      expect_false(result)
 
       # Non-character
       result <- projr_unignore_manual_dir_rbuild(789)
-      expect_identical(result, FALSE)
+      expect_false(result)
     }
   )
 })
