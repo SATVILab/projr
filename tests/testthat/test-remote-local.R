@@ -918,10 +918,7 @@ test_that("test always vs if-change for local remotes", {
 
 test_that("various upload strategies run", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  skip_if_offline()
-  .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
     path = dir_test,
@@ -1127,10 +1124,7 @@ test_that("various upload strategies run", {
 
 test_that("various inspection methods run", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  skip_if_offline()
-  .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
     path = dir_test,
@@ -1329,6 +1323,158 @@ test_that("various inspection methods run", {
       expect_true("tempfile.txt" %in% fn_vec)
       expect_true(length(fn_vec) > 1)
       expect_true("no-inspect.txt" %in% fn_vec)
+    }
+  )
+})
+
+# =============================================================================
+# Edge case tests for specific R/remote-local.R functions
+# =============================================================================
+
+test_that(".remote_final_rm_if_empty_local handles non-empty directories", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create a directory with files
+      remote_dir <- .dir_create_tmp_random()
+      on.exit(unlink(remote_dir, recursive = TRUE), add = TRUE)
+
+      # Add a file
+      writeLines("content", file.path(remote_dir, "file.txt"))
+
+      # Try to remove if empty - should return FALSE
+      result <- .remote_final_rm_if_empty("local", remote_dir)
+      expect_false(result)
+      expect_true(dir.exists(remote_dir))
+
+      # Remove the file
+      file.remove(file.path(remote_dir, "file.txt"))
+
+      # Now should remove and return TRUE
+      result <- .remote_final_rm_if_empty("local", remote_dir)
+      expect_true(result)
+      expect_false(dir.exists(remote_dir))
+    }
+  )
+})
+
+test_that(".remote_final_rm_local handles non-existent directories", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create a path that doesn't exist
+      remote_dir <- file.path(tempdir(), "nonexistent_dir_123")
+
+      # Try to remove non-existent directory
+      result <- .remote_final_rm("local", remote_dir)
+      expect_false(result)
+    }
+  )
+})
+
+test_that(".remote_final_empty_local handles non-existent directories", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create a path that doesn't exist
+      remote_dir <- file.path(tempdir(), "nonexistent_dir_456")
+
+      # Try to empty non-existent directory
+      result <- .remote_final_empty("local", remote_dir)
+      expect_false(result)
+    }
+  )
+})
+
+test_that(".remote_file_get_local handles empty remotes", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create a remote with -empty suffix
+      remote_dir <- file.path(tempdir(), "test-remote-empty")
+      save_dir <- .dir_create_tmp_random()
+      on.exit({
+        unlink(remote_dir, recursive = TRUE)
+        unlink(save_dir, recursive = TRUE)
+      }, add = TRUE)
+
+      # Try to get file from empty remote
+      result <- .remote_file_get("local", remote_dir, "file.txt", save_dir)
+      expect_identical(result, character(0L))
+    }
+  )
+})
+
+test_that(".remote_file_rm_local handles empty file list", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create a remote directory
+      remote_dir <- .dir_create_tmp_random()
+      on.exit(unlink(remote_dir, recursive = TRUE), add = TRUE)
+
+      # Try to remove with empty file list
+      result <- .remote_file_rm("local", character(0L), remote_dir)
+      expect_false(result)
+    }
+  )
+})
+
+test_that(".remote_file_rm_local handles non-existent files", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create a remote directory
+      remote_dir <- .dir_create_tmp_random()
+      on.exit(unlink(remote_dir, recursive = TRUE), add = TRUE)
+
+      # Try to remove files that don't exist
+      result <- .remote_file_rm(
+        "local",
+        c("nonexistent1.txt", "nonexistent2.txt"),
+        remote_dir
+      )
+      expect_false(result)
+    }
+  )
+})
+
+test_that(".remote_file_add_local handles empty file list", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create directories
+      source_dir <- .dir_create_tmp_random()
+      remote_dir <- .dir_create_tmp_random()
+      on.exit({
+        unlink(source_dir, recursive = TRUE)
+        unlink(remote_dir, recursive = TRUE)
+      }, add = TRUE)
+
+      # Try to add with empty file list
+      result <- .remote_file_add("local", remote_dir, source_dir, character(0L))
+      expect_false(result)
     }
   )
 })
