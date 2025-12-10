@@ -268,6 +268,9 @@
     return(invisible(NULL))
   }
   if (!is.null(id)) {
-    cli::cli_process_done(id = id, msg_done = msg_done, msg_failed = msg_failed, .envir = .envir)
+    # cli::cli_process_done only accepts msg_done, not msg_failed
+    # Use msg_done for both success and failure (or msg_failed if msg_done is NULL)
+    msg <- if (!is.null(msg_done)) msg_done else msg_failed
+    cli::cli_process_done(id = id, msg_done = msg, .envir = .envir)
   }
 }

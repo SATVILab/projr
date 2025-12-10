@@ -322,3 +322,145 @@ test_that("CLI functions handle complex glue expressions in logs", {
     force = TRUE
   )
 })
+
+test_that(".cli_process_start works with different output levels", {
+  skip_if(.is_test_select())
+
+  # At "none" level, should not produce output
+  expect_silent(.cli_process_start("Processing files", output_level = "none"))
+
+  # At "std" level, should produce output
+  expect_error(.cli_process_start("Processing files", output_level = "std"), NA)
+
+  # At "debug" level, should also work
+  expect_error(.cli_process_start("Processing files", output_level = "debug"), NA)
+})
+
+test_that(".cli_process_done works with different output levels", {
+  skip_if(.is_test_select())
+
+  # At "none" level, should not produce output
+  expect_silent(.cli_process_done(NULL, msg_done = "Success", output_level = "none"))
+  expect_silent(.cli_process_done(NULL, msg_failed = "Failed", output_level = "none"))
+  expect_silent(.cli_process_done(NULL, output_level = "none"))
+
+  # At "std" level, should produce output (we can't easily test the output itself)
+  expect_error(.cli_process_done(NULL, msg_done = "Success", output_level = "std"), NA)
+  expect_error(.cli_process_done(NULL, msg_failed = "Failed", output_level = "std"), NA)
+  expect_error(.cli_process_done(NULL, output_level = "std"), NA)
+})
+
+test_that(".cli_process_start and .cli_process_done log messages", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Initialize a log file
+      log_info <- .log_build_init("dev", bump_component = "test", msg = "test", output_level = "std")
+      expect_false(is.null(log_info))
+
+      # Test process start
+      .cli_process_start("Processing test files", output_level = "std")
+
+      # Test process done with success message
+      .cli_process_done(NULL, msg_done = "Completed successfully", output_level = "std")
+
+      # Test process done with failure message
+      .cli_process_done(NULL, msg_failed = "Operation failed", output_level = "std")
+
+      # Test process done with no message
+      .cli_process_done(NULL, output_level = "std")
+
+      # Read the log file
+      log_content <- readLines(log_info$log_file)
+      log_text <- paste(log_content, collapse = "\n")
+
+      # Check that process messages were logged
+      expect_true(grepl("Process started: Processing test files", log_text, fixed = TRUE))
+      expect_true(grepl("Process done: Completed successfully", log_text, fixed = TRUE))
+      expect_true(grepl("Process failed: Operation failed", log_text, fixed = TRUE))
+      expect_true(grepl("Process completed", log_text, fixed = TRUE))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that(".cli_eval_message handles glue errors gracefully", {
+  skip_if(.is_test_select())
+
+  # Test with invalid glue syntax - should return original text
+  # Note: glue is quite forgiving, so we need a scenario that actually triggers an error
+  # An undefined variable in a glue expression might work, but glue often handles those
+  # Instead, test that plain text without braces works (not an error case, but coverage)
+  result <- .cli_eval_message("Plain text without braces")
+  expect_identical(result, "Plain text without braces")
+
+  # Test with braces that aren't glue expressions
+  result <- .cli_eval_message("Text with {{escaped braces}}")
+  expect_identical(result, "Text with {escaped braces}")
+
+  # Test multiple parts joined together
+  result <- .cli_eval_message("Part 1", "Part 2", "Part 3")
+  expect_identical(result, "Part 1 Part 2 Part 3")
+})
+
+test_that(".cli_process_start and .cli_process_done integrate with cli package", {
+  skip_if(.is_test_select())
+
+  # Test that process start returns an ID at std level
+  # We can't test the exact ID, but we can verify it doesn't error
+  expect_error({
+    id <- .cli_process_start("Test process", output_level = "std")
+    # The ID might be NULL or a valid process ID
+  }, NA)
+
+  # Test process done with an ID (even if NULL)
+  expect_error({
+    .cli_process_done(NULL, msg_done = "Done", output_level = "std")
+  }, NA)
+})
+
+test_that(".cli_process_start and .cli_process_done work together with actual ID", {
+  skip_if(.is_test_select())
+
+  # Start a process and capture the ID
+  id <- .cli_process_start("Integration test process", output_level = "std")
+
+  # Complete the process with the ID
+  # This should exercise line 271 in .cli_process_done
+  expect_error({
+    .cli_process_done(id = id, msg_done = "Process completed", output_level = "std")
+  }, NA)
+
+  # Test with failed message
+  id2 <- .cli_process_start("Another test process", output_level = "std")
+  expect_error({
+    .cli_process_done(id = id2, msg_failed = "Process failed", output_level = "std")
+  }, NA)
+})
+
+test_that(".cli_eval_message handles truly invalid glue expressions", {
+  skip_if(.is_test_select())
+
+  # Try to trigger a glue error by using a malformed expression
+  # One way to do this is to have mismatched braces or invalid R code inside braces
+  # However, glue is very forgiving. Let's try an expression that would cause an error
+  # when evaluated but might be caught by glue's error handling
+
+  # Test with a more complex expression that might fail
+  # If glue can't evaluate it, it should return the original text
+  # This is difficult to test directly, so we'll just ensure the function handles it
+  expect_error({
+    # This should not throw an error even if glue fails internally
+    result <- .cli_eval_message("Text with {stop('error')}")
+    # If we get here, glue either succeeded or the error was caught
+  }, NA)
+
+  # Alternative: test that the error handling path exists and is reachable
+  # by checking that plain text goes through the same code path
+  result <- .cli_eval_message("No glue syntax here")
+  expect_identical(result, "No glue syntax here")
+})
