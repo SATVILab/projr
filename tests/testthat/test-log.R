@@ -763,3 +763,448 @@ test_that("Log file paths use correct separators", {
     }
   )
 })
+
+test_that("projr_log_clear with before_version filters correctly", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+
+      # Create log files with different versions
+      old_date <- "2024-Jan-15"
+      old_dir <- .log_dir_get_output_date("output", date = old_date)
+
+      # Create old log with version 0.0.1
+      old_file <- file.path(old_dir, "10-00-00.qmd")
+      old_content <- c(
+        "---",
+        "title: \"OUTPUT Build Log\"",
+        "date: \"2024-01-15 10:00:00\"",
+        "format: html",
+        "---",
+        "",
+        "# Build Information",
+        "",
+        "- **Build Type**: output",
+        "- **projr Version**: 0.0.1",
+        ""
+      )
+      writeLines(old_content, old_file)
+
+      # Create newer log with version 0.0.5
+      new_date <- "2024-Feb-15"
+      new_dir <- .log_dir_get_output_date("output", date = new_date)
+      new_file <- file.path(new_dir, "11-00-00.qmd")
+      new_content <- c(
+        "---",
+        "title: \"OUTPUT Build Log\"",
+        "date: \"2024-02-15 11:00:00\"",
+        "format: html",
+        "---",
+        "",
+        "# Build Information",
+        "",
+        "- **Build Type**: output",
+        "- **projr Version**: 0.0.5",
+        ""
+      )
+      writeLines(new_content, new_file)
+
+      # Clear logs before version 0.0.3
+      projr_log_clear(
+        build_type = "output",
+        history = FALSE,
+        output = TRUE,
+        before_version = "0.0.3"
+      )
+
+      # Old log (0.0.1) should be deleted
+      expect_false(file.exists(old_file))
+
+      # New log (0.0.5) should remain
+      expect_true(file.exists(new_file))
+    }
+  )
+})
+
+test_that(".log_clear_output_by_version removes old logs and empty directories", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+
+      # Create directory structure
+      type_dir <- .log_dir_get_type("output", create = TRUE)
+      output_dir <- file.path(type_dir, "output")
+      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+
+      # Create date directory with old log
+      date_dir <- file.path(output_dir, "2024-Jan-10")
+      dir.create(date_dir, recursive = TRUE)
+
+      old_file <- file.path(date_dir, "10-00-00.qmd")
+      old_content <- c(
+        "---",
+        "title: \"Test\"",
+        "---",
+        "- **projr Version**: 0.0.1"
+      )
+      writeLines(old_content, old_file)
+
+      # Run clear function
+      .log_clear_output_by_version(output_dir, "0.0.5")
+
+      # File should be deleted
+      expect_false(file.exists(old_file))
+
+      # Empty date directory should also be deleted
+      expect_false(dir.exists(date_dir))
+    }
+  )
+})
+
+test_that(".log_clear_output_by_version handles version with v prefix", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+
+      # Create test structure
+      type_dir <- .log_dir_get_type("output", create = TRUE)
+      output_dir <- file.path(type_dir, "output")
+      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+
+      date_dir <- file.path(output_dir, "2024-Jan-10")
+      dir.create(date_dir, recursive = TRUE)
+
+      # Create log with v prefix in version
+      test_file <- file.path(date_dir, "10-00-00.qmd")
+      test_content <- c(
+        "---",
+        "title: \"Test\"",
+        "---",
+        "- **projr Version**: v0.0.2"
+      )
+      writeLines(test_content, test_file)
+
+      # Clear with version that has v prefix
+      .log_clear_output_by_version(output_dir, "v0.0.5")
+
+      # File should be deleted (0.0.2 < 0.0.5)
+      expect_false(file.exists(test_file))
+    }
+  )
+})
+
+test_that(".log_clear_output_by_version skips unparseable files", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+
+      # Create test structure
+      type_dir <- .log_dir_get_type("output", create = TRUE)
+      output_dir <- file.path(type_dir, "output")
+      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+
+      date_dir <- file.path(output_dir, "2024-Jan-10")
+      dir.create(date_dir, recursive = TRUE)
+
+      # Create file without version info
+      no_version_file <- file.path(date_dir, "no-version.qmd")
+      writeLines("test content", no_version_file)
+
+      # Create file that will cause error
+      bad_file <- file.path(date_dir, "bad.qmd")
+      writeLines("- **projr Version**: invalid", bad_file)
+
+      # Should not error
+      expect_silent(.log_clear_output_by_version(output_dir, "0.0.5"))
+
+      # Files without valid versions should remain
+      expect_true(file.exists(no_version_file))
+      expect_true(file.exists(bad_file))
+    }
+  )
+})
+
+test_that(".log_clear_history with before_version filters correctly", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create history file with multiple versions
+      history_file <- .log_file_get_history("output")
+
+      history_content <- c(
+        "# Build History",
+        "",
+        "History of all output builds, newest first.",
+        "",
+        "## 2024-03-01 10:00:00 [OK]",
+        "",
+        "- **Type**: output",
+        "- **Version**: 0.0.5",
+        "",
+        "## 2024-02-01 10:00:00 [OK]",
+        "",
+        "- **Type**: output",
+        "- **Version**: 0.0.3",
+        "",
+        "## 2024-01-01 10:00:00 [OK]",
+        "",
+        "- **Type**: output",
+        "- **Version**: 0.0.1",
+        ""
+      )
+      writeLines(history_content, history_file)
+
+      # Clear entries before version 0.0.3
+      .log_clear_history("output", before_version = "0.0.3")
+
+      # Read result
+      result <- readLines(history_file, warn = FALSE)
+
+      # Should keep versions >= 0.0.3 (0.0.3 and 0.0.5)
+      expect_true(any(grepl("0.0.5", result)))
+      expect_true(any(grepl("0.0.3", result)))
+
+      # Should remove version < 0.0.3 (0.0.1)
+      expect_false(any(grepl("0.0.1", result)))
+    }
+  )
+})
+
+test_that(".log_clear_history with both date and version filters", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create history file
+      history_file <- .log_file_get_history("dev")
+
+      history_content <- c(
+        "# Build History",
+        "",
+        "History of all dev builds, newest first.",
+        "",
+        "## 2024-06-01 10:00:00 [OK]",
+        "",
+        "- **Type**: dev",
+        "- **Version**: 0.1.0",
+        "",
+        "## 2024-03-01 10:00:00 [OK]",
+        "",
+        "- **Type**: dev",
+        "- **Version**: 0.0.5",
+        "",
+        "## 2024-01-01 10:00:00 [X]",
+        "",
+        "- **Type**: dev",
+        "- **Version**: 0.0.1",
+        ""
+      )
+      writeLines(history_content, history_file)
+
+      # Clear with both filters: before 2024-04-01 AND before version 0.0.8
+      .log_clear_history("dev", before_date = "2024-04-01", before_version = "0.0.8")
+
+      # Read result
+      result <- readLines(history_file, warn = FALSE)
+
+      # Entry from 2024-06-01 with 0.1.0 should remain (after date cutoff)
+      expect_true(any(grepl("2024-06-01", result)))
+      expect_true(any(grepl("0.1.0", result)))
+
+      # Entry from 2024-03-01 with 0.0.5 should be removed (before date AND before version)
+      expect_false(any(grepl("2024-03-01", result)))
+      expect_false(any(grepl("0.0.5", result)))
+
+      # Entry from 2024-01-01 with 0.0.1 should be removed
+      expect_false(any(grepl("2024-01-01", result)))
+      expect_false(any(grepl("0.0.1", result)))
+    }
+  )
+})
+
+test_that(".log_file_get_current with explicit date parameter", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+
+      # Create logs on different dates
+      date1 <- "2024-Jan-15"
+      dir1 <- .log_dir_get_output_date("output", date = date1)
+      file1 <- file.path(dir1, "10-00-00.qmd")
+      writeLines("content1", file1)
+
+      date2 <- "2024-Feb-20"
+      dir2 <- .log_dir_get_output_date("output", date = date2)
+      file2 <- file.path(dir2, "11-00-00.qmd")
+      writeLines("content2", file2)
+
+      # Get log for specific date
+      result1 <- .log_file_get_current("output", date = date1)
+      expect_equal(result1, file1)
+
+      result2 <- .log_file_get_current("output", date = date2)
+      expect_equal(result2, file2)
+
+      # Get log for non-existent date
+      result3 <- .log_file_get_current("output", date = "2024-Mar-01")
+      expect_null(result3)
+    }
+  )
+})
+
+test_that(".log_file_get_current returns NULL for non-existent build type", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Remove log directory to ensure clean state
+      log_base <- .log_dir_get_base()
+      if (dir.exists(log_base)) {
+        unlink(log_base, recursive = TRUE)
+      }
+
+      # Should return NULL when directory doesn't exist
+      result <- .log_file_get_current("output")
+      expect_null(result)
+    }
+  )
+})
+
+test_that("projr_log_view handles invalid log file gracefully", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test with non-existent file
+      result <- projr_log_view(log_file = "/nonexistent/path.qmd", show_header = FALSE)
+      expect_null(result)
+    }
+  )
+})
+
+test_that("projr_log_view handles empty log file", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+
+      # Create empty log file
+      log_info <- .log_build_init("output", msg = "Test")
+      log_file <- log_info$log_file
+
+      # Truncate file to make it empty
+      writeLines(character(0), log_file)
+
+      # Should handle empty file gracefully
+      result <- projr_log_view(log_file = log_file, show_header = FALSE)
+      expect_null(result)
+    }
+  )
+})
+
+test_that("projr_log_view with n_lines = 0 or negative", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+
+      # Create log with content
+      log_info <- .log_build_init("output", msg = "Test")
+      .log_build_append("Test message", "info")
+
+      # n_lines = 0 should show all lines
+      result <- projr_log_view(n_lines = 0, show_header = FALSE)
+      expect_true(length(result) > 0)
+
+      # n_lines = -1 should show all lines
+      result2 <- projr_log_view(n_lines = -1, show_header = FALSE)
+      expect_true(length(result2) > 0)
+    }
+  )
+})
+
+test_that(".log_clear_output_by_date handles invalid date formats", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+
+      # Create test structure
+      type_dir <- .log_dir_get_type("output", create = TRUE)
+      output_dir <- file.path(type_dir, "output")
+      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+
+      # Create directory with invalid date format
+      invalid_dir <- file.path(output_dir, "invalid-date-format")
+      dir.create(invalid_dir, recursive = TRUE)
+      invalid_file <- file.path(invalid_dir, "test.qmd")
+      writeLines("test", invalid_file)
+
+      # Create directory with valid date format but old
+      old_dir <- file.path(output_dir, "2024-Jan-01")
+      dir.create(old_dir, recursive = TRUE)
+      old_file <- file.path(old_dir, "test.qmd")
+      writeLines("test", old_file)
+
+      # Should not error on invalid date format
+      .log_clear_output_by_date(output_dir, "2024-06-01")
+
+      # Invalid directory should remain (can't parse date, so tryCatch returns NULL)
+      expect_true(dir.exists(invalid_dir))
+      expect_true(file.exists(invalid_file))
+
+      # Old directory should be deleted
+      expect_false(dir.exists(old_dir))
+    }
+  )
+})
