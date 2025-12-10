@@ -524,7 +524,7 @@ projr_log_clear <- function(build_type = "all",
       error = function(e) NULL
     )
 
-    if (!is.null(dir_date) && dir_date <= cutoff) {
+    if (!is.null(dir_date) && !is.na(dir_date) && dir_date <= cutoff) {
       unlink(dir, recursive = TRUE)
     }
   }
