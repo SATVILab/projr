@@ -112,7 +112,7 @@ test_that("LITE workflow: switch engines and rebuild", {
       file.remove("_bookdown.yml")
       file.remove("index.Rmd")
       if (file.exists("_output.yml")) file.remove("_output.yml")
-      
+
       writeLines(
         c(
           "---",
