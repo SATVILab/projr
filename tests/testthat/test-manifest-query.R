@@ -355,7 +355,7 @@ test_that(".manifest_query_compare_versions handles empty and NA hashes", {
 
       # Read manifest and manually create test data with edge cases
       manifest <- .manifest_read_project()
-      
+
       # Create files_from with normal hash
       files_from <- data.frame(
         label = c("output", "output", "output"),
@@ -364,7 +364,7 @@ test_that(".manifest_query_compare_versions handles empty and NA hashes", {
         hash = c("hash1", "", NA),
         stringsAsFactors = FALSE
       )
-      
+
       # Create files_to with different hash scenarios
       files_to <- data.frame(
         label = c("output", "output", "output"),
@@ -373,15 +373,15 @@ test_that(".manifest_query_compare_versions handles empty and NA hashes", {
         hash = c("hash2", "hash_new", "hash_new"),
         stringsAsFactors = FALSE
       )
-      
+
       # Test: Compare versions with empty and NA hashes
       result <- .manifest_query_compare_versions(files_from, files_to, "v0.0.0", "v0.0.1")
-      
+
       # file1.txt should be modified (normal hash change)
       file1 <- result[result$fn == "file1.txt", ]
       expect_identical(file1$change_type, "modified")
-      
-      # file2.txt and file3.txt should not appear as modified 
+
+      # file2.txt and file3.txt should not appear as modified
       # because from hash is empty or NA
       expect_false(any(result$fn == "file2.txt" & result$change_type == "modified"))
       expect_false(any(result$fn == "file3.txt" & result$change_type == "modified"))
@@ -467,13 +467,13 @@ test_that("projr_manifest_file_history tracks hash changes correctly", {
 
       # Test: History should only include versions where hash changed
       history <- projr_manifest_file_history("abc.txt", "output")
-      
+
       # Should have entries for v1 (first), v0.0.1 (modified), v0.0.3 (modified/current)
       # v0.0.2 should NOT be in history since hash didn't change
       expect_true(paste0("v", v1) %in% history$version)
       expect_true("v0.0.1" %in% history$version)
       expect_true("v0.0.3" %in% history$version)
-      
+
       # Verify change types
       expect_identical(history$change_type[1], "first_appearance")
       expect_true(history$change_type[nrow(history)] == "current")
@@ -508,11 +508,11 @@ test_that("manifest query functions handle same file in multiple labels", {
 
       # Test: Changes should show modification for output, not for raw-data
       changes <- projr_manifest_changes(v1, "0.0.1")
-      
+
       # Filter to data.txt files
       data_changes <- changes[changes$fn == "data.txt", ]
       expect_true(nrow(data_changes) > 0)
-      
+
       # Output should be modified
       output_change <- data_changes[data_changes$label == "output", ]
       expect_identical(output_change$change_type, "modified")
