@@ -19,6 +19,18 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
     steps:
+      - name: Debug env tokens
+        shell: bash
+        run: |
+          for var in GITHUB_TOKEN GITHUB_PAT GH_TOKEN; do
+            val="${!var}"
+            if [ -n "$val" ]; then
+              echo "$var is set (length=${#val})"
+            else
+              echo "$var is NOT set"
+            fi
+          done
+  
       - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-r@v2
