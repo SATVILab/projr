@@ -70,7 +70,7 @@ projr_yml_dest_add_github(
   content = "raw-data"
 )
 
-# Add a GitHub release for outputs  
+# Add a GitHub release for outputs
 projr_yml_dest_add_github(
   title = "output-@version",
   content = "output"
@@ -464,7 +464,7 @@ GITHUB_PAT=ghp_your_token_here
 
 ``` r
 # Check token is set
-Sys.getenv("GITHUB_PAT")  # Should show your token
+Sys.getenv("GITHUB_PAT") # Should show your token
 ```
 
 ### Local Directories
@@ -487,9 +487,9 @@ Remotes activate automatically during production builds:
 projr_build_dev()
 
 # Production builds - DO upload to remotes
-projr_build_patch()  # Increment patch: 0.1.0 -> 0.1.1
-projr_build_minor()  # Increment minor: 0.1.0 -> 0.2.0
-projr_build_major()  # Increment major: 0.1.0 -> 1.0.0
+projr_build_patch() # Increment patch: 0.1.0 -> 0.1.1
+projr_build_minor() # Increment minor: 0.1.0 -> 0.2.0
+projr_build_major() # Increment major: 0.1.0 -> 1.0.0
 ```
 
 ### Build Process Steps
@@ -608,7 +608,7 @@ location
 projr_yml_dest_add_local(
   title = "backup",
   content = "output",
-  path = "backup/output"  # Relative to project root, not current directory
+  path = "backup/output" # Relative to project root, not current directory
 )
 ```
 

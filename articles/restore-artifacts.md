@@ -61,12 +61,12 @@ Clone a GitHub repository and restore artifacts in one step.
 library(projr)
 
 projr_restore_repo(
-  repo,              # "owner/repo" or "repo"
-  path = NULL,       # Where to clone (default: creates subdirectory)
-  label = NULL,      # Which artifacts (default: all raw artifacts)
-  pos = NULL,        # Source position (default: both "source" and "dest")
-  type = NULL,       # Remote type (default: first available)
-  title = NULL       # Remote title (default: first available for type)
+  repo, # "owner/repo" or "repo"
+  path = NULL, # Where to clone (default: creates subdirectory)
+  label = NULL, # Which artifacts (default: all raw artifacts)
+  pos = NULL, # Source position (default: both "source" and "dest")
+  type = NULL, # Remote type (default: first available)
+  title = NULL # Remote title (default: first available for type)
 )
 ```
 
@@ -99,11 +99,11 @@ Clone directly into current working directory, then restore artifacts.
 
 ``` r
 projr_restore_repo_wd(
-  repo,              # "owner/repo" or "repo"
-  label = NULL,      # Which artifacts
-  pos = NULL,        # Source position
-  type = NULL,       # Remote type
-  title = NULL       # Remote title
+  repo, # "owner/repo" or "repo"
+  label = NULL, # Which artifacts
+  pos = NULL, # Source position
+  type = NULL, # Remote type
+  title = NULL # Remote title
 )
 ```
 
@@ -126,10 +126,10 @@ Restore artifacts in an existing project without cloning.
 
 ``` r
 projr_content_update(
-  label = NULL,      # Which artifacts (default: all raw artifacts)
-  pos = NULL,        # Source position (default: both)
-  type = NULL,       # Remote type (default: first available)
-  title = NULL       # Remote title (default: first available for type)
+  label = NULL, # Which artifacts (default: all raw artifacts)
+  pos = NULL, # Source position (default: both)
+  type = NULL, # Remote type (default: first available)
+  title = NULL # Remote title (default: first available for type)
 )
 ```
 
@@ -334,7 +334,7 @@ GITHUB_PAT=ghp_your_token_here
 
 ``` r
 # Check token is set
-Sys.getenv("GITHUB_PAT")  # Should show your token
+Sys.getenv("GITHUB_PAT") # Should show your token
 ```
 
 ### OSF Authentication
@@ -382,8 +382,8 @@ setwd("my-study")
 renv::restore()
 
 # Step 4: Run analysis
-projr_build_dev()  # Test build
-projr_build_patch()  # Production build when ready
+projr_build_dev() # Test build
+projr_build_patch() # Production build when ready
 ```
 
 ### Example 2: Selective Restoration

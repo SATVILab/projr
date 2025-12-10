@@ -64,7 +64,7 @@ messages
 Outside builds: Use
 [`.log_build_init()`](https://satvilab.github.io/projr/reference/dot-log_build_init.md)
 to enable logging - All `.cli_*()` functions write to log:
-[`.cli_info()`](https://satvilab.github.io/projr/reference/dot-cli_info.md),
+`.cli_info()`,
 [`.cli_success()`](https://satvilab.github.io/projr/reference/dot-cli_success.md),
 [`.cli_debug()`](https://satvilab.github.io/projr/reference/dot-cli_debug.md),
 [`.cli_step()`](https://satvilab.github.io/projr/reference/dot-cli_step.md) -

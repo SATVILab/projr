@@ -125,7 +125,7 @@ workflow:</p>
 <span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="co"># ... upload files manually ...</span></span></code></pre></div>
 <p>With projr:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build.html">projr_build</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># That's it</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build.html">projr_build</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># That's it</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="fail-safe-iteration">2. Fail-safe iteration<a class="anchor" aria-label="anchor" href="#fail-safe-iteration"></a>
@@ -153,15 +153,15 @@ directories leading to lost results.</p>
 <p><strong>Example</strong>: Without projr, you might:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Accidentally overwrite yesterday's figures</span></span>
-<span><span class="fu">render</span><span class="op">(</span><span class="st">"analysis.Rmd"</span><span class="op">)</span>  <span class="co"># Oh no, the new plot is worse!</span></span>
+<span><span class="fu">render</span><span class="op">(</span><span class="st">"analysis.Rmd"</span><span class="op">)</span> <span class="co"># Oh no, the new plot is worse!</span></span>
 <span><span class="co"># Now you've lost the good version</span></span></code></pre></div>
 <p>With projr:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Safe iteration</span></span>
-<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Outputs to _tmp/</span></span>
+<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Outputs to _tmp/</span></span>
 <span><span class="co"># Check results, if bad, just run again</span></span>
 <span><span class="co"># If good:</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Now commit to _output</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/projr_build.html">projr_build</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Now commit to _output</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="automation-without-magic">3. Automation without magic<a class="anchor" aria-label="anchor" href="#automation-without-magic"></a>

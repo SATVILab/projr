@@ -574,7 +574,8 @@ Each build creates a detailed Quarto log file organized by date:
 ``` r
 # List recent dev build logs
 list.files("cache/projr/log/dev/output",
-           recursive = TRUE, pattern = "\\.qmd$")
+  recursive = TRUE, pattern = "\\.qmd$"
+)
 
 # Render a log file to HTML
 quarto::quarto_render("cache/projr/log/dev/output/2025-Nov-11/14-07-00.qmd")
@@ -733,9 +734,9 @@ authentication tokens securely - Override default build behaviors
 **1. Create environment files**
 
 ``` r
-file.create("_environment")         # Global defaults
-file.create("_environment-dev")     # Profile-specific
-file.create("_environment.local")   # Machine-specific (git-ignored)
+file.create("_environment") # Global defaults
+file.create("_environment-dev") # Profile-specific
+file.create("_environment.local") # Machine-specific (git-ignored)
 ```
 
 **2. Add variables (format: `KEY=value`)**
@@ -752,16 +753,16 @@ GITHUB_PAT=your_token_here
 **3. Activate environment variables**
 
 ``` r
-projr_env_set()  # Loads all files in order of precedence
+projr_env_set() # Loads all files in order of precedence
 ```
 
 ### Key environment variables
 
 ``` r
 # Build control
-Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")    # "none", "std", "debug"
-Sys.setenv(PROJR_LOG_DETAILED = "FALSE")    # TRUE/FALSE
-Sys.setenv(PROJR_CLEAR_OUTPUT = "never")    # "pre", "post", "never"
+Sys.setenv(PROJR_OUTPUT_LEVEL = "debug") # "none", "std", "debug"
+Sys.setenv(PROJR_LOG_DETAILED = "FALSE") # TRUE/FALSE
+Sys.setenv(PROJR_CLEAR_OUTPUT = "never") # "pre", "post", "never"
 
 # Profile selection
 Sys.setenv(PROJR_PROFILE = "dev")

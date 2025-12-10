@@ -288,9 +288,9 @@ v1.0.0  Final publication version</code></pre>
 </h4>
 <p><strong>Purpose</strong>: Create versioned releases</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build.html">projr_build</a></span><span class="op">(</span><span class="op">)</span>        <span class="co"># patch bump</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_minor</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># minor bump</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_major</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># major bump</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build.html">projr_build</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># patch bump</span></span>
+<span><span class="fu"><a href="../reference/projr_build.html">projr_build_minor</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># minor bump</span></span>
+<span><span class="fu"><a href="../reference/projr_build.html">projr_build_major</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># major bump</span></span></code></pre></div>
 <p><strong>Characteristics:</strong></p>
 <ul>
 <li>Clears and populates <code>_output</code> and <code>docs</code>
@@ -337,7 +337,7 @@ cleared:</p>
 <p>You can also set this globally via environment variable:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_CLEAR_OUTPUT <span class="op">=</span> <span class="st">"post"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Uses "post" mode</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Uses "post" mode</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="mode-comparison">Mode comparison<a class="anchor" aria-label="anchor" href="#mode-comparison"></a>
@@ -425,7 +425,7 @@ mix with old files - Requires manual directory management</p>
 <p><strong>Workflow 3: Manual control</strong></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Advanced: Manual clearing</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="st">"_output"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># Clear manually</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="st">"_output"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># Clear manually</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span>clear_output <span class="op">=</span> <span class="st">"never"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 1. No automatic clearing</span></span>
@@ -735,10 +735,10 @@ break in 6 months due to package updates.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_init.html">projr_init_renv</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Update lockfile:</strong></p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_renv_restore.html">projr_renv_update</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Wrapper for renv::snapshot()</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_renv_restore.html">projr_renv_update</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Wrapper for renv::snapshot()</span></span></code></pre></div>
 <p><strong>Restore packages:</strong></p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_renv_restore.html">projr_renv_restore</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Wrapper for renv::restore()</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_renv_restore.html">projr_renv_restore</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Wrapper for renv::restore()</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="when-to-use-renv">When to use renv<a class="anchor" aria-label="anchor" href="#when-to-use-renv"></a>

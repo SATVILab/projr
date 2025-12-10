@@ -242,10 +242,10 @@ vector</strong>
 <span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> quick-test.qmd</span><span class="co">  # Only build this during development</span></span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Development build (uses dev.scripts)</span></span>
-<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Only builds quick-test.qmd</span></span>
+<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Only builds quick-test.qmd</span></span>
 <span></span>
 <span><span class="co"># Production build (uses build.scripts)</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Builds all three documents</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Builds all three documents</span></span></code></pre></div>
 <p><strong>Example 2: Override Quarto project</strong></p>
 <p>If you have a <code>_quarto.yml</code> that lists many documents but
 only want to build specific ones:</p>
@@ -273,9 +273,9 @@ message.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># In _projr.yml</span></span>
 <span><span class="va">build</span><span class="op">:</span></span>
-<span>  <span class="va">scripts</span><span class="op">:</span></span>
-<span>    <span class="op">-</span> <span class="va">analysis.qmd</span></span>
-<span>    <span class="op">-</span> <span class="va">missing.Rmd</span>  <span class="co"># This file doesn't exist</span></span>
+<span><span class="va">scripts</span><span class="op">:</span></span>
+<span><span class="op">-</span><span class="va">analysis.qmd</span></span>
+<span><span class="op">-</span><span class="va">missing.Rmd</span> <span class="co"># This file doesn't exist</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co"># Error: Script 'missing.Rmd' does not exist</span></span></code></pre></div>
@@ -568,8 +568,8 @@ file is missing, the build fails immediately:</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># In _projr.yml</span></span>
 <span><span class="va">build</span><span class="op">:</span></span>
-<span>  <span class="va">hooks</span><span class="op">:</span></span>
-<span>    <span class="va">pre</span><span class="op">:</span> <span class="va">missing</span><span class="op">-</span><span class="va">hook.R</span></span>
+<span><span class="va">hooks</span><span class="op">:</span></span>
+<span><span class="va">pre</span><span class="op">:</span><span class="va">missing</span> <span class="op">-</span> <span class="va">hook.R</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co"># Error: Hook 'missing-hook.R' does not exist.</span></span></code></pre></div>
@@ -689,7 +689,7 @@ for portability</li>
 <span><span class="fu"><a href="../reference/projr_yml_check.html">projr_yml_check</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># View what would be built</span></span>
-<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Runs without committing</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Runs without committing</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="hooks">Hooks<a class="anchor" aria-label="anchor" href="#hooks"></a>
@@ -735,7 +735,7 @@ not <code>hook1.R</code>)</li>
 <span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"hooks/validate-credentials.R"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Or use them in an interactive session</span></span>
-<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Load environment variables</span></span>
+<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Load environment variables</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"hooks/prepare-data.R"</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Use environment variables for configuration:</strong></p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
@@ -893,7 +893,7 @@ hook:</p>
 <p>If a hook fails, the entire build stops:</p>
 <div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># hooks/download.R</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">download.file</a></span><span class="op">(</span><span class="va">url</span>, <span class="va">destfile</span><span class="op">)</span>  <span class="co"># If this fails, build stops</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">download.file</a></span><span class="op">(</span><span class="va">url</span>, <span class="va">destfile</span><span class="op">)</span> <span class="co"># If this fails, build stops</span></span></code></pre></div>
 <p><strong>Solution</strong>: Add error handling:</p>
 <div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># hooks/download.R</span></span>
@@ -952,7 +952,7 @@ directory</strong></p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="st">"_raw_data/data.csv"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Wrong: Relative to hooks directory</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="st">"../raw_data/data.csv"</span><span class="op">)</span>  <span class="co"># Assumes hook is in hooks/</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="st">"../raw_data/data.csv"</span><span class="op">)</span> <span class="co"># Assumes hook is in hooks/</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -967,8 +967,8 @@ directory</strong></p>
 <span><span class="fu"><a href="../reference/projr_yml_check.html">projr_yml_check</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Check what scripts would be built</span></span>
-<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Development build (doesn't commit)</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Production build (commits with version bump)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Development build (doesn't commit)</span></span>
+<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Production build (commits with version bump)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="debug-hook-execution">Debug Hook Execution<a class="anchor" aria-label="anchor" href="#debug-hook-execution"></a>
@@ -1021,23 +1021,24 @@ directory</strong></p>
 </h3>
 <p>Combine hooks with environment variables for flexible
 configuration:</p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" tabindex="-1"></a><span class="co"># _environment</span></span>
-<span id="cb59-2"><a href="#cb59-2" tabindex="-1"></a>DATA_SOURCE<span class="ot">=</span>https<span class="sc">:</span><span class="er">//</span>api.example.com<span class="sc">/</span>data</span>
-<span id="cb59-3"><a href="#cb59-3" tabindex="-1"></a>API_KEY<span class="ot">=</span>your_key_here</span>
-<span id="cb59-4"><a href="#cb59-4" tabindex="-1"></a></span>
-<span id="cb59-5"><a href="#cb59-5" tabindex="-1"></a><span class="co"># hooks/download.R</span></span>
-<span id="cb59-6"><a href="#cb59-6" tabindex="-1"></a>source_url <span class="ot">&lt;-</span> <span class="fu">Sys.getenv</span>(<span class="st">"DATA_SOURCE"</span>)</span>
-<span id="cb59-7"><a href="#cb59-7" tabindex="-1"></a>api_key <span class="ot">&lt;-</span> <span class="fu">Sys.getenv</span>(<span class="st">"API_KEY"</span>)</span>
-<span id="cb59-8"><a href="#cb59-8" tabindex="-1"></a></span>
-<span id="cb59-9"><a href="#cb59-9" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">nzchar</span>(source_url)) {</span>
-<span id="cb59-10"><a href="#cb59-10" tabindex="-1"></a>  <span class="fu">stop</span>(<span class="st">"DATA_SOURCE environment variable not set"</span>)</span>
-<span id="cb59-11"><a href="#cb59-11" tabindex="-1"></a>}</span>
-<span id="cb59-12"><a href="#cb59-12" tabindex="-1"></a></span>
-<span id="cb59-13"><a href="#cb59-13" tabindex="-1"></a><span class="co"># Download using credentials</span></span>
-<span id="cb59-14"><a href="#cb59-14" tabindex="-1"></a><span class="fu">download.file</span>(</span>
-<span id="cb59-15"><a href="#cb59-15" tabindex="-1"></a>  <span class="fu">paste0</span>(source_url, <span class="st">"?key="</span>, api_key),</span>
-<span id="cb59-16"><a href="#cb59-16" tabindex="-1"></a>  <span class="st">"_raw_data/data.csv"</span></span>
-<span id="cb59-17"><a href="#cb59-17" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># _environment</span></span>
+<span><span class="va">DATA_SOURCE</span> <span class="op">&lt;-</span> <span class="va">api.example.com</span> <span class="op">/</span> <span class="va">data</span></span>
+<span><span class="va">API_KEY</span> <span class="op">&lt;-</span> <span class="va">your_key_here</span></span>
+<span></span>
+<span><span class="co"># hooks/download.R</span></span>
+<span><span class="va">source_url</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"DATA_SOURCE"</span><span class="op">)</span></span>
+<span><span class="va">api_key</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"API_KEY"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="va">source_url</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"DATA_SOURCE environment variable not set"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Download using credentials</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">download.file</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">source_url</span>, <span class="st">"?key="</span>, <span class="va">api_key</span><span class="op">)</span>,</span>
+<span>  <span class="st">"_raw_data/data.csv"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>See <code><a href="../articles/environment.html">vignette("environment")</a></code> for details on environment
 variables.</p>
 </div>

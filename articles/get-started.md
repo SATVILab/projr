@@ -25,7 +25,7 @@ library(projr)
 
 # Create core directories
 dir.create("_raw_data", showWarnings = FALSE)
-dir.create("_output",   showWarnings = FALSE)
+dir.create("_output", showWarnings = FALSE)
 
 # Run your first build
 projr_build()
@@ -42,19 +42,19 @@ For a complete project setup with metadata, Git, and GitHub:
 #### Option 1: Sensible defaults
 
 ``` r
-projr_init()  # Uses sensible defaults
+projr_init() # Uses sensible defaults
 ```
 
 #### Option 2: Step-by-step prompts
 
 ``` r
-projr_init_prompt()  # Guides you through each option
+projr_init_prompt() # Guides you through each option
 ```
 
 #### Option 3: Include extras by default
 
 ``` r
-projr_init_full()  # Includes additional features
+projr_init_full() # Includes additional features
 ```
 
 These initialisation functions set up: - Project directories

@@ -102,7 +102,7 @@ run your first build:</p>
 <span></span>
 <span><span class="co"># Create core directories</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="st">"_raw_data"</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="st">"_output"</span>,   showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="st">"_output"</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Run your first build</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -118,19 +118,19 @@ manifest linking inputs to outputs</p>
 <h4 id="option-1-sensible-defaults">Option 1: Sensible defaults<a class="anchor" aria-label="anchor" href="#option-1-sensible-defaults"></a>
 </h4>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_init.html">projr_init</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Uses sensible defaults</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_init.html">projr_init</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Uses sensible defaults</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="option-2-step-by-step-prompts">Option 2: Step-by-step prompts<a class="anchor" aria-label="anchor" href="#option-2-step-by-step-prompts"></a>
 </h4>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_init_prompt.html">projr_init_prompt</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Guides you through each option</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_init_prompt.html">projr_init_prompt</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Guides you through each option</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="option-3-include-extras-by-default">Option 3: Include extras by default<a class="anchor" aria-label="anchor" href="#option-3-include-extras-by-default"></a>
 </h4>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">projr_init_full</span><span class="op">(</span><span class="op">)</span>  <span class="co"># Includes additional features</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">projr_init_full</span><span class="op">(</span><span class="op">)</span> <span class="co"># Includes additional features</span></span></code></pre></div>
 <p>These initialisation functions set up: - Project directories
 (<code>_raw_data</code>, <code>_output</code>, <code>_tmp</code>,
 <code>docs</code>) - <code>_projr.yml</code> configuration file -

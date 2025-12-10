@@ -185,9 +185,9 @@ projr_build_dev()
 **Purpose**: Create versioned releases
 
 ``` r
-projr_build()        # patch bump
-projr_build_minor()  # minor bump
-projr_build_major()  # major bump
+projr_build() # patch bump
+projr_build_minor() # minor bump
+projr_build_major() # major bump
 ```
 
 **Characteristics:**
@@ -234,7 +234,7 @@ You can also set this globally via environment variable:
 
 ``` r
 Sys.setenv(PROJR_CLEAR_OUTPUT = "post")
-projr_build_patch()  # Uses "post" mode
+projr_build_patch() # Uses "post" mode
 ```
 
 #### Mode comparison
@@ -300,7 +300,7 @@ projr_build_patch(clear_output = "post")
 
 ``` r
 # Advanced: Manual clearing
-unlink("_output", recursive = TRUE)  # Clear manually
+unlink("_output", recursive = TRUE) # Clear manually
 projr_build_patch(clear_output = "never")
 
 # 1. No automatic clearing
@@ -653,13 +653,13 @@ projr_init_renv()
 **Update lockfile:**
 
 ``` r
-projr_renv_update()  # Wrapper for renv::snapshot()
+projr_renv_update() # Wrapper for renv::snapshot()
 ```
 
 **Restore packages:**
 
 ``` r
-projr_renv_restore()  # Wrapper for renv::restore()
+projr_renv_restore() # Wrapper for renv::restore()
 ```
 
 #### When to use renv

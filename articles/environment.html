@@ -168,9 +168,9 @@ value</li>
 <p>You can create environment files manually or programmatically:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create files manually</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment"</span><span class="op">)</span>         <span class="co"># Global defaults</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment-dev"</span><span class="op">)</span>     <span class="co"># Development profile</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment.local"</span><span class="op">)</span>   <span class="co"># Machine-specific (git-ignored)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment"</span><span class="op">)</span> <span class="co"># Global defaults</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment-dev"</span><span class="op">)</span> <span class="co"># Development profile</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment.local"</span><span class="op">)</span> <span class="co"># Machine-specific (git-ignored)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="example-configuration">Example Configuration<a class="anchor" aria-label="anchor" href="#example-configuration"></a>
@@ -251,12 +251,12 @@ scenarios. Both <code>PROJR_PROFILE</code> and
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Set a single profile</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Loads _environment-dev</span></span>
+<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Loads _environment-dev</span></span>
 <span></span>
 <span><span class="co"># Set multiple profiles (comma or semicolon separated)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"test,dev"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"test;dev"</span><span class="op">)</span>  <span class="co"># Equivalent</span></span>
-<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Loads _environment-test, then _environment-dev</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"test;dev"</span><span class="op">)</span> <span class="co"># Equivalent</span></span>
+<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Loads _environment-test, then _environment-dev</span></span></code></pre></div>
 <p><strong>Profile format</strong>:</p>
 <ul>
 <li>Comma-separated: <code>"profile1,profile2,profile3"</code>
@@ -281,7 +281,7 @@ test overrides dev)</li>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Quarto profiles are also respected</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>QUARTO_PROFILE <span class="op">=</span> <span class="st">"production"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Loads _environment-production</span></span>
+<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Loads _environment-production</span></span>
 <span></span>
 <span><span class="co"># Multiple Quarto profiles (comma-separated only)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>QUARTO_PROFILE <span class="op">=</span> <span class="st">"test,production"</span><span class="op">)</span></span>
@@ -334,7 +334,7 @@ build functions</li>
 </ul>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Shows detailed debug output</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Shows detailed debug output</span></span></code></pre></div>
 <p><strong><code>PROJR_LOG_DETAILED</code></strong> - Controls whether
 detailed build logs are written to files</p>
 <ul>
@@ -370,7 +370,7 @@ setting</li>
 </ul>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_LOG_DETAILED <span class="op">=</span> <span class="st">"FALSE"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Skips detailed log files but maintains history</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Skips detailed log files but maintains history</span></span></code></pre></div>
 <p><strong><code>PROJR_CLEAR_OUTPUT</code></strong> - Controls when
 output directories are cleared during builds</p>
 <ul>
@@ -399,7 +399,7 @@ build functions</li>
 </ul>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_CLEAR_OUTPUT <span class="op">=</span> <span class="st">"never"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Never clears output automatically</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Never clears output automatically</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="profile-configuration">Profile Configuration<a class="anchor" aria-label="anchor" href="#profile-configuration"></a>
@@ -486,8 +486,8 @@ Token</li>
 </ul>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check authentication setup and get instructions</span></span>
-<span><span class="fu"><a href="../reference/instr_auth.html">projr_instr_auth_github</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># Get GitHub setup instructions</span></span>
-<span><span class="fu"><a href="../reference/instr_auth.html">projr_instr_auth_osf</a></span><span class="op">(</span><span class="op">)</span>     <span class="co"># Get OSF setup instructions</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/instr_auth.html">projr_instr_auth_github</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Get GitHub setup instructions</span></span>
+<span><span class="fu"><a href="../reference/instr_auth.html">projr_instr_auth_osf</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Get OSF setup instructions</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -504,7 +504,7 @@ flexible configuration:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>MY_VAR <span class="op">=</span> <span class="st">"original"</span><span class="op">)</span></span>
 <span><span class="co"># _environment contains: MY_VAR=new</span></span>
 <span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"MY_VAR"</span><span class="op">)</span>  <span class="co"># Still "original", not "new"</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"MY_VAR"</span><span class="op">)</span> <span class="co"># Still "original", not "new"</span></span></code></pre></div>
 <p>This ensures that system-level or session-level variables always take
 priority.</p>
 </div>
@@ -535,7 +535,7 @@ projr profile-specific</li>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># But function parameter takes precedence</span></span>
-<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span>output_level <span class="op">=</span> <span class="st">"std"</span><span class="op">)</span>  <span class="co"># Uses "std", not "debug"</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span>output_level <span class="op">=</span> <span class="st">"std"</span><span class="op">)</span> <span class="co"># Uses "std", not "debug"</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -593,11 +593,12 @@ projr</li>
 similar sensitive values</li>
 </ul>
 <p><strong>Example safe setup:</strong></p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="co"># In _environment (committed to git)</span></span>
-<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>API_BASE_URL<span class="ot">=</span>https<span class="sc">:</span><span class="er">//</span>api.example.com</span>
-<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a></span>
-<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co"># In _environment.local (git-ignored)</span></span>
-<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>API_KEY<span class="ot">=</span>your_secret_key_here</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># In _environment (committed to git)</span></span>
+<span><span class="va">API_BASE_URL</span> <span class="op">&lt;-</span> <span class="va">api.example.com</span></span>
+<span></span>
+<span><span class="co"># In _environment.local (git-ignored)</span></span>
+<span><span class="va">API_KEY</span> <span class="op">&lt;-</span> <span class="va">your_secret_key_here</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="organization">Organization<a class="anchor" aria-label="anchor" href="#organization"></a>
@@ -659,8 +660,8 @@ names and values):</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_CLEAR_OUTPUT <span class="op">=</span> <span class="st">"never"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Incorrect - uppercase values won't work</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"DEBUG"</span><span class="op">)</span>    <span class="co"># Won't work</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_CLEAR_OUTPUT <span class="op">=</span> <span class="st">"NEVER"</span><span class="op">)</span>    <span class="co"># Won't work</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"DEBUG"</span><span class="op">)</span> <span class="co"># Won't work</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_CLEAR_OUTPUT <span class="op">=</span> <span class="st">"NEVER"</span><span class="op">)</span> <span class="co"># Won't work</span></span></code></pre></div>
 <p><strong>Exception:</strong> Boolean values in
 <code>PROJR_LOG_DETAILED</code> are case-insensitive:</p>
 <ul>
@@ -745,7 +746,7 @@ overridden</strong> by files:</p>
 <span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Original value is preserved</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"MY_VAR"</span><span class="op">)</span>  <span class="co"># Still "original", not "new"</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"MY_VAR"</span><span class="op">)</span> <span class="co"># Still "original", not "new"</span></span></code></pre></div>
 <p>This is by design - it allows system-level configuration to always
 take precedence.</p>
 </div>

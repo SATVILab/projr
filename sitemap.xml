@@ -2,7 +2,6 @@
 <url><loc>https://satvilab.github.io/projr/404.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/LICENSE-text.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/LICENSE.html</loc></url>
-<url><loc>https://satvilab.github.io/projr/NAMING_SUGGESTIONS.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/articles/build-process.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/articles/concepts.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/articles/design.html</loc></url>
@@ -32,7 +31,7 @@
 <url><loc>https://satvilab.github.io/projr/reference/dot-build_debug_git_info.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-cli_debug.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-cli_eval_message.html</loc></url>
-<url><loc>https://satvilab.github.io/projr/reference/dot-cli_info.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/dot-cli_message.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-cli_output_level_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-cli_process_done.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-cli_process_start.html</loc></url>

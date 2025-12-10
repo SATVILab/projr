@@ -145,10 +145,10 @@ dev:
 
 ``` r
 # Development build (uses dev.scripts)
-projr_build_dev()  # Only builds quick-test.qmd
+projr_build_dev() # Only builds quick-test.qmd
 
 # Production build (uses build.scripts)
-projr_build_patch()  # Builds all three documents
+projr_build_patch() # Builds all three documents
 ```
 
 **Example 2: Override Quarto project**
@@ -184,9 +184,9 @@ message.
 ``` r
 # In _projr.yml
 build:
-  scripts:
-    - analysis.qmd
-    - missing.Rmd  # This file doesn't exist
+scripts:
+-analysis.qmd
+-missing.Rmd # This file doesn't exist
 
 projr_build_patch()
 # Error: Script 'missing.Rmd' does not exist
@@ -511,8 +511,8 @@ file is missing, the build fails immediately:
 ``` r
 # In _projr.yml
 build:
-  hooks:
-    pre: missing-hook.R
+hooks:
+pre:missing - hook.R
 
 projr_build_patch()
 # Error: Hook 'missing-hook.R' does not exist.
@@ -635,7 +635,7 @@ if (is_major) {
 projr_yml_check()
 
 # View what would be built
-projr_build_dev()  # Runs without committing
+projr_build_dev() # Runs without committing
 ```
 
 ### Hooks
@@ -687,7 +687,7 @@ message("✓ Downloaded ", file.size(destfile), " bytes")
 source("hooks/validate-credentials.R")
 
 # Or use them in an interactive session
-projr_env_set()  # Load environment variables
+projr_env_set() # Load environment variables
 source("hooks/prepare-data.R")
 ```
 
@@ -882,7 +882,7 @@ If a hook fails, the entire build stops:
 
 ``` r
 # hooks/download.R
-download.file(url, destfile)  # If this fails, build stops
+download.file(url, destfile) # If this fails, build stops
 ```
 
 **Solution**: Add error handling:
@@ -958,7 +958,7 @@ Hooks run with the project root as the working directory:
 file.exists("_raw_data/data.csv")
 
 # Wrong: Relative to hooks directory
-file.exists("../raw_data/data.csv")  # Assumes hook is in hooks/
+file.exists("../raw_data/data.csv") # Assumes hook is in hooks/
 ```
 
 ## Validation and Debugging
@@ -972,8 +972,8 @@ Before building, verify your configuration is correct:
 projr_yml_check()
 
 # Check what scripts would be built
-projr_build_dev()  # Development build (doesn't commit)
-projr_build_patch()  # Production build (commits with version bump)
+projr_build_dev() # Development build (doesn't commit)
+projr_build_patch() # Production build (commits with version bump)
 ```
 
 ### Debug Hook Execution
@@ -1029,8 +1029,8 @@ Combine hooks with environment variables for flexible configuration:
 
 ``` r
 # _environment
-DATA_SOURCE=https://api.example.com/data
-API_KEY=your_key_here
+DATA_SOURCE <- api.example.com / data
+API_KEY <- your_key_here
 
 # hooks/download.R
 source_url <- Sys.getenv("DATA_SOURCE")

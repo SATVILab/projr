@@ -83,9 +83,9 @@ You can create environment files manually or programmatically:
 
 ``` r
 # Create files manually
-file.create("_environment")         # Global defaults
-file.create("_environment-dev")     # Development profile
-file.create("_environment.local")   # Machine-specific (git-ignored)
+file.create("_environment") # Global defaults
+file.create("_environment-dev") # Development profile
+file.create("_environment.local") # Machine-specific (git-ignored)
 ```
 
 ### Example Configuration
@@ -167,12 +167,12 @@ scenarios. Both `PROJR_PROFILE` and `QUARTO_PROFILE` are supported.
 ``` r
 # Set a single profile
 Sys.setenv(PROJR_PROFILE = "dev")
-projr_env_set()  # Loads _environment-dev
+projr_env_set() # Loads _environment-dev
 
 # Set multiple profiles (comma or semicolon separated)
 Sys.setenv(PROJR_PROFILE = "test,dev")
-Sys.setenv(PROJR_PROFILE = "test;dev")  # Equivalent
-projr_env_set()  # Loads _environment-test, then _environment-dev
+Sys.setenv(PROJR_PROFILE = "test;dev") # Equivalent
+projr_env_set() # Loads _environment-test, then _environment-dev
 ```
 
 **Profile format**:
@@ -193,7 +193,7 @@ projr_env_set()  # Loads _environment-test, then _environment-dev
 ``` r
 # Quarto profiles are also respected
 Sys.setenv(QUARTO_PROFILE = "production")
-projr_env_set()  # Loads _environment-production
+projr_env_set() # Loads _environment-production
 
 # Multiple Quarto profiles (comma-separated only)
 Sys.setenv(QUARTO_PROFILE = "test,production")
@@ -230,7 +230,7 @@ builds
 
 ``` r
 Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
-projr_build_dev()  # Shows detailed debug output
+projr_build_dev() # Shows detailed debug output
 ```
 
 **`PROJR_LOG_DETAILED`** - Controls whether detailed build logs are
@@ -248,7 +248,7 @@ written to files
 
 ``` r
 Sys.setenv(PROJR_LOG_DETAILED = "FALSE")
-projr_build_dev()  # Skips detailed log files but maintains history
+projr_build_dev() # Skips detailed log files but maintains history
 ```
 
 **`PROJR_CLEAR_OUTPUT`** - Controls when output directories are cleared
@@ -266,7 +266,7 @@ during builds
 
 ``` r
 Sys.setenv(PROJR_CLEAR_OUTPUT = "never")
-projr_build_dev()  # Never clears output automatically
+projr_build_dev() # Never clears output automatically
 ```
 
 ### Profile Configuration
@@ -315,8 +315,8 @@ projr_build_dev()  # Never clears output automatically
 
 ``` r
 # Check authentication setup and get instructions
-projr_instr_auth_github()  # Get GitHub setup instructions
-projr_instr_auth_osf()     # Get OSF setup instructions
+projr_instr_auth_github() # Get GitHub setup instructions
+projr_instr_auth_osf() # Get OSF setup instructions
 ```
 
 ## Variable Precedence
@@ -333,7 +333,7 @@ flexible configuration:
 Sys.setenv(MY_VAR = "original")
 # _environment contains: MY_VAR=new
 projr_env_set()
-Sys.getenv("MY_VAR")  # Still "original", not "new"
+Sys.getenv("MY_VAR") # Still "original", not "new"
 ```
 
 This ensures that system-level or session-level variables always take
@@ -357,7 +357,7 @@ Function parameters always override environment variables:
 Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
 
 # But function parameter takes precedence
-projr_build_dev(output_level = "std")  # Uses "std", not "debug"
+projr_build_dev(output_level = "std") # Uses "std", not "debug"
 ```
 
 ## Required Variables
@@ -417,10 +417,10 @@ projr_build_dev()
 
 ``` r
 # In _environment (committed to git)
-API_BASE_URL=https://api.example.com
+API_BASE_URL <- api.example.com
 
 # In _environment.local (git-ignored)
-API_KEY=your_secret_key_here
+API_KEY <- your_secret_key_here
 ```
 
 ### Organization
@@ -470,8 +470,8 @@ Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
 Sys.setenv(PROJR_CLEAR_OUTPUT = "never")
 
 # Incorrect - uppercase values won't work
-Sys.setenv(PROJR_OUTPUT_LEVEL = "DEBUG")    # Won't work
-Sys.setenv(PROJR_CLEAR_OUTPUT = "NEVER")    # Won't work
+Sys.setenv(PROJR_OUTPUT_LEVEL = "DEBUG") # Won't work
+Sys.setenv(PROJR_CLEAR_OUTPUT = "NEVER") # Won't work
 ```
 
 **Exception:** Boolean values in `PROJR_LOG_DETAILED` are
@@ -559,7 +559,7 @@ Sys.setenv(MY_VAR = "original")
 projr_env_set()
 
 # Original value is preserved
-Sys.getenv("MY_VAR")  # Still "original", not "new"
+Sys.getenv("MY_VAR") # Still "original", not "new"
 ```
 
 This is by design - it allows system-level configuration to always take

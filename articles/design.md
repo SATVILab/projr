@@ -45,7 +45,7 @@ gh release create v0.1.0
 With projr:
 
 ``` r
-projr_build()  # That's it
+projr_build() # That's it
 ```
 
 #### 2. Fail-safe iteration
@@ -67,7 +67,7 @@ lost results.
 
 ``` r
 # Accidentally overwrite yesterday's figures
-render("analysis.Rmd")  # Oh no, the new plot is worse!
+render("analysis.Rmd") # Oh no, the new plot is worse!
 # Now you've lost the good version
 ```
 
@@ -75,10 +75,10 @@ With projr:
 
 ``` r
 # Safe iteration
-projr_build_dev()  # Outputs to _tmp/
+projr_build_dev() # Outputs to _tmp/
 # Check results, if bad, just run again
 # If good:
-projr_build()  # Now commit to _output
+projr_build() # Now commit to _output
 ```
 
 #### 3. Automation without magic
