@@ -920,8 +920,6 @@ test_that("various upload strategies run", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  skip_if_offline()
-  .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
     path = dir_test,
@@ -1129,8 +1127,6 @@ test_that("various inspection methods run", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  skip_if_offline()
-  .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
     path = dir_test,
