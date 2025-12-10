@@ -171,8 +171,10 @@ test_that(".remote_ls_source returns osf when osf source configured", {
 test_that(".remote_ls_source returns unique remotes from multiple directories", {
   skip_if(.is_test_select())
 
+  dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+
   usethis::with_project(
-    path = dir_test,
+    path = dir_test2,
     code = {
       .init()
 
@@ -202,12 +204,19 @@ test_that(".remote_ls_source returns unique remotes from multiple directories", 
 test_that(".git_push_check returns TRUE when git setting is NULL (default)", {
   skip_if(.is_test_select())
 
+  dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+
   usethis::with_project(
-    path = dir_test,
+    path = dir_test2,
     code = {
       .init()
 
-      # By default (NULL), push should be TRUE
+      # Explicitly set git to NULL to test default behavior
+      yml_projr <- .yml_get("default")
+      yml_projr$build$git <- NULL
+      .yml_set(yml_projr, "default")
+
+      # When git setting is NULL, push should be TRUE
       result <- .git_push_check()
       expect_true(result)
     }
@@ -290,11 +299,10 @@ test_that(".git_push_check returns TRUE when push is not specified in list", {
     code = {
       .init()
 
-      # Set commit to FALSE, leave push unspecified
-      projr_yml_git_set(
-        commit = FALSE,
-        simplify_default = FALSE
-      )
+      # Manually set the YAML to have a list with only commit FALSE
+      yml_projr <- .yml_get("default")
+      yml_projr$build$git <- list(commit = FALSE)
+      .yml_set(yml_projr, "default")
 
       # When push is NULL in the list, it should default to TRUE
       result <- .git_push_check()
