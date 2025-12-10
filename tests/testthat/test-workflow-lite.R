@@ -21,6 +21,8 @@ test_that("LITE workflow: bookdown init -> build -> send -> restore with git", {
     path = dir_test,
     code = {
       # Initialize
+      .init()  # Creates directories
+      projr_version_set("0.0.0-1", only_if_exists = FALSE)  # Create VERSION file
       projr_init_git()
 
       # Create test content
@@ -82,6 +84,8 @@ test_that("LITE workflow: switch engines and rebuild", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init()  # Creates directories
+      projr_version_set("0.0.0-1", only_if_exists = FALSE)  # Create VERSION file
       projr_init_git()
 
       # Start with standalone RMarkdown
@@ -136,6 +140,9 @@ test_that("LITE workflow: dev builds and version bumps", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init()  # Creates directories
+      projr_version_set("0.0.0-1", only_if_exists = FALSE)  # Create VERSION file
+
       output_dir <- projr_path_get_dir("output", safe = FALSE)
       writeLines("output", file.path(output_dir, "out.txt"))
 
@@ -188,6 +195,8 @@ test_that("LITE workflow: send strategies and cues", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init()  # Creates directories
+      projr_version_set("0.0.0-1", only_if_exists = FALSE)  # Create VERSION file
       projr_init_git()
 
       raw_data_dir <- projr_path_get_dir("raw-data", safe = FALSE)
@@ -245,6 +254,8 @@ test_that("LITE workflow: restore with multiple versions", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init()  # Creates directories
+      projr_version_set("0.0.0-1", only_if_exists = FALSE)  # Create VERSION file
       projr_init_git()
 
       raw_data_dir <- projr_path_get_dir("raw-data", safe = FALSE)
