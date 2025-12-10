@@ -449,7 +449,7 @@ test_that(".ignore_diryml_path_get handles path equal to current directory", {
       # Test that when .dir_get returns ".", the function returns character(0)
       # This is tested indirectly through the logic in the function
       # We can test with docs which defaults to current directory in some configs
-      
+
       # Create custom label that would return "." when queried
       # Since .dir_get will error for root, we test the existing code path
       # by verifying normal directories work correctly
