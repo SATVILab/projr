@@ -32,6 +32,8 @@
 # =============================================================================
 
 test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone and restore", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
 
@@ -216,6 +218,8 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
 # =============================================================================
 
 test_that("comprehensive workflow: rmarkdown with dev builds, iterative changes, and restore", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -369,6 +373,8 @@ test_that("comprehensive workflow: rmarkdown with dev builds, iterative changes,
 # =============================================================================
 
 test_that("comprehensive workflow: quarto with multiple content types, configurations, and restore", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if_not(requireNamespace("quarto", quietly = TRUE))
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE, rm_engine = TRUE)
@@ -520,6 +526,8 @@ test_that("comprehensive workflow: quarto with multiple content types, configura
 # =============================================================================
 
 test_that("comprehensive workflow: from scratch with extensive iteration, clone and restore", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
 
