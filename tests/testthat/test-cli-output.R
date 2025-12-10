@@ -412,15 +412,21 @@ test_that(".cli_process_start and .cli_process_done integrate with cli package",
 
   # Test that process start returns an ID at std level
   # We can't test the exact ID, but we can verify it doesn't error
-  expect_error({
-    id <- .cli_process_start("Test process", output_level = "std")
-    # The ID might be NULL or a valid process ID
-  }, NA)
+  expect_error(
+    {
+      id <- .cli_process_start("Test process", output_level = "std")
+      # The ID might be NULL or a valid process ID
+    },
+    NA
+  )
 
   # Test process done with an ID (even if NULL)
-  expect_error({
-    .cli_process_done(NULL, msg_done = "Done", output_level = "std")
-  }, NA)
+  expect_error(
+    {
+      .cli_process_done(NULL, msg_done = "Done", output_level = "std")
+    },
+    NA
+  )
 })
 
 test_that(".cli_process_start and .cli_process_done work together with actual ID", {
@@ -431,15 +437,21 @@ test_that(".cli_process_start and .cli_process_done work together with actual ID
 
   # Complete the process with the ID
   # This should exercise line 271 in .cli_process_done
-  expect_error({
-    .cli_process_done(id = id, msg_done = "Process completed", output_level = "std")
-  }, NA)
+  expect_error(
+    {
+      .cli_process_done(id = id, msg_done = "Process completed", output_level = "std")
+    },
+    NA
+  )
 
   # Test with failed message
   id2 <- .cli_process_start("Another test process", output_level = "std")
-  expect_error({
-    .cli_process_done(id = id2, msg_failed = "Process failed", output_level = "std")
-  }, NA)
+  expect_error(
+    {
+      .cli_process_done(id = id2, msg_failed = "Process failed", output_level = "std")
+    },
+    NA
+  )
 })
 
 test_that(".cli_eval_message handles truly invalid glue expressions", {
@@ -453,11 +465,14 @@ test_that(".cli_eval_message handles truly invalid glue expressions", {
   # Test with a more complex expression that might fail
   # If glue can't evaluate it, it should return the original text
   # This is difficult to test directly, so we'll just ensure the function handles it
-  expect_error({
-    # This should not throw an error even if glue fails internally
-    result <- .cli_eval_message("Text with {stop('error')}")
-    # If we get here, glue either succeeded or the error was caught
-  }, NA)
+  expect_error(
+    {
+      # This should not throw an error even if glue fails internally
+      result <- .cli_eval_message("Text with {stop('error')}")
+      # If we get here, glue either succeeded or the error was caught
+    },
+    NA
+  )
 
   # Alternative: test that the error handling path exists and is reachable
   # by checking that plain text goes through the same code path
