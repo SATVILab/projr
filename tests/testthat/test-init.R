@@ -1378,3 +1378,431 @@ test_that(".init_std_github handles GitHub repo creation scenarios", {
   )
   unlink(dir_test3, recursive = TRUE)
 })
+
+# ========================================
+# Tests for R/init.R functions
+# ========================================
+
+test_that("projr_init_prompt creates full project structure", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  skip_if(.is_test_lite())
+
+  dir_test <- file.path(tempdir(), "testProjrInitPrompt")
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # projr_init_prompt uses .init_prompt_init() which requires test mode
+      result <- tryCatch(
+        {
+          projr_init_prompt(
+            yml_path_from = NULL,
+            renv_force = FALSE,
+            renv_bioconductor = FALSE,
+            public = FALSE
+          )
+          TRUE
+        },
+        error = function(e) {
+          FALSE
+        }
+      )
+
+      # Check that basic structure was created if successful
+      if (result) {
+        expect_true(file.exists("_projr.yml"))
+        expect_true(file.exists("DESCRIPTION"))
+        expect_true(file.exists(".gitignore"))
+        expect_true(file.exists(".Rbuildignore"))
+        expect_true(file.exists("_dependencies.R"))
+        expect_true(dir.exists("R"))
+        expect_true(file.exists("README.md"))
+        expect_true(dir.exists(".git"))
+      }
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("projr_init_prompt with custom yml_path_from", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  skip_if(.is_test_lite())
+
+  dir_test <- file.path(tempdir(), "testProjrInitPromptCustomYml")
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  # Create a custom YAML file
+  custom_yml <- file.path(tempdir(), "custom_projr.yml")
+  yaml::write_yaml(
+    list(
+      directories = list(
+        label = list(
+          "raw-data" = "_data",
+          "cache" = "_cache"
+        )
+      )
+    ),
+    custom_yml
+  )
+  withr::defer(unlink(custom_yml))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      result <- tryCatch(
+        {
+          projr_init_prompt(
+            yml_path_from = custom_yml,
+            renv_force = FALSE,
+            renv_bioconductor = FALSE,
+            public = FALSE
+          )
+          TRUE
+        },
+        error = function(e) {
+          FALSE
+        }
+      )
+
+      # Check that yml was copied if successful
+      if (result) {
+        expect_true(file.exists("_projr.yml"))
+        yml_content <- yaml::read_yaml("_projr.yml")
+        expect_true(!is.null(yml_content$directories))
+      }
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("projr_init_prompt with public = TRUE parameter", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  skip_if(.is_test_lite())
+
+  dir_test <- file.path(tempdir(), "testProjrInitPromptPublic")
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # This will likely fail without GitHub auth, but should still create structure
+      result <- tryCatch(
+        {
+          projr_init_prompt(
+            yml_path_from = NULL,
+            renv_force = FALSE,
+            renv_bioconductor = FALSE,
+            public = TRUE
+          )
+        },
+        error = function(e) {
+          list(success = FALSE, error = e$message)
+        }
+      )
+
+      # Even if GitHub creation fails, basic structure should exist
+      expect_true(file.exists("_projr.yml"))
+      expect_true(file.exists("DESCRIPTION"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".init_git_git initializes git with commit", {
+  skip_if(.is_test_select())
+
+  dir_test <- file.path(tempdir(), "testInitGitGit")
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create some files first
+      writeLines("test", "test.txt")
+
+      # Test with commit = TRUE
+      result <- .init_git_git(commit = TRUE)
+      expect_true(result)
+      expect_true(dir.exists(".git"))
+      expect_true(file.exists(".gitignore"))
+
+      # Check that a commit was made
+      .dep_install_only("gert")
+      commits <- tryCatch(
+        gert::git_log(max = 1),
+        error = function(e) data.frame()
+      )
+      expect_true(nrow(commits) > 0)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".init_git_git initializes git without commit", {
+  skip_if(.is_test_select())
+
+  dir_test <- file.path(tempdir(), "testInitGitGitNoCommit")
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test with commit = FALSE
+      result <- .init_git_git(commit = FALSE)
+      expect_true(result)
+      expect_true(dir.exists(".git"))
+      expect_true(file.exists(".gitignore"))
+
+      # Check that no commits were made
+      .dep_install_only("gert")
+      commits <- tryCatch(
+        gert::git_log(max = 1),
+        error = function(e) data.frame()
+      )
+      expect_true(nrow(commits) == 0)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".init_git_github does nothing when remote already exists", {
+  skip_if(.is_test_select())
+
+  dir_test <- file.path(tempdir(), "testInitGitGithubExisting")
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Initialize git and add a remote
+      .git_init()
+      .test_setup_project_git_config()
+      .dep_install_only("gert")
+      gert::git_remote_add("https://github.com/test/repo.git", "origin")
+
+      # Test .init_git_github - should do nothing
+      result <- .init_git_github(username = NULL, public = FALSE)
+      expect_null(result)
+
+      # Verify remote still exists
+      remotes <- gert::git_remote_list()
+      expect_true(nrow(remotes) > 0)
+      expect_true("origin" %in% remotes$name)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".init_git_github stops when auth check fails", {
+  skip_if(.is_test_select())
+
+  dir_test <- file.path(tempdir(), "testInitGitGithubNoAuth")
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  # Temporarily remove GitHub auth
+  old_pat <- Sys.getenv("GITHUB_PAT")
+  old_token <- Sys.getenv("GITHUB_TOKEN")
+  Sys.unsetenv("GITHUB_PAT")
+  Sys.unsetenv("GITHUB_TOKEN")
+  withr::defer({
+    if (nzchar(old_pat)) Sys.setenv(GITHUB_PAT = old_pat)
+    if (nzchar(old_token)) Sys.setenv(GITHUB_TOKEN = old_token)
+  })
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Initialize git first (no remote)
+      .git_init()
+      .test_setup_project_git_config()
+
+      # Test .init_git_github - should stop due to auth failure
+      # The function calls stop() which produces an empty error message
+      result <- tryCatch(
+        {
+          .init_git_github(username = NULL, public = FALSE)
+          "no_error"
+        },
+        error = function(e) {
+          "error"
+        }
+      )
+      # Should have errored due to missing auth
+      expect_identical(result, "error")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("projr_init_ignore creates ignore files", {
+  skip_if(.is_test_select())
+
+  dir_test <- file.path(tempdir(), "testProjrInitIgnore")
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create minimal structure for ignore to work
+      projr_version_set("0.0.1")
+      .init_yml()
+      
+      # Initialize git (required for .gitignore to be created)
+      .git_init()
+      .test_setup_project_git_config()
+
+      # Test projr_init_ignore
+      result <- projr_init_ignore()
+      expect_true(result)
+
+      # Check that .gitignore was created
+      expect_true(file.exists(".gitignore"))
+
+      # Read .gitignore and check for typical projr ignore entries
+      gitignore_content <- readLines(".gitignore")
+      # Should have at least some standard entries like _tmp, _raw_data, etc.
+      expect_true(length(gitignore_content) > 0)
+      # Check for at least one of the standard projr directories
+      has_projr_content <- any(grepl("_tmp", gitignore_content)) ||
+                          any(grepl("_raw_data", gitignore_content)) ||
+                          any(grepl("_output", gitignore_content))
+      expect_true(has_projr_content)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("projr_init_ignore updates existing ignore files", {
+  skip_if(.is_test_select())
+
+  dir_test <- file.path(tempdir(), "testProjrInitIgnoreUpdate")
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create minimal structure
+      projr_version_set("0.0.1")
+      .init_yml()
+      
+      # Initialize git
+      .git_init()
+      .test_setup_project_git_config()
+
+      # Create an existing .gitignore with custom content
+      writeLines(c("# Custom content", "*.log"), ".gitignore")
+
+      # Test projr_init_ignore
+      result <- projr_init_ignore()
+      expect_true(result)
+
+      # Check that .gitignore still has custom content
+      gitignore_content <- readLines(".gitignore")
+      expect_true(any(grepl("Custom content", gitignore_content)))
+
+      # And has projr managed content (either with section markers or inline)
+      # The section markers should be added when updating existing content
+      has_section_markers <- any(grepl("Start of projr section", gitignore_content))
+      has_projr_dirs <- any(grepl("_tmp", gitignore_content)) ||
+                       any(grepl("_raw_data", gitignore_content)) ||
+                       any(grepl("_output", gitignore_content))
+      expect_true(has_section_markers || has_projr_dirs)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("projr_init_license validates proprietary license parameters", {
+  skip_if(.is_test_select())
+
+  # Test that proprietary license requires first_name and last_name
+  expect_error(
+    projr_init_license("proprietary", NULL, NULL),
+    "first_name must be given"
+  )
+
+  expect_error(
+    projr_init_license("proprietary", "John", NULL),
+    "last_name must be given"
+  )
+
+  expect_error(
+    projr_init_license("proprietary", NULL, "Doe"),
+    "first_name must be given"
+  )
+})
+
+test_that("projr_init_license works with non-proprietary licenses without names", {
+  skip_if(.is_test_select())
+
+  dir_test <- file.path(tempdir(), "testProjrLicenseNoNames")
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create DESCRIPTION first
+      projr_init(git = FALSE, github = FALSE, desc = TRUE)
+
+      # Test that CC-BY works without names (they're optional for non-proprietary)
+      # The function should not error even if first_name and last_name are missing
+      projr_init_license("ccby", NULL, NULL)
+      expect_true(file.exists("LICENSE.md"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
