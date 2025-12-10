@@ -495,7 +495,7 @@ test_that(".dir_get_docs_quarto_project_unset_default handles different project 
   )
 })
 
-test_that(".dir_get_docs_quarto_project_unset_default errors for unrecognized type", {
+test_that(".dir_get_docs_quarto_project_unset_default errors for unrecognised type", {
   skip_if(.is_test_select())
   skip_if(.is_test_cran())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -505,11 +505,11 @@ test_that(".dir_get_docs_quarto_project_unset_default errors for unrecognized ty
     code = {
       .init()
 
-      # Create a quarto project with unrecognized type
+      # Create a quarto project with unrecognised type
       writeLines("project:\n  type: unknown_type", "_quarto.yml")
       writeLines(c("---", "title: Test", "---", "", "# Hello"), "test.qmd")
 
-      # Should error for unrecognized project type
+      # Should error for unrecognised project type
       expect_error(
         .dir_get_docs_quarto_project_unset_default(),
         "Quarto project type not recognised"
@@ -816,9 +816,9 @@ test_that(".dir_get_cache_auto_version_old creates old subdirectory", {
     code = {
       .init()
 
-      # Note: .dir_get_cache_auto_version_old has a bug - it doesn't pass profile parameter
-      # to .dir_get_cache_auto_path(), so we can't test with profile = NULL
-      # Instead, we'll test the function indirectly by checking it can be called
+      # TODO: .dir_get_cache_auto_version_old has a bug - it doesn't pass the
+      # profile parameter to .dir_get_cache_auto_path() on line 316, causing
+      # a missing parameter error when called with profile = NULL
 
       # Should create path with "old" subdirectory
       # Using tryCatch because the function has a missing parameter bug
