@@ -1249,6 +1249,8 @@ test_that(".init_engine_std handles different literate documentation engines", {
   # where it tries to pipe .init_engine_quarto_project_index() to writeLines(),
   # but that function already writes the file itself.
   # This is tested via the higher-level projr_init() tests instead.
+  # TODO: Consider fixing the inconsistency in .init_engine_std_quarto_project()
+  # to either return text or write the file, but not both.
 })
 
 test_that(".init_std_git initializes git repository correctly", {
