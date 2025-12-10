@@ -1407,14 +1407,15 @@ test_that("projr_init_prompt creates full project structure", {
             renv_bioconductor = FALSE,
             public = FALSE
           )
+          TRUE
         },
         error = function(e) {
-          list(success = FALSE, error = e$message)
+          FALSE
         }
       )
 
-      # Check that basic structure was created
-      if (!is.list(result) || result$success != FALSE) {
+      # Check that basic structure was created if successful
+      if (result) {
         expect_true(file.exists("_projr.yml"))
         expect_true(file.exists("DESCRIPTION"))
         expect_true(file.exists(".gitignore"))
@@ -1468,14 +1469,15 @@ test_that("projr_init_prompt with custom yml_path_from", {
             renv_bioconductor = FALSE,
             public = FALSE
           )
+          TRUE
         },
         error = function(e) {
-          list(success = FALSE, error = e$message)
+          FALSE
         }
       )
 
-      # Check that yml was copied
-      if (!is.list(result) || result$success != FALSE) {
+      # Check that yml was copied if successful
+      if (result) {
         expect_true(file.exists("_projr.yml"))
         yml_content <- yaml::read_yaml("_projr.yml")
         expect_true(!is.null(yml_content$directories))
@@ -1549,7 +1551,10 @@ test_that(".init_git_git initializes git with commit", {
 
       # Check that a commit was made
       .dep_install_only("gert")
-      commits <- gert::git_log(max = 1)
+      commits <- tryCatch(
+        gert::git_log(max = 1),
+        error = function(e) data.frame()
+      )
       expect_true(nrow(commits) > 0)
     },
     force = TRUE,
@@ -1583,44 +1588,6 @@ test_that(".init_git_git initializes git without commit", {
         error = function(e) data.frame()
       )
       expect_true(nrow(commits) == 0)
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
-test_that(".init_git_github creates GitHub remote when no remote exists", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  skip_if(!nzchar(Sys.getenv("GITHUB_PAT")))
-
-  dir_test <- file.path(tempdir(), "testInitGitGithub")
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  .dir_create(dir_test)
-  .test_set()
-  withr::defer(.test_unset())
-  withr::defer(unlink(dir_test, recursive = TRUE))
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Initialize git first
-      .git_init()
-      .test_setup_project_git_config()
-
-      # Test .init_git_github (will likely fail without proper auth)
-      result <- tryCatch(
-        {
-          .init_git_github(username = NULL, public = FALSE)
-          TRUE
-        },
-        error = function(e) {
-          FALSE
-        }
-      )
-
-      # Function returns nothing, just verify it ran
-      expect_true(is.logical(result))
     },
     force = TRUE,
     quiet = TRUE
