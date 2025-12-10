@@ -207,7 +207,7 @@ Use `R/remote-versions.R` functions:
 
 ## Key Rules
 
-- Use httr, not piggyback for GitHub operations
+- Use httr, not piggyback for GitHub operations (migration complete)
 - Always add auth checks before API calls
 - Use polling for async GitHub operations
 - Add retry logic for network operations

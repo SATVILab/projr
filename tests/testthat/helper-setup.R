@@ -364,9 +364,9 @@
   path_vec <- vapply(
     label, function(x) projr_path_get(x, safe = safe), character(1L)
   )
-  for (i in seq_along(label)) {
+  for (x in path_vec) {
     .test_content_setup_dir(
-      path_dir = path_vec[i],
+      path_dir = x,
       dir_sub_lvl = dir_sub_lvl,
       dir_sub_prefix = dir_sub_prefix
     )
