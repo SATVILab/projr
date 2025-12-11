@@ -166,6 +166,113 @@ test_that(".metadata_get_date works", {
   expect_true(day >= 1 && day <= 31)
 })
 
+test_that(".metadata_get_author_host falls back to non_git when git config name is invalid", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(
+    git = TRUE, github = FALSE, set_env_var = FALSE
+  )
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Mock .git_config_get_name to return NULL (invalid)
+      testthat::with_mocked_bindings(
+        .git_config_get_name = function() NULL,
+        .package = "projr",
+        {
+          # Should fall back to non-git method
+          author <- .metadata_get_author_host()
+          expect_true(.is_chr(author))
+          expect_true(length(author) == 1)
+        }
+      )
+    }
+  )
+})
+
+test_that(".metadata_get_author_host falls back to non_git when git config name is empty", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(
+    git = TRUE, github = FALSE, set_env_var = FALSE
+  )
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Mock .git_config_get_name to return empty string
+      testthat::with_mocked_bindings(
+        .git_config_get_name = function() "",
+        .package = "projr",
+        {
+          # Should fall back to non-git method
+          author <- .metadata_get_author_host()
+          expect_true(.is_chr(author))
+          expect_true(length(author) == 1)
+        }
+      )
+    }
+  )
+})
+
+test_that(".metadata_get_author_host_env errors with unrecognized OS", {
+  skip_if(.is_test_select())
+
+  # Use with_mocked_bindings for proper scoping
+  testthat::with_mocked_bindings(
+    .metadata_get_os = function() "UnknownOS",
+    .package = "projr",
+    {
+      # Should throw an error
+      expect_error(
+        .metadata_get_author_host_env(),
+        "UnknownOS not recognised"
+      )
+    }
+  )
+})
+
+test_that(".metadata_get_author_host_env falls back to Sys.info when env var is empty", {
+  skip_if(.is_test_select())
+
+  os <- .metadata_get_os()
+
+  # Unset the environment variable
+  if (identical(os, "Windows")) {
+    withr::local_envvar(USERNAME = "")
+  } else if (identical(os, "Linux") || identical(os, "Darwin")) {
+    withr::local_envvar(USER = "")
+  }
+
+  # Should fall back to Sys.info()[["user"]]
+  author <- .metadata_get_author_host_env()
+  expect_true(.is_chr(author))
+  expect_true(length(author) == 1)
+  expect_identical(author, Sys.info()[["user"]])
+})
+
+test_that(".metadata_get_author_sys_info handles various fallback scenarios", {
+  skip_if(.is_test_select())
+
+  # We can test that the function returns a valid result
+  # without being able to mock Sys.info
+  author <- .metadata_get_author_sys_info()
+  expect_true(.is_chr(author))
+  expect_true(length(author) == 1)
+  expect_true(nzchar(author))
+
+  # The function should return one of: user, login, or HOSTNAME/anonymous-user
+  user_info <- Sys.info()[["user"]]
+  login_info <- Sys.info()[["login"]]
+  hostname <- Sys.getenv("HOSTNAME", unset = "anonymous-user")
+
+  # Author should be one of these values
+  possible_values <- c(user_info, login_info, hostname, "anonymous-user")
+  possible_values <- possible_values[!is.na(possible_values) & nzchar(possible_values)]
+  expect_true(author %in% possible_values)
+})
+
 
 # Tests for yml-metadata.R functions
 # ===================================
