@@ -60,22 +60,22 @@
   }
 
   # prefer 'origin', fallback to first remote returned by `git remote`
-  remote_url <- tryCatch(
+  remote_url <- suppressWarnings(tryCatch(
     {
       system2("git", args = c(git_args, "remote", "get-url", "origin"), stdout = TRUE, stderr = TRUE)
     },
     error = function(e) {
       character(0)
     }
-  )
+  ))
 
   if (length(remote_url) == 0 || !nzchar(remote_url)) {
     # fallback: pick the first remote name, then get-url
-    remotes <- tryCatch(system2("git", args = c(git_args, "remote"), stdout = TRUE, stderr = TRUE), error = function(e) character(0))
+    remotes <- suppressWarnings(tryCatch(system2("git", args = c(git_args, "remote"), stdout = TRUE, stderr = TRUE), error = function(e) character(0)))
     if (length(remotes) == 0) {
       stop("Could not detect any git remotes. Please ensure repository has a git remote.")
     }
-    remote_url <- tryCatch(system2("git", args = c(git_args, "remote", "get-url", remotes[1]), stdout = TRUE, stderr = TRUE), error = function(e) character(0))
+    remote_url <- suppressWarnings(tryCatch(system2("git", args = c(git_args, "remote", "get-url", remotes[1]), stdout = TRUE, stderr = TRUE), error = function(e) character(0)))
     if (length(remote_url) == 0 || !nzchar(remote_url)) {
       stop("Could not get URL for git remote 'origin' or first remote in this repository.")
     }
