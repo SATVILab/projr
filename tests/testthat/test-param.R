@@ -451,3 +451,289 @@ test_that("param functions work in realistic scenario", {
     quiet = TRUE
   )
 })
+
+test_that(".par_get_list throws error with multiple parameter keys", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test defensive error check by temporarily mocking .yml_get
+      # This scenario is prevented by .yml_get_filter_top_level_ind,
+      # but we test the defensive check anyway
+      original_yml_get <- .yml_get
+
+      # Mock .yml_get to return multiple param keys
+      assignInNamespace(
+        ".yml_get",
+        function(profile) {
+          list(
+            directories = list(),
+            parameters = list(a = "value_a"),
+            param = list(b = "value_b")
+          )
+        },
+        ns = "projr"
+      )
+
+      # Should throw error about multiple keys
+      expect_error(
+        .par_get_list("default"),
+        "Multiple.*parameters.*keys found"
+      )
+
+      # Restore original function
+      assignInNamespace(".yml_get", original_yml_get, ns = "projr")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("projr_par_get works with 'parameter' key variation", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test with "parameter" (singular) key
+      yml <- .yml_get("default")
+      yml[["parameter"]] <- list(test_param = "test_value")
+      .yml_set(yml, "default")
+
+      result <- projr_par_get("test_param")
+      expect_identical(result, "test_value")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("projr_par_get works with 'pars' key variation", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test with "pars" key
+      yml <- .yml_get("default")
+      yml[["pars"]] <- list(another_param = "another_value")
+      .yml_set(yml, "default")
+
+      result <- projr_par_get("another_param")
+      expect_identical(result, "another_value")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("projr_yml_par_add prevents adding when 'parameter' key exists", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Add "parameter" key first
+      yml <- .yml_get("default")
+      yml[["parameter"]] <- list(existing = "value")
+      .yml_set(yml, "default")
+
+      # Try to add parameters - should return FALSE
+      result <- projr_yml_par_add("default")
+      expect_false(result)
+
+      # Verify "parameter" key still exists and "parameters" wasn't added
+      yml_after <- .yml_get("default")
+      expect_true("parameter" %in% names(yml_after))
+      expect_false("parameters" %in% names(yml_after))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("projr_yml_par_add prevents adding when 'pars' key exists", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Add "pars" key first
+      yml <- .yml_get("default")
+      yml[["pars"]] <- list(existing = "value")
+      .yml_set(yml, "default")
+
+      # Try to add parameters - should return FALSE
+      result <- projr_yml_par_add("default")
+      expect_false(result)
+
+      # Verify "pars" key still exists and "parameters" wasn't added
+      yml_after <- .yml_get("default")
+      expect_true("pars" %in% names(yml_after))
+      expect_false("parameters" %in% names(yml_after))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("projr_yml_par_add prevents adding when 'params' key exists", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Add "params" key first
+      yml <- .yml_get("default")
+      yml[["params"]] <- list(existing = "value")
+      .yml_set(yml, "default")
+
+      # Try to add parameters - should return FALSE
+      result <- projr_yml_par_add("default")
+      expect_false(result)
+
+      # Verify "params" key still exists and "parameters" wasn't added
+      yml_after <- .yml_get("default")
+      expect_true("params" %in% names(yml_after))
+      expect_false("parameters" %in% names(yml_after))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".par_get_option handles empty parameter vector", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test internal function with edge case
+      par_list <- list(a = "value_a")
+
+      # Empty vector should return NULL (since eval will fail)
+      result <- .par_get_option(par_list, character(0))
+      expect_null(result)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".par_get_option handles very deeply nested paths", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test with very deep nesting (5+ levels)
+      par_list <- list(
+        level1 = list(
+          level2 = list(
+            level3 = list(
+              level4 = list(
+                level5 = list(
+                  level6 = "deep_value"
+                )
+              )
+            )
+          )
+        )
+      )
+
+      result <- .par_get_option(
+        par_list,
+        c("level1", "level2", "level3", "level4", "level5", "level6")
+      )
+      expect_identical(result, "deep_value")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("projr_par_get handles mixed list types correctly", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test with complex nested structures including vectors, lists, etc.
+      yml <- .yml_get("default")
+      yml[["parameters"]] <- list(
+        config = list(
+          servers = c("server1", "server2", "server3"),
+          ports = c(8080, 8081, 8082),
+          settings = list(
+            debug = TRUE,
+            verbose = FALSE
+          )
+        )
+      )
+      .yml_set(yml, "default")
+
+      # Test retrieving character vector
+      servers <- projr_par_get("config", "servers")
+      expect_identical(servers, c("server1", "server2", "server3"))
+
+      # Test retrieving numeric vector
+      ports <- projr_par_get("config", "ports")
+      expect_identical(ports, c(8080, 8081, 8082))
+
+      # Test retrieving from nested list
+      debug_setting <- projr_par_get("config", "settings", "debug")
+      expect_identical(debug_setting, TRUE)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".yml_par_add_empty_check correctly identifies existing param keys", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test internal check function
+      yml_empty <- list()
+      expect_true(.yml_par_add_empty_check(yml_empty))
+
+      # Test with each param name variation
+      yml_parameters <- list(parameters = list())
+      expect_false(.yml_par_add_empty_check(yml_parameters))
+
+      yml_parameter <- list(parameter = list())
+      expect_false(.yml_par_add_empty_check(yml_parameter))
+
+      yml_param <- list(param = list())
+      expect_false(.yml_par_add_empty_check(yml_param))
+
+      yml_params <- list(params = list())
+      expect_false(.yml_par_add_empty_check(yml_params))
+
+      yml_par <- list(par = list())
+      expect_false(.yml_par_add_empty_check(yml_par))
+
+      yml_pars <- list(pars = list())
+      expect_false(.yml_par_add_empty_check(yml_pars))
+
+      # Test with unrelated keys
+      yml_other <- list(build = list(), directories = list())
+      expect_true(.yml_par_add_empty_check(yml_other))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
