@@ -515,3 +515,552 @@ test_that("License integration with build creates files", {
     }
   )
 })
+
+# ---- Input Validation Tests ----
+
+test_that("projr_yml_dir_license_set validates year parameter", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Non-numeric year
+      expect_error(
+        projr_yml_dir_license_set("MIT", "output", year = "2023"),
+        "year must be a single numeric value"
+      )
+
+      # Multiple year values
+      expect_error(
+        projr_yml_dir_license_set("MIT", "output", year = c(2023, 2024)),
+        "year must be a single numeric value"
+      )
+
+      # Valid year should work
+      expect_silent(
+        projr_yml_dir_license_set("MIT", "output", year = 2023)
+      )
+    }
+  )
+})
+
+test_that("projr_yml_dir_license_set validates type parameter", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # NULL type (should error from .assert_string with required=TRUE)
+      expect_error(
+        projr_yml_dir_license_set(NULL, "output")
+      )
+
+      # Empty string type (should error from .assert_string with required=TRUE)
+      expect_error(
+        projr_yml_dir_license_set("", "output")
+      )
+
+      # Multiple type values (should error from .assert_string)
+      expect_error(
+        projr_yml_dir_license_set(c("MIT", "CC-BY"), "output")
+      )
+    }
+  )
+})
+
+test_that("projr_yml_dir_license_set validates label parameter", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # NULL label (should error from .assert_string with required=TRUE)
+      expect_error(
+        projr_yml_dir_license_set("MIT", NULL)
+      )
+
+      # Empty string label (should error from .assert_string with required=TRUE)
+      expect_error(
+        projr_yml_dir_license_set("MIT", "")
+      )
+
+      # Multiple label values (should error from .assert_string)
+      expect_error(
+        projr_yml_dir_license_set("MIT", c("output", "docs"))
+      )
+    }
+  )
+})
+
+test_that("projr_yml_dir_license_set validates authors parameter", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Non-character authors (should error from .assert_chr)
+      expect_error(
+        projr_yml_dir_license_set("MIT", "output", authors = 123)
+      )
+
+      # Valid NULL authors (should work - uses defaults)
+      expect_silent(
+        projr_yml_dir_license_set("MIT", "output", authors = NULL)
+      )
+
+      # Valid character vector authors
+      expect_silent(
+        projr_yml_dir_license_set("MIT", "raw-data", authors = c("Alice", "Bob"))
+      )
+    }
+  )
+})
+
+test_that("projr_yml_dir_license_set validates profile parameter", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Empty string profile (should error from .assert_string)
+      expect_error(
+        projr_yml_dir_license_set("MIT", "output", profile = "")
+      )
+
+      # Multiple profile values (should error from .assert_string)
+      expect_error(
+        projr_yml_dir_license_set("MIT", "output", profile = c("default", "test"))
+      )
+
+      # NULL profile is allowed (uses default behavior)
+      expect_silent(
+        projr_yml_dir_license_set("MIT", "output", profile = NULL)
+      )
+    }
+  )
+})
+
+test_that("projr_yml_dir_license_get validates parameters", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # NULL label
+      expect_error(
+        projr_yml_dir_license_get(NULL)
+      )
+
+      # Empty string label
+      expect_error(
+        projr_yml_dir_license_get("")
+      )
+
+      # Empty string profile
+      expect_error(
+        projr_yml_dir_license_get("output", profile = "")
+      )
+
+      # NULL profile is allowed (uses default behavior)
+      expect_silent(
+        projr_yml_dir_license_get("output", profile = NULL)
+      )
+    }
+  )
+})
+
+test_that("projr_yml_dir_license_rm validates parameters", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # NULL label
+      expect_error(
+        projr_yml_dir_license_rm(NULL)
+      )
+
+      # Empty string label
+      expect_error(
+        projr_yml_dir_license_rm("")
+      )
+
+      # Empty string profile
+      expect_error(
+        projr_yml_dir_license_rm("output", profile = "")
+      )
+
+      # NULL profile is allowed (uses default behavior)
+      expect_silent(
+        projr_yml_dir_license_rm("output", profile = NULL)
+      )
+    }
+  )
+})
+
+test_that("projr_yml_dir_license_update validates parameters", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Non-character labels (should error from .assert_chr)
+      expect_error(
+        projr_yml_dir_license_update(labels = 123)
+      )
+
+      # Empty string profile
+      expect_error(
+        projr_yml_dir_license_update(profile = "")
+      )
+
+      # NULL profile is allowed (uses default behavior)
+      expect_silent(
+        suppressMessages(projr_yml_dir_license_update(profile = NULL))
+      )
+
+      # Valid NULL labels (should work - uses all labels)
+      expect_silent(
+        suppressMessages(projr_yml_dir_license_update(labels = NULL))
+      )
+    }
+  )
+})
+
+test_that("projr_license_create_manual validates year parameter", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Non-numeric year
+      expect_error(
+        projr_license_create_manual("MIT", "raw-data", year = "2023"),
+        "year must be a single numeric value"
+      )
+
+      # Multiple year values
+      expect_error(
+        projr_license_create_manual("MIT", "raw-data", year = c(2023, 2024)),
+        "year must be a single numeric value"
+      )
+
+      # Valid year should work (function produces messages)
+      suppressMessages(
+        result <- projr_license_create_manual("MIT", "raw-data", year = 2023)
+      )
+      expect_true(is.character(result))
+    }
+  )
+})
+
+test_that("projr_license_create_manual validates type parameter", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # NULL type
+      expect_error(
+        projr_license_create_manual(NULL, "raw-data")
+      )
+
+      # Empty string type
+      expect_error(
+        projr_license_create_manual("", "raw-data")
+      )
+    }
+  )
+})
+
+test_that("projr_license_create_manual validates labels parameter", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Non-character labels
+      expect_error(
+        projr_license_create_manual("MIT", labels = 123)
+      )
+
+      # Valid NULL labels - should use default (raw data dirs)
+      suppressMessages(
+        result <- projr_license_create_manual("MIT", labels = NULL)
+      )
+      # Result should be character vector
+      expect_true(is.character(result))
+    }
+  )
+})
+
+test_that("projr_license_create_manual validates authors parameter", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Non-character authors
+      expect_error(
+        projr_license_create_manual("MIT", "raw-data", authors = 123)
+      )
+
+      # Valid NULL authors (should work - uses defaults, function produces messages)
+      suppressMessages(
+        result <- projr_license_create_manual("MIT", "raw-data", authors = NULL)
+      )
+      expect_true(is.character(result))
+    }
+  )
+})
+
+# ---- Edge Case Tests ----
+
+test_that("projr_yml_dir_license_set works with only authors (no year)", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set license with only authors
+      projr_yml_dir_license_set(
+        "MIT",
+        "output",
+        authors = c("Alice", "Bob"),
+        year = NULL
+      )
+
+      # Get and verify
+      license <- projr_yml_dir_license_get("output")
+      expect_identical(license$type, "MIT")
+      expect_identical(license$authors, c("Alice", "Bob"))
+      expect_true(is.null(license$year))
+    }
+  )
+})
+
+test_that("projr_yml_dir_license_set works with only year (no authors)", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set license with only year
+      projr_yml_dir_license_set(
+        "MIT",
+        "output",
+        authors = NULL,
+        year = 2023
+      )
+
+      # Get and verify
+      license <- projr_yml_dir_license_get("output")
+      expect_identical(license$type, "MIT")
+      expect_identical(license$year, 2023)
+      expect_true(is.null(license$authors))
+    }
+  )
+})
+
+test_that("projr_yml_dir_license_set can update existing license config", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set initial license
+      projr_yml_dir_license_set("MIT", "output")
+      license1 <- projr_yml_dir_license_get("output")
+      expect_identical(license1, "MIT")
+
+      # Update to different license
+      projr_yml_dir_license_set("CC-BY", "output")
+      license2 <- projr_yml_dir_license_get("output")
+      expect_identical(license2, "CC-BY")
+
+      # Update from simple to full format
+      projr_yml_dir_license_set(
+        "Apache-2.0",
+        "output",
+        authors = c("Alice"),
+        year = 2023
+      )
+      license3 <- projr_yml_dir_license_get("output")
+      expect_identical(license3$type, "Apache-2.0")
+      expect_identical(license3$authors, c("Alice"))
+      expect_identical(license3$year, 2023)
+
+      # Update from full to simple format
+      projr_yml_dir_license_set("MIT", "output")
+      license4 <- projr_yml_dir_license_get("output")
+      expect_identical(license4, "MIT")
+    }
+  )
+})
+
+test_that("projr_yml_dir_license_update converts simple to full format", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set simple license
+      projr_yml_dir_license_set("CC-BY", "output")
+
+      # Create directory
+      output_dir <- projr_path_get_dir("output", safe = FALSE)
+      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+
+      # Create LICENSE file
+      .license_dir_create("output", safe = FALSE, "default")
+
+      # Update DESCRIPTION with authors
+      desc <- desc::description$new("!new")
+      desc$set("Package", "testpkg")
+      desc$add_author("New", "Author", email = "new@example.com", role = "aut")
+      desc$write(file = .path_get("DESCRIPTION"))
+
+      # Update licenses - should convert simple to full format
+      suppressMessages(projr_yml_dir_license_update())
+
+      # Check that config was converted to full format
+      license <- projr_yml_dir_license_get("output")
+      expect_true(is.list(license))
+      expect_identical(license$type, "CC-BY")
+      expect_true("New Author" %in% license$authors)
+    }
+  )
+})
+
+test_that("projr_license_create_manual uses default labels when NULL", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create manual licenses with NULL labels (should use raw data dirs)
+      suppressMessages(
+        created <- projr_license_create_manual("MIT", labels = NULL)
+      )
+
+      # Should have created licenses for raw data directories
+      expect_true(is.character(created))
+      expect_true(length(created) > 0)
+
+      # Check that at least one expected directory was created
+      # (The actual labels depend on .yml_dir_get_label_in())
+      expect_true(all(created %in% c("raw-data", "cache", "data")))
+    }
+  )
+})
+
+# ---- Profile Tests ----
+
+test_that("License functions work with different profiles", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set license in default profile
+      projr_yml_dir_license_set("MIT", "output", profile = "default")
+
+      # Set different license in test profile
+      projr_yml_dir_license_set("CC-BY", "output", profile = "test")
+
+      # Verify different profiles have different configs
+      license_default <- projr_yml_dir_license_get("output", profile = "default")
+      license_test <- projr_yml_dir_license_get("output", profile = "test")
+
+      expect_identical(license_default, "MIT")
+      expect_identical(license_test, "CC-BY")
+
+      # Remove license from test profile
+      projr_yml_dir_license_rm("output", profile = "test")
+
+      # Verify removed from test but still in default
+      expect_true(is.null(projr_yml_dir_license_get("output", profile = "test")))
+      expect_identical(projr_yml_dir_license_get("output", profile = "default"), "MIT")
+    }
+  )
+})
+
+test_that("projr_yml_dir_license_update works with different profiles", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set license in custom profile
+      projr_yml_dir_license_set(
+        "CC-BY",
+        "output",
+        authors = c("Old Author"),
+        profile = "custom"
+      )
+
+      # Create directory
+      output_dir <- projr_path_get_dir("output", safe = FALSE)
+      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+
+      # Create LICENSE file
+      .license_dir_create("output", safe = FALSE, "custom")
+
+      # Update DESCRIPTION
+      desc <- desc::description$new("!new")
+      desc$set("Package", "testpkg")
+      desc$add_author("New", "Author", email = "new@example.com", role = "aut")
+      desc$write(file = .path_get("DESCRIPTION"))
+
+      # Update licenses in custom profile
+      suppressMessages(updated <- projr_yml_dir_license_update(profile = "custom"))
+
+      # Verify update in custom profile
+      expect_true("output" %in% updated)
+      license <- projr_yml_dir_license_get("output", profile = "custom")
+      expect_true("New Author" %in% license$authors)
+
+      # Verify default profile is unaffected
+      expect_true(is.null(projr_yml_dir_license_get("output", profile = "default")))
+    }
+  )
+})
+
+test_that("Multiple licenses can be set for same directory in different profiles", {
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set different licenses for output in different profiles
+      projr_yml_dir_license_set("MIT", "output", profile = "default")
+      projr_yml_dir_license_set("CC-BY", "output", profile = "prod")
+      projr_yml_dir_license_set("Apache-2.0", "output", profile = "dev")
+
+      # Verify all three are set correctly
+      expect_identical(projr_yml_dir_license_get("output", "default"), "MIT")
+      expect_identical(projr_yml_dir_license_get("output", "prod"), "CC-BY")
+      expect_identical(projr_yml_dir_license_get("output", "dev"), "Apache-2.0")
+    }
+  )
+})
