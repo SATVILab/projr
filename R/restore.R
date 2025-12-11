@@ -1,7 +1,7 @@
 #' Restore project artefact directories
 #'
 #' Use `projr_content_update()` to restore all artefacts needed for the current project.
-#' Use `projr_checkout()` to restore artefacts from a specific project version.
+#' Use `projr_content_checkout()` to restore artefacts from a specific project version.
 #' If the project isn't available locally yet,
 #' `projr_restore_repo()` will clone it and then restore its artefacts.
 #'
@@ -19,7 +19,7 @@
 #'   Must be NULL or a single non-empty character string.
 #' @param version character or NULL. Version to restore (e.g., `"0.0.1"` or `"v0.0.1"`).
 #'   Default is `NULL`, which restores the latest available version.
-#'   (Only for `projr_checkout()`.)
+#'   (Only for `projr_content_checkout()`.)
 #'   Must be NULL or a single non-empty character string with valid version format.
 #' @param repo character. GitHub repository (`"owner/repo"` or `"repo"`).
 #'   (Only for repository restoration functions.)
@@ -31,7 +31,7 @@
 #'   before restoration. Default is `FALSE`.
 #'
 #' @return Invisibly returns `TRUE` if all restorations are successful, `FALSE` otherwise.
-#'   For `projr_content_update()` and `projr_checkout()`, returns `FALSE` if no labels are
+#'   For `projr_content_update()` and `projr_content_checkout()`, returns `FALSE` if no labels are
 #'   found to restore or if any restoration fails. For `projr_restore_repo()`, returns `FALSE`
 #'   if cloning or restoration fails.
 #'
@@ -40,7 +40,7 @@
 #'
 #' - `projr_content_update()` restores artefacts in an existing local project without any cloning required.
 #'   Requires a `manifest.csv` file in the project root. Always restores the latest version.
-#' - `projr_checkout()` restores artefacts from a specific project version. Similar to
+#' - `projr_content_checkout()` restores artefacts from a specific project version. Similar to
 #'   `projr_content_update()` but allows specifying which version to restore.
 #' - `projr_restore_repo()` clones a GitHub repository into a subdirectory (or specified path),
 #'   then restores artefacts from that repository's remote sources.
@@ -76,10 +76,10 @@
 #' projr_content_update(type = "local", title = "archive")
 #'
 #' # Restore specific version
-#' projr_checkout(version = "0.0.1")
+#' projr_content_checkout(version = "0.0.1")
 #'
 #' # Restore specific labels from specific version
-#' projr_checkout(label = c("raw-data", "output"), version = "v0.0.2")
+#' projr_content_checkout(label = c("raw-data", "output"), version = "v0.0.2")
 #'
 #' # Clone repository into subdirectory and restore artefacts
 #' projr_restore_repo("owner/repo")
@@ -206,12 +206,12 @@ projr_content_update <- function(label = NULL,
 
 #' @rdname projr_restore
 #' @export
-projr_checkout <- function(version,
-                           label = NULL,
-                           pos = NULL,
-                           type = NULL,
-                           title = NULL,
-                           clear = FALSE) {
+projr_content_checkout <- function(version,
+                                   label = NULL,
+                                   pos = NULL,
+                                   type = NULL,
+                                   title = NULL,
+                                   clear = FALSE) {
   # Input validation for version
   if (is.null(version)) {
     stop("'version' cannot be NULL")

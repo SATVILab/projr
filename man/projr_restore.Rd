@@ -5,7 +5,7 @@
 \alias{projr_restore_repo_wd}
 \alias{projr_restore}
 \alias{projr_content_update}
-\alias{projr_checkout}
+\alias{projr_content_checkout}
 \title{Restore project artefact directories}
 \usage{
 projr_restore_repo(
@@ -33,7 +33,7 @@ projr_content_update(
   clear = FALSE
 )
 
-projr_checkout(
+projr_content_checkout(
   version,
   label = NULL,
   pos = NULL,
@@ -72,18 +72,18 @@ before restoration. Default is \code{FALSE}.}
 
 \item{version}{character or NULL. Version to restore (e.g., \code{"0.0.1"} or \code{"v0.0.1"}).
 Default is \code{NULL}, which restores the latest available version.
-(Only for \code{projr_checkout()}.)
+(Only for \code{projr_content_checkout()}.)
 Must be NULL or a single non-empty character string with valid version format.}
 }
 \value{
 Invisibly returns \code{TRUE} if all restorations are successful, \code{FALSE} otherwise.
-For \code{projr_content_update()} and \code{projr_checkout()}, returns \code{FALSE} if no labels are
+For \code{projr_content_update()} and \code{projr_content_checkout()}, returns \code{FALSE} if no labels are
 found to restore or if any restoration fails. For \code{projr_restore_repo()}, returns \code{FALSE}
 if cloning or restoration fails.
 }
 \description{
 Use \code{projr_content_update()} to restore all artefacts needed for the current project.
-Use \code{projr_checkout()} to restore artefacts from a specific project version.
+Use \code{projr_content_checkout()} to restore artefacts from a specific project version.
 If the project isn't available locally yet,
 \code{projr_restore_repo()} will clone it and then restore its artefacts.
 }
@@ -92,7 +92,7 @@ These functions restore artefact directories from remote sources:
 \itemize{
 \item \code{projr_content_update()} restores artefacts in an existing local project without any cloning required.
 Requires a \code{manifest.csv} file in the project root. Always restores the latest version.
-\item \code{projr_checkout()} restores artefacts from a specific project version. Similar to
+\item \code{projr_content_checkout()} restores artefacts from a specific project version. Similar to
 \code{projr_content_update()} but allows specifying which version to restore.
 \item \code{projr_restore_repo()} clones a GitHub repository into a subdirectory (or specified path),
 then restores artefacts from that repository's remote sources.
@@ -133,10 +133,10 @@ projr_content_update(label = c("raw-data", "cache"))
 projr_content_update(type = "local", title = "archive")
 
 # Restore specific version
-projr_checkout(version = "0.0.1")
+projr_content_checkout(version = "0.0.1")
 
 # Restore specific labels from specific version
-projr_checkout(label = c("raw-data", "output"), version = "v0.0.2")
+projr_content_checkout(label = c("raw-data", "output"), version = "v0.0.2")
 
 # Clone repository into subdirectory and restore artefacts
 projr_restore_repo("owner/repo")

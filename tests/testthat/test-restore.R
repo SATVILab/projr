@@ -630,10 +630,10 @@ test_that("projr_content_update handles latest structure overwrites", {
 })
 
 # =============================================================================
-# projr_checkout Tests
+# projr_content_checkout Tests
 # =============================================================================
 
-test_that("projr_checkout validates version parameter", {
+test_that("projr_content_checkout validates version parameter", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
@@ -646,38 +646,38 @@ test_that("projr_checkout validates version parameter", {
 
       # Invalid - NULL version
       expect_error(
-        projr_checkout(version = NULL),
+        projr_content_checkout(version = NULL),
         "'version' cannot be NULL"
       )
 
       # Invalid - not character
       expect_error(
-        projr_checkout(version = 123),
+        projr_content_checkout(version = 123),
         "'version' must be a character string"
       )
 
       # Invalid - empty vector
       expect_error(
-        projr_checkout(version = character(0)),
+        projr_content_checkout(version = character(0)),
         "'version' must have at least one element"
       )
 
       # Invalid - empty string
       expect_error(
-        projr_checkout(version = ""),
+        projr_content_checkout(version = ""),
         "'version' cannot be an empty string"
       )
 
       # Invalid - multiple values
       expect_error(
-        projr_checkout(version = c("0.0.1", "0.0.2")),
+        projr_content_checkout(version = c("0.0.1", "0.0.2")),
         "'version' must be a single character value"
       )
     }
   )
 })
 
-test_that("projr_checkout validates other parameters", {
+test_that("projr_content_checkout validates other parameters", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
@@ -691,32 +691,32 @@ test_that("projr_checkout validates other parameters", {
 
       # Invalid label - not character
       expect_error(
-        projr_checkout(version = version, label = 123),
+        projr_content_checkout(version = version, label = 123),
         "'label' must be NULL or a character vector"
       )
 
       # Invalid pos - not character
       expect_error(
-        projr_checkout(version = version, pos = 123),
+        projr_content_checkout(version = version, pos = 123),
         "'pos' must be NULL or a character vector"
       )
 
       # Invalid type - not valid
       expect_error(
-        projr_checkout(version = version, type = "invalid"),
+        projr_content_checkout(version = version, type = "invalid"),
         "'type' must be one of: local, osf, github"
       )
 
       # Invalid title - not character
       expect_error(
-        projr_checkout(version = version, title = 123),
+        projr_content_checkout(version = version, title = 123),
         "'title' must be NULL or a character vector"
       )
     }
   )
 })
 
-test_that("projr_checkout restores specific version", {
+test_that("projr_content_checkout restores specific version", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
@@ -755,7 +755,7 @@ test_that("projr_checkout restores specific version", {
       projr_path_get_dir("raw-data", safe = FALSE)
 
       # Restore version 1 (not the latest)
-      result <- projr_checkout(
+      result <- projr_content_checkout(
         version = version1,
         label = "raw-data",
         type = "local",
@@ -770,7 +770,7 @@ test_that("projr_checkout restores specific version", {
   )
 })
 
-test_that("projr_checkout accepts version with or without 'v' prefix", {
+test_that("projr_content_checkout accepts version with or without 'v' prefix", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
@@ -800,7 +800,7 @@ test_that("projr_checkout accepts version with or without 'v' prefix", {
       projr_path_get_dir("raw-data", safe = FALSE)
 
       # Should work with 'v' prefix
-      result1 <- projr_checkout(
+      result1 <- projr_content_checkout(
         version = version_with_v,
         label = "raw-data",
         type = "local",
@@ -813,7 +813,7 @@ test_that("projr_checkout accepts version with or without 'v' prefix", {
       projr_path_get_dir("raw-data", safe = FALSE)
 
       # Should work without 'v' prefix
-      result2 <- projr_checkout(
+      result2 <- projr_content_checkout(
         version = version_without_v,
         label = "raw-data",
         type = "local",
@@ -824,7 +824,7 @@ test_that("projr_checkout accepts version with or without 'v' prefix", {
   )
 })
 
-test_that("projr_checkout works with clear parameter", {
+test_that("projr_content_checkout works with clear parameter", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
@@ -853,7 +853,7 @@ test_that("projr_checkout works with clear parameter", {
       writeLines("extra content", extra_file)
 
       # Checkout without clear - extra file should remain
-      result <- projr_checkout(
+      result <- projr_content_checkout(
         version = version,
         label = "raw-data",
         type = "local",
@@ -865,7 +865,7 @@ test_that("projr_checkout works with clear parameter", {
 
       # Checkout with clear - extra file should be removed
       writeLines("extra content again", extra_file)
-      result <- projr_checkout(
+      result <- projr_content_checkout(
         version = version,
         label = "raw-data",
         type = "local",
@@ -878,7 +878,7 @@ test_that("projr_checkout works with clear parameter", {
   )
 })
 
-test_that("projr_checkout handles multiple labels", {
+test_that("projr_content_checkout handles multiple labels", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
@@ -914,7 +914,7 @@ test_that("projr_checkout handles multiple labels", {
       projr_path_get_dir("raw-data-2", safe = FALSE)
 
       # Restore both labels
-      result <- projr_checkout(
+      result <- projr_content_checkout(
         version = version,
         label = c("raw-data", "raw-data-2"),
         type = "local",
