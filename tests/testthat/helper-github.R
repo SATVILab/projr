@@ -434,17 +434,24 @@
     token <- .auth_get_github_pat_find()
   }
   if (!.is_string(token)) {
-    stop("No GitHub token found")
+    # Return FALSE instead of error - can't verify without token
+    return(FALSE)
   }
 
   user <- try(host[["user"]], silent = TRUE)
   if (inherits(user, "try-error") || is.null(user)) {
     user <- tryCatch(gh::gh_whoami(.token = token)[["login"]], error = function(e) NULL)
   }
-  if (!.is_string(user)) stop("No GitHub user found")
+  if (!.is_string(user)) {
+    # Return FALSE instead of error - can't verify without user
+    return(FALSE)
+  }
 
   repo <- host[["repo"]]
-  if (!.is_string(repo)) stop("No GitHub repo specified")
+  if (!.is_string(repo)) {
+    # Return FALSE instead of error - can't verify without repo
+    return(FALSE)
+  }
   repo <- basename(repo)
   if (repo == "projr") stop("Cannot delete the projr repo")
 
