@@ -233,6 +233,53 @@ test_that(".dir_clear_pre_cache_version clears cache version directory except 'o
   )
 })
 
+test_that(".dir_clear_pre_cache_version preserves both 'old' and 'docs' directories", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Get cache version path
+      cache_version_path <- .dir_get_cache_auto_version(profile = NULL)
+
+      # Create content in cache version directory - use recursive creation
+      dir.create(file.path(cache_version_path, "temp"), recursive = TRUE, showWarnings = FALSE)
+      file.create(file.path(cache_version_path, "temp", "file.txt"))
+
+      # Create "old" directory with content (should be preserved)
+      old_dir <- file.path(cache_version_path, "old")
+      dir.create(old_dir, recursive = TRUE, showWarnings = FALSE)
+      file.create(file.path(old_dir, "preserved_old.txt"))
+
+      # Create "docs" directory with content (should also be preserved)
+      docs_dir <- file.path(cache_version_path, "docs")
+      dir.create(docs_dir, recursive = TRUE, showWarnings = FALSE)
+      file.create(file.path(docs_dir, "preserved_docs.html"))
+
+      # Verify setup
+      expect_true(dir.exists(file.path(cache_version_path, "temp")))
+      expect_true(dir.exists(old_dir))
+      expect_true(dir.exists(docs_dir))
+
+      # Clear
+      .dir_clear_pre_cache_version()
+
+      # Both "old" and "docs" directories should be preserved
+      expect_true(dir.exists(old_dir))
+      expect_true(file.exists(file.path(old_dir, "preserved_old.txt")))
+      expect_true(dir.exists(docs_dir))
+      expect_true(file.exists(file.path(docs_dir, "preserved_docs.html")))
+
+      # Other directories should be cleared
+      expect_false(dir.exists(file.path(cache_version_path, "temp")))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
 # =============================================================================
 # Test with multiple output labels
 # =============================================================================
@@ -422,6 +469,97 @@ test_that(".build_clear_pre_docs clears appropriate docs directory", {
       expect_false(result)
       expect_true(file.exists(file.path(docs_safe, "safe_doc.html")))
       expect_true(file.exists(file.path(docs_unsafe, "unsafe_doc.html")))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that(".build_clear_pre_docs returns FALSE when clear_output is 'never'", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create content in docs
+      docs_unsafe <- projr_path_get_dir("docs", safe = FALSE)
+      file.create(file.path(docs_unsafe, "test_doc.html"))
+
+      # Call with "never" should return FALSE and not clear
+      result <- .build_clear_pre_docs(clear_output = "never")
+
+      expect_false(result)
+      expect_true(file.exists(file.path(docs_unsafe, "test_doc.html")))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+# =============================================================================
+# Test .build_clear_pre_docs_safe and .build_clear_pre_docs_unsafe directly
+# =============================================================================
+
+test_that(".build_clear_pre_docs_safe clears safe docs directory", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create content in safe docs directory
+      docs_safe <- projr_path_get_dir("docs", safe = TRUE)
+      file.create(file.path(docs_safe, "test_safe.html"))
+      file.create(file.path(docs_safe, "test_safe2.html"))
+      dir.create(file.path(docs_safe, "subdir"), showWarnings = FALSE)
+      file.create(file.path(docs_safe, "subdir", "nested.html"))
+
+      # Verify files exist
+      expect_true(file.exists(file.path(docs_safe, "test_safe.html")))
+      expect_true(file.exists(file.path(docs_safe, "test_safe2.html")))
+      expect_true(file.exists(file.path(docs_safe, "subdir", "nested.html")))
+
+      # Call function to clear
+      .build_clear_pre_docs_safe()
+
+      # Verify directory is cleared
+      files <- list.files(docs_safe, recursive = TRUE, all.files = TRUE, no.. = TRUE)
+      expect_length(files, 0)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that(".build_clear_pre_docs_unsafe clears unsafe docs directory", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create content in unsafe docs directory
+      docs_unsafe <- projr_path_get_dir("docs", safe = FALSE)
+      file.create(file.path(docs_unsafe, "test_unsafe.html"))
+      file.create(file.path(docs_unsafe, "test_unsafe2.html"))
+      dir.create(file.path(docs_unsafe, "subdir"), showWarnings = FALSE)
+      file.create(file.path(docs_unsafe, "subdir", "nested.html"))
+
+      # Verify files exist
+      expect_true(file.exists(file.path(docs_unsafe, "test_unsafe.html")))
+      expect_true(file.exists(file.path(docs_unsafe, "test_unsafe2.html")))
+      expect_true(file.exists(file.path(docs_unsafe, "subdir", "nested.html")))
+
+      # Call function to clear
+      .build_clear_pre_docs_unsafe()
+
+      # Verify directory is cleared
+      files <- list.files(docs_unsafe, recursive = TRUE, all.files = TRUE, no.. = TRUE)
+      expect_length(files, 0)
     },
     quiet = TRUE,
     force = TRUE
