@@ -54,22 +54,43 @@
   if (!output_run) {
     return(invisible(FALSE))
   }
+
   # Combine all manifests at once for better performance
   manifest_parts <- list(
     .build_manifest_pre_read(),
     .build_manifest_post_get_manifest(output_run),
     .build_manifest_post_get_manifest_previous_version()
   )
+  
   # Filter out empty manifests
   manifest_parts <- Filter(function(x) nrow(x) > 0, manifest_parts)
+  
   if (length(manifest_parts) == 0) {
-    combined_manifest <- .zero_tbl_get_manifest()
+    manifest_current <- .zero_tbl_get_manifest()
+    manifest_all <- .zero_tbl_get_manifest()
   } else if (length(manifest_parts) == 1) {
-    combined_manifest <- manifest_parts[[1]]
+    manifest_current <- manifest_parts[[1]]
+    manifest_all <- manifest_current
+  } else if (length(manifest_parts) == 2) {
+    # Pre + Post (no previous)
+    manifest_current <- do.call(rbind, manifest_parts)
+    manifest_all <- manifest_current
   } else {
-    combined_manifest <- do.call(rbind, manifest_parts)
+    # Pre + Post + Previous
+    manifest_current <- do.call(rbind, manifest_parts[1:2])
+    manifest_all <- do.call(rbind, manifest_parts)
   }
-  .manifest_write(combined_manifest, .build_manifest_post_get_path(output_run))
+
+  # Get current version
+  version_current <- projr_version_get()
+
+  # Write split manifest for current version
+  # This merges with existing data if the file exists (for re-builds)
+  .manifest_split_write_version(manifest_current, version_current)
+
+  # For backward compatibility, write consolidated manifest with deduplication
+  manifest_all <- .manifest_remove_duplicate(manifest_all)
+  .manifest_write_impl(manifest_all, .build_manifest_post_get_path(output_run), overwrite = TRUE)
 }
 
 .build_manifest_pre_read <- function() {
@@ -131,9 +152,11 @@
 }
 
 .build_manifest_post_get_manifest_previous_version <- function() {
+  # Simply read the consolidated manifest.csv
+  # Don't exclude current version - let deduplication handle it
   path <- .path_get("manifest.csv")
   if (!file.exists(path)) {
     return(.zero_tbl_get_manifest())
   }
-  .manifest_read(.path_get("manifest.csv"))
+  .manifest_read(path)
 }
