@@ -85,7 +85,7 @@ projr_init <- function(git = TRUE,
 
   # initial VERSION file
   if (!file.exists(.path_get("VERSION")) &&
-        !file.exists(.path_get("DESCRIPTION"))) {
+    !file.exists(.path_get("DESCRIPTION"))) {
     projr_version_set("0.0.1")
   }
 
@@ -177,11 +177,11 @@ projr_init_github <- function(username = NULL,
 }
 
 .init_dir_std_impl <- function() {
-  message("Creating standard artefact directories.")
+  .cli_info("Creating standard artefact directories.")
   nm_vec <- .yml_dir_get(NULL) |> names()
   nm_vec[grepl("^raw|^output|^cache", .dir_label_strip(nm_vec))] |>
     lapply(projr_path_get)
-  message("Initialised raw, cache and output directories.")
+  .cli_info("Initialised raw, cache and output directories.")
   invisible(TRUE)
 }
 
@@ -197,7 +197,7 @@ projr_init_github <- function(username = NULL,
 }
 
 .init_readme_std_impl <- function(readme_rmd) {
-  message("Creating README file.")
+  .cli_info("Creating README file.")
   # Create the README file directly instead of using usethis
   # to avoid project validation issues
   path_readme <- paste0(
@@ -236,13 +236,13 @@ projr_init_github <- function(username = NULL,
   }
   if (readme_rmd) {
     if (file.exists(.path_get("README.Rmd"))) {
-      message("README.Rmd already exists, so not creating and not overwriting.")
+      .cli_info("README.Rmd already exists, so not creating and not overwriting.")
       .init_readme_std_impl_render()
       return(invisible(FALSE))
     }
   } else {
     if (file.exists(.path_get("README.md"))) {
-      message("README.md already exists, so skipping.")
+      .cli_info("README.md already exists, so skipping.")
       return(invisible(FALSE))
     }
   }
@@ -276,21 +276,21 @@ projr_init_github <- function(username = NULL,
     return(invisible(FALSE))
   }
   if (file.exists(.path_get("DESCRIPTION"))) {
-    message("DESCRIPTION already exists, so skipping.")
+    .cli_info("DESCRIPTION already exists, so skipping.")
     return(invisible(FALSE))
   }
   .init_desc_std_impl()
 }
 
 .init_desc_std_impl <- function() {
-  message("Creating DESCRIPTION file.")
+  .cli_info("Creating DESCRIPTION file.")
   .init_desc_std_impl_get_contents() |>
     writeLines(con = .path_get("DESCRIPTION"))
   if (file.exists(.path_get("VERSION"))) {
     readLines(.path_get("VERSION"), warn = FALSE) |>
       projr_version_set()
   }
-  message("Created DESCRIPTION.")
+  .cli_info("Created DESCRIPTION.")
   invisible(TRUE)
 }
 
@@ -314,7 +314,7 @@ projr_init_github <- function(username = NULL,
 }
 
 .init_license_std_impl <- function(x) {
-  message("Creating LICENSE file.")
+  .cli_info("Creating LICENSE file.")
   opt_vec <- c(
     "ccby", "CC-BY", "apache", "Apache 2.0", "cc0", "CC0",
     "proprietary", "Proprietary"
@@ -330,13 +330,11 @@ projr_init_github <- function(username = NULL,
     "CC0" = usethis::use_cc0_license(),
     "proprietary" = ,
     "Proprietary" = {
-      message(
-        "Replace [First Name] [Last Name] with your name in LICENSE file."
-      )
+      .cli_info("Replace [First Name] [Last Name] with your name in LICENSE file.")
       usethis::use_proprietary_license("[First Name] [Last Name]")
     }
   )
-  message("Created LICENSE.")
+  .cli_info("Created LICENSE.")
 }
 
 # ========================================
@@ -348,14 +346,14 @@ projr_init_github <- function(username = NULL,
     return(invisible(FALSE))
   }
   if (!file.exists(.path_get("DESCRIPTION"))) {
-    message("DESCRIPTION does not exist, so skipping citation files.")
+    .cli_info("DESCRIPTION does not exist, so skipping citation files.")
     return(invisible(FALSE))
   }
   .init_cite_std_impl()
 }
 
 .init_cite_std_impl <- function() {
-  message("Setting up citation files.")
+  .cli_info("Setting up citation files.")
   .init_cite_cff()
   .init_cite_codemeta()
 }
@@ -366,7 +364,7 @@ projr_init_github <- function(username = NULL,
   } else if (file.exists("README.md")) {
     .init_cite_citation_readme_add_file(.path_get("README.md"))
   } else {
-    message("README.[R]md does not exist, so skipping citation entry in README.") # nolint
+    .cli_info("README.[R]md does not exist, so skipping citation entry in README.") # nolint
     return(invisible(FALSE))
   }
   invisible(TRUE)
@@ -381,7 +379,7 @@ projr_init_github <- function(username = NULL,
     return(invisible(FALSE))
   }
   if (file.exists(.path_get("projr.yml"))) {
-    message("projr.yml already exists, so skipping.")
+    .cli_info("projr.yml already exists, so skipping.")
     return(invisible(FALSE))
   }
   .init_yml_std_impl()
@@ -418,7 +416,7 @@ projr_init_github <- function(username = NULL,
 
 .init_engine_std_bookdown_bookdown <- function() {
   if (file.exists(.path_get("_bookdown.yml"))) {
-    message("_bookdown.yml already exists, so skipping.")
+    .cli_info("_bookdown.yml already exists, so skipping.")
     return(invisible(FALSE))
   }
   # Read the template from inst/project_structure
@@ -427,32 +425,32 @@ projr_init_github <- function(username = NULL,
     package = "projr"
   ))
   .yml_bd_set(yml_bd)
-  message("Created _bookdown.yml.")
+  .cli_info("Created _bookdown.yml.")
   invisible(TRUE)
 }
 
 .init_engine_std_bookdown_output <- function() {
   path_yml <- .path_get("_output.yml")
   if (file.exists(path_yml)) {
-    message("_output.yml already exists, so skipping.")
+    .cli_info("_output.yml already exists, so skipping.")
     return(invisible(FALSE))
   }
   init_engine_bookdown_contents_output() |>
     yaml::write_yaml(path_yml)
   .newline_append(path_yml)
-  message("Created _output.yml.")
+  .cli_info("Created _output.yml.")
   invisible(TRUE)
 }
 
 .init_engine_std_bookdown_index <- function() {
   path_index <- .path_get("index.Rmd")
   if (file.exists(path_index)) {
-    message("index.Rmd already exists, so skipping.")
+    .cli_info("index.Rmd already exists, so skipping.")
     return(invisible(FALSE))
   }
   init_engine_bookdown_contents_index() |>
     writeLines(con = path_index)
-  message("Created index.Rmd.")
+  .cli_info("Created index.Rmd.")
   invisible(TRUE)
 }
 
@@ -461,22 +459,22 @@ projr_init_github <- function(username = NULL,
   .dep_install("quarto")
   path_yml <- .path_get("_quarto.yml")
   if (file.exists(path_yml)) {
-    message("_quarto.yml already exists, so skipping.")
+    .cli_info("_quarto.yml already exists, so skipping.")
     skipped <- 1
   } else {
     .init_engine_quarto_projects_content_yml() |>
       yaml::write_yaml(.path_get("_quarto.yml"))
-    message("Created _quarto.yml.")
+    .cli_info("Created _quarto.yml.")
     skipped <- 0
   }
   path_index <- .path_get("index.qmd")
   if (file.exists(path_index)) {
-    message("index.qmd already exists, so skipping.")
+    .cli_info("index.qmd already exists, so skipping.")
     skipped <- skipped + 1
   } else {
     .init_engine_quarto_project_index() |>
       writeLines(con = path_index)
-    message("Created index.qmd.")
+    .cli_info("Created index.qmd.")
   }
   invisible(try(skipped < 2, silent = TRUE))
 }
@@ -486,7 +484,7 @@ projr_init_github <- function(username = NULL,
   .dep_install("quarto")
   path_qmd <- .path_get("intro.qmd")
   if (file.exists(path_qmd)) {
-    message("intro.qmd already exists, so skipping.")
+    .cli_info("intro.qmd already exists, so skipping.")
     return(invisible(FALSE))
   }
   c(
@@ -502,7 +500,7 @@ projr_init_github <- function(username = NULL,
     ""
   ) |>
     writeLines(path_qmd)
-  message("Created intro.qmd.")
+  .cli_info("Created intro.qmd.")
   invisible(TRUE)
 }
 
@@ -511,7 +509,7 @@ projr_init_github <- function(username = NULL,
   .dep_install("rmarkdown")
   path_rmd <- .path_get("intro.Rmd")
   if (file.exists(path_rmd)) {
-    message("intro.Rmd already exists, so skipping.")
+    .cli_info("intro.Rmd already exists, so skipping.")
     return(invisible(FALSE))
   }
   c(
@@ -524,7 +522,7 @@ projr_init_github <- function(username = NULL,
     ""
   ) |>
     writeLines(path_rmd)
-  message("Created intro.Rmd.")
+  .cli_info("Created intro.Rmd.")
   invisible(TRUE)
 }
 
@@ -592,11 +590,9 @@ projr_init_github <- function(username = NULL,
     if (Sys.getenv("GITHUB_ACTIONS") == "true") {
       gert::git_config_global_set("user.name", "GitHub Actions")
     } else if (!interactive()) {
-      message("Git user name not set and in non-interactive mode.")
+      .cli_info("Git user name not set and in non-interactive mode.")
       user_name <- paste0(Sys.info()[["user"]], "_", Sys.info()[["node_name"]])
-      message(paste0(
-        "Using system user name and node name: ", user_name
-      ))
+      .cli_info("Using system user name and node name: {user_name}")
       gert::git_config_global_set("user.name", user_name)
     } else {
       choice <- utils::menu(
@@ -607,7 +603,7 @@ projr_init_github <- function(username = NULL,
         user_name <- readline("Please enter your Git user name: ")
         if (nchar(user_name) > 0) {
           gert::git_config_global_set("user.name", user_name)
-          message("Git user.name set to: ", user_name)
+          .cli_info("Git user.name set to: {user_name}")
         } else {
           stop("Git user.name is required for committing changes.")
         }
@@ -621,13 +617,11 @@ projr_init_github <- function(username = NULL,
     if (Sys.getenv("GITHUB_ACTIONS") == "true") {
       gert::git_config_global_set("user.email", "filler-email@projr-test.com")
     } else if (!interactive()) {
-      message("Git user email not set and in non-interactive mode.")
+      .cli_info("Git user email not set and in non-interactive mode.")
       user_email <- paste0(
         Sys.info()[["user"]], "_", Sys.info()[["node_name"]], "@projr-test.com"
       )
-      message(paste0(
-        "Using system user name and node name: ", user_email
-      ))
+      .cli_info("Using system user name and node name: {user_email}")
       # Set a default email address for non-interactive mode.
       gert::git_config_global_set("user.email", user_email)
     } else {
@@ -639,7 +633,7 @@ projr_init_github <- function(username = NULL,
         user_email <- readline("Please enter your Git user email: ")
         if (nchar(user_email) > 0) {
           gert::git_config_global_set("user.email", user_email)
-          message("Git user.email set to: ", user_email)
+          .cli_info("Git user.email set to: {user_email}")
         } else {
           stop("Git user.email is required for committing changes.")
         }
@@ -661,11 +655,11 @@ projr_init_github <- function(username = NULL,
   }
   if (!.git_repo_check_exists()) {
     .yml_unset_github_dest()
-    message("Local Git repository does not exist, so skipping creation of GitHub repo.") # nolint
+    .cli_info("Local Git repository does not exist, so skipping creation of GitHub repo.") # nolint
     return(invisible(FALSE))
   }
   if (.git_remote_check_exists()) {
-    message("GitHub remote already set, so skipping creation of GitHub repo.") # nolint
+    .cli_info("GitHub remote already set, so skipping creation of GitHub repo.") # nolint
     return(invisible(FALSE))
   }
   .init_std_github_impl(public, org)

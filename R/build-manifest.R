@@ -55,9 +55,31 @@
     return(invisible(FALSE))
   }
 
-  # Build current version's manifest (pre + post)
-  manifest_current <- .build_manifest_pre_read() |>
-    rbind(.build_manifest_post_get_manifest(output_run))
+  # Combine all manifests at once for better performance
+  manifest_parts <- list(
+    .build_manifest_pre_read(),
+    .build_manifest_post_get_manifest(output_run),
+    .build_manifest_post_get_manifest_previous_version()
+  )
+  
+  # Filter out empty manifests
+  manifest_parts <- Filter(function(x) nrow(x) > 0, manifest_parts)
+  
+  if (length(manifest_parts) == 0) {
+    manifest_current <- .zero_tbl_get_manifest()
+    manifest_all <- .zero_tbl_get_manifest()
+  } else if (length(manifest_parts) == 1) {
+    manifest_current <- manifest_parts[[1]]
+    manifest_all <- manifest_current
+  } else if (length(manifest_parts) == 2) {
+    # Pre + Post (no previous)
+    manifest_current <- do.call(rbind, manifest_parts)
+    manifest_all <- manifest_current
+  } else {
+    # Pre + Post + Previous
+    manifest_current <- do.call(rbind, manifest_parts[1:2])
+    manifest_all <- do.call(rbind, manifest_parts)
+  }
 
   # Get current version
   version_current <- projr_version_get()
@@ -66,13 +88,8 @@
   # This merges with existing data if the file exists (for re-builds)
   .manifest_split_write_version(manifest_current, version_current)
 
-  # For backward compatibility, also write consolidated manifest
-  # Read all previous data and add current, then deduplicate
-  manifest_all <- .build_manifest_post_get_manifest_previous_version() |>
-    rbind(manifest_current) |>
-    .manifest_remove_duplicate()
-
-  # Write consolidated manifest (overwrite = TRUE, no dedup since we just did it)
+  # For backward compatibility, write consolidated manifest with deduplication
+  manifest_all <- .manifest_remove_duplicate(manifest_all)
   .manifest_write_impl(manifest_all, .build_manifest_post_get_path(output_run), overwrite = TRUE)
 }
 
@@ -102,7 +119,14 @@
   if (.is_len(manifest_list, 1L)) {
     return(manifest_list[[1]])
   }
-  Reduce(rbind, manifest_list)
+  # Filter out empty manifests and use do.call for better performance
+  manifest_list <- Filter(function(x) nrow(x) > 0, manifest_list)
+  if (length(manifest_list) == 0) {
+    return(.zero_tbl_get_manifest())
+  } else if (length(manifest_list) == 1) {
+    return(manifest_list[[1]])
+  }
+  do.call(rbind, manifest_list)
 }
 
 .build_manifest_post_get_label <- function() {

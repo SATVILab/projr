@@ -4,7 +4,7 @@
 \alias{.cli_debug}
 \title{Show a debug message (only shown at debug level)}
 \usage{
-.cli_debug(..., output_level = "std", .envir = parent.frame(), log_file = NULL)
+.cli_debug(..., output_level = "std", .envir = parent.frame())
 }
 \arguments{
 \item{...}{Message components passed to cli::cli_text}
@@ -12,8 +12,6 @@
 \item{output_level}{Character. Current output level.}
 
 \item{.envir}{Environment for variable evaluation}
-
-\item{log_file}{Character. Path to log file (optional).}
 }
 \description{
 Show a debug message (only shown at debug level)

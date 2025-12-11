@@ -29,11 +29,11 @@
 #' @examples
 #' # Activate only the local overrides
 #' \dontrun{
-#'   projr_env_set("_environment.local")
+#' projr_env_set("_environment.local")
 #' }
 #' # Activate all available defaults in the standard order
 #' \dontrun{
-#'   projr_env_set()
+#' projr_env_set()
 #' }
 #'
 #' @export

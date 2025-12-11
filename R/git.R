@@ -558,11 +558,14 @@
   .assert_string(path)
   if (!grepl("/", repo)) {
     .auth_check_github("cloning repository")
-    user <- tryCatch({
-      gh::gh_whoami()$login
-    }, error = function(e) {
-      NULL
-    })
+    user <- tryCatch(
+      {
+        gh::gh_whoami()$login
+      },
+      error = function(e) {
+        NULL
+      }
+    )
     if (!.is_string(user)) {
       stop("GitHub user not found for repository cloning")
     }
@@ -581,11 +584,12 @@
 .git_clone_git <- function(repo, path = NULL) {
   url <- paste0("https://github.com/", repo, ".git")
   args <- c("clone", url, path)
-  system2(
+  suppressWarnings(system2(
     "git",
     args = args,
-    stdout = TRUE
-  )
+    stdout = TRUE,
+    stderr = TRUE
+  ))
 }
 
 .git_clone_gert <- function(repo, path) {
@@ -631,13 +635,16 @@
 }
 
 .git_branch_get_gert <- function() {
-  tryCatch({
-    info <- gert::git_info()
-    if (!is.null(info$shorthand)) {
-      return(info$shorthand)
-    }
-    NULL
-  }, error = function(e) NULL)
+  tryCatch(
+    {
+      info <- gert::git_info()
+      if (!is.null(info$shorthand)) {
+        return(info$shorthand)
+      }
+      NULL
+    },
+    error = function(e) NULL
+  )
 }
 
 #' Get last commit information
@@ -679,16 +686,19 @@
 }
 
 .git_last_commit_get_gert <- function() {
-  tryCatch({
-    log <- gert::git_log(max = 1)
-    if (nrow(log) == 0) {
-      return(NULL)
-    }
-    list(
-      sha = substr(log$commit[1], 1, 7),
-      message = log$message[1]
-    )
-  }, error = function(e) NULL)
+  tryCatch(
+    {
+      log <- gert::git_log(max = 1)
+      if (nrow(log) == 0) {
+        return(NULL)
+      }
+      list(
+        sha = substr(log$commit[1], 1, 7),
+        message = log$message[1]
+      )
+    },
+    error = function(e) NULL
+  )
 }
 
 #' Get untracked files that are not ignored
@@ -726,15 +736,18 @@
 }
 
 .git_untracked_not_ignored_get_gert <- function() {
-  tryCatch({
-    git_tbl_status <- gert::git_status()
-    # Get files with status "new" (untracked)
-    untracked <- git_tbl_status[["file"]][git_tbl_status[["status"]] == "new"]
+  tryCatch(
+    {
+      git_tbl_status <- gert::git_status()
+      # Get files with status "new" (untracked)
+      untracked <- git_tbl_status[["file"]][git_tbl_status[["status"]] == "new"]
 
-    if (length(untracked) == 0) {
-      return(character(0))
-    }
+      if (length(untracked) == 0) {
+        return(character(0))
+      }
 
-    untracked
-  }, error = function(e) character(0))
+      untracked
+    },
+    error = function(e) character(0)
+  )
 }

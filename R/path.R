@@ -164,7 +164,7 @@
   } else {
     fn_full <- fn
   }
-  fn <- fn[!fs::is_dir(fn) & file.exists(fn_full)]
+  fn <- fn[!fs::is_dir(fn_full) & file.exists(fn_full)]
   fn |>
     fs::path_expand() |>
     fs::path_norm() |>
@@ -563,6 +563,7 @@
   if (!.dir_copy_file_check(fn, path_dir_from)) {
     return(invisible(FALSE))
   }
+  .dir_create(path_dir_to)
   # ensure relevant directories are available
   .dir_copy_file_tree(fn, path_dir_to)
   fs::file_copy(

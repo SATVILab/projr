@@ -558,7 +558,7 @@
     "codemeta": {
       "Package": "codemeta",
       "Version": "0.1.1",
-      "Source": "GitHub",
+      "Source": "Repository",
       "Type": "Package",
       "Title": "A Smaller 'codemetar' Package",
       "Authors@R": "c(person(given = \"Carl\", family = \"Boettiger\", role = c(\"aut\", \"cre\", \"cph\"), email = \"cboettig@gmail.com\", comment = c(ORCID = \"0000-0002-1642-628X\")), person(given = \"Maëlle\", family = \"Salmon\", role = c(\"ctb\", \"aut\"), comment = c(ORCID = \"0000-0002-2815-0399\")), person(given = \"Katrin\", family = \"Leinweber\", role = \"ctb\", comment = c(ORCID = \"0000-0001-5135-5758\")), person(given = \"Noam\", family = \"Ross\", role = \"ctb\", comment = c(ORCID = \"0000-0002-2136-0000\")), person(given = \"Arfon\", family = \"Smith\", role = \"ctb\"), person(given = \"Jeroen\", family = \"Ooms\", role = \"ctb\", comment = c(ORCID = \"0000-0002-4035-0289\")), person(given = \"Sebastian\", family = \"Meyer\", role = \"ctb\", comment = c(ORCID = \"0000-0002-1791-9449\")), person(given = \"Michael\", family = \"Rustler\", role = \"ctb\", comment = c(ORCID = \"0000-0003-0647-7726\")), person(given = \"Hauke\", family = \"Sonnenberg\", role = \"ctb\", comment = c(ORCID = \"0000-0001-9134-2871\")), person(given = \"Sebastian\", family = \"Kreutzer\", role = \"ctb\", comment = c(ORCID = \"0000-0002-0734-2199\")), person(given = \"rOpenSci\", role = \"fnd\", comment = \"https://ropensci.org/\") )",
@@ -585,17 +585,11 @@
       "RoxygenNote": "7.1.2",
       "X-schema.org-isPartOf": "https://ropensci.org",
       "X-schema.org-keywords": "metadata, codemeta, ropensci, citation, credit, linked-data",
-      "Roxygen": "list(markdown = TRUE)",
       "Config/testthat/edition": "3",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "codemeta",
-      "RemoteUsername": "cboettig",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "14107238c584bf016fe3e6dda9ab3e31be14577a",
       "NeedsCompilation": "no",
       "Author": "Carl Boettiger [aut, cre, cph] (<https://orcid.org/0000-0002-1642-628X>), Maëlle Salmon [ctb, aut] (<https://orcid.org/0000-0002-2815-0399>), Katrin Leinweber [ctb] (<https://orcid.org/0000-0001-5135-5758>), Noam Ross [ctb] (<https://orcid.org/0000-0002-2136-0000>), Arfon Smith [ctb], Jeroen Ooms [ctb] (<https://orcid.org/0000-0002-4035-0289>), Sebastian Meyer [ctb] (<https://orcid.org/0000-0002-1791-9449>), Michael Rustler [ctb] (<https://orcid.org/0000-0003-0647-7726>), Hauke Sonnenberg [ctb] (<https://orcid.org/0000-0001-9134-2871>), Sebastian Kreutzer [ctb] (<https://orcid.org/0000-0002-0734-2199>), rOpenSci [fnd] (https://ropensci.org/)",
-      "Maintainer": "Carl Boettiger <cboettig@gmail.com>"
+      "Maintainer": "Carl Boettiger <cboettig@gmail.com>",
+      "Repository": "RSPM"
     },
     "commonmark": {
       "Package": "commonmark",
@@ -2178,56 +2172,6 @@
       "Author": "Gábor Csárdi [aut, cre]",
       "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
       "Repository": "CRAN"
-    },
-    "piggyback": {
-      "Package": "piggyback",
-      "Version": "0.1.5.9007",
-      "Source": "GitHub",
-      "Title": "Managing Larger Data on a GitHub Repository",
-      "Description": "Helps store files as GitHub release assets, which is a convenient  way for large/binary data files to piggyback onto public and private GitHub  repositories. Includes functions for file downloads, uploads, and managing  releases via the GitHub API.",
-      "Authors@R": "c(person(\"Carl\", \"Boettiger\",  email = \"cboettig@gmail.com\",  role = c(\"aut\", \"cre\", \"cph\"), comment = c(ORCID = \"0000-0002-1642-628X\")), person(\"Tan\", \"Ho\", role = c(\"aut\"), comment = c(ORCID = \"0000-0001-8388-5155\")), person(\"Mark\", \"Padgham\",  role = c(\"ctb\"), comment = c(ORCID = \"0000-0003-2172-5265\")), person(c('Jeffrey', 'O'), 'Hanson', role = c(\"ctb\"), comment = c(ORCID = \"0000-0002-4716-6134\")), person(\"Kevin\", 'Kuo', role = c(\"ctb\"), comment = c(ORCID = \"0000-0001-7803-7901\")) )",
-      "URL": "https://docs.ropensci.org/piggyback/, https://github.com/ropensci/piggyback",
-      "BugReports": "https://github.com/ropensci/piggyback/issues",
-      "License": "GPL-3",
-      "Encoding": "UTF-8",
-      "ByteCompile": "true",
-      "Depends": [
-        "R (>= 4.1.0)"
-      ],
-      "Imports": [
-        "cli",
-        "glue",
-        "gh",
-        "httr",
-        "jsonlite",
-        "fs",
-        "memoise",
-        "rlang"
-      ],
-      "Suggests": [
-        "arrow",
-        "spelling",
-        "readr",
-        "covr",
-        "testthat",
-        "knitr",
-        "rmarkdown",
-        "gert",
-        "withr",
-        "magrittr"
-      ],
-      "VignetteBuilder": "knitr",
-      "RoxygenNote": "7.2.3",
-      "Roxygen": "list(markdown = TRUE)",
-      "Language": "en-US",
-      "Author": "Carl Boettiger [aut, cre, cph] (<https://orcid.org/0000-0002-1642-628X>), Tan Ho [aut] (<https://orcid.org/0000-0001-8388-5155>), Mark Padgham [ctb] (<https://orcid.org/0000-0003-2172-5265>), Jeffrey O Hanson [ctb] (<https://orcid.org/0000-0002-4716-6134>), Kevin Kuo [ctb] (<https://orcid.org/0000-0001-7803-7901>)",
-      "Maintainer": "Carl Boettiger <cboettig@gmail.com>",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteUsername": "cboettig",
-      "RemoteRepo": "piggyback",
-      "RemoteRef": "master",
-      "RemoteSha": "844f27f82c4b561126af8f2fc0e4abc124fae5a3"
     },
     "pillar": {
       "Package": "pillar",

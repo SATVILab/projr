@@ -41,10 +41,11 @@ All functions that call `gh::` or `gitcreds::` must have `.auth_check_github()`:
 .auth_check_github("operation description")
 
 # Examples of functions requiring auth check:
+
 # - .git_clone() - When inferring username from gh::gh_whoami()
 # - .init_github_impl() - Before creating GitHub repository
 # - .remote_host_rm_github() - Before deleting GitHub repository
-# - .pb_guess_repo() - When using gh::gh_tree_remote()
+# - .gh_guess_repo() - When using gh::gh_tree_remote()
 ```
 
 ### OSF Operations
@@ -156,6 +157,7 @@ Tests that create, delete, or modify GitHub repositories (not SATVILab/projr) mu
 
 1. Check that a token is detectable via `.auth_get_github_pat_find()`
 2. Check that this token is NOT the same as `GITHUB_TOKEN` (to prevent using CI tokens with limited permissions)
+3. Verify that `gh::gh_whoami()` can successfully retrieve the username (prevents malformed GitHub URLs)
 
 Use the helper wrapper `.test_skip_if_cannot_modify_github()`:
 
@@ -171,7 +173,10 @@ test_that("creates and deletes GitHub repo", {
 })
 ```
 
-This ensures tests that modify GitHub repositories only run when a user-specific token (not GITHUB_TOKEN) is available.
+This ensures tests that modify GitHub repositories only run when:
+- A user-specific token (not GITHUB_TOKEN) is available
+- The `gh` package can successfully retrieve the username
+- This prevents tests from attempting to run with invalid credentials that would result in malformed GitHub URLs
 
 ---
 

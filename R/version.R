@@ -17,7 +17,7 @@
 projr_version_set <- function(version, only_if_exists = TRUE) {
   if (file.exists(.path_get("DESCRIPTION"))) {
     .version_set_desc(version)
-    .version_set_file(version, only_if_exists = TRUE)
+    .version_set_file(version, only_if_exists = only_if_exists)
   } else {
     .version_set_file(version, only_if_exists = FALSE)
   }
@@ -333,7 +333,6 @@ projr_version_get <- function() {
   }
   version_str
 }
-
 
 
 .version_bump_dev <- function() {

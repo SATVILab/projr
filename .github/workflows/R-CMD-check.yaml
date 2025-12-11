@@ -2,8 +2,8 @@ name: R-CMD-check
 
 on:
   workflow_dispatch:
-  push:
-     branches: main
+  # push:
+  #    branches: main
 
 permissions: read-all
 
@@ -23,11 +23,23 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_PAT: ${{ secrets.GH_TOKEN }}
-      OSF_PAT: ${{ secrets.OSF_PAT }}
       R_KEEP_PKG_SOURCE: yes
       R_PKG_TEST_LITE: true
+      # OSF_PAT: ${{ secrets.OSF_PAT }}
 
     steps:
+      - name: Debug env tokens
+        shell: bash
+        run: |
+          for var in GITHUB_TOKEN GITHUB_PAT GH_TOKEN; do
+            val="${!var}"
+            if [ -n "$val" ]; then
+              echo "$var is set (length=${#val})"
+            else
+              echo "$var is NOT set"
+            fi
+          done
+
       - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-pandoc@v2
@@ -73,6 +85,18 @@ jobs:
       R_KEEP_PKG_SOURCE: yes
 
     steps:
+      - name: Debug env tokens
+        shell: bash
+        run: |
+          for var in GITHUB_TOKEN GITHUB_PAT GH_TOKEN; do
+            val="${!var}"
+            if [ -n "$val" ]; then
+              echo "$var is set (length=${#val})"
+            else
+              echo "$var is NOT set"
+            fi
+          done
+
       - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-pandoc@v2

@@ -2,6 +2,7 @@
 # Ensures tests only run when:
 # 1. A token is detectable via .auth_get_github_pat_find()
 # 2. The token is NOT the same as GITHUB_TOKEN (prevents using CI tokens)
+# 3. gh::gh_whoami() can successfully retrieve the username
 .test_skip_if_cannot_modify_github <- function() {
   # Check if token is detectable
   token <- .auth_get_github_pat_find()
@@ -13,6 +14,25 @@
   github_token <- Sys.getenv("GITHUB_TOKEN", "")
   if (nzchar(github_token) && identical(token, github_token)) {
     testthat::skip("Cannot modify GitHub repos with GITHUB_TOKEN (use GITHUB_PAT instead)")
+  }
+
+  # Verify that gh::gh_whoami() works with the available credentials
+  # This prevents tests from running when auth exists but gh_whoami() fails,
+  # which would cause malformed GitHub URLs
+  if (requireNamespace("gh", quietly = TRUE)) {
+    user <- tryCatch(
+      {
+        gh::gh_whoami()[["login"]]
+      },
+      error = function(e) {
+        NULL
+      }
+    )
+    if (!.is_string(user)) {
+      testthat::skip("gh::gh_whoami() failed to retrieve GitHub username")
+    }
+  } else {
+    testthat::skip("gh package not available")
   }
 
   invisible(TRUE)
@@ -58,11 +78,14 @@
   .dep_install_only("gh")
   .dep_install_only("httr")
   if (is.null(user)) {
-    user <- tryCatch({
-      gh::gh_whoami()[["login"]]
-    }, error = function(e) {
-      NULL
-    })
+    user <- tryCatch(
+      {
+        gh::gh_whoami()[["login"]]
+      },
+      error = function(e) {
+        NULL
+      }
+    )
   }
   if (!.is_string(user)) stop("No GitHub user found")
 
@@ -99,7 +122,6 @@
   if (debug) {
     print("setting up fn body")
   }
-
 
 
   # Define the URL of the GitHub API
@@ -205,11 +227,14 @@
   # gh prefers github_pat over github_token.
   if (!gh::gh_token_exists()) stop("No GitHub token found")
   if (is.null(user)) {
-    user <- tryCatch({
-      gh::gh_whoami()[["login"]]
-    }, error = function(e) {
-      NULL
-    })
+    user <- tryCatch(
+      {
+        gh::gh_whoami()[["login"]]
+      },
+      error = function(e) {
+        NULL
+      }
+    )
   }
   if (!.is_string(user)) stop("No GitHub user found")
 
@@ -240,11 +265,14 @@
 
   # defaults
   if (is.null(user)) {
-    user <- tryCatch({
-      gh::gh_whoami()[["login"]]
-    }, error = function(e) {
-      NULL
-    })
+    user <- tryCatch(
+      {
+        gh::gh_whoami()[["login"]]
+      },
+      error = function(e) {
+        NULL
+      }
+    )
   }
   if (!.is_string(user)) stop("No GitHub user found")
   token <- .auth_get_github_pat_find()
@@ -287,6 +315,13 @@
   )
 }
 
+# MANUAL CLEANUP FUNCTION - USE WITH CAUTION
+# This function is for manual cleanup of ALL ProjrGitHubTest repos
+# for the authenticated user. Unlike the automatic cleanup in setup.R
+# which only deletes repos from the current test run, this function
+# finds and deletes ALL repos starting with "ProjrGitHubTest".
+# Use this when you need to clean up orphaned test repos from failed
+# test runs or other manual cleanup scenarios.
 .remote_host_rm_all_github <- function(user = NULL) {
   # set up
   # ----------
@@ -294,13 +329,19 @@
   .dep_install_only("gh")
   .dep_install_only("httr")
 
+  # Check authentication before any GitHub API calls
+  .auth_check_github("listing and deleting GitHub repositories")
+
   # defaults
   if (is.null(user)) {
-    user <- tryCatch({
-      gh::gh_whoami()[["login"]]
-    }, error = function(e) {
-      NULL
-    })
+    user <- tryCatch(
+      {
+        gh::gh_whoami()[["login"]]
+      },
+      error = function(e) {
+        NULL
+      }
+    )
   }
   if (!.is_string(user)) stop("No GitHub user found")
 
@@ -334,11 +375,16 @@
   # Get the names of repositories
   repo_vec <- vapply(repo_list, function(x) x$name, character(1))
 
-  # choose which to delete
+  # choose which to delete - only those starting with ProjrGitHubTest
   repo_vec_ind_del <- grepl("^ProjrGitHubTest", repo_vec)
   name_vec <- repo_vec[repo_vec_ind_del]
   # make sure we cannot actually delete everything
   rm(repo_vec)
+
+  if (length(name_vec) == 0L) {
+    message("No GitHub repositories to delete.")
+    return(invisible(FALSE))
+  }
   cat(name_vec, sep = "\n")
   opt_vec <- c("Yes", "No", "Definitely not")[sample(1:3, size = 3)]
   yes_ind <- which(opt_vec == "Yes")
@@ -360,9 +406,15 @@
     if (delete_opt != yes_ind) {
       return(invisible(FALSE))
     }
-    for (repo in name_vec) {
-      .remote_host_rm_github(host = c("repo" = repo))
-    }
+  }
+  # Delete all confirmed repos
+  for (repo in name_vec) {
+    .test_remote_host_rm_github(
+      host = list(
+        user = user,
+        repo = repo
+      )
+    )
   }
 }
 
@@ -370,4 +422,35 @@
   path_dir <- file.path(tempdir() |> dirname(), "github_repo_to_remove")
   .dir_create(path_dir)
   path_dir
+}
+
+.test_remote_host_exists_github <- function(host, token = NULL) {
+  .assert_given_full(host)
+  if (!requireNamespace("gh", quietly = TRUE)) {
+    .dep_install_only("gh")
+  }
+
+  if (is.null(token)) {
+    token <- .auth_get_github_pat_find()
+  }
+  if (!.is_string(token)) {
+    stop("No GitHub token found")
+  }
+
+  user <- try(host[["user"]], silent = TRUE)
+  if (inherits(user, "try-error") || is.null(user)) {
+    user <- tryCatch(gh::gh_whoami(.token = token)[["login"]], error = function(e) NULL)
+  }
+  if (!.is_string(user)) stop("No GitHub user found")
+
+  repo <- host[["repo"]]
+  if (!.is_string(repo)) stop("No GitHub repo specified")
+  repo <- basename(repo)
+  if (repo == "projr") stop("Cannot delete the projr repo")
+
+  res <- tryCatch(
+    gh::gh("GET /repos/{owner}/{repo}", owner = user, repo = repo, .token = token),
+    error = function(e) e
+  )
+  !inherits(res, "error")
 }

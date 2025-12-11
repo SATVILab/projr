@@ -38,10 +38,27 @@
     c("data") |>
     unique()
   for (x in label_vec_output) {
-    .dir_move(
-      projr_path_get_dir(x, safe = TRUE),
-      projr_path_get_dir(x, safe = FALSE)
-    )
+    # Get source directory without creating it
+    source_dir <- projr_path_get_dir(x, safe = TRUE, create = FALSE)
+
+    # Skip if source directory doesn't exist or is empty
+    if (!dir.exists(source_dir)) {
+      next
+    }
+
+    # Check if directory has any files
+    files_in_source <- list.files(source_dir, recursive = TRUE)
+    if (length(files_in_source) == 0) {
+      next
+    }
+
+    # Get destination directory (will be created by .dir_move if needed)
+    dest_dir <- projr_path_get_dir(x, safe = FALSE)
+
+    # Move files from safe to unsafe directory
+    .dir_move(source_dir, dest_dir)
+
+    .cli_info("Copied {x} from {source_dir} to {dest_dir}")
   }
   invisible(TRUE)
 }
@@ -80,12 +97,13 @@
 }
 
 .build_copy_pkg_get_label <- function() {
+  # sapply needed here as function can return character() (length 0)
   sapply(
     .yml_dir_get_label_output(NULL),
     .yml_dir_get_pkg_complete,
-    profile = NULL
-  ) |>
-    stats::setNames(NULL)
+    profile = NULL,
+    USE.NAMES = FALSE
+  )
 }
 
 .build_copy_pkg_build <- function() {
@@ -137,9 +155,8 @@
 }
 
 .build_copy_dir_get_label <- function() {
-  c(
-    .yml_dir_get_label_output(NULL),
-    .yml_dir_get_label_raw(NULL),
-    .yml_dir_get_label_cache(NULL)
-  )
+  # Return all directory labels that can be copied
+  # Excludes "code" and "project" which are not meant for copying
+  # The actual filtering by output configuration happens in .build_copy_dir()
+  .opt_dir_get_label_get(NULL)
 }

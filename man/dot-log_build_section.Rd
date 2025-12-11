@@ -4,11 +4,9 @@
 \alias{.log_build_section}
 \title{Append section header to build log}
 \usage{
-.log_build_section(log_file, section_name)
+.log_build_section(section_name)
 }
 \arguments{
-\item{log_file}{Character. Path to log file.}
-
 \item{section_name}{Character. Name of the section.}
 }
 \description{

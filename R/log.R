@@ -157,36 +157,40 @@
 
 #' Append message to build log
 #'
-#' @param log_file Character. Path to log file.
 #' @param message Character. Message to append.
 #' @param level Character. Message level (info, debug, success, etc.)
 #'
 #' @keywords internal
-.log_build_append <- function(log_file, message, level = "info") {
-  if (is.null(log_file) || !file.exists(log_file)) {
+.log_build_append <- function(message, level = "info") {
+  log_file <- .log_file_get_most_recent()
+  if (is.null(log_file)) {
     return(invisible(NULL))
   }
 
   # Format message with timestamp and level
   timestamp <- format(Sys.time(), "%H:%M:%S")
-  formatted <- paste0("[", timestamp, "] **", toupper(level), "**: ", message)
+  formatted <- paste0(
+    "[", timestamp, "] **", toupper(level), "**: ", message
+  )
 
   # Append to file
-  cat(formatted, "\n", file = log_file, append = TRUE)
+  cat(
+    formatted, "\n",
+    file = log_file, append = TRUE
+  )
   invisible(NULL)
 }
 
 #' Append section header to build log
 #'
-#' @param log_file Character. Path to log file.
 #' @param section_name Character. Name of the section.
 #'
 #' @keywords internal
-.log_build_section <- function(log_file, section_name) {
-  if (is.null(log_file) || !file.exists(log_file)) {
+.log_build_section <- function(section_name) {
+  log_file <- .log_file_get_most_recent()
+  if (is.null(log_file)) {
     return(invisible(NULL))
   }
-
   header <- paste0("\n## ", section_name, "\n")
   cat(header, file = log_file, append = TRUE)
   invisible(NULL)
@@ -194,13 +198,13 @@
 
 #' Finalize build log with summary
 #'
-#' @param log_file Character. Path to log file.
 #' @param success Logical. Whether build succeeded.
 #' @param start_time POSIXct. Build start time.
 #'
 #' @keywords internal
-.log_build_finalize <- function(log_file, success = TRUE, start_time = NULL) {
-  if (is.null(log_file) || !file.exists(log_file)) {
+.log_build_finalize <- function(success = TRUE, start_time = NULL) {
+  log_file <- .log_file_get_most_recent()
+  if (is.null(log_file)) {
     return(invisible(NULL))
   }
 
@@ -214,12 +218,18 @@
     if (!is.null(start_time)) {
       duration <- difftime(Sys.time(), start_time, units = "secs")
       paste0("- **Duration**: ", round(as.numeric(duration), 2), " seconds")
-    } else NULL,
+    } else {
+      NULL
+    },
     paste0("- **Completed**: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S")),
     ""
   )
 
-  cat(paste(footer, collapse = "\n"), file = log_file, append = TRUE)
+  cat(
+    paste(footer, collapse = "\n"),
+    file = log_file,
+    append = TRUE
+  )
   invisible(NULL)
 }
 
@@ -229,11 +239,10 @@
 #' @param bump_component Character. Version bump component.
 #' @param msg Character. Build message.
 #' @param success Logical. Whether build succeeded.
-#' @param log_file Character. Path to detailed log file.
 #'
 #' @keywords internal
 .log_history_add <- function(build_type = "output", bump_component = NULL,
-                             msg = "", success = TRUE, log_file = NULL) {
+                             msg = "", success = TRUE) {
   history_file <- .log_file_get_history(build_type)
 
   # Read existing history or create header
@@ -251,6 +260,7 @@
   # Create new entry
   timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
   status <- if (success) "[OK]" else "[X]"
+  log_file <- .log_file_get_most_recent()
 
   entry <- c(
     paste0("## ", timestamp, " ", status),
@@ -338,9 +348,78 @@ projr_log_clear <- function(build_type = "all",
     return(invisible(NULL))
   }
 
-  # TODO: Implement filtered deletion based on date/version
-  # For now, if filters are specified, we don't delete
-  cli::cli_alert_info("Filtered history clearing not yet implemented")
+  # Read and parse history file
+  lines <- readLines(history_file, warn = FALSE)
+
+  # Find entry boundaries (lines starting with ##)
+  entry_starts <- which(grepl("^## ", lines))
+  if (length(entry_starts) == 0) {
+    return(invisible(NULL))
+  }
+
+  # Determine which entries to keep
+  keep_entries <- logical(length(entry_starts))
+  for (i in seq_along(entry_starts)) {
+    # Get entry lines
+    start_idx <- entry_starts[i]
+    end_idx <- if (i < length(entry_starts)) entry_starts[i + 1] - 1 else length(lines)
+    entry_lines <- lines[start_idx:end_idx]
+
+    # Extract timestamp from header line (## YYYY-MM-DD HH:MM:SS [OK/X])
+    header <- entry_lines[1]
+    timestamp_match <- regmatches(header, regexpr("\\d{4}-\\d{2}-\\d{2}", header))
+
+    # Extract version from entry
+    version_line <- entry_lines[grepl("^- \\*\\*Version\\*\\*:", entry_lines)]
+    version_match <- if (length(version_line) > 0) {
+      sub("^- \\*\\*Version\\*\\*: ", "", version_line[1])
+    } else {
+      NULL
+    }
+
+    # Determine if entry should be kept
+    keep <- TRUE
+
+    # Check date filter
+    if (!is.null(before_date) && length(timestamp_match) > 0) {
+      entry_date <- as.Date(timestamp_match[1])
+      cutoff_date <- as.Date(before_date)
+      if (entry_date < cutoff_date) {
+        keep <- FALSE
+      }
+    }
+
+    # Check version filter
+    if (!is.null(before_version) && !is.null(version_match)) {
+      # Compare versions (keep if entry version >= before_version)
+      entry_ver_clean <- .version_v_rm(version_match)
+      cutoff_ver_clean <- .version_v_rm(before_version)
+      if (package_version(entry_ver_clean) < package_version(cutoff_ver_clean)) {
+        keep <- FALSE
+      }
+    }
+
+    keep_entries[i] <- keep
+  }
+
+  # Rebuild history file with kept entries
+  if (!any(keep_entries)) {
+    # Delete file if no entries remain
+    unlink(history_file)
+  } else {
+    # Keep header (first 4 lines) and selected entries
+    header_lines <- lines[1:min(4, length(lines))]
+    kept_lines <- character(0)
+
+    for (i in which(keep_entries)) {
+      start_idx <- entry_starts[i]
+      end_idx <- if (i < length(entry_starts)) entry_starts[i + 1] - 1 else length(lines)
+      kept_lines <- c(kept_lines, lines[start_idx:end_idx])
+    }
+
+    writeLines(c(header_lines, kept_lines), history_file)
+  }
+
   invisible(NULL)
 }
 
@@ -366,9 +445,62 @@ projr_log_clear <- function(build_type = "all",
     .log_clear_output_by_date(output_dir, before_date)
   }
 
-  # TODO: Implement version-based filtering
+  # Filter by version if specified
   if (!is.null(before_version)) {
-    cli::cli_alert_info("Version-based log clearing not yet implemented")
+    .log_clear_output_by_version(output_dir, before_version)
+  }
+
+  invisible(NULL)
+}
+
+#' Clear output logs before a specific version
+#'
+#' @keywords internal
+.log_clear_output_by_version <- function(output_dir, before_version) {
+  # Parse the cutoff version
+  cutoff_ver_clean <- .version_v_rm(before_version)
+  cutoff_ver <- package_version(cutoff_ver_clean)
+
+  # List all date directories
+  date_dirs <- list.dirs(output_dir, full.names = TRUE, recursive = FALSE)
+
+  for (date_dir in date_dirs) {
+    # List all log files in this date directory
+    log_files <- list.files(date_dir, pattern = "\\.qmd$", full.names = TRUE)
+
+    for (log_file in log_files) {
+      # Read log file to extract version
+      tryCatch(
+        {
+          lines <- readLines(log_file, warn = FALSE)
+          # Look for projr version in the format: - **projr Version**: X.Y.Z
+          version_line <- lines[grepl("^-\\s*\\*\\*projr Version\\*\\*:", lines, ignore.case = TRUE)]
+
+          if (length(version_line) > 0) {
+            # Extract version from bullet point format
+            version_str <- sub("^-\\s*\\*\\*projr Version\\*\\*:\\s*", "", version_line[1], ignore.case = TRUE)
+            version_str <- gsub("[\"\']", "", version_str) # Remove quotes
+            version_str <- trimws(version_str) # Remove whitespace
+
+            log_ver_clean <- .version_v_rm(version_str)
+            log_ver <- package_version(log_ver_clean)
+
+            # Delete if log version is before cutoff
+            if (log_ver < cutoff_ver) {
+              unlink(log_file)
+            }
+          }
+        },
+        error = function(e) {
+          # Skip files that can't be parsed
+        }
+      )
+    }
+
+    # Remove empty date directories
+    if (length(list.files(date_dir)) == 0) {
+      unlink(date_dir, recursive = TRUE)
+    }
   }
 
   invisible(NULL)
@@ -392,10 +524,166 @@ projr_log_clear <- function(build_type = "all",
       error = function(e) NULL
     )
 
-    if (!is.null(dir_date) && dir_date <= cutoff) {
+    if (!is.null(dir_date) && !is.na(dir_date) && dir_date <= cutoff) {
       unlink(dir, recursive = TRUE)
     }
   }
 
   invisible(NULL)
+}
+
+#' Get the most recent detailed log file path for the current build
+#'
+#' @param build_type Character. Either "output" or "dev".
+#' @param date Character. Optional date (YYYY-MMM-DD) to restrict search to a single
+#'   date directory. Default is NULL (search across all date directories).
+#' @return Character or NULL. Path to the most recent log file, or NULL if none found.
+#' @keywords internal
+.log_file_get_current <- function(build_type = "output", date = NULL) {
+  .assert_in(build_type, c("output", "dev"))
+
+  type_dir <- .log_dir_get_type(build_type, create = FALSE)
+  if (!dir.exists(type_dir)) {
+    return(NULL)
+  }
+
+  output_dir <- file.path(type_dir, "output")
+  if (!dir.exists(output_dir)) {
+    return(NULL)
+  }
+
+  # If a date is provided, only look in that directory
+  date_dirs <- if (!is.null(date)) {
+    d <- file.path(output_dir, date)
+    if (dir.exists(d)) d else character(0)
+  } else {
+    list.dirs(output_dir, full.names = TRUE, recursive = FALSE)
+  }
+
+  if (length(date_dirs) == 0) {
+    return(NULL)
+  }
+
+  # Collect all qmd files under the chosen date directories
+  log_files <- unlist(lapply(date_dirs, function(dd) {
+    list.files(dd, pattern = "\\.qmd$", full.names = TRUE, recursive = FALSE)
+  }), use.names = FALSE)
+
+  if (length(log_files) == 0) {
+    return(NULL)
+  }
+
+  # Pick the most recently modified file
+  fi <- file.info(log_files, extra_cols = FALSE)
+  most_recent <- log_files[which.max(fi$mtime)]
+  most_recent
+}
+
+#' Get the most recent log file across both output and dev builds
+#'
+#' @return Character or NULL. Path to the most recent log file, or NULL if none found.
+#' @keywords internal
+.log_file_get_most_recent <- function() {
+  # Get most recent from both build types
+  output_log <- .log_file_get_current("output")
+  dev_log <- .log_file_get_current("dev")
+
+  # If neither exists, return NULL
+  if (is.null(output_log) && is.null(dev_log)) {
+    return(NULL)
+  }
+
+  # If only one exists, return it
+  if (is.null(output_log)) {
+    return(dev_log)
+  }
+  if (is.null(dev_log)) {
+    return(output_log)
+  }
+
+  # Both exist, return the most recent
+  fi_output <- file.info(output_log, extra_cols = FALSE)
+  fi_dev <- file.info(dev_log, extra_cols = FALSE)
+
+  if (fi_output$mtime >= fi_dev$mtime) {
+    return(output_log)
+  } else {
+    return(dev_log)
+  }
+}
+
+#' View build log (last n lines)
+#'
+#' Display the last N lines of a detailed build log file.
+#'
+#' @param log_file Character. Path to a log file. If NULL, the most recent log file
+#'   across both output and dev builds will be used. To view a specific build type,
+#'   use the build_type parameter.
+#' @param build_type Character. Either "output", "dev", or "auto" (default). When "auto",
+#'   selects the most recent log across both types. When "output" or "dev", selects
+#'   the most recent log of that specific type.
+#' @param n_lines Integer. Number of lines to show from the end of the file.
+#'   Default is 10. Set to NULL or NA to show the entire file.
+#' @param show_header Logical. Whether to print a short header including the
+#'   logfile path and last modification time. Default is TRUE.
+#' @export
+projr_log_view <- function(log_file = NULL,
+                           build_type = "auto",
+                           n_lines = 10,
+                           show_header = TRUE) {
+  .assert_in(build_type, c("auto", "output", "dev"))
+  .assert_lgl(show_header)
+
+  if (is.null(log_file)) {
+    if (build_type == "auto") {
+      log_file <- .log_file_get_most_recent()
+    } else {
+      log_file <- .log_file_get_current(build_type)
+    }
+  } else {
+    .assert_string(log_file, required = TRUE)
+  }
+
+  if (is.null(log_file) || !file.exists(log_file)) {
+    if (build_type == "auto") {
+      cli::cli_alert_info("No log files found")
+    } else {
+      cli::cli_alert_info("No log file found for build type '{build_type}'")
+    }
+    return(invisible(NULL))
+  }
+
+  # Read file safely
+  lines <- tryCatch(
+    readLines(log_file, warn = FALSE),
+    error = function(e) {
+      cli::cli_alert_danger("Could not read log file: {e$message}")
+      return(character(0))
+    }
+  )
+
+  if (length(lines) == 0) {
+    cli::cli_alert_info("Log file is empty: {log_file}")
+    return(invisible(NULL))
+  }
+
+  # Determine lines to display
+  if (is.null(n_lines) || is.na(n_lines) || n_lines <= 0) {
+    to_show <- lines
+  } else {
+    to_show <- utils::tail(lines, n_lines)
+  }
+
+  if (show_header) {
+    fi <- file.info(log_file, extra_cols = FALSE)
+    cat(glue::glue("Log file: {cli::col_green(log_file)}"), "\n", sep = "")
+    if (!is.na(fi$mtime)) {
+      cat(glue::glue("Modified: {format(fi$mtime, '%Y-%m-%d %H:%M:%S')}"), "\n", sep = "")
+    }
+    cli::cat_line("")
+  }
+
+  # Print the selected lines
+  cat(paste(to_show, collapse = "\n"), "\n")
+  invisible(to_show)
 }

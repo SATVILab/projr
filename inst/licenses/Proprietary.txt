@@ -1,0 +1,7 @@
+Proprietary License
+
+Copyright (c) {{YEAR}} {{AUTHORS}}. All rights reserved.
+
+This work is proprietary and confidential. Unauthorized copying, distribution, modification, or use of this work, via any medium, is strictly prohibited without the express written permission of the copyright holder.
+
+For permissions, please contact: {{AUTHORS}}

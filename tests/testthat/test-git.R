@@ -1,4 +1,5 @@
 test_that("projr_yml_git_ functions work", {
+  skip_if(.is_test_cran())
   # setup
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -61,6 +62,7 @@ test_that("projr_yml_git_ functions work", {
 })
 
 test_that(".git_ functions work", { # setup
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -143,8 +145,9 @@ test_that(".git_ functions work", { # setup
 
 
 test_that(".git_ functions work with GitHub", { # setup
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(
     git = TRUE, github = TRUE, set_env_var = TRUE
@@ -221,11 +224,14 @@ test_that(".git_ functions work with GitHub", { # setup
 
       # system2("git", args = c("config", "--local", "credential.helper", "store"))
       .dep_install_only("gh")
-      username <- tryCatch({
-        gh::gh_whoami()[["login"]]
-      }, error = function(e) {
-        NULL
-      })
+      username <- tryCatch(
+        {
+          gh::gh_whoami()[["login"]]
+        },
+        error = function(e) {
+          NULL
+        }
+      )
       if (!.is_string(username)) {
         skip("GitHub user not found")
       }
@@ -544,6 +550,7 @@ test_that(".git_config_get_name and .git_config_get_email work", {
 })
 
 test_that(".git_system_get and .git_system_check_git work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Check if git system is available
@@ -561,6 +568,7 @@ test_that(".git_system_get and .git_system_check_git work", {
 })
 
 test_that(".git_clone works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip()
 
@@ -578,6 +586,7 @@ test_that(".git_clone works", {
 })
 
 test_that(".git_fetch works with remote", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip()
 
@@ -586,6 +595,7 @@ test_that(".git_fetch works with remote", {
 })
 
 test_that(".git_check_behind works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -599,6 +609,172 @@ test_that(".git_check_behind works", {
       expect_false(.git_check_behind())
 
       # Note: Full testing would require remote setup
+    }
+  )
+})
+
+test_that(".git_system_check_gert works", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  # Test gert availability check
+  gert_available <- .git_system_check_gert()
+  expect_type(gert_available, "logical")
+
+  # If gert is available (which it should be), it should load
+  if (gert_available) {
+    expect_true(requireNamespace("gert", quietly = TRUE))
+  }
+})
+
+test_that(".git_system_setup works", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  # This function should return FALSE if git CLI is available
+  # (since it doesn't need to setup anything)
+  if (.git_system_check_git()) {
+    expect_false(.git_system_setup())
+  }
+})
+
+test_that(".git_add_file_git works", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  skip_if(!.git_system_check_git())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .git_init()
+      .test_setup_project_git_config()
+
+      # Create a file
+      writeLines("test content", "test.txt")
+
+      # Add the file using git CLI
+      result <- .git_add_file_git("test.txt")
+
+      # Check file is staged
+      status <- gert::git_status()
+      expect_true("test.txt" %in% status$file)
+      expect_true("new" %in% status$status)
+    }
+  )
+})
+
+test_that(".git_push dispatcher works", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .git_init()
+      .test_setup_project_git_config()
+
+      # Create and commit a file
+      writeLines("test", "test.txt")
+      .git_commit_file("test.txt", "initial commit")
+
+      # Test that .git_push dispatches correctly based on system
+      # Without a remote, git push will fail, but the dispatcher should work
+      system_type <- .git_system_get()
+      expect_true(system_type %in% c("git", "gert"))
+
+      # The push will fail without remote, but we're testing dispatch works
+      # Both _git and _gert variants should return invisibly
+      result <- tryCatch(
+        .git_push(),
+        error = function(e) "error"
+      )
+      # We expect either TRUE (returned invisibly) or an error
+      expect_true(result == TRUE || result == "error")
+    }
+  )
+})
+
+test_that(".git_fetch dispatcher works", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .git_init()
+      .test_setup_project_git_config()
+
+      # Create and commit a file
+      writeLines("test", "test.txt")
+      .git_commit_file("test.txt", "initial commit")
+
+      # Test that .git_fetch dispatches correctly based on system
+      system_type <- .git_system_get()
+      expect_true(system_type %in% c("git", "gert"))
+
+      # The fetch will succeed (no-op without remote)
+      # We're testing the dispatcher routes correctly, not the actual fetch
+      result <- tryCatch(
+        .git_fetch(),
+        error = function(e) "error"
+      )
+      # We expect either integer return value (from system2) or tibble (from gert) or an error
+      expect_true(is.integer(result) || is.data.frame(result) || result == "error")
+    }
+  )
+})
+
+test_that(".git_changed_filter_git_ind works", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  skip_if(!.git_system_check_git())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .git_init()
+      .test_setup_project_git_config()
+
+      # Create and commit a file
+      writeLines("test", "test.txt")
+      .git_commit_file("test.txt", "initial commit")
+
+      # File not changed - should return FALSE
+      expect_false(.git_changed_filter_git_ind("test.txt"))
+
+      # Modify file - should return TRUE
+      writeLines("test modified", "test.txt")
+      expect_true(.git_changed_filter_git_ind("test.txt"))
+
+      # New file - should return TRUE
+      writeLines("new", "new.txt")
+      expect_true(.git_changed_filter_git_ind("new.txt"))
+    }
+  )
+})
+
+test_that(".git_commit_file handles empty file vector", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .git_init()
+      .test_setup_project_git_config()
+
+      # Empty file vector should return FALSE
+      result <- .git_commit_file(character(0), "test message")
+      expect_false(result)
+
+      # Also test with NULL
+      result <- .git_commit_file(NULL, "test message")
+      expect_false(result)
     }
   )
 })

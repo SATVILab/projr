@@ -1,6 +1,6 @@
 Package: projr
 Title: Facilitate Reproducible and Archived Projects
-Version: 0.3.1-1
+Version: 0.4.0
 Authors@R: person("Miguel", "Rodo", , "miguel.rodo@uct.ac.za", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2036-4878"))
 Maintainer: Miguel Rodo <miguel.rodo@uct.ac.za>
 Description: Facilitate reproducible and archived projects.
@@ -10,9 +10,9 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Depends: 
     R (>= 4.1.0)
-Imports: renv, jsonlite, yaml, rprojroot, desc, fs, digest, cli
-Suggests: remotes, roxygen2, usethis, gert, gh, credentials, gitcreds, piggyback, osfr, codemeta, cffr, pkgbuild, rmarkdown, bookdown, knitr, quarto, testthat (>=
-                  3.0.0), devtools, httr, covr, htmltools, DT, rlang, withr, BiocManager
+Imports: renv, jsonlite, yaml, rprojroot, desc, fs, digest, cli, glue
+Suggests: remotes, roxygen2, usethis, gert, gh, credentials, gitcreds, osfr, codemeta, cffr, pkgbuild, rmarkdown, bookdown, knitr, quarto, testthat (>=
+                  3.0.0), devtools, httr, covr, htmltools, DT, curl, rlang, withr, BiocManager, styler
 Config/testthat/edition: 3
 URL: https://satvilab.github.io/projr/
 VignetteBuilder: knitr

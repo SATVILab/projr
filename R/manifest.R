@@ -362,6 +362,16 @@
   !.is_len_0(which(grepl(paste0("^", label, ": "), version_file)))
 }
 
+.version_file_check_label_trusted <- function(version_file, # nolint: object_length_linter, line_length_linter.
+                                              label) {
+  version_file <- version_file[grepl(paste0("^", label, ": "), version_file)]
+  if (.is_len_0(version_file)) {
+    return(FALSE)
+  }
+  # only care about the top one (may be odd stuff lower down, who knows)
+  !grepl(paste0(label, "\\:", ".*\\*$"), version_file[[1]])
+}
+
 # Utility functions for split manifests
 # --------------------------------
 

@@ -1,3 +1,67 @@
+test_that(".cli_debug logging works in assertion functions", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  # Setup a temporary test project directory with logging enabled
+  dir_test <- .test_setup_project(
+    git = FALSE, github = FALSE, set_env_var = TRUE
+  )
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Initialize logging
+      Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
+      log_info <- .log_build_init(
+        build_type = "dev", bump_component = "test",
+        msg = "Testing CLI debug", output_level = "debug"
+      )
+
+      # Test that validation failures trigger .cli_debug calls
+      # We can't directly verify the log content without reading the file,
+      # but we can verify the assertions still work correctly
+
+      # Test string validation
+      expect_error(.assert_string(c("a", "b"), required = TRUE),
+        regexp = "must be a non-empty string"
+      )
+
+      # Test flag validation
+      expect_error(.assert_flag(c(TRUE, FALSE)),
+        regexp = "must be a non-NA flag"
+      )
+
+      # Test numeric validation
+      expect_error(.assert_number(c(1, 2)),
+        regexp = "must be a non-NA number"
+      )
+
+      # Test class validation
+      expect_error(.assert_class_exact(data.frame(x = 1), "matrix"),
+        regexp = "must have exactly the following class"
+      )
+
+      # Test options validation
+      expect_error(.assert_in("invalid", c("a", "b", "c"), required = TRUE),
+        regexp = "must be one of"
+      )
+
+      # Test directory existence
+      expect_error(.assert_dir_exists_single("nonexistent_dir"),
+        regexp = "must exist"
+      )
+
+      # Finalize log
+      if (!is.null(log_info)) {
+        .log_build_finalize(success = TRUE, start_time = Sys.time())
+
+        # Verify that a log file was created
+        expect_true(file.exists(log_info$log_file))
+      }
+    }
+  )
+})
+
 test_that("All assertion functions work as expected", {
   skip_if(.is_test_cran())
   skip_if_offline()
@@ -249,6 +313,373 @@ test_that("All assertion functions work as expected", {
       expect_true(.assert_string_min("")) # allowed since only checks length one character
       expect_error(.assert_string_min(c("a", "b")),
         regexp = "must be a string"
+      )
+    }
+  )
+})
+
+test_that("Additional untested functions work correctly", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  # Setup a temporary test project directory
+  dir_test <- .test_setup_project(
+    git = FALSE, github = FALSE, set_env_var = TRUE
+  )
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # .assert_chr_mid() - character vector with no NA, allows empty strings
+      expect_true(.assert_chr_mid(c("", "a", "b")))
+      expect_true(.assert_chr_mid(letters))
+      expect_error(.assert_chr_mid(c("a", NA, "b")),
+        regexp = "must be a non-empty character vector with no NA entries"
+      )
+      expect_error(.assert_chr_mid(character(0)),
+        regexp = "must be a non-empty character vector with no NA entries"
+      )
+      expect_error(.assert_chr_mid(123),
+        regexp = "must be a non-empty character vector with no NA entries"
+      )
+
+      # .assert_class_exact_unsorted() - exact class match without sorting
+      df <- data.frame(x = 1:3)
+      expect_true(.assert_class_exact_unsorted(df, "data.frame"))
+      expect_error(.assert_class_exact_unsorted(df, c("tbl", "data.frame")),
+        regexp = "must have exactly the following class"
+      )
+
+      # .assert_given_full() - checks given and not NA
+      expect_true(.assert_given_full(1:5))
+      expect_true(.assert_given_full("test"))
+      expect_error(.assert_given_full(c(1, NA, 3)),
+        regexp = "must be given"
+      )
+      x_null <- NULL
+      expect_error(.assert_given_full(x_null),
+        regexp = "must be given"
+      )
+
+      # .assert_has() - checks vector contains all specified values
+      expect_true(.assert_has(letters, c("a", "b", "c")))
+      expect_error(.assert_has(letters, c("a", "z", "xyz")),
+        regexp = "must contain all the following value"
+      )
+
+      # .assert_has_not() - checks vector does not contain specified values
+      expect_true(.assert_has_not(letters, c("A", "B", "123")))
+      expect_error(.assert_has_not(letters, c("a", "xyz")),
+        regexp = "must not contain any of the following value"
+      )
+
+      # .assert_in_single_not() - single value not in options
+      expect_true(.assert_in_single_not("x", c("a", "b", "c")))
+      expect_error(.assert_in_single_not("a", c("a", "b", "c")),
+        regexp = "must not be one of"
+      )
+      expect_error(.assert_in_single_not(c("x", "y"), c("a", "b")),
+        regexp = "must have length one"
+      )
+
+      # .assert_len() - checks exact length
+      expect_true(.assert_len(letters, 26))
+      expect_error(.assert_len(letters, 10),
+        regexp = "must be length 10"
+      )
+      expect_error(.assert_len(character(0), 5),
+        regexp = "must be length 5"
+      )
+
+      # .assert_lgl_min() - checks is logical, allows NA
+      expect_true(.assert_lgl_min(c(TRUE, FALSE)))
+      expect_true(.assert_lgl_min(c(TRUE, NA, FALSE)))
+      expect_error(.assert_lgl_min("not logical"),
+        regexp = "must be a logical vector"
+      )
+
+      # .assert_number_min() - checks single numeric, allows NA
+      expect_true(.assert_number_min(42))
+      expect_true(.assert_number_min(NA_real_))
+      expect_error(.assert_number_min(c(1, 2)),
+        regexp = "must be a number"
+      )
+
+      # .assert_nz() - checks non-empty with nzchar
+      expect_true(.assert_nz(c("a", "b", "c")))
+      expect_error(.assert_nz(c("a", "")),
+        regexp = "must be non-empty"
+      )
+      expect_error(.assert_nz(character(0)),
+        regexp = "must be non-empty"
+      )
+
+      # .assert_opt_single() - checks single value is in options
+      expect_true(.assert_opt_single("a", c("a", "b", "c")))
+      expect_error(.assert_opt_single("x", c("a", "b", "c")),
+        regexp = "must be one of"
+      )
+      expect_error(.assert_opt_single(c("a", "b"), c("a", "b", "c")),
+        regexp = "must have length one"
+      )
+
+      # .assert_path_not_file() - checks path is not an existing file
+      dir.create("test_dir")
+      expect_true(.assert_path_not_file("test_dir"))
+      expect_true(.assert_path_not_file("nonexistent"))
+      writeLines("test", "test_file.txt")
+      expect_error(.assert_path_not_file("test_file.txt"),
+        regexp = "must not be a pre-existing file"
+      )
+
+      # .assert_path_not_sub() - checks path is not subdirectory of another
+      dir.create("parent_dir")
+      dir.create("parent_dir/child")
+      expect_error(.assert_path_not_sub("parent_dir/child", "parent_dir"),
+        regexp = "must not be a subdirectory"
+      )
+      expect_true(.assert_path_not_sub("other_dir", "parent_dir"))
+
+      # .assert_string_mid() - checks non-empty string, no NA
+      expect_true(.assert_string_mid("hello"))
+      expect_error(.assert_string_mid(""),
+        regexp = "must be a non-empty string"
+      )
+      expect_error(.assert_string_mid(c("a", "b")),
+        regexp = "must be a non-empty string"
+      )
+
+      # .chr_cap() - caps character vector elements
+      expect_identical(.chr_cap(c("hello", "world"), 3), c("hel", "wor"))
+      expect_identical(.chr_cap("test", 10), "test")
+      expect_identical(.chr_cap(c("a", "bb", "ccc"), 2), c("a", "bb", "cc"))
+
+      # .is_file_exists_description() - checks if DESCRIPTION exists
+      # Returns TRUE if DESCRIPTION file exists in project
+      desc_exists <- .is_file_exists_description()
+      expect_true(is.logical(desc_exists))
+      expect_true(length(desc_exists) == 1)
+
+      # .is_given_full() - checks given and not NA
+      expect_true(.is_given_full(1:5))
+      expect_false(.is_given_full(c(1, NA, 3)))
+      expect_false(.is_given_full(NULL))
+
+      # .is_len_0() - checks length zero
+      expect_true(.is_len_0(character(0)))
+      expect_true(.is_len_0(numeric(0)))
+      expect_false(.is_len_0(c(1, 2, 3)))
+
+      # .is_path_not_file() - checks path is not an existing file
+      expect_true(.is_path_not_file("nonexistent"))
+      expect_true(.is_path_not_file("test_dir"))
+      expect_false(.is_path_not_file("test_file.txt"))
+
+      # .is_try_error() - checks if object is try-error
+      result_ok <- try(1 + 1, silent = TRUE)
+      result_err <- try(stop("error"), silent = TRUE)
+      expect_false(.is_try_error(result_ok))
+      expect_true(.is_try_error(result_err))
+
+      # .path_get_proj() - gets project path
+      proj_path <- .path_get_proj()
+      expect_true(is.character(proj_path))
+      expect_true(length(proj_path) == 1)
+      expect_true(nzchar(proj_path))
+
+      # .string_cap() - caps single string
+      expect_identical(.string_cap("hello world", 5), "hello")
+      expect_identical(.string_cap("test", 10), "test")
+      expect_identical(.string_cap("abcdefghij", 5), "abcde")
+    }
+  )
+})
+
+test_that("Partially tested functions have full coverage", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  # Setup a temporary test project directory
+  dir_test <- .test_setup_project(
+    git = FALSE, github = FALSE, set_env_var = TRUE
+  )
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # .assert_chr() - additional edge cases
+      expect_error(.assert_chr(c("", "a")),
+        regexp = "must be a non-empty character vector"
+      )
+      expect_error(.assert_chr(c("a", NA)),
+        regexp = "must be a non-empty character vector"
+      )
+      x_chr_null <- NULL
+      # .assert_chr returns FALSE when given NULL and required=FALSE
+      expect_false(.assert_chr(x_chr_null, required = FALSE))
+
+      # .assert_given() - edge cases with missing argument
+      expect_error(.assert_given(NULL),
+        regexp = "must be given"
+      )
+
+      # .assert_nm_get() - test with invalid nm parameter
+      expect_error(.assert_nm_get(123, nm = 123),
+        regexp = "`nm` must be a string"
+      )
+
+      # .is_given() - comprehensive test
+      x_missing <- NULL
+      expect_false(.is_given()) # test with missing argument
+      expect_true(.is_given(x_missing)) # NULL is "given"
+
+      # .assert_len_1() - NULL handling
+      x_null <- NULL
+      expect_true(.assert_len_1(x_null, required = FALSE))
+
+      # Test _min variants more thoroughly
+      expect_true(.assert_chr_min(character(0)))
+      expect_true(.assert_chr_min(c("", NA)))
+
+      # Test directory functions with required = FALSE (NULL is ok)
+      expect_true(.assert_dir_exists_single(NULL, required = FALSE))
+      expect_true(.assert_dir_exists(NULL, required = FALSE))
+
+      # Test various functions with optional (required = FALSE, using NULL)
+      # When required=FALSE and value is NULL, validation is skipped
+      expect_true(.assert_flag(NULL, required = FALSE))
+      expect_true(.assert_flag_min(NULL, required = FALSE))
+      expect_true(.assert_lgl(NULL, required = FALSE))
+      # These return FALSE when NULL and required=FALSE
+      expect_false(.assert_nchar(NULL, 5, required = FALSE))
+      expect_false(.assert_nchar_single(NULL, 5, required = FALSE))
+      expect_true(.assert_num(NULL, required = FALSE))
+      expect_true(.assert_num_min(NULL, required = FALSE))
+      expect_true(.assert_number(NULL, required = FALSE))
+      expect_true(.assert_string_min(NULL, required = FALSE))
+
+      # Test class functions with required = FALSE (using NULL)
+      expect_true(.assert_class_all(NULL, "character", required = FALSE))
+      expect_true(.assert_class_any(NULL, "character", required = FALSE))
+      expect_true(.assert_class_exact(NULL, "character", required = FALSE))
+
+      # Test attribute functions with required = FALSE
+      expect_true(.assert_attr(NULL, "test", required = FALSE))
+
+      # Test detect functions with required = FALSE
+      expect_true(.assert_detect(NULL, "pattern", required = FALSE))
+      expect_true(.assert_detect_any(NULL, "pattern", required = FALSE))
+      expect_true(.assert_detect_single(NULL, "pattern", required = FALSE))
+
+      # Test membership functions with required = FALSE
+      expect_true(.assert_in(NULL, c("a", "b"), required = FALSE))
+      expect_true(.assert_in_not(NULL, c("a", "b"), required = FALSE))
+      expect_true(.assert_in_single(NULL, c("a", "b"), required = FALSE))
+    }
+  )
+})
+
+test_that("Edge cases for remaining functions with partial coverage", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(
+    git = FALSE, github = FALSE, set_env_var = TRUE
+  )
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # .assert_path_not_sub() - additional edge case
+      dir.create("parent")
+      dir.create("parent/child", recursive = TRUE)
+      # Test with NULL when not required
+      expect_true(.assert_path_not_sub(NULL, "parent", required = FALSE))
+
+      # .assert_opt_single() - additional edge case with NULL
+      expect_true(.assert_opt_single(NULL, c("a", "b"), required = FALSE))
+
+      # .assert_len() - additional edge case with NULL
+      expect_true(.assert_len(NULL, 5, required = FALSE))
+
+      # .assert_attr() - test when object doesn't have attribute
+      x_no_attr <- 1:5
+      expect_error(.assert_attr(x_no_attr, "missing_attr", required = TRUE),
+        regexp = "must have attribute missing_attr"
+      )
+
+      # .assert_chr_mid() - test with NULL when not required
+      expect_true(.assert_chr_mid(NULL, required = FALSE))
+
+      # .assert_chr_min() - test edge case
+      expect_true(.assert_chr_min(NULL, required = FALSE))
+
+      # .assert_len_pos() - test with NULL when not required
+      expect_true(.assert_len_pos(NULL, required = FALSE))
+
+      # .assert_lgl_min() - test with NULL when not required
+      expect_true(.assert_lgl_min(NULL, required = FALSE))
+
+      # .assert_number_min() - test with NULL when not required
+      expect_true(.assert_number_min(NULL, required = FALSE))
+
+      # .assert_nz() - test with NULL when not required
+      expect_false(.assert_nz(NULL, required = FALSE))
+
+      # .assert_path_not_file() - test with NULL when not required
+      expect_true(.assert_path_not_file(NULL, required = FALSE))
+
+      # .assert_string_mid() - test with NULL when not required
+      expect_true(.assert_string_mid(NULL, required = FALSE))
+
+      # .assert_attr_exact() - additional edge cases
+      x_with_attr <- structure(1:3, attr1 = "val1", attr2 = "val2")
+      expect_error(.assert_attr_exact(x_with_attr, c("attr1", "attr3")),
+        regexp = "must have exactly the following attribute"
+      )
+      expect_true(.assert_attr_exact(x_with_attr, c("attr1", "attr2")))
+
+      # .assert_class_exact_unsorted() - test with NULL when not required
+      expect_true(.assert_class_exact_unsorted(NULL, "character", required = FALSE))
+
+      # .assert_has() - additional edge cases
+      expect_true(.assert_has(NULL, "value", required = FALSE))
+
+      # .assert_has_not() - additional edge cases
+      expect_true(.assert_has_not(NULL, "value", required = FALSE))
+
+      # .assert_in_single_not() - additional edge cases
+      expect_true(.assert_in_single_not(NULL, c("a", "b"), required = FALSE))
+
+      # .assert_attr_value() - additional edge cases
+      x_attr <- structure(1:3, test_attr = "expected")
+      expect_true(.assert_attr_value(x_attr, "test_attr", "expected"))
+      expect_true(.assert_attr_value(NULL, "test_attr", "val", required = FALSE))
+
+      # .assert_path_not_sub() - test with multiple parent paths
+      dir.create("parent2")
+      expect_true(.assert_path_not_sub("other_path", c("parent", "parent2")))
+      # Test case where path IS a subdirectory of one of multiple parents
+      dir.create("parent2/child2", recursive = TRUE)
+      expect_error(.assert_path_not_sub("parent2/child2", c("parent", "parent2")),
+        regexp = "must not be a subdirectory"
+      )
+
+      # .assert_attr_exact() - test when attributes don't match (different order)
+      x_multi_attr <- structure(1:3, z_attr = "z", a_attr = "a")
+      expect_true(.assert_attr_exact(x_multi_attr, c("a_attr", "z_attr")))
+
+      # .assert_len() - test with explicit nm parameter
+      expect_error(.assert_len(1:3, 5, required = TRUE, nm = "custom_name"),
+        regexp = "custom_name must be length 5"
+      )
+
+      # .assert_attr() - test when object has the attribute
+      x_with_attr <- structure(1:5, my_attr = "value")
+      expect_true(.assert_attr(x_with_attr, "my_attr", required = TRUE))
+      # Test with required=TRUE and object without attribute
+      expect_error(.assert_attr(1:5, "missing_attr", required = TRUE),
+        regexp = "must have attribute missing_attr"
       )
     }
   )

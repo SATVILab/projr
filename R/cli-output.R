@@ -56,22 +56,65 @@
 # Message wrappers
 # ----------------
 
+#' Evaluate glue expressions in message
+#'
+#' @param ... Message components that may contain glue expressions.
+#'   Can include named arguments for glue substitution.
+#' @param .envir Environment for variable evaluation
+#'
+#' @return Character. The evaluated message string.
+#' @keywords internal
+.cli_eval_message <- function(..., .envir = parent.frame()) {
+  dots <- list(...)
+  if (length(dots) == 0) {
+    return("")
+  }
+
+  # Separate named and unnamed arguments
+  # Handle case where names(dots) might be NULL
+  dot_names <- names(dots)
+  if (is.null(dot_names)) {
+    # No named arguments, all are unnamed
+    named_args <- list()
+    unnamed_args <- dots
+  } else {
+    named_args <- dots[dot_names != ""]
+    unnamed_args <- dots[dot_names == ""]
+  }
+
+  # Combine unnamed parts into a single string
+  message_text <- paste(unlist(unnamed_args), collapse = " ")
+
+  # Create a temporary environment with named arguments
+  eval_env <- new.env(parent = .envir)
+  for (name in names(named_args)) {
+    eval_env[[name]] <- named_args[[name]]
+  }
+
+  # Evaluate glue expressions in the combined environment
+  tryCatch(
+    as.character(glue::glue(message_text, .envir = eval_env)),
+    error = function(e) {
+      # If glue fails, return the original text
+      # This handles cases where there are no glue expressions
+      message_text
+    }
+  )
+}
+
 #' Show a stage header
 #'
 #' @param stage_name Character. Name of the build stage.
 #' @param build_type Character. Type of build ("dev" or "output").
 #' @param output_level Character. Current output level.
-#' @param log_file Character. Path to log file (optional).
 #'
 #' @keywords internal
-.cli_stage_header <- function(stage_name, build_type = "output", output_level = "std", log_file = NULL) {
+.cli_stage_header <- function(stage_name, build_type = "output", output_level = "std") {
   build_label <- if (build_type == "dev") "Development" else "Output"
   message_text <- paste0(build_label, " Build: ", stage_name)
 
-  # Write to log file
-  if (!is.null(log_file)) {
-    .log_build_section(log_file, message_text)
-  }
+  # Write to most recent log file if it exists
+  .log_build_section(message_text)
 
   # Show in console if appropriate
   if (!.cli_should_show("std", output_level)) {
@@ -87,27 +130,43 @@
 #' @param ... Message components passed to cli::cli_alert_info
 #' @param output_level Character. Current output level.
 #' @param .envir Environment for variable evaluation
-#' @param log_file Character. Path to log file (optional).
 #'
 #' @keywords internal
-.cli_info <- function(..., output_level = "std", .envir = parent.frame(), log_file = NULL) {
-  # Capture message for logging
-  message_parts <- list(...)
-  if (length(message_parts) > 0) {
-    # Convert message to string
-    message_text <- paste(unlist(message_parts), collapse = " ")
+# Generic CLI message function for logging and console output
+.cli_message <- function(...,
+                         log_type,
+                         console_level = "std",
+                         console_fn,
+                         output_level = "std",
+                         .envir = parent.frame()) {
+  # Capture all arguments
+  dots <- list(...)
 
-    # Write to log file
-    if (!is.null(log_file)) {
-      .log_build_append(log_file, message_text, "info")
-    }
+  # Evaluate glue expressions (handles both named and unnamed)
+  message_text <- ""
+  if (length(dots) > 0) {
+    message_text <- .cli_eval_message(..., .envir = .envir)
+    .log_build_append(message_text, log_type)
   }
 
   # Show in console if appropriate
-  if (!.cli_should_show("std", output_level)) {
+  if (!.cli_should_show(console_level, output_level)) {
     return(invisible(NULL))
   }
-  cli::cli_alert_info(..., .envir = .envir)
+
+  # Use the evaluated message text for console output
+  console_fn(message_text)
+}
+
+.cli_info <- function(..., output_level = "std", .envir = parent.frame()) {
+  .cli_message(
+    ...,
+    log_type = "info",
+    console_level = "std",
+    console_fn = cli::cli_alert_info,
+    output_level = output_level,
+    .envir = .envir
+  )
 }
 
 #' Show a success message
@@ -115,26 +174,17 @@
 #' @param ... Message components passed to cli::cli_alert_success
 #' @param output_level Character. Current output level.
 #' @param .envir Environment for variable evaluation
-#' @param log_file Character. Path to log file (optional).
 #'
 #' @keywords internal
-.cli_success <- function(..., output_level = "std", .envir = parent.frame(), log_file = NULL) {
-  # Capture message for logging
-  message_parts <- list(...)
-  if (length(message_parts) > 0) {
-    message_text <- paste(unlist(message_parts), collapse = " ")
-
-    # Write to log file
-    if (!is.null(log_file)) {
-      .log_build_append(log_file, message_text, "success")
-    }
-  }
-
-  # Show in console if appropriate
-  if (!.cli_should_show("std", output_level)) {
-    return(invisible(NULL))
-  }
-  cli::cli_alert_success(..., .envir = .envir)
+.cli_success <- function(..., output_level = "std", .envir = parent.frame()) {
+  .cli_message(
+    ...,
+    log_type = "success",
+    console_level = "std",
+    console_fn = cli::cli_alert_success,
+    output_level = output_level,
+    .envir = .envir
+  )
 }
 
 #' Show a debug message (only shown at debug level)
@@ -142,26 +192,17 @@
 #' @param ... Message components passed to cli::cli_text
 #' @param output_level Character. Current output level.
 #' @param .envir Environment for variable evaluation
-#' @param log_file Character. Path to log file (optional).
 #'
 #' @keywords internal
-.cli_debug <- function(..., output_level = "std", .envir = parent.frame(), log_file = NULL) {
-  # Capture message for logging (always log debug messages)
-  message_parts <- list(...)
-  if (length(message_parts) > 0) {
-    message_text <- paste(unlist(message_parts), collapse = " ")
-
-    # Write to log file
-    if (!is.null(log_file)) {
-      .log_build_append(log_file, message_text, "debug")
-    }
-  }
-
-  # Show in console only at debug level
-  if (!.cli_should_show("debug", output_level)) {
-    return(invisible(NULL))
-  }
-  cli::cli_text("[DEBUG] ", ..., .envir = .envir)
+.cli_debug <- function(..., output_level = "std", .envir = parent.frame()) {
+  .cli_message(
+    ...,
+    log_type = "debug",
+    console_level = "debug",
+    console_fn = function(msg) cli::cli_text("[DEBUG] ", msg),
+    output_level = output_level,
+    .envir = .envir
+  )
 }
 
 #' Show a step message (sub-item in a stage)
@@ -169,26 +210,17 @@
 #' @param ... Message components passed to cli::cli_li
 #' @param output_level Character. Current output level.
 #' @param .envir Environment for variable evaluation
-#' @param log_file Character. Path to log file (optional).
 #'
 #' @keywords internal
-.cli_step <- function(..., output_level = "std", .envir = parent.frame(), log_file = NULL) {
-  # Capture message for logging
-  message_parts <- list(...)
-  if (length(message_parts) > 0) {
-    message_text <- paste(unlist(message_parts), collapse = " ")
-
-    # Write to log file
-    if (!is.null(log_file)) {
-      .log_build_append(log_file, message_text, "step")
-    }
-  }
-
-  # Show in console if appropriate
-  if (!.cli_should_show("std", output_level)) {
-    return(invisible(NULL))
-  }
-  cli::cli_li(..., .envir = .envir)
+.cli_step <- function(..., output_level = "std", .envir = parent.frame()) {
+  .cli_message(
+    ...,
+    log_type = "step",
+    console_level = "std",
+    console_fn = cli::cli_li,
+    output_level = output_level,
+    .envir = .envir
+  )
 }
 
 #' Start a process with a spinner/status indicator
@@ -199,6 +231,13 @@
 #' @return Process ID for cli_process_done
 #' @keywords internal
 .cli_process_start <- function(..., output_level = "std") {
+  # Log the process start
+  dots <- list(...)
+  if (length(dots) > 0) {
+    message_text <- paste(unlist(dots), collapse = " ")
+    .log_build_append(paste0("Process started: ", message_text), "process")
+  }
+
   if (!.cli_should_show("std", output_level)) {
     return(invisible(NULL))
   }
@@ -216,10 +255,22 @@
 #' @keywords internal
 .cli_process_done <- function(id = NULL, msg_done = NULL, msg_failed = NULL,
                               .envir = parent.frame(), output_level = "std") {
+  # Log the process completion
+  if (!is.null(msg_done)) {
+    .log_build_append(paste0("Process done: ", msg_done), "process")
+  } else if (!is.null(msg_failed)) {
+    .log_build_append(paste0("Process failed: ", msg_failed), "process")
+  } else {
+    .log_build_append("Process completed", "process")
+  }
+
   if (!.cli_should_show("std", output_level)) {
     return(invisible(NULL))
   }
   if (!is.null(id)) {
-    cli::cli_process_done(id = id, msg_done = msg_done, msg_failed = msg_failed, .envir = .envir)
+    # cli::cli_process_done only accepts msg_done, not msg_failed
+    # Use msg_done for both success and failure (or msg_failed if msg_done is NULL)
+    msg <- if (!is.null(msg_done)) msg_done else msg_failed
+    cli::cli_process_done(id = id, msg_done = msg, .envir = .envir)
   }
 }

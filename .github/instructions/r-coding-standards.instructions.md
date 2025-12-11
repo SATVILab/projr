@@ -12,10 +12,80 @@ Guidelines for writing R code in the projr package, including naming conventions
 
 ## Naming Conventions
 
+### Function Names
+
 - Use `.` prefix for internal (non-exported) functions (e.g., `.build_manifest_pre()`)
 - Use `snake_case` for function and variable names
 - Exported functions use the pattern `projr_*` (e.g., `projr_init_prompt()`, `projr_path_get_dir()`)
+- Function names should use specific action verbs (e.g., `.hash_file()`, `.manifest_read()`)
+
+### Variable Names
+
+- **General principle**: Prefer clarity over brevity
 - Use descriptive variable names (e.g., `label_vec`, `path_manifest`, `dir_test`)
+- Avoid generic abbreviations like `nm`, `fn`, `tmp` without context
+
+### Abbreviation Guidelines
+
+**Acceptable abbreviations**:
+- Industry-standard: `id`, `url`, `api`, `http`, `html`
+- Mathematical/statistical: `var`, `std`, `min`, `max`, `avg`
+- Common suffixes with descriptive base: `_vec`, `_df`, `_list` (e.g., `label_vec`, `results_df`)
+- Established domain terms: `param`, `config`, `repo`
+
+**Context-specific naming** (instead of generic `nm`):
+- Configuration: `config_name`, `setting_name`, `field_name`
+- Files: `filename`, `script_name`, `document_name`
+- Users: `user_name`, `author_name`
+- Projects: `project_name`, `package_name`
+
+**File path naming** (instead of generic `fn`):
+- Use `filename` for just the name (e.g., `"data.csv"`)
+- Use `filepath` for full path (e.g., `"path/to/data.csv"`)
+- Use `relative_path` or `absolute_path` when distinction matters
+- Prefer plural for vectors: `filenames`, `filepaths`
+
+**Parameter naming**:
+- Use full words for parameters: `excluded_dirs` not `dir_exc`
+- Parallel structure: `excluded_dirs`, `included_dirs`, `excluded_files`
+- Be explicit: `source_type`/`target_type` instead of `type_pre`/`type_post`
+
+**Temporal variables**:
+- Use context-specific names instead of generic `_pre`/`_post`
+- Temporal: `before`/`after`, `previous`/`current`, `old`/`new`, `initial`/`final`
+- Spatial: `source`/`target`, `origin`/`destination`, `input`/`output`
+- Comparison: `baseline`/`updated`, `reference`/`comparison`
+
+### Examples
+
+```r
+# Good: Descriptive parameter names
+.hash_dir <- function(path_dir, version = NULL, excluded_dirs = NULL) {
+  # Clear what is being excluded
+}
+
+# Good: Context-specific naming
+.yml_build_get <- function(setting_name, profile) {
+  # Clear it's a configuration setting
+}
+
+# Good: Explicit file naming
+.hash_file <- function(filepaths) {
+  # Plural indicates vector, "paths" clarifies includes directory
+}
+
+# Good: Clear temporal distinction
+.change_get_hash <- function(hash_before, hash_after) {
+  # Or: old_hash/new_hash, baseline_hash/updated_hash
+}
+
+# Avoid: Generic abbreviations
+.process <- function(nm, fn, tmp) {
+  # What do these represent?
+}
+```
+
+For comprehensive naming guidelines and additional examples, see `NAMING_SUGGESTIONS.md` in the repository root.
 
 ## Code Style
 

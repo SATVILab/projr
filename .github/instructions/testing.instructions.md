@@ -13,9 +13,10 @@ Testing standards and patterns for the projr package test suite, including test 
 ## Test Suite Levels
 
 ### CRAN Mode
-- Runs only fast, essential tests (~364 tests, <2 minutes)
-- Skips comprehensive, integration, and remote-dependent tests
-- Use `skip_if(.is_test_cran())` to skip tests in CRAN mode
+- Runs only essential workflow tests (3 tests, 19 assertions, <1 minute)
+- Tests cover: init, build, send to local remote, restore from local remote
+- ALL other tests skip in CRAN mode via `skip_if(.is_test_cran())`
+- Only test-workflow-cran.R runs in CRAN mode
 
 ### Lite Mode (Recommended for Development)
 - Runs core functionality tests (~364 tests, ~2.5 minutes)
@@ -29,6 +30,54 @@ Testing standards and patterns for the projr package test suite, including test 
 - Use for pre-release validation or comprehensive parameter testing
 - Enable by running tests without calling `.test_set_lite()` or `.test_set_cran()`
 
+### Select Mode (For Debugging Specific Issues)
+- Skips all tests that have `skip_if(.is_test_select())` guard
+- Used to run only specific tests when debugging a particular issue
+- Enable with: `devtools::load_all(); .test_set_select(); devtools::test()`
+- Disable with: `.test_unset_select()`
+- Most tests include `skip_if(.is_test_select())` to allow selective debugging
+- When debugging, comment out `skip_if(.is_test_select())` in only the tests you want to run
+
+---
+
+## Debugging Specific Tests
+
+When debugging a specific issue, use the test selection approach:
+
+### Debugging Workflow
+
+1. **Turn off LITE mode** to ensure all relevant tests run:
+   ```r
+   devtools::load_all()
+   .test_unset_lite()  # Disable LITE mode
+   ```
+
+2. **Enable test selection** to skip most tests:
+   ```r
+   .test_set_select()
+   ```
+
+3. **Temporarily remove** `skip_if(.is_test_select())` from the specific test(s) you want to debug
+
+4. **Run tests** - only tests without `skip_if(.is_test_select())` will run:
+   ```r
+   devtools::test()
+   # Or run specific test file:
+   devtools::test_file("tests/testthat/test-manifest.R")
+   ```
+
+5. **After debugging**, restore the skip condition and unset select mode:
+   ```r
+   # Re-add skip_if(.is_test_select()) to the test
+   .test_unset_select()
+   ```
+
+### When to Use Each Mode
+
+- **LITE mode (default)**: General development, quick validation of changes
+- **FULL mode**: Pre-release testing, comprehensive parameter testing
+- **SELECT mode**: Debugging specific failing tests, investigating issues in particular test cases
+
 ---
 
 ## Test Guidelines
@@ -38,6 +87,48 @@ Testing standards and patterns for the projr package test suite, including test 
 - Use `test_that()` for each test case with descriptive names
 - Use `usethis::with_project()` for tests that need a temporary project environment
 - Test edge cases: empty directories, missing files, NULL values
+
+## Debugging with Selective Test Running
+
+When debugging specific test failures or issues:
+
+1. **Turn off LITE mode** - Run `.test_unset_lite()` to ensure the relevant tests will run
+2. **Enable SELECT mode** - Run `.test_set_select()` to skip most tests
+3. **Select tests to run** - In the test files, comment out `skip_if(.is_test_select())` for ONLY the tests you want to debug
+4. **Run tests** - Run `devtools::test()` to execute only your selected tests
+5. **Clean up** - When done debugging, uncomment the `skip_if(.is_test_select())` lines and run `.test_unset_select()`
+
+### Workflow Example
+
+```r
+# 1. Load package and disable LITE mode
+devtools::load_all()
+.test_unset_lite()  # Ensure comprehensive tests can run if needed
+
+# 2. Enable SELECT mode
+.test_set_select()
+
+# 3. Edit test file - comment out skip_if(.is_test_select()) in specific tests
+# In tests/testthat/test-manifest.R:
+#   test_that("manifest tracking works", {
+#     skip_if(.is_test_select())  <- Comment this out
+#     # ... test code ...
+#   })
+
+# 4. Run tests - only selected tests will run
+devtools::test()
+
+# 5. Clean up when done
+.test_unset_select()
+# Uncomment skip_if(.is_test_select()) in test files
+```
+
+### When to Use Each Mode
+
+- **General test runs during development**: Use LITE mode (`.test_set_lite()`)
+- **Debugging specific failing tests**: Turn off LITE (`.test_unset_lite()`), use SELECT mode (`.test_set_select()`), and narrow down with `skip_if(.is_test_select())`
+- **Pre-release validation**: Use FULL mode (no test mode set)
+- **CRAN submission**: Use CRAN mode (`.test_set_cran()`)
 
 ## When Adding New Tests
 
@@ -69,7 +160,7 @@ Located in `tests/testthat/helper-*.R`:
 - `.test_setup_project()` - Creates complete test project with git, files, configuration
 - `.init()` - Minimal initialization (creates directories, VERSION, _projr.yml)
 - `.init_full()` - Full initialization for tests
-- `.test_setup_content()` - Creates test content in project directories
+- `.test_content_setup_label()` - Creates test content in project directories. For each label, creates 4 files: `abc.txt`, `.hidden.txt`, `subdir1/def.txt`, `subdir1/subdir2/ghi.txt`
 - `.test_setup_project_lit_docs()` - Sets up document engine files (quarto, rmarkdown)
 
 Test helper functions belong in `tests/testthat/helper-*.R`, NOT in `R/` files.
@@ -97,10 +188,11 @@ test_that(".build_manifest_* works", {
       expect_identical(nrow(manifest), 0L)
 
       label_vec <- c("cache", "raw-data")
-      invisible(.test_setup_content(label_vec, safe = TRUE))
+      invisible(.test_content_setup_label(label_vec, safe = TRUE))
       path_manifest <- .build_manifest_pre(TRUE)
       manifest <- .manifest_read(path_manifest)
-      expect_identical(nrow(manifest), 3L)
+      # raw-data has 4 files (cache not hashed by default)
+      expect_identical(nrow(manifest), 4L)
     }
   )
 })

@@ -4,11 +4,9 @@
 \alias{.log_build_finalize}
 \title{Finalize build log with summary}
 \usage{
-.log_build_finalize(log_file, success = TRUE, start_time = NULL)
+.log_build_finalize(success = TRUE, start_time = NULL)
 }
 \arguments{
-\item{log_file}{Character. Path to log file.}
-
 \item{success}{Logical. Whether build succeeded.}
 
 \item{start_time}{POSIXct. Build start time.}

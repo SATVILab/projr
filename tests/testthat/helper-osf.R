@@ -78,7 +78,7 @@
     }
   }
   for (id in id_vec) {
-    .test-remote_host_rm("osf", host = id)
+    .test - remote_host_rm("osf", host = id)
   }
 }
 

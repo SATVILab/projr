@@ -9,6 +9,8 @@
 
 ## What is projr?
 
+From zero to repro in one build.
+
 `projr` provides a single intuitive build function that automates rendering, versioning, archiving, and restoration for reproducible research projects. With projr, you can focus on your research whilst it handles the infrastructure.
 
 ## The whole game

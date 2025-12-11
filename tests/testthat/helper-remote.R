@@ -7,7 +7,7 @@
 # delete the release itself - we actually delete the repo.
 
 .test_remote_host_rm <- function(type,
-                            host) {
+                                 host) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .test_remote_host_rm_local(host),
@@ -36,47 +36,54 @@
   invisible(TRUE)
 }
 
-# github
-.test_remote_host_rm_github <- function(host) {
+.test_remote_host_rm_github <- function(host, token = NULL) {
   .assert_given_full(host)
-  # set up
-  # ----------
+
   if (!requireNamespace("gh", quietly = TRUE)) {
     .dep_install_only("gh")
   }
 
-  # Check authentication before any GitHub API calls
-  .auth_check_github("deleting GitHub repository")
+  # Ensure we have a token with delete scope
+  if (is.null(token)) {
+    token <- .auth_get_github_pat_find()
+  }
+  if (!.is_string(token)) {
+    stop("No GitHub token found")
+  }
 
-  # defaults
-  user <- if ("user" %in% names(host)) host[["user"]] else NULL
-  .dep_install("gh")
-  if (is.null(user)) {
-    user <- tryCatch({
-      gh::gh_whoami()[["login"]]
-    }, error = function(e) {
-      NULL
-    })
+  # Identify user
+  user <- try(host[["user"]], silent = TRUE)
+  if (inherits(user, "try-error") || is.null(user)) {
+    user <- tryCatch(
+      gh::gh_whoami(.token = token)[["login"]],
+      error = function(e) NULL
+    )
   }
   if (!.is_string(user)) stop("No GitHub user found")
-  token <- if ("token" %in% names(host)) host[["token"]] else NULL # nolint
-  token <- token %||% Sys.getenv("GITHUB_PAT")
-  token <- if (!nzchar(token)) Sys.getenv("GH_TOKEN") else token
-  if (!.is_string(token)) stop("No GitHub token found")
-  repo <- if ("repo" %in% names(host)) host[["repo"]] else NULL
+
+  # Repo name
+  repo <- host[["repo"]]
   if (!.is_string(repo)) stop("No GitHub repo specified")
-  # Define the URL of the GitHub API
-  # take basename in case we've accidentally specified
-  # the user as well in the repo specification
   repo <- basename(repo)
   if (repo == "projr") stop("Cannot delete the projr repo")
 
-  try(
+  message("Attempting to delete ", user, "/", repo, " ...")
+
+  res <- tryCatch(
     gh::gh(
-      "DELETE /repos/{username}/{pkg}",
-      username = user,
-      pkg = repo
+      "DELETE /repos/{owner}/{repo}",
+      owner  = user,
+      repo   = repo,
+      .token = token
     ),
-    silent = TRUE
+    error = function(e) e
   )
+
+  if (inherits(res, "error")) {
+    message("  FAILED: ", conditionMessage(res))
+    return(FALSE)
+  } else {
+    message("  OK")
+    return(TRUE)
+  }
 }

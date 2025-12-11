@@ -1,0 +1,687 @@
+---
+title: "Sending to Remotes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Sending to Remotes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Remote destinations allow you to automatically archive project artifacts during builds. This is useful for backing up data, sharing results with collaborators, and maintaining version-controlled archives of your research outputs.
+
+This documentation covers configuring GitHub releases and local directories as remote destinations.
+
+## Overview
+
+projr can automatically send artifacts to remote destinations during production builds. These destinations provide version-controlled storage for your raw data, analysis outputs, rendered documents, and code.
+
+### Supported Remote Types
+
+projr supports three types of remote destinations:
+
+1. **GitHub Releases** - Version-controlled releases attached to your GitHub repository
+2. **Local directories** - Local or network-mounted directories (e.g., shared drives, cloud sync folders)
+3. **OSF (Open Science Framework)** - Open Science Framework storage (not covered in this vignette)
+
+**Important**: Remote destinations are only activated during production builds (`projr_build_patch()`, `projr_build_minor()`, `projr_build_major()`). Development builds (`projr_build_dev()`) never upload to remotes.
+
+### Artifact Types
+
+projr can archive different types of project components:
+
+- **raw-data** - Source data files (inputs)
+- **cache** - Intermediate computation results
+- **output** - Final analysis outputs (figures, tables)
+- **docs** - Rendered documents (HTML, PDF)
+- **code** - All Git-tracked source files
+
+## Configuring Remotes
+
+### GitHub Destinations
+
+GitHub releases provide version-controlled storage attached to your repository.
+
+**Prerequisites:**
+
+- Your project must be a Git repository connected to GitHub
+- You need a GitHub Personal Access Token (PAT) with `repo` scope
+- Set up authentication: run `projr_instr_auth_github()` for instructions
+
+**Adding a GitHub remote:**
+
+```{r eval=FALSE}
+library(projr)
+
+# Add a GitHub release for raw data
+projr_yml_dest_add_github(
+  title = "raw-data-@version",
+  content = "raw-data"
+)
+
+# Add a GitHub release for outputs
+projr_yml_dest_add_github(
+  title = "output-@version",
+  content = "output"
+)
+```
+
+**YAML equivalent:**
+
+```yaml
+build:
+  github:
+    raw-data-release:
+      title: "raw-data-@version"
+      content: [raw-data]
+    output-release:
+      title: "output-@version"
+      content: [output]
+```
+
+**Parameters:**
+
+- `title` - Name of the GitHub release
+  - Use `@version` placeholder for project version (e.g., "raw-data-v0.1.0")
+  - Spaces are converted to hyphens automatically
+  - Must be unique within your repository
+- `content` - Which directory to archive
+  - Must be a valid directory label from `_projr.yml`
+  - Options: `raw-data`, `cache`, `output`, `docs`, `code`
+
+### Local Destinations
+
+Local directories provide storage on your machine, network drives, or cloud-synced folders.
+
+**Adding a local remote:**
+
+```{r eval=FALSE}
+# Archive to local directory
+projr_yml_dest_add_local(
+  title = "local-backup",
+  content = "output",
+  path = "~/project-archive/output"
+)
+
+# Archive to network drive
+projr_yml_dest_add_local(
+  title = "network-backup",
+  content = "raw-data",
+  path = "/mnt/shared/projects/my-project/data"
+)
+
+# Archive to cloud-synced folder
+projr_yml_dest_add_local(
+  title = "dropbox-backup",
+  content = "output",
+  path = "~/Dropbox/research/project/output"
+)
+```
+
+**YAML equivalent:**
+
+```yaml
+build:
+  local:
+    local-backup:
+      title: "local-backup"
+      content: [output]
+      path: "~/project-archive/output"
+```
+
+**Parameters:**
+
+- `title` - Descriptive name for the remote
+  - Used for organization in `_projr.yml`
+  - No functional impact beyond identification
+- `content` - Which directory to archive
+  - Must be a valid directory label
+- `path` - Destination directory path
+  - Can be absolute (`~/archive/`) or relative to project root
+  - Parent directories must exist before first build
+
+## Customization Options
+
+Both GitHub and local remotes support the same customization parameters. These control when and how artifacts are uploaded.
+
+### structure Parameter
+
+Controls how versions are organized on the remote.
+
+**`structure = "archive"`** (default) - Creates separate versions for each build
+
+```{r eval=FALSE}
+projr_yml_dest_add_github(
+  title = "output-@version",
+  content = "output",
+  structure = "archive"
+)
+# Creates: v0.1.0, v0.2.0, v0.3.0, etc.
+```
+
+**`structure = "latest"`** - Overwrites the same location with each build
+
+```{r eval=FALSE}
+projr_yml_dest_add_github(
+  title = "output-latest",
+  content = "output",
+  structure = "latest"
+)
+# Always updates the same release
+```
+
+**When to use:**
+
+- Use `"archive"` for version tracking and reproducibility (recommended)
+- Use `"latest"` for always-current snapshots or to reduce storage
+
+### send_cue Parameter
+
+Controls when new versions are created on the remote.
+
+**`send_cue = "if-change"`** (default) - Only create version when content has changed
+
+```{r eval=FALSE}
+projr_yml_dest_add_github(
+  title = "raw-data-@version",
+  content = "raw-data",
+  send_cue = "if-change"
+)
+# Skips upload if raw-data is unchanged since last version
+```
+
+**`send_cue = "always"`** - Create new version with every build
+
+```{r eval=FALSE}
+projr_yml_dest_add_github(
+  title = "output-@version",
+  content = "output",
+  send_cue = "always"
+)
+# Creates release even if content is unchanged
+```
+
+**`send_cue = "never"`** - Never upload (temporarily disable remote)
+
+```{r eval=FALSE}
+projr_yml_dest_add_github(
+  title = "output-@version",
+  content = "output",
+  send_cue = "never"
+)
+# Remote configured but inactive
+```
+
+**When to use:**
+
+- Use `"if-change"` (default) for efficient archiving - skips unchanged content
+- Use `"always"` when you want to create a release for every version, even if unchanged
+- Use `"never"` to temporarily disable without removing configuration
+
+**Note:** Most useful with `structure = "archive"`. With `structure = "latest"`, `send_cue` still affects whether upload occurs.
+
+### send_strategy Parameter
+
+Controls the upload approach.
+
+**`send_strategy = "sync-diff"`** (default) - Upload only changed/new files, remove deleted files
+
+```{r eval=FALSE}
+projr_yml_dest_add_github(
+  title = "output-@version",
+  content = "output",
+  send_strategy = "sync-diff"
+)
+# Most efficient - only transfers differences
+```
+
+**`send_strategy = "sync-purge"`** - Delete all remote files, then upload all local files
+
+```{r eval=FALSE}
+projr_yml_dest_add_github(
+  title = "output-@version",
+  content = "output",
+  send_strategy = "sync-purge"
+)
+# Clean slate each time - ensures no stale files
+```
+
+**`send_strategy = "upload-all"`** - Upload all files (may overwrite)
+
+```{r eval=FALSE}
+projr_yml_dest_add_github(
+  title = "output-@version",
+  content = "output",
+  send_strategy = "upload-all"
+)
+# Simple but potentially redundant
+```
+
+**`send_strategy = "upload-missing"`** - Only upload files not already on remote
+
+```{r eval=FALSE}
+projr_yml_dest_add_github(
+  title = "output-@version",
+  content = "output",
+  send_strategy = "upload-missing"
+)
+# Additive only - never removes files
+```
+
+**When to use:**
+
+- Use `"sync-diff"` for typical workflows (recommended default)
+- Use `"sync-purge"` when you want to ensure no stale files remain
+- Use `"upload-all"` for simplest logic
+- Use `"upload-missing"` when you only want to add new files
+
+### send_inspect Parameter
+
+Controls how projr determines what's already on the remote.
+
+**`send_inspect = "manifest"`** (default) - Use the manifest.csv file on remote
+
+```{r eval=FALSE}
+projr_yml_dest_add_github(
+  title = "output-@version",
+  content = "output",
+  send_inspect = "manifest"
+)
+# Fast and accurate - requires manifest.csv to be uploaded
+```
+
+**`send_inspect = "file"`** - Download and inspect actual files on remote
+
+```{r eval=FALSE}
+projr_yml_dest_add_github(
+  title = "output-@version",
+  content = "output",
+  send_inspect = "file"
+)
+# Slower but doesn't rely on manifest
+```
+
+**`send_inspect = "none"`** - Treat remote as empty (always upload everything)
+
+```{r eval=FALSE}
+projr_yml_dest_add_github(
+  title = "output-@version",
+  content = "output",
+  send_inspect = "none"
+)
+# Simplest - no inspection needed
+```
+
+**When to use:**
+
+- Use `"manifest"` for efficiency (recommended default)
+- Use `"file"` when manifest is unavailable or you want to verify actual state
+- Use `"none"` for simplest approach or with `send_strategy = "upload-all"`
+
+## Complete Configuration Examples
+
+### Example 1: Comprehensive GitHub Setup
+
+```{r eval=FALSE}
+# Raw data: Archive with if-change cue (data rarely changes)
+projr_yml_dest_add_github(
+  title = "raw-data-@version",
+  content = "raw-data",
+  structure = "archive",
+  send_cue = "if-change",
+  send_strategy = "sync-diff",
+  send_inspect = "manifest"
+)
+
+# Output: Archive with always cue (track all versions)
+projr_yml_dest_add_github(
+  title = "output-@version",
+  content = "output",
+  structure = "archive",
+  send_cue = "always",
+  send_strategy = "sync-diff",
+  send_inspect = "manifest"
+)
+
+# Docs: Latest structure (always want current)
+projr_yml_dest_add_github(
+  title = "docs-latest",
+  content = "docs",
+  structure = "latest",
+  send_cue = "always",
+  send_strategy = "sync-purge",
+  send_inspect = "none"
+)
+```
+
+### Example 2: Local Archive Setup
+
+```{r eval=FALSE}
+# Raw data to local archive
+projr_yml_dest_add_local(
+  title = "raw-data-archive",
+  content = "raw-data",
+  path = "~/research-archive/my-project/raw-data",
+  structure = "archive",
+  send_cue = "if-change",
+  send_strategy = "sync-diff",
+  send_inspect = "manifest"
+)
+
+# Output to network drive
+projr_yml_dest_add_local(
+  title = "output-network",
+  content = "output",
+  path = "/mnt/shared/project/output",
+  structure = "latest",
+  send_cue = "always",
+  send_strategy = "sync-purge",
+  send_inspect = "none"
+)
+```
+
+### Example 3: Multiple Remotes
+
+You can configure multiple remotes simultaneously:
+
+```{r eval=FALSE}
+# GitHub for public sharing
+projr_yml_dest_add_github(
+  title = "output-@version",
+  content = "output",
+  structure = "archive"
+)
+
+# Local for quick backup
+projr_yml_dest_add_local(
+  title = "output-local",
+  content = "output",
+  path = "~/backup/output",
+  structure = "archive"
+)
+
+# Network for team access
+projr_yml_dest_add_local(
+  title = "output-network",
+  content = "output",
+  path = "/mnt/shared/output",
+  structure = "latest"
+)
+```
+
+During builds, projr uploads to all configured remotes for each content type.
+
+## Authentication
+
+### GitHub Authentication
+
+**Required:** GitHub Personal Access Token (PAT) with `repo` scope
+
+**Setup instructions:**
+
+```{r eval=FALSE}
+# Get detailed setup instructions
+projr_instr_auth_github()
+```
+
+**Set environment variable:**
+
+```bash
+# In _environment.local (never commit to git!)
+GITHUB_PAT=ghp_your_token_here
+```
+
+**Verify authentication:**
+
+```{r eval=FALSE}
+# Check token is set
+Sys.getenv("GITHUB_PAT") # Should show your token
+```
+
+### Local Directories
+
+No authentication required for local directories. Ensure:
+
+- Directory paths are accessible
+- You have write permissions
+- Parent directories exist
+- Network drives are mounted (if applicable)
+
+## Build Workflow
+
+### Activating Remotes
+
+Remotes activate automatically during production builds:
+
+```{r eval=FALSE}
+# Development build - does NOT upload
+projr_build_dev()
+
+# Production builds - DO upload to remotes
+projr_build_patch() # Increment patch: 0.1.0 -> 0.1.1
+projr_build_minor() # Increment minor: 0.1.0 -> 0.2.0
+projr_build_major() # Increment major: 0.1.0 -> 1.0.0
+```
+
+### Build Process Steps
+
+When you run a production build with remotes configured:
+
+1. **Pre-build** - Clear output directories, run pre-build hooks, hash input files
+2. **Version bump** - Increment project version
+3. **Build** - Render documents and scripts
+4. **Post-build** - Hash output files, update manifest
+5. **Git commit** - Commit changes (if configured)
+6. **Upload to remotes** - Send artifacts to configured destinations
+7. **Post-build hooks** - Run any post-build scripts
+
+### Checking Configuration
+
+View your current remote configuration:
+
+```{r eval=FALSE}
+# View entire YAML
+projr_yml_get()
+
+# View specific sections
+projr_yml_get()$build$github
+projr_yml_get()$build$local
+```
+
+Validate configuration:
+
+```{r eval=FALSE}
+# Check for errors
+projr_yml_check()
+```
+
+## Best Practices
+
+### GitHub Remotes
+
+**Release naming:**
+
+- Use `@version` in title for automatic versioning
+- Avoid spaces (converted to hyphens anyway)
+- Use descriptive names: `"raw-data-@version"`, not just `"@version"`
+
+**Content selection:**
+
+- Archive `raw-data` separately from `output` for clarity
+- Consider GitHub's 2GB limit per release asset
+- Use `code` content type to archive all Git-tracked files
+
+**Strategy recommendations:**
+
+- Start with defaults: `structure = "archive"`, `send_strategy = "sync-diff"`
+- Use `send_cue = "if-change"` for large, rarely-changing datasets
+- Use `send_inspect = "manifest"` for efficiency
+
+### Local Remotes
+
+**Path specification:**
+
+- Use absolute paths for clarity: `~/archive/` or `/mnt/shared/`
+- Relative paths are relative to project root
+- Ensure parent directories exist before first build
+
+**Organization:**
+
+- Group related content under common parent directories
+- Use consistent naming across projects
+- Document archive locations in project README
+
+**Performance:**
+
+- `sync-diff` with `manifest` inspection is most efficient
+- Network drives may be slower than local directories
+- Cloud-synced folders work but may cause sync delays
+
+### Security
+
+**Never commit secrets:**
+
+- Always use `_environment.local` for tokens and API keys
+- This file is automatically git-ignored by projr
+- Never commit `GITHUB_PAT` or similar sensitive values
+
+### Testing
+
+**Test configuration before production:**
+
+```{r eval=FALSE}
+# Run dev build to test (doesn't upload)
+projr_build_dev()
+
+# Check build logs for warnings
+# Logs are in _tmp/projr/log/
+```
+
+## Common Pitfalls
+
+### GitHub Limits
+
+GitHub has a **2GB limit per release asset**. For larger datasets:
+
+- Split across multiple releases
+- Use local or OSF remotes instead
+- Compress files before uploading
+
+### Path Issues
+
+**Incorrect:** Assuming relative paths are relative to some system location
+
+```{r eval=FALSE}
+# This may not work as expected
+projr_yml_dest_add_local(
+  title = "backup",
+  content = "output",
+  path = "backup/output" # Relative to project root, not current directory
+)
+```
+
+**Correct:** Use absolute paths for clarity
+
+```{r eval=FALSE}
+# Clear and unambiguous
+projr_yml_dest_add_local(
+  title = "backup",
+  content = "output",
+  path = "~/project-archive/output"
+)
+```
+
+### Configuration Not Activating
+
+**Problem:** Remotes configured but not uploading
+
+**Solutions:**
+
+- Check you're running production build, not `projr_build_dev()`
+- Verify `send_cue` is not set to `"never"`
+- Check build logs for errors
+- Ensure authentication is set up (for GitHub)
+
+### Slow Uploads
+
+**Problem:** Uploads taking too long
+
+**Solutions:**
+
+- Use `send_cue = "if-change"` for rarely-changing content
+- Use `send_strategy = "sync-diff"` instead of `"upload-all"`
+- Use `send_inspect = "manifest"` instead of `"file"`
+- Check network connection for network drives
+
+### Missing Files
+
+**Problem:** Some files not uploaded to remote
+
+**Solutions:**
+
+- Check `content` parameter matches intended directory label
+- Verify files exist in the directory before build
+- Check `.gitignore` isn't excluding files (for `content = "code"`)
+- Review build logs for warnings
+
+### Stale Files on Remote
+
+**Problem:** Old files remain on remote after deletion locally
+
+**Solutions:**
+
+- Use `send_strategy = "sync-diff"` (default) which removes deleted files
+- Or use `send_strategy = "sync-purge"` for complete refresh
+- Avoid `send_strategy = "upload-missing"` if you delete files locally
+
+## Summary
+
+### Quick Start
+
+```{r eval=FALSE}
+# GitHub remote with sensible defaults
+projr_yml_dest_add_github(
+  title = "output-@version",
+  content = "output"
+)
+
+# Local remote with sensible defaults
+projr_yml_dest_add_local(
+  title = "output-backup",
+  content = "output",
+  path = "~/archive/output"
+)
+
+# Run production build (uploads to remotes)
+projr_build_patch()
+```
+
+### Recommended Defaults
+
+- **structure**: `"archive"` (for version tracking)
+- **send_cue**: `"if-change"` (default - efficient, skips unchanged content)
+- **send_strategy**: `"sync-diff"` (most efficient)
+- **send_inspect**: `"manifest"` (fastest)
+
+### Key Concepts
+
+- **Remotes** - Destinations for archiving project artifacts
+- **Content types** - raw-data, output, docs, code, cache
+- **Structure** - Archive (versioned) vs Latest (overwrite)
+- **Send cue** - When to upload (always, if-change, never)
+- **Send strategy** - How to upload (sync-diff, sync-purge, upload-all, upload-missing)
+- **Send inspect** - How to check remote (manifest, file, none)
+
+### See Also
+
+- `?projr_yml_dest_add_github` - GitHub remote documentation
+- `?projr_yml_dest_add_local` - Local remote documentation
+- `vignette("dest-send-workflow")` - Internal workflow for sending to destinations (with diagrams)
+- `vignette("restore-artifacts")` - Restoring archived artifacts
+- `vignette("environment")` - Environment variables including `GITHUB_PAT`

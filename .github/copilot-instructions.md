@@ -18,88 +18,91 @@ See detailed guidelines in `.github/instructions/`:
 - `build-system.instructions.md` - Build process, logging, manifest system (applies to build/manifest/hash files)
 - `git-version-control.instructions.md` - Git integration and version management (applies to git files)
 - `authentication.instructions.md` - Authentication for GitHub/OSF (applies to auth files)
+- `remote-system.instructions.md` - Remote destinations (GitHub, OSF, local) and file operations (applies to `R/remote*.R`)
 
 ---
 
 ## Core Principles
 
-### Code Quality
+- Make minimal, surgical changes
+- Maintain backward compatibility
+- Follow existing patterns
+- Add tests for new functionality/bug fixes
+- Never leave trailing whitespace
+- Always add blank line between headings and bullets
 
-- Make minimal, surgical changes to fix issues
-- Maintain backward compatibility when possible
-- Follow existing patterns in the codebase
-- Add tests for new functionality or bug fixes
-- **Never leave trailing whitespace** at the end of lines or on blank lines
-- **Always add a blank line** between headings (ending with `**`) and bullet points
+**Before committing:**
+- Run `devtools::document()`, `devtools::test()` (LITE mode), `styler::style_pkg()`
+- Update `_pkgdown.yml` when adding/removing exported functions
+- Verify with `pkgdown::check_pkgdown()`
+- Ensure files end with single newline, no trailing whitespace
+- Update copilot instructions as needed
 
-### Before Committing
-- Run `devtools::document()` to update documentation
-- Run `devtools::test()` with LITE mode for faster iteration
-- Run `devtools::check()` to ensure package passes R CMD check
-
-### Package Structure
-- `R/` - Source code (use `.` prefix for internal, `projr_` for exported functions)
-- `tests/testthat/` - Tests (use helper functions from `helper-*.R`)
-- `man/` - Auto-generated docs (DO NOT edit directly)
+**Package structure:**
+- `R/` - Source (`.` prefix internal, `projr_` exported)
+- `tests/testthat/` - Tests (use `helper-*.R` functions)
+- `man/` - Auto-generated docs (DO NOT edit)
 - `_projr.yml` - Project configuration
+
+---
+
+## Development Practices
+
+**Input validation:**
+- Use `.assert_*()` functions from `R/check.R`
+- Validate all user inputs and internal calls
+- Provide clear error messages
+
+**Logging:**
+- Log files auto-created during builds (`projr_build_*`)
+- Outside builds: Use `.log_build_init()` to enable logging
+- All `.cli_*()` functions write to log: `.cli_info()`, `.cli_success()`, `.cli_debug()`, `.cli_step()`
+- Commit useful `.cli_debug()` calls; avoid logging secrets or large output
+
+**Interactive debugging:**
+- Use `debugonce()` for function-level debugging
+- Guard `browser()` calls: `if (interactive()) browser()`
+- Use `traceback()`, `rlang::last_error()`, `rlang::last_trace()` for diagnostics
+- Remove/guard interactive statements before committing
+
+**Test debugging:**
+- General runs: Use LITE mode (`.test_set_lite()`)
+- Specific failures: Turn off LITE (`.test_unset_lite()`), use SELECT (`.test_set_select()`), comment out `skip_if(.is_test_select())` in target tests
+- See `testing.instructions.md` for details
 
 ---
 
 ## Key Systems
 
-### Version Management
-- Versions follow format in `metadata.version-format` (default: `major.minor.patch-dev`)
-- Functions: `projr_version_get()`, `projr_version_set()`
+**Version management:** `major.minor.patch-dev` format; `projr_version_get()`, `projr_version_set()`
 
-### Build System
-- Production builds: `projr_build_patch()`, `projr_build_minor()`, `projr_build_major()`
-- Development builds: `projr_build_dev()`
-- Environment variables: `PROJR_OUTPUT_LEVEL`, `PROJR_CLEAR_OUTPUT`, `PROJR_LOG_DETAILED`
+**Build system:** Production (`projr_build_patch/minor/major()`), dev (`projr_build_dev()`); env vars: `PROJR_OUTPUT_LEVEL`, `PROJR_CLEAR_OUTPUT`, `PROJR_LOG_DETAILED`
 
-### Manifest System
-- Tracks file hashes across versions in `manifest.csv`
-- Query functions: `projr_manifest_changes()`, `projr_manifest_range()`, `projr_manifest_last_change()`
+**Manifest:** Tracks file hashes in `manifest.csv`; query: `projr_manifest_changes()`, `projr_manifest_range()`, `projr_manifest_last_change()`
 
-### Git Integration
-- Auto-commits and pushes based on `build.git` settings in `_projr.yml`
-- Works with both Git CLI and `gert` R package
+**Git:** Auto-commits/pushes via `build.git` settings; uses Git CLI or `gert`
 
-### Remote Destinations
-- Local, GitHub, OSF destinations supported
-- Restore functions: `projr_restore()`, `projr_restore_repo()`
+**Remotes:** Local, GitHub, OSF destinations; restore: `projr_content_update()`, `projr_restore_repo()`
+
+**Directory licenses:** Per-directory LICENSE files; YAML (auto-regenerated) or manual (`projr_license_create_manual()`); templates: CC-BY, CC0, Apache-2.0, MIT, Proprietary
 
 ---
 
 ## Authentication
 
-### GitHub
-- Set `GITHUB_PAT` environment variable
-- All `gh::` or `gitcreds::` calls must have `.auth_check_github()` before use
-- Instructions: `projr_instr_auth_github()`
+**GitHub:** Set `GITHUB_PAT`; use `.auth_check_github()` before `gh::`/`gitcreds::` calls; see `projr_instr_auth_github()`
 
-### OSF
-- Set `OSF_PAT` environment variable
-- All `osfr::` calls must have `.auth_check_osf()` before use
-- Instructions: `projr_instr_auth_osf()`
+**OSF:** Set `OSF_PAT`; use `.auth_check_osf()` before `osfr::` calls; see `projr_instr_auth_osf()`
 
 ---
 
 ## Environment Variables
 
-### Build Control
-- `PROJR_OUTPUT_LEVEL` - Console verbosity: `"none"`, `"std"`, `"debug"` (default: `"none"` for dev, `"std"` for output)
-- `PROJR_CLEAR_OUTPUT` - When to clear output: `"pre"`, `"post"`, `"never"` (default: `"pre"`)
-- `PROJR_LOG_DETAILED` - Create detailed log files: `TRUE`/`FALSE` (default: `"TRUE"`)
+**Build:** `PROJR_OUTPUT_LEVEL` (none/std/debug), `PROJR_CLEAR_OUTPUT` (pre/post/never), `PROJR_LOG_DETAILED` (TRUE/FALSE)
 
-### Testing Control
-- `R_PKG_TEST_LITE` - Enable LITE test mode (skip comprehensive tests)
-- `R_PKG_TEST_CRAN` - Enable CRAN test mode (skip slow/integration tests)
-- `R_PKG_TEST_SELECT` - Skip most tests (for targeted testing)
+**Testing:** `R_PKG_TEST_LITE` (skip comprehensive), `R_PKG_TEST_CRAN` (skip slow), `R_PKG_TEST_SELECT` (targeted)
 
-### Environment Files
-- `_environment.local` - Machine-specific (git-ignored, highest precedence)
-- `_environment-<profile>` - Profile-specific variables
-- `_environment` - Global defaults (lowest precedence)
+**Files:** `_environment.local` (git-ignored, highest), `_environment-<profile>` (profile), `_environment` (global, lowest)
 
 ---
 
@@ -115,6 +118,26 @@ projr_yml_git_set(commit = TRUE, push = TRUE, add_untracked = TRUE)
 
 # Add build hook
 projr_yml_hooks_add(path = "setup.R", stage = "pre")
+
+# Set directory license (automatic approach)
+projr_yml_dir_license_set("CC-BY", "output")
+projr_yml_dir_license_set("MIT", "raw-data", authors = c("Author Name"))
+```
+
+### Directory Licenses
+```r
+# Automatic approach - managed in YAML, regenerated during builds
+projr_yml_dir_license_set("CC-BY", "output")
+
+# Manual approach - created once, preserved across builds
+projr_license_create_manual("MIT", "raw-data")
+
+# Update all YAML-configured licenses with DESCRIPTION authors
+projr_yml_dir_license_update()
+
+# Get/remove license configuration
+projr_yml_dir_license_get("output")
+projr_yml_dir_license_rm("output")
 ```
 
 ### Input Validation
@@ -136,35 +159,37 @@ if (!file.exists(path)) {
 
 ## Key Concepts
 
-### Safe vs Unsafe Directories
-- **Safe** (`safe = TRUE`): Build directory in cache (e.g., `_tmp/projr/v0.0.1/output`)
-- **Unsafe** (`safe = FALSE`): Actual directory (e.g., `_output`)
-- Applies to `output`, `docs`, `data` directories
+**Safe vs Unsafe directories:**
+- Safe (`safe = TRUE`): Cache build dir (e.g., `_tmp/projr/v0.0.1/output`)
+- Unsafe (`safe = FALSE`): Actual dir (e.g., `_output`)
 
-### Test Modes
-- **LITE**: Fast, core tests (~364 tests, ~2.5 min) - recommended for development
-- **FULL**: All tests including comprehensive (~452 tests, ~5+ min) - for releases
-- **CRAN**: Minimal tests for CRAN submission (<2 min)
+**Test modes:**
+- LITE: Core tests (~364, ~2.5 min) - for development
+- FULL: All tests (~452, ~5+ min) - for releases
+- CRAN: Minimal (<2 min) - for submission
 
-### Directory Labels
-- `raw-data`, `cache`, `output`, `docs`, `project`, `code`, `data`
-- Labels are case-insensitive and ignore hyphens/underscores
+**Directory labels:** `raw-data`, `cache`, `output`, `docs`, `project`, `code`, `data` (case-insensitive, ignore hyphens/underscores)
+
+**Directory licensing:**
+- YAML: Managed in `_projr.yml`, auto-regenerated (good for outputs)
+- Manual: `projr_license_create_manual()`, never overwritten (good for raw data)
+- Both coexist; YAML takes precedence
 
 ---
 
-## Maintaining These Instructions
+## Maintaining Instructions
 
-When updating copilot instructions, follow GitHub's best practices:
+Follow GitHub best practices:
+- Keep concise (under 250 lines ideal, max 1000)
+- Use clear structure: headings, bullets, sections
+- Be direct: short, imperative rules
+- Show examples: code samples (correct/incorrect)
+- No external links (copy info instead)
+- No vague language ("be more accurate", etc.)
+- Use `applyTo` frontmatter in topic files
+- Review regularly
 
-- **Keep it concise** - Files under 1000 lines (ideally under 250)
-- **Structure matters** - Use headings, bullets, clear sections
-- **Be direct** - Short, imperative rules over long paragraphs
-- **Show examples** - Include code samples (correct and incorrect patterns)
-- **No external links** - Copilot won't follow them; copy info instead
-- **No vague language** - Avoid "be more accurate", "identify all issues", etc.
-- **Path-specific** - Use `applyTo` frontmatter in topic files
-
-See `.github/instructions/README.md` for detailed maintenance guidelines.
+See `.github/instructions/README.md` for details.
 
 ---
 

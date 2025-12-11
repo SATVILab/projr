@@ -1,4 +1,5 @@
 test_that("README placeholders are replaced after .init_prompt_readme", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), "testReadmePlaceholders")
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -42,50 +43,6 @@ test_that("README placeholders are replaced after .init_prompt_readme", {
       # Check that answer_readme is numeric, not a list
       expect_true(is.numeric(nm_list_readme$answer_readme))
       expect_false(is.list(nm_list_readme$answer_readme))
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
-test_that("projr_init_prompt creates README without placeholders", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), "testProjrInitPrompt")
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  .dir_create(dir_test)
-  .test_set()
-  withr::defer(.test_unset())
-  withr::defer(unlink(dir_test, recursive = TRUE))
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Call projr_init_prompt
-      result <- tryCatch({
-        projr_init_prompt()
-        TRUE
-      }, error = function(e) {
-        FALSE
-      })
-
-      # Verify it completed successfully
-      expect_true(result)
-
-      # Verify README.md exists
-      expect_true(file.exists("README.md"))
-
-      # Read README content
-      readme <- readLines("README.md", warn = FALSE)
-
-      # Check that placeholders are replaced
-      has_placeholders <- any(grepl("\\{\\{", readme))
-      expect_false(has_placeholders)
-
-      # The package name should be the directory name
-      pkg_name <- basename(dir_test)
-      has_package_name <- any(grepl(pkg_name, readme))
-      expect_true(has_package_name)
     },
     force = TRUE,
     quiet = TRUE

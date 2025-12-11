@@ -18,7 +18,7 @@
 .yml_bd_get_book_filename <- function() {
   book_filename <- .yml_bd_get()[["book_filename"]]
   if (is.null(book_filename)) {
-    return("_main")  # Default bookdown book filename
+    return("_main") # Default bookdown book filename
   }
   book_filename
 }

@@ -42,7 +42,7 @@ projr_par_get <- function(..., profile = NULL) {
 .par_get_option <- function(par_list, par_vec) {
   parse_txt <- paste0(
     "par_list[['",
-    paste0(par_vec, sep = "", collapse = "']][['"),
+    paste0(par_vec, collapse = "']][['"),
     "']]",
     collapse = ""
   )

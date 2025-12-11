@@ -52,7 +52,7 @@
     )
 
     if (length(answer_list[["nm"]]) > 1) {
-      message("Please only select one option.")
+      .cli_info("Please only select one option.")
       next
     }
 

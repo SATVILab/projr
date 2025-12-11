@@ -8,8 +8,7 @@
   build_type = "output",
   bump_component = NULL,
   msg = "",
-  success = TRUE,
-  log_file = NULL
+  success = TRUE
 )
 }
 \arguments{
@@ -20,8 +19,6 @@
 \item{msg}{Character. Build message.}
 
 \item{success}{Logical. Whether build succeeded.}
-
-\item{log_file}{Character. Path to detailed log file.}
 }
 \description{
 Update build history file

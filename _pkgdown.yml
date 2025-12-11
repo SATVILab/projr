@@ -15,8 +15,18 @@ navbar:
       menu:
       - text: How-to guides
         href: articles/how-to-guides.html
+      - text: Build Process
+        href: articles/build-process.html
+      - text: Sending to Remotes
+        href: articles/send-to-remotes.html
+      - text: Destination Send Workflow
+        href: articles/dest-send-workflow.html
+      - text: Restoring Artifacts
+        href: articles/restore-artifacts.html
       - text: Environment Variables
         href: articles/environment.html
+      - text: Scripts and Hooks
+        href: articles/scripts-and-hooks.html
       - text: Concepts
         href: articles/concepts.html
       - text: Design
@@ -45,6 +55,7 @@ reference:
   - projr_build_patch
   - projr_build_minor
   - projr_build_major
+  - projr_build_check_packages
   - projr_restore
   - projr_restore_repo
   - projr_restore_repo_wd
@@ -93,6 +104,12 @@ reference:
   - projr_yml_git_set_default
   - projr_yml_cite_set
   - projr_yml_cite_set_default
+  - projr_yml_dir_path_set
+  - projr_yml_dir_path_rm
+  - projr_yml_dir_license_set
+  - projr_yml_dir_license_get
+  - projr_yml_dir_license_rm
+  - projr_yml_dir_license_update
   - projr_yml_dest_add_github
   - projr_yml_dest_add_local
   - projr_yml_dest_add_osf
@@ -108,6 +125,8 @@ reference:
   - projr_yml_hooks_add_pre
   - projr_yml_hooks_add_post
   - projr_yml_hooks_rm_all
+  - projr_yml_restrictions_set
+  - projr_license_create_manual
 
 - title: Profile management
   desc: Functions for managing project profiles
@@ -167,6 +186,7 @@ reference:
   desc: Functions for managing build logs
   contents:
   - projr_log_clear
+  - projr_log_view
 
 - title: Internal utilities
   desc: Internal helper functions (not exported)
