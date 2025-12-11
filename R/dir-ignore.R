@@ -140,8 +140,6 @@
 }
 
 
-
-
 .ignore_get_git <- function(label) {
   ignore_git <- .yml_dir_get_label(label, NULL)[["ignore-git"]]
   ignore <- .yml_dir_get_label(label, NULL)[["ignore"]]
@@ -235,7 +233,6 @@
 
   invisible(TRUE)
 }
-
 
 
 .git_unskip <- function(path) {

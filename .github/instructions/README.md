@@ -12,12 +12,13 @@ This directory contains topic-specific instruction files for GitHub Copilot code
 | File | Lines | Applies To | Purpose |
 |------|-------|------------|---------|
 | `r-coding-standards.instructions.md` | 133 | `**/*.R` | R code style, naming, documentation |
-| `testing.instructions.md` | 162 | `tests/**/*` | Test patterns, modes, helpers |
-| `yaml-configuration.instructions.md` | 187 | `**/*.{yml,yaml}` | YAML config, scripts, hooks |
-| `package-development.instructions.md` | 192 | `**/*` (excludes code review) | Dev workflow, commands |
-| `authentication.instructions.md` | 235 | `R/auth*.R` | GitHub/OSF auth checks |
+| `remote-system.instructions.md` | 216 | `R/remote*.R` | Remote destinations, file operations |
 | `git-version-control.instructions.md` | 225 | `R/{git,yml-git}*.R` | Git operations, versioning |
-| `build-system.instructions.md` | 248 | `R/{build,manifest,hash,change,log}*.R` | Build process, manifest, logging |
+| `yaml-configuration.instructions.md` | 247 | `**/*.{yml,yaml}` | YAML config, scripts, hooks |
+| `build-system.instructions.md` | 252 | `R/{build,manifest,hash,change,log}*.R` | Build process, manifest, logging |
+| `testing.instructions.md` | 253 | `tests/**/*` | Test patterns, modes, helpers |
+| `package-development.instructions.md` | 263 | `**/*` (excludes code review) | Dev workflow, commands |
+| `authentication.instructions.md` | 267 | `R/auth*.R` | GitHub/OSF auth checks |
 
 ## File Format
 

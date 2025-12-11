@@ -45,5 +45,3 @@
   # Fall back to build.scripts when dev.scripts is not set
   .yml_scripts_get_build(profile)
 }
-
-

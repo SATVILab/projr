@@ -1,0 +1,14 @@
+/* Styling for mermaid diagrams in vignettes */
+.mermaid {
+  background-color: #ffffff;
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+pre.mermaid {
+  display: block;
+  text-align: center;
+}

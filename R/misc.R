@@ -21,8 +21,6 @@
     gsub(pattern = "\\n\\s*$", replacement = "")
 }
 
-if (!requireNamespace("piggyback", quietly = TRUE)) {
-}
 
 par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 
@@ -75,15 +73,15 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   if (.is_len_0(dep_required)) {
     return(invisible(TRUE))
   }
-  
+
   # If interactive, ask user if they want to install
   if (interactive()) {
     return(.dep_install_only_interactive(dep_required))
   }
-  
+
   # Non-interactive: throw error with installation instructions
   install_cmds <- .dep_get_install_cmds(dep_required)
-  
+
   # Throw error with clear installation instructions
   stop(
     "Required package(s) not available: ", paste(dep_required, collapse = ", "), "\n",
@@ -97,23 +95,15 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 .dep_install_only_interactive <- function(dep_required) {
   # In interactive mode, provide clear instructions but don't auto-install
   # This ensures CRAN compliance (no install.packages in package code)
-  
+
   install_cmds <- .dep_get_install_cmds(dep_required)
-  
+
   if (length(dep_required) == 1) {
-    cat(paste0(
-      "\nPackage '", dep_required, "' is required but not installed.\n",
-      "To install it, please run:\n  ",
-      install_cmds, "\n"
-    ))
+    .cli_info("\nPackage '{dep_required}' is required but not installed.\nTo install it, please run:\n  {install_cmds}\n")
   } else {
-    cat(paste0(
-      "\nRequired packages are not installed: ", paste(dep_required, collapse = ", "), "\n",
-      "To install them, please run:\n  ",
-      paste(install_cmds, collapse = "\n  "), "\n"
-    ))
+    .cli_info("\nRequired packages are not installed: {paste(dep_required, collapse = ', ')}\nTo install them, please run:\n  {paste(install_cmds, collapse = '\n  ')}\n")
   }
-  
+
   # Stop execution with informative message
   stop(
     "Missing required package(s). Please install and try again.",
@@ -125,28 +115,32 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   # Check if any are GitHub packages
   github_pkgs <- pkg_vec[grepl("^\\w+/\\w+", gsub("\\.", "", pkg_vec))]
   cran_pkgs <- setdiff(pkg_vec, github_pkgs)
-  
-  cmds <- character(0)
-  
+
+  # Pre-allocate with maximum possible size
+  cmds <- character(as.integer(length(cran_pkgs) > 0) + length(github_pkgs))
+  cmd_idx <- 0
+
   if (length(cran_pkgs) > 0) {
+    cmd_idx <- cmd_idx + 1
     if (length(cran_pkgs) == 1) {
-      cmds <- c(cmds, paste0("install.packages(\"", cran_pkgs, "\")"))
+      cmds[cmd_idx] <- paste0("install.packages(\"", cran_pkgs, "\")")
     } else {
-      cmds <- c(cmds, paste0(
+      cmds[cmd_idx] <- paste0(
         "install.packages(c(\"",
         paste(cran_pkgs, collapse = "\", \""),
         "\"))"
-      ))
+      )
     }
   }
-  
+
   if (length(github_pkgs) > 0) {
-    for (pkg in github_pkgs) {
-      cmds <- c(cmds, paste0("remotes::install_github(\"", pkg, "\")"))
-    }
+    # Vectorize the GitHub package command construction
+    github_cmds <- paste0("remotes::install_github(\"", github_pkgs, "\")")
+    cmds[(cmd_idx + 1):(cmd_idx + length(github_pkgs))] <- github_cmds
+    cmd_idx <- cmd_idx + length(github_pkgs)
   }
-  
-  cmds
+
+  cmds[seq_len(cmd_idx)]
 }
 
 .dep_install_only_rscript <- function(dep) {
@@ -507,45 +501,70 @@ projr_use_data <- function(...,
                      dir_exc = NULL,
                      dir_inc = NULL,
                      fn_exc = NULL) {
+  # Normalise output path so setwd() does not confuse where we write
+  path_zip <- normalizePath(path_zip, winslash = "/", mustWork = FALSE)
+
   .file_rm(path_zip)
   .dir_create(dirname(path_zip))
+
   wd_orig <- getwd()
+  on.exit(setwd(wd_orig), add = TRUE)
+
   setwd(path_dir)
-  sink(file.path(tempdir(), "zip123"))
+
+  sink_file <- file.path(tempdir(), "zip123")
+  sink(sink_file)
+  on.exit(
+    {
+      # Be defensive in case there is no active sink
+      if (sink.number() > 0L) {
+        try(sink(NULL), silent = TRUE)
+      }
+    },
+    add = TRUE
+  )
+
   fn_vec <- .file_ls(getwd())
+
   if (!is.null(dir_exc)) {
     for (x in dir_exc) {
       fn_vec <- fn_vec[!grepl(paste0("^", x, "/"), fn_vec)]
     }
   }
+
   if (!is.null(dir_inc)) {
-    for (x in dir_inc) {
-      fn_vec <- fn_vec[grepl(paste0("^", x, "/"), fn_vec)]
-    }
+    # keep files that are in ANY of the included dirs
+    keep <- Reduce(
+      `|`,
+      lapply(dir_inc, function(x) grepl(paste0("^", x, "/"), fn_vec))
+    )
+    fn_vec <- fn_vec[keep]
   }
+
   if (!is.null(fn_exc)) {
     fn_vec <- fn_vec[!fn_vec %in% fn_exc]
   }
-  if (length(fn_vec) == 0) {
-    setwd(wd_orig)
-    return(invisible(FALSE))
+
+  if (length(fn_vec) == 0L) {
+    # nothing to zip
+    return(invisible(character(0)))
   }
+
   path_zip_temp <- basename(path_zip)
+
   utils::zip(
-    path_zip_temp,
-    files = fn_vec,
-    flags = "-r9Xq"
+    zipfile = path_zip_temp,
+    files   = fn_vec,
+    flags   = "-r9Xq"
   )
-  sink(NULL)
+
   if (!identical(path_zip_temp, path_zip)) {
-    file.rename(
-      from = path_zip_temp,
-      to = path_zip
-    )
+    file.rename(from = path_zip_temp, to = path_zip)
   }
-  setwd(wd_orig)
-  invisible(TRUE)
+
+  invisible(path_zip)
 }
+
 
 # options
 # -------
@@ -588,7 +607,7 @@ projr_use_data <- function(...,
 }
 
 .opt_cue_get <- function() {
-  c("if-change", "always", "never")
+  c("if-change", "always")
 }
 
 .opt_remote_strategy_get <- function() {
@@ -778,7 +797,12 @@ projr_use_data <- function(...,
   )
 }
 
-.init_engine_bookdown_contents_bookdown <- function() {
+.init_engine_bookdown_contents_bookdown <- function(nm_list = NULL) {
+  # Extract metadata with fallback to placeholders
+  title <- if (!is.null(nm_list)) nm_list[["title"]] else "Project Title"
+  gh_user <- if (!is.null(nm_list)) nm_list[["gh"]] else "username"
+  pkg_name <- if (!is.null(nm_list)) nm_list[["pkg"]] else "repository"
+
   c(
     "bookdown::gitbook:",
     "  toc_depth: 6",
@@ -786,9 +810,9 @@ projr_use_data <- function(...,
     "  config:",
     "    toc:",
     "      before: |",
-    "        <li><a href=\"./\">TODO: ADD SHORT DESCRIPTION</a></li>",
+    paste0("        <li><a href=\"./\">", title, "</a></li>"),
     "      after: |",
-    "        <li><a href=\"https://github.com/[GITHUB_USER]/[GITHUB_REPO]\" target=\"blank\">SATVILab/TODO:_ADD_REPO_NAME</a></li>", # nolint
+    paste0("        <li><a href=\"https://github.com/", gh_user, "/", pkg_name, "\" target=\"blank\">", gh_user, "/", pkg_name, "</a></li>"), # nolint
     "    download: [\"pdf\", \"epub\"]",
     "bookdown::pdf_book:",
     "  latex_engine: xelatex",
@@ -798,7 +822,7 @@ projr_use_data <- function(...,
   )
 }
 
-init_engine_bookdown_contents_output <- function() {
+init_engine_bookdown_contents_output <- function(nm_list = NULL) {
   c(
     "book_filename: docs",
     "delete_merged_file: yes",
@@ -811,11 +835,19 @@ init_engine_bookdown_contents_output <- function() {
   )
 }
 
-init_engine_bookdown_contents_index <- function() {
+init_engine_bookdown_contents_index <- function(nm_list = NULL) {
+  # Extract metadata with fallback to placeholders
+  title <- if (!is.null(nm_list)) nm_list[["pkg"]] else "Project Title"
+  author <- if (!is.null(nm_list)) {
+    paste0(nm_list[["first"]], " ", nm_list[["last"]])
+  } else {
+    "Author Name"
+  }
+
   c(
     "---",
-    "title: \"[Title]\"",
-    "author: \"[Author]\"",
+    paste0("title: \"", title, "\""),
+    paste0("author: \"", author, "\""),
     "date: \"`r Sys.Date()`\"",
     "site: bookdown::bookdown_site",
     "documentclass: book",

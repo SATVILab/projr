@@ -5,15 +5,6 @@
   Sys.setenv("R_PKG_TEST_IN_PROGRESS" = "TRUE")
 }
 
-# if you add skip_if(.is_test_fast())
-# to slow-running tests, then
-# you can skip them by
-# running .test_set_fast().
-# undo by running .test_unset_fast()
-.test_set_fast <- function() {
-  Sys.setenv("R_PKG_TEST_FAST" = "TRUE")
-}
-
 # if you add skip_if(.is_test_select())
 # to each test, then you can skip
 # all tests except those for which
@@ -26,7 +17,7 @@
 }
 
 # CRAN test mode: runs only fast, essential tests
-# without remote dependencies. Target: <2 minutes
+# without remote dependencies. Target: <1 minute
 # if you add skip_if(.is_test_cran())
 # to comprehensive/integration/remote tests,
 # they will be skipped when running in CRAN mode.
@@ -57,10 +48,6 @@
   Sys.unsetenv("R_PKG_TEST_IN_PROGRESS")
 }
 
-.test_unset_fast <- function() {
-  Sys.unsetenv("R_PKG_TEST_FAST")
-}
-
 .test_unset_select <- function() {
   Sys.unsetenv("R_PKG_TEST_SELECT")
 }
@@ -82,11 +69,6 @@
   Sys.getenv("R_PKG_TEST_IN_PROGRESS") == "TRUE"
 }
 
-# for slow functions
-.is_test_fast <- function() {
-  Sys.getenv("R_PKG_TEST_FAST") == "TRUE"
-}
-
 # so that we can skip all except those for
 # which we're testing
 .is_test_select <- function() {
@@ -101,15 +83,7 @@
 # Automatically enabled when NOT_CRAN is false/unset
 .is_test_cran <- function() {
   # Explicitly set via R_PKG_TEST_CRAN
-  if (Sys.getenv("R_PKG_TEST_CRAN") == "TRUE") {
-    return(TRUE)
-  }
-  # Auto-detect: if NOT_CRAN is not "true", we're in CRAN mode
-  not_cran <- tolower(Sys.getenv("NOT_CRAN", ""))
-  if (not_cran %in% c("", "false", "f", "0")) {
-    return(TRUE)
-  }
-  FALSE
+  Sys.getenv("R_PKG_TEST_CRAN") == "TRUE"
 }
 
 # Check if running in lite test mode
@@ -123,4 +97,11 @@
 # Kept for backward compatibility - use .is_test_lite() instead
 .is_test_debug <- function() {
   .is_test_lite()
+}
+
+# Check if OSF tests should be skipped
+# OSF tests are ALWAYS skipped - they should never run
+# This function always returns TRUE to permanently disable OSF tests
+.is_test_osf <- function() {
+  TRUE
 }

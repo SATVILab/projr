@@ -102,9 +102,9 @@
 
 .buildlog_get_metadata_time <- function(duration) {
   total_sec <- as.numeric(duration, units = "secs")
-  weeks   <- total_sec %/% 604800
-  days    <- (total_sec %% 604800) %/% 86400
-  hours   <- (total_sec %% 86400) %/% 3600
+  weeks <- total_sec %/% 604800
+  days <- (total_sec %% 604800) %/% 86400
+  hours <- (total_sec %% 86400) %/% 3600
   minutes <- (total_sec %% 3600) %/% 60
   seconds <- round(total_sec %% 60)
 
@@ -137,11 +137,21 @@
 }
 
 .buildlog_get_session_info <- function() {
+  session_info_txt <- tryCatch(
+    {
+      suppressWarnings(utils::capture.output(
+        utils::sessionInfo()
+      ))
+    },
+    error = function(e) {
+      c("Unable to capture session info")
+    }
+  )
   c(
     "**Session info**",
     "",
     "```",
-    utils::capture.output(utils::sessionInfo()),
+    session_info_txt,
     "```",
     ""
   )
@@ -192,7 +202,8 @@
     mem_output <- tryCatch(
       {
         system("free -h 2>/dev/null | grep '^Mem:' | awk '{print $2}'",
-               intern = TRUE)
+          intern = TRUE
+        )
       },
       error = function(e) NULL
     )
@@ -239,7 +250,8 @@
       } else {
         # Unix-like: use df
         system("df -h . 2>/dev/null | tail -1 | awk '{print $2\" total, \"$4\" available\"}'",
-               intern = TRUE)
+          intern = TRUE
+        )
       }
     },
     error = function(e) NULL

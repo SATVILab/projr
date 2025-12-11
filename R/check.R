@@ -10,13 +10,12 @@
   }
 
   if (!identical(value, attr(x, attr))) {
-    stop(
-      paste0(
-        nm, " must have attribute ", attr, " with value ",
-        value |> .string_create()
-      ),
-      call. = FALSE
+    msg <- paste0(
+      nm, " must have attribute ", attr, " with value ",
+      value |> .string_create()
     )
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -29,13 +28,12 @@
   }
 
   if (!identical(attr |> sort(), attributes(x) |> names() |> sort())) {
-    stop(
-      paste0(
-        nm, " must have exactly the following attribute(s): \n",
-        attr |> .string_create()
-      ),
-      call. = FALSE
+    msg <- paste0(
+      nm, " must have exactly the following attribute(s): \n",
+      attr |> .string_create()
     )
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -54,12 +52,9 @@
     return(invisible(TRUE))
   }
 
-  stop(
-    paste0(
-      nm, " must have attribute ", attr
-    ),
-    call. = FALSE
-  )
+  msg <- paste0(nm, " must have attribute ", attr)
+  .cli_debug("Validation failed: {msg}")
+  stop(msg, call. = FALSE)
   invisible(TRUE)
 }
 
@@ -71,13 +66,12 @@
   }
 
   if (any(value %in% x)) {
-    stop(
-      paste0(
-        nm, " must not contain any of the following value(s):\n",
-        .string_create(value, sep = "\n")
-      ),
-      call. = FALSE
+    msg <- paste0(
+      nm, " must not contain any of the following value(s):\n",
+      .string_create(value, sep = "\n")
     )
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -90,13 +84,12 @@
   }
 
   if (!all(value %in% x)) {
-    stop(
-      paste0(
-        nm, " must contain all the following value(s):\n",
-        .string_create(value, sep = "\n")
-      ),
-      call. = FALSE
+    msg <- paste0(
+      nm, " must contain all the following value(s):\n",
+      .string_create(value, sep = "\n")
     )
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -109,13 +102,9 @@
   }
 
   if (!all(grepl(pattern, x))) {
-    stop(
-      paste0(
-        nm, " must all match ",
-        pattern
-      ),
-      call. = FALSE
-    )
+    msg <- paste0(nm, " must all match ", pattern)
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -128,13 +117,9 @@
   }
 
   if (!any(grepl(pattern, x))) {
-    stop(
-      paste0(
-        nm, " must contain at least one match for ",
-        pattern
-      ),
-      call. = FALSE
-    )
+    msg <- paste0(nm, " must contain at least one match for ", pattern)
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -148,10 +133,9 @@
   .assert_len_1(x = x, nm = nm, required = required)
 
   if (!grepl(pattern, x)) {
-    stop(
-      paste0(nm, " must match ", pattern),
-      call. = FALSE
-    )
+    msg <- paste0(nm, " must match ", pattern)
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -166,13 +150,12 @@
     return(invisible(TRUE))
   }
   if (!identical(class, class(x))) {
-    stop(
-      paste0(
-        nm, " must have exactly the following class(es) (without any sorting to help): ", # nolint
-        .string_create(class, sep = "\n")
-      ),
-      call. = FALSE
+    msg <- paste0(
+      nm, " must have exactly the following class(es) (without any sorting to help): ", # nolint
+      .string_create(class, sep = "\n")
     )
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -184,13 +167,12 @@
     return(invisible(TRUE))
   }
   if (!identical(class |> sort(), class(x) |> sort())) {
-    stop(
-      paste0(
-        nm, " must have exactly the following class(es) (after sorting to help): ", # nolint: line_length_linter.
-        .string_create(class, sep = "\n")
-      ),
-      call. = FALSE
+    msg <- paste0(
+      nm, " must have exactly the following class(es) (after sorting to help): ", # nolint: line_length_linter.
+      .string_create(class, sep = "\n")
     )
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -203,13 +185,12 @@
     return(invisible(TRUE))
   }
   if (!all(vapply(class, function(cls) inherits(x, cls), logical(1)))) {
-    stop(
-      paste0(
-        nm, " must have all of the following class(es): ",
-        .string_create(class, sep = "\n")
-      ),
-      call. = FALSE
+    msg <- paste0(
+      nm, " must have all of the following class(es): ",
+      .string_create(class, sep = "\n")
     )
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -223,13 +204,12 @@
     return(invisible(TRUE))
   }
   if (!any(vapply(class, function(cls) inherits(x, cls), logical(1)))) {
-    stop(
-      paste0(
-        nm, " must have at least one of the following class(es): ",
-        .string_create(class, sep = "\n")
-      ),
-      call. = FALSE
+    msg <- paste0(
+      nm, " must have at least one of the following class(es): ",
+      .string_create(class, sep = "\n")
     )
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -244,7 +224,9 @@
   }
   .assert_len_1(x = x, nm = nm)
   if (!dir.exists(x)) {
-    stop(paste0("The directory ", nm, " must exist"), call. = FALSE)
+    msg <- paste0("The directory ", nm, " must exist")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -255,7 +237,9 @@
     return(invisible(TRUE))
   }
   if (!all(dir.exists(x))) {
-    stop(paste0("The ", nm, " directories must exist"), call. = FALSE)
+    msg <- paste0("The ", nm, " directories must exist")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -272,15 +256,15 @@
   }
   .assert_chr(sub, TRUE)
   if (!requireNamespace("fs", quietly = TRUE)) {
-    stop(
-      "Package 'fs' is required but not installed.\n",
-      "Please install it using: install.packages(\"fs\")",
-      call. = FALSE
-    )
+    msg <- "Package 'fs' is required but not installed.\nPlease install it using: install.packages(\"fs\")"
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
 
   if (any(vapply(sub, function(y) fs::path_has_parent(x, y), logical(1)))) {
-    stop(paste0(nm, " must not be a subdirectory of ", sub), call. = FALSE)
+    msg <- paste0(nm, " must not be a subdirectory of ", sub)
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -291,7 +275,9 @@
     return(invisible(TRUE))
   }
   if (!.is_path_not_file(x)) {
-    stop(paste0(nm, " must not be a pre-existing file"), call. = FALSE)
+    msg <- paste0(nm, " must not be a pre-existing file")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -334,14 +320,13 @@
   }
   .assert_len_1(x = x, nm = nm)
   if (!all(.is_in_not(x, opt))) {
-    stop(
-      paste0(
-        nm, " must not be one of ", paste0(opt, collapse = ", "),
-        "but is the following:\n",
-        .string_create(x, sep = "\n")
-      ),
-      call. = FALSE
+    msg <- paste0(
+      nm, " must not be one of ", paste0(opt, collapse = ", "),
+      "but is the following:\n",
+      .string_create(x, sep = "\n")
     )
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -355,14 +340,13 @@
   }
   .assert_len_pos(x = x, nm = nm)
   if (!all(.is_in_not(x, opt))) {
-    stop(
-      paste0(
-        nm, " must not be one of ", paste0(opt, collapse = ", "),
-        "but is the following:\n",
-        .string_create(x, sep = "\n")
-      ),
-      call. = FALSE
+    msg <- paste0(
+      nm, " must not be one of ", paste0(opt, collapse = ", "),
+      "but is the following:\n",
+      .string_create(x, sep = "\n")
     )
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -389,13 +373,12 @@
   }
   .assert_len_pos(x = x, nm = nm)
   if (!all(.is_opt(x, opt))) {
-    stop(
-      paste0(
-        nm, " must be one of ", paste0(opt, collapse = ", "), ",\n",
-        "and not:\n", .string_create(x, sep = "\n")
-      ),
-      call. = FALSE
+    msg <- paste0(
+      nm, " must be one of ", paste0(opt, collapse = ", "), ",\n",
+      "and not:\n", .string_create(x, sep = "\n")
     )
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -418,10 +401,9 @@
     return(invisible(TRUE))
   }
   if (!.is_lgl(x)) {
-    stop(
-      paste0(nm, " must be a non-NA logical vector with positive length"),
-      call. = FALSE
-    )
+    msg <- paste0(nm, " must be a non-NA logical vector with positive length")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -436,7 +418,9 @@
     return(invisible(TRUE))
   }
   if (!is.logical(x)) {
-    stop(paste0(nm, " must be a logical vector"), call. = FALSE)
+    msg <- paste0(nm, " must be a logical vector")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -447,10 +431,9 @@
     return(invisible(TRUE))
   }
   if (!.is_flag(x)) {
-    stop(
-      paste0(nm, " must be a non-NA flag (TRUE or FALSE)"),
-      call. = FALSE
-    )
+    msg <- paste0(nm, " must be a non-NA flag (TRUE or FALSE)")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -462,11 +445,12 @@
     return(invisible(TRUE))
   }
   if (!.is_flag_min(x)) {
-    stop(paste0(nm, " must be a flag (TRUE or FALSE)"), call. = FALSE)
+    msg <- paste0(nm, " must be a flag (TRUE or FALSE)")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
-
 
 
 # numeric
@@ -478,10 +462,9 @@
     return(invisible(TRUE))
   }
   if (!.is_num(x)) {
-    stop(
-      paste0(nm, " must be a non-NA numeric vector with positive length"),
-      call. = FALSE
-    )
+    msg <- paste0(nm, " must be a non-NA numeric vector with positive length")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -496,7 +479,9 @@
     return(invisible(TRUE))
   }
   if (!is.numeric(x)) {
-    stop(paste0(nm, " must be a numeric vector"), call. = FALSE)
+    msg <- paste0(nm, " must be a numeric vector")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -507,10 +492,9 @@
     return(invisible(TRUE))
   }
   if (!.is_number(x)) {
-    stop(
-      paste0(nm, " must be a non-NA number (a numeric vector of length one)"),
-      call. = FALSE
-    )
+    msg <- paste0(nm, " must be a non-NA number (a numeric vector of length one)")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -521,7 +505,9 @@
     return(invisible(TRUE))
   }
   if (!.is_number_min(x)) {
-    stop(paste0(nm, " must be a number (a numeric vector of length one)"), call. = FALSE) # nolint: line_length_linter.
+    msg <- paste0(nm, " must be a number (a numeric vector of length one)")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE) # nolint: line_length_linter.
   }
   invisible(TRUE)
 }
@@ -535,10 +521,9 @@
     return(invisible(FALSE))
   }
   if (!.is_chr(x)) {
-    stop(
-      paste0(nm, " must be a non-empty character vector"),
-      call. = FALSE
-    )
+    msg <- paste0(nm, " must be a non-empty character vector")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -553,10 +538,9 @@
     return(invisible(TRUE))
   }
   if (!.is_chr_mid(x)) {
-    stop(
-      paste0(nm, " must be a non-empty character vector with no NA entries"),
-      call. = FALSE
-    )
+    msg <- paste0(nm, " must be a non-empty character vector with no NA entries")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -571,7 +555,9 @@
     return(invisible(TRUE))
   }
   if (!is.character(x)) {
-    stop(paste0(nm, " must be character"), call. = FALSE)
+    msg <- paste0(nm, " must be character")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -583,10 +569,9 @@
   }
 
   if (!.is_string(x)) {
-    stop(
-      paste0(nm, " must be a non-empty string"),
-      call. = FALSE
-    )
+    msg <- paste0(nm, " must be a non-empty string")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -601,10 +586,9 @@
     return(invisible(TRUE))
   }
   if (!.is_string_mid(x)) {
-    stop(
-      paste0(nm, " must be a non-empty string"),
-      call. = FALSE
-    )
+    msg <- paste0(nm, " must be a non-empty string")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -615,10 +599,9 @@
     return(invisible(TRUE))
   }
   if (!.is_string_min(x)) {
-    stop(
-      paste0(nm, " must be a string (a length-one character vector)"),
-      call. = FALSE
-    )
+    msg <- paste0(nm, " must be a string (a length-one character vector)")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -630,7 +613,9 @@
   }
 
   if (!.is_len_pos(x) || !all(nzchar(x))) {
-    stop(paste0(nm, " must be non-empty"), call. = FALSE)
+    msg <- paste0(nm, " must be non-empty")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -642,7 +627,9 @@
   }
 
   if (!.is_len_1(x) || nchar(x) != nchar) {
-    stop(paste0(nm, " must be ", nchar, " characters long"), call. = FALSE)
+    msg <- paste0(nm, " must be ", nchar, " characters long")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -654,7 +641,9 @@
   }
 
   if (!is.character(x) || any(nchar(x) != nchar)) {
-    stop(paste0(nm, " must be non-empty"), call. = FALSE)
+    msg <- paste0(nm, " must be non-empty")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -697,7 +686,9 @@
     return(invisible(TRUE))
   }
   if (!.is_len_1(x)) {
-    stop(paste0(nm, " must have length one"), call. = FALSE)
+    msg <- paste0(nm, " must have length one")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -708,7 +699,9 @@
     return(invisible(TRUE))
   }
   if (!.is_len_pos(x)) {
-    stop(paste0(nm, " must have positive length"), call. = FALSE)
+    msg <- paste0(nm, " must have positive length")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -725,13 +718,12 @@
     return(invisible(TRUE))
   }
   if (!.is_len(x = x, len = len)) {
-    stop(
-      paste0(
-        nm, " must be length ", len, ",\n",
-        "and not length ", length(x)
-      ),
-      call. = FALSE
+    msg <- paste0(
+      nm, " must be length ", len, ",\n",
+      "and not length ", length(x)
     )
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -766,7 +758,9 @@
 .assert_nm_get <- function(x, nm = NULL) {
   if (!is.null(nm)) {
     if (!.is_string_mid(nm)) {
-      stop("`nm` must be a string", call. = FALSE)
+      msg <- "`nm` must be a string"
+      .cli_debug("Validation failed: {msg}")
+      stop(msg, call. = FALSE)
     }
     return(nm)
   }
@@ -800,7 +794,9 @@
 .assert_given_full <- function(x, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.is_given_full(x)) {
-    stop(paste0(nm, " must be given"), call. = FALSE)
+    msg <- paste0(nm, " must be given")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -812,7 +808,9 @@
 .assert_given_mid <- function(x, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.is_given_mid(x)) {
-    stop(paste0(nm, " must be given"), call. = FALSE)
+    msg <- paste0(nm, " must be given")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -824,7 +822,9 @@
 .assert_given <- function(x, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.is_given_mid(x)) {
-    stop(paste0(nm, " must be given"), call. = FALSE)
+    msg <- paste0(nm, " must be given")
+    .cli_debug("Validation failed: {msg}")
+    stop(msg, call. = FALSE)
   }
   invisible(TRUE)
 }

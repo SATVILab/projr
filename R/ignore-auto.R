@@ -493,7 +493,6 @@ projr_ignore_auto <- function() {
 }
 
 
-
 # update the content of the specified file
 .ignore_auto_path_get_updated_content <- function(override,
                                                   ignore,

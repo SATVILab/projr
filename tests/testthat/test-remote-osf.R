@@ -14,8 +14,8 @@
 test_that(".remote_create works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
+  skip_if(.is_test_osf())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
@@ -43,8 +43,8 @@ test_that(".remote_create works for OSF", {
 test_that(".remote_get works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
+  skip_if(.is_test_osf())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
@@ -67,8 +67,8 @@ test_that(".remote_get works for OSF", {
 test_that(".remote_get_final works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
+  skip_if(.is_test_osf())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
@@ -83,13 +83,13 @@ test_that(".remote_get_final works for OSF", {
 
       # Test without sub-directory
       expect_error(
-        .remote_get_final(
+        .remote_final_get(
           "osf",
           id = id, path_append_label = TRUE
         )[["id"]]
       )
       expect_identical(
-        .remote_get_final(
+        .remote_final_get(
           "osf",
           id = id, path_append_label = FALSE,
           structure = "latest"
@@ -101,7 +101,7 @@ test_that(".remote_get_final works for OSF", {
       path_rel <- "a/raw-data/v0.0.0-1"
       osf_tbl <- .osf_mkdir(.remote_get("osf", id), path_rel)
       expect_identical(
-        .remote_get_final_osf(
+        .remote_final_get_osf(
           id = id,
           path = "a",
           path_append_label = TRUE,
@@ -121,8 +121,8 @@ test_that(".remote_get_final works for OSF", {
 test_that("adding, listing and removing files works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
+  skip_if(.is_test_osf())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
@@ -143,7 +143,7 @@ test_that("adding, listing and removing files works for OSF", {
       )
 
       # Add content
-      path_dir_source <- .test_setup_content_dir()
+      path_dir_source <- .test_content_setup_dir()
       fn_vec_source <- .remote_file_ls("local", path_dir_source)
       .remote_file_add(
         "osf",
@@ -193,8 +193,8 @@ test_that("adding, listing and removing files works for OSF", {
 test_that(".remote_file_rm_all works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
+  skip_if(.is_test_osf())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
@@ -210,7 +210,7 @@ test_that(".remote_file_rm_all works for OSF", {
 
       # Test when empty
       expect_false(
-        .remote_file_rm_all("osf", remote = osf_tbl)
+        .remote_final_empty("osf", remote = osf_tbl)
       )
 
       # Add content
@@ -235,7 +235,7 @@ test_that(".remote_file_rm_all works for OSF", {
 
       # Remove all content
       expect_true(
-        .remote_file_rm_all("osf", remote = osf_tbl)
+        .remote_final_empty("osf", remote = osf_tbl)
       )
 
       # Poll for removal (reuse existing pattern from later in file)
@@ -257,11 +257,11 @@ test_that(".remote_file_rm_all works for OSF", {
 # OSF Empty Remote Removal
 # =============================================================================
 
-test_that(".remote_rm_final_if_empty works for OSF", {
+test_that(".remote_final_rm_if_empty works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_fast())
   skip_if(.is_test_select())
+  skip_if(.is_test_osf())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
@@ -277,18 +277,18 @@ test_that(".remote_rm_final_if_empty works for OSF", {
 
       # Test with node (not sub-dir) - should return FALSE
       expect_false(
-        .remote_rm_final_if_empty("osf", remote = osf_tbl, structure = "archive")
+        .remote_final_rm_if_empty("osf", remote = osf_tbl)
       )
 
       # Create sub-directory
-      osf_tbl_file <- .remote_get_final(
+      osf_tbl_file <- .remote_final_get(
         "osf",
         id = id, path_append_label = FALSE, structure = "archive"
       )
 
       # Remove empty sub-directory - should return TRUE
       expect_true(
-        .remote_rm_final_if_empty("osf", remote = osf_tbl_file, structure = "archive")
+        .remote_final_rm_if_empty("osf", remote = osf_tbl_file)
       )
 
       # Wait for removal
@@ -301,7 +301,7 @@ test_that(".remote_rm_final_if_empty works for OSF", {
       expect_true(is_zero)
 
       # Create sub-directory with content
-      osf_tbl_file <- .remote_get_final(
+      osf_tbl_file <- .remote_final_get(
         "osf",
         id = id, path_append_label = FALSE, structure = "archive"
       )
@@ -314,7 +314,7 @@ test_that(".remote_rm_final_if_empty works for OSF", {
 
       # Try to remove non-empty sub-directory - should return FALSE
       expect_false(
-        .remote_rm_final_if_empty("osf", remote = osf_tbl_file, structure = "archive")
+        .remote_final_rm_if_empty("osf", remote = osf_tbl_file)
       )
       expect_identical(nrow(.osf_ls_files(osf_tbl)), 1L)
     }

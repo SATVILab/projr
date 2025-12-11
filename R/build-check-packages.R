@@ -46,12 +46,29 @@ projr_build_check_packages <- function(profile = NULL) {
   # Check for packages needed by remote destinations
   pkg_required <- c(pkg_required, .build_check_packages_remote(profile))
 
+  # Check packages required for citations
+  pkg_required <- c(pkg_required, .build_check_packages_citations(profile))
+
   # Remove duplicates
   pkg_required <- unique(pkg_required)
 
+  # return if no packages are required
+  if (length(pkg_required) == 0L) {
+    return(list(
+      available = TRUE,
+      missing = character(0),
+      install_cmds = character(0),
+      message = "No additional packages are required for the build."
+    ))
+  }
+
   # Check which packages are missing
   pkg_missing <- pkg_required[
-    vapply(pkg_required, function(x) !requireNamespace(x, quietly = TRUE), logical(1))
+    vapply(
+      pkg_required,
+      function(x) !requireNamespace(x, quietly = TRUE),
+      logical(1)
+    )
   ]
 
   # If all packages are available
@@ -128,10 +145,27 @@ projr_build_check_packages <- function(profile = NULL) {
   # Check which packages are needed for each remote type
   for (remote in remote_vec) {
     if (remote == "github") {
-      pkg_needed <- c(pkg_needed, "piggyback", "gh")
+      pkg_needed <- c(pkg_needed, "gh")
     } else if (remote == "osf") {
       pkg_needed <- c(pkg_needed, "osfr")
     }
+  }
+
+  unique(pkg_needed)
+}
+
+.build_check_packages_citations <- function(profile = NULL) {
+  pkg_needed <- character(0)
+
+  yml_cite <- .yml_cite_get(profile)
+  if (is.null(yml_cite) || isFALSE(yml_cite)) {
+    return(pkg_needed)
+  }
+  if ("cff" %in% names(yml_cite) && isTRUE(yml_cite[["cff"]])) {
+    pkg_needed <- c(pkg_needed, "cffr")
+  }
+  if ("codemeta" %in% names(yml_cite) && isTRUE(yml_cite[["codemeta"]])) {
+    pkg_needed <- c(pkg_needed, "codemetar")
   }
 
   unique(pkg_needed)

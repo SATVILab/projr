@@ -1,8 +1,11 @@
-
-
 # github
-.auth_get_github_pat <- function(init = FALSE) {
-  pat <- .auth_get_github_pat_find()
+.auth_get_github_pat <- function(init = FALSE,
+                                 use_gh_if_available = TRUE,
+                                 use_gitcreds_if_needed = TRUE) {
+  pat <- .auth_get_github_pat_find(
+    use_gh_if_available = use_gh_if_available,
+    use_gitcreds_if_needed = use_gitcreds_if_needed
+  )
   if (.is_string(pat)) {
     return(invisible(pat))
   }
@@ -11,15 +14,24 @@
 }
 
 .auth_get_github_pat_find_gitcreds <- function(api_url = NULL) {
-  url  <- api_url %||% Sys.getenv("GITHUB_API_URL", "https://api.github.com")
-  host <- sub("^https?://api\\.", "https://", url)
+  url <- api_url %||% Sys.getenv("GITHUB_API_URL", "https://api.github.com")
 
-  creds <- suppressWarnings(tryCatch(
-    gitcreds::gitcreds_get(host),
+  # Logic update: Robustly handle Standard vs Enterprise GitHub hosts
+  if (grepl("api.github.com", url, fixed = TRUE)) {
+    host <- "https://github.com"
+  } else {
+    # For Enterprise, strip the /api/v3 suffix (and optional trailing slash)
+    host <- sub("/api/v3/?$", "", url)
+  }
+
+  creds <- tryCatch(
+    suppressWarnings(gitcreds::gitcreds_get(host)),
     gitcreds_nogit_error    = function(e) NULL,
     gitcreds_no_credentials = function(e) NULL,
-    error                   = function(e) NULL
-  ))
+    error                   = function(e) NULL,
+    # Catch any other condition types
+    condition               = function(e) NULL
+  )
 
   if (is.null(creds)) "" else .auth_token_normalize(creds$password)
 }
@@ -35,8 +47,11 @@
 
   # 2. Prefer gh if installed, but do not require it
   if (requireNamespace("gh", quietly = TRUE) && use_gh_if_available) {
-    token <- suppressWarnings(gh::gh_token(api_url)) |>
-      .auth_token_normalize()
+    token <- tryCatch(
+      suppressWarnings(gh::gh_token(api_url)) |>
+        .auth_token_normalize(),
+      error = function(e) ""
+    )
     if (nzchar(token)) {
       return(token)
     }
@@ -44,8 +59,20 @@
 
   # 3. Fallback: gitcreds, if available
   if (requireNamespace("gitcreds", quietly = TRUE) && use_gitcreds_if_needed) {
-    .auth_get_github_pat_find_gitcreds(api_url)
+    token <- .auth_get_github_pat_find_gitcreds(api_url)
+    if (nzchar(token)) {
+      return(token)
+    }
   }
+
+  # 4. Fallback to GH_TOKEN
+  token <- Sys.getenv("GH_TOKEN", "") |>
+    .auth_token_normalize()
+  if (nzchar(token)) {
+    return(token)
+  }
+
+  # 5. Final fallback to GITHUB_TOKEN
   Sys.getenv("GITHUB_TOKEN", "") |>
     .auth_token_normalize()
 }
@@ -65,9 +92,9 @@
 .auth_get_github_pat_warn <- function(init = FALSE) {
   warning(
     "No GitHub authentication could be found.\n", # nolint
-    "\n",                                         # nolint
+    "\n", # nolint
     .auth_get_github_pat_instr(),
-    "\n",                                         # nolint
+    "\n", # nolint
     .auth_get_github_pat_instr_init(init),
     call. = FALSE
   )
@@ -76,22 +103,22 @@
 .auth_get_github_pat_instr <- function() {
   .dep_install_only("usethis")
   c(
-    "GitHub authentication is required to create or use a GitHub ",      # nolint
-    "repository.\n",                                                     # nolint
-    "\n",                                                                # nolint
-    "You can set this up in under two minutes:\n",                       # nolint
-    "1. If you do not have a GitHub account, create one at ",           # nolint
-    "https://github.com\n",                                              # nolint
-    "2. In R, run usethis::create_github_token() and follow the ",      # nolint
-    "   prompts in your browser to create a personal access token\n",    # nolint
-    "3. In R, run gitcreds::gitcreds_set()\n",                           # nolint
-    "4. Paste the token you copied from your browser into the R ",      # nolint
-    "   console and press Enter\n",                                      # nolint
-    "\n",                                                                # nolint
-    "After this, projr will automatically detect your GitHub ",         # nolint
-    "credentials when needed.\n",                                        # nolint
-    "\n",                                                                # nolint
-    "For more details, see https://happygitwithr.com/https-pat#tldr\n"   # nolint
+    "GitHub authentication is required to create or use a GitHub ", # nolint
+    "repository.\n", # nolint
+    "\n", # nolint
+    "You can set this up in under two minutes:\n", # nolint
+    "1. If you do not have a GitHub account, create one at ", # nolint
+    "https://github.com\n", # nolint
+    "2. In R, run usethis::create_github_token() and follow the ", # nolint
+    "   prompts in your browser to create a personal access token\n", # nolint
+    "3. In R, run gitcreds::gitcreds_set()\n", # nolint
+    "4. Paste the token you copied from your browser into the R ", # nolint
+    "   console and press Enter\n", # nolint
+    "\n", # nolint
+    "After this, projr will automatically detect your GitHub ", # nolint
+    "credentials when needed.\n", # nolint
+    "\n", # nolint
+    "For more details, see https://happygitwithr.com/https-pat#tldr\n" # nolint
   )
 }
 
@@ -175,14 +202,14 @@
 #' @export
 #' @rdname instr_auth
 projr_instr_auth_github <- function() {
-  message(.auth_get_github_pat_instr())
+  .cli_info(.auth_get_github_pat_instr())
 }
 
 #' @title Authorisation instructions
 #' @export
 #' @rdname instr_auth
 projr_instr_auth_osf <- function() {
-  message(.auth_get_osf_pat_instr())
+  .cli_info(.auth_get_osf_pat_instr())
 }
 
 # auth check functions (throw errors if auth is missing)

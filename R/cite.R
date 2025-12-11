@@ -3,7 +3,7 @@
   if (!file.exists(path_inst_citation) && !create) {
     return(invisible(FALSE))
   }
-  message("Creating CITATION file")
+  .cli_info("Creating CITATION file")
   .file_rm(path_inst_citation)
   .cite_citation_inst_write()
   .cite_citation_inst_add_header()
@@ -35,7 +35,7 @@
   if (!file.exists(.path_get("codemeta.json")) && !create) {
     return(invisible(FALSE))
   }
-  message("Creating codemeta.json file")
+  .cli_info("Creating codemeta.json file")
   try(codemeta::write_codemeta(path = .path_get()))
   invisible(TRUE)
 }
@@ -64,7 +64,7 @@
   if (!file.exists(.path_get("CITATION.cff")) && !create) {
     return(invisible(FALSE))
   }
-  message("Creating CITATION.cff file")
+  .cli_info("Creating CITATION.cff file")
   try(cffr::cff_write())
   invisible(TRUE)
 }

@@ -4,6 +4,7 @@
 ^\.Rproj\.user$
 ^\.devcontainer
 ^\.vscode
+^\_tmp
 ^LICENSE\.md$
 ^SCRATCH\.R$
 ^\.gitpod
@@ -33,5 +34,6 @@
 ^\.Rbuildignore$
 ^GITHUB_TESTS_FINDINGS\.md$
 ^INVESTIGATION_SUMMARY\.md$
+^IMPLEMENTATION_SUMMARY\.md$
 
 

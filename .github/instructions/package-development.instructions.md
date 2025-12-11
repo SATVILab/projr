@@ -13,11 +13,13 @@ Development workflow guidelines for the projr R package, including build command
 
 ## Required Before Each Commit
 
-- Run `devtools::document()` to update roxygen2 documentation in `man/`
-- Run `devtools::test()` to ensure all tests pass (use LITE mode for faster iteration)
-- Run `devtools::check()` to ensure package passes R CMD check
-- Ensure code follows the existing style conventions
-- **If export status changed**: Update `_pkgdown.yml` and verify with `pkgdown::check_pkgdown()`
+- Run `devtools::document()` to update roxygen2 documentation in `man/`.
+- Run `devtools::test()` to ensure all tests pass (use LITE mode for faster iteration).
+- Run `devtools::check()` to ensure package passes R CMD check.
+- Run `styler::style_pkg()` to format code according to style guidelines.
+- Ensure code follows the existing style conventions (see `r-coding-standards.instructions.md`).
+- Follow naming conventions (see `NAMING_SUGGESTIONS.md` for comprehensive guidelines).
+- **If export status changed**: Update `_pkgdown.yml` and verify with `pkgdown::check_pkgdown()`.
 
 ---
 
@@ -52,6 +54,8 @@ renv::snapshot()
 
 ## Testing During Development
 
+### General Testing (Recommended)
+
 Use LITE mode by default for faster testing:
 
 ```r
@@ -60,16 +64,62 @@ devtools::load_all()
 devtools::test()
 ```
 
-Use FULL mode only when:
+### Debugging Specific Test Failures
+
+When debugging a specific test issue, turn off LITE mode and use SELECT mode:
+
+```r
+devtools::load_all()
+.test_unset_lite()       # Ensure relevant tests will run
+.test_set_select()       # Skip most tests
+
+# Edit test file(s): comment out skip_if(.is_test_select()) in tests you want to debug
+devtools::test()         # Run only selected tests
+
+# When done debugging:
+.test_unset_select()     # Re-enable skipped tests
+# Restore skip_if(.is_test_select()) lines in test files
+```
+
+### Full Mode Testing
+
+Use FULL mode (no test mode set) only when:
 - Preparing for a release or major version bump
 - Explicitly requested by the issue or PR
 - Working on comprehensive parameter combination testing
+
+### Debugging Specific Test Failures
+
+When debugging a specific test failure or issue:
+
+1. **Turn off LITE mode** to ensure the relevant test runs:
+   ```r
+   devtools::load_all()
+   .test_unset_lite()
+   ```
+
+2. **Use test selection** to run only specific tests:
+   ```r
+   .test_set_select()
+   # Temporarily remove skip_if(.is_test_select()) from the test you're debugging
+   devtools::test()
+   # Or run specific file:
+   devtools::test_active_file("tests/testthat/test-specific.R")
+   ```
+
+3. **After debugging**, restore skip conditions and unset select mode:
+   ```r
+   # Re-add skip_if(.is_test_select()) to the test
+   .test_unset_select()
+   ```
+
+This approach allows you to focus on specific failing tests without running the entire suite.
 
 ## Common Development Commands
 
 ```r
 # Run tests for specific file
-devtools::test_file("tests/testthat/test-manifest.R")
+devtools::test_active_file("tests/testthat/test-manifest.R")
 
 # Install package locally
 devtools::install()
@@ -195,6 +245,7 @@ Common pkgdown reference sections in this package:
 
 - Review output of `devtools::check()`
 - Common issues: missing documentation, unused imports, test failures
+- If run a `projr_build_*` command, check the log via `projr_log_view()`.
 
 ---
 

@@ -46,9 +46,13 @@
 }
 
 .build_label_get_dir_exc <- function(label) {
-  switch(.yml_dir_label_class_get(label),
-    "cache" = "projr"
-  )
+  # Return directories to exclude when copying/hashing this label
+  # For cache labels, exclude the "projr" subdirectory
+  # For other labels (including custom ones), return NULL (no exclusions)
+  if (.yml_dir_label_class_detect_cache(label)) {
+    return("projr")
+  }
+  NULL
 }
 
 # misc operations
@@ -502,6 +506,16 @@
 .version_file_check_update_label_present <- function(version_file, # nolint
                                                      label) {
   !.is_len_0(which(grepl(paste0("^", label, ": "), version_file)))
+}
+
+.version_file_check_label_trusted <- function(version_file, # nolint: object_length_linter, line_length_linter.
+                                              label) {
+  version_file <- version_file[grepl(paste0("^", label, ": "), version_file)]
+  if (.is_len_0(version_file)) {
+    return(FALSE)
+  }
+  # only care about the top one (may be odd stuff lower down, who knows)
+  !grepl(paste0(label, "\\:", ".*\\*$"), version_file[[1]])
 }
 
 # get minimum acceptable version
