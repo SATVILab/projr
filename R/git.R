@@ -584,11 +584,12 @@
 .git_clone_git <- function(repo, path = NULL) {
   url <- paste0("https://github.com/", repo, ".git")
   args <- c("clone", url, path)
-  system2(
+  suppressWarnings(system2(
     "git",
     args = args,
-    stdout = TRUE
-  )
+    stdout = TRUE,
+    stderr = TRUE
+  ))
 }
 
 .git_clone_gert <- function(repo, path) {
