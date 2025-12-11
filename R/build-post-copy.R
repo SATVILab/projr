@@ -1,10 +1,11 @@
 .build_copy <- function(output_run,
                         bump_component,
-                        version_run_on_list) {
+                        version_run_on_list,
+                        file = NULL) {
   # copy document across to correct directories.
   # this always happens because rmds' and qmds'
   # outputs need to be collected after build
-  .build_copy_docs(output_run)
+  .build_copy_docs(output_run, file = file)
 
   # consider not copying output and data.
   # will leave in cache directories otherwise

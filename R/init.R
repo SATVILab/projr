@@ -81,9 +81,9 @@ projr_init_prompt <- function(yml_path_from = NULL,
   if (!.git_remote_check_exists()) {
     .dep_install_only("usethis")
     if (!.git_gh_check_auth(
-        use_gh_if_available = use_gh_if_available,
-        use_gitcreds_if_needed = use_gitcreds_if_needed
-      )) {
+      use_gh_if_available = use_gh_if_available,
+      use_gitcreds_if_needed = use_gitcreds_if_needed
+    )) {
       stop(call. = FALSE)
     }
     .init_github_impl(username, public)
