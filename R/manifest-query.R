@@ -1038,11 +1038,6 @@ projr_manifest_file_first <- function(fn, label = NULL) {
       }
     }
 
-    # Mark the last one as current if it's the most recent in manifest
-    if (length(change_types) > 0 && change_indices[length(change_indices)] == nrow(label_data)) {
-      change_types[length(change_types)] <- "current"
-    }
-
     # Extract individual change versions from multi-version strings
     change_versions <- character(length(change_indices))
     for (j in seq_along(change_indices)) {
@@ -1054,6 +1049,20 @@ projr_manifest_file_first <- function(fn, label = NULL) {
         change_versions[j] <- ver_sorted[1]
       } else {
         change_versions[j] <- "v0.0.0"
+      }
+    }
+
+    # Mark the last one as current if its change version is the latest version in manifest
+    if (length(change_types) > 0) {
+      # Get the latest version from the last row's version list
+      last_row_versions <- strsplit(label_data$version[nrow(label_data)], ";", fixed = TRUE)[[1]]
+      if (length(last_row_versions) > 0) {
+        latest_version_sorted <- last_row_versions[order(package_version(vapply(last_row_versions, function(v) as.character(.version_to_package_version(v)), character(1), USE.NAMES = FALSE)), decreasing = TRUE)]
+        latest_version <- latest_version_sorted[1]
+        # Compare with the last change version
+        if (change_versions[length(change_versions)] == latest_version) {
+          change_types[length(change_types)] <- "current"
+        }
       }
     }
 
