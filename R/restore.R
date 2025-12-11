@@ -1,6 +1,7 @@
 #' Restore project artefact directories
 #'
 #' Use `projr_content_update()` to restore all artefacts needed for the current project.
+#' Use `projr_checkout()` to restore artefacts from a specific project version.
 #' If the project isn't available locally yet,
 #' `projr_restore_repo()` will clone it and then restore its artefacts.
 #'
@@ -16,6 +17,10 @@
 #' @param title character or NULL. Remote title as specified in `_projr.yml`.
 #'   Default is `NULL`, using the first available title for the selected type.
 #'   Must be NULL or a single non-empty character string.
+#' @param version character or NULL. Version to restore (e.g., `"0.0.1"` or `"v0.0.1"`).
+#'   Default is `NULL`, which restores the latest available version.
+#'   (Only for `projr_checkout()`.)
+#'   Must be NULL or a single non-empty character string with valid version format.
 #' @param repo character. GitHub repository (`"owner/repo"` or `"repo"`).
 #'   (Only for repository restoration functions.)
 #'   Must be a single non-empty character string.
@@ -26,15 +31,17 @@
 #'   before restoration. Default is `FALSE`.
 #'
 #' @return Invisibly returns `TRUE` if all restorations are successful, `FALSE` otherwise.
-#'   For `projr_content_update()`, returns `FALSE` if no labels are found to restore or if any
-#'   restoration fails. For `projr_restore_repo()`, returns `FALSE` if cloning or
-#'   restoration fails.
+#'   For `projr_content_update()` and `projr_checkout()`, returns `FALSE` if no labels are
+#'   found to restore or if any restoration fails. For `projr_restore_repo()`, returns `FALSE`
+#'   if cloning or restoration fails.
 #'
 #' @details
 #' These functions restore artefact directories from remote sources:
 #'
 #' - `projr_content_update()` restores artefacts in an existing local project without any cloning required.
-#'   Requires a `manifest.csv` file in the project root.
+#'   Requires a `manifest.csv` file in the project root. Always restores the latest version.
+#' - `projr_checkout()` restores artefacts from a specific project version. Similar to
+#'   `projr_content_update()` but allows specifying which version to restore.
 #' - `projr_restore_repo()` clones a GitHub repository into a subdirectory (or specified path),
 #'   then restores artefacts from that repository's remote sources.
 #' - `projr_restore_repo_wd()` clones directly into the current working directory, then restores artefacts.
@@ -45,6 +52,7 @@
 #' - `pos`: Must be NULL or contain only "source" and/or "dest"
 #' - `type`: Must be NULL or one of "local", "osf", or "github"
 #' - `title`: Must be NULL or a single character string
+#' - `version`: Must be NULL or a single character string with valid version format
 #' - `repo`: Must be a single non-empty character string
 #' - `path`: Must be NULL or a single non-empty character string
 #'
@@ -54,10 +62,11 @@
 #' - Invalid labels or missing remote sources result in warning messages and skipped restoration
 #' - Git clone failures are caught and reported
 #' - Errors during restoration are caught per label, allowing partial success
+#' - Invalid or non-existent versions trigger informative errors
 #'
 #' @examples
 #' \dontrun{
-#' # Restore all raw artefacts in existing local project
+#' # Restore all raw artefacts in existing local project (latest version)
 #' projr_content_update()
 #'
 #' # Restore specific labels
@@ -65,6 +74,12 @@
 #'
 #' # Restore from specific source type
 #' projr_content_update(type = "local", title = "archive")
+#'
+#' # Restore specific version
+#' projr_checkout(version = "0.0.1")
+#'
+#' # Restore specific labels from specific version
+#' projr_checkout(label = c("raw-data", "output"), version = "v0.0.2")
 #'
 #' # Clone repository into subdirectory and restore artefacts
 #' projr_restore_repo("owner/repo")
@@ -174,7 +189,140 @@ projr_content_update <- function(label = NULL,
       "Restoring label: ", label[[i]]
     )
     result <- tryCatch(
-      .content_update_label(label[[i]], pos, type, .title),
+      .content_update_label(label[[i]], pos, type, .title, NULL),
+      error = function(e) {
+        .cli_debug(
+          "Error restoring label: ", label[[i]], " - ", e$message
+        )
+        FALSE
+      }
+    )
+    if (isFALSE(result)) {
+      success <- FALSE
+    }
+  }
+  invisible(success)
+}
+
+#' @rdname projr_restore
+#' @export
+projr_checkout <- function(version,
+                           label = NULL,
+                           pos = NULL,
+                           type = NULL,
+                           title = NULL,
+                           clear = FALSE) {
+  # Input validation for version
+  if (is.null(version)) {
+    stop("'version' cannot be NULL")
+  }
+  if (!is.character(version)) {
+    stop("'version' must be a character string")
+  }
+  if (length(version) == 0) {
+    stop("'version' must have at least one element")
+  }
+  if (length(version) > 1) {
+    stop("'version' must be a single character value")
+  }
+  if (nchar(version) == 0) {
+    stop("'version' cannot be an empty string")
+  }
+
+  # Normalize version (ensure it has 'v' prefix for internal use)
+  version_normalized <- .version_v_add(version)
+
+  # Input validation for other parameters (same as projr_content_update)
+  if (!is.null(label)) {
+    if (!is.character(label)) {
+      stop("'label' must be NULL or a character vector")
+    }
+    if (length(label) == 0) {
+      stop("'label' must have at least one element if not NULL")
+    }
+  }
+  if (!is.null(pos)) {
+    if (!is.character(pos)) {
+      stop("'pos' must be NULL or a character vector")
+    }
+    if (length(pos) == 0) {
+      stop("'pos' must have at least one element if not NULL")
+    }
+    invalid_pos <- pos[!pos %in% c("source", "dest")]
+    if (length(invalid_pos) > 0) {
+      stop(
+        "'pos' must be 'source' or 'dest'. Invalid values: ",
+        paste(invalid_pos, collapse = ", ")
+      )
+    }
+  }
+  if (!is.null(type)) {
+    if (!is.character(type)) {
+      stop("'type' must be NULL or a character vector")
+    }
+    if (length(type) == 0) {
+      stop("'type' must have at least one element if not NULL")
+    }
+    if (length(type) > 1) {
+      stop("'type' must be a single character value")
+    }
+    valid_types <- c("local", "osf", "github")
+    if (!type %in% valid_types) {
+      stop(
+        "'type' must be one of: ",
+        paste(valid_types, collapse = ", ")
+      )
+    }
+  }
+  if (!is.null(title)) {
+    if (!is.character(title)) {
+      stop("'title' must be NULL or a character vector")
+    }
+    if (length(title) == 0) {
+      stop("'title' must have at least one element if not NULL")
+    }
+    if (length(title) > 1) {
+      stop("'title' must be a single character value")
+    }
+  }
+
+  .title <- title
+  if (!file.exists(.path_get("manifest.csv"))) {
+    msg <- "No manifest.csv file found, so no builds have occurred, so nothing to restore."
+    msg <- if (clear) paste0(msg, " No files cleared.") else msg
+    .cli_debug(msg)
+    stop("", .call = FALSE)
+  }
+
+  label <- .content_update_get_label(label)
+
+  # Handle case where no labels to restore
+  if (length(label) == 0) {
+    msg <- "No labels found to restore."
+    msg <- if (clear) paste0(msg, " No files cleared.") else msg
+    .cli_debug(msg)
+    stop("", .call = FALSE)
+  }
+
+  success <- TRUE
+  for (i in seq_along(label)) {
+    if (clear) {
+      .cli_debug(
+        "Clearing existing files for label: ", label[[i]]
+      )
+      path_dir_local <- projr_path_get_dir(
+        label[[i]],
+        safe = FALSE, create = FALSE
+      )
+      if (dir.exists(path_dir_local)) {
+        unlink(path_dir_local, recursive = TRUE, force = TRUE)
+      }
+    }
+    .cli_debug(
+      "Restoring label: ", label[[i]], " at version: ", version_normalized
+    )
+    result <- tryCatch(
+      .content_update_label(label[[i]], pos, type, .title, version_normalized),
       error = function(e) {
         .cli_debug(
           "Error restoring label: ", label[[i]], " - ", e$message
@@ -212,7 +360,7 @@ projr_content_update <- function(label = NULL,
   invisible(TRUE)
 }
 
-.content_update_label <- function(label, pos, type, .title) {
+.content_update_label <- function(label, pos, type, .title, version = NULL) {
   if (!.content_update_label_check_non_empty(label)) {
     return(invisible(FALSE))
   }
@@ -238,15 +386,27 @@ projr_content_update <- function(label = NULL,
     yml_title[["structure"]], yml_title[["path"]],
     yml_title[["path-append-label"]], NULL, TRUE
   )
-  version_remote <- if (yml_title[["structure"]] == "latest") {
-    .remote_get_version_latest_label_non_project_file(
-      remote_pre, source_vec[["type"]], label
+
+  # If version is provided, use it; otherwise, detect the latest version
+  if (!is.null(version)) {
+    # Use the provided version (should already be normalized with 'v' prefix)
+    version_remote <- .version_v_rm(version)
+    .cli_debug(
+      "Using specified version ", version_remote, " for ", label
     )
   } else {
-    .remote_get_version_latest_label_non_project_archive(
-      remote_pre, source_vec[["type"]], label, "archive"
-    )
+    # Detect latest version automatically
+    version_remote <- if (yml_title[["structure"]] == "latest") {
+      .remote_get_version_latest_label_non_project_file(
+        remote_pre, source_vec[["type"]], label
+      )
+    } else {
+      .remote_get_version_latest_label_non_project_archive(
+        remote_pre, source_vec[["type"]], label, "archive"
+      )
+    }
   }
+
   if (is.null(version_remote)) {
     .cli_debug("No version found for ", label)
     .cli_debug("Skipping restore for ", label)

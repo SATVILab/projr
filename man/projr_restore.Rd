@@ -5,6 +5,7 @@
 \alias{projr_restore_repo_wd}
 \alias{projr_restore}
 \alias{projr_content_update}
+\alias{projr_checkout}
 \title{Restore project artefact directories}
 \usage{
 projr_restore_repo(
@@ -25,6 +26,15 @@ projr_restore_repo_wd(
 )
 
 projr_content_update(
+  label = NULL,
+  pos = NULL,
+  type = NULL,
+  title = NULL,
+  clear = FALSE
+)
+
+projr_checkout(
+  version,
   label = NULL,
   pos = NULL,
   type = NULL,
@@ -59,15 +69,21 @@ Must be NULL or a single non-empty character string.}
 
 \item{clear}{logical. If \code{TRUE}, clears existing local artefact directories
 before restoration. Default is \code{FALSE}.}
+
+\item{version}{character or NULL. Version to restore (e.g., \code{"0.0.1"} or \code{"v0.0.1"}).
+Default is \code{NULL}, which restores the latest available version.
+(Only for \code{projr_checkout()}.)
+Must be NULL or a single non-empty character string with valid version format.}
 }
 \value{
 Invisibly returns \code{TRUE} if all restorations are successful, \code{FALSE} otherwise.
-For \code{projr_content_update()}, returns \code{FALSE} if no labels are found to restore or if any
-restoration fails. For \code{projr_restore_repo()}, returns \code{FALSE} if cloning or
-restoration fails.
+For \code{projr_content_update()} and \code{projr_checkout()}, returns \code{FALSE} if no labels are
+found to restore or if any restoration fails. For \code{projr_restore_repo()}, returns \code{FALSE}
+if cloning or restoration fails.
 }
 \description{
 Use \code{projr_content_update()} to restore all artefacts needed for the current project.
+Use \code{projr_checkout()} to restore artefacts from a specific project version.
 If the project isn't available locally yet,
 \code{projr_restore_repo()} will clone it and then restore its artefacts.
 }
@@ -75,7 +91,9 @@ If the project isn't available locally yet,
 These functions restore artefact directories from remote sources:
 \itemize{
 \item \code{projr_content_update()} restores artefacts in an existing local project without any cloning required.
-Requires a \code{manifest.csv} file in the project root.
+Requires a \code{manifest.csv} file in the project root. Always restores the latest version.
+\item \code{projr_checkout()} restores artefacts from a specific project version. Similar to
+\code{projr_content_update()} but allows specifying which version to restore.
 \item \code{projr_restore_repo()} clones a GitHub repository into a subdirectory (or specified path),
 then restores artefacts from that repository's remote sources.
 \item \code{projr_restore_repo_wd()} clones directly into the current working directory, then restores artefacts.
@@ -88,6 +106,7 @@ All parameters are validated before execution:
 \item \code{pos}: Must be NULL or contain only "source" and/or "dest"
 \item \code{type}: Must be NULL or one of "local", "osf", or "github"
 \item \code{title}: Must be NULL or a single character string
+\item \code{version}: Must be NULL or a single character string with valid version format
 \item \code{repo}: Must be a single non-empty character string
 \item \code{path}: Must be NULL or a single non-empty character string
 }
@@ -99,11 +118,12 @@ The functions handle errors gracefully:
 \item Invalid labels or missing remote sources result in warning messages and skipped restoration
 \item Git clone failures are caught and reported
 \item Errors during restoration are caught per label, allowing partial success
+\item Invalid or non-existent versions trigger informative errors
 }
 }
 \examples{
 \dontrun{
-# Restore all raw artefacts in existing local project
+# Restore all raw artefacts in existing local project (latest version)
 projr_content_update()
 
 # Restore specific labels
@@ -111,6 +131,12 @@ projr_content_update(label = c("raw-data", "cache"))
 
 # Restore from specific source type
 projr_content_update(type = "local", title = "archive")
+
+# Restore specific version
+projr_checkout(version = "0.0.1")
+
+# Restore specific labels from specific version
+projr_checkout(label = c("raw-data", "output"), version = "v0.0.2")
 
 # Clone repository into subdirectory and restore artefacts
 projr_restore_repo("owner/repo")

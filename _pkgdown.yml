@@ -57,6 +57,7 @@ reference:
   - projr_build_major
   - projr_build_check_packages
   - projr_restore
+  - projr_checkout
   - projr_restore_repo
   - projr_restore_repo_wd
 
