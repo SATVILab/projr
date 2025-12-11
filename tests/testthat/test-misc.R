@@ -277,7 +277,8 @@ test_that("with_dir works", {
     getwd()
   })
 
-  expect_identical(result, temp_dir)
+  # Normalize paths to handle /private/var vs /var on macOS
+  expect_identical(normalizePath(result, winslash = "/"), normalizePath(temp_dir, winslash = "/"))
   expect_identical(getwd(), original_dir)
 })
 

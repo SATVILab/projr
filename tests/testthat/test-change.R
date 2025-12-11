@@ -1,7 +1,7 @@
 test_that(".change_get_manifest works", {
   skip_if(.is_test_cran())
-  skip("Test needs rework - .change_get_manifest not designed for project vs project comparison")
   skip_if(.is_test_select())
+  skip("Test needs rework - .change_get_manifest not designed for project vs project comparison")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,

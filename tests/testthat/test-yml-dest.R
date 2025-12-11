@@ -565,6 +565,7 @@ test_that(".yml_dest_add_get_list_add_extra_osf handles character id", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
+  skip_if(.is_test_osf())
 
   # This test would require a valid OSF node ID
   # We can test the error case without OSF credentials
@@ -588,6 +589,7 @@ test_that(".yml_dest_add_get_list_add_extra_osf handles NULL id", {
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
 
+  skip_if(.is_test_osf())
   # This test requires OSF authentication to create nodes
   # We only test the validation function
   expect_error(

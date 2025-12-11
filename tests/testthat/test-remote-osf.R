@@ -15,6 +15,7 @@ test_that(".remote_create works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_test_osf())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
@@ -43,6 +44,7 @@ test_that(".remote_get works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_test_osf())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
@@ -66,6 +68,7 @@ test_that(".remote_get_final works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_test_osf())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
@@ -119,6 +122,7 @@ test_that("adding, listing and removing files works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_test_osf())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
@@ -190,6 +194,7 @@ test_that(".remote_file_rm_all works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_test_osf())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
@@ -256,6 +261,7 @@ test_that(".remote_final_rm_if_empty works for OSF", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_test_osf())
   skip_if_offline()
   skip_if(!nzchar(Sys.getenv("OSF_PAT")))
 
