@@ -15,6 +15,7 @@
 # =============================================================================
 
 test_that("projr_restore_repo validates repo parameter correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # NULL repo
@@ -49,6 +50,7 @@ test_that("projr_restore_repo validates repo parameter correctly", {
 })
 
 test_that("projr_restore_repo validates path parameter correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Non-character path (when not NULL)
@@ -78,6 +80,7 @@ test_that("projr_restore_repo validates path parameter correctly", {
 })
 
 test_that("projr_restore_repo validates label parameter correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Non-character label
@@ -110,6 +113,7 @@ test_that("projr_restore_repo validates label parameter correctly", {
 })
 
 test_that("projr_restore_repo validates pos parameter correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Non-character pos
@@ -138,6 +142,7 @@ test_that("projr_restore_repo validates pos parameter correctly", {
 })
 
 test_that("projr_restore_repo validates type parameter correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Non-character type
@@ -166,6 +171,7 @@ test_that("projr_restore_repo validates type parameter correctly", {
 })
 
 test_that("projr_restore_repo validates title parameter correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Non-character title
@@ -192,6 +198,7 @@ test_that("projr_restore_repo validates title parameter correctly", {
 # =============================================================================
 
 test_that("projr_restore_repo handles git clone failure gracefully", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Create temporary directory for test
@@ -215,6 +222,7 @@ test_that("projr_restore_repo handles git clone failure gracefully", {
 })
 
 test_that("projr_restore_repo returns FALSE when restoration fails", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Create temporary directory for test
@@ -317,6 +325,7 @@ test_that("projr_restore_repo respects type and title parameters", {
 # =============================================================================
 
 test_that("projr_restore_repo_wd validates parameters same as projr_restore_repo", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # NULL repo
@@ -351,6 +360,7 @@ test_that("projr_restore_repo_wd validates parameters same as projr_restore_repo
 })
 
 test_that("projr_restore_repo_wd clones into current directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Create temporary directory for test
@@ -373,6 +383,7 @@ test_that("projr_restore_repo_wd clones into current directory", {
 })
 
 test_that("projr_restore_repo_wd is equivalent to projr_restore_repo with path='.'", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Both functions should produce the same validation errors
@@ -404,6 +415,7 @@ test_that("projr_restore_repo_wd is equivalent to projr_restore_repo with path='
 # =============================================================================
 
 test_that("projr_restore_repo handles pos with both source and dest", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Valid pos values should not cause validation errors
@@ -422,6 +434,7 @@ test_that("projr_restore_repo handles pos with both source and dest", {
 })
 
 test_that("projr_restore_repo handles valid type values", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Each valid type should pass validation
@@ -442,6 +455,7 @@ test_that("projr_restore_repo handles valid type values", {
 })
 
 test_that("projr_restore_repo validates all parameters together", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Combination of valid parameters should pass validation
@@ -464,6 +478,7 @@ test_that("projr_restore_repo validates all parameters together", {
 })
 
 test_that(".restore_repo_labels changes directory and calls projr_content_update", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test the internal helper function behavior

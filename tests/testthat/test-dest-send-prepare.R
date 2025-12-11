@@ -19,6 +19,7 @@ dir_test <- .test_setup_project(
 # =============================================================================
 
 test_that(".dest_github_tags_needed returns empty for no destinations", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -40,6 +41,7 @@ test_that(".dest_github_tags_needed returns empty for no destinations", {
 })
 
 test_that(".dest_github_tags_needed returns tags from YAML configuration", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -70,6 +72,7 @@ test_that(".dest_github_tags_needed returns tags from YAML configuration", {
 })
 
 test_that(".dest_github_tags_needed adds archive tag from parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -96,6 +99,7 @@ test_that(".dest_github_tags_needed adds archive tag from parameter", {
 })
 
 test_that(".dest_github_tags_needed uses @version placeholder", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -125,6 +129,7 @@ test_that(".dest_github_tags_needed uses @version placeholder", {
 })
 
 test_that(".dest_github_tags_needed handles multiple destinations", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -160,6 +165,7 @@ test_that(".dest_github_tags_needed handles multiple destinations", {
 })
 
 test_that(".dest_github_tags_needed removes duplicate tags", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -191,6 +197,7 @@ test_that(".dest_github_tags_needed removes duplicate tags", {
 })
 
 test_that(".dest_github_tags_needed handles archive_github character vector", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -214,6 +221,7 @@ test_that(".dest_github_tags_needed handles archive_github character vector", {
 })
 
 test_that(".dest_github_tags_needed does not add archive if already in YAML", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -243,6 +251,7 @@ test_that(".dest_github_tags_needed does not add archive if already in YAML", {
 })
 
 test_that(".dest_github_tags_needed handles NULL archive_github", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -272,6 +281,7 @@ test_that(".dest_github_tags_needed handles NULL archive_github", {
 })
 
 test_that(".dest_github_tags_needed formats tags with spaces", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -306,6 +316,7 @@ test_that(".dest_github_tags_needed formats tags with spaces", {
 # =============================================================================
 
 test_that(".dest_prepare_github_releases returns FALSE for non-output build", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -327,6 +338,7 @@ test_that(".dest_prepare_github_releases returns FALSE for non-output build", {
 })
 
 test_that(".dest_prepare_github_releases returns FALSE when no GitHub destinations", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -351,6 +363,7 @@ test_that(".dest_prepare_github_releases returns FALSE when no GitHub destinatio
 })
 
 test_that(".dest_prepare_github_releases returns FALSE when no tags needed", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -375,6 +388,7 @@ test_that(".dest_prepare_github_releases returns FALSE when no tags needed", {
 })
 
 test_that(".dest_prepare_github_releases respects output_level parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(

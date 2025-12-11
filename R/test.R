@@ -17,7 +17,7 @@
 }
 
 # CRAN test mode: runs only fast, essential tests
-# without remote dependencies. Target: <2 minutes
+# without remote dependencies. Target: <1 minute
 # if you add skip_if(.is_test_cran())
 # to comprehensive/integration/remote tests,
 # they will be skipped when running in CRAN mode.

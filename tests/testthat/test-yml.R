@@ -1,4 +1,5 @@
 test_that("basic yml functions work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("test_projr"))
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -98,6 +99,7 @@ test_that("projr_yml_dest_add_* functions work", {
 })
 
 test_that("projr_yml_get works with profile parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -121,6 +123,7 @@ test_that("projr_yml_get works with profile parameter", {
 })
 
 test_that(".yml_get routes to correct profile function", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -139,6 +142,7 @@ test_that(".yml_get routes to correct profile function", {
 })
 
 test_that(".yml_get_profile switches between profile types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -162,6 +166,7 @@ test_that(".yml_get_profile switches between profile types", {
 })
 
 test_that(".yml_get_null merges root, profile, and local", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -178,6 +183,7 @@ test_that(".yml_get_null merges root, profile, and local", {
 })
 
 test_that(".yml_merge handles three-way merge with precedence", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test basic merging with different precedence levels
@@ -215,6 +221,7 @@ test_that(".yml_merge handles three-way merge with precedence", {
 })
 
 test_that(".yml_get_default_raw reads yaml file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -235,6 +242,7 @@ test_that(".yml_get_default_raw reads yaml file", {
 })
 
 test_that(".yml_get_default filters top-level keys", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -252,6 +260,7 @@ test_that(".yml_get_default filters top-level keys", {
 })
 
 test_that(".yml_get_local gets local filtered yml", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -274,6 +283,7 @@ test_that(".yml_get_local gets local filtered yml", {
 })
 
 test_that(".yml_get_profile_spec handles profile vectors", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -292,6 +302,7 @@ test_that(".yml_get_profile_spec handles profile vectors", {
 })
 
 test_that(".yml_get_profile_ind gets individual profile", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -311,6 +322,7 @@ test_that(".yml_get_profile_ind gets individual profile", {
 })
 
 test_that(".yml_get_profile_ind_raw reads raw profile file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -336,6 +348,7 @@ test_that(".yml_get_profile_ind_raw reads raw profile file", {
 })
 
 test_that(".yml_get_profile_list_min_3 pads to minimum 3", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with 1 profile
@@ -355,6 +368,7 @@ test_that(".yml_get_profile_list_min_3 pads to minimum 3", {
 })
 
 test_that(".yml_merge_list merges list of 3 profiles", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   profile_list <- list(
@@ -371,6 +385,7 @@ test_that(".yml_merge_list merges list of 3 profiles", {
 })
 
 test_that(".yml_merge_list_add adds profiles to existing merge", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml_existing <- list(x = 1, y = 2)
@@ -387,6 +402,7 @@ test_that(".yml_merge_list_add adds profiles to existing merge", {
 })
 
 test_that(".yml_get_filter_top_level filters to allowed keys", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml_input <- list(
@@ -407,6 +423,7 @@ test_that(".yml_get_filter_top_level filters to allowed keys", {
 })
 
 test_that(".yml_get_filter_top_level_ind matches individual keys", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml_input <- list(
@@ -431,6 +448,7 @@ test_that(".yml_get_filter_top_level_ind matches individual keys", {
 })
 
 test_that(".yml_get_path resolves profile paths correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -453,6 +471,7 @@ test_that(".yml_get_path resolves profile paths correctly", {
 })
 
 test_that(".yml_set_root writes to root yml file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -475,6 +494,7 @@ test_that(".yml_set_root writes to root yml file", {
 })
 
 test_that(".yml_complete adds missing keys with defaults", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with non-NULL default
@@ -497,6 +517,7 @@ test_that(".yml_complete adds missing keys with defaults", {
 })
 
 test_that(".yml_complete_default adds default value", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml_input <- list(existing = "value")
@@ -512,6 +533,7 @@ test_that(".yml_complete_default adds default value", {
 })
 
 test_that(".yml_complete_null adds NULL entry", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml_input <- list(a = 1, b = 2)
@@ -528,6 +550,7 @@ test_that(".yml_complete_null adds NULL entry", {
 })
 
 test_that(".yml_order reorders keys correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml_unordered <- list(

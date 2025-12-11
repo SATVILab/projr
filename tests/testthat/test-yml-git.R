@@ -6,6 +6,7 @@
 # =============================================================================
 
 test_that("projr_yml_git_set works with all parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -32,6 +33,7 @@ test_that("projr_yml_git_set works with all parameter", {
 })
 
 test_that("projr_yml_git_set works with individual parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -61,6 +63,7 @@ test_that("projr_yml_git_set works with individual parameters", {
 })
 
 test_that("projr_yml_git_set works with multiple parameters at once", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -90,6 +93,7 @@ test_that("projr_yml_git_set works with multiple parameters at once", {
 # =============================================================================
 
 test_that("projr_yml_git_set simplifies when all values are TRUE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -111,6 +115,7 @@ test_that("projr_yml_git_set simplifies when all values are TRUE", {
 })
 
 test_that("projr_yml_git_set simplifies when all values are FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -132,6 +137,7 @@ test_that("projr_yml_git_set simplifies when all values are FALSE", {
 })
 
 test_that("projr_yml_git_set does not simplify when simplify_identical = FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -160,6 +166,7 @@ test_that("projr_yml_git_set does not simplify when simplify_identical = FALSE",
 # =============================================================================
 
 test_that("projr_yml_git_set removes settings when they are default (TRUE)", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -181,6 +188,7 @@ test_that("projr_yml_git_set removes settings when they are default (TRUE)", {
 })
 
 test_that("projr_yml_git_set keeps settings when simplify_default = FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -206,6 +214,7 @@ test_that("projr_yml_git_set keeps settings when simplify_default = FALSE", {
 # =============================================================================
 
 test_that("projr_yml_git_set works with different profiles", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -248,6 +257,7 @@ test_that("projr_yml_git_set works with different profiles", {
 # =============================================================================
 
 test_that("projr_yml_git_set_default sets all options to TRUE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -280,6 +290,7 @@ test_that("projr_yml_git_set_default sets all options to TRUE", {
 # =============================================================================
 
 test_that(".yml_git_get_commit returns correct values", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -308,6 +319,7 @@ test_that(".yml_git_get_commit returns correct values", {
 })
 
 test_that(".yml_git_get_add_untracked returns correct values with override", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -344,6 +356,7 @@ test_that(".yml_git_get_add_untracked returns correct values with override", {
 })
 
 test_that(".yml_git_get_push returns correct values with override", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -382,6 +395,7 @@ test_that(".yml_git_get_push returns correct values with override", {
 })
 
 test_that(".yml_git_get returns correct structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -423,6 +437,7 @@ test_that(".yml_git_get returns correct structure", {
 # =============================================================================
 
 test_that("projr_yml_git_set validates inputs correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -479,6 +494,7 @@ test_that("projr_yml_git_set validates inputs correctly", {
 })
 
 test_that("projr_yml_git_set handles NULL parameters correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -512,6 +528,7 @@ test_that("projr_yml_git_set handles NULL parameters correctly", {
 # =============================================================================
 
 test_that("projr_yml_git_set preserves other build settings", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -538,6 +555,7 @@ test_that("projr_yml_git_set preserves other build settings", {
 })
 
 test_that("projr_yml_git_set works when called multiple times", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -566,6 +584,7 @@ test_that("projr_yml_git_set works when called multiple times", {
 })
 
 test_that("yml git settings work with mixed TRUE/FALSE values", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 

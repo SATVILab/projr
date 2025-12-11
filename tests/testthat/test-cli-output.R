@@ -2,6 +2,7 @@
 # ===================================
 
 test_that(".cli_output_level_get works with explicit parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test explicit levels
@@ -15,6 +16,7 @@ test_that(".cli_output_level_get works with explicit parameter", {
 })
 
 test_that(".cli_output_level_get works with environment variable", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Save original env var
@@ -35,6 +37,7 @@ test_that(".cli_output_level_get works with environment variable", {
 })
 
 test_that(".cli_should_show works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test "none" level
@@ -51,6 +54,7 @@ test_that(".cli_should_show works correctly", {
 })
 
 test_that(".cli_info respects output level", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # At "none" level, should not produce output
@@ -65,6 +69,7 @@ test_that(".cli_info respects output level", {
 })
 
 test_that(".cli_debug respects output level", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # At "none" and "std" levels, should not produce output
@@ -76,6 +81,7 @@ test_that(".cli_debug respects output level", {
 })
 
 test_that(".cli_stage_header respects output level", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # At "none" level, should not produce output
@@ -87,6 +93,7 @@ test_that(".cli_stage_header respects output level", {
 })
 
 test_that("Build functions accept output_level parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Verify the parameter exists in the function signatures
@@ -102,6 +109,7 @@ test_that("Build functions accept output_level parameter", {
 })
 
 test_that("CLI output works in actual build (integration test)", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -124,6 +132,7 @@ test_that("CLI output works in actual build (integration test)", {
 })
 
 test_that("PROJR_OUTPUT_LEVEL validates input correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
@@ -149,6 +158,7 @@ test_that("PROJR_OUTPUT_LEVEL validates input correctly", {
 })
 
 test_that("PROJR_OUTPUT_LEVEL explicit parameter overrides env var", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
@@ -163,6 +173,7 @@ test_that("PROJR_OUTPUT_LEVEL explicit parameter overrides env var", {
 })
 
 test_that("PROJR_OUTPUT_LEVEL defaults work correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
@@ -179,6 +190,7 @@ test_that("PROJR_OUTPUT_LEVEL defaults work correctly", {
 })
 
 test_that("CLI functions handle NULL log_file parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # All CLI functions should handle NULL log_file gracefully
@@ -190,6 +202,7 @@ test_that("CLI functions handle NULL log_file parameter", {
 })
 
 test_that("CLI debug messages only show at debug level", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # At "none" level, debug should be silent
@@ -203,6 +216,7 @@ test_that("CLI debug messages only show at debug level", {
 })
 
 test_that("CLI message hierarchy works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # none level - nothing shows
@@ -222,6 +236,7 @@ test_that("CLI message hierarchy works correctly", {
 })
 
 test_that(".cli_eval_message evaluates glue expressions", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test simple glue expression
@@ -258,6 +273,7 @@ test_that(".cli_eval_message evaluates glue expressions", {
 })
 
 test_that("CLI functions log evaluated glue expressions", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -287,6 +303,7 @@ test_that("CLI functions log evaluated glue expressions", {
 })
 
 test_that("CLI functions handle complex glue expressions in logs", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -324,6 +341,7 @@ test_that("CLI functions handle complex glue expressions in logs", {
 })
 
 test_that(".cli_process_start works with different output levels", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # At "none" level, should not produce output
@@ -337,6 +355,7 @@ test_that(".cli_process_start works with different output levels", {
 })
 
 test_that(".cli_process_done works with different output levels", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # At "none" level, should not produce output
@@ -351,6 +370,7 @@ test_that(".cli_process_done works with different output levels", {
 })
 
 test_that(".cli_process_start and .cli_process_done log messages", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -389,6 +409,7 @@ test_that(".cli_process_start and .cli_process_done log messages", {
 })
 
 test_that(".cli_eval_message handles glue errors gracefully", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with invalid glue syntax - should return original text
@@ -408,6 +429,7 @@ test_that(".cli_eval_message handles glue errors gracefully", {
 })
 
 test_that(".cli_process_start and .cli_process_done integrate with cli package", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test that process start returns an ID at std level
@@ -430,6 +452,7 @@ test_that(".cli_process_start and .cli_process_done integrate with cli package",
 })
 
 test_that(".cli_process_start and .cli_process_done work together with actual ID", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Start a process and capture the ID
@@ -455,6 +478,7 @@ test_that(".cli_process_start and .cli_process_done work together with actual ID
 })
 
 test_that(".cli_eval_message handles truly invalid glue expressions", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Try to trigger a glue error by using a malformed expression

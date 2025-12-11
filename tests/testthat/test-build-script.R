@@ -1,4 +1,5 @@
 test_that(".build_pre_script_run and .build_post_script_run work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -45,6 +46,7 @@ test_that(".build_pre_script_run and .build_post_script_run work", {
 })
 
 test_that(".build_script_run works with empty configuration", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -65,6 +67,7 @@ test_that(".build_script_run works with empty configuration", {
 })
 
 test_that(".script_run errors when file doesn't exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -81,6 +84,7 @@ test_that(".script_run errors when file doesn't exist", {
 })
 
 test_that(".script_run executes script in isolated environment", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -108,6 +112,7 @@ test_that(".script_run executes script in isolated environment", {
 })
 
 test_that(".build_script_run_title filters by stage correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -156,6 +161,7 @@ test_that(".build_script_run_title filters by stage correctly", {
 })
 
 test_that(".build_script_run_title handles multiple paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -192,6 +198,7 @@ test_that(".build_script_run_title handles multiple paths", {
 })
 
 test_that(".build_script_run handles multiple titles with different stages", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -256,6 +263,7 @@ test_that(".build_script_run handles multiple titles with different stages", {
 })
 
 test_that(".script_run returns invisible NULL", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -276,6 +284,7 @@ test_that(".script_run returns invisible NULL", {
 })
 
 test_that(".build_script_run_title returns FALSE when stage doesn't match", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -301,6 +310,7 @@ test_that(".build_script_run_title returns FALSE when stage doesn't match", {
 })
 
 test_that(".build_script_run processes scripts in order", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 

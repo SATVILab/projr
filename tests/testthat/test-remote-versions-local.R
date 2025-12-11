@@ -22,6 +22,7 @@ dir_test <- .test_setup_project(
 # =============================================================================
 
 test_that(".remote_write_changelog works for local remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -68,6 +69,7 @@ test_that(".remote_write_changelog works for local remotes", {
 })
 
 test_that(".remote_write_changelog handles missing CHANGELOG gracefully", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -100,6 +102,7 @@ test_that(".remote_write_changelog handles missing CHANGELOG gracefully", {
 # =============================================================================
 
 test_that(".remote_detect_structure_local detects archive structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -119,6 +122,7 @@ test_that(".remote_detect_structure_local detects archive structure", {
 })
 
 test_that(".remote_detect_structure_local detects latest structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Latest structure: path doesn't end with version
@@ -133,6 +137,7 @@ test_that(".remote_detect_structure_local detects latest structure", {
 })
 
 test_that(".remote_detect_structure dispatches correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -153,6 +158,7 @@ test_that(".remote_detect_structure dispatches correctly", {
 # =============================================================================
 
 test_that(".version_get_remote_local extracts version from path", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -172,6 +178,7 @@ test_that(".version_get_remote_local extracts version from path", {
 })
 
 test_that(".version_get_remote_local returns NULL for invalid versions", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Invalid versions
@@ -186,6 +193,7 @@ test_that(".version_get_remote_local returns NULL for invalid versions", {
 })
 
 test_that(".version_get_remote dispatches correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -205,6 +213,7 @@ test_that(".version_get_remote dispatches correctly", {
 # =============================================================================
 
 test_that(".remote_version_latest_get finds latest version from local files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # For local type, input should have v prefix (gets removed internally)
@@ -217,6 +226,7 @@ test_that(".remote_version_latest_get finds latest version from local files", {
 })
 
 test_that(".remote_version_latest_get handles empty suffixes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # With -empty suffix
@@ -228,6 +238,7 @@ test_that(".remote_version_latest_get handles empty suffixes", {
 })
 
 test_that(".remote_version_latest_get handles errors gracefully for non-versions", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test that it returns empty for truly invalid input
@@ -245,6 +256,7 @@ test_that(".remote_version_latest_get handles errors gracefully for non-versions
 })
 
 test_that(".remote_version_latest_get handles empty input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .remote_version_latest_get(character(0), "local", "output")
@@ -256,6 +268,7 @@ test_that(".remote_version_latest_get handles empty input", {
 # =============================================================================
 
 test_that(".remote_version_latest_filter filters by version format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -276,6 +289,7 @@ test_that(".remote_version_latest_filter filters by version format", {
 })
 
 test_that(".remote_version_latest_filter handles empty input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .remote_version_latest_filter(character(0), "local", "output")
@@ -287,6 +301,7 @@ test_that(".remote_version_latest_filter handles empty input", {
 # =============================================================================
 
 test_that(".remote_version_latest_extract extracts latest version", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -304,6 +319,7 @@ test_that(".remote_version_latest_extract extracts latest version", {
 })
 
 test_that(".remote_version_latest_extract handles empty suffix", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -321,6 +337,7 @@ test_that(".remote_version_latest_extract handles empty suffix", {
 })
 
 test_that(".remote_version_latest_extract returns empty for invalid input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .remote_version_latest_extract(character(0), "output")
@@ -335,6 +352,7 @@ test_that(".remote_version_latest_extract returns empty for invalid input", {
 # =============================================================================
 
 test_that(".remote_get_version_latest_label works with archive structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -391,6 +409,7 @@ test_that(".remote_get_version_latest_label works with archive structure", {
 })
 
 test_that(".remote_get_version_latest_label returns empty for mismatched manifests", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -446,6 +465,7 @@ test_that(".remote_get_version_latest_label returns empty for mismatched manifes
 })
 
 test_that(".remote_get_version_latest_label_non_project_archive detects versions", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -479,6 +499,7 @@ test_that(".remote_get_version_latest_label_non_project_archive detects versions
 })
 
 test_that(".remote_get_version_latest_label_non_project_archive returns empty for latest structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   remote_base <- "/path/to/remote"
@@ -497,6 +518,7 @@ test_that(".remote_get_version_latest_label_non_project_archive returns empty fo
 # =============================================================================
 
 test_that(".remote_get_version_file_read reads VERSION file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Create temp VERSION file
@@ -515,6 +537,7 @@ test_that(".remote_get_version_file_read reads VERSION file", {
 })
 
 test_that(".remote_get_version_file_read returns empty for missing file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .remote_get_version_file_read("/nonexistent/path")
@@ -525,6 +548,7 @@ test_that(".remote_get_version_file_read returns empty for missing file", {
 })
 
 test_that(".remote_get_version_latest_label_non_project_file_extract extracts version", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   version_file <- c("output: 0.0.1", "raw-data: 0.0.2", "docs: 1.0.0")
@@ -549,6 +573,7 @@ test_that(".remote_get_version_latest_label_non_project_file_extract extracts ve
 })
 
 test_that(".remote_get_version_latest_label_non_project_file_extract handles asterisk trust marker", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # VERSION file with trust asterisk
@@ -563,6 +588,7 @@ test_that(".remote_get_version_latest_label_non_project_file_extract handles ast
 })
 
 test_that(".remote_get_version_latest_label_non_project_file_extract returns empty for missing label", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   version_file <- c("output: 0.0.1", "raw-data: 0.0.2")
@@ -579,6 +605,7 @@ test_that(".remote_get_version_latest_label_non_project_file_extract returns emp
 # =============================================================================
 
 test_that(".remote_get_manifest_non_project returns empty for missing manifest", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -602,6 +629,7 @@ test_that(".remote_get_manifest_non_project returns empty for missing manifest",
 })
 
 test_that(".remote_get_manifest_project reads local project manifest", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -632,6 +660,7 @@ test_that(".remote_get_manifest_project reads local project manifest", {
 # =============================================================================
 
 test_that("full version tracking workflow with local archive remote", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(

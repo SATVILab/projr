@@ -1,4 +1,5 @@
 test_that(".init_prompt_ind returns answer_auto in test mode", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   .test_set()
   withr::defer(.test_unset())
@@ -18,6 +19,7 @@ test_that(".init_prompt_ind returns answer_auto in test mode", {
 })
 
 test_that(".init_prompt_ind returns NULL for answer_auto = NULL", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   .test_set()
   withr::defer(.test_unset())
@@ -36,6 +38,7 @@ test_that(".init_prompt_ind returns NULL for answer_auto = NULL", {
 })
 
 test_that(".init_prompt_ind returns various answer types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   .test_set()
   withr::defer(.test_unset())
@@ -66,6 +69,7 @@ test_that(".init_prompt_ind returns various answer types", {
 })
 
 test_that(".init_prompt_ind_translate returns nm_item when answer_translate is NULL", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .init_prompt_ind_translate("test_value", NULL)
@@ -76,6 +80,7 @@ test_that(".init_prompt_ind_translate returns nm_item when answer_translate is N
 })
 
 test_that(".init_prompt_ind_translate translates using answer_translate list", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   answer_translate <- list(
@@ -95,6 +100,7 @@ test_that(".init_prompt_ind_translate translates using answer_translate list", {
 })
 
 test_that(".init_prompt_ind_translate handles NULL nm_item", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   answer_translate <- list("Yes" = "y")
@@ -111,6 +117,7 @@ test_that(".init_prompt_ind_translate handles NULL nm_item", {
 })
 
 test_that(".init_prompt_ind_translate handles missing keys", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   answer_translate <- list("Yes" = "y")
@@ -121,6 +128,7 @@ test_that(".init_prompt_ind_translate handles missing keys", {
 })
 
 test_that(".init_prompt_yn returns answer_auto in test mode", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   .test_set()
   withr::defer(.test_unset())
@@ -139,6 +147,7 @@ test_that(".init_prompt_yn returns answer_auto in test mode", {
 })
 
 test_that(".init_prompt_yn handles various answer_auto values", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   .test_set()
   withr::defer(.test_unset())
@@ -159,6 +168,7 @@ test_that(".init_prompt_yn handles various answer_auto values", {
 })
 
 test_that(".init_prompt_ind with allow_specify_other variations", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   .test_set()
   withr::defer(.test_unset())
@@ -183,6 +193,7 @@ test_that(".init_prompt_ind with allow_specify_other variations", {
 })
 
 test_that(".init_prompt_ind with allow_complete_later variations", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   .test_set()
   withr::defer(.test_unset())
@@ -207,6 +218,7 @@ test_that(".init_prompt_ind with allow_complete_later variations", {
 })
 
 test_that(".init_prompt_ind with option_default", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   .test_set()
   withr::defer(.test_unset())
@@ -229,6 +241,7 @@ test_that(".init_prompt_ind with option_default", {
 })
 
 test_that(".init_prompt_ind with answer_translate", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   .test_set()
   withr::defer(.test_unset())
@@ -249,6 +262,7 @@ test_that(".init_prompt_ind with answer_translate", {
 })
 
 test_that(".init_prompt_ind with .var set via environment variable", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   .test_set()
   withr::defer(.test_unset())
@@ -274,6 +288,7 @@ test_that(".init_prompt_ind with .var set via environment variable", {
 })
 
 test_that(".init_prompt_ind_translate with complex answer_translate", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with various types of values
@@ -291,6 +306,7 @@ test_that(".init_prompt_ind_translate with complex answer_translate", {
 })
 
 test_that(".init_prompt_ind_translate with empty answer_translate", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Empty list
@@ -304,6 +320,7 @@ test_that(".init_prompt_ind_translate with empty answer_translate", {
 })
 
 test_that(".init_prompt_yn with different question strings", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   .test_set()
   withr::defer(.test_unset())
@@ -325,6 +342,7 @@ test_that(".init_prompt_yn with different question strings", {
 })
 
 test_that(".init_prompt_ind with NULL .var", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   .test_set()
   withr::defer(.test_unset())
@@ -339,6 +357,7 @@ test_that(".init_prompt_ind with NULL .var", {
 })
 
 test_that(".init_prompt_ind edge cases", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   .test_set()
   withr::defer(.test_unset())
@@ -366,6 +385,7 @@ test_that(".init_prompt_ind edge cases", {
 })
 
 test_that(".init_prompt_ind_translate preserves data types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test that translation preserves various types
@@ -387,6 +407,7 @@ test_that(".init_prompt_ind_translate preserves data types", {
 })
 
 test_that(".init_prompt_yn with edge case answer_auto values", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   .test_set()
   withr::defer(.test_unset())

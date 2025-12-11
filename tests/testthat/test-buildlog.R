@@ -114,6 +114,7 @@ test_that(".buildlog_write creates file correctly", {
 })
 
 test_that(".buildlog_add creates entries correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -207,6 +208,7 @@ test_that(".buildlog_get_session_info includes session information", {
 })
 
 test_that("buildlog preserves existing entries", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -394,6 +396,7 @@ test_that(".buildlog_get_add combines all sections correctly", {
 })
 
 test_that(".build_buildlog_add works correctly for output builds", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -421,6 +424,7 @@ test_that(".build_buildlog_add works correctly for output builds", {
 })
 
 test_that(".build_buildlog_add returns FALSE for dev builds", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 

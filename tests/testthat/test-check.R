@@ -1,4 +1,5 @@
 test_that(".cli_debug logging works in assertion functions", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Setup a temporary test project directory with logging enabled
@@ -318,6 +319,7 @@ test_that("All assertion functions work as expected", {
 })
 
 test_that("Additional untested functions work correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Setup a temporary test project directory
@@ -494,6 +496,7 @@ test_that("Additional untested functions work correctly", {
 })
 
 test_that("Partially tested functions have full coverage", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Setup a temporary test project directory
@@ -577,6 +580,7 @@ test_that("Partially tested functions have full coverage", {
 })
 
 test_that("Edge cases for remaining functions with partial coverage", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(

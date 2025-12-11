@@ -1,6 +1,7 @@
 # Tests for version function validation and edge cases
 
 test_that(".version_check_error_free returns correct values", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -26,6 +27,7 @@ test_that(".version_check_error_free returns correct values", {
 })
 
 test_that(".version_v_rm validates input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Valid input
@@ -42,6 +44,7 @@ test_that(".version_v_rm validates input", {
 })
 
 test_that(".version_v_add validates input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Valid input
@@ -56,6 +59,7 @@ test_that(".version_v_add validates input", {
 })
 
 test_that(".version_get_earliest validates input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Valid input
@@ -75,6 +79,7 @@ test_that(".version_get_earliest validates input", {
 })
 
 test_that(".version_get_latest validates input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Valid input
@@ -94,6 +99,7 @@ test_that(".version_get_latest validates input", {
 })
 
 test_that(".version_append validates input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -116,6 +122,7 @@ test_that(".version_append validates input", {
 })
 
 test_that(".version_current_vec_get_init_file validates VERSION file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -157,6 +164,7 @@ test_that(".version_current_vec_get_init_file validates VERSION file", {
 })
 
 test_that(".version_concat validates input and handles edge cases", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Valid inputs with numeric vectors (common usage)
@@ -176,6 +184,7 @@ test_that(".version_concat validates input and handles edge cases", {
 })
 
 test_that(".version_format_list_get validates version format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -200,6 +209,7 @@ test_that(".version_format_list_get validates version format", {
 })
 
 test_that("version functions handle edge cases in version parsing", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -229,6 +239,7 @@ test_that("version functions handle edge cases in version parsing", {
 })
 
 test_that(".yml_version_format_set_check validates version formats correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Valid formats with "dev" suffix should pass
@@ -282,6 +293,7 @@ test_that(".yml_version_format_set_check validates version formats correctly", {
 })
 
 test_that(".version_format_list_get handles error cases correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 

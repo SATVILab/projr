@@ -1,6 +1,7 @@
 # bookdown
 # ------------------------
 test_that("projr_build_dev works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -454,6 +455,7 @@ test_that("PROJR_CLEAR_OUTPUT validates input strictly", {
 
 # Test .build_get_output_run
 test_that(".build_get_output_run returns correct values", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Production builds should return TRUE
@@ -468,6 +470,7 @@ test_that(".build_get_output_run returns correct values", {
 
 # Test .build_ensure_version
 test_that(".build_ensure_version creates VERSION file when missing", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -490,6 +493,7 @@ test_that(".build_ensure_version creates VERSION file when missing", {
 })
 
 test_that(".build_ensure_version does nothing when VERSION exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -508,6 +512,7 @@ test_that(".build_ensure_version does nothing when VERSION exists", {
 })
 
 test_that(".build_ensure_version does nothing when DESCRIPTION exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -532,6 +537,7 @@ test_that(".build_ensure_version does nothing when DESCRIPTION exists", {
 
 # Test .build_dev_get_bump_component
 test_that(".build_dev_get_bump_component returns NULL when not on dev version", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -553,6 +559,7 @@ test_that(".build_dev_get_bump_component returns NULL when not on dev version", 
 })
 
 test_that(".build_dev_get_bump_component respects bump when on dev version", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -613,6 +620,7 @@ test_that(".build_post_dev appends dev component after production build", {
 })
 
 test_that(".build_post_dev skips dev bump for dev builds", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

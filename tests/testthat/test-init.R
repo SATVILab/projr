@@ -1,4 +1,5 @@
 test_that("projr_init works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -162,6 +163,7 @@ test_that(".init_ignore works", {
 })
 
 test_that(".init_renv works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), paste0("testProjr2"))
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -719,6 +721,7 @@ test_that("projr_init_license works with different license types", {
 })
 
 test_that("projr_init_renv works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if_not(
     .test_should_run_renv(),
@@ -762,6 +765,7 @@ test_that("projr_init_renviron works", {
 # ========================================
 
 test_that(".init_usethis_std sets project correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), "testProjrUsethis")
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -787,6 +791,7 @@ test_that(".init_usethis_std sets project correctly", {
 })
 
 test_that(".init_dir_std creates directories when enabled", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), "testProjrDirStd")
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -831,6 +836,7 @@ test_that(".init_dir_std creates directories when enabled", {
 })
 
 test_that(".init_readme_std handles various scenarios", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with readme = TRUE, readme_rmd = TRUE
@@ -912,6 +918,7 @@ test_that(".init_readme_std handles various scenarios", {
 })
 
 test_that(".init_desc_std creates DESCRIPTION when enabled", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), "testProjrDescStd")
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
@@ -974,6 +981,7 @@ test_that(".init_desc_std creates DESCRIPTION when enabled", {
 })
 
 test_that(".init_license_std handles various license types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with NULL license
@@ -1034,6 +1042,7 @@ test_that(".init_license_std handles various license types", {
 })
 
 test_that(".init_cite_std creates citation files when DESCRIPTION exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with cite = FALSE
@@ -1104,6 +1113,7 @@ test_that(".init_cite_std creates citation files when DESCRIPTION exists", {
 })
 
 test_that(".init_yml_std creates projr.yml when enabled", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with init_yml = FALSE
@@ -1163,6 +1173,7 @@ test_that(".init_yml_std creates projr.yml when enabled", {
 })
 
 test_that(".init_engine_std handles different literate documentation engines", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with NULL lit_doc
@@ -1254,6 +1265,7 @@ test_that(".init_engine_std handles different literate documentation engines", {
 })
 
 test_that(".init_std_git initializes git repository correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with git = FALSE
@@ -1318,6 +1330,7 @@ test_that(".init_std_git initializes git repository correctly", {
 })
 
 test_that(".init_std_github handles GitHub repo creation scenarios", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with github = FALSE
@@ -1528,6 +1541,7 @@ test_that("projr_init_prompt with public = TRUE parameter", {
 })
 
 test_that(".init_git_git initializes git with commit", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- file.path(tempdir(), "testInitGitGit")
@@ -1563,6 +1577,7 @@ test_that(".init_git_git initializes git with commit", {
 })
 
 test_that(".init_git_git initializes git without commit", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- file.path(tempdir(), "testInitGitGitNoCommit")
@@ -1595,6 +1610,7 @@ test_that(".init_git_git initializes git without commit", {
 })
 
 test_that(".init_git_github does nothing when remote already exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- file.path(tempdir(), "testInitGitGithubExisting")
@@ -1628,6 +1644,7 @@ test_that(".init_git_github does nothing when remote already exists", {
 })
 
 test_that(".init_git_github stops when auth check fails", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- file.path(tempdir(), "testInitGitGithubNoAuth")
@@ -1678,6 +1695,7 @@ test_that(".init_git_github stops when auth check fails", {
 })
 
 test_that("projr_init_ignore creates ignore files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- file.path(tempdir(), "testProjrInitIgnore")
@@ -1721,6 +1739,7 @@ test_that("projr_init_ignore creates ignore files", {
 })
 
 test_that("projr_init_ignore updates existing ignore files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- file.path(tempdir(), "testProjrInitIgnoreUpdate")
@@ -1766,6 +1785,7 @@ test_that("projr_init_ignore updates existing ignore files", {
 })
 
 test_that("projr_init_license validates proprietary license parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test that proprietary license requires first_name and last_name
@@ -1786,6 +1806,7 @@ test_that("projr_init_license validates proprietary license parameters", {
 })
 
 test_that("projr_init_license works with non-proprietary licenses without names", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- file.path(tempdir(), "testProjrLicenseNoNames")

@@ -1,6 +1,7 @@
 # Test detailed projr logging system (cache/projr/log/)
 
 test_that(".log_dir_get_base returns correct path", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
 
@@ -21,6 +22,7 @@ test_that(".log_dir_get_base returns correct path", {
 })
 
 test_that(".log_dir_get_type creates directories correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
 
@@ -138,6 +140,7 @@ test_that(".log_file_get_output returns correct file path", {
 })
 
 test_that(".log_enabled checks environment variable correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Save original value
@@ -181,6 +184,7 @@ test_that(".log_enabled checks environment variable correctly", {
 })
 
 test_that(".log_build_init creates log file correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
 
@@ -251,6 +255,7 @@ test_that(".log_build_init returns NULL when logging disabled", {
 })
 
 test_that(".log_build_append adds messages to log", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
 
@@ -311,6 +316,7 @@ test_that(".log_build_section adds section headers", {
 })
 
 test_that(".log_build_finalize adds summary", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
 
@@ -366,6 +372,7 @@ test_that(".log_build_finalize marks failures", {
 })
 
 test_that(".log_history_add creates history file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
 
@@ -444,6 +451,7 @@ test_that(".log_history_add handles multiple entries", {
 })
 
 test_that("projr_log_clear clears all logs", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
 

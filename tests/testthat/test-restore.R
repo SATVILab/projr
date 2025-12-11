@@ -17,6 +17,7 @@ dir_test <- .test_setup_project(
 # =============================================================================
 
 test_that("projr_content_update validates label parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   usethis::with_project(
@@ -54,6 +55,7 @@ test_that("projr_content_update validates label parameter", {
 })
 
 test_that("projr_content_update validates pos parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   usethis::with_project(
@@ -109,6 +111,7 @@ test_that("projr_content_update validates pos parameter", {
 })
 
 test_that("projr_content_update validates type parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   usethis::with_project(
@@ -158,6 +161,7 @@ test_that("projr_content_update validates type parameter", {
 })
 
 test_that("projr_content_update validates title parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   usethis::with_project(
@@ -205,6 +209,7 @@ test_that("projr_content_update validates title parameter", {
 # =============================================================================
 
 test_that("projr_content_update handles missing manifest.csv", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   usethis::with_project(
@@ -224,6 +229,7 @@ test_that("projr_content_update handles missing manifest.csv", {
 })
 
 test_that("projr_content_update returns FALSE when no files to restore", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   usethis::with_project(
@@ -248,6 +254,7 @@ test_that("projr_content_update returns FALSE when no files to restore", {
 })
 
 test_that("projr_content_update handles empty directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   usethis::with_project(
@@ -282,6 +289,7 @@ test_that("projr_content_update handles empty directory", {
 })
 
 test_that("projr_content_update handles non-existent remote source", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   usethis::with_project(
@@ -325,6 +333,7 @@ test_that("projr_content_update handles non-existent remote source", {
 # =============================================================================
 
 test_that("projr_content_update clear parameter works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   usethis::with_project(
@@ -379,6 +388,7 @@ test_that("projr_content_update clear parameter works correctly", {
 # =============================================================================
 
 test_that("projr_content_update respects pos parameter for dest only", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   usethis::with_project(
@@ -432,6 +442,7 @@ test_that("projr_content_update respects pos parameter for dest only", {
 # =============================================================================
 
 test_that("projr_content_update can restore single label successfully", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   usethis::with_project(
@@ -477,6 +488,7 @@ test_that("projr_content_update can restore single label successfully", {
 # =============================================================================
 
 test_that("projr_content_update restores from archive structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   usethis::with_project(
@@ -525,6 +537,7 @@ test_that("projr_content_update restores from archive structure", {
 # =============================================================================
 
 test_that("projr_content_update handles partial failures gracefully", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   usethis::with_project(
@@ -571,6 +584,7 @@ test_that("projr_content_update handles partial failures gracefully", {
 # =============================================================================
 
 test_that("projr_content_update handles latest structure overwrites", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   usethis::with_project(

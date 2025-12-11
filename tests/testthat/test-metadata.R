@@ -2,6 +2,7 @@
 # ================================
 
 test_that(".metadata_get_author_host works with git", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -146,6 +147,7 @@ test_that(".metadata_get_time works", {
 })
 
 test_that(".metadata_get_date works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   date_str <- .metadata_get_date()
@@ -167,6 +169,7 @@ test_that(".metadata_get_date works", {
 })
 
 test_that(".metadata_get_author_host falls back to non_git when git config name is invalid", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -192,6 +195,7 @@ test_that(".metadata_get_author_host falls back to non_git when git config name 
 })
 
 test_that(".metadata_get_author_host falls back to non_git when git config name is empty", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -217,6 +221,7 @@ test_that(".metadata_get_author_host falls back to non_git when git config name 
 })
 
 test_that(".metadata_get_author_host_env errors with unrecognized OS", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Use with_mocked_bindings for proper scoping
@@ -234,6 +239,7 @@ test_that(".metadata_get_author_host_env errors with unrecognized OS", {
 })
 
 test_that(".metadata_get_author_host_env falls back to Sys.info when env var is empty", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   os <- .metadata_get_os()
@@ -253,6 +259,7 @@ test_that(".metadata_get_author_host_env falls back to Sys.info when env var is 
 })
 
 test_that(".metadata_get_author_sys_info handles various fallback scenarios", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # We can test that the function returns a valid result
@@ -278,6 +285,7 @@ test_that(".metadata_get_author_sys_info handles various fallback scenarios", {
 # ===================================
 
 test_that(".yml_metadata_get_nm works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -300,6 +308,7 @@ test_that(".yml_metadata_get_nm works", {
 })
 
 test_that(".yml_metadata_set_nm works with non-empty value", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -320,6 +329,7 @@ test_that(".yml_metadata_set_nm works with non-empty value", {
 })
 
 test_that(".yml_metadata_set_nm works with empty value", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -343,6 +353,7 @@ test_that(".yml_metadata_set_nm works with empty value", {
 })
 
 test_that(".yml_metadata_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -360,6 +371,7 @@ test_that(".yml_metadata_get works", {
 })
 
 test_that(".yml_metadata_set works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(

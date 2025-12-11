@@ -2,6 +2,7 @@
 # Focus on internal functions and edge cases
 
 test_that(".ignore_diryml works with git_skip_adjust parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
 
@@ -38,6 +39,7 @@ test_that(".ignore_diryml works with git_skip_adjust parameter", {
 })
 
 test_that(".ignore_diryml_git handles missing git repo and .gitignore", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -62,6 +64,7 @@ test_that(".ignore_diryml_git handles missing git repo and .gitignore", {
 })
 
 test_that(".ignore_get_git handles inconsistent ignore settings", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -88,6 +91,7 @@ directories:
 })
 
 test_that(".ignore_get_git uses ignore when ignore-git is NULL", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -123,6 +127,7 @@ directories:
 })
 
 test_that(".ignore_get_git defaults to TRUE when both are NULL", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -137,6 +142,7 @@ test_that(".ignore_get_git defaults to TRUE when both are NULL", {
 })
 
 test_that(".ignore_get_rbuild handles inconsistent ignore settings", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -163,6 +169,7 @@ directories:
 })
 
 test_that(".ignore_get_rbuild uses ignore when ignore-rbuild is NULL", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -186,6 +193,7 @@ directories:
 })
 
 test_that(".ignore_get_git_skip_adjust respects git_skip_adjust parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
 
@@ -208,6 +216,7 @@ test_that(".ignore_get_git_skip_adjust respects git_skip_adjust parameter", {
 })
 
 test_that(".ignore_get_git_skip_adjust returns FALSE without git", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -222,6 +231,7 @@ test_that(".ignore_get_git_skip_adjust returns FALSE without git", {
 })
 
 test_that(".ignore_check_git_skip_adjust_possible checks prerequisites", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -248,6 +258,7 @@ test_that(".ignore_check_git_skip_adjust_possible checks prerequisites", {
 })
 
 test_that(".git_skip and .git_unskip work with tracked files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
 
@@ -288,6 +299,7 @@ test_that(".git_skip and .git_unskip work with tracked files", {
 })
 
 test_that(".git_skip handles empty directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
 
@@ -310,6 +322,7 @@ test_that(".git_skip handles empty directory", {
 })
 
 test_that(".git_unskip handles directory with no skipped files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
 
@@ -331,6 +344,7 @@ test_that(".git_unskip handles directory with no skipped files", {
 })
 
 test_that(".git_get_tracked returns tracked files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
 
@@ -354,6 +368,7 @@ test_that(".git_get_tracked returns tracked files", {
 })
 
 test_that(".git_get_tracked returns empty for untracked directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
 
@@ -373,6 +388,7 @@ test_that(".git_get_tracked returns empty for untracked directory", {
 })
 
 test_that(".git_get_skipped returns skipped files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
 
@@ -397,6 +413,7 @@ test_that(".git_get_skipped returns skipped files", {
 })
 
 test_that(".git_get_skipped returns empty for non-skipped files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
 
@@ -418,6 +435,7 @@ test_that(".git_get_skipped returns empty for non-skipped files", {
 })
 
 test_that(".ignore_diryml_path_get handles directory outside working directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -440,6 +458,7 @@ directories:
 })
 
 test_that(".ignore_diryml_path_get handles path equal to current directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -460,6 +479,7 @@ test_that(".ignore_diryml_path_get handles path equal to current directory", {
 })
 
 test_that(".ignore_diryml_path_get handles normal directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -476,6 +496,7 @@ test_that(".ignore_diryml_path_get handles normal directory", {
 })
 
 test_that(".ignore_diryml_path_get removes trailing slashes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -498,6 +519,7 @@ directories:
 })
 
 test_that(".ignore_diryml_rbuildignore_get_check validates projr section", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -572,6 +594,7 @@ test_that(".ignore_diryml_rbuildignore_get_check validates projr section", {
 })
 
 test_that(".ignore_rbuild_read handles missing file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -590,6 +613,7 @@ test_that(".ignore_rbuild_read handles missing file", {
 })
 
 test_that(".ignore_rbuild_read returns content correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -607,6 +631,7 @@ test_that(".ignore_rbuild_read returns content correctly", {
 })
 
 test_that(".ignore_rbuild_write creates file with newline", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -636,6 +661,7 @@ test_that(".ignore_rbuild_write creates file with newline", {
 })
 
 test_that(".ignore_rbuild_write can append content", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -664,6 +690,7 @@ test_that(".ignore_rbuild_write can append content", {
 })
 
 test_that(".ignore_diryml_git_get_instructions_labels includes missing labels", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -691,6 +718,7 @@ directories:
 })
 
 test_that(".ignore_diryml_git_get_instructions returns proper structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -715,6 +743,7 @@ test_that(".ignore_diryml_git_get_instructions returns proper structure", {
 })
 
 test_that(".ignore_diryml_git_update_gitignore handles empty input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -733,6 +762,7 @@ test_that(".ignore_diryml_git_update_gitignore handles empty input", {
 })
 
 test_that(".ignore_diryml_git_update_skip processes multiple paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
 
@@ -866,6 +896,7 @@ test_that(".git_skip handles files with spaces in names", {
 })
 
 test_that(".ignore_diryml_rbuild creates correct patterns", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -892,6 +923,7 @@ test_that(".ignore_diryml_rbuild creates correct patterns", {
 })
 
 test_that(".ignore_diryml_rbuild respects ignore-rbuild settings", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -927,6 +959,7 @@ directories:
 })
 
 test_that(".ignore_diryml handles missing directories gracefully", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -951,6 +984,7 @@ directories:
 # Additional tests for improved coverage
 
 test_that(".ignore_diryml_git_get_instructions_label returns empty for missing path", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -979,6 +1013,7 @@ directories:
 })
 
 test_that(".ignore_diryml_git_get_instructions_label_impl handles ignore_git FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -1010,6 +1045,7 @@ directories:
 })
 
 test_that(".ignore_diryml_git_get_instructions_label_impl handles git_skip_adjust FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -1033,6 +1069,7 @@ test_that(".ignore_diryml_git_get_instructions_label_impl handles git_skip_adjus
 })
 
 test_that(".ignore_diryml_git_get_instructions_label_impl with git_skip_adjust TRUE and ignore FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
 
@@ -1064,6 +1101,7 @@ directories:
 })
 
 test_that(".ignore_diryml_rbuildignore_get handles empty .Rbuildignore", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -1086,6 +1124,7 @@ test_that(".ignore_diryml_rbuildignore_get handles empty .Rbuildignore", {
 })
 
 test_that(".ignore_diryml_rbuildignore_get adds markers to non-empty file without projr section", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -1111,6 +1150,7 @@ test_that(".ignore_diryml_rbuildignore_get adds markers to non-empty file withou
 })
 
 test_that(".ignore_diryml_rbuildignore_get preserves existing projr section", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -1139,6 +1179,7 @@ test_that(".ignore_diryml_rbuildignore_get preserves existing projr section", {
 })
 
 test_that(".ignore_diryml_git_update_gitignore updates gitignore correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -1162,6 +1203,7 @@ test_that(".ignore_diryml_git_update_gitignore updates gitignore correctly", {
 })
 
 test_that(".ignore_get_git handles ignore-git explicitly set to TRUE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -1183,6 +1225,7 @@ directories:
 })
 
 test_that(".ignore_get_git handles matching ignore-git and ignore", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -1219,6 +1262,7 @@ directories:
 })
 
 test_that(".ignore_get_rbuild returns FALSE correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -1240,6 +1284,7 @@ directories:
 })
 
 test_that(".ignore_get_rbuild matches ignore-rbuild and ignore when both set", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -1276,6 +1321,7 @@ directories:
 })
 
 test_that(".ignore_get_git_skip_adjust reads from YAML config", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
 
@@ -1378,6 +1424,7 @@ test_that(".git_unskip processes exactly 50 files (batch boundary)", {
 })
 
 test_that(".ignore_diryml_rbuild handles label without path", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -1392,6 +1439,7 @@ test_that(".ignore_diryml_rbuild handles label without path", {
 })
 
 test_that(".ignore_diryml integration test with git and rbuild", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
 

@@ -4,6 +4,7 @@
 # Test setter functions --------------------------------------------------------
 
 test_that(".test_set works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Clean state
@@ -20,6 +21,7 @@ test_that(".test_set works", {
 })
 
 test_that(".test_set_select works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Clean state
@@ -36,6 +38,7 @@ test_that(".test_set_select works", {
 })
 
 test_that(".test_set_cran works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Clean state
@@ -52,6 +55,7 @@ test_that(".test_set_cran works", {
 })
 
 test_that(".test_set_lite works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Clean state
@@ -68,6 +72,7 @@ test_that(".test_set_lite works", {
 })
 
 test_that(".test_set_debug works (backward compatibility)", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Clean state
@@ -88,6 +93,7 @@ test_that(".test_set_debug works (backward compatibility)", {
 # Test unsetter functions ------------------------------------------------------
 
 test_that(".test_unset works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Set and verify it's set
@@ -101,6 +107,7 @@ test_that(".test_unset works", {
 })
 
 test_that(".test_unset_select works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Set and verify it's set
@@ -114,6 +121,7 @@ test_that(".test_unset_select works", {
 })
 
 test_that(".test_unset_cran works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Set and verify it's set
@@ -127,6 +135,7 @@ test_that(".test_unset_cran works", {
 })
 
 test_that(".test_unset_lite works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Set and verify it's set
@@ -140,6 +149,7 @@ test_that(".test_unset_lite works", {
 })
 
 test_that(".test_unset_debug works (backward compatibility)", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Set via debug and verify it's set
@@ -156,6 +166,7 @@ test_that(".test_unset_debug works (backward compatibility)", {
 # Test checker functions -------------------------------------------------------
 
 test_that(".is_test works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Clean state
@@ -177,6 +188,7 @@ test_that(".is_test works", {
 })
 
 test_that(".is_test_select works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Clean state
@@ -198,6 +210,7 @@ test_that(".is_test_select works", {
 })
 
 test_that(".is_test_cran works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Clean state
@@ -219,6 +232,7 @@ test_that(".is_test_cran works", {
 })
 
 test_that(".is_test_lite works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Clean state
@@ -240,6 +254,7 @@ test_that(".is_test_lite works", {
 })
 
 test_that(".is_test_debug works (backward compatibility)", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Clean state
@@ -262,6 +277,7 @@ test_that(".is_test_debug works (backward compatibility)", {
 # Test interactions between modes ----------------------------------------------
 
 test_that("multiple test modes can coexist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Clean state
@@ -298,6 +314,7 @@ test_that("multiple test modes can coexist", {
 })
 
 test_that("environment variables persist across function calls", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Clean state
@@ -318,6 +335,7 @@ test_that("environment variables persist across function calls", {
 })
 
 test_that("backward compatibility functions work identically to new ones", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Clean state
@@ -343,6 +361,7 @@ test_that("backward compatibility functions work identically to new ones", {
 # Test edge cases --------------------------------------------------------------
 
 test_that("unsetting already unset variables works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Ensure variables are not set
@@ -360,6 +379,7 @@ test_that("unsetting already unset variables works", {
 })
 
 test_that("setting already set variables works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   
   # Set variables

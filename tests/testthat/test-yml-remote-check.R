@@ -1,4 +1,5 @@
 test_that(".yml_remote_check validates required parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Missing role should fail
@@ -45,6 +46,7 @@ test_that(".yml_remote_check validates required parameters", {
 })
 
 test_that(".yml_remote_check validates optional string parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Valid title should pass
@@ -101,6 +103,7 @@ test_that(".yml_remote_check validates optional string parameters", {
 })
 
 test_that(".yml_remote_check validates content parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Valid content should pass
@@ -152,6 +155,7 @@ test_that(".yml_remote_check validates content parameter", {
 })
 
 test_that(".yml_remote_check validates structure parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Valid structures should pass
@@ -195,6 +199,7 @@ test_that(".yml_remote_check validates structure parameter", {
 })
 
 test_that(".yml_remote_check validates path parameter for local type", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Path required for local type
@@ -250,6 +255,7 @@ test_that(".yml_remote_check validates path parameter for local type", {
 })
 
 test_that(".yml_remote_check validates flag parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Valid path_append_label should pass
@@ -330,6 +336,7 @@ test_that(".yml_remote_check validates flag parameters", {
 })
 
 test_that(".yml_remote_check validates OSF-specific parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Public required for osf type
@@ -438,6 +445,7 @@ test_that(".yml_remote_check validates OSF-specific parameters", {
 })
 
 test_that(".yml_remote_check validates id and id_parent parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Valid id should pass (exactly 5 characters)
@@ -543,6 +551,7 @@ test_that(".yml_remote_check validates id and id_parent parameters", {
 })
 
 test_that(".yml_remote_check validates get_list parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Empty get_list should pass
@@ -671,6 +680,7 @@ test_that(".yml_remote_check validates get_list parameter", {
 })
 
 test_that(".yml_remote_check validates send_list parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Empty send_list should pass
@@ -873,6 +883,7 @@ test_that(".yml_remote_check validates send_list parameter", {
 })
 
 test_that(".yml_remote_check validates combinations for different remote types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Valid local remote with all options
@@ -941,6 +952,7 @@ test_that(".yml_remote_check validates combinations for different remote types",
 })
 
 test_that(".yml_remote_check allows NULL for optional parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # All optional parameters as NULL should pass (except required ones)

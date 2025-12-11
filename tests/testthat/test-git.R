@@ -1,4 +1,5 @@
 test_that("projr_yml_git_ functions work", {
+  skip_if(.is_test_cran())
   # setup
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -61,6 +62,7 @@ test_that("projr_yml_git_ functions work", {
 })
 
 test_that(".git_ functions work", { # setup
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -143,6 +145,7 @@ test_that(".git_ functions work", { # setup
 
 
 test_that(".git_ functions work with GitHub", { # setup
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   .test_skip_if_cannot_modify_github()
 
@@ -308,6 +311,7 @@ test_that(".git_ functions work with GitHub", { # setup
 # =======================================
 
 test_that(".git_repo_is_worktree works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -325,6 +329,7 @@ test_that(".git_repo_is_worktree works", {
 })
 
 test_that(".git_changed_filter works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -367,6 +372,7 @@ test_that(".git_changed_filter works", {
 })
 
 test_that(".git_commit_all works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -407,6 +413,7 @@ test_that(".git_commit_all works", {
 })
 
 test_that(".git_branch_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -433,6 +440,7 @@ test_that(".git_branch_get works", {
 })
 
 test_that(".git_last_commit_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -465,6 +473,7 @@ test_that(".git_last_commit_get works", {
 })
 
 test_that(".git_untracked_not_ignored_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -505,6 +514,7 @@ test_that(".git_untracked_not_ignored_get works", {
 })
 
 test_that(".git_config_get_name and .git_config_get_email work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -540,6 +550,7 @@ test_that(".git_config_get_name and .git_config_get_email work", {
 })
 
 test_that(".git_system_get and .git_system_check_git work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Check if git system is available
@@ -557,6 +568,7 @@ test_that(".git_system_get and .git_system_check_git work", {
 })
 
 test_that(".git_clone works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip()
 
@@ -574,6 +586,7 @@ test_that(".git_clone works", {
 })
 
 test_that(".git_fetch works with remote", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip()
 
@@ -582,6 +595,7 @@ test_that(".git_fetch works with remote", {
 })
 
 test_that(".git_check_behind works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -600,6 +614,7 @@ test_that(".git_check_behind works", {
 })
 
 test_that(".git_system_check_gert works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test gert availability check
@@ -613,6 +628,7 @@ test_that(".git_system_check_gert works", {
 })
 
 test_that(".git_system_setup works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # This function should return FALSE if git CLI is available
@@ -623,6 +639,7 @@ test_that(".git_system_setup works", {
 })
 
 test_that(".git_add_file_git works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -648,6 +665,7 @@ test_that(".git_add_file_git works", {
 })
 
 test_that(".git_push dispatcher works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -679,6 +697,7 @@ test_that(".git_push dispatcher works", {
 })
 
 test_that(".git_fetch dispatcher works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -709,6 +728,7 @@ test_that(".git_fetch dispatcher works", {
 })
 
 test_that(".git_changed_filter_git_ind works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -738,6 +758,7 @@ test_that(".git_changed_filter_git_ind works", {
 })
 
 test_that(".git_commit_file handles empty file vector", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 

@@ -1,4 +1,5 @@
 test_that(".yml_restrictions_check_config validates restrictions structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -68,6 +69,7 @@ test_that(".yml_restrictions_check_config validates restrictions structure", {
 })
 
 test_that("projr_yml_restrictions_set works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -120,6 +122,7 @@ test_that("projr_yml_restrictions_set works correctly", {
 })
 
 test_that(".yml_restrictions_get_branch and get_not_behind return correct defaults", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -154,6 +157,7 @@ test_that(".yml_restrictions_get_branch and get_not_behind return correct defaul
 })
 
 test_that(".build_check_branch_restriction works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
 
@@ -201,6 +205,7 @@ test_that(".build_check_branch_restriction works correctly", {
 })
 
 test_that(".build_check_branch_restriction enforces logical FALSE from YAML", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
 

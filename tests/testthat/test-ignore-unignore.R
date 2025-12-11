@@ -2,6 +2,7 @@
 # Focus on increasing test coverage for unignore functionality
 
 test_that("projr_unignore_manual handles empty strings", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -33,6 +34,7 @@ test_that("projr_unignore_manual handles empty strings", {
 })
 
 test_that("projr_unignore_manual handles non-character input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -54,6 +56,7 @@ test_that("projr_unignore_manual handles non-character input", {
 })
 
 test_that("projr_unignore_manual distinguishes files and directories", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -92,6 +95,7 @@ test_that("projr_unignore_manual distinguishes files and directories", {
 })
 
 test_that("projr_unignore_manual handles paths with trailing slashes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -123,6 +127,7 @@ test_that("projr_unignore_manual handles paths with trailing slashes", {
 })
 
 test_that("projr_unignore_manual handles nonexistent paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -153,6 +158,7 @@ test_that("projr_unignore_manual handles nonexistent paths", {
 })
 
 test_that("projr_unignore_manual_dir handles empty strings", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -170,6 +176,7 @@ test_that("projr_unignore_manual_dir handles empty strings", {
 })
 
 test_that("projr_unignore_manual_dir handles non-character input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -187,6 +194,7 @@ test_that("projr_unignore_manual_dir handles non-character input", {
 })
 
 test_that("projr_unignore_manual_file handles empty strings", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -204,6 +212,7 @@ test_that("projr_unignore_manual_file handles empty strings", {
 })
 
 test_that("projr_unignore_manual_file handles non-character input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -221,6 +230,7 @@ test_that("projr_unignore_manual_file handles non-character input", {
 })
 
 test_that("projr_unignore_manual_file_git handles existing ! prefix", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -247,6 +257,7 @@ test_that("projr_unignore_manual_file_git handles existing ! prefix", {
 })
 
 test_that("projr_unignore_manual_file_git handles multiple ! prefixes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -273,6 +284,7 @@ test_that("projr_unignore_manual_file_git handles multiple ! prefixes", {
 })
 
 test_that("projr_unignore_manual_dir_git handles existing /** suffix", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -298,6 +310,7 @@ test_that("projr_unignore_manual_dir_git handles existing /** suffix", {
 })
 
 test_that("projr_unignore_manual_dir_git handles paths without /** suffix", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -322,6 +335,7 @@ test_that("projr_unignore_manual_dir_git handles paths without /** suffix", {
 })
 
 test_that("projr_unignore_manual_file_rbuild handles trailing slashes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -347,6 +361,7 @@ test_that("projr_unignore_manual_file_rbuild handles trailing slashes", {
 })
 
 test_that("projr_unignore_manual_file_rbuild handles whitespace", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -371,6 +386,7 @@ test_that("projr_unignore_manual_file_rbuild handles whitespace", {
 })
 
 test_that("projr_unignore_manual_dir_rbuild handles trailing slashes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -395,6 +411,7 @@ test_that("projr_unignore_manual_dir_rbuild handles trailing slashes", {
 })
 
 test_that("projr_unignore_manual_dir_rbuild creates correct regex patterns", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -425,6 +442,7 @@ test_that("projr_unignore_manual_dir_rbuild creates correct regex patterns", {
 })
 
 test_that(".unignore_manual_path_add handles empty input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -448,6 +466,7 @@ test_that(".unignore_manual_path_add handles empty input", {
 })
 
 test_that(".unignore_manual_path_add adds patterns after projr section", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -487,6 +506,7 @@ test_that(".unignore_manual_path_add adds patterns after projr section", {
 })
 
 test_that(".unignore_manual_path_add handles file without projr section", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -516,6 +536,7 @@ test_that(".unignore_manual_path_add handles file without projr section", {
 })
 
 test_that(".unignore_manual_path_add removes duplicates", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -544,6 +565,7 @@ test_that(".unignore_manual_path_add removes duplicates", {
 })
 
 test_that(".unignore_manual_path_add_get_updated_end handles empty end", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with length 0 end
@@ -552,6 +574,7 @@ test_that(".unignore_manual_path_add_get_updated_end handles empty end", {
 })
 
 test_that(".unignore_manual_path_add_get_updated_end handles single empty string end", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with single empty string
@@ -560,6 +583,7 @@ test_that(".unignore_manual_path_add_get_updated_end handles single empty string
 })
 
 test_that(".unignore_manual_path_add_get_updated_end handles non-empty single end", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with non-empty single element
@@ -568,6 +592,7 @@ test_that(".unignore_manual_path_add_get_updated_end handles non-empty single en
 })
 
 test_that(".unignore_manual_path_add_get_updated_end handles multiple end elements", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with multiple end elements
@@ -579,6 +604,7 @@ test_that(".unignore_manual_path_add_get_updated_end handles multiple end elemen
 })
 
 test_that(".unignore_manual_path_add_get_updated_end avoids duplicates", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test when ignore patterns are already in end
@@ -592,6 +618,7 @@ test_that(".unignore_manual_path_add_get_updated_end avoids duplicates", {
 })
 
 test_that("projr_unignore_manual works with mixed existing and nonexistent paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -635,6 +662,7 @@ test_that("projr_unignore_manual works with mixed existing and nonexistent paths
 })
 
 test_that("projr_unignore_manual is idempotent", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -662,6 +690,7 @@ test_that("projr_unignore_manual is idempotent", {
 })
 
 test_that("projr_unignore_manual_file_git handles empty and non-character input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -679,6 +708,7 @@ test_that("projr_unignore_manual_file_git handles empty and non-character input"
 })
 
 test_that("projr_unignore_manual_dir_git handles empty and non-character input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -696,6 +726,7 @@ test_that("projr_unignore_manual_dir_git handles empty and non-character input",
 })
 
 test_that("projr_unignore_manual_file_rbuild handles empty and non-character input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -713,6 +744,7 @@ test_that("projr_unignore_manual_file_rbuild handles empty and non-character inp
 })
 
 test_that("projr_unignore_manual_dir_rbuild handles empty and non-character input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

@@ -6,6 +6,7 @@
 # =============================================================================
 
 test_that(".build_renv_snapshot_check returns FALSE when output_run is FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -20,6 +21,7 @@ test_that(".build_renv_snapshot_check returns FALSE when output_run is FALSE", {
 })
 
 test_that(".build_renv_snapshot_check returns FALSE in test environment", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -35,6 +37,7 @@ test_that(".build_renv_snapshot_check returns FALSE in test environment", {
 })
 
 test_that(".build_renv_snapshot_check returns FALSE when renv not detected", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_no_renv")
   dir.create(dir_test)
@@ -64,6 +67,7 @@ test_that(".build_renv_snapshot_check returns FALSE when renv not detected", {
 # =============================================================================
 
 test_that(".build_renv_snapshot returns FALSE when output_run is FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -78,6 +82,7 @@ test_that(".build_renv_snapshot returns FALSE when output_run is FALSE", {
 })
 
 test_that(".build_renv_snapshot returns FALSE in test environment", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -96,6 +101,7 @@ test_that(".build_renv_snapshot returns FALSE in test environment", {
 # =============================================================================
 
 test_that(".build_git_check returns FALSE when output_run is FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   usethis::with_project(
@@ -110,6 +116,7 @@ test_that(".build_git_check returns FALSE when output_run is FALSE", {
 })
 
 test_that(".build_git_check returns FALSE when git commit is FALSE in YAML", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
   usethis::with_project(
@@ -126,6 +133,7 @@ test_that(".build_git_check returns FALSE when git commit is FALSE in YAML", {
 })
 
 test_that(".build_git_check returns TRUE when git commit is TRUE in YAML", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
   usethis::with_project(
@@ -146,6 +154,7 @@ test_that(".build_git_check returns TRUE when git commit is TRUE in YAML", {
 # =============================================================================
 
 test_that(".build_git_commit_pre_warn runs without error when not pre stage", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   usethis::with_project(
@@ -160,6 +169,7 @@ test_that(".build_git_commit_pre_warn runs without error when not pre stage", {
 })
 
 test_that(".build_git_commit_pre_warn runs without error when output_run is FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   usethis::with_project(
@@ -174,6 +184,7 @@ test_that(".build_git_commit_pre_warn runs without error when output_run is FALS
 })
 
 test_that(".build_git_commit_pre_warn runs without error when git repo exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
   usethis::with_project(
@@ -192,6 +203,7 @@ test_that(".build_git_commit_pre_warn runs without error when git repo exists", 
 # =============================================================================
 
 test_that(".build_git_commit_get_msg returns pre-build message for pre stage", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   usethis::with_project(
@@ -207,6 +219,7 @@ test_that(".build_git_commit_get_msg returns pre-build message for pre stage", {
 })
 
 test_that(".build_git_commit_get_msg returns post-build message for post stage", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   usethis::with_project(
@@ -223,6 +236,7 @@ test_that(".build_git_commit_get_msg returns post-build message for post stage",
 })
 
 test_that(".build_git_commit_get_msg handles empty message for post stage", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   usethis::with_project(
@@ -243,6 +257,7 @@ test_that(".build_git_commit_get_msg handles empty message for post stage", {
 # =============================================================================
 
 test_that(".build_git_msg_get returns correct message for pre stage", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   usethis::with_project(
@@ -262,6 +277,7 @@ test_that(".build_git_msg_get returns correct message for pre stage", {
 })
 
 test_that(".build_git_msg_get returns correct message for post stage", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   usethis::with_project(
@@ -282,6 +298,7 @@ test_that(".build_git_msg_get returns correct message for post stage", {
 })
 
 test_that(".build_git_msg_get returns correct message for dev stage", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   usethis::with_project(
@@ -308,6 +325,7 @@ test_that(".build_git_msg_get returns correct message for dev stage", {
 # =============================================================================
 
 test_that(".build_git_msg_get_pre returns correct format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   result <- .build_git_msg_get_pre(bump_component = "patch")
   expect_identical(result, "Snapshot pre-patch build")
@@ -324,6 +342,7 @@ test_that(".build_git_msg_get_pre returns correct format", {
 # =============================================================================
 
 test_that(".build_git_msg_get_post returns correct format with message", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   version_list <- list(desc = list(success = "1.2.3"))
   result <- .build_git_msg_get_post(
@@ -335,6 +354,7 @@ test_that(".build_git_msg_get_post returns correct format with message", {
 })
 
 test_that(".build_git_msg_get_post returns correct format without message", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   version_list <- list(desc = list(success = "0.0.1"))
   result <- .build_git_msg_get_post(
@@ -350,6 +370,7 @@ test_that(".build_git_msg_get_post returns correct format without message", {
 # =============================================================================
 
 test_that(".build_git_msg_get_dev returns correct format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   usethis::with_project(
@@ -371,6 +392,7 @@ test_that(".build_git_msg_get_dev returns correct format", {
 # =============================================================================
 
 test_that(".build_git_commit returns FALSE when output_run is FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
   usethis::with_project(
@@ -391,6 +413,7 @@ test_that(".build_git_commit returns FALSE when output_run is FALSE", {
 })
 
 test_that(".build_git_commit returns FALSE when git commit is disabled", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
   usethis::with_project(
@@ -413,6 +436,7 @@ test_that(".build_git_commit returns FALSE when git commit is disabled", {
 })
 
 test_that(".build_git_commit errors when git repo missing but commits requested", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   usethis::with_project(
@@ -437,6 +461,7 @@ test_that(".build_git_commit errors when git repo missing but commits requested"
 })
 
 test_that(".build_git_commit works with valid git repo", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
   usethis::with_project(
@@ -468,6 +493,7 @@ test_that(".build_git_commit works with valid git repo", {
 # =============================================================================
 
 test_that(".build_git_push returns FALSE when output_run is FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
   usethis::with_project(
@@ -482,6 +508,7 @@ test_that(".build_git_push returns FALSE when output_run is FALSE", {
 })
 
 test_that(".build_git_push returns FALSE when git push is disabled in YAML", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
   usethis::with_project(
@@ -498,6 +525,7 @@ test_that(".build_git_push returns FALSE when git push is disabled in YAML", {
 })
 
 test_that(".build_git_push errors when no git repo exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   usethis::with_project(
@@ -516,6 +544,7 @@ test_that(".build_git_push errors when no git repo exists", {
 })
 
 test_that(".build_git_push warns when no upstream remote", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
   usethis::with_project(

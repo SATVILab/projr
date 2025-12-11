@@ -1,4 +1,5 @@
 test_that("projr_manifest_file_last_change works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -592,6 +593,7 @@ test_that("projr_manifest_file_history tracks all hash changes", {
 
 
 test_that("projr_manifest_file_last_change finds correct last change version", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

@@ -39,6 +39,7 @@ test_that("build restrictions work in actual build", {
 })
 
 test_that("branch restriction check logic works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
 

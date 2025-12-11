@@ -1,4 +1,5 @@
 test_that("README placeholders are replaced after .init_prompt_readme", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- file.path(tempdir(), "testReadmePlaceholders")
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)

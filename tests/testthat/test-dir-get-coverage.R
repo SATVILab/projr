@@ -59,6 +59,7 @@ test_that(".dir_get works for other labels", {
 })
 
 test_that(".dir_get_code creates temporary directory that gets cleaned", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Call .dir_get_code multiple times
@@ -73,6 +74,7 @@ test_that(".dir_get_code creates temporary directory that gets cleaned", {
 })
 
 test_that(".dir_get_tmp_random generates unique paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Generate multiple paths
@@ -179,6 +181,7 @@ test_that(".dir_get_label_check_not_root errors for root with non-special labels
 # ==============================================================================
 
 test_that(".dir_get_label_safe_check_unsafe identifies safe labels", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Labels that should use safe paths
@@ -242,6 +245,7 @@ test_that(".dir_get_label_safe_path constructs correct paths", {
 })
 
 test_that(".dir_get_label_safe_path_get_label handles docs specially", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Docs label should get the unsafe docs path
@@ -402,6 +406,7 @@ test_that(".dir_set_docs_safe works for docs label", {
 })
 
 test_that(".dir_set_docs_safe_check identifies docs label", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Docs label should return TRUE

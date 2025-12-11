@@ -6,6 +6,7 @@
 # ==============================================================================
 
 test_that(".ignore_auto works with archive_local parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -31,6 +32,7 @@ test_that(".ignore_auto works with archive_local parameter", {
 # ==============================================================================
 
 test_that(".ignore_auto_quarto_rbuild ignores _extensions directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -51,6 +53,7 @@ test_that(".ignore_auto_quarto_rbuild ignores _extensions directory", {
 })
 
 test_that(".ignore_auto_quarto_rbuild returns FALSE when no directories exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -69,6 +72,7 @@ test_that(".ignore_auto_quarto_rbuild returns FALSE when no directories exist", 
 })
 
 test_that(".ignore_auto_quarto_rbuild handles index_files directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -87,6 +91,7 @@ test_that(".ignore_auto_quarto_rbuild handles index_files directory", {
 })
 
 test_that(".ignore_auto_quarto_rbuild handles .quarto directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -105,6 +110,7 @@ test_that(".ignore_auto_quarto_rbuild handles .quarto directory", {
 })
 
 test_that(".ignore_auto_quarto_git ignores index_files and .quarto", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -126,6 +132,7 @@ test_that(".ignore_auto_quarto_git ignores index_files and .quarto", {
 })
 
 test_that(".ignore_auto_quarto_git returns FALSE when no directories exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -146,6 +153,7 @@ test_that(".ignore_auto_quarto_git returns FALSE when no directories exist", {
 # ==============================================================================
 
 test_that(".ignore_auto_devcontainer ignores .devcontainer directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -165,6 +173,7 @@ test_that(".ignore_auto_devcontainer ignores .devcontainer directory", {
 })
 
 test_that(".ignore_auto_devcontainer returns FALSE when directory does not exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -180,6 +189,7 @@ test_that(".ignore_auto_devcontainer returns FALSE when directory does not exist
 })
 
 test_that(".ignore_auto_github ignores .github directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -199,6 +209,7 @@ test_that(".ignore_auto_github ignores .github directory", {
 })
 
 test_that(".ignore_auto_github returns FALSE when directory does not exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -214,6 +225,7 @@ test_that(".ignore_auto_github returns FALSE when directory does not exist", {
 })
 
 test_that(".ignore_auto_vscode ignores .vscode directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -233,6 +245,7 @@ test_that(".ignore_auto_vscode ignores .vscode directory", {
 })
 
 test_that(".ignore_auto_vscode ignores .code-workspace files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -252,6 +265,7 @@ test_that(".ignore_auto_vscode ignores .code-workspace files", {
 })
 
 test_that(".ignore_auto_vscode handles .code-workspace files without .vscode dir", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -278,6 +292,7 @@ test_that(".ignore_auto_vscode handles .code-workspace files without .vscode dir
 # ==============================================================================
 
 test_that(".ignore_auto_yml ignores _projr.yml variants", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -300,6 +315,7 @@ test_that(".ignore_auto_yml ignores _projr.yml variants", {
 })
 
 test_that(".ignore_auto_yml ignores _projr-local.yml in git", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -319,6 +335,7 @@ test_that(".ignore_auto_yml ignores _projr-local.yml in git", {
 })
 
 test_that(".ignore_auto_env ignores environment files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -349,6 +366,7 @@ test_that(".ignore_auto_env ignores environment files", {
 # ==============================================================================
 
 test_that(".ignore_auto_build_source ignores .qmd files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -369,6 +387,7 @@ test_that(".ignore_auto_build_source ignores .qmd files", {
 })
 
 test_that(".ignore_auto_build_source ignores .Rmd files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -393,6 +412,7 @@ test_that(".ignore_auto_build_source ignores .Rmd files", {
 # ==============================================================================
 
 test_that(".ignore_auto_ext_rbuild ignores common file extensions", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -416,6 +436,7 @@ test_that(".ignore_auto_ext_rbuild ignores common file extensions", {
 })
 
 test_that(".ignore_auto_ext_rbuild does not ignore README.md", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -436,6 +457,7 @@ test_that(".ignore_auto_ext_rbuild does not ignore README.md", {
 })
 
 test_that(".ignore_auto_ext_git ignores build artifacts but preserves important files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -465,6 +487,7 @@ test_that(".ignore_auto_ext_git ignores build artifacts but preserves important 
 # ==============================================================================
 
 test_that(".ignore_auto_build_tex_bookdown ignores bookdown tex files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -495,6 +518,7 @@ build:
 })
 
 test_that(".ignore_auto_build_tex_bookdown uses _main.tex as default", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -524,6 +548,7 @@ build:
 })
 
 test_that(".ignore_auto_build_tex_bookdown returns FALSE for non-bookdown engine", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -543,6 +568,7 @@ build:
 })
 
 test_that(".ignore_auto_build_tex_quarto ignores index.tex for quarto_project", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -569,6 +595,7 @@ project:
 })
 
 test_that(".ignore_auto_build_tex_quarto returns FALSE without index.tex", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -588,6 +615,7 @@ build:
 })
 
 test_that(".ignore_auto_build_tex_rqmd ignores corresponding .tex files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -613,6 +641,7 @@ test_that(".ignore_auto_build_tex_rqmd ignores corresponding .tex files", {
 })
 
 test_that(".ignore_auto_build_tex_rqmd returns FALSE without source files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -630,6 +659,7 @@ test_that(".ignore_auto_build_tex_rqmd returns FALSE without source files", {
 # ==============================================================================
 
 test_that(".ignore_auto_build_content_dir handles quarto_document engine", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -652,6 +682,7 @@ build:
 })
 
 test_that(".ignore_auto_build_content_dir returns NULL for bookdown", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -675,6 +706,7 @@ build:
 # ==============================================================================
 
 test_that(".ignore_auto_dest_local handles archive_local parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -699,6 +731,7 @@ directories:
 })
 
 test_that(".ignore_auto_dest_local handles local destinations from YAML", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -725,6 +758,7 @@ build:
 })
 
 test_that(".ignore_auto_dest_local_title handles different ignore settings", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -755,6 +789,7 @@ test_that(".ignore_auto_dest_local_title handles different ignore settings", {
 })
 
 test_that(".ignore_auto_dest_local returns FALSE when no local destinations", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -779,6 +814,7 @@ build:
 # ==============================================================================
 
 test_that(".ignore_auto_file ignores files in both git and rbuild", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -798,6 +834,7 @@ test_that(".ignore_auto_file ignores files in both git and rbuild", {
 })
 
 test_that(".ignore_auto_file_git handles empty input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -813,6 +850,7 @@ test_that(".ignore_auto_file_git handles empty input", {
 })
 
 test_that(".ignore_auto_file_git handles non-character input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -828,6 +866,7 @@ test_that(".ignore_auto_file_git handles non-character input", {
 })
 
 test_that(".ignore_auto_dir ignores directories in both git and rbuild", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -849,6 +888,7 @@ test_that(".ignore_auto_dir ignores directories in both git and rbuild", {
 })
 
 test_that(".ignore_auto_dir_git appends /** to directories", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -866,6 +906,7 @@ test_that(".ignore_auto_dir_git appends /** to directories", {
 })
 
 test_that(".ignore_auto_dir_git handles paths already containing /**", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -883,6 +924,7 @@ test_that(".ignore_auto_dir_git handles paths already containing /**", {
 })
 
 test_that(".ignore_auto_dir_git handles empty input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -898,6 +940,7 @@ test_that(".ignore_auto_dir_git handles empty input", {
 })
 
 test_that(".ignore_auto_file_rbuild converts paths to regex", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -914,6 +957,7 @@ test_that(".ignore_auto_file_rbuild converts paths to regex", {
 })
 
 test_that(".ignore_auto_file_rbuild removes trailing slashes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -930,6 +974,7 @@ test_that(".ignore_auto_file_rbuild removes trailing slashes", {
 })
 
 test_that(".ignore_auto_dir_rbuild creates directory-specific patterns", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -947,6 +992,7 @@ test_that(".ignore_auto_dir_rbuild creates directory-specific patterns", {
 })
 
 test_that(".ignore_auto_dir_rbuild handles trailing slashes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -964,6 +1010,7 @@ test_that(".ignore_auto_dir_rbuild handles trailing slashes", {
 })
 
 test_that(".ignore_auto_path_add adds patterns to projr section", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -986,6 +1033,7 @@ test_that(".ignore_auto_path_add adds patterns to projr section", {
 })
 
 test_that(".ignore_auto_path_add handles empty input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -1001,6 +1049,7 @@ test_that(".ignore_auto_path_add handles empty input", {
 })
 
 test_that(".ignore_auto_path_add handles non-character input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -1016,6 +1065,7 @@ test_that(".ignore_auto_path_add handles non-character input", {
 })
 
 test_that(".ignore_auto_path_get_updated_content merges patterns", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -1041,6 +1091,7 @@ test_that(".ignore_auto_path_get_updated_content merges patterns", {
 })
 
 test_that(".ignore_auto_path_get_updated_content overrides when specified", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

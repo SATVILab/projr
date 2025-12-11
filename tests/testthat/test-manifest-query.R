@@ -1,4 +1,5 @@
 test_that("projr_manifest_changes works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -227,6 +228,7 @@ test_that("manifest query functions handle edge cases", {
 
 
 test_that("projr_manifest_changes handles version with and without 'v' prefix", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -343,6 +345,7 @@ test_that("projr_manifest_last_change handles multiple labels correctly", {
 
 
 test_that(".manifest_query_compare_versions handles empty and NA hashes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -391,6 +394,7 @@ test_that(".manifest_query_compare_versions handles empty and NA hashes", {
 
 
 test_that("projr_manifest_file_last_change respects version_end parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -531,6 +535,7 @@ test_that("manifest query functions handle same file in multiple labels", {
 
 
 test_that(".manifest_filter_up_to_version filters correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
