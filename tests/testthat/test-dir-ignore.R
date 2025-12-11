@@ -860,7 +860,7 @@ test_that(".git_skip handles files with spaces in names", {
 
       # Check that files are skipped
       skipped <- .git_get_skipped("space_dir")
-      expect_true(length(skipped) >= 0)  # May or may not work with spaces
+      expect_true(length(skipped) >= 0) # May or may not work with spaces
     }
   )
 })

@@ -527,8 +527,8 @@ test_that("Partially tested functions have full coverage", {
 
       # .is_given() - comprehensive test
       x_missing <- NULL
-      expect_false(.is_given())  # test with missing argument
-      expect_true(.is_given(x_missing))  # NULL is "given"
+      expect_false(.is_given()) # test with missing argument
+      expect_true(.is_given(x_missing)) # NULL is "given"
 
       # .assert_len_1() - NULL handling
       x_null <- NULL
