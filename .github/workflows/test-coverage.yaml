@@ -13,10 +13,10 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_PAT: ${{ secrets.GH_TOKEN }}
-      OSF_PAT: ${{ secrets.OSF_PAT }}
       NOT_CRAN: true
       R_PKG_TEST_LITE: true
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      # OSF_PAT: ${{ secrets.OSF_PAT }}
 
     steps:
       - name: Debug env tokens

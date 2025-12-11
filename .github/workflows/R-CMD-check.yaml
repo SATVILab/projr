@@ -23,9 +23,9 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_PAT: ${{ secrets.GH_TOKEN }}
-      OSF_PAT: ${{ secrets.OSF_PAT }}
       R_KEEP_PKG_SOURCE: yes
       R_PKG_TEST_LITE: true
+      # OSF_PAT: ${{ secrets.OSF_PAT }}
 
     steps:
       - name: Debug env tokens
