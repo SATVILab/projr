@@ -371,7 +371,7 @@ test_that(".auth_get_github_pat handles init parameter correctly", {
     init = TRUE,
     use_gh_if_available = FALSE,
     use_gitcreds_if_needed = FALSE
-    ))
+  ))
   expect_identical(result, "")
 })
 
