@@ -451,3 +451,306 @@ test_that("PROJR_CLEAR_OUTPUT validates input strictly", {
   Sys.setenv(PROJR_CLEAR_OUTPUT = "")
   expect_error(.build_get_clear_output(NULL))
 })
+
+# Test .build_get_output_run
+test_that(".build_get_output_run returns correct values", {
+  skip_if(.is_test_select())
+
+  # Production builds should return TRUE
+  expect_true(.build_get_output_run("major"))
+  expect_true(.build_get_output_run("minor"))
+  expect_true(.build_get_output_run("patch"))
+
+  # Dev builds should return FALSE
+  expect_false(.build_get_output_run(NULL))
+  expect_false(.build_get_output_run("dev"))
+})
+
+# Test .build_ensure_version
+test_that(".build_ensure_version creates VERSION file when missing", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Remove both VERSION and DESCRIPTION
+      version_path <- .path_get("VERSION")
+      desc_path <- .path_get("DESCRIPTION")
+      if (file.exists(version_path)) file.remove(version_path)
+      if (file.exists(desc_path)) file.remove(desc_path)
+
+      # Function should create VERSION with 0.0.1
+      .build_ensure_version()
+      expect_true(file.exists(version_path))
+      expect_identical(projr_version_get(), "0.0.1")
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that(".build_ensure_version does nothing when VERSION exists", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set version to something specific
+      projr_version_set("1.2.3")
+
+      # Function should not change version
+      .build_ensure_version()
+      expect_identical(projr_version_get(), "1.2.3")
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that(".build_ensure_version does nothing when DESCRIPTION exists", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Remove VERSION but keep DESCRIPTION
+      version_path <- .path_get("VERSION")
+      if (file.exists(version_path)) file.remove(version_path)
+
+      # Set version in DESCRIPTION
+      desc::desc_set_version("2.3.4")
+
+      # Function should not create VERSION or change version
+      .build_ensure_version()
+      expect_false(file.exists(version_path))
+      expect_identical(projr_version_get(), "2.3.4")
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+# Test .build_dev_get_bump_component
+test_that(".build_dev_get_bump_component returns NULL when not on dev version", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set to non-dev version
+      projr_version_set("1.0.0")
+
+      # Should return NULL (to auto-bump to dev)
+      result <- .build_dev_get_bump_component(TRUE)
+      expect_null(result)
+
+      result <- .build_dev_get_bump_component(FALSE)
+      expect_null(result)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that(".build_dev_get_bump_component respects bump when on dev version", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set to dev version
+      projr_version_set("1.0.0-1")
+
+      # Should return "dev" when bump = TRUE
+      result <- .build_dev_get_bump_component(TRUE)
+      expect_identical(result, "dev")
+
+      # Should return NULL when bump = FALSE
+      result <- .build_dev_get_bump_component(FALSE)
+      expect_null(result)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+# Test .build_post_dev
+test_that(".build_post_dev appends dev component after production build", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Disable git operations for this test
+      .yml_git_set_commit(FALSE, TRUE, NULL)
+      .yml_git_set_push(FALSE, TRUE, NULL)
+
+      # Set initial version
+      projr_version_set("1.0.0")
+
+      # Create version list (simulating post-build state)
+      version_run_on_list <- list(
+        version_run_on = "1.0.0",
+        version_post = "1.0.0"
+      )
+
+      # Call .build_post_dev with production build
+      .build_post_dev(
+        bump_component = "patch",
+        version_run_on_list = version_run_on_list,
+        msg = "test"
+      )
+
+      # Version should now have dev component
+      current_version <- projr_version_get()
+      expect_true(grepl("-", current_version))
+      expect_true(grepl("^1\\.0\\.0-", current_version))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that(".build_post_dev skips dev bump for dev builds", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set initial dev version
+      projr_version_set("1.0.0-1")
+      initial_version <- projr_version_get()
+
+      # Create version list
+      version_run_on_list <- list(
+        version_run_on = "1.0.0-1",
+        version_post = "1.0.0-1"
+      )
+
+      # Call .build_post_dev with dev build (NULL bump_component)
+      result <- .build_post_dev(
+        bump_component = NULL,
+        version_run_on_list = version_run_on_list,
+        msg = "test"
+      )
+
+      # Should return FALSE and not change version
+      expect_false(result)
+      expect_identical(projr_version_get(), initial_version)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+# Test projr_build_dev with bump parameter
+test_that("projr_build_dev bump parameter works correctly", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Start with non-dev version
+      projr_version_set("0.0.0")
+
+      # Build with bump = FALSE (should auto-bump to dev)
+      projr_build_dev(bump = FALSE)
+      version_after_first <- projr_version_get()
+      expect_true(grepl("-", version_after_first))
+
+      # Build again with bump = TRUE (should increment dev)
+      projr_build_dev(bump = TRUE)
+      version_after_second <- projr_version_get()
+      expect_true(grepl("-", version_after_second))
+
+      # Parse and compare dev numbers
+      dev_num_first <- as.integer(sub(".*-", "", version_after_first))
+      dev_num_second <- as.integer(sub(".*-", "", version_after_second))
+      expect_true(dev_num_second > dev_num_first)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+# Test projr_build_dev with profile parameter
+test_that("projr_build_dev profile parameter works", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set a profile-specific path configuration
+      projr_yml_dir_path_set("output", "_output_test", "test-profile")
+
+      # Build with profile
+      old_profile <- Sys.getenv("PROJR_PROFILE", unset = "")
+      projr_build_dev(profile = "test-profile")
+      current_profile <- Sys.getenv("PROJR_PROFILE", unset = "")
+
+      # Profile should be reset after build
+      expect_identical(current_profile, old_profile)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+# Test output_level parameter
+test_that("output_level parameter controls verbosity", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test with "none" - should minimize output (but not necessarily silent due to rendering)
+      expect_no_error({
+        projr_build_dev(output_level = "none")
+      })
+
+      # Test with "debug" - should produce output (can't easily test, but ensure no error)
+      expect_no_error({
+        projr_build_dev(output_level = "debug")
+      })
+
+      # Test with "std" - standard output level
+      expect_no_error({
+        projr_build_dev(output_level = "std")
+      })
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+# Test clear_output parameter with projr_build_dev
+test_that("projr_build_dev respects clear_output parameter", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test that clear_output="never" doesn't error and completes build
+      expect_no_error({
+        projr_build_dev(clear_output = "never")
+      })
+
+      # Test that clear_output="pre" works
+      expect_no_error({
+        projr_build_dev(clear_output = "pre")
+      })
+
+      # Test that clear_output="post" works
+      expect_no_error({
+        projr_build_dev(clear_output = "post")
+      })
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})

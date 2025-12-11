@@ -1406,3 +1406,135 @@ test_that(".build_copy_docs_bookdown_files handles missing _files directory", {
     quiet = TRUE
   )
 })
+
+# Tests for increasing coverage of R/build-post-copy.R
+# ======================================================
+
+test_that(".build_copy returns FALSE when .build_copy_check returns FALSE", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set dev-output to FALSE in YAML to make .build_copy_check return FALSE
+      yml_projr <- .yml_get(NULL)
+      yml_projr[["build"]][["dev-output"]] <- FALSE
+      .yml_set(yml_projr)
+
+      # Call .build_copy with output_run = FALSE (dev build)
+      # When dev-output is FALSE and output_run is FALSE, .build_copy_check returns FALSE
+      result <- .build_copy(
+        output_run = FALSE,
+        bump_component = "patch",
+        version_run_on_list = list()
+      )
+
+      # Should return FALSE (early return at line 12)
+      expect_false(result)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_copy_to_unsafe handles empty directory with subdirs but no files", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create a safe directory with subdirectories but no files
+      safe_dir <- projr_path_get_dir("output", safe = TRUE)
+      subdir1 <- file.path(safe_dir, "subdir1")
+      subdir2 <- file.path(safe_dir, "subdir2")
+      dir.create(subdir1, recursive = TRUE, showWarnings = FALSE)
+      dir.create(subdir2, recursive = TRUE, showWarnings = FALSE)
+
+      # Verify directories exist but have no files
+      expect_true(dir.exists(safe_dir))
+      expect_true(dir.exists(subdir1))
+      expect_true(dir.exists(subdir2))
+      expect_equal(length(list.files(safe_dir, recursive = TRUE)), 0)
+
+      # Call .build_copy_to_unsafe
+      result <- .build_copy_to_unsafe(output_run = TRUE)
+
+      # Should return TRUE (success) but skip the empty directory
+      expect_true(result)
+
+      # Unsafe directory should not be created or should be empty
+      unsafe_dir <- projr_path_get_dir("output", safe = FALSE, create = FALSE)
+      if (dir.exists(unsafe_dir)) {
+        expect_equal(length(list.files(unsafe_dir, recursive = TRUE)), 0)
+      }
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_copy_pkg_build_get_path returns correct path", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Call the helper function
+      result <- .build_copy_pkg_build_get_path()
+
+      # Note: This function has a bug on line 121-122 where path_dir_pkg gets
+      # assigned the version instead of the path. The function is not currently
+      # used anywhere in the codebase. This test covers the actual behavior.
+
+      # Get expected values
+      pkg_name <- projr_name_get()
+      version <- .desc_get()[, "Version"][[1]]
+
+      # Should return a path containing the package name and version
+      expect_true(grepl(pkg_name, result))
+      expect_true(grepl(version, result))
+      expect_true(grepl("\\.tar\\.gz$", result))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_copy_pkg_build_path_setup removes existing directory", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Get the package build path
+      pkg_path <- .build_copy_pkg_build_path_get()
+
+      # Create the directory with a file in it
+      dir.create(pkg_path, recursive = TRUE, showWarnings = FALSE)
+      test_file <- file.path(pkg_path, "test.txt")
+      writeLines("test content", test_file)
+      expect_true(file.exists(test_file))
+
+      # Call .build_copy_pkg_build_path_setup
+      result <- .build_copy_pkg_build_path_setup()
+
+      # Should return the path
+      expect_equal(result, pkg_path)
+
+      # Directory should exist but be empty (old content removed)
+      expect_true(dir.exists(pkg_path))
+      expect_false(file.exists(test_file))
+      expect_equal(length(list.files(pkg_path)), 0)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})

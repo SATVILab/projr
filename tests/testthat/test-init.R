@@ -800,7 +800,7 @@ test_that(".init_dir_std creates directories when enabled", {
     code = {
       # Create VERSION file first (required for directory creation)
       projr_version_set("0.0.1")
-      
+
       # Test with init_dir = TRUE
       result <- .init_dir_std(TRUE)
       expect_true(result)
@@ -817,7 +817,7 @@ test_that(".init_dir_std creates directories when enabled", {
   dir_test2 <- file.path(tempdir(), "testProjrDirStdFalse")
   if (dir.exists(dir_test2)) unlink(dir_test2, recursive = TRUE)
   .dir_create(dir_test2)
-  
+
   usethis::with_project(
     path = dir_test2,
     code = {
@@ -1142,7 +1142,7 @@ test_that(".init_yml_std creates projr.yml when enabled", {
   )
   unlink(dir_test2, recursive = TRUE)
 
-  # Test when projr.yml (not _projr.yml) already exists  
+  # Test when projr.yml (not _projr.yml) already exists
   dir_test3 <- file.path(tempdir(), "testProjrYmlStd3")
   if (dir.exists(dir_test3)) unlink(dir_test3, recursive = TRUE)
   .dir_create(dir_test3)
@@ -1693,7 +1693,7 @@ test_that("projr_init_ignore creates ignore files", {
       # Create minimal structure for ignore to work
       projr_version_set("0.0.1")
       .init_yml()
-      
+
       # Initialize git (required for .gitignore to be created)
       .git_init()
       .test_setup_project_git_config()
@@ -1711,8 +1711,8 @@ test_that("projr_init_ignore creates ignore files", {
       expect_true(length(gitignore_content) > 0)
       # Check for at least one of the standard projr directories
       has_projr_content <- any(grepl("_tmp", gitignore_content)) ||
-                          any(grepl("_raw_data", gitignore_content)) ||
-                          any(grepl("_output", gitignore_content))
+        any(grepl("_raw_data", gitignore_content)) ||
+        any(grepl("_output", gitignore_content))
       expect_true(has_projr_content)
     },
     force = TRUE,
@@ -1736,7 +1736,7 @@ test_that("projr_init_ignore updates existing ignore files", {
       # Create minimal structure
       projr_version_set("0.0.1")
       .init_yml()
-      
+
       # Initialize git
       .git_init()
       .test_setup_project_git_config()
@@ -1756,8 +1756,8 @@ test_that("projr_init_ignore updates existing ignore files", {
       # The section markers should be added when updating existing content
       has_section_markers <- any(grepl("Start of projr section", gitignore_content))
       has_projr_dirs <- any(grepl("_tmp", gitignore_content)) ||
-                       any(grepl("_raw_data", gitignore_content)) ||
-                       any(grepl("_output", gitignore_content))
+        any(grepl("_raw_data", gitignore_content)) ||
+        any(grepl("_output", gitignore_content))
       expect_true(has_section_markers || has_projr_dirs)
     },
     force = TRUE,

@@ -302,7 +302,7 @@ test_that(".init_engine_bookdown_output adds newline at end", {
       )
 
       .init_engine_bookdown_output(nm_list)
-      
+
       # Read file as raw to check for trailing newline
       content <- readLines("_output.yml", warn = FALSE)
       # File should end with a newline (this is enforced by .newline_append)
@@ -522,7 +522,7 @@ test_that(".init_engine_quarto_document_doc strips .qmd extension from filename"
       nm_list <- list(
         format = "html",
         title = "Test",
-        filename = "test.qmd"  # filename with .qmd extension
+        filename = "test.qmd" # filename with .qmd extension
       )
 
       .init_engine_quarto_document_doc(nm_list)
@@ -757,7 +757,7 @@ test_that(".init_engine_rmd_doc strips .Rmd and .rmd extensions from filename", 
         filename = "test2.rmd"
       )
       .init_engine_rmd_doc(nm_list2)
-      expect_true(file.exists("test2.Rmd"))  # Should be .Rmd not .rmd
+      expect_true(file.exists("test2.Rmd")) # Should be .Rmd not .rmd
       expect_false(file.exists("test2.rmd.Rmd"))
     },
     force = TRUE,

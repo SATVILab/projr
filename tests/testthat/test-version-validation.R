@@ -227,3 +227,96 @@ test_that("version functions handle edge cases in version parsing", {
     quiet = TRUE
   )
 })
+
+test_that(".yml_version_format_set_check validates version formats correctly", {
+  skip_if(.is_test_select())
+
+  # Valid formats with "dev" suffix should pass
+  expect_true(.yml_version_format_set_check("major.minor.patch-dev"))
+  expect_true(.yml_version_format_set_check("major.minor.patch.dev"))
+  expect_true(.yml_version_format_set_check("major.minor-dev"))
+  expect_true(.yml_version_format_set_check("major.minor.dev"))
+  expect_true(.yml_version_format_set_check("major-dev"))
+  expect_true(.yml_version_format_set_check("major.dev"))
+
+  # Valid formats with "9000" suffix should pass
+  expect_true(.yml_version_format_set_check("major.minor.patch-9000"))
+  expect_true(.yml_version_format_set_check("major.minor.patch.9000"))
+  expect_true(.yml_version_format_set_check("major.minor-9000"))
+  expect_true(.yml_version_format_set_check("major.minor.9000"))
+  expect_true(.yml_version_format_set_check("major-9000"))
+  expect_true(.yml_version_format_set_check("major.9000"))
+
+  # Valid formats with "1" suffix should pass
+  expect_true(.yml_version_format_set_check("major.minor.patch-1"))
+  expect_true(.yml_version_format_set_check("major.minor.patch.1"))
+  expect_true(.yml_version_format_set_check("major.minor-1"))
+  expect_true(.yml_version_format_set_check("major.minor.1"))
+  expect_true(.yml_version_format_set_check("major-1"))
+  expect_true(.yml_version_format_set_check("major.1"))
+
+  # NULL should return invisible TRUE
+  expect_true(.yml_version_format_set_check(NULL))
+
+  # Empty character vector should return invisible TRUE
+  expect_true(.yml_version_format_set_check(character(0)))
+
+  # Invalid formats should error
+  expect_error(.yml_version_format_set_check("invalid.format"))
+  expect_error(.yml_version_format_set_check("major.minor.patch"))
+  expect_error(.yml_version_format_set_check("major.minor.patch-dev.extra"))
+  expect_error(.yml_version_format_set_check("patch.minor.major-dev"))
+  expect_error(.yml_version_format_set_check("major-minor-dev"))
+  expect_error(.yml_version_format_set_check("major_minor_patch-dev"))
+  expect_error(.yml_version_format_set_check("major.minor.patch-2"))
+  expect_error(.yml_version_format_set_check("major.minor.patch-99"))
+
+  # Non-string inputs should error
+  expect_error(.yml_version_format_set_check(123))
+  expect_error(.yml_version_format_set_check(TRUE))
+  expect_error(.yml_version_format_set_check(list("major.minor.patch-dev")))
+
+  # Multiple strings (vector length > 1) should error
+  expect_error(.yml_version_format_set_check(c("major.minor.patch-dev", "major.dev")))
+  expect_error(.yml_version_format_set_check(c("major.dev", "major.minor-dev")))
+})
+
+test_that(".version_format_list_get handles error cases correctly", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Set a format with invalid separators (multiple consecutive dots)
+      yml_projr <- .yml_get_default_raw()
+      yml_projr[["metadata"]][["version-format"]] <- "major..minor-dev"
+      .yml_set(yml_projr)
+      expect_error(
+        .version_format_list_get(NULL),
+        "is not valid"
+      )
+
+      # Set a format with text between components (not just punctuation)
+      yml_projr[["metadata"]][["version-format"]] <- "majorXminor-dev"
+      .yml_set(yml_projr)
+      expect_error(
+        .version_format_list_get(NULL),
+        "is not valid"
+      )
+
+      # Set a format with whitespace separator
+      yml_projr[["metadata"]][["version-format"]] <- "major minor-dev"
+      .yml_set(yml_projr)
+      expect_error(
+        .version_format_list_get(NULL),
+        "is not valid"
+      )
+
+      # Reset to valid format
+      .yml_metadata_set_version_format("major.minor.patch-dev", NULL)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})

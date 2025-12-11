@@ -312,7 +312,7 @@ test_that(".auth_get_github_pat_find_gitcreds derives correct host from URL", {
     !nzchar(Sys.getenv("GITHUB_TOKEN")) &&
       !nzchar(Sys.getenv("GH_TOKEN")) &&
       !nzchar(Sys.getenv("GITHUB_PAT"))
-    )
+  )
 
   # We can't easily test the actual gitcreds call, but we can test the host
   # derivation logic by checking the function runs without errors.
