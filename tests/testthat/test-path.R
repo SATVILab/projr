@@ -26,7 +26,7 @@ test_that(".path_* functions work", {
         "a/b" |> .path_force_abs("c/d/e"),
         fs::path_abs("c/d/e/a/b") |> as.character()
       )
-      expect_error(fs:path_abs("a") |> .path_force_abs("b"))
+      expect_error(fs::path_abs("a") |> .path_force_abs("b"))
     }
   )
 })
