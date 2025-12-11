@@ -1050,8 +1050,12 @@ projr_init_renviron <- function() {
   .cli_info("usethis::use_github(organisation = '{username}', private = {!public})")
 }
 
-.git_gh_check_auth <- function() {
-  if (nzchar(.auth_get_github_pat())) {
+.git_gh_check_auth <- function(use_gh_if_available = TRUE,
+                               use_gitcreds_if_needed = TRUE) {
+  if (nzchar(.auth_get_github_pat(
+    use_gh_if_available = use_gh_if_available,
+    use_gitcreds_if_needed = use_gitcreds_if_needed
+  ))) {
     return(invisible(TRUE))
   }
   warning(
