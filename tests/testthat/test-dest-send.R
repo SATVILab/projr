@@ -4,6 +4,7 @@
 # =============================================================================
 
 test_that("projr_yml_dest_add* functions work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE
@@ -112,6 +113,7 @@ test_that("projr_yml_dest_add* functions work", {
 # =============================================================================
 
 test_that(".dest_send_get_type_opt returns supported types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   types <- .dest_send_get_type_opt()
@@ -133,6 +135,7 @@ test_that(".dest_send_get_type_opt returns supported types", {
 # =============================================================================
 
 test_that(".dest_send_get_type_param returns empty for FALSE/NULL", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Both FALSE
@@ -151,6 +154,7 @@ test_that(".dest_send_get_type_param returns empty for FALSE/NULL", {
 })
 
 test_that(".dest_send_get_type_param returns github for TRUE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .dest_send_get_type_param(
@@ -164,6 +168,7 @@ test_that(".dest_send_get_type_param returns github for TRUE", {
 })
 
 test_that(".dest_send_get_type_param returns local for TRUE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .dest_send_get_type_param(
@@ -177,6 +182,7 @@ test_that(".dest_send_get_type_param returns local for TRUE", {
 })
 
 test_that(".dest_send_get_type_param returns both for both TRUE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .dest_send_get_type_param(
@@ -191,6 +197,7 @@ test_that(".dest_send_get_type_param returns both for both TRUE", {
 })
 
 test_that(".dest_send_get_type_param handles character vectors", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Character vector for github
@@ -220,6 +227,7 @@ test_that(".dest_send_get_type_param handles character vectors", {
 # =============================================================================
 
 test_that(".dest_send_get_type_yml returns configured types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -264,6 +272,7 @@ test_that(".dest_send_get_type_yml returns configured types", {
 # =============================================================================
 
 test_that(".dest_send_get_type combines YAML and params", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -295,6 +304,7 @@ test_that(".dest_send_get_type combines YAML and params", {
 })
 
 test_that(".dest_send_get_type removes duplicates", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -328,6 +338,7 @@ test_that(".dest_send_get_type removes duplicates", {
 # =============================================================================
 
 test_that(".dest_send_check_is_archive_param_github returns FALSE for FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .dest_send_check_is_archive_param_github(FALSE)
@@ -335,6 +346,7 @@ test_that(".dest_send_check_is_archive_param_github returns FALSE for FALSE", {
 })
 
 test_that(".dest_send_check_is_archive_param_github returns FALSE for NULL", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .dest_send_check_is_archive_param_github(NULL)
@@ -342,6 +354,7 @@ test_that(".dest_send_check_is_archive_param_github returns FALSE for NULL", {
 })
 
 test_that(".dest_send_check_is_archive_param_github returns param when no YAML archive", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -365,6 +378,7 @@ test_that(".dest_send_check_is_archive_param_github returns param when no YAML a
 })
 
 test_that(".dest_send_check_is_archive_param_github returns FALSE when YAML has archive", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -394,6 +408,7 @@ test_that(".dest_send_check_is_archive_param_github returns FALSE when YAML has 
 # =============================================================================
 
 test_that(".dest_send_check_is_archive_param_local returns FALSE for FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .dest_send_check_is_archive_param_local(FALSE)
@@ -401,6 +416,7 @@ test_that(".dest_send_check_is_archive_param_local returns FALSE for FALSE", {
 })
 
 test_that(".dest_send_check_is_archive_param_local returns param when no YAML archive", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -424,6 +440,7 @@ test_that(".dest_send_check_is_archive_param_local returns param when no YAML ar
 })
 
 test_that(".dest_send_check_is_archive_param_local returns FALSE when YAML has archive", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -454,6 +471,7 @@ test_that(".dest_send_check_is_archive_param_local returns FALSE when YAML has a
 # =============================================================================
 
 test_that(".dest_send_get_archive_type returns FALSE for unsupported type", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .dest_send_get_archive_type(
@@ -466,6 +484,7 @@ test_that(".dest_send_get_archive_type returns FALSE for unsupported type", {
 })
 
 test_that(".dest_send_get_archive_type uses github param for github type", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -505,6 +524,7 @@ test_that(".dest_send_get_archive_type uses github param for github type", {
 })
 
 test_that(".dest_send_get_archive_type uses local param for local type", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -540,6 +560,7 @@ test_that(".dest_send_get_archive_type uses local param for local type", {
 # =============================================================================
 
 test_that(".dest_send_get_always_archive returns NULL when YAML has archive", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -566,6 +587,7 @@ test_that(".dest_send_get_always_archive returns NULL when YAML has archive", {
 })
 
 test_that(".dest_send_get_always_archive returns param when no YAML archive", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -595,6 +617,7 @@ test_that(".dest_send_get_always_archive returns param when no YAML archive", {
 # =============================================================================
 
 test_that(".dest_send_type_get_title_param returns archive for TRUE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .dest_send_type_get_title_param(TRUE)
@@ -602,6 +625,7 @@ test_that(".dest_send_type_get_title_param returns archive for TRUE", {
 })
 
 test_that(".dest_send_type_get_title_param returns archive for character", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .dest_send_type_get_title_param(c("output", "docs"))
@@ -609,6 +633,7 @@ test_that(".dest_send_type_get_title_param returns archive for character", {
 })
 
 test_that(".dest_send_type_get_title_param returns empty for FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .dest_send_type_get_title_param(FALSE)
@@ -616,6 +641,7 @@ test_that(".dest_send_type_get_title_param returns empty for FALSE", {
 })
 
 test_that(".dest_send_type_get_title_param returns empty for NULL", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .dest_send_type_get_title_param(NULL)
@@ -627,6 +653,7 @@ test_that(".dest_send_type_get_title_param returns empty for NULL", {
 # =============================================================================
 
 test_that(".dest_send_type_get_title_yml returns configured titles", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -665,6 +692,7 @@ test_that(".dest_send_type_get_title_yml returns configured titles", {
 # =============================================================================
 
 test_that(".dest_send_type_get_title combines YAML and param titles", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -694,6 +722,7 @@ test_that(".dest_send_type_get_title combines YAML and param titles", {
 })
 
 test_that(".dest_send_type_get_title removes duplicates", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -726,6 +755,7 @@ test_that(".dest_send_type_get_title removes duplicates", {
 # =============================================================================
 
 test_that(".dest_send_title_get_content_check_yml returns TRUE for archive title", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .dest_send_title_get_content_check_yml("archive", TRUE)
@@ -736,6 +766,7 @@ test_that(".dest_send_title_get_content_check_yml returns TRUE for archive title
 })
 
 test_that(".dest_send_title_get_content_check_yml returns FALSE for non-archive", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .dest_send_title_get_content_check_yml("other-title", TRUE)
@@ -743,6 +774,7 @@ test_that(".dest_send_title_get_content_check_yml returns FALSE for non-archive"
 })
 
 test_that(".dest_send_title_get_content_check_yml returns FALSE when archive_type is FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .dest_send_title_get_content_check_yml("archive", FALSE)
@@ -754,6 +786,7 @@ test_that(".dest_send_title_get_content_check_yml returns FALSE when archive_typ
 # =============================================================================
 
 test_that(".dest_send_title_get_content_param returns auto for TRUE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -774,6 +807,7 @@ test_that(".dest_send_title_get_content_param returns auto for TRUE", {
 })
 
 test_that(".dest_send_title_get_content_param returns character vector as-is", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   content <- .dest_send_title_get_content_param(c("output", "docs"))
@@ -786,6 +820,7 @@ test_that(".dest_send_title_get_content_param returns character vector as-is", {
 # =============================================================================
 
 test_that(".dest_send_title_get_content_auto detects output directories", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -811,6 +846,7 @@ test_that(".dest_send_title_get_content_auto detects output directories", {
 # =============================================================================
 
 test_that(".dest_send_title_get_content_yml returns empty for NULL", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -841,6 +877,7 @@ test_that(".dest_send_title_get_content_yml returns empty for NULL", {
 })
 
 test_that(".dest_send_title_get_content_yml returns empty for FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -871,6 +908,7 @@ test_that(".dest_send_title_get_content_yml returns empty for FALSE", {
 })
 
 test_that(".dest_send_title_get_content_yml auto-detects for TRUE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -901,6 +939,7 @@ test_that(".dest_send_title_get_content_yml auto-detects for TRUE", {
 })
 
 test_that(".dest_send_title_get_content_yml returns character vector", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -932,6 +971,7 @@ test_that(".dest_send_title_get_content_yml returns character vector", {
 # =============================================================================
 
 test_that(".dest_send_title_get_content chooses param content for archive", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -956,6 +996,7 @@ test_that(".dest_send_title_get_content chooses param content for archive", {
 })
 
 test_that(".dest_send_title_get_content chooses YAML content for non-archive", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -991,6 +1032,7 @@ test_that(".dest_send_title_get_content chooses YAML content for non-archive", {
 # =============================================================================
 
 test_that(".dest_send_check returns FALSE for NULL bump_component", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # NULL means not an output build
@@ -999,6 +1041,7 @@ test_that(".dest_send_check returns FALSE for NULL bump_component", {
 })
 
 test_that(".dest_send_check returns FALSE for dev bump_component", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # "dev" means dev build, not production
@@ -1007,6 +1050,7 @@ test_that(".dest_send_check returns FALSE for dev bump_component", {
 })
 
 test_that(".dest_send_check returns TRUE for production bump components", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Production builds should return TRUE
@@ -1020,6 +1064,7 @@ test_that(".dest_send_check returns TRUE for production bump components", {
 # =============================================================================
 
 test_that(".dest_send returns FALSE when check fails", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -1044,6 +1089,7 @@ test_that(".dest_send returns FALSE when check fails", {
 })
 
 test_that(".dest_send processes local destinations from YAML", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -1096,6 +1142,7 @@ test_that(".dest_send processes local destinations from YAML", {
 })
 
 test_that(".dest_send handles archive parameter for github", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -1132,6 +1179,7 @@ test_that(".dest_send handles archive parameter for github", {
 })
 
 test_that(".dest_send_type processes titles for the type", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -1180,6 +1228,7 @@ test_that(".dest_send_type processes titles for the type", {
 })
 
 test_that(".dest_send_title respects cue logic", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
@@ -1235,6 +1284,7 @@ test_that(".dest_send_title respects cue logic", {
 })
 
 test_that(".dest_send_title_check evaluates cue correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(

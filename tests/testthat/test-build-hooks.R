@@ -6,6 +6,7 @@
 # =============================================================================
 
 test_that(".hook_run executes script in isolated environment", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -31,6 +32,7 @@ test_that(".hook_run executes script in isolated environment", {
 })
 
 test_that(".hook_run errors on non-existent file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -48,6 +50,7 @@ test_that(".hook_run errors on non-existent file", {
 })
 
 test_that(".hook_run executes script successfully", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -78,6 +81,7 @@ test_that(".hook_run executes script successfully", {
 # =============================================================================
 
 test_that(".build_hooks_run executes pre hooks for production builds", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -115,6 +119,7 @@ test_that(".build_hooks_run executes pre hooks for production builds", {
 })
 
 test_that(".build_hooks_run executes post hooks for production builds", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -144,6 +149,7 @@ test_that(".build_hooks_run executes post hooks for production builds", {
 })
 
 test_that(".build_hooks_run executes both hooks in pre and post stages", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -184,6 +190,7 @@ test_that(".build_hooks_run executes both hooks in pre and post stages", {
 })
 
 test_that(".build_hooks_run handles missing hooks gracefully", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -207,6 +214,7 @@ test_that(".build_hooks_run handles missing hooks gracefully", {
 # =============================================================================
 
 test_that(".build_hooks_run uses dev.hooks for dev builds", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -254,6 +262,7 @@ test_that(".build_hooks_run uses dev.hooks for dev builds", {
 })
 
 test_that(".build_hooks_run ignores build.hooks for dev builds", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -282,6 +291,7 @@ test_that(".build_hooks_run ignores build.hooks for dev builds", {
 })
 
 test_that(".build_hooks_run handles dev.hooks with both stage", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -325,6 +335,7 @@ test_that(".build_hooks_run handles dev.hooks with both stage", {
 })
 
 test_that(".build_hooks_run handles dev.hooks with multiple hooks per stage", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -373,6 +384,7 @@ test_that(".build_hooks_run handles dev.hooks with multiple hooks per stage", {
 })
 
 test_that(".build_hooks_run handles no dev.hooks gracefully", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -393,6 +405,7 @@ test_that(".build_hooks_run handles no dev.hooks gracefully", {
 # =============================================================================
 
 test_that(".build_pre_hooks_run calls .build_hooks_run with pre stage", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -422,6 +435,7 @@ test_that(".build_pre_hooks_run calls .build_hooks_run with pre stage", {
 })
 
 test_that(".build_post_hooks_run calls .build_hooks_run with post stage", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -451,6 +465,7 @@ test_that(".build_post_hooks_run calls .build_hooks_run with post stage", {
 })
 
 test_that(".build_pre_hooks_run passes is_dev_build parameter correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -492,6 +507,7 @@ test_that(".build_pre_hooks_run passes is_dev_build parameter correctly", {
 # =============================================================================
 
 test_that(".build_hooks_run_title executes legacy format hooks", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -524,6 +540,7 @@ test_that(".build_hooks_run_title executes legacy format hooks", {
 })
 
 test_that(".build_hooks_run_title skips when stage doesn't match", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -556,6 +573,7 @@ test_that(".build_hooks_run_title skips when stage doesn't match", {
 })
 
 test_that(".build_hooks_run_title executes multiple paths in legacy format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -602,6 +620,7 @@ test_that(".build_hooks_run_title executes multiple paths in legacy format", {
 # =============================================================================
 
 test_that("hooks execute in correct order: stage-specific then both", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -651,6 +670,7 @@ test_that("hooks execute in correct order: stage-specific then both", {
 })
 
 test_that("multiple hooks in same stage execute in YAML order", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -701,6 +721,7 @@ test_that("multiple hooks in same stage execute in YAML order", {
 # =============================================================================
 
 test_that(".build_hooks_run handles empty hooks list gracefully", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -727,6 +748,7 @@ test_that(".build_hooks_run handles empty hooks list gracefully", {
 })
 
 test_that(".build_hooks_run handles NULL in hooks gracefully", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -756,6 +778,7 @@ test_that(".build_hooks_run handles NULL in hooks gracefully", {
 })
 
 test_that("hooks can access project functions and paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 

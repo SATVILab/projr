@@ -1,4 +1,5 @@
 test_that("projr_yml_dir_license_set works with simple format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -16,6 +17,7 @@ test_that("projr_yml_dir_license_set works with simple format", {
 })
 
 test_that("projr_yml_dir_license_set works with full format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -40,6 +42,7 @@ test_that("projr_yml_dir_license_set works with full format", {
 })
 
 test_that("projr_yml_dir_license_set normalizes license types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -62,6 +65,7 @@ test_that("projr_yml_dir_license_set normalizes license types", {
 })
 
 test_that("projr_yml_dir_license_rm removes license", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -80,6 +84,7 @@ test_that("projr_yml_dir_license_rm removes license", {
 })
 
 test_that("projr_yml_dir_license_get returns NULL when no license", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -94,6 +99,7 @@ test_that("projr_yml_dir_license_get returns NULL when no license", {
 })
 
 test_that("projr_yml_dir_license_update updates authors from DESCRIPTION", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -156,6 +162,7 @@ test_that("projr_yml_dir_license_update updates authors from DESCRIPTION", {
 })
 
 test_that("projr_yml_dir_license_update works with specific labels", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -198,6 +205,7 @@ test_that("projr_yml_dir_license_update works with specific labels", {
 })
 
 test_that("projr_yml_dir_license_update skips directories without config", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -301,6 +309,7 @@ test_that("Raw directory licenses always match config", {
 })
 
 test_that("projr_license_create_manual creates licenses without YAML config", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -329,6 +338,7 @@ test_that("projr_license_create_manual creates licenses without YAML config", {
 })
 
 test_that("projr_license_create_manual skips if LICENSE exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -360,6 +370,7 @@ test_that("projr_license_create_manual skips if LICENSE exists", {
 })
 
 test_that("projr_license_create_manual warns if YAML config exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -519,6 +530,7 @@ test_that("License integration with build creates files", {
 # ---- Input Validation Tests ----
 
 test_that("projr_yml_dir_license_set validates year parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -546,6 +558,7 @@ test_that("projr_yml_dir_license_set validates year parameter", {
 })
 
 test_that("projr_yml_dir_license_set validates type parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -571,6 +584,7 @@ test_that("projr_yml_dir_license_set validates type parameter", {
 })
 
 test_that("projr_yml_dir_license_set validates label parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -596,6 +610,7 @@ test_that("projr_yml_dir_license_set validates label parameter", {
 })
 
 test_that("projr_yml_dir_license_set validates authors parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -621,6 +636,7 @@ test_that("projr_yml_dir_license_set validates authors parameter", {
 })
 
 test_that("projr_yml_dir_license_set validates profile parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -646,6 +662,7 @@ test_that("projr_yml_dir_license_set validates profile parameter", {
 })
 
 test_that("projr_yml_dir_license_get validates parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -676,6 +693,7 @@ test_that("projr_yml_dir_license_get validates parameters", {
 })
 
 test_that("projr_yml_dir_license_rm validates parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -706,6 +724,7 @@ test_that("projr_yml_dir_license_rm validates parameters", {
 })
 
 test_that("projr_yml_dir_license_update validates parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -736,6 +755,7 @@ test_that("projr_yml_dir_license_update validates parameters", {
 })
 
 test_that("projr_license_create_manual validates year parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -764,6 +784,7 @@ test_that("projr_license_create_manual validates year parameter", {
 })
 
 test_that("projr_license_create_manual validates type parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -784,6 +805,7 @@ test_that("projr_license_create_manual validates type parameter", {
 })
 
 test_that("projr_license_create_manual validates labels parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -806,6 +828,7 @@ test_that("projr_license_create_manual validates labels parameter", {
 })
 
 test_that("projr_license_create_manual validates authors parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -829,6 +852,7 @@ test_that("projr_license_create_manual validates authors parameter", {
 # ---- Edge Case Tests ----
 
 test_that("projr_yml_dir_license_set works with only authors (no year)", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -853,6 +877,7 @@ test_that("projr_yml_dir_license_set works with only authors (no year)", {
 })
 
 test_that("projr_yml_dir_license_set works with only year (no authors)", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -877,6 +902,7 @@ test_that("projr_yml_dir_license_set works with only year (no authors)", {
 })
 
 test_that("projr_yml_dir_license_set can update existing license config", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -914,6 +940,7 @@ test_that("projr_yml_dir_license_set can update existing license config", {
 })
 
 test_that("projr_yml_dir_license_update converts simple to full format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -949,6 +976,7 @@ test_that("projr_yml_dir_license_update converts simple to full format", {
 })
 
 test_that("projr_license_create_manual uses default labels when NULL", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -974,6 +1002,7 @@ test_that("projr_license_create_manual uses default labels when NULL", {
 # ---- Profile Tests ----
 
 test_that("License functions work with different profiles", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -1004,6 +1033,7 @@ test_that("License functions work with different profiles", {
 })
 
 test_that("projr_yml_dir_license_update works with different profiles", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -1046,6 +1076,7 @@ test_that("projr_yml_dir_license_update works with different profiles", {
 })
 
 test_that("Multiple licenses can be set for same directory in different profiles", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)

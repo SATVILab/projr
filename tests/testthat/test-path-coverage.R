@@ -394,6 +394,7 @@ test_that(".dir_filter_removable validates inputs", {
 # ==============================================================================
 
 test_that(".dir_get_tmp_random_path generates valid paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Should generate a path
@@ -656,6 +657,7 @@ test_that(".file_ls_rm_dir validates inputs", {
 # ==============================================================================
 
 test_that(".filter_filter_non_na works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Numeric vector with NA

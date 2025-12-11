@@ -13,9 +13,10 @@ Testing standards and patterns for the projr package test suite, including test 
 ## Test Suite Levels
 
 ### CRAN Mode
-- Runs only fast, essential tests (~364 tests, <2 minutes)
-- Skips comprehensive, integration, and remote-dependent tests
-- Use `skip_if(.is_test_cran())` to skip tests in CRAN mode
+- Runs only essential workflow tests (3 tests, 19 assertions, <1 minute)
+- Tests cover: init, build, send to local remote, restore from local remote
+- ALL other tests skip in CRAN mode via `skip_if(.is_test_cran())`
+- Only test-workflow-cran.R runs in CRAN mode
 
 ### Lite Mode (Recommended for Development)
 - Runs core functionality tests (~364 tests, ~2.5 minutes)

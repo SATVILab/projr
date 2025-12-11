@@ -21,6 +21,7 @@ dir_test <- .test_setup_project(
 # =============================================================================
 
 test_that(".remote_ls_dest returns empty when no destinations configured", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -36,6 +37,7 @@ test_that(".remote_ls_dest returns empty when no destinations configured", {
 })
 
 test_that(".remote_ls_dest returns github when github destination configured", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -56,6 +58,7 @@ test_that(".remote_ls_dest returns github when github destination configured", {
 })
 
 test_that(".remote_ls_dest returns osf when osf destination configured", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
 
@@ -78,6 +81,7 @@ test_that(".remote_ls_dest returns osf when osf destination configured", {
 })
 
 test_that(".remote_ls_dest returns multiple remotes when both configured", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
 
@@ -110,6 +114,7 @@ test_that(".remote_ls_dest returns multiple remotes when both configured", {
 # =============================================================================
 
 test_that(".remote_ls_source returns empty when no source remotes configured", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -125,6 +130,7 @@ test_that(".remote_ls_source returns empty when no source remotes configured", {
 })
 
 test_that(".remote_ls_source returns github when github source configured", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -147,6 +153,7 @@ test_that(".remote_ls_source returns github when github source configured", {
 })
 
 test_that(".remote_ls_source returns osf when osf source configured", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -169,6 +176,7 @@ test_that(".remote_ls_source returns osf when osf source configured", {
 })
 
 test_that(".remote_ls_source returns unique remotes from multiple directories", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
@@ -202,6 +210,7 @@ test_that(".remote_ls_source returns unique remotes from multiple directories", 
 # =============================================================================
 
 test_that(".git_push_check returns TRUE when git setting is NULL (default)", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
@@ -224,6 +233,7 @@ test_that(".git_push_check returns TRUE when git setting is NULL (default)", {
 })
 
 test_that(".git_push_check returns TRUE when git setting is TRUE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
@@ -243,6 +253,7 @@ test_that(".git_push_check returns TRUE when git setting is TRUE", {
 })
 
 test_that(".git_push_check returns FALSE when git setting is FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
@@ -268,6 +279,7 @@ test_that(".git_push_check returns FALSE when git setting is FALSE", {
 })
 
 test_that(".git_push_check returns FALSE when push is FALSE in list", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
@@ -290,6 +302,7 @@ test_that(".git_push_check returns FALSE when push is FALSE in list", {
 })
 
 test_that(".git_push_check returns TRUE when push is not specified in list", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
@@ -312,6 +325,7 @@ test_that(".git_push_check returns TRUE when push is not specified in list", {
 })
 
 test_that(".git_push_check throws error for invalid git setting type", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
@@ -339,6 +353,7 @@ test_that(".git_push_check throws error for invalid git setting type", {
 # =============================================================================
 
 test_that(".remote_ls combines source, dest, and git push remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
@@ -364,6 +379,7 @@ test_that(".remote_ls combines source, dest, and git push remotes", {
 })
 
 test_that(".remote_ls returns unique remotes when duplicates present", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
 
@@ -403,6 +419,7 @@ test_that(".remote_ls returns unique remotes when duplicates present", {
 })
 
 test_that(".remote_ls excludes github when git push is disabled", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
@@ -426,6 +443,7 @@ test_that(".remote_ls excludes github when git push is disabled", {
 })
 
 test_that(".remote_ls filters out empty strings", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
@@ -453,6 +471,7 @@ test_that(".remote_ls filters out empty strings", {
 # =============================================================================
 
 test_that(".gh_guess_repo parses SSH scp-like URL format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -472,6 +491,7 @@ test_that(".gh_guess_repo parses SSH scp-like URL format", {
 })
 
 test_that(".gh_guess_repo parses HTTPS URL format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -490,6 +510,7 @@ test_that(".gh_guess_repo parses HTTPS URL format", {
 })
 
 test_that(".gh_guess_repo parses HTTPS URL without .git extension", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -508,6 +529,7 @@ test_that(".gh_guess_repo parses HTTPS URL without .git extension", {
 })
 
 test_that(".gh_guess_repo parses SSH protocol URL format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -526,6 +548,7 @@ test_that(".gh_guess_repo parses SSH protocol URL format", {
 })
 
 test_that(".gh_guess_repo handles owner/repo format directly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -544,6 +567,7 @@ test_that(".gh_guess_repo handles owner/repo format directly", {
 })
 
 test_that(".gh_guess_repo removes trailing slashes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -562,6 +586,7 @@ test_that(".gh_guess_repo removes trailing slashes", {
 })
 
 test_that(".gh_guess_repo throws error when no remotes exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = FALSE, github = FALSE, set_env_var = FALSE)
@@ -582,6 +607,7 @@ test_that(".gh_guess_repo throws error when no remotes exist", {
 })
 
 test_that(".gh_guess_repo falls back to first remote when origin doesn't exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -600,6 +626,7 @@ test_that(".gh_guess_repo falls back to first remote when origin doesn't exist",
 })
 
 test_that(".gh_guess_repo throws error for invalid URL format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = FALSE, github = FALSE, set_env_var = FALSE)
@@ -622,6 +649,7 @@ test_that(".gh_guess_repo throws error for invalid URL format", {
 })
 
 test_that(".gh_guess_repo works with custom path argument", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Create a separate git repo in a subdirectory
@@ -648,6 +676,7 @@ test_that(".gh_guess_repo works with custom path argument", {
 # =============================================================================
 
 test_that(".gh_repo_get works in normal git repository", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -666,6 +695,7 @@ test_that(".gh_repo_get works in normal git repository", {
 })
 
 test_that(".gh_repo_get works in git worktree", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Create a main git repository
@@ -700,6 +730,7 @@ test_that(".gh_repo_get works in git worktree", {
 })
 
 test_that(".gh_repo_get throws error when gitdir does not exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = FALSE, github = FALSE, set_env_var = FALSE)

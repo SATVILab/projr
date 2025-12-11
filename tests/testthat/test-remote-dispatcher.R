@@ -18,6 +18,7 @@ dir_test <- .test_setup_project(
 # =============================================================================
 
 test_that(".remote_final_check_exists works for local remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -117,6 +118,7 @@ test_that(".remote_final_check_exists works for local remotes", {
 # =============================================================================
 
 test_that(".remote_final_empty_get works for local remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -171,6 +173,7 @@ test_that(".remote_final_empty_get works for local remotes", {
 # =============================================================================
 
 test_that(".remote_final_get_if_exists returns NULL for non-existent remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -201,6 +204,7 @@ test_that(".remote_final_get_if_exists returns NULL for non-existent remotes", {
 })
 
 test_that(".remote_final_get_if_exists returns remote for existing remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -247,6 +251,7 @@ test_that(".remote_final_get_if_exists returns remote for existing remotes", {
 })
 
 test_that(".remote_final_get_if_exists prefers non-empty over empty variant", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -325,6 +330,7 @@ test_that(".remote_final_get_if_exists prefers non-empty over empty variant", {
 # =============================================================================
 
 test_that(".remote_get_path_rel_hierarchy builds correct paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -407,6 +413,7 @@ test_that(".remote_get_path_rel_hierarchy builds correct paths", {
 })
 
 test_that(".remote_get_path_rel_flat builds correct asset names", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -471,6 +478,7 @@ test_that(".remote_get_path_rel_flat builds correct asset names", {
 })
 
 test_that(".remote_get_path_rel dispatches correctly by type", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -522,6 +530,7 @@ test_that(".remote_get_path_rel dispatches correctly by type", {
 # =============================================================================
 
 test_that(".remote_final_rm deletes local remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -568,6 +577,7 @@ test_that(".remote_final_rm deletes local remotes", {
 # =============================================================================
 
 test_that(".remote_final_get_info returns NULL for local remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -597,6 +607,7 @@ test_that(".remote_final_get_info returns NULL for local remotes", {
 # =============================================================================
 
 test_that(".remote_hash calculates hashes for local remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -654,6 +665,7 @@ test_that(".remote_hash calculates hashes for local remotes", {
 })
 
 test_that(".remote_hash returns empty manifest for empty remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(

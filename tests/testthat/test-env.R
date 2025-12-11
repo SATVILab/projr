@@ -1,4 +1,5 @@
 test_that("projr_env_set works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
     git = FALSE, github = FALSE, set_env_var = TRUE

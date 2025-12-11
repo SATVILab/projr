@@ -1,4 +1,5 @@
 test_that(".yml_dir_get_source works with no source configured", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -19,6 +20,7 @@ test_that(".yml_dir_get_source works with no source configured", {
 })
 
 test_that(".yml_dir_get_source works with configured source", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -47,6 +49,7 @@ test_that(".yml_dir_get_source works with configured source", {
 })
 
 test_that(".yml_dir_get_source returns NULL when yml_label is NULL", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -65,6 +68,7 @@ test_that(".yml_dir_get_source returns NULL when yml_label is NULL", {
 })
 
 test_that(".yml_dir_set_source sets source configuration", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -93,6 +97,7 @@ test_that(".yml_dir_set_source sets source configuration", {
 })
 
 test_that(".yml_dir_set_source removes source when set to NULL", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -121,6 +126,7 @@ test_that(".yml_dir_set_source removes source when set to NULL", {
 })
 
 test_that(".yml_dir_set_source removes source when set to empty list", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -149,6 +155,7 @@ test_that(".yml_dir_set_source removes source when set to empty list", {
 })
 
 test_that(".yml_dir_set_source works with multiple remote types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -186,6 +193,7 @@ test_that(".yml_dir_set_source works with multiple remote types", {
 })
 
 test_that(".yml_dir_get_source_type works with valid github type", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -214,6 +222,7 @@ test_that(".yml_dir_get_source_type works with valid github type", {
 })
 
 test_that(".yml_dir_get_source_type works with valid osf type", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -242,6 +251,7 @@ test_that(".yml_dir_get_source_type works with valid osf type", {
 })
 
 test_that(".yml_dir_get_source_type works with valid local type", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -270,6 +280,7 @@ test_that(".yml_dir_get_source_type works with valid local type", {
 })
 
 test_that(".yml_dir_get_source_type returns NULL when source not configured", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -290,6 +301,7 @@ test_that(".yml_dir_get_source_type returns NULL when source not configured", {
 })
 
 test_that(".yml_dir_get_source_type returns NULL when type not in source", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -318,6 +330,7 @@ test_that(".yml_dir_get_source_type returns NULL when type not in source", {
 })
 
 test_that(".yml_dir_get_source_type validates type parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -346,6 +359,7 @@ test_that(".yml_dir_get_source_type validates type parameter", {
 })
 
 test_that(".yml_dir_get_source_type validates label parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -374,6 +388,7 @@ test_that(".yml_dir_get_source_type validates label parameter", {
 })
 
 test_that(".yml_dir_get_source handles various inputs without validation", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -399,6 +414,7 @@ test_that(".yml_dir_get_source handles various inputs without validation", {
 })
 
 test_that(".yml_dir_get_source works with different profiles", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -431,6 +447,7 @@ test_that(".yml_dir_get_source works with different profiles", {
 })
 
 test_that(".yml_dir_set_source works with different profiles", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -469,6 +486,7 @@ test_that(".yml_dir_set_source works with different profiles", {
 })
 
 test_that(".yml_dir_get_source_type works with different profiles", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -501,6 +519,7 @@ test_that(".yml_dir_get_source_type works with different profiles", {
 })
 
 test_that(".yml_dir_set_source preserves other label properties", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -535,6 +554,7 @@ test_that(".yml_dir_set_source preserves other label properties", {
 })
 
 test_that(".yml_dir_get_source_type handles empty source structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 

@@ -1,4 +1,5 @@
 test_that("projr_build_check_packages returns correct structure when all packages available", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -30,6 +31,7 @@ test_that("projr_build_check_packages returns correct structure when all package
 })
 
 test_that("projr_build_check_packages detects missing quarto package", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(requireNamespace("quarto", quietly = TRUE))
 
@@ -66,6 +68,7 @@ test_that("projr_build_check_packages detects missing quarto package", {
 })
 
 test_that("projr_build_check_packages detects missing rmarkdown package", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(requireNamespace("rmarkdown", quietly = TRUE))
   skip_if(file.exists(.path_get("_bookdown.yml")))
@@ -136,6 +139,7 @@ test_that("projr_build_check_packages handles GitHub remote packages", {
 })
 
 test_that("projr_build_check_packages returns proper install commands for CRAN packages", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test the install command format directly
@@ -150,6 +154,7 @@ test_that("projr_build_check_packages returns proper install commands for CRAN p
 })
 
 test_that("projr_build_check_packages returns proper install commands for GitHub packages", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # GitHub package format
@@ -159,6 +164,7 @@ test_that("projr_build_check_packages returns proper install commands for GitHub
 })
 
 test_that("projr_build_check_packages handles mixed CRAN and GitHub packages", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Mixed packages
@@ -169,6 +175,7 @@ test_that("projr_build_check_packages handles mixed CRAN and GitHub packages", {
 })
 
 test_that("projr_build_check_packages message is informative", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -186,6 +193,7 @@ test_that("projr_build_check_packages message is informative", {
 })
 
 test_that(".build_check_packages_available uses new function", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -205,6 +213,7 @@ test_that(".build_check_packages_available uses new function", {
 })
 
 test_that("projr_build_check_packages works with profile parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -223,6 +232,7 @@ test_that("projr_build_check_packages works with profile parameter", {
 # Tests for .build_check_packages_engine
 
 test_that(".build_check_packages_engine detects bookdown engine", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -240,6 +250,7 @@ test_that(".build_check_packages_engine detects bookdown engine", {
 })
 
 test_that(".build_check_packages_engine detects quarto_project engine", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -260,6 +271,7 @@ test_that(".build_check_packages_engine detects quarto_project engine", {
 })
 
 test_that(".build_check_packages_engine detects quarto_document engine", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -283,6 +295,7 @@ test_that(".build_check_packages_engine detects quarto_document engine", {
 })
 
 test_that(".build_check_packages_engine detects rmd engine", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -307,6 +320,7 @@ test_that(".build_check_packages_engine detects rmd engine", {
 })
 
 test_that(".build_check_packages_engine returns empty for no engine", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -386,6 +400,7 @@ test_that(".build_check_packages_remote detects OSF remote", {
 })
 
 test_that(".build_check_packages_remote returns empty for no remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -403,6 +418,7 @@ test_that(".build_check_packages_remote returns empty for no remotes", {
 # Tests for .build_check_packages_citations
 
 test_that(".build_check_packages_citations detects cff requirement", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -420,6 +436,7 @@ test_that(".build_check_packages_citations detects cff requirement", {
 })
 
 test_that(".build_check_packages_citations detects codemeta requirement", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -437,6 +454,7 @@ test_that(".build_check_packages_citations detects codemeta requirement", {
 })
 
 test_that(".build_check_packages_citations detects both cff and codemeta", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -456,6 +474,7 @@ test_that(".build_check_packages_citations detects both cff and codemeta", {
 })
 
 test_that(".build_check_packages_citations returns empty when citations disabled", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -471,6 +490,7 @@ test_that(".build_check_packages_citations returns empty when citations disabled
 })
 
 test_that(".build_check_packages_citations returns empty when cite is FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)

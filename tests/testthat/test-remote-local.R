@@ -24,6 +24,7 @@ dir_test <- .test_setup_project(
 )
 
 test_that("Local test remotes are ready", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -47,6 +48,7 @@ test_that("Local test remotes are ready", {
 })
 
 test_that(".remote_get works for local", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   test_path <- file.path(tempdir(), "test", "path")
   expect_identical(
@@ -56,6 +58,7 @@ test_that(".remote_get works for local", {
 })
 
 test_that(".remote_get_final works for local", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -102,6 +105,7 @@ test_that(".remote_get_final works for local", {
 # =============================================================================
 
 test_that("adding, listing and removing files works on local remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -262,6 +266,7 @@ test_that("adding, listing and removing files works on local remotes", {
 # =============================================================================
 
 test_that("manifest round-trip works for local remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -304,6 +309,7 @@ test_that("manifest round-trip works for local remotes", {
 })
 
 test_that("VERSION file round-trip works for local remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -359,6 +365,7 @@ usethis::with_project(
 # =============================================================================
 
 test_that("upload and restore from `latest` local remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -500,6 +507,7 @@ test_that("upload and restore from `latest` local remotes", {
 # =============================================================================
 
 test_that("upload and restore from `archive` local remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -665,6 +673,7 @@ test_that("upload and restore from `archive` local remotes", {
 # =============================================================================
 
 test_that("upload to archive local remotes using parameter for all content", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip("archive_local parameter needs path imputation - .yml_dest_complete_title_path() should set path='_archive' for local archive titles")
 
@@ -748,6 +757,7 @@ test_that("upload to archive local remotes using parameter for all content", {
 })
 
 test_that("upload to archive local remotes using parameter for only output content", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip("archive_local parameter needs path imputation - .yml_dest_complete_title_path() should set path='_archive' for local archive titles")
 
@@ -844,6 +854,7 @@ test_that("upload to archive local remotes using parameter for only output conte
 # =============================================================================
 
 test_that("test always vs if-change for local remotes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(

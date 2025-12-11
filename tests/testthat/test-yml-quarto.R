@@ -5,6 +5,7 @@
 # -----------------------------------------------------------------------------
 
 test_that(".yml_quarto_get returns empty list when file doesn't exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -23,6 +24,7 @@ test_that(".yml_quarto_get returns empty list when file doesn't exist", {
 })
 
 test_that(".yml_quarto_get returns parsed YAML when file exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -46,6 +48,7 @@ test_that(".yml_quarto_get returns parsed YAML when file exists", {
 })
 
 test_that(".yml_quarto_set writes YAML file correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -75,6 +78,7 @@ test_that(".yml_quarto_set writes YAML file correctly", {
 })
 
 test_that(".yml_quarto_set wraps strings in lists for project.render", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -102,6 +106,7 @@ test_that(".yml_quarto_set wraps strings in lists for project.render", {
 })
 
 test_that(".yml_quarto_set wraps strings in lists for website keys", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -143,6 +148,7 @@ test_that(".yml_quarto_set wraps strings in lists for website keys", {
 })
 
 test_that(".yml_quarto_set wraps strings in lists for navbar keys", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -191,6 +197,7 @@ test_that(".yml_quarto_set wraps strings in lists for navbar keys", {
 })
 
 test_that(".yml_quarto_set wraps strings in lists for sidebar keys", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -219,6 +226,7 @@ test_that(".yml_quarto_set wraps strings in lists for sidebar keys", {
 })
 
 test_that(".yml_quarto_set wraps strings in lists for book keys", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -252,6 +260,7 @@ test_that(".yml_quarto_set wraps strings in lists for book keys", {
 })
 
 test_that(".yml_quarto_set handles logical values correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -281,6 +290,7 @@ test_that(".yml_quarto_set handles logical values correctly", {
 })
 
 test_that(".yml_quarto_set appends newline to file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -303,6 +313,7 @@ test_that(".yml_quarto_set appends newline to file", {
 # -----------------------------------------------------------------------------
 
 test_that(".yml_quarto_get_output_dir returns NULL when not set", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -322,6 +333,7 @@ test_that(".yml_quarto_get_output_dir returns NULL when not set", {
 })
 
 test_that(".yml_quarto_get_output_dir returns value when set", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -344,6 +356,7 @@ test_that(".yml_quarto_get_output_dir returns value when set", {
 })
 
 test_that(".yml_quarto_set_output_dir creates project section when absent", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -363,6 +376,7 @@ test_that(".yml_quarto_set_output_dir creates project section when absent", {
 })
 
 test_that(".yml_quarto_set_output_dir updates existing output-dir", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -389,6 +403,7 @@ test_that(".yml_quarto_set_output_dir updates existing output-dir", {
 })
 
 test_that(".yml_quarto_set_output_dir adds output-dir when project exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -416,6 +431,7 @@ test_that(".yml_quarto_set_output_dir adds output-dir when project exists", {
 # -----------------------------------------------------------------------------
 
 test_that(".yml_quarto_get_project_type returns NULL when not set", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -435,6 +451,7 @@ test_that(".yml_quarto_get_project_type returns NULL when not set", {
 })
 
 test_that(".yml_quarto_get_project_type returns type when set", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -463,6 +480,7 @@ test_that(".yml_quarto_get_project_type returns type when set", {
 })
 
 test_that(".yml_quarto_get_project returns NULL when no project section", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -482,6 +500,7 @@ test_that(".yml_quarto_get_project returns NULL when no project section", {
 })
 
 test_that(".yml_quarto_get_project returns project configuration", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -505,6 +524,7 @@ test_that(".yml_quarto_get_project returns project configuration", {
 })
 
 test_that(".yml_quarto_get_nm returns NULL for non-existent key", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -523,6 +543,7 @@ test_that(".yml_quarto_get_nm returns NULL for non-existent key", {
 })
 
 test_that(".yml_quarto_get_nm returns value for existing key", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -556,6 +577,7 @@ test_that(".yml_quarto_get_nm returns value for existing key", {
 # -----------------------------------------------------------------------------
 
 test_that(".wrap_in_list_if_string does not change lists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   lst <- list(
@@ -571,6 +593,7 @@ test_that(".wrap_in_list_if_string does not change lists", {
 })
 
 test_that(".wrap_in_list_if_string wraps strings in list", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   lst <- list(
@@ -586,6 +609,7 @@ test_that(".wrap_in_list_if_string wraps strings in list", {
 })
 
 test_that(".wrap_in_list_if_string handles NULL values", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   lst <- list(
@@ -600,6 +624,7 @@ test_that(".wrap_in_list_if_string handles NULL values", {
 })
 
 test_that(".wrap_in_list_if_string handles non-existent paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   lst <- list(
@@ -613,6 +638,7 @@ test_that(".wrap_in_list_if_string handles non-existent paths", {
 })
 
 test_that(".get_nested_value returns NULL for non-existent paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   lst <- list(
@@ -635,6 +661,7 @@ test_that(".get_nested_value returns NULL for non-existent paths", {
 })
 
 test_that(".get_nested_value returns value for valid paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   lst <- list(
@@ -661,6 +688,7 @@ test_that(".get_nested_value returns value for valid paths", {
 })
 
 test_that(".get_nested_value handles non-list intermediate values", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   lst <- list(
@@ -673,6 +701,7 @@ test_that(".get_nested_value handles non-list intermediate values", {
 })
 
 test_that(".set_nested_value sets value at single-level path", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   lst <- list(a = 1)
@@ -687,6 +716,7 @@ test_that(".set_nested_value sets value at single-level path", {
 })
 
 test_that(".set_nested_value sets value at multi-level path", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   lst <- list(
@@ -705,6 +735,7 @@ test_that(".set_nested_value sets value at multi-level path", {
 })
 
 test_that(".set_nested_value creates intermediate lists as needed", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   lst <- list()
@@ -723,6 +754,7 @@ test_that(".set_nested_value creates intermediate lists as needed", {
 # -----------------------------------------------------------------------------
 
 test_that(".yml_quarto_get_project_block_indices finds project block", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml_lines <- c(
@@ -739,6 +771,7 @@ test_that(".yml_quarto_get_project_block_indices finds project block", {
 })
 
 test_that(".yml_quarto_get_project_block_indices handles project at end", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml_lines <- c(
@@ -754,6 +787,7 @@ test_that(".yml_quarto_get_project_block_indices handles project at end", {
 })
 
 test_that(".yml_quarto_update_project_block replaces existing output-dir", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   project_block <- c(
@@ -768,6 +802,7 @@ test_that(".yml_quarto_update_project_block replaces existing output-dir", {
 })
 
 test_that(".yml_quarto_update_project_block adds output-dir when missing", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   project_block <- c(
@@ -781,6 +816,7 @@ test_that(".yml_quarto_update_project_block adds output-dir when missing", {
 })
 
 test_that(".yml_quarto_rebuild_yaml rebuilds correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml_lines <- c(
@@ -811,6 +847,7 @@ test_that(".yml_quarto_rebuild_yaml rebuilds correctly", {
 })
 
 test_that(".yml_quarto_rebuild_yaml handles project at start", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml_lines <- c(
@@ -834,6 +871,7 @@ test_that(".yml_quarto_rebuild_yaml handles project at start", {
 })
 
 test_that(".yml_quarto_rebuild_yaml handles project at end", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml_lines <- c(
@@ -860,6 +898,7 @@ test_that(".yml_quarto_rebuild_yaml handles project at end", {
 # -----------------------------------------------------------------------------
 
 test_that("complete workflow: create, modify, read Quarto YAML", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -906,6 +945,7 @@ test_that("complete workflow: create, modify, read Quarto YAML", {
 })
 
 test_that("yml_quarto handles complex nested structures", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -960,6 +1000,7 @@ test_that("yml_quarto handles complex nested structures", {
 })
 
 test_that("yml_quarto handles edge case: empty _quarto.yml", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 
@@ -977,6 +1018,7 @@ test_that("yml_quarto handles edge case: empty _quarto.yml", {
 })
 
 test_that("yml_quarto preserves non-wrapped values", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
 

@@ -1,6 +1,7 @@
 # Test projr_log_view function
 
 test_that("projr_log_view displays most recent log by default", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
 
@@ -162,6 +163,7 @@ test_that("projr_log_view shows header by default", {
 })
 
 test_that(".log_file_get_most_recent returns most recent across types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
 

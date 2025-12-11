@@ -1,4 +1,5 @@
 test_that(".yml_metadata_check validates version-format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -24,6 +25,7 @@ test_that(".yml_metadata_check validates version-format", {
 })
 
 test_that(".yml_scripts_check validates scripts structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -49,6 +51,7 @@ test_that(".yml_scripts_check validates scripts structure", {
 })
 
 test_that(".yml_hooks_check_config validates hooks structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -87,6 +90,7 @@ test_that(".yml_hooks_check_config validates hooks structure", {
 })
 
 test_that(".yml_cite_check_config validates cite structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -134,6 +138,7 @@ test_that(".yml_cite_check_config validates cite structure", {
 })
 
 test_that("projr_yml_check runs all validations", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -159,6 +164,7 @@ test_that("projr_yml_check runs all validations", {
 })
 
 test_that(".yml_dir_check rejects directory labels ending in -empty", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -197,6 +203,7 @@ test_that(".yml_dir_check rejects directory labels ending in -empty", {
 })
 
 test_that(".yml_dir_check_label validates label structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -222,6 +229,7 @@ test_that(".yml_dir_check_label validates label structure", {
 })
 
 test_that(".yml_dir_check_label_path validates paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -247,6 +255,7 @@ test_that(".yml_dir_check_label_path validates paths", {
 })
 
 test_that(".yml_dir_check_label_path_restricted validates restricted paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -279,6 +288,7 @@ test_that(".yml_dir_check_label_path_restricted validates restricted paths", {
 })
 
 test_that(".yml_dir_check_label_ignore validates ignore settings", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -336,6 +346,7 @@ test_that(".yml_dir_check_label_ignore validates ignore settings", {
 
 
 test_that(".yml_dir_check_label_output validates output settings", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -373,6 +384,7 @@ test_that(".yml_dir_check_label_output validates output settings", {
 })
 
 test_that(".yml_build_check_label validates build keys", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -410,6 +422,7 @@ test_that(".yml_build_check_label validates build keys", {
 })
 
 test_that(".yml_build_check_git validates git settings", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -440,6 +453,7 @@ test_that(".yml_build_check_git validates git settings", {
 })
 
 test_that(".yml_build_check_dest validates destination settings", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -483,6 +497,7 @@ test_that(".yml_build_check_dest validates destination settings", {
 })
 
 test_that(".yml_build_check_dest_title validates destination title details", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -532,6 +547,7 @@ test_that(".yml_build_check_dest_title validates destination title details", {
 })
 
 test_that(".yml_dev_check validates dev structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -575,6 +591,7 @@ test_that(".yml_dev_check validates dev structure", {
 })
 
 test_that(".yml_scripts_hooks_check_exist validates file existence", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 

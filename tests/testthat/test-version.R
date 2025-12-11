@@ -1,4 +1,5 @@
 test_that(".yml_metadata_get_version_format_get and _set", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -134,6 +135,7 @@ test_that(".version_format_check works", {
 
 
 test_that("projr_version_get works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -314,6 +316,7 @@ test_that("checking min version works", {
 
 
 test_that(".version_copy_dir works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -351,6 +354,7 @@ test_that(".version_copy_dir works correctly", {
 
 
 test_that(".version_set_desc works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -379,6 +383,7 @@ test_that(".version_set_desc works correctly", {
 
 
 test_that(".version_set_file works with different parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -422,6 +427,7 @@ test_that(".version_set_file works with different parameters", {
 
 
 test_that(".version_current_vec_get_dev works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with "dev" as last component
@@ -442,6 +448,7 @@ test_that(".version_current_vec_get_dev works correctly", {
 
 
 test_that(".version_current_vec_get_init_desc works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -470,6 +477,7 @@ test_that(".version_current_vec_get_init_desc works correctly", {
 
 
 test_that(".version_chr_get works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -508,6 +516,7 @@ test_that(".version_chr_get works correctly", {
 
 
 test_that(".version_run_onwards_get_dev works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -537,6 +546,7 @@ test_that(".version_run_onwards_get_dev works correctly", {
 
 
 test_that(".version_run_onwards_get_dev_append_dev works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -572,6 +582,7 @@ test_that(".version_run_onwards_get_dev_append_dev works correctly", {
 
 
 test_that(".version_run_onwards_get_bump works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -611,6 +622,7 @@ test_that(".version_run_onwards_get_bump works correctly", {
 
 
 test_that(".version_run_onwards_get_bump_update_vec works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test major bump

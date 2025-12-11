@@ -1,4 +1,5 @@
 test_that(".license_type_normalize works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test common variations
@@ -25,6 +26,7 @@ test_that(".license_type_normalize works", {
 })
 
 test_that(".license_template_get_path returns valid paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test that templates exist
@@ -45,6 +47,7 @@ test_that(".license_template_get_path returns valid paths", {
 })
 
 test_that(".license_template_fill replaces placeholders", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   template <- c(
@@ -61,6 +64,7 @@ test_that(".license_template_fill replaces placeholders", {
 })
 
 test_that(".license_config_parse handles simple string", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   config <- .license_config_parse("CC-BY")
@@ -72,6 +76,7 @@ test_that(".license_config_parse handles simple string", {
 })
 
 test_that(".license_config_parse handles full config", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   config <- .license_config_parse(list(
@@ -86,6 +91,7 @@ test_that(".license_config_parse handles full config", {
 })
 
 test_that(".license_config_parse handles partial config", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   config <- .license_config_parse(list(
@@ -100,6 +106,7 @@ test_that(".license_config_parse handles partial config", {
 })
 
 test_that(".license_dir_write creates license file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -133,6 +140,7 @@ test_that(".license_dir_write creates license file", {
 })
 
 test_that(".license_dir_create works with yml config", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -166,6 +174,7 @@ test_that(".license_dir_create works with yml config", {
 })
 
 test_that(".license_dir_create returns FALSE when no config", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -188,6 +197,7 @@ test_that(".license_dir_create returns FALSE when no config", {
 })
 
 test_that(".build_label_get_dir_exc does not exclude LICENSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test that LICENSE is NOT excluded for various labels
@@ -204,6 +214,7 @@ test_that(".build_label_get_dir_exc does not exclude LICENSE", {
 })
 
 test_that("LICENSE files included in manifest", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -232,6 +243,7 @@ test_that("LICENSE files included in manifest", {
 })
 
 test_that(".license_get_default_authors handles multi-part given names", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)

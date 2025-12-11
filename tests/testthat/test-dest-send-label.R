@@ -18,6 +18,7 @@ dir_test <- .test_setup_project(
 # =============================================================================
 
 test_that(".dsl_get_fn_source returns files from manifest", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -50,6 +51,7 @@ test_that(".dsl_get_fn_source returns files from manifest", {
 })
 
 test_that(".dsl_get_manifest_source filters by label and version", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -85,6 +87,7 @@ test_that(".dsl_get_manifest_source filters by label and version", {
 # =============================================================================
 
 test_that(".dsl_gr_gvc_check_nothing returns TRUE for no inspection", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -113,6 +116,7 @@ test_that(".dsl_gr_gvc_check_nothing returns TRUE for no inspection", {
 })
 
 test_that(".dsl_gr_gvc_latest_file returns current version without v", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -141,6 +145,7 @@ test_that(".dsl_gr_gvc_latest_file returns current version without v", {
 # =============================================================================
 
 test_that(".dsl_gpfn_upload_all returns list with fn_source", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -176,6 +181,7 @@ test_that(".dsl_gpfn_upload_all returns list with fn_source", {
 })
 
 test_that(".dsl_get_fn_dest returns empty for NULL remote_comp", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -216,6 +222,7 @@ test_that(".dsl_get_fn_dest returns empty for NULL remote_comp", {
 # =============================================================================
 
 test_that(".dsl_gpa_ua_ensure_exists returns TRUE when adding files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -257,6 +264,7 @@ test_that(".dsl_gpa_ua_ensure_exists returns TRUE when adding files", {
 })
 
 test_that(".dsl_gpa_version_file_check_untrusted detects asterisks", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -289,6 +297,7 @@ test_that(".dsl_gpa_version_file_check_untrusted detects asterisks", {
 })
 
 test_that(".dsl_gpa_version_file_get_use_asterisk handles force flags", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -331,6 +340,7 @@ test_that(".dsl_gpa_version_file_get_use_asterisk handles force flags", {
 # =============================================================================
 
 test_that(".dsl_gpa_d_ensure_exists handles different conditions", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -384,6 +394,7 @@ test_that(".dsl_gpa_d_ensure_exists handles different conditions", {
 })
 
 test_that(".dsl_gpa_p_ensure_exists handles purge conditions", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -442,6 +453,7 @@ test_that(".dsl_gpa_p_ensure_exists handles purge conditions", {
 # =============================================================================
 
 test_that(".dsl_ip_fr_extract_version extracts version from local remote", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -466,6 +478,7 @@ test_that(".dsl_ip_fr_extract_version extracts version from local remote", {
 })
 
 test_that(".dsl_ip_fr_extract_version extracts version from github remote", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -494,6 +507,7 @@ test_that(".dsl_ip_fr_extract_version extracts version from github remote", {
 # =============================================================================
 
 test_that(".dsl_gpa_get_is_remote_dest_empty detects non-empty when adding files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -515,6 +529,7 @@ test_that(".dsl_gpa_get_is_remote_dest_empty detects non-empty when adding files
 })
 
 test_that(".dsl_gpa_get_is_remote_dest_empty detects empty after removing all", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
@@ -564,6 +579,7 @@ test_that(".dsl_gpa_get_is_remote_dest_empty detects empty after removing all", 
 # =============================================================================
 
 test_that(".dsl_gpa_manifest_rm_existing is callable with proper inputs", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(

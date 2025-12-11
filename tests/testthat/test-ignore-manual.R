@@ -2,6 +2,7 @@
 # Focus on increasing test coverage for internal helper functions
 
 test_that("projr_ignore handles trailing slashes in directory paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -24,6 +25,7 @@ test_that("projr_ignore handles trailing slashes in directory paths", {
 })
 
 test_that("projr_ignore handles multiple paths with mixed types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -53,6 +55,7 @@ test_that("projr_ignore handles multiple paths with mixed types", {
 })
 
 test_that("projr_ignore_dir_git with paths already containing /**", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -74,6 +77,7 @@ test_that("projr_ignore_dir_git with paths already containing /**", {
 })
 
 test_that("projr_ignore_file_git with force_create=FALSE and no git repo", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -94,6 +98,7 @@ test_that("projr_ignore_file_git with force_create=FALSE and no git repo", {
 })
 
 test_that("projr_ignore_file_git with force_create=FALSE and git repo exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
 
@@ -116,6 +121,7 @@ test_that("projr_ignore_file_git with force_create=FALSE and git repo exists", {
 })
 
 test_that("projr_ignore_dir_git with force_create=FALSE and no git repo", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -136,6 +142,7 @@ test_that("projr_ignore_dir_git with force_create=FALSE and no git repo", {
 })
 
 test_that("projr_ignore_file_rbuild with force_create=FALSE and no DESCRIPTION", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -156,6 +163,7 @@ test_that("projr_ignore_file_rbuild with force_create=FALSE and no DESCRIPTION",
 })
 
 test_that("projr_ignore_file_rbuild with force_create=FALSE and DESCRIPTION exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -176,6 +184,7 @@ test_that("projr_ignore_file_rbuild with force_create=FALSE and DESCRIPTION exis
 })
 
 test_that("projr_ignore_dir_rbuild with force_create=FALSE and no DESCRIPTION", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -196,6 +205,7 @@ test_that("projr_ignore_dir_rbuild with force_create=FALSE and no DESCRIPTION", 
 })
 
 test_that("projr_ignore_dir_rbuild creates correct regex patterns", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -218,6 +228,7 @@ test_that("projr_ignore_dir_rbuild creates correct regex patterns", {
 })
 
 test_that("projr_ignore_file_rbuild handles trailing slashes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -239,6 +250,7 @@ test_that("projr_ignore_file_rbuild handles trailing slashes", {
 })
 
 test_that("projr_ignore_dir_rbuild handles trailing slashes", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -260,6 +272,7 @@ test_that("projr_ignore_dir_rbuild handles trailing slashes", {
 })
 
 test_that("projr_ignore handles empty strings in input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -280,6 +293,7 @@ test_that("projr_ignore handles empty strings in input", {
 })
 
 test_that("projr_ignore_dir handles empty strings in input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -294,6 +308,7 @@ test_that("projr_ignore_dir handles empty strings in input", {
 })
 
 test_that("projr_ignore_file handles non-character input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -313,6 +328,7 @@ test_that("projr_ignore_file handles non-character input", {
 })
 
 test_that("projr_ignore_dir handles non-character input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -332,6 +348,7 @@ test_that("projr_ignore_dir handles non-character input", {
 })
 
 test_that(".ignore_manual_path_add handles empty input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -354,6 +371,7 @@ test_that(".ignore_manual_path_add handles empty input", {
 })
 
 test_that(".ignore_manual_path_add adds patterns to empty file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -374,6 +392,7 @@ test_that(".ignore_manual_path_add adds patterns to empty file", {
 })
 
 test_that(".ignore_manual_path_add preserves existing projr section", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -407,6 +426,7 @@ test_that(".ignore_manual_path_add preserves existing projr section", {
 })
 
 test_that(".ignore_manual_path_add handles file with only projr section marker", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -438,6 +458,7 @@ test_that(".ignore_manual_path_add handles file with only projr section marker",
 })
 
 test_that(".ignore_manual_path_add handles multiple additions correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -473,6 +494,7 @@ test_that(".ignore_manual_path_add handles multiple additions correctly", {
 })
 
 test_that("projr_ignore_dir_rbuild handles multiple directories", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -496,6 +518,7 @@ test_that("projr_ignore_dir_rbuild handles multiple directories", {
 })
 
 test_that("projr_ignore_file_rbuild handles whitespace in paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -517,6 +540,7 @@ test_that("projr_ignore_file_rbuild handles whitespace in paths", {
 })
 
 test_that("projr_ignore with existing files and nonexistent files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -547,6 +571,7 @@ test_that("projr_ignore with existing files and nonexistent files", {
 })
 
 test_that("projr_ignore_dir_git handles multiple patterns with /**", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -573,6 +598,7 @@ test_that("projr_ignore_dir_git handles multiple patterns with /**", {
 })
 
 test_that("projr_ignore_file without default force_create parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

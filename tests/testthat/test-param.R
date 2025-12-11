@@ -1,4 +1,5 @@
 test_that("projr_yml_par_add adds parameters key", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -113,6 +114,7 @@ test_that("projr_par_get returns entire parameters list when no path given", {
 })
 
 test_that("projr_par_get retrieves nested values correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

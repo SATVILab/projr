@@ -5,11 +5,13 @@
 # =============================================================================
 
 test_that(".yml_dest_opt_vec returns expected remote types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   expect_identical(.yml_dest_opt_vec(), c("local", "osf", "github"))
 })
 
 test_that(".yml_dest_set_type and .yml_dest_get_type work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -37,6 +39,7 @@ test_that(".yml_dest_set_type and .yml_dest_get_type work", {
 })
 
 test_that(".yml_dest_get_title retrieves correct title configuration", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -60,6 +63,7 @@ test_that(".yml_dest_get_title retrieves correct title configuration", {
 })
 
 test_that(".yml_dest_set_title works with overwrite parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -92,6 +96,7 @@ test_that(".yml_dest_set_title works with overwrite parameter", {
 # =============================================================================
 
 test_that(".yml_dest_rm_title removes specific title", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -121,6 +126,7 @@ test_that(".yml_dest_rm_title removes specific title", {
 })
 
 test_that(".yml_dest_rm_type removes entire type", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -148,6 +154,7 @@ test_that(".yml_dest_rm_type removes entire type", {
 })
 
 test_that(".yml_dest_rm_type_all removes all destination types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -176,6 +183,7 @@ test_that(".yml_dest_rm_type_all removes all destination types", {
 })
 
 test_that(".yml_dest_used_get returns currently used types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -213,6 +221,7 @@ test_that(".yml_dest_used_get returns currently used types", {
 # =============================================================================
 
 test_that(".yml_dest_add_get_list_add builds correct list", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .yml_dest_add_get_list_add(
@@ -233,6 +242,7 @@ test_that(".yml_dest_add_get_list_add builds correct list", {
 })
 
 test_that(".yml_dest_add_get_list_add_extra switches on type", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # For non-OSF types, should return list unchanged
@@ -268,6 +278,7 @@ test_that(".yml_dest_add_get_list_add_extra switches on type", {
 # =============================================================================
 
 test_that(".yml_dest_complete_title_structure sets default structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml <- list()
@@ -281,6 +292,7 @@ test_that(".yml_dest_complete_title_structure sets default structure", {
 })
 
 test_that(".yml_dest_complete_title_cue sets default cue", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml <- list()
@@ -294,6 +306,7 @@ test_that(".yml_dest_complete_title_cue sets default cue", {
 })
 
 test_that(".yml_dest_complete_title_upload_inspect sets default inspect", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml <- list()
@@ -307,6 +320,7 @@ test_that(".yml_dest_complete_title_upload_inspect sets default inspect", {
 })
 
 test_that(".yml_dest_complete_title_strategy_default sets appropriate strategy", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # When strategy is NULL and inspect is "none", should be "upload-all"
@@ -323,6 +337,7 @@ test_that(".yml_dest_complete_title_strategy_default sets appropriate strategy",
 })
 
 test_that(".yml_dest_complete_title_upload_strategy completes strategy for different types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Local type
@@ -347,6 +362,7 @@ test_that(".yml_dest_complete_title_upload_strategy completes strategy for diffe
 })
 
 test_that(".yml_dest_complete_title_path_append_label sets default", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml <- list()
@@ -355,6 +371,7 @@ test_that(".yml_dest_complete_title_path_append_label sets default", {
 })
 
 test_that(".yml_dest_complete_title_path sets default path", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml <- list()
@@ -368,6 +385,7 @@ test_that(".yml_dest_complete_title_path sets default path", {
 })
 
 test_that(".yml_dest_complete_title_id completes ID for different types", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Local type - id should be set to path
@@ -387,6 +405,7 @@ test_that(".yml_dest_complete_title_id completes ID for different types", {
 })
 
 test_that(".yml_dest_complete_title applies all completions", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Local destination
@@ -411,6 +430,7 @@ test_that(".yml_dest_complete_title applies all completions", {
 # =============================================================================
 
 test_that(".yml_dest_set_send_strategy updates strategy", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -443,6 +463,7 @@ test_that(".yml_dest_set_send_strategy updates strategy", {
 })
 
 test_that(".yml_dest_set_send_cue updates cue", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -474,6 +495,7 @@ test_that(".yml_dest_set_send_cue updates cue", {
 # =============================================================================
 
 test_that(".yml_dest_get_title_complete_param_init creates correct structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -494,6 +516,7 @@ test_that(".yml_dest_get_title_complete_param_init creates correct structure", {
 })
 
 test_that(".yml_dest_get_title_complete_param_force sets send cue", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   yml_title <- list(send = list())
@@ -508,6 +531,7 @@ test_that(".yml_dest_get_title_complete_param_force sets send cue", {
 })
 
 test_that(".yml_dest_get_title_complete works with parameter-based config", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -538,6 +562,7 @@ test_that(".yml_dest_get_title_complete works with parameter-based config", {
 # =============================================================================
 
 test_that(".yml_dest_add_get_list_add_extra_osf handles character id", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
 
@@ -559,6 +584,7 @@ test_that(".yml_dest_add_get_list_add_extra_osf handles character id", {
 })
 
 test_that(".yml_dest_add_get_list_add_extra_osf handles NULL id", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
 
@@ -580,6 +606,7 @@ test_that(".yml_dest_add_get_list_add_extra_osf handles NULL id", {
 })
 
 test_that(".yml_dest_add_get_list_add_extra_osf validates id class", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   list_add <- list(content = "output")
@@ -610,6 +637,7 @@ test_that(".yml_dest_add_get_list_add_extra_osf validates id class", {
 # =============================================================================
 
 test_that(".yml_dest_add_impl creates proper destination structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -642,6 +670,7 @@ test_that(".yml_dest_add_impl creates proper destination structure", {
 })
 
 test_that(".yml_dest_add works through the full pipeline", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

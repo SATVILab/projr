@@ -6,6 +6,7 @@
 # ==============================================================================
 
 test_that(".ignore_path_read returns file contents when file exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -25,6 +26,7 @@ test_that(".ignore_path_read returns file contents when file exists", {
 })
 
 test_that(".ignore_path_read returns empty character vector for non-existent file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -42,6 +44,7 @@ test_that(".ignore_path_read returns empty character vector for non-existent fil
 })
 
 test_that(".ignore_path_read suppresses warnings", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -62,6 +65,7 @@ test_that(".ignore_path_read suppresses warnings", {
 # ==============================================================================
 
 test_that(".ignore_get_list_empty returns correct empty list structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   result <- .ignore_get_list_empty()
@@ -78,6 +82,7 @@ test_that(".ignore_get_list_empty returns correct empty list structure", {
 # ==============================================================================
 
 test_that(".ignore_path_get_check errors when multiple start markers", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -99,6 +104,7 @@ test_that(".ignore_path_get_check errors when multiple start markers", {
 })
 
 test_that(".ignore_path_get_check errors when multiple end markers", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -120,6 +126,7 @@ test_that(".ignore_path_get_check errors when multiple end markers", {
 })
 
 test_that(".ignore_path_get_check errors when only start marker present", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -139,6 +146,7 @@ test_that(".ignore_path_get_check errors when only start marker present", {
 })
 
 test_that(".ignore_path_get_check errors when only end marker present", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -158,6 +166,7 @@ test_that(".ignore_path_get_check errors when only end marker present", {
 })
 
 test_that(".ignore_path_get_check errors when start marker after end marker", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -178,6 +187,7 @@ test_that(".ignore_path_get_check errors when start marker after end marker", {
 })
 
 test_that(".ignore_path_get_check succeeds with both markers in correct order", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -198,6 +208,7 @@ test_that(".ignore_path_get_check succeeds with both markers in correct order", 
 })
 
 test_that(".ignore_path_get_check succeeds when no markers present", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -218,6 +229,7 @@ test_that(".ignore_path_get_check succeeds when no markers present", {
 # ==============================================================================
 
 test_that(".ignore_path_get_ind finds both markers", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -241,6 +253,7 @@ test_that(".ignore_path_get_ind finds both markers", {
 })
 
 test_that(".ignore_path_get_ind returns NA when no markers present", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -258,6 +271,7 @@ test_that(".ignore_path_get_ind returns NA when no markers present", {
 })
 
 test_that(".ignore_path_get_ind handles markers at start and end of file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -282,6 +296,7 @@ test_that(".ignore_path_get_ind handles markers at start and end of file", {
 # ==============================================================================
 
 test_that(".ignore_path_get_startend creates new markers when none exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -305,6 +320,7 @@ test_that(".ignore_path_get_startend creates new markers when none exist", {
 })
 
 test_that(".ignore_path_get_startend extracts content with existing markers", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -338,6 +354,7 @@ test_that(".ignore_path_get_startend extracts content with existing markers", {
 })
 
 test_that(".ignore_path_get_startend handles markers at file boundaries", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -363,6 +380,7 @@ test_that(".ignore_path_get_startend handles markers at file boundaries", {
 # ==============================================================================
 
 test_that(".ignore_path_get_content extracts content between markers", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -387,6 +405,7 @@ test_that(".ignore_path_get_content extracts content between markers", {
 })
 
 test_that(".ignore_path_get_content returns empty when no markers", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -403,6 +422,7 @@ test_that(".ignore_path_get_content returns empty when no markers", {
 })
 
 test_that(".ignore_path_get_content returns empty when markers are adjacent", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -424,6 +444,7 @@ test_that(".ignore_path_get_content returns empty when markers are adjacent", {
 })
 
 test_that(".ignore_path_get_content handles single line of content", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -448,6 +469,7 @@ test_that(".ignore_path_get_content handles single line of content", {
 # ==============================================================================
 
 test_that(".ignore_path_get_list parses file with projr section correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -486,6 +508,7 @@ test_that(".ignore_path_get_list parses file with projr section correctly", {
 })
 
 test_that(".ignore_path_get_list returns empty list for non-existent file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -505,6 +528,7 @@ test_that(".ignore_path_get_list returns empty list for non-existent file", {
 })
 
 test_that(".ignore_path_get_list parses file without projr section", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -533,6 +557,7 @@ test_that(".ignore_path_get_list parses file without projr section", {
 })
 
 test_that(".ignore_path_get_list handles empty file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -558,6 +583,7 @@ test_that(".ignore_path_get_list handles empty file", {
 # ==============================================================================
 
 test_that(".ignore_path_write writes content to file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -577,6 +603,7 @@ test_that(".ignore_path_write writes content to file", {
 })
 
 test_that(".ignore_path_write appends newline at end of file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -596,6 +623,7 @@ test_that(".ignore_path_write appends newline at end of file", {
 })
 
 test_that(".ignore_path_write creates file if it doesn't exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -615,6 +643,7 @@ test_that(".ignore_path_write creates file if it doesn't exist", {
 })
 
 test_that(".ignore_path_write overwrites existing file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -635,6 +664,7 @@ test_that(".ignore_path_write overwrites existing file", {
 })
 
 test_that(".ignore_path_write handles empty character vector", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

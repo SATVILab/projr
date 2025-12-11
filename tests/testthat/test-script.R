@@ -1,4 +1,5 @@
 test_that(".yml_script_ functions work works", {
+  skip_if(.is_test_cran())
   # setup
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -101,6 +102,7 @@ test_that(".yml_script_ functions work works", {
 })
 
 test_that(".yml_script_ functions work works with other profile", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   # setup
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -217,6 +219,7 @@ test_that(".yml_script_ functions work works with other profile", {
 })
 
 test_that(".build_script... functions work works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   # setup
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -262,6 +265,7 @@ test_that(".build_script... functions work works", {
 
 # Tests for exported functions
 test_that("projr_yml_script_add works with all parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -314,6 +318,7 @@ test_that("projr_yml_script_add works with all parameters", {
 })
 
 test_that("projr_yml_script_add handles title with spaces", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -340,6 +345,7 @@ test_that("projr_yml_script_add handles title with spaces", {
 })
 
 test_that("projr_yml_script_add overwrite parameter works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -384,6 +390,7 @@ test_that("projr_yml_script_add overwrite parameter works", {
 })
 
 test_that("projr_yml_script_add works with different cue values", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -421,6 +428,7 @@ test_that("projr_yml_script_add works with different cue values", {
 })
 
 test_that("projr_yml_script_add_pre and projr_yml_script_add_post work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -460,6 +468,7 @@ test_that("projr_yml_script_add_pre and projr_yml_script_add_post work", {
 })
 
 test_that("projr_yml_script_rm works with title only", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -481,6 +490,7 @@ test_that("projr_yml_script_rm works with title only", {
 })
 
 test_that("projr_yml_script_rm works with title and path", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -516,6 +526,7 @@ test_that("projr_yml_script_rm works with title and path", {
 })
 
 test_that("projr_yml_script_rm_all works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -550,6 +561,7 @@ test_that("projr_yml_script_rm_all works", {
 })
 
 test_that("projr_yml_script functions work with custom profile", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -598,6 +610,7 @@ test_that("projr_yml_script functions work with custom profile", {
 })
 
 test_that("projr_yml_script input validation works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 

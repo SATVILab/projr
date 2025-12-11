@@ -1,4 +1,5 @@
 test_that(".yml_dir_label_class_detect functions work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test raw detection
@@ -42,6 +43,7 @@ test_that(".yml_dir_label_class_detect functions work", {
 })
 
 test_that(".yml_dir_label_class_get_ind works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   expect_identical(.yml_dir_label_class_get_ind("raw-data"), "raw")
@@ -60,6 +62,7 @@ test_that(".yml_dir_label_class_get_ind works", {
 })
 
 test_that(".yml_dir_label_class_get works with vectors", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   labels <- c("raw-data", "cache", "output", "docs")
@@ -70,6 +73,7 @@ test_that(".yml_dir_label_class_get works with vectors", {
 })
 
 test_that(".yml_dir_label_class_get_match works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   labels <- c("raw-data", "cache", "output", "docs")
@@ -79,6 +83,7 @@ test_that(".yml_dir_label_class_get_match works", {
 })
 
 test_that(".yml_dir_complete_hash functions work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test output hash completion (NULL -> TRUE)
@@ -98,6 +103,7 @@ test_that(".yml_dir_complete_hash functions work", {
 })
 
 test_that(".yml_dir_complete_hash dispatches correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test dispatching to different label types
@@ -118,6 +124,7 @@ test_that(".yml_dir_complete_hash dispatches correctly", {
 })
 
 test_that(".yml_dir_get_path_default works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test default paths
@@ -133,6 +140,7 @@ test_that(".yml_dir_get_path_default works", {
 })
 
 test_that(".yml_dir_get_label_nm functions work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -161,6 +169,7 @@ test_that(".yml_dir_get_label_nm functions work", {
 })
 
 test_that(".yml_dir_get_label_docs works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -180,6 +189,7 @@ test_that(".yml_dir_get_label_docs works", {
 })
 
 test_that(".yml_dir_get_label_in and _out work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -204,6 +214,7 @@ test_that(".yml_dir_get_label_in and _out work", {
 })
 
 test_that(".yml_dir_get_label_artefact works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -222,6 +233,7 @@ test_that(".yml_dir_get_label_artefact works", {
 })
 
 test_that(".yml_dir_get_hash and _set_hash work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -246,6 +258,7 @@ test_that(".yml_dir_get_hash and _set_hash work", {
 })
 
 test_that(".yml_dir_get_hash_complete works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -268,6 +281,7 @@ test_that(".yml_dir_get_hash_complete works", {
 })
 
 test_that(".yml_dir_get_license and _set_license work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -295,6 +309,7 @@ test_that(".yml_dir_get_license and _set_license work", {
 })
 
 test_that(".yml_dir_get_pkg and _set_pkg work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -314,6 +329,7 @@ test_that(".yml_dir_get_pkg and _set_pkg work", {
 })
 
 test_that(".yml_dir_complete_pkg works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   label <- c("output", "raw-data", "cache")
@@ -324,6 +340,7 @@ test_that(".yml_dir_complete_pkg works", {
 })
 
 test_that(".yml_dir_get_pkg_complete works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -347,6 +364,7 @@ test_that(".yml_dir_get_pkg_complete works", {
 })
 
 test_that(".yml_dir_get_output_nm and _complete work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -374,6 +392,7 @@ test_that(".yml_dir_get_output_nm and _complete work", {
 })
 
 test_that(".yml_dir_complete_output_lgl works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -398,6 +417,7 @@ test_that(".yml_dir_complete_output_lgl works", {
 })
 
 test_that(".yml_dir_complete_output_chr works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -421,6 +441,7 @@ test_that(".yml_dir_complete_output_chr works", {
 })
 
 test_that(".yml_dir_get_path and _raw work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -443,6 +464,7 @@ test_that(".yml_dir_get_path and _raw work", {
 })
 
 test_that(".yml_dir_add_label works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -479,6 +501,7 @@ test_that(".yml_dir_add_label works", {
 })
 
 test_that(".yml_dir_get_complete_label works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with empty yml_dir
@@ -509,6 +532,7 @@ test_that(".yml_dir_get_complete_label works", {
 })
 
 test_that(".yml_dir_set_label_empty works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -529,6 +553,7 @@ test_that(".yml_dir_set_label_empty works", {
 })
 
 test_that(".yml_dir_set_label_non_empty works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -553,6 +578,7 @@ test_that(".yml_dir_set_label_non_empty works", {
 })
 
 test_that(".yml_dir_set_label dispatcher works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -577,6 +603,7 @@ test_that(".yml_dir_set_label dispatcher works", {
 })
 
 test_that(".yml_dir_get and _set work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -602,6 +629,7 @@ test_that(".yml_dir_get and _set work", {
 })
 
 test_that(".yml_dir_set_docs works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -617,6 +645,7 @@ test_that(".yml_dir_set_docs works", {
 })
 
 test_that(".yml_dir_get_docs_rel_if_within_cache works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 

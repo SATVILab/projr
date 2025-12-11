@@ -1,4 +1,5 @@
 test_that(".change_get_manifest works", {
+  skip_if(.is_test_cran())
   skip("Test needs rework - .change_get_manifest not designed for project vs project comparison")
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -105,6 +106,7 @@ test_that(".change_get_manifest works", {
 })
 
 test_that(".change_get_file works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -128,6 +130,7 @@ test_that(".change_get_file works", {
 })
 
 test_that(".change_get works for files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -204,6 +207,7 @@ test_that(".change_get works for files", {
 })
 
 test_that(".change_get_check validates inputs correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -248,6 +252,7 @@ test_that(".change_get_check validates inputs correctly", {
 })
 
 test_that(".change_get_file_dir_local returns remote path", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -261,6 +266,7 @@ test_that(".change_get_file_dir_local returns remote path", {
 })
 
 test_that(".change_get_file_dir dispatches correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -275,6 +281,7 @@ test_that(".change_get_file_dir dispatches correctly", {
 })
 
 test_that(".zero_list_manifest_get returns correct structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -304,6 +311,7 @@ test_that(".zero_list_manifest_get returns correct structure", {
 })
 
 test_that(".change_get_manifest_check_nothing detects empty manifests", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -560,6 +568,7 @@ test_that(".change_get_hash handles edge cases", {
 })
 
 test_that(".change_get with unrecognized inspect errors", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -584,6 +593,7 @@ test_that(".change_get with unrecognized inspect errors", {
 })
 
 test_that(".change_get_dir handles empty directories", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -613,6 +623,7 @@ test_that(".change_get_dir handles empty directories", {
 })
 
 test_that(".change_get_check handles edge cases", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

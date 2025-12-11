@@ -1,4 +1,5 @@
 test_that("projr_ignore works with files and directories", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -55,6 +56,7 @@ test_that("projr_ignore handles empty input", {
 })
 
 test_that("projr_ignore_dir works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -78,6 +80,7 @@ test_that("projr_ignore_dir works", {
 })
 
 test_that("projr_ignore_file works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -212,6 +215,7 @@ test_that("projr_ignore with force_create = FALSE respects existing files", {
 })
 
 test_that("projr_ignore_auto works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

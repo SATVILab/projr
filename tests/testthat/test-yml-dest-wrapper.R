@@ -5,6 +5,7 @@
 # =============================================================================
 
 test_that("projr_yml_dest_add_osf creates OSF destination with basic parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -28,6 +29,7 @@ test_that("projr_yml_dest_add_osf creates OSF destination with basic parameters"
 })
 
 test_that("projr_yml_dest_add_osf creates OSF destination with structure parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -50,6 +52,7 @@ test_that("projr_yml_dest_add_osf creates OSF destination with structure paramet
 })
 
 test_that("projr_yml_dest_add_osf creates OSF destination with send parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -74,6 +77,7 @@ test_that("projr_yml_dest_add_osf creates OSF destination with send parameters",
 })
 
 test_that("projr_yml_dest_add_osf creates OSF destination with category and description", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -96,6 +100,7 @@ test_that("projr_yml_dest_add_osf creates OSF destination with category and desc
 })
 
 test_that("projr_yml_dest_add_osf respects overwrite parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -136,6 +141,7 @@ test_that("projr_yml_dest_add_osf respects overwrite parameter", {
 })
 
 test_that("projr_yml_dest_add_osf with path parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -156,6 +162,7 @@ test_that("projr_yml_dest_add_osf with path parameter", {
 })
 
 test_that("projr_yml_dest_add_osf with id and id_parent parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -182,6 +189,7 @@ test_that("projr_yml_dest_add_osf with id and id_parent parameters", {
 # =============================================================================
 
 test_that("projr_yml_dest_add_osf_proj creates OSF project with required parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -202,6 +210,7 @@ test_that("projr_yml_dest_add_osf_proj creates OSF project with required paramet
 })
 
 test_that("projr_yml_dest_add_osf_proj creates public OSF project", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -223,6 +232,7 @@ test_that("projr_yml_dest_add_osf_proj creates public OSF project", {
 })
 
 test_that("projr_yml_dest_add_osf_proj with id parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -243,6 +253,7 @@ test_that("projr_yml_dest_add_osf_proj with id parameter", {
 })
 
 test_that("projr_yml_dest_add_osf_proj requires content parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -265,6 +276,7 @@ test_that("projr_yml_dest_add_osf_proj requires content parameter", {
 # =============================================================================
 
 test_that("projr_yml_dest_add_osf_comp requires id_parent", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -283,6 +295,7 @@ test_that("projr_yml_dest_add_osf_comp requires id_parent", {
 })
 
 test_that("projr_yml_dest_add_osf_comp creates OSF component with id_parent", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -305,6 +318,7 @@ test_that("projr_yml_dest_add_osf_comp creates OSF component with id_parent", {
 })
 
 test_that("projr_yml_dest_add_osf_comp with category parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -326,6 +340,7 @@ test_that("projr_yml_dest_add_osf_comp with category parameter", {
 })
 
 test_that("projr_yml_dest_add_osf_comp with all parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -354,6 +369,7 @@ test_that("projr_yml_dest_add_osf_comp with all parameters", {
 })
 
 test_that("projr_yml_dest_add_osf_comp requires content parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -377,6 +393,7 @@ test_that("projr_yml_dest_add_osf_comp requires content parameter", {
 # =============================================================================
 
 test_that("projr_yml_dest_add_local validates required parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -413,6 +430,7 @@ test_that("projr_yml_dest_add_local validates required parameters", {
 })
 
 test_that("projr_yml_dest_add_local creates local destination with all parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -439,6 +457,7 @@ test_that("projr_yml_dest_add_local creates local destination with all parameter
 })
 
 test_that("projr_yml_dest_add_local with relative path", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -457,6 +476,7 @@ test_that("projr_yml_dest_add_local with relative path", {
 })
 
 test_that("projr_yml_dest_add_local with multiple content labels", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -476,6 +496,7 @@ test_that("projr_yml_dest_add_local with multiple content labels", {
 })
 
 test_that("projr_yml_dest_add_local respects overwrite parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -515,6 +536,7 @@ test_that("projr_yml_dest_add_local respects overwrite parameter", {
 })
 
 test_that("projr_yml_dest_add_local with profile parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -538,6 +560,7 @@ test_that("projr_yml_dest_add_local with profile parameter", {
 # =============================================================================
 
 test_that("projr_yml_dest_add_github validates required parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -563,6 +586,7 @@ test_that("projr_yml_dest_add_github validates required parameters", {
 })
 
 test_that("projr_yml_dest_add_github replaces spaces with hyphens in title", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -580,6 +604,7 @@ test_that("projr_yml_dest_add_github replaces spaces with hyphens in title", {
 })
 
 test_that("projr_yml_dest_add_github with all parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -605,6 +630,7 @@ test_that("projr_yml_dest_add_github with all parameters", {
 })
 
 test_that("projr_yml_dest_add_github with code content label", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -622,6 +648,7 @@ test_that("projr_yml_dest_add_github with code content label", {
 })
 
 test_that("projr_yml_dest_add_github with multiple content labels", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -640,6 +667,7 @@ test_that("projr_yml_dest_add_github with multiple content labels", {
 })
 
 test_that("projr_yml_dest_add_github respects overwrite parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -676,6 +704,7 @@ test_that("projr_yml_dest_add_github respects overwrite parameter", {
 })
 
 test_that("projr_yml_dest_add_github with profile parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

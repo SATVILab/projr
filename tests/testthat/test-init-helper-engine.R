@@ -4,6 +4,7 @@
 # =====================
 
 test_that(".init_engine returns FALSE when engine already exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
 
@@ -19,6 +20,7 @@ test_that(".init_engine returns FALSE when engine already exists", {
 })
 
 test_that(".init_engine creates bookdown engine when none exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -52,6 +54,7 @@ test_that(".init_engine creates bookdown engine when none exists", {
 })
 
 test_that(".init_engine creates quarto_project engine", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -79,6 +82,7 @@ test_that(".init_engine creates quarto_project engine", {
 })
 
 test_that(".init_engine creates quarto_document engine", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -102,6 +106,7 @@ test_that(".init_engine creates quarto_document engine", {
 })
 
 test_that(".init_engine creates rmd engine", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -125,6 +130,7 @@ test_that(".init_engine creates rmd engine", {
 })
 
 test_that(".init_engine stops with unrecognized engine", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -143,6 +149,7 @@ test_that(".init_engine stops with unrecognized engine", {
 # ==================================
 
 test_that(".init_engine_check_exists detects bookdown files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
 
@@ -158,6 +165,7 @@ test_that(".init_engine_check_exists detects bookdown files", {
 })
 
 test_that(".init_engine_check_exists detects quarto project files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -174,6 +182,7 @@ test_that(".init_engine_check_exists detects quarto project files", {
 })
 
 test_that(".init_engine_check_exists detects .qmd files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -190,6 +199,7 @@ test_that(".init_engine_check_exists detects .qmd files", {
 })
 
 test_that(".init_engine_check_exists detects .Rmd files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -206,6 +216,7 @@ test_that(".init_engine_check_exists detects .Rmd files", {
 })
 
 test_that(".init_engine_check_exists detects .rmd files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -222,6 +233,7 @@ test_that(".init_engine_check_exists detects .rmd files", {
 })
 
 test_that(".init_engine_check_exists returns FALSE when no files exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -239,6 +251,7 @@ test_that(".init_engine_check_exists returns FALSE when no files exist", {
 # =======================================
 
 test_that(".init_engine_bookdown_bookdown creates _bookdown.yml", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -261,6 +274,7 @@ test_that(".init_engine_bookdown_bookdown creates _bookdown.yml", {
 # =====================================
 
 test_that(".init_engine_bookdown_output creates _output.yml with metadata", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -289,6 +303,7 @@ test_that(".init_engine_bookdown_output creates _output.yml with metadata", {
 })
 
 test_that(".init_engine_bookdown_output adds newline at end", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -317,6 +332,7 @@ test_that(".init_engine_bookdown_output adds newline at end", {
 # ====================================
 
 test_that(".init_engine_bookdown_index creates index.Rmd with metadata", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -349,6 +365,7 @@ test_that(".init_engine_bookdown_index creates index.Rmd with metadata", {
 # ========================================
 
 test_that(".init_engine_quarto_project_yml creates book format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -378,6 +395,7 @@ test_that(".init_engine_quarto_project_yml creates book format", {
 })
 
 test_that(".init_engine_quarto_project_yml creates website format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -409,6 +427,7 @@ test_that(".init_engine_quarto_project_yml creates website format", {
 # ==========================================
 
 test_that(".init_engine_quarto_project_index creates index.qmd", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -432,6 +451,7 @@ test_that(".init_engine_quarto_project_index creates index.qmd", {
 # =========================================
 
 test_that(".init_engine_quarto_document_doc creates html document", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -461,6 +481,7 @@ test_that(".init_engine_quarto_document_doc creates html document", {
 })
 
 test_that(".init_engine_quarto_document_doc handles word format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -487,6 +508,7 @@ test_that(".init_engine_quarto_document_doc handles word format", {
 })
 
 test_that(".init_engine_quarto_document_doc handles powerpoint format", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -513,6 +535,7 @@ test_that(".init_engine_quarto_document_doc handles powerpoint format", {
 })
 
 test_that(".init_engine_quarto_document_doc strips .qmd extension from filename", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -539,6 +562,7 @@ test_that(".init_engine_quarto_document_doc strips .qmd extension from filename"
 # =============================
 
 test_that(".init_engine_rmd_doc creates html_document", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -566,6 +590,7 @@ test_that(".init_engine_rmd_doc creates html_document", {
 })
 
 test_that(".init_engine_rmd_doc creates pdf_document", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -590,6 +615,7 @@ test_that(".init_engine_rmd_doc creates pdf_document", {
 })
 
 test_that(".init_engine_rmd_doc creates word_document", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -614,6 +640,7 @@ test_that(".init_engine_rmd_doc creates word_document", {
 })
 
 test_that(".init_engine_rmd_doc creates beamer_presentation", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -638,6 +665,7 @@ test_that(".init_engine_rmd_doc creates beamer_presentation", {
 })
 
 test_that(".init_engine_rmd_doc creates ioslides_presentation", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -662,6 +690,7 @@ test_that(".init_engine_rmd_doc creates ioslides_presentation", {
 })
 
 test_that(".init_engine_rmd_doc creates slidy_presentation", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -686,6 +715,7 @@ test_that(".init_engine_rmd_doc creates slidy_presentation", {
 })
 
 test_that(".init_engine_rmd_doc creates powerpoint_presentation", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -710,6 +740,7 @@ test_that(".init_engine_rmd_doc creates powerpoint_presentation", {
 })
 
 test_that(".init_engine_rmd_doc creates revealjs_presentation", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 
@@ -734,6 +765,7 @@ test_that(".init_engine_rmd_doc creates revealjs_presentation", {
 })
 
 test_that(".init_engine_rmd_doc strips .Rmd and .rmd extensions from filename", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
 

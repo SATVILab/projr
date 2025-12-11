@@ -1,4 +1,5 @@
 test_that(".yml_scripts functions work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -374,6 +375,7 @@ test_that("dev.hooks works for dev builds", {
 })
 
 test_that("Issue scenario: build.scripts used as fallback for dev builds", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 

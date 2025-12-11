@@ -6,6 +6,7 @@
 # =============================================================================
 
 test_that("projr_yml_hooks_add works with basic usage", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -35,6 +36,7 @@ test_that("projr_yml_hooks_add works with basic usage", {
 })
 
 test_that("projr_yml_hooks_add works with multiple paths", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -54,6 +56,7 @@ test_that("projr_yml_hooks_add works with multiple paths", {
 })
 
 test_that("projr_yml_hooks_add overwrite parameter works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -81,6 +84,7 @@ test_that("projr_yml_hooks_add overwrite parameter works", {
 })
 
 test_that("projr_yml_hooks_add prevents duplicates when appending", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -108,6 +112,7 @@ test_that("projr_yml_hooks_add prevents duplicates when appending", {
 })
 
 test_that("projr_yml_hooks_add validates inputs", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -144,6 +149,7 @@ test_that("projr_yml_hooks_add validates inputs", {
 # =============================================================================
 
 test_that("projr_yml_hooks_add_pre works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -173,6 +179,7 @@ test_that("projr_yml_hooks_add_pre works correctly", {
 })
 
 test_that("projr_yml_hooks_add_post works correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -206,6 +213,7 @@ test_that("projr_yml_hooks_add_post works correctly", {
 # =============================================================================
 
 test_that("projr_yml_hooks_rm_all removes all hooks", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -234,6 +242,7 @@ test_that("projr_yml_hooks_rm_all removes all hooks", {
 })
 
 test_that("projr_yml_hooks_rm_all handles no existing hooks gracefully", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -261,6 +270,7 @@ test_that("projr_yml_hooks_rm_all handles no existing hooks gracefully", {
 # =============================================================================
 
 test_that(".yml_hooks_check validates all parameters", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Valid inputs should not error
@@ -291,6 +301,7 @@ test_that(".yml_hooks_check validates all parameters", {
 # =============================================================================
 
 test_that(".yml_hooks_add creates new hook list when none exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -315,6 +326,7 @@ test_that(".yml_hooks_add creates new hook list when none exists", {
 })
 
 test_that(".yml_hooks_add handles overwrite correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -341,6 +353,7 @@ test_that(".yml_hooks_add handles overwrite correctly", {
 })
 
 test_that(".yml_hooks_add removes duplicates when appending", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -370,6 +383,7 @@ test_that(".yml_hooks_add removes duplicates when appending", {
 # =============================================================================
 
 test_that(".yml_hooks_get retrieves hooks from YAML", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -393,6 +407,7 @@ test_that(".yml_hooks_get retrieves hooks from YAML", {
 })
 
 test_that(".yml_hooks_get returns NULL when no hooks exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -420,6 +435,7 @@ test_that(".yml_hooks_get returns NULL when no hooks exist", {
 # =============================================================================
 
 test_that(".yml_hooks_set writes hooks to YAML", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -448,6 +464,7 @@ test_that(".yml_hooks_set writes hooks to YAML", {
 })
 
 test_that(".yml_hooks_set can set NULL to remove hooks", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -475,6 +492,7 @@ test_that(".yml_hooks_set can set NULL to remove hooks", {
 # =============================================================================
 
 test_that("hooks functions work with custom profiles", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -513,6 +531,7 @@ test_that("hooks functions work with custom profiles", {
 # =============================================================================
 
 test_that("hooks work with all three stages simultaneously", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -546,6 +565,7 @@ test_that("hooks work with all three stages simultaneously", {
 })
 
 test_that("projr_yml_check validates hook structure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -576,6 +596,7 @@ test_that("projr_yml_check validates hook structure", {
 })
 
 test_that("hooks functions handle empty character vectors", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 

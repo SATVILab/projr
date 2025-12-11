@@ -1,4 +1,5 @@
 test_that("projr_renv_test successfully restores renv environment", {
+  skip_if(.is_test_cran())
   skip_if_offline()
   skip_if(.is_test_select())
   skip_if_not(

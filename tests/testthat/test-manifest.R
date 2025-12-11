@@ -1,4 +1,5 @@
 test_that(".manifest_hash_label works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -171,6 +172,7 @@ test_that("manifest tracks changes across multiple builds", {
 })
 
 test_that(".manifest_filter_label filters by label correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -206,6 +208,7 @@ test_that(".manifest_filter_label filters by label correctly", {
 })
 
 test_that(".manifest_filter_version filters by version correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -239,6 +242,7 @@ test_that(".manifest_filter_version filters by version correctly", {
 })
 
 test_that(".manifest_filter_out_version_label filters out version and label", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -281,6 +285,7 @@ test_that(".manifest_filter_out_version_label filters out version and label", {
 })
 
 test_that(".manifest_append_previous and .manifest_append_previous_impl work", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -333,6 +338,7 @@ test_that(".manifest_append_previous and .manifest_append_previous_impl work", {
 })
 
 test_that(".manifest_remove_duplicate removes duplicates correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -371,6 +377,7 @@ test_that(".manifest_remove_duplicate removes duplicates correctly", {
 })
 
 test_that(".manifest_write_impl writes manifest correctly", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -420,6 +427,7 @@ test_that(".manifest_write_impl writes manifest correctly", {
 })
 
 test_that(".manifest_get_path_dir creates and returns directory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -444,6 +452,7 @@ test_that(".manifest_get_path_dir creates and returns directory", {
 })
 
 test_that(".manifest_get_path_file returns correct file path", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -467,6 +476,7 @@ test_that(".manifest_get_path_file returns correct file path", {
 })
 
 test_that(".manifest_hash_cache_filter filters cache projr subdirectory", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -499,6 +509,7 @@ test_that(".manifest_hash_cache_filter filters cache projr subdirectory", {
 })
 
 test_that(".manifest_version_get_latest returns earliest version", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -535,6 +546,7 @@ test_that(".manifest_version_get_latest returns earliest version", {
 })
 
 test_that(".manifest_get_add_project gets version-specific additions", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -565,6 +577,7 @@ test_that(".manifest_get_add_project gets version-specific additions", {
 })
 
 test_that(".version_file_update_project_version updates project version", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -596,6 +609,7 @@ test_that(".version_file_update_project_version updates project version", {
 })
 
 test_that(".version_file_update_label_version updates label version", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -638,6 +652,7 @@ test_that(".version_file_update_label_version updates label version", {
 })
 
 test_that(".version_file_check_update_label determines if update needed", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -671,6 +686,7 @@ test_that(".version_file_check_update_label determines if update needed", {
 })
 
 test_that(".version_file_check_update_label_present checks label presence", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -699,6 +715,7 @@ test_that(".version_file_check_update_label_present checks label presence", {
 })
 
 test_that(".version_file_check_label_trusted checks asterisk marker", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -816,6 +833,7 @@ test_that(".manifest_get_version_earliest_match handles edge cases", {
 })
 
 test_that(".manifest_get_version_earliest_match_get_version_comp generates default", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -838,6 +856,7 @@ test_that(".manifest_get_version_earliest_match_get_version_comp generates defau
 })
 
 test_that(".build_manifest_pre_get_manifest returns empty when no labels to hash", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -857,6 +876,7 @@ test_that(".build_manifest_pre_get_manifest returns empty when no labels to hash
 })
 
 test_that(".build_manifest_post_get_manifest returns empty when no output labels", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -875,6 +895,7 @@ test_that(".build_manifest_post_get_manifest returns empty when no output labels
 })
 
 test_that(".build_manifest_reduce handles empty and single manifests", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -935,6 +956,7 @@ test_that(".build_manifest_reduce handles empty and single manifests", {
 })
 
 test_that(".build_manifest_post returns empty when all parts are empty", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -963,6 +985,7 @@ test_that(".build_manifest_post returns empty when all parts are empty", {
 })
 
 test_that(".build_manifest_post_get_path returns cache path when output_run is FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -982,6 +1005,7 @@ test_that(".build_manifest_post_get_path returns cache path when output_run is F
 })
 
 test_that(".build_manifest_pre_get_label_ind_check detects raw labels", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   # Note: This function appears to be unused legacy code, but testing for completeness
 

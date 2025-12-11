@@ -1,4 +1,5 @@
 test_that("projr_yml_dir_path_set functions work", {
+  skip_if(.is_test_cran())
   # setup
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -31,6 +32,7 @@ test_that("projr_yml_dir_path_set functions work", {
 })
 
 test_that("projr_yml_dir_path_rm works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -53,6 +55,7 @@ test_that("projr_yml_dir_path_rm works", {
 })
 
 test_that("projr_yml_dir_path_set validation works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -81,6 +84,7 @@ test_that("projr_yml_dir_path_set validation works", {
 })
 
 test_that("projr_yml_dir_path_set works with different profiles", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -105,6 +109,7 @@ test_that("projr_yml_dir_path_set works with different profiles", {
 })
 
 test_that("projr_yml_dir_path_rm preserves other directory config", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 

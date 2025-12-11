@@ -5,6 +5,7 @@
 # ==============================================================================
 
 test_that(".path_force_rel handles empty vectors", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
@@ -114,6 +115,7 @@ test_that(".path_get_full validates inputs", {
 })
 
 test_that(".path_filter_spec handles empty vectors", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Empty fn should return empty vector
@@ -171,6 +173,7 @@ test_that(".path_get validates relative parameter", {
 # ==============================================================================
 
 test_that(".file_filter_dir handles empty vectors", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Empty vector should return empty vector
@@ -200,6 +203,7 @@ test_that(".file_filter_dir validates inputs", {
 })
 
 test_that(".file_filter_dir_non handles empty vectors", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Empty vector should return empty vector
@@ -218,6 +222,7 @@ test_that(".file_filter_dir_non validates inputs", {
 })
 
 test_that(".file_filter_exists handles empty vectors", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Empty vector should return empty vector
@@ -274,6 +279,7 @@ test_that(".file_ls validates all parameters", {
 # ==============================================================================
 
 test_that(".dir_filter_exists handles empty vectors", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Empty vector should return empty vector

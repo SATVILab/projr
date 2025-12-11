@@ -1,4 +1,5 @@
 test_that("projr_hash_dir works", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -25,6 +26,7 @@ test_that("projr_hash_dir works", {
 })
 
 test_that(".hash_file works with single file", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -171,6 +173,7 @@ test_that(".hash_dir works with nested directories", {
 })
 
 test_that(".hash_dir works with dir_exc parameter", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -259,6 +262,7 @@ test_that(".hash_dir sets correct version", {
 })
 
 test_that(".change_get_hash detects added files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -443,6 +447,7 @@ test_that(".change_get_hash handles mixed changes", {
 })
 
 test_that(".change_get_dir compares two directories", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(

@@ -5,6 +5,7 @@
 # -------------
 
 test_that(".build_roxygen_check_fn detects roxygen comments", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_roxygen")
   dir.create(dir_test)
@@ -37,6 +38,7 @@ test_that(".build_roxygen_check_fn detects roxygen comments", {
 })
 
 test_that(".build_roxygenise_check returns FALSE when output_run is FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -49,6 +51,7 @@ test_that(".build_roxygenise_check returns FALSE when output_run is FALSE", {
 })
 
 test_that(".build_roxygenise_check returns FALSE when R directory missing", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_no_r")
   dir.create(dir_test)
@@ -70,6 +73,7 @@ test_that(".build_roxygenise_check returns FALSE when R directory missing", {
 })
 
 test_that(".build_roxygenise_check detects roxygen in R files", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_roxygen_check")
   dir.create(dir_test)
@@ -98,6 +102,7 @@ test_that(".build_roxygenise_check detects roxygen in R files", {
 })
 
 test_that(".build_roxygenise returns FALSE when output_run is FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -113,6 +118,7 @@ test_that(".build_roxygenise returns FALSE when output_run is FALSE", {
 # --------------
 
 test_that(".build_cite_get_yml returns empty when cite is FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -126,6 +132,7 @@ test_that(".build_cite_get_yml returns empty when cite is FALSE", {
 })
 
 test_that(".build_cite_get_yml returns all when cite is TRUE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -139,6 +146,7 @@ test_that(".build_cite_get_yml returns all when cite is TRUE", {
 })
 
 test_that(".build_cite_get_yml handles NULL input", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -153,6 +161,7 @@ test_that(".build_cite_get_yml handles NULL input", {
 })
 
 test_that(".build_cite returns FALSE when output_run is FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -165,6 +174,7 @@ test_that(".build_cite returns FALSE when output_run is FALSE", {
 })
 
 test_that(".build_cite works with empty cite config", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -178,6 +188,7 @@ test_that(".build_cite works with empty cite config", {
 })
 
 test_that(".build_cite_cff returns FALSE when file doesn't exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_cite_cff")
   dir.create(dir_test)
@@ -196,6 +207,7 @@ test_that(".build_cite_cff returns FALSE when file doesn't exist", {
 })
 
 test_that(".build_cite_cff_update_file updates file without errors", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -223,6 +235,7 @@ test_that(".build_cite_cff_update_file updates file without errors", {
 })
 
 test_that(".build_cite_inst_citation returns FALSE when file doesn't exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_cite_inst")
   dir.create(dir_test)
@@ -241,6 +254,7 @@ test_that(".build_cite_inst_citation returns FALSE when file doesn't exist", {
 })
 
 test_that(".build_cite_inst_citation_update_file updates version", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -267,6 +281,7 @@ test_that(".build_cite_inst_citation_update_file updates version", {
 })
 
 test_that(".build_cite_codemeta returns FALSE when file doesn't exist", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_cite_codemeta")
   dir.create(dir_test)
@@ -285,6 +300,7 @@ test_that(".build_cite_codemeta returns FALSE when file doesn't exist", {
 })
 
 test_that(".build_cite_codemeta_update_file updates version in codemeta.json", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -313,6 +329,7 @@ test_that(".build_cite_codemeta_update_file updates version in codemeta.json", {
 # ------------
 
 test_that(".build_readme_rmd_render_check returns FALSE when output_run is FALSE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -325,6 +342,7 @@ test_that(".build_readme_rmd_render_check returns FALSE when output_run is FALSE
 })
 
 test_that(".build_readme_rmd_render_check returns FALSE when README.Rmd missing", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_no_readme")
   dir.create(dir_test)
@@ -343,6 +361,7 @@ test_that(".build_readme_rmd_render_check returns FALSE when README.Rmd missing"
 })
 
 test_that(".build_readme_rmd_render_check returns TRUE when README.Rmd exists", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_readme_exists")
   dir.create(dir_test)
@@ -362,6 +381,7 @@ test_that(".build_readme_rmd_render_check returns TRUE when README.Rmd exists", 
 })
 
 test_that(".build_readme_rmd_render_detect_pkg_use detects library calls", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -383,6 +403,7 @@ test_that(".build_readme_rmd_render_detect_pkg_use detects library calls", {
 })
 
 test_that(".build_readme_rmd_render_detect_pkg_use detects :: usage", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -404,6 +425,7 @@ test_that(".build_readme_rmd_render_detect_pkg_use detects :: usage", {
 })
 
 test_that(".build_readme_rmd_render_detect_pkg_use returns FALSE without pkg usage", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -424,6 +446,7 @@ test_that(".build_readme_rmd_render_detect_pkg_use returns FALSE without pkg usa
 })
 
 test_that(".build_readme_rmd_render returns FALSE when check fails", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- tempfile("test_readme_no_file")
   dir.create(dir_test)
@@ -445,6 +468,7 @@ test_that(".build_readme_rmd_render returns FALSE when check fails", {
 # --------------------
 
 test_that(".build_version_set_post returns FALSE when success is TRUE", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -458,6 +482,7 @@ test_that(".build_version_set_post returns FALSE when success is TRUE", {
 })
 
 test_that(".build_version_set_post reverts version on failure", {
+  skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
