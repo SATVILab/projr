@@ -836,3 +836,162 @@ test_that(".manifest_get_version_earliest_match_get_version_comp generates defau
     }
   )
 })
+
+test_that(".build_manifest_pre_get_manifest returns empty when no labels to hash", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Setup: Disable hashing for all input labels (raw-data and cache)
+      # By default, cache is not hashed (FALSE), raw-data is hashed (TRUE)
+      # So we need to disable raw-data hashing
+      .yml_dir_nm_set_hash(FALSE, "raw-data", "default")
+
+      # Test: Should return empty manifest when no labels are configured to hash
+      manifest <- .build_manifest_pre_get_manifest()
+      expect_identical(nrow(manifest), 0L)
+      expect_true(all(c("label", "fn", "version", "hash") %in% names(manifest)))
+    }
+  )
+})
+
+test_that(".build_manifest_post_get_manifest returns empty when no output labels", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Setup: Disable hashing for all output labels (output and docs)
+      .yml_dir_nm_set_hash(FALSE, "output", "default")
+      .yml_dir_nm_set_hash(FALSE, "docs", "default")
+
+      # Test: Should return empty manifest when no output labels are configured to hash
+      manifest <- .build_manifest_post_get_manifest(TRUE)
+      expect_identical(nrow(manifest), 0L)
+      expect_true(all(c("label", "fn", "version", "hash") %in% names(manifest)))
+    }
+  )
+})
+
+test_that(".build_manifest_reduce handles empty and single manifests", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test: Empty list returns zero-row manifest
+      empty_list <- list()
+      result_empty <- .build_manifest_reduce(empty_list)
+      expect_identical(nrow(result_empty), 0L)
+      expect_true(all(c("label", "fn", "version", "hash") %in% names(result_empty)))
+
+      # Test: List with one empty manifest returns zero-row manifest
+      empty_manifest <- .zero_tbl_get_manifest()
+      result_one_empty <- .build_manifest_reduce(list(empty_manifest))
+      expect_identical(nrow(result_one_empty), 0L)
+
+      # Test: List with one non-empty manifest returns that manifest
+      manifest <- data.frame(
+        label = "output",
+        fn = "file.txt",
+        version = "v0.0.1",
+        hash = "hash1",
+        stringsAsFactors = FALSE
+      )
+      result_one <- .build_manifest_reduce(list(manifest))
+      expect_identical(nrow(result_one), 1L)
+      expect_identical(result_one$label, "output")
+
+      # Test: List with multiple empty manifests returns zero-row manifest
+      result_multi_empty <- .build_manifest_reduce(list(empty_manifest, empty_manifest))
+      expect_identical(nrow(result_multi_empty), 0L)
+
+      # Test: List with multiple items but only one non-empty (tests line 106)
+      manifest2 <- data.frame(
+        label = "output",
+        fn = "file.txt",
+        version = "v0.0.1",
+        hash = "hash1",
+        stringsAsFactors = FALSE
+      )
+      result_one_after_filter <- .build_manifest_reduce(list(empty_manifest, manifest2, empty_manifest))
+      expect_identical(nrow(result_one_after_filter), 1L)
+      expect_identical(result_one_after_filter$label, "output")
+
+      # Test: List with mix of empty and multiple non-empty returns combined
+      manifest3 <- data.frame(
+        label = "raw-data",
+        fn = "data.csv",
+        version = "v0.0.1",
+        hash = "hash2",
+        stringsAsFactors = FALSE
+      )
+      result_mixed <- .build_manifest_reduce(list(empty_manifest, manifest, manifest3))
+      expect_identical(nrow(result_mixed), 2L)
+      expect_true(all(result_mixed$label %in% c("output", "raw-data")))
+    }
+  )
+})
+
+test_that(".build_manifest_post returns empty when all parts are empty", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Setup: Disable all hashing
+      .yml_dir_nm_set_hash(FALSE, "raw-data", "default")
+      .yml_dir_nm_set_hash(FALSE, "output", "default")
+      .yml_dir_nm_set_hash(FALSE, "docs", "default")
+
+      # Remove any existing manifest files
+      if (file.exists(.build_manifest_pre_path_get())) {
+        .file_rm(.build_manifest_pre_path_get())
+      }
+      if (file.exists(.path_get("manifest.csv"))) {
+        .file_rm(.path_get("manifest.csv"))
+      }
+
+      # Test: When all manifest parts are empty, should write empty manifest
+      path <- .build_manifest_post(TRUE)
+      manifest <- .manifest_read(path)
+      expect_identical(nrow(manifest), 0L)
+      expect_true(all(c("label", "fn", "version", "hash") %in% names(manifest)))
+    }
+  )
+})
+
+test_that(".build_manifest_post_get_path returns cache path when output_run is FALSE", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test: output_run = TRUE returns project root manifest.csv
+      path_output <- .build_manifest_post_get_path(TRUE)
+      expect_identical(path_output, .path_get("manifest.csv"))
+
+      # Test: output_run = FALSE returns versioned cache directory path
+      path_cache <- .build_manifest_post_get_path(FALSE)
+      expect_true(grepl("projr", path_cache))
+      expect_true(grepl("manifest.csv", path_cache))
+      expect_false(identical(path_cache, path_output))
+    }
+  )
+})
+
+test_that(".build_manifest_pre_get_label_ind_check detects raw labels", {
+  skip_if(.is_test_select())
+  # Note: This function appears to be unused legacy code, but testing for completeness
+
+  # Test: Returns TRUE for labels starting with "raw"
+  expect_true(.build_manifest_pre_get_label_ind_check("raw-data"))
+  expect_true(.build_manifest_pre_get_label_ind_check("raw"))
+  expect_true(.build_manifest_pre_get_label_ind_check("raw-anything"))
+
+  # Test: Returns NULL (implicitly) for non-raw labels
+  expect_null(.build_manifest_pre_get_label_ind_check("output"))
+  expect_null(.build_manifest_pre_get_label_ind_check("cache"))
+  expect_null(.build_manifest_pre_get_label_ind_check("docs"))
+})
