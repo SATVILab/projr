@@ -212,6 +212,19 @@
 }
 
 # ========================
+# Delete a remote
+# ========================
+
+.remote_rm_local <- function(remote) {
+  .assert_string(remote, TRUE)
+  if (!dir.exists(remote)) {
+    return(invisible(FALSE))
+  }
+  unlink(remote, recursive = TRUE)
+  invisible(TRUE)
+}
+
+# ========================
 # Delete a final remote
 # ========================
 

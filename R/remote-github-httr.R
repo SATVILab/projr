@@ -283,6 +283,78 @@
   stop("", call. = FALSE)
 }
 
+
+# ========================
+# Delete a remote
+# ========================
+
+#' Delete a GitHub release using httr
+#'
+#' @param repo Character string. Repository in format "owner/repo".
+#' @param tag Character string. Release tag to delete.
+#' @param api_url Optional GitHub API base URL.
+#' @param token Optional GitHub token.
+#' @return Logical TRUE on success, FALSE if not found.
+#' @keywords internal
+.remote_rm_github_httr <- function(repo,
+                                   tag,
+                                   api_url = NULL,
+                                   token = NULL) {
+  if (!requireNamespace("httr", quietly = TRUE)) {
+    stop("httr is required for .remote_rm_github_httr(); please install it.")
+  }
+  .assert_string(repo, TRUE)
+  .assert_string(tag, TRUE)
+
+  base <- .github_api_base(api_url)
+  tag_enc <- utils::URLencode(tag, reserved = TRUE)
+
+  # First get the release to obtain its ID (required for DELETE)
+  url_release <- sprintf("%s/repos/%s/releases/tags/%s", base, repo, tag_enc)
+
+  tok <- token %||% .auth_get_github_pat_find(api_url = api_url)
+  headers <- c("Accept" = "application/vnd.github+json")
+  if (.is_string(tok)) {
+    headers["Authorization"] <- paste("token", tok)
+  }
+
+  resp_get <- httr::GET(url_release, httr::add_headers(.headers = headers))
+  status_get <- httr::status_code(resp_get)
+
+  if (status_get == 404L) {
+    return(FALSE)
+  }
+  if (status_get != 200L) {
+    stop(
+      "Failed to fetch release for deletion: HTTP ",
+      status_get, " (url: ", url_release, ")",
+      call. = FALSE
+    )
+  }
+
+  release_obj <- httr::content(resp_get, as = "parsed")
+  release_id <- release_obj$id %||% NA_integer_
+  if (is.na(release_id)) {
+    stop("Failed to obtain release id for tag '", tag, "'.", call. = FALSE)
+  }
+
+  url_delete <- sprintf("%s/repos/%s/releases/%s", base, repo, release_id)
+  resp_del <- httr::DELETE(url_delete, httr::add_headers(.headers = headers))
+  status_del <- httr::status_code(resp_del)
+
+  if (status_del == 204L) {
+    return(TRUE)
+  }
+  if (status_del == 404L) {
+    return(FALSE)
+  }
+  stop(
+    "Failed to delete release: HTTP ",
+    status_del, " (url: ", url_delete, ")",
+    call. = FALSE
+  )
+}
+
 # ========================
 # Empty final remote
 # ========================

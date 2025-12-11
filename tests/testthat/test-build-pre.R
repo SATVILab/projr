@@ -331,6 +331,7 @@ test_that(".build_output_get_msg returns provided message", {
 
 test_that(".build_output_get_msg returns default in non-interactive mode when msg is NULL", {
   skip_if(.is_test_select())
+  skip_if(interactive())
   result <- .build_output_get_msg(NULL)
   expect_identical(result, "Build project")
 })

@@ -393,6 +393,64 @@
   )
 }
 
+
+# ========================
+# Delete a remote
+# ========================
+
+.remote_rm_github <- function(remote,
+                              output_level = "std",
+                              api_url = NULL,
+                              token = NULL) {
+  .assert_given_full(remote)
+  .assert_has(names(remote), "tag", TRUE)
+
+  tag <- remote[["tag"]]
+  repo <- tryCatch(.gh_repo_get(), error = function(e) NULL)
+  if (is.null(repo)) {
+    .cli_debug(
+      "GitHub release: Could not determine repo for tag '{tag}', aborting delete",
+      output_level = output_level
+    )
+    stop(call. = FALSE)
+  }
+
+  if (!.remote_check_exists("github", tag, max_attempts = 2)) {
+    .cli_debug(
+      "GitHub release: Release '{tag}' does not exist, nothing to delete",
+      tag = tag,
+      output_level = output_level
+    )
+    return(invisible(FALSE))
+  }
+
+  .cli_debug(
+    "GitHub release: Deleting release '{tag}' in repo '{repo}'",
+    tag = tag,
+    repo = repo,
+    output_level = output_level
+  )
+
+  ok <- tryCatch(
+    .remote_rm_github_httr(
+      repo = repo,
+      tag = tag,
+      api_url = api_url,
+      token = token
+    ),
+    error = function(e) {
+      .cli_debug(
+        "GitHub release: Failed to delete release '{tag}': {condition}",
+        tag = tag,
+        condition = e$message,
+        output_level = output_level
+      )
+      FALSE
+    }
+  )
+
+  invisible(isTRUE(ok))
+}
 # ========================
 # Delete a final remote
 # ========================

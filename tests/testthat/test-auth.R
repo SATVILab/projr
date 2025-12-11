@@ -218,7 +218,10 @@ test_that("Authentication checks handle missing tokens correctly", {
   Sys.unsetenv("OSF_PAT")
 
   # Should throw errors when tokens are missing
-  expect_error(.auth_check_github())
+  expect_error(.auth_check_github(
+    use_gh_if_available = FALSE,
+    use_gitcreds_if_needed = FALSE,
+  ))
   expect_error(.auth_check_osf())
 })
 
@@ -354,12 +357,21 @@ test_that(".auth_get_github_pat handles init parameter correctly", {
   Sys.unsetenv("GH_TOKEN")
   Sys.unsetenv("GITHUB_TOKEN")
 
-  # Test with init = FALSE (default) - should produce warning without init instructions
-  result <- suppressWarnings(.auth_get_github_pat(init = FALSE))
+  # Test with init = FALSE (default) - should produce warning
+  # without init instructions
+  result <- suppressWarnings(.auth_get_github_pat(
+    init = FALSE,
+    use_gh_if_available = FALSE,
+    use_gitcreds_if_needed = FALSE
+  ))
   expect_identical(result, "")
 
   # Test with init = TRUE - should produce warning with init instructions
-  result <- suppressWarnings(.auth_get_github_pat(init = TRUE))
+  result <- suppressWarnings(.auth_get_github_pat(
+    init = TRUE,
+    use_gh_if_available = FALSE,
+    use_gitcreds_if_needed = FALSE
+    ))
   expect_identical(result, "")
 })
 

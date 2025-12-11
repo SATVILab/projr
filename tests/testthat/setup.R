@@ -25,10 +25,13 @@
   fn_vec <- list.files(.test_git_remote_dir_get_tmp())
   fn_vec <- setdiff(fn_vec, "projr")
   for (i in seq_along(fn_vec)) {
-    try(
-      .test_remote_host_rm(type = "github", host = c("repo" = fn_vec[i])),
-      silent = TRUE
-    )
+    host <- c("repo" = fn_vec[i])
+    if (.test_remote_host_exists_github(host)) {
+      try(
+        .test_remote_host_rm(type = "github", host = host),
+        silent = TRUE
+      )
+    }
   }
   unlink(.test_git_remote_dir_get_tmp(), recursive = TRUE)
 }

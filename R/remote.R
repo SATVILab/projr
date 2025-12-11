@@ -618,6 +618,28 @@
 }
 
 # ========================
+# Delete a remote
+# ========================
+
+#' @title Delete a remote resource
+#' @description Removes the underlying remote container (local directory, OSF
+#'  node, or GitHub release) and all its contents.
+#' @inheritParams .remote_check_exists
+#' @param remote Backend-specific remote handle produced by `.remote_get()`.
+#' @return Invisibly returns `TRUE` when removal succeeds.
+#' @keywords internal
+#' @noRd
+.remote_rm <- function(type,
+                       remote) {
+  .assert_in(type, .opt_remote_get_type(), TRUE)
+  switch(type,
+    "local" = .remote_rm_local(remote),
+    "osf" = .remote_rm_osf(remote),
+    "github" = .remote_rm_github(remote)
+  )
+}
+
+# ========================
 # Delete a final remote
 # ========================
 

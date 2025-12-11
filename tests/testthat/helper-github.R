@@ -423,3 +423,34 @@
   .dir_create(path_dir)
   path_dir
 }
+
+.test_remote_host_exists_github <- function(host, token = NULL) {
+  .assert_given_full(host)
+  if (!requireNamespace("gh", quietly = TRUE)) {
+    .dep_install_only("gh")
+  }
+
+  if (is.null(token)) {
+    token <- .auth_get_github_pat_find()
+  }
+  if (!.is_string(token)) {
+    stop("No GitHub token found")
+  }
+
+  user <- try(host[["user"]], silent = TRUE)
+  if (inherits(user, "try-error") || is.null(user)) {
+    user <- tryCatch(gh::gh_whoami(.token = token)[["login"]], error = function(e) NULL)
+  }
+  if (!.is_string(user)) stop("No GitHub user found")
+
+  repo <- host[["repo"]]
+  if (!.is_string(repo)) stop("No GitHub repo specified")
+  repo <- basename(repo)
+  if (repo == "projr") stop("Cannot delete the projr repo")
+
+  res <- tryCatch(
+    gh::gh("GET /repos/{owner}/{repo}", owner = user, repo = repo, .token = token),
+    error = function(e) e
+  )
+  !inherits(res, "error")
+}

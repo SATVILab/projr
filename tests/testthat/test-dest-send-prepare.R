@@ -450,8 +450,8 @@ test_that(".dest_prepare_github_releases creates missing releases", {
       )
 
       # Ensure tag doesn't exist (cleanup from any previous test)
-      if (.remote_check_exists("github", id = test_tag)) {
-        .remote_host_rm_github(test_tag)
+      if (.remote_check_exists("github", id = c("tag" = test_tag))) {
+        .remote_rm("github", c("tag" = test_tag))
         Sys.sleep(2)
       }
 
@@ -471,10 +471,11 @@ test_that(".dest_prepare_github_releases creates missing releases", {
       # Check that release was created
       release_exists <- .remote_check_exists("github", id = test_tag)
       expect_true(release_exists)
+      Sys.sleep(1)
 
       # Cleanup
       if (release_exists) {
-        .remote_host_rm_github(test_tag)
+        try(.remote_rm("github", c("tag" = test_tag)), silent = TRUE)
       }
     }
   )
@@ -522,9 +523,12 @@ test_that(".dest_prepare_github_releases handles existing releases", {
 
       # Release should still exist
       expect_true(.remote_check_exists("github", id = test_tag))
+      Sys.sleep(1)
 
       # Cleanup
-      .remote_host_rm_github(test_tag)
+      if (release_exists) {
+        try(.remote_rm("github", c("tag" = test_tag)), silent = TRUE)
+      }
     }
   )
 })
@@ -563,13 +567,14 @@ test_that(".dest_prepare_github_releases handles multiple tags", {
       )
 
       # Ensure tags don't exist
-      if (.remote_check_exists("github", id = test_tag1)) {
-        .remote_host_rm_github(test_tag1)
+      release_exists <- .remote_check_exists("github", id = test_tag1)
+      if (release_exists) {
+        try(.remote_rm("github", c("tag" = test_tag1)), silent = TRUE)
       }
-      if (.remote_check_exists("github", id = test_tag2)) {
-        .remote_host_rm_github(test_tag2)
+      release_exists <- .remote_check_exists("github", id = test_tag2)
+      if (release_exists) {
+        try(.remote_rm("github", c("tag" = test_tag2)), silent = TRUE)
       }
-      Sys.sleep(2)
 
       # Prepare releases - should create both tags
       result <- .dest_prepare_github_releases(
@@ -588,9 +593,15 @@ test_that(".dest_prepare_github_releases handles multiple tags", {
       expect_true(.remote_check_exists("github", id = test_tag1))
       expect_true(.remote_check_exists("github", id = test_tag2))
 
-      # Cleanup
-      .remote_host_rm_github(test_tag1)
-      .remote_host_rm_github(test_tag2)
+      # Clean up
+      release_exists <- .remote_check_exists("github", id = test_tag1)
+      if (release_exists) {
+        try(.remote_rm("github", c("tag" = test_tag1)), silent = TRUE)
+      }
+      release_exists <- .remote_check_exists("github", id = test_tag2)
+      if (release_exists) {
+        try(.remote_rm("github", c("tag" = test_tag2)), silent = TRUE)
+      }
     }
   )
 })

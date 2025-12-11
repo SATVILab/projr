@@ -1658,7 +1658,11 @@ test_that(".init_git_github stops when auth check fails", {
       # The function calls stop() which produces an empty error message
       result <- tryCatch(
         {
-          .init_git_github(username = NULL, public = FALSE)
+          .init_git_github(
+            username = NULL, public = FALSE,
+            use_gh_if_available = FALSE,
+            use_gitcreds_if_needed = FALSE
+          )
           "no_error"
         },
         error = function(e) {

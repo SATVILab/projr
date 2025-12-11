@@ -1,6 +1,11 @@
 # github
-.auth_get_github_pat <- function(init = FALSE) {
-  pat <- .auth_get_github_pat_find()
+.auth_get_github_pat <- function(init = FALSE,
+                                 use_gh_if_available = TRUE,
+                                 use_gitcreds_if_needed = TRUE) {
+  pat <- .auth_get_github_pat_find(
+    use_gh_if_available = use_gh_if_available,
+    use_gitcreds_if_needed = use_gitcreds_if_needed
+  )
   if (.is_string(pat)) {
     return(invisible(pat))
   }

@@ -778,5 +778,13 @@ projr_osf_create_project <- function(title,
 }
 
 # ========================
+# Delete a remote
+# ========================
+
+.remote_rm_osf <- function(remote) {
+  
+}
+
+# ========================
 # Delete a final remote
 # ========================
