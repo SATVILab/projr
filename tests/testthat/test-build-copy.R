@@ -1105,3 +1105,304 @@ plot(1:10)
     quiet = TRUE
   )
 })
+
+# Tests for untested helper functions in build-post-copy-docs.R
+# ==============================================================
+
+test_that(".build_copy_docs_rmd_is_html_format correctly identifies HTML formats", {
+  skip_if(.is_test_select())
+
+  # Standard HTML formats
+  expect_true(.build_copy_docs_rmd_is_html_format("html_document"))
+  expect_true(.build_copy_docs_rmd_is_html_format("html_notebook"))
+  expect_true(.build_copy_docs_rmd_is_html_format("html_vignette"))
+  expect_true(.build_copy_docs_rmd_is_html_format("ioslides_presentation"))
+  expect_true(.build_copy_docs_rmd_is_html_format("slidy_presentation"))
+
+  # Package-prefixed HTML formats
+  expect_true(.build_copy_docs_rmd_is_html_format("revealjs::revealjs_presentation"))
+  expect_true(.build_copy_docs_rmd_is_html_format("flexdashboard::flex_dashboard"))
+  expect_true(.build_copy_docs_rmd_is_html_format("tufte::tufte_html"))
+
+  # Custom HTML formats (should match on "html" in name)
+  expect_true(.build_copy_docs_rmd_is_html_format("prettydoc::html_pretty"))
+  expect_true(.build_copy_docs_rmd_is_html_format("custom_html_theme"))
+
+  # Non-HTML formats
+  expect_false(.build_copy_docs_rmd_is_html_format("pdf_document"))
+  expect_false(.build_copy_docs_rmd_is_html_format("word_document"))
+  expect_false(.build_copy_docs_rmd_is_html_format("beamer_presentation"))
+  expect_false(.build_copy_docs_rmd_is_html_format("powerpoint_presentation"))
+  expect_false(.build_copy_docs_rmd_is_html_format("github_document"))
+})
+
+test_that(".build_copy_docs_paths_file copies individual files correctly", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create a test file in project root
+      test_file <- "test_doc.html"
+      writeLines("Test content", test_file)
+      expect_true(file.exists(test_file))
+
+      # Copy to docs (dev mode)
+      result <- .build_copy_docs_paths_file(test_file, output_run = FALSE)
+      expect_true(result)
+
+      # Verify file was moved to safe docs directory
+      docs_dir <- projr_path_get_dir("docs", safe = TRUE)
+      expect_true(file.exists(file.path(docs_dir, "test_doc.html")))
+      expect_false(file.exists(test_file)) # Original should be moved
+
+      # Test with non-existent file
+      result <- .build_copy_docs_paths_file("nonexistent.html", output_run = FALSE)
+      expect_false(result)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_copy_docs_paths_dir copies directories correctly", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create a test directory with files
+      test_dir <- "test_files"
+      dir.create(test_dir)
+      writeLines("File 1", file.path(test_dir, "file1.js"))
+      writeLines("File 2", file.path(test_dir, "file2.css"))
+      expect_true(dir.exists(test_dir))
+
+      # Copy to docs (dev mode)
+      result <- .build_copy_docs_paths_dir(test_dir, output_run = FALSE)
+      expect_true(result)
+
+      # Verify directory was moved to safe docs directory
+      docs_dir <- projr_path_get_dir("docs", safe = TRUE)
+      expect_true(dir.exists(file.path(docs_dir, test_dir)))
+      expect_true(file.exists(file.path(docs_dir, test_dir, "file1.js")))
+      expect_true(file.exists(file.path(docs_dir, test_dir, "file2.css")))
+
+      # Test with non-existent directory
+      result <- .build_copy_docs_paths_dir("nonexistent_dir", output_run = FALSE)
+      expect_false(result)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_copy_docs_paths_rm_dir removes directories after copying", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create test directories
+      dir1 <- "temp_dir1"
+      dir2 <- "temp_dir2"
+      dir.create(dir1)
+      dir.create(dir2)
+      writeLines("content", file.path(dir1, "file.txt"))
+      writeLines("content", file.path(dir2, "file.txt"))
+
+      expect_true(dir.exists(dir1))
+      expect_true(dir.exists(dir2))
+
+      # Remove directories
+      .build_copy_docs_paths_rm_dir(c(dir1, dir2))
+
+      # Verify directories were removed
+      expect_false(dir.exists(dir1))
+      expect_false(dir.exists(dir2))
+
+      # Test with non-existent paths (should not error)
+      expect_silent(.build_copy_docs_paths_rm_dir(c("nonexistent1", "nonexistent2")))
+
+      # Test with file path (should not remove, only removes directories)
+      test_file <- "test.txt"
+      writeLines("content", test_file)
+      .build_copy_docs_paths_rm_dir(test_file)
+      expect_true(file.exists(test_file)) # File should still exist
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_copy_docs_paths orchestrates copying correctly", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create test file and directory
+      test_file <- "output.html"
+      test_dir <- "output_files"
+      writeLines("HTML content", test_file)
+      dir.create(test_dir)
+      writeLines("Resource", file.path(test_dir, "resource.js"))
+
+      expect_true(file.exists(test_file))
+      expect_true(dir.exists(test_dir))
+
+      # Copy both (dev mode)
+      .build_copy_docs_paths(c(test_dir, test_file), output_run = FALSE)
+
+      # Verify both were copied
+      docs_dir <- projr_path_get_dir("docs", safe = TRUE)
+      expect_true(file.exists(file.path(docs_dir, "output.html")))
+      expect_true(dir.exists(file.path(docs_dir, test_dir)))
+      expect_true(file.exists(file.path(docs_dir, test_dir, "resource.js")))
+
+      # Original paths should be removed (moved, not copied)
+      expect_false(file.exists(test_file))
+      expect_false(dir.exists(test_dir))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_copy_docs_rmd_ind processes individual Rmd files", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create an Rmd file with html_document output
+      rmd_file <- "report.Rmd"
+      writeLines(c(
+        "---",
+        "title: Report",
+        "output: html_document",
+        "---",
+        "# Content"
+      ), rmd_file)
+
+      # Create the expected output
+      output_file <- "report.html"
+      writeLines("HTML output", output_file)
+      expect_true(file.exists(output_file))
+
+      # Process the individual Rmd
+      .build_copy_docs_rmd_ind(rmd_file, output_run = FALSE)
+
+      # Verify output was copied to docs
+      docs_dir <- projr_path_get_dir("docs", safe = TRUE)
+      expect_true(file.exists(file.path(docs_dir, "report.html")))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_copy_docs_quarto_ind processes individual Quarto files", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create a Quarto file with html format
+      qmd_file <- "analysis.qmd"
+      writeLines(c(
+        "---",
+        "title: Analysis",
+        "format: html",
+        "---",
+        "# Results"
+      ), qmd_file)
+
+      # Create the expected output
+      output_file <- "analysis.html"
+      output_dir <- "analysis_files"
+      writeLines("HTML output", output_file)
+      dir.create(output_dir)
+      writeLines("resource", file.path(output_dir, "libs.js"))
+      expect_true(file.exists(output_file))
+      expect_true(dir.exists(output_dir))
+
+      # Process the individual Quarto file
+      .build_copy_docs_quarto_ind(qmd_file, output_run = FALSE)
+
+      # Verify output was copied to docs
+      docs_dir <- projr_path_get_dir("docs", safe = TRUE)
+      expect_true(file.exists(file.path(docs_dir, "analysis.html")))
+      expect_true(dir.exists(file.path(docs_dir, output_dir)))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_copy_docs_bookdown_files copies _files directory", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create _bookdown.yml with book filename
+      writeLines(c('book_filename: "mybook"'), "_bookdown.yml")
+
+      # Create the _files directory in cache (where build happens)
+      cache_dir <- .dir_get_cache_auto_version(profile = NULL)
+      files_dir <- file.path(cache_dir, "mybook_files")
+      dir.create(files_dir, recursive = TRUE, showWarnings = FALSE)
+      writeLines("figure", file.path(files_dir, "figure.png"))
+      expect_true(dir.exists(files_dir))
+
+      # Copy _files directory (output mode)
+      result <- .build_copy_docs_bookdown_files(output_run = TRUE)
+      expect_true(result)
+
+      # Verify _files was copied to docs
+      docs_dir <- projr_path_get_dir("docs", safe = FALSE)
+      dest_files_dir <- file.path(docs_dir, "mybook_files")
+      expect_true(dir.exists(dest_files_dir))
+      expect_true(file.exists(file.path(dest_files_dir, "figure.png")))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".build_copy_docs_bookdown_files handles missing _files directory", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create _bookdown.yml
+      writeLines(c('book_filename: "mybook"'), "_bookdown.yml")
+
+      # Don't create _files directory
+
+      # Should return FALSE without error
+      result <- .build_copy_docs_bookdown_files(output_run = TRUE)
+      expect_false(result)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
