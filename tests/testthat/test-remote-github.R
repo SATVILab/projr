@@ -104,7 +104,7 @@ test_that(".remote_get_final works for GitHub", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  skip_if(is.null(dir_test), "No GitHub test environment available")
+  skip_if(!setup_github, "No GitHub test environment available")
 
   usethis::with_project(
     path = dir_test,
@@ -389,18 +389,24 @@ test_that("VERSION file round-trip works for GitHub releases", {
 # Set up
 # ============================================================================
 
-usethis::with_project(
-  path = dir_test,
-  code = {
-    # Create test content
-    content_vec_test_file <- .test_content_setup_label("raw-data") |>
-      .file_ls()
-    # Avoid pushing to Git
-    .yml_git_set_push(FALSE, TRUE, NULL)
-    # Remove default remotes
-    .yml_dest_rm_type_all("default")
-  }
-)
+# Only run setup if GitHub environment is available
+if (setup_github) {
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create test content
+      content_vec_test_file <- .test_content_setup_label("raw-data") |>
+        .file_ls()
+      # Avoid pushing to Git
+      .yml_git_set_push(FALSE, TRUE, NULL)
+      # Remove default remotes
+      .yml_dest_rm_type_all("default")
+    }
+  )
+} else {
+  # Initialize variable for skipped tests
+  content_vec_test_file <- NULL
+}
 
 # =============================================================================
 # `latest` structure: upload and restore
@@ -1807,7 +1813,7 @@ test_that(".gh_release_exists returns correct values for known repos", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if(!requireNamespace("httr", quietly = TRUE))
-  skip_if(is.null(dir_test), "No GitHub test environment available")
+  skip_if(!setup_github, "No GitHub test environment available")
 
   usethis::with_project(
     path = dir_test,
