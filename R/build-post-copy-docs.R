@@ -1,5 +1,13 @@
-.build_copy_docs <- function(output_run) {
-  switch(.engine_get(),
+.build_copy_docs <- function(output_run, file = NULL) {
+  # When files are explicitly specified, use engine detection from files
+  # This ensures build.scripts overrides _quarto.yml or _bookdown.yml
+  if (!is.null(file) && length(file) > 0) {
+    engine <- .engine_get_from_files(file)
+  } else {
+    engine <- .engine_get()
+  }
+
+  switch(engine,
     "bookdown" = .build_copy_docs_bookdown(output_run),
     "quarto_project" = .build_copy_docs_quarto_project(output_run),
     "quarto_document" = .build_copy_docs_quarto(output_run),
