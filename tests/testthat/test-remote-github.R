@@ -23,7 +23,7 @@ setup_github <- tryCatch(
     !.is_test_cran() &&
       !.is_test_lite() &&
       .has_internet() &&
-      nzchar(.auth_get_github_pat_find())
+      .test_can_modify_github()
   },
   error = function(e) FALSE
 )

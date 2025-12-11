@@ -22,11 +22,25 @@
   unlink(.test_osf_remote_dir_get_tmp(), recursive = TRUE)
 }
 .test_github_rm <- function() {
+  # Only attempt cleanup if we can actually modify GitHub repos
+  # This prevents errors during cleanup when only GITHUB_TOKEN is available
+  can_modify <- tryCatch(.test_can_modify_github(), error = function(e) FALSE)
+  if (!can_modify) {
+    # Just clean up the temporary directory without trying to delete repos
+    unlink(.test_git_remote_dir_get_tmp(), recursive = TRUE)
+    return(invisible(TRUE))
+  }
+
   fn_vec <- list.files(.test_git_remote_dir_get_tmp())
   fn_vec <- setdiff(fn_vec, "projr")
   for (i in seq_along(fn_vec)) {
     host <- c("repo" = fn_vec[i])
-    if (.test_remote_host_exists_github(host)) {
+    # Wrap in try to avoid errors if repo doesn't exist or can't be checked
+    repo_exists <- tryCatch(
+      .test_remote_host_exists_github(host),
+      error = function(e) FALSE
+    )
+    if (repo_exists) {
       try(
         .test_remote_host_rm(type = "github", host = host),
         silent = TRUE

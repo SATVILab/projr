@@ -1,19 +1,19 @@
-# Skip wrapper for tests that modify GitHub repositories
-# Ensures tests only run when:
+# Check if we can modify GitHub repositories
+# Returns TRUE if all conditions are met:
 # 1. A token is detectable via .auth_get_github_pat_find()
 # 2. The token is NOT the same as GITHUB_TOKEN (prevents using CI tokens)
 # 3. gh::gh_whoami() can successfully retrieve the username
-.test_skip_if_cannot_modify_github <- function() {
+.test_can_modify_github <- function() {
   # Check if token is detectable
-  token <- .auth_get_github_pat_find()
+  token <- tryCatch(.auth_get_github_pat_find(), error = function(e) "")
   if (!nzchar(token)) {
-    testthat::skip("No GitHub token found")
+    return(FALSE)
   }
 
   # Check if token is same as GITHUB_TOKEN
   github_token <- Sys.getenv("GITHUB_TOKEN", "")
   if (nzchar(github_token) && identical(token, github_token)) {
-    testthat::skip("Cannot modify GitHub repos with GITHUB_TOKEN (use GITHUB_PAT instead)")
+    return(FALSE)
   }
 
   # Verify that gh::gh_whoami() works with the available credentials
@@ -29,10 +29,38 @@
       }
     )
     if (!.is_string(user)) {
-      testthat::skip("gh::gh_whoami() failed to retrieve GitHub username")
+      return(FALSE)
     }
   } else {
-    testthat::skip("gh package not available")
+    return(FALSE)
+  }
+
+  return(TRUE)
+}
+
+# Skip wrapper for tests that modify GitHub repositories
+# Ensures tests only run when:
+# 1. A token is detectable via .auth_get_github_pat_find()
+# 2. The token is NOT the same as GITHUB_TOKEN (prevents using CI tokens)
+# 3. gh::gh_whoami() can successfully retrieve the username
+.test_skip_if_cannot_modify_github <- function() {
+  if (!.test_can_modify_github()) {
+    # Determine specific reason for skip
+    token <- tryCatch(.auth_get_github_pat_find(), error = function(e) "")
+    if (!nzchar(token)) {
+      testthat::skip("No GitHub token found")
+    }
+
+    github_token <- Sys.getenv("GITHUB_TOKEN", "")
+    if (nzchar(github_token) && identical(token, github_token)) {
+      testthat::skip("Cannot modify GitHub repos with GITHUB_TOKEN (use GITHUB_PAT instead)")
+    }
+
+    if (!requireNamespace("gh", quietly = TRUE)) {
+      testthat::skip("gh package not available")
+    }
+
+    testthat::skip("gh::gh_whoami() failed to retrieve GitHub username")
   }
 
   invisible(TRUE)
