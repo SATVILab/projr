@@ -229,6 +229,10 @@
 }
 
 .change_get_file_dir_github <- function(remote) {
+  # Resolve @version placeholder in tag if present using existing utility
+  if ("tag" %in% names(remote)) {
+    remote[["tag"]] <- .remote_misc_github_tag_format(remote[["tag"]])
+  }
   .remote_file_get_all(
     "github", remote, .dir_create_tmp_random()
   )
