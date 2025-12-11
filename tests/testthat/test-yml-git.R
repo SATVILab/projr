@@ -214,6 +214,9 @@ test_that("projr_yml_git_set works with different profiles", {
     code = {
       .init()
 
+      # .test_setup_project sets git=FALSE, so reset to defaults first
+      projr_yml_git_set(all = TRUE)
+
       # Check default profile starts with default values (NULL/TRUE)
       expect_true(.yml_git_get_commit("default"))
 
@@ -285,6 +288,9 @@ test_that(".yml_git_get_commit returns correct values", {
     code = {
       .init()
 
+      # .test_setup_project sets git=FALSE, so reset first
+      projr_yml_git_set(all = TRUE)
+
       # Default should be TRUE
       expect_true(.yml_git_get_commit("default"))
 
@@ -309,6 +315,9 @@ test_that(".yml_git_get_add_untracked returns correct values with override", {
     path = dir_test,
     code = {
       .init()
+
+      # .test_setup_project sets git=FALSE, so reset first
+      projr_yml_git_set(all = TRUE)
 
       # Default should be TRUE
       expect_true(.yml_git_get_add_untracked("default"))
@@ -381,12 +390,11 @@ test_that(".yml_git_get returns correct structure", {
     code = {
       .init()
 
-      # Default should be NULL (no git section in default _projr.yml)
-      # However, .test_setup_project modifies git settings to set push=FALSE
-      # So we check what the actual initial state is
+      # Reset to a known state first
+      projr_yml_git_set(all = TRUE)
       yml_git <- .yml_git_get("default")
-      # After .test_setup_project, git should have push set to FALSE
-      expect_true(is.list(yml_git) || is.null(yml_git))
+      # Should be NULL (removed) or TRUE after setting all to TRUE
+      expect_true(is.null(yml_git) || isTRUE(yml_git))
 
       # Set some specific values
       projr_yml_git_set(
