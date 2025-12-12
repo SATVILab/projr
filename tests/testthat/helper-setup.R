@@ -567,4 +567,34 @@
   invisible(TRUE)
 }
 
+# Create test content in labeled directories
+# Used for manifest testing
+.test_setup_content <- function(label,
+                                safe = FALSE,
+                                dir_sub_lvl = 2,
+                                dir_sub_prefix = "subdir") {
+  for (x in label) {
+    # create directories and files
+    base_dir <- projr_path_get_dir(x, safe = safe, create = TRUE)
+    file.create(file.path(base_dir, "abc.txt"))
+    
+    if (dir_sub_lvl > 0) {
+      subdir1 <- projr_path_get_dir(
+        x, paste0(dir_sub_prefix, "1"),
+        safe = safe, create = TRUE
+      )
+      file.create(file.path(subdir1, "def.txt"))
+    }
+    if (dir_sub_lvl > 1) {
+      subdir2 <- projr_path_get_dir(
+        x, paste0(dir_sub_prefix, "1"),
+        paste0(dir_sub_prefix, "2"),
+        safe = safe, create = TRUE
+      )
+      file.create(file.path(subdir2, "ghi.txt"))
+    }
+  }
+  invisible(projr_path_get_dir(label[1], safe = safe))
+}
+
 .test_setup_project()
