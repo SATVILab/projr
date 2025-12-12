@@ -270,7 +270,7 @@ projr_content_restore <- function(label = NULL,
   current_version <- projr_version_get() |> .version_v_rm()
   # Remove dev suffix (e.g., "1.0.0-3" becomes "1.0.0")
   current_version <- gsub("-.*$", "", current_version)
-  
+
   projr_content_checkout(
     version = current_version,
     label = label,
@@ -356,7 +356,7 @@ projr_content_restore <- function(label = NULL,
     .cli_debug("Skipping restore for ", label)
     return(invisible(FALSE))
   }
-  
+
   # Check if the exact version exists on remote
   remote_exists <- .remote_final_check_exists(
     source_vec[["type"]], yml_title[["id"]], label,
@@ -364,8 +364,8 @@ projr_content_restore <- function(label = NULL,
     yml_title[["path-append-label"]], version_remote,
     empty = FALSE
   )
-  
-  # If exact version doesn't exist and user specified a version, 
+
+  # If exact version doesn't exist and user specified a version,
   # try to find a compatible version
   if (!remote_exists && !is.null(version)) {
     .cli_debug(
@@ -374,13 +374,13 @@ projr_content_restore <- function(label = NULL,
     .cli_debug(
       "Searching for compatible version on remote..."
     )
-    
+
     compatible_version <- .content_checkout_label_find_compatible_version(
-      label, version_remote, remote_pre, source_vec[["type"]], 
+      label, version_remote, remote_pre, source_vec[["type"]],
       yml_title[["id"]], yml_title[["structure"]], yml_title[["path"]],
       yml_title[["path-append-label"]]
     )
-    
+
     if (!is.null(compatible_version)) {
       .cli_info(
         "Version ", version_remote, " is not on remote, but ",
@@ -391,7 +391,7 @@ projr_content_restore <- function(label = NULL,
       remote_exists <- TRUE
     }
   }
-  
+
   if (!remote_exists) {
     .cli_debug("Remote source does not exist for ", label)
     if (source_vec[["type"]] == "github") {
@@ -454,7 +454,7 @@ projr_content_restore <- function(label = NULL,
   manifest_local <- .manifest_read(.path_get("manifest.csv")) |>
     .manifest_filter_label(label) |>
     .manifest_filter_version(requested_version)
-  
+
   if (nrow(manifest_local) == 0) {
     .cli_debug(
       "No local manifest entry for version ", requested_version,
@@ -462,43 +462,43 @@ projr_content_restore <- function(label = NULL,
     )
     return(NULL)
   }
-  
+
   # Get all available versions on the remote
   available_versions <- .content_checkout_get_available_remote_versions(
     remote_pre, type, label, structure, id, path, path_append_label
   )
-  
+
   if (length(available_versions) == 0) {
     .cli_debug("No versions available on remote for ", label)
     return(NULL)
   }
-  
+
   # For each available version, check if it matches the requested version
   for (ver in available_versions) {
     manifest_remote_ver <- .manifest_read(.path_get("manifest.csv")) |>
       .manifest_filter_label(label) |>
       .manifest_filter_version(ver)
-    
+
     if (nrow(manifest_remote_ver) == 0) {
       next
     }
-    
+
     # Compare the manifests (same files and hashes)
     manifest_local_sorted <- manifest_local[order(manifest_local$fn), ]
     manifest_remote_sorted <- manifest_remote_ver[order(manifest_remote_ver$fn), ]
-    
+
     if (nrow(manifest_local_sorted) != nrow(manifest_remote_sorted)) {
       next
     }
-    
+
     if (!identical(manifest_local_sorted$fn, manifest_remote_sorted$fn)) {
       next
     }
-    
+
     if (!identical(manifest_local_sorted$hash, manifest_remote_sorted$hash)) {
       next
     }
-    
+
     # Found a compatible version
     .cli_debug(
       "Found compatible version ", ver, " for requested version ",
@@ -506,7 +506,7 @@ projr_content_restore <- function(label = NULL,
     )
     return(ver)
   }
-  
+
   .cli_debug(
     "No compatible version found on remote for requested version ",
     requested_version
@@ -529,14 +529,14 @@ projr_content_restore <- function(label = NULL,
     )
     return(if (!is.null(version) && length(version) > 0) version else character(0))
   }
-  
+
   # For archive structure, list all available versions
   remote_final_vec <- .remote_ls_final(type, remote_pre)
-  
+
   if (length(remote_final_vec) == 0) {
     return(character(0))
   }
-  
+
   # Extract versions from filenames/directories
   versions <- character(0)
   for (item in remote_final_vec) {
@@ -553,7 +553,7 @@ projr_content_restore <- function(label = NULL,
       }
     }
   }
-  
+
   unique(versions)
 }
 
@@ -616,8 +616,8 @@ projr_content_restore <- function(label = NULL,
 }
 
 .content_checkout_label_get_source_source_type_spec <- function(yml_source,
-                                                              type,
-                                                              .title) {
+                                                                type,
+                                                                .title) {
   if (type %in% names(yml_source)) {
     yml_type <- yml_source[[type]]
     .content_checkout_label_get_source_source_title_spec(
@@ -629,8 +629,8 @@ projr_content_restore <- function(label = NULL,
 }
 
 .content_checkout_label_get_source_source_title <- function(yml_type,
-                                                          type,
-                                                          .title) {
+                                                            type,
+                                                            .title) {
   if (!is.null(.title)) {
     .content_checkout_label_get_source_source_title_spec(yml_type, type, .title)
   } else {
