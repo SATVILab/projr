@@ -505,18 +505,11 @@ projr_version_get <- function() {
     stop("No valid versions found")
   }
   
-  # Apply .version_to_package_version to each element and find max
-  vers_pkg <- vapply(all_versions, function(v) as.character(.version_to_package_version(v)), character(1), USE.NAMES = FALSE)
-  max_ver <- max(package_version(unique(vers_pkg)))
-  
-  # Return the original version string (with "v" prefix) that corresponds to max
-  max_ver_str <- as.character(max_ver)
-  for (v in all_versions) {
-    if (as.character(.version_to_package_version(v)) == max_ver_str) {
-      return(v)  # Return original with "v" prefix
-    }
-  }
-  
-  # Fallback: return with "v" prefix
-  paste0("v", max_ver_str)
+  # Apply .version_v_rm to each element, convert to package_version and find max
+  x_clean <- vapply(all_versions, .version_v_rm, character(1), USE.NAMES = FALSE)
+  x_clean |>
+    unique() |>
+    package_version() |>
+    max() |>
+    utils::tail(1)
 }
