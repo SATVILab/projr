@@ -567,7 +567,9 @@
     all_versions <- vapply(all_versions, .version_v_rm, character(1L))
     # Strip -empty suffix for local/osf remotes (not needed for GitHub .zip files)
     all_versions <- gsub("-empty$", "", all_versions)
-    return(all_versions |> package_version() |> max())
+    max_version <- all_versions |> package_version() |> max()
+    # Convert back to string with "v" prefix to maintain format consistency
+    return(paste0("v", as.character(max_version)))
   }
   fn <- .remote_version_latest_filter(fn, type, label)
   .remote_version_latest_extract(fn, label)
