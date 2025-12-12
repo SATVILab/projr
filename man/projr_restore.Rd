@@ -4,8 +4,9 @@
 \alias{projr_restore_repo}
 \alias{projr_restore_repo_wd}
 \alias{projr_restore}
-\alias{projr_content_update}
 \alias{projr_content_checkout}
+\alias{projr_content_update}
+\alias{projr_content_restore}
 \title{Restore project artefact directories}
 \usage{
 projr_restore_repo(
@@ -25,6 +26,15 @@ projr_restore_repo_wd(
   title = NULL
 )
 
+projr_content_checkout(
+  version = NULL,
+  label = NULL,
+  pos = NULL,
+  type = NULL,
+  title = NULL,
+  clear = FALSE
+)
+
 projr_content_update(
   label = NULL,
   pos = NULL,
@@ -33,8 +43,7 @@ projr_content_update(
   clear = FALSE
 )
 
-projr_content_checkout(
-  version,
+projr_content_restore(
   label = NULL,
   pos = NULL,
   type = NULL,
@@ -67,33 +76,39 @@ Must be NULL or one of the valid remote types.}
 Default is \code{NULL}, using the first available title for the selected type.
 Must be NULL or a single non-empty character string.}
 
-\item{clear}{logical. If \code{TRUE}, clears existing local artefact directories
-before restoration. Default is \code{FALSE}.}
-
 \item{version}{character or NULL. Version to restore (e.g., \code{"0.0.1"} or \code{"v0.0.1"}).
 Default is \code{NULL}, which restores the latest available version.
 (Only for \code{projr_content_checkout()}.)
 Must be NULL or a single non-empty character string with valid version format.}
+
+\item{clear}{logical. If \code{TRUE}, clears existing local artefact directories
+before restoration. Default is \code{FALSE}.}
 }
 \value{
 Invisibly returns \code{TRUE} if all restorations are successful, \code{FALSE} otherwise.
-For \code{projr_content_update()} and \code{projr_content_checkout()}, returns \code{FALSE} if no labels are
-found to restore or if any restoration fails. For \code{projr_restore_repo()}, returns \code{FALSE}
-if cloning or restoration fails.
+For \code{projr_content_checkout()}, \code{projr_content_update()}, and \code{projr_content_restore()},
+returns \code{FALSE} if no labels are found to restore or if any restoration fails.
+For \code{projr_restore_repo()}, returns \code{FALSE} if cloning or restoration fails.
 }
 \description{
-Use \code{projr_content_update()} to restore all artefacts needed for the current project.
-Use \code{projr_content_checkout()} to restore artefacts from a specific project version.
+Use \code{projr_content_checkout()} to restore artefacts from any version (including latest).
+Use \code{projr_content_update()} as a convenience wrapper for restoring the latest version.
+Use \code{projr_content_restore()} to restore artefacts for the current project version.
 If the project isn't available locally yet,
 \code{projr_restore_repo()} will clone it and then restore its artefacts.
 }
 \details{
 These functions restore artefact directories from remote sources:
 \itemize{
-\item \code{projr_content_update()} restores artefacts in an existing local project without any cloning required.
-Requires a \code{manifest.csv} file in the project root. Always restores the latest version.
-\item \code{projr_content_checkout()} restores artefacts from a specific project version. Similar to
-\code{projr_content_update()} but allows specifying which version to restore.
+\item \code{projr_content_checkout()} is the main function for restoring artefacts. When \code{version} is
+NULL, restores the latest version. When \code{version} is specified, attempts to restore that
+version. If the exact version is not available on the remote but a compatible version exists
+(same content according to local manifest), it will download the compatible version and
+inform the user.
+\item \code{projr_content_update()} is a convenience wrapper that calls \code{projr_content_checkout()} with
+\code{version = NULL}, always restoring the latest available version.
+\item \code{projr_content_restore()} restores artefacts for the current project version (without dev
+suffix). For example, if the project is at version v1.0.0-3, it restores v1.0.0.
 \item \code{projr_restore_repo()} clones a GitHub repository into a subdirectory (or specified path),
 then restores artefacts from that repository's remote sources.
 \item \code{projr_restore_repo_wd()} clones directly into the current working directory, then restores artefacts.
@@ -123,10 +138,10 @@ The functions handle errors gracefully:
 }
 \examples{
 \dontrun{
-# Restore all raw artefacts in existing local project (latest version)
+# Restore latest version (most common use case)
 projr_content_update()
 
-# Restore specific labels
+# Restore specific labels from latest version
 projr_content_update(label = c("raw-data", "cache"))
 
 # Restore from specific source type
@@ -135,8 +150,14 @@ projr_content_update(type = "local", title = "archive")
 # Restore specific version
 projr_content_checkout(version = "0.0.1")
 
+# Restore latest version (equivalent to projr_content_update())
+projr_content_checkout(version = NULL)
+
 # Restore specific labels from specific version
-projr_content_checkout(label = c("raw-data", "output"), version = "v0.0.2")
+projr_content_checkout(version = "v0.0.2", label = c("raw-data", "output"))
+
+# Restore current project version (without dev suffix)
+projr_content_restore()
 
 # Clone repository into subdirectory and restore artefacts
 projr_restore_repo("owner/repo")

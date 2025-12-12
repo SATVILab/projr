@@ -644,22 +644,22 @@ test_that("projr_content_checkout validates version parameter", {
       .test_content_setup_label("raw-data")
       projr_build_patch(msg = "test")
 
-      # Invalid - NULL version
+      # Valid - NULL version (should restore latest)
       expect_error(
         projr_content_checkout(version = NULL),
-        "'version' cannot be NULL"
+        NA
       )
 
       # Invalid - not character
       expect_error(
         projr_content_checkout(version = 123),
-        "'version' must be a character string"
+        "'version' must be NULL or a character string"
       )
 
       # Invalid - empty vector
       expect_error(
         projr_content_checkout(version = character(0)),
-        "'version' must have at least one element"
+        "'version' must have at least one element if not NULL"
       )
 
       # Invalid - empty string
@@ -924,6 +924,95 @@ test_that("projr_content_checkout handles multiple labels", {
       expect_true(result)
       expect_true(length(list.files(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)) > 0)
       expect_true(length(list.files(projr_path_get_dir("raw-data-2", safe = FALSE), recursive = TRUE)) > 0)
+    }
+  )
+})
+
+# =============================================================================
+# projr_content_restore Tests
+# =============================================================================
+
+test_that("projr_content_restore restores current version without dev suffix", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Setup
+      remote_base <- .dir_create_tmp_random()
+      on.exit(unlink(remote_base, recursive = TRUE), add = TRUE)
+
+      .test_content_setup_label("raw-data")
+
+      projr_yml_dest_add_local(
+        title = "test-archive",
+        content = "raw-data",
+        path = remote_base,
+        structure = "archive"
+      )
+
+      # Build version 0.0.1
+      projr_build_patch(msg = "test v1")
+      
+      # Current version should be 0.0.1-1 (dev)
+      current_ver <- projr_version_get()
+      expect_true(grepl("-", current_ver))
+      
+      # Clear local
+      unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
+      projr_path_get_dir("raw-data", safe = FALSE)
+
+      # Restore using projr_content_restore (should get 0.0.1, not 0.0.1-1)
+      result <- projr_content_restore(
+        label = "raw-data",
+        type = "local",
+        title = "test-archive"
+      )
+
+      expect_true(result)
+      expect_true(length(list.files(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)) > 0)
+    }
+  )
+})
+
+test_that("projr_content_restore works with all parameters", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Setup
+      remote_base <- .dir_create_tmp_random()
+      on.exit(unlink(remote_base, recursive = TRUE), add = TRUE)
+
+      .test_content_setup_label("raw-data")
+
+      projr_yml_dest_add_local(
+        title = "test-archive",
+        content = "raw-data",
+        path = remote_base,
+        structure = "archive"
+      )
+
+      # Build
+      projr_build_patch(msg = "test")
+
+      # Add extra file
+      extra_file <- file.path(projr_path_get_dir("raw-data", safe = FALSE), "extra.txt")
+      writeLines("extra", extra_file)
+
+      # Restore with clear
+      result <- projr_content_restore(
+        label = "raw-data",
+        type = "local",
+        title = "test-archive",
+        clear = TRUE
+      )
+
+      expect_true(result)
+      expect_false(file.exists(extra_file))
     }
   )
 })

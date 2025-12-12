@@ -1,7 +1,8 @@
 #' Restore project artefact directories
 #'
-#' Use `projr_content_update()` to restore all artefacts needed for the current project.
-#' Use `projr_content_checkout()` to restore artefacts from a specific project version.
+#' Use `projr_content_checkout()` to restore artefacts from any version (including latest).
+#' Use `projr_content_update()` as a convenience wrapper for restoring the latest version.
+#' Use `projr_content_restore()` to restore artefacts for the current project version.
 #' If the project isn't available locally yet,
 #' `projr_restore_repo()` will clone it and then restore its artefacts.
 #'
@@ -31,17 +32,22 @@
 #'   before restoration. Default is `FALSE`.
 #'
 #' @return Invisibly returns `TRUE` if all restorations are successful, `FALSE` otherwise.
-#'   For `projr_content_update()` and `projr_content_checkout()`, returns `FALSE` if no labels are
-#'   found to restore or if any restoration fails. For `projr_restore_repo()`, returns `FALSE`
-#'   if cloning or restoration fails.
+#'   For `projr_content_checkout()`, `projr_content_update()`, and `projr_content_restore()`,
+#'   returns `FALSE` if no labels are found to restore or if any restoration fails.
+#'   For `projr_restore_repo()`, returns `FALSE` if cloning or restoration fails.
 #'
 #' @details
 #' These functions restore artefact directories from remote sources:
 #'
-#' - `projr_content_update()` restores artefacts in an existing local project without any cloning required.
-#'   Requires a `manifest.csv` file in the project root. Always restores the latest version.
-#' - `projr_content_checkout()` restores artefacts from a specific project version. Similar to
-#'   `projr_content_update()` but allows specifying which version to restore.
+#' - `projr_content_checkout()` is the main function for restoring artefacts. When `version` is
+#'   NULL, restores the latest version. When `version` is specified, attempts to restore that
+#'   version. If the exact version is not available on the remote but a compatible version exists
+#'   (same content according to local manifest), it will download the compatible version and
+#'   inform the user.
+#' - `projr_content_update()` is a convenience wrapper that calls `projr_content_checkout()` with
+#'   `version = NULL`, always restoring the latest available version.
+#' - `projr_content_restore()` restores artefacts for the current project version (without dev
+#'   suffix). For example, if the project is at version v1.0.0-3, it restores v1.0.0.
 #' - `projr_restore_repo()` clones a GitHub repository into a subdirectory (or specified path),
 #'   then restores artefacts from that repository's remote sources.
 #' - `projr_restore_repo_wd()` clones directly into the current working directory, then restores artefacts.
@@ -66,10 +72,10 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Restore all raw artefacts in existing local project (latest version)
+#' # Restore latest version (most common use case)
 #' projr_content_update()
 #'
-#' # Restore specific labels
+#' # Restore specific labels from latest version
 #' projr_content_update(label = c("raw-data", "cache"))
 #'
 #' # Restore from specific source type
@@ -78,8 +84,14 @@
 #' # Restore specific version
 #' projr_content_checkout(version = "0.0.1")
 #'
+#' # Restore latest version (equivalent to projr_content_update())
+#' projr_content_checkout(version = NULL)
+#'
 #' # Restore specific labels from specific version
-#' projr_content_checkout(label = c("raw-data", "output"), version = "v0.0.2")
+#' projr_content_checkout(version = "v0.0.2", label = c("raw-data", "output"))
+#'
+#' # Restore current project version (without dev suffix)
+#' projr_content_restore()
 #'
 #' # Clone repository into subdirectory and restore artefacts
 #' projr_restore_repo("owner/repo")
@@ -94,145 +106,32 @@
 #' @name projr_restore
 #' @rdname projr_restore
 #' @export
-projr_content_update <- function(label = NULL,
-                                 pos = NULL,
-                                 type = NULL,
-                                 title = NULL,
-                                 clear = FALSE) {
-  # Input validation
-  if (!is.null(label)) {
-    if (!is.character(label)) {
-      stop("'label' must be NULL or a character vector")
-    }
-    if (length(label) == 0) {
-      stop("'label' must have at least one element if not NULL")
-    }
-  }
-  if (!is.null(pos)) {
-    if (!is.character(pos)) {
-      stop("'pos' must be NULL or a character vector")
-    }
-    if (length(pos) == 0) {
-      stop("'pos' must have at least one element if not NULL")
-    }
-    invalid_pos <- pos[!pos %in% c("source", "dest")]
-    if (length(invalid_pos) > 0) {
-      stop(
-        "'pos' must be 'source' or 'dest'. Invalid values: ",
-        paste(invalid_pos, collapse = ", ")
-      )
-    }
-  }
-  if (!is.null(type)) {
-    if (!is.character(type)) {
-      stop("'type' must be NULL or a character vector")
-    }
-    if (length(type) == 0) {
-      stop("'type' must have at least one element if not NULL")
-    }
-    if (length(type) > 1) {
-      stop("'type' must be a single character value")
-    }
-    valid_types <- c("local", "osf", "github")
-    if (!type %in% valid_types) {
-      stop(
-        "'type' must be one of: ",
-        paste(valid_types, collapse = ", ")
-      )
-    }
-  }
-  if (!is.null(title)) {
-    if (!is.character(title)) {
-      stop("'title' must be NULL or a character vector")
-    }
-    if (length(title) == 0) {
-      stop("'title' must have at least one element if not NULL")
-    }
-    if (length(title) > 1) {
-      stop("'title' must be a single character value")
-    }
-  }
-
-  .title <- title
-  if (!file.exists(.path_get("manifest.csv"))) {
-    msg <- "No manifest.csv file found, so no builds have occurred, so nothing to restore." # nolint
-    msg <- if (clear) paste0(msg, " No files cleared.") else msg
-    .cli_debug(msg)
-    stop("", .call = FALSE)
-  }
-
-  label <- .content_update_get_label(label)
-
-  # Handle case where no labels to restore
-  if (length(label) == 0) {
-    msg <- "No labels found to restore."
-    msg <- if (clear) paste0(msg, " No files cleared.") else msg
-    .cli_debug(msg)
-    stop("", .call = FALSE)
-  }
-
-  success <- TRUE
-  for (i in seq_along(label)) {
-    if (clear) {
-      .cli_debug(
-        "Clearing existing files for label: ", label[[i]]
-      )
-      path_dir_local <- projr_path_get_dir(
-        label[[i]],
-        safe = FALSE, create = FALSE
-      )
-      if (dir.exists(path_dir_local)) {
-        unlink(path_dir_local, recursive = TRUE, force = TRUE)
-      }
-    }
-    .cli_debug(
-      "Restoring label: ", label[[i]]
-    )
-    result <- tryCatch(
-      .content_update_label(label[[i]], pos, type, .title, NULL),
-      error = function(e) {
-        .cli_debug(
-          "Error restoring label: ", label[[i]], " - ", e$message
-        )
-        FALSE
-      }
-    )
-    if (isFALSE(result)) {
-      success <- FALSE
-    }
-  }
-  invisible(success)
-}
-
-#' @rdname projr_restore
-#' @export
-projr_content_checkout <- function(version,
+projr_content_checkout <- function(version = NULL,
                                    label = NULL,
                                    pos = NULL,
                                    type = NULL,
                                    title = NULL,
                                    clear = FALSE) {
-  # Input validation for version
-  if (is.null(version)) {
-    stop("'version' cannot be NULL")
-  }
-  if (!is.character(version)) {
-    stop("'version' must be a character string")
-  }
-  if (length(version) == 0) {
-    stop("'version' must have at least one element")
-  }
-  if (length(version) > 1) {
-    stop("'version' must be a single character value")
-  }
-  if (nchar(version) == 0) {
-    stop("'version' cannot be an empty string")
+  # Input validation for version (now optional)
+  if (!is.null(version)) {
+    if (!is.character(version)) {
+      stop("'version' must be NULL or a character string")
+    }
+    if (length(version) == 0) {
+      stop("'version' must have at least one element if not NULL")
+    }
+    if (length(version) > 1) {
+      stop("'version' must be a single character value")
+    }
+    if (nchar(version) == 0) {
+      stop("'version' cannot be an empty string")
+    }
   }
 
-  # Normalize version (ensure it has 'v' prefix for internal use)
-  version_normalized <- .version_v_add(version)
+  # Normalize version if provided
+  version_normalized <- if (!is.null(version)) .version_v_add(version) else NULL
 
-  # Input validation for other parameters (same as projr_content_update)
+  # Input validation for other parameters
   if (!is.null(label)) {
     if (!is.character(label)) {
       stop("'label' must be NULL or a character vector")
@@ -294,7 +193,7 @@ projr_content_checkout <- function(version,
     stop("", .call = FALSE)
   }
 
-  label <- .content_update_get_label(label)
+  label <- .content_checkout_get_label(label)
 
   # Handle case where no labels to restore
   if (length(label) == 0) {
@@ -318,11 +217,17 @@ projr_content_checkout <- function(version,
         unlink(path_dir_local, recursive = TRUE, force = TRUE)
       }
     }
-    .cli_debug(
-      "Restoring label: ", label[[i]], " at version: ", version_normalized
-    )
+    if (!is.null(version_normalized)) {
+      .cli_debug(
+        "Restoring label: ", label[[i]], " at version: ", version_normalized
+      )
+    } else {
+      .cli_debug(
+        "Restoring label: ", label[[i]]
+      )
+    }
     result <- tryCatch(
-      .content_update_label(label[[i]], pos, type, .title, version_normalized),
+      .content_checkout_label(label[[i]], pos, type, .title, version_normalized),
       error = function(e) {
         .cli_debug(
           "Error restoring label: ", label[[i]], " - ", e$message
@@ -337,8 +242,47 @@ projr_content_checkout <- function(version,
   invisible(success)
 }
 
-.content_update_get_label <- function(label) {
-  .content_update_get_label_check(label)
+#' @rdname projr_restore
+#' @export
+projr_content_update <- function(label = NULL,
+                                 pos = NULL,
+                                 type = NULL,
+                                 title = NULL,
+                                 clear = FALSE) {
+  projr_content_checkout(
+    version = NULL,
+    label = label,
+    pos = pos,
+    type = type,
+    title = title,
+    clear = clear
+  )
+}
+
+#' @rdname projr_restore
+#' @export
+projr_content_restore <- function(label = NULL,
+                                  pos = NULL,
+                                  type = NULL,
+                                  title = NULL,
+                                  clear = FALSE) {
+  # Get current project version without dev suffix
+  current_version <- projr_version_get() |> .version_v_rm()
+  # Remove dev suffix (e.g., "1.0.0-3" becomes "1.0.0")
+  current_version <- gsub("-.*$", "", current_version)
+  
+  projr_content_checkout(
+    version = current_version,
+    label = label,
+    pos = pos,
+    type = type,
+    title = title,
+    clear = clear
+  )
+}
+
+.content_checkout_get_label <- function(label) {
+  .content_checkout_get_label_check(label)
   if (!is.null(label)) {
     return(label)
   }
@@ -348,7 +292,7 @@ projr_content_checkout <- function(version,
   nm_vec[grepl("^raw", .dir_label_strip(nm_vec))]
 }
 
-.content_update_get_label_check <- function(label) {
+.content_checkout_get_label_check <- function(label) {
   if (!is.null(label)) {
     opt_vec <- .yml_dir_get(NULL) |>
       names()
@@ -360,12 +304,12 @@ projr_content_checkout <- function(version,
   invisible(TRUE)
 }
 
-.content_update_label <- function(label, pos, type, .title, version = NULL) {
-  if (!.content_update_label_check_non_empty(label)) {
+.content_checkout_label <- function(label, pos, type, .title, version = NULL) {
+  if (!.content_checkout_label_check_non_empty(label)) {
     return(invisible(FALSE))
   }
   # get source remote (type and title)
-  source_vec <- .content_update_label_get_source(pos, label, type, .title)
+  source_vec <- .content_checkout_label_get_source(pos, label, type, .title)
 
   # Check if source was found
   if (is.null(source_vec)) {
@@ -412,25 +356,42 @@ projr_content_checkout <- function(version,
     .cli_debug("Skipping restore for ", label)
     return(invisible(FALSE))
   }
-  .cli_debug(
-    "Restoring version ", version_remote, " of ", label,
-    " from ", source_vec[["type"]],
-    " ", source_vec[["title"]]
-  )
-  # Check if version is marked as untrusted in VERSION file
-  untrusted <- .remote_check_version_untrusted(
-    remote_pre, source_vec[["type"]], label
-  )
-  if (untrusted) {
-    .cli_info("Note: This version is marked as untrusted")
-  }
-
+  
+  # Check if the exact version exists on remote
   remote_exists <- .remote_final_check_exists(
     source_vec[["type"]], yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
     yml_title[["path-append-label"]], version_remote,
     empty = FALSE
   )
+  
+  # If exact version doesn't exist and user specified a version, 
+  # try to find a compatible version
+  if (!remote_exists && !is.null(version)) {
+    .cli_debug(
+      "Version ", version_remote, " not found on remote for ", label
+    )
+    .cli_debug(
+      "Searching for compatible version on remote..."
+    )
+    
+    compatible_version <- .content_checkout_label_find_compatible_version(
+      label, version_remote, remote_pre, source_vec[["type"]], 
+      yml_title[["id"]], yml_title[["structure"]], yml_title[["path"]],
+      yml_title[["path-append-label"]]
+    )
+    
+    if (!is.null(compatible_version)) {
+      .cli_info(
+        "Version ", version_remote, " is not on remote, but ",
+        "version ", compatible_version, " has identical content. ",
+        "Downloading version ", compatible_version, " instead."
+      )
+      version_remote <- compatible_version
+      remote_exists <- TRUE
+    }
+  }
+  
   if (!remote_exists) {
     .cli_debug("Remote source does not exist for ", label)
     if (source_vec[["type"]] == "github") {
@@ -454,6 +415,19 @@ projr_content_checkout <- function(version,
     }
   }
 
+  .cli_debug(
+    "Restoring version ", version_remote, " of ", label,
+    " from ", source_vec[["type"]],
+    " ", source_vec[["title"]]
+  )
+  # Check if version is marked as untrusted in VERSION file
+  untrusted <- .remote_check_version_untrusted(
+    remote_pre, source_vec[["type"]], label
+  )
+  if (untrusted) {
+    .cli_info("Note: This version is marked as untrusted")
+  }
+
   # Restore directly into the project directory rather than the cache build area
   remote_source <- .remote_final_get(
     source_vec[["type"]], yml_title[["id"]], label,
@@ -467,7 +441,123 @@ projr_content_checkout <- function(version,
   invisible(TRUE)
 }
 
-.content_update_label_check_non_empty <- function(label) {
+# Helper function to find compatible version on remote
+.content_checkout_label_find_compatible_version <- function(label,
+                                                            requested_version,
+                                                            remote_pre,
+                                                            type,
+                                                            id,
+                                                            structure,
+                                                            path,
+                                                            path_append_label) {
+  # Get local manifest for the requested version
+  manifest_local <- .manifest_read(.path_get("manifest.csv")) |>
+    .manifest_filter_label(label) |>
+    .manifest_filter_version(requested_version)
+  
+  if (nrow(manifest_local) == 0) {
+    .cli_debug(
+      "No local manifest entry for version ", requested_version,
+      " and label ", label
+    )
+    return(NULL)
+  }
+  
+  # Get all available versions on the remote
+  available_versions <- .content_checkout_get_available_remote_versions(
+    remote_pre, type, label, structure, id, path, path_append_label
+  )
+  
+  if (length(available_versions) == 0) {
+    .cli_debug("No versions available on remote for ", label)
+    return(NULL)
+  }
+  
+  # For each available version, check if it matches the requested version
+  for (ver in available_versions) {
+    manifest_remote_ver <- .manifest_read(.path_get("manifest.csv")) |>
+      .manifest_filter_label(label) |>
+      .manifest_filter_version(ver)
+    
+    if (nrow(manifest_remote_ver) == 0) {
+      next
+    }
+    
+    # Compare the manifests (same files and hashes)
+    manifest_local_sorted <- manifest_local[order(manifest_local$fn), ]
+    manifest_remote_sorted <- manifest_remote_ver[order(manifest_remote_ver$fn), ]
+    
+    if (nrow(manifest_local_sorted) != nrow(manifest_remote_sorted)) {
+      next
+    }
+    
+    if (!identical(manifest_local_sorted$fn, manifest_remote_sorted$fn)) {
+      next
+    }
+    
+    if (!identical(manifest_local_sorted$hash, manifest_remote_sorted$hash)) {
+      next
+    }
+    
+    # Found a compatible version
+    .cli_debug(
+      "Found compatible version ", ver, " for requested version ",
+      requested_version
+    )
+    return(ver)
+  }
+  
+  .cli_debug(
+    "No compatible version found on remote for requested version ",
+    requested_version
+  )
+  return(NULL)
+}
+
+# Helper function to get all available versions on remote
+.content_checkout_get_available_remote_versions <- function(remote_pre,
+                                                            type,
+                                                            label,
+                                                            structure,
+                                                            id,
+                                                            path,
+                                                            path_append_label) {
+  if (structure != "archive") {
+    # For latest structure, only one version available
+    version <- .remote_get_version_latest_label_non_project_file(
+      remote_pre, type, label
+    )
+    return(if (!is.null(version) && length(version) > 0) version else character(0))
+  }
+  
+  # For archive structure, list all available versions
+  remote_final_vec <- .remote_ls_final(type, remote_pre)
+  
+  if (length(remote_final_vec) == 0) {
+    return(character(0))
+  }
+  
+  # Extract versions from filenames/directories
+  versions <- character(0)
+  for (item in remote_final_vec) {
+    # Try to extract version from the item name
+    # Format: label-vX.X.X or just vX.X.X for directories
+    version_match <- sub(paste0("^", label, "-v([0-9.]+).*"), "\\1", item)
+    if (version_match != item && .version_check_error_free(version_match)) {
+      versions <- c(versions, version_match)
+    } else {
+      # Try without label prefix
+      version_match <- sub("^v([0-9.]+).*", "\\1", item)
+      if (version_match != item && .version_check_error_free(version_match)) {
+        versions <- c(versions, version_match)
+      }
+    }
+  }
+  
+  unique(versions)
+}
+
+.content_checkout_label_check_non_empty <- function(label) {
   manifest <- .manifest_read(.path_get("manifest.csv")) |>
     .manifest_filter_label(label)
   fn_vec <- unique(manifest[["fn"]])
@@ -482,17 +572,17 @@ projr_content_checkout <- function(version,
   invisible(TRUE)
 }
 
-.content_update_label_get_source <- function(pos, label, type, .title) {
+.content_checkout_label_get_source <- function(pos, label, type, .title) {
   pos <- if (is.null(pos)) c("source", "dest") else pos
   .assert_in(pos, c("source", "dest"))
   if ("source" %in% pos) {
-    source_vec <- .content_update_label_get_source_source(label, type, .title)
+    source_vec <- .content_checkout_label_get_source_source(label, type, .title)
     if (!is.null(source_vec)) {
       return(source_vec)
     }
   }
   if ("dest" %in% pos) {
-    source_vec <- .content_update_label_get_source_dest(label, type, .title)
+    source_vec <- .content_checkout_label_get_source_dest(label, type, .title)
     if (!is.null(source_vec)) {
       return(source_vec)
     }
@@ -503,34 +593,34 @@ projr_content_checkout <- function(version,
   NULL
 }
 
-.content_update_label_get_source_source <- function(label, type, .title) {
+.content_checkout_label_get_source_source <- function(label, type, .title) {
   yml_source <- .yml_dir_get_source(label, NULL)
   # nothing to look at here
   if (is.null(yml_source)) {
     return(NULL)
   }
   # look within the type
-  .content_update_label_get_source_source_type(
+  .content_checkout_label_get_source_source_type(
     yml_source, type, .title
   )
 }
 
-.content_update_label_get_source_source_type <- function(yml_source, type, .title) {
+.content_checkout_label_get_source_source_type <- function(yml_source, type, .title) {
   if (!is.null(type)) {
-    .content_update_label_get_source_source_type_spec(
+    .content_checkout_label_get_source_source_type_spec(
       yml_source, type, .title
     )
   } else {
-    .content_update_label_get_source_source_type_first(yml_source, .title)
+    .content_checkout_label_get_source_source_type_first(yml_source, .title)
   }
 }
 
-.content_update_label_get_source_source_type_spec <- function(yml_source,
+.content_checkout_label_get_source_source_type_spec <- function(yml_source,
                                                               type,
                                                               .title) {
   if (type %in% names(yml_source)) {
     yml_type <- yml_source[[type]]
-    .content_update_label_get_source_source_title_spec(
+    .content_checkout_label_get_source_source_title_spec(
       yml_type, type, .title
     )
   } else {
@@ -538,23 +628,23 @@ projr_content_checkout <- function(version,
   }
 }
 
-.content_update_label_get_source_source_title <- function(yml_type,
+.content_checkout_label_get_source_source_title <- function(yml_type,
                                                           type,
                                                           .title) {
   if (!is.null(.title)) {
-    .content_update_label_get_source_source_title_spec(yml_type, type, .title)
+    .content_checkout_label_get_source_source_title_spec(yml_type, type, .title)
   } else {
-    .content_update_label_get_source_source_title_first(yml_type, type)
+    .content_checkout_label_get_source_source_title_first(yml_type, type)
   }
 }
 
-.content_update_label_get_source_source_title_spec <- function(yml_type, type, .title) {
+.content_checkout_label_get_source_source_title_spec <- function(yml_type, type, .title) {
   if (is.list(yml_type)) {
-    .content_update_label_get_source_source_title_spec_list(
+    .content_checkout_label_get_source_source_title_spec_list(
       yml_type, type, .title
     )
   } else if (all(is.character(yml_type))) {
-    .content_update_label_get_source_source_title_spec_chr(
+    .content_checkout_label_get_source_source_title_spec_chr(
       yml_type, type, .title
     )
   } else {
@@ -562,7 +652,7 @@ projr_content_checkout <- function(version,
   }
 }
 
-.content_update_label_get_source_source_title_spec_list <- function(yml_type, type, .title) { # nolint
+.content_checkout_label_get_source_source_title_spec_list <- function(yml_type, type, .title) { # nolint
   if (.title %in% names(yml_type)) {
     c("pos" = "source", "type" = type, "title" = .title)
   } else {
@@ -570,7 +660,7 @@ projr_content_checkout <- function(version,
   }
 }
 
-.content_update_label_get_source_source_title_spec_chr <- function(yml_type, type, .title) { # nolint
+.content_checkout_label_get_source_source_title_spec_chr <- function(yml_type, type, .title) { # nolint
   if (.title %in% yml_type) {
     c("pos" = "source", "type" = type, "title" = .title)
   } else {
@@ -578,7 +668,7 @@ projr_content_checkout <- function(version,
   }
 }
 
-.content_update_label_get_source_source_title_first <- function(yml_type, type) {
+.content_checkout_label_get_source_source_title_first <- function(yml_type, type) {
   if (all(is.character(yml_type))) {
     c("pos" = "source", "type" = type, "title" = yml_type[[1]])
   } else {
@@ -586,16 +676,16 @@ projr_content_checkout <- function(version,
   }
 }
 
-.content_update_label_get_source_source_type_first <- function(yml_source, .title) {
+.content_checkout_label_get_source_source_type_first <- function(yml_source, .title) {
   type <- names(yml_source)[[1]]
-  .content_update_label_get_source_source_type_spec(
+  .content_checkout_label_get_source_source_type_spec(
     yml_source[[type]], type, .title
   )
 }
 
 # try find restore from destination
 
-.content_update_label_get_dest_no_type <- function(label) {
+.content_checkout_label_get_dest_no_type <- function(label) {
   if (.remote_check_exists("github", "archive")) {
     return(c("pos" = "dest", "type" = "github", "title" = "archive"))
   } else {
@@ -607,10 +697,10 @@ projr_content_checkout <- function(version,
   }
 }
 
-.content_update_label_get_source_dest <- function(label, type, .title) {
-  type_vec <- .content_update_label_get_source_dest_get_type(type, label)
+.content_checkout_label_get_source_dest <- function(label, type, .title) {
+  type_vec <- .content_checkout_label_get_source_dest_get_type(type, label)
   if (.is_len_0(type_vec)) {
-    return(.content_update_label_get_dest_no_type(label))
+    return(.content_checkout_label_get_dest_no_type(label))
   }
   # choose the first type and title
   # provided as the restore destination
@@ -663,7 +753,7 @@ projr_content_checkout <- function(version,
   # if nothing found, try parameter-specified removes
   if (is.null(tt_first)) {
     tryCatch(
-      .content_update_label_get_dest_no_type(label),
+      .content_checkout_label_get_dest_no_type(label),
       error = function(e) {
         .cli_info("No source found for {label}")
         .cli_info("Skipping restore for {label}")
@@ -675,7 +765,7 @@ projr_content_checkout <- function(version,
   }
 }
 
-.content_update_label_get_source_dest_get_type <- function(type, label) {
+.content_checkout_label_get_source_dest_get_type <- function(type, label) {
   if (!is.null(type)) {
     return(type)
   }
@@ -683,7 +773,7 @@ projr_content_checkout <- function(version,
   nm_vec[grepl("^github$|^local$|^osf", nm_vec)]
 }
 
-.content_update_label_get_source_dest_get_title <- function(type, title) {
+.content_checkout_label_get_source_dest_get_title <- function(type, title) {
   if (!is.null(title)) {
     return(title)
   }
