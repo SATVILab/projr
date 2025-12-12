@@ -78,7 +78,7 @@
     print(".git repo exists")
     print(".git" %in% .dir_ls(getwd()))
   }
-  .assert_string(user)
+  # user can be NULL here - will be retrieved later if needed
   .assert_string(repo)
   .assert_class(env, "environment")
   if (debug) {
@@ -105,10 +105,16 @@
   }
   .dep_install_only("gh")
   .dep_install_only("httr")
+  
+  # Get token first to use in gh_whoami if needed
+  token <- .auth_get_github_pat_find()
+  if (!nzchar(token)) stop("No GitHub token found")
+  
+  # Try to get user if not provided
   if (is.null(user)) {
     user <- tryCatch(
       {
-        gh::gh_whoami()[["login"]]
+        gh::gh_whoami(.token = token)[["login"]]
       },
       error = function(e) {
         NULL
@@ -116,10 +122,6 @@
     )
   }
   if (!.is_string(user)) stop("No GitHub user found")
-
-  # credentials::set_github_pat()
-  token <- .auth_get_github_pat_find()
-  if (!nzchar(token)) stop("No GitHub token found")
   if (debug) {
     print("ending upload stuff")
     print("user")
