@@ -551,10 +551,23 @@
     return(character(0L))
   }
   if (type != "github") {
-    fn <- vapply(fn, .version_v_rm, character(1L))
+    # Handle multi-version strings (semicolon-separated)
+    all_versions <- character(0)
+    for (ver_str in fn) {
+      if (!is.na(ver_str) && nzchar(ver_str)) {
+        versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+        all_versions <- c(all_versions, versions)
+      }
+    }
+    
+    if (length(all_versions) == 0) {
+      return(character(0L))
+    }
+    
+    all_versions <- vapply(all_versions, .version_v_rm, character(1L))
     # Strip -empty suffix for local/osf remotes (not needed for GitHub .zip files)
-    fn <- gsub("-empty$", "", fn)
-    return(fn |> package_version() |> max())
+    all_versions <- gsub("-empty$", "", all_versions)
+    return(all_versions |> package_version() |> max())
   }
   fn <- .remote_version_latest_filter(fn, type, label)
   .remote_version_latest_extract(fn, label)
