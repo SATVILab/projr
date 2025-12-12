@@ -22,7 +22,7 @@
   if (requireNamespace("gh", quietly = TRUE)) {
     user <- tryCatch(
       {
-        gh::gh_whoami()[["login"]]
+        gh::gh_whoami(.token = token)[["login"]]
       },
       error = function(e) {
         NULL
