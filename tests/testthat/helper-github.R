@@ -66,6 +66,12 @@
   invisible(TRUE)
 }
 
+# Create a GitHub repository for testing
+# 
+# @param user GitHub username (optional - will be retrieved if NULL)
+# @param repo Repository name (required)
+# @param env Environment for calling function
+# @param debug Whether to print debug messages
 .test_github_repo_create <- function(user = NULL,
                                      # token = NULL,
                                      repo = NULL,
