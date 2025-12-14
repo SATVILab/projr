@@ -506,10 +506,17 @@ projr_version_get <- function() {
   }
   
   # Apply .version_v_rm to each element, convert to package_version and find max
+  # Use .version_to_package_version to handle dev-style versions
   x_clean <- vapply(all_versions, .version_v_rm, character(1), USE.NAMES = FALSE)
-  x_clean |>
-    unique() |>
-    package_version() |>
-    max() |>
+  x_unique <- unique(x_clean)
+  # Convert each version individually using .version_to_package_version
+  # which returns package_version objects
+  vers_pkg <- vapply(
+    paste0("v", x_unique),
+    .version_to_package_version,
+    package_version("0.0.0"),
+    USE.NAMES = FALSE
+  )
+  max(vers_pkg) |>
     utils::tail(1)
 }
