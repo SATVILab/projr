@@ -72,6 +72,14 @@
     return(.zero_tbl_get_manifest())
   }
 
+  # Handle multi-version strings in the version parameter
+  # Use the latest version if multiple versions are provided
+  if (grepl(";", version, fixed = TRUE)) {
+    versions_input <- strsplit(version, ";", fixed = TRUE)[[1]]
+    # Get the latest version using .version_get_latest
+    version <- .version_get_latest(versions_input) |> as.character()
+  }
+  
   target_version <- .version_v_add(version)
   target_version_pkg <- .version_to_package_version(target_version)
 
