@@ -694,8 +694,21 @@
     # Extract version, removing the asterisk if present
     version_with_possible_asterisk <-
       gsub(match_str, "", label_regex) |> trimws()
-    # Remove asterisk for version comparison purposes but don't mark as trusted
-    gsub("\\*$", "", version_with_possible_asterisk) |> .version_v_rm()
+    # Remove asterisk for version comparison purposes
+    version_clean <- gsub("\\*$", "", version_with_possible_asterisk)
+    
+    # Handle multi-version strings (semicolon-separated)
+    # If multi-version format is found, extract the latest version
+    if (grepl(";", version_clean, fixed = TRUE)) {
+      version_parts <- strsplit(version_clean, ";", fixed = TRUE)[[1]]
+      # Remove "v" from each part
+      version_parts <- vapply(version_parts, .version_v_rm, character(1), USE.NAMES = FALSE)
+      # Get the latest version
+      version_clean <- version_parts[length(version_parts)]
+      return(version_clean)
+    }
+    
+    .version_v_rm(version_clean)
   }
 
 
