@@ -54,22 +54,97 @@
   if (!output_run) {
     return(invisible(FALSE))
   }
-  # Combine all manifests at once for better performance
-  manifest_parts <- list(
-    .build_manifest_pre_read(),
-    .build_manifest_post_get_manifest(output_run),
-    .build_manifest_post_get_manifest_previous_version()
+
+  # Get current and previous manifests
+  manifest_pre <- .build_manifest_pre_read()
+  manifest_current <- .build_manifest_post_get_manifest(output_run)
+  manifest_previous <- .build_manifest_post_get_manifest_previous_version()
+
+  # Detect and mark removed files
+  # Check both pre-build and post-build labels for removals
+  all_current_labels <- c(.build_manifest_pre_get_label(), .build_manifest_post_get_label())
+  manifest_removals <- .build_manifest_detect_removals(
+    rbind(manifest_pre, manifest_current),  # Combine pre and post manifests
+    manifest_previous,
+    all_current_labels
   )
-  # Filter out empty manifests
-  manifest_parts <- Filter(function(x) nrow(x) > 0, manifest_parts)
-  if (length(manifest_parts) == 0) {
-    combined_manifest <- .zero_tbl_get_manifest()
-  } else if (length(manifest_parts) == 1) {
-    combined_manifest <- manifest_parts[[1]]
-  } else {
-    combined_manifest <- do.call(rbind, manifest_parts)
+
+  # Combine all manifests
+  manifest_pre |>
+    rbind(manifest_current) |>
+    rbind(manifest_removals) |>
+    rbind(manifest_previous) |>
+    .manifest_write(.build_manifest_post_get_path(output_run))
+}
+
+.build_manifest_detect_removals <- function(manifest_current,
+                                           manifest_previous,
+                                           current_labels) {
+  # Detect files that existed in previous version but are missing now
+  # Add entries with empty hash to mark removal
+
+  if (nrow(manifest_previous) == 0) {
+    return(.zero_tbl_get_manifest())
   }
-  .manifest_write(combined_manifest, .build_manifest_post_get_path(output_run))
+
+  if (length(current_labels) == 0) {
+    return(.zero_tbl_get_manifest())
+  }
+
+  # Get current version
+  current_version <- projr::projr_version_get() |> .version_v_add()
+
+  # Filter previous manifest to relevant labels and get latest state
+  manifest_previous_filtered <- manifest_previous[
+    manifest_previous[["label"]] %in% current_labels,
+    , drop = FALSE
+  ]
+
+  if (nrow(manifest_previous_filtered) == 0) {
+    return(.zero_tbl_get_manifest())
+  }
+
+  # Handle case where manifest_current has 0 rows (all files removed)
+  if (nrow(manifest_current) == 0) {
+    current_keys <- character(0)
+  } else {
+    current_keys <- paste(manifest_current[["label"]],
+                         manifest_current[["fn"]],
+                         sep = ":::")
+  }
+
+  # For each label+fn in previous, check if it exists in current
+  previous_keys <- paste(manifest_previous_filtered[["label"]],
+                        manifest_previous_filtered[["fn"]],
+                        sep = ":::")
+
+  # Find files that were in previous but not in current (removed)
+  removed_keys <- setdiff(previous_keys, current_keys)
+
+  if (length(removed_keys) == 0) {
+    return(.zero_tbl_get_manifest())
+  }
+
+  # Create removal entries (empty hash to indicate removal)
+  removal_indices <- which(previous_keys %in% removed_keys)
+
+  # Get unique removed files (one entry per file)
+  removed_files <- manifest_previous_filtered[removal_indices, , drop = FALSE]
+  removed_files[["file_key"]] <- paste(removed_files[["label"]],
+                                       removed_files[["fn"]],
+                                       sep = ":::")
+
+  # Keep only one entry per file (deduplicate by file_key)
+  removed_files <- removed_files[!duplicated(removed_files[["file_key"]]), , drop = FALSE]
+  removed_files[["file_key"]] <- NULL
+
+  # Mark as removed by setting version to current and hash to empty
+  # This creates a "tombstone" entry
+  removed_files[["version"]] <- current_version
+  removed_files[["hash"]] <- ""
+
+  rownames(removed_files) <- NULL
+  removed_files
 }
 
 .build_manifest_pre_read <- function() {
@@ -98,14 +173,7 @@
   if (.is_len(manifest_list, 1L)) {
     return(manifest_list[[1]])
   }
-  # Filter out empty manifests and use do.call for better performance
-  manifest_list <- Filter(function(x) nrow(x) > 0, manifest_list)
-  if (length(manifest_list) == 0) {
-    return(.zero_tbl_get_manifest())
-  } else if (length(manifest_list) == 1) {
-    return(manifest_list[[1]])
-  }
-  do.call(rbind, manifest_list)
+  Reduce(rbind, manifest_list)
 }
 
 .build_manifest_post_get_label <- function() {

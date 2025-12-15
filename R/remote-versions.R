@@ -551,10 +551,32 @@
     return(character(0L))
   }
   if (type != "github") {
-    fn <- vapply(fn, .version_v_rm, character(1L))
+    # Handle multi-version strings (semicolon-separated)
+    all_versions <- character(0)
+    for (ver_str in fn) {
+      if (!is.na(ver_str) && nzchar(ver_str)) {
+        versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+        all_versions <- c(all_versions, versions)
+      }
+    }
+    
+    if (length(all_versions) == 0) {
+      return(character(0L))
+    }
+    
+    all_versions <- vapply(all_versions, .version_v_rm, character(1L))
     # Strip -empty suffix for local/osf remotes (not needed for GitHub .zip files)
-    fn <- gsub("-empty$", "", fn)
-    return(fn |> package_version() |> max())
+    all_versions <- gsub("-empty$", "", all_versions)
+    # Convert each version individually using .version_to_package_version
+    # to handle dev-style versions like "0.0.1-dev" or "0.0.1-1"
+    pkg_versions <- vapply(
+      paste0("v", all_versions), 
+      .version_to_package_version, 
+      package_version("0.0.0")
+    )
+    max_version <- max(pkg_versions)
+    # Convert back to string with "v" prefix to maintain format consistency
+    return(paste0("v", as.character(max_version)))
   }
   fn <- .remote_version_latest_filter(fn, type, label)
   .remote_version_latest_extract(fn, label)
@@ -672,8 +694,21 @@
     # Extract version, removing the asterisk if present
     version_with_possible_asterisk <-
       gsub(match_str, "", label_regex) |> trimws()
-    # Remove asterisk for version comparison purposes but don't mark as trusted
-    gsub("\\*$", "", version_with_possible_asterisk) |> .version_v_rm()
+    # Remove asterisk for version comparison purposes
+    version_clean <- gsub("\\*$", "", version_with_possible_asterisk)
+    
+    # Handle multi-version strings (semicolon-separated)
+    # If multi-version format is found, extract the latest version
+    if (grepl(";", version_clean, fixed = TRUE)) {
+      version_parts <- strsplit(version_clean, ";", fixed = TRUE)[[1]]
+      # Remove "v" from each part
+      version_parts <- vapply(version_parts, .version_v_rm, character(1), USE.NAMES = FALSE)
+      # Get the latest version
+      version_clean <- version_parts[length(version_parts)]
+      return(version_clean)
+    }
+    
+    .version_v_rm(version_clean)
   }
 
 

@@ -384,6 +384,16 @@ projr_version_get <- function() {
     x <- as.character(x)
   }
   .assert_string(x, required = TRUE)
+  
+  # Handle multi-version strings (semicolon-separated)
+  if (grepl(";", x, fixed = TRUE)) {
+    version_parts <- strsplit(x, ";", fixed = TRUE)[[1]]
+    versions_clean <- vapply(version_parts, function(v) {
+      gsub("^v+", "", tolower(v))
+    }, character(1L), USE.NAMES = FALSE)
+    return(paste(versions_clean, collapse = ";"))
+  }
+  
   gsub("^v+", "", tolower(x))
 }
 
@@ -393,6 +403,17 @@ projr_version_get <- function() {
     x <- as.character(x)
   }
   .assert_string(x, required = TRUE)
+  
+  # Handle multi-version strings (semicolon-separated)
+  if (grepl(";", x, fixed = TRUE)) {
+    version_parts <- strsplit(x, ";", fixed = TRUE)[[1]]
+    versions_with_v <- vapply(version_parts, function(v) {
+      v_clean <- gsub("^v+", "", tolower(v))
+      paste0("v", v_clean)
+    }, character(1L), USE.NAMES = FALSE)
+    return(paste(versions_with_v, collapse = ";"))
+  }
+  
   x_rm <- .version_v_rm(x)
   paste0("v", x_rm)
 }
@@ -402,13 +423,59 @@ projr_version_get <- function() {
   if (length(x) == 0) {
     stop("x must have at least one element")
   }
-  # Apply .version_v_rm to each element
-  x_clean <- vapply(x, .version_v_rm, character(1), USE.NAMES = FALSE)
-  x_clean |>
+  
+  # Handle multi-version strings (semicolon-separated)
+  all_versions <- character(0)
+  for (ver_str in x) {
+    if (!is.na(ver_str) && nzchar(ver_str)) {
+      versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+      all_versions <- c(all_versions, versions)
+    }
+  }
+  
+  if (length(all_versions) == 0) {
+    stop("No valid versions found")
+  }
+  
+  # Apply .version_to_package_version to each element
+  vers_pkg <- vapply(all_versions, function(v) as.character(.version_to_package_version(v)), character(1), USE.NAMES = FALSE)
+  vers_pkg |>
     unique() |>
     package_version() |>
     min() |>
     utils::tail(1)
+}
+
+.version_to_package_version <- function(version) {
+  # Convert projr version (with dev suffix) to package_version compatible format
+  # Handles versions like "v0.0.1-dev", "v0.0.1-1", "0.0.1-dev" etc.
+  # Converts dev components to numeric for comparison
+  # Examples: "0.0.1-dev" -> "0.0.1.9000", "0.0.1-1" -> "0.0.1.1"
+  
+  .assert_string(version, required = TRUE)
+  
+  # Remove leading "v" if present
+  version_clean <- .version_v_rm(version)
+  
+  # Check if there's a dev component
+  if (grepl("-", version_clean)) {
+    parts <- strsplit(version_clean, "-", fixed = TRUE)[[1]]
+    base_version <- parts[1]
+    dev_part <- parts[2]
+    
+    # Convert dev suffix to numeric
+    if (dev_part == "dev") {
+      # Convert "-dev" to ".9000" (R convention for development versions)
+      version_numeric <- paste0(base_version, ".9000")
+    } else {
+      # Convert "-N" to ".N"
+      version_numeric <- paste0(base_version, ".", dev_part)
+    }
+  } else {
+    version_numeric <- version_clean
+  }
+  
+  package_version(version_numeric)
 }
 
 .version_append <- function(path) {
@@ -424,11 +491,32 @@ projr_version_get <- function() {
   if (length(x) == 0) {
     stop("x must have at least one element")
   }
-  # Apply .version_v_rm to each element
-  x_clean <- vapply(x, .version_v_rm, character(1), USE.NAMES = FALSE)
-  x_clean |>
-    unique() |>
-    package_version() |>
-    max() |>
+  
+  # Handle multi-version strings (semicolon-separated)
+  all_versions <- character(0)
+  for (ver_str in x) {
+    if (!is.na(ver_str) && nzchar(ver_str)) {
+      versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+      all_versions <- c(all_versions, versions)
+    }
+  }
+  
+  if (length(all_versions) == 0) {
+    stop("No valid versions found")
+  }
+  
+  # Apply .version_v_rm to each element, convert to package_version and find max
+  # Use .version_to_package_version to handle dev-style versions
+  x_clean <- vapply(all_versions, .version_v_rm, character(1), USE.NAMES = FALSE)
+  x_unique <- unique(x_clean)
+  # Convert each version individually using .version_to_package_version
+  # which returns package_version objects
+  vers_pkg <- vapply(
+    paste0("v", x_unique),
+    .version_to_package_version,
+    package_version("0.0.0"),
+    USE.NAMES = FALSE
+  )
+  max(vers_pkg) |>
     utils::tail(1)
 }
