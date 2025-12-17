@@ -146,8 +146,6 @@ projr_build_check_packages <- function(profile = NULL) {
   for (remote in remote_vec) {
     if (remote == "github") {
       pkg_needed <- c(pkg_needed, "gh")
-    } else if (remote == "osf") {
-      pkg_needed <- c(pkg_needed, "osfr")
     }
   }
 

@@ -193,7 +193,7 @@
                              remote_post = NULL) {
   # get directories where files are found or saved to,
   # downloading them to there if necessary
-  # type_: remote type (local, osf, github)
+  # type_: remote type (local, github)
   # remote_: exactly where the data are on the remote
   path_dir_local_pre <- .change_get_file_dir(
     type = type_pre,
@@ -215,17 +215,12 @@
   # so that we can hash
   switch(type,
     "local" = .change_get_file_dir_local(remote),
-    "osf" = .change_get_file_dir_osf(remote),
     "github" = .change_get_file_dir_github(remote)
   )
 }
 
 .change_get_file_dir_local <- function(remote) {
   remote
-}
-
-.change_get_file_dir_osf <- function(remote) {
-  .remote_file_get_all("osf", remote, .dir_create_tmp_random())
 }
 
 .change_get_file_dir_github <- function(remote) {

@@ -527,11 +527,10 @@
   # here, if remote specifies the file, it will only remove
   # that file, but if remote doesn't, then
   # it removes every file.
-  # I think this is essentially the same as OSF and local,
-  # as there you would specify the remote and then upload
-  # all the directories to that remote as directories.
-  # here those directories are uploaded as files,
-  # which is different.
+  # This is different from local where you would specify
+  # the remote and then upload all the directories to that
+  # remote as directories. Here those directories are uploaded
+  # as files.
   .assert_chr_mid(remote, TRUE)
   tag <- .remote_misc_github_tag_get(remote)
   remote[["tag"]] <- tag
