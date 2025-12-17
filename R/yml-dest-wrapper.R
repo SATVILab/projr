@@ -8,18 +8,43 @@
 #' Add a local directory as a destination
 #' to a _projr.yml file.
 #'
-#'
-#' @inheritParams projr_yml_dest_add_osf
-#'
 #' @param title character.
 #' The name of the directory.
 #' Has no effect besides helping structure `_projr.yml`.
 #' If not supplied, will be made equal to `content`.
+#' @param content character vector.
+#' Labels of directories to include in the upload.
+#' Options are the labels of directories
+#' in the active `projr` configuration.
 #' @param path character.
 #' Path to the directory.
 #' If a relative path is given, then it is taken as
 #' relative to the project home directory.
 #' Must be supplied.
+#' @param structure "latest" or "archive".
+#' Structure of the remote.
+#' If "latest", then `path` simply contains
+#' the latest versions of the contents.
+#' If "version", then `path` will contain
+#' a directory for each version.
+#' If not supplied, will be `archive`.
+#' @param overwrite logical.
+#' Whether to rewrite an existing entry of the same
+#' title in the specified `projr` configuration file.
+#' Default is TRUE.
+#' @param send_cue "always", "if-change" or "never".
+#' When to send to the remote. Default is NULL.
+#' @param send_strategy "upload-all", "upload-missing",
+#' "sync-purge" or "sync-diff".
+#' How to synchronise to the remote. Default is NULL.
+#' @param send_inspect "manifest" , "file" or "none".
+#' What to look at to find what are the
+#' files on the remote, and their versions. Default is NULL.
+#' @param profile character.
+#' Profile to write the settings to.
+#' If "default", then written to `_projr.yml`,
+#' otherwise written to `_projr-<profile>.yml`.
+#' The default is "default".
 #'
 #' @export
 #' @rdname projr_yml_dest_add
@@ -68,8 +93,6 @@ projr_yml_dest_add_local <- function(title,
 #' Add a GitHub release as a destination
 #' to a _projr.yml file.
 #'
-#' @inheritParams projr_yml_dest_add_osf
-#'
 #' @param title character.
 #' Title of the GitHub release.
 #' Can use title as `@version`,
@@ -77,6 +100,24 @@ projr_yml_dest_add_local <- function(title,
 #' the version of the project at the time.
 #' If not supplied, then will
 #' automatically be generated from `content`.
+#' @param content character vector.
+#' Labels of directories to include in the upload.
+#' Options are the labels of directories
+#' in the active `projr` configuration,
+#' as well as "docs", "data" and "code".
+#' @param structure "latest" or "archive".
+#' Structure of the remote. Default is NULL.
+#' @param overwrite logical.
+#' Whether to rewrite an existing entry. Default is TRUE.
+#' @param send_cue "always", "if-change" or "never".
+#' When to send to the remote. Default is NULL.
+#' @param send_strategy "upload-all", "upload-missing",
+#' "sync-purge" or "sync-diff".
+#' How to synchronise to the remote. Default is NULL.
+#' @param send_inspect "manifest" , "file" or "none".
+#' What to look at to find files on the remote. Default is NULL.
+#' @param profile character.
+#' Profile to write the settings to. Default is "default".
 #' @export
 projr_yml_dest_add_github <- function(title,
                                       content,
