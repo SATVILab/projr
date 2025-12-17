@@ -13,14 +13,15 @@
     return(invisible(FALSE))
   }
 
+  # copy directories with output configuration first
+  # (before copying outputs from temp to final)
+  .build_copy_dir(output_run)
+
   # copy to unsafe directories
   .build_copy_to_unsafe(output_run)
 
   # package
   .build_copy_pkg(output_run)
-
-  # save to output
-  .build_copy_dir(output_run)
 
   invisible(TRUE)
 }

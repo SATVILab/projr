@@ -71,14 +71,14 @@ projr_yml_check <- function(profile = NULL) {
 .yml_dir_check_label_path <- function(yml_label, label, profile) {
   is_docs <- .yml_dir_label_class_detect_docs(label)
   if (is_docs && !"path" %in% names(yml_label)) {
-    return(invisible(TRUE))
+    return(yml_label)
   }
   .assert_has(names(yml_label), "path")
   .assert_string(yml_label[["path"]], TRUE)
   .yml_dir_check_label_path_restricted(yml_label, label, profile)
 
 
-  invisible(TRUE)
+  yml_label
 }
 
 .yml_dir_check_label_path_restricted <- function(yml_label, label, profile) {
@@ -94,7 +94,7 @@ projr_yml_check <- function(profile = NULL) {
   for (x in c("ignore", "ignore-git", "ignore-rbuild")) {
     .yml_dir_check_label_ignore_ind(yml_label, x)
   }
-  invisible(TRUE)
+  yml_label
 }
 
 .yml_dir_check_label_ignore_ind <- function(yml_label, nm) {
@@ -110,18 +110,14 @@ projr_yml_check <- function(profile = NULL) {
 
 .yml_dir_check_label_git_track_adjust <- function(yml_label) {
   if (!"git-track-adjust" %in% names(yml_label)) {
-    return(invisible(TRUE))
+    return(yml_label)
   }
   .assert_flag(yml_label[["git-track-adjust"]], TRUE)
+  yml_label
 }
 
 .yml_dir_check_label_output <- function(yml_label, label, profile) {
-  label_vec_output_valid <- .yml_dir_get_label_output(profile) |>
-    c(.yml_dir_get_label_in(profile)) |>
-    c("data", "docs")
-  if (!label %in% label_vec_output_valid) {
-    .assert_has_not(names(yml_label), "output")
-  }
+  # Allow output key on any directory label
   if (!"output" %in% names(yml_label)) {
     return(invisible(TRUE))
   }
@@ -131,9 +127,13 @@ projr_yml_check <- function(profile = NULL) {
   if (is.logical(yml_label[["output"]])) {
     .assert_flag(yml_label[["output"]])
   } else if (is.character(yml_label[["output"]])) {
+    # Get available output labels - these are the labels that start with "output"
+    available_output_labels <- .yml_dir_get_label_output(profile)
+    
+    # Validate that specified output labels exist
     .assert_in(
       yml_label[["output"]],
-      .yml_dir_get_label_output(profile) |> c("output")
+      available_output_labels
     )
   }
 }
