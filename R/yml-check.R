@@ -119,7 +119,7 @@ projr_yml_check <- function(profile = NULL) {
 .yml_dir_check_label_output <- function(yml_label, label, profile) {
   # Allow output key on any directory label
   if (!"output" %in% names(yml_label)) {
-    return(invisible(TRUE))
+    return(yml_label)
   }
 
   .assert_class_any(yml_label[["output"]], c("logical", "character"), TRUE)
@@ -139,6 +139,8 @@ projr_yml_check <- function(profile = NULL) {
       available_output_labels
     )
   }
+  
+  yml_label
 }
 
 # build
