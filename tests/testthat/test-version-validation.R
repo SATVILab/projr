@@ -332,3 +332,120 @@ test_that(".version_format_list_get handles error cases correctly", {
     quiet = TRUE
   )
 })
+
+test_that(".version_normalize pads versions correctly", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  # Single component versions should be padded to major.minor
+  expect_identical(.version_normalize("1"), "1.0")
+  expect_identical(.version_normalize("5"), "5.0")
+  expect_identical(.version_normalize("10"), "10.0")
+
+  # Two component versions should remain unchanged
+  expect_identical(.version_normalize("1.2"), "1.2")
+  expect_identical(.version_normalize("5.0"), "5.0")
+  expect_identical(.version_normalize("10.95"), "10.95")
+
+  # Three component versions should remain unchanged
+  expect_identical(.version_normalize("1.2.3"), "1.2.3")
+  expect_identical(.version_normalize("0.0.1"), "0.0.1")
+  expect_identical(.version_normalize("10.20.30"), "10.20.30")
+
+  # Four component versions (with dev) should convert dashes to dots
+  expect_identical(.version_normalize("1.2.3-4"), "1.2.3.4")
+  expect_identical(.version_normalize("0.0.1-1"), "0.0.1.1")
+
+  # Mixed separators should be normalized to dots
+  expect_identical(.version_normalize("1-2"), "1.2")
+  expect_identical(.version_normalize("5-0"), "5.0")
+
+  # Invalid input should error
+  expect_error(.version_normalize(NULL))
+  expect_error(.version_normalize(123))
+  expect_error(.version_normalize(c("1.2", "3.4")))
+})
+
+test_that(".version_get_earliest works with variable-length versions", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  # Mix of single, two, and three component versions
+  expect_identical(
+    as.character(.version_get_earliest(c("v2", "v1.5", "v1.2.3"))),
+    "1.2.3"
+  )
+
+  # Single component should work
+  expect_identical(
+    as.character(.version_get_earliest(c("v2", "v1", "v3"))),
+    "1.0"
+  )
+
+  # Two component versions
+  expect_identical(
+    as.character(.version_get_earliest(c("v1.2", "v1.5", "v0.9"))),
+    "0.9"
+  )
+
+  # Mix including dev versions
+  expect_identical(
+    as.character(.version_get_earliest(c("v1.2.3-4", "v1.2", "v1"))),
+    "1.0"
+  )
+})
+
+test_that(".version_get_latest works with variable-length versions", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  # Mix of single, two, and three component versions
+  expect_identical(
+    as.character(.version_get_latest(c("v2", "v1.5", "v1.2.3"))),
+    "2.0"
+  )
+
+  # Single component should work
+  expect_identical(
+    as.character(.version_get_latest(c("v2", "v1", "v3"))),
+    "3.0"
+  )
+
+  # Two component versions
+  expect_identical(
+    as.character(.version_get_latest(c("v1.2", "v1.5", "v0.9"))),
+    "1.5"
+  )
+
+  # Mix including dev versions
+  expect_identical(
+    as.character(.version_get_latest(c("v1.2.3-4", "v1.2", "v1"))),
+    "1.2.3.4"
+  )
+})
+
+test_that(".version_is_earlier works with variable-length versions", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  # Single component vs two component
+  expect_true(.version_is_earlier("v1", "v1.5"))
+  expect_true(.version_is_earlier("v1", "v2"))
+  expect_false(.version_is_earlier("v2", "v1.5"))
+
+  # Single component vs three component
+  expect_true(.version_is_earlier("v1", "v1.0.1"))
+  expect_false(.version_is_earlier("v2", "v1.2.3"))
+
+  # Two component vs three component
+  expect_true(.version_is_earlier("v1.2", "v1.2.1"))
+  expect_false(.version_is_earlier("v1.3", "v1.2.9"))
+
+  # Equal versions of different lengths (1.2.0 == 1.2)
+  expect_false(.version_is_earlier("v1.2.0", "v1.2"))
+  expect_false(.version_is_earlier("v1.2", "v1.2.0"))
+
+  # Dev versions
+  expect_true(.version_is_earlier("v1.2.3-1", "v1.2.3-2"))
+  expect_true(.version_is_earlier("v1.2-1", "v1.2.3"))
+})
