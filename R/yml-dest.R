@@ -7,8 +7,6 @@
                           path = NULL,
                           path_append_label = NULL,
                           overwrite = FALSE,
-                          public = FALSE,
-                          category = NULL,
                           description = NULL,
                           id = NULL,
                           id_parent = NULL,
@@ -42,8 +40,6 @@
     path = path,
     path_append_label = path_append_label,
     overwrite = overwrite,
-    public = public,
-    category = category,
     description = description,
     id = id,
     id_parent = id_parent,
@@ -63,8 +59,6 @@
     get_list = get_list,
     send_list = send_list,
     overwrite = overwrite,
-    public = public,
-    category = category,
     description = description,
     id = id,
     id_parent = id_parent,
@@ -84,8 +78,6 @@
                                get_list,
                                send_list,
                                overwrite,
-                               public,
-                               category,
                                description,
                                id,
                                id_parent,
@@ -101,7 +93,7 @@
   ) |>
     .yml_dest_add_get_list_add_extra(
       type = type, id = id, id_parent = id_parent, title = title,
-      category = category, public = public, description = description
+      description = description
     ) |>
     .yml_dest_set_title(
       title = title, type = type,
@@ -131,8 +123,6 @@
                                              id,
                                              id_parent,
                                              title,
-                                             category,
-                                             public,
                                              description) {
   # OSF support has been removed
   list_add
