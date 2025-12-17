@@ -471,7 +471,7 @@
   # or none are available (version_remote is NULL),
   # or if the version is too old
   if (!.is_string(version_remote) ||
-        .version_is_earlier(version_remote, version_min_acceptable)) {
+    .version_is_earlier(version_remote, version_min_acceptable)) {
     return(version_comp_no_trusted_archive)
   }
   # now we've uploaded past the version we're at now.

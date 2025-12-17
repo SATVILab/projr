@@ -27,11 +27,11 @@
   )
 
   if (is.null(repo)) {
-    .cli_debug(
-      "GitHub release: Could not get repo info when checking existence of GitHub release '{tag}'", # nolint
-      output_level = output_level
+    stop(
+      "Could not get repo info when checking existence of GitHub release '", tag, "'. ",
+      "Please ensure you are in a Git repository with a GitHub remote configured.",
+      call. = FALSE
     )
-    stop(call. = FALSE)
   }
   .retry_with_backoff(
     fn = function() {
@@ -408,11 +408,11 @@
   tag <- remote[["tag"]]
   repo <- tryCatch(.gh_repo_get(), error = function(e) NULL)
   if (is.null(repo)) {
-    .cli_debug(
-      "GitHub release: Could not determine repo for tag '{tag}', aborting delete",
-      output_level = output_level
+    stop(
+      "Could not determine repo for tag '", tag, "' when attempting to delete. ",
+      "Please ensure you are in a Git repository with a GitHub remote configured.",
+      call. = FALSE
     )
-    stop(call. = FALSE)
   }
 
   if (!.remote_check_exists("github", tag, max_attempts = 2)) {
