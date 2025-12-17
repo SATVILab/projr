@@ -122,11 +122,14 @@ projr_yml_check <- function(profile = NULL) {
     return(invisible(TRUE))
   }
 
-  .assert_len_1(yml_label[["output"]], TRUE)
   .assert_class_any(yml_label[["output"]], c("logical", "character"), TRUE)
   if (is.logical(yml_label[["output"]])) {
+    .assert_len_1(yml_label[["output"]], TRUE)
     .assert_flag(yml_label[["output"]])
   } else if (is.character(yml_label[["output"]])) {
+    # Character can be a vector of output labels
+    .assert_chr(yml_label[["output"]], TRUE)
+    
     # Get available output labels - these are the labels that start with "output"
     available_output_labels <- .yml_dir_get_label_output(profile)
     

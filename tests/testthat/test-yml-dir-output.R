@@ -110,17 +110,21 @@ test_that("directories with output: true are copied to all output directories", 
       # Run build
       projr_build_dev()
 
+      # For dev builds, output directories are in safe (temp) location
       # Check that file was copied to both output directories
-      expect_true(file.exists("_output/raw-data/test.txt"))
-      expect_true(file.exists("_output2/raw-data/test.txt"))
+      output_path <- projr_path_get_dir("output", "raw-data", safe = TRUE)
+      output2_path <- projr_path_get_dir("output2", "raw-data", safe = TRUE)
+      
+      expect_true(file.exists(file.path(output_path, "test.txt")))
+      expect_true(file.exists(file.path(output2_path, "test.txt")))
 
       # Verify content is the same
       expect_identical(
-        readLines("_output/raw-data/test.txt"),
+        readLines(file.path(output_path, "test.txt")),
         "test content"
       )
       expect_identical(
-        readLines("_output2/raw-data/test.txt"),
+        readLines(file.path(output2_path, "test.txt")),
         "test content"
       )
     },
@@ -150,13 +154,17 @@ test_that("directories with output: [specific] are copied only to specified dire
       # Run build
       projr_build_dev()
 
+      # For dev builds, output directories are in safe (temp) location
       # Check that file was copied only to output2, not output
-      expect_false(file.exists("_output/raw-data/test.txt"))
-      expect_true(file.exists("_output2/raw-data/test.txt"))
+      output_path <- projr_path_get_dir("output", "raw-data", safe = TRUE)
+      output2_path <- projr_path_get_dir("output2", "raw-data", safe = TRUE)
+      
+      expect_false(file.exists(file.path(output_path, "test.txt")))
+      expect_true(file.exists(file.path(output2_path, "test.txt")))
 
       # Verify content
       expect_identical(
-        readLines("_output2/raw-data/test.txt"),
+        readLines(file.path(output2_path, "test.txt")),
         "test content"
       )
     },
@@ -186,7 +194,8 @@ test_that("directories with output: false are not copied", {
       projr_build_dev()
 
       # Check that file was not copied
-      expect_false(file.exists("_output/raw-data/test.txt"))
+      output_path <- projr_path_get_dir("output", "raw-data", safe = TRUE)
+      expect_false(file.exists(file.path(output_path, "test.txt")))
     },
     force = TRUE,
     quiet = TRUE
@@ -214,7 +223,8 @@ test_that("directories without output key are not copied by default", {
       projr_build_dev()
 
       # Check that file was not copied (no output key = no copy)
-      expect_false(file.exists("_output/custom-dir/test.txt"))
+      output_path <- projr_path_get_dir("output", "custom-dir", safe = TRUE)
+      expect_false(file.exists(file.path(output_path, "test.txt")))
     },
     force = TRUE,
     quiet = TRUE
