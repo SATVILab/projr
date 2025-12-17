@@ -403,11 +403,11 @@ projr_version_get <- function() {
   # This function ensures versions have enough components
   .assert_string(version, required = TRUE)
 
-  # Split by . or - to get components
-  components <- strsplit(version, "[.-]")[[1]]
+  # Split by . or - to get components (escape - to match literal dash)
+  components <- strsplit(version, "[.\\-]")[[1]]
 
   # package_version() needs at least 2 components
-  while (length(components) < 2) {
+  if (length(components) == 1) {
     components <- c(components, "0")
   }
 
