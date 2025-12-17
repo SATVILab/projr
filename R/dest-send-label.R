@@ -470,13 +470,14 @@
   # earliest version does not work if it's not trusted
   # or none are available (version_remote is NULL),
   # or if the version is too old
-  if (!.is_string(version_remote) || version_remote < version_min_acceptable) {
+  if (!.is_string(version_remote) ||
+        .version_is_earlier(version_remote, version_min_acceptable)) {
     return(version_comp_no_trusted_archive)
   }
   # now we've uploaded past the version we're at now.
   # this shouldn't happen (I should really check in advance),
   # but let's check.
-  if (version_remote > (projr_version_get() |> .version_v_rm())) {
+  if (.version_is_earlier(projr_version_get(), version_remote)) {
     # should not happen, but just in case. We could force
     # the remote_get_version_label to return the
     # latest remote earlier than the current one, but

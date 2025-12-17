@@ -432,3 +432,11 @@ projr_version_get <- function() {
     max() |>
     utils::tail(1)
 }
+
+.version_is_earlier <- function(version_a, version_b) {
+  .assert_string(version_a, required = TRUE)
+  .assert_string(version_b, required = TRUE)
+  version_a_clean <- .version_v_rm(version_a)
+  version_b_clean <- .version_v_rm(version_b)
+  package_version(version_a_clean) < package_version(version_b_clean)
+}
