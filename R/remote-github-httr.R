@@ -487,7 +487,7 @@
   downloaded <- character(0)
 
   asset_name <- asset$name
-  download_url <- asset$browser_download_url
+  download_url <- asset$url
 
   dest_file <- file.path(dest_dir, asset_name)
 

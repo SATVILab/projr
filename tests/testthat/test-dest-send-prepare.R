@@ -536,7 +536,8 @@ test_that(".dest_prepare_github_releases handles existing releases", {
       )
 
       # Release should still exist
-      expect_true(.remote_check_exists("github", id = test_tag))
+      release_exists <- .remote_check_exists("github", id = test_tag)
+      expect_true(release_exists)
       Sys.sleep(1)
 
       # Cleanup
