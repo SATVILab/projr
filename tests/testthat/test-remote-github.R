@@ -93,6 +93,7 @@ test_that("GitHub test releases are created and reusable", {
 
 test_that(".remote_get works for GitHub", {
   skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
   expect_identical(
     .remote_get("github", "abc"),
@@ -1769,6 +1770,7 @@ test_that("GITHUB_TOKEN is final fallback, GH_TOKEN takes precedence", {
 # done
 test_that(".github_api_base resolves URLs correctly", {
   skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
 
   # Save original
@@ -1845,6 +1847,7 @@ test_that(".gh_release_exists returns correct values for known repos", {
 # done
 test_that(".gh_repo_from_remote_url handles common remote formats", {
   skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   expect_equal(.gh_repo_from_remote_url("https://github.com/owner/repo.git"), "owner/repo")
   expect_equal(.gh_repo_from_remote_url("git@github.com:owner/repo.git"), "owner/repo")
   expect_equal(.gh_repo_from_remote_url("https://www.github.com/owner/repo"), "owner/repo")
