@@ -50,11 +50,12 @@
   } else if (status == 404L) {
     FALSE
   } else if (status == 401L || status == 403L) {
-    .cli_debug(
-      "GitHub API authentication error (status {status}) when checking release existence for tag '{tag}' in repo '{repo}'", # nolint
-      url = url
+    stop(
+      "GitHub API authentication error (status ", status, ") ",
+      "when checking release existence for tag '", tag, "' in repo '", repo, "'. ",
+      "Please check your GITHUB_PAT is set correctly.",
+      call. = FALSE
     )
-    stop(call. = FALSE)
   } else {
     stop(
       "Unexpected HTTP status from GitHub API: ",
@@ -277,10 +278,10 @@
     }
   }
 
-  .cli_debug(
-    "Asset '{asset_name}' not found in release '{tag}' for repo '{repo}'"
+  stop(
+    "Asset '", asset_name, "' not found in release '", tag, "' for repo '", repo, "'.",
+    call. = FALSE
   )
-  stop("", call. = FALSE)
 }
 
 
