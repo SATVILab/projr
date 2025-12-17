@@ -319,8 +319,8 @@ projr_build_dev <- function(file = NULL,
   }, error = function(e) {
     # Log the error
     .log_build_append(paste("ERROR:", e$message), "error")
-    # Re-throw the error
-    stop(e)
+    # Re-throw the error with proper message
+    stop(e$message, call. = FALSE)
   }, finally = {
     # Finalize log
     .log_build_finalize(build_success, time_start)
