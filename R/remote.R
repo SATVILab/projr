@@ -149,12 +149,13 @@
 #' @keywords internal
 #' @noRd
 .remote_ls_final <- function(type,
-                             remote_pre) {
+                             remote_pre,
+                             ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_ls_final_local(remote_pre),
     "osf" = .remote_ls_final_osf(remote_pre),
-    "github" = .remote_ls_final_github(remote_pre)
+    "github" = .remote_ls_final_github(remote_pre, ...)
   )
 }
 
