@@ -275,10 +275,10 @@
     hash_removed <- hash_pre[fn_vec_pre_lgl_removed, ]
   }
   list(
-    "fn_dest_extra" = hash_removed[["fn"]],
-    "fn_same" = hash_post_kept_unchanged[["fn"]],
-    "fn_diff" = hash_post_kept_changed[["fn"]],
-    "fn_source_extra" = hash_post_add[["fn"]]
+    "fn_dest_extra" = hash_removed[["fn"]] |> setdiff(""),
+    "fn_same" = hash_post_kept_unchanged[["fn"]] |> setdiff(""),
+    "fn_diff" = hash_post_kept_changed[["fn"]] |> setdiff(""),
+    "fn_source_extra" = hash_post_add[["fn"]] |> setdiff("")
   ) |>
     lapply(.filter_filter_non_na)
 }
