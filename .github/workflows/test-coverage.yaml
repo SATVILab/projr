@@ -14,7 +14,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_PAT: ${{ secrets.GH_TOKEN }}
       NOT_CRAN: true
-      R_PKG_TEST_LITE: true
+      R_PKG_TEST_LITE: false
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       # OSF_PAT: ${{ secrets.OSF_PAT }}
 
