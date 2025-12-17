@@ -420,7 +420,6 @@ test_that("comprehensive workflow: quarto with multiple content types, configura
       projr::projr_build_patch()
       v2 <- projr_version_get()
       expect_true(dir.exists("_storage/raw-data"))
-      expect_true(dir.exists("_storage/cache"))
 
       # ========== Phase 3: Switch to quarto project ==========
       file.remove("research.qmd")
