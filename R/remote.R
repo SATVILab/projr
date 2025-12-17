@@ -303,7 +303,8 @@
                                     path = NULL,
                                     path_append_label = TRUE,
                                     version = NULL,
-                                    output_level = "std") {
+                                    output_level = "std",
+                                    ...) {
   .cli_debug(
     "remote_final_empty_get: type={type}, label={label}, structure={structure}, version={version}",
     type = type,
@@ -340,7 +341,8 @@
       structure = structure,
       path = path,
       path_append_label = path_append_label,
-      version = version
+      version = version,
+      ...
     ),
     stop(paste0("type '", type, "' not recognized"))
   )
@@ -608,12 +610,13 @@
 #' @noRd
 .remote_final_rm_if_empty <- function(type,
                                       remote,
-                                      output_level = "std") {
+                                      output_level = "std",
+                                      ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_rm_if_empty_local(remote, output_level),
     "osf" = .remote_final_rm_if_empty_osf(remote, output_level),
-    "github" = .remote_final_rm_if_empty_github(remote, output_level)
+    "github" = .remote_final_rm_if_empty_github(remote, output_level, ...)
   )
 }
 
@@ -630,12 +633,13 @@
 #' @keywords internal
 #' @noRd
 .remote_rm <- function(type,
-                       remote) {
+                       remote,
+                       ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_rm_local(remote),
     "osf" = .remote_rm_osf(remote),
-    "github" = .remote_rm_github(remote)
+    "github" = .remote_rm_github(remote, ...)
   )
 }
 
@@ -645,7 +649,8 @@
 
 .remote_final_rm <- function(type,
                              remote,
-                             output_level = "std") {
+                             output_level = "std",
+                             ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_rm_local(
@@ -655,7 +660,7 @@
       remote = remote, output_level = output_level
     ),
     "github" = .remote_final_rm_github(
-      remote = remote, output_level = output_level
+      remote = remote, output_level = output_level, ...
     )
   )
 }
@@ -675,12 +680,13 @@
 #' @keywords internal
 #' @noRd
 .remote_final_get_info <- function(type,
-                                   remote_final) {
+                                   remote_final,
+                                   ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = NULL,
     "osf" = NULL,
-    "github" = .remote_final_get_info_github(remote_final)
+    "github" = .remote_final_get_info_github(remote_final, ...)
   )
 }
 
@@ -703,14 +709,16 @@
 #' @noRd
 .remote_final_empty <- function(type,
                                 remote,
-                                output_level = "std") {
+                                output_level = "std",
+                                ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_empty_local(remote),
     "osf" = .remote_final_empty_osf(remote),
     "github" = .remote_final_empty_github(
       remote,
-      output_level = output_level
+      output_level = output_level,
+      ...
     )
   )
 }
@@ -765,7 +773,8 @@
 #' @noRd
 .remote_file_get_all <- function(type,
                                  remote,
-                                 path_dir_save_local) {
+                                 path_dir_save_local,
+                                 ...) {
   .assert_string(path_dir_save_local, TRUE)
   .assert_in(type, .opt_remote_get_type(), TRUE)
   .dir_create(path_dir_save_local)
@@ -780,7 +789,8 @@
     ),
     "github" = .remote_file_get_all_github(
       remote = remote,
-      path_dir_save_local = path_dir_save_local
+      path_dir_save_local = path_dir_save_local,
+      ...
     )
   )
 }
@@ -901,7 +911,8 @@
                              remote,
                              path_dir_local,
                              fn,
-                             output_level = "std") {
+                             output_level = "std",
+                             ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
 
   .cli_debug(
@@ -925,7 +936,8 @@
       fn = fn,
       path_dir_local = path_dir_local,
       remote = remote,
-      output_level = output_level
+      output_level = output_level,
+      ...
     )
   )
 }
