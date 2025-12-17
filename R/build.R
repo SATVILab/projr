@@ -312,7 +312,7 @@ projr_build_dev <- function(file = NULL,
     .build_post(
       version_run_on_list, bump_component, msg, old_dev_remove,
       archive_github, archive_local, always_archive, clear_output, total_time,
-      output_level
+      file = file, output_level
     )
 
     build_success <- TRUE
@@ -465,13 +465,15 @@ projr_build_dev <- function(file = NULL,
                         always_archive,
                         clear_output,
                         total_time,
+                        file = NULL,
                         output_level = "std") {
   output_run <- .build_get_output_run(bump_component)
 
   # move artefacts to unsafe, final directories
   .cli_step("Finalizing build artifacts", output_level = output_level)
   .build_post_finalise_artefacts(
-    bump_component, version_run_on_list, clear_output, output_level
+    bump_component, version_run_on_list, clear_output,
+    file = file, output_level
   )
 
   # update documentation
@@ -556,6 +558,7 @@ projr_build_dev <- function(file = NULL,
 .build_post_finalise_artefacts <- function(bump_component,
                                            version_run_on_list,
                                            clear_output,
+                                           file = NULL,
                                            output_level = "std") {
   output_run <- .build_get_output_run(bump_component)
   .cli_debug("Clearing safe directories (if needed)", output_level = output_level)
@@ -563,7 +566,7 @@ projr_build_dev <- function(file = NULL,
 
   # copy outputs to (final) output and data directories
   .cli_debug("Copying outputs and docs to final directories", output_level = output_level)
-  .build_copy(output_run, bump_component, version_run_on_list)
+  .build_copy(output_run, bump_component, version_run_on_list, file = file)
 }
 
 # record (version, rmd, git)

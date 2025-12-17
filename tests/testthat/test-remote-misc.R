@@ -60,6 +60,7 @@ test_that(".remote_ls_dest returns github when github destination configured", {
 test_that(".remote_ls_dest returns osf when osf destination configured", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  skip_if(.is_test_osf())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
 
   usethis::with_project(
@@ -83,6 +84,7 @@ test_that(".remote_ls_dest returns osf when osf destination configured", {
 test_that(".remote_ls_dest returns multiple remotes when both configured", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  skip_if(.is_test_osf())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
 
   usethis::with_project(
@@ -381,6 +383,7 @@ test_that(".remote_ls combines source, dest, and git push remotes", {
 test_that(".remote_ls returns unique remotes when duplicates present", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  skip_if(.is_test_osf())
   skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
 
   usethis::with_project(

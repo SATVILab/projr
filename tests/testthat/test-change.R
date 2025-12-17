@@ -1,7 +1,7 @@
 test_that(".change_get_manifest works", {
   skip_if(.is_test_cran())
-  skip("Test needs rework - .change_get_manifest not designed for project vs project comparison")
   skip_if(.is_test_select())
+  skip("Test needs rework - .change_get_manifest not designed for project vs project comparison")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
@@ -649,6 +649,44 @@ test_that(".change_get_check handles edge cases", {
         path_dir_local = NULL,
         inspect = "file"
       ))
+    }
+  )
+})
+
+test_that(".change_get_file_dir_github resolves @version placeholder", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      projr_version_set("0.0.1")
+
+      # Create a mock remote object with @version placeholder
+      remote_with_placeholder <- c(tag = "@version", fn = "code-v0.0.1.zip")
+
+      # Mock .remote_file_get_all to verify the tag is resolved
+      original_remote_file_get_all <- .remote_file_get_all
+      mock_remote_file_get_all <- function(type, remote, path_dir_save_local) {
+        # Verify that the tag has been resolved to actual version
+        expect_identical(remote[["tag"]], "v0.0.1")
+        expect_identical(remote[["fn"]], "code-v0.0.1.zip")
+        # Return the path
+        path_dir_save_local
+      }
+
+      # Temporarily replace the function
+      assignInNamespace(".remote_file_get_all", mock_remote_file_get_all, "projr")
+
+      # Call the function
+      result <- .change_get_file_dir_github(remote_with_placeholder)
+
+      # Restore the original function
+      assignInNamespace(".remote_file_get_all", original_remote_file_get_all, "projr")
+
+      # Verify result is a directory path
+      expect_true(is.character(result))
+      expect_identical(length(result), 1L)
     }
   )
 })
