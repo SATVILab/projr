@@ -781,7 +781,7 @@ test_that(".init_usethis_std sets project correctly", {
       .init_usethis_std()
 
       # Verify project was set
-      current_proj <- try(usethis::proj_get(), silent = TRUE)
+      current_proj <- try(invisible(usethis::proj_get()), silent = TRUE)
       expect_true(!inherits(current_proj, "try-error"))
       expect_identical(normalizePath(current_proj), normalizePath(dir_test))
     },

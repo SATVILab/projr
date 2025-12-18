@@ -125,7 +125,7 @@
   descrptn$write(file = .path_get("DESCRIPTION"))
   desc::desc_normalize(.path_get("DESCRIPTION"))
   .dep_install_only("usethis")
-  usethis::proj_activate(.path_get())
+  usethis::proj_set(.path_get())
   usethis::use_roxygen_md()
   invisible(TRUE)
 }
@@ -701,7 +701,7 @@ projr_init_renviron <- function() {
   }
   root <- switch(scope,
     user = fs::path_home_r(),
-    project = usethis::proj_get()
+    project = invisible(usethis::proj_get())
   )
   fs::path(root, ...)
 }
