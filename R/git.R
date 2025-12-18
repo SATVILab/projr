@@ -208,7 +208,9 @@
 }
 
 # initialisation
- 
+.git_init_git <- function() {
+  system2("git", args = "init", stdout = TRUE)
+}
 
 .git_init_gert <- function() {
   gert::git_init(path = .path_get())
