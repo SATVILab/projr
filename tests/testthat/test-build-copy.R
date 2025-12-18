@@ -154,7 +154,7 @@ test_that("projr_build_copy_pkg works", {
 test_that("projr_build_copy_dir works when outputting", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("report"))
+  dir_test <- .dir_get_tmp_random_path()
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .dir_create(dir_test)
   .test_set()
@@ -442,7 +442,7 @@ test_that(".build_copy_dir works with non-standard label names", {
 test_that("projr_build_frontmatter_get works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
+  dir_test <- .dir_get_tmp_random_path()
 
   .dir_create(dir_test)
   withr::defer(.test_unset())
@@ -532,7 +532,7 @@ test_that("projr_build_frontmatter_get works", {
 test_that(".build_copy_docs_quarto_format_get works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
+  dir_test <- .dir_get_tmp_random_path()
 
   .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -611,7 +611,7 @@ test_that(".build_copy_docs_quarto_format_get works", {
 test_that(".build_copy_docs_quarto_fn_prefix/suffix/path_get works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
+  dir_test <- .dir_get_tmp_random_path()
 
   .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -677,7 +677,7 @@ test_that(".build_copy_docs_quarto_fn_prefix/suffix/path_get works", {
 test_that(".build_copy_docs_quarto_format_get works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
+  dir_test <- .dir_get_tmp_random_path()
 
   .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -747,7 +747,7 @@ test_that(".build_copy_docs_quarto_format_get works", {
 test_that(".build_copy_docs_rmd_format_get works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
+  dir_test <- .dir_get_tmp_random_path()
 
   .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -836,7 +836,7 @@ test_that(".build_copy_docs_rmd_format_get works", {
 test_that(".build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
+  dir_test <- .dir_get_tmp_random_path()
 
   .dir_create(dir_test)
 
@@ -897,7 +897,7 @@ test_that(".build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
 test_that(".build_copy_docs_rmd_format_get works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
+  dir_test <- .dir_get_tmp_random_path()
 
   .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -1018,7 +1018,7 @@ test_that(".build_engine works", {
 test_that("CHANGELOG.md is excluded from docs copying", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr_changelog"))
+  dir_test <- .dir_get_tmp_random_path()
 
   .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))

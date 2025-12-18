@@ -37,7 +37,7 @@
 .test_setup_project_dir <- function(base_name, env) {
   # set up directory
   base_name <- .test_setup_project_basename(base_name)
-  path_dir_test <- file.path(tempdir(), paste0(base_name))
+  path_dir_test <- .dir_get_tmp_random_path()
   if (dir.exists(path_dir_test)) {
     unlink(path_dir_test, recursive = TRUE)
   }

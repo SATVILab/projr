@@ -1,7 +1,7 @@
 test_that("basic yml functions work", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
+  dir_test <- .dir_get_tmp_random_path()
   withr::defer(unlink(dir_test, recursive = TRUE))
   .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
