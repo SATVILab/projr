@@ -75,7 +75,7 @@ test_that("projr_restore_repo validates path parameter correctly", {
   expect_error(
     projr_restore_repo(repo = "test/repo", path = NULL),
     NA,
-    class = "error"  # Expect some error (likely git clone), but not validation error
+    class = "error" # Expect some error (likely git clone), but not validation error
   )
 })
 
@@ -429,7 +429,7 @@ test_that("projr_restore_repo handles pos with both source and dest", {
       )
     ),
     NA,
-    class = "error"  # Some error expected (clone), but not validation
+    class = "error" # Some error expected (clone), but not validation
   )
 })
 
@@ -449,7 +449,7 @@ test_that("projr_restore_repo handles valid type values", {
         )
       ),
       NA,
-      class = "error"  # Some error expected (clone), but not validation
+      class = "error" # Some error expected (clone), but not validation
     )
   }
 })
@@ -473,7 +473,7 @@ test_that("projr_restore_repo validates all parameters together", {
       )
     ),
     NA,
-    class = "error"  # Some error expected (clone), but not validation
+    class = "error" # Some error expected (clone), but not validation
   )
 })
 

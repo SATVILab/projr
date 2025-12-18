@@ -425,28 +425,28 @@ test_that(".auth_get_github_pat_find respects control parameters", {
 test_that(".test_can_modify_github returns FALSE when GITHUB_TOKEN equals GITHUB_PAT", {
   skip_if(.is_test_select())
   skip_if(.is_test_cran())
-  
+
   # Save originals
   old_github_pat <- Sys.getenv("GITHUB_PAT", unset = "")
   old_github_token <- Sys.getenv("GITHUB_TOKEN", unset = "")
-  
+
   on.exit({
     if (nzchar(old_github_pat)) Sys.setenv(GITHUB_PAT = old_github_pat) else Sys.unsetenv("GITHUB_PAT")
     if (nzchar(old_github_token)) Sys.setenv(GITHUB_TOKEN = old_github_token) else Sys.unsetenv("GITHUB_TOKEN")
   })
-  
+
   # Test when both are the same (CI scenario)
   Sys.setenv(GITHUB_TOKEN = "test_token")
   Sys.setenv(GITHUB_PAT = "test_token")
   result <- .test_can_modify_github()
   expect_false(result)
-  
+
   # Test when both are empty
   Sys.setenv(GITHUB_TOKEN = "")
   Sys.setenv(GITHUB_PAT = "")
   result <- .test_can_modify_github()
   expect_false(result)
-  
+
   # Test when only GITHUB_TOKEN is set
   Sys.setenv(GITHUB_TOKEN = "test_token")
   Sys.unsetenv("GITHUB_PAT")
@@ -457,23 +457,23 @@ test_that(".test_can_modify_github returns FALSE when GITHUB_TOKEN equals GITHUB
 test_that(".test_can_modify_github returns FALSE when no token available", {
   skip_if(.is_test_select())
   skip_if(.is_test_cran())
-  
+
   # Save originals
   old_github_pat <- Sys.getenv("GITHUB_PAT", unset = "")
   old_gh_token <- Sys.getenv("GH_TOKEN", unset = "")
   old_github_token <- Sys.getenv("GITHUB_TOKEN", unset = "")
-  
+
   on.exit({
     if (nzchar(old_github_pat)) Sys.setenv(GITHUB_PAT = old_github_pat) else Sys.unsetenv("GITHUB_PAT")
     if (nzchar(old_gh_token)) Sys.setenv(GH_TOKEN = old_gh_token) else Sys.unsetenv("GH_TOKEN")
     if (nzchar(old_github_token)) Sys.setenv(GITHUB_TOKEN = old_github_token) else Sys.unsetenv("GITHUB_TOKEN")
   })
-  
+
   # Unset all tokens
   Sys.unsetenv("GITHUB_PAT")
   Sys.unsetenv("GH_TOKEN")
   Sys.unsetenv("GITHUB_TOKEN")
-  
+
   result <- .test_can_modify_github()
   expect_false(result)
 })

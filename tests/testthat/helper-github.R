@@ -67,7 +67,7 @@
 }
 
 # Create a GitHub repository for testing
-# 
+#
 # @param user GitHub username (optional - will be retrieved if NULL)
 # @param repo Repository name (required)
 # @param env Environment for calling function
@@ -111,11 +111,11 @@
   }
   .dep_install_only("gh")
   .dep_install_only("httr")
-  
+
   # Get token first to use in gh_whoami if needed
   token <- .auth_get_github_pat_find()
   if (!nzchar(token)) stop("No GitHub token found")
-  
+
   # Try to get user if not provided
   if (is.null(user)) {
     user <- tryCatch(
