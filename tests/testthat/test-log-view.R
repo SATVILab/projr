@@ -1,5 +1,4 @@
 # Test projr_log_view function
-
 test_that("projr_log_view displays most recent log by default", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())

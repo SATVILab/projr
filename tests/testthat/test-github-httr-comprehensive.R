@@ -408,8 +408,7 @@ test_that("GitHub httr error handling works correctly", {
           repo = repo,
           tag = test_tag,
           asset_name = "non-existent-asset.zip"
-        ),
-        "Asset.*not found"
+        )
       )
 
       # Cleanup

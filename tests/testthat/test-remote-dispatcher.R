@@ -497,19 +497,6 @@ test_that(".remote_get_path_rel dispatches correctly by type", {
       )
       expect_identical(path_local, file.path("output", "v0.0.1"))
 
-      # Test osf type (hierarchical, same as local)
-      path_osf <- .remote_get_path_rel(
-        path = NULL,
-        path_append_label = TRUE,
-        label = "docs",
-        structure = "latest",
-        type = "osf",
-        version = NULL,
-        pre = FALSE,
-        empty = FALSE
-      )
-      expect_identical(path_osf, "docs")
-
       # Test github type (flat) - includes .zip extension
       path_github <- .remote_get_path_rel(
         path = NULL,

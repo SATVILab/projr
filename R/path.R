@@ -242,6 +242,7 @@
     .file_filter_dir() |>
     .file_filter_exists() |>
     fs::path_real() |>
+    fs::path_abs() |>
     as.character() |>
     unique()
 }

@@ -269,7 +269,10 @@
   )
 
   if (length(asset_list) == 0L) {
-    stop("No assets found in release '", tag, "' for repo '", repo, "'.", call. = FALSE) # nolint
+    stop(
+      "No assets found in release '", tag,
+      "' for repo '", repo, "'.", call. = FALSE
+    )
   }
 
   for (asset in asset_list) {

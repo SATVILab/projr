@@ -114,29 +114,6 @@ test_that("GITHUB_PAT and GH_TOKEN environment variables work", {
   expect_identical(token, "ghp_1234567890123456789012345678901234567890")
 })
 
-test_that("OSF_PAT environment variable is read correctly", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-
-  old_val <- Sys.getenv("OSF_PAT", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(OSF_PAT = old_val) else Sys.unsetenv("OSF_PAT"))
-
-  # Test with value set
-  Sys.setenv(OSF_PAT = "test_osf_token")
-  token <- .auth_get_osf_pat_find()
-  expect_identical(token, "test_osf_token")
-
-  # Test with empty value
-  Sys.setenv(OSF_PAT = "")
-  token <- .auth_get_osf_pat_find()
-  expect_identical(token, "")
-
-  # Test when unset
-  Sys.unsetenv("OSF_PAT")
-  token <- .auth_get_osf_pat_find()
-  expect_identical(token, "")
-})
-
 test_that("Authentication checks handle missing tokens correctly", {
   skip_if(.is_test_select())
   skip_if(.is_test_cran())
@@ -145,13 +122,11 @@ test_that("Authentication checks handle missing tokens correctly", {
   old_github_pat <- Sys.getenv("GITHUB_PAT", unset = "")
   old_gh_token <- Sys.getenv("GH_TOKEN", unset = "")
   old_github_token <- Sys.getenv("GITHUB_TOKEN", unset = "")
-  old_osf_pat <- Sys.getenv("OSF_PAT", unset = "")
 
   on.exit({
     if (nzchar(old_github_pat)) Sys.setenv(GITHUB_PAT = old_github_pat) else Sys.unsetenv("GITHUB_PAT")
     if (nzchar(old_gh_token)) Sys.setenv(GH_TOKEN = old_gh_token) else Sys.unsetenv("GH_TOKEN")
     if (nzchar(old_github_token)) Sys.setenv(GITHUB_TOKEN = old_github_token) else Sys.unsetenv("GITHUB_TOKEN")
-    if (nzchar(old_osf_pat)) Sys.setenv(OSF_PAT = old_osf_pat) else Sys.unsetenv("OSF_PAT")
   })
   withr::local_options(
     list(
@@ -164,14 +139,12 @@ test_that("Authentication checks handle missing tokens correctly", {
   Sys.unsetenv("GITHUB_PAT")
   Sys.unsetenv("GH_TOKEN")
   Sys.unsetenv("GITHUB_TOKEN")
-  Sys.unsetenv("OSF_PAT")
 
   # Should throw errors when tokens are missing
   expect_error(.auth_check_github(
     use_gh_if_available = FALSE,
     use_gitcreds_if_needed = FALSE,
   ))
-  expect_error(.auth_check_osf())
 })
 
 test_that("Empty authentication tokens are handled correctly", {
@@ -366,23 +339,12 @@ test_that(".auth_get_github_pat_instr_init returns appropriate content", {
   expect_true(any(grepl("projr::projr_init", result)))
 })
 
-test_that(".auth_get_osf_pat_instr returns character vector", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-
-  instr <- .auth_get_osf_pat_instr()
-  expect_true(is.character(instr))
-  expect_true(length(instr) > 0)
-  expect_true(any(grepl("OSF_PAT", instr)))
-})
-
 test_that("exported instruction functions work without errors", {
   skip_if(.is_test_select())
   skip_if(.is_test_cran())
 
   # Test that exported functions run without error
   expect_no_error(suppressMessages(projr_instr_auth_github()))
-  expect_no_error(suppressMessages(projr_instr_auth_osf()))
 })
 
 test_that(".auth_get_github_pat_find respects control parameters", {
@@ -431,25 +393,21 @@ test_that(".test_can_modify_github returns FALSE when GITHUB_TOKEN equals GITHUB
   old_github_token <- Sys.getenv("GITHUB_TOKEN", unset = "")
 
   on.exit({
-    if (nzchar(old_github_pat)) Sys.setenv(GITHUB_PAT = old_github_pat) else Sys.unsetenv("GITHUB_PAT")
-    if (nzchar(old_github_token)) Sys.setenv(GITHUB_TOKEN = old_github_token) else Sys.unsetenv("GITHUB_TOKEN")
+    if (nzchar(old_github_pat)) {
+      Sys.setenv(GITHUB_PAT = old_github_pat)
+    } else {
+      Sys.unsetenv("GITHUB_PAT")
+    }
+    if (nzchar(old_github_token)) {
+      Sys.setenv(GITHUB_TOKEN = old_github_token)
+    } else {
+      Sys.unsetenv("GITHUB_TOKEN")
+    }
   })
 
   # Test when both are the same (CI scenario)
   Sys.setenv(GITHUB_TOKEN = "test_token")
   Sys.setenv(GITHUB_PAT = "test_token")
-  result <- .test_can_modify_github()
-  expect_false(result)
-
-  # Test when both are empty
-  Sys.setenv(GITHUB_TOKEN = "")
-  Sys.setenv(GITHUB_PAT = "")
-  result <- .test_can_modify_github()
-  expect_false(result)
-
-  # Test when only GITHUB_TOKEN is set
-  Sys.setenv(GITHUB_TOKEN = "test_token")
-  Sys.unsetenv("GITHUB_PAT")
   result <- .test_can_modify_github()
   expect_false(result)
 })

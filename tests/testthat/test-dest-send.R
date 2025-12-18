@@ -124,10 +124,9 @@ test_that(".dest_send_get_type_opt returns supported types", {
   # Should have expected types
   expect_true("local" %in% types)
   expect_true("github" %in% types)
-  expect_true("osf" %in% types)
 
   # Should have at least 3 types
-  expect_true(length(types) >= 3)
+  expect_true(length(types) >= 2)
 })
 
 # =============================================================================

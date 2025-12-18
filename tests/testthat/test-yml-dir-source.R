@@ -17,7 +17,7 @@ test_that(".yml_dir_get_source works with no source configured", {
       expect_true(is.null(source_val))
     }
   )
-})
+})  
 
 test_that(".yml_dir_get_source works with configured source", {
   skip_if(.is_test_cran())
@@ -96,35 +96,6 @@ test_that(".yml_dir_set_source sets source configuration", {
   )
 })
 
-test_that(".yml_dir_set_source removes source when set to NULL", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # First set a source
-      yml_source <- list(
-        osf = list(
-          osf = list(
-            id = "abc123"
-          )
-        )
-      )
-
-      .yml_dir_set_source(yml_source, "cache", "default")
-      source_val <- .yml_dir_get_source("cache", "default")
-      expect_false(is.null(source_val))
-
-      # Now set to NULL to remove
-      .yml_dir_set_source(NULL, "cache", "default")
-      source_val <- .yml_dir_get_source("cache", "default")
-      expect_true(is.null(source_val))
-    }
-  )
-})
-
 test_that(".yml_dir_set_source removes source when set to empty list", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -169,11 +140,6 @@ test_that(".yml_dir_set_source works with multiple remote types", {
             id = "v1.0.0"
           )
         ),
-        osf = list(
-          osf = list(
-            id = "xyz789"
-          )
-        ),
         local = list(
           local = list(
             path = "/backup/data"
@@ -186,7 +152,6 @@ test_that(".yml_dir_set_source works with multiple remote types", {
       # Verify all types are set
       source_val <- .yml_dir_get_source("raw-data", "default")
       expect_true("github" %in% names(source_val))
-      expect_true("osf" %in% names(source_val))
       expect_true("local" %in% names(source_val))
     }
   )
@@ -221,34 +186,6 @@ test_that(".yml_dir_get_source_type works with valid github type", {
   )
 })
 
-test_that(".yml_dir_get_source_type works with valid osf type", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Set up OSF source
-      yml_source <- list(
-        osf = list(
-          osf = list(
-            id = "def456",
-            structure = "latest"
-          )
-        )
-      )
-
-      .yml_dir_set_source(yml_source, "raw-data", "default")
-
-      # Get source type
-      source_type <- .yml_dir_get_source_type("osf", "raw-data", "default")
-      expect_false(is.null(source_type))
-      expect_identical(source_type$id, "def456")
-      expect_identical(source_type$structure, "latest")
-    }
-  )
-})
 
 test_that(".yml_dir_get_source_type works with valid local type", {
   skip_if(.is_test_cran())
@@ -291,9 +228,6 @@ test_that(".yml_dir_get_source_type returns NULL when source not configured", {
       source_type <- .yml_dir_get_source_type("github", "output", "default")
       expect_true(is.null(source_type))
 
-      source_type <- .yml_dir_get_source_type("osf", "raw-data", "default")
-      expect_true(is.null(source_type))
-
       source_type <- .yml_dir_get_source_type("local", "cache", "default")
       expect_true(is.null(source_type))
     }
@@ -319,9 +253,6 @@ test_that(".yml_dir_get_source_type returns NULL when type not in source", {
 
       .yml_dir_set_source(yml_source, "output", "default")
 
-      # Request different types
-      source_type <- .yml_dir_get_source_type("osf", "output", "default")
-      expect_true(is.null(source_type))
 
       source_type <- .yml_dir_get_source_type("local", "output", "default")
       expect_true(is.null(source_type))
@@ -345,7 +276,7 @@ test_that(".yml_dir_get_source_type validates type parameter", {
 
       # Multiple values for type
       expect_error(
-        .yml_dir_get_source_type(c("github", "osf"), "output", "default"),
+        .yml_dir_get_source_type(c("github"), "output", "default"),
         "must be a non-empty string"
       )
 
@@ -465,8 +396,8 @@ test_that(".yml_dir_set_source works with different profiles", {
       )
 
       yml_source_test <- list(
-        osf = list(
-          osf = list(id = "test123")
+        local = list(
+          local = list(id = "test123")
         )
       )
 
@@ -476,11 +407,11 @@ test_that(".yml_dir_set_source works with different profiles", {
       # Verify sources are different in each profile
       source_default <- .yml_dir_get_source("raw-data", "default")
       expect_true("github" %in% names(source_default))
-      expect_false("osf" %in% names(source_default))
+      expect_false("local" %in% names(source_default))
 
       source_test <- .yml_dir_get_source("raw-data", "test-profile")
       expect_false("github" %in% names(source_test))
-      expect_true("osf" %in% names(source_test))
+      expect_true("local" %in% names(source_test))
     }
   )
 })
