@@ -273,12 +273,12 @@
 
 .git_get_tracked <- function(path) {
   # Retrieve a list of tracked files within the specified path
-  fn_vec <- system2(
+  fn_vec <- suppressWarnings(system2(
     "git",
     args = c("ls-files", "--", path),
     stdout = TRUE,
     stderr = FALSE
-  )
+  ))
 
   if (length(fn_vec) == 0L) {
     return(character(0L))
@@ -290,12 +290,12 @@
 
 .git_get_skipped <- function(path) {
   # Retrieve a list of files with skip-worktree set within the specified path
-  fn_vec <- system2(
+  fn_vec <- suppressWarnings(system2(
     "git",
     args = c("ls-files", "-v", "--", path),
     stdout = TRUE,
     stderr = FALSE
-  )
+  ))
 
   if (length(fn_vec) == 0L) {
     return(character(0L))

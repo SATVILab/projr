@@ -720,12 +720,12 @@
 .git_untracked_not_ignored_get_git <- function() {
   # Get all untracked files (not ignored by default)
   # Using --others --exclude-standard shows untracked files not in .gitignore
-  git_output <- system2(
+  git_output <- suppressWarnings(system2(
     "git",
     args = c("ls-files", "--others", "--exclude-standard"),
     stdout = TRUE,
     stderr = FALSE
-  )
+  ))
 
   if (length(git_output) == 0) {
     return(character(0))

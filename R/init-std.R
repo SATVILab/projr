@@ -589,7 +589,7 @@ projr_init_github <- function(username = NULL,
   if (is.null(name_cfg) || name_cfg == "") {
     if (Sys.getenv("GITHUB_ACTIONS") == "true") {
       gert::git_config_global_set("user.name", "GitHub Actions")
-    } else if (!interactive()) {
+    } else if (!interactive() || .is_test()) {
       .cli_info("Git user name not set and in non-interactive mode.")
       user_name <- paste0(Sys.info()[["user"]], "_", Sys.info()[["node_name"]])
       .cli_info("Using system user name and node name: {user_name}")
@@ -616,7 +616,7 @@ projr_init_github <- function(username = NULL,
   if (is.null(email_cfg) || email_cfg == "") {
     if (Sys.getenv("GITHUB_ACTIONS") == "true") {
       gert::git_config_global_set("user.email", "filler-email@projr-test.com")
-    } else if (!interactive()) {
+    } else if (!interactive() || .is_test()) {
       .cli_info("Git user email not set and in non-interactive mode.")
       user_email <- paste0(
         Sys.info()[["user"]], "_", Sys.info()[["node_name"]], "@projr-test.com"
