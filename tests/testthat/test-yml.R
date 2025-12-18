@@ -69,7 +69,6 @@ test_that("projr_yml_check works", {
 test_that("projr_yml_dest_add_* functions work", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
   skip_if(!.is_string(.auth_get_github_pat_find()), "GITHUB_PAT not available")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -81,15 +80,6 @@ test_that("projr_yml_dest_add_* functions work", {
       )
       expect_true(!is.null(.yml_dest_get_type("local", "default")))
 
-      projr_yml_dest_add_osf(
-        title = "test", content = "raw-data", category = "project"
-      )
-      expect_true(!is.null(.yml_dest_get_type("osf", "default")))
-      expect_true(
-        .is_string(
-          .yml_dest_get_type("osf", "default")[["test"]][["id"]]
-        )
-      )
       projr_yml_dest_add_github(
         title = "test", content = "raw-data"
       )

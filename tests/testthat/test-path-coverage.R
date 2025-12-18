@@ -373,8 +373,8 @@ test_that(".dir_filter_removable works correctly", {
 
       # Project directory should not be removable
       # Normalize paths before comparison to handle symlinks/path variations
-      expect_false(normalizePath(dir_test, winslash = "/") %in% 
-                   normalizePath(.dir_filter_removable(dir_test), winslash = "/"))
+      expect_false(normalizePath(dir_test, winslash = "/") %in%
+        normalizePath(.dir_filter_removable(dir_test), winslash = "/"))
 
       # . and .. should not be removable
       expect_length(.dir_filter_removable(c(".", "..")), 0)

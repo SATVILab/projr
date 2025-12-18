@@ -569,19 +569,12 @@ projr_use_data <- function(...,
 # options
 # -------
 
-.opt_remote_get_osf_cat <- function() {
-  c(
-    "analysis", "communication", "data", "hypothesis", "methods",
-    "procedure", "project", "question", "other"
-  )
-}
-
 .opt_remote_get_structure <- function() {
   c("archive", "latest")
 }
 
 .opt_remote_get_type <- function() {
-  c("local", "osf", "github")
+  c("local", "github")
 }
 
 .opt_dir_get_label <- function(profile) {

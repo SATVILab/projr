@@ -342,9 +342,6 @@
     switch(remote_vec[[i]],
       "github" = {
         if (!.git_gh_check_auth()) stop()
-      },
-      "osf" = {
-        if (!nzchar(.auth_get_osf_pat())) stop()
       }
     )
   }

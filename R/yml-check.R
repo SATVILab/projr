@@ -144,6 +144,7 @@ projr_yml_check <- function(profile = NULL) {
 .yml_build_check <- function(profile) {
   .yml_build_check_label(profile)
   .yml_build_check_git(profile)
+  .yml_build_check_renv(profile)
   .yml_build_check_dest(profile)
 }
 
@@ -159,8 +160,8 @@ projr_yml_check <- function(profile = NULL) {
   .assert_in(
     nm_vec,
     c(
-      "dev-output", "script", "hooks", "scripts", "git",
-      "github", "package", "local", "osf", "cite", "restrictions"
+      "hooks", "scripts", "git",
+      "github", "package", "local", "cite", "restrictions", "renv"
     )
   )
   .assert_flag(.yml_build_get_dev_output(profile))
@@ -184,6 +185,18 @@ projr_yml_check <- function(profile = NULL) {
   if ("push" %in% names(yml_git)) {
     .assert_flag(yml_git[["push"]])
   }
+  invisible(TRUE)
+}
+
+# build: renv
+# ----------------------
+
+.yml_build_check_renv <- function(profile) {
+  yml_renv <- .yml_build_get(profile)[["renv"]]
+  if (is.null(yml_renv)) {
+    return(invisible(TRUE))
+  }
+  .assert_flag(yml_renv)
   invisible(TRUE)
 }
 
@@ -212,7 +225,6 @@ projr_yml_check <- function(profile = NULL) {
   .assert_in(yml_title[["structure"]], .opt_remote_get_structure())
   .assert_string(yml_title[["path"]], type == "local")
   .assert_flag(yml_title[["path-append-label"]])
-  .assert_string(yml_title[["id"]], type == "osf")
   .assert_nchar(yml_title[["id"]], 5L)
   if ("get" %in% names(yml_title)) {
     get_list <- yml_title[["get"]]

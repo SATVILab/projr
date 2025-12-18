@@ -133,7 +133,7 @@
 #' @keywords internal
 #' @noRd
 .dest_send_get_type_opt <- function() {
-  c("local", "github", "osf")
+  c("local", "github")
 }
 
 #' @title Resolve archive behavior for a remote type

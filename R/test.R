@@ -98,10 +98,3 @@
 .is_test_debug <- function() {
   .is_test_lite()
 }
-
-# Check if OSF tests should be skipped
-# OSF tests are ALWAYS skipped - they should never run
-# This function always returns TRUE to permanently disable OSF tests
-.is_test_osf <- function() {
-  TRUE
-}

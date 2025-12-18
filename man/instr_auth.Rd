@@ -2,15 +2,12 @@
 % Please edit documentation in R/auth.R
 \name{projr_instr_auth_github}
 \alias{projr_instr_auth_github}
-\alias{projr_instr_auth_osf}
 \title{Two-minutes or less authorisation instructions}
 \usage{
 projr_instr_auth_github()
-
-projr_instr_auth_osf()
 }
 \description{
-.instr_auth_github\verb{ and .instr_auth_osf} print easy-to-follow,
+Print easy-to-follow,
 step-by-step instructions for authorisation
-to GitHub and OSF.
+to GitHub.
 }

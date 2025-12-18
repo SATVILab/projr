@@ -1416,10 +1416,13 @@ test_that(".remote_file_get_local handles empty remotes", {
       # Create a remote with -empty suffix
       remote_dir <- file.path(tempdir(), "test-remote-empty")
       save_dir <- .dir_create_tmp_random()
-      on.exit({
-        unlink(remote_dir, recursive = TRUE)
-        unlink(save_dir, recursive = TRUE)
-      }, add = TRUE)
+      on.exit(
+        {
+          unlink(remote_dir, recursive = TRUE)
+          unlink(save_dir, recursive = TRUE)
+        },
+        add = TRUE
+      )
 
       # Try to get file from empty remote
       result <- .remote_file_get("local", remote_dir, "file.txt", save_dir)
@@ -1478,10 +1481,13 @@ test_that(".remote_file_add_local handles empty file list", {
       # Create directories
       source_dir <- .dir_create_tmp_random()
       remote_dir <- .dir_create_tmp_random()
-      on.exit({
-        unlink(source_dir, recursive = TRUE)
-        unlink(remote_dir, recursive = TRUE)
-      }, add = TRUE)
+      on.exit(
+        {
+          unlink(source_dir, recursive = TRUE)
+          unlink(remote_dir, recursive = TRUE)
+        },
+        add = TRUE
+      )
 
       # Try to add with empty file list
       result <- .remote_file_add("local", remote_dir, source_dir, character(0L))
