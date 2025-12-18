@@ -75,7 +75,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   }
 
   # If interactive, ask user if they want to install
-  if (interactive()) {
+  if (interactive() || !.is_test()) {
     return(.dep_install_only_interactive(dep_required))
   }
 
