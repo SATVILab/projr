@@ -144,6 +144,7 @@ projr_yml_check <- function(profile = NULL) {
 .yml_build_check <- function(profile) {
   .yml_build_check_label(profile)
   .yml_build_check_git(profile)
+  .yml_build_check_renv(profile)
   .yml_build_check_dest(profile)
 }
 
@@ -160,7 +161,7 @@ projr_yml_check <- function(profile = NULL) {
     nm_vec,
     c(
       "dev-output", "script", "hooks", "scripts", "git",
-      "github", "package", "local", "osf", "cite", "restrictions"
+      "github", "package", "local", "osf", "cite", "restrictions", "renv"
     )
   )
   .assert_flag(.yml_build_get_dev_output(profile))
@@ -184,6 +185,18 @@ projr_yml_check <- function(profile = NULL) {
   if ("push" %in% names(yml_git)) {
     .assert_flag(yml_git[["push"]])
   }
+  invisible(TRUE)
+}
+
+# build: renv
+# ----------------------
+
+.yml_build_check_renv <- function(profile) {
+  yml_renv <- .yml_build_get(profile)[["renv"]]
+  if (is.null(yml_renv)) {
+    return(invisible(TRUE))
+  }
+  .assert_flag(yml_renv)
   invisible(TRUE)
 }
 

@@ -99,7 +99,9 @@ test_that(".retry_with_backoff calls on_retry callback", {
   result <- .retry_with_backoff(
     fn = function() {
       counter <<- counter + 1
-      if (counter < 3) return(FALSE)
+      if (counter < 3) {
+        return(FALSE)
+      }
       TRUE
     },
     max_attempts = 5,
@@ -127,7 +129,9 @@ test_that(".retry_with_backoff uses error_classifier", {
   result <- .retry_with_backoff(
     fn = function() {
       counter <<- counter + 1
-      if (counter < 3) return(list(error = "temporary"))
+      if (counter < 3) {
+        return(list(error = "temporary"))
+      }
       list(success = TRUE)
     },
     max_attempts = 5,
@@ -163,7 +167,9 @@ test_that(".retry_with_backoff applies exponential backoff", {
         delays <<- c(delays, current_time - last_time)
         last_time <<- current_time
       }
-      if (counter < 4) return(FALSE)
+      if (counter < 4) {
+        return(FALSE)
+      }
       TRUE
     },
     max_attempts = 4,
@@ -204,7 +210,9 @@ test_that(".retry_with_backoff respects max_delay", {
         delays <<- c(delays, current_time - last_time)
         last_time <<- current_time
       }
-      if (counter < 4) return(FALSE)
+      if (counter < 4) {
+        return(FALSE)
+      }
       TRUE
     },
     max_attempts = 4,
@@ -233,7 +241,9 @@ test_that(".retry_with_backoff with initial_delay of 0 starts immediately", {
   result <- .retry_with_backoff(
     fn = function() {
       counter <<- counter + 1
-      if (counter < 2) return(FALSE)
+      if (counter < 2) {
+        return(FALSE)
+      }
       TRUE
     },
     max_attempts = 3,

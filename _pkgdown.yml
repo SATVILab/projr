@@ -102,6 +102,7 @@ reference:
   - projr_yml_check
   - projr_yml_git_set
   - projr_yml_git_set_default
+  - projr_yml_renv_set
   - projr_yml_cite_set
   - projr_yml_cite_set_default
   - projr_yml_dir_path_set
