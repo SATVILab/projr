@@ -344,7 +344,6 @@ test_that(".yml_dir_check_label_ignore validates ignore settings", {
 })
 
 
-
 test_that(".yml_dir_check_label_output validates output settings", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -625,23 +624,23 @@ test_that(".yml_scripts_hooks_check_exist validates file existence", {
 
       # Missing build hook should fail
       yml <- .yml_get("default")
-      yml[["build"]][["scripts"]] <- NULL  # Clear previous scripts
+      yml[["build"]][["scripts"]] <- NULL # Clear previous scripts
       yml[["build"]][["hooks"]] <- list(pre = c("missing-hook.R"))
       .yml_set(yml, "default")
       expect_error(.yml_scripts_hooks_check_exist(), "missing-hook.R")
 
       # Missing dev script should fail
       yml <- .yml_get("default")
-      yml[["build"]][["scripts"]] <- NULL  # Clear build scripts
-      yml[["build"]][["hooks"]] <- NULL  # Clear build hooks
+      yml[["build"]][["scripts"]] <- NULL # Clear build scripts
+      yml[["build"]][["hooks"]] <- NULL # Clear build hooks
       yml[["dev"]] <- list(scripts = c("missing-dev-script.R"))
       .yml_set(yml, "default")
       expect_error(.yml_scripts_hooks_check_exist(), "missing-dev-script.R")
 
       # Missing dev hook should fail
       yml <- .yml_get("default")
-      yml[["build"]][["scripts"]] <- NULL  # Clear build scripts
-      yml[["build"]][["hooks"]] <- NULL  # Clear build hooks
+      yml[["build"]][["scripts"]] <- NULL # Clear build scripts
+      yml[["build"]][["hooks"]] <- NULL # Clear build hooks
       yml[["dev"]] <- list(hooks = list(both = c("missing-dev-hook.R")))
       .yml_set(yml, "default")
       expect_error(.yml_scripts_hooks_check_exist(), "missing-dev-hook.R")

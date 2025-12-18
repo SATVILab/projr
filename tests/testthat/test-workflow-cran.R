@@ -19,8 +19,8 @@ test_that("CRAN workflow: init -> build -> send to local -> restore", {
     path = dir_test,
     code = {
       # ===== Phase 1: Initialize project =====
-      .init()  # Creates directories
-      projr_version_set("0.0.0-1", only_if_exists = FALSE)  # Create VERSION file
+      .init() # Creates directories
+      projr_version_set("0.0.0-1", only_if_exists = FALSE) # Create VERSION file
       projr_init_git()
       expect_true(file.exists("_projr.yml"))
       expect_true(file.exists("VERSION"))
@@ -91,8 +91,8 @@ test_that("CRAN workflow: dev build with local remote", {
   usethis::with_project(
     path = dir_test,
     code = {
-      .init()  # Creates directories
-      projr_version_set("0.0.0-1", only_if_exists = FALSE)  # Create VERSION file
+      .init() # Creates directories
+      projr_version_set("0.0.0-1", only_if_exists = FALSE) # Create VERSION file
 
       # Create test content
       cache_dir <- projr_path_get_dir("cache", safe = FALSE)
@@ -133,8 +133,8 @@ test_that("CRAN workflow: multiple content types to local remote", {
   usethis::with_project(
     path = dir_test,
     code = {
-      .init()  # Creates directories
-      projr_version_set("0.0.0-1", only_if_exists = FALSE)  # Create VERSION file
+      .init() # Creates directories
+      projr_version_set("0.0.0-1", only_if_exists = FALSE) # Create VERSION file
       projr_init_git()
 
       # Create content in multiple directories
