@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
-    if: github.event_name != 'workflow_dispatch'
+    # if: github.event_name != 'workflow_dispatch'
 
     strategy:
       fail-fast: false
@@ -64,7 +64,7 @@ jobs:
           upload-snapshots: true
 
   R-CMD-check-all:
-    if: github.event_name == 'workflow_dispatch'
+    if: false # github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.config.os }}
     name: All OS's - ${{ matrix.config.os }} (${{ matrix.config.r }})
 
