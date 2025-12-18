@@ -66,7 +66,7 @@
                                               token = NULL) {
   .assert_attr(remote_pre, "names")
   .assert_has(names(remote_pre), c("tag"))
-  if (!.remote_check_exists("github", remote_pre[["tag"]], max_attempts = 2)) {
+  if (!.remote_check_exists("github", remote_pre[["tag"]], max_attempts = 2, api_url = api_url, token = token)) {
     return(FALSE)
   }
   # if there's an error for some reason, assume it's not there
@@ -210,11 +210,15 @@
 # list releases
 # =======================
 
-.remote_ls_final_github <- function(remote_pre) {
+.remote_ls_final_github <- function(remote_pre,
+                                    api_url = NULL,
+                                    token = NULL) {
   .assert_given_full(remote_pre)
   .remote_ls_final_github_httr(
     repo = .gh_repo_get(),
-    tag  = remote_pre[["tag"]]
+    tag  = remote_pre[["tag"]],
+    api_url = api_url,
+    token = token
   )
 }
 
@@ -275,14 +279,18 @@
 
 # local
 .remote_final_rm_if_empty_github <- function(remote,
-                                             output_level = "std") {
+                                             output_level = "std",
+                                             api_url = NULL,
+                                             token = NULL) {
   .assert_given_full(remote)
   .assert_in(names(remote), c("tag", "fn"), TRUE)
   .assert_has(names(remote), c("tag", "fn"), TRUE)
 
   remote_exists <- .remote_final_check_exists_direct(
     "github",
-    remote = remote
+    remote = remote,
+    api_url = api_url,
+    token = token
   )
   if (!remote_exists) {
     .cli_debug(
@@ -308,7 +316,9 @@
   )
   .remote_final_rm_github(
     remote = remote,
-    output_level = output_level
+    output_level = output_level,
+    api_url = api_url,
+    token = token
   )
   invisible(TRUE)
 }
@@ -322,7 +332,9 @@
                                            path_append_label,
                                            label,
                                            structure,
-                                           version = NULL) {
+                                           version = NULL,
+                                           api_url = NULL,
+                                           token = NULL) {
   remote_empty <- .remote_final_get(
     "github",
     id = id,
@@ -336,13 +348,15 @@
   )
   remote_exists <- .remote_final_check_exists_direct(
     "github",
-    remote = remote_empty
+    remote = remote_empty,
+    api_url = api_url,
+    token = token
   )
   if (remote_exists) {
     return(remote_empty)
   }
   # Ensure release exists before we try to upload an asset
-  if (!.remote_check_exists("github", remote_empty[["tag"]], max_attempts = 2)) {
+  if (!.remote_check_exists("github", remote_empty[["tag"]], max_attempts = 2, api_url = api_url, token = token)) {
     .cli_debug(
       "GitHub release: Creating release '{tag}' to host empty asset",
       tag = remote_empty[["tag"]]
@@ -359,7 +373,9 @@
   .remote_file_add_github(
     fn = "projr-empty",
     path_dir_local = path_dir_tmp_save,
-    remote = remote_empty
+    remote = remote_empty,
+    api_url = api_url,
+    token = token
   )
   remote_empty
 }
@@ -415,7 +431,7 @@
     )
   }
 
-  if (!.remote_check_exists("github", tag, max_attempts = 2)) {
+  if (!.remote_check_exists("github", tag, max_attempts = 2, api_url = api_url, token = token)) {
     .cli_debug(
       "GitHub release: Release '{tag}' does not exist, nothing to delete",
       tag = tag,
@@ -789,7 +805,7 @@
   tag <- .remote_misc_github_tag_format(remote[["tag"]])
 
   # Just check that the release exists
-  if (!.remote_check_exists("github", tag)) {
+  if (!.remote_check_exists("github", tag, api_url = api_url, token = token)) {
     stop(paste0(
       "GitHub release '", tag, "' does not exist. "
     ))
@@ -808,7 +824,7 @@
     remote = remote, api_url = api_url, token = token
   )
   if (remote_exists) {
-    .remote_file_get_all("github", remote, path_dir_tmp_save)
+    .remote_file_get_all("github", remote, path_dir_tmp_save, api_url = api_url, token = token)
   }
 
   for (fn_curr in fn) {
@@ -834,7 +850,9 @@
     tag = tag,
     file_path = path_zip,
     asset_name = remote[["fn"]],
-    overwrite = TRUE
+    overwrite = TRUE,
+    api_url = api_url,
+    token = token
   )
 }
 
