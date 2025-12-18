@@ -701,7 +701,7 @@ projr_init_renviron <- function() {
   }
   root <- switch(scope,
     user = fs::path_home_r(),
-    project = usethis::proj_get()
+    project = invisible(usethis::proj_get())
   )
   fs::path(root, ...)
 }
