@@ -125,7 +125,7 @@
   descrptn$write(file = .path_get("DESCRIPTION"))
   desc::desc_normalize(.path_get("DESCRIPTION"))
   .dep_install_only("usethis")
-  usethis::proj_activate(.path_get())
+  usethis::proj_set(.path_get())
   usethis::use_roxygen_md()
   invisible(TRUE)
 }
