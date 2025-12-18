@@ -591,7 +591,7 @@ projr_init_github <- function(username = NULL,
       gert::git_config_global_set("user.name", "GitHub Actions")
     } else if (!interactive() || .is_test()) {
       .cli_info("Git user name not set and in non-interactive mode.")
-      user_name <- paste0(Sys.info()[["user"]], "_", Sys.info()[["node_name"]])
+      user_name <- paste0(Sys.info()[["user"]], "_", Sys.info()[["nodename"]])
       .cli_info("Using system user name and node name: {user_name}")
       gert::git_config_global_set("user.name", user_name)
     } else {
@@ -619,7 +619,7 @@ projr_init_github <- function(username = NULL,
     } else if (!interactive() || .is_test()) {
       .cli_info("Git user email not set and in non-interactive mode.")
       user_email <- paste0(
-        Sys.info()[["user"]], "_", Sys.info()[["node_name"]], "@projr-test.com"
+        Sys.info()[["user"]], "_", Sys.info()[["nodename"]], "@projr-test.com"
       )
       .cli_info("Using system user name and node name: {user_email}")
       # Set a default email address for non-interactive mode.
