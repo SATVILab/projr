@@ -6,8 +6,6 @@
                               path = NULL,
                               path_append_label = NULL,
                               overwrite = FALSE,
-                              public = FALSE,
-                              category = NULL,
                               description = NULL,
                               id = NULL,
                               id_parent = NULL,
@@ -26,8 +24,6 @@
   .assert_string(path, type == "local")
   .assert_flag(path_append_label)
   .assert_flag(overwrite, TRUE)
-  .assert_flag(public, type == "osf")
-  .assert_in(category, .opt_remote_get_osf_cat(), type == "osf")
   .assert_string(description)
   .assert_string(id)
   .assert_nchar_single(id, 5L)

@@ -4,23 +4,12 @@
 
 
 # function to delete them
-# NOTE: These functions only delete repos/nodes created during THIS test run.
-# When a test creates a GitHub repo or OSF node, it writes a marker file
-# to a temporary directory (.test_git_remote_dir_get_tmp() or
-# .test_osf_remote_dir_get_tmp()). The cleanup functions read these marker
-# files and only delete those specific repos/nodes. This ensures we don't
-# accidentally delete repos/nodes created by other concurrent test runs
-# (e.g., on different CI/CD platforms).
-.test_osf_rm <- function() {
-  fn_vec <- list.files(.test_osf_remote_dir_get_tmp())
-  for (i in seq_along(fn_vec)) {
-    try(
-      .test_remote_host_rm(type = "osf", host = fn_vec[i]),
-      silent = TRUE
-    )
-  }
-  unlink(.test_osf_remote_dir_get_tmp(), recursive = TRUE)
-}
+# NOTE: These functions only delete repos created during THIS test run.
+# When a test creates a GitHub repo, it writes a marker file
+# to a temporary directory (.test_git_remote_dir_get_tmp()). 
+# The cleanup function reads these marker files and only deletes those 
+# specific repos. This ensures we don't accidentally delete repos created 
+# by other concurrent test runs (e.g., on different CI/CD platforms).
 .test_github_rm <- function() {
   # Only attempt cleanup if we can actually modify GitHub repos
   # This prevents errors during cleanup when only GITHUB_TOKEN is available
@@ -55,7 +44,6 @@
 # instruct deletion upon completion of all tests
 withr::defer(
   {
-    .test_osf_rm()
     .test_github_rm()
     .test_unset()
     # .test_unset_select()

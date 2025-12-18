@@ -160,8 +160,8 @@ projr_yml_check <- function(profile = NULL) {
   .assert_in(
     nm_vec,
     c(
-      "dev-output", "script", "hooks", "scripts", "git",
-      "github", "package", "local", "osf", "cite", "restrictions", "renv"
+      "hooks", "scripts", "git",
+      "github", "package", "local", "cite", "restrictions", "renv"
     )
   )
   .assert_flag(.yml_build_get_dev_output(profile))
@@ -225,7 +225,6 @@ projr_yml_check <- function(profile = NULL) {
   .assert_in(yml_title[["structure"]], .opt_remote_get_structure())
   .assert_string(yml_title[["path"]], type == "local")
   .assert_flag(yml_title[["path-append-label"]])
-  .assert_string(yml_title[["id"]], type == "osf")
   .assert_nchar(yml_title[["id"]], 5L)
   if ("get" %in% names(yml_title)) {
     get_list <- yml_title[["get"]]

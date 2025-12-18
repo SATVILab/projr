@@ -7,7 +7,7 @@
 #'   whose files should be uploaded.
 #' @param title Destination title pulled from `_projr.yml` that describes the
 #'   remote block currently being processed.
-#' @param type Remote type identifier (`local`, `github`, or `osf`).
+#' @param type Remote type identifier (`local` or `github`).
 #' @param output_run Logical flag indicating whether the content directory is in
 #'   the safe cache or the unsafe project root (controls path selection).
 #' @param archive_type Logical/character directive returned by
@@ -144,7 +144,7 @@
 #'   retrieving the pre-remote, destination remote, comparison target, and
 #'   comparison version identifier.
 #'
-#' @param type Remote type identifier (`local`, `github`, or `osf`).
+#' @param type Remote type identifier (`local` or `github`).
 #' @param id Remote id from `_projr.yml` (e.g. filesystem path or GitHub tag).
 #' @param path Optional relative path within the remote definition.
 #' @param path_append_label Logical flag indicating whether the label should be
@@ -1912,8 +1912,8 @@
       return(NULL)
     }
     sub("^v", "", version_match)
-  } else if (type %in% c("local", "osf")) {
-    # Local/OSF: remote is a path ending with v<version>
+  } else if (type == "local") {
+    # Local: remote is a path ending with v<version>
     # Extract v<version> from the basename
     basename_remote <- basename(remote)
     version_match <- regmatches(basename_remote, regexpr("v[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9]+)?$", basename_remote))

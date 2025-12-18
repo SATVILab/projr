@@ -11,7 +11,7 @@
 .remote_ls_source <- function() {
   yml_projr_dir <- .yml_dir_get(NULL)
   lapply(yml_projr_dir, function(x) {
-    remote_vec <- c("github", "osf")
+    remote_vec <- c("github")
     remote_vec[remote_vec %in% names(x)]
   }) |>
     unlist() |>
@@ -20,7 +20,7 @@
 
 .remote_ls_dest <- function() {
   yml_projr_build <- .yml_build_get(NULL)
-  remote_vec <- c("github", "osf")
+  remote_vec <- c("github")
   remote_vec[remote_vec %in% names(yml_projr_build)]
 }
 

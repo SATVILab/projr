@@ -18,18 +18,9 @@ test_that("auth functions work correctly", {
 
       # Test warning functions
       suppressWarnings(.auth_get_github_pat_warn())
-      suppressWarnings(.auth_get_osf_pat())
-
-      # Test OSF auth without credentials
-      pat_old_osf <- Sys.getenv("OSF_PAT")
-      Sys.unsetenv("OSF_PAT")
-      expect_warning(.auth_get_osf_pat())
-      Sys.setenv("OSF_PAT" = pat_old_osf)
 
       # Test instruction functions
       suppressMessages(projr_instr_auth_github())
-      suppressMessages(projr_instr_auth_osf())
-      expect_warning(.auth_get_osf_pat_warn())
     }
   )
 })
@@ -66,48 +57,6 @@ test_that(".auth_check_github succeeds when auth available", {
       # Should not throw error when auth is available
       expect_true(.auth_check_github())
       expect_true(.auth_check_github("test operation"))
-    }
-  )
-})
-
-test_that(".auth_check_osf throws error when no auth", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Save current PAT
-      pat_old <- Sys.getenv("OSF_PAT")
-
-      # Unset OSF token
-      Sys.unsetenv("OSF_PAT")
-
-      # Should throw error when no auth
-      expect_error(.auth_check_osf(), "OSF authentication is required")
-      expect_error(.auth_check_osf("test operation"), "test operation")
-
-      # Restore PAT
-      if (nzchar(pat_old)) {
-        Sys.setenv("OSF_PAT" = pat_old)
-      }
-    }
-  )
-})
-
-test_that(".auth_check_osf succeeds when auth available", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  # Only run if OSF PAT is available
-  skip_if(!nzchar(Sys.getenv("OSF_PAT")))
-
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Should not throw error when auth is available
-      expect_true(.auth_check_osf())
-      expect_true(.auth_check_osf("test operation"))
     }
   )
 })

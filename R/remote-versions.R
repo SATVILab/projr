@@ -7,7 +7,7 @@
 #'   uploads it to the destination remote, handling the GitHub asset naming
 #'   conventions when necessary.
 #' @param type Character scalar identifying the remote backend (`project`,
-#'   `local`, `github`, or `osf`).
+#'   `local`, or `github`).
 #' @param remote Backend-specific remote handle (final destination) that will
 #'   receive the manifest.
 #' @param manifest Tibble/data.frame produced by `.manifest_write()`.
@@ -60,8 +60,8 @@
 #' @description Copies the local `CHANGELOG.md` file to the remote destination,
 #'   renaming the GitHub asset when required.
 #' @param type Character scalar identifying the remote backend.
-#' @param remote_pre Backend-specific parent remote (directory path, release tag
-#'   or OSF node) underneath which the changelog will be stored.
+#' @param remote_pre Backend-specific parent remote (directory path or release tag)
+#'   underneath which the changelog will be stored.
 #' @return Invisibly returns `TRUE` after the file is uploaded.
 #' @keywords internal
 #' @noRd
@@ -96,8 +96,8 @@
 #' @description Persists the provided VERSION file contents to the destination
 #'   remote, using a temporary directory and GitHub-compatible asset naming.
 #' @param type Character scalar identifying the remote backend.
-#' @param remote_pre Backend-specific parent remote (directory path, release
-#'   tag, OSF node).
+#' @param remote_pre Backend-specific parent remote (directory path or release
+#'   tag).
 #' @param version_file Character vector containing the VERSION file lines.
 #' @param output_level CLI verbosity level for logging helpers.
 #' @return Invisibly returns `TRUE` after the VERSION file is uploaded.
@@ -524,8 +524,7 @@
       }
       file.path(remote_pre, label)
     },
-    "github" = remote_pre,
-    "osf" = stop("Not yet implemented for OSF")
+    "github" = remote_pre
   )
   if (is.null(remote_pre)) {
     return(character(0L))
@@ -552,7 +551,7 @@
   }
   if (type != "github") {
     fn <- vapply(fn, .version_v_rm, character(1L))
-    # Strip -empty suffix for local/osf remotes (not needed for GitHub .zip files)
+    # Strip -empty suffix for local remotes (not needed for GitHub .zip files)
     fn <- gsub("-empty$", "", fn)
     return(fn |> package_version() |> max())
   }
@@ -693,7 +692,6 @@
                                type) {
   switch(type,
     "local" = .remote_get_recent_local(remote_final),
-    "osf" = .remote_get_recent_osf(remote_final),
     "github" = .remote_get_recent_github(remote_final)
   )
 }
@@ -705,16 +703,6 @@
 #' @keywords internal
 #' @noRd
 .remote_get_recent_local <- function(remote_final) {
-  stop("Not defined yet")
-}
-
-#' @title Placeholder for OSF recent-remote detection
-#' @description Currently unimplemented; calling will throw an error.
-#' @param remote_final Backend-specific remote handle.
-#' @return No return value; always errors.
-#' @keywords internal
-#' @noRd
-.remote_get_recent_osf <- function(remote_final) {
   stop("Not defined yet")
 }
 
@@ -768,21 +756,13 @@
 }
 
 #' @title Detect structure for OSF remotes
-#' @description Examines the remote metadata to determine whether the entry
-#'   looks like a versioned object.
-#' @param remote OSF remote object.
-#' @return "version" or "latest" depending on metadata.
+#' @description This function has been removed as OSF support is no longer available.
+#' @param remote OSF remote object (deprecated).
+#' @return Always errors indicating OSF is not supported.
 #' @keywords internal
 #' @noRd
 .remote_detect_structure_osf <- function(remote) {
-  version_format_correct <- try(
-    remote[["name"]][[1]],
-    silent = TRUE
-  )
-  if (inherits(version_format_correct, "try-error")) {
-    return("latest")
-  }
-  "archive"
+  stop("OSF remote support has been removed from projr")
 }
 
 #' @title Detect structure for GitHub remotes
