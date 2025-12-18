@@ -776,8 +776,6 @@ test_that(".yml_remote_check allows NULL for optional parameters", {
       path = NULL,
       path_append_label = NULL,
       overwrite = FALSE,
-      public = NULL,
-      category = NULL,
       description = NULL,
       id = NULL,
       id_parent = NULL,

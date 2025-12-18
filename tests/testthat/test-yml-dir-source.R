@@ -276,7 +276,7 @@ test_that(".yml_dir_get_source_type validates type parameter", {
 
       # Multiple values for type
       expect_error(
-        .yml_dir_get_source_type(c("github"), "output", "default"),
+        .yml_dir_get_source_type(c("github", "local"), "output", "default"),
         "must be a non-empty string"
       )
 

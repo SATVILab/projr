@@ -252,8 +252,6 @@ test_that(".yml_dest_add_get_list_add_extra switches on type", {
     id = NULL,
     id_parent = NULL,
     title = "test",
-    category = NULL,
-    public = FALSE,
     description = NULL
   )
   expect_identical(result, list_add)
@@ -567,10 +565,12 @@ test_that(".yml_dest_add_impl creates proper destination structure", {
         path = "/test/archive",
         path_append_label = TRUE,
         get_list = NULL,
-        send_list = list(cue = "always", strategy = "sync-diff", inspect = "manifest"),
+        send_list = list(
+          cue = "always",
+          strategy = "sync-diff",
+          inspect = "manifest"
+        ),
         overwrite = FALSE,
-        public = FALSE,
-        category = NULL,
         description = NULL,
         id = NULL,
         id_parent = NULL,
@@ -602,8 +602,6 @@ test_that(".yml_dest_add works through the full pipeline", {
         path = "/test/path",
         path_append_label = TRUE,
         overwrite = FALSE,
-        public = FALSE,
-        category = NULL,
         description = NULL,
         id = NULL,
         id_parent = NULL,
