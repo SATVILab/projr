@@ -363,7 +363,6 @@ test_that(".dir_filter_removable works correctly", {
   usethis::with_project(
     path = dir_test,
     code = {
-      browser()
       # Create test directory
       dir_tmp <- .dir_create_tmp_random()
       subdir <- file.path(dir_tmp, "subdir")
