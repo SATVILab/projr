@@ -142,7 +142,7 @@ test_that("projr_content_update validates type parameter", {
       # Invalid value
       expect_error(
         projr_content_update(type = "invalid"),
-        "'type' must be one of: local, osf, github"
+        "'type' must be one of: local, github"
       )
       
       # Valid - NULL
