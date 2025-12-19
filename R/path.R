@@ -813,8 +813,8 @@
   }
 
   .cli_debug("      Renaming directories...")
-  .cli_debug("      from: {path_dir_from} (vol={fs::path_volume(path_dir_from)})")
-  .cli_debug("      to:   {path_dir_to} (vol={fs::path_volume(path_dir_to)})")
+  .cli_debug("      from: {path_dir_from} (vol={.path_volume(path_dir_from)})")
+  .cli_debug("      to:   {path_dir_to} (vol={.path_volume(path_dir_to)})")
   .cli_debug("      first src dir: {path_dir[1]} -> {path_dir |> .path_force_abs(path_dir_from) |> head(1)}")
   .cli_debug("      first dst dir: {path_dir[1]} -> {path_dir |> .path_force_abs(path_dir_to) |> head(1)}")
   suppressWarnings(file.rename(
@@ -831,4 +831,11 @@
   )
   .cli_debug("    Finished .dir_move_dir()")
   invisible(TRUE)
+}
+
+.path_volume <- function(x) {
+  x <- fs::path_abs(x)
+  if (.Platform$OS.type != "windows") return("/")
+  m <- regexpr("^(//[^/]+/[^/]+|[A-Za-z]:)", x)
+  ifelse(m == -1, NA_character_, regmatches(x, m))
 }
