@@ -21,6 +21,7 @@ jobs:
       GITHUB_PAT: ${{ secrets.GH_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
       R_PKG_TEST_LITE: true
+      PROJR_OUTPUT_LEVEL: debug
 
     strategy:
       fail-fast: false
