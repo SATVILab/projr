@@ -326,9 +326,25 @@
   if (!is.null(path_dir_base)) {
     .assert_string(path_dir_base)
   }
-  path[
-    !fs::path_abs(path) %in% .dir_ls_unremovable(path_dir_base)
-  ]
+
+  # Get unremovable directories (already normalized with path_real)
+  unremovable <- .dir_ls_unremovable(path_dir_base)
+
+  # For each path, check if it's removable
+  # Use path_real for existing paths to match the normalization in .dir_ls_unremovable
+  # Use path_abs for non-existing paths (can't use path_real on non-existing paths)
+  is_removable <- vapply(path, function(p) {
+    if (file.exists(p)) {
+      # For existing paths, normalize the same way as .dir_ls_unremovable
+      normalized <- as.character(fs::path_real(fs::path_abs(p)))
+    } else {
+      # For non-existing paths, just use path_abs
+      normalized <- as.character(fs::path_abs(p))
+    }
+    !normalized %in% unremovable
+  }, logical(1))
+
+  path[is_removable]
 }
 
 # ---------------------
