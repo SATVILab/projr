@@ -1,4 +1,4 @@
-name: windows-tests-by-file
+name: windows-tests-specific
 
 on:
   workflow_dispatch:
