@@ -252,9 +252,9 @@
   dest_dir <- projr_path_get_dir("docs", safe = !output_run)
   .cli_debug("  Dest dir: {dest_dir}")
 
-  # Copy all contents from source to destination, excluding CHANGELOG.md
+  # Copy all contents from source to destination
   .cli_debug("  Calling .dir_move_exact() from {source_dir} to {dest_dir}")
-  .dir_move_exact(source_dir, dest_dir, fn_exc = "CHANGELOG.md")
+  .dir_move_exact(source_dir, dest_dir)
   .cli_debug("  Completed .dir_move_exact()")
 
   # Copy the <book_filename>_files directory if it exists
@@ -336,9 +336,9 @@
   dest_dir <- projr_path_get_dir("docs", safe = !output_run)
   .cli_debug("  Dest dir: {dest_dir}")
 
-  # Copy all contents from source to destination, excluding CHANGELOG.md
+  # Copy all contents from source to destination
   .cli_debug("  Calling .dir_move_exact() from {source_dir} to {dest_dir}")
-  .dir_move_exact(source_dir, dest_dir, fn_exc = "CHANGELOG.md")
+  .dir_move_exact(source_dir, dest_dir)
   .cli_debug("  Completed .dir_move_exact()")
 
   .cli_info("Copied quarto project output from {source_dir} to {dest_dir}")
