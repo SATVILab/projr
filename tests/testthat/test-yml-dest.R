@@ -263,8 +263,6 @@ test_that(".yml_dest_add_get_list_add_extra switches on type", {
     id = NULL,
     id_parent = NULL,
     title = "test",
-    category = NULL,
-    public = FALSE,
     description = NULL
   )
   expect_identical(result, list_add)
