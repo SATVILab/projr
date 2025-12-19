@@ -813,6 +813,10 @@
   }
 
   .cli_debug("      Renaming directories...")
+  .cli_debug("      from: {path_dir_from} (vol={fs::path_volume(path_dir_from)})")
+  .cli_debug("      to:   {path_dir_to} (vol={fs::path_volume(path_dir_to)})")
+  .cli_debug("      first src dir: {path_dir[1]} -> {path_dir |> .path_force_abs(path_dir_from) |> head(1)}")
+  .cli_debug("      first dst dir: {path_dir[1]} -> {path_dir |> .path_force_abs(path_dir_to) |> head(1)}")
   suppressWarnings(file.rename(
     path_dir |> .path_force_abs(path_dir_from),
     path_dir |> .path_force_abs(path_dir_to)
