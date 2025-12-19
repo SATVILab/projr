@@ -560,13 +560,24 @@ projr_build_dev <- function(file = NULL,
                                            clear_output,
                                            file = NULL,
                                            output_level = "std") {
+  .cli_debug("Starting .build_post_finalise_artefacts()")
+  .cli_debug("  bump_component: {bump_component}")
+  .cli_debug("  clear_output: {clear_output}")
+  .cli_debug("  file: {paste(file, collapse = ', ')}")
+
   output_run <- .build_get_output_run(bump_component)
-  .cli_debug("Clearing safe directories (if needed)", output_level = output_level)
+  .cli_debug("  output_run: {output_run}")
+
+  .cli_debug("Calling .build_clear_post_safe()")
   .build_clear_post_safe(output_run, clear_output)
+  .cli_debug("Completed .build_clear_post_safe()")
 
   # copy outputs to (final) output and data directories
-  .cli_debug("Copying outputs and docs to final directories", output_level = output_level)
+  .cli_debug("Calling .build_copy()")
   .build_copy(output_run, bump_component, version_run_on_list, file = file)
+  .cli_debug("Completed .build_copy()")
+
+  .cli_debug("Finished .build_post_finalise_artefacts()")
 }
 
 # record (version, rmd, git)

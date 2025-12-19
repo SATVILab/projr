@@ -194,7 +194,11 @@
 #' @param .envir Environment for variable evaluation
 #'
 #' @keywords internal
-.cli_debug <- function(..., output_level = "std", .envir = parent.frame()) {
+.cli_debug <- function(..., output_level = NULL, .envir = parent.frame()) {
+  # Check environment variable if output_level not provided
+  if (is.null(output_level)) {
+    output_level <- .cli_output_level_get(output_level = NULL, output_run = FALSE)
+  }
   .cli_message(
     ...,
     log_type = "debug",
