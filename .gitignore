@@ -30,3 +30,4 @@ cobertura.xml
 sonarqube.xml
 *.bak
 projr.Rproj
+.github/workflows/learning.yaml
