@@ -118,8 +118,14 @@ test_that("projr_build_copy_pkg works", {
         "Package: report",
         "Title: Test Package",
         "Version: 0.0.0-1",
-        "Description: Test package for building."
+        "Description: Test package for building.",
+        "Authors@R: person('Test', 'Author', email = 'test@example.com', role = c('aut', 'cre'))",
+        "License: MIT + file LICENSE",
+        "Encoding: UTF-8"
       ), "DESCRIPTION")
+      
+      # Create minimal LICENSE file
+      writeLines("MIT License", "LICENSE")
 
       yml_projr_init <- .yml_get_default_raw()
 
