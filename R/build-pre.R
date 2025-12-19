@@ -310,7 +310,7 @@
 .build_output_get_msg <- function(msg) {
   if (is.null(msg) || .is_len_0(msg)) {
     if (!.is_test()) {
-      if (interactive() || !.is_test()) {
+      if (interactive()) {
         cli::cli_inform("Please enter a one-line description of the change:")
         msg <- readline(prompt = ">> ")
         while (.is_len_0(msg)) {
