@@ -75,6 +75,14 @@
   Sys.getenv("R_PKG_TEST_SELECT") == "TRUE"
 }
 
+# so that we can detect Windows GHA environment
+# and skip tests accordingly
+.is_windows_gha <- function() {
+  Sys.info()["sysname"] == "Windows" &&
+    Sys.getenv("GITHUB_ACTIONS") == "true"
+}
+
+
 # Check if running in CRAN test mode
 # CRAN mode skips:
 # - Comprehensive tests (exhaustive parameter combinations)
