@@ -689,12 +689,18 @@
 
   if (is.null(dir_exc) && is.null(fn_exc)) {
     .cli_debug("    No exclusions provided, using optimized move")
-    return(.dir_move_no_exc(
+    res <- .dir_move_no_exc(
       path_dir_from = path_dir_from,
       path_dir_to = path_dir_to
-    ))
+    )
+    if (isTRUE(res)) {
+      .cli_debug("    Optimized move succeeded, finishing .dir_move()")
+      return(invisible(TRUE))
+    } else {
+      .cli_debug("    Optimized move failed, falling back to standard move")
+    }
   }
-
+  
   .cli_debug("    Moving files...")
   .dir_move_file(
     path_dir_from = path_dir_from,
@@ -715,8 +721,25 @@
   .cli_debug("  Starting .dir_move_no_exc()")
   .cli_debug("    path_dir_from: {path_dir_from}")
   .cli_debug("    path_dir_to: {path_dir_to}")
-  .cli_debug("    Moving files...")
-  invisible(file.rename(path_dir_from, path_dir_to))
+
+  vol_from <- .path_volume(path_dir_from)
+  vol_to   <- .path_volume(dirname(path_dir_to))
+
+  # Ensure destination parent exists for the rename attempt
+  dir.create(dirname(path_dir_to), recursive = TRUE, showWarnings = FALSE)
+
+  if (!is.na(vol_from) && !is.na(vol_to) && identical(vol_from, vol_to)) {
+    .cli_debug("    Same filesystem detected, trying file.rename()")
+    res <- suppressWarnings(file.rename(path_dir_from, path_dir_to))
+    if (isTRUE(res)) {
+      .cli_debug("    file.rename() succeeded")
+      return(invisible(TRUE))
+    }
+    .cli_debug("    file.rename() failed; falling back")
+  } else {
+    .cli_debug("    Cross-filesystem or unknown volume; using fallback")
+  }
+  invisible(FALSE)
 }
 
 .dir_move_file <- function(fn = NULL,
@@ -848,4 +871,16 @@
   if (.Platform$OS.type != "windows") return("/")
   m <- regexpr("^(//[^/]+/[^/]+|[A-Za-z]:)", x)
   ifelse(m == -1, NA_character_, regmatches(x, m))
+}
+
+.same_filesystem <- function(path1, path2, follow_symlinks = TRUE) {
+  stopifnot(requireNamespace("fs", quietly = TRUE))
+
+  # Prefer "follow = TRUE" if you care
+  # about the target rather than the symlink itself
+  i1 <- fs::file_info(path1, follow = follow_symlinks, fail = TRUE)
+  i2 <- fs::file_info(path2, follow = follow_symlinks, fail = TRUE)
+
+  # Same filesystem ⇔ same device id
+  isTRUE(i1$device_id == i2$device_id)
 }
