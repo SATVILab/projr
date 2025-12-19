@@ -4,7 +4,7 @@
 \alias{.cli_debug}
 \title{Show a debug message (only shown at debug level)}
 \usage{
-.cli_debug(..., output_level = "std", .envir = parent.frame())
+.cli_debug(..., output_level = NULL, .envir = parent.frame())
 }
 \arguments{
 \item{...}{Message components passed to cli::cli_text}
