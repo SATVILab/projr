@@ -357,7 +357,7 @@ test_that(".dir_filter_exists_single validates inputs", {
 
 test_that(".dir_filter_removable works correctly", {
   skip_if(.is_test_cran())
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   usethis::with_project(
