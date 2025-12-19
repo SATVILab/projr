@@ -8,7 +8,7 @@ test_that("basic yml functions work", {
   fn_vec <- fn_vec
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -223,10 +223,10 @@ test_that(".yml_get_default_raw reads yaml file", {
       expect_true("directories" %in% names(yml_raw))
 
       # Test when file doesn't exist
-      file.rename("_projr.yml", "_projr.yml.bak")
+      fs::file_move("_projr.yml", "_projr.yml.bak")
       yml_empty <- .yml_get_default_raw()
       expect_identical(yml_empty, list())
-      file.rename("_projr.yml.bak", "_projr.yml")
+      fs::file_move("_projr.yml.bak", "_projr.yml")
     }
   )
 })

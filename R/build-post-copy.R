@@ -144,7 +144,7 @@
     .cli_debug("    Package files: {paste(basename(pkg_files), collapse = ', ')}")
     .cli_debug("    Destination: {dest_path}")
 
-    file.copy(pkg_files, dest_path)
+    fs::file_copy(pkg_files, dest_path)
     .cli_debug("    Completed copy to {x[[1]]}")
   }
 

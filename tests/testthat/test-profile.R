@@ -8,7 +8,7 @@ test_that("projr_profile_get, _set and _create work", {
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -134,7 +134,7 @@ test_that("projr_profile_create_local works", {
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -180,7 +180,7 @@ test_that("projr_profile_create returns correct value", {
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -218,7 +218,7 @@ test_that("projr_profile_create_local returns correct value", {
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -269,7 +269,7 @@ test_that("projr_profile_delete returns correct value", {
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -311,7 +311,7 @@ test_that(".profile_delete_impl handles non-existent profile", {
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -350,7 +350,7 @@ test_that("projr_profile_delete_local works", {
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE

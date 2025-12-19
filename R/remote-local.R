@@ -323,7 +323,7 @@
     return(character(0L))
   } else {
     path_fn <- file.path(path_dir_save_local, basename(fn))
-    file.copy(path_remote_fn, path_fn, overwrite = TRUE)
+    fs::file_copy(path_remote_fn, path_fn, overwrite = TRUE)
     path_fn
   }
 }

@@ -693,7 +693,7 @@ test_that("full version tracking workflow with local archive remote", {
         if (!dir.exists(dest_dir)) {
           dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
         }
-        file.copy(files[i], file.path(version1_dir, rel_files[i]))
+        fs::file_copy(files[i], file.path(version1_dir, rel_files[i]))
       }
 
       # Create manifest for version 1

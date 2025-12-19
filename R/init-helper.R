@@ -38,7 +38,7 @@
   if (file.exists(.path_get("_projr.yml"))) {
     return(invisible(FALSE))
   }
-  file.copy(from = path, to = .path_get("_projr.yml"))
+  fs::file_copy(from = path, to = .path_get("_projr.yml"))
   invisible(TRUE)
 }
 

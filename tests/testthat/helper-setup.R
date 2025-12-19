@@ -296,7 +296,7 @@
 
 .test_setup_project_files_copy <- function(path_dir) {
   for (x in list.files(testthat::test_path("./project_structure"))) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(path_dir, x),
       overwrite = TRUE

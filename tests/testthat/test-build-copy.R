@@ -457,7 +457,7 @@ test_that("projr_build_frontmatter_get works", {
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -546,7 +546,7 @@ test_that(".build_copy_docs_quarto_format_get works", {
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -692,7 +692,7 @@ test_that(".build_copy_docs_quarto_format_get works", {
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -762,7 +762,7 @@ test_that(".build_copy_docs_rmd_format_get works", {
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -911,7 +911,7 @@ test_that(".build_copy_docs_rmd_format_get works", {
   fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE

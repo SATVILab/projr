@@ -559,7 +559,7 @@ projr_use_data <- function(...,
   )
 
   if (!identical(path_zip_temp, path_zip)) {
-    file.rename(from = path_zip_temp, to = path_zip)
+    fs::file_move(from = path_zip_temp, to = path_zip)
   }
 
   invisible(path_zip)

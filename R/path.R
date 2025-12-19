@@ -726,14 +726,22 @@
   
 
   if (.is_same_filesystem(path_dir_from, path_dir_to)) {
-    .cli_debug("    Same filesystem detected, trying file.rename()")
+    .cli_debug("    Same filesystem detected, trying fs::file_move()")
     .dir_create(dirname(path_dir_to))
-    res <- suppressWarnings(file.rename(path_dir_from, path_dir_to))
+    res <- tryCatch({
+      fs::file_move(path_dir_from, path_dir_to)
+      invisible(TRUE)
+      },
+      error = function(e) {q
+        .cli_debug("    fs::file_move() failed with error: {e$message}")
+        invisible(FALSE)
+      }
+    )
     if (isTRUE(res)) {
-      .cli_debug("    file.rename() succeeded")
+      .cli_debug("    fs::file_move() succeeded")
       return(invisible(TRUE))
     }
-    .cli_debug("    file.rename() failed; falling back")
+    .cli_debug("    fs::file_move() failed; falling back")
   } else {
     .cli_debug("    Cross-filesystem or unknown volume; using fallback")
   }
@@ -779,7 +787,7 @@
   .dir_copy_file_tree(fn, path_dir_to)
   .assert_string(path_dir_to)
   .cli_debug("      Renaming files...")
-  file.rename(
+  fs::file_move(
     fn |> .path_force_abs(path_dir_from),
     fn |> .path_force_abs(path_dir_to)
   ) |>
