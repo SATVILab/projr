@@ -34,9 +34,9 @@ if (setup_github) {
     git = TRUE, github = setup_github, set_env_var = TRUE
   )
 } else {
-  # Create minimal test directory for skipped tests
-  dir_test <- tempfile()
-  dir.create(dir_test)
+  dir_test <- .test_setup_project(
+    git = TRUE, github = FALSE, set_env_var = TRUE
+  )
 }
 
 test_that("GitHub test releases are created and reusable", {

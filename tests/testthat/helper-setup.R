@@ -568,3 +568,7 @@
 }
 
 .test_setup_project()
+
+.has_internet <- function() {
+  !is.null(curl::nslookup("captive.apple.com", error = FALSE))
+}

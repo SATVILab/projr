@@ -108,6 +108,3 @@ withr::defer(
   invisible(TRUE)
 }
 
-.has_internet <- function() {
-  !is.null(curl::nslookup("captive.apple.com", error = FALSE))
-}

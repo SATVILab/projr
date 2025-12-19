@@ -703,7 +703,7 @@
     path_to = path_dir_save_local,
     output_level = output_level
   )
-  invisible(fs::file_move(from = path_fn, to = path_to))
+  invisible(fs::file_move(path_fn, path_to))
   unlink(path_dir_save_tmp, recursive = TRUE, force = TRUE)
   invisible(path_to)
 }

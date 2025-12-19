@@ -403,7 +403,7 @@
     invisible(file.remove(file_to))
   }
 
-  fs::file_move(from = path, to = file_to)
+  fs::file_move(path, file_to)
   .cli_debug("      Completed copying file")
   invisible(TRUE)
 }

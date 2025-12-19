@@ -175,7 +175,7 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
       files_to_copy <- c("_projr.yml", "manifest.csv", "VERSION", "_quarto.yml", "index.qmd")
       for (f in files_to_copy) {
         if (file.exists(f)) {
-          fs::file_copy(f, file.path(clone_dir, f))
+          fs::file_copy(f, file.path(clone_dir, f), overwrite = TRUE)
         }
       }
 
