@@ -41,6 +41,9 @@
 
 .test_set()
 
+.set_no_git_prompt()
+
+
 # instruct deletion upon completion of all tests
 withr::defer(
   {

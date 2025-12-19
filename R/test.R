@@ -78,9 +78,22 @@
 # so that we can detect Windows GHA environment
 # and skip tests accordingly
 .is_windows_gha <- function() {
-  Sys.info()["sysname"] == "Windows" &&
-    Sys.getenv("GITHUB_ACTIONS") == "true"
+ .is_windows() && .is_gha()
 }
+
+.is_gha <- function() {
+  Sys.getenv("GITHUB_ACTIONS") == "true"
+}
+
+.is_windows <- function() {
+  Sys.info()["sysname"] == "Windows"
+}
+
+.set_no_git_prompt <- function() {
+  Sys.setenv("GIT_TERMINAL_PROMPT" = "0")
+}
+
+
 
 
 # Check if running in CRAN test mode
