@@ -722,14 +722,12 @@
   .cli_debug("    path_dir_from: {path_dir_from}")
   .cli_debug("    path_dir_to: {path_dir_to}")
 
-  vol_from <- .path_volume(path_dir_from)
-  vol_to   <- .path_volume(dirname(path_dir_to))
-
   # Ensure destination parent exists for the rename attempt
-  dir.create(dirname(path_dir_to), recursive = TRUE, showWarnings = FALSE)
+  
 
-  if (!is.na(vol_from) && !is.na(vol_to) && identical(vol_from, vol_to)) {
+  if (.is_same_filesystem(path_dir_from, path_dir_to)) {
     .cli_debug("    Same filesystem detected, trying file.rename()")
+    .dir_create(dirname(path_dir_to))
     res <- suppressWarnings(file.rename(path_dir_from, path_dir_to))
     if (isTRUE(res)) {
       .cli_debug("    file.rename() succeeded")
@@ -866,14 +864,7 @@
     invisible()
 }
 
-.path_volume <- function(x) {
-  x <- fs::path_abs(x)
-  if (.Platform$OS.type != "windows") return("/")
-  m <- regexpr("^(//[^/]+/[^/]+|[A-Za-z]:)", x)
-  ifelse(m == -1, NA_character_, regmatches(x, m))
-}
-
-.same_filesystem <- function(path1, path2, follow_symlinks = TRUE) {
+.is_same_filesystem <- function(path1, path2, follow_symlinks = TRUE) {
   stopifnot(requireNamespace("fs", quietly = TRUE))
 
   # Prefer "follow = TRUE" if you care
