@@ -271,7 +271,8 @@
   if (length(asset_list) == 0L) {
     stop(
       "No assets found in release '", tag,
-      "' for repo '", repo, "'.", call. = FALSE
+      "' for repo '", repo, "'.",
+      call. = FALSE
     )
   }
 

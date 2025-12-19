@@ -168,6 +168,48 @@ data %>% filter(x > 0) %>% mutate(y = x + 1)
 
 ## Common Patterns
 
+### Logging with .cli_debug
+
+**DO NOT pass output_level as a parameter** to functions that use `.cli_debug()`:
+- `.cli_debug()` automatically reads the `PROJR_OUTPUT_LEVEL` environment variable
+- This reduces function signature complexity and maintenance burden
+- No need to thread `output_level` through every function
+
+**DO NOT add .cli_debug to high-volume operations**:
+- Avoid logging for each file in a loop over many files
+- Avoid logging for each item in large collections
+- Keep logging focused on function entry/exit and key operations
+- Example: Log "Processing 100 files" instead of logging each file
+
+```r
+# Correct: Use .cli_debug without output_level parameter
+.my_function <- function(path_dir) {
+  .cli_debug("Starting .my_function()")
+  .cli_debug("  path_dir: {path_dir}")
+  
+  files <- list.files(path_dir)
+  .cli_debug("  Found {length(files)} files")  # Summary, not per-file
+  
+  for (file in files) {
+    # Process file without logging each one
+    process_file(file)
+  }
+  
+  .cli_debug("Finished .my_function()")
+}
+
+# Incorrect: Passing output_level parameter
+.my_function <- function(path_dir, output_level = "std") {
+  .cli_debug("Starting", output_level = output_level)  # Don't do this
+}
+
+# Incorrect: Logging each file in a loop
+for (file in files) {
+  .cli_debug("Processing file: {file}")  # Too verbose!
+  process_file(file)
+}
+```
+
 ### Conditional Execution
 
 Many functions have an `output_run` parameter:

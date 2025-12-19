@@ -216,7 +216,7 @@
   .assert_given_full(remote_pre)
   .remote_ls_final_github_httr(
     repo = .gh_repo_get(),
-    tag  = remote_pre[["tag"]],
+    tag = remote_pre[["tag"]],
     api_url = api_url,
     token = token
   )

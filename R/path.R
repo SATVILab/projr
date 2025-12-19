@@ -17,12 +17,18 @@
     return(fn)
   }
   .assert_chr(exc, required = TRUE)
+
+  .cli_debug("        Filtering {length(fn)} paths with exclusions: {paste(exc, collapse = ', ')}")
+
   pattern <- paste0(
     paste0("^", gsub("/+$|^\\^", "", exc), "/", collapse = "|"),
     "|",
     paste0("^", gsub("/+$|^\\^", "", exc), "$", collapse = "|")
   )
-  fn[!grepl(pattern, fn)]
+  result <- fn[!grepl(pattern, fn)]
+
+  .cli_debug("        After filtering: {length(result)} paths remain")
+  result
 }
 
 # -------------------
@@ -138,19 +144,30 @@
   .assert_flag(recursive, TRUE)
   .assert_flag(full.names, TRUE)
   .assert_flag(all.files, TRUE)
+
+  .cli_debug("      Starting .file_ls() on {path_dir}")
+
   path_vec <- list.files(
     path_dir,
     recursive = recursive, full.names = full.names, all.files = all.files
   )
+
+  .cli_debug("        Found {length(path_vec)} entries before filtering")
+
   if (.is_len_0(path_vec)) {
+    .cli_debug("      Finished .file_ls() - no files")
     return(path_vec)
   }
   path_vec <- path_vec |> .file_ls_rm_dir(path_dir, full.names)
 
   if (.is_len_0(path_vec)) {
+    .cli_debug("      Finished .file_ls() - no files after dir removal")
     return(path_vec)
   }
-  .dir_filter_removable(path_vec)
+
+  result <- .dir_filter_removable(path_vec)
+  .cli_debug("      Finished .file_ls() - {length(result)} files")
+  result
 }
 
 .file_ls_rm_dir <- function(fn, path_dir, full.names) {
@@ -219,13 +236,19 @@
   .assert_dir_exists(path_dir, TRUE)
   .assert_flag(recursive, TRUE)
   .assert_flag(full.names, TRUE)
-  list.dirs(
+
+  .cli_debug("      Starting .dir_ls() on {path_dir}")
+
+  result <- list.dirs(
     path_dir,
     recursive = recursive, full.names = full.names
   ) |>
     fs::path_norm() |>
     as.character() |>
     .dir_filter_removable(path_dir)
+
+  .cli_debug("      Finished .dir_ls() - {length(result)} directories")
+  result
 }
 
 # list paths to exclude
@@ -383,19 +406,28 @@
   .assert_flag(recursive_file, TRUE)
   .assert_flag(recursive_dir, TRUE)
   .assert_flag(delete_hidden, TRUE)
+
+  .cli_debug("  Starting .dir_clear()")
+  .cli_debug("    path_dir: {path_dir}")
+
   if (!.dir_clear_check(path_dir)) {
+    .cli_debug("    Directory check failed, returning FALSE")
+    .cli_debug("  Finished .dir_clear()")
     return(invisible(FALSE))
   }
 
+  .cli_debug("    Clearing files...")
   .dir_clear_file(
     path_dir,
     delete_hidden = delete_hidden, recursive = recursive_file,
     dir_exc = dir_exc
   )
+  .cli_debug("    Clearing directories...")
   .dir_clear_dir(
     path_dir,
     recursive = recursive_dir, dir_exc = dir_exc
   )
+  .cli_debug("  Finished .dir_clear()")
   invisible(TRUE)
 }
 
@@ -518,24 +550,40 @@
                             path_dir_to,
                             dir_exc = NULL,
                             fn_exc = NULL) {
+  .cli_debug("Starting .dir_move_exact()")
+  .cli_debug("  path_dir_from: {path_dir_from}")
+  .cli_debug("  path_dir_to: {path_dir_to}")
+  .cli_debug("  dir_exc: {paste(dir_exc, collapse = ', ')}")
+  .cli_debug("  fn_exc: {paste(fn_exc, collapse = ', ')}")
+
   # Check if there are any files to move
+  .cli_debug("  Listing files to move...")
   files_to_move <- .file_ls(path_dir_from) |>
     .path_filter_spec(dir_exc) |>
     .path_filter_spec(fn_exc) |>
     .path_filter_spec_add_back_file(path_dir_from, dir_exc)
+  .cli_debug("  Found {length(files_to_move)} files to move")
 
+  .cli_debug("  Listing directories to move...")
   dirs_to_move <- .dir_ls(path_dir_from) |>
     .path_filter_spec(dir_exc) |>
     .path_filter_spec_add_back_file(path_dir_from, dir_exc)
+  .cli_debug("  Found {length(dirs_to_move)} directories to move")
 
   # Only create destination if there are files or directories to move
   if (.is_len_0(files_to_move) && .is_len_0(dirs_to_move)) {
+    .cli_debug("  No files or directories to move, returning FALSE")
+    .cli_debug("Finished .dir_move_exact()")
     return(invisible(FALSE))
   }
 
+  .cli_debug("  Clearing destination directory...")
   .dir_clear(path_dir_to)
+  .cli_debug("  Creating destination directory...")
   .dir_create(path_dir_to)
+  .cli_debug("  Moving files and directories...")
   .dir_move(path_dir_from, path_dir_to, dir_exc = dir_exc, fn_exc = fn_exc)
+  .cli_debug("Finished .dir_move_exact()")
 }
 
 # copy across, retaining relative paths
@@ -642,17 +690,24 @@
                       path_dir_to,
                       dir_exc = NULL,
                       fn_exc = NULL) {
+  .cli_debug("  Starting .dir_move()")
+  .cli_debug("    path_dir_from: {path_dir_from}")
+  .cli_debug("    path_dir_to: {path_dir_to}")
+
+  .cli_debug("    Moving files...")
   .dir_move_file(
     path_dir_from = path_dir_from,
     path_dir_to = path_dir_to,
     dir_exc = dir_exc,
     fn_exc = fn_exc
   )
+  .cli_debug("    Moving directories...")
   .dir_move_dir(
     path_dir_from = path_dir_from,
     path_dir_to = path_dir_to,
     dir_exc = dir_exc
   )
+  .cli_debug("  Finished .dir_move()")
 }
 
 .dir_move_file <- function(fn = NULL,
@@ -661,13 +716,17 @@
                            dir_exc = NULL,
                            fn_exc = NULL) {
   .assert_string(path_dir_from)
+  .cli_debug("    Starting .dir_move_file()")
+
   if (is.null(fn)) {
+    .cli_debug("      Listing files from source directory...")
     fn <- .file_ls(path_dir_from) |>
       .path_filter_spec(dir_exc) |>
       .path_filter_spec(fn_exc) |>
       .path_filter_spec_add_back_file(path_dir_from, dir_exc)
   } else {
     .assert_chr_min(fn)
+    .cli_debug("      Filtering provided files...")
     fn <- file.path(path_dir_from, fn) |>
       .file_filter_exists() |>
       .file_filter_dir_non() |>
@@ -676,17 +735,26 @@
       .path_filter_spec(fn_exc) |>
       .path_filter_spec_add_back_file(path_dir_from, dir_exc)
   }
+
+  .cli_debug("      Found {length(fn)} files to move")
+
   if (.is_len_0(fn)) {
+    .cli_debug("      No files to move")
+    .cli_debug("    Finished .dir_move_file()")
     return(invisible(FALSE))
   }
+
   .assert_string(path_dir_to, TRUE)
+  .cli_debug("      Creating directory tree...")
   .dir_copy_file_tree(fn, path_dir_to)
   .assert_string(path_dir_to)
+  .cli_debug("      Renaming files...")
   file.rename(
     fn |> .path_force_abs(path_dir_from),
     fn |> .path_force_abs(path_dir_to)
   ) |>
     invisible()
+  .cli_debug("    Finished .dir_move_file()")
   invisible(TRUE)
 }
 
@@ -701,10 +769,13 @@
 
   .assert_chr(path_exc, required = TRUE)
 
+  .cli_debug("        Checking for excluded paths that are files...")
+
   # Check if the excluded path exists as a non-directory file
   exc_path <- file.path(path_dir, path_exc)
   if (length(.file_filter_dir_non(exc_path)) > 0) {
     # Return relative path, not absolute
+    .cli_debug("        Adding back {length(path_exc)} excluded file(s)")
     fn <- c(fn, path_exc)
   }
   fn
@@ -715,12 +786,16 @@
                           path_dir_to,
                           dir_exc) {
   .assert_string(path_dir_from)
+  .cli_debug("    Starting .dir_move_dir()")
+
   if (is.null(path_dir)) {
+    .cli_debug("      Listing directories from source...")
     path_dir <- .dir_ls(path_dir_from) |>
       .path_filter_spec(dir_exc) |>
       .path_filter_spec_add_back_file(path_dir_from, dir_exc)
   } else {
     .assert_chr_min(path_dir)
+    .cli_debug("      Filtering provided directories...")
     path_dir <- file.path(path_dir_from, path_dir) |>
       .file_filter_exists() |>
       .file_filter_dir() |>
@@ -728,19 +803,28 @@
       .path_filter_spec(dir_exc) |>
       .path_filter_spec_add_back_file(path_dir_from, dir_exc)
   }
+
+  .cli_debug("      Found {length(path_dir)} directories to move")
+
   if (.is_len_0(path_dir)) {
+    .cli_debug("      No directories to move")
+    .cli_debug("    Finished .dir_move_dir()")
     return(invisible(FALSE))
   }
+
+  .cli_debug("      Renaming directories...")
   suppressWarnings(file.rename(
     path_dir |> .path_force_abs(path_dir_from),
     path_dir |> .path_force_abs(path_dir_to)
   ) |>
     invisible())
 
+  .cli_debug("      Removing remaining directories from source...")
   .dir_rm(
     file.path(path_dir_from, path_dir)[
       dir.exists(file.path(path_dir_from, path_dir))
     ]
   )
+  .cli_debug("    Finished .dir_move_dir()")
   invisible(TRUE)
 }
