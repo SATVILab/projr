@@ -207,7 +207,7 @@
     "Local remote: Directory '{remote}' is empty (no files), removing it",
     output_level = output_level
   )
-  .remote_final_rm_local(remote, output_level)
+  .remote_final_rm_local(remote)
   invisible(TRUE)
 }
 
@@ -369,7 +369,7 @@
   )
   suppressWarnings(file.remove(fn_vec))
   if (rm_if_empty) {
-    .remote_final_rm_if_empty("local", remote, output_level)
+    .remote_final_rm_if_empty("local", remote)
   }
   invisible(TRUE)
 }

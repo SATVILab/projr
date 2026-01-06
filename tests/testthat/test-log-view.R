@@ -211,9 +211,9 @@ test_that("CLI functions write to most recent log automatically", {
       log_file <- log_info$log_file
 
       # Call CLI functions without passing log_file
-      .cli_info("Info message test", output_level = "std")
-      .cli_debug("Debug message test", output_level = "std")
-      .cli_success("Success message test", output_level = "std")
+      .cli_info("Info message test")
+      .cli_debug("Debug message test")
+      .cli_success("Success message test")
 
       # Read log file
       content <- readLines(log_file, warn = FALSE)
@@ -242,7 +242,7 @@ test_that("Debug messages always logged regardless of output_level", {
 
       # Call debug with output_level = "none" (should still log)
       .cli_debug("Debug with none level", output_level = "none")
-      .cli_debug("Debug with std level", output_level = "std")
+      .cli_debug("Debug with std level")
 
       # Read log file
       content <- readLines(log_file, warn = FALSE)

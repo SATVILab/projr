@@ -199,8 +199,8 @@ data %>% filter(x > 0) %>% mutate(y = x + 1)
 }
 
 # Incorrect: Passing output_level parameter
-.my_function <- function(path_dir, output_level = "std") {
-  .cli_debug("Starting", output_level = output_level)  # Don't do this
+.my_function <- function(path_dir) {
+  .cli_debug("Starting")  # Don't do this
 }
 
 # Incorrect: Logging each file in a loop

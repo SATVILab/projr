@@ -160,21 +160,7 @@ test_that("projr_build_copy_pkg works", {
 test_that("projr_build_copy_dir works when outputting", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
-  .dir_create(dir_test)
-  .test_set()
-  withr::defer(.test_unset())
-  withr::defer(unlink(dir_test, recursive = TRUE))
-
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -448,32 +434,7 @@ test_that(".build_copy_dir works with non-standard label names", {
 test_that("projr_build_frontmatter_get works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .dir_get_tmp_random_path()
-
-  .dir_create(dir_test)
-  withr::defer(.test_unset())
-  withr::defer(unlink(dir_test, recursive = TRUE))
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
-
-  for (x in fn_vec) {
-    fs::file_copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
-
-
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -538,31 +499,7 @@ test_that("projr_build_frontmatter_get works", {
 test_that(".build_copy_docs_quarto_format_get works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .dir_get_tmp_random_path()
-
-  .dir_create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
-
-  for (x in fn_vec) {
-    fs::file_copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
-
-
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -683,32 +620,7 @@ test_that(".build_copy_docs_quarto_fn_prefix/suffix/path_get works", {
 test_that(".build_copy_docs_quarto_format_get works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .dir_get_tmp_random_path()
-
-  .dir_create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
-
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
-
-  for (x in fn_vec) {
-    fs::file_copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
-
-
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -731,7 +643,6 @@ test_that(".build_copy_docs_quarto_format_get works", {
       dir_docs <- projr_path_get_dir("docs", safe = TRUE)
       unlink(dir_docs, recursive = TRUE)
       dir_docs <- projr_path_get_dir("docs", safe = TRUE)
-      # invisible(file.create(file.path(dir_docs, "test.html")))
       .build_copy_docs_quarto(FALSE)
       expect_true(file.exists(file.path(dir_docs, "test.html")))
       expect_true(file.exists(file.path(dir_docs, "test_files/abc.txt")))
@@ -753,42 +664,7 @@ test_that(".build_copy_docs_quarto_format_get works", {
 test_that(".build_copy_docs_rmd_format_get works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .dir_get_tmp_random_path()
-
-  .dir_create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
-
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
-
-  for (x in fn_vec) {
-    fs::file_copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
-  # nm_list <- list(
-  #   engine = "quarto_document",
-  #   format = "book",
-  #   pkg = "testProjr2",
-  #   gh = "MiguelRodo",
-  #   first = "Tarzan",
-  #   last = "Climber",
-  #   email = "fruit@palm_tree.am.zn",
-  #   title = "Urgh",
-  #   filename = "test"
-  # )
-  # .init_description(nm_list)
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
 
   usethis::with_project(
     path = dir_test,
@@ -903,29 +779,7 @@ test_that(".build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
 test_that(".build_copy_docs_rmd_format_get works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .dir_get_tmp_random_path()
-
-  .dir_create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
-
-  for (x in fn_vec) {
-    fs::file_copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
 
 
   usethis::with_project(

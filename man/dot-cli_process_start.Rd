@@ -4,7 +4,7 @@
 \alias{.cli_process_start}
 \title{Start a process with a spinner/status indicator}
 \usage{
-.cli_process_start(..., output_level = "std")
+.cli_process_start(...)
 }
 \arguments{
 \item{...}{Message components}

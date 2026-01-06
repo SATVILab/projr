@@ -98,12 +98,15 @@ test_that(".build_copy_to_unsafe successfully copies when files exist", {
       expect_true(file.exists(file.path(safe_dir, "test2.txt")))
 
       # Call .build_copy_to_unsafe
+      # browser()
+      # debugonce(.dir_move_no_exc)
       result <- suppressMessages(.build_copy_to_unsafe(output_run = TRUE))
 
       # Should return TRUE
       expect_true(result)
 
       # Files should now be in unsafe directory
+
       expect_true(dir.exists(unsafe_dir))
       expect_true(file.exists(file.path(unsafe_dir, "test1.txt")))
       expect_true(file.exists(file.path(unsafe_dir, "test2.txt")))

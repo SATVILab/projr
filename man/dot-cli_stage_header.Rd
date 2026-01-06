@@ -4,7 +4,7 @@
 \alias{.cli_stage_header}
 \title{Show a stage header}
 \usage{
-.cli_stage_header(stage_name, build_type = "output", output_level = "std")
+.cli_stage_header(stage_name, build_type = "output")
 }
 \arguments{
 \item{stage_name}{Character. Name of the build stage.}

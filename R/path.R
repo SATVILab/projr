@@ -687,6 +687,7 @@
   .cli_debug("    path_dir_from: {path_dir_from}")
   .cli_debug("    path_dir_to: {path_dir_to}")
 
+  .dir_create(path_dir_to)
   if (is.null(dir_exc) && is.null(fn_exc)) {
     .cli_debug("    No exclusions provided, using optimized move")
     res <- .dir_move_no_exc(
@@ -723,25 +724,28 @@
   .cli_debug("    path_dir_to: {path_dir_to}")
 
   # Ensure destination parent exists for the rename attempt
-  
-
   if (.is_same_filesystem(path_dir_from, path_dir_to)) {
     .cli_debug("    Same filesystem detected, trying fs::file_move()")
     .dir_create(dirname(path_dir_to))
     res <- tryCatch({
-      fs::file_move(path_dir_from, path_dir_to)
+      # file.rename will actually move just contents across,
+      # whereas fs::file_move will copy the base name
+      # of the directory as well, e.g.
+      # fs::file_move("A", "B") results in B/A/*
+      # whereas file.rename("A", "B") results in B/*
+      file.rename(path_dir_from, path_dir_to)
       invisible(TRUE)
       },
-      error = function(e) {q
-        .cli_debug("    fs::file_move() failed with error: {e$message}")
+      error = function(e) {
+        .cli_debug("    file.rename() failed with error: {e$message}")
         invisible(FALSE)
       }
     )
     if (isTRUE(res)) {
-      .cli_debug("    fs::file_move() succeeded")
+      .cli_debug("    file.rename() succeeded")
       return(invisible(TRUE))
     }
-    .cli_debug("    fs::file_move() failed; falling back")
+    .cli_debug("    file.rename() failed; falling back")
   } else {
     .cli_debug("    Cross-filesystem or unknown volume; using fallback")
   }

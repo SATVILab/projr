@@ -583,7 +583,7 @@
                                       ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
-    "local" = .remote_final_rm_if_empty_local(remote, output_level),
+    "local" = .remote_final_rm_if_empty_local(remote),
     "github" = .remote_final_rm_if_empty_github(remote, output_level, ...)
   )
 }

@@ -68,11 +68,6 @@
 #' When to clear output directories: "pre" (before build, default),
 #' "post" (after build), or "never".
 #' Can also be set via PROJR_CLEAR_OUTPUT environment variable.
-#' @param output_level character.
-#' Level of CLI output: "none" (no additional messages),
-#' "std" (standard messages, default for output builds), or
-#' "debug" (verbose messages for debugging).
-#' Can also be set via PROJR_OUTPUT_LEVEL environment variable.
 #'
 #' @export
 projr_build <- function(bump_component,
@@ -82,8 +77,7 @@ projr_build <- function(bump_component,
                         archive_github = FALSE,
                         archive_local = FALSE,
                         always_archive = TRUE,
-                        clear_output = NULL,
-                        output_level = NULL) {
+                        clear_output = NULL) {
   bump_component <- .build_output_get_bump_component(
     bump_component
   )
@@ -97,8 +91,7 @@ projr_build <- function(bump_component,
     archive_github = archive_github,
     archive_local = archive_local,
     always_archive = always_archive,
-    clear_output = clear_output,
-    output_level = output_level
+    clear_output = clear_output
   )
 }
 
@@ -110,8 +103,7 @@ projr_build_major <- function(msg = NULL,
                               archive_github = FALSE,
                               archive_local = FALSE,
                               always_archive = TRUE,
-                              clear_output = NULL,
-                              output_level = NULL) {
+                              clear_output = NULL) {
   projr_build(
     bump_component = "major",
     msg = msg,
@@ -120,8 +112,7 @@ projr_build_major <- function(msg = NULL,
     archive_github = archive_github,
     archive_local = archive_local,
     always_archive = always_archive,
-    clear_output = clear_output,
-    output_level = output_level
+    clear_output = clear_output
   )
 }
 
@@ -133,8 +124,7 @@ projr_build_minor <- function(msg = NULL,
                               archive_github = FALSE,
                               archive_local = FALSE,
                               always_archive = TRUE,
-                              clear_output = NULL,
-                              output_level = NULL) {
+                              clear_output = NULL) {
   projr_build(
     bump_component = "minor",
     msg = msg,
@@ -143,8 +133,7 @@ projr_build_minor <- function(msg = NULL,
     archive_github = archive_github,
     archive_local = archive_local,
     always_archive = always_archive,
-    clear_output = clear_output,
-    output_level = output_level
+    clear_output = clear_output
   )
 }
 
@@ -156,8 +145,7 @@ projr_build_patch <- function(msg = NULL,
                               archive_github = FALSE,
                               archive_local = FALSE,
                               always_archive = TRUE,
-                              clear_output = NULL,
-                              output_level = NULL) {
+                              clear_output = NULL) {
   projr_build(
     bump_component = "patch",
     msg = msg,
@@ -166,8 +154,7 @@ projr_build_patch <- function(msg = NULL,
     archive_github = archive_github,
     archive_local = archive_local,
     always_archive = always_archive,
-    clear_output = clear_output,
-    output_level = output_level
+    clear_output = clear_output
   )
 }
 
@@ -200,10 +187,6 @@ projr_build_patch <- function(msg = NULL,
 #' When to clear output directories: "pre" (before build),
 #' "post" (after build), or "never" (default for dev builds).
 #' Can also be set via PROJR_CLEAR_OUTPUT environment variable.
-#' @param output_level character.
-#' Level of CLI output: "none" (no additional messages, default for dev builds),
-#' "std" (standard messages), or "debug" (verbose messages for debugging).
-#' Can also be set via PROJR_OUTPUT_LEVEL environment variable.
 #'
 #' @export
 projr_build_dev <- function(file = NULL,
@@ -211,8 +194,7 @@ projr_build_dev <- function(file = NULL,
                             old_dev_remove = TRUE,
                             args_engine = list(),
                             profile = NULL,
-                            clear_output = "never",
-                            output_level = NULL) {
+                            clear_output = "never") {
   # NULL if FALSE and "dev" if TRUE
   bump_component <- .build_dev_get_bump_component(bump)
   .build(
@@ -221,8 +203,7 @@ projr_build_dev <- function(file = NULL,
     old_dev_remove = TRUE,
     args_engine = args_engine,
     profile = profile,
-    clear_output = clear_output,
-    output_level = output_level
+    clear_output = clear_output
   )
 }
 
@@ -248,8 +229,7 @@ projr_build_dev <- function(file = NULL,
                    archive_github = FALSE,
                    archive_local = FALSE,
                    always_archive = TRUE,
-                   clear_output = NULL,
-                   output_level = NULL) {
+                   clear_output = NULL) {
   if (!is.null(profile)) {
     old_profile <- Sys.getenv("PROJR_PROFILE")
     Sys.setenv(PROJR_PROFILE = profile)
@@ -261,17 +241,15 @@ projr_build_dev <- function(file = NULL,
   .build_ensure_version()
   clear_output <- .build_get_clear_output(clear_output)
 
-  # Determine output_run and get appropriate output level
+  # Determine output_run
   output_run <- .build_get_output_run(bump_component)
-  output_level <- .cli_output_level_get(output_level, output_run)
   build_type <- if (output_run) "output" else "dev"
 
   # Initialize build log
   log_info <- .log_build_init(
     build_type = build_type,
     bump_component = bump_component,
-    msg = msg,
-    output_level = output_level
+    msg = msg
   )
 
   # Track build success for logging
@@ -282,7 +260,7 @@ projr_build_dev <- function(file = NULL,
   tryCatch({
     # Show initial build stage header
     .cli_stage_header(
-      "Pre-Build Preparation", build_type, output_level
+      "Pre-Build Preparation", build_type
     )
 
     # If no file specified, check for build.scripts configuration
@@ -298,21 +276,20 @@ projr_build_dev <- function(file = NULL,
 
     version_run_on_list <- .build_pre(
       bump_component, msg, clear_output,
-      archive_github, archive_local, always_archive,
-      output_level
+      archive_github, archive_local, always_archive
     )
 
     # Build stage
-    .cli_stage_header("Build", build_type, output_level)
-    .build_impl(version_run_on_list, file, args_engine, output_level)
+    .cli_stage_header("Build", build_type)
+    .build_impl(version_run_on_list, file, args_engine)
 
     # Post-build stage
-    .cli_stage_header("Post-Build", build_type, output_level)
+    .cli_stage_header("Post-Build", build_type)
     total_time <- Sys.time() - time_start
     .build_post(
       version_run_on_list, bump_component, msg, old_dev_remove,
       archive_github, archive_local, always_archive, clear_output, total_time,
-      file = file, output_level
+      file = file
     )
 
     build_success <- TRUE
@@ -358,9 +335,8 @@ projr_build_dev <- function(file = NULL,
                        clear_output,
                        archive_github,
                        archive_local,
-                       always_archive,
-                       output_level = "std") {
-  .cli_debug("Starting pre-build checks and setup", output_level = output_level)
+                       always_archive) {
+  .cli_debug("Starting pre-build checks and setup")
 
   projr_yml_check(NULL)
   # Check that all scripts and hooks that are to be run exist
@@ -372,64 +348,60 @@ projr_build_dev <- function(file = NULL,
   # that we're not behind upstream remote,
   # and that we have Git and  Git remote setup
   .cli_step(
-    "Checking prerequisites (Git, GitHub, upstream)",
-    output_level = output_level
+    "Checking prerequisites (Git, GitHub, upstream)"
   )
-  .build_pre_check(output_run, output_level)
+  .build_pre_check(output_run)
 
   # Prepare remote destinations (GitHub releases)
-  .cli_step(
-    "Preparing remote destinations",
-    output_level = output_level
-  )
+  .cli_step("Preparing remote destinations")
+
   .build_pre_remotes_prepare(
     bump_component = bump_component,
     archive_github = archive_github,
     archive_local = archive_local,
-    always_archive = always_archive,
-    output_level = output_level
+    always_archive = always_archive
   )
 
   # update reng, ignore files, doc directory and version
-  .cli_step("Updating documentation and version information", output_level = output_level)
-  .build_pre_document(output_run, archive_local, output_level)
+  .cli_step("Updating documentation and version information")
+  .build_pre_document(output_run, archive_local)
 
   # get DESCRIPTION and build versions under all
   # build outcomes
-  .cli_debug("Computing version information", output_level = output_level)
+  .cli_debug("Computing version information")
   version_run_on_list <- .version_run_onwards_get(bump_component)
 
   # run any pre-build hooks (backward compatible with build.script)
   # For dev builds, use dev.hooks; for production builds, use build.hooks
   is_dev_build <- is.null(bump_component) || bump_component == "dev"
-  .cli_step("Running pre-build hooks", output_level = output_level)
-  .build_pre_hooks_run(is_dev_build, output_level)
+  .cli_step("Running pre-build hooks")
+  .build_pre_hooks_run(is_dev_build)
 
   # clear output and docs directories, and set
   # run version to output run version if need be
-  .cli_debug("Setting up output directories", output_level = output_level)
+  .cli_debug("Setting up output directories")
   .build_pre_setup_for_output_run(
-    version_run_on_list, output_run, clear_output, output_level
+    version_run_on_list, output_run, clear_output
   )
 
   # commit any unstaged files pre-run
-  .cli_step("Committing pre-build changes to Git", output_level = output_level)
+  .cli_step("Committing pre-build changes to Git")
   .build_pre_commit_git(
     bump_component, version_run_on_list, msg
   )
 
   # Output Git information for debug (after pre-build commit)
-  .build_debug_git_info(output_level)
+  .build_debug_git_info()
 
   # create licenses for input directories (raw-data, cache)
-  .cli_debug("Creating licenses for input directories", output_level = output_level)
+  .cli_debug("Creating licenses for input directories")
   .license_dir_create_all_pre(output_run)
 
   # hash cache and raw directories
-  .cli_debug("Building manifest (hashing cache and raw directories)", output_level = output_level)
+  .cli_debug("Building manifest (hashing cache and raw directories)")
   .build_manifest_pre(output_run)
 
-  .cli_success("Pre-build preparation completed", output_level = output_level)
+  .cli_success("Pre-build preparation completed")
 
   # return version_run_on_list
   invisible(version_run_on_list)
@@ -437,20 +409,19 @@ projr_build_dev <- function(file = NULL,
 
 # actual
 # ------------------------
-.build_impl <- function(version_run_on_list, file, args_engine, output_level = "std") {
-  .cli_debug("Starting document rendering", output_level = output_level)
+.build_impl <- function(version_run_on_list, file, args_engine) {
+  .cli_debug("Starting document rendering")
   if (!is.null(file) && length(file) > 0) {
-    .cli_info("Building specified files: {paste(file, collapse = ', ')}", output_level = output_level)
+    .cli_info("Building specified files: {paste(file, collapse = ', ')}")
   }
 
   .build_engine(
     file = file,
     version_run_on_list = version_run_on_list,
-    args_engine = args_engine,
-    output_level = output_level
+    args_engine = args_engine
   )
 
-  .cli_success("Document rendering completed", output_level = output_level)
+  .cli_success("Document rendering completed")
   invisible(version_run_on_list)
 }
 
@@ -465,47 +436,46 @@ projr_build_dev <- function(file = NULL,
                         always_archive,
                         clear_output,
                         total_time,
-                        file = NULL,
-                        output_level = "std") {
+                        file = NULL) {
   output_run <- .build_get_output_run(bump_component)
 
   # move artefacts to unsafe, final directories
-  .cli_step("Finalizing build artifacts", output_level = output_level)
+  .cli_step("Finalizing build artifacts")
   .build_post_finalise_artefacts(
     bump_component, version_run_on_list, clear_output,
-    file = file, output_level
+    file = file
   )
 
   # update documentation
-  .cli_step("Updating documentation and metadata", output_level = output_level)
-  .build_post_document(bump_component, version_run_on_list, msg, total_time, output_level)
+  .cli_step("Updating documentation and metadata")
+  .build_post_document(bump_component, version_run_on_list, msg, total_time)
 
   # record (version, rmd, git)
-  .cli_step("Committing post-build changes to Git", output_level = output_level)
+  .cli_step("Committing post-build changes to Git")
   .build_post_commit_git(bump_component, version_run_on_list, msg)
 
   # send to remotes
-  .cli_step("Sending artifacts to remote destinations", output_level = output_level)
+  .cli_step("Sending artifacts to remote destinations")
   .build_post_send_dest(
     bump_component, old_dev_remove, archive_github, archive_local,
-    always_archive, output_level
+    always_archive
   )
 
   # run post-build hooks (backward compatible with build.script)
   # For dev builds, use dev.hooks; for production builds, use build.hooks
   is_dev_build <- is.null(bump_component) || bump_component == "dev"
-  .cli_step("Running post-build hooks", output_level = output_level)
-  .build_post_hooks_run(is_dev_build, output_level)
+  .cli_step("Running post-build hooks")
+  .build_post_hooks_run(is_dev_build)
 
   # initiate dev version
-  .cli_debug("Setting up development version", output_level = output_level)
+  .cli_debug("Setting up development version")
   .build_post_dev(bump_component, version_run_on_list, msg)
 
   # push
-  .cli_step("Pushing to Git remote", output_level = output_level)
+  .cli_step("Pushing to Git remote")
   .build_git_push(output_run)
 
-  .cli_success("Post-build completed successfully", output_level = output_level)
+  .cli_success("Post-build completed successfully")
 
   invisible(TRUE)
 }
@@ -515,22 +485,21 @@ projr_build_dev <- function(file = NULL,
 .build_post_document <- function(bump_component,
                                  version_run_on_list,
                                  msg,
-                                 total_time,
-                                 output_level = "std") {
+                                 total_time) {
   output_run <- .build_get_output_run(bump_component)
-  .cli_debug("Updating renv lockfile", output_level = output_level)
+  .cli_debug("Updating renv lockfile")
   .build_renv_snapshot(output_run)
-  .cli_debug("Updating roxygen documentation", output_level = output_level)
+  .cli_debug("Updating roxygen documentation")
   .build_roxygenise(output_run)
-  .cli_debug("Updating citation files", output_level = output_level)
+  .cli_debug("Updating citation files")
   .build_cite(output_run)
-  .cli_debug("Updating changelog", output_level = output_level)
+  .cli_debug("Updating changelog")
   .build_changelog_add(
     msg = msg,
     bump_component = bump_component,
     version_run_on_list = version_run_on_list
   )
-  .cli_debug("Updating buildlog", output_level = output_level)
+  .cli_debug("Updating buildlog")
   .build_buildlog_add(
     msg = msg,
     bump_component = bump_component,
@@ -538,18 +507,18 @@ projr_build_dev <- function(file = NULL,
     total_time = total_time
   )
   # create licenses for output directories (output, docs, data)
-  .cli_debug("Creating licenses for output directories", output_level = output_level)
+  .cli_debug("Creating licenses for output directories")
   .license_dir_create_all_post(output_run)
 
   # hash raw-data and outputs, then save manifest table
-  .cli_debug("Updating manifest (hashing outputs)", output_level = output_level)
+  .cli_debug("Updating manifest (hashing outputs)")
   .build_manifest_post(output_run)
 
   # Display change summary at debug level
-  .build_change_summary_display(bump_component, output_level)
+  .build_change_summary_display(bump_component)
 
   # update README
-  .cli_debug("Rendering README.Rmd if present", output_level = output_level)
+  .cli_debug("Rendering README.Rmd if present")
   .build_readme_rmd_render(output_run)
 }
 
@@ -558,8 +527,7 @@ projr_build_dev <- function(file = NULL,
 .build_post_finalise_artefacts <- function(bump_component,
                                            version_run_on_list,
                                            clear_output,
-                                           file = NULL,
-                                           output_level = "std") {
+                                           file = NULL) {
   .cli_debug("Starting .build_post_finalise_artefacts()")
   .cli_debug("  bump_component: {bump_component}")
   .cli_debug("  clear_output: {clear_output}")
@@ -633,25 +601,21 @@ projr_build_dev <- function(file = NULL,
                                   old_dev_remove,
                                   archive_github,
                                   archive_local,
-                                  always_archive,
-                                  output_level = "std") {
+                                  always_archive) {
   .cli_debug(
-    "Sending to remote destinations",
-    output_level = output_level
+    "Sending to remote destinations"
   )
 
   # Lenient: prepare all required GitHub releases for this build (non-blocking)
   .dest_prepare_github_releases(
     bump_component, archive_github, archive_local, always_archive,
-    strict = FALSE,
-    output_level
+    strict = FALSE
   )
 
   .dest_send(
-    bump_component, archive_github, archive_local, always_archive,
-    output_level
+    bump_component, archive_github, archive_local, always_archive
   )
-  .cli_debug("Clearing old development builds", output_level = output_level)
+  .cli_debug("Clearing old development builds")
   .build_clear_old(
     .build_get_output_run(bump_component), old_dev_remove
   )

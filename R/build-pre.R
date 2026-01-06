@@ -2,37 +2,36 @@
 # Pre-build
 # ==========================
 
-.build_pre_check <- function(output_run, output_level = "std") {
+.build_pre_check <- function(output_run) {
   # Check required packages are available BEFORE starting build
-  .cli_debug("Checking required packages", output_level = output_level)
+  .cli_debug("Checking required packages")
   .build_check_packages_available(output_run)
 
   # check build restrictions (branch)
-  .cli_debug("Checking build restrictions", output_level = output_level)
+  .cli_debug("Checking build restrictions")
   .build_check_restrictions(output_run)
 
   # set and check authorisation is available
-  .cli_debug("Checking environment variables", output_level = output_level)
+  .cli_debug("Checking environment variables")
   .build_env_check(output_run)
 
   # check that we have Git if needed
-  .cli_debug("Checking Git repository", output_level = output_level)
+  .cli_debug("Checking Git repository")
   .build_git_check(output_run)
 
   # check that we have GitHub remote if needed
-  .cli_debug("Checking GitHub remote", output_level = output_level)
+  .cli_debug("Checking GitHub remote")
   .build_github_check(output_run)
 
   # check we are not missing upstream commits
-  .cli_debug("Checking upstream commits", output_level = output_level)
+  .cli_debug("Checking upstream commits")
   .build_exit_if_behind_upstream(output_run)
 }
 
 .build_pre_remotes_prepare <- function(bump_component,
                                        archive_github,
                                        archive_local,
-                                       always_archive,
-                                       output_level = "std") {
+                                       always_archive) {
   output_run <- .build_get_output_run(bump_component)
   if (!output_run) {
     return(invisible(FALSE))
@@ -44,8 +43,7 @@
     archive_github = archive_github,
     archive_local = archive_local,
     always_archive = always_archive,
-    strict = TRUE,
-    output_level = output_level
+    strict = TRUE
   )
 }
 
@@ -243,44 +241,43 @@
   }
 }
 
-.build_pre_document <- function(output_run, archive_local, output_level = "std") {
+.build_pre_document <- function(output_run, archive_local) {
   # get version for DESCRIPTION and bookdown from run onwards
   # snapshot if need be
-  .cli_debug("Snapshotting renv", output_level = output_level)
+  .cli_debug("Snapshotting renv")
   .build_renv_snapshot(output_run)
 
   # make sure everything is ignored that should be ignored
   # (including docs directory)
-  .cli_debug("Updating ignore files", output_level = output_level)
-  .build_ignore(output_run, archive_local, output_level)
+  .cli_debug("Updating ignore files")
+  .build_ignore(output_run, archive_local)
 
   # ensure that docs directory is the unsafe directory.
   # will copy docs across upon success.
-  .cli_debug("Updating documentation output directory", output_level = output_level)
+  .cli_debug("Updating documentation output directory")
   .build_doc_output_dir_update(FALSE)
 
   # ensure that pre-build, we are on dev version
-  .cli_debug("Ensuring development version", output_level = output_level)
+  .cli_debug("Ensuring development version")
   .build_ensure_dev_version()
 }
 
 .build_pre_setup_for_output_run <- function(version_run_on_list,
                                             output_run,
-                                            clear_output,
-                                            output_level = "std") {
+                                            clear_output) {
   # set the version pre-run
-  .cli_debug("Setting build version", output_level = output_level)
+  .cli_debug("Setting build version")
   .build_version_set_pre(version_run_on_list)
 
   # ensure that docs directory is the unsafe directory.
   # will copy docs across upon success.
-  .cli_debug("Configuring documentation directory", output_level = output_level)
+  .cli_debug("Configuring documentation directory")
   .build_doc_output_dir_update(FALSE)
 
 
   # empty output directories
   # (docs, output and data)
-  .cli_debug("Clearing output directories (pre-build)", output_level = output_level)
+  .cli_debug("Clearing output directories (pre-build)")
   .build_clear_pre(output_run, clear_output)
 }
 
@@ -383,7 +380,7 @@
 }
 
 # ignore
-.build_ignore <- function(output_run, archive_local, output_level = "std") {
+.build_ignore <- function(output_run, archive_local) {
   old_profile <- .profile_get_raw()
   Sys.unsetenv("PROJR_PROFILE")
   projr_path_get_dir("docs")
@@ -397,14 +394,11 @@
 
 #' Output Git information for debug
 #'
-#' @param output_level Character. Current output level
-#'
 #' @keywords internal
-.build_debug_git_info <- function(output_level = "std") {
+.build_debug_git_info <- function() {
   if (!.git_repo_check_exists()) {
     .cli_debug(
-      "Git repository: Not a Git repository",
-      output_level = output_level
+      "Git repository: Not a Git repository"
     )
     return(invisible(NULL))
   }
@@ -413,8 +407,7 @@
   branch <- .git_branch_get()
   if (!is.null(branch)) {
     .cli_debug(
-      "Git branch: {branch}",
-      output_level = output_level
+      "Git branch: {branch}"
     )
   }
 
@@ -422,8 +415,7 @@
   commit_info <- .git_last_commit_get()
   if (!is.null(commit_info)) {
     .cli_debug(
-      "Last commit: {commit_info$sha} - {commit_info$message}",
-      output_level = output_level
+      "Last commit: {commit_info$sha} - {commit_info$message}"
     )
   }
 
@@ -431,27 +423,21 @@
   modified_files <- .git_modified_get()
   if (length(modified_files) > 0) {
     .cli_debug(
-      "Modified tracked files ({length(modified_files)}): {paste(head(modified_files, 10), collapse = ', ')}{if (length(modified_files) > 10) '...' else ''}",
-      output_level = output_level
+      "Modified tracked files ({length(modified_files)}): {paste(head(modified_files, 10), collapse = ', ')}{if (length(modified_files) > 10) '...' else ''}"
     )
   } else {
-    .cli_debug(
-      "Modified tracked files: None",
-      output_level = output_level
-    )
+    .cli_debug("Modified tracked files: None")
   }
 
   # Get untracked files that are not ignored
   untracked_files <- .git_untracked_not_ignored_get()
   if (length(untracked_files) > 0) {
     .cli_debug(
-      "Untracked files (not ignored) ({length(untracked_files)}): {paste(head(untracked_files, 10), collapse = ', ')}{if (length(untracked_files) > 10) '...' else ''}",
-      output_level = output_level
+      "Untracked files (not ignored) ({length(untracked_files)}): {paste(head(untracked_files, 10), collapse = ', ')}{if (length(untracked_files) > 10) '...' else ''}"
     )
   } else {
     .cli_debug(
-      "Untracked files (not ignored): None",
-      output_level = output_level
+      "Untracked files (not ignored): None"
     )
   }
 
