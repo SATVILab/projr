@@ -8,8 +8,6 @@
 }
 \arguments{
 \item{...}{Message components}
-
-\item{output_level}{Character. Current output level.}
 }
 \value{
 Process ID for cli_process_done

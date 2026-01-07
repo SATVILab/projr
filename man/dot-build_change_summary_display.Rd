@@ -8,8 +8,6 @@
 }
 \arguments{
 \item{bump_component}{Character. Version bump component.}
-
-\item{output_level}{Character. Current output level.}
 }
 \description{
 Shows change summary at debug output level during the build process.

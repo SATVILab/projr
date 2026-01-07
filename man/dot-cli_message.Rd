@@ -9,14 +9,17 @@
   log_type,
   console_level = "std",
   console_fn,
-  output_level = "std",
   .envir = parent.frame()
 )
 }
 \arguments{
 \item{...}{Message components passed to cli::cli_alert_info}
 
-\item{output_level}{Character. Current output level.}
+\item{log_type}{Character. Type of log message ("info", "debug", etc.).}
+
+\item{console_level}{Character. Minimum output level to show in console.}
+
+\item{console_fn}{Function. CLI function to use for console output.}
 
 \item{.envir}{Environment for variable evaluation}
 }

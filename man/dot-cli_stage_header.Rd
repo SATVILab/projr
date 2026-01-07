@@ -10,8 +10,6 @@
 \item{stage_name}{Character. Name of the build stage.}
 
 \item{build_type}{Character. Type of build ("dev" or "output").}
-
-\item{output_level}{Character. Current output level.}
 }
 \description{
 Show a stage header
