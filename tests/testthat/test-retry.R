@@ -9,8 +9,7 @@ test_that(".retry_with_backoff succeeds on first attempt", {
       "success"
     },
     max_attempts = 3,
-    operation_name = "test operation",
-    output_level = "none"
+    operation_name = "test operation"
   )
 
   expect_identical(result, "success")
@@ -33,7 +32,6 @@ test_that(".retry_with_backoff retries until success", {
     max_attempts = 5,
     initial_delay = 0,
     operation_name = "test retry",
-    output_level = "none",
     check_success = function(x) isTRUE(x)
   )
 
@@ -54,7 +52,6 @@ test_that(".retry_with_backoff exhausts all attempts", {
     max_attempts = 3,
     initial_delay = 0,
     operation_name = "test fail",
-    output_level = "none",
     check_success = function(x) isTRUE(x)
   )
 
@@ -78,7 +75,6 @@ test_that(".retry_with_backoff respects max_total_time", {
     max_total_time = 0.3,
     backoff_factor = 1,
     operation_name = "test timeout",
-    output_level = "none",
     check_success = function(x) isTRUE(x)
   )
   elapsed <- proc.time()[3] - start_time
@@ -107,7 +103,6 @@ test_that(".retry_with_backoff calls on_retry callback", {
     max_attempts = 5,
     initial_delay = 0,
     operation_name = "test callback",
-    output_level = "none",
     check_success = function(x) isTRUE(x),
     on_retry = function(attempt) {
       retry_attempts <<- c(retry_attempts, attempt)
@@ -137,7 +132,6 @@ test_that(".retry_with_backoff uses error_classifier", {
     max_attempts = 5,
     initial_delay = 0,
     operation_name = "test classifier",
-    output_level = "none",
     check_success = function(x) !is.null(x$success),
     error_classifier = function(x) {
       if (!is.null(x$error)) {
@@ -177,7 +171,6 @@ test_that(".retry_with_backoff applies exponential backoff", {
     exponential_base = 2,
     backoff_factor = 2,
     operation_name = "test backoff",
-    output_level = "none",
     check_success = function(x) isTRUE(x)
   )
 
@@ -221,7 +214,6 @@ test_that(".retry_with_backoff respects max_delay", {
     backoff_factor = 10,
     max_delay = 0.1,
     operation_name = "test max_delay",
-    output_level = "none",
     check_success = function(x) isTRUE(x)
   )
 
@@ -249,7 +241,6 @@ test_that(".retry_with_backoff with initial_delay of 0 starts immediately", {
     max_attempts = 3,
     initial_delay = 0,
     operation_name = "test no initial delay",
-    output_level = "none",
     check_success = function(x) isTRUE(x)
   )
   elapsed <- proc.time()[3] - start_time
@@ -273,7 +264,6 @@ test_that(".retry_with_backoff returns last result when attempts exhausted", {
     max_attempts = 3,
     initial_delay = 0,
     operation_name = "test last result",
-    output_level = "none",
     check_success = function(x) FALSE
   )
 
@@ -298,7 +288,6 @@ test_that(".retry_with_backoff bounds delay by remaining time", {
     max_delay = 60,
     max_total_time = 0.3,
     operation_name = "test bounded delay",
-    output_level = "none",
     check_success = function(x) isTRUE(x)
   )
 
@@ -318,8 +307,7 @@ test_that(".retry_with_backoff check_success defaults to always true", {
       "any result"
     },
     max_attempts = 3,
-    operation_name = "test default success",
-    output_level = "none"
+    operation_name = "test default success"
     # No check_success provided - defaults to function(x) TRUE
   )
 
@@ -341,7 +329,6 @@ test_that(".retry_with_backoff handles complex check_success conditions", {
     max_attempts = 5,
     initial_delay = 0,
     operation_name = "test complex success",
-    output_level = "none",
     check_success = function(x) {
       # Only succeed if code is 300 or higher
       !is.null(x$code) && x$code >= 300

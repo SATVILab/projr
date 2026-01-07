@@ -14,7 +14,7 @@ test_that(".build_pre_check runs all checks without error when output_run=TRUE",
     code = {
       .init()
       # Should run without error
-      expect_silent(.build_pre_check(output_run = TRUE, output_level = "none"))
+      expect_silent(.build_pre_check(output_run = TRUE))
     },
     quiet = TRUE,
     force = TRUE
@@ -387,7 +387,7 @@ test_that(".build_debug_git_info runs without error when no git repo", {
   usethis::with_project(
     path = dir_test,
     code = {
-      expect_silent(.build_debug_git_info(output_level = "none"))
+      expect_silent(.build_debug_git_info())
     },
     quiet = TRUE,
     force = TRUE
@@ -406,7 +406,7 @@ test_that(".build_debug_git_info runs without error when git repo exists", {
       writeLines("test", "test.txt")
       .git_commit_file("test.txt", "test commit")
 
-      expect_silent(.build_debug_git_info(output_level = "none"))
+      expect_silent(.build_debug_git_info())
     },
     quiet = TRUE,
     force = TRUE
@@ -527,7 +527,7 @@ test_that(".build_ignore runs without error", {
     path = dir_test,
     code = {
       .init()
-      expect_silent(.build_ignore(output_run = TRUE, archive_local = FALSE, output_level = "none"))
+      expect_silent(.build_ignore(output_run = TRUE, archive_local = FALSE))
     },
     quiet = TRUE,
     force = TRUE
@@ -546,7 +546,7 @@ test_that(".build_pre_document runs without error", {
     path = dir_test,
     code = {
       .init()
-      expect_silent(.build_pre_document(output_run = TRUE, archive_local = FALSE, output_level = "none"))
+      expect_silent(.build_pre_document(output_run = TRUE, archive_local = FALSE))
     },
     quiet = TRUE,
     force = TRUE
@@ -562,7 +562,7 @@ test_that(".build_pre_document ensures dev version is set", {
     code = {
       .init()
       projr_version_set("1.2.3")
-      .build_pre_document(output_run = TRUE, archive_local = FALSE, output_level = "none")
+      .build_pre_document(output_run = TRUE, archive_local = FALSE)
       version <- projr_version_get()
       # Should be dev version now
       expect_match(version, "-")
@@ -588,8 +588,7 @@ test_that(".build_pre_setup_for_output_run sets version correctly", {
       .build_pre_setup_for_output_run(
         version_run_on_list = version_list,
         output_run = TRUE,
-        clear_output = "pre",
-        output_level = "none"
+        clear_output = "pre"
       )
       expect_identical(projr_version_get(), "2.0.0")
     },
@@ -616,8 +615,7 @@ test_that(".build_pre_setup_for_output_run clears output directories", {
       .build_pre_setup_for_output_run(
         version_run_on_list = version_list,
         output_run = TRUE,
-        clear_output = "pre",
-        output_level = "none"
+        clear_output = "pre"
       )
 
       # File should be cleared

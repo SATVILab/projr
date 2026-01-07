@@ -442,7 +442,6 @@
 #' @param token Character string. Optional GitHub token. If not supplied,
 #'   `.auth_get_github_pat_find()` is used.
 #' @param overwrite Logical. If FALSE, existing files are left untouched.
-#' @param output_level Character. Verbosity control passed to `.cli_debug()`.
 #'
 #' @return Character vector of downloaded file paths (invisibly).
 #' @keywords internal
@@ -453,8 +452,7 @@
   dest_dir,
   api_url = NULL,
   token = NULL,
-  overwrite = TRUE,
-  output_level = "std"
+  overwrite = TRUE
 ) {
   if (!requireNamespace("httr", quietly = TRUE)) {
     stop("httr is required for .remote_file_get_all_github_httr(); please install it.")
@@ -471,8 +469,7 @@
 
   if (length(asset) == 0L) {
     .cli_debug(
-      "GitHub release: No assets found in release '{tag}' for repo '{repo}'",
-      output_level = output_level
+      "GitHub release: No assets found in release '{tag}' for repo '{repo}'"
     )
     return(invisible(character()))
   }
@@ -498,16 +495,14 @@
 
   if (!overwrite && file.exists(dest_file)) {
     .cli_debug(
-      "GitHub release: Skipping existing asset '{asset_name}' in '{dest_file}'",
-      output_level = output_level
+      "GitHub release: Skipping existing asset '{asset_name}' in '{dest_file}'"
     )
     downloaded <- c(downloaded, dest_file)
     return(invisible(downloaded))
   }
 
   .cli_debug(
-    "GitHub release: Downloading asset '{asset_name}' from tag '{tag}' to '{dest_file}'",
-    output_level = output_level
+    "GitHub release: Downloading asset '{asset_name}' from tag '{tag}' to '{dest_file}'"
   )
 
   resp <- httr::GET(
@@ -529,8 +524,7 @@
   }
 
   .cli_debug(
-    "GitHub release: Downloaded {length(downloaded)} asset(s) from tag '{tag}'",
-    output_level = output_level
+    "GitHub release: Downloaded {length(downloaded)} asset(s) from tag '{tag}'"
   )
 
   invisible(downloaded)

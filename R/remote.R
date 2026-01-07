@@ -102,7 +102,6 @@
 #'   or GitHub release) needed for subsequent uploads.
 #' @inheritParams .remote_check_exists
 #' @param name Human readable name/title for the remote destination.
-#' @param output_level Character verbosity level passed to CLI helpers.
 #' @param ... Additional backend-specific arguments (e.g., OSF parent, GitHub
 #'   release settings).
 #' @return Backend-specific identifier for the created remote.
@@ -111,18 +110,14 @@
 .remote_create <- function(type,
                            id,
                            name,
-                           output_level = "std",
                            ...) {
   .cli_debug(
-    "Remote create: type={type}, id={id}",
-    output_level = output_level
-  )
+    "Remote create: type={type}, id={id}")
 
   switch(type,
     "local" = .remote_create_local(path = id),
     "github" = .remote_create_github(
       tag = .remote_misc_github_tag_get(id),
-      output_level = output_level,
       ...
     )
   )
@@ -283,16 +278,13 @@
                                     path = NULL,
                                     path_append_label = TRUE,
                                     version = NULL,
-                                    output_level = "std",
                                     ...) {
   .cli_debug(
     "remote_final_empty_get: type={type}, label={label}, structure={structure}, version={version}",
     type = type,
     label = label,
     structure = structure,
-    version = version,
-    output_level = output_level
-  )
+    version = version  )
 
   # pre: "one up" from the final remote, e.g. the directory
   # above for hierarchical. Does not apply to flat.
@@ -302,9 +294,7 @@
       label = label,
       structure = structure,
       path_append_label = path_append_label,
-      version = version,
-      output_level = output_level
-    ),
+      version = version    ),
     "github" = .remote_final_empty_get_github(
       id = .remote_misc_github_tag_get(id),
       label = label,
@@ -579,12 +569,11 @@
 #' @noRd
 .remote_final_rm_if_empty <- function(type,
                                       remote,
-                                      output_level = "std",
                                       ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_rm_if_empty_local(remote),
-    "github" = .remote_final_rm_if_empty_github(remote, output_level, ...)
+    "github" = .remote_final_rm_if_empty_github(remote, ...)
   )
 }
 
@@ -616,15 +605,14 @@
 
 .remote_final_rm <- function(type,
                              remote,
-                             output_level = "std",
                              ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_rm_local(
-      remote = remote, output_level = output_level
+      remote = remote
     ),
     "github" = .remote_final_rm_github(
-      remote = remote, output_level = output_level, ...
+      remote = remote, ...
     )
   )
 }
@@ -666,20 +654,17 @@
 #' @description Removes all contents from the supplied remote handle. For flat
 #'   remotes (GitHub assets) this deletes the asset entirely.
 #' @inheritParams .remote_final_rm_if_empty
-#' @param output_level Character verbosity level for CLI logging.
 #' @return Invisibly returns `TRUE` after the remote is emptied.
 #' @keywords internal
 #' @noRd
 .remote_final_empty <- function(type,
                                 remote,
-                                output_level = "std",
                                 ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_empty_local(remote),
     "github" = .remote_final_empty_github(
       remote,
-      output_level = output_level,
       ...
     )
   )
@@ -794,13 +779,11 @@
 #' @description Enumerates files (or asset entries) stored at the remote and
 #'   logs the count for debugging purposes.
 #' @inheritParams .remote_file_get_all
-#' @param output_level Character verbosity level used for logging.
 #' @return Character vector (or list for complex backends) of filenames.
 #' @keywords internal
 #' @noRd
 .remote_file_ls <- function(type,
-                            remote,
-                            output_level = "std") {
+                            remote) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
 
   result <- switch(type,
@@ -809,9 +792,7 @@
   )
 
   .cli_debug(
-    "Remote file list: type={type}, found {length(result)} file(s)",
-    output_level = output_level
-  )
+    "Remote file list: type={type}, found {length(result)} file(s)"  )
 
   result
 }
@@ -831,14 +812,11 @@
 #' @noRd
 .remote_file_rm <- function(type,
                             fn,
-                            remote,
-                            output_level = "std") {
+                            remote) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
 
   .cli_debug(
-    "Remote file remove: type={type}, removing {length(fn)} file(s)",
-    output_level = output_level
-  )
+    "Remote file remove: type={type}, removing {length(fn)} file(s)"  )
 
   switch(type,
     "local" = .remote_file_rm_local(fn = fn, remote = remote),
@@ -862,7 +840,6 @@
                              remote,
                              path_dir_local,
                              fn,
-                             output_level = "std",
                              ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
 
@@ -871,20 +848,15 @@
     type = type,
     num_files = length(fn),
     path = path_dir_local,
-    remote = remote,
-    output_level = output_level
-  )
+    remote = remote  )
 
   switch(type,
     "local" = .remote_file_add_local(
-      fn = fn, path_dir_local = path_dir_local, remote = remote,
-      output_level = output_level
-    ),
+      fn = fn, path_dir_local = path_dir_local, remote = remote    ),
     "github" = .remote_file_add_github(
       fn = fn,
       path_dir_local = path_dir_local,
       remote = remote,
-      output_level = output_level,
       ...
     )
   )

@@ -240,8 +240,13 @@ test_that("Debug messages always logged regardless of output_level", {
       log_info <- .log_build_init("output", msg = "Test")
       log_file <- log_info$log_file
 
+        # Save original env var
+      old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
+      on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_OUTPUT_LEVEL = old_val) else Sys.unsetenv("PROJR_OUTPUT_LEVEL"))
+
       # Call debug with output_level = "none" (should still log)
-      .cli_debug("Debug with none level", output_level = "none")
+      Sys.setenv("PROJR_OUTPUT_LEVEL" = "none")
+      .cli_debug("Debug with none level")
       .cli_debug("Debug with std level")
 
       # Read log file

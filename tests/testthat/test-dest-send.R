@@ -1078,8 +1078,7 @@ test_that(".dest_send returns FALSE when check fails", {
         bump_component = NULL,
         archive_github = FALSE,
         archive_local = FALSE,
-        always_archive = FALSE,
-        output_level = "none"
+        always_archive = FALSE
       )
 
       expect_false(result)
@@ -1124,8 +1123,7 @@ test_that(".dest_send processes local destinations from YAML", {
             bump_component = "patch",
             archive_github = FALSE,
             archive_local = FALSE,
-            always_archive = FALSE,
-            output_level = "none"
+            always_archive = FALSE
           )
           TRUE
         },
@@ -1161,8 +1159,7 @@ test_that(".dest_send handles archive parameter for github", {
             bump_component = "patch",
             archive_github = TRUE,
             archive_local = FALSE,
-            always_archive = FALSE,
-            output_level = "none"
+            always_archive = FALSE
           )
           TRUE
         },
@@ -1210,8 +1207,7 @@ test_that(".dest_send_type processes titles for the type", {
             type = "local",
             bump_component = "patch",
             archive_type = FALSE,
-            always_archive = FALSE,
-            output_level = "none"
+            always_archive = FALSE
           )
           TRUE
         },
@@ -1253,8 +1249,7 @@ test_that(".dest_send_title respects cue logic", {
         type = "local",
         bump_component = "dev",
         archive_type = FALSE,
-        always_archive = FALSE,
-        output_level = "none"
+        always_archive = FALSE
       )
 
       expect_false(result)
@@ -1267,8 +1262,7 @@ test_that(".dest_send_title respects cue logic", {
             type = "local",
             bump_component = "patch",
             archive_type = FALSE,
-            always_archive = FALSE,
-            output_level = "none"
+            always_archive = FALSE
           )
         },
         error = function(e) {

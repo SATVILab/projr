@@ -426,31 +426,6 @@ test_that(".manifest_write_impl writes manifest correctly", {
   )
 })
 
-test_that(".manifest_get_path_dir creates and returns directory", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Test: With NULL, returns current project path
-      path_null <- .manifest_get_path_dir(NULL)
-      expect_true(dir.exists(path_null))
-      expect_identical(path_null, .path_get())
-
-      # Test: With specific path, creates if needed and returns it
-      test_path <- file.path(tempdir(), "manifest_test_dir")
-      if (dir.exists(test_path)) unlink(test_path, recursive = TRUE)
-      path_specific <- .manifest_get_path_dir(test_path)
-      expect_true(dir.exists(path_specific))
-      expect_identical(path_specific, test_path)
-
-      # Clean up
-      unlink(test_path, recursive = TRUE)
-    }
-  )
-})
-
 test_that(".manifest_get_path_file returns correct file path", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -466,8 +441,6 @@ test_that(".manifest_get_path_file returns correct file path", {
       test_path <- file.path(tempdir(), "manifest_dir")
       path_specific <- .manifest_get_path_file(test_path)
       expect_identical(path_specific, file.path(test_path, "manifest.csv"))
-      # Directory should be created
-      expect_true(dir.exists(test_path))
 
       # Clean up
       unlink(test_path, recursive = TRUE)

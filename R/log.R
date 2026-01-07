@@ -115,7 +115,6 @@
 #' @param build_type Character. Either "output" or "dev".
 #' @param bump_component Character. Version bump component.
 #' @param msg Character. Build message.
-#' @param output_level Character. Output level for this build.
 #'
 #' @return List with log_file path and timestamp, or NULL if logging disabled.
 #' @keywords internal

@@ -701,7 +701,7 @@
       .cli_debug("    Optimized move failed, falling back to standard move")
     }
   }
-  
+
   .cli_debug("    Moving files...")
   .dir_move_file(
     path_dir_from = path_dir_from,
@@ -725,7 +725,18 @@
 
   # Ensure destination parent exists for the rename attempt
   if (.is_same_filesystem(path_dir_from, path_dir_to)) {
-    .cli_debug("    Same filesystem detected, trying fs::file_move()")
+    .cli_debug("    Same filesystem detected, trying file.rename()")
+    dir_already_exists <- dir.exists(path_dir_to)
+    dir_non_empty <- dir_already_exists &&
+      (length(list.dirs(path_dir_to, recursive = FALSE)) > 0 ||
+        length(list.files(path_dir_to)) > 0)
+    if (dir_non_empty) {
+        .cli_debug("    Destination directory not empty, cannot use file.rename()") # nolint
+        return(invisible(FALSE))
+    } else if (dir_already_exists) {
+      .cli_debug("    Destination directory exists, removing before rename")
+      unlink(path_dir_to, recursive = TRUE)
+    }
     .dir_create(dirname(path_dir_to))
     res <- tryCatch({
       # file.rename will actually move just contents across,
@@ -733,8 +744,9 @@
       # of the directory as well, e.g.
       # fs::file_move("A", "B") results in B/A/*
       # whereas file.rename("A", "B") results in B/*
-      file.rename(path_dir_from, path_dir_to)
-      invisible(TRUE)
+      res_inner <- file.rename(path_dir_from, path_dir_to)
+      .dir_create(path_dir_from)
+      invisible(res_inner)
       },
       error = function(e) {
         .cli_debug("    file.rename() failed with error: {e$message}")

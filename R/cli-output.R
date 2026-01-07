@@ -32,7 +32,7 @@
 #'
 #' @return Logical. TRUE if the message should be shown.
 #' @keywords internal
-.cli_should_show <- function(required_level, current_level) {
+.cli_should_show <- function(required_level) {
   current_level <- .cli_output_level_get()
   level_hierarchy <- c("none" = 0, "std" = 1, "debug" = 2)
   level_hierarchy[current_level] >= level_hierarchy[required_level]

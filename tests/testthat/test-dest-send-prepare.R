@@ -328,8 +328,7 @@ test_that(".dest_prepare_github_releases returns FALSE for non-output build", {
         archive_github = TRUE,
         archive_local = FALSE,
         always_archive = FALSE,
-        strict = FALSE,
-        output_level = "none"
+        strict = FALSE
       )
 
       expect_false(result)
@@ -353,8 +352,7 @@ test_that(".dest_prepare_github_releases returns FALSE when no GitHub destinatio
         archive_github = FALSE,
         archive_local = TRUE,
         always_archive = FALSE,
-        strict = FALSE,
-        output_level = "none"
+        strict = FALSE
       )
 
       expect_false(result)
@@ -378,57 +376,10 @@ test_that(".dest_prepare_github_releases returns FALSE when no tags needed", {
         archive_github = FALSE,
         archive_local = FALSE,
         always_archive = FALSE,
-        strict = FALSE,
-        output_level = "none"
+        strict = FALSE
       )
 
       expect_false(result)
-    }
-  )
-})
-
-test_that(".dest_prepare_github_releases respects output_level parameter", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Remove all destinations
-      .yml_dest_rm_type_all("default")
-
-      # Test with different output levels - should not error
-      result_none <- .dest_prepare_github_releases(
-        bump_component = NULL,
-        archive_github = FALSE,
-        archive_local = FALSE,
-        always_archive = FALSE,
-        strict = FALSE,
-        output_level = "none"
-      )
-
-      result_std <- .dest_prepare_github_releases(
-        bump_component = NULL,
-        archive_github = FALSE,
-        archive_local = FALSE,
-        always_archive = FALSE,
-        strict = FALSE,
-        output_level = "std"
-      )
-
-      result_debug <- .dest_prepare_github_releases(
-        bump_component = NULL,
-        archive_github = FALSE,
-        archive_local = FALSE,
-        always_archive = FALSE,
-        strict = FALSE,
-        output_level = "debug"
-      )
-
-      # All should return FALSE for NULL bump_component
-      expect_false(result_none)
-      expect_false(result_std)
-      expect_false(result_debug)
     }
   )
 })
@@ -475,8 +426,7 @@ test_that(".dest_prepare_github_releases creates missing releases", {
         archive_github = FALSE,
         archive_local = FALSE,
         always_archive = FALSE,
-        strict = FALSE,
-        output_level = "debug"
+        strict = FALSE
       )
 
       # Wait for GitHub to process
@@ -531,8 +481,7 @@ test_that(".dest_prepare_github_releases handles existing releases", {
         archive_github = FALSE,
         archive_local = FALSE,
         always_archive = FALSE,
-        strict = FALSE,
-        output_level = "debug"
+        strict = FALSE
       )
 
       # Release should still exist
@@ -597,8 +546,7 @@ test_that(".dest_prepare_github_releases handles multiple tags", {
         archive_github = FALSE,
         archive_local = FALSE,
         always_archive = FALSE,
-        strict = FALSE,
-        output_level = "debug"
+        strict = FALSE
       )
 
       # Wait for GitHub to process

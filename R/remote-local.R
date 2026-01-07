@@ -18,8 +18,7 @@
                                              path,
                                              path_append_label,
                                              version,
-                                             empty,
-                                             output_level = "std") {
+                                             empty) {
   remote_final <- .remote_final_get(
     "local", id, label, structure, path, path_append_label,
     version, FALSE, empty
@@ -27,31 +26,26 @@
   exists <- dir.exists(remote_final)
   if (exists) {
     .cli_debug(
-      "Local remote: Final remote exists at '{remote_final}'",
-      output_level = output_level
+      "Local remote: Final remote exists at '{remote_final}'"
     )
   } else {
     .cli_debug(
-      "Local remote: Final remote does not exist at '{remote_final}'",
-      output_level = output_level
+      "Local remote: Final remote does not exist at '{remote_final}'"
     )
   }
   exists
 }
 
-.remote_final_check_exists_direct_local <- function(remote,
-                                                    output_level = "std") {
+.remote_final_check_exists_direct_local <- function(remote) {
   .assert_string(remote, TRUE)
   exists <- dir.exists(remote)
   if (exists) {
     .cli_debug(
-      "Local remote: Direct remote exists at '{remote}'",
-      output_level = output_level
+      "Local remote: Direct remote exists at '{remote}'"
     )
   } else {
     .cli_debug(
-      "Local remote: Direct remote does not exist at '{remote}'",
-      output_level = output_level
+      "Local remote: Direct remote does not exist at '{remote}'"
     )
   }
   exists
@@ -137,8 +131,7 @@
                                           path_append_label,
                                           label,
                                           structure,
-                                          version = NULL,
-                                          output_level = "std") {
+                                          version = NULL) {
   # Get the path for the empty remote
   remote_empty <- .remote_final_get_local(
     path = path,
@@ -152,16 +145,14 @@
 
   .cli_debug(
     "remote_final_empty_get_local: Creating empty at '{path}'",
-    path = remote_empty,
-    output_level = output_level
+    path = remote_empty
   )
 
   # Check if it already exists
   if (dir.exists(remote_empty)) {
     .cli_debug(
       "remote_final_empty_get_local: Already exists at '{path}'",
-      path = remote_empty,
-      output_level = output_level
+      path = remote_empty
     )
     return(remote_empty)
   }
@@ -170,8 +161,7 @@
   .dir_create(remote_empty)
   .cli_debug(
     "remote_final_empty_get_local: Created empty directory at '{path}'",
-    path = remote_empty,
-    output_level = output_level
+    path = remote_empty
   )
   remote_empty
 }
@@ -181,13 +171,11 @@
 # ========================
 
 # local
-.remote_final_rm_if_empty_local <- function(remote,
-                                            output_level = "std") {
+.remote_final_rm_if_empty_local <- function(remote) {
   .assert_string(remote, TRUE)
   if (!dir.exists(remote)) {
     .cli_debug(
-      "Local remote: Directory '{remote}' does not exist, returning FALSE",
-      output_level = output_level
+      "Local remote: Directory '{remote}' does not exist, returning FALSE"
     )
     return(invisible(FALSE))
   }
@@ -198,14 +186,12 @@
   if (.is_len_pos(files_only)) {
     num_files <- length(files_only)
     .cli_debug(
-      "Local remote: Directory '{remote}' has {num_files} file(s), not removing, returning FALSE",
-      output_level = output_level
+      "Local remote: Directory '{remote}' has {num_files} file(s), not removing, returning FALSE"
     )
     return(invisible(FALSE))
   }
   .cli_debug(
-    "Local remote: Directory '{remote}' is empty (no files), removing it",
-    output_level = output_level
+    "Local remote: Directory '{remote}' is empty (no files), removing it"
   )
   .remote_final_rm_local(remote)
   invisible(TRUE)
@@ -228,19 +214,16 @@
 # Delete a final remote
 # ========================
 
-.remote_final_rm_local <- function(remote,
-                                   output_level = "std") {
+.remote_final_rm_local <- function(remote) {
   .assert_string(remote, TRUE)
   if (!dir.exists(remote)) {
     .cli_debug(
-      "Local remote: Directory '{remote}' does not exist, cannot remove, returning FALSE",
-      output_level = output_level
+      "Local remote: Directory '{remote}' does not exist, cannot remove, returning FALSE"
     )
     return(invisible(FALSE))
   }
   .cli_debug(
-    "Local remote: Removing directory '{remote}'",
-    output_level = output_level
+    "Local remote: Removing directory '{remote}'"
   )
   unlink(remote, recursive = TRUE)
   invisible(TRUE)
@@ -250,19 +233,16 @@
 # Empty a final remote
 # ========================
 
-.remote_final_empty_local <- function(remote,
-                                      output_level = "std") {
+.remote_final_empty_local <- function(remote) {
   .assert_string(remote, TRUE)
   if (!dir.exists(remote)) {
     .cli_debug(
-      "Local remote: Directory '{remote}' does not exist, cannot empty, returning FALSE",
-      output_level = output_level
+      "Local remote: Directory '{remote}' does not exist, cannot empty, returning FALSE"
     )
     return(invisible(FALSE))
   }
   .cli_debug(
-    "Local remote: Emptying directory '{remote}'",
-    output_level = output_level
+    "Local remote: Emptying directory '{remote}'"
   )
   dir_vec <- list.dirs(remote, recursive = TRUE)[-1]
   while (length(dir_vec) > 0L) {
@@ -281,21 +261,18 @@
 # ========================
 
 .remote_file_get_all_local <- function(remote,
-                                       path_dir_save_local,
-                                       output_level = "std") {
+                                       path_dir_save_local) {
   .assert_string(remote, TRUE)
   if (grepl("-empty$", remote)) {
     .cli_debug(
-      "Local remote: Remote is by definition empty, no files to get, returning character(0L)", # nolint
-      output_level = output_level
+      "Local remote: Remote is by definition empty, no files to get, returning character(0L)" # nolint
     )
     return(character(0L))
   }
   # Check if remote directory exists
   if (!dir.exists(remote)) {
     .cli_debug(
-      "Local remote: Remote directory '{remote}' does not exist, returning character(0L)",
-      output_level = output_level
+      "Local remote: Remote directory '{remote}' does not exist, returning character(0L)"
     )
     return(character(0L))
   }
@@ -308,13 +285,11 @@
 
 .remote_file_get_local <- function(remote,
                                    fn,
-                                   path_dir_save_local,
-                                   output_level = "std") {
+                                   path_dir_save_local) {
   .assert_string(remote, TRUE)
   if (grepl("-empty$", remote)) {
     .cli_debug(
-      "Local remote: Remote is empty, no files to get, returning character(0L)", # nolint
-      output_level = output_level
+      "Local remote: Remote is empty, no files to get, returning character(0L)" # nolint
     )
     return(character(0L))
   }
@@ -343,13 +318,11 @@
 
 .remote_file_rm_local <- function(fn,
                                   remote,
-                                  rm_if_empty = TRUE,
-                                  output_level = "std") {
+                                  rm_if_empty = TRUE) {
   .assert_chr_min(fn, TRUE)
   if (length(fn) == 0L) {
     .cli_debug(
-      "Local remote: No files specified for removal, returning FALSE",
-      output_level = output_level
+      "Local remote: No files specified for removal, returning FALSE"
     )
     return(invisible(FALSE))
   }
@@ -357,15 +330,13 @@
   fn_vec <- .file_filter_exists(file.path(remote, fn))
   if (length(fn_vec) == 0L) {
     .cli_debug(
-      "Local remote: No matching files found to remove in '{remote}', returning FALSE",
-      output_level = output_level
+      "Local remote: No matching files found to remove in '{remote}', returning FALSE"
     )
     return(invisible(FALSE))
   }
   count <- length(fn_vec)
   .cli_debug(
-    "Local remote: Removing {count} file(s) from '{remote}'",
-    output_level = output_level
+    "Local remote: Removing {count} file(s) from '{remote}'"
   )
   suppressWarnings(file.remove(fn_vec))
   if (rm_if_empty) {
@@ -380,13 +351,11 @@
 
 .remote_file_add_local <- function(fn,
                                    path_dir_local,
-                                   remote,
-                                   output_level = "std") {
+                                   remote) {
   .assert_chr_min(fn, TRUE)
   if (.is_len_0(fn)) {
     .cli_debug(
-      "Local remote: No files specified for addition, returning FALSE",
-      output_level = output_level
+      "Local remote: No files specified for addition, returning FALSE"
     )
     return(invisible(FALSE))
   }
@@ -394,8 +363,7 @@
   from_path <- path_dir_local
   to_path <- remote
   .cli_debug(
-    "Local remote: Adding {count} file(s) from '{from_path}' to '{to_path}'",
-    output_level = output_level
+    "Local remote: Adding {count} file(s) from '{from_path}' to '{to_path}'"
   )
   .assert_string(path_dir_local, TRUE)
   .assert_path_not_file(path_dir_local)
@@ -403,8 +371,7 @@
 
   # This will create the directory if it doesn't exist
   .cli_debug(
-    "Local remote: Calling .dir_copy_file to copy files",
-    output_level = output_level
+    "Local remote: Calling .dir_copy_file to copy files"
   )
   .dir_copy_file(
     fn = fn,

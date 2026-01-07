@@ -707,34 +707,6 @@ test_that("projr_build_dev profile parameter works", {
   )
 })
 
-# Test output_level parameter
-test_that("output_level parameter controls verbosity", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Test with "none" - should minimize output (but not necessarily silent due to rendering)
-      expect_no_error({
-        projr_build_dev(output_level = "none")
-      })
-
-      # Test with "debug" - should produce output (can't easily test, but ensure no error)
-      expect_no_error({
-        projr_build_dev(output_level = "debug")
-      })
-
-      # Test with "std" - standard output level
-      expect_no_error({
-        projr_build_dev(output_level = "std")
-      })
-    },
-    quiet = TRUE,
-    force = TRUE
-  )
-})
-
 # Test clear_output parameter with projr_build_dev
 test_that("projr_build_dev respects clear_output parameter", {
   skip_if(.is_test_cran())
