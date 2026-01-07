@@ -17,6 +17,9 @@
 # Creation and existence
 # ======================`=======================================================
 
+skip_if(.is_gha())
+skip_on_cran()
+
 # Only setup GitHub test environment if all conditions are met
 setup_github <- tryCatch(
   {
