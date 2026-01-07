@@ -30,15 +30,9 @@ setup_github <- tryCatch(
 )
 
 # Only create test directory if GitHub setup is possible
-if (setup_github) {
-  dir_test <- .test_setup_project(
-    git = TRUE, github = setup_github, set_env_var = TRUE
-  )
-} else {
-  dir_test <- .test_setup_project(
-    git = TRUE, github = FALSE, set_env_var = TRUE
-  )
-}
+dir_test <- .test_setup_project(
+  git = TRUE, github = setup_github, set_env_var = TRUE
+)
 
 test_that("GitHub test releases are created and reusable", {
   skip_if(!setup_github)
