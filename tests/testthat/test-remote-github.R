@@ -40,6 +40,7 @@ if (setup_github) {
 }
 
 test_that("GitHub test releases are created and reusable", {
+  skip_if(!setup_github)
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
@@ -1290,7 +1291,7 @@ test_that("test always vs if-change for projr config uploads", {
 test_that("various upload strategies run", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -1301,7 +1302,6 @@ test_that("various upload strategies run", {
 
       # remove all remotes
       .yml_dest_rm_type_all("default")
-
 
       # --- ensure remote is cleared ---
       if (.remote_check_exists("github", c("tag" = tag_name))) {
