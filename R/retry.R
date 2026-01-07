@@ -38,7 +38,7 @@
 
       if (actual_delay > 0) {
         .cli_debug(
-          "{operation_name}: waiting {actual_delay}s before attempt {attempt}/{max_attempts}...", # nolint
+          "{operation_name}: waiting {actual_delay}s before attempt {attempt}/{max_attempts}..." # nolint
         )
         Sys.sleep(actual_delay)
       }
