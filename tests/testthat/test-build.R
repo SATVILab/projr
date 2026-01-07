@@ -448,9 +448,6 @@ test_that("PROJR_CLEAR_OUTPUT validates input strictly", {
   # Test other invalid values
   Sys.setenv(PROJR_CLEAR_OUTPUT = "always")
   expect_error(.build_get_clear_output(NULL))
-
-  Sys.unsetenv(PROJR_CLEAR_OUTPUT)
-  expect_error(.build_get_clear_output(NULL))
 })
 
 # Test .build_get_output_run

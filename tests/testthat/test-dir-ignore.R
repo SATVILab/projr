@@ -626,7 +626,7 @@ directories:
 "
       writeLines(yml_content, "_projr.yml")
 
-      result <- .ignore_diryml_git_get_instructions_label("external", NULL)
+      result <- .ignore_diryml_git_get_instructions_label("external")
 
       expect_type(result, "list")
       expect_true("ignore" %in% names(result))
@@ -656,7 +656,7 @@ directories:
       dir.create("_output")
 
       result <- .ignore_diryml_git_get_instructions_label_impl(
-        "_output", "output", NULL
+        "_output", "output"
       )
 
       # When ignore_git is FALSE, no files should be ignored
