@@ -42,8 +42,6 @@ if (setup_github) {
 test_that("GitHub test releases are created and reusable", {
   skip_if(!setup_github)
   skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
   usethis::with_project(
@@ -54,7 +52,6 @@ test_that("GitHub test releases are created and reusable", {
       tag_b <- "projr-test-release-b"
       tag_archive <- "archive"
 
-      # create both, neither will exist at this stage
       .remote_create("github", id = tag_a)
       .remote_create("github", id = tag_b)
       .remote_create(
