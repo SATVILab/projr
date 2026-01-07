@@ -17,16 +17,14 @@
 # Creation and existence
 # ======================`=======================================================
 
-skip_if(.is_gha())
-skip_on_cran()
-
 # Only setup GitHub test environment if all conditions are met
 setup_github <- tryCatch(
   {
     !.is_test_cran() &&
       !.is_test_lite() &&
       .has_internet() &&
-      .test_can_modify_github()
+      .test_can_modify_github() &&
+      !.is_gha()
   },
   error = function(e) FALSE
 )
@@ -47,6 +45,7 @@ test_that("GitHub test releases are created and reusable", {
   skip_if(.is_test_cran())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
+  skip_if(.is_gha())
   usethis::with_project(
     path = dir_test,
     code = {
@@ -95,6 +94,7 @@ test_that("GitHub test releases are created and reusable", {
 test_that(".remote_get works for GitHub", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  skip_if(.is_gha())
   expect_identical(
     .remote_get("github", "abc"),
     c("tag" = "abc")
@@ -105,6 +105,7 @@ test_that(".remote_get_final works for GitHub", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_gha())
   skip_if(!setup_github, "No GitHub test environment available")
 
   usethis::with_project(
@@ -140,6 +141,7 @@ test_that("adding, listing and removing files works on GitHub releases", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if_offline()
+  skip_if(.is_gha())
   .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
@@ -303,6 +305,7 @@ test_that("manifest round-trip works for GitHub releases", {
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
+  skip_if(.is_gha())
 
   usethis::with_project(
     path = dir_test,
@@ -349,6 +352,7 @@ test_that("VERSION file round-trip works for GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_gha())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -417,6 +421,7 @@ test_that("upload and restore from `latest` GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_gha())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -565,6 +570,7 @@ test_that("upload and restore from `archive` GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_gha())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -754,6 +760,7 @@ test_that("upload to archive remotes using parameter for all content", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_gha())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -933,6 +940,7 @@ test_that("upload to archive remotes using parameter for only output content", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_gha())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -1173,6 +1181,7 @@ test_that("test always vs if-change for projr config uploads", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_gha())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -1291,7 +1300,8 @@ test_that("test always vs if-change for projr config uploads", {
 test_that("various upload strategies run", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
-  # skip_if(.is_test_select())
+  skip_if(.is_test_select())
+  skip_if(.is_gha())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -1504,6 +1514,7 @@ test_that("various inspection methods run", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_gha())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -1721,6 +1732,7 @@ test_that("GITHUB_TOKEN is final fallback, GH_TOKEN takes precedence", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_gha())
 
   # Save originals
   old_github_pat <- Sys.getenv("GITHUB_PAT", unset = "")
@@ -1770,6 +1782,7 @@ test_that("GITHUB_TOKEN is final fallback, GH_TOKEN takes precedence", {
 test_that(".github_api_base resolves URLs correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  skip_if(.is_gha())
 
   # Save original
   old_api_url <- Sys.getenv("GITHUB_API_URL", unset = "")
@@ -1812,6 +1825,7 @@ test_that(".gh_release_exists returns correct values for known repos", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_gha())
   skip_if(!requireNamespace("httr", quietly = TRUE))
   skip_if(!setup_github, "No GitHub test environment available")
 
@@ -1845,6 +1859,7 @@ test_that(".gh_release_exists returns correct values for known repos", {
 # done
 test_that(".gh_repo_from_remote_url handles common remote formats", {
   skip_if(.is_test_cran())
+  skip_if(.is_gha())
   expect_equal(.gh_repo_from_remote_url("https://github.com/owner/repo.git"), "owner/repo")
   expect_equal(.gh_repo_from_remote_url("git@github.com:owner/repo.git"), "owner/repo")
   expect_equal(.gh_repo_from_remote_url("https://www.github.com/owner/repo"), "owner/repo")
