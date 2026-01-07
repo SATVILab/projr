@@ -1,29 +1,7 @@
 test_that("projr_engine_get works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .dir_get_tmp_random_path()
-
-  .dir_create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
-
-  for (x in fn_vec) {
-    fs::file_copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {

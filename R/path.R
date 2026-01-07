@@ -873,11 +873,7 @@
     .cli_debug("      All directories to copy already exist")
   } else {
     .cli_debug("      Creating missing directories in destination...")
-    dir.create(
-      path_vec_to[path_vec_to_exists_non_ind],
-      recursive = TRUE,
-      showWarnings = FALSE
-    )
+    .dir_create(path_vec_to[path_vec_to_exists_non_ind])
   }
 
   .cli_debug("      Removing remaining directories from source...")
