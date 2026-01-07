@@ -66,13 +66,13 @@
 }
 
 .is_test <- function() {
-  Sys.getenv("R_PKG_TEST_IN_PROGRESS") == "TRUE"
+  .is_test_env_var_true("R_PKG_TEST_IN_PROGRESS")
 }
 
 # so that we can skip all except those for
 # which we're testing
 .is_test_select <- function() {
-  Sys.getenv("R_PKG_TEST_SELECT") == "TRUE"
+  .is_test_env_var_true("R_PKG_TEST_SELECT")
 }
 
 # so that we can detect Windows GHA environment
@@ -82,11 +82,11 @@
 }
 
 .is_gha <- function() {
-  Sys.getenv("GITHUB_ACTIONS") == "true"
+  .is_test_env_var_true("GITHUB_ACTIONS")
 }
 
 .is_windows <- function() {
-  Sys.info()["sysname"] == "Windows"
+  .format_string_for_comparison(Sys.info()["sysname"]) == "windows"
 }
 
 .set_no_git_prompt <- function() {
@@ -104,7 +104,7 @@
 # Automatically enabled when NOT_CRAN is false/unset
 .is_test_cran <- function() {
   # Explicitly set via R_PKG_TEST_CRAN
-  Sys.getenv("R_PKG_TEST_CRAN") == "TRUE"
+  .is_test_env_var_true("R_PKG_TEST_CRAN")
 }
 
 # Check if running in lite test mode
@@ -112,10 +112,27 @@
 # - Comprehensive tests (exhaustive parameter combinations)
 # Includes: Core functionality tests, integration tests, selected remote tests
 .is_test_lite <- function() {
-  Sys.getenv("R_PKG_TEST_LITE") == "TRUE"
+  .is_test_env_var_true("R_PKG_TEST_LITE")
 }
 
 # Kept for backward compatibility - use .is_test_lite() instead
 .is_test_debug <- function() {
   .is_test_lite()
+}
+
+
+.get_env_var_formatted <- function(x) {
+  .format_string_for_comparison(Sys.getenv(x, character(1L)))
+}
+
+.format_string_for_comparison <- function(x) {
+  tolower(trimws(x))
+}
+
+.is_test_env_var_true <- function(x) {
+  env_var <- .get_env_var_formatted(x)
+  if (length(env_var) != 1L || nchar(env_var) == 0L  || env_var == "") {
+    return(FALSE)
+  }
+  env_var == "true"
 }
