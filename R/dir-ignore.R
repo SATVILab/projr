@@ -1,14 +1,8 @@
-.ignore_diryml <- function(git_skip_adjust = NULL) {
+.ignore_diryml <- function() {
   # Update `.gitignore` and `.Rbuildignore` Using Projr Configuration
   #
   # The .dir_ignore()` function updates the project’s `.gitignore` and
   # `.Rbuildignore` files to reflect the directories managed by Projr.
-  #
-  # @param git_skip_adjust A logical flag indicating whether to explicitly enable (`TRUE`)
-  #   or disable (`FALSE`) Git skip-worktree adjustments for the managed directories, overriding
-  #   any settings from the project configuration. Defaults to `NULL`, which respects
-  #   the existing project configuration. If this is not set there either,
-  #   the effective default is `TRUE`.
   #
   # @details
   #
@@ -21,54 +15,45 @@
   # As a result, directories specified in the Projr YAML configuration are correctly
   # excluded from version control (Git) and R package building processes.
   #
-  # Optionally, you can control whether files within these directories should have
-  # their Git skip-worktree flags adjusted. By default, .dir_ignore()` will
-  # respect the settings derived from the project configuration. However, you may
-  # override this behavior using the `git_skip_adjust` argument.
-  #
   # **Key Effects:**
   #
   # - Ensures `.gitignore` includes Projr-managed directories, keeping them out of Git commits.
   # - Ensures `.Rbuildignore` excludes these directories from R build processes.
-  # - Optionally adjusts Git skip-worktree flags for tracked files in these directories.
-  .ignore_diryml_git(git_skip_adjust)
+  .ignore_diryml_git()
   .ignore_diryml_rbuild()
   invisible(TRUE)
 }
 
 
-.ignore_diryml_git <- function(git_skip_adjust = NULL) {
+.ignore_diryml_git <- function() {
   if (!.git_repo_check_exists() &&
     !file.exists(.path_get(".gitignore"))) {
     return(invisible(FALSE))
   }
 
-  # get paths to ignore, skip and/or unskip
-  instr_list <- .ignore_diryml_git_get_instructions(git_skip_adjust)
+  # get paths to ignore
+  instr_list <- .ignore_diryml_git_get_instructions()
 
-  # ignore, skip and unskip paths
+  # ignore paths
   .ignore_diryml_git_update_gitignore(instr_list$ignore)
-  .ignore_diryml_git_update_skip(instr_list$skip, instr_list$unskip)
 
   invisible(TRUE)
 }
 
 # .gitignore Management (As previously defined)
-.ignore_diryml_git_get_instructions <- function(git_skip_adjust = NULL) {
-  # get which paths to ignore, skip, and/or unskip
+.ignore_diryml_git_get_instructions <- function() {
+  # get which paths to ignore
   label_vec <- .ignore_diryml_git_get_instructions_labels()
 
-  path_ignore <- path_skip <- path_unskip <- character(0)
+  path_ignore <- character(0)
 
   for (i in seq_along(label_vec)) {
     instr_list_label <- .ignore_diryml_git_get_instructions_label(
-      label_vec[[i]], git_skip_adjust
+      label_vec[[i]]
     )
     path_ignore <- c(path_ignore, instr_list_label$ignore)
-    path_skip <- c(path_skip, instr_list_label$skip)
-    path_unskip <- c(path_unskip, instr_list_label$unskip)
   }
-  list(ignore = path_ignore, skip = path_skip, unskip = path_unskip)
+  list(ignore = path_ignore)
 }
 
 .ignore_diryml_git_get_instructions_labels <- function() {
@@ -92,39 +77,25 @@
   c(label_vec, label_vec_missing)
 }
 
-.ignore_diryml_git_get_instructions_label <- function(label,
-                                                      git_skip_adjust) {
+.ignore_diryml_git_get_instructions_label <- function(label) {
   path <- .ignore_diryml_path_get(label)
   if (length(path) == 0) {
     c0 <- character(0L)
-    return(list(ignore = c0, skip = c0, unskip = c0))
+    return(list(ignore = c0))
   }
 
   .ignore_diryml_git_get_instructions_label_impl(
-    path, label, git_skip_adjust
+    path, label
   )
 }
 
 .ignore_diryml_git_get_instructions_label_impl <- function(path,
-                                                           label,
-                                                           git_skip_adjust) {
+                                                           label) {
   # ignore
   ignore_git <- .ignore_get_git(label)
   path_ignore <- if (ignore_git) paste0(path, "/**") else character(0L)
 
-  # skip
-  git_skip_adjust <- .ignore_get_git_skip_adjust(
-    label, git_skip_adjust
-  )
-
-  if (!git_skip_adjust) {
-    path_skip <- character(0L)
-    path_unskip <- character(0L)
-  } else {
-    path_skip <- if (ignore_git) path else character(0L)
-    path_unskip <- if (!ignore_git) path else character(0L)
-  }
-  list(ignore = path_ignore, skip = path_skip, unskip = path_unskip)
+  list(ignore = path_ignore)
 }
 
 .ignore_diryml_git_update_gitignore <- function(ignore) {
@@ -163,114 +134,6 @@
   ignore_git
 }
 
-.ignore_get_git_skip_adjust <- function(label, git_skip_adjust) {
-  if (!.ignore_check_git_skip_adjust_possible()) {
-    return(invisible(FALSE))
-  }
-  if (!is.null(git_skip_adjust)) {
-    .assert_flag(git_skip_adjust)
-    return(git_skip_adjust)
-  }
-  git_skip_adjust <- .yml_dir_get_label(label, NULL)[["git-skip-adjust"]]
-  if (is.null(git_skip_adjust)) {
-    return(TRUE)
-  }
-  .assert_flag(git_skip_adjust)
-  git_skip_adjust
-}
-
-.ignore_check_git_skip_adjust_possible <- function() {
-  # need to have git installed and in be in a git repo
-  .git_repo_check_exists() && .git_system_check_git()
-}
-
-.ignore_diryml_git_update_skip <- function(paths_to_ignore,
-                                           paths_to_unignore) {
-  # Adjust skip-worktree flags for ignored paths
-  for (i in seq_along(paths_to_ignore)) {
-    .git_skip(paths_to_ignore[[i]])
-  }
-
-  # Adjust skip-worktree flags for unignored paths
-  for (i in seq_along(paths_to_unignore)) {
-    .git_unskip(paths_to_unignore[[i]])
-  }
-  invisible(TRUE)
-}
-
-.git_skip <- function(path) {
-  # Set skip-worktree flag on all tracked files within the specified path
-  fn_vec_tracked <- .git_get_tracked(path)
-  if (length(fn_vec_tracked) == 0L) {
-    return(invisible(TRUE))
-  }
-
-  # Determine the appropriate bit bucket based on the operating system
-  if (Sys.info()["sysname"] == "Windows") {
-    path_bit_bucket <- "NUL"
-  } else {
-    path_bit_bucket <- "/dev/null"
-  }
-
-  # Wrap file paths in single quotes to handle spaces and special characters
-  fn_vec_tracked <- paste0("'", fn_vec_tracked, "'")
-
-  # Process files in batches of 50 to avoid command line length issues
-  while (length(fn_vec_tracked) > 0L) {
-    ind_vec <- seq_len(min(50L, length(fn_vec_tracked)))
-    fn_vec_curr <- fn_vec_tracked[ind_vec]
-
-    # Construct and execute the git command to set skip-worktree
-    cmd <- paste0(
-      "update-index --skip-worktree ",
-      paste0(fn_vec_curr, collapse = " ")
-    )
-    system2("git", cmd, stdout = path_bit_bucket, stderr = path_bit_bucket)
-
-    # Remove processed files from the list
-    fn_vec_tracked <- fn_vec_tracked[-ind_vec]
-  }
-
-  invisible(TRUE)
-}
-
-
-.git_unskip <- function(path) {
-  # Remove skip-worktree flag from all tracked files within the specified path
-  fn_vec_skipped <- .git_get_skipped(path)
-  if (length(fn_vec_skipped) == 0L) {
-    return(invisible(TRUE))
-  }
-
-  # Determine the appropriate bit bucket based on the operating system
-  if (Sys.info()["sysname"] == "Windows") {
-    path_bit_bucket <- "NUL"
-  } else {
-    path_bit_bucket <- "/dev/null"
-  }
-
-  # Wrap file paths in single quotes to handle spaces and special characters
-  fn_vec_skipped <- paste0("'", fn_vec_skipped, "'")
-
-  # Process files in batches of 50 to avoid command line length issues
-  while (length(fn_vec_skipped) > 0L) {
-    ind_vec <- seq_len(min(50L, length(fn_vec_skipped)))
-    fn_vec_curr <- fn_vec_skipped[ind_vec]
-
-    # Construct and execute the git command to remove skip-worktree
-    cmd <- paste0(
-      "update-index --no-skip-worktree ",
-      paste0(fn_vec_curr, collapse = " ")
-    )
-    system2("git", cmd, stdout = path_bit_bucket, stderr = path_bit_bucket)
-
-    # Remove processed files from the list
-    fn_vec_skipped <- fn_vec_skipped[-ind_vec]
-  }
-
-  invisible(TRUE)
-}
-
 .git_get_tracked <- function(path) {
   # Retrieve a list of tracked files within the specified path
   fn_vec <- suppressWarnings(system2(
@@ -287,29 +150,6 @@
   # Return the list of tracked file paths
   fn_vec
 }
-
-.git_get_skipped <- function(path) {
-  # Retrieve a list of files with skip-worktree set within the specified path
-  fn_vec <- suppressWarnings(system2(
-    "git",
-    args = c("ls-files", "-v", "--", path),
-    stdout = TRUE,
-    stderr = FALSE
-  ))
-
-  if (length(fn_vec) == 0L) {
-    return(character(0L))
-  }
-
-  # Filter files with status 'S' indicating skip-worktree is set
-  skipped_files <- fn_vec[grepl("^S", fn_vec)]
-
-  # Extract the file paths from the output
-  skipped_files <- sub("^S ", "", skipped_files)
-
-  skipped_files
-}
-
 
 # .Rbuildignore Management
 .ignore_diryml_rbuild <- function() {
