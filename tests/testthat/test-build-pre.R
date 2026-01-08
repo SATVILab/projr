@@ -625,3 +625,294 @@ test_that(".build_pre_setup_for_output_run clears output directories", {
     force = TRUE
   )
 })
+
+# =============================================================================
+# .build_check_restrictions tests
+# =============================================================================
+
+test_that(".build_check_restrictions returns FALSE when output_run=FALSE", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+      result <- .build_check_restrictions(output_run = FALSE)
+      expect_false(result)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that(".build_check_restrictions runs branch check when output_run=TRUE", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+      # Should not error with default (no restrictions)
+      expect_silent(.build_check_restrictions(output_run = TRUE))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+# =============================================================================
+# .build_check_packages_available tests
+# =============================================================================
+
+test_that(".build_check_packages_available returns FALSE when output_run=FALSE", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+      result <- .build_check_packages_available(output_run = FALSE)
+      expect_false(result)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that(".build_check_packages_available returns TRUE when all packages available", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+      # With no build scripts requiring special packages, should succeed
+      result <- .build_check_packages_available(output_run = TRUE)
+      expect_true(result)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+# =============================================================================
+# .build_exit_if_behind_upstream_check tests
+# =============================================================================
+
+test_that(".build_exit_if_behind_upstream_check returns FALSE when no git repo", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+      result <- .build_exit_if_behind_upstream_check(output_run = TRUE)
+      expect_false(result)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that(".build_exit_if_behind_upstream_check returns FALSE when output_run=FALSE", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      result <- .build_exit_if_behind_upstream_check(output_run = FALSE)
+      expect_false(result)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that(".build_exit_if_behind_upstream_check returns TRUE when git repo and output_run=TRUE", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      result <- .build_exit_if_behind_upstream_check(output_run = TRUE)
+      expect_true(result)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+# =============================================================================
+# .build_git_check_depends tests
+# =============================================================================
+
+test_that(".build_git_check_depends returns FALSE when git=FALSE in YAML", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+      projr_yml_git_set(FALSE)
+      result <- .build_git_check_depends()
+      expect_false(result)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that(".build_git_check_depends returns FALSE when commit=FALSE in YAML", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+      projr_yml_git_set(commit = FALSE)
+      result <- .build_git_check_depends()
+      expect_false(result)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that(".build_git_check_depends returns TRUE in non-interactive test mode", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  skip_if(interactive())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+      # Need to ensure git config is not FALSE or commit=FALSE
+      # Default YAML has git settings, so should work
+      yml_git <- .yml_git_get(NULL)
+      # Skip if git is explicitly disabled
+      skip_if(isFALSE(yml_git))
+      skip_if(!is.null(yml_git[["commit"]]) && isFALSE(yml_git[["commit"]]))
+      
+      # In test mode with git not disabled, should return TRUE
+      result <- .build_git_check_depends()
+      expect_true(result)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+# =============================================================================
+# .build_git_depends_disable tests
+# =============================================================================
+
+test_that(".build_git_depends_disable sets git to FALSE in YAML", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+      .build_git_depends_disable()
+      yml_git <- .yml_git_get(NULL)
+      expect_false(yml_git)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+# =============================================================================
+# .build_git_depends_setup tests
+# =============================================================================
+
+test_that(".build_git_depends_setup creates git repository", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+      expect_false(.git_repo_check_exists())
+      .build_git_depends_setup()
+      expect_true(.git_repo_check_exists())
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+# =============================================================================
+# .build_git_required_setup tests
+# =============================================================================
+
+test_that(".build_git_required_setup creates git repository when required", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+      expect_false(.git_repo_check_exists())
+      .build_git_required_setup()
+      expect_true(.git_repo_check_exists())
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+# =============================================================================
+# .build_github_setup_check_pat tests
+# =============================================================================
+
+test_that(".build_github_setup_check_pat returns TRUE when auth available", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  
+  # Only run if auth is available
+  skip_if(!.git_gh_check_auth())
+  
+  # When PAT/auth is available, function should return TRUE
+  result <- .build_github_setup_check_pat()
+  expect_true(result)
+})
+
+# =============================================================================
+# .build_pre_remotes_prepare tests
+# =============================================================================
+
+test_that(".build_pre_remotes_prepare returns FALSE when output_run=FALSE", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      .init()
+      # With dev bump component, output_run will be FALSE
+      result <- .build_pre_remotes_prepare(
+        bump_component = "dev",
+        archive_github = FALSE,
+        archive_local = FALSE,
+        always_archive = FALSE
+      )
+      expect_false(result)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
