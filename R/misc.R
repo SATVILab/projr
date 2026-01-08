@@ -623,7 +623,7 @@ projr_use_data <- function(...,
   last_error <- NULL
 
   if (is.null(n_try)) {
-    if (Sys.getenv("TESTTHAT") == "true") {
+    if (.is_env_var_true("TESTTHAT")) {
       n_try <- 10
     } else {
       n_try <- 3

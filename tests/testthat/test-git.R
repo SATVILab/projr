@@ -282,7 +282,7 @@ test_that(".git_ functions work with GitHub", { # setup
       if (debug) {
         print("done committing a file with gert")
       }
-      if (!Sys.getenv("GITHUB_ACTIONS") == "true") {
+      if (!.is_env_var_true("GITHUB_ACTIONS")) {
         expect_true(.git_push_gert())
       }
       if (debug) {

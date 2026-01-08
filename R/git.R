@@ -218,13 +218,20 @@
 
 # git or gert
 .git_system_get <- function() {
-  if (.git_system_check_git()) {
-    return("git")
-  }
-  "gert"
+  if (.git_system_check_if_git()) "git" else "gert"
 }
 
 # checking if git cli is available
+.git_system_check_if_git <- function() {
+  isFALSE(.git_system_check_env_var()) &&
+    .git_system_check_git()
+}
+
+.git_system_check_env_var <- function() {
+  .is_env_var_true("PROJR_GIT_USE_GERT")
+}
+
+
 .git_system_check_git <- function() {
   git_version_try <- try(
     system2("git", args = "--version", stdout = TRUE),

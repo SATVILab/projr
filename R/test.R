@@ -112,7 +112,7 @@
 # - Comprehensive tests (exhaustive parameter combinations)
 # Includes: Core functionality tests, integration tests, selected remote tests
 .is_test_lite <- function() {
-  .is_test_env_var_true("R_PKG_TEST_LITE")
+  .is_env_var_true("R_PKG_TEST_LITE")
 }
 
 # Kept for backward compatibility - use .is_test_lite() instead
@@ -129,10 +129,16 @@
   tolower(trimws(x))
 }
 
-.is_test_env_var_true <- function(x) {
-  env_var <- .get_env_var_formatted(x)
-  if (length(env_var) != 1L || nchar(env_var) == 0L  || env_var == "") {
+.is_env_var_true <- function(x) {
+  .get_env_var_formatted(x) |>
+    .is_var_string_true()
+}
+
+.is_var_string_true <- function(x) {
+  x <- as.character(x)
+  if (!.is_string(x)) {
     return(FALSE)
   }
-  env_var == "true"
+  x_formatted <- .format_string_for_comparison(x)
+  x_formatted %in% c("true", "t", "1", "yes", "y")
 }

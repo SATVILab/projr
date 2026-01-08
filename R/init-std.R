@@ -587,7 +587,7 @@ projr_init_github <- function(username = NULL,
 
   # Prompt for user.name if missing or empty.
   if (is.null(name_cfg) || name_cfg == "") {
-    if (Sys.getenv("GITHUB_ACTIONS") == "true") {
+    if (.is_env_var_true("GITHUB_ACTIONS")) {
       gert::git_config_global_set("user.name", "GitHub Actions")
     } else if (!interactive() || .is_test()) {
       .cli_info("Git user name not set and in non-interactive mode.")
@@ -614,7 +614,7 @@ projr_init_github <- function(username = NULL,
   }
   # Prompt for user.email if missing or empty.
   if (is.null(email_cfg) || email_cfg == "") {
-    if (Sys.getenv("GITHUB_ACTIONS") == "true") {
+    if (.is_env_var_true("GITHUB_ACTIONS")) {
       gert::git_config_global_set("user.email", "filler-email@projr-test.com")
     } else if (!interactive() || .is_test()) {
       .cli_info("Git user email not set and in non-interactive mode.")

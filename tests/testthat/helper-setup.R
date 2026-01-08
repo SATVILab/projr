@@ -126,7 +126,7 @@
   env <- parent.frame()
   .test_git_identity_env_set(env)
 
-  if (Sys.getenv("GITHUB_ACTIONS") == "true") {
+  if (.is_env_var_true("GITHUB_ACTIONS")) {
     gert_config_global <- gert::git_config_global()[
       gert::git_config_global()[["level"]] == "global", ,
       drop = FALSE
