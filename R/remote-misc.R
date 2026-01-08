@@ -86,7 +86,7 @@
 }
 
 .gh_guess_repo_gh <- function(path = ".") {
-  remote_list <- gh::gh_tree_remote(path)
+  remote_list <- suppressWarnings(gh::gh_tree_remote(path))
   paste0(remote_list$username, "/", remote_list$repo)
 }
 
