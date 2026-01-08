@@ -257,13 +257,13 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   # This can happen if the current directory has been deleted by tests
   # We need to check if getwd() fails or if the directory doesn't exist
   orig_dir <- tryCatch(getwd(), error = function(e) NULL)
-  
+
   # Check if we need a temporary directory:
   # - orig_dir is NULL (getwd() returned NULL, often when directory is deleted)
   # - orig_dir is empty string (another way getwd() can signal issues)
   # - orig_dir doesn't exist
-  needs_temp <- is.null(orig_dir) || 
-                (is.character(orig_dir) && length(orig_dir) == 1 && nchar(orig_dir) == 0)
+  needs_temp <- is.null(orig_dir) ||
+    (is.character(orig_dir) && length(orig_dir) == 1 && nchar(orig_dir) == 0)
 
   if (!needs_temp && !is.null(orig_dir)) {
     # Even if getwd() returned something, the directory might have been deleted
@@ -277,15 +277,18 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
     if (!dir.exists(safe_dir)) {
       dir.create(safe_dir, recursive = TRUE, showWarnings = FALSE)
     }
-    
+
     # Try to change to safe directory
-    setwd_success <- tryCatch({
-      setwd(safe_dir)
-      TRUE
-    }, error = function(e) {
-      FALSE
-    })
-    
+    setwd_success <- tryCatch(
+      {
+        setwd(safe_dir)
+        TRUE
+      },
+      error = function(e) {
+        FALSE
+      }
+    )
+
     # Verify we successfully changed directory
     if (setwd_success) {
       new_dir <- tryCatch(getwd(), error = function(e) NULL)
@@ -293,15 +296,18 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
         setwd_success <- FALSE
       }
     }
-    
+
     # If tempdir didn't work, try /tmp as last resort
     if (!setwd_success) {
-      tryCatch({
-        setwd("/tmp")
-      }, error = function(e) {
-        # If even /tmp fails, we'll try to proceed anyway
-        # system2() might still work in some environments
-      })
+      tryCatch(
+        {
+          setwd("/tmp")
+        },
+        error = function(e) {
+          # If even /tmp fails, we'll try to proceed anyway
+          # system2() might still work in some environments
+        }
+      )
     }
   }
 

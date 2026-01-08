@@ -417,14 +417,17 @@ test_that(".renv_rest_disable_cache modifies .Rprofile correctly", {
   on.exit(
     {
       # Ensure we're not in dir_test before deleting it
-      tryCatch({
-        if (!is.null(getwd()) && getwd() == dir_test) {
-          setwd(orig_dir)
+      tryCatch(
+        {
+          if (!is.null(getwd()) && getwd() == dir_test) {
+            setwd(orig_dir)
+          }
+        },
+        error = function(e) {
+          # If we can't change to orig_dir, use a safe fallback
+          tryCatch(setwd(tempdir()), error = function(e2) NULL)
         }
-      }, error = function(e) {
-        # If we can't change to orig_dir, use a safe fallback
-        tryCatch(setwd(tempdir()), error = function(e2) NULL)
-      })
+      )
       unlink(dir_test, recursive = TRUE)
     },
     add = TRUE
@@ -486,14 +489,17 @@ test_that(".renv_lockfile_pkg_get parses regular CRAN packages", {
   on.exit(
     {
       # Ensure we're not in dir_test before deleting it
-      tryCatch({
-        if (!is.null(getwd()) && getwd() == dir_test) {
-          setwd(orig_dir)
+      tryCatch(
+        {
+          if (!is.null(getwd()) && getwd() == dir_test) {
+            setwd(orig_dir)
+          }
+        },
+        error = function(e) {
+          # If we can't change to orig_dir, use a safe fallback
+          tryCatch(setwd(tempdir()), error = function(e2) NULL)
         }
-      }, error = function(e) {
-        # If we can't change to orig_dir, use a safe fallback
-        tryCatch(setwd(tempdir()), error = function(e2) NULL)
-      })
+      )
       unlink(dir_test, recursive = TRUE)
     },
     add = TRUE
@@ -531,14 +537,17 @@ test_that(".renv_lockfile_pkg_get categorizes packages correctly", {
   on.exit(
     {
       # Ensure we're not in dir_test before deleting it
-      tryCatch({
-        if (!is.null(getwd()) && getwd() == dir_test) {
-          setwd(orig_dir)
+      tryCatch(
+        {
+          if (!is.null(getwd()) && getwd() == dir_test) {
+            setwd(orig_dir)
+          }
+        },
+        error = function(e) {
+          # If we can't change to orig_dir, use a safe fallback
+          tryCatch(setwd(tempdir()), error = function(e2) NULL)
         }
-      }, error = function(e) {
-        # If we can't change to orig_dir, use a safe fallback
-        tryCatch(setwd(tempdir()), error = function(e2) NULL)
-      })
+      )
       unlink(dir_test, recursive = TRUE)
     },
     add = TRUE
