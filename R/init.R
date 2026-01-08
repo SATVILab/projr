@@ -101,6 +101,8 @@ projr_init_license <- function(license, first_name, last_name) {
   .init_license_create_impl(license, first_name, last_name)
 }
 
+#' @export
+#' @rdname projr_init
 projr_init_ignore <- function() {
   projr_ignore_auto()
 }
