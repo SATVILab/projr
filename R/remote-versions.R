@@ -63,7 +63,8 @@
 .remote_write_changelog <- function(type,
                                     remote_pre) {
   .cli_debug(
-    "Writing CHANGELOG file to {type} remote"  )
+    "Writing CHANGELOG file to {type} remote"
+  )
   remote <- if (type == "github") {
     remote_pre[["fn"]] <- "CHANGELOG.zip"
     remote_pre
@@ -73,7 +74,8 @@
   switch(type,
     "project" = NULL,
     .remote_file_add(
-      type, remote, .path_get(), "CHANGELOG.md")
+      type, remote, .path_get(), "CHANGELOG.md"
+    )
   )
   invisible(TRUE)
 }
@@ -96,7 +98,8 @@
                                        remote_pre,
                                        version_file) {
   .cli_debug(
-    "Writing VERSION file to {type} remote"  )
+    "Writing VERSION file to {type} remote"
+  )
 
   path_dir_save <- .dir_create_tmp_random()
   writeLines(version_file, file.path(path_dir_save, "VERSION"))
@@ -112,11 +115,13 @@
       type,
       remote,
       path_dir_save,
-      "VERSION")
+      "VERSION"
+    )
   )
 
   .cli_debug(
-    "Successfully wrote VERSION file to {type} remote"  )
+    "Successfully wrote VERSION file to {type} remote"
+  )
 
   unlink(path_dir_save, recursive = TRUE)
   invisible(TRUE)
@@ -138,17 +143,20 @@
 .remote_get_manifest <- function(type,
                                  remote_pre) {
   .cli_debug(
-    "Getting manifest.csv from {type} remote"  )
+    "Getting manifest.csv from {type} remote"
+  )
 
   result <- switch(type,
     "project" = .remote_get_manifest_project(),
     .remote_get_manifest_non_project(
       type,
-      remote_pre)
+      remote_pre
+    )
   )
 
   .cli_debug(
-    "Retrieved manifest with {nrow(result)} row(s) from {type} remote"  )
+    "Retrieved manifest with {nrow(result)} row(s) from {type} remote"
+  )
 
   result
 }
@@ -175,10 +183,12 @@
                                              remote_pre) {
   manifest_actual <- .remote_get_manifest_non_project_raw(
     type,
-    remote_pre  )
+    remote_pre
+  )
   if (is.null(manifest_actual)) {
     .cli_debug(
-      "No manifest found on {type} remote, returning empty manifest")
+      "No manifest found on {type} remote, returning empty manifest"
+    )
     return(.zero_tbl_get_manifest())
   }
   manifest_actual
@@ -196,7 +206,8 @@
   path_dir_save <- .dir_create_tmp_random()
 
   .cli_debug(
-    "Attempting to download manifest.csv from {type} remote"  )
+    "Attempting to download manifest.csv from {type} remote"
+  )
 
   remote <- if (type == "github") {
     remote_pre[["fn"]] <- "manifest.zip"
@@ -216,20 +227,23 @@
     },
     error = function(e) {
       .cli_debug(
-        "Error downloading manifest.csv from {type} remote: {e$message}"  )
+        "Error downloading manifest.csv from {type} remote: {e$message}"
+      )
       character(0L)
     }
   )
 
   if (length(path_manifest) == 0 || !file.exists(path_manifest)) {
     .cli_debug(
-      "manifest.csv not found on {type} remote")
+      "manifest.csv not found on {type} remote"
+    )
     unlink(path_dir_save, recursive = TRUE)
     return(NULL)
   }
 
   .cli_debug(
-    "Successfully downloaded manifest.csv from {type} remote"  )
+    "Successfully downloaded manifest.csv from {type} remote"
+  )
 
   manifest <- .manifest_read(path_manifest)
   unlink(path_dir_save, recursive = TRUE)
@@ -250,21 +264,25 @@
 .remote_get_version_file <- function(type,
                                      remote_pre) {
   .cli_debug(
-    "Getting VERSION file from {type} remote"  )
+    "Getting VERSION file from {type} remote"
+  )
 
   result <- switch(type,
     "project" = character(0L),
     .remote_get_version_file_non_project(
       type,
-      remote_pre)
+      remote_pre
+    )
   )
 
   if (length(result) > 0) {
     .cli_debug(
-      "Retrieved VERSION file from {type} remote ({length(result)} line(s))")
+      "Retrieved VERSION file from {type} remote ({length(result)} line(s))"
+    )
   } else {
     .cli_debug(
-      "No VERSION file found on {type} remote")
+      "No VERSION file found on {type} remote"
+    )
   }
 
   result
@@ -283,7 +301,8 @@
   path_dir_save <- .dir_create_tmp_random()
 
   .cli_debug(
-    "Attempting to download VERSION file from {type} remote"  )
+    "Attempting to download VERSION file from {type} remote"
+  )
 
   remote <- if (type == "github") {
     remote_pre[["fn"]] <- "VERSION.zip"
@@ -303,20 +322,23 @@
     },
     error = function(e) {
       .cli_debug(
-        "Error downloading VERSION file from {type} remote: {e$message}"  )
+        "Error downloading VERSION file from {type} remote: {e$message}"
+      )
       character(0L)
     }
   )
 
   if (length(path_version) == 0 || !file.exists(path_version)) {
     .cli_debug(
-      "VERSION file not found on {type} remote")
+      "VERSION file not found on {type} remote"
+    )
     unlink(path_dir_save, recursive = TRUE)
     return(character(0L))
   }
 
   .cli_debug(
-    "Successfully downloaded VERSION file from {type} remote"  )
+    "Successfully downloaded VERSION file from {type} remote"
+  )
 
   version_file <- .remote_get_version_file_read(path_version)
   unlink(path_dir_save, recursive = TRUE)

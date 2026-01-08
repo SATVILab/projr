@@ -6,9 +6,9 @@
 # function to delete them
 # NOTE: These functions only delete repos created during THIS test run.
 # When a test creates a GitHub repo, it writes a marker file
-# to a temporary directory (.test_git_remote_dir_get_tmp()). 
-# The cleanup function reads these marker files and only deletes those 
-# specific repos. This ensures we don't accidentally delete repos created 
+# to a temporary directory (.test_git_remote_dir_get_tmp()).
+# The cleanup function reads these marker files and only deletes those
+# specific repos. This ensures we don't accidentally delete repos created
 # by other concurrent test runs (e.g., on different CI/CD platforms).
 .test_github_rm <- function() {
   # Only attempt cleanup if we can actually modify GitHub repos
@@ -107,4 +107,3 @@ withr::defer(
 
   invisible(TRUE)
 }
-

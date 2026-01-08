@@ -268,7 +268,7 @@ test_that(".generate_random_string generates unique strings", {
 
   # Generate multiple strings and check they're different
   strings <- replicate(100, .generate_random_string())
-  expect_true(length(unique(strings)) > 90)  # Very unlikely to have many duplicates
+  expect_true(length(unique(strings)) > 90) # Very unlikely to have many duplicates
 })
 
 test_that(".generate_random_string only uses valid characters", {
@@ -381,10 +381,13 @@ test_that(".check_renv_lockfile checks for file existence", {
 
   orig_dir <- getwd()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  on.exit({
-    tryCatch(setwd(orig_dir), error = function(e) NULL)
-    unlink(dir_test, recursive = TRUE)
-  }, add = TRUE)
+  on.exit(
+    {
+      tryCatch(setwd(orig_dir), error = function(e) NULL)
+      unlink(dir_test, recursive = TRUE)
+    },
+    add = TRUE
+  )
 
   setwd(dir_test)
 
@@ -411,10 +414,13 @@ test_that(".renv_rest_disable_cache modifies .Rprofile correctly", {
 
   orig_dir <- getwd()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  on.exit({
-    tryCatch(setwd(orig_dir), error = function(e) NULL)
-    unlink(dir_test, recursive = TRUE)
-  }, add = TRUE)
+  on.exit(
+    {
+      tryCatch(setwd(orig_dir), error = function(e) NULL)
+      unlink(dir_test, recursive = TRUE)
+    },
+    add = TRUE
+  )
 
   setwd(dir_test)
 
@@ -469,10 +475,13 @@ test_that(".renv_lockfile_pkg_get parses regular CRAN packages", {
 
   orig_dir <- getwd()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  on.exit({
-    tryCatch(setwd(orig_dir), error = function(e) NULL)
-    unlink(dir_test, recursive = TRUE)
-  }, add = TRUE)
+  on.exit(
+    {
+      tryCatch(setwd(orig_dir), error = function(e) NULL)
+      unlink(dir_test, recursive = TRUE)
+    },
+    add = TRUE
+  )
 
   setwd(dir_test)
 
@@ -503,10 +512,13 @@ test_that(".renv_lockfile_pkg_get categorizes packages correctly", {
 
   orig_dir <- getwd()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  on.exit({
-    tryCatch(setwd(orig_dir), error = function(e) NULL)
-    unlink(dir_test, recursive = TRUE)
-  }, add = TRUE)
+  on.exit(
+    {
+      tryCatch(setwd(orig_dir), error = function(e) NULL)
+      unlink(dir_test, recursive = TRUE)
+    },
+    add = TRUE
+  )
 
   setwd(dir_test)
 
@@ -633,10 +645,13 @@ test_that(".renv_test_test_snapshot creates dependencies and snapshot", {
 
   orig_dir <- getwd()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  on.exit({
-    tryCatch(setwd(orig_dir), error = function(e) NULL)
-    unlink(dir_test, recursive = TRUE)
-  }, add = TRUE)
+  on.exit(
+    {
+      tryCatch(setwd(orig_dir), error = function(e) NULL)
+      unlink(dir_test, recursive = TRUE)
+    },
+    add = TRUE
+  )
 
   setwd(dir_test)
 
@@ -673,10 +688,13 @@ test_that(".renv_rest_restore handles successful restore", {
 
   orig_dir <- getwd()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  on.exit({
-    tryCatch(setwd(orig_dir), error = function(e) NULL)
-    unlink(dir_test, recursive = TRUE)
-  }, add = TRUE)
+  on.exit(
+    {
+      tryCatch(setwd(orig_dir), error = function(e) NULL)
+      unlink(dir_test, recursive = TRUE)
+    },
+    add = TRUE
+  )
 
   setwd(dir_test)
 
@@ -703,10 +721,13 @@ test_that(".renv_rest_restore handles failed restore", {
 
   orig_dir <- getwd()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  on.exit({
-    tryCatch(setwd(orig_dir), error = function(e) NULL)
-    unlink(dir_test, recursive = TRUE)
-  }, add = TRUE)
+  on.exit(
+    {
+      tryCatch(setwd(orig_dir), error = function(e) NULL)
+      unlink(dir_test, recursive = TRUE)
+    },
+    add = TRUE
+  )
 
   setwd(dir_test)
 

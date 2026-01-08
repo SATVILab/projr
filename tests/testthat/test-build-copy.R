@@ -123,7 +123,7 @@ test_that("projr_build_copy_pkg works", {
         "License: MIT + file LICENSE",
         "Encoding: UTF-8"
       ), "DESCRIPTION")
-      
+
       # Create minimal LICENSE file
       writeLines("MIT License", "LICENSE")
 
