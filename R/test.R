@@ -66,23 +66,23 @@
 }
 
 .is_test <- function() {
-  .is_test_env_var_true("R_PKG_TEST_IN_PROGRESS")
+  .is_env_var_true("R_PKG_TEST_IN_PROGRESS")
 }
 
 # so that we can skip all except those for
 # which we're testing
 .is_test_select <- function() {
-  .is_test_env_var_true("R_PKG_TEST_SELECT")
+  .is_env_var_true("R_PKG_TEST_SELECT")
 }
 
 # so that we can detect Windows GHA environment
 # and skip tests accordingly
 .is_windows_gha <- function() {
- .is_windows() && .is_gha()
+  .is_windows() && .is_gha()
 }
 
 .is_gha <- function() {
-  .is_test_env_var_true("GITHUB_ACTIONS")
+  .is_env_var_true("GITHUB_ACTIONS")
 }
 
 .is_windows <- function() {
@@ -94,8 +94,6 @@
 }
 
 
-
-
 # Check if running in CRAN test mode
 # CRAN mode skips:
 # - Comprehensive tests (exhaustive parameter combinations)
@@ -104,7 +102,7 @@
 # Automatically enabled when NOT_CRAN is false/unset
 .is_test_cran <- function() {
   # Explicitly set via R_PKG_TEST_CRAN
-  .is_test_env_var_true("R_PKG_TEST_CRAN")
+  .is_env_var_true("R_PKG_TEST_CRAN")
 }
 
 # Check if running in lite test mode

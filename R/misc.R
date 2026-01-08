@@ -559,7 +559,7 @@ projr_use_data <- function(...,
   )
 
   if (!identical(path_zip_temp, path_zip)) {
-    fs::file_move( path_zip_temp, path_zip)
+    fs::file_move(path_zip_temp, path_zip)
   }
 
   invisible(path_zip)
