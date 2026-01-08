@@ -267,9 +267,19 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   if (needs_temp) {
     # Change to a safe directory temporarily
     safe_dir <- tempdir()
+    # Ensure tempdir exists
+    if (!dir.exists(safe_dir)) {
+      dir.create(safe_dir, recursive = TRUE, showWarnings = FALSE)
+    }
     tryCatch(setwd(safe_dir), error = function(e) {
       warning("Failed to change to safe directory: ", e$message)
     })
+    # Verify we successfully changed directory
+    new_dir <- tryCatch(getwd(), error = function(e) NULL)
+    if (is.null(new_dir) || new_dir != safe_dir) {
+      # If we still can't get a valid directory, try one more fallback
+      tryCatch(setwd("/tmp"), error = function(e) NULL)
+    }
   }
 
   res <- tryCatch(
