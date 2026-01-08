@@ -257,10 +257,16 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   # This can happen if the current directory has been deleted by tests
   # We need to check if getwd() fails or if the directory doesn't exist
   orig_dir <- tryCatch(getwd(), error = function(e) NULL)
-  needs_temp <- is.null(orig_dir)
+  
+  # Check if we need a temporary directory:
+  # - orig_dir is NULL (getwd() returned NULL, often when directory is deleted)
+  # - orig_dir is empty string (another way getwd() can signal issues)
+  # - orig_dir doesn't exist
+  needs_temp <- is.null(orig_dir) || 
+                (is.character(orig_dir) && length(orig_dir) == 1 && nchar(orig_dir) == 0)
 
-  if (!needs_temp) {
-    # Even if getwd() succeeds, the directory might have been deleted
+  if (!needs_temp && !is.null(orig_dir)) {
+    # Even if getwd() returned something, the directory might have been deleted
     needs_temp <- tryCatch(!dir.exists(orig_dir), error = function(e) TRUE)
   }
 
@@ -271,14 +277,31 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
     if (!dir.exists(safe_dir)) {
       dir.create(safe_dir, recursive = TRUE, showWarnings = FALSE)
     }
-    tryCatch(setwd(safe_dir), error = function(e) {
-      warning("Failed to change to safe directory: ", e$message)
+    
+    # Try to change to safe directory
+    setwd_success <- tryCatch({
+      setwd(safe_dir)
+      TRUE
+    }, error = function(e) {
+      FALSE
     })
+    
     # Verify we successfully changed directory
-    new_dir <- tryCatch(getwd(), error = function(e) NULL)
-    if (is.null(new_dir) || new_dir != safe_dir) {
-      # If we still can't get a valid directory, try one more fallback
-      tryCatch(setwd("/tmp"), error = function(e) NULL)
+    if (setwd_success) {
+      new_dir <- tryCatch(getwd(), error = function(e) NULL)
+      if (is.null(new_dir) || new_dir != safe_dir) {
+        setwd_success <- FALSE
+      }
+    }
+    
+    # If tempdir didn't work, try /tmp as last resort
+    if (!setwd_success) {
+      tryCatch({
+        setwd("/tmp")
+      }, error = function(e) {
+        # If even /tmp fails, we'll try to proceed anyway
+        # system2() might still work in some environments
+      })
     }
   }
 
