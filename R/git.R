@@ -701,7 +701,7 @@
       }
       list(
         sha = substr(log$commit[1], 1, 7),
-        message = log$message[1]
+        message = trimws(log$message[1])
       )
     },
     error = function(e) NULL
