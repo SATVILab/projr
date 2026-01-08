@@ -391,6 +391,7 @@ test_that(".dest_prepare_github_releases returns FALSE when no tags needed", {
 test_that(".dest_prepare_github_releases creates missing releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
+  skip_if(.is_gha())
   skip_if(.is_test_select())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
@@ -449,6 +450,7 @@ test_that(".dest_prepare_github_releases handles existing releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_gha())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
@@ -501,6 +503,7 @@ test_that(".dest_prepare_github_releases handles multiple tags", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
+  skip_if(.is_gha())
   skip_if_offline()
   .test_skip_if_cannot_modify_github()
 

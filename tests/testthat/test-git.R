@@ -147,6 +147,7 @@ test_that(".git_ functions work", { # setup
 test_that(".git_ functions work with GitHub", { # setup
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  skip_if(.is_gha())
   .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(
