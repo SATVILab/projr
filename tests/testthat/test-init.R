@@ -1832,3 +1832,352 @@ test_that("projr_init_license works with non-proprietary licenses without names"
     quiet = TRUE
   )
 })
+
+# ========================================
+# Additional coverage tests for R/init-std.R
+# ========================================
+
+test_that(".init_cite_std_readme adds citation to README.Rmd when it exists", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  dir_test <- .dir_get_tmp_random_path()
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create README.Rmd first
+      writeLines(c("# Test Project", "", "This is a test."), "README.Rmd")
+
+      # Test .init_cite_std_readme
+      result <- .init_cite_std_readme()
+      expect_true(result)
+
+      # Check that README.Rmd was modified
+      readme_content <- readLines("README.Rmd")
+      expect_true(length(readme_content) > 3)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".init_cite_std_readme adds citation to README.md when README.Rmd does not exist", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  dir_test <- .dir_get_tmp_random_path()
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create only README.md (no README.Rmd)
+      writeLines(c("# Test Project", "", "This is a test."), "README.md")
+
+      # Test .init_cite_std_readme
+      result <- .init_cite_std_readme()
+      expect_true(result)
+
+      # Check that README.md was modified
+      readme_content <- readLines("README.md")
+      expect_true(length(readme_content) > 3)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".init_cite_std_readme returns FALSE when no README exists", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  dir_test <- .dir_get_tmp_random_path()
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # No README files exist
+      result <- .init_cite_std_readme()
+      expect_false(result)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".init_readme_std_check returns FALSE when README.md exists and readme_rmd=FALSE", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  dir_test <- .dir_get_tmp_random_path()
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create existing README.md
+      writeLines("# Existing README", "README.md")
+
+      # Test with readme_rmd = FALSE
+      result <- .init_readme_std_check(TRUE, FALSE)
+      expect_false(result)
+
+      # Verify file was not changed
+      content <- readLines("README.md")
+      expect_true(any(grepl("Existing README", content)))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that(".init_engine_std_bookdown handles existing files correctly", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  # Test when _bookdown.yml already exists
+  dir_test <- .dir_get_tmp_random_path()
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create existing _bookdown.yml with custom content
+      yaml::write_yaml(list(custom = "content"), "_bookdown.yml")
+      file.create("_dependencies.R")
+
+      # Test bookdown creation
+      result_bd <- .init_engine_std_bookdown_bookdown()
+      expect_false(result_bd)
+
+      # Verify existing file was not overwritten
+      yml <- yaml::read_yaml("_bookdown.yml")
+      expect_identical(yml$custom, "content")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  # Test when _output.yml already exists
+  dir_test <- .dir_get_tmp_random_path()
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create existing _output.yml with custom content
+      yaml::write_yaml(list(custom = "output"), "_output.yml")
+
+      # Test output.yml creation
+      result_out <- .init_engine_std_bookdown_output()
+      expect_false(result_out)
+
+      # Verify existing file was not overwritten
+      yml <- yaml::read_yaml("_output.yml")
+      expect_identical(yml$custom, "output")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test, recursive = TRUE)
+
+  # Test when index.Rmd already exists
+  dir_test <- .dir_get_tmp_random_path()
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create existing index.Rmd with custom content
+      writeLines("# Custom Index", "index.Rmd")
+
+      # Test index.Rmd creation
+      result_idx <- .init_engine_std_bookdown_index()
+      expect_false(result_idx)
+
+      # Verify existing file was not overwritten
+      content <- readLines("index.Rmd")
+      expect_true(any(grepl("Custom Index", content)))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that(".init_engine_std_quarto_project handles file existence combinations", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  # Test when both files already exist (skipped = 2)
+  dir_test <- .dir_get_tmp_random_path()
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      file.create("_dependencies.R")
+      # Create both files
+      yaml::write_yaml(list(custom = "quarto"), "_quarto.yml")
+      writeLines("# Custom index", "index.qmd")
+
+      # Test quarto project creation
+      result <- .init_engine_std_quarto_project()
+      # When both exist, skipped = 2, so result should be FALSE
+      expect_false(result)
+
+      # Verify files were not overwritten
+      yml <- yaml::read_yaml("_quarto.yml")
+      expect_identical(yml$custom, "quarto")
+      content <- readLines("index.qmd")
+      expect_true(any(grepl("Custom index", content)))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+
+  # Test when only _quarto.yml exists (skipped = 1)
+  dir_test <- .dir_get_tmp_random_path()
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      file.create("_dependencies.R")
+      # Create only _quarto.yml
+      yaml::write_yaml(list(custom = "quarto"), "_quarto.yml")
+
+      # Test quarto project creation
+      result <- .init_engine_std_quarto_project()
+      # When only one exists, skipped = 1, so result should be TRUE
+      expect_true(result)
+
+      # Verify _quarto.yml was not overwritten but index.qmd was created
+      yml <- yaml::read_yaml("_quarto.yml")
+      expect_identical(yml$custom, "quarto")
+      expect_true(file.exists("index.qmd"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test, recursive = TRUE)
+
+  # Test when only index.qmd exists (skipped = 1)
+  dir_test <- .dir_get_tmp_random_path()
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      file.create("_dependencies.R")
+      # Create only index.qmd
+      writeLines("# Custom index", "index.qmd")
+
+      # Test quarto project creation
+      result <- .init_engine_std_quarto_project()
+      # When only one exists, skipped = 1, so result should be TRUE
+      expect_true(result)
+
+      # Verify index.qmd was not overwritten but _quarto.yml was created
+      expect_true(file.exists("_quarto.yml"))
+      content <- readLines("index.qmd")
+      expect_true(any(grepl("Custom index", content)))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+  unlink(dir_test, recursive = TRUE)
+})
+
+test_that("projr_init handles VERSION file already existing", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  dir_test <- .dir_get_tmp_random_path()
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create existing VERSION file
+      writeLines("0.5.0", "VERSION")
+
+      # Call projr_init
+      projr_init(git = FALSE, github = FALSE)
+
+      # VERSION should remain unchanged (not overwritten with 0.0.1)
+      version_content <- readLines("VERSION")
+      expect_identical(version_content[1], "0.5.0")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("projr_init handles DESCRIPTION file already existing", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  dir_test <- .dir_get_tmp_random_path()
+  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  .dir_create(dir_test)
+  .test_set()
+  withr::defer(.test_unset())
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create existing DESCRIPTION file
+      writeLines("Package: ExistingPkg\nVersion: 1.0.0", "DESCRIPTION")
+
+      # Call projr_init with desc = TRUE
+      # Should not overwrite because DESCRIPTION already exists
+      projr_init(git = FALSE, github = FALSE, desc = TRUE)
+
+      # DESCRIPTION should remain unchanged
+      desc_content <- read.dcf("DESCRIPTION")
+      expect_identical(as.character(desc_content[1, "Package"]), "ExistingPkg")
+
+      # VERSION should not be created since DESCRIPTION exists
+      expect_false(file.exists("VERSION"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
