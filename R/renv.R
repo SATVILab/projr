@@ -253,6 +253,25 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
     args <- c("-e", shQuote(expr))
   }
 
+  # Ensure system2() runs in a valid directory to prevent "getcwd() failed" errors
+  # This can happen if the current directory has been deleted by tests
+  # We need to check if getwd() fails or if the directory doesn't exist
+  orig_dir <- tryCatch(getwd(), error = function(e) NULL)
+  needs_temp <- is.null(orig_dir)
+  
+  if (!needs_temp) {
+    # Even if getwd() succeeds, the directory might have been deleted
+    needs_temp <- tryCatch(!dir.exists(orig_dir), error = function(e) TRUE)
+  }
+  
+  if (needs_temp) {
+    # Change to a safe directory temporarily
+    safe_dir <- tempdir()
+    tryCatch(setwd(safe_dir), error = function(e) {
+      warning("Failed to change to safe directory: ", e$message)
+    })
+  }
+
   res <- tryCatch(
     {
       system2(
@@ -266,6 +285,11 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
       return(-1)
     }
   )
+
+  # Restore original directory if it was valid and still exists
+  if (!needs_temp && !is.null(orig_dir) && dir.exists(orig_dir)) {
+    tryCatch(setwd(orig_dir), error = function(e) NULL)
+  }
 
   if (res != 0) {
     error_msg <- tryCatch(
