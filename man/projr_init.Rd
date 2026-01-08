@@ -8,6 +8,7 @@
 \alias{projr_init_git}
 \alias{projr_init_github}
 \alias{projr_init_license}
+\alias{projr_init_ignore}
 \title{Initialize a projr Project}
 \usage{
 projr_init(
@@ -41,6 +42,8 @@ projr_init_git(commit = TRUE)
 projr_init_github(username = NULL, public = FALSE)
 
 projr_init_license(license, first_name, last_name)
+
+projr_init_ignore()
 }
 \arguments{
 \item{git}{Logical. If \code{TRUE}, initializes a Git repository. Defaults to \code{TRUE}.}
