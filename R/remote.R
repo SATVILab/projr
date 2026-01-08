@@ -84,7 +84,7 @@
                                               ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
-    "local" = .remote_final_check_exists_direct(remote),
+    "local" = .remote_final_check_exists_direct_local(remote),
     "github" = .remote_final_check_exists_direct_github(remote, ...)
   )
 }
