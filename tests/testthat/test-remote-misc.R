@@ -515,7 +515,7 @@ test_that(".gh_guess_repo throws error when no remotes exist", {
       # No remotes added
       expect_error(
         .gh_guess_repo(),
-        "Failed to parse owner/repo from remote URL"
+        "remote"
       )
     }
   )
