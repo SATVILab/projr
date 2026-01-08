@@ -177,3 +177,94 @@ test_that("projr_content_update handles no type found in dest", {
     }
   )
 })
+
+# =============================================================================
+# Additional Edge Case Tests
+# =============================================================================
+
+test_that("projr_content_update handles label not in destination content list", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Setup content for raw-data
+      .test_content_setup_label("raw-data")
+      .test_content_setup_label("cache")
+
+      # Setup remote but only for cache
+      remote_dest <- .dir_create_tmp_random()
+      on.exit(unlink(remote_dest, recursive = TRUE), add = TRUE)
+
+      projr_yml_dest_add_local(
+        title = "dest-title",
+        content = "cache",  # Only cache, not raw-data
+        path = remote_dest,
+        structure = "latest"
+      )
+
+      # Build
+      projr_build_patch(msg = "test")
+
+      # Clear raw-data
+      unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
+      projr_path_get_dir("raw-data", safe = FALSE)
+
+      # Try to restore raw-data from dest (not in content list)
+      result <- projr_content_update(
+        label = "raw-data",
+        pos = "dest",
+        type = "local",
+        title = "dest-title"
+      )
+
+      # Should return FALSE (label not in destination's content list)
+      expect_false(result)
+    }
+  )
+})
+
+test_that("projr_content_update handles first available type when none specified in dest", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Setup content
+      .test_content_setup_label("raw-data")
+
+      # Setup local remote
+      remote_dest <- .dir_create_tmp_random()
+      on.exit(unlink(remote_dest, recursive = TRUE), add = TRUE)
+
+      projr_yml_dest_add_local(
+        title = "dest-title",
+        content = "raw-data",
+        path = remote_dest,
+        structure = "latest"
+      )
+
+      # Build
+      projr_build_patch(msg = "test")
+
+      # Clear local
+      unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
+      projr_path_get_dir("raw-data", safe = FALSE)
+
+      # Restore without specifying type (should use first available: local)
+      result <- projr_content_update(
+        label = "raw-data",
+        pos = "dest"
+      )
+
+      # Should succeed - finds local as first type
+      expect_true(result)
+    }
+  )
+})
