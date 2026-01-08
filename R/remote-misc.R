@@ -146,7 +146,9 @@
 }
 
 # Alias for backwards compatibility with tests
-.gh_repo_from_remote_url <- .gh_owner_repo_from_url
+.gh_repo_from_remote_url <- function(remote_url) {
+  .gh_owner_repo_from_url(remote_url)
+}
 
 .gh_git_remote_url <- function(git_args, remote) {
   output <- .gh_git_exec(c(git_args, "remote", "get-url", remote))
