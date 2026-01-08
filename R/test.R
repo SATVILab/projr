@@ -132,6 +132,11 @@
     .is_var_string_true()
 }
 
+# Alias for .is_env_var_true to maintain consistency with test function naming
+.is_test_env_var_true <- function(x) {
+  .is_env_var_true(x)
+}
+
 .is_var_string_true <- function(x) {
   x <- as.character(x)
   if (!.is_string(x)) {
