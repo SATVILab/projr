@@ -258,12 +258,12 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   # We need to check if getwd() fails or if the directory doesn't exist
   orig_dir <- tryCatch(getwd(), error = function(e) NULL)
   needs_temp <- is.null(orig_dir)
-  
+
   if (!needs_temp) {
     # Even if getwd() succeeds, the directory might have been deleted
     needs_temp <- tryCatch(!dir.exists(orig_dir), error = function(e) TRUE)
   }
-  
+
   if (needs_temp) {
     # Change to a safe directory temporarily
     safe_dir <- tempdir()
