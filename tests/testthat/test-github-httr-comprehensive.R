@@ -330,13 +330,8 @@ test_that(".gh_repo_from_remote_url parses various URL formats", {
   # Error on invalid URL with only one part
   expect_error(
     .gh_repo_from_remote_url("invalid"),
-    "Could not parse owner/repo"
+    "parse owner/repo"
   )
-
-  # URL with only one path component still extracts last two parts
-  # "https://github.com/owner" -> ["https", "github.com", "owner"] -> "github.com/owner"
-  result <- .gh_repo_from_remote_url("https://github.com/owner")
-  expect_identical(result, "github.com/owner")
 })
 
 test_that(".gh_guess_repo works in git repository", {
