@@ -631,30 +631,120 @@ test_that(".renv_test_test_snapshot creates dependencies and snapshot", {
     "Set PROJR_TEST_RENV=TRUE to enable renv integration tests"
   )
 
+  orig_dir <- getwd()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  on.exit(unlink(dir_test, recursive = TRUE), add = TRUE)
+  on.exit({
+    tryCatch(setwd(orig_dir), error = function(e) NULL)
+    unlink(dir_test, recursive = TRUE)
+  }, add = TRUE)
 
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Initialize renv
-      .renv_rest_init()
-      .renv_rest_activate()
+  setwd(dir_test)
 
-      # Run snapshot test
-      .renv_test_test_snapshot()
+  # Initialize renv
+  .renv_rest_init()
+  .renv_rest_activate()
 
-      # Check that _dependencies.R was created
-      expect_true(file.exists("_dependencies.R"))
+  # Run snapshot test
+  .renv_test_test_snapshot()
 
-      # Check that renv.lock was updated
-      expect_true(file.exists("renv.lock"))
+  # Check that _dependencies.R was created
+  expect_true(file.exists("_dependencies.R"))
 
-      # Read and verify lockfile contains tinytest
-      lockfile <- jsonlite::read_json("renv.lock")
-      expect_true("tinytest" %in% names(lockfile$Packages))
-    },
-    force = TRUE,
-    quiet = TRUE
+  # Check that renv.lock was updated
+  expect_true(file.exists("renv.lock"))
+
+  # Read and verify lockfile contains tinytest
+  lockfile <- jsonlite::read_json("renv.lock")
+  expect_true("tinytest" %in% names(lockfile$Packages))
+})
+
+# =============================================================================
+# Tests for .renv_rest_restore
+# =============================================================================
+
+test_that(".renv_rest_restore handles successful restore", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  skip_if_offline()
+  skip_if_not(
+    .test_should_run_renv(),
+    "Set PROJR_TEST_RENV=TRUE to enable renv integration tests"
   )
+
+  orig_dir <- getwd()
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  on.exit({
+    tryCatch(setwd(orig_dir), error = function(e) NULL)
+    unlink(dir_test, recursive = TRUE)
+  }, add = TRUE)
+
+  setwd(dir_test)
+
+  # Initialize renv
+  .renv_rest_init()
+  .renv_rest_activate()
+
+  # Create a valid lockfile
+  .renv_test_test_lockfile_create("renv.lock", bad = FALSE)
+
+  # Test restoration - should succeed
+  result <- .renv_rest_restore()
+  expect_true(result)
+})
+
+test_that(".renv_rest_restore handles failed restore", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  skip_if_offline()
+  skip_if_not(
+    .test_should_run_renv(),
+    "Set PROJR_TEST_RENV=TRUE to enable renv integration tests"
+  )
+
+  orig_dir <- getwd()
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  on.exit({
+    tryCatch(setwd(orig_dir), error = function(e) NULL)
+    unlink(dir_test, recursive = TRUE)
+  }, add = TRUE)
+
+  setwd(dir_test)
+
+  # Initialize renv
+  .renv_rest_init()
+  .renv_rest_activate()
+
+  # Create a bad lockfile (impossible version)
+  .renv_test_test_lockfile_create("renv.lock", bad = TRUE)
+
+  # Test restoration - should fail
+  result <- .renv_rest_restore()
+  expect_false(result)
+})
+
+# =============================================================================
+# Tests for .renv_restore_or_update_impl
+# =============================================================================
+
+test_that(".renv_restore_or_update_impl calls wrappers correctly", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  # Create a simple package list
+  package_list <- list(
+    regular = character(0),
+    bioc = character(0),
+    gh = character(0)
+  )
+
+  # Should run without error even with empty lists
+  expect_no_error({
+    .renv_restore_or_update_impl(
+      package_list = package_list,
+      github = FALSE,
+      non_github = TRUE,
+      restore = TRUE,
+      biocmanager_install = FALSE
+    )
+  })
 })
