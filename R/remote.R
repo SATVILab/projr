@@ -112,7 +112,8 @@
                            name,
                            ...) {
   .cli_debug(
-    "Remote create: type={type}, id={id}")
+    "Remote create: type={type}, id={id}"
+  )
 
   switch(type,
     "local" = .remote_create_local(path = id),
@@ -284,7 +285,8 @@
     type = type,
     label = label,
     structure = structure,
-    version = version  )
+    version = version
+  )
 
   # pre: "one up" from the final remote, e.g. the directory
   # above for hierarchical. Does not apply to flat.
@@ -294,7 +296,8 @@
       label = label,
       structure = structure,
       path_append_label = path_append_label,
-      version = version    ),
+      version = version
+    ),
     "github" = .remote_final_empty_get_github(
       id = .remote_misc_github_tag_get(id),
       label = label,
@@ -792,7 +795,8 @@
   )
 
   .cli_debug(
-    "Remote file list: type={type}, found {length(result)} file(s)"  )
+    "Remote file list: type={type}, found {length(result)} file(s)"
+  )
 
   result
 }
@@ -816,7 +820,8 @@
   .assert_in(type, .opt_remote_get_type(), TRUE)
 
   .cli_debug(
-    "Remote file remove: type={type}, removing {length(fn)} file(s)"  )
+    "Remote file remove: type={type}, removing {length(fn)} file(s)"
+  )
 
   switch(type,
     "local" = .remote_file_rm_local(fn = fn, remote = remote),
@@ -848,11 +853,13 @@
     type = type,
     num_files = length(fn),
     path = path_dir_local,
-    remote = remote  )
+    remote = remote
+  )
 
   switch(type,
     "local" = .remote_file_add_local(
-      fn = fn, path_dir_local = path_dir_local, remote = remote    ),
+      fn = fn, path_dir_local = path_dir_local, remote = remote
+    ),
     "github" = .remote_file_add_github(
       fn = fn,
       path_dir_local = path_dir_local,
