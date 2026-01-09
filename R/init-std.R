@@ -168,11 +168,14 @@ projr_init_git <- function(commit = TRUE) {
 #' @export
 projr_init_github <- function(username = NULL,
                               public = FALSE,
-                              create_repo = TRUE) {
+                              create_repo = TRUE,
+                              git_commit = TRUE) {
    if (!.git_repo_check_exists()) {
     # offer create repository if it does not exist
-    
-   }                               
+    if (create_repo) {
+      .init_std_git(TRUE, git_commit)
+    }
+   }
   .init_std_github(TRUE, public, username)
 }
 
@@ -562,6 +565,105 @@ projr_init_github <- function(username = NULL,
 }
 
 .init_std_git_config <- function() {
+  switch(.git_system_get(),
+    "git" = .init_std_git_config_git(),
+    "gert" = .init_std_git_config_gert()
+  )
+}
+
+.init_std_git_config_git <- function() {
+  # Get Git configuration values using system commands
+  name_cfg <- tryCatch(
+    {
+      result <- system2("git", c("config", "--get", "user.name"),
+                       stdout = TRUE, stderr = TRUE)
+      if (length(result) == 0 || attr(result, "status") == 1) {
+        NULL
+      } else {
+        trimws(result[1])
+      }
+    },
+    error = function(e) NULL,
+    warning = function(w) NULL
+  )
+
+  email_cfg <- tryCatch(
+    {
+      result <- system2("git", c("config", "--get", "user.email"),
+                       stdout = TRUE, stderr = TRUE)
+      if (length(result) == 0 || attr(result, "status") == 1) {
+        NULL
+      } else {
+        trimws(result[1])
+      }
+    },
+    error = function(e) NULL,
+    warning = function(w) NULL
+  )
+
+  # Prompt for user.name if missing or empty
+  if (is.null(name_cfg) || name_cfg == "") {
+    if (.is_env_var_true("GITHUB_ACTIONS")) {
+      system2("git", c("config", "--global", "user.name", "GitHub Actions"))
+    } else if (!.is_interactive_and_not_test()) {
+      .cli_info("Git user name not set and in non-interactive mode.")
+      user_name <- paste0(Sys.info()[["user"]], "_", Sys.info()[["nodename"]])
+      .cli_info("Using system user name and node name: {user_name}")
+      system2("git", c("config", "--global", "user.name", user_name))
+    } else {
+      choice <- utils::menu(
+        c("Yes", "No"),
+        title = "Your Git user name is not set. Would you like to set it now?"
+      )
+      if (choice == 1) {
+        user_name <- readline("Please enter your Git user name: ")
+        if (nchar(user_name) > 0) {
+          system2("git", c("config", "--global", "user.name", user_name))
+          .cli_info("Git user.name set to: {user_name}")
+        } else {
+          stop("Git user.name is required for committing changes.")
+        }
+      } else {
+        stop("Git user.name is required. Please configure it and try again.")
+      }
+    }
+  }
+
+  # Prompt for user.email if missing or empty
+  if (is.null(email_cfg) || email_cfg == "") {
+    if (.is_env_var_true("GITHUB_ACTIONS")) {
+      system2("git", c("config", "--global", "user.email", "filler-email@projr-test.com"))
+    } else if (!.is_interactive_and_not_test()) {
+      .cli_info("Git user email not set and in non-interactive mode.")
+      user_email <- paste0(
+        Sys.info()[["user"]], "_", Sys.info()[["nodename"]], "@projr-test.com"
+      )
+      .cli_info("Using system user name and node name: {user_email}")
+      system2("git", c("config", "--global", "user.email", user_email))
+    } else {
+      choice <- utils::menu(
+        c("Yes", "No"),
+        title = "Your Git user email is not set. Would you like to set it now?"
+      )
+      if (choice == 1) {
+        user_email <- readline("Please enter your Git user email: ")
+        if (nchar(user_email) > 0) {
+          system2("git", c("config", "--global", "user.email", user_email))
+          .cli_info("Git user.email set to: {user_email}")
+        } else {
+          stop("Git user.email is required for committing changes.")
+        }
+      } else {
+        stop("Git user.email is required. Please configure it and try again.")
+      }
+    }
+  }
+
+  invisible(TRUE)
+}
+
+
+.init_std_git_config_gert <- function() {
   # Attempt to get the Git configuration table.
   .dep_install_only("gert")
   gitconfig_tbl <- tryCatch(
@@ -665,7 +767,6 @@ projr_init_github <- function(username = NULL,
     return(invisible(FALSE))
   }
   if (!.git_repo_check_exists()) {
-    .yml_unset_github_dest()
     .cli_info("Local Git repository does not exist, so skipping creation of GitHub repo.") # nolint
     return(invisible(FALSE))
   }
@@ -677,8 +778,7 @@ projr_init_github <- function(username = NULL,
 }
 
 .init_std_github_impl <- function(public, org) {
-  .dep_install_only("usethis")
-  .dep_install_only("gh")
+  .dep_install_only(c("gh", "usethis"))
   if (is.null(org)) {
     .init_github_impl(NULL, public)
   } else {

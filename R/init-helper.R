@@ -866,7 +866,88 @@ projr_init_renviron <- function() {
   if (.is_len_0(fn_vec)) {
     return(invisible(FALSE))
   }
+
+  # Check for non-standard directories/files and get user confirmation
+  if (!.init_git_commit_check_nonstandard(fn_vec)) {
+    .cli_info("Commit cancelled by user.")
+    return(invisible(FALSE))
+  }
+
   .git_commit_file(fn_vec, msg = "Initial projr commit")
+}
+
+.init_git_commit_check_nonstandard <- function(file_vec) {
+  # Standard directories that are expected
+  standard_dirs <- c(
+    ".devcontainer", ".github", "man", "R", "renv", "tests", "vignettes"
+  )
+
+  # Get top-level directories from file vector
+  top_level_items <- unique(dirname(file_vec[!grepl("/", file_vec)]))
+  top_level_items <- top_level_items[top_level_items != "."]
+
+  # Also get first directory component from nested paths
+  nested_dirs <- unique(sub("/.*", "", file_vec[grepl("/", file_vec)]))
+  all_dirs <- unique(c(top_level_items, nested_dirs))
+
+  # Filter to actual directories
+  all_dirs <- all_dirs[file.info(all_dirs, extra_cols = FALSE)$isdir %in% TRUE]
+
+  # Find non-standard directories
+  nonstandard_dirs <- setdiff(all_dirs, standard_dirs)
+
+  # Get top-level files (not in subdirectories)
+  top_level_files <- file_vec[!grepl("/", file_vec)]
+
+  # If no non-standard items, proceed
+  if (.is_len_0(nonstandard_dirs) && .is_len_0(top_level_files)) {
+    return(TRUE)
+  }
+
+  # In non-interactive mode or tests, proceed without prompting
+  if (!.is_interactive_and_not_test()) {
+    return(TRUE)
+  }
+
+  # Show warning message about non-standard items
+  .cli_info("The following non-standard items will be committed to Git:")
+
+  if (!.is_len_0(nonstandard_dirs)) {
+    .cli_info("Directories:")
+    for (dir_name in nonstandard_dirs) {
+      .cli_info("  - {dir_name}/")
+    }
+  }
+
+  if (!.is_len_0(top_level_files)) {
+    .cli_info("Top-level files:")
+    for (file_name in top_level_files) {
+      .cli_info("  - {file_name}")
+    }
+  }
+
+  .cli_info("")
+  .cli_info("To exclude items from Git, you can add them to .gitignore using:")
+
+  if (!.is_len_0(nonstandard_dirs)) {
+    example_dir <- nonstandard_dirs[1]
+    .cli_info("  projr_ignore_add(\"{example_dir}\")")
+  }
+
+  if (!.is_len_0(top_level_files)) {
+    example_file <- top_level_files[1]
+    .cli_info("  projr_ignore_add(\"{example_file}\")")
+  }
+
+  .cli_info("")
+
+  # Prompt user
+  choice <- utils::menu(
+    c("Yes, proceed with commit", "No, cancel commit"),
+    title = "Do you want to proceed with committing these non-standard items?"
+  )
+
+  choice == 1
 }
 
 .init_git_file_get <- function() {

@@ -1,7 +1,9 @@
 .git_init <- function() {
   if (.git_repo_check_exists()) {
+    .cli_debug("Git repository already exists, skipping initialization")
     return(invisible(FALSE))
   }
+  .cli_debug("Initializing Git repository")
   switch(.git_system_get(),
     "git" = .git_init_git(),
     "gert" = .git_init_gert(),
@@ -208,10 +210,12 @@
 
 # initialisation
 .git_init_git <- function() {
+  .cli_debug("Running 'git init'")
   system2("git", args = "init", stdout = TRUE)
 }
 
 .git_init_gert <- function() {
+  .cli_debug("Running 'gert::git_init()'")
   gert::git_init(path = .path_get())
 }
 
@@ -246,6 +250,7 @@
 .git_system_setup <- function() {
   # do nothing for git, as it's already set up
   if (.git_system_get() == "git") {
+    .cli_debug("Using git CLI for Git operations")
     return(invisible(FALSE))
   }
   .git_system_setup_gert()
@@ -253,12 +258,15 @@
 
 # install gert if not available
 .git_system_setup_gert <- function() {
+  .cli_debug("Using gert package for Git operations")
   switch(!.git_system_check_gert(),
     {
+      .cli_debug("Installing gert package for Git operations")
       .dep_install("gert")
     }
   )
   if (!.git_system_check_gert()) {
+    .cli_debug("Failed to install gert package")
     stop("Failed to install gert and Git executable not available")
   }
   invisible(TRUE)

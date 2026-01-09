@@ -29,24 +29,29 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 # ------------
 
 .dep_install <- function(dep) {
+  .cli_debug("Checking dependencies: {paste(dep, collapse = ', ')}")
   for (x in dep) {
     .dep_add(x)
     if (!requireNamespace(x, quietly = TRUE)) {
+      ..cli_debug("Dependency {x} not available, installing")
       .dep_install_only(dep)
     }
   }
 }
 
 .dep_add <- function(dep) {
+  .cli_debug("Adding dependency to _dependencies.R: {dep}")
   # don't add to _dependencies
   # if renv already picks it up as a dependency
   if (!.renv_detect()) {
+    .cli_debug("renv not detected, adding dependency")
     return(invisible(FALSE))
   }
   if (.dep_in_renv(basename(dep))) {
+    .cli_debug("Dependency {dep} already in renv, not adding to _dependencies.R")
     return(invisible(FALSE))
   }
-
+  .cli_debug("Dependency {dep} not in renv, adding to _dependencies.R")
   path_dep <- .path_get("_dependencies.R")
   dep_vec <- .dep_read(path_dep)
   for (i in seq_along(dep)) {
@@ -61,6 +66,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   }
   writeLines(dep_vec, path_dep)
   .newline_append(path_dep)
+  .cli_debug("Dependency {dep} added to _dependencies.R")
   invisible(TRUE)
 }
 
