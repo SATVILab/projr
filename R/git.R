@@ -9,7 +9,6 @@
   )
 
   if (.is_test()) {
-    .dep_install_only("gert")
     gert::git_config_set("user.name", "DarthVader")
     gert::git_config_set("user.email", "number_one_fan@tellytubbies.com")
   }
