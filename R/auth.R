@@ -13,28 +13,6 @@
   pat
 }
 
-.auth_get_github_pat_find_gitcreds <- function(api_url = NULL) {
-  url <- api_url %||% Sys.getenv("GITHUB_API_URL", "https://api.github.com")
-
-  # Logic update: Robustly handle Standard vs Enterprise GitHub hosts
-  if (grepl("api.github.com", url, fixed = TRUE)) {
-    host <- "https://github.com"
-  } else {
-    # For Enterprise, strip the /api/v3 suffix (and optional trailing slash)
-    host <- sub("/api/v3/?$", "", url)
-  }
-
-  creds <- tryCatch(
-    suppressWarnings(gitcreds::gitcreds_get(host)),
-    gitcreds_nogit_error    = function(e) NULL,
-    gitcreds_no_credentials = function(e) NULL,
-    error                   = function(e) NULL,
-    # Catch any other condition types
-    condition               = function(e) NULL
-  )
-
-  if (is.null(creds)) "" else .auth_token_normalize(creds$password)
-}
 
 .auth_get_github_pat_find <- function(api_url = NULL,
                                       use_gh_if_available = TRUE,
@@ -75,6 +53,30 @@
   # 5. Final fallback to GITHUB_TOKEN
   Sys.getenv("GITHUB_TOKEN", "") |>
     .auth_token_normalize()
+}
+
+
+.auth_get_github_pat_find_gitcreds <- function(api_url = NULL) {
+  url <- api_url %||% Sys.getenv("GITHUB_API_URL", "https://api.github.com")
+
+  # Logic update: Robustly handle Standard vs Enterprise GitHub hosts
+  if (grepl("api.github.com", url, fixed = TRUE)) {
+    host <- "https://github.com"
+  } else {
+    # For Enterprise, strip the /api/v3 suffix (and optional trailing slash)
+    host <- sub("/api/v3/?$", "", url)
+  }
+
+  creds <- tryCatch(
+    suppressWarnings(gitcreds::gitcreds_get(host)),
+    gitcreds_nogit_error    = function(e) NULL,
+    gitcreds_no_credentials = function(e) NULL,
+    error                   = function(e) NULL,
+    # Catch any other condition types
+    condition               = function(e) NULL
+  )
+
+  if (is.null(creds)) "" else .auth_token_normalize(creds$password)
 }
 
 # Helper function to normalize authentication tokens
