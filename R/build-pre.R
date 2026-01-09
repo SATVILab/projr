@@ -97,7 +97,7 @@
     return(FALSE)
   }
   # check if it's an option
-  if (interactive() || !.is_test()) {
+  if (.is_interactive_and_not_test()) {
     cli::cli_alert_warning("Git repository not found.")
     cli::cli_inform("It is not required, but recommended, and projr will handle setup and (by default) commits for you.")
     cli::cli_inform("If you choose not to create one now, then Git handling by projr will be disabled.")
@@ -158,7 +158,7 @@
     return(invisible(TRUE))
   }
   # check if it's an option
-  if (interactive() || !.is_test()) {
+  if (.is_interactive_and_not_test()) {
     cli::cli_alert_warning("GitHub remote not found.")
     cli::cli_inform("It is not required, but recommended, and projr will help handle setup for you.") # nolint
     choice <- utils::menu(
@@ -207,7 +207,7 @@
   if (!.is_string(user)) {
     stop("GitHub user not found.")
   }
-  if (!interactive() || .is_test()) {
+  if (!.is_interactive_and_not_test()) {
     return(c("user" = user))
   }
   choice <- utils::menu(
@@ -306,17 +306,13 @@
 
 .build_output_get_msg <- function(msg) {
   if (is.null(msg) || .is_len_0(msg)) {
-    if (!.is_test()) {
-      if (interactive()) {
+    if (.is_interactive_and_not_test()) {
+      cli::cli_inform("Please enter a one-line description of the change:")
+      msg <- readline(prompt = ">> ")
+      while (.is_len_0(msg)) {
+        cli::cli_alert_warning("Message cannot be empty.")
         cli::cli_inform("Please enter a one-line description of the change:")
         msg <- readline(prompt = ">> ")
-        while (.is_len_0(msg)) {
-          cli::cli_alert_warning("Message cannot be empty.")
-          cli::cli_inform("Please enter a one-line description of the change:")
-          msg <- readline(prompt = ">> ")
-        }
-      } else {
-        msg <- "Build project"
       }
     } else {
       msg <- "Build project"

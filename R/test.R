@@ -65,6 +65,10 @@
   .test_unset_lite()
 }
 
+.is_interactive_and_not_test <- function() {
+  interactive() && !.is_test()
+}
+
 .is_test <- function() {
   .is_env_var_true("R_PKG_TEST_IN_PROGRESS")
 }

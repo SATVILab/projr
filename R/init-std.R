@@ -43,7 +43,12 @@
 #'   organization under which to create the repository. Defaults to \code{NULL}.
 #' @param public Logical (for \code{projr_init_github}). If \code{TRUE}, the GitHub repository will
 #'   be public. Defaults to \code{FALSE}.
-#'
+#' @param create_repo Logical. If \code{TRUE} and
+#'   the project does not have a local Git repository,
+#'   then in interactive mode it offers to create a
+#'   GitHub repository and in non-interactive mode
+#'   creates one automatically.
+#'   Defaults to \code{TRUE}.
 #' @return Invisibly returns \code{TRUE} if initialization is successful, or \code{FALSE} if
 #'   a particular step is skipped.
 #'
@@ -159,9 +164,15 @@ projr_init_git <- function(commit = TRUE) {
 }
 
 #' @rdname projr_init
+
 #' @export
 projr_init_github <- function(username = NULL,
-                              public = FALSE) {
+                              public = FALSE,
+                              create_repo = TRUE) {
+   if (!.git_repo_check_exists()) {
+    # offer create repository if it does not exist
+    
+   }                               
   .init_std_github(TRUE, public, username)
 }
 
@@ -589,7 +600,7 @@ projr_init_github <- function(username = NULL,
   if (is.null(name_cfg) || name_cfg == "") {
     if (.is_env_var_true("GITHUB_ACTIONS")) {
       gert::git_config_global_set("user.name", "GitHub Actions")
-    } else if (!interactive() || .is_test()) {
+    } else if (!.is_interactive_and_not_test()) {
       .cli_info("Git user name not set and in non-interactive mode.")
       user_name <- paste0(Sys.info()[["user"]], "_", Sys.info()[["nodename"]])
       .cli_info("Using system user name and node name: {user_name}")
@@ -616,7 +627,7 @@ projr_init_github <- function(username = NULL,
   if (is.null(email_cfg) || email_cfg == "") {
     if (.is_env_var_true("GITHUB_ACTIONS")) {
       gert::git_config_global_set("user.email", "filler-email@projr-test.com")
-    } else if (!interactive() || .is_test()) {
+    } else if (!.is_interactive_and_not_test()) {
       .cli_info("Git user email not set and in non-interactive mode.")
       user_email <- paste0(
         Sys.info()[["user"]], "_", Sys.info()[["nodename"]], "@projr-test.com"
