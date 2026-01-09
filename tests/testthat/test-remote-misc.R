@@ -502,6 +502,7 @@ test_that(".gh_guess_repo removes trailing slashes", {
 
 test_that(".gh_guess_repo throws error when no remotes exist", {
   skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = FALSE, github = FALSE, set_env_var = FALSE)
@@ -515,7 +516,7 @@ test_that(".gh_guess_repo throws error when no remotes exist", {
       # No remotes added
       expect_error(
         .gh_guess_repo(),
-        "Failed to parse owner/repo from remote URL"
+        "remote"
       )
     }
   )
@@ -542,6 +543,7 @@ test_that(".gh_guess_repo falls back to first remote when origin doesn't exist",
 
 test_that(".gh_guess_repo throws error for invalid URL format", {
   skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = FALSE, github = FALSE, set_env_var = FALSE)

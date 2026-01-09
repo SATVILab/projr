@@ -51,8 +51,22 @@
 }
 
 .gh_guess_repo <- function(path = ".") {
-  switch(.gh_guess_repo_tool(path),
-    "gh"   = .gh_guess_repo_gh(path),
+  tool <- .gh_guess_repo_tool(path)
+
+  # Try gh first if available, but fall back to git/gert if it fails
+  if (tool == "gh") {
+    result <- tryCatch(
+      .gh_guess_repo_gh(path),
+      error = function(e) NULL
+    )
+    if (!is.null(result)) {
+      return(result)
+    }
+    # gh failed, fall back to git/gert
+    tool <- .git_system_get()
+  }
+
+  switch(tool,
     "git"  = .gh_guess_repo_git(path),
     "gert" = .gh_guess_repo_gert(path),
     stop(paste0(.git_system_get(), " not recognised"))
@@ -72,12 +86,7 @@
 }
 
 .gh_guess_repo_gh <- function(path = ".") {
-  remote_list <- tryCatch(
-    gh::gh_tree_remote(path),
-    error = function(e) {
-      stop("Failed to get GitHub repository information using 'gh' package: ", e$message) # nolint
-    }
-  )
+  remote_list <- suppressWarnings(gh::gh_tree_remote(path))
   paste0(remote_list$username, "/", remote_list$repo)
 }
 
@@ -96,7 +105,9 @@
   git_args <- if (file.exists(file.path(path, "config"))) c("--git-dir", path) else c("-C", path)
 
   remote_url <- .gh_git_remote_url(git_args, "origin")
-  if (nzchar(remote_url)) return(remote_url)
+  if (nzchar(remote_url)) {
+    return(remote_url)
+  }
 
   remotes <- .gh_git_remote_list(git_args)
   if (length(remotes) == 0) {
@@ -114,7 +125,9 @@
   remotes <- .gh_gert_remote_list(path)
 
   remote_url <- .gh_gert_remote_url(remotes, "origin")
-  if (nzchar(remote_url)) return(remote_url)
+  if (nzchar(remote_url)) {
+    return(remote_url)
+  }
 
   if (nrow(remotes) == 0) {
     stop("Could not detect any git remotes. Please ensure repository has a git remote.")
@@ -132,6 +145,11 @@
   paste0(owner_repo[1], "/", owner_repo[2])
 }
 
+# Alias for backwards compatibility with tests
+.gh_repo_from_remote_url <- function(remote_url) {
+  .gh_owner_repo_from_url(remote_url)
+}
+
 .gh_git_remote_url <- function(git_args, remote) {
   output <- .gh_git_exec(c(git_args, "remote", "get-url", remote))
   if (length(output) == 0 || !nzchar(output[1])) "" else output[1]
@@ -139,6 +157,9 @@
 
 .gh_git_remote_list <- function(git_args) {
   remotes <- .gh_git_exec(c(git_args, "remote"))
+  if (length(remotes) == 0) {
+    return(character(0))
+  }
   remotes[!.gh_git_output_has_error(remotes)]
 }
 
@@ -178,7 +199,9 @@
 }
 
 .gh_gert_remote_url <- function(remotes, remote = NULL) {
-  if (nrow(remotes) == 0) return("")
+  if (nrow(remotes) == 0) {
+    return("")
+  }
   if (!is.null(remote)) {
     match_idx <- which(remotes$name == remote)
     if (length(match_idx) > 0 && nzchar(remotes$url[[match_idx[1]]])) {
