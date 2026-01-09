@@ -75,7 +75,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   }
 
   # If interactive, ask user if they want to install
-  if (interactive() || !.is_test()) {
+  if (.is_interactive_and_not_test()) {
     return(.dep_install_only_interactive(dep_required))
   }
 
@@ -92,29 +92,92 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   )
 }
 
-.dep_install_only_interactive <- function(dep_required) {
-  # In interactive mode, provide clear instructions but don't auto-install
-  # This ensures CRAN compliance (no install.packages in package code)
-
-  install_cmds <- .dep_get_install_cmds(dep_required)
-
-  if (length(dep_required) == 1) {
-    .cli_info("\nPackage '{dep_required}' is required but not installed.\nTo install it, please run:\n  {install_cmds}\n")
-  } else {
-    .cli_info("\nRequired packages are not installed: {paste(dep_required, collapse = ', ')}\nTo install them, please run:\n  {paste(install_cmds, collapse = '\n  ')}\n")
+.dep_install_only_get_pkg_list <- function(dep_required) {
+  # In interactive mode, prompt user to install packages
+  github_pkgs <- dep_required[
+    grepl("^[[:alnum:]._-]+/[[:alnum:]._-]+$", dep_required)
+  ]
+  cran_pkgs <- setdiff(dep_required, github_pkgs)
+  # Check if remotes is needed for GitHub installs
+  need_remotes_pkg <- .is_len_pos(github_pkgs) &&
+    !requireNamespace("remotes", quietly = TRUE) &&
+    !"remotes" %in% cran_pkgs
+  if (need_remotes_pkg) {
+    dep_required <- c(dep_required, "remotes")
+    cran_pkgs <- c(cran_pkgs, "remotes")
   }
-
-  # Stop execution with informative message
-  stop(
-    "Missing required package(s). Please install and try again.",
-    call. = FALSE
+  list(
+    "dep" = dep_required,
+    "cran" = cran_pkgs,
+    "github" = github_pkgs
   )
 }
 
-.dep_get_install_cmds <- function(pkg_vec) {
+.dep_install_only_interactive <- function(dep_required) {
+
+  pkg_list <- .dep_install_only_get_pkg_list(dep_required)
+  install_cmds <- .dep_get_install_cmds(pkg_list[["dep"]])
+
+  if (length(pkg_list[["dep"]]) == 1) {
+    message <- paste0(
+      "\nPackage '", pkg_list[["dep"]], "' is required but not installed.\n",
+      "Install it now? (y/n): "
+    )
+  } else {
+    message <- paste0(
+      "\nRequired packages are not installed: ",
+      paste(pkg_list[["dep"]], collapse = ", "),
+      "\nInstall them now? (y/n): "
+    )
+  }
+
+  response <- readline(prompt = message)
+
+  if (tolower(trimws(response)) %in% c("y", "yes")) {
+    # User confirmed - proceed with installation
+    .cli_info("Installing packages...")
+
+    tryCatch(
+      {
+        if (.renv_detect()) {
+          # Use renv if available
+          renv::install(pkg_list[["dep"]], prompt = FALSE)
+        } else {
+          if (length(pkg_list[["cran"]]) > 0) {
+            utils::install.packages(pkg_list[["cran"]])
+          }
+
+          if (length(pkg_list[["github"]]) > 0) {
+            remotes::install_github(pkg_list[["github"]])
+          }
+        }
+        .cli_success("Packages installed successfully")
+        return(invisible(TRUE))
+      },
+      error = function(e) {
+        stop(
+          "Installation failed: ", conditionMessage(e), "\n",
+          "Please install manually using:\n  ",
+          paste(install_cmds, collapse = "\n  "),
+          call. = FALSE
+        )
+      }
+    )
+  } else {
+    # User declined - provide manual instructions
+    .cli_info("\nTo install manually, please run:\n  {paste(install_cmds, collapse = '\n  ')}\n") # nolint: glue_linter
+    stop(
+      "Missing required package(s). Please install and try again.",
+      call. = FALSE
+    )
+  }
+}
+.dep_get_install_cmds <- function(dep_required) {
   # Check if any are GitHub packages
-  github_pkgs <- pkg_vec[grepl("^\\w+/\\w+", gsub("\\.", "", pkg_vec))]
-  cran_pkgs <- setdiff(pkg_vec, github_pkgs)
+  github_pkgs <- dep_required[
+    grepl("^[[:alnum:]._-]+/[[:alnum:]._-]+$", dep_required)
+  ]
+  cran_pkgs <- setdiff(dep_required, github_pkgs)
 
   # Pre-allocate with maximum possible size
   cmds <- character(as.integer(length(cran_pkgs) > 0) + length(github_pkgs))
