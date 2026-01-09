@@ -10,8 +10,10 @@
 #'
 #' @param repo Character string. Repository in format "owner/repo".
 #' @param tag Character string. Release tag to check.
-#' @param api_url Character string. Optional GitHub API URL for enterprise instances.
-#' @param token Character string. Optional GitHub token. If not provided, uses
+#' @param api_url Character string.
+#' Optional GitHub API URL for enterprise instances.
+#' @param token Character string.
+#' Optional GitHub token. If not provided, uses
 #'   `.auth_get_github_pat_find()`.
 #'
 #' @return Logical TRUE/FALSE if release exists/doesn't exist and stops on auth errors

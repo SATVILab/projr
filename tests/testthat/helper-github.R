@@ -497,3 +497,38 @@
   )
   !inherits(res, "error")
 }
+
+.set_github_pat_to_orgmiguelrodo <- function(overwrite = FALSE) {
+  tmp_dir <- file.path(tempdir(), "orgmiguelrodo")
+  if (!dir.exists(tmp_dir)) {
+    dir.create(tmp_dir, recursive = TRUE)
+  }
+  path_fn <- file.path(tmp_dir, "orgmiguelrodo.txt")
+  if (overwrite && file.exists(path_fn)) {
+    invisible(file.remove(path_fn))
+  }
+  if (!file.exists(path_fn)) {
+    .set_github_pat_to_orgmiguelrodo_dnld(tmp_dir)
+  }
+  .set_github_pat_to_orgmiguelrodo_set(path_fn)
+}
+
+.set_github_pat_to_orgmiguelrodo_set <- function(path_fn) {
+  pat <- suppressWarnings(readLines(path_fn, n = 1L))
+  Sys.setenv("GITHUB_PAT" = pat)
+  invisible(TRUE)
+}
+
+.set_github_pat_to_orgmiguelrodo_dnld <- function(tmp_dir) {
+  .remote_file_get_all_github_httr(
+    repo = "SATVILab/projr",
+    tag = "orgmiguelrodo",
+    fn = "orgmiguelrodo.zip",
+    dest_dir = tmp_dir
+  )
+  utils::unzip(
+    zipfile = file.path(tmp_dir, "orgmiguelrodo.zip"),
+    exdir = tmp_dir
+  )
+  invisible(TRUE)
+}
