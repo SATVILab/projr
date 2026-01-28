@@ -1,9 +1,10 @@
 
 test_that("projr_init_github works", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   skip_if(.is_test_lite())
   skip_if(.is_gha())
+  skip_if_offline()
   skip_if(!.test_can_modify_github())
 
   # Start from scratch
@@ -15,11 +16,12 @@ test_that("projr_init_github works", {
     path = dir_test,
     code = {
       Sys.unsetenv("R_PKG_TEST_IN_PROGRESS")
-      result <- projr_init_github(
-        username = NULL,
-        public = FALSE
-      )
-      expect_true(is.logical(result))
+      on.exit(Sys.setenv("R_PKG_TEST_IN_PROGRESS" = "TRUE"), add = TRUE)
+      old_gh_pat <- Sys.getenv("GITHUB_PAT")
+      on.exit(Sys.setenv("GITHUB_PAT" = old_gh_pat), add = TRUE)
+      .set_github_pat_to_orgmiguelrodo()
+      result <- projr_init_github(org = "OrgMiguelRodo")
+      expect_true(result)
     },
     force = TRUE,
     quiet = TRUE
