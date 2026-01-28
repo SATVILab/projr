@@ -5,6 +5,7 @@
 [![R-CMD-check](https://github.com/SATVILab/projr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/SATVILab/projr/actions/workflows/R-CMD-check.yaml)
 [![Codecov test coverage](https://codecov.io/gh/SATVILab/projr/branch/main/graph/badge.svg)](https://app.codecov.io/gh/SATVILab/projr?branch=main)
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![DOI](https://zenodo.org/badge/486647841.svg)](https://doi.org/10.5281/zenodo.18402379)
 <!-- badges: end -->
 
 ## What is projr?
