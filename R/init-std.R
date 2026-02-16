@@ -69,19 +69,22 @@
 #' }
 #'
 #' @export
-projr_init <- function(git = TRUE,
-                       git_commit = TRUE,
-                       github = TRUE,
-                       github_public = FALSE,
-                       github_org = NULL,
-                       # whether to initialise projr-specified directories
-                       dir = TRUE,
-                       readme = TRUE,
-                       readme_rmd = TRUE,
-                       desc = FALSE,
-                       license = NULL,
-                       projr_yml = FALSE,
-                       lit_doc = NULL) {
+projr_init <- function(
+  git = TRUE,
+  git_commit = TRUE,
+  github = TRUE,
+  github_public = FALSE,
+  github_user = NULL,
+  github_org = NULL,
+  # whether to initialise projr-specified directories
+  dir = TRUE,
+  readme = TRUE,
+  readme_rmd = TRUE,
+  desc = FALSE,
+  license = NULL,
+  projr_yml = FALSE,
+  lit_doc = NULL
+) {
   # try prevent working directory errors
   .init_usethis_std()
 
@@ -89,8 +92,10 @@ projr_init <- function(git = TRUE,
   .init_desc_std(desc)
 
   # initial VERSION file
-  if (!file.exists(.path_get("VERSION")) &&
-    !file.exists(.path_get("DESCRIPTION"))) {
+  if (
+    !file.exists(.path_get("VERSION")) &&
+      !file.exists(.path_get("DESCRIPTION"))
+  ) {
     projr_version_set("0.0.1")
   }
 
@@ -118,7 +123,7 @@ projr_init <- function(git = TRUE,
   .init_git(git, git_commit)
 
   # initial GitHub
-  .init_std_github(github, github_public, github_org)
+  .init_github(github, github_user, github_org, github_public)
 
   invisible(TRUE)
 }
@@ -131,10 +136,12 @@ projr_init <- function(git = TRUE,
 
 #' @rdname projr_init
 #' @export
-projr_init_all <- function(github = TRUE,
-                           github_org = NULL,
-                           license = NULL,
-                           lit_doc = NULL) {
+projr_init_all <- function(
+  github = TRUE,
+  github_org = NULL,
+  license = NULL,
+  lit_doc = NULL
+) {
   projr_init(
     github = github,
     github_org = github_org,
@@ -162,7 +169,6 @@ projr_init_cite <- function() {
 projr_init_git <- function(commit = TRUE) {
   .init_git(TRUE, commit)
 }
-
 
 
 # ========================================
@@ -224,7 +230,8 @@ projr_init_git <- function(commit = TRUE) {
   if (file.exists(.path_get("README.Rmd"))) {
     rmarkdown::render(
       .path_get("README.Rmd"),
-      output_format = "md_document", quiet = TRUE
+      output_format = "md_document",
+      quiet = TRUE
     )
     cli::cli_inform("Rendered README.Rmd.")
   }
@@ -236,7 +243,9 @@ projr_init_git <- function(commit = TRUE) {
   }
   if (readme_rmd) {
     if (file.exists(.path_get("README.Rmd"))) {
-      .cli_info("README.Rmd already exists, so not creating and not overwriting.")
+      .cli_info(
+        "README.Rmd already exists, so not creating and not overwriting."
+      )
       .init_readme_std_impl_render()
       return(invisible(FALSE))
     }
@@ -316,12 +325,19 @@ projr_init_git <- function(commit = TRUE) {
 .init_license_std_impl <- function(x) {
   .cli_info("Creating LICENSE file.")
   opt_vec <- c(
-    "ccby", "CC-BY", "apache", "Apache 2.0", "cc0", "CC0",
-    "proprietary", "Proprietary"
+    "ccby",
+    "CC-BY",
+    "apache",
+    "Apache 2.0",
+    "cc0",
+    "CC0",
+    "proprietary",
+    "Proprietary"
   )
   .assert_in(x, opt_vec, TRUE)
   .dep_install_only("usethis")
-  switch(x,
+  switch(
+    x,
     "ccby" = ,
     "CC-BY" = usethis::use_ccby_license(),
     "apache" = ,
@@ -330,7 +346,9 @@ projr_init_git <- function(commit = TRUE) {
     "CC0" = usethis::use_cc0_license(),
     "proprietary" = ,
     "Proprietary" = {
-      .cli_info("Replace [First Name] [Last Name] with your name in LICENSE file.")
+      .cli_info(
+        "Replace [First Name] [Last Name] with your name in LICENSE file."
+      )
       usethis::use_proprietary_license("[First Name] [Last Name]")
     }
   )
@@ -364,7 +382,9 @@ projr_init_git <- function(commit = TRUE) {
   } else if (file.exists("README.md")) {
     .init_cite_citation_readme_add_file(.path_get("README.md"))
   } else {
-    .cli_info("README.[R]md does not exist, so skipping citation entry in README.") # nolint
+    .cli_info(
+      "README.[R]md does not exist, so skipping citation entry in README."
+    ) # nolint
     return(invisible(FALSE))
   }
   invisible(TRUE)
@@ -398,7 +418,8 @@ projr_init_git <- function(commit = TRUE) {
     return(invisible(FALSE))
   }
   .assert_in(lit_doc, c("bookdown", "project", "quarto", "rmd"))
-  switch(lit_doc,
+  switch(
+    lit_doc,
     "bookdown" = .init_engine_std_bookdown(),
     "project" = .init_engine_std_quarto_project(),
     "quarto" = .init_engine_std_quarto(),
@@ -421,7 +442,8 @@ projr_init_git <- function(commit = TRUE) {
   }
   # Read the template from inst/project_structure
   yml_bd <- yaml::read_yaml(system.file(
-    "project_structure", "_bookdown.yml",
+    "project_structure",
+    "_bookdown.yml",
     package = "projr"
   ))
   .yml_bd_set(yml_bd)

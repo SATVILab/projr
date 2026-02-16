@@ -3,11 +3,13 @@
 #' @rdname projr_init
 
 #' @export
-projr_init_github <- function(user = NULL,
-                              org = NULL,
-                              public = FALSE,
-                              create_repo = TRUE,
-                              git_commit = TRUE) {
+projr_init_github <- function(
+  user = NULL,
+  org = NULL,
+  public = FALSE,
+  create_repo = TRUE,
+  git_commit = TRUE
+) {
   if (!.git_repo_check_exists()) {
     # offer create repository if it does not exist
     if (create_repo) {
@@ -17,12 +19,16 @@ projr_init_github <- function(user = NULL,
   .init_github(TRUE, user, org, public)
 }
 
-.git_gh_check_auth <- function(use_gh_if_available = TRUE,
-                               use_gitcreds_if_needed = TRUE) {
-  if (nzchar(.auth_get_github_pat(
-    use_gh_if_available = use_gh_if_available,
-    use_gitcreds_if_needed = use_gitcreds_if_needed
-  ))) {
+.git_gh_check_auth <- function(
+  use_gh_if_available = TRUE,
+  use_gitcreds_if_needed = TRUE
+) {
+  if (
+    nzchar(.auth_get_github_pat(
+      use_gh_if_available = use_gh_if_available,
+      use_gitcreds_if_needed = use_gitcreds_if_needed
+    ))
+  ) {
     return(invisible(TRUE))
   }
   warning(
@@ -49,15 +55,14 @@ projr_init_github <- function(user = NULL,
 # GitHub
 # ========================================
 
-.init_github <- function(github,
-                         user,
-                         org,
-                         public) {
+.init_github <- function(github, user, org, public) {
   if (!github) {
     return(invisible(FALSE))
   }
   if (!.git_repo_check_exists()) {
-    .cli_info("Local Git repository does not exist, so skipping creation of GitHub repo.") # nolint
+    .cli_info(
+      "Local Git repository does not exist, so skipping creation of GitHub repo."
+    ) # nolint
     return(invisible(FALSE))
   }
   if (.git_remote_check_exists()) {
@@ -77,25 +82,30 @@ projr_init_github <- function(user = NULL,
   invisible(TRUE)
 }
 
-.init_github_impl_user <- function(user,
-                                   public) {
+.init_github_impl_user <- function(user, public) {
   .auth_check_github("creating GitHub repository")
-  user <- user %||% tryCatch(
-    {
-      gh::gh_whoami()$login
-    },
-    error = function(e) {
-      NULL
-    }
-  )
+  user <- user %||%
+    tryCatch(
+      {
+        gh::gh_whoami()$login
+      },
+      error = function(e) {
+        NULL
+      }
+    )
   if (!.is_string(user)) {
-    stop("Failed to get GitHub user information. Please check your GitHub authentication.") # nolint line_length_linter.
+    stop(
+      "Failed to get GitHub user information. Please check your GitHub authentication."
+    ) # nolint line_length_linter.
   }
   # Check if repository already exists
   repo_name <- basename(getwd())
-  if (.init_github_handle_existing_repo(
-    owner = user, repo = repo_name
-  )) {
+  if (
+    .init_github_handle_existing_repo(
+      owner = user,
+      repo = repo_name
+    )
+  ) {
     return(invisible(FALSE))
   }
 
@@ -126,12 +136,16 @@ projr_init_github <- function(user = NULL,
 #'
 #' @return Logical TRUE/FALSE if repository exists/doesn't exist.
 #' @keywords internal
-.gh_repo_check_exists_httr <- function(owner,
-                                       repo,
-                                       api_url = NULL,
-                                       token = NULL) {
+.gh_repo_check_exists_httr <- function(
+  owner,
+  repo,
+  api_url = NULL,
+  token = NULL
+) {
   if (!requireNamespace("httr", quietly = TRUE)) {
-    stop("httr is required for .gh_repo_check_exists_httr(); please install it.")
+    stop(
+      "httr is required for .gh_repo_check_exists_httr(); please install it."
+    )
   }
 
   .assert_string(owner, required = TRUE)
@@ -155,15 +169,24 @@ projr_init_github <- function(user = NULL,
     FALSE
   } else if (status == 401L || status == 403L) {
     stop(
-      "GitHub API authentication error (status ", status, ") ",
-      "when checking repository existence for '", owner, "/", repo, "'. ",
+      "GitHub API authentication error (status ",
+      status,
+      ") ",
+      "when checking repository existence for '",
+      owner,
+      "/",
+      repo,
+      "'. ",
       "Please check your GITHUB_PAT is set correctly.",
       call. = FALSE
     )
   } else {
     stop(
       "Unexpected HTTP status from GitHub API: ",
-      status, " (url: ", url, ")",
+      status,
+      " (url: ",
+      url,
+      ")",
       call. = FALSE
     )
   }
@@ -195,7 +218,11 @@ projr_init_github <- function(user = NULL,
     .cli_info("GitHub repository already exists: {repo_url}")
     response <- .menu_get(
       paste0(
-        "The repository '", owner, "/", repo, "' already exists on GitHub.\n",
+        "The repository '",
+        owner,
+        "/",
+        repo,
+        "' already exists on GitHub.\n",
         "Do you want to set it as the Git remote for this project?"
       ),
       c("Yes", "No")
@@ -208,7 +235,8 @@ projr_init_github <- function(user = NULL,
         usethis::use_git_remote("origin", repo_url),
         error = function(e) {
           stop(
-            "Failed to set GitHub remote: ", conditionMessage(e),
+            "Failed to set GitHub remote: ",
+            conditionMessage(e),
             call. = FALSE
           )
         }
@@ -217,17 +245,29 @@ projr_init_github <- function(user = NULL,
       return(invisible(TRUE))
     } else {
       stop(
-        "GitHub repository '", owner, "/", repo, "' already exists. ",
+        "GitHub repository '",
+        owner,
+        "/",
+        repo,
+        "' already exists. ",
         "Please choose a different repository name or set it as remote manually.",
         call. = FALSE
       )
     }
   } else {
     stop(
-      "GitHub repository '", owner, "/", repo, "' already exists at ", repo_url, ". ",
+      "GitHub repository '",
+      owner,
+      "/",
+      repo,
+      "' already exists at ",
+      repo_url,
+      ". ",
       "Cannot proceed in non-interactive mode. ",
       "Either use a different repository name or set it as remote manually with:\n",
-      "  usethis::use_git_remote('origin', '", repo_url, "')",
+      "  usethis::use_git_remote('origin', '",
+      repo_url,
+      "')",
       call. = FALSE
     )
   }
@@ -251,9 +291,12 @@ projr_init_github <- function(user = NULL,
 .init_github_impl_org_new <- function(public, org) {
   # Check if repository already exists
   repo_name <- basename(getwd())
-  if (.init_github_handle_existing_repo(
-    owner = org, repo = repo_name
-  )) {
+  if (
+    .init_github_handle_existing_repo(
+      owner = org,
+      repo = repo_name
+    )
+  ) {
     return(invisible(FALSE))
   }
 
@@ -276,9 +319,12 @@ projr_init_github <- function(user = NULL,
 .init_github_impl_org_old <- function(public, org) {
   # Check if repository already exists
   repo_name <- basename(getwd())
-  if (.init_github_handle_existing_repo(
-    owner = org, repo = repo_name
-  )) {
+  if (
+    .init_github_handle_existing_repo(
+      owner = org,
+      repo = repo_name
+    )
+  ) {
     return(invisible(FALSE))
   }
   result <- tryCatch(
