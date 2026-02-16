@@ -13,9 +13,12 @@
 #'   Defaults to \code{TRUE}.
 #' @param github_public Logical. If \code{TRUE}, the GitHub repository will be public.
 #'   Defaults to \code{FALSE}.
-#' @param github_org Character or \code{NULL}. The GitHub organization under which to create
-#'   the repository. Defaults to \code{NULL}, which creates the repository under the user's account
+#' @param github_user,github_org Character or \code{NULL}.
+#' The owner of the GitHub repo to create.
+#' If both are NULL, then creates the repository under the current user's account
 #' (as implied by the GitHub token).
+#' If both are specified, then organisation is preferred.
+#' Default is `NULL`.
 #' @param dir Logical. If \code{TRUE}, initializes the projr-specified directories (e.g., raw,
 #'   cache, output). Defaults to \code{TRUE}.
 #' @param readme Logical. If \code{TRUE}, creates a README file. Defaults to \code{TRUE}.
@@ -153,6 +156,8 @@ projr_init_all <- function(
 }
 
 #' @rdname projr_init
+#' @param bioc Logical (for \\code{projr_init_renv}). If \\code{TRUE}, includes Bioconductor packages
+#'   in the renv setup. Defaults to \\code{TRUE}.
 #' @export
 projr_init_renv <- function(bioc = TRUE) {
   .init_renv_std(TRUE, bioc)
@@ -165,6 +170,8 @@ projr_init_cite <- function() {
 }
 
 #' @rdname projr_init
+#' @param commit Logical (for \\code{projr_init_git}). If \\code{TRUE}, commits the initial changes
+#'   to the Git repository. Defaults to \\code{TRUE}.
 #' @export
 projr_init_git <- function(commit = TRUE) {
   .init_git(TRUE, commit)

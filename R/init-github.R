@@ -1,7 +1,17 @@
 # github
 # --------------------------
 #' @rdname projr_init
-
+#' @param user Character or \\code{NULL} (for \\code{projr_init_github}). GitHub username to use
+#'   when creating the remote; if \\code{NULL} the token owner is used. Defaults to \\code{NULL}.
+#' @param org Character or \\code{NULL} (for \\code{projr_init_github}). GitHub organisation to use
+#'   when creating the remote. Defaults to \\code{NULL}.
+#' @param public Logical (for \\code{projr_init_github}). If \\code{TRUE}, the GitHub repository will
+#'   be public. Defaults to \\code{FALSE}.
+#' @param create_repo Logical (for \\code{projr_init_github}). If \\code{TRUE} and the project does not
+#'   have a local Git repository then in interactive mode it offers to create a GitHub repository and
+#'   in non-interactive mode creates one automatically. Defaults to \\code{TRUE}.
+#' @param git_commit Logical (for \\code{projr_init_github}). If \\code{TRUE}, commits the initial changes
+#'   to the Git repository when creating a new local repo. Defaults to \\code{TRUE}.
 #' @export
 projr_init_github <- function(
   user = NULL,
