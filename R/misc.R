@@ -33,7 +33,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   for (x in dep) {
     .dep_add(x)
     if (!requireNamespace(x, quietly = TRUE)) {
-      ..cli_debug("Dependency {x} not available, installing")
+      .cli_debug("Dependency {x} not available, installing")
       .dep_install_only(dep)
     }
   }
@@ -48,7 +48,9 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
     return(invisible(FALSE))
   }
   if (.dep_in_renv(basename(dep))) {
-    .cli_debug("Dependency {dep} already in renv, not adding to _dependencies.R")
+    .cli_debug(
+      "Dependency {dep} already in renv, not adding to _dependencies.R"
+    )
     return(invisible(FALSE))
   }
   .cli_debug("Dependency {dep} not in renv, adding to _dependencies.R")
@@ -56,7 +58,9 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   dep_vec <- .dep_read(path_dep)
   for (i in seq_along(dep)) {
     dep_pattern <- paste0(
-      "library\\(", basename(dep[[i]]), "\\)",
+      "library\\(",
+      basename(dep[[i]]),
+      "\\)",
       collapse = ""
     )
     dep_txt <- paste0("library(", basename(dep[[i]]), ")", collapse = "")
@@ -90,7 +94,9 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 
   # Throw error with clear installation instructions
   stop(
-    "Required package(s) not available: ", paste(dep_required, collapse = ", "), "\n",
+    "Required package(s) not available: ",
+    paste(dep_required, collapse = ", "),
+    "\n",
     "Please install manually using:\n  ",
     paste(install_cmds, collapse = "\n  "),
     "\nOr use renv::install() if working in an renv project.",
@@ -120,13 +126,14 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 }
 
 .dep_install_only_interactive <- function(dep_required) {
-
   pkg_list <- .dep_install_only_get_pkg_list(dep_required)
   install_cmds <- .dep_get_install_cmds(pkg_list[["dep"]])
 
   if (length(pkg_list[["dep"]]) == 1) {
     message <- paste0(
-      "\nPackage '", pkg_list[["dep"]], "' is required but not installed.\n",
+      "\nPackage '",
+      pkg_list[["dep"]],
+      "' is required but not installed.\n",
       "Install it now? (y/n): "
     )
   } else {
@@ -162,7 +169,9 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
       },
       error = function(e) {
         stop(
-          "Installation failed: ", conditionMessage(e), "\n",
+          "Installation failed: ",
+          conditionMessage(e),
+          "\n",
           "Please install manually using:\n  ",
           paste(install_cmds, collapse = "\n  "),
           call. = FALSE
@@ -171,7 +180,9 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
     )
   } else {
     # User declined - provide manual instructions
-    .cli_info("\nTo install manually, please run:\n  {paste(install_cmds, collapse = '\n  ')}\n") # nolint: glue_linter
+    .cli_info(
+      "\nTo install manually, please run:\n  {paste(install_cmds, collapse = '\n  ')}\n"
+    ) # nolint: glue_linter
     stop(
       "Missing required package(s). Please install and try again.",
       call. = FALSE
@@ -246,7 +257,11 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 }
 
 .dep_read <- function(path_dep) {
-  dep_vec <- if (file.exists(path_dep)) readLines(path_dep, warn = FALSE) else character(0)
+  dep_vec <- if (file.exists(path_dep)) {
+    readLines(path_dep, warn = FALSE)
+  } else {
+    character(0)
+  }
 }
 
 .renv_lockfile_read <- function() {
@@ -305,10 +320,12 @@ with_dir <- function(new, code) {
   if (is.logical(bump_component)) "dev" else bump_component
 }
 
-.zip_file <- function(fn_rel,
-                      path_dir_fn_rel,
-                      fn_rel_zip,
-                      path_dir_fn_rel_zip = NULL) {
+.zip_file <- function(
+  fn_rel,
+  path_dir_fn_rel,
+  fn_rel_zip,
+  path_dir_fn_rel_zip = NULL
+) {
   if (length(fn_rel) == 0L) {
     return(character())
   }
@@ -335,13 +352,17 @@ with_dir <- function(new, code) {
 }
 
 .dir_count_lvl <- function(path_dir) {
-  vapply(path_dir, function(x) {
-    x <- gsub("^/|/$", "", x)
-    if (x == ".") {
-      return(0L)
-    }
-    strsplit(x, "/")[[1]] |> length()
-  }, integer(1))
+  vapply(
+    path_dir,
+    function(x) {
+      x <- gsub("^/|/$", "", x)
+      if (x == ".") {
+        return(0L)
+      }
+      strsplit(x, "/")[[1]] |> length()
+    },
+    integer(1)
+  )
 }
 
 .newline_append <- function(path) {
@@ -402,9 +423,7 @@ with_dir <- function(new, code) {
 }
 
 .dots_get <- function(...) {
-  tryCatch(as.list(...),
-    error = function(e) list()
-  )
+  tryCatch(as.list(...), error = function(e) list())
 }
 
 .dots_get_chr <- function(...) {
@@ -479,13 +498,15 @@ with_dir <- function(new, code) {
 #' projr_use_data(x, y) # For external use
 #' projr_use_data(x, y, internal = TRUE) # For internal use
 #' }
-projr_use_data <- function(...,
-                           internal = FALSE,
-                           overwrite = FALSE,
-                           compress = "bzip2",
-                           version = 2,
-                           ascii = FALSE,
-                           safe = TRUE) {
+projr_use_data <- function(
+  ...,
+  internal = FALSE,
+  overwrite = FALSE,
+  compress = "bzip2",
+  version = 2,
+  ascii = FALSE,
+  safe = TRUE
+) {
   # copied across from usethis::use_data,
   # except that we adjust output directory
   # based on whether it's an output run or not
@@ -531,10 +552,17 @@ projr_use_data <- function(...,
   }
   envir <- parent.frame()
   paths_project <- vapply(paths, .path_get, character(1))
-  mapply(save, list = objs, file = paths_project, MoreArgs = list(
-    envir = envir,
-    compress = compress, version = version, ascii = ascii
-  ))
+  mapply(
+    save,
+    list = objs,
+    file = paths_project,
+    MoreArgs = list(
+      envir = envir,
+      compress = compress,
+      version = version,
+      ascii = ascii
+    )
+  )
   invisible(paths_project)
 }
 
@@ -565,11 +593,13 @@ projr_use_data <- function(...,
   desc::desc(file = path)
 }
 
-.zip_dir <- function(path_dir,
-                     path_zip,
-                     dir_exc = NULL,
-                     dir_inc = NULL,
-                     fn_exc = NULL) {
+.zip_dir <- function(
+  path_dir,
+  path_zip,
+  dir_exc = NULL,
+  dir_inc = NULL,
+  fn_exc = NULL
+) {
   # Normalise output path so setwd() does not confuse where we write
   path_zip <- normalizePath(path_zip, winslash = "/", mustWork = FALSE)
 
@@ -623,8 +653,8 @@ projr_use_data <- function(...,
 
   utils::zip(
     zipfile = path_zip_temp,
-    files   = fn_vec,
-    flags   = "-r9Xq"
+    files = fn_vec,
+    flags = "-r9Xq"
   )
 
   if (!identical(path_zip_temp, path_zip)) {
@@ -874,7 +904,17 @@ projr_use_data <- function(...,
     "      before: |",
     paste0("        <li><a href=\"./\">", title, "</a></li>"),
     "      after: |",
-    paste0("        <li><a href=\"https://github.com/", gh_user, "/", pkg_name, "\" target=\"blank\">", gh_user, "/", pkg_name, "</a></li>"), # nolint
+    paste0(
+      "        <li><a href=\"https://github.com/",
+      gh_user,
+      "/",
+      pkg_name,
+      "\" target=\"blank\">",
+      gh_user,
+      "/",
+      pkg_name,
+      "</a></li>"
+    ), # nolint
     "    download: [\"pdf\", \"epub\"]",
     "bookdown::pdf_book:",
     "  latex_engine: xelatex",
