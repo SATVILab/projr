@@ -627,11 +627,15 @@ test_that(".build_copy_docs_quarto_fn_prefix/suffix/path_get works", {
       )
       expect_identical(
         .build_copy_docs_quarto_path_get("typst", "def"),
-        "def.pdf"
+        c("def_files", "def.pdf")
       )
       expect_identical(
         .build_copy_docs_quarto_path_get("pdf", "def"),
-        "def.pdf"
+        c("def_files", "def.pdf")
+      )
+      expect_identical(
+        .build_copy_docs_quarto_path_get("beamer", "report"),
+        c("report_files", "report.pdf")
       )
     },
     force = TRUE,

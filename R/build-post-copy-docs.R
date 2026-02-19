@@ -196,10 +196,7 @@
 .build_copy_docs_quarto_path_get <- function(format, fn_prefix) {
   fn_suffix <- .build_copy_docs_quarto_fn_suffix_get(format)
   fn <- paste0(fn_prefix, ".", fn_suffix)
-  if (.build_copy_docs_quarto_is_html_format(format)) {
-    return(c(paste0(fn_prefix, "_files"), fn))
-  }
-  fn
+  c(paste0(fn_prefix, "_files"), fn)
 }
 
 .build_copy_docs_quarto_is_html_format <- function(format) {
