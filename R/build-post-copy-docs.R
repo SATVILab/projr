@@ -196,11 +196,22 @@
 .build_copy_docs_quarto_path_get <- function(format, fn_prefix) {
   fn_suffix <- .build_copy_docs_quarto_fn_suffix_get(format)
   fn <- paste0(fn_prefix, ".", fn_suffix)
-  switch(format,
-    "html" = ,
-    "revealjs" = c(paste0(fn_prefix, "_files"), fn),
-    fn
+  if (.build_copy_docs_quarto_is_html_format(format)) {
+    return(c(paste0(fn_prefix, "_files"), fn))
+  }
+  fn
+}
+
+.build_copy_docs_quarto_is_html_format <- function(format) {
+  html_formats <- c(
+    "html",
+    "revealjs",
+    "dashboard",
+    "s5",
+    "slidy",
+    "dzslides"
   )
+  format %in% html_formats
 }
 
 .build_copy_docs_quarto_fn_prefix_get <- function(frontmatter, fn) {
@@ -215,6 +226,11 @@
   switch(format,
     "revealjs" = "html",
     "beamer" = "pdf",
+    "typst" = "pdf",
+    "dashboard" = "html",
+    "s5" = "html",
+    "slidy" = "html",
+    "dzslides" = "html",
     format
   )
 }

@@ -597,6 +597,21 @@ test_that(".build_copy_docs_quarto_fn_prefix/suffix/path_get works", {
       expect_identical(
         .build_copy_docs_quarto_fn_suffix_get("beamer"), "pdf"
       )
+      expect_identical(
+        .build_copy_docs_quarto_fn_suffix_get("typst"), "pdf"
+      )
+      expect_identical(
+        .build_copy_docs_quarto_fn_suffix_get("dashboard"), "html"
+      )
+      expect_identical(
+        .build_copy_docs_quarto_fn_suffix_get("s5"), "html"
+      )
+      expect_identical(
+        .build_copy_docs_quarto_fn_suffix_get("slidy"), "html"
+      )
+      expect_identical(
+        .build_copy_docs_quarto_fn_suffix_get("dzslides"), "html"
+      )
       # paths
       expect_identical(
         .build_copy_docs_quarto_path_get("html", "abc"),
@@ -605,6 +620,14 @@ test_that(".build_copy_docs_quarto_fn_prefix/suffix/path_get works", {
       expect_identical(
         .build_copy_docs_quarto_path_get("revealjs", "abc"),
         c("abc_files", "abc.html")
+      )
+      expect_identical(
+        .build_copy_docs_quarto_path_get("dashboard", "abc"),
+        c("abc_files", "abc.html")
+      )
+      expect_identical(
+        .build_copy_docs_quarto_path_get("typst", "def"),
+        "def.pdf"
       )
       expect_identical(
         .build_copy_docs_quarto_path_get("pdf", "def"),
