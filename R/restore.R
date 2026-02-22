@@ -42,8 +42,8 @@
 #' - `projr_content_checkout()` is the main function for restoring artefacts. When `version` is
 #'   NULL, restores the latest version. When `version` is specified, attempts to restore that
 #'   version. If the exact version is not available on the remote but a compatible version exists
-#'   (same content according to local manifest), it will download the compatible version and
-#'   inform the user.
+#'   (same content by comparing local manifest with remote manifest), it will download the
+#'   compatible version and inform the user.
 #' - `projr_content_update()` is a convenience wrapper that calls `projr_content_checkout()` with
 #'   `version = NULL`, always restoring the latest available version.
 #' - `projr_content_restore()` restores artefacts for the current project version (without dev
@@ -450,12 +450,12 @@ projr_content_restore <- function(label = NULL,
                                                             structure,
                                                             path,
                                                             path_append_label) {
-  # Get local manifest for the requested version
-  manifest_local <- .manifest_read(.path_get("manifest.csv")) |>
+  # Get local manifest for the requested version (what we want)
+  manifest_requested <- .manifest_read(.path_get("manifest.csv")) |>
     .manifest_filter_label(label) |>
     .manifest_filter_version(requested_version)
 
-  if (nrow(manifest_local) == 0) {
+  if (nrow(manifest_requested) == 0) {
     .cli_debug(
       "No local manifest entry for version ", requested_version,
       " and label ", label
@@ -463,20 +463,41 @@ projr_content_restore <- function(label = NULL,
     return(NULL)
   }
 
-  # Get all available versions on the remote
-  available_versions <- .content_checkout_get_available_remote_versions(
-    remote_pre, type, label, structure, id, path, path_append_label
+  # Get the remote manifest to see what versions are actually available
+  manifest_remote_full <- tryCatch(
+    .remote_get_manifest(type, remote_pre, output_level = "none"),
+    error = function(e) {
+      .cli_debug("Could not retrieve remote manifest: ", e$message)
+      return(.zero_tbl_get_manifest())
+    }
   )
+
+  if (nrow(manifest_remote_full) == 0) {
+    .cli_debug("No manifest found on remote")
+    return(NULL)
+  }
+
+  # Filter to just this label
+  manifest_remote_label <- manifest_remote_full |>
+    .manifest_filter_label(label)
+
+  if (nrow(manifest_remote_label) == 0) {
+    .cli_debug("No remote manifest entries for label ", label)
+    return(NULL)
+  }
+
+  # Get unique versions available on the remote for this label
+  available_versions <- unique(manifest_remote_label$version) |>
+    vapply(.version_v_rm, character(1), USE.NAMES = FALSE)
 
   if (length(available_versions) == 0) {
     .cli_debug("No versions available on remote for ", label)
     return(NULL)
   }
 
-  # For each available version, check if it matches the requested version
+  # For each available version, check if it has identical content to requested
   for (ver in available_versions) {
-    manifest_remote_ver <- .manifest_read(.path_get("manifest.csv")) |>
-      .manifest_filter_label(label) |>
+    manifest_remote_ver <- manifest_remote_label |>
       .manifest_filter_version(ver)
 
     if (nrow(manifest_remote_ver) == 0) {
@@ -484,24 +505,25 @@ projr_content_restore <- function(label = NULL,
     }
 
     # Compare the manifests (same files and hashes)
-    manifest_local_sorted <- manifest_local[order(manifest_local$fn), ]
-    manifest_remote_sorted <- manifest_remote_ver[order(manifest_remote_ver$fn), ]
+    # Sort both by filename for reliable comparison
+    manifest_requested_sorted <- manifest_requested[order(manifest_requested$fn), c("fn", "hash")]
+    manifest_remote_sorted <- manifest_remote_ver[order(manifest_remote_ver$fn), c("fn", "hash")]
 
-    if (nrow(manifest_local_sorted) != nrow(manifest_remote_sorted)) {
+    if (nrow(manifest_requested_sorted) != nrow(manifest_remote_sorted)) {
       next
     }
 
-    if (!identical(manifest_local_sorted$fn, manifest_remote_sorted$fn)) {
+    if (!identical(manifest_requested_sorted$fn, manifest_remote_sorted$fn)) {
       next
     }
 
-    if (!identical(manifest_local_sorted$hash, manifest_remote_sorted$hash)) {
+    if (!identical(manifest_requested_sorted$hash, manifest_remote_sorted$hash)) {
       next
     }
 
     # Found a compatible version
     .cli_debug(
-      "Found compatible version ", ver, " for requested version ",
+      "Found compatible version ", ver, " on remote for requested version ",
       requested_version
     )
     return(ver)
@@ -512,49 +534,6 @@ projr_content_restore <- function(label = NULL,
     requested_version
   )
   return(NULL)
-}
-
-# Helper function to get all available versions on remote
-.content_checkout_get_available_remote_versions <- function(remote_pre,
-                                                            type,
-                                                            label,
-                                                            structure,
-                                                            id,
-                                                            path,
-                                                            path_append_label) {
-  if (structure != "archive") {
-    # For latest structure, only one version available
-    version <- .remote_get_version_latest_label_non_project_file(
-      remote_pre, type, label
-    )
-    return(if (!is.null(version) && length(version) > 0) version else character(0))
-  }
-
-  # For archive structure, list all available versions
-  remote_final_vec <- .remote_ls_final(type, remote_pre)
-
-  if (length(remote_final_vec) == 0) {
-    return(character(0))
-  }
-
-  # Extract versions from filenames/directories
-  versions <- character(0)
-  for (item in remote_final_vec) {
-    # Try to extract version from the item name
-    # Format: label-vX.X.X or just vX.X.X for directories
-    version_match <- sub(paste0("^", label, "-v([0-9.]+).*"), "\\1", item)
-    if (version_match != item && .version_check_error_free(version_match)) {
-      versions <- c(versions, version_match)
-    } else {
-      # Try without label prefix
-      version_match <- sub("^v([0-9.]+).*", "\\1", item)
-      if (version_match != item && .version_check_error_free(version_match)) {
-        versions <- c(versions, version_match)
-      }
-    }
-  }
-
-  unique(versions)
 }
 
 .content_checkout_label_check_non_empty <- function(label) {

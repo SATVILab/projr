@@ -103,8 +103,8 @@ These functions restore artefact directories from remote sources:
 \item \code{projr_content_checkout()} is the main function for restoring artefacts. When \code{version} is
 NULL, restores the latest version. When \code{version} is specified, attempts to restore that
 version. If the exact version is not available on the remote but a compatible version exists
-(same content according to local manifest), it will download the compatible version and
-inform the user.
+(same content by comparing local manifest with remote manifest), it will download the
+compatible version and inform the user.
 \item \code{projr_content_update()} is a convenience wrapper that calls \code{projr_content_checkout()} with
 \code{version = NULL}, always restoring the latest available version.
 \item \code{projr_content_restore()} restores artefacts for the current project version (without dev
