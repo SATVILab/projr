@@ -1,4 +1,5 @@
 .Rproj.user
+projr.Rproj
 SCRATCH.R
 inst/doc
 _projr.yml
@@ -11,12 +12,10 @@ _scratch/VERSION
 git_diff_output.txt
 check_output.log
 docs/
-
 *.tar.gz
 *.Rcheck
 ..Rcheck/
 test_debug_output.R
-
 # Test and check output files
 test_output.txt
 test_lite_output.txt
@@ -30,3 +29,5 @@ _raw_data/
 cobertura.xml
 sonarqube.xml
 *.bak
+projr.Rproj
+.github/workflows/learning.yaml

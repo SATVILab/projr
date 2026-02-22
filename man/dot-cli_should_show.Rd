@@ -4,12 +4,10 @@
 \alias{.cli_should_show}
 \title{Check if messages should be shown at the given level}
 \usage{
-.cli_should_show(required_level, current_level)
+.cli_should_show(required_level)
 }
 \arguments{
 \item{required_level}{Character. The level required for the message.}
-
-\item{current_level}{Character. The current output level.}
 }
 \value{
 Logical. TRUE if the message should be shown.

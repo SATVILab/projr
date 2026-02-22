@@ -173,7 +173,14 @@
   if (.is_len(manifest_list, 1L)) {
     return(manifest_list[[1]])
   }
-  Reduce(rbind, manifest_list)
+  # Filter out empty manifests and use do.call for better performance
+  manifest_list <- Filter(function(x) nrow(x) > 0, manifest_list)
+  if (length(manifest_list) == 0) {
+    return(.zero_tbl_get_manifest())
+  } else if (length(manifest_list) == 1) {
+    return(manifest_list[[1]])
+  }
+  do.call(rbind, manifest_list)
 }
 
 .build_manifest_post_get_label <- function() {

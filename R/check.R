@@ -371,11 +371,13 @@
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
+  .assert_chr(opt, TRUE, nm = "opt")
   .assert_len_pos(x = x, nm = nm)
   if (!all(.is_opt(x, opt))) {
+    offending <- x[!(.is_opt_min(x, opt))]
     msg <- paste0(
       nm, " must be one of ", paste0(opt, collapse = ", "), ",\n",
-      "and not:\n", .string_create(x, sep = "\n")
+      "and not:\n", .string_create(offending, sep = "\n")
     )
     .cli_debug("Validation failed: {msg}")
     stop(msg, call. = FALSE)

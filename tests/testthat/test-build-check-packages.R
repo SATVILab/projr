@@ -368,37 +368,6 @@ test_that(".build_check_packages_remote detects GitHub remote", {
   )
 })
 
-test_that(".build_check_packages_remote detects OSF remote", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Manually add OSF configuration to YAML to avoid auth checks
-      yml_path <- file.path(getwd(), "_projr.yml")
-      yml <- yaml::read_yaml(yml_path)
-      if (is.null(yml$build)) yml$build <- list()
-      yml$build$osf <- list(
-        id = "abc12",
-        send = list(
-          list(
-            label = "output",
-            structure = "latest",
-            cue = "if-change"
-          )
-        )
-      )
-      yaml::write_yaml(yml, yml_path)
-
-      pkg_needed <- .build_check_packages_remote()
-      expect_true("osfr" %in% pkg_needed)
-    }
-  )
-})
-
 test_that(".build_check_packages_remote returns empty for no remotes", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())

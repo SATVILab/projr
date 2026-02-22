@@ -14,7 +14,6 @@
 #' @param archive_local Logical/character equivalent for local destinations.
 #' @param always_archive Logical flag forcing archive behavior even when YAML is
 #'   silent; `NULL` defers to YAML definitions.
-#' @param output_level CLI verbosity level (`"none"`, `"std"`, `"debug"`).
 #' @return Invisibly returns `FALSE` when no destinations are processed or `TRUE`
 #'   when at least one send action occurs.
 #' @keywords internal
@@ -22,8 +21,7 @@
 .dest_send <- function(bump_component,
                        archive_github,
                        archive_local,
-                       always_archive,
-                       output_level = "std") {
+                       always_archive) {
   # consider early exit
   # ------------------
   if (!.dest_send_check(bump_component)) {
@@ -34,14 +32,12 @@
   type_vec <- .dest_send_get_type(archive_github, archive_local)
 
   .cli_debug(
-    "Starting destination send process for {length(type_vec)} remote type(s): {paste(type_vec, collapse = ', ')}",
-    output_level = output_level
+    "Starting destination send process for {length(type_vec)} remote type(s): {paste(type_vec, collapse = ', ')}"
   )
 
   for (type in type_vec) {
     .cli_debug(
-      "Processing remote type: {type}",
-      output_level = output_level
+      "Processing remote type: {type}"
     )
 
     # force archive_type to FALSE if it
@@ -59,8 +55,7 @@
     # this may not be that important...
     always_archive <- .dest_send_get_always_archive(type, always_archive)
     .dest_send_type(
-      type, bump_component, archive_type, always_archive,
-      output_level
+      type, bump_component, archive_type, always_archive
     )
   }
 }
@@ -133,7 +128,7 @@
 #' @keywords internal
 #' @noRd
 .dest_send_get_type_opt <- function() {
-  c("local", "github", "osf")
+  c("local", "github")
 }
 
 #' @title Resolve archive behavior for a remote type
@@ -240,8 +235,7 @@
 .dest_send_type <- function(type,
                             bump_component,
                             archive_type,
-                            always_archive,
-                            output_level = "std") {
+                            always_archive) {
   # ensure that these are not NULL only if not
   # specified in _projr.yml. Reaason is that,
   # if they are specified in the `yml`, the settings
@@ -252,14 +246,12 @@
   title_vec <- .dest_send_type_get_title(type, archive_type)
 
   .cli_debug(
-    "Remote type '{type}': Processing {length(title_vec)} destination(s): {paste(title_vec, collapse = ', ')}",
-    output_level = output_level
+    "Remote type '{type}': Processing {length(title_vec)} destination(s): {paste(title_vec, collapse = ', ')}"
   )
 
   for (x in title_vec) {
     .dest_send_title(
-      x, type, bump_component, archive_type, always_archive,
-      output_level
+      x, type, bump_component, archive_type, always_archive
     )
   }
 }
@@ -322,13 +314,11 @@
                              type,
                              bump_component,
                              archive_type,
-                             always_archive,
-                             output_level = "std") {
+                             always_archive) {
   force(title)
 
   .cli_debug(
-    "Destination '{title}' (type: {type}): Checking if send is needed",
-    output_level = output_level
+    "Destination '{title}' (type: {type}): Checking if send is needed"
   )
 
   may_send <- .dest_send_title_check(
@@ -337,8 +327,7 @@
 
   if (!may_send) {
     .cli_debug(
-      "Destination '{title}': Send SKIPPED (cue condition not met)",
-      output_level = output_level
+      "Destination '{title}': Send SKIPPED (cue condition not met)"
     )
     return(invisible(FALSE))
   }
@@ -348,15 +337,13 @@
   )
 
   .cli_debug(
-    "Destination '{title}': Send APPROVED - Processing {length(content_vec)} content label(s): {paste(content_vec, collapse = ', ')}",
-    output_level = output_level
+    "Destination '{title}': Send APPROVED - Processing {length(content_vec)} content label(s): {paste(content_vec, collapse = ', ')}"
   )
 
   for (x in content_vec) {
     .dest_send_label(
       x, title, type, .build_get_output_run(bump_component),
-      archive_type, always_archive, x == content_vec[length(content_vec)],
-      output_level
+      archive_type, always_archive, x == content_vec[length(content_vec)]
     )
   }
 

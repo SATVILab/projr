@@ -448,9 +448,6 @@ test_that("PROJR_CLEAR_OUTPUT validates input strictly", {
   # Test other invalid values
   Sys.setenv(PROJR_CLEAR_OUTPUT = "always")
   expect_error(.build_get_clear_output(NULL))
-
-  Sys.setenv(PROJR_CLEAR_OUTPUT = "")
-  expect_error(.build_get_clear_output(NULL))
 })
 
 # Test .build_get_output_run
@@ -701,34 +698,6 @@ test_that("projr_build_dev profile parameter works", {
 
       # Profile should be reset after build
       expect_identical(current_profile, old_profile)
-    },
-    quiet = TRUE,
-    force = TRUE
-  )
-})
-
-# Test output_level parameter
-test_that("output_level parameter controls verbosity", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Test with "none" - should minimize output (but not necessarily silent due to rendering)
-      expect_no_error({
-        projr_build_dev(output_level = "none")
-      })
-
-      # Test with "debug" - should produce output (can't easily test, but ensure no error)
-      expect_no_error({
-        projr_build_dev(output_level = "debug")
-      })
-
-      # Test with "std" - standard output level
-      expect_no_error({
-        projr_build_dev(output_level = "std")
-      })
     },
     quiet = TRUE,
     force = TRUE

@@ -1,29 +1,7 @@
 test_that("projr_engine_get works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
-
-  .dir_create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
-  fn_vec <- list.files(testthat::test_path("./project_structure"))
-  fn_vec <- c(fn_vec, ".gitignore", ".Rbuildignore")
-
-  for (x in fn_vec) {
-    file.copy(
-      file.path(testthat::test_path("./project_structure"), x),
-      file.path(dir_test, x),
-      overwrite = TRUE
-    )
-  }
-
-  gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
-  )
-  writeLines(gitignore, file.path(dir_test, ".gitignore"))
-
-  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
-  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
@@ -47,7 +25,7 @@ test_that("projr_engine_get works", {
 test_that(".build_engine_doc_fn_get_error shows helpful message when no files found automatically", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr_engine_error"))
+  dir_test <- .dir_get_tmp_random_path()
 
   .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -77,7 +55,7 @@ test_that(".build_engine_doc_fn_get_error shows helpful message when no files fo
 test_that(".build_engine_doc_fn_get_error shows helpful message when specified files not found", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr_engine_error2"))
+  dir_test <- .dir_get_tmp_random_path()
 
   .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -107,7 +85,7 @@ test_that(".build_engine_doc_fn_get_error shows helpful message when specified f
 test_that(".build_engine_doc_fn_get returns files when they exist", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr_engine_success"))
+  dir_test <- .dir_get_tmp_random_path()
 
   .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -140,7 +118,7 @@ test_that(".build_engine_doc_fn_get returns files when they exist", {
 test_that(".build_engine detects when no documents exist", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr_no_docs"))
+  dir_test <- .dir_get_tmp_random_path()
 
   .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))
@@ -163,7 +141,7 @@ test_that(".build_engine detects when no documents exist", {
 test_that(".build_engine_doc_fn_get reports only missing files when some are specified", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr_partial_missing"))
+  dir_test <- .dir_get_tmp_random_path()
 
   .dir_create(dir_test)
   withr::defer(unlink(dir_test, recursive = TRUE))

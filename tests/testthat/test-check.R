@@ -14,7 +14,7 @@ test_that(".cli_debug logging works in assertion functions", {
       Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
       log_info <- .log_build_init(
         build_type = "dev", bump_component = "test",
-        msg = "Testing CLI debug", output_level = "debug"
+        msg = "Testing CLI debug"
       )
 
       # Test that validation failures trigger .cli_debug calls

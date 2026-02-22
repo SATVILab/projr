@@ -418,12 +418,29 @@ projr_version_get <- function() {
   paste0("v", x_rm)
 }
 
+.version_normalize <- function(version) {
+  # Normalize version string for package_version() by padding with .0
+  # package_version() requires at least 2 components (major.minor)
+  # This function ensures versions have enough components
+  .assert_string(version, required = TRUE)
+
+  # Split by . or - to get components (escape - to match literal dash)
+  components <- strsplit(version, "[.\\-]")[[1]]
+
+  # package_version() needs at least 2 components
+  if (length(components) == 1) {
+    components <- c(components, "0")
+  }
+
+  # Reconstruct with dots (package_version handles dots)
+  paste(components, collapse = ".")
+}
+
 .version_get_earliest <- function(x) {
   .assert_chr(x, required = TRUE)
   if (length(x) == 0) {
     stop("x must have at least one element")
   }
-  
   # Handle multi-version strings (semicolon-separated)
   all_versions <- character(0)
   for (ver_str in x) {
@@ -432,14 +449,13 @@ projr_version_get <- function() {
       all_versions <- c(all_versions, versions)
     }
   }
-  
   if (length(all_versions) == 0) {
     stop("No valid versions found")
   }
-  
-  # Apply .version_to_package_version to each element
-  vers_pkg <- vapply(all_versions, function(v) as.character(.version_to_package_version(v)), character(1), USE.NAMES = FALSE)
-  vers_pkg |>
+  # Apply .version_v_rm to each element and normalize
+  x_clean <- vapply(all_versions, .version_v_rm, character(1), USE.NAMES = FALSE)
+  x_normalized <- vapply(x_clean, .version_normalize, character(1), USE.NAMES = FALSE)
+  x_normalized |>
     unique() |>
     package_version() |>
     min() |>
@@ -491,7 +507,6 @@ projr_version_get <- function() {
   if (length(x) == 0) {
     stop("x must have at least one element")
   }
-  
   # Handle multi-version strings (semicolon-separated)
   all_versions <- character(0)
   for (ver_str in x) {
@@ -500,23 +515,25 @@ projr_version_get <- function() {
       all_versions <- c(all_versions, versions)
     }
   }
-  
   if (length(all_versions) == 0) {
     stop("No valid versions found")
   }
-  
-  # Apply .version_v_rm to each element, convert to package_version and find max
-  # Use .version_to_package_version to handle dev-style versions
+  # Apply .version_v_rm to each element and normalize
   x_clean <- vapply(all_versions, .version_v_rm, character(1), USE.NAMES = FALSE)
-  x_unique <- unique(x_clean)
-  # Convert each version individually using .version_to_package_version
-  # which returns package_version objects
-  vers_pkg <- vapply(
-    paste0("v", x_unique),
-    .version_to_package_version,
-    package_version("0.0.0"),
-    USE.NAMES = FALSE
-  )
-  max(vers_pkg) |>
+  x_normalized <- vapply(x_clean, .version_normalize, character(1), USE.NAMES = FALSE)
+  x_normalized |>
+    unique() |>
+    package_version() |>
+    max() |>
     utils::tail(1)
+}
+
+.version_is_earlier <- function(version_a, version_b) {
+  .assert_string(version_a, required = TRUE)
+  .assert_string(version_b, required = TRUE)
+  version_a_clean <- .version_v_rm(version_a)
+  version_b_clean <- .version_v_rm(version_b)
+  version_a_normalized <- .version_normalize(version_a_clean)
+  version_b_normalized <- .version_normalize(version_b_clean)
+  package_version(version_a_normalized) < package_version(version_b_normalized)
 }

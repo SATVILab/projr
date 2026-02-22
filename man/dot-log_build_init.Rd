@@ -4,12 +4,7 @@
 \alias{.log_build_init}
 \title{Initialize a build log file}
 \usage{
-.log_build_init(
-  build_type = "output",
-  bump_component = NULL,
-  msg = "",
-  output_level = "std"
-)
+.log_build_init(build_type = "output", bump_component = NULL, msg = "")
 }
 \arguments{
 \item{build_type}{Character. Either "output" or "dev".}
@@ -17,8 +12,6 @@
 \item{bump_component}{Character. Version bump component.}
 
 \item{msg}{Character. Build message.}
-
-\item{output_level}{Character. Output level for this build.}
 }
 \value{
 List with log_file path and timestamp, or NULL if logging disabled.

@@ -198,8 +198,7 @@ test_that(".log_build_init creates log file correctly", {
       log_info <- .log_build_init(
         build_type = "output",
         bump_component = "patch",
-        msg = "Test build",
-        output_level = "std"
+        msg = "Test build"
       )
 
       # Should return list with log_file and timestamp
@@ -597,8 +596,7 @@ test_that("log system integrates with build process", {
       log_info <- .log_build_init(
         build_type = "output",
         bump_component = "patch",
-        msg = "Integration test build",
-        output_level = "std"
+        msg = "Integration test build"
       )
 
       log_file <- log_info$log_file

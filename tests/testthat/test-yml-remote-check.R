@@ -239,19 +239,6 @@ test_that(".yml_remote_check validates path parameter for local type", {
     )
   )
 
-  # Path not required for osf type
-  expect_true(
-    .yml_remote_check(
-      role = "build",
-      type = "osf",
-      content = "output",
-      public = TRUE,
-      category = "data",
-      path = NULL,
-      get_list = list(),
-      send_list = list()
-    )
-  )
 })
 
 test_that(".yml_remote_check validates flag parameters", {
@@ -335,115 +322,6 @@ test_that(".yml_remote_check validates flag parameters", {
   )
 })
 
-test_that(".yml_remote_check validates OSF-specific parameters", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  # Public required for osf type
-  expect_error(
-    .yml_remote_check(
-      role = "build",
-      type = "osf",
-      content = "output",
-      public = NULL,
-      get_list = list(),
-      send_list = list()
-    ),
-    "public"
-  )
-
-  # Category required for osf type
-  expect_error(
-    .yml_remote_check(
-      role = "build",
-      type = "osf",
-      content = "output",
-      public = TRUE,
-      category = NULL,
-      get_list = list(),
-      send_list = list()
-    ),
-    "category"
-  )
-
-  # Valid public for osf type should pass
-  expect_true(
-    .yml_remote_check(
-      role = "build",
-      type = "osf",
-      content = "output",
-      public = TRUE,
-      category = "data",
-      get_list = list(),
-      send_list = list()
-    )
-  )
-
-  expect_true(
-    .yml_remote_check(
-      role = "build",
-      type = "osf",
-      content = "output",
-      public = FALSE,
-      category = "analysis",
-      get_list = list(),
-      send_list = list()
-    )
-  )
-
-  # Valid category for osf type should pass
-  expect_true(
-    .yml_remote_check(
-      role = "build",
-      type = "osf",
-      content = "output",
-      public = TRUE,
-      category = "data",
-      get_list = list(),
-      send_list = list()
-    )
-  )
-
-  expect_true(
-    .yml_remote_check(
-      role = "build",
-      type = "osf",
-      content = "output",
-      public = TRUE,
-      category = "analysis",
-      get_list = list(),
-      send_list = list()
-    )
-  )
-
-  # Invalid category should fail
-  expect_error(
-    .yml_remote_check(
-      role = "build",
-      type = "osf",
-      content = "output",
-      public = TRUE,
-      category = "invalid_category",
-      get_list = list(),
-      send_list = list()
-    ),
-    "invalid_category"
-  )
-
-  # Public not required for local type
-  expect_true(
-    .yml_remote_check(
-      role = "build",
-      type = "local",
-      content = "output",
-      path = "/tmp/test",
-      public = NULL,
-      get_list = list(),
-      send_list = list()
-    )
-  )
-})
-
 test_that(".yml_remote_check validates id and id_parent parameters", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -466,20 +344,6 @@ test_that(".yml_remote_check validates id and id_parent parameters", {
       type = "github",
       content = "output",
       id = "12345",
-      get_list = list(),
-      send_list = list()
-    )
-  )
-
-  # Valid id_parent should pass (exactly 5 characters)
-  expect_true(
-    .yml_remote_check(
-      role = "build",
-      type = "osf",
-      content = "output",
-      public = TRUE,
-      category = "data",
-      id_parent = "abcde",
       get_list = list(),
       send_list = list()
     )
@@ -509,20 +373,6 @@ test_that(".yml_remote_check validates id and id_parent parameters", {
     )
   )
 
-  # id_parent too short should fail
-  expect_error(
-    .yml_remote_check(
-      role = "build",
-      type = "osf",
-      content = "output",
-      public = TRUE,
-      category = "data",
-      id_parent = "abc",
-      get_list = list(),
-      send_list = list()
-    )
-  )
-
   # Invalid id (not string) should fail
   expect_error(
     .yml_remote_check(
@@ -530,20 +380,6 @@ test_that(".yml_remote_check validates id and id_parent parameters", {
       type = "github",
       content = "output",
       id = c("12345", "67890"),
-      get_list = list(),
-      send_list = list()
-    )
-  )
-
-  # Invalid id_parent (not string) should fail
-  expect_error(
-    .yml_remote_check(
-      role = "build",
-      type = "osf",
-      content = "output",
-      public = TRUE,
-      category = "data",
-      id_parent = 12345,
       get_list = list(),
       send_list = list()
     )
@@ -923,32 +759,6 @@ test_that(".yml_remote_check validates combinations for different remote types",
       send_list = list()
     )
   )
-
-  # Valid osf remote with all options
-  expect_true(
-    .yml_remote_check(
-      role = "build",
-      type = "osf",
-      title = "osf-test",
-      content = "cache",
-      structure = "archive",
-      public = TRUE,
-      category = "data",
-      description = "Test OSF node",
-      id = "abcde",
-      id_parent = "fghij",
-      send_list = list(
-        cue = "always",
-        strategy = "upload-all",
-        conflict = "overwrite",
-        inspect = "none"
-      ),
-      get_list = list(
-        strategy = "sync-purge",
-        conflict = "error"
-      )
-    )
-  )
 })
 
 test_that(".yml_remote_check allows NULL for optional parameters", {
@@ -966,8 +776,6 @@ test_that(".yml_remote_check allows NULL for optional parameters", {
       path = NULL,
       path_append_label = NULL,
       overwrite = FALSE,
-      public = NULL,
-      category = NULL,
       description = NULL,
       id = NULL,
       id_parent = NULL,

@@ -1,0 +1,153 @@
+name: windows-tests-by-file
+
+on:
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  test-file:
+    runs-on: windows-latest
+    name: "windows: ${{ matrix.test_file }}"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        test_file:
+          - test-auth.R
+          - test-build-change-summary-integration.R
+          - test-build-change-summary.R
+          - test-build-check-packages.R
+          - test-build-copy-docs-with-files.R
+          - test-build-copy-edge-cases.R
+          - test-build-copy.R
+          - test-build-engine.R
+          - test-build-hooks.R
+          - test-build-post-comprehensive.R
+          - test-build-post.R
+          - test-build-pre-and-post.R
+          - test-build-pre-clear-comprehensive.R
+          - test-build-pre.R
+          - test-build-restrictions-integration.R
+          - test-build-script.R
+          - test-build.R
+          - test-buildlog.R
+          - test-change.R
+          - test-changelog.R
+          - test-check.R
+          - test-cite.R
+          - test-cli-output.R
+          - test-cue.R
+          - test-dest-send-label.R
+          - test-dest-send-prepare.R
+          - test-dest-send.R
+          - test-dir-comprehensive.R
+          - test-dir-get-coverage.R
+          - test-dir-ignore.R
+          - test-engine.R
+          - test-env.R
+          - test-git.R
+          - test-github-httr-comprehensive.R
+          - test-hash.R
+          - test-ignore-auto.R
+          - test-ignore-internal.R
+          - test-ignore-manual.R
+          - test-ignore-unignore.R
+          - test-ignore.R
+          - test-init-helper-engine.R
+          - test-init-helper-prompt.R
+          - test-init-readme-completion.R
+          - test-init.R
+          - test-integration-comprehensive.R
+          - test-license-dir.R
+          - test-log-view.R
+          - test-log.R
+          - test-manifest-file-query.R
+          - test-manifest-query.R
+          - test-manifest.R
+          - test-metadata.R
+          - test-misc.R
+          - test-param.R
+          - test-path-coverage.R
+          - test-path-validation.R
+          - test-path.R
+          - test-profile.R
+          - test-remote-dispatcher.R
+          - test-remote-github.R
+          - test-remote-local.R
+          - test-remote-misc.R
+          - test-remote-versions-local.R
+          - test-renv.R
+          - test-restore-repo.R
+          - test-restore.R
+          - test-retry.R
+          - test-script.R
+          - test-scripts.R
+          - test-test.R
+          - test-version-validation.R
+          - test-version.R
+          - test-workflow-cran.R
+          - test-workflow-lite.R
+          - test-yml-check.R
+          - test-yml-dest-wrapper.R
+          - test-yml-dest.R
+          - test-yml-dir-license.R
+          - test-yml-dir-output.R
+          - test-yml-dir-set.R
+          - test-yml-dir-source.R
+          - test-yml-dir.R
+          - test-yml-git.R
+          - test-yml-hooks.R
+          - test-yml-quarto.R
+          - test-yml-remote-check.R
+          - test-yml-renv.R
+          - test-yml-restrictions.R
+          - test-yml.R
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PAT: ${{ secrets.GH_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      R_PKG_TEST_LITE: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck, any::testthat, any::pkgload
+          needs: check
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          tinytex: false
+
+      # Optional: run R CMD check but explicitly skip tests so it can't be the hang.
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+          args: 'c("--no-tests", "--no-manual")'
+
+      - name: Run single test file
+        shell: Rscript {0}
+        run: |
+          test_path <- file.path("tests", "testthat", "${{ matrix.test_file }}")
+          cat("\n==============================\n")
+          cat("START:", test_path, "\n")
+          cat("==============================\n\n")
+
+          # Load package code (so testthat has access to internal fns etc.)
+          pkgload::load_all(reset = TRUE, quiet = FALSE)
+
+          testthat::test_file(test_path)
+
+          cat("\n==============================\n")
+          cat("END:", test_path, "\n")
+          cat("==============================\n\n")

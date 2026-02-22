@@ -4,14 +4,7 @@
 \alias{.cli_output_level_get}
 \title{Get the current output level}
 \usage{
-.cli_output_level_get(output_level = NULL, output_run = FALSE)
-}
-\arguments{
-\item{output_level}{Character. Explicit output level ("none", "std", "debug").
-If NULL, determined from environment variable PROJR_OUTPUT_LEVEL.}
-
-\item{output_run}{Logical. Whether this is an output build (vs dev build).
-Used to set default if output_level is NULL.}
+.cli_output_level_get()
 }
 \value{
 Character. The output level to use.

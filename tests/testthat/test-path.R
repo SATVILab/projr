@@ -33,7 +33,7 @@ test_that(".path_* functions work", {
 
 test_that(".file_* and .dir_* functions work", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
@@ -197,4 +197,33 @@ test_that(".file_* and .dir_* functions work", {
       expect_identical(.dir_ls(dir_tmp), "d1")
     }
   )
+})
+
+test_that(".dir_get_tmp_random_path never generates negative paths", {
+  skip_if(.is_test_select())
+  
+  # Test with multiple seeds to ensure robustness
+  # This is a regression test for GitHub issue where negative random numbers
+  # in temp paths created invalid GitHub repository names (e.g., "user/-0.86325")
+  for (seed_val in c(1, 42, 123, 444, 999, 12345)) {
+    set.seed(seed_val)
+    
+    # Generate many paths
+    for (i in 1:50) {
+      path <- .dir_get_tmp_random_path()
+      basename_val <- basename(path)
+      
+      # Must not start with minus sign (would be invalid GitHub repo name)
+      expect_false(
+        grepl("^-", basename_val),
+        info = paste0("Path basename should not start with minus: ", basename_val)
+      )
+      
+      # Additional check: should be a valid numeric-like string
+      expect_true(
+        grepl("^[0-9]", basename_val),
+        info = paste0("Path basename should start with digit: ", basename_val)
+      )
+    }
+  }
 })

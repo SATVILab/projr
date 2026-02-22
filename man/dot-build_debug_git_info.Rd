@@ -4,10 +4,7 @@
 \alias{.build_debug_git_info}
 \title{Output Git information for debug}
 \usage{
-.build_debug_git_info(output_level = "std")
-}
-\arguments{
-\item{output_level}{Character. Current output level}
+.build_debug_git_info()
 }
 \description{
 Output Git information for debug

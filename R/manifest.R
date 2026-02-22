@@ -64,116 +64,33 @@
 }
 
 .manifest_filter_version <- function(manifest, version) {
-  # With multi-version manifest, check if target version is in version list
-  # Returns files where the target version appears in the semicolon-separated version list
-  # Entries with empty hash indicate file removal (tombstones)
+  # With multi-version manifest, check if target version is in the version list.
+  # Returns files where the target version appears in the semicolon-separated
+  # version list. Tombstone entries (empty hash) are filtered out.
 
   if (nrow(manifest) == 0) {
     return(.zero_tbl_get_manifest())
   }
 
   # Handle multi-version strings in the version parameter
-  # Use the latest version if multiple versions are provided
   if (grepl(";", version, fixed = TRUE)) {
     versions_input <- strsplit(version, ";", fixed = TRUE)[[1]]
-    # Get the latest version using .version_get_latest
     version <- .version_get_latest(versions_input) |> as.character()
   }
-  
-  target_version <- .version_v_add(version)
-  target_version_pkg <- .version_to_package_version(target_version)
 
-  # Check each row to see if target version is in the version list
-  keep_rows <- logical(nrow(manifest))
-  
-  for (i in seq_len(nrow(manifest))) {
-    ver_str <- manifest[["version"]][i]
-    if (is.na(ver_str) || ver_str == "") {
-      keep_rows[i] <- FALSE
-      next
-    }
-    
-    # Split version list
-    versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
-    
-    # Check if any version in list is <= target_version
-    # Keep the row if target version exists in list OR if latest version <= target
-    has_match <- FALSE
-    for (v in versions) {
-      v_pkg <- .version_to_package_version(v)
-      if (v_pkg <= target_version_pkg) {
-        has_match <- TRUE
-        break
-      }
-    }
-    keep_rows[i] <- has_match
-  }
+  target_version <- .version_v_add(version)
+
+  # Keep rows where target_version is exactly in the version list
+  keep_rows <- vapply(manifest[["version"]], function(ver_str) {
+    if (is.na(ver_str) || ver_str == "") return(FALSE)
+    target_version %in% strsplit(ver_str, ";", fixed = TRUE)[[1]]
+  }, logical(1), USE.NAMES = FALSE)
 
   manifest_filtered <- manifest[keep_rows, , drop = FALSE]
 
   if (nrow(manifest_filtered) == 0) {
     return(.zero_tbl_get_manifest())
   }
-
-  # For files with multiple hash states, keep only the most recent one <= target version
-  # Group by (label, fn) and select the appropriate hash
-  manifest_filtered[["file_key"]] <- paste(
-    manifest_filtered[["label"]],
-    manifest_filtered[["fn"]],
-    sep = ":::"
-  )
-
-  file_keys <- unique(manifest_filtered[["file_key"]])
-  result_list <- list()
-
-  for (i in seq_along(file_keys)) {
-    fkey <- file_keys[i]
-    rows <- manifest_filtered[manifest_filtered[["file_key"]] == fkey, , drop = FALSE]
-
-    if (nrow(rows) == 1) {
-      result_list[[i]] <- rows[1, c("label", "fn", "version", "hash"), drop = FALSE]
-    } else {
-      # Multiple hash states for this file - find the most recent one <= target
-      best_row <- NULL
-      best_version <- NULL
-
-      for (j in seq_len(nrow(rows))) {
-        ver_str <- rows[["version"]][j]
-        versions <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
-        
-        # Find the highest version in this row's list that is <= target
-        matching_versions <- character(0)
-        for (v in versions) {
-          v_pkg <- .version_to_package_version(v)
-          if (v_pkg <= target_version_pkg) {
-            matching_versions <- c(matching_versions, v)
-          }
-        }
-        
-        if (length(matching_versions) > 0) {
-          # Sort and get highest
-          matching_versions <- matching_versions[order(
-            package_version(vapply(matching_versions, function(v) as.character(.version_to_package_version(v)), character(1), USE.NAMES = FALSE)),
-            decreasing = TRUE
-          )]
-          row_best_version <- matching_versions[1]
-          
-          if (is.null(best_version) || 
-              .version_to_package_version(row_best_version) > .version_to_package_version(best_version)) {
-            best_version <- row_best_version
-            best_row <- rows[j, c("label", "fn", "version", "hash"), drop = FALSE]
-          }
-        }
-      }
-
-      if (!is.null(best_row)) {
-        result_list[[i]] <- best_row
-      }
-    }
-  }
-
-  manifest_filtered <- do.call(rbind, result_list)
-  rownames(manifest_filtered) <- NULL
 
   # Filter out tombstone entries (removed files have empty hash)
   manifest_filtered <- manifest_filtered[
@@ -397,7 +314,7 @@
   if (is.null(path_dir)) {
     path_dir <- .path_get()
   }
-  .dir_create(path_dir)
+  path_dir
 }
 
 .manifest_get_path_file <- function(path_dir) {
@@ -531,7 +448,9 @@
                                                  version_comp) {
   # begin with latest version (most conservative)
   version_earliest_match <- projr_version_get() |>
-    .version_to_package_version()
+    .version_v_rm() |>
+    .version_normalize() |>
+    package_version()
   # get lowest version available, if version_comp not provided
   version_comp <-
     .manifest_get_version_earliest_match_get_version_comp(version_comp)
@@ -548,11 +467,22 @@
     return(version_earliest_match)
   }
 
-  version_vec <- version_raw |>
-    vapply(function(v) as.character(.version_to_package_version(v)), character(1), USE.NAMES = FALSE) |>
+  # Explode multi-version strings (semicolon-separated) into individual versions
+  all_versions <- character(0)
+  for (ver_str in version_raw) {
+    if (!is.na(ver_str) && nzchar(ver_str)) {
+      parts <- strsplit(ver_str, ";", fixed = TRUE)[[1]]
+      all_versions <- c(all_versions, parts)
+    }
+  }
+
+  version_vec <- all_versions |>
+    vapply(.version_v_rm, character(1), USE.NAMES = FALSE) |>
+    vapply(.version_normalize, character(1), USE.NAMES = FALSE) |>
+    unique() |>
     package_version() |>
     sort()
-  version_vec <- version_vec[version_vec >= .version_to_package_version(version_comp)]
+  version_vec <- version_vec[version_vec >= package_version(version_comp)]
   if (.is_len_0(version_vec)) {
     return(version_earliest_match)
   }

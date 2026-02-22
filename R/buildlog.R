@@ -147,6 +147,12 @@
       c("Unable to capture session info")
     }
   )
+
+  # Ensure R version is always included (for R-devel compatibility)
+  if (!any(grepl("R version", session_info_txt))) {
+    session_info_txt <- c(R.version.string, session_info_txt)
+  }
+
   c(
     "**Session info**",
     "",

@@ -8,8 +8,7 @@
   id = NULL,
   msg_done = NULL,
   msg_failed = NULL,
-  .envir = parent.frame(),
-  output_level = "std"
+  .envir = parent.frame()
 )
 }
 \arguments{
@@ -20,8 +19,6 @@
 \item{msg_failed}{Failure message}
 
 \item{.envir}{Environment for the process}
-
-\item{output_level}{Character. Current output level.}
 }
 \description{
 Mark a process as done

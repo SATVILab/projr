@@ -106,7 +106,7 @@ test_that(".build_hooks_run executes pre hooks for production builds", {
       projr_yml_hooks_add_pre(c("hooks/pre1.R", "hooks/pre2.R"))
 
       # Run pre hooks
-      .build_hooks_run("pre", is_dev_build = FALSE, output_level = "none")
+      .build_hooks_run("pre", is_dev_build = FALSE)
 
       # Verify both hooks executed in order
       expect_true(file.exists("pre-log.txt"))
@@ -137,7 +137,7 @@ test_that(".build_hooks_run executes post hooks for production builds", {
       projr_yml_hooks_add_post("hooks/post.R")
 
       # Run post hooks
-      .build_hooks_run("post", is_dev_build = FALSE, output_level = "none")
+      .build_hooks_run("post", is_dev_build = FALSE)
 
       # Verify hook executed
       expect_true(file.exists("post-log.txt"))
@@ -170,14 +170,14 @@ test_that(".build_hooks_run executes both hooks in pre and post stages", {
       projr_yml_hooks_add("hooks/both.R", stage = "both")
 
       # Run pre hooks
-      .build_hooks_run("pre", is_dev_build = FALSE, output_level = "none")
+      .build_hooks_run("pre", is_dev_build = FALSE)
 
       # Verify hook executed during pre
       expect_true(file.exists("both-log.txt"))
       expect_length(readLines("both-log.txt"), 1)
 
       # Run post hooks
-      .build_hooks_run("post", is_dev_build = FALSE, output_level = "none")
+      .build_hooks_run("post", is_dev_build = FALSE)
 
       # Verify hook executed during post as well
       log <- readLines("both-log.txt")
@@ -198,10 +198,10 @@ test_that(".build_hooks_run handles missing hooks gracefully", {
     path = dir_test,
     code = {
       # No hooks configured
-      result <- .build_hooks_run("pre", is_dev_build = FALSE, output_level = "none")
+      result <- .build_hooks_run("pre", is_dev_build = FALSE)
       expect_true(result)
 
-      result <- .build_hooks_run("post", is_dev_build = FALSE, output_level = "none")
+      result <- .build_hooks_run("post", is_dev_build = FALSE)
       expect_true(result)
     },
     quiet = TRUE,
@@ -250,7 +250,7 @@ test_that(".build_hooks_run uses dev.hooks for dev builds", {
       )
 
       # Run dev build hooks
-      .build_hooks_run("pre", is_dev_build = TRUE, output_level = "none")
+      .build_hooks_run("pre", is_dev_build = TRUE)
 
       # Only dev hook should execute
       expect_true(file.exists("dev-log.txt"))
@@ -280,7 +280,7 @@ test_that(".build_hooks_run ignores build.hooks for dev builds", {
       projr_yml_hooks_add_pre("hooks/build.R")
 
       # Run dev build hooks
-      .build_hooks_run("pre", is_dev_build = TRUE, output_level = "none")
+      .build_hooks_run("pre", is_dev_build = TRUE)
 
       # build.hooks should not execute for dev builds
       expect_false(file.exists("build-log.txt"))
@@ -321,12 +321,12 @@ test_that(".build_hooks_run handles dev.hooks with both stage", {
       )
 
       # Run pre hooks
-      .build_hooks_run("pre", is_dev_build = TRUE, output_level = "none")
+      .build_hooks_run("pre", is_dev_build = TRUE)
       expect_true(file.exists("both-log.txt"))
       expect_length(readLines("both-log.txt"), 1)
 
       # Run post hooks
-      .build_hooks_run("post", is_dev_build = TRUE, output_level = "none")
+      .build_hooks_run("post", is_dev_build = TRUE)
       expect_length(readLines("both-log.txt"), 2)
     },
     quiet = TRUE,
@@ -372,7 +372,7 @@ test_that(".build_hooks_run handles dev.hooks with multiple hooks per stage", {
       )
 
       # Run pre hooks
-      .build_hooks_run("pre", is_dev_build = TRUE, output_level = "none")
+      .build_hooks_run("pre", is_dev_build = TRUE)
 
       # Both hooks should execute in order
       log <- readLines("log.txt")
@@ -392,7 +392,7 @@ test_that(".build_hooks_run handles no dev.hooks gracefully", {
     path = dir_test,
     code = {
       # No dev.hooks configured
-      result <- .build_hooks_run("pre", is_dev_build = TRUE, output_level = "none")
+      result <- .build_hooks_run("pre", is_dev_build = TRUE)
       expect_true(result)
     },
     quiet = TRUE,
@@ -423,7 +423,7 @@ test_that(".build_pre_hooks_run calls .build_hooks_run with pre stage", {
       projr_yml_hooks_add_pre("hooks/pre.R")
 
       # Run pre hooks via wrapper
-      .build_pre_hooks_run(is_dev_build = FALSE, output_level = "none")
+      .build_pre_hooks_run(is_dev_build = FALSE)
 
       # Verify execution
       expect_true(file.exists("stage-log.txt"))
@@ -453,7 +453,7 @@ test_that(".build_post_hooks_run calls .build_hooks_run with post stage", {
       projr_yml_hooks_add_post("hooks/post.R")
 
       # Run post hooks via wrapper
-      .build_post_hooks_run(is_dev_build = FALSE, output_level = "none")
+      .build_post_hooks_run(is_dev_build = FALSE)
 
       # Verify execution
       expect_true(file.exists("stage-log.txt"))
@@ -492,7 +492,7 @@ test_that(".build_pre_hooks_run passes is_dev_build parameter correctly", {
       )
 
       # Run pre hooks as dev build
-      .build_pre_hooks_run(is_dev_build = TRUE, output_level = "none")
+      .build_pre_hooks_run(is_dev_build = TRUE)
 
       # Verify dev hook executed
       expect_true(file.exists("dev-log.txt"))
@@ -528,7 +528,7 @@ test_that(".build_hooks_run_title executes legacy format hooks", {
       )
 
       # Run legacy hook
-      .build_hooks_run_title(hook_obj, stage = "pre", output_level = "none")
+      .build_hooks_run_title(hook_obj, stage = "pre")
 
       # Verify execution
       expect_true(file.exists("legacy-log.txt"))
@@ -561,7 +561,7 @@ test_that(".build_hooks_run_title skips when stage doesn't match", {
       )
 
       # Try to run with stage="post" (should not execute)
-      result <- .build_hooks_run_title(hook_obj, stage = "post", output_level = "none")
+      result <- .build_hooks_run_title(hook_obj, stage = "post")
 
       # Verify hook did not execute
       expect_false(file.exists("skip-log.txt"))
@@ -604,7 +604,7 @@ test_that(".build_hooks_run_title executes multiple paths in legacy format", {
       )
 
       # Run legacy hooks
-      .build_hooks_run_title(hook_obj, stage = "pre", output_level = "none")
+      .build_hooks_run_title(hook_obj, stage = "pre")
 
       # Verify both executed
       log <- readLines("multi-log.txt")
@@ -658,7 +658,7 @@ test_that("hooks execute in correct order: stage-specific then both", {
       )
 
       # Run pre hooks
-      .build_hooks_run("pre", is_dev_build = FALSE, output_level = "none")
+      .build_hooks_run("pre", is_dev_build = FALSE)
 
       # Verify order: pre-specific, then both
       log <- readLines("order-log.txt")
@@ -705,7 +705,7 @@ test_that("multiple hooks in same stage execute in YAML order", {
       projr_yml_hooks_add_pre(c("hooks/first.R", "hooks/second.R", "hooks/third.R"))
 
       # Run pre hooks
-      .build_hooks_run("pre", is_dev_build = FALSE, output_level = "none")
+      .build_hooks_run("pre", is_dev_build = FALSE)
 
       # Verify order matches YAML
       log <- readLines("order-log.txt")
@@ -739,7 +739,7 @@ test_that(".build_hooks_run handles empty hooks list gracefully", {
       )
 
       # Should not error
-      result <- .build_hooks_run("pre", is_dev_build = FALSE, output_level = "none")
+      result <- .build_hooks_run("pre", is_dev_build = FALSE)
       expect_true(result)
     },
     quiet = TRUE,
@@ -769,7 +769,7 @@ test_that(".build_hooks_run handles NULL in hooks gracefully", {
       )
 
       # Should not error
-      result <- .build_hooks_run("pre", is_dev_build = FALSE, output_level = "none")
+      result <- .build_hooks_run("pre", is_dev_build = FALSE)
       expect_true(result)
     },
     quiet = TRUE,
@@ -797,7 +797,7 @@ test_that("hooks can access project functions and paths", {
 
       # Configure and run hook
       projr_yml_hooks_add_pre("hooks/path-hook.R")
-      .build_hooks_run("pre", is_dev_build = FALSE, output_level = "none")
+      .build_hooks_run("pre", is_dev_build = FALSE)
 
       # Verify hook could access projr functions
       expect_true(file.exists("path-log.txt"))

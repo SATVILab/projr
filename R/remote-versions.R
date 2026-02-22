@@ -7,21 +7,18 @@
 #'   uploads it to the destination remote, handling the GitHub asset naming
 #'   conventions when necessary.
 #' @param type Character scalar identifying the remote backend (`project`,
-#'   `local`, `github`, or `osf`).
+#'   `local`, or `github`).
 #' @param remote Backend-specific remote handle (final destination) that will
 #'   receive the manifest.
 #' @param manifest Tibble/data.frame produced by `.manifest_write()`.
-#' @param output_level CLI verbosity level for logging helpers.
 #' @return Invisibly returns `TRUE` after the manifest is uploaded.
 #' @keywords internal
 #' @noRd
 .remote_write_manifest <- function(type,
                                    remote,
-                                   manifest,
-                                   output_level = "std") {
+                                   manifest) {
   .cli_debug(
-    "Writing manifest.csv to {type} remote",
-    output_level = output_level
+    "Writing manifest.csv to {type} remote"
   )
 
   path_dir_save <- .dir_create_tmp_random()
@@ -38,15 +35,13 @@
       type,
       remote,
       path_dir_save,
-      "manifest.csv",
-      output_level = output_level
+      "manifest.csv"
     )
   )
   unlink(path_dir_save, recursive = TRUE)
 
   .cli_debug(
-    "Successfully wrote manifest.csv to {type} remote",
-    output_level = output_level
+    "Successfully wrote manifest.csv to {type} remote"
   )
 
   invisible(TRUE)
@@ -60,17 +55,15 @@
 #' @description Copies the local `CHANGELOG.md` file to the remote destination,
 #'   renaming the GitHub asset when required.
 #' @param type Character scalar identifying the remote backend.
-#' @param remote_pre Backend-specific parent remote (directory path, release tag
-#'   or OSF node) underneath which the changelog will be stored.
+#' @param remote_pre Backend-specific parent remote (directory path or release tag)
+#'   underneath which the changelog will be stored.
 #' @return Invisibly returns `TRUE` after the file is uploaded.
 #' @keywords internal
 #' @noRd
 .remote_write_changelog <- function(type,
-                                    remote_pre,
-                                    output_level = "std") {
+                                    remote_pre) {
   .cli_debug(
-    "Writing CHANGELOG file to {type} remote",
-    output_level = output_level
+    "Writing CHANGELOG file to {type} remote"
   )
   remote <- if (type == "github") {
     remote_pre[["fn"]] <- "CHANGELOG.zip"
@@ -81,8 +74,7 @@
   switch(type,
     "project" = NULL,
     .remote_file_add(
-      type, remote, .path_get(), "CHANGELOG.md",
-      output_level = output_level
+      type, remote, .path_get(), "CHANGELOG.md"
     )
   )
   invisible(TRUE)
@@ -96,20 +88,17 @@
 #' @description Persists the provided VERSION file contents to the destination
 #'   remote, using a temporary directory and GitHub-compatible asset naming.
 #' @param type Character scalar identifying the remote backend.
-#' @param remote_pre Backend-specific parent remote (directory path, release
-#'   tag, OSF node).
+#' @param remote_pre Backend-specific parent remote (directory path or release
+#'   tag).
 #' @param version_file Character vector containing the VERSION file lines.
-#' @param output_level CLI verbosity level for logging helpers.
 #' @return Invisibly returns `TRUE` after the VERSION file is uploaded.
 #' @keywords internal
 #' @noRd
 .remote_write_version_file <- function(type,
                                        remote_pre,
-                                       version_file,
-                                       output_level = "std") {
+                                       version_file) {
   .cli_debug(
-    "Writing VERSION file to {type} remote",
-    output_level = output_level
+    "Writing VERSION file to {type} remote"
   )
 
   path_dir_save <- .dir_create_tmp_random()
@@ -126,14 +115,12 @@
       type,
       remote,
       path_dir_save,
-      "VERSION",
-      output_level = output_level
+      "VERSION"
     )
   )
 
   .cli_debug(
-    "Successfully wrote VERSION file to {type} remote",
-    output_level = output_level
+    "Successfully wrote VERSION file to {type} remote"
   )
 
   unlink(path_dir_save, recursive = TRUE)
@@ -150,30 +137,25 @@
 #' @param type Character scalar identifying the remote backend.
 #' @param remote_pre Backend-specific parent remote used when fetching from a
 #'   remote destination.
-#' @param output_level CLI verbosity level for logging helpers.
 #' @return Tibble containing manifest entries; empty tibble when unavailable.
 #' @keywords internal
 #' @noRd
 .remote_get_manifest <- function(type,
-                                 remote_pre,
-                                 output_level = "std") {
+                                 remote_pre) {
   .cli_debug(
-    "Getting manifest.csv from {type} remote",
-    output_level = output_level
+    "Getting manifest.csv from {type} remote"
   )
 
   result <- switch(type,
     "project" = .remote_get_manifest_project(),
     .remote_get_manifest_non_project(
       type,
-      remote_pre,
-      output_level = output_level
+      remote_pre
     )
   )
 
   .cli_debug(
-    "Retrieved manifest with {nrow(result)} row(s) from {type} remote",
-    output_level = output_level
+    "Retrieved manifest with {nrow(result)} row(s) from {type} remote"
   )
 
   result
@@ -198,17 +180,14 @@
 #' @keywords internal
 #' @noRd
 .remote_get_manifest_non_project <- function(type,
-                                             remote_pre,
-                                             output_level = "std") {
+                                             remote_pre) {
   manifest_actual <- .remote_get_manifest_non_project_raw(
     type,
-    remote_pre,
-    output_level = output_level
+    remote_pre
   )
   if (is.null(manifest_actual)) {
     .cli_debug(
-      "No manifest found on {type} remote, returning empty manifest",
-      output_level = output_level
+      "No manifest found on {type} remote, returning empty manifest"
     )
     return(.zero_tbl_get_manifest())
   }
@@ -223,13 +202,11 @@
 #' @keywords internal
 #' @noRd
 .remote_get_manifest_non_project_raw <- function(type,
-                                                 remote_pre,
-                                                 output_level = "std") {
+                                                 remote_pre) {
   path_dir_save <- .dir_create_tmp_random()
 
   .cli_debug(
-    "Attempting to download manifest.csv from {type} remote",
-    output_level = output_level
+    "Attempting to download manifest.csv from {type} remote"
   )
 
   remote <- if (type == "github") {
@@ -250,8 +227,7 @@
     },
     error = function(e) {
       .cli_debug(
-        "Error downloading manifest.csv from {type} remote: {e$message}",
-        output_level = output_level
+        "Error downloading manifest.csv from {type} remote: {e$message}"
       )
       character(0L)
     }
@@ -259,16 +235,14 @@
 
   if (length(path_manifest) == 0 || !file.exists(path_manifest)) {
     .cli_debug(
-      "manifest.csv not found on {type} remote",
-      output_level = output_level
+      "manifest.csv not found on {type} remote"
     )
     unlink(path_dir_save, recursive = TRUE)
     return(NULL)
   }
 
   .cli_debug(
-    "Successfully downloaded manifest.csv from {type} remote",
-    output_level = output_level
+    "Successfully downloaded manifest.csv from {type} remote"
   )
 
   manifest <- .manifest_read(path_manifest)
@@ -288,31 +262,26 @@
 #' @keywords internal
 #' @noRd
 .remote_get_version_file <- function(type,
-                                     remote_pre,
-                                     output_level = "std") {
+                                     remote_pre) {
   .cli_debug(
-    "Getting VERSION file from {type} remote",
-    output_level = output_level
+    "Getting VERSION file from {type} remote"
   )
 
   result <- switch(type,
     "project" = character(0L),
     .remote_get_version_file_non_project(
       type,
-      remote_pre,
-      output_level = output_level
+      remote_pre
     )
   )
 
   if (length(result) > 0) {
     .cli_debug(
-      "Retrieved VERSION file from {type} remote ({length(result)} line(s))",
-      output_level = output_level
+      "Retrieved VERSION file from {type} remote ({length(result)} line(s))"
     )
   } else {
     .cli_debug(
-      "No VERSION file found on {type} remote",
-      output_level = output_level
+      "No VERSION file found on {type} remote"
     )
   }
 
@@ -328,13 +297,11 @@
 #' @keywords internal
 #' @noRd
 .remote_get_version_file_non_project <- function(type,
-                                                 remote_pre,
-                                                 output_level = "std") {
+                                                 remote_pre) {
   path_dir_save <- .dir_create_tmp_random()
 
   .cli_debug(
-    "Attempting to download VERSION file from {type} remote",
-    output_level = output_level
+    "Attempting to download VERSION file from {type} remote"
   )
 
   remote <- if (type == "github") {
@@ -355,8 +322,7 @@
     },
     error = function(e) {
       .cli_debug(
-        "Error downloading VERSION file from {type} remote: {e$message}",
-        output_level = output_level
+        "Error downloading VERSION file from {type} remote: {e$message}"
       )
       character(0L)
     }
@@ -364,16 +330,14 @@
 
   if (length(path_version) == 0 || !file.exists(path_version)) {
     .cli_debug(
-      "VERSION file not found on {type} remote",
-      output_level = output_level
+      "VERSION file not found on {type} remote"
     )
     unlink(path_dir_save, recursive = TRUE)
     return(character(0L))
   }
 
   .cli_debug(
-    "Successfully downloaded VERSION file from {type} remote",
-    output_level = output_level
+    "Successfully downloaded VERSION file from {type} remote"
   )
 
   version_file <- .remote_get_version_file_read(path_version)
@@ -524,8 +488,7 @@
       }
       file.path(remote_pre, label)
     },
-    "github" = remote_pre,
-    "osf" = stop("Not yet implemented for OSF")
+    "github" = remote_pre
   )
   if (is.null(remote_pre)) {
     return(character(0L))
@@ -559,24 +522,17 @@
         all_versions <- c(all_versions, versions)
       }
     }
-    
+
     if (length(all_versions) == 0) {
       return(character(0L))
     }
-    
+
     all_versions <- vapply(all_versions, .version_v_rm, character(1L))
     # Strip -empty suffix for local/osf remotes (not needed for GitHub .zip files)
     all_versions <- gsub("-empty$", "", all_versions)
-    # Convert each version individually using .version_to_package_version
-    # to handle dev-style versions like "0.0.1-dev" or "0.0.1-1"
-    pkg_versions <- vapply(
-      paste0("v", all_versions), 
-      .version_to_package_version, 
-      package_version("0.0.0")
-    )
-    max_version <- max(pkg_versions)
-    # Convert back to string with "v" prefix to maintain format consistency
-    return(paste0("v", as.character(max_version)))
+    # Normalize versions for package_version comparison
+    all_versions_norm <- vapply(all_versions, .version_normalize, character(1L))
+    return(all_versions_norm |> package_version() |> max())
   }
   fn <- .remote_version_latest_filter(fn, type, label)
   .remote_version_latest_extract(fn, label)
@@ -728,7 +684,6 @@
                                type) {
   switch(type,
     "local" = .remote_get_recent_local(remote_final),
-    "osf" = .remote_get_recent_osf(remote_final),
     "github" = .remote_get_recent_github(remote_final)
   )
 }
@@ -740,16 +695,6 @@
 #' @keywords internal
 #' @noRd
 .remote_get_recent_local <- function(remote_final) {
-  stop("Not defined yet")
-}
-
-#' @title Placeholder for OSF recent-remote detection
-#' @description Currently unimplemented; calling will throw an error.
-#' @param remote_final Backend-specific remote handle.
-#' @return No return value; always errors.
-#' @keywords internal
-#' @noRd
-.remote_get_recent_osf <- function(remote_final) {
   stop("Not defined yet")
 }
 
@@ -803,21 +748,13 @@
 }
 
 #' @title Detect structure for OSF remotes
-#' @description Examines the remote metadata to determine whether the entry
-#'   looks like a versioned object.
-#' @param remote OSF remote object.
-#' @return "version" or "latest" depending on metadata.
+#' @description This function has been removed as OSF support is no longer available.
+#' @param remote OSF remote object (deprecated).
+#' @return Always errors indicating OSF is not supported.
 #' @keywords internal
 #' @noRd
 .remote_detect_structure_osf <- function(remote) {
-  version_format_correct <- try(
-    remote[["name"]][[1]],
-    silent = TRUE
-  )
-  if (inherits(version_format_correct, "try-error")) {
-    return("latest")
-  }
-  "archive"
+  stop("OSF remote support has been removed from projr")
 }
 
 #' @title Detect structure for GitHub remotes
