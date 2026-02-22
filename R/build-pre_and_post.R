@@ -12,7 +12,7 @@
 }
 
 .build_renv_snapshot_check <- function(output_run) {
-  output_run && !.is_test() && .renv_detect()
+  output_run && !.is_test() && .renv_detect() && .yml_renv_get(NULL)
 }
 
 # commit

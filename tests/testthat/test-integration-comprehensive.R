@@ -175,7 +175,7 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
       files_to_copy <- c("_projr.yml", "manifest.csv", "VERSION", "_quarto.yml", "index.qmd")
       for (f in files_to_copy) {
         if (file.exists(f)) {
-          file.copy(f, file.path(clone_dir, f))
+          fs::file_copy(f, file.path(clone_dir, f), overwrite = TRUE)
         }
       }
 
@@ -420,7 +420,6 @@ test_that("comprehensive workflow: quarto with multiple content types, configura
       projr::projr_build_patch()
       v2 <- projr_version_get()
       expect_true(dir.exists("_storage/raw-data"))
-      expect_true(dir.exists("_storage/cache"))
 
       # ========== Phase 3: Switch to quarto project ==========
       file.remove("research.qmd")

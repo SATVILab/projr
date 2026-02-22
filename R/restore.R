@@ -12,7 +12,7 @@
 #' @param pos character vector or NULL. Specifies preferred source: `"source"` (directories)
 #'   or `"dest"` (build destinations). Default is `NULL`, checking both in order.
 #'   Must be NULL or one/both of `"source"` and `"dest"`.
-#' @param type character or NULL. Remote type: `"local"`, `"osf"` or `"github"`.
+#' @param type character or NULL. Remote type: `"local"` or `"github"`.
 #'   Default is `NULL`, automatically choosing the first available remote.
 #'   Must be NULL or one of the valid remote types.
 #' @param title character or NULL. Remote title as specified in `_projr.yml`.
@@ -56,7 +56,7 @@
 #' All parameters are validated before execution:
 #' - `label`: Must be NULL or a non-empty character vector of valid directory labels
 #' - `pos`: Must be NULL or contain only "source" and/or "dest"
-#' - `type`: Must be NULL or one of "local", "osf", or "github"
+#' - `type`: Must be NULL or one of "local" or "github"
 #' - `title`: Must be NULL or a single character string
 #' - `version`: Must be NULL or a single character string with valid version format
 #' - `repo`: Must be a single non-empty character string
@@ -165,7 +165,7 @@ projr_content_checkout <- function(version = NULL,
     if (length(type) > 1) {
       stop("'type' must be a single character value")
     }
-    valid_types <- c("local", "osf", "github")
+    valid_types <- c("local", "github")
     if (!type %in% valid_types) {
       stop(
         "'type' must be one of: ",
@@ -749,7 +749,7 @@ projr_content_restore <- function(label = NULL,
     return(type)
   }
   nm_vec <- .yml_build_get(NULL) |> names()
-  nm_vec[grepl("^github$|^local$|^osf", nm_vec)]
+  nm_vec[grepl("^github$|^local$", nm_vec)]
 }
 
 .content_checkout_label_get_source_dest_get_title <- function(type, title) {

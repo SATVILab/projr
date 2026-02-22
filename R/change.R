@@ -193,7 +193,7 @@
                              remote_post = NULL) {
   # get directories where files are found or saved to,
   # downloading them to there if necessary
-  # type_: remote type (local, osf, github)
+  # type_: remote type (local, github)
   # remote_: exactly where the data are on the remote
   path_dir_local_pre <- .change_get_file_dir(
     type = type_pre,
@@ -215,7 +215,6 @@
   # so that we can hash
   switch(type,
     "local" = .change_get_file_dir_local(remote),
-    "osf" = .change_get_file_dir_osf(remote),
     "github" = .change_get_file_dir_github(remote)
   )
 }
@@ -224,11 +223,11 @@
   remote
 }
 
-.change_get_file_dir_osf <- function(remote) {
-  .remote_file_get_all("osf", remote, .dir_create_tmp_random())
-}
-
 .change_get_file_dir_github <- function(remote) {
+  # Resolve @version placeholder in tag if present using existing utility
+  if ("tag" %in% names(remote)) {
+    remote[["tag"]] <- .remote_misc_github_tag_format(remote[["tag"]])
+  }
   .remote_file_get_all(
     "github", remote, .dir_create_tmp_random()
   )
@@ -271,10 +270,10 @@
     hash_removed <- hash_pre[fn_vec_pre_lgl_removed, ]
   }
   list(
-    "fn_dest_extra" = hash_removed[["fn"]],
-    "fn_same" = hash_post_kept_unchanged[["fn"]],
-    "fn_diff" = hash_post_kept_changed[["fn"]],
-    "fn_source_extra" = hash_post_add[["fn"]]
+    "fn_dest_extra" = hash_removed[["fn"]] |> setdiff(""),
+    "fn_same" = hash_post_kept_unchanged[["fn"]] |> setdiff(""),
+    "fn_diff" = hash_post_kept_changed[["fn"]] |> setdiff(""),
+    "fn_source_extra" = hash_post_add[["fn"]] |> setdiff("")
   ) |>
     lapply(.filter_filter_non_na)
 }

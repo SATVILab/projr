@@ -3,8 +3,7 @@
                                           archive_github,
                                           archive_local,
                                           always_archive,
-                                          strict,
-                                          output_level = "std") {
+                                          strict) {
   # Early exit if not an output build
   if (!.dest_send_check(bump_component)) {
     return(invisible(FALSE))
@@ -15,8 +14,7 @@
 
   if (!"github" %in% type_vec) {
     .cli_debug(
-      "GitHub release preparation: Skipped (no GitHub destinations)",
-      output_level = output_level
+      "GitHub release preparation: Skipped (no GitHub destinations)"
     )
     return(invisible(FALSE))
   }
@@ -24,32 +22,27 @@
   tags <- .dest_github_tags_needed(archive_github, always_archive)
   if (.is_len_0(tags)) {
     .cli_debug(
-      "GitHub release preparation: No tags required (from config)",
-      output_level = output_level
+      "GitHub release preparation: No tags required (from config)"
     )
     return(invisible(FALSE))
   }
 
   .cli_debug(
-    "GitHub release preparation: Starting for {length(tags)} tag(s)",
-    output_level = output_level
+    "GitHub release preparation: Starting for {length(tags)} tag(s)"
   )
 
   for (x in tags) {
     .cli_debug(
-      "GitHub release preparation: Preparing tag '{x}'",
-      output_level = output_level
+      "GitHub release preparation: Preparing tag '{x}'"
     )
     if (!.remote_check_exists("github", id = x)) {
       .cli_debug(
-        "GitHub release preparation: Creating missing tag '{x}'",
-        output_level = output_level
+        "GitHub release preparation: Creating missing tag '{x}'"
       )
       .remote_create("github", x)
     } else {
       .cli_debug(
-        "GitHub release preparation: Tag '{x}' already exists",
-        output_level = output_level
+        "GitHub release preparation: Tag '{x}' already exists"
       )
     }
   }

@@ -29,29 +29,38 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 # ------------
 
 .dep_install <- function(dep) {
+  .cli_debug("Checking dependencies: {paste(dep, collapse = ', ')}")
   for (x in dep) {
     .dep_add(x)
     if (!requireNamespace(x, quietly = TRUE)) {
+      .cli_debug("Dependency {x} not available, installing")
       .dep_install_only(dep)
     }
   }
 }
 
 .dep_add <- function(dep) {
+  .cli_debug("Adding dependency to _dependencies.R: {dep}")
   # don't add to _dependencies
   # if renv already picks it up as a dependency
   if (!.renv_detect()) {
+    .cli_debug("renv not detected, adding dependency")
     return(invisible(FALSE))
   }
   if (.dep_in_renv(basename(dep))) {
+    .cli_debug(
+      "Dependency {dep} already in renv, not adding to _dependencies.R"
+    )
     return(invisible(FALSE))
   }
-
+  .cli_debug("Dependency {dep} not in renv, adding to _dependencies.R")
   path_dep <- .path_get("_dependencies.R")
   dep_vec <- .dep_read(path_dep)
   for (i in seq_along(dep)) {
     dep_pattern <- paste0(
-      "library\\(", basename(dep[[i]]), "\\)",
+      "library\\(",
+      basename(dep[[i]]),
+      "\\)",
       collapse = ""
     )
     dep_txt <- paste0("library(", basename(dep[[i]]), ")", collapse = "")
@@ -61,6 +70,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   }
   writeLines(dep_vec, path_dep)
   .newline_append(path_dep)
+  .cli_debug("Dependency {dep} added to _dependencies.R")
   invisible(TRUE)
 }
 
@@ -75,7 +85,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   }
 
   # If interactive, ask user if they want to install
-  if (interactive()) {
+  if (.is_interactive_and_not_test()) {
     return(.dep_install_only_interactive(dep_required))
   }
 
@@ -84,7 +94,9 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 
   # Throw error with clear installation instructions
   stop(
-    "Required package(s) not available: ", paste(dep_required, collapse = ", "), "\n",
+    "Required package(s) not available: ",
+    paste(dep_required, collapse = ", "),
+    "\n",
     "Please install manually using:\n  ",
     paste(install_cmds, collapse = "\n  "),
     "\nOr use renv::install() if working in an renv project.",
@@ -92,29 +104,97 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   )
 }
 
-.dep_install_only_interactive <- function(dep_required) {
-  # In interactive mode, provide clear instructions but don't auto-install
-  # This ensures CRAN compliance (no install.packages in package code)
-
-  install_cmds <- .dep_get_install_cmds(dep_required)
-
-  if (length(dep_required) == 1) {
-    .cli_info("\nPackage '{dep_required}' is required but not installed.\nTo install it, please run:\n  {install_cmds}\n")
-  } else {
-    .cli_info("\nRequired packages are not installed: {paste(dep_required, collapse = ', ')}\nTo install them, please run:\n  {paste(install_cmds, collapse = '\n  ')}\n")
+.dep_install_only_get_pkg_list <- function(dep_required) {
+  # In interactive mode, prompt user to install packages
+  github_pkgs <- dep_required[
+    grepl("^[[:alnum:]._-]+/[[:alnum:]._-]+$", dep_required)
+  ]
+  cran_pkgs <- setdiff(dep_required, github_pkgs)
+  # Check if remotes is needed for GitHub installs
+  need_remotes_pkg <- .is_len_pos(github_pkgs) &&
+    !requireNamespace("remotes", quietly = TRUE) &&
+    !"remotes" %in% cran_pkgs
+  if (need_remotes_pkg) {
+    dep_required <- c(dep_required, "remotes")
+    cran_pkgs <- c(cran_pkgs, "remotes")
   }
-
-  # Stop execution with informative message
-  stop(
-    "Missing required package(s). Please install and try again.",
-    call. = FALSE
+  list(
+    "dep" = dep_required,
+    "cran" = cran_pkgs,
+    "github" = github_pkgs
   )
 }
 
-.dep_get_install_cmds <- function(pkg_vec) {
+.dep_install_only_interactive <- function(dep_required) {
+  pkg_list <- .dep_install_only_get_pkg_list(dep_required)
+  install_cmds <- .dep_get_install_cmds(pkg_list[["dep"]])
+
+  if (length(pkg_list[["dep"]]) == 1) {
+    message <- paste0(
+      "\nPackage '",
+      pkg_list[["dep"]],
+      "' is required but not installed.\n",
+      "Install it now? (y/n): "
+    )
+  } else {
+    message <- paste0(
+      "\nRequired packages are not installed: ",
+      paste(pkg_list[["dep"]], collapse = ", "),
+      "\nInstall them now? (y/n): "
+    )
+  }
+
+  response <- readline(prompt = message)
+
+  if (tolower(trimws(response)) %in% c("y", "yes")) {
+    # User confirmed - proceed with installation
+    .cli_info("Installing packages...")
+
+    tryCatch(
+      {
+        if (.renv_detect()) {
+          # Use renv if available
+          renv::install(pkg_list[["dep"]], prompt = FALSE)
+        } else {
+          if (length(pkg_list[["cran"]]) > 0) {
+            utils::install.packages(pkg_list[["cran"]])
+          }
+
+          if (length(pkg_list[["github"]]) > 0) {
+            remotes::install_github(pkg_list[["github"]])
+          }
+        }
+        .cli_success("Packages installed successfully")
+        return(invisible(TRUE))
+      },
+      error = function(e) {
+        stop(
+          "Installation failed: ",
+          conditionMessage(e),
+          "\n",
+          "Please install manually using:\n  ",
+          paste(install_cmds, collapse = "\n  "),
+          call. = FALSE
+        )
+      }
+    )
+  } else {
+    # User declined - provide manual instructions
+    .cli_info(
+      "\nTo install manually, please run:\n  {paste(install_cmds, collapse = '\n  ')}\n"
+    ) # nolint: glue_linter
+    stop(
+      "Missing required package(s). Please install and try again.",
+      call. = FALSE
+    )
+  }
+}
+.dep_get_install_cmds <- function(dep_required) {
   # Check if any are GitHub packages
-  github_pkgs <- pkg_vec[grepl("^\\w+/\\w+", gsub("\\.", "", pkg_vec))]
-  cran_pkgs <- setdiff(pkg_vec, github_pkgs)
+  github_pkgs <- dep_required[
+    grepl("^[[:alnum:]._-]+/[[:alnum:]._-]+$", dep_required)
+  ]
+  cran_pkgs <- setdiff(dep_required, github_pkgs)
 
   # Pre-allocate with maximum possible size
   cmds <- character(as.integer(length(cran_pkgs) > 0) + length(github_pkgs))
@@ -177,7 +257,11 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 }
 
 .dep_read <- function(path_dep) {
-  dep_vec <- if (file.exists(path_dep)) readLines(path_dep, warn = FALSE) else character(0)
+  dep_vec <- if (file.exists(path_dep)) {
+    readLines(path_dep, warn = FALSE)
+  } else {
+    character(0)
+  }
 }
 
 .renv_lockfile_read <- function() {
@@ -236,10 +320,12 @@ with_dir <- function(new, code) {
   if (is.logical(bump_component)) "dev" else bump_component
 }
 
-.zip_file <- function(fn_rel,
-                      path_dir_fn_rel,
-                      fn_rel_zip,
-                      path_dir_fn_rel_zip = NULL) {
+.zip_file <- function(
+  fn_rel,
+  path_dir_fn_rel,
+  fn_rel_zip,
+  path_dir_fn_rel_zip = NULL
+) {
   if (length(fn_rel) == 0L) {
     return(character())
   }
@@ -266,13 +352,17 @@ with_dir <- function(new, code) {
 }
 
 .dir_count_lvl <- function(path_dir) {
-  vapply(path_dir, function(x) {
-    x <- gsub("^/|/$", "", x)
-    if (x == ".") {
-      return(0L)
-    }
-    strsplit(x, "/")[[1]] |> length()
-  }, integer(1))
+  vapply(
+    path_dir,
+    function(x) {
+      x <- gsub("^/|/$", "", x)
+      if (x == ".") {
+        return(0L)
+      }
+      strsplit(x, "/")[[1]] |> length()
+    },
+    integer(1)
+  )
 }
 
 .newline_append <- function(path) {
@@ -333,9 +423,7 @@ with_dir <- function(new, code) {
 }
 
 .dots_get <- function(...) {
-  tryCatch(as.list(...),
-    error = function(e) list()
-  )
+  tryCatch(as.list(...), error = function(e) list())
 }
 
 .dots_get_chr <- function(...) {
@@ -410,13 +498,15 @@ with_dir <- function(new, code) {
 #' projr_use_data(x, y) # For external use
 #' projr_use_data(x, y, internal = TRUE) # For internal use
 #' }
-projr_use_data <- function(...,
-                           internal = FALSE,
-                           overwrite = FALSE,
-                           compress = "bzip2",
-                           version = 2,
-                           ascii = FALSE,
-                           safe = TRUE) {
+projr_use_data <- function(
+  ...,
+  internal = FALSE,
+  overwrite = FALSE,
+  compress = "bzip2",
+  version = 2,
+  ascii = FALSE,
+  safe = TRUE
+) {
   # copied across from usethis::use_data,
   # except that we adjust output directory
   # based on whether it's an output run or not
@@ -462,10 +552,17 @@ projr_use_data <- function(...,
   }
   envir <- parent.frame()
   paths_project <- vapply(paths, .path_get, character(1))
-  mapply(save, list = objs, file = paths_project, MoreArgs = list(
-    envir = envir,
-    compress = compress, version = version, ascii = ascii
-  ))
+  mapply(
+    save,
+    list = objs,
+    file = paths_project,
+    MoreArgs = list(
+      envir = envir,
+      compress = compress,
+      version = version,
+      ascii = ascii
+    )
+  )
   invisible(paths_project)
 }
 
@@ -496,11 +593,13 @@ projr_use_data <- function(...,
   desc::desc(file = path)
 }
 
-.zip_dir <- function(path_dir,
-                     path_zip,
-                     dir_exc = NULL,
-                     dir_inc = NULL,
-                     fn_exc = NULL) {
+.zip_dir <- function(
+  path_dir,
+  path_zip,
+  dir_exc = NULL,
+  dir_inc = NULL,
+  fn_exc = NULL
+) {
   # Normalise output path so setwd() does not confuse where we write
   path_zip <- normalizePath(path_zip, winslash = "/", mustWork = FALSE)
 
@@ -554,12 +653,12 @@ projr_use_data <- function(...,
 
   utils::zip(
     zipfile = path_zip_temp,
-    files   = fn_vec,
-    flags   = "-r9Xq"
+    files = fn_vec,
+    flags = "-r9Xq"
   )
 
   if (!identical(path_zip_temp, path_zip)) {
-    file.rename(from = path_zip_temp, to = path_zip)
+    fs::file_move(path_zip_temp, path_zip)
   }
 
   invisible(path_zip)
@@ -569,19 +668,12 @@ projr_use_data <- function(...,
 # options
 # -------
 
-.opt_remote_get_osf_cat <- function() {
-  c(
-    "analysis", "communication", "data", "hypothesis", "methods",
-    "procedure", "project", "question", "other"
-  )
-}
-
 .opt_remote_get_structure <- function() {
   c("archive", "latest")
 }
 
 .opt_remote_get_type <- function() {
-  c("local", "osf", "github")
+  c("local", "github")
 }
 
 .opt_dir_get_label <- function(profile) {
@@ -630,7 +722,7 @@ projr_use_data <- function(...,
   last_error <- NULL
 
   if (is.null(n_try)) {
-    if (Sys.getenv("TESTTHAT") == "true") {
+    if (.is_env_var_true("TESTTHAT")) {
       n_try <- 10
     } else {
       n_try <- 3
@@ -812,7 +904,17 @@ projr_use_data <- function(...,
     "      before: |",
     paste0("        <li><a href=\"./\">", title, "</a></li>"),
     "      after: |",
-    paste0("        <li><a href=\"https://github.com/", gh_user, "/", pkg_name, "\" target=\"blank\">", gh_user, "/", pkg_name, "</a></li>"), # nolint
+    paste0(
+      "        <li><a href=\"https://github.com/",
+      gh_user,
+      "/",
+      pkg_name,
+      "\" target=\"blank\">",
+      gh_user,
+      "/",
+      pkg_name,
+      "</a></li>"
+    ), # nolint
     "    download: [\"pdf\", \"epub\"]",
     "bookdown::pdf_book:",
     "  latex_engine: xelatex",

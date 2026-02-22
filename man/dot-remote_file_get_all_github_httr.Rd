@@ -11,8 +11,7 @@
   dest_dir,
   api_url = NULL,
   token = NULL,
-  overwrite = TRUE,
-  output_level = "std"
+  overwrite = TRUE
 )
 }
 \arguments{
@@ -31,8 +30,6 @@ Created if it does not exist.}
 \code{.auth_get_github_pat_find()} is used.}
 
 \item{overwrite}{Logical. If FALSE, existing files are left untouched.}
-
-\item{output_level}{Character. Verbosity control passed to \code{.cli_debug()}.}
 }
 \value{
 Character vector of downloaded file paths (invisibly).

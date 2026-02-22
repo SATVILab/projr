@@ -11,7 +11,6 @@
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .test_remote_host_rm_local(host),
-    "osf" = .test_remote_host_rm_osf(host),
     "github" = .test_remote_host_rm_github(host)
   )
 }
@@ -23,16 +22,6 @@
     return(invisible(FALSE))
   }
   unlink(host, recursive = TRUE)
-  invisible(TRUE)
-}
-
-# osf
-.test_remote_host_rm_osf <- function(host) {
-  .assert_given_full(host)
-  .auth_check_osf("deleting OSF node")
-  .osf_rm(
-    x = .osf_retrieve_node(host), check = FALSE, recurse = TRUE
-  )
   invisible(TRUE)
 }
 

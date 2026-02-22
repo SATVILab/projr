@@ -71,11 +71,20 @@ test_that("projr_restore_repo validates path parameter correctly", {
     "'path' cannot be an empty string"
   )
 
+  # skip on Windows during a GHA
+  # because this tests hangs, seemingly
+  # indefinitely, possibly due to Git clone
+  # hanging.
+  # Does not happen locally on Windows,
+  # or on non-Windows GHA runners.
+  skip_if(.is_windows_gha())
+
   # NULL is valid (no error expected, but will fail on clone)
   expect_error(
     projr_restore_repo(repo = "test/repo", path = NULL),
     NA,
-    class = "error"  # Expect some error (likely git clone), but not validation error
+    # Expect some error (likely git clone), but not validation error
+    class = "error"
   )
 })
 
@@ -109,6 +118,14 @@ test_that("projr_restore_repo validates label parameter correctly", {
       }
     )
   }
+  # skip on Windows during a GHA
+  # because this tests hangs, seemingly
+  # indefinitely, possibly due to Git clone
+  # hanging.
+  # Does not happen locally on Windows,
+  # or on non-Windows GHA runners.
+  skip_if(.is_windows_gha())
+
   expect_no_error(projr_restore_repo(repo = "test/repo", label = NULL))
 })
 
@@ -166,7 +183,7 @@ test_that("projr_restore_repo validates type parameter correctly", {
   # Invalid value
   expect_error(
     projr_restore_repo(repo = "test/repo", type = "invalid"),
-    "'type' must be one of: local, osf, github"
+    "'type' must be one of: local, github"
   )
 })
 
@@ -200,6 +217,14 @@ test_that("projr_restore_repo validates title parameter correctly", {
 test_that("projr_restore_repo handles git clone failure gracefully", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  # skip on Windows during a GHA
+  # because this tests hangs, seemingly
+  # indefinitely, possibly due to Git clone
+  # hanging.
+  # Does not happen locally on Windows,
+  # or on non-Windows GHA runners.
+  skip_if(.is_windows_gha())
+
 
   # Create temporary directory for test
   test_dir <- tempfile()
@@ -224,6 +249,13 @@ test_that("projr_restore_repo handles git clone failure gracefully", {
 test_that("projr_restore_repo returns FALSE when restoration fails", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  # skip on Windows during a GHA
+  # because this tests hangs, seemingly
+  # indefinitely, possibly due to Git clone
+  # hanging.
+  # Does not happen locally on Windows,
+  # or on non-Windows GHA runners.
+  skip_if(.is_windows_gha())
 
   # Create temporary directory for test
   test_dir <- tempfile()
@@ -349,7 +381,7 @@ test_that("projr_restore_repo_wd validates parameters same as projr_restore_repo
   # Invalid type
   expect_error(
     projr_restore_repo_wd(repo = "test/repo", type = "invalid"),
-    "'type' must be one of: local, osf, github"
+    "'type' must be one of: local, github"
   )
 
   # Multiple title values
@@ -362,6 +394,13 @@ test_that("projr_restore_repo_wd validates parameters same as projr_restore_repo
 test_that("projr_restore_repo_wd clones into current directory", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  # skip on Windows during a GHA
+  # because this tests hangs, seemingly
+  # indefinitely, possibly due to Git clone
+  # hanging.
+  # Does not happen locally on Windows,
+  # or on non-Windows GHA runners.
+  skip_if(.is_windows_gha())
 
   # Create temporary directory for test
   test_dir <- tempfile()
@@ -417,6 +456,13 @@ test_that("projr_restore_repo_wd is equivalent to projr_restore_repo with path='
 test_that("projr_restore_repo handles pos with both source and dest", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  # skip on Windows during a GHA
+  # because this tests hangs, seemingly
+  # indefinitely, possibly due to Git clone
+  # hanging.
+  # Does not happen locally on Windows,
+  # or on non-Windows GHA runners.
+  skip_if(.is_windows_gha())
 
   # Valid pos values should not cause validation errors
   # (Will fail on clone, but not validation)
@@ -429,17 +475,24 @@ test_that("projr_restore_repo handles pos with both source and dest", {
       )
     ),
     NA,
-    class = "error"  # Some error expected (clone), but not validation
+    class = "error" # Some error expected (clone), but not validation
   )
 })
 
 test_that("projr_restore_repo handles valid type values", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  # skip on Windows during a GHA
+  # because this tests hangs, seemingly
+  # indefinitely, possibly due to Git clone
+  # hanging.
+  # Does not happen locally on Windows,
+  # or on non-Windows GHA runners.
+  skip_if(.is_windows_gha())
 
   # Each valid type should pass validation
   # (Will fail on clone, but not validation)
-  for (valid_type in c("local", "osf", "github")) {
+  for (valid_type in c("local", "github")) {
     # Suppress expected warnings from git command
     expect_error(
       suppressWarnings(
@@ -449,7 +502,7 @@ test_that("projr_restore_repo handles valid type values", {
         )
       ),
       NA,
-      class = "error"  # Some error expected (clone), but not validation
+      class = "error" # Some error expected (clone), but not validation
     )
   }
 })
@@ -457,6 +510,13 @@ test_that("projr_restore_repo handles valid type values", {
 test_that("projr_restore_repo validates all parameters together", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  # skip on Windows during a GHA
+  # because this tests hangs, seemingly
+  # indefinitely, possibly due to Git clone
+  # hanging.
+  # Does not happen locally on Windows,
+  # or on non-Windows GHA runners.
+  skip_if(.is_windows_gha())
 
   # Combination of valid parameters should pass validation
   # (Will fail on clone, but not validation)
@@ -473,13 +533,20 @@ test_that("projr_restore_repo validates all parameters together", {
       )
     ),
     NA,
-    class = "error"  # Some error expected (clone), but not validation
+    class = "error" # Some error expected (clone), but not validation
   )
 })
 
 test_that(".restore_repo_labels changes directory and calls projr_content_update", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  # skip on Windows during a GHA
+  # because this tests hangs, seemingly
+  # indefinitely, possibly due to Git clone
+  # hanging.
+  # Does not happen locally on Windows,
+  # or on non-Windows GHA runners.
+  skip_if(.is_windows_gha())
 
   # Test the internal helper function behavior
   # Create a test directory structure

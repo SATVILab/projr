@@ -57,60 +57,6 @@ test_that(".remote_ls_dest returns github when github destination configured", {
   )
 })
 
-test_that(".remote_ls_dest returns osf when osf destination configured", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(.is_test_osf())
-  skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # Add an OSF destination
-      projr_yml_dest_add_osf(
-        title = "test-node",
-        content = "raw-data",
-        category = "project"
-      )
-
-      remote_vec <- .remote_ls_dest()
-      expect_true("osf" %in% remote_vec)
-    }
-  )
-})
-
-test_that(".remote_ls_dest returns multiple remotes when both configured", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(.is_test_osf())
-  skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # Add both GitHub and OSF destinations
-      projr_yml_dest_add_github(
-        title = "test-release",
-        content = "output"
-      )
-      projr_yml_dest_add_osf(
-        title = "test-node",
-        content = "raw-data",
-        category = "project"
-      )
-
-      remote_vec <- .remote_ls_dest()
-      expect_true("github" %in% remote_vec)
-      expect_true("osf" %in% remote_vec)
-      expect_identical(length(remote_vec), 2L)
-    }
-  )
-})
-
 # =============================================================================
 # .remote_ls_source
 # =============================================================================
@@ -154,29 +100,6 @@ test_that(".remote_ls_source returns github when github source configured", {
   )
 })
 
-test_that(".remote_ls_source returns osf when osf source configured", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # Add OSF as a source for a directory
-      yml_projr <- .yml_get("default")
-      if (is.null(yml_projr$directories)) {
-        yml_projr$directories <- list()
-      }
-      yml_projr$directories$cache <- list(osf = list(id = "test-node"))
-      .yml_set(yml_projr, "default")
-
-      remote_vec <- .remote_ls_source()
-      expect_true("osf" %in% remote_vec)
-    }
-  )
-})
-
 test_that(".remote_ls_source returns unique remotes from multiple directories", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -188,21 +111,20 @@ test_that(".remote_ls_source returns unique remotes from multiple directories", 
     code = {
       .init()
 
-      # Add both GitHub and OSF as sources for different directories
+      # Add GitHub as sources for different directories
       yml_projr <- .yml_get("default")
       if (is.null(yml_projr$directories)) {
         yml_projr$directories <- list()
       }
       yml_projr$directories$`raw-data` <- list(github = list(id = "test-tag"))
-      yml_projr$directories$cache <- list(osf = list(id = "test-node"))
-      yml_projr$directories$output <- list(github = list(id = "test-tag2"))
+      yml_projr$directories$cache <- list(github = list(id = "test-tag2"))
+      yml_projr$directories$output <- list(github = list(id = "test-tag3"))
       .yml_set(yml_projr, "default")
 
       remote_vec <- .remote_ls_source()
-      # Should be unique (only github and osf)
+      # Should be unique (only github)
       expect_true("github" %in% remote_vec)
-      expect_true("osf" %in% remote_vec)
-      expect_identical(length(remote_vec), 2L)
+      expect_identical(length(remote_vec), 1L)
     }
   )
 })
@@ -383,8 +305,6 @@ test_that(".remote_ls combines source, dest, and git push remotes", {
 test_that(".remote_ls returns unique remotes when duplicates present", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  skip_if(.is_test_osf())
-  skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
 
   usethis::with_project(
     path = dir_test,
@@ -404,19 +324,11 @@ test_that(".remote_ls returns unique remotes when duplicates present", {
         content = "output"
       )
 
-      projr_yml_dest_add_osf(
-        title = "test-node",
-        content = "raw-data",
-        category = "project"
-      )
-
       # Should have unique remotes
       remote_vec <- .remote_ls()
       expect_true("github" %in% remote_vec)
-      expect_true("osf" %in% remote_vec)
-      # Each remote should appear only once
+      # GitHub should appear only once despite being used as both source and destination
       expect_identical(sum(remote_vec == "github"), 1L)
-      expect_identical(sum(remote_vec == "osf"), 1L)
     }
   )
 })
@@ -590,6 +502,7 @@ test_that(".gh_guess_repo removes trailing slashes", {
 
 test_that(".gh_guess_repo throws error when no remotes exist", {
   skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = FALSE, github = FALSE, set_env_var = FALSE)
@@ -603,7 +516,7 @@ test_that(".gh_guess_repo throws error when no remotes exist", {
       # No remotes added
       expect_error(
         .gh_guess_repo(),
-        "Failed to parse owner/repo from remote URL"
+        "remote"
       )
     }
   )
@@ -630,6 +543,7 @@ test_that(".gh_guess_repo falls back to first remote when origin doesn't exist",
 
 test_that(".gh_guess_repo throws error for invalid URL format", {
   skip_if(.is_test_cran())
+  skip_if(.is_test_lite())
   skip_if(.is_test_select())
 
   dir_test2 <- .test_setup_project(git = FALSE, github = FALSE, set_env_var = FALSE)

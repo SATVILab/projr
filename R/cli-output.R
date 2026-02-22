@@ -12,20 +12,9 @@
 
 #' Get the current output level
 #'
-#' @param output_level Character. Explicit output level ("none", "std", "debug").
-#'   If NULL, determined from environment variable PROJR_OUTPUT_LEVEL.
-#' @param output_run Logical. Whether this is an output build (vs dev build).
-#'   Used to set default if output_level is NULL.
-#'
 #' @return Character. The output level to use.
 #' @keywords internal
-.cli_output_level_get <- function(output_level = NULL, output_run = FALSE) {
-  # If explicitly provided, validate and use it
-  if (!is.null(output_level)) {
-    .assert_in(output_level, c("none", "std", "debug"))
-    return(output_level)
-  }
-
+.cli_output_level_get <- function() {
   # Check environment variable
   env_level <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
   if (nzchar(env_level)) {
@@ -34,21 +23,17 @@
   }
 
   # Default based on build type
-  if (output_run) {
-    return("std")
-  } else {
-    return("none")
-  }
+  "std"
 }
 
 #' Check if messages should be shown at the given level
 #'
 #' @param required_level Character. The level required for the message.
-#' @param current_level Character. The current output level.
 #'
 #' @return Logical. TRUE if the message should be shown.
 #' @keywords internal
-.cli_should_show <- function(required_level, current_level) {
+.cli_should_show <- function(required_level) {
+  current_level <- .cli_output_level_get()
   level_hierarchy <- c("none" = 0, "std" = 1, "debug" = 2)
   level_hierarchy[current_level] >= level_hierarchy[required_level]
 }
@@ -106,10 +91,9 @@
 #'
 #' @param stage_name Character. Name of the build stage.
 #' @param build_type Character. Type of build ("dev" or "output").
-#' @param output_level Character. Current output level.
 #'
 #' @keywords internal
-.cli_stage_header <- function(stage_name, build_type = "output", output_level = "std") {
+.cli_stage_header <- function(stage_name, build_type = "output") {
   build_label <- if (build_type == "dev") "Development" else "Output"
   message_text <- paste0(build_label, " Build: ", stage_name)
 
@@ -117,7 +101,7 @@
   .log_build_section(message_text)
 
   # Show in console if appropriate
-  if (!.cli_should_show("std", output_level)) {
+  if (!.cli_should_show("std")) {
     return(invisible(NULL))
   }
 
@@ -128,8 +112,10 @@
 #' Show a standard informational message
 #'
 #' @param ... Message components passed to cli::cli_alert_info
-#' @param output_level Character. Current output level.
 #' @param .envir Environment for variable evaluation
+#' @param log_type Character. Type of log message ("info", "debug", etc.).
+#' @param console_level Character. Minimum output level to show in console.
+#' @param console_fn Function. CLI function to use for console output.
 #'
 #' @keywords internal
 # Generic CLI message function for logging and console output
@@ -137,7 +123,6 @@
                          log_type,
                          console_level = "std",
                          console_fn,
-                         output_level = "std",
                          .envir = parent.frame()) {
   # Capture all arguments
   dots <- list(...)
@@ -150,7 +135,7 @@
   }
 
   # Show in console if appropriate
-  if (!.cli_should_show(console_level, output_level)) {
+  if (!.cli_should_show(console_level)) {
     return(invisible(NULL))
   }
 
@@ -158,13 +143,12 @@
   console_fn(message_text)
 }
 
-.cli_info <- function(..., output_level = "std", .envir = parent.frame()) {
+.cli_info <- function(..., .envir = parent.frame()) {
   .cli_message(
     ...,
     log_type = "info",
     console_level = "std",
     console_fn = cli::cli_alert_info,
-    output_level = output_level,
     .envir = .envir
   )
 }
@@ -172,17 +156,15 @@
 #' Show a success message
 #'
 #' @param ... Message components passed to cli::cli_alert_success
-#' @param output_level Character. Current output level.
 #' @param .envir Environment for variable evaluation
 #'
 #' @keywords internal
-.cli_success <- function(..., output_level = "std", .envir = parent.frame()) {
+.cli_success <- function(..., .envir = parent.frame()) {
   .cli_message(
     ...,
     log_type = "success",
     console_level = "std",
     console_fn = cli::cli_alert_success,
-    output_level = output_level,
     .envir = .envir
   )
 }
@@ -190,17 +172,15 @@
 #' Show a debug message (only shown at debug level)
 #'
 #' @param ... Message components passed to cli::cli_text
-#' @param output_level Character. Current output level.
 #' @param .envir Environment for variable evaluation
 #'
 #' @keywords internal
-.cli_debug <- function(..., output_level = "std", .envir = parent.frame()) {
+.cli_debug <- function(..., .envir = parent.frame()) {
   .cli_message(
     ...,
     log_type = "debug",
     console_level = "debug",
     console_fn = function(msg) cli::cli_text("[DEBUG] ", msg),
-    output_level = output_level,
     .envir = .envir
   )
 }
@@ -208,17 +188,15 @@
 #' Show a step message (sub-item in a stage)
 #'
 #' @param ... Message components passed to cli::cli_li
-#' @param output_level Character. Current output level.
 #' @param .envir Environment for variable evaluation
 #'
 #' @keywords internal
-.cli_step <- function(..., output_level = "std", .envir = parent.frame()) {
+.cli_step <- function(..., .envir = parent.frame()) {
   .cli_message(
     ...,
     log_type = "step",
     console_level = "std",
     console_fn = cli::cli_li,
-    output_level = output_level,
     .envir = .envir
   )
 }
@@ -226,11 +204,10 @@
 #' Start a process with a spinner/status indicator
 #'
 #' @param ... Message components
-#' @param output_level Character. Current output level.
 #'
 #' @return Process ID for cli_process_done
 #' @keywords internal
-.cli_process_start <- function(..., output_level = "std") {
+.cli_process_start <- function(...) {
   # Log the process start
   dots <- list(...)
   if (length(dots) > 0) {
@@ -238,7 +215,7 @@
     .log_build_append(paste0("Process started: ", message_text), "process")
   }
 
-  if (!.cli_should_show("std", output_level)) {
+  if (!.cli_should_show("std")) {
     return(invisible(NULL))
   }
   cli::cli_process_start(...)
@@ -250,11 +227,10 @@
 #' @param msg_done Success message
 #' @param msg_failed Failure message
 #' @param .envir Environment for the process
-#' @param output_level Character. Current output level.
 #'
 #' @keywords internal
 .cli_process_done <- function(id = NULL, msg_done = NULL, msg_failed = NULL,
-                              .envir = parent.frame(), output_level = "std") {
+                              .envir = parent.frame()) {
   # Log the process completion
   if (!is.null(msg_done)) {
     .log_build_append(paste0("Process done: ", msg_done), "process")
@@ -264,7 +240,7 @@
     .log_build_append("Process completed", "process")
   }
 
-  if (!.cli_should_show("std", output_level)) {
+  if (!.cli_should_show("std")) {
     return(invisible(NULL))
   }
   if (!is.null(id)) {

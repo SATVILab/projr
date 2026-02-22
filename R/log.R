@@ -115,12 +115,11 @@
 #' @param build_type Character. Either "output" or "dev".
 #' @param bump_component Character. Version bump component.
 #' @param msg Character. Build message.
-#' @param output_level Character. Output level for this build.
 #'
 #' @return List with log_file path and timestamp, or NULL if logging disabled.
 #' @keywords internal
 .log_build_init <- function(build_type = "output", bump_component = NULL,
-                            msg = "", output_level = "std") {
+                            msg = "") {
   # Check if detailed logging is enabled
   if (!.log_enabled()) {
     return(NULL)
@@ -143,7 +142,7 @@
     paste0("- **Timestamp**: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S")),
     if (!is.null(bump_component)) paste0("- **Version Bump**: ", bump_component) else NULL,
     if (nzchar(msg)) paste0("- **Message**: ", msg) else NULL,
-    paste0("- **Output Level**: ", output_level),
+    paste0("- **Output Level**: "),
     paste0("- **projr Version**: ", projr_version_get()),
     "",
     "# Build Output",

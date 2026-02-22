@@ -38,7 +38,7 @@
   if (file.exists(.path_get("_projr.yml"))) {
     return(invisible(FALSE))
   }
-  file.copy(from = path, to = .path_get("_projr.yml"))
+  fs::file_copy(path, .path_get("_projr.yml"), overwrite = TRUE)
   invisible(TRUE)
 }
 
@@ -125,7 +125,7 @@
   descrptn$write(file = .path_get("DESCRIPTION"))
   desc::desc_normalize(.path_get("DESCRIPTION"))
   .dep_install_only("usethis")
-  usethis::proj_activate(.path_get())
+  usethis::proj_set(.path_get())
   usethis::use_roxygen_md()
   invisible(TRUE)
 }
@@ -701,7 +701,7 @@ projr_init_renviron <- function() {
   }
   root <- switch(scope,
     user = fs::path_home_r(),
-    project = usethis::proj_get()
+    project = invisible(usethis::proj_get())
   )
   fs::path(root, ...)
 }
@@ -853,7 +853,7 @@ projr_init_renviron <- function() {
     }
     return(invisible(FALSE))
   }
-  .init_std_git(TRUE, commit)
+  .init_git(TRUE, commit)
   invisible(TRUE)
 }
 
@@ -866,7 +866,88 @@ projr_init_renviron <- function() {
   if (.is_len_0(fn_vec)) {
     return(invisible(FALSE))
   }
+
+  # Check for non-standard directories/files and get user confirmation
+  if (!.init_git_commit_check_nonstandard(fn_vec)) {
+    .cli_info("Commit cancelled by user.")
+    return(invisible(FALSE))
+  }
+
   .git_commit_file(fn_vec, msg = "Initial projr commit")
+}
+
+.init_git_commit_check_nonstandard <- function(file_vec) {
+  # Standard directories that are expected
+  standard_dirs <- c(
+    ".devcontainer", ".github", "man", "R", "renv", "tests", "vignettes"
+  )
+
+  # Get top-level directories from file vector
+  top_level_items <- unique(dirname(file_vec[!grepl("/", file_vec)]))
+  top_level_items <- top_level_items[top_level_items != "."]
+
+  # Also get first directory component from nested paths
+  nested_dirs <- unique(sub("/.*", "", file_vec[grepl("/", file_vec)]))
+  all_dirs <- unique(c(top_level_items, nested_dirs))
+
+  # Filter to actual directories
+  all_dirs <- all_dirs[file.info(all_dirs, extra_cols = FALSE)$isdir %in% TRUE]
+
+  # Find non-standard directories
+  nonstandard_dirs <- setdiff(all_dirs, standard_dirs)
+
+  # Get top-level files (not in subdirectories)
+  top_level_files <- file_vec[!grepl("/", file_vec)]
+
+  # If no non-standard items, proceed
+  if (.is_len_0(nonstandard_dirs) && .is_len_0(top_level_files)) {
+    return(TRUE)
+  }
+
+  # In non-interactive mode or tests, proceed without prompting
+  if (!.is_interactive_and_not_test()) {
+    return(TRUE)
+  }
+
+  # Show warning message about non-standard items
+  .cli_info("The following non-standard items will be committed to Git:")
+
+  if (!.is_len_0(nonstandard_dirs)) {
+    .cli_info("Directories:")
+    for (dir_name in nonstandard_dirs) {
+      .cli_info("  - {dir_name}/")
+    }
+  }
+
+  if (!.is_len_0(top_level_files)) {
+    .cli_info("Top-level files:")
+    for (file_name in top_level_files) {
+      .cli_info("  - {file_name}")
+    }
+  }
+
+  .cli_info("")
+  .cli_info("To exclude items from Git, you can add them to .gitignore using:")
+
+  if (!.is_len_0(nonstandard_dirs)) {
+    example_dir <- nonstandard_dirs[1]
+    .cli_info("  projr_ignore_add(\"{example_dir}\")")
+  }
+
+  if (!.is_len_0(top_level_files)) {
+    example_file <- top_level_files[1]
+    .cli_info("  projr_ignore_add(\"{example_file}\")")
+  }
+
+  .cli_info("")
+
+  # Prompt user
+  choice <- utils::menu(
+    c("Yes, proceed with commit", "No, cancel commit"),
+    title = "Do you want to proceed with committing these non-standard items?"
+  )
+
+  choice == 1
 }
 
 .init_git_file_get <- function() {
@@ -924,158 +1005,6 @@ projr_init_renviron <- function() {
     return(invisible(FALSE))
   }
   .cli_info("You can use `projr` without the program git\n(and setup is going fine!),\nbut RStudio (and VS Code) like it.\nIt's easy to install, instructions here:\nhttps://happygitwithr.com/install-git")
-}
-
-
-# github
-# --------------------------
-.init_github <- function(username,
-                         public) {
-  # Check if git repo exists
-  if (!.git_repo_check_exists()) {
-    .yml_unset_github_dest()
-    return(invisible(FALSE))
-  }
-
-  # Check if username is NULL or a placeholder value
-  if (is.null(username) || identical(username, "GITHUB_USER_NAME")) {
-    .yml_unset_github_dest()
-    return(invisible(FALSE))
-  }
-
-  # Check if remote already exists
-  if (.git_remote_check_exists()) {
-    return(invisible(FALSE))
-  }
-
-  .init_github_impl(username, public)
-}
-
-.init_github_impl <- function(username, public) {
-  .dep_install_only("usethis")
-  .dep_install_only("gh")
-  .auth_check_github("creating GitHub repository")
-  current_user <- tryCatch(
-    {
-      gh::gh_whoami()$login
-    },
-    error = function(e) {
-      NULL
-    }
-  )
-  if (!.is_string(current_user)) {
-    stop("Failed to get GitHub user information. Please check your GitHub authentication.")
-  }
-  if (is.null(username) || identical(username, current_user)) {
-    .init_github_actual_user(public, current_user)
-  } else {
-    .init_github_actual_org(public, username)
-  }
-  invisible(TRUE)
-}
-
-.init_github_actual_user <- function(public, username) {
-  .cli_info("Creating GitHub remote for user {username}")
-  result <- tryCatch(
-    usethis::use_github(private = !public),
-    error = function(e) {
-      .init_github_actual_user_error(public)
-      NULL
-    }
-  )
-  if (!is.null(result)) {
-    # Do something if the call was successful.
-    .cli_info("GitHub remote created successfully!")
-  }
-  invisible(result)
-}
-
-.init_github_actual_user_error <- function(public) {
-  .cli_info("Failed to create GitHub remote")
-  .cli_info("Can try again later with:")
-  .cli_info("usethis::use_github(private = {!public})")
-}
-
-.init_github_actual_org <- function(public, username) {
-  .cli_info("Creating GitHub remote for organisation {username}")
-  if ("username" %in% names(formals(usethis::use_github))) {
-    .init_github_actual_org_old(public, username)
-  } else {
-    .init_github_actual_org_new(public, username)
-  }
-}
-
-.init_github_actual_org_new <- function(public, username) {
-  result <- tryCatch(
-    usethis::use_github(
-      organisation = username,
-      private = !public
-    ),
-    error = function(e) {
-      .init_github_actual_org_new_error(public, username)
-      NULL
-    }
-  )
-  if (!is.null(result)) {
-    .cli_info("GitHub remote for organisation created successfully!")
-  }
-  invisible(result)
-}
-
-.init_github_actual_org_old <- function(public, username) {
-  result <- tryCatch(
-    usethis::use_github(
-      username = username,
-      private = !public
-    ),
-    error = function(e) {
-      .init_github_actual_org_old_error(public, username)
-      NULL
-    }
-  )
-  if (!is.null(result)) {
-    .cli_info("GitHub remote for user created successfully!")
-  }
-  invisible(result)
-}
-
-.init_github_actual_org_old_error <- function(public, username) {
-  .cli_info("Failed to create GitHub remote")
-  .cli_info("Can try again later with:")
-  .cli_info("usethis::use_github(username = '{username}', private = {!public})")
-}
-.init_github_actual_org_new_error <- function(public, username) {
-  .cli_info("Failed to create GitHub remote")
-  .cli_info("Can try again later with:")
-  .cli_info("usethis::use_github(organisation = '{username}', private = {!public})")
-}
-
-.git_gh_check_auth <- function(use_gh_if_available = TRUE,
-                               use_gitcreds_if_needed = TRUE) {
-  if (nzchar(.auth_get_github_pat(
-    use_gh_if_available = use_gh_if_available,
-    use_gitcreds_if_needed = use_gitcreds_if_needed
-  ))) {
-    return(invisible(TRUE))
-  }
-  warning(
-    "GITHUB_PAT environment variable not found.\n",
-    "\n",
-    "To allow creating a GitHub repository, please set it.\n",
-    "\n",
-    "To easily set it in less than two minutes, do the following:\n",
-    "1. If you do not have a GitHub account, create one here: https://github.com\n", # nolint: line_length_linter.
-    "2. In R, run usethis::create_github_token()\n",
-    "3. In R, run gitcreds::gitcreds_set()\n",
-    "4. Paste the token from step 1 into the R command line (terminal), and press enter\n", # nolint: line_length_linter.
-    "For more details, see https://happygitwithr.com/https-pat#tldr\n",
-    "\n",
-    "After doing the above:\n",
-    "1. In R, rerun projr::projr_init()\n",
-    "It will skip what's been done already and try set up GitHub again.\n",
-    call. = FALSE
-  )
-  invisible(FALSE)
 }
 
 

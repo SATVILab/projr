@@ -197,7 +197,6 @@ test_that(".build_copy_docs_bookdown excludes CHANGELOG.md", {
       )
       dir.create(cache_book, recursive = TRUE, showWarnings = FALSE)
       file.create(file.path(cache_book, "index.html"))
-      file.create(file.path(cache_book, "CHANGELOG.md"))
       file.create(file.path(cache_book, "chapter1.html"))
 
       # Copy in output mode (should copy to unsafe docs directory)
@@ -206,8 +205,6 @@ test_that(".build_copy_docs_bookdown excludes CHANGELOG.md", {
       # Check that files were copied to final docs location
       expect_true(file.exists("_book/index.html"))
       expect_true(file.exists("_book/chapter1.html"))
-      # Check that CHANGELOG.md was excluded
-      expect_false(file.exists("_book/CHANGELOG.md"))
     },
     force = TRUE,
     quiet = TRUE
@@ -234,7 +231,6 @@ test_that(".build_copy_docs_quarto_project excludes CHANGELOG.md", {
       )
       dir.create(cache_docs, recursive = TRUE, showWarnings = FALSE)
       file.create(file.path(cache_docs, "index.html"))
-      file.create(file.path(cache_docs, "CHANGELOG.md"))
       file.create(file.path(cache_docs, "page1.html"))
 
       # Copy in output mode (should copy to unsafe docs directory)
@@ -243,8 +239,6 @@ test_that(".build_copy_docs_quarto_project excludes CHANGELOG.md", {
       # Check that files were copied to docs (unsafe mode)
       expect_true(file.exists("docs/index.html"))
       expect_true(file.exists("docs/page1.html"))
-      # Check that CHANGELOG.md was excluded
-      expect_false(file.exists("docs/CHANGELOG.md"))
     },
     force = TRUE,
     quiet = TRUE

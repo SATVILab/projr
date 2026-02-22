@@ -1,14 +1,14 @@
 test_that("basic yml functions work", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
+  dir_test <- .dir_get_tmp_random_path()
   withr::defer(unlink(dir_test, recursive = TRUE))
   .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
   fn_vec <- fn_vec
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -69,7 +69,6 @@ test_that("projr_yml_check works", {
 test_that("projr_yml_dest_add_* functions work", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
   skip_if(!.is_string(.auth_get_github_pat_find()), "GITHUB_PAT not available")
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -81,15 +80,6 @@ test_that("projr_yml_dest_add_* functions work", {
       )
       expect_true(!is.null(.yml_dest_get_type("local", "default")))
 
-      projr_yml_dest_add_osf(
-        title = "test", content = "raw-data", category = "project"
-      )
-      expect_true(!is.null(.yml_dest_get_type("osf", "default")))
-      expect_true(
-        .is_string(
-          .yml_dest_get_type("osf", "default")[["test"]][["id"]]
-        )
-      )
       projr_yml_dest_add_github(
         title = "test", content = "raw-data"
       )
@@ -233,10 +223,10 @@ test_that(".yml_get_default_raw reads yaml file", {
       expect_true("directories" %in% names(yml_raw))
 
       # Test when file doesn't exist
-      file.rename("_projr.yml", "_projr.yml.bak")
+      fs::file_move("_projr.yml", "_projr.yml.bak")
       yml_empty <- .yml_get_default_raw()
       expect_identical(yml_empty, list())
-      file.rename("_projr.yml.bak", "_projr.yml")
+      fs::file_move("_projr.yml.bak", "_projr.yml")
     }
   )
 })

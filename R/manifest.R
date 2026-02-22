@@ -150,7 +150,7 @@
   if (is.null(path_dir)) {
     path_dir <- .path_get()
   }
-  .dir_create(path_dir)
+  path_dir
 }
 
 .manifest_get_path_file <- function(path_dir) {

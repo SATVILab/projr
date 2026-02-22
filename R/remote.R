@@ -3,10 +3,10 @@
 # ========================
 
 #' @title Check whether a remote exists
-#' @description Verifies that the requested remote (local directory, OSF node,
+#' @description Verifies that the requested remote (local directory
 #'   or GitHub release/tag) exists before attempting downstream operations.
-#' @param type Character scalar identifying the remote backend (`local`,
-#'   `github`, or `osf`).
+#' @param type Character scalar identifying the remote backend (`local`
+#'   or `github`).
 #' @param id Backend-specific identifier (filesystem path, GitHub tag, OSF id).
 #' @param ... Additional arguments forwarded to backend-specific helpers (e.g.,
 #'   authentication or API parameters).
@@ -19,7 +19,6 @@
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_check_exists_local(path = id),
-    "osf" = .remote_check_exists_osf(id = id),
     "github" = .remote_check_exists_github(
       tag = .remote_misc_github_tag_get(id),
       ...
@@ -61,9 +60,6 @@
       id, label, structure, path, path_append_label,
       version, empty
     ),
-    "osf" = .remote_final_check_exists_osf(
-      remote_pre, structure, label, version
-    ),
     "github" = .remote_final_check_exists_github(
       remote_pre, structure, label, version, empty
     )
@@ -88,8 +84,7 @@
                                               ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
-    "local" = .remote_final_check_exists_direct(remote),
-    "osf" = .remote_final_check_exists_direct_osf(remote),
+    "local" = .remote_final_check_exists_direct_local(remote),
     "github" = .remote_final_check_exists_direct_github(remote, ...)
   )
 }
@@ -103,11 +98,10 @@
 # find the remote again
 
 #' @title Create a new remote resource
-#' @description Creates the underlying remote container (local directory, OSF
-#'   node, or GitHub release) needed for subsequent uploads.
+#' @description Creates the underlying remote container (local directory
+#'   or GitHub release) needed for subsequent uploads.
 #' @inheritParams .remote_check_exists
 #' @param name Human readable name/title for the remote destination.
-#' @param output_level Character verbosity level passed to CLI helpers.
 #' @param ... Additional backend-specific arguments (e.g., OSF parent, GitHub
 #'   release settings).
 #' @return Backend-specific identifier for the created remote.
@@ -116,19 +110,15 @@
 .remote_create <- function(type,
                            id,
                            name,
-                           output_level = "std",
                            ...) {
   .cli_debug(
-    "Remote create: type={type}, id={id}",
-    output_level = output_level
+    "Remote create: type={type}, id={id}"
   )
 
   switch(type,
     "local" = .remote_create_local(path = id),
-    "osf" = .remote_create_osf(title = name, ...),
     "github" = .remote_create_github(
       tag = .remote_misc_github_tag_get(id),
-      output_level = output_level,
       ...
     )
   )
@@ -149,12 +139,12 @@
 #' @keywords internal
 #' @noRd
 .remote_ls_final <- function(type,
-                             remote_pre) {
+                             remote_pre,
+                             ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_ls_final_local(remote_pre),
-    "osf" = .remote_ls_final_osf(remote_pre),
-    "github" = .remote_ls_final_github(remote_pre)
+    "github" = .remote_ls_final_github(remote_pre, ...)
   )
 }
 
@@ -165,8 +155,7 @@
 # gets remote in a way that we can work
 # with it locally.
 # For local and GitHub remotes, that simply
-# means the path (local) and tag (GitHub),
-# but for OSF it is an `osf_tbl_file` object.
+# means the path (local) and tag (GitHub).
 # The main thing is that it must be an object
 # we can use to interact with the remote,
 # such as checking existence of files,
@@ -185,7 +174,6 @@
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_get_local(id = id),
-    "osf" = .remote_get_osf(id = id),
     "github" = .remote_get_github(.remote_misc_github_tag_get(id)),
     stop(paste0("type '", type, "' not recognized"))
   )
@@ -216,9 +204,8 @@
 #' but not for flat remotes (GitHub assets), as such a final
 #' remote cannot be created empty.
 #' @return Backend-specific remote handle suitable for existence checks and
-#'   file operations. For local remotes, this is a path; for OSF, an `osf_tbl_file`
-#'   object; for GitHub, a character vector with names `tag` and `fn` for
-#'   the release tag and asset name, respectively.
+#'   file operations. For local remotes, this is a path; for GitHub, a character
+#'   vector with names `tag` and `fn` for the release tag and asset name, respectively.
 #' @keywords internal
 #' @noRd
 .remote_final_get <- function(type,
@@ -237,16 +224,6 @@
       path = id,
       label = label,
       structure = structure,
-      path_append_label = path_append_label,
-      version = version,
-      pre = pre,
-      empty = empty
-    ),
-    "osf" = .remote_final_get_osf(
-      id = id,
-      label = label,
-      structure = structure,
-      path = path,
       path_append_label = path_append_label,
       version = version,
       pre = pre,
@@ -287,13 +264,12 @@
 #' @param empty Logical flag indicating whether an "empty" variant (used for
 #'   GitHub placeholder assets) should be produced.
 #' @details
-#' The final remote is created for hierarchical remotes (local, OSF),
+#' The final remote is created for hierarchical remotes (local),
 #' but not for flat remotes (GitHub assets), as such a final
 #' remote cannot be created empty.
 #' @return Backend-specific remote handle suitable for existence checks and
-#'   file operations. For local remotes, this is a path; for OSF, an `osf_tbl_file`
-#'   object; for GitHub, a character vector with names `tag` and `fn` for
-#'   the release tag and asset name, respectively.
+#'   file operations. For local remotes, this is a path; for GitHub, a character
+#'   vector with names `tag` and `fn` for the release tag and asset name, respectively.
 #' @keywords internal
 #' @noRd
 .remote_final_empty_get <- function(type,
@@ -303,14 +279,13 @@
                                     path = NULL,
                                     path_append_label = TRUE,
                                     version = NULL,
-                                    output_level = "std") {
+                                    ...) {
   .cli_debug(
     "remote_final_empty_get: type={type}, label={label}, structure={structure}, version={version}",
     type = type,
     label = label,
     structure = structure,
-    version = version,
-    output_level = output_level
+    version = version
   )
 
   # pre: "one up" from the final remote, e.g. the directory
@@ -321,18 +296,7 @@
       label = label,
       structure = structure,
       path_append_label = path_append_label,
-      version = version,
-      output_level = output_level
-    ),
-    "osf" = .remote_final_get_osf(
-      id = id,
-      label = label,
-      structure = structure,
-      path = path,
-      path_append_label = path_append_label,
-      version = version,
-      pre = FALSE,
-      empty = TRUE
+      version = version
     ),
     "github" = .remote_final_empty_get_github(
       id = .remote_misc_github_tag_get(id),
@@ -340,7 +304,8 @@
       structure = structure,
       path = path,
       path_append_label = path_append_label,
-      version = version
+      version = version,
+      ...
     ),
     stop(paste0("type '", type, "' not recognized"))
   )
@@ -467,7 +432,6 @@
                                  pre,
                                  empty) {
   switch(type,
-    "osf" = , # same as local
     "local" = .remote_get_path_rel_hierarchy(
       path = path,
       path_append_label = path_append_label,
@@ -599,7 +563,7 @@
 
 #' @title Remove empty remote destinations
 #' @description Deletes backend-specific remotes when they are empty and no
-#'   longer needed (e.g., cleanup for cache directories or OSF folders).
+#'   longer needed (e.g., cleanup for cache directories).
 #' @inheritParams .remote_final_get
 #' @param remote Backend-specific remote handle produced by
 #'   `.remote_final_get()`.
@@ -608,12 +572,11 @@
 #' @noRd
 .remote_final_rm_if_empty <- function(type,
                                       remote,
-                                      output_level = "std") {
+                                      ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
-    "local" = .remote_final_rm_if_empty_local(remote, output_level),
-    "osf" = .remote_final_rm_if_empty_osf(remote, output_level),
-    "github" = .remote_final_rm_if_empty_github(remote, output_level)
+    "local" = .remote_final_rm_if_empty_local(remote),
+    "github" = .remote_final_rm_if_empty_github(remote, ...)
   )
 }
 
@@ -622,20 +585,20 @@
 # ========================
 
 #' @title Delete a remote resource
-#' @description Removes the underlying remote container (local directory, OSF
-#'  node, or GitHub release) and all its contents.
+#' @description Removes the underlying remote container (local directory
+#'  or GitHub release) and all its contents.
 #' @inheritParams .remote_check_exists
 #' @param remote Backend-specific remote handle produced by `.remote_get()`.
 #' @return Invisibly returns `TRUE` when removal succeeds.
 #' @keywords internal
 #' @noRd
 .remote_rm <- function(type,
-                       remote) {
+                       remote,
+                       ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_rm_local(remote),
-    "osf" = .remote_rm_osf(remote),
-    "github" = .remote_rm_github(remote)
+    "github" = .remote_rm_github(remote, ...)
   )
 }
 
@@ -645,17 +608,14 @@
 
 .remote_final_rm <- function(type,
                              remote,
-                             output_level = "std") {
+                             ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_rm_local(
-      remote = remote, output_level = output_level
-    ),
-    "osf" = .remote_final_rm_osf(
-      remote = remote, output_level = output_level
+      remote = remote
     ),
     "github" = .remote_final_rm_github(
-      remote = remote, output_level = output_level
+      remote = remote, ...
     )
   )
 }
@@ -675,12 +635,12 @@
 #' @keywords internal
 #' @noRd
 .remote_final_get_info <- function(type,
-                                   remote_final) {
+                                   remote_final,
+                                   ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = NULL,
-    "osf" = NULL,
-    "github" = .remote_final_get_info_github(remote_final)
+    "github" = .remote_final_get_info_github(remote_final, ...)
   )
 }
 
@@ -697,20 +657,18 @@
 #' @description Removes all contents from the supplied remote handle. For flat
 #'   remotes (GitHub assets) this deletes the asset entirely.
 #' @inheritParams .remote_final_rm_if_empty
-#' @param output_level Character verbosity level for CLI logging.
 #' @return Invisibly returns `TRUE` after the remote is emptied.
 #' @keywords internal
 #' @noRd
 .remote_final_empty <- function(type,
                                 remote,
-                                output_level = "std") {
+                                ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_empty_local(remote),
-    "osf" = .remote_final_empty_osf(remote),
     "github" = .remote_final_empty_github(
       remote,
-      output_level = output_level
+      ...
     )
   )
 }
@@ -765,7 +723,8 @@
 #' @noRd
 .remote_file_get_all <- function(type,
                                  remote,
-                                 path_dir_save_local) {
+                                 path_dir_save_local,
+                                 ...) {
   .assert_string(path_dir_save_local, TRUE)
   .assert_in(type, .opt_remote_get_type(), TRUE)
   .dir_create(path_dir_save_local)
@@ -774,13 +733,10 @@
       remote = remote,
       path_dir_save_local = path_dir_save_local
     ),
-    "osf" = .remote_file_get_all_osf(
-      remote = remote,
-      path_dir_save_local = path_dir_save_local
-    ),
     "github" = .remote_file_get_all_github(
       remote = remote,
-      path_dir_save_local = path_dir_save_local
+      path_dir_save_local = path_dir_save_local,
+      ...
     )
   )
 }
@@ -810,11 +766,6 @@
       fn = fn,
       path_dir_save_local = path_dir_save_local
     ),
-    "osf" = .remote_file_get_osf(
-      remote = remote,
-      fn = fn,
-      path_dir_save_local = path_dir_save_local
-    ),
     "github" = .remote_file_get_github(
       remote = remote,
       fn = fn,
@@ -831,24 +782,20 @@
 #' @description Enumerates files (or asset entries) stored at the remote and
 #'   logs the count for debugging purposes.
 #' @inheritParams .remote_file_get_all
-#' @param output_level Character verbosity level used for logging.
 #' @return Character vector (or list for complex backends) of filenames.
 #' @keywords internal
 #' @noRd
 .remote_file_ls <- function(type,
-                            remote,
-                            output_level = "std") {
+                            remote) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
 
   result <- switch(type,
     "local" = .remote_file_ls_local(remote),
-    "osf" = .remote_file_ls_osf(remote),
     "github" = .remote_file_ls_github(remote)
   )
 
   .cli_debug(
-    "Remote file list: type={type}, found {length(result)} file(s)",
-    output_level = output_level
+    "Remote file list: type={type}, found {length(result)} file(s)"
   )
 
   result
@@ -869,18 +816,15 @@
 #' @noRd
 .remote_file_rm <- function(type,
                             fn,
-                            remote,
-                            output_level = "std") {
+                            remote) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
 
   .cli_debug(
-    "Remote file remove: type={type}, removing {length(fn)} file(s)",
-    output_level = output_level
+    "Remote file remove: type={type}, removing {length(fn)} file(s)"
   )
 
   switch(type,
     "local" = .remote_file_rm_local(fn = fn, remote = remote),
-    "osf" = .remote_file_rm_osf(fn = fn, remote = remote),
     "github" = .remote_file_rm_github(fn = fn, remote = remote)
   )
 }
@@ -901,7 +845,7 @@
                              remote,
                              path_dir_local,
                              fn,
-                             output_level = "std") {
+                             ...) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
 
   .cli_debug(
@@ -909,23 +853,18 @@
     type = type,
     num_files = length(fn),
     path = path_dir_local,
-    remote = remote,
-    output_level = output_level
+    remote = remote
   )
 
   switch(type,
     "local" = .remote_file_add_local(
-      fn = fn, path_dir_local = path_dir_local, remote = remote,
-      output_level = output_level
-    ),
-    "osf" = .remote_file_add_osf(
       fn = fn, path_dir_local = path_dir_local, remote = remote
     ),
     "github" = .remote_file_add_github(
       fn = fn,
       path_dir_local = path_dir_local,
       remote = remote,
-      output_level = output_level
+      ...
     )
   )
 }
