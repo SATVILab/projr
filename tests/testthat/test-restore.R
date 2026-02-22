@@ -704,7 +704,7 @@ test_that("projr_content_checkout validates other parameters", {
       # Invalid type - not valid
       expect_error(
         projr_content_checkout(version = version, type = "invalid"),
-        "'type' must be one of: local, osf, github"
+        "'type' must be one of: local, github"
       )
 
       # Invalid title - not character
