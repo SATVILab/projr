@@ -1,9 +1,10 @@
 .test_debug_copy.yml <- function() {
   path_dir_to <- file.path("/workspaces/projr/_tmp")
   .dir_create(path_dir_to)
-  file.copy(
-    from = "_projr.yml",
-    to = file.path(path_dir_to, "_projr.yml")
+  fs::file_copy(
+    "_projr.yml",
+    file.path(path_dir_to, "_projr.yml"),
+    overwrite = TRUE
   )
 }
 
@@ -23,9 +24,9 @@
 }
 
 .test_debug_copy_file <- function(path) {
-  file.copy(
-    from = path,
-    to = file.path("/workspaces/projr/_tmp", basename(path)),
+  fs::file_copy(
+    path,
+    file.path("/workspaces/projr/_tmp", basename(path)),
     overwrite = TRUE
   )
 }

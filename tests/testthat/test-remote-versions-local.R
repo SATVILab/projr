@@ -378,8 +378,10 @@ test_that(".remote_get_version_latest_label works with archive structure", {
         label = c(label, label),
         fn = c("file1.txt", "file2.txt"),
         version = paste0("v", version),
-        hash = c(.hash_file(file.path(version_dir, "file1.txt")),
-                 .hash_file(file.path(version_dir, "file2.txt"))),
+        hash = c(
+          .hash_file(file.path(version_dir, "file1.txt")),
+          .hash_file(file.path(version_dir, "file2.txt"))
+        ),
         stringsAsFactors = FALSE
       )
       .manifest_write(manifest_local, .path_get("manifest.csv"))
@@ -691,7 +693,7 @@ test_that("full version tracking workflow with local archive remote", {
         if (!dir.exists(dest_dir)) {
           dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
         }
-        file.copy(files[i], file.path(version1_dir, rel_files[i]))
+        fs::file_copy(files[i], file.path(version1_dir, rel_files[i]), overwrite = TRUE)
       }
 
       # Create manifest for version 1

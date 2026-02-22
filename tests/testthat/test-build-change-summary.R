@@ -391,7 +391,7 @@ test_that(".build_change_summary_display works at debug level", {
 
       # Should not error even with no changes
       expect_error(
-        .build_change_summary_display("patch", output_level = "debug"),
+        .build_change_summary_display("patch"),
         NA
       )
 
@@ -405,7 +405,7 @@ test_that(".build_change_summary_display works at debug level", {
 
       # Should work with changes
       expect_error(
-        .build_change_summary_display("patch", output_level = "debug"),
+        .build_change_summary_display("patch"),
         NA
       )
     },

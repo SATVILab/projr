@@ -330,18 +330,6 @@ test_that(".zip_dir works", {
   unlink(zip_path2)
 })
 
-# Options getter functions
-test_that(".opt_remote_get_osf_cat works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  cats <- .opt_remote_get_osf_cat()
-  expect_true(is.character(cats))
-  expect_true(length(cats) > 0L)
-  expect_true("project" %in% cats)
-  expect_true("data" %in% cats)
-})
-
 test_that(".opt_remote_get_structure works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -356,7 +344,6 @@ test_that(".opt_remote_get_type works", {
 
   types <- .opt_remote_get_type()
   expect_true("local" %in% types)
-  expect_true("osf" %in% types)
   expect_true("github" %in% types)
 })
 

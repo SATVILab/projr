@@ -69,7 +69,7 @@ projr_restore_repo <- function(repo,
     if (length(type) > 1) {
       stop("'type' must be a single character value")
     }
-    valid_types <- c("local", "osf", "github")
+    valid_types <- c("local", "github")
     if (!type %in% valid_types) {
       stop(
         "'type' must be one of: ",

@@ -1,14 +1,14 @@
 test_that("projr_profile_get, _set and _create work", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
+  dir_test <- .dir_get_tmp_random_path()
   withr::defer(.test_unset())
   withr::defer(unlink(dir_test, recursive = TRUE))
   .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -127,14 +127,14 @@ test_that("projr_profile_get, _set and _create work", {
 test_that("projr_profile_create_local works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
+  dir_test <- .dir_get_tmp_random_path()
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -173,14 +173,14 @@ test_that("projr_profile_create_local works", {
 test_that("projr_profile_create returns correct value", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr_create"))
+  dir_test <- .dir_get_tmp_random_path()
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -211,14 +211,14 @@ test_that("projr_profile_create returns correct value", {
 test_that("projr_profile_create_local returns correct value", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr_local"))
+  dir_test <- .dir_get_tmp_random_path()
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -262,14 +262,14 @@ test_that(".profile_get returns profile when set", {
 test_that("projr_profile_delete returns correct value", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr_delete"))
+  dir_test <- .dir_get_tmp_random_path()
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -304,14 +304,14 @@ test_that("projr_profile_delete returns correct value", {
 test_that(".profile_delete_impl handles non-existent profile", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr_delete_nonexist"))
+  dir_test <- .dir_get_tmp_random_path()
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -343,14 +343,14 @@ test_that(".profile_delete_impl handles non-existent profile", {
 test_that("projr_profile_delete_local works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr_delete_local"))
+  dir_test <- .dir_get_tmp_random_path()
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE

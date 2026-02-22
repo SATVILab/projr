@@ -1,43 +1,6 @@
 # Tests for R/dir-ignore.R
 # Focus on internal functions and edge cases
 
-test_that(".ignore_diryml works with git_skip_adjust parameter", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Initialize git config
-      .test_setup_project_git_config()
-
-      # Create some test files
-      dir.create("_output")
-      writeLines("test content", "_output/test.txt")
-
-      # Track the file in git
-      .git_commit_file("_output/test.txt", "Initial commit")
-
-      # Run .ignore_diryml with git_skip_adjust = TRUE
-      result <- .ignore_diryml(git_skip_adjust = TRUE)
-      expect_true(result)
-
-      # Check that skip-worktree is set
-      skipped <- .git_get_skipped("_output")
-      expect_true(length(skipped) > 0)
-
-      # Run with git_skip_adjust = FALSE
-      result <- .ignore_diryml(git_skip_adjust = FALSE)
-      expect_true(result)
-
-      # Check that skip-worktree is not set (or removed)
-      # Note: This might not remove previously set skip-worktree
-    }
-  )
-})
-
 test_that(".ignore_diryml_git handles missing git repo and .gitignore", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -50,14 +13,14 @@ test_that(".ignore_diryml_git handles missing git repo and .gitignore", {
       if (file.exists(".gitignore")) unlink(".gitignore")
 
       # Should return FALSE when no git repo and no .gitignore
-      result <- .ignore_diryml_git(git_skip_adjust = NULL)
+      result <- .ignore_diryml_git()
       expect_false(result)
 
       # Create .gitignore
       writeLines("# test", ".gitignore")
 
       # Should work now with .gitignore present
-      result <- .ignore_diryml_git(git_skip_adjust = NULL)
+      result <- .ignore_diryml_git()
       expect_true(result)
     }
   )
@@ -192,157 +155,6 @@ directories:
   )
 })
 
-test_that(".ignore_get_git_skip_adjust respects git_skip_adjust parameter", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # When git_skip_adjust is explicitly set, it should be used
-      result <- .ignore_get_git_skip_adjust("output", TRUE)
-      expect_true(result)
-
-      result <- .ignore_get_git_skip_adjust("output", FALSE)
-      expect_false(result)
-
-      # When git_skip_adjust is NULL and not in config, defaults to TRUE
-      result <- .ignore_get_git_skip_adjust("output", NULL)
-      expect_true(result)
-    }
-  )
-})
-
-test_that(".ignore_get_git_skip_adjust returns FALSE without git", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Should return FALSE when not possible (no git)
-      result <- .ignore_get_git_skip_adjust("output", NULL)
-      expect_false(result)
-    }
-  )
-})
-
-test_that(".ignore_check_git_skip_adjust_possible checks prerequisites", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Without git repo
-      result <- .ignore_check_git_skip_adjust_possible()
-      expect_false(result)
-    }
-  )
-
-  # With git repo
-  if (.git_system_check_git()) {
-    dir_test2 <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-    usethis::with_project(
-      path = dir_test2,
-      code = {
-        result <- .ignore_check_git_skip_adjust_possible()
-        expect_true(result)
-      }
-    )
-  }
-})
-
-test_that(".git_skip and .git_unskip work with tracked files", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Initialize git config
-      .test_setup_project_git_config()
-
-      # Create and track files
-      dir.create("test_dir")
-      writeLines("content1", "test_dir/file1.txt")
-      writeLines("content2", "test_dir/file2.txt")
-
-      .git_commit_file(c("test_dir/file1.txt", "test_dir/file2.txt"), "Add files")
-
-      # Verify files are tracked
-      tracked <- .git_get_tracked("test_dir")
-      expect_true(length(tracked) > 0)
-
-      # Set skip-worktree
-      .git_skip("test_dir")
-
-      # Check that files are now skipped
-      skipped <- .git_get_skipped("test_dir")
-      expect_true(length(skipped) > 0)
-      expect_true(any(grepl("file1.txt", skipped)))
-
-      # Unskip files
-      .git_unskip("test_dir")
-
-      # Check that files are no longer skipped
-      skipped_after <- .git_get_skipped("test_dir")
-      expect_equal(length(skipped_after), 0)
-    }
-  )
-})
-
-test_that(".git_skip handles empty directory", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create empty directory
-      dir.create("empty_dir")
-
-      # Should not error with empty directory
-      result <- .git_skip("empty_dir")
-      expect_true(result)
-
-      # Verify no files are skipped
-      skipped <- .git_get_skipped("empty_dir")
-      expect_equal(length(skipped), 0)
-    }
-  )
-})
-
-test_that(".git_unskip handles directory with no skipped files", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .test_setup_project_git_config()
-
-      # Create and track a file without skip-worktree
-      writeLines("content", "normal_file.txt")
-      .git_commit_file("normal_file.txt", "Add file")
-
-      # Should not error
-      result <- .git_unskip(".")
-      expect_true(result)
-    }
-  )
-})
-
 test_that(".git_get_tracked returns tracked files", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -383,53 +195,6 @@ test_that(".git_get_tracked returns empty for untracked directory", {
       # Should return empty
       tracked <- .git_get_tracked("untracked_dir")
       expect_equal(length(tracked), 0)
-    }
-  )
-})
-
-test_that(".git_get_skipped returns skipped files", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .test_setup_project_git_config()
-
-      # Create, track, and skip files
-      dir.create("skip_dir")
-      writeLines("content", "skip_dir/skip.txt")
-      .git_commit_file("skip_dir/skip.txt", "Add file")
-      .git_skip("skip_dir")
-
-      # Get skipped files
-      skipped <- .git_get_skipped("skip_dir")
-      expect_true(length(skipped) > 0)
-      expect_true(any(grepl("skip.txt", skipped)))
-    }
-  )
-})
-
-test_that(".git_get_skipped returns empty for non-skipped files", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .test_setup_project_git_config()
-
-      # Create and track file without skipping
-      writeLines("content", "normal.txt")
-      .git_commit_file("normal.txt", "Add file")
-
-      # Should return empty
-      skipped <- .git_get_skipped(".")
-      expect_equal(length(skipped), 0)
     }
   )
 })
@@ -726,18 +491,14 @@ test_that(".ignore_diryml_git_get_instructions returns proper structure", {
     path = dir_test,
     code = {
       # Get instructions
-      instr <- .ignore_diryml_git_get_instructions(git_skip_adjust = NULL)
+      instr <- .ignore_diryml_git_get_instructions()
 
       # Check structure
       expect_type(instr, "list")
       expect_true("ignore" %in% names(instr))
-      expect_true("skip" %in% names(instr))
-      expect_true("unskip" %in% names(instr))
 
       # All should be character vectors
       expect_type(instr$ignore, "character")
-      expect_type(instr$skip, "character")
-      expect_type(instr$unskip, "character")
     }
   )
 })
@@ -757,140 +518,6 @@ test_that(".ignore_diryml_git_update_gitignore handles empty input", {
       # Should handle empty strings
       result <- .ignore_diryml_git_update_gitignore(c("", ""))
       expect_false(result)
-    }
-  )
-})
-
-test_that(".ignore_diryml_git_update_skip processes multiple paths", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .test_setup_project_git_config()
-
-      # Create and track multiple directories
-      dir.create("dir1")
-      dir.create("dir2")
-      writeLines("content", "dir1/file.txt")
-      writeLines("content", "dir2/file.txt")
-      .git_commit_file(c("dir1/file.txt", "dir2/file.txt"), "Add files")
-
-      # Skip multiple paths
-      paths_to_skip <- c("dir1", "dir2")
-      result <- .ignore_diryml_git_update_skip(paths_to_skip, character(0))
-      expect_true(result)
-
-      # Check both are skipped
-      skipped1 <- .git_get_skipped("dir1")
-      skipped2 <- .git_get_skipped("dir2")
-      expect_true(length(skipped1) > 0)
-      expect_true(length(skipped2) > 0)
-    }
-  )
-})
-
-test_that(".git_skip handles batch processing of 50+ files", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .test_setup_project_git_config()
-
-      # Create directory with 60 files (more than batch size of 50)
-      dir.create("large_dir")
-      for (i in 1:60) {
-        writeLines(paste("content", i), sprintf("large_dir/file%03d.txt", i))
-      }
-
-      # Track all files
-      files_to_track <- list.files("large_dir", full.names = TRUE)
-      .git_commit_file(files_to_track, "Add many files")
-
-      # Set skip-worktree on all files
-      result <- .git_skip("large_dir")
-      expect_true(result)
-
-      # Check that all files are skipped
-      skipped <- .git_get_skipped("large_dir")
-      expect_equal(length(skipped), 60)
-    }
-  )
-})
-
-test_that(".git_unskip handles batch processing of 50+ files", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .test_setup_project_git_config()
-
-      # Create directory with 60 files
-      dir.create("large_dir2")
-      for (i in 1:60) {
-        writeLines(paste("content", i), sprintf("large_dir2/file%03d.txt", i))
-      }
-
-      # Track and skip all files
-      files_to_track <- list.files("large_dir2", full.names = TRUE)
-      .git_commit_file(files_to_track, "Add many files")
-      .git_skip("large_dir2")
-
-      # Verify files are skipped
-      skipped_before <- .git_get_skipped("large_dir2")
-      expect_equal(length(skipped_before), 60)
-
-      # Unskip all files
-      result <- .git_unskip("large_dir2")
-      expect_true(result)
-
-      # Check that all files are unskipped
-      skipped_after <- .git_get_skipped("large_dir2")
-      expect_equal(length(skipped_after), 0)
-    }
-  )
-})
-
-test_that(".git_skip handles files with spaces in names", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .test_setup_project_git_config()
-
-      # Create files with spaces in names
-      dir.create("space_dir")
-      writeLines("content", "space_dir/file_with_spaces.txt")
-      writeLines("content", "space_dir/another_file.txt")
-
-      # Track files
-      .git_commit_file(c("space_dir/file_with_spaces.txt", "space_dir/another_file.txt"), "Add files with spaces")
-
-      # Skip files
-      result <- .git_skip("space_dir")
-      expect_true(result)
-
-      # Check that files are skipped
-      skipped <- .git_get_skipped("space_dir")
-      expect_true(length(skipped) >= 0) # May or may not work with spaces
     }
   )
 })
@@ -999,15 +626,11 @@ directories:
 "
       writeLines(yml_content, "_projr.yml")
 
-      result <- .ignore_diryml_git_get_instructions_label("external", NULL)
+      result <- .ignore_diryml_git_get_instructions_label("external")
 
       expect_type(result, "list")
       expect_true("ignore" %in% names(result))
-      expect_true("skip" %in% names(result))
-      expect_true("unskip" %in% names(result))
       expect_equal(length(result$ignore), 0)
-      expect_equal(length(result$skip), 0)
-      expect_equal(length(result$unskip), 0)
     }
   )
 })
@@ -1033,68 +656,10 @@ directories:
       dir.create("_output")
 
       result <- .ignore_diryml_git_get_instructions_label_impl(
-        "_output", "output", NULL
+        "_output", "output"
       )
 
       # When ignore_git is FALSE, no files should be ignored
-      expect_equal(length(result$ignore), 0)
-      # And no files should be skipped
-      expect_equal(length(result$skip), 0)
-    }
-  )
-})
-
-test_that(".ignore_diryml_git_get_instructions_label_impl handles git_skip_adjust FALSE", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Default setup with output directory
-      dir.create("_output")
-
-      result <- .ignore_diryml_git_get_instructions_label_impl(
-        "_output", "output", FALSE
-      )
-
-      # When git_skip_adjust is FALSE, no skip/unskip should be set
-      expect_equal(length(result$skip), 0)
-      expect_equal(length(result$unskip), 0)
-      # But ignore should still be set (assuming default ignore-git = TRUE)
-      expect_true(length(result$ignore) > 0)
-    }
-  )
-})
-
-test_that(".ignore_diryml_git_get_instructions_label_impl with git_skip_adjust TRUE and ignore FALSE", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Set ignore-git to false
-      yml_content <- "
-directories:
-  output:
-    path: _output
-    ignore-git: false
-"
-      writeLines(yml_content, "_projr.yml")
-
-      dir.create("_output")
-
-      result <- .ignore_diryml_git_get_instructions_label_impl(
-        "_output", "output", TRUE
-      )
-
-      # When ignore is FALSE and git_skip_adjust is TRUE, should unskip (not skip)
-      expect_equal(length(result$skip), 0)
-      expect_true(length(result$unskip) > 0)
       expect_equal(length(result$ignore), 0)
     }
   )
@@ -1320,109 +885,6 @@ directories:
   )
 })
 
-test_that(".ignore_get_git_skip_adjust reads from YAML config", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Set git-skip-adjust in YAML
-      yml_content <- "
-directories:
-  output:
-    path: _output
-    git-skip-adjust: false
-"
-      writeLines(yml_content, "_projr.yml")
-
-      result <- .ignore_get_git_skip_adjust("output", NULL)
-      expect_false(result)
-
-      # Test with TRUE
-      yml_content2 <- "
-directories:
-  output:
-    path: _output
-    git-skip-adjust: true
-"
-      writeLines(yml_content2, "_projr.yml")
-
-      result2 <- .ignore_get_git_skip_adjust("output", NULL)
-      expect_true(result2)
-    }
-  )
-})
-
-test_that(".git_skip processes exactly 50 files (batch boundary)", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .test_setup_project_git_config()
-
-      # Create exactly 50 files (batch size)
-      dir.create("batch_dir")
-      for (i in 1:50) {
-        writeLines(paste("content", i), sprintf("batch_dir/file%03d.txt", i))
-      }
-
-      # Track all files
-      files_to_track <- list.files("batch_dir", full.names = TRUE)
-      .git_commit_file(files_to_track, "Add 50 files")
-
-      # Set skip-worktree
-      result <- .git_skip("batch_dir")
-      expect_true(result)
-
-      # Verify all files are skipped
-      skipped <- .git_get_skipped("batch_dir")
-      expect_equal(length(skipped), 50)
-    }
-  )
-})
-
-test_that(".git_unskip processes exactly 50 files (batch boundary)", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .test_setup_project_git_config()
-
-      # Create exactly 50 files
-      dir.create("batch_dir2")
-      for (i in 1:50) {
-        writeLines(paste("content", i), sprintf("batch_dir2/file%03d.txt", i))
-      }
-
-      # Track and skip
-      files_to_track <- list.files("batch_dir2", full.names = TRUE)
-      .git_commit_file(files_to_track, "Add 50 files")
-      .git_skip("batch_dir2")
-
-      # Unskip
-      result <- .git_unskip("batch_dir2")
-      expect_true(result)
-
-      # Verify all files are unskipped
-      skipped <- .git_get_skipped("batch_dir2")
-      expect_equal(length(skipped), 0)
-    }
-  )
-})
-
 test_that(".ignore_diryml_rbuild handles label without path", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -1455,7 +917,7 @@ test_that(".ignore_diryml integration test with git and rbuild", {
       dir.create("_cache")
 
       # Run the full ignore workflow
-      result <- .ignore_diryml(git_skip_adjust = NULL)
+      result <- .ignore_diryml()
       expect_true(result)
 
       # Verify .gitignore was updated

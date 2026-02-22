@@ -1,7 +1,7 @@
 test_that("README placeholders are replaced after .init_prompt_readme", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), "testReadmePlaceholders")
+  dir_test <- .dir_get_tmp_random_path()
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .dir_create(dir_test)
   .test_set()
@@ -52,7 +52,7 @@ test_that("README placeholders are replaced after .init_prompt_readme", {
 test_that(".init_prompt_readme_create returns numeric not list", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), "testReadmeCreateReturn")
+  dir_test <- .dir_get_tmp_random_path()
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .dir_create(dir_test)
   .test_set()

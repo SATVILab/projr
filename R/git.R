@@ -1,7 +1,9 @@
 .git_init <- function() {
   if (.git_repo_check_exists()) {
+    .cli_debug("Git repository already exists, skipping initialization")
     return(invisible(FALSE))
   }
+  .cli_debug("Initializing Git repository")
   switch(.git_system_get(),
     "git" = .git_init_git(),
     "gert" = .git_init_gert(),
@@ -9,7 +11,6 @@
   )
 
   if (.is_test()) {
-    .dep_install_only("gert")
     gert::git_config_set("user.name", "DarthVader")
     gert::git_config_set("user.email", "number_one_fan@tellytubbies.com")
   }
@@ -209,22 +210,31 @@
 
 # initialisation
 .git_init_git <- function() {
-  system2("git", args = "init")
+  .cli_debug("Running 'git init'")
+  system2("git", args = "init", stdout = TRUE)
 }
 
 .git_init_gert <- function() {
+  .cli_debug("Running 'gert::git_init()'")
   gert::git_init(path = .path_get())
 }
 
 # git or gert
 .git_system_get <- function() {
-  if (.git_system_check_git()) {
-    return("git")
-  }
-  "gert"
+  if (.git_system_check_if_git()) "git" else "gert"
 }
 
 # checking if git cli is available
+.git_system_check_if_git <- function() {
+  isFALSE(.git_system_check_env_var()) &&
+    .git_system_check_git()
+}
+
+.git_system_check_env_var <- function() {
+  .is_env_var_true("PROJR_GIT_USE_GERT")
+}
+
+
 .git_system_check_git <- function() {
   git_version_try <- try(
     system2("git", args = "--version", stdout = TRUE),
@@ -240,6 +250,7 @@
 .git_system_setup <- function() {
   # do nothing for git, as it's already set up
   if (.git_system_get() == "git") {
+    .cli_debug("Using git CLI for Git operations")
     return(invisible(FALSE))
   }
   .git_system_setup_gert()
@@ -247,12 +258,15 @@
 
 # install gert if not available
 .git_system_setup_gert <- function() {
+  .cli_debug("Using gert package for Git operations")
   switch(!.git_system_check_gert(),
     {
+      .cli_debug("Installing gert package for Git operations")
       .dep_install("gert")
     }
   )
   if (!.git_system_check_gert()) {
+    .cli_debug("Failed to install gert package")
     stop("Failed to install gert and Git executable not available")
   }
   invisible(TRUE)
@@ -694,7 +708,7 @@
       }
       list(
         sha = substr(log$commit[1], 1, 7),
-        message = log$message[1]
+        message = trimws(log$message[1])
       )
     },
     error = function(e) NULL
@@ -720,12 +734,12 @@
 .git_untracked_not_ignored_get_git <- function() {
   # Get all untracked files (not ignored by default)
   # Using --others --exclude-standard shows untracked files not in .gitignore
-  git_output <- system2(
+  git_output <- suppressWarnings(system2(
     "git",
     args = c("ls-files", "--others", "--exclude-standard"),
     stdout = TRUE,
     stderr = FALSE
-  )
+  ))
 
   if (length(git_output) == 0) {
     return(character(0))

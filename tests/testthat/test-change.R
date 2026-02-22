@@ -1,110 +1,3 @@
-test_that(".change_get_manifest works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip("Test needs rework - .change_get_manifest not designed for project vs project comparison")
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      projr_version_set("0.0.1")
-      .test_content_setup_label("output", safe = FALSE)
-      .build_manifest_post(TRUE) |> invisible()
-
-      # only one version
-      # ----------------
-      change_list <- .change_get_manifest(
-        type_pre = "project",
-        remote_pre = NULL,
-        type_post = "project",
-        remote_post = NULL,
-        label = "output"
-      )
-      expect_identical(length(change_list), 4L)
-      expect_identical(length(change_list[["fn_same"]]), 0L)
-      expect_identical(length(change_list[["fn_dest_extra"]]), 0L)
-      expect_identical(length(change_list[["fn_diff"]]), 0L)
-      expect_identical(length(change_list[["fn_source_extra"]]), 3L)
-      change_list_raw_data <- .change_get_manifest(
-        type_pre = "project",
-        remote_pre = NULL,
-        type_post = "project",
-        remote_post = NULL,
-        label = "raw-data"
-      )
-      expect_identical(length(change_list_raw_data), 4L)
-      expect_identical(length(change_list_raw_data[["fn_same"]]), 0L)
-      expect_identical(length(change_list_raw_data[["fn_dest_extra"]]), 0L)
-      expect_identical(length(change_list_raw_data[["fn_diff"]]), 0L)
-      expect_identical(length(change_list_raw_data[["fn_source_extra"]]), 0L)
-
-      # no change, two versions
-      # -----------------------
-      .version_bump_major() |> invisible()
-      .build_manifest_post(TRUE) |> invisible()
-      change_list <- .change_get_manifest(
-        type_pre = "project",
-        remote_pre = NULL,
-        type_post = "project",
-        remote_post = NULL,
-        label = "output"
-      )
-      expect_identical(length(change_list), 4L)
-      expect_identical(length(change_list[["fn_same"]]), 3L)
-      expect_identical(length(change_list[["fn_dest_extra"]]), 0L)
-      expect_identical(length(change_list[["fn_diff"]]), 0L)
-      expect_identical(length(change_list[["fn_source_extra"]]), 0L)
-      change_list_raw_data <- .change_get_manifest(
-        type_pre = "project",
-        remote_pre = NULL,
-        type_post = "project",
-        remote_post = NULL,
-        label = "raw-data"
-      )
-      expect_identical(length(change_list_raw_data), 4L)
-      expect_identical(length(change_list_raw_data[["fn_same"]]), 0L)
-      expect_identical(length(change_list_raw_data[["fn_dest_extra"]]), 0L)
-      expect_identical(length(change_list_raw_data[["fn_diff"]]), 0L)
-      expect_identical(length(change_list_raw_data[["fn_source_extra"]]), 0L)
-
-      # added category, three versions
-      # ------------------------------
-      .version_bump_patch() |> invisible()
-      .test_content_setup_label("raw-data")
-      .build_manifest_pre(TRUE) |> invisible()
-      .build_manifest_post(TRUE) |> invisible()
-      expect_true(
-        all(c("raw-data", "output") %in% .manifest_read(
-          .build_manifest_post_get_path(TRUE)
-        )[["label"]])
-      )
-      change_list <- .change_get_manifest(
-        type_pre = "project",
-        remote_pre = NULL,
-        type_post = "project",
-        remote_post = NULL,
-        label = "output"
-      )
-      expect_identical(length(change_list), 4L)
-      expect_identical(length(change_list[["fn_same"]]), 3L)
-      expect_identical(length(change_list[["fn_dest_extra"]]), 0L)
-      expect_identical(length(change_list[["fn_diff"]]), 0L)
-      expect_identical(length(change_list[["fn_source_extra"]]), 0L)
-      change_list_raw_data <- .change_get_manifest(
-        type_pre = "project",
-        remote_pre = NULL,
-        type_post = "project",
-        remote_post = NULL,
-        label = "raw-data"
-      )
-      expect_identical(length(change_list_raw_data), 4L)
-      expect_identical(length(change_list_raw_data[["fn_same"]]), 0L)
-      expect_identical(length(change_list_raw_data[["fn_dest_extra"]]), 0L)
-      expect_identical(length(change_list_raw_data[["fn_diff"]]), 0L)
-      expect_identical(length(change_list_raw_data[["fn_source_extra"]]), 3L)
-    }
-  )
-})
-
 test_that(".change_get_file works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -649,6 +542,44 @@ test_that(".change_get_check handles edge cases", {
         path_dir_local = NULL,
         inspect = "file"
       ))
+    }
+  )
+})
+
+test_that(".change_get_file_dir_github resolves @version placeholder", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      projr_version_set("0.0.1")
+
+      # Create a mock remote object with @version placeholder
+      remote_with_placeholder <- c(tag = "@version", fn = "code-v0.0.1.zip")
+
+      # Mock .remote_file_get_all to verify the tag is resolved
+      original_remote_file_get_all <- .remote_file_get_all
+      mock_remote_file_get_all <- function(type, remote, path_dir_save_local) {
+        # Verify that the tag has been resolved to actual version
+        expect_identical(remote[["tag"]], "v0.0.1")
+        expect_identical(remote[["fn"]], "code-v0.0.1.zip")
+        # Return the path
+        path_dir_save_local
+      }
+
+      # Temporarily replace the function
+      assignInNamespace(".remote_file_get_all", mock_remote_file_get_all, "projr")
+
+      # Call the function
+      result <- .change_get_file_dir_github(remote_with_placeholder)
+
+      # Restore the original function
+      assignInNamespace(".remote_file_get_all", original_remote_file_get_all, "projr")
+
+      # Verify result is a directory path
+      expect_true(is.character(result))
+      expect_identical(length(result), 1L)
     }
   )
 })

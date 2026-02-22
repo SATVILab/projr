@@ -10,8 +10,10 @@
 #'
 #' @param repo Character string. Repository in format "owner/repo".
 #' @param tag Character string. Release tag to check.
-#' @param api_url Character string. Optional GitHub API URL for enterprise instances.
-#' @param token Character string. Optional GitHub token. If not provided, uses
+#' @param api_url Character string.
+#' Optional GitHub API URL for enterprise instances.
+#' @param token Character string.
+#' Optional GitHub token. If not provided, uses
 #'   `.auth_get_github_pat_find()`.
 #'
 #' @return Logical TRUE/FALSE if release exists/doesn't exist and stops on auth errors
@@ -50,11 +52,12 @@
   } else if (status == 404L) {
     FALSE
   } else if (status == 401L || status == 403L) {
-    .cli_debug(
-      "GitHub API authentication error (status {status}) when checking release existence for tag '{tag}' in repo '{repo}'", # nolint
-      url = url
+    stop(
+      "GitHub API authentication error (status ", status, ") ",
+      "when checking release existence for tag '", tag, "' in repo '", repo, "'. ",
+      "Please check your GITHUB_PAT is set correctly.",
+      call. = FALSE
     )
-    stop(call. = FALSE)
   } else {
     stop(
       "Unexpected HTTP status from GitHub API: ",
@@ -268,7 +271,11 @@
   )
 
   if (length(asset_list) == 0L) {
-    stop("No assets found in release '", tag, "' for repo '", repo, "'.", call. = FALSE) # nolint
+    stop(
+      "No assets found in release '", tag,
+      "' for repo '", repo, "'.",
+      call. = FALSE
+    )
   }
 
   for (asset in asset_list) {
@@ -277,10 +284,10 @@
     }
   }
 
-  .cli_debug(
-    "Asset '{asset_name}' not found in release '{tag}' for repo '{repo}'"
+  stop(
+    "Asset '", asset_name, "' not found in release '", tag, "' for repo '", repo, "'.",
+    call. = FALSE
   )
-  stop("", call. = FALSE)
 }
 
 
@@ -437,7 +444,6 @@
 #' @param token Character string. Optional GitHub token. If not supplied,
 #'   `.auth_get_github_pat_find()` is used.
 #' @param overwrite Logical. If FALSE, existing files are left untouched.
-#' @param output_level Character. Verbosity control passed to `.cli_debug()`.
 #'
 #' @return Character vector of downloaded file paths (invisibly).
 #' @keywords internal
@@ -448,8 +454,7 @@
   dest_dir,
   api_url = NULL,
   token = NULL,
-  overwrite = TRUE,
-  output_level = "std"
+  overwrite = TRUE
 ) {
   if (!requireNamespace("httr", quietly = TRUE)) {
     stop("httr is required for .remote_file_get_all_github_httr(); please install it.")
@@ -466,8 +471,7 @@
 
   if (length(asset) == 0L) {
     .cli_debug(
-      "GitHub release: No assets found in release '{tag}' for repo '{repo}'",
-      output_level = output_level
+      "GitHub release: No assets found in release '{tag}' for repo '{repo}'"
     )
     return(invisible(character()))
   }
@@ -487,22 +491,20 @@
   downloaded <- character(0)
 
   asset_name <- asset$name
-  download_url <- asset$browser_download_url
+  download_url <- asset$url
 
   dest_file <- file.path(dest_dir, asset_name)
 
   if (!overwrite && file.exists(dest_file)) {
     .cli_debug(
-      "GitHub release: Skipping existing asset '{asset_name}' in '{dest_file}'",
-      output_level = output_level
+      "GitHub release: Skipping existing asset '{asset_name}' in '{dest_file}'"
     )
     downloaded <- c(downloaded, dest_file)
     return(invisible(downloaded))
   }
 
   .cli_debug(
-    "GitHub release: Downloading asset '{asset_name}' from tag '{tag}' to '{dest_file}'",
-    output_level = output_level
+    "GitHub release: Downloading asset '{asset_name}' from tag '{tag}' to '{dest_file}'"
   )
 
   resp <- httr::GET(
@@ -524,8 +526,7 @@
   }
 
   .cli_debug(
-    "GitHub release: Downloaded {length(downloaded)} asset(s) from tag '{tag}'",
-    output_level = output_level
+    "GitHub release: Downloaded {length(downloaded)} asset(s) from tag '{tag}'"
   )
 
   invisible(downloaded)
@@ -692,52 +693,4 @@
   # Argument wins, then env var, then hard-coded default
   base <- api_url %||% Sys.getenv("GITHUB_API_URL", "https://api.github.com")
   sub("/+$", "", base)
-}
-
-# ========================
-# Guess repository
-# ========================
-
-.gh_repo_from_remote_url <- function(remote_url) {
-  .assert_string(remote_url, required = TRUE)
-
-  # Strip query/fragment and trailing .git
-  remote_url <- sub("(\\?|#).*", "", remote_url)
-  remote_url <- sub("\\.git$", "", remote_url)
-
-  # Split on common separators (handles https, ssh, git@..., ssh://)
-  parts <- strsplit(remote_url, "[/:@]+")[[1]]
-  parts <- parts[nzchar(parts)]
-
-  if (length(parts) < 2) {
-    stop(
-      "Could not parse owner/repo from remote URL '", remote_url, "'.",
-      " Only standard HTTPS or SSH GitHub remotes are supported."
-    )
-  }
-
-  owner <- parts[length(parts) - 1]
-  repo <- parts[length(parts)]
-
-  paste0(owner, "/", repo)
-}
-
-.gh_guess_repo <- function(path = ".") {
-  .auth_check_github("accessing GitHub repository information")
-
-  remotes <- gert::git_remote_list(repo = path)
-
-  # Get "origin" url as a character scalar if present; fall back to the first remote url.
-  origin_idx <- which(remotes$name == "origin")
-  origin <- if (length(origin_idx) > 0) remotes$url[[origin_idx[1]]] else NULL
-  remote_url <- origin %||% remotes$url[[1]]
-
-  if (is.null(remote_url) || !nzchar(remote_url)) {
-    stop(
-      "Failed to get GitHub remote URL from git config. ",
-      "Please ensure an 'origin' remote is configured."
-    )
-  }
-
-  .gh_repo_from_remote_url(remote_url)
 }

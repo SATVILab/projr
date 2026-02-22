@@ -2,6 +2,15 @@ name: R-CMD-check
 
 on:
   workflow_dispatch:
+    inputs:
+      runner_set:
+        description: "Which runners to use"
+        type: choice
+        required: true
+        default: ubuntu
+        options:
+          - ubuntu
+          - all
   # push:
   #    branches: main
 
@@ -22,7 +31,7 @@ jobs:
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GITHUB_PAT: ${{ secrets.GH_TOKEN }}
+      # GITHUB_PAT: ${{ secrets.GH_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
       R_PKG_TEST_LITE: true
       # OSF_PAT: ${{ secrets.OSF_PAT }}
@@ -63,20 +72,16 @@ jobs:
         with:
           upload-snapshots: true
 
-  R-CMD-check-all:
+  R-CMD-check-dispatch:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.config.os }}
-    name: All OS's - ${{ matrix.config.os }} (${{ matrix.config.r }})
+    name: "All OS's - ${{ matrix.config.os }} (${{ matrix.config.r }})"
+    timeout-minutes: 45
 
     strategy:
       fail-fast: false
       matrix:
-        config:
-          - {os: ubuntu-latest,   r: 'release'}
-          - {os: windows-latest, r: 'release'}
-          - {os: macos-latest,   r: 'release'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
-          - {os: ubuntu-latest,   r: 'oldrel-1'}
+        config: ${{ fromJSON((github.event_name == 'workflow_dispatch' && (github.event.inputs.runner_set || 'ubuntu') == 'all') && '[{"os":"ubuntu-latest","r":"release"},{"os":"windows-latest","r":"release"},{"os":"macos-latest","r":"release"},{"os":"ubuntu-latest","r":"devel","http-user-agent":"release"},{"os":"ubuntu-latest","r":"oldrel-1"}]' || '[{"os":"ubuntu-latest","r":"release"}]') }}
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

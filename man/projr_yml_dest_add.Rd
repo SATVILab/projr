@@ -25,11 +25,7 @@ If not supplied, will be made equal to \code{content}.}
 \item{content}{character vector.
 Labels of directories to include in the upload.
 Options are the labels of directories
-in the active \code{projr} configuration,
-as well as "docs", "data" and "code".
-"docs" means the directory where the documents are rendered to,
-"data" means the files in the \code{"data"} directory,
-and "code" means all files tracked by the Git repository.}
+in the active \code{projr} configuration.}
 
 \item{path}{character.
 Path to the directory.
@@ -37,13 +33,13 @@ If a relative path is given, then it is taken as
 relative to the project home directory.
 Must be supplied.}
 
-\item{structure}{"latest" or "version".
+\item{structure}{"latest" or "archive".
 Structure of the remote.
 If "latest", then \code{path} simply contains
 the latest versions of the contents.
 If "version", then \code{path} will contain
 a directory for each version.
-If not supplied, will be \code{version}.}
+If not supplied, will be \code{archive}.}
 
 \item{overwrite}{logical.
 Whether to rewrite an existing entry of the same
@@ -51,42 +47,15 @@ title in the specified \code{projr} configuration file.
 Default is TRUE.}
 
 \item{send_cue}{"always", "if-change" or "never".
-Only relevant if \code{structure} is \code{archive}
-and \code{send_strategy} is \code{sync-diff} or \code{sync-purge}.
-If \code{always}, then a new remote is created
-every time, even if there is no change from the previous
-build.
-For example, if the contents of \code{raw-data} are the same
-between builds \code{v0.0.1} and \code{v0.0.2}, then
-a local remote would have folders \code{raw-data/v0.0.1}
-and \code{raw-data/v0.0.2}.
-If \verb{if-change}, then a new remote is created
-only if there is a change from the previous build.
-In the example above, a local remote would
-only have the folder \code{raw-data/v0.0.1}.
-If \code{never}, then a new remote is never created.}
+When to send to the remote. Default is NULL.}
 
 \item{send_strategy}{"upload-all", "upload-missing",
-"sync-purge" and "sync-diff".
-How to synchronise to the remote.
-If \code{upload-all}, then all files are uploaded.
-If \code{upload-missing}, then only missing files are uploaded.
-If \code{sync-purge}, then all files on the remote
-are deleted before uploading all local files.
-If \code{sync-diff}, then files
-that have changed or been added locally are uploaded to the remote,
-and files that have been removed locally are removed from the remote.
-If not set, then "sync-diff" will be used.}
+"sync-purge" or "sync-diff".
+How to synchronise to the remote. Default is NULL.}
 
 \item{send_inspect}{"manifest" , "file" or "none".
 What to look at to find what are the
-files on the remote, and their versions.
-If \code{manifest}, then the manifest on the remote is used.
-If \code{file}, then the files on the remote are downloaded
-and their versions are determined.
-If \code{none}, then no inspection is done (the remote
-is typically treated as "empty" in that case).
-If not set, then defaults to \code{"manifest"}.}
+files on the remote, and their versions. Default is NULL.}
 
 \item{profile}{character.
 Profile to write the settings to.

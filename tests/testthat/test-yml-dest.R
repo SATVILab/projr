@@ -7,7 +7,7 @@
 test_that(".yml_dest_opt_vec returns expected remote types", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  expect_identical(.yml_dest_opt_vec(), c("local", "osf", "github"))
+  expect_identical(.yml_dest_opt_vec(), c("local", "github"))
 })
 
 test_that(".yml_dest_set_type and .yml_dest_get_type work", {
@@ -177,7 +177,6 @@ test_that(".yml_dest_rm_type_all removes all destination types", {
       # Check all are gone
       expect_null(.yml_dest_get_type("local", "default"))
       expect_null(.yml_dest_get_type("github", "default"))
-      expect_null(.yml_dest_get_type("osf", "default"))
     }
   )
 })
@@ -253,8 +252,6 @@ test_that(".yml_dest_add_get_list_add_extra switches on type", {
     id = NULL,
     id_parent = NULL,
     title = "test",
-    category = NULL,
-    public = FALSE,
     description = NULL
   )
   expect_identical(result, list_add)
@@ -266,8 +263,6 @@ test_that(".yml_dest_add_get_list_add_extra switches on type", {
     id = NULL,
     id_parent = NULL,
     title = "test",
-    category = NULL,
-    public = FALSE,
     description = NULL
   )
   expect_identical(result, list_add)
@@ -350,11 +345,6 @@ test_that(".yml_dest_complete_title_upload_strategy completes strategy for diffe
   result <- .yml_dest_complete_title_upload_strategy(yml, "github")
   expect_identical(result[["strategy"]], "upload-all")
 
-  # OSF type
-  yml <- list(inspect = "file")
-  result <- .yml_dest_complete_title_upload_strategy(yml, "osf")
-  expect_identical(result[["strategy"]], "sync-diff")
-
   # Existing strategy preserved
   yml <- list(strategy = "upload-missing", inspect = "manifest")
   result <- .yml_dest_complete_title_upload_strategy(yml, "local")
@@ -398,10 +388,6 @@ test_that(".yml_dest_complete_title_id completes ID for different types", {
   result <- .yml_dest_complete_title_id(yml, "github", "my-release")
   expect_identical(result[["id"]], "my-release")
 
-  # OSF type - id unchanged
-  yml <- list(id = "abcde")
-  result <- .yml_dest_complete_title_id(yml, "osf", "title")
-  expect_identical(result[["id"]], "abcde")
 })
 
 test_that(".yml_dest_complete_title applies all completions", {
@@ -557,82 +543,6 @@ test_that(".yml_dest_get_title_complete works with parameter-based config", {
   )
 })
 
-# =============================================================================
-# OSF-specific functions
-# =============================================================================
-
-test_that(".yml_dest_add_get_list_add_extra_osf handles character id", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
-  skip_if(.is_test_osf())
-
-  # This test would require a valid OSF node ID
-  # We can test the error case without OSF credentials
-  list_add <- list(content = "output")
-
-  # Invalid id (wrong length)
-  expect_error(
-    .yml_dest_add_get_list_add_extra_osf_id_chr(list_add, "abc"),
-    "must have 5 characters"
-  )
-
-  # Invalid id (not string)
-  expect_error(
-    .yml_dest_add_get_list_add_extra_osf_id_chr(list_add, c("abcde", "fghij")),
-    "must be a single"
-  )
-})
-
-test_that(".yml_dest_add_get_list_add_extra_osf handles NULL id", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!nzchar(Sys.getenv("OSF_PAT")), "OSF_PAT not available")
-
-  skip_if(.is_test_osf())
-  # This test requires OSF authentication to create nodes
-  # We only test the validation function
-  expect_error(
-    .yml_dest_add_get_list_add_extra_osf_id_null_check_success(""),
-    "Failed to create OSF node"
-  )
-
-  expect_error(
-    .yml_dest_add_get_list_add_extra_osf_id_null_check_success(NULL),
-    "Failed to create OSF node"
-  )
-
-  # Valid id should pass through
-  result <- .yml_dest_add_get_list_add_extra_osf_id_null_check_success("abcde")
-  expect_identical(result, "abcde")
-})
-
-test_that(".yml_dest_add_get_list_add_extra_osf validates id class", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  list_add <- list(content = "output")
-
-  # Invalid id class (numeric)
-  expect_error(
-    .yml_dest_add_get_list_add_extra_osf(
-      list_add,
-      id = 12345, id_parent = NULL, title = "test",
-      category = NULL, public = FALSE, description = NULL
-    ),
-    "id must be character or NULL, not"
-  )
-
-  # Invalid id class (logical)
-  expect_error(
-    .yml_dest_add_get_list_add_extra_osf(
-      list_add,
-      id = TRUE, id_parent = NULL, title = "test",
-      category = NULL, public = FALSE, description = NULL
-    ),
-    "id must be character or NULL, not"
-  )
-})
 
 # =============================================================================
 # Integration tests with exported functions
@@ -653,10 +563,12 @@ test_that(".yml_dest_add_impl creates proper destination structure", {
         path = "/test/archive",
         path_append_label = TRUE,
         get_list = NULL,
-        send_list = list(cue = "always", strategy = "sync-diff", inspect = "manifest"),
+        send_list = list(
+          cue = "always",
+          strategy = "sync-diff",
+          inspect = "manifest"
+        ),
         overwrite = FALSE,
-        public = FALSE,
-        category = NULL,
         description = NULL,
         id = NULL,
         id_parent = NULL,
@@ -688,8 +600,6 @@ test_that(".yml_dest_add works through the full pipeline", {
         path = "/test/path",
         path_append_label = TRUE,
         overwrite = FALSE,
-        public = FALSE,
-        category = NULL,
         description = NULL,
         id = NULL,
         id_parent = NULL,

@@ -1,5 +1,5 @@
 ---
-applyTo: "R/{build,manifest,hash,change,log,changelog,buildlog}*.R"
+applyTo: "R/{build,manifest,hash,change,log,changelog,buildlog,dest}*.R"
 ---
 
 # Build System Guidelines for projr
@@ -38,7 +38,7 @@ Guidelines for working with the projr build system, including build processes, l
    - Hash output files (output, docs) for manifest
    - Commit changes to git (if enabled)
    - Run post-build hooks
-   - Distribute to remote destinations
+   - Distribute to remote destinations (see `remote-system.instructions.md` for details)
    - Bump to dev version (production builds only): e.g., 0.0.2 → 0.0.2-1
    - Commit dev version with message "Begin v{version}"
 
@@ -293,6 +293,9 @@ fn_filtered <- .path_filter_spec(fn_abs, exc = "old")  # Too late!
 - `R/build-change-summary.R` - Change summary generation
 - `R/build-pre-clear.R` - Directory clearing
 - `R/build-hooks.R` - Hook execution
+- `R/dest-send.R` - Post-build remote destination dispatch
+- `R/dest-send-label.R` - Remote sending coordination (see remote-system.instructions.md)
+- `R/dest-send-prepare.R` - Pre-send preparation
 - `R/log.R` - Core logging functions
 - `R/cli-output.R` - CLI output with integrated logging
 - `R/manifest.R` - Core manifest operations

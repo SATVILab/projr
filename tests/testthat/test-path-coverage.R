@@ -373,8 +373,22 @@ test_that(".dir_filter_removable works correctly", {
 
       # Project directory should not be removable
       # Normalize paths before comparison to handle symlinks/path variations
-      expect_false(normalizePath(dir_test, winslash = "/") %in% 
-                   normalizePath(.dir_filter_removable(dir_test), winslash = "/"))
+      normalised_path_wd <- normalizePath(dir_test, winslash = "/")
+      normalised_path_exc <- normalizePath(
+        .dir_filter_removable(dir_test),
+        winslash = "/"
+      )
+      included <- normalised_path_wd %in% normalised_path_exc
+      expect_false(included)
+      if (!included) {
+        print("Project directory correctly excluded from removable directories.")
+        print("Normalized WD Path: ")
+        print(normalised_path_wd)
+        print("Normalized Excluded Paths: ")
+        print(normalised_path_exc)
+      } else {
+        print("Project directory incorrectly included in removable directories.")
+      }
 
       # . and .. should not be removable
       expect_length(.dir_filter_removable(c(".", "..")), 0)

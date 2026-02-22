@@ -10,8 +10,7 @@ projr_build_dev(
   old_dev_remove = TRUE,
   args_engine = list(),
   profile = NULL,
-  clear_output = "never",
-  output_level = NULL
+  clear_output = "never"
 )
 }
 \arguments{
@@ -41,11 +40,6 @@ rendering engine
 When to clear output directories: "pre" (before build),
 "post" (after build), or "never" (default for dev builds).
 Can also be set via PROJR_CLEAR_OUTPUT environment variable.}
-
-\item{output_level}{character.
-Level of CLI output: "none" (no additional messages, default for dev builds),
-"std" (standard messages), or "debug" (verbose messages for debugging).
-Can also be set via PROJR_OUTPUT_LEVEL environment variable.}
 }
 \description{
 Builds project to output, which

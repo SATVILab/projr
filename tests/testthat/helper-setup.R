@@ -37,7 +37,7 @@
 .test_setup_project_dir <- function(base_name, env) {
   # set up directory
   base_name <- .test_setup_project_basename(base_name)
-  path_dir_test <- file.path(tempdir(), paste0(base_name))
+  path_dir_test <- .dir_get_tmp_random_path()
   if (dir.exists(path_dir_test)) {
     unlink(path_dir_test, recursive = TRUE)
   }
@@ -126,7 +126,7 @@
   env <- parent.frame()
   .test_git_identity_env_set(env)
 
-  if (Sys.getenv("GITHUB_ACTIONS") == "true") {
+  if (.is_env_var_true("GITHUB_ACTIONS")) {
     gert_config_global <- gert::git_config_global()[
       gert::git_config_global()[["level"]] == "global", ,
       drop = FALSE
@@ -296,7 +296,7 @@
 
 .test_setup_project_files_copy <- function(path_dir) {
   for (x in list.files(testthat::test_path("./project_structure"))) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(path_dir, x),
       overwrite = TRUE
@@ -568,3 +568,7 @@
 }
 
 .test_setup_project()
+
+.has_internet <- function() {
+  !is.null(curl::nslookup("captive.apple.com", error = FALSE))
+}

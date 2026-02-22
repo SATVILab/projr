@@ -25,8 +25,7 @@ test_that(".build_engine works with bookdown projects", {
       result <- .build_engine(
         file = NULL,
         version_run_on_list = version_run_on_list,
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       # Check that bookdown rendered successfully
@@ -76,8 +75,7 @@ test_that(".build_engine works with quarto documents", {
       result <- .build_engine(
         file = NULL,
         version_run_on_list = version_run_on_list,
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       expect_true(result)
@@ -111,8 +109,7 @@ test_that(".build_engine works with RMarkdown documents", {
       result <- .build_engine(
         file = NULL,
         version_run_on_list = version_run_on_list,
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       expect_true(result)
@@ -149,8 +146,7 @@ test_that(".build_engine works with quarto projects", {
       result <- .build_engine(
         file = NULL,
         version_run_on_list = version_run_on_list,
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       expect_true(result)
@@ -196,8 +192,7 @@ test_that(".build_engine respects file parameter for qmd documents", {
       result <- .build_engine(
         file = "doc1.qmd",
         version_run_on_list = version_run_on_list,
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       expect_true(result)
@@ -243,8 +238,7 @@ test_that(".build_engine respects file parameter for rmd documents", {
       result <- .build_engine(
         file = "report1.Rmd",
         version_run_on_list = version_run_on_list,
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       expect_true(result)
@@ -281,8 +275,7 @@ test_that(".build_engine handles no documents error", {
         .build_engine(
           file = NULL,
           version_run_on_list = version_run_on_list,
-          args_engine = list(),
-          output_level = "none"
+          args_engine = list()
         ),
         regexp = "No Quarto or RMarkdown documents found"
       )
@@ -304,8 +297,7 @@ test_that(".build_engine_bookdown succeeds with valid project", {
     code = {
       # Test project has bookdown setup by default
       result <- .build_engine_bookdown(
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       # Should return NULL on success
@@ -339,8 +331,7 @@ test_that(".build_engine_bookdown returns error message on failure", {
       )
 
       result <- .build_engine_bookdown(
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       # Should return error message string
@@ -368,8 +359,7 @@ test_that(".build_engine_quarto_project succeeds with valid project", {
       .test_setup_project_lit_docs("quarto_project")
 
       result <- .build_engine_quarto_project(
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       # Should return NULL on success
@@ -404,8 +394,7 @@ test_that(".build_engine_qmd succeeds with valid document", {
 
       result <- .build_engine_qmd(
         file = "test.qmd",
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       # Should return NULL on success
@@ -440,8 +429,7 @@ test_that(".build_engine_qmd returns error message on failure", {
 
       result <- .build_engine_qmd(
         file = "broken.qmd",
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       # Should return error message string
@@ -472,8 +460,7 @@ test_that(".build_engine_qmd renders multiple files", {
 
       result <- .build_engine_qmd(
         file = c("doc1.qmd", "doc2.qmd"),
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       # Should return NULL on success
@@ -518,8 +505,7 @@ test_that(".build_engine_qmd stops on first error when rendering multiple files"
       # Render in order: good, broken, never
       result <- .build_engine_qmd(
         file = c("good.qmd", "broken.qmd", "never.qmd"),
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       # Should stop at first error
@@ -554,8 +540,7 @@ test_that(".build_engine_rmd succeeds with valid document", {
 
       result <- .build_engine_rmd(
         file = "test.Rmd",
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       # Should return NULL on success
@@ -590,8 +575,7 @@ test_that(".build_engine_rmd returns error message on failure", {
 
       result <- .build_engine_rmd(
         file = "broken.Rmd",
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       # Should return error message string
@@ -622,8 +606,7 @@ test_that(".build_engine_rmd renders multiple files", {
 
       result <- .build_engine_rmd(
         file = c("report1.Rmd", "report2.Rmd"),
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       # Should return NULL on success
@@ -669,8 +652,7 @@ test_that(".build_engine_rmd stops on first error when rendering multiple files"
       # Render in order: good, broken, never
       result <- .build_engine_rmd(
         file = c("good.Rmd", "broken.Rmd", "never.Rmd"),
-        args_engine = list(),
-        output_level = "none"
+        args_engine = list()
       )
 
       # Should stop at first error
@@ -764,8 +746,7 @@ test_that(".build_engine_qmd passes args_engine correctly", {
       # Test with custom args_engine (quiet mode)
       result <- .build_engine_qmd(
         file = "test.qmd",
-        args_engine = list(quiet = TRUE),
-        output_level = "none"
+        args_engine = list(quiet = TRUE)
       )
 
       expect_null(result)
@@ -799,101 +780,11 @@ test_that(".build_engine_rmd passes args_engine correctly", {
       # Test with custom args_engine (quiet mode)
       result <- .build_engine_rmd(
         file = "test.Rmd",
-        args_engine = list(quiet = TRUE),
-        output_level = "none"
+        args_engine = list(quiet = TRUE)
       )
 
       expect_null(result)
       expect_true(file.exists("test.html"))
-    },
-    quiet = TRUE,
-    force = TRUE
-  )
-})
-
-# Test output_level parameter
-# ============================
-
-test_that(".build_engine_qmd respects output_level parameter", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      writeLines(
-        c("---", "title: \"Test\"", "---", "", "# Test"),
-        "test.qmd"
-      )
-
-      # Test with different output levels
-      result_none <- .build_engine_qmd(
-        file = "test.qmd",
-        args_engine = list(),
-        output_level = "none"
-      )
-      expect_null(result_none)
-
-      if (file.exists("test.html")) file.remove("test.html")
-
-      result_std <- .build_engine_qmd(
-        file = "test.qmd",
-        args_engine = list(),
-        output_level = "std"
-      )
-      expect_null(result_std)
-
-      if (file.exists("test.html")) file.remove("test.html")
-
-      result_debug <- .build_engine_qmd(
-        file = "test.qmd",
-        args_engine = list(),
-        output_level = "debug"
-      )
-      expect_null(result_debug)
-    },
-    quiet = TRUE,
-    force = TRUE
-  )
-})
-
-test_that(".build_engine_rmd respects output_level parameter", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      writeLines(
-        c("---", "title: \"Test\"", "---", "", "# Test"),
-        "test.Rmd"
-      )
-
-      # Test with different output levels
-      result_none <- .build_engine_rmd(
-        file = "test.Rmd",
-        args_engine = list(),
-        output_level = "none"
-      )
-      expect_null(result_none)
-
-      if (file.exists("test.html")) file.remove("test.html")
-
-      result_std <- .build_engine_rmd(
-        file = "test.Rmd",
-        args_engine = list(),
-        output_level = "std"
-      )
-      expect_null(result_std)
-
-      if (file.exists("test.html")) file.remove("test.html")
-
-      result_debug <- .build_engine_rmd(
-        file = "test.Rmd",
-        args_engine = list(),
-        output_level = "debug"
-      )
-      expect_null(result_debug)
     },
     quiet = TRUE,
     force = TRUE

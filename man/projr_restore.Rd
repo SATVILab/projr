@@ -49,7 +49,7 @@ Must be NULL or a non-empty character vector with valid directory labels.}
 or \code{"dest"} (build destinations). Default is \code{NULL}, checking both in order.
 Must be NULL or one/both of \code{"source"} and \code{"dest"}.}
 
-\item{type}{character or NULL. Remote type: \code{"local"}, \code{"osf"} or \code{"github"}.
+\item{type}{character or NULL. Remote type: \code{"local"} or \code{"github"}.
 Default is \code{NULL}, automatically choosing the first available remote.
 Must be NULL or one of the valid remote types.}
 
@@ -86,7 +86,7 @@ All parameters are validated before execution:
 \itemize{
 \item \code{label}: Must be NULL or a non-empty character vector of valid directory labels
 \item \code{pos}: Must be NULL or contain only "source" and/or "dest"
-\item \code{type}: Must be NULL or one of "local", "osf", or "github"
+\item \code{type}: Must be NULL or one of "local" or "github"
 \item \code{title}: Must be NULL or a single character string
 \item \code{repo}: Must be a single non-empty character string
 \item \code{path}: Must be NULL or a single non-empty character string
