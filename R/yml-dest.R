@@ -7,8 +7,6 @@
                           path = NULL,
                           path_append_label = NULL,
                           overwrite = FALSE,
-                          public = FALSE,
-                          category = NULL,
                           description = NULL,
                           id = NULL,
                           id_parent = NULL,
@@ -42,8 +40,6 @@
     path = path,
     path_append_label = path_append_label,
     overwrite = overwrite,
-    public = public,
-    category = category,
     description = description,
     id = id,
     id_parent = id_parent,
@@ -63,8 +59,6 @@
     get_list = get_list,
     send_list = send_list,
     overwrite = overwrite,
-    public = public,
-    category = category,
     description = description,
     id = id,
     id_parent = id_parent,
@@ -84,8 +78,6 @@
                                get_list,
                                send_list,
                                overwrite,
-                               public,
-                               category,
                                description,
                                id,
                                id_parent,
@@ -101,7 +93,7 @@
   ) |>
     .yml_dest_add_get_list_add_extra(
       type = type, id = id, id_parent = id_parent, title = title,
-      category = category, public = public, description = description
+      description = description
     ) |>
     .yml_dest_set_title(
       title = title, type = type,
@@ -131,90 +123,10 @@
                                              id,
                                              id_parent,
                                              title,
-                                             category,
-                                             public,
                                              description) {
-  switch(type,
-    "osf" = .yml_dest_add_get_list_add_extra_osf(
-      list_add = list_add, id = id, id_parent = id_parent, title,
-      category = category, public = public, description = description
-    ),
-    list_add
-  )
+  # OSF support has been removed
+  list_add
 }
-
-.yml_dest_add_get_list_add_extra_osf <- function(list_add,
-                                                 id,
-                                                 id_parent,
-                                                 title,
-                                                 category,
-                                                 public,
-                                                 description) {
-  switch(class(id)[[1]],
-    "character" = .yml_dest_add_get_list_add_extra_osf_id_chr(
-      list_add, id
-    ),
-    "NULL" = .yml_dest_add_get_list_add_extra_osf_id_null(
-      list_add = list_add,
-      id_parent = id_parent,
-      title = title,
-      category = category,
-      public = public,
-      description = description
-    ),
-    stop(
-      paste0("id must be character or NULL, not ", class(id)[[1]]),
-      call. = FALSE
-    )
-  )
-}
-
-.yml_dest_add_get_list_add_extra_osf_id_chr <- function(list_add,
-                                                        id) {
-  .assert_string(id, TRUE)
-  .assert_nchar_single(id, 5L)
-  if (!.yml_dest_add_get_list_add_extra_osf_id_chr_check(id)) {
-    stop(
-      paste0("id ", id, " not found on OSF"),
-      call. = FALSE
-    )
-  }
-  list_add |>
-    .list_add(id)
-}
-
-.yml_dest_add_get_list_add_extra_osf_id_chr_check <- function(id) {
-  !inherits(.remote_get("osf", id), "try-error")
-}
-
-.yml_dest_add_get_list_add_extra_osf_id_null <- function(list_add,
-                                                         title,
-                                                         id_parent,
-                                                         category,
-                                                         description,
-                                                         public) {
-  .remote_create(
-    type = "osf",
-    name = title,
-    id_parent = id_parent,
-    category = category,
-    public = public,
-    description = description
-  ) |>
-    .yml_dest_add_get_list_add_extra_osf_id_null_check_success() |>
-    (\(x) .list_add(list_base = list_add, x = x, nm = "id"))()
-}
-
-.yml_dest_add_get_list_add_extra_osf_id_null_check_success <-
-  function(id, list_add) {
-    if (.is_len_0(id) || !.is_string(id)) {
-      stop(
-        "Failed to create OSF node",
-        call. = FALSE
-      )
-    }
-    id
-  }
 
 # -----------------
 # complete
@@ -277,13 +189,7 @@
 
 .yml_dest_get_title_complete_param_force <- function(yml_title,
                                                      always_archive) {
-  if (is.null(always_archive) || !always_archive) {
-    return(yml_title)
-  }
-  yml_title[["send"]] <- list(
-    "inspect" = "manifest",
-    "strategy" = "sync-purge"
-  )
+  yml_title[["send"]][["cue"]] <- if (always_archive) "always" else "if-change"
   yml_title
 }
 
@@ -321,8 +227,7 @@
 # strategy
 .yml_dest_complete_title_upload_strategy <- function(yml, type) {
   yml[["strategy"]] <- switch(type,
-    "local" = ,
-    "osf" = .yml_dest_complete_title_strategy_hierarchy(
+    "local" = .yml_dest_complete_title_strategy_hierarchy(
       yml[["strategy"]], yml[["inspect"]]
     ),
     "github" = .yml_dest_complete_title_strategy_github(
@@ -332,32 +237,24 @@
   yml
 }
 
-.yml_dest_complete_title_strategy_hierarchy <-
+# Generic strategy completion function for all remote types
+.yml_dest_complete_title_strategy_default <-
   function(strategy, inspect) {
-    # default is sync-diff
-    strategy <- strategy %||% "sync-diff"
-    inspect <- inspect %||% "manifest"
-    # if we cannot use versioning but must sync, the only option is
-    # sync-purge
-    if (inspect == "none" && strategy == "sync-diff") {
-      return("sync-purge")
+    if (!is.null(strategy)) {
+      return(strategy)
     }
-    strategy
+    if (inspect == "none") {
+      return("upload-all")
+    }
+    "sync-diff"
   }
 
+# Wrappers for backward compatibility and clarity
+.yml_dest_complete_title_strategy_hierarchy <-
+  .yml_dest_complete_title_strategy_default
+
 .yml_dest_complete_title_strategy_github <-
-  function(strategy, inspect) {
-    # default is sync-diff, for speeds
-    strategy <- strategy %||% "sync-diff"
-    inspect <- inspect %||% "manifest"
-    # only if we're allowed to use versioning and we're syncing
-    # do we use sync-diff (which is the default).
-    # Otherwise, we use sync-purge
-    if (strategy == "sync-diff" && inspect != "none") {
-      return("sync-diff")
-    }
-    "sync-purge"
-  }
+  .yml_dest_complete_title_strategy_default
 
 .yml_dest_complete_title_path_append_label <- function(yml, type) {
   .yml_complete(yml, "path-append-label", TRUE)
@@ -459,7 +356,7 @@
 }
 
 .yml_dest_opt_vec <- function() {
-  c("local", "osf", "github")
+  c("local", "github")
 }
 
 # basic
@@ -495,12 +392,12 @@
 
 # type
 .yml_dest_set_type <- function(yml_type, type, profile) {
-  .assert_in(type, c("osf", "local", "github"), TRUE)
+  .assert_in(type, c("local", "github"), TRUE)
   .yml_build_set_nm(yml_type, type, profile)
 }
 
 .yml_dest_get_type <- function(type, profile) {
-  .assert_in(type, c("osf", "local", "github"), TRUE)
+  .assert_in(type, c("local", "github"), TRUE)
   init_list <- .yml_get(profile)[["build"]][[type]]
   if (length(init_list) == 0L) {
     return(NULL)

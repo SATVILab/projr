@@ -34,12 +34,10 @@
   invisible(FALSE)
 }
 
-
-
 .test_setup_project_dir <- function(base_name, env) {
   # set up directory
   base_name <- .test_setup_project_basename(base_name)
-  path_dir_test <- file.path(tempdir(), paste0(base_name))
+  path_dir_test <- .dir_get_tmp_random_path()
   if (dir.exists(path_dir_test)) {
     unlink(path_dir_test, recursive = TRUE)
   }
@@ -128,7 +126,7 @@
   env <- parent.frame()
   .test_git_identity_env_set(env)
 
-  if (Sys.getenv("GITHUB_ACTIONS") == "true") {
+  if (.is_env_var_true("GITHUB_ACTIONS")) {
     gert_config_global <- gert::git_config_global()[
       gert::git_config_global()[["level"]] == "global", ,
       drop = FALSE
@@ -175,17 +173,20 @@
     "GIT_COMMITTER_NAME", "GIT_COMMITTER_EMAIL"
   )
   old_values <- Sys.getenv(env_vars, unset = NA_character_)
-  withr::defer({
-    to_restore <- !is.na(old_values)
-    if (any(to_restore)) {
-      restore_list <- as.list(stats::setNames(old_values[to_restore], env_vars[to_restore]))
-      do.call(Sys.setenv, restore_list)
-    }
-    to_clear <- is.na(old_values)
-    if (any(to_clear)) {
-      Sys.unsetenv(env_vars[to_clear])
-    }
-  }, envir = env)
+  withr::defer(
+    {
+      to_restore <- !is.na(old_values)
+      if (any(to_restore)) {
+        restore_list <- as.list(stats::setNames(old_values[to_restore], env_vars[to_restore]))
+        do.call(Sys.setenv, restore_list)
+      }
+      to_clear <- is.na(old_values)
+      if (any(to_clear)) {
+        Sys.unsetenv(env_vars[to_clear])
+      }
+    },
+    envir = env
+  )
 
   new_vals <- as.list(stats::setNames(
     c(
@@ -243,9 +244,18 @@
   }
   # .dir_rm(path_dir)
   # create github repo if required
+  token <- .auth_get_github_pat_find()
+  user <- tryCatch(
+    gh::gh_whoami(.token = token)[["login"]],
+    error = function(e) NULL
+  )
   with_dir(
     dirname(path_dir),
-    .test_github_repo_create(repo = basename(path_dir), env = env)
+    .test_github_repo_create(
+      repo = basename(path_dir),
+      user = user,
+      env = env
+    )
   )
   invisible(TRUE)
 }
@@ -286,7 +296,7 @@
 
 .test_setup_project_files_copy <- function(path_dir) {
   for (x in list.files(testthat::test_path("./project_structure"))) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(path_dir, x),
       overwrite = TRUE
@@ -331,36 +341,8 @@
   invisible(TRUE)
 }
 
-.test_setup_content <- function(label,
-                                safe = FALSE,
-                                dir_sub_lvl = 2,
-                                dir_sub_prefix = "subdir") {
-  for (x in label) {
-    # create directories and files
-    base_dir <- projr_path_get_dir(x, safe = safe, create = TRUE)
-    file.create(file.path(base_dir, "abc.txt"))
-    
-    if (dir_sub_lvl > 0) {
-      subdir1 <- projr_path_get_dir(
-        x, paste0(dir_sub_prefix, "1"),
-        safe = safe, create = TRUE
-      )
-      file.create(file.path(subdir1, "def.txt"))
-    }
-    if (dir_sub_lvl > 1) {
-      subdir2 <- projr_path_get_dir(
-        x, paste0(dir_sub_prefix, "1"),
-        paste0(dir_sub_prefix, "2"),
-        safe = safe, create = TRUE
-      )
-      file.create(file.path(subdir2, "ghi.txt"))
-    }
-  }
-  vapply(label, projr_path_get_dir, character(1), safe = safe) |> invisible()
-}
 
-.test_setup_content_dir <- function(path_dir = NULL,
-                                    safe = FALSE,
+.test_content_setup_dir <- function(path_dir = NULL,
                                     dir_sub_lvl = 2,
                                     dir_sub_prefix = "subdir") {
   if (is.null(path_dir)) {
@@ -386,16 +368,65 @@
   path_dir |> invisible()
 }
 
-content_vec_test_file <- c(
-  ".hidden.txt", "abc.txt",
-  "subdir1/def.txt", "subdir1/subdir2/ghi.txt"
-)
+.test_content_setup_label <- function(label,
+                                      safe = FALSE,
+                                      dir_sub_lvl = 2,
+                                      dir_sub_prefix = "subdir") {
+  path_vec <- vapply(
+    label, function(x) projr_path_get(x, safe = safe), character(1L)
+  )
+  for (x in path_vec) {
+    .test_content_setup_dir(
+      path_dir = x,
+      dir_sub_lvl = dir_sub_lvl,
+      dir_sub_prefix = dir_sub_prefix
+    )
+  }
+  path_vec
+}
 
-content_vec_test_dir <- c(
-  "subdir1", "subdir1/subdir2"
-)
+.test_content_adjust_dir <- function(path_dir = NULL,
+                                     safe = FALSE,
+                                     dir_sub_lvl = 2,
+                                     dir_sub_prefix = "subdir") {
+  if (is.null(path_dir)) {
+    path_dir <- file.path(tempdir(), signif(stats::rnorm(1), 6))
+  }
+  if (!dir.exists(path_dir)) {
+    dir.create(path_dir, recursive = TRUE)
+  }
+  file.create(file.path(path_dir, "file1.txt"))
+  if (dir_sub_lvl == 1) {
+    path_dir_sub1 <- file.path(path_dir, paste0(dir_sub_prefix, "1"))
+    if (!dir.exists(path_dir_sub1)) {
+      dir.create(path_dir_sub1)
+    }
+    file.create(file.path(path_dir_sub1, "file2.txt"))
+  }
+  if (dir_sub_lvl == 2) {
+    path_dir_sub2 <- file.path(
+      path_dir, paste0(dir_sub_prefix, "1"), paste0(dir_sub_prefix, "2")
+    )
+    if (!dir.exists(path_dir_sub2)) {
+      dir.create(path_dir_sub2, recursive = TRUE)
+    }
+    file.create(file.path(path_dir_sub2, "file3.txt"))
+  }
+  .file_ls(path_dir) |> invisible()
+}
 
-content_vec <- c(content_vec_test_file, content_vec_test_dir)
+.test_content_adjust_label <- function(label,
+                                       safe = FALSE,
+                                       dir_sub_lvl = 2,
+                                       dir_sub_prefix = "subdir") {
+  .test_content_adjust_dir(
+    path_dir = projr_path_get(label, safe = safe),
+    safe = safe,
+    dir_sub_lvl = dir_sub_lvl,
+    dir_sub_prefix = dir_sub_prefix
+  )
+}
+
 
 .test_manifest_create <- function(pre = TRUE,
                                   post = TRUE,
@@ -499,19 +530,19 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
 .init <- function() {
   # Set up usethis project
   .init_usethis_std()
-  
+
   # Create initial VERSION if needed
   if (!file.exists(.path_get("VERSION")) &&
-        !file.exists(.path_get("DESCRIPTION"))) {
+    !file.exists(.path_get("DESCRIPTION"))) {
     projr_version_set("0.0.0-1")
   }
-  
+
   # Initialize directories
   .init_dir_std(TRUE)
-  
+
   # Copy _projr.yml if not exists
   .init_yml_std(TRUE)
-  
+
   invisible(TRUE)
 }
 
@@ -520,20 +551,24 @@ content_vec <- c(content_vec_test_file, content_vec_test_dir)
 .init_full <- function() {
   # Set up usethis project
   .init_usethis_std()
-  
+
   # Create initial VERSION if needed
   if (!file.exists(.path_get("VERSION")) &&
-        !file.exists(.path_get("DESCRIPTION"))) {
+    !file.exists(.path_get("DESCRIPTION"))) {
     projr_version_set("0.0.0-1")
   }
-  
+
   # Initialize directories
   .init_dir_std(TRUE)
-  
+
   # Copy _projr.yml if not exists
   .init_yml_std(TRUE)
-  
+
   invisible(TRUE)
 }
 
 .test_setup_project()
+
+.has_internet <- function() {
+  !is.null(curl::nslookup("captive.apple.com", error = FALSE))
+}

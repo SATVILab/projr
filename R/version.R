@@ -17,7 +17,7 @@
 projr_version_set <- function(version, only_if_exists = TRUE) {
   if (file.exists(.path_get("DESCRIPTION"))) {
     .version_set_desc(version)
-    .version_set_file(version, only_if_exists = TRUE)
+    .version_set_file(version, only_if_exists = only_if_exists)
   } else {
     .version_set_file(version, only_if_exists = FALSE)
   }
@@ -335,7 +335,6 @@ projr_version_get <- function() {
 }
 
 
-
 .version_bump_dev <- function() {
   .version_bump("dev")
 }
@@ -398,14 +397,33 @@ projr_version_get <- function() {
   paste0("v", x_rm)
 }
 
+.version_normalize <- function(version) {
+  # Normalize version string for package_version() by padding with .0
+  # package_version() requires at least 2 components (major.minor)
+  # This function ensures versions have enough components
+  .assert_string(version, required = TRUE)
+
+  # Split by . or - to get components (escape - to match literal dash)
+  components <- strsplit(version, "[.\\-]")[[1]]
+
+  # package_version() needs at least 2 components
+  if (length(components) == 1) {
+    components <- c(components, "0")
+  }
+
+  # Reconstruct with dots (package_version handles dots)
+  paste(components, collapse = ".")
+}
+
 .version_get_earliest <- function(x) {
   .assert_chr(x, required = TRUE)
   if (length(x) == 0) {
     stop("x must have at least one element")
   }
-  # Apply .version_v_rm to each element
+  # Apply .version_v_rm to each element and normalize
   x_clean <- vapply(x, .version_v_rm, character(1), USE.NAMES = FALSE)
-  x_clean |>
+  x_normalized <- vapply(x_clean, .version_normalize, character(1), USE.NAMES = FALSE)
+  x_normalized |>
     unique() |>
     package_version() |>
     min() |>
@@ -425,11 +443,22 @@ projr_version_get <- function() {
   if (length(x) == 0) {
     stop("x must have at least one element")
   }
-  # Apply .version_v_rm to each element
+  # Apply .version_v_rm to each element and normalize
   x_clean <- vapply(x, .version_v_rm, character(1), USE.NAMES = FALSE)
-  x_clean |>
+  x_normalized <- vapply(x_clean, .version_normalize, character(1), USE.NAMES = FALSE)
+  x_normalized |>
     unique() |>
     package_version() |>
     max() |>
     utils::tail(1)
+}
+
+.version_is_earlier <- function(version_a, version_b) {
+  .assert_string(version_a, required = TRUE)
+  .assert_string(version_b, required = TRUE)
+  version_a_clean <- .version_v_rm(version_a)
+  version_b_clean <- .version_v_rm(version_b)
+  version_a_normalized <- .version_normalize(version_a_clean)
+  version_b_normalized <- .version_normalize(version_b_clean)
+  package_version(version_a_normalized) < package_version(version_b_normalized)
 }

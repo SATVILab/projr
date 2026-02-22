@@ -105,38 +105,37 @@ test_that(".version_file_update_label_version removes hash marker", {
   )
 })
 
-test_that(".remote_get_version_label_non_project_file_extract handles hash marker", {
+test_that(".remote_get_version_latest_label_non_project_file_extract handles hash marker", {
   skip_if(.is_test_select())
-  
+
   # Test extracting version without markers
   version_file <- c("Project: v0.5.0", "raw-data: v0.3.0")
-  result <- .remote_get_version_label_non_project_file_extract(version_file, "raw-data")
+  result <- .remote_get_version_latest_label_non_project_file_extract(version_file, "raw-data")
   expect_identical(result, "0.3.0")
-  
+
   # Test extracting version with hash marker
   version_file <- c("Project: v0.5.0", "raw-data: v0.3.0#")
-  result <- .remote_get_version_label_non_project_file_extract(version_file, "raw-data")
+  result <- .remote_get_version_latest_label_non_project_file_extract(version_file, "raw-data")
   expect_identical(result, "0.3.0")
-  
+
   # Test extracting version with asterisk marker
   version_file <- c("Project: v0.5.0", "raw-data: v0.3.0*")
-  result <- .remote_get_version_label_non_project_file_extract(version_file, "raw-data")
+  result <- .remote_get_version_latest_label_non_project_file_extract(version_file, "raw-data")
   expect_identical(result, "0.3.0")
-  
-  # Test extracting version with both markers should not happen in practice
-  # but should still extract version correctly
+
+  # Test extracting version with hash marker only (should still extract correctly)
   version_file <- c("Project: v0.5.0", "raw-data: v0.3.0#")
-  result <- .remote_get_version_label_non_project_file_extract(version_file, "raw-data")
+  result <- .remote_get_version_latest_label_non_project_file_extract(version_file, "raw-data")
   expect_identical(result, "0.3.0")
-  
+
   # Test with multiple labels, extract specific one
   version_file <- c("Project: v0.5.0", "raw-data: v0.3.0#", "cache: v0.2.0", "output: v0.4.0*")
-  result <- .remote_get_version_label_non_project_file_extract(version_file, "cache")
+  result <- .remote_get_version_latest_label_non_project_file_extract(version_file, "cache")
   expect_identical(result, "0.2.0")
-  
-  result <- .remote_get_version_label_non_project_file_extract(version_file, "raw-data")
+
+  result <- .remote_get_version_latest_label_non_project_file_extract(version_file, "raw-data")
   expect_identical(result, "0.3.0")
-  
-  result <- .remote_get_version_label_non_project_file_extract(version_file, "output")
+
+  result <- .remote_get_version_latest_label_non_project_file_extract(version_file, "output")
   expect_identical(result, "0.4.0")
 })

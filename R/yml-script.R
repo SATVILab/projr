@@ -68,8 +68,7 @@ projr_yml_script_add <- function(path,
   .yml_script_add(
     path = path, title = title, stage = stage, cue = cue,
     overwrite = overwrite, profile = profile
-  ) |>
-    .yml_script_set(profile = profile)
+  )
 }
 
 .yml_script_check <- function(path,

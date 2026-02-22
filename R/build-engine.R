@@ -1,19 +1,17 @@
 .build_engine <- function(file,
                           version_run_on_list,
-                          args_engine,
-                          output_level = "std",
-                          log_file = NULL) {
+                          args_engine) {
   # When files are explicitly specified, use document-level rendering
   # This ensures build.scripts overrides _quarto.yml or _bookdown.yml
   if (!is.null(file) && length(file) > 0) {
-    .cli_debug("Detecting engine from specified files", output_level = output_level, log_file = log_file)
+    .cli_debug("Detecting engine from specified files")
     engine <- .engine_get_from_files(file)
   } else {
-    .cli_debug("Detecting engine from project configuration", output_level = output_level, log_file = log_file)
+    .cli_debug("Detecting engine from project configuration")
     engine <- .engine_get()
   }
 
-  .cli_info("Using rendering engine: {engine}", output_level = output_level, log_file = log_file)
+  .cli_info("Using rendering engine: {engine}")
 
   # Handle case where no documents are found
   if (identical(engine, character(1L))) {
@@ -23,19 +21,19 @@
     )
   } else {
     build_error <- switch(engine,
-      "bookdown" = .build_engine_bookdown(args_engine, output_level, log_file),
-      "quarto_project" = .build_engine_quarto_project(args_engine, output_level, log_file),
-      "quarto_document" = .build_engine_qmd(file, args_engine, output_level, log_file),
-      "rmd" = .build_engine_rmd(file, args_engine, output_level, log_file)
+      "bookdown" = .build_engine_bookdown(args_engine),
+      "quarto_project" = .build_engine_quarto_project(args_engine),
+      "quarto_document" = .build_engine_qmd(file, args_engine),
+      "rmd" = .build_engine_rmd(file, args_engine)
     )
   }
 
   .build_engine_error(build_error, version_run_on_list)
 }
 
-.build_engine_bookdown <- function(args_engine, output_level = "std", log_file = NULL) {
+.build_engine_bookdown <- function(args_engine) {
   .dep_install("bookdown")
-  .cli_debug("Rendering bookdown project", output_level = output_level, log_file = log_file)
+  .cli_debug("Rendering bookdown project")
   x_return <- try(do.call(bookdown::render_book, args_engine))
   err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
   if (is.null(err_msg)) {
@@ -44,9 +42,9 @@
   paste0("Error rendering bookdown project ", err_msg)
 }
 
-.build_engine_quarto_project <- function(args_engine, output_level = "std", log_file = NULL) {
+.build_engine_quarto_project <- function(args_engine) {
   .dep_install("quarto")
-  .cli_debug("Rendering Quarto project", output_level = output_level, log_file = log_file)
+  .cli_debug("Rendering Quarto project")
   x_return <- try(do.call(quarto::quarto_render, args_engine))
   err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
   if (is.null(err_msg)) {
@@ -55,12 +53,12 @@
   paste0("Error rendering Quarto project ", err_msg)
 }
 
-.build_engine_qmd <- function(file, args_engine, output_level = "std", log_file = NULL) {
+.build_engine_qmd <- function(file, args_engine) {
   .dep_install("quarto")
   fn_vec <- .build_engine_doc_fn_get(file = file, type = "qmd")
-  .cli_debug("Rendering {length(fn_vec)} Quarto document(s)", output_level = output_level, log_file = log_file)
+  .cli_debug("Rendering {length(fn_vec)} Quarto document(s)")
   for (x in fn_vec) {
-    .cli_debug("Rendering: {x}", output_level = output_level, log_file = log_file)
+    .cli_debug("Rendering: {x}")
     x_return <- try(
       do.call(quarto::quarto_render, list(input = x) |> append(args_engine))
     )
@@ -75,12 +73,12 @@
   paste0("Error rendering Quarto document ", x, ": ", err_msg)
 }
 
-.build_engine_rmd <- function(file, args_engine, output_level = "std", log_file = NULL) {
+.build_engine_rmd <- function(file, args_engine) {
   .dep_install("rmarkdown")
   fn_vec <- .build_engine_doc_fn_get(file = file, type = "rmd")
-  .cli_debug("Rendering {length(fn_vec)} RMarkdown document(s)", output_level = output_level, log_file = log_file)
+  .cli_debug("Rendering {length(fn_vec)} RMarkdown document(s)")
   for (x in fn_vec) {
-    .cli_debug("Rendering: {x}", output_level = output_level, log_file = log_file)
+    .cli_debug("Rendering: {x}")
     x_return <- try(
       do.call(rmarkdown::render, list(input = x) |> append(args_engine))
     )

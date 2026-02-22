@@ -21,6 +21,7 @@ projr_yml_check <- function(profile = NULL) {
   .yml_scripts_check(profile)
   .yml_hooks_check_config(profile)
   .yml_cite_check_config(profile)
+  .yml_restrictions_check_config(profile)
   invisible(TRUE)
 }
 
@@ -32,6 +33,17 @@ projr_yml_check <- function(profile = NULL) {
   nm_vec_strip <- .dir_label_strip(nm_vec)
   .assert_len(nm_vec, unique(nm_vec) |> length())
   .assert_len(nm_vec, nm_vec[nzchar(nm_vec)] |> length())
+
+  # Check that no directory label ends in "-empty"
+  labels_ending_empty <- nm_vec[grepl("-empty$", nm_vec)]
+  if (length(labels_ending_empty) > 0) {
+    stop(
+      "Directory labels must not end in '-empty'. ",
+      "Invalid label(s): ", paste0(labels_ending_empty, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
   .assert_nz(nm_vec)
   .assert_detect_any(nm_vec_strip, "^cache")
   .assert_detect_any(nm_vec_strip, "^output")
@@ -47,7 +59,7 @@ projr_yml_check <- function(profile = NULL) {
   yml_label <- .yml_dir_get_label(label, profile)
   .assert_in(
     names(yml_label),
-    c("path", "ignore-git", "ignore-rbuild", "ignore", "output", "source")
+    c("path", "ignore-git", "ignore-rbuild", "ignore", "output", "source", "license", "hash", "package")
   )
   yml_label |>
     .yml_dir_check_label_path(label, profile) |>
@@ -59,14 +71,14 @@ projr_yml_check <- function(profile = NULL) {
 .yml_dir_check_label_path <- function(yml_label, label, profile) {
   is_docs <- .yml_dir_label_class_detect_docs(label)
   if (is_docs && !"path" %in% names(yml_label)) {
-    return(invisible(TRUE))
+    return(yml_label)
   }
   .assert_has(names(yml_label), "path")
   .assert_string(yml_label[["path"]], TRUE)
   .yml_dir_check_label_path_restricted(yml_label, label, profile)
 
 
-  invisible(TRUE)
+  yml_label
 }
 
 .yml_dir_check_label_path_restricted <- function(yml_label, label, profile) {
@@ -82,7 +94,7 @@ projr_yml_check <- function(profile = NULL) {
   for (x in c("ignore", "ignore-git", "ignore-rbuild")) {
     .yml_dir_check_label_ignore_ind(yml_label, x)
   }
-  invisible(TRUE)
+  yml_label
 }
 
 .yml_dir_check_label_ignore_ind <- function(yml_label, nm) {
@@ -98,32 +110,37 @@ projr_yml_check <- function(profile = NULL) {
 
 .yml_dir_check_label_git_track_adjust <- function(yml_label) {
   if (!"git-track-adjust" %in% names(yml_label)) {
-    return(invisible(TRUE))
+    return(yml_label)
   }
   .assert_flag(yml_label[["git-track-adjust"]], TRUE)
+  yml_label
 }
 
 .yml_dir_check_label_output <- function(yml_label, label, profile) {
-  label_vec_output_valid <- .yml_dir_get_label_output(profile) |>
-    c(.yml_dir_get_label_in(profile)) |>
-    c("data", "docs")
-  if (!label %in% label_vec_output_valid) {
-    .assert_has_not(names(yml_label), "output")
-  }
+  # Allow output key on any directory label
   if (!"output" %in% names(yml_label)) {
-    return(invisible(TRUE))
+    return(yml_label)
   }
 
-  .assert_len_1(yml_label[["output"]], TRUE)
   .assert_class_any(yml_label[["output"]], c("logical", "character"), TRUE)
   if (is.logical(yml_label[["output"]])) {
+    .assert_len_1(yml_label[["output"]], TRUE)
     .assert_flag(yml_label[["output"]])
   } else if (is.character(yml_label[["output"]])) {
+    # Character can be a vector of output labels
+    .assert_chr(yml_label[["output"]], TRUE)
+
+    # Get available output labels - these are the labels that start with "output"
+    available_output_labels <- .yml_dir_get_label_output(profile)
+
+    # Validate that specified output labels exist
     .assert_in(
       yml_label[["output"]],
-      .yml_dir_get_label_output(profile) |> c("output")
+      available_output_labels
     )
   }
+
+  yml_label
 }
 
 # build
@@ -132,6 +149,7 @@ projr_yml_check <- function(profile = NULL) {
 .yml_build_check <- function(profile) {
   .yml_build_check_label(profile)
   .yml_build_check_git(profile)
+  .yml_build_check_renv(profile)
   .yml_build_check_dest(profile)
 }
 
@@ -147,8 +165,8 @@ projr_yml_check <- function(profile = NULL) {
   .assert_in(
     nm_vec,
     c(
-      "dev-output", "script", "hooks", "scripts", "git",
-      "github", "package", "local", "osf", "cite"
+      "hooks", "scripts", "git",
+      "github", "package", "local", "cite", "restrictions", "renv"
     )
   )
   .assert_flag(.yml_build_get_dev_output(profile))
@@ -172,6 +190,18 @@ projr_yml_check <- function(profile = NULL) {
   if ("push" %in% names(yml_git)) {
     .assert_flag(yml_git[["push"]])
   }
+  invisible(TRUE)
+}
+
+# build: renv
+# ----------------------
+
+.yml_build_check_renv <- function(profile) {
+  yml_renv <- .yml_build_get(profile)[["renv"]]
+  if (is.null(yml_renv)) {
+    return(invisible(TRUE))
+  }
+  .assert_flag(yml_renv)
   invisible(TRUE)
 }
 
@@ -200,7 +230,6 @@ projr_yml_check <- function(profile = NULL) {
   .assert_in(yml_title[["structure"]], .opt_remote_get_structure())
   .assert_string(yml_title[["path"]], type == "local")
   .assert_flag(yml_title[["path-append-label"]])
-  .assert_string(yml_title[["id"]], type == "osf")
   .assert_nchar(yml_title[["id"]], 5L)
   if ("get" %in% names(yml_title)) {
     get_list <- yml_title[["get"]]
@@ -424,6 +453,48 @@ projr_yml_check <- function(profile = NULL) {
           }
         }
       }
+    }
+  }
+
+  invisible(TRUE)
+}
+
+# restrictions config
+# ----------------------
+
+.yml_restrictions_check_config <- function(profile) {
+  yml_restrictions <- .yml_restrictions_get(profile)
+  if (is.null(yml_restrictions)) {
+    return(invisible(TRUE))
+  }
+
+  # Check that only valid keys exist
+  valid_keys <- c("branch", "not_behind")
+  .assert_in(names(yml_restrictions), valid_keys)
+
+  # Check branch restriction if present
+  if ("branch" %in% names(yml_restrictions)) {
+    branch <- yml_restrictions[["branch"]]
+    if (!is.null(branch)) {
+      # Must be logical, character, or empty list (from YAML serialization)
+      is_empty_list <- is.list(branch) && length(branch) == 0
+      if (!is.logical(branch) && !is.character(branch) && !is_empty_list) {
+        stop("build.restrictions.branch must be logical or character")
+      }
+      if (is.logical(branch)) {
+        .assert_flag(branch)
+      }
+      if (is.character(branch)) {
+        .assert_chr(branch)
+      }
+    }
+  }
+
+  # Check not_behind restriction if present
+  if ("not_behind" %in% names(yml_restrictions)) {
+    not_behind <- yml_restrictions[["not_behind"]]
+    if (!is.null(not_behind)) {
+      .assert_flag(not_behind)
     }
   }
 

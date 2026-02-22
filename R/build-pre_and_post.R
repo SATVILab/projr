@@ -12,7 +12,7 @@
 }
 
 .build_renv_snapshot_check <- function(output_run) {
-  output_run && !.is_test() && .renv_detect()
+  output_run && !.is_test() && .renv_detect() && .yml_renv_get(NULL)
 }
 
 # commit
@@ -63,7 +63,7 @@
   if (!file.exists(warning_file)) {
     # Create the file to indicate the warning for today has been issued.
     writeLines(as.character(Sys.time()), con = warning_file)
-    return(FALSE)  # Warning has not been issued before today.
+    return(FALSE) # Warning has not been issued before today.
   }
 }
 
@@ -126,7 +126,7 @@
 }
 
 .build_git_msg_get_dev <- function(version_run_on_list) {
-  paste0("Begin v", version_run_on_list$bd[["success"]])
+  paste0("Begin v", projr_version_get())
 }
 
 # commit

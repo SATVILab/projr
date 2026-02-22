@@ -11,9 +11,11 @@
 
 \item{tag}{Character string. Release tag to check.}
 
-\item{api_url}{Character string. Optional GitHub API URL for enterprise instances.}
+\item{api_url}{Character string.
+Optional GitHub API URL for enterprise instances.}
 
-\item{token}{Character string. Optional GitHub token. If not provided, uses
+\item{token}{Character string.
+Optional GitHub token. If not provided, uses
 \code{.auth_get_github_pat_find()}.}
 }
 \value{

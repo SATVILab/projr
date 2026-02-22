@@ -23,10 +23,12 @@
 #' Default is `FALSE`.
 #' @seealso.init_renviron
 #' @export
-projr_init_prompt <- function(yml_path_from = NULL,
-                              renv_force = FALSE,
-                              renv_bioconductor = TRUE,
-                              public = FALSE) {
+projr_init_prompt <- function(
+  yml_path_from = NULL,
+  renv_force = FALSE,
+  renv_bioconductor = TRUE,
+  public = FALSE
+) {
   # create initial _proj.yml
   .init_yml(yml_path_from) # nolint: object_usage_linter.
 
@@ -63,7 +65,6 @@ projr_init_prompt <- function(yml_path_from = NULL,
   # create GitHub remote
   .init_github(username = nm_list[["gh"]], public = public)
 
-
   # create github remote
   invisible(TRUE)
 }
@@ -74,11 +75,20 @@ projr_init_prompt <- function(yml_path_from = NULL,
   .init_git_init(answer_git = 1L, commit = commit)
 }
 
-.init_git_github <- function(username,
-                             public) {
+.init_git_github <- function(
+  username,
+  public,
+  use_gh_if_available = TRUE,
+  use_gitcreds_if_needed = TRUE
+) {
   if (!.git_remote_check_exists()) {
     .dep_install_only("usethis")
-    if (!.git_gh_check_auth()) {
+    if (
+      !.git_gh_check_auth(
+        use_gh_if_available = use_gh_if_available,
+        use_gitcreds_if_needed = use_gitcreds_if_needed
+      )
+    ) {
       stop(call. = FALSE)
     }
     .init_github_impl(username, public)
@@ -87,6 +97,10 @@ projr_init_prompt <- function(yml_path_from = NULL,
 
 #' @export
 #' @rdname projr_init
+#' @param license Character. License type for \code{projr_init_license} (e.g. "ccby", "apache",
+#'   "cc0", "proprietary").
+#' @param first_name Character. First name used for proprietary license templates.
+#' @param last_name Character. Last name used for proprietary license templates.
 projr_init_license <- function(license, first_name, last_name) {
   if (tolower(license) == "proprietary") {
     .assert_string(first_name, TRUE)
@@ -96,6 +110,8 @@ projr_init_license <- function(license, first_name, last_name) {
   .init_license_create_impl(license, first_name, last_name)
 }
 
+#' @export
+#' @rdname projr_init
 projr_init_ignore <- function() {
   projr_ignore_auto()
 }

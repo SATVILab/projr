@@ -2,33 +2,36 @@
 # Pre-build
 # ==========================
 
-.build_pre_check <- function(output_run, output_level = "std", log_file = NULL) {
+.build_pre_check <- function(output_run) {
   # Check required packages are available BEFORE starting build
-  .cli_debug("Checking required packages", output_level = output_level, log_file = log_file)
+  .cli_debug("Checking required packages")
   .build_check_packages_available(output_run)
-  
+
+  # check build restrictions (branch)
+  .cli_debug("Checking build restrictions")
+  .build_check_restrictions(output_run)
+
   # set and check authorisation is available
-  .cli_debug("Checking environment variables", output_level = output_level, log_file = log_file)
+  .cli_debug("Checking environment variables")
   .build_env_check(output_run)
 
   # check that we have Git if needed
-  .cli_debug("Checking Git repository", output_level = output_level, log_file = log_file)
+  .cli_debug("Checking Git repository")
   .build_git_check(output_run)
 
   # check that we have GitHub remote if needed
-  .cli_debug("Checking GitHub remote", output_level = output_level, log_file = log_file)
+  .cli_debug("Checking GitHub remote")
   .build_github_check(output_run)
 
   # check we are not missing upstream commits
-  .cli_debug("Checking upstream commits", output_level = output_level, log_file = log_file)
+  .cli_debug("Checking upstream commits")
   .build_exit_if_behind_upstream(output_run)
 }
 
-.build_pre_prepare_remotes <- function(bump_component,
+.build_pre_remotes_prepare <- function(bump_component,
                                        archive_github,
                                        archive_local,
-                                       output_level = "std",
-                                       log_file = NULL) {
+                                       always_archive) {
   output_run <- .build_get_output_run(bump_component)
   if (!output_run) {
     return(invisible(FALSE))
@@ -39,9 +42,8 @@
     bump_component = bump_component,
     archive_github = archive_github,
     archive_local = archive_local,
-    strict = TRUE,
-    output_level = output_level,
-    log_file = log_file
+    always_archive = always_archive,
+    strict = TRUE
   )
 }
 
@@ -95,7 +97,7 @@
     return(FALSE)
   }
   # check if it's an option
-  if (interactive()) {
+  if (.is_interactive_and_not_test()) {
     cli::cli_alert_warning("Git repository not found.")
     cli::cli_inform("It is not required, but recommended, and projr will handle setup and (by default) commits for you.")
     cli::cli_inform("If you choose not to create one now, then Git handling by projr will be disabled.")
@@ -156,7 +158,7 @@
     return(invisible(TRUE))
   }
   # check if it's an option
-  if (interactive()) {
+  if (.is_interactive_and_not_test()) {
     cli::cli_alert_warning("GitHub remote not found.")
     cli::cli_inform("It is not required, but recommended, and projr will help handle setup for you.") # nolint
     choice <- utils::menu(
@@ -194,15 +196,18 @@
 }
 
 .build_github_setup_user <- function() {
-  user <- tryCatch({
-    gh::gh_whoami()$login
-  }, error = function(e) {
-    NULL
-  })
+  user <- tryCatch(
+    {
+      gh::gh_whoami()$login
+    },
+    error = function(e) {
+      NULL
+    }
+  )
   if (!.is_string(user)) {
     stop("GitHub user not found.")
   }
-  if (!interactive()) {
+  if (!.is_interactive_and_not_test()) {
     return(c("user" = user))
   }
   choice <- utils::menu(
@@ -236,45 +241,43 @@
   }
 }
 
-.build_pre_document <- function(output_run, archive_local, output_level = "std", log_file = NULL) {
+.build_pre_document <- function(output_run, archive_local) {
   # get version for DESCRIPTION and bookdown from run onwards
   # snapshot if need be
-  .cli_debug("Snapshotting renv", output_level = output_level, log_file = log_file)
+  .cli_debug("Snapshotting renv")
   .build_renv_snapshot(output_run)
 
   # make sure everything is ignored that should be ignored
   # (including docs directory)
-  .cli_debug("Updating ignore files", output_level = output_level, log_file = log_file)
-  .build_ignore(output_run, archive_local, output_level, log_file)
+  .cli_debug("Updating ignore files")
+  .build_ignore(output_run, archive_local)
 
   # ensure that docs directory is the unsafe directory.
   # will copy docs across upon success.
-  .cli_debug("Updating documentation output directory", output_level = output_level, log_file = log_file)
+  .cli_debug("Updating documentation output directory")
   .build_doc_output_dir_update(FALSE)
 
   # ensure that pre-build, we are on dev version
-  .cli_debug("Ensuring development version", output_level = output_level, log_file = log_file)
+  .cli_debug("Ensuring development version")
   .build_ensure_dev_version()
 }
 
 .build_pre_setup_for_output_run <- function(version_run_on_list,
                                             output_run,
-                                            clear_output,
-                                            output_level = "std",
-                                            log_file = NULL) {
+                                            clear_output) {
   # set the version pre-run
-  .cli_debug("Setting build version", output_level = output_level, log_file = log_file)
+  .cli_debug("Setting build version")
   .build_version_set_pre(version_run_on_list)
 
   # ensure that docs directory is the unsafe directory.
   # will copy docs across upon success.
-  .cli_debug("Configuring documentation directory", output_level = output_level, log_file = log_file)
+  .cli_debug("Configuring documentation directory")
   .build_doc_output_dir_update(FALSE)
 
 
   # empty output directories
   # (docs, output and data)
-  .cli_debug("Clearing output directories (pre-build)", output_level = output_level, log_file = log_file)
+  .cli_debug("Clearing output directories (pre-build)")
   .build_clear_pre(output_run, clear_output)
 }
 
@@ -289,19 +292,27 @@
   bump_component
 }
 
+.build_is_current_version_dev <- function() {
+  # Return FALSE if no version file exists yet (not a dev version)
+  if (!file.exists(.path_get("VERSION")) && !file.exists(.path_get("DESCRIPTION"))) {
+    return(FALSE)
+  }
+
+  version_vec_current <- .version_current_vec_get(dev_force = FALSE)
+  version_format <- .version_format_list_get(NULL)[["component"]]
+  # If current version vector length matches format length, it has dev component
+  length(version_vec_current) == length(version_format)
+}
+
 .build_output_get_msg <- function(msg) {
   if (is.null(msg) || .is_len_0(msg)) {
-    if (!.is_test()) {
-      if (interactive()) {
+    if (.is_interactive_and_not_test()) {
+      cli::cli_inform("Please enter a one-line description of the change:")
+      msg <- readline(prompt = ">> ")
+      while (.is_len_0(msg)) {
+        cli::cli_alert_warning("Message cannot be empty.")
         cli::cli_inform("Please enter a one-line description of the change:")
         msg <- readline(prompt = ">> ")
-        while (.is_len_0(msg)) {
-          cli::cli_alert_warning("Message cannot be empty.")
-          cli::cli_inform("Please enter a one-line description of the change:")
-          msg <- readline(prompt = ">> ")
-        }
-      } else {
-        msg <- "Build project"
       }
     } else {
       msg <- "Build project"
@@ -324,9 +335,6 @@
     switch(remote_vec[[i]],
       "github" = {
         if (!.git_gh_check_auth()) stop()
-      },
-      "osf" = {
-        if (!nzchar(.auth_get_osf_pat())) stop()
       }
     )
   }
@@ -337,11 +345,21 @@
   if (!.build_exit_if_behind_upstream_check(output_run)) {
     return(invisible(FALSE))
   }
+
+  # Check if not_behind restriction is enabled
+  not_behind <- .yml_restrictions_get_not_behind(NULL)
+  if (!isTRUE(not_behind)) {
+    # Check is disabled
+    return(invisible(FALSE))
+  }
+
   if (.git_check_behind()) {
     stop(
       "Remote is ahead of local.\n",
       "Merge remote changes before proceeding\n",
-      "(e.g by running `git fetch`, then `git merge`)."
+      "(e.g by running `git fetch`, then `git merge`).\n",
+      "To disable this check, set build.restrictions.not_behind to FALSE in _projr.yml",
+      call. = FALSE
     )
   }
   invisible(TRUE)
@@ -358,7 +376,7 @@
 }
 
 # ignore
-.build_ignore <- function(output_run, archive_local, output_level = "std", log_file = NULL) {
+.build_ignore <- function(output_run, archive_local) {
   old_profile <- .profile_get_raw()
   Sys.unsetenv("PROJR_PROFILE")
   projr_path_get_dir("docs")
@@ -372,16 +390,11 @@
 
 #' Output Git information for debug
 #'
-#' @param output_level Character. Current output level
-#' @param log_file Character. Path to log file
-#'
 #' @keywords internal
-.build_debug_git_info <- function(output_level = "std", log_file = NULL) {
+.build_debug_git_info <- function() {
   if (!.git_repo_check_exists()) {
     .cli_debug(
-      "Git repository: Not a Git repository",
-      output_level = output_level,
-      log_file = log_file
+      "Git repository: Not a Git repository"
     )
     return(invisible(NULL))
   }
@@ -390,9 +403,7 @@
   branch <- .git_branch_get()
   if (!is.null(branch)) {
     .cli_debug(
-      "Git branch: {branch}",
-      output_level = output_level,
-      log_file = log_file
+      "Git branch: {branch}"
     )
   }
 
@@ -400,9 +411,7 @@
   commit_info <- .git_last_commit_get()
   if (!is.null(commit_info)) {
     .cli_debug(
-      "Last commit: {commit_info$sha} - {commit_info$message}",
-      output_level = output_level,
-      log_file = log_file
+      "Last commit: {commit_info$sha} - {commit_info$message}"
     )
   }
 
@@ -410,31 +419,21 @@
   modified_files <- .git_modified_get()
   if (length(modified_files) > 0) {
     .cli_debug(
-      "Modified tracked files ({length(modified_files)}): {paste(head(modified_files, 10), collapse = ', ')}{if (length(modified_files) > 10) '...' else ''}",
-      output_level = output_level,
-      log_file = log_file
+      "Modified tracked files ({length(modified_files)}): {paste(head(modified_files, 10), collapse = ', ')}{if (length(modified_files) > 10) '...' else ''}"
     )
   } else {
-    .cli_debug(
-      "Modified tracked files: None",
-      output_level = output_level,
-      log_file = log_file
-    )
+    .cli_debug("Modified tracked files: None")
   }
 
   # Get untracked files that are not ignored
   untracked_files <- .git_untracked_not_ignored_get()
   if (length(untracked_files) > 0) {
     .cli_debug(
-      "Untracked files (not ignored) ({length(untracked_files)}): {paste(head(untracked_files, 10), collapse = ', ')}{if (length(untracked_files) > 10) '...' else ''}",
-      output_level = output_level,
-      log_file = log_file
+      "Untracked files (not ignored) ({length(untracked_files)}): {paste(head(untracked_files, 10), collapse = ', ')}{if (length(untracked_files) > 10) '...' else ''}"
     )
   } else {
     .cli_debug(
-      "Untracked files (not ignored): None",
-      output_level = output_level,
-      log_file = log_file
+      "Untracked files (not ignored): None"
     )
   }
 
@@ -483,3 +482,70 @@
   stop(msg, call. = FALSE)
 }
 
+# Build restrictions checking
+# ============================
+
+.build_check_restrictions <- function(output_run) {
+  if (!output_run) {
+    return(invisible(FALSE))
+  }
+
+  # Check branch restrictions
+  .build_check_branch_restriction()
+
+  invisible(TRUE)
+}
+
+.build_check_branch_restriction <- function() {
+  # Get branch restriction from YAML
+  branch_restriction <- .yml_restrictions_get_branch(NULL)
+
+  # If TRUE, no restrictions
+  if (isTRUE(branch_restriction)) {
+    return(invisible(TRUE))
+  }
+
+  # Get current branch
+  current_branch <- .git_branch_get()
+
+  # If not in a Git repo, allow build
+  if (is.null(current_branch)) {
+    return(invisible(TRUE))
+  }
+
+  # If FALSE (logical), restrict on all branches
+  if (isFALSE(branch_restriction)) {
+    stop(
+      "Builds are restricted on all branches.\n",
+      "Current branch: ", current_branch, "\n",
+      "To allow builds, update build.restrictions.branch in _projr.yml",
+      call. = FALSE
+    )
+  }
+
+  # If empty character vector or empty list, restrict on all branches
+  if ((is.character(branch_restriction) && length(branch_restriction) == 0) ||
+    (is.list(branch_restriction) && length(branch_restriction) == 0)) {
+    stop(
+      "Builds are restricted on all branches.\n",
+      "Current branch: ", current_branch, "\n",
+      "To allow builds, update build.restrictions.branch in _projr.yml",
+      call. = FALSE
+    )
+  }
+
+  # Check if current branch matches any allowed branches
+  if ((is.character(branch_restriction) || is.list(branch_restriction)) &&
+    length(branch_restriction) > 0 &&
+    !current_branch %in% branch_restriction) {
+    stop(
+      "Builds are restricted to specific branches.\n",
+      "Current branch: ", current_branch, "\n",
+      "Allowed branches: ", paste(branch_restriction, collapse = ", "), "\n",
+      "To allow builds on this branch, update build.restrictions.branch in _projr.yml",
+      call. = FALSE
+    )
+  }
+
+  invisible(TRUE)
+}

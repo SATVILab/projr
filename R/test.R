@@ -17,7 +17,7 @@
 }
 
 # CRAN test mode: runs only fast, essential tests
-# without remote dependencies. Target: <2 minutes
+# without remote dependencies. Target: <1 minute
 # if you add skip_if(.is_test_cran())
 # to comprehensive/integration/remote tests,
 # they will be skipped when running in CRAN mode.
@@ -65,15 +65,38 @@
   .test_unset_lite()
 }
 
+.is_interactive_and_not_test <- function() {
+  interactive() && !.is_test()
+}
+
 .is_test <- function() {
-  Sys.getenv("R_PKG_TEST_IN_PROGRESS") == "TRUE"
+  .is_env_var_true("R_PKG_TEST_IN_PROGRESS")
 }
 
 # so that we can skip all except those for
 # which we're testing
 .is_test_select <- function() {
-  Sys.getenv("R_PKG_TEST_SELECT") == "TRUE"
+  .is_env_var_true("R_PKG_TEST_SELECT")
 }
+
+# so that we can detect Windows GHA environment
+# and skip tests accordingly
+.is_windows_gha <- function() {
+  .is_windows() && .is_gha()
+}
+
+.is_gha <- function() {
+  .is_env_var_true("GITHUB_ACTIONS")
+}
+
+.is_windows <- function() {
+  .format_string_for_comparison(Sys.info()["sysname"]) == "windows"
+}
+
+.set_no_git_prompt <- function() {
+  Sys.setenv("GIT_TERMINAL_PROMPT" = "0")
+}
+
 
 # Check if running in CRAN test mode
 # CRAN mode skips:
@@ -83,15 +106,7 @@
 # Automatically enabled when NOT_CRAN is false/unset
 .is_test_cran <- function() {
   # Explicitly set via R_PKG_TEST_CRAN
-  if (Sys.getenv("R_PKG_TEST_CRAN") == "TRUE") {
-    return(TRUE)
-  }
-  # Auto-detect: if NOT_CRAN is not "true", we're in CRAN mode
-  not_cran <- tolower(Sys.getenv("NOT_CRAN", ""))
-  if (not_cran %in% c("", "false", "f", "0")) {
-    return(TRUE)
-  }
-  FALSE
+  .is_env_var_true("R_PKG_TEST_CRAN")
 }
 
 # Check if running in lite test mode
@@ -99,10 +114,38 @@
 # - Comprehensive tests (exhaustive parameter combinations)
 # Includes: Core functionality tests, integration tests, selected remote tests
 .is_test_lite <- function() {
-  Sys.getenv("R_PKG_TEST_LITE") == "TRUE"
+  .is_env_var_true("R_PKG_TEST_LITE")
 }
 
 # Kept for backward compatibility - use .is_test_lite() instead
 .is_test_debug <- function() {
   .is_test_lite()
+}
+
+
+.get_env_var_formatted <- function(x) {
+  .format_string_for_comparison(Sys.getenv(x, character(1L)))
+}
+
+.format_string_for_comparison <- function(x) {
+  tolower(trimws(x))
+}
+
+.is_env_var_true <- function(x) {
+  .get_env_var_formatted(x) |>
+    .is_var_string_true()
+}
+
+# Alias for .is_env_var_true to maintain consistency with test function naming
+.is_test_env_var_true <- function(x) {
+  .is_env_var_true(x)
+}
+
+.is_var_string_true <- function(x) {
+  x <- as.character(x)
+  if (!.is_string(x)) {
+    return(FALSE)
+  }
+  x_formatted <- .format_string_for_comparison(x)
+  x_formatted %in% c("true", "t", "1", "yes", "y")
 }

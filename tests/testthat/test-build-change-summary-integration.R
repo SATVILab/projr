@@ -153,7 +153,8 @@ test_that("change summary respects hashing configuration", {
       # Get labels that are actually hashed
       labels_output <- .yml_dir_get_label_output(NULL)
       labels_output_hashed <- labels_output[vapply(
-        labels_output, .yml_dir_get_hash_complete, logical(1), profile = NULL
+        labels_output, .yml_dir_get_hash_complete, logical(1),
+        profile = NULL
       )]
 
       # Summary should only include hashed labels

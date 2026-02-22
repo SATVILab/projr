@@ -26,7 +26,7 @@
   list_save <- .wrap_in_list_if_string(list_save, c("website", "code-links"))
   list_save <- .wrap_in_list_if_string(list_save, c("website", "repo-actions"))
   list_save <- .wrap_in_list_if_string(list_save, c("website", "reader-mode"))
-  
+
   # Navbar navigation keys
   list_save <- .wrap_in_list_if_string(
     list_save, c("website", "navbar", "right")
@@ -40,7 +40,7 @@
   list_save <- .wrap_in_list_if_string(
     list_save, c("website", "navbar", "pinned")
   )
-  
+
   # Sidebar navigation keys
   list_save <- .wrap_in_list_if_string(list_save, c("website", "sidebar"))
   list_save <- .wrap_in_list_if_string(

@@ -11,7 +11,7 @@
 .remote_ls_source <- function() {
   yml_projr_dir <- .yml_dir_get(NULL)
   lapply(yml_projr_dir, function(x) {
-    remote_vec <- c("github", "osf")
+    remote_vec <- c("github")
     remote_vec[remote_vec %in% names(x)]
   }) |>
     unlist() |>
@@ -20,17 +20,16 @@
 
 .remote_ls_dest <- function() {
   yml_projr_build <- .yml_build_get(NULL)
-  remote_vec <- c("github", "osf")
+  remote_vec <- c("github")
   remote_vec[remote_vec %in% names(yml_projr_build)]
 }
 
 .git_push_check <- function() {
-  setting_git <-
-    .yml_build_get(NULL)[["git"]]
+  setting_git <- .yml_build_get(NULL)[["git"]]
   switch(class(setting_git),
     "NULL" = TRUE,
     "logical" = setting_git,
-    list = {
+    "list" = {
       setting_push <- setting_git[["push"]]
       if (is.null(setting_push)) TRUE else setting_push
     },
@@ -52,42 +51,168 @@
 }
 
 .gh_guess_repo <- function(path = ".") {
-  # determine git invocation mode: top-level repo path (-C) or bare git dir (--git-dir)
-  git_args <- if (file.exists(file.path(path, "config"))) {
-    c("--git-dir", path)
+  tool <- .gh_guess_repo_tool(path)
+
+  # Try gh first if available, but fall back to git/gert if it fails
+  if (tool == "gh") {
+    result <- tryCatch(
+      .gh_guess_repo_gh(path),
+      error = function(e) NULL
+    )
+    if (!is.null(result)) {
+      return(result)
+    }
+    # gh failed, fall back to git/gert
+    tool <- .git_system_get()
+  }
+
+  switch(tool,
+    "git"  = .gh_guess_repo_git(path),
+    "gert" = .gh_guess_repo_gert(path),
+    stop(paste0(.git_system_get(), " not recognised"))
+  )
+}
+
+.gh_guess_repo_tool <- function(path = ".") {
+  if (.gh_guess_repo_use_gh(path)) {
+    "gh"
   } else {
-    c("-C", path)
+    .git_system_get()
+  }
+}
+
+.gh_guess_repo_use_gh <- function(path = ".") {
+  requireNamespace("gh", quietly = TRUE) && !.git_repo_is_worktree()
+}
+
+.gh_guess_repo_gh <- function(path = ".") {
+  remote_list <- suppressWarnings(gh::gh_tree_remote(path))
+  paste0(remote_list$username, "/", remote_list$repo)
+}
+
+# Shared flow: origin -> first remote; robustly handle git/gert errors
+.gh_guess_repo_git <- function(path = ".") {
+  remote_url <- .gh_remote_url_from_git(path)
+  .gh_owner_repo_from_url(remote_url)
+}
+
+.gh_guess_repo_gert <- function(path = ".") {
+  remote_url <- .gh_remote_url_from_gert(path)
+  .gh_owner_repo_from_url(remote_url)
+}
+
+.gh_remote_url_from_git <- function(path = ".") {
+  git_args <- if (file.exists(file.path(path, "config"))) c("--git-dir", path) else c("-C", path)
+
+  remote_url <- .gh_git_remote_url(git_args, "origin")
+  if (nzchar(remote_url)) {
+    return(remote_url)
   }
 
-  # prefer 'origin', fallback to first remote returned by `git remote`
-  remote_url <- tryCatch({
-    system2("git", args = c(git_args, "remote", "get-url", "origin"), stdout = TRUE, stderr = TRUE)
-  }, error = function(e) {
-    character(0)
-  })
-
-  if (length(remote_url) == 0 || !nzchar(remote_url)) {
-    # fallback: pick the first remote name, then get-url
-    remotes <- tryCatch(system2("git", args = c(git_args, "remote"), stdout = TRUE, stderr = TRUE), error = function(e) character(0))
-    if (length(remotes) == 0) {
-      stop("Could not detect any git remotes. Please ensure repository has a git remote.")
-    }
-    remote_url <- tryCatch(system2("git", args = c(git_args, "remote", "get-url", remotes[1]), stdout = TRUE, stderr = TRUE), error = function(e) character(0))
-    if (length(remote_url) == 0 || !nzchar(remote_url)) {
-      stop("Could not get URL for git remote 'origin' or first remote in this repository.")
-    }
+  remotes <- .gh_git_remote_list(git_args)
+  if (length(remotes) == 0) {
+    stop("Could not detect any git remotes. Please ensure repository has a git remote.")
   }
 
-  remote_url <- remote_url[1]
+  remote_url <- .gh_git_remote_url(git_args, remotes[1])
+  if (!nzchar(remote_url)) {
+    stop("Could not get URL for git remote '", remotes[1], "'.")
+  }
+  remote_url
+}
 
-  # Parse the owner/repo from a variety of URL formats:
-  # - git@github.com:owner/repo.git
-  # - https://github.com/owner/repo.git
-  # - ssh://git@github.com/owner/repo.git
-  # - https://github.com/owner/repo
+.gh_remote_url_from_gert <- function(path = ".") {
+  remotes <- .gh_gert_remote_list(path)
+
+  remote_url <- .gh_gert_remote_url(remotes, "origin")
+  if (nzchar(remote_url)) {
+    return(remote_url)
+  }
+
+  if (nrow(remotes) == 0) {
+    stop("Could not detect any git remotes. Please ensure repository has a git remote.")
+  }
+
+  remote_url <- .gh_gert_remote_url(remotes)
+  if (!nzchar(remote_url)) {
+    stop("Could not get URL for git remote '", remotes$name[[1]], "'.")
+  }
+  remote_url
+}
+
+.gh_owner_repo_from_url <- function(remote_url) {
+  owner_repo <- .gh_parse_owner_repo(remote_url)
+  paste0(owner_repo[1], "/", owner_repo[2])
+}
+
+# Alias for backwards compatibility with tests
+.gh_repo_from_remote_url <- function(remote_url) {
+  .gh_owner_repo_from_url(remote_url)
+}
+
+.gh_git_remote_url <- function(git_args, remote) {
+  output <- .gh_git_exec(c(git_args, "remote", "get-url", remote))
+  if (length(output) == 0 || !nzchar(output[1])) "" else output[1]
+}
+
+.gh_git_remote_list <- function(git_args) {
+  remotes <- .gh_git_exec(c(git_args, "remote"))
+  if (length(remotes) == 0) {
+    return(character(0))
+  }
+  remotes[!.gh_git_output_has_error(remotes)]
+}
+
+.gh_git_exec <- function(args) {
+  output <- suppressWarnings(tryCatch(
+    system2("git", args = args, stdout = TRUE, stderr = TRUE),
+    error = function(e) character(0)
+  ))
+  if (.gh_git_output_has_error(output)) character(0) else output
+}
+
+.gh_git_output_has_error <- function(output) {
+  any(grepl("(?i)^(fatal:|error:)|not a git repository", output, perl = TRUE))
+}
+
+.gh_gert_remote_list <- function(path) {
+  try_gert <- function(repo_path) {
+    suppressWarnings(
+      tryCatch(
+        gert::git_remote_list(repo = repo_path),
+        error = function(e) NULL
+      )
+    )
+  }
+
+  remotes <- try_gert(path)
+
+  # If path looks like a gitdir and gert couldn't read it, try parent-of-parent
+  if ((is.null(remotes) || nrow(remotes) == 0) && file.exists(file.path(path, "config"))) {
+    alt <- dirname(dirname(path))
+    remotes <- try_gert(alt)
+  }
+
+  if (is.null(remotes)) remotes <- data.frame(name = character(), url = character())
+
+  remotes[stats::complete.cases(remotes$url) & nzchar(remotes$url), , drop = FALSE]
+}
+
+.gh_gert_remote_url <- function(remotes, remote = NULL) {
+  if (nrow(remotes) == 0) {
+    return("")
+  }
+  if (!is.null(remote)) {
+    match_idx <- which(remotes$name == remote)
+    if (length(match_idx) > 0 && nzchar(remotes$url[[match_idx[1]]])) {
+      return(remotes$url[[match_idx[1]]])
+    }
+  }
+  remotes$url[[1]]
+}
+
+.gh_parse_owner_repo <- function(remote_url) {
   owner_repo <- NULL
-
-  # SSH scp-like: git@github.com:owner/repo.git
   if (grepl("^[^@]+@[^:]+:[^/]+/.+$", remote_url)) {
     owner_repo <- sub("^.+?:", "", remote_url)
   } else if (grepl("^ssh://", remote_url)) {
@@ -95,7 +220,6 @@
   } else if (grepl("^(https?)://", remote_url)) {
     owner_repo <- sub("^https?://[^/]+/", "", remote_url)
   } else if (grepl("^[^/]+/[^/]+$", remote_url)) {
-    # already owner/repo style
     owner_repo <- remote_url
   }
 
@@ -103,15 +227,11 @@
     stop("Failed to parse owner/repo from remote URL: ", remote_url)
   }
 
-  # remove possible trailing .git and trailing slashes
   owner_repo <- gsub("\\.git$", "", owner_repo)
   owner_repo <- gsub("/+$", "", owner_repo)
-
-  # ensure owner/repo structure
   parts <- strsplit(owner_repo, "/")[[1]]
   if (length(parts) < 2 || !nzchar(parts[1]) || !nzchar(parts[2])) {
     stop("Failed to get GitHub repository owner and name from git remote URL: ", remote_url)
   }
-
-  paste0(parts[1], "/", parts[2])
+  parts
 }

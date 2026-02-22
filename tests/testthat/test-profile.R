@@ -1,14 +1,14 @@
 test_that("projr_profile_get, _set and _create work", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
+  dir_test <- .dir_get_tmp_random_path()
   withr::defer(.test_unset())
   withr::defer(unlink(dir_test, recursive = TRUE))
   .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -127,14 +127,14 @@ test_that("projr_profile_get, _set and _create work", {
 test_that("projr_profile_create_local works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- file.path(tempdir(), paste0("test_projr"))
+  dir_test <- .dir_get_tmp_random_path()
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   .dir_create(dir_test)
   fn_vec <- list.files(testthat::test_path("./project_structure"))
 
   for (x in fn_vec) {
-    file.copy(
+    fs::file_copy(
       file.path(testthat::test_path("./project_structure"), x),
       file.path(dir_test, x),
       overwrite = TRUE
@@ -151,8 +151,9 @@ test_that("projr_profile_create_local works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      .profile_create_local()
+      result <- .profile_create_local()
       expect_true(file.exists("_projr-local.yml"))
+      expect_true(result)
       expect_error(.profile_create_local())
       yml.local <- yaml::read_yaml("_projr-local.yml")
       expect_true(
@@ -163,6 +164,218 @@ test_that("projr_profile_create_local works", {
       expect_true("^_projr-local\\.yml$" %in% rbuildignore)
       gitignore <- readLines(.path_get(".gitignore"))
       expect_true("_projr-local.yml" %in% gitignore)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that("projr_profile_create returns correct value", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .dir_get_tmp_random_path()
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  .dir_create(dir_test)
+  fn_vec <- list.files(testthat::test_path("./project_structure"))
+
+  for (x in fn_vec) {
+    fs::file_copy(
+      file.path(testthat::test_path("./project_structure"), x),
+      file.path(dir_test, x),
+      overwrite = TRUE
+    )
+  }
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test that projr_profile_create returns TRUE when creating new profile
+      result <- projr_profile_create("test_new_profile")
+      expect_true(result)
+      expect_true(file.exists("_projr-test_new_profile.yml"))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that("projr_profile_create_local returns correct value", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .dir_get_tmp_random_path()
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  .dir_create(dir_test)
+  fn_vec <- list.files(testthat::test_path("./project_structure"))
+
+  for (x in fn_vec) {
+    fs::file_copy(
+      file.path(testthat::test_path("./project_structure"), x),
+      file.path(dir_test, x),
+      overwrite = TRUE
+    )
+  }
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test that projr_profile_create_local returns TRUE when creating
+      result <- projr_profile_create_local()
+      expect_true(result)
+      expect_true(file.exists("_projr-local.yml"))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that(".profile_get returns profile when set", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  withr::defer(Sys.unsetenv("PROJR_PROFILE"))
+
+  # Test that .profile_get returns the profile when it's set
+  Sys.setenv("PROJR_PROFILE" = "test_profile")
+  result <- .profile_get()
+  expect_identical(result, "test_profile")
+
+  Sys.unsetenv("PROJR_PROFILE")
+})
+
+test_that("projr_profile_delete returns correct value", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .dir_get_tmp_random_path()
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  .dir_create(dir_test)
+  fn_vec <- list.files(testthat::test_path("./project_structure"))
+
+  for (x in fn_vec) {
+    fs::file_copy(
+      file.path(testthat::test_path("./project_structure"), x),
+      file.path(dir_test, x),
+      overwrite = TRUE
+    )
+  }
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create a profile to delete
+      .profile_create("test_delete_profile")
+      expect_true(file.exists("_projr-test_delete_profile.yml"))
+
+      # Test that projr_profile_delete returns TRUE when deleting
+      result <- projr_profile_delete("test_delete_profile")
+      expect_true(result)
+      expect_false(file.exists("_projr-test_delete_profile.yml"))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that(".profile_delete_impl handles non-existent profile", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .dir_get_tmp_random_path()
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  .dir_create(dir_test)
+  fn_vec <- list.files(testthat::test_path("./project_structure"))
+
+  for (x in fn_vec) {
+    fs::file_copy(
+      file.path(testthat::test_path("./project_structure"), x),
+      file.path(dir_test, x),
+      overwrite = TRUE
+    )
+  }
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Test that .profile_delete_impl returns FALSE for non-existent profile
+      suppressMessages({
+        result <- .profile_delete_impl("nonexistent_profile")
+      })
+      expect_false(result)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
+test_that("projr_profile_delete_local works", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .dir_get_tmp_random_path()
+  withr::defer(unlink(dir_test, recursive = TRUE))
+
+  .dir_create(dir_test)
+  fn_vec <- list.files(testthat::test_path("./project_structure"))
+
+  for (x in fn_vec) {
+    fs::file_copy(
+      file.path(testthat::test_path("./project_structure"), x),
+      file.path(dir_test, x),
+      overwrite = TRUE
+    )
+  }
+  gitignore <- c(
+    "# R", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "", "# docs", "docs/*"
+  )
+  writeLines(gitignore, file.path(dir_test, ".gitignore"))
+
+  rbuildignore <- c("^.*\\.Rproj$", "^\\.Rproj\\.user$", "^docs$")
+  writeLines(rbuildignore, file.path(dir_test, ".Rbuildignore"))
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Create a local profile
+      .profile_create_local()
+      expect_true(file.exists("_projr-local.yml"))
+
+      # Test that projr_profile_delete_local removes the file
+      result <- projr_profile_delete_local()
+      expect_true(result)
+      expect_false(file.exists("_projr-local.yml"))
     },
     quiet = TRUE,
     force = TRUE

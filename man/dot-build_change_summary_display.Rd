@@ -4,18 +4,10 @@
 \alias{.build_change_summary_display}
 \title{Display change summary during build}
 \usage{
-.build_change_summary_display(
-  bump_component,
-  output_level = "std",
-  log_file = NULL
-)
+.build_change_summary_display(bump_component)
 }
 \arguments{
 \item{bump_component}{Character. Version bump component.}
-
-\item{output_level}{Character. Current output level.}
-
-\item{log_file}{Character. Path to log file (optional).}
 }
 \description{
 Shows change summary at debug output level during the build process.

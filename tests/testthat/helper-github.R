@@ -1,40 +1,77 @@
-# Skip wrapper for tests that modify GitHub repositories
-# Ensures tests only run when:
+# Check if we can modify GitHub repositories
+# Returns TRUE if all conditions are met:
 # 1. A token is detectable via .auth_get_github_pat_find()
 # 2. The token is NOT the same as GITHUB_TOKEN (prevents using CI tokens)
 # 3. gh::gh_whoami() can successfully retrieve the username
-.test_skip_if_cannot_modify_github <- function() {
+.test_can_modify_github <- function() {
   # Check if token is detectable
-  token <- .auth_get_github_pat_find()
+  token <- tryCatch(.auth_get_github_pat_find(), error = function(e) "")
   if (!nzchar(token)) {
-    testthat::skip("No GitHub token found")
+    return(FALSE)
   }
 
   # Check if token is same as GITHUB_TOKEN
   github_token <- Sys.getenv("GITHUB_TOKEN", "")
   if (nzchar(github_token) && identical(token, github_token)) {
-    testthat::skip("Cannot modify GitHub repos with GITHUB_TOKEN (use GITHUB_PAT instead)")
+    return(FALSE)
   }
 
   # Verify that gh::gh_whoami() works with the available credentials
   # This prevents tests from running when auth exists but gh_whoami() fails,
   # which would cause malformed GitHub URLs
   if (requireNamespace("gh", quietly = TRUE)) {
-    user <- tryCatch({
-      gh::gh_whoami()[["login"]]
-    }, error = function(e) {
-      NULL
-    })
+    user <- tryCatch(
+      {
+        gh::gh_whoami(.token = token)[["login"]]
+      },
+      error = function(e) {
+        NULL
+      }
+    )
     if (!.is_string(user)) {
-      testthat::skip("gh::gh_whoami() failed to retrieve GitHub username")
+      return(FALSE)
     }
   } else {
-    testthat::skip("gh package not available")
+    return(FALSE)
+  }
+
+  return(TRUE)
+}
+
+# Skip wrapper for tests that modify GitHub repositories
+# Ensures tests only run when:
+# 1. A token is detectable via .auth_get_github_pat_find()
+# 2. The token is NOT the same as GITHUB_TOKEN (prevents using CI tokens)
+# 3. gh::gh_whoami() can successfully retrieve the username
+.test_skip_if_cannot_modify_github <- function() {
+  if (!.test_can_modify_github()) {
+    # Determine specific reason for skip
+    token <- tryCatch(.auth_get_github_pat_find(), error = function(e) "")
+    if (!nzchar(token)) {
+      testthat::skip("No GitHub token found")
+    }
+
+    github_token <- Sys.getenv("GITHUB_TOKEN", "")
+    if (nzchar(github_token) && identical(token, github_token)) {
+      testthat::skip("Cannot modify GitHub repos with GITHUB_TOKEN (use GITHUB_PAT instead)")
+    }
+
+    if (!requireNamespace("gh", quietly = TRUE)) {
+      testthat::skip("gh package not available")
+    }
+
+    testthat::skip("gh::gh_whoami() failed to retrieve GitHub username")
   }
 
   invisible(TRUE)
 }
 
+# Create a GitHub repository for testing
+#
+# @param user GitHub username (optional - will be retrieved if NULL)
+# @param repo Repository name (required)
+# @param env Environment for calling function
+# @param debug Whether to print debug messages
 .test_github_repo_create <- function(user = NULL,
                                      # token = NULL,
                                      repo = NULL,
@@ -47,7 +84,7 @@
     print(".git repo exists")
     print(".git" %in% .dir_ls(getwd()))
   }
-  .assert_string(user)
+  # user can be NULL here - will be retrieved later if needed
   .assert_string(repo)
   .assert_class(env, "environment")
   if (debug) {
@@ -74,18 +111,23 @@
   }
   .dep_install_only("gh")
   .dep_install_only("httr")
-  if (is.null(user)) {
-    user <- tryCatch({
-      gh::gh_whoami()[["login"]]
-    }, error = function(e) {
-      NULL
-    })
-  }
-  if (!.is_string(user)) stop("No GitHub user found")
 
-  # credentials::set_github_pat()
+  # Get token first to use in gh_whoami if needed
   token <- .auth_get_github_pat_find()
   if (!nzchar(token)) stop("No GitHub token found")
+
+  # Try to get user if not provided
+  if (is.null(user)) {
+    user <- tryCatch(
+      {
+        gh::gh_whoami(.token = token)[["login"]]
+      },
+      error = function(e) {
+        NULL
+      }
+    )
+  }
+  if (!.is_string(user)) stop("No GitHub user found")
   if (debug) {
     print("ending upload stuff")
     print("user")
@@ -116,7 +158,6 @@
   if (debug) {
     print("setting up fn body")
   }
-
 
 
   # Define the URL of the GitHub API
@@ -222,11 +263,14 @@
   # gh prefers github_pat over github_token.
   if (!gh::gh_token_exists()) stop("No GitHub token found")
   if (is.null(user)) {
-    user <- tryCatch({
-      gh::gh_whoami()[["login"]]
-    }, error = function(e) {
-      NULL
-    })
+    user <- tryCatch(
+      {
+        gh::gh_whoami()[["login"]]
+      },
+      error = function(e) {
+        NULL
+      }
+    )
   }
   if (!.is_string(user)) stop("No GitHub user found")
 
@@ -257,11 +301,14 @@
 
   # defaults
   if (is.null(user)) {
-    user <- tryCatch({
-      gh::gh_whoami()[["login"]]
-    }, error = function(e) {
-      NULL
-    })
+    user <- tryCatch(
+      {
+        gh::gh_whoami()[["login"]]
+      },
+      error = function(e) {
+        NULL
+      }
+    )
   }
   if (!.is_string(user)) stop("No GitHub user found")
   token <- .auth_get_github_pat_find()
@@ -323,11 +370,14 @@
 
   # defaults
   if (is.null(user)) {
-    user <- tryCatch({
-      gh::gh_whoami()[["login"]]
-    }, error = function(e) {
-      NULL
-    })
+    user <- tryCatch(
+      {
+        gh::gh_whoami()[["login"]]
+      },
+      error = function(e) {
+        NULL
+      }
+    )
   }
   if (!.is_string(user)) stop("No GitHub user found")
 
@@ -395,7 +445,12 @@
   }
   # Delete all confirmed repos
   for (repo in name_vec) {
-    .test_remote_host_rm_github(host = c("repo" = repo))
+    .test_remote_host_rm_github(
+      host = list(
+        user = user,
+        repo = repo
+      )
+    )
   }
 }
 
@@ -403,4 +458,77 @@
   path_dir <- file.path(tempdir() |> dirname(), "github_repo_to_remove")
   .dir_create(path_dir)
   path_dir
+}
+
+.test_remote_host_exists_github <- function(host, token = NULL) {
+  .assert_given_full(host)
+  if (!requireNamespace("gh", quietly = TRUE)) {
+    .dep_install_only("gh")
+  }
+
+  if (is.null(token)) {
+    token <- .auth_get_github_pat_find()
+  }
+  if (!.is_string(token)) {
+    # Return FALSE instead of error - can't verify without token
+    return(FALSE)
+  }
+
+  user <- try(host[["user"]], silent = TRUE)
+  if (inherits(user, "try-error") || is.null(user)) {
+    user <- tryCatch(gh::gh_whoami(.token = token)[["login"]], error = function(e) NULL)
+  }
+  if (!.is_string(user)) {
+    # Return FALSE instead of error - can't verify without user
+    return(FALSE)
+  }
+
+  repo <- host[["repo"]]
+  if (!.is_string(repo)) {
+    # Return FALSE instead of error - can't verify without repo
+    return(FALSE)
+  }
+  repo <- basename(repo)
+  if (repo == "projr") stop("Cannot delete the projr repo")
+
+  res <- tryCatch(
+    gh::gh("GET /repos/{owner}/{repo}", owner = user, repo = repo, .token = token),
+    error = function(e) e
+  )
+  !inherits(res, "error")
+}
+
+.set_github_pat_to_orgmiguelrodo <- function(overwrite = FALSE) {
+  tmp_dir <- file.path(tempdir(), "orgmiguelrodo")
+  if (!dir.exists(tmp_dir)) {
+    dir.create(tmp_dir, recursive = TRUE)
+  }
+  path_fn <- file.path(tmp_dir, "orgmiguelrodo.txt")
+  if (overwrite && file.exists(path_fn)) {
+    invisible(file.remove(path_fn))
+  }
+  if (!file.exists(path_fn)) {
+    .set_github_pat_to_orgmiguelrodo_dnld(tmp_dir)
+  }
+  .set_github_pat_to_orgmiguelrodo_set(path_fn)
+}
+
+.set_github_pat_to_orgmiguelrodo_set <- function(path_fn) {
+  pat <- suppressWarnings(readLines(path_fn, n = 1L))
+  Sys.setenv("GITHUB_PAT" = pat)
+  invisible(TRUE)
+}
+
+.set_github_pat_to_orgmiguelrodo_dnld <- function(tmp_dir) {
+  .remote_file_get_all_github_httr(
+    repo = "SATVILab/projr",
+    tag = "orgmiguelrodo",
+    fn = "orgmiguelrodo.zip",
+    dest_dir = tmp_dir
+  )
+  utils::unzip(
+    zipfile = file.path(tmp_dir, "orgmiguelrodo.zip"),
+    exdir = tmp_dir
+  )
+  invisible(TRUE)
 }

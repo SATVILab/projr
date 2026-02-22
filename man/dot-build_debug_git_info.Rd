@@ -4,12 +4,7 @@
 \alias{.build_debug_git_info}
 \title{Output Git information for debug}
 \usage{
-.build_debug_git_info(output_level = "std", log_file = NULL)
-}
-\arguments{
-\item{output_level}{Character. Current output level}
-
-\item{log_file}{Character. Path to log file}
+.build_debug_git_info()
 }
 \description{
 Output Git information for debug

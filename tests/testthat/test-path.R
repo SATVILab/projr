@@ -26,31 +26,43 @@ test_that(".path_* functions work", {
         "a/b" |> .path_force_abs("c/d/e"),
         fs::path_abs("c/d/e/a/b") |> as.character()
       )
-      expect_error(fs:path_abs("a") |> .path_force_abs("b"))
+      expect_error(fs::path_abs("a") |> .path_force_abs("b"))
     }
   )
 })
 
 test_that(".file_* and .dir_* functions work", {
   skip_if(.is_test_cran())
-  skip_if(.is_test_select())
+  # skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
       # filter
       # -------------------
-      dir_tmp <- .test_setup_content_dir()
+      dir_tmp <- .test_content_setup_dir()
+      content_vec_test_file <- c(
+        ".hidden.txt", "abc.txt",
+        "subdir1/def.txt", "subdir1/subdir2/ghi.txt"
+      )
       expect_identical(.file_ls(dir_tmp), content_vec_test_file)
-      expect_identical(.dir_ls(dir_tmp), content_vec_test_dir)
       expect_identical(
-        file.path(dir_tmp, content_vec) |>
-          .file_filter_dir() |>
-          .path_force_rel(dir_tmp),
-        content_vec_test_dir
+        .dir_ls(dir_tmp), unique(dirname(content_vec_test_file)) |> setdiff(".")
       )
       expect_identical(
-        file.path(dir_tmp, content_vec) |>
+        file.path(dir_tmp, content_vec_test_file) |>
+          .file_filter_dir() |>
+          .path_force_rel(dir_tmp),
+        character(0L)
+      )
+      expect_identical(
+        dirname(file.path(dir_tmp, content_vec_test_file)) |>
+          .file_filter_dir() |>
+          .path_force_rel(dir_tmp),
+        c(".", ".", "subdir1", "subdir1/subdir2")
+      )
+      expect_identical(
+        file.path(dir_tmp, content_vec_test_file) |>
           .file_filter_dir_non() |>
           .path_force_rel(dir_tmp),
         content_vec_test_file
@@ -87,10 +99,10 @@ test_that(".file_* and .dir_* functions work", {
         c("subdir1/def.txt", "subdir1/subdir2/ghi.txt")
       )
       # clearing
-      dir_tmp <- .test_setup_content_dir()
+      dir_tmp <- .test_content_setup_dir()
       expect_true(.dir_create_tmp_random() |> .dir_clear())
       expect_true(dir_tmp |> .dir_clear())
-      dir_tmp <- .test_setup_content_dir()
+      dir_tmp <- .test_content_setup_dir()
       .dir_clear(dir_tmp)
       expect_identical(
         dir_tmp |> .dir_ls(),
@@ -98,7 +110,7 @@ test_that(".file_* and .dir_* functions work", {
       )
       # copying and moving
       # no exclusions
-      dir_tmp <- .test_setup_content_dir()
+      dir_tmp <- .test_content_setup_dir()
       dir_tmp_2 <- .dir_create_tmp_random()
       file.create(file.path(dir_tmp_2, "f1")) |> invisible()
       .dir_copy_exact(dir_tmp, dir_tmp_2)
@@ -107,7 +119,7 @@ test_that(".file_* and .dir_* functions work", {
         dir_tmp_2 |> .dir_ls()
       )
       # exclusions
-      dir_tmp <- .test_setup_content_dir()
+      dir_tmp <- .test_content_setup_dir()
       .dir_create(file.path(dir_tmp, "d1"))
       file.create(file.path(dir_tmp, "d1", "f2")) |> invisible()
       dir_tmp_2 <- .dir_create_tmp_random()
@@ -122,7 +134,7 @@ test_that(".file_* and .dir_* functions work", {
         dir_tmp_2 |> .file_ls(),
       )
       # removing initial, no exclusion
-      dir_tmp <- .test_setup_content_dir()
+      dir_tmp <- .test_content_setup_dir()
       path_vec_dir <- dir_tmp |> .dir_ls()
       path_vec_file <- dir_tmp |> .file_ls()
       dir_tmp_2 <- .dir_create_tmp_random()
@@ -138,7 +150,7 @@ test_that(".file_* and .dir_* functions work", {
       expect_identical(.file_ls(dir_tmp), character())
       expect_identical(.dir_ls(dir_tmp), character())
       # removing initial, with exclusion
-      dir_tmp <- .test_setup_content_dir()
+      dir_tmp <- .test_content_setup_dir()
       path_vec_dir <- dir_tmp |> .dir_ls()
       path_vec_file <- dir_tmp |> .file_ls()
 
@@ -153,7 +165,7 @@ test_that(".file_* and .dir_* functions work", {
       expect_identical(.dir_ls(dir_tmp), "d1")
 
       # not removing initial, no exclusion
-      dir_tmp <- .test_setup_content_dir()
+      dir_tmp <- .test_content_setup_dir()
       path_vec_dir <- dir_tmp |> .dir_ls()
       path_vec_file <- dir_tmp |> .file_ls()
       dir_tmp_2 <- .dir_create_tmp_random()
@@ -170,7 +182,7 @@ test_that(".file_* and .dir_* functions work", {
       expect_identical(.file_ls(dir_tmp), character())
       expect_identical(.dir_ls(dir_tmp), character())
       # removing initial, with exclusion
-      dir_tmp <- .test_setup_content_dir()
+      dir_tmp <- .test_content_setup_dir()
       path_vec_dir <- dir_tmp |> .dir_ls()
       path_vec_file <- dir_tmp |> .file_ls()
 
@@ -185,4 +197,33 @@ test_that(".file_* and .dir_* functions work", {
       expect_identical(.dir_ls(dir_tmp), "d1")
     }
   )
+})
+
+test_that(".dir_get_tmp_random_path never generates negative paths", {
+  skip_if(.is_test_select())
+  
+  # Test with multiple seeds to ensure robustness
+  # This is a regression test for GitHub issue where negative random numbers
+  # in temp paths created invalid GitHub repository names (e.g., "user/-0.86325")
+  for (seed_val in c(1, 42, 123, 444, 999, 12345)) {
+    set.seed(seed_val)
+    
+    # Generate many paths
+    for (i in 1:50) {
+      path <- .dir_get_tmp_random_path()
+      basename_val <- basename(path)
+      
+      # Must not start with minus sign (would be invalid GitHub repo name)
+      expect_false(
+        grepl("^-", basename_val),
+        info = paste0("Path basename should not start with minus: ", basename_val)
+      )
+      
+      # Additional check: should be a valid numeric-like string
+      expect_true(
+        grepl("^[0-9]", basename_val),
+        info = paste0("Path basename should start with digit: ", basename_val)
+      )
+    }
+  }
 })

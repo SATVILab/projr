@@ -195,7 +195,7 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
 
   if (!res$success) {
     cli::cli_alert_danger("renv::restore() failed.")
-    message("res$error")
+    .cli_info("res$error")
     return(FALSE)
   } else {
     cli::cli_alert_success("renv::restore() successful.")
@@ -253,6 +253,64 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
     args <- c("-e", shQuote(expr))
   }
 
+  # Ensure system2() runs in a valid directory to prevent "getcwd() failed" errors
+  # This can happen if the current directory has been deleted by tests
+  # We need to check if getwd() fails or if the directory doesn't exist
+  orig_dir <- tryCatch(getwd(), error = function(e) NULL)
+
+  # Check if we need a temporary directory:
+  # - orig_dir is NULL (getwd() returned NULL, often when directory is deleted)
+  # - orig_dir is empty string (another way getwd() can signal issues)
+  # - orig_dir doesn't exist
+  needs_temp <- is.null(orig_dir) ||
+    (is.character(orig_dir) && length(orig_dir) == 1 && nchar(orig_dir) == 0)
+
+  if (!needs_temp && !is.null(orig_dir)) {
+    # Even if getwd() returned something, the directory might have been deleted
+    needs_temp <- tryCatch(!dir.exists(orig_dir), error = function(e) TRUE)
+  }
+
+  if (needs_temp) {
+    # Change to a safe directory temporarily
+    safe_dir <- tempdir()
+    # Ensure tempdir exists
+    if (!dir.exists(safe_dir)) {
+      dir.create(safe_dir, recursive = TRUE, showWarnings = FALSE)
+    }
+
+    # Try to change to safe directory
+    setwd_success <- tryCatch(
+      {
+        setwd(safe_dir)
+        TRUE
+      },
+      error = function(e) {
+        FALSE
+      }
+    )
+
+    # Verify we successfully changed directory
+    if (setwd_success) {
+      new_dir <- tryCatch(getwd(), error = function(e) NULL)
+      if (is.null(new_dir) || new_dir != safe_dir) {
+        setwd_success <- FALSE
+      }
+    }
+
+    # If tempdir didn't work, try /tmp as last resort
+    if (!setwd_success) {
+      tryCatch(
+        {
+          setwd("/tmp")
+        },
+        error = function(e) {
+          # If even /tmp fails, we'll try to proceed anyway
+          # system2() might still work in some environments
+        }
+      )
+    }
+  }
+
   res <- tryCatch(
     {
       system2(
@@ -266,6 +324,11 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
       return(-1)
     }
   )
+
+  # Restore original directory if it was valid and still exists
+  if (!needs_temp && !is.null(orig_dir) && dir.exists(orig_dir)) {
+    tryCatch(setwd(orig_dir), error = function(e) NULL)
+  }
 
   if (res != 0) {
     error_msg <- tryCatch(
@@ -570,7 +633,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
   } else {
     "CRAN"
   }
-  pkg_names <- sapply(pkg, function(x) sub("^.*/", "", x))
+  pkg_names <- vapply(pkg, function(x) sub("^.*/", "", x), character(1), USE.NAMES = FALSE)
 
   if (restore) {
     cli::cli_alert_info("Attempting to restore {pkg_type} packages: {.pkg {pkg_names}}")
@@ -665,9 +728,9 @@ projr_renv_restore_and_update <- function(github = TRUE,
   .ensure_cli()
 
   installed_pkgs <- rownames(utils::installed.packages())
-  pkg_remaining <- pkg[
-    !sapply(pkg, function(x) sub("^.*/", "", x)) %in% installed_pkgs
-  ]
+  # Extract package names once to avoid repeated sub() calls
+  pkg_names <- vapply(pkg, function(x) sub("^.*/", "", x), character(1), USE.NAMES = FALSE)
+  pkg_remaining <- pkg[!pkg_names %in% installed_pkgs]
 
   if (length(pkg_remaining) == 0L) {
     cli::cli_alert_success("All packages are installed.")
@@ -678,10 +741,10 @@ projr_renv_restore_and_update <- function(github = TRUE,
   cli::cli_alert_info("Attempting to install remaining packages.")
   .renv_install(pkg_remaining, biocmanager_install, is_bioc)
 
+  # Extract package names for remaining packages
+  pkg_remaining_names <- vapply(pkg_remaining, function(x) sub("^.*/", "", x), character(1), USE.NAMES = FALSE)
   pkg_still_missing <- pkg_remaining[
-    !sapply(pkg_remaining, function(x) {
-      requireNamespace(sub("^.*/", "", x), quietly = TRUE)
-    })
+    !vapply(pkg_remaining_names, function(x) requireNamespace(x, quietly = TRUE), logical(1), USE.NAMES = FALSE)
   ]
 
   if (length(pkg_still_missing) == 0L) {
@@ -692,16 +755,16 @@ projr_renv_restore_and_update <- function(github = TRUE,
   cli::cli_alert_warning("Packages that failed to install: {.pkg {pkg_still_missing}}")
   cli::cli_alert_info("Attempting to install missing packages individually.")
 
-  for (x in pkg_still_missing) {
-    if (!requireNamespace(sub("^.*/", "", x), quietly = TRUE)) {
-      .renv_install(x, biocmanager_install, is_bioc)
+  # Extract package names once for loop and final check
+  pkg_still_missing_names <- vapply(pkg_still_missing, function(x) sub("^.*/", "", x), character(1), USE.NAMES = FALSE)
+  for (i in seq_along(pkg_still_missing)) {
+    if (!requireNamespace(pkg_still_missing_names[i], quietly = TRUE)) {
+      .renv_install(pkg_still_missing[i], biocmanager_install, is_bioc)
     }
   }
 
   pkg_final_missing <- pkg_still_missing[
-    !sapply(pkg_still_missing, function(x) {
-      requireNamespace(sub("^.*/", "", x), quietly = TRUE)
-    })
+    !vapply(pkg_still_missing_names, function(x) requireNamespace(x, quietly = TRUE), logical(1), USE.NAMES = FALSE)
   ]
 
   if (length(pkg_final_missing) == 0L) {

@@ -4,6 +4,7 @@
 \alias{projr_restore_repo}
 \alias{projr_restore_repo_wd}
 \alias{projr_restore}
+\alias{projr_content_update}
 \title{Restore project artefact directories}
 \usage{
 projr_restore_repo(
@@ -23,7 +24,13 @@ projr_restore_repo_wd(
   title = NULL
 )
 
-projr_restore(label = NULL, pos = NULL, type = NULL, title = NULL)
+projr_content_update(
+  label = NULL,
+  pos = NULL,
+  type = NULL,
+  title = NULL,
+  clear = FALSE
+)
 }
 \arguments{
 \item{repo}{character. GitHub repository (\code{"owner/repo"} or \code{"repo"}).
@@ -42,29 +49,32 @@ Must be NULL or a non-empty character vector with valid directory labels.}
 or \code{"dest"} (build destinations). Default is \code{NULL}, checking both in order.
 Must be NULL or one/both of \code{"source"} and \code{"dest"}.}
 
-\item{type}{character or NULL. Remote type: \code{"local"}, \code{"osf"} or \code{"github"}.
+\item{type}{character or NULL. Remote type: \code{"local"} or \code{"github"}.
 Default is \code{NULL}, automatically choosing the first available remote.
 Must be NULL or one of the valid remote types.}
 
 \item{title}{character or NULL. Remote title as specified in \verb{_projr.yml}.
 Default is \code{NULL}, using the first available title for the selected type.
 Must be NULL or a single non-empty character string.}
+
+\item{clear}{logical. If \code{TRUE}, clears existing local artefact directories
+before restoration. Default is \code{FALSE}.}
 }
 \value{
 Invisibly returns \code{TRUE} if all restorations are successful, \code{FALSE} otherwise.
-For \code{projr_restore()}, returns \code{FALSE} if no labels are found to restore or if any
+For \code{projr_content_update()}, returns \code{FALSE} if no labels are found to restore or if any
 restoration fails. For \code{projr_restore_repo()}, returns \code{FALSE} if cloning or
 restoration fails.
 }
 \description{
-Use \code{projr_restore()} to restore all artefacts needed for the current project.
+Use \code{projr_content_update()} to restore all artefacts needed for the current project.
 If the project isn't available locally yet,
 \code{projr_restore_repo()} will clone it and then restore its artefacts.
 }
 \details{
 These functions restore artefact directories from remote sources:
 \itemize{
-\item \code{projr_restore()} restores artefacts in an existing local project without any cloning required.
+\item \code{projr_content_update()} restores artefacts in an existing local project without any cloning required.
 Requires a \code{manifest.csv} file in the project root.
 \item \code{projr_restore_repo()} clones a GitHub repository into a subdirectory (or specified path),
 then restores artefacts from that repository's remote sources.
@@ -76,7 +86,7 @@ All parameters are validated before execution:
 \itemize{
 \item \code{label}: Must be NULL or a non-empty character vector of valid directory labels
 \item \code{pos}: Must be NULL or contain only "source" and/or "dest"
-\item \code{type}: Must be NULL or one of "local", "osf", or "github"
+\item \code{type}: Must be NULL or one of "local" or "github"
 \item \code{title}: Must be NULL or a single character string
 \item \code{repo}: Must be a single non-empty character string
 \item \code{path}: Must be NULL or a single non-empty character string
@@ -93,23 +103,23 @@ The functions handle errors gracefully:
 }
 \examples{
 \dontrun{
-  # Restore all raw artefacts in existing local project
-  projr_restore()
+# Restore all raw artefacts in existing local project
+projr_content_update()
 
-  # Restore specific labels
-  projr_restore(label = c("raw-data", "cache"))
+# Restore specific labels
+projr_content_update(label = c("raw-data", "cache"))
 
-  # Restore from specific source type
-  projr_restore(type = "local", title = "archive")
+# Restore from specific source type
+projr_content_update(type = "local", title = "archive")
 
-  # Clone repository into subdirectory and restore artefacts
-  projr_restore_repo("owner/repo")
+# Clone repository into subdirectory and restore artefacts
+projr_restore_repo("owner/repo")
 
-  # Clone to specific path
-  projr_restore_repo("owner/repo", path = "my-project")
+# Clone to specific path
+projr_restore_repo("owner/repo", path = "my-project")
 
-  # Clone repository into current directory and restore artefacts
-  projr_restore_repo_wd("owner/repo")
+# Clone repository into current directory and restore artefacts
+projr_restore_repo_wd("owner/repo")
 }
 
 }
