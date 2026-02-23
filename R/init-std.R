@@ -235,6 +235,7 @@ projr_init_git <- function(commit = TRUE) {
 
 .init_readme_std_impl_render <- function() {
   if (file.exists(.path_get("README.Rmd"))) {
+    .dep_install_only("rmarkdown")
     rmarkdown::render(
       .path_get("README.Rmd"),
       output_format = "md_document",
