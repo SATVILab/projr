@@ -227,9 +227,9 @@ See the Manifest System section below for query functions.
 For production builds, projr updates:
 
 - roxygen2 `.Rd` files (if roxygen comments exist)
-- `CITATION.cff`, `codemeta.json`, `inst/CITATION`
+- `CITATION.cff`, `codemeta.json`, `inst/CITATION` (version numbers)
 - `README.Rmd` (rendered if it exists)
-- `BUILDLOG.md` with a change summary
+- `BUILDLOG.md` (with a change summary)
 - `CHANGELOG.md` (if configured)
 
 Example BUILDLOG entry:
