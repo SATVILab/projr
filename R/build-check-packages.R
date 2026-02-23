@@ -145,7 +145,7 @@ projr_build_check_packages <- function(profile = NULL) {
   # Check which packages are needed for each remote type
   for (remote in remote_vec) {
     if (remote == "github") {
-      pkg_needed <- c(pkg_needed, "gh")
+      pkg_needed <- c(pkg_needed, "gh", "httr")
     }
   }
 

@@ -24,9 +24,7 @@
   api_url = NULL,
   token = NULL
 ) {
-  if (!requireNamespace("httr", quietly = TRUE)) {
-    stop("httr is required for .gh_release_exists_httr(); please install it.")
-  }
+  .dep_install_only("httr")
 
   base <- .github_api_base(api_url)
 
@@ -121,9 +119,7 @@
   prerelease = FALSE,
   target_commitish = NULL
 ) {
-  if (!requireNamespace("httr", quietly = TRUE)) {
-    stop("httr is required for .gh_release_create_httr(); please install it.")
-  }
+  .dep_install_only("httr")
 
   base <- .github_api_base(api_url)
   url <- sprintf("%s/repos/%s/releases", base, repo)
@@ -224,9 +220,7 @@
                                          tag,
                                          api_url = NULL,
                                          token = NULL) {
-  if (!requireNamespace("httr", quietly = TRUE)) {
-    stop("httr is required for .remote_final_check_exists_github_httr(); please install it.") # nolint
-  }
+  .dep_install_only("httr")
 
   base <- .github_api_base(api_url)
   tag_enc <- utils::URLencode(tag, reserved = TRUE)
@@ -307,9 +301,7 @@
                                    tag,
                                    api_url = NULL,
                                    token = NULL) {
-  if (!requireNamespace("httr", quietly = TRUE)) {
-    stop("httr is required for .remote_rm_github_httr(); please install it.")
-  }
+  .dep_install_only("httr")
   .assert_string(repo, TRUE)
   .assert_string(tag, TRUE)
 
@@ -386,9 +378,7 @@
   api_url = NULL,
   token = NULL
 ) {
-  if (!requireNamespace("httr", quietly = TRUE)) {
-    stop("httr is required for .remote_final_rm_github_httr(); please install it.")
-  }
+  .dep_install_only("httr")
   if (length(fn) != 1L) {
     stop("Expected exactly one fn to delete, got ", length(fn), call. = FALSE)
   }
@@ -456,9 +446,7 @@
   token = NULL,
   overwrite = TRUE
 ) {
-  if (!requireNamespace("httr", quietly = TRUE)) {
-    stop("httr is required for .remote_file_get_all_github_httr(); please install it.")
-  }
+  .dep_install_only("httr")
 
   # Get release info (includes assets) using existing helper
   asset <- .remote_final_get_info_github_httr(
@@ -570,9 +558,7 @@
                                           overwrite = TRUE,
                                           api_url = NULL,
                                           token = NULL) {
-  if (!requireNamespace("httr", quietly = TRUE)) {
-    stop("httr is required for .gh_release_asset_upload_httr(); please install it.") # nolint
-  }
+  .dep_install_only("httr")
 
   .assert_string(tag, TRUE)
   .assert_string(repo, TRUE)
