@@ -59,6 +59,7 @@ reference:
   - projr_restore
   - projr_restore_repo
   - projr_restore_repo_wd
+  - projr_content_update
 
 - title: Path helpers
   desc: Functions for getting project paths
@@ -77,6 +78,7 @@ reference:
   - projr_init_renviron
   - projr_init_cite
   - projr_init_license
+  - projr_init_ignore
 
 - title: Version management
   desc: Functions for managing project versions
@@ -113,9 +115,6 @@ reference:
   - projr_yml_dir_license_update
   - projr_yml_dest_add_github
   - projr_yml_dest_add_local
-  - projr_yml_dest_add_osf
-  - projr_yml_dest_add_osf_comp
-  - projr_yml_dest_add_osf_proj
   - projr_yml_par_add
   - projr_yml_script_add
   - projr_yml_script_add_pre
@@ -152,7 +151,19 @@ reference:
   contents:
   - projr_ignore
   - projr_ignore_auto
+  - projr_ignore_dir
+  - projr_ignore_dir_git
+  - projr_ignore_dir_rbuild
+  - projr_ignore_file
+  - projr_ignore_file_git
+  - projr_ignore_file_rbuild
   - projr_unignore_manual
+  - projr_unignore_manual_dir
+  - projr_unignore_manual_dir_git
+  - projr_unignore_manual_dir_rbuild
+  - projr_unignore_manual_file
+  - projr_unignore_manual_file_git
+  - projr_unignore_manual_file_rbuild
 
 - title: renv helpers
   desc: Functions for managing renv dependencies
@@ -166,12 +177,6 @@ reference:
   desc: Functions for managing project data
   contents:
   - projr_use_data
-
-- title: OSF helpers
-  desc: Functions for Open Science Framework integration
-  contents:
-  - projr_osf_create_project
-  - projr_instr_auth_osf
 
 - title: GitHub helpers
   desc: Functions for GitHub integration

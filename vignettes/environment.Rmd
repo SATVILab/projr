@@ -14,352 +14,184 @@ knitr::opts_chunk$set(
 )
 ```
 
-Environment variables allow you to configure projr projects without hardcoding values. This is especially useful for managing different configurations across development, testing, and production environments, as well as for securely storing authentication tokens.
+Environment variables configure projr projects without hardcoding values,
+useful for managing settings across environments and storing auth tokens.
 
-This documentation is modeled after [Quarto's environment variables documentation](https://quarto.org/docs/projects/environment.html), adapted for projr's specific implementation.
+## Environment Files
 
-## Overview
+projr reads `KEY=VALUE` files in a specific order. Variables already set in
+your system environment are never overridden.
 
-projr uses environment files to set default values for environment variables. These files use a simple `KEY=VALUE` format and are read in a specific order to allow for flexible configuration across different contexts.
+| File | Purpose | Git-tracked? |
+|------|---------|:------------:|
+| `_environment.local` | Machine-specific overrides (highest priority) | No |
+| `_environment-<profile>` | Profile-specific settings | Yes |
+| `_environment` | Global defaults (lowest priority) | Yes |
 
-### Environment File Types
+## File Format
 
-projr uses three types of environment files (in order of precedence):
-
-1. **`_environment.local`** - Machine-specific overrides (automatically git-ignored)
-2. **`_environment-<profile>`** - Profile-specific configurations
-3. **`_environment`** - Global defaults
-
-**Important**: Variables defined in files are only set if not already defined in your system environment. This means:
-
-- System-level environment variables always take precedence
-- Already-set session variables are never overridden by file values
-- Files with higher precedence override files with lower precedence
-
-## Defining Environment Variables
-
-### File Format
-
-Environment files use a simple format with one variable per line:
+One variable per line. Names must match `[a-zA-Z][a-zA-Z0-9_]*`.
+Values are taken as-is after `=` (leading/trailing whitespace trimmed).
+No quotes needed — quotes become part of the value. Empty values (`VAR=`)
+are skipped. Lines starting with `#` are comments; inline `#` comments
+are also supported.
 
 ```bash
-VARIABLE_NAME=value
-```
-
-**Variable name requirements**:
-
-- Must start with a letter (a-z, A-Z)
-- Can contain letters, numbers, and underscores
-- Pattern: `[a-zA-Z][a-zA-Z0-9_]*`
-
-**Value handling**:
-
-- Values are taken as-is after the `=` sign (with leading/trailing whitespace trimmed)
-- Special characters in values are preserved (spaces, URLs, paths, etc.)
-- **No quotes needed** - quotes become part of the value
-- Empty values (`VAR=`) are silently ignored
-
-**Comments**:
-
-- Lines starting with `#` are ignored
-- Inline comments after `#` are also ignored
-
-```bash
-# Build configuration (this is a comment)
+# Build configuration
 PROJR_OUTPUT_LEVEL=std
-PROJR_LOG_DETAILED=TRUE  # Enable detailed logging (inline comment)
+PROJR_LOG_DETAILED=TRUE  # inline comment
 
 # URLs and paths work without quotes
 API_URL=https://api.example.com?param=value
 DATA_PATH=/path/to/data
 
-# This line is ignored because the value is empty
-# EMPTY_VAR=
-
-# Authentication (move to _environment.local)
+# Secrets go in _environment.local
 # GITHUB_PAT=your_token_here
 ```
 
-### Creating Environment Files
+Do not put spaces around `=`. `KEY = value` won't parse correctly.
 
-You can create environment files manually or programmatically:
+## Example Setup
 
-```{r eval=FALSE}
-# Create files manually
-file.create("_environment") # Global defaults
-file.create("_environment-dev") # Development profile
-file.create("_environment.local") # Machine-specific (git-ignored)
-```
-
-### Example Configuration
-
-Here's a typical setup with different configurations for development and production:
-
-**`_environment` (global defaults):**
+`_environment`:
 
 ```bash
-# Default build settings
 PROJR_OUTPUT_LEVEL=std
 PROJR_LOG_DETAILED=TRUE
 PROJR_CLEAR_OUTPUT=pre
 ```
 
-**`_environment-dev` (development overrides):**
+`_environment-dev`:
 
 ```bash
-# More verbose output for development
 PROJR_OUTPUT_LEVEL=debug
 PROJR_CLEAR_OUTPUT=never
 ```
 
-**`_environment.local` (secrets - never commit to git):**
+`_environment.local`:
 
 ```bash
-# Authentication tokens
 GITHUB_PAT=ghp_your_github_token_here
 OSF_PAT=your_osf_token_here
 ```
 
-## Activating Environment Variables
-
-### Loading Environment Files
-
-Use `projr_env_set()` to load environment variables from files:
+## Loading Variables
 
 ```{r eval=FALSE}
-# Load all environment files in the standard order
-projr_env_set()
-
-# Load a specific file
-projr_env_set("_environment.local")
-
-# Load multiple specific files
-projr_env_set(c("_environment", "_environment-dev"))
+projr_env_set()                                    # load all files
+projr_env_set("_environment.local")                # load specific file
+projr_env_set(c("_environment", "_environment-dev")) # load multiple
 ```
 
-The standard loading order when calling `projr_env_set()` without arguments is:
+Without arguments, files are loaded in this order (first match wins):
 
-1. **`_environment.local`** (highest priority, machine-specific)
-2. **`_environment-<QUARTO_PROFILE>`** (if `QUARTO_PROFILE` environment variable is set)
-3. **`_environment-<PROJR_PROFILE>`** (if `PROJR_PROFILE` environment variable is set)
-4. **`_environment`** (lowest priority, global defaults)
+1. `_environment.local`
+2. `_environment-<QUARTO_PROFILE>` (if set)
+3. `_environment-<PROJR_PROFILE>` (if set)
+4. `_environment`
 
-**Key behaviors**:
+Non-existent files are silently skipped. `_environment.local` is
+automatically added to `.gitignore`.
 
-- Files are processed in order, with earlier files taking precedence
-- If a variable is already set in your environment, it is **never overridden**
-- Non-existent files are silently skipped
-- The `_environment.local` file is automatically added to `.gitignore` when created
+## Profiles
 
-### Using Profiles
-
-Profiles allow you to maintain different configurations for different scenarios. Both `PROJR_PROFILE` and `QUARTO_PROFILE` are supported.
-
-#### PROJR_PROFILE
+Set `PROJR_PROFILE` or `QUARTO_PROFILE` to load profile-specific files.
 
 ```{r eval=FALSE}
-# Set a single profile
 Sys.setenv(PROJR_PROFILE = "dev")
-projr_env_set() # Loads _environment-dev
+projr_env_set()  # loads _environment-dev
 
-# Set multiple profiles (comma or semicolon separated)
+# Multiple profiles (comma or semicolon separated)
 Sys.setenv(PROJR_PROFILE = "test,dev")
-Sys.setenv(PROJR_PROFILE = "test;dev") # Equivalent
-projr_env_set() # Loads _environment-test, then _environment-dev
+projr_env_set()  # loads _environment-test, then _environment-dev
 ```
 
-**Profile format**:
+`QUARTO_PROFILE` works the same way (comma-separated only) and takes
+precedence over `PROJR_PROFILE` in the loading order.
 
-- Comma-separated: `"profile1,profile2,profile3"`
-- Semicolon-separated: `"profile1;profile2;profile3"`
-- Whitespace around profile names is automatically trimmed
-- Earlier profiles take precedence (e.g., in `"test,dev"`, test overrides dev)
+Profile names `"default"` and `"local"` are reserved and filtered out
+automatically.
 
-**Special profile names**:
+## Key Variables
 
-- `"default"` and `"local"` are filtered out (handled separately)
-- Avoid using these as custom profile names
+### Build Control
 
-#### QUARTO_PROFILE
+| Variable | Values | Default | Notes |
+|----------|--------|---------|-------|
+| `PROJR_OUTPUT_LEVEL` | `none`, `std`, `debug` | `none` (dev) / `std` (prod) | Case-sensitive |
+| `PROJR_CLEAR_OUTPUT` | `pre`, `post`, `never` | `pre` | Case-sensitive |
+| `PROJR_LOG_DETAILED` | `TRUE`/`FALSE` | `TRUE` | Case-insensitive |
+| `PROJR_AUTO_INSTALL` | `TRUE`/`FALSE` | Unset | Case-insensitive |
 
-```{r eval=FALSE}
-# Quarto profiles are also respected
-Sys.setenv(QUARTO_PROFILE = "production")
-projr_env_set() # Loads _environment-production
+`PROJR_OUTPUT_LEVEL` controls console verbosity. `debug` shows detailed
+messages including remote operations.
 
-# Multiple Quarto profiles (comma-separated only)
-Sys.setenv(QUARTO_PROFILE = "test,production")
-projr_env_set()
-```
+`PROJR_CLEAR_OUTPUT` controls when output directories are cleared:
+`pre` clears before build, `post` after, `never` skips clearing.
 
-**Key differences from PROJR_PROFILE**:
+`PROJR_LOG_DETAILED` controls detailed `.qmd` log files in
+`cache/projr/log/`. Build history (`builds.md`) is always maintained.
 
-- Only supports comma separation (not semicolon)
-- Takes precedence over `PROJR_PROFILE` in the loading order
-- When both are set, `QUARTO_PROFILE` files are loaded before `PROJR_PROFILE` files
-
-## Key Environment Variables
-
-projr recognizes several environment variables that control build behavior:
-
-### Build Control Variables
-
-**`PROJR_AUTO_INSTALL`** - Controls automatic installation of missing R packages
-
-- **Values**: TRUE/FALSE representations (case-insensitive)
-  - TRUE: `"TRUE"`, `"true"`, `"1"`, `"YES"`, `"yes"`, `"Y"`, `"y"`
-  - FALSE: `"FALSE"`, `"false"`, `"0"`, `"NO"`, `"no"`, `"N"`, `"n"` (or unset)
-- **Default**: Unset (no automatic installation)
-- **Behaviors**:
-  - When set to a truthy value: Missing packages are automatically installed without
-    any user prompt, even in non-interactive (e.g., batch/CI) sessions
-  - When unset or falsy: Interactive sessions prompt the user; non-interactive
-    sessions throw an error with installation instructions
-
-```{r eval=FALSE}
-Sys.setenv(PROJR_AUTO_INSTALL = "TRUE")
-# Now any projr function that requires missing packages will install them
-# automatically without prompting
-```
-
-**`PROJR_OUTPUT_LEVEL`** - Controls console output verbosity during builds
-
-- **Values**: `"none"`, `"std"`, `"debug"`
-- **Default**: `"none"` for dev builds, `"std"` for production builds
-- **Case-sensitive** (must be lowercase)
-- **Behaviors**:
-  - `"none"`: No additional console output
-  - `"std"`: Standard informational messages
-  - `"debug"`: Verbose output including debug messages and remote operations details
-- Can be overridden by explicit `output_level` parameter in build functions
+`PROJR_AUTO_INSTALL` auto-installs missing R packages without prompting.
+When unset, interactive sessions prompt the user; non-interactive sessions
+error.
 
 ```{r eval=FALSE}
 Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
-projr_build_dev() # Shows detailed debug output
-```
-
-**`PROJR_LOG_DETAILED`** - Controls whether detailed build logs are written to files
-
-- **Values**: TRUE/FALSE representations (case-insensitive)
-  - TRUE: `"TRUE"`, `"true"`, `"1"`, `"YES"`, `"yes"`, `"Y"`, `"y"`
-  - FALSE: `"FALSE"`, `"false"`, `"0"`, `"NO"`, `"no"`, `"N"`, `"n"`
-- **Default**: `"TRUE"`
-- **Behaviors**:
-  - When `TRUE`: Creates detailed `.qmd` log files in `cache/projr/log/`
-  - When `FALSE`: Still maintains build history (`builds.md`) but skips detailed logs
-  - History tracking is always maintained regardless of this setting
-
-```{r eval=FALSE}
 Sys.setenv(PROJR_LOG_DETAILED = "FALSE")
-projr_build_dev() # Skips detailed log files but maintains history
+projr_build_dev()
 ```
 
-**`PROJR_CLEAR_OUTPUT`** - Controls when output directories are cleared during builds
+Build function parameters (e.g., `output_level`, `clear_output`) override
+these environment variables when explicitly provided.
 
-- **Values**: `"pre"`, `"post"`, `"never"`
-- **Default**: `"pre"`
-- **Case-sensitive** (must be lowercase)
-- **Behaviors**:
-  - `"pre"`: Clear output before build starts
-  - `"post"`: Clear output after build completes
-  - `"never"`: Never automatically clear output
-- Can be overridden by explicit `clear_output` parameter in build functions
+### Profiles
+
+| Variable | Format | Notes |
+|----------|--------|-------|
+| `PROJR_PROFILE` | Comma or semicolon separated | Earlier profiles take precedence |
+| `QUARTO_PROFILE` | Comma separated | Takes precedence over `PROJR_PROFILE` |
+
+### Authentication
+
+| Variable | Purpose |
+|----------|---------|
+| `GITHUB_PAT` | GitHub API operations (checked first) |
+| `GITHUB_TOKEN` | GitHub API fallback (checked after `GITHUB_PAT`) |
+| `OSF_PAT` | OSF remote destinations |
+
+Falls back to `gitcreds` if neither GitHub variable is set. Store tokens
+in `_environment.local` only — never commit them.
 
 ```{r eval=FALSE}
-Sys.setenv(PROJR_CLEAR_OUTPUT = "never")
-projr_build_dev() # Never clears output automatically
+projr_instr_auth_github()  # setup instructions
+projr_instr_auth_osf()     # setup instructions
 ```
 
-### Profile Configuration
+## Precedence
 
-**`PROJR_PROFILE`** - Specifies which profile(s) to use
+From highest to lowest priority:
 
-- **Format**: Comma or semicolon-separated list of profile names
-- **Default**: None (uses `_projr.yml` only)
-- **Example**: `PROJR_PROFILE="test,dev"` or `PROJR_PROFILE="test;dev"`
-- **Behaviors**:
-  - Supports both comma (`,`) and semicolon (`;`) separators
-  - Whitespace around values is automatically trimmed
-  - Earlier profiles take precedence over later ones
-  - Special values `"default"` and `"local"` are filtered out (handled separately)
+1. Build function parameters (`output_level = "std"`)
+2. System/session environment (`Sys.setenv(...)`)
+3. `_environment.local`
+4. `_environment-<QUARTO_PROFILE>`
+5. `_environment-<PROJR_PROFILE>`
+6. `_environment`
 
-**`QUARTO_PROFILE`** - Quarto's profile specification
-
-- **Format**: Comma-separated list of profile names
-- **Default**: None
-- **Behavior**: Takes precedence over `PROJR_PROFILE` for environment file loading
-- Only supports comma separation (not semicolon)
-
-### Authentication Variables
-
-**`GITHUB_PAT`** or **`GITHUB_TOKEN`** - GitHub Personal Access Token
-
-- **Purpose**: GitHub Personal Access Token for GitHub API operations
-- **Default**: None
-- **Behaviors**:
-  - `GITHUB_PAT` is checked before `GITHUB_TOKEN`
-  - Falls back to `gitcreds` package if neither is set
-  - Required for creating GitHub repositories and releases
-  - Should have appropriate scopes (repo, workflow, etc.)
-- **Storage**: Should always be stored in `_environment.local` (never committed to git)
-
-**`OSF_PAT`** - Open Science Framework Personal Access Token
-
-- **Purpose**: Open Science Framework Personal Access Token
-- **Default**: None
-- **Behavior**: Required for OSF remote destinations
-- **Storage**: Should always be stored in `_environment.local` (never committed to git)
+Variables already set are never overridden by files:
 
 ```{r eval=FALSE}
-# Check authentication setup and get instructions
-projr_instr_auth_github() # Get GitHub setup instructions
-projr_instr_auth_osf() # Get OSF setup instructions
-```
-
-## Variable Precedence
-
-Environment variables follow a strict precedence order to allow for flexible configuration:
-
-### System vs File Variables
-
-**Already-set variables are never overridden:**
-
-```{r eval=FALSE}
-# Pre-set value is preserved
 Sys.setenv(MY_VAR = "original")
 # _environment contains: MY_VAR=new
 projr_env_set()
-Sys.getenv("MY_VAR") # Still "original", not "new"
-```
-
-This ensures that system-level or session-level variables always take priority.
-
-### File Precedence
-
-When loading from files, precedence is (highest to lowest):
-
-1. **`_environment.local`** - Machine-specific overrides
-2. **`_environment-<QUARTO_PROFILE>`** - Quarto profile-specific
-3. **`_environment-<PROJR_PROFILE>`** - projr profile-specific
-4. **`_environment`** - Global defaults
-
-### Function Parameters vs Environment Variables
-
-Function parameters always override environment variables:
-
-```{r eval=FALSE}
-# Environment variable is set
-Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
-
-# But function parameter takes precedence
-projr_build_dev(output_level = "std") # Uses "std", not "debug"
+Sys.getenv("MY_VAR")  # "original"
 ```
 
 ## Required Variables
 
-You can document and validate required environment variables by creating an `_environment.required` file. This file lists variable names (one per line) that must be set for builds to proceed properly.
-
-**Format:**
+Create `_environment.required` to list variables that must be set.
+During builds, projr warns (but continues) if any are missing.
 
 ```bash
 # _environment.required
@@ -368,192 +200,22 @@ DATABASE_URL
 API_KEY
 ```
 
-**Behavior:**
-
-- During builds, projr automatically checks that all listed variables are set
-- If a required variable is missing, a **warning** is issued (build continues)
-- Comments are supported (lines starting with `#`)
-- This file serves as both documentation and a validation mechanism
-
-**Use cases:**
-
-- Document mandatory configuration for team members
-- Ensure critical credentials are configured before deployment
-- Provide a template for local environment setup
-
-**Example workflow:**
-
 ```{r eval=FALSE}
-# 1. Create _environment.required with mandatory variables
 writeLines(c("GITHUB_PAT", "API_KEY"), "_environment.required")
-
-# 2. Create _environment.local with actual values (git-ignored)
 writeLines(c("GITHUB_PAT=ghp_...", "API_KEY=..."), "_environment.local")
-
-# 3. Build will check and warn if any required variables are missing
-projr_build_dev()
+projr_build_dev()  # warns if required variables are missing
 ```
 
-## Best Practices
+## Tips
 
-### Security
-
-**Never commit secrets to version control:**
-
-- Always use `_environment.local` for tokens, passwords, and API keys
-- This file is automatically added to `.gitignore` by projr
-- Never commit `GITHUB_PAT`, `OSF_PAT`, or similar sensitive values
-
-**Example safe setup:**
-
-
-
-```{r eval=FALSE, styler.ignore=TRUE}
-# In _environment (committed to git)
-API_BASE_URL <- api.example.com
-
-# In _environment.local (git-ignored)
-API_KEY <- your_secret_key_here
-```
-
-
-
-### Organization
-
-**Use profiles for different environments:**
-
-- `_environment-dev` - Development settings (verbose output, debug mode)
-- `_environment-test` - Testing settings (moderate output)
-- `_environment-prod` - Production settings (minimal output)
-
-**Keep global defaults minimal:**
-
-- Use `_environment` only for settings that apply across all contexts
-- Put environment-specific settings in profile files
-- Use `_environment.local` for machine-specific overrides
-
-### Validation
-
-**Document requirements:**
-
-- List required variables in `_environment.required`
-- Provide example values in `_environment` (commented out for secrets)
-- Include setup instructions in your project README
-
-**Test your configuration:**
-
-```{r eval=FALSE}
-# Verify variables are set correctly
-Sys.getenv("PROJR_OUTPUT_LEVEL")
-Sys.getenv("GITHUB_PAT")
-
-# Test with different profiles
-Sys.setenv(PROJR_PROFILE = "test")
-projr_env_set()
-```
-
-## Common Pitfalls
-
-### Case Sensitivity
-
-Most environment variables are **case-sensitive** (both names and values):
-
-```{r eval=FALSE}
-# Correct - lowercase values
-Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
-Sys.setenv(PROJR_CLEAR_OUTPUT = "never")
-
-# Incorrect - uppercase values won't work
-Sys.setenv(PROJR_OUTPUT_LEVEL = "DEBUG") # Won't work
-Sys.setenv(PROJR_CLEAR_OUTPUT = "NEVER") # Won't work
-```
-
-**Exception:** Boolean values in `PROJR_LOG_DETAILED` are case-insensitive:
-
-- `"TRUE"`, `"true"`, `"True"`, `"1"`, `"YES"`, `"yes"`, `"Y"`, `"y"` all work
-- `"FALSE"`, `"false"`, `"False"`, `"0"`, `"NO"`, `"no"`, `"N"`, `"n"` all work
-
-### Variable Name Format
-
-Variable names must follow a specific pattern or they'll be silently ignored:
-
-```bash
-# Correct - starts with letter, contains only letters, numbers, underscores
-MY_VAR=value
-MY_VAR_2=value
-MyVar=value
-
-# Incorrect - will be ignored
-123_VAR=value    # Starts with number
-MY-VAR=value     # Contains hyphen
-MY.VAR=value     # Contains dot
-```
-
-The pattern enforced is: `^[a-zA-Z][a-zA-Z0-9_]*=`
-
-### Empty Values
-
-Empty values in environment files are **silently ignored**:
-
-```bash
-# This does NOT set VAR to an empty string - the line is skipped
-VAR=
-
-# This sets VAR to empty string, but with quotes as part of the value
-VAR=""    # Literally sets to two double-quote characters
-```
-
-If a variable name or value is empty (after trimming whitespace), the entire line is skipped.
-
-### Profile Names
-
-Avoid using `"default"` or `"local"` as profile names:
-- These special values are filtered out automatically by projr
-- Using them won't cause errors, but they'll be ignored
-
-### File Format Details
-
-Environment files have specific formatting requirements:
-
-```bash
-# Correct - standard format
-KEY=value
-
-# Incorrect - spaces around = are not supported
-KEY = value        # Won't parse correctly
-
-# Warning - quotes are included in the value
-KEY="value"        # Sets KEY to literally "value" (including the quotes)
-KEY='value'        # Sets KEY to literally 'value' (including the quotes)
-
-# Correct - values with spaces (no quotes needed)
-PATH=/path/to/my file.txt       # Works correctly
-URL=https://example.com?a=b&c=d # Works correctly
-```
-
-**Remember:** Values are taken as-is after the `=` sign (with leading/trailing whitespace trimmed). Special characters, spaces, and symbols are preserved without needing quotes.
-
-### Already-Set Variables
-
-Variables that are already set in your environment are **never overridden** by files:
-
-```{r eval=FALSE}
-# Set in environment
-Sys.setenv(MY_VAR = "original")
-
-# File contains: MY_VAR=new
-projr_env_set()
-
-# Original value is preserved
-Sys.getenv("MY_VAR") # Still "original", not "new"
-```
-
-This is by design - it allows system-level configuration to always take precedence.
+- Store secrets in `_environment.local` — it's auto-added to `.gitignore`.
+- Use `_environment.required` to document mandatory variables for your team.
+- `PROJR_OUTPUT_LEVEL` and `PROJR_CLEAR_OUTPUT` are case-sensitive (lowercase only).
+  `PROJR_LOG_DETAILED` and `PROJR_AUTO_INSTALL` accept any case.
 
 ## See Also
 
-- `?projr_env_set` - Load environment variables from files
-- `?projr_build_dev` - Development builds (respects environment variables)
-- `?projr_build` - Production builds (respects environment variables)
-- `?projr_profile_create` - Create new profiles
-- [Quarto Environment Variables](https://quarto.org/docs/projects/environment.html) - Quarto's environment variable documentation
+- `?projr_env_set` — Load environment variables from files
+- `?projr_build_dev` — Development builds
+- `?projr_build` — Production builds
+- `?projr_profile_create` — Create new profiles
