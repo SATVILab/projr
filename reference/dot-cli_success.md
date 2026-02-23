@@ -5,7 +5,7 @@ Show a success message
 ## Usage
 
 ``` r
-.cli_success(..., output_level = "std", .envir = parent.frame())
+.cli_success(..., .envir = parent.frame())
 ```
 
 ## Arguments
@@ -13,10 +13,6 @@ Show a success message
 - ...:
 
   Message components passed to cli::cli_alert_success
-
-- output_level:
-
-  Character. Current output level.
 
 - .envir:
 

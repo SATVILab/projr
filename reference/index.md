@@ -4,13 +4,14 @@
 
 Main functions for project workflow
 
-- [`projr_init()`](https://satvilab.github.io/projr/reference/projr_init.md)
+- [`projr_init_github()`](https://satvilab.github.io/projr/reference/projr_init.md)
+  [`projr_init()`](https://satvilab.github.io/projr/reference/projr_init.md)
   [`projr_init_all()`](https://satvilab.github.io/projr/reference/projr_init.md)
   [`projr_init_renv()`](https://satvilab.github.io/projr/reference/projr_init.md)
   [`projr_init_cite()`](https://satvilab.github.io/projr/reference/projr_init.md)
   [`projr_init_git()`](https://satvilab.github.io/projr/reference/projr_init.md)
-  [`projr_init_github()`](https://satvilab.github.io/projr/reference/projr_init.md)
   [`projr_init_license()`](https://satvilab.github.io/projr/reference/projr_init.md)
+  [`projr_init_ignore()`](https://satvilab.github.io/projr/reference/projr_init.md)
   : Initialize a projr Project
 - [`projr_init_prompt()`](https://satvilab.github.io/projr/reference/projr_init_prompt.md)
   : Initialise project
@@ -48,13 +49,14 @@ Functions for getting project paths
 
 Helper functions for project initialisation
 
-- [`projr_init()`](https://satvilab.github.io/projr/reference/projr_init.md)
+- [`projr_init_github()`](https://satvilab.github.io/projr/reference/projr_init.md)
+  [`projr_init()`](https://satvilab.github.io/projr/reference/projr_init.md)
   [`projr_init_all()`](https://satvilab.github.io/projr/reference/projr_init.md)
   [`projr_init_renv()`](https://satvilab.github.io/projr/reference/projr_init.md)
   [`projr_init_cite()`](https://satvilab.github.io/projr/reference/projr_init.md)
   [`projr_init_git()`](https://satvilab.github.io/projr/reference/projr_init.md)
-  [`projr_init_github()`](https://satvilab.github.io/projr/reference/projr_init.md)
   [`projr_init_license()`](https://satvilab.github.io/projr/reference/projr_init.md)
+  [`projr_init_ignore()`](https://satvilab.github.io/projr/reference/projr_init.md)
   : Initialize a projr Project
 - [`projr_init_renviron()`](https://satvilab.github.io/projr/reference/projr_init_renviron.md)
   : Set environment variables for projr_init
@@ -100,6 +102,9 @@ Functions for managing \_projr.yml configuration
   [`projr_yml_git_set_default()`](https://satvilab.github.io/projr/reference/yml-git.md)
   : Set Git options
 
+- [`projr_yml_renv_set()`](https://satvilab.github.io/projr/reference/yml-renv.md)
+  : Set renv snapshot options
+
 - [`projr_yml_cite_set()`](https://satvilab.github.io/projr/reference/yml-cite.md)
   [`projr_yml_cite_set_default()`](https://satvilab.github.io/projr/reference/yml-cite.md)
   : Set citation options
@@ -125,11 +130,6 @@ Functions for managing \_projr.yml configuration
 
 - [`projr_yml_dest_add_local()`](https://satvilab.github.io/projr/reference/projr_yml_dest_add.md)
   : Add a local directory as a destination
-
-- [`projr_yml_dest_add_osf()`](https://satvilab.github.io/projr/reference/projr_yml_dest_add_osf.md)
-  [`projr_yml_dest_add_osf_proj()`](https://satvilab.github.io/projr/reference/projr_yml_dest_add_osf.md)
-  [`projr_yml_dest_add_osf_comp()`](https://satvilab.github.io/projr/reference/projr_yml_dest_add_osf.md)
-  : Add an OSF node as a destination
 
 - [`projr_yml_par_add()`](https://satvilab.github.io/projr/reference/projr_yml_par_add.md)
   :
@@ -234,22 +234,11 @@ Functions for managing project data
 
   `projr` drop-in replacement for usethis::use_data
 
-## OSF helpers
-
-Functions for Open Science Framework integration
-
-- [`projr_osf_create_project()`](https://satvilab.github.io/projr/reference/projr_osf_create_project.md)
-  : Create a new project on OSF
-- [`projr_instr_auth_github()`](https://satvilab.github.io/projr/reference/instr_auth.md)
-  [`projr_instr_auth_osf()`](https://satvilab.github.io/projr/reference/instr_auth.md)
-  : Two-minutes or less authorisation instructions
-
 ## GitHub helpers
 
 Functions for GitHub integration
 
 - [`projr_instr_auth_github()`](https://satvilab.github.io/projr/reference/instr_auth.md)
-  [`projr_instr_auth_osf()`](https://satvilab.github.io/projr/reference/instr_auth.md)
   : Two-minutes or less authorisation instructions
 
 ## Changelog

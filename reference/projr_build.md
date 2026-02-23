@@ -20,8 +20,7 @@ projr_build(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = NULL,
-  output_level = NULL
+  clear_output = NULL
 )
 
 projr_build_major(
@@ -31,8 +30,7 @@ projr_build_major(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = NULL,
-  output_level = NULL
+  clear_output = NULL
 )
 
 projr_build_minor(
@@ -42,8 +40,7 @@ projr_build_minor(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = NULL,
-  output_level = NULL
+  clear_output = NULL
 )
 
 projr_build_patch(
@@ -53,8 +50,7 @@ projr_build_patch(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = NULL,
-  output_level = NULL
+  clear_output = NULL
 )
 ```
 
@@ -119,10 +115,3 @@ projr_build_patch(
   character. When to clear output directories: "pre" (before build,
   default), "post" (after build), or "never". Can also be set via
   PROJR_CLEAR_OUTPUT environment variable.
-
-- output_level:
-
-  character. Level of CLI output: "none" (no additional messages), "std"
-  (standard messages, default for output builds), or "debug" (verbose
-  messages for debugging). Can also be set via PROJR_OUTPUT_LEVEL
-  environment variable.

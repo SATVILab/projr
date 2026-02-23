@@ -14,8 +14,7 @@ GitHub Enterprise via `api_url`.
   dest_dir,
   api_url = NULL,
   token = NULL,
-  overwrite = TRUE,
-  output_level = "std"
+  overwrite = TRUE
 )
 ```
 
@@ -50,11 +49,6 @@ GitHub Enterprise via `api_url`.
 - overwrite:
 
   Logical. If FALSE, existing files are left untouched.
-
-- output_level:
-
-  Character. Verbosity control passed to
-  [`.cli_debug()`](https://satvilab.github.io/projr/reference/dot-cli_debug.md).
 
 ## Value
 

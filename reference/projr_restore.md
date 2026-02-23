@@ -64,9 +64,9 @@ projr_content_update(
 
 - type:
 
-  character or NULL. Remote type: `"local"`, `"osf"` or `"github"`.
-  Default is `NULL`, automatically choosing the first available remote.
-  Must be NULL or one of the valid remote types.
+  character or NULL. Remote type: `"local"` or `"github"`. Default is
+  `NULL`, automatically choosing the first available remote. Must be
+  NULL or one of the valid remote types.
 
 - title:
 
@@ -108,7 +108,7 @@ These functions restore artefact directories from remote sources:
 
 - `pos`: Must be NULL or contain only "source" and/or "dest"
 
-- `type`: Must be NULL or one of "local", "osf", or "github"
+- `type`: Must be NULL or one of "local" or "github"
 
 - `title`: Must be NULL or a single character string
 
@@ -132,22 +132,22 @@ These functions restore artefact directories from remote sources:
 
 ``` r
 if (FALSE) { # \dontrun{
-  # Restore all raw artefacts in existing local project
-  projr_content_update()
+# Restore all raw artefacts in existing local project
+projr_content_update()
 
-  # Restore specific labels
-  projr_content_update(label = c("raw-data", "cache"))
+# Restore specific labels
+projr_content_update(label = c("raw-data", "cache"))
 
-  # Restore from specific source type
-  projr_content_update(type = "local", title = "archive")
+# Restore from specific source type
+projr_content_update(type = "local", title = "archive")
 
-  # Clone repository into subdirectory and restore artefacts
-  projr_restore_repo("owner/repo")
+# Clone repository into subdirectory and restore artefacts
+projr_restore_repo("owner/repo")
 
-  # Clone to specific path
-  projr_restore_repo("owner/repo", path = "my-project")
+# Clone to specific path
+projr_restore_repo("owner/repo", path = "my-project")
 
-  # Clone repository into current directory and restore artefacts
-  projr_restore_repo_wd("owner/repo")
+# Clone repository into current directory and restore artefacts
+projr_restore_repo_wd("owner/repo")
 } # }
 ```

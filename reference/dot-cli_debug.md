@@ -5,7 +5,7 @@ Show a debug message (only shown at debug level)
 ## Usage
 
 ``` r
-.cli_debug(..., output_level = "std", .envir = parent.frame())
+.cli_debug(..., .envir = parent.frame())
 ```
 
 ## Arguments
@@ -13,10 +13,6 @@ Show a debug message (only shown at debug level)
 - ...:
 
   Message components passed to cli::cli_text
-
-- output_level:
-
-  Character. Current output level.
 
 - .envir:
 

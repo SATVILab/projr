@@ -5,7 +5,7 @@ Check if messages should be shown at the given level
 ## Usage
 
 ``` r
-.cli_should_show(required_level, current_level)
+.cli_should_show(required_level)
 ```
 
 ## Arguments
@@ -13,10 +13,6 @@ Check if messages should be shown at the given level
 - required_level:
 
   Character. The level required for the message.
-
-- current_level:
-
-  Character. The current output level.
 
 ## Value
 

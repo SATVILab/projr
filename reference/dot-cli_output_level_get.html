@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3-0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,23 +54,9 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">.cli_output_level_get</span><span class="op">(</span>output_level <span class="op">=</span> <span class="cn">NULL</span>, output_run <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">.cli_output_level_get</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
     </div>
 
-    <div class="section level2">
-    <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-
-
-<dl><dt id="arg-output-level">output_level<a class="anchor" aria-label="anchor" href="#arg-output-level"></a></dt>
-<dd><p>Character. Explicit output level ("none", "std", "debug").
-If NULL, determined from environment variable PROJR_OUTPUT_LEVEL.</p></dd>
-
-
-<dt id="arg-output-run">output_run<a class="anchor" aria-label="anchor" href="#arg-output-run"></a></dt>
-<dd><p>Logical. Whether this is an output build (vs dev build).
-Used to set default if output_level is NULL.</p></dd>
-
-</dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Character. The output level to use.</p>

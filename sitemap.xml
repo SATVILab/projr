@@ -1,5 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://satvilab.github.io/projr/404.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/AGENTS.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/LICENSE-text.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/LICENSE.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/articles/build-process.html</loc></url>
@@ -21,7 +22,6 @@
 <url><loc>https://satvilab.github.io/projr/news/index.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/cat.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-auth_check_github.html</loc></url>
-<url><loc>https://satvilab.github.io/projr/reference/dot-auth_check_osf.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-build_change_summary_display.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-build_change_summary_format_label.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-build_change_summary_format_section.html</loc></url>
@@ -41,10 +41,12 @@
 <url><loc>https://satvilab.github.io/projr/reference/dot-cli_success.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-gh_release_asset_upload_httr.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-gh_release_create_httr.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/dot-gh_repo_check_exists_httr.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-git_branch_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-git_last_commit_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-git_untracked_not_ignored_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-github_api_base.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/dot-init_github_handle_existing_repo.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_build_append.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_build_finalize.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-log_build_init.html</loc></url>
@@ -66,6 +68,7 @@
 <url><loc>https://satvilab.github.io/projr/reference/dot-remote_file_get_all_github_httr.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-remote_final_rm_github_httr.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-remote_ls_final_github_httr.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/dot-remote_rm_github_httr.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-yml_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-yml_scripts_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/dot-yml_scripts_get_build.html</loc></url>
@@ -87,7 +90,6 @@
 <url><loc>https://satvilab.github.io/projr/reference/projr_log_view.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_manifest_file_query.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_manifest_query.html</loc></url>
-<url><loc>https://satvilab.github.io/projr/reference/projr_osf_create_project.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_par_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_path_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_path_get_cache_build.html</loc></url>
@@ -107,7 +109,6 @@
 <url><loc>https://satvilab.github.io/projr/reference/projr_yml_check.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_yml_dest_add.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_yml_dest_add_github.html</loc></url>
-<url><loc>https://satvilab.github.io/projr/reference/projr_yml_dest_add_osf.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_yml_dir_license_get.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_yml_dir_license_rm.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/projr_yml_dir_license_set.html</loc></url>
@@ -118,6 +119,7 @@
 <url><loc>https://satvilab.github.io/projr/reference/yml-dir-path.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/yml-git.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/yml-hooks.html</loc></url>
+<url><loc>https://satvilab.github.io/projr/reference/yml-renv.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/yml-restrictions.html</loc></url>
 <url><loc>https://satvilab.github.io/projr/reference/yml-script.html</loc></url>
 </urlset>

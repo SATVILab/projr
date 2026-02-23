@@ -9,8 +9,7 @@ Mark a process as done
   id = NULL,
   msg_done = NULL,
   msg_failed = NULL,
-  .envir = parent.frame(),
-  output_level = "std"
+  .envir = parent.frame()
 )
 ```
 
@@ -31,7 +30,3 @@ Mark a process as done
 - .envir:
 
   Environment for the process
-
-- output_level:
-
-  Character. Current output level.

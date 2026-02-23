@@ -5,12 +5,7 @@ Initialize a build log file
 ## Usage
 
 ``` r
-.log_build_init(
-  build_type = "output",
-  bump_component = NULL,
-  msg = "",
-  output_level = "std"
-)
+.log_build_init(build_type = "output", bump_component = NULL, msg = "")
 ```
 
 ## Arguments
@@ -26,10 +21,6 @@ Initialize a build log file
 - msg:
 
   Character. Build message.
-
-- output_level:
-
-  Character. Output level for this build.
 
 ## Value
 

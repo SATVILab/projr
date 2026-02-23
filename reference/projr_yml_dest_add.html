@@ -9,7 +9,7 @@ to a _projr.yml file."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3-0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,11 +85,7 @@ If not supplied, will be made equal to <code>content</code>.</p></dd>
 <dd><p>character vector.
 Labels of directories to include in the upload.
 Options are the labels of directories
-in the active <code>projr</code> configuration,
-as well as "docs", "data" and "code".
-"docs" means the directory where the documents are rendered to,
-"data" means the files in the <code>"data"</code> directory,
-and "code" means all files tracked by the Git repository.</p></dd>
+in the active <code>projr</code> configuration.</p></dd>
 
 
 <dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
@@ -101,13 +97,13 @@ Must be supplied.</p></dd>
 
 
 <dt id="arg-structure">structure<a class="anchor" aria-label="anchor" href="#arg-structure"></a></dt>
-<dd><p>"latest" or "version".
+<dd><p>"latest" or "archive".
 Structure of the remote.
 If "latest", then <code>path</code> simply contains
 the latest versions of the contents.
 If "version", then <code>path</code> will contain
 a directory for each version.
-If not supplied, will be <code>version</code>.</p></dd>
+If not supplied, will be <code>archive</code>.</p></dd>
 
 
 <dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
@@ -119,46 +115,19 @@ Default is TRUE.</p></dd>
 
 <dt id="arg-send-cue">send_cue<a class="anchor" aria-label="anchor" href="#arg-send-cue"></a></dt>
 <dd><p>"always", "if-change" or "never".
-Only relevant if <code>structure</code> is <code>archive</code>
-and <code>send_strategy</code> is <code>sync-diff</code> or <code>sync-purge</code>.
-If <code>always</code>, then a new remote is created
-every time, even if there is no change from the previous
-build.
-For example, if the contents of <code>raw-data</code> are the same
-between builds <code>v0.0.1</code> and <code>v0.0.2</code>, then
-a local remote would have folders <code>raw-data/v0.0.1</code>
-and <code>raw-data/v0.0.2</code>.
-If <code>if-change</code>, then a new remote is created
-only if there is a change from the previous build.
-In the example above, a local remote would
-only have the folder <code>raw-data/v0.0.1</code>.
-If <code>never</code>, then a new remote is never created.</p></dd>
+When to send to the remote. Default is NULL.</p></dd>
 
 
 <dt id="arg-send-strategy">send_strategy<a class="anchor" aria-label="anchor" href="#arg-send-strategy"></a></dt>
 <dd><p>"upload-all", "upload-missing",
-"sync-purge" and "sync-diff".
-How to synchronise to the remote.
-If <code>upload-all</code>, then all files are uploaded.
-If <code>upload-missing</code>, then only missing files are uploaded.
-If <code>sync-purge</code>, then all files on the remote
-are deleted before uploading all local files.
-If <code>sync-diff</code>, then files
-that have changed or been added locally are uploaded to the remote,
-and files that have been removed locally are removed from the remote.
-If not set, then "sync-diff" will be used.</p></dd>
+"sync-purge" or "sync-diff".
+How to synchronise to the remote. Default is NULL.</p></dd>
 
 
 <dt id="arg-send-inspect">send_inspect<a class="anchor" aria-label="anchor" href="#arg-send-inspect"></a></dt>
 <dd><p>"manifest" , "file" or "none".
 What to look at to find what are the
-files on the remote, and their versions.
-If <code>manifest</code>, then the manifest on the remote is used.
-If <code>file</code>, then the files on the remote are downloaded
-and their versions are determined.
-If <code>none</code>, then no inspection is done (the remote
-is typically treated as "empty" in that case).
-If not set, then defaults to <code>"manifest"</code>.</p></dd>
+files on the remote, and their versions. Default is NULL.</p></dd>
 
 
 <dt id="arg-profile">profile<a class="anchor" aria-label="anchor" href="#arg-profile"></a></dt>

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3-0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,7 @@
 <li>Add tests for new functionality/bug fixes</li>
 <li>Never leave trailing whitespace</li>
 <li>Always add blank line between headings and bullets</li>
-</ul><p><strong>Before committing:</strong> - Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code>, <code><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">devtools::test()</a></code> (LITE mode), <code>styler::style_pkg()</code> - Update <code>_pkgdown.yml</code> when adding/removing exported functions - Verify with <code><a href="https://pkgdown.r-lib.org/reference/check_pkgdown.html" class="external-link">pkgdown::check_pkgdown()</a></code> - Ensure files end with single newline, no trailing whitespace - Update copilot instructions as needed</p>
+</ul><p><strong>Before committing:</strong> - Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code>, <code><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">devtools::test()</a></code> (LITE mode), <code><a href="https://styler.r-lib.org/reference/style_pkg.html" class="external-link">styler::style_pkg()</a></code> - Update <code>_pkgdown.yml</code> when adding/removing exported functions - Verify with <code><a href="https://pkgdown.r-lib.org/reference/check_pkgdown.html" class="external-link">pkgdown::check_pkgdown()</a></code> - Ensure files end with single newline, no trailing whitespace - Update copilot instructions as needed</p>
 <p><strong>Package structure:</strong> - <code>R/</code> - Source (<code>.</code> prefix internal, <code>projr_</code> exported) - <code>tests/testthat/</code> - Tests (use <code>helper-*.R</code> functions) - <code>man/</code> - Auto-generated docs (DO NOT edit) - <code>_projr.yml</code> - Project configuration</p>
 <hr></div>
 <div class="section level2">
@@ -88,7 +88,7 @@
 <div class="section level2">
 <h2 id="authentication">Authentication<a class="anchor" aria-label="anchor" href="#authentication"></a></h2>
 <p><strong>GitHub:</strong> Set <code>GITHUB_PAT</code>; use <code><a href="reference/dot-auth_check_github.html">.auth_check_github()</a></code> before <code>gh::</code>/<code>gitcreds::</code> calls; see <code><a href="reference/instr_auth.html">projr_instr_auth_github()</a></code></p>
-<p><strong>OSF:</strong> Set <code>OSF_PAT</code>; use <code><a href="reference/dot-auth_check_osf.html">.auth_check_osf()</a></code> before <code>osfr::</code> calls; see <code><a href="reference/instr_auth.html">projr_instr_auth_osf()</a></code></p>
+<p><strong>OSF:</strong> Set <code>OSF_PAT</code>; use <code>.auth_check_osf()</code> before <code>osfr::</code> calls; see <code>projr_instr_auth_osf()</code></p>
 <hr></div>
 <div class="section level2">
 <h2 id="environment-variables">Environment Variables<a class="anchor" aria-label="anchor" href="#environment-variables"></a></h2>

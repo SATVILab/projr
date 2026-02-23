@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3-0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,699 +77,316 @@
 
     
     
-<p>Environment variables allow you to configure projr projects without
-hardcoding values. This is especially useful for managing different
-configurations across development, testing, and production environments,
-as well as for securely storing authentication tokens.</p>
-<p>This documentation is modeled after <a href="https://quarto.org/docs/projects/environment.html" class="external-link">Quarto’s
-environment variables documentation</a>, adapted for projr’s specific
-implementation.</p>
+<p>Environment variables configure projr projects without hardcoding
+values, useful for managing settings across environments and storing
+auth tokens.</p>
 <div class="section level2">
-<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+<h2 id="environment-files">Environment Files<a class="anchor" aria-label="anchor" href="#environment-files"></a>
 </h2>
-<p>projr uses environment files to set default values for environment
-variables. These files use a simple <code>KEY=VALUE</code> format and
-are read in a specific order to allow for flexible configuration across
-different contexts.</p>
-<div class="section level3">
-<h3 id="environment-file-types">Environment File Types<a class="anchor" aria-label="anchor" href="#environment-file-types"></a>
-</h3>
-<p>projr uses three types of environment files (in order of
-precedence):</p>
+<p>projr reads <code>KEY=VALUE</code> files in a specific order.
+Variables already set in your system environment are never
+overridden.</p>
+<table class="table">
+<colgroup>
+<col width="20%">
+<col width="31%">
+<col width="48%">
+</colgroup>
+<thead><tr class="header">
+<th>File</th>
+<th>Purpose</th>
+<th align="center">Git-tracked?</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>_environment.local</code></td>
+<td>Machine-specific overrides (highest priority)</td>
+<td align="center">No</td>
+</tr>
+<tr class="even">
+<td><code>_environment-&lt;profile&gt;</code></td>
+<td>Profile-specific settings</td>
+<td align="center">Yes</td>
+</tr>
+<tr class="odd">
+<td><code>_environment</code></td>
+<td>Global defaults (lowest priority)</td>
+<td align="center">Yes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="file-format">File Format<a class="anchor" aria-label="anchor" href="#file-format"></a>
+</h2>
+<p>One variable per line. Names must match
+<code>[a-zA-Z][a-zA-Z0-9_]*</code>. Values are taken as-is after
+<code>=</code> (leading/trailing whitespace trimmed). No quotes needed —
+quotes become part of the value. Empty values (<code>VAR=</code>) are
+skipped. Lines starting with <code>#</code> are comments; inline
+<code>#</code> comments are also supported.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Build configuration</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="va">PROJR_OUTPUT_LEVEL</span><span class="op">=</span>std</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="va">PROJR_LOG_DETAILED</span><span class="op">=</span>TRUE  <span class="co"># inline comment</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co"># URLs and paths work without quotes</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="va">API_URL</span><span class="op">=</span>https://api.example.com<span class="pp">?</span>param=value</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="va">DATA_PATH</span><span class="op">=</span>/path/to/data</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co"># Secrets go in _environment.local</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co"># GITHUB_PAT=your_token_here</span></span></code></pre></div>
+<p>Do not put spaces around <code>=</code>. <code>KEY = value</code>
+won’t parse correctly.</p>
+</div>
+<div class="section level2">
+<h2 id="example-setup">Example Setup<a class="anchor" aria-label="anchor" href="#example-setup"></a>
+</h2>
+<p><code>_environment</code>:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="va">PROJR_OUTPUT_LEVEL</span><span class="op">=</span>std</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="va">PROJR_LOG_DETAILED</span><span class="op">=</span>TRUE</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="va">PROJR_CLEAR_OUTPUT</span><span class="op">=</span>pre</span></code></pre></div>
+<p><code>_environment-dev</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="va">PROJR_OUTPUT_LEVEL</span><span class="op">=</span>debug</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="va">PROJR_CLEAR_OUTPUT</span><span class="op">=</span>never</span></code></pre></div>
+<p><code>_environment.local</code>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="va">GITHUB_PAT</span><span class="op">=</span>ghp_your_github_token_here</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="va">OSF_PAT</span><span class="op">=</span>your_osf_token_here</span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="loading-variables">Loading Variables<a class="anchor" aria-label="anchor" href="#loading-variables"></a>
+</h2>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span>                                    <span class="co"># load all files</span></span>
+<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="st">"_environment.local"</span><span class="op">)</span>                <span class="co"># load specific file</span></span>
+<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"_environment"</span>, <span class="st">"_environment-dev"</span><span class="op">)</span><span class="op">)</span> <span class="co"># load multiple</span></span></code></pre></div>
+<p>Without arguments, files are loaded in this order (first match
+wins):</p>
 <ol style="list-style-type: decimal">
+<li><code>_environment.local</code></li>
 <li>
-<strong><code>_environment.local</code></strong> - Machine-specific
-overrides (automatically git-ignored)</li>
+<code>_environment-&lt;QUARTO_PROFILE&gt;</code> (if set)</li>
 <li>
-<strong><code>_environment-&lt;profile&gt;</code></strong> -
-Profile-specific configurations</li>
-<li>
-<strong><code>_environment</code></strong> - Global defaults</li>
+<code>_environment-&lt;PROJR_PROFILE&gt;</code> (if set)</li>
+<li><code>_environment</code></li>
 </ol>
-<p><strong>Important</strong>: Variables defined in files are only set
-if not already defined in your system environment. This means:</p>
-<ul>
-<li>System-level environment variables always take precedence</li>
-<li>Already-set session variables are never overridden by file
-values</li>
-<li>Files with higher precedence override files with lower
-precedence</li>
-</ul>
-</div>
+<p>Non-existent files are silently skipped.
+<code>_environment.local</code> is automatically added to
+<code>.gitignore</code>.</p>
 </div>
 <div class="section level2">
-<h2 id="defining-environment-variables">Defining Environment Variables<a class="anchor" aria-label="anchor" href="#defining-environment-variables"></a>
+<h2 id="profiles">Profiles<a class="anchor" aria-label="anchor" href="#profiles"></a>
 </h2>
-<div class="section level3">
-<h3 id="file-format">File Format<a class="anchor" aria-label="anchor" href="#file-format"></a>
-</h3>
-<p>Environment files use a simple format with one variable per line:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="va">VARIABLE_NAME</span><span class="op">=</span>value</span></code></pre></div>
-<p><strong>Variable name requirements</strong>:</p>
-<ul>
-<li>Must start with a letter (a-z, A-Z)</li>
-<li>Can contain letters, numbers, and underscores</li>
-<li>Pattern: <code>[a-zA-Z][a-zA-Z0-9_]*</code>
-</li>
-</ul>
-<p><strong>Value handling</strong>:</p>
-<ul>
-<li>Values are taken as-is after the <code>=</code> sign (with
-leading/trailing whitespace trimmed)</li>
-<li>Special characters in values are preserved (spaces, URLs, paths,
-etc.)</li>
-<li>
-<strong>No quotes needed</strong> - quotes become part of the
-value</li>
-<li>Empty values (<code>VAR=</code>) are silently ignored</li>
-</ul>
-<p><strong>Comments</strong>:</p>
-<ul>
-<li>Lines starting with <code>#</code> are ignored</li>
-<li>Inline comments after <code>#</code> are also ignored</li>
-</ul>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Build configuration (this is a comment)</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="va">PROJR_OUTPUT_LEVEL</span><span class="op">=</span>std</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="va">PROJR_LOG_DETAILED</span><span class="op">=</span>TRUE  <span class="co"># Enable detailed logging (inline comment)</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co"># URLs and paths work without quotes</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="va">API_URL</span><span class="op">=</span>https://api.example.com<span class="pp">?</span>param=value</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="va">DATA_PATH</span><span class="op">=</span>/path/to/data</span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co"># This line is ignored because the value is empty</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co"># EMPTY_VAR=</span></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co"># Authentication (move to _environment.local)</span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co"># GITHUB_PAT=your_token_here</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="creating-environment-files">Creating Environment Files<a class="anchor" aria-label="anchor" href="#creating-environment-files"></a>
-</h3>
-<p>You can create environment files manually or programmatically:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Create files manually</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment"</span><span class="op">)</span> <span class="co"># Global defaults</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment-dev"</span><span class="op">)</span> <span class="co"># Development profile</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment.local"</span><span class="op">)</span> <span class="co"># Machine-specific (git-ignored)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="example-configuration">Example Configuration<a class="anchor" aria-label="anchor" href="#example-configuration"></a>
-</h3>
-<p>Here’s a typical setup with different configurations for development
-and production:</p>
-<p><strong><code>_environment</code> (global defaults):</strong></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Default build settings</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="va">PROJR_OUTPUT_LEVEL</span><span class="op">=</span>std</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="va">PROJR_LOG_DETAILED</span><span class="op">=</span>TRUE</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="va">PROJR_CLEAR_OUTPUT</span><span class="op">=</span>pre</span></code></pre></div>
-<p><strong><code>_environment-dev</code> (development
-overrides):</strong></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># More verbose output for development</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="va">PROJR_OUTPUT_LEVEL</span><span class="op">=</span>debug</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="va">PROJR_CLEAR_OUTPUT</span><span class="op">=</span>never</span></code></pre></div>
-<p><strong><code>_environment.local</code> (secrets - never commit to
-git):</strong></p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Authentication tokens</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="va">GITHUB_PAT</span><span class="op">=</span>ghp_your_github_token_here</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="va">OSF_PAT</span><span class="op">=</span>your_osf_token_here</span></code></pre></div>
-</div>
-</div>
-<div class="section level2">
-<h2 id="activating-environment-variables">Activating Environment Variables<a class="anchor" aria-label="anchor" href="#activating-environment-variables"></a>
-</h2>
-<div class="section level3">
-<h3 id="loading-environment-files">Loading Environment Files<a class="anchor" aria-label="anchor" href="#loading-environment-files"></a>
-</h3>
-<p>Use <code><a href="../reference/projr_env_set.html">projr_env_set()</a></code> to load environment variables from
-files:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Load all environment files in the standard order</span></span>
-<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span></span>
+<p>Set <code>PROJR_PROFILE</code> or <code>QUARTO_PROFILE</code> to load
+profile-specific files.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># loads _environment-dev</span></span>
 <span></span>
-<span><span class="co"># Load a specific file</span></span>
-<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="st">"_environment.local"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Load multiple specific files</span></span>
-<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"_environment"</span>, <span class="st">"_environment-dev"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>The standard loading order when calling <code><a href="../reference/projr_env_set.html">projr_env_set()</a></code>
-without arguments is:</p>
-<ol style="list-style-type: decimal">
-<li>
-<strong><code>_environment.local</code></strong> (highest priority,
-machine-specific)</li>
-<li>
-<strong><code>_environment-&lt;QUARTO_PROFILE&gt;</code></strong>
-(if <code>QUARTO_PROFILE</code> environment variable is set)</li>
-<li>
-<strong><code>_environment-&lt;PROJR_PROFILE&gt;</code></strong> (if
-<code>PROJR_PROFILE</code> environment variable is set)</li>
-<li>
-<strong><code>_environment</code></strong> (lowest priority, global
-defaults)</li>
-</ol>
-<p><strong>Key behaviors</strong>:</p>
-<ul>
-<li>Files are processed in order, with earlier files taking
-precedence</li>
-<li>If a variable is already set in your environment, it is
-<strong>never overridden</strong>
-</li>
-<li>Non-existent files are silently skipped</li>
-<li>The <code>_environment.local</code> file is automatically added to
-<code>.gitignore</code> when created</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="using-profiles">Using Profiles<a class="anchor" aria-label="anchor" href="#using-profiles"></a>
-</h3>
-<p>Profiles allow you to maintain different configurations for different
-scenarios. Both <code>PROJR_PROFILE</code> and
-<code>QUARTO_PROFILE</code> are supported.</p>
-<div class="section level4">
-<h4 id="projr_profile">PROJR_PROFILE<a class="anchor" aria-label="anchor" href="#projr_profile"></a>
-</h4>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Set a single profile</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Loads _environment-dev</span></span>
-<span></span>
-<span><span class="co"># Set multiple profiles (comma or semicolon separated)</span></span>
+<span><span class="co"># Multiple profiles (comma or semicolon separated)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"test,dev"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"test;dev"</span><span class="op">)</span> <span class="co"># Equivalent</span></span>
-<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Loads _environment-test, then _environment-dev</span></span></code></pre></div>
-<p><strong>Profile format</strong>:</p>
-<ul>
-<li>Comma-separated: <code>"profile1,profile2,profile3"</code>
-</li>
-<li>Semicolon-separated: <code>"profile1;profile2;profile3"</code>
-</li>
-<li>Whitespace around profile names is automatically trimmed</li>
-<li>Earlier profiles take precedence (e.g., in <code>"test,dev"</code>,
-test overrides dev)</li>
-</ul>
-<p><strong>Special profile names</strong>:</p>
-<ul>
-<li>
-<code>"default"</code> and <code>"local"</code> are filtered out
-(handled separately)</li>
-<li>Avoid using these as custom profile names</li>
-</ul>
-</div>
-<div class="section level4">
-<h4 id="quarto_profile">QUARTO_PROFILE<a class="anchor" aria-label="anchor" href="#quarto_profile"></a>
-</h4>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Quarto profiles are also respected</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>QUARTO_PROFILE <span class="op">=</span> <span class="st">"production"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Loads _environment-production</span></span>
-<span></span>
-<span><span class="co"># Multiple Quarto profiles (comma-separated only)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>QUARTO_PROFILE <span class="op">=</span> <span class="st">"test,production"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Key differences from PROJR_PROFILE</strong>:</p>
-<ul>
-<li>Only supports comma separation (not semicolon)</li>
-<li>Takes precedence over <code>PROJR_PROFILE</code> in the loading
-order</li>
-<li>When both are set, <code>QUARTO_PROFILE</code> files are loaded
-before <code>PROJR_PROFILE</code> files</li>
-</ul>
-</div>
-</div>
+<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># loads _environment-test, then _environment-dev</span></span></code></pre></div>
+<p><code>QUARTO_PROFILE</code> works the same way (comma-separated only)
+and takes precedence over <code>PROJR_PROFILE</code> in the loading
+order.</p>
+<p>Profile names <code>"default"</code> and <code>"local"</code> are
+reserved and filtered out automatically.</p>
 </div>
 <div class="section level2">
-<h2 id="key-environment-variables">Key Environment Variables<a class="anchor" aria-label="anchor" href="#key-environment-variables"></a>
+<h2 id="key-variables">Key Variables<a class="anchor" aria-label="anchor" href="#key-variables"></a>
 </h2>
-<p>projr recognizes several environment variables that control build
-behavior:</p>
 <div class="section level3">
-<h3 id="build-control-variables">Build Control Variables<a class="anchor" aria-label="anchor" href="#build-control-variables"></a>
+<h3 id="build-control">Build Control<a class="anchor" aria-label="anchor" href="#build-control"></a>
 </h3>
-<p><strong><code>PROJR_OUTPUT_LEVEL</code></strong> - Controls console
-output verbosity during builds</p>
-<ul>
-<li>
-<strong>Values</strong>: <code>"none"</code>, <code>"std"</code>,
-<code>"debug"</code>
-</li>
-<li>
-<strong>Default</strong>: <code>"none"</code> for dev builds,
-<code>"std"</code> for production builds</li>
-<li>
-<strong>Case-sensitive</strong> (must be lowercase)</li>
-<li>
-<strong>Behaviors</strong>:
-<ul>
-<li>
-<code>"none"</code>: No additional console output</li>
-<li>
-<code>"std"</code>: Standard informational messages</li>
-<li>
-<code>"debug"</code>: Verbose output including debug messages and
-remote operations details</li>
-</ul>
-</li>
-<li>Can be overridden by explicit <code>output_level</code> parameter in
-build functions</li>
-</ul>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<table class="table">
+<colgroup>
+<col width="29%">
+<col width="23%">
+<col width="26%">
+<col width="20%">
+</colgroup>
+<thead><tr class="header">
+<th>Variable</th>
+<th>Values</th>
+<th>Default</th>
+<th>Notes</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>PROJR_OUTPUT_LEVEL</code></td>
+<td>
+<code>none</code>, <code>std</code>, <code>debug</code>
+</td>
+<td>
+<code>none</code> (dev) / <code>std</code> (prod)</td>
+<td>Case-sensitive</td>
+</tr>
+<tr class="even">
+<td><code>PROJR_CLEAR_OUTPUT</code></td>
+<td>
+<code>pre</code>, <code>post</code>, <code>never</code>
+</td>
+<td><code>pre</code></td>
+<td>Case-sensitive</td>
+</tr>
+<tr class="odd">
+<td><code>PROJR_LOG_DETAILED</code></td>
+<td>
+<code>TRUE</code>/<code>FALSE</code>
+</td>
+<td><code>TRUE</code></td>
+<td>Case-insensitive</td>
+</tr>
+<tr class="even">
+<td><code>PROJR_AUTO_INSTALL</code></td>
+<td>
+<code>TRUE</code>/<code>FALSE</code>
+</td>
+<td>Unset</td>
+<td>Case-insensitive</td>
+</tr>
+</tbody>
+</table>
+<p><code>PROJR_OUTPUT_LEVEL</code> controls console verbosity.
+<code>debug</code> shows detailed messages including remote
+operations.</p>
+<p><code>PROJR_CLEAR_OUTPUT</code> controls when output directories are
+cleared: <code>pre</code> clears before build, <code>post</code> after,
+<code>never</code> skips clearing.</p>
+<p><code>PROJR_LOG_DETAILED</code> controls detailed <code>.qmd</code>
+log files in <code>cache/projr/log/</code>. Build history
+(<code>builds.md</code>) is always maintained.</p>
+<p><code>PROJR_AUTO_INSTALL</code> auto-installs missing R packages
+without prompting. When unset, interactive sessions prompt the user;
+non-interactive sessions error.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Shows detailed debug output</span></span></code></pre></div>
-<p><strong><code>PROJR_LOG_DETAILED</code></strong> - Controls whether
-detailed build logs are written to files</p>
-<ul>
-<li>
-<strong>Values</strong>: TRUE/FALSE representations
-(case-insensitive)
-<ul>
-<li>TRUE: <code>"TRUE"</code>, <code>"true"</code>, <code>"1"</code>,
-<code>"YES"</code>, <code>"yes"</code>, <code>"Y"</code>,
-<code>"y"</code>
-</li>
-<li>FALSE: <code>"FALSE"</code>, <code>"false"</code>, <code>"0"</code>,
-<code>"NO"</code>, <code>"no"</code>, <code>"N"</code>,
-<code>"n"</code>
-</li>
-</ul>
-</li>
-<li>
-<strong>Default</strong>: <code>"TRUE"</code>
-</li>
-<li>
-<strong>Behaviors</strong>:
-<ul>
-<li>When <code>TRUE</code>: Creates detailed <code>.qmd</code> log files
-in <code>cache/projr/log/</code>
-</li>
-<li>When <code>FALSE</code>: Still maintains build history
-(<code>builds.md</code>) but skips detailed logs</li>
-<li>History tracking is always maintained regardless of this
-setting</li>
-</ul>
-</li>
-</ul>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_LOG_DETAILED <span class="op">=</span> <span class="st">"FALSE"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Skips detailed log files but maintains history</span></span></code></pre></div>
-<p><strong><code>PROJR_CLEAR_OUTPUT</code></strong> - Controls when
-output directories are cleared during builds</p>
-<ul>
-<li>
-<strong>Values</strong>: <code>"pre"</code>, <code>"post"</code>,
-<code>"never"</code>
-</li>
-<li>
-<strong>Default</strong>: <code>"pre"</code>
-</li>
-<li>
-<strong>Case-sensitive</strong> (must be lowercase)</li>
-<li>
-<strong>Behaviors</strong>:
-<ul>
-<li>
-<code>"pre"</code>: Clear output before build starts</li>
-<li>
-<code>"post"</code>: Clear output after build completes</li>
-<li>
-<code>"never"</code>: Never automatically clear output</li>
-</ul>
-</li>
-<li>Can be overridden by explicit <code>clear_output</code> parameter in
-build functions</li>
-</ul>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_CLEAR_OUTPUT <span class="op">=</span> <span class="st">"never"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Never clears output automatically</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_LOG_DETAILED <span class="op">=</span> <span class="st">"FALSE"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Build function parameters (e.g., <code>output_level</code>,
+<code>clear_output</code>) override these environment variables when
+explicitly provided.</p>
 </div>
 <div class="section level3">
-<h3 id="profile-configuration">Profile Configuration<a class="anchor" aria-label="anchor" href="#profile-configuration"></a>
+<h3 id="profiles-1">Profiles<a class="anchor" aria-label="anchor" href="#profiles-1"></a>
 </h3>
-<p><strong><code>PROJR_PROFILE</code></strong> - Specifies which
-profile(s) to use</p>
-<ul>
-<li>
-<strong>Format</strong>: Comma or semicolon-separated list of
-profile names</li>
-<li>
-<strong>Default</strong>: None (uses <code>_projr.yml</code>
-only)</li>
-<li>
-<strong>Example</strong>: <code>PROJR_PROFILE="test,dev"</code> or
-<code>PROJR_PROFILE="test;dev"</code>
-</li>
-<li>
-<strong>Behaviors</strong>:
-<ul>
-<li>Supports both comma (<code>,</code>) and semicolon (<code>;</code>)
-separators</li>
-<li>Whitespace around values is automatically trimmed</li>
-<li>Earlier profiles take precedence over later ones</li>
-<li>Special values <code>"default"</code> and <code>"local"</code> are
-filtered out (handled separately)</li>
-</ul>
-</li>
-</ul>
-<p><strong><code>QUARTO_PROFILE</code></strong> - Quarto’s profile
-specification</p>
-<ul>
-<li>
-<strong>Format</strong>: Comma-separated list of profile names</li>
-<li>
-<strong>Default</strong>: None</li>
-<li>
-<strong>Behavior</strong>: Takes precedence over
-<code>PROJR_PROFILE</code> for environment file loading</li>
-<li>Only supports comma separation (not semicolon)</li>
-</ul>
+<table class="table">
+<colgroup>
+<col width="40%">
+<col width="32%">
+<col width="28%">
+</colgroup>
+<thead><tr class="header">
+<th>Variable</th>
+<th>Format</th>
+<th>Notes</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>PROJR_PROFILE</code></td>
+<td>Comma or semicolon separated</td>
+<td>Earlier profiles take precedence</td>
+</tr>
+<tr class="even">
+<td><code>QUARTO_PROFILE</code></td>
+<td>Comma separated</td>
+<td>Takes precedence over <code>PROJR_PROFILE</code>
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
-<h3 id="authentication-variables">Authentication Variables<a class="anchor" aria-label="anchor" href="#authentication-variables"></a>
+<h3 id="authentication">Authentication<a class="anchor" aria-label="anchor" href="#authentication"></a>
 </h3>
-<p><strong><code>GITHUB_PAT</code></strong> or
-<strong><code>GITHUB_TOKEN</code></strong> - GitHub Personal Access
-Token</p>
-<ul>
-<li>
-<strong>Purpose</strong>: GitHub Personal Access Token for GitHub
-API operations</li>
-<li>
-<strong>Default</strong>: None</li>
-<li>
-<strong>Behaviors</strong>:
-<ul>
-<li>
-<code>GITHUB_PAT</code> is checked before
-<code>GITHUB_TOKEN</code>
-</li>
-<li>Falls back to <code>gitcreds</code> package if neither is set</li>
-<li>Required for creating GitHub repositories and releases</li>
-<li>Should have appropriate scopes (repo, workflow, etc.)</li>
-</ul>
-</li>
-<li>
-<strong>Storage</strong>: Should always be stored in
-<code>_environment.local</code> (never committed to git)</li>
-</ul>
-<p><strong><code>OSF_PAT</code></strong> - Open Science Framework
-Personal Access Token</p>
-<ul>
-<li>
-<strong>Purpose</strong>: Open Science Framework Personal Access
-Token</li>
-<li>
-<strong>Default</strong>: None</li>
-<li>
-<strong>Behavior</strong>: Required for OSF remote destinations</li>
-<li>
-<strong>Storage</strong>: Should always be stored in
-<code>_environment.local</code> (never committed to git)</li>
-</ul>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Check authentication setup and get instructions</span></span>
-<span><span class="fu"><a href="../reference/instr_auth.html">projr_instr_auth_github</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Get GitHub setup instructions</span></span>
-<span><span class="fu"><a href="../reference/instr_auth.html">projr_instr_auth_osf</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Get OSF setup instructions</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th>Variable</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>GITHUB_PAT</code></td>
+<td>GitHub API operations (checked first)</td>
+</tr>
+<tr class="even">
+<td><code>GITHUB_TOKEN</code></td>
+<td>GitHub API fallback (checked after <code>GITHUB_PAT</code>)</td>
+</tr>
+<tr class="odd">
+<td><code>OSF_PAT</code></td>
+<td>OSF remote destinations</td>
+</tr>
+</tbody>
+</table>
+<p>Falls back to <code>gitcreds</code> if neither GitHub variable is
+set. Store tokens in <code>_environment.local</code> only — never commit
+them.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/instr_auth.html">projr_instr_auth_github</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># setup instructions</span></span>
+<span><span class="fu">projr_instr_auth_osf</span><span class="op">(</span><span class="op">)</span>     <span class="co"># setup instructions</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
-<h2 id="variable-precedence">Variable Precedence<a class="anchor" aria-label="anchor" href="#variable-precedence"></a>
+<h2 id="precedence">Precedence<a class="anchor" aria-label="anchor" href="#precedence"></a>
 </h2>
-<p>Environment variables follow a strict precedence order to allow for
-flexible configuration:</p>
-<div class="section level3">
-<h3 id="system-vs-file-variables">System vs File Variables<a class="anchor" aria-label="anchor" href="#system-vs-file-variables"></a>
-</h3>
-<p><strong>Already-set variables are never overridden:</strong></p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Pre-set value is preserved</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>MY_VAR <span class="op">=</span> <span class="st">"original"</span><span class="op">)</span></span>
+<p>From highest to lowest priority:</p>
+<ol style="list-style-type: decimal">
+<li>Build function parameters (<code>output_level = "std"</code>)</li>
+<li>System/session environment (<code>Sys.setenv(...)</code>)</li>
+<li><code>_environment.local</code></li>
+<li><code>_environment-&lt;QUARTO_PROFILE&gt;</code></li>
+<li><code>_environment-&lt;PROJR_PROFILE&gt;</code></li>
+<li><code>_environment</code></li>
+</ol>
+<p>Variables already set are never overridden by files:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>MY_VAR <span class="op">=</span> <span class="st">"original"</span><span class="op">)</span></span>
 <span><span class="co"># _environment contains: MY_VAR=new</span></span>
 <span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"MY_VAR"</span><span class="op">)</span> <span class="co"># Still "original", not "new"</span></span></code></pre></div>
-<p>This ensures that system-level or session-level variables always take
-priority.</p>
-</div>
-<div class="section level3">
-<h3 id="file-precedence">File Precedence<a class="anchor" aria-label="anchor" href="#file-precedence"></a>
-</h3>
-<p>When loading from files, precedence is (highest to lowest):</p>
-<ol style="list-style-type: decimal">
-<li>
-<strong><code>_environment.local</code></strong> - Machine-specific
-overrides</li>
-<li>
-<strong><code>_environment-&lt;QUARTO_PROFILE&gt;</code></strong> -
-Quarto profile-specific</li>
-<li>
-<strong><code>_environment-&lt;PROJR_PROFILE&gt;</code></strong> -
-projr profile-specific</li>
-<li>
-<strong><code>_environment</code></strong> - Global defaults</li>
-</ol>
-</div>
-<div class="section level3">
-<h3 id="function-parameters-vs-environment-variables">Function Parameters vs Environment Variables<a class="anchor" aria-label="anchor" href="#function-parameters-vs-environment-variables"></a>
-</h3>
-<p>Function parameters always override environment variables:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Environment variable is set</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># But function parameter takes precedence</span></span>
-<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span>output_level <span class="op">=</span> <span class="st">"std"</span><span class="op">)</span> <span class="co"># Uses "std", not "debug"</span></span></code></pre></div>
-</div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"MY_VAR"</span><span class="op">)</span>  <span class="co"># "original"</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="required-variables">Required Variables<a class="anchor" aria-label="anchor" href="#required-variables"></a>
 </h2>
-<p>You can document and validate required environment variables by
-creating an <code>_environment.required</code> file. This file lists
-variable names (one per line) that must be set for builds to proceed
-properly.</p>
-<p><strong>Format:</strong></p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="co"># _environment.required</span></span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="ex">GITHUB_PAT</span></span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="ex">DATABASE_URL</span></span>
-<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="ex">API_KEY</span></span></code></pre></div>
-<p><strong>Behavior:</strong></p>
-<ul>
-<li>During builds, projr automatically checks that all listed variables
-are set</li>
-<li>If a required variable is missing, a <strong>warning</strong> is
-issued (build continues)</li>
-<li>Comments are supported (lines starting with <code>#</code>)</li>
-<li>This file serves as both documentation and a validation
-mechanism</li>
-</ul>
-<p><strong>Use cases:</strong></p>
-<ul>
-<li>Document mandatory configuration for team members</li>
-<li>Ensure critical credentials are configured before deployment</li>
-<li>Provide a template for local environment setup</li>
-</ul>
-<p><strong>Example workflow:</strong></p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># 1. Create _environment.required with mandatory variables</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GITHUB_PAT"</span>, <span class="st">"API_KEY"</span><span class="op">)</span>, <span class="st">"_environment.required"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 2. Create _environment.local with actual values (git-ignored)</span></span>
+<p>Create <code>_environment.required</code> to list variables that must
+be set. During builds, projr warns (but continues) if any are
+missing.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># _environment.required</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="ex">GITHUB_PAT</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="ex">DATABASE_URL</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="ex">API_KEY</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GITHUB_PAT"</span>, <span class="st">"API_KEY"</span><span class="op">)</span>, <span class="st">"_environment.required"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GITHUB_PAT=ghp_..."</span>, <span class="st">"API_KEY=..."</span><span class="op">)</span>, <span class="st">"_environment.local"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 3. Build will check and warn if any required variables are missing</span></span>
-<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># warns if required variables are missing</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="best-practices">Best Practices<a class="anchor" aria-label="anchor" href="#best-practices"></a>
+<h2 id="tips">Tips<a class="anchor" aria-label="anchor" href="#tips"></a>
 </h2>
-<div class="section level3">
-<h3 id="security">Security<a class="anchor" aria-label="anchor" href="#security"></a>
-</h3>
-<p><strong>Never commit secrets to version control:</strong></p>
 <ul>
-<li>Always use <code>_environment.local</code> for tokens, passwords,
-and API keys</li>
-<li>This file is automatically added to <code>.gitignore</code> by
-projr</li>
-<li>Never commit <code>GITHUB_PAT</code>, <code>OSF_PAT</code>, or
-similar sensitive values</li>
-</ul>
-<p><strong>Example safe setup:</strong></p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># In _environment (committed to git)</span></span>
-<span><span class="va">API_BASE_URL</span> <span class="op">&lt;-</span> <span class="va">api.example.com</span></span>
-<span></span>
-<span><span class="co"># In _environment.local (git-ignored)</span></span>
-<span><span class="va">API_KEY</span> <span class="op">&lt;-</span> <span class="va">your_secret_key_here</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="organization">Organization<a class="anchor" aria-label="anchor" href="#organization"></a>
-</h3>
-<p><strong>Use profiles for different environments:</strong></p>
-<ul>
+<li>Store secrets in <code>_environment.local</code> — it’s auto-added
+to <code>.gitignore</code>.</li>
+<li>Use <code>_environment.required</code> to document mandatory
+variables for your team.</li>
 <li>
-<code>_environment-dev</code> - Development settings (verbose
-output, debug mode)</li>
-<li>
-<code>_environment-test</code> - Testing settings (moderate
-output)</li>
-<li>
-<code>_environment-prod</code> - Production settings (minimal
-output)</li>
+<code>PROJR_OUTPUT_LEVEL</code> and <code>PROJR_CLEAR_OUTPUT</code>
+are case-sensitive (lowercase only). <code>PROJR_LOG_DETAILED</code> and
+<code>PROJR_AUTO_INSTALL</code> accept any case.</li>
 </ul>
-<p><strong>Keep global defaults minimal:</strong></p>
-<ul>
-<li>Use <code>_environment</code> only for settings that apply across
-all contexts</li>
-<li>Put environment-specific settings in profile files</li>
-<li>Use <code>_environment.local</code> for machine-specific
-overrides</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="validation">Validation<a class="anchor" aria-label="anchor" href="#validation"></a>
-</h3>
-<p><strong>Document requirements:</strong></p>
-<ul>
-<li>List required variables in <code>_environment.required</code>
-</li>
-<li>Provide example values in <code>_environment</code> (commented out
-for secrets)</li>
-<li>Include setup instructions in your project README</li>
-</ul>
-<p><strong>Test your configuration:</strong></p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Verify variables are set correctly</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"PROJR_OUTPUT_LEVEL"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"GITHUB_PAT"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Test with different profiles</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"test"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level2">
-<h2 id="common-pitfalls">Common Pitfalls<a class="anchor" aria-label="anchor" href="#common-pitfalls"></a>
-</h2>
-<div class="section level3">
-<h3 id="case-sensitivity">Case Sensitivity<a class="anchor" aria-label="anchor" href="#case-sensitivity"></a>
-</h3>
-<p>Most environment variables are <strong>case-sensitive</strong> (both
-names and values):</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Correct - lowercase values</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_CLEAR_OUTPUT <span class="op">=</span> <span class="st">"never"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Incorrect - uppercase values won't work</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"DEBUG"</span><span class="op">)</span> <span class="co"># Won't work</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_CLEAR_OUTPUT <span class="op">=</span> <span class="st">"NEVER"</span><span class="op">)</span> <span class="co"># Won't work</span></span></code></pre></div>
-<p><strong>Exception:</strong> Boolean values in
-<code>PROJR_LOG_DETAILED</code> are case-insensitive:</p>
-<ul>
-<li>
-<code>"TRUE"</code>, <code>"true"</code>, <code>"True"</code>,
-<code>"1"</code>, <code>"YES"</code>, <code>"yes"</code>,
-<code>"Y"</code>, <code>"y"</code> all work</li>
-<li>
-<code>"FALSE"</code>, <code>"false"</code>, <code>"False"</code>,
-<code>"0"</code>, <code>"NO"</code>, <code>"no"</code>,
-<code>"N"</code>, <code>"n"</code> all work</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="variable-name-format">Variable Name Format<a class="anchor" aria-label="anchor" href="#variable-name-format"></a>
-</h3>
-<p>Variable names must follow a specific pattern or they’ll be silently
-ignored:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="co"># Correct - starts with letter, contains only letters, numbers, underscores</span></span>
-<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="va">MY_VAR</span><span class="op">=</span>value</span>
-<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a><span class="va">MY_VAR_2</span><span class="op">=</span>value</span>
-<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="va">MyVar</span><span class="op">=</span>value</span>
-<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a></span>
-<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="co"># Incorrect - will be ignored</span></span>
-<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="ex">123_VAR=value</span>    <span class="co"># Starts with number</span></span>
-<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="ex">MY-VAR=value</span>     <span class="co"># Contains hyphen</span></span>
-<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a><span class="ex">MY.VAR=value</span>     <span class="co"># Contains dot</span></span></code></pre></div>
-<p>The pattern enforced is: <code>^[a-zA-Z][a-zA-Z0-9_]*=</code></p>
-</div>
-<div class="section level3">
-<h3 id="empty-values">Empty Values<a class="anchor" aria-label="anchor" href="#empty-values"></a>
-</h3>
-<p>Empty values in environment files are <strong>silently
-ignored</strong>:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="co"># This does NOT set VAR to an empty string - the line is skipped</span></span>
-<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a><span class="va">VAR</span><span class="op">=</span></span>
-<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a></span>
-<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a><span class="co"># This sets VAR to empty string, but with quotes as part of the value</span></span>
-<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a><span class="va">VAR</span><span class="op">=</span><span class="st">""</span>    <span class="co"># Literally sets to two double-quote characters</span></span></code></pre></div>
-<p>If a variable name or value is empty (after trimming whitespace), the
-entire line is skipped.</p>
-</div>
-<div class="section level3">
-<h3 id="profile-names">Profile Names<a class="anchor" aria-label="anchor" href="#profile-names"></a>
-</h3>
-<p>Avoid using <code>"default"</code> or <code>"local"</code> as profile
-names: - These special values are filtered out automatically by projr -
-Using them won’t cause errors, but they’ll be ignored</p>
-</div>
-<div class="section level3">
-<h3 id="file-format-details">File Format Details<a class="anchor" aria-label="anchor" href="#file-format-details"></a>
-</h3>
-<p>Environment files have specific formatting requirements:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="co"># Correct - standard format</span></span>
-<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a><span class="va">KEY</span><span class="op">=</span>value</span>
-<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a></span>
-<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a><span class="co"># Incorrect - spaces around = are not supported</span></span>
-<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a><span class="ex">KEY</span> = value        <span class="co"># Won't parse correctly</span></span>
-<span id="cb23-6"><a href="#cb23-6" tabindex="-1"></a></span>
-<span id="cb23-7"><a href="#cb23-7" tabindex="-1"></a><span class="co"># Warning - quotes are included in the value</span></span>
-<span id="cb23-8"><a href="#cb23-8" tabindex="-1"></a><span class="va">KEY</span><span class="op">=</span><span class="st">"value"</span>        <span class="co"># Sets KEY to literally "value" (including the quotes)</span></span>
-<span id="cb23-9"><a href="#cb23-9" tabindex="-1"></a><span class="va">KEY</span><span class="op">=</span><span class="st">'value'</span>        <span class="co"># Sets KEY to literally 'value' (including the quotes)</span></span>
-<span id="cb23-10"><a href="#cb23-10" tabindex="-1"></a></span>
-<span id="cb23-11"><a href="#cb23-11" tabindex="-1"></a><span class="co"># Correct - values with spaces (no quotes needed)</span></span>
-<span id="cb23-12"><a href="#cb23-12" tabindex="-1"></a><span class="va">PATH</span><span class="op">=</span>/path/to/my <span class="ex">file.txt</span>       <span class="co"># Works correctly</span></span>
-<span id="cb23-13"><a href="#cb23-13" tabindex="-1"></a><span class="va">URL</span><span class="op">=</span>https://example.com<span class="pp">?</span>a=b<span class="kw">&amp;</span><span class="va">c</span><span class="op">=</span>d <span class="co"># Works correctly</span></span></code></pre></div>
-<p><strong>Remember:</strong> Values are taken as-is after the
-<code>=</code> sign (with leading/trailing whitespace trimmed). Special
-characters, spaces, and symbols are preserved without needing
-quotes.</p>
-</div>
-<div class="section level3">
-<h3 id="already-set-variables">Already-Set Variables<a class="anchor" aria-label="anchor" href="#already-set-variables"></a>
-</h3>
-<p>Variables that are already set in your environment are <strong>never
-overridden</strong> by files:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Set in environment</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>MY_VAR <span class="op">=</span> <span class="st">"original"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># File contains: MY_VAR=new</span></span>
-<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Original value is preserved</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"MY_VAR"</span><span class="op">)</span> <span class="co"># Still "original", not "new"</span></span></code></pre></div>
-<p>This is by design - it allows system-level configuration to always
-take precedence.</p>
-</div>
 </div>
 <div class="section level2">
 <h2 id="see-also">See Also<a class="anchor" aria-label="anchor" href="#see-also"></a>
 </h2>
 <ul>
 <li>
-<code><a href="../reference/projr_env_set.html">?projr_env_set</a></code> - Load environment variables from
+<code><a href="../reference/projr_env_set.html">?projr_env_set</a></code> — Load environment variables from
 files</li>
 <li>
-<code><a href="../reference/projr_build_dev.html">?projr_build_dev</a></code> - Development builds (respects
-environment variables)</li>
+<code><a href="../reference/projr_build_dev.html">?projr_build_dev</a></code> — Development builds</li>
 <li>
-<code><a href="../reference/projr_build.html">?projr_build</a></code> - Production builds (respects environment
-variables)</li>
+<code><a href="../reference/projr_build.html">?projr_build</a></code> — Production builds</li>
 <li>
-<code><a href="../reference/projr_profile_create.html">?projr_profile_create</a></code> - Create new profiles</li>
-<li>
-<a href="https://quarto.org/docs/projects/environment.html" class="external-link">Quarto
-Environment Variables</a> - Quarto’s environment variable
-documentation</li>
+<code><a href="../reference/projr_profile_create.html">?projr_profile_create</a></code> — Create new profiles</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

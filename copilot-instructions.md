@@ -41,8 +41,10 @@ local) and file operations (applies to `R/remote*.R`)
 **Before committing:** - Run
 [`devtools::document()`](https://devtools.r-lib.org/reference/document.html),
 [`devtools::test()`](https://devtools.r-lib.org/reference/test.html)
-(LITE mode), `styler::style_pkg()` - Update `_pkgdown.yml` when
-adding/removing exported functions - Verify with
+(LITE mode),
+[`styler::style_pkg()`](https://styler.r-lib.org/reference/style_pkg.html) -
+Update `_pkgdown.yml` when adding/removing exported functions - Verify
+with
 [`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html) -
 Ensure files end with single newline, no trailing whitespace - Update
 copilot instructions as needed
@@ -125,10 +127,8 @@ templates: CC-BY, CC0, Apache-2.0, MIT, Proprietary
 before `gh::`/`gitcreds::` calls; see
 [`projr_instr_auth_github()`](https://satvilab.github.io/projr/reference/instr_auth.md)
 
-**OSF:** Set `OSF_PAT`; use
-[`.auth_check_osf()`](https://satvilab.github.io/projr/reference/dot-auth_check_osf.md)
-before `osfr::` calls; see
-[`projr_instr_auth_osf()`](https://satvilab.github.io/projr/reference/instr_auth.md)
+**OSF:** Set `OSF_PAT`; use `.auth_check_osf()` before `osfr::` calls;
+see `projr_instr_auth_osf()`
 
 ------------------------------------------------------------------------
 

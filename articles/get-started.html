@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3-0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -80,185 +80,178 @@
 <div class="section level2">
 <h2 id="get-started-with-projr">Get started with projr<a class="anchor" aria-label="anchor" href="#get-started-with-projr"></a>
 </h2>
-<p>This guide shows you the minimal setup path to start using projr for
-reproducible research projects.</p>
 <div class="section level3">
 <h3 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h3>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Once on CRAN:</span></span>
-<span><span class="co"># install.packages("projr")</span></span>
-<span></span>
-<span><span class="co"># For now, install from GitHub:</span></span>
+<code class="sourceCode R"><span><span class="co"># Install from GitHub:</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"SATVILab/projr"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="minimal-setup">Minimal setup<a class="anchor" aria-label="anchor" href="#minimal-setup"></a>
+<h3 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h3>
-<p>The quickest way to start is to create the essential directories and
-run your first build:</p>
+<p>Set up a project and run your first build:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://satvilab.github.io/projr/">projr</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Create core directories</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="st">"_raw_data"</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="st">"_output"</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co"># Initialise with sensible defaults</span></span>
+<span><span class="fu"><a href="../reference/projr_init.html">projr_init</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Run your first build</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>This will: - Clear <code>_output</code> directory - Render any R
-Markdown or Quarto documents - Version raw data and outputs - Create a
-manifest linking inputs to outputs</p>
+<span><span class="co"># Run a dev build to test</span></span>
+<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="../reference/projr_init.html">projr_init()</a></code> creates project directories, a
+<code>_projr.yml</code> config file,
+<code>.gitignore</code>/<code>.Rbuildignore</code> entries, and a
+<code>DESCRIPTION</code> file.</p>
+<p>For an interactive walkthrough, use <code><a href="../reference/projr_init_prompt.html">projr_init_prompt()</a></code>.
+For a full setup including Git, GitHub, and renv, use
+<code><a href="../reference/projr_init.html">projr_init_all()</a></code>.</p>
 </div>
 <div class="section level3">
-<h3 id="full-initialisation-optional">Full initialisation (optional)<a class="anchor" aria-label="anchor" href="#full-initialisation-optional"></a>
+<h3 id="builds">Builds<a class="anchor" aria-label="anchor" href="#builds"></a>
 </h3>
-<p>For a complete project setup with metadata, Git, and GitHub:</p>
 <div class="section level4">
-<h4 id="option-1-sensible-defaults">Option 1: Sensible defaults<a class="anchor" aria-label="anchor" href="#option-1-sensible-defaults"></a>
+<h4 id="development-builds">Development builds<a class="anchor" aria-label="anchor" href="#development-builds"></a>
 </h4>
+<p>Use <code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code> while iterating. Dev builds:</p>
+<ul>
+<li>Route outputs to the cache directory
+(<code>_tmp/projr/v&lt;version&gt;/</code>)</li>
+<li>Do not bump the version or upload to archives</li>
+<li>Leave <code>_output</code> untouched</li>
+</ul>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_init.html">projr_init</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Uses sensible defaults</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="option-2-step-by-step-prompts">Option 2: Step-by-step prompts<a class="anchor" aria-label="anchor" href="#option-2-step-by-step-prompts"></a>
-</h4>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_init_prompt.html">projr_init_prompt</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Guides you through each option</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="option-3-include-extras-by-default">Option 3: Include extras by default<a class="anchor" aria-label="anchor" href="#option-3-include-extras-by-default"></a>
-</h4>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">projr_init_full</span><span class="op">(</span><span class="op">)</span> <span class="co"># Includes additional features</span></span></code></pre></div>
-<p>These initialisation functions set up: - Project directories
-(<code>_raw_data</code>, <code>_output</code>, <code>_tmp</code>,
-<code>docs</code>) - <code>_projr.yml</code> configuration file -
-<code>DESCRIPTION</code> file with project metadata - README template -
-Git repository (optional) - GitHub repository (optional) -
-<code>.gitignore</code> and <code>.Rbuildignore</code> files - renv for
-dependency management (optional)</p>
-</div>
-</div>
-<div class="section level3">
-<h3 id="development-vs-final-builds">Development vs final builds<a class="anchor" aria-label="anchor" href="#development-vs-final-builds"></a>
-</h3>
-<div class="section level4">
-<h4 id="development-builds-projr_build_dev">Development builds: <code>projr_build_dev()</code><a class="anchor" aria-label="anchor" href="#development-builds-projr_build_dev"></a>
-</h4>
-<p>Use this whilst iterating on your code:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Development builds: - Route documents and outputs to the cache
-directory (<code>_tmp/projr/v&lt;version&gt;/</code>) - <strong>Do
-not</strong> touch your <code>_output</code> directory (unless
-<code>clear_output = "pre"</code>) - <strong>Do not</strong> bump the
-version number - <strong>Do not</strong> upload to archives - Perfect
-for testing changes without overwriting your latest release</p>
-<p><strong>Example</strong>: Inspecting cached outputs</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># After a dev build, find your outputs in:</span></span>
-<span><span class="co"># _tmp/projr/v0.1.0/output/</span></span>
-<span><span class="co"># _tmp/projr/v0.1.0/docs/</span></span>
+<code class="sourceCode R"><span><span class="co"># Build everything</span></span>
+<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># You can specify which docs to render:</span></span>
+<span><span class="co"># Build a specific document</span></span>
 <span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="st">"analysis.Rmd"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
-<h4 id="final-builds-projr_build">Final builds: <code>projr_build()</code><a class="anchor" aria-label="anchor" href="#final-builds-projr_build"></a>
+<h4 id="production-builds">Production builds<a class="anchor" aria-label="anchor" href="#production-builds"></a>
 </h4>
-<p>Use this when you’re ready to create a new version:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Patch version bump (0.1.0 -&gt; 0.1.1)</span></span>
+<p>Use production builds when you are ready to release a new
+version:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Patch bump (0.1.0 -&gt; 0.1.1)</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co"># or explicitly:</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># equivalent</span></span>
 <span></span>
-<span><span class="co"># Minor version bump (0.1.0 -&gt; 0.2.0)</span></span>
+<span><span class="co"># Minor bump (0.1.0 -&gt; 0.2.0)</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_minor</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Major version bump (0.1.0 -&gt; 1.0.0)</span></span>
+<span><span class="co"># Major bump (0.1.0 -&gt; 1.0.0)</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_major</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Final builds: - Clear and populate <code>_output</code> directory -
-Bump the version number - Version all project components - Create
-manifest linking inputs to outputs - Archive to configured destinations
-(GitHub Releases, OSF, local) - Commit and push to Git (if
-configured)</p>
+<p>Production builds clear and populate <code>_output</code>, bump the
+version, record a manifest of inputs and outputs, archive to configured
+destinations (GitHub Releases, OSF, or local), and commit/push to Git if
+configured.</p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="restoring-on-a-new-machine">Restoring on a new machine<a class="anchor" aria-label="anchor" href="#restoring-on-a-new-machine"></a>
+<h3 id="archiving-outputs">Archiving outputs<a class="anchor" aria-label="anchor" href="#archiving-outputs"></a>
 </h3>
-<p>Clone the repository and restore raw data:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<p>Add a destination so production builds automatically archive
+outputs:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Archive to GitHub Releases</span></span>
+<span><span class="fu"><a href="../reference/projr_yml_dest_add_github.html">projr_yml_dest_add_github</a></span><span class="op">(</span></span>
+<span>  title <span class="op">=</span> <span class="st">"default"</span>,</span>
+<span>  content <span class="op">=</span> <span class="st">"output"</span>,</span>
+<span>  structure <span class="op">=</span> <span class="st">"archive"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Or archive to a local directory</span></span>
+<span><span class="fu"><a href="../reference/projr_yml_dest_add.html">projr_yml_dest_add_local</a></span><span class="op">(</span></span>
+<span>  title <span class="op">=</span> <span class="st">"backup"</span>,</span>
+<span>  content <span class="op">=</span> <span class="st">"output"</span>,</span>
+<span>  path <span class="op">=</span> <span class="st">"/path/to/archive"</span>,</span>
+<span>  structure <span class="op">=</span> <span class="st">"latest"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="restoring-a-project">Restoring a project<a class="anchor" aria-label="anchor" href="#restoring-a-project"></a>
+</h3>
+<p>Clone and restore raw data on a new machine:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_restore.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"owner/repo"</span><span class="op">)</span></span></code></pre></div>
-<p>This will: - Clone the repository from GitHub - Restore raw data from
-configured archives (GitHub Releases, OSF, or local) - Set up the
-project structure - (Optionally) restore renv dependencies with
-<code><a href="https://rstudio.github.io/renv/reference/restore.html" class="external-link">renv::restore()</a></code></p>
+<p>This clones the repo, restores raw data from configured archives, and
+sets up the project structure.</p>
+<p>To update content from archives in an existing project:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_restore.html">projr_content_update</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="understanding-defaults">Understanding defaults<a class="anchor" aria-label="anchor" href="#understanding-defaults"></a>
+<h3 id="default-directories">Default directories<a class="anchor" aria-label="anchor" href="#default-directories"></a>
 </h3>
-<p>When you initialise a project, projr sets up these defaults:</p>
-<div class="section level4">
-<h4 id="directory-labels">Directory labels<a class="anchor" aria-label="anchor" href="#directory-labels"></a>
-</h4>
-<ul>
-<li>
-<code>raw-data</code>: <code>_raw_data</code> - Your source
-data</li>
-<li>
-<code>cache</code>: <code>_tmp</code> - Temporary files and dev
-build outputs</li>
-<li>
-<code>output</code>: <code>_output</code> - Final outputs (figures,
-tables)</li>
-<li>
-<code>docs</code>: <code>docs</code> - Rendered documents (HTML,
-PDF)</li>
-</ul>
+<table class="table">
+<thead><tr class="header">
+<th>Label</th>
+<th>Path</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>raw-data</code></td>
+<td><code>_raw_data</code></td>
+<td>Source data</td>
+</tr>
+<tr class="even">
+<td><code>cache</code></td>
+<td><code>_tmp</code></td>
+<td>Temporary files and dev build outputs</td>
+</tr>
+<tr class="odd">
+<td><code>output</code></td>
+<td><code>_output</code></td>
+<td>Final outputs (figures, tables)</td>
+</tr>
+<tr class="even">
+<td><code>docs</code></td>
+<td><code>docs</code></td>
+<td>Rendered documents (HTML, PDF)</td>
+</tr>
+</tbody>
+</table>
+<p>Access directories programmatically:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_path_get_dir.html">projr_path_get_dir</a></span><span class="op">(</span><span class="st">"output"</span><span class="op">)</span>             <span class="co"># actual path: _output</span></span>
+<span><span class="fu"><a href="../reference/projr_path_get_dir.html">projr_path_get_dir</a></span><span class="op">(</span><span class="st">"output"</span>, safe <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># cache path: _tmp/projr/v0.1.0/output</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="auto-ignore-rules">Auto-ignore rules<a class="anchor" aria-label="anchor" href="#auto-ignore-rules"></a>
-</h4>
-<p>projr automatically configures: - <code>.gitignore</code> to exclude
-large files and cache directories - <code>.Rbuildignore</code> for R
-package development (if applicable)</p>
+<div class="section level3">
+<h3 id="manifest">Manifest<a class="anchor" aria-label="anchor" href="#manifest"></a>
+</h3>
+<p>Each build records file hashes in <code>manifest.csv</code>, linking
+outputs to exact input versions. Query it with:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.2"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_last_change</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="manifest">Manifest<a class="anchor" aria-label="anchor" href="#manifest"></a>
-</h4>
-<p>After each build, projr creates a manifest
-(<code>_output/manifest.csv</code>) that records: - Which version of raw
-data was used - Which version of code was used - Which outputs were
-generated - SHA-256 checksums for verification</p>
-<p>This ensures you can always trace outputs back to their exact
-inputs.</p>
-</div>
-<div class="section level4">
-<h4 id="changelog-and-build-log">Changelog and build log<a class="anchor" aria-label="anchor" href="#changelog-and-build-log"></a>
-</h4>
-<ul>
-<li>
-<code>NEWS.md</code> - Manual changelog for human-readable release
-notes</li>
-<li>
-<code>BUILDLOG.md</code> - Automated build log (configure via
-YAML)</li>
-</ul>
-</div>
+<div class="section level3">
+<h3 id="configuration">Configuration<a class="anchor" aria-label="anchor" href="#configuration"></a>
+</h3>
+<p>All settings live in <code>_projr.yml</code>. Inspect and validate
+with:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_yml_get.html">projr_yml_get</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_yml_check.html">projr_yml_check</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Configure Git behaviour:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/yml-git.html">projr_yml_git_set</a></span><span class="op">(</span>commit <span class="op">=</span> <span class="cn">TRUE</span>, push <span class="op">=</span> <span class="cn">TRUE</span>, add_untracked <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="next-steps">Next steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
 </h3>
 <ul>
-<li>Read <a href="how-to-guides.html">How-to guides</a> for specific
+<li>
+<a href="how-to-guides.html">How-to guides</a> for specific
 tasks</li>
-<li>Understand <a href="concepts.html">Concepts</a> behind projr’s
-design</li>
-<li>Explore <a href="design.html">Design</a> philosophy</li>
-<li>Browse the <a href="../reference/index.html">Reference</a> for all
+<li>
+<a href="concepts.html">Concepts</a> behind projr’s design</li>
+<li>
+<a href="design.html">Design</a> philosophy</li>
+<li>
+<a href="../reference/index.html">Reference</a> for all
 functions</li>
 </ul>
 </div>

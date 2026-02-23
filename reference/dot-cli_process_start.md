@@ -5,7 +5,7 @@ Start a process with a spinner/status indicator
 ## Usage
 
 ``` r
-.cli_process_start(..., output_level = "std")
+.cli_process_start(...)
 ```
 
 ## Arguments
@@ -13,10 +13,6 @@ Start a process with a spinner/status indicator
 - ...:
 
   Message components
-
-- output_level:
-
-  Character. Current output level.
 
 ## Value
 

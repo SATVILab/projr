@@ -2,32 +2,15 @@
 
 ## Core concepts
 
-This article explains the key concepts behind projr’s approach to
-reproducible research.
+This article covers the key ideas behind projr: single-purpose
+directories, versioned builds, manifests, archiving, profiles,
+environment variables, and dependency management with renv.
 
 ------------------------------------------------------------------------
 
 ### Single-purpose directories
 
-#### The problem
-
-Research projects often have an ad-hoc structure where:
-
-- Data files are scattered across multiple locations
-- Output files mix with source code
-- Temporary files clutter the repository
-- It’s unclear what each directory contains
-
-This makes it difficult to:
-
-- Share specific parts of the project
-- Restore the project on a new machine
-- Understand the project structure at a glance
-
-#### The projr solution
-
-projr organises projects into **single-purpose directories**, each with
-a clear role:
+projr organises projects so that each directory has one job:
 
     my-project/
     ├── _raw_data/          # Source data (never modified)
@@ -38,33 +21,21 @@ a clear role:
     ├── analysis.Rmd        # Analysis documents
     └── _projr.yml          # Configuration
 
-**Benefits:**
-
-1.  **Clarity**: Anyone can understand the structure from `_projr.yml`
-2.  **Selective sharing**: Archive only what’s needed (e.g., data +
-    outputs)
-3.  **Restoration**: Easily restore projects on new machines
-4.  **Automation**: projr can manage these directories automatically
+This makes it straightforward to share specific parts of a project (e.g.
+just the data and outputs), restore it on a new machine, or understand
+the layout at a glance.
 
 #### Directory labels
 
-Each directory has a **label** that describes its purpose:
+Every directory gets a label that describes its role. The label prefix
+determines how projr treats the directory:
 
-- `raw-data` → source data
-- `cache` → temporary files
-- `output` → final outputs
-- `docs` → rendered documents
+- `raw-*` — source inputs (e.g. `raw-data`)
+- `cache-*` — temporary storage (e.g. `cache`)
+- `output-*` — final outputs (e.g. `output`)
+- `docs-*` — documentation (e.g. `docs`)
 
-Labels have **prefixes** that determine their role:
-
-- `raw-*` → source inputs
-- `cache-*` → temporary storage
-- `output-*` → final outputs
-- `docs-*` → documentation
-
-**Custom labels:**
-
-You can create custom labels following the prefix rules:
+You can define multiple directories under the same prefix:
 
 ``` yaml
 directories:
@@ -78,80 +49,46 @@ directories:
     path: _output/tables
 ```
 
-**Label restrictions:**
+Labels must not end in `-empty` (reserved for internal use).
 
-Directory labels must not end in `-empty`. This suffix is reserved for
-internal use by projr. For example, `output-empty` or `cache-empty` are
-invalid labels and will cause
-[`projr_yml_check()`](https://satvilab.github.io/projr/reference/projr_yml_check.md)
-to fail.
+#### Safe vs unsafe directories
+
+When you request a directory path, the `safe` argument controls which
+location you get:
+
+- `safe = TRUE` — versioned cache path
+  (e.g. `_tmp/projr/v0.0.1/output`). Used during dev builds so final
+  directories are not touched.
+- `safe = FALSE` — the actual directory (e.g. `_output`). Used during
+  final builds.
+
+``` r
+projr_path_get_dir("output")
+projr_path_get_dir("output", safe = TRUE)
+```
 
 ------------------------------------------------------------------------
 
 ### Versioned builds
 
-#### The problem
-
-In typical research projects:
-
-- It’s unclear which version of data produced which outputs
-- Reproducing an earlier analysis requires Git archaeology
-- Dependencies (R packages) change over time
-- No formal link between code version and outputs
-
-#### The projr solution
-
-projr implements **versioned builds** that:
-
-1.  Assign a version to the entire project (e.g., `v0.1.0`)
-2.  Version individual components (code, data, outputs)
-3.  Link outputs to specific input versions via a manifest
-4.  Optionally capture R dependencies with renv
-
-**Version numbers:**
-
-projr uses semantic versioning (x.y.z):
-
-- **Major** (x): Breaking changes or major milestones
-- **Minor** (y): New features or analyses
-- **Patch** (z): Small changes or bug fixes
-
-**Example progression:**
+Each build assigns a semantic version (`major.minor.patch`) to the
+project and records which inputs produced which outputs:
 
     v0.1.0  Initial analysis
-      ↓
     v0.1.1  Fix typo in figure
-      ↓
     v0.2.0  Add sensitivity analysis
-      ↓
     v1.0.0  Final publication version
 
-#### Component versioning
+- Major (x): breaking changes or major milestones
+- Minor (y): new features or analyses
+- Patch (z): small fixes
 
-Each build versions:
+You can read or set the version directly:
 
-- **Code**: Git commit SHA
-- **Raw data**: Directory hash (SHA-256)
-- **Outputs**: Directory hash
-- **Documents**: Directory hash
-- **R packages**: renv.lock file (optional)
-
-These are linked in the **manifest**:
-
-    output/manifest.csv:
-      version: v0.1.0
-      code_sha: abc123...
-      raw_data_hash: def456...
-      output_hash: ghi789...
-
-**Traceability:**
-
-Given an output file, you can trace back to:
-
-1.  Which project version created it
-2.  Which raw data was used
-3.  Which code (Git commit) generated it
-4.  Which R packages were installed
+``` r
+projr_version_get()
+projr_version_set("0.2.0")
+```
 
 ------------------------------------------------------------------------
 
@@ -159,353 +96,151 @@ Given an output file, you can trace back to:
 
 #### Development builds
 
-**Purpose**: Safe iteration whilst coding
+Use
+[`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md)
+to iterate safely. Outputs go to cache (`_tmp/projr/v<version>/`),
+leaving `_output` and `docs` untouched. No version bump, no archiving.
 
 ``` r
 projr_build_dev()
 ```
 
-**Characteristics:**
-
-- Routes outputs to cache (`_tmp/projr/v<version>/`)
-- Doesn’t modify `_output` or `docs`
-- No version bump
-- No archiving
-- Fast feedback loop
-
-**Use when:**
-
-- Testing code changes
-- Debugging analysis
-- Iterating on documents
-- Checking output before committing
+Use dev builds when testing code changes, debugging, or checking output
+before committing.
 
 #### Final builds
 
-**Purpose**: Create versioned releases
+Final builds bump the version, populate `_output` and `docs`, create a
+manifest, optionally archive to remotes, and commit to Git:
 
 ``` r
-projr_build() # patch bump
-projr_build_minor() # minor bump
-projr_build_major() # major bump
+projr_build_patch()   # increment patch (0.0.x)
+projr_build_minor()   # increment minor (0.x.0)
+projr_build_major()   # increment major (x.0.0)
 ```
 
-**Characteristics:**
+[`projr_build()`](https://satvilab.github.io/projr/reference/projr_build.md)
+is an alias for
+[`projr_build_patch()`](https://satvilab.github.io/projr/reference/projr_build.md).
 
-- Clears and populates `_output` and `docs`
-- Bumps version number
-- Creates manifest
-- Archives to GitHub/OSF/local
-- Commits to Git (if configured)
+Use final builds when you are ready to share results, create a
+milestone, or archive for posterity.
 
-**Use when:**
+#### Build phases
 
-- Ready to share results
-- Creating a milestone
-- Publishing results
-- Archiving for posterity
+Both build types follow the same phases:
 
-------------------------------------------------------------------------
-
-### Build clearing behavior
-
-#### Overview
-
-projr manages when and how output directories are cleared during builds
-to ensure clean, reproducible results while preventing accidental data
-loss.
-
-#### Clearing modes
-
-The `clear_output` parameter controls when directories are cleared:
-
-``` r
-# Clear before build (default)
-projr_build_patch(clear_output = "pre")
-
-# Clear after build
-projr_build_patch(clear_output = "post")
-
-# Never clear automatically
-projr_build_patch(clear_output = "never")
-```
-
-You can also set this globally via environment variable:
-
-``` r
-Sys.setenv(PROJR_CLEAR_OUTPUT = "post")
-projr_build_patch() # Uses "post" mode
-```
-
-#### Mode comparison
-
-| Mode      | When cleared          | Safe for iteration?     | Use case                                                    |
-|-----------|-----------------------|-------------------------|-------------------------------------------------------------|
-| `"pre"`   | Before build starts   | ✓ Yes                   | Default: Clean slate, save directly to final locations      |
-| `"post"`  | After build completes | ✓ Yes                   | Conservative: Preserve outputs until after successful build |
-| `"never"` | Never                 | ✗ Manual control needed | Advanced: User manages all clearing                         |
-
-#### What gets cleared?
-
-**In development builds
-([`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md)):**
-
-- Cache directories are cleared
-- Final `_output` and `docs` directories are never touched
-- Safe for rapid iteration
-
-**In final builds
-([`projr_build()`](https://satvilab.github.io/projr/reference/projr_build.md),
-etc.):**
-
-Mode `"pre"`: - Before build: Clears cache AND final `_output`
-directories - During build: Renders to final locations directly - After
-build: Final outputs contain only current build results
-
-Mode `"post"`: - Before build: Clears cache only (preserves final
-`_output`) - During build: Renders to cache - After build: Clears final
-directories, then copies from cache
-
-Mode `"never"`: - No automatic clearing - New files may mix with old
-files - Requires manual directory management
-
-#### Example workflows
-
-**Workflow 1: Default (clear before)**
-
-``` r
-# Clean slate approach
-projr_build_patch(clear_output = "pre")
-
-# 1. Clears _output/ completely
-# 2. Builds analysis
-# 3. Saves outputs directly to _output/
-# 4. Archives to remotes (if configured)
-```
-
-**Workflow 2: Conservative (clear after)**
-
-``` r
-# Safety-first approach
-projr_build_patch(clear_output = "post")
-
-# 1. Keeps existing _output/ intact
-# 2. Builds to cache (_tmp/projr/v0.0.1/)
-# 3. After successful build, clears _output/
-# 4. Copies from cache to _output/
-# 5. Archives to remotes (if configured)
-```
-
-**Workflow 3: Manual control**
-
-``` r
-# Advanced: Manual clearing
-unlink("_output", recursive = TRUE) # Clear manually
-projr_build_patch(clear_output = "never")
-
-# 1. No automatic clearing
-# 2. Builds to specified locations
-# 3. User responsible for cleanup
-```
-
-#### Special: “old” directory preservation
-
-The cache clearing process preserves a special `old/` subdirectory for
-archival purposes:
-
-    _tmp/projr/v0.0.1/
-    ├── output/           # Cleared each build
-    ├── docs/             # Cleared each build
-    └── old/              # Never cleared automatically
-        └── archived_results.csv
-
-This allows you to manually preserve important intermediate results
-across builds.
+1.  Clear output directories (mode depends on `PROJR_CLEAR_OUTPUT`)
+2.  Run pre-build hooks
+3.  Hash input files for the manifest
+4.  Bump version (final builds only)
+5.  Execute build scripts / render documents
+6.  Hash output files, write manifest
+7.  Commit to Git (if configured)
+8.  Run post-build hooks
+9.  Distribute to remote destinations (final builds only)
+10. Bump to dev version (final builds only, e.g. 0.0.2 → 0.0.2-1)
 
 ------------------------------------------------------------------------
 
 ### Manifests
 
-#### What is a manifest?
-
-A manifest is a CSV file that records:
-
-- What was built
-- Which inputs were used
-- When it was built
-- SHA-256 checksums for verification
-
-**Example manifest:**
+A manifest is a CSV (`manifest.csv` at the project root) that records
+file hashes for every version. This links each output to the exact
+inputs that produced it.
 
 ``` csv
-label,path,hash,version,timestamp
-raw-data,_raw_data,abc123...,v0.1.0,2024-01-15T10:30:00Z
-output,_output,def456...,v0.1.0,2024-01-15T10:35:00Z
-docs,docs,ghi789...,v0.1.0,2024-01-15T10:35:00Z
+label,fn,version,hash
+raw-data,data.csv,v0.1.0,abc123...
+output,figure.png,v0.1.0,def456...
+docs,report.html,v0.1.0,ghi789...
 ```
 
-#### Why manifests matter
-
-**Verification**: Check if files have been modified
+Query the manifest to see what changed:
 
 ``` r
-# Compare current hash with manifest
-tools::md5sum("_output/figure.png")
-# vs hash in manifest
-```
+# Changes between two versions
+projr_manifest_changes("0.0.1", "0.0.2")
 
-**Traceability**: Link outputs to inputs
+# Filter to a single label
+projr_manifest_changes("0.0.1", "0.0.2", label = "output")
 
-“This figure was generated from raw data version abc123… using code
-commit def456…”
+# File history across a range of versions
+projr_manifest_range("0.0.1")
 
-**Reproducibility**: Ensure the right inputs
-
-“To reproduce this analysis, restore raw-data v0.1.0”
-
-#### Manifest location
-
-Manifests are stored in:
-
-- `manifest.csv` at project root (tracks all versions)
-- Dev builds also create temporary manifests in cache
-
-#### Querying manifests
-
-projr provides functions to query the manifest and track changes across
-versions:
-
-**Find what changed between versions:**
-
-``` r
-# See what files changed between v0.0.1 and v0.0.2
-changes <- projr_manifest_changes("0.0.1", "0.0.2")
-# Returns: label, fn, change_type (added/modified/removed), hash_from, hash_to
-
-# Filter by directory
-output_changes <- projr_manifest_changes("0.0.1", "0.0.2", label = "output")
-```
-
-**Track files across a version range:**
-
-``` r
-# See all files and when they last changed from v0.0.1 to current
-file_history <- projr_manifest_range("0.0.1")
-# Returns: label, fn, version_first, version_last_change, hash
-```
-
-**Check when directories last changed:**
-
-``` r
-# See most recent changes for each directory
-last_changes <- projr_manifest_last_change()
-# Returns: label, version_last_change, n_files
+# Most recent change for each label
+projr_manifest_last_change()
 ```
 
 ------------------------------------------------------------------------
 
 ### Archiving and restoration
 
+projr can archive directory contents to GitHub Releases or local
+directories after each build.
+
 #### Archive strategies
 
-projr supports two archiving strategies:
+Two strategies control how archives are organised:
 
-**1. Versioned archives** (default)
+- `archive` — each version gets its own archive (preserves history)
+- `latest` — each build overwrites the previous archive (saves space)
 
-Each build creates a new archive:
+Add a remote destination in R:
 
-    GitHub Releases:
-      v0.1.0/raw-data-v0.1.0.zip
-      v0.1.1/raw-data-v0.1.1.zip
-      v0.2.0/raw-data-v0.2.0.zip
+``` r
+projr_yml_dest_add_github(
+  title = "my-release",
+  content = "output",
+  structure = "archive"
+)
 
-- Preserves all versions
-- Enables time travel
-- Uses more storage
-
-**2. Latest-only archives**
-
-Each build overwrites the previous:
-
-    GitHub Releases:
-      latest/raw-data-latest.zip  (always current)
-
-- Saves storage space
-- Loses history
-- Faster downloads
-
-**Configure in `_projr.yml`:**
-
-``` yaml
-build:
-  github:
-    raw-data:
-      content: [raw-data]
-      strategy: "archive"  # or "latest"
-```
-
-#### Archive cues
-
-Control when archives are uploaded:
-
-- `"always"` - Upload on every build
-- `"new"` - Upload only if content changed (default)
-- `"never"` - Don’t upload
-
-``` yaml
-build:
-  github:
-    raw-data:
-      content: [raw-data]
-      cue: "new"  # Only upload if raw data changed
+projr_yml_dest_add_local(
+  title = "backup",
+  content = "raw-data",
+  path = "/mnt/shared/backups",
+  structure = "latest"
+)
 ```
 
 #### Restoration
 
-Restoration pulls archived content back:
+Restore a full project (raw data + outputs) from its remotes:
 
 ``` r
-# Restore from GitHub
 projr_restore_repo("owner/repo")
-
-# Restore specific version
-projr_content_update(label = "raw-data", version = "v0.1.0")
-
-# Restore specific label
-projr_content_update(label = "output")
 ```
 
-**Restoration order:**
+Or update a single label:
 
-projr checks sources in order:
+``` r
+projr_content_update(label = "raw-data")
+projr_content_update(label = "output", version = "0.1.0")
+```
 
-1.  GitHub Releases
-2.  OSF
-3.  Local archives
-
-The first available source is used.
+projr tries each configured remote in order (GitHub, OSF, local) and
+uses the first one that has the requested content.
 
 ------------------------------------------------------------------------
 
 ### Profiles
 
-#### What are profiles?
+A profile is an alternative `_projr.yml` that overrides specific
+settings. Profile files are named `_projr-<name>.yml` and inherit
+everything not explicitly overridden from the base `_projr.yml`.
 
-Profiles are alternative configurations for different contexts:
+    _projr.yml            # Base configuration
+    _projr-dev.yml        # Development overrides
+    _projr-public.yml     # Public sharing overrides
 
-- **Development** vs **production**
-- **Public** vs **private** sharing
-- **Individual** vs **collaborative** workflows
+Create and activate a profile:
 
-#### How profiles work
+``` r
+projr_profile_create("dev")
+projr_profile_get()
+```
 
-A profile is a separate YAML file:
-
-    _projr.yml         # Default configuration
-    _projr-dev.yml     # Development profile
-    _projr-public.yml  # Public sharing profile
-
-**Activate a profile:**
+Activate via environment variable:
 
 ``` r
 Sys.setenv(PROJR_PROFILE = "dev")
@@ -515,35 +250,7 @@ Or in `.Renviron`:
 
     PROJR_PROFILE=dev
 
-#### Profile inheritance
-
-Profiles only specify **differences** from `_projr.yml`:
-
-**`_projr.yml`:**
-
-``` yaml
-build:
-  github:
-    enabled: true
-    raw-data:
-      content: [raw-data]
-directories:
-  output:
-    path: _output
-```
-
-**`_projr-dev.yml`:**
-
-``` yaml
-build:
-  github:
-    enabled: false  # Override: disable GitHub in dev
-# All other settings inherited from _projr.yml
-```
-
-#### Example profiles
-
-**Development profile** (`_projr-dev.yml`):
+Example `_projr-dev.yml` that disables GitHub archiving and Git commits:
 
 ``` yaml
 build:
@@ -553,167 +260,93 @@ build:
     commit: false
 ```
 
-**Public sharing profile** (`_projr-public.yml`):
-
-``` yaml
-directories:
-  raw-data:
-    path: _raw_data_public  # Only public data
-build:
-  github:
-    raw-data:
-      content: [raw-data]  # Share public data only
-```
-
 ------------------------------------------------------------------------
 
 ### Environment variables
 
-#### Configuration via environment
-
-projr reads these environment variables:
-
-**`PROJR_PROFILE`**
-
-Activate a profile:
-
-``` bash
-export PROJR_PROFILE=dev
-```
-
-**`PROJR_OUTPUT_CLEAR`**
-
-Control when `_output` is cleared:
-
-- `"pre"` - Clear before build (default)
-- `"post"` - Clear after build
-- `"none"` - Never clear
-
-``` bash
-export PROJR_OUTPUT_CLEAR=pre
-```
-
-**`PROJR_CACHE_CLEAR`**
-
-Control cache clearing (same options as above).
-
-#### Setting environment variables
-
-**In R:**
+projr reads several environment variables. Set them in R, in
+`.Renviron`, or with
+[`projr_env_set()`](https://satvilab.github.io/projr/reference/projr_env_set.md):
 
 ``` r
+# In R
 Sys.setenv(PROJR_PROFILE = "dev")
-Sys.setenv(PROJR_OUTPUT_CLEAR = "pre")
+Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
+
+# Or use the helper
+projr_env_set(profile = "dev")
 ```
 
-**In `.Renviron`:**
+In `.Renviron`:
 
     PROJR_PROFILE=dev
-    PROJR_OUTPUT_CLEAR=pre
+    PROJR_OUTPUT_LEVEL=std
 
-**Helper function:**
+Key variables:
 
-``` r
-projr_env_set(
-  profile = "dev",
-  output_clear = "pre"
-)
-```
+- `PROJR_PROFILE` — active profile name
+- `PROJR_OUTPUT_LEVEL` — console verbosity (`none`, `std`, `debug`)
+- `PROJR_CLEAR_OUTPUT` — when to clear output dirs (`pre`, `post`,
+  `never`)
+- `PROJR_LOG_DETAILED` — write detailed log files (`TRUE`/`FALSE`)
+- `PROJR_AUTO_INSTALL` — auto-install missing R packages
+  (`TRUE`/`FALSE`)
+- `GITHUB_PAT` — GitHub personal access token
+- `OSF_PAT` — OSF personal access token
+
+projr also supports per-project environment files that are loaded at
+build time. In order of increasing priority:
+
+1.  `_environment` — global (committed to Git)
+2.  `_environment-<profile>` — profile-specific
+3.  `_environment.local` — local overrides (git-ignored)
 
 ------------------------------------------------------------------------
 
 ### Dependencies and renv
 
-#### Why renv?
-
-R package versions change over time. Code that works today might break
-in 6 months due to package updates.
-
-**renv** locks package versions:
-
-    renv.lock:
-      {
-        "R": {"Version": "4.3.0"},
-        "Packages": {
-          "dplyr": {"Version": "1.1.0"},
-          "ggplot2": {"Version": "3.4.0"}
-        }
-      }
-
-#### projr + renv
-
-projr integrates with renv:
-
-**Initialise:**
+renv locks R package versions in `renv.lock` so that builds are
+reproducible months or years later. projr wraps common renv operations:
 
 ``` r
+# Initialise renv for the project
 projr_init_renv()
+
+# Snapshot current package versions
+projr_renv_update()
+
+# Restore packages from the lockfile
+projr_renv_restore()
 ```
 
-**Update lockfile:**
-
-``` r
-projr_renv_update() # Wrapper for renv::snapshot()
-```
-
-**Restore packages:**
-
-``` r
-projr_renv_restore() # Wrapper for renv::restore()
-```
-
-#### When to use renv
-
-**Use renv when:**
-
-- Long-term reproducibility is critical
-- Collaborating across machines/time
-- Submitting to journals requiring reproducibility
-
-**Skip renv when:**
-
-- Quick exploratory projects
-- Sharing code is low priority
-- Package versions are stable
+Use renv when long-term reproducibility matters (publications, shared
+projects). Skip it for quick exploratory work.
 
 ------------------------------------------------------------------------
 
 ### The whole game
 
-Putting it all together:
-
 ``` r
-# 1. Initialise
+# 1. Initialise project
 projr_init()
 
-# 2. Add raw data to _raw_data/
-
-# 3. Write analysis code in .Rmd files
+# 2. Place raw data in _raw_data/
+# 3. Write analysis in .Rmd or .qmd files
 
 # 4. Iterate with dev builds
-projr_build_dev("analysis.Rmd")
+projr_build_dev()
 # Check outputs in _tmp/projr/v0.0.1/
 
-# 5. When ready, create first release
-projr_build()
-# Outputs in _output/, archived to GitHub
+# 5. First release
+projr_build_patch()
+# Outputs in _output/, archived to remotes
 
-# 6. Continue development
-# ... edit code ...
-projr_build_dev()
-
-# 7. Create minor release with new analysis
+# 6. Keep working, then release again
 projr_build_minor()
 
-# 8. Share repository
-# Collaborators run:
+# 7. Collaborator restores the project
 projr_restore_repo("you/your-project")
 ```
 
-**Key takeaways:**
-
-- **Directories**: Organise by purpose (raw, cache, output, docs)
-- **Versions**: Link outputs to inputs via manifests
-- **Dev builds**: Safe iteration without overwriting releases
-- **Final builds**: Versioned, archived, traceable releases
-- **Restoration**: One command to reconstruct project
+In short: organise files by purpose, iterate with dev builds, release
+with versioned builds, and restore anywhere with a single command.

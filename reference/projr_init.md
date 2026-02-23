@@ -11,11 +11,20 @@ repositories.
 ## Usage
 
 ``` r
+projr_init_github(
+  user = NULL,
+  org = NULL,
+  public = FALSE,
+  create_repo = TRUE,
+  git_commit = TRUE
+)
+
 projr_init(
   git = TRUE,
   git_commit = TRUE,
   github = TRUE,
   github_public = FALSE,
+  github_user = NULL,
   github_org = NULL,
   dir = TRUE,
   readme = TRUE,
@@ -39,21 +48,44 @@ projr_init_cite()
 
 projr_init_git(commit = TRUE)
 
-projr_init_github(username = NULL, public = FALSE)
-
 projr_init_license(license, first_name, last_name)
+
+projr_init_ignore()
 ```
 
 ## Arguments
 
-- git:
+- user:
 
-  Logical. If `TRUE`, initializes a Git repository. Defaults to `TRUE`.
+  Character or \codeNULL (for \codeprojr_init_github). GitHub username
+  to use when creating the remote; if \codeNULL the token owner is used.
+  Defaults to \codeNULL.
+
+- org:
+
+  Character or \codeNULL (for \codeprojr_init_github). GitHub
+  organisation to use when creating the remote. Defaults to \codeNULL.
+
+- public:
+
+  Logical (for `projr_init_github`). If `TRUE`, the GitHub repository
+  will be public. Defaults to `FALSE`.
+
+- create_repo:
+
+  Logical. If `TRUE` and the project does not have a local Git
+  repository, then in interactive mode it offers to create a GitHub
+  repository and in non-interactive mode creates one automatically.
+  Defaults to `TRUE`.
 
 - git_commit:
 
   Logical. If `TRUE`, commits the initial changes to the Git repository.
   Defaults to `TRUE`.
+
+- git:
+
+  Logical. If `TRUE`, initializes a Git repository. Defaults to `TRUE`.
 
 - github:
 
@@ -65,11 +97,12 @@ projr_init_license(license, first_name, last_name)
   Logical. If `TRUE`, the GitHub repository will be public. Defaults to
   `FALSE`.
 
-- github_org:
+- github_user, github_org:
 
-  Character or `NULL`. The GitHub organization under which to create the
-  repository. Defaults to `NULL`, which creates the repository under the
-  user's account (as implied by the GitHub token).
+  Character or `NULL`. The owner of the GitHub repo to create. If both
+  are NULL, then creates the repository under the current user's account
+  (as implied by the GitHub token). If both are specified, then
+  organisation is preferred. Default is `NULL`.
 
 - dir:
 
@@ -109,23 +142,13 @@ projr_init_license(license, first_name, last_name)
 
 - bioc:
 
-  Logical (for `projr_init_renv`). If `TRUE`, includes Bioconductor
-  packages in the renv setup. Defaults to `TRUE`.
+  Logical (for \codeprojr_init_renv). If \codeTRUE, includes
+  Bioconductor packages in the renv setup. Defaults to \codeTRUE.
 
 - commit:
 
-  Logical (for `projr_init_git`). If `TRUE`, commits the initial changes
-  to the Git repository. Defaults to `TRUE`.
-
-- username:
-
-  Character or `NULL` (for `projr_init_github`). The GitHub username or
-  organization under which to create the repository. Defaults to `NULL`.
-
-- public:
-
-  Logical (for `projr_init_github`). If `TRUE`, the GitHub repository
-  will be public. Defaults to `FALSE`.
+  Logical (for \codeprojr_init_git). If \codeTRUE, commits the initial
+  changes to the Git repository. Defaults to \codeTRUE.
 
 - first_name:
 
@@ -136,6 +159,11 @@ projr_init_license(license, first_name, last_name)
 
   Character (for `projr_init_license`). Last name for proprietary
   license. Required when `license = "proprietary"`.
+
+- username:
+
+  Character or `NULL` (for `projr_init_github`). The GitHub username or
+  organization under which to create the repository. Defaults to `NULL`.
 
 ## Value
 

@@ -39,10 +39,10 @@ Invisibly returns `TRUE` if any files were successfully activated, or
 ``` r
 # Activate only the local overrides
 if (FALSE) { # \dontrun{
-  projr_env_set("_environment.local")
+projr_env_set("_environment.local")
 } # }
 # Activate all available defaults in the standard order
 if (FALSE) { # \dontrun{
-  projr_env_set()
+projr_env_set()
 } # }
 ```

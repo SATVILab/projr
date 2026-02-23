@@ -10,7 +10,6 @@ Show a standard informational message
   log_type,
   console_level = "std",
   console_fn,
-  output_level = "std",
   .envir = parent.frame()
 )
 ```
@@ -21,9 +20,17 @@ Show a standard informational message
 
   Message components passed to cli::cli_alert_info
 
-- output_level:
+- log_type:
 
-  Character. Current output level.
+  Character. Type of log message ("info", "debug", etc.).
+
+- console_level:
+
+  Character. Minimum output level to show in console.
+
+- console_fn:
+
+  Function. CLI function to use for console output.
 
 - .envir:
 

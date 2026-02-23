@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3-0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -80,34 +80,14 @@
 <div class="section level2">
 <h2 id="core-concepts">Core concepts<a class="anchor" aria-label="anchor" href="#core-concepts"></a>
 </h2>
-<p>This article explains the key concepts behind projr’s approach to
-reproducible research.</p>
+<p>This article covers the key ideas behind projr: single-purpose
+directories, versioned builds, manifests, archiving, profiles,
+environment variables, and dependency management with renv.</p>
 <hr>
 <div class="section level3">
 <h3 id="single-purpose-directories">Single-purpose directories<a class="anchor" aria-label="anchor" href="#single-purpose-directories"></a>
 </h3>
-<div class="section level4">
-<h4 id="the-problem">The problem<a class="anchor" aria-label="anchor" href="#the-problem"></a>
-</h4>
-<p>Research projects often have an ad-hoc structure where:</p>
-<ul>
-<li>Data files are scattered across multiple locations</li>
-<li>Output files mix with source code</li>
-<li>Temporary files clutter the repository</li>
-<li>It’s unclear what each directory contains</li>
-</ul>
-<p>This makes it difficult to:</p>
-<ul>
-<li>Share specific parts of the project</li>
-<li>Restore the project on a new machine</li>
-<li>Understand the project structure at a glance</li>
-</ul>
-</div>
-<div class="section level4">
-<h4 id="the-projr-solution">The projr solution<a class="anchor" aria-label="anchor" href="#the-projr-solution"></a>
-</h4>
-<p>projr organises projects into <strong>single-purpose
-directories</strong>, each with a clear role:</p>
+<p>projr organises projects so that each directory has one job:</p>
 <pre><code>my-project/
 ├── _raw_data/          # Source data (never modified)
 ├── _output/            # Final outputs (figures, tables)
@@ -116,51 +96,27 @@ directories</strong>, each with a clear role:</p>
 ├── R/                  # Source code
 ├── analysis.Rmd        # Analysis documents
 └── _projr.yml          # Configuration</code></pre>
-<p><strong>Benefits:</strong></p>
-<ol style="list-style-type: decimal">
-<li>
-<strong>Clarity</strong>: Anyone can understand the structure from
-<code>_projr.yml</code>
-</li>
-<li>
-<strong>Selective sharing</strong>: Archive only what’s needed
-(e.g., data + outputs)</li>
-<li>
-<strong>Restoration</strong>: Easily restore projects on new
-machines</li>
-<li>
-<strong>Automation</strong>: projr can manage these directories
-automatically</li>
-</ol>
-</div>
+<p>This makes it straightforward to share specific parts of a project
+(e.g. just the data and outputs), restore it on a new machine, or
+understand the layout at a glance.</p>
 <div class="section level4">
 <h4 id="directory-labels">Directory labels<a class="anchor" aria-label="anchor" href="#directory-labels"></a>
 </h4>
-<p>Each directory has a <strong>label</strong> that describes its
-purpose:</p>
+<p>Every directory gets a label that describes its role. The label
+prefix determines how projr treats the directory:</p>
 <ul>
 <li>
-<code>raw-data</code> → source data</li>
+<code>raw-*</code> — source inputs (e.g. <code>raw-data</code>)</li>
 <li>
-<code>cache</code> → temporary files</li>
+<code>cache-*</code> — temporary storage
+(e.g. <code>cache</code>)</li>
 <li>
-<code>output</code> → final outputs</li>
+<code>output-*</code> — final outputs
+(e.g. <code>output</code>)</li>
 <li>
-<code>docs</code> → rendered documents</li>
+<code>docs-*</code> — documentation (e.g. <code>docs</code>)</li>
 </ul>
-<p>Labels have <strong>prefixes</strong> that determine their role:</p>
-<ul>
-<li>
-<code>raw-*</code> → source inputs</li>
-<li>
-<code>cache-*</code> → temporary storage</li>
-<li>
-<code>output-*</code> → final outputs</li>
-<li>
-<code>docs-*</code> → documentation</li>
-</ul>
-<p><strong>Custom labels:</strong></p>
-<p>You can create custom labels following the prefix rules:</p>
+<p>You can define multiple directories under the same prefix:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-data-public</span><span class="kw">:</span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _raw_data_public</span></span>
@@ -170,91 +126,49 @@ purpose:</p>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _output/figures</span></span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="at">  </span><span class="fu">output-tables</span><span class="kw">:</span></span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _output/tables</span></span></code></pre></div>
-<p><strong>Label restrictions:</strong></p>
-<p>Directory labels must not end in <code>-empty</code>. This suffix is
-reserved for internal use by projr. For example,
-<code>output-empty</code> or <code>cache-empty</code> are invalid labels
-and will cause <code><a href="../reference/projr_yml_check.html">projr_yml_check()</a></code> to fail.</p>
+<p>Labels must not end in <code>-empty</code> (reserved for internal
+use).</p>
+</div>
+<div class="section level4">
+<h4 id="safe-vs-unsafe-directories">Safe vs unsafe directories<a class="anchor" aria-label="anchor" href="#safe-vs-unsafe-directories"></a>
+</h4>
+<p>When you request a directory path, the <code>safe</code> argument
+controls which location you get:</p>
+<ul>
+<li>
+<code>safe = TRUE</code> — versioned cache path
+(e.g. <code>_tmp/projr/v0.0.1/output</code>). Used during dev builds so
+final directories are not touched.</li>
+<li>
+<code>safe = FALSE</code> — the actual directory
+(e.g. <code>_output</code>). Used during final builds.</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_path_get_dir.html">projr_path_get_dir</a></span><span class="op">(</span><span class="st">"output"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_path_get_dir.html">projr_path_get_dir</a></span><span class="op">(</span><span class="st">"output"</span>, safe <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 </div>
 <div class="section level3">
 <h3 id="versioned-builds">Versioned builds<a class="anchor" aria-label="anchor" href="#versioned-builds"></a>
 </h3>
-<div class="section level4">
-<h4 id="the-problem-1">The problem<a class="anchor" aria-label="anchor" href="#the-problem-1"></a>
-</h4>
-<p>In typical research projects:</p>
-<ul>
-<li>It’s unclear which version of data produced which outputs</li>
-<li>Reproducing an earlier analysis requires Git archaeology</li>
-<li>Dependencies (R packages) change over time</li>
-<li>No formal link between code version and outputs</li>
-</ul>
-</div>
-<div class="section level4">
-<h4 id="the-projr-solution-1">The projr solution<a class="anchor" aria-label="anchor" href="#the-projr-solution-1"></a>
-</h4>
-<p>projr implements <strong>versioned builds</strong> that:</p>
-<ol style="list-style-type: decimal">
-<li>Assign a version to the entire project (e.g.,
-<code>v0.1.0</code>)</li>
-<li>Version individual components (code, data, outputs)</li>
-<li>Link outputs to specific input versions via a manifest</li>
-<li>Optionally capture R dependencies with renv</li>
-</ol>
-<p><strong>Version numbers:</strong></p>
-<p>projr uses semantic versioning (x.y.z):</p>
-<ul>
-<li>
-<strong>Major</strong> (x): Breaking changes or major
-milestones</li>
-<li>
-<strong>Minor</strong> (y): New features or analyses</li>
-<li>
-<strong>Patch</strong> (z): Small changes or bug fixes</li>
-</ul>
-<p><strong>Example progression:</strong></p>
+<p>Each build assigns a semantic version
+(<code>major.minor.patch</code>) to the project and records which inputs
+produced which outputs:</p>
 <pre><code>v0.1.0  Initial analysis
-  ↓
 v0.1.1  Fix typo in figure
-  ↓
 v0.2.0  Add sensitivity analysis
-  ↓
 v1.0.0  Final publication version</code></pre>
-</div>
-<div class="section level4">
-<h4 id="component-versioning">Component versioning<a class="anchor" aria-label="anchor" href="#component-versioning"></a>
-</h4>
-<p>Each build versions:</p>
 <ul>
-<li>
-<strong>Code</strong>: Git commit SHA</li>
-<li>
-<strong>Raw data</strong>: Directory hash (SHA-256)</li>
-<li>
-<strong>Outputs</strong>: Directory hash</li>
-<li>
-<strong>Documents</strong>: Directory hash</li>
-<li>
-<strong>R packages</strong>: renv.lock file (optional)</li>
+<li>Major (x): breaking changes or major milestones</li>
+<li>Minor (y): new features or analyses</li>
+<li>Patch (z): small fixes</li>
 </ul>
-<p>These are linked in the <strong>manifest</strong>:</p>
-<pre><code><span><span class="va">output</span><span class="op">/</span><span class="va">manifest.csv</span><span class="op">:</span></span>
-<span>  <span class="va">version</span><span class="op">:</span> <span class="va">v0.1.0</span></span>
-<span>  <span class="va">code_sha</span><span class="op">:</span> <span class="va">abc123...</span></span>
-<span>  <span class="va">raw_data_hash</span><span class="op">:</span> <span class="va">def456...</span></span>
-<span>  <span class="va">output_hash</span><span class="op">:</span> <span class="va">ghi789...</span></span></code></pre>
-<p><strong>Traceability:</strong></p>
-<p>Given an output file, you can trace back to:</p>
-<ol style="list-style-type: decimal">
-<li>Which project version created it</li>
-<li>Which raw data was used</li>
-<li>Which code (Git commit) generated it</li>
-<li>Which R packages were installed</li>
-</ol>
+<p>You can read or set the version directly:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_version_get.html">projr_version_get</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_version_set.html">projr_version_set</a></span><span class="op">(</span><span class="st">"0.2.0"</span><span class="op">)</span></span></code></pre></div>
 <hr>
-</div>
 </div>
 <div class="section level3">
 <h3 id="development-vs-final-builds">Development vs final builds<a class="anchor" aria-label="anchor" href="#development-vs-final-builds"></a>
@@ -262,549 +176,242 @@ v1.0.0  Final publication version</code></pre>
 <div class="section level4">
 <h4 id="development-builds">Development builds<a class="anchor" aria-label="anchor" href="#development-builds"></a>
 </h4>
-<p><strong>Purpose</strong>: Safe iteration whilst coding</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p>Use <code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code> to iterate safely. Outputs go to
+cache (<code>_tmp/projr/v&lt;version&gt;/</code>), leaving
+<code>_output</code> and <code>docs</code> untouched. No version bump,
+no archiving.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Characteristics:</strong></p>
-<ul>
-<li>Routes outputs to cache
-(<code>_tmp/projr/v&lt;version&gt;/</code>)</li>
-<li>Doesn’t modify <code>_output</code> or <code>docs</code>
-</li>
-<li>No version bump</li>
-<li>No archiving</li>
-<li>Fast feedback loop</li>
-</ul>
-<p><strong>Use when:</strong></p>
-<ul>
-<li>Testing code changes</li>
-<li>Debugging analysis</li>
-<li>Iterating on documents</li>
-<li>Checking output before committing</li>
-</ul>
+<p>Use dev builds when testing code changes, debugging, or checking
+output before committing.</p>
 </div>
 <div class="section level4">
 <h4 id="final-builds">Final builds<a class="anchor" aria-label="anchor" href="#final-builds"></a>
 </h4>
-<p><strong>Purpose</strong>: Create versioned releases</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build.html">projr_build</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># patch bump</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_minor</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># minor bump</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_major</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># major bump</span></span></code></pre></div>
-<p><strong>Characteristics:</strong></p>
-<ul>
-<li>Clears and populates <code>_output</code> and <code>docs</code>
-</li>
-<li>Bumps version number</li>
-<li>Creates manifest</li>
-<li>Archives to GitHub/OSF/local</li>
-<li>Commits to Git (if configured)</li>
-</ul>
-<p><strong>Use when:</strong></p>
-<ul>
-<li>Ready to share results</li>
-<li>Creating a milestone</li>
-<li>Publishing results</li>
-<li>Archiving for posterity</li>
-</ul>
-<hr>
-</div>
-</div>
-<div class="section level3">
-<h3 id="build-clearing-behavior">Build clearing behavior<a class="anchor" aria-label="anchor" href="#build-clearing-behavior"></a>
-</h3>
-<div class="section level4">
-<h4 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
-</h4>
-<p>projr manages when and how output directories are cleared during
-builds to ensure clean, reproducible results while preventing accidental
-data loss.</p>
-</div>
-<div class="section level4">
-<h4 id="clearing-modes">Clearing modes<a class="anchor" aria-label="anchor" href="#clearing-modes"></a>
-</h4>
-<p>The <code>clear_output</code> parameter controls when directories are
-cleared:</p>
+<p>Final builds bump the version, populate <code>_output</code> and
+<code>docs</code>, create a manifest, optionally archive to remotes, and
+commit to Git:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Clear before build (default)</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span>clear_output <span class="op">=</span> <span class="st">"pre"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Clear after build</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span>clear_output <span class="op">=</span> <span class="st">"post"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Never clear automatically</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span>clear_output <span class="op">=</span> <span class="st">"never"</span><span class="op">)</span></span></code></pre></div>
-<p>You can also set this globally via environment variable:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_CLEAR_OUTPUT <span class="op">=</span> <span class="st">"post"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Uses "post" mode</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># increment patch (0.0.x)</span></span>
+<span><span class="fu"><a href="../reference/projr_build.html">projr_build_minor</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># increment minor (0.x.0)</span></span>
+<span><span class="fu"><a href="../reference/projr_build.html">projr_build_major</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># increment major (x.0.0)</span></span></code></pre></div>
+<p><code><a href="../reference/projr_build.html">projr_build()</a></code> is an alias for
+<code><a href="../reference/projr_build.html">projr_build_patch()</a></code>.</p>
+<p>Use final builds when you are ready to share results, create a
+milestone, or archive for posterity.</p>
 </div>
 <div class="section level4">
-<h4 id="mode-comparison">Mode comparison<a class="anchor" aria-label="anchor" href="#mode-comparison"></a>
+<h4 id="build-phases">Build phases<a class="anchor" aria-label="anchor" href="#build-phases"></a>
 </h4>
-<table class="table">
-<colgroup>
-<col width="11%">
-<col width="27%">
-<col width="41%">
-<col width="19%">
-</colgroup>
-<thead><tr class="header">
-<th>Mode</th>
-<th>When cleared</th>
-<th>Safe for iteration?</th>
-<th>Use case</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code>"pre"</code></td>
-<td>Before build starts</td>
-<td>✓ Yes</td>
-<td>Default: Clean slate, save directly to final locations</td>
-</tr>
-<tr class="even">
-<td><code>"post"</code></td>
-<td>After build completes</td>
-<td>✓ Yes</td>
-<td>Conservative: Preserve outputs until after successful build</td>
-</tr>
-<tr class="odd">
-<td><code>"never"</code></td>
-<td>Never</td>
-<td>✗ Manual control needed</td>
-<td>Advanced: User manages all clearing</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level4">
-<h4 id="what-gets-cleared">What gets cleared?<a class="anchor" aria-label="anchor" href="#what-gets-cleared"></a>
-</h4>
-<p><strong>In development builds
-(<code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code>):</strong></p>
-<ul>
-<li>Cache directories are cleared</li>
-<li>Final <code>_output</code> and <code>docs</code> directories are
-never touched</li>
-<li>Safe for rapid iteration</li>
-</ul>
-<p><strong>In final builds (<code><a href="../reference/projr_build.html">projr_build()</a></code>,
-etc.):</strong></p>
-<p>Mode <code>"pre"</code>: - Before build: Clears cache AND final
-<code>_output</code> directories - During build: Renders to final
-locations directly - After build: Final outputs contain only current
-build results</p>
-<p>Mode <code>"post"</code>: - Before build: Clears cache only
-(preserves final <code>_output</code>) - During build: Renders to cache
-- After build: Clears final directories, then copies from cache</p>
-<p>Mode <code>"never"</code>: - No automatic clearing - New files may
-mix with old files - Requires manual directory management</p>
-</div>
-<div class="section level4">
-<h4 id="example-workflows">Example workflows<a class="anchor" aria-label="anchor" href="#example-workflows"></a>
-</h4>
-<p><strong>Workflow 1: Default (clear before)</strong></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Clean slate approach</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span>clear_output <span class="op">=</span> <span class="st">"pre"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 1. Clears _output/ completely</span></span>
-<span><span class="co"># 2. Builds analysis</span></span>
-<span><span class="co"># 3. Saves outputs directly to _output/</span></span>
-<span><span class="co"># 4. Archives to remotes (if configured)</span></span></code></pre></div>
-<p><strong>Workflow 2: Conservative (clear after)</strong></p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Safety-first approach</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span>clear_output <span class="op">=</span> <span class="st">"post"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 1. Keeps existing _output/ intact</span></span>
-<span><span class="co"># 2. Builds to cache (_tmp/projr/v0.0.1/)</span></span>
-<span><span class="co"># 3. After successful build, clears _output/</span></span>
-<span><span class="co"># 4. Copies from cache to _output/</span></span>
-<span><span class="co"># 5. Archives to remotes (if configured)</span></span></code></pre></div>
-<p><strong>Workflow 3: Manual control</strong></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Advanced: Manual clearing</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="st">"_output"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># Clear manually</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span>clear_output <span class="op">=</span> <span class="st">"never"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 1. No automatic clearing</span></span>
-<span><span class="co"># 2. Builds to specified locations</span></span>
-<span><span class="co"># 3. User responsible for cleanup</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="special-old-directory-preservation">Special: “old” directory preservation<a class="anchor" aria-label="anchor" href="#special-old-directory-preservation"></a>
-</h4>
-<p>The cache clearing process preserves a special <code>old/</code>
-subdirectory for archival purposes:</p>
-<pre><code>_tmp/projr/v0.0.1/
-├── output/           # Cleared each build
-├── docs/             # Cleared each build
-└── old/              # Never cleared automatically
-    └── archived_results.csv</code></pre>
-<p>This allows you to manually preserve important intermediate results
-across builds.</p>
+<p>Both build types follow the same phases:</p>
+<ol style="list-style-type: decimal">
+<li>Clear output directories (mode depends on
+<code>PROJR_CLEAR_OUTPUT</code>)</li>
+<li>Run pre-build hooks</li>
+<li>Hash input files for the manifest</li>
+<li>Bump version (final builds only)</li>
+<li>Execute build scripts / render documents</li>
+<li>Hash output files, write manifest</li>
+<li>Commit to Git (if configured)</li>
+<li>Run post-build hooks</li>
+<li>Distribute to remote destinations (final builds only)</li>
+<li>Bump to dev version (final builds only, e.g. 0.0.2 → 0.0.2-1)</li>
+</ol>
 <hr>
 </div>
 </div>
 <div class="section level3">
 <h3 id="manifests">Manifests<a class="anchor" aria-label="anchor" href="#manifests"></a>
 </h3>
-<div class="section level4">
-<h4 id="what-is-a-manifest">What is a manifest?<a class="anchor" aria-label="anchor" href="#what-is-a-manifest"></a>
-</h4>
-<p>A manifest is a CSV file that records:</p>
-<ul>
-<li>What was built</li>
-<li>Which inputs were used</li>
-<li>When it was built</li>
-<li>SHA-256 checksums for verification</li>
-</ul>
-<p><strong>Example manifest:</strong></p>
-<pre class="csv"><code>label,path,hash,version,timestamp
-raw-data,_raw_data,abc123...,v0.1.0,2024-01-15T10:30:00Z
-output,_output,def456...,v0.1.0,2024-01-15T10:35:00Z
-docs,docs,ghi789...,v0.1.0,2024-01-15T10:35:00Z</code></pre>
-</div>
-<div class="section level4">
-<h4 id="why-manifests-matter">Why manifests matter<a class="anchor" aria-label="anchor" href="#why-manifests-matter"></a>
-</h4>
-<p><strong>Verification</strong>: Check if files have been modified</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Compare current hash with manifest</span></span>
-<span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/md5sum.html" class="external-link">md5sum</a></span><span class="op">(</span><span class="st">"_output/figure.png"</span><span class="op">)</span></span>
-<span><span class="co"># vs hash in manifest</span></span></code></pre></div>
-<p><strong>Traceability</strong>: Link outputs to inputs</p>
-<p>“This figure was generated from raw data version abc123… using code
-commit def456…”</p>
-<p><strong>Reproducibility</strong>: Ensure the right inputs</p>
-<p>“To reproduce this analysis, restore raw-data v0.1.0”</p>
-</div>
-<div class="section level4">
-<h4 id="manifest-location">Manifest location<a class="anchor" aria-label="anchor" href="#manifest-location"></a>
-</h4>
-<p>Manifests are stored in:</p>
-<ul>
-<li>
-<code>manifest.csv</code> at project root (tracks all versions)</li>
-<li>Dev builds also create temporary manifests in cache</li>
-</ul>
-</div>
-<div class="section level4">
-<h4 id="querying-manifests">Querying manifests<a class="anchor" aria-label="anchor" href="#querying-manifests"></a>
-</h4>
-<p>projr provides functions to query the manifest and track changes
-across versions:</p>
-<p><strong>Find what changed between versions:</strong></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># See what files changed between v0.0.1 and v0.0.2</span></span>
-<span><span class="va">changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.2"</span><span class="op">)</span></span>
-<span><span class="co"># Returns: label, fn, change_type (added/modified/removed), hash_from, hash_to</span></span>
+<p>A manifest is a CSV (<code>manifest.csv</code> at the project root)
+that records file hashes for every version. This links each output to
+the exact inputs that produced it.</p>
+<pre class="csv"><code>label,fn,version,hash
+raw-data,data.csv,v0.1.0,abc123...
+output,figure.png,v0.1.0,def456...
+docs,report.html,v0.1.0,ghi789...</code></pre>
+<p>Query the manifest to see what changed:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Changes between two versions</span></span>
+<span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.2"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Filter by directory</span></span>
-<span><span class="va">output_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.2"</span>, label <span class="op">=</span> <span class="st">"output"</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Track files across a version range:</strong></p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># See all files and when they last changed from v0.0.1 to current</span></span>
-<span><span class="va">file_history</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_range</a></span><span class="op">(</span><span class="st">"0.0.1"</span><span class="op">)</span></span>
-<span><span class="co"># Returns: label, fn, version_first, version_last_change, hash</span></span></code></pre></div>
-<p><strong>Check when directories last changed:</strong></p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># See most recent changes for each directory</span></span>
-<span><span class="va">last_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_last_change</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co"># Returns: label, version_last_change, n_files</span></span></code></pre></div>
+<span><span class="co"># Filter to a single label</span></span>
+<span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.2"</span>, label <span class="op">=</span> <span class="st">"output"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># File history across a range of versions</span></span>
+<span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_range</a></span><span class="op">(</span><span class="st">"0.0.1"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Most recent change for each label</span></span>
+<span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_last_change</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <hr>
-</div>
 </div>
 <div class="section level3">
 <h3 id="archiving-and-restoration">Archiving and restoration<a class="anchor" aria-label="anchor" href="#archiving-and-restoration"></a>
 </h3>
+<p>projr can archive directory contents to GitHub Releases or local
+directories after each build.</p>
 <div class="section level4">
 <h4 id="archive-strategies">Archive strategies<a class="anchor" aria-label="anchor" href="#archive-strategies"></a>
 </h4>
-<p>projr supports two archiving strategies:</p>
-<p><strong>1. Versioned archives</strong> (default)</p>
-<p>Each build creates a new archive:</p>
-<pre><code>GitHub Releases:
-  v0.1.0/raw-data-v0.1.0.zip
-  v0.1.1/raw-data-v0.1.1.zip
-  v0.2.0/raw-data-v0.2.0.zip</code></pre>
-<ul>
-<li>Preserves all versions</li>
-<li>Enables time travel</li>
-<li>Uses more storage</li>
-</ul>
-<p><strong>2. Latest-only archives</strong></p>
-<p>Each build overwrites the previous:</p>
-<pre><code>GitHub Releases:
-  latest/raw-data-latest.zip  (always current)</code></pre>
-<ul>
-<li>Saves storage space</li>
-<li>Loses history</li>
-<li>Faster downloads</li>
-</ul>
-<p><strong>Configure in <code>_projr.yml</code>:</strong></p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="at">    </span><span class="fu">raw-data</span><span class="kw">:</span></span>
-<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
-<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="at">      </span><span class="fu">strategy</span><span class="kw">:</span><span class="at"> </span><span class="st">"archive"</span><span class="co">  # or "latest"</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="archive-cues">Archive cues<a class="anchor" aria-label="anchor" href="#archive-cues"></a>
-</h4>
-<p>Control when archives are uploaded:</p>
+<p>Two strategies control how archives are organised:</p>
 <ul>
 <li>
-<code>"always"</code> - Upload on every build</li>
+<code>archive</code> — each version gets its own archive (preserves
+history)</li>
 <li>
-<code>"new"</code> - Upload only if content changed (default)</li>
-<li>
-<code>"never"</code> - Don’t upload</li>
+<code>latest</code> — each build overwrites the previous archive
+(saves space)</li>
 </ul>
-<div class="sourceCode" id="cb21"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a><span class="at">    </span><span class="fu">raw-data</span><span class="kw">:</span></span>
-<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
-<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="at">      </span><span class="fu">cue</span><span class="kw">:</span><span class="at"> </span><span class="st">"new"</span><span class="co">  # Only upload if raw data changed</span></span></code></pre></div>
+<p>Add a remote destination in R:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_yml_dest_add_github.html">projr_yml_dest_add_github</a></span><span class="op">(</span></span>
+<span>  title <span class="op">=</span> <span class="st">"my-release"</span>,</span>
+<span>  content <span class="op">=</span> <span class="st">"output"</span>,</span>
+<span>  structure <span class="op">=</span> <span class="st">"archive"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/projr_yml_dest_add.html">projr_yml_dest_add_local</a></span><span class="op">(</span></span>
+<span>  title <span class="op">=</span> <span class="st">"backup"</span>,</span>
+<span>  content <span class="op">=</span> <span class="st">"raw-data"</span>,</span>
+<span>  path <span class="op">=</span> <span class="st">"/mnt/shared/backups"</span>,</span>
+<span>  structure <span class="op">=</span> <span class="st">"latest"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="restoration">Restoration<a class="anchor" aria-label="anchor" href="#restoration"></a>
 </h4>
-<p>Restoration pulls archived content back:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Restore from GitHub</span></span>
-<span><span class="fu"><a href="../reference/projr_restore.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"owner/repo"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Restore specific version</span></span>
-<span><span class="fu"><a href="../reference/projr_restore.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span>, version <span class="op">=</span> <span class="st">"v0.1.0"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Restore specific label</span></span>
-<span><span class="fu"><a href="../reference/projr_restore.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"output"</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Restoration order:</strong></p>
-<p>projr checks sources in order:</p>
-<ol style="list-style-type: decimal">
-<li>GitHub Releases</li>
-<li>OSF</li>
-<li>Local archives</li>
-</ol>
-<p>The first available source is used.</p>
+<p>Restore a full project (raw data + outputs) from its remotes:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_restore.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"owner/repo"</span><span class="op">)</span></span></code></pre></div>
+<p>Or update a single label:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_restore.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_restore.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"output"</span>, version <span class="op">=</span> <span class="st">"0.1.0"</span><span class="op">)</span></span></code></pre></div>
+<p>projr tries each configured remote in order (GitHub, OSF, local) and
+uses the first one that has the requested content.</p>
 <hr>
 </div>
 </div>
 <div class="section level3">
 <h3 id="profiles">Profiles<a class="anchor" aria-label="anchor" href="#profiles"></a>
 </h3>
-<div class="section level4">
-<h4 id="what-are-profiles">What are profiles?<a class="anchor" aria-label="anchor" href="#what-are-profiles"></a>
-</h4>
-<p>Profiles are alternative configurations for different contexts:</p>
-<ul>
-<li>
-<strong>Development</strong> vs <strong>production</strong>
-</li>
-<li>
-<strong>Public</strong> vs <strong>private</strong> sharing</li>
-<li>
-<strong>Individual</strong> vs <strong>collaborative</strong>
-workflows</li>
-</ul>
-</div>
-<div class="section level4">
-<h4 id="how-profiles-work">How profiles work<a class="anchor" aria-label="anchor" href="#how-profiles-work"></a>
-</h4>
-<p>A profile is a separate YAML file:</p>
-<pre><code>_projr.yml         # Default configuration
-_projr-dev.yml     # Development profile
-_projr-public.yml  # Public sharing profile</code></pre>
-<p><strong>Activate a profile:</strong></p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<p>A profile is an alternative <code>_projr.yml</code> that overrides
+specific settings. Profile files are named
+<code>_projr-&lt;name&gt;.yml</code> and inherit everything not
+explicitly overridden from the base <code>_projr.yml</code>.</p>
+<pre><code>_projr.yml            # Base configuration
+_projr-dev.yml        # Development overrides
+_projr-public.yml     # Public sharing overrides</code></pre>
+<p>Create and activate a profile:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_profile_create.html">projr_profile_create</a></span><span class="op">(</span><span class="st">"dev"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_profile_get.html">projr_profile_get</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Activate via environment variable:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span></code></pre></div>
 <p>Or in <code>.Renviron</code>:</p>
 <pre><code><span><span class="va">PROJR_PROFILE</span><span class="op">=</span><span class="va">dev</span></span></code></pre>
-</div>
-<div class="section level4">
-<h4 id="profile-inheritance">Profile inheritance<a class="anchor" aria-label="anchor" href="#profile-inheritance"></a>
-</h4>
-<p>Profiles only specify <strong>differences</strong> from
-<code>_projr.yml</code>:</p>
-<p><strong><code>_projr.yml</code>:</strong></p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a><span class="at">    </span><span class="fu">raw-data</span><span class="kw">:</span></span>
-<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
-<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
-<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span></span>
-<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _output</span></span></code></pre></div>
-<p><strong><code>_projr-dev.yml</code>:</strong></p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">  # Override: disable GitHub in dev</span></span>
-<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a><span class="co"># All other settings inherited from _projr.yml</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="example-profiles">Example profiles<a class="anchor" aria-label="anchor" href="#example-profiles"></a>
-</h4>
-<p><strong>Development profile</strong>
-(<code>_projr-dev.yml</code>):</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
-<span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a><span class="at">  </span><span class="fu">git</span><span class="kw">:</span></span>
-<span id="cb28-5"><a href="#cb28-5" tabindex="-1"></a><span class="at">    </span><span class="fu">commit</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span></code></pre></div>
-<p><strong>Public sharing profile</strong>
-(<code>_projr-public.yml</code>):</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
-<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-data</span><span class="kw">:</span></span>
-<span id="cb29-3"><a href="#cb29-3" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _raw_data_public</span><span class="co">  # Only public data</span></span>
-<span id="cb29-4"><a href="#cb29-4" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb29-5"><a href="#cb29-5" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb29-6"><a href="#cb29-6" tabindex="-1"></a><span class="at">    </span><span class="fu">raw-data</span><span class="kw">:</span></span>
-<span id="cb29-7"><a href="#cb29-7" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span><span class="co">  # Share public data only</span></span></code></pre></div>
+<p>Example <code>_projr-dev.yml</code> that disables GitHub archiving
+and Git commits:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="at">  </span><span class="fu">git</span><span class="kw">:</span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="at">    </span><span class="fu">commit</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span></code></pre></div>
 <hr>
-</div>
 </div>
 <div class="section level3">
 <h3 id="environment-variables">Environment variables<a class="anchor" aria-label="anchor" href="#environment-variables"></a>
 </h3>
-<div class="section level4">
-<h4 id="configuration-via-environment">Configuration via environment<a class="anchor" aria-label="anchor" href="#configuration-via-environment"></a>
-</h4>
-<p>projr reads these environment variables:</p>
-<p><strong><code>PROJR_PROFILE</code></strong></p>
-<p>Activate a profile:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="bu">export</span> <span class="va">PROJR_PROFILE</span><span class="op">=</span>dev</span></code></pre></div>
-<p><strong><code>PROJR_OUTPUT_CLEAR</code></strong></p>
-<p>Control when <code>_output</code> is cleared:</p>
+<p>projr reads several environment variables. Set them in R, in
+<code>.Renviron</code>, or with <code><a href="../reference/projr_env_set.html">projr_env_set()</a></code>:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># In R</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Or use the helper</span></span>
+<span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span>profile <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span></code></pre></div>
+<p>In <code>.Renviron</code>:</p>
+<pre><code><span><span class="va">PROJR_PROFILE</span><span class="op">=</span><span class="va">dev</span></span>
+<span><span class="va">PROJR_OUTPUT_LEVEL</span><span class="op">=</span><span class="va">std</span></span></code></pre>
+<p>Key variables:</p>
 <ul>
 <li>
-<code>"pre"</code> - Clear before build (default)</li>
+<code>PROJR_PROFILE</code> — active profile name</li>
 <li>
-<code>"post"</code> - Clear after build</li>
+<code>PROJR_OUTPUT_LEVEL</code> — console verbosity
+(<code>none</code>, <code>std</code>, <code>debug</code>)</li>
 <li>
-<code>"none"</code> - Never clear</li>
+<code>PROJR_CLEAR_OUTPUT</code> — when to clear output dirs
+(<code>pre</code>, <code>post</code>, <code>never</code>)</li>
+<li>
+<code>PROJR_LOG_DETAILED</code> — write detailed log files
+(<code>TRUE</code>/<code>FALSE</code>)</li>
+<li>
+<code>PROJR_AUTO_INSTALL</code> — auto-install missing R packages
+(<code>TRUE</code>/<code>FALSE</code>)</li>
+<li>
+<code>GITHUB_PAT</code> — GitHub personal access token</li>
+<li>
+<code>OSF_PAT</code> — OSF personal access token</li>
 </ul>
-<div class="sourceCode" id="cb31"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a><span class="bu">export</span> <span class="va">PROJR_OUTPUT_CLEAR</span><span class="op">=</span>pre</span></code></pre></div>
-<p><strong><code>PROJR_CACHE_CLEAR</code></strong></p>
-<p>Control cache clearing (same options as above).</p>
-</div>
-<div class="section level4">
-<h4 id="setting-environment-variables">Setting environment variables<a class="anchor" aria-label="anchor" href="#setting-environment-variables"></a>
-</h4>
-<p><strong>In R:</strong></p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_CLEAR <span class="op">=</span> <span class="st">"pre"</span><span class="op">)</span></span></code></pre></div>
-<p><strong>In <code>.Renviron</code>:</strong></p>
-<pre><code><span><span class="va">PROJR_PROFILE</span><span class="op">=</span><span class="va">dev</span></span>
-<span><span class="va">PROJR_OUTPUT_CLEAR</span><span class="op">=</span><span class="va">pre</span></span></code></pre>
-<p><strong>Helper function:</strong></p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span></span>
-<span>  profile <span class="op">=</span> <span class="st">"dev"</span>,</span>
-<span>  output_clear <span class="op">=</span> <span class="st">"pre"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<p>projr also supports per-project environment files that are loaded at
+build time. In order of increasing priority:</p>
+<ol style="list-style-type: decimal">
+<li>
+<code>_environment</code> — global (committed to Git)</li>
+<li>
+<code>_environment-&lt;profile&gt;</code> — profile-specific</li>
+<li>
+<code>_environment.local</code> — local overrides (git-ignored)</li>
+</ol>
 <hr>
-</div>
 </div>
 <div class="section level3">
 <h3 id="dependencies-and-renv">Dependencies and renv<a class="anchor" aria-label="anchor" href="#dependencies-and-renv"></a>
 </h3>
-<div class="section level4">
-<h4 id="why-renv">Why renv?<a class="anchor" aria-label="anchor" href="#why-renv"></a>
-</h4>
-<p>R package versions change over time. Code that works today might
-break in 6 months due to package updates.</p>
-<p><strong>renv</strong> locks package versions:</p>
-<pre><code>renv.lock:
-  {
-    "R": {"Version": "4.3.0"},
-    "Packages": {
-      "dplyr": {"Version": "1.1.0"},
-      "ggplot2": {"Version": "3.4.0"}
-    }
-  }</code></pre>
-</div>
-<div class="section level4">
-<h4 id="projr-renv">projr + renv<a class="anchor" aria-label="anchor" href="#projr-renv"></a>
-</h4>
-<p>projr integrates with renv:</p>
-<p><strong>Initialise:</strong></p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_init.html">projr_init_renv</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Update lockfile:</strong></p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_renv_restore.html">projr_renv_update</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Wrapper for renv::snapshot()</span></span></code></pre></div>
-<p><strong>Restore packages:</strong></p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_renv_restore.html">projr_renv_restore</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Wrapper for renv::restore()</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="when-to-use-renv">When to use renv<a class="anchor" aria-label="anchor" href="#when-to-use-renv"></a>
-</h4>
-<p><strong>Use renv when:</strong></p>
-<ul>
-<li>Long-term reproducibility is critical</li>
-<li>Collaborating across machines/time</li>
-<li>Submitting to journals requiring reproducibility</li>
-</ul>
-<p><strong>Skip renv when:</strong></p>
-<ul>
-<li>Quick exploratory projects</li>
-<li>Sharing code is low priority</li>
-<li>Package versions are stable</li>
-</ul>
+<p>renv locks R package versions in <code>renv.lock</code> so that
+builds are reproducible months or years later. projr wraps common renv
+operations:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Initialise renv for the project</span></span>
+<span><span class="fu"><a href="../reference/projr_init.html">projr_init_renv</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Snapshot current package versions</span></span>
+<span><span class="fu"><a href="../reference/projr_renv_restore.html">projr_renv_update</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Restore packages from the lockfile</span></span>
+<span><span class="fu"><a href="../reference/projr_renv_restore.html">projr_renv_restore</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Use renv when long-term reproducibility matters (publications, shared
+projects). Skip it for quick exploratory work.</p>
 <hr>
-</div>
 </div>
 <div class="section level3">
 <h3 id="the-whole-game">The whole game<a class="anchor" aria-label="anchor" href="#the-whole-game"></a>
 </h3>
-<p>Putting it all together:</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># 1. Initialise</span></span>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># 1. Initialise project</span></span>
 <span><span class="fu"><a href="../reference/projr_init.html">projr_init</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 2. Add raw data to _raw_data/</span></span>
-<span></span>
-<span><span class="co"># 3. Write analysis code in .Rmd files</span></span>
+<span><span class="co"># 2. Place raw data in _raw_data/</span></span>
+<span><span class="co"># 3. Write analysis in .Rmd or .qmd files</span></span>
 <span></span>
 <span><span class="co"># 4. Iterate with dev builds</span></span>
-<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="st">"analysis.Rmd"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co"># Check outputs in _tmp/projr/v0.0.1/</span></span>
 <span></span>
-<span><span class="co"># 5. When ready, create first release</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co"># Outputs in _output/, archived to GitHub</span></span>
+<span><span class="co"># 5. First release</span></span>
+<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co"># Outputs in _output/, archived to remotes</span></span>
 <span></span>
-<span><span class="co"># 6. Continue development</span></span>
-<span><span class="co"># ... edit code ...</span></span>
-<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 7. Create minor release with new analysis</span></span>
+<span><span class="co"># 6. Keep working, then release again</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_minor</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 8. Share repository</span></span>
-<span><span class="co"># Collaborators run:</span></span>
+<span><span class="co"># 7. Collaborator restores the project</span></span>
 <span><span class="fu"><a href="../reference/projr_restore.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"you/your-project"</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Key takeaways:</strong></p>
-<ul>
-<li>
-<strong>Directories</strong>: Organise by purpose (raw, cache,
-output, docs)</li>
-<li>
-<strong>Versions</strong>: Link outputs to inputs via manifests</li>
-<li>
-<strong>Dev builds</strong>: Safe iteration without overwriting
-releases</li>
-<li>
-<strong>Final builds</strong>: Versioned, archived, traceable
-releases</li>
-<li>
-<strong>Restoration</strong>: One command to reconstruct
-project</li>
-</ul>
+<p>In short: organise files by purpose, iterate with dev builds, release
+with versioned builds, and restore anywhere with a single command.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
