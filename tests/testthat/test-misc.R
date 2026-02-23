@@ -583,3 +583,28 @@ test_that(".usethis_proj_desc works", {
     }
   )
 })
+
+test_that("PROJR_AUTO_INSTALL skips error in non-interactive mode", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  # Without PROJR_AUTO_INSTALL, non-interactive mode with a missing package errors
+  Sys.unsetenv("PROJR_AUTO_INSTALL")
+  expect_error(
+    .dep_install_only("_not_a_real_pkg_xyz_"),
+    "Required package"
+  )
+
+  # With PROJR_AUTO_INSTALL=TRUE, the function attempts installation
+  # (it will still error because the package doesn't exist, but via
+  # a different path - the "Installation failed" branch)
+  withr::with_envvar(
+    new = c(PROJR_AUTO_INSTALL = "TRUE"),
+    code = {
+      expect_error(
+        .dep_install_only("_not_a_real_pkg_xyz_"),
+        "Installation failed"
+      )
+    }
+  )
+})

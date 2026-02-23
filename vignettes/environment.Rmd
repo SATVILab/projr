@@ -204,6 +204,24 @@ projr recognizes several environment variables that control build behavior:
 
 ### Build Control Variables
 
+**`PROJR_AUTO_INSTALL`** - Controls automatic installation of missing R packages
+
+- **Values**: TRUE/FALSE representations (case-insensitive)
+  - TRUE: `"TRUE"`, `"true"`, `"1"`, `"YES"`, `"yes"`, `"Y"`, `"y"`
+  - FALSE: `"FALSE"`, `"false"`, `"0"`, `"NO"`, `"no"`, `"N"`, `"n"` (or unset)
+- **Default**: Unset (no automatic installation)
+- **Behaviors**:
+  - When set to a truthy value: Missing packages are automatically installed without
+    any user prompt, even in non-interactive (e.g., batch/CI) sessions
+  - When unset or falsy: Interactive sessions prompt the user; non-interactive
+    sessions throw an error with installation instructions
+
+```{r eval=FALSE}
+Sys.setenv(PROJR_AUTO_INSTALL = "TRUE")
+# Now any projr function that requires missing packages will install them
+# automatically without prompting
+```
+
 **`PROJR_OUTPUT_LEVEL`** - Controls console output verbosity during builds
 
 - **Values**: `"none"`, `"std"`, `"debug"`

@@ -152,11 +152,7 @@ projr_init_github <- function(
   api_url = NULL,
   token = NULL
 ) {
-  if (!requireNamespace("httr", quietly = TRUE)) {
-    stop(
-      "httr is required for .gh_repo_check_exists_httr(); please install it."
-    )
-  }
+  .dep_install_only("httr")
 
   .assert_string(owner, required = TRUE)
   .assert_string(repo, required = TRUE)

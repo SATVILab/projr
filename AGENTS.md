@@ -216,6 +216,7 @@ Internal functions (`.` prefix) must **not** have `@export`.
 
 | Variable | Values | Purpose |
 |----------|--------|---------|
+| `PROJR_AUTO_INSTALL` | `TRUE` / `FALSE` | Auto-install missing R packages without prompting |
 | `PROJR_OUTPUT_LEVEL` | `none` / `std` / `debug` | Console verbosity |
 | `PROJR_CLEAR_OUTPUT` | `pre` / `post` / `never` | When to clear output dirs |
 | `PROJR_LOG_DETAILED` | `TRUE` / `FALSE` | Create detailed log files |

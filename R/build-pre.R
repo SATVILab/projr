@@ -471,7 +471,13 @@
     return(invisible(TRUE))
   }
 
-  # Build error message with copy-paste command
+  # Auto-install if PROJR_AUTO_INSTALL=TRUE, or prompt user in interactive mode
+  if (.is_env_var_true("PROJR_AUTO_INSTALL") || .is_interactive_and_not_test()) {
+    .dep_install_only(pkg_status$missing)
+    return(invisible(TRUE))
+  }
+
+  # Non-interactive without PROJR_AUTO_INSTALL: error with build-specific message
   msg <- paste0(
     pkg_status$message,
     "\n\nFor programmatic access to installation commands, use:\n",

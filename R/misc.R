@@ -28,6 +28,9 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 # dependencies
 # ------------
 
+# Set PROJR_AUTO_INSTALL=TRUE to automatically install missing packages
+# without prompting, even in non-interactive sessions.
+
 .dep_install <- function(dep) {
   .cli_debug("Checking dependencies: {paste(dep, collapse = ', ')}")
   for (x in dep) {
@@ -84,6 +87,11 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
     return(invisible(TRUE))
   }
 
+  # If PROJR_AUTO_INSTALL is set, install automatically without prompting
+  if (.is_env_var_true("PROJR_AUTO_INSTALL")) {
+    return(.dep_install_only_auto(dep_required))
+  }
+
   # If interactive, ask user if they want to install
   if (.is_interactive_and_not_test()) {
     return(.dep_install_only_interactive(dep_required))
@@ -122,6 +130,40 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
     "dep" = dep_required,
     "cran" = cran_pkgs,
     "github" = github_pkgs
+  )
+}
+
+.dep_install_only_auto <- function(dep_required) {
+  pkg_list <- .dep_install_only_get_pkg_list(dep_required)
+  install_cmds <- .dep_get_install_cmds(pkg_list[["dep"]])
+  .cli_info(
+    "Auto-installing packages (PROJR_AUTO_INSTALL is set): {paste(pkg_list[['dep']], collapse = ', ')}" # nolint: line_length_linter
+  )
+  tryCatch(
+    {
+      if (.renv_detect()) {
+        renv::install(pkg_list[["dep"]], prompt = FALSE)
+      } else {
+        if (length(pkg_list[["cran"]]) > 0) {
+          utils::install.packages(pkg_list[["cran"]])
+        }
+        if (length(pkg_list[["github"]]) > 0) {
+          remotes::install_github(pkg_list[["github"]])
+        }
+      }
+      .cli_success("Packages installed successfully")
+      return(invisible(TRUE))
+    },
+    error = function(e) {
+      stop(
+        "Installation failed: ",
+        conditionMessage(e),
+        "\n",
+        "Please install manually using:\n  ",
+        paste(install_cmds, collapse = "\n  "),
+        call. = FALSE
+      )
+    }
   )
 }
 

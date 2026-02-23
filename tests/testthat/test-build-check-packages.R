@@ -212,6 +212,49 @@ test_that(".build_check_packages_available uses new function", {
   )
 })
 
+test_that(".build_check_packages_available respects PROJR_AUTO_INSTALL", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      # Mock projr_build_check_packages to simulate a missing package
+      pkg_status_missing <- list(
+        available = FALSE,
+        missing = "_not_a_real_pkg_xyz_",
+        install_cmds = 'install.packages("_not_a_real_pkg_xyz_")',
+        message = "Required package '_not_a_real_pkg_xyz_' is not installed."
+      )
+      testthat::with_mocked_bindings(
+        projr_build_check_packages = function(...) pkg_status_missing,
+        .package = "projr",
+        {
+          # Without PROJR_AUTO_INSTALL: non-interactive errors with build message
+          Sys.unsetenv("PROJR_AUTO_INSTALL")
+          expect_error(
+            .build_check_packages_available(output_run = TRUE),
+            "For programmatic access"
+          )
+
+          # With PROJR_AUTO_INSTALL=TRUE: takes auto-install path
+          withr::with_envvar(
+            new = c(PROJR_AUTO_INSTALL = "TRUE"),
+            code = {
+              expect_error(
+                .build_check_packages_available(output_run = TRUE),
+                "Installation failed"
+              )
+            }
+          )
+        }
+      )
+    }
+  )
+})
+
 test_that("projr_build_check_packages works with profile parameter", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
