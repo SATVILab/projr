@@ -68,6 +68,20 @@ Use environment variables to control logging:
 
 History tracking (`builds.md`) is always maintained regardless of settings.
 
+### Package Installation
+
+**`PROJR_AUTO_INSTALL`** - Automatically install missing R packages without any user prompt.
+
+- **Values**: `TRUE`/`FALSE` (case-insensitive; default is unset/falsy)
+- When set to a truthy value, missing packages are installed automatically in both
+  interactive and non-interactive (batch/CI) sessions.
+- When unset or falsy: interactive sessions prompt the user; non-interactive sessions
+  throw an error with installation instructions.
+
+```r
+Sys.setenv(PROJR_AUTO_INSTALL = "TRUE")
+```
+
 ### Debug Output
 
 When `PROJR_OUTPUT_LEVEL="debug"`, detailed messages include:
