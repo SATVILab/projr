@@ -1,0 +1,41 @@
+name: R Version and Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version component to bump (major, minor, patch)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - patch
+          - minor
+          - major
+      version:
+        description: 'Exact version to build (e.g. v1.2.3). Leave blank if using bump_type.'
+        required: false
+        type: string
+      version_force:
+        description: 'When true, skip strict version progression checks.'
+        required: false
+        type: boolean
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: MiguelRodo/actions/r-version-release@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ inputs.version }}
+          bump_type: ${{ inputs.bump_type }}
+          version_force: ${{ inputs.version_force }}
