@@ -120,13 +120,11 @@
     return(invisible(NULL))
   }
 
-  path_rel <- .path_force_rel(path)
-
   switch(.engine_get(),
-    "quarto_project" = .dir_set_docs_quarto_project(path_rel),
-    "quarto_document" = .yml_dir_set_docs(path_rel, NULL),
-    "bookdown" = .dir_set_docs_bookdown(path_rel),
-    "rmd" = .yml_dir_set_docs(path_rel)
+    "quarto_project" = .dir_set_docs_quarto_project(path),
+    "quarto_document" = .yml_dir_set_docs(path, NULL),
+    "bookdown" = .dir_set_docs_bookdown(path),
+    "rmd" = .yml_dir_set_docs(path)
   )
   invisible(path)
 }
@@ -135,14 +133,13 @@
   # don't do anything for quarto and bookdown projects,
   # as we only manipulate the _quarto.yml and _bookdown.yml
   # here (_projr.yml manipulated only for unsafe ones)
-  path_rel <- .path_force_rel(path)
   if (!.dir_set_docs_safe_check(label)) {
     return(invisible(FALSE))
   }
   switch(.engine_get(),
     "quarto_project" =
-      .dir_set_docs_quarto_project(path_rel),
-    "bookdown" = .dir_set_docs_bookdown(path_rel)
+      .dir_set_docs_quarto_project(path),
+    "bookdown" = .dir_set_docs_bookdown(path)
   )
   invisible(TRUE)
 }
@@ -191,7 +188,7 @@
 }
 
 .dir_set_docs_quarto_project <- function(path) {
-  .yml_quarto_set_output_dir(path |> .path_force_rel())
+  .yml_quarto_set_output_dir(path)
   .yml_dir_set_docs(path, NULL)
   return(invisible(TRUE))
 }
@@ -216,7 +213,7 @@
 }
 
 .dir_set_docs_bookdown <- function(path) {
-  .yml_bd_set_output_dir(path |> .path_force_rel())
+  .yml_bd_set_output_dir(path)
   .yml_dir_set_docs(path, NULL)
 }
 

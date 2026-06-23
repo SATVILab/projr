@@ -3,6 +3,14 @@
 
 .yml_bd_set_output_dir <- function(path) {
   path <- .path_force_rel(path)
+  if (all(fs::is_absolute_path(path))) {
+    stop(
+      "Bookdown requires a relative path for its output directory. ",
+      "The path '", path, "' cannot be made relative to the project root ",
+      "(e.g., it may be on a different drive).", 
+      call. = FALSE
+    )
+  }
   yml_bd <- .yml_bd_get()
   yml_bd[["output_dir"]] <- path
   .yml_bd_set(yml_bd)
