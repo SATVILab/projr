@@ -1,7 +1,3 @@
-# Exported, "large" functions
-# ==============================================================================
-
-
 #' @title Return path to profile-specific directory
 #' @description Returns path to \code{projr} profile-specific directory.
 #' Also creates the directory if it does not exist, and
@@ -23,14 +19,14 @@
 #' and \code{.Rbuildignore} as specified
 #' in \code{_projr.yml}.
 #' Default is \code{TRUE}.
-#' @param relative logical.
-#' If \code{TRUE}, then forces that the returned
-#' path is relative to the project root.
-#' Default is \code{FALSE}.
-#' @param absolute logical.
-#' If `TRUE`, then forces the returned path
-#' to be absolute.
-#' Default is `FALSE`.
+#' @param relative logical or \code{NULL}.
+#' If \code{TRUE}, forces the returned path to be relative to the project root.
+#' If \code{NULL} (the default), the path retains the format (absolute or relative) 
+#' specified in the configuration.
+#' @param absolute logical or \code{NULL}.
+#' If \code{TRUE}, forces the returned path to be absolute.
+#' If \code{NULL} (the default), the path retains the format 
+#' specified in the configuration.
 #' @param safe logical.
 #' If \code{TRUE}, then the output directory
 #' is set to be \code{"<path_to_cache>.output"}
@@ -47,91 +43,37 @@
 #' @export
 projr_path_get_dir <- function(label, ...,
                                create = TRUE,
-                               relative = FALSE,
-                               absolute = FALSE,
+                               relative = NULL,
+                               absolute = NULL,
                                safe = TRUE) {
   dots_vec <- .dots_get_chr_vec(...)
-  .dir_get_check(label, dots_vec, relative, absolute, safe)
+  
+  # Validate overrides
+  if (!is.null(absolute)) .assert_flag(absolute)
+  if (!is.null(relative)) .assert_flag(relative)
 
-  .dir_get(label = label, ..., safe = safe) |>
-    .dir_get_create(create) |>
-    .dir_get_rel(relative) |>
-    .dir_get_abs(absolute)
-}
-
-.dir_get_check <- function(label, dots_list, relative, absolute, safe) {
-  if (.is_len_pos(dots_list)) {
-    dots_list |>
-      unlist() |>
-      .assert_chr()
+  if (!is.null(absolute) && !is.null(relative)) {
+    if (absolute == relative) {
+      stop("absolute and relative cannot both be TRUE or both be FALSE")
+    }
   }
-  .dir_check_label(label, NULL)
-  .assert_flag(relative)
-  .assert_flag(absolute)
-  .assert_flag(safe)
-  if (relative && absolute) {
-    stop("relative and absolute cannot both be TRUE")
+
+  .dir_get_check(label, dots_vec, safe)
+
+  # Get the raw path (inheriting the format from config)
+  path <- .dir_get(label = label, ..., safe = safe)
+  
+  # Safely create the directory
+  .dir_get_create(path, create)
+  
+  # Apply explicit overrides if requested
+  if (isTRUE(relative)) {
+    path <- .path_force_rel(path)
+  } else if (isTRUE(absolute)) {
+    path <- .path_force_abs(path)
   }
-}
 
-.dir_check_label <- function(label, profile) {
-  .assert_string(label)
-  .dir_check_label_found(label, profile)
-}
-
-.dir_check_label_found <- function(label, profile) {
-  opt_vec <- c(
-    names(.yml_dir_get(profile)), "docs", "data", "project", "code"
-  )
-  label_found <- label %in% opt_vec
-  if (!label_found) {
-    stop("label '", label, "' not found in _projr.yml", call. = FALSE)
-  }
-  invisible(TRUE)
-}
-
-.dir_check_label_strip <- function(label) {
-  label_strip <- .dir_label_strip(label)
-  label_valid <- grepl("^docs|^raw|^cache|^output", label_strip)
-  if (!label_valid) {
-    stop(
-      paste0("label '", label, "' not valid.\n"),
-      "Must begin with 'docs', 'raw', 'cache', 'output' or 'archive'\n",
-      "However, it can:\n",
-      " - be capitalised any which way, e.g. RAW-DATA or rAw-dAtA)\n",
-      " - have any suffix, e.g. 'raw-data-foo' or 'raw-data-foo-bar'\n",
-      " - use a hyphen, underscore or neither, e.g. 'raw', 'raw-data' or rawdata\n",
-      call. = FALSE
-    )
-  }
-  invisible(TRUE)
-}
-
-.dir_label_strip <- function(x) {
-  gsub("_", "", gsub("-", "", x)) |>
-    tolower()
-}
-
-
-.dir_get_create <- function(path, create) {
-  if (create) {
-    .dir_create(path)
-  }
-  invisible(path)
-}
-
-.dir_get_rel <- function(path, relative) {
-  if (!relative) {
-    return(path)
-  }
-  .path_force_rel(path)
-}
-
-.dir_get_abs <- function(path, absolute) {
-  if (!absolute) {
-    return(path)
-  }
-  .path_force_abs(path)
+  path
 }
 
 #' @title Return path
@@ -176,10 +118,11 @@ projr_path_get_dir <- function(label, ...,
 #' @export
 projr_path_get <- function(label, ...,
                            create = TRUE,
-                           relative = FALSE,
-                           absolute = FALSE,
+                           relative = NULL,
+                           absolute = NULL,
                            safe = TRUE) {
   args_dotted <- list(...)
+
   if (length(args_dotted) == 0) {
     path_dir <- projr_path_get_dir(
       label = label,
@@ -207,6 +150,7 @@ projr_path_get <- function(label, ...,
       label = label,
       create = create,
       relative = relative,
+      absolute = absolute,
       safe = safe
     )
   }
@@ -215,8 +159,67 @@ projr_path_get <- function(label, ...,
     as.character()
 }
 
-.dir_create <- function(label, ..., safe = TRUE) {
-  # create directories
+.dir_check_label <- function(label, profile) {
+  .assert_string(label)
+  .dir_check_label_found(label, profile)
+}
+
+.dir_check_label_found <- function(label, profile) {
+  opt_vec <- c(
+    names(.yml_dir_get(profile)), "docs", "data", "project", "code"
+  )
+  label_found <- label %in% opt_vec
+  if (!label_found) {
+    stop("label '", label, "' not found in _projr.yml", call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.dir_check_label_strip <- function(label) {
+  label_strip <- .dir_label_strip(label)
+  label_valid <- grepl("^docs|^raw|^cache|^output", label_strip)
+  if (!label_valid) {
+    stop(
+      paste0("label '", label, "' not valid.\n"),
+      "Must begin with 'docs', 'raw', 'cache', 'output' or 'archive'\n",
+      "However, it can:\n",
+      " - be capitalised any which way, e.g. RAW-DATA or rAw-dAtA)\n",
+      " - have any suffix, e.g. 'raw-data-foo' or 'raw-data-foo-bar'\n",
+      " - use a hyphen, underscore or neither, e.g. 'raw', 'raw-data' or rawdata\n",
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+.dir_label_strip <- function(x) {
+  gsub("_", "", gsub("-", "", x)) |>
+    tolower()
+}
+
+
+.dir_get_check <- function(label, dots_list, safe) {
+  if (.is_len_pos(dots_list)) {
+    dots_list |>
+      unlist() |>
+      .assert_chr()
+  }
+  .dir_check_label(label, NULL)
+  .assert_flag(safe)
+}
+
+.dir_get_create <- function(path, create) {
+  if (create) {
+    # Resolve to absolute just for creation to prevent Quarto working-directory bugs
+    # This safely relies on the .dir_create(path_dir) function located in path.R
+    .dir_create(.path_resolve_root(path))
+  }
+  invisible(path)
+}
+
+# Renamed from .dir_create to avoid shadowing the system path creator in path.R
+.dir_create_by_label <- function(label, ..., safe = TRUE) {
+  # create directories by their projr labels
   for (x in label) {
     projr_path_get_dir(
       label = x,
