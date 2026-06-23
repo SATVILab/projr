@@ -1,6 +1,5 @@
 {
-  "image": "ghcr.io/miguelrodo/devcontainers-main:v1.11.0",
-  "containerUser": "rstudio",
+  "image": "ghcr.io/miguelrodo/devcontainers-main:v1.12.0",
   "customizations": {
     "vscode": {
       "extensions": [
