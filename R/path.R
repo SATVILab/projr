@@ -281,15 +281,16 @@
   path_init <- tryCatch(
     rprojroot::find_root_file(
       ...,
-      criterion = rprojroot::criteria$is_vcs_root ||
-        rprojroot::has_file("VERSION") ||
-        rprojroot::has_file("README.md") ||
-        rprojroot::criteria$is_r_package ||
-        rprojroot::criteria$is_rstudio_project ||
-        rprojroot::criteria$is_renv_project ||
+      criterion = rprojroot::criteria$is_vcs_root |
+        rprojroot::has_file("VERSION") |
+        rprojroot::has_file("README.md") |
+        rprojroot::criteria$is_r_package |
+        rprojroot::criteria$is_rstudio_project |
+        rprojroot::criteria$is_renv_project |
         rprojroot::criteria$is_quarto_project
-    ),
-    error = function(e) file.path(getwd(), ...)
+    ) |>
+    fs::path_abs(),
+    error = function(e) file.path(getwd(), ...) |> fs::path_abs()
   )
   if (!relative) {
     return(path_init)
