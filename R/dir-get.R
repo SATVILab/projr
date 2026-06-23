@@ -120,12 +120,14 @@ dir_get_label_unsafe_other <- function(label) {
   if (is.null(.engine_get())) {
     return(invisible(NULL))
   }
-  path <- .path_force_rel(path)
+
+  path_rel <- .path_force_rel(path)
+
   switch(.engine_get(),
-    "quarto_project" = .dir_set_docs_quarto_project(path),
-    "quarto_document" = .yml_dir_set_docs(path, NULL),
-    "bookdown" = .dir_set_docs_bookdown(path),
-    "rmd" = .yml_dir_set_docs(path)
+    "quarto_project" = .dir_set_docs_quarto_project(path_rel),
+    "quarto_document" = .yml_dir_set_docs(path_rel, NULL),
+    "bookdown" = .dir_set_docs_bookdown(path_rel),
+    "rmd" = .yml_dir_set_docs(path_rel)
   )
   invisible(path)
 }
@@ -167,10 +169,13 @@ dir_get_label_unsafe_other <- function(label) {
 
 .dir_get_docs_quarto_project_unset <- function() {
   # use `_quarto.yml` if specified, otherwise defaults
-  switch(as.character(is.null(.yml_quarto_get_output_dir())),
+  path_raw <- switch(as.character(is.null(.yml_quarto_get_output_dir())),
     "FALSE" = .yml_quarto_get_output_dir(),
     "TRUE" = .dir_get_docs_quarto_project_unset_default()
   )
+  
+  # Ensure the fallback default is safely resolved to the root
+  .path_resolve_root(path_raw)
 }
 
 .dir_get_docs_quarto_project_unset_default <- function() {
