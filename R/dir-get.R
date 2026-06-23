@@ -93,7 +93,7 @@
   )
 }
 
-dir_get_label_unsafe_other <- function(label) {
+.dir_get_label_unsafe_other <- function(label) {
   .yml_dir_get_path(label, NULL) |> 
     .path_resolve_root()
 }
