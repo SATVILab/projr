@@ -2,7 +2,17 @@
 # ---------------------------
 
 .yml_bd_set_output_dir <- function(path) {
-  path <- .path_force_rel(path)
+  if (fs::is_absolute_path(path)) {
+    if (!.path_can_relativise(path)) {
+      stop(
+        "Bookdown requires a relative path for its output directory. ",
+        "The path '", path, "' cannot be made relative to the project root ",
+        "(e.g., it may be on a different drive).", 
+        call. = FALSE
+      )
+    }
+    path <- .path_relativise(path)
+  }
   if (all(fs::is_absolute_path(path))) {
     stop(
       "Bookdown requires a relative path for its output directory. ",

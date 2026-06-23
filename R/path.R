@@ -912,3 +912,19 @@
   # Otherwise, anchor it firmly to the project root
   .path_get(path)
 }
+
+.path_can_relativise <- function(path) {
+  # On Windows, extract drive letters and compare
+  drive <- function(p) {
+    m <- regmatches(p, regexpr("^[A-Za-z]:", p))
+    if (length(m) == 0) NA else toupper(m)
+  }
+  
+  d1 <- drive(path)
+  d2 <- drive(.path_get())
+  
+  # If either has no drive (e.g. Unix paths), always OK
+  # If both have drives, they must match
+  if (is.na(d1) || is.na(d2)) return(TRUE)
+  d1 == d2
+}

@@ -68,6 +68,15 @@ projr_path_get_dir <- function(label, ...,
   
   # Apply explicit overrides if requested
   if (isTRUE(relative)) {
+    if (fs::is_absolute_path(path)) {
+      if (!.path_can_relativise(path)) {
+        stop(
+          "The path '", path, "' cannot be made relative to the project root ",
+          "(e.g., it may be on a different drive).", 
+          call. = FALSE
+        )
+      }
+    }
     path <- .path_force_rel(path)
   } else if (isTRUE(absolute)) {
     path <- .path_force_abs(path)
