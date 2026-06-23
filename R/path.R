@@ -897,3 +897,18 @@
   # Same filesystem ⇔ same device id
   isTRUE(i1$device_id == i2$device_id)
 }
+
+.path_resolve_root <- function(path) {
+  # Gracefully handle NULLs often returned by YAML getters
+  if (is.null(path)) {
+    return(NULL)
+  }
+  
+  # If it's already absolute, leave it alone
+  if (all(fs::is_absolute_path(path))) {
+    return(path)
+  }
+  
+  # Otherwise, anchor it firmly to the project root
+  .path_get(path)
+}

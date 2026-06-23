@@ -82,6 +82,9 @@
 
 # Main function to set the output directory in the Quarto project configuration
 .yml_quarto_set_output_dir <- function(path) {
+  # force path to be relative
+  path <- .path_force_rel(path)
+
   # Define the path to your _quarto.yml file
   path_yml_quarto <- .path_get("_quarto.yml")
 

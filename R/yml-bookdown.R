@@ -2,6 +2,7 @@
 # ---------------------------
 
 .yml_bd_set_output_dir <- function(path) {
+  path <- .path_force_rel(path)
   yml_bd <- .yml_bd_get()
   yml_bd[["output_dir"]] <- path
   .yml_bd_set(yml_bd)

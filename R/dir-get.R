@@ -87,10 +87,15 @@
 .dir_get_label_unsafe <- function(label) {
   switch(.dir_label_strip(label),
     "docs" = .dir_get_docs_unsafe(),
-    "project" = ".",
-    "data" = "data",
-    .yml_dir_get_path(label, NULL)
+    "project" = .path_get(),
+    "data" = .path_get("data"),
+    .dir_get_label_unsafe_other(label)
   )
+}
+
+dir_get_label_unsafe_other <- function(label) {
+  .yml_dir_get_path(label, NULL) |> 
+    .path_resolve_root()
 }
 
 # docs
@@ -115,6 +120,7 @@
   if (is.null(.engine_get())) {
     return(invisible(NULL))
   }
+  path <- .path_force_rel(path)
   switch(.engine_get(),
     "quarto_project" = .dir_set_docs_quarto_project(path),
     "quarto_document" = .yml_dir_set_docs(path, NULL),
@@ -128,13 +134,14 @@
   # don't do anything for quarto and bookdown projects,
   # as we only manipulate the _quarto.yml and _bookdown.yml
   # here (_projr.yml manipulated only for unsafe ones)
+  path_rel <- .path_force_rel(path)
   if (!.dir_set_docs_safe_check(label)) {
     return(invisible(FALSE))
   }
   switch(.engine_get(),
     "quarto_project" =
-      .dir_set_docs_quarto_project(path),
-    "bookdown" = .dir_set_docs_bookdown(path)
+      .dir_set_docs_quarto_project(path_rel),
+    "bookdown" = .dir_set_docs_bookdown(path_rel)
   )
   invisible(TRUE)
 }
@@ -148,10 +155,13 @@
 # quarto
 .dir_get_docs_quarto_project <- function() {
   # use docs$path if it is set
-  path <- .yml_dir_get_path("docs", NULL)
-  if (!is.null(path)) {
-    return(path)
+  path_resolved <- .yml_dir_get_path("docs", NULL) |> 
+    .path_resolve_root()
+    
+  if (!is.null(path_resolved)) {
+    return(path_resolved)
   }
+  
   .dir_get_docs_quarto_project_unset()
 }
 
@@ -181,7 +191,7 @@
 }
 
 .dir_set_docs_quarto_project <- function(path) {
-  .yml_quarto_set_output_dir(path)
+  .yml_quarto_set_output_dir(path |> .path_force_rel())
   .yml_dir_set_docs(path, NULL)
   return(invisible(TRUE))
 }
@@ -189,32 +199,39 @@
 # bookdown
 .dir_get_docs_bookdown <- function() {
   # use what's in `_projr.yml` if specified
-  path <- .yml_dir_get_path("docs", NULL)
+  path <- .yml_dir_get_path("docs", NULL) |> 
+    .path_resolve_root()
+    
   if (!is.null(path)) {
     return(path)
   }
   # use what's in `_bookdown.yml` if specified
-  path <- .yml_bd_get_output_dir()
+  path <- .yml_bd_get_output_dir() |> 
+    .path_resolve_root()
+    
   if (!is.null(path)) {
     return(path)
   }
+  
   # use default if nothing pre-specified
-  "_book"
+  .path_resolve_root("_book")
 }
 
 .dir_set_docs_bookdown <- function(path) {
-  .yml_bd_set_output_dir(path)
+  .yml_bd_set_output_dir(path |> .path_force_rel())
   .yml_dir_set_docs(path, NULL)
 }
 
 # Rmd/qmd (no other yml file of concern)
 .dir_get_docs_md <- function() {
   yml_projr <- .yml_get(NULL)
-  dir_docs_yml <- .yml_dir_get_path("docs", NULL)
+  dir_docs_yml <- .yml_dir_get_path("docs", NULL) |> 
+    .path_resolve_root()
+    
   if (!is.null(dir_docs_yml)) {
     return(dir_docs_yml)
   }
-  "docs"
+  .path_resolve_root("docs")
 }
 
 # get cache directory to save to
@@ -294,7 +311,8 @@ projr_path_get_cache_build <- .path_get_cache_auto_version
 .dir_get_cache_auto_path <- function(profile) {
   .yml_dir_get(profile)[[
     .dir_get_cache_auto_ind(profile)
-  ]][["path"]]
+  ]][["path"]] |> 
+    .path_resolve_root()
 }
 
 .dir_get_cache_auto_check <- function(profile) {
@@ -319,3 +337,4 @@ projr_path_get_cache_build <- .path_get_cache_auto_version
     file.path("old", ...) |>
     .dir_get_create(create)
 }
+
