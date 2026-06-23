@@ -914,17 +914,23 @@
 }
 
 .path_can_relativise <- function(path) {
-  # On Windows, extract drive letters and compare
-  drive <- function(p) {
-    m <- regmatches(p, regexpr("^[A-Za-z]:", p))
-    if (length(m) == 0) NA else toupper(m)
-  }
   
-  d1 <- drive(path)
-  d2 <- drive(.path_get())
+  d1 <- path_get_drive(path)
+  d2 <- path_get_drive(.path_get())
   
   # If either has no drive (e.g. Unix paths), always OK
   # If both have drives, they must match
   if (is.na(d1) || is.na(d2)) return(TRUE)
   d1 == d2
+}
+
+.path_get_drive <- function(p) {
+  # UNC path: \\server\share
+  if (grepl("^\\\\\\\\", p)) {
+    m <- regmatches(p, regexpr("^\\\\\\\\[^\\\\]+\\\\[^\\\\]+", p))
+    if (length(m) > 0) return(toupper(m))
+  }
+  # Regular Windows drive letter
+  m <- regmatches(p, regexpr("^[A-Za-z]:", p))
+  if (length(m) == 0) NA else toupper(m)
 }
