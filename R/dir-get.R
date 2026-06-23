@@ -94,8 +94,7 @@
 }
 
 .dir_get_label_unsafe_other <- function(label) {
-  .yml_dir_get_path(label, NULL) |> 
-    .path_resolve_root()
+  .yml_dir_get_path(label, NULL)
 }
 
 # docs
@@ -157,11 +156,10 @@
 # quarto
 .dir_get_docs_quarto_project <- function() {
   # use docs$path if it is set
-  path_resolved <- .yml_dir_get_path("docs", NULL) |> 
-    .path_resolve_root()
+  path_raw <- .yml_dir_get_path("docs", NULL)
     
-  if (!is.null(path_resolved)) {
-    return(path_resolved)
+  if (!is.null(path_raw)) {
+    return(path_raw)
   }
   
   .dir_get_docs_quarto_project_unset()
@@ -169,13 +167,10 @@
 
 .dir_get_docs_quarto_project_unset <- function() {
   # use `_quarto.yml` if specified, otherwise defaults
-  path_raw <- switch(as.character(is.null(.yml_quarto_get_output_dir())),
+  switch(as.character(is.null(.yml_quarto_get_output_dir())),
     "FALSE" = .yml_quarto_get_output_dir(),
     "TRUE" = .dir_get_docs_quarto_project_unset_default()
   )
-  
-  # Ensure the fallback default is safely resolved to the root
-  .path_resolve_root(path_raw)
 }
 
 .dir_get_docs_quarto_project_unset_default <- function() {
@@ -204,22 +199,20 @@
 # bookdown
 .dir_get_docs_bookdown <- function() {
   # use what's in `_projr.yml` if specified
-  path <- .yml_dir_get_path("docs", NULL) |> 
-    .path_resolve_root()
+  path <- .yml_dir_get_path("docs", NULL)
     
   if (!is.null(path)) {
     return(path)
   }
   # use what's in `_bookdown.yml` if specified
-  path <- .yml_bd_get_output_dir() |> 
-    .path_resolve_root()
+  path <- .yml_bd_get_output_dir()
     
   if (!is.null(path)) {
     return(path)
   }
   
   # use default if nothing pre-specified
-  .path_resolve_root("_book")
+  "_book"
 }
 
 .dir_set_docs_bookdown <- function(path) {
@@ -230,14 +223,13 @@
 # Rmd/qmd (no other yml file of concern)
 .dir_get_docs_md <- function() {
   yml_projr <- .yml_get(NULL)
-  dir_docs_yml <- .yml_dir_get_path("docs", NULL) |> 
-    .path_resolve_root()
+  dir_docs_yml <- .yml_dir_get_path("docs", NULL)
     
   if (!is.null(dir_docs_yml)) {
     return(dir_docs_yml)
   }
-  .path_resolve_root("docs")
-}
+  "docs"
+} 
 
 # get cache directory to save to
 .path_get_cache_auto_dir <- function(..., create = FALSE, profile) {
@@ -316,8 +308,7 @@ projr_path_get_cache_build <- .path_get_cache_auto_version
 .dir_get_cache_auto_path <- function(profile) {
   .yml_dir_get(profile)[[
     .dir_get_cache_auto_ind(profile)
-  ]][["path"]] |> 
-    .path_resolve_root()
+  ]][["path"]]
 }
 
 .dir_get_cache_auto_check <- function(profile) {
