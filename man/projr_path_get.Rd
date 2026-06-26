@@ -8,8 +8,7 @@ projr_path_get(
   label,
   ...,
   create = TRUE,
-  relative = FALSE,
-  absolute = FALSE,
+  format = c("auto", "relative", "absolute"),
   safe = TRUE
 )
 }
@@ -33,15 +32,12 @@ and \code{.Rbuildignore} as specified
 in \code{_projr.yml}.
 Default is \code{TRUE}.}
 
-\item{relative}{logical.
-If \code{TRUE}, then forces that the returned
-path is relative to the project root.
-Default is \code{FALSE}.}
-
-\item{absolute}{logical.
-If \code{TRUE}, then forces the returned path
-to be absolute.
-Default is \code{FALSE}.}
+\item{format}{character.
+One of \code{"auto"}, \code{"relative"} or \code{"absolute"}.
+If \code{"auto"}, then the format of the path returned
+is inherited from the format of the path specified in \code{_projr.yml}.
+If \code{"relative"}, then the path returned is relative to the current working directory.
+If \code{"absolute"}, then the path returned is absolute.}
 
 \item{safe}{logical.
 If \code{TRUE}, then the output directory

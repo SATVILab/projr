@@ -99,8 +99,8 @@ Defaults to \code{TRUE}.}
 \item{desc}{Logical. If \code{TRUE}, creates a DESCRIPTION file for the project.
 Defaults to \code{FALSE}.}
 
-\item{license}{Character or \code{NULL}. Specifies the license to apply (e.g., \code{"ccby"},
-\code{"apache"}, \code{"cc0"}, \code{"proprietary"}). Defaults to \code{NULL}.}
+\item{license}{Character. License type for \code{projr_init_license} (e.g. "ccby", "apache",
+"cc0", "proprietary").}
 
 \item{projr_yml}{Logical. If \code{TRUE}, creates a \code{projr.yml} configuration file.
 Defaults to \code{FALSE}.}
@@ -115,11 +115,9 @@ in the renv setup. Defaults to \\code{TRUE}.}
 \item{commit}{Logical (for \\code{projr_init_git}). If \\code{TRUE}, commits the initial changes
 to the Git repository. Defaults to \\code{TRUE}.}
 
-\item{first_name}{Character (for \code{projr_init_license}). First name for proprietary license.
-Required when \code{license = "proprietary"}.}
+\item{first_name}{Character. First name used for proprietary license templates.}
 
-\item{last_name}{Character (for \code{projr_init_license}). Last name for proprietary license.
-Required when \code{license = "proprietary"}.}
+\item{last_name}{Character. Last name used for proprietary license templates.}
 
 \item{username}{Character or \code{NULL} (for \code{projr_init_github}). The GitHub username or
 organization under which to create the repository. Defaults to \code{NULL}.}

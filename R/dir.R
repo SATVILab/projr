@@ -20,14 +20,12 @@
 #' and \code{.Rbuildignore} as specified
 #' in \code{_projr.yml}.
 #' Default is \code{TRUE}.
-#' @param relative logical or \code{NULL}.
-#' If \code{TRUE}, forces the returned path to be relative.
-#' If \code{NULL} (the default), the path retains the format 
-#' specified in the configuration (unless `absolute` is specified).
-#' @param absolute logical or \code{NULL}.
-#' If \code{TRUE}, forces the returned path to be absolute.
-#' If \code{NULL} (the default), the path retains the format 
-#' specified in the configuration (unless `relative` is specified).
+#' @param format character.
+#' One of \code{"auto"}, \code{"relative"} or \code{"absolute"}.
+#' If \code{"auto"}, then the format of the path returned
+#' is inherited from the format of the path specified in \code{_projr.yml}.
+#' If \code{"relative"}, then the path returned is relative to the current working directory.
+#' If \code{"absolute"}, then the path returned is absolute.
 #' @param safe logical.
 #' If \code{TRUE}, then the output directory
 #' is set to be \code{"<path_to_cache>.output"}
@@ -44,20 +42,10 @@
 #' @export
 projr_path_get_dir <- function(label, ...,
                                create = TRUE,
-                               relative = NULL,
-                               absolute = NULL,
+                               format = c("auto", "relative", "absolute"),
                                safe = TRUE) {
   dots_vec <- .dots_get_chr_vec(...)
-  
-  # Validate overrides
-  if (!is.null(absolute)) .assert_flag(absolute)
-  if (!is.null(relative)) .assert_flag(relative)
-
-  if (!is.null(absolute) && !is.null(relative)) {
-    if (absolute == relative) {
-      stop("absolute and relative cannot both be TRUE or both be FALSE")
-    }
-  }
+  format <- match.arg(format)
 
   .dir_get_check(label, dots_vec, safe)
 
@@ -70,17 +58,13 @@ projr_path_get_dir <- function(label, ...,
   # Determine the inherited format from the YAML
   is_yaml_abs <- all(fs::is_absolute_path(path_raw))
   
-  # Apply formatting logic: 
-  if (isTRUE(absolute) || (is.null(absolute) && is_yaml_abs)) {
-    # Force absolute OR inherit absolute
-    path <- .path_resolve_root(path_raw)
-  } else {
-    # Force relative OR inherit relative
-    # Dynamically route from the CURRENT working directory to protect Quarto chunks
-    path <- .path_force_rel(path_raw, getwd())
-  }
-
-  path
+  switch(format,
+    "absolute" = .path_resolve_root(path_raw),
+    "relative" = .path_force_rel(.path_get(path_raw), getwd()),
+    "auto"     = {
+      if (is_yaml_abs) .path_resolve_root(path_raw) else .path_force_rel(.path_get(path_raw), getwd())
+    }
+  )
 }
 
 #' @title Return path
@@ -125,8 +109,7 @@ projr_path_get_dir <- function(label, ...,
 #' @export
 projr_path_get <- function(label, ...,
                            create = TRUE,
-                           relative = NULL,
-                           absolute = NULL,
+                           format = c("auto", "relative", "absolute"),
                            safe = TRUE) {
   args_dotted <- list(...)
 
@@ -134,8 +117,7 @@ projr_path_get <- function(label, ...,
     path_dir <- projr_path_get_dir(
       label = label,
       create = create,
-      relative = relative,
-      absolute = absolute,
+      format = format,
       safe = safe
     )
     return(path_dir)
@@ -147,8 +129,7 @@ projr_path_get <- function(label, ...,
         label = label,
         args_dotted[-length(args_dotted)] |> unlist(),
         create = create,
-        relative = relative,
-        absolute = absolute,
+        format = format,
         safe = safe
       )
     )
@@ -156,8 +137,7 @@ projr_path_get <- function(label, ...,
     path_dir <- projr_path_get_dir(
       label = label,
       create = create,
-      relative = relative,
-      absolute = absolute,
+      format = format,
       safe = safe
     )
   }

@@ -18,5 +18,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Miguel Rodo \email{miguel.rodo@uct.ac.za} (\href{https://orcid.org/0000-0002-2036-4878}{ORCID})
 
+Authors:
+\itemize{
+  \item Miguel Rodo \email{miguel.rodo@uct.ac.za} (\href{https://orcid.org/0000-0002-2036-4878}{ORCID})
+}
+
 }
 \keyword{internal}
