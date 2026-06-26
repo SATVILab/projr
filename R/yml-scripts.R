@@ -26,7 +26,7 @@
 
   # build.scripts should only contain raw elements (no named lists)
   # It's a plain vector of scripts
-  yml_scripts
+  yml_scripts |> .path_get()
 }
 
 #' Get list of scripts to build for dev builds
@@ -43,5 +43,5 @@
     return(dev_scripts)
   }
   # Fall back to build.scripts when dev.scripts is not set
-  .yml_scripts_get_build(profile)
+  .yml_scripts_get_build(profile) |> .path_get()
 }
