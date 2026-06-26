@@ -2,6 +2,7 @@
 #' @description Returns path to \code{projr} profile-specific directory.
 #' Also creates the directory if it does not exist, and
 #' ignores it if requested by `_projr.yml`.
+#' If the path is relative, then it is calculated with respect to the project directory, but returned relative to the current working directory.
 #' @param label character.
 #' One of \code{"raw"}, \code{"cache"},\code{"output"},
 #' \code{"archive"} and \code{"docs"}.
@@ -20,13 +21,13 @@
 #' in \code{_projr.yml}.
 #' Default is \code{TRUE}.
 #' @param relative logical or \code{NULL}.
-#' If \code{TRUE}, forces the returned path to be relative to the project root.
-#' If \code{NULL} (the default), the path retains the format (absolute or relative) 
-#' specified in the configuration.
+#' If \code{TRUE}, forces the returned path to be relative.
+#' If \code{NULL} (the default), the path retains the format 
+#' specified in the configuration (unless `absolute` is specified).
 #' @param absolute logical or \code{NULL}.
 #' If \code{TRUE}, forces the returned path to be absolute.
 #' If \code{NULL} (the default), the path retains the format 
-#' specified in the configuration.
+#' specified in the configuration (unless `relative` is specified).
 #' @param safe logical.
 #' If \code{TRUE}, then the output directory
 #' is set to be \code{"<path_to_cache>.output"}
@@ -61,25 +62,22 @@ projr_path_get_dir <- function(label, ...,
   .dir_get_check(label, dots_vec, safe)
 
   # Get the raw path (inheriting the format from config)
-  path <- .dir_get(label = label, ..., safe = safe)
+  path_raw <- .dir_get(label = label, ..., safe = safe)
   
-  # Safely create the directory
-  .dir_get_create(path, create)
+  # Safely create the directory (resolves to absolute under the hood)
+  .dir_get_create(path_raw, create)
   
-  # Apply explicit overrides if requested
-  if (isTRUE(relative)) {
-    if (fs::is_absolute_path(path)) {
-      if (!.path_can_relativise(path)) {
-        stop(
-          "The path '", path, "' cannot be made relative to the project root ",
-          "(e.g., it may be on a different drive).", 
-          call. = FALSE
-        )
-      }
-    }
-    path <- .path_force_rel(path)
-  } else if (isTRUE(absolute)) {
-    path <- .path_force_abs(path)
+  # Determine the inherited format from the YAML
+  is_yaml_abs <- all(fs::is_absolute_path(path_raw))
+  
+  # Apply formatting logic: 
+  if (isTRUE(absolute) || (is.null(absolute) && is_yaml_abs)) {
+    # Force absolute OR inherit absolute
+    path <- .path_resolve_root(path_raw)
+  } else {
+    # Force relative OR inherit relative
+    # Dynamically route from the CURRENT working directory to protect Quarto chunks
+    path <- .path_force_rel(path_raw, getwd())
   }
 
   path
