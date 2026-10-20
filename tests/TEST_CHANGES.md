@@ -29,11 +29,18 @@ checkout: clean at 6bb054a53e41a006bb2be88eb7057aca2a8adda0.
 - test-build-check-packages.R and test-misc.R: replace real missing-package
   installation attempts with scoped mocks, force the noninteractive branch,
   restore environment state, and assert zero/one exact installer calls.
-- test-safety-offline.R: check explicit opt-in, fail-closed remote deletion and
-  session-owned temporary directories. Never remove unknown markers or repos.
+- test-safety-offline.R: check explicit opt-in, fail-closed remote deletion,
+  session-owned temporary directories and user R configuration location. Never remove unknown markers or repos.
 
 Automatic live GitHub repo creation/deletion remains disabled even with opt-in.
 A managed live fixture needs a separate decision. No live lane was run.
+
+- test-cite.R: remove duplicate codemeta/CFF writer calls from the omnibus test.
+  Dedicated tests now verify no calls for absent create=FALSE targets and exact
+  writer arguments/project context for create=TRUE. Real CITATION/header/BibTeX
+  tests remain; external metadata writers' serialization is their packages'
+  responsibility. This removes observed CRAN/Bioconductor index lookups without
+  fake-file assertions or production citation changes.
 
 ## Test value
 
@@ -116,3 +123,13 @@ The focused phase was cancelled when that head was superseded; its restore
 checks are not claimed to have completed. Latest-head validation remains pending.
 The launcher now uses testthat::set_max_fails(Inf), the supported API, to keep
 all failure details in reports.
+
+
+Measured diagnostic test times (not a benchmark against the original branch):
+older LITE cases totalled 1,011.1 seconds and older focused cases 358.2 seconds.
+The slowest LITE families were test-remote-local.R (170.9s), test-build.R (137.5s),
+test-restore.R (130.6s), and test-workflow-lite.R (112.3s).
+Focused comprehensive integration cases took 310.9s and all four executed with
+no skips/failures/errors at 7adc1e04. That run's other failures were solely the
+subsequently corrected script assertions. Its three earlier LITE warnings were
+external citation-writer registry lookups, now isolated with boundary mocks.

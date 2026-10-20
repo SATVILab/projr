@@ -76,11 +76,7 @@ test_that(".cite_ functions work works", {
           file.path("inst", "CITATION")
         )
       )
-      .cite_codemeta_set()
-      expect_true(file.exists("codemeta.json"))
       expect_true(is.character(.cite_bibtex_get()))
-      .cite_cff_set()
-      expect_true(file.exists("CITATION.cff"))
     }
   )
 })
@@ -175,6 +171,13 @@ test_that(".cite_codemeta_set respects create parameter", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  paths <- list()
+  local_mocked_bindings(
+    write_codemeta = function(path) {
+      paths[[length(paths) + 1L]] <<- path
+    },
+    .package = "codemeta"
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -184,10 +187,13 @@ test_that(".cite_codemeta_set respects create parameter", {
       expect_false(result)
       expect_false(file.exists("codemeta.json"))
 
-      # Test create = TRUE creates the file
+      expect_length(paths, 0L)
+
+      # Creating metadata delegates to the writer with the project path.
       result <- .cite_codemeta_set(create = TRUE)
       expect_true(result)
-      expect_true(file.exists("codemeta.json"))
+      expect_length(paths, 1L)
+      expect_identical(as.character(paths[[1]]), dir_test)
     }
   )
 })
@@ -196,6 +202,13 @@ test_that(".cite_cff_set respects create parameter", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  calls <- list()
+  local_mocked_bindings(
+    cff_write = function(...) {
+      calls[[length(calls) + 1L]] <<- list(args = list(...), path = getwd())
+    },
+    .package = "cffr"
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -205,10 +218,12 @@ test_that(".cite_cff_set respects create parameter", {
       expect_false(result)
       expect_false(file.exists("CITATION.cff"))
 
-      # Test create = TRUE creates the file
+      expect_length(calls, 0L)
+
+      # The default CFF writer runs in the temporary project.
       result <- .cite_cff_set(create = TRUE)
       expect_true(result)
-      expect_true(file.exists("CITATION.cff"))
+      expect_identical(calls, list(list(args = list(), path = dir_test)))
     }
   )
 })
