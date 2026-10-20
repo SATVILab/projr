@@ -26,53 +26,5 @@
 }
 
 .test_remote_host_rm_github <- function(host, token = NULL) {
-  .assert_given_full(host)
-
-  if (!requireNamespace("gh", quietly = TRUE)) {
-    .dep_install_only("gh")
-  }
-
-  # Ensure we have a token with delete scope
-  if (is.null(token)) {
-    token <- .auth_get_github_pat_find()
-  }
-  if (!.is_string(token)) {
-    stop("No GitHub token found")
-  }
-
-  # Identify user
-  user <- try(host[["user"]], silent = TRUE)
-  if (inherits(user, "try-error") || is.null(user)) {
-    user <- tryCatch(
-      gh::gh_whoami(.token = token)[["login"]],
-      error = function(e) NULL
-    )
-  }
-  if (!.is_string(user)) stop("No GitHub user found")
-
-  # Repo name
-  repo <- host[["repo"]]
-  if (!.is_string(repo)) stop("No GitHub repo specified")
-  repo <- basename(repo)
-  if (repo == "projr") stop("Cannot delete the projr repo")
-
-  message("Attempting to delete ", user, "/", repo, " ...")
-
-  res <- tryCatch(
-    gh::gh(
-      "DELETE /repos/{owner}/{repo}",
-      owner  = user,
-      repo   = repo,
-      .token = token
-    ),
-    error = function(e) e
-  )
-
-  if (inherits(res, "error")) {
-    message("  FAILED: ", conditionMessage(res))
-    return(FALSE)
-  } else {
-    message("  OK")
-    return(TRUE)
-  }
+  stop("Automatic GitHub repository deletion is disabled", call. = FALSE)
 }

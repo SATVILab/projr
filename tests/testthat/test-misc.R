@@ -584,27 +584,36 @@ test_that(".usethis_proj_desc works", {
   )
 })
 
-test_that("PROJR_AUTO_INSTALL skips error in non-interactive mode", {
+test_that("PROJR_AUTO_INSTALL routes through the installer error handler", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  withr::local_envvar(c(PROJR_AUTO_INSTALL = NA_character_))
 
-  # Without PROJR_AUTO_INSTALL, non-interactive mode with a missing package errors
-  Sys.unsetenv("PROJR_AUTO_INSTALL")
+  install_calls <- list()
+  local_mocked_bindings(
+    .is_interactive_and_not_test = function() FALSE,
+    .renv_detect = function(...) FALSE,
+    .package = "projr"
+  )
+  local_mocked_bindings(
+    install.packages = function(pkgs, ...) {
+      install_calls[[length(install_calls) + 1L]] <<- pkgs
+      stop("fixture install failure")
+    },
+    .package = "utils"
+  )
+
   expect_error(
     .dep_install_only("_not_a_real_pkg_xyz_"),
     "Required package"
   )
+  expect_length(install_calls, 0L)
 
-  # With PROJR_AUTO_INSTALL=TRUE, the function attempts installation
-  # (it will still error because the package doesn't exist, but via
-  # a different path - the "Installation failed" branch)
-  withr::with_envvar(
-    new = c(PROJR_AUTO_INSTALL = "TRUE"),
-    code = {
-      expect_error(
-        .dep_install_only("_not_a_real_pkg_xyz_"),
-        "Installation failed"
-      )
-    }
-  )
+  withr::with_envvar(c(PROJR_AUTO_INSTALL = "TRUE"), {
+    expect_error(
+      .dep_install_only("_not_a_real_pkg_xyz_"),
+      "Installation failed: fixture install failure"
+    )
+  })
+  expect_identical(install_calls, list("_not_a_real_pkg_xyz_"))
 })

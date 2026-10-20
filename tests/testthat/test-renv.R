@@ -1,6 +1,5 @@
 test_that("projr_renv_test successfully restores renv environment", {
   skip_if(.is_test_cran())
-  skip_if_offline()
   skip_if(.is_test_select())
   skip_if_not(
     .test_should_run_renv(),
@@ -33,7 +32,6 @@ test_that("projr_renv_test successfully restores renv environment", {
 
 test_that("projr_renv_test fails when it should", {
   skip_if(.is_test_cran())
-  skip_if_offline()
   skip_if(.is_test_select())
   skip_if_not(
     .test_should_run_renv(),
@@ -65,7 +63,6 @@ test_that("projr_renv_test fails when it should", {
 
 test_that("projr_renv_restore and.renv_update work with mixed repositories", {
   skip_if(.is_test_cran())
-  skip_if_offline()
   skip_if(.is_test_select())
   skip_if_not(
     .test_should_run_renv(),
@@ -482,7 +479,12 @@ test_that(".renv_rest_run_rscript vanilla option works", {
 test_that(".renv_lockfile_pkg_get parses regular CRAN packages", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  skip_if_offline()
+
+  # Exercise real lockfile parsing without activating or installing renv.
+  testthat::local_mocked_bindings(
+    activate = function(...) invisible(NULL),
+    .package = "renv"
+  )
 
   orig_dir <- getwd()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -506,10 +508,6 @@ test_that(".renv_lockfile_pkg_get parses regular CRAN packages", {
   )
 
   setwd(dir_test)
-
-  # Initialize renv
-  .renv_rest_init()
-  .renv_rest_activate()
 
   # Create a lockfile with CRAN packages
   .renv_test_test_lockfile_create("renv.lock", bad = FALSE)
@@ -530,7 +528,12 @@ test_that(".renv_lockfile_pkg_get parses regular CRAN packages", {
 test_that(".renv_lockfile_pkg_get categorizes packages correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  skip_if_offline()
+
+  # Exercise real lockfile parsing without activating or installing renv.
+  testthat::local_mocked_bindings(
+    activate = function(...) invisible(NULL),
+    .package = "renv"
+  )
 
   orig_dir <- getwd()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -554,9 +557,6 @@ test_that(".renv_lockfile_pkg_get categorizes packages correctly", {
   )
 
   setwd(dir_test)
-
-  .renv_rest_init()
-  .renv_rest_activate()
 
   # Create a complex lockfile with different package types
   current_r_version <- R.version$major
@@ -670,7 +670,6 @@ test_that(".renv_rest_copy_files always includes renv.lock", {
 test_that(".renv_test_test_snapshot creates dependencies and snapshot", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  skip_if_offline()
   skip_if_not(
     .test_should_run_renv(),
     "Set PROJR_TEST_RENV=TRUE to enable renv integration tests"
@@ -713,7 +712,6 @@ test_that(".renv_test_test_snapshot creates dependencies and snapshot", {
 test_that(".renv_rest_restore handles successful restore", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  skip_if_offline()
   skip_if_not(
     .test_should_run_renv(),
     "Set PROJR_TEST_RENV=TRUE to enable renv integration tests"
@@ -746,7 +744,6 @@ test_that(".renv_rest_restore handles successful restore", {
 test_that(".renv_rest_restore handles failed restore", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  skip_if_offline()
   skip_if_not(
     .test_should_run_renv(),
     "Set PROJR_TEST_RENV=TRUE to enable renv integration tests"

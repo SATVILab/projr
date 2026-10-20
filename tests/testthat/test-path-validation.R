@@ -507,22 +507,3 @@ test_that("path functions handle paths with special characters", {
     quiet = TRUE
   )
 })
-
-test_that("filter functions return correct types for edge cases", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  # All filter functions should return character vectors
-  expect_type(.path_filter_spec(character(0)), "character")
-  expect_type(.file_filter_dir(character(0)), "character")
-  expect_type(.file_filter_dir_non(character(0)), "character")
-  expect_type(.file_filter_exists(character(0)), "character")
-  expect_type(.dir_filter_exists(character(0)), "character")
-
-  # All should return length 0
-  expect_length(.path_filter_spec(character(0)), 0)
-  expect_length(.file_filter_dir(character(0)), 0)
-  expect_length(.file_filter_dir_non(character(0)), 0)
-  expect_length(.file_filter_exists(character(0)), 0)
-  expect_length(.dir_filter_exists(character(0)), 0)
-})

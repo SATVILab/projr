@@ -20,7 +20,8 @@
 # Only setup GitHub test environment if all conditions are met
 setup_github <- tryCatch(
   {
-    !.is_test_cran() &&
+    .test_can_modify_github() &&
+      !.is_test_cran() &&
       !.is_test_lite() &&
       .has_internet() &&
       .test_can_modify_github() &&
@@ -37,7 +38,6 @@ dir_test <- .test_setup_project(
 test_that("GitHub test releases are created and reusable", {
   skip_if(!setup_github)
   skip_if(.is_test_cran())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
   skip_if(.is_gha())
   usethis::with_project(
@@ -134,7 +134,6 @@ test_that("adding, listing and removing files works on GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  skip_if_offline()
   skip_if(.is_gha())
   .test_skip_if_cannot_modify_github()
 
@@ -297,7 +296,6 @@ test_that("manifest round-trip works for GitHub releases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
   skip_if(.is_gha())
 
@@ -347,7 +345,6 @@ test_that("VERSION file round-trip works for GitHub releases", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if(.is_gha())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
@@ -416,7 +413,6 @@ test_that("upload and restore from `latest` GitHub releases", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if(.is_gha())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
@@ -565,7 +561,6 @@ test_that("upload and restore from `archive` GitHub releases", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if(.is_gha())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
@@ -755,7 +750,6 @@ test_that("upload to archive remotes using parameter for all content", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if(.is_gha())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
@@ -935,7 +929,6 @@ test_that("upload to archive remotes using parameter for only output content", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if(.is_gha())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
@@ -1176,7 +1169,6 @@ test_that("test always vs if-change for projr config uploads", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if(.is_gha())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
@@ -1296,7 +1288,6 @@ test_that("various upload strategies run", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if(.is_gha())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   usethis::with_project(
@@ -1509,7 +1500,6 @@ test_that("various inspection methods run", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if(.is_gha())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   usethis::with_project(

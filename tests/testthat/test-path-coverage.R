@@ -128,10 +128,11 @@ test_that(".dir_clear_dir works correctly", {
       # Test with dir_exc
       dir_tmp <- .test_content_setup_dir()
       .dir_clear_dir(dir_tmp, recursive = TRUE, dir_exc = "subdir1")
-      # TODO: This test is failing - investigate why excluded directories are being cleared
-      # expect_length(.dir_ls(dir_tmp, recursive = TRUE), 2) # subdir1 and subdir2 should remain
-      # For now, just check that the function runs without error
-      expect_true(dir.exists(dir_tmp))
+      expect_identical(.dir_ls(dir_tmp), c("subdir1", "subdir1/subdir2"))
+      expect_identical(
+        .file_ls(dir_tmp),
+        c(".hidden.txt", "abc.txt", "subdir1/def.txt", "subdir1/subdir2/ghi.txt")
+      )
     },
     force = TRUE,
     quiet = TRUE

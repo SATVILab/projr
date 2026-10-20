@@ -47,8 +47,7 @@ test_that(".auth_check_github throws error when no auth", {
 test_that(".auth_check_github succeeds when auth available", {
   skip_if(.is_test_select())
   skip_if(.is_test_cran())
-  # Only run if GitHub PAT is available
-  skip_if(!nzchar(.auth_get_github_pat_find()))
+  withr::local_envvar(c(GITHUB_PAT = "fixture-token"))
 
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
@@ -228,35 +227,29 @@ test_that(".auth_token_normalize handles various inputs correctly", {
 
 test_that(".auth_get_github_pat_find_gitcreds derives correct host from URL", {
   skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  skip_if(!.has_internet())
-  skip_if(
-    !nzchar(Sys.getenv("GITHUB_TOKEN")) &&
-      !nzchar(Sys.getenv("GH_TOKEN")) &&
-      !nzchar(Sys.getenv("GITHUB_PAT"))
+  skip_if_not_installed("gitcreds")
+  hosts <- character()
+  local_mocked_bindings(
+    gitcreds_get = function(url, ...) {
+      hosts <<- c(hosts, url)
+      list(password = "fixture-token")
+    },
+    .package = "gitcreds"
   )
-
-  # We can't easily test the actual gitcreds call, but we can test the host
-  # derivation logic by checking the function runs without errors.
-  # The key tests verify that both standard GitHub and Enterprise URLs are handled.
-
-  # Test 1: Standard GitHub (api.github.com) -> github.com
-  # Calling with the standard API URL should not throw an error
-  result <- .auth_get_github_pat_find_gitcreds("https://api.github.com")
-  expect_true(is.character(result))
-
-  # Test 2: Enterprise GitHub with /api/v3 suffix
-  # This previously failed because the old regex assumed api. prefix
-  # result <- .auth_get_github_pat_find_gitcreds("https://github.mycompany.com/api/v3")
-  # expect_true(is.character(result))
-
-  # Test 3: Enterprise GitHub with trailing slash
-  # result <- .auth_get_github_pat_find_gitcreds("https://github.mycompany.com/api/v3/")
-  # expect_true(is.character(result))
-
-  # Test 4: Enterprise GitHub with custom domain
-  # result <- .auth_get_github_pat_find_gitcreds("https://git.enterprise.org/api/v3")
-  # expect_true(is.character(result))
+  urls <- c(
+    "https://api.github.com",
+    "https://github.mycompany.com/api/v3",
+    "https://github.mycompany.com/api/v3/",
+    "https://git.enterprise.org/api/v3"
+  )
+  tokens <- vapply(urls, .auth_get_github_pat_find_gitcreds, character(1))
+  expect_true(all(tokens == "fixture-token"))
+  expect_identical(hosts, c(
+    "https://github.com",
+    "https://github.mycompany.com",
+    "https://github.mycompany.com",
+    "https://git.enterprise.org"
+  ))
 })
 
 test_that(".auth_get_github_pat handles init parameter correctly", {
@@ -384,30 +377,12 @@ test_that(".auth_get_github_pat_find respects control parameters", {
   expect_identical(token, "test_token_123")
 })
 
-test_that(".test_can_modify_github returns FALSE when GITHUB_TOKEN equals GITHUB_PAT", {
+test_that("ambient credentials do not enable live GitHub tests", {
   skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-
-  # Save originals
-  old_github_pat <- Sys.getenv("GITHUB_PAT", unset = "")
-  old_github_token <- Sys.getenv("GITHUB_TOKEN", unset = "")
-
-  on.exit({
-    if (nzchar(old_github_pat)) {
-      Sys.setenv(GITHUB_PAT = old_github_pat)
-    } else {
-      Sys.unsetenv("GITHUB_PAT")
-    }
-    if (nzchar(old_github_token)) {
-      Sys.setenv(GITHUB_TOKEN = old_github_token)
-    } else {
-      Sys.unsetenv("GITHUB_TOKEN")
-    }
-  })
-
-  # Test when both are the same (CI scenario)
-  Sys.setenv(GITHUB_TOKEN = "test_token")
-  Sys.setenv(GITHUB_PAT = "test_token")
-  result <- .test_can_modify_github()
-  expect_false(result)
+  withr::local_envvar(c(
+    PROJR_TEST_LIVE_GITHUB = "false",
+    GITHUB_TOKEN = "fixture-token",
+    GITHUB_PAT = "fixture-token"
+  ))
+  expect_false(.test_can_modify_github())
 })

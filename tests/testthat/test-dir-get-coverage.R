@@ -267,11 +267,12 @@ test_that(".dir_get_label_unsafe returns correct paths", {
     code = {
       .init()
 
-      # Project should return "."
-      expect_identical(.dir_get_label_unsafe("project"), ".")
-
-      # Data should return "data"
-      expect_identical(.dir_get_label_unsafe("data"), "data")
+      # Project and data paths should resolve against the fixture root.
+      expect_identical(as.character(.dir_get_label_unsafe("project")), dir_test)
+      expect_identical(
+        as.character(.dir_get_label_unsafe("data")),
+        file.path(dir_test, "data")
+      )
 
       # Docs should call .dir_get_docs_unsafe
       path_docs <- .dir_get_label_unsafe("docs")

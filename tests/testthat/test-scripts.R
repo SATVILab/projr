@@ -16,8 +16,8 @@ test_that(".yml_scripts functions work", {
         "_projr.yml"
       )
       expect_identical(
-        .yml_scripts_get_build("default"),
-        c("script1.qmd", "script2.R")
+        as.character(.yml_scripts_get_build("default")),
+        file.path(dir_test, c("script1.qmd", "script2.R"))
       )
 
       # Test 2: Dev scripts use top-level dev.scripts
@@ -33,8 +33,8 @@ test_that(".yml_scripts functions work", {
         "_projr.yml"
       )
       expect_identical(
-        .yml_scripts_get_build("default"),
-        c("full-analysis.qmd")
+        as.character(.yml_scripts_get_build("default")),
+        file.path(dir_test, "full-analysis.qmd")
       )
       expect_identical(
         .yml_scripts_get_dev("default"),
@@ -50,7 +50,10 @@ test_that(".yml_scripts functions work", {
         ),
         "_projr.yml"
       )
-      expect_identical(.yml_scripts_get_dev("default"), c("analysis.qmd"))
+      expect_identical(
+        as.character(.yml_scripts_get_dev("default")),
+        file.path(dir_test, "analysis.qmd")
+      )
 
       # Test 4: NULL when build scripts not specified
       yaml::write_yaml(
@@ -218,8 +221,8 @@ test_that("dev.scripts is used exclusively for dev builds", {
 
       # Production builds should use build.scripts
       expect_identical(
-        .yml_scripts_get_build("default"),
-        c("build1.qmd", "build2.qmd")
+        as.character(.yml_scripts_get_build("default")),
+        file.path(dir_test, c("build1.qmd", "build2.qmd"))
       )
 
       # Test 2: Fallback to build.scripts when dev.scripts is not specified
@@ -234,14 +237,14 @@ test_that("dev.scripts is used exclusively for dev builds", {
 
       # Without dev.scripts, dev builds fall back to build.scripts
       expect_identical(
-        .yml_scripts_get_dev("default"),
-        c("build1.qmd", "build2.qmd")
+        as.character(.yml_scripts_get_dev("default")),
+        file.path(dir_test, c("build1.qmd", "build2.qmd"))
       )
 
       # Production builds still use build.scripts
       expect_identical(
-        .yml_scripts_get_build("default"),
-        c("build1.qmd", "build2.qmd")
+        as.character(.yml_scripts_get_build("default")),
+        file.path(dir_test, c("build1.qmd", "build2.qmd"))
       )
     }
   )
@@ -267,7 +270,7 @@ test_that("File existence checks work for scripts and hooks", {
 
       expect_error(
         .yml_scripts_hooks_check_exist("default"),
-        "Build script 'nonexistent.qmd' does not exist"
+        "Build script .*nonexistent[.]qmd.*does not exist"
       )
 
       # Test 2: Non-existent dev script should error
@@ -396,14 +399,14 @@ test_that("Issue scenario: build.scripts used as fallback for dev builds", {
 
       # Dev build should use build.scripts as fallback
       expect_identical(
-        .yml_scripts_get_dev("default"),
-        "ExtraULW1S1ClusterIntro.qmd"
+        as.character(.yml_scripts_get_dev("default")),
+        file.path(dir_test, "ExtraULW1S1ClusterIntro.qmd")
       )
 
       # Production build should use build.scripts
       expect_identical(
-        .yml_scripts_get_build("default"),
-        "ExtraULW1S1ClusterIntro.qmd"
+        as.character(.yml_scripts_get_build("default")),
+        file.path(dir_test, "ExtraULW1S1ClusterIntro.qmd")
       )
 
       # When dev.scripts is explicitly set, it takes precedence
@@ -428,8 +431,8 @@ test_that("Issue scenario: build.scripts used as fallback for dev builds", {
 
       # Production build should still use build.scripts
       expect_identical(
-        .yml_scripts_get_build("default"),
-        "ExtraULW1S1ClusterIntro.qmd"
+        as.character(.yml_scripts_get_build("default")),
+        file.path(dir_test, "ExtraULW1S1ClusterIntro.qmd")
       )
     }
   )

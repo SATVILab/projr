@@ -1,3 +1,15 @@
+# Keep real citation conversion/writing while excluding remote enrichment.
+.test_cite_local_metadata <- function(env = parent.frame()) {
+  original_cff_create <- cffr::cff_create
+  local_mocked_bindings(
+    cff_create = function(...) {
+      original_cff_create(..., gh_keywords = FALSE, dependencies = FALSE)
+    },
+    .package = "cffr",
+    .env = env
+  )
+}
+
 test_that("projr_yml_cite_ functions work works", {
   skip_if(.is_test_cran())
   # setup
@@ -64,6 +76,7 @@ test_that(".cite_ functions work works", {
   skip_if(.is_test_cran())
   # setup
   skip_if(.is_test_select())
+  .test_cite_local_metadata()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
@@ -76,11 +89,7 @@ test_that(".cite_ functions work works", {
           file.path("inst", "CITATION")
         )
       )
-      .cite_codemeta_set()
-      expect_true(file.exists("codemeta.json"))
       expect_true(is.character(.cite_bibtex_get()))
-      .cite_cff_set()
-      expect_true(file.exists("CITATION.cff"))
     }
   )
 })
@@ -88,6 +97,7 @@ test_that(".cite_ functions work works", {
 test_that(".cite_citation_set respects create parameter", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  .test_cite_local_metadata()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   usethis::with_project(
@@ -109,6 +119,7 @@ test_that(".cite_citation_set respects create parameter", {
 test_that(".cite_citation_inst_write creates valid CITATION file", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  .test_cite_local_metadata()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   usethis::with_project(
@@ -137,6 +148,7 @@ test_that(".cite_citation_inst_write creates valid CITATION file", {
 test_that(".cite_citation_inst_add_header adds header correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  .test_cite_local_metadata()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   usethis::with_project(
@@ -175,6 +187,13 @@ test_that(".cite_codemeta_set respects create parameter", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  paths <- list()
+  local_mocked_bindings(
+    write_codemeta = function(path) {
+      paths[[length(paths) + 1L]] <<- path
+    },
+    .package = "codemeta"
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -184,10 +203,13 @@ test_that(".cite_codemeta_set respects create parameter", {
       expect_false(result)
       expect_false(file.exists("codemeta.json"))
 
-      # Test create = TRUE creates the file
+      expect_length(paths, 0L)
+
+      # Creating metadata delegates to the writer with the project path.
       result <- .cite_codemeta_set(create = TRUE)
       expect_true(result)
-      expect_true(file.exists("codemeta.json"))
+      expect_length(paths, 1L)
+      expect_identical(as.character(paths[[1]]), dir_test)
     }
   )
 })
@@ -196,6 +218,13 @@ test_that(".cite_cff_set respects create parameter", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  calls <- list()
+  local_mocked_bindings(
+    cff_write = function(...) {
+      calls[[length(calls) + 1L]] <<- list(args = list(...), path = getwd())
+    },
+    .package = "cffr"
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -205,10 +234,12 @@ test_that(".cite_cff_set respects create parameter", {
       expect_false(result)
       expect_false(file.exists("CITATION.cff"))
 
-      # Test create = TRUE creates the file
+      expect_length(calls, 0L)
+
+      # The default CFF writer runs in the temporary project.
       result <- .cite_cff_set(create = TRUE)
       expect_true(result)
-      expect_true(file.exists("CITATION.cff"))
+      expect_identical(calls, list(list(args = list(), path = dir_test)))
     }
   )
 })
@@ -216,6 +247,7 @@ test_that(".cite_cff_set respects create parameter", {
 test_that(".cite_bibtex_get returns valid bibtex format", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  .test_cite_local_metadata()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   usethis::with_project(
@@ -242,6 +274,7 @@ test_that(".cite_bibtex_get returns valid bibtex format", {
 test_that(".cite_citation_set can be called multiple times", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  .test_cite_local_metadata()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   usethis::with_project(

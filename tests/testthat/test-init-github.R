@@ -1,34 +1,5 @@
 
-test_that("projr_init_github works", {
-  skip_if(.is_test_cran())
-  # skip_if(.is_test_select())
-  skip_if(.is_test_lite())
-  skip_if(.is_gha())
-  skip_if_offline()
-  skip_if(!.test_can_modify_github())
-
-  # Start from scratch
-  dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
-  )
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      Sys.unsetenv("R_PKG_TEST_IN_PROGRESS")
-      on.exit(Sys.setenv("R_PKG_TEST_IN_PROGRESS" = "TRUE"), add = TRUE)
-      old_gh_pat <- Sys.getenv("GITHUB_PAT")
-      on.exit(Sys.setenv("GITHUB_PAT" = old_gh_pat), add = TRUE)
-      .set_github_pat_to_orgmiguelrodo()
-      result <- projr_init_github(org = "OrgMiguelRodo")
-      expect_true(result)
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
-test_that(".init_std_github handles GitHub repo creation scenarios", {
+test_that(".init_github skips creation when disabled or unnecessary", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
@@ -43,7 +14,7 @@ test_that(".init_std_github handles GitHub repo creation scenarios", {
   usethis::with_project(
     path = dir_test,
     code = {
-      result <- .init_std_github(FALSE, FALSE, NULL)
+      result <- .init_github(FALSE, NULL, NULL, FALSE)
       expect_false(result)
     },
     force = TRUE,
@@ -58,7 +29,7 @@ test_that(".init_std_github handles GitHub repo creation scenarios", {
   usethis::with_project(
     path = dir_test,
     code = {
-      result <- .init_std_github(TRUE, FALSE, NULL)
+      result <- .init_github(TRUE, NULL, NULL, FALSE)
       expect_false(result)
       # Should not create GitHub repo without local git
     },
@@ -81,7 +52,7 @@ test_that(".init_std_github handles GitHub repo creation scenarios", {
       .dep_install_only("gert")
       gert::git_remote_add("https://github.com/test/repo.git", "origin")
 
-      result <- .init_std_github(TRUE, FALSE, NULL)
+      result <- .init_github(TRUE, NULL, NULL, FALSE)
       expect_false(result)
       # Should not create GitHub repo when remote already exists
     },

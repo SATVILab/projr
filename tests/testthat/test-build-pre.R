@@ -884,6 +884,7 @@ test_that(".build_github_setup_check_pat returns TRUE when auth available", {
   skip_if(.is_test_select())
   
   # Only run if auth is available
+  .test_skip_if_cannot_modify_github()
   skip_if(!.git_gh_check_auth())
   
   # When PAT/auth is available, function should return TRUE
@@ -924,6 +925,7 @@ test_that(".build_pre_remotes_prepare returns FALSE when output_run=FALSE", {
 test_that(".build_github_setup_user returns user in test mode", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  .test_skip_if_cannot_modify_github()
   skip_if(!.git_gh_check_auth())
   
   # In test mode, should return user without prompting
