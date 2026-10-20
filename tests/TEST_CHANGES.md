@@ -44,7 +44,9 @@ A managed live fixture needs a separate decision. No live lane was run.
 - test-build-post-comprehensive.R: create current-cache content and verify it
   survives cleanup, replacing a conditional tautology.
 - test-integration-comprehensive.R: exact required hook logs; explicit restore
-  success/failure and restored filename/version/hash equality. No catch-all
+  success/failure and restored filename/version/hash equality. Each successful
+  restore fixture deletes its own source files and asserts they are absent before
+  restore, so a no-op returning TRUE cannot pass. No catch-all
   acceptance of restore errors. Finally blocks only clean test-owned state.
 
 ## Production fixes

@@ -337,6 +337,11 @@ test_that("comprehensive workflow: rmarkdown with dev builds, iterative changes,
 
       # ========== Phase 6: Test restore from local remote ==========
       expected_raw <- .hash_dir(projr_path_get_dir("raw-data"), version = "1.0.0")
+      expect_gt(nrow(expected_raw), 0L)
+      raw_files <- file.path(projr_path_get_dir("raw-data"), expected_raw$fn)
+      expect_true(all(file.exists(raw_files)))
+      expect_true(all(file.remove(raw_files)))
+      expect_false(any(file.exists(raw_files)))
       expect_true(projr_content_update(label = "raw-data", type = "local", clear = TRUE))
       expect_identical(
         .hash_dir(projr_path_get_dir("raw-data"), version = "1.0.0"),
@@ -473,6 +478,11 @@ test_that("comprehensive workflow: quarto with multiple content types, configura
 
       # ========== Phase 7: Test restoring multiple content types ==========
       expected_raw <- .hash_dir(projr_path_get_dir("raw-data"), version = "1.0.0")
+      expect_gt(nrow(expected_raw), 0L)
+      raw_files <- file.path(projr_path_get_dir("raw-data"), expected_raw$fn)
+      expect_true(all(file.exists(raw_files)))
+      expect_true(all(file.remove(raw_files)))
+      expect_false(any(file.exists(raw_files)))
       expect_true(projr_content_update(label = "raw-data", type = "local", clear = TRUE))
       expect_identical(
         .hash_dir(projr_path_get_dir("raw-data"), version = "1.0.0"),
@@ -623,6 +633,11 @@ test_that("comprehensive workflow: from scratch with extensive iteration, clone 
       tryCatch({
         setwd(clone_dir)
 
+        expect_gt(nrow(expected_raw), 0L)
+        raw_files <- file.path(projr_path_get_dir("raw-data"), expected_raw$fn)
+        expect_true(all(file.exists(raw_files)))
+        expect_true(all(file.remove(raw_files)))
+        expect_false(any(file.exists(raw_files)))
         expect_true(projr_content_update(label = "raw-data", type = "local", clear = TRUE))
         expect_identical(
           .hash_dir(projr_path_get_dir("raw-data"), version = "1.0.0"),
