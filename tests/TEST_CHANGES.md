@@ -73,7 +73,7 @@ now returns .yml_scripts_get_build(profile) directly. That helper already resolv
 configured paths and preserves NULL. Removing the duplicate .path_get() prevents
 a missing script list from becoming the project directory. Existing test-scripts.R
 checks the NULL fallback and resolved configured paths. No restore implementation
-is changed. Larger exposed failures remain for the maintainer's decision.
+is changed. No broader production fixes are included.
 
 ## Remote validation
 
@@ -93,7 +93,8 @@ Completed locally before the memory-pressure stop:
 - Hash/change/path/cache focused assertions passed. Comprehensive workflows
   stopped before restore assertions on missing bookdown and a build-script
   fallback defect. Declared dependencies were then installed, and the one-line
-  fallback fix was made; these workflows await remote revalidation.
+  fallback fix was made. Later remote diagnostics executed all four comprehensive
+  workflows, including the restored-file hash assertions, successfully.
 - devtools::document() completed in a disposable copy. The full LITE run and
   dry styler::style_pkg(dry="on") were interrupted for memory relief; neither
   is claimed to have passed.
@@ -107,10 +108,11 @@ No further local R/tests/builds are started.
 The initial publication command was rejected before execution by automatic
 approval review. The user subsequently explicitly approved publishing the scoped
 branch/workflow, opening a draft PR and running remote checks. Remote results
-will be recorded below. Existing PAT workflows are not dispatched. Tests use vanilla R in a disposable existing devcontainer
-image, no host HOME mounts, empty inherited env and networking disabled. Declared
-dependencies are installed separately from CRAN as an unprivileged container
-user, without repository hooks.
+are recorded below. Existing PAT workflows are not dispatched.
+The earlier local tests used vanilla R in a disposable existing devcontainer
+image, no host HOME mounts, empty inherited env and networking disabled.
+Declared dependencies were installed separately from CRAN as an unprivileged
+container user, without repository hooks.
 
 
 ### Intermediate remote results
@@ -120,7 +122,7 @@ Run 39423727644 at 66bc7ec6 completed LITE (92 files through test-yml.R):
 3 warnings, 113 skips. All failures/error were stale expectations in
 test-scripts.R and test-dir-get-coverage.R and have been corrected in tests.
 The focused phase was cancelled when that head was superseded; its restore
-checks are not claimed to have completed. Latest-head validation remains pending.
+checks are not claimed to have completed. The final validation result is recorded below.
 The launcher now uses testthat::set_max_fails(Inf), the supported API, to keep
 all failure details in reports.
 
@@ -131,8 +133,9 @@ The slowest LITE families were test-remote-local.R (170.9s), test-build.R (137.5
 test-restore.R (130.6s), and test-workflow-lite.R (112.3s).
 Focused comprehensive integration cases took 310.9s and all four executed with
 no skips/failures/errors at 7adc1e04. That run's other failures were solely the
-subsequently corrected script assertions. Its three earlier LITE warnings were
-external citation-writer registry lookups, now isolated with boundary mocks.
+subsequently corrected script assertions. The three warnings in the earlier
+66bc7ec6 LITE result were external citation-writer registry lookups, now isolated
+with boundary mocks.
 
 ### Final offline boundary corrections
 
@@ -146,3 +149,40 @@ cffr under a narrowly scoped empty registry response because cffr 1.4.2 queries
 available.packages() during namespace loading; the original utils and imported
 function bindings are restored immediately afterward. Dedicated codemeta/CFF
 writer-dispatch tests mock the external writers and assert their calls.
+
+Run 39427480283 at b052d643 completed focused tests: 281 tests, 1,044 passed
+expectations, zero failures/errors/warnings, 11 skips. Run 39430314356 at
+0c7f6b71 completed focused tests: 290 tests, 1,084 passed expectations, zero
+failures/errors, one citation warning, 11 skips. Both were cancelled after
+superseding corrections; neither is a final full-suite pass.
+
+## Final remote result
+
+[Run 39432245744](https://github.com/SATVILab/projr/actions/runs/39432245744)
+passed at code commit afb6e63ccef16465e4403085150ff7f3f7f89fdb in 32m05s.
+The final follow-up commit only records this result; it does not change tested
+code, tests, configuration or workflow.
+
+| Suite | Test cases | Passed expectations | Failed | Errors | Warnings | Skips |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Focused full (17 files) | 290 | 1,084 | 0 | 0 | 0 | 11 |
+| LITE (92 files) | 1,749 | 5,495 | 0 | 0 | 0 | 113 |
+
+All four comprehensive integration cases executed (no skips), with 18/16/16/16
+passed expectations. The three successful restore fixtures first removed their
+own source files, then verified restored filenames, versions and hashes.
+Focused CSV case timings totalled 486.9s; LITE totalled 1,251.4s. These are
+current-run timings, not a measured improvement or coverage comparison.
+
+Artifacts: focused.csv, lite.csv and their totals JSON in offline-test-results.
+Neither suite reported failures, errors or R warnings. GitHub's separate runner
+annotations include intentional error output from error-path tests and platform
+action/runtime notices; they do not represent failed expectations.
+
+Final static checks: git diff --check and unchanged tested-code comparison.
+All three task-owned local containers remain stopped. No local R was restarted.
+Devcontainer rebuild, full R CMD check, completed styler run and coverage
+measurement were not performed after the memory-pressure stop. No live GitHub
+lane, credential asset, remote repository lifecycle or PAT workflow was run.
+
+Draft review: https://github.com/SATVILab/projr/pull/985
