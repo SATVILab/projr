@@ -53,6 +53,12 @@ A managed live fixture needs a separate decision. No live lane was run.
   restore, so a no-op returning TRUE cannot pass. No catch-all
   acceptance of restore errors. Finally blocks only clean test-owned state.
 
+- test-scripts.R and test-dir-get-coverage.R: correct stale relative-path
+  expectations to explicit absolute fixture paths, preserving explicit dev-script
+  relative values and NULL fallback checks. The missing-script error matcher
+  still requires the named missing script and cause while accepting its absolute
+  path. Production path behavior is unchanged.
+
 ## Production fixes
 
 One directly exposed minor fix in R/yml-scripts.R: development-build fallback
@@ -98,3 +104,15 @@ will be recorded below. Existing PAT workflows are not dispatched. Tests use van
 image, no host HOME mounts, empty inherited env and networking disabled. Declared
 dependencies are installed separately from CRAN as an unprivileged container
 user, without repository hooks.
+
+
+### Intermediate remote results
+
+Run 39423727644 at 66bc7ec6 completed LITE (92 files through test-yml.R):
+1,748 tests, 5,471 passed expectations, 11 failed expectations, 1 error,
+3 warnings, 113 skips. All failures/error were stale expectations in
+test-scripts.R and test-dir-get-coverage.R and have been corrected in tests.
+The focused phase was cancelled when that head was superseded; its restore
+checks are not claimed to have completed. Latest-head validation remains pending.
+The launcher now uses testthat::set_max_fails(Inf), the supported API, to keep
+all failure details in reports.

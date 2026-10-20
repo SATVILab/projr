@@ -4,7 +4,7 @@ stopifnot(
   identical(Sys.getenv("PROJR_AUTO_INSTALL"), "false"),
   identical(Sys.getenv("GIT_ALLOW_PROTOCOL"), "file")
 )
-options(testthat.progress.max_fails = Inf)
+testthat::set_max_fails(Inf)
 files <- c(
   list.files("R", pattern = "[.]R$", full.names = TRUE),
   list.files("tests", pattern = "[.]R$", full.names = TRUE, recursive = TRUE)
@@ -40,7 +40,7 @@ run_tests <- function(label, lite, filter = NULL) {
 focused_ok <- run_tests("focused", FALSE, paste(
   "^safety-offline$", "^git$", "^auth$", "^init-github$", "^hash$", "^change$",
   "^misc$", "^build-check-packages$",
-  "^scripts$", "^path$", "^path-coverage$", "^path-validation$",
+  "^scripts$", "^dir-get-coverage$", "^path$", "^path-coverage$", "^path-validation$",
   "^build-post-comprehensive$", "^integration-comprehensive$",
   "^github-httr-comprehensive$", sep = "|"
 ))
