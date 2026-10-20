@@ -43,3 +43,37 @@ if (requireNamespace("gitcreds", quietly = TRUE)) {
     .env = teardown_env()
   )
 }
+
+# cffr 1.4.2 fetches repository indexes on first load. Seed its cache offline,
+# then restore the imported function copied while utils was temporarily mocked.
+local({
+  original_available_packages <- utils::available.packages
+  loaded <- testthat::with_mocked_bindings(
+    requireNamespace("cffr", quietly = TRUE),
+    available.packages = function(...) {
+      matrix(
+        character(),
+        nrow = 0L,
+        ncol = 2L,
+        dimnames = list(NULL, c("Package", "Repository"))
+      )
+    },
+    .package = "utils"
+  )
+  if (loaded) {
+    imports <- parent.env(asNamespace("cffr"))
+    was_locked <- bindingIsLocked("available.packages", imports)
+    if (was_locked) {
+      unlockBinding("available.packages", imports)
+    }
+    assign("available.packages", original_available_packages, envir = imports)
+    if (was_locked) {
+      lockBinding("available.packages", imports)
+    }
+    stopifnot(identical(
+      get("available.packages", envir = imports, inherits = FALSE),
+      original_available_packages
+    ))
+  }
+  stopifnot(identical(utils::available.packages, original_available_packages))
+})

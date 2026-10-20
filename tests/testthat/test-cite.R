@@ -1,3 +1,15 @@
+# Keep real citation conversion/writing while excluding remote enrichment.
+.test_cite_local_metadata <- function(env = parent.frame()) {
+  original_cff_create <- cffr::cff_create
+  local_mocked_bindings(
+    cff_create = function(...) {
+      original_cff_create(..., gh_keywords = FALSE, dependencies = FALSE)
+    },
+    .package = "cffr",
+    .env = env
+  )
+}
+
 test_that("projr_yml_cite_ functions work works", {
   skip_if(.is_test_cran())
   # setup
@@ -64,6 +76,7 @@ test_that(".cite_ functions work works", {
   skip_if(.is_test_cran())
   # setup
   skip_if(.is_test_select())
+  .test_cite_local_metadata()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   # run from within project
@@ -84,6 +97,7 @@ test_that(".cite_ functions work works", {
 test_that(".cite_citation_set respects create parameter", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  .test_cite_local_metadata()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   usethis::with_project(
@@ -105,6 +119,7 @@ test_that(".cite_citation_set respects create parameter", {
 test_that(".cite_citation_inst_write creates valid CITATION file", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  .test_cite_local_metadata()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   usethis::with_project(
@@ -133,6 +148,7 @@ test_that(".cite_citation_inst_write creates valid CITATION file", {
 test_that(".cite_citation_inst_add_header adds header correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  .test_cite_local_metadata()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   usethis::with_project(
@@ -231,6 +247,7 @@ test_that(".cite_cff_set respects create parameter", {
 test_that(".cite_bibtex_get returns valid bibtex format", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  .test_cite_local_metadata()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   usethis::with_project(
@@ -257,6 +274,7 @@ test_that(".cite_bibtex_get returns valid bibtex format", {
 test_that(".cite_citation_set can be called multiple times", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  .test_cite_local_metadata()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
 
   usethis::with_project(

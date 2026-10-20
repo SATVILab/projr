@@ -133,3 +133,16 @@ Focused comprehensive integration cases took 310.9s and all four executed with
 no skips/failures/errors at 7adc1e04. That run's other failures were solely the
 subsequently corrected script assertions. Its three earlier LITE warnings were
 external citation-writer registry lookups, now isolated with boundary mocks.
+
+### Final offline boundary corrections
+
+The two pure test-renv.R lockfile cases mock only renv::activate(); the
+categorization case no longer initializes/activates a project first. Real
+lockfile JSON reading and package classification remain under test.
+
+Citation tests retain real CITATION/header/BibTeX generation but disable cffr
+GitHub-topic and dependency enrichment within each relevant test. Setup loads
+cffr under a narrowly scoped empty registry response because cffr 1.4.2 queries
+available.packages() during namespace loading; the original utils and imported
+function bindings are restored immediately afterward. Dedicated codemeta/CFF
+writer-dispatch tests mock the external writers and assert their calls.

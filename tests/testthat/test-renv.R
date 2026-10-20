@@ -480,6 +480,12 @@ test_that(".renv_lockfile_pkg_get parses regular CRAN packages", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
+  # Exercise real lockfile parsing without activating or installing renv.
+  testthat::local_mocked_bindings(
+    activate = function(...) invisible(NULL),
+    .package = "renv"
+  )
+
   orig_dir <- getwd()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   on.exit(
@@ -523,6 +529,12 @@ test_that(".renv_lockfile_pkg_get categorizes packages correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
+  # Exercise real lockfile parsing without activating or installing renv.
+  testthat::local_mocked_bindings(
+    activate = function(...) invisible(NULL),
+    .package = "renv"
+  )
+
   orig_dir <- getwd()
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   on.exit(
@@ -545,9 +557,6 @@ test_that(".renv_lockfile_pkg_get categorizes packages correctly", {
   )
 
   setwd(dir_test)
-
-  .renv_rest_init()
-  .renv_rest_activate()
 
   # Create a complex lockfile with different package types
   current_r_version <- R.version$major
