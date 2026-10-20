@@ -1,0 +1,50 @@
+name: Offline tests
+
+on:
+  push:
+    branches: [codex/offline-test-maintenance]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: r-lib/actions/setup-pandoc@v2
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.4.2'
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::devtools, any::styler
+          needs: check
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          tinytex: false
+      - name: Run tests without networking or credentials
+        shell: bash
+        run: |
+          test_home="$(mktemp -d)"
+          r_library="$(Rscript --vanilla -e 'cat(paste(.libPaths(), collapse = .Platform$path.sep))')"
+          sudo unshare --net -- runuser -u "$(id -un)" -- env -i \
+            PATH="$PATH" HOME="$test_home" R_USER="$test_home" \
+            XDG_CONFIG_HOME="$test_home" R_LIBS="$r_library" \
+            GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null \
+            GIT_TERMINAL_PROMPT=0 GIT_ALLOW_PROTOCOL=file \
+            PROJR_AUTO_INSTALL=false PROJR_TEST_LIVE_GITHUB=false \
+            PROJR_TEST_RENV=false \
+            Rscript --vanilla .github/scripts/test-offline.R
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: offline-test-results
+          path: test-results/
+          if-no-files-found: warn

@@ -176,31 +176,12 @@ test_that(".change_get_file_dir dispatches correctly", {
 test_that(".zero_list_manifest_get returns correct structure", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      result <- .zero_list_manifest_get()
-
-      # Verify it's a list
-      expect_true(is.list(result))
-      expect_identical(length(result), 4L)
-
-      # Verify names
-      expect_true(all(c("fn_dest_extra", "fn_same", "fn_diff", "fn_source_extra") %in% names(result)))
-
-      # Verify all elements are empty character vectors
-      expect_identical(length(result$fn_dest_extra), 0L)
-      expect_identical(length(result$fn_same), 0L)
-      expect_identical(length(result$fn_diff), 0L)
-      expect_identical(length(result$fn_source_extra), 0L)
-
-      expect_true(is.character(result$fn_dest_extra))
-      expect_true(is.character(result$fn_same))
-      expect_true(is.character(result$fn_diff))
-      expect_true(is.character(result$fn_source_extra))
-    }
-  )
+  expect_identical(.zero_list_manifest_get(), list(
+    fn_dest_extra = character(0),
+    fn_same = character(0),
+    fn_diff = character(0),
+    fn_source_extra = character(0)
+  ))
 })
 
 test_that(".change_get_manifest_check_nothing detects empty manifests", {
@@ -416,48 +397,16 @@ test_that(".change_get_manifest_pre_final handles non-empty version", {
   )
 })
 
-test_that(".change_get_hash handles edge cases", {
+test_that(".change_get_hash handles two empty hash tables", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Test with both empty hash tables
-      hash_empty <- .zero_tbl_get_hash()
-      result <- .change_get_hash(hash_empty, hash_empty)
-
-      expect_identical(length(result), 4L)
-      expect_identical(length(result$fn_dest_extra), 0L)
-      expect_identical(length(result$fn_same), 0L)
-      expect_identical(length(result$fn_diff), 0L)
-      expect_identical(length(result$fn_source_extra), 0L)
-
-      # Test with only pre having files
-      hash_pre <- data.frame(
-        fn = c("file1.txt"),
-        version = c("v1.0.0"),
-        hash = c("hash1"),
-        stringsAsFactors = FALSE
-      )
-
-      result <- .change_get_hash(hash_pre, hash_empty)
-      expect_identical(length(result$fn_dest_extra), 1L)
-      expect_identical(result$fn_dest_extra, "file1.txt")
-
-      # Test with only post having files
-      hash_post <- data.frame(
-        fn = c("file2.txt"),
-        version = c("v1.0.0"),
-        hash = c("hash2"),
-        stringsAsFactors = FALSE
-      )
-
-      result <- .change_get_hash(hash_empty, hash_post)
-      expect_identical(length(result$fn_source_extra), 1L)
-      expect_identical(result$fn_source_extra, "file2.txt")
-    }
-  )
+  hash_empty <- .zero_tbl_get_hash()
+  expect_identical(.change_get_hash(hash_empty, hash_empty), list(
+    fn_dest_extra = character(0),
+    fn_same = character(0),
+    fn_diff = character(0),
+    fn_source_extra = character(0)
+  ))
 })
 
 test_that(".change_get with unrecognized inspect errors", {

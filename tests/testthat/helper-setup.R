@@ -37,10 +37,7 @@
 .test_setup_project_dir <- function(base_name, env) {
   # set up directory
   base_name <- .test_setup_project_basename(base_name)
-  path_dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(path_dir_test)) {
-    unlink(path_dir_test, recursive = TRUE)
-  }
+  path_dir_test <- tempfile(pattern = base_name)
   withr::defer(unlink(path_dir_test, recursive = TRUE), envir = env)
   .dir_create(path_dir_test)
   path_dir_test
@@ -126,39 +123,6 @@
   env <- parent.frame()
   .test_git_identity_env_set(env)
 
-  if (.is_env_var_true("GITHUB_ACTIONS")) {
-    gert_config_global <- gert::git_config_global()[
-      gert::git_config_global()[["level"]] == "global", ,
-      drop = FALSE
-    ]
-    nm <- gert_config_global[["value"]][
-      gert_config_global[["name"]] == "user.name"
-    ]
-    if (!.is_string(nm)) {
-      gert::git_config_global_set(
-        "user.name", "DarthVader"
-      )
-      system2(
-        "git",
-        c("config", "--global", "user.name", "DarthVader"),
-        stdout = NULL, stderr = NULL
-      )
-    }
-    email <- gert_config_global[["value"]][
-      gert_config_global[["name"]] == "user.email"
-    ]
-    if (!.is_string(email)) {
-      gert::git_config_global_set(
-        "user.email", "number_one_fan@tellytubbies.com"
-      )
-      system2(
-        "git",
-        c("config", "--global", "user.email", "number_one_fan@tellytubbies.com"),
-        stdout = NULL, stderr = NULL
-      )
-    }
-  }
-
   if (global_only) {
     return(invisible(TRUE))
   }
@@ -231,33 +195,8 @@
     .test_setup_project_github_unset(path_dir)
     return(invisible(FALSE))
   }
-  if (!nzchar(.auth_get_github_pat_find())) {
-    testthat::skip("Cannot detect GitHub token - skipping GitHub remote tests")
-  }
-  if (debug) {
-    print("Beginning GitHub setup")
-    print("Running config function")
-  }
-  .test_setup_project_git_config(TRUE)
-  if (debug) {
-    print("Ended running config function")
-  }
-  # .dir_rm(path_dir)
-  # create github repo if required
-  token <- .auth_get_github_pat_find()
-  user <- tryCatch(
-    gh::gh_whoami(.token = token)[["login"]],
-    error = function(e) NULL
-  )
-  with_dir(
-    dirname(path_dir),
-    .test_github_repo_create(
-      repo = basename(path_dir),
-      user = user,
-      env = env
-    )
-  )
-  invisible(TRUE)
+  .test_skip_if_cannot_modify_github()
+  .test_github_repo_create()
 }
 
 .test_setup_project_github_unset <- function(path_dir) {
@@ -567,8 +506,8 @@
   invisible(TRUE)
 }
 
-.test_setup_project()
 
 .has_internet <- function() {
-  !is.null(curl::nslookup("captive.apple.com", error = FALSE))
+  .test_can_modify_github() &&
+    !is.null(curl::nslookup("captive.apple.com", error = FALSE))
 }

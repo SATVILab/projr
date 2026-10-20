@@ -144,168 +144,33 @@ test_that(".git_ functions work", { # setup
 })
 
 
-test_that(".git_ functions work with GitHub", { # setup
-  skip_if(.is_test_cran())
+test_that("Git push works with a local bare remote", {
   skip_if(.is_test_select())
-  skip_if(.is_gha())
-  .test_skip_if_cannot_modify_github()
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
+  dir_remote <- tempfile("projr-bare-")
+  withr::defer(unlink(dir_remote, recursive = TRUE))
+  gert::git_init(dir_remote, bare = TRUE)
 
-  dir_test <- .test_setup_project(
-    git = TRUE, github = TRUE, set_env_var = TRUE
-  )
-  debug <- FALSE
+  usethis::with_project(dir_test, {
+    gert::git_remote_add(dir_remote, "origin")
+    branch <- system2("git", c("symbolic-ref", "--short", "HEAD"), stdout = TRUE)
+    expect_equal(system2("git", c("push", "-u", "origin", branch)), 0L)
+    expect_true(.git_remote_check_exists_git())
+    expect_true(.git_remote_check_exists_gert())
+    expect_true(.git_remote_check_upstream_git())
 
-  # run from within project
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      if (debug) {
-        print("setting config")
-      }
-      .test_setup_project_git_config()
-      if (debug) {
-        print("done setting config")
-      }
-      # check there's a remote
-      # ---------------------
-      if (debug) {
-        print("checking remotes exist")
-      }
-      expect_true(.git_remote_check_exists_git())
-      if (debug) {
-        print("git remote identification")
-        print(system2("git", args = c("remote", "-v"), stdout = TRUE))
-        print("done with git remote identification")
-      }
-      expect_true(.git_remote_check_exists_gert())
-      expect_true(.git_remote_check_exists())
-      if (debug) {
-        print("gert remote identification")
-        print(gert::git_remote_ls())
-        print("done checking remotes exist")
-      }
-      # check there's an upstream remote
-      # ---------------------
-      if (debug) {
-        print("check upstream")
-      }
-      expect_true(suppressWarnings(.git_remote_check_upstream_git()))
-      expect_true(suppressWarnings(.git_remote_check_upstream()))
-      if (debug) {
-        print("done checking upstream")
-      }
-      # push
-      # -----------------------
-      invisible(file.create("abc.txt"))
+    writeLines("git push", "git.txt")
+    .git_commit_file_git("git.txt", msg = "git push")
+    expect_true(.git_push_git())
+    expect_identical(gert::git_log(repo = dir_remote)$commit[[1]],
+                     gert::git_log()$commit[[1]])
 
-      if (debug) {
-        print("get gert status table")
-      }
-      status_tbl <- gert::git_status()
-      if (debug) {
-        print("done get gert status table")
-        print("commit a file with git")
-      }
-      pathout <- file.path(tempdir(), "pushout")
-      file.create(pathout)
-      errout <- file.path(tempdir(), "errout")
-      file.create(errout)
-      .git_commit_file_git(
-        "abc.txt",
-        msg = "abc", timeout = 20, stdout = pathout, stderr = errout
-      )
-      if (debug) {
-        print("pathout")
-        print(readLines(pathout))
-        print("errout")
-        print(readLines(errout))
-        print("done commit a file with git")
-        print("Use plain-text credential store")
-      }
-
-      # system2("git", args = c("config", "--local", "credential.helper", "store"))
-      .dep_install_only("gh")
-      username <- tryCatch(
-        {
-          gh::gh_whoami()[["login"]]
-        },
-        error = function(e) {
-          NULL
-        }
-      )
-      if (!.is_string(username)) {
-        skip("GitHub user not found")
-      }
-      PAT <- .auth_get_github_pat_find()
-
-      # Create a credential string
-      credential_string <- paste0("protocol=https\nhost=github.com\nusername=", username, "\npassword=", PAT)
-
-      # Write the credential string to a temporary file
-      temp_file <- tempfile()
-      writeLines(credential_string, temp_file)
-
-      # Use the temporary file as the input for 'git credential approve'
-      system(paste0("git credential approve < ", shQuote(temp_file)))
-
-      # Delete the temporary file
-      file.remove(temp_file)
-
-      if (debug) {
-        print("push a file with git")
-      }
-      pathout <- file.path(tempdir(), "pushout")
-      .file_rm(pathout)
-      file.create(pathout)
-      errout <- file.path(tempdir(), "errout")
-      .file_rm(errout)
-      file.create(errout)
-      expect_true(
-        .git_push_git(
-          timeout = 20, stdout = pathout, stderr = errout
-        )
-      )
-      if (debug) {
-        print("pathout")
-        print("no change")
-        print(readLines(pathout))
-        print("errout")
-        print(readLines(errout))
-        print("done pushing a file with git")
-      }
-      invisible(file.create("def.txt"))
-      status_tbl <- gert::git_status()
-      if (debug) {
-        print("commit a file with gert")
-      }
-      .git_commit_file_gert("def.txt", msg = "def")
-      if (debug) {
-        print("done committing a file with gert")
-      }
-      if (!.is_env_var_true("GITHUB_ACTIONS")) {
-        expect_true(.git_push_gert())
-      }
-      if (debug) {
-        print("gert::git_log()")
-      }
-      gert::git_log()[["message"]] |> print()
-      gert::git_log()[["files"]] |> print()
-      gert::git_log()[["author"]] |> print()
-      if (debug) {
-        print("gert::git_info()")
-        print(gert::git_info())
-      }
-      # Packages should be installed via Suggests
-      .dep_install_only("gitcreds")
-      .dep_install_only("credentials")
-      if (debug) {
-        print("gitcreds::gitcreds_get")
-      }
-      gitcreds::gitcreds_get() |> print()
-      # print("usethis::gh_token_help")
-      # usethis::gh_token_help() |> print()
-    }
-  )
+    writeLines("gert push", "gert.txt")
+    .git_commit_file_gert("gert.txt", msg = "gert push")
+    expect_true(.git_push_gert())
+    expect_identical(gert::git_log(repo = dir_remote)$commit[[1]],
+                     gert::git_log()$commit[[1]])
+  })
 })
 
 # Comprehensive tests for git functions

@@ -2,7 +2,8 @@
   "image": "ghcr.io/miguelrodo/devcontainers-main:v1.12.0",
   "features": {
     "ghcr.io/rocker-org/devcontainer-features/r-packages:1": {
-      "installSystemRequirements": true
+      "installSystemRequirements": true,
+      "packages": "httr,styler,rmarkdown,knitr,bookdown,quarto"
     }
   },
   "customizations": {
@@ -12,5 +13,9 @@
         "Posit.air-vscode"
       ]
     }
+  },
+  "containerEnv": {
+    "PROJR_AUTO_INSTALL": "false",
+    "PROJR_TEST_LIVE_GITHUB": "false"
   }
 }

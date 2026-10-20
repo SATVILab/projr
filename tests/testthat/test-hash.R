@@ -42,7 +42,7 @@ test_that(".hash_file works with single file", {
       # Verify it returns a character vector of length 1
       expect_true(is.character(hash_result))
       expect_identical(length(hash_result), 1L)
-      expect_true(nchar(hash_result) > 0)
+      expect_identical(hash_result, tools::md5sum(test_file))
 
       # Verify same content produces same hash
       hash_result2 <- .hash_file(test_file)
@@ -84,7 +84,7 @@ test_that(".hash_file works with multiple files", {
       # Verify results
       expect_true(is.character(hash_result))
       expect_identical(length(hash_result), 3L)
-      expect_true(all(nchar(hash_result) > 0))
+      expect_identical(hash_result, tools::md5sum(c(file1, file2, file3)))
 
       # file1 and file3 should have same hash (same content) - use unname() to ignore path names
       expect_identical(unname(hash_result[1]), unname(hash_result[3]))
@@ -130,9 +130,9 @@ test_that(".hash_file works with different file types", {
       expect_identical(length(hash_large), 1L)
 
       # All should have different hashes
-      expect_false(identical(hash_empty, hash_binary))
-      expect_false(identical(hash_empty, hash_large))
-      expect_false(identical(hash_binary, hash_large))
+      expect_false(identical(unname(hash_empty), unname(hash_binary)))
+      expect_false(identical(unname(hash_empty), unname(hash_large)))
+      expect_false(identical(unname(hash_binary), unname(hash_large)))
 
       # Clean up
       unlink(temp_dir, recursive = TRUE)
@@ -264,186 +264,146 @@ test_that(".hash_dir sets correct version", {
 test_that(".change_get_hash detects added files", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create hash tables
-      hash_pre <- data.frame(
-        fn = character(0),
-        version = character(0),
-        hash = character(0),
-        stringsAsFactors = FALSE
-      )
-
-      hash_post <- data.frame(
-        fn = c("file1.txt", "file2.txt"),
-        version = c("v1.0.0", "v1.0.0"),
-        hash = c("hash1", "hash2"),
-        stringsAsFactors = FALSE
-      )
-
-      # Compare
-      result <- .change_get_hash(hash_pre, hash_post)
-
-      # Verify structure
-      expect_identical(length(result), 4L)
-      expect_true(all(c("fn_dest_extra", "fn_same", "fn_diff", "fn_source_extra") %in% names(result)))
-
-      # Verify results
-      expect_identical(length(result$fn_dest_extra), 0L)
-      expect_identical(length(result$fn_same), 0L)
-      expect_identical(length(result$fn_diff), 0L)
-      expect_identical(length(result$fn_source_extra), 2L)
-      expect_true(all(c("file1.txt", "file2.txt") %in% result$fn_source_extra))
-    }
+  # Create hash tables
+  hash_pre <- data.frame(
+    fn = character(0),
+    version = character(0),
+    hash = character(0),
+    stringsAsFactors = FALSE
   )
+
+  hash_post <- data.frame(
+    fn = c("file1.txt", "file2.txt"),
+    version = c("v1.0.0", "v1.0.0"),
+    hash = c("hash1", "hash2"),
+    stringsAsFactors = FALSE
+  )
+
+  # Compare
+  result <- .change_get_hash(hash_pre, hash_post)
+
+  expect_identical(result, list(
+    fn_dest_extra = character(0),
+    fn_same = character(0),
+    fn_diff = character(0),
+    fn_source_extra = c("file1.txt", "file2.txt")
+  ))
 })
 
 test_that(".change_get_hash detects removed files", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create hash tables
-      hash_pre <- data.frame(
-        fn = c("file1.txt", "file2.txt"),
-        version = c("v1.0.0", "v1.0.0"),
-        hash = c("hash1", "hash2"),
-        stringsAsFactors = FALSE
-      )
-
-      hash_post <- data.frame(
-        fn = character(0),
-        version = character(0),
-        hash = character(0),
-        stringsAsFactors = FALSE
-      )
-
-      # Compare
-      result <- .change_get_hash(hash_pre, hash_post)
-
-      # Verify results
-      expect_identical(length(result$fn_dest_extra), 2L)
-      expect_identical(length(result$fn_same), 0L)
-      expect_identical(length(result$fn_diff), 0L)
-      expect_identical(length(result$fn_source_extra), 0L)
-      expect_true(all(c("file1.txt", "file2.txt") %in% result$fn_dest_extra))
-    }
+  # Create hash tables
+  hash_pre <- data.frame(
+    fn = c("file1.txt", "file2.txt"),
+    version = c("v1.0.0", "v1.0.0"),
+    hash = c("hash1", "hash2"),
+    stringsAsFactors = FALSE
   )
+
+  hash_post <- data.frame(
+    fn = character(0),
+    version = character(0),
+    hash = character(0),
+    stringsAsFactors = FALSE
+  )
+
+  # Compare
+  result <- .change_get_hash(hash_pre, hash_post)
+
+  expect_identical(result, list(
+    fn_dest_extra = c("file1.txt", "file2.txt"),
+    fn_same = character(0),
+    fn_diff = character(0),
+    fn_source_extra = character(0)
+  ))
 })
 
 test_that(".change_get_hash detects unchanged files", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create identical hash tables
-      hash_pre <- data.frame(
-        fn = c("file1.txt", "file2.txt"),
-        version = c("v1.0.0", "v1.0.0"),
-        hash = c("hash1", "hash2"),
-        stringsAsFactors = FALSE
-      )
-
-      hash_post <- data.frame(
-        fn = c("file1.txt", "file2.txt"),
-        version = c("v1.0.0", "v1.0.0"),
-        hash = c("hash1", "hash2"),
-        stringsAsFactors = FALSE
-      )
-
-      # Compare
-      result <- .change_get_hash(hash_pre, hash_post)
-
-      # Verify results
-      expect_identical(length(result$fn_dest_extra), 0L)
-      expect_identical(length(result$fn_same), 2L)
-      expect_identical(length(result$fn_diff), 0L)
-      expect_identical(length(result$fn_source_extra), 0L)
-      expect_true(all(c("file1.txt", "file2.txt") %in% result$fn_same))
-    }
+  # Create identical hash tables
+  hash_pre <- data.frame(
+    fn = c("file1.txt", "file2.txt"),
+    version = c("v1.0.0", "v1.0.0"),
+    hash = c("hash1", "hash2"),
+    stringsAsFactors = FALSE
   )
+
+  hash_post <- data.frame(
+    fn = c("file1.txt", "file2.txt"),
+    version = c("v1.0.0", "v1.0.0"),
+    hash = c("hash1", "hash2"),
+    stringsAsFactors = FALSE
+  )
+
+  # Compare
+  result <- .change_get_hash(hash_pre, hash_post)
+
+  expect_identical(result, list(
+    fn_dest_extra = character(0),
+    fn_same = c("file1.txt", "file2.txt"),
+    fn_diff = character(0),
+    fn_source_extra = character(0)
+  ))
 })
 
 test_that(".change_get_hash detects modified files", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create hash tables with same files but different hashes
-      hash_pre <- data.frame(
-        fn = c("file1.txt", "file2.txt"),
-        version = c("v1.0.0", "v1.0.0"),
-        hash = c("hash1", "hash2"),
-        stringsAsFactors = FALSE
-      )
-
-      hash_post <- data.frame(
-        fn = c("file1.txt", "file2.txt"),
-        version = c("v1.0.0", "v1.0.0"),
-        hash = c("hash1_modified", "hash2_modified"),
-        stringsAsFactors = FALSE
-      )
-
-      # Compare
-      result <- .change_get_hash(hash_pre, hash_post)
-
-      # Verify results
-      expect_identical(length(result$fn_dest_extra), 0L)
-      expect_identical(length(result$fn_same), 0L)
-      expect_identical(length(result$fn_diff), 2L)
-      expect_identical(length(result$fn_source_extra), 0L)
-      expect_true(all(c("file1.txt", "file2.txt") %in% result$fn_diff))
-    }
+  # Create hash tables with same files but different hashes
+  hash_pre <- data.frame(
+    fn = c("file1.txt", "file2.txt"),
+    version = c("v1.0.0", "v1.0.0"),
+    hash = c("hash1", "hash2"),
+    stringsAsFactors = FALSE
   )
+
+  hash_post <- data.frame(
+    fn = c("file1.txt", "file2.txt"),
+    version = c("v1.0.0", "v1.0.0"),
+    hash = c("hash1_modified", "hash2_modified"),
+    stringsAsFactors = FALSE
+  )
+
+  # Compare
+  result <- .change_get_hash(hash_pre, hash_post)
+
+  expect_identical(result, list(
+    fn_dest_extra = character(0),
+    fn_same = character(0),
+    fn_diff = c("file1.txt", "file2.txt"),
+    fn_source_extra = character(0)
+  ))
 })
 
 test_that(".change_get_hash handles mixed changes", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create hash tables with various changes
-      hash_pre <- data.frame(
-        fn = c("unchanged.txt", "modified.txt", "removed.txt"),
-        version = c("v1.0.0", "v1.0.0", "v1.0.0"),
-        hash = c("hash_u", "hash_m_old", "hash_r"),
-        stringsAsFactors = FALSE
-      )
-
-      hash_post <- data.frame(
-        fn = c("unchanged.txt", "modified.txt", "added.txt"),
-        version = c("v1.0.0", "v1.0.0", "v1.0.0"),
-        hash = c("hash_u", "hash_m_new", "hash_a"),
-        stringsAsFactors = FALSE
-      )
-
-      # Compare
-      result <- .change_get_hash(hash_pre, hash_post)
-
-      # Verify results
-      expect_identical(length(result$fn_dest_extra), 1L)
-      expect_identical(result$fn_dest_extra, "removed.txt")
-
-      expect_identical(length(result$fn_same), 1L)
-      expect_identical(result$fn_same, "unchanged.txt")
-
-      expect_identical(length(result$fn_diff), 1L)
-      expect_identical(result$fn_diff, "modified.txt")
-
-      expect_identical(length(result$fn_source_extra), 1L)
-      expect_identical(result$fn_source_extra, "added.txt")
-    }
+  # Create hash tables with various changes
+  hash_pre <- data.frame(
+    fn = c("unchanged.txt", "modified.txt", "removed.txt"),
+    version = c("v1.0.0", "v1.0.0", "v1.0.0"),
+    hash = c("hash_u", "hash_m_old", "hash_r"),
+    stringsAsFactors = FALSE
   )
+
+  hash_post <- data.frame(
+    fn = c("unchanged.txt", "modified.txt", "added.txt"),
+    version = c("v1.0.0", "v1.0.0", "v1.0.0"),
+    hash = c("hash_u", "hash_m_new", "hash_a"),
+    stringsAsFactors = FALSE
+  )
+
+  # Compare
+  result <- .change_get_hash(hash_pre, hash_post)
+
+  expect_identical(result, list(
+    fn_dest_extra = "removed.txt",
+    fn_same = "unchanged.txt",
+    fn_diff = "modified.txt",
+    fn_source_extra = "added.txt"
+  ))
 })
 
 test_that(".change_get_dir compares two directories", {
@@ -498,22 +458,9 @@ test_that(".change_get_dir compares two directories", {
 test_that(".zero_tbl_get_hash returns correct structure", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      zero_tbl <- .zero_tbl_get_hash()
-
-      # Verify structure
-      expect_true(is.data.frame(zero_tbl))
-      expect_identical(nrow(zero_tbl), 0L)
-      expect_identical(ncol(zero_tbl), 3L)
-      expect_true(all(c("fn", "version", "hash") %in% names(zero_tbl)))
-
-      # Verify column types
-      expect_true(is.character(zero_tbl$fn))
-      expect_true(is.character(zero_tbl$version))
-      expect_true(is.character(zero_tbl$hash))
-    }
-  )
+  expect_identical(.zero_tbl_get_hash(), data.frame(
+    fn = character(0),
+    version = character(0),
+    hash = character(0)
+  ))
 })

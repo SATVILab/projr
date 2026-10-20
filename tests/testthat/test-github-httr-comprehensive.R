@@ -6,7 +6,6 @@ test_that("GitHub httr functions work correctly - comprehensive check", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if(.is_gha())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   # Setup test directory
@@ -339,7 +338,6 @@ test_that(".gh_guess_repo works in git repository", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if(.is_gha())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(
@@ -367,7 +365,6 @@ test_that("GitHub httr error handling works correctly", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if(.is_gha())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   dir_test <- .test_setup_project(
@@ -416,6 +413,7 @@ test_that("GitHub httr error handling works correctly", {
 })
 
 test_that("GitHub httr handles authentication correctly", {
+  .test_skip_if_cannot_modify_github()
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())

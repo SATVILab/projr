@@ -341,6 +341,11 @@ test_that(".build_clear_old removes old dev builds", {
       dir.create(old_version, recursive = TRUE, showWarnings = FALSE)
       file.create(file.path(old_version, "old.txt"))
 
+      # Create current-version content so preservation is actually exercised.
+      current_dir <- file.path(cache_base, current_version)
+      dir.create(current_dir, recursive = TRUE, showWarnings = FALSE)
+      writeLines("keep current build", file.path(current_dir, "current.txt"))
+
       # Verify old version exists before clearing
       expect_true(dir.exists(old_version))
 
@@ -350,11 +355,8 @@ test_that(".build_clear_old removes old dev builds", {
       # Old version should be removed
       expect_false(dir.exists(old_version))
 
-      # Current version directory should still exist (if it was created)
-      current_dir <- file.path(cache_base, current_version)
-      if (dir.exists(current_dir)) {
-        expect_true(dir.exists(current_dir))
-      }
+      expect_true(dir.exists(current_dir))
+      expect_identical(readLines(file.path(current_dir, "current.txt")), "keep current build")
     }
   )
 })

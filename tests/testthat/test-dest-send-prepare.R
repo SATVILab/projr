@@ -393,7 +393,6 @@ test_that(".dest_prepare_github_releases creates missing releases", {
   skip_if(.is_test_lite())
   skip_if(.is_gha())
   skip_if(.is_test_select())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   dir_test_github <- .test_setup_project(
@@ -451,7 +450,6 @@ test_that(".dest_prepare_github_releases handles existing releases", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if(.is_gha())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   dir_test_github <- .test_setup_project(
@@ -504,7 +502,6 @@ test_that(".dest_prepare_github_releases handles multiple tags", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if(.is_gha())
-  skip_if_offline()
   .test_skip_if_cannot_modify_github()
 
   dir_test_github <- .test_setup_project(
