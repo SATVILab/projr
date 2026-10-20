@@ -8,6 +8,8 @@ withr::local_envvar(
   c(
     HOME = .test_home,
     R_USER = .test_home,
+    R_ENVIRON_USER = file.path(.test_home, ".Renviron"),
+    R_PROFILE_USER = file.path(.test_home, ".Rprofile"),
     XDG_CONFIG_HOME = .test_home,
     GIT_CONFIG_GLOBAL = .test_git_config,
     GIT_CONFIG_NOSYSTEM = "1",

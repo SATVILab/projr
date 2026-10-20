@@ -26,3 +26,12 @@ test_that("test projects use the requested prefix in the session temp directory"
   expect_match(basename(path), "^ProjrGitHubTestOfflineFixture")
   expect_true(dir.exists(path))
 })
+
+test_that("user R configuration is created only in the test HOME", {
+  skip_if(.is_test_select())
+  expect_identical(Sys.getenv("HOME"), .test_home)
+  expect_identical(Sys.getenv("R_PROFILE_USER"), file.path(.test_home, ".Rprofile"))
+  path <- .init_renviron_create()
+  expect_identical(path, file.path(.test_home, ".Renviron"))
+  expect_true(file.exists(path))
+})

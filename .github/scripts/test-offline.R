@@ -37,11 +37,12 @@ run_tests <- function(label, lite, filter = NULL) {
   !any(table$failed > 0 | table$error)
 }
 
-lite_ok <- run_tests("lite", TRUE)
 focused_ok <- run_tests("focused", FALSE, paste(
   "^safety-offline$", "^git$", "^auth$", "^init-github$", "^hash$", "^change$",
+  "^misc$", "^build-check-packages$",
   "^scripts$", "^path$", "^path-coverage$", "^path-validation$",
   "^build-post-comprehensive$", "^integration-comprehensive$",
   "^github-httr-comprehensive$", sep = "|"
 ))
+lite_ok <- run_tests("lite", TRUE)
 if (!lite_ok || !focused_ok) quit(status = 1L)

@@ -3,7 +3,7 @@
   "features": {
     "ghcr.io/rocker-org/devcontainer-features/r-packages:1": {
       "installSystemRequirements": true,
-      "packages": "httr,styler,rmarkdown,knitr,bookdown,quarto"
+      "packages": "httr,styler,rmarkdown,knitr,bookdown,quarto,codemeta,cffr"
     }
   },
   "customizations": {

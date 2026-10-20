@@ -7,9 +7,10 @@ checkout: clean at 6bb054a53e41a006bb2be88eb7057aca2a8adda0.
 ## Safety and environment
 
 - .devcontainer/devcontainer.json: use the existing r-packages feature for declared
-  httr, styler, rmarkdown, knitr, bookdown and quarto; disable auto-install and live
+  httr, styler, rmarkdown, knitr, bookdown, quarto, codemeta and cffr; disable auto-install and live
   GitHub tests. Rendering tools already exist in the image. Retain image/lock.
-- setup.R: session-owned temporary HOME/Git config, no prompts or non-file Git
+- setup.R: session-owned temporary HOME/Git config and explicit user R
+  environment/profile paths, no prompts or non-file Git
   transports, blank credential env, scoped gh/gitcreds credential-discovery mocks.
   Restore state at teardown. Remove shared marker/abc/check-directory cleanup.
 - helper-github.R, helper-remote.R, helper-setup.R: remove automatic GitHub repo
@@ -25,6 +26,9 @@ checkout: clean at 6bb054a53e41a006bb2be88eb7057aca2a8adda0.
 - test-check.R, test-dest-send-prepare.R, test-renv.R: remove DNS prerequisites
   from local tests. Renv integration retains its explicit opt-in; lockfile JSON
   tests no longer initialize/activate renv.
+- test-build-check-packages.R and test-misc.R: replace real missing-package
+  installation attempts with scoped mocks, force the noninteractive branch,
+  restore environment state, and assert zero/one exact installer calls.
 - test-safety-offline.R: check explicit opt-in, fail-closed remote deletion and
   session-owned temporary directories. Never remove unknown markers or repos.
 
@@ -63,8 +67,8 @@ is changed. Larger exposed failures remain for the maintainer's decision.
 .github/workflows/offline-tests.yaml uses read-only contents permission and no
 secret inputs; checkout does not persist credentials. Dependencies install before
 tests. Test steps run as the runner user in a disconnected Linux network namespace
-with env -i, temporary HOME and file-only Git transports. The script runs LITE
-then the focused full tests, recording counts and failures as artifacts. Existing
+with env -i, temporary HOME and file-only Git transports. The script runs focused full tests
+then LITE, recording counts and failures as artifacts. Existing
 PAT-enabled workflows are not dispatched.
 
 ## Validation
