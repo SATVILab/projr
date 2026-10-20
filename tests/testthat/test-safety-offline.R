@@ -32,6 +32,6 @@ test_that("user R configuration is created only in the test HOME", {
   expect_identical(Sys.getenv("HOME"), .test_home)
   expect_identical(Sys.getenv("R_PROFILE_USER"), file.path(.test_home, ".Rprofile"))
   path <- .init_renviron_create()
-  expect_identical(path, file.path(.test_home, ".Renviron"))
+  expect_identical(as.character(path), file.path(.test_home, ".Renviron"))
   expect_true(file.exists(path))
 })
