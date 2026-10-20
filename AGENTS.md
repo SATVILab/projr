@@ -225,3 +225,19 @@ Internal functions (`.` prefix) must **not** have `@export`.
 | `R_PKG_TEST_SELECT` | set / unset | Enable SELECT test mode |
 | `GITHUB_PAT` | token | GitHub authentication (highest priority) |
 | `OSF_PAT` | token | OSF authentication |
+
+
+## Ponytail
+
+For coding, refactoring, bug-fixing, review and implementation design, read
+`.agents/skills/ponytail/SKILL.md` and apply Ponytail in **full** mode by
+default. Use **ultra** only when explicitly requested. Repository-specific
+correctness, security, architecture and validation requirements take precedence
+over generic simplification guidance.
+
+## GitHub issues and Projects
+
+For issue and Project administration, use the canonical
+[MiguelRodo/github-projects-skill](https://github.com/MiguelRodo/github-projects-skill/tree/main/skills/github-projects)
+skill and read `.projects/project.md` for this repository's routing contract.
+The central issue store owns planning; this repository is its implementation mirror.
