@@ -12,6 +12,10 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [testthat, check]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,7 +32,7 @@ jobs:
       - uses: quarto-dev/quarto-actions/setup@v2
         with:
           tinytex: false
-      - name: Run tests without networking or credentials
+      - name: Run ${{ matrix.suite }} without networking or credentials
         shell: bash
         run: |
           test_home="$(mktemp -d)"
@@ -36,15 +40,21 @@ jobs:
           sudo unshare --net -- runuser -u "$(id -un)" -- env -i \
             PATH="$PATH" HOME="$test_home" R_USER="$test_home" \
             XDG_CONFIG_HOME="$test_home" R_LIBS="$r_library" \
-            GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null \
+            GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL="$test_home/.gitconfig" \
             GIT_TERMINAL_PROMPT=0 GIT_ALLOW_PROTOCOL=file \
             PROJR_AUTO_INSTALL=false PROJR_TEST_LIVE_GITHUB=false \
             PROJR_TEST_RENV=false \
-            Rscript --vanilla .github/scripts/test-offline.R
+            Rscript --vanilla .github/scripts/test-offline.R "${{ matrix.suite }}"
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: offline-test-results
-          path: test-results/
+          name: offline-${{ matrix.suite }}-results
+          path: |
+            test-results/*.csv
+            test-results/*.json
+            test-results/*.txt
+            test-results/*.Rcheck/00check.log
+            test-results/*.Rcheck/00install.out
+            test-results/*.Rcheck/tests/*.Rout*
           if-no-files-found: warn

@@ -16,6 +16,7 @@ withr::local_envvar(
     GIT_ALLOW_PROTOCOL = "file",
     GIT_TERMINAL_PROMPT = "0",
     GCM_INTERACTIVE = "never",
+    PROJR_TEST_LIVE_GITHUB = "false",
     GITHUB_PAT = "",
     GITHUB_TOKEN = "",
     GH_TOKEN = "",

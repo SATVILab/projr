@@ -92,7 +92,7 @@
         call. = FALSE
       )
     }
-    path <- .path_relativise(path)
+    path <- .path_force_rel(path, .path_get())
   }
 
   # Define the path to your _quarto.yml file

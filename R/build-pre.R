@@ -234,10 +234,10 @@
     if (!.is_string(username)) {
       stop("GitHub user not found")
     }
-    .init_github_actual_user(FALSE, username)
+    .init_github_impl_user(username, public = FALSE)
   }
   if ("org" %in% names(user)) {
-    .init_github_actual_org(FALSE, user[["org"]])
+    .init_github_impl_org(public = FALSE, org = user[["org"]])
   }
 }
 

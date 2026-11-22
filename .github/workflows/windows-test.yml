@@ -3,7 +3,8 @@ name: windows-tests-by-file
 on:
   workflow_dispatch:
 
-permissions: read-all
+permissions:
+  contents: read
 
 jobs:
   test-file:
@@ -105,13 +106,14 @@ jobs:
           - test-yml.R
 
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GITHUB_PAT: ${{ secrets.GH_TOKEN }}
+      PROJR_TEST_LIVE_GITHUB: 'false'
       R_KEEP_PKG_SOURCE: yes
       R_PKG_TEST_LITE: true
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: r-lib/actions/setup-pandoc@v2
 

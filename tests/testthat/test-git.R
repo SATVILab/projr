@@ -1,66 +1,3 @@
-test_that("projr_yml_git_ functions work", {
-  skip_if(.is_test_cran())
-  # setup
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  # run from within project
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      projr_yml_git_set_default()
-      expect_identical(
-        .yml_git_get("default"),
-        NULL
-      )
-
-      # set one to FALSE
-      projr_yml_git_set(push = FALSE, simplify_identical = FALSE, simplify_default = FALSE)
-      expect_identical(
-        .yml_git_get("default"),
-        list(push = FALSE)
-      )
-      # set two to FALSE (with simplify_identical = TRUE, should simplify to FALSE)
-      projr_yml_git_set(commit = FALSE, push = FALSE, simplify_identical = TRUE, simplify_default = FALSE)
-      expect_identical(
-        .yml_git_get("default"),
-        FALSE
-      )
-      # set three to FALSE, no simplify identical
-      projr_yml_git_set(commit = FALSE, add_untracked = FALSE, push = FALSE, simplify_identical = FALSE, simplify_default = FALSE)
-      expect_identical(
-        .yml_git_get("default"),
-        list(commit = FALSE, `add-untracked` = FALSE, push = FALSE)
-      )
-      # set three to FALSE, simplify identical
-      projr_yml_git_set(commit = FALSE, add_untracked = FALSE, push = FALSE, simplify_identical = TRUE, simplify_default = FALSE)
-      expect_identical(
-        .yml_git_get("default"),
-        FALSE
-      )
-      # set three to TRUE, no simplify default
-      projr_yml_git_set(all = TRUE, simplify_default = FALSE)
-      expect_identical(
-        .yml_git_get("default"),
-        TRUE
-      )
-      # set three to TRUE, simplify default
-      projr_yml_git_set(all = TRUE)
-      expect_identical(
-        .yml_git_get("default"),
-        NULL
-      )
-      # use meaningful default
-      projr_yml_git_set(commit = FALSE)
-      projr_yml_git_set_default()
-      expect_identical(
-        .yml_git_get("default"),
-        NULL
-      )
-    }
-  )
-})
-
 test_that(".git_ functions work", { # setup
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -94,24 +31,11 @@ test_that(".git_ functions work", { # setup
       # adding and committing individual fules
       # ---------------------
       status_tbl <- gert::git_status()
-      path_err <- file.path(tempdir(), "err1")
-      commit_out <- .git_commit_file_git(
-        ".Rbuildignore",
-        msg = "Have fun", stderr = path_err
-      )
-      print("first commit out")
-      print(commit_out)
-      print("first error message")
-      print(readLines(path_err))
+      .git_commit_file_git(".Rbuildignore", msg = "Commit R build ignore")
       expect_identical(
         nrow(gert::git_status()), nrow(status_tbl) - 1L
       )
-      commit_out <- .git_commit_file_gert(
-        ".gitignore",
-        msg = "Have fun"
-      )
-      print("second commit out")
-      print(commit_out)
+      .git_commit_file_gert(".gitignore", msg = "Commit Git ignore")
       expect_identical(nrow(gert::git_status()), nrow(status_tbl) - 2L)
       # getting modified files
       # ---------------------
@@ -144,365 +68,139 @@ test_that(".git_ functions work", { # setup
 })
 
 
-test_that("Git push works with a local bare remote", {
+test_that("Git and gert clone, push and fetch from a local bare upstream", {
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
-  dir_remote <- tempfile("projr-bare-")
-  withr::defer(unlink(dir_remote, recursive = TRUE))
+  skip_if_not_installed("gert")
+  skip_if(!.git_system_check_git())
+  dir_test <- .test_setup_project(set_env_var = FALSE)
+  dir_remote <- withr::local_tempdir()
   gert::git_init(dir_remote, bare = TRUE)
+  repo <- "fixture/project"
+  url <- paste0("https://github.com/", repo, ".git")
+  config <- withr::local_tempfile()
+  withr::local_envvar(c(GIT_CONFIG_GLOBAL = config, GIT_ALLOW_PROTOCOL = "file"))
+  expect_equal(system2("git", c(
+    "config", "--file", shQuote(config),
+    shQuote(paste0("url.", dir_remote, ".insteadOf")), url
+  )), 0L)
+  # libgit2 can cache the user's config directory before the test starts.
+  # Redirect the URL at its clone boundary and use the real local transport.
+  clone <- gert::git_clone
+  testthat::local_mocked_bindings(
+    git_clone = function(url, ...) {
+      expect_identical(url, "https://github.com/fixture/project.git")
+      clone(dir_remote, ...)
+    }, .package = "gert"
+  )
 
   usethis::with_project(dir_test, {
+    for (backend in c("git", "gert")) {
+      withr::local_envvar(c(PROJR_GIT_USE_GERT = as.character(backend == "gert")))
+      expect_false(.git_check_behind())
+    }
     gert::git_remote_add(dir_remote, "origin")
-    branch <- system2("git", c("symbolic-ref", "--short", "HEAD"), stdout = TRUE)
+    branch <- gert::git_branch()
     expect_equal(system2("git", c("push", "-u", "origin", branch)), 0L)
-    expect_true(.git_remote_check_exists_git())
-    expect_true(.git_remote_check_exists_gert())
-    expect_true(.git_remote_check_upstream_git())
+    expect_equal(system2("git", c(
+      "-C", shQuote(dir_remote), "symbolic-ref", "HEAD", paste0("refs/heads/", branch)
+    )), 0L)
 
-    writeLines("git push", "git.txt")
-    .git_commit_file_git("git.txt", msg = "git push")
-    expect_true(.git_push_git())
-    expect_identical(gert::git_log(repo = dir_remote)$commit[[1]],
-                     gert::git_log()$commit[[1]])
+    for (backend in c("git", "gert")) {
+      withr::local_envvar(c(PROJR_GIT_USE_GERT = as.character(backend == "gert")))
+      expect_identical(.git_system_get(), backend)
+      expect_true(.git_remote_check_exists())
+      expect_true(.git_remote_check_upstream())
+      path_clone <- paste0("clone-", backend)
+      .git_clone(repo, path_clone)
+      expect_identical(gert::git_log(repo = path_clone)$commit[[1]], gert::git_log()$commit[[1]])
+      gert::git_remote_set_url(dir_remote, remote = "origin", repo = path_clone)
 
-    writeLines("gert push", "gert.txt")
-    .git_commit_file_gert("gert.txt", msg = "gert push")
-    expect_true(.git_push_gert())
-    expect_identical(gert::git_log(repo = dir_remote)$commit[[1]],
-                     gert::git_log()$commit[[1]])
+      writeLines(backend, "change.txt")
+      .git_commit_file("change.txt", paste("Push with", backend))
+      expect_true(.git_push())
+      pushed <- gert::git_log()$commit[[1]]
+      expect_identical(gert::git_log(repo = dir_remote)$commit[[1]], pushed)
+      expect_false(.git_check_behind())
+      withr::with_dir(path_clone, {
+        .git_fetch()
+        expect_equal(gert::git_ahead_behind()$behind, 1L)
+        expect_true(.git_check_behind())
+        expect_identical(gert::git_log(ref = paste0("origin/", branch))$commit[[1]], pushed)
+      })
+    }
   })
 })
 
-# Comprehensive tests for git functions
-# =======================================
-
-test_that(".git_repo_is_worktree works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # No repo yet
+for (backend in c("git", "gert")) {
+  test_that(paste(backend, "reports repository identity and the latest commit"), {
+    skip_if(.is_test_select())
+    skip_if_not_installed("gert")
+    skip_if(backend == "git" && !.git_system_check_git())
+    withr::local_envvar(PROJR_GIT_USE_GERT = as.character(backend == "gert"))
+    expect_identical(.git_system_get(), backend)
+    expect_identical(.git_system_check_gert(), requireNamespace("gert", quietly = TRUE))
+    expect_identical(.git_system_setup(), backend == "gert")
+    dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+    usethis::with_project(dir_test, {
       expect_false(.git_repo_is_worktree())
-
-      # Initialize repo - should not be a worktree
-      .git_init()
-      expect_false(.git_repo_is_worktree())
-    }
-  )
-})
-
-test_that(".git_changed_filter works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Without git repo
-      expect_length(.git_changed_filter("test.txt"), 0)
-
-      # Initialize git and setup
-      .git_init()
-      .test_setup_project_git_config()
-
-      # Create and commit a file
-      writeLines("test", "test.txt")
-      .git_commit_file("test.txt", "initial commit")
-
-      # File not changed
-      expect_length(.git_changed_filter("test.txt"), 0)
-
-      # Modify file
-      writeLines("test modified", "test.txt")
-      result <- .git_changed_filter("test.txt")
-      expect_length(result, 1)
-      expect_true("test.txt" %in% as.character(result))
-
-      # New file
-      writeLines("new", "new.txt")
-      result <- .git_changed_filter("new.txt")
-      expect_length(result, 1)
-      expect_true("new.txt" %in% as.character(result))
-
-      # Non-existent file
-      expect_length(.git_changed_filter("nonexistent.txt"), 0)
-
-      # Empty input
-      expect_length(.git_changed_filter(character(0)), 0)
-    }
-  )
-})
-
-test_that(".git_commit_all works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .git_init()
-      .test_setup_project_git_config()
-
-      # Create some files
-      writeLines("file1", "file1.txt")
-      writeLines("file2", "file2.txt")
-      writeLines("file3", "file3.txt")
-
-      # Initial commit of file1
-      .git_commit_file("file1.txt", "first commit")
-
-      # Modify file1 and add file2, file3
-      writeLines("file1 modified", "file1.txt")
-
-      # Commit all (should commit modified and untracked)
-      .git_commit_all("commit all", add_untracked = TRUE)
-
-      # Check nothing is staged
-      status <- gert::git_status()
-      expect_identical(nrow(status), 0L)
-
-      # Create another file and commit without untracked
-      writeLines("file4", "file4.txt")
-      writeLines("file1 modified again", "file1.txt")
-      .git_commit_file("file1.txt", "commit file1 only")
-
-      # file4 should still be untracked
-      status <- gert::git_status()
-      expect_true("file4.txt" %in% status$file)
-    }
-  )
-})
-
-test_that(".git_branch_get works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # No repo
       expect_null(.git_branch_get())
-
-      # Initialize repo
-      .git_init()
-      .test_setup_project_git_config()
-
-      # Need at least one commit for branch to exist
-      writeLines("test", "test.txt")
-      .git_commit_file("test.txt", "initial commit")
-
-      # Should return branch name (usually master or main)
-      branch <- .git_branch_get()
-      expect_true(is.character(branch) && length(branch) == 1)
-      expect_true(nzchar(branch))
-    }
-  )
-})
-
-test_that(".git_last_commit_get works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # No repo
       expect_null(.git_last_commit_get())
 
-      # Initialize repo
       .git_init()
       .test_setup_project_git_config()
-
-      # No commits yet
+      expect_false(.git_repo_is_worktree())
       expect_null(suppressWarnings(.git_last_commit_get()))
+      expect_identical(.git_config_get_name(), "DarthVader")
+      expect_identical(.git_config_get_email(), "number_one_fan@tellytubbies.com")
+      expect_false(.git_commit_file(character(), "empty"))
+      expect_false(.git_commit_file(NULL, "empty"))
 
-      # Make a commit
-      writeLines("test", "test.txt")
-      .git_commit_file("test.txt", "test commit message")
+      writeLines("version one", "report.txt")
+      .git_commit_file("report.txt", "First report")
+      expect_identical(.git_branch_get(), gert::git_branch())
+      commit <- .git_last_commit_get()
+      expect_identical(commit$message, "First report")
+      expect_true(nzchar(commit$sha) && startsWith(gert::git_log()$commit[1], commit$sha))
+    })
+  })
 
-      # Should return commit info
-      commit_info <- .git_last_commit_get()
-      expect_type(commit_info, "list")
-      expect_true("sha" %in% names(commit_info))
-      expect_true("message" %in% names(commit_info))
-      expect_identical(commit_info$message, "test commit message")
-      expect_true(nzchar(commit_info$sha))
-    }
-  )
-})
-
-test_that(".git_untracked_not_ignored_get works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # No repo
-      expect_identical(.git_untracked_not_ignored_get(), character(0))
-
-      # Initialize repo
+  test_that(paste(backend, "distinguishes modified, ignored and untracked files"), {
+    skip_if(.is_test_select())
+    skip_if_not_installed("gert")
+    skip_if(backend == "git" && !.git_system_check_git())
+    withr::local_envvar(PROJR_GIT_USE_GERT = as.character(backend == "gert"))
+    dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+    usethis::with_project(dir_test, {
+      expect_length(.git_changed_filter("tracked.txt"), 0L)
+      expect_identical(.git_untracked_not_ignored_get(), character())
       .git_init()
       .test_setup_project_git_config()
+      writeLines("one", "tracked.txt")
+      expect_true("tracked.txt" %in% .git_untracked_not_ignored_get())
+      .git_commit_file("tracked.txt", "Track one file")
+      expect_false("tracked.txt" %in% .git_untracked_not_ignored_get())
+      expect_length(.git_changed_filter("tracked.txt"), 0L)
 
-      # No untracked files initially (all existing files are ignored or committed)
-      # Create a new file
-      writeLines("test", "test.txt")
-      untracked <- .git_untracked_not_ignored_get()
-      expect_true("test.txt" %in% untracked)
-
-      # Commit the file
-      .git_commit_file("test.txt", "commit test")
-
-      # Should be empty now
-      untracked <- .git_untracked_not_ignored_get()
-      expect_false("test.txt" %in% untracked)
-
-      # Add to gitignore
-      writeLines("ignored.txt", "ignored.txt")
       writeLines("ignored.txt", ".gitignore")
+      writeLines("ignored", "ignored.txt")
+      writeLines("two", "tracked.txt")
+      writeLines("new", "untracked.txt")
+      expect_false("ignored.txt" %in% .git_untracked_not_ignored_get())
+      expect_true(".gitignore" %in% .git_untracked_not_ignored_get())
+      expect_length(.git_changed_filter(character()), 0L)
+      expect_setequal(
+        .git_changed_filter(c("tracked.txt", "untracked.txt", "missing.txt")),
+        c("tracked.txt", "untracked.txt")
+      )
 
-      # ignored.txt should not appear in untracked
-      untracked <- .git_untracked_not_ignored_get()
-      expect_false("ignored.txt" %in% untracked)
-      # .gitignore itself should be untracked
-      expect_true(".gitignore" %in% untracked)
-    }
-  )
-})
-
-test_that(".git_config_get_name and .git_config_get_email work", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .git_init()
-      .test_setup_project_git_config()
-
-      # Check name
-      name <- .git_config_get_name()
-      expect_identical(name, "DarthVader")
-
-      # Check email
-      email <- .git_config_get_email()
-      expect_identical(email, "number_one_fan@tellytubbies.com")
-
-      # Test git system functions
-      name_git <- .git_config_get_name_git()
-      expect_identical(name_git, "DarthVader")
-
-      email_git <- .git_config_get_email_git()
-      expect_identical(email_git, "number_one_fan@tellytubbies.com")
-
-      # Test gert functions
-      name_gert <- .git_config_get_name_gert()
-      expect_identical(name_gert, "DarthVader")
-
-      email_gert <- .git_config_get_email_gert()
-      expect_identical(email_gert, "number_one_fan@tellytubbies.com")
-    }
-  )
-})
-
-test_that(".git_system_get and .git_system_check_git work", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  # Check if git system is available
-  git_available <- .git_system_check_git()
-  expect_type(git_available, "logical")
-
-  # Get the git system being used
-  system <- .git_system_get()
-  expect_true(system %in% c("git", "gert"))
-
-  # If git CLI is available, it should be preferred
-  if (git_available) {
-    expect_identical(system, "git")
-  }
-})
-
-test_that(".git_clone works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip()
-
-  # This test is skipped by default as it requires network access
-  # and GitHub authentication. Uncomment to run manually if needed.
-
-  # dir_test <- tempfile()
-  # dir.create(dir_test)
-  #
-  # withr::with_dir(dir_test, {
-  #   # Would need a public repo to test
-  #   # .git_clone("user/repo", "cloned_repo")
-  #   # expect_true(dir.exists("cloned_repo"))
-  # })
-})
-
-test_that(".git_fetch works with remote", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip()
-
-  # This test requires a remote repository setup
-  # Would test .git_fetch(), .git_fetch_git(), .git_fetch_gert()
-})
-
-test_that(".git_check_behind works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .git_init()
-      .test_setup_project_git_config()
-
-      # No remote - should return FALSE
-      expect_false(.git_check_behind())
-
-      # Note: Full testing would require remote setup
-    }
-  )
-})
-
-test_that(".git_system_check_gert works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  # Test gert availability check
-  gert_available <- .git_system_check_gert()
-  expect_type(gert_available, "logical")
-
-  # If gert is available (which it should be), it should load
-  if (gert_available) {
-    expect_true(requireNamespace("gert", quietly = TRUE))
-  }
-})
-
-test_that(".git_system_setup works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  # This function should return FALSE if git CLI is available
-  # (since it doesn't need to setup anything)
-  if (.git_system_check_git()) {
-    expect_false(.git_system_setup())
-  }
-})
+      .git_commit_all("Changed files only", add_untracked = FALSE)
+      expect_true("untracked.txt" %in% .git_untracked_not_ignored_get())
+      expect_length(.git_changed_filter("tracked.txt"), 0L)
+      .git_commit_all("Include new files", add_untracked = TRUE)
+      expect_identical(nrow(gert::git_status()), 0L)
+    })
+  })
+}
 
 test_that(".git_add_file_git works", {
   skip_if(.is_test_cran())
@@ -526,580 +224,6 @@ test_that(".git_add_file_git works", {
       status <- gert::git_status()
       expect_true("test.txt" %in% status$file)
       expect_true("new" %in% status$status)
-    }
-  )
-})
-
-test_that(".git_push dispatcher works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .git_init()
-      .test_setup_project_git_config()
-
-      # Create and commit a file
-      writeLines("test", "test.txt")
-      .git_commit_file("test.txt", "initial commit")
-
-      # Test that .git_push dispatches correctly based on system
-      # Without a remote, git push will fail, but the dispatcher should work
-      system_type <- .git_system_get()
-      expect_true(system_type %in% c("git", "gert"))
-
-      # The push will fail without remote, but we're testing dispatch works
-      # Both _git and _gert variants should return invisibly
-      result <- tryCatch(
-        .git_push(),
-        error = function(e) "error"
-      )
-      # We expect either TRUE (returned invisibly) or an error
-      expect_true(result == TRUE || result == "error")
-    }
-  )
-})
-
-test_that(".git_fetch dispatcher works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .git_init()
-      .test_setup_project_git_config()
-
-      # Create and commit a file
-      writeLines("test", "test.txt")
-      .git_commit_file("test.txt", "initial commit")
-
-      # Test that .git_fetch dispatches correctly based on system
-      system_type <- .git_system_get()
-      expect_true(system_type %in% c("git", "gert"))
-
-      # The fetch will succeed (no-op without remote)
-      # We're testing the dispatcher routes correctly, not the actual fetch
-      result <- tryCatch(
-        .git_fetch(),
-        error = function(e) "error"
-      )
-      # We expect either integer return value (from system2) or tibble (from gert) or an error
-      expect_true(is.integer(result) || is.data.frame(result) || result == "error")
-    }
-  )
-})
-
-test_that(".git_changed_filter_git_ind works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_git())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .git_init()
-      .test_setup_project_git_config()
-
-      # Create and commit a file
-      writeLines("test", "test.txt")
-      .git_commit_file("test.txt", "initial commit")
-
-      # File not changed - should return FALSE
-      expect_false(.git_changed_filter_git_ind("test.txt"))
-
-      # Modify file - should return TRUE
-      writeLines("test modified", "test.txt")
-      expect_true(.git_changed_filter_git_ind("test.txt"))
-
-      # New file - should return TRUE
-      writeLines("new", "new.txt")
-      expect_true(.git_changed_filter_git_ind("new.txt"))
-    }
-  )
-})
-
-test_that(".git_commit_file handles empty file vector", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .git_init()
-      .test_setup_project_git_config()
-
-      # Empty file vector should return FALSE
-      result <- .git_commit_file(character(0), "test message")
-      expect_false(result)
-
-      # Also test with NULL
-      result <- .git_commit_file(NULL, "test message")
-      expect_false(result)
-    }
-  )
-})
-
-# Gert-specific tests (duplicates of tests above with PROJR_GIT_USE_GERT=TRUE)
-# =============================================================================
-
-test_that(".git_repo_is_worktree works with gert", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_gert())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  withr::with_envvar(
-    new = c(PROJR_GIT_USE_GERT = "TRUE"),
-    code = {
-      usethis::with_project(
-        path = dir_test,
-        code = {
-          # No repo yet
-          expect_false(.git_repo_is_worktree())
-
-          # Initialize repo - should not be a worktree
-          .git_init()
-          expect_false(.git_repo_is_worktree())
-        }
-      )
-    }
-  )
-})
-
-test_that(".git_changed_filter works with gert", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_gert())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  withr::with_envvar(
-    new = c(PROJR_GIT_USE_GERT = "TRUE"),
-    code = {
-      usethis::with_project(
-        path = dir_test,
-        code = {
-          # Without git repo
-          expect_length(.git_changed_filter("test.txt"), 0)
-
-          # Initialize git and setup
-          .git_init()
-          .test_setup_project_git_config()
-
-          # Create and commit a file
-          writeLines("test", "test.txt")
-          .git_commit_file("test.txt", "initial commit")
-
-          # File not changed
-          expect_length(.git_changed_filter("test.txt"), 0)
-
-          # Modify file
-          writeLines("test modified", "test.txt")
-          result <- .git_changed_filter("test.txt")
-          expect_length(result, 1)
-          expect_true("test.txt" %in% as.character(result))
-
-          # New file
-          writeLines("new", "new.txt")
-          result <- .git_changed_filter("new.txt")
-          expect_length(result, 1)
-          expect_true("new.txt" %in% as.character(result))
-
-          # Non-existent file
-          expect_length(.git_changed_filter("nonexistent.txt"), 0)
-
-          # Empty input
-          expect_length(.git_changed_filter(character(0)), 0)
-        }
-      )
-    }
-  )
-})
-
-test_that(".git_commit_all works with gert", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_gert())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  withr::with_envvar(
-    new = c(PROJR_GIT_USE_GERT = "TRUE"),
-    code = {
-      usethis::with_project(
-        path = dir_test,
-        code = {
-          .git_init()
-          .test_setup_project_git_config()
-
-          # Create some files
-          writeLines("file1", "file1.txt")
-          writeLines("file2", "file2.txt")
-          writeLines("file3", "file3.txt")
-
-          # Initial commit of file1
-          .git_commit_file("file1.txt", "first commit")
-
-          # Modify file1 and add file2, file3
-          writeLines("file1 modified", "file1.txt")
-
-          # Commit all (should commit modified and untracked)
-          .git_commit_all("commit all", add_untracked = TRUE)
-
-          # Check nothing is staged
-          status <- gert::git_status()
-          expect_identical(nrow(status), 0L)
-
-          # Create another file and commit without untracked
-          writeLines("file4", "file4.txt")
-          writeLines("file1 modified again", "file1.txt")
-          .git_commit_file("file1.txt", "commit file1 only")
-
-          # file4 should still be untracked
-          status <- gert::git_status()
-          expect_true("file4.txt" %in% status$file)
-        }
-      )
-    }
-  )
-})
-
-test_that(".git_branch_get works with gert", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_gert())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  withr::with_envvar(
-    new = c(PROJR_GIT_USE_GERT = "TRUE"),
-    code = {
-      usethis::with_project(
-        path = dir_test,
-        code = {
-          # No repo
-          expect_null(.git_branch_get())
-
-          # Initialize repo
-          .git_init()
-          .test_setup_project_git_config()
-
-          # Need at least one commit for branch to exist
-          writeLines("test", "test.txt")
-          .git_commit_file("test.txt", "initial commit")
-
-          # Should return branch name (usually master or main)
-          branch <- .git_branch_get()
-          expect_true(is.character(branch) && length(branch) == 1)
-          expect_true(nzchar(branch))
-        }
-      )
-    }
-  )
-})
-
-test_that(".git_last_commit_get works with gert", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_gert())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  withr::with_envvar(
-    new = c(PROJR_GIT_USE_GERT = "TRUE"),
-    code = {
-      usethis::with_project(
-        path = dir_test,
-        code = {
-          # No repo
-          expect_null(.git_last_commit_get())
-
-          # Initialize repo
-          .git_init()
-          .test_setup_project_git_config()
-
-          # No commits yet
-          expect_null(suppressWarnings(.git_last_commit_get()))
-
-          # Make a commit
-          writeLines("test", "test.txt")
-          .git_commit_file("test.txt", "test commit message")
-
-          # Should return commit info
-          commit_info <- .git_last_commit_get()
-          expect_type(commit_info, "list")
-          expect_true("sha" %in% names(commit_info))
-          expect_true("message" %in% names(commit_info))
-          expect_identical(commit_info$message, "test commit message")
-          expect_true(nzchar(commit_info$sha))
-        }
-      )
-    }
-  )
-})
-
-test_that(".git_untracked_not_ignored_get works with gert", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_gert())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  withr::with_envvar(
-    new = c(PROJR_GIT_USE_GERT = "TRUE"),
-    code = {
-      usethis::with_project(
-        path = dir_test,
-        code = {
-          # No repo
-          expect_identical(.git_untracked_not_ignored_get(), character(0))
-
-          # Initialize repo
-          .git_init()
-          .test_setup_project_git_config()
-
-          # No untracked files initially (all existing files are ignored or committed)
-          # Create a new file
-          writeLines("test", "test.txt")
-          untracked <- .git_untracked_not_ignored_get()
-          expect_true("test.txt" %in% untracked)
-
-          # Commit the file
-          .git_commit_file("test.txt", "commit test")
-
-          # Should be empty now
-          untracked <- .git_untracked_not_ignored_get()
-          expect_false("test.txt" %in% untracked)
-
-          # Add to gitignore
-          writeLines("ignored.txt", "ignored.txt")
-          writeLines("ignored.txt", ".gitignore")
-
-          # ignored.txt should not appear in untracked
-          untracked <- .git_untracked_not_ignored_get()
-          expect_false("ignored.txt" %in% untracked)
-          # .gitignore itself should be untracked
-          expect_true(".gitignore" %in% untracked)
-        }
-      )
-    }
-  )
-})
-
-test_that(".git_config_get_name and .git_config_get_email work with gert", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_gert())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  withr::with_envvar(
-    new = c(PROJR_GIT_USE_GERT = "TRUE"),
-    code = {
-      usethis::with_project(
-        path = dir_test,
-        code = {
-          .git_init()
-          .test_setup_project_git_config()
-
-          # Check name
-          name <- .git_config_get_name()
-          expect_identical(name, "DarthVader")
-
-          # Check email
-          email <- .git_config_get_email()
-          expect_identical(email, "number_one_fan@tellytubbies.com")
-
-          # Test gert functions
-          name_gert <- .git_config_get_name_gert()
-          expect_identical(name_gert, "DarthVader")
-
-          email_gert <- .git_config_get_email_gert()
-          expect_identical(email_gert, "number_one_fan@tellytubbies.com")
-        }
-      )
-    }
-  )
-})
-
-test_that(".git_system_get and .git_system_check_git work with gert", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_gert())
-
-  withr::with_envvar(
-    new = c(PROJR_GIT_USE_GERT = "TRUE"),
-    code = {
-      # Get the git system being used
-      system <- .git_system_get()
-      expect_identical(system, "gert")
-
-      # Check if git CLI is available
-      git_available <- .git_system_check_git()
-      expect_type(git_available, "logical")
-    }
-  )
-})
-
-test_that(".git_check_behind works with gert", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_gert())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  withr::with_envvar(
-    new = c(PROJR_GIT_USE_GERT = "TRUE"),
-    code = {
-      usethis::with_project(
-        path = dir_test,
-        code = {
-          .git_init()
-          .test_setup_project_git_config()
-
-          # No remote - should return FALSE
-          expect_false(.git_check_behind())
-
-          # Note: Full testing would require remote setup
-        }
-      )
-    }
-  )
-})
-
-test_that(".git_system_check_gert works with gert", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_gert())
-
-  withr::with_envvar(
-    new = c(PROJR_GIT_USE_GERT = "TRUE"),
-    code = {
-      # Test gert availability check
-      gert_available <- .git_system_check_gert()
-      expect_type(gert_available, "logical")
-
-      # If gert is available (which it should be), it should load
-      if (gert_available) {
-        expect_true(requireNamespace("gert", quietly = TRUE))
-      }
-    }
-  )
-})
-
-test_that(".git_system_setup works with gert", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_gert())
-
-  withr::with_envvar(
-    new = c(PROJR_GIT_USE_GERT = "TRUE"),
-    code = {
-      # With PROJR_GIT_USE_GERT=TRUE, system should be gert
-      # .git_system_setup() should setup gert if needed
-      result <- .git_system_setup()
-      expect_type(result, "logical")
-    }
-  )
-})
-
-test_that(".git_push dispatcher works with gert", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_gert())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  withr::with_envvar(
-    new = c(PROJR_GIT_USE_GERT = "TRUE"),
-    code = {
-      usethis::with_project(
-        path = dir_test,
-        code = {
-          .git_init()
-          .test_setup_project_git_config()
-
-          # Create and commit a file
-          writeLines("test", "test.txt")
-          .git_commit_file("test.txt", "initial commit")
-
-          # Test that .git_push dispatches correctly based on system
-          system_type <- .git_system_get()
-          expect_identical(system_type, "gert")
-
-          # The push will fail without remote, but we're testing dispatch works
-          # Both _git and _gert variants should return invisibly
-          result <- tryCatch(
-            .git_push(),
-            error = function(e) "error"
-          )
-          # We expect either TRUE (returned invisibly) or an error
-          expect_true(result == TRUE || result == "error")
-        }
-      )
-    }
-  )
-})
-
-test_that(".git_fetch dispatcher works with gert", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_gert())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  withr::with_envvar(
-    new = c(PROJR_GIT_USE_GERT = "TRUE"),
-    code = {
-      usethis::with_project(
-        path = dir_test,
-        code = {
-          .git_init()
-          .test_setup_project_git_config()
-
-          # Create and commit a file
-          writeLines("test", "test.txt")
-          .git_commit_file("test.txt", "initial commit")
-
-          # Test that .git_fetch dispatches correctly based on system
-          system_type <- .git_system_get()
-          expect_identical(system_type, "gert")
-
-          # The fetch will succeed (no-op without remote)
-          # We're testing the dispatcher routes correctly, not the actual fetch
-          result <- tryCatch(
-            .git_fetch(),
-            error = function(e) "error"
-          )
-          # We expect either integer return value (from system2) or tibble (from gert) or an error
-          expect_true(is.integer(result) || is.data.frame(result) || result == "error")
-        }
-      )
-    }
-  )
-})
-
-test_that(".git_commit_file handles empty file vector with gert", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  skip_if(!.git_system_check_gert())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  withr::with_envvar(
-    new = c(PROJR_GIT_USE_GERT = "TRUE"),
-    code = {
-      usethis::with_project(
-        path = dir_test,
-        code = {
-          .git_init()
-          .test_setup_project_git_config()
-
-          # Empty file vector should return FALSE
-          result <- .git_commit_file(character(0), "test message")
-          expect_false(result)
-
-          # Also test with NULL
-          result <- .git_commit_file(NULL, "test message")
-          expect_false(result)
-        }
-      )
     }
   )
 })

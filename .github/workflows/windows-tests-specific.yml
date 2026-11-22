@@ -8,7 +8,8 @@ on:
         required: false
         default: ''
 
-permissions: read-all
+permissions:
+  contents: read
 
 jobs:
   test-file:
@@ -16,9 +17,8 @@ jobs:
     name: "windows: manual test set"
 
     env:
+      PROJR_TEST_LIVE_GITHUB: 'false'
       TEST_FILES_INPUT: ${{ github.event.inputs.test_files }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GITHUB_PAT: ${{ secrets.GH_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
       R_PKG_TEST_LITE: true
       PROJR_OUTPUT_LEVEL: debug
@@ -28,6 +28,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: r-lib/actions/setup-pandoc@v2
 

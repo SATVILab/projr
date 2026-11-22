@@ -1,28 +1,9 @@
-test_that("auth functions work correctly", {
+test_that("PAT lookup returns an explicit token and reports missing credentials", {
   skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Test with auth available (if GITHUB_PAT is set)
-      if (nzchar(Sys.getenv("GITHUB_PAT"))) {
-        expect_true(.is_string(.auth_get_github_pat()))
-      }
-
-      # Test auth retrieval without credentials
-      pat_old <- Sys.getenv("GITHUB_PAT")
-      Sys.unsetenv("GITHUB_PAT")
-      suppressWarnings(.auth_get_github_pat())
-      Sys.setenv("GITHUB_PAT" = pat_old)
-
-      # Test warning functions
-      suppressWarnings(.auth_get_github_pat_warn())
-
-      # Test instruction functions
-      suppressMessages(projr_instr_auth_github())
-    }
-  )
+  withr::local_envvar(c(GITHUB_PAT = "fixture-token", GH_TOKEN = "", GITHUB_TOKEN = ""))
+  expect_identical(.auth_get_github_pat(), "fixture-token")
+  withr::local_envvar(GITHUB_PAT = "")
+  expect_warning(.auth_get_github_pat(), "No GitHub authentication")
 })
 
 test_that(".auth_check_github throws error when no auth", {
@@ -96,6 +77,7 @@ test_that("GITHUB_PAT and GH_TOKEN environment variables work", {
 
   # Test GH_TOKEN is used as fallback (after gh:: and gitcreds)
   Sys.unsetenv("GITHUB_PAT")
+  Sys.setenv(GITHUB_TOKEN = "ghp_1234567890123456789012345678901234567890")
   Sys.setenv(GH_TOKEN = "ghp_gh_token_12345678901234567890123456789")
   token <- .auth_get_github_pat_find(
     use_gh_if_available = FALSE,
@@ -105,7 +87,6 @@ test_that("GITHUB_PAT and GH_TOKEN environment variables work", {
 
   # Test GITHUB_TOKEN is used as final fallback
   Sys.unsetenv("GH_TOKEN")
-  Sys.setenv(GITHUB_TOKEN = "ghp_1234567890123456789012345678901234567890")
   token <- .auth_get_github_pat_find(
     use_gh_if_available = FALSE,
     use_gitcreds_if_needed = FALSE

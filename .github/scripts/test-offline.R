@@ -4,6 +4,15 @@ stopifnot(
   identical(Sys.getenv("PROJR_AUTO_INSTALL"), "false"),
   identical(Sys.getenv("GIT_ALLOW_PROTOCOL"), "file")
 )
+if (identical(commandArgs(trailingOnly = TRUE), "check")) {
+  Sys.setenv(R_PKG_TEST_LITE = "true", R_REPOSITORIES = "NULL")
+  tarball <- pkgbuild::build(dest_path = tempdir())
+  dir.create("test-results", showWarnings = FALSE)
+  status <- system2(file.path(R.home("bin"), "R"), c(
+    "CMD", "check", "--no-manual", "--output=test-results", shQuote(tarball)
+  ))
+  quit(status = status)
+}
 testthat::set_max_fails(Inf)
 files <- c(
   list.files("R", pattern = "[.]R$", full.names = TRUE),

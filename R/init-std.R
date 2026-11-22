@@ -42,16 +42,10 @@
 #'   in the renv setup. Defaults to \code{TRUE}.
 #' @param commit Logical (for \code{projr_init_git}). If \code{TRUE}, commits the initial changes
 #'   to the Git repository. Defaults to \code{TRUE}.
-#' @param username Character or \code{NULL} (for \code{projr_init_github}). The GitHub username or
-#'   organization under which to create the repository. Defaults to \code{NULL}.
 #' @param public Logical (for \code{projr_init_github}). If \code{TRUE}, the GitHub repository will
 #'   be public. Defaults to \code{FALSE}.
-#' @param create_repo Logical. If \code{TRUE} and
-#'   the project does not have a local Git repository,
-#'   then in interactive mode it offers to create a
-#'   GitHub repository and in non-interactive mode
-#'   creates one automatically.
-#'   Defaults to \code{TRUE}.
+#' @param create_repo Logical. If `TRUE`, `projr_init_github()` initializes a
+#'   local Git repository if needed. Defaults to `TRUE`.
 #' @return Invisibly returns \code{TRUE} if initialization is successful, or \code{FALSE} if
 #'   a particular step is skipped.
 #'
@@ -156,8 +150,6 @@ projr_init_all <- function(
 }
 
 #' @rdname projr_init
-#' @param bioc Logical (for \\code{projr_init_renv}). If \\code{TRUE}, includes Bioconductor packages
-#'   in the renv setup. Defaults to \\code{TRUE}.
 #' @export
 projr_init_renv <- function(bioc = TRUE) {
   .init_renv_std(TRUE, bioc)
@@ -170,8 +162,6 @@ projr_init_cite <- function() {
 }
 
 #' @rdname projr_init
-#' @param commit Logical (for \\code{projr_init_git}). If \\code{TRUE}, commits the initial changes
-#'   to the Git repository. Defaults to \\code{TRUE}.
 #' @export
 projr_init_git <- function(commit = TRUE) {
   .init_git(TRUE, commit)

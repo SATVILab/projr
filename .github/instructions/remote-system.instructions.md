@@ -134,32 +134,17 @@ build:
 
 ## Testing
 
-**test-remote-github.R** - Only file that creates/deletes GitHub releases
-- Uses fixed test releases (`projr-test-release-a`, `projr-test-release-b`)
-- Idempotent, skips in CRAN/LITE modes
-- GitHub operations are async - use polling/retry logic
+Ordinary testthat runs and R CMD check use temporary local repositories,
+directories and HTTP response fixtures. `test-remote-github.R` exercises
+release assets, manifests and VERSION files with a fresh fixture for each
+test. `test-github-httr-comprehensive.R` checks HTTP status and error
+handling. Local archive, restore and transfer cases run in
+`test-remote-local.R`.
 
-**test-remote-local.R** - Local remote operations
-- Uses temporary directories, runs on CRAN/CI
-- Comprehensive tests in test-local-remote-comprehensive.R
-
-**Test patterns:**
-```r
-# GitHub tests
-test_that("GitHub operation", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  .test_skip_if_cannot_modify_github()
-  # Test implementation
-})
-
-# Local tests
-test_that("local operation", {
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(dir_test, { /* tests */ })
-})
-```
+The proposed live check runs in a dedicated fixture repository. Each
+invocation records its own release IDs and tag refs. Cleanup uses those
+exact records so simultaneous jobs can use the same asset filename
+independently. [Proposed live release fixture](../live-release-fixture.md)
 
 ---
 

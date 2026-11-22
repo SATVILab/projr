@@ -384,187 +384,22 @@ test_that(".dest_prepare_github_releases returns FALSE when no tags needed", {
   )
 })
 
-# =============================================================================
-# Integration tests with GitHub (skip in CRAN/LITE)
-# =============================================================================
-
-test_that(".dest_prepare_github_releases creates missing releases", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_gha())
+test_that("release preparation creates only the missing configured tags", {
   skip_if(.is_test_select())
-  .test_skip_if_cannot_modify_github()
-
-  dir_test_github <- .test_setup_project(
-    git = TRUE, github = TRUE, set_env_var = TRUE
-  )
-
-  usethis::with_project(
-    path = dir_test_github,
-    code = {
-      # Remove all destinations
-      .yml_dest_rm_type_all("default")
-
-      # Use a unique test tag - title becomes the tag
-      test_tag <- paste0("projr-test-", format(Sys.time(), "%Y%m%d-%H%M%S"))
-
-      # Add GitHub destination with unique tag as title
-      projr_yml_dest_add_github(
-        title = test_tag,
-        content = "output"
-      )
-
-      # Ensure tag doesn't exist (cleanup from any previous test)
-      if (.remote_check_exists("github", id = c("tag" = test_tag))) {
-        .remote_rm("github", c("tag" = test_tag))
-        Sys.sleep(2)
-      }
-
-      # Prepare releases - should create the tag
-      result <- .dest_prepare_github_releases(
-        bump_component = "patch",
-        archive_github = FALSE,
-        archive_local = FALSE,
-        always_archive = FALSE,
-        strict = FALSE
-      )
-
-      # Wait for GitHub to process
-      Sys.sleep(3)
-
-      # Check that release was created
-      release_exists <- .remote_check_exists("github", id = test_tag)
-      expect_true(release_exists)
-      Sys.sleep(1)
-
-      # Cleanup
-      if (release_exists) {
-        try(.remote_rm("github", c("tag" = test_tag)), silent = TRUE)
-      }
+  dir_test <- .test_setup_project(git = FALSE)
+  created <- character()
+  testthat::local_mocked_bindings(
+    .remote_check_exists = function(type, id) id == "existing",
+    .remote_create = function(type, id) {
+      expect_identical(type, "github")
+      created <<- c(created, id)
     }
   )
-})
-
-test_that(".dest_prepare_github_releases handles existing releases", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if(.is_gha())
-  .test_skip_if_cannot_modify_github()
-
-  dir_test_github <- .test_setup_project(
-    git = TRUE, github = TRUE, set_env_var = TRUE
-  )
-
-  usethis::with_project(
-    path = dir_test_github,
-    code = {
-      # Remove all destinations
-      .yml_dest_rm_type_all("default")
-
-      # Use a unique test tag
-      test_tag <- paste0("projr-test-", format(Sys.time(), "%Y%m%d-%H%M%S"))
-
-      # Create the release first
-      .remote_create("github", id = test_tag)
-      Sys.sleep(2)
-
-      # Add GitHub destination with same tag as title
-      projr_yml_dest_add_github(
-        title = test_tag,
-        content = "output"
-      )
-
-      # Prepare releases - should handle existing release
-      result <- .dest_prepare_github_releases(
-        bump_component = "patch",
-        archive_github = FALSE,
-        archive_local = FALSE,
-        always_archive = FALSE,
-        strict = FALSE
-      )
-
-      # Release should still exist
-      release_exists <- .remote_check_exists("github", id = test_tag)
-      expect_true(release_exists)
-      Sys.sleep(1)
-
-      # Cleanup
-      if (release_exists) {
-        try(.remote_rm("github", c("tag" = test_tag)), silent = TRUE)
-      }
+  usethis::with_project(dir_test, {
+    for (tag in c("existing", "first-new", "second-new")) {
+      projr_yml_dest_add_github(title = tag, content = "output")
     }
-  )
-})
-
-test_that(".dest_prepare_github_releases handles multiple tags", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  skip_if(.is_gha())
-  .test_skip_if_cannot_modify_github()
-
-  dir_test_github <- .test_setup_project(
-    git = TRUE, github = TRUE, set_env_var = TRUE
-  )
-
-  usethis::with_project(
-    path = dir_test_github,
-    code = {
-      # Remove all destinations
-      .yml_dest_rm_type_all("default")
-
-      # Use unique test tags - titles become tags
-      timestamp <- format(Sys.time(), "%Y%m%d-%H%M%S")
-      test_tag1 <- paste0("projr-test-", timestamp, "-a")
-      test_tag2 <- paste0("projr-test-", timestamp, "-b")
-
-      # Add multiple GitHub destinations with tags as titles
-      projr_yml_dest_add_github(
-        title = test_tag1,
-        content = "output"
-      )
-
-      projr_yml_dest_add_github(
-        title = test_tag2,
-        content = "docs"
-      )
-
-      # Ensure tags don't exist
-      release_exists <- .remote_check_exists("github", id = test_tag1)
-      if (release_exists) {
-        try(.remote_rm("github", c("tag" = test_tag1)), silent = TRUE)
-      }
-      release_exists <- .remote_check_exists("github", id = test_tag2)
-      if (release_exists) {
-        try(.remote_rm("github", c("tag" = test_tag2)), silent = TRUE)
-      }
-
-      # Prepare releases - should create both tags
-      result <- .dest_prepare_github_releases(
-        bump_component = "patch",
-        archive_github = FALSE,
-        archive_local = FALSE,
-        always_archive = FALSE,
-        strict = FALSE
-      )
-
-      # Wait for GitHub to process
-      Sys.sleep(3)
-
-      # Both releases should exist
-      expect_true(.remote_check_exists("github", id = test_tag1))
-      expect_true(.remote_check_exists("github", id = test_tag2))
-
-      # Clean up
-      release_exists <- .remote_check_exists("github", id = test_tag1)
-      if (release_exists) {
-        try(.remote_rm("github", c("tag" = test_tag1)), silent = TRUE)
-      }
-      release_exists <- .remote_check_exists("github", id = test_tag2)
-      if (release_exists) {
-        try(.remote_rm("github", c("tag" = test_tag2)), silent = TRUE)
-      }
-    }
-  )
+    .dest_prepare_github_releases("patch", FALSE, FALSE, FALSE, FALSE)
+    expect_setequal(created, c("first-new", "second-new"))
+  })
 })

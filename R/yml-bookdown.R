@@ -11,7 +11,7 @@
         call. = FALSE
       )
     }
-    path <- .path_relativise(path)
+    path <- .path_force_rel(path, .path_get())
   }
   if (all(fs::is_absolute_path(path))) {
     stop(
