@@ -9,7 +9,8 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Depends: 
     R (>= 4.1.0)
-Imports: renv, jsonlite, yaml, rprojroot, desc, fs, digest, cli, glue, uuid
+Imports: renv, jsonlite, yaml, rprojroot, desc, fs, digest, cli, glue, uuid, filelock
+LinkingTo: cpp11
 Suggests: remotes, roxygen2, usethis, gert, gh, credentials, gitcreds, codemeta, cffr, pkgbuild, rmarkdown, bookdown, xfun, knitr, quarto, testthat (>=
                   3.0.0), devtools, httr, covr, htmltools, DT, curl, rlang, withr, BiocManager, styler
 Config/testthat/edition: 3

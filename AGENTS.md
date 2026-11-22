@@ -62,6 +62,7 @@ Key architectural patterns:
 | `fs` | File-system operations |
 | `digest` | MD5 hashing for manifests |
 | `uuid` | Random UUIDv4 identifiers for build templates |
+| `filelock` | Serialize concurrent updates to project manifests |
 | `cli` | Console output |
 | `glue` | String interpolation |
 

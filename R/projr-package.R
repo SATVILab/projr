@@ -1,3 +1,4 @@
+#' @useDynLib projr, .registration = TRUE
 #' @keywords internal
 "_PACKAGE"
 

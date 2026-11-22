@@ -107,10 +107,7 @@
 }
 
 .manifest_remove_duplicate <- function(manifest) { # nolint: object_length_linter, line_length_linter.
-  manifest[["string"]] <- Reduce(paste0, manifest)
-  manifest <- manifest[!duplicated(manifest[["string"]]), ]
-  manifest[["string"]] <- NULL
-  manifest
+  unique(manifest)
 }
 
 .manifest_write_impl <- function(manifest, path, overwrite) {
@@ -129,21 +126,29 @@
   invisible(path)
 }
 
-# .manifest_read <- function(path = NULL) {
 .manifest_read <- function(path = NULL) {
   if (!.is_string(path) || !file.exists(path)) {
     return(.zero_tbl_get_manifest())
   }
-  out_tbl <- utils::read.csv(
-    path,
-    stringsAsFactors = FALSE
-  )
-  rownames(out_tbl) <- NULL
-  out_tbl
+  if (dir.exists(path)) return(.manifest_store_read(path))
+  if (basename(path) == "versions.csv") {
+    index <- .manifest_store_read_index(path)
+    return(.manifest_store_expand(index, dirname(dirname(path))))
+  }
+  utils::read.csv(path, colClasses = "character", na.strings = character(),
+                  stringsAsFactors = FALSE)
 }
 
-.manifest_read_project <- function() {
-  .manifest_read(.path_get("manifest.csv"))
+.manifest_read_project <- function(label = NULL, version = NULL, fn = NULL) {
+  path_dir <- .path_get("_projr", "manifests")
+  if (.manifest_store_ready(path_dir)) {
+    return(.manifest_store_read(path_dir, label, version, fn))
+  }
+  rows <- .manifest_read(.path_get("manifest.csv"))
+  if (!is.null(label)) rows <- rows[rows$label %in% label, , drop = FALSE]
+  if (!is.null(version)) rows <- rows[rows$version %in% version, , drop = FALSE]
+  if (!is.null(fn)) rows <- rows[rows$fn %in% fn, , drop = FALSE]
+  rows
 }
 
 .manifest_get_path_dir <- function(path_dir) {
