@@ -10,7 +10,7 @@ test_that(".build_copy_docs uses file parameter to detect engine (qmd)", {
     path = dir_test,
     code = {
       # Create a bookdown project configuration (_bookdown.yml)
-      # This would normally make .engine_get() return "bookdown"
+      # This would normally make .engine_get_auto() return "bookdown"
       writeLines(c('book_filename: "mybook"'), "_bookdown.yml")
 
       # Create a .qmd file that we want to build
@@ -49,7 +49,7 @@ test_that(".build_copy_docs uses file parameter to detect engine (Rmd)", {
     path = dir_test,
     code = {
       # Create a _quarto.yml file
-      # This would normally make .engine_get() return "quarto_project"
+      # This would normally make .engine_get_auto() return "quarto_project"
       writeLines(c(
         "project:",
         "  type: website"

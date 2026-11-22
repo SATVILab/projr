@@ -188,7 +188,7 @@ test_that(".engine_get_from_files works correctly", {
   # Test with NULL
   expect_identical(
     .engine_get_from_files(NULL),
-    .engine_get()
+    .engine_get_auto()
   )
 })
 

@@ -106,7 +106,7 @@ test_that("LITE workflow: switch engines and rebuild", {
       # First build with bookdown
       projr_build_patch()
       expect_identical(projr_version_get(), "0.0.1-1")
-      expect_identical(.engine_get(), "bookdown")
+      expect_identical(.engine_get_auto(), "bookdown")
 
       # Switch to standalone RMarkdown
       file.remove("_bookdown.yml")
@@ -126,7 +126,7 @@ test_that("LITE workflow: switch engines and rebuild", {
 
       projr_build_patch()
       expect_identical(projr_version_get(), "0.0.2-1")
-      expect_identical(.engine_get(), "rmd")
+      expect_identical(.engine_get_auto(), "rmd")
 
       unlink(temp_remote, recursive = TRUE)
     }

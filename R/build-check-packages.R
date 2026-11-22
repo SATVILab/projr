@@ -114,7 +114,7 @@ projr_build_check_packages <- function(profile = NULL) {
   pkg_needed <- character(0)
 
   # Determine engine from project configuration
-  engine <- .engine_get()
+  engine <- .engine_get_auto()
 
   # If no engine detected (empty character), return early
   if (length(engine) == 0 || !nzchar(engine)) {

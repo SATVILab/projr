@@ -1,4 +1,14 @@
-.engine_get <- function() {
+.engine_get <- function(file) {
+  if (!is.null(file) && length(file) > 0) {
+    .cli_debug("Detecting engine from specified files")
+    .engine_get_from_files(file)
+  } else {
+    .cli_debug("Detecting engine from project configuration")
+    .engine_get_auto()
+  }
+}
+
+.engine_get_auto <- function() {
   if (file.exists(.path_get("_quarto.yml"))) {
     return("quarto_project")
   } else if (file.exists(.path_get("_bookdown.yml"))) {
@@ -20,7 +30,7 @@
 # This ensures build.scripts overrides _quarto.yml or _bookdown.yml
 .engine_get_from_files <- function(files) {
   if (is.null(files) || length(files) == 0) {
-    return(.engine_get())
+    return(.engine_get_auto())
   }
 
   # Check file extensions to determine engine

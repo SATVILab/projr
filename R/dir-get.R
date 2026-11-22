@@ -105,7 +105,7 @@
 }
 
 .dir_get_docs_unsafe_path <- function() {
-  switch(.engine_get(),
+  switch(.engine_get_auto(),
     "quarto_project" = .dir_get_docs_quarto_project(),
     "quarto_document" = .dir_get_docs_md(),
     "bookdown" = .dir_get_docs_bookdown(),
@@ -116,11 +116,11 @@
 
 .dir_set_docs_unsafe_path <- function(path) {
   # ensure it's set in _projr.yml, and quarto.yml/_bookdown.yml if need be
-  if (is.null(.engine_get())) {
+  if (is.null(.engine_get_auto())) {
     return(invisible(NULL))
   }
 
-  switch(.engine_get(),
+  switch(.engine_get_auto(),
     "quarto_project" = .dir_set_docs_quarto_project(path),
     "quarto_document" = .yml_dir_set_docs(path, NULL),
     "bookdown" = .dir_set_docs_bookdown(path),
@@ -136,7 +136,7 @@
   if (!.dir_set_docs_safe_check(label)) {
     return(invisible(FALSE))
   }
-  switch(.engine_get(),
+  switch(.engine_get_auto(),
     "quarto_project" =
       .dir_set_docs_quarto_project(path),
     "bookdown" = .dir_set_docs_bookdown(path)

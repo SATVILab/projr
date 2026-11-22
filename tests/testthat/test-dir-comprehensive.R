@@ -384,7 +384,7 @@ test_that(".dir_get_docs_quarto_project_unset_default handles NULL project type"
       writeLines(c("---", "title: Test", "---", "", "# Hello"), "test.qmd")
 
       # Engine should be detected as quarto_project (because _quarto.yml exists)
-      expect_identical(.engine_get(), "quarto_project")
+      expect_identical(.engine_get_auto(), "quarto_project")
 
       # This should not error - should return "_site" as default
       result <- .dir_get_docs_quarto_project_unset_default()

@@ -86,7 +86,7 @@ test_that(".build_copy_docs dispatches correctly based on engine", {
     path = dir_test,
     code = {
       # The project should have bookdown engine by default
-      engine <- .engine_get()
+      engine <- .engine_get_auto()
       expect_true(engine %in% c("bookdown", "quarto_project", "quarto_document", "rmd"))
 
       # Call should not error
@@ -314,7 +314,7 @@ test_that(".build_clear_post_docs clears for quarto_document engine", {
       .build_clear_post_safe_docs(output_run = TRUE)
 
       # For quarto_document, docs should be cleared
-      if (.engine_get() == "quarto_document") {
+      if (.engine_get_auto() == "quarto_document") {
         expect_false(file.exists("docs/test.html"))
       }
     },

@@ -3,13 +3,7 @@
                           args_engine) {
   # When files are explicitly specified, use document-level rendering
   # This ensures build.scripts overrides _quarto.yml or _bookdown.yml
-  if (!is.null(file) && length(file) > 0) {
-    .cli_debug("Detecting engine from specified files")
-    engine <- .engine_get_from_files(file)
-  } else {
-    .cli_debug("Detecting engine from project configuration")
-    engine <- .engine_get()
-  }
+  engine <- .engine_get(file)
 
   .cli_info("Using rendering engine: {engine}")
 

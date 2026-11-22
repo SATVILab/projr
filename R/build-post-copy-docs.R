@@ -10,7 +10,7 @@
     engine <- .engine_get_from_files(file)
   } else {
     .cli_debug("  Getting engine from project configuration")
-    engine <- .engine_get()
+    engine <- .engine_get_auto()
   }
 
   .cli_debug("  Engine: {engine}")

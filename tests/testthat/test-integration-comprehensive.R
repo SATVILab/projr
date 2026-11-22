@@ -123,7 +123,7 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
       .test_setup_project_lit_docs("quarto_project")
 
       # Verify engine changed
-      expect_identical(.engine_get(), "quarto_project")
+      expect_identical(.engine_get_auto(), "quarto_project")
 
       # Change git settings
       projr_yml_git_set(commit = TRUE, add_untracked = FALSE, push = FALSE)
@@ -294,7 +294,7 @@ test_that("comprehensive workflow: rmarkdown with dev builds, iterative changes,
         "index.Rmd"
       )
 
-      expect_identical(.engine_get(), "bookdown")
+      expect_identical(.engine_get_auto(), "bookdown")
 
       # Build with bookdown
       projr::projr_build_patch()
@@ -409,7 +409,7 @@ test_that("comprehensive workflow: quarto with multiple content types, configura
       file.remove("research.qmd")
       .test_setup_project_lit_docs("quarto_project")
 
-      expect_identical(.engine_get(), "quarto_project")
+      expect_identical(.engine_get_auto(), "quarto_project")
 
       # Add build hooks for quarto
       dir.create("scripts", showWarnings = FALSE)

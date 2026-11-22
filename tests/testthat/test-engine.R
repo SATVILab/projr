@@ -5,17 +5,17 @@ test_that("projr_engine_get works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      expect_identical(.engine_get(), "bookdown")
+      expect_identical(.engine_get_auto(), "bookdown")
       unlink("_bookdown.yml")
-      expect_identical(.engine_get(), "rmd")
+      expect_identical(.engine_get_auto(), "rmd")
       unlink(list.files(pattern = "\\.Rmd$|\\.rmd$"))
-      # When no documents exist, .engine_get() returns character(1L)
-      expect_identical(.engine_get(), character(1L))
+      # When no documents exist, .engine_get_auto() returns character(1L)
+      expect_identical(.engine_get_auto(), character(1L))
       file.create("_quarto.yml")
-      expect_identical(.engine_get(), "quarto_project")
+      expect_identical(.engine_get_auto(), "quarto_project")
       unlink("_quarto.yml")
       invisible(file.create("index.qmd"))
-      expect_identical(.engine_get(), "quarto_document")
+      expect_identical(.engine_get_auto(), "quarto_document")
     },
     force = TRUE,
     quiet = TRUE
@@ -130,7 +130,7 @@ test_that(".build_engine detects when no documents exist", {
       writeLines("build:\n  cache: []", "_projr.yml")
 
       # Test that .engine_get returns empty character when no documents exist
-      engine <- .engine_get()
+      engine <- .engine_get_auto()
       expect_identical(engine, character(1L))
     },
     force = TRUE,

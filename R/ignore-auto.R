@@ -296,7 +296,7 @@ projr_ignore_auto <- function() {
 }
 
 .ignore_auto_build_tex_bookdown <- function() {
-  if (!.engine_get() == "bookdown") {
+  if (!.engine_get_auto() == "bookdown") {
     return(invisible(FALSE))
   }
   yml_bd <- .yml_bd_get()
@@ -317,7 +317,7 @@ projr_ignore_auto <- function() {
 }
 
 .ignore_auto_build_tex_quarto <- function() {
-  if (!.engine_get() == "quarto_project") {
+  if (!.engine_get_auto() == "quarto_project") {
     return(invisible(FALSE))
   }
   if (!file.exists("index.tex")) {
@@ -348,7 +348,7 @@ projr_ignore_auto <- function() {
 # ========================================================================
 
 .ignore_auto_build_content_dir <- function() {
-  switch(.engine_get(),
+  switch(.engine_get_auto(),
     # bookdown and quarto_project handled by directories key
     "bookdown" = NULL,
     "quarto_project" = NULL,

@@ -415,7 +415,7 @@ projr_build_dev <- function(file = NULL,
     .cli_info("Building specified files: {paste(file, collapse = ', ')}")
   }
 
-  .build_engine(
+  .build_engines(
     file = file,
     version_run_on_list = version_run_on_list,
     args_engine = args_engine

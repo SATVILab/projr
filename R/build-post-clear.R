@@ -46,7 +46,7 @@
   # don't clear quarto projects or bookdown projects
   # as we save directly there.
   if (output_run && .build_clear_post_safe_check_docs()) {
-    engine <- .engine_get()
+    engine <- .engine_get_auto()
     .cli_debug("  engine: {engine}")
     .cli_debug("  Clearing docs directory (engine allows it)")
 
@@ -74,7 +74,7 @@
 .build_clear_post_safe_check_docs <- function() {
   # allow the exception that the quarto project
   # and bookdown folders are not cleared
-  .engine_get() %in% c("quarto_document", "rmd")
+  .engine_get_auto() %in% c("quarto_document", "rmd")
 }
 
 # clear old temporary output directories
