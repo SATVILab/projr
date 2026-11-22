@@ -5,13 +5,7 @@
 
   # When files are explicitly specified, use engine detection from files
   # This ensures build.scripts overrides _quarto.yml or _bookdown.yml
-  if (!is.null(file) && length(file) > 0) {
-    .cli_debug("  Detecting engine from files")
-    engine <- .engine_get_from_files(file)
-  } else {
-    .cli_debug("  Getting engine from project configuration")
-    engine <- .engine_get_auto()
-  }
+  engine <- .engine_get(file)
 
   .cli_debug("  Engine: {engine}")
 

@@ -266,8 +266,7 @@ projr_build_dev <- function(file = NULL,
     # If no file specified, check for build.scripts configuration
     # Use dev scripts for dev builds, build scripts for production builds
     if (is.null(file)) {
-      is_dev_build <- is.null(bump_component) || bump_component == "dev"
-      if (is_dev_build) {
+      if (.is_dev_build(bump_component)) {
         file <- .yml_scripts_get_dev(profile)
       } else {
         file <- .yml_scripts_get_build(profile)
@@ -373,9 +372,8 @@ projr_build_dev <- function(file = NULL,
 
   # run any pre-build hooks (backward compatible with build.script)
   # For dev builds, use dev.hooks; for production builds, use build.hooks
-  is_dev_build <- is.null(bump_component) || bump_component == "dev"
   .cli_step("Running pre-build hooks")
-  .build_pre_hooks_run(is_dev_build)
+  .build_pre_hooks_run(.is_dev_build(bump_component))
 
   # clear output and docs directories, and set
   # run version to output run version if need be
@@ -463,9 +461,8 @@ projr_build_dev <- function(file = NULL,
 
   # run post-build hooks (backward compatible with build.script)
   # For dev builds, use dev.hooks; for production builds, use build.hooks
-  is_dev_build <- is.null(bump_component) || bump_component == "dev"
   .cli_step("Running post-build hooks")
-  .build_post_hooks_run(is_dev_build)
+  .build_post_hooks_run(.is_dev_build(bump_component))
 
   # initiate dev version
   .cli_debug("Setting up development version")
