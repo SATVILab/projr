@@ -1,0 +1,11 @@
+{
+  "image": "ghcr.io/satvilab/projr-main",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "quarto.quarto",
+        "Posit.air-vscode"
+      ]
+    }
+  }
+}
