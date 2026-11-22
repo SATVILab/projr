@@ -13,7 +13,8 @@ projr_restore_repo(
   label = NULL,
   pos = NULL,
   type = NULL,
-  title = NULL
+  title = NULL,
+  destination = NULL
 )
 
 projr_restore_repo_wd(
@@ -21,7 +22,8 @@ projr_restore_repo_wd(
   label = NULL,
   pos = NULL,
   type = NULL,
-  title = NULL
+  title = NULL,
+  destination = NULL
 )
 
 projr_content_update(
@@ -29,7 +31,8 @@ projr_content_update(
   pos = NULL,
   type = NULL,
   title = NULL,
-  clear = FALSE
+  clear = FALSE,
+  destination = NULL
 )
 ```
 
@@ -73,6 +76,13 @@ projr_content_update(
   character or NULL. Remote title as specified in `_projr.yml`. Default
   is `NULL`, using the first available title for the selected type. Must
   be NULL or a single non-empty character string.
+
+- destination:
+
+  character or NULL. A concrete GitHub release tag or local archive path
+  recorded by an earlier build. Overrides the configured destination
+  when restoring across versions, branches, or build UUIDs. Select its
+  configuration with `title` if the project has several.
 
 - clear:
 

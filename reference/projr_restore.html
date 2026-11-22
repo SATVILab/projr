@@ -66,7 +66,8 @@ If the project isn't available locally yet,
 <span>  label <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pos <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  type <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  title <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  destination <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">projr_restore_repo_wd</span><span class="op">(</span></span>
@@ -74,7 +75,8 @@ If the project isn't available locally yet,
 <span>  label <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pos <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  type <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  title <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  destination <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">projr_content_update</span><span class="op">(</span></span>
@@ -82,7 +84,8 @@ If the project isn't available locally yet,
 <span>  pos <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  type <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  clear <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  clear <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  destination <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -124,6 +127,13 @@ Must be NULL or one of the valid remote types.</p></dd>
 <dd><p>character or NULL. Remote title as specified in <code>_projr.yml</code>.
 Default is <code>NULL</code>, using the first available title for the selected type.
 Must be NULL or a single non-empty character string.</p></dd>
+
+
+<dt id="arg-destination">destination<a class="anchor" aria-label="anchor" href="#arg-destination"></a></dt>
+<dd><p>character or NULL. A concrete GitHub release tag or local
+archive path recorded by an earlier build. Overrides the configured
+destination when restoring across versions, branches, or build UUIDs.
+Select its configuration with <code>title</code> if the project has several.</p></dd>
 
 
 <dt id="arg-clear">clear<a class="anchor" aria-label="anchor" href="#arg-clear"></a></dt>

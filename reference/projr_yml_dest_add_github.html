@@ -65,7 +65,8 @@ to a _projr.yml file.</p>
 <span>  send_cue <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  send_strategy <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  send_inspect <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  profile <span class="op">=</span> <span class="st">"default"</span></span>
+<span>  profile <span class="op">=</span> <span class="st">"default"</span>,</span>
+<span>  branch <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -74,13 +75,8 @@ to a _projr.yml file.</p>
 
 
 <dl><dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
-<dd><p>character.
-Title of the GitHub release.
-Can use title as <code>@version</code>,
-in which case the release will be entitled
-the version of the project at the time.
-If not supplied, then will
-automatically be generated from <code>content</code>.</p></dd>
+<dd><p>character. GitHub release tag. The tag can contain
+<code>@branch</code>, <code>@version</code>, and <code>@uuid</code>.</p></dd>
 
 
 <dt id="arg-content">content<a class="anchor" aria-label="anchor" href="#arg-content"></a></dt>
@@ -120,6 +116,12 @@ What to look at to find files on the remote. Default is NULL.</p></dd>
 <dt id="arg-profile">profile<a class="anchor" aria-label="anchor" href="#arg-profile"></a></dt>
 <dd><p>character.
 Profile to write the settings to. Default is "default".</p></dd>
+
+
+<dt id="arg-branch">branch<a class="anchor" aria-label="anchor" href="#arg-branch"></a></dt>
+<dd><p>character or NULL. GitHub branch whose current commit a new
+release should target. Use <code>@branch</code> for the current checkout branch.
+The default uses GitHub's release target.</p></dd>
 
 </dl></div>
 

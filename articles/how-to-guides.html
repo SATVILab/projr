@@ -339,6 +339,23 @@ generated rule as soon as its last qualifying profile reference is
 removed. Adding a manual ignore to an older project also refreshes its
 managed rules. Entries above and below the managed section stay in
 place.</p>
+<p>A directory path can also use build placeholders. For example,
+<code>results/@branch/run-@uuid</code> gives each build its own
+directory. On branch <code>feature/foo</code>, the branch component is
+<code>feature_2ffoo</code>. A detached checkout uses
+<code>__detached-</code> followed by the full commit SHA.
+<code>@version</code> gives the projr version being built, such as
+<code>v1.2.3</code>. The UUID is shared with child renders during a
+build. Outside a build it stays stable for the R session.</p>
+<p>A placeholder can occupy an entire component. It also expands before
+a hyphen, underscore, period, space, or path separator. For example,
+<code>@version_report.csv</code> expands and <code>@versioned</code>
+stays literal.</p>
+<p>projr writes ignore patterns for the template itself, so another
+build’s UUID is already covered. A branch placeholder spans a path
+component in Git’s ignore syntax. Give it a dedicated parent, such as
+<code>results/@branch</code>, when neighboring source directories should
+remain trackable.</p>
 <hr>
 </div>
 </div>

@@ -119,18 +119,23 @@ folders</li>
 <p>YAML equivalent:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="at">    </span><span class="fu">raw-data-release</span><span class="kw">:</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="at">      </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"raw-data-@version"</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="at">    </span><span class="fu">output-release</span><span class="kw">:</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="at">      </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"output-@version"</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output</span><span class="kw">]</span></span></code></pre></div>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="at">    </span><span class="fu">"raw-data-@version"</span><span class="kw">:</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="at">    </span><span class="fu">"output-@version"</span><span class="kw">:</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output</span><span class="kw">]</span></span></code></pre></div>
 <p>Parameters:</p>
 <ul>
 <li>
-<code>title</code> – release name. Use <code>@version</code> for
-automatic versioning (e.g. <code>"raw-data-v0.1.0"</code>). Spaces
-become hyphens. Must be unique per repository.</li>
+<code>title</code> sets both the release name and the Git tag. For
+version 1.2.3, <code>"archive-@version"</code> produces
+<code>archive-v1.2.3</code>. The literal <code>"archive"</code> shares
+one release across versions.</li>
+<li>
+<code>branch</code> optionally sets the branch in the GitHub
+repository whose commit a newly created release should target. Use
+<code>branch: "@branch"</code> for the current checkout’s branch. A
+missing branch or a conflicting existing Git tag stops release
+creation.</li>
 <li>
 <code>content</code> – directory label to archive
 (<code>raw-data</code>, <code>cache</code>, <code>output</code>,
@@ -176,6 +181,14 @@ the project root.</p>
 <code>path</code> – destination directory (absolute or
 project-relative).</li>
 </ul>
+<p>Local destination names and paths and GitHub release names accept
+<code>@branch</code>, <code>@version</code>, and <code>@uuid</code>. For
+example, <code>archives/@branch/@version-@uuid</code> keeps a separate
+local archive for each build. Find the concrete title and destination in
+the <strong>Resolved archive destinations</strong> section of
+<code>BUILDLOG.md</code>. When restoring an earlier build, give
+<code><a href="../reference/projr_restore.html">projr_content_update()</a></code> its configured <code>title</code>
+and pass the recorded tag or path as <code>destination</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="customization-options">Customization Options<a class="anchor" aria-label="anchor" href="#customization-options"></a>

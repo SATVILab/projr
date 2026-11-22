@@ -84,6 +84,13 @@
 <code>directories.&lt;label&gt;.ignore-even-if-inactive</code> defaults to <code>true</code> and extends the directory’s existing <code>ignore</code>, <code>ignore-git</code>, and <code>ignore-rbuild</code> settings. With <code>false</code>, that profile contributes the directory’s rules only while active.</li>
 <li>Generate rules only for paths inside the checkout. Skip foreign absolute paths in inactive profiles without accessing or validating their directories.</li>
 <li>Refresh directory rules from the current configuration. When the last qualifying profile reference to a path is removed, drop its generated rule on the next refresh. On the first manual edit to a legacy managed block, regenerate its contents and preserve rules outside the block.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="destination-and-directory-templates">Destination and directory templates<a class="anchor" aria-label="anchor" href="#destination-and-directory-templates"></a></h3>
+<ul><li>Expand <code>@version</code>, <code>@branch</code>, and <code>@uuid</code> in configured directory paths, local destination names and paths, and GitHub release names. A token ends at the end of the string or before a hyphen, underscore, period, ordinary space, or path separator. Preserve unknown names literally.</li>
+<li>Use the build version with one <code>v</code> prefix. Capture one UUIDv4 and Git HEAD per build and share them with child render processes and retries. Encode branch names as one portable path component, preserving the distinction between <code>feature/foo</code> and <code>feature-foo</code>. Detached HEAD uses the commit SHA.</li>
+<li>Generate directory ignore patterns from the current YAML templates, including local archives. Keep the template in YAML and record the concrete archive destination in <code>BUILDLOG.md</code> for restore.</li>
+<li>Keep a GitHub release’s title and tag identical. Only an explicitly configured target branch selects the commit for a new tag. Resolve that branch in the destination repository and leave existing release tags in place.</li>
 </ul><hr></div>
 </div>
 <div class="section level2">
@@ -114,6 +121,8 @@
 <td>File-system operations</td>
 </tr><tr><td><code>digest</code></td>
 <td>MD5 hashing for manifests</td>
+</tr><tr><td><code>uuid</code></td>
+<td>Random UUIDv4 identifiers for build templates</td>
 </tr><tr><td><code>cli</code></td>
 <td>Console output</td>
 </tr><tr><td><code>glue</code></td>

@@ -50,19 +50,21 @@ YAML equivalent:
 ``` yaml
 build:
   github:
-    raw-data-release:
-      title: "raw-data-@version"
+    "raw-data-@version":
       content: [raw-data]
-    output-release:
-      title: "output-@version"
+    "output-@version":
       content: [output]
 ```
 
 Parameters:
 
-- `title` – release name. Use `@version` for automatic versioning
-  (e.g. `"raw-data-v0.1.0"`). Spaces become hyphens. Must be unique per
-  repository.
+- `title` sets both the release name and the Git tag. For version 1.2.3,
+  `"archive-@version"` produces `archive-v1.2.3`. The literal
+  `"archive"` shares one release across versions.
+- `branch` optionally sets the branch in the GitHub repository whose
+  commit a newly created release should target. Use `branch: "@branch"`
+  for the current checkout’s branch. A missing branch or a conflicting
+  existing Git tag stops release creation.
 - `content` – directory label to archive (`raw-data`, `cache`, `output`,
   `docs`, `code`).
 
@@ -108,6 +110,16 @@ Parameters:
 - `title` – descriptive name (identification only).
 - `content` – directory label to archive.
 - `path` – destination directory (absolute or project-relative).
+
+Local destination names and paths and GitHub release names accept
+`@branch`, `@version`, and `@uuid`. For example,
+`archives/@branch/@version-@uuid` keeps a separate local archive for
+each build. Find the concrete title and destination in the **Resolved
+archive destinations** section of `BUILDLOG.md`. When restoring an
+earlier build, give
+[`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+its configured `title` and pass the recorded tag or path as
+`destination`.
 
 ## Customization Options
 
