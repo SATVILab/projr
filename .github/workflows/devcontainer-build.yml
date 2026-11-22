@@ -11,6 +11,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
 
     steps:
       - name: Set branch name
@@ -86,6 +89,7 @@ jobs:
         uses: devcontainers/ci@v0.3
         with:
           imageName: ${{ env.IMAGE_NAME }}
+          eventFilterForPush: workflow_dispatch
           cacheFrom: ${{ env.USE_CACHE_FROM == 'true' && env.IMAGE_NAME || '' }}
 
       - name: Update or create prebuild/devcontainer.json
