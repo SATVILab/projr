@@ -120,12 +120,30 @@
 
 .ignore_directory_pattern <- function(path, type) {
   if (grepl("[\r\n]", path)) stop("Invalid newline in directory path.")
+  # Escape literal text separately from placeholders so directory names match
+  # exactly while one rule covers all builds using the same YAML.
   if (type == "git") {
-    escaped <- gsub("([][?*\\\\ ])", "\\\\\\1", path)
-    return(paste0("/", escaped, "/**"))
+    escape <- function(x) gsub("([][?*\\\\ ])", "\\\\\\1", x)
+    pattern <- .template_substitute(path, function(token) {
+      hex <- "[0-9a-f]"
+      switch(token,
+        "@branch" = "[a-z0-9_-]*",
+        "@version" = "v[0-9]*",
+        "@uuid" = paste(strrep(hex, 8), strrep(hex, 4), paste0("4", strrep(hex, 3)),
+                        paste0("[89ab]", strrep(hex, 3)), strrep(hex, 12), sep = "-")
+      )
+    }, literal = escape)
+    return(paste0("/", pattern, "/**"))
   }
-  escaped <- gsub("([][{}()+*^$|\\\\?.])", "\\\\\\1", path)
-  paste0("^", escaped, "(/|$)")
+  escape <- function(x) gsub("([][{}()+*^$|\\\\?.])", "\\\\\\1", x)
+  pattern <- .template_substitute(path, function(token) {
+    switch(token,
+      "@branch" = "[a-z0-9_-]+",
+      "@version" = "v[0-9]+([.-][0-9]+)*",
+      "@uuid" = "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+    )
+  }, literal = escape)
+  paste0("^", pattern, "(/|$)")
 }
 
 .ignore_diryml_update <- function(file_vec, path, reset) {

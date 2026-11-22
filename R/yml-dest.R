@@ -14,7 +14,9 @@
                           get_conflict = NULL,
                           send_cue = NULL,
                           send_strategy = NULL,
-                          send_inspect = NULL) {
+                          send_inspect = NULL,
+                          branch = NULL) {
+  .assert_string(branch)
   # gather get and send args
   # ------------------------
   get_list <- .yml_remote_transfer_get(
@@ -62,6 +64,7 @@
     description = description,
     id = id,
     id_parent = id_parent,
+    branch = branch,
     profile = profile
   )
 
@@ -81,7 +84,8 @@
                                description,
                                id,
                                id_parent,
-                               profile) {
+                               profile,
+                               branch = NULL) {
   title <- .yml_remote_title_get(title = title, content = content)
   .yml_dest_add_get_list_add(
     content = content,
@@ -91,6 +95,7 @@
     get_list = get_list,
     send_list = send_list
   ) |>
+    .list_add(branch) |>
     .yml_dest_add_get_list_add_extra(
       type = type, id = id, id_parent = id_parent, title = title,
       description = description
@@ -137,14 +142,15 @@
                                          type,
                                          profile,
                                          archive_type,
-                                         always_archive) {
+                                         always_archive,
+                                         destination = NULL) {
   force(title)
   force(profile)
 
   .yml_dest_get_title_init(
     title, type, profile, archive_type, always_archive
   ) |>
-    .yml_dest_complete_title(title, type)
+    .yml_dest_complete_title(title, type, destination)
 }
 
 .yml_dest_get_title_init <- function(title,
@@ -152,7 +158,7 @@
                                      profile,
                                      archive_type,
                                      always_archive) {
-  if (isFALSE(archive_type)) {
+  if (title != "archive" || isFALSE(archive_type) || is.null(archive_type)) {
     # not from parameter, so read from yml
     .yml_dest_get_title(title, type, profile)
   } else {
@@ -183,6 +189,7 @@
   list(
     "title" = title,
     "type" = type,
+    path = if (type == "local") "_archive",
     content = content_vec
   )
 }
@@ -194,7 +201,20 @@
 }
 
 
-.yml_dest_complete_title <- function(yml_title, title, type) {
+.yml_dest_complete_title <- function(yml_title, title, type, destination = NULL) {
+  name <- yml_title[["title"]] %||% title
+  if (type == "local") {
+    yml_title[["title"]] <- if (is.null(destination)) .template_expand(name) else name
+    path <- destination %||% .template_expand(yml_title[["path"]] %||% "_archive")
+    yml_title[["path"]] <- as.character(fs::path_abs(fs::path_expand(path), start = .path_get()))
+  } else if (type == "github") {
+    title <- destination %||% .remote_misc_github_tag_format(yml_title[["tag"]] %||% name)
+    if (is.null(destination) && !is.null(yml_title[["tag"]]) && !is.null(yml_title[["title"]]) &&
+      !identical(title, .remote_misc_github_tag_format(name))) {
+      stop("A GitHub release title and tag must match.", call. = FALSE)
+    }
+    yml_title[["title"]] <- title
+  }
   yml_title |>
     .yml_dest_complete_title_structure(type) |>
     .yml_dest_complete_title_upload(type) |>

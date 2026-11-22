@@ -46,6 +46,7 @@
     desc_txt,
     metadata_txt,
     change_summary_txt,
+    .buildlog_get_destinations(),
     system_resources_txt,
     projr_yml_txt,
     session_info_txt,
@@ -129,6 +130,26 @@
   parts <- c(parts, sprintf("%ds", seconds))
 
   paste(parts, collapse = " ")
+}
+
+.buildlog_get_destinations <- function() {
+  resolved <- list()
+  for (type in c("github", "local")) {
+    destinations <- .yml_dest_get_type(type, NULL)
+    for (key in names(destinations)) {
+      settings <- destinations[[key]]
+      fields <- c(key, settings[["title"]], settings[["tag"]], settings[["path"]])
+      if (!any(grepl(.template_token_pattern, fields, perl = TRUE))) next
+      target <- .yml_dest_complete_title(settings, key, type)
+      id <- target[["id"]]
+      if (type == "local" && !fs::is_absolute_path(settings[["path"]])) {
+        id <- as.character(fs::path_rel(id, .path_get()))
+      }
+      resolved[[type]][[key]] <- list(title = target[["title"]], destination = id)
+    }
+  }
+  if (!length(resolved)) return(character())
+  c("**Resolved archive destinations**", "", "```yaml", yaml::as.yaml(resolved), "```", "")
 }
 
 .buildlog_get_projr_yml <- function() {

@@ -309,6 +309,22 @@ qualifying profile reference is removed. Adding a manual ignore to an older
 project also refreshes its managed rules. Entries above and below the
 managed section stay in place.
 
+A directory path can also use build placeholders. For example,
+`results/@branch/run-@uuid` gives each build its own directory. On branch
+`feature/foo`, the branch component is `feature_2ffoo`. A detached checkout
+uses `__detached-` followed by the full commit SHA. `@version` gives the
+projr version being built, such as `v1.2.3`. The UUID is shared with child
+renders during a build. Outside a build it stays stable for the R session.
+
+A placeholder can occupy an entire component. It also expands before a
+hyphen, underscore, period, space, or path separator. For example,
+`@version_report.csv` expands and `@versioned` stays literal.
+
+projr writes ignore patterns for the template itself, so another build's
+UUID is already covered. A branch placeholder spans a path component in
+Git's ignore syntax. Give it a dedicated parent, such as `results/@branch`,
+when neighboring source directories should remain trackable.
+
 ---
 
 ## 8. View and manage build logs

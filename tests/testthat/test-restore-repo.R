@@ -184,19 +184,19 @@ test_that("repo restoration clones into the requested path and forwards selectio
       stopifnot(repo == "fixture/project")
       gert::git_clone(remote, path)
     },
-    projr_content_update = function(label, pos, type, title) {
+    projr_content_update = function(label, pos, type, title, destination) {
       expect_true(file.exists("_projr.yml"))
-      received <<- list(label, pos, type, title, getwd())
+      received <<- list(label, pos, type, title, destination, getwd())
       invisible(TRUE)
     }
   )
   withr::with_dir(parent, {
-    expect_true(projr_restore_repo("fixture/project", "one", labels, positions, "local", "archive"))
-    expect_identical(received, list(labels, positions, "local", "archive", normalizePath("one", winslash = "/")))
+    expect_true(projr_restore_repo("fixture/project", "one", labels, positions, "local", "archive", destination = "bundles"))
+    expect_identical(received, list(labels, positions, "local", "archive", "bundles", normalizePath("one", winslash = "/")))
     dir.create("two")
     withr::with_dir("two", {
       expect_true(projr_restore_repo_wd("fixture/project", type = "github"))
-      expect_identical(received, list(NULL, NULL, "github", NULL, getwd()))
+      expect_identical(received, list(NULL, NULL, "github", NULL, NULL, getwd()))
     })
   })
 })

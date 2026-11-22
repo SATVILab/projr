@@ -303,9 +303,7 @@ projr_path_get_cache_build <- .path_get_cache_auto_version
 
 
 .dir_get_cache_auto_path <- function(profile) {
-  .yml_dir_get(profile)[[
-    .dir_get_cache_auto_ind(profile)
-  ]][["path"]]
+  .template_expand(.yml_dir_get(profile)[[.dir_get_cache_auto_ind(profile)]][["path"]])
 }
 
 .dir_get_cache_auto_check <- function(profile) {

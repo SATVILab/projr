@@ -19,7 +19,8 @@
     return(invisible(FALSE))
   }
 
-  tags <- .dest_github_tags_needed(archive_github, always_archive)
+  targets <- .dest_github_targets(archive_github, always_archive, NULL)
+  tags <- names(targets)
   if (.is_len_0(tags)) {
     .cli_debug(
       "GitHub release preparation: No tags required (from config)"
@@ -39,7 +40,12 @@
       .cli_debug(
         "GitHub release preparation: Creating missing tag '{x}'"
       )
-      .remote_create("github", x)
+      branch <- targets[[x]]
+      if (is.null(branch)) {
+        .remote_create("github", x)
+      } else {
+        .remote_create("github", x, branch = branch)
+      }
     } else {
       .cli_debug(
         "GitHub release preparation: Tag '{x}' already exists"
@@ -52,6 +58,10 @@
 .dest_github_tags_needed <- function(archive_github,
                                      always_archive,
                                      profile = NULL) {
+  as.character(names(.dest_github_targets(archive_github, always_archive, profile)))
+}
+
+.dest_github_targets <- function(archive_github, always_archive, profile) {
   # 1. From YAML-configured build.github destinations
   yml_github <- .yml_dest_get_type("github", profile)
   titles <- names(yml_github)
@@ -63,25 +73,22 @@
     titles <- c(titles, "archive")
   }
 
-  if (.is_len_0(titles)) {
-    return(character(0L))
-  }
-
-  tag_vec <- character(0L)
+  targets <- list()
   for (title in titles) {
     yml_title <- .yml_dest_get_title_complete(
       title = title,
       type = "github",
       profile = profile,
-      archive_type = archive_github,
+      archive_type = if (title %in% names(yml_github)) FALSE else archive_github,
       always_archive = always_archive
     )
 
-    id <- yml_title[["id"]] # configured id/title
-    tag <- .remote_misc_github_tag_get(id)
-    tag <- .remote_misc_github_tag_format(tag)
-    tag_vec <- c(tag_vec, tag)
+    tag <- yml_title[["id"]]
+    branch <- yml_title[["branch"]]
+    if (tag %in% names(targets) && !identical(targets[[tag]], branch)) {
+      stop("Conflicting target branches for GitHub release '", tag, "'.", call. = FALSE)
+    }
+    targets[tag] <- list(branch)
   }
-
-  unique(tag_vec)
+  targets
 }

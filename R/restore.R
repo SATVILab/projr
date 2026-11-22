@@ -22,6 +22,10 @@
 #' @param path character or NULL. Local path for cloning the repository. Default is `NULL`,
 #'   creating a subdirectory named after the repo. `"."` restores directly into the
 #'   current directory. Must be NULL or a single non-empty character string.
+#' @param destination character or NULL. A concrete GitHub release tag or local
+#'   archive path recorded by an earlier build. Overrides the configured
+#'   destination when restoring across versions, branches, or build UUIDs.
+#'   Select its configuration with `title` if the project has several.
 #' @param clear logical. If `TRUE`, clears existing local artefact directories
 #'   before restoration. Default is `FALSE`.
 #'
@@ -83,7 +87,9 @@ projr_content_update <- function(label = NULL,
                                  pos = NULL,
                                  type = NULL,
                                  title = NULL,
-                                 clear = FALSE) {
+                                 clear = FALSE,
+                                 destination = NULL) {
+  .assert_string(destination)
   # Input validation
   if (!is.null(label)) {
     if (!is.character(label)) {
@@ -158,23 +164,11 @@ projr_content_update <- function(label = NULL,
 
   success <- TRUE
   for (i in seq_along(label)) {
-    if (clear) {
-      .cli_debug(
-        "Clearing existing files for label: ", label[[i]]
-      )
-      path_dir_local <- projr_path_get_dir(
-        label[[i]],
-        safe = FALSE, create = FALSE
-      )
-      if (dir.exists(path_dir_local)) {
-        unlink(path_dir_local, recursive = TRUE, force = TRUE)
-      }
-    }
     .cli_debug(
       "Restoring label: ", label[[i]]
     )
     result <- tryCatch(
-      .content_update_label(label[[i]], pos, type, .title),
+      .content_update_label(label[[i]], pos, type, .title, destination = destination, clear = clear),
       error = function(e) {
         .cli_debug(
           "Error restoring label: ", label[[i]], " - ", e$message
@@ -212,7 +206,7 @@ projr_content_update <- function(label = NULL,
   invisible(TRUE)
 }
 
-.content_update_label <- function(label, pos, type, .title) {
+.content_update_label <- function(label, pos, type, .title, destination = NULL, clear = FALSE) {
   if (!.content_update_label_check_non_empty(label)) {
     return(invisible(FALSE))
   }
@@ -231,8 +225,9 @@ projr_content_update <- function(label = NULL,
   }
 
   yml_title <- .yml_dest_get_title_complete(
-    source_vec[["title"]], source_vec[["type"]], NULL, FALSE, FALSE
+    source_vec[["title"]], source_vec[["type"]], NULL, FALSE, FALSE, destination
   )
+  .cli_info("Restoring {label} from {source_vec[['type']]} destination {yml_title$id}")
   remote_pre <- .remote_final_get(
     source_vec[["type"]], yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
@@ -247,7 +242,7 @@ projr_content_update <- function(label = NULL,
       remote_pre, source_vec[["type"]], label, "archive"
     )
   }
-  if (is.null(version_remote)) {
+  if (!length(version_remote)) {
     .cli_debug("No version found for ", label)
     .cli_debug("Skipping restore for ", label)
     return(invisible(FALSE))
@@ -301,7 +296,8 @@ projr_content_update <- function(label = NULL,
     yml_title[["path-append-label"]], version_remote,
     FALSE, FALSE
   )
-  path_dir_local <- projr_path_get_dir(label, safe = FALSE)
+  path_dir_local <- projr_path_get_dir(label, safe = FALSE, format = "absolute")
+  if (clear) .dir_clear(path_dir_local)
   .remote_file_get_all(source_vec[["type"]], remote_source, path_dir_local)
 
   invisible(TRUE)
@@ -370,7 +366,7 @@ projr_content_update <- function(label = NULL,
                                                               .title) {
   if (type %in% names(yml_source)) {
     yml_type <- yml_source[[type]]
-    .content_update_label_get_source_source_title_spec(
+    .content_update_label_get_source_source_title(
       yml_type, type, .title
     )
   } else {
@@ -429,7 +425,7 @@ projr_content_update <- function(label = NULL,
 .content_update_label_get_source_source_type_first <- function(yml_source, .title) {
   type <- names(yml_source)[[1]]
   .content_update_label_get_source_source_type_spec(
-    yml_source[[type]], type, .title
+    yml_source, type, .title
   )
 }
 
@@ -465,21 +461,17 @@ projr_content_update <- function(label = NULL,
     # we need to check all titles
     if (is.null(.title)) {
       title_considered <- title_vec_type
-    } else {
-      # if a title is provided, then
-      # we need to check if it is in the
-      # list of titles
-      # if not, then we skip this type
-      if (!.title %in% title_vec_type) {
-        next
-      }
+    } else if (.title %in% title_vec_type) {
       title_considered <- .title
+    } else {
+      title_considered <- Filter(function(key) {
+        name <- yml_type[[key]][["title"]] %||% yml_type[[key]][["tag"]] %||% key
+        identical(.template_expand(name), .title)
+      }, title_vec_type)
     }
     for (i in seq_along(title_considered)) {
       tt <- title_considered[[i]]
-      yml_title <- .yml_dest_get_title_complete(
-        tt, tp, NULL, FALSE, FALSE
-      )
+      yml_title <- yml_type[[tt]]
       if (!label %in% yml_title[["content"]]) {
         next
       }
@@ -502,6 +494,7 @@ projr_content_update <- function(label = NULL,
 
   # if nothing found, try parameter-specified removes
   if (is.null(tt_first)) {
+    if (!is.null(.title)) return(NULL)
     tryCatch(
       .content_update_label_get_dest_no_type(label),
       error = function(e) {

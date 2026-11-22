@@ -93,13 +93,11 @@ projr_yml_dest_add_local <- function(title,
 #' Add a GitHub release as a destination
 #' to a _projr.yml file.
 #'
-#' @param title character.
-#' Title of the GitHub release.
-#' Can use title as `@version`,
-#' in which case the release will be entitled
-#' the version of the project at the time.
-#' If not supplied, then will
-#' automatically be generated from `content`.
+#' @param title character. GitHub release tag. The tag can contain
+#'   `@branch`, `@version`, and `@uuid`.
+#' @param branch character or NULL. GitHub branch whose current commit a new
+#'   release should target. Use `@branch` for the current checkout branch.
+#'   The default uses GitHub's release target.
 #' @param content character vector.
 #' Labels of directories to include in the upload.
 #' Options are the labels of directories
@@ -128,7 +126,8 @@ projr_yml_dest_add_github <- function(title,
                                       send_cue = NULL,
                                       send_strategy = NULL,
                                       send_inspect = NULL,
-                                      profile = "default") {
+                                      profile = "default",
+                                      branch = NULL) {
   .assert_string(title, TRUE)
   # as GitHub automatically does this anyway
   title <- gsub(" ", "-", title)
@@ -141,6 +140,7 @@ projr_yml_dest_add_github <- function(title,
   .yml_dest_add(
     role = "destination",
     type = "github",
+    branch = branch,
     title = title,
     content = content,
     path = NULL,

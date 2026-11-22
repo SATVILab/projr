@@ -5,7 +5,9 @@ projr_restore_repo <- function(repo,
                                label = NULL,
                                pos = NULL,
                                type = NULL,
-                               title = NULL) {
+                               title = NULL,
+                               destination = NULL) {
+  .assert_string(destination)
   # Input validation
   if (is.null(repo)) {
     stop("'repo' cannot be NULL")
@@ -92,8 +94,9 @@ projr_restore_repo <- function(repo,
   .title <- title
   result <- tryCatch(
     {
+      path <- path %||% basename(repo)
       .git_clone(repo, path)
-      .restore_repo_labels(path, label, pos, type, .title)
+      .restore_repo_labels(path, label, pos, type, .title, destination)
     },
     error = function(e) {
       .cli_info("Error in projr_restore_repo: {e$message}")
@@ -109,20 +112,21 @@ projr_restore_repo_wd <- function(repo,
                                   label = NULL,
                                   pos = NULL,
                                   type = NULL,
-                                  title = NULL) {
-  projr_restore_repo(repo, path = ".", label = label, pos = pos, type = type, title = title)
+                                  title = NULL,
+                                  destination = NULL) {
+  projr_restore_repo(repo, path = ".", label = label, pos = pos, type = type, title = title, destination = destination)
 }
 
 .restore_repo_labels <- function(path,
                                  label,
                                  pos,
                                  type,
-                                 .title) {
+                                 .title,
+                                 destination = NULL) {
   if (!is.null(path)) {
     orig_wd <- getwd()
     on.exit(setwd(orig_wd), add = TRUE)
     setwd(path)
   }
-  projr_content_update(label, pos, type, .title)
-  invisible(TRUE)
+  projr_content_update(label, pos, type, .title, destination = destination)
 }

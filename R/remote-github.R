@@ -120,7 +120,10 @@
                                   max_attempts = 1,
                                   max_delay = 300,
                                   max_total_time = 600,
-                                  ensure_exists = FALSE) {
+                                  ensure_exists = FALSE,
+                                  branch = NULL,
+                                  api_url = NULL,
+                                  token = NULL) {
   .assert_string(tag, TRUE)
   .assert_string(description)
   .assert_number(pause_second, TRUE)
@@ -129,13 +132,22 @@
     description <- "Release created automatically by `projr`"
   }
 
+  target_commitish <- NULL
+  if (!is.null(branch)) {
+    if (identical(branch, "@branch")) branch <- .template_branch_raw()
+    target_commitish <- .gh_release_branch_sha(.gh_repo_get(), branch, tag, api_url, token)
+  }
   # Single attempt to create the release
   result <- .remote_create_github_attempt(
     tag          = tag,
-    description  = description
+    description  = description,
+    target_commitish = target_commitish,
+    api_url = api_url,
+    token = token
   )
 
   if (.is_try_error(result)) {
+    if (!is.null(branch)) stop(attr(result, "condition"))
     .cli_debug(
       "GitHub release: Failed to create GitHub release '{tag}'"
     )
@@ -155,7 +167,9 @@
       pause_second = pause_second,
       max_attempts = max_attempts,
       max_delay = max_delay,
-      max_total_time = max_total_time
+      max_total_time = max_total_time,
+      api_url = api_url,
+      token = token
     )
 
     if (isTRUE(remote_exists)) {
@@ -173,14 +187,20 @@
 }
 
 .remote_create_github_attempt <- function(tag,
-                                          description) {
+                                          description,
+                                          target_commitish = NULL,
+                                          api_url = NULL,
+                                          token = NULL) {
   repo <- .gh_repo_get()
 
   result <- try(
     .gh_release_create_httr(
       repo = repo,
       tag = tag,
-      description = description
+      description = description,
+      target_commitish = target_commitish,
+      api_url = api_url,
+      token = token
     ),
     silent = TRUE
   )
@@ -346,7 +366,9 @@
       tag = remote_empty[["tag"]]
     )
     # use dispatcher
-    .remote_create("github", id = remote_empty[["tag"]])
+    tag <- remote_empty[["tag"]]
+    branch <- .dest_github_targets(FALSE, FALSE, NULL)[[tag]]
+    .remote_create("github", id = tag, branch = branch, api_url = api_url, token = token)
   }
   path_dir_tmp_save <- .dir_create_tmp_random()
   on.exit(
@@ -829,14 +851,11 @@
     tag <- x[["tag"]]
   }
   tag <- gsub("\\s", "-", tag)
-  if (tag == "@version") .version_get_v() else tag
+  .template_expand(tag)
 }
 
 .remote_misc_github_tag_format <- function(tag) {
-  tag <- switch(tag,
-    `@version` = .version_get_v(),
-    tag
-  )
+  tag <- .template_expand(tag)
   tag <- gsub("^ +", "", tag)
   tag <- gsub(" +$", "", tag)
   gsub(" ", "-", tag)

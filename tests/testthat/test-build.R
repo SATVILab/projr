@@ -174,36 +174,28 @@ test_that("Pre/post/never clearing options work correctly", {
   )
 })
 
-# Test archive functionality
-test_that("Archive functionality works correctly", {
+test_that("a production build archives the script output under the same invocation UUID", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  skip() # fails at present, worth fixing
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create output content
-      output_dir <- projr_path_get_dir("output", safe = FALSE, create = TRUE)
-      writeLines("test content", file.path(output_dir, "test.txt"))
+  dir_test <- .test_setup_project(rm_engine = TRUE)
+  usethis::with_project(dir_test, {
+    projr_version_set("1.2.2")
+    config <- .yml_get("default")
+    config$directories$output$path <- "results-@uuid"
+    config$build$scripts <- "analysis.R"
+    .yml_set(config)
+    projr_yml_dest_add_local("backup", "output", path = "archives/run-@uuid", structure = "archive")
+    writeLines('writeLines("analysis result", projr::projr_path_get("output", "result.txt"))', "analysis.R")
 
-      # Test local archiving
-      local_archive_dir <- file.path(dir_test, "_archive")
-      if (!dir.exists(local_archive_dir)) dir.create(local_archive_dir)
-      projr_build_patch(
-        msg = "Test archiving",
-        archive_local = TRUE,
-        always_archive = TRUE
-      )
-
-      # Check if archive was created
-      archives <- list.files(local_archive_dir, pattern = "\\.zip$")
-      expect_true(length(archives) > 0)
-      expect_true(any(grepl("output", archives)))
-    },
-    quiet = TRUE,
-    force = TRUE
-  )
+    projr_build_patch(msg = "Archive analysis output")
+    results <- list.files(pattern = "^results-")
+    expect_length(results, 1L)
+    uuid <- sub("^results-", "", results)
+    archive <- file.path("archives", paste0("run-", uuid))
+    expect_identical(readLines(file.path(archive, "output", "v1.2.3", "result.txt")), "analysis result")
+    expect_true(any(grepl(archive, readLines("BUILDLOG.md"), fixed = TRUE)))
+    expect_identical(.yml_dir_get_path_raw("output", NULL), "results-@uuid")
+  }, quiet = TRUE, force = TRUE)
 })
 
 # Test error handling and version recovery

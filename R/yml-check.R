@@ -230,6 +230,11 @@ projr_yml_check <- function(profile = NULL) {
 
 .yml_build_check_dest_title <- function(yml_title, title, type) {
   .assert_string(title, TRUE)
+  .assert_string(yml_title[["title"]])
+  if (type == "github") {
+    .assert_string(yml_title[["tag"]])
+    .assert_string(yml_title[["branch"]])
+  }
   .assert_in(yml_title[["content"]], .opt_dir_get_label_send(NULL), TRUE)
   .assert_in(yml_title[["structure"]], .opt_remote_get_structure())
   .assert_string(yml_title[["path"]], type == "local")
