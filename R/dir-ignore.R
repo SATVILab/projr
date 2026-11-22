@@ -1,139 +1,3 @@
-.ignore_diryml <- function() {
-  # Update `.gitignore` and `.Rbuildignore` Using Projr Configuration
-  #
-  # The .dir_ignore()` function updates the project’s `.gitignore` and
-  # `.Rbuildignore` files to reflect the directories managed by Projr.
-  #
-  # @details
-  #
-  # The .dir_ignore()` function updates the project’s `.gitignore` and
-  # `.Rbuildignore` files to reflect the directories managed by Projr. It does so by:
-  #
-  # 1. Removing any previously established Projr-managed ignore entries.
-  # 2. Re-inserting the correct ignores based on the current project configuration.
-  #
-  # As a result, directories specified in the Projr YAML configuration are correctly
-  # excluded from version control (Git) and R package building processes.
-  #
-  # **Key Effects:**
-  #
-  # - Ensures `.gitignore` includes Projr-managed directories, keeping them out of Git commits.
-  # - Ensures `.Rbuildignore` excludes these directories from R build processes.
-  .ignore_diryml_git()
-  .ignore_diryml_rbuild()
-  invisible(TRUE)
-}
-
-
-.ignore_diryml_git <- function() {
-  if (!.git_repo_check_exists() &&
-    !file.exists(.path_get(".gitignore"))) {
-    return(invisible(FALSE))
-  }
-
-  # get paths to ignore
-  instr_list <- .ignore_diryml_git_get_instructions()
-
-  # ignore paths
-  .ignore_diryml_git_update_gitignore(instr_list$ignore)
-
-  invisible(TRUE)
-}
-
-# .gitignore Management (As previously defined)
-.ignore_diryml_git_get_instructions <- function() {
-  # get which paths to ignore
-  label_vec <- .ignore_diryml_git_get_instructions_labels()
-
-  path_ignore <- character(0)
-
-  for (i in seq_along(label_vec)) {
-    instr_list_label <- .ignore_diryml_git_get_instructions_label(
-      label_vec[[i]]
-    )
-    path_ignore <- c(path_ignore, instr_list_label$ignore)
-  }
-  list(ignore = path_ignore)
-}
-
-.ignore_diryml_git_get_instructions_labels <- function() {
-  # Get directory labels and their paths,
-  # ensuring directory types not specified are also included.
-  yml_dir <- .yml_dir_get(NULL) # Fetch directory labels and paths
-  label_vec <- names(yml_dir) # Extract the labels
-  label_vec_strip <- .dir_label_strip(label_vec) # Strip unnecessary parts of the labels
-
-  # Define patterns to match standard directory labels
-  label_vec_match <- c("^docs", "^raw", "^cache", "^output")
-  label_vec_rep <- c("docs", "raw-data", "cache", "output") # Standardized labels
-
-  # Identify missing standard labels
-  label_vec_missing_ind <- vapply(seq_along(label_vec_match), function(i) {
-    !any(grepl(label_vec_match[[i]], label_vec_strip))
-  }, logical(1))
-  label_vec_missing <- label_vec_rep[label_vec_missing_ind] # Extract missing labels
-
-  # Combine existing and missing labels
-  c(label_vec, label_vec_missing)
-}
-
-.ignore_diryml_git_get_instructions_label <- function(label) {
-  path <- .ignore_diryml_path_get(label)
-  if (length(path) == 0) {
-    c0 <- character(0L)
-    return(list(ignore = c0))
-  }
-
-  .ignore_diryml_git_get_instructions_label_impl(
-    path, label
-  )
-}
-
-.ignore_diryml_git_get_instructions_label_impl <- function(path,
-                                                           label) {
-  # ignore
-  ignore_git <- .ignore_get_git(label)
-  path_ignore <- if (ignore_git) paste0(path, "/**") else character(0L)
-
-  list(ignore = path_ignore)
-}
-
-.ignore_diryml_git_update_gitignore <- function(ignore) {
-  ignore <- setdiff(ignore, "")
-  if (!.is_chr(ignore)) {
-    return(invisible(FALSE))
-  }
-  path_gitignore <- .path_get(".gitignore")
-
-  file_vec <- .ignore_auto_path_add_get_updated(path_gitignore, ignore, TRUE)
-  .ignore_path_write(file_vec, path_gitignore)
-  invisible(TRUE)
-}
-
-
-.ignore_get_git <- function(label) {
-  ignore_git <- .yml_dir_get_label(label, NULL)[["ignore-git"]]
-  ignore <- .yml_dir_get_label(label, NULL)[["ignore"]]
-  if (is.null(ignore_git) && is.null(ignore)) {
-    return(TRUE)
-  }
-  if (.is_flag(ignore_git) && .is_flag(ignore)) {
-    no_match <- ignore_git != ignore
-    if (no_match) {
-      stop(paste0(
-        "Inconsistent ignore settings for label '", label, "': ",
-        "ignore-git = ", ignore_git, ", ignore = ", ignore
-      ))
-    }
-  }
-  if (is.null(ignore_git)) {
-    .assert_flag(ignore)
-    return(ignore)
-  }
-  .assert_flag(ignore_git)
-  ignore_git
-}
-
 .git_get_tracked <- function(path) {
   # Retrieve a list of tracked files within the specified path
   fn_vec <- suppressWarnings(system2(
@@ -151,174 +15,138 @@
   fn_vec
 }
 
-# .Rbuildignore Management
-.ignore_diryml_rbuild <- function() {
-  if (!file.exists(.path_get("DESCRIPTION")) &&
-    !file.exists(.path_get(".Rbuildignore"))) {
+.ignore_diryml <- function(create_git = FALSE) {
+  .ignore_diryml_git(create_git)
+  .ignore_diryml_rbuild()
+  invisible(TRUE)
+}
+
+.ignore_diryml_git <- function(create = FALSE) {
+  path <- .path_get(".gitignore")
+  if (!create && !file.exists(path) && !.git_repo_check_exists()) {
     return(invisible(FALSE))
   }
-  # Remove all projr-managed entries from .Rbuildignore,
-  # then add back applicable ones
-  rbuildignore_list <- .ignore_diryml_rbuildignore_get()
-
-  yml_dir <- .yml_dir_get(NULL)
-  ignore_vec_dir <- character(0)
-
-  for (i in seq_along(yml_dir)) {
-    label <- names(yml_dir)[[i]]
-    if (!.ignore_get_rbuild(label)) {
-      next
-    }
-    path <- .ignore_diryml_path_get(label)
-    if (length(path) == 0) {
-      next
-    }
-
-    # Construct ignore patterns for .Rbuildignore
-    patterns <- utils::glob2rx(path)
-    patterns <- gsub("\\$$", "", patterns)
-    patterns <- paste0(patterns, "/")
-    patterns <- c(patterns, utils::glob2rx(path))
-
-    ignore_vec_dir <- c(ignore_vec_dir, patterns)
-  }
-
-  rbuildignore_vec <- c(
-    rbuildignore_list$start,
-    ignore_vec_dir,
-    rbuildignore_list$end
-  )
-
-  .ignore_rbuild_write(rbuildignore_vec, append = FALSE)
+  .ignore_path_write(.ignore_path_read(path), path, reset = TRUE)
   invisible(TRUE)
 }
 
-.ignore_get_rbuild <- function(label) {
-  ignore_rbuild <- .yml_dir_get_label(label, NULL)[["ignore-rbuild"]]
-  ignore <- .yml_dir_get_label(label, NULL)[["ignore"]]
-  if (is.null(ignore_rbuild) && is.null(ignore)) {
-    return(TRUE)
+.ignore_diryml_rbuild <- function() {
+  path <- .path_get(".Rbuildignore")
+  if (!file.exists(path) && !file.exists(.path_get("DESCRIPTION"))) {
+    return(invisible(FALSE))
   }
-  if (.is_flag(ignore_rbuild) && .is_flag(ignore)) {
-    no_match <- ignore_rbuild != ignore
-    if (no_match) {
-      stop(paste0(
-        "Inconsistent ignore settings for label '", label, "': ",
-        "ignore-git = ", ignore_rbuild, ", ignore = ", ignore
-      ))
-    }
-  }
-  if (is.null(ignore_rbuild)) {
-    .assert_flag(ignore)
-    return(ignore)
-  }
-  .assert_flag(ignore_rbuild)
-  if (ignore_rbuild) TRUE else FALSE
-}
-
-.ignore_diryml_rbuildignore_get <- function() {
-  # Retrieve the current .Rbuildignore content and extract projr-managed sections
-  rbuildignore_vec <- .ignore_rbuild_read()
-
-  if (length(rbuildignore_vec) == 0) {
-    return(list(start = character(0), end = character(0)))
-  }
-
-  .ignore_diryml_rbuildignore_get_check(
-    match_str_top, match_str_bottom, rbuildignore_vec
-  )
-
-  ignore_ind_top <- which(grepl(match_str_top, rbuildignore_vec))
-  ignore_ind_bot <- which(grepl(match_str_bottom, rbuildignore_vec))
-
-  if (length(ignore_ind_top) == 0L) {
-    return(list(
-      start = c(
-        rbuildignore_vec,
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())"
-      ),
-      end = "# End of projr section"
-    ))
-  }
-
-  list(
-    start = rbuildignore_vec[seq_len(ignore_ind_top)],
-    end = rbuildignore_vec[seq(ignore_ind_bot, length(rbuildignore_vec))]
-  )
-}
-
-.ignore_diryml_rbuildignore_get_check <- function(match_str_top,
-                                                  match_str_bottom,
-                                                  rbuildignore_vec) {
-  # validate that the Projr-managed section in .Rbuildignore is well-formed
-  ignore_ind_bot <- which(grepl(match_str_bottom, rbuildignore_vec))
-  ignore_ind_top <- which(grepl(match_str_top, rbuildignore_vec))
-
-  if (length(ignore_ind_top) > 1 ||
-    length(ignore_ind_bot) > 1) {
-    stop("Multiple projr sections found in .Rbuildignore")
-  }
-
-  found_top <- length(ignore_ind_top) == 1
-  found_bottom <- length(ignore_ind_bot) == 1
-
-  if (found_top && !found_bottom) {
-    stop("Found start of projr section but not end in .Rbuildignore")
-  }
-
-  if (!found_top && found_bottom) {
-    stop("Found end of projr section but not start in .Rbuildignore")
-  }
-
-  if (found_top && found_bottom) {
-    if (ignore_ind_top > ignore_ind_bot) {
-      stop("Start of projr section found after end in .Rbuildignore")
-    }
-  }
-
+  .ignore_path_write(.ignore_path_read(path), path, reset = TRUE)
   invisible(TRUE)
 }
 
-# Path Processing Function (Reused)
-.ignore_diryml_path_get <- function(label) {
-  path_dir <- .dir_get(label, safe = FALSE)
-  if (identical(path_dir, ".")) {
-    return(character(0))
+.ignore_get_setting <- function(label, type, directory = .yml_dir_get_label(label, NULL)) {
+  key <- paste0("ignore-", type)
+  flag <- function(value) {
+    if (is.character(value)) {
+      .assert_in(value, c("ignore", "no-ignore", "manual"))
+      return(identical(value, "ignore"))
+    }
+    .assert_flag(value, TRUE)
+    value
   }
-
-  within_wd <- fs::path_has_parent(path_dir, .path_get())
-  if (!within_wd) {
-    return(character(0))
+  general <- directory[["ignore"]]
+  specific <- directory[[key]]
+  if (!is.null(general) && !is.null(specific) && flag(general) != flag(specific)) {
+    stop("Inconsistent ignore settings for label '", label, "': ", key,
+      " = ", specific, ", ignore = ", general,
+      call. = FALSE
+    )
   }
-
-  path_dir_rel <- fs::path_rel(path_dir, .path_get())
-  # Remove trailing slashes and spaces
-  path_dir_rel <- gsub("\\s*/*\\s*$", "", path_dir_rel)
-  path_dir_rel
+  flag(specific %||% general %||% TRUE)
 }
 
-# Reading and Writing .Rbuildignore
-.ignore_rbuild_read <- function() {
-  # Read the contents of .Rbuildignore, returning an empty
-  # character vector if the file doesn't exist
-  file_path <- .path_get(".Rbuildignore")
-  if (!file.exists(file_path)) {
-    return(character(0))
+.ignore_diryml_path_get <- function(label, directory = .yml_dir_get_label(label, NULL),
+                                    root = .path_get()) {
+  path <- directory[["path"]] %||% .yml_dir_get_path_default(label)
+  if (label %in% c("project", "code")) {
+    return(character())
   }
-  suppressWarnings(readLines(file_path, warn = FALSE))
+  if (label == "data") path <- "data"
+  if (label == "docs" && is.null(path)) {
+    path <- if (file.exists(file.path(root, "_quarto.yml"))) {
+      .dir_get_docs_quarto_project_unset()
+    } else if (file.exists(file.path(root, "_bookdown.yml"))) {
+      .yml_bd_get_output_dir() %||% "_book"
+    } else {
+      "docs"
+    }
+  }
+  .ignore_project_relative(path, root)
 }
 
-.ignore_rbuild_write <- function(buildignore, append = FALSE) {
-  # Write the updated .Rbuildignore content, ensuring it ends with a newline
-  file_path <- .path_get(".Rbuildignore")
-  # Write the content to .Rbuildignore
-  cat(
-    buildignore,
-    file = file_path,
-    sep = "\n",
-    append = append
-  )
-  # Ensure the file ends with a newline
-  .newline_append(file_path)
-  invisible(file_path)
+.ignore_project_relative <- function(path, root) {
+  if (is.null(path)) {
+    return(character())
+  }
+
+  # These fs operations are lexical, including for foreign drives and UNC paths.
+  path <- fs::path_abs(path, start = root)
+  if (path == root || !fs::path_has_parent(path, root)) {
+    return(character())
+  }
+  as.character(fs::path_rel(path, start = root))
+}
+
+.ignore_diryml_rules <- function(type) {
+  root <- .path_get()
+  across_profiles <- type == "git" || file.exists(file.path(root, "DESCRIPTION"))
+  profiles <- if (across_profiles) .yml_dir_get_profiles() else list()
+  active_profiles <- projr_profile_get()
+  # Multiple active profiles can supply different fields of the same directory.
+  directories <- c(profiles, list(.yml_dir_get(NULL)))
+  active <- c(names(profiles) %in% active_profiles, TRUE)
+
+  rules <- character()
+  for (i in seq_along(directories)) {
+    labels <- names(directories[[i]])
+    if (type == "git") labels <- union(labels, "docs")
+    for (label in labels) {
+      directory <- directories[[i]][[label]]
+      path <- .ignore_diryml_path_get(label, directory, root)
+      if (!length(path)) next
+      keep <- directory[["ignore-even-if-inactive"]] %||% TRUE
+      .assert_flag(keep, TRUE)
+      if ((!active[i] && !keep) || !.ignore_get_setting(label, type, directory)) next
+      rules <- c(rules, .ignore_directory_pattern(path, type))
+    }
+  }
+  sort(unique(rules))
+}
+
+.ignore_directory_pattern <- function(path, type) {
+  if (grepl("[\r\n]", path)) stop("Invalid newline in directory path.")
+  if (type == "git") {
+    escaped <- gsub("([][?*\\\\ ])", "\\\\\\1", path)
+    return(paste0("/", escaped, "/**"))
+  }
+  escaped <- gsub("([][{}()+*^$|\\\\?.])", "\\\\\\1", path)
+  paste0("^", escaped, "(/|$)")
+}
+
+.ignore_diryml_update <- function(file_vec, path, reset) {
+  type <- if (basename(path) == ".gitignore") "git" else "rbuild"
+  rules <- .ignore_diryml_rules(type)
+  indices <- .ignore_path_get_ind(file_vec, path)
+  outer <- .ignore_path_get_startend(indices[["top"]], indices[["bot"]], file_vec)
+  content <- .ignore_path_get_content(indices[["top"]], indices[["bot"]], file_vec)
+
+  # The boundary lets manual edits refresh just the directory rules; a full
+  # automatic refresh also regenerates every other entry in the managed block.
+  marker <- "# End of configured directory rules"
+  boundary <- match(marker, content)
+  if (!reset && is.na(boundary) && length(content) > 0L) {
+    # Older releases mixed directory and other rules. Regenerate the block
+    # once and keep the caller's manual edits from either side of it.
+    projr_ignore_auto()
+    return(c(outer$start, .ignore_path_get_list(path)$content, outer$end))
+  }
+  if (!is.na(boundary)) {
+    content <- utils::tail(content, length(content) - boundary)
+  }
+  c(outer$start, rules, marker, if (!reset) content, outer$end)
 }

@@ -231,8 +231,8 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 
 .yml_merge_list_add <- function(yml_projr_profile, profile_list) {
   .yml_merge(
-    yml_projr_root_default = profile_list[[3]],
-    yml_projr_profile = profile_list[[2]],
+    yml_projr_root_default = profile_list[[2]],
+    yml_projr_profile = profile_list[[1]],
     yml_projr_local = yml_projr_profile
   )
 }

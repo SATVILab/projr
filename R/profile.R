@@ -146,23 +146,11 @@ projr_profile_create_local <- function() {
 }
 
 .profile_create_local_ignore_git <- function() {
-  gitignore <- readLines(.path_get(".gitignore"), warn = FALSE)
-  if (!"_projr-local.yml" %in% gitignore) {
-    projr_ignore_file_git("_projr-local.yml")
-  }
+  projr_ignore_file_git("_projr-local.yml")
 }
+
 .profile_create_local_ignore_rbuild <- function() {
-  rbuildignore <- readLines(
-    .path_get(".Rbuildignore"),
-    warn = FALSE
-  )
-  if (!"^_projr-local\\.yml$" %in% rbuildignore) {
-    writeLines(
-      c(rbuildignore, "^_projr-local\\.yml$"),
-      .path_get(".Rbuildignore")
-    )
-    .newline_append(.path_get(".Rbuildignore"))
-  }
+  projr_ignore_file_rbuild("_projr-local.yml")
 }
 
 .profile_check <- function(x) {
@@ -211,7 +199,7 @@ projr_profile_get <- function() {
   # get explicitly specified.PROFILES
   # (other than "default")
   profile <- .profile_get_var_unsplit()
-  if (!nzchar(profile)) {
+  if (!length(profile) || !nzchar(profile)) {
     return(character())
   }
   profile_vec <- strsplit(profile, ",|;")[[1]]

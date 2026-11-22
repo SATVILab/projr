@@ -59,7 +59,10 @@ projr_yml_check <- function(profile = NULL) {
   yml_label <- .yml_dir_get_label(label, profile)
   .assert_in(
     names(yml_label),
-    c("path", "ignore-git", "ignore-rbuild", "ignore", "output", "source", "license", "hash", "package")
+    c(
+      "path", "ignore-git", "ignore-rbuild", "ignore", "ignore-even-if-inactive",
+      "output", "source", "license", "hash", "package"
+    )
   )
   yml_label |>
     .yml_dir_check_label_path(label, profile) |>
@@ -91,6 +94,7 @@ projr_yml_check <- function(profile = NULL) {
 }
 
 .yml_dir_check_label_ignore <- function(yml_label) {
+  .assert_flag(yml_label[["ignore-even-if-inactive"]], nm = "ignore-even-if-inactive")
   for (x in c("ignore", "ignore-git", "ignore-rbuild")) {
     .yml_dir_check_label_ignore_ind(yml_label, x)
   }

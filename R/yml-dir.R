@@ -333,6 +333,24 @@
     .yml_dir_get_complete_label()
 }
 
+.yml_dir_get_profiles <- function() {
+  files <- list.files(.path_get(), pattern = "^_projr-[[:alnum:]_-]+\\.yml$")
+  profiles <- sub("^_projr-(.*)\\.yml$", "\\1", files)
+  profiles <- c("default", setdiff(profiles, c("default", "local")))
+  default <- .yml_get_default()[["directories"]]
+  local <- .yml_get_local()[["directories"]]
+  # A local override with its own path belongs to the merged active view.
+  # Keep each named profile's separate physical directory available for ignores.
+  local <- Filter(function(directory) is.null(directory[["path"]]), local)
+
+  lapply(profiles, function(profile) {
+    directories <- if (profile != "default") {
+      .yml_get_profile_ind(profile)[["directories"]]
+    }
+    .yml_merge(default, directories, local) |> .yml_dir_get_complete_label()
+  }) |> stats::setNames(profiles)
+}
+
 .yml_dir_get_complete_label <- function(yml_dir) {
   # ensure that all required labels
   # are present

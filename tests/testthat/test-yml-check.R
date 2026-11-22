@@ -335,8 +335,13 @@ test_that(".yml_dir_check_label_ignore validates ignore settings", {
       # Valid ignore-rbuild should pass
       yml <- .yml_get("default")
       yml[["directories"]][["output"]][["ignore-rbuild"]] <- TRUE
+      yml[["directories"]][["output"]][["ignore-even-if-inactive"]] <- FALSE
       .yml_set(yml, "default")
       expect_true(projr_yml_check())
+
+      yml[["directories"]][["output"]][["ignore-even-if-inactive"]] <- "manual"
+      .yml_set(yml, "default")
+      expect_error(projr_yml_check(), "ignore-even-if-inactive")
     },
     force = TRUE,
     quiet = TRUE
