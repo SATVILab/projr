@@ -35,6 +35,13 @@ Key architectural patterns:
 - Generate rules only for paths inside the checkout. Skip foreign absolute paths in inactive profiles without accessing or validating their directories.
 - Refresh directory rules from the current configuration. When the last qualifying profile reference to a path is removed, drop its generated rule on the next refresh. On the first manual edit to a legacy managed block, regenerate its contents and preserve rules outside the block.
 
+### Destination and directory templates
+
+- Expand `@version`, `@branch`, and `@uuid` in configured directory paths, local destination names and paths, and GitHub release names. A token ends at the end of the string or before a hyphen, underscore, period, ordinary space, or path separator. Preserve unknown names literally.
+- Use the build version with one `v` prefix. Capture one UUIDv4 and Git HEAD per build and share them with child render processes and retries. Encode branch names as one portable path component, preserving the distinction between `feature/foo` and `feature-foo`. Detached HEAD uses the commit SHA.
+- Generate directory ignore patterns from the current YAML templates, including local archives. Keep the template in YAML and record the concrete archive destination in `BUILDLOG.md` for restore.
+- Keep a GitHub release's title and tag identical. Only an explicitly configured target branch selects the commit for a new tag. Resolve that branch in the destination repository and leave existing release tags in place.
+
 ---
 
 ## Tech Stack & Tooling
@@ -54,6 +61,7 @@ Key architectural patterns:
 | `desc` | Read/write `DESCRIPTION` |
 | `fs` | File-system operations |
 | `digest` | MD5 hashing for manifests |
+| `uuid` | Random UUIDv4 identifiers for build templates |
 | `cli` | Console output |
 | `glue` | String interpolation |
 

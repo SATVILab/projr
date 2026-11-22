@@ -13,7 +13,8 @@ projr_restore_repo(
   label = NULL,
   pos = NULL,
   type = NULL,
-  title = NULL
+  title = NULL,
+  destination = NULL
 )
 
 projr_restore_repo_wd(
@@ -21,7 +22,8 @@ projr_restore_repo_wd(
   label = NULL,
   pos = NULL,
   type = NULL,
-  title = NULL
+  title = NULL,
+  destination = NULL
 )
 
 projr_content_update(
@@ -29,7 +31,8 @@ projr_content_update(
   pos = NULL,
   type = NULL,
   title = NULL,
-  clear = FALSE
+  clear = FALSE,
+  destination = NULL
 )
 }
 \arguments{
@@ -56,6 +59,11 @@ Must be NULL or one of the valid remote types.}
 \item{title}{character or NULL. Remote title as specified in \verb{_projr.yml}.
 Default is \code{NULL}, using the first available title for the selected type.
 Must be NULL or a single non-empty character string.}
+
+\item{destination}{character or NULL. A concrete GitHub release tag or local
+archive path recorded by an earlier build. Overrides the configured
+destination when restoring across versions, branches, or build UUIDs.
+Select its configuration with \code{title} if the project has several.}
 
 \item{clear}{logical. If \code{TRUE}, clears existing local artefact directories
 before restoration. Default is \code{FALSE}.}

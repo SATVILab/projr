@@ -280,15 +280,16 @@ projr_ignore_auto <- function() {
 }
 
 .ignore_auto_dest_local_title <- function(yml) {
-  path <- yml[["path"]] %||% "_archive"
+  path <- .ignore_project_relative(yml[["path"]] %||% "_archive", .path_get())
+  if (!length(path)) return(invisible(FALSE))
   ignore <- yml[["ignore"]]
-  if (is.null(ignore)) {
-    .ignore_auto_dir(path)
-  } else if (ignore == "git") {
-    .ignore_auto_dir_git(path)
-  } else if (ignore == "rbuild") {
-    .ignore_auto_dir_rbuild(path)
+  if (is.null(ignore) || identical(ignore, "git")) {
+    .ignore_auto_path_add(.ignore_directory_pattern(path, "git"), .path_get(".gitignore"))
   }
+  if (is.null(ignore) || identical(ignore, "rbuild")) {
+    .ignore_auto_path_add(.ignore_directory_pattern(path, "rbuild"), .path_get(".Rbuildignore"))
+  }
+  invisible(TRUE)
 }
 
 # ===========================================================================

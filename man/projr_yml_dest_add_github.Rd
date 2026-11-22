@@ -12,17 +12,13 @@ projr_yml_dest_add_github(
   send_cue = NULL,
   send_strategy = NULL,
   send_inspect = NULL,
-  profile = "default"
+  profile = "default",
+  branch = NULL
 )
 }
 \arguments{
-\item{title}{character.
-Title of the GitHub release.
-Can use title as \verb{@version},
-in which case the release will be entitled
-the version of the project at the time.
-If not supplied, then will
-automatically be generated from \code{content}.}
+\item{title}{character. GitHub release tag. The tag can contain
+\verb{@branch}, \verb{@version}, and \verb{@uuid}.}
 
 \item{content}{character vector.
 Labels of directories to include in the upload.
@@ -48,6 +44,10 @@ What to look at to find files on the remote. Default is NULL.}
 
 \item{profile}{character.
 Profile to write the settings to. Default is "default".}
+
+\item{branch}{character or NULL. GitHub branch whose current commit a new
+release should target. Use \verb{@branch} for the current checkout branch.
+The default uses GitHub's release target.}
 }
 \description{
 Add a GitHub release as a destination

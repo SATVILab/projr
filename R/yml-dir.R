@@ -3,6 +3,11 @@
 
 # docs
 .yml_dir_set_docs <- function(path, profile) {
+  # Synchronizing a renderer's output directory must preserve the YAML template.
+  template <- .yml_dir_get_path_raw("docs", NULL)
+  if (!is.null(template) && grepl(.template_token_pattern, template, perl = TRUE)) {
+    return(invisible(FALSE))
+  }
   # this is the profile that we get it from (NULL)
   path_docs <- .yml_dir_get_docs_rel_if_within_cache(
     path,
@@ -275,7 +280,7 @@
   path_raw <- .yml_dir_get_path_raw(label, profile)
   if (!is.null(path_raw) || grepl("^docs$", label)) {
     # handled elsewhere for null docs
-    return(path_raw)
+    return(.template_expand(path_raw))
   }
   # return
   .yml_dir_get_path_default(label)

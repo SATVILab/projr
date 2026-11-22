@@ -154,10 +154,11 @@ projr_name_get <- function() basename(.path_get())
 }
 
 .version_current_vec_get_init_file <- function() {
-  if (!file.exists(.path_get("VERSION"))) {
+  path <- .path_get("VERSION")
+  if (!file.exists(path)) {
     stop("VERSION file not found")
   }
-  version_file <- readLines("VERSION", warn = FALSE)
+  version_file <- readLines(path, warn = FALSE)
   if (length(version_file) == 0) {
     stop("VERSION file is empty")
   }

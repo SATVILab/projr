@@ -332,6 +332,8 @@
     return(invisible(FALSE))
   }
 
+  target <- .yml_dest_get_title_complete(title, type, NULL, archive_type, always_archive)
+  .cli_info("Sending {type} destination '{target$title}' to {target$id}")
   content_vec <- .dest_send_title_get_content(
     title, type, archive_type
   )

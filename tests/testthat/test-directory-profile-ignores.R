@@ -149,3 +149,47 @@ test_that("a manual addition refreshes an older projr-managed ignore block", {
     expect_gt(match("^after$", rbuild), match(end, rbuild))
   })
 })
+
+test_that("templated directories and destinations cover parallel builds from the current YAML", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(rm_engine = TRUE)
+  usethis::with_project(dir_test, {
+    .yml_set(list(directories = list(
+      "raw-data" = list(path = "profiles/lab"),
+      output = list(path = "results/@branch/build-@uuid"),
+      cache = list(path = "cache-@branch"),
+      "raw-literal" = list(path = "@branching")
+    ), build = list(local = list(archive = list(path = "out+put/export-@uuid")))))
+    .yml_set(list(directories = list("raw-data" = list(path = "local/lab"))), "local")
+    .yml_set(list(directories = list("raw-data" = list(path = "profiles/cluster"))), "cluster")
+
+    projr_ignore_auto()
+    git_ignored <- function(path) {
+      system2("git", c("check-ignore", "--quiet", "--", shQuote(path))) == 0L
+    }
+    rbuild_ignored <- function(path) {
+      rules <- readLines(".Rbuildignore")
+      any(vapply(rules[nzchar(rules)], grepl, logical(1), x = path, perl = TRUE))
+    }
+    for (ignored in list(git_ignored, rbuild_ignored)) {
+      for (path in c("profiles/lab", "profiles/cluster", "local/lab")) {
+        expect_true(ignored(file.path(path, "sample")))
+      }
+      for (uuid in c("12345678-1234-4123-8123-000000000001", "12345678-1234-4123-b123-000000000002")) {
+        expect_true(ignored(paste0("results/feature_2fa/build-", uuid, "/plot")))
+        expect_true(ignored(paste0("out+put/export-", uuid, "/plot")))
+      }
+      expect_true(ignored("@branching/input"))
+      expect_false(ignored("sibling/input"))
+      expect_false(ignored("results/feature_2fa/build-author-draft/plot"))
+      expect_false(ignored("results/deep/nested/build-12345678-1234-4123-8123-000000000001/plot"))
+    }
+    restore <- .template_context_start()
+    on.exit(restore(), add = TRUE)
+    path <- projr_path_get_dir("output", create = FALSE, safe = FALSE)
+    expect_identical(path, .template_expand("results/@branch/build-@uuid"))
+    expect_identical(.dir_get_cache_auto_path(NULL), .template_expand("cache-@branch"))
+    expect_false(grepl("@", path, fixed = TRUE))
+    expect_identical(.yml_dir_get_path_raw("output", NULL), "results/@branch/build-@uuid")
+  })
+})

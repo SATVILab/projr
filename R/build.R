@@ -257,6 +257,9 @@ projr_build_dev <- function(scripts = NULL,
   .env_set(unset = TRUE)
   on.exit(.env_unset(), add = TRUE, after = FALSE)
   .build_ensure_version()
+  version_run_on_list <- .version_run_onwards_get(bump_component)
+  restore_context <- .template_context_start(version_run_on_list[["desc"]][["run"]])
+  on.exit(restore_context(), add = TRUE, after = FALSE)
   clear_output <- .build_get_clear_output(clear_output)
 
   # Determine output_run
@@ -291,9 +294,9 @@ projr_build_dev <- function(scripts = NULL,
     restore_project <- .build_engines_backup_project(engines)
     on.exit(restore_project(), add = TRUE, after = FALSE)
     documents <- .build_document_sources(engines)
-    version_run_on_list <- .build_pre(
+    .build_pre(
       bump_component, msg, clear_output,
-      archive_github, archive_local, always_archive, engines, documents
+      archive_github, archive_local, always_archive, engines, documents, version_run_on_list
     )
     render_dirs <- if (any(names(engines) != "r")) {
       unique(c(.path_get(), dirname(documents)))
@@ -370,7 +373,8 @@ projr_build_dev <- function(scripts = NULL,
                        archive_local,
                        always_archive,
                        engines,
-                       documents) {
+                       documents,
+                       version_run_on_list) {
   .cli_debug("Starting pre-build checks and setup")
 
   projr_yml_check(NULL)
@@ -400,11 +404,6 @@ projr_build_dev <- function(scripts = NULL,
   .cli_step("Updating documentation and version information")
   .build_pre_document(output_run, archive_local)
   .ignore_auto_document_outputs(documents)
-
-  # get DESCRIPTION and build versions under all
-  # build outcomes
-  .cli_debug("Computing version information")
-  version_run_on_list <- .version_run_onwards_get(bump_component)
 
   # run any pre-build hooks (backward compatible with build.script)
   # For dev builds, use dev.hooks; for production builds, use build.hooks

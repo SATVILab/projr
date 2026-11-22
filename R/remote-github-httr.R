@@ -91,6 +91,37 @@
 # Create release
 # ========================
 
+.gh_release_branch_sha <- function(repo, branch, tag, api_url = NULL, token = NULL) {
+  base <- paste0(.github_api_base(api_url), "/repos/", repo)
+  token <- token %||% .auth_get_github_pat_find(api_url = api_url)
+  headers <- c(Accept = "application/vnd.github+json")
+  if (.is_string(token)) headers["Authorization"] <- paste("token", token)
+
+  get_object <- function(endpoint, missing = FALSE) {
+    response <- httr::GET(paste0(base, endpoint), httr::add_headers(.headers = headers))
+    if (missing && httr::status_code(response) == 404L) return(NULL)
+    httr::stop_for_status(response, task = paste("read", endpoint, "in", repo))
+    httr::content(response, as = "parsed")
+  }
+  ref <- get_object(paste0("/git/ref/heads/", utils::URLencode(branch, reserved = TRUE)))
+  sha <- ref$object$sha
+  if (!identical(ref$object$type, "commit") || !.is_string(sha) || !grepl("^[0-9a-f]{40}$", sha)) {
+    stop("GitHub branch '", branch, "' does not identify a commit in ", repo, ".", call. = FALSE)
+  }
+  # GitHub ignores target_commitish when the Git tag already exists.
+  existing <- get_object(paste0("/git/ref/tags/", utils::URLencode(tag, reserved = TRUE)), missing = TRUE)
+  if (!is.null(existing)) {
+    object <- existing$object
+    while (identical(object$type, "tag")) {
+      object <- get_object(paste0("/git/tags/", object$sha))$object
+    }
+    if (!identical(object$type, "commit") || !identical(object$sha, sha)) {
+      stop("Existing Git tag '", tag, "' does not point to branch '", branch, "' at ", sha, ".", call. = FALSE)
+    }
+  }
+  sha
+}
+
 #' Create a GitHub release using httr
 #'
 #' @description
