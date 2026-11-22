@@ -278,7 +278,12 @@
   # Validate relative flag
   .assert_flag(relative, required = TRUE)
 
+  project_criterion <- rprojroot::has_file("_projr.yml")
   path_init <- tryCatch(
+    rprojroot::find_root_file(..., criterion = project_criterion),
+    error = function(e) NULL
+  )
+  path_init <- path_init %||% tryCatch(
     rprojroot::find_root_file(
       ...,
       criterion = rprojroot::criteria$is_vcs_root |
@@ -288,10 +293,10 @@
         rprojroot::criteria$is_rstudio_project |
         rprojroot::criteria$is_renv_project |
         rprojroot::criteria$is_quarto_project
-    ) |>
-    fs::path_abs(),
-    error = function(e) file.path(getwd(), ...) |> fs::path_abs()
+    ),
+    error = function(e) file.path(getwd(), ...)
   )
+  path_init <- fs::path_abs(path_init)
   if (!relative) {
     return(path_init)
   }

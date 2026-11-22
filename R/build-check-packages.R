@@ -37,11 +37,16 @@
 #' }
 #' }
 projr_build_check_packages <- function(profile = NULL) {
+  scripts <- .scripts_get(NULL, "patch", profile)
+  .build_check_packages(profile, names(.engines_get(scripts)))
+}
+
+.build_check_packages <- function(profile, engines) {
   # Collect all packages that will be needed during the build
   pkg_required <- character(0)
 
   # Check for packages needed by build engines
-  pkg_required <- c(pkg_required, .build_check_packages_engine(profile))
+  pkg_required <- c(pkg_required, .build_check_packages_engine(profile, engines))
 
   # Check for packages needed by remote destinations
   pkg_required <- c(pkg_required, .build_check_packages_remote(profile))
@@ -110,27 +115,14 @@ projr_build_check_packages <- function(profile = NULL) {
 # Internal helper functions for package checking
 # These are updated versions that accept a profile parameter
 
-.build_check_packages_engine <- function(profile = NULL) {
-  pkg_needed <- character(0)
-
-  # Determine engine from project configuration
-  engine <- .engine_get_auto()
-
-  # If no engine detected (empty character), return early
-  if (length(engine) == 0 || !nzchar(engine)) {
-    return(pkg_needed)
-  }
-
-  # Map engine to required packages
-  pkg_needed <- switch(engine,
-    "bookdown" = "bookdown",
-    "quarto_project" = "quarto",
-    "quarto_document" = "quarto",
-    "rmd" = "rmarkdown",
-    character(0)
+.build_check_packages_engine <- function(profile = NULL, engines = .engine_get_auto()) {
+  packages <- c(
+    bookdown = "bookdown",
+    quarto_project = "quarto",
+    quarto_document = "quarto",
+    rmd = "rmarkdown"
   )
-
-  unique(pkg_needed)
+  unique(unname(packages[intersect(engines, names(packages))]))
 }
 
 .build_check_packages_remote <- function(profile = NULL) {

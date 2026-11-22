@@ -307,24 +307,15 @@ projr_yml_check <- function(profile = NULL) {
 # ----------------------
 
 .yml_scripts_check <- function(profile) {
-  # Check build.scripts structure
-  yml_scripts <- .yml_scripts_get(profile)
-  if (!is.null(yml_scripts)) {
-    # build.scripts should be a plain character vector
-    if (!is.character(yml_scripts)) {
-      stop("build.scripts must be a character vector")
-    }
+  # YAML reads an explicit empty sequence ([]) as an empty list.
+  build <- .yml_scripts_get(profile)
+  if (length(build) && !is.character(build)) {
+    stop("build.scripts must be a character vector")
   }
-
-  # Check dev.scripts structure
-  yml_dev_scripts <- .yml_dev_get_scripts(profile)
-  if (!is.null(yml_dev_scripts)) {
-    # dev.scripts should be a plain character vector
-    if (!is.character(yml_dev_scripts)) {
-      stop("dev.scripts must be a character vector")
-    }
+  dev <- .yml_dev_get_scripts(profile)
+  if (length(dev) && !is.character(dev)) {
+    stop("dev.scripts must be a character vector")
   }
-
   invisible(TRUE)
 }
 
@@ -403,30 +394,10 @@ projr_yml_check <- function(profile = NULL) {
   stop("build.cite must be either a logical value or a list with keys: codemeta, cff, inst-citation")
 }
 
-# scripts and hooks existence check
+# hooks existence check
 # ----------------------
 
-.yml_scripts_hooks_check_exist <- function(profile = NULL) {
-  # Check scripts
-  scripts_build <- .yml_scripts_get_build(profile)
-  if (!is.null(scripts_build)) {
-    for (script in scripts_build) {
-      if (!file.exists(script)) {
-        stop(paste0("Build script '", script, "' does not exist."))
-      }
-    }
-  }
-
-  # Check dev scripts (only from dev.scripts, no fallback)
-  scripts_dev <- .yml_dev_get_scripts(profile)
-  if (!is.null(scripts_dev)) {
-    for (script in scripts_dev) {
-      if (!file.exists(script)) {
-        stop(paste0("Dev script '", script, "' does not exist."))
-      }
-    }
-  }
-
+.yml_hooks_check_exist <- function(profile = NULL) {
   # Check hooks (from build.hooks)
   for (stage in c("pre", "post")) {
     hooks <- .yml_hooks_get_stage(stage, profile)

@@ -57,12 +57,13 @@ projr_path_get_dir <- function(label, ...,
   
   # Determine the inherited format from the YAML
   is_yaml_abs <- all(fs::is_absolute_path(path_raw))
+  path_abs <- .path_resolve_root(path_raw)
   
   switch(format,
-    "absolute" = .path_resolve_root(path_raw),
-    "relative" = .path_force_rel(.path_get(path_raw), getwd()),
+    "absolute" = path_abs,
+    "relative" = .path_force_rel(path_abs, getwd()),
     "auto"     = {
-      if (is_yaml_abs) .path_resolve_root(path_raw) else .path_force_rel(.path_get(path_raw), getwd())
+      if (is_yaml_abs) path_abs else .path_force_rel(path_abs, getwd())
     }
   )
 }

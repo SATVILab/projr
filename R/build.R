@@ -165,10 +165,20 @@ projr_build_patch <- function(msg = NULL,
 #' building the actual bookdown document and
 #' saving and archiving selected output.
 #'
-#' @param file character vector.
-#' Paths to files to build.
-#' Paths may be relative to project root, or absolute.
-#' Default is NULL, in which case all files are built.
+#' @param scripts character vector.
+#' Paths or glob patterns for scripts to build, relative to the project root
+#' or absolute. Prefix a pattern with `!` to exclude matches. Use an empty
+#' character vector or `""` to skip running scripts. The default, `NULL`,
+#' checks `dev.scripts` and then `build.scripts`. If neither is set, a
+#' Quarto or Bookdown project renders before automatically detected R scripts.
+#' Without a project, scripts are detected in the project root and run
+#' alphabetically.
+#'
+#' Explicit selections run in order, with each glob expanded alphabetically.
+#' If a selection includes Quarto or Bookdown project documents, those
+#' documents render together at the position of the last selected project
+#' document. The project YAML is restored before the build returns to the
+#' development version.
 #' @param bump logical.
 #' Whether to increment dev version for build.
 #' Default is \code{FALSE}.
@@ -187,6 +197,12 @@ projr_build_patch <- function(msg = NULL,
 #' When to clear output directories: "pre" (before build),
 #' "post" (after build), or "never" (default for dev builds).
 #' Can also be set via PROJR_CLEAR_OUTPUT environment variable.
+#'
+#' @return Invisibly returns `TRUE` after a successful build.
+#' @examples
+#' \dontrun{
+#' projr_build_dev(scripts = c("reports/*.Rmd", "!reports/draft.Rmd"))
+#' }
 #'
 #' @export
 projr_build_dev <- function(scripts = NULL,
@@ -230,14 +246,16 @@ projr_build_dev <- function(scripts = NULL,
                    archive_local = FALSE,
                    always_archive = TRUE,
                    clear_output = NULL) {
+  old_wd <- setwd(.path_get())
+  on.exit(setwd(old_wd), add = TRUE, after = FALSE)
   if (!is.null(profile)) {
     old_profile <- Sys.getenv("PROJR_PROFILE")
     Sys.setenv(PROJR_PROFILE = profile)
-    on.exit(Sys.setenv(PROJR_PROFILE = old_profile), add = TRUE)
+    on.exit(Sys.setenv(PROJR_PROFILE = old_profile), add = TRUE, after = FALSE)
   }
   # set and unset environment variables
   .env_set(unset = TRUE)
-  on.exit(.env_unset(), add = TRUE)
+  on.exit(.env_unset(), add = TRUE, after = FALSE)
   .build_ensure_version()
   clear_output <- .build_get_clear_output(clear_output)
 
@@ -263,22 +281,40 @@ projr_build_dev <- function(scripts = NULL,
       "Pre-Build Preparation", build_type
     )
 
-    # If no file specified, check for build.scripts configuration
-    # Use dev scripts for dev builds, build scripts for production builds
     scripts <- .scripts_get(
-      scripts = NULL,
+      scripts = scripts,
       bump_component = bump_component,
-      profile = profile
+      profile = NULL
     )
 
+    engines <- .engines_get(scripts)
+    restore_project <- .build_engines_backup_project(engines)
+    on.exit(restore_project(), add = TRUE, after = FALSE)
+    documents <- .build_document_sources(engines)
     version_run_on_list <- .build_pre(
       bump_component, msg, clear_output,
-      archive_github, archive_local, always_archive
+      archive_github, archive_local, always_archive, engines, documents
     )
+    render_dirs <- if (any(names(engines) != "r")) {
+      unique(c(.path_get(), dirname(documents)))
+    } else {
+      character()
+    }
+    intermediates_before <- .ignore_auto_document_intermediates(render_dirs)
+    on.exit(
+      {
+        if (!build_success) {
+          .ignore_auto_failed_document_outputs(render_dirs, intermediates_before)
+        }
+      },
+      add = TRUE,
+      after = FALSE
+    )
+    .build_engines_override_project(engines)
 
     # Build stage
     .cli_stage_header("Build", build_type)
-    .build_impl(version_run_on_list, file, args_engine)
+    rendered <- .build_engines(engines, version_run_on_list, args_engine)
 
     # Post-build stage
     .cli_stage_header("Post-Build", build_type)
@@ -286,7 +322,7 @@ projr_build_dev <- function(scripts = NULL,
     .build_post(
       version_run_on_list, bump_component, msg, old_dev_remove,
       archive_github, archive_local, always_archive, clear_output, total_time,
-      scripts = scripts
+      rendered, restore_project
     )
 
     build_success <- TRUE
@@ -332,12 +368,13 @@ projr_build_dev <- function(scripts = NULL,
                        clear_output,
                        archive_github,
                        archive_local,
-                       always_archive) {
+                       always_archive,
+                       engines,
+                       documents) {
   .cli_debug("Starting pre-build checks and setup")
 
   projr_yml_check(NULL)
-  # Check that all scripts and hooks that are to be run exist
-  .yml_scripts_hooks_check_exist(NULL)
+  .yml_hooks_check_exist(NULL)
   # whether it's an output run  or not
   output_run <- .build_get_output_run(bump_component)
 
@@ -347,7 +384,7 @@ projr_build_dev <- function(scripts = NULL,
   .cli_step(
     "Checking prerequisites (Git, GitHub, upstream)"
   )
-  .build_pre_check(output_run)
+  .build_pre_check(output_run, engines)
 
   # Prepare remote destinations (GitHub releases)
   .cli_step("Preparing remote destinations")
@@ -362,6 +399,7 @@ projr_build_dev <- function(scripts = NULL,
   # update reng, ignore files, doc directory and version
   .cli_step("Updating documentation and version information")
   .build_pre_document(output_run, archive_local)
+  .ignore_auto_document_outputs(documents)
 
   # get DESCRIPTION and build versions under all
   # build outcomes
@@ -403,24 +441,6 @@ projr_build_dev <- function(scripts = NULL,
   invisible(version_run_on_list)
 }
 
-# actual
-# ------------------------
-.build_impl <- function(version_run_on_list, file, args_engine) {
-  .cli_debug("Starting document rendering")
-  if (!is.null(file) && length(file) > 0) {
-    .cli_info("Building specified files: {paste(file, collapse = ', ')}")
-  }
-
-  .build_engines(
-    scripts = scripts,
-    version_run_on_list = version_run_on_list,
-    args_engine = args_engine
-  )
-
-  .cli_success("Document rendering completed")
-  invisible(version_run_on_list)
-}
-
 # post
 # ------------------------
 .build_post <- function(version_run_on_list,
@@ -432,14 +452,14 @@ projr_build_dev <- function(scripts = NULL,
                         always_archive,
                         clear_output,
                         total_time,
-                        scripts = NULL) {
+                        engines,
+                        restore_project) {
   output_run <- .build_get_output_run(bump_component)
 
   # move artefacts to unsafe, final directories
   .cli_step("Finalizing build artifacts")
   .build_post_finalise_artefacts(
-    bump_component, version_run_on_list, clear_output,
-    scripts = scripts
+    bump_component, version_run_on_list, clear_output, engines
   )
 
   # update documentation
@@ -461,6 +481,8 @@ projr_build_dev <- function(scripts = NULL,
   # For dev builds, use dev.hooks; for production builds, use build.hooks
   .cli_step("Running post-build hooks")
   .build_post_hooks_run(.is_dev_build(bump_component))
+
+  restore_project()
 
   # initiate dev version
   .cli_debug("Setting up development version")
@@ -522,22 +544,23 @@ projr_build_dev <- function(scripts = NULL,
 .build_post_finalise_artefacts <- function(bump_component,
                                            version_run_on_list,
                                            clear_output,
-                                           scripts = NULL) {
+                                           engines) {
   .cli_debug("Starting .build_post_finalise_artefacts()")
   .cli_debug("  bump_component: {bump_component}")
   .cli_debug("  clear_output: {clear_output}")
-  .cli_debug("  file: {paste(file, collapse = ', ')}")
+  .cli_debug("  engines: {paste(names(engines), collapse = ', ')}")
 
   output_run <- .build_get_output_run(bump_component)
   .cli_debug("  output_run: {output_run}")
 
   .cli_debug("Calling .build_clear_post_safe()")
-  .build_clear_post_safe(output_run, clear_output)
+  .build_clear_post_safe(output_run, clear_output, names(engines),
+                         as.character(unlist(engines[names(engines) == "document_output"])))
   .cli_debug("Completed .build_clear_post_safe()")
 
   # copy outputs to (final) output and data directories
   .cli_debug("Calling .build_copy()")
-  .build_copy(output_run, bump_component, version_run_on_list, scripts = scripts)
+  .build_copy(output_run, bump_component, version_run_on_list, engines)
   .cli_debug("Completed .build_copy()")
 
   .cli_debug("Finished .build_post_finalise_artefacts()")

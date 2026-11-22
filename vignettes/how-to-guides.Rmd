@@ -58,8 +58,8 @@ creating a versioned release.
 projr_build_dev()
 
 # Build specific documents only
-projr_build_dev("analysis.Rmd")
-projr_build_dev(c("methods.Rmd", "results.Rmd"))
+projr_build_dev(scripts = "analysis.Rmd")
+projr_build_dev(scripts = c("methods.Rmd", "results.Rmd"))
 ```
 
 Dev builds route outputs to the cache at `_tmp/projr/v<version>/`

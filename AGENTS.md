@@ -16,6 +16,18 @@ Key architectural patterns:
 - **Remote destinations**: A unified dispatcher pattern (`R/remote.R`) routes file operations to local, GitHub, or OSF backends.
 - **Internal vs. exported functions**: Internal helpers use a `.` prefix (e.g., `.hash_file()`); exported functions use the `projr_` prefix (e.g., `projr_build_patch()`).
 
+### Build script selection and rendering
+
+- `projr_build_dev(scripts = ...)` takes precedence over `dev.scripts`, then `build.scripts`. Production builds use `build.scripts`. Both use the merged active configuration. An explicit empty selection (`character()` in R or `[]` in YAML) skips rendering and script execution.
+- Resolve paths and glob patterns in `_projr.yml` from the project root. Keep each renderer's default code execution directory and honor its native options, including Quarto's `execute-dir` and R Markdown's `knit_root_dir`.
+- Run explicitly selected scripts in the listed order. Sort matches alphabetically within each glob, apply `!` exclusions across the selection, and keep the first occurrence of each path.
+- Build a Quarto or Bookdown project once at the position of its last selected project document. Store selected documents in Quarto's `project.render` or `book.chapters`, or Bookdown's `rmd_files`. Standalone documents and R scripts retain their positions around that build.
+- An explicit R-only selection runs those scripts without rendering the project. A document for the other engine renders as a standalone document. A directory with both project configurations is ambiguous and should report an error.
+- With automatic selection, render the project first and run top-level R scripts alphabetically afterward. With no project, run top-level documents and R scripts alphabetically. Automatic R discovery skips configured hooks, underscore-prefixed files, and `renv_repos.R`.
+- Save the original project YAML bytes before preparation, apply the selection after the pre-build commit, and keep it through output collection and post-build hooks. Restore the saved bytes immediately before switching to the dev version and on failure. Render Bookdown in a fresh R session so a preceding standalone render cannot supply another book's configuration.
+- Keep source documents and their directories trackable. Ignore renderer-generated output and intermediates at their project-relative paths, including beside nested documents. Install predictable rules before rendering and retain ignore rules for newly created intermediates after a failed render.
+- Collect project outputs from the configured safe documentation directory. Collect standalone outputs and their companion assets together in the configured documentation directory. When names collide, keep the affected documents in their project-relative subdirectories and report any remaining conflicts before collecting outputs.
+
 ---
 
 ## Tech Stack & Tooling

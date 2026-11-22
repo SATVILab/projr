@@ -157,37 +157,37 @@ test_that(".yml_hooks simple structure works", {
   )
 })
 
-test_that(".engine_get_from_files works correctly", {
+test_that(".engine_get_from_scripts works correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   # Test with .qmd files
   expect_identical(
-    .engine_get_from_files(c("analysis.qmd", "report.qmd")),
+    .engine_get_from_scripts(c("analysis.qmd", "report.qmd")),
     "quarto_document"
   )
 
   # Test with .Rmd files
   expect_identical(
-    .engine_get_from_files(c("analysis.Rmd", "report.Rmd")),
+    .engine_get_from_scripts(c("analysis.Rmd", "report.Rmd")),
     "rmd"
   )
 
   # Test with .R files
   expect_identical(
-    .engine_get_from_files(c("script.R")),
-    "rmd"
+    .engine_get_from_scripts(c("script.R")),
+    "r"
   )
 
   # Test with mixed files - qmd takes priority
   expect_identical(
-    .engine_get_from_files(c("analysis.qmd", "report.Rmd")),
+    .engine_get_from_scripts(c("analysis.qmd", "report.Rmd")),
     "quarto_document"
   )
 
   # Test with NULL
   expect_identical(
-    .engine_get_from_files(NULL),
+    .engine_get(NULL),
     .engine_get_auto()
   )
 })
@@ -269,8 +269,8 @@ test_that("File existence checks work for scripts and hooks", {
       )
 
       expect_error(
-        .yml_scripts_hooks_check_exist("default"),
-        "Build script .*nonexistent[.]qmd.*does not exist"
+        .scripts_get(NULL, "patch", "default"),
+        "Script .*nonexistent[.]qmd.*does not exist"
       )
 
       # Test 2: Non-existent dev script should error
@@ -284,8 +284,8 @@ test_that("File existence checks work for scripts and hooks", {
       )
 
       expect_error(
-        .yml_scripts_hooks_check_exist("default"),
-        "Dev script 'nonexistent-dev.R' does not exist"
+        .scripts_get(NULL, NULL, "default"),
+        "Script 'nonexistent-dev.R' does not exist"
       )
 
       # Test 3: Non-existent hook should error
@@ -301,7 +301,7 @@ test_that("File existence checks work for scripts and hooks", {
       )
 
       expect_error(
-        .yml_scripts_hooks_check_exist("default"),
+        .yml_hooks_check_exist("default"),
         "Hook 'nonexistent-hook.R' .* does not exist"
       )
 
@@ -322,7 +322,7 @@ test_that("File existence checks work for scripts and hooks", {
         "_projr.yml"
       )
 
-      expect_silent(.yml_scripts_hooks_check_exist("default"))
+      expect_silent(.yml_hooks_check_exist("default"))
     }
   )
 })
@@ -386,7 +386,7 @@ test_that("Issue scenario: build.scripts used as fallback for dev builds", {
     path = dir_test,
     code = {
       # Scenario from issue: only build.scripts is set, no dev.scripts
-      # When files parameter is NULL, dev build should use build.scripts
+      # When scripts is NULL, dev build should use build.scripts
       yaml::write_yaml(
         list(
           build = list(

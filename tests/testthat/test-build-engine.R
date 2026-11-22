@@ -23,7 +23,7 @@ test_that(".build_engine works with bookdown projects", {
       # Bookdown is the default for test projects
       # Test that .build_engine successfully renders bookdown
       result <- .build_engine(
-        file = NULL,
+        scripts = NULL,
         version_run_on_list = version_run_on_list,
         args_engine = list()
       )
@@ -73,7 +73,7 @@ test_that(".build_engine works with quarto documents", {
       )
 
       result <- .build_engine(
-        file = NULL,
+        scripts = NULL,
         version_run_on_list = version_run_on_list,
         args_engine = list()
       )
@@ -107,7 +107,7 @@ test_that(".build_engine works with RMarkdown documents", {
 
       # index.Rmd should exist from test setup
       result <- .build_engine(
-        file = NULL,
+        scripts = NULL,
         version_run_on_list = version_run_on_list,
         args_engine = list()
       )
@@ -144,7 +144,7 @@ test_that(".build_engine works with quarto projects", {
       )
 
       result <- .build_engine(
-        file = NULL,
+        scripts = NULL,
         version_run_on_list = version_run_on_list,
         args_engine = list()
       )
@@ -158,7 +158,7 @@ test_that(".build_engine works with quarto projects", {
   )
 })
 
-test_that(".build_engine respects file parameter for qmd documents", {
+test_that(".build_engine respects scripts parameter for qmd documents", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -190,7 +190,7 @@ test_that(".build_engine respects file parameter for qmd documents", {
 
       # Only render doc1.qmd
       result <- .build_engine(
-        file = "doc1.qmd",
+        scripts = "doc1.qmd",
         version_run_on_list = version_run_on_list,
         args_engine = list()
       )
@@ -204,7 +204,7 @@ test_that(".build_engine respects file parameter for qmd documents", {
   )
 })
 
-test_that(".build_engine respects file parameter for rmd documents", {
+test_that(".build_engine respects scripts parameter for rmd documents", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -236,7 +236,7 @@ test_that(".build_engine respects file parameter for rmd documents", {
 
       # Only render report1.Rmd
       result <- .build_engine(
-        file = "report1.Rmd",
+        scripts = "report1.Rmd",
         version_run_on_list = version_run_on_list,
         args_engine = list()
       )
@@ -273,7 +273,7 @@ test_that(".build_engine handles no documents error", {
       # Should error when no documents exist
       expect_error(
         .build_engine(
-          file = NULL,
+          scripts = NULL,
           version_run_on_list = version_run_on_list,
           args_engine = list()
         ),
@@ -393,7 +393,7 @@ test_that(".build_engine_qmd succeeds with valid document", {
       )
 
       result <- .build_engine_qmd(
-        file = "test.qmd",
+        scripts = "test.qmd",
         args_engine = list()
       )
 
@@ -428,7 +428,7 @@ test_that(".build_engine_qmd returns error message on failure", {
       )
 
       result <- .build_engine_qmd(
-        file = "broken.qmd",
+        scripts = "broken.qmd",
         args_engine = list()
       )
 
@@ -459,7 +459,7 @@ test_that(".build_engine_qmd renders multiple files", {
       )
 
       result <- .build_engine_qmd(
-        file = c("doc1.qmd", "doc2.qmd"),
+        scripts = c("doc1.qmd", "doc2.qmd"),
         args_engine = list()
       )
 
@@ -504,7 +504,7 @@ test_that(".build_engine_qmd stops on first error when rendering multiple files"
 
       # Render in order: good, broken, never
       result <- .build_engine_qmd(
-        file = c("good.qmd", "broken.qmd", "never.qmd"),
+        scripts = c("good.qmd", "broken.qmd", "never.qmd"),
         args_engine = list()
       )
 
@@ -539,7 +539,7 @@ test_that(".build_engine_rmd succeeds with valid document", {
       )
 
       result <- .build_engine_rmd(
-        file = "test.Rmd",
+        scripts = "test.Rmd",
         args_engine = list()
       )
 
@@ -574,7 +574,7 @@ test_that(".build_engine_rmd returns error message on failure", {
       )
 
       result <- .build_engine_rmd(
-        file = "broken.Rmd",
+        scripts = "broken.Rmd",
         args_engine = list()
       )
 
@@ -605,7 +605,7 @@ test_that(".build_engine_rmd renders multiple files", {
       )
 
       result <- .build_engine_rmd(
-        file = c("report1.Rmd", "report2.Rmd"),
+        scripts = c("report1.Rmd", "report2.Rmd"),
         args_engine = list()
       )
 
@@ -651,7 +651,7 @@ test_that(".build_engine_rmd stops on first error when rendering multiple files"
 
       # Render in order: good, broken, never
       result <- .build_engine_rmd(
-        file = c("good.Rmd", "broken.Rmd", "never.Rmd"),
+        scripts = c("good.Rmd", "broken.Rmd", "never.Rmd"),
         args_engine = list()
       )
 
@@ -745,7 +745,7 @@ test_that(".build_engine_qmd passes args_engine correctly", {
 
       # Test with custom args_engine (quiet mode)
       result <- .build_engine_qmd(
-        file = "test.qmd",
+        scripts = "test.qmd",
         args_engine = list(quiet = TRUE)
       )
 
@@ -779,7 +779,7 @@ test_that(".build_engine_rmd passes args_engine correctly", {
 
       # Test with custom args_engine (quiet mode)
       result <- .build_engine_rmd(
-        file = "test.Rmd",
+        scripts = "test.Rmd",
         args_engine = list(quiet = TRUE)
       )
 

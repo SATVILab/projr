@@ -58,7 +58,7 @@ Use `projr_build_dev()` while iterating. Dev builds:
 projr_build_dev()
 
 # Build a specific document
-projr_build_dev("analysis.Rmd")
+projr_build_dev(scripts = "analysis.Rmd")
 ```
 
 ### Production builds

@@ -1,7 +1,7 @@
-.engine_get <- function(file) {
-  if (!is.null(file) && length(file) > 0) {
-    .cli_debug("Detecting engine from specified files")
-    .engine_get_from_files(file)
+.engine_get <- function(scripts) {
+  if (length(scripts) > 0L) {
+    .cli_debug("Detecting engine from specified scripts")
+    .engine_get_from_scripts(scripts)
   } else {
     .cli_debug("Detecting engine from project configuration")
     .engine_get_auto()
@@ -28,12 +28,11 @@
 
 # Determine engine from explicitly specified files
 # This ensures build.scripts overrides _quarto.yml or _bookdown.yml
-.engine_get_from_files <- function(files) {
-
+.engine_get_from_scripts <- function(scripts) {
   # Check file extensions to determine engine
-  has_qmd <- any(grepl("\\.qmd$", files, ignore.case = TRUE))
-  has_rmd <- any(grepl("\\.Rmd$|\\.rmd$", files, ignore.case = TRUE))
-  has_r <- any(grepl("\\.R$", files, ignore.case = TRUE))
+  has_qmd <- any(grepl("\\.qmd$", scripts, ignore.case = TRUE))
+  has_rmd <- any(grepl("\\.Rmd$|\\.rmd$", scripts, ignore.case = TRUE))
+  has_r <- any(grepl("\\.R$", scripts, ignore.case = TRUE))
 
   # Prioritize Quarto if any .qmd files
   if (has_qmd) {
@@ -41,8 +40,7 @@
   } else if (has_rmd) {
     return("rmd")
   } else if (has_r) {
-    # R scripts can be run as regular documents
-    return("rmd")
+    return("r")
   } else {
     character(1L)
   }

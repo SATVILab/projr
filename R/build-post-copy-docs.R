@@ -1,44 +1,74 @@
-.build_copy_docs <- function(output_run, file = NULL) {
+.build_copy_docs <- function(output_run, engines = .engines_get()) {
   .cli_debug("Starting .build_copy_docs()")
   .cli_debug("  output_run: {output_run}")
-  .cli_debug("  file: {paste(file, collapse = ', ')}")
 
-  # When files are explicitly specified, use engine detection from files
-  # This ensures build.scripts overrides _quarto.yml or _bookdown.yml
-  engine <- .engine_get(file)
+  collected <- .build_copy_docs_targets(engines)
 
-  .cli_debug("  Engine: {engine}")
+  # Move project output before the standalone documents sharing its destination.
+  if ("bookdown" %in% names(engines)) {
+    .build_copy_docs_bookdown(output_run)
+  }
+  if ("quarto_project" %in% names(engines)) {
+    .build_copy_docs_quarto_project(output_run)
+  }
 
-  switch(engine,
-    "bookdown" = {
-      .cli_debug("  Calling .build_copy_docs_bookdown()")
-      .build_copy_docs_bookdown(output_run)
-    },
-    "quarto_project" = {
-      .cli_debug("  Calling .build_copy_docs_quarto_project()")
-      .build_copy_docs_quarto_project(output_run)
-    },
-    "quarto_document" = {
-      .cli_debug("  Calling .build_copy_docs_quarto()")
-      .build_copy_docs_quarto(output_run)
-    },
-    "rmd" = {
-      .cli_debug("  Calling .build_copy_docs_rmd()")
-      .build_copy_docs_rmd(output_run)
-    }
-  )
-
+  .build_copy_docs_paths(collected$source, output_run, collected$target)
+  for (index in seq_along(engines)) {
+    switch(names(engines)[[index]],
+      "quarto_document" = .build_copy_docs_quarto(output_run, engines[[index]]),
+      "rmd" = .build_copy_docs_rmd(output_run, engines[[index]])
+    )
+  }
   .cli_debug("Finished .build_copy_docs()")
+}
+
+# Keep the usual flat layout when names are unique. When documents share a
+# filename, keep each affected document and its assets together in its subdirectory.
+.build_copy_docs_targets <- function(engines) {
+  documents <- lapply(engines[names(engines) == "document_output"], function(paths) {
+    paths[file.exists(paths)]
+  })
+  source <- as.character(unlist(documents, use.names = FALSE))
+  target <- basename(source)
+  if (!length(source)) {
+    return(list(source = source, target = target))
+  }
+
+  project_dir <- if (any(names(engines) %in% c("quarto_project", "bookdown"))) {
+    .dir_get_label_safe_path("docs")
+  }
+  in_project <- function(paths) {
+    if (is.null(project_dir)) {
+      return(rep(FALSE, length(paths)))
+    }
+    file.exists(file.path(project_dir, paths))
+  }
+  group <- rep(seq_along(documents), lengths(documents))
+  overlap <- duplicated(target) | duplicated(target, fromLast = TRUE) | in_project(target)
+  nested <- group %in% group[overlap]
+  target[nested] <- as.character(fs::path_rel(source[nested], start = .path_get()))
+  conflict <- duplicated(target) | startsWith(target, "../") | in_project(target)
+  if (any(conflict)) {
+    stop("Document outputs share a destination. Give the rendered documents distinct ",
+      "output filenames: ", paste(source[conflict], collapse = ", "),
+      call. = FALSE
+    )
+  }
+  list(source = source, target = target)
 }
 
 # copy docs - rmd
 # ------------------
 
-.build_copy_docs_rmd <- function(output_run) {
+.build_copy_docs_rmd <- function(output_run, scripts = NULL) {
   .cli_debug("Starting .build_copy_docs_rmd()")
   .cli_debug("  output_run: {output_run}")
 
-  fn_vec_rmd <- list.files(pattern = "\\.Rmd$|\\.rmd$")
+  fn_vec_rmd <- if (is.null(scripts)) {
+    list.files(pattern = "\\.rmd$", ignore.case = TRUE)
+  } else {
+    grep("\\.rmd$", scripts, ignore.case = TRUE, value = TRUE)
+  }
   .cli_debug("  Found {length(fn_vec_rmd)} Rmd files: {paste(fn_vec_rmd, collapse = ', ')}")
 
   for (fn in fn_vec_rmd) {
@@ -85,7 +115,7 @@
 }
 
 .build_copy_docs_rmd_fn_prefix_get <- function(fn) {
-  gsub("\\.Rmd$|\\.rmd$", "", fn)
+  sub("\\.rmd$", "", fn, ignore.case = TRUE)
 }
 
 .build_copy_docs_rmd_is_html_format <- function(format) {
@@ -145,11 +175,15 @@
 # copy docs - quarto
 # ------------------
 
-.build_copy_docs_quarto <- function(output_run) {
+.build_copy_docs_quarto <- function(output_run, scripts = NULL) {
   .cli_debug("Starting .build_copy_docs_quarto()")
   .cli_debug("  output_run: {output_run}")
 
-  fn_vec_qmd <- list.files(pattern = "\\.qmd$")
+  fn_vec_qmd <- if (is.null(scripts)) {
+    list.files(pattern = "\\.qmd$", ignore.case = TRUE)
+  } else {
+    grep("\\.qmd$", scripts, ignore.case = TRUE, value = TRUE)
+  }
   .cli_debug("  Found {length(fn_vec_qmd)} qmd files: {paste(fn_vec_qmd, collapse = ', ')}")
 
   for (fn in fn_vec_qmd) {
@@ -164,13 +198,29 @@
 
 .build_copy_docs_quarto_ind <- function(fn, output_run) {
   frontmatter_vec <- .build_frontmatter_get(fn)
-  format <- .build_copy_docs_quarto_format_get(frontmatter_vec)
-  fn_output_prefix <- .build_copy_docs_quarto_fn_prefix_get(
-    frontmatter_vec, fn
-  )
-  path_vec <- .build_copy_docs_quarto_path_get(format, fn_output_prefix)
-  .build_copy_docs_paths(path_vec, output_run)
+  .build_copy_docs_paths(.build_copy_docs_quarto_paths_get(frontmatter_vec, fn), output_run)
   invisible(TRUE)
+}
+
+.build_copy_docs_quarto_paths_get <- function(frontmatter, script, args_engine = list()) {
+  formats <- names(frontmatter[["format"]]) %||% .build_copy_docs_quarto_format_get(frontmatter)
+  requested_format <- args_engine[["output_format"]]
+  if (!is.null(requested_format) && !identical(requested_format, "all")) {
+    formats <- requested_format
+  }
+  paths <- lapply(formats, function(format) {
+    options <- frontmatter[["format"]]
+    if (is.list(options) && is.list(options[[format]])) {
+      frontmatter[["output-file"]] <- options[[format]][["output-file"]] %||%
+        frontmatter[["output-file"]]
+    }
+    frontmatter[["output-file"]] <- args_engine[["output_file"]] %||% frontmatter[["output-file"]]
+    prefix <- .build_copy_docs_quarto_fn_prefix_get(frontmatter, script)
+    .build_copy_docs_quarto_path_get(format, prefix)
+  })
+  files <- unlist(paths, use.names = FALSE)
+  files <- files[!endsWith(files, "_files")]
+  unique(c(paste0(tools::file_path_sans_ext(script), "_files"), files))
 }
 
 .build_copy_docs_quarto_format_get <- function(frontmatter) {
@@ -189,8 +239,11 @@
 
 .build_copy_docs_quarto_path_get <- function(format, fn_prefix) {
   fn_suffix <- .build_copy_docs_quarto_fn_suffix_get(format)
-  fn <- paste0(fn_prefix, ".", fn_suffix)
-  c(paste0(fn_prefix, "_files"), fn)
+  extension <- paste0(".", fn_suffix)
+  has_extension <- endsWith(fn_prefix, extension)
+  fn <- if (has_extension) fn_prefix else paste0(fn_prefix, extension)
+  stem <- if (has_extension) tools::file_path_sans_ext(fn_prefix) else fn_prefix
+  c(paste0(stem, "_files"), fn)
 }
 
 .build_copy_docs_quarto_is_html_format <- function(format) {
@@ -207,9 +260,10 @@
 
 .build_copy_docs_quarto_fn_prefix_get <- function(frontmatter, fn) {
   if (!"output-file" %in% names(frontmatter)) {
-    return(gsub("\\.qmd$", "", fn))
+    return(sub("\\.qmd$", "", fn, ignore.case = TRUE))
   }
-  gsub("\\.qmd$", "", frontmatter[["output-file"]])
+  output_file <- sub("\\.qmd$", "", frontmatter[["output-file"]], ignore.case = TRUE)
+  if (dirname(fn) == ".") output_file else file.path(dirname(fn), output_file)
 }
 
 
@@ -218,6 +272,14 @@
     "revealjs" = "html",
     "beamer" = "pdf",
     "typst" = "pdf",
+    "gfm" = ,
+    "commonmark" = ,
+    "commonmark_x" = ,
+    "markdown" = ,
+    "markdown_phpextra" = ,
+    "markdown_github" = ,
+    "markdown_mmd" = ,
+    "markdown_strict" = "md",
     "dashboard" = "html",
     "s5" = "html",
     "slidy" = "html",
@@ -328,9 +390,7 @@
   }
 
   # Get source directory (temporary build location)
-  source_dir <- file.path(
-    .dir_get_cache_auto_version(profile = NULL), "docs"
-  )
+  source_dir <- .dir_get_label_safe_path("docs")
   .cli_debug("  Source dir: {source_dir}")
 
   if (!dir.exists(source_dir)) {
@@ -360,49 +420,43 @@
   txt_vec <- readLines(path, warn = FALSE)
   txt_vec <- gsub("\\s+$", "", txt_vec)
   ind_vec_frontmatter <- which(txt_vec == "---")
-  # no frontmatter detected
-  if (!1 %in% ind_vec_frontmatter || length(ind_vec_frontmatter) < 2) {
+  # No frontmatter, or an empty frontmatter block.
+  if (!1 %in% ind_vec_frontmatter || length(ind_vec_frontmatter) < 2 ||
+    ind_vec_frontmatter[2L] == 2L) {
     return(list())
   }
   # frontmatter detected
   txt_vec_frontmatter <- txt_vec[
     seq(ind_vec_frontmatter[1] + 1, ind_vec_frontmatter[2] - 1)
   ]
-  path_yml <- file.path(tempdir(), "frontmatter.yml")
-  writeLines(
-    txt_vec_frontmatter,
-    con = path_yml
-  )
-  yml_frontmatter <- yaml::read_yaml(path_yml)
-  yml_frontmatter
+  yaml::yaml.load(paste(txt_vec_frontmatter, collapse = "\n")) %||% list()
 }
 
-.build_copy_docs_paths <- function(path, output_run) {
+.build_copy_docs_paths <- function(path, output_run, target = basename(path)) {
   .cli_debug("  Starting .build_copy_docs_paths()")
   .cli_debug("    Paths to copy: {paste(path, collapse = ', ')}")
   .cli_debug("    output_run: {output_run}")
 
-  for (x in path) {
-    .cli_debug("    Processing path: {x}")
-    .build_copy_docs_paths_file(x, output_run)
-    .build_copy_docs_paths_dir(x, output_run)
-    .cli_debug("    Completed processing: {x}")
+  for (i in seq_along(path)) {
+    .build_copy_docs_paths_file(path[[i]], output_run, target[[i]])
+    .build_copy_docs_paths_dir(path[[i]], output_run, target[[i]])
   }
-
-  .cli_debug("    Removing processed directories")
-  .build_copy_docs_paths_rm_dir(path)
 
   .cli_debug("  Finished .build_copy_docs_paths()")
   invisible(TRUE)
 }
 
-.build_copy_docs_paths_file <- function(path, output_run) {
+.build_copy_docs_paths_file <- function(path, output_run, target = basename(path)) {
   if (!file.exists(path) || !fs::is_file(path)) {
     .cli_debug("      Skipping {path}: not a file or doesn't exist")
     return(invisible(FALSE))
   }
 
-  file_to <- projr_path_get("docs", basename(path), safe = !output_run)
+  file_to <- projr_path_get("docs", target, safe = !output_run)
+  fs::dir_create(dirname(file_to))
+  if (fs::path_abs(path) == fs::path_abs(file_to)) {
+    return(invisible(TRUE))
+  }
   .cli_debug("      Copying file {path} to {file_to}")
 
   if (file.exists(file_to)) {
@@ -415,15 +469,18 @@
   invisible(TRUE)
 }
 
-.build_copy_docs_paths_dir <- function(path, output_run) {
+.build_copy_docs_paths_dir <- function(path, output_run, target = basename(path)) {
   if (!file.exists(path) || !fs::is_dir(path)) {
     .cli_debug("      Skipping {path}: not a directory or doesn't exist")
     return(invisible(FALSE))
   }
 
   path_dir_to <- file.path(
-    projr_path_get_dir("docs", safe = !output_run), path
+    projr_path_get_dir("docs", safe = !output_run), target
   )
+  if (fs::path_abs(path) == fs::path_abs(path_dir_to)) {
+    return(invisible(TRUE))
+  }
   .cli_debug("      Copying directory {path} to {path_dir_to}")
 
   .dir_move_exact(
@@ -431,6 +488,7 @@
     path_dir_to = path_dir_to,
     fn_exc = "CHANGELOG.md"
   )
+  .build_copy_docs_paths_rm_dir(path)
   .cli_debug("      Completed copying directory")
   invisible(TRUE)
 }

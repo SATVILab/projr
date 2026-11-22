@@ -40,23 +40,21 @@ Explicitly specify which documents/scripts to build instead of relying on automa
 build:
   scripts:
     - analysis.qmd
-    - report.Rmd
-    - data-processing.R
+    - report.qmd
 
 # Development build scripts (exclusive override)
 dev:
   scripts:
     - quick-test.qmd
-    - debug.R
 ```
 
 ### Key Points
 
 - `build.scripts` only accepts plain character vectors (no sub-keys or named lists)
-- `dev.scripts` provides exclusive control for dev builds (no fallback to `build.scripts`)
+- A configured `dev.scripts` replaces `build.scripts` for dev builds.
 - Scripts specified in `_projr.yml` override `_quarto.yml` and `_bookdown.yml` configurations
-- Priority order for dev builds: file param → dev.scripts → _quarto/_bookdown → auto-detect
-- Priority order for production builds: file param → build.scripts → _quarto/_bookdown → auto-detect
+- Dev builds check the `scripts` argument, `dev.scripts`, `build.scripts`, then automatic engine detection.
+- Production builds check `build.scripts`, then automatic engine detection.
 
 ---
 
@@ -161,13 +159,12 @@ projr_yml_restrictions_set(branch = "main", not_behind = FALSE)
 
 ## File Existence Validation
 
-Before any build starts, all scripts and hooks are validated:
-- Build scripts from `build.scripts`
-- Dev scripts from `dev.scripts`
-- Build hooks from `build.hooks` (pre, post, both)
-- Dev hooks from `dev.hooks` (pre, post, both)
+Before a build starts, `.scripts_get()` resolves and validates the selected
+scripts. A development build uses the `scripts` argument, `dev.scripts`, then
+`build.scripts`. A production build uses `build.scripts`. With no selection,
+the build detects the rendering engine from the project.
 
-Function: `.yml_scripts_hooks_check_exist(is_dev_build)` in `R/yml-check.R`
+`.yml_hooks_check_exist()` validates the paths in `build.hooks` and `dev.hooks`.
 
 ---
 

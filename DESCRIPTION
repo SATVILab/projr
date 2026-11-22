@@ -10,7 +10,7 @@ Roxygen: list(markdown = TRUE)
 Depends: 
     R (>= 4.1.0)
 Imports: renv, jsonlite, yaml, rprojroot, desc, fs, digest, cli, glue
-Suggests: remotes, roxygen2, usethis, gert, gh, credentials, gitcreds, codemeta, cffr, pkgbuild, rmarkdown, bookdown, knitr, quarto, testthat (>=
+Suggests: remotes, roxygen2, usethis, gert, gh, credentials, gitcreds, codemeta, cffr, pkgbuild, rmarkdown, bookdown, xfun, knitr, quarto, testthat (>=
                   3.0.0), devtools, httr, covr, htmltools, DT, curl, rlang, withr, BiocManager, styler
 Config/testthat/edition: 3
 URL: https://satvilab.github.io/projr/

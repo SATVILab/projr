@@ -861,7 +861,7 @@ test_that(".build_engine works", {
 
       # bookdowwn
       .build_engine(
-        file = NULL,
+        scripts = NULL,
         version_run_on_list = version_run_on_list,
         args_engine = list()
       )
@@ -870,7 +870,7 @@ test_that(".build_engine works", {
       .file_rm("_bookdown.yml")
       .file_rm("_output.yml")
       .build_engine(
-        file = NULL,
+        scripts = NULL,
         version_run_on_list = version_run_on_list,
         args_engine = list()
       )
@@ -884,7 +884,7 @@ test_that(".build_engine works", {
         con = "quarto.qmd"
       )
       .build_engine(
-        file = NULL, version_run_on_list = version_run_on_list, args_engine = list()
+        scripts = NULL, version_run_on_list = version_run_on_list, args_engine = list()
       )
       expect_true(file.exists("quarto.html"))
       # now test quarto project
@@ -895,7 +895,7 @@ test_that(".build_engine works", {
         con = "quarto.yml"
       )
       .build_engine(
-        file = NULL, version_run_on_list = version_run_on_list, args_engine = list()
+        scripts = NULL, version_run_on_list = version_run_on_list, args_engine = list()
       )
       expect_true(dir.exists("docs/reportV0.0.0-1"))
     }
