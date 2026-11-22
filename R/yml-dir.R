@@ -339,7 +339,7 @@
 }
 
 .yml_dir_get_profiles <- function() {
-  files <- list.files(.path_get(), pattern = "^_projr-[[:alnum:]_-]+\\.yml$")
+  files <- setdiff(basename(.yml_config_files()), "_projr.yml")
   profiles <- sub("^_projr-(.*)\\.yml$", "\\1", files)
   profiles <- c("default", setdiff(profiles, c("default", "local")))
   default <- .yml_get_default()[["directories"]]

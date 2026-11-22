@@ -584,3 +584,35 @@ test_that(".yml_order reorders keys correctly", {
   # All keys should still be present
   expect_equal(length(result), length(yml_unordered))
 })
+
+test_that("configuration can be split between the root and _projr/config", {
+  skip_if(.is_test_select())
+  project <- .test_setup_project(rm_engine = TRUE)
+  usethis::with_project(project, {
+    fs::dir_create("_projr/config")
+    fs::file_move("_projr.yml", "_projr/config/_projr.yml")
+    yaml::write_yaml(list(dev = list(scripts = "scripts/nested.R")), "_projr/config/_projr-lab.yml")
+    yaml::write_yaml(list(directories = list("raw-more" = list(path = "incoming/site-b"))),
+                    "_projr/config/_projr-cluster.yml")
+    yaml::write_yaml(list(), "_projr/config/_projr-local.yml")
+    withr::local_envvar(c(PROJR_PROFILE = "lab"))
+    root <- as.character(fs::path_real("."))
+    withr::with_dir("_projr/config", {
+      expect_identical(as.character(.path_get()), root)
+      expect_identical(.yml_dev_get_scripts(NULL), "scripts/nested.R")
+      expect_false(.init_yml_copy("unused.yml"))
+      projr_ignore_auto()
+    })
+    expect_false(file.exists("_projr.yml"))
+    expect_true("/incoming/site-b/**" %in% readLines(".gitignore"))
+    expect_true(any(grepl("_projr/config/_projr-local.yml", readLines(".gitignore"), fixed = TRUE)))
+    .yml_set(list(dev = list(scripts = "updated.R")), "lab")
+    expect_identical(yaml::read_yaml("_projr/config/_projr-lab.yml")$dev$scripts, "updated.R")
+    yaml::write_yaml(list(dev = list(scripts = "root.R")), "_projr-lab.yml")
+    expect_identical(.yml_dev_get_scripts(NULL), "root.R")
+    expect_true(projr_profile_delete("lab"))
+    expect_identical(.yml_dev_get_scripts(NULL), "updated.R")
+    expect_true(projr_profile_create("new"))
+    expect_true(file.exists("_projr-new.yml"))
+  })
+})

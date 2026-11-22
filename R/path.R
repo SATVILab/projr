@@ -274,13 +274,19 @@
 # get
 # ---------------------
 
+# A default config inside _projr/config belongs to the surrounding project.
+.projr_root_criterion <- rprojroot::root_criterion(function(path) {
+  is_config_dir <- basename(path) == "config" && basename(dirname(path)) == "_projr"
+  (!is_config_dir && file.exists(file.path(path, "_projr.yml"))) ||
+    file.exists(file.path(path, "_projr/config/_projr.yml"))
+}, "a projr project configuration")
+
 .path_get <- function(..., relative = FALSE) {
   # Validate relative flag
   .assert_flag(relative, required = TRUE)
 
-  project_criterion <- rprojroot::has_file("_projr.yml")
   path_init <- tryCatch(
-    rprojroot::find_root_file(..., criterion = project_criterion),
+    rprojroot::find_root_file(..., criterion = .projr_root_criterion),
     error = function(e) NULL
   )
   path_init <- path_init %||% tryCatch(

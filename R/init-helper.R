@@ -35,10 +35,10 @@
 }
 
 .init_yml_copy <- function(path) {
-  if (file.exists(.path_get("_projr.yml"))) {
+  if (file.exists(.yml_get_path("default"))) {
     return(invisible(FALSE))
   }
-  fs::file_copy(path, .path_get("_projr.yml"), overwrite = TRUE)
+  fs::file_copy(path, .yml_get_path("default"), overwrite = TRUE)
   invisible(TRUE)
 }
 
@@ -47,7 +47,7 @@
   if (!.is_test()) {
     return(invisible(FALSE))
   }
-  path_yml <- .path_get("_projr.yml")
+  path_yml <- .yml_get_path("default")
   yml_projr <- yaml::read_yaml(path_yml)
   if (!"build" %in% names(yml_projr)) {
     return(invisible(FALSE))
