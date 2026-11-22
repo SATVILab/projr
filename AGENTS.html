@@ -76,6 +76,14 @@
 <li>Save the original project YAML bytes before preparation, apply the selection after the pre-build commit, and keep it through output collection and post-build hooks. Restore the saved bytes immediately before switching to the dev version and on failure. Render Bookdown in a fresh R session so a preceding standalone render cannot supply another book’s configuration.</li>
 <li>Keep source documents and their directories trackable. Ignore renderer-generated output and intermediates at their project-relative paths, including beside nested documents. Install predictable rules before rendering and retain ignore rules for newly created intermediates after a failed render.</li>
 <li>Collect project outputs from the configured safe documentation directory. Collect standalone outputs and their companion assets together in the configured documentation directory. When names collide, keep the affected documents in their project-relative subdirectories and report any remaining conflicts before collecting outputs.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="directory-ignores-across-profiles">Directory ignores across profiles<a class="anchor" aria-label="anchor" href="#directory-ignores-across-profiles"></a></h3>
+<ul><li>When updating <code>.gitignore</code>, combine directory rules from active and inactive profiles per literal project-relative path. Apply the same logic to <code>.Rbuildignore</code> when the project root contains <code>DESCRIPTION</code>. Include a path for each ignore type enabled by any contributing profile.</li>
+<li>
+<code>directories.&lt;label&gt;.ignore-even-if-inactive</code> defaults to <code>true</code> and extends the directory’s existing <code>ignore</code>, <code>ignore-git</code>, and <code>ignore-rbuild</code> settings. With <code>false</code>, that profile contributes the directory’s rules only while active.</li>
+<li>Generate rules only for paths inside the checkout. Skip foreign absolute paths in inactive profiles without accessing or validating their directories.</li>
+<li>Refresh directory rules from the current configuration. When the last qualifying profile reference to a path is removed, drop its generated rule on the next refresh. On the first manual edit to a legacy managed block, regenerate its contents and preserve rules outside the block.</li>
 </ul><hr></div>
 </div>
 <div class="section level2">

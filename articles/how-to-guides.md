@@ -278,6 +278,43 @@ projr_profile_delete("dev")
 Remember to unset `PROJR_PROFILE` when switching back to the default
 configuration.
 
+### Keep profile directories out of Git
+
+Suppose `raw-data` points to `lab/measurements` in `_projr.yml`. On a
+cluster, you keep the data in `incoming/assays`. Set the latter path in
+`_projr-cluster.yml` and give temporary work its own rule.
+
+``` yaml
+directories:
+  raw-data:
+    path: incoming/assays
+  cache-scratch:
+    path: runs/scratch
+    ignore-even-if-inactive: false
+```
+
+Run
+[`projr_ignore_auto()`](https://satvilab.github.io/projr/reference/projr_ignore_auto.md)
+to refresh the rules. Git ignores both data directories whichever
+profile is active. The cluster profile contributes the rule for
+`runs/scratch` only while it is active. Paths are literal and relative
+to the project root. An absolute path contributes a rule only when it
+lies inside the checkout. An inactive profile can name a drive on
+another machine without requiring access to it.
+
+`ignore-even-if-inactive` defaults to `true`. It extends the directory’s
+existing `ignore`, `ignore-git`, and `ignore-rbuild` settings across
+profile switches. Each ignore file includes a path if any contributing
+profile enables it for that file. projr applies this to `.gitignore`
+and, when the project root contains `DESCRIPTION`, to `.Rbuildignore`.
+
+If you change `raw-data` to another path, run
+[`projr_ignore_auto()`](https://satvilab.github.io/projr/reference/projr_ignore_auto.md).
+The next refresh drops the old path’s generated rule as soon as its last
+qualifying profile reference is removed. Adding a manual ignore to an
+older project also refreshes its managed rules. Entries above and below
+the managed section stay in place.
+
 ------------------------------------------------------------------------
 
 ## 8. View and manage build logs

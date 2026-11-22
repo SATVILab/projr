@@ -113,13 +113,13 @@ and configuring both Git and GitHub repositories.</p>
 
 
 <dl><dt id="arg-user">user<a class="anchor" aria-label="anchor" href="#arg-user"></a></dt>
-<dd><p>Character or \codeNULL (for \codeprojr_init_github). GitHub username to use
-when creating the remote; if \codeNULL the token owner is used. Defaults to \codeNULL.</p></dd>
+<dd><p>Character or <code>NULL</code>. GitHub username to use when creating the
+remote. Defaults to the authenticated user.</p></dd>
 
 
 <dt id="arg-org">org<a class="anchor" aria-label="anchor" href="#arg-org"></a></dt>
-<dd><p>Character or \codeNULL (for \codeprojr_init_github). GitHub organisation to use
-when creating the remote. Defaults to \codeNULL.</p></dd>
+<dd><p>Character or <code>NULL</code>. GitHub organisation that will own the
+repository. If supplied, it takes precedence over <code>user</code>.</p></dd>
 
 
 <dt id="arg-public">public<a class="anchor" aria-label="anchor" href="#arg-public"></a></dt>
@@ -128,12 +128,8 @@ be public. Defaults to <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-create-repo">create_repo<a class="anchor" aria-label="anchor" href="#arg-create-repo"></a></dt>
-<dd><p>Logical. If <code>TRUE</code> and
-the project does not have a local Git repository,
-then in interactive mode it offers to create a
-GitHub repository and in non-interactive mode
-creates one automatically.
-Defaults to <code>TRUE</code>.</p></dd>
+<dd><p>Logical. If <code>TRUE</code>, <code>projr_init_github()</code> initializes a
+local Git repository if needed. Defaults to <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-git-commit">git_commit<a class="anchor" aria-label="anchor" href="#arg-git-commit"></a></dt>
@@ -201,13 +197,13 @@ Defaults to <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-bioc">bioc<a class="anchor" aria-label="anchor" href="#arg-bioc"></a></dt>
-<dd><p>Logical (for \codeprojr_init_renv). If \codeTRUE, includes Bioconductor packages
-in the renv setup. Defaults to \codeTRUE.</p></dd>
+<dd><p>Logical (for <code>projr_init_renv</code>). If <code>TRUE</code>, includes Bioconductor packages
+in the renv setup. Defaults to <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-commit">commit<a class="anchor" aria-label="anchor" href="#arg-commit"></a></dt>
-<dd><p>Logical (for \codeprojr_init_git). If \codeTRUE, commits the initial changes
-to the Git repository. Defaults to \codeTRUE.</p></dd>
+<dd><p>Logical (for <code>projr_init_git</code>). If <code>TRUE</code>, commits the initial changes
+to the Git repository. Defaults to <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-first-name">first_name<a class="anchor" aria-label="anchor" href="#arg-first-name"></a></dt>
@@ -216,11 +212,6 @@ to the Git repository. Defaults to \codeTRUE.</p></dd>
 
 <dt id="arg-last-name">last_name<a class="anchor" aria-label="anchor" href="#arg-last-name"></a></dt>
 <dd><p>Character. Last name used for proprietary license templates.</p></dd>
-
-
-<dt id="arg-username">username<a class="anchor" aria-label="anchor" href="#arg-username"></a></dt>
-<dd><p>Character or <code>NULL</code> (for <code>projr_init_github</code>). The GitHub username or
-organization under which to create the repository. Defaults to <code>NULL</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

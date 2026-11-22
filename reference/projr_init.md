@@ -57,14 +57,13 @@ projr_init_ignore()
 
 - user:
 
-  Character or \codeNULL (for \codeprojr_init_github). GitHub username
-  to use when creating the remote; if \codeNULL the token owner is used.
-  Defaults to \codeNULL.
+  Character or `NULL`. GitHub username to use when creating the remote.
+  Defaults to the authenticated user.
 
 - org:
 
-  Character or \codeNULL (for \codeprojr_init_github). GitHub
-  organisation to use when creating the remote. Defaults to \codeNULL.
+  Character or `NULL`. GitHub organisation that will own the repository.
+  If supplied, it takes precedence over `user`.
 
 - public:
 
@@ -73,10 +72,8 @@ projr_init_ignore()
 
 - create_repo:
 
-  Logical. If `TRUE` and the project does not have a local Git
-  repository, then in interactive mode it offers to create a GitHub
-  repository and in non-interactive mode creates one automatically.
-  Defaults to `TRUE`.
+  Logical. If `TRUE`, `projr_init_github()` initializes a local Git
+  repository if needed. Defaults to `TRUE`.
 
 - git_commit:
 
@@ -142,13 +139,13 @@ projr_init_ignore()
 
 - bioc:
 
-  Logical (for \codeprojr_init_renv). If \codeTRUE, includes
-  Bioconductor packages in the renv setup. Defaults to \codeTRUE.
+  Logical (for `projr_init_renv`). If `TRUE`, includes Bioconductor
+  packages in the renv setup. Defaults to `TRUE`.
 
 - commit:
 
-  Logical (for \codeprojr_init_git). If \codeTRUE, commits the initial
-  changes to the Git repository. Defaults to \codeTRUE.
+  Logical (for `projr_init_git`). If `TRUE`, commits the initial changes
+  to the Git repository. Defaults to `TRUE`.
 
 - first_name:
 
@@ -157,11 +154,6 @@ projr_init_ignore()
 - last_name:
 
   Character. Last name used for proprietary license templates.
-
-- username:
-
-  Character or `NULL` (for `projr_init_github`). The GitHub username or
-  organization under which to create the repository. Defaults to `NULL`.
 
 ## Value
 

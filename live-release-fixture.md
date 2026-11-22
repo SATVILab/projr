@@ -1,0 +1,60 @@
+# Proposed GitHub Releases fixture
+
+Host the workflow and its R script in a dedicated fixture repository.
+Run it manually with `workflow_dispatch` or on a `schedule`. Give
+maintainers write access and protect its default branch. Run the job
+only on that branch. Keep the fixture repository name and the full,
+reviewed `SATVILab/projr` commit SHA in the trusted workflow. Updating
+the version under test takes a reviewed change to the pin. Use the
+fixture’s own trusted scripts and pin actions to reviewed SHAs.
+
+Give the fixture job `permissions: { contents: write }` and use its
+short-lived `GITHUB_TOKEN` for release and tag operations in that
+repository. Set checkout’s `persist-credentials: false`. Supply the
+token to the release test and cleanup steps. Install the pinned projr
+revision and its dependencies before running the test. [GitHub Actions
+token
+permissions](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token)
+
+1.  Assert that `GITHUB_REPOSITORY` equals the fixture repository.
+    Generate a fresh UUID **in each invocation**, including re-runs or
+    simultaneous processes in the same job. Use `projr-test-<UUID>` for
+    a single release. For the isolation check, append `-a` and `-b` to
+    that invocation’s base tag. Address releases and assets by exact tag
+    or ID throughout.
+2.  For each tag, confirm that the exact release and tag ref are absent.
+    Create a lightweight tag pointing at the known fixture commit
+    (`GITHUB_SHA`), then a prerelease using projr’s
+    [`.gh_release_create_httr()`](https://satvilab.github.io/projr/reference/dot-gh_release_create_httr.md).
+    Record the exact ref and its SHA immediately after confirmed tag
+    creation, and the returned release ID and tag immediately after
+    confirmed release creation. Keep these records in a file named for
+    the invocation UUID in the runner temp directory and pass that path
+    to cleanup. Abort on a collision. Only a successful creation
+    response establishes ownership.
+3.  Write two binary files with the same basename and different bytes.
+    Create A and upload its file with
+    `.gh_release_asset_upload_httr(overwrite = FALSE)`. Create B and
+    upload its file under the same asset name. Use
+    [`.remote_ls_final_github_httr()`](https://satvilab.github.io/projr/reference/dot-remote_ls_final_github_httr.md)
+    and
+    [`.remote_file_get_all_github_httr()`](https://satvilab.github.io/projr/reference/dot-remote_file_get_all_github_httr.md)
+    on each exact tag. Verify the asset name, size and SHA-256 digest
+    against its corresponding original in separate download directories.
+4.  Delete A’s recorded release and tag. Confirm A is absent, then
+    re-list and re-download B into an empty directory and verify B’s
+    original bytes. This checks whether removing one release can affect
+    another with an identically named asset.
+5.  Use `if: always()` for final cleanup after success or failure.
+    Process only the recorded release IDs and tag refs for this
+    invocation. Verify the release’s tag and the ref’s target SHA,
+    delete the release by ID and the tag by exact ref, and verify
+    absence. Handle an already deleted owned object as success. Report
+    unexpected API errors or ambiguous creation outcomes with the exact
+    tag for inspection. All mutations target individual objects. [GitHub
+    Releases API](https://docs.github.com/en/rest/releases/releases) and
+    [Git references API](https://docs.github.com/en/rest/git/refs)
+
+Ordinary package checks and testthat runs exercise release behavior
+offline with fixtures or mocks. The dedicated release job uses the
+fixture repository’s scoped token.

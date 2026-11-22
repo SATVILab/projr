@@ -75,6 +75,25 @@ Key architectural patterns:
   subdirectories and report any remaining conflicts before collecting
   outputs.
 
+### Directory ignores across profiles
+
+- When updating `.gitignore`, combine directory rules from active and
+  inactive profiles per literal project-relative path. Apply the same
+  logic to `.Rbuildignore` when the project root contains `DESCRIPTION`.
+  Include a path for each ignore type enabled by any contributing
+  profile.
+- `directories.<label>.ignore-even-if-inactive` defaults to `true` and
+  extends the directory’s existing `ignore`, `ignore-git`, and
+  `ignore-rbuild` settings. With `false`, that profile contributes the
+  directory’s rules only while active.
+- Generate rules only for paths inside the checkout. Skip foreign
+  absolute paths in inactive profiles without accessing or validating
+  their directories.
+- Refresh directory rules from the current configuration. When the last
+  qualifying profile reference to a path is removed, drop its generated
+  rule on the next refresh. On the first manual edit to a legacy managed
+  block, regenerate its contents and preserve rules outside the block.
+
 ------------------------------------------------------------------------
 
 ## Tech Stack & Tooling

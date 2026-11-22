@@ -305,7 +305,42 @@ Unspecified keys fall back to <code>_projr.yml</code>.</p>
 <span><span class="fu"><a href="../reference/projr_profile_delete.html">projr_profile_delete</a></span><span class="op">(</span><span class="st">"dev"</span><span class="op">)</span></span></code></pre></div>
 <p>Remember to unset <code>PROJR_PROFILE</code> when switching back to
 the default configuration.</p>
+<div class="section level3">
+<h3 id="keep-profile-directories-out-of-git">Keep profile directories out of Git<a class="anchor" aria-label="anchor" href="#keep-profile-directories-out-of-git"></a>
+</h3>
+<p>Suppose <code>raw-data</code> points to <code>lab/measurements</code>
+in <code>_projr.yml</code>. On a cluster, you keep the data in
+<code>incoming/assays</code>. Set the latter path in
+<code>_projr-cluster.yml</code> and give temporary work its own
+rule.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-data</span><span class="kw">:</span></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> incoming/assays</span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="at">  </span><span class="fu">cache-scratch</span><span class="kw">:</span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> runs/scratch</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="at">    </span><span class="fu">ignore-even-if-inactive</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span></code></pre></div>
+<p>Run <code><a href="../reference/projr_ignore_auto.html">projr_ignore_auto()</a></code> to refresh the rules. Git
+ignores both data directories whichever profile is active. The cluster
+profile contributes the rule for <code>runs/scratch</code> only while it
+is active. Paths are literal and relative to the project root. An
+absolute path contributes a rule only when it lies inside the checkout.
+An inactive profile can name a drive on another machine without
+requiring access to it.</p>
+<p><code>ignore-even-if-inactive</code> defaults to <code>true</code>.
+It extends the directory’s existing <code>ignore</code>,
+<code>ignore-git</code>, and <code>ignore-rbuild</code> settings across
+profile switches. Each ignore file includes a path if any contributing
+profile enables it for that file. projr applies this to
+<code>.gitignore</code> and, when the project root contains
+<code>DESCRIPTION</code>, to <code>.Rbuildignore</code>.</p>
+<p>If you change <code>raw-data</code> to another path, run
+<code><a href="../reference/projr_ignore_auto.html">projr_ignore_auto()</a></code>. The next refresh drops the old path’s
+generated rule as soon as its last qualifying profile reference is
+removed. Adding a manual ignore to an older project also refreshes its
+managed rules. Entries above and below the managed section stay in
+place.</p>
 <hr>
+</div>
 </div>
 <div class="section level2">
 <h2 id="view-and-manage-build-logs">8. View and manage build logs<a class="anchor" aria-label="anchor" href="#view-and-manage-build-logs"></a>
@@ -313,7 +348,7 @@ the default configuration.</p>
 <p>Build history is logged to
 <code>cache/projr/log/{dev,output}/history/builds.md</code>. Each build
 also creates a detailed Quarto log file organised by date.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># View build logs</span></span>
 <span><span class="fu"><a href="../reference/projr_log_view.html">projr_log_view</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
@@ -322,14 +357,14 @@ also creates a detailed Quarto log file organised by date.</p>
 <span>  recursive <span class="op">=</span> <span class="cn">TRUE</span>, pattern <span class="op">=</span> <span class="st">"\\.qmd$"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Control logging:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Disable detailed log files (history still maintained)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_LOG_DETAILED <span class="op">=</span> <span class="st">"FALSE"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Re-enable</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_LOG_DETAILED <span class="op">=</span> <span class="st">"TRUE"</span><span class="op">)</span></span></code></pre></div>
 <p>Clear old logs:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_log_clear.html">projr_log_clear</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_log_clear.html">projr_log_clear</a></span><span class="op">(</span>build_type <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_log_clear.html">projr_log_clear</a></span><span class="op">(</span>before_date <span class="op">=</span> <span class="st">"2025-01-01"</span><span class="op">)</span></span></code></pre></div>
@@ -342,19 +377,19 @@ also creates a detailed Quarto log file organised by date.</p>
 <p>The manifest (<code>manifest.csv</code>) tracks file hashes across
 versions. It is updated only by final builds, not dev builds.</p>
 <p>Compare two versions:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.2"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.2"</span>, label <span class="op">=</span> <span class="st">"output"</span><span class="op">)</span></span></code></pre></div>
 <p>Track files across a range of versions:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_range</a></span><span class="op">(</span><span class="st">"0.0.1"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_range</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.5"</span>, label <span class="op">=</span> <span class="st">"raw-data"</span><span class="op">)</span></span></code></pre></div>
 <p>Check when directories last changed:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_last_change</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_last_change</a></span><span class="op">(</span><span class="st">"0.0.3"</span><span class="op">)</span></span></code></pre></div>
 <p>Practical example — detect raw data changes since a release:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">raw_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span></span>
 <span>  <span class="st">"0.1.0"</span>, <span class="fu"><a href="../reference/projr_version_get.html">projr_version_get</a></span><span class="op">(</span><span class="op">)</span>, label <span class="op">=</span> <span class="st">"raw-data"</span></span>
 <span><span class="op">)</span></span>
@@ -370,19 +405,19 @@ when there are no results.</p>
 <h2 id="configure-environment-variables">10. Configure environment variables<a class="anchor" aria-label="anchor" href="#configure-environment-variables"></a>
 </h2>
 <p>Create environment files at the project root:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment"</span><span class="op">)</span>       <span class="co"># Global defaults</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment-dev"</span><span class="op">)</span>   <span class="co"># Profile-specific overrides</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment.local"</span><span class="op">)</span> <span class="co"># Machine-specific, git-ignored</span></span></code></pre></div>
 <p>Add variables in <code>KEY=value</code> format:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="co"># _environment</span></span>
-<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a><span class="va">PROJR_OUTPUT_LEVEL</span><span class="op">=</span>std</span>
-<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a><span class="va">PROJR_LOG_DETAILED</span><span class="op">=</span>TRUE</span>
-<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a></span>
-<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a><span class="co"># _environment.local (for secrets — git-ignored)</span></span>
-<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a><span class="va">GITHUB_PAT</span><span class="op">=</span>your_token_here</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="co"># _environment</span></span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="va">PROJR_OUTPUT_LEVEL</span><span class="op">=</span>std</span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a><span class="va">PROJR_LOG_DETAILED</span><span class="op">=</span>TRUE</span>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a></span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="co"># _environment.local (for secrets — git-ignored)</span></span>
+<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a><span class="va">GITHUB_PAT</span><span class="op">=</span>your_token_here</span></code></pre></div>
 <p>Load them:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Key variables:</p>
 <table class="table">
