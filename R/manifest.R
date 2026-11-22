@@ -2,16 +2,16 @@
 # ---------------------------
 
 .manifest_hash_label <- function(label,
-                                 output_run) {
+                                 output_run, version = NULL) {
   # output is always in safe directory
   # as hashing is done before copying over to final directory
   hash_tbl <- .hash_dir(
     path_dir = projr_path_get_dir(label, safe = !output_run),
-    dir_exc = .build_label_get_dir_exc(label)
+    version = version, dir_exc = .build_label_get_dir_exc(label)
   ) |>
     .manifest_hash_cache_filter(label)
   if (nrow(hash_tbl) == 0L) {
-    .empty_tbl_get_manifest(label, projr::projr_version_get())
+    .empty_tbl_get_manifest(label, version)
   } else {
     cbind(
       data.frame(label = rep(label, nrow(hash_tbl))),

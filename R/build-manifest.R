@@ -19,7 +19,7 @@
   }
   out_tbl <- lapply(
     label_vec, .manifest_hash_label,
-    output_run = FALSE
+    output_run = FALSE, version = projr_version_get()
   ) |>
     .build_manifest_reduce()
   rownames(out_tbl) <- NULL
@@ -28,18 +28,21 @@
 
 
 .build_manifest_pre_get_label <- function() {
-  # decide whether to hash or not - default is to hash,
-  # except for cache directories
-  label_vec <- c(
-    .yml_dir_get_label_cache(NULL),
-    .yml_dir_get_label_raw(NULL)
-  )
-  label_vec[
-    vapply(
-      label_vec, .yml_dir_get_hash_complete, logical(1),
-      profile = NULL
-    )
-  ]
+  .build_manifest_labels(c("cache", "raw"))
+}
+
+.build_manifest_labels <- function(types) {
+  directories <- .yml_dir_get(NULL)
+  labels <- names(directories)
+  stripped <- .dir_label_strip(labels)
+  matches <- lapply(types, function(type) {
+    group <- labels[startsWith(stripped, type)]
+    if (type == "docs" && !length(group)) "docs" else group
+  })
+  labels <- as.character(unlist(matches, use.names = FALSE))
+  labels[vapply(labels, function(label) {
+    .yml_dir_complete_hash(directories[[label]][["hash"]], label)
+  }, logical(1))]
 }
 
 .build_manifest_pre_get_label_ind_check <- function(label) {
@@ -87,7 +90,7 @@
   }
   out_tbl <- lapply(
     label_vec, .manifest_hash_label,
-    output_run = output_run
+    output_run = output_run, version = projr_version_get()
   ) |>
     .build_manifest_reduce()
   rownames(out_tbl) <- NULL
@@ -109,18 +112,7 @@
 }
 
 .build_manifest_post_get_label <- function() {
-  # decide whether to hash or not - default is to hash,
-  # except for cache directories
-  label_vec <- c(
-    .yml_dir_get_label_docs(NULL),
-    .yml_dir_get_label_output(NULL)
-  )
-  label_vec[
-    vapply(
-      label_vec, .yml_dir_get_hash_complete, logical(1),
-      profile = NULL
-    )
-  ]
+  .build_manifest_labels(c("docs", "output"))
 }
 
 .build_manifest_post_get_path <- function(output_run) {
