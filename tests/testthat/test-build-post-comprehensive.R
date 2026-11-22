@@ -361,26 +361,33 @@ test_that(".build_clear_old removes old dev builds", {
   )
 })
 
-test_that(".build_clear_old clears all cache for output builds", {
+test_that("output cache cleanup removes version directories and preserves logs", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create version directories
-      cache_base <- dirname(.dir_get_cache_auto_version(profile = NULL))
+  usethis::with_project(dir_test, {
+    cache_base <- dirname(.dir_get_cache_auto_version(profile = NULL))
+    unlink(cache_base, recursive = TRUE)
+    expect_false(.build_clear_old(output_run = TRUE, old_dev_remove = TRUE))
+    expect_false(dir.exists(cache_base))
 
-      # Clear all for output build
-      .build_clear_old(output_run = TRUE, old_dev_remove = TRUE)
+    fs::dir_create(cache_base)
+    expect_true(.build_clear_old(output_run = TRUE, old_dev_remove = TRUE))
+    expect_true(dir.exists(cache_base))
+    expect_length(list.files(cache_base), 0L)
 
-      # Cache base should be empty or not exist
-      if (dir.exists(cache_base)) {
-        expect_equal(length(list.files(cache_base)), 0)
-      }
-    }
-  )
+    versions <- file.path(cache_base, c("v0.0.1", "v0.0.2"))
+    fs::dir_create(versions)
+    fs::file_create(file.path(versions, "result.txt"))
+    log_dir <- file.path(cache_base, "log")
+    fs::dir_create(log_dir)
+    writeLines("build record", file.path(log_dir, "build.log"))
+
+    expect_true(.build_clear_old(output_run = TRUE, old_dev_remove = TRUE))
+    expect_identical(list.files(cache_base), "log")
+    expect_identical(readLines(file.path(log_dir, "build.log")), "build record")
+  })
 })
 
 # Edge case tests
@@ -739,35 +746,5 @@ test_that(".build_clear_post_docs does not clear for bookdown engine", {
     },
     force = TRUE,
     quiet = TRUE
-  )
-})
-
-test_that(".build_clear_old_output clears entire cache for output builds", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create multiple version directories
-      cache_base <- dirname(.dir_get_cache_auto_version(profile = NULL))
-
-      version1 <- file.path(cache_base, "v0.0.1")
-      version2 <- file.path(cache_base, "v0.0.2")
-
-      dir.create(version1, recursive = TRUE, showWarnings = FALSE)
-      dir.create(version2, recursive = TRUE, showWarnings = FALSE)
-      file.create(file.path(version1, "test1.txt"))
-      file.create(file.path(version2, "test2.txt"))
-
-      # Clear for output build
-      .build_clear_old(output_run = TRUE, old_dev_remove = TRUE)
-
-      # Cache base should be empty
-      if (dir.exists(cache_base)) {
-        expect_equal(length(list.files(cache_base)), 0)
-      }
-    }
   )
 })
