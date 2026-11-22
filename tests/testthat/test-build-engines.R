@@ -101,12 +101,24 @@ for (project in c("quarto_project", "quarto_book", "bookdown")) {
         }
         .yml_set(config, "default")
 
+        args_engine <- list()
+        if (project == "bookdown") {
+          # A prior standalone render using bookdown::gitbook caches the old YAML.
+          rmarkdown::render(chapters[[1L]], quiet = TRUE)
+          unlink("order.txt")
+          args_engine <- list(envir = list2env(list(expected_root = getwd()), parent = globalenv()))
+          cat("\n```{r}\nstopifnot(identical(getwd(), expected_root))\n```\n",
+            file = chapters[[1L]], append = TRUE
+          )
+        }
+        original <- readBin(config_file, "raw", n = file.size(config_file))
         if (is_dev) {
           projr_build_dev()
         } else {
-          projr_build_patch(msg = "Test selected chapters")
+          projr_build_patch(msg = "Test selected chapters", args_engine = args_engine)
         }
 
+        expect_identical(readBin(config_file, "raw", n = file.size(config_file)), original)
         expect_identical(readLines("order.txt"), c("first", "middle", "chapter1", "chapter2", "last"))
         expect_identical(readLines("post-selection.txt"), chapters)
         if (is_quarto) {
@@ -147,7 +159,9 @@ test_that("a failed render restores project selection and ignores new TeX files"
         "stop('expected build failure')",
         "```"
       ), "index.Rmd")
+      original <- readBin("_bookdown.yml", "raw", n = file.size("_bookdown.yml"))
       expect_error(projr_build_dev(scripts = c("index.Rmd", "reports/chapter.Rmd")), "expected build failure")
+      expect_identical(readBin("_bookdown.yml", "raw", n = file.size("_bookdown.yml")), original)
       expect_identical(.yml_bd_get()[["rmd_files"]], "index.Rmd")
       expect_identical(readLines("reports/unexpected.tex"), "generated")
       projr_ignore_auto()
@@ -156,6 +170,76 @@ test_that("a failed render restores project selection and ignores new TeX files"
       }
       expect_true(git_ignored("reports/unexpected.tex"))
       expect_false(git_ignored("reports/source.tex"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("explicit empty selections skip all documents and scripts", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(dir_test,
+    {
+      writeLines("stop('Unexpected R script')", "unexpected.R")
+      writeLines(c("# Test", "", "```{r}", "stop('Unexpected document')", "```"), "index.Rmd")
+      config <- .yml_get("default")
+      config[["build"]][["git"]] <- FALSE
+      config[["build"]][["scripts"]] <- "unexpected.R"
+      config[["dev"]] <- list(scripts = "unexpected.R")
+      .yml_set(config, "default")
+      expect_no_error(projr_build_dev(scripts = character()))
+
+      config[["dev"]][["scripts"]] <- character()
+      .yml_set(config, "default")
+      expect_no_error(projr_build_dev())
+
+      config[["build"]][["scripts"]] <- character()
+      .yml_set(config, "default")
+      expect_no_error(projr_build_patch(msg = "Build without scripts"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("a named profile inherits default development scripts", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(dir_test,
+    {
+      writeLines("stop('Unexpected automatic selection')", "other.R")
+      writeLines("file.create('selected.txt')", "selected.R")
+      config <- .yml_get("default")
+      config[["dev"]] <- list(scripts = "selected.R")
+      .yml_set(config, "default")
+      .yml_set(list(build = list(git = FALSE)), "analysis")
+
+      projr_build_dev(profile = "analysis")
+      expect_true(file.exists("selected.txt"))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("a failure during pre-build restores the original project YAML", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+
+  usethis::with_project(dir_test,
+    {
+      writeLines(c("# Keep this comment", "rmd_files: [index.Rmd]", "output_dir: previous"), "_bookdown.yml")
+      original <- readBin("_bookdown.yml", "raw", n = file.size("_bookdown.yml"))
+      writeLines("stop('pre-build failed')", "before.R")
+      config <- .yml_get("default")
+      config[["dev"]] <- list(scripts = "index.Rmd", hooks = list(pre = "before.R"))
+      .yml_set(config, "default")
+
+      expect_error(projr_build_dev(), "pre-build failed")
+      expect_identical(readBin("_bookdown.yml", "raw", n = file.size("_bookdown.yml")), original)
     },
     force = TRUE,
     quiet = TRUE

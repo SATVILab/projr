@@ -35,45 +35,40 @@
   documents
 }
 
-.build_engines_override_project <- function(engines) {
-  project <- intersect(c("quarto_project", "bookdown"), names(engines))
-  if (length(project) == 0L || is.null(engines[[project]])) {
+.build_engines_backup_project <- function(engines) {
+  if (!is.null(engines[["quarto_project"]])) {
+    path <- .path_get("_quarto.yml")
+  } else if (!is.null(engines[["bookdown"]])) {
+    path <- .path_get("_bookdown.yml")
+  } else {
     return(function() invisible(NULL))
   }
 
-  scripts <- as.list(engines[[project]])
-  config_file <- if (project == "quarto_project") "_quarto.yml" else "_bookdown.yml"
-  path <- .path_get(config_file)
   original <- readBin(path, "raw", n = file.size(path))
-  restore <- function() {
+  function() {
     if (!is.null(original)) {
       writeBin(original, path)
       original <<- NULL
     }
     invisible(NULL)
   }
+}
 
-  tryCatch(
-    {
-      if (project == "quarto_project") {
-        config <- .yml_quarto_get()
-        config[["project"]][["render"]] <- scripts
-        if (identical(config[["project"]][["type"]], "book")) {
-          config[["book"]][["chapters"]] <- scripts
-          config[["book"]][["appendices"]] <- NULL
-        }
-        .yml_quarto_set(config)
-      } else {
-        config <- .yml_bd_get()
-        config[["rmd_files"]] <- scripts
-        config[["rmd_subdir"]] <- FALSE
-        .yml_bd_set(config)
-      }
-    },
-    error = function(error) {
-      restore()
-      stop(error)
+.build_engines_override_project <- function(engines) {
+  if (!is.null(engines[["quarto_project"]])) {
+    scripts <- as.list(engines[["quarto_project"]])
+    config <- .yml_quarto_get()
+    config[["project"]][["render"]] <- scripts
+    if (identical(config[["project"]][["type"]], "book")) {
+      config[["book"]][["chapters"]] <- scripts
+      config[["book"]][["appendices"]] <- NULL
     }
-  )
-  restore
+    .yml_quarto_set(config)
+  } else if (!is.null(engines[["bookdown"]])) {
+    config <- .yml_bd_get()
+    config[["rmd_files"]] <- as.list(engines[["bookdown"]])
+    config[["rmd_subdir"]] <- FALSE
+    .yml_bd_set(config)
+  }
+  invisible(NULL)
 }

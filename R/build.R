@@ -284,10 +284,12 @@ projr_build_dev <- function(scripts = NULL,
     scripts <- .scripts_get(
       scripts = scripts,
       bump_component = bump_component,
-      profile = profile
+      profile = NULL
     )
 
     engines <- .engines_get(scripts)
+    restore_project <- .build_engines_backup_project(engines)
+    on.exit(restore_project(), add = TRUE, after = FALSE)
     documents <- .build_document_sources(engines)
     version_run_on_list <- .build_pre(
       bump_component, msg, clear_output,
@@ -308,8 +310,7 @@ projr_build_dev <- function(scripts = NULL,
       add = TRUE,
       after = FALSE
     )
-    restore_project <- .build_engines_override_project(engines)
-    on.exit(restore_project(), add = TRUE, after = FALSE)
+    .build_engines_override_project(engines)
 
     # Build stage
     .cli_stage_header("Build", build_type)
@@ -553,7 +554,8 @@ projr_build_dev <- function(scripts = NULL,
   .cli_debug("  output_run: {output_run}")
 
   .cli_debug("Calling .build_clear_post_safe()")
-  .build_clear_post_safe(output_run, clear_output, names(engines))
+  .build_clear_post_safe(output_run, clear_output, names(engines),
+                         as.character(unlist(engines[names(engines) == "document_output"])))
   .cli_debug("Completed .build_clear_post_safe()")
 
   # copy outputs to (final) output and data directories

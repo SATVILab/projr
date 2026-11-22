@@ -36,7 +36,10 @@
 .build_engine_bookdown <- function(args_engine) {
   .dep_install("bookdown")
   .cli_debug("Rendering bookdown project")
-  x_return <- try(do.call(bookdown::render_book, args_engine))
+  # Bookdown can cache a different project's YAML after a standalone R Markdown render.
+  render <- function(args) try(do.call(bookdown::render_book, args), silent = TRUE)
+  environment(render) <- baseenv()
+  x_return <- try(xfun::Rscript_call(render, list(args_engine)))
   err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
   if (is.null(err_msg)) {
     return(NULL)

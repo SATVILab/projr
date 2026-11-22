@@ -7,7 +7,9 @@
 
 .scripts_get_specified <- function(scripts, bump_component, profile) {
   if (!is.null(scripts)) {
-    .assert_chr_mid(scripts)
+    if (!identical(scripts, character())) {
+      .assert_chr_mid(scripts)
+    }
     return(scripts)
   }
   if (.is_dev_build(bump_component)) {
