@@ -1,5 +1,5 @@
 {
-  "image": "ghcr.io/miguelrodo/devcontainers-main:v1.12.0",
+  "image": "ghcr.io/miguelrodo/devcontainers-main:v1.13.1",
   "features": {
     "ghcr.io/rocker-org/devcontainer-features/r-packages:1": {
       "installSystemRequirements": true,
