@@ -30,10 +30,12 @@
 ^_dependencies\.R$
 ^_archive$
 ^SCRATCH-old\.R$
+^\.git$
 ^\.gitignore$
 ^\.Rbuildignore$
 ^GITHUB_TESTS_FINDINGS\.md$
 ^INVESTIGATION_SUMMARY\.md$
 ^IMPLEMENTATION_SUMMARY\.md$
-
-
+^\.agents$
+^\.projects$
+^AGENTS\.md$

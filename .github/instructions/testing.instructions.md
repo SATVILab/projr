@@ -147,9 +147,9 @@ devtools::test()
 - Should run in all modes
 - Focus on essential functionality
 
-### Remote-Dependent Tests
-- Add `skip_if(!nzchar(Sys.getenv("GITHUB_PAT")))` or equivalent
-- Add `skip_if(.is_test_cran())` for CRAN compatibility
+### Remote-dependent tests
+
+Use local Git repositories and mocked HTTP responses for ordinary package checks and testthat runs. A dedicated fixture repository can exercise the live release lifecycle using its own scoped Actions token. [Proposed live release fixture](../live-release-fixture.md)
 
 ---
 
@@ -250,5 +250,4 @@ When testing local remote functionality, test combinations of YML parameters:
 
 - Use `.test_setup_project_git_config()` to set test user credentials
 - Git operations using `_git` variants may produce warnings for deleted files - use `suppressWarnings()` where appropriate
-- Remote operations require GitHub authentication - use `skip_if_not(nzchar(Sys.getenv("GITHUB_PAT")))`
 - `.git_changed_filter()` returns `fs_path` class, not plain character - use `as.character()` or `expect_length()` in tests

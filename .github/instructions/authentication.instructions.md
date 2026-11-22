@@ -120,63 +120,7 @@ The token should have appropriate scopes:
 
 ## Testing Authentication
 
-Tests should handle both authenticated and unauthenticated scenarios:
-
-```r
-# Test with authentication
-test_that("function works with auth", {
-  skip_if(!nzchar(.auth_get_github_pat_find()))
-  # Test with credentials available
-  expect_true(.my_github_function())
-})
-
-# Test without authentication
-test_that("function fails gracefully without auth", {
-  pat_old <- Sys.getenv("GITHUB_PAT")
-  Sys.unsetenv("GITHUB_PAT")
-
-  expect_error(
-    .auth_check_github(),
-    "GitHub authentication is required"
-  )
-
-  if (nzchar(pat_old)) Sys.setenv(GITHUB_PAT = pat_old)
-})
-
-# Skip tests requiring remote credentials
-test_that("OSF operation works", {
-  skip_if(!nzchar(Sys.getenv("OSF_PAT")))
-  skip_if(.is_test_cran())
-  # Test implementation
-})
-```
-
-### Tests That Modify GitHub Repositories
-
-Tests that create, delete, or modify GitHub repositories (not SATVILab/projr) must:
-
-1. Check that a token is detectable via `.auth_get_github_pat_find()`
-2. Check that this token is NOT the same as `GITHUB_TOKEN` (to prevent using CI tokens with limited permissions)
-3. Verify that `gh::gh_whoami()` can successfully retrieve the username (prevents malformed GitHub URLs)
-
-Use the helper wrapper `.test_skip_if_cannot_modify_github()`:
-
-```r
-test_that("creates and deletes GitHub repo", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  .test_skip_if_cannot_modify_github()
-
-  # Test that creates/deletes a GitHub repository
-  dir_test <- .test_setup_project(git = TRUE, github = TRUE, set_env_var = TRUE)
-  # ... test implementation
-})
-```
-
-This ensures tests that modify GitHub repositories only run when:
-- A user-specific token (not GITHUB_TOKEN) is available
-- The `gh` package can successfully retrieve the username
-- This prevents tests from attempting to run with invalid credentials that would result in malformed GitHub URLs
+Use fixture tokens and mocked credential lookups to cover both authenticated and unauthenticated paths. Ordinary testthat runs and R CMD check must work offline in a clean test home. Exercise real GitHub Releases in a dedicated fixture repository using its job's scoped token. [Proposed live release fixture](../live-release-fixture.md)
 
 ---
 

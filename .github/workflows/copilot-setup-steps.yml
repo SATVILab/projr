@@ -8,10 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GITHUB_PAT: ${{ secrets.GH_TOKEN }}
 
     steps:
       # 0. Set up the environment
@@ -25,6 +21,8 @@ jobs:
       # 1. Get the code
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       # 2. Set up R
       - uses: r-lib/actions/setup-r@v2

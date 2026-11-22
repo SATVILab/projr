@@ -796,14 +796,7 @@ test_that(".build_git_check_depends returns TRUE in non-interactive test mode", 
     path = dir_test,
     code = {
       .init()
-      # Need to ensure git config is not FALSE or commit=FALSE
-      # Default YAML has git settings, so should work
-      yml_git <- .yml_git_get(NULL)
-      # Skip if git is explicitly disabled
-      skip_if(isFALSE(yml_git))
-      skip_if(!is.null(yml_git[["commit"]]) && isFALSE(yml_git[["commit"]]))
-      
-      # In test mode with git not disabled, should return TRUE
+      projr_yml_git_set(commit = TRUE, push = FALSE)
       result <- .build_git_check_depends()
       expect_true(result)
     },
@@ -880,16 +873,12 @@ test_that(".build_git_required_setup creates git repository when required", {
 # =============================================================================
 
 test_that(".build_github_setup_check_pat returns TRUE when auth available", {
-  skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  
-  # Only run if auth is available
-  .test_skip_if_cannot_modify_github()
-  skip_if(!.git_gh_check_auth())
-  
-  # When PAT/auth is available, function should return TRUE
-  result <- .build_github_setup_check_pat()
-  expect_true(result)
+  available <- TRUE
+  testthat::local_mocked_bindings(.git_gh_check_auth = function() available)
+  expect_true(.build_github_setup_check_pat())
+  available <- FALSE
+  expect_error(.build_github_setup_check_pat(), "GitHub PAT not found", fixed = TRUE)
 })
 
 # =============================================================================
@@ -923,19 +912,13 @@ test_that(".build_pre_remotes_prepare returns FALSE when output_run=FALSE", {
 # =============================================================================
 
 test_that(".build_github_setup_user returns user in test mode", {
-  skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  .test_skip_if_cannot_modify_github()
-  skip_if(!.git_gh_check_auth())
-  
-  # In test mode, should return user without prompting
-  result <- tryCatch(
-    .build_github_setup_user(),
-    error = function(e) NULL
-  )
-  
-  # Should either get a user or error (if gh::gh_whoami() fails)
-  expect_true(is.null(result) || ("user" %in% names(result)))
+  skip_if_not_installed("gh")
+  user <- "fixture-user"
+  testthat::local_mocked_bindings(gh_whoami = function() list(login = user), .package = "gh")
+  expect_identical(.build_github_setup_user(), c(user = "fixture-user"))
+  user <- NULL
+  expect_error(.build_github_setup_user(), "GitHub user not found", fixed = TRUE)
 })
 
 # =============================================================================
@@ -943,15 +926,19 @@ test_that(".build_github_setup_user returns user in test mode", {
 # =============================================================================
 
 test_that(".build_github_setup_repo accepts user parameter", {
-  skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  
-  # Test that the function checks for "user" in names
-  # We can't actually create repos in tests, but we can verify the check
-  # This would normally call .init_github_actual_user which requires auth
-  # So we just verify the function accepts the right structure
-  user_param <- c("user" = "testuser")
-  expect_true("user" %in% names(user_param))
+  testthat::local_mocked_bindings(
+    .init_github_impl_user = function(username, public) {
+      expect_identical(username, "fixture-user")
+      expect_false(public)
+    },
+    .init_github_impl_org = function(public, org) {
+      expect_identical(org, "fixture-org")
+      expect_false(public)
+    }
+  )
+  .build_github_setup_repo(c(user = "fixture-user"))
+  .build_github_setup_repo(c(org = "fixture-org"))
 })
 
 # =============================================================================

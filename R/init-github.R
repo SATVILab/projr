@@ -1,17 +1,10 @@
 # github
 # --------------------------
 #' @rdname projr_init
-#' @param user Character or \\code{NULL} (for \\code{projr_init_github}). GitHub username to use
-#'   when creating the remote; if \\code{NULL} the token owner is used. Defaults to \\code{NULL}.
-#' @param org Character or \\code{NULL} (for \\code{projr_init_github}). GitHub organisation to use
-#'   when creating the remote. Defaults to \\code{NULL}.
-#' @param public Logical (for \\code{projr_init_github}). If \\code{TRUE}, the GitHub repository will
-#'   be public. Defaults to \\code{FALSE}.
-#' @param create_repo Logical (for \\code{projr_init_github}). If \\code{TRUE} and the project does not
-#'   have a local Git repository then in interactive mode it offers to create a GitHub repository and
-#'   in non-interactive mode creates one automatically. Defaults to \\code{TRUE}.
-#' @param git_commit Logical (for \\code{projr_init_github}). If \\code{TRUE}, commits the initial changes
-#'   to the Git repository when creating a new local repo. Defaults to \\code{TRUE}.
+#' @param user Character or `NULL`. GitHub username to use when creating the
+#'   remote. Defaults to the authenticated user.
+#' @param org Character or `NULL`. GitHub organisation that will own the
+#'   repository. If supplied, it takes precedence over `user`.
 #' @export
 projr_init_github <- function(
   user = NULL,
@@ -220,18 +213,18 @@ projr_init_github <- function(
 
   repo_url <- sprintf("https://github.com/%s/%s", owner, repo)
 
-  if (.is_interactive_and_not_in_test()) {
+  if (.is_interactive_and_not_test()) {
     .cli_info("GitHub repository already exists: {repo_url}")
-    response <- .menu_get(
-      paste0(
+    response <- utils::menu(
+      c("Yes", "No"),
+      title = paste0(
         "The repository '",
         owner,
         "/",
         repo,
         "' already exists on GitHub.\n",
         "Do you want to set it as the Git remote for this project?"
-      ),
-      c("Yes", "No")
+      )
     )
 
     if (response == 1L) {

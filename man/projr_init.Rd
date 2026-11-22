@@ -53,21 +53,17 @@ projr_init_license(license, first_name, last_name)
 projr_init_ignore()
 }
 \arguments{
-\item{user}{Character or \\code{NULL} (for \\code{projr_init_github}). GitHub username to use
-when creating the remote; if \\code{NULL} the token owner is used. Defaults to \\code{NULL}.}
+\item{user}{Character or \code{NULL}. GitHub username to use when creating the
+remote. Defaults to the authenticated user.}
 
-\item{org}{Character or \\code{NULL} (for \\code{projr_init_github}). GitHub organisation to use
-when creating the remote. Defaults to \\code{NULL}.}
+\item{org}{Character or \code{NULL}. GitHub organisation that will own the
+repository. If supplied, it takes precedence over \code{user}.}
 
 \item{public}{Logical (for \code{projr_init_github}). If \code{TRUE}, the GitHub repository will
 be public. Defaults to \code{FALSE}.}
 
-\item{create_repo}{Logical. If \code{TRUE} and
-the project does not have a local Git repository,
-then in interactive mode it offers to create a
-GitHub repository and in non-interactive mode
-creates one automatically.
-Defaults to \code{TRUE}.}
+\item{create_repo}{Logical. If \code{TRUE}, \code{projr_init_github()} initializes a
+local Git repository if needed. Defaults to \code{TRUE}.}
 
 \item{git_commit}{Logical. If \code{TRUE}, commits the initial changes to the Git repository.
 Defaults to \code{TRUE}.}
@@ -109,18 +105,15 @@ Defaults to \code{FALSE}.}
 Supported values are \code{"bookdown"}, \code{"project"}, \code{"quarto"}, and \code{"rmd"}.
 Defaults to \code{NULL}.}
 
-\item{bioc}{Logical (for \\code{projr_init_renv}). If \\code{TRUE}, includes Bioconductor packages
-in the renv setup. Defaults to \\code{TRUE}.}
+\item{bioc}{Logical (for \code{projr_init_renv}). If \code{TRUE}, includes Bioconductor packages
+in the renv setup. Defaults to \code{TRUE}.}
 
-\item{commit}{Logical (for \\code{projr_init_git}). If \\code{TRUE}, commits the initial changes
-to the Git repository. Defaults to \\code{TRUE}.}
+\item{commit}{Logical (for \code{projr_init_git}). If \code{TRUE}, commits the initial changes
+to the Git repository. Defaults to \code{TRUE}.}
 
 \item{first_name}{Character. First name used for proprietary license templates.}
 
 \item{last_name}{Character. Last name used for proprietary license templates.}
-
-\item{username}{Character or \code{NULL} (for \code{projr_init_github}). The GitHub username or
-organization under which to create the repository. Defaults to \code{NULL}.}
 }
 \value{
 Invisibly returns \code{TRUE} if initialization is successful, or \code{FALSE} if

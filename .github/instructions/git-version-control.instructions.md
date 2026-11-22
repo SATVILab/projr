@@ -174,7 +174,7 @@ test_that("git function works", {
 
 - Use `.test_setup_project_git_config()` to set test user credentials
 - Git operations using `_git` variants may produce warnings for deleted files - use `suppressWarnings()`
-- Remote operations require GitHub authentication - use `skip_if(!nzchar(Sys.getenv("GITHUB_PAT")))`
+- Test remote Git operations with a local bare repository in the temporary test directory.
 - `.git_changed_filter()` returns `fs_path` class, not plain character - use `as.character()` or `expect_length()`
 
 ---
