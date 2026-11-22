@@ -2,10 +2,10 @@
 # Pre-build
 # ==========================
 
-.build_pre_check <- function(output_run) {
+.build_pre_check <- function(output_run, engines = NULL) {
   # Check required packages are available BEFORE starting build
   .cli_debug("Checking required packages")
-  .build_check_packages_available(output_run)
+  .build_check_packages_available(output_run, engines)
 
   # check build restrictions (branch)
   .cli_debug("Checking build restrictions")
@@ -459,13 +459,16 @@
 # Package availability checking
 # ==============================
 
-.build_check_packages_available <- function(output_run) {
+.build_check_packages_available <- function(output_run, engines = NULL) {
   if (!output_run) {
     return(invisible(FALSE))
   }
 
-  # Use the new exported function to get package status
-  pkg_status <- projr_build_check_packages()
+  pkg_status <- if (is.null(engines)) {
+    projr_build_check_packages()
+  } else {
+    .build_check_packages(NULL, names(engines))
+  }
 
   if (pkg_status$available) {
     return(invisible(TRUE))

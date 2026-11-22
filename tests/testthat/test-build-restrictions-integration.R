@@ -24,11 +24,11 @@ test_that("build restrictions work in actual build", {
 
       # Dev builds are not restricted (only output builds are)
       # So all these should work regardless of restrictions
-      expect_no_error(projr_build_dev(file = "test-script.Rmd"))
+      expect_no_error(projr_build_dev(scripts = "test-script.Rmd"))
 
       # Restrict to different branch - dev build still works
       projr_yml_restrictions_set(branch = "different-branch")
-      expect_no_error(projr_build_dev(file = "test-script.Rmd"))
+      expect_no_error(projr_build_dev(scripts = "test-script.Rmd"))
 
       # Remove restrictions
       projr_yml_restrictions_set(branch = TRUE)
@@ -110,7 +110,7 @@ test_that("build restrictions only apply to output builds", {
       projr_yml_restrictions_set(branch = "different-branch")
 
       # Dev builds should still work (restrictions only apply to output_run)
-      expect_no_error(projr_build_dev(file = "test-script.Rmd"))
+      expect_no_error(projr_build_dev(scripts = "test-script.Rmd"))
     },
     force = TRUE,
     quiet = TRUE

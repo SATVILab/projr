@@ -589,7 +589,7 @@ test_that(".yml_dev_check validates dev structure", {
   )
 })
 
-test_that(".yml_scripts_hooks_check_exist validates file existence", {
+test_that("script resolution and hook checks validate file existence", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -614,20 +614,20 @@ test_that(".yml_scripts_hooks_check_exist validates file existence", {
         hooks = list(pre = c("dev-hook.R"))
       )
       .yml_set(yml, "default")
-      expect_true(.yml_scripts_hooks_check_exist())
+      expect_true(.yml_hooks_check_exist())
 
       # Missing build script should fail
       yml <- .yml_get("default")
       yml[["build"]][["scripts"]] <- c("missing-script.R")
       .yml_set(yml, "default")
-      expect_error(.yml_scripts_hooks_check_exist(), "missing-script.R")
+      expect_error(.scripts_get(NULL, "patch", NULL), "missing-script.R")
 
       # Missing build hook should fail
       yml <- .yml_get("default")
       yml[["build"]][["scripts"]] <- NULL # Clear previous scripts
       yml[["build"]][["hooks"]] <- list(pre = c("missing-hook.R"))
       .yml_set(yml, "default")
-      expect_error(.yml_scripts_hooks_check_exist(), "missing-hook.R")
+      expect_error(.yml_hooks_check_exist(), "missing-hook.R")
 
       # Missing dev script should fail
       yml <- .yml_get("default")
@@ -635,7 +635,7 @@ test_that(".yml_scripts_hooks_check_exist validates file existence", {
       yml[["build"]][["hooks"]] <- NULL # Clear build hooks
       yml[["dev"]] <- list(scripts = c("missing-dev-script.R"))
       .yml_set(yml, "default")
-      expect_error(.yml_scripts_hooks_check_exist(), "missing-dev-script.R")
+      expect_error(.scripts_get(NULL, NULL, NULL), "missing-dev-script.R")
 
       # Missing dev hook should fail
       yml <- .yml_get("default")
@@ -643,7 +643,7 @@ test_that(".yml_scripts_hooks_check_exist validates file existence", {
       yml[["build"]][["hooks"]] <- NULL # Clear build hooks
       yml[["dev"]] <- list(hooks = list(both = c("missing-dev-hook.R")))
       .yml_set(yml, "default")
-      expect_error(.yml_scripts_hooks_check_exist(), "missing-dev-hook.R")
+      expect_error(.yml_hooks_check_exist(), "missing-dev-hook.R")
     },
     force = TRUE,
     quiet = TRUE

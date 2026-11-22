@@ -658,46 +658,36 @@ test_that(".ignore_auto_build_tex_rqmd returns FALSE without source files", {
 # Build content directory handling
 # ==============================================================================
 
-test_that(".ignore_auto_build_content_dir handles quarto_document engine", {
+test_that("automatic document ignores are anchored to nested paths", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Set engine to quarto_document
-      yml_content <- "
-build:
-  engine: quarto_document
-"
-      writeLines(yml_content, "_projr.yml")
+  dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
+  usethis::with_project(dir_test,
+    {
+      dir.create("reports")
+      writeLines(c("---", "format: html", "output-file: custom.html", "---"), "reports/report.qmd")
+      writeLines(c("---", "output: html_document", "---"), "reports/analysis.Rmd")
+      file.create("reports/README.md", "reports/source.tex")
+      config <- .yml_get("default")
+      config[["build"]][["scripts"]] <- "reports/*"
+      .yml_set(config, "default")
 
-      # Create a .qmd file
-      file.create("analysis.qmd")
+      withr::with_dir("reports", projr_ignore_auto())
 
-      result <- .ignore_auto_build_content_dir()
-      expect_null(result)
-    }
-  )
-})
-
-test_that(".ignore_auto_build_content_dir returns NULL for bookdown", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Set engine to bookdown
-      yml_content <- "
-build:
-  engine: bookdown
-"
-      writeLines(yml_content, "_projr.yml")
-
-      result <- .ignore_auto_build_content_dir()
-      expect_null(result)
-    }
+      ignored <- c(
+        "reports/custom.html", "reports/report.tex", "reports/report_files/data.js",
+        "reports/analysis.html", "reports/analysis_cache/cache.rds", "reports/.quarto/scratch"
+      )
+      kept <- c("reports/report.qmd", "reports/analysis.Rmd", "reports/source.tex", "reports/README.md")
+      check_ignored <- function(path) {
+        system2("git", c("check-ignore", "--quiet", "--", path)) == 0L
+      }
+      expect_true(all(vapply(ignored, check_ignored, logical(1))))
+      expect_false(any(vapply(kept, check_ignored, logical(1))))
+      expect_true(any(readLines(".Rbuildignore") == utils::glob2rx("reports/report.tex")))
+    },
+    force = TRUE,
+    quiet = TRUE
   )
 })
 

@@ -1,10 +1,8 @@
-.build_engine <- function(file,
+.build_engine <- function(scripts,
                           version_run_on_list,
-                          args_engine) {
-  # When files are explicitly specified, use document-level rendering
-  # This ensures build.scripts overrides _quarto.yml or _bookdown.yml
-  engine <- .engine_get(file)
-
+                          args_engine,
+                          engine = .engine_get(scripts),
+                          collect_paths = FALSE) {
   .cli_info("Using rendering engine: {engine}")
 
   # Handle case where no documents are found
@@ -17,12 +15,22 @@
     build_error <- switch(engine,
       "bookdown" = .build_engine_bookdown(args_engine),
       "quarto_project" = .build_engine_quarto_project(args_engine),
-      "quarto_document" = .build_engine_qmd(file, args_engine),
-      "rmd" = .build_engine_rmd(file, args_engine)
+      "quarto_document" = .build_engine_qmd(scripts, args_engine),
+      "rmd" = .build_engine_rmd(scripts, args_engine, collect_paths),
+      "r" = tryCatch(.script_run(scripts), error = conditionMessage)
     )
   }
 
+  if (is.list(build_error)) {
+    return(invisible(build_error[["paths"]]))
+  }
   .build_engine_error(build_error, version_run_on_list)
+  if (collect_paths && identical(engine, "quarto_document")) {
+    return(invisible(.build_copy_docs_quarto_paths_get(
+      .build_frontmatter_get(scripts), scripts, args_engine
+    )))
+  }
+  invisible(TRUE)
 }
 
 .build_engine_bookdown <- function(args_engine) {
@@ -47,9 +55,9 @@
   paste0("Error rendering Quarto project ", err_msg)
 }
 
-.build_engine_qmd <- function(file, args_engine) {
+.build_engine_qmd <- function(scripts, args_engine) {
   .dep_install("quarto")
-  fn_vec <- .build_engine_doc_fn_get(file = file, type = "qmd")
+  fn_vec <- .build_engine_doc_fn_get(scripts = scripts, type = "qmd")
   .cli_debug("Rendering {length(fn_vec)} Quarto document(s)")
   for (x in fn_vec) {
     .cli_debug("Rendering: {x}")
@@ -67,10 +75,11 @@
   paste0("Error rendering Quarto document ", x, ": ", err_msg)
 }
 
-.build_engine_rmd <- function(file, args_engine) {
+.build_engine_rmd <- function(scripts, args_engine, collect_paths = FALSE) {
   .dep_install("rmarkdown")
-  fn_vec <- .build_engine_doc_fn_get(file = file, type = "rmd")
+  fn_vec <- .build_engine_doc_fn_get(scripts = scripts, type = "rmd")
   .cli_debug("Rendering {length(fn_vec)} RMarkdown document(s)")
+  outputs <- character()
   for (x in fn_vec) {
     .cli_debug("Rendering: {x}")
     x_return <- try(
@@ -79,9 +88,18 @@
     if (.is_try_error(x_return)) {
       break
     }
+    outputs <- c(outputs, x_return)
   }
   err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
   if (is.null(err_msg)) {
+    if (collect_paths) {
+      assets <- paste0(
+        tools::file_path_sans_ext(sub("\\.nb\\.html$", ".html", outputs)),
+        getOption("rmarkdown.files.suffix", "_files"),
+        recycle0 = TRUE
+      )
+      return(list(paths = unique(c(outputs, assets))))
+    }
     return(NULL)
   }
   paste0("Error rendering RMarkdown document ", x, ": ", err_msg)
@@ -98,30 +116,31 @@
   invisible(TRUE)
 }
 
-.build_engine_doc_fn_get <- function(file,
+.build_engine_doc_fn_get <- function(scripts,
                                      type) {
   detect_str <- switch(tolower(type),
     "qmd" = "\\.qmd$",
-    "rmd" = "\\.Rmd$|\\.rmd$",
+    "rmd" = "\\.rmd$",
     stop(paste0("Unknown document type: ", type), call. = FALSE)
   )
 
-  if (is.null(file)) {
-    fn_vec <- list.files(.path_get(), pattern = detect_str)
+  if (is.null(scripts)) {
+    fn_vec <- list.files(.path_get(), pattern = detect_str, ignore.case = TRUE)
     missing_files <- NULL
   } else {
     # Filter files by pattern and check existence
-    file_matching <- file[grepl(detect_str, file)]
+    file_matching <- scripts[grepl(detect_str, scripts, ignore.case = TRUE)]
     fn_vec <- .file_filter_exists(file_matching)
     # Track which files are missing
     missing_files <- setdiff(file_matching, fn_vec)
   }
 
-  .build_engine_doc_fn_get_error(fn_vec, type, file, missing_files)
-  fn_vec |> setdiff("README.Rmd")
+  fn_vec <- setdiff(fn_vec, c("README.Rmd", as.character(.path_get("README.Rmd"))))
+  .build_engine_doc_fn_get_error(fn_vec, type, scripts, missing_files)
+  fn_vec
 }
 
-.build_engine_doc_fn_get_error <- function(fn, type, file, missing_files = NULL) {
+.build_engine_doc_fn_get_error <- function(fn, type, scripts, missing_files = NULL) {
   # Check if there are missing files when files were specified
   if (!is.null(missing_files) && length(missing_files) > 0) {
     document_type <- switch(tolower(type),
@@ -147,7 +166,7 @@
   )
 
   # Create appropriate error message based on whether files were specified
-  if (is.null(file)) {
+  if (is.null(scripts)) {
     error_msg <- paste0(
       "No ", document_type, " documents found in the project directory. ",
       "Please create a ", tolower(type), " file or specify the file path explicitly."
@@ -156,7 +175,7 @@
     # Fallback for when no files match the pattern
     error_msg <- paste0(
       "The following ", document_type, " document(s) could not be found: ",
-      paste0(file, collapse = ", "), ". ",
+      paste0(scripts, collapse = ", "), ". ",
       "Please check that the file(s) exist and have the correct extension (", type, ")."
     )
   }

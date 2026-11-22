@@ -346,6 +346,58 @@ test_that("projr_build_ works with quarto", {
   )
 })
 
+test_that("projr_build_dev runs and collects only scripts selected by the caller", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
+
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      config <- .yml_get("default")
+      config[["dev"]] <- list(scripts = "unused-config.Rmd")
+      .yml_set(config, "default")
+
+      dir.create("reports")
+      writeLines("local input", "reports/input.txt")
+      writeLines("# Nested directory", "reports/README.md")
+      writeLines(c(
+        "---", "title: Selected", "output:", "  html_document:", "    self_contained: false",
+        "---", "", "Selected report.", "",
+        "```{r}", "stopifnot(readLines('input.txt') == 'local input')", "plot(1:3)", "```"
+      ), "reports/selected.Rmd")
+      writeLines(c(
+        "---", "title: Quarto report", "format: html", "output-file: quarto-report.html", "---", "",
+        "```{r}", "stopifnot(readLines('input.txt') == 'local input')", "plot(1:3)", "```"
+      ), "reports/figure.qmd")
+      writeLines("Excluded report.", "reports/excluded.Rmd")
+      writeLines("Old output.", "reports/excluded.html")
+
+      withr::with_dir("reports", {
+        original_wd <- getwd()
+        projr_build_dev(scripts = c(
+          "reports/figure.qmd",
+          "reports/*.Rmd",
+          paste0("!", file.path(dir_test, "reports", "excluded.Rmd"))
+        ))
+        expect_identical(getwd(), original_wd)
+      })
+
+      docs <- projr_path_get_dir("docs", safe = TRUE)
+      expect_true(file.exists(file.path(docs, "selected.html")))
+      expect_true(dir.exists(file.path(docs, "selected_files")))
+      expect_true(file.exists(file.path(docs, "quarto-report.html")))
+      expect_true(file.exists(file.path(
+        docs, "figure_files", "figure-html", "unnamed-chunk-1-1.png"
+      )))
+      expect_false(file.exists(file.path(docs, "excluded.html")))
+      expect_identical(readLines("reports/excluded.html"), "Old output.")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
 # Test args_engine parameter passing
 test_that("args_engine parameter works correctly", {
   skip_if(.is_test_cran())

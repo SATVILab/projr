@@ -1,4 +1,4 @@
-.build_clear_post_safe <- function(output_run, clear_output) {
+.build_clear_post_safe <- function(output_run, clear_output, engines = .engine_get_auto()) {
   .cli_debug("Starting .build_clear_post_safe()")
   .cli_debug("  output_run: {output_run}")
   .cli_debug("  clear_output: {clear_output}")
@@ -7,7 +7,7 @@
   # move rmd and qmd's (not bookdown or quarto projects)
   # to the final docs directories
   .cli_debug("Calling .build_clear_post_safe_docs()")
-  .build_clear_post_safe_docs(output_run)
+  .build_clear_post_safe_docs(output_run, engines)
   .cli_debug("Completed .build_clear_post_safe_docs()")
 
   # clear final directories, in preparation
@@ -37,7 +37,7 @@
   invisible(TRUE)
 }
 
-.build_clear_post_safe_docs <- function(output_run) {
+.build_clear_post_safe_docs <- function(output_run, engines = .engine_get_auto()) {
   .cli_debug("Starting .build_clear_post_safe_docs()")
   .cli_debug("  output_run: {output_run}")
 
@@ -45,9 +45,7 @@
   # if not quarto projects or bookdown projects.
   # don't clear quarto projects or bookdown projects
   # as we save directly there.
-  if (output_run && .build_clear_post_safe_check_docs()) {
-    engine <- .engine_get_auto()
-    .cli_debug("  engine: {engine}")
+  if (output_run && .build_clear_post_safe_check_docs(engines)) {
     .cli_debug("  Clearing docs directory (engine allows it)")
 
     path_to_clear <- projr_path_get_dir("docs", safe = FALSE, create = FALSE)
@@ -57,7 +55,7 @@
     .cli_debug("  Completed clearing docs directory")
     .cli_debug("Finished .build_clear_post_safe_docs() - cleared")
   } else {
-    .cli_debug("  Skipping docs clear: output_run={output_run}, check_docs={.build_clear_post_safe_check_docs()}")
+    .cli_debug("  Skipping docs clear: output_run={output_run}, check_docs={.build_clear_post_safe_check_docs(engines)}")
     .cli_debug("Finished .build_clear_post_safe_docs() - skipped")
     invisible(FALSE)
   }
@@ -71,10 +69,11 @@
   clear_output == "post"
 }
 
-.build_clear_post_safe_check_docs <- function() {
+.build_clear_post_safe_check_docs <- function(engines = .engine_get_auto()) {
   # allow the exception that the quarto project
   # and bookdown folders are not cleared
-  .engine_get_auto() %in% c("quarto_document", "rmd")
+  any(engines %in% c("quarto_document", "rmd", "document_output")) &&
+    !any(engines %in% c("quarto_project", "bookdown"))
 }
 
 # clear old temporary output directories

@@ -1,17 +1,16 @@
 .build_copy <- function(output_run,
                         bump_component,
                         version_run_on_list,
-                        file = NULL) {
+                        engines = .engines_get()) {
   .cli_debug("Starting .build_copy()")
   .cli_debug("  output_run: {output_run}")
   .cli_debug("  bump_component: {bump_component}")
-  .cli_debug("  file: {paste(file, collapse = ', ')}")
 
   # copy document across to correct directories.
   # this always happens because rmds' and qmds'
   # outputs need to be collected after build
   .cli_debug("Calling .build_copy_docs()")
-  .build_copy_docs(output_run, file = file)
+  .build_copy_docs(output_run, engines)
   .cli_debug("Completed .build_copy_docs()")
 
   # consider not copying output and data.

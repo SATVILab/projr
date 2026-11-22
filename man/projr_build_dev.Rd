@@ -5,7 +5,7 @@
 \title{Build dev project}
 \usage{
 projr_build_dev(
-  file = NULL,
+  scripts = NULL,
   bump = FALSE,
   old_dev_remove = TRUE,
   args_engine = list(),
@@ -14,10 +14,20 @@ projr_build_dev(
 )
 }
 \arguments{
-\item{file}{character vector.
-Paths to files to build.
-Paths may be relative to project root, or absolute.
-Default is NULL, in which case all files are built.}
+\item{scripts}{character vector.
+Paths or glob patterns for scripts to build, relative to the project root
+or absolute. Prefix a pattern with \code{!} to exclude matches. Use an empty
+character vector or \code{""} to skip running scripts. The default, \code{NULL},
+checks \code{dev.scripts} and then \code{build.scripts}. If neither is set, a
+Quarto or Bookdown project renders before automatically detected R scripts.
+Without a project, scripts are detected in the project root and run
+alphabetically.
+
+Explicit selections run in order, with each glob expanded alphabetically.
+If a selection includes Quarto or Bookdown project documents, those
+documents render together at the position of the last selected project
+document. The project YAML is restored before the build returns to the
+development version.}
 
 \item{bump}{logical.
 Whether to increment dev version for build.
@@ -41,9 +51,18 @@ When to clear output directories: "pre" (before build),
 "post" (after build), or "never" (default for dev builds).
 Can also be set via PROJR_CLEAR_OUTPUT environment variable.}
 }
+\value{
+Invisibly returns \code{TRUE} after a successful build.
+}
 \description{
 Builds project to output, which
 means recording the input and output data hashes,
 building the actual bookdown document and
 saving and archiving selected output.
+}
+\examples{
+\dontrun{
+projr_build_dev(scripts = c("reports/*.Rmd", "!reports/draft.Rmd"))
+}
+
 }

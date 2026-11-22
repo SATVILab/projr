@@ -65,7 +65,7 @@ projr::projr_build_major()  # bump major version (0.0.1 -> 1.0.0)
 
 ```{r, eval=FALSE}
 projr::projr_build_dev()
-projr::projr_build_dev("analysis.Rmd")  # render specific file(s)
+projr::projr_build_dev(scripts = "analysis.Rmd")
 ```
 
 Both detect your document type automatically (Rmd, Qmd, Quarto projects, bookdown).

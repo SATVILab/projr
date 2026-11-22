@@ -34,7 +34,7 @@ Development builds iterate without incrementing the version:
 
 ```{r, eval=FALSE}
 projr_build_dev()
-projr_build_dev(file = "analysis.qmd")
+projr_build_dev(scripts = "analysis.qmd")
 ```
 
 `projr_build()` is a wrapper that accepts a `bump_component` argument:
@@ -169,21 +169,28 @@ Hashes all files in input directories (`raw-data`, `cache`) and stores the resul
 
 Scripts are selected in this priority order:
 
-1. `file` parameter passed to the build function
+1. `scripts` argument to `projr_build_dev()`
 2. `dev.scripts` in `_projr.yml` (dev builds only)
 3. `build.scripts` in `_projr.yml`
-4. Engine-specific config (`_quarto.yml` or `_bookdown.yml`)
-5. Auto-detection of `.Rmd`, `.qmd`, or `.R` files in the project root
+4. Automatic detection from the project configuration and top-level scripts
+
+The `scripts` argument and YAML settings accept paths and glob patterns.
+Prefix a pattern with `!` to exclude matching scripts. Pass `scripts = ""`
+to skip running scripts.
 
 ### Document rendering
 
-The rendering engine is detected automatically:
+The rendering engine is detected from the selected scripts and project configuration:
 
 - Quarto for `.qmd` files or Quarto projects
-- Bookdown for `_bookdown.yml` projects
+- Bookdown for `.Rmd` files selected in a project with `_bookdown.yml`
 - R Markdown for `.Rmd` files
 
-Pass custom arguments to the engine:
+Explicitly selected scripts run in order. A project renders its selected
+documents together at the position of its last selected document. For an
+automatic build, a project renders first, followed by top-level R scripts.
+
+Pass custom arguments to the document renderers:
 
 ```{r, eval=FALSE}
 projr_build_patch(
@@ -194,7 +201,8 @@ projr_build_patch(
 
 ### Script execution
 
-Plain `.R` files run via `source()`. Use `projr_path_get_dir()` inside scripts to write to the correct output directories:
+R build scripts and hooks run via `source()`. Use `projr_path_get_dir()`
+inside a script to write to the correct output directories.
 
 ```{r, eval=FALSE}
 out_dir <- projr_path_get_dir("output", safe = TRUE)
@@ -457,7 +465,7 @@ projr_build_patch(
 
 ```{r, eval=FALSE}
 projr_build_dev(
-  file = NULL,
+  scripts = NULL,
   bump = FALSE,
   old_dev_remove = TRUE,
   args_engine = list(),

@@ -1,7 +1,7 @@
-# Tests for .build_copy_docs with file parameter
+# Tests for .build_copy_docs with scripts parameter
 # =================================================
 
-test_that(".build_copy_docs uses file parameter to detect engine (qmd)", {
+test_that(".build_copy_docs uses scripts parameter to detect engine (qmd)", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -27,9 +27,9 @@ test_that(".build_copy_docs uses file parameter to detect engine (qmd)", {
       # Simulate building this qmd file (create output file)
       writeLines("<html><body>Test</body></html>", "test.html")
 
-      # Call .build_copy_docs with file parameter
+      # Call .build_copy_docs with scripts parameter
       # Should use quarto_document engine, not bookdown
-      expect_silent(.build_copy_docs(output_run = FALSE, file = qmd_file))
+      expect_silent(.build_copy_docs(output_run = FALSE, engines = .engines_get(qmd_file)))
 
       # Check that the HTML file was copied to docs directory
       docs_dir <- projr_path_get_dir("docs", safe = TRUE)
@@ -40,7 +40,7 @@ test_that(".build_copy_docs uses file parameter to detect engine (qmd)", {
   )
 })
 
-test_that(".build_copy_docs uses file parameter to detect engine (Rmd)", {
+test_that(".build_copy_docs uses scripts parameter to detect engine (Rmd)", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -48,6 +48,7 @@ test_that(".build_copy_docs uses file parameter to detect engine (Rmd)", {
   usethis::with_project(
     path = dir_test,
     code = {
+      unlink("_bookdown.yml")
       # Create a _quarto.yml file
       # This would normally make .engine_get_auto() return "quarto_project"
       writeLines(c(
@@ -69,9 +70,9 @@ test_that(".build_copy_docs uses file parameter to detect engine (Rmd)", {
       # Simulate building this Rmd file (create output file)
       writeLines("<html><body>Test</body></html>", "test.html")
 
-      # Call .build_copy_docs with file parameter
+      # Call .build_copy_docs with scripts parameter
       # Should use rmd engine, not quarto_project
-      expect_silent(.build_copy_docs(output_run = FALSE, file = rmd_file))
+      expect_silent(.build_copy_docs(output_run = FALSE, engines = .engines_get(rmd_file)))
 
       # Check that the HTML file was copied to docs directory
       docs_dir <- projr_path_get_dir("docs", safe = TRUE)
@@ -82,7 +83,7 @@ test_that(".build_copy_docs uses file parameter to detect engine (Rmd)", {
   )
 })
 
-test_that(".build_copy_docs with NULL file uses project configuration", {
+test_that(".build_copy_docs with NULL scripts uses project configuration", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -93,17 +94,17 @@ test_that(".build_copy_docs with NULL file uses project configuration", {
       # Create a bookdown project
       writeLines(c('book_filename: "mybook"'), "_bookdown.yml")
 
-      # Call .build_copy_docs with NULL file (default behavior)
+      # Call .build_copy_docs with NULL scripts (default behavior)
       # Should use bookdown engine from project configuration
       # This should work without error even if no files exist
-      expect_silent(.build_copy_docs(output_run = FALSE, file = NULL))
+      expect_silent(.build_copy_docs(output_run = FALSE))
     },
     force = TRUE,
     quiet = TRUE
   )
 })
 
-test_that(".build_copy_docs with empty file vector uses project configuration", {
+test_that(".build_copy_docs with empty scripts vector skips document collection", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -117,16 +118,16 @@ test_that(".build_copy_docs with empty file vector uses project configuration", 
         "  type: website"
       ), "_quarto.yml")
 
-      # Call .build_copy_docs with empty file vector
-      # Should use quarto_project engine from project configuration
-      expect_silent(.build_copy_docs(output_run = FALSE, file = character(0)))
+      # Call .build_copy_docs with empty scripts vector
+      # Should skip document collection
+      expect_silent(.build_copy_docs(output_run = FALSE, engines = list()))
     },
     force = TRUE,
     quiet = TRUE
   )
 })
 
-test_that(".build_copy propagates file parameter correctly", {
+test_that(".build_copy propagates scripts parameter correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -152,18 +153,47 @@ test_that(".build_copy propagates file parameter correctly", {
       # Mock version list
       version_run_on_list <- list()
 
-      # Call .build_copy with file parameter
-      # Should pass file to .build_copy_docs
+      # Call .build_copy with scripts parameter
+      # Should pass scripts to .build_copy_docs
       expect_silent(.build_copy(
         output_run = FALSE,
         bump_component = "dev",
         version_run_on_list = version_run_on_list,
-        file = qmd_file
+        engines = .engines_get(qmd_file)
       ))
 
       # Check that HTML file was copied using quarto engine
       docs_dir <- projr_path_get_dir("docs", safe = TRUE)
       expect_true(file.exists(file.path(docs_dir, "test.html")))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+test_that("R Markdown collection uses the renderer's actual output path", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
+
+  usethis::with_project(dir_test,
+    {
+      unlink("_output.yml")
+      writeLines(c(
+        "---", "output:", "  html_document:", "    self_contained: false", "---",
+        "", "# Test"
+      ), "report.Rmd")
+      rendered <- .build_engines(
+        .engines_get("report.Rmd"),
+        version_run_on_list = .version_run_onwards_get(NULL),
+        args_engine = list(output_file = "renamed.html", output_dir = "rendered", quiet = TRUE)
+      )
+      .build_copy_docs(output_run = FALSE, engines = rendered)
+
+      docs <- projr_path_get_dir("docs", safe = TRUE)
+      expect_true(file.exists(file.path(docs, "renamed.html")))
+      expect_true(dir.exists(file.path(docs, "renamed_files")))
+      expect_false(file.exists("rendered/renamed.html"))
     },
     force = TRUE,
     quiet = TRUE

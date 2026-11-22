@@ -40,7 +40,13 @@ projr_ignore_auto <- function() {
   .ignore_auto_devcontainer()
   .ignore_auto_github()
   .ignore_auto_vscode() # also code-workspace files
-  .ignore_auto_build_content_dir()
+  configured <- c(.yml_scripts_get(NULL), .yml_dev_get_scripts(NULL))
+  configured <- trimws(configured)
+  configured <- configured[nzchar(configured) & !startsWith(configured, "!")]
+  .ignore_auto_document_outputs(c(
+    .scripts_get_inc_all_qmd(), .scripts_get_inc_all_rmd(),
+    .scripts_expand_patterns(configured)
+  ))
   .ignore_auto_dest_local(archive_local)
   invisible(TRUE)
 }
@@ -58,7 +64,7 @@ projr_ignore_auto <- function() {
 
 .ignore_auto_quarto_rbuild <- function() {
   dir_vec <- c("_extensions", "index_files", ".quarto")
-  dir_vec <- dir_vec[dir.exists(dir_vec)]
+  dir_vec <- dir_vec[dir.exists(.path_get(dir_vec))]
   if (.is_len_0(dir_vec)) {
     return(invisible(FALSE))
   }
@@ -67,7 +73,7 @@ projr_ignore_auto <- function() {
 
 .ignore_auto_quarto_git <- function() {
   dir_vec <- c("index_files", ".quarto")
-  dir_vec <- dir_vec[dir.exists(dir_vec)]
+  dir_vec <- dir_vec[dir.exists(.path_get(dir_vec))]
   if (.is_len_0(dir_vec)) {
     return(invisible(FALSE))
   }
@@ -75,7 +81,7 @@ projr_ignore_auto <- function() {
 }
 
 .ignore_auto_devcontainer <- function() {
-  if (dir.exists(".devcontainer")) {
+  if (dir.exists(.path_get(".devcontainer"))) {
     .ignore_auto_dir_rbuild(".devcontainer")
     invisible(TRUE)
   } else {
@@ -84,7 +90,7 @@ projr_ignore_auto <- function() {
 }
 
 .ignore_auto_github <- function() {
-  if (dir.exists(".github")) {
+  if (dir.exists(.path_get(".github"))) {
     .ignore_auto_dir_rbuild(".github")
     invisible(TRUE)
   } else {
@@ -93,7 +99,7 @@ projr_ignore_auto <- function() {
 }
 
 .ignore_auto_vscode <- function() {
-  if (dir.exists(".vscode")) {
+  if (dir.exists(.path_get(".vscode"))) {
     .ignore_auto_dir_rbuild(".vscode")
     invisible(TRUE)
   } else {
@@ -308,7 +314,7 @@ projr_ignore_auto <- function() {
     book_filename <- "_main"
   }
   path_tex <- paste0(book_filename, ".tex")
-  if (!file.exists(path_tex)) {
+  if (!file.exists(.path_get(path_tex))) {
     return(invisible(FALSE))
   }
 
@@ -320,7 +326,7 @@ projr_ignore_auto <- function() {
   if (!.engine_get_auto() == "quarto_project") {
     return(invisible(FALSE))
   }
-  if (!file.exists("index.tex")) {
+  if (!file.exists(.path_get("index.tex"))) {
     return(invisible(FALSE))
   }
   .ignore_auto_file_git("index.tex")
@@ -335,7 +341,7 @@ projr_ignore_auto <- function() {
   if (.is_len_0(path_vec)) {
     return(invisible(FALSE))
   }
-  path_vec <- path_vec[file.exists(path_vec)]
+  path_vec <- path_vec[file.exists(.path_get(path_vec))]
   if (.is_len_0(path_vec)) {
     return(invisible(FALSE))
   }
@@ -344,48 +350,82 @@ projr_ignore_auto <- function() {
 }
 
 # ========================================================================
-# Ignore temporary directories based on build files
+# Ignore outputs beside document sources, including nested sources.
 # ========================================================================
 
-.ignore_auto_build_content_dir <- function() {
-  switch(.engine_get_auto(),
-    # bookdown and quarto_project handled by directories key
-    "bookdown" = NULL,
-    "quarto_project" = NULL,
-    # only supporting quarto_document,
-    # as rmd's by default are self contained
-    "rmd" = NULL,
-    "quarto_document" = .ignore_auto_build_quarto()
-  )
-}
-
-# ignore - qmd output directories
-# ------------------
-
-.ignore_auto_build_quarto <- function() {
-  fn_vec_qmd <- list.files(pattern = "\\.qmd$")
-  path_vec_dir <- NULL
-  for (fn in fn_vec_qmd) {
-    path_vec_dir <- c(
-      path_vec_dir,
-      .ignore_auto_build_quarto_ind(fn)
-    )
+.ignore_auto_document_outputs <- function(scripts) {
+  root <- .path_get()
+  scripts <- unique(as.character(fs::path_abs(as.character(scripts), start = root)))
+  scripts <- scripts[
+    fs::path_has_parent(scripts, root) & file.exists(scripts) &
+      tolower(tools::file_ext(scripts)) %in% c("qmd", "rmd")
+  ]
+  if (length(scripts) == 0L) {
+    return(invisible(FALSE))
   }
-  path_vec_dir <- unique(path_vec_dir)
-  .ignore_auto_dir_git(path_vec_dir)
-  .ignore_auto_dir_rbuild(path_vec_dir)
+
+  outputs <- as.character(unlist(lapply(scripts, function(script) {
+    frontmatter <- tryCatch(.build_frontmatter_get(script), error = function(error) list())
+    if (tolower(tools::file_ext(script)) == "qmd") {
+      .build_copy_docs_quarto_paths_get(frontmatter, script)
+    } else {
+      format <- .build_copy_docs_rmd_format_get(frontmatter)
+      prefix <- .build_copy_docs_rmd_fn_prefix_get(script)
+      .build_copy_docs_rmd_path_get(format, prefix)
+    }
+  }), use.names = FALSE))
+  files <- outputs[!endsWith(outputs, "_files")]
+  stems <- unique(tools::file_path_sans_ext(c(scripts, files)))
+  intermediates <- as.vector(outer(stems, .ignore_auto_document_suffixes(), paste0))
+  source_stems <- tools::file_path_sans_ext(scripts)
+  directories <- c(outputs[endsWith(outputs, "_files")], paste0(source_stems, "_files"), paste0(source_stems, "_cache"))
+  quarto <- scripts[tolower(tools::file_ext(scripts)) == "qmd"]
+  if (length(quarto) > 0L) {
+    directories <- c(directories, file.path(unique(c(root, dirname(quarto))), ".quarto"))
+  }
+
+  # Anchor each rule to the project and keep source and final docs paths available.
+  files <- fs::path_rel(unique(c(files, intermediates)), start = root)
+  directories <- fs::path_rel(unique(directories), start = root)
+  .ignore_auto_file_git(c(paste0("/", files), paste0("/", directories, "/")))
+  .ignore_auto_file_rbuild(files)
+  .ignore_auto_dir_rbuild(directories)
   invisible(TRUE)
 }
 
-.ignore_auto_build_quarto_ind <- function(fn) {
-  frontmatter_vec <- .build_frontmatter_get(fn)
-  format <- .build_copy_docs_quarto_format_get(frontmatter_vec)
-  fn_output_prefix <- .build_copy_docs_quarto_fn_prefix_get(
-    frontmatter_vec, fn
+.ignore_auto_document_suffixes <- function() {
+  c(
+    ".tex", ".knit.md", ".utf8.md", ".rmarkdown", ".log", ".aux", ".out",
+    ".toc", ".fls", ".fdb_latexmk", ".synctex.gz", ".bbl", ".blg",
+    ".nav", ".snm", ".vrb"
   )
-  .build_copy_docs_quarto_path_get(format, fn_output_prefix)
 }
 
+.ignore_auto_document_intermediates <- function(directories) {
+  root <- .path_get()
+  directories <- fs::path_abs(directories, start = root)
+  directories <- directories[fs::path_has_parent(directories, root) | directories == root]
+  suffixes <- utils::glob2rx(paste0("*", .ignore_auto_document_suffixes()))
+  files <- list.files(directories, paste(suffixes, collapse = "|"), full.names = TRUE)
+  files[!dir.exists(files)]
+}
+
+.ignore_auto_failed_document_outputs <- function(directories, before) {
+  tryCatch(
+    {
+      files <- setdiff(.ignore_auto_document_intermediates(directories), before)
+      paths <- fs::path_rel(files, start = .path_get())
+      if (length(paths) > 0L) {
+        # Keep discovered filenames across future automatic ignore refreshes.
+        projr_ignore_file_git(paste0("/", paths))
+        projr_ignore_file_rbuild(paths)
+      }
+    },
+    error = function(error) {
+      .cli_debug("Could not ignore failed render intermediates: {conditionMessage(error)}")
+    }
+  )
+}
 
 # ===========================================================================
 # Ignore specified files/directories from specified paths
