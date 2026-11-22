@@ -377,15 +377,7 @@
 
 # ignore
 .build_ignore <- function(output_run, archive_local) {
-  old_profile <- .profile_get_raw()
-  Sys.unsetenv("PROJR_PROFILE")
-  projr_path_get_dir("docs")
-  if (!identical(old_profile, "default")) {
-    Sys.setenv("PROJR_PROFILE" = old_profile)
-  }
   .ignore_auto(output_run && archive_local)
-
-  invisible(TRUE)
 }
 
 #' Output Git information for debug

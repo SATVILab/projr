@@ -26,7 +26,7 @@ projr_ignore_auto <- function() {
   .cli_debug("Updating .gitignore and .Rbuildignore with projr-managed ignores")
   # ignore directories specified in
   # `_projr.yml`
-  .ignore_diryml()
+  .ignore_diryml(create_git = TRUE)
   # root level files
   .ignore_auto_yml()
   .ignore_auto_env()
@@ -137,7 +137,7 @@ projr_ignore_auto <- function() {
   )
   .ignore_auto_dir_rbuild(path_vec)
   if (file.exists(.path_get("_environment.local"))) {
-    .ignore_auto_dir_git(.path_get("_environment.local"))
+    .ignore_auto_dir_git("_environment.local")
   }
 }
 
@@ -516,7 +516,7 @@ projr_ignore_auto <- function() {
   }
 
   file_vec <- .ignore_auto_path_add_get_updated(path, ignore, FALSE)
-  .ignore_path_write(file_vec, path)
+  .ignore_path_write(file_vec, path, refresh_directories = FALSE)
   invisible(TRUE)
 }
 

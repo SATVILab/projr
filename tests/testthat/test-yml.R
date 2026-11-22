@@ -310,6 +310,27 @@ test_that(".yml_get_profile_ind gets individual profile", {
   )
 })
 
+test_that("directory profiles inherit defaults and local settings", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  usethis::with_project(dir_test, {
+    .yml_set(list(directories = list(cache = list(path = "base", `ignore-git` = FALSE))))
+    .yml_set(list(directories = list(cache = list(path = "remote"))), "remote")
+    .yml_set(list(directories = list(cache = list(`ignore-rbuild` = TRUE))), "local")
+
+    withr::local_envvar(PROJR_PROFILE = "default")
+    directories <- .yml_dir_get_profiles()
+    expect_identical(names(directories), c("default", "remote"))
+    expect_identical(directories$default, .yml_dir_get(NULL))
+    expect_identical(directories$remote$cache, list(
+      path = "remote", `ignore-git` = FALSE, `ignore-rbuild` = TRUE
+    ))
+
+    withr::local_envvar(PROJR_PROFILE = "first,second,third,remote")
+    expect_identical(directories$remote, .yml_dir_get(NULL))
+  }, force = TRUE, quiet = TRUE)
+})
+
 test_that(".yml_get_profile_ind_raw reads raw profile file", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -380,14 +401,14 @@ test_that(".yml_merge_list_add adds profiles to existing merge", {
   yml_existing <- list(x = 1, y = 2)
   profile_list <- list(
     list(y = 3), # Position 1 (merged with existing)
-    list(z = 4), # Position 2
-    list(w = 5) # Position 3
+    list(z = 4) # Position 2
   )
 
   result <- .yml_merge_list_add(yml_existing, profile_list)
   expect_true(is.list(result))
   expect_equal(result$x, 1) # From existing
   expect_equal(result$y, 2) # Existing takes precedence as "local"
+  expect_equal(result$z, 4)
 })
 
 test_that(".yml_get_filter_top_level filters to allowed keys", {

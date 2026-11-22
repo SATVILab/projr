@@ -591,7 +591,7 @@ test_that(".ignore_path_write writes content to file", {
     code = {
       test_content <- c("line1", "line2", "line3")
 
-      result <- .ignore_path_write(test_content, ".gitignore")
+      result <- .ignore_path_write(test_content, ".gitignore", refresh_directories = FALSE)
 
       expect_true(file.exists(".gitignore"))
       written_content <- readLines(".gitignore")
@@ -653,7 +653,7 @@ test_that(".ignore_path_write overwrites existing file", {
       writeLines(c("old1", "old2"), ".gitignore")
 
       # Overwrite with new content
-      .ignore_path_write(c("new1", "new2", "new3"), ".gitignore")
+      .ignore_path_write(c("new1", "new2", "new3"), ".gitignore", refresh_directories = FALSE)
 
       result <- readLines(".gitignore")
       # .newline_append adds empty string at end
@@ -670,7 +670,7 @@ test_that(".ignore_path_write handles empty character vector", {
   usethis::with_project(
     path = dir_test,
     code = {
-      .ignore_path_write(character(0), ".gitignore")
+      .ignore_path_write(character(0), ".gitignore", refresh_directories = FALSE)
 
       expect_true(file.exists(".gitignore"))
       result <- readLines(".gitignore")

@@ -124,7 +124,11 @@
 }
 
 # write to the specified file
-.ignore_path_write <- function(file_vec, path) {
+.ignore_path_write <- function(file_vec, path, refresh_directories = TRUE, reset = FALSE) {
+  if (refresh_directories && basename(path) %in% c(".gitignore", ".Rbuildignore") &&
+    (reset || file.exists(.path_get("_projr.yml")))) {
+    file_vec <- .ignore_diryml_update(file_vec, path, reset)
+  }
   writeLines(file_vec, path)
   .newline_append(path)
   invisible(path)
