@@ -267,7 +267,7 @@ projr_build_dev <- function(scripts = NULL,
   build_type <- if (output_run) "output" else "dev"
 
   # Initialize build log
-  log_info <- .log_build_init(
+  .log_build_init(
     build_type = build_type,
     bump_component = bump_component,
     msg = msg

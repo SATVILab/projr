@@ -104,6 +104,7 @@
 .template_context_start <- function(version = NULL) {
   values <- c(
     PROJR_BUILD_UUID = uuid::UUIDgenerate(use.time = FALSE),
+    PROJR_BUILD_LOG = "",
     PROJR_BUILD_HEAD = .template_checkout_head(),
     PROJR_BUILD_VERSION = if (is.null(version)) "" else .version_v_add(version)
   )

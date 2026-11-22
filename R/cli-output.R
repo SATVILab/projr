@@ -97,7 +97,7 @@
   build_label <- if (build_type == "dev") "Development" else "Output"
   message_text <- paste0(build_label, " Build: ", stage_name)
 
-  # Write to most recent log file if it exists
+  # Write to this build's detailed log when enabled
   .log_build_section(message_text)
 
   # Show in console if appropriate
@@ -124,23 +124,15 @@
                          console_level = "std",
                          console_fn,
                          .envir = parent.frame()) {
-  # Capture all arguments
-  dots <- list(...)
-
-  # Evaluate glue expressions (handles both named and unnamed)
-  message_text <- ""
-  if (length(dots) > 0) {
-    message_text <- .cli_eval_message(..., .envir = .envir)
-    .log_build_append(message_text, log_type)
-  }
-
-  # Show in console if appropriate
-  if (!.cli_should_show(console_level)) {
+  show <- .cli_should_show(console_level)
+  if (!show && is.null(.log_build_file())) {
     return(invisible(NULL))
   }
-
-  # Use the evaluated message text for console output
-  console_fn(message_text)
+  message_text <- .cli_eval_message(..., .envir = .envir)
+  if (...length()) {
+    .log_build_append(message_text, log_type)
+  }
+  if (show) console_fn(message_text)
 }
 
 .cli_info <- function(..., .envir = parent.frame()) {

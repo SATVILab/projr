@@ -196,7 +196,7 @@ test_that(".log_file_get_most_recent returns most recent across types", {
   )
 })
 
-test_that("CLI functions write to most recent log automatically", {
+test_that("CLI functions write to the initialized log", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
