@@ -189,7 +189,7 @@ projr_build_patch <- function(msg = NULL,
 #' Can also be set via PROJR_CLEAR_OUTPUT environment variable.
 #'
 #' @export
-projr_build_dev <- function(file = NULL,
+projr_build_dev <- function(scripts = NULL,
                             bump = FALSE,
                             old_dev_remove = TRUE,
                             args_engine = list(),
@@ -198,7 +198,7 @@ projr_build_dev <- function(file = NULL,
   # NULL if FALSE and "dev" if TRUE
   bump_component <- .build_dev_get_bump_component(bump)
   .build(
-    file = file,
+    scripts = scripts,
     bump_component = bump_component,
     old_dev_remove = TRUE,
     args_engine = args_engine,
@@ -220,7 +220,7 @@ projr_build_dev <- function(file = NULL,
   )
 }
 
-.build <- function(file = NULL,
+.build <- function(scripts = NULL,
                    bump_component,
                    old_dev_remove = TRUE,
                    msg = "",
@@ -265,13 +265,11 @@ projr_build_dev <- function(file = NULL,
 
     # If no file specified, check for build.scripts configuration
     # Use dev scripts for dev builds, build scripts for production builds
-    if (is.null(file)) {
-      if (.is_dev_build(bump_component)) {
-        file <- .yml_scripts_get_dev(profile)
-      } else {
-        file <- .yml_scripts_get_build(profile)
-      }
-    }
+    scripts <- .scripts_get(
+      scripts = NULL,
+      bump_component = bump_component,
+      profile = profile
+    )
 
     version_run_on_list <- .build_pre(
       bump_component, msg, clear_output,
@@ -288,7 +286,7 @@ projr_build_dev <- function(file = NULL,
     .build_post(
       version_run_on_list, bump_component, msg, old_dev_remove,
       archive_github, archive_local, always_archive, clear_output, total_time,
-      file = file
+      scripts = scripts
     )
 
     build_success <- TRUE
@@ -414,7 +412,7 @@ projr_build_dev <- function(file = NULL,
   }
 
   .build_engines(
-    file = file,
+    scripts = scripts,
     version_run_on_list = version_run_on_list,
     args_engine = args_engine
   )
@@ -434,14 +432,14 @@ projr_build_dev <- function(file = NULL,
                         always_archive,
                         clear_output,
                         total_time,
-                        file = NULL) {
+                        scripts = NULL) {
   output_run <- .build_get_output_run(bump_component)
 
   # move artefacts to unsafe, final directories
   .cli_step("Finalizing build artifacts")
   .build_post_finalise_artefacts(
     bump_component, version_run_on_list, clear_output,
-    file = file
+    scripts = scripts
   )
 
   # update documentation
@@ -524,7 +522,7 @@ projr_build_dev <- function(file = NULL,
 .build_post_finalise_artefacts <- function(bump_component,
                                            version_run_on_list,
                                            clear_output,
-                                           file = NULL) {
+                                           scripts = NULL) {
   .cli_debug("Starting .build_post_finalise_artefacts()")
   .cli_debug("  bump_component: {bump_component}")
   .cli_debug("  clear_output: {clear_output}")
@@ -539,7 +537,7 @@ projr_build_dev <- function(file = NULL,
 
   # copy outputs to (final) output and data directories
   .cli_debug("Calling .build_copy()")
-  .build_copy(output_run, bump_component, version_run_on_list, file = file)
+  .build_copy(output_run, bump_component, version_run_on_list, scripts = scripts)
   .cli_debug("Completed .build_copy()")
 
   .cli_debug("Finished .build_post_finalise_artefacts()")

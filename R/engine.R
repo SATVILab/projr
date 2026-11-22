@@ -29,9 +29,6 @@
 # Determine engine from explicitly specified files
 # This ensures build.scripts overrides _quarto.yml or _bookdown.yml
 .engine_get_from_files <- function(files) {
-  if (is.null(files) || length(files) == 0) {
-    return(.engine_get_auto())
-  }
 
   # Check file extensions to determine engine
   has_qmd <- any(grepl("\\.qmd$", files, ignore.case = TRUE))
