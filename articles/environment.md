@@ -9,11 +9,11 @@ auth tokens.
 projr reads `KEY=VALUE` files in a specific order. Variables already set
 in your system environment are never overridden.
 
-| File                     | Purpose                                       | Git-tracked? |
-|--------------------------|-----------------------------------------------|:------------:|
-| `_environment.local`     | Machine-specific overrides (highest priority) |      No      |
-| `_environment-<profile>` | Profile-specific settings                     |     Yes      |
-| `_environment`           | Global defaults (lowest priority)             |     Yes      |
+| File | Purpose | Git-tracked? |
+|----|----|:--:|
+| `_environment.local` | Machine-specific overrides (highest priority) | No |
+| `_environment-<profile>` | Profile-specific settings | Yes |
+| `_environment` | Global defaults (lowest priority) | Yes |
 
 ## File Format
 
@@ -65,6 +65,7 @@ OSF_PAT=your_osf_token_here
 ## Loading Variables
 
 ``` r
+
 projr_env_set()                                    # load all files
 projr_env_set("_environment.local")                # load specific file
 projr_env_set(c("_environment", "_environment-dev")) # load multiple
@@ -85,6 +86,7 @@ automatically added to `.gitignore`.
 Set `PROJR_PROFILE` or `QUARTO_PROFILE` to load profile-specific files.
 
 ``` r
+
 Sys.setenv(PROJR_PROFILE = "dev")
 projr_env_set()  # loads _environment-dev
 
@@ -103,12 +105,12 @@ automatically.
 
 ### Build Control
 
-| Variable             | Values                 | Default                     | Notes            |
-|----------------------|------------------------|-----------------------------|------------------|
-| `PROJR_OUTPUT_LEVEL` | `none`, `std`, `debug` | `none` (dev) / `std` (prod) | Case-sensitive   |
-| `PROJR_CLEAR_OUTPUT` | `pre`, `post`, `never` | `pre`                       | Case-sensitive   |
-| `PROJR_LOG_DETAILED` | `TRUE`/`FALSE`         | `TRUE`                      | Case-insensitive |
-| `PROJR_AUTO_INSTALL` | `TRUE`/`FALSE`         | Unset                       | Case-insensitive |
+| Variable | Values | Default | Notes |
+|----|----|----|----|
+| `PROJR_OUTPUT_LEVEL` | `none`, `std`, `debug` | `none` (dev) / `std` (prod) | Case-sensitive |
+| `PROJR_CLEAR_OUTPUT` | `pre`, `post`, `never` | `pre` | Case-sensitive |
+| `PROJR_LOG_DETAILED` | `TRUE`/`FALSE` | `TRUE` | Case-insensitive |
+| `PROJR_AUTO_INSTALL` | `TRUE`/`FALSE` | Unset | Case-insensitive |
 
 `PROJR_OUTPUT_LEVEL` controls console verbosity. `debug` shows detailed
 messages including remote operations.
@@ -124,6 +126,7 @@ When unset, interactive sessions prompt the user; non-interactive
 sessions error.
 
 ``` r
+
 Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
 Sys.setenv(PROJR_LOG_DETAILED = "FALSE")
 projr_build_dev()
@@ -134,10 +137,10 @@ override these environment variables when explicitly provided.
 
 ### Profiles
 
-| Variable         | Format                       | Notes                                 |
-|------------------|------------------------------|---------------------------------------|
-| `PROJR_PROFILE`  | Comma or semicolon separated | Earlier profiles take precedence      |
-| `QUARTO_PROFILE` | Comma separated              | Takes precedence over `PROJR_PROFILE` |
+| Variable | Format | Notes |
+|----|----|----|
+| `PROJR_PROFILE` | Comma or semicolon separated | Earlier profiles take precedence |
+| `QUARTO_PROFILE` | Comma separated | Takes precedence over `PROJR_PROFILE` |
 
 ### Authentication
 
@@ -151,6 +154,7 @@ Falls back to `gitcreds` if neither GitHub variable is set. Store tokens
 in `_environment.local` only — never commit them.
 
 ``` r
+
 projr_instr_auth_github()  # setup instructions
 projr_instr_auth_osf()     # setup instructions
 ```
@@ -169,6 +173,7 @@ From highest to lowest priority:
 Variables already set are never overridden by files:
 
 ``` r
+
 Sys.setenv(MY_VAR = "original")
 # _environment contains: MY_VAR=new
 projr_env_set()
@@ -188,6 +193,7 @@ API_KEY
 ```
 
 ``` r
+
 writeLines(c("GITHUB_PAT", "API_KEY"), "_environment.required")
 writeLines(c("GITHUB_PAT=ghp_...", "API_KEY=..."), "_environment.local")
 projr_build_dev()  # warns if required variables are missing

@@ -5,6 +5,7 @@
 ### Installation
 
 ``` r
+
 # Install from GitHub:
 remotes::install_github("SATVILab/projr")
 ```
@@ -14,6 +15,7 @@ remotes::install_github("SATVILab/projr")
 Set up a project and run your first build:
 
 ``` r
+
 library(projr)
 
 # Initialise with sensible defaults
@@ -45,11 +47,12 @@ while iterating. Dev builds:
 - Leave `_output` untouched
 
 ``` r
+
 # Build everything
 projr_build_dev()
 
 # Build a specific document
-projr_build_dev("analysis.Rmd")
+projr_build_dev(scripts = "analysis.Rmd")
 ```
 
 #### Production builds
@@ -57,6 +60,7 @@ projr_build_dev("analysis.Rmd")
 Use production builds when you are ready to release a new version:
 
 ``` r
+
 # Patch bump (0.1.0 -> 0.1.1)
 projr_build()
 projr_build_patch() # equivalent
@@ -77,6 +81,7 @@ a manifest of inputs and outputs, archive to configured destinations
 Add a destination so production builds automatically archive outputs:
 
 ``` r
+
 # Archive to GitHub Releases
 projr_yml_dest_add_github(
   title = "default",
@@ -98,6 +103,7 @@ projr_yml_dest_add_local(
 Clone and restore raw data on a new machine:
 
 ``` r
+
 projr_restore_repo("owner/repo")
 ```
 
@@ -107,6 +113,7 @@ sets up the project structure.
 To update content from archives in an existing project:
 
 ``` r
+
 projr_content_update()
 ```
 
@@ -122,6 +129,7 @@ projr_content_update()
 Access directories programmatically:
 
 ``` r
+
 projr_path_get_dir("output")             # actual path: _output
 projr_path_get_dir("output", safe = TRUE) # cache path: _tmp/projr/v0.1.0/output
 ```
@@ -132,6 +140,7 @@ Each build records file hashes in `manifest.csv`, linking outputs to
 exact input versions. Query it with:
 
 ``` r
+
 projr_manifest_changes("0.0.1", "0.0.2")
 projr_manifest_last_change()
 ```
@@ -141,6 +150,7 @@ projr_manifest_last_change()
 All settings live in `_projr.yml`. Inspect and validate with:
 
 ``` r
+
 projr_yml_get()
 projr_yml_check()
 ```
@@ -148,6 +158,7 @@ projr_yml_check()
 Configure Git behaviour:
 
 ``` r
+
 projr_yml_git_set(commit = TRUE, push = TRUE, add_untracked = TRUE)
 ```
 

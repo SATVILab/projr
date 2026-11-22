@@ -409,6 +409,7 @@ logic needed - No manifest dependency
 Enable debug output to see workflow details:
 
 ``` r
+
 # Set debug output level
 Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
 

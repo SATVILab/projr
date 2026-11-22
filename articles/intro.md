@@ -22,6 +22,7 @@ Project structure and build actions are configured in `_projr.yml`.
 ### Installation
 
 ``` r
+
 if (!requireNamespace("remotes", quietly = TRUE)) {
   install.packages("remotes")
 }
@@ -38,6 +39,7 @@ remotes::install_github("SATVILab/projr")
     [`projr_init()`](https://satvilab.github.io/projr/reference/projr_init.md):
 
 ``` r
+
 projr::projr_init()
 ```
 
@@ -50,6 +52,7 @@ optionally sets up a Git repository connected to GitHub.
 Git and upload outputs to configured destinations:
 
 ``` r
+
 projr::projr_build_patch()  # bump patch version (0.0.1 -> 0.0.2)
 projr::projr_build_minor()  # bump minor version (0.0.1 -> 0.1.0)
 projr::projr_build_major()  # bump major version (0.0.1 -> 1.0.0)
@@ -63,8 +66,9 @@ is an alias for
 cache directory, protecting your last successful build:
 
 ``` r
+
 projr::projr_build_dev()
-projr::projr_build_dev("analysis.Rmd")  # render specific file(s)
+projr::projr_build_dev(scripts = "analysis.Rmd")
 ```
 
 Both detect your document type automatically (Rmd, Qmd, Quarto projects,
@@ -118,6 +122,7 @@ Use
 to construct paths:
 
 ``` r
+
 projr_path_get("output")
 # "_output"
 
@@ -168,6 +173,7 @@ installed, `projr` falls back to the `gert` R package.
 **2. Generate a personal access token (PAT):**
 
 ``` r
+
 if (!requireNamespace("usethis", quietly = TRUE)) {
   install.packages("usethis")
 }
@@ -179,6 +185,7 @@ This opens GitHub in your browser. Click “Generate token” and copy it.
 **3. Save the token:**
 
 ``` r
+
 gitcreds::gitcreds_set()
 ```
 

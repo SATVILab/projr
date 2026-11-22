@@ -86,6 +86,7 @@
 To enable detailed debug output for piggyback operations:
 
 ``` r
+
 # Set environment variable before running builds
 Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
 projr_build_patch()

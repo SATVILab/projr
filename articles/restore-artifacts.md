@@ -16,6 +16,7 @@ Three functions handle restoration:
 ## Quick start
 
 ``` r
+
 library(projr)
 
 # Clone and restore (most common)
@@ -33,6 +34,7 @@ projr_content_update(label = "raw-data")
 Clones a GitHub repository and restores artifacts in one step.
 
 ``` r
+
 projr_restore_repo(
   repo,          # "owner/repo" or "repo"
   path = NULL,   # clone destination (default: subdirectory named after repo)
@@ -44,6 +46,7 @@ projr_restore_repo(
 ```
 
 ``` r
+
 # Clone into a subdirectory
 projr_restore_repo("owner/repo")
 
@@ -61,6 +64,7 @@ A convenience wrapper that clones directly into the current working
 directory.
 
 ``` r
+
 projr_restore_repo_wd(
   repo,
   label = NULL,
@@ -71,6 +75,7 @@ projr_restore_repo_wd(
 ```
 
 ``` r
+
 setwd("~/projects/my-analysis")
 projr_restore_repo_wd("owner/repo")
 ```
@@ -84,6 +89,7 @@ Restores artifacts in an existing local project (no cloning). The
 project must have a `manifest.csv` in its root.
 
 ``` r
+
 projr_content_update(
   label = NULL,  # which artifacts (default: all raw-* labels)
   pos = NULL,    # "source", "dest", or both
@@ -93,6 +99,7 @@ projr_content_update(
 ```
 
 ``` r
+
 # Restore everything raw
 projr_content_update()
 
@@ -137,6 +144,7 @@ GitHub restoration requires a Personal Access Token (PAT). Run
 for setup instructions.
 
 ``` r
+
 projr_instr_auth_github()
 ```
 
@@ -149,6 +157,7 @@ GITHUB_PAT=ghp_your_token_here
 Verify with:
 
 ``` r
+
 Sys.getenv("GITHUB_PAT")
 ```
 
@@ -165,6 +174,7 @@ or
 to configure destinations in `_projr.yml`:
 
 ``` r
+
 # Archive raw data to GitHub releases
 projr_yml_dest_add_github(
   title = "raw-data-@version",
@@ -196,6 +206,7 @@ know what to run:
 ### New collaborator setup
 
 ``` r
+
 # Clone and restore artifacts
 projr_restore_repo("satvilab/my-study")
 
@@ -208,6 +219,7 @@ projr_build_dev()
 ### Selective restoration in an existing project
 
 ``` r
+
 # Restore only raw data (skip cache, output, etc.)
 projr_content_update(label = "raw-data")
 
@@ -218,6 +230,7 @@ projr_build_dev()
 ### Falling back between remotes
 
 ``` r
+
 # Try GitHub first, fall back to local
 result <- tryCatch(
   projr_content_update(type = "github"),

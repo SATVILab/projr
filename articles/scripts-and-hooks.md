@@ -11,7 +11,8 @@ etc.) and development builds
 
 ## Build Scripts
 
-Build scripts specify which documents or R scripts projr should render.
+Build scripts specify which documents to render and which R scripts to
+run.
 
 ### Configuration format
 
@@ -21,9 +22,10 @@ nested structures are allowed.
 ``` yaml
 build:
   scripts:
+    - prepare.R
     - analysis.qmd
-    - report.Rmd
-    - data-processing.R
+    - report.qmd
+    - summarize.R
 
 dev:
   scripts:
@@ -32,32 +34,46 @@ dev:
 
 ### Priority
 
-Production builds resolve scripts in this order:
+Production builds use this order:
 
-1.  `file` parameter passed to the build function
-2.  `build.scripts` in `_projr.yml`
-3.  `_quarto.yml` or `_bookdown.yml` project file
-4.  Auto-detection of `.Rmd`, `.qmd`, `.R` files
+1.  `build.scripts` in `_projr.yml`
+2.  Automatic detection
 
-Development builds follow the same order, but check `dev.scripts` before
-falling back to `build.scripts`:
+Development builds use this order:
 
-1.  `file` parameter
+1.  `scripts` argument to
+    [`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md)
 2.  `dev.scripts` in `_projr.yml`
 3.  `build.scripts` in `_projr.yml`
-4.  `_quarto.yml` or `_bookdown.yml`
-5.  Auto-detection
+4.  Automatic detection
 
 When `dev.scripts` is set, it completely replaces `build.scripts` for
 dev builds. To include production scripts in dev builds, list them
 explicitly under `dev.scripts`.
 
-All specified scripts are validated before the build starts. Missing
-files cause an immediate error.
+Use paths or glob patterns to select scripts. Prefix a pattern with `!`
+to exclude matches. An inclusion that matches no files causes an error
+before the build starts. Use `scripts = ""` to skip running scripts.
+
+With an explicit selection, scripts run in the listed order. Each glob
+expands alphabetically, and the first match determines a file’s
+position. When a Quarto or Bookdown project has selected project
+documents, projr renders those documents together at the position of the
+last one in the list. In the example above, `prepare.R` runs before the
+Quarto project and `summarize.R` runs after it. The selected documents
+stay in the project’s YAML through post-build hooks, and projr restores
+that YAML before switching to the development version.
+
+With automatic detection, a project renders using its existing YAML,
+followed by top-level R scripts in alphabetical order. Without a
+project, top-level `.qmd`, `.Rmd`, and `.R` scripts run alphabetically.
+Automatic R script discovery skips configured hooks, names starting with
+`_`, and `renv_repos.R`.
 
 ### Managing scripts with R
 
 ``` r
+
 # Add scripts
 projr_yml_script_add(c("analysis.qmd", "report.Rmd"))
 
@@ -75,8 +91,8 @@ projr_yml_script_rm_all()
 build:
   scripts:
     - full-analysis.qmd
-    - supplementary.Rmd
-    - appendix.Rmd
+    - supplementary.qmd
+    - appendix.qmd
 
 dev:
   scripts:
@@ -84,6 +100,7 @@ dev:
 ```
 
 ``` r
+
 projr_build_dev()   # renders quick-test.qmd only
 projr_build_patch() # renders all three documents
 ```
@@ -91,8 +108,9 @@ projr_build_patch() # renders all three documents
 ### Example: one-off builds
 
 ``` r
-projr_build_dev("exploratory-analysis.Rmd")
-projr_build_dev(c("methods.Rmd", "results.Rmd"))
+
+projr_build_dev(scripts = "exploratory-analysis.Rmd")
+projr_build_dev(scripts = c("reports/*.Rmd", "!reports/draft.Rmd"))
 ```
 
 ## Build Hooks
@@ -158,6 +176,7 @@ the build stops.
 ### Managing hooks with R
 
 ``` r
+
 projr_yml_hooks_add(path = "hooks/setup.R", stage = "pre")
 projr_yml_hooks_add_pre("hooks/check-auth.R")
 projr_yml_hooks_add_post("hooks/cleanup.R")
@@ -172,6 +191,7 @@ projr_yml_hooks_rm_all()
 ### Example: data preparation hook
 
 ``` r
+
 # hooks/prepare-data.R
 data_url <- Sys.getenv("DATA_URL")
 if (!nzchar(data_url)) stop("DATA_URL not set")
@@ -201,12 +221,14 @@ dev:
 ```
 
 ``` r
+
 # hooks/dev-setup.R
 message("Setting up dev environment...")
 Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
 ```
 
 ``` r
+
 # hooks/prod-setup.R
 message("Setting up production environment...")
 source("hooks/check-auth.R")

@@ -150,6 +150,7 @@ see `projr_instr_auth_osf()`
 ### YAML Configuration
 
 ``` r
+
 # Get directory path
 projr_path_get_dir("output", safe = TRUE)
 
@@ -167,6 +168,7 @@ projr_yml_dir_license_set("MIT", "raw-data", authors = c("Author Name"))
 ### Directory Licenses
 
 ``` r
+
 # Automatic approach - managed in YAML, regenerated during builds
 projr_yml_dir_license_set("CC-BY", "output")
 
@@ -184,6 +186,7 @@ projr_yml_dir_license_rm("output")
 ### Input Validation
 
 ``` r
+
 .my_function <- function(param) {
   .assert_string(param, required = TRUE)
   # implementation
@@ -193,6 +196,7 @@ projr_yml_dir_license_rm("output")
 ### Error Handling
 
 ``` r
+
 if (!file.exists(path)) {
   stop("File not found: ", path)
 }

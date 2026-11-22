@@ -63,6 +63,7 @@ location you get:
   final builds.
 
 ``` r
+
 projr_path_get_dir("output")
 projr_path_get_dir("output", safe = TRUE)
 ```
@@ -86,6 +87,7 @@ project and records which inputs produced which outputs:
 You can read or set the version directly:
 
 ``` r
+
 projr_version_get()
 projr_version_set("0.2.0")
 ```
@@ -102,6 +104,7 @@ to iterate safely. Outputs go to cache (`_tmp/projr/v<version>/`),
 leaving `_output` and `docs` untouched. No version bump, no archiving.
 
 ``` r
+
 projr_build_dev()
 ```
 
@@ -114,6 +117,7 @@ Final builds bump the version, populate `_output` and `docs`, create a
 manifest, optionally archive to remotes, and commit to Git:
 
 ``` r
+
 projr_build_patch()   # increment patch (0.0.x)
 projr_build_minor()   # increment minor (0.x.0)
 projr_build_major()   # increment major (x.0.0)
@@ -159,6 +163,7 @@ docs,report.html,v0.1.0,ghi789...
 Query the manifest to see what changed:
 
 ``` r
+
 # Changes between two versions
 projr_manifest_changes("0.0.1", "0.0.2")
 
@@ -189,6 +194,7 @@ Two strategies control how archives are organised:
 Add a remote destination in R:
 
 ``` r
+
 projr_yml_dest_add_github(
   title = "my-release",
   content = "output",
@@ -208,12 +214,14 @@ projr_yml_dest_add_local(
 Restore a full project (raw data + outputs) from its remotes:
 
 ``` r
+
 projr_restore_repo("owner/repo")
 ```
 
 Or update a single label:
 
 ``` r
+
 projr_content_update(label = "raw-data")
 projr_content_update(label = "output", version = "0.1.0")
 ```
@@ -236,6 +244,7 @@ everything not explicitly overridden from the base `_projr.yml`.
 Create and activate a profile:
 
 ``` r
+
 projr_profile_create("dev")
 projr_profile_get()
 ```
@@ -243,6 +252,7 @@ projr_profile_get()
 Activate via environment variable:
 
 ``` r
+
 Sys.setenv(PROJR_PROFILE = "dev")
 ```
 
@@ -269,6 +279,7 @@ projr reads several environment variables. Set them in R, in
 [`projr_env_set()`](https://satvilab.github.io/projr/reference/projr_env_set.md):
 
 ``` r
+
 # In R
 Sys.setenv(PROJR_PROFILE = "dev")
 Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
@@ -309,6 +320,7 @@ renv locks R package versions in `renv.lock` so that builds are
 reproducible months or years later. projr wraps common renv operations:
 
 ``` r
+
 # Initialise renv for the project
 projr_init_renv()
 
@@ -327,6 +339,7 @@ projects). Skip it for quick exploratory work.
 ### The whole game
 
 ``` r
+
 # 1. Initialise project
 projr_init()
 

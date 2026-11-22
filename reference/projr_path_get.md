@@ -14,8 +14,7 @@ projr_path_get(
   label,
   ...,
   create = TRUE,
-  relative = FALSE,
-  absolute = FALSE,
+  format = c("auto", "relative", "absolute"),
   safe = TRUE
 )
 ```
@@ -41,15 +40,13 @@ projr_path_get(
   not exist and it is ignored (or not) from `.gitignore` and
   `.Rbuildignore` as specified in `_projr.yml`. Default is `TRUE`.
 
-- relative:
+- format:
 
-  logical. If `TRUE`, then forces that the returned path is relative to
-  the project root. Default is `FALSE`.
-
-- absolute:
-
-  logical. If `TRUE`, then forces the returned path to be absolute.
-  Default is `FALSE`.
+  character. One of `"auto"`, `"relative"` or `"absolute"`. If `"auto"`,
+  then the format of the path returned is inherited from the format of
+  the path specified in `_projr.yml`. If `"relative"`, then the path
+  returned is relative to the current working directory. If
+  `"absolute"`, then the path returned is absolute.
 
 - safe:
 

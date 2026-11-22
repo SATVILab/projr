@@ -126,8 +126,8 @@ projr_init_ignore()
 
 - license:
 
-  Character or `NULL`. Specifies the license to apply (e.g., `"ccby"`,
-  `"apache"`, `"cc0"`, `"proprietary"`). Defaults to `NULL`.
+  Character. License type for `projr_init_license` (e.g. "ccby",
+  "apache", "cc0", "proprietary").
 
 - projr_yml:
 
@@ -152,13 +152,11 @@ projr_init_ignore()
 
 - first_name:
 
-  Character (for `projr_init_license`). First name for proprietary
-  license. Required when `license = "proprietary"`.
+  Character. First name used for proprietary license templates.
 
 - last_name:
 
-  Character (for `projr_init_license`). Last name for proprietary
-  license. Required when `license = "proprietary"`.
+  Character. Last name used for proprietary license templates.
 
 - username:
 

@@ -35,13 +35,13 @@ when specified.
 projr includes templates for common open-source and proprietary
 licenses:
 
-| License Type                                 | Common Use Case                    |
-|----------------------------------------------|------------------------------------|
+| License Type | Common Use Case |
+|----|----|
 | **CC-BY** (Creative Commons Attribution 4.0) | Research data and analysis outputs |
-| **CC0** (Creative Commons Zero)              | Public domain dedication for data  |
-| **Apache-2.0**                               | Code with patent protection        |
-| **MIT**                                      | Permissive code licensing          |
-| **Proprietary**                              | Private or restricted-use content  |
+| **CC0** (Creative Commons Zero) | Public domain dedication for data |
+| **Apache-2.0** | Code with patent protection |
+| **MIT** | Permissive code licensing |
+| **Proprietary** | Private or restricted-use content |
 
 **License type variations**: Common variations are automatically
 normalized: - `"ccby"`, `"cc-by"` → `"CC-BY"` - `"apache"`,
@@ -56,6 +56,7 @@ Use
 to configure licenses in `_projr.yml`:
 
 ``` r
+
 library(projr)
 
 # Simple format - just specify license type
@@ -128,6 +129,7 @@ across versions.
 **Retrieve current configuration:**
 
 ``` r
+
 # Get license configuration for a directory
 projr_yml_dir_license_get("output")
 ```
@@ -135,6 +137,7 @@ projr_yml_dir_license_get("output")
 **Remove configuration:**
 
 ``` r
+
 # Remove license configuration
 projr_yml_dir_license_rm("output")
 ```
@@ -142,6 +145,7 @@ projr_yml_dir_license_rm("output")
 **Update all configurations with current authors:**
 
 ``` r
+
 # Update all directories with DESCRIPTION file authors
 projr_yml_dir_license_update()
 
@@ -167,6 +171,7 @@ Use
 to create licenses **outside** of the YAML configuration:
 
 ``` r
+
 # Create MIT license in raw-data directory
 projr_license_create_manual("MIT", "raw-data")
 
@@ -208,6 +213,7 @@ You want manual control over license content
 ### Workflow 1: Automatic Licensing
 
 ``` r
+
 library(projr)
 
 # Configure licenses
@@ -222,6 +228,7 @@ projr_build_dev()
 ### Workflow 2: Manual Licensing
 
 ``` r
+
 # Create manual license for raw data
 projr_license_create_manual(
   "MIT",
@@ -237,6 +244,7 @@ projr_build_dev()
 ### Workflow 3: Mixed Approach
 
 ``` r
+
 # Automatic licensing for outputs
 projr_yml_dir_license_set("CC-BY", "output")
 
@@ -265,6 +273,7 @@ projr_build_patch()
 Check if YAML configuration exists:
 
 ``` r
+
 projr_yml_dir_license_get("raw-data")
 ```
 
@@ -273,6 +282,7 @@ projr_yml_dir_license_get("raw-data")
 Remove YAML configuration to preserve manual edits:
 
 ``` r
+
 projr_yml_dir_license_rm("raw-data")
 ```
 
@@ -282,6 +292,7 @@ For YAML licenses, specify authors explicitly or update DESCRIPTION
 file:
 
 ``` r
+
 projr_yml_dir_license_set(
   "CC-BY",
   "output",

@@ -31,6 +31,7 @@ Prerequisites:
   `GITHUB_PAT=ghp_...`
 
 ``` r
+
 # Add a GitHub release for raw data
 projr_yml_dest_add_github(
   title = "raw-data-@version",
@@ -75,6 +76,7 @@ first build. Use absolute paths for clarity; relative paths resolve from
 the project root.
 
 ``` r
+
 # Archive to local directory
 projr_yml_dest_add_local(
   title = "local-backup",
@@ -116,10 +118,10 @@ Defaults are shown first.
 
 How versions are organized on the remote.
 
-| Value                 | Behaviour                                                |
-|:----------------------|:---------------------------------------------------------|
+| Value | Behaviour |
+|:---|:---|
 | `"archive"` (default) | Creates a separate version per build (v0.1.0, v0.2.0, …) |
-| `"latest"`            | Overwrites the same location each build                  |
+| `"latest"` | Overwrites the same location each build |
 
 Use `"archive"` for reproducibility; `"latest"` for always-current
 snapshots.
@@ -128,11 +130,11 @@ snapshots.
 
 When to create a new version on the remote.
 
-| Value                   | Behaviour                                           |
-|:------------------------|:----------------------------------------------------|
+| Value | Behaviour |
+|:---|:---|
 | `"if-change"` (default) | Upload only when content changed since last version |
-| `"always"`              | Upload every build, even if unchanged               |
-| `"never"`               | Disable uploads without removing configuration      |
+| `"always"` | Upload every build, even if unchanged |
+| `"never"` | Disable uploads without removing configuration |
 
 ### send_strategy
 
@@ -152,17 +154,18 @@ stale files. Avoid `"upload-missing"` if you delete files locally.
 
 How projr determines what already exists on the remote.
 
-| Value                  | Behaviour                                                       |
-|:-----------------------|:----------------------------------------------------------------|
-| `"manifest"` (default) | Read `manifest.csv` on the remote (fast)                        |
-| `"file"`               | Download and hash actual remote files (slower, always accurate) |
-| `"none"`               | Treat remote as empty (forces full upload)                      |
+| Value | Behaviour |
+|:---|:---|
+| `"manifest"` (default) | Read `manifest.csv` on the remote (fast) |
+| `"file"` | Download and hash actual remote files (slower, always accurate) |
+| `"none"` | Treat remote as empty (forces full upload) |
 
 ## Complete Configuration Examples
 
 ### Comprehensive GitHub setup
 
 ``` r
+
 # Raw data: archive, only when changed
 projr_yml_dest_add_github(
   title = "raw-data-@version",
@@ -197,6 +200,7 @@ projr_yml_dest_add_github(
 ### Local archive setup
 
 ``` r
+
 # Raw data to local archive
 projr_yml_dest_add_local(
   title = "raw-data-archive",
@@ -225,6 +229,7 @@ projr_yml_dest_add_local(
 projr uploads to all configured remotes during each production build.
 
 ``` r
+
 # GitHub for public sharing
 projr_yml_dest_add_github(
   title = "output-@version",
@@ -254,6 +259,7 @@ projr_yml_dest_add_local(
 Remotes activate automatically during production builds:
 
 ``` r
+
 projr_build_dev()   # does NOT upload to remotes
 projr_build_patch() # uploads (0.1.0 -> 0.1.1)
 projr_build_minor() # uploads (0.1.0 -> 0.2.0)
@@ -273,6 +279,7 @@ Build steps with remotes configured:
 Check and validate your configuration:
 
 ``` r
+
 projr_yml_get()$build$github
 projr_yml_get()$build$local
 projr_yml_check()
@@ -304,6 +311,7 @@ destinations.
 ## Quick Reference
 
 ``` r
+
 # Minimal GitHub remote
 projr_yml_dest_add_github(
   title = "output-@version",

@@ -1,5 +1,5 @@
-pandoc: 3.1.11
-pkgdown: 2.2.0
+pandoc: 3.8.3
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   build-process: build-process.html
@@ -14,7 +14,7 @@ articles:
   restore-artifacts: restore-artifacts.html
   scripts-and-hooks: scripts-and-hooks.html
   send-to-remotes: send-to-remotes.html
-last_built: 2026-02-23T14:19Z
+last_built: 2026-11-22T17:16Z
 urls:
   reference: https://satvilab.github.io/projr/reference
   article: https://satvilab.github.io/projr/articles

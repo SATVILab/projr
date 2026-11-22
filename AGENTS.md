@@ -30,6 +30,51 @@ Key architectural patterns:
   (e.g.,
   [`projr_build_patch()`](https://satvilab.github.io/projr/reference/projr_build.md)).
 
+### Build script selection and rendering
+
+- `projr_build_dev(scripts = ...)` takes precedence over `dev.scripts`,
+  then `build.scripts`. Production builds use `build.scripts`. Both use
+  the merged active configuration. An explicit empty selection
+  ([`character()`](https://rdrr.io/r/base/character.html) in R or `[]`
+  in YAML) skips rendering and script execution.
+- Resolve paths and glob patterns in `_projr.yml` from the project root.
+  Keep each renderer’s default code execution directory and honor its
+  native options, including Quarto’s `execute-dir` and R Markdown’s
+  `knit_root_dir`.
+- Run explicitly selected scripts in the listed order. Sort matches
+  alphabetically within each glob, apply `!` exclusions across the
+  selection, and keep the first occurrence of each path.
+- Build a Quarto or Bookdown project once at the position of its last
+  selected project document. Store selected documents in Quarto’s
+  `project.render` or `book.chapters`, or Bookdown’s `rmd_files`.
+  Standalone documents and R scripts retain their positions around that
+  build.
+- An explicit R-only selection runs those scripts without rendering the
+  project. A document for the other engine renders as a standalone
+  document. A directory with both project configurations is ambiguous
+  and should report an error.
+- With automatic selection, render the project first and run top-level R
+  scripts alphabetically afterward. With no project, run top-level
+  documents and R scripts alphabetically. Automatic R discovery skips
+  configured hooks, underscore-prefixed files, and `renv_repos.R`.
+- Save the original project YAML bytes before preparation, apply the
+  selection after the pre-build commit, and keep it through output
+  collection and post-build hooks. Restore the saved bytes immediately
+  before switching to the dev version and on failure. Render Bookdown in
+  a fresh R session so a preceding standalone render cannot supply
+  another book’s configuration.
+- Keep source documents and their directories trackable. Ignore
+  renderer-generated output and intermediates at their project-relative
+  paths, including beside nested documents. Install predictable rules
+  before rendering and retain ignore rules for newly created
+  intermediates after a failed render.
+- Collect project outputs from the configured safe documentation
+  directory. Collect standalone outputs and their companion assets
+  together in the configured documentation directory. When names
+  collide, keep the affected documents in their project-relative
+  subdirectories and report any remaining conflicts before collecting
+  outputs.
+
 ------------------------------------------------------------------------
 
 ## Tech Stack & Tooling
@@ -101,6 +146,7 @@ use:
 ### 3. Restore R dependencies with renv
 
 ``` r
+
 # Inside an R session at the project root:
 renv::restore()
 ```
@@ -108,6 +154,7 @@ renv::restore()
 ### 4. Load the package for interactive development
 
 ``` r
+
 devtools::load_all()
 ```
 
@@ -118,6 +165,7 @@ devtools::load_all()
 ### Run the test suite (LITE mode — recommended for development)
 
 ``` r
+
 devtools::load_all()
 .test_set_lite()
 devtools::test()
@@ -131,6 +179,7 @@ runs the full suite.
 ### Run the full test suite
 
 ``` r
+
 devtools::load_all()
 devtools::test()
 ```
@@ -140,6 +189,7 @@ Full mode runs ~452 tests and is used for pre-release validation.
 ### Debug a specific test
 
 ``` r
+
 devtools::load_all()
 .test_unset_lite()   # Disable LITE mode so the target test runs
 .test_set_select()   # Skip all other tests
@@ -154,24 +204,28 @@ devtools::test()
 ### R CMD check
 
 ``` r
+
 devtools::check()
 ```
 
 ### Lint / format code
 
 ``` r
+
 styler::style_pkg()
 ```
 
 ### Update documentation
 
 ``` r
+
 devtools::document()   # Regenerates man/ and NAMESPACE from roxygen2 comments
 ```
 
 ### Verify pkgdown reference index
 
 ``` r
+
 pkgdown::check_pkgdown()
 ```
 
@@ -205,6 +259,7 @@ pkgdown::check_pkgdown()
 All **exported** functions must include:
 
 ``` r
+
 #' @title Short title
 #' @description Detailed description.
 #' @param x character. Description of x.
@@ -265,14 +320,30 @@ Internal functions (`.` prefix) must **not** have `@export`.
 
 ### Environment variables
 
-| Variable             | Values                   | Purpose                                           |
-|----------------------|--------------------------|---------------------------------------------------|
-| `PROJR_AUTO_INSTALL` | `TRUE` / `FALSE`         | Auto-install missing R packages without prompting |
-| `PROJR_OUTPUT_LEVEL` | `none` / `std` / `debug` | Console verbosity                                 |
-| `PROJR_CLEAR_OUTPUT` | `pre` / `post` / `never` | When to clear output dirs                         |
-| `PROJR_LOG_DETAILED` | `TRUE` / `FALSE`         | Create detailed log files                         |
-| `R_PKG_TEST_LITE`    | set / unset              | Enable LITE test mode                             |
-| `R_PKG_TEST_CRAN`    | set / unset              | Enable CRAN test mode                             |
-| `R_PKG_TEST_SELECT`  | set / unset              | Enable SELECT test mode                           |
-| `GITHUB_PAT`         | token                    | GitHub authentication (highest priority)          |
-| `OSF_PAT`            | token                    | OSF authentication                                |
+| Variable | Values | Purpose |
+|----|----|----|
+| `PROJR_AUTO_INSTALL` | `TRUE` / `FALSE` | Auto-install missing R packages without prompting |
+| `PROJR_OUTPUT_LEVEL` | `none` / `std` / `debug` | Console verbosity |
+| `PROJR_CLEAR_OUTPUT` | `pre` / `post` / `never` | When to clear output dirs |
+| `PROJR_LOG_DETAILED` | `TRUE` / `FALSE` | Create detailed log files |
+| `R_PKG_TEST_LITE` | set / unset | Enable LITE test mode |
+| `R_PKG_TEST_CRAN` | set / unset | Enable CRAN test mode |
+| `R_PKG_TEST_SELECT` | set / unset | Enable SELECT test mode |
+| `GITHUB_PAT` | token | GitHub authentication (highest priority) |
+| `OSF_PAT` | token | OSF authentication |
+
+## Ponytail
+
+For coding, refactoring, bug-fixing, review and implementation design,
+read `.agents/skills/ponytail/SKILL.md` and apply Ponytail in **full**
+mode by default. Use **ultra** only when explicitly requested.
+Repository-specific correctness, security, architecture and validation
+requirements take precedence over generic simplification guidance.
+
+## GitHub issues and Projects
+
+For issue and Project administration, use the canonical
+[MiguelRodo/github-projects-skill](https://github.com/MiguelRodo/github-projects-skill/tree/main/skills/github-projects)
+skill and read `.projects/project.md` for this repository’s routing
+contract. The central issue store owns planning; this repository is its
+implementation mirror.

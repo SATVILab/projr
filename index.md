@@ -12,6 +12,7 @@ handles the infrastructure.
 ## The whole game
 
 ``` r
+
 # Put raw data in _raw_data/, outputs in _output/, analysis docs in project root:
 projr_build()
 ```
@@ -27,6 +28,7 @@ This one function:
 ## Try a development build
 
 ``` r
+
 projr_build_dev()
 ```
 
@@ -40,6 +42,7 @@ Development builds:
 ## Restore later
 
 ``` r
+
 projr_restore_repo("owner/my-amazing-repo")
 ```
 
@@ -71,6 +74,7 @@ Restoration:
 ## Installation
 
 ``` r
+
 # Once on CRAN (future):
 # install.packages("projr")
 

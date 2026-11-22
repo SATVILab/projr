@@ -7,6 +7,7 @@ Task-focused guides for common projr workflows.
 ## 1. Initialise a project
 
 ``` r
+
 library(projr)
 
 # Interactive prompts (recommended for first-time users)
@@ -25,6 +26,7 @@ citation setup are optional and prompted or skipped depending on the
 function used.
 
 ``` r
+
 # Set license and citation separately
 projr_init_license(license = "MIT")
 projr_init_cite(title = "My Research Project", authors = "Jane Doe")
@@ -45,11 +47,12 @@ when iterating on code and documents before creating a versioned
 release.
 
 ``` r
+
 projr_build_dev()
 
 # Build specific documents only
-projr_build_dev("analysis.Rmd")
-projr_build_dev(c("methods.Rmd", "results.Rmd"))
+projr_build_dev(scripts = "analysis.Rmd")
+projr_build_dev(scripts = c("methods.Rmd", "results.Rmd"))
 ```
 
 Dev builds route outputs to the cache at `_tmp/projr/v<version>/`
@@ -58,6 +61,7 @@ instead of `_output`. Always use
 so paths resolve correctly in both dev and final builds:
 
 ``` r
+
 # In your R Markdown or scripts:
 fig_path <- projr_path_get("output", "figures", "plot.png")
 png(filename = fig_path)
@@ -76,6 +80,7 @@ directly to `_output` during dev builds.
 ## 3. Run a final (versioned) build
 
 ``` r
+
 # Patch bump (0.1.0 -> 0.1.1) — projr_build() is equivalent
 projr_build_patch()
 
@@ -94,6 +99,7 @@ Control output clearing with the `PROJR_CLEAR_OUTPUT` env var (`"pre"`,
 `"post"`, or `"never"`):
 
 ``` r
+
 Sys.setenv(PROJR_CLEAR_OUTPUT = "pre")
 projr_build()
 ```
@@ -138,6 +144,7 @@ build:
 Or add destinations programmatically:
 
 ``` r
+
 projr_yml_dest_add_github(
   label = "raw-data",
   content = "raw-data",
@@ -165,6 +172,7 @@ datasets.
 ## 5. Restore artefacts
 
 ``` r
+
 # Clone a repo and restore archived content
 projr_restore_repo("owner/repo")
 projr_restore_repo("owner/repo", path = "~/projects/my-project")
@@ -176,6 +184,7 @@ projr_restore_repo_wd()
 Restore specific directories:
 
 ``` r
+
 projr_content_update(label = "raw-data")
 projr_content_update(label = c("raw-data", "output"))
 projr_content_update(label = "raw-data", version = "v0.1.0")
@@ -221,6 +230,7 @@ maps to a single, unique path. Directories are created automatically on
 build.
 
 ``` r
+
 projr_path_get("raw-data-public")
 projr_path_get("output-figures", "plot.png")
 ```
@@ -233,6 +243,7 @@ Profiles let you maintain different configurations for different
 contexts (development vs production, different machines, etc.).
 
 ``` r
+
 # Create a profile (creates _projr-dev.yml)
 projr_profile_create("dev")
 ```
@@ -253,6 +264,7 @@ directories:
 Activate a profile:
 
 ``` r
+
 Sys.setenv(PROJR_PROFILE = "dev")
 projr_build()
 
@@ -275,6 +287,7 @@ Build history is logged to
 creates a detailed Quarto log file organised by date.
 
 ``` r
+
 # View build logs
 projr_log_view()
 
@@ -287,6 +300,7 @@ list.files("cache/projr/log/dev/output",
 Control logging:
 
 ``` r
+
 # Disable detailed log files (history still maintained)
 Sys.setenv(PROJR_LOG_DETAILED = "FALSE")
 
@@ -297,6 +311,7 @@ Sys.setenv(PROJR_LOG_DETAILED = "TRUE")
 Clear old logs:
 
 ``` r
+
 projr_log_clear()
 projr_log_clear(build_type = "dev")
 projr_log_clear(before_date = "2025-01-01")
@@ -314,6 +329,7 @@ updated only by final builds, not dev builds.
 Compare two versions:
 
 ``` r
+
 projr_manifest_changes("0.0.1", "0.0.2")
 projr_manifest_changes("0.0.1", "0.0.2", label = "output")
 ```
@@ -321,6 +337,7 @@ projr_manifest_changes("0.0.1", "0.0.2", label = "output")
 Track files across a range of versions:
 
 ``` r
+
 projr_manifest_range("0.0.1")
 projr_manifest_range("0.0.1", "0.0.5", label = "raw-data")
 ```
@@ -328,6 +345,7 @@ projr_manifest_range("0.0.1", "0.0.5", label = "raw-data")
 Check when directories last changed:
 
 ``` r
+
 projr_manifest_last_change()
 projr_manifest_last_change("0.0.3")
 ```
@@ -335,6 +353,7 @@ projr_manifest_last_change("0.0.3")
 Practical example — detect raw data changes since a release:
 
 ``` r
+
 raw_changes <- projr_manifest_changes(
   "0.1.0", projr_version_get(), label = "raw-data"
 )
@@ -353,6 +372,7 @@ functions return a 0-row data.frame when there are no results.
 Create environment files at the project root:
 
 ``` r
+
 file.create("_environment")       # Global defaults
 file.create("_environment-dev")   # Profile-specific overrides
 file.create("_environment.local") # Machine-specific, git-ignored
@@ -372,6 +392,7 @@ GITHUB_PAT=your_token_here
 Load them:
 
 ``` r
+
 projr_env_set()
 ```
 

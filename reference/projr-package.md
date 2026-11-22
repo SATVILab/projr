@@ -12,3 +12,8 @@ Useful links:
 
 **Maintainer**: Miguel Rodo <miguel.rodo@uct.ac.za>
 ([ORCID](https://orcid.org/0000-0002-2036-4878))
+
+Authors:
+
+- Miguel Rodo <miguel.rodo@uct.ac.za>
+  ([ORCID](https://orcid.org/0000-0002-2036-4878))

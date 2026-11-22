@@ -61,6 +61,7 @@ before distributing project artifacts to the remotes.
 
 Hooks are stored as simple character vectors in the YAML:
 
+
     build:
       hooks:
         pre: ["pre-hook.R"]

@@ -12,6 +12,7 @@ projr has two build types:
 Production builds create versioned releases:
 
 ``` r
+
 projr_build_patch(msg = "Fix analysis bug")   # 0.0.X
 projr_build_minor(msg = "Add new section")    # 0.X.0
 projr_build_major(msg = "Complete rewrite")   # X.0.0
@@ -20,14 +21,16 @@ projr_build_major(msg = "Complete rewrite")   # X.0.0
 Development builds iterate without incrementing the version:
 
 ``` r
+
 projr_build_dev()
-projr_build_dev(file = "analysis.qmd")
+projr_build_dev(scripts = "analysis.qmd")
 ```
 
 [`projr_build()`](https://satvilab.github.io/projr/reference/projr_build.md)
 is a wrapper that accepts a `bump_component` argument:
 
 ``` r
+
 projr_build(bump_component = "patch", msg = "Release")
 ```
 
@@ -103,6 +106,7 @@ Version transitions:
 You can check or set the version directly:
 
 ``` r
+
 projr_version_get()
 projr_version_set("0.1.0")
 ```
@@ -112,6 +116,7 @@ projr_version_set("0.1.0")
 Pre-build hooks run after validation, before rendering.
 
 ``` r
+
 # Add hooks from R
 projr_yml_hooks_add_pre("setup-data.R")
 projr_yml_hooks_add_post("cleanup.R")
@@ -134,6 +139,7 @@ based on the `clear_output` setting:
 - `"never"`: don’t clear
 
 ``` r
+
 projr_build_patch(clear_output = "pre")
 # or
 Sys.setenv(PROJR_CLEAR_OUTPUT = "pre")
@@ -168,23 +174,35 @@ merged with output hashes after the build.
 
 Scripts are selected in this priority order:
 
-1.  `file` parameter passed to the build function
+1.  `scripts` argument to
+    [`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md)
 2.  `dev.scripts` in `_projr.yml` (dev builds only)
 3.  `build.scripts` in `_projr.yml`
-4.  Engine-specific config (`_quarto.yml` or `_bookdown.yml`)
-5.  Auto-detection of `.Rmd`, `.qmd`, or `.R` files in the project root
+4.  Automatic detection from the project configuration and top-level
+    scripts
+
+The `scripts` argument and YAML settings accept paths and glob patterns.
+Prefix a pattern with `!` to exclude matching scripts. Pass
+`scripts = ""` to skip running scripts.
 
 #### Document rendering
 
-The rendering engine is detected automatically:
+The rendering engine is detected from the selected scripts and project
+configuration:
 
 - Quarto for `.qmd` files or Quarto projects
-- Bookdown for `_bookdown.yml` projects
+- Bookdown for `.Rmd` files selected in a project with `_bookdown.yml`
 - R Markdown for `.Rmd` files
 
-Pass custom arguments to the engine:
+Explicitly selected scripts run in order. A project renders its selected
+documents together at the position of its last selected document. For an
+automatic build, a project renders first, followed by top-level R
+scripts.
+
+Pass custom arguments to the document renderers:
 
 ``` r
+
 projr_build_patch(
   msg = "Update analysis",
   args_engine = list(quiet = FALSE, clean = TRUE)
@@ -193,12 +211,13 @@ projr_build_patch(
 
 #### Script execution
 
-Plain `.R` files run via
+R build scripts and hooks run via
 [`source()`](https://rdrr.io/r/base/source.html). Use
 [`projr_path_get_dir()`](https://satvilab.github.io/projr/reference/projr_path_get_dir.md)
-inside scripts to write to the correct output directories:
+inside a script to write to the correct output directories.
 
 ``` r
+
 out_dir <- projr_path_get_dir("output", safe = TRUE)
 write.csv(results, file.path(out_dir, "results.csv"))
 ```
@@ -268,17 +287,18 @@ push yet.
 Sends artifacts to configured remotes (GitHub, OSF, local). The behavior
 is controlled by four parameters in `_projr.yml`:
 
-| Parameter       | Options                                                   | Description                    |
-|-----------------|-----------------------------------------------------------|--------------------------------|
-| `structure`     | `archive`, `latest`                                       | Versioned subdirs vs overwrite |
-| `send_cue`      | `always`, `if-change`, `never`                            | When to send                   |
-| `send_strategy` | `sync-diff`, `sync-purge`, `upload-all`, `upload-missing` | How to update                  |
-| `send_inspect`  | `manifest`, `file`, `none`                                | How to detect changes          |
+| Parameter | Options | Description |
+|----|----|----|
+| `structure` | `archive`, `latest` | Versioned subdirs vs overwrite |
+| `send_cue` | `always`, `if-change`, `never` | When to send |
+| `send_strategy` | `sync-diff`, `sync-purge`, `upload-all`, `upload-missing` | How to update |
+| `send_inspect` | `manifest`, `file`, `none` | How to detect changes |
 
 For quick archiving without editing `_projr.yml`, use the
 `archive_github` or `archive_local` parameters:
 
 ``` r
+
 # Archive all directories to a GitHub release
 projr_build_patch(msg = "Release v0.0.2", archive_github = TRUE)
 
@@ -321,6 +341,7 @@ build:
 Or from R:
 
 ``` r
+
 projr_yml_git_set(commit = TRUE, push = TRUE, add_untracked = TRUE)
 ```
 
@@ -351,6 +372,7 @@ This enables:
 Query the manifest:
 
 ``` r
+
 # Changes between two versions
 changes <- projr_manifest_changes("0.0.1", "0.0.2")
 changes$added
@@ -379,6 +401,7 @@ Control console verbosity with `PROJR_OUTPUT_LEVEL`:
 | `"debug"` | Detailed operations, file counts, remote plans |
 
 ``` r
+
 Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
 projr_build_patch(msg = "Debug run")
 ```
@@ -408,12 +431,14 @@ History tracking (`builds.md`) is always maintained. Detailed per-build
 logs can be disabled:
 
 ``` r
+
 Sys.setenv(PROJR_LOG_DETAILED = "FALSE")
 ```
 
 View or clear logs:
 
 ``` r
+
 projr_log_view()
 projr_log_clear()
 ```
@@ -423,6 +448,7 @@ projr_log_clear()
 1.  Enable debug output and re-run:
 
 ``` r
+
 Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
 projr_build_patch(msg = "Debug run")
 ```
@@ -432,6 +458,7 @@ projr_build_patch(msg = "Debug run")
 3.  Check git status:
 
 ``` r
+
 system("git status")
 system("git diff")
 ```
@@ -439,12 +466,14 @@ system("git diff")
 4.  Verify package requirements:
 
 ``` r
+
 projr_build_check_packages()
 ```
 
 5.  If authentication is the issue:
 
 ``` r
+
 projr_instr_auth_github()
 ```
 
@@ -455,6 +484,7 @@ projr_instr_auth_github()
 #### projr_build_patch / projr_build_minor / projr_build_major
 
 ``` r
+
 projr_build_patch(
   msg = "Build message",
   args_engine = list(),
@@ -470,8 +500,9 @@ projr_build_patch(
 #### projr_build_dev
 
 ``` r
+
 projr_build_dev(
-  file = NULL,
+  scripts = NULL,
   bump = FALSE,
   old_dev_remove = TRUE,
   args_engine = list(),
@@ -484,6 +515,7 @@ projr_build_dev(
 #### Configuration helpers
 
 ``` r
+
 # Validate configuration
 projr_yml_check()
 
@@ -502,6 +534,7 @@ projr_path_get_dir("output", safe = TRUE)
 A typical workflow from setup through production build:
 
 ``` r
+
 # 1. Check configuration is valid
 projr_yml_check()
 

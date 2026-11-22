@@ -45,6 +45,7 @@ gh release create v0.1.0
 With projr:
 
 ``` r
+
 projr_build() # That's it
 ```
 
@@ -66,6 +67,7 @@ lost results.
 **Example**: Without projr, you might:
 
 ``` r
+
 # Accidentally overwrite yesterday's figures
 render("analysis.Rmd") # Oh no, the new plot is worse!
 # Now you've lost the good version
@@ -74,6 +76,7 @@ render("analysis.Rmd") # Oh no, the new plot is worse!
 With projr:
 
 ``` r
+
 # Safe iteration
 projr_build_dev() # Outputs to _tmp/
 # Check results, if bad, just run again
@@ -132,6 +135,7 @@ effort.
 All automatically. To reproduce:
 
 ``` r
+
 projr_restore_repo("owner/repo")
 renv::restore()
 projr_build()
