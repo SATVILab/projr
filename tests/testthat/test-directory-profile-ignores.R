@@ -122,3 +122,30 @@ test_that("profile directory rules follow current paths and preserve manual igno
     force = TRUE
   )
 })
+
+test_that("a manual addition refreshes an older projr-managed ignore block", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(rm_engine = TRUE)
+  usethis::with_project(dir_test, {
+    yaml::write_yaml(list(directories = list("raw-data" = list(path = "current"))), "_projr.yml")
+    writeLines("generated", "render.log")
+    start <- "# Start of projr section"
+    end <- "# End of projr section"
+    writeLines(c("before", start, "old/**", "render.log", end, "after"), ".gitignore")
+    projr_ignore_file_git("new-manual")
+
+    writeLines(c("^before$", start, "^old/", "^old$", "^render\\.log$", end, "^after$"), ".Rbuildignore")
+    projr_ignore_file_rbuild("new-manual")
+
+    git <- readLines(".gitignore")
+    rbuild <- readLines(".Rbuildignore")
+    expect_false("old/**" %in% git)
+    expect_false(any(c("^old/", "^old$") %in% rbuild))
+    expect_true(all(c("/current/**", "render.log", "new-manual", "before", "after") %in% git))
+    expect_true(all(c("^current(/|$)", "^render\\.log$", "^new-manual$", "^before$", "^after$") %in% rbuild))
+    expect_lt(match("before", git), match(start, git))
+    expect_gt(match("after", git), match(end, git))
+    expect_lt(match("^before$", rbuild), match(start, rbuild))
+    expect_gt(match("^after$", rbuild), match(end, rbuild))
+  })
+})

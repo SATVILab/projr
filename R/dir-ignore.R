@@ -139,6 +139,12 @@
   # automatic refresh also regenerates every other entry in the managed block.
   marker <- "# End of configured directory rules"
   boundary <- match(marker, content)
+  if (!reset && is.na(boundary) && length(content) > 0L) {
+    # Older releases mixed directory and other rules. Regenerate the block
+    # once and keep the caller's manual edits from either side of it.
+    projr_ignore_auto()
+    return(c(outer$start, .ignore_path_get_list(path)$content, outer$end))
+  }
   if (!is.na(boundary)) {
     content <- utils::tail(content, length(content) - boundary)
   }

@@ -305,7 +305,9 @@ when the project root contains `DESCRIPTION`, to `.Rbuildignore`.
 
 If you change `raw-data` to another path, run `projr_ignore_auto()`.
 The next refresh drops the old path's generated rule as soon as its last
-qualifying profile reference is removed.
+qualifying profile reference is removed. Adding a manual ignore to an older
+project also refreshes its managed rules. Entries above and below the
+managed section stay in place.
 
 ---
 

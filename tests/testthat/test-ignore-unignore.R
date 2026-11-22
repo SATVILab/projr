@@ -477,6 +477,7 @@ test_that(".unignore_manual_path_add adds patterns after projr section", {
         "manual_pattern1",
         "",
         "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+        "# End of configured directory rules",
         "auto_pattern",
         "# End of projr section"
       )
