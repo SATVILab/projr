@@ -244,3 +244,13 @@ test_that("post-build clearing preserves a document rendered into its final dire
     expect_identical(readLines(output), "in place")
   })
 })
+
+test_that("Quarto Markdown outputs are collected with the rendered extension", {
+  skip_if(.is_test_select())
+  for (format in c("gfm", "commonmark", "markdown_strict")) {
+    expect_identical(
+      .build_copy_docs_quarto_paths_get(list(format = format), "reports/report.qmd"),
+      c("reports/report_files", "reports/report.md")
+    )
+  }
+})
