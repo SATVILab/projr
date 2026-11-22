@@ -1,4 +1,4 @@
-.build_clear_post_safe <- function(output_run, clear_output, engines = .engine_get_auto()) {
+.build_clear_post_safe <- function(output_run, clear_output, engines = .engine_get_auto(), rendered = character()) {
   .cli_debug("Starting .build_clear_post_safe()")
   .cli_debug("  output_run: {output_run}")
   .cli_debug("  clear_output: {clear_output}")
@@ -7,7 +7,7 @@
   # move rmd and qmd's (not bookdown or quarto projects)
   # to the final docs directories
   .cli_debug("Calling .build_clear_post_safe_docs()")
-  .build_clear_post_safe_docs(output_run, engines)
+  .build_clear_post_safe_docs(output_run, engines, rendered)
   .cli_debug("Completed .build_clear_post_safe_docs()")
 
   # clear final directories, in preparation
@@ -37,7 +37,7 @@
   invisible(TRUE)
 }
 
-.build_clear_post_safe_docs <- function(output_run, engines = .engine_get_auto()) {
+.build_clear_post_safe_docs <- function(output_run, engines = .engine_get_auto(), rendered = character()) {
   .cli_debug("Starting .build_clear_post_safe_docs()")
   .cli_debug("  output_run: {output_run}")
 
@@ -49,6 +49,10 @@
     .cli_debug("  Clearing docs directory (engine allows it)")
 
     path_to_clear <- projr_path_get_dir("docs", safe = FALSE, create = FALSE)
+    # A native renderer can write directly into the final docs directory.
+    if (any(fs::path_has_parent(rendered[file.exists(rendered)], path_to_clear))) {
+      return(invisible(FALSE))
+    }
     .cli_debug("  Docs path to clear: {path_to_clear}")
 
     .dir_clear(path_to_clear)

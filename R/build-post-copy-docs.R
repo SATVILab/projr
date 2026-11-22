@@ -2,6 +2,8 @@
   .cli_debug("Starting .build_copy_docs()")
   .cli_debug("  output_run: {output_run}")
 
+  collected <- .build_copy_docs_targets(engines)
+
   # Move project output before the standalone documents sharing its destination.
   if ("bookdown" %in% names(engines)) {
     .build_copy_docs_bookdown(output_run)
@@ -10,14 +12,49 @@
     .build_copy_docs_quarto_project(output_run)
   }
 
+  .build_copy_docs_paths(collected$source, output_run, collected$target)
   for (index in seq_along(engines)) {
     switch(names(engines)[[index]],
-      "document_output" = .build_copy_docs_paths(engines[[index]], output_run),
       "quarto_document" = .build_copy_docs_quarto(output_run, engines[[index]]),
       "rmd" = .build_copy_docs_rmd(output_run, engines[[index]])
     )
   }
   .cli_debug("Finished .build_copy_docs()")
+}
+
+# Keep the usual flat layout when names are unique. When documents share a
+# filename, keep each affected document and its assets together in its subdirectory.
+.build_copy_docs_targets <- function(engines) {
+  documents <- lapply(engines[names(engines) == "document_output"], function(paths) {
+    paths[file.exists(paths)]
+  })
+  source <- as.character(unlist(documents, use.names = FALSE))
+  target <- basename(source)
+  if (!length(source)) {
+    return(list(source = source, target = target))
+  }
+
+  project_dir <- if (any(names(engines) %in% c("quarto_project", "bookdown"))) {
+    .dir_get_label_safe_path("docs")
+  }
+  in_project <- function(paths) {
+    if (is.null(project_dir)) {
+      return(rep(FALSE, length(paths)))
+    }
+    file.exists(file.path(project_dir, paths))
+  }
+  group <- rep(seq_along(documents), lengths(documents))
+  overlap <- duplicated(target) | duplicated(target, fromLast = TRUE) | in_project(target)
+  nested <- group %in% group[overlap]
+  target[nested] <- as.character(fs::path_rel(source[nested], start = .path_get()))
+  conflict <- duplicated(target) | startsWith(target, "../") | in_project(target)
+  if (any(conflict)) {
+    stop("Document outputs share a destination. Give the rendered documents distinct ",
+      "output filenames: ", paste(source[conflict], collapse = ", "),
+      call. = FALSE
+    )
+  }
+  list(source = source, target = target)
 }
 
 # copy docs - rmd
@@ -387,29 +424,28 @@
   yaml::yaml.load(paste(txt_vec_frontmatter, collapse = "\n")) %||% list()
 }
 
-.build_copy_docs_paths <- function(path, output_run) {
+.build_copy_docs_paths <- function(path, output_run, target = basename(path)) {
   .cli_debug("  Starting .build_copy_docs_paths()")
   .cli_debug("    Paths to copy: {paste(path, collapse = ', ')}")
   .cli_debug("    output_run: {output_run}")
 
-  for (x in path) {
-    .cli_debug("    Processing path: {x}")
-    .build_copy_docs_paths_file(x, output_run)
-    .build_copy_docs_paths_dir(x, output_run)
-    .cli_debug("    Completed processing: {x}")
+  for (i in seq_along(path)) {
+    .build_copy_docs_paths_file(path[[i]], output_run, target[[i]])
+    .build_copy_docs_paths_dir(path[[i]], output_run, target[[i]])
   }
 
   .cli_debug("  Finished .build_copy_docs_paths()")
   invisible(TRUE)
 }
 
-.build_copy_docs_paths_file <- function(path, output_run) {
+.build_copy_docs_paths_file <- function(path, output_run, target = basename(path)) {
   if (!file.exists(path) || !fs::is_file(path)) {
     .cli_debug("      Skipping {path}: not a file or doesn't exist")
     return(invisible(FALSE))
   }
 
-  file_to <- projr_path_get("docs", basename(path), safe = !output_run)
+  file_to <- projr_path_get("docs", target, safe = !output_run)
+  fs::dir_create(dirname(file_to))
   if (fs::path_abs(path) == fs::path_abs(file_to)) {
     return(invisible(TRUE))
   }
@@ -425,14 +461,14 @@
   invisible(TRUE)
 }
 
-.build_copy_docs_paths_dir <- function(path, output_run) {
+.build_copy_docs_paths_dir <- function(path, output_run, target = basename(path)) {
   if (!file.exists(path) || !fs::is_dir(path)) {
     .cli_debug("      Skipping {path}: not a directory or doesn't exist")
     return(invisible(FALSE))
   }
 
   path_dir_to <- file.path(
-    projr_path_get_dir("docs", safe = !output_run), basename(path)
+    projr_path_get_dir("docs", safe = !output_run), target
   )
   if (fs::path_abs(path) == fs::path_abs(path_dir_to)) {
     return(invisible(TRUE))

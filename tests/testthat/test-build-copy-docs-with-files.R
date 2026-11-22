@@ -199,3 +199,48 @@ test_that("R Markdown collection uses the renderer's actual output path", {
     quiet = TRUE
   )
 })
+
+test_that("documents sharing a basename keep their companion assets in separate folders", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(rm_engine = TRUE)
+  usethis::with_project(dir_test, {
+    outputs <- lapply(c("first", "second"), function(folder) {
+      dir.create(file.path(folder, "report_files"), recursive = TRUE)
+      writeLines(folder, file.path(folder, "report.html"))
+      writeLines(folder, file.path(folder, "report_files", "plot.txt"))
+      file.path(folder, c("report.html", "report_files"))
+    })
+    .build_copy_docs(FALSE, stats::setNames(outputs, c("document_output", "document_output")))
+    docs <- projr_path_get_dir("docs", safe = TRUE)
+    for (folder in c("first", "second")) {
+      expect_identical(readLines(file.path(docs, folder, "report.html")), folder)
+      expect_identical(readLines(file.path(docs, folder, "report_files", "plot.txt")), folder)
+    }
+
+    writeLines("project page", file.path(docs, "index.html"))
+    writeLines("standalone", "second/index.html")
+    .build_copy_docs(FALSE, list(quarto_project = NULL, document_output = "second/index.html"))
+    expect_identical(readLines(file.path(docs, "index.html")), "project page")
+    expect_identical(readLines(file.path(docs, "second", "index.html")), "standalone")
+
+    writeLines("conflicting root page", "index.html")
+    expect_error(
+      .build_copy_docs(FALSE, list(quarto_project = NULL, document_output = "index.html")),
+      "distinct output filenames"
+    )
+    expect_identical(readLines(file.path(docs, "index.html")), "project page")
+  })
+})
+
+test_that("post-build clearing preserves a document rendered into its final directory", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(rm_engine = TRUE)
+  usethis::with_project(dir_test, {
+    docs <- projr_path_get_dir("docs", safe = FALSE)
+    output <- file.path(docs, "rendered.html")
+    writeLines("in place", output)
+    .build_clear_post_safe_docs(TRUE, "document_output", output)
+    .build_copy_docs(TRUE, list(document_output = output))
+    expect_identical(readLines(output), "in place")
+  })
+})
