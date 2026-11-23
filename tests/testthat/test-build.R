@@ -189,7 +189,7 @@ test_that("a production build archives the script output under the same invocati
     uuid <- sub("^results-", "", results)
     archive <- file.path("archives", paste0("run-", uuid))
     expect_identical(readLines(file.path(archive, "output", "v1.2.3", "result.txt")), "analysis result")
-    expect_true(any(grepl(archive, readLines("BUILDLOG.md"), fixed = TRUE)))
+    expect_true(any(grepl(archive, readLines(".projr/BUILDLOG.md"), fixed = TRUE)))
     expect_identical(.yml_dir_get_path_raw("output", NULL), "results-@uuid")
   }, quiet = TRUE, force = TRUE)
 })

@@ -78,7 +78,7 @@ test_that("all build entry points accept an unattended project without saving pe
   writeLines("stop('configured script failed')", file.path(project, "broken.R"))
   expect_error(projr_build_dev(scripts = "broken.R", project = project), "configured script failed")
   expect_identical(normalizePath(getwd()), normalizePath(caller))
-  expect_true(file.exists(file.path(project, "BUILDLOG.md")))
+  expect_true(file.exists(file.path(project, ".projr/BUILDLOG.md")))
   expect_identical(list.files(user, all.files = TRUE, no.. = TRUE), character())
   expect_identical(list.files(caller, all.files = TRUE, no.. = TRUE), character())
 })

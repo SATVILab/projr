@@ -193,9 +193,9 @@ Functions return list with:
 
 Automatically tracks and reports file changes between builds.
 
-### BUILDLOG.md Integration
+### .projr/BUILDLOG.md Integration
 
-- Change summaries added to `BUILDLOG.md` for each production build
+- Change summaries added to `.projr/BUILDLOG.md` for each production build
 - Compares current build with previous version using manifest hashes
 - Tracks changes in input directories (raw-data, cache) and output directories (output, docs)
 - Shows added, removed, modified, and unchanged file counts

@@ -561,7 +561,7 @@ projr_build_dev <- function(scripts = NULL,
   # hash raw-data and outputs, then save manifest table
   .build_manifest_post(output_run)
 
-  .cli_debug("Updating BUILDLOG.md")
+  .cli_debug("Updating .projr/BUILDLOG.md")
   .build_buildlog_add(
     msg = msg,
     bump_component = bump_component,

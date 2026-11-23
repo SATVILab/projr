@@ -48,7 +48,7 @@ Production builds use `build.renv: auto` by default. Snapshot when the project h
 - Collect development copies in the build cache and production copies in the configured output before hashing or archiving it. Preserve existing source-side `output` settings. A request made in both places copies once.
 - Reserve the receiving subdirectory for the included label. Reject cycles, conflicting files or links, and directory paths that would copy recursively or clear the source.
 
-Store package bookkeeping under `.projr/` (optional configuration in `config/`, versioned directory histories in `manifests/`, and untracked build diagnostics and history in `logs/`). Keep the first-build starter at the project root as `_projr.yml`. A build or restore may move recognized legacy state from `_projr/`; ordinary reads must work without moving files.
+Store package bookkeeping under `.projr/` (optional configuration in `config/`, versioned directory histories in `manifests/`, and untracked build diagnostics and history in `logs/`). Keep the first-build starter at the project root as `_projr.yml`. Keep the tracked production history in `.projr/BUILDLOG.md` and the changelog in `CHANGELOG.md` at the root. A build or restore may move recognized legacy state from `_projr/` and an older root `BUILDLOG.md`. Ordinary reads must work without moving files.
 
 ### Directory ignores across profiles
 
@@ -61,7 +61,7 @@ Store package bookkeeping under `.projr/` (optional configuration in `config/`, 
 
 - Expand `@version`, `@branch`, and `@uuid` in configured directory paths, local destination names and paths, and GitHub release names. A token ends at the end of the string or before a hyphen, underscore, period, ordinary space, or path separator. Preserve unknown names literally.
 - Use the build version with one `v` prefix. Capture one UUIDv4 and Git HEAD per build and share them with child render processes and retries. Encode branch names as one portable path component, preserving the distinction between `feature/foo` and `feature-foo`. Detached HEAD uses the commit SHA.
-- Generate directory ignore patterns from the current YAML templates, including local archives. Keep the template in YAML and record the concrete archive destination in `BUILDLOG.md` for restore.
+- Generate directory ignore patterns from the current YAML templates, including local archives. Keep the template in YAML and record the concrete archive destination in `.projr/BUILDLOG.md` for restore.
 - Store local release histories in `<destination>/manifests/` for every layout. With `path-append-label: false` and `structure: latest`, keep the root's `manifests/`, `manifest.csv`, `VERSION`, and `CHANGELOG.md` separate from payload listing, hashing, purge, and restore. Report a conflicting payload name before writing.
 - Keep a GitHub release's title and tag identical. Only an explicitly configured target branch selects the commit for a new tag. Resolve that branch in the destination repository and leave existing release tags in place.
 
