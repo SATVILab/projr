@@ -153,10 +153,13 @@
 # defaults only once, before user rules so existing Git exceptions still win.
 .init_ignore_starter <- function(root) {
   defaults <- list(.gitignore = c(
-    ".vdoc.*", ".Rproj.user", ".Rhistory", ".RData", ".Ruserdata", "_projr-local.yml", "_environment.local"
+    ".vdoc.*", ".DS_Store", "Thumbs.db", ".Rproj.user", ".Rhistory", ".RData",
+    ".Ruserdata", "_projr-local.yml", "_environment.local"
   ))
   if (any(file.exists(file.path(root, c("DESCRIPTION", ".Rbuildignore"))))) {
-    defaults[[".Rbuildignore"]] <- c("(^|/)\\.vdoc\\.", "^.*\\.Rproj$", "^\\.Rproj\\.user$", "^_projr-local\\.yml$")
+    defaults[[".Rbuildignore"]] <- c(
+      "(^|/)\\.vdoc\\.", "(^|/)(\\.DS_Store|Thumbs\\.db)$", "^.*\\.Rproj$", "^\\.Rproj\\.user$", "^_projr-local\\.yml$"
+    )
   }
   for (name in names(defaults)) {
     path <- file.path(root, name)
