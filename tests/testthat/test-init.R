@@ -1987,3 +1987,20 @@ test_that("projr_init handles DESCRIPTION file already existing", {
     quiet = TRUE
   )
 })
+
+test_that("installed CodeMeta generates project metadata without an installer", {
+  skip_if(.is_test_select())
+  if (!identical(Sys.getenv("GITHUB_ACTIONS"), "true")) skip_if_not_installed("codemeta")
+  expect_true(requireNamespace("codemeta", quietly = TRUE))
+  project <- .test_setup_project(rm_engine = TRUE)
+  usethis::with_project(project, {
+    withr::local_envvar(c(PROJR_AUTO_INSTALL = "false"))
+    expect_true(.dep_install_only("cboettig/codemeta"))
+    unlink("codemeta.json")
+    dir.create("nested")
+    withr::with_dir("nested", expect_true(.init_cite_codemeta()))
+    expect_true(file.exists("codemeta.json"))
+    expect_false(file.exists("nested/codemeta.json"))
+    expect_true(nzchar(jsonlite::read_json("codemeta.json")$name))
+  })
+})

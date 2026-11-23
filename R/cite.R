@@ -31,12 +31,13 @@
 }
 
 .cite_codemeta_set <- function(create = TRUE) {
-  .dep_install("codemeta")
-  if (!file.exists(.path_get("codemeta.json")) && !create) {
+  path <- .path_get("codemeta.json")
+  if (!file.exists(path) && !create) {
     return(invisible(FALSE))
   }
   .cli_info("Creating codemeta.json file")
-  try(codemeta::write_codemeta(path = .path_get()))
+  .dep_install("codemeta")
+  codemeta::write_codemeta(path = dirname(path), file = path)
   invisible(TRUE)
 }
 
