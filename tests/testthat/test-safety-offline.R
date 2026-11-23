@@ -30,6 +30,7 @@ test_that("test projects use the requested prefix in the session temp directory"
 test_that("user R configuration is created only in the test HOME", {
   skip_if(.is_test_select())
   expect_identical(Sys.getenv("HOME"), .test_home)
+  expect_identical(Sys.getenv("R_USER_CONFIG_DIR"), .test_home)
   expect_identical(Sys.getenv("R_PROFILE_USER"), file.path(.test_home, ".Rprofile"))
   path <- .init_renviron_create()
   expect_identical(as.character(path), file.path(.test_home, ".Renviron"))
@@ -47,6 +48,7 @@ test_that("loading the installed package and running a first build confine their
   fs::dir_create(c(home, scratch, project))
   withr::local_envvar(c(
     HOME = home, R_USER = home, TMPDIR = scratch, TMP = scratch, TEMP = scratch,
+    R_USER_CONFIG_DIR = home, XDG_CONFIG_HOME = home,
     R_LIBS = paste(.libPaths(), collapse = .Platform$path.sep)
   ))
   script <- file.path(sandbox, "check.R")
@@ -55,7 +57,7 @@ test_that("loading the installed package and running a first build confine their
     "setwd(project)",
     "library(projr)",
     "stopifnot(!length(list.files(all.files = TRUE, no.. = TRUE)))",
-    "projr_build_patch('First build')",
+    "projr_build_patch('First build', project = project)",
     "stopifnot(file.exists('_projr.yml'), file.exists('BUILDLOG.md'))"
   ), script)
   exe <- file.path(R.home("bin"), "Rscript")

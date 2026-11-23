@@ -16,6 +16,11 @@
     .test_setup_project_github_unset(path_dir_test)
     .test_setup_project_git_unset_push(path_dir_test)
   }
+  # Helpers can also be loaded outside testthat. Keep fixture approvals in the
+  # disposable test config directory established by setup.R.
+  if (fs::path_has_parent(tools::R_user_dir("projr", "config"), tempdir())) {
+    .build_project_approve(path_dir_test)
+  }
   invisible(path_dir_test)
 }
 
