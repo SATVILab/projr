@@ -27,7 +27,7 @@ jobs:
           use-public-rspm: true
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::devtools, any::styler
+          extra-packages: any::devtools
           needs: check
       - uses: quarto-dev/quarto-actions/setup@v2
         with:

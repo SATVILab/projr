@@ -108,7 +108,7 @@ Store package bookkeeping under `.projr/` (optional configuration in `config/`, 
 
 ### Suggested / optional dependencies
 
-`gert`, `gh`, `gitcreds`, `credentials` (Git/GitHub), `osfr` (OSF), `rmarkdown`, `quarto`, `bookdown`, `knitr` (document rendering), `testthat` ≥ 3.0 (testing), `devtools`, `usethis`, `styler`, `roxygen2` (development).
+`gert`, `gh`, `gitcreds`, `credentials` (Git/GitHub), `osfr` (OSF), `rmarkdown`, `quarto`, `bookdown`, `knitr` (document rendering), `testthat` ≥ 3.0 (testing), `devtools`, `usethis`, `roxygen2` (development).
 
 ### What NOT to use
 
@@ -201,11 +201,18 @@ devtools::test()
 devtools::check()
 ```
 
-### Lint / format code
+### Format R code
 
-```r
-styler::style_pkg()
+Use Air for package code and tests. From the repository root, run the first
+command to format and the second to check for pending changes.
+
+```sh
+air format R tests
+air format --check R tests
 ```
+
+Positron includes Air. In Positron or VS Code, use **Format Document** on an
+R file. For the terminal command, see the [Air CLI installation guide](https://posit-dev.github.io/air/cli.html).
 
 ### Update documentation
 
@@ -285,7 +292,7 @@ Internal functions (`.` prefix) must **not** have `@export`.
 - For a stable package release, merge its three-part `DESCRIPTION` version into `main`. The release workflow publishes the matching `vX.Y.Z` GitHub Release with the `R CMD build` source tarball. Tag pushes and the manual version/bump workflow also support publication. Keep released version tags fixed.
 
 - Make **minimal, surgical changes** — change as few lines as possible.
-- Run `devtools::document()`, `devtools::test()` (LITE), and `styler::style_pkg()` before committing.
+- Run `devtools::document()`, `devtools::test()` (LITE), and `air format --check R tests` before committing.
 - Update `_pkgdown.yml` when adding or removing exported functions, then verify with `pkgdown::check_pkgdown()`.
 - Ensure files end with a **single newline** and have **no trailing whitespace**.
 - Never leave `browser()` or unguarded interactive debugging calls in committed code.

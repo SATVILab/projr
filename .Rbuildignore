@@ -42,3 +42,4 @@
 ^index\.md$
 ^CHANGELOG\.md$
 ^cran-comments\.md$
+^air\.toml$
