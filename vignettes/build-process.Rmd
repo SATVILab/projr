@@ -368,7 +368,7 @@ projr_yml_git_set(commit = TRUE, push = TRUE, add_untracked = TRUE)
 
 ## Manifest System
 
-Production builds record input directories before rendering and output directories afterward. Each hashed label has its own history under `.projr/manifests/`. For example, `raw-data/versions.csv` might contain the following rows (snapshot IDs are abbreviated here).
+Production builds record input directories before rendering and output directories afterward. Each hashed label has its own history under `.projr/manifests/`. In `raw-data/versions.csv`, each project build has one row in the `version` column. The `directory_version` column shows the earliest build with those exact files and can repeat. Here is an example with shortened snapshot IDs.
 
 ```csv
 label,version,directory_version,snapshot
