@@ -1,19 +1,34 @@
 Package: projr
 Title: Facilitate Reproducible and Archived Projects
-Version: 0.5.2-10
-Authors@R: person("Miguel", "Rodo", , "miguel.rodo@uct.ac.za", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2036-4878"))
+Version: 0.6.0
+Authors@R: c(
+    person("Miguel", "Rodo", email = "miguel.rodo@uct.ac.za",
+           role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2036-4878")),
+    person("Alexander", "Peslyak", role = "ctb",
+           comment = "Bundled MD5 implementation")
+    )
 Maintainer: Miguel Rodo <miguel.rodo@uct.ac.za>
-Description: Facilitate reproducible and archived projects.
-License: file LICENSE
+Description: Run R scripts and render 'Quarto', 'R Markdown' and 'bookdown'
+    documents in a configured order. Record file hashes for each version of
+    an analysis, archive its inputs and outputs locally or in 'GitHub'
+    releases, and restore the inputs for a checked-out version.
+License: MIT + file LICENSE
+Copyright: 2022 projr authors. See COPYRIGHTS for the bundled MD5 code.
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-Depends: 
+Depends:
     R (>= 4.1.0)
-Imports: renv (>= 1.1.6), jsonlite, yaml, rprojroot, desc, fs, digest, cli, glue, uuid, filelock, xfun
+Imports:
+    renv (>= 1.1.6), jsonlite, yaml, rprojroot, desc, fs, digest, cli, glue,
+    uuid, filelock, xfun
 LinkingTo: cpp11
-Suggests: remotes, roxygen2, usethis, gert, gh, credentials, gitcreds, codemeta, cffr, pkgbuild, rmarkdown, bookdown, knitr, quarto, testthat (>=
-                  3.0.0), devtools, httr, covr, htmltools, DT, curl, rlang, withr, BiocManager, styler
+Suggests:
+    remotes, roxygen2, usethis, gert, gh, credentials, gitcreds, codemeta,
+    cffr, pkgbuild, rmarkdown, bookdown, knitr, quarto, testthat (>= 3.0.0),
+    devtools, httr, covr, htmltools, DT, curl, rlang, withr, BiocManager,
+    styler
 Config/testthat/edition: 3
-URL: https://satvilab.github.io/projr/
+URL: https://satvilab.github.io/projr/, https://github.com/SATVILab/projr
+BugReports: https://github.com/SATVILab/projr/issues
 VignetteBuilder: knitr
 Config/roxygen2/version: 8.0.0

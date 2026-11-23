@@ -1,68 +1,42 @@
+# projr 0.6.0
+
+## Changes for existing projects
+
+* Use `build.scripts` and `dev.scripts` to select scripts in project YAML.
+  In `projr_build_dev()`, replace `file =` with `scripts =`. An empty
+  selection skips scripts and rendering.
+* Declare a path under `directories` for each label your project uses.
+  Configured paths resolve from the project root, including when code runs
+  in a subdirectory. A first build creates a starter `_projr.yml` if needed.
+  It uses `_raw_data/` for inputs and `_output/` for results.
+* Project metadata now lives under `.projr/`. You can keep the base
+  `_projr.yml` at the project root or put it in `.projr/config/` alongside
+  named profiles. Directory histories live in `.projr/manifests/`, and
+  detailed build logs live in `.projr/logs/`.
+* A production build imports history from an existing root `manifest.csv`.
+  Each directory now has its own human-readable version index and file lists.
+  Repeated directory contents reuse the earliest matching snapshot.
+
+## Building and restoring an analysis
+
+* Use `projr_build(archive_github = TRUE)` to publish versioned inputs and
+  outputs to a GitHub release. In a fresh copy of the project, check out
+  the desired build and call `projr_restore()` to recover its raw inputs.
+  Restore verifies file paths and hashes before replacing local files.
+* Combine R scripts, standalone documents and one Quarto or Bookdown project
+  in a single build. An explicit selection renders the project at its last
+  selected document. With automatic selection, the project renders first,
+  followed by top-level R scripts in alphabetical order.
+* Native hashing streams file contents and defaults to one worker. Set
+  `settings.hashing.cores` to increase parallelism or select
+  `settings.hashing.approach: legacy` to use the previous hashing method.
+  Both approaches produce compatible file hashes.
+* A receiving output directory can include other declared directories.
+  A destination name can use `@version`, `@branch` or `@uuid` to separate
+  archived builds.
+
 # projr 0.0.8.9002
 
-## Breaking Changes
-
-### CRAN Compliance: Removed Automatic Package Installation
-
-* **Removed automatic package installation from all package code** to comply with CRAN policy that prohibits writing to user filespace during checks.
-
-* **Pre-build package validation**: Builds now check for all required packages (build engines, remote destinations) BEFORE starting the build process. If packages are missing, you get a clear error with a copy-paste installation command for all missing packages at once.
-
-* **Improved error messages**: When running interactively and a package is needed but not installed, projr provides clear, actionable error messages with exact installation commands. No automatic installation occurs to ensure CRAN compliance.
-
-* `.dep_install_only()` and `.renv_lockfile_read()` no longer automatically install missing packages. Instead, they throw clear, informative errors with installation instructions when required packages are missing.
-
-* Users must now manually install required optional dependencies before using features that depend on them. The error messages provide exact installation commands.
-
-* This change affects functions that previously auto-installed packages like:
-  - Build engines (quarto, rmarkdown, bookdown)
-  - Remote destinations (piggyback for GitHub, osfr for OSF)
-  - GitHub operations (requires `gh` package)
-  - Git operations in test mode (requires `gert` package)  
-  - License creation (requires `usethis` package)
-  - Documentation generation (requires `roxygen2` package)
-  - And other optional features
-
-* **For renv projects**: Use `renv::install()` to install dependencies
-* **For non-renv projects**: Use `install.packages()` or `remotes::install_github()` as shown in error messages
-
-## Bug Fixes and Improvements
-
-### Piggyback (GitHub Releases) Operations
-
-* **Improved debug output**: All piggyback operations (download, upload, delete, list) now provide detailed debug messages when `PROJR_OUTPUT_LEVEL="debug"` is set
-  - Shows repository and tag information
-  - Reports file names and sizes
-  - Displays success/failure status
-  - Shows error messages from piggyback operations (previously hidden by `suppressWarnings`/`suppressMessages`)
-  - Reports retry attempts with reasons
-  - Logs cache clearing operations
-  - Lists available vs. requested files
-
-* **Better error handling for manifest.csv and VERSION file operations**:
-  - Added `tryCatch` blocks to handle download failures gracefully
-  - Added informative debug messages for download attempts, successes, and failures
-  - Fixed silent failures - now properly reports when files are not found or downloads fail
-  - Improved error messages to help diagnose issues
-
-* **Enhanced reliability**:
-  - All retry logic now includes debug output explaining why retries are happening
-  - Piggyback operations provide better feedback about what's happening under the hood
-  - Error messages from the `piggyback` package are no longer silently suppressed
-
-### Usage
-
-To enable detailed debug output for piggyback operations:
-
-```r
-# Set environment variable before running builds
-Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
-projr_build_patch()
-
-# Or pass directly to build functions
-projr_build_patch(output_level = "debug")
-```
-
-This will show detailed information about all GitHub release operations, making it much easier to diagnose issues with manifest.csv, VERSION file downloads, or release asset uploads.
-
-* Added a `NEWS.md` file to track changes to the package.
+* Builds began checking for missing optional packages before rendering and
+  reporting the installation commands for them.
+* GitHub Releases gained diagnostic messages for uploads, downloads and retries.
