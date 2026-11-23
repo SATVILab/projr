@@ -114,9 +114,9 @@ projr_manifest_changes("v0.2.0", "v0.6.1", label = "raw-data")
 ```
 
 The comparison reads the checkout's history. When you restore the earlier
-build, projr can use a later upload if the exact and earlier copies are
-unavailable. The release must record the same snapshot, and every downloaded
-filename and hash must match. This option is available in projr 0.7.0 and later.
+build, projr 0.7.0 and later can use a later upload if the exact and earlier
+copies are unavailable. The release must record the same snapshot, and every
+downloaded filename and hash must match.
 
 ## Check whether a build reproduces
 
