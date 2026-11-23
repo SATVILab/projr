@@ -49,13 +49,10 @@ projr_path_get_dir <- function(label, ...,
   is_yaml_abs <- all(fs::is_absolute_path(path_raw))
   path_abs <- .path_resolve_root(path_raw)
   
-  switch(format,
-    "absolute" = path_abs,
-    "relative" = .path_force_rel(path_abs, getwd()),
-    "auto"     = {
-      if (is_yaml_abs) path_abs else .path_force_rel(path_abs, getwd())
-    }
-  )
+  if (format == "absolute" || (format == "auto" && is_yaml_abs)) {
+    return(path_abs)
+  }
+  .path_force_rel(path_abs, normalizePath(".", winslash = "/"))
 }
 
 #' @title Return path

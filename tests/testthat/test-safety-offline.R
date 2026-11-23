@@ -22,7 +22,7 @@ test_that("GitHub deletion rejects every target without looking up credentials",
 test_that("test projects use the requested prefix in the session temp directory", {
   skip_if(.is_test_select())
   path <- .test_setup_project_dir("OfflineFixture", environment())
-  expect_identical(dirname(path), tempdir())
+  expect_identical(normalizePath(dirname(path)), normalizePath(tempdir()))
   expect_match(basename(path), "^ProjrGitHubTestOfflineFixture")
   expect_true(dir.exists(path))
 })
@@ -32,7 +32,7 @@ test_that("user R configuration is created only in the test HOME", {
   expect_identical(Sys.getenv("HOME"), .test_home)
   expect_identical(Sys.getenv("R_PROFILE_USER"), file.path(.test_home, ".Rprofile"))
   path <- .init_renviron_create()
-  expect_identical(as.character(path), file.path(.test_home, ".Renviron"))
+  expect_identical(normalizePath(path), normalizePath(file.path(.test_home, ".Renviron")))
   expect_true(file.exists(path))
 })
 

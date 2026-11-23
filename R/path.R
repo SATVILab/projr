@@ -842,9 +842,9 @@
   .path_get(path)
 }
 
-.path_can_relativise <- function(path) {
+.path_can_relativise <- function(path, root = .path_get()) {
   # Compare the filesystem roots, including the share name for UNC paths.
-  roots <- lapply(fs::path_split(fs::path_abs(c(path, .path_get()))), function(parts) {
+  roots <- lapply(fs::path_split(fs::path_abs(c(path, root))), function(parts) {
     if (startsWith(parts[1L], "//")) parts[1:2] else parts[1L]
   })
   identical(tolower(roots[[1L]]), tolower(roots[[2L]]))

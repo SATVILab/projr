@@ -71,11 +71,21 @@
     return(character())
   }
 
-  # These fs operations are lexical, including for foreign drives and UNC paths.
   path <- fs::path_abs(path, start = root)
-  if (path == root || !fs::path_has_parent(path, root)) {
-    return(character())
+  if (!fs::path_has_parent(path, root)) {
+    if (!.path_can_relativise(path, root)) return(character())
+
+    # The checkout's ancestors may use a symlink or a Windows short name.
+    # Check possible checkout roots only, without opening the configured directory.
+    parts <- fs::path_split(path)[[1L]]
+    matches <- which(tolower(parts) == tolower(basename(root)))
+    candidates <- vapply(matches, function(i) as.character(fs::path_join(parts[seq_len(i)])), character(1))
+    candidates <- candidates[dir.exists(candidates)]
+    aliases <- candidates[normalizePath(candidates, winslash = "/") == root]
+    if (!length(aliases)) return(character())
+    root <- aliases[[1L]]
   }
+  if (path == root) return(character())
   as.character(fs::path_rel(path, start = root))
 }
 
