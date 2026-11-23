@@ -159,7 +159,7 @@ Both build types follow the same phases:
 
 ## Manifests
 
-Each production build links its inputs and outputs through the directory histories in `_projr/manifests/`. Within each label, `versions.csv` identifies which file list belonged to each build. An unchanged directory points back to its earliest matching version. Open its `files-<snapshot>.csv` to inspect the relative filenames and their MD5 hashes.
+Each production build links its inputs and outputs through the directory histories in `.projr/manifests/`. Within each label, `versions.csv` identifies which file list belonged to each build. An unchanged directory points back to its earliest matching version. Open its `files-<snapshot>.csv` to inspect the relative filenames and their MD5 hashes.
 
 Query the manifest to see what changed:
 

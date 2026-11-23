@@ -46,7 +46,7 @@
   index
 }
 
-.manifest_store_index <- function(path_dir = .path_get("_projr", "manifests"), label = NULL) {
+.manifest_store_index <- function(path_dir = .manifest_project_dir(), label = NULL) {
   if (!.manifest_store_ready(path_dir)) {
     return(.manifest_store_empty_index())
   }
@@ -72,7 +72,7 @@
   index
 }
 
-.manifest_store_read <- function(path_dir = .path_get("_projr", "manifests"),
+.manifest_store_read <- function(path_dir = .manifest_project_dir(),
                                  label = NULL, version = NULL, fn = NULL) {
   index <- .manifest_store_index(path_dir, label)
   if (!is.null(version)) index <- index[index$version %in% version, , drop = FALSE]
@@ -149,7 +149,7 @@
   invisible(path)
 }
 
-.manifest_store_write <- function(manifest, path_dir = .path_get("_projr", "manifests"),
+.manifest_store_write <- function(manifest, path_dir = .path_get(".projr", "manifests"),
                                   legacy_path = .path_get("manifest.csv")) {
   fs::dir_create(path_dir)
   lock <- filelock::lock(file.path(path_dir, ".versions.lock"))

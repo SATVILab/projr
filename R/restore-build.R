@@ -28,6 +28,7 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
   .assert_chr(label)
   .assert_string(destination, TRUE)
   .assert_flag(clear, TRUE)
+  .project_state_upgrade(.path_get())
   directories <- .yml_get(NULL)[["directories"]]
   declared <- names(directories)
   if (is.null(label)) label <- declared[.yml_dir_label_class_detect_raw(declared)]
@@ -47,7 +48,7 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
   fs::dir_create(workspace)
   on.exit(unlink(workspace, recursive = TRUE, expand = FALSE), add = TRUE)
 
-  project_store <- .path_get("_projr", "manifests")
+  project_store <- .path_get(".projr", "manifests")
   project_csv <- .path_get("manifest.csv")
   snapshots <- lapply(labels, function(label) {
     .restore_build_snapshot(project_store, project_csv, label, version)
@@ -252,6 +253,7 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
   }, character(1))
   for (i in seq_along(paths)) {
     if (fs::path_has_parent(root, paths[i]) || fs::path_has_parent(paths[i], file.path(root, ".git")) ||
+      fs::path_has_parent(paths[i], file.path(root, ".projr")) ||
       fs::path_has_parent(paths[i], file.path(root, "_projr")) ||
       any(fs::path_has_parent(paths[-i], paths[i]))) {
       stop("Overlapping or protected restore directory: ", paths[i], call. = FALSE)

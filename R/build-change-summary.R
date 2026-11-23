@@ -83,7 +83,7 @@
 #' @return Character version string (without 'v' prefix), or NULL if no previous version.
 #' @keywords internal
 .build_change_summary_get_previous_version <- function(version_current = projr_version_get()) {
-  directory <- .path_get("_projr", "manifests")
+  directory <- .manifest_project_dir()
   history <- if (.manifest_store_ready(directory)) {
     .manifest_store_index(directory)
   } else {

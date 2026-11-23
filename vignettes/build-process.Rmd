@@ -349,7 +349,7 @@ projr_yml_git_set(commit = TRUE, push = TRUE, add_untracked = TRUE)
 
 ## Manifest System
 
-Production builds record input directories before rendering and output directories afterward. Each hashed label has its own history under `_projr/manifests/`. For example, `raw-data/versions.csv` might contain the following rows (snapshot IDs are abbreviated here).
+Production builds record input directories before rendering and output directories afterward. Each hashed label has its own history under `.projr/manifests/`. For example, `raw-data/versions.csv` might contain the following rows (snapshot IDs are abbreviated here).
 
 ```csv
 label,version,directory_version,snapshot
@@ -361,7 +361,7 @@ raw-data,v1.3.0,v1.0.0,abcd…
 
 Here the data changed in v1.2.0 and returned to its original contents in v1.3.0. The four builds share two file lists. Open `raw-data/files-<snapshot>.csv` to see each relative filename (`fn`) and its MD5 (`hash`). The full SHA-256 in the index identifies those exact CSV bytes. A change in `output/` updates that label’s history independently.
 
-An existing project can continue reading its root `manifest.csv`. Its next production build imports the old history and writes subsequent updates under `_projr/manifests/`.
+An existing project can continue reading its root `manifest.csv`. Its next production build imports the old history and writes subsequent updates under `.projr/manifests/`.
 
 Query the manifest:
 
@@ -405,10 +405,10 @@ the detailed log keeps the steps leading up to the error.
 
 ### Log files
 
-With the starter configuration, projr saves each build log under `_tmp/projr/log/`. A custom cache path changes that location.
+Each build keeps its log under `.projr/logs/` at the project root.
 
 ```
-_tmp/projr/log/
+.projr/logs/
 ├── output/                    # Production build logs
 │   ├── history/builds.md      # All build records
 │   └── output/YYYY-MMM-DD/
@@ -439,7 +439,7 @@ Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
 projr_build_patch(msg = "Debug run")
 ```
 
-2. Review the detailed log file in the cache directory.
+2. Read the detailed log with `projr_log_view()`.
 
 3. Check git status:
 

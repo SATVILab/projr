@@ -144,7 +144,7 @@ projr_manifest_last_change <- function(version = NULL) {
 
 .manifest_query_range_rows <- function(version_start, version_end, label = NULL, fn = NULL) {
   .assert_string(label)
-  path_dir <- .path_get("_projr", "manifests")
+  path_dir <- .manifest_project_dir()
   stored <- .manifest_store_ready(path_dir)
   # Select the index rows before opening their file lists.
   rows <- if (stored) .manifest_store_index(path_dir, label) else .manifest_read_project(label = label, fn = fn)

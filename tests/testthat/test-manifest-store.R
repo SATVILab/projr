@@ -56,7 +56,7 @@ test_that("a project imports the legacy manifest once and reads selected directo
   dir_test <- .test_setup_project(rm_engine = TRUE)
   usethis::with_project(dir_test,
     {
-      store <- .path_get("_projr", "manifests")
+      store <- .path_get(".projr", "manifests")
       old <- data.frame(
         label = c("raw-data", "output"), fn = c("NA", "001"), version = "v1.0",
         hash = c("00111", "00222")
@@ -111,7 +111,7 @@ test_that("a failed first import can be retried without altering the old manifes
       original <- data.frame(label = "output", fn = "report", version = "v1", hash = "001")
       prior <- rbind(original, transform(original, label = "abandoned", version = "v7"))
       write.csv(prior, "manifest.csv", row.names = FALSE)
-      store <- .path_get("_projr", "manifests")
+      store <- .path_get(".projr", "manifests")
       expect_error(.manifest_store_write(transform(original, version = "invalid")), "version")
       expect_false(.manifest_store_ready(store))
       expect_identical(readLines(file.path(store, "FORMAT")), "importing")
@@ -169,7 +169,7 @@ test_that("a Git checkout preserves the snapshot checksum with autocrlf enabled"
   repo <- withr::local_tempdir()
   withr::local_dir(repo)
   expect_equal(system2("git", c("init", "--quiet")), 0L)
-  store <- file.path("_projr", "manifests")
+  store <- file.path(".projr", "manifests")
   dir.create(store, recursive = TRUE)
   writeLines("*.md text", file.path(store, ".gitattributes"))
   rows <- data.frame(label = "docs", fn = "report.pdf", version = "v1", hash = "001")
@@ -181,4 +181,42 @@ test_that("a Git checkout preserves the snapshot checksum with autocrlf enabled"
   unlink(snapshot)
   expect_equal(git(c("checkout-index", "--", snapshot)), 0L)
   expect_identical(.manifest_store_read(store), rows)
+})
+
+test_that("old checkouts can be read and built with the hidden project directory", {
+  skip_if(.is_test_select())
+  project <- .test_setup_project(git = FALSE, rm_engine = TRUE)
+  usethis::with_project(project, {
+    fs::dir_create("_projr/config")
+    fs::file_move("_projr.yml", "_projr/config/_projr.yml")
+    writeLines("user file", "_projr/keep.txt")
+    rows <- data.frame(label = "raw-data", fn = "input.csv", version = "v1.0", hash = "0011")
+    .manifest_store_write(rows, "_projr/manifests", NULL)
+    withr::with_dir("_projr/config", {
+      expect_equal(.manifest_read_project("raw-data")$hash, "0011")
+      expect_false(dir.exists(file.path(project, ".projr/manifests")))
+    })
+    projr_build_dev(scripts = character())
+    expect_false(file.exists("_projr.yml"))
+    expect_true(file.exists(".projr/config/_projr.yml"))
+    expect_equal(.manifest_store_index()$version, "v1.0")
+    expect_true(.manifest_store_ready(".projr/manifests"))
+    expect_false(dir.exists("_projr/manifests"))
+    expect_true(file.exists(".projr/logs/dev/history/builds.md"))
+    expect_identical(readLines("_projr/keep.txt"), "user file")
+    ignores <- readLines(".gitignore")
+    expect_true("/.projr/logs/**" %in% ignores)
+    expect_false(any(ignores %in% c("/.projr/**", "/.projr/manifests/**")))
+  })
+})
+
+test_that("migration preserves both existing configurations on a conflict", {
+  skip_if(.is_test_select())
+  root <- withr::local_tempdir()
+  configs <- file.path(root, c("_projr/config", ".projr/config"))
+  fs::dir_create(configs)
+  writeLines("old", file.path(configs[1L], "_projr.yml"))
+  writeLines("new", file.path(configs[2L], "_projr.yml"))
+  expect_error(.project_state_upgrade(root), "Reconcile")
+  expect_identical(lapply(file.path(configs, "_projr.yml"), readLines), list("old", "new"))
 })

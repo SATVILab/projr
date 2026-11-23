@@ -31,8 +31,9 @@ projr_ignore_auto <- function() {
   .ignore_diryml(create_git = TRUE)
   # root level files
   .ignore_auto_yml()
-  .ignore_auto_file_git("/_projr/manifests/.versions.lock")
-  .ignore_auto_dir_rbuild("_projr/manifests")
+  .ignore_auto_file_git("/.projr/manifests/.versions.lock")
+  .ignore_auto_dir_git("/.projr/logs")
+  .ignore_auto_dir_rbuild(".projr")
   .ignore_auto_env()
   .ignore_auto_build_source()
   .ignore_auto_build_tex()
