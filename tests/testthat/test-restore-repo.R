@@ -186,17 +186,17 @@ test_that("repo restoration clones into the requested path and forwards selectio
     },
     projr_content_update = function(label, pos, type, title, destination) {
       expect_true(file.exists("_projr.yml"))
-      received <<- list(label, pos, type, title, destination, getwd())
+      received <<- list(label, pos, type, title, destination, normalizePath("."))
       invisible(TRUE)
     }
   )
   withr::with_dir(parent, {
     expect_true(projr_restore_repo("fixture/project", "one", labels, positions, "local", "archive", destination = "bundles"))
-    expect_identical(received, list(labels, positions, "local", "archive", "bundles", normalizePath("one", winslash = "/")))
+    expect_identical(received, list(labels, positions, "local", "archive", "bundles", normalizePath("one")))
     dir.create("two")
     withr::with_dir("two", {
       expect_true(projr_restore_repo_wd("fixture/project", type = "github"))
-      expect_identical(received, list(NULL, NULL, "github", NULL, NULL, getwd()))
+      expect_identical(received, list(NULL, NULL, "github", NULL, NULL, normalizePath(".")))
     })
   })
 })
@@ -214,7 +214,7 @@ test_that("repo restoration reports failures and restores the working directory"
     expect_false(projr_restore_repo("fixture/missing"))
     dir.create("clone")
     expect_false(projr_restore_repo("fixture/project", "clone"))
-    expect_identical(getwd(), normalizePath(parent, winslash = "/"))
+    expect_identical(normalizePath("."), normalizePath(parent))
   })
 })
 
