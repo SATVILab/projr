@@ -33,6 +33,7 @@
   testthat::local_mocked_bindings(.gh_repo_get = function() repo, .package = "projr", .env = env)
   files <- file.path(withr::local_tempdir(.local_envir = env), seq_along(tags))
   asset_names <- rep(NA_character_, length(tags))
+  fail_upload <- FALSE
   releases <- paste0(api, "/repos/", repo, "/releases")
   release_urls <- paste0(releases, "/", seq_along(tags))
   upload_urls <- paste0(release_urls, "/assets")
@@ -56,8 +57,12 @@
     }
     index <- match(url, upload_urls)
     if (req$method == "POST" && !is.na(index)) {
-      asset_names[index] <<- httr::parse_url(req$url)$query$name
       bytes <- req$options$readfunction(req$options$postfieldsize_large + 1)
+      if (fail_upload) {
+        fail_upload <<- FALSE
+        return(.test_github_response(503))
+      }
+      asset_names[index] <<- httr::parse_url(req$url)$query$name
       writeBin(bytes, files[index])
       return(.test_github_response(201, list(id = 100L + index, name = asset_names[index])))
     }
@@ -82,4 +87,5 @@
   }
   previous <- httr::set_callback("request", handle)
   withr::defer(httr::set_callback("request", previous), envir = env)
+  invisible(function() fail_upload <<- TRUE)
 }

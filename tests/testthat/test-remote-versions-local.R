@@ -736,3 +736,17 @@ test_that("full version tracking workflow with local archive remote", {
     }
   )
 })
+
+test_that("local manifest writes migrate a legacy CSV and retain all other label versions", {
+  skip_if(.is_test_select())
+  remote <- withr::local_tempdir()
+  legacy <- data.frame(label = "raw-data", fn = "sample", version = "v1.0.0", hash = "abc")
+  .manifest_write(legacy, file.path(remote, "manifest.csv"))
+  expect_identical(.remote_get_manifest("local", remote), legacy)
+  changed <- transform(legacy, version = "v1.0.1", hash = "def")
+  .remote_write_manifest("local", remote, changed)
+  output <- transform(legacy, label = "output", fn = "result", version = "v1.0.1")
+  .remote_write_manifest("local", remote, output)
+  expect_identical(.remote_get_manifest("local", remote), rbind(output, legacy, changed))
+  expect_true(file.exists(file.path(remote, "manifests", c("FORMAT", "raw-data/versions.csv", "output/versions.csv"))) |> all())
+})

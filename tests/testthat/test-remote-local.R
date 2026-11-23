@@ -286,20 +286,10 @@ test_that("manifest round-trip works for local remotes", {
 
       # Write manifest to local remote
       .remote_write_manifest("local", remote_dir, manifest)
-      expect_true(
-        "manifest.csv" %in% .remote_file_ls(
-          "local",
-          remote = remote_dir
-        )
-      )
-
-      # Read manifest back
-      manifest_retrieved <- .remote_get_manifest("local", remote_dir)
-
-      # Verify round-trip
-      expect_identical(nrow(manifest_retrieved), 2L)
-      expect_true("file1.txt" %in% manifest_retrieved$fn)
-      expect_true("file2.txt" %in% manifest_retrieved$fn)
+      expect_true(file.exists(file.path(remote_dir, "manifests", "FORMAT")))
+      expect_true(file.exists(file.path(remote_dir, "manifests", "output", "versions.csv")))
+      expect_false(file.exists(file.path(remote_dir, "manifest.csv")))
+      expect_identical(.remote_get_manifest("local", remote_dir), manifest)
 
       # Cleanup
       .remote_final_empty("local", remote = remote_dir)

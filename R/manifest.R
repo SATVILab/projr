@@ -65,10 +65,7 @@
 # ---------------------------
 
 .manifest_get_add_project <- function(manifest, label) { # nolint
-  manifest_project <- .manifest_read_project()
-  manifest_add <- manifest_project |>
-    .manifest_filter_label(label) |>
-    .manifest_filter_version(projr::projr_version_get())
+  manifest_add <- .manifest_read_project(label, .version_get_v())
   if (nrow(manifest_add) == 0L) {
     return(.empty_tbl_get_manifest(label, projr::projr_version_get()))
   }
@@ -264,8 +261,23 @@
   # get lowest version available, if version_comp not provided
   version_comp <-
     .manifest_get_version_earliest_match_get_version_comp(version_comp)
-  manifest_project <- .remote_get_manifest_project() |>
-    .manifest_filter_label(label)
+  store <- .path_get("_projr", "manifests")
+  if (.manifest_store_ready(store)) {
+    index <- .manifest_store_index(store, label)
+    versions <- package_version(sub("^v", "", index$version))
+    current <- match(.version_get_v(), index$version)
+    if (is.na(current)) return(version_earliest_match)
+    eligible <- which(versions >= package_version(version_comp) & versions <= version_earliest_match)
+    if (!length(eligible)) return(version_earliest_match)
+    # An archive can be trusted back through consecutive unchanged builds.
+    # Reverting to earlier contents starts a new run for this comparison.
+    eligible <- eligible[order(versions[eligible], decreasing = TRUE)]
+    matches <- index$snapshot[eligible] == index$snapshot[current]
+    consecutive <- match(FALSE, matches, nomatch = length(matches) + 1L) - 1L
+    if (!consecutive) return(version_earliest_match)
+    return(versions[eligible[consecutive]])
+  }
+  manifest_project <- .manifest_read_project(label)
   rownames(manifest_project) <- NULL
   manifest_latest <- manifest_project |>
     .manifest_filter_version(projr_version_get())
