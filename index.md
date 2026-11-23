@@ -46,17 +46,20 @@ writeLines(as.character(result), output)
 
 ### Publish a version
 
-Run this in the R console. The first build creates the starter
-`_projr.yml`, runs your script, records the file hashes, and uploads raw
-inputs and outputs to the `archive` release.
+Run this in the R console. On the first build, projr shows the checkout’s
+full path and asks once before running the analysis, writing files and
+publishing the archive.
 
 ```r
 projr_build(archive_github = TRUE)
 ```
 
-Use a GitHub token with write access to the repository’s contents.
-People with read access to the repository can download the uploaded raw data.
-For a public repository, that includes anyone.
+The build creates the starter `_projr.yml` and uploads inputs and outputs
+to the `archive` release. Use a GitHub token with write access to the
+repository’s contents. People with read access can download the raw data.
+
+For an unattended job started at the checkout root, use
+`projr_build(project = ".", archive_github = TRUE)`.
 
 ### Restore the inputs
 

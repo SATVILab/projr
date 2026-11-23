@@ -20,9 +20,15 @@ library(projr)
 projr_build(archive_github = TRUE)
 ```
 
-The first build writes `_projr.yml` with those folder names. It runs the
-analysis, records the version, and uploads the files to the repository's
-`archive` release. You need permission to create GitHub releases. People
+On the first interactive build, projr shows the checkout’s full path and
+asks once for permission to run its scripts and hooks, write configured
+files, and publish the requested archive. It remembers that checkout.
+In an unattended job started at the checkout root, use
+`projr_build(project = ".", archive_github = TRUE)`.
+
+The first build writes `_projr.yml` with those folder names, records the
+version, and uploads the files to the repository’s `archive` release.
+You need GitHub credentials with permission to create releases. People
 who can read the repository can also access the archived inputs.
 
 If your project uses other folder names, you can keep them and set their

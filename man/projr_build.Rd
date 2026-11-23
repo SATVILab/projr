@@ -15,7 +15,8 @@ projr_build(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = NULL
+  clear_output = NULL,
+  project = NULL
 )
 
 projr_build_major(
@@ -25,7 +26,8 @@ projr_build_major(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = NULL
+  clear_output = NULL,
+  project = NULL
 )
 
 projr_build_minor(
@@ -35,7 +37,8 @@ projr_build_minor(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = NULL
+  clear_output = NULL,
+  project = NULL
 )
 
 projr_build_patch(
@@ -45,7 +48,8 @@ projr_build_patch(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = NULL
+  clear_output = NULL,
+  project = NULL
 )
 }
 \arguments{
@@ -113,6 +117,14 @@ the \code{projr} configuration file.}
 When to clear output directories: "pre" (before build, default),
 "post" (after build), or "never".
 Can also be set via PROJR_CLEAR_OUTPUT environment variable.}
+
+\item{project}{Path to the project root. The default discovers the project
+from the working directory. The first interactive build asks permission to
+run its scripts and hooks, change project files and publish configured
+outputs. projr remembers approval for this checkout in the user's R
+configuration directory. In a noninteractive session, pass the root
+explicitly (for example, \code{project = "."}) to authorize this build without
+saving approval.}
 }
 \description{
 .build_output` Builds project to output, which
