@@ -16,7 +16,8 @@ The package uses YAML configuration (`_projr.yml`) for project settings.
 
 ### Key Configuration Areas
 
-- `settings.hash-engine` - File hashing backend, either `cpp` (default) or `legacy` for the historical R implementation. Both use the same directory histories.
+- `settings.hashing.approach` selects `cpp` (default) or `legacy`.
+- `settings.hashing.cores` is the maximum number of workers used for file hashing. It defaults to one.
 - `directories` - Directory labels, paths, ignore settings
 - `build.git` - Git commit, push, add-untracked settings
 - `build.restrictions` - Build restrictions (e.g., branch restrictions)

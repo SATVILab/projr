@@ -190,8 +190,19 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 }
 
 .yml_get_profile_ind <- function(profile) {
-  .yml_get_profile_ind_raw(profile) |>
-    .yml_get_filter_top_level()
+  yml <- .yml_get_profile_ind_raw(profile)
+  # Normalize the original spelling before merging profiles so their precedence holds.
+  settings <- yml[["settings"]]
+  if (is.list(settings) && "hash-engine" %in% names(settings)) {
+    hashing <- settings[["hashing"]] %||% list()
+    if (is.list(hashing)) {
+      hashing[["approach"]] <- hashing[["approach"]] %||% settings[["hash-engine"]]
+      settings[["hashing"]] <- hashing
+    }
+    settings[["hash-engine"]] <- NULL
+    yml[["settings"]] <- settings
+  }
+  .yml_get_filter_top_level(yml)
 }
 
 .yml_get_profile_ind_raw <- function(profile) {

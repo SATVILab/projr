@@ -484,27 +484,28 @@ test_that("both engines hash named, binary and Unicode paths exactly as earlier 
   expect_error(.hash_file(c(files, paste0(files[2], ".missing")), "cpp"), "Could not hash file:.*[.]missing")
 })
 
-test_that("top-level hash engine settings apply across profiles and share directory histories", {
+test_that("hashing settings apply across profiles and share directory histories", {
   skip_if(.is_test_select())
   project <- .test_setup_project(git = FALSE, rm_engine = TRUE)
   usethis::with_project(project,
     {
       withr::local_envvar(c(PROJR_PROFILE = "sample"))
-      expect_identical(.yml_settings_hash_engine(), "cpp")
+      expect_identical(.yml_settings_hashing(), list(approach = "cpp", cores = 1L))
       root <- .yml_get("default")
-      root$settings <- list(`hash-engine` = "legacy")
+      root$settings <- list(hashing = list(approach = "legacy", cores = 2L))
       .yml_set(root)
       expect_identical(.yml_settings_hash_engine(), "legacy")
-      .yml_set(list(settings = list(`hash-engine` = "cpp")), "sample")
-      expect_identical(.yml_settings_hash_engine(), "cpp")
+      .yml_set(list(settings = list(hashing = list(approach = "cpp"))), "sample")
+      expect_identical(.yml_settings_hashing(), list(approach = "cpp", cores = 2L))
       raw_data <- projr_path_get_dir("raw-data")
       fs::dir_create(raw_data)
       writeLines("same content", file.path(raw_data, "engine-test.txt"))
       first <- .manifest_hash_label("raw-data", TRUE, "1.0")
       .manifest_store_write(first)
 
-      .yml_set(list(settings = list(`hash-engine` = "legacy")), "local")
-      expect_identical(.yml_settings_hash_engine(), "legacy")
+      # A local profile using the earlier spelling still overrides the named profile.
+      .yml_set(list(settings = list(`hash-engine` = "legacy", hashing = list(cores = 1L))), "local")
+      expect_identical(.yml_settings_hashing(), list(approach = "legacy", cores = 1L))
       second <- .manifest_hash_label("raw-data", TRUE, "1.1")
       .manifest_store_write(second)
       index <- .manifest_store_index(.path_get("_projr", "manifests"), "raw-data")
@@ -512,8 +513,14 @@ test_that("top-level hash engine settings apply across profiles and share direct
       expect_length(unique(index$snapshot), 1L)
       expect_identical(first$hash, second$hash)
 
-      .yml_set(list(settings = list(`hash-engine` = "unknown")), "local")
-      expect_error(projr_yml_check(), "settings[.]hash-engine")
+      .yml_set(list(settings = list(hashing = list(approach = "unknown"))), "local")
+      expect_error(projr_yml_check(), "settings[.]hashing[.]approach")
+      for (invalid in list(0, -1, 1.5, Inf, TRUE, "2", c(1, 2))) {
+        .yml_set(list(settings = list(hashing = list(cores = invalid))), "local")
+        expect_error(projr_yml_check(), "settings[.]hashing[.]cores")
+      }
+      .yml_set(list(settings = list(hashing = "cpp")), "local")
+      expect_error(projr_yml_check(), "settings[.]hashing must be a YAML mapping")
       .yml_set(list(settings = "legacy"), "local")
       expect_error(projr_yml_check(), "settings must be a YAML mapping")
     },
