@@ -10,6 +10,12 @@
 * Manual rules in `.gitignore` and `.Rbuildignore` survive a refresh.
   Initialization keeps the original ignore file outside the managed section
   and adds editable rules for `.vdoc.*`, `.DS_Store` and `Thumbs.db`.
+* Package datasets use the standard `data/` folder without a YAML entry. A
+  production build collects staged datasets into the package and preserves
+  other datasets already there. Declaring `data: {path: data}` also keeps
+  datasets available to Git and R source packages by default.
+* Refreshing the managed ignore block removes its old directory heading
+  and keeps figures linked from the root `README.md` visible to Git.
 * Production builds check the packages needed for a root `README.Rmd`
   before running analysis scripts.
 * If adding a package `DESCRIPTION` makes renv select an empty library, builds

@@ -9,6 +9,12 @@
   automatic project inputs and the automatically discovered R scripts.
 * Preserve manual ignore patterns and their line endings during managed updates.
   Seed editable ignore rules when initializing a project.
+* Make `data` a reserved path for package datasets. Check a conflicting
+  directory label only when `projr_use_data()` is called. Collect staged
+  datasets into `data/` and `R/sysdata.rda` before building the package.
+* Default configured package data to inclusion in Git and source packages.
+  Migrate the ignore files to one outer block. Keep the published README’s
+  linked figures and hand-written HTML trackable.
 * Include the README renderer and, for a README that loads its own package,
   `pkgbuild` in the production prerequisite check.
 * Use the checkout’s populated analysis library for render subprocesses when
