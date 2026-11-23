@@ -156,6 +156,11 @@ to keep the current payload. See `vignette("configuration")` for all the options
 
 ## 5. Restore artefacts
 
+To reproduce a checked-out production build from its GitHub archive, run
+`projr_restore()` inside that checkout. It fills in missing raw data after
+verifying the recorded file hashes. Use `projr_restore(version = "1.2.3")`
+to select a particular build.
+
 ```{r eval=FALSE}
 # Clone a repo and restore archived content
 projr_restore_repo("owner/repo")

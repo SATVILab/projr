@@ -8,8 +8,7 @@ vignette: >
 ---
 
 Use this reference to look up a YAML setting, understand which files a build
-will touch, or restore a saved result. For a first build, see
-`vignette("get-started", package = "projr")`.
+will touch, or restore a saved result. For a first build, follow the [getting started guide](get-started.html).
 
 ## The project root and profiles
 
@@ -113,7 +112,7 @@ inactive profile can coexist with a Linux checkout.
 A script selection accepts `.R`, `.Rmd` and `.qmd` paths or glob patterns.
 Quote exclusions such as `"!reports/draft.Rmd"`. Matches within a glob are
 alphabetical. Exclusions apply to the selection as a whole, and repeated
-files keep their first position. An explicit `[]`, or `scripts = character()`
+files keep their first position. An explicit `scripts: []`, or `scripts = character()`
 in R, skips document rendering and script execution.
 
 For example, suppose a Quarto project has the following selection.
@@ -127,8 +126,8 @@ build:
 
 Here `prepare.R` and `check-data.R` run first. Quarto builds `intro.qmd` and
 `results.qmd` together when the selection reaches `results.qmd`. Then
-`summarise.R` runs. Projr temporarily sets Quarto's `project.render` or
-`book.chapters`, or Bookdown's `rmd_files`. It keeps the selected configuration
+`summarise.R` runs. Projr temporarily sets Quarto's `project.render` (and `book.chapters` for a
+book), or Bookdown's `rmd_files`. It keeps the selected configuration
 through post-build hooks, then restores the original YAML, including on failure.
 An R-only selection runs just those scripts. Documents for a different engine
 render individually in their listed positions. Choose one project configuration
@@ -164,8 +163,8 @@ Use `projr_build_dev()` to iterate. Its `bump` and `old_dev_remove` arguments
 control the development version and removal of its older working directories.
 Use `projr_build_patch()`, `projr_build_minor()` or `projr_build_major()` to
 choose the component for a versioned build. `msg` records a build description.
-`clear_output` accepts `"pre"`, `"post"` or `"never"`. The argument takes
-precedence over `PROJR_CLEAR_OUTPUT`. For console and file logging, profile
+`clear_output` accepts `"pre"`, `"post"` or `"never"`. Production builds default to `"pre"` and development
+builds to `"never"`. Pass `clear_output = NULL` to read `PROJR_CLEAR_OUTPUT`. For console and file logging, profile
 environment files, and authentication, see `vignette("environment")`.
 
 ## Hashing and history
@@ -180,7 +179,8 @@ settings:
 `cpp` streams files through the native implementation. `legacy` uses the
 historical R hashing method. Both produce the same file MD5s and use the same
 directory histories. `cores` is a positive integer. Increase it to distribute
-files across workers during a hashing phase. The default uses a single worker.
+files across workers during a hashing phase. The default uses a single worker. The earlier `settings.hash-engine` spelling
+is accepted for compatibility.
 
 Each versioned build records the selected raw/cache inputs before rendering
 and outputs/docs afterward. Open `_projr/manifests/<label>/versions.csv` to

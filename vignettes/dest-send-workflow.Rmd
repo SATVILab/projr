@@ -18,6 +18,9 @@ knitr::opts_chunk$set(
 
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  for (const code of document.querySelectorAll("pre.mermaid > code")) {
+    code.replaceWith(code.textContent);
+  }
   mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
 </script>
 
@@ -37,7 +40,7 @@ Each stage builds upon the previous one to ensure efficient and accurate synchro
 
 The first stage resolves remote locations and determines what versions exist on the remote destination.
 
-```{mermaid}
+```mermaid
 flowchart TD
     Start([Start: .dsl_get_remotes]) --> GetPre[Get remote_pre<br/>Base remote location]
     GetPre --> GetDestFull[Get remote_dest_full<br/>Full version destination]
@@ -91,7 +94,7 @@ For `archive` structure:
 
 The second stage compares local and remote state to determine which files need to be uploaded, removed, or updated.
 
-```{mermaid}
+```mermaid
 flowchart TD
     Start([Start: .dsl_get_plan]) --> GetFilenames[Get file lists<br/>fn_source & fn_dest]
     
@@ -112,7 +115,7 @@ flowchart TD
     CheckCue -->|if-change| CheckChanges{Any changes?}
     
     CheckChanges -->|Yes| ProceedSend
-    CheckChanges -->|No| SkipSend
+    CheckChanges -->|No| SkipSend[Skip upload]
     
     ProceedSend --> BuildMetadata[Build metadata updates<br/>- manifest<br/>- VERSION file<br/>- changelog]
     SkipSend --> End
@@ -154,7 +157,7 @@ The `inspect` parameter controls how projr determines what's on the remote:
 
 The third stage executes the file operations and updates remote metadata.
 
-```{mermaid}
+```mermaid
 flowchart TD
     Start([Start: .dsl_implement_plan]) --> CheckPurge{purge?}
     
@@ -225,7 +228,7 @@ Only one variant exists at a time. When files are added to an empty remote, the 
 
 Here's how all three stages work together during a build:
 
-```{mermaid}
+```mermaid
 flowchart TD
     Start([Production Build]) --> Loop{For each<br/>destination}
     

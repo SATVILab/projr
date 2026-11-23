@@ -18,9 +18,8 @@ projr_yml_dest_add_local(
 }
 \arguments{
 \item{title}{character.
-The name of the directory.
-Has no effect besides helping structure \verb{_projr.yml}.
-If not supplied, will be made equal to \code{content}.}
+Required name for this local destination in \verb{_projr.yml}.
+Supply this name as \code{title} when selecting the configuration for a restore.}
 
 \item{content}{character vector.
 Labels of directories to include in the upload.
@@ -37,7 +36,7 @@ Must be supplied.}
 Structure of the remote.
 If "latest", then \code{path} simply contains
 the latest versions of the contents.
-If "version", then \code{path} will contain
+If "archive", then \code{path} will contain
 a directory for each version.
 If not supplied, will be \code{archive}.}
 
@@ -46,8 +45,8 @@ Whether to rewrite an existing entry of the same
 title in the specified \code{projr} configuration file.
 Default is TRUE.}
 
-\item{send_cue}{"always", "if-change" or "never".
-When to send to the remote. Default is NULL.}
+\item{send_cue}{"always" or "if-change".
+When to send to the remote. The default sends changed content.}
 
 \item{send_strategy}{"upload-all", "upload-missing",
 "sync-purge" or "sync-diff".

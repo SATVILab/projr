@@ -141,7 +141,7 @@ Sys.setenv(PROJR_LOG_DETAILED = "FALSE")
 projr_build_dev()
 ```
 
-An explicit `clear_output` build argument takes precedence over `PROJR_CLEAR_OUTPUT`. Set console verbosity with `PROJR_OUTPUT_LEVEL`.
+An explicit `clear_output` overrides `PROJR_CLEAR_OUTPUT`. Development builds default to `"never"`; pass `clear_output = NULL` to use the environment setting. Set console verbosity with `PROJR_OUTPUT_LEVEL`.
 
 ### Profiles
 
