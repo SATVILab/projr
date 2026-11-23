@@ -136,7 +136,7 @@ test_that("an initial local repository build keeps commits local", {
   project <- withr::local_tempdir()
   withr::local_dir(project)
   gert::git_init(project)
-  .test_git_identity_local_set()
+  .test_setup_project_git_config()
   expect_no_error(projr_build_patch("First build in a local Git repository"))
   expect_identical(yaml::read_yaml("_projr.yml")$build$git, list(push = FALSE))
   expect_true(nrow(gert::git_log(repo = project)) > 0L)
