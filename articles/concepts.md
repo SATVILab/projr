@@ -207,7 +207,7 @@ projr_yml_dest_add_local(
 
 #### Restoration
 
-Restore a full project (raw data + outputs) from its remotes:
+Clone a project and restore its raw data:
 
 ``` r
 
@@ -219,11 +219,11 @@ Or update a single label:
 ``` r
 
 projr_content_update(label = "raw-data")
-projr_content_update(label = "output", version = "0.1.0")
+projr_content_update(label = "output", pos = "dest")
 ```
 
-projr tries each configured remote in order (GitHub, OSF, local) and
-uses the first one that has the requested content.
+projr uses each label’s configured source first, then a matching build
+destination.
 
 ------------------------------------------------------------------------
 
@@ -281,7 +281,8 @@ Sys.setenv(PROJR_PROFILE = "dev")
 Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
 
 # Or use the helper
-projr_env_set(profile = "dev")
+Sys.setenv(PROJR_PROFILE = "dev")
+projr_env_set()
 ```
 
 In `.Renviron`:
@@ -299,7 +300,6 @@ Key variables:
 - `PROJR_AUTO_INSTALL` — auto-install missing R packages
   (`TRUE`/`FALSE`)
 - `GITHUB_PAT` — GitHub personal access token
-- `OSF_PAT` — OSF personal access token
 
 projr also supports per-project environment files that are loaded at
 build time. In order of increasing priority:

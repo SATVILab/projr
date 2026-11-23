@@ -14,7 +14,6 @@ Supported remote types:
 - GitHub Releases – version-controlled releases on your GitHub
   repository
 - Local directories – local, network-mounted, or cloud-synced folders
-- OSF (Open Science Framework) – not covered in this vignette
 
 Archive labels declared under `directories`, such as `raw-data`,
 `cache`, `output`, or `docs`. GitHub also provides a source archive for
@@ -22,14 +21,10 @@ each release tag, accessible with `content: code`.
 
 ## GitHub Destinations
 
-Prerequisites:
-
-- Git repository connected to GitHub
-- GitHub PAT with `repo` scope (run
-  [`projr_instr_auth_github()`](https://satvilab.github.io/projr/reference/instr_auth.md)
-  for setup)
-- Token stored in `_environment.local` (git-ignored):
-  `GITHUB_PAT=ghp_...`
+Configure a GitHub remote for the checkout and a credential with write
+access to releases in that repository. Run
+[`projr_instr_auth_github()`](https://satvilab.github.io/projr/reference/instr_auth.md)
+for setup.
 
 ``` r
 
@@ -69,13 +64,9 @@ Parameters:
 - `content` – directory label to archive (for example, `raw-data` or
   `output`).
 
-Note: GitHub has a 2 GB limit per release asset. For larger datasets,
-use local remotes or split across multiple releases.
-
 ## Local Destinations
 
-No authentication required. Parent directories must exist before the
-first build. Use absolute paths for clarity; relative paths resolve from
+Choose a writable local or mounted folder. Relative paths resolve from
 the project root.
 
 ``` r
@@ -158,7 +149,6 @@ When to create a new version on the remote.
 |:---|:---|
 | `"if-change"` (default) | Upload only when content changed since last version |
 | `"always"` | Upload every build, even if unchanged |
-| `"never"` | Disable uploads without removing configuration |
 
 ### send_strategy
 
@@ -316,11 +306,9 @@ projr_yml_get()$build$local
 projr_yml_check()
 ```
 
-If remotes aren’t uploading, verify you are running a production build
-(not
-[`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md)),
-`send_cue` is not `"never"`, and authentication is configured for GitHub
-destinations.
+If a destination has no new files, check its configured labels and
+whether they changed during a production build. For GitHub, also check
+release write access.
 
 ## Best Practices
 

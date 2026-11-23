@@ -1,116 +1,93 @@
-# projr
+# Build and restore *an R analysis*
 
-## What is projr?
+Keep inputs in `_raw_data/` and write results to `_output/`. With these
+folder names you can publish a versioned build to GitHub Releases
+without writing a configuration file, then restore the inputs in a fresh
+copy of the project.
 
-From zero to repro in one build.
+[Get started
+→](https://satvilab.github.io/projr/articles/get-started.md)[Function
+reference](https://satvilab.github.io/projr/reference/index.md)
 
-`projr` provides a single intuitive build function that automates
-rendering, versioning, archiving, and restoration for reproducible
-research projects. With projr, you can focus on your research whilst it
-handles the infrastructure.
-
-## The whole game
-
-``` r
-
-# Put raw data in _raw_data/, outputs in _output/, analysis docs in project root:
-projr_build()
+```
+├── _raw_data/
+│   └── measurements.csv
+├── analysis.R
+└── _output/
+    └── mean.txt
 ```
 
-The first build writes `_projr.yml` at the project root. The starter
-declares `raw-data`, `output`, `cache`, and `docs`. If a base
-configuration already exists at the root or in `_projr/config/`, its
-declared paths apply.
+› `projr_build(archive_github = TRUE)`
 
-This one function:
+analysis/
 
-- Clears configured output directories
-- Renders all documents (R Markdown, Quarto, Bookdown)
-- Versions raw data, outputs, and project
-- Manages Git/GitHub commits (if configured)
-- Archives to GitHub Releases, OSF, or local storage (optional)
+## Run your first build
 
-## Try a development build
+Open a local clone of a GitHub repository where you can push commits and
+create releases. Install projr and its publishing tools once, then load
+the package in R.
 
 ``` r
 
-projr_build_dev()
-```
-
-Development builds:
-
-- Route outputs to cache (`_tmp/`) for inspection
-- Don’t bump version numbers
-- Don’t upload to archives
-- Let you iterate safely without overwriting released outputs
-
-## Restore later
-
-``` r
-
-projr_restore_repo("owner/my-amazing-repo")
-```
-
-Restoration:
-
-- Clones the repository from GitHub
-- Restores raw data from configured archives
-- Reconstructs the full project structure
-- Ready to reproduce the analysis
-
-## Why it helps
-
-1.  **Code and data availability**: Automatic archiving to GitHub
-    Releases or OSF makes sharing complete research projects effortless
-
-2.  **Correctness via version-linked inputs/outputs**: Manifests link
-    every output to the exact version of raw data and code that created
-    it, ensuring traceability
-
-3.  **Dependency capture**: Optional renv integration locks R package
-    versions for long-term reproducibility
-
-> **Tip**: You can adopt projr at any project stage—whether starting
-> fresh or adding structure to existing work.
-
-> **Note**: Git/GitHub prompts are guided; no prior Git knowledge
-> needed.
-
-## Installation
-
-``` r
-
-# Once on CRAN (future):
-# install.packages("projr")
-
-# For now, install from GitHub:
+install.packages(c("remotes", "gh", "httr"))
 remotes::install_github("SATVILab/projr")
+library(projr)
 ```
 
-## Documentation
+### Read an input and write a result
 
-- **[Get
-  started](https://satvilab.github.io/projr/articles/get-started.html)** -
-  Quick setup guide
-- **[How-to
-  guides](https://satvilab.github.io/projr/articles/how-to-guides.html)** -
-  Task-focused recipes
-- **[Concepts](https://satvilab.github.io/projr/articles/concepts.html)** -
-  Understanding projr’s approach
-- **[Design](https://satvilab.github.io/projr/articles/design.html)** -
-  Design philosophy and architecture
-- **[Reference](https://satvilab.github.io/projr/reference/index.html)** -
-  Complete function documentation
+Create `_raw_data/measurements.csv` with a single column named `value`
+and the values `2`, `4` and `6`. Save the following script as
+`analysis.R` in the project root. A production build writes the mean,
+`4`, to `_output/mean.txt`. The output path helper also lets a
+development build stage the result in the build cache.
 
-## Getting help
+``` r
 
-If you encounter a bug or have a feature request, please [file an
-issue](https://github.com/SATVILab/projr/issues).
+measurements <- read.csv("_raw_data/measurements.csv")
+result <- mean(measurements$value)
+output <- projr::projr_path_get("output", "mean.txt")
+writeLines(as.character(result), output)
+```
 
-## Licence
+### Publish a version
 
-See [LICENSE](https://satvilab.github.io/projr/LICENSE) file for
-details.
+Run this in the R console. The first build creates the starter
+`_projr.yml`, runs your script, records the file hashes, and uploads raw
+inputs and outputs to the `archive` release.
+
+``` r
+
+projr_build(archive_github = TRUE)
+```
+
+Use a GitHub token with write access to the repository’s contents.
+People with read access to the repository can download the uploaded raw
+data. For a public repository, that includes anyone.
+
+### Restore the inputs
+
+Clone the same repository into a new folder and open it in R. Run the
+command below. projr finds the completed build for the checkout and
+verifies the restored inputs against its recorded hashes.
+
+``` r
+
+projr::projr_restore()
+```
+
+## Adapt the workflow
+
+[Project configuration ↗Keep your existing folder names by declaring
+their paths in
+`_projr.yml`.](https://satvilab.github.io/projr/articles/configuration.md)
+
+[Scripts and documents ↗Choose R, Quarto and R Markdown files and set
+their build
+order.](https://satvilab.github.io/projr/articles/scripts-and-hooks.md)
+
+[Restoring files ↗Select a version or retrieve data from another
+archive.](https://satvilab.github.io/projr/articles/restore-artifacts.md)
 
 # Package index
 
@@ -399,6 +376,8 @@ Internal helper functions (not exported)
 - [Build
   Process](https://satvilab.github.io/projr/articles/build-process.md):
 - [Concepts](https://satvilab.github.io/projr/articles/concepts.md):
+- [Project configuration
+  reference](https://satvilab.github.io/projr/articles/configuration.md):
 - [Design](https://satvilab.github.io/projr/articles/design.md):
 - [Destination Send
   Workflow](https://satvilab.github.io/projr/articles/dest-send-workflow.md):
@@ -406,8 +385,8 @@ Internal helper functions (not exported)
   Licenses](https://satvilab.github.io/projr/articles/directory-licenses.md):
 - [Environment
   Variables](https://satvilab.github.io/projr/articles/environment.md):
-- [Get
-  started](https://satvilab.github.io/projr/articles/get-started.md):
+- [Build an analysis you can
+  restore](https://satvilab.github.io/projr/articles/get-started.md):
 - [How-to
   guides](https://satvilab.github.io/projr/articles/how-to-guides.md):
 - [intro](https://satvilab.github.io/projr/articles/intro.md):

@@ -53,7 +53,8 @@ explicitly under `dev.scripts`.
 
 Use paths or glob patterns to select scripts. Prefix a pattern with `!`
 to exclude matches. An inclusion that matches no files causes an error
-before the build starts. Use `scripts = ""` to skip running scripts.
+before the build starts. Use `scripts = character()` in R or
+`scripts: []` in YAML to skip rendering and scripts.
 
 With an explicit selection, scripts run in the listed order. Each glob
 expands alphabetically, and the first match determines a file’s
@@ -70,19 +71,11 @@ project, top-level `.qmd`, `.Rmd`, and `.R` scripts run alphabetically.
 Automatic R script discovery skips configured hooks, names starting with
 `_`, and `renv_repos.R`.
 
-### Managing scripts with R
-
-``` r
-
-# Add scripts
-projr_yml_script_add(c("analysis.qmd", "report.Rmd"))
-
-# Remove a script
-projr_yml_script_rm("report.Rmd")
-
-# Remove all scripts
-projr_yml_script_rm_all()
-```
+To change the regular selection, edit `build.scripts` or `dev.scripts`.
+For a one-off development build, pass the selection to
+[`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md).
+The `projr_yml_hooks_add_*()` functions below configure pre- and
+post-build R code.
 
 ### Example: separate dev and production scripts
 
@@ -249,8 +242,8 @@ source("hooks/prepare-data.R")
 
 - [`?projr_yml_hooks_add`](https://satvilab.github.io/projr/reference/yml-hooks.md) -
   Add hooks programmatically
-- [`?projr_yml_script_add`](https://satvilab.github.io/projr/reference/yml-script.md) -
-  Add scripts programmatically
+- [`vignette("configuration")`](https://satvilab.github.io/projr/articles/configuration.md)
+  for the script selection and rendering reference.
 - [`?projr_build_dev`](https://satvilab.github.io/projr/reference/projr_build_dev.md) -
   Development builds
 - [`?projr_build_patch`](https://satvilab.github.io/projr/reference/projr_build.md) -

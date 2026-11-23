@@ -9,7 +9,8 @@
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Sending to Remotes">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="Sending to Remotes">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -30,29 +31,22 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/get-started.html">Get started</a></li>
 <li class="active nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/how-to-guides.html">How-to guides</a></li>
-    <li><a class="dropdown-item" href="../articles/build-process.html">Build Process</a></li>
-    <li><a class="dropdown-item" href="../articles/send-to-remotes.html">Sending to Remotes</a></li>
-    <li><a class="dropdown-item" href="../articles/dest-send-workflow.html">Destination Send Workflow</a></li>
-    <li><a class="dropdown-item" href="../articles/restore-artifacts.html">Restoring Artifacts</a></li>
-    <li><a class="dropdown-item" href="../articles/environment.html">Environment Variables</a></li>
-    <li><a class="dropdown-item" href="../articles/scripts-and-hooks.html">Scripts and Hooks</a></li>
-    <li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
-    <li><a class="dropdown-item" href="../articles/design.html">Design</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-guides">
+<li><a class="dropdown-item" href="../articles/configuration.html">Project configuration</a></li>
+    <li><a class="dropdown-item" href="../articles/scripts-and-hooks.html">Scripts and hooks</a></li>
+    <li><a class="dropdown-item" href="../articles/send-to-remotes.html">Archive files</a></li>
+    <li><a class="dropdown-item" href="../articles/restore-artifacts.html">Restore files</a></li>
+    <li><a class="dropdown-item" href="../articles/index.html">All guides</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-news">
-<li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
-    <li><a class="dropdown-item" href="../BUILDLOG.html">Build log</a></li>
-  </ul>
-</li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
+</form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/SATVILab/projr" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
@@ -87,7 +81,6 @@ remotes.</p>
 repository</li>
 <li>Local directories – local, network-mounted, or cloud-synced
 folders</li>
-<li>OSF (Open Science Framework) – not covered in this vignette</li>
 </ul>
 <p>Archive labels declared under <code>directories</code>, such as
 <code>raw-data</code>, <code>cache</code>, <code>output</code>, or
@@ -96,15 +89,9 @@ release tag, accessible with <code>content: code</code>.</p>
 <div class="section level2">
 <h2 id="github-destinations">GitHub Destinations<a class="anchor" aria-label="anchor" href="#github-destinations"></a>
 </h2>
-<p>Prerequisites:</p>
-<ul>
-<li>Git repository connected to GitHub</li>
-<li>GitHub PAT with <code>repo</code> scope (run
-<code><a href="../reference/instr_auth.html">projr_instr_auth_github()</a></code> for setup)</li>
-<li>Token stored in <code>_environment.local</code> (git-ignored):
-<code>GITHUB_PAT=ghp_...</code>
-</li>
-</ul>
+<p>Configure a GitHub remote for the checkout and a credential with
+write access to releases in that repository. Run
+<code><a href="../reference/instr_auth.html">projr_instr_auth_github()</a></code> for setup.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Add a GitHub release for raw data</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_dest_add_github.html">projr_yml_dest_add_github</a></span><span class="op">(</span></span>
@@ -141,15 +128,12 @@ creation.</li>
 <code>content</code> – directory label to archive (for example,
 <code>raw-data</code> or <code>output</code>).</li>
 </ul>
-<p>Note: GitHub has a 2 GB limit per release asset. For larger datasets,
-use local remotes or split across multiple releases.</p>
 </div>
 <div class="section level2">
 <h2 id="local-destinations">Local Destinations<a class="anchor" aria-label="anchor" href="#local-destinations"></a>
 </h2>
-<p>No authentication required. Parent directories must exist before the
-first build. Use absolute paths for clarity; relative paths resolve from
-the project root.</p>
+<p>Choose a writable local or mounted folder. Relative paths resolve
+from the project root.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Archive to local directory</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_dest_add.html">projr_yml_dest_add_local</a></span><span class="op">(</span></span>
@@ -260,10 +244,6 @@ version</td>
 <tr class="even">
 <td align="left"><code>"always"</code></td>
 <td align="left">Upload every build, even if unchanged</td>
-</tr>
-<tr class="odd">
-<td align="left"><code>"never"</code></td>
-<td align="left">Disable uploads without removing configuration</td>
 </tr>
 </tbody>
 </table>
@@ -460,10 +440,9 @@ build.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_yml_get.html">projr_yml_get</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">build</span><span class="op">$</span><span class="va">github</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_get.html">projr_yml_get</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">build</span><span class="op">$</span><span class="va">local</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_check.html">projr_yml_check</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>If remotes aren’t uploading, verify you are running a production
-build (not <code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code>), <code>send_cue</code> is not
-<code>"never"</code>, and authentication is configured for GitHub
-destinations.</p>
+<p>If a destination has no new files, check its configured labels and
+whether they changed during a production build. For GitHub, also check
+release write access.</p>
 </div>
 <div class="section level2">
 <h2 id="best-practices">Best Practices<a class="anchor" aria-label="anchor" href="#best-practices"></a>
@@ -572,7 +551,7 @@ including <code>GITHUB_PAT</code>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p><a href="LICENSE.html">License</a> • projr is free and open source software</p>
+  <p><a href="https://github.com/SATVILab/projr/blob/main/LICENSE.md" class="external-link">MIT license</a></p>
 </div>
 
     </footer>

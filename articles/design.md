@@ -35,7 +35,7 @@ make data
 make analysis
 make figures
 make paper
-make deploy-to-osf
+make archive-results
 git add .
 git commit -m "Update"
 git push
@@ -56,7 +56,8 @@ projr_build() # That's it
 
 **How projr achieves this:**
 
-- **Dev builds**: Route outputs to cache, never touch `_output`
+- **Dev builds**: Route writes through the output helper to the build
+  cache
 - **Manifests**: Always know what inputs created what outputs
 - **Git integration**: Automatic commits preserve history
 - **Reversible versioning**: Can always access previous versions via
@@ -118,7 +119,7 @@ that tracks dependencies in a binary database or in-memory cache.
 - **Automatic versioning**: Every build is versioned
 - **Manifests**: Inputs-outputs linkage is automatic
 - **renv integration**: Optional package version locking
-- **Archiving**: Automatic upload to GitHub/OSF
+- **Archiving**: Automatic upload to GitHub Releases or a local archive
 - **Restoration**: One command to reconstruct
 
 **Anti-pattern**: Reproducibility as an afterthought requiring manual
@@ -278,7 +279,7 @@ projr is organised into layers:
              ↓
     Build engine (rendering, versioning, archiving)
              ↓
-    Backend services (Git, GitHub, OSF, file system)
+    Backend services (Git, GitHub, file system)
 
 **Benefits**:
 
@@ -377,25 +378,13 @@ raw-data,_raw_data,abc123...,v0.1.0,2024-01-15T10:30:00Z
 - ❌ Doesn’t communicate significance of changes
 - ❌ Multiple versions per day require disambiguation
 
-#### Why default to GitHub Releases?
+#### Choosing an archive destination
 
-**Decision**: GitHub Releases is the default archive destination
-
-**Rationale**:
-
-- **Ubiquity**: Most R projects already use GitHub
-- **Free**: Unlimited public releases, generous private quotas
-- **Integrated**: Works with existing Git workflow
-- **Accessible**: Web interface for downloads
-
-**Alternative considered**: OSF as primary
-
-- ✅ Designed for research
-- ✅ Better for large datasets
-- ❌ Separate account/authentication
-- ❌ Less familiar to R developers
-
-**Solution**: Support both; default to GitHub for familiarity.
+A local archive can live on a shared drive and use the team’s existing
+file permissions. A GitHub release keeps downloadable artifacts
+alongside a code tag and requires access to that repository. Choose the
+destinations for a project under `build.local` and `build.github`, or
+request a one-off archive when calling a production build.
 
 #### Why clear \_output before builds?
 

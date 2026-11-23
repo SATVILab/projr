@@ -9,7 +9,8 @@
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="intro">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="intro">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -29,30 +30,23 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/get-started.html">Get started</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/how-to-guides.html">How-to guides</a></li>
-    <li><a class="dropdown-item" href="../articles/build-process.html">Build Process</a></li>
-    <li><a class="dropdown-item" href="../articles/send-to-remotes.html">Sending to Remotes</a></li>
-    <li><a class="dropdown-item" href="../articles/dest-send-workflow.html">Destination Send Workflow</a></li>
-    <li><a class="dropdown-item" href="../articles/restore-artifacts.html">Restoring Artifacts</a></li>
-    <li><a class="dropdown-item" href="../articles/environment.html">Environment Variables</a></li>
-    <li><a class="dropdown-item" href="../articles/scripts-and-hooks.html">Scripts and Hooks</a></li>
-    <li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
-    <li><a class="dropdown-item" href="../articles/design.html">Design</a></li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-guides">
+<li><a class="dropdown-item" href="../articles/configuration.html">Project configuration</a></li>
+    <li><a class="dropdown-item" href="../articles/scripts-and-hooks.html">Scripts and hooks</a></li>
+    <li><a class="dropdown-item" href="../articles/send-to-remotes.html">Archive files</a></li>
+    <li><a class="dropdown-item" href="../articles/restore-artifacts.html">Restore files</a></li>
+    <li><a class="dropdown-item" href="../articles/index.html">All guides</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-news">
-<li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
-    <li><a class="dropdown-item" href="../BUILDLOG.html">Build log</a></li>
-  </ul>
-</li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
+</form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/SATVILab/projr" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
@@ -151,7 +145,7 @@ development work is always distinguishable from released versions.</p>
 <h4 id="sharing-outputs">Sharing outputs<a class="anchor" aria-label="anchor" href="#sharing-outputs"></a>
 </h4>
 <p>After each production build, <code>projr</code> can upload project
-components (raw data, outputs, docs) to GitHub releases, OSF or a local
+components (raw data, outputs, docs) to GitHub releases or a local
 folder. This is configured under the <code>build</code> key in
 <code>_projr.yml</code> and happens automatically.</p>
 </div>
@@ -188,10 +182,10 @@ tables)</li>
 </ul>
 <p>Use <code><a href="../reference/projr_path_get.html">projr_path_get()</a></code> to construct paths:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_path_get.html">projr_path_get</a></span><span class="op">(</span><span class="st">"output"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_path_get.html">projr_path_get</a></span><span class="op">(</span><span class="st">"output"</span>, safe <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co"># "_output"</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/projr_path_get.html">projr_path_get</a></span><span class="op">(</span><span class="st">"output"</span>, <span class="st">"figure"</span>, <span class="st">"plot.png"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_path_get.html">projr_path_get</a></span><span class="op">(</span><span class="st">"output"</span>, <span class="st">"figure"</span>, <span class="st">"plot.png"</span>, safe <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co"># "_output/figure/plot.png"</span></span>
 <span></span>
 <span><span class="co"># Use in code:</span></span>
@@ -218,8 +212,7 @@ GitHub configured:</p>
 after each build. Uploads are incremental by default (only when content
 changes). Git commit, push and other settings are also configured
 here.</p>
-<p>Destinations include GitHub releases, OSF nodes and local
-directories.</p>
+<p>Destinations include GitHub releases and local directories.</p>
 </div>
 </div>
 <div class="section level3">
@@ -261,7 +254,7 @@ instructions.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p><a href="LICENSE.html">License</a> • projr is free and open source software</p>
+  <p><a href="https://github.com/SATVILab/projr/blob/main/LICENSE.md" class="external-link">MIT license</a></p>
 </div>
 
     </footer>

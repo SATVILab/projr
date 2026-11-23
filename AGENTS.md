@@ -341,6 +341,17 @@ styler::style_pkg()
 devtools::document()   # Regenerates man/ and NAMESPACE from roxygen2 comments
 ```
 
+### Website examples
+
+Use the conventional `_raw_data/` and `_output/` folders in the first
+example so a new user can publish with
+`projr_build(archive_github = TRUE)` before writing any YAML. Show how
+to run
+[`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+in a fresh checkout. Keep the homepage and getting-started example in
+sync, and put the complete list of options and conventions in the
+configuration and function references.
+
 ### Verify pkgdown reference index
 
 ``` r

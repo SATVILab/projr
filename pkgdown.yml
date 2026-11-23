@@ -4,6 +4,7 @@ pkgdown_sha: ~
 articles:
   build-process: build-process.html
   concepts: concepts.html
+  configuration: configuration.html
   design: design.html
   dest-send-workflow: dest-send-workflow.html
   directory-licenses: directory-licenses.html
@@ -14,7 +15,7 @@ articles:
   restore-artifacts: restore-artifacts.html
   scripts-and-hooks: scripts-and-hooks.html
   send-to-remotes: send-to-remotes.html
-last_built: 2026-11-23T07:19Z
+last_built: 2026-11-23T07:21Z
 urls:
   reference: https://satvilab.github.io/projr/reference
   article: https://satvilab.github.io/projr/articles

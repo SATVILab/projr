@@ -5,6 +5,8 @@
 - [Build
   Process](https://satvilab.github.io/projr/articles/build-process.md):
 - [Concepts](https://satvilab.github.io/projr/articles/concepts.md):
+- [Project configuration
+  reference](https://satvilab.github.io/projr/articles/configuration.md):
 - [Design](https://satvilab.github.io/projr/articles/design.md):
 - [Destination Send
   Workflow](https://satvilab.github.io/projr/articles/dest-send-workflow.md):
@@ -12,8 +14,8 @@
   Licenses](https://satvilab.github.io/projr/articles/directory-licenses.md):
 - [Environment
   Variables](https://satvilab.github.io/projr/articles/environment.md):
-- [Get
-  started](https://satvilab.github.io/projr/articles/get-started.md):
+- [Build an analysis you can
+  restore](https://satvilab.github.io/projr/articles/get-started.md):
 - [How-to
   guides](https://satvilab.github.io/projr/articles/how-to-guides.md):
 - [intro](https://satvilab.github.io/projr/articles/intro.md):

@@ -2,8 +2,8 @@
 
 This vignette explains the internal workflow for sending content to
 remote destinations during builds. It describes the three main stages
-that occur when projr uploads artifacts to GitHub releases, local
-directories, or OSF nodes.
+that occur when projr uploads artifacts to GitHub releases or local
+directories.
 
 ## Overview
 
@@ -108,12 +108,11 @@ flowchart TD
     SyncPurge --> BuildActions
     
     BuildActions --> CheckCue{send_cue?}
-    CheckCue -->|never| SkipSend[Skip upload]
     CheckCue -->|always| ProceedSend[Proceed with upload]
     CheckCue -->|if-change| CheckChanges{Any changes?}
     
     CheckChanges -->|Yes| ProceedSend
-    CheckChanges -->|No| SkipSend
+    CheckChanges -->|No| SkipSend[Skip upload]
     
     ProceedSend --> BuildMetadata[Build metadata updates<br/>- manifest<br/>- VERSION file<br/>- changelog]
     SkipSend --> End
@@ -268,7 +267,7 @@ The destination send process is triggered during post-build operations:
 5.  **Dev Version Bump** - Increment to next dev version
 
 For each configured destination in `_projr.yml`: - Check if `send_cue`
-condition is met (always, if-change, never) - Get remotes and determine
+condition is met (always, if-change) - Get remotes and determine
 comparison version - Build upload/removal plan based on `send_strategy`
 and `send_inspect` - Execute plan if approved by cue logic
 
@@ -281,7 +280,7 @@ versions (v0.0.1, v0.0.2, etc.) - `latest` - Overwrite same location
 each time
 
 **send_cue** (when to upload): - `always` - Upload every build -
-`if-change` - Only upload if content changed - `never` - Skip upload
+`if-change` - Only upload if content changed
 
 **send_strategy** (how to upload): - `sync-diff` - Upload changed/new
 files, remove deleted files - `sync-purge` - Remove all, then upload

@@ -71,8 +71,9 @@ projr_restore_repo(
   path = NULL,   # clone destination (default: subdirectory named after repo)
   label = NULL,  # which artifacts (default: all raw-* labels)
   pos = NULL,    # "source", "dest", or both (default: both)
-  type = NULL,   # "github", "local", or "osf" (default: first available)
-  title = NULL   # remote title from _projr.yml (default: first available)
+  type = NULL,   # "github" or "local" (default: first available)
+  title = NULL,  # remote title from _projr.yml
+  destination = NULL  # original concrete release tag or local path
 )
 ```
 
@@ -101,7 +102,8 @@ projr_restore_repo_wd(
   label = NULL,
   pos = NULL,
   type = NULL,
-  title = NULL
+  title = NULL,
+  destination = NULL
 )
 ```
 
@@ -125,8 +127,10 @@ root `manifest.csv`.
 projr_content_update(
   label = NULL,  # which artifacts (default: all raw-* labels)
   pos = NULL,    # "source", "dest", or both
-  type = NULL,   # "github", "local", or "osf"
-  title = NULL   # remote title from _projr.yml
+  type = NULL,   # "github" or "local"
+  title = NULL,  # remote title from _projr.yml
+  clear = FALSE,
+  destination = NULL
 )
 ```
 
@@ -154,8 +158,8 @@ successful `projr_build_*()` run first.
   [`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md)
   rather than restoring them.
 
-- `type` – remote type: `"github"`, `"local"`, or `"osf"`. `NULL`
-  (default) uses the first available remote in `_projr.yml` order.
+- `type` – remote type: `"github"` or `"local"`. `NULL` (default) uses
+  the first available remote in `_projr.yml` order.
 
 - `title` – selects a specific remote configuration when multiple exist
   for the same type. `NULL` (default) uses the first available.
@@ -171,30 +175,29 @@ successful `projr_build_*()` run first.
 
 ## Authentication
 
-GitHub restoration requires a Personal Access Token (PAT). Run
+For private GitHub artifacts, use a credential with access to the
+project. Run
 [`projr_instr_auth_github()`](https://satvilab.github.io/projr/reference/instr_auth.md)
-for setup instructions.
+for instructions. A local destination needs read access to the folder.
+
+## Selecting an earlier destination
+
+When a build expands `@branch` or `@uuid` in a destination, copy the
+concrete tag or path from its `BUILDLOG.md`. Select the configuration by
+its `title` and supply the earlier location as `destination`.
 
 ``` r
 
-projr_instr_auth_github()
+projr_content_update(
+  label = "output", pos = "dest", type = "github",
+  title = "study-@branch", destination = "study-site-a"
+)
 ```
 
-Set the token in `_environment.local` (which should be git-ignored):
-
-``` bash
-GITHUB_PAT=ghp_your_token_here
-```
-
-Verify with:
-
-``` r
-
-Sys.getenv("GITHUB_PAT")
-```
-
-OSF restoration requires `OSF_PAT` set in the same way. Local directory
-remotes need no authentication.
+Within that destination, restore selects its latest available version
+for the label. By default, it retains extra local files. Use
+`clear = TRUE` if you want the local label to match the restored
+payload, including an explicitly recorded empty directory.
 
 ## Configuring remotes
 
@@ -277,12 +280,12 @@ if (!result) {
 ## Notes
 
 - [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
-  fetches the latest available version. Use
+  selects the latest available version in the chosen destination. Use
   [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
-  for the raw inputs of a checked-out build. You can also download an
-  archive manually from the remote source (e.g., GitHub Releases).
+  for the verified inputs of a specific build.
 
-- Remote sources are checked in the order they appear in `_projr.yml`.
+- The default content-update search looks for a directory’s configured
+  source before checking a build destination that contains that label.
 
 - [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
   catches errors per label.

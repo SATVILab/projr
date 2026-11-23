@@ -1,181 +1,146 @@
-# Get started
+# Build an analysis you can restore
 
-## Get started with projr
+Keep the files your analysis reads in `_raw_data/` and save the results
+it produces in `_output/`. With those names, you can run your first
+build without writing a configuration file. This example calculates a
+mean, archives the input and result on GitHub, and reproduces the result
+in a fresh copy of the project.
 
-### Installation
+## Start with a GitHub project
+
+Clone your GitHub repository (download a working copy with Git) and open
+its folder in R or RStudio. Use a repository where you can push commits
+and create releases. For a brand-new repository, add a README on GitHub
+before you clone it so the release has a commit to attach to. The input
+files you archive will be available to people who can read that
+repository.
+
+Install projr and its GitHub tools once in R.
 
 ``` r
 
-# Install from GitHub:
+install.packages(c("remotes", "gh", "httr"))
 remotes::install_github("SATVILab/projr")
 ```
 
-### Quick start
+If this is your first time publishing a release from R, create a
+fine-grained GitHub token for this repository with read and write access
+to **Contents**. Run
+[`gitcreds::gitcreds_set()`](https://gitcreds.r-lib.org/reference/gitcreds_get.html)
+and paste the token when prompted. [GitHub release
+permissions](https://docs.github.com/en/rest/releases/releases#create-a-release)
 
-Set up a project and run your first build:
+## Give the analysis an input
+
+Run these lines in the project folder, or put one of your own CSV files
+in `_raw_data/` and adapt the script below to its column names.
+
+``` r
+
+dir.create("_raw_data", showWarnings = FALSE)
+write.csv(data.frame(value = c(2, 4, 6)), "_raw_data/measurements.csv",
+          row.names = FALSE)
+```
+
+Save the following code as `analysis.R` in the project folder.
+
+``` r
+
+measurements <- read.csv("_raw_data/measurements.csv")
+result <- mean(measurements$value)
+writeLines(as.character(result), projr::projr_path_get("output", "mean.txt"))
+```
+
+On a published build that last line writes `_output/mean.txt`. The path
+helper also creates the folder and sends preview builds to a separate
+location. An existing script that creates and writes directly to
+`_output/` can keep doing so for production builds. Keep original inputs
+in the input folder because a build can clear previous results.
+
+## Build and archive it
+
+Run this in the R console, from the project folder.
 
 ``` r
 
 library(projr)
-
-# Initialise with sensible defaults
-projr_init()
-
-# Run a dev build to test
-projr_build_dev()
+projr_build(archive_github = TRUE)
+readLines("_output/mean.txt")
+# [1] "4"
 ```
 
-[`projr_init()`](https://satvilab.github.io/projr/reference/projr_init.md)
-creates project directories, a `_projr.yml` config file,
-`.gitignore`/`.Rbuildignore` entries, and a `DESCRIPTION` file.
+If prompted, enter a short description of what changed. The first build
+writes `_projr.yml` with the folder names it uses. It runs `analysis.R`,
+records a version, and uploads the versioned files to the GitHub release
+named `archive`. Later builds can share that release. The build log
+connects the version to the code, and the archive records which files
+belong to it.
 
-For an interactive walkthrough, use
-[`projr_init_prompt()`](https://satvilab.github.io/projr/reference/projr_init_prompt.md).
-For a full setup including Git, GitHub, and renv, use
-[`projr_init_all()`](https://satvilab.github.io/projr/reference/projr_init.md).
+## Restore the inputs and run the analysis again
 
-### Builds
+Clone the repository into a new folder. To reproduce the most recent
+build, open that copy as it is. For an older result, open a terminal in
+the new folder and list the saved builds.
 
-#### Development builds
+``` sh
+git log --oneline --grep="^Build v"
+```
 
-Use
+Find the release version and description you want, such as
+`Build v0.1.0: Update measurements`. Copy the short identifier at the
+start of that line and run `git checkout --detach IDENTIFIER`, replacing
+`IDENTIFIER` with the one you copied. This loads the code for that
+build.
+
+Open that checkout in R to restore its inputs and run a local preview.
+
+``` r
+
+library(projr)
+projr_restore()
+projr_build_dev()
+readLines(projr_path_get("output", "mean.txt", safe = TRUE))
+# [1] "4"
+```
+
+[`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+downloads the raw inputs for that build and checks their contents
+against the recorded file hashes.
 [`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md)
-while iterating. Dev builds:
+then runs the analysis locally so you can inspect the result without
+publishing another version.
 
-- Route outputs to the cache directory (`_tmp/projr/v<version>/`)
-- Do not bump the version or upload to archives
-- Leave `_output` untouched
+## Keep existing folder names
 
-``` r
+If your analysis already uses `data/original/` and `results/`, you can
+keep both names. Before the first build, save this as `_projr.yml` at
+the project root. If a build already created the file, edit the
+corresponding paths in it.
 
-# Build everything
-projr_build_dev()
-
-# Build a specific document
-projr_build_dev(scripts = "analysis.Rmd")
+``` yaml
+directories:
+  raw-data:
+    path: data/original
+  output:
+    path: results
+  cache:
+    path: _tmp
+  docs:
+    path: docs
 ```
 
-#### Production builds
+The labels on the left tell projr what each folder is for. Paths in the
+configuration start at the project root. The cache holds temporary build
+files and `docs` collects rendered reports. When you use a different
+input path in the example, update
+[`read.csv()`](https://rdrr.io/r/utils/read.table.html) to match, or
+read from `projr_path_get("raw-data", "measurements.csv")` so the script
+uses the configured path directly.
 
-Use production builds when you are ready to release a new version:
-
-``` r
-
-# Patch bump (0.1.0 -> 0.1.1)
-projr_build()
-projr_build_patch() # equivalent
-
-# Minor bump (0.1.0 -> 0.2.0)
-projr_build_minor()
-
-# Major bump (0.1.0 -> 1.0.0)
-projr_build_major()
-```
-
-Production builds clear and populate `_output`, bump the version, record
-a manifest of inputs and outputs, archive to configured destinations
-(GitHub Releases, OSF, or local), and commit/push to Git if configured.
-
-### Archiving outputs
-
-Add a destination so production builds automatically archive outputs:
-
-``` r
-
-# Archive to GitHub Releases
-projr_yml_dest_add_github(
-  title = "default",
-  content = "output",
-  structure = "archive"
-)
-
-# Or archive to a local directory
-projr_yml_dest_add_local(
-  title = "backup",
-  content = "output",
-  path = "/path/to/archive",
-  structure = "latest"
-)
-```
-
-### Restoring a project
-
-Clone and restore raw data on a new machine:
-
-``` r
-
-projr_restore_repo("owner/repo")
-```
-
-This clones the repo, restores raw data from configured archives, and
-sets up the project structure.
-
-To update content from archives in an existing project:
-
-``` r
-
-projr_content_update()
-```
-
-### Directories in the starter configuration
-
-The first build or
-[`projr_init()`](https://satvilab.github.io/projr/reference/projr_init.md)
-writes these paths into `_projr.yml`. When using an existing
-configuration, declare each directory you use. Profiles can inherit
-paths from the base configuration.
-
-| Label      | Path        | Purpose                               |
-|------------|-------------|---------------------------------------|
-| `raw-data` | `_raw_data` | Source data                           |
-| `cache`    | `_tmp`      | Temporary files and dev build outputs |
-| `output`   | `_output`   | Final outputs (figures, tables)       |
-| `docs`     | `docs`      | Rendered documents (HTML, PDF)        |
-
-Access directories programmatically:
-
-``` r
-
-projr_path_get_dir("output", safe = FALSE) # final path: _output
-projr_path_get_dir("output", safe = TRUE) # cache path: _tmp/projr/v0.1.0/output
-```
-
-### Manifest
-
-Each production build records file hashes in `_projr/manifests/`,
-linking outputs to exact input versions. Query it with:
-
-``` r
-
-projr_manifest_changes("0.0.1", "0.0.2")
-projr_manifest_last_change()
-```
-
-### Configuration
-
-All settings live in `_projr.yml`. Inspect and validate with:
-
-``` r
-
-projr_yml_get()
-projr_yml_check()
-```
-
-Configure Git behaviour:
-
-``` r
-
-projr_yml_git_set(commit = TRUE, push = TRUE, add_untracked = TRUE)
-```
-
-### Next steps
-
-- [How-to
-  guides](https://satvilab.github.io/projr/articles/how-to-guides.md)
-  for specific tasks
-- [Concepts](https://satvilab.github.io/projr/articles/concepts.md)
-  behind projr’s design
-- [Design](https://satvilab.github.io/projr/articles/design.md)
-  philosophy
-- [Reference](https://satvilab.github.io/projr/reference/index.md) for
-  all functions
+See the [configuration
+reference](https://satvilab.github.io/projr/articles/configuration.md)
+for all the settings, the [build
+guide](https://satvilab.github.io/projr/articles/build-process.md) for
+script execution, and the [restore
+guide](https://satvilab.github.io/projr/articles/restore-artifacts.md)
+for other ways to recover files.

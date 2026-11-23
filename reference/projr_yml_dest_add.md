@@ -22,9 +22,9 @@ projr_yml_dest_add_local(
 
 - title:
 
-  character. The name of the directory. Has no effect besides helping
-  structure `_projr.yml`. If not supplied, will be made equal to
-  `content`.
+  character. Required name for this local destination in `_projr.yml`.
+  Supply this name as `title` when selecting the configuration for a
+  restore.
 
 - content:
 
@@ -41,7 +41,7 @@ projr_yml_dest_add_local(
 
   "latest" or "archive". Structure of the remote. If "latest", then
   `path` simply contains the latest versions of the contents. If
-  "version", then `path` will contain a directory for each version. If
+  "archive", then `path` will contain a directory for each version. If
   not supplied, will be `archive`.
 
 - overwrite:
@@ -51,8 +51,8 @@ projr_yml_dest_add_local(
 
 - send_cue:
 
-  "always", "if-change" or "never". When to send to the remote. Default
-  is NULL.
+  "always" or "if-change". When to send to the remote. The default sends
+  changed content.
 
 - send_strategy:
 

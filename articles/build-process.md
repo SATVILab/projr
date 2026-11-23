@@ -62,7 +62,7 @@ The build validates the environment before starting:
     validates `_projr.yml`
 2.  All configured scripts and hooks must exist on disk
 3.  Required packages (quarto, rmarkdown, etc.) must be installed
-4.  GitHub PAT / OSF tokens checked if remote destinations are
+4.  GitHub authentication checked when a GitHub destination is
     configured
 5.  Git repository must be initialized
 6.  If push is enabled, the GitHub remote must exist and the local
@@ -316,15 +316,16 @@ push yet.
 
 #### Remote distribution
 
-Sends artifacts to configured remotes (GitHub, OSF, local). The behavior
-is controlled by four parameters in `_projr.yml`:
+Sends artifacts to configured destinations (GitHub Releases or local
+directories). The behavior is controlled by four parameters in
+`_projr.yml`:
 
 | Parameter | Options | Description |
 |----|----|----|
 | `structure` | `archive`, `latest` | Versioned subdirs vs overwrite |
-| `send_cue` | `always`, `if-change`, `never` | When to send |
-| `send_strategy` | `sync-diff`, `sync-purge`, `upload-all`, `upload-missing` | How to update |
-| `send_inspect` | `manifest`, `file`, `none` | How to detect changes |
+| `send.cue` | `always`, `if-change` | When to send |
+| `send.strategy` | `sync-diff`, `sync-purge`, `upload-all`, `upload-missing` | How to update |
+| `send.inspect` | `manifest`, `file`, `none` | How to detect changes |
 
 For quick archiving without editing `_projr.yml`, use the
 `archive_github` or `archive_local` parameters:
@@ -432,8 +433,8 @@ Control console verbosity with `PROJR_OUTPUT_LEVEL`:
 
 | Level     | Description                                    |
 |-----------|------------------------------------------------|
-| `"none"`  | Errors only (default for dev builds)           |
-| `"std"`   | Major step progress (default for production)   |
+| `"none"`  | Errors only                                    |
+| `"std"`   | Major step progress (default)                  |
 | `"debug"` | Detailed operations, file counts, remote plans |
 
 ``` r
@@ -528,8 +529,7 @@ projr_build_patch(
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
-  clear_output = "pre",
-  output_level = "std"
+  clear_output = "pre"
 )
 ```
 
@@ -543,8 +543,7 @@ projr_build_dev(
   old_dev_remove = TRUE,
   args_engine = list(),
   profile = NULL,
-  clear_output = "never",
-  output_level = "none"
+  clear_output = "never"
 )
 ```
 
@@ -583,8 +582,7 @@ projr_build_dev()
 # 4. When ready, do a production build with archiving
 projr_build_patch(
   msg = "Add regression analysis",
-  archive_github = TRUE,
-  output_level = "std"
+  archive_github = TRUE
 )
 
 # 5. Check what changed

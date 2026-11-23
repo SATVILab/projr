@@ -9,7 +9,8 @@
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Scripts and Hooks">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="Scripts and Hooks">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -30,29 +31,22 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/get-started.html">Get started</a></li>
 <li class="active nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/how-to-guides.html">How-to guides</a></li>
-    <li><a class="dropdown-item" href="../articles/build-process.html">Build Process</a></li>
-    <li><a class="dropdown-item" href="../articles/send-to-remotes.html">Sending to Remotes</a></li>
-    <li><a class="dropdown-item" href="../articles/dest-send-workflow.html">Destination Send Workflow</a></li>
-    <li><a class="dropdown-item" href="../articles/restore-artifacts.html">Restoring Artifacts</a></li>
-    <li><a class="dropdown-item" href="../articles/environment.html">Environment Variables</a></li>
-    <li><a class="dropdown-item" href="../articles/scripts-and-hooks.html">Scripts and Hooks</a></li>
-    <li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
-    <li><a class="dropdown-item" href="../articles/design.html">Design</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-guides">
+<li><a class="dropdown-item" href="../articles/configuration.html">Project configuration</a></li>
+    <li><a class="dropdown-item" href="../articles/scripts-and-hooks.html">Scripts and hooks</a></li>
+    <li><a class="dropdown-item" href="../articles/send-to-remotes.html">Archive files</a></li>
+    <li><a class="dropdown-item" href="../articles/restore-artifacts.html">Restore files</a></li>
+    <li><a class="dropdown-item" href="../articles/index.html">All guides</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-news">
-<li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
-    <li><a class="dropdown-item" href="../BUILDLOG.html">Build log</a></li>
-  </ul>
-</li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
+</form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/SATVILab/projr" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
@@ -131,8 +125,9 @@ sub-keys or nested structures are allowed.</p>
 in dev builds, list them explicitly under <code>dev.scripts</code>.</p>
 <p>Use paths or glob patterns to select scripts. Prefix a pattern with
 <code>!</code> to exclude matches. An inclusion that matches no files
-causes an error before the build starts. Use <code>scripts = ""</code>
-to skip running scripts.</p>
+causes an error before the build starts. Use
+<code>scripts = character()</code> in R or <code>scripts: []</code> in
+YAML to skip rendering and scripts.</p>
 <p>With an explicit selection, scripts run in the listed order. Each
 glob expands alphabetically, and the first match determines a file’s
 position. When a Quarto or Bookdown project has selected project
@@ -148,41 +143,33 @@ project, top-level <code>.qmd</code>, <code>.Rmd</code>, and
 <code>.R</code> scripts run alphabetically. Automatic R script discovery
 skips configured hooks, names starting with <code>_</code>, and
 <code>renv_repos.R</code>.</p>
-</div>
-<div class="section level3">
-<h3 id="managing-scripts-with-r">Managing scripts with R<a class="anchor" aria-label="anchor" href="#managing-scripts-with-r"></a>
-</h3>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Add scripts</span></span>
-<span><span class="fu"><a href="../reference/yml-script.html">projr_yml_script_add</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"analysis.qmd"</span>, <span class="st">"report.Rmd"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Remove a script</span></span>
-<span><span class="fu"><a href="../reference/yml-script.html">projr_yml_script_rm</a></span><span class="op">(</span><span class="st">"report.Rmd"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Remove all scripts</span></span>
-<span><span class="fu"><a href="../reference/yml-script.html">projr_yml_script_rm_all</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>To change the regular selection, edit <code>build.scripts</code> or
+<code>dev.scripts</code>. For a one-off development build, pass the
+selection to <code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code>. The
+<code>projr_yml_hooks_add_*()</code> functions below configure pre- and
+post-build R code.</p>
 </div>
 <div class="section level3">
 <h3 id="example-separate-dev-and-production-scripts">Example: separate dev and production scripts<a class="anchor" aria-label="anchor" href="#example-separate-dev-and-production-scripts"></a>
 </h3>
-<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># _projr.yml</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> full-analysis.qmd</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> supplementary.qmd</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> appendix.qmd</span></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="fu">dev</span><span class="kw">:</span></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> quick-test.qmd</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># _projr.yml</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> full-analysis.qmd</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> supplementary.qmd</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> appendix.qmd</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="fu">dev</span><span class="kw">:</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> quick-test.qmd</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># renders quick-test.qmd only</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># renders all three documents</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="example-one-off-builds">Example: one-off builds<a class="anchor" aria-label="anchor" href="#example-one-off-builds"></a>
 </h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span>scripts <span class="op">=</span> <span class="st">"exploratory-analysis.Rmd"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span>scripts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reports/*.Rmd"</span>, <span class="st">"!reports/draft.Rmd"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -199,19 +186,19 @@ process.</p>
 keys are available: <code>pre</code> (before the build),
 <code>post</code> (after the build), and <code>both</code> (runs at both
 stages). File paths are relative to the project root.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hooks/setup.R</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hooks/download-data.R</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="at">    </span><span class="fu">post</span><span class="kw">:</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hooks/cleanup.R</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="at">    </span><span class="fu">both</span><span class="kw">:</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hooks/log-timestamp.R</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="fu">dev</span><span class="kw">:</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/dev-setup.R</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hooks/setup.R</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hooks/download-data.R</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="at">    </span><span class="fu">post</span><span class="kw">:</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hooks/cleanup.R</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="at">    </span><span class="fu">both</span><span class="kw">:</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hooks/log-timestamp.R</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="fu">dev</span><span class="kw">:</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/dev-setup.R</span></span></code></pre></div>
 <p><code>build.hooks</code> are ignored in dev builds.
 <code>dev.hooks</code> are ignored in production builds. Unlike scripts,
 there is no fallback between them.</p>
@@ -246,7 +233,7 @@ the build stops.</p>
 <div class="section level3">
 <h3 id="managing-hooks-with-r">Managing hooks with R<a class="anchor" aria-label="anchor" href="#managing-hooks-with-r"></a>
 </h3>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/yml-hooks.html">projr_yml_hooks_add</a></span><span class="op">(</span>path <span class="op">=</span> <span class="st">"hooks/setup.R"</span>, stage <span class="op">=</span> <span class="st">"pre"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/yml-hooks.html">projr_yml_hooks_add_pre</a></span><span class="op">(</span><span class="st">"hooks/check-auth.R"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/yml-hooks.html">projr_yml_hooks_add_post</a></span><span class="op">(</span><span class="st">"hooks/cleanup.R"</span><span class="op">)</span></span>
@@ -260,7 +247,7 @@ the build stops.</p>
 <div class="section level3">
 <h3 id="example-data-preparation-hook">Example: data preparation hook<a class="anchor" aria-label="anchor" href="#example-data-preparation-hook"></a>
 </h3>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># hooks/prepare-data.R</span></span>
 <span><span class="va">data_url</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"DATA_URL"</span><span class="op">)</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="va">data_url</span><span class="op">)</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"DATA_URL not set"</span><span class="op">)</span></span>
@@ -269,25 +256,25 @@ the build stops.</p>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"_raw_data/data.csv"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Data preparation complete"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/prepare-data.R</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/prepare-data.R</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="example-separate-dev-and-production-hooks">Example: separate dev and production hooks<a class="anchor" aria-label="anchor" href="#example-separate-dev-and-production-hooks"></a>
 </h3>
-<div class="sourceCode" id="cb11"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/prod-setup.R</span></span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a></span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="fu">dev</span><span class="kw">:</span></span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/dev-setup.R</span></span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/prod-setup.R</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="fu">dev</span><span class="kw">:</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/dev-setup.R</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># hooks/dev-setup.R</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Setting up dev environment..."</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># hooks/prod-setup.R</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Setting up production environment..."</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"hooks/check-auth.R"</span><span class="op">)</span></span>
@@ -315,8 +302,8 @@ messages are actionable.</li>
 <li>
 <code><a href="../reference/yml-hooks.html">?projr_yml_hooks_add</a></code> - Add hooks programmatically</li>
 <li>
-<code><a href="../reference/yml-script.html">?projr_yml_script_add</a></code> - Add scripts
-programmatically</li>
+<code><a href="../articles/configuration.html">vignette("configuration")</a></code> for the script selection and
+rendering reference.</li>
 <li>
 <code><a href="../reference/projr_build_dev.html">?projr_build_dev</a></code> - Development builds</li>
 <li>
@@ -334,7 +321,7 @@ programmatically</li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p><a href="LICENSE.html">License</a> • projr is free and open source software</p>
+  <p><a href="https://github.com/SATVILab/projr/blob/main/LICENSE.md" class="external-link">MIT license</a></p>
 </div>
 
     </footer>

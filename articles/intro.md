@@ -90,7 +90,7 @@ distinguishable from released versions.
 #### Sharing outputs
 
 After each production build, `projr` can upload project components (raw
-data, outputs, docs) to GitHub releases, OSF or a local folder. This is
+data, outputs, docs) to GitHub releases or a local folder. This is
 configured under the `build` key in `_projr.yml` and happens
 automatically.
 
@@ -123,10 +123,10 @@ to construct paths:
 
 ``` r
 
-projr_path_get("output")
+projr_path_get("output", safe = FALSE)
 # "_output"
 
-projr_path_get("output", "figure", "plot.png")
+projr_path_get("output", "figure", "plot.png", safe = FALSE)
 # "_output/figure/plot.png"
 
 # Use in code:
@@ -158,7 +158,7 @@ This uploads the `raw-data` directory to a GitHub release after each
 build. Uploads are incremental by default (only when content changes).
 Git commit, push and other settings are also configured here.
 
-Destinations include GitHub releases, OSF nodes and local directories.
+Destinations include GitHub releases and local directories.
 
 ### Setting up GitHub
 

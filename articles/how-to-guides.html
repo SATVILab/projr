@@ -9,7 +9,8 @@
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="How-to guides">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="How-to guides">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -30,29 +31,22 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/get-started.html">Get started</a></li>
 <li class="active nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/how-to-guides.html">How-to guides</a></li>
-    <li><a class="dropdown-item" href="../articles/build-process.html">Build Process</a></li>
-    <li><a class="dropdown-item" href="../articles/send-to-remotes.html">Sending to Remotes</a></li>
-    <li><a class="dropdown-item" href="../articles/dest-send-workflow.html">Destination Send Workflow</a></li>
-    <li><a class="dropdown-item" href="../articles/restore-artifacts.html">Restoring Artifacts</a></li>
-    <li><a class="dropdown-item" href="../articles/environment.html">Environment Variables</a></li>
-    <li><a class="dropdown-item" href="../articles/scripts-and-hooks.html">Scripts and Hooks</a></li>
-    <li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
-    <li><a class="dropdown-item" href="../articles/design.html">Design</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-guides">
+<li><a class="dropdown-item" href="../articles/configuration.html">Project configuration</a></li>
+    <li><a class="dropdown-item" href="../articles/scripts-and-hooks.html">Scripts and hooks</a></li>
+    <li><a class="dropdown-item" href="../articles/send-to-remotes.html">Archive files</a></li>
+    <li><a class="dropdown-item" href="../articles/restore-artifacts.html">Restore files</a></li>
+    <li><a class="dropdown-item" href="../articles/index.html">All guides</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-news">
-<li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
-    <li><a class="dropdown-item" href="../BUILDLOG.html">Build log</a></li>
-  </ul>
-</li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
+</form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/SATVILab/projr" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
@@ -100,7 +94,7 @@ depending on the function used.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Set license and citation separately</span></span>
 <span><span class="fu"><a href="../reference/projr_init.html">projr_init_license</a></span><span class="op">(</span>license <span class="op">=</span> <span class="st">"MIT"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_init.html">projr_init_cite</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"My Research Project"</span>, authors <span class="op">=</span> <span class="st">"Jane Doe"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/projr_init.html">projr_init_cite</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>If GitHub credential prompts fail, run
 <code><a href="../reference/instr_auth.html">projr_instr_auth_github()</a></code> for setup instructions.
 Initialisation won’t overwrite existing config files.</p>
@@ -172,73 +166,52 @@ var (<code>"pre"</code>, <code>"post"</code>, or
 <div class="section level2">
 <h2 id="archive-artefacts">4. Archive artefacts<a class="anchor" aria-label="anchor" href="#archive-artefacts"></a>
 </h2>
-<p>projr supports three destination types: GitHub Releases, OSF, and
-local directories. Configure them in <code>_projr.yml</code>:</p>
+<p>To archive raw data in a shared folder, add a named local
+destination. For a GitHub release, use a named entry under
+<code>github</code> instead.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="at">    </span><span class="fu">raw-data</span><span class="kw">:</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="at">      </span><span class="fu">description</span><span class="kw">:</span><span class="at"> </span><span class="st">"Raw data files"</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="at">      </span><span class="fu">cue</span><span class="kw">:</span><span class="at"> </span><span class="st">"always"</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="at">    </span><span class="fu">output</span><span class="kw">:</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="at">    </span><span class="fu">backup</span><span class="kw">:</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> ~/project-archives/study</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="at">    </span><span class="fu">figures</span><span class="kw">:</span></span>
 <span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output</span><span class="kw">]</span></span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="at">      </span><span class="fu">description</span><span class="kw">:</span><span class="at"> </span><span class="st">"Analysis outputs"</span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> </span><span class="st">"~/Dropbox/my-project-archive"</span></span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="at">    </span><span class="fu">raw-data</span><span class="kw">:</span></span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
-<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> </span><span class="st">"data"</span></span>
-<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="at">    </span><span class="fu">output</span><span class="kw">:</span></span>
-<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output</span><span class="kw">]</span></span>
-<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> </span><span class="st">"outputs"</span></span></code></pre></div>
-<p>Or add destinations programmatically:</p>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="at">      </span><span class="fu">send</span><span class="kw">:</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="at">        </span><span class="fu">cue</span><span class="kw">:</span><span class="at"> if-change</span></span></code></pre></div>
+<p>The equivalent R calls are:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_yml_dest_add_github.html">projr_yml_dest_add_github</a></span><span class="op">(</span></span>
-<span>  label <span class="op">=</span> <span class="st">"raw-data"</span>,</span>
-<span>  content <span class="op">=</span> <span class="st">"raw-data"</span>,</span>
-<span>  description <span class="op">=</span> <span class="st">"Raw data files"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/projr_yml_dest_add.html">projr_yml_dest_add_local</a></span><span class="op">(</span></span>
-<span>  label <span class="op">=</span> <span class="st">"raw-data"</span>,</span>
-<span>  content <span class="op">=</span> <span class="st">"raw-data"</span>,</span>
-<span>  path <span class="op">=</span> <span class="st">"~/archive/data"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>Key parameters:</p>
-<ul>
-<li>
-<code>content</code>: directory to archive (raw-data, output, docs,
-cache)</li>
-<li>
-<code>cue</code>: when to upload — “always”, “new” (only if
-changed), “never”</li>
-<li>
-<code>strategy</code>: “archive” (versioned) or “latest”
-(overwrite)</li>
-</ul>
-<p>GitHub has a 2 GB limit per release asset. Use local or OSF for
-larger datasets.</p>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_yml_dest_add.html">projr_yml_dest_add_local</a></span><span class="op">(</span><span class="st">"backup"</span>, <span class="st">"raw-data"</span>, <span class="st">"~/project-archives/study"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_yml_dest_add_github.html">projr_yml_dest_add_github</a></span><span class="op">(</span><span class="st">"figures"</span>, <span class="st">"output"</span>, send_cue <span class="op">=</span> <span class="st">"if-change"</span><span class="op">)</span></span></code></pre></div>
+<p>Use <code>structure: archive</code> to retain versioned artifacts or
+<code>structure: latest</code> to keep the current payload. See
+<code><a href="../articles/configuration.html">vignette("configuration")</a></code> for all the options.</p>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="restore-artefacts">5. Restore artefacts<a class="anchor" aria-label="anchor" href="#restore-artefacts"></a>
 </h2>
+<p>To reproduce a checked-out production build from its GitHub archive,
+run <code><a href="../reference/projr_restore.html">projr_restore()</a></code> inside that checkout. It fills in
+missing raw data after verifying the recorded file hashes. Use
+<code>projr_restore(version = "1.2.3")</code> to select a particular
+build.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Clone a repo and restore archived content</span></span>
 <span><span class="fu"><a href="../reference/projr_content_update.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"owner/repo"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_content_update.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"owner/repo"</span>, path <span class="op">=</span> <span class="st">"~/projects/my-project"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Restore from the current working directory (already cloned)</span></span>
-<span><span class="fu"><a href="../reference/projr_content_update.html">projr_restore_repo_wd</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Restore specific directories:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"raw-data"</span>, <span class="st">"output"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span>, version <span class="op">=</span> <span class="st">"v0.1.0"</span><span class="op">)</span></span></code></pre></div>
-<p>projr checks configured sources in order: GitHub Releases, OSF, then
-local archives. Ensure credentials are set up before restoring from
-remote sources.</p>
+<span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span>, type <span class="op">=</span> <span class="st">"local"</span>, title <span class="op">=</span> <span class="st">"backup"</span><span class="op">)</span></span></code></pre></div>
+<p>By default, projr looks for each label’s configured source, then a
+build destination containing that label. To reuse a templated archive
+from an earlier build, pass the concrete path or tag recorded in
+<code>BUILDLOG.md</code> as <code>destination</code>.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -507,7 +480,7 @@ details.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p><a href="LICENSE.html">License</a> • projr is free and open source software</p>
+  <p><a href="https://github.com/SATVILab/projr/blob/main/LICENSE.md" class="external-link">MIT license</a></p>
 </div>
 
     </footer>

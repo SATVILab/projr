@@ -42,8 +42,8 @@ projr_yml_dest_add_github(
 
 - send_cue:
 
-  "always", "if-change" or "never". When to send to the remote. Default
-  is NULL.
+  "always" or "if-change". When to send to the remote. The default sends
+  changed content.
 
 - send_strategy:
 
