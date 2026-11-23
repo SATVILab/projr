@@ -173,7 +173,7 @@ projr_manifest_changes("0.0.1", "0.0.2", label = "output")
 # File history across a range of versions
 projr_manifest_range("0.0.1")
 
-# Most recent change for each label
+# Latest version that recorded files for each label
 projr_manifest_last_change()
 ```
 
@@ -182,16 +182,16 @@ projr_manifest_last_change()
 ## Archiving and restoration
 
 projr can archive directory contents to GitHub Releases or local directories
-after each build.
+after a production build.
 
 ### Archive strategies
 
-Two strategies control how archives are organised:
+The `structure` setting controls how files are kept.
 
-- `archive` — each version gets its own archive (preserves history)
-- `latest` — each build overwrites the previous archive (saves space)
+- `archive` keeps versioned copies. Builds with identical contents can share an earlier upload.
+- `latest` updates one copy of each selected directory. Its history still records earlier builds, but earlier files can only be retrieved if matching contents remain available.
 
-Add a remote destination in R:
+The R helpers below write supported inline build destinations. To keep an archive available for reads when uploads are paused, use a named entry under `remotes` as shown in the [archive guide](send-to-remotes.html).
 
 ```{r eval=FALSE}
 projr_yml_dest_add_github(
@@ -344,15 +344,14 @@ projr_init()
 projr_build_dev()
 # Check outputs in _tmp/projr/v0.0.1/
 
-# 5. First release
-projr_build_patch()
-# Outputs in _output/, archived to remotes
+# 5. Write results to _output/ and publish this build on GitHub
+projr_build_patch(archive_github = TRUE)
 
-# 6. Keep working, then release again
-projr_build_minor()
+# 6. Keep working, then publish the next build
+projr_build_minor(archive_github = TRUE)
 
-# 7. Collaborator restores the project
-projr_restore_repo("you/your-project")
+# 7. In a fresh checkout, open the build commit and recover its raw inputs
+projr_restore()
 ```
 
 In short: organise files by purpose, iterate with dev builds, release with

@@ -67,7 +67,7 @@ projr_build() # That's it
 - **Dev builds**: Route writes through the output helper to the build cache
 - **Manifests**: Always know what inputs created what outputs
 - **Git integration**: Automatic commits preserve history
-- **Reversible versioning**: Can always access previous versions via Git + archives
+- **Restoration**: Recover recorded inputs from an archive for a checked-out build
 
 **Anti-pattern**: In-place modification of output directories leading to lost results.
 
@@ -102,14 +102,9 @@ projr_build() # Now commit to _output
 
 **Anti-pattern**: Build systems with hidden state, implicit dependencies, or configuration scattered across multiple locations.
 
-**Example**: projr's manifest system:
-
-```csv
-label,path,hash,version,timestamp
-raw-data,_raw_data,abc123...,v0.1.0,2024-01-15
-```
-
-You can inspect, version-control, and audit this. Compare to a system that tracks dependencies in a binary database or in-memory cache.
+For example, open `.projr/manifests/raw-data/versions.csv` to see which
+production builds used the same inputs. Follow a row's `snapshot` to the
+matching file list to see exactly which inputs those builds used.
 
 ### 4. Reproducibility by default
 
@@ -120,29 +115,16 @@ You can inspect, version-control, and audit this. Compare to a system that track
 - **Automatic versioning**: Each production build records a version
 - **Manifests**: Inputs-outputs linkage is automatic
 - **renv integration**: Optional package version locking
-- **Archiving**: Automatic upload to GitHub Releases or a local archive
+- **Archiving**: A production build can publish to GitHub Releases or a local archive
 - **Restoration**: One command to reconstruct
 
 **Anti-pattern**: Reproducibility as an afterthought requiring manual effort.
 
-**Example**: Without thinking about it, projr users get:
-
-```
-v0.1.0:
-  - code: Git SHA abc123
-  - data: Hash def456
-  - outputs: Hash ghi789
-  - packages: renv.lock
-  - archived: GitHub Release v0.1.0
-```
-
-All automatically. To reproduce:
-
-```{r eval=FALSE}
-projr_restore_repo("owner/repo")
-renv::restore()
-projr_build()
-```
+For example, `projr_build(archive_github = TRUE)` records the build's inputs
+and outputs and publishes them in a GitHub release named `archive`. To
+recover its inputs, open the build commit in a fresh checkout and run
+`projr_restore()`. If the project uses renv, `renv::restore()` installs
+the packages recorded in its lockfile.
 
 ---
 
@@ -332,12 +314,19 @@ Final value: `_temp_output`
 
 ### Manifest format
 
-Manifests use CSV for simplicity and compatibility:
+Each tracked directory has its own history. Its `versions.csv` has one row per
+recorded build. Builds with identical files point to the same
+`files-<snapshot>.csv`. Each file list contains paths relative to the directory
+and their MD5 hashes. For example, a list for an input folder might contain a
+single empty file named `notes.txt`.
 
 ```csv
-label,path,hash,version,timestamp
-raw-data,_raw_data,abc123...,v0.1.0,2024-01-15T10:30:00Z
+"fn","hash"
+"notes.txt","d41d8cd98f00b204e9800998ecf8427e"
 ```
+
+Local archives keep these histories in `manifests/`. A GitHub release stores
+the histories for its published directories together in `manifest.zip`.
 
 **Why CSV?**
 
@@ -377,9 +366,10 @@ raw-data,_raw_data,abc123...,v0.1.0,2024-01-15T10:30:00Z
 
 A local archive can live on a shared drive and use the team's existing file
 permissions. A GitHub release keeps downloadable artifacts alongside a code
-tag and requires access to that repository. Choose the destinations for a
-project under `build.local` and `build.github`, or request a one-off archive
-when calling a production build.
+tag and requires write access to publish there. Define a reusable address under
+`remotes.local` or `remotes.github`. Select its title and directories to
+publish under `build.local` or `build.github`. A production build also
+accepts a one-off archive request.
 
 ### Why clear _output before builds?
 

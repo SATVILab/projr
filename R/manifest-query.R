@@ -5,6 +5,15 @@
 #' Query which files changed between two project versions based on the manifest.
 #' Returns files that were added, modified, or removed between the versions.
 #'
+#' @details Run these queries in the project checkout whose history you want to
+#'   inspect. Production builds record each directory's history under
+#'   `.projr/manifests/`. Builds with identical filenames and file contents
+#'   share one file list for that directory. Older projects can also be queried
+#'   from their root `manifest.csv`.
+#'
+#'   To retrieve the files recorded for a build, use [projr_get_local()] or
+#'   [projr_get_github()].
+#'
 #' @param version_from character.
 #' Starting version (e.g., "0.0.1" or "v0.0.1").
 #' If NULL, uses the earliest version in the manifest.
@@ -368,6 +377,8 @@ projr_manifest_last_change <- function(version = NULL) {
 #' Query when a specific file last changed in the manifest.
 #' Returns the most recent version where the file's hash was different
 #' from the previous version, or when it first appeared.
+#'
+#' @inherit projr_manifest_changes details
 #'
 #' @param fn character.
 #' File path relative to the directory (e.g., "data.csv", "subdir/file.txt").

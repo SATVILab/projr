@@ -85,7 +85,7 @@ reference:
   - projr_version_set
 
 - title: Manifest queries
-  desc: Functions for querying manifest to track file changes across versions
+  desc: Compare files and versions recorded in the current checkout.
   contents:
   - projr_manifest_changes
   - projr_manifest_range

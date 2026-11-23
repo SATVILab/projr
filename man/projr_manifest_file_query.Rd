@@ -94,6 +94,16 @@ where the file's hash is different from the previous version.
 
 Get the version when a specific file first appeared in the manifest.
 }
+\details{
+Run these queries in the project checkout whose history you want to
+inspect. Production builds record each directory's history under
+\verb{.projr/manifests/}. Builds with identical filenames and file contents
+share one file list for that directory. Older projects can also be queried
+from their root \code{manifest.csv}.
+
+To retrieve the files recorded for a build, use \code{\link[=projr_get_local]{projr_get_local()}} or
+\code{\link[=projr_get_github]{projr_get_github()}}.
+}
 \examples{
 \dontrun{
 # Query when a specific file last changed

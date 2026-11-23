@@ -70,6 +70,16 @@ including builds that reused an earlier directory snapshot.
 Show the most recent version that recorded files in each directory,
 including builds that reused an earlier directory snapshot.
 }
+\details{
+Run these queries in the project checkout whose history you want to
+inspect. Production builds record each directory's history under
+\verb{.projr/manifests/}. Builds with identical filenames and file contents
+share one file list for that directory. Older projects can also be queried
+from their root \code{manifest.csv}.
+
+To retrieve the files recorded for a build, use \code{\link[=projr_get_local]{projr_get_local()}} or
+\code{\link[=projr_get_github]{projr_get_github()}}.
+}
 \examples{
 \dontrun{
 # Query changes between v0.0.1 and v0.0.2

@@ -91,18 +91,35 @@ projr_restore()
 projr_build_dev()
 ```
 
-projr first tries the archive for the checked-out version, then earlier
-archives that share its directory snapshot. If those files are missing, a
-later upload can supply them when the release manifest records the same
-snapshot and every downloaded path and hash matches the requested build.
-projr recovers missing manifest data from the release and verifies
-the complete file list and MD5 hashes before installing any downloaded files.
+projr first tries files archived for the checked-out version, then earlier
+uploads with the same directory contents. It recovers missing manifest data
+from the release and verifies the complete file list and MD5 hashes before
+installing any downloads.
 If the checkout lacks both `DESCRIPTION` and `VERSION`, projr can recover the
 version from its `.projr/BUILDLOG.md`. You can also supply `version = "1.2.3"`.
 
 A partially populated input directory is filled when its existing files match.
 To replace local edits or remove extra files, supply `clear = TRUE`.
 For a templated release, pass its recorded concrete tag with `destination`.
+
+### When builds share the same inputs
+
+For example, the Tutu analysis used the same four raw input files in
+v0.2.0 and v0.6.1. Its checkout records v0.2.0 as the first build with
+that file list. Its GitHub archive first recorded the list at v0.6.1.
+You can see both records in the [checkout’s version history](https://github.com/MiguelRodo/comp-upskilling/blob/8d9e476fa7d73794a882f39a7f3b22d2e74172d0/.projr/manifests/raw-data/versions.csv)
+and the [release’s `manifest.zip`](https://github.com/MiguelRodo/comp-upskilling/releases/tag/archive).
+
+In a checkout containing those builds, this comparison returns zero changed files.
+
+```{r eval=FALSE}
+projr_manifest_changes("v0.2.0", "v0.6.1", label = "raw-data")
+```
+
+The comparison reads the checkout's history. When you restore the earlier
+build, projr can use a later upload if the exact and earlier copies are
+unavailable. The release must record the same snapshot, and every downloaded
+filename and hash must match. This fallback was added after projr 0.6.1.
 
 ## projr_restore_repo()
 
