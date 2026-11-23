@@ -27,6 +27,7 @@ preferred-citation:
     given-names: Miguel
     email: miguel.rodo@uct.ac.za
     orcid: https://orcid.org/0000-0002-2036-4878
+  year: '2026'
   notes: R package version 0.6.0
   url: https://satvilab.github.io/projr/
   doi: 10.5281/zenodo.18402379

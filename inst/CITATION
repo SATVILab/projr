@@ -3,6 +3,7 @@ bibentry(
   title = "projr: Facilitate Reproducible and Archived Projects",
   author = person("Miguel", "Rodo", email = "miguel.rodo@uct.ac.za",
                   comment = c(ORCID = "0000-0002-2036-4878")),
+  year = substr(c(meta[["Date/Publication"]], "2026")[1L], 1L, 4L),
   note = paste("R package version", meta$Version),
   url = "https://satvilab.github.io/projr/",
   doi = "10.5281/zenodo.18402379"
