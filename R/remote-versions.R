@@ -95,7 +95,8 @@
   if ("FORMAT" %in% entries) {
     indexes <- grep("^[a-z0-9_-]+/versions[.]csv$", entries, value = TRUE)
     if (!is.null(label)) {
-      indexes <- intersect(indexes, file.path(.path_encode_component(label), "versions.csv"))
+      labels <- vapply(label, .path_encode_component, character(1))
+      indexes <- intersect(indexes, file.path(labels, "versions.csv"))
     }
     extract(c("FORMAT", indexes))
     if (!.manifest_store_ready(store)) {

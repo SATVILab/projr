@@ -1,4 +1,4 @@
-#' @rdname projr_restore
+#' @rdname projr_content_update
 #' @export
 projr_restore_repo <- function(repo,
                                path = NULL,
@@ -26,7 +26,7 @@ projr_restore_repo <- function(repo,
   invisible(result)
 }
 
-#' @rdname projr_restore
+#' @rdname projr_content_update
 #' @export
 projr_restore_repo_wd <- function(repo,
                                   label = NULL,

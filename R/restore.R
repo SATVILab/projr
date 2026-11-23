@@ -80,8 +80,8 @@
 #' projr_restore_repo_wd("owner/repo")
 #' }
 #'
-#' @name projr_restore
-#' @rdname projr_restore
+#' @name projr_content_update
+#' @rdname projr_content_update
 #' @export
 projr_content_update <- function(label = NULL,
                                  pos = NULL,

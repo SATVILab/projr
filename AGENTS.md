@@ -19,6 +19,8 @@ Key architectural patterns:
 
 A project with a legacy root `manifest.csv` can be queried and restored before migration. The next production build imports its history. Local destinations store directory histories in `manifests/`. GitHub Releases use one `manifest.zip` asset. A local latest destination with `path-append-label: false` shares its root with release metadata. Preserve that metadata across payload purges. Confirm an empty build from the destination's `VERSION` and matching directory snapshot before clearing local files on restore.
 
+Use `projr_restore()` inside an existing checkout to restore its recorded inputs from a GitHub archive release. Resolve the completed production version from the checkout, fetch missing directory snapshots from the release, and verify every filename and hash in a staging directory before installing it. A deduplicated version may use an earlier asset only when the directory snapshot matches. Preserve user changes unless `clear = TRUE`. The existing `projr_content_update()` retains its latest-version behavior.
+
 Set the file hashing approach and worker limit under `settings.hashing`. The defaults are `approach: cpp` and `cores: 1`. A positive whole-number core count can parallelize file hashing with either the C++ or historical `legacy` approach. Both preserve file ordering, identical MD5s and per-directory histories. Existing `settings.hash-engine` configurations remain readable.
 
 Production builds use `build.renv: auto` by default. Snapshot when the project has its renv lockfile or activation script. `true` can create the first lockfile using installed packages, and `false` disables snapshots. Check dependencies before remote preparation and rendering. Take the post-render snapshot noninteractively and report missing package names before modifying the lockfile.
@@ -38,6 +40,7 @@ Production builds use `build.renv: auto` by default. Snapshot when the project h
 ### Including directories in an output
 
 - Set `directories.<receiving output>.include` to declared raw, docs or output labels. Copy each complete directory to a subdirectory named for its source label, including nested outputs in dependency order.
+- Create declared output directories before production scripts run so scripts can write directly to their configured paths on the first build.
 - Collect development copies in the build cache and production copies in the configured output before hashing or archiving it. Preserve existing source-side `output` settings. A request made in both places copies once.
 - Reserve the receiving subdirectory for the included label. Reject cycles, conflicting files or links, and directory paths that would copy recursively or clear the source.
 
