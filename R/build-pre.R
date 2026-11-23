@@ -6,6 +6,8 @@
   if (any(names(engines) %in% c("quarto_project", "bookdown", "quarto_document", "rmd"))) {
     .yml_dir_get_path("docs", NULL)
   }
+  missing <- .build_renv_missing_renderers(engines, output_run)
+  if (length(missing)) stop(.build_renv_render_status(missing)$message, call. = FALSE)
   if (!output_run) return(invisible(FALSE))
 
   .cli_debug("Checking production build prerequisites")
