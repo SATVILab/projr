@@ -77,6 +77,14 @@ test_that(".build_copy_dir copies configured directories", {
 # Tests for build-post-copy-docs.R
 # ---------------------------------
 
+.test_local_docs_project <- function(docs = "docs", env = parent.frame()) {
+  project <- withr::local_tempdir(.local_envir = env)
+  writeLines("0.0.1", file.path(project, "VERSION"))
+  directories <- list(docs = list(path = docs), cache = list(path = "_tmp"))
+  yaml::write_yaml(list(directories = directories), file.path(project, "_projr.yml"))
+  project
+}
+
 test_that(".build_copy_docs dispatches correctly based on engine", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
@@ -99,16 +107,11 @@ test_that(".build_copy_docs_rmd handles different output formats", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  dir_test <- tempfile("test_rmd")
-  dir.create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .test_local_docs_project()
 
   usethis::with_project(
     path = dir_test,
     code = {
-      # Create minimal DESCRIPTION
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
-
       # Test html_document format
       writeLines(c(
         "---",
@@ -137,16 +140,11 @@ test_that(".build_copy_docs_quarto handles html format with _files directory", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  dir_test <- tempfile("test_quarto")
-  dir.create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .test_local_docs_project()
 
   usethis::with_project(
     path = dir_test,
     code = {
-      # Create minimal DESCRIPTION
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
-
       # Create a quarto file
       writeLines(c(
         "---",
@@ -174,20 +172,15 @@ test_that(".build_copy_docs_quarto handles html format with _files directory", {
   )
 })
 
-test_that(".build_copy_docs_bookdown excludes CHANGELOG.md", {
+test_that(".build_copy_docs_bookdown collects the configured book directory", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  dir_test <- tempfile("test_bookdown")
-  dir.create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .test_local_docs_project("_book")
 
   usethis::with_project(
     path = dir_test,
     code = {
-      # Create minimal DESCRIPTION
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
-
       # Create _bookdown.yml with output_dir
       writeLines(c("output_dir: '_book'"), "_bookdown.yml")
 
@@ -211,20 +204,15 @@ test_that(".build_copy_docs_bookdown excludes CHANGELOG.md", {
   )
 })
 
-test_that(".build_copy_docs_quarto_project excludes CHANGELOG.md", {
+test_that(".build_copy_docs_quarto_project collects the configured site directory", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  dir_test <- tempfile("test_quarto_proj")
-  dir.create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .test_local_docs_project()
 
   usethis::with_project(
     path = dir_test,
     code = {
-      # Create minimal DESCRIPTION
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
-
       # Create cache directory structure where quarto project builds to
       cache_docs <- file.path(
         projr_path_get_cache_build_dir(profile = NULL), "docs"
@@ -293,16 +281,11 @@ test_that(".build_clear_post_docs clears for quarto_document engine", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  dir_test <- tempfile("test_clear_docs")
-  dir.create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .test_local_docs_project()
 
   usethis::with_project(
     path = dir_test,
     code = {
-      # Create minimal DESCRIPTION
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
-
       # Create a quarto file to set engine
       writeLines(c("---", "title: Test", "---", "# Test"), "test.qmd")
 
@@ -418,16 +401,11 @@ test_that(".build_copy_docs handles missing output files gracefully", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  dir_test <- tempfile("test_missing")
-  dir.create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .test_local_docs_project()
 
   usethis::with_project(
     path = dir_test,
     code = {
-      # Create minimal DESCRIPTION
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
-
       # Create Rmd but not the output
       writeLines(c("---", "title: Test", "---", "# Test"), "test.Rmd")
 
@@ -474,25 +452,20 @@ test_that(".build_copy_docs_bookdown handles missing _bookdown.yml gracefully", 
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  dir_test <- tempfile("test_bookdown_no_yml")
-  dir.create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .test_local_docs_project("_book")
 
   usethis::with_project(
     path = dir_test,
     code = {
-      # Create minimal DESCRIPTION
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
-
-      # Don't create _bookdown.yml - should use defaults
+      # The configured docs path also works without _bookdown.yml.
       cache_book <- file.path(
         projr_path_get_cache_build_dir(profile = NULL), "_book"
       )
       dir.create(cache_book, recursive = TRUE, showWarnings = FALSE)
       file.create(file.path(cache_book, "index.html"))
 
-      # Should not error (messages are expected)
-      expect_error(.build_copy_docs_bookdown(output_run = TRUE), NA)
+      .build_copy_docs_bookdown(output_run = TRUE)
+      expect_true(file.exists("_book/index.html"))
     },
     force = TRUE,
     quiet = TRUE
@@ -503,16 +476,11 @@ test_that(".build_copy_docs_quarto_project handles missing source directory", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  dir_test <- tempfile("test_quarto_missing")
-  dir.create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .test_local_docs_project()
 
   usethis::with_project(
     path = dir_test,
     code = {
-      # Create minimal DESCRIPTION
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
-
       # Don't create source directory
       result <- .build_copy_docs_quarto_project(output_run = TRUE)
 
@@ -528,16 +496,11 @@ test_that(".build_copy_docs_bookdown handles empty source directory", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  dir_test <- tempfile("test_bookdown_empty")
-  dir.create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .test_local_docs_project("_book")
 
   usethis::with_project(
     path = dir_test,
     code = {
-      # Create minimal DESCRIPTION
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
-
       # Create _bookdown.yml
       writeLines(c("output_dir: '_book'"), "_bookdown.yml")
 
@@ -614,16 +577,11 @@ test_that(".build_copy_docs_rmd handles multiple Rmd files", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  dir_test <- tempfile("test_multiple_rmd")
-  dir.create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .test_local_docs_project()
 
   usethis::with_project(
     path = dir_test,
     code = {
-      # Create minimal DESCRIPTION
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
-
       # Create multiple Rmd files
       writeLines(c("---", "title: Test1", "output: html_document", "---", "# Test1"), "test1.Rmd")
       writeLines(c("---", "title: Test2", "output: html_document", "---", "# Test2"), "test2.Rmd")
@@ -649,16 +607,11 @@ test_that(".build_copy_docs_quarto handles multiple qmd files", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  dir_test <- tempfile("test_multiple_qmd")
-  dir.create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .test_local_docs_project()
 
   usethis::with_project(
     path = dir_test,
     code = {
-      # Create minimal DESCRIPTION
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
-
       # Create multiple qmd files
       writeLines(c("---", "title: Test1", "format: html", "---", "# Test1"), "test1.qmd")
       writeLines(c("---", "title: Test2", "format: html", "---", "# Test2"), "test2.qmd")
@@ -684,16 +637,11 @@ test_that(".build_clear_post_docs clears docs for rmd engine", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  dir_test <- tempfile("test_clear_docs_rmd")
-  dir.create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .test_local_docs_project()
 
   usethis::with_project(
     path = dir_test,
     code = {
-      # Create minimal DESCRIPTION
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
-
       # Create an Rmd file to set engine
       writeLines(c("---", "title: Test", "---", "# Test"), "test.Rmd")
 
@@ -718,16 +666,11 @@ test_that(".build_clear_post_docs does not clear for bookdown engine", {
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  dir_test <- tempfile("test_no_clear_bookdown")
-  dir.create(dir_test)
-  withr::defer(unlink(dir_test, recursive = TRUE))
+  dir_test <- .test_local_docs_project("_book")
 
   usethis::with_project(
     path = dir_test,
     code = {
-      # Create minimal DESCRIPTION
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
-
       # Create _bookdown.yml to set engine
       writeLines(c("output_dir: '_book'"), "_bookdown.yml")
       writeLines(c("---", "title: Test", "---", "# Test"), "index.Rmd")
