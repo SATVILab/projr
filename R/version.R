@@ -2,7 +2,8 @@
 #' @rdname projr_version_set
 #'
 #' @description
-#' Sets the project version manually in the `DESCRIPTION` file and optionally in a `VERSION` file.
+#' Updates the `Version` field of `DESCRIPTION` when present. Otherwise,
+#' stores the project version in a root `VERSION` file.
 #' This is useful in cases where you need to increment the version manually, for example,
 #' if a collaborator has pushed changes and you want to manually set your version before merging.
 #'
@@ -16,7 +17,7 @@
 #' @export
 projr_version_set <- function(version, only_if_exists = TRUE) {
   .assert_flag(only_if_exists, TRUE)
-  if (file.exists(.path_get("DESCRIPTION"))) {
+  if (!is.null(.version_current_vec_get_init_desc())) {
     .version_set_desc(version)
     .version_set_file(version, only_if_exists = only_if_exists)
   } else {
@@ -44,9 +45,9 @@ projr_version_set <- function(version, only_if_exists = TRUE) {
 
 .version_set_desc <- function(version) {
   .version_check(version)
-  desc_file <- read.dcf("DESCRIPTION")
+  desc_file <- .desc_get()
   desc_file[, "Version"] <- .version_v_rm(version)
-  write.dcf(desc_file, file = "DESCRIPTION")
+  write.dcf(desc_file, file = .path_get("DESCRIPTION"))
 }
 
 .version_check <- function(version) {
@@ -137,21 +138,17 @@ projr_name_get <- function() basename(.path_get())
 }
 
 .version_current_vec_get_init <- function() {
-  version_vec_init <- if (file.exists(.path_get("DESCRIPTION"))) {
-    .version_current_vec_get_init_desc()
-  } else {
-    .version_current_vec_get_init_file()
-  }
+  version_vec_init <- .version_current_vec_get_init_desc() %||% .version_current_vec_get_init_file()
   .assert_chr_mid(version_vec_init)
   version_vec_init
 }
 
 .version_current_vec_get_init_desc <- function() {
-  desc <- .desc_get()
-  strsplit(
-    desc[1, "Version"][[1]],
-    split = "\\-|\\."
-  )[[1]]
+  path <- .path_get("DESCRIPTION")
+  if (!file.exists(path)) return(NULL)
+  version <- read.dcf(path, fields = "Version")[, "Version"]
+  if (!length(version) || is.na(version[[1L]]) || !nzchar(version[[1L]])) return(NULL)
+  strsplit(version[[1L]], "[.-]")[[1L]]
 }
 
 .version_current_vec_get_init_file <- function() {
@@ -436,8 +433,13 @@ projr_version_get <- function() {
   .assert_string(path, required = TRUE)
   file.path(path, .version_get_v(required = FALSE) %||% "dev")
 }
+
+.version_exists <- function() {
+  file.exists(.path_get("VERSION")) || !is.null(.version_current_vec_get_init_desc())
+}
+
 .version_get_v <- function(required = TRUE) {
-  if (!required && !any(file.exists(file.path(.path_get(), c("VERSION", "DESCRIPTION"))))) return(NULL)
+  if (!required && !.version_exists()) return(NULL)
   paste0("v", projr_version_get())
 }
 

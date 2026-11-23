@@ -128,9 +128,14 @@ test_that("restore recovers a missing immutable file list and VERSION from recor
       expect_identical(history$directory_version, c("v0.0.1", "v0.0.1"))
       expect_true(dir.exists("inputs/v0.0.2"))
       unlink("inputs", recursive = TRUE)
+      # The build log also supplies the version for a dependency-only DESCRIPTION.
+      unlink("VERSION")
+      writeBin(charToRaw("Imports: stats"), "DESCRIPTION")
       # Empty committed snapshots require no release access.
       expect_true(projr_restore("raw-data", destination = "absent-release"))
       expect_true(dir.exists("inputs/v0.0.2"))
+      expect_identical(readLines("VERSION"), version)
+      expect_identical(readBin("DESCRIPTION", "raw", 100L), charToRaw("Imports: stats"))
     },
     quiet = TRUE,
     force = TRUE
