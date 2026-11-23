@@ -49,8 +49,11 @@ projr_build_dev(
 
   list. Arguments passed to the rendering engine
   ([`rmarkdown::render`](https://pkgs.rstudio.com/rmarkdown/reference/render.html),
-  `quarto::render` or
+  [`quarto::quarto_render`](https://quarto-dev.github.io/quarto-r/reference/quarto_render.html)
+  or
   [`bookdown::render_book`](https://pkgs.rstudio.com/bookdown/reference/render_book.html)).
+  Quarto renders in the foreground so subsequent scripts and hooks see
+  the completed output.
 
 - profile:
 

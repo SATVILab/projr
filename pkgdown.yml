@@ -14,7 +14,7 @@ articles:
   restore-artifacts: restore-artifacts.html
   scripts-and-hooks: scripts-and-hooks.html
   send-to-remotes: send-to-remotes.html
-last_built: 2026-11-23T06:22Z
+last_built: 2026-11-23T06:30Z
 urls:
   reference: https://satvilab.github.io/projr/reference
   article: https://satvilab.github.io/projr/articles

@@ -111,6 +111,17 @@ Parameters:
 - `content` – directory label to archive.
 - `path` – destination directory (absolute or project-relative).
 
+In YAML, `path-append-label: false` omits the label directory. An
+archive then stores files under `<path>/v1.2.3/`, while a latest
+destination stores them directly under `<path>/`. Both keep their
+directory histories in `<path>/manifests/`. A latest destination with
+this layout reserves the top-level names `manifests`, `manifest.csv`,
+`VERSION`, and `CHANGELOG.md` for release metadata. Files in
+subdirectories can use those names. For this latest layout, the
+destination’s `VERSION` and matching manifest record an empty build.
+When all archived files go missing after a populated build,
+`projr_content_update(clear = TRUE)` leaves the local files in place.
+
 Local destination names and paths and GitHub release names accept
 `@branch`, `@version`, and `@uuid`. For example,
 `archives/@branch/@version-@uuid` keeps a separate local archive for

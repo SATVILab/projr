@@ -181,6 +181,19 @@ the project root.</p>
 <code>path</code> – destination directory (absolute or
 project-relative).</li>
 </ul>
+<p>In YAML, <code>path-append-label: false</code> omits the label
+directory. An archive then stores files under
+<code>&lt;path&gt;/v1.2.3/</code>, while a latest destination stores
+them directly under <code>&lt;path&gt;/</code>. Both keep their
+directory histories in <code>&lt;path&gt;/manifests/</code>. A latest
+destination with this layout reserves the top-level names
+<code>manifests</code>, <code>manifest.csv</code>, <code>VERSION</code>,
+and <code>CHANGELOG.md</code> for release metadata. Files in
+subdirectories can use those names. For this latest layout, the
+destination’s <code>VERSION</code> and matching manifest record an empty
+build. When all archived files go missing after a populated build,
+<code>projr_content_update(clear = TRUE)</code> leaves the local files
+in place.</p>
 <p>Local destination names and paths and GitHub release names accept
 <code>@branch</code>, <code>@version</code>, and <code>@uuid</code>. For
 example, <code>archives/@branch/@version-@uuid</code> keeps a separate

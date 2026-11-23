@@ -39,7 +39,11 @@ Key architectural patterns:
 A project with a legacy root `manifest.csv` can be queried and restored
 before migration. The next production build imports its history. Local
 destinations store directory histories in `manifests/`. GitHub Releases
-use one `manifest.zip` asset.
+use one `manifest.zip` asset. A local latest destination with
+`path-append-label: false` shares its root with release metadata.
+Preserve that metadata across payload purges. Confirm an empty build
+from the destination’s `VERSION` and matching directory snapshot before
+clearing local files on restore.
 
 File hashing uses the top-level `settings.hash-engine` key. Its default,
 `cpp`, streams files in batches. The `legacy` option uses the historical
@@ -56,7 +60,8 @@ use the same per-directory manifest history.
 - Resolve paths and glob patterns in `_projr.yml` from the project root.
   Keep each renderer’s default code execution directory and honor its
   native options, including Quarto’s `execute-dir` and R Markdown’s
-  `knit_root_dir`.
+  `knit_root_dir`. Run Quarto synchronously so output collection and
+  post-build hooks see the completed render in RStudio.
 - Run explicitly selected scripts in the listed order. Sort matches
   alphabetically within each glob, apply `!` exclusions across the
   selection, and keep the first occurrence of each path.
@@ -125,6 +130,11 @@ use the same per-directory manifest history.
 - Generate directory ignore patterns from the current YAML templates,
   including local archives. Keep the template in YAML and record the
   concrete archive destination in `BUILDLOG.md` for restore.
+- Store local release histories in `<destination>/manifests/` for every
+  layout. With `path-append-label: false` and `structure: latest`, keep
+  the root’s `manifests/`, `manifest.csv`, `VERSION`, and `CHANGELOG.md`
+  separate from payload listing, hashing, purge, and restore. Report a
+  conflicting payload name before writing.
 - Keep a GitHub release’s title and tag identical. Only an explicitly
   configured target branch selects the commit for a new tag. Resolve
   that branch in the destination repository and leave existing release
