@@ -243,6 +243,7 @@ Internal functions (`.` prefix) must **not** have `@export`.
 - Add `skip_if(.is_test_select())` to every test to enable selective debugging.
 - Add `skip_if(.is_test_lite())` to comprehensive / exhaustive-parameter tests.
 - Add `skip_if(.is_test_cran())` to any test that is slow or hits the network.
+- Keep Git test identities in temporary fixture repositories and scope author and committer environment variables to the test session. When project initialization needs a Git identity, write it to the project repository.
 - Wrap tests that need a temporary project in `usethis::with_project()`.
 
 ### Commits / PRs

@@ -227,3 +227,34 @@ test_that(".git_add_file_git works", {
     }
   )
 })
+
+test_that("Git identities are written only to the fixture repository", {
+  skip_if(.is_test_select())
+  skip_if_not_installed("gert")
+  config <- withr::local_tempfile()
+  writeLines(c("[user]", "  name = Original User", "  email = original@example.test"), config)
+  bytes <- function(path) readBin(path, "raw", file.size(path))
+  original <- bytes(config)
+  withr::local_envvar(c(GIT_CONFIG_GLOBAL = config))
+  testthat::local_mocked_bindings(
+    git_config_global_set = function(...) stop("Unexpected global Git config write"),
+    .package = "gert"
+  )
+  for (backend in c("git", "gert")) {
+    if (backend == "git" && !.git_system_check_git()) next
+    withr::local_envvar(c(PROJR_GIT_USE_GERT = as.character(backend == "gert")))
+    project <- .test_setup_project()
+    usethis::with_project(project, {
+      .init_git_config_ind_set("user.name", "Fixture Author")
+      .init_git_config_ind_set("user.email", "fixture@example.test")
+      cfg <- gert::git_config(repo = project)
+      local <- cfg[cfg$level == "local", ]
+      expect_equal(local$value[local$name == "user.name"], "Fixture Author")
+      expect_equal(local$value[local$name == "user.email"], "fixture@example.test")
+      nested <- file.path(project, "child")
+      dir.create(nested)
+      expect_error(.test_setup_project_git_config(nested), "temporary fixture")
+    })
+    expect_identical(bytes(config), original)
+  }
+})
