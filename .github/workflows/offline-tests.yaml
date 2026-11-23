@@ -37,7 +37,9 @@ jobs:
         run: |
           test_home="$(mktemp -d)"
           r_library="$(Rscript --vanilla -e 'cat(paste(.libPaths(), collapse = .Platform$path.sep))')"
-          sudo unshare --net -- runuser -u "$(id -un)" -- env -i \
+          # renv installs fixture packages using workers on localhost.
+          sudo unshare --net -- sh -ec 'ip link set lo up && exec "$@"' sh \
+            runuser -u "$(id -un)" -- env -i \
             PATH="$PATH" HOME="$test_home" R_USER="$test_home" \
             XDG_CONFIG_HOME="$test_home" R_LIBS="$r_library" \
             GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL="$test_home/.gitconfig" \
