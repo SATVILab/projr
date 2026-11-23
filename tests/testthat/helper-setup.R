@@ -367,36 +367,6 @@
 }
 
 
-.test_manifest_create <- function(pre = TRUE,
-                                  post = TRUE,
-                                  write = TRUE,
-                                  output_run = TRUE) {
-  if (pre && !post) {
-    manifest <- .build_manifest_pre(output_run)
-  } else if (!pre && post) {
-    manifest <- .build_manifest_post(output_run)
-  } else {
-    manifest <- .build_manifest_pre(output_run) |>
-      rbind(.build_manifest_post(output_run))
-  }
-  if (file.exists("manifest.csv")) {
-    manifest_old <- utils::read.csv("manifest.csv")
-    if (nrow(manifest_old) > 0L) {
-      manifest <- manifest_old |>
-        rbind(manifest)
-    }
-  }
-
-  .manifest_write(manifest, output_run = output_run)
-  manifest
-}
-
-.test_manifest_create_pre <- function(output_run = TRUE) {
-  manifest <- .build_manifest_pre(output_run)
-  .manifest_write(manifest, output_run = output_run)
-  manifest
-}
-
 .test_dir_create_random <- function(base = tempdir(), create = TRUE) {
   suffix <- .test_random_string_get()
   path_dir <- file.path(base, "test", suffix)

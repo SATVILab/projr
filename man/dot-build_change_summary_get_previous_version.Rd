@@ -4,7 +4,12 @@
 \alias{.build_change_summary_get_previous_version}
 \title{Get the previous version from manifest}
 \usage{
-.build_change_summary_get_previous_version()
+.build_change_summary_get_previous_version(
+  version_current = projr_version_get()
+)
+}
+\arguments{
+\item{version_current}{Project version to compare.}
 }
 \value{
 Character version string (without 'v' prefix), or NULL if no previous version.

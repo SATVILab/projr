@@ -372,8 +372,8 @@ Logs are never cleared automatically — manage them manually.
 
 ## 9. Query the manifest
 
-The manifest (`manifest.csv`) tracks file hashes across versions. It is
-updated only by final builds, not dev builds.
+Each final build records file hashes in the per-directory histories under
+`_projr/manifests/`. Identical directory contents share one file list.
 
 Compare two versions:
 

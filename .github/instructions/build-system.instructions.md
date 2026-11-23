@@ -96,16 +96,11 @@ When `PROJR_OUTPUT_LEVEL="debug"`, detailed messages include:
 
 ### Purpose
 
-Tracks file hashes across versions in `manifest.csv` at project root.
+Tracks file hashes independently for each directory under `_projr/manifests/`.
 
 ### Manifest Structure
 
-| Column | Description |
-|--------|-------------|
-| `label` | Directory label (e.g., "output", "raw-data", "cache", "docs") |
-| `fn` | File path relative to directory |
-| `version` | Project version when file was hashed (e.g., "v0.0.1") |
-| `hash` | MD5 hash of file content |
+Each label’s `versions.csv` records `label`, `version`, `directory_version` (earliest build with identical contents), and `snapshot` (SHA-256 of the file list). Its `files-<snapshot>.csv` records `fn` (relative path) and `hash` (MD5).
 
 ### How Manifests Are Built
 
@@ -116,8 +111,7 @@ Tracks file hashes across versions in `manifest.csv` at project root.
 2. **Post-build phase** (`.build_manifest_post()`):
    - Hashes files in output directories (output, docs)
    - Merges with pre-build manifest
-   - Appends to previous manifest versions
-   - Writes to `manifest.csv`
+   - Writes a file list for each distinct directory snapshot and updates the directory's version index
 
 ### User-Facing Query Functions
 

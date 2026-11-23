@@ -234,7 +234,7 @@ Returns plan with:
 - `create` - Whether to create destination
 - `purge` - Whether to purge before uploading
 - `version` - Updated VERSION file content
-- `manifest` - Updated manifest.csv content
+- `manifest` - Updated directory history
 - `changelog` - Whether to write changelog
 
 **Phase 3: Plan Execution** (`.dsl_implement_plan()`)
@@ -271,7 +271,7 @@ Applies the plan:
 ### Inspection Modes
 
 **manifest**
-- Uses manifest.csv to track versions
+- Uses directory manifests to track versions (local `manifests/` or a GitHub Release's `manifest.zip`)
 - Fast, no remote hashing required
 - Requires trusted previous upload
 

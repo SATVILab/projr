@@ -515,13 +515,6 @@ projr_build_dev <- function(scripts = NULL,
     bump_component = bump_component,
     version_run_on_list = version_run_on_list
   )
-  .cli_debug("Updating buildlog")
-  .build_buildlog_add(
-    msg = msg,
-    bump_component = bump_component,
-    version_run_on_list = version_run_on_list,
-    total_time = total_time
-  )
   # create licenses for output directories (output, docs, data)
   .cli_debug("Creating licenses for output directories")
   .license_dir_create_all_post(output_run)
@@ -530,8 +523,13 @@ projr_build_dev <- function(scripts = NULL,
   .cli_debug("Updating manifest (hashing outputs)")
   .build_manifest_post(output_run)
 
-  # Display change summary at debug level
-  .build_change_summary_display(bump_component)
+  .cli_debug("Updating buildlog")
+  .build_buildlog_add(
+    msg = msg,
+    bump_component = bump_component,
+    version_run_on_list = version_run_on_list,
+    total_time = total_time
+  )
 
   # update README
   .cli_debug("Rendering README.Rmd if present")

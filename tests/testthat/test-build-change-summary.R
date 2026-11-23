@@ -36,6 +36,7 @@ test_that(".build_change_summary_get_previous_version works", {
       # Should return 0.0.2 (second most recent)
       prev <- .build_change_summary_get_previous_version()
       expect_identical(prev, "0.0.2")
+      expect_identical(.build_change_summary_get_previous_version("0.0.2"), "0.0.1")
     },
     force = TRUE,
     quiet = TRUE

@@ -153,7 +153,7 @@ How projr determines what already exists on the remote.
 
 | Value | Behaviour |
 |:------|:----------|
-| `"manifest"` (default) | Read `manifest.csv` on the remote (fast) |
+| `"manifest"` (default) | Read the remote manifest (fast) |
 | `"file"` | Download and hash actual remote files (slower, always accurate) |
 | `"none"` | Treat remote as empty (forces full upload) |
 

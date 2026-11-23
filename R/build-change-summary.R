@@ -30,7 +30,7 @@
     return(NULL)
   }
 
-  version_previous <- .build_change_summary_get_previous_version()
+  version_previous <- .build_change_summary_get_previous_version(version_current)
 
   if (is.null(version_previous)) {
     return(NULL)
@@ -38,7 +38,7 @@
 
   # Get manifest for both versions
   manifest_all <- tryCatch(
-    .manifest_read_project(),
+    .manifest_read_project(version = paste0("v", c(version_previous, version_current))),
     error = function(e) NULL
   )
 
@@ -46,19 +46,8 @@
     return(NULL)
   }
 
-  # Get labels to check (inputs and outputs)
-  labels_input <- c(.yml_dir_get_label_cache(NULL), .yml_dir_get_label_raw(NULL))
-  labels_output <- c(.yml_dir_get_label_docs(NULL), .yml_dir_get_label_output(NULL))
-
-  # Filter to only those that are hashed
-  labels_input <- labels_input[vapply(
-    labels_input, .yml_dir_get_hash_complete, logical(1),
-    profile = NULL
-  )]
-  labels_output <- labels_output[vapply(
-    labels_output, .yml_dir_get_hash_complete, logical(1),
-    profile = NULL
-  )]
+  labels_input <- .build_manifest_pre_get_label()
+  labels_output <- .build_manifest_post_get_label()
 
   # Build summary
   summary_lines <- c()
@@ -90,27 +79,20 @@
 
 #' Get the previous version from manifest
 #'
+#' @param version_current Project version to compare.
 #' @return Character version string (without 'v' prefix), or NULL if no previous version.
 #' @keywords internal
-.build_change_summary_get_previous_version <- function() {
-  manifest <- .manifest_read_project()
-
-  if (nrow(manifest) == 0) {
-    return(NULL)
+.build_change_summary_get_previous_version <- function(version_current = projr_version_get()) {
+  directory <- .path_get("_projr", "manifests")
+  history <- if (.manifest_store_ready(directory)) {
+    .manifest_store_index(directory)
+  } else {
+    .manifest_read_project()
   }
-
-  # Get all unique versions
-  versions <- unique(manifest[["version"]])
-  versions <- vapply(versions, .version_v_rm, character(1), USE.NAMES = FALSE)
-
-  # Sort and get the second-most recent (previous to current)
-  versions_sorted <- sort(versions, decreasing = TRUE)
-
-  if (length(versions_sorted) < 2) {
-    return(NULL)
-  }
-
-  versions_sorted[2]
+  versions <- sub("^v", "", unique(history$version))
+  previous <- versions[numeric_version(versions) < numeric_version(version_current)]
+  if (!length(previous)) return(NULL)
+  previous[order(numeric_version(previous), decreasing = TRUE)[1L]]
 }
 
 #' Format a section of the change summary (inputs or outputs)
@@ -221,10 +203,10 @@
 #'
 #' @param output_run Logical. Whether this is an output build.
 #'
+#' @param summary Change summary lines for this build.
 #' @return List with 'has_changes' (logical) and 'message' (character vector).
 #' @keywords internal
-.build_change_summary_get_debug <- function(output_run) {
-  summary <- .build_change_summary_get(output_run)
+.build_change_summary_get_debug <- function(output_run, summary = .build_change_summary_get(output_run)) {
 
   if (is.null(summary)) {
     return(list(has_changes = FALSE, message = NULL))
@@ -248,7 +230,7 @@
 #' @param bump_component Character. Version bump component.
 #'
 #' @keywords internal
-.build_change_summary_display <- function(bump_component) {
+.build_change_summary_display <- function(bump_component, summary = .build_change_summary_get(output_run)) {
   output_run <- .build_get_output_run(bump_component)
 
   # Only display for output builds
@@ -256,7 +238,7 @@
     return(invisible(NULL))
   }
 
-  summary_info <- .build_change_summary_get_debug(output_run)
+  summary_info <- .build_change_summary_get_debug(output_run, summary)
 
   if (!summary_info$has_changes || is.null(summary_info$message)) {
     .cli_debug("No changes detected since previous build")
