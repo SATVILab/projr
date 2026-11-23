@@ -2,12 +2,13 @@
 # ---------------------------
 
 .manifest_hash_label <- function(label,
-                                 output_run, version = NULL) {
+                                 output_run, version = NULL,
+                                 engine = .yml_settings_hash_engine()) {
   # output is always in safe directory
   # as hashing is done before copying over to final directory
   hash_tbl <- .hash_dir(
     path_dir = projr_path_get_dir(label, safe = !output_run),
-    version = version, dir_exc = .build_label_get_dir_exc(label)
+    version = version, dir_exc = .build_label_get_dir_exc(label), engine = engine
   ) |>
     .manifest_hash_cache_filter(label)
   if (nrow(hash_tbl) == 0L) {
@@ -127,7 +128,9 @@
   if (!.is_string(path) || !file.exists(path)) {
     return(.zero_tbl_get_manifest())
   }
-  if (dir.exists(path)) return(.manifest_store_read(path))
+  if (dir.exists(path)) {
+    return(.manifest_store_read(path))
+  }
   if (basename(path) == "versions.csv") {
     index <- .manifest_store_read_index(path)
     return(.manifest_store_expand(index, dirname(dirname(path))))

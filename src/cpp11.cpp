@@ -5,6 +5,13 @@
 #include "cpp11/declarations.hpp"
 #include <R_ext/Visibility.h>
 
+// hash-files.cpp
+cpp11::strings hash_files_cpp(cpp11::strings paths);
+extern "C" SEXP _projr_hash_files_cpp(SEXP paths) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(hash_files_cpp(cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(paths)));
+  END_CPP11
+}
 // manifest.cpp
 cpp11::doubles manifest_file_order(cpp11::strings files, cpp11::strings hashes);
 extern "C" SEXP _projr_manifest_file_order(SEXP files, SEXP hashes) {
@@ -22,6 +29,7 @@ extern "C" SEXP _projr_manifest_file_bytes(SEXP files, SEXP hashes, SEXP indices
 
 extern "C" {
 static const R_CallMethodDef CallEntries[] = {
+    {"_projr_hash_files_cpp",      (DL_FUNC) &_projr_hash_files_cpp,      1},
     {"_projr_manifest_file_bytes", (DL_FUNC) &_projr_manifest_file_bytes, 3},
     {"_projr_manifest_file_order", (DL_FUNC) &_projr_manifest_file_order, 2},
     {NULL, NULL, 0}

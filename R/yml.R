@@ -240,6 +240,7 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     "directories",
     "build",
     "dev",
+    "settings",
     par_nm_vec,
     "metadata"
   )

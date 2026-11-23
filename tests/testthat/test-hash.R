@@ -465,14 +465,60 @@ test_that(".zero_tbl_get_hash returns correct structure", {
   ))
 })
 
-test_that("batch file hashing preserves caller names and reports unreadable files", {
+test_that("both engines hash named, binary and Unicode paths exactly as earlier builds did", {
   skip_if(.is_test_select())
-  path <- withr::local_tempfile()
-  writeBin(as.raw(0:255), path)
-  files <- c(first = path, second = path)
-  expect_identical(.hash_file(files), stats::setNames(rep(unname(tools::md5sum(path)), 2), names(files)))
-  expect_identical(.hash_file(character()), stats::setNames(character(), character()))
-  expect_error(.hash_file(c(path, paste0(path, ".missing"))), "Could not hash file:.*[.]missing")
+  root <- withr::local_tempdir()
+  files <- file.path(root, c("empty", "abc", paste0(intToUtf8(233), " large.bin")))
+  file.create(files[1])
+  writeBin(charToRaw("abc"), files[2])
+  writeBin(rep(as.raw(0:255), 8193), files[3])
+  paths <- stats::setNames(files[c(3, 1, 2, 3)], c("large", "empty", "text", "repeat"))
+  expected <- vapply(paths, digest::digest, character(1), serialize = FALSE, file = TRUE)
+  expect_identical(unname(expected[2:3]), c("d41d8cd98f00b204e9800998ecf8427e", "900150983cd24fb0d6963f7d28e17f72"))
+  for (engine in c("cpp", "legacy")) {
+    expect_identical(.hash_file(paths, engine), expected)
+    expect_identical(names(.hash_file(files, engine)), files)
+    expect_identical(.hash_file(character(), engine), stats::setNames(character(), character()))
+    expect_identical(.hash_file(NULL, engine), character())
+  }
+  expect_error(.hash_file(c(files, paste0(files[2], ".missing")), "cpp"), "Could not hash file:.*[.]missing")
+})
+
+test_that("top-level hash engine settings apply across profiles and share directory histories", {
+  skip_if(.is_test_select())
+  project <- .test_setup_project(git = FALSE, rm_engine = TRUE)
+  usethis::with_project(project,
+    {
+      withr::local_envvar(c(PROJR_PROFILE = "sample"))
+      expect_identical(.yml_settings_hash_engine(), "cpp")
+      root <- .yml_get("default")
+      root$settings <- list(`hash-engine` = "legacy")
+      .yml_set(root)
+      expect_identical(.yml_settings_hash_engine(), "legacy")
+      .yml_set(list(settings = list(`hash-engine` = "cpp")), "sample")
+      expect_identical(.yml_settings_hash_engine(), "cpp")
+      raw_data <- projr_path_get_dir("raw-data")
+      fs::dir_create(raw_data)
+      writeLines("same content", file.path(raw_data, "engine-test.txt"))
+      first <- .manifest_hash_label("raw-data", TRUE, "1.0")
+      .manifest_store_write(first)
+
+      .yml_set(list(settings = list(`hash-engine` = "legacy")), "local")
+      expect_identical(.yml_settings_hash_engine(), "legacy")
+      second <- .manifest_hash_label("raw-data", TRUE, "1.1")
+      .manifest_store_write(second)
+      index <- .manifest_store_index(.path_get("_projr", "manifests"), "raw-data")
+      expect_identical(index$directory_version, c("v1.0", "v1.0"))
+      expect_length(unique(index$snapshot), 1L)
+      expect_identical(first$hash, second$hash)
+
+      .yml_set(list(settings = list(`hash-engine` = "unknown")), "local")
+      expect_error(projr_yml_check(), "settings[.]hash-engine")
+      .yml_set(list(settings = "legacy"), "local")
+      expect_error(projr_yml_check(), "settings must be a YAML mapping")
+    },
+    force = TRUE
+  )
 })
 
 test_that("directory hashing keeps hidden files, nested paths and file order", {

@@ -19,7 +19,7 @@
   }
   out_tbl <- lapply(
     label_vec, .manifest_hash_label,
-    output_run = FALSE, version = projr_version_get()
+    output_run = FALSE, version = projr_version_get(), engine = .yml_settings_hash_engine()
   ) |>
     .build_manifest_reduce()
   rownames(out_tbl) <- NULL
@@ -72,7 +72,7 @@
   }
   out_tbl <- lapply(
     label_vec, .manifest_hash_label,
-    output_run = output_run, version = projr_version_get()
+    output_run = output_run, version = projr_version_get(), engine = .yml_settings_hash_engine()
   ) |>
     .build_manifest_reduce()
   rownames(out_tbl) <- NULL
