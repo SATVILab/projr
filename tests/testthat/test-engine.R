@@ -93,6 +93,7 @@ test_that(".build_engine_doc_fn_get returns files when they exist", {
   usethis::with_project(
     path = dir_test,
     code = {
+      writeLines("directories: {}", "_projr.yml")
       # Create test files
       writeLines("# Test", "test1.qmd")
       writeLines("# Test", "test2.Rmd")
@@ -127,11 +128,12 @@ test_that(".build_engine detects when no documents exist", {
     path = dir_test,
     code = {
       # Create minimal _projr.yml
-      writeLines("build:\n  cache: []", "_projr.yml")
+      writeLines("directories: {}", "_projr.yml")
 
       # Test that .engine_get returns empty character when no documents exist
       engine <- .engine_get_auto()
       expect_identical(engine, character(1L))
+      expect_identical(.engine_get(NULL), engine)
     },
     force = TRUE,
     quiet = TRUE
@@ -149,6 +151,7 @@ test_that(".build_engine_doc_fn_get reports only missing files when some are spe
   usethis::with_project(
     path = dir_test,
     code = {
+      writeLines("directories: {}", "_projr.yml")
       # Create only one of three files
       writeLines("# Test", "doc1.qmd")
 

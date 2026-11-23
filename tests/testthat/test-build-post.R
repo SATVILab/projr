@@ -192,6 +192,7 @@ test_that(".build_cite_cff returns FALSE when file doesn't exist", {
   skip_if(.is_test_select())
   dir_test <- tempfile("test_cite_cff")
   dir.create(dir_test)
+  writeLines("directories: {}", file.path(dir_test, "_projr.yml"))
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   usethis::with_project(
@@ -239,6 +240,7 @@ test_that(".build_cite_inst_citation returns FALSE when file doesn't exist", {
   skip_if(.is_test_select())
   dir_test <- tempfile("test_cite_inst")
   dir.create(dir_test)
+  writeLines("directories: {}", file.path(dir_test, "_projr.yml"))
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   usethis::with_project(
@@ -285,6 +287,7 @@ test_that(".build_cite_codemeta returns FALSE when file doesn't exist", {
   skip_if(.is_test_select())
   dir_test <- tempfile("test_cite_codemeta")
   dir.create(dir_test)
+  writeLines("directories: {}", file.path(dir_test, "_projr.yml"))
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   usethis::with_project(
@@ -346,6 +349,7 @@ test_that(".build_readme_rmd_render_check returns FALSE when README.Rmd missing"
   skip_if(.is_test_select())
   dir_test <- tempfile("test_no_readme")
   dir.create(dir_test)
+  writeLines("directories: {}", file.path(dir_test, "_projr.yml"))
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   usethis::with_project(
@@ -365,6 +369,7 @@ test_that(".build_readme_rmd_render_check returns TRUE when README.Rmd exists", 
   skip_if(.is_test_select())
   dir_test <- tempfile("test_readme_exists")
   dir.create(dir_test)
+  writeLines("directories: {}", file.path(dir_test, "_projr.yml"))
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   usethis::with_project(
@@ -450,6 +455,7 @@ test_that(".build_readme_rmd_render returns FALSE when check fails", {
   skip_if(.is_test_select())
   dir_test <- tempfile("test_readme_no_file")
   dir.create(dir_test)
+  writeLines("directories: {}", file.path(dir_test, "_projr.yml"))
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   usethis::with_project(

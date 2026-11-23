@@ -11,6 +11,7 @@ test_that("README placeholders are replaced after .init_prompt_readme", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       nm_list_metadata <- list(
         pkg = "mytestpackage",
         first = "Test",

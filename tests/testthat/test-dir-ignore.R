@@ -62,7 +62,7 @@ test_that("directory ignore paths are relative to the project root", {
   })
 })
 
-test_that("directory ignore rules use defaults and respect each ignore type", {
+test_that("directory ignore rules cover configured paths and respect each ignore type", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   skip_if(!.git_system_check_git())
@@ -80,9 +80,9 @@ test_that("directory ignore rules use defaults and respect each ignore type", {
       system2("git", c("check-ignore", "--quiet", "--", path)) == 0L
     }
     expect_true(git_ignored("results/output"))
-    expect_true(git_ignored("_raw_data/input"))
-    expect_true(git_ignored("_tmp/cache"))
-    expect_true(git_ignored(file.path(.yml_bd_get_output_dir(), "index.html")))
+    expect_false(git_ignored("_raw_data/input"))
+    expect_false(git_ignored("_tmp/cache"))
+    expect_false(git_ignored(file.path(.yml_bd_get_output_dir(), "index.html")))
     expect_false(git_ignored("archives+old/copy"))
 
     rules <- readLines(".Rbuildignore")
