@@ -271,6 +271,12 @@ generated rule once its last qualifying reference disappears.
 User-written rules outside the managed section stay in place. Only paths
 inside the checkout generate rules, so a Windows path in an inactive
 profile can coexist with a Linux checkout.</p>
+<p>Initialization keeps the contents of an existing
+<code>.gitignore</code> outside the projr-managed section, including
+comments, duplicate rules and exceptions. It also adds editable defaults
+for R session files, <code>.vdoc.*</code>, <code>.DS_Store</code> and
+<code>Thumbs.db</code>. You can delete those defaults after
+initialization.</p>
 </div>
 <div class="section level2">
 <h2 id="documents-r-scripts-and-hooks">Documents, R scripts and hooks<a class="anchor" aria-label="anchor" href="#documents-r-scripts-and-hooks"></a>

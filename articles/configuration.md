@@ -136,6 +136,12 @@ managed section stay in place. Only paths inside the checkout generate
 rules, so a Windows path in an inactive profile can coexist with a Linux
 checkout.
 
+Initialization keeps the contents of an existing `.gitignore` outside
+the projr-managed section, including comments, duplicate rules and
+exceptions. It also adds editable defaults for R session files,
+`.vdoc.*`, `.DS_Store` and `Thumbs.db`. You can delete those defaults
+after initialization.
+
 ## Documents, R scripts and hooks
 
 | Setting | Selection |
