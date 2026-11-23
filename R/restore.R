@@ -173,21 +173,32 @@ projr_content_update <- function(label = NULL,
     return(invisible(FALSE))
   }
 
-  yml_title <- .yml_dest_get_title_complete(
-    source_vec[["title"]], source_vec[["type"]], NULL, FALSE, FALSE, destination
-  )
+  type <- source_vec[["type"]]
+  title <- source_vec[["title"]]
+  yml <- .yml_get(NULL)
+  definition <- .yml_remote_definition(type, title, yml)
+  if (is.null(destination) && title %in% names(yml$remotes[[type]])) {
+    record <- .get_build_record(.buildlog_read(), NULL)
+    destination <- .get_remote_target(type, title, definition, record,
+      record$version %||% .template_version(), .template_checkout_head())
+  }
+  yml_title <- .yml_dest_complete_title(definition, title, type, destination)
+  .with_github_repo(yml_title[["repo"]], .content_update_from(label, type, yml_title, clear))
+}
+
+.content_update_from <- function(label, type, yml_title, clear) {
   remote_pre <- .remote_final_get(
-    source_vec[["type"]], yml_title[["id"]], label,
+    type, yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
     yml_title[["path-append-label"]], NULL, TRUE
   )
   version_remote <- if (yml_title[["structure"]] == "latest") {
     .remote_get_version_latest_label_non_project_file(
-      remote_pre, source_vec[["type"]], label
+      remote_pre, type, label
     )
   } else {
     .remote_get_version_latest_label_non_project_archive(
-      remote_pre, source_vec[["type"]], label, "archive"
+      remote_pre, type, label, "archive"
     )
   }
   if (!length(version_remote)) {
@@ -196,21 +207,21 @@ projr_content_update <- function(label = NULL,
   }
   # Check if version is marked as untrusted in VERSION file
   untrusted <- .remote_check_version_untrusted(
-    remote_pre, source_vec[["type"]], label
+    remote_pre, type, label
   )
   if (untrusted) {
     .cli_info("{label} at {version_remote} is marked as untrusted")
   }
 
   remote_exists <- .remote_final_check_exists(
-    source_vec[["type"]], yml_title[["id"]], label,
+    type, yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
     yml_title[["path-append-label"]], version_remote,
     empty = FALSE
   )
   if (!remote_exists) {
     empty <- .remote_final_check_exists(
-      source_vec[["type"]], yml_title[["id"]], label,
+      type, yml_title[["id"]], label,
       yml_title[["structure"]], yml_title[["path"]],
       yml_title[["path-append-label"]], version_remote, empty = TRUE
     )
@@ -224,15 +235,15 @@ projr_content_update <- function(label = NULL,
 
   # Restore directly into the project directory rather than the cache build area
   remote_source <- .remote_final_get(
-    source_vec[["type"]], yml_title[["id"]], label,
+    type, yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
     yml_title[["path-append-label"]], version_remote,
     FALSE, FALSE
   )
   path_dir_local <- projr_path_get_dir(label, safe = FALSE, format = "absolute")
-  .cli_info("Restoring {label} at {version_remote} from {source_vec[['type']]} destination {yml_title$id}")
+  .cli_info("Restoring {label} at {version_remote} from {type} destination {yml_title$id}")
   if (clear) .dir_clear(path_dir_local)
-  .remote_file_get_all(source_vec[["type"]], remote_source, path_dir_local)
+  .remote_file_get_all(type, remote_source, path_dir_local)
 
   invisible(TRUE)
 }
@@ -370,10 +381,8 @@ projr_content_update <- function(label = NULL,
 }
 
 .content_update_label_get_source_dest <- function(label, type, .title) {
-  type_vec <- .content_update_label_get_source_dest_get_type(type, label)
-  if (.is_len_0(type_vec)) {
-    return(.content_update_label_get_default_dest(type))
-  }
+  yml <- .yml_get(NULL)
+  type_vec <- type %||% intersect(unique(c(names(yml$remotes), names(yml$build))), c("github", "local"))
   # choose the first type and title
   # provided as the restore destination
   # if none specifically
@@ -381,26 +390,17 @@ projr_content_update <- function(label = NULL,
   tt_first <- NULL
 
   for (tp in type_vec) {
-    yml_type <- .yml_dest_get_type(tp, NULL)
-    title_vec_type <- names(yml_type)
-    # if no title is provided, then
-    # we need to check all titles
-    if (is.null(.title)) {
-      title_considered <- title_vec_type
-    } else if (.title %in% title_vec_type) {
-      title_considered <- .title
-    } else {
-      title_considered <- Filter(function(key) {
-        name <- yml_type[[key]][["title"]] %||% yml_type[[key]][["tag"]] %||% key
-        identical(.template_expand(name), .title)
-      }, title_vec_type)
-    }
-    for (i in seq_along(title_considered)) {
-      tt <- title_considered[[i]]
-      yml_title <- yml_type[[tt]]
-      if (!label %in% yml_title[["content"]]) {
-        next
+    registered <- names(yml$remotes[[tp]])
+    titles <- unique(c(registered, names(yml$build[[tp]])))
+    if (!is.null(.title) && .title %in% titles) titles <- .title
+    for (tt in titles) {
+      yml_title <- .yml_remote_definition(tp, tt, yml)
+      if (!is.null(.title) && .title != tt) {
+        name <- yml_title[["tag"]] %||% yml_title[["title"]] %||% tt
+        if (!identical(.template_expand(name), .title)) next
       }
+      # A registry entry remains readable when a later build selects other labels.
+      if (!tt %in% registered && !label %in% yml_title[["content"]]) next
       if ("source" %in% names(yml_title)) {
         source_vec <- yml_title[["source"]]
         if (isTRUE(source_vec)) {
@@ -424,20 +424,6 @@ projr_content_update <- function(label = NULL,
     .content_update_label_get_default_dest(type)
   } else {
     c("pos" = "dest", "type" = tp_first, "title" = tt_first)
-  }
-}
-
-.content_update_label_get_source_dest_get_type <- function(type, label) {
-  if (!is.null(type)) {
-    return(type)
-  }
-  nm_vec <- .yml_build_get(NULL) |> names()
-  nm_vec[grepl("^github$|^local$", nm_vec)]
-}
-
-.content_update_label_get_source_dest_get_title <- function(type, title) {
-  if (!is.null(title)) {
-    return(title)
   }
 }
 

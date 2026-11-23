@@ -210,6 +210,14 @@
   invisible(TRUE)
 }
 
+.assert_directory_labels <- function(label) {
+  .assert_chr(label)
+  if (any(grepl('[/\\\\:*?"<>|[:cntrl:]]|^[.]|[. ]$', label)) ||
+    anyDuplicated(tolower(unique(label)))) {
+    stop("Each label must be a distinct directory name.", call. = FALSE)
+  }
+}
+
 # directories
 # -----------
 

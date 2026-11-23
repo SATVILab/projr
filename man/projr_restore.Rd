@@ -20,9 +20,9 @@ Must be NULL or a non-empty character vector with valid directory labels.}
 reads the checkout's version. On the follow-up development commit it uses
 the most recent completed build in the checkout's \code{.projr/BUILDLOG.md}.}
 
-\item{destination}{Character. Concrete GitHub release tag in the checkout's
-repository. The default is \code{"archive"}. For templated releases, use the
-tag recorded in the build log.}
+\item{destination}{Character. A registered GitHub remote title or a concrete
+release tag in the checkout's repository. Defaults to \code{"archive"}. For a
+registered title, use the repository and release tag for the selected build.}
 
 \item{clear}{Logical. Allow replacement of existing input files that differ
 from the snapshot, including extra files. The default fills missing files

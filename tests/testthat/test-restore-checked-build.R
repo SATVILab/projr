@@ -179,6 +179,37 @@ test_that("restore recovers a missing immutable file list and VERSION from recor
   )
 })
 
+test_that("a later upload restores an older checkout only when its recorded snapshot matches", {
+  skip_if(.is_test_select())
+  .test_local_github_releases("repair")
+  usethis::with_project(.test_setup_project(git = FALSE), {
+    stage <- withr::local_tempdir()
+    writeLines("original", file.path(stage, "sample.txt"))
+    original <- data.frame(
+      label = "raw-data", fn = "sample.txt", version = "v0.1.0",
+      hash = unname(tools::md5sum(file.path(stage, "sample.txt")))
+    )
+    .manifest_store_write(original)
+    archive <- tempfile(fileext = ".zip")
+    expect_equal(with_dir(stage, utils::zip(archive, "sample.txt", flags = "-q")), 0L)
+    .gh_release_asset_upload_httr(.gh_repo_get(), "repair", archive, asset_name = "raw-data-v0.3.0.zip")
+    # A newer ZIP by itself gives no evidence that the snapshots match.
+    expect_error(projr_restore("raw-data", "0.1.0", "repair"), "No matching archive")
+    later <- original
+    later$version <- "v0.3.0"
+    .remote_write_manifest("github", c(tag = "repair"), later)
+    expect_true(projr_restore("raw-data", "0.1.0", "repair"))
+    input <- projr_path_get("raw-data", "sample.txt")
+    expect_identical(readLines(input), "original")
+    changed <- original
+    changed$version <- "v0.2.0"
+    changed$hash <- digest::digest("different", algo = "md5", serialize = FALSE)
+    .manifest_store_write(changed)
+    expect_error(projr_restore("raw-data", "0.2.0", "repair", clear = TRUE), "No matching archive")
+    expect_identical(readLines(input), "original")
+  })
+})
+
 test_that("a first build archives literal starter paths and restores them into a clone", {
   skip_if(.is_test_select())
   skip_if_not_installed("gert")
@@ -222,4 +253,37 @@ test_that("a first build archives literal starter paths and restores them into a
     projr_build(project = clone)
     expect_identical(readLines("_output/result.txt"), "42")
   }, quiet = TRUE, force = TRUE)
+})
+
+test_that("existing restore functions can read registered destinations after publishing stops", {
+  skip_if(.is_test_select())
+  skip_if_not_installed("httr")
+  .test_local_github_releases("archive")
+  project <- .test_setup_project(git = FALSE, rm_engine = TRUE)
+  usethis::with_project(project, {
+    yml <- .yml_get("default")
+    yml$build <- list(git = FALSE, scripts = list())
+    .yml_set(yml, "default")
+    input <- projr_path_get("raw-data", "measurements.csv")
+    writeLines("first", input)
+    projr_build_patch("Publish inputs", archive_local = TRUE, archive_github = TRUE)
+
+    yml$remotes <- list(
+      github = list(reports = list(repo = "fixture/project", tag = "archive")),
+      local = list(mirror = list(path = "_archive"))
+    )
+    .yml_set(yml, "default")
+    # The archive is in a different repository from the current checkout.
+    local_mocked_bindings(.gh_guess_repo = function(...) stop("unexpected checkout repository"))
+    unlink(input)
+    expect_true(projr_restore(label = "raw-data", destination = "reports"))
+    expect_identical(readLines(input), "first")
+
+    unlink(input)
+    expect_true(projr_content_update(label = "raw-data", type = "github", title = "reports", pos = "dest"))
+    expect_identical(readLines(input), "first")
+    unlink(input)
+    expect_true(projr_content_update(label = "raw-data", type = "local", title = "mirror", pos = "dest"))
+    expect_identical(readLines(input), "first")
+  })
 })

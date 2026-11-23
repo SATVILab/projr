@@ -22,7 +22,7 @@ and create releases. Install projr and its publishing tools once, then
 load the package in R.
 
 ```r
-install.packages(c("remotes", "gh", "httr"))
+install.packages(c("remotes", "gh", "httr"))  # projr 0.6.1 needs httr separately
 remotes::install_github("SATVILab/projr@*release")
 library(projr)
 ```
@@ -82,5 +82,5 @@ projr::projr_restore()
 <div class="projr-guides">
 <div><a class="projr-guide" href="articles/configuration.html"><span class="projr-guide-title">Project configuration <span aria-hidden="true">↗</span></span><span>Keep your existing folder names by declaring their paths in <code>_projr.yml</code>.</span></a></div>
 <div><a class="projr-guide" href="articles/scripts-and-hooks.html"><span class="projr-guide-title">Scripts and documents <span aria-hidden="true">↗</span></span><span>Choose R, Quarto and R Markdown files and set their build order.</span></a></div>
-<div><a class="projr-guide" href="articles/restore-artifacts.html"><span class="projr-guide-title">Restoring files <span aria-hidden="true">↗</span></span><span>Select a version or retrieve data from another archive.</span></a></div>
+<div><a class="projr-guide" href="articles/restore-artifacts.html"><span class="projr-guide-title">Getting files <span aria-hidden="true">↗</span></span><span>Download finished reports or restore the inputs for a specific build.</span></a></div>
 </div>

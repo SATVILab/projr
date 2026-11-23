@@ -25,6 +25,29 @@ Supported remote types:
 
 Archive labels declared under `directories`, such as `raw-data`, `cache`, `output`, or `docs`. GitHub also provides a source archive for each release tag, accessible with `content: code`.
 
+With the development version of projr, put the address of a named archive
+under `remotes` and select it under
+`build`. This example makes reports available in a GitHub release named
+`reports` in the analysis repository.
+
+```yaml
+remotes:
+  github:
+    reports: {}
+build:
+  github:
+    reports:
+      content: [docs]
+```
+
+To pause uploads, remove `reports` from `build.github`. Readers can still
+get previously published reports with
+`projr_get_github(remote = "reports", label = "docs")` from a project
+where that name is registered. See the
+[configuration reference](configuration.html#saving-artifacts) for local
+archives, separate GitHub repositories, and the all-label selection.
+The inline build configurations below are also supported.
+
 ## GitHub Destinations
 
 Configure a GitHub remote for the checkout and a credential with write access

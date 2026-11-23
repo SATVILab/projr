@@ -9,9 +9,9 @@
 #' @param version Character. An exact production build version. By default projr
 #'   reads the checkout's version. On the follow-up development commit it uses
 #'   the most recent completed build in the checkout's `.projr/BUILDLOG.md`.
-#' @param destination Character. Concrete GitHub release tag in the checkout's
-#'   repository. The default is `"archive"`. For templated releases, use the
-#'   tag recorded in the build log.
+#' @param destination Character. A registered GitHub remote title or a concrete
+#'   release tag in the checkout's repository. Defaults to `"archive"`. For a
+#'   registered title, use the repository and release tag for the selected build.
 #' @param clear Logical. Allow replacement of existing input files that differ
 #'   from the snapshot, including extra files. The default fills missing files
 #'   and stops if local changes would be lost.
@@ -68,7 +68,14 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
     is.null(snapshot$files) || length(snapshot$files) > 0L
   }, logical(1))
   if (any(needs_release)) {
-    repo <- .gh_repo_get()
+    record <- .get_build_record(.buildlog_read(), version)
+    yml <- record$yml
+    if (!destination %in% names(yml$remotes$github)) yml <- .yml_get(NULL)
+    settings <- yml$remotes$github[[destination]]
+    if (destination %in% names(yml$remotes$github)) {
+      destination <- .get_remote_target("github", destination, settings, record, version, .template_checkout_head())
+    }
+    repo <- settings[["repo"]] %||% .gh_repo_get()
     .cli_debug("Looking up snapshots for {version} in GitHub release {repo}/{destination}")
     assets <- .remote_ls_final_github_httr(repo, destination)
     if ("manifest.zip" %in% assets) {
@@ -126,9 +133,11 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
     backup[i] <- tempfile(".projr-original-", tmpdir = dirname(paths[i]))
     fs::dir_create(tmp[i])
     if (length(snapshot$files)) {
-      versions <- unique(c(version, snapshot$versions, remote$versions))
+      versions <- unique(c(version, snapshot$versions, remote$versions,
+        .restore_matching_versions(store, label, snapshot)))
       candidates <- vapply(versions, function(v) {
-        .remote_get_path_rel_github(NULL, TRUE, label, "archive", v, FALSE)
+        .remote_get_path_rel_github(settings[["path"]], settings[["path-append-label"]] %||% TRUE,
+          label, settings[["structure"]] %||% "archive", v, FALSE)
       }, character(1))
       asset <- intersect(candidates, assets)
       if (!length(asset)) {
@@ -210,6 +219,14 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
   list(files = .restore_build_files(rows), versions = versions, rows = rows, id = id)
 }
 
+# A later upload can repair an archive when its index identifies the exact
+# snapshot independently recorded by the requested build.
+.restore_matching_versions <- function(store, label, snapshot) {
+  if (is.null(snapshot$id) || !.manifest_store_ready(store)) return(character())
+  index <- .manifest_store_index(store, label)
+  index$version[index$snapshot == snapshot$id]
+}
+
 .restore_build_files <- function(rows) {
   files <- rows$fn
   if (identical(files, "") && identical(rows$hash, "")) {
@@ -224,7 +241,7 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
   hashes[order(files, method = "radix")]
 }
 
-.restore_build_hashes <- function(path) {
+.restore_build_hashes <- function(path, hashing = .yml_settings_hashing()) {
   if (!dir.exists(path)) {
     return(character())
   }
@@ -236,7 +253,7 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
     return(character())
   }
   files <- sort(files, method = "radix")
-  stats::setNames(unname(.hash_file(file.path(path, files))), files)
+  stats::setNames(unname(.hash_file(file.path(path, files), hashing$approach, hashing$cores)), files)
 }
 
 .restore_build_check_paths <- function(paths) {
@@ -262,7 +279,7 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
   }
 }
 
-.restore_build_unpack <- function(zip, directory, expected) {
+.restore_build_unpack <- function(zip, directory, expected, hashing = .yml_settings_hashing()) {
   if (length(zip) != 1L || !file.exists(zip)) stop("Missing archive download.", call. = FALSE)
   entries <- utils::unzip(zip, list = TRUE)$Name
   files <- entries[!endsWith(entries, "/")]
@@ -273,7 +290,7 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
   withCallingHandlers(utils::unzip(zip, files = files, exdir = directory),
     warning = function(w) stop(conditionMessage(w), call. = FALSE)
   )
-  if (!identical(.restore_build_hashes(directory), expected)) {
+  if (!identical(.restore_build_hashes(directory, hashing), expected)) {
     stop("Archive file hash does not match the selected build snapshot.", call. = FALSE)
   }
 }

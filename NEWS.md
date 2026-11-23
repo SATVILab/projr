@@ -1,3 +1,19 @@
+# projr (development version)
+
+* Download reports or inputs from a completed build with `projr_get_github()`,
+  or copy them from a local analysis with `projr_get_local()`. Choose the
+  labels and version you need. projr verifies the files before copying them
+  into the folder you choose.
+* Installing projr now brings in `httr`, which it uses to download and
+  upload GitHub release files. An older project pinned to projr 0.6.1
+  can add the missing package with `renv::install("httr")`.
+* `projr_restore()` can recover missing files for an older build from a later
+  upload when the release records an identical directory snapshot. It tries
+  the requested version and earlier matches first and verifies every file.
+* Name archives under `remotes` in `_projr.yml`. Select them under `build`
+  when you want to publish. You can keep an archive available to readers
+  after you stop uploading new builds to it.
+
 # projr 0.6.1
 
 * Development builds leave `VERSION` and the package version in `DESCRIPTION`
