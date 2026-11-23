@@ -1,5 +1,8 @@
 # projr (development version)
 
+* `projr_reproduce()` runs a completed build in a fresh clone and shows which
+  output files matched, changed, were missing or were added.
+
 * Download reports or inputs from a completed build with `projr_get_github()`,
   or copy them from a local analysis with `projr_get_local()`. Choose the
   labels and version you need. projr verifies the files before copying them

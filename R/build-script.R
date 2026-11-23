@@ -32,7 +32,31 @@
   # Run script in an isolated child environment of the global environment
   # This prevents scripts from cluttering the global environment or affecting each other
   .cli_step("Running R script {fs::path_rel(path)}")
-  script_env <- new.env(parent = .GlobalEnv)
-  source(path, local = script_env)
-  invisible(NULL)
+  .build_source(path)
+}
+
+.build_source <- function(path) {
+  .build_user_call(
+    function(path) {
+      source(path, local = new.env(parent = .GlobalEnv))
+      invisible(NULL)
+    },
+    list(path)
+  )
+}
+
+# Production executes in the caller. A replay can supply its own R session
+# so that user code loads the analysis's locked packages, including projr.
+.build_user_call <- function(fun, args) {
+  session <- getOption("projr.reproduce.session")
+  if (is.null(session)) {
+    return(do.call(fun, args, envir = parent.frame()))
+  }
+  result <- session$run_with_output(fun, args)
+  cat(result$stdout)
+  cat(result$stderr, file = stderr())
+  if (!is.null(result$error)) {
+    stop(result$error)
+  }
+  result$result
 }

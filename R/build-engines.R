@@ -122,7 +122,12 @@
   # Ask Quarto which files the project would render, including nested inputs and globs.
   root <- .path_get()
   .dep_install("quarto")
-  inspection <- quarto::quarto_inspect(root, profile = profile)
+  inspection <- .build_user_call(
+    function(root, profile) {
+      quarto::quarto_inspect(root, profile = profile)
+    },
+    list(root, profile)
+  )
   inputs <- inspection$files$input
   inputs <- as.character(fs::path_rel(
     as.character(unlist(inputs, use.names = FALSE)),

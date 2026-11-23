@@ -55,6 +55,7 @@ reference:
   - projr_get_local
   - projr_get_github
   - projr_restore
+  - projr_reproduce
   - projr_restore_repo
   - projr_restore_repo_wd
   - projr_content_update

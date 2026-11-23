@@ -45,11 +45,16 @@
   .dep_install("bookdown")
   .cli_step("Rendering Bookdown project")
   # Bookdown can cache a different project's YAML after a standalone R Markdown render.
-  render <- function(args) {
-    try(do.call(bookdown::render_book, args), silent = TRUE)
-  }
-  environment(render) <- baseenv()
-  x_return <- try(xfun::Rscript_call(render, list(args_engine)))
+  x_return <- try(.build_user_call(
+    function(args) {
+      render <- function(args) {
+        try(do.call(bookdown::render_book, args), silent = TRUE)
+      }
+      environment(render) <- baseenv()
+      xfun::Rscript_call(render, list(args))
+    },
+    list(args_engine)
+  ))
   err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
   if (is.null(err_msg)) {
     return(NULL)
@@ -60,10 +65,15 @@
 .build_quarto_render <- function(args) {
   # A background RStudio job would return before outputs and hooks are ready.
   # Older quarto releases always render synchronously and have no as_job argument.
-  if ("as_job" %in% names(formals(quarto::quarto_render))) {
-    args$as_job <- FALSE
-  }
-  do.call(quarto::quarto_render, args)
+  .build_user_call(
+    function(args) {
+      if ("as_job" %in% names(formals(quarto::quarto_render))) {
+        args$as_job <- FALSE
+      }
+      do.call(quarto::quarto_render, args)
+    },
+    list(args)
+  )
 }
 
 .build_engine_quarto_project <- function(args_engine) {
@@ -100,9 +110,11 @@
   outputs <- character()
   for (x in fn_vec) {
     .cli_step("Rendering R Markdown document {fs::path_rel(x)}")
-    x_return <- try(
-      do.call(rmarkdown::render, list(input = x) |> append(args_engine))
-    )
+    args <- c(list(input = x), args_engine)
+    x_return <- try(.build_user_call(
+      function(args) do.call(rmarkdown::render, args),
+      list(args)
+    ))
     if (.is_try_error(x_return)) {
       break
     }

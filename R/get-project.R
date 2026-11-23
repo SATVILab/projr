@@ -38,6 +38,11 @@
   list(
     version = versions[pos],
     yml = block("**`projr` config**"),
+    profile = sub(
+      "^- `projr` profile: ",
+      "",
+      grep("^- `projr` profile: ", entry, value = TRUE)
+    ),
     destinations = block("**Resolved archive destinations**")
   )
 }
