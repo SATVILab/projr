@@ -31,9 +31,7 @@ projr_ignore_auto <- function() {
   .ignore_diryml(create_git = TRUE)
   # root level files
   .ignore_auto_yml()
-  .ignore_auto_file_git("/.projr/manifests/.versions.lock")
-  .ignore_auto_dir_git("/.projr/logs")
-  .ignore_auto_dir_rbuild(".projr")
+  .ignore_project_state()
   .ignore_auto_env()
   .ignore_auto_build_source()
   .ignore_auto_build_tex()
@@ -124,6 +122,11 @@ projr_ignore_auto <- function() {
 
 # projr config files
 # -------------------------------------------------------------------------
+.ignore_project_state <- function() {
+  .ignore_auto_file_git(c("/.projr/manifests/.versions.lock", "/.projr/logs/**"))
+  if (file.exists(.path_get("DESCRIPTION"))) .ignore_auto_dir_rbuild(".projr")
+}
+
 .ignore_auto_yml <- function() {
   configs <- .yml_config_files()
   render_configs <- list.files(.path_get(), pattern = "^_(quarto|bookdown)\\.yml$")
