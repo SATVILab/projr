@@ -7,7 +7,10 @@ test_that("an unapproved unattended build cannot change an implicit checkout", {
   withr::local_dir(project)
 
   expect_error(projr_build_patch("first build"), "pass project =")
-  expect_identical(list.files(project, all.files = TRUE, no.. = TRUE), character())
+  expect_identical(
+    list.files(project, all.files = TRUE, no.. = TRUE),
+    character()
+  )
   fs::dir_create("_projr/config")
   writeLines("directories: {cache: {path: cache}}", "_projr/config/_projr.yml")
   dir.create("nested")
@@ -38,9 +41,16 @@ test_that("interactive approval covers one canonical checkout and can be decline
   })
   withr::local_dir(project)
   expect_error(projr_build_dev(project = "."), "Build cancelled")
-  expect_identical(list.files(project, all.files = TRUE, no.. = TRUE), character())
+  expect_identical(
+    list.files(project, all.files = TRUE, no.. = TRUE),
+    character()
+  )
   expect_identical(list.files(user, all.files = TRUE, no.. = TRUE), character())
-  expect_true(grepl(as.character(fs::path_real(project)), prompts[[1]], fixed = TRUE))
+  expect_true(grepl(
+    as.character(fs::path_real(project)),
+    prompts[[1]],
+    fixed = TRUE
+  ))
   expect_true(grepl("outside this checkout", prompts[[1]], fixed = TRUE))
   expect_true(grepl("remote destinations", prompts[[1]], fixed = TRUE))
 
@@ -57,8 +67,14 @@ test_that("interactive approval covers one canonical checkout and can be decline
   })
   expect_length(prompts, 2L)
   file.copy("_projr.yml", other)
-  withr::with_dir(other, expect_error(projr_build_dev(), "no saved build approval"))
-  expect_identical(list.files(other, all.files = TRUE, no.. = TRUE), "_projr.yml")
+  withr::with_dir(
+    other,
+    expect_error(projr_build_dev(), "no saved build approval")
+  )
+  expect_identical(
+    list.files(other, all.files = TRUE, no.. = TRUE),
+    "_projr.yml"
+  )
 })
 
 test_that("all build entry points accept an unattended project without saving permission", {
@@ -70,17 +86,28 @@ test_that("all build entry points accept an unattended project without saving pe
   withr::local_envvar(c(R_USER_CONFIG_DIR = user, XDG_CONFIG_HOME = user))
   withr::local_options(askYesNo = function(...) stop("unexpected prompt"))
   withr::local_dir(caller)
-  functions <- list(projr_build, projr_build_patch, projr_build_minor, projr_build_major)
+  functions <- list(
+    projr_build,
+    projr_build_patch,
+    projr_build_minor,
+    projr_build_major
+  )
   for (build in functions) {
     expect_true(build(msg = "Example", project = project))
     expect_identical(normalizePath(getwd()), normalizePath(caller))
   }
   writeLines("stop('configured script failed')", file.path(project, "broken.R"))
-  expect_error(projr_build_dev(scripts = "broken.R", project = project), "configured script failed")
+  expect_error(
+    projr_build_dev(scripts = "broken.R", project = project),
+    "configured script failed"
+  )
   expect_identical(normalizePath(getwd()), normalizePath(caller))
   expect_true(file.exists(file.path(project, ".projr/BUILDLOG.md")))
   expect_identical(list.files(user, all.files = TRUE, no.. = TRUE), character())
-  expect_identical(list.files(caller, all.files = TRUE, no.. = TRUE), character())
+  expect_identical(
+    list.files(caller, all.files = TRUE, no.. = TRUE),
+    character()
+  )
 })
 
 test_that("files inside a checkout cannot authorize its build", {
@@ -91,7 +118,11 @@ test_that("files inside a checkout cannot authorize its build", {
   withr::local_envvar(c(R_USER_CONFIG_DIR = project))
   path <- file.path(tools::R_user_dir("projr", "config"), "build-approvals")
   fs::dir_create(path)
-  key <- digest::digest(enc2utf8(as.character(fs::path_real(project))), algo = "sha256", serialize = FALSE)
+  key <- digest::digest(
+    enc2utf8(as.character(fs::path_real(project))),
+    algo = "sha256",
+    serialize = FALSE
+  )
   file.create(file.path(path, key))
   expect_error(projr_build_dev(), "no saved build approval")
   expect_false(file.exists("_projr.yml"))
@@ -104,7 +135,10 @@ test_that("running from an approved legacy config directory restores the origina
   withr::local_envvar(c(R_USER_CONFIG_DIR = user))
   old <- file.path(project, "_projr", "config")
   fs::dir_create(old)
-  writeLines("directories: {cache: {path: cache}}", file.path(old, "_projr.yml"))
+  writeLines(
+    "directories: {cache: {path: cache}}",
+    file.path(old, "_projr.yml")
+  )
   .build_project_approve(project)
   withr::with_dir(old, {
     expect_true(projr_build_dev(scripts = character()))

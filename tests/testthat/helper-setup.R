@@ -1,9 +1,11 @@
-.test_setup_project <- function(git = TRUE,
-                                github = FALSE,
-                                set_env_var = TRUE,
-                                base_name = "test_projr",
-                                env = rlang::caller_env(),
-                                rm_engine = FALSE) {
+.test_setup_project <- function(
+  git = TRUE,
+  github = FALSE,
+  set_env_var = TRUE,
+  base_name = "test_projr",
+  env = rlang::caller_env(),
+  rm_engine = FALSE
+) {
   force(env)
   path_dir_test <- .test_setup_project_dir(base_name, env)
   .test_setup_project_env_var(set_env_var, env)
@@ -19,7 +21,10 @@
   # Helpers can also be loaded outside testthat. Keep fixture approvals in the
   # disposable test config directory established by setup.R.
   config <- Sys.getenv("R_USER_CONFIG_DIR")
-  if (dir.exists(config) && fs::path_has_parent(fs::path_real(config), fs::path_real(tempdir()))) {
+  if (
+    dir.exists(config) &&
+      fs::path_has_parent(fs::path_real(config), fs::path_real(tempdir()))
+  ) {
     .build_project_approve(path_dir_test)
   }
   invisible(path_dir_test)
@@ -75,7 +80,8 @@
       invisible(file.remove(x))
     }
   }
-  switch(engine,
+  switch(
+    engine,
     "quarto_project" = .test_setup_project_lit_docs_quarto_project(
       wd
     ),
@@ -126,19 +132,22 @@
 }
 
 .test_setup_project_git_config <- function(repo = getwd()) {
-  if (!dir.exists(file.path(repo, ".git")) ||
-      !fs::path_has_parent(fs::path_real(repo), fs::path_real(tempdir()))) {
+  if (
+    !dir.exists(file.path(repo, ".git")) ||
+      !fs::path_has_parent(fs::path_real(repo), fs::path_real(tempdir()))
+  ) {
     stop("Set the test Git identity only in a temporary fixture repository.")
   }
   gert::git_config_set("user.name", "DarthVader", repo = repo)
-  gert::git_config_set("user.email", "number_one_fan@tellytubbies.com", repo = repo)
+  gert::git_config_set(
+    "user.email",
+    "number_one_fan@tellytubbies.com",
+    repo = repo
+  )
   invisible(TRUE)
 }
 
-.test_setup_project_github <- function(github,
-                                       path_dir,
-                                       env,
-                                       debug = FALSE) {
+.test_setup_project_github <- function(github, path_dir, env, debug = FALSE) {
   if (!github) {
     .test_setup_project_github_unset(path_dir)
     return(invisible(FALSE))
@@ -195,8 +204,14 @@
 .test_setup_project_files_create_ignore <- function(path_dir) {
   # create .gitignore and .Rbuildignore
   gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
+    "# R",
+    ".Rproj.user",
+    ".Rhistory",
+    ".RData",
+    ".Ruserdata",
+    "",
+    "# docs",
+    "docs/*"
   )
   writeLines(gitignore, file.path(path_dir, ".gitignore"))
 
@@ -222,15 +237,18 @@
   .test_setup_project_git_config(path_dir)
   gert::git_add(".", repo = path_dir)
   gert::git_commit(
-    message = "Initial commit", repo = path_dir
+    message = "Initial commit",
+    repo = path_dir
   )
   invisible(TRUE)
 }
 
 
-.test_content_setup_dir <- function(path_dir = NULL,
-                                    dir_sub_lvl = 2,
-                                    dir_sub_prefix = "subdir") {
+.test_content_setup_dir <- function(
+  path_dir = NULL,
+  dir_sub_lvl = 2,
+  dir_sub_prefix = "subdir"
+) {
   if (is.null(path_dir)) {
     path_dir <- file.path(tempdir(), signif(stats::rnorm(1), 6))
   }
@@ -254,12 +272,16 @@
   path_dir |> invisible()
 }
 
-.test_content_setup_label <- function(label,
-                                      safe = FALSE,
-                                      dir_sub_lvl = 2,
-                                      dir_sub_prefix = "subdir") {
+.test_content_setup_label <- function(
+  label,
+  safe = FALSE,
+  dir_sub_lvl = 2,
+  dir_sub_prefix = "subdir"
+) {
   path_vec <- vapply(
-    label, function(x) projr_path_get(x, safe = safe), character(1L)
+    label,
+    function(x) projr_path_get(x, safe = safe),
+    character(1L)
   )
   for (x in path_vec) {
     .test_content_setup_dir(
@@ -271,10 +293,12 @@
   path_vec
 }
 
-.test_content_adjust_dir <- function(path_dir = NULL,
-                                     safe = FALSE,
-                                     dir_sub_lvl = 2,
-                                     dir_sub_prefix = "subdir") {
+.test_content_adjust_dir <- function(
+  path_dir = NULL,
+  safe = FALSE,
+  dir_sub_lvl = 2,
+  dir_sub_prefix = "subdir"
+) {
   if (is.null(path_dir)) {
     path_dir <- file.path(tempdir(), signif(stats::rnorm(1), 6))
   }
@@ -291,7 +315,9 @@
   }
   if (dir_sub_lvl == 2) {
     path_dir_sub2 <- file.path(
-      path_dir, paste0(dir_sub_prefix, "1"), paste0(dir_sub_prefix, "2")
+      path_dir,
+      paste0(dir_sub_prefix, "1"),
+      paste0(dir_sub_prefix, "2")
     )
     if (!dir.exists(path_dir_sub2)) {
       dir.create(path_dir_sub2, recursive = TRUE)
@@ -301,10 +327,12 @@
   .file_ls(path_dir) |> invisible()
 }
 
-.test_content_adjust_label <- function(label,
-                                       safe = FALSE,
-                                       dir_sub_lvl = 2,
-                                       dir_sub_prefix = "subdir") {
+.test_content_adjust_label <- function(
+  label,
+  safe = FALSE,
+  dir_sub_lvl = 2,
+  dir_sub_prefix = "subdir"
+) {
   .test_content_adjust_dir(
     path_dir = projr_path_get(label, safe = safe),
     safe = safe,
@@ -372,7 +400,8 @@
 .test_yml_unset_remote <- function() {
   yml_projr_build <- .yml_build_get(NULL)
   yml_projr_build <- yml_projr_build[setdiff(
-    names(yml_projr_build), c("github", "osf", "local")
+    names(yml_projr_build),
+    c("github", "osf", "local")
   )]
   .yml_build_set(yml_projr_build, NULL)
 }
@@ -389,8 +418,10 @@
   .init_usethis_std()
 
   # Create initial VERSION if needed
-  if (!file.exists(.path_get("VERSION")) &&
-    !file.exists(.path_get("DESCRIPTION"))) {
+  if (
+    !file.exists(.path_get("VERSION")) &&
+      !file.exists(.path_get("DESCRIPTION"))
+  ) {
     projr_version_set("0.0.0-1")
   }
 
@@ -408,8 +439,10 @@
   .init_usethis_std()
 
   # Create initial VERSION if needed
-  if (!file.exists(.path_get("VERSION")) &&
-    !file.exists(.path_get("DESCRIPTION"))) {
+  if (
+    !file.exists(.path_get("VERSION")) &&
+      !file.exists(.path_get("DESCRIPTION"))
+  ) {
     projr_version_set("0.0.0-1")
   }
 

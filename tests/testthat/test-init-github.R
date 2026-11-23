@@ -20,7 +20,9 @@ test_that(".init_git_github stops before creating a repository when authenticati
   project <- .test_setup_project()
   testthat::local_mocked_bindings(
     .git_gh_check_auth = function(...) FALSE,
-    .init_github_impl = function(...) testthat::fail("Attempted to create a repository")
+    .init_github_impl = function(...) {
+      testthat::fail("Attempted to create a repository")
+    }
   )
   usethis::with_project(project, {
     expect_error(.init_git_github(username = NULL, public = FALSE), "^$")

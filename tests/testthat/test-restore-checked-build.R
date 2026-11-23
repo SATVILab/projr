@@ -13,19 +13,29 @@ test_that("a clone restores the checked-out build from its implicit GitHub archi
       output = list(path = "_output"),
       cache = list(path = "_tmp")
     )
-    yml$build <- list(scripts = "analysis.R", git = list(commit = TRUE, push = FALSE))
+    yml$build <- list(
+      scripts = "analysis.R",
+      git = list(commit = TRUE, push = FALSE)
+    )
     .yml_set(yml, "default")
-    writeLines(c(
-      'data <- readLines(projr::projr_path_get("raw-data", "data.txt"))',
-      'ref <- readLines(projr::projr_path_get("raw-reference", "key.txt"))',
-      'writeLines(paste(ref, data), projr::projr_path_get("output", "result.txt"))'
-    ), "analysis.R")
+    writeLines(
+      c(
+        'data <- readLines(projr::projr_path_get("raw-data", "data.txt"))',
+        'ref <- readLines(projr::projr_path_get("raw-reference", "key.txt"))',
+        'writeLines(paste(ref, data), projr::projr_path_get("output", "result.txt"))'
+      ),
+      "analysis.R"
+    )
     input <- projr_path_get("raw-data", "data.txt")
     writeLines("first", input)
     writeLines("constant", projr_path_get("raw-reference", "key.txt"))
     projr_build_patch("First analysis", archive_github = TRUE)
     first_build <- gert::git_log(max = 2)$commit[[2L]]
-    expected <- readBin("_output/result.txt", "raw", n = file.size("_output/result.txt"))
+    expected <- readBin(
+      "_output/result.txt",
+      "raw",
+      n = file.size("_output/result.txt")
+    )
     writeLines("second", input)
     projr_build_patch("Second analysis", archive_github = TRUE)
     expect_identical(readLines("_output/result.txt"), "constant second")
@@ -38,7 +48,10 @@ test_that("a clone restores the checked-out build from its implicit GitHub archi
     expect_identical(readLines("_raw_data/data.txt"), "second")
     expect_identical(readLines("_reference/key.txt"), "constant")
     unlink(c("_raw_data", "_reference"), recursive = TRUE)
-    expect_equal(system2("git", c("checkout", "--quiet", "--detach", first_build)), 0L)
+    expect_equal(
+      system2("git", c("checkout", "--quiet", "--detach", first_build)),
+      0L
+    )
     unlink(c(".projr/manifests", "manifest.csv", "_output"), recursive = TRUE)
     projr_restore()
     expect_identical(readLines("_raw_data/data.txt"), "first")
@@ -58,20 +71,31 @@ test_that("a development build inside the README preserves the production archiv
   skip_if_not(rmarkdown::pandoc_available())
   .test_local_github_releases("archive")
   project <- .test_setup_project(git = FALSE, rm_engine = TRUE)
-  usethis::with_project(project,
+  usethis::with_project(
+    project,
     {
       yml <- .yml_get("default")
-      yml$build <- list(git = FALSE, scripts = list(), github = list(
-        archive = list(content = "raw-data", structure = "archive")
-      ))
+      yml$build <- list(
+        git = FALSE,
+        scripts = list(),
+        github = list(
+          archive = list(content = "raw-data", structure = "archive")
+        )
+      )
       .yml_set(yml, "default")
       projr_version_set("0.5.0-1")
       input <- projr_path_get("raw-data", "input.txt")
       writeLines("original measurements", input)
-      writeLines(c(
-        "```{r}", "projr::projr_restore()", "projr::projr_build_dev()",
-        "writeLines(projr::projr_version_get(), 'version-during-readme')", "```"
-      ), "README.Rmd")
+      writeLines(
+        c(
+          "```{r}",
+          "projr::projr_restore()",
+          "projr::projr_build_dev()",
+          "writeLines(projr::projr_version_get(), 'version-during-readme')",
+          "```"
+        ),
+        "README.Rmd"
+      )
 
       projr_build_minor(archive_github = TRUE)
       expect_identical(readLines("version-during-readme"), "0.6.0")
@@ -91,29 +115,51 @@ test_that("restore verifies an earlier matching archive before replacing local f
   skip_if(.is_test_select())
   .test_local_github_releases("artifacts")
   project <- .test_setup_project(git = FALSE)
-  usethis::with_project(project,
+  usethis::with_project(
+    project,
     {
       stage <- withr::local_tempdir()
       writeLines("original", file.path(stage, "sample.txt"))
       rows <- data.frame(
-        label = "raw-data", fn = "sample.txt", version = paste0("v0.0.", 1:3),
+        label = "raw-data",
+        fn = "sample.txt",
+        version = paste0("v0.0.", 1:3),
         hash = c(
           unname(tools::md5sum(file.path(stage, "sample.txt"))),
-          digest::digest("changed", algo = "md5"), unname(tools::md5sum(file.path(stage, "sample.txt")))
+          digest::digest("changed", algo = "md5"),
+          unname(tools::md5sum(file.path(stage, "sample.txt")))
         )
       )
       .manifest_store_write(rows)
       legacy <- tempfile()
       utils::write.csv(rows, legacy, row.names = FALSE)
-      legacy_snapshot <- .restore_build_snapshot(tempfile(), legacy, "raw-data", "v0.0.3")
-      current_snapshot <- .restore_build_snapshot(.path_get(".projr", "manifests"), legacy, "raw-data", "v0.0.3")
+      legacy_snapshot <- .restore_build_snapshot(
+        tempfile(),
+        legacy,
+        "raw-data",
+        "v0.0.3"
+      )
+      current_snapshot <- .restore_build_snapshot(
+        .path_get(".projr", "manifests"),
+        legacy,
+        "raw-data",
+        "v0.0.3"
+      )
       expect_identical(legacy_snapshot$id, current_snapshot$id)
       expect_identical(legacy_snapshot$versions, c("v0.0.1", "v0.0.3"))
       archive <- tempfile(fileext = ".zip")
       upload <- function(files) {
         unlink(archive)
-        expect_equal(with_dir(stage, utils::zip(archive, files, flags = "-q")), 0L)
-        .gh_release_asset_upload_httr(.gh_repo_get(), "artifacts", archive, asset_name = "raw-data-v0.0.1.zip")
+        expect_equal(
+          with_dir(stage, utils::zip(archive, files, flags = "-q")),
+          0L
+        )
+        .gh_release_asset_upload_httr(
+          .gh_repo_get(),
+          "artifacts",
+          archive,
+          asset_name = "raw-data-v0.0.1.zip"
+        )
       }
       upload("sample.txt")
       input <- projr_path_get("raw-data", "sample.txt")
@@ -126,12 +172,18 @@ test_that("restore verifies an earlier matching archive before replacing local f
       writeLines("local edits", input)
       writeLines("damaged", file.path(stage, "sample.txt"))
       upload("sample.txt")
-      expect_error(projr_restore("raw-data", "0.0.3", "artifacts", clear = TRUE), "hash")
+      expect_error(
+        projr_restore("raw-data", "0.0.3", "artifacts", clear = TRUE),
+        "hash"
+      )
       expect_identical(readLines(input), "local edits")
 
       writeLines("extra", file.path(stage, "other.txt"))
       upload(c("sample.txt", "other.txt"))
-      expect_error(projr_restore("raw-data", "0.0.3", "artifacts", clear = TRUE), "file list")
+      expect_error(
+        projr_restore("raw-data", "0.0.3", "artifacts", clear = TRUE),
+        "file list"
+      )
       expect_identical(readLines(input), "local edits")
     },
     quiet = TRUE,
@@ -143,7 +195,8 @@ test_that("restore recovers a missing immutable file list and VERSION from recor
   skip_if(.is_test_select())
   .test_local_github_releases("archive")
   project <- .test_setup_project(git = FALSE)
-  usethis::with_project(project,
+  usethis::with_project(
+    project,
     {
       version <- "v0.0.2"
       yml <- .yml_get("default")
@@ -154,10 +207,14 @@ test_that("restore recovers a missing immutable file list and VERSION from recor
       earlier <- .empty_tbl_get_manifest("raw-data", "v0.0.1")
       .remote_write_manifest("github", c(tag = "archive"), rbind(earlier, rows))
       unlink(c(
-        .path_get("VERSION"), .path_get("DESCRIPTION"),
+        .path_get("VERSION"),
+        .path_get("DESCRIPTION"),
         Sys.glob(.path_get(".projr", "manifests", "raw-data", "files-*.csv"))
       ))
-      writeLines(c("# BUILDLOG", "", "#### v0.0.2: Published"), .path_get("BUILDLOG.md"))
+      writeLines(
+        c("# BUILDLOG", "", "#### v0.0.2: Published"),
+        .path_get("BUILDLOG.md")
+      )
       expect_true(projr_restore("raw-data"))
       expect_identical(readLines(.path_get("VERSION")), version)
       expect_identical(.manifest_read_project("raw-data", version), rows)
@@ -172,7 +229,10 @@ test_that("restore recovers a missing immutable file list and VERSION from recor
       expect_true(projr_restore("raw-data", destination = "absent-release"))
       expect_true(dir.exists("inputs/v0.0.2"))
       expect_identical(readLines("VERSION"), version)
-      expect_identical(readBin("DESCRIPTION", "raw", 100L), charToRaw("Imports: stats"))
+      expect_identical(
+        readBin("DESCRIPTION", "raw", 100L),
+        charToRaw("Imports: stats")
+      )
     },
     quiet = TRUE,
     force = TRUE
@@ -186,15 +246,28 @@ test_that("a later upload restores an older checkout only when its recorded snap
     stage <- withr::local_tempdir()
     writeLines("original", file.path(stage, "sample.txt"))
     original <- data.frame(
-      label = "raw-data", fn = "sample.txt", version = "v0.1.0",
+      label = "raw-data",
+      fn = "sample.txt",
+      version = "v0.1.0",
       hash = unname(tools::md5sum(file.path(stage, "sample.txt")))
     )
     .manifest_store_write(original)
     archive <- tempfile(fileext = ".zip")
-    expect_equal(with_dir(stage, utils::zip(archive, "sample.txt", flags = "-q")), 0L)
-    .gh_release_asset_upload_httr(.gh_repo_get(), "repair", archive, asset_name = "raw-data-v0.3.0.zip")
+    expect_equal(
+      with_dir(stage, utils::zip(archive, "sample.txt", flags = "-q")),
+      0L
+    )
+    .gh_release_asset_upload_httr(
+      .gh_repo_get(),
+      "repair",
+      archive,
+      asset_name = "raw-data-v0.3.0.zip"
+    )
     # A newer ZIP by itself gives no evidence that the snapshots match.
-    expect_error(projr_restore("raw-data", "0.1.0", "repair"), "No matching archive")
+    expect_error(
+      projr_restore("raw-data", "0.1.0", "repair"),
+      "No matching archive"
+    )
     later <- original
     later$version <- "v0.3.0"
     .remote_write_manifest("github", c(tag = "repair"), later)
@@ -205,7 +278,10 @@ test_that("a later upload restores an older checkout only when its recorded snap
     changed$version <- "v0.2.0"
     changed$hash <- digest::digest("different", algo = "md5", serialize = FALSE)
     .manifest_store_write(changed)
-    expect_error(projr_restore("raw-data", "0.2.0", "repair", clear = TRUE), "No matching archive")
+    expect_error(
+      projr_restore("raw-data", "0.2.0", "repair", clear = TRUE),
+      "No matching archive"
+    )
     expect_identical(readLines(input), "original")
   })
 })
@@ -222,37 +298,62 @@ test_that("a first build archives literal starter paths and restores them into a
   gert::git_init(project)
   gert::git_remote_add(upstream, repo = project)
   .test_setup_project_git_config(project)
-  usethis::with_project(project, {
-    dir.create("_raw_data")
-    writeLines("21", "_raw_data/number.txt")
-    writeLines(c(
-      'number <- as.integer(readLines("_raw_data/number.txt"))',
-      'writeLines(as.character(2L * number), "_output/result.txt")'
-    ), "analysis.R")
-    gert::git_add("analysis.R")
-    gert::git_commit("Initial analysis")
-    gert::git_push("origin", set_upstream = TRUE)
-    expect_false(file.exists("_projr.yml"))
-    expect_false(dir.exists("_output"))
-    projr_build(archive_github = TRUE, project = project)
-    expect_identical(readLines("_output/result.txt"), "42")
-    assets <- .remote_ls_final_github_httr(.gh_repo_get(), "archive")
-    version <- .restore_build_version(NULL)
-    output_asset <- paste0("output-", version, ".zip")
-    expect_true(all(c(paste0("raw-data-", version, ".zip"), output_asset, "manifest.zip") %in% assets))
-    archive <- .remote_file_get_all_github_httr(.gh_repo_get(), "archive", output_asset, tempdir())
-    expect_identical(readLines(unz(archive, "result.txt")), "42")
-    gert::git_clone(upstream, clone, branch = gert::git_branch())
-    .test_setup_project_git_config(clone)
-  }, quiet = TRUE, force = TRUE)
-  usethis::with_project(clone, {
-    expect_false(file.exists("_raw_data/number.txt"))
-    expect_true(projr_restore())
-    expect_identical(readLines("_raw_data/number.txt"), "21")
-    expect_false(file.exists("_output/result.txt"))
-    projr_build(project = clone)
-    expect_identical(readLines("_output/result.txt"), "42")
-  }, quiet = TRUE, force = TRUE)
+  usethis::with_project(
+    project,
+    {
+      dir.create("_raw_data")
+      writeLines("21", "_raw_data/number.txt")
+      writeLines(
+        c(
+          'number <- as.integer(readLines("_raw_data/number.txt"))',
+          'writeLines(as.character(2L * number), "_output/result.txt")'
+        ),
+        "analysis.R"
+      )
+      gert::git_add("analysis.R")
+      gert::git_commit("Initial analysis")
+      gert::git_push("origin", set_upstream = TRUE)
+      expect_false(file.exists("_projr.yml"))
+      expect_false(dir.exists("_output"))
+      projr_build(archive_github = TRUE, project = project)
+      expect_identical(readLines("_output/result.txt"), "42")
+      assets <- .remote_ls_final_github_httr(.gh_repo_get(), "archive")
+      version <- .restore_build_version(NULL)
+      output_asset <- paste0("output-", version, ".zip")
+      expect_true(all(
+        c(
+          paste0("raw-data-", version, ".zip"),
+          output_asset,
+          "manifest.zip"
+        ) %in%
+          assets
+      ))
+      archive <- .remote_file_get_all_github_httr(
+        .gh_repo_get(),
+        "archive",
+        output_asset,
+        tempdir()
+      )
+      expect_identical(readLines(unz(archive, "result.txt")), "42")
+      gert::git_clone(upstream, clone, branch = gert::git_branch())
+      .test_setup_project_git_config(clone)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+  usethis::with_project(
+    clone,
+    {
+      expect_false(file.exists("_raw_data/number.txt"))
+      expect_true(projr_restore())
+      expect_identical(readLines("_raw_data/number.txt"), "21")
+      expect_false(file.exists("_output/result.txt"))
+      projr_build(project = clone)
+      expect_identical(readLines("_output/result.txt"), "42")
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
 })
 
 test_that("existing restore functions can read registered destinations after publishing stops", {
@@ -266,7 +367,11 @@ test_that("existing restore functions can read registered destinations after pub
     .yml_set(yml, "default")
     input <- projr_path_get("raw-data", "measurements.csv")
     writeLines("first", input)
-    projr_build_patch("Publish inputs", archive_local = TRUE, archive_github = TRUE)
+    projr_build_patch(
+      "Publish inputs",
+      archive_local = TRUE,
+      archive_github = TRUE
+    )
 
     yml$remotes <- list(
       github = list(reports = list(repo = "fixture/project", tag = "archive")),
@@ -274,16 +379,28 @@ test_that("existing restore functions can read registered destinations after pub
     )
     .yml_set(yml, "default")
     # The archive is in a different repository from the current checkout.
-    local_mocked_bindings(.gh_guess_repo = function(...) stop("unexpected checkout repository"))
+    local_mocked_bindings(.gh_guess_repo = function(...) {
+      stop("unexpected checkout repository")
+    })
     unlink(input)
     expect_true(projr_restore(label = "raw-data", destination = "reports"))
     expect_identical(readLines(input), "first")
 
     unlink(input)
-    expect_true(projr_content_update(label = "raw-data", type = "github", title = "reports", pos = "dest"))
+    expect_true(projr_content_update(
+      label = "raw-data",
+      type = "github",
+      title = "reports",
+      pos = "dest"
+    ))
     expect_identical(readLines(input), "first")
     unlink(input)
-    expect_true(projr_content_update(label = "raw-data", type = "local", title = "mirror", pos = "dest"))
+    expect_true(projr_content_update(
+      label = "raw-data",
+      type = "local",
+      title = "mirror",
+      pos = "dest"
+    ))
     expect_identical(readLines(input), "first")
   })
 })

@@ -1,7 +1,8 @@
 test_that("build.renv defaults to auto and accepts profile overrides", {
   skip_if(.is_test_select())
   project <- .test_setup_project(git = FALSE, rm_engine = TRUE)
-  usethis::with_project(project,
+  usethis::with_project(
+    project,
     {
       expect_identical(.yml_renv_get(NULL), "auto")
       projr_yml_renv_set(TRUE)
@@ -24,7 +25,8 @@ test_that("build.renv defaults to auto and accepts profile overrides", {
 test_that("snapshot modes use project indicators and production builds", {
   skip_if(.is_test_select())
   project <- withr::local_tempdir()
-  usethis::with_project(project,
+  usethis::with_project(
+    project,
     {
       writeLines("build: {}", "_projr.yml")
       testthat::local_mocked_bindings(.is_test = function() FALSE)
@@ -52,23 +54,37 @@ test_that("snapshot modes use project indicators and production builds", {
 test_that("snapshots create a first lockfile and report missing render dependencies without replacing it", {
   skip_if(.is_test_select())
   project <- withr::local_tempdir()
-  usethis::with_project(project,
+  usethis::with_project(
+    project,
     {
       testthat::local_mocked_bindings(.is_test = function() FALSE)
-      withr::local_envvar(c(RENV_PATHS_ROOT = file.path(tempdir(), "build-snapshot-cache")))
+      withr::local_envvar(c(
+        RENV_PATHS_ROOT = file.path(tempdir(), "build-snapshot-cache")
+      ))
       writeLines("build: {renv: true}", "_projr.yml")
       writeLines("digest::digest('x')", "analysis.R")
       expect_true(.build_renv_snapshot(TRUE))
-      expect_true("digest" %in% names(renv::lockfile_read("renv.lock")$Packages))
+      expect_true(
+        "digest" %in% names(renv::lockfile_read("renv.lock")$Packages)
+      )
       expect_false(file.exists(".Rprofile"))
       projr_yml_renv_set("auto")
       before <- readBin("renv.lock", "raw", n = file.size("renv.lock"))
       writeLines("library(projrAbsentSnapshotFixture)", "analysis.R")
-      expect_error(.build_pre_check(TRUE), "Missing renv snapshot dependencies: projrAbsentSnapshotFixture")
+      expect_error(
+        .build_pre_check(TRUE),
+        "Missing renv snapshot dependencies: projrAbsentSnapshotFixture"
+      )
       # A dependency introduced while rendering also aborts the post-build snapshot.
       expect_error(.build_renv_snapshot(TRUE), "projrAbsentSnapshotFixture")
-      expect_identical(readBin("renv.lock", "raw", n = file.size("renv.lock")), before)
-      renv::settings$ignored.packages("projrAbsentSnapshotFixture", project = project)
+      expect_identical(
+        readBin("renv.lock", "raw", n = file.size("renv.lock")),
+        before
+      )
+      renv::settings$ignored.packages(
+        "projrAbsentSnapshotFixture",
+        project = project
+      )
       expect_true(.build_renv_snapshot(TRUE))
     },
     force = TRUE
@@ -78,15 +94,24 @@ test_that("snapshots create a first lockfile and report missing render dependenc
 test_that("renv snapshot preflight honors explicit and custom package selection", {
   skip_if(.is_test_select())
   project <- withr::local_tempdir()
-  usethis::with_project(project,
+  usethis::with_project(
+    project,
     {
-      writeLines(c("Package: localfixture", "Version: 1.0", "Imports: digest"), "DESCRIPTION")
+      writeLines(
+        c("Package: localfixture", "Version: 1.0", "Imports: digest"),
+        "DESCRIPTION"
+      )
       writeLines("library(projrAbsentSnapshotFixture)", "outside.R")
       renv::settings$snapshot.type("explicit", project = project)
       expect_true("digest" %in% .build_renv_packages(project))
       renv::settings$snapshot.type("custom", project = project)
-      withr::local_options(list(renv.snapshot.filter = function(project) "projrAbsentSnapshotFixture"))
-      expect_error(.build_renv_packages(project), "Missing renv snapshot dependencies: projrAbsentSnapshotFixture")
+      withr::local_options(list(renv.snapshot.filter = function(project) {
+        "projrAbsentSnapshotFixture"
+      }))
+      expect_error(
+        .build_renv_packages(project),
+        "Missing renv snapshot dependencies: projrAbsentSnapshotFixture"
+      )
       renv::settings$snapshot.type("all", project = project)
       expect_null(.build_renv_packages(project))
     },

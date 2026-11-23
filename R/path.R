@@ -127,10 +127,12 @@
 # list
 # ---------------------
 
-.file_ls <- function(path_dir,
-                     recursive = TRUE,
-                     full.names = FALSE,
-                     all.files = TRUE) {
+.file_ls <- function(
+  path_dir,
+  recursive = TRUE,
+  full.names = FALSE,
+  all.files = TRUE
+) {
   # list all files, with useful defaults,
   # whilst excluding the project directory
   # and the directory itself
@@ -142,7 +144,9 @@
 
   path_vec <- list.files(
     path_dir,
-    recursive = recursive, full.names = full.names, all.files = all.files
+    recursive = recursive,
+    full.names = full.names,
+    all.files = all.files
   )
 
   if (.is_len_0(path_vec)) {
@@ -216,9 +220,7 @@
 # ---------------------
 
 # list all paths in a directory
-.dir_ls <- function(path_dir,
-                    recursive = TRUE,
-                    full.names = FALSE) {
+.dir_ls <- function(path_dir, recursive = TRUE, full.names = FALSE) {
   .assert_string(path_dir, TRUE)
   .assert_dir_exists(path_dir, TRUE)
   .assert_flag(recursive, TRUE)
@@ -226,7 +228,8 @@
 
   list.dirs(
     path_dir,
-    recursive = recursive, full.names = full.names
+    recursive = recursive,
+    full.names = full.names
   ) |>
     fs::path_norm() |>
     as.character() |>
@@ -255,17 +258,27 @@
 # ---------------------
 
 # A default config inside .projr/config belongs to the surrounding project.
-.projr_root_criterion <- rprojroot::root_criterion(function(path) {
-  is_config_dir <- basename(path) == "config" && basename(dirname(path)) %in% c(".projr", "_projr")
-  (!is_config_dir && utils::file_test("-f", file.path(path, "_projr.yml"))) ||
-    utils::file_test("-f", file.path(path, ".projr/config/_projr.yml")) ||
-    utils::file_test("-f", file.path(path, "_projr/config/_projr.yml"))
-}, "a projr project configuration")
+.projr_root_criterion <- rprojroot::root_criterion(
+  function(path) {
+    is_config_dir <- basename(path) == "config" &&
+      basename(dirname(path)) %in% c(".projr", "_projr")
+    (!is_config_dir && utils::file_test("-f", file.path(path, "_projr.yml"))) ||
+      utils::file_test("-f", file.path(path, ".projr/config/_projr.yml")) ||
+      utils::file_test("-f", file.path(path, "_projr/config/_projr.yml"))
+  },
+  "a projr project configuration"
+)
 
 .path_project_root <- function(required = TRUE) {
-  root <- tryCatch(rprojroot::find_root(.projr_root_criterion), error = function(e) NULL)
+  root <- tryCatch(
+    rprojroot::find_root(.projr_root_criterion),
+    error = function(e) NULL
+  )
   if (required && is.null(root)) {
-    stop("No projr project found. Expected _projr.yml at the project root or in .projr/config/.", call. = FALSE)
+    stop(
+      "No projr project found. Expected _projr.yml at the project root or in .projr/config/.",
+      call. = FALSE
+    )
   }
   root
 }
@@ -273,7 +286,11 @@
 .path_get <- function(..., relative = FALSE) {
   .assert_flag(relative, required = TRUE)
   root <- .path_project_root()
-  path <- if (...length()) fs::path_abs(fs::path(...), start = root) else fs::path_abs(root)
+  path <- if (...length()) {
+    fs::path_abs(fs::path(...), start = root)
+  } else {
+    fs::path_abs(root)
+  }
   if (relative) fs::path_rel(path, root) else path
 }
 
@@ -308,7 +325,9 @@
 
 .dir_get_tmp_random_path <- function() {
   file.path(
-    tempdir(), "randomnia", signif(abs(stats::rnorm(1)), 6)
+    tempdir(),
+    "randomnia",
+    signif(abs(stats::rnorm(1)), 6)
   )
 }
 
@@ -346,16 +365,20 @@
   # For each path, check if it's removable
   # Use path_real for existing paths to match the normalization in .dir_ls_unremovable
   # Use path_abs for non-existing paths (can't use path_real on non-existing paths)
-  is_removable <- vapply(path, function(p) {
-    if (file.exists(p)) {
-      # For existing paths, normalize the same way as .dir_ls_unremovable
-      normalized <- as.character(fs::path_real(fs::path_abs(p)))
-    } else {
-      # For non-existing paths, just use path_abs
-      normalized <- as.character(fs::path_abs(p))
-    }
-    !normalized %in% unremovable
-  }, logical(1))
+  is_removable <- vapply(
+    path,
+    function(p) {
+      if (file.exists(p)) {
+        # For existing paths, normalize the same way as .dir_ls_unremovable
+        normalized <- as.character(fs::path_real(fs::path_abs(p)))
+      } else {
+        # For non-existing paths, just use path_abs
+        normalized <- as.character(fs::path_abs(p))
+      }
+      !normalized %in% unremovable
+    },
+    logical(1)
+  )
 
   path[is_removable]
 }
@@ -387,11 +410,13 @@
 # ---------------------
 
 # remove directory contents
-.dir_clear <- function(path_dir,
-                       recursive_file = FALSE,
-                       recursive_dir = FALSE,
-                       delete_hidden = TRUE,
-                       dir_exc = NULL) {
+.dir_clear <- function(
+  path_dir,
+  recursive_file = FALSE,
+  recursive_dir = FALSE,
+  delete_hidden = TRUE,
+  dir_exc = NULL
+) {
   .assert_string(path_dir, TRUE)
   .assert_flag(recursive_file, TRUE)
   .assert_flag(recursive_dir, TRUE)
@@ -404,12 +429,14 @@
   .cli_debug("Clearing directory {path_dir}")
   .dir_clear_file(
     path_dir,
-    delete_hidden = delete_hidden, recursive = recursive_file,
+    delete_hidden = delete_hidden,
+    recursive = recursive_file,
     dir_exc = dir_exc
   )
   .dir_clear_dir(
     path_dir,
-    recursive = recursive_dir, dir_exc = dir_exc
+    recursive = recursive_dir,
+    dir_exc = dir_exc
   )
   invisible(TRUE)
 }
@@ -442,10 +469,12 @@
   )
 }
 
-.dir_clear_file <- function(path,
-                            delete_hidden = TRUE,
-                            recursive = TRUE,
-                            dir_exc = NULL) {
+.dir_clear_file <- function(
+  path,
+  delete_hidden = TRUE,
+  recursive = TRUE,
+  dir_exc = NULL
+) {
   # delete all files within a directory
 
   # Validate inputs
@@ -461,7 +490,12 @@
   }
 
   # Get files with full paths
-  files_full <- .file_ls(path, recursive, all.files = delete_hidden, full.names = TRUE) |>
+  files_full <- .file_ls(
+    path,
+    recursive,
+    all.files = delete_hidden,
+    full.names = TRUE
+  ) |>
     .file_filter_dir_non()
 
   # Convert to relative paths for filtering (dir_exc expects relative paths)
@@ -520,19 +554,19 @@
 
 # make second directory exactly like first,
 # whilst not removing contents from first
-.dir_copy_exact <- function(path_dir_from,
-                            path_dir_to,
-                            dir_exc = NULL) {
+.dir_copy_exact <- function(path_dir_from, path_dir_to, dir_exc = NULL) {
   .dir_clear(path_dir_to)
   .dir_copy(path_dir_from, path_dir_to, dir_exc = dir_exc)
 }
 
 # make second directory exactly like first,
 # whilst removing contents from first
-.dir_move_exact <- function(path_dir_from,
-                            path_dir_to,
-                            dir_exc = NULL,
-                            fn_exc = NULL) {
+.dir_move_exact <- function(
+  path_dir_from,
+  path_dir_to,
+  dir_exc = NULL,
+  fn_exc = NULL
+) {
   # Clear destination directory first
   .dir_clear(path_dir_to)
 
@@ -546,10 +580,12 @@
 }
 
 # copy across, retaining relative paths
-.dir_copy <- function(path_dir_from,
-                      path_dir_to,
-                      dir_exc = NULL,
-                      fn_exc = NULL) {
+.dir_copy <- function(
+  path_dir_from,
+  path_dir_to,
+  dir_exc = NULL,
+  fn_exc = NULL
+) {
   .assert_string(path_dir_from, TRUE)
   .assert_string(path_dir_to, TRUE)
   .assert_chr(dir_exc)
@@ -565,18 +601,14 @@
   invisible(TRUE)
 }
 
-.dir_copy_exact_file <- function(fn,
-                                 path_dir_from,
-                                 path_dir_to) {
+.dir_copy_exact_file <- function(fn, path_dir_from, path_dir_to) {
   # mimick files while preserving their
   # relative paths within a particular directory
   .dir_clear(path_dir_to)
   .dir_copy_file(fn, path_dir_from, path_dir_to)
 }
 
-.dir_copy_file <- function(fn,
-                           path_dir_from,
-                           path_dir_to) {
+.dir_copy_file <- function(fn, path_dir_from, path_dir_to) {
   # relative paths within a particular directory
 
   # Validate inputs - allow empty fn vector
@@ -595,7 +627,9 @@
     file.path(path_dir_to, fn) |> .path_force_abs(),
     overwrite = TRUE
   )
-  .cli_debug("Copied files from {path_dir_from} to {path_dir_to} ({length(fn)} total)")
+  .cli_debug(
+    "Copied files from {path_dir_from} to {path_dir_to} ({length(fn)} total)"
+  )
   invisible(TRUE)
 }
 
@@ -612,8 +646,7 @@
     .is_len_pos()
 }
 
-.dir_copy_file_tree <- function(fn,
-                                path_dir_to) {
+.dir_copy_file_tree <- function(fn, path_dir_to) {
   # copy the required directory tree across
 
   # Validate inputs - allow empty fn vector
@@ -624,7 +657,8 @@
     setdiff(c(".", "..")) |>
     unique() |>
     vapply(
-      function(x) file.path(path_dir_to, x), character(1)
+      function(x) file.path(path_dir_to, x),
+      character(1)
     ) |>
     stats::setNames(NULL) |>
     .dir_filter_removable(path_dir_to) |>
@@ -635,7 +669,8 @@
 .dir_copy_tree <- function(path_dir_from, path_dir_to) {
   path_dir_from_vec_tree <- list.dirs(
     path_dir_from,
-    recursive = TRUE, full.names = FALSE
+    recursive = TRUE,
+    full.names = FALSE
   ) |>
     setdiff("")
   path_dir_to_vec_tree <- file.path(path_dir_to, path_dir_from_vec_tree)
@@ -646,10 +681,12 @@
   invisible(TRUE)
 }
 
-.dir_move <- function(path_dir_from,
-                      path_dir_to,
-                      dir_exc = NULL,
-                      fn_exc = NULL) {
+.dir_move <- function(
+  path_dir_from,
+  path_dir_to,
+  dir_exc = NULL,
+  fn_exc = NULL
+) {
   .dir_create(path_dir_to)
   if (is.null(dir_exc) && is.null(fn_exc)) {
     res <- .dir_move_no_exc(
@@ -674,15 +711,16 @@
   )
 }
 
-.dir_move_no_exc <- function(path_dir_from,
-                             path_dir_to) {
+.dir_move_no_exc <- function(path_dir_from, path_dir_to) {
   # Ensure destination parent exists for the rename attempt
   if (.is_same_filesystem(path_dir_from, path_dir_to)) {
     dir_already_exists <- dir.exists(path_dir_to)
     dir_non_empty <- dir_already_exists &&
       length(list.files(path_dir_to, all.files = TRUE, no.. = TRUE)) > 0L
     if (dir_non_empty) {
-      .cli_debug("Moving entries individually because {path_dir_to} already contains files")
+      .cli_debug(
+        "Moving entries individually because {path_dir_to} already contains files"
+      )
       return(invisible(FALSE))
     } else if (dir_already_exists) {
       unlink(path_dir_to, recursive = TRUE, expand = FALSE)
@@ -700,7 +738,9 @@
         invisible(res_inner)
       },
       error = function(e) {
-        .cli_debug("Could not rename {path_dir_from} to {path_dir_to}: {conditionMessage(e)}")
+        .cli_debug(
+          "Could not rename {path_dir_from} to {path_dir_to}: {conditionMessage(e)}"
+        )
         invisible(FALSE)
       }
     )
@@ -718,11 +758,13 @@
   invisible(FALSE)
 }
 
-.dir_move_file <- function(fn = NULL,
-                           path_dir_from,
-                           path_dir_to,
-                           dir_exc = NULL,
-                           fn_exc = NULL) {
+.dir_move_file <- function(
+  fn = NULL,
+  path_dir_from,
+  path_dir_to,
+  dir_exc = NULL,
+  fn_exc = NULL
+) {
   .assert_string(path_dir_from)
 
   if (is.null(fn)) {
@@ -753,7 +795,9 @@
     fn |> .path_force_abs(path_dir_to)
   ) |>
     invisible()
-  .cli_debug("Moved files from {path_dir_from} to {path_dir_to} ({length(fn)} total)")
+  .cli_debug(
+    "Moved files from {path_dir_from} to {path_dir_to} ({length(fn)} total)"
+  )
   invisible(TRUE)
 }
 
@@ -777,10 +821,12 @@
   fn
 }
 
-.dir_move_dir <- function(path_dir = NULL,
-                          path_dir_from,
-                          path_dir_to,
-                          dir_exc) {
+.dir_move_dir <- function(
+  path_dir = NULL,
+  path_dir_from,
+  path_dir_to,
+  dir_exc
+) {
   .assert_string(path_dir_from)
 
   if (is.null(path_dir)) {
@@ -832,22 +878,28 @@
   if (is.null(path)) {
     return(NULL)
   }
-  
+
   # If it's already absolute, leave it alone
   if (all(fs::is_absolute_path(path))) {
     return(path)
   }
-  
+
   # Otherwise, anchor it firmly to the project root
   .path_get(path)
 }
 
 # Resolve existing ancestors even when the final directory does not exist yet.
 .path_resolve_links <- function(path, allow_broken = FALSE) {
-  if (file.exists(path)) return(as.character(fs::path_real(path)))
-  if (!allow_broken && fs::link_exists(path)) stop("Broken link: ", path, call. = FALSE)
+  if (file.exists(path)) {
+    return(as.character(fs::path_real(path)))
+  }
+  if (!allow_broken && fs::link_exists(path)) {
+    stop("Broken link: ", path, call. = FALSE)
+  }
   parent <- dirname(path)
-  if (parent == path) return(as.character(path))
+  if (parent == path) {
+    return(as.character(path))
+  }
   file.path(.path_resolve_links(parent, allow_broken), basename(path))
 }
 

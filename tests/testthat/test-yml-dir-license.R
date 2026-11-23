@@ -131,7 +131,10 @@ test_that("projr_yml_dir_license_update updates authors from DESCRIPTION", {
       .license_dir_create("raw-data", safe = FALSE, "default")
 
       # Verify initial content
-      output_license <- readLines(file.path(output_dir, "LICENSE"), warn = FALSE)
+      output_license <- readLines(
+        file.path(output_dir, "LICENSE"),
+        warn = FALSE
+      )
       expect_true(any(grepl("Old Author", output_license)))
 
       # Update DESCRIPTION with new authors
@@ -148,7 +151,10 @@ test_that("projr_yml_dir_license_update updates authors from DESCRIPTION", {
       expect_true("raw-data" %in% updated)
 
       # Check LICENSE files were updated
-      output_license <- readLines(file.path(output_dir, "LICENSE"), warn = FALSE)
+      output_license <- readLines(
+        file.path(output_dir, "LICENSE"),
+        warn = FALSE
+      )
       expect_true(any(grepl("New Author", output_license)))
 
       raw_license <- readLines(file.path(raw_dir, "LICENSE"), warn = FALSE)
@@ -191,14 +197,19 @@ test_that("projr_yml_dir_license_update works with specific labels", {
       desc$write(file = .path_get("DESCRIPTION"))
 
       # Update only specific labels
-      suppressMessages(updated <- projr_yml_dir_license_update(c("output", "raw-data")))
+      suppressMessages(
+        updated <- projr_yml_dir_license_update(c("output", "raw-data"))
+      )
 
       # Verify only specified labels were updated
       expect_identical(sort(updated), sort(c("output", "raw-data")))
       expect_false("docs" %in% updated)
 
       # Check LICENSE files
-      output_license <- readLines(file.path(output_dir, "LICENSE"), warn = FALSE)
+      output_license <- readLines(
+        file.path(output_dir, "LICENSE"),
+        warn = FALSE
+      )
       expect_true(any(grepl("New Author", output_license)))
     }
   )
@@ -415,7 +426,11 @@ test_that("Manual licenses not overwritten during builds", {
 
       # add license
       suppressMessages(
-        projr_license_create_manual("MIT", "raw-data", authors = c("Manual Author"))
+        projr_license_create_manual(
+          "MIT",
+          "raw-data",
+          authors = c("Manual Author")
+        )
       )
 
       # Verify it was created
@@ -445,14 +460,22 @@ test_that("YAML config overrides manual licenses", {
       dir.create(raw_dir, recursive = TRUE, showWarnings = FALSE)
 
       suppressMessages(
-        projr_license_create_manual("MIT", "raw-data", authors = c("Manual Author"))
+        projr_license_create_manual(
+          "MIT",
+          "raw-data",
+          authors = c("Manual Author")
+        )
       )
 
       license1 <- readLines(file.path(raw_dir, "LICENSE"), warn = FALSE)
       expect_true(any(grepl("Manual Author", license1)))
 
       # Now add YAML config
-      projr_yml_dir_license_set("CC-BY", "raw-data", authors = c("Config Author"))
+      projr_yml_dir_license_set(
+        "CC-BY",
+        "raw-data",
+        authors = c("Config Author")
+      )
 
       # Build
       writeLines(
@@ -506,12 +529,26 @@ test_that("License integration with build creates files", {
       # Check if directories exist
       if (dir.exists(output_dir)) {
         # List files in output_dir
-        output_files <- list.files(output_dir, all.files = TRUE, recursive = TRUE)
+        output_files <- list.files(
+          output_dir,
+          all.files = TRUE,
+          recursive = TRUE
+        )
 
         # LICENSE should exist if directory was processed
-        if ("LICENSE" %in% output_files || file.exists(file.path(output_dir, "LICENSE"))) {
-          output_license <- readLines(file.path(output_dir, "LICENSE"), warn = FALSE)
-          expect_true(any(grepl("Creative Commons Attribution", output_license)))
+        if (
+          "LICENSE" %in%
+            output_files ||
+            file.exists(file.path(output_dir, "LICENSE"))
+        ) {
+          output_license <- readLines(
+            file.path(output_dir, "LICENSE"),
+            warn = FALSE
+          )
+          expect_true(any(grepl(
+            "Creative Commons Attribution",
+            output_license
+          )))
         }
       }
 
@@ -629,7 +666,11 @@ test_that("projr_yml_dir_license_set validates authors parameter", {
 
       # Valid character vector authors
       expect_silent(
-        projr_yml_dir_license_set("MIT", "raw-data", authors = c("Alice", "Bob"))
+        projr_yml_dir_license_set(
+          "MIT",
+          "raw-data",
+          authors = c("Alice", "Bob")
+        )
       )
     }
   )
@@ -650,7 +691,11 @@ test_that("projr_yml_dir_license_set validates profile parameter", {
 
       # Multiple profile values (should error from .assert_string)
       expect_error(
-        projr_yml_dir_license_set("MIT", "output", profile = c("default", "test"))
+        projr_yml_dir_license_set(
+          "MIT",
+          "output",
+          profile = c("default", "test")
+        )
       )
 
       # NULL profile is allowed (uses default behavior)
@@ -1016,7 +1061,10 @@ test_that("License functions work with different profiles", {
       projr_yml_dir_license_set("CC-BY", "output", profile = "test")
 
       # Verify different profiles have different configs
-      license_default <- projr_yml_dir_license_get("output", profile = "default")
+      license_default <- projr_yml_dir_license_get(
+        "output",
+        profile = "default"
+      )
       license_test <- projr_yml_dir_license_get("output", profile = "test")
 
       expect_identical(license_default, "MIT")
@@ -1026,8 +1074,14 @@ test_that("License functions work with different profiles", {
       projr_yml_dir_license_rm("output", profile = "test")
 
       # Verify removed from test but still in default
-      expect_true(is.null(projr_yml_dir_license_get("output", profile = "test")))
-      expect_identical(projr_yml_dir_license_get("output", profile = "default"), "MIT")
+      expect_true(is.null(projr_yml_dir_license_get(
+        "output",
+        profile = "test"
+      )))
+      expect_identical(
+        projr_yml_dir_license_get("output", profile = "default"),
+        "MIT"
+      )
     }
   )
 })
@@ -1062,7 +1116,9 @@ test_that("projr_yml_dir_license_update works with different profiles", {
       desc$write(file = .path_get("DESCRIPTION"))
 
       # Update licenses in custom profile
-      suppressMessages(updated <- projr_yml_dir_license_update(profile = "custom"))
+      suppressMessages(
+        updated <- projr_yml_dir_license_update(profile = "custom")
+      )
 
       # Verify update in custom profile
       expect_true("output" %in% updated)
@@ -1070,7 +1126,10 @@ test_that("projr_yml_dir_license_update works with different profiles", {
       expect_true("New Author" %in% license$authors)
 
       # Verify default profile is unaffected
-      expect_true(is.null(projr_yml_dir_license_get("output", profile = "default")))
+      expect_true(is.null(projr_yml_dir_license_get(
+        "output",
+        profile = "default"
+      )))
     }
   )
 })

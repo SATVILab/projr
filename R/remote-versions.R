@@ -14,10 +14,14 @@
 #' @keywords internal
 #' @noRd
 .remote_write_manifest <- function(type, remote, manifest) {
-  if (type == "project") return(invisible(TRUE))
+  if (type == "project") {
+    return(invisible(TRUE))
+  }
   if (type == "local") {
     .manifest_store_write(
-      manifest, file.path(remote, "manifests"), file.path(remote, "manifest.csv")
+      manifest,
+      file.path(remote, "manifests"),
+      file.path(remote, "manifest.csv")
     )
     return(invisible(TRUE))
   }
@@ -34,8 +38,15 @@
   claim <- tryCatch(
     .gh_release_asset_upload_httr(repo, tag, lock_file, overwrite = FALSE),
     error = function(e) {
-      stop("Could not claim projr-manifest.lock on ", repo, " at ", tag,
-           ". Retry after the active writer finishes. ", conditionMessage(e), call. = FALSE)
+      stop(
+        "Could not claim projr-manifest.lock on ",
+        repo,
+        " at ",
+        tag,
+        ". Retry after the active writer finishes. ",
+        conditionMessage(e),
+        call. = FALSE
+      )
     }
   )
   on.exit(.gh_release_asset_delete_id(repo, claim$id), add = TRUE)
@@ -45,21 +56,40 @@
   # Each release publishes a single archive, including all labels and versions.
   # Keep the local writer's lock and any superseded legacy CSV out of the asset.
   index <- .manifest_store_index(store)
-  directories <- vapply(unique(index$label), .path_encode_component, character(1))
+  directories <- vapply(
+    unique(index$label),
+    .path_encode_component,
+    character(1)
+  )
   files <- c(
-    "FORMAT", file.path(directories, "versions.csv"),
+    "FORMAT",
+    file.path(directories, "versions.csv"),
     .remote_manifest_snapshots(index)
   )
   zip_path <- file.path(stage, "new-manifest.zip")
   status <- with_dir(store, utils::zip(zip_path, files, flags = "-q"))
-  if (status != 0L) stop("Could not create manifest.zip.", call. = FALSE)
+  if (status != 0L) {
+    stop("Could not create manifest.zip.", call. = FALSE)
+  }
   tryCatch(
-    .gh_release_asset_upload_httr(repo, tag, zip_path, asset_name = "manifest.zip"),
+    .gh_release_asset_upload_httr(
+      repo,
+      tag,
+      zip_path,
+      asset_name = "manifest.zip"
+    ),
     error = function(e) {
       # GitHub replaces assets by deleting the old file before the upload.
       # Restore its original bytes if an interrupted upload left the slot empty.
-      if (previous && !"manifest.zip" %in% .remote_ls_final_github_httr(repo, tag)) {
-        .gh_release_asset_upload_httr(repo, tag, file.path(stage, "manifest.zip"), overwrite = FALSE)
+      if (
+        previous && !"manifest.zip" %in% .remote_ls_final_github_httr(repo, tag)
+      ) {
+        .gh_release_asset_upload_httr(
+          repo,
+          tag,
+          file.path(stage, "manifest.zip"),
+          overwrite = FALSE
+        )
       }
       stop(e)
     }
@@ -69,20 +99,42 @@
 
 # All snapshot paths are derived from validated index entries.
 .remote_manifest_snapshots <- function(index) {
-  directories <- vapply(unique(index$label), .path_encode_component, character(1))
-  unique(file.path(directories[index$label], paste0("files-", index$snapshot, ".csv")))
+  directories <- vapply(
+    unique(index$label),
+    .path_encode_component,
+    character(1)
+  )
+  unique(file.path(
+    directories[index$label],
+    paste0("files-", index$snapshot, ".csv")
+  ))
 }
 
-.remote_manifest_download <- function(repo, tag, store, label = NULL, version = NULL) {
-  if (!.remote_check_exists_github_httr(repo, tag) ||
-    !"manifest.zip" %in% .remote_ls_final_github_httr(repo, tag)) {
+.remote_manifest_download <- function(
+  repo,
+  tag,
+  store,
+  label = NULL,
+  version = NULL
+) {
+  if (
+    !.remote_check_exists_github_httr(repo, tag) ||
+      !"manifest.zip" %in% .remote_ls_final_github_httr(repo, tag)
+  ) {
     return(invisible(FALSE))
   }
-  archive <- .remote_file_get_all_github_httr(repo, tag, "manifest.zip", dirname(store))
+  archive <- .remote_file_get_all_github_httr(
+    repo,
+    tag,
+    "manifest.zip",
+    dirname(store)
+  )
   entries <- utils::unzip(archive, list = TRUE)$Name
   fs::dir_create(store)
   extract <- function(files) {
-    if (!length(files)) return(invisible(NULL))
+    if (!length(files)) {
+      return(invisible(NULL))
+    }
     if (!all(files %in% entries)) {
       stop("Incomplete manifest.zip in release '", tag, "'.", call. = FALSE)
     }
@@ -103,7 +155,9 @@
       stop("Incomplete manifest.zip in release '", tag, "'.", call. = FALSE)
     }
     index <- .manifest_store_index(store, label)
-    if (!is.null(version)) index <- index[index$version == version, , drop = FALSE]
+    if (!is.null(version)) {
+      index <- index[index$version == version, , drop = FALSE]
+    }
     extract(.remote_manifest_snapshots(index))
   } else if ("manifest.csv" %in% entries) {
     extract("manifest.csv")
@@ -126,9 +180,10 @@
 #' @return Invisibly returns `TRUE` after the file is uploaded.
 #' @keywords internal
 #' @noRd
-.remote_write_changelog <- function(type,
-                                    remote_pre) {
-  if (type == "project") return(invisible(TRUE))
+.remote_write_changelog <- function(type, remote_pre) {
+  if (type == "project") {
+    return(invisible(TRUE))
+  }
   remote <- if (type == "github") {
     remote_pre[["fn"]] <- "CHANGELOG.zip"
     remote_pre
@@ -153,10 +208,10 @@
 #' @return Invisibly returns `TRUE` after the VERSION file is uploaded.
 #' @keywords internal
 #' @noRd
-.remote_write_version_file <- function(type,
-                                       remote_pre,
-                                       version_file) {
-  if (type == "project") return(invisible(TRUE))
+.remote_write_version_file <- function(type, remote_pre, version_file) {
+  if (type == "project") {
+    return(invisible(TRUE))
+  }
 
   path_dir_save <- .dir_create_tmp_random()
   on.exit(unlink(path_dir_save, recursive = TRUE), add = TRUE)
@@ -186,9 +241,18 @@
 #' @return Tibble containing manifest entries; empty tibble when unavailable.
 #' @keywords internal
 #' @noRd
-.remote_get_manifest <- function(type, remote_pre = NULL, label = NULL, version = NULL) {
-  if (!is.null(version)) version <- .version_v_add(version)
-  if (type == "project") return(.remote_get_manifest_project(label, version))
+.remote_get_manifest <- function(
+  type,
+  remote_pre = NULL,
+  label = NULL,
+  version = NULL
+) {
+  if (!is.null(version)) {
+    version <- .version_v_add(version)
+  }
+  if (type == "project") {
+    return(.remote_get_manifest_project(label, version))
+  }
   .remote_get_manifest_non_project(type, remote_pre, label, version)
 }
 
@@ -209,8 +273,15 @@
 #' @return Tibble containing remote manifest rows (possibly empty).
 #' @keywords internal
 #' @noRd
-.remote_get_manifest_non_project <- function(type, remote_pre, label = NULL, version = NULL) {
-  if (!length(remote_pre)) return(.zero_tbl_get_manifest())
+.remote_get_manifest_non_project <- function(
+  type,
+  remote_pre,
+  label = NULL,
+  version = NULL
+) {
+  if (!length(remote_pre)) {
+    return(.zero_tbl_get_manifest())
+  }
   if (type == "local") {
     store <- file.path(remote_pre, "manifests")
     legacy <- file.path(remote_pre, "manifest.csv")
@@ -220,15 +291,23 @@
     on.exit(unlink(stage, recursive = TRUE), add = TRUE)
     store <- file.path(stage, "manifests")
     tag <- .remote_misc_github_tag_format(remote_pre[["tag"]])
-    if (!.remote_manifest_download(.gh_repo_get(), tag, store, label, version)) {
+    if (
+      !.remote_manifest_download(.gh_repo_get(), tag, store, label, version)
+    ) {
       return(.zero_tbl_get_manifest())
     }
     legacy <- file.path(store, "manifest.csv")
   }
-  if (.manifest_store_ready(store)) return(.manifest_store_read(store, label, version))
+  if (.manifest_store_ready(store)) {
+    return(.manifest_store_read(store, label, version))
+  }
   rows <- .manifest_read(legacy)
-  if (!is.null(label)) rows <- .manifest_filter_label(rows, label)
-  if (!is.null(version)) rows <- .manifest_filter_version(rows, version)
+  if (!is.null(label)) {
+    rows <- .manifest_filter_label(rows, label)
+  }
+  if (!is.null(version)) {
+    rows <- .manifest_filter_version(rows, version)
+  }
   rows
 }
 
@@ -243,9 +322,10 @@
 #' @return Character vector with VERSION file lines; empty when absent.
 #' @keywords internal
 #' @noRd
-.remote_get_version_file <- function(type,
-                                     remote_pre) {
-  if (type == "project") return(character())
+.remote_get_version_file <- function(type, remote_pre) {
+  if (type == "project") {
+    return(character())
+  }
   .remote_get_version_file_non_project(type, remote_pre)
 }
 
@@ -257,8 +337,7 @@
 #' @return Character vector of VERSION lines (possibly length zero).
 #' @keywords internal
 #' @noRd
-.remote_get_version_file_non_project <- function(type,
-                                                 remote_pre) {
+.remote_get_version_file_non_project <- function(type, remote_pre) {
   path_dir_save <- .dir_create_tmp_random()
 
   on.exit(unlink(path_dir_save, recursive = TRUE), add = TRUE)
@@ -280,11 +359,15 @@
       )
     },
     error = function(e) {
-      .cli_debug("Could not read VERSION from {type} destination: {conditionMessage(e)}")
+      .cli_debug(
+        "Could not read VERSION from {type} destination: {conditionMessage(e)}"
+      )
       NULL
     }
   )
-  if (is.null(path_version)) return(character())
+  if (is.null(path_version)) {
+    return(character())
+  }
   if (!length(path_version) || !file.exists(path_version)) {
     .cli_debug("VERSION is absent from {type} destination")
     return(character())
@@ -321,15 +404,20 @@
 #' @return Version string stripped of suffixes, or empty when unavailable.
 #' @keywords internal
 #' @noRd
-.remote_get_version_latest_label <- function(remote_pre,
-                                             type,
-                                             label,
-                                             structure) {
+.remote_get_version_latest_label <- function(
+  remote_pre,
+  type,
+  label,
+  structure
+) {
   if (type == "project") {
     .remote_get_version_project()
   } else {
     .remote_get_version_latest_label_non_project(
-      remote_pre, type, label, structure
+      remote_pre,
+      type,
+      label,
+      structure
     )
   }
 }
@@ -353,13 +441,17 @@
 #'   available.
 #' @keywords internal
 #' @noRd
-.remote_get_version_latest_label_non_project <- function(remote_pre, # nolint
-                                                         type,
-                                                         label,
-                                                         structure) {
+.remote_get_version_latest_label_non_project <- function(
+  remote_pre, # nolint
+  type,
+  label,
+  structure
+) {
   # use the versioned files (raw-data-project: v1.0.0)
   version_file <- .remote_get_version_latest_label_non_project_file(
-    remote_pre, type, label
+    remote_pre,
+    type,
+    label
   )
 
   # if it's not correctly formatted (which may happen because
@@ -372,12 +464,16 @@
   # check what is the version indicated by the file structure
   if (structure == "archive") {
     version_archive <- .remote_get_version_latest_label_non_project_archive(
-      remote_pre, type, label, structure
+      remote_pre,
+      type,
+      label,
+      structure
     )
     if (
       !.is_string(version_archive) ||
         !.version_check_error_free(version_archive)
-    ) { # nolint
+    ) {
+      # nolint
       return(character(0L))
     }
     if (!identical(version_archive, version_file)) {
@@ -386,7 +482,11 @@
   }
 
   # check that the manifest matches
-  manifest_project <- .remote_get_manifest("project", label = label, version = version_file)
+  manifest_project <- .remote_get_manifest(
+    "project",
+    label = label,
+    version = version_file
+  )
   manifest_remote <- .remote_get_manifest(type, remote_pre, label, version_file)
   rownames(manifest_project) <- NULL
   rownames(manifest_remote) <- NULL
@@ -413,24 +513,36 @@
 #' @return Version string (without suffix) or empty vector when unavailable.
 #' @keywords internal
 #' @noRd
-.remote_get_version_latest_label_non_project_archive <- function(remote_pre,
-                                                                 type,
-                                                                 label,
-                                                                 structure) {
+.remote_get_version_latest_label_non_project_archive <- function(
+  remote_pre,
+  type,
+  label,
+  structure
+) {
   if (structure != "archive") {
     return(character(0L))
   }
-  if (!length(remote_pre)) return(character())
+  if (!length(remote_pre)) {
+    return(character())
+  }
   directory <- remote_pre
   if (type == "local" && !isTRUE(attr(remote_pre, "label_at_root"))) {
     directory <- file.path(remote_pre, label)
   }
-  if (type == "local" && !dir.exists(directory)) return(character())
+  if (type == "local" && !dir.exists(directory)) {
+    return(character())
+  }
   filenames <- .remote_ls_final(type, directory)
   if (type == "local") {
-    filenames <- grep("^v?[0-9]+([.-][0-9]+)*(-empty)?$", filenames, value = TRUE)
+    filenames <- grep(
+      "^v?[0-9]+([.-][0-9]+)*(-empty)?$",
+      filenames,
+      value = TRUE
+    )
   }
-  if (!length(filenames)) return(character())
+  if (!length(filenames)) {
+    return(character())
+  }
   version <- .remote_version_latest_get(filenames, type, label)
   if (length(version)) .version_v_rm(version) else character()
 }
@@ -470,7 +582,8 @@
     return(character(0L))
   }
   version_format_regex_dev_n <- .remote_version_latest_filter_get_regex(
-    type, label
+    type,
+    label
   )
   grep(version_format_regex_dev_n, fn, value = TRUE)
 }
@@ -520,7 +633,8 @@
   version_format_correct <- try(
     vapply(
       version_vec,
-      function(x) .version_format_check(x), logical(1)
+      function(x) .version_format_check(x),
+      logical(1)
     ) |>
       all(),
     silent = TRUE
@@ -540,12 +654,15 @@
 #' @return Character version string (without suffix) or empty vector.
 #' @keywords internal
 #' @noRd
-.remote_get_version_latest_label_non_project_file <- function(remote_pre,
-                                                              type,
-                                                              label) {
+.remote_get_version_latest_label_non_project_file <- function(
+  remote_pre,
+  type,
+  label
+) {
   version_file <- .remote_get_version_file(type, remote_pre)
   .remote_get_version_latest_label_non_project_file_extract(
-    version_file, label
+    version_file,
+    label
   )
 }
 
@@ -558,8 +675,7 @@
 #' @keywords internal
 #' @noRd
 .remote_get_version_latest_label_non_project_file_extract <-
-  function(version_file,
-           label) {
+  function(version_file, label) {
     match_str <- utils::glob2rx(label) |>
       (\(x) gsub("\\$", "", x))() |>
       paste0(": ")
@@ -587,9 +703,9 @@
 #' @return Backend-specific object describing the newest remote.
 #' @keywords internal
 #' @noRd
-.remote_get_recent <- function(remote_final,
-                               type) {
-  switch(type,
+.remote_get_recent <- function(remote_final, type) {
+  switch(
+    type,
     "local" = .remote_get_recent_local(remote_final),
     "github" = .remote_get_recent_github(remote_final)
   )
@@ -629,7 +745,8 @@
 #' @keywords internal
 #' @noRd
 .remote_detect_structure <- function(remote, type) {
-  switch(type,
+  switch(
+    type,
     "local" = .remote_detect_structure_local(remote),
     "osf" = .remote_detect_structure_osf(remote),
     "github" = .remote_detect_structure_github(remote)
@@ -685,7 +802,8 @@
 #' @keywords internal
 #' @noRd
 .version_get_remote <- function(remote, type) {
-  switch(type,
+  switch(
+    type,
     "github" = .version_get_remote_github(remote),
     "local" = .version_get_remote_local(remote),
     stop("type not recognized")

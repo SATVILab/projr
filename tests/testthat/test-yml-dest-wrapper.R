@@ -80,7 +80,11 @@ test_that("projr_yml_dest_add_local with relative path", {
         path = "_archive"
       )
 
-      yml_title <- .yml_dest_get_title("test-local-relative", "local", "default")
+      yml_title <- .yml_dest_get_title(
+        "test-local-relative",
+        "local",
+        "default"
+      )
       expect_identical(yml_title[["path"]], "_archive")
     }
   )
@@ -160,7 +164,11 @@ test_that("projr_yml_dest_add_local with profile parameter", {
         profile = "test-profile"
       )
 
-      yml_title <- .yml_dest_get_title("test-local-profile", "local", "test-profile")
+      yml_title <- .yml_dest_get_title(
+        "test-local-profile",
+        "local",
+        "test-profile"
+      )
       expect_identical(yml_title[["content"]], "output")
     }
   )
@@ -208,7 +216,11 @@ test_that("projr_yml_dest_add_github replaces spaces with hyphens in title", {
         content = "output"
       )
 
-      yml_title <- .yml_dest_get_title("test-github-release", "github", "default")
+      yml_title <- .yml_dest_get_title(
+        "test-github-release",
+        "github",
+        "default"
+      )
       expect_identical(yml_title[["content"]], "output")
     }
   )
@@ -327,7 +339,11 @@ test_that("projr_yml_dest_add_github with profile parameter", {
         profile = "test-profile"
       )
 
-      yml_title <- .yml_dest_get_title("test-github-profile", "github", "test-profile")
+      yml_title <- .yml_dest_get_title(
+        "test-github-profile",
+        "github",
+        "test-profile"
+      )
       expect_identical(yml_title[["content"]], "output")
     }
   )

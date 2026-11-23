@@ -51,15 +51,24 @@
     FALSE
   } else if (status == 401L || status == 403L) {
     stop(
-      "GitHub API authentication error (status ", status, ") ",
-      "when checking release existence for tag '", tag, "' in repo '", repo, "'. ",
+      "GitHub API authentication error (status ",
+      status,
+      ") ",
+      "when checking release existence for tag '",
+      tag,
+      "' in repo '",
+      repo,
+      "'. ",
       "Please check your GITHUB_PAT is set correctly.",
       call. = FALSE
     )
   } else {
     stop(
       "Unexpected HTTP status from GitHub API: ",
-      status, " (url: ", url, ")",
+      status,
+      " (url: ",
+      url,
+      ")",
       call. = FALSE
     )
   }
@@ -69,12 +78,13 @@
 # check existence of remote_final
 # ========================
 
-
-.remote_final_check_exists_github_httr <- function(repo,
-                                                   tag,
-                                                   asset,
-                                                   api_url = NULL,
-                                                   token = NULL) {
+.remote_final_check_exists_github_httr <- function(
+  repo,
+  tag,
+  asset,
+  api_url = NULL,
+  token = NULL
+) {
   assets <- .remote_ls_final_github_httr(
     repo = repo,
     tag = tag,
@@ -91,32 +101,71 @@
 # Create release
 # ========================
 
-.gh_release_branch_sha <- function(repo, branch, tag, api_url = NULL, token = NULL) {
+.gh_release_branch_sha <- function(
+  repo,
+  branch,
+  tag,
+  api_url = NULL,
+  token = NULL
+) {
   base <- paste0(.github_api_base(api_url), "/repos/", repo)
   token <- token %||% .auth_get_github_pat_find(api_url = api_url)
   headers <- c(Accept = "application/vnd.github+json")
-  if (.is_string(token)) headers["Authorization"] <- paste("token", token)
+  if (.is_string(token)) {
+    headers["Authorization"] <- paste("token", token)
+  }
 
   get_object <- function(endpoint, missing = FALSE) {
-    response <- httr::GET(paste0(base, endpoint), httr::add_headers(.headers = headers))
-    if (missing && httr::status_code(response) == 404L) return(NULL)
+    response <- httr::GET(
+      paste0(base, endpoint),
+      httr::add_headers(.headers = headers)
+    )
+    if (missing && httr::status_code(response) == 404L) {
+      return(NULL)
+    }
     httr::stop_for_status(response, task = paste("read", endpoint, "in", repo))
     httr::content(response, as = "parsed")
   }
-  ref <- get_object(paste0("/git/ref/heads/", utils::URLencode(branch, reserved = TRUE)))
+  ref <- get_object(paste0(
+    "/git/ref/heads/",
+    utils::URLencode(branch, reserved = TRUE)
+  ))
   sha <- ref$object$sha
-  if (!identical(ref$object$type, "commit") || !.is_string(sha) || !grepl("^[0-9a-f]{40}$", sha)) {
-    stop("GitHub branch '", branch, "' does not identify a commit in ", repo, ".", call. = FALSE)
+  if (
+    !identical(ref$object$type, "commit") ||
+      !.is_string(sha) ||
+      !grepl("^[0-9a-f]{40}$", sha)
+  ) {
+    stop(
+      "GitHub branch '",
+      branch,
+      "' does not identify a commit in ",
+      repo,
+      ".",
+      call. = FALSE
+    )
   }
   # GitHub ignores target_commitish when the Git tag already exists.
-  existing <- get_object(paste0("/git/ref/tags/", utils::URLencode(tag, reserved = TRUE)), missing = TRUE)
+  existing <- get_object(
+    paste0("/git/ref/tags/", utils::URLencode(tag, reserved = TRUE)),
+    missing = TRUE
+  )
   if (!is.null(existing)) {
     object <- existing$object
     while (identical(object$type, "tag")) {
       object <- get_object(paste0("/git/tags/", object$sha))$object
     }
     if (!identical(object$type, "commit") || !identical(object$sha, sha)) {
-      stop("Existing Git tag '", tag, "' does not point to branch '", branch, "' at ", sha, ".", call. = FALSE)
+      stop(
+        "Existing Git tag '",
+        tag,
+        "' does not point to branch '",
+        branch,
+        "' at ",
+        sha,
+        ".",
+        call. = FALSE
+      )
     }
   }
   sha
@@ -158,7 +207,7 @@
   tok <- token %||% .auth_get_github_pat_find(api_url = api_url)
 
   headers <- c(
-    "Accept"       = "application/vnd.github+json",
+    "Accept" = "application/vnd.github+json",
     "Content-Type" = "application/json"
   )
   if (.is_string(tok)) {
@@ -166,10 +215,10 @@
   }
 
   body <- list(
-    tag_name   = tag,
-    name       = tag, # you can change this if you want a nicer title
-    body       = description,
-    draft      = isTRUE(draft),
+    tag_name = tag,
+    name = tag, # you can change this if you want a nicer title
+    body = description,
+    draft = isTRUE(draft),
     prerelease = isTRUE(prerelease)
   )
   if (!is.null(target_commitish)) {
@@ -201,7 +250,10 @@
   } else {
     stop(
       "Failed to create release: HTTP ",
-      status, " (url: ", url, ")",
+      status,
+      " (url: ",
+      url,
+      ")",
       call. = FALSE
     )
   }
@@ -247,10 +299,12 @@
   }
 }
 
-.remote_get_info_github_httr <- function(repo,
-                                         tag,
-                                         api_url = NULL,
-                                         token = NULL) {
+.remote_get_info_github_httr <- function(
+  repo,
+  tag,
+  api_url = NULL,
+  token = NULL
+) {
   .dep_install_only("httr")
 
   base <- .github_api_base(api_url)
@@ -273,7 +327,10 @@
   } else {
     stop(
       "Failed to get release: HTTP ",
-      status, " (url: ", url, ")",
+      status,
+      " (url: ",
+      url,
+      ")",
       call. = FALSE
     )
   }
@@ -283,11 +340,13 @@
 # Get information about the final remote
 # =======================
 
-.remote_final_get_info_github_httr <- function(repo,
-                                               tag,
-                                               asset_name,
-                                               api_url = NULL,
-                                               token = NULL) {
+.remote_final_get_info_github_httr <- function(
+  repo,
+  tag,
+  asset_name,
+  api_url = NULL,
+  token = NULL
+) {
   asset_list <- .remote_get_info_github_httr(
     repo = repo,
     tag = tag,
@@ -297,8 +356,11 @@
 
   if (length(asset_list) == 0L) {
     stop(
-      "No assets found in release '", tag,
-      "' for repo '", repo, "'.",
+      "No assets found in release '",
+      tag,
+      "' for repo '",
+      repo,
+      "'.",
       call. = FALSE
     )
   }
@@ -310,7 +372,13 @@
   }
 
   stop(
-    "Asset '", asset_name, "' not found in release '", tag, "' for repo '", repo, "'.",
+    "Asset '",
+    asset_name,
+    "' not found in release '",
+    tag,
+    "' for repo '",
+    repo,
+    "'.",
     call. = FALSE
   )
 }
@@ -328,10 +396,7 @@
 #' @param token Optional GitHub token.
 #' @return Logical TRUE on success, FALSE if not found.
 #' @keywords internal
-.remote_rm_github_httr <- function(repo,
-                                   tag,
-                                   api_url = NULL,
-                                   token = NULL) {
+.remote_rm_github_httr <- function(repo, tag, api_url = NULL, token = NULL) {
   .dep_install_only("httr")
   .assert_string(repo, TRUE)
   .assert_string(tag, TRUE)
@@ -357,7 +422,10 @@
   if (status_get != 200L) {
     stop(
       "Failed to fetch release for deletion: HTTP ",
-      status_get, " (url: ", url_release, ")",
+      status_get,
+      " (url: ",
+      url_release,
+      ")",
       call. = FALSE
     )
   }
@@ -380,7 +448,10 @@
   }
   stop(
     "Failed to delete release: HTTP ",
-    status_del, " (url: ", url_delete, ")",
+    status_del,
+    " (url: ",
+    url_delete,
+    ")",
     call. = FALSE
   )
 }
@@ -425,7 +496,12 @@
   .gh_release_asset_delete_id(repo, assetid, api_url, token)
 }
 
-.gh_release_asset_delete_id <- function(repo, assetid, api_url = NULL, token = NULL) {
+.gh_release_asset_delete_id <- function(
+  repo,
+  assetid,
+  api_url = NULL,
+  token = NULL
+) {
   base <- .github_api_base(api_url)
   url <- sprintf("%s/repos/%s/releases/assets/%s", base, repo, assetid)
 
@@ -443,7 +519,10 @@
   } else {
     stop(
       "Failed to delete asset: HTTP ",
-      status, " (url: ", url, ")",
+      status,
+      " (url: ",
+      url,
+      ")",
       call. = FALSE
     )
   }
@@ -530,8 +609,13 @@
 
   if (status < 200L || status >= 300L) {
     stop(
-      "Failed to download asset '", asset_name, "': HTTP ",
-      status, " (url: ", download_url, ")",
+      "Failed to download asset '",
+      asset_name,
+      "': HTTP ",
+      status,
+      " (url: ",
+      download_url,
+      ")",
       call. = FALSE
     )
   }
@@ -539,11 +623,13 @@
   invisible(dest_file)
 }
 
-.gh_httr_get_assetid <- function(repo,
-                                 tag,
-                                 asset_name,
-                                 api_url = NULL,
-                                 token = NULL) {
+.gh_httr_get_assetid <- function(
+  repo,
+  tag,
+  asset_name,
+  api_url = NULL,
+  token = NULL
+) {
   # about all assets in the release
   .remote_final_get_info_github_httr(
     repo = repo,
@@ -570,13 +656,15 @@
 #'
 #' @return List containing asset information from GitHub API.
 #' @keywords internal
-.gh_release_asset_upload_httr <- function(repo,
-                                          tag,
-                                          file_path,
-                                          asset_name = NULL,
-                                          overwrite = TRUE,
-                                          api_url = NULL,
-                                          token = NULL) {
+.gh_release_asset_upload_httr <- function(
+  repo,
+  tag,
+  file_path,
+  asset_name = NULL,
+  overwrite = TRUE,
+  api_url = NULL,
+  token = NULL
+) {
   .dep_install_only("httr")
 
   .assert_string(tag, TRUE)
@@ -592,22 +680,46 @@
   .assert_string(asset_name, TRUE)
 
   # Check that release exists
-  if (!.remote_check_exists_github_httr(repo = repo, tag = tag, api_url = api_url, token = token)) {
+  if (
+    !.remote_check_exists_github_httr(
+      repo = repo,
+      tag = tag,
+      api_url = api_url,
+      token = token
+    )
+  ) {
     stop("Release '", tag, "' not found in repo '", repo, "'.", call. = FALSE)
   }
 
   # If asset exists, optionally delete it first when overwrite = TRUE
-  if (.remote_final_check_exists_github_httr(repo = repo, tag = tag, asset = asset_name, api_url = api_url, token = token)) {
+  if (
+    .remote_final_check_exists_github_httr(
+      repo = repo,
+      tag = tag,
+      asset = asset_name,
+      api_url = api_url,
+      token = token
+    )
+  ) {
     if (isTRUE(overwrite)) {
       .cli_debug(
         "GitHub release: Asset '{asset_name}' exists in release '{tag}', deleting before upload",
         asset_name = asset_name,
         tag = tag
       )
-      .remote_final_rm_github_httr(repo = repo, tag = tag, fn = asset_name, api_url = api_url, token = token)
+      .remote_final_rm_github_httr(
+        repo = repo,
+        tag = tag,
+        fn = asset_name,
+        api_url = api_url,
+        token = token
+      )
     } else {
       stop(
-        "Asset '", asset_name, "' already exists in release '", tag,
+        "Asset '",
+        asset_name,
+        "' already exists in release '",
+        tag,
         "' and overwrite is FALSE.",
         call. = FALSE
       )
@@ -624,14 +736,24 @@
     headers_release["Authorization"] <- paste("token", tok)
   }
 
-  resp_release <- httr::GET(release_url, httr::add_headers(.headers = headers_release))
+  resp_release <- httr::GET(
+    release_url,
+    httr::add_headers(.headers = headers_release)
+  )
   status_release <- httr::status_code(resp_release)
 
   if (status_release == 200L) {
     release_obj <- httr::content(resp_release, as = "parsed")
     upload_url <- release_obj$upload_url %||% ""
     if (!nzchar(upload_url)) {
-      stop("Could not obtain upload_url for release '", tag, "' in repo '", repo, "'.", call. = FALSE)
+      stop(
+        "Could not obtain upload_url for release '",
+        tag,
+        "' in repo '",
+        repo,
+        "'.",
+        call. = FALSE
+      )
     }
     # strip template placeholder and add name
     upload_url <- sub("\\{\\?name,label\\}$", "", upload_url)
@@ -642,7 +764,14 @@
   } else if (status_release == 404L) {
     stop("Release not found: ", tag, " in ", repo, call. = FALSE)
   } else {
-    stop("Failed to get release: HTTP ", status_release, " (url: ", release_url, ")", call. = FALSE)
+    stop(
+      "Failed to get release: HTTP ",
+      status_release,
+      " (url: ",
+      release_url,
+      ")",
+      call. = FALSE
+    )
   }
 
   # Prepare headers for upload
@@ -673,10 +802,24 @@
     httr::content(resp, as = "parsed")
   } else if (status == 422L) {
     # Validation failed - possibly asset already present (race condition)
-    detail <- tryCatch(httr::content(resp, as = "parsed")$message, error = function(e) NULL)
-    stop("Failed to upload asset (HTTP 422)", if (!is.null(detail)) paste0(": ", detail) else "", call. = FALSE)
+    detail <- tryCatch(
+      httr::content(resp, as = "parsed")$message,
+      error = function(e) NULL
+    )
+    stop(
+      "Failed to upload asset (HTTP 422)",
+      if (!is.null(detail)) paste0(": ", detail) else "",
+      call. = FALSE
+    )
   } else {
-    stop("Failed to upload asset: HTTP ", status, " (url: ", upload_url, ")", call. = FALSE)
+    stop(
+      "Failed to upload asset: HTTP ",
+      status,
+      " (url: ",
+      upload_url,
+      ")",
+      call. = FALSE
+    )
   }
 }
 

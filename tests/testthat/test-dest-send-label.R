@@ -10,7 +10,9 @@
 # =============================================================================
 
 dir_test <- .test_setup_project(
-  git = TRUE, github = FALSE, set_env_var = TRUE
+  git = TRUE,
+  github = FALSE,
+  set_env_var = TRUE
 )
 
 # =============================================================================
@@ -116,11 +118,16 @@ test_that("upload-all selects the recorded files for this label and version", {
   usethis::with_project(dir_test, {
     project_version <- .version_get_v()
     rows <- data.frame(
-      label = c("raw-data", "output", "output"), fn = c("other", "old", "current"),
-      version = c(project_version, "v0.0.0", project_version), hash = "hash"
+      label = c("raw-data", "output", "output"),
+      fn = c("other", "old", "current"),
+      version = c(project_version, "v0.0.0", project_version),
+      hash = "hash"
     )
     .manifest_store_write(rows)
-    expect_identical(.dsl_gpfn_upload_all("output"), list(fn_source = "current"))
+    expect_identical(
+      .dsl_gpfn_upload_all("output"),
+      list(fn_source = "current")
+    )
   })
 })
 
@@ -527,20 +534,39 @@ test_that("send strategies update only the active directory version", {
   usethis::with_project(dir_test, {
     version <- .version_get_v()
     remote <- withr::local_tempdir()
-    previous <- data.frame(label = "output", fn = c("changed", "kept"), version = version, hash = "old")
-    .remote_write_manifest("local", remote, rbind(
-      previous, transform(previous, label = "raw-data"), transform(previous, version = "v0.0.0")
-    ))
+    previous <- data.frame(
+      label = "output",
+      fn = c("changed", "kept"),
+      version = version,
+      hash = "old"
+    )
+    .remote_write_manifest(
+      "local",
+      remote,
+      rbind(
+        previous,
+        transform(previous, label = "raw-data"),
+        transform(previous, version = "v0.0.0")
+      )
+    )
     current <- transform(previous, fn = c("added", "changed"), hash = "new")
     .manifest_store_write(current)
-    plan <- function(strategy) .dsl_gpa_manifest("local", remote, "output", strategy)
+    plan <- function(strategy) {
+      .dsl_gpa_manifest("local", remote, "output", strategy)
+    }
 
     expect_equal(plan("sync-diff"), current)
     expect_equal(plan("sync-purge"), current)
     uploaded <- plan("upload-all")
-    expect_identical(stats::setNames(uploaded$hash, uploaded$fn), c(added = "new", changed = "new", kept = "old"))
+    expect_identical(
+      stats::setNames(uploaded$hash, uploaded$fn),
+      c(added = "new", changed = "new", kept = "old")
+    )
     missing <- plan("upload-missing")
-    expect_identical(stats::setNames(missing$hash, missing$fn), c(changed = "old", kept = "old", added = "new"))
+    expect_identical(
+      stats::setNames(missing$hash, missing$fn),
+      c(changed = "old", kept = "old", added = "new")
+    )
   })
 })
 
@@ -550,9 +576,20 @@ test_that("archive trust begins at the most recent uninterrupted run of matching
   usethis::with_project(project, {
     versions <- paste0("v1.0.", 0:3)
     projr_version_set("1.0.3")
-    rows <- data.frame(label = "raw-data", fn = "sample", version = versions, hash = c("A", "B", "A", "A"))
+    rows <- data.frame(
+      label = "raw-data",
+      fn = "sample",
+      version = versions,
+      hash = c("A", "B", "A", "A")
+    )
     .manifest_store_write(rows)
-    expect_equal(as.character(.manifest_get_version_earliest_match("raw-data", NULL)), "1.0.2")
-    expect_equal(as.character(.manifest_get_version_earliest_match("raw-data", "1.0.3")), "1.0.3")
+    expect_equal(
+      as.character(.manifest_get_version_earliest_match("raw-data", NULL)),
+      "1.0.2"
+    )
+    expect_equal(
+      as.character(.manifest_get_version_earliest_match("raw-data", "1.0.3")),
+      "1.0.3"
+    )
   })
 })

@@ -73,26 +73,31 @@ test_that(".buildlog_read works with empty file", {
 test_that("legacy build history stays readable and migrates without losing entries", {
   skip_if(.is_test_select())
   project <- withr::local_tempdir()
-  usethis::with_project(project, {
-    writeLines("build: {git: false}", "_projr.yml")
-    log <- c("# BUILDLOG", "", "#### v1.2.0: Old build")
-    writeLines(log, "BUILDLOG.md")
-    writeLines("# Project changes", "CHANGELOG.md")
-    expect_identical(.buildlog_read(), log)
-    expect_false(dir.exists(".projr"))
+  usethis::with_project(
+    project,
+    {
+      writeLines("build: {git: false}", "_projr.yml")
+      log <- c("# BUILDLOG", "", "#### v1.2.0: Old build")
+      writeLines(log, "BUILDLOG.md")
+      writeLines("# Project changes", "CHANGELOG.md")
+      expect_identical(.buildlog_read(), log)
+      expect_false(dir.exists(".projr"))
 
-    fs::dir_create(".projr")
-    writeLines("other history", ".projr/BUILDLOG.md")
-    expect_error(.project_state_upgrade(project), "Reconcile")
-    expect_identical(readLines("BUILDLOG.md"), log)
-    expect_identical(readLines(".projr/BUILDLOG.md"), "other history")
-    file.remove(".projr/BUILDLOG.md")
+      fs::dir_create(".projr")
+      writeLines("other history", ".projr/BUILDLOG.md")
+      expect_error(.project_state_upgrade(project), "Reconcile")
+      expect_identical(readLines("BUILDLOG.md"), log)
+      expect_identical(readLines(".projr/BUILDLOG.md"), "other history")
+      file.remove(".projr/BUILDLOG.md")
 
-    expect_true(.project_state_upgrade(project))
-    expect_false(file.exists("BUILDLOG.md"))
-    expect_identical(readLines(".projr/BUILDLOG.md"), log)
-    expect_identical(readLines("CHANGELOG.md"), "# Project changes")
-  }, force = TRUE, quiet = TRUE)
+      expect_true(.project_state_upgrade(project))
+      expect_false(file.exists("BUILDLOG.md"))
+      expect_identical(readLines(".projr/BUILDLOG.md"), log)
+      expect_identical(readLines("CHANGELOG.md"), "# Project changes")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
 })
 
 test_that(".buildlog_write creates file correctly", {
@@ -152,10 +157,22 @@ test_that(".buildlog_get_metadata_time formats correctly", {
   skip_if(.is_test_select())
 
   # Test various durations
-  expect_match(.buildlog_get_metadata_time(as.difftime(30, units = "secs")), "30s")
-  expect_match(.buildlog_get_metadata_time(as.difftime(90, units = "secs")), "1min 30s")
-  expect_match(.buildlog_get_metadata_time(as.difftime(3661, units = "secs")), "1hr 1min 1s")
-  expect_match(.buildlog_get_metadata_time(as.difftime(86460, units = "secs")), "1d 0hr 1min 0s")
+  expect_match(
+    .buildlog_get_metadata_time(as.difftime(30, units = "secs")),
+    "30s"
+  )
+  expect_match(
+    .buildlog_get_metadata_time(as.difftime(90, units = "secs")),
+    "1min 30s"
+  )
+  expect_match(
+    .buildlog_get_metadata_time(as.difftime(3661, units = "secs")),
+    "1hr 1min 1s"
+  )
+  expect_match(
+    .buildlog_get_metadata_time(as.difftime(86460, units = "secs")),
+    "1d 0hr 1min 0s"
+  )
 })
 
 test_that(".buildlog_get_version formats correctly for different bump types", {
@@ -327,20 +344,35 @@ test_that(".buildlog_get_metadata_time handles edge cases", {
   skip_if(.is_test_select())
 
   # Just seconds
-  expect_match(.buildlog_get_metadata_time(as.difftime(5, units = "secs")), "^5s$")
+  expect_match(
+    .buildlog_get_metadata_time(as.difftime(5, units = "secs")),
+    "^5s$"
+  )
 
   # Exactly 1 minute
-  expect_match(.buildlog_get_metadata_time(as.difftime(60, units = "secs")), "^1min 0s$")
+  expect_match(
+    .buildlog_get_metadata_time(as.difftime(60, units = "secs")),
+    "^1min 0s$"
+  )
 
   # Exactly 1 hour
-  expect_match(.buildlog_get_metadata_time(as.difftime(3600, units = "secs")), "^1hr 0min 0s$")
+  expect_match(
+    .buildlog_get_metadata_time(as.difftime(3600, units = "secs")),
+    "^1hr 0min 0s$"
+  )
 
   # Exactly 1 day
-  expect_match(.buildlog_get_metadata_time(as.difftime(86400, units = "secs")), "^1d 0hr 0min 0s$")
+  expect_match(
+    .buildlog_get_metadata_time(as.difftime(86400, units = "secs")),
+    "^1d 0hr 0min 0s$"
+  )
 
   # Test weeks (1 week + 2 days + 3 hours + 4 minutes + 5 seconds)
   week_seconds <- 7 * 24 * 3600 + 2 * 24 * 3600 + 3 * 3600 + 4 * 60 + 5
-  result <- .buildlog_get_metadata_time(as.difftime(week_seconds, units = "secs"))
+  result <- .buildlog_get_metadata_time(as.difftime(
+    week_seconds,
+    units = "secs"
+  ))
   expect_match(result, "1w 2d 3hr 4min 5s")
 
   # Multiple weeks
@@ -379,7 +411,12 @@ test_that(".buildlog_get_add combines all sections correctly", {
       version_run_on_list <- list(desc = list(success = "2.0.0"))
       total_time <- as.difftime(150, units = "secs")
 
-      add_txt <- .buildlog_get_add(msg, bump_component, version_run_on_list, total_time)
+      add_txt <- .buildlog_get_add(
+        msg,
+        bump_component,
+        version_run_on_list,
+        total_time
+      )
 
       # Check all expected sections are present
       expect_true(any(grepl("### v2.0.0:", add_txt))) # Header (minor = 3 hashes)

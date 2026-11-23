@@ -36,31 +36,52 @@
 #' @export
 projr_get <- function(type, ...) {
   .assert_in_single(type, c("local", "github"), TRUE)
-  switch(type,
-    local = projr_get_local(...),
-    github = projr_get_github(...)
-  )
+  switch(type, local = projr_get_local(...), github = projr_get_github(...))
 }
 
 #' @rdname projr_get
 #' @export
-projr_get_local <- function(path = NULL, remote = NULL, label = NULL, version = NULL,
-                            out = ".", overwrite = FALSE) {
+projr_get_local <- function(
+  path = NULL,
+  remote = NULL,
+  label = NULL,
+  version = NULL,
+  out = ".",
+  overwrite = FALSE
+) {
   .get_content("local", path, remote, NULL, label, version, out, overwrite)
 }
 
 #' @rdname projr_get
 #' @export
-projr_get_github <- function(repo = NULL, remote = NULL, tag = NULL, label = NULL,
-                             version = NULL, out = ".", overwrite = FALSE) {
+projr_get_github <- function(
+  repo = NULL,
+  remote = NULL,
+  tag = NULL,
+  label = NULL,
+  version = NULL,
+  out = ".",
+  overwrite = FALSE
+) {
   .get_content("github", repo, remote, tag, label, version, out, overwrite)
 }
 
-.get_content <- function(type, direct, remote, tag, label, version, out, overwrite) {
+.get_content <- function(
+  type,
+  direct,
+  remote,
+  tag,
+  label,
+  version,
+  out,
+  overwrite
+) {
   .assert_string(direct)
   .assert_string(remote)
   if (is.null(direct) == is.null(remote)) {
-    stop("Supply exactly one of ", if (type == "local") "path" else "repo",
+    stop(
+      "Supply exactly one of ",
+      if (type == "local") "path" else "repo",
       " and remote.",
       call. = FALSE
     )
@@ -83,18 +104,31 @@ projr_get_github <- function(repo = NULL, remote = NULL, tag = NULL, label = NUL
     root <- if (is.null(remote)) fs::path_real(direct) else .path_get()
     producer <- with_dir(root, {
       if (!identical(fs::path_real(.path_get()), fs::path_real(root))) {
-        stop("path must be the root of the producing projr analysis.", call. = FALSE)
+        stop(
+          "path must be the root of the producing projr analysis.",
+          call. = FALSE
+        )
       }
       record <- .get_build_record(.buildlog_read(), version)
       list(
-        root = root, yml = .yml_get(NULL), record = record,
-        version = record$version %||% tryCatch(.restore_build_version(version), error = function(e) NULL),
-        head = .template_checkout_head(), store = .manifest_project_dir(), hashing = .yml_settings_hashing()
+        root = root,
+        yml = .yml_get(NULL),
+        record = record,
+        version = record$version %||%
+          tryCatch(.restore_build_version(version), error = function(e) NULL),
+        head = .template_checkout_head(),
+        store = .manifest_project_dir(),
+        hashing = .yml_settings_hashing()
       )
     })
   } else {
-    if (!grepl("^[a-zA-Z0-9][a-zA-Z0-9-]*/[a-zA-Z0-9_.-]+(@[^[:space:]]+)?$", direct) ||
-      basename(sub("@.*$", "", direct)) %in% c(".", "..")) {
+    if (
+      !grepl(
+        "^[a-zA-Z0-9][a-zA-Z0-9-]*/[a-zA-Z0-9_.-]+(@[^[:space:]]+)?$",
+        direct
+      ) ||
+        basename(sub("@.*$", "", direct)) %in% c(".", "..")
+    ) {
       stop("repo must be owner/repo or owner/repo@branch.", call. = FALSE)
     }
     repo <- sub("@.*$", "", direct)
@@ -108,15 +142,21 @@ projr_get_github <- function(repo = NULL, remote = NULL, tag = NULL, label = NUL
 
   sources <- list()
   record <- producer$record
-  if (is.null(remote) && is.null(tag)) version <- version %||% producer$version
+  if (is.null(remote) && is.null(tag)) {
+    version <- version %||% producer$version
+  }
   if (type == "local" && is.null(remote)) {
     sources <- list(list(
-      type = "project", store = producer$store,
-      csv = file.path(root, "manifest.csv"), root = root,
+      type = "project",
+      store = producer$store,
+      csv = file.path(root, "manifest.csv"),
+      root = root,
       dirs = (record$yml %||% producer$yml)$directories
     ))
   }
-  if (!is.null(producer$metadata)) sources <- list(producer$metadata)
+  if (!is.null(producer$metadata)) {
+    sources <- list(producer$metadata)
+  }
   yml <- if (is.null(remote)) record$yml %||% producer$yml else producer$yml
   titles <- if (!is.null(remote)) {
     remote
@@ -124,8 +164,10 @@ projr_get_github <- function(repo = NULL, remote = NULL, tag = NULL, label = NUL
     tag
   } else {
     unique(c(
-      names(yml$remotes[[type]]), names(yml$build[[type]]),
-      names(producer$yml$remotes[[type]]), "archive"
+      names(yml$remotes[[type]]),
+      names(yml$build[[type]]),
+      names(producer$yml$remotes[[type]]),
+      "archive"
     ))
   }
   for (key in titles) {
@@ -134,73 +176,154 @@ projr_get_github <- function(repo = NULL, remote = NULL, tag = NULL, label = NUL
     if (!is.null(remote) && !is.null(def) && !is.null(version)) {
       def <- .yml_remote_definition(type, key, record$yml) %||% def
     }
-    if (is.null(def) && !is.null(remote)) stop("Unknown ", type, " remote: ", remote, call. = FALSE)
-    if (is.null(remote) && is.null(tag) && identical(def$source, FALSE)) next
-    target <- .get_remote_target(type, key, def, record, version %||% producer$version,
-      producer$head, tag,
+    if (is.null(def) && !is.null(remote)) {
+      stop("Unknown ", type, " remote: ", remote, call. = FALSE)
+    }
+    if (is.null(remote) && is.null(tag) && identical(def$source, FALSE)) {
+      next
+    }
+    target <- .get_remote_target(
+      type,
+      key,
+      def,
+      record,
+      version %||% producer$version,
+      producer$head,
+      tag,
       optional = is.null(remote) && is.null(tag)
     )
-    if (is.null(target)) next
+    if (is.null(target)) {
+      next
+    }
     source <- list(
-      type = type, key = key, structure = def$structure %||% "archive",
-      append = def[["path-append-label"]] %||% TRUE, prefix = def$path,
+      type = type,
+      key = key,
+      structure = def$structure %||% "archive",
+      append = def[["path-append-label"]] %||% TRUE,
+      prefix = def$path,
       preferred = def$source
     )
     if (type == "local") {
-      source$root <- as.character(fs::path_abs(fs::path_expand(target), start = root))
+      source$root <- as.character(fs::path_abs(
+        fs::path_expand(target),
+        start = root
+      ))
       source$store <- file.path(source$root, "manifests")
       source$csv <- file.path(source$root, "manifest.csv")
     } else {
       source$repo <- def$repo %||% producer$repo %||% .gh_repo_get()
       .assert_string(source$repo, TRUE)
-      if (!grepl("^[A-Za-z0-9][A-Za-z0-9-]*/[A-Za-z0-9_.-]+$", source$repo) ||
-        basename(source$repo) %in% c(".", "..")) {
+      if (
+        !grepl("^[A-Za-z0-9][A-Za-z0-9-]*/[A-Za-z0-9_.-]+$", source$repo) ||
+          basename(source$repo) %in% c(".", "..")
+      ) {
         stop("Invalid GitHub repository: ", source$repo, call. = FALSE)
       }
       source$tag <- target
       source$direct_tag <- !is.null(tag) && is.null(remote)
-      if (!.remote_check_exists_github_httr(source$repo, target)) next
+      if (!.remote_check_exists_github_httr(source$repo, target)) {
+        next
+      }
       source$assets <- .remote_ls_final_github_httr(source$repo, target)
       metadata <- tempfile(tmpdir = workspace)
       fs::dir_create(metadata)
       source$store <- file.path(metadata, "manifests")
       source$csv <- file.path(source$store, "manifest.csv")
       if ("manifest.zip" %in% source$assets) {
-        .remote_manifest_download(source$repo, target, source$store, label, version)
+        .remote_manifest_download(
+          source$repo,
+          target,
+          source$store,
+          label,
+          version
+        )
       } else if ("manifest.csv" %in% source$assets) {
-        .remote_file_get_all_github_httr(source$repo, target, "manifest.csv", source$store)
+        .remote_file_get_all_github_httr(
+          source$repo,
+          target,
+          "manifest.csv",
+          source$store
+        )
       }
     }
     if (.manifest_store_ready(source$store) || file.exists(source$csv)) {
       sources[[length(sources) + 1L]] <- source
     }
   }
-  if (!length(sources)) stop("No published manifest found for the selected source.", call. = FALSE)
+  if (!length(sources)) {
+    stop("No published manifest found for the selected source.", call. = FALSE)
+  }
   version <- version %||% .get_archive_version(sources[[1L]], workspace)
-  if (is.null(version)) stop("No completed build recorded at this source. Supply version.", call. = FALSE)
+  if (is.null(version)) {
+    stop(
+      "No completed build recorded at this source. Supply version.",
+      call. = FALSE
+    )
+  }
   if (is.null(label)) {
     indexes <- lapply(sources, function(source) {
-      if (.manifest_store_ready(source$store)) .manifest_store_index(source$store) else .manifest_read(source$csv)
+      if (.manifest_store_ready(source$store)) {
+        .manifest_store_index(source$store)
+      } else {
+        .manifest_read(source$csv)
+      }
     })
-    actual <- indexes[vapply(sources, function(s) s$type != "metadata", logical(1))]
-    label <- unique(unlist(lapply(actual, function(index) index$label[index$version == version]), use.names = FALSE))
+    actual <- indexes[vapply(
+      sources,
+      function(s) s$type != "metadata",
+      logical(1)
+    )]
+    label <- unique(unlist(
+      lapply(actual, function(index) index$label[index$version == version]),
+      use.names = FALSE
+    ))
     if (!is.null(producer$metadata)) {
       project <- indexes[[1L]]
-      for (key in setdiff(unique(project$label[project$version == version]), label)) {
-        snapshot <- .restore_build_snapshot(producer$metadata$store, producer$metadata$csv, key, version)
-        present <- vapply(sources, function(source) {
-          source$type != "metadata" && length(.restore_matching_versions(source$store, key, snapshot)) > 0L
-        }, logical(1))
+      for (key in setdiff(
+        unique(project$label[project$version == version]),
+        label
+      )) {
+        snapshot <- .restore_build_snapshot(
+          producer$metadata$store,
+          producer$metadata$csv,
+          key,
+          version
+        )
+        present <- vapply(
+          sources,
+          function(source) {
+            source$type != "metadata" &&
+              length(.restore_matching_versions(source$store, key, snapshot)) >
+                0L
+          },
+          logical(1)
+        )
         if (!any(present)) {
-          present <- vapply(actual, function(index) any(index$label == key & index$version %in% snapshot$versions), logical(1))
+          present <- vapply(
+            actual,
+            function(index) {
+              any(index$label == key & index$version %in% snapshot$versions)
+            },
+            logical(1)
+          )
         }
         if (any(present)) label <- c(label, key)
       }
     }
   }
-  if (!length(label)) stop("No published labels for ", version, ".", call. = FALSE)
+  if (!length(label)) {
+    stop("No published labels for ", version, ".", call. = FALSE)
+  }
   .assert_directory_labels(label)
-  .get_install(sources, unique(label), version, producer, out, overwrite, workspace)
+  .get_install(
+    sources,
+    unique(label),
+    version,
+    producer,
+    out,
+    overwrite,
+    workspace
+  )
 }
 
 .get_archive_version <- function(source, workspace) {
@@ -208,7 +331,12 @@ projr_get_github <- function(repo = NULL, remote = NULL, tag = NULL, label = NUL
     if (!"VERSION.zip" %in% source$assets) {
       return(NULL)
     }
-    zip <- .remote_file_get_all_github_httr(source$repo, source$tag, "VERSION.zip", workspace)
+    zip <- .remote_file_get_all_github_httr(
+      source$repo,
+      source$tag,
+      "VERSION.zip",
+      workspace
+    )
     if (!"VERSION" %in% utils::unzip(zip, list = TRUE)$Name) {
       return(NULL)
     }
@@ -218,6 +346,11 @@ projr_get_github <- function(repo = NULL, remote = NULL, tag = NULL, label = NUL
   } else {
     text <- .remote_get_version_file_read(file.path(source$root, "VERSION"))
   }
-  value <- .remote_get_version_latest_label_non_project_file_extract(text, "Project")
-  if (length(value) == 1L && grepl("^v?[0-9]+([.-][0-9]+)*$", value)) .version_v_add(value)
+  value <- .remote_get_version_latest_label_non_project_file_extract(
+    text,
+    "Project"
+  )
+  if (length(value) == 1L && grepl("^v?[0-9]+([.-][0-9]+)*$", value)) {
+    .version_v_add(value)
+  }
 }

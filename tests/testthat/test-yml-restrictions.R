@@ -59,7 +59,10 @@ test_that(".yml_restrictions_check_config validates restrictions structure", {
       expect_error(projr_yml_check())
 
       # Valid combination of restrictions should pass
-      yml[["build"]][["restrictions"]] <- list(branch = "main", not_behind = FALSE)
+      yml[["build"]][["restrictions"]] <- list(
+        branch = "main",
+        not_behind = FALSE
+      )
       .yml_set(yml, "default")
       expect_true(projr_yml_check())
     },
@@ -87,7 +90,10 @@ test_that("projr_yml_restrictions_set works correctly", {
       # Set branch to character vector
       projr_yml_restrictions_set(branch = c("main", "dev"))
       yml <- .yml_get("default")
-      expect_equal(yml[["build"]][["restrictions"]][["branch"]], c("main", "dev"))
+      expect_equal(
+        yml[["build"]][["restrictions"]][["branch"]],
+        c("main", "dev")
+      )
 
       # Set branch to FALSE (restrict all branches)
       projr_yml_restrictions_set(branch = FALSE)

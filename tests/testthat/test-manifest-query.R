@@ -33,7 +33,8 @@ test_that("projr_manifest_changes works", {
 
       # Test: Query with label filter
       changes_output <- projr_manifest_changes(
-        initial_version, "0.0.1",
+        initial_version,
+        "0.0.1",
         label = "output"
       )
       expect_true(all(changes_output$label == "output"))
@@ -102,7 +103,10 @@ test_that("projr_manifest_range works", {
       # Test: Query range from initial to current
       range_result <- projr_manifest_range(initial_version, "0.0.2")
       expect_true(nrow(range_result) > 0)
-      expect_true(all(c("label", "fn", "version_first", "version_last_change", "hash") %in% colnames(range_result)))
+      expect_true(all(
+        c("label", "fn", "version_first", "version_last_change", "hash") %in%
+          colnames(range_result)
+      ))
 
       # Check that v1_file first appeared in v0.0.1
       v1_file <- range_result[grepl("v1_file.txt", range_result$fn), ]
@@ -114,7 +118,8 @@ test_that("projr_manifest_range works", {
 
       # Test: Query with label filter
       range_output <- projr_manifest_range(
-        initial_version, "0.0.2",
+        initial_version,
+        "0.0.2",
         label = "output"
       )
       expect_true(all(range_output$label == "output"))
@@ -152,7 +157,9 @@ test_that("projr_manifest_last_change works", {
       # Test: Query last changes
       last_changes <- projr_manifest_last_change("0.0.1")
       expect_true(nrow(last_changes) > 0)
-      expect_true(all(c("label", "version_last_change", "n_files") %in% colnames(last_changes)))
+      expect_true(all(
+        c("label", "version_last_change", "n_files") %in% colnames(last_changes)
+      ))
 
       # Output should have last changed in v0.0.1
       output_change <- last_changes[last_changes$label == "output", ]
@@ -294,7 +301,10 @@ test_that("projr_manifest_range handles version ordering correctly", {
       expect_true(nrow(range_result) > 0)
 
       # The files should show changes across all three versions
-      expect_true(all(c("label", "fn", "version_first", "version_last_change") %in% colnames(range_result)))
+      expect_true(all(
+        c("label", "fn", "version_first", "version_last_change") %in%
+          colnames(range_result)
+      ))
     }
   )
 })
@@ -376,7 +386,12 @@ test_that(".manifest_query_compare_versions handles empty and NA hashes", {
       )
 
       # Test: Compare versions with empty and NA hashes
-      result <- .manifest_query_compare_versions(files_from, files_to, "v0.0.0", "v0.0.1")
+      result <- .manifest_query_compare_versions(
+        files_from,
+        files_to,
+        "v0.0.0",
+        "v0.0.1"
+      )
 
       # file1.txt should be modified (normal hash change)
       file1 <- result[result$fn == "file1.txt", ]
@@ -384,8 +399,12 @@ test_that(".manifest_query_compare_versions handles empty and NA hashes", {
 
       # file2.txt and file3.txt should not appear as modified
       # because from hash is empty or NA
-      expect_false(any(result$fn == "file2.txt" & result$change_type == "modified"))
-      expect_false(any(result$fn == "file3.txt" & result$change_type == "modified"))
+      expect_false(any(
+        result$fn == "file2.txt" & result$change_type == "modified"
+      ))
+      expect_false(any(
+        result$fn == "file3.txt" & result$change_type == "modified"
+      ))
     }
   )
 })
@@ -421,11 +440,19 @@ test_that("projr_manifest_file_last_change respects version_end parameter", {
       .build_manifest_post(TRUE)
 
       # Test: Query last change up to v0.0.1 should return v0.0.1
-      last_v1 <- projr_manifest_file_last_change("abc.txt", "output", version_end = "0.0.1")
+      last_v1 <- projr_manifest_file_last_change(
+        "abc.txt",
+        "output",
+        version_end = "0.0.1"
+      )
       expect_identical(last_v1$version_last_change, "v0.0.1")
 
       # Test: Query last change up to v0.0.2 should return v0.0.2
-      last_v2 <- projr_manifest_file_last_change("abc.txt", "output", version_end = "0.0.2")
+      last_v2 <- projr_manifest_file_last_change(
+        "abc.txt",
+        "output",
+        version_end = "0.0.2"
+      )
       expect_identical(last_v2$version_last_change, "v0.0.2")
 
       # Test: Query without version_end should return v0.0.3
@@ -585,50 +612,101 @@ test_that(".manifest_filter_up_to_version filters correctly", {
 test_that("directory and file queries preserve history when a snapshot recurs", {
   skip_if(.is_test_select())
   project <- .test_setup_project(git = FALSE)
-  usethis::with_project(project, {
-    projr_version_set("1.0.10")
-    versions <- c("v1.0.0-1", "v1.0.2", "v1.0.10")
-    rows <- data.frame(
-      label = "output", fn = "results.csv", version = versions,
-      hash = c("aaa", "bbb", "aaa")
-    )
-    other <- transform(rows[1L, ], label = "raw-data", fn = "sample", hash = "ccc")
-    write.csv(rbind(rows, other), "manifest.csv", row.names = FALSE)
-
-    query <- function() {
-      list(
-        changed = projr_manifest_changes(versions[1L], versions[2L], "output"),
-        range = projr_manifest_range(label = "output"),
-        last = projr_manifest_last_change(versions[1L]),
-        file_changed = projr_manifest_file_changed("results.csv", "output", versions[1L], versions[3L]),
-        file_history = projr_manifest_file_history("results.csv", "output"),
-        file_first = projr_manifest_file_first("results.csv", "output"),
-        file_last = projr_manifest_file_last_change("results.csv", "output"),
-        first_change = projr_manifest_changes(version_to = versions[2L], label = "output")
+  usethis::with_project(
+    project,
+    {
+      projr_version_set("1.0.10")
+      versions <- c("v1.0.0-1", "v1.0.2", "v1.0.10")
+      rows <- data.frame(
+        label = "output",
+        fn = "results.csv",
+        version = versions,
+        hash = c("aaa", "bbb", "aaa")
       )
-    }
-    legacy <- query()
-    expect_identical(legacy$changed$change_type, "modified")
-    expect_identical(legacy$file_changed$change_type, "unchanged")
-    expect_identical(legacy$range$version_first, versions[1L])
-    expect_identical(legacy$range$version_last_change, versions[3L])
-    expect_setequal(legacy$last$version_last_change, versions[1L])
-    expect_identical(legacy$file_history$version, versions)
-    expect_identical(legacy$file_first$version_first, versions[1L])
-    expect_identical(legacy$file_last$version_last_change, versions[3L])
-    expect_identical(legacy$first_change, legacy$changed)
+      other <- transform(
+        rows[1L, ],
+        label = "raw-data",
+        fn = "sample",
+        hash = "ccc"
+      )
+      write.csv(rbind(rows, other), "manifest.csv", row.names = FALSE)
 
-    .manifest_store_write(rows[FALSE, ])
-    expect_equal(query(), legacy)
+      query <- function() {
+        list(
+          changed = projr_manifest_changes(
+            versions[1L],
+            versions[2L],
+            "output"
+          ),
+          range = projr_manifest_range(label = "output"),
+          last = projr_manifest_last_change(versions[1L]),
+          file_changed = projr_manifest_file_changed(
+            "results.csv",
+            "output",
+            versions[1L],
+            versions[3L]
+          ),
+          file_history = projr_manifest_file_history("results.csv", "output"),
+          file_first = projr_manifest_file_first("results.csv", "output"),
+          file_last = projr_manifest_file_last_change("results.csv", "output"),
+          first_change = projr_manifest_changes(
+            version_to = versions[2L],
+            label = "output"
+          )
+        )
+      }
+      legacy <- query()
+      expect_identical(legacy$changed$change_type, "modified")
+      expect_identical(legacy$file_changed$change_type, "unchanged")
+      expect_identical(legacy$range$version_first, versions[1L])
+      expect_identical(legacy$range$version_last_change, versions[3L])
+      expect_setequal(legacy$last$version_last_change, versions[1L])
+      expect_identical(legacy$file_history$version, versions)
+      expect_identical(legacy$file_first$version_first, versions[1L])
+      expect_identical(legacy$file_last$version_last_change, versions[3L])
+      expect_identical(legacy$first_change, legacy$changed)
 
-    # A comparison of the two identical snapshots only reads those endpoints.
-    index <- .manifest_store_index(label = "output")
-    changed_snapshot <- index$snapshot[index$version == versions[2L]]
-    unlink(.path_get(".projr", "manifests", "output", paste0("files-", changed_snapshot, ".csv")))
-    expect_identical(projr_manifest_changes(versions[1L], versions[3L], "output"), .zero_tbl_get_manifest_changes())
-    expect_identical(projr_manifest_changes(versions[1L], label = "output"), .zero_tbl_get_manifest_changes())
-    expect_identical(projr_manifest_range(versions[1L], versions[1L], "output")$version_first, versions[1L])
-    expect_identical(projr_manifest_file_last_change("results.csv", "output", versions[1L])$version_last_change, versions[1L])
-    expect_error(projr_manifest_file_history("results.csv", "output"), "Missing manifest snapshot")
-  }, force = TRUE)
+      .manifest_store_write(rows[FALSE, ])
+      expect_equal(query(), legacy)
+
+      # A comparison of the two identical snapshots only reads those endpoints.
+      index <- .manifest_store_index(label = "output")
+      changed_snapshot <- index$snapshot[index$version == versions[2L]]
+      unlink(.path_get(
+        ".projr",
+        "manifests",
+        "output",
+        paste0("files-", changed_snapshot, ".csv")
+      ))
+      expect_identical(
+        projr_manifest_changes(versions[1L], versions[3L], "output"),
+        .zero_tbl_get_manifest_changes()
+      )
+      expect_identical(
+        projr_manifest_changes(versions[1L], label = "output"),
+        .zero_tbl_get_manifest_changes()
+      )
+      expect_identical(
+        projr_manifest_range(
+          versions[1L],
+          versions[1L],
+          "output"
+        )$version_first,
+        versions[1L]
+      )
+      expect_identical(
+        projr_manifest_file_last_change(
+          "results.csv",
+          "output",
+          versions[1L]
+        )$version_last_change,
+        versions[1L]
+      )
+      expect_error(
+        projr_manifest_file_history("results.csv", "output"),
+        "Missing manifest snapshot"
+      )
+    },
+    force = TRUE
+  )
 })

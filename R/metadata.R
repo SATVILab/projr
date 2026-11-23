@@ -19,7 +19,8 @@
 }
 
 .metadata_get_author_host_env <- function() {
-  env_user <- switch(.metadata_get_os(),
+  env_user <- switch(
+    .metadata_get_os(),
     "Windows" = Sys.getenv("USERNAME"),
     "Linux" = Sys.getenv("USER"),
     "Darwin" = Sys.getenv("USER"),
@@ -38,7 +39,8 @@
   }
   user_name <- Sys.info()[["login"]]
   if (
-    .is_len_1(user_name) && !identical(user_name, "unknown") &&
+    .is_len_1(user_name) &&
+      !identical(user_name, "unknown") &&
       .is_string(user_name)
   ) {
     return(user_name)

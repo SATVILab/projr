@@ -54,29 +54,34 @@
 #' The post-build scripts are run immediately after
 #' committing the present state of the code to Git,
 #' and before distributing project artefacts to the remotes.
-projr_yml_script_add <- function(path,
-                                 title,
-                                 stage,
-                                 cue = NULL,
-                                 overwrite = TRUE,
-                                 profile = "default") {
+projr_yml_script_add <- function(
+  path,
+  title,
+  stage,
+  cue = NULL,
+  overwrite = TRUE,
+  profile = "default"
+) {
   .yml_script_check(
-    path = path, title = title, stage = stage, cue = cue,
-    overwrite = overwrite, profile = profile
+    path = path,
+    title = title,
+    stage = stage,
+    cue = cue,
+    overwrite = overwrite,
+    profile = profile
   )
 
   .yml_script_add(
-    path = path, title = title, stage = stage, cue = cue,
-    overwrite = overwrite, profile = profile
+    path = path,
+    title = title,
+    stage = stage,
+    cue = cue,
+    overwrite = overwrite,
+    profile = profile
   )
 }
 
-.yml_script_check <- function(path,
-                              title,
-                              stage,
-                              cue,
-                              overwrite,
-                              profile) {
+.yml_script_check <- function(path, title, stage, cue, overwrite, profile) {
   .assert_chr(path, TRUE)
   .assert_string(title, TRUE)
   .assert_in_single(stage, c("pre", "post"), TRUE)
@@ -87,18 +92,22 @@ projr_yml_script_add <- function(path,
   .assert_flag(overwrite, TRUE)
 }
 
-.yml_script_add <- function(path,
-                            title,
-                            stage,
-                            cue = NULL,
-                            profile = "default",
-                            overwrite = TRUE) {
+.yml_script_add <- function(
+  path,
+  title,
+  stage,
+  cue = NULL,
+  profile = "default",
+  overwrite = TRUE
+) {
   title <- gsub("^\\s*|\\s*$", "", title) |>
     (\(x) gsub("\\s+", "-", x))()
   .yml_script_check_overwrite(title, overwrite, profile = profile)
   yml_script <- .yml_script_get(profile)
   yml_script[[title]] <- .yml_script_add_get(
-    path = path, stage = stage, cue = cue
+    path = path,
+    stage = stage,
+    cue = cue
   )
   .yml_script_set(yml_script, profile)
 }
@@ -173,7 +182,9 @@ projr_yml_script_rm_all <- function(profile = "default") {
   yml_script <- .yml_script_get(profile)
   if (!overwrite && title %in% names(yml_script)) {
     stop(paste0(
-      "Script with title '", title, "' already exists. ",
+      "Script with title '",
+      title,
+      "' already exists. ",
       "Set overwrite = TRUE to overwrite."
     ))
   }
@@ -190,26 +201,38 @@ projr_yml_script_rm_all <- function(profile = "default") {
 
 #' @rdname yml-script
 #' @export
-projr_yml_script_add_pre <- function(path,
-                                     title,
-                                     cue = NULL,
-                                     overwrite = TRUE,
-                                     profile = "default") {
+projr_yml_script_add_pre <- function(
+  path,
+  title,
+  cue = NULL,
+  overwrite = TRUE,
+  profile = "default"
+) {
   projr_yml_script_add(
-    path = path, title = title,
-    stage = "pre", cue = cue, profile = profile, overwrite = overwrite
+    path = path,
+    title = title,
+    stage = "pre",
+    cue = cue,
+    profile = profile,
+    overwrite = overwrite
   )
 }
 
 #' @rdname yml-script
 #' @export
-projr_yml_script_add_post <- function(path,
-                                      title,
-                                      cue = NULL,
-                                      overwrite = TRUE,
-                                      profile = "default") {
+projr_yml_script_add_post <- function(
+  path,
+  title,
+  cue = NULL,
+  overwrite = TRUE,
+  profile = "default"
+) {
   projr_yml_script_add(
-    path = path, title = title,
-    stage = "post", cue = cue, profile = profile, overwrite = overwrite
+    path = path,
+    title = title,
+    stage = "post",
+    cue = cue,
+    profile = profile,
+    overwrite = overwrite
   )
 }

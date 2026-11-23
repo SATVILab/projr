@@ -1,12 +1,14 @@
 #' @rdname projr_content_update
 #' @export
-projr_restore_repo <- function(repo,
-                               path = NULL,
-                               label = NULL,
-                               pos = NULL,
-                               type = NULL,
-                               title = NULL,
-                               destination = NULL) {
+projr_restore_repo <- function(
+  repo,
+  path = NULL,
+  label = NULL,
+  pos = NULL,
+  type = NULL,
+  title = NULL,
+  destination = NULL
+) {
   .assert_string(repo, TRUE)
   .assert_string(path)
   .assert_restore_filters(label, pos, type, title, destination)
@@ -28,21 +30,33 @@ projr_restore_repo <- function(repo,
 
 #' @rdname projr_content_update
 #' @export
-projr_restore_repo_wd <- function(repo,
-                                  label = NULL,
-                                  pos = NULL,
-                                  type = NULL,
-                                  title = NULL,
-                                  destination = NULL) {
-  projr_restore_repo(repo, path = ".", label = label, pos = pos, type = type, title = title, destination = destination)
+projr_restore_repo_wd <- function(
+  repo,
+  label = NULL,
+  pos = NULL,
+  type = NULL,
+  title = NULL,
+  destination = NULL
+) {
+  projr_restore_repo(
+    repo,
+    path = ".",
+    label = label,
+    pos = pos,
+    type = type,
+    title = title,
+    destination = destination
+  )
 }
 
-.restore_repo_labels <- function(path,
-                                 label,
-                                 pos,
-                                 type,
-                                 .title,
-                                 destination = NULL) {
+.restore_repo_labels <- function(
+  path,
+  label,
+  pos,
+  type,
+  .title,
+  destination = NULL
+) {
   if (!is.null(path)) {
     orig_wd <- getwd()
     on.exit(setwd(orig_wd), add = TRUE)

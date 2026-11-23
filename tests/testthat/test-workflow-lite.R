@@ -15,7 +15,11 @@ test_that("LITE workflow: bookdown init -> build -> send -> restore with git", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
-  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -33,7 +37,9 @@ test_that("LITE workflow: bookdown init -> build -> send -> restore with git", {
 
       # Configure local remote with archive
       temp_remote <- file.path(tempdir(), "projr_lite_remote1")
-      if (dir.exists(temp_remote)) unlink(temp_remote, recursive = TRUE)
+      if (dir.exists(temp_remote)) {
+        unlink(temp_remote, recursive = TRUE)
+      }
 
       projr_yml_dest_add_local(
         title = "lite-archive",
@@ -49,7 +55,12 @@ test_that("LITE workflow: bookdown init -> build -> send -> restore with git", {
 
       # Verify remote has v0.0.1
       expect_true(dir.exists(file.path(temp_remote, "raw-data", "v0.0.1")))
-      expect_true(file.exists(file.path(temp_remote, "raw-data", "v0.0.1", "data.txt")))
+      expect_true(file.exists(file.path(
+        temp_remote,
+        "raw-data",
+        "v0.0.1",
+        "data.txt"
+      )))
 
       # Modify content
       writeLines("data v2", file.path(raw_data_dir, "data.txt"))
@@ -80,7 +91,12 @@ test_that("LITE workflow: switch engines and rebuild", {
   skip_if(.is_test_select())
 
   # Start with bookdown (don't remove engine)
-  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE, rm_engine = FALSE)
+  dir_test <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE,
+    rm_engine = FALSE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -94,7 +110,9 @@ test_that("LITE workflow: switch engines and rebuild", {
 
       # Configure remote
       temp_remote <- file.path(tempdir(), "projr_lite_remote2")
-      if (dir.exists(temp_remote)) unlink(temp_remote, recursive = TRUE)
+      if (dir.exists(temp_remote)) {
+        unlink(temp_remote, recursive = TRUE)
+      }
 
       projr_yml_dest_add_local(
         title = "cache-remote",
@@ -111,7 +129,9 @@ test_that("LITE workflow: switch engines and rebuild", {
       # Switch to standalone RMarkdown
       file.remove("_bookdown.yml")
       file.remove("index.Rmd")
-      if (file.exists("_output.yml")) file.remove("_output.yml")
+      if (file.exists("_output.yml")) {
+        file.remove("_output.yml")
+      }
 
       writeLines(
         c(
@@ -152,7 +172,9 @@ test_that("LITE workflow: dev builds and version bumps", {
 
       # Configure remote
       temp_remote <- file.path(tempdir(), "projr_lite_remote3")
-      if (dir.exists(temp_remote)) unlink(temp_remote, recursive = TRUE)
+      if (dir.exists(temp_remote)) {
+        unlink(temp_remote, recursive = TRUE)
+      }
 
       projr_yml_dest_add_local(
         title = "output-archive",
@@ -184,7 +206,10 @@ test_that("LITE workflow: dev builds and version bumps", {
       # Verify production builds created archive versions
       expect_true(dir.exists(file.path(temp_remote, "output")))
       # Check that at least one version was archived
-      archive_dirs <- list.dirs(file.path(temp_remote, "output"), recursive = FALSE)
+      archive_dirs <- list.dirs(
+        file.path(temp_remote, "output"),
+        recursive = FALSE
+      )
       expect_true(length(archive_dirs) >= 1)
 
       unlink(temp_remote, recursive = TRUE)
@@ -196,7 +221,11 @@ test_that("LITE workflow: send strategies and cues", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
-  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -210,7 +239,9 @@ test_that("LITE workflow: send strategies and cues", {
 
       # Remote 1: if-change cue
       remote1 <- file.path(tempdir(), "projr_lite_remote4a")
-      if (dir.exists(remote1)) unlink(remote1, recursive = TRUE)
+      if (dir.exists(remote1)) {
+        unlink(remote1, recursive = TRUE)
+      }
 
       projr_yml_dest_add_local(
         title = "if-change",
@@ -222,7 +253,9 @@ test_that("LITE workflow: send strategies and cues", {
 
       # Remote 2: always cue
       remote2 <- file.path(tempdir(), "projr_lite_remote4b")
-      if (dir.exists(remote2)) unlink(remote2, recursive = TRUE)
+      if (dir.exists(remote2)) {
+        unlink(remote2, recursive = TRUE)
+      }
 
       projr_yml_dest_add_local(
         title = "always",
@@ -255,7 +288,11 @@ test_that("LITE workflow: restore with multiple versions", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
-  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -266,7 +303,9 @@ test_that("LITE workflow: restore with multiple versions", {
 
       raw_data_dir <- projr_path_get_dir("raw-data", safe = FALSE)
       temp_remote <- file.path(tempdir(), "projr_lite_remote5")
-      if (dir.exists(temp_remote)) unlink(temp_remote, recursive = TRUE)
+      if (dir.exists(temp_remote)) {
+        unlink(temp_remote, recursive = TRUE)
+      }
 
       projr_yml_dest_add_local(
         title = "multi-version",

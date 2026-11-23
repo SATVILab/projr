@@ -17,7 +17,10 @@
   path_dir <- projr_path_get_dir(label, safe = FALSE)
   for (i in seq_len(n_files)) {
     file.create(file.path(path_dir, paste0("file", i, ".txt")))
-    writeLines(paste("Content", i), file.path(path_dir, paste0("file", i, ".txt")))
+    writeLines(
+      paste("Content", i),
+      file.path(path_dir, paste0("file", i, ".txt"))
+    )
   }
   # Add subdirectory with file
   dir.create(file.path(path_dir, "subdir"), showWarnings = FALSE)
@@ -35,7 +38,11 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -79,7 +86,10 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
 
       # ========== Phase 3: Modify content and add hooks ==========
       # Modify data
-      writeLines("modified content", file.path(projr_path_get_dir("raw-data"), "file1.txt"))
+      writeLines(
+        "modified content",
+        file.path(projr_path_get_dir("raw-data"), "file1.txt")
+      )
 
       # Add build hooks
       dir.create("hooks", showWarnings = FALSE)
@@ -117,7 +127,9 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
       # Remove bookdown files
       file.remove("_bookdown.yml")
       file.remove("index.Rmd")
-      if (file.exists("_output.yml")) file.remove("_output.yml")
+      if (file.exists("_output.yml")) {
+        file.remove("_output.yml")
+      }
 
       # Add quarto files
       .test_setup_project_lit_docs("quarto_project")
@@ -168,7 +180,9 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
       # ========== Phase 7: Test clone and restore ==========
       # Create a clone directory
       clone_dir <- file.path(tempdir(), paste0("clone_", basename(dir_test)))
-      if (dir.exists(clone_dir)) unlink(clone_dir, recursive = TRUE)
+      if (dir.exists(clone_dir)) {
+        unlink(clone_dir, recursive = TRUE)
+      }
 
       # Copy project files (simulating a clone)
       dir.create(clone_dir)
@@ -183,21 +197,28 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
       # Copy directories structure
       for (d in c("_raw_data", "_tmp", "_output")) {
         if (dir.exists(d)) {
-          dir.create(file.path(clone_dir, d), showWarnings = FALSE, recursive = TRUE)
+          dir.create(
+            file.path(clone_dir, d),
+            showWarnings = FALSE,
+            recursive = TRUE
+          )
         }
       }
 
       # Now test restore in the cloned directory
       old_wd <- getwd()
-      tryCatch({
-        setwd(clone_dir)
-        # The partial clone has a manifest but no copied local archives.
-        expect_true(.manifest_store_ready(file.path(".projr", "manifests")))
-        expect_false(projr_content_update(label = "raw-data", type = "local"))
-      }, finally = {
-        setwd(old_wd)
-        unlink(clone_dir, recursive = TRUE)
-      })
+      tryCatch(
+        {
+          setwd(clone_dir)
+          # The partial clone has a manifest but no copied local archives.
+          expect_true(.manifest_store_ready(file.path(".projr", "manifests")))
+          expect_false(projr_content_update(label = "raw-data", type = "local"))
+        },
+        finally = {
+          setwd(old_wd)
+          unlink(clone_dir, recursive = TRUE)
+        }
+      )
     }
   )
 })
@@ -211,7 +232,12 @@ test_that("comprehensive workflow: rmarkdown with dev builds, iterative changes,
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -337,13 +363,20 @@ test_that("comprehensive workflow: rmarkdown with dev builds, iterative changes,
       expect_false("test-file.txt" %in% new_files_after)
 
       # ========== Phase 6: Test restore from local remote ==========
-      expected_raw <- .hash_dir(projr_path_get_dir("raw-data"), version = "1.0.0")
+      expected_raw <- .hash_dir(
+        projr_path_get_dir("raw-data"),
+        version = "1.0.0"
+      )
       expect_gt(nrow(expected_raw), 0L)
       raw_files <- file.path(projr_path_get_dir("raw-data"), expected_raw$fn)
       expect_true(all(file.exists(raw_files)))
       expect_true(all(file.remove(raw_files)))
       expect_false(any(file.exists(raw_files)))
-      expect_true(projr_content_update(label = "raw-data", type = "local", clear = TRUE))
+      expect_true(projr_content_update(
+        label = "raw-data",
+        type = "local",
+        clear = TRUE
+      ))
       expect_identical(
         .hash_dir(projr_path_get_dir("raw-data"), version = "1.0.0"),
         expected_raw
@@ -362,7 +395,12 @@ test_that("comprehensive workflow: quarto with multiple content types, configura
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
   skip_if_not(requireNamespace("quarto", quietly = TRUE))
-  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -478,13 +516,20 @@ test_that("comprehensive workflow: quarto with multiple content types, configura
       expect_true(v8 != v1)
 
       # ========== Phase 7: Test restoring multiple content types ==========
-      expected_raw <- .hash_dir(projr_path_get_dir("raw-data"), version = "1.0.0")
+      expected_raw <- .hash_dir(
+        projr_path_get_dir("raw-data"),
+        version = "1.0.0"
+      )
       expect_gt(nrow(expected_raw), 0L)
       raw_files <- file.path(projr_path_get_dir("raw-data"), expected_raw$fn)
       expect_true(all(file.exists(raw_files)))
       expect_true(all(file.remove(raw_files)))
       expect_false(any(file.exists(raw_files)))
-      expect_true(projr_content_update(label = "raw-data", type = "local", clear = TRUE))
+      expect_true(projr_content_update(
+        label = "raw-data",
+        type = "local",
+        clear = TRUE
+      ))
       expect_identical(
         .hash_dir(projr_path_get_dir("raw-data"), version = "1.0.0"),
         expected_raw
@@ -504,7 +549,11 @@ test_that("comprehensive workflow: from scratch with extensive iteration, clone 
   skip_if(.is_test_cran())
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -561,7 +610,9 @@ test_that("comprehensive workflow: from scratch with extensive iteration, clone 
 
       # ========== Phase 4: Switch engines and add hooks ==========
       file.remove("_bookdown.yml")
-      if (file.exists("_output.yml")) file.remove("_output.yml")
+      if (file.exists("_output.yml")) {
+        file.remove("_output.yml")
+      }
       file.remove("index.Rmd")
 
       # Add quarto
@@ -621,33 +672,56 @@ test_that("comprehensive workflow: from scratch with extensive iteration, clone 
 
       # ========== Phase 8: Test comprehensive clone and restore ==========
       # Simulate cloning the entire project
-      clone_dir <- file.path(tempdir(), paste0("full_clone_", basename(dir_test)))
-      if (dir.exists(clone_dir)) unlink(clone_dir, recursive = TRUE)
+      clone_dir <- file.path(
+        tempdir(),
+        paste0("full_clone_", basename(dir_test))
+      )
+      if (dir.exists(clone_dir)) {
+        unlink(clone_dir, recursive = TRUE)
+      }
 
       # Copy entire project structure
       dir.create(clone_dir)
-      system2("cp", args = c("-r", paste0(getwd(), "/."), clone_dir), stdout = FALSE, stderr = FALSE)
+      system2(
+        "cp",
+        args = c("-r", paste0(getwd(), "/."), clone_dir),
+        stdout = FALSE,
+        stderr = FALSE
+      )
 
-      expected_raw <- .hash_dir(projr_path_get_dir("raw-data"), version = "1.0.0")
+      expected_raw <- .hash_dir(
+        projr_path_get_dir("raw-data"),
+        version = "1.0.0"
+      )
       # Test restore in cloned directory
       old_wd <- getwd()
-      tryCatch({
-        setwd(clone_dir)
+      tryCatch(
+        {
+          setwd(clone_dir)
 
-        expect_gt(nrow(expected_raw), 0L)
-        raw_files <- file.path(projr_path_get_dir("raw-data"), expected_raw$fn)
-        expect_true(all(file.exists(raw_files)))
-        expect_true(all(file.remove(raw_files)))
-        expect_false(any(file.exists(raw_files)))
-        expect_true(projr_content_update(label = "raw-data", type = "local", clear = TRUE))
-        expect_identical(
-          .hash_dir(projr_path_get_dir("raw-data"), version = "1.0.0"),
-          expected_raw
-        )
-      }, finally = {
-        setwd(old_wd)
-        unlink(clone_dir, recursive = TRUE)
-      })
+          expect_gt(nrow(expected_raw), 0L)
+          raw_files <- file.path(
+            projr_path_get_dir("raw-data"),
+            expected_raw$fn
+          )
+          expect_true(all(file.exists(raw_files)))
+          expect_true(all(file.remove(raw_files)))
+          expect_false(any(file.exists(raw_files)))
+          expect_true(projr_content_update(
+            label = "raw-data",
+            type = "local",
+            clear = TRUE
+          ))
+          expect_identical(
+            .hash_dir(projr_path_get_dir("raw-data"), version = "1.0.0"),
+            expected_raw
+          )
+        },
+        finally = {
+          setwd(old_wd)
+          unlink(clone_dir, recursive = TRUE)
+        }
+      )
     }
   )
 })

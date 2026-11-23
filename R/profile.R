@@ -31,7 +31,8 @@ projr_profile_create <- function(profile) {
   # Reject protected profile names
   if (profile %in% c("local", "default")) {
     stop(
-      "Cannot create profile named '", profile,
+      "Cannot create profile named '",
+      profile,
       "' as it is reserved for internal use.",
       call. = FALSE
     )
@@ -137,22 +138,33 @@ projr_profile_create_local <- function() {
 }
 
 .profile_create_local_ignore <- function() {
-  projr_ignore_file(as.character(fs::path_rel(.yml_get_path("local"), .path_get())))
+  projr_ignore_file(as.character(fs::path_rel(
+    .yml_get_path("local"),
+    .path_get()
+  )))
 }
 
 .profile_create_local_ignore_git <- function() {
-  projr_ignore_file_git(as.character(fs::path_rel(.yml_get_path("local"), .path_get())))
+  projr_ignore_file_git(as.character(fs::path_rel(
+    .yml_get_path("local"),
+    .path_get()
+  )))
 }
 
 .profile_create_local_ignore_rbuild <- function() {
-  projr_ignore_file_rbuild(as.character(fs::path_rel(.yml_get_path("local"), .path_get())))
+  projr_ignore_file_rbuild(as.character(fs::path_rel(
+    .yml_get_path("local"),
+    .path_get()
+  )))
 }
 
 .profile_check <- function(x) {
   if (nzchar(gsub("\\w|-|_", "", x))) {
-    stop("If projr profile settings are kept in a file,
+    stop(
+      "If projr profile settings are kept in a file,
     then the profile can only use alphumeric characters,
-    the underscore and the hyphen.")
+    the underscore and the hyphen."
+    )
   }
   invisible(TRUE)
 }

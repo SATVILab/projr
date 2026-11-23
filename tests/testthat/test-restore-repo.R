@@ -186,17 +186,45 @@ test_that("repo restoration clones into the requested path and forwards selectio
     },
     projr_content_update = function(label, pos, type, title, destination) {
       expect_true(file.exists("_projr.yml"))
-      received <<- list(label, pos, type, title, destination, normalizePath("."))
+      received <<- list(
+        label,
+        pos,
+        type,
+        title,
+        destination,
+        normalizePath(".")
+      )
       invisible(TRUE)
     }
   )
   withr::with_dir(parent, {
-    expect_true(projr_restore_repo("fixture/project", "one", labels, positions, "local", "archive", destination = "bundles"))
-    expect_identical(received, list(labels, positions, "local", "archive", "bundles", normalizePath("one")))
+    expect_true(projr_restore_repo(
+      "fixture/project",
+      "one",
+      labels,
+      positions,
+      "local",
+      "archive",
+      destination = "bundles"
+    ))
+    expect_identical(
+      received,
+      list(
+        labels,
+        positions,
+        "local",
+        "archive",
+        "bundles",
+        normalizePath("one")
+      )
+    )
     dir.create("two")
     withr::with_dir("two", {
       expect_true(projr_restore_repo_wd("fixture/project", type = "github"))
-      expect_identical(received, list(NULL, NULL, "github", NULL, NULL, normalizePath(".")))
+      expect_identical(
+        received,
+        list(NULL, NULL, "github", NULL, NULL, normalizePath("."))
+      )
     })
   })
 })
@@ -222,13 +250,19 @@ test_that("short GitHub clone names use the authenticated owner", {
   skip_if(.is_test_select())
   skip_if_not_installed("gh")
   user <- "fixture"
-  testthat::local_mocked_bindings(gh_whoami = function() list(login = user), .package = "gh")
+  testthat::local_mocked_bindings(
+    gh_whoami = function() list(login = user),
+    .package = "gh"
+  )
   testthat::local_mocked_bindings(
     .auth_check_github = function(...) TRUE,
     .git_system_get = function() "git",
     .git_clone_git = function(repo, path) c(repo, path)
   )
-  expect_identical(.git_clone("project", "clone"), c("fixture/project", "clone"))
+  expect_identical(
+    .git_clone("project", "clone"),
+    c("fixture/project", "clone")
+  )
   user <- NULL
   expect_error(.git_clone("project"), "GitHub user not found", fixed = TRUE)
 })

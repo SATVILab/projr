@@ -702,7 +702,11 @@ test_that("multiple hooks in same stage execute in YAML order", {
       )
 
       # Configure hooks in specific order
-      projr_yml_hooks_add_pre(c("hooks/first.R", "hooks/second.R", "hooks/third.R"))
+      projr_yml_hooks_add_pre(c(
+        "hooks/first.R",
+        "hooks/second.R",
+        "hooks/third.R"
+      ))
 
       # Run pre hooks
       .build_hooks_run("pre", is_dev_build = FALSE)

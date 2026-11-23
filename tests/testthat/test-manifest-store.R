@@ -1,29 +1,64 @@
 test_that("a label's version map reuses unchanged snapshots and records their first version", {
   skip_if(.is_test_select())
   store <- withr::local_tempdir()
-  rows <- data.frame(label = "output", fn = c("a", "b"), version = "v1.9", hash = c("001", "002"))
+  rows <- data.frame(
+    label = "output",
+    fn = c("a", "b"),
+    version = "v1.9",
+    hash = c("001", "002")
+  )
   .manifest_store_write(rows, store, legacy_path = NULL)
-  .manifest_store_write(transform(rows, version = "v1.10", hash = c("001", "003")), store, NULL)
+  .manifest_store_write(
+    transform(rows, version = "v1.10", hash = c("001", "003")),
+    store,
+    NULL
+  )
   .manifest_store_write(transform(rows[2:1, ], version = "v1.11"), store, NULL)
-  .manifest_store_write(transform(rows, label = "raw-data", version = "v1.11"), store, NULL)
+  .manifest_store_write(
+    transform(rows, label = "raw-data", version = "v1.11"),
+    store,
+    NULL
+  )
   index <- .manifest_store_index(store, "output")
   expect_identical(index$version, c("v1.9", "v1.10", "v1.11"))
   expect_identical(index$directory_version, c("v1.9", "v1.10", "v1.9"))
   expect_identical(index$snapshot[1], index$snapshot[3])
   expect_length(list.files(file.path(store, "output"), "^files-"), 2L)
-  snapshot <- file.path(store, "output", paste0("files-", index$snapshot[1L], ".csv"))
-  expect_identical(digest::digest(file = snapshot, algo = "sha256"), index$snapshot[1L])
-  expect_identical(.manifest_store_read(store, "output", "v1.11"), transform(rows, version = "v1.11"))
-  expect_identical(.manifest_store_read(store, "raw-data"), transform(rows, label = "raw-data", version = "v1.11"))
+  snapshot <- file.path(
+    store,
+    "output",
+    paste0("files-", index$snapshot[1L], ".csv")
+  )
+  expect_identical(
+    digest::digest(file = snapshot, algo = "sha256"),
+    index$snapshot[1L]
+  )
+  expect_identical(
+    .manifest_store_read(store, "output", "v1.11"),
+    transform(rows, version = "v1.11")
+  )
+  expect_identical(
+    .manifest_store_read(store, "raw-data"),
+    transform(rows, label = "raw-data", version = "v1.11")
+  )
 
   # An earlier backfill moves the first version. Replacing it must move that
   # reference back, without changing any other version's file list.
   .manifest_store_write(transform(rows, version = "v1.2"), store, NULL)
-  expect_identical(.manifest_store_index(store, "output")$directory_version, c("v1.2", "v1.2", "v1.10", "v1.2"))
+  expect_identical(
+    .manifest_store_index(store, "output")$directory_version,
+    c("v1.2", "v1.2", "v1.10", "v1.2")
+  )
   .manifest_store_write(transform(rows[1, ], version = "v1.2"), store, NULL)
-  expect_identical(.manifest_store_index(store, "output")$directory_version, c("v1.2", "v1.9", "v1.10", "v1.9"))
+  expect_identical(
+    .manifest_store_index(store, "output")$directory_version,
+    c("v1.2", "v1.9", "v1.10", "v1.9")
+  )
   expect_identical(.manifest_store_read(store, "output", "v1.2")$fn, "a")
-  expect_identical(.manifest_read(file.path(store, "output", "versions.csv")), .manifest_store_read(store, "output"))
+  expect_identical(
+    .manifest_read(file.path(store, "output", "versions.csv")),
+    .manifest_store_read(store, "output")
+  )
   expect_identical(.manifest_read(store), .manifest_store_read(store))
 })
 
@@ -31,34 +66,58 @@ test_that("manifest snapshots preserve literal CSV fields, empty labels and port
   skip_if(.is_test_select())
   store <- withr::local_tempdir()
   filenames <- c("NA", "001", 'space, "quote"', "line\nbreak", intToUtf8(0x3b2))
-  rows <- data.frame(label = "../CON", version = "v2", fn = filenames, hash = c("0001", "NA", "x", "y", "z"))
+  rows <- data.frame(
+    label = "../CON",
+    version = "v2",
+    fn = filenames,
+    hash = c("0001", "NA", "x", "y", "z")
+  )
   more <- transform(rows[1, ], label = "aux")
   empty <- .empty_tbl_get_manifest("docs", "v2")
   .manifest_store_write(rbind(rows, more, empty), store, NULL)
   actual <- .manifest_store_read(store, "../CON")
   expect_identical(actual$hash[match(filenames, actual$fn)], rows$hash)
   expect_identical(.manifest_store_read(store, "docs"), empty)
-  expect_identical(.manifest_store_read(store, "undefined"), .zero_tbl_get_manifest())
-  expect_identical(.manifest_store_read(store, version = "v404"), .zero_tbl_get_manifest())
+  expect_identical(
+    .manifest_store_read(store, "undefined"),
+    .zero_tbl_get_manifest()
+  )
+  expect_identical(
+    .manifest_store_read(store, version = "v404"),
+    .zero_tbl_get_manifest()
+  )
   expect_setequal(
     list.dirs(store, recursive = FALSE, full.names = FALSE),
     c(.path_encode_component("../CON"), "_61ux", "docs")
   )
-  expect_identical(readLines(file.path(store, ".gitattributes")), c("files-*.csv -text", "versions.csv -text"))
+  expect_identical(
+    readLines(file.path(store, ".gitattributes")),
+    c("files-*.csv -text", "versions.csv -text")
+  )
   empty_index <- .manifest_store_index(store, "docs")
-  empty_path <- file.path(store, "docs", paste0("files-", empty_index$snapshot, ".csv"))
+  empty_path <- file.path(
+    store,
+    "docs",
+    paste0("files-", empty_index$snapshot, ".csv")
+  )
   expect_identical(readLines(empty_path), '"fn","hash"')
-  expect_identical(names(.manifest_store_read(store)), c("label", "fn", "version", "hash"))
+  expect_identical(
+    names(.manifest_store_read(store)),
+    c("label", "fn", "version", "hash")
+  )
 })
 
 test_that("a project imports the legacy manifest once and reads selected directory snapshots", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(rm_engine = TRUE)
-  usethis::with_project(dir_test,
+  usethis::with_project(
+    dir_test,
     {
       store <- .path_get(".projr", "manifests")
       old <- data.frame(
-        label = c("raw-data", "output"), fn = c("NA", "001"), version = "v1.0",
+        label = c("raw-data", "output"),
+        fn = c("NA", "001"),
+        version = "v1.0",
         hash = c("00111", "00222")
       )
       write.csv(old, "manifest.csv", row.names = FALSE)
@@ -67,19 +126,40 @@ test_that("a project imports the legacy manifest once and reads selected directo
       new <- transform(old, version = "v1.1")
       .manifest_store_write(new)
       expect_identical(tools::md5sum("manifest.csv"), old_file)
-      expect_identical(.manifest_read_project("output", c("v1.0", "v1.1"))$fn, c("001", "001"))
-      write.csv(transform(old, version = "v9.9"), "manifest.csv", row.names = FALSE)
+      expect_identical(
+        .manifest_read_project("output", c("v1.0", "v1.1"))$fn,
+        c("001", "001")
+      )
+      write.csv(
+        transform(old, version = "v9.9"),
+        "manifest.csv",
+        row.names = FALSE
+      )
       .manifest_store_write(new)
       expect_false("v9.9" %in% .manifest_store_index(store)$version)
 
       index <- .manifest_store_index(store, "raw-data")
-      path <- file.path(store, "raw-data", paste0("files-", index$snapshot[1L], ".csv"))
+      path <- file.path(
+        store,
+        "raw-data",
+        paste0("files-", index$snapshot[1L], ".csv")
+      )
       unlink(path)
       expect_identical(.manifest_read_project("output", "v1.1")$hash, "00222")
-      expect_error(.manifest_read_project("raw-data", "v1.1"), "Missing manifest snapshot")
+      expect_error(
+        .manifest_read_project("raw-data", "v1.1"),
+        "Missing manifest snapshot"
+      )
       index$snapshot[1L] <- "../foreign"
-      write.csv(index, file.path(store, "raw-data", "versions.csv"), row.names = FALSE)
-      expect_error(.manifest_store_index(store), "Invalid directory manifest index")
+      write.csv(
+        index,
+        file.path(store, "raw-data", "versions.csv"),
+        row.names = FALSE
+      )
+      expect_error(
+        .manifest_store_index(store),
+        "Invalid directory manifest index"
+      )
     },
     force = TRUE
   )
@@ -88,31 +168,62 @@ test_that("a project imports the legacy manifest once and reads selected directo
 test_that("native snapshot ordering and quoting produce the reference CSV bytes", {
   skip_if(.is_test_select())
   files <- data.frame(
-    fn = c('u,"a"', intToUtf8(c(937, 27700)), "001", "NA", "line\nbreak", "001", "001"),
+    fn = c(
+      'u,"a"',
+      intToUtf8(c(937, 27700)),
+      "001",
+      "NA",
+      "line\nbreak",
+      "001",
+      "001"
+    ),
     hash = c("0002", "0003", "0001", "0004", "0005", "0001", "0000")
   )
   actual <- withr::local_tempfile()
   expected <- withr::local_tempfile()
   .manifest_store_write_files(files, actual)
-  ordered <- unique(files[order(enc2utf8(files$fn), enc2utf8(files$hash), method = "radix"), ])
+  ordered <- unique(files[
+    order(enc2utf8(files$fn), enc2utf8(files$hash), method = "radix"),
+  ])
   .manifest_store_write_csv(ordered, expected)
   bytes <- function(path) readBin(path, "raw", n = file.size(path))
   expect_identical(bytes(actual), bytes(expected))
-  expect_identical(digest::digest(file = actual, algo = "sha256"), digest::digest(file = expected, algo = "sha256"))
-  expect_error(.manifest_store_write_files(transform(files, fn = NA_character_), actual), "Missing filename")
-  expect_error(manifest_file_bytes("ok", "hash", 0), "Invalid manifest row index")
+  expect_identical(
+    digest::digest(file = actual, algo = "sha256"),
+    digest::digest(file = expected, algo = "sha256")
+  )
+  expect_error(
+    .manifest_store_write_files(transform(files, fn = NA_character_), actual),
+    "Missing filename"
+  )
+  expect_error(
+    manifest_file_bytes("ok", "hash", 0),
+    "Invalid manifest row index"
+  )
 })
 
 test_that("a failed first import can be retried without altering the old manifest", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(rm_engine = TRUE)
-  usethis::with_project(dir_test,
+  usethis::with_project(
+    dir_test,
     {
-      original <- data.frame(label = "output", fn = "report", version = "v1", hash = "001")
-      prior <- rbind(original, transform(original, label = "abandoned", version = "v7"))
+      original <- data.frame(
+        label = "output",
+        fn = "report",
+        version = "v1",
+        hash = "001"
+      )
+      prior <- rbind(
+        original,
+        transform(original, label = "abandoned", version = "v7")
+      )
       write.csv(prior, "manifest.csv", row.names = FALSE)
       store <- .path_get(".projr", "manifests")
-      expect_error(.manifest_store_write(transform(original, version = "invalid")), "version")
+      expect_error(
+        .manifest_store_write(transform(original, version = "invalid")),
+        "version"
+      )
       expect_false(.manifest_store_ready(store))
       expect_identical(readLines(file.path(store, "FORMAT")), "importing")
       expect_true(file.exists(file.path(store, "abandoned", "versions.csv")))
@@ -124,8 +235,14 @@ test_that("a failed first import can be retried without altering the old manifes
       .manifest_store_write(transform(original, version = "v2"))
       expect_identical(readLines(file.path(store, "FORMAT")), "1")
       expect_identical(.manifest_read_project()$version, c("v1", "v2"))
-      expect_identical(.manifest_read_project(fn = "absent"), .zero_tbl_get_manifest())
-      expect_identical(.manifest_read_project(fn = "report")$hash, rep("001", 2L))
+      expect_identical(
+        .manifest_read_project(fn = "absent"),
+        .zero_tbl_get_manifest()
+      )
+      expect_identical(
+        .manifest_read_project(fn = "report")$hash,
+        rep("001", 2L)
+      )
     },
     force = TRUE
   )
@@ -139,7 +256,12 @@ test_that("a first import leaves pre-existing directory indexes intact", {
   existing <- file.path(directory, "versions.csv")
   original <- charToRaw("version,description\r\n1,local history\r\n")
   writeBin(original, existing)
-  rows <- data.frame(label = "docs", fn = "report", version = "v1", hash = "001")
+  rows <- data.frame(
+    label = "docs",
+    fn = "report",
+    version = "v1",
+    hash = "001"
+  )
   expect_error(.manifest_store_write(rows, store, NULL), "existing index")
   expect_identical(readBin(existing, "raw", n = file.size(existing)), original)
   expect_false(file.exists(file.path(store, "FORMAT")))
@@ -151,10 +273,17 @@ test_that("concurrent writers preserve both versions of a shared directory", {
   skip_if(.is_test_cran())
   skip_on_os("windows")
   store <- withr::local_tempdir()
-  jobs <- lapply(1:4, function(i) parallel::mcparallel({
-    rows <- data.frame(label = "raw-data", fn = "shared.txt", version = paste0("v", i), hash = "0011")
-    .manifest_store_write(rows, store, NULL)
-  }))
+  jobs <- lapply(1:4, function(i) {
+    parallel::mcparallel({
+      rows <- data.frame(
+        label = "raw-data",
+        fn = "shared.txt",
+        version = paste0("v", i),
+        hash = "0011"
+      )
+      .manifest_store_write(rows, store, NULL)
+    })
+  })
   results <- parallel::mccollect(jobs)
   expect_false(any(vapply(results, inherits, logical(1), "try-error")))
   index <- .manifest_store_index(store)
@@ -171,11 +300,26 @@ test_that("a Git checkout preserves snapshot and index bytes with autocrlf enabl
   expect_equal(system2("git", c("init", "--quiet")), 0L)
   store <- file.path(".projr", "manifests")
   dir.create(store, recursive = TRUE)
-  writeLines(c("*.md text", "files-*.csv -text"), file.path(store, ".gitattributes"))
-  rows <- data.frame(label = "docs", fn = "report.pdf", version = "v1", hash = "001")
+  writeLines(
+    c("*.md text", "files-*.csv -text"),
+    file.path(store, ".gitattributes")
+  )
+  rows <- data.frame(
+    label = "docs",
+    fn = "report.pdf",
+    version = "v1",
+    hash = "001"
+  )
   .manifest_store_write(rows, store, NULL)
-  expect_identical(readLines(file.path(store, ".gitattributes")), c("*.md text", "files-*.csv -text", "versions.csv -text"))
-  snapshot <- list.files(file.path(store, "docs"), pattern = "^files-", full.names = TRUE)
+  expect_identical(
+    readLines(file.path(store, ".gitattributes")),
+    c("*.md text", "files-*.csv -text", "versions.csv -text")
+  )
+  snapshot <- list.files(
+    file.path(store, "docs"),
+    pattern = "^files-",
+    full.names = TRUE
+  )
   git <- function(args) system2("git", c("-c", "core.autocrlf=true", args))
   files <- c(snapshot, file.path(store, "docs", "versions.csv"))
   checksums <- tools::md5sum(files)
@@ -193,7 +337,12 @@ test_that("old checkouts can be read and built with the hidden project directory
     fs::dir_create("_projr/config")
     fs::file_move("_projr.yml", "_projr/config/_projr.yml")
     writeLines("user file", "_projr/keep.txt")
-    rows <- data.frame(label = "raw-data", fn = "input.csv", version = "v1.0", hash = "0011")
+    rows <- data.frame(
+      label = "raw-data",
+      fn = "input.csv",
+      version = "v1.0",
+      hash = "0011"
+    )
     .manifest_store_write(rows, "_projr/manifests", NULL)
     withr::with_dir("_projr/config", {
       expect_equal(.manifest_read_project("raw-data")$hash, "0011")
@@ -221,5 +370,8 @@ test_that("migration preserves both existing configurations on a conflict", {
   writeLines("old", file.path(configs[1L], "_projr.yml"))
   writeLines("new", file.path(configs[2L], "_projr.yml"))
   expect_error(.project_state_upgrade(root), "Reconcile")
-  expect_identical(lapply(file.path(configs, "_projr.yml"), readLines), list("old", "new"))
+  expect_identical(
+    lapply(file.path(configs, "_projr.yml"), readLines),
+    list("old", "new")
+  )
 })

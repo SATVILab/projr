@@ -12,16 +12,25 @@
 # check existence of final remote
 # ========================
 
-.remote_final_check_exists_local <- function(id,
-                                             label,
-                                             structure,
-                                             path,
-                                             path_append_label,
-                                             version,
-                                             empty) {
+.remote_final_check_exists_local <- function(
+  id,
+  label,
+  structure,
+  path,
+  path_append_label,
+  version,
+  empty
+) {
   remote_final <- .remote_final_get(
-    "local", id, label, structure, path, path_append_label,
-    version, FALSE, empty
+    "local",
+    id,
+    label,
+    structure,
+    path,
+    path_append_label,
+    version,
+    FALSE,
+    empty
   )
   .remote_final_check_exists_direct_local(remote_final)
 }
@@ -32,16 +41,31 @@
   empty_label <- attr(remote, "empty_label")
   if (exists && isTRUE(attr(remote, "label_at_root"))) {
     has_files <- length(.remote_file_ls_local(remote)) > 0L
-    if (is.null(empty_label)) return(has_files)
-    if (has_files) return(FALSE)
+    if (is.null(empty_label)) {
+      return(has_files)
+    }
+    if (has_files) {
+      return(FALSE)
+    }
     # The shared root's latest manifest confirms an empty build, including for
     # legacy destinations. A missing payload alone cannot authorize a restore.
     root <- as.character(remote)
-    latest <- .remote_get_version_latest_label_non_project_file(root, "local", empty_label)
-    return(length(latest) > 0L && identical(.remote_get_manifest("local", root, empty_label, latest)$fn, ""))
+    latest <- .remote_get_version_latest_label_non_project_file(
+      root,
+      "local",
+      empty_label
+    )
+    return(
+      length(latest) > 0L &&
+        identical(
+          .remote_get_manifest("local", root, empty_label, latest)$fn,
+          ""
+        )
+    )
   }
   if (exists && !is.null(empty_label)) {
-    exists <- !fs::link_exists(remote) && !length(list.files(remote, all.files = TRUE, no.. = TRUE))
+    exists <- !fs::link_exists(remote) &&
+      !length(list.files(remote, all.files = TRUE, no.. = TRUE))
   }
   exists
 }
@@ -78,13 +102,15 @@
 # Get final remote
 # =======================
 
-.remote_final_get_local <- function(path,
-                                    path_append_label,
-                                    label,
-                                    structure,
-                                    version = NULL,
-                                    pre,
-                                    empty) {
+.remote_final_get_local <- function(
+  path,
+  path_append_label,
+  label,
+  structure,
+  version = NULL,
+  pre,
+  empty
+) {
   .assert_string(path, TRUE)
   .assert_path_not_file(path)
   .assert_flag(path_append_label)
@@ -113,7 +139,9 @@
   )
   # An unlabeled latest destination shares its root with release metadata.
   # Archive readers also need to know when versions live directly at that root.
-  if (!pre && isTRUE(empty)) attr(path_dir, "empty_label") <- label
+  if (!pre && isTRUE(empty)) {
+    attr(path_dir, "empty_label") <- label
+  }
   if (!path_append_label && (pre || structure == "latest")) {
     attr(path_dir, "label_at_root") <- TRUE
   }
@@ -126,7 +154,9 @@
 
 # These names belong to the archive when payload files share its root.
 .remote_local_metadata_pattern <- function(remote) {
-  if (isTRUE(attr(remote, "label_at_root"))) "(?i:manifests|manifest[.]csv|version|changelog[.]md)"
+  if (isTRUE(attr(remote, "label_at_root"))) {
+    "(?i:manifests|manifest[.]csv|version|changelog[.]md)"
+  }
 }
 
 .remote_local_check_payload <- function(source, root) {
@@ -138,17 +168,28 @@
   # adopt an unrelated VERSION, CHANGELOG, or manifests directory on first use.
   legacy <- file.path(root, "manifest.csv")
   store <- file.path(root, "manifests")
-  if (!.manifest_store_ready(store) && !file.exists(file.path(store, "FORMAT"))) {
-    legacy_managed <- file.exists(legacy) && !dir.exists(legacy) &&
+  if (
+    !.manifest_store_ready(store) && !file.exists(file.path(store, "FORMAT"))
+  ) {
+    legacy_managed <- file.exists(legacy) &&
+      !dir.exists(legacy) &&
       identical(names(.manifest_read(legacy)), names(.zero_tbl_get_manifest()))
     if (!legacy_managed) {
       entries <- top_level(root)
-      conflicts <- union(conflicts, setdiff(entries, .path_filter_spec(entries, pattern)))
+      conflicts <- union(
+        conflicts,
+        setdiff(entries, .path_filter_spec(entries, pattern))
+      )
     }
   }
   if (length(conflicts)) {
-    stop("Local destination '", root, "' reserves these paths for release metadata: ",
-         paste(conflicts, collapse = ", "), call. = FALSE)
+    stop(
+      "Local destination '",
+      root,
+      "' reserves these paths for release metadata: ",
+      paste(conflicts, collapse = ", "),
+      call. = FALSE
+    )
   }
 }
 
@@ -156,11 +197,13 @@
 # Create empty remote directory marker
 # ========================
 
-.remote_final_empty_get_local <- function(path,
-                                          path_append_label,
-                                          label,
-                                          structure,
-                                          version = NULL) {
+.remote_final_empty_get_local <- function(
+  path,
+  path_append_label,
+  label,
+  structure,
+  version = NULL
+) {
   # Get the path for the empty remote
   remote_empty <- .remote_final_get_local(
     path = path,
@@ -180,7 +223,11 @@
   # Check if it already exists
   if (file.exists(remote_empty) || fs::link_exists(remote_empty)) {
     if (!.remote_final_check_exists_direct_local(remote_empty)) {
-      stop("The local empty marker path is already occupied: ", remote_empty, call. = FALSE)
+      stop(
+        "The local empty marker path is already occupied: ",
+        remote_empty,
+        call. = FALSE
+      )
     }
     return(remote_empty)
   }
@@ -198,7 +245,9 @@
 # local
 .remote_final_rm_if_empty_local <- function(remote) {
   .assert_string(remote, TRUE)
-  if (isTRUE(attr(remote, "label_at_root"))) return(invisible(FALSE))
+  if (isTRUE(attr(remote, "label_at_root"))) {
+    return(invisible(FALSE))
+  }
   if (!dir.exists(remote)) {
     .cli_debug(
       "Local remote: Directory '{remote}' does not exist, returning FALSE"
@@ -206,7 +255,12 @@
     return(invisible(FALSE))
   }
   # Check for FILES only (not directories) - empty directories don't count
-  all_entries <- list.files(remote, full.names = TRUE, recursive = TRUE, all.files = TRUE)
+  all_entries <- list.files(
+    remote,
+    full.names = TRUE,
+    recursive = TRUE,
+    all.files = TRUE
+  )
   files_only <- all_entries[!dir.exists(all_entries)]
 
   if (.is_len_pos(files_only)) {
@@ -242,8 +296,13 @@
 
 .remote_final_rm_local <- function(remote) {
   .assert_string(remote, TRUE)
-  if (isTRUE(attr(remote, "label_at_root"))) return(invisible(FALSE))
-  if (!is.null(attr(remote, "empty_label")) && !.remote_final_check_exists_direct_local(remote)) {
+  if (isTRUE(attr(remote, "label_at_root"))) {
+    return(invisible(FALSE))
+  }
+  if (
+    !is.null(attr(remote, "empty_label")) &&
+      !.remote_final_check_exists_direct_local(remote)
+  ) {
     return(invisible(FALSE))
   }
   if (!dir.exists(remote)) {
@@ -284,8 +343,7 @@
 # Download all files
 # ========================
 
-.remote_file_get_all_local <- function(remote,
-                                       path_dir_save_local) {
+.remote_file_get_all_local <- function(remote, path_dir_save_local) {
   .assert_string(remote, TRUE)
   if (!is.null(attr(remote, "empty_label"))) {
     .cli_debug(
@@ -300,16 +358,18 @@
     )
     return(character(0L))
   }
-  .dir_copy(remote, path_dir_save_local, fn_exc = .remote_local_metadata_pattern(remote))
+  .dir_copy(
+    remote,
+    path_dir_save_local,
+    fn_exc = .remote_local_metadata_pattern(remote)
+  )
 }
 
 # ========================
 # Download a single file
 # ========================
 
-.remote_file_get_local <- function(remote,
-                                   fn,
-                                   path_dir_save_local) {
+.remote_file_get_local <- function(remote, fn, path_dir_save_local) {
   .assert_string(remote, TRUE)
   if (!is.null(attr(remote, "empty_label"))) {
     .cli_debug(
@@ -334,7 +394,9 @@
 .remote_file_ls_local <- function(remote) {
   .assert_string(remote, TRUE)
   pattern <- .remote_local_metadata_pattern(remote)
-  if (is.null(pattern)) return(.file_ls(path_dir = remote))
+  if (is.null(pattern)) {
+    return(.file_ls(path_dir = remote))
+  }
   .hash_dir_files(remote, pattern)
 }
 
@@ -342,9 +404,7 @@
 # Delete individual files
 # ========================
 
-.remote_file_rm_local <- function(fn,
-                                  remote,
-                                  rm_if_empty = TRUE) {
+.remote_file_rm_local <- function(fn, remote, rm_if_empty = TRUE) {
   .assert_chr_min(fn, TRUE)
   if (length(fn) == 0L) {
     .cli_debug(
@@ -375,9 +435,7 @@
 # Add individual files
 # ========================
 
-.remote_file_add_local <- function(fn,
-                                   path_dir_local,
-                                   remote) {
+.remote_file_add_local <- function(fn, path_dir_local, remote) {
   .assert_chr_min(fn, TRUE)
   if (.is_len_0(fn)) {
     .cli_debug(
@@ -396,7 +454,9 @@
     path_dir_to = remote
   )
   if (isTRUE(copied)) {
-    .cli_debug("Copied {if (length(fn) == 1L) fn else paste(length(fn), 'files')} to '{remote}'")
+    .cli_debug(
+      "Copied {if (length(fn) == 1L) fn else paste(length(fn), 'files')} to '{remote}'"
+    )
   }
   invisible(copied)
 }

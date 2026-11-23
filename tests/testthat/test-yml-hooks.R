@@ -48,7 +48,10 @@ test_that("projr_yml_hooks_add works with multiple paths", {
       # Add multiple pre hooks
       projr_yml_hooks_add(c("hooks/pre1.R", "hooks/pre2.R"), stage = "pre")
       yml <- .yml_get("default")
-      expect_equal(yml[["build"]][["hooks"]][["pre"]], c("hooks/pre1.R", "hooks/pre2.R"))
+      expect_equal(
+        yml[["build"]][["hooks"]][["pre"]],
+        c("hooks/pre1.R", "hooks/pre2.R")
+      )
     },
     force = TRUE,
     quiet = TRUE
@@ -76,7 +79,10 @@ test_that("projr_yml_hooks_add overwrite parameter works", {
       # Append without overwriting
       projr_yml_hooks_add("hooks/pre3.R", stage = "pre", overwrite = FALSE)
       yml <- .yml_get("default")
-      expect_equal(yml[["build"]][["hooks"]][["pre"]], c("hooks/pre2.R", "hooks/pre3.R"))
+      expect_equal(
+        yml[["build"]][["hooks"]][["pre"]],
+        c("hooks/pre2.R", "hooks/pre3.R")
+      )
     },
     force = TRUE,
     quiet = TRUE
@@ -102,9 +108,16 @@ test_that("projr_yml_hooks_add prevents duplicates when appending", {
       expect_equal(yml[["build"]][["hooks"]][["pre"]], "hooks/pre1.R")
 
       # Append multiple paths with some duplicates
-      projr_yml_hooks_add(c("hooks/pre1.R", "hooks/pre2.R"), stage = "pre", overwrite = FALSE)
+      projr_yml_hooks_add(
+        c("hooks/pre1.R", "hooks/pre2.R"),
+        stage = "pre",
+        overwrite = FALSE
+      )
       yml <- .yml_get("default")
-      expect_equal(yml[["build"]][["hooks"]][["pre"]], c("hooks/pre1.R", "hooks/pre2.R"))
+      expect_equal(
+        yml[["build"]][["hooks"]][["pre"]],
+        c("hooks/pre1.R", "hooks/pre2.R")
+      )
     },
     force = TRUE,
     quiet = TRUE
@@ -171,7 +184,10 @@ test_that("projr_yml_hooks_add_pre works correctly", {
       # Test append
       projr_yml_hooks_add_pre("hooks/pre3.R", overwrite = FALSE)
       yml <- .yml_get("default")
-      expect_equal(yml[["build"]][["hooks"]][["pre"]], c("hooks/pre2.R", "hooks/pre3.R"))
+      expect_equal(
+        yml[["build"]][["hooks"]][["pre"]],
+        c("hooks/pre2.R", "hooks/pre3.R")
+      )
     },
     force = TRUE,
     quiet = TRUE
@@ -201,7 +217,10 @@ test_that("projr_yml_hooks_add_post works correctly", {
       # Test append
       projr_yml_hooks_add_post("hooks/post3.R", overwrite = FALSE)
       yml <- .yml_get("default")
-      expect_equal(yml[["build"]][["hooks"]][["post"]], c("hooks/post2.R", "hooks/post3.R"))
+      expect_equal(
+        yml[["build"]][["hooks"]][["post"]],
+        c("hooks/post2.R", "hooks/post3.R")
+      )
     },
     force = TRUE,
     quiet = TRUE
@@ -275,7 +294,12 @@ test_that(".yml_hooks_check validates all parameters", {
 
   # Valid inputs should not error
   expect_silent(.yml_hooks_check("hooks/test.R", "pre", TRUE, "default"))
-  expect_silent(.yml_hooks_check(c("hooks/pre.R", "hooks/post.R"), "both", FALSE, "default"))
+  expect_silent(.yml_hooks_check(
+    c("hooks/pre.R", "hooks/post.R"),
+    "both",
+    FALSE,
+    "default"
+  ))
 
   # Invalid path (not character)
   expect_error(
@@ -316,7 +340,12 @@ test_that(".yml_hooks_add creates new hook list when none exists", {
       .yml_set(yml, "default")
 
       # Add hook (internal function)
-      result <- .yml_hooks_add("hooks/pre.R", "pre", "default", overwrite = TRUE)
+      result <- .yml_hooks_add(
+        "hooks/pre.R",
+        "pre",
+        "default",
+        overwrite = TRUE
+      )
 
       expect_equal(result[["pre"]], "hooks/pre.R")
     },
@@ -339,12 +368,22 @@ test_that(".yml_hooks_add handles overwrite correctly", {
       projr_yml_hooks_add("hooks/pre1.R", stage = "pre")
 
       # Overwrite with new path (then set it)
-      result <- .yml_hooks_add("hooks/pre2.R", "pre", "default", overwrite = TRUE)
+      result <- .yml_hooks_add(
+        "hooks/pre2.R",
+        "pre",
+        "default",
+        overwrite = TRUE
+      )
       .yml_hooks_set(result, "default")
       expect_equal(result[["pre"]], "hooks/pre2.R")
 
       # Append without overwrite
-      result <- .yml_hooks_add("hooks/pre3.R", "pre", "default", overwrite = FALSE)
+      result <- .yml_hooks_add(
+        "hooks/pre3.R",
+        "pre",
+        "default",
+        overwrite = FALSE
+      )
       expect_equal(result[["pre"]], c("hooks/pre2.R", "hooks/pre3.R"))
     },
     force = TRUE,
@@ -366,11 +405,21 @@ test_that(".yml_hooks_add removes duplicates when appending", {
       projr_yml_hooks_add("hooks/pre1.R", stage = "pre")
 
       # Try to append duplicate
-      result <- .yml_hooks_add("hooks/pre1.R", "pre", "default", overwrite = FALSE)
+      result <- .yml_hooks_add(
+        "hooks/pre1.R",
+        "pre",
+        "default",
+        overwrite = FALSE
+      )
       expect_equal(result[["pre"]], "hooks/pre1.R")
 
       # Append new and duplicate paths
-      result <- .yml_hooks_add(c("hooks/pre1.R", "hooks/pre2.R"), "pre", "default", overwrite = FALSE)
+      result <- .yml_hooks_add(
+        c("hooks/pre1.R", "hooks/pre2.R"),
+        "pre",
+        "default",
+        overwrite = FALSE
+      )
       expect_equal(result[["pre"]], c("hooks/pre1.R", "hooks/pre2.R"))
     },
     force = TRUE,
@@ -455,7 +504,10 @@ test_that(".yml_hooks_set writes hooks to YAML", {
 
       # Verify they were written
       yml <- .yml_get("default")
-      expect_equal(yml[["build"]][["hooks"]][["pre"]], c("hooks/pre1.R", "hooks/pre2.R"))
+      expect_equal(
+        yml[["build"]][["hooks"]][["pre"]],
+        c("hooks/pre1.R", "hooks/pre2.R")
+      )
       expect_equal(yml[["build"]][["hooks"]][["post"]], "hooks/post.R")
     },
     force = TRUE,

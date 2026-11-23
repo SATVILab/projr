@@ -1,12 +1,14 @@
 # prompt helpers
 # --------------
-.init_prompt_ind <- function(.var = NULL,
-                             nm_item_long,
-                             option_default = NULL,
-                             allow_specify_other = TRUE,
-                             allow_complete_later = TRUE,
-                             answer_translate = NULL,
-                             answer_auto) {
+.init_prompt_ind <- function(
+  .var = NULL,
+  nm_item_long,
+  option_default = NULL,
+  allow_specify_other = TRUE,
+  allow_complete_later = TRUE,
+  answer_translate = NULL,
+  answer_auto
+) {
   # set up
   # ----------------
 
@@ -80,11 +82,13 @@
   )
 }
 
-.init_prompt_ind_question <- function(default_given,
-                                      .var,
-                                      nm_item_long,
-                                      option_default,
-                                      option_other) {
+.init_prompt_ind_question <- function(
+  default_given,
+  .var,
+  nm_item_long,
+  option_default,
+  option_other
+) {
   if (default_given) {
     answer_list <- .init_prompt_ind_default_given(
       .var = .var,
@@ -100,10 +104,12 @@
   answer_list
 }
 
-.init_prompt_ind_default_given <- function(.var,
-                                           nm_item_long,
-                                           option_default,
-                                           option_other) {
+.init_prompt_ind_default_given <- function(
+  .var,
+  nm_item_long,
+  option_default,
+  option_other
+) {
   request_default <- paste0("Please select ", nm_item_long, ".")
   request_default_n <- paste0("Please specify the ", nm_item_long, ".")
   # add variable to default
@@ -152,23 +158,29 @@
   list("completed" = TRUE, "nm" = nm_item)
 }
 
-.init_prompt_ind_check <- function(nm_long,
-                                   nm_item,
-                                   answer_translate,
-                                   option_check) {
+.init_prompt_ind_check <- function(
+  nm_long,
+  nm_item,
+  answer_translate,
+  option_check
+) {
   nm_check <- .init_prompt_ind_translate(
-    nm_item, answer_translate
+    nm_item,
+    answer_translate
   )
   check_init <- paste0(
-    "Is the ", nm_long, " `", nm_check, "` correct?"
+    "Is the ",
+    nm_long,
+    " `",
+    nm_check,
+    "` correct?"
   )
   answer <- utils::menu(option_check, title = check_init)
   cat("\n")
   option_check[answer]
 }
 
-.init_prompt_ind_translate <- function(nm_item,
-                                       answer_translate) {
+.init_prompt_ind_translate <- function(nm_item, answer_translate) {
   if (is.null(answer_translate)) {
     return(nm_item)
   }
@@ -176,8 +188,7 @@
 }
 
 
-.init_prompt_yn <- function(question,
-                            answer_auto = 2) {
+.init_prompt_yn <- function(question, answer_auto = 2) {
   yn_vec <- c("Yes", "No")
   if (.is_test()) {
     return(answer_auto)

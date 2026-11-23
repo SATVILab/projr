@@ -1,16 +1,18 @@
-.yml_remote_check <- function(role,
-                              type,
-                              title = NULL,
-                              content = NULL,
-                              structure = NULL,
-                              path = NULL,
-                              path_append_label = NULL,
-                              overwrite = FALSE,
-                              description = NULL,
-                              id = NULL,
-                              id_parent = NULL,
-                              get_list = NULL,
-                              send_list = NULL) {
+.yml_remote_check <- function(
+  role,
+  type,
+  title = NULL,
+  content = NULL,
+  structure = NULL,
+  path = NULL,
+  path_append_label = NULL,
+  overwrite = FALSE,
+  description = NULL,
+  id = NULL,
+  id_parent = NULL,
+  get_list = NULL,
+  send_list = NULL
+) {
   .assert_string(title)
   .assert_string(role, TRUE)
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
@@ -28,10 +30,12 @@
   if (.is_len_pos(get_list)) {
     .assert_in(names(get_list), c("strategy", "conflict"))
     .assert_in_single(
-      get_list[["strategy"]], .opt_remote_strategy_get()
+      get_list[["strategy"]],
+      .opt_remote_strategy_get()
     )
     .assert_in_single(
-      get_list[["conflict"]], .opt_remote_conflict_get()
+      get_list[["conflict"]],
+      .opt_remote_conflict_get()
     )
   }
   .assert_class_exact(send_list, "list")
@@ -39,11 +43,13 @@
     .assert_in(names(send_list), .opt_remote_transfer_names_get())
     .assert_in_single(send_list[["cue"]], .opt_cue_get())
     .assert_in_single(
-      send_list[["strategy"]], .opt_remote_strategy_get()
+      send_list[["strategy"]],
+      .opt_remote_strategy_get()
     )
     .assert_in_single(send_list[["conflict"]], .opt_remote_conflict_get())
     .assert_in_single(
-      send_list[["inspect"]], .opt_remote_inspect_get()
+      send_list[["inspect"]],
+      .opt_remote_inspect_get()
     )
   }
   invisible(TRUE)

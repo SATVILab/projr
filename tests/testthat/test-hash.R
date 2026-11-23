@@ -282,12 +282,15 @@ test_that(".change_get_hash detects added files", {
   # Compare
   result <- .change_get_hash(hash_pre, hash_post)
 
-  expect_identical(result, list(
-    fn_dest_extra = character(0),
-    fn_same = character(0),
-    fn_diff = character(0),
-    fn_source_extra = c("file1.txt", "file2.txt")
-  ))
+  expect_identical(
+    result,
+    list(
+      fn_dest_extra = character(0),
+      fn_same = character(0),
+      fn_diff = character(0),
+      fn_source_extra = c("file1.txt", "file2.txt")
+    )
+  )
 })
 
 test_that(".change_get_hash detects removed files", {
@@ -311,12 +314,15 @@ test_that(".change_get_hash detects removed files", {
   # Compare
   result <- .change_get_hash(hash_pre, hash_post)
 
-  expect_identical(result, list(
-    fn_dest_extra = c("file1.txt", "file2.txt"),
-    fn_same = character(0),
-    fn_diff = character(0),
-    fn_source_extra = character(0)
-  ))
+  expect_identical(
+    result,
+    list(
+      fn_dest_extra = c("file1.txt", "file2.txt"),
+      fn_same = character(0),
+      fn_diff = character(0),
+      fn_source_extra = character(0)
+    )
+  )
 })
 
 test_that(".change_get_hash detects unchanged files", {
@@ -340,12 +346,15 @@ test_that(".change_get_hash detects unchanged files", {
   # Compare
   result <- .change_get_hash(hash_pre, hash_post)
 
-  expect_identical(result, list(
-    fn_dest_extra = character(0),
-    fn_same = c("file1.txt", "file2.txt"),
-    fn_diff = character(0),
-    fn_source_extra = character(0)
-  ))
+  expect_identical(
+    result,
+    list(
+      fn_dest_extra = character(0),
+      fn_same = c("file1.txt", "file2.txt"),
+      fn_diff = character(0),
+      fn_source_extra = character(0)
+    )
+  )
 })
 
 test_that(".change_get_hash detects modified files", {
@@ -369,12 +378,15 @@ test_that(".change_get_hash detects modified files", {
   # Compare
   result <- .change_get_hash(hash_pre, hash_post)
 
-  expect_identical(result, list(
-    fn_dest_extra = character(0),
-    fn_same = character(0),
-    fn_diff = c("file1.txt", "file2.txt"),
-    fn_source_extra = character(0)
-  ))
+  expect_identical(
+    result,
+    list(
+      fn_dest_extra = character(0),
+      fn_same = character(0),
+      fn_diff = c("file1.txt", "file2.txt"),
+      fn_source_extra = character(0)
+    )
+  )
 })
 
 test_that(".change_get_hash handles mixed changes", {
@@ -398,12 +410,15 @@ test_that(".change_get_hash handles mixed changes", {
   # Compare
   result <- .change_get_hash(hash_pre, hash_post)
 
-  expect_identical(result, list(
-    fn_dest_extra = "removed.txt",
-    fn_same = "unchanged.txt",
-    fn_diff = "modified.txt",
-    fn_source_extra = "added.txt"
-  ))
+  expect_identical(
+    result,
+    list(
+      fn_dest_extra = "removed.txt",
+      fn_same = "unchanged.txt",
+      fn_diff = "modified.txt",
+      fn_source_extra = "added.txt"
+    )
+  )
 })
 
 test_that(".change_get_dir compares two directories", {
@@ -434,7 +449,10 @@ test_that(".change_get_dir compares two directories", {
 
       # Verify structure
       expect_identical(length(result), 4L)
-      expect_true(all(c("fn_dest_extra", "fn_same", "fn_diff", "fn_source_extra") %in% names(result)))
+      expect_true(all(
+        c("fn_dest_extra", "fn_same", "fn_diff", "fn_source_extra") %in%
+          names(result)
+      ))
 
       # Verify results
       expect_identical(length(result$fn_same), 1L)
@@ -458,46 +476,80 @@ test_that(".change_get_dir compares two directories", {
 test_that(".zero_tbl_get_hash returns correct structure", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  expect_identical(.zero_tbl_get_hash(), data.frame(
-    fn = character(0),
-    version = character(0),
-    hash = character(0)
-  ))
+  expect_identical(
+    .zero_tbl_get_hash(),
+    data.frame(
+      fn = character(0),
+      version = character(0),
+      hash = character(0)
+    )
+  )
 })
 
 test_that("both engines hash named, binary and Unicode paths exactly as earlier builds did", {
   skip_if(.is_test_select())
   withr::local_dir(testthat::test_path("project_structure"))
   root <- withr::local_tempdir()
-  files <- file.path(root, c("empty", "abc", paste0(intToUtf8(233), " large.bin")))
+  files <- file.path(
+    root,
+    c("empty", "abc", paste0(intToUtf8(233), " large.bin"))
+  )
   file.create(files[1])
   writeBin(charToRaw("abc"), files[2])
   writeBin(rep(as.raw(0:255), 8193), files[3])
-  paths <- stats::setNames(files[c(3, 1, 2, 3)], c("large", "empty", "text", "repeat"))
-  expected <- vapply(paths, digest::digest, character(1), serialize = FALSE, file = TRUE)
-  expect_identical(unname(expected[2:3]), c("d41d8cd98f00b204e9800998ecf8427e", "900150983cd24fb0d6963f7d28e17f72"))
+  paths <- stats::setNames(
+    files[c(3, 1, 2, 3)],
+    c("large", "empty", "text", "repeat")
+  )
+  expected <- vapply(
+    paths,
+    digest::digest,
+    character(1),
+    serialize = FALSE,
+    file = TRUE
+  )
+  expect_identical(
+    unname(expected[2:3]),
+    c("d41d8cd98f00b204e9800998ecf8427e", "900150983cd24fb0d6963f7d28e17f72")
+  )
   for (engine in c("cpp", "legacy")) {
     expect_identical(.hash_file(paths, engine), expected)
     expect_identical(names(.hash_file(files, engine)), files)
-    expect_identical(.hash_file(character(), engine), stats::setNames(character(), character()))
+    expect_identical(
+      .hash_file(character(), engine),
+      stats::setNames(character(), character())
+    )
     expect_identical(.hash_file(NULL, engine), character())
   }
-  expect_error(.hash_file(c(files, paste0(files[2], ".missing")), "cpp"), "Could not hash file:.*[.]missing")
+  expect_error(
+    .hash_file(c(files, paste0(files[2], ".missing")), "cpp"),
+    "Could not hash file:.*[.]missing"
+  )
 })
 
 test_that("hashing settings apply across profiles and share directory histories", {
   skip_if(.is_test_select())
   project <- .test_setup_project(git = FALSE, rm_engine = TRUE)
-  usethis::with_project(project,
+  usethis::with_project(
+    project,
     {
       withr::local_envvar(c(PROJR_PROFILE = "sample"))
-      expect_identical(.yml_settings_hashing(), list(approach = "cpp", cores = 1L))
+      expect_identical(
+        .yml_settings_hashing(),
+        list(approach = "cpp", cores = 1L)
+      )
       root <- .yml_get("default")
       root$settings <- list(hashing = list(approach = "legacy", cores = 2L))
       .yml_set(root)
       expect_identical(.yml_settings_hash_engine(), "legacy")
-      .yml_set(list(settings = list(hashing = list(approach = "cpp"))), "sample")
-      expect_identical(.yml_settings_hashing(), list(approach = "cpp", cores = 2L))
+      .yml_set(
+        list(settings = list(hashing = list(approach = "cpp"))),
+        "sample"
+      )
+      expect_identical(
+        .yml_settings_hashing(),
+        list(approach = "cpp", cores = 2L)
+      )
       raw_data <- projr_path_get_dir("raw-data")
       fs::dir_create(raw_data)
       writeLines("same content", file.path(raw_data, "engine-test.txt"))
@@ -505,23 +557,43 @@ test_that("hashing settings apply across profiles and share directory histories"
       .manifest_store_write(first)
 
       # A local profile using the earlier spelling still overrides the named profile.
-      .yml_set(list(settings = list(`hash-engine` = "legacy", hashing = list(cores = 1L))), "local")
-      expect_identical(.yml_settings_hashing(), list(approach = "legacy", cores = 1L))
+      .yml_set(
+        list(
+          settings = list(`hash-engine` = "legacy", hashing = list(cores = 1L))
+        ),
+        "local"
+      )
+      expect_identical(
+        .yml_settings_hashing(),
+        list(approach = "legacy", cores = 1L)
+      )
       second <- .manifest_hash_label("raw-data", TRUE, "1.1")
       .manifest_store_write(second)
-      index <- .manifest_store_index(.path_get(".projr", "manifests"), "raw-data")
+      index <- .manifest_store_index(
+        .path_get(".projr", "manifests"),
+        "raw-data"
+      )
       expect_identical(index$directory_version, c("v1.0", "v1.0"))
       expect_length(unique(index$snapshot), 1L)
       expect_identical(first$hash, second$hash)
 
-      .yml_set(list(settings = list(hashing = list(approach = "unknown"))), "local")
+      .yml_set(
+        list(settings = list(hashing = list(approach = "unknown"))),
+        "local"
+      )
       expect_error(projr_yml_check(), "settings[.]hashing[.]approach")
       for (invalid in list(0, -1, 1.5, Inf, TRUE, "2", c(1, 2))) {
-        .yml_set(list(settings = list(hashing = list(cores = invalid))), "local")
+        .yml_set(
+          list(settings = list(hashing = list(cores = invalid))),
+          "local"
+        )
         expect_error(projr_yml_check(), "settings[.]hashing[.]cores")
       }
       .yml_set(list(settings = list(hashing = "cpp")), "local")
-      expect_error(projr_yml_check(), "settings[.]hashing must be a YAML mapping")
+      expect_error(
+        projr_yml_check(),
+        "settings[.]hashing must be a YAML mapping"
+      )
       .yml_set(list(settings = "legacy"), "local")
       expect_error(projr_yml_check(), "settings must be a YAML mapping")
     },
@@ -534,11 +606,21 @@ test_that("directory hashing keeps hidden files, nested paths and file order", {
   withr::local_dir(testthat::test_path("project_structure"))
   root <- withr::local_tempdir()
   fs::dir_create(file.path(root, c("projr", "sub/projr", "sub/excluded")))
-  files <- c(".hidden", "sub/projr/keep", "a", "sub/.hidden", "projr/drop", "sub/excluded/drop")
+  files <- c(
+    ".hidden",
+    "sub/projr/keep",
+    "a",
+    "sub/.hidden",
+    "projr/drop",
+    "sub/excluded/drop"
+  )
   fs::file_create(file.path(root, files))
   all_files <- list.files(root, recursive = TRUE, all.files = TRUE)
   filtered <- all_files[!grepl("^(projr|sub/excluded)/", all_files)]
-  expect_identical(.hash_dir(root, "1.2.3", c("projr", "sub/excluded"))$fn, filtered)
+  expect_identical(
+    .hash_dir(root, "1.2.3", c("projr", "sub/excluded"))$fn,
+    filtered
+  )
   expect_identical(.hash_dir(root, "1.2.3")$fn, all_files)
   expect_identical(.hash_dir(root, "1.2.3", ".*"), .zero_tbl_get_hash())
   expect_error(.hash_dir(file.path(root, "absent"), "1.2.3"), "must exist")
@@ -563,25 +645,40 @@ test_that("parallel file hashing matches serial hashes and recovers from worker 
   skip_if(.is_test_select())
   root <- withr::local_tempdir()
   withr::local_dir(root)
-  paths <- c(short = "a", unicode = paste0(intToUtf8(233), ".bin"), repeat_a = "a")
+  paths <- c(
+    short = "a",
+    unicode = paste0(intToUtf8(233), ".bin"),
+    repeat_a = "a"
+  )
   writeLines("small", paths[1])
   writeBin(rep(as.raw(0:255), 1000), paths[2])
   for (engine in c("cpp", "legacy")) {
     serial <- .hash_file(paths, engine, 1L)
     expect_identical(.hash_file(paths, engine, 2L), serial)
-    expect_error(.hash_file(c(paths, "missing-file"), engine, 2L), "missing-file")
+    expect_error(
+      .hash_file(c(paths, "missing-file"), engine, 2L),
+      "missing-file"
+    )
     expect_identical(.hash_file(paths[2:1], engine, 4L), serial[2:1])
-    expect_identical(.hash_file(character(), engine, 2L), setNames(character(), character()))
+    expect_identical(
+      .hash_file(character(), engine, 2L),
+      setNames(character(), character())
+    )
   }
 })
 
 test_that("hash workers are limited to the number of files", {
   skip_if(.is_test_select())
   testthat::local_mocked_bindings(
-    .hash_file_batch = function(fn, ...) rep(as.character(Sys.getpid()), length(fn))
+    .hash_file_batch = function(fn, ...) {
+      rep(as.character(Sys.getpid()), length(fn))
+    }
   )
   pids <- .hash_file(c("a", "b"), "cpp", 4L)
   expect_length(unique(pids), 2L)
   expect_false(as.character(Sys.getpid()) %in% pids)
-  expect_identical(unname(.hash_file("a", "cpp", 4L)), as.character(Sys.getpid()))
+  expect_identical(
+    unname(.hash_file("a", "cpp", 4L)),
+    as.character(Sys.getpid())
+  )
 })

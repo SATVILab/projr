@@ -1,6 +1,10 @@
 test_that("PAT lookup returns an explicit token and reports missing credentials", {
   skip_if(.is_test_select())
-  withr::local_envvar(c(GITHUB_PAT = "fixture-token", GH_TOKEN = "", GITHUB_TOKEN = ""))
+  withr::local_envvar(c(
+    GITHUB_PAT = "fixture-token",
+    GH_TOKEN = "",
+    GITHUB_TOKEN = ""
+  ))
   expect_identical(.auth_get_github_pat(), "fixture-token")
   withr::local_envvar(GITHUB_PAT = "")
   expect_warning(.auth_get_github_pat(), "No GitHub authentication")
@@ -104,9 +108,21 @@ test_that("Authentication checks handle missing tokens correctly", {
   old_github_token <- Sys.getenv("GITHUB_TOKEN", unset = "")
 
   on.exit({
-    if (nzchar(old_github_pat)) Sys.setenv(GITHUB_PAT = old_github_pat) else Sys.unsetenv("GITHUB_PAT")
-    if (nzchar(old_gh_token)) Sys.setenv(GH_TOKEN = old_gh_token) else Sys.unsetenv("GH_TOKEN")
-    if (nzchar(old_github_token)) Sys.setenv(GITHUB_TOKEN = old_github_token) else Sys.unsetenv("GITHUB_TOKEN")
+    if (nzchar(old_github_pat)) {
+      Sys.setenv(GITHUB_PAT = old_github_pat)
+    } else {
+      Sys.unsetenv("GITHUB_PAT")
+    }
+    if (nzchar(old_gh_token)) {
+      Sys.setenv(GH_TOKEN = old_gh_token)
+    } else {
+      Sys.unsetenv("GH_TOKEN")
+    }
+    if (nzchar(old_github_token)) {
+      Sys.setenv(GITHUB_TOKEN = old_github_token)
+    } else {
+      Sys.unsetenv("GITHUB_TOKEN")
+    }
   })
   withr::local_options(
     list(
@@ -136,9 +152,21 @@ test_that("Empty authentication tokens are handled correctly", {
   old_github_token <- Sys.getenv("GITHUB_TOKEN", unset = "")
 
   on.exit({
-    if (nzchar(old_github_pat)) Sys.setenv(GITHUB_PAT = old_github_pat) else Sys.unsetenv("GITHUB_PAT")
-    if (nzchar(old_gh_token)) Sys.setenv(GH_TOKEN = old_gh_token) else Sys.unsetenv("GH_TOKEN")
-    if (nzchar(old_github_token)) Sys.setenv(GITHUB_TOKEN = old_github_token) else Sys.unsetenv("GITHUB_TOKEN")
+    if (nzchar(old_github_pat)) {
+      Sys.setenv(GITHUB_PAT = old_github_pat)
+    } else {
+      Sys.unsetenv("GITHUB_PAT")
+    }
+    if (nzchar(old_gh_token)) {
+      Sys.setenv(GH_TOKEN = old_gh_token)
+    } else {
+      Sys.unsetenv("GH_TOKEN")
+    }
+    if (nzchar(old_github_token)) {
+      Sys.setenv(GITHUB_TOKEN = old_github_token)
+    } else {
+      Sys.unsetenv("GITHUB_TOKEN")
+    }
   })
   withr::local_options(
     list(
@@ -225,12 +253,15 @@ test_that(".auth_get_github_pat_find_gitcreds derives correct host from URL", {
   )
   tokens <- vapply(urls, .auth_get_github_pat_find_gitcreds, character(1))
   expect_true(all(tokens == "fixture-token"))
-  expect_identical(hosts, c(
-    "https://github.com",
-    "https://github.mycompany.com",
-    "https://github.mycompany.com",
-    "https://git.enterprise.org"
-  ))
+  expect_identical(
+    hosts,
+    c(
+      "https://github.com",
+      "https://github.mycompany.com",
+      "https://github.mycompany.com",
+      "https://git.enterprise.org"
+    )
+  )
 })
 
 test_that(".auth_get_github_pat handles init parameter correctly", {
@@ -243,9 +274,21 @@ test_that(".auth_get_github_pat handles init parameter correctly", {
   old_github_token <- Sys.getenv("GITHUB_TOKEN", unset = "")
 
   on.exit({
-    if (nzchar(old_github_pat)) Sys.setenv(GITHUB_PAT = old_github_pat) else Sys.unsetenv("GITHUB_PAT")
-    if (nzchar(old_gh_token)) Sys.setenv(GH_TOKEN = old_gh_token) else Sys.unsetenv("GH_TOKEN")
-    if (nzchar(old_github_token)) Sys.setenv(GITHUB_TOKEN = old_github_token) else Sys.unsetenv("GITHUB_TOKEN")
+    if (nzchar(old_github_pat)) {
+      Sys.setenv(GITHUB_PAT = old_github_pat)
+    } else {
+      Sys.unsetenv("GITHUB_PAT")
+    }
+    if (nzchar(old_gh_token)) {
+      Sys.setenv(GH_TOKEN = old_gh_token)
+    } else {
+      Sys.unsetenv("GH_TOKEN")
+    }
+    if (nzchar(old_github_token)) {
+      Sys.setenv(GITHUB_TOKEN = old_github_token)
+    } else {
+      Sys.unsetenv("GITHUB_TOKEN")
+    }
   })
 
   # Unset all tokens
@@ -331,9 +374,21 @@ test_that(".auth_get_github_pat_find respects control parameters", {
   old_github_token <- Sys.getenv("GITHUB_TOKEN", unset = "")
 
   on.exit({
-    if (nzchar(old_github_pat)) Sys.setenv(GITHUB_PAT = old_github_pat) else Sys.unsetenv("GITHUB_PAT")
-    if (nzchar(old_gh_token)) Sys.setenv(GH_TOKEN = old_gh_token) else Sys.unsetenv("GH_TOKEN")
-    if (nzchar(old_github_token)) Sys.setenv(GITHUB_TOKEN = old_github_token) else Sys.unsetenv("GITHUB_TOKEN")
+    if (nzchar(old_github_pat)) {
+      Sys.setenv(GITHUB_PAT = old_github_pat)
+    } else {
+      Sys.unsetenv("GITHUB_PAT")
+    }
+    if (nzchar(old_gh_token)) {
+      Sys.setenv(GH_TOKEN = old_gh_token)
+    } else {
+      Sys.unsetenv("GH_TOKEN")
+    }
+    if (nzchar(old_github_token)) {
+      Sys.setenv(GITHUB_TOKEN = old_github_token)
+    } else {
+      Sys.unsetenv("GITHUB_TOKEN")
+    }
   })
 
   # Unset all tokens

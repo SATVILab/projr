@@ -11,7 +11,8 @@
 }
 
 .dir_get_label <- function(label, safe) {
-  switch(as.character(safe),
+  switch(
+    as.character(safe),
     "TRUE" = .dir_get_label_safe(label),
     "FALSE" = .dir_get_label_unsafe(label)
   ) |>
@@ -23,10 +24,15 @@
     return(path)
   }
   absolute <- fs::path_norm(.path_resolve_root(path))
-  if (dir.exists(absolute) && normalizePath(absolute, winslash = "/") == .path_get()) {
+  if (
+    dir.exists(absolute) &&
+      normalizePath(absolute, winslash = "/") == .path_get()
+  ) {
     stop(
       paste0(
-        "The path for label ", label, " is the root directory of the project."
+        "The path for label ",
+        label,
+        " is the root directory of the project."
       ),
       call. = FALSE
     )
@@ -55,7 +61,9 @@
 }
 
 .dir_get_label_safe_path_get_label <- function(label) {
-  if (label != "docs") return(label)
+  if (label != "docs") {
+    return(label)
+  }
   docs <- .path_resolve_root(.yml_dir_get_path("docs", NULL))
   root <- .path_get()
   if (fs::path_has_parent(docs, root) && docs != root) {
@@ -72,9 +80,9 @@
   if (!.dir_set_docs_safe_check(label)) {
     return(invisible(FALSE))
   }
-  switch(.engine_get_auto(),
-    "quarto_project" =
-      .dir_set_docs_quarto_project(path),
+  switch(
+    .engine_get_auto(),
+    "quarto_project" = .dir_set_docs_quarto_project(path),
     "bookdown" = .dir_set_docs_bookdown(path)
   )
   invisible(TRUE)
@@ -160,18 +168,32 @@
 #' Path to the cache (sub-)directory for `projr` builds.
 #' @seealso.path_get.path_get_dir
 #' @export
-projr_path_get_cache_build_dir <- function(..., create = FALSE, profile = NULL) {
-  .cache_path_for_caller(.dir_get_cache_auto_version(..., create = create, profile = profile))
+projr_path_get_cache_build_dir <- function(
+  ...,
+  create = FALSE,
+  profile = NULL
+) {
+  .cache_path_for_caller(.dir_get_cache_auto_version(
+    ...,
+    create = create,
+    profile = profile
+  ))
 }
 
 #' @rdname projr_path_get_cache_build
 #' @export
 projr_path_get_cache_build <- function(..., create = FALSE, profile = NULL) {
-  .cache_path_for_caller(.path_get_cache_auto_version(..., create = create, profile = profile))
+  .cache_path_for_caller(.path_get_cache_auto_version(
+    ...,
+    create = create,
+    profile = profile
+  ))
 }
 
 .cache_path_for_caller <- function(path) {
-  if (fs::is_absolute_path(path)) return(path)
+  if (fs::is_absolute_path(path)) {
+    return(path)
+  }
   .path_force_rel(.path_resolve_root(path), normalizePath(".", winslash = "/"))
 }
 
@@ -180,7 +202,12 @@ projr_path_get_cache_build <- function(..., create = FALSE, profile = NULL) {
   directories <- .yml_get_null(profile)[["directories"]]
   labels <- names(directories)
   cache <- labels[startsWith(.dir_label_strip(labels), "cache")]
-  if (!length(cache)) stop("No cache directory specified, but required for projr builds.", call. = FALSE)
+  if (!length(cache)) {
+    stop(
+      "No cache directory specified, but required for projr builds.",
+      call. = FALSE
+    )
+  }
   path <- directories[[cache[[1L]]]][["path"]]
   .assert_string(path, TRUE, nm = paste0("directories.", cache[[1L]], ".path"))
   .template_expand(path)

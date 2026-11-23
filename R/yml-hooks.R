@@ -48,24 +48,29 @@
 #'     post: ["post-hook.R"]
 #'     both: ["both-hook.R"]
 #' }
-projr_yml_hooks_add <- function(path,
-                                stage,
-                                overwrite = TRUE,
-                                profile = "default") {
+projr_yml_hooks_add <- function(
+  path,
+  stage,
+  overwrite = TRUE,
+  profile = "default"
+) {
   .yml_hooks_check(
-    path = path, stage = stage, overwrite = overwrite, profile = profile
+    path = path,
+    stage = stage,
+    overwrite = overwrite,
+    profile = profile
   )
 
   .yml_hooks_add(
-    path = path, stage = stage, overwrite = overwrite, profile = profile
+    path = path,
+    stage = stage,
+    overwrite = overwrite,
+    profile = profile
   ) |>
     .yml_hooks_set(profile = profile)
 }
 
-.yml_hooks_check <- function(path,
-                             stage,
-                             overwrite,
-                             profile) {
+.yml_hooks_check <- function(path, stage, overwrite, profile) {
   .assert_chr(path, TRUE)
   .assert_in_single(stage, c("pre", "post", "both"), TRUE)
   .assert_flag(overwrite, TRUE)
@@ -74,10 +79,7 @@ projr_yml_hooks_add <- function(path,
   }
 }
 
-.yml_hooks_add <- function(path,
-                           stage,
-                           profile = "default",
-                           overwrite = TRUE) {
+.yml_hooks_add <- function(path, stage, profile = "default", overwrite = TRUE) {
   yml_hooks <- .yml_hooks_get(profile)
 
   # Add path to the appropriate stage vector
@@ -158,22 +160,30 @@ projr_yml_hooks_rm_all <- function(profile = "default") {
 
 #' @rdname yml-hooks
 #' @export
-projr_yml_hooks_add_pre <- function(path,
-                                    overwrite = TRUE,
-                                    profile = "default") {
+projr_yml_hooks_add_pre <- function(
+  path,
+  overwrite = TRUE,
+  profile = "default"
+) {
   projr_yml_hooks_add(
     path = path,
-    stage = "pre", profile = profile, overwrite = overwrite
+    stage = "pre",
+    profile = profile,
+    overwrite = overwrite
   )
 }
 
 #' @rdname yml-hooks
 #' @export
-projr_yml_hooks_add_post <- function(path,
-                                     overwrite = TRUE,
-                                     profile = "default") {
+projr_yml_hooks_add_post <- function(
+  path,
+  overwrite = TRUE,
+  profile = "default"
+) {
   projr_yml_hooks_add(
     path = path,
-    stage = "post", profile = profile, overwrite = overwrite
+    stage = "post",
+    profile = profile,
+    overwrite = overwrite
   )
 }

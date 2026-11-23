@@ -1,4 +1,9 @@
-.build_clear_post_safe <- function(output_run, clear_output, engines = .engine_get_auto(), rendered = character()) {
+.build_clear_post_safe <- function(
+  output_run,
+  clear_output,
+  engines = .engine_get_auto(),
+  rendered = character()
+) {
   # clear safe directories before moving new docs and outputs into them
   # move rmd and qmd's (not bookdown or quarto projects)
   # to the final docs directories
@@ -21,15 +26,25 @@
   invisible(TRUE)
 }
 
-.build_clear_post_safe_docs <- function(output_run, engines = .engine_get_auto(), rendered = character()) {
+.build_clear_post_safe_docs <- function(
+  output_run,
+  engines = .engine_get_auto(),
+  rendered = character()
+) {
   # always clear docs for output directories
   # if not quarto projects or bookdown projects.
   # don't clear quarto projects or bookdown projects
   # as we save directly there.
-  if (output_run && "docs" %in% names(.yml_dir_get(NULL)) && .build_clear_post_safe_check_docs(engines)) {
+  if (
+    output_run &&
+      "docs" %in% names(.yml_dir_get(NULL)) &&
+      .build_clear_post_safe_check_docs(engines)
+  ) {
     path_to_clear <- projr_path_get_dir("docs", safe = FALSE, create = FALSE)
     # A native renderer can write directly into the final docs directory.
-    if (any(fs::path_has_parent(rendered[file.exists(rendered)], path_to_clear))) {
+    if (
+      any(fs::path_has_parent(rendered[file.exists(rendered)], path_to_clear))
+    ) {
       return(invisible(FALSE))
     }
 
@@ -61,7 +76,8 @@
   if (!.build_clear_old_check(old_dev_remove)) {
     return(invisible(FALSE))
   }
-  switch(as.character(output_run),
+  switch(
+    as.character(output_run),
     "FALSE" = .build_clear_old_dev(),
     "TRUE" = .build_clear_old_output()
   )
@@ -85,7 +101,9 @@
   }
   # Convert relative paths to full paths
   path_dir_vec_full <- file.path(path_dir, path_dir_vec)
-  .cli_debug("Removing {length(path_dir_vec_full)} previous development build directories")
+  .cli_debug(
+    "Removing {length(path_dir_vec_full)} previous development build directories"
+  )
   .dir_rm(path_dir_vec_full)
   invisible(TRUE)
 }
@@ -99,8 +117,15 @@
   dir_vec <- path_dir |>
     .dir_ls(recursive = FALSE) |>
     setdiff("log")
-  if (!length(dir_vec)) return(invisible(TRUE))
+  if (!length(dir_vec)) {
+    return(invisible(TRUE))
+  }
   .cli_debug("Removing {length(dir_vec)} build cache directories")
-  unlink(file.path(path_dir, dir_vec), recursive = TRUE, force = TRUE, expand = FALSE)
+  unlink(
+    file.path(path_dir, dir_vec),
+    recursive = TRUE,
+    force = TRUE,
+    expand = FALSE
+  )
   invisible(TRUE)
 }

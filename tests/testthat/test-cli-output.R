@@ -7,7 +7,13 @@ test_that(".cli_output_level_get works with environment variable", {
 
   # Save original env var
   old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_OUTPUT_LEVEL = old_val) else Sys.unsetenv("PROJR_OUTPUT_LEVEL"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_OUTPUT_LEVEL = old_val)
+    } else {
+      Sys.unsetenv("PROJR_OUTPUT_LEVEL")
+    }
+  )
 
   # Test env var setting
   Sys.setenv("PROJR_OUTPUT_LEVEL" = "debug")
@@ -30,7 +36,13 @@ test_that(".cli_should_show works correctly", {
 
   # Test "none" level
   old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_OUTPUT_LEVEL = old_val) else Sys.unsetenv("PROJR_OUTPUT_LEVEL")) # nolint
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_OUTPUT_LEVEL = old_val)
+    } else {
+      Sys.unsetenv("PROJR_OUTPUT_LEVEL")
+    }
+  ) # nolint
   Sys.setenv("PROJR_OUTPUT_LEVEL" = "none")
   expect_false(.cli_should_show("std"))
   expect_false(.cli_should_show("debug"))
@@ -51,7 +63,13 @@ test_that(".cli_info respects output level", {
   skip_if(.is_test_select())
   # Test "none" level
   old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_OUTPUT_LEVEL = old_val) else Sys.unsetenv("PROJR_OUTPUT_LEVEL")) # nolint
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_OUTPUT_LEVEL = old_val)
+    } else {
+      Sys.unsetenv("PROJR_OUTPUT_LEVEL")
+    }
+  ) # nolint
 
   # At "none" level, should not produce output
   Sys.setenv("PROJR_OUTPUT_LEVEL" = "none")
@@ -74,7 +92,13 @@ test_that(".cli_debug respects output level", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_OUTPUT_LEVEL = old_val) else Sys.unsetenv("PROJR_OUTPUT_LEVEL")) # nolint
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_OUTPUT_LEVEL = old_val)
+    } else {
+      Sys.unsetenv("PROJR_OUTPUT_LEVEL")
+    }
+  ) # nolint
 
   # At "none" and "std" levels, should not produce output
   Sys.setenv("PROJR_OUTPUT_LEVEL" = "none")
@@ -92,7 +116,13 @@ test_that(".cli_stage_header respects output level", {
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_OUTPUT_LEVEL = old_val) else Sys.unsetenv("PROJR_OUTPUT_LEVEL"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_OUTPUT_LEVEL = old_val)
+    } else {
+      Sys.unsetenv("PROJR_OUTPUT_LEVEL")
+    }
+  )
 
   # At "none" level, should not produce output
   Sys.setenv("PROJR_OUTPUT_LEVEL" = "none")
@@ -111,7 +141,13 @@ test_that("PROJR_OUTPUT_LEVEL validates input correctly", {
   # skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_OUTPUT_LEVEL = old_val) else Sys.unsetenv("PROJR_OUTPUT_LEVEL"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_OUTPUT_LEVEL = old_val)
+    } else {
+      Sys.unsetenv("PROJR_OUTPUT_LEVEL")
+    }
+  )
 
   # Valid values should work
   Sys.setenv("PROJR_OUTPUT_LEVEL" = "none")
@@ -133,7 +169,13 @@ test_that("PROJR_OUTPUT_LEVEL defaults work correctly", {
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_OUTPUT_LEVEL = old_val) else Sys.unsetenv("PROJR_OUTPUT_LEVEL"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_OUTPUT_LEVEL = old_val)
+    } else {
+      Sys.unsetenv("PROJR_OUTPUT_LEVEL")
+    }
+  )
 
   # Unset env var should use defaults
   Sys.unsetenv("PROJR_OUTPUT_LEVEL")
@@ -145,7 +187,13 @@ test_that("CLI debug messages only show at debug level", {
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_OUTPUT_LEVEL = old_val) else Sys.unsetenv("PROJR_OUTPUT_LEVEL"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_OUTPUT_LEVEL = old_val)
+    } else {
+      Sys.unsetenv("PROJR_OUTPUT_LEVEL")
+    }
+  )
 
   # At "none" level, debug should be silent
   Sys.setenv("PROJR_OUTPUT_LEVEL" = "none")
@@ -165,7 +213,13 @@ test_that("CLI message hierarchy works correctly", {
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_OUTPUT_LEVEL = old_val) else Sys.unsetenv("PROJR_OUTPUT_LEVEL"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_OUTPUT_LEVEL = old_val)
+    } else {
+      Sys.unsetenv("PROJR_OUTPUT_LEVEL")
+    }
+  )
 
   # none level - nothing shows
   Sys.setenv("PROJR_OUTPUT_LEVEL" = "none")
@@ -203,7 +257,9 @@ test_that(".cli_eval_message evaluates glue expressions", {
 
   # Test with complex expressions
   files <- c("file1.txt", "file2.txt")
-  result <- .cli_eval_message("Found {length(files)} file{if(length(files) != 1) 's' else ''}")
+  result <- .cli_eval_message(
+    "Found {length(files)} file{if(length(files) != 1) 's' else ''}"
+  )
   expect_identical(result, "Found 2 files")
 
   # Test without glue expressions
@@ -215,11 +271,18 @@ test_that(".cli_eval_message evaluates glue expressions", {
   expect_identical(result, "")
 
   # Test with named arguments (like cli functions support)
-  result <- .cli_eval_message("Path is '{remote_path}'", remote_path = "/tmp/test")
+  result <- .cli_eval_message(
+    "Path is '{remote_path}'",
+    remote_path = "/tmp/test"
+  )
   expect_identical(result, "Path is '/tmp/test'")
 
   # Test with multiple named arguments
-  result <- .cli_eval_message("Found {count} items at '{path}'", count = 5, path = "/data")
+  result <- .cli_eval_message(
+    "Found {count} items at '{path}'",
+    count = 5,
+    path = "/data"
+  )
   expect_identical(result, "Found 5 items at '/data'")
 })
 
@@ -244,7 +307,11 @@ test_that("CLI functions log evaluated glue expressions", {
       log_content <- readLines(log_info$log_file)
 
       # Check that the glue expressions were evaluated in the log
-      expect_true(any(grepl("Processing 10 items named example", log_content, fixed = TRUE)))
+      expect_true(any(grepl(
+        "Processing 10 items named example",
+        log_content,
+        fixed = TRUE
+      )))
       expect_false(any(grepl("\\{test_count\\}", log_content)))
       expect_false(any(grepl("\\{test_name\\}", log_content)))
     },
@@ -279,7 +346,11 @@ test_that("CLI functions handle complex glue expressions in logs", {
 
       # Check that all glue expressions were evaluated
       expect_true(grepl("Found 3 tags", log_text, fixed = TRUE))
-      expect_true(grepl("Successfully processed tag v0.0.1", log_text, fixed = TRUE))
+      expect_true(grepl(
+        "Successfully processed tag v0.0.1",
+        log_text,
+        fixed = TRUE
+      ))
       expect_true(grepl("Step 2 of 4", log_text, fixed = TRUE))
 
       # Ensure no unevaluated expressions remain
@@ -296,7 +367,13 @@ test_that(".cli_process_start works with different output levels", {
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_OUTPUT_LEVEL = old_val) else Sys.unsetenv("PROJR_OUTPUT_LEVEL"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_OUTPUT_LEVEL = old_val)
+    } else {
+      Sys.unsetenv("PROJR_OUTPUT_LEVEL")
+    }
+  )
 
   # At "none" level, should not produce output
   Sys.setenv("PROJR_OUTPUT_LEVEL" = "none")
@@ -316,7 +393,13 @@ test_that(".cli_process_done works with different output levels", {
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_OUTPUT_LEVEL = old_val) else Sys.unsetenv("PROJR_OUTPUT_LEVEL"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_OUTPUT_LEVEL = old_val)
+    } else {
+      Sys.unsetenv("PROJR_OUTPUT_LEVEL")
+    }
+  )
 
   # At "none" level, should not produce output
   Sys.setenv("PROJR_OUTPUT_LEVEL" = "none")
@@ -360,9 +443,21 @@ test_that(".cli_process_start and .cli_process_done log messages", {
       log_text <- paste(log_content, collapse = "\n")
 
       # Check that process messages were logged
-      expect_true(grepl("Process started: Processing test files", log_text, fixed = TRUE))
-      expect_true(grepl("Process done: Completed successfully", log_text, fixed = TRUE))
-      expect_true(grepl("Process failed: Operation failed", log_text, fixed = TRUE))
+      expect_true(grepl(
+        "Process started: Processing test files",
+        log_text,
+        fixed = TRUE
+      ))
+      expect_true(grepl(
+        "Process done: Completed successfully",
+        log_text,
+        fixed = TRUE
+      ))
+      expect_true(grepl(
+        "Process failed: Operation failed",
+        log_text,
+        fixed = TRUE
+      ))
       expect_true(grepl("Process completed", log_text, fixed = TRUE))
     },
     quiet = TRUE,

@@ -125,7 +125,11 @@ test_that("projr_yml_git_set simplifies when all values are FALSE", {
       .init()
 
       # Set all to FALSE with simplify_identical = TRUE
-      projr_yml_git_set(all = FALSE, simplify_identical = TRUE, simplify_default = FALSE)
+      projr_yml_git_set(
+        all = FALSE,
+        simplify_identical = TRUE,
+        simplify_default = FALSE
+      )
       yml_git <- .yml_git_get("default")
 
       # Should be simplified to FALSE
@@ -147,7 +151,11 @@ test_that("projr_yml_git_set does not simplify when simplify_identical = FALSE",
       .init()
 
       # Set all to TRUE with simplify_identical = FALSE
-      projr_yml_git_set(all = TRUE, simplify_identical = FALSE, simplify_default = FALSE)
+      projr_yml_git_set(
+        all = TRUE,
+        simplify_identical = FALSE,
+        simplify_default = FALSE
+      )
       yml_git <- .yml_git_get("default")
 
       # Should be a list with individual values
@@ -198,7 +206,11 @@ test_that("projr_yml_git_set keeps settings when simplify_default = FALSE", {
       .init()
 
       # Set all to TRUE with simplify_default = FALSE
-      projr_yml_git_set(all = TRUE, simplify_default = FALSE, simplify_identical = TRUE)
+      projr_yml_git_set(
+        all = TRUE,
+        simplify_default = FALSE,
+        simplify_identical = TRUE
+      )
       yml_git <- .yml_git_get("default")
 
       # Should be TRUE (not removed)
@@ -423,7 +435,11 @@ test_that(".yml_git_get returns correct structure", {
       expect_true(yml_git[["push"]])
 
       # After setting all to FALSE and simplifying
-      projr_yml_git_set(all = FALSE, simplify_identical = TRUE, simplify_default = FALSE)
+      projr_yml_git_set(
+        all = FALSE,
+        simplify_identical = TRUE,
+        simplify_default = FALSE
+      )
       yml_git <- .yml_git_get("default")
       expect_false(yml_git)
     },
@@ -510,7 +526,12 @@ test_that("projr_yml_git_set handles NULL parameters correctly", {
       # Calling with all = NULL and all individual params = NULL does nothing
       # This should not error - it just leaves settings unchanged
       expect_silent(
-        projr_yml_git_set(all = NULL, commit = NULL, add_untracked = NULL, push = NULL)
+        projr_yml_git_set(
+          all = NULL,
+          commit = NULL,
+          add_untracked = NULL,
+          push = NULL
+        )
       )
 
       # Verify settings are still defaults (TRUE)

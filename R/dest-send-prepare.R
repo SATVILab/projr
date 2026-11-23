@@ -1,9 +1,11 @@
 # Prepare GitHub releases before sending to destinations
-.dest_prepare_github_releases <- function(bump_component,
-                                          archive_github,
-                                          archive_local,
-                                          always_archive,
-                                          strict) {
+.dest_prepare_github_releases <- function(
+  bump_component,
+  archive_github,
+  archive_local,
+  always_archive,
+  strict
+) {
   # Early exit if not an output build
   if (!.dest_send_check(bump_component)) {
     return(invisible(FALSE))
@@ -22,7 +24,10 @@
   }
 
   if (strict && !nzchar(.auth_get_github_pat_find())) {
-    stop("Publishing a GitHub release requires a token with write access to the destination repository.", call. = FALSE)
+    stop(
+      "Publishing a GitHub release requires a token with write access to the destination repository.",
+      call. = FALSE
+    )
   }
 
   for (target in targets) {
@@ -43,9 +48,11 @@
 }
 
 # Derive needed GitHub tags from configuration
-.dest_github_tags_needed <- function(archive_github,
-                                     always_archive,
-                                     profile = NULL) {
+.dest_github_tags_needed <- function(
+  archive_github,
+  always_archive,
+  profile = NULL
+) {
   targets <- .dest_github_targets(archive_github, always_archive, profile)
   unique(vapply(targets, `[[`, character(1), "tag", USE.NAMES = FALSE))
 }
@@ -60,7 +67,11 @@
       title = title,
       type = "github",
       profile = profile,
-      archive_type = if (title %in% names(yml_github)) FALSE else archive_github,
+      archive_type = if (title %in% names(yml_github)) {
+        FALSE
+      } else {
+        archive_github
+      },
       always_archive = always_archive
     )
 
@@ -68,8 +79,17 @@
     repo <- yml_title[["repo"]]
     key <- .dest_github_target_key(repo, tag)
     target <- list(tag = tag, repo = repo, branch = yml_title[["branch"]])
-    if (key %in% names(targets) && !identical(targets[[key]][["branch"]], target[["branch"]])) {
-      stop("Conflicting target branches for GitHub release '", tag, "'.", call. = FALSE)
+    if (
+      key %in%
+        names(targets) &&
+        !identical(targets[[key]][["branch"]], target[["branch"]])
+    ) {
+      stop(
+        "Conflicting target branches for GitHub release '",
+        tag,
+        "'.",
+        call. = FALSE
+      )
     }
     targets[[key]] <- target
   }

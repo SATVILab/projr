@@ -78,7 +78,8 @@ test_that(".change_get works for files", {
       # remove and change
       .version_bump_major()
       .dir_copy(
-        path_dir_from = "_output", path_dir_to = "_output2"
+        path_dir_from = "_output",
+        path_dir_to = "_output2"
       )
       cat("abc", file = "_output/abc.txt")
       invisible(file.remove("_output/subdir1/def.txt"))
@@ -176,12 +177,15 @@ test_that(".change_get_file_dir dispatches correctly", {
 test_that(".zero_list_manifest_get returns correct structure", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  expect_identical(.zero_list_manifest_get(), list(
-    fn_dest_extra = character(0),
-    fn_same = character(0),
-    fn_diff = character(0),
-    fn_source_extra = character(0)
-  ))
+  expect_identical(
+    .zero_list_manifest_get(),
+    list(
+      fn_dest_extra = character(0),
+      fn_same = character(0),
+      fn_diff = character(0),
+      fn_source_extra = character(0)
+    )
+  )
 })
 
 test_that(".change_get_manifest_check_nothing detects empty manifests", {
@@ -193,7 +197,10 @@ test_that(".change_get_manifest_check_nothing detects empty manifests", {
     code = {
       # Both empty
       manifest_empty <- .zero_tbl_get_manifest()
-      result <- .change_get_manifest_check_nothing(manifest_empty, manifest_empty)
+      result <- .change_get_manifest_check_nothing(
+        manifest_empty,
+        manifest_empty
+      )
       expect_true(result)
 
       # One empty, one not
@@ -204,14 +211,23 @@ test_that(".change_get_manifest_check_nothing detects empty manifests", {
         hash = "abc123",
         stringsAsFactors = FALSE
       )
-      result <- .change_get_manifest_check_nothing(manifest_empty, manifest_not_empty)
+      result <- .change_get_manifest_check_nothing(
+        manifest_empty,
+        manifest_not_empty
+      )
       expect_false(result)
 
-      result <- .change_get_manifest_check_nothing(manifest_not_empty, manifest_empty)
+      result <- .change_get_manifest_check_nothing(
+        manifest_not_empty,
+        manifest_empty
+      )
       expect_false(result)
 
       # Both not empty
-      result <- .change_get_manifest_check_nothing(manifest_not_empty, manifest_not_empty)
+      result <- .change_get_manifest_check_nothing(
+        manifest_not_empty,
+        manifest_not_empty
+      )
       expect_false(result)
     }
   )
@@ -243,21 +259,27 @@ test_that(".change_get_manifest_get_closest_mismatch_get_manifest_curr works", {
 
       # Test version found in pre manifest
       result <- .change_get_manifest_get_closest_mismatch_get_manifest_curr(
-        manifest_pre, manifest_post, "v1.0.0"
+        manifest_pre,
+        manifest_post,
+        "v1.0.0"
       )
       expect_identical(nrow(result), 2L)
       expect_true(all(result$version == "v1.0.0"))
 
       # Test version found in post manifest
       result <- .change_get_manifest_get_closest_mismatch_get_manifest_curr(
-        manifest_pre, manifest_post, "v2.0.0"
+        manifest_pre,
+        manifest_post,
+        "v2.0.0"
       )
       expect_identical(nrow(result), 3L)
       expect_true(all(result$version == "v2.0.0"))
 
       # Test version not found in either
       result <- .change_get_manifest_get_closest_mismatch_get_manifest_curr(
-        manifest_pre, manifest_post, "v3.0.0"
+        manifest_pre,
+        manifest_post,
+        "v3.0.0"
       )
       expect_identical(nrow(result), 0L)
     }
@@ -282,9 +304,23 @@ test_that(".change_get_manifest_get_closest_mismatch finds correct version", {
 
       manifest_post_full <- data.frame(
         label = c("output", "output", "output", "output", "output", "output"),
-        fn = c("file1.txt", "file2.txt", "file1.txt", "file2.txt", "file1.txt", "file2.txt"),
+        fn = c(
+          "file1.txt",
+          "file2.txt",
+          "file1.txt",
+          "file2.txt",
+          "file1.txt",
+          "file2.txt"
+        ),
         version = c("v1.0.0", "v1.0.0", "v2.0.0", "v2.0.0", "v3.0.0", "v3.0.0"),
-        hash = c("hash1", "hash2", "hash1_v2", "hash2_v2", "hash1_v3", "hash2_v3"),
+        hash = c(
+          "hash1",
+          "hash2",
+          "hash1_v2",
+          "hash2_v2",
+          "hash1_v3",
+          "hash2_v3"
+        ),
         stringsAsFactors = FALSE
       )
 
@@ -401,12 +437,15 @@ test_that(".change_get_hash handles two empty hash tables", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   hash_empty <- .zero_tbl_get_hash()
-  expect_identical(.change_get_hash(hash_empty, hash_empty), list(
-    fn_dest_extra = character(0),
-    fn_same = character(0),
-    fn_diff = character(0),
-    fn_source_extra = character(0)
-  ))
+  expect_identical(
+    .change_get_hash(hash_empty, hash_empty),
+    list(
+      fn_dest_extra = character(0),
+      fn_same = character(0),
+      fn_diff = character(0),
+      fn_source_extra = character(0)
+    )
+  )
 })
 
 test_that(".change_get with unrecognized inspect errors", {
@@ -518,13 +557,21 @@ test_that(".change_get_file_dir_github resolves @version placeholder", {
       }
 
       # Temporarily replace the function
-      assignInNamespace(".remote_file_get_all", mock_remote_file_get_all, "projr")
+      assignInNamespace(
+        ".remote_file_get_all",
+        mock_remote_file_get_all,
+        "projr"
+      )
 
       # Call the function
       result <- .change_get_file_dir_github(remote_with_placeholder)
 
       # Restore the original function
-      assignInNamespace(".remote_file_get_all", original_remote_file_get_all, "projr")
+      assignInNamespace(
+        ".remote_file_get_all",
+        original_remote_file_get_all,
+        "projr"
+      )
 
       # Verify result is a directory path
       expect_true(is.character(result))

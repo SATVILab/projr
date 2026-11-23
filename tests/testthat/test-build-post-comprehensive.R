@@ -24,7 +24,11 @@ test_that(".build_copy works with output_run = FALSE (dev build)", {
 
       expect_true(result)
       # File should still be in safe location
-      expect_true(file.exists(projr_path_get("output", "test.txt", safe = TRUE)))
+      expect_true(file.exists(projr_path_get(
+        "output",
+        "test.txt",
+        safe = TRUE
+      )))
     }
   )
 })
@@ -68,8 +72,16 @@ test_that(".build_copy_dir copies configured directories", {
       .build_copy_dir(output_run = FALSE)
 
       # Check that files were copied
-      expect_true(file.exists(projr_path_get("raw-data", "data.csv", safe = TRUE)))
-      expect_true(file.exists(projr_path_get("cache", "cache.rds", safe = TRUE)))
+      expect_true(file.exists(projr_path_get(
+        "raw-data",
+        "data.csv",
+        safe = TRUE
+      )))
+      expect_true(file.exists(projr_path_get(
+        "cache",
+        "cache.rds",
+        safe = TRUE
+      )))
     }
   )
 })
@@ -81,7 +93,10 @@ test_that(".build_copy_dir copies configured directories", {
   project <- withr::local_tempdir(.local_envir = env)
   writeLines("0.0.1", file.path(project, "VERSION"))
   directories <- list(docs = list(path = docs), cache = list(path = "_tmp"))
-  yaml::write_yaml(list(directories = directories), file.path(project, "_projr.yml"))
+  yaml::write_yaml(
+    list(directories = directories),
+    file.path(project, "_projr.yml")
+  )
   project
 }
 
@@ -95,7 +110,9 @@ test_that(".build_copy_docs dispatches correctly based on engine", {
     code = {
       # The project should have bookdown engine by default
       engine <- .engine_get_auto()
-      expect_true(engine %in% c("bookdown", "quarto_project", "quarto_document", "rmd"))
+      expect_true(
+        engine %in% c("bookdown", "quarto_project", "quarto_document", "rmd")
+      )
 
       # Call should not error
       expect_silent(.build_copy_docs(output_run = FALSE))
@@ -113,13 +130,16 @@ test_that(".build_copy_docs_rmd handles different output formats", {
     path = dir_test,
     code = {
       # Test html_document format
-      writeLines(c(
-        "---",
-        "title: Test",
-        "output: html_document",
-        "---",
-        "# Test"
-      ), "test.Rmd")
+      writeLines(
+        c(
+          "---",
+          "title: Test",
+          "output: html_document",
+          "---",
+          "# Test"
+        ),
+        "test.Rmd"
+      )
 
       # Create the output file
       file.create("test.html")
@@ -146,13 +166,16 @@ test_that(".build_copy_docs_quarto handles html format with _files directory", {
     path = dir_test,
     code = {
       # Create a quarto file
-      writeLines(c(
-        "---",
-        "title: Test",
-        "format: html",
-        "---",
-        "# Test"
-      ), "test.qmd")
+      writeLines(
+        c(
+          "---",
+          "title: Test",
+          "format: html",
+          "---",
+          "# Test"
+        ),
+        "test.qmd"
+      )
 
       # Create output files
       file.create("test.html")
@@ -186,7 +209,8 @@ test_that(".build_copy_docs_bookdown collects the configured book directory", {
 
       # Create book directory in cache (where builds actually go in production mode)
       cache_book <- file.path(
-        projr_path_get_cache_build_dir(profile = NULL), "_book"
+        projr_path_get_cache_build_dir(profile = NULL),
+        "_book"
       )
       dir.create(cache_book, recursive = TRUE, showWarnings = FALSE)
       file.create(file.path(cache_book, "index.html"))
@@ -215,7 +239,8 @@ test_that(".build_copy_docs_quarto_project collects the configured site director
     code = {
       # Create cache directory structure where quarto project builds to
       cache_docs <- file.path(
-        projr_path_get_cache_build_dir(profile = NULL), "docs"
+        projr_path_get_cache_build_dir(profile = NULL),
+        "docs"
       )
       dir.create(cache_docs, recursive = TRUE, showWarnings = FALSE)
       file.create(file.path(cache_docs, "index.html"))
@@ -251,7 +276,11 @@ test_that(".build_clear_post with clear_output = 'never' does not clear", {
       .build_clear_post_safe(output_run = TRUE, clear_output = "never")
 
       # File should still exist
-      expect_true(file.exists(projr_path_get("output", "test.txt", safe = FALSE)))
+      expect_true(file.exists(projr_path_get(
+        "output",
+        "test.txt",
+        safe = FALSE
+      )))
     }
   )
 })
@@ -272,7 +301,11 @@ test_that(".build_clear_post with clear_output = 'post' clears output dirs", {
 
       # Directory should exist but be empty
       expect_true(dir.exists(projr_path_get_dir("output", safe = FALSE)))
-      expect_false(file.exists(projr_path_get("output", "test.txt", safe = FALSE)))
+      expect_false(file.exists(projr_path_get(
+        "output",
+        "test.txt",
+        safe = FALSE
+      )))
     }
   )
 })
@@ -339,7 +372,10 @@ test_that(".build_clear_old removes old dev builds", {
       expect_false(dir.exists(old_version))
 
       expect_true(dir.exists(current_dir))
-      expect_identical(readLines(file.path(current_dir, "current.txt")), "keep current build")
+      expect_identical(
+        readLines(file.path(current_dir, "current.txt")),
+        "keep current build"
+      )
     }
   )
 })
@@ -385,7 +421,10 @@ test_that(".build_copy handles empty directories", {
     path = dir_test,
     code = {
       # Ensure output directory exists but is empty
-      dir.create(projr_path_get_dir("output", safe = TRUE), showWarnings = FALSE)
+      dir.create(
+        projr_path_get_dir("output", safe = TRUE),
+        showWarnings = FALSE
+      )
 
       # Should not error on empty directory
       expect_silent(.build_copy(
@@ -459,7 +498,8 @@ test_that(".build_copy_docs_bookdown handles missing _bookdown.yml gracefully", 
     code = {
       # The configured docs path also works without _bookdown.yml.
       cache_book <- file.path(
-        projr_path_get_cache_build_dir(profile = NULL), "_book"
+        projr_path_get_cache_build_dir(profile = NULL),
+        "_book"
       )
       dir.create(cache_book, recursive = TRUE, showWarnings = FALSE)
       file.create(file.path(cache_book, "index.html"))
@@ -506,7 +546,8 @@ test_that(".build_copy_docs_bookdown handles empty source directory", {
 
       # Create empty cache directory
       cache_book <- file.path(
-        projr_path_get_cache_build_dir(profile = NULL), "_book"
+        projr_path_get_cache_build_dir(profile = NULL),
+        "_book"
       )
       dir.create(cache_book, recursive = TRUE, showWarnings = FALSE)
 
@@ -559,7 +600,11 @@ test_that(".build_clear_old_dev handles empty cache directory", {
       dir.create(cache_base, recursive = TRUE, showWarnings = FALSE)
 
       # Remove any existing version directories
-      existing_dirs <- list.dirs(cache_base, recursive = FALSE, full.names = TRUE)
+      existing_dirs <- list.dirs(
+        cache_base,
+        recursive = FALSE,
+        full.names = TRUE
+      )
       if (length(existing_dirs) > 0) {
         unlink(existing_dirs, recursive = TRUE)
       }
@@ -583,8 +628,14 @@ test_that(".build_copy_docs_rmd handles multiple Rmd files", {
     path = dir_test,
     code = {
       # Create multiple Rmd files
-      writeLines(c("---", "title: Test1", "output: html_document", "---", "# Test1"), "test1.Rmd")
-      writeLines(c("---", "title: Test2", "output: html_document", "---", "# Test2"), "test2.Rmd")
+      writeLines(
+        c("---", "title: Test1", "output: html_document", "---", "# Test1"),
+        "test1.Rmd"
+      )
+      writeLines(
+        c("---", "title: Test2", "output: html_document", "---", "# Test2"),
+        "test2.Rmd"
+      )
 
       # Create output files
       file.create("test1.html")
@@ -613,8 +664,14 @@ test_that(".build_copy_docs_quarto handles multiple qmd files", {
     path = dir_test,
     code = {
       # Create multiple qmd files
-      writeLines(c("---", "title: Test1", "format: html", "---", "# Test1"), "test1.qmd")
-      writeLines(c("---", "title: Test2", "format: html", "---", "# Test2"), "test2.qmd")
+      writeLines(
+        c("---", "title: Test1", "format: html", "---", "# Test1"),
+        "test1.qmd"
+      )
+      writeLines(
+        c("---", "title: Test2", "format: html", "---", "# Test2"),
+        "test2.qmd"
+      )
 
       # Create output files
       file.create("test1.html")

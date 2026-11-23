@@ -138,15 +138,24 @@ test_that(".version_current_vec_get_init_file validates VERSION file", {
       if (file.exists("VERSION")) {
         file.remove("VERSION")
       }
-      expect_error(.version_current_vec_get_init_file(), "VERSION file not found")
+      expect_error(
+        .version_current_vec_get_init_file(),
+        "VERSION file not found"
+      )
 
       # Empty VERSION file (writeLines with empty string creates a file with empty line)
       writeLines("", "VERSION")
-      expect_error(.version_current_vec_get_init_file(), "VERSION file contains invalid content")
+      expect_error(
+        .version_current_vec_get_init_file(),
+        "VERSION file contains invalid content"
+      )
 
       # VERSION file with only whitespace (should be treated as invalid)
       writeLines("   ", "VERSION")
-      expect_error(.version_current_vec_get_init_file(), "VERSION file contains invalid content")
+      expect_error(
+        .version_current_vec_get_init_file(),
+        "VERSION file contains invalid content"
+      )
 
       # Valid VERSION file
       writeLines("v1.2.3-4", "VERSION")
@@ -179,8 +188,14 @@ test_that(".version_concat validates input and handles edge cases", {
   expect_identical(.version_concat(5, character(0)), "5")
 
   # Invalid inputs should error
-  expect_error(.version_concat(character(0), c(".", ".")), "version_vec must have at least one element")
-  expect_error(.version_concat(c("1", "2"), character(0)), "split_vec must have at least one element")
+  expect_error(
+    .version_concat(character(0), c(".", ".")),
+    "version_vec must have at least one element"
+  )
+  expect_error(
+    .version_concat(c("1", "2"), character(0)),
+    "split_vec must have at least one element"
+  )
 })
 
 test_that(".version_format_list_get validates version format", {
@@ -288,7 +303,10 @@ test_that(".yml_version_format_set_check validates version formats correctly", {
   expect_error(.yml_version_format_set_check(list("major.minor.patch-dev")))
 
   # Multiple strings (vector length > 1) should error
-  expect_error(.yml_version_format_set_check(c("major.minor.patch-dev", "major.dev")))
+  expect_error(.yml_version_format_set_check(c(
+    "major.minor.patch-dev",
+    "major.dev"
+  )))
   expect_error(.yml_version_format_set_check(c("major.dev", "major.minor-dev")))
 })
 

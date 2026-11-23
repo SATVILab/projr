@@ -7,30 +7,42 @@
   }
   matches <- gregexpr(.template_token_pattern, x, perl = TRUE)
   parts <- regmatches(x, matches, invert = NA)
-  x[] <- vapply(parts, function(part) {
-    if (anyNA(part)) {
-      return(NA_character_)
-    }
-    # regmatches alternates literal text and matched tokens, starting with text.
-    text <- seq.int(1L, length(part), by = 2L)
-    part[text] <- vapply(part[text], literal, character(1))
-    part[-text] <- vapply(part[-text], replacement, character(1))
-    paste0(part, collapse = "")
-  }, character(1))
+  x[] <- vapply(
+    parts,
+    function(part) {
+      if (anyNA(part)) {
+        return(NA_character_)
+      }
+      # regmatches alternates literal text and matched tokens, starting with text.
+      text <- seq.int(1L, length(part), by = 2L)
+      part[text] <- vapply(part[text], literal, character(1))
+      part[-text] <- vapply(part[-text], replacement, character(1))
+      paste0(part, collapse = "")
+    },
+    character(1)
+  )
   x
 }
 
-.template_expand <- function(x, version = .template_version(),
-                             branch = .template_branch(), uuid = .template_uuid()) {
+.template_expand <- function(
+  x,
+  version = .template_version(),
+  branch = .template_branch(),
+  uuid = .template_uuid()
+) {
   if (!length(x) || !any(grepl(.template_token_pattern, x, perl = TRUE))) {
     return(x)
   }
   .template_substitute(x, function(token) {
-    switch(token,
-      "@version" = .version_v_add(version %||% stop(
-        "@version requires a project version. Set one with projr_version_set() or run a production build.",
-        call. = FALSE
-      )),
+    switch(
+      token,
+      "@version" = .version_v_add(
+        version %||%
+          stop(
+            "@version requires a project version. Set one with projr_version_set() or run a production build.",
+            call. = FALSE
+          )
+      ),
       "@branch" = branch,
       "@uuid" = uuid
     )
@@ -57,7 +69,8 @@
 
 # Read the checkout's HEAD, including the gitdir pointer in linked worktrees.
 .template_checkout_head <- function() {
-  root <- tryCatch(rprojroot::find_root(rprojroot::is_git_root, path = .path_get()),
+  root <- tryCatch(
+    rprojroot::find_root(rprojroot::is_git_root, path = .path_get()),
     error = function(e) NULL
   )
   if (is.null(root)) {
@@ -83,8 +96,17 @@
 
 .template_branch_raw <- function(head = .template_head()) {
   if (!startsWith(head, "ref: refs/heads/")) {
-    reason <- if (nzchar(head)) "HEAD is detached" else "no Git checkout was found"
-    stop("@branch needs a named Git branch for this operation (", reason, ").", call. = FALSE)
+    reason <- if (nzchar(head)) {
+      "HEAD is detached"
+    } else {
+      "no Git checkout was found"
+    }
+    stop(
+      "@branch needs a named Git branch for this operation (",
+      reason,
+      ").",
+      call. = FALSE
+    )
   }
   substring(head, nchar("ref: refs/heads/") + 1L)
 }
@@ -101,7 +123,9 @@
   plain <- bytes %in% charToRaw("abcdefghijklmnopqrstuvwxyz0123456789-")
   # Preserve distinct names even on case-insensitive filesystems. Escape
   # underscores too, so a literal "_2f" cannot collide with an encoded slash.
-  if (grepl("^(con|prn|aux|nul|com[1-9]|lpt[1-9])$|^-", x)) plain[1] <- FALSE
+  if (grepl("^(con|prn|aux|nul|com[1-9]|lpt[1-9])$|^-", x)) {
+    plain[1] <- FALSE
+  }
   encoded <- paste0("_", as.character(bytes))
   encoded[plain] <- rawToChar(bytes[plain], multiple = TRUE)
   paste0(encoded, collapse = "")
@@ -118,7 +142,9 @@
   do.call(Sys.setenv, as.list(values))
   function() {
     Sys.unsetenv(names(previous)[is.na(previous)])
-    if (any(!is.na(previous))) do.call(Sys.setenv, as.list(previous[!is.na(previous)]))
+    if (any(!is.na(previous))) {
+      do.call(Sys.setenv, as.list(previous[!is.na(previous)]))
+    }
     invisible(NULL)
   }
 }

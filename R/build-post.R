@@ -47,7 +47,8 @@
   }
   cite_vec <- .build_cite_get_yml()
   for (i in seq_along(cite_vec)) {
-    switch(cite_vec[[i]],
+    switch(
+      cite_vec[[i]],
       "cff" = .cite_cff_set(create = FALSE),
       "codemeta" = .cite_codemeta_set(create = FALSE),
       "inst-citation" = .cite_citation_set(create = FALSE)
@@ -157,7 +158,11 @@
   # Use the project's new version even if the caller already loaded an older one.
   render <- .build_readme_rmd_render_impl
   environment(render) <- baseenv()
-  invisible(xfun::Rscript_call(render, list(readme, .libPaths()), options = "--vanilla"))
+  invisible(xfun::Rscript_call(
+    render,
+    list(readme, .libPaths()),
+    options = "--vanilla"
+  ))
 }
 
 .build_readme_rmd_render_check <- function(output_run) {
@@ -169,15 +174,27 @@
 
 .build_readme_rmd_render_detect_pkg_use <- function() {
   description <- .path_get("DESCRIPTION")
-  if (!file.exists(description)) return(FALSE)
+  if (!file.exists(description)) {
+    return(FALSE)
+  }
   package <- read.dcf(description, fields = "Package")[[1L]]
-  if (is.na(package) || !nzchar(package)) return(FALSE)
+  if (is.na(package) || !nzchar(package)) {
+    return(FALSE)
+  }
   package <- gsub(".", "[.]", package, fixed = TRUE)
   pattern <- paste0(
-    "\\b", package, "::|\\b(library|require|requireNamespace)\\s*\\(\\s*",
-    "(?:package\\s*=\\s*)?['\"]?", package, "['\"]?\\s*[,)]"
+    "\\b",
+    package,
+    "::|\\b(library|require|requireNamespace)\\s*\\(\\s*",
+    "(?:package\\s*=\\s*)?['\"]?",
+    package,
+    "['\"]?\\s*[,)]"
   )
-  any(grepl(pattern, readLines(.path_get("README.Rmd"), warn = FALSE), perl = TRUE))
+  any(grepl(
+    pattern,
+    readLines(.path_get("README.Rmd"), warn = FALSE),
+    perl = TRUE
+  ))
 }
 
 .build_readme_rmd_render_impl <- function(readme, libraries = NULL) {
@@ -187,14 +204,25 @@
     dir.create(library)
     .libPaths(c(library, libraries))
     Sys.setenv(R_LIBS = paste(.libPaths(), collapse = .Platform$path.sep))
-    archive <- pkgbuild::build(dirname(readme), dest_path = tempdir(), vignettes = FALSE, quiet = TRUE)
+    archive <- pkgbuild::build(
+      dirname(readme),
+      dest_path = tempdir(),
+      vignettes = FALSE,
+      quiet = TRUE
+    )
     args <- c("CMD", "INSTALL", "-l", shQuote(library), shQuote(archive))
     output <- suppressWarnings(system2(
-      file.path(R.home("bin"), "R"), args, stdout = TRUE, stderr = TRUE
+      file.path(R.home("bin"), "R"),
+      args,
+      stdout = TRUE,
+      stderr = TRUE
     ))
     if (!is.null(attr(output, "status"))) {
-      stop("Could not install the project package for README.Rmd:\n",
-           paste(output, collapse = "\n"), call. = FALSE)
+      stop(
+        "Could not install the project package for README.Rmd:\n",
+        paste(output, collapse = "\n"),
+        call. = FALSE
+      )
     }
   }
   rmarkdown::render(readme, output_format = "md_document", quiet = TRUE)
@@ -203,8 +231,7 @@
 
 # revert version upon failure
 # --------------------
-.build_version_set_post <- function(version_run_on_list,
-                                    success) {
+.build_version_set_post <- function(version_run_on_list, success) {
   if (success || is.null(version_run_on_list)) {
     return(invisible(FALSE))
   }

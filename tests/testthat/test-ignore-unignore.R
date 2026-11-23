@@ -9,14 +9,20 @@ test_that("projr_unignore_manual handles empty strings", {
     path = dir_test,
     code = {
       # Create ignore files with projr section
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".gitignore")
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".Rbuildignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".gitignore"
+      )
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".Rbuildignore"
+      )
 
       # Test with only empty strings
       result <- projr_unignore_manual(c("", ""))
@@ -63,18 +69,28 @@ test_that("projr_unignore_manual distinguishes files and directories", {
     path = dir_test,
     code = {
       # Remove existing ignore files
-      if (file.exists(".gitignore")) unlink(".gitignore")
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
       # Create projr sections
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".gitignore")
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".Rbuildignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".gitignore"
+      )
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".Rbuildignore"
+      )
 
       # Create a file and directory
       file.create("myfile.txt")
@@ -102,17 +118,27 @@ test_that("projr_unignore_manual handles paths with trailing slashes", {
     path = dir_test,
     code = {
       # Remove existing ignore files
-      if (file.exists(".gitignore")) unlink(".gitignore")
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".gitignore")
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".Rbuildignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".gitignore"
+      )
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".Rbuildignore"
+      )
 
       # Unignore path with trailing slash (treated as directory)
       projr_unignore_manual("mypath/")
@@ -134,17 +160,27 @@ test_that("projr_unignore_manual handles nonexistent paths", {
     path = dir_test,
     code = {
       # Remove existing ignore files
-      if (file.exists(".gitignore")) unlink(".gitignore")
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".gitignore")
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".Rbuildignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".gitignore"
+      )
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".Rbuildignore"
+      )
 
       # Unignore nonexistent path (should be treated as file)
       projr_unignore_manual("nonexistent.log")
@@ -237,12 +273,17 @@ test_that("projr_unignore_manual_file_git handles existing ! prefix", {
     path = dir_test,
     code = {
       # Remove existing .gitignore
-      if (file.exists(".gitignore")) unlink(".gitignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
 
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".gitignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".gitignore"
+      )
 
       # Unignore with existing ! prefix
       projr_unignore_manual_file_git("!alreadyhas.txt")
@@ -264,12 +305,17 @@ test_that("projr_unignore_manual_file_git handles multiple ! prefixes", {
     path = dir_test,
     code = {
       # Remove existing .gitignore
-      if (file.exists(".gitignore")) unlink(".gitignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
 
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".gitignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".gitignore"
+      )
 
       # Unignore with multiple ! prefixes
       projr_unignore_manual_file_git("!!!multiple.txt")
@@ -291,12 +337,17 @@ test_that("projr_unignore_manual_dir_git handles existing /** suffix", {
     path = dir_test,
     code = {
       # Remove existing .gitignore
-      if (file.exists(".gitignore")) unlink(".gitignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
 
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".gitignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".gitignore"
+      )
 
       # Unignore directory that already has /**
       projr_unignore_manual_dir_git("mydir/**")
@@ -317,12 +368,17 @@ test_that("projr_unignore_manual_dir_git handles paths without /** suffix", {
     path = dir_test,
     code = {
       # Remove existing .gitignore
-      if (file.exists(".gitignore")) unlink(".gitignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
 
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".gitignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".gitignore"
+      )
 
       # Unignore directory without /**
       projr_unignore_manual_dir_git("plaindir")
@@ -342,12 +398,17 @@ test_that("projr_unignore_manual_file_rbuild handles trailing slashes", {
     path = dir_test,
     code = {
       # Remove existing .Rbuildignore
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".Rbuildignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".Rbuildignore"
+      )
 
       # Unignore file with trailing slashes
       projr_unignore_manual_file_rbuild("myfile.txt///")
@@ -368,12 +429,17 @@ test_that("projr_unignore_manual_file_rbuild handles whitespace", {
     path = dir_test,
     code = {
       # Remove existing .Rbuildignore
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".Rbuildignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".Rbuildignore"
+      )
 
       # Unignore file with whitespace
       projr_unignore_manual_file_rbuild("  whitespace.txt  ")
@@ -393,12 +459,17 @@ test_that("projr_unignore_manual_dir_rbuild handles trailing slashes", {
     path = dir_test,
     code = {
       # Remove existing .Rbuildignore
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".Rbuildignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".Rbuildignore"
+      )
 
       # Unignore directory with trailing slashes
       projr_unignore_manual_dir_rbuild("mydir///")
@@ -418,12 +489,17 @@ test_that("projr_unignore_manual_dir_rbuild creates correct regex patterns", {
     path = dir_test,
     code = {
       # Remove existing .Rbuildignore
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".Rbuildignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".Rbuildignore"
+      )
 
       # Unignore directory
       projr_unignore_manual_dir_rbuild("testdir")
@@ -449,10 +525,13 @@ test_that(".unignore_manual_path_add handles empty input", {
     path = dir_test,
     code = {
       # Create a gitignore file
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".gitignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".gitignore"
+      )
 
       # Try to add empty vector
       result <- .unignore_manual_path_add(character(0), ".gitignore")
@@ -544,13 +623,19 @@ test_that(".unignore_manual_path_add removes duplicates", {
     path = dir_test,
     code = {
       # Create gitignore
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".gitignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".gitignore"
+      )
 
       # Add same pattern multiple times
-      .unignore_manual_path_add(c("!pattern1", "!pattern1", "!pattern2"), ".gitignore")
+      .unignore_manual_path_add(
+        c("!pattern1", "!pattern1", "!pattern2"),
+        ".gitignore"
+      )
 
       # Check file
       gitignore <- readLines(".gitignore")
@@ -570,7 +655,10 @@ test_that(".unignore_manual_path_add_get_updated_end handles empty end", {
   skip_if(.is_test_select())
 
   # Test with length 0 end
-  result <- .unignore_manual_path_add_get_updated_end(c("!ignore1", "!ignore2"), character(0))
+  result <- .unignore_manual_path_add_get_updated_end(
+    c("!ignore1", "!ignore2"),
+    character(0)
+  )
   expect_identical(result, c("!ignore1", "!ignore2"))
 })
 
@@ -588,7 +676,10 @@ test_that(".unignore_manual_path_add_get_updated_end handles non-empty single en
   skip_if(.is_test_select())
 
   # Test with non-empty single element
-  result <- .unignore_manual_path_add_get_updated_end(c("!ignore1", "!ignore2"), "# End marker")
+  result <- .unignore_manual_path_add_get_updated_end(
+    c("!ignore1", "!ignore2"),
+    "# End marker"
+  )
   expect_identical(result, c("# End marker", "", "!ignore1", "!ignore2"))
 })
 
@@ -601,7 +692,10 @@ test_that(".unignore_manual_path_add_get_updated_end handles multiple end elemen
     c("!ignore1", "!ignore2"),
     c("# End marker", "more content")
   )
-  expect_identical(result, c("# End marker", "more content", "!ignore1", "!ignore2"))
+  expect_identical(
+    result,
+    c("# End marker", "more content", "!ignore1", "!ignore2")
+  )
 })
 
 test_that(".unignore_manual_path_add_get_updated_end avoids duplicates", {
@@ -626,23 +720,37 @@ test_that("projr_unignore_manual works with mixed existing and nonexistent paths
     path = dir_test,
     code = {
       # Remove existing ignore files
-      if (file.exists(".gitignore")) unlink(".gitignore")
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".gitignore")
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".Rbuildignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".gitignore"
+      )
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".Rbuildignore"
+      )
 
       # Create a file but not a directory
       file.create("existing.txt")
 
       # Unignore both existing and nonexistent
-      projr_unignore_manual(c("existing.txt", "nonexistent.log", "nonexistent_dir/"))
+      projr_unignore_manual(c(
+        "existing.txt",
+        "nonexistent.log",
+        "nonexistent_dir/"
+      ))
 
       # Check .gitignore
       gitignore <- readLines(".gitignore")
@@ -670,12 +778,17 @@ test_that("projr_unignore_manual is idempotent", {
     path = dir_test,
     code = {
       # Remove existing ignore files
-      if (file.exists(".gitignore")) unlink(".gitignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
 
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".gitignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".gitignore"
+      )
 
       # Unignore multiple times
       projr_unignore_manual("test.txt")

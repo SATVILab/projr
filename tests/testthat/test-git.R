@@ -1,4 +1,5 @@
-test_that(".git_ functions work", { # setup
+test_that(".git_ functions work", {
+  # setup
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
@@ -33,7 +34,8 @@ test_that(".git_ functions work", { # setup
       status_tbl <- gert::git_status()
       .git_commit_file_git(".Rbuildignore", msg = "Commit R build ignore")
       expect_identical(
-        nrow(gert::git_status()), nrow(status_tbl) - 1L
+        nrow(gert::git_status()),
+        nrow(status_tbl) - 1L
       )
       .git_commit_file_gert(".gitignore", msg = "Commit Git ignore")
       expect_identical(nrow(gert::git_status()), nrow(status_tbl) - 2L)
@@ -78,11 +80,23 @@ test_that("Git and gert clone, push and fetch from a local bare upstream", {
   repo <- "fixture/project"
   url <- paste0("https://github.com/", repo, ".git")
   config <- withr::local_tempfile()
-  withr::local_envvar(c(GIT_CONFIG_GLOBAL = config, GIT_ALLOW_PROTOCOL = "file"))
-  expect_equal(system2("git", c(
-    "config", "--file", shQuote(config),
-    shQuote(paste0("url.", dir_remote, ".insteadOf")), url
-  )), 0L)
+  withr::local_envvar(c(
+    GIT_CONFIG_GLOBAL = config,
+    GIT_ALLOW_PROTOCOL = "file"
+  ))
+  expect_equal(
+    system2(
+      "git",
+      c(
+        "config",
+        "--file",
+        shQuote(config),
+        shQuote(paste0("url.", dir_remote, ".insteadOf")),
+        url
+      )
+    ),
+    0L
+  )
   # libgit2 can cache the user's config directory before the test starts.
   # Redirect the URL at its clone boundary and use the real local transport.
   clone <- gert::git_clone
@@ -90,29 +104,47 @@ test_that("Git and gert clone, push and fetch from a local bare upstream", {
     git_clone = function(url, ...) {
       expect_identical(url, "https://github.com/fixture/project.git")
       clone(dir_remote, ...)
-    }, .package = "gert"
+    },
+    .package = "gert"
   )
 
   usethis::with_project(dir_test, {
     for (backend in c("git", "gert")) {
-      withr::local_envvar(c(PROJR_GIT_USE_GERT = as.character(backend == "gert")))
+      withr::local_envvar(c(
+        PROJR_GIT_USE_GERT = as.character(backend == "gert")
+      ))
       expect_false(.git_check_behind())
     }
     gert::git_remote_add(dir_remote, "origin")
     branch <- gert::git_branch()
     expect_equal(system2("git", c("push", "-u", "origin", branch)), 0L)
-    expect_equal(system2("git", c(
-      "-C", shQuote(dir_remote), "symbolic-ref", "HEAD", paste0("refs/heads/", branch)
-    )), 0L)
+    expect_equal(
+      system2(
+        "git",
+        c(
+          "-C",
+          shQuote(dir_remote),
+          "symbolic-ref",
+          "HEAD",
+          paste0("refs/heads/", branch)
+        )
+      ),
+      0L
+    )
 
     for (backend in c("git", "gert")) {
-      withr::local_envvar(c(PROJR_GIT_USE_GERT = as.character(backend == "gert")))
+      withr::local_envvar(c(
+        PROJR_GIT_USE_GERT = as.character(backend == "gert")
+      ))
       expect_identical(.git_system_get(), backend)
       expect_true(.git_remote_check_exists())
       expect_true(.git_remote_check_upstream())
       path_clone <- paste0("clone-", backend)
       .git_clone(repo, path_clone)
-      expect_identical(gert::git_log(repo = path_clone)$commit[[1]], gert::git_log()$commit[[1]])
+      expect_identical(
+        gert::git_log(repo = path_clone)$commit[[1]],
+        gert::git_log()$commit[[1]]
+      )
       gert::git_remote_set_url(dir_remote, remote = "origin", repo = path_clone)
 
       writeLines(backend, "change.txt")
@@ -125,81 +157,99 @@ test_that("Git and gert clone, push and fetch from a local bare upstream", {
         .git_fetch()
         expect_equal(gert::git_ahead_behind()$behind, 1L)
         expect_true(.git_check_behind())
-        expect_identical(gert::git_log(ref = paste0("origin/", branch))$commit[[1]], pushed)
+        expect_identical(
+          gert::git_log(ref = paste0("origin/", branch))$commit[[1]],
+          pushed
+        )
       })
     }
   })
 })
 
 for (backend in c("git", "gert")) {
-  test_that(paste(backend, "reports repository identity and the latest commit"), {
-    skip_if(.is_test_select())
-    skip_if_not_installed("gert")
-    skip_if(backend == "git" && !.git_system_check_git())
-    withr::local_envvar(PROJR_GIT_USE_GERT = as.character(backend == "gert"))
-    expect_identical(.git_system_get(), backend)
-    expect_identical(.git_system_check_gert(), requireNamespace("gert", quietly = TRUE))
-    expect_identical(.git_system_setup(), backend == "gert")
-    dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-    usethis::with_project(dir_test, {
-      expect_false(.git_repo_is_worktree())
-      expect_null(.git_branch_get())
-      expect_null(.git_last_commit_get())
-
-      .git_init()
-      .test_setup_project_git_config()
-      expect_false(.git_repo_is_worktree())
-      expect_null(suppressWarnings(.git_last_commit_get()))
-      expect_identical(.git_config_get_name(), "DarthVader")
-      expect_identical(.git_config_get_email(), "number_one_fan@tellytubbies.com")
-      expect_false(.git_commit_file(character(), "empty"))
-      expect_false(.git_commit_file(NULL, "empty"))
-
-      writeLines("version one", "report.txt")
-      .git_commit_file("report.txt", "First report")
-      expect_identical(.git_branch_get(), gert::git_branch())
-      commit <- .git_last_commit_get()
-      expect_identical(commit$message, "First report")
-      expect_true(nzchar(commit$sha) && startsWith(gert::git_log()$commit[1], commit$sha))
-    })
-  })
-
-  test_that(paste(backend, "distinguishes modified, ignored and untracked files"), {
-    skip_if(.is_test_select())
-    skip_if_not_installed("gert")
-    skip_if(backend == "git" && !.git_system_check_git())
-    withr::local_envvar(PROJR_GIT_USE_GERT = as.character(backend == "gert"))
-    dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-    usethis::with_project(dir_test, {
-      expect_length(.git_changed_filter("tracked.txt"), 0L)
-      expect_identical(.git_untracked_not_ignored_get(), character())
-      .git_init()
-      .test_setup_project_git_config()
-      writeLines("one", "tracked.txt")
-      expect_true("tracked.txt" %in% .git_untracked_not_ignored_get())
-      .git_commit_file("tracked.txt", "Track one file")
-      expect_false("tracked.txt" %in% .git_untracked_not_ignored_get())
-      expect_length(.git_changed_filter("tracked.txt"), 0L)
-
-      writeLines("ignored.txt", ".gitignore")
-      writeLines("ignored", "ignored.txt")
-      writeLines("two", "tracked.txt")
-      writeLines("new", "untracked.txt")
-      expect_false("ignored.txt" %in% .git_untracked_not_ignored_get())
-      expect_true(".gitignore" %in% .git_untracked_not_ignored_get())
-      expect_length(.git_changed_filter(character()), 0L)
-      expect_setequal(
-        .git_changed_filter(c("tracked.txt", "untracked.txt", "missing.txt")),
-        c("tracked.txt", "untracked.txt")
+  test_that(
+    paste(backend, "reports repository identity and the latest commit"),
+    {
+      skip_if(.is_test_select())
+      skip_if_not_installed("gert")
+      skip_if(backend == "git" && !.git_system_check_git())
+      withr::local_envvar(PROJR_GIT_USE_GERT = as.character(backend == "gert"))
+      expect_identical(.git_system_get(), backend)
+      expect_identical(
+        .git_system_check_gert(),
+        requireNamespace("gert", quietly = TRUE)
       )
+      expect_identical(.git_system_setup(), backend == "gert")
+      dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+      usethis::with_project(dir_test, {
+        expect_false(.git_repo_is_worktree())
+        expect_null(.git_branch_get())
+        expect_null(.git_last_commit_get())
 
-      .git_commit_all("Changed files only", add_untracked = FALSE)
-      expect_true("untracked.txt" %in% .git_untracked_not_ignored_get())
-      expect_length(.git_changed_filter("tracked.txt"), 0L)
-      .git_commit_all("Include new files", add_untracked = TRUE)
-      expect_identical(nrow(gert::git_status()), 0L)
-    })
-  })
+        .git_init()
+        .test_setup_project_git_config()
+        expect_false(.git_repo_is_worktree())
+        expect_null(suppressWarnings(.git_last_commit_get()))
+        expect_identical(.git_config_get_name(), "DarthVader")
+        expect_identical(
+          .git_config_get_email(),
+          "number_one_fan@tellytubbies.com"
+        )
+        expect_false(.git_commit_file(character(), "empty"))
+        expect_false(.git_commit_file(NULL, "empty"))
+
+        writeLines("version one", "report.txt")
+        .git_commit_file("report.txt", "First report")
+        expect_identical(.git_branch_get(), gert::git_branch())
+        commit <- .git_last_commit_get()
+        expect_identical(commit$message, "First report")
+        expect_true(
+          nzchar(commit$sha) &&
+            startsWith(gert::git_log()$commit[1], commit$sha)
+        )
+      })
+    }
+  )
+
+  test_that(
+    paste(backend, "distinguishes modified, ignored and untracked files"),
+    {
+      skip_if(.is_test_select())
+      skip_if_not_installed("gert")
+      skip_if(backend == "git" && !.git_system_check_git())
+      withr::local_envvar(PROJR_GIT_USE_GERT = as.character(backend == "gert"))
+      dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+      usethis::with_project(dir_test, {
+        expect_length(.git_changed_filter("tracked.txt"), 0L)
+        expect_identical(.git_untracked_not_ignored_get(), character())
+        .git_init()
+        .test_setup_project_git_config()
+        writeLines("one", "tracked.txt")
+        expect_true("tracked.txt" %in% .git_untracked_not_ignored_get())
+        .git_commit_file("tracked.txt", "Track one file")
+        expect_false("tracked.txt" %in% .git_untracked_not_ignored_get())
+        expect_length(.git_changed_filter("tracked.txt"), 0L)
+
+        writeLines("ignored.txt", ".gitignore")
+        writeLines("ignored", "ignored.txt")
+        writeLines("two", "tracked.txt")
+        writeLines("new", "untracked.txt")
+        expect_false("ignored.txt" %in% .git_untracked_not_ignored_get())
+        expect_true(".gitignore" %in% .git_untracked_not_ignored_get())
+        expect_length(.git_changed_filter(character()), 0L)
+        expect_setequal(
+          .git_changed_filter(c("tracked.txt", "untracked.txt", "missing.txt")),
+          c("tracked.txt", "untracked.txt")
+        )
+
+        .git_commit_all("Changed files only", add_untracked = FALSE)
+        expect_true("untracked.txt" %in% .git_untracked_not_ignored_get())
+        expect_length(.git_changed_filter("tracked.txt"), 0L)
+        .git_commit_all("Include new files", add_untracked = TRUE)
+        expect_identical(nrow(gert::git_status()), 0L)
+      })
+    }
+  )
 }
 
 test_that(".git_add_file_git works", {
@@ -232,16 +282,23 @@ test_that("Git identities are written only to the fixture repository", {
   skip_if(.is_test_select())
   skip_if_not_installed("gert")
   config <- withr::local_tempfile()
-  writeLines(c("[user]", "  name = Original User", "  email = original@example.test"), config)
+  writeLines(
+    c("[user]", "  name = Original User", "  email = original@example.test"),
+    config
+  )
   bytes <- function(path) readBin(path, "raw", file.size(path))
   original <- bytes(config)
   withr::local_envvar(c(GIT_CONFIG_GLOBAL = config))
   testthat::local_mocked_bindings(
-    git_config_global_set = function(...) stop("Unexpected global Git config write"),
+    git_config_global_set = function(...) {
+      stop("Unexpected global Git config write")
+    },
     .package = "gert"
   )
   for (backend in c("git", "gert")) {
-    if (backend == "git" && !.git_system_check_git()) next
+    if (backend == "git" && !.git_system_check_git()) {
+      next
+    }
     withr::local_envvar(c(PROJR_GIT_USE_GERT = as.character(backend == "gert")))
     project <- .test_setup_project()
     usethis::with_project(project, {
@@ -250,7 +307,10 @@ test_that("Git identities are written only to the fixture repository", {
       cfg <- gert::git_config(repo = project)
       local <- cfg[cfg$level == "local", ]
       expect_equal(local$value[local$name == "user.name"], "Fixture Author")
-      expect_equal(local$value[local$name == "user.email"], "fixture@example.test")
+      expect_equal(
+        local$value[local$name == "user.email"],
+        "fixture@example.test"
+      )
       nested <- file.path(project, "child")
       dir.create(nested)
       expect_error(.test_setup_project_git_config(nested), "temporary fixture")
@@ -263,7 +323,10 @@ test_that("Git CLI reports rejected writes and can retry without an empty commit
   skip_if(.is_test_select())
   skip_if_not_installed("gert")
   skip_if(!.git_system_check_git())
-  withr::local_envvar(c(PROJR_GIT_USE_GERT = "FALSE", PROJR_OUTPUT_LEVEL = "none"))
+  withr::local_envvar(c(
+    PROJR_GIT_USE_GERT = "FALSE",
+    PROJR_OUTPUT_LEVEL = "none"
+  ))
   withr::local_dir(withr::local_tempdir())
   gert::git_init()
   .test_setup_project_git_config()
@@ -287,15 +350,28 @@ test_that("Git CLI reports rejected writes and can retry without an empty commit
   unlink(hook)
   .git_commit_all("Second build")
   reject <- file.path(upstream, "hooks", "pre-receive")
-  writeLines(c("#!/bin/sh", "echo 'https://fixture:sample-token@example.invalid' >&2", "exit 1"), reject)
+  writeLines(
+    c(
+      "#!/bin/sh",
+      "echo 'https://fixture:sample-token@example.invalid' >&2",
+      "exit 1"
+    ),
+    reject
+  )
   Sys.chmod(reject, "0755")
-  error <- expect_error(.git_push_git(stdout = TRUE, stderr = TRUE), "git push failed")
+  error <- expect_error(
+    .git_push_git(stdout = TRUE, stderr = TRUE),
+    "git push failed"
+  )
   expect_match(conditionMessage(error), "https://example.invalid", fixed = TRUE)
   expect_false(grepl("sample-token", conditionMessage(error), fixed = TRUE))
   expect_identical(gert::git_log(repo = upstream)$commit[1], first)
   unlink(reject)
   expect_true(.git_push_git(stdout = TRUE, stderr = TRUE))
-  expect_identical(gert::git_log(repo = upstream)$commit[1], gert::git_info()$commit)
+  expect_identical(
+    gert::git_log(repo = upstream)$commit[1],
+    gert::git_info()$commit
+  )
 
   for (level in c("std", "debug")) {
     withr::local_envvar(c(PROJR_OUTPUT_LEVEL = level))

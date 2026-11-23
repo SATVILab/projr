@@ -10,7 +10,9 @@
 # =============================================================================
 
 dir_test <- .test_setup_project(
-  git = TRUE, github = FALSE, set_env_var = TRUE
+  git = TRUE,
+  github = FALSE,
+  set_env_var = TRUE
 )
 
 # =============================================================================
@@ -709,7 +711,10 @@ test_that(".remote_check_exists works for local remotes", {
     path = dir_test,
     code = {
       # Create temp directory path (not the directory itself)
-      remote_base <- file.path(tempdir(), paste0("test_remote_", floor(runif(1, 1e6, 1e7))))
+      remote_base <- file.path(
+        tempdir(),
+        paste0("test_remote_", floor(runif(1, 1e6, 1e7)))
+      )
 
       # Ensure it doesn't exist
       if (dir.exists(remote_base)) {
@@ -791,7 +796,10 @@ test_that(".remote_create creates local remotes", {
     path = dir_test,
     code = {
       # Create temp directory path
-      remote_base <- file.path(tempdir(), paste0("test_remote_", floor(runif(1, 1e6, 1e7))))
+      remote_base <- file.path(
+        tempdir(),
+        paste0("test_remote_", floor(runif(1, 1e6, 1e7)))
+      )
 
       # Ensure it doesn't exist
       if (dir.exists(remote_base)) {
@@ -1115,7 +1123,10 @@ test_that(".remote_file_get_all downloads all files from local remote", {
 
       # Verify content
       expect_identical(readLines(file.path(dest_path, "file1.txt")), "content1")
-      expect_identical(readLines(file.path(dest_path, "subdir", "file2.txt")), "content2")
+      expect_identical(
+        readLines(file.path(dest_path, "subdir", "file2.txt")),
+        "content2"
+      )
 
       # Cleanup
       unlink(remote_base, recursive = TRUE)
@@ -1294,7 +1305,10 @@ test_that(".remote_file_add uploads files to local remote", {
 
       # Verify content
       expect_identical(readLines(file.path(dest_path, "file1.txt")), "content1")
-      expect_identical(readLines(file.path(dest_path, "subdir", "file2.txt")), "content2")
+      expect_identical(
+        readLines(file.path(dest_path, "subdir", "file2.txt")),
+        "content2"
+      )
 
       # Cleanup
       unlink(remote_base, recursive = TRUE)

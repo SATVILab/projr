@@ -12,11 +12,17 @@ test_that("projr_manifest_file_last_change works", {
       .build_manifest_post(TRUE)
 
       # Test: Query last change for a file that exists
-      last_change <- projr_manifest_file_last_change("abc.txt", label = "output")
+      last_change <- projr_manifest_file_last_change(
+        "abc.txt",
+        label = "output"
+      )
       expect_identical(nrow(last_change), 1L)
       expect_identical(last_change$fn, "abc.txt")
       expect_identical(last_change$label, "output")
-      expect_identical(last_change$version_last_change, paste0("v", initial_version))
+      expect_identical(
+        last_change$version_last_change,
+        paste0("v", initial_version)
+      )
 
       # Bump version and modify the file
       projr_version_set("0.0.1")
@@ -26,7 +32,10 @@ test_that("projr_manifest_file_last_change works", {
       .build_manifest_post(TRUE)
 
       # Test: Last change should now be v0.0.1
-      last_change <- projr_manifest_file_last_change("abc.txt", label = "output")
+      last_change <- projr_manifest_file_last_change(
+        "abc.txt",
+        label = "output"
+      )
       expect_identical(last_change$version_last_change, "v0.0.1")
 
       # Bump version without modifying the file
@@ -35,11 +44,17 @@ test_that("projr_manifest_file_last_change works", {
       .build_manifest_post(TRUE)
 
       # Test: Last change should still be v0.0.1
-      last_change <- projr_manifest_file_last_change("abc.txt", label = "output")
+      last_change <- projr_manifest_file_last_change(
+        "abc.txt",
+        label = "output"
+      )
       expect_identical(last_change$version_last_change, "v0.0.1")
 
       # Test: File not found returns empty
-      not_found <- projr_manifest_file_last_change("nonexistent.txt", label = "output")
+      not_found <- projr_manifest_file_last_change(
+        "nonexistent.txt",
+        label = "output"
+      )
       expect_identical(nrow(not_found), 0L)
 
       # Test: Search without label
@@ -72,7 +87,12 @@ test_that("projr_manifest_file_changed works", {
       .build_manifest_post(TRUE)
 
       # Test: File was modified
-      changed <- projr_manifest_file_changed("abc.txt", "output", initial_version, "0.0.1")
+      changed <- projr_manifest_file_changed(
+        "abc.txt",
+        "output",
+        initial_version,
+        "0.0.1"
+      )
       expect_identical(nrow(changed), 1L)
       expect_identical(changed$changed, TRUE)
       expect_identical(changed$change_type, "modified")
@@ -81,7 +101,12 @@ test_that("projr_manifest_file_changed works", {
       expect_false(changed$hash_from == changed$hash_to)
 
       # Test: File unchanged between same version
-      unchanged <- projr_manifest_file_changed("abc.txt", "output", "0.0.1", "0.0.1")
+      unchanged <- projr_manifest_file_changed(
+        "abc.txt",
+        "output",
+        "0.0.1",
+        "0.0.1"
+      )
       expect_identical(unchanged$changed, FALSE)
       expect_identical(unchanged$change_type, "unchanged")
 
@@ -92,7 +117,12 @@ test_that("projr_manifest_file_changed works", {
       .build_manifest_post(TRUE)
 
       # Test: File was added
-      added <- projr_manifest_file_changed("new.txt", "output", "0.0.1", "0.0.2")
+      added <- projr_manifest_file_changed(
+        "new.txt",
+        "output",
+        "0.0.1",
+        "0.0.2"
+      )
       expect_identical(added$changed, TRUE)
       expect_identical(added$change_type, "added")
       expect_true(is.na(added$hash_from))
@@ -105,14 +135,24 @@ test_that("projr_manifest_file_changed works", {
       .build_manifest_post(TRUE)
 
       # Test: File was removed
-      removed <- projr_manifest_file_changed("new.txt", "output", "0.0.2", "0.0.3")
+      removed <- projr_manifest_file_changed(
+        "new.txt",
+        "output",
+        "0.0.2",
+        "0.0.3"
+      )
       expect_identical(removed$changed, TRUE)
       expect_identical(removed$change_type, "removed")
       expect_false(is.na(removed$hash_from))
       expect_true(is.na(removed$hash_to))
 
       # Test: File not found in either version
-      not_found <- projr_manifest_file_changed("nonexistent.txt", "output", "0.0.1", "0.0.2")
+      not_found <- projr_manifest_file_changed(
+        "nonexistent.txt",
+        "output",
+        "0.0.1",
+        "0.0.2"
+      )
       expect_identical(nrow(not_found), 0L)
     }
   )
@@ -168,7 +208,10 @@ test_that("projr_manifest_file_history works", {
       expect_true(history$change_type[nrow(history)] == "current")
 
       # Test: File not found returns empty
-      not_found <- projr_manifest_file_history("nonexistent.txt", label = "output")
+      not_found <- projr_manifest_file_history(
+        "nonexistent.txt",
+        label = "output"
+      )
       expect_identical(nrow(not_found), 0L)
     }
   )
@@ -213,13 +256,19 @@ test_that("projr_manifest_file_first works", {
       expect_identical(first_abc$version_first, paste0("v", initial_version))
 
       # Test: File not found returns empty
-      not_found <- projr_manifest_file_first("nonexistent.txt", label = "output")
+      not_found <- projr_manifest_file_first(
+        "nonexistent.txt",
+        label = "output"
+      )
       expect_identical(nrow(not_found), 0L)
 
       # Test: Search without label
       first_no_label <- projr_manifest_file_first("abc.txt")
       expect_identical(nrow(first_no_label), 1L)
-      expect_identical(first_no_label$version_first, paste0("v", initial_version))
+      expect_identical(
+        first_no_label$version_first,
+        paste0("v", initial_version)
+      )
     }
   )
 })
@@ -233,10 +282,18 @@ test_that("file query functions handle edge cases", {
     path = dir_test,
     code = {
       # Test: Empty manifest
-      empty_last <- projr_manifest_file_last_change("file.txt", label = "output")
+      empty_last <- projr_manifest_file_last_change(
+        "file.txt",
+        label = "output"
+      )
       expect_identical(nrow(empty_last), 0L)
 
-      empty_changed <- projr_manifest_file_changed("file.txt", "output", "0.0.1", "0.0.2")
+      empty_changed <- projr_manifest_file_changed(
+        "file.txt",
+        "output",
+        "0.0.1",
+        "0.0.2"
+      )
       expect_identical(nrow(empty_changed), 0L)
 
       empty_history <- projr_manifest_file_history("file.txt", label = "output")
@@ -253,7 +310,10 @@ test_that("file query functions handle edge cases", {
       version <- projr_version_get()
 
       # Test: File with only one version
-      last_single <- projr_manifest_file_last_change("abc.txt", label = "output")
+      last_single <- projr_manifest_file_last_change(
+        "abc.txt",
+        label = "output"
+      )
       expect_identical(nrow(last_single), 1L)
       expect_identical(last_single$version_last_change, paste0("v", version))
 
@@ -306,11 +366,17 @@ test_that("file query functions work without label parameter", {
       expect_true(nrow(history_all) >= 1)
 
       # Test: With label, should find only in that directory
-      last_output <- projr_manifest_file_last_change("data.txt", label = "output")
+      last_output <- projr_manifest_file_last_change(
+        "data.txt",
+        label = "output"
+      )
       expect_identical(nrow(last_output), 1L)
       expect_identical(last_output$label, "output")
 
-      last_raw <- projr_manifest_file_last_change("data.txt", label = "raw-data")
+      last_raw <- projr_manifest_file_last_change(
+        "data.txt",
+        label = "raw-data"
+      )
       expect_identical(nrow(last_raw), 1L)
       expect_identical(last_raw$label, "raw-data")
     }
@@ -343,14 +409,24 @@ test_that("projr_manifest_file_changed handles label parameter correctly", {
       .build_manifest_post(TRUE)
 
       # Test: With label specified, should only check that label
-      output_changed <- projr_manifest_file_changed("test.txt", "output", v1, "0.0.1")
+      output_changed <- projr_manifest_file_changed(
+        "test.txt",
+        "output",
+        v1,
+        "0.0.1"
+      )
       expect_identical(nrow(output_changed), 1L)
       expect_identical(output_changed$label, "output")
       expect_identical(output_changed$changed, TRUE)
       expect_identical(output_changed$change_type, "modified")
 
       # Test: raw-data should be unchanged (but will be re-hashed due to pre-build)
-      raw_changed <- projr_manifest_file_changed("test.txt", "raw-data", v1, "0.0.1")
+      raw_changed <- projr_manifest_file_changed(
+        "test.txt",
+        "raw-data",
+        v1,
+        "0.0.1"
+      )
       expect_identical(nrow(raw_changed), 1L)
       expect_identical(raw_changed$label, "raw-data")
       # Hash will be same since file wasn't modified
@@ -450,21 +526,40 @@ test_that("manifest file query functions handle nonexistent files gracefully", {
       .build_manifest_post(TRUE)
 
       # Test: All functions should return 0-row data frames with correct structure
-      last_change <- projr_manifest_file_last_change("nonexistent.txt", "output")
+      last_change <- projr_manifest_file_last_change(
+        "nonexistent.txt",
+        "output"
+      )
       expect_identical(nrow(last_change), 0L)
-      expect_true(all(c("label", "fn", "version_last_change", "hash") %in% colnames(last_change)))
+      expect_true(all(
+        c("label", "fn", "version_last_change", "hash") %in%
+          colnames(last_change)
+      ))
 
-      changed <- projr_manifest_file_changed("nonexistent.txt", "output", v1, "0.0.1")
+      changed <- projr_manifest_file_changed(
+        "nonexistent.txt",
+        "output",
+        v1,
+        "0.0.1"
+      )
       expect_identical(nrow(changed), 0L)
-      expect_true(all(c("label", "fn", "changed", "change_type", "hash_from", "hash_to") %in% colnames(changed)))
+      expect_true(all(
+        c("label", "fn", "changed", "change_type", "hash_from", "hash_to") %in%
+          colnames(changed)
+      ))
 
       history <- projr_manifest_file_history("nonexistent.txt", "output")
       expect_identical(nrow(history), 0L)
-      expect_true(all(c("label", "fn", "version", "hash", "change_type") %in% colnames(history)))
+      expect_true(all(
+        c("label", "fn", "version", "hash", "change_type") %in%
+          colnames(history)
+      ))
 
       first <- projr_manifest_file_first("nonexistent.txt", "output")
       expect_identical(nrow(first), 0L)
-      expect_true(all(c("label", "fn", "version_first", "hash") %in% colnames(first)))
+      expect_true(all(
+        c("label", "fn", "version_first", "hash") %in% colnames(first)
+      ))
     }
   )
 })
@@ -511,7 +606,12 @@ test_that("projr_manifest_file_changed handles file not in both versions", {
       .build_manifest_pre(TRUE)
       .build_manifest_post(TRUE)
 
-      removed <- projr_manifest_file_changed("new.txt", "output", "0.0.1", "0.0.3")
+      removed <- projr_manifest_file_changed(
+        "new.txt",
+        "output",
+        "0.0.1",
+        "0.0.3"
+      )
       expect_identical(nrow(removed), 1L)
       expect_identical(removed$changed, TRUE)
       expect_identical(removed$change_type, "removed")
@@ -519,7 +619,12 @@ test_that("projr_manifest_file_changed handles file not in both versions", {
       expect_true(is.na(removed$hash_to))
 
       # Test: File in neither version (not found)
-      not_found <- projr_manifest_file_changed("never_existed.txt", "output", "0.0.2", "0.0.3")
+      not_found <- projr_manifest_file_changed(
+        "never_existed.txt",
+        "output",
+        "0.0.2",
+        "0.0.3"
+      )
       expect_identical(nrow(not_found), 0L)
     }
   )
@@ -597,12 +702,25 @@ test_that("file last change is the first build with its current run of identical
   project <- .test_setup_project(git = FALSE)
   usethis::with_project(project, {
     versions <- c("v0.2.0", "v0.3.0", "v0.5.0", "v0.6.0")
-    input <- data.frame(label = "raw-data", fn = "sample.csv", version = versions, hash = "aaa")
-    output <- transform(input, label = "output", hash = c("aaa", "bbb", "bbb", "bbb"))
+    input <- data.frame(
+      label = "raw-data",
+      fn = "sample.csv",
+      version = versions,
+      hash = "aaa"
+    )
+    output <- transform(
+      input,
+      label = "output",
+      hash = c("aaa", "bbb", "bbb", "bbb")
+    )
     .manifest_store_write(rbind(input, output))
 
     last_change <- function(label, end) {
-      projr_manifest_file_last_change("sample.csv", label, version_end = end)$version_last_change
+      projr_manifest_file_last_change(
+        "sample.csv",
+        label,
+        version_end = end
+      )$version_last_change
     }
     expect_identical(last_change("raw-data", "0.6.0"), "v0.2.0")
     expect_identical(last_change("output", "0.6.0"), "v0.3.0")

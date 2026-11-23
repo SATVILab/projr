@@ -114,7 +114,7 @@ test_that("directories with output: true are copied to all output directories", 
       # Check that file was copied to both output directories
       output_path <- projr_path_get_dir("output", "raw-data", safe = TRUE)
       output2_path <- projr_path_get_dir("output2", "raw-data", safe = TRUE)
-      
+
       expect_true(file.exists(file.path(output_path, "test.txt")))
       expect_true(file.exists(file.path(output2_path, "test.txt")))
 
@@ -158,7 +158,7 @@ test_that("directories with output: [specific] are copied only to specified dire
       # Check that file was copied only to output2, not output
       output_path <- projr_path_get_dir("output", "raw-data", safe = TRUE)
       output2_path <- projr_path_get_dir("output2", "raw-data", safe = TRUE)
-      
+
       expect_false(file.exists(file.path(output_path, "test.txt")))
       expect_true(file.exists(file.path(output2_path, "test.txt")))
 

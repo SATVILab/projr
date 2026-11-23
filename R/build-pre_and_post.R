@@ -15,13 +15,22 @@
   write_snapshot <- function(project, packages, libraries, opts) {
     .libPaths(libraries)
     options(opts)
-    renv::snapshot(project = project, packages = packages, library = libraries, prompt = FALSE)
+    renv::snapshot(
+      project = project,
+      packages = packages,
+      library = libraries,
+      prompt = FALSE
+    )
     TRUE
   }
   environment(write_snapshot) <- baseenv()
   opts <- options()
   opts <- opts[startsWith(names(opts), "renv.") | names(opts) == "repos"]
-  xfun::Rscript_call(write_snapshot, list(project, packages, .libPaths(), opts), options = "--vanilla")
+  xfun::Rscript_call(
+    write_snapshot,
+    list(project, packages, .libPaths(), opts),
+    options = "--vanilla"
+  )
   invisible(TRUE)
 }
 
@@ -44,25 +53,36 @@
   description <- file.path(project, "DESCRIPTION")
   if (type == "custom") {
     filter <- getOption("renv.snapshot.filter")
-    if (is.character(filter)) filter <- eval(str2lang(filter), envir = .GlobalEnv)
-    if (!is.function(filter)) stop("A custom renv snapshot needs a renv.snapshot.filter function.")
+    if (is.character(filter)) {
+      filter <- eval(str2lang(filter), envir = .GlobalEnv)
+    }
+    if (!is.function(filter)) {
+      stop("A custom renv snapshot needs a renv.snapshot.filter function.")
+    }
     packages <- filter(project)
   } else {
     path <- if (type == "explicit") description else project
     packages <- if (file.exists(path)) {
       renv::dependencies(
-        path = path, root = project, dev = renv::settings$snapshot.dev(project = project),
-        progress = FALSE, errors = renv::config$dependency.errors()
+        path = path,
+        root = project,
+        dev = renv::settings$snapshot.dev(project = project),
+        progress = FALSE,
+        errors = renv::config$dependency.errors()
       )$Package
     }
   }
   packages <- unique(c(packages, "renv"))
   ignored <- renv::settings$ignored.packages(project = project)
   if (file.exists(description)) {
-    desc <- read.dcf(description, fields = c("Package", "Config/renv/snapshot/include-self"))[1L, ]
+    desc <- read.dcf(
+      description,
+      fields = c("Package", "Config/renv/snapshot/include-self")
+    )[1L, ]
     include <- desc[["Config/renv/snapshot/include-self"]]
     include_self <- if (is.na(include)) {
-      identical(desc[["Package"]], "renv") || file.exists(file.path(project, "inst", "golem-config.yml"))
+      identical(desc[["Package"]], "renv") ||
+        file.exists(file.path(project, "inst", "golem-config.yml"))
     } else {
       include %in% c("TRUE", "True", "true", "T", "1")
     }
@@ -71,9 +91,14 @@
     }
   }
   required <- setdiff(packages, ignored)
-  missing <- setdiff(required, basename(find.package(required, lib.loc = .libPaths(), quiet = TRUE)))
+  missing <- setdiff(
+    required,
+    basename(find.package(required, lib.loc = .libPaths(), quiet = TRUE))
+  )
   if (length(missing)) {
-    stop("Missing renv snapshot dependencies: ", paste(sort(missing), collapse = ", "),
+    stop(
+      "Missing renv snapshot dependencies: ",
+      paste(sort(missing), collapse = ", "),
       ". Install them in the project library before building. See renv::dependencies() for their sources.",
       call. = FALSE
     )
@@ -82,11 +107,13 @@
 }
 
 # commit
-.build_git_commit <- function(output_run,
-                              bump_component,
-                              version_run_on_list,
-                              stage,
-                              msg) {
+.build_git_commit <- function(
+  output_run,
+  bump_component,
+  version_run_on_list,
+  stage,
+  msg
+) {
   # exit early if required
   if (!.build_git_check(output_run)) {
     return(invisible(FALSE))
@@ -113,7 +140,9 @@
     "Snapshot pre-build"
   } else {
     paste0(
-      "Build v", projr_version_get(), ": ",
+      "Build v",
+      projr_version_get(),
+      ": ",
       trimws(msg)
     )
   }
@@ -124,11 +153,14 @@
 }
 
 # commit messages
-.build_git_msg_get <- function(stage,
-                               version_run_on_list,
-                               bump_component,
-                               msg) {
-  switch(stage,
+.build_git_msg_get <- function(
+  stage,
+  version_run_on_list,
+  bump_component,
+  msg
+) {
+  switch(
+    stage,
     "pre" = .build_git_msg_get_pre(bump_component),
     "post" = .build_git_msg_get_post(
       bump_component = bump_component,
@@ -143,17 +175,18 @@
   paste0("Snapshot pre-", bump_component, " build")
 }
 
-.build_git_msg_get_post <- function(bump_component,
-                                    version_run_on_list,
-                                    msg) {
+.build_git_msg_get_post <- function(bump_component, version_run_on_list, msg) {
   msg_append <- ifelse(
     nzchar(msg),
     paste0(": ", msg),
     ""
   )
   paste0(
-    "Record ", bump_component,
-    " v", version_run_on_list[["desc"]][["success"]], " build",
+    "Record ",
+    bump_component,
+    " v",
+    version_run_on_list[["desc"]][["success"]],
+    " build",
     msg_append
   )
 }

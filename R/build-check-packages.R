@@ -45,12 +45,19 @@ projr_build_check_packages <- function(profile = NULL) {
   .build_check_packages(profile, names(engines), missing)
 }
 
-.build_check_packages <- function(profile, engines, render_missing = character()) {
+.build_check_packages <- function(
+  profile,
+  engines,
+  render_missing = character()
+) {
   # Collect all packages that will be needed during the build
   pkg_required <- character(0)
 
   # Check for packages needed by build engines
-  pkg_required <- c(pkg_required, .build_check_packages_engine(profile, engines))
+  pkg_required <- c(
+    pkg_required,
+    .build_check_packages_engine(profile, engines)
+  )
 
   # Check for packages needed by remote destinations
   pkg_required <- c(pkg_required, .build_check_packages_remote(profile))
@@ -83,8 +90,15 @@ projr_build_check_packages <- function(profile = NULL) {
   if (length(render_missing)) {
     # A renderer can be installed and fail to load because an import is missing.
     wrappers <- intersect(pkg_missing, c("quarto", "bookdown"))
-    installed <- basename(find.package(wrappers, lib.loc = .libPaths(), quiet = TRUE))
-    return(.build_renv_render_status(union(render_missing, setdiff(pkg_missing, installed))))
+    installed <- basename(find.package(
+      wrappers,
+      lib.loc = .libPaths(),
+      quiet = TRUE
+    ))
+    return(.build_renv_render_status(union(
+      render_missing,
+      setdiff(pkg_missing, installed)
+    )))
   }
 
   # If all packages are available
@@ -103,13 +117,17 @@ projr_build_check_packages <- function(profile = NULL) {
   # Build human-readable message
   if (length(pkg_missing) == 1L) {
     msg <- paste0(
-      "Required package '", pkg_missing, "' is not installed.\n",
+      "Required package '",
+      pkg_missing,
+      "' is not installed.\n",
       "Install it using:\n  ",
       install_cmds
     )
   } else {
     msg <- paste0(
-      "Required packages are not installed: ", paste(pkg_missing, collapse = ", "), "\n",
+      "Required packages are not installed: ",
+      paste(pkg_missing, collapse = ", "),
+      "\n",
       "Install them using:\n  ",
       paste(install_cmds, collapse = "\n  ")
     )
@@ -126,7 +144,10 @@ projr_build_check_packages <- function(profile = NULL) {
 # Internal helper functions for package checking
 # These are updated versions that accept a profile parameter
 
-.build_check_packages_engine <- function(profile = NULL, engines = .engine_get_auto()) {
+.build_check_packages_engine <- function(
+  profile = NULL,
+  engines = .engine_get_auto()
+) {
   packages <- c(
     bookdown = "bookdown",
     quarto_project = "quarto",
@@ -136,7 +157,9 @@ projr_build_check_packages <- function(profile = NULL) {
   required <- unname(packages[intersect(engines, names(packages))])
   if (.build_readme_rmd_render_check(output_run = TRUE)) {
     required <- c(required, "rmarkdown")
-    if (.build_readme_rmd_render_detect_pkg_use()) required <- c(required, "pkgbuild")
+    if (.build_readme_rmd_render_detect_pkg_use()) {
+      required <- c(required, "pkgbuild")
+    }
   }
   unique(required)
 }

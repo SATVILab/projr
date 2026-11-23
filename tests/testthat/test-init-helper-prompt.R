@@ -299,9 +299,15 @@ test_that(".init_prompt_ind_translate with complex answer_translate", {
     "null" = NULL
   )
 
-  expect_identical(.init_prompt_ind_translate("string", answer_translate), "translated_string")
+  expect_identical(
+    .init_prompt_ind_translate("string", answer_translate),
+    "translated_string"
+  )
   expect_identical(.init_prompt_ind_translate("number", answer_translate), 42)
-  expect_identical(.init_prompt_ind_translate("logical", answer_translate), TRUE)
+  expect_identical(
+    .init_prompt_ind_translate("logical", answer_translate),
+    TRUE
+  )
   expect_null(.init_prompt_ind_translate("null", answer_translate))
 })
 
@@ -401,9 +407,18 @@ test_that(".init_prompt_ind_translate preserves data types", {
   expect_identical(.init_prompt_ind_translate("int", answer_translate), 1L)
   expect_identical(.init_prompt_ind_translate("numeric", answer_translate), 1.5)
   expect_identical(.init_prompt_ind_translate("char", answer_translate), "text")
-  expect_identical(.init_prompt_ind_translate("logical", answer_translate), FALSE)
-  expect_identical(.init_prompt_ind_translate("vec", answer_translate), c("a", "b"))
-  expect_identical(.init_prompt_ind_translate("list", answer_translate), list(x = 1, y = 2))
+  expect_identical(
+    .init_prompt_ind_translate("logical", answer_translate),
+    FALSE
+  )
+  expect_identical(
+    .init_prompt_ind_translate("vec", answer_translate),
+    c("a", "b")
+  )
+  expect_identical(
+    .init_prompt_ind_translate("list", answer_translate),
+    list(x = 1, y = 2)
+  )
 })
 
 test_that(".init_prompt_yn with edge case answer_auto values", {

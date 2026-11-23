@@ -7,7 +7,11 @@
 test_that(".yml_quarto_get returns empty list when file doesn't exist", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -26,7 +30,11 @@ test_that(".yml_quarto_get returns empty list when file doesn't exist", {
 test_that(".yml_quarto_get returns parsed YAML when file exists", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -50,7 +58,11 @@ test_that(".yml_quarto_get returns parsed YAML when file exists", {
 test_that(".yml_quarto_set writes YAML file correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -80,7 +92,11 @@ test_that(".yml_quarto_set writes YAML file correctly", {
 test_that(".yml_quarto_set wraps strings in lists for project.render", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -108,7 +124,11 @@ test_that(".yml_quarto_set wraps strings in lists for project.render", {
 test_that(".yml_quarto_set wraps strings in lists for website keys", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -138,7 +158,11 @@ test_that(".yml_quarto_set wraps strings in lists for website keys", {
       # Find next top-level key or end
       next_section <- grep("^[a-z]", yml_text)
       next_section <- next_section[next_section > website_start]
-      website_end <- if (length(next_section) > 0) next_section[1] - 1 else length(yml_text)
+      website_end <- if (length(next_section) > 0) {
+        next_section[1] - 1
+      } else {
+        length(yml_text)
+      }
       website_lines <- yml_text[website_start:website_end]
       array_lines <- grep("^\\s*-", website_lines)
       # Should have at least 4 array items
@@ -150,7 +174,11 @@ test_that(".yml_quarto_set wraps strings in lists for website keys", {
 test_that(".yml_quarto_set wraps strings in lists for navbar keys", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -199,7 +227,11 @@ test_that(".yml_quarto_set wraps strings in lists for navbar keys", {
 test_that(".yml_quarto_set wraps strings in lists for sidebar keys", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -228,7 +260,11 @@ test_that(".yml_quarto_set wraps strings in lists for sidebar keys", {
 test_that(".yml_quarto_set wraps strings in lists for book keys", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -251,7 +287,11 @@ test_that(".yml_quarto_set wraps strings in lists for book keys", {
       book_start <- grep("^book:", yml_text)[1]
       next_section <- grep("^[a-z]", yml_text)
       next_section <- next_section[next_section > book_start]
-      book_end <- if (length(next_section) > 0) next_section[1] - 1 else length(yml_text)
+      book_end <- if (length(next_section) > 0) {
+        next_section[1] - 1
+      } else {
+        length(yml_text)
+      }
       book_lines <- yml_text[book_start:book_end]
       array_lines <- grep("^\\s*-", book_lines)
       expect_true(length(array_lines) >= 2)
@@ -262,7 +302,11 @@ test_that(".yml_quarto_set wraps strings in lists for book keys", {
 test_that(".yml_quarto_set handles logical values correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -292,7 +336,11 @@ test_that(".yml_quarto_set handles logical values correctly", {
 test_that(".yml_quarto_set appends newline to file", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -302,7 +350,11 @@ test_that(".yml_quarto_set appends newline to file", {
       .yml_quarto_set(yml_data)
 
       # Read file with readBin to check for trailing newline
-      file_content <- readBin("_quarto.yml", "raw", n = file.info("_quarto.yml")$size)
+      file_content <- readBin(
+        "_quarto.yml",
+        "raw",
+        n = file.info("_quarto.yml")$size
+      )
       # Last character should be newline (0x0a)
       expect_equal(file_content[length(file_content)], as.raw(0x0a))
     }
@@ -315,7 +367,11 @@ test_that(".yml_quarto_set appends newline to file", {
 test_that(".yml_quarto_get_output_dir returns NULL when not set", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -335,7 +391,11 @@ test_that(".yml_quarto_get_output_dir returns NULL when not set", {
 test_that(".yml_quarto_get_output_dir returns value when set", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -358,7 +418,11 @@ test_that(".yml_quarto_get_output_dir returns value when set", {
 test_that(".yml_quarto_set_output_dir creates project section when absent", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -378,7 +442,11 @@ test_that(".yml_quarto_set_output_dir creates project section when absent", {
 test_that(".yml_quarto_set_output_dir updates existing output-dir", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -405,7 +473,11 @@ test_that(".yml_quarto_set_output_dir updates existing output-dir", {
 test_that(".yml_quarto_set_output_dir adds output-dir when project exists", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -433,7 +505,11 @@ test_that(".yml_quarto_set_output_dir adds output-dir when project exists", {
 test_that(".yml_quarto_get_project_type returns NULL when not set", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -453,7 +529,11 @@ test_that(".yml_quarto_get_project_type returns NULL when not set", {
 test_that(".yml_quarto_get_project_type returns type when set", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -482,7 +562,11 @@ test_that(".yml_quarto_get_project_type returns type when set", {
 test_that(".yml_quarto_get_project returns NULL when no project section", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -502,7 +586,11 @@ test_that(".yml_quarto_get_project returns NULL when no project section", {
 test_that(".yml_quarto_get_project returns project configuration", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -526,7 +614,11 @@ test_that(".yml_quarto_get_project returns project configuration", {
 test_that(".yml_quarto_get_nm returns NULL for non-existent key", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -545,7 +637,11 @@ test_that(".yml_quarto_get_nm returns NULL for non-existent key", {
 test_that(".yml_quarto_get_nm returns value for existing key", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -900,7 +996,11 @@ test_that(".yml_quarto_rebuild_yaml handles project at end", {
 test_that("complete workflow: create, modify, read Quarto YAML", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -947,7 +1047,11 @@ test_that("complete workflow: create, modify, read Quarto YAML", {
 test_that("yml_quarto handles complex nested structures", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -1002,7 +1106,11 @@ test_that("yml_quarto handles complex nested structures", {
 test_that("yml_quarto handles edge case: empty _quarto.yml", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -1020,7 +1128,11 @@ test_that("yml_quarto handles edge case: empty _quarto.yml", {
 test_that("yml_quarto preserves non-wrapped values", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = FALSE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,

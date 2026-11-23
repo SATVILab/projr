@@ -29,25 +29,31 @@
 
   # Navbar navigation keys
   list_save <- .wrap_in_list_if_string(
-    list_save, c("website", "navbar", "right")
+    list_save,
+    c("website", "navbar", "right")
   )
   list_save <- .wrap_in_list_if_string(
-    list_save, c("website", "navbar", "left")
+    list_save,
+    c("website", "navbar", "left")
   )
   list_save <- .wrap_in_list_if_string(
-    list_save, c("website", "navbar", "tools")
+    list_save,
+    c("website", "navbar", "tools")
   )
   list_save <- .wrap_in_list_if_string(
-    list_save, c("website", "navbar", "pinned")
+    list_save,
+    c("website", "navbar", "pinned")
   )
 
   # Sidebar navigation keys
   list_save <- .wrap_in_list_if_string(list_save, c("website", "sidebar"))
   list_save <- .wrap_in_list_if_string(
-    list_save, c("website", "sidebar", "contents")
+    list_save,
+    c("website", "sidebar", "contents")
   )
   list_save <- .wrap_in_list_if_string(
-    list_save, c("website", "sidebar", "tools")
+    list_save,
+    c("website", "sidebar", "tools")
   )
 
   # Ensure 'book' related keys are lists
@@ -60,7 +66,8 @@
   # Write the modified YAML back to the `_quarto.yml` file with custom handlers
   # The handler ensures that logical values are written as lowercase 'true'/'false'
   yaml::write_yaml(
-    list_save, path_yml,
+    list_save,
+    path_yml,
     handlers = list(logical = function(x) {
       value <- ifelse(x, "true", "false")
       structure(value, class = "verbatim")
@@ -82,13 +89,14 @@
 
 # Main function to set the output directory in the Quarto project configuration
 .yml_quarto_set_output_dir <- function(path) {
-
   if (fs::is_absolute_path(path)) {
     if (!.path_can_relativise(path)) {
       stop(
         "Quarto requires a relative path for its output directory. ",
-        "The path '", path, "' cannot be made relative to the project root ",
-        "(e.g., it may be on a different drive).", 
+        "The path '",
+        path,
+        "' cannot be made relative to the project root ",
+        "(e.g., it may be on a different drive).",
         call. = FALSE
       )
     }
@@ -117,23 +125,25 @@
 
 # Main function for when the "project:" key is present.
 # This function now uses three sub-functions.
-.yml_quarto_set_output_dir_present <- function(path,
-                                               yml_lines,
-                                               proj_line_ind) {
+.yml_quarto_set_output_dir_present <- function(path, yml_lines, proj_line_ind) {
   # 1. Get project block indices
   block_indices <- .yml_quarto_get_project_block_indices(
-    yml_lines, proj_line_ind
+    yml_lines,
+    proj_line_ind
   )
 
   # 2. Extract the project block and update it with the new output-dir value
   project_block <- yml_lines[block_indices$start:block_indices$end]
   updated_project_block <- .yml_quarto_update_project_block(
-    project_block, path
+    project_block,
+    path
   )
 
   # 3. Rebuild the complete YAML lines with the updated project block
   .yml_quarto_rebuild_yaml(
-    yml_lines, updated_project_block, block_indices
+    yml_lines,
+    updated_project_block,
+    block_indices
   )
 }
 
@@ -180,9 +190,11 @@
 
 # Sub-function 3: Rebuild the complete YAML file using
 # the updated project block.
-.yml_quarto_rebuild_yaml <- function(yml_lines,
-                                     updated_project_block,
-                                     block_indices) {
+.yml_quarto_rebuild_yaml <- function(
+  yml_lines,
+  updated_project_block,
+  block_indices
+) {
   start_index <- block_indices$start
   end_index <- block_indices$end
 

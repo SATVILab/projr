@@ -245,7 +245,11 @@ test_that(".dir_clear_pre_cache_version preserves both 'old' and 'docs' director
       cache_version_path <- .dir_get_cache_auto_version(profile = NULL)
 
       # Create content in cache version directory - use recursive creation
-      dir.create(file.path(cache_version_path, "temp"), recursive = TRUE, showWarnings = FALSE)
+      dir.create(
+        file.path(cache_version_path, "temp"),
+        recursive = TRUE,
+        showWarnings = FALSE
+      )
       file.create(file.path(cache_version_path, "temp", "file.txt"))
 
       # Create "old" directory with content (should be preserved)
@@ -293,7 +297,11 @@ test_that(".build_clear_pre clears all output labels", {
     path = dir_test,
     code = {
       # Add a second output directory
-      .yml_dir_add_label(path = "_output2", label = "output2", profile = "default")
+      .yml_dir_add_label(
+        path = "_output2",
+        label = "output2",
+        profile = "default"
+      )
 
       # Create content in both output directories
       .create_clear_test_content("output", safe = TRUE)
@@ -373,7 +381,13 @@ test_that(".build_clear_pre respects clear_output parameter over env var", {
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_CLEAR_OUTPUT = old_val) else Sys.unsetenv("PROJR_CLEAR_OUTPUT"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_CLEAR_OUTPUT = old_val)
+    } else {
+      Sys.unsetenv("PROJR_CLEAR_OUTPUT")
+    }
+  )
 
   # Set env var to "never"
   Sys.setenv(PROJR_CLEAR_OUTPUT = "never")
@@ -526,7 +540,12 @@ test_that(".build_clear_pre_docs_safe clears safe docs directory", {
       .build_clear_pre_docs_safe()
 
       # Verify directory is cleared
-      files <- list.files(docs_safe, recursive = TRUE, all.files = TRUE, no.. = TRUE)
+      files <- list.files(
+        docs_safe,
+        recursive = TRUE,
+        all.files = TRUE,
+        no.. = TRUE
+      )
       expect_length(files, 0)
     },
     quiet = TRUE,
@@ -558,7 +577,12 @@ test_that(".build_clear_pre_docs_unsafe clears unsafe docs directory", {
       .build_clear_pre_docs_unsafe()
 
       # Verify directory is cleared
-      files <- list.files(docs_unsafe, recursive = TRUE, all.files = TRUE, no.. = TRUE)
+      files <- list.files(
+        docs_unsafe,
+        recursive = TRUE,
+        all.files = TRUE,
+        no.. = TRUE
+      )
       expect_length(files, 0)
     },
     quiet = TRUE,

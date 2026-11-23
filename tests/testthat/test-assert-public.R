@@ -1,7 +1,8 @@
 test_that("public YAML setters validate before writing to disk", {
   skip_if(.is_test_select())
   project <- .test_setup_project(git = FALSE)
-  usethis::with_project(project,
+  usethis::with_project(
+    project,
     {
       path <- .yml_get_path("default")
       original <- readBin(path, "raw", file.size(path))
@@ -11,16 +12,24 @@ test_that("public YAML setters validate before writing to disk", {
       for (add in list(projr_yml_script_add_pre, projr_yml_script_add_post)) {
         expect_error(add("prepare.R", title = "prepare", cue = "bad"))
       }
-      expect_error(projr_yml_dest_add_local("test", "output", "_archive",
+      expect_error(projr_yml_dest_add_local(
+        "test",
+        "output",
+        "_archive",
         structure = c("latest", "archive")
       ))
-      expect_error(projr_yml_dest_add_github("test", "output",
+      expect_error(projr_yml_dest_add_github(
+        "test",
+        "output",
         send_inspect = c("none", "manifest")
       ))
       expect_identical(readBin(path, "raw", file.size(path)), original)
       projr_yml_script_add_pre(c("one.R", "two.R", "three.R"), "prepare")
       projr_yml_script_rm("prepare", c("one.R", "three.R"))
-      expect_identical(.yml_script_get("default")[["prepare"]][["path"]], "two.R")
+      expect_identical(
+        .yml_script_get("default")[["prepare"]][["path"]],
+        "two.R"
+      )
       yml <- .yml_get("default")
       yml$settings <- list(hashing = list(cores = -1))
       .yml_set(yml, "default")
@@ -36,13 +45,16 @@ test_that("public YAML setters validate before writing to disk", {
 test_that("file queries require a filename and parameter keys are used literally", {
   skip_if(.is_test_select())
   for (query in list(
-    projr_manifest_file_first, projr_manifest_file_last_change,
-    projr_manifest_file_changed, projr_manifest_file_history
+    projr_manifest_file_first,
+    projr_manifest_file_last_change,
+    projr_manifest_file_changed,
+    projr_manifest_file_history
   )) {
     expect_error(query(NULL), "fn")
   }
   project <- .test_setup_project(git = FALSE)
-  usethis::with_project(project,
+  usethis::with_project(
+    project,
     {
       yml <- .yml_get("default")
       yml$parameters <- list("participant's age" = list(years = 56L))
@@ -58,7 +70,8 @@ test_that("file queries require a filename and parameter keys are used literally
 test_that("version and development cleanup flags are checked before mutation", {
   skip_if(.is_test_select())
   project <- .test_setup_project(git = FALSE)
-  usethis::with_project(project,
+  usethis::with_project(
+    project,
     {
       writeLines(c("Package: example", "Version: 0.0.1"), "DESCRIPTION")
       before <- readLines("DESCRIPTION")
@@ -66,7 +79,9 @@ test_that("version and development cleanup flags are checked before mutation", {
       expect_identical(readLines("DESCRIPTION"), before)
       expect_error(projr_build_dev(bump = 1))
       expect_error(projr_build_dev(old_dev_remove = NULL))
-      local_mocked_bindings(.build = function(old_dev_remove, ...) old_dev_remove)
+      local_mocked_bindings(.build = function(old_dev_remove, ...) {
+        old_dev_remove
+      })
       expect_false(projr_build_dev(old_dev_remove = FALSE))
     },
     quiet = TRUE,
@@ -95,13 +110,18 @@ test_that("an invalid environment file list preserves the cleanup record", {
 test_that("downloads reject multiple remote types before creating a directory", {
   skip_if(.is_test_select())
   destination <- tempfile(tmpdir = withr::local_tempdir())
-  expect_error(.remote_file_get_all(c("local", "github"), "example", destination), "type")
+  expect_error(
+    .remote_file_get_all(c("local", "github"), "example", destination),
+    "type"
+  )
   expect_false(dir.exists(destination))
 })
 
 test_that("GitHub setup validates repository options before checking the checkout", {
   skip_if(.is_test_select())
-  local_mocked_bindings(.git_repo_check_exists = function() stop("unexpected Git access"))
+  local_mocked_bindings(.git_repo_check_exists = function() {
+    stop("unexpected Git access")
+  })
   expect_error(projr_init_github(public = NA), "public")
   expect_error(projr_init_github(user = c("a", "b")), "user")
 })

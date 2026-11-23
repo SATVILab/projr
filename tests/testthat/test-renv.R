@@ -468,7 +468,11 @@ test_that(".renv_rest_run_rscript vanilla option works", {
   skip_if(.is_test_select())
 
   # Test with vanilla = TRUE
-  result <- .renv_rest_run_rscript("message('test')", message_path = FALSE, vanilla = TRUE)
+  result <- .renv_rest_run_rscript(
+    "message('test')",
+    message_path = FALSE,
+    vanilla = TRUE
+  )
   expect_true(result$success)
 })
 
@@ -802,7 +806,16 @@ test_that(".renv_restore_or_update_impl calls wrappers correctly", {
 
 test_that("renv package source flags reject missing logicals", {
   skip_if(.is_test_select())
-  expect_error(.check_renv_params(NA, TRUE, TRUE), "github must be a non-NA flag")
-  expect_error(.check_renv_params(TRUE, NA, TRUE), "non_github must be a non-NA flag")
-  expect_error(.check_renv_params(TRUE, TRUE, NA), "biocmanager_install must be a non-NA flag")
+  expect_error(
+    .check_renv_params(NA, TRUE, TRUE),
+    "github must be a non-NA flag"
+  )
+  expect_error(
+    .check_renv_params(TRUE, NA, TRUE),
+    "non_github must be a non-NA flag"
+  )
+  expect_error(
+    .check_renv_params(TRUE, TRUE, NA),
+    "biocmanager_install must be a non-NA flag"
+  )
 })

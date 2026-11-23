@@ -126,7 +126,9 @@ test_that(".cite_citation_inst_write creates valid CITATION file", {
     path = dir_test,
     code = {
       # Create inst directory if needed
-      if (!dir.exists("inst")) dir.create("inst")
+      if (!dir.exists("inst")) {
+        dir.create("inst")
+      }
 
       # Write CITATION file
       .cite_citation_inst_write()
@@ -155,7 +157,9 @@ test_that(".cite_citation_inst_add_header adds header correctly", {
     path = dir_test,
     code = {
       # First create the CITATION file
-      if (!dir.exists("inst")) dir.create("inst")
+      if (!dir.exists("inst")) {
+        dir.create("inst")
+      }
       .cite_citation_inst_write()
 
       # Get initial content

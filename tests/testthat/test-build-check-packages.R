@@ -108,20 +108,37 @@ test_that("projr_build_check_packages detects missing rmarkdown package", {
 test_that("production preflight includes the separate README render", {
   skip_if(.is_test_select())
   project <- withr::local_tempdir()
-  usethis::with_project(project, {
-    writeLines("build: {scripts: []}", "_projr.yml")
-    writeLines("# Static README", "README.md")
-    expect_length(.build_check_packages_engine(engines = "r"), 0L)
+  usethis::with_project(
+    project,
+    {
+      writeLines("build: {scripts: []}", "_projr.yml")
+      writeLines("# Static README", "README.md")
+      expect_length(.build_check_packages_engine(engines = "r"), 0L)
 
-    writeLines("# Rendered README", "README.Rmd")
-    expect_identical(.build_check_packages_engine(engines = character()), "rmarkdown")
-    expect_setequal(.build_check_packages_engine(engines = "quarto_document"), c("quarto", "rmarkdown"))
+      writeLines("# Rendered README", "README.Rmd")
+      expect_identical(
+        .build_check_packages_engine(engines = character()),
+        "rmarkdown"
+      )
+      expect_setequal(
+        .build_check_packages_engine(engines = "quarto_document"),
+        c("quarto", "rmarkdown")
+      )
 
-    writeLines("Package: example", "DESCRIPTION")
-    expect_identical(.build_check_packages_engine(engines = "rmd"), "rmarkdown")
-    writeLines("example::result()", "README.Rmd")
-    expect_setequal(.build_check_packages_engine(engines = "r"), c("rmarkdown", "pkgbuild"))
-  }, force = TRUE, quiet = TRUE)
+      writeLines("Package: example", "DESCRIPTION")
+      expect_identical(
+        .build_check_packages_engine(engines = "rmd"),
+        "rmarkdown"
+      )
+      writeLines("example::result()", "README.Rmd")
+      expect_setequal(
+        .build_check_packages_engine(engines = "r"),
+        c("rmarkdown", "pkgbuild")
+      )
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
 })
 
 test_that("projr_build_check_packages handles GitHub remote packages", {
@@ -335,7 +352,9 @@ test_that(".build_check_packages_engine detects quarto_document engine", {
     path = dir_test,
     code = {
       # Remove bookdown file if it exists from previous tests
-      if (file.exists("_bookdown.yml")) file.remove("_bookdown.yml")
+      if (file.exists("_bookdown.yml")) {
+        file.remove("_bookdown.yml")
+      }
 
       # Create a .qmd file without _quarto.yml
       writeLines(
@@ -359,8 +378,12 @@ test_that(".build_check_packages_engine detects rmd engine", {
     path = dir_test,
     code = {
       # Remove any leftover bookdown files from previous tests
-      if (file.exists("_bookdown.yml")) file.remove("_bookdown.yml")
-      if (file.exists("_quarto.yml")) file.remove("_quarto.yml")
+      if (file.exists("_bookdown.yml")) {
+        file.remove("_bookdown.yml")
+      }
+      if (file.exists("_quarto.yml")) {
+        file.remove("_quarto.yml")
+      }
 
       # Create an .Rmd file without _bookdown.yml or .qmd files
       writeLines(
@@ -384,12 +407,20 @@ test_that(".build_check_packages_engine returns empty for no engine", {
     path = dir_test,
     code = {
       # Clean up any engine-related files
-      if (file.exists("_bookdown.yml")) file.remove("_bookdown.yml")
-      if (file.exists("_quarto.yml")) file.remove("_quarto.yml")
+      if (file.exists("_bookdown.yml")) {
+        file.remove("_bookdown.yml")
+      }
+      if (file.exists("_quarto.yml")) {
+        file.remove("_quarto.yml")
+      }
       rmd_files <- list.files(pattern = "\\.Rmd$|\\.rmd$")
-      if (length(rmd_files) > 0) file.remove(rmd_files)
+      if (length(rmd_files) > 0) {
+        file.remove(rmd_files)
+      }
       qmd_files <- list.files(pattern = "\\.qmd$")
-      if (length(qmd_files) > 0) file.remove(qmd_files)
+      if (length(qmd_files) > 0) {
+        file.remove(qmd_files)
+      }
 
       # No engine files present
       pkg_needed <- .build_check_packages_engine()

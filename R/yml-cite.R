@@ -68,16 +68,21 @@
 #' projr_yml_cite_set()
 #' }
 #'
-projr_yml_cite_set <- function(all = NULL,
-                               codemeta = NULL,
-                               cff = NULL,
-                               inst_citation = NULL,
-                               simplify_identical = TRUE,
-                               simplify_default = TRUE,
-                               profile = "default") {
+projr_yml_cite_set <- function(
+  all = NULL,
+  codemeta = NULL,
+  cff = NULL,
+  inst_citation = NULL,
+  simplify_identical = TRUE,
+  simplify_default = TRUE,
+  profile = "default"
+) {
   .yml_cite_set_check(
-    all = all, codemeta = codemeta, cff = cff,
-    inst_citation = inst_citation, profile = profile,
+    all = all,
+    codemeta = codemeta,
+    cff = cff,
+    inst_citation = inst_citation,
+    profile = profile,
     simplify_identical = simplify_identical,
     simplify_default = simplify_default
   )
@@ -89,20 +94,25 @@ projr_yml_cite_set <- function(all = NULL,
   }
 
   .yml_cite_set_ind(
-    codemeta = codemeta, cff = cff, inst_citation = inst_citation,
-    profile = profile, simplify_default = simplify_default
+    codemeta = codemeta,
+    cff = cff,
+    inst_citation = inst_citation,
+    profile = profile,
+    simplify_default = simplify_default
   )
 
   .yml_cite_simplify(simplify_identical, simplify_default, profile)
 }
 
-.yml_cite_set_check <- function(all,
-                                codemeta,
-                                cff,
-                                inst_citation,
-                                profile,
-                                simplify_identical,
-                                simplify_default) {
+.yml_cite_set_check <- function(
+  all,
+  codemeta,
+  cff,
+  inst_citation,
+  profile,
+  simplify_identical,
+  simplify_default
+) {
   if (!is.null(all)) {
     .assert_flag(all)
   } else {
@@ -115,11 +125,13 @@ projr_yml_cite_set <- function(all = NULL,
   .assert_string(profile)
 }
 
-.yml_cite_set_ind <- function(codemeta,
-                              cff,
-                              inst_citation,
-                              profile,
-                              simplify_default) {
+.yml_cite_set_ind <- function(
+  codemeta,
+  cff,
+  inst_citation,
+  profile,
+  simplify_default
+) {
   if (!is.null(codemeta)) {
     .yml_cite_set_codemeta(codemeta, simplify_default, profile)
   }
@@ -133,19 +145,20 @@ projr_yml_cite_set <- function(all = NULL,
 
 #' @rdname yml-cite
 #' @export
-projr_yml_cite_set_default <- function(profile = "default",
-                                       simplify_identical = TRUE,
-                                       simplify_default = TRUE) {
+projr_yml_cite_set_default <- function(
+  profile = "default",
+  simplify_identical = TRUE,
+  simplify_default = TRUE
+) {
   projr_yml_cite_set(
-    all = FALSE, profile = profile,
+    all = FALSE,
+    profile = profile,
     simplify_identical = simplify_identical,
     simplify_default = simplify_default
   )
 }
 
-.yml_cite_set_codemeta <- function(codemeta,
-                                   simplify_default,
-                                   profile) {
+.yml_cite_set_codemeta <- function(codemeta, simplify_default, profile) {
   codemeta_pre <- .yml_cite_get_codemeta(profile = profile)
   if (!any(c(codemeta_pre, codemeta)) && simplify_default) {
     return(invisible(FALSE))
@@ -160,18 +173,19 @@ projr_yml_cite_set_default <- function(profile = "default",
 
 .yml_cite_set_mix <- function(cite_list_single, profile) {
   .yml_cite_get_combn_with_written(
-    cite_list_single, profile
+    cite_list_single,
+    profile
   ) |>
     .yml_cite_get_ordered() |>
     .yml_cite_set(profile)
 }
 
-.yml_cite_get_combn_with_written <- function(cite_list_single,
-                                             profile) {
+.yml_cite_get_combn_with_written <- function(cite_list_single, profile) {
   yml_cite <- .yml_cite_get(profile)
-  cite_list_single |> append(
-    yml_cite[setdiff(names(yml_cite), names(cite_list_single))]
-  )
+  cite_list_single |>
+    append(
+      yml_cite[setdiff(names(yml_cite), names(cite_list_single))]
+    )
 }
 
 .yml_cite_get_ordered <- function(yml_cite) {
@@ -181,9 +195,7 @@ projr_yml_cite_set_default <- function(profile = "default",
   yml_cite[nm_vec_ordered]
 }
 
-.yml_cite_set_cff <- function(cff,
-                              simplify_default,
-                              profile) {
+.yml_cite_set_cff <- function(cff, simplify_default, profile) {
   cff_pre <- .yml_cite_get_cff(profile = profile)
   if (!any(c(cff_pre, cff)) && simplify_default) {
     return(invisible(FALSE))
@@ -213,9 +225,11 @@ projr_yml_cite_set_default <- function(profile = "default",
   yml_cite[[opt]]
 }
 
-.yml_cite_set_inst_citation <- function(inst_citation,
-                                        simplify_default,
-                                        profile) {
+.yml_cite_set_inst_citation <- function(
+  inst_citation,
+  simplify_default,
+  profile
+) {
   inst_citation_pre <- .yml_cite_get_inst_citation(profile = profile)
   if (!any(c(inst_citation_pre, inst_citation)) && simplify_default) {
     return(invisible(FALSE))
@@ -240,15 +254,12 @@ projr_yml_cite_set_default <- function(profile = "default",
   .yml_build_set_nm(yml_cite, "cite", profile)
 }
 
-.yml_cite_simplify <- function(simplify_identical,
-                               simplify_default,
-                               profile) {
+.yml_cite_simplify <- function(simplify_identical, simplify_default, profile) {
   .yml_cite_simplify_identical(simplify_identical, profile)
   .yml_cite_simplify_default(simplify_default, profile)
 }
 
-.yml_cite_simplify_identical <- function(simplify_identical,
-                                         profile) {
+.yml_cite_simplify_identical <- function(simplify_identical, profile) {
   if (!simplify_identical) {
     return(invisible(FALSE))
   }
@@ -265,8 +276,7 @@ projr_yml_cite_set_default <- function(profile = "default",
   invisible(TRUE)
 }
 
-.yml_cite_simplify_default <- function(simplify_default,
-                                       profile) {
+.yml_cite_simplify_default <- function(simplify_default, profile) {
   if (!simplify_default) {
     return(invisible(FALSE))
   }

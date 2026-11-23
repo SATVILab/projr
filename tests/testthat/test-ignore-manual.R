@@ -9,8 +9,12 @@ test_that("projr_ignore handles trailing slashes in directory paths", {
     path = dir_test,
     code = {
       # Remove existing ignore files
-      if (file.exists(".gitignore")) unlink(".gitignore")
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
       # Test with path ending in /
       projr_ignore("testdir/")
@@ -32,8 +36,12 @@ test_that("projr_ignore handles multiple paths with mixed types", {
     path = dir_test,
     code = {
       # Remove existing ignore files
-      if (file.exists(".gitignore")) unlink(".gitignore")
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
       # Create some test files and directories
       dir.create("mydir")
@@ -62,7 +70,9 @@ test_that("projr_ignore_dir_git with paths already containing /**", {
     path = dir_test,
     code = {
       # Remove existing .gitignore
-      if (file.exists(".gitignore")) unlink(".gitignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
 
       # Ignore directory with /** already appended
       projr_ignore_dir_git("mydir/**")
@@ -84,8 +94,12 @@ test_that("projr_ignore_file_git with force_create=FALSE and no git repo", {
     path = dir_test,
     code = {
       # Remove .gitignore and ensure no git repo
-      if (file.exists(".gitignore")) unlink(".gitignore")
-      if (file.exists(".git")) unlink(".git", recursive = TRUE)
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
+      if (file.exists(".git")) {
+        unlink(".git", recursive = TRUE)
+      }
 
       # Try to ignore without force_create
       result <- projr_ignore_file_git("test.txt", force_create = FALSE)
@@ -107,7 +121,9 @@ test_that("projr_ignore_file_git with force_create=FALSE and git repo exists", {
     path = dir_test,
     code = {
       # Remove .gitignore
-      if (file.exists(".gitignore")) unlink(".gitignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
 
       # Try to ignore without force_create but with git repo
       result <- projr_ignore_file_git("test.txt", force_create = FALSE)
@@ -128,8 +144,12 @@ test_that("projr_ignore_dir_git with force_create=FALSE and no git repo", {
     path = dir_test,
     code = {
       # Remove .gitignore and ensure no git repo
-      if (file.exists(".gitignore")) unlink(".gitignore")
-      if (file.exists(".git")) unlink(".git", recursive = TRUE)
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
+      if (file.exists(".git")) {
+        unlink(".git", recursive = TRUE)
+      }
 
       # Try to ignore without force_create
       result <- projr_ignore_dir_git("testdir", force_create = FALSE)
@@ -149,8 +169,12 @@ test_that("projr_ignore_file_rbuild with force_create=FALSE and no DESCRIPTION",
     path = dir_test,
     code = {
       # Remove .Rbuildignore and DESCRIPTION
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
-      if (file.exists("DESCRIPTION")) unlink("DESCRIPTION")
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
+      if (file.exists("DESCRIPTION")) {
+        unlink("DESCRIPTION")
+      }
 
       # Try to ignore without force_create
       result <- projr_ignore_file_rbuild("test.txt", force_create = FALSE)
@@ -170,7 +194,9 @@ test_that("projr_ignore_file_rbuild with force_create=FALSE and DESCRIPTION exis
     path = dir_test,
     code = {
       # Remove .Rbuildignore but keep DESCRIPTION
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
       # Try to ignore without force_create but with DESCRIPTION
       result <- projr_ignore_file_rbuild("test.txt", force_create = FALSE)
@@ -191,8 +217,12 @@ test_that("projr_ignore_dir_rbuild with force_create=FALSE and no DESCRIPTION", 
     path = dir_test,
     code = {
       # Remove .Rbuildignore and DESCRIPTION
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
-      if (file.exists("DESCRIPTION")) unlink("DESCRIPTION")
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
+      if (file.exists("DESCRIPTION")) {
+        unlink("DESCRIPTION")
+      }
 
       # Try to ignore without force_create
       result <- projr_ignore_dir_rbuild("testdir", force_create = FALSE)
@@ -212,7 +242,9 @@ test_that("projr_ignore_dir_rbuild creates correct regex patterns", {
     path = dir_test,
     code = {
       # Remove existing .Rbuildignore
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
       # Ignore a directory
       projr_ignore_dir_rbuild("mydir")
@@ -235,7 +267,9 @@ test_that("projr_ignore_file_rbuild handles trailing slashes", {
     path = dir_test,
     code = {
       # Remove existing .Rbuildignore
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
       # Ignore file with trailing slashes (should be removed)
       projr_ignore_file_rbuild("myfile.txt///")
@@ -257,7 +291,9 @@ test_that("projr_ignore_dir_rbuild handles trailing slashes", {
     path = dir_test,
     code = {
       # Remove existing .Rbuildignore
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
       # Ignore directory with multiple trailing slashes
       projr_ignore_dir_rbuild("mydir///")
@@ -279,7 +315,9 @@ test_that("projr_ignore handles empty strings in input", {
     path = dir_test,
     code = {
       # Remove existing ignore files
-      if (file.exists(".gitignore")) unlink(".gitignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
 
       # Test with mix of empty and valid paths
       projr_ignore(c("", "valid.txt", "", ""))
@@ -466,10 +504,13 @@ test_that(".ignore_manual_path_add handles multiple additions correctly", {
     path = dir_test,
     code = {
       # Create gitignore
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".gitignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".gitignore"
+      )
 
       # Add first pattern
       .ignore_manual_path_add("pattern1", ".gitignore")
@@ -502,7 +543,9 @@ test_that("projr_ignore_dir_rbuild handles multiple directories", {
     path = dir_test,
     code = {
       # Remove existing .Rbuildignore
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
       # Ignore multiple directories
       projr_ignore_dir_rbuild(c("dir1", "dir2", "dir3"))
@@ -526,7 +569,9 @@ test_that("projr_ignore_file_rbuild handles whitespace in paths", {
     path = dir_test,
     code = {
       # Remove existing .Rbuildignore
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
       # Ignore file with leading/trailing whitespace
       projr_ignore_file_rbuild("  myfile.txt  ")
@@ -548,8 +593,12 @@ test_that("projr_ignore with existing files and nonexistent files", {
     path = dir_test,
     code = {
       # Remove existing ignore files
-      if (file.exists(".gitignore")) unlink(".gitignore")
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
       # Create a file
       file.create("existing.txt")
@@ -579,7 +628,9 @@ test_that("projr_ignore_dir_git handles multiple patterns with /**", {
     path = dir_test,
     code = {
       # Remove existing .gitignore
-      if (file.exists(".gitignore")) unlink(".gitignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
 
       # Ignore multiple directories, some with /** already
       projr_ignore_dir_git(c("dir1", "dir2/**", "dir3"))
@@ -606,8 +657,12 @@ test_that("projr_ignore_file without default force_create parameter", {
     path = dir_test,
     code = {
       # Remove existing ignore files
-      if (file.exists(".gitignore")) unlink(".gitignore")
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
       # projr_ignore_file doesn't have force_create parameter
       # It should create files if they don't exist

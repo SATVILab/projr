@@ -63,7 +63,8 @@ projr_unignore_manual <- function(unignore) {
     c(unignore[grepl("/$", unignore)]) |>
     unique()
   unignore_nonexistent <- setdiff(
-    unignore, c(unignore_file, unignore_dir)
+    unignore,
+    c(unignore_file, unignore_dir)
   )
 
   # Force-unignore files (or nonexistent paths) in .gitignore and .Rbuildignore
@@ -116,7 +117,11 @@ projr_unignore_manual_dir_git <- function(unignore) {
     return(invisible(FALSE))
   }
   # Ensure trailing "/**" if not already present
-  unignore <- if (grepl("/\\*\\*$", unignore)) unignore else paste0(unignore, "/**")
+  unignore <- if (grepl("/\\*\\*$", unignore)) {
+    unignore
+  } else {
+    paste0(unignore, "/**")
+  }
   # Remove any existing "!" and prepend it
   unignore <- gsub("^!+", "", unignore)
   unignore <- paste0("!", unignore)

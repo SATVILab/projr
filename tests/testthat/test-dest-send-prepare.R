@@ -11,7 +11,9 @@
 # =============================================================================
 
 dir_test <- .test_setup_project(
-  git = TRUE, github = FALSE, set_env_var = TRUE
+  git = TRUE,
+  github = FALSE,
+  set_env_var = TRUE
 )
 
 # =============================================================================

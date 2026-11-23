@@ -15,17 +15,23 @@ test_that(".build_roxygen_check_fn detects roxygen comments", {
     path = dir_test,
     code = {
       # Create file with roxygen comments
-      writeLines(c(
-        "#' @title Test function",
-        "#' @export",
-        "test_fn <- function() {}"
-      ), "with_roxygen.R")
+      writeLines(
+        c(
+          "#' @title Test function",
+          "#' @export",
+          "test_fn <- function() {}"
+        ),
+        "with_roxygen.R"
+      )
 
       # Create file without roxygen comments
-      writeLines(c(
-        "# Regular comment",
-        "test_fn <- function() {}"
-      ), "without_roxygen.R")
+      writeLines(
+        c(
+          "# Regular comment",
+          "test_fn <- function() {}"
+        ),
+        "without_roxygen.R"
+      )
 
       # Test detection
       expect_true(.build_roxygen_check_fn("with_roxygen.R"))
@@ -61,7 +67,10 @@ test_that(".build_roxygenise_check returns FALSE when R directory missing", {
     path = dir_test,
     code = {
       # Create minimal DESCRIPTION
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
+      writeLines(
+        c("Package: test", "Version: 0.0.1", "Title: Test"),
+        "DESCRIPTION"
+      )
 
       # No R directory
       result <- .build_roxygenise_check(output_run = TRUE)
@@ -83,15 +92,21 @@ test_that(".build_roxygenise_check detects roxygen in R files", {
     path = dir_test,
     code = {
       # Create minimal DESCRIPTION
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
+      writeLines(
+        c("Package: test", "Version: 0.0.1", "Title: Test"),
+        "DESCRIPTION"
+      )
 
       # Create R directory with roxygen file
       dir.create("R")
-      writeLines(c(
-        "#' @title Test",
-        "#' @export",
-        "test <- function() {}"
-      ), "R/test.R")
+      writeLines(
+        c(
+          "#' @title Test",
+          "#' @export",
+          "test <- function() {}"
+        ),
+        "R/test.R"
+      )
 
       result <- .build_roxygenise_check(output_run = TRUE)
       expect_true(result)
@@ -198,7 +213,10 @@ test_that(".build_cite_cff returns FALSE when file doesn't exist", {
   usethis::with_project(
     path = dir_test,
     code = {
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
+      writeLines(
+        c("Package: test", "Version: 0.0.1", "Title: Test"),
+        "DESCRIPTION"
+      )
       result <- .build_cite_cff()
       expect_false(result)
     },
@@ -216,15 +234,18 @@ test_that(".build_cite_cff_update_file updates file without errors", {
     code = {
       # Create CITATION.cff with preferred-citation section
       # (using double colon format to match current implementation)
-      writeLines(c(
-        "cff-version: 1.2.0",
-        "version:: \"0.0.0\"",
-        "title: Test",
-        "preferred-citation:",
-        "  type: software",
-        "  version: \"0.0.0\"",
-        "  title: Test Software"
-      ), "CITATION.cff")
+      writeLines(
+        c(
+          "cff-version: 1.2.0",
+          "version:: \"0.0.0\"",
+          "title: Test",
+          "preferred-citation:",
+          "  type: software",
+          "  version: \"0.0.0\"",
+          "  title: Test Software"
+        ),
+        "CITATION.cff"
+      )
 
       # Should update without error
       expect_silent(.build_cite_cff_update_file())
@@ -246,7 +267,10 @@ test_that(".build_cite_inst_citation returns FALSE when file doesn't exist", {
   usethis::with_project(
     path = dir_test,
     code = {
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
+      writeLines(
+        c("Package: test", "Version: 0.0.1", "Title: Test"),
+        "DESCRIPTION"
+      )
       result <- .build_cite_inst_citation()
       expect_false(result)
     },
@@ -264,12 +288,15 @@ test_that(".build_cite_inst_citation_update_file updates version", {
     code = {
       # Create inst/CITATION with old version
       dir.create("inst", showWarnings = FALSE)
-      writeLines(c(
-        "bibentry(",
-        "  version = \"0.0.0\",",
-        "  title = \"Test\"",
-        ")"
-      ), "inst/CITATION")
+      writeLines(
+        c(
+          "bibentry(",
+          "  version = \"0.0.0\",",
+          "  title = \"Test\"",
+          ")"
+        ),
+        "inst/CITATION"
+      )
 
       # Update to current version
       .build_cite_inst_citation_update_file()
@@ -293,7 +320,10 @@ test_that(".build_cite_codemeta returns FALSE when file doesn't exist", {
   usethis::with_project(
     path = dir_test,
     code = {
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
+      writeLines(
+        c("Package: test", "Version: 0.0.1", "Title: Test"),
+        "DESCRIPTION"
+      )
       result <- .build_cite_codemeta()
       expect_false(result)
     },
@@ -310,12 +340,15 @@ test_that(".build_cite_codemeta_update_file updates version in codemeta.json", {
     path = dir_test,
     code = {
       # Create codemeta.json with old version
-      writeLines(c(
-        "{",
-        "  \"version\": \"0.0.0\",",
-        "  \"name\": \"test\"",
-        "}"
-      ), "codemeta.json")
+      writeLines(
+        c(
+          "{",
+          "  \"version\": \"0.0.0\",",
+          "  \"name\": \"test\"",
+          "}"
+        ),
+        "codemeta.json"
+      )
 
       # Update to current version
       .build_cite_codemeta_update_file()
@@ -355,7 +388,10 @@ test_that(".build_readme_rmd_render_check returns FALSE when README.Rmd missing"
   usethis::with_project(
     path = dir_test,
     code = {
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
+      writeLines(
+        c("Package: test", "Version: 0.0.1", "Title: Test"),
+        "DESCRIPTION"
+      )
       result <- .build_readme_rmd_render_check(output_run = TRUE)
       expect_false(result)
     },
@@ -375,7 +411,10 @@ test_that(".build_readme_rmd_render_check returns TRUE when README.Rmd exists", 
   usethis::with_project(
     path = dir_test,
     code = {
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
+      writeLines(
+        c("Package: test", "Version: 0.0.1", "Title: Test"),
+        "DESCRIPTION"
+      )
       writeLines(c("---", "title: Test", "---", "# Test"), "README.Rmd")
       result <- .build_readme_rmd_render_check(output_run = TRUE)
       expect_true(result)
@@ -394,12 +433,15 @@ test_that(".build_readme_rmd_render_detect_pkg_use detects library calls", {
     code = {
       # Create README.Rmd with library call
       pkg_name <- read.dcf("DESCRIPTION", fields = "Package")[[1L]]
-      writeLines(c(
-        "---",
-        "title: Test",
-        "---",
-        paste0("library(", pkg_name, ")")
-      ), "README.Rmd")
+      writeLines(
+        c(
+          "---",
+          "title: Test",
+          "---",
+          paste0("library(", pkg_name, ")")
+        ),
+        "README.Rmd"
+      )
 
       result <- .build_readme_rmd_render_detect_pkg_use()
       expect_true(result)
@@ -418,12 +460,15 @@ test_that(".build_readme_rmd_render_detect_pkg_use detects :: usage", {
     code = {
       # Create README.Rmd with :: usage
       pkg_name <- read.dcf("DESCRIPTION", fields = "Package")[[1L]]
-      writeLines(c(
-        "---",
-        "title: Test",
-        "---",
-        paste0(pkg_name, "::test_function()")
-      ), "README.Rmd")
+      writeLines(
+        c(
+          "---",
+          "title: Test",
+          "---",
+          paste0(pkg_name, "::test_function()")
+        ),
+        "README.Rmd"
+      )
 
       result <- .build_readme_rmd_render_detect_pkg_use()
       expect_true(result)
@@ -439,12 +484,15 @@ test_that(".build_readme_rmd_render_detect_pkg_use returns FALSE without pkg usa
     path = dir_test,
     code = {
       # Create README.Rmd without package usage
-      writeLines(c(
-        "---",
-        "title: Test",
-        "---",
-        "# Test content"
-      ), "README.Rmd")
+      writeLines(
+        c(
+          "---",
+          "title: Test",
+          "---",
+          "# Test content"
+        ),
+        "README.Rmd"
+      )
 
       result <- .build_readme_rmd_render_detect_pkg_use()
       expect_false(result)
@@ -463,7 +511,10 @@ test_that(".build_readme_rmd_render returns FALSE when check fails", {
   usethis::with_project(
     path = dir_test,
     code = {
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
+      writeLines(
+        c("Package: test", "Version: 0.0.1", "Title: Test"),
+        "DESCRIPTION"
+      )
       result <- .build_readme_rmd_render(output_run = TRUE)
       expect_false(result)
     },
@@ -524,29 +575,56 @@ test_that("a README renders with the current project package in a temporary libr
   project <- withr::local_tempdir()
   library <- withr::local_tempdir()
   withr::local_libpaths(library, action = "prefix")
-  usethis::with_project(project, {
-    writeLines("directories: {cache: {path: cache}}", "_projr.yml")
-    writeLines(c(
-      "Package: projrReadmeFixture",
-      "Version: 1.2.3",
-      "Title: README Fixture",
-      "Description: Render this fixture from source.",
-      "Author: Test User",
-      "Maintainer: Test User <user@example.invalid>",
-      "License: MIT"
-    ), "DESCRIPTION")
-    writeLines("export(greeting)", "NAMESPACE")
-    dir.create("R")
-    writeLines("greeting <- function() 'from the checked-out package'", "R/example.R")
-    writeLines(c(
-      "---", "title: Example", "---", "",
-      "```{r}", "library(projrReadmeFixture)", "projrReadmeFixture::greeting()",
-      "writeLines(find.package('projrReadmeFixture'), 'render-library')", "```"
-    ), "README.Rmd")
-    expect_true(.build_readme_rmd_render(TRUE))
-    expect_true(any(grepl("from the checked-out package", readLines("README.md"), fixed = TRUE)))
-    expect_identical(list.files(library, all.files = TRUE, no.. = TRUE), character())
-    expect_false(dir.exists(readLines("render-library")))
-    expect_false("projrReadmeFixture" %in% loadedNamespaces())
-  }, quiet = TRUE, force = TRUE)
+  usethis::with_project(
+    project,
+    {
+      writeLines("directories: {cache: {path: cache}}", "_projr.yml")
+      writeLines(
+        c(
+          "Package: projrReadmeFixture",
+          "Version: 1.2.3",
+          "Title: README Fixture",
+          "Description: Render this fixture from source.",
+          "Author: Test User",
+          "Maintainer: Test User <user@example.invalid>",
+          "License: MIT"
+        ),
+        "DESCRIPTION"
+      )
+      writeLines("export(greeting)", "NAMESPACE")
+      dir.create("R")
+      writeLines(
+        "greeting <- function() 'from the checked-out package'",
+        "R/example.R"
+      )
+      writeLines(
+        c(
+          "---",
+          "title: Example",
+          "---",
+          "",
+          "```{r}",
+          "library(projrReadmeFixture)",
+          "projrReadmeFixture::greeting()",
+          "writeLines(find.package('projrReadmeFixture'), 'render-library')",
+          "```"
+        ),
+        "README.Rmd"
+      )
+      expect_true(.build_readme_rmd_render(TRUE))
+      expect_true(any(grepl(
+        "from the checked-out package",
+        readLines("README.md"),
+        fixed = TRUE
+      )))
+      expect_identical(
+        list.files(library, all.files = TRUE, no.. = TRUE),
+        character()
+      )
+      expect_false(dir.exists(readLines("render-library")))
+      expect_false("projrReadmeFixture" %in% loadedNamespaces())
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
 })

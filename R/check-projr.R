@@ -11,7 +11,10 @@
 .is_cue_check <- function(cue, bump_component) {
   .assert_in_single(cue, .opt_cue_get())
   if (is.character(bump_component)) {
-    .assert_in_single(bump_component, c("major", "minor", "patch", "dev", "none"))
+    .assert_in_single(
+      bump_component,
+      c("major", "minor", "patch", "dev", "none")
+    )
   } else {
     .assert_flag(bump_component)
   }

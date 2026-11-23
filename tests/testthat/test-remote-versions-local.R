@@ -14,7 +14,9 @@
 # =============================================================================
 
 dir_test <- .test_setup_project(
-  git = TRUE, github = FALSE, set_env_var = TRUE
+  git = TRUE,
+  github = FALSE,
+  set_env_var = TRUE
 )
 
 # =============================================================================
@@ -42,10 +44,11 @@ test_that(".remote_write_changelog works for local remotes", {
 
       # Verify CHANGELOG was written
       expect_true(
-        "CHANGELOG.md" %in% .remote_file_ls(
-          "local",
-          remote = remote_dir
-        )
+        "CHANGELOG.md" %in%
+          .remote_file_ls(
+            "local",
+            remote = remote_dir
+          )
       )
 
       # Read it back and verify content
@@ -266,7 +269,13 @@ test_that(".remote_version_latest_filter filters by version format", {
     path = dir_test,
     code = {
       # For local type, filter expects label-vX.X.X format
-      fn_vec <- c("output-v0.0.1", "output-v0.0.2", "output-v1.0.0", "latest", "raw-data")
+      fn_vec <- c(
+        "output-v0.0.1",
+        "output-v0.0.2",
+        "output-v1.0.0",
+        "latest",
+        "raw-data"
+      )
       result <- .remote_version_latest_filter(fn_vec, "local", "output")
 
       # Should include versioned filenames, exclude non-version names
@@ -548,19 +557,22 @@ test_that(".remote_get_version_latest_label_non_project_file_extract extracts ve
 
   # Extract output version
   result <- .remote_get_version_latest_label_non_project_file_extract(
-    version_file, "output"
+    version_file,
+    "output"
   )
   expect_identical(result, "0.0.1")
 
   # Extract raw-data version
   result <- .remote_get_version_latest_label_non_project_file_extract(
-    version_file, "raw-data"
+    version_file,
+    "raw-data"
   )
   expect_identical(result, "0.0.2")
 
   # Extract docs version
   result <- .remote_get_version_latest_label_non_project_file_extract(
-    version_file, "docs"
+    version_file,
+    "docs"
   )
   expect_identical(result, "1.0.0")
 })
@@ -573,7 +585,8 @@ test_that(".remote_get_version_latest_label_non_project_file_extract handles ast
   version_file <- c("output: 0.0.1*", "raw-data: 0.0.2")
 
   result <- .remote_get_version_latest_label_non_project_file_extract(
-    version_file, "output"
+    version_file,
+    "output"
   )
 
   # Should remove asterisk
@@ -587,7 +600,8 @@ test_that(".remote_get_version_latest_label_non_project_file_extract returns emp
   version_file <- c("output: 0.0.1", "raw-data: 0.0.2")
 
   result <- .remote_get_version_latest_label_non_project_file_extract(
-    version_file, "nonexistent"
+    version_file,
+    "nonexistent"
   )
 
   expect_identical(length(result), 0L)
@@ -673,18 +687,24 @@ test_that("full version tracking workflow with local archive remote", {
       # Copy files to version directory
       files <- list.files(
         projr_path_get_dir(label, safe = FALSE),
-        recursive = TRUE, full.names = TRUE
+        recursive = TRUE,
+        full.names = TRUE
       )
       rel_files <- list.files(
         projr_path_get_dir(label, safe = FALSE),
-        recursive = TRUE, full.names = FALSE
+        recursive = TRUE,
+        full.names = FALSE
       )
       for (i in seq_along(files)) {
         dest_dir <- dirname(file.path(version1_dir, rel_files[i]))
         if (!dir.exists(dest_dir)) {
           dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
         }
-        fs::file_copy(files[i], file.path(version1_dir, rel_files[i]), overwrite = TRUE)
+        fs::file_copy(
+          files[i],
+          file.path(version1_dir, rel_files[i]),
+          overwrite = TRUE
+        )
       }
 
       # Create manifest for version 1
@@ -731,13 +751,33 @@ test_that("full version tracking workflow with local archive remote", {
 test_that("local manifest writes migrate a legacy CSV and retain all other label versions", {
   skip_if(.is_test_select())
   remote <- withr::local_tempdir()
-  legacy <- data.frame(label = "raw-data", fn = "sample", version = "v1.0.0", hash = "abc")
+  legacy <- data.frame(
+    label = "raw-data",
+    fn = "sample",
+    version = "v1.0.0",
+    hash = "abc"
+  )
   .manifest_write(legacy, file.path(remote, "manifest.csv"))
   expect_identical(.remote_get_manifest("local", remote), legacy)
   changed <- transform(legacy, version = "v1.0.1", hash = "def")
   .remote_write_manifest("local", remote, changed)
-  output <- transform(legacy, label = "output", fn = "result", version = "v1.0.1")
+  output <- transform(
+    legacy,
+    label = "output",
+    fn = "result",
+    version = "v1.0.1"
+  )
   .remote_write_manifest("local", remote, output)
-  expect_identical(.remote_get_manifest("local", remote), rbind(output, legacy, changed))
-  expect_true(file.exists(file.path(remote, "manifests", c("FORMAT", "raw-data/versions.csv", "output/versions.csv"))) |> all())
+  expect_identical(
+    .remote_get_manifest("local", remote),
+    rbind(output, legacy, changed)
+  )
+  expect_true(
+    file.exists(file.path(
+      remote,
+      "manifests",
+      c("FORMAT", "raw-data/versions.csv", "output/versions.csv")
+    )) |>
+      all()
+  )
 })

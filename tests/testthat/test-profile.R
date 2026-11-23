@@ -15,8 +15,14 @@ test_that("projr_profile_get, _set and _create work", {
     )
   }
   gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
+    "# R",
+    ".Rproj.user",
+    ".Rhistory",
+    ".RData",
+    ".Ruserdata",
+    "",
+    "# docs",
+    "docs/*"
   )
   writeLines(gitignore, file.path(dir_test, ".gitignore"))
 
@@ -46,7 +52,8 @@ test_that("projr_profile_get, _set and _create work", {
       suppressMessages(
         expect_message(
           .profile_create(
-            profile = "test_a-bc", silent = FALSE
+            profile = "test_a-bc",
+            silent = FALSE
           ),
           "Added the following profile: test_a-bc"
         )
@@ -54,7 +61,8 @@ test_that("projr_profile_get, _set and _create work", {
       suppressMessages(
         expect_message(
           .profile_create(
-            profile = "test_a-bc", silent = FALSE
+            profile = "test_a-bc",
+            silent = FALSE
           ),
           "projr profile test_a-bc already exists"
         )
@@ -92,7 +100,8 @@ test_that("projr_profile_get, _set and _create work", {
       invisible(file.remove("_projr-abc.yml"))
       # working directory
       expect_identical(
-        .profile_get(), "default"
+        .profile_get(),
+        "default"
       )
       # test precedence works correctly
       .profile_create("test_profile_hidden")
@@ -141,8 +150,14 @@ test_that("projr_profile_create_local works", {
     )
   }
   gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
+    "# R",
+    ".Rproj.user",
+    ".Rhistory",
+    ".RData",
+    ".Ruserdata",
+    "",
+    "# docs",
+    "docs/*"
   )
   writeLines(gitignore, file.path(dir_test, ".gitignore"))
 
@@ -187,8 +202,14 @@ test_that("projr_profile_create returns correct value", {
     )
   }
   gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
+    "# R",
+    ".Rproj.user",
+    ".Rhistory",
+    ".RData",
+    ".Ruserdata",
+    "",
+    "# docs",
+    "docs/*"
   )
   writeLines(gitignore, file.path(dir_test, ".gitignore"))
 
@@ -225,8 +246,14 @@ test_that("projr_profile_create_local returns correct value", {
     )
   }
   gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
+    "# R",
+    ".Rproj.user",
+    ".Rhistory",
+    ".RData",
+    ".Ruserdata",
+    "",
+    "# docs",
+    "docs/*"
   )
   writeLines(gitignore, file.path(dir_test, ".gitignore"))
 
@@ -276,8 +303,14 @@ test_that("projr_profile_delete returns correct value", {
     )
   }
   gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
+    "# R",
+    ".Rproj.user",
+    ".Rhistory",
+    ".RData",
+    ".Ruserdata",
+    "",
+    "# docs",
+    "docs/*"
   )
   writeLines(gitignore, file.path(dir_test, ".gitignore"))
 
@@ -318,8 +351,14 @@ test_that(".profile_delete_impl handles non-existent profile", {
     )
   }
   gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
+    "# R",
+    ".Rproj.user",
+    ".Rhistory",
+    ".RData",
+    ".Ruserdata",
+    "",
+    "# docs",
+    "docs/*"
   )
   writeLines(gitignore, file.path(dir_test, ".gitignore"))
 
@@ -357,8 +396,14 @@ test_that("projr_profile_delete_local works", {
     )
   }
   gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
+    "# R",
+    ".Rproj.user",
+    ".Rhistory",
+    ".RData",
+    ".Ruserdata",
+    "",
+    "# docs",
+    "docs/*"
   )
   writeLines(gitignore, file.path(dir_test, ".gitignore"))
 

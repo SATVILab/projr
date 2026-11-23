@@ -449,7 +449,10 @@ test_that(".build_pre_document runs without error", {
     path = dir_test,
     code = {
       .init()
-      expect_silent(.build_pre_document(output_run = TRUE, archive_local = FALSE))
+      expect_silent(.build_pre_document(
+        output_run = TRUE,
+        archive_local = FALSE
+      ))
     },
     quiet = TRUE,
     force = TRUE
@@ -781,7 +784,11 @@ test_that(".build_github_setup_check_pat returns TRUE when auth available", {
   testthat::local_mocked_bindings(.git_gh_check_auth = function() available)
   expect_true(.build_github_setup_check_pat())
   available <- FALSE
-  expect_error(.build_github_setup_check_pat(), "GitHub PAT not found", fixed = TRUE)
+  expect_error(
+    .build_github_setup_check_pat(),
+    "GitHub PAT not found",
+    fixed = TRUE
+  )
 })
 
 # =============================================================================
@@ -818,10 +825,17 @@ test_that(".build_github_setup_user returns user in test mode", {
   skip_if(.is_test_select())
   skip_if_not_installed("gh")
   user <- "fixture-user"
-  testthat::local_mocked_bindings(gh_whoami = function() list(login = user), .package = "gh")
+  testthat::local_mocked_bindings(
+    gh_whoami = function() list(login = user),
+    .package = "gh"
+  )
   expect_identical(.build_github_setup_user(), c(user = "fixture-user"))
   user <- NULL
-  expect_error(.build_github_setup_user(), "GitHub user not found", fixed = TRUE)
+  expect_error(
+    .build_github_setup_user(),
+    "GitHub user not found",
+    fixed = TRUE
+  )
 })
 
 # =============================================================================
@@ -857,11 +871,11 @@ test_that(".build_check_restrictions with branch restrictions works", {
     code = {
       .init()
       current_branch <- .git_branch_get()
-      
+
       # Set restriction to current branch - should work
       projr_yml_restrictions_set(branch = current_branch)
       expect_silent(.build_check_restrictions(output_run = TRUE))
-      
+
       # Set restriction to different branch - should error
       projr_yml_restrictions_set(branch = "nonexistent-branch")
       expect_error(

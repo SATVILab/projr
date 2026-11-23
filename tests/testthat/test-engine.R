@@ -65,14 +65,24 @@ test_that(".build_engine_doc_fn_get_error shows helpful message when specified f
     code = {
       # Test for Quarto documents - specified files don't exist
       expect_error(
-        .build_engine_doc_fn_get_error(character(0), "qmd", c("doc1.qmd", "doc2.qmd"), c("doc1.qmd", "doc2.qmd")),
+        .build_engine_doc_fn_get_error(
+          character(0),
+          "qmd",
+          c("doc1.qmd", "doc2.qmd"),
+          c("doc1.qmd", "doc2.qmd")
+        ),
         regexp = "The following Quarto document\\(s\\) could not be found: doc1.qmd, doc2.qmd.*Please check that the file\\(s\\) exist",
         fixed = FALSE
       )
 
       # Test for RMarkdown documents - specified files don't exist
       expect_error(
-        .build_engine_doc_fn_get_error(character(0), "rmd", c("report.Rmd"), c("report.Rmd")),
+        .build_engine_doc_fn_get_error(
+          character(0),
+          "rmd",
+          c("report.Rmd"),
+          c("report.Rmd")
+        ),
         regexp = "The following RMarkdown document\\(s\\) could not be found: report.Rmd.*Please check that the file\\(s\\) exist",
         fixed = FALSE
       )

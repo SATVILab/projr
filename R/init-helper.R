@@ -54,7 +54,8 @@
   }
   .yml_git_set_push(
     FALSE,
-    simplify_default = TRUE, profile = "default"
+    simplify_default = TRUE,
+    profile = "default"
   )
   invisible(TRUE)
 }
@@ -94,9 +95,12 @@
   suppressWarnings(descrptn$set(
     "Maintainer",
     paste0(
-      nm_list[["first"]], " ",
-      nm_list[["last"]], " <",
-      nm_list[["email"]], ">"
+      nm_list[["first"]],
+      " ",
+      nm_list[["last"]],
+      " <",
+      nm_list[["email"]],
+      ">"
     )
   ))
   descrptn$del("Authors@R")
@@ -111,14 +115,20 @@
     "BugReports",
     paste0(
       "https://github.com/",
-      nm_list[["gh"]], "/", nm_list[["pkg"]], "/issues"
+      nm_list[["gh"]],
+      "/",
+      nm_list[["pkg"]],
+      "/issues"
     )
   ))
   suppressWarnings(descrptn$set(
     "URL",
     paste0(
-      "https://github.com/", nm_list[["gh"]],
-      "/", nm_list[["pkg"]], "/#readme"
+      "https://github.com/",
+      nm_list[["gh"]],
+      "/",
+      nm_list[["pkg"]],
+      "/#readme"
     )
   ))
   suppressWarnings(descrptn$set("Description", nm_list[["title"]]))
@@ -142,7 +152,8 @@
   }
   dep <- c(
     dep,
-    "library(projr)", ""
+    "library(projr)",
+    ""
   ) |>
     unique()
   writeLines(dep, .path_get("_dependencies.R"))
@@ -152,21 +163,44 @@
 # The managed markers also identify an initialized ignore file. Seed editable
 # defaults only once, before user rules so existing Git exceptions still win.
 .init_ignore_starter <- function(root) {
-  defaults <- list(.gitignore = c(
-    ".vdoc.*", ".DS_Store", "Thumbs.db", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "_projr-local.yml", "_environment.local"
-  ))
+  defaults <- list(
+    .gitignore = c(
+      ".vdoc.*",
+      ".DS_Store",
+      "Thumbs.db",
+      ".Rproj.user",
+      ".Rhistory",
+      ".RData",
+      ".Ruserdata",
+      "_projr-local.yml",
+      "_environment.local"
+    )
+  )
   if (any(file.exists(file.path(root, c("DESCRIPTION", ".Rbuildignore"))))) {
     defaults[[".Rbuildignore"]] <- c(
-      "(^|/)\\.vdoc\\.", "(^|/)(\\.DS_Store|Thumbs\\.db)$", "^.*\\.Rproj$", "^\\.Rproj\\.user$", "^_projr-local\\.yml$"
+      "(^|/)\\.vdoc\\.",
+      "(^|/)(\\.DS_Store|Thumbs\\.db)$",
+      "^.*\\.Rproj$",
+      "^\\.Rproj\\.user$",
+      "^_projr-local\\.yml$"
     )
   }
   for (name in names(defaults)) {
     path <- file.path(root, name)
     lines <- .ignore_path_read(path)
-    if (!is.na(.ignore_path_get_ind(lines, path)[["top"]])) next
-    outer <- .ignore_path_get_startend(NA_integer_, NA_integer_, setdiff(defaults[[name]], lines))
-    .ignore_path_write(c(outer$start, outer$end, lines), path, refresh_directories = FALSE)
+    if (!is.na(.ignore_path_get_ind(lines, path)[["top"]])) {
+      next
+    }
+    outer <- .ignore_path_get_startend(
+      NA_integer_,
+      NA_integer_,
+      setdiff(defaults[[name]], lines)
+    )
+    .ignore_path_write(
+      c(outer$start, outer$end, lines),
+      path,
+      refresh_directories = FALSE
+    )
   }
   invisible(TRUE)
 }
@@ -206,7 +240,8 @@
 
   system2(
     .path_rscript_get(),
-    args = cmd_txt, stdout = FALSE
+    args = cmd_txt,
+    stdout = FALSE
   )
   invisible(TRUE)
 }
@@ -240,8 +275,10 @@
     .var = NULL,
     nm_item_long = "document engine",
     option_default = c(
-      "Quarto project", "Quarto document",
-      "Bookdown project", "RMarkdown document"
+      "Quarto project",
+      "Quarto document",
+      "Bookdown project",
+      "RMarkdown document"
     ),
     allow_specify_other = FALSE,
     allow_complete_later = FALSE,
@@ -261,12 +298,14 @@
   if (.init_engine_check_exists()) {
     return(NULL)
   }
-  switch(nm_engine,
+  switch(
+    nm_engine,
     "quarto_project" = .init_prompt_ind(
       .var = NULL,
       nm_item_long = "Quarto project type",
       option_default = c(
-        "Website", "Book"
+        "Website",
+        "Book"
       ),
       allow_specify_other = FALSE,
       allow_complete_later = FALSE,
@@ -315,7 +354,8 @@
   if (.init_engine_check_exists()) {
     return(NULL)
   }
-  switch(nm_engine,
+  switch(
+    nm_engine,
     "quarto_document" = .init_prompt_ind(
       .var = NULL,
       nm_item_long = "initial qmd file name",
@@ -430,9 +470,15 @@
     "CC0 (dedicates to public domain)",
     "Proprietary (private code, i.e. no-one may use, share or change it)"
   )
-  long_to_short_license_vec <- stats::setNames(c(
-    "CC-BY", "Apache 2.0", "CC0", "Proprietary"
-  ), option_license_vec)
+  long_to_short_license_vec <- stats::setNames(
+    c(
+      "CC-BY",
+      "Apache 2.0",
+      "CC0",
+      "Proprietary"
+    ),
+    option_license_vec
+  )
 
   .init_prompt_ind(
     .var = "LICENSE",
@@ -493,8 +539,7 @@
   any(grepl("README\\.md|README\\.Rmd", list.files()))
 }
 
-.init_prompt_readme_description <- function(answer_readme,
-                                            nm_list) {
+.init_prompt_readme_description <- function(answer_readme, nm_list) {
   # no changes if README already exists
   if (answer_readme == 3) {
     return(.readme_render())
@@ -525,7 +570,8 @@
 }
 
 .readme_get_path <- function() {
-  switch(.readme_get_type(),
+  switch(
+    .readme_get_type(),
     "md" = .path_get("README.md"),
     "Rmd" = .path_get("README.Rmd")
   )
@@ -541,7 +587,8 @@
 
   while (answer_readme_correct == 2) {
     readme_rep <- .init_prompt_readme_description_get(
-      pkg, answer_readme
+      pkg,
+      answer_readme
     )
     answer_readme_correct <-
       .init_prompt_readme_description_check(readme_rep)
@@ -572,7 +619,11 @@
     paste0("The purpose of ", pkg, " is to...")
   )
   if (.is_test()) {
-    return(paste0("The purpose of ", pkg, " is to facilitate reproducible and archived projects")) # nolint
+    return(paste0(
+      "The purpose of ",
+      pkg,
+      " is to facilitate reproducible and archived projects"
+    )) # nolint
   }
   readme_add <- readline(prompt = ">> ")
   paste0("The purpose of ", pkg, " is to ", readme_add)
@@ -584,11 +635,10 @@
   }
   utils::menu(
     c("Yes", "No", "Complete later"),
-    title =
-      paste0(
-        "Is the following completed sentence/paragraph correct:\n",
-        readme_rep
-      )
+    title = paste0(
+      "Is the following completed sentence/paragraph correct:\n",
+      readme_rep
+    )
   )
 }
 .readme_render <- function() {
@@ -597,7 +647,8 @@
   }
   try(rmarkdown::render(
     .path_get("README.Rmd"),
-    output_format = "md_document", quiet = TRUE
+    output_format = "md_document",
+    quiet = TRUE
   ))
   invisible(TRUE)
 }
@@ -612,7 +663,8 @@
   # get username
   nm_gh <- .init_prompt_git_gh_username(answer_git, gh_exists)
   list(
-    answer_git = answer_git, gh = nm_gh
+    answer_git = answer_git,
+    gh = nm_gh
   )
 }
 
@@ -672,7 +724,9 @@ projr_init_renviron <- function() {
 .init_renviron_create <- function() {
   .dep_install_only("usethis")
   path <- .usethis_use_scoped_path_r(
-    scope = "user", ".Renviron", envvar = "R_ENVIRON_USER"
+    scope = "user",
+    ".Renviron",
+    envvar = "R_ENVIRON_USER"
   )
   if (!file.exists(path)) {
     file.create(path)
@@ -680,9 +734,11 @@ projr_init_renviron <- function() {
   invisible(path)
 }
 
-.usethis_use_scoped_path_r <- function(scope = c("user", "projr"),
-                                       ...,
-                                       envvar = NULL) {
+.usethis_use_scoped_path_r <- function(
+  scope = c("user", "projr"),
+  ...,
+  envvar = NULL
+) {
   # rewritten because use_scoped_path_r is not exported from
   # usethis and R CMD CHECK complained about
   # usethis use_scoped_path_r
@@ -693,7 +749,8 @@ projr_init_renviron <- function() {
       return(fs::path_expand(env))
     }
   }
-  root <- switch(scope,
+  root <- switch(
+    scope,
     user = fs::path_home_r(),
     project = invisible(usethis::proj_get())
   )
@@ -724,8 +781,11 @@ projr_init_renviron <- function() {
 
 .init_renviron_txt_update <- function(txt) {
   nm_vec <- c(
-    "PROJR_PATH_YML", "PROJR_FIRST_NAME", "PROJR_LAST_NAME",
-    "PROJR_EMAIL", "PROJR_GITHUB_USER_NAME"
+    "PROJR_PATH_YML",
+    "PROJR_FIRST_NAME",
+    "PROJR_LAST_NAME",
+    "PROJR_EMAIL",
+    "PROJR_GITHUB_USER_NAME"
   )
   for (x in nm_vec) {
     txt <- .init_renviron_add_ind(x, txt)
@@ -816,12 +876,19 @@ projr_init_renviron <- function() {
 
 .init_license_create_impl <- function(x, nm_first, nm_last) {
   opt_vec <- c(
-    "ccby", "CC-BY", "apache", "Apache 2.0", "cc0", "CC0",
-    "proprietary", "Proprietary"
+    "ccby",
+    "CC-BY",
+    "apache",
+    "Apache 2.0",
+    "cc0",
+    "CC0",
+    "proprietary",
+    "Proprietary"
   )
   .assert_in(x, opt_vec, TRUE)
   .dep_install_only("usethis")
-  switch(x,
+  switch(
+    x,
     "ccby" = ,
     "CC-BY" = usethis::use_ccby_license(),
     "apache" = ,
@@ -836,8 +903,7 @@ projr_init_renviron <- function() {
 }
 
 # git
-.init_git_init <- function(answer_git,
-                           commit = TRUE) {
+.init_git_init <- function(answer_git, commit = TRUE) {
   if (answer_git %in% c(2, 3)) {
     .init_git_suggest_git()
     if (answer_git == 2) {
@@ -873,7 +939,13 @@ projr_init_renviron <- function() {
 .init_git_commit_check_nonstandard <- function(file_vec) {
   # Standard directories that are expected
   standard_dirs <- c(
-    ".devcontainer", ".github", "man", "R", "renv", "tests", "vignettes"
+    ".devcontainer",
+    ".github",
+    "man",
+    "R",
+    "renv",
+    "tests",
+    "vignettes"
   )
 
   # Get top-level directories from file vector
@@ -947,7 +1019,8 @@ projr_init_renviron <- function() {
 .init_git_file_get <- function() {
   fn_vec_root <- .file_ls(
     .path_get(),
-    recursive = FALSE, full.names = TRUE
+    recursive = FALSE,
+    full.names = TRUE
   )
   fn_vec_citation <- .init_git_file_get_citation()
   fn_vec_renv <- .init_git_file_get_renv()
@@ -958,7 +1031,8 @@ projr_init_renviron <- function() {
   .git_changed_filter(fn_vec)
 }
 
-.init_git_file_get_citation <- function() { # nolint
+.init_git_file_get_citation <- function() {
+  # nolint
   if (dir.exists("inst")) {
     list.files("inst", pattern = "^CITATION$", full.names = TRUE)
   } else {
@@ -970,14 +1044,16 @@ projr_init_renviron <- function() {
   if (dir.exists("renv")) {
     fn_vec_root <- .file_ls(
       "renv",
-      recursive = FALSE, full.names = TRUE
+      recursive = FALSE,
+      full.names = TRUE
     )
     dir_vec <- .dir_ls("renv", recursive = FALSE, full.names = FALSE)
     if (.is_len_0(dir_vec)) {
       return(fn_vec_root)
     }
     ignore_vec <- if (file.exists(.path_get("renv", ".gitignore"))) {
-      readLines(.path_get("renv", ".gitignore"), warn = FALSE) |> (\(x) gsub("/$", "", x))()
+      readLines(.path_get("renv", ".gitignore"), warn = FALSE) |>
+        (\(x) gsub("/$", "", x))()
     } else {
       character(0)
     }
@@ -998,7 +1074,9 @@ projr_init_renviron <- function() {
   if (.git_system_get() == "git") {
     return(invisible(FALSE))
   }
-  .cli_info("You can use `projr` without the program git\n(and setup is going fine!),\nbut RStudio (and VS Code) like it.\nIt's easy to install, instructions here:\nhttps://happygitwithr.com/install-git")
+  .cli_info(
+    "You can use `projr` without the program git\n(and setup is going fine!),\nbut RStudio (and VS Code) like it.\nIt's easy to install, instructions here:\nhttps://happygitwithr.com/install-git"
+  )
 }
 
 
@@ -1027,7 +1105,8 @@ projr_init_renviron <- function() {
 
 
 .init_cite_citation_readme <- function(answer_readme) {
-  switch(as.character(answer_readme),
+  switch(
+    as.character(answer_readme),
     "1" = .init_cite_citation_readme_add_file(
       .path_get("README.Rmd")
     ),

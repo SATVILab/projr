@@ -19,7 +19,8 @@ test_that(".local_dir_create works", {
       expect_false(.run_output_check(output_run = FALSE))
       expect_true(.run_output_check(output_run = TRUE))
       expect_true(.run_output_check(
-        output_run = TRUE, bump_component = FALSE
+        output_run = TRUE,
+        bump_component = FALSE
       ))
     }
   )
@@ -66,11 +67,14 @@ test_that(".list_add_list works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   expect_true(
-    "a" %in% names(
-      .list_add_list(
-        x = "val", nm = "a", list_base = list(b = 2)
+    "a" %in%
+      names(
+        .list_add_list(
+          x = "val",
+          nm = "a",
+          list_base = list(b = 2)
+        )
       )
-    )
   )
 })
 
@@ -168,7 +172,10 @@ test_that(".env_var_val_get works", {
   skip_if(.is_test_select())
 
   expect_identical(.env_var_val_get("VAR=value"), "value")
-  expect_identical(.env_var_val_get("VAR=value with spaces"), "value with spaces")
+  expect_identical(
+    .env_var_val_get("VAR=value with spaces"),
+    "value with spaces"
+  )
   # With spaces around =, the regex doesn't match (requires no spaces)
   expect_identical(.env_var_val_get("VAR = value"), "")
   expect_identical(.env_var_val_get("123VAR=value"), "")
@@ -278,7 +285,10 @@ test_that("with_dir works", {
   })
 
   # Normalize paths to handle /private/var vs /var on macOS
-  expect_identical(normalizePath(result, winslash = "/"), normalizePath(temp_dir, winslash = "/"))
+  expect_identical(
+    normalizePath(result, winslash = "/"),
+    normalizePath(temp_dir, winslash = "/")
+  )
   expect_identical(getwd(), original_dir)
 })
 
@@ -435,7 +445,9 @@ test_that(".try_repeat works", {
   result2 <- .try_repeat(
     fn = function() {
       counter2 <<- counter2 + 1
-      if (counter2 < 3) stop("Not yet")
+      if (counter2 < 3) {
+        stop("Not yet")
+      }
       "success"
     },
     args = list(),
@@ -561,7 +573,10 @@ test_that(".usethis_get_objs_from_dots works", {
   expect_error(.usethis_get_objs_from_dots(list()), "Nothing to save")
 
   # Non-names
-  expect_error(.usethis_get_objs_from_dots(list(1, 2)), "Can only save existing named objects")
+  expect_error(
+    .usethis_get_objs_from_dots(list(1, 2)),
+    "Can only save existing named objects"
+  )
 })
 
 test_that(".usethis_dots works", {
@@ -602,6 +617,9 @@ test_that("PROJR_AUTO_INSTALL routes through the installer error handler", {
 
   expect_error(.dep_install_only("_not_a_real_pkg_xyz_"), "Required package")
   withr::with_envvar(c(PROJR_AUTO_INSTALL = "TRUE"), {
-    expect_error(.dep_install_only("_not_a_real_pkg_xyz_"), "Installation failed:")
+    expect_error(
+      .dep_install_only("_not_a_real_pkg_xyz_"),
+      "Installation failed:"
+    )
   })
 })

@@ -52,8 +52,14 @@ projr_yml_dir_path_rm <- function(label, profile = "default") {
 
   yml <- .yml_get(profile)
   directory <- yml[["directories"]][[label]]
-  if (is.list(directory)) directory[["path"]] <- NULL
-  yml[["directories"]][[label]] <- if (length(directory) && is.list(directory)) directory
+  if (is.list(directory)) {
+    directory[["path"]] <- NULL
+  }
+  yml[["directories"]][[label]] <- if (
+    length(directory) && is.list(directory)
+  ) {
+    directory
+  }
   .yml_set(yml, profile)
   invisible(TRUE)
 }

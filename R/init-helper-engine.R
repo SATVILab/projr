@@ -2,7 +2,8 @@
   if (.init_engine_check_exists()) {
     return(invisible(FALSE))
   }
-  switch(nm_list[["engine"]],
+  switch(
+    nm_list[["engine"]],
     "bookdown" = .init_engine_bookdown(nm_list),
     "quarto_project" = .init_engine_quarto_project(nm_list),
     "quarto_document" = .init_engine_quarto_document(nm_list),
@@ -34,7 +35,8 @@
 
 .init_engine_bookdown_bookdown <- function() {
   yml_bd <- yaml::read_yaml(system.file(
-    "project_structure", "_bookdown.yml",
+    "project_structure",
+    "_bookdown.yml",
     package = "projr"
   ))
   .yml_bd_set(yml_bd)
@@ -43,16 +45,19 @@
 .init_engine_bookdown_output <- function(nm_list) {
   # output.yml
   o_yml <- yaml::read_yaml(system.file(
-    "project_structure", "_output.yml",
+    "project_structure",
+    "_output.yml",
     package = "projr"
   ))
 
   o_yml$`bookdown::gitbook`$config$toc$after <- paste0(
     '<li><a href="https://github.com/',
-    nm_list[["gh"]], "/",
+    nm_list[["gh"]],
+    "/",
     nm_list[["pkg"]],
     '" target="blank">',
-    nm_list[["gh"]], "/",
+    nm_list[["gh"]],
+    "/",
     nm_list[["pkg"]],
     "</a></li>\n"
   )
@@ -72,10 +77,14 @@
 
 .init_engine_bookdown_index <- function(nm_list) {
   # index.Rmd
-  index <- readLines(system.file(
-    "project_structure", "index.Rmd",
-    package = "projr"
-  ), warn = FALSE)
+  index <- readLines(
+    system.file(
+      "project_structure",
+      "index.Rmd",
+      package = "projr"
+    ),
+    warn = FALSE
+  )
   index[2] <- paste0("title: ", nm_list[["pkg"]])
   author_ind <- which(grepl("^author", index))
   # last name
@@ -97,13 +106,17 @@
 }
 
 .init_engine_quarto_project_yml <- function(nm_list) {
-  yml_quarto <- switch(nm_list[["format"]],
+  yml_quarto <- switch(
+    nm_list[["format"]],
     "book" = list(
       "project" = list("type" = "book"),
       "book" = list(
         "title" = nm_list[["title"]],
         "author" = paste0(
-          "author: ", nm_list[["first"]], " ", nm_list[["last"]]
+          "author: ",
+          nm_list[["first"]],
+          " ",
+          nm_list[["last"]]
         ),
         "date" = format(Sys.time(), "%Y/%m/%d"),
         "chapters" = list("index.qmd")
@@ -152,7 +165,8 @@
 
 .init_engine_quarto_document_doc <- function(nm_list) {
   # index.Rmd
-  format <- switch(nm_list[["format"]],
+  format <- switch(
+    nm_list[["format"]],
     "word" = "docx",
     "powerpoint" = "pptx",
     nm_list[["format"]]
@@ -188,7 +202,8 @@
 
 .init_engine_rmd_doc <- function(nm_list) {
   # index.Rmd
-  format <- switch(nm_list[["format"]],
+  format <- switch(
+    nm_list[["format"]],
     "html" = ,
     "pdf" = ,
     "word" = paste0(nm_list[["format"]], "_document"),

@@ -29,10 +29,13 @@
 #' Path to directory requested.
 #' @rdname projr_path_get_dir
 #' @export
-projr_path_get_dir <- function(label, ...,
-                               create = TRUE,
-                               format = c("auto", "relative", "absolute"),
-                               safe = TRUE) {
+projr_path_get_dir <- function(
+  label,
+  ...,
+  create = TRUE,
+  format = c("auto", "relative", "absolute"),
+  safe = TRUE
+) {
   dots_vec <- .dots_get_chr_vec(...)
   format <- match.arg(format)
 
@@ -41,14 +44,14 @@ projr_path_get_dir <- function(label, ...,
 
   # Get the raw path (inheriting the format from config)
   path_raw <- .dir_get(label = label, ..., safe = safe)
-  
+
   # Safely create the directory (resolves to absolute under the hood)
   .dir_get_create(path_raw, create)
-  
+
   # Determine the inherited format from the YAML
   is_yaml_abs <- all(fs::is_absolute_path(path_raw))
   path_abs <- .path_resolve_root(path_raw)
-  
+
   if (format == "absolute" || (format == "auto" && is_yaml_abs)) {
     return(path_abs)
   }
@@ -89,10 +92,13 @@ projr_path_get_dir <- function(label, ...,
 #' }
 #' @rdname projr_path_get
 #' @export
-projr_path_get <- function(label, ...,
-                           create = TRUE,
-                           format = c("auto", "relative", "absolute"),
-                           safe = TRUE) {
+projr_path_get <- function(
+  label,
+  ...,
+  create = TRUE,
+  format = c("auto", "relative", "absolute"),
+  safe = TRUE
+) {
   args_dotted <- list(...)
 
   if (length(args_dotted) == 0) {
@@ -106,8 +112,11 @@ projr_path_get <- function(label, ...,
   }
   path_dir <- do.call(
     projr_path_get_dir,
-    c(list(label = label), args_dotted[-length(args_dotted)],
-      list(create = create, format = format, safe = safe))
+    c(
+      list(label = label),
+      args_dotted[-length(args_dotted)],
+      list(create = create, format = format, safe = safe)
+    )
   )
   file.path(path_dir, args_dotted[length(args_dotted)]) |>
     fs::path_norm() |>
@@ -122,14 +131,20 @@ projr_path_get <- function(label, ...,
 .dir_check_label_found <- function(label, profile) {
   missing <- setdiff(label, names(.yml_dir_get(profile)))
   if (length(missing)) {
-    stop("label '", paste(missing, collapse = "', '"), "' not found in _projr.yml", call. = FALSE)
+    stop(
+      "label '",
+      paste(missing, collapse = "', '"),
+      "' not found in _projr.yml",
+      call. = FALSE
+    )
   }
   invisible(TRUE)
 }
 
 .dir_check_label_strip <- function(label) {
   label_strip <- .dir_label_strip(label)
-  label_valid <- grepl("^docs|^raw|^cache|^output", label_strip) || label %in% c("project", "data", "code")
+  label_valid <- grepl("^docs|^raw|^cache|^output", label_strip) ||
+    label %in% c("project", "data", "code")
   if (!label_valid) {
     stop(
       paste0("label '", label, "' not valid.\n"),

@@ -4,7 +4,9 @@
   if (is_dev_build) {
     hooks <- .yml_dev_get_hooks(NULL)
     paths <- c(as.character(hooks[[stage]]), as.character(hooks[["both"]]))
-    for (path in paths) .hook_run(path, stage)
+    for (path in paths) {
+      .hook_run(path, stage)
+    }
     return(invisible(TRUE))
   }
 

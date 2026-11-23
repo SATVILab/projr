@@ -36,7 +36,10 @@ test_that(".build_change_summary_get_previous_version works", {
       # Should return 0.0.2 (second most recent)
       prev <- .build_change_summary_get_previous_version()
       expect_identical(prev, "0.0.2")
-      expect_identical(.build_change_summary_get_previous_version("0.0.2"), "0.0.1")
+      expect_identical(
+        .build_change_summary_get_previous_version("0.0.2"),
+        "0.0.1"
+      )
     },
     force = TRUE,
     quiet = TRUE
@@ -129,7 +132,10 @@ test_that(".build_change_summary_get detects modified files", {
       .build_manifest_post(TRUE)
 
       # Modify a file
-      output_files <- list.files(projr_path_get_dir("output", safe = FALSE), full.names = TRUE)
+      output_files <- list.files(
+        projr_path_get_dir("output", safe = FALSE),
+        full.names = TRUE
+      )
       if (length(output_files) > 0) {
         writeLines("modified content", output_files[1])
       }
@@ -233,7 +239,10 @@ test_that(".build_change_summary_get shows counts for >=10 changes", {
       projr_version_set("0.0.2")
       output_dir <- projr_path_get_dir("output", safe = FALSE)
       for (i in 1:12) {
-        writeLines(paste0("content", i), file.path(output_dir, paste0("file", i, ".txt")))
+        writeLines(
+          paste0("content", i),
+          file.path(output_dir, paste0("file", i, ".txt"))
+        )
       }
       .build_manifest_post(TRUE)
 
@@ -241,7 +250,10 @@ test_that(".build_change_summary_get shows counts for >=10 changes", {
       summary <- .build_change_summary_get(output_run = TRUE)
       expect_true(any(grepl("12 added", summary)))
       # Should not list all files individually
-      expect_false(any(grepl("Added:.*file1.txt.*file2.txt.*file3.txt", summary)))
+      expect_false(any(grepl(
+        "Added:.*file1.txt.*file2.txt.*file3.txt",
+        summary
+      )))
     },
     force = TRUE,
     quiet = TRUE
@@ -270,7 +282,11 @@ test_that(".build_change_summary_get handles no changes", {
       # Should indicate no changes
       summary <- .build_change_summary_get(output_run = TRUE)
       expect_true(is.character(summary))
-      expect_true(any(grepl("No changes|unchanged", summary, ignore.case = TRUE)))
+      expect_true(any(grepl(
+        "No changes|unchanged",
+        summary,
+        ignore.case = TRUE
+      )))
     },
     force = TRUE,
     quiet = TRUE
@@ -301,7 +317,11 @@ test_that(".build_change_summary_format_section formats correctly", {
 
       # Test formatting
       section <- .build_change_summary_format_section(
-        "Outputs", "output", manifest_all, "0.0.1", "0.0.2"
+        "Outputs",
+        "output",
+        manifest_all,
+        "0.0.1",
+        "0.0.2"
       )
 
       expect_true(is.character(section))

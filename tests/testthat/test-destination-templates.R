@@ -14,7 +14,12 @@ test_that("a new release targets the remote branch commit and never moves a tag"
     release_exists <- FALSE
     tag_sha <- NULL
     handle <- function(req) {
-      route <- utils::URLdecode(sub(paste0(api, "/repos/", repo), "", req$url, fixed = TRUE))
+      route <- utils::URLdecode(sub(
+        paste0(api, "/repos/", repo),
+        "",
+        req$url,
+        fixed = TRUE
+      ))
       requests <<- c(requests, paste(req$method, route))
       if (startsWith(route, "/releases/tags/")) {
         return(.test_github_response(if (release_exists) 200 else 404))
@@ -42,7 +47,9 @@ test_that("a new release targets the remote branch commit and never moves a tag"
     .yml_dest_rm_type_all("default")
     projr_version_set("1.2.3")
     projr_yml_dest_add_github("archive-@version", "output", branch = "@branch")
-    prepare <- function() .dest_prepare_github_releases("patch", FALSE, FALSE, FALSE, TRUE)
+    prepare <- function() {
+      .dest_prepare_github_releases("patch", FALSE, FALSE, FALSE, TRUE)
+    }
     prepare()
     expect_identical(created$tag_name, "archive-v1.2.3")
     expect_identical(created$name, created$tag_name)
@@ -89,26 +96,52 @@ test_that("a local build records its templated archive and restores from the rec
     writeLines("Archived specimen data", file.path("_raw_data", "sample.txt"))
     title <- "backup-@branch"
     path <- "archives/@branch/@version-@uuid"
-    projr_yml_dest_add_local(title, "raw-data", path = path, structure = "latest")
+    projr_yml_dest_add_local(
+      title,
+      "raw-data",
+      path = path,
+      structure = "latest"
+    )
 
     projr_build_patch(msg = "Recorded archive")
     version_dir <- list.dirs("archives", recursive = TRUE, full.names = TRUE)
-    archived <- version_dir[dirname(version_dir) %in% version_dir & grepl("/v1[.]2[.]3-[^/]+$", version_dir)]
+    archived <- version_dir[
+      dirname(version_dir) %in%
+        version_dir &
+        grepl("/v1[.]2[.]3-[^/]+$", version_dir)
+    ]
     expect_length(archived, 1L)
-    expect_true(any(grepl(archived, readLines(".projr/BUILDLOG.md"), fixed = TRUE)))
+    expect_true(any(grepl(
+      archived,
+      readLines(".projr/BUILDLOG.md"),
+      fixed = TRUE
+    )))
     expect_identical(.yml_dest_get_title(title, "local", NULL)[["path"]], path)
     original <- list.files("_raw_data", recursive = TRUE)
     expected <- tools::md5sum(file.path("_raw_data", original))
-    expect_false(projr_content_update("raw-data",
-      pos = "dest", type = "local", title = title,
-      destination = "archives/missing", clear = TRUE
+    expect_false(projr_content_update(
+      "raw-data",
+      pos = "dest",
+      type = "local",
+      title = title,
+      destination = "archives/missing",
+      clear = TRUE
     ))
-    expect_identical(readLines("_raw_data/sample.txt"), "Archived specimen data")
+    expect_identical(
+      readLines("_raw_data/sample.txt"),
+      "Archived specimen data"
+    )
     unlink("_raw_data", recursive = TRUE)
     dir.create("nested")
     result <- withr::with_dir(
       "nested",
-      projr_content_update("raw-data", pos = "dest", type = "local", title = title, destination = archived)
+      projr_content_update(
+        "raw-data",
+        pos = "dest",
+        type = "local",
+        title = title,
+        destination = archived
+      )
     )
     expect_true(result)
     expect_identical(tools::md5sum(file.path("_raw_data", original)), expected)

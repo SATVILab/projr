@@ -52,13 +52,17 @@ test_that("projr_log_view can filter by build_type", {
 
       # Get output log specifically
       result_output <- projr_log_view(
-        build_type = "output", n_lines = NULL, show_header = FALSE
+        build_type = "output",
+        n_lines = NULL,
+        show_header = FALSE
       )
       expect_true(any(grepl("Output specific message", result_output)))
 
       # Get dev log specifically
       result_dev <- projr_log_view(
-        build_type = "dev", n_lines = NULL, show_header = FALSE
+        build_type = "dev",
+        n_lines = NULL,
+        show_header = FALSE
       )
       expect_true(any(grepl("Dev specific message", result_dev)))
     }
@@ -116,7 +120,11 @@ test_that("projr_log_view works with explicit log_file path", {
       .log_build_append("Second message", "info")
 
       # View specific log file
-      result <- projr_log_view(log_file = log_info1$log_file, n_lines = 5, show_header = FALSE)
+      result <- projr_log_view(
+        log_file = log_info1$log_file,
+        n_lines = 5,
+        show_header = FALSE
+      )
       expect_true(any(grepl("First message", result)))
       expect_false(any(grepl("Second message", result)))
     }
@@ -240,9 +248,15 @@ test_that("Debug messages always logged regardless of output_level", {
       log_info <- .log_build_init("output", msg = "Test")
       log_file <- log_info$log_file
 
-        # Save original env var
+      # Save original env var
       old_val <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
-      on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_OUTPUT_LEVEL = old_val) else Sys.unsetenv("PROJR_OUTPUT_LEVEL"))
+      on.exit(
+        if (nzchar(old_val)) {
+          Sys.setenv(PROJR_OUTPUT_LEVEL = old_val)
+        } else {
+          Sys.unsetenv("PROJR_OUTPUT_LEVEL")
+        }
+      )
 
       # Call debug with output_level = "none" (should still log)
       Sys.setenv("PROJR_OUTPUT_LEVEL" = "none")

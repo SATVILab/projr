@@ -2,7 +2,9 @@ test_that("projr_env_set works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -58,7 +60,9 @@ test_that("projr_env_set handles invalid environment variable lines", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -67,13 +71,16 @@ test_that("projr_env_set handles invalid environment variable lines", {
       Sys.unsetenv("TEST_VAR")
       Sys.unsetenv("VALID_VAR")
 
-      writeLines(c(
-        "TEST_VAR=abc",
-        "INVALID_NO_VALUE=",
-        "INVALID_FORMAT",
-        "=INVALID_NO_NAME",
-        "VALID_VAR=xyz"
-      ), "_environment")
+      writeLines(
+        c(
+          "TEST_VAR=abc",
+          "INVALID_NO_VALUE=",
+          "INVALID_FORMAT",
+          "=INVALID_NO_NAME",
+          "VALID_VAR=xyz"
+        ),
+        "_environment"
+      )
 
       projr_env_set("_environment")
 
@@ -93,7 +100,9 @@ test_that("projr_env_set handles comments in environment files", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -103,13 +112,16 @@ test_that("projr_env_set handles comments in environment files", {
       Sys.unsetenv("TEST_VAR2")
       Sys.unsetenv("TEST_VAR3")
 
-      writeLines(c(
-        "# Full line comment",
-        "TEST_VAR=abc",
-        "TEST_VAR2=def # Inline comment",
-        "   # Indented comment",
-        "TEST_VAR3=ghi"
-      ), "_environment")
+      writeLines(
+        c(
+          "# Full line comment",
+          "TEST_VAR=abc",
+          "TEST_VAR2=def # Inline comment",
+          "   # Indented comment",
+          "TEST_VAR3=ghi"
+        ),
+        "_environment"
+      )
 
       projr_env_set("_environment")
 
@@ -128,7 +140,9 @@ test_that("projr_env_set handles multiple profiles correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -181,7 +195,9 @@ test_that("projr_env_set respects local file precedence", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -216,7 +232,9 @@ test_that("projr_env_set only sets unspecified variables", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -225,10 +243,13 @@ test_that("projr_env_set only sets unspecified variables", {
 
       Sys.setenv("PRESET_VAR" = "original")
 
-      writeLines(c(
-        "PRESET_VAR=new",
-        "UNSET_VAR=value"
-      ), "_environment")
+      writeLines(
+        c(
+          "PRESET_VAR=new",
+          "UNSET_VAR=value"
+        ),
+        "_environment"
+      )
 
       projr_env_set("_environment")
 
@@ -245,7 +266,9 @@ test_that("projr_env_set handles empty environment files", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -266,7 +289,9 @@ test_that("projr_env_set handles special characters in values", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -275,17 +300,23 @@ test_that("projr_env_set handles special characters in values", {
       Sys.unsetenv("SPECIAL_VAR")
 
       # Test with special characters
-      writeLines(c(
-        "SPECIAL_VAR=value with spaces",
-        "PATH_VAR=/path/to/file",
-        "URL_VAR=https://example.com?param=value&other=123"
-      ), "_environment")
+      writeLines(
+        c(
+          "SPECIAL_VAR=value with spaces",
+          "PATH_VAR=/path/to/file",
+          "URL_VAR=https://example.com?param=value&other=123"
+        ),
+        "_environment"
+      )
 
       projr_env_set("_environment")
 
       expect_identical(Sys.getenv("SPECIAL_VAR"), "value with spaces")
       expect_identical(Sys.getenv("PATH_VAR"), "/path/to/file")
-      expect_identical(Sys.getenv("URL_VAR"), "https://example.com?param=value&other=123")
+      expect_identical(
+        Sys.getenv("URL_VAR"),
+        "https://example.com?param=value&other=123"
+      )
 
       Sys.unsetenv("SPECIAL_VAR")
       Sys.unsetenv("PATH_VAR")
@@ -298,7 +329,9 @@ test_that("projr_env_set handles missing files gracefully", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -316,7 +349,9 @@ test_that("projr_env_set ignores _environment.local in git", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = TRUE, github = FALSE, set_env_var = TRUE
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -342,7 +377,13 @@ test_that("PROJR_PROFILE handles comma and semicolon separators", {
 
   # Save original
   old_val <- Sys.getenv("PROJR_PROFILE", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_PROFILE = old_val) else Sys.unsetenv("PROJR_PROFILE"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_PROFILE = old_val)
+    } else {
+      Sys.unsetenv("PROJR_PROFILE")
+    }
+  )
 
   # Test comma separator
   Sys.setenv(PROJR_PROFILE = "test,dev,prod")
@@ -365,7 +406,13 @@ test_that("PROJR_PROFILE filters out default and local", {
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_PROFILE", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_PROFILE = old_val) else Sys.unsetenv("PROJR_PROFILE"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_PROFILE = old_val)
+    } else {
+      Sys.unsetenv("PROJR_PROFILE")
+    }
+  )
 
   # Test that default and local are filtered
   Sys.setenv(PROJR_PROFILE = "default,test,local,dev")
@@ -381,7 +428,13 @@ test_that("PROJR_PROFILE handles whitespace correctly", {
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_PROFILE", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_PROFILE = old_val) else Sys.unsetenv("PROJR_PROFILE"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_PROFILE = old_val)
+    } else {
+      Sys.unsetenv("PROJR_PROFILE")
+    }
+  )
 
   # Test with whitespace around values
   Sys.setenv(PROJR_PROFILE = " test , dev , prod ")
@@ -400,7 +453,9 @@ test_that("QUARTO_PROFILE takes precedence over PROJR_PROFILE", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -431,7 +486,9 @@ test_that("Environment variable name parsing handles edge cases", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -439,13 +496,16 @@ test_that("Environment variable name parsing handles edge cases", {
       invisible(file.create("_environment"))
 
       # Test various edge cases
-      writeLines(c(
-        "UNDERSCORE_VAR=value1",
-        "NUMBER123=value2",
-        "MixedCase=value3",
-        "DOTS.NOT.VALID=should_not_set", # Invalid name
-        "DASH-NOT-VALID=should_not_set" # Invalid name
-      ), "_environment")
+      writeLines(
+        c(
+          "UNDERSCORE_VAR=value1",
+          "NUMBER123=value2",
+          "MixedCase=value3",
+          "DOTS.NOT.VALID=should_not_set", # Invalid name
+          "DASH-NOT-VALID=should_not_set" # Invalid name
+        ),
+        "_environment"
+      )
 
       Sys.unsetenv("UNDERSCORE_VAR")
       Sys.unsetenv("NUMBER123")
@@ -468,7 +528,9 @@ test_that(".build_env_file_required_check validates required variables", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -479,10 +541,13 @@ test_that(".build_env_file_required_check validates required variables", {
 
       # Create _environment.required file
       invisible(file.create("_environment.required"))
-      writeLines(c(
-        "REQUIRED_VAR1",
-        "REQUIRED_VAR2"
-      ), "_environment.required")
+      writeLines(
+        c(
+          "REQUIRED_VAR1",
+          "REQUIRED_VAR2"
+        ),
+        "_environment.required"
+      )
 
       # Set one variable but not the other
       Sys.setenv("REQUIRED_VAR1" = "set")
@@ -530,7 +595,9 @@ test_that(".build_env_check validates build environment", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -621,7 +688,9 @@ test_that(".env_file_activate_ind_ignore handles gitignore correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = TRUE, github = FALSE, set_env_var = TRUE
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -660,8 +729,16 @@ test_that(".env_profile_get combines profiles correctly", {
   old_quarto <- Sys.getenv("QUARTO_PROFILE", unset = "")
   old_projr <- Sys.getenv("PROJR_PROFILE", unset = "")
   on.exit({
-    if (nzchar(old_quarto)) Sys.setenv(QUARTO_PROFILE = old_quarto) else Sys.unsetenv("QUARTO_PROFILE")
-    if (nzchar(old_projr)) Sys.setenv(PROJR_PROFILE = old_projr) else Sys.unsetenv("PROJR_PROFILE")
+    if (nzchar(old_quarto)) {
+      Sys.setenv(QUARTO_PROFILE = old_quarto)
+    } else {
+      Sys.unsetenv("QUARTO_PROFILE")
+    }
+    if (nzchar(old_projr)) {
+      Sys.setenv(PROJR_PROFILE = old_projr)
+    } else {
+      Sys.unsetenv("PROJR_PROFILE")
+    }
   })
 
   # Test with no profiles set
@@ -708,7 +785,13 @@ test_that(".env_profile_get_quarto parses QUARTO_PROFILE correctly", {
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("QUARTO_PROFILE", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(QUARTO_PROFILE = old_val) else Sys.unsetenv("QUARTO_PROFILE"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(QUARTO_PROFILE = old_val)
+    } else {
+      Sys.unsetenv("QUARTO_PROFILE")
+    }
+  )
 
   # Test with empty/unset
   Sys.unsetenv("QUARTO_PROFILE")
@@ -745,7 +828,13 @@ test_that(".env_profile_get_projr returns PROJR profiles", {
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_PROFILE", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_PROFILE = old_val) else Sys.unsetenv("PROJR_PROFILE"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_PROFILE = old_val)
+    } else {
+      Sys.unsetenv("PROJR_PROFILE")
+    }
+  )
 
   # Test with empty/unset
   Sys.unsetenv("PROJR_PROFILE")
@@ -803,7 +892,9 @@ test_that(".env_file_activate_ind handles non-existent files", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,

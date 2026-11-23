@@ -33,7 +33,9 @@ test_that(".ignore_path_read returns empty character vector for non-existent fil
     path = dir_test,
     code = {
       # Ensure file doesn't exist
-      if (file.exists("nonexistent.txt")) unlink("nonexistent.txt")
+      if (file.exists("nonexistent.txt")) {
+        unlink("nonexistent.txt")
+      }
 
       result <- .ignore_path_read("nonexistent.txt")
 
@@ -79,7 +81,12 @@ test_that(".ignore_path_get_check errors when multiple start markers", {
       )
 
       expect_error(
-        .ignore_path_get_check(match_str_top, match_str_bottom, file_vec, ".gitignore"),
+        .ignore_path_get_check(
+          match_str_top,
+          match_str_bottom,
+          file_vec,
+          ".gitignore"
+        ),
         "Multiple projr sections found"
       )
     }
@@ -101,7 +108,12 @@ test_that(".ignore_path_get_check errors when multiple end markers", {
       )
 
       expect_error(
-        .ignore_path_get_check(match_str_top, match_str_bottom, file_vec, ".gitignore"),
+        .ignore_path_get_check(
+          match_str_top,
+          match_str_bottom,
+          file_vec,
+          ".gitignore"
+        ),
         "Multiple projr sections found"
       )
     }
@@ -121,7 +133,12 @@ test_that(".ignore_path_get_check errors when only start marker present", {
       )
 
       expect_error(
-        .ignore_path_get_check(match_str_top, match_str_bottom, file_vec, ".gitignore"),
+        .ignore_path_get_check(
+          match_str_top,
+          match_str_bottom,
+          file_vec,
+          ".gitignore"
+        ),
         "Found start of projr section but not end"
       )
     }
@@ -141,7 +158,12 @@ test_that(".ignore_path_get_check errors when only end marker present", {
       )
 
       expect_error(
-        .ignore_path_get_check(match_str_top, match_str_bottom, file_vec, ".gitignore"),
+        .ignore_path_get_check(
+          match_str_top,
+          match_str_bottom,
+          file_vec,
+          ".gitignore"
+        ),
         "Found end of projr section but not start"
       )
     }
@@ -162,7 +184,12 @@ test_that(".ignore_path_get_check errors when start marker after end marker", {
       )
 
       expect_error(
-        .ignore_path_get_check(match_str_top, match_str_bottom, file_vec, ".gitignore"),
+        .ignore_path_get_check(
+          match_str_top,
+          match_str_bottom,
+          file_vec,
+          ".gitignore"
+        ),
         "Start of projr section found after end"
       )
     }
@@ -183,7 +210,12 @@ test_that(".ignore_path_get_check succeeds with both markers in correct order", 
       )
 
       expect_no_error(
-        result <- .ignore_path_get_check(match_str_top, match_str_bottom, file_vec, ".gitignore")
+        result <- .ignore_path_get_check(
+          match_str_top,
+          match_str_bottom,
+          file_vec,
+          ".gitignore"
+        )
       )
       expect_true(result)
     }
@@ -200,7 +232,12 @@ test_that(".ignore_path_get_check succeeds when no markers present", {
       file_vec <- c("manual content", "more content")
 
       expect_no_error(
-        result <- .ignore_path_get_check(match_str_top, match_str_bottom, file_vec, ".gitignore")
+        result <- .ignore_path_get_check(
+          match_str_top,
+          match_str_bottom,
+          file_vec,
+          ".gitignore"
+        )
       )
       expect_true(result)
     }
@@ -470,7 +507,11 @@ test_that(".ignore_path_get_list parses file with projr section correctly", {
       )
       writeLines(file_content, ".gitignore")
 
-      result <- .ignore_path_get_list(".gitignore", ignore = FALSE, override = FALSE)
+      result <- .ignore_path_get_list(
+        ".gitignore",
+        ignore = FALSE,
+        override = FALSE
+      )
 
       expect_type(result, "list")
       expect_named(result, c("start", "content", "end"))
@@ -497,9 +538,15 @@ test_that(".ignore_path_get_list frames the first rule for a new file", {
   usethis::with_project(
     path = dir_test,
     code = {
-      if (file.exists("nonexistent.txt")) unlink("nonexistent.txt")
+      if (file.exists("nonexistent.txt")) {
+        unlink("nonexistent.txt")
+      }
 
-      result <- .ignore_path_get_list("nonexistent.txt", ignore = FALSE, override = FALSE)
+      result <- .ignore_path_get_list(
+        "nonexistent.txt",
+        ignore = FALSE,
+        override = FALSE
+      )
 
       expect_type(result, "list")
       expect_named(result, c("start", "content", "end"))
@@ -521,7 +568,11 @@ test_that(".ignore_path_get_list parses file without projr section", {
       file_content <- c("manual1", "manual2", "manual3")
       writeLines(file_content, ".gitignore")
 
-      result <- .ignore_path_get_list(".gitignore", ignore = FALSE, override = FALSE)
+      result <- .ignore_path_get_list(
+        ".gitignore",
+        ignore = FALSE,
+        override = FALSE
+      )
 
       expect_type(result, "list")
       expect_named(result, c("start", "content", "end"))
@@ -549,7 +600,11 @@ test_that(".ignore_path_get_list handles empty file", {
       # Create empty file
       writeLines("", ".gitignore")
 
-      result <- .ignore_path_get_list(".gitignore", ignore = FALSE, override = FALSE)
+      result <- .ignore_path_get_list(
+        ".gitignore",
+        ignore = FALSE,
+        override = FALSE
+      )
 
       expect_type(result, "list")
       expect_named(result, c("start", "content", "end"))
@@ -574,7 +629,11 @@ test_that(".ignore_path_write writes content to file", {
     code = {
       test_content <- c("line1", "line2", "line3")
 
-      result <- .ignore_path_write(test_content, ".gitignore", refresh_directories = FALSE)
+      result <- .ignore_path_write(
+        test_content,
+        ".gitignore",
+        refresh_directories = FALSE
+      )
 
       expect_true(file.exists(".gitignore"))
       written_content <- readLines(".gitignore")
@@ -611,7 +670,9 @@ test_that(".ignore_path_write creates file if it doesn't exist", {
   usethis::with_project(
     path = dir_test,
     code = {
-      if (file.exists("newfile.txt")) unlink("newfile.txt")
+      if (file.exists("newfile.txt")) {
+        unlink("newfile.txt")
+      }
 
       expect_false(file.exists("newfile.txt"))
 
@@ -634,7 +695,11 @@ test_that(".ignore_path_write overwrites existing file", {
       writeLines(c("old1", "old2"), ".gitignore")
 
       # Overwrite with new content
-      .ignore_path_write(c("new1", "new2", "new3"), ".gitignore", refresh_directories = FALSE)
+      .ignore_path_write(
+        c("new1", "new2", "new3"),
+        ".gitignore",
+        refresh_directories = FALSE
+      )
 
       result <- readLines(".gitignore")
       expect_identical(result, c("new1", "new2", "new3"))
@@ -650,7 +715,11 @@ test_that(".ignore_path_write handles empty character vector", {
   usethis::with_project(
     path = dir_test,
     code = {
-      .ignore_path_write(character(0), ".gitignore", refresh_directories = FALSE)
+      .ignore_path_write(
+        character(0),
+        ".gitignore",
+        refresh_directories = FALSE
+      )
 
       expect_true(file.exists(".gitignore"))
       result <- readLines(".gitignore")

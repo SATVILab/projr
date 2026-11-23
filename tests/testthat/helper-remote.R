@@ -6,10 +6,10 @@
 # at least for GitHub as we don't in that case
 # delete the release itself - we actually delete the repo.
 
-.test_remote_host_rm <- function(type,
-                                 host) {
+.test_remote_host_rm <- function(type, host) {
   .assert_in(type, .opt_remote_get_type(), TRUE)
-  switch(type,
+  switch(
+    type,
     "local" = .test_remote_host_rm_local(host),
     "github" = .test_remote_host_rm_github(host)
   )

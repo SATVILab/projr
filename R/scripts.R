@@ -1,6 +1,8 @@
 .scripts_get <- function(scripts, bump_component, profile) {
   scripts_vec_specified <- .scripts_get_specified(
-    scripts, bump_component, profile
+    scripts,
+    bump_component,
+    profile
   )
   .scripts_get_final(scripts_vec_specified)
 }
@@ -54,23 +56,43 @@
 }
 
 .scripts_get_inc_all_qmd <- function() {
-  list.files(.path_get(), pattern = "\\.qmd$", ignore.case = TRUE, full.names = TRUE)
+  list.files(
+    .path_get(),
+    pattern = "\\.qmd$",
+    ignore.case = TRUE,
+    full.names = TRUE
+  )
 }
 
 .scripts_get_inc_all_rmd <- function() {
-  list.files(.path_get(), pattern = "\\.rmd$", ignore.case = TRUE, full.names = TRUE)
+  list.files(
+    .path_get(),
+    pattern = "\\.rmd$",
+    ignore.case = TRUE,
+    full.names = TRUE
+  )
 }
 
 .scripts_get_inc_all_r <- function() {
   root <- .path_get()
-  scripts <- list.files(root, pattern = "\\.r$", ignore.case = TRUE, full.names = TRUE)
-  scripts <- scripts[!startsWith(basename(scripts), "_") & basename(scripts) != "renv_repos.R"]
+  scripts <- list.files(
+    root,
+    pattern = "\\.r$",
+    ignore.case = TRUE,
+    full.names = TRUE
+  )
+  scripts <- scripts[
+    !startsWith(basename(scripts), "_") & basename(scripts) != "renv_repos.R"
+  ]
   hooks <- c(
     unlist(.yml_hooks_get(NULL), use.names = FALSE),
     unlist(.yml_dev_get_hooks(NULL), use.names = FALSE),
     unlist(lapply(.yml_script_get(NULL), `[[`, "path"), use.names = FALSE)
   )
-  setdiff(scripts, as.character(fs::path_abs(as.character(hooks), start = root)))
+  setdiff(
+    scripts,
+    as.character(fs::path_abs(as.character(hooks), start = root))
+  )
 }
 
 .scripts_get_inc_specified <- function(scripts) {
@@ -85,9 +107,16 @@
     matched <- if (literal[i]) paths[i] else Sys.glob(paths[i])
     matched <- matched[!dir.exists(matched)]
     if (required) {
-      matched <- matched[tolower(tools::file_ext(matched)) %in% c("qmd", "rmd", "r")]
+      matched <- matched[
+        tolower(tools::file_ext(matched)) %in% c("qmd", "rmd", "r")
+      ]
       if (length(matched) == 0L) {
-        stop("Script '", patterns[i], "' does not exist or match any supported files.", call. = FALSE)
+        stop(
+          "Script '",
+          patterns[i],
+          "' does not exist or match any supported files.",
+          call. = FALSE
+        )
       }
     }
     sort(matched)

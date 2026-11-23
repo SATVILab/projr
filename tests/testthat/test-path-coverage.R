@@ -131,7 +131,12 @@ test_that(".dir_clear_dir works correctly", {
       expect_identical(.dir_ls(dir_tmp), c("subdir1", "subdir1/subdir2"))
       expect_identical(
         .file_ls(dir_tmp),
-        c(".hidden.txt", "abc.txt", "subdir1/def.txt", "subdir1/subdir2/ghi.txt")
+        c(
+          ".hidden.txt",
+          "abc.txt",
+          "subdir1/def.txt",
+          "subdir1/subdir2/ghi.txt"
+        )
       )
     },
     force = TRUE,
@@ -256,7 +261,10 @@ test_that(".dir_copy_file_check works correctly", {
       expect_false(.dir_copy_file_check("nonexistent.txt", dir_from))
 
       # Multiple files with at least one existing should return TRUE
-      expect_true(.dir_copy_file_check(c("abc.txt", "nonexistent.txt"), dir_from))
+      expect_true(.dir_copy_file_check(
+        c("abc.txt", "nonexistent.txt"),
+        dir_from
+      ))
     },
     force = TRUE,
     quiet = TRUE
@@ -382,13 +390,17 @@ test_that(".dir_filter_removable works correctly", {
       included <- normalised_path_wd %in% normalised_path_exc
       expect_false(included)
       if (!included) {
-        print("Project directory correctly excluded from removable directories.")
+        print(
+          "Project directory correctly excluded from removable directories."
+        )
         print("Normalized WD Path: ")
         print(normalised_path_wd)
         print("Normalized Excluded Paths: ")
         print(normalised_path_exc)
       } else {
-        print("Project directory incorrectly included in removable directories.")
+        print(
+          "Project directory incorrectly included in removable directories."
+        )
       }
 
       # . and .. should not be removable
@@ -458,7 +470,11 @@ test_that(".dir_move_file works correctly", {
       # Move specific files
       dir_from <- .test_content_setup_dir()
       dir_to <- .dir_create_tmp_random()
-      .dir_move_file(fn = "abc.txt", path_dir_from = dir_from, path_dir_to = dir_to)
+      .dir_move_file(
+        fn = "abc.txt",
+        path_dir_from = dir_from,
+        path_dir_to = dir_to
+      )
       expect_false("abc.txt" %in% .file_ls(dir_from))
       expect_true("abc.txt" %in% .file_ls(dir_to))
 
@@ -466,7 +482,9 @@ test_that(".dir_move_file works correctly", {
       dir_from <- .test_content_setup_dir()
       dir_to <- .dir_create_tmp_random()
       .dir_move_file(
-        fn = NULL, path_dir_from = dir_from, path_dir_to = dir_to,
+        fn = NULL,
+        path_dir_from = dir_from,
+        path_dir_to = dir_to,
         dir_exc = "subdir1"
       )
       expect_length(.file_ls(dir_from), 2) # subdir1 files remain
@@ -492,8 +510,10 @@ test_that(".dir_move_dir works correctly", {
       # Move directories without specifying path_dir
       suppressWarnings(
         .dir_move_dir(
-          path_dir = NULL, path_dir_from = dir_from,
-          path_dir_to = dir_to, dir_exc = NULL
+          path_dir = NULL,
+          path_dir_from = dir_from,
+          path_dir_to = dir_to,
+          dir_exc = NULL
         )
       )
       expect_identical(.dir_ls(dir_from), character(0))
@@ -503,8 +523,10 @@ test_that(".dir_move_dir works correctly", {
       dir_to <- .dir_create_tmp_random()
       suppressWarnings(
         .dir_move_dir(
-          path_dir = "subdir1", path_dir_from = dir_from,
-          path_dir_to = dir_to, dir_exc = NULL
+          path_dir = "subdir1",
+          path_dir_from = dir_from,
+          path_dir_to = dir_to,
+          dir_exc = NULL
         )
       )
       expect_false("subdir1" %in% .dir_ls(dir_from))
@@ -515,8 +537,10 @@ test_that(".dir_move_dir works correctly", {
       dir_to <- .dir_create_tmp_random()
       suppressWarnings(
         .dir_move_dir(
-          path_dir = NULL, path_dir_from = dir_from,
-          path_dir_to = dir_to, dir_exc = "subdir1"
+          path_dir = NULL,
+          path_dir_from = dir_from,
+          path_dir_to = dir_to,
+          dir_exc = "subdir1"
         )
       )
       expect_true("subdir1" %in% .dir_ls(dir_from))
@@ -625,7 +649,12 @@ test_that(".file_ls_rm_dir works correctly", {
       expect_true(all(!grepl("/$", filtered)))
 
       # With full.names = TRUE
-      files_full <- list.files(dir_tmp, recursive = TRUE, all.files = TRUE, full.names = TRUE)
+      files_full <- list.files(
+        dir_tmp,
+        recursive = TRUE,
+        all.files = TRUE,
+        full.names = TRUE
+      )
       filtered_full <- .file_ls_rm_dir(files_full, dir_tmp, full.names = TRUE)
       expect_true(all(file.exists(filtered_full)))
       expect_false(any(fs::is_dir(filtered_full)))

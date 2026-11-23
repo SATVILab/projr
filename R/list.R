@@ -2,7 +2,8 @@
   if (is.null(nm)) {
     nm <- deparse(substitute(x))
   }
-  switch(class(x)[[1]],
+  switch(
+    class(x)[[1]],
     "NULL" = .list_add_null(list_base),
     "list" = .list_add_list(x, nm, list_base),
     .list_add_default(x, nm, list_base)

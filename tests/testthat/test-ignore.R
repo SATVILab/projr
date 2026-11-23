@@ -6,8 +6,12 @@ test_that("projr_ignore works with files and directories", {
     path = dir_test,
     code = {
       # Remove existing files to start fresh
-      if (file.exists(".gitignore")) unlink(".gitignore")
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
       # Create test files and directories
       dir.create("test_dir")
@@ -254,20 +258,30 @@ test_that("projr_unignore_manual works", {
     path = dir_test,
     code = {
       # Remove existing ignore files to start fresh
-      if (file.exists(".gitignore")) unlink(".gitignore")
-      if (file.exists(".Rbuildignore")) unlink(".Rbuildignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
+      if (file.exists(".Rbuildignore")) {
+        unlink(".Rbuildignore")
+      }
 
       # Create files with projr section to avoid multiple sections bug
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section",
-        ""
-      ), ".gitignore")
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section",
-        ""
-      ), ".Rbuildignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section",
+          ""
+        ),
+        ".gitignore"
+      )
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section",
+          ""
+        ),
+        ".Rbuildignore"
+      )
 
       # Create test file and directory
       file.create("important.txt")
@@ -411,7 +425,9 @@ test_that("ignore functions handle paths with trailing slashes", {
     path = dir_test,
     code = {
       # Remove existing gitignore to start fresh
-      if (file.exists(".gitignore")) unlink(".gitignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
 
       # Ignore path with trailing slash (will be treated as directory)
       projr_ignore("mydir/")
@@ -432,14 +448,19 @@ test_that("ignore functions are idempotent", {
     path = dir_test,
     code = {
       # Remove existing ignore files to start fresh
-      if (file.exists(".gitignore")) unlink(".gitignore")
+      if (file.exists(".gitignore")) {
+        unlink(".gitignore")
+      }
 
       # Create gitignore with projr section to avoid multiple sections bug
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section",
-        ""
-      ), ".gitignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section",
+          ""
+        ),
+        ".gitignore"
+      )
 
       # Create test file
       file.create("test.txt")

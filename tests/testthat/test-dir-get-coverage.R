@@ -100,7 +100,10 @@ test_that(".dir_get_label_check_not_root allows special labels", {
       expect_identical(.dir_get_label_check_not_root(".", "docs"), ".")
 
       # Non-root paths should pass through
-      expect_identical(.dir_get_label_check_not_root("subdir", "output"), "subdir")
+      expect_identical(
+        .dir_get_label_check_not_root("subdir", "output"),
+        "subdir"
+      )
     },
     force = TRUE,
     quiet = TRUE
@@ -330,11 +333,20 @@ test_that(".path_get_cache_auto_dir works correctly", {
       expect_true(is.character(path_no_create))
 
       # With create, should create directory
-      path_create <- .path_get_cache_auto_dir("newsubdir", create = TRUE, profile = NULL)
+      path_create <- .path_get_cache_auto_dir(
+        "newsubdir",
+        create = TRUE,
+        profile = NULL
+      )
       expect_true(dir.exists(path_create))
 
       # With subdirectories
-      path_sub <- .path_get_cache_auto_dir("sub1", "sub2", create = FALSE, profile = NULL)
+      path_sub <- .path_get_cache_auto_dir(
+        "sub1",
+        "sub2",
+        create = FALSE,
+        profile = NULL
+      )
       expect_true(grepl("sub1", path_sub))
       expect_true(grepl("sub2", path_sub))
     },
@@ -354,12 +366,21 @@ test_that(".path_get_cache_auto works correctly for files", {
       .init()
 
       # Without create, should return path but not create parent dir
-      path_no_create <- .path_get_cache_auto("file.txt", create = FALSE, profile = NULL)
+      path_no_create <- .path_get_cache_auto(
+        "file.txt",
+        create = FALSE,
+        profile = NULL
+      )
       expect_true(is.character(path_no_create))
       expect_true(grepl("file.txt", path_no_create))
 
       # With create, should create parent directory
-      path_create <- .path_get_cache_auto("subdir", "file.txt", create = TRUE, profile = NULL)
+      path_create <- .path_get_cache_auto(
+        "subdir",
+        "file.txt",
+        create = TRUE,
+        profile = NULL
+      )
       expect_true(dir.exists(dirname(path_create)))
       expect_true(grepl("file.txt", path_create))
     },
@@ -385,11 +406,19 @@ test_that(".dir_get_cache_auto_version works correctly", {
       expect_true(grepl("v0\\.0\\.0-1", path))
 
       # With subdirectories
-      path_sub <- .dir_get_cache_auto_version("subdir", create = FALSE, profile = NULL)
+      path_sub <- .dir_get_cache_auto_version(
+        "subdir",
+        create = FALSE,
+        profile = NULL
+      )
       expect_true(grepl("subdir", path_sub))
 
       # With create
-      path_create <- .dir_get_cache_auto_version("testdir", create = TRUE, profile = NULL)
+      path_create <- .dir_get_cache_auto_version(
+        "testdir",
+        create = TRUE,
+        profile = NULL
+      )
       expect_true(dir.exists(path_create))
     },
     force = TRUE,
@@ -408,14 +437,23 @@ test_that(".path_get_cache_auto_version works correctly for files", {
       .init()
 
       # Should include version in path
-      path <- .path_get_cache_auto_version("file.txt", create = FALSE, profile = NULL)
+      path <- .path_get_cache_auto_version(
+        "file.txt",
+        create = FALSE,
+        profile = NULL
+      )
       expect_true(is.character(path))
       expect_true(grepl("projr", path))
       expect_true(grepl("v0\\.0\\.0-1", path))
       expect_true(grepl("file.txt", path))
 
       # With create, should create parent directory
-      path_create <- .path_get_cache_auto_version("subdir", "file.txt", create = TRUE, profile = NULL)
+      path_create <- .path_get_cache_auto_version(
+        "subdir",
+        "file.txt",
+        create = TRUE,
+        profile = NULL
+      )
       expect_true(dir.exists(dirname(path_create)))
     },
     force = TRUE,

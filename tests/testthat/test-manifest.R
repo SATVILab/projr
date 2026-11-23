@@ -257,21 +257,35 @@ test_that(".manifest_filter_out_version_label filters out version and label", {
       # Function keeps rows where BOTH label != "output" AND version != "v0.0.1"
       # So it removes: output+v0.0.1 AND also raw-data+v0.0.1 AND also output+v0.0.2
       # It only keeps: raw-data+v0.0.2 (label != output AND version != v0.0.1)
-      filtered <- .manifest_filter_out_version_label(manifest, "0.0.1", "output")
+      filtered <- .manifest_filter_out_version_label(
+        manifest,
+        "0.0.1",
+        "output"
+      )
       expect_identical(nrow(filtered), 1L)
       # Should only keep raw-data v0.0.2 (both conditions met)
       expect_identical(filtered$label, "raw-data")
       expect_identical(filtered$version, "v0.0.2")
 
       # Test: Filter out raw-data + v0.0.2
-      filtered2 <- .manifest_filter_out_version_label(manifest, "0.0.2", "raw-data")
+      filtered2 <- .manifest_filter_out_version_label(
+        manifest,
+        "0.0.2",
+        "raw-data"
+      )
       expect_identical(nrow(filtered2), 2L)
       # Should keep only output v0.0.1 (both label != raw-data AND version != v0.0.2)
-      expect_true(all(filtered2$label == "output" & filtered2$version == "v0.0.1"))
+      expect_true(all(
+        filtered2$label == "output" & filtered2$version == "v0.0.1"
+      ))
 
       # Test: Filter out non-existent combination
       # All rows should fail at least one condition, so all are removed
-      filtered3 <- .manifest_filter_out_version_label(manifest, "1.0.0", "nonexistent")
+      filtered3 <- .manifest_filter_out_version_label(
+        manifest,
+        "1.0.0",
+        "nonexistent"
+      )
       # Since nonexistent label, all rows have label != nonexistent (TRUE)
       # But need version != v1.0.0, which is also TRUE for all
       # So all rows should be kept
@@ -324,7 +338,11 @@ test_that(".manifest_append_previous and .manifest_append_previous_impl work", {
       expect_true(all(c("v0.0.1", "v0.0.2") %in% appended$version))
 
       # Test: append_previous with non-existent file returns original
-      no_file <- .manifest_append_previous(manifest_new, TRUE, "/nonexistent/path.csv")
+      no_file <- .manifest_append_previous(
+        manifest_new,
+        TRUE,
+        "/nonexistent/path.csv"
+      )
       expect_identical(nrow(no_file), nrow(manifest_new))
 
       # Clean up
@@ -396,7 +414,9 @@ test_that(".manifest_write_impl writes manifest correctly", {
       # Verify content
       read_back <- utils::read.csv(path_new, stringsAsFactors = FALSE)
       expect_identical(nrow(read_back), 2L)
-      expect_true(all(c("label", "fn", "version", "hash") %in% names(read_back)))
+      expect_true(all(
+        c("label", "fn", "version", "hash") %in% names(read_back)
+      ))
 
       # Test: Overwrite = FALSE with existing file throws error
       expect_error(
@@ -405,13 +425,16 @@ test_that(".manifest_write_impl writes manifest correctly", {
       )
 
       # Test: Overwrite = TRUE replaces file
-      manifest_new <- rbind(manifest, data.frame(
-        label = "cache",
-        fn = "cache.rds",
-        version = "v0.0.1",
-        hash = "hash3",
-        stringsAsFactors = FALSE
-      ))
+      manifest_new <- rbind(
+        manifest,
+        data.frame(
+          label = "cache",
+          fn = "cache.rds",
+          version = "v0.0.1",
+          hash = "hash3",
+          stringsAsFactors = FALSE
+        )
+      )
       .manifest_write_impl(manifest_new, path_new, overwrite = TRUE)
       read_new <- utils::read.csv(path_new, stringsAsFactors = FALSE)
       expect_identical(nrow(read_new), 3L)
@@ -467,7 +490,9 @@ test_that(".manifest_hash_cache_filter filters cache projr subdirectory", {
       # Test: For cache label, filters out projr/v* files
       filtered_cache <- .manifest_hash_cache_filter(hash_tbl, "cache")
       expect_identical(nrow(filtered_cache), 2L)
-      expect_true(all(filtered_cache$fn %in% c("regular_cache.rds", "other_dir/file.txt")))
+      expect_true(all(
+        filtered_cache$fn %in% c("regular_cache.rds", "other_dir/file.txt")
+      ))
       expect_false(any(grepl("^projr/v", filtered_cache$fn)))
 
       # Test: For non-cache label, returns everything
@@ -538,7 +563,10 @@ test_that(".manifest_get_add_project gets version-specific additions", {
       expect_identical(unique(additions$version), paste0("v", current_version))
 
       # Test: Get additions for non-existent label returns empty
-      empty_additions <- .manifest_get_add_project(manifest_input, "nonexistent")
+      empty_additions <- .manifest_get_add_project(
+        manifest_input,
+        "nonexistent"
+      )
       expect_identical(nrow(empty_additions), 1L) # Returns 1 row with empty fn/hash
       expect_identical(empty_additions$fn, "")
     }
@@ -588,31 +616,54 @@ test_that(".version_file_update_label_version updates label version", {
 
       # Test: Empty version file gets label added
       version_file <- character(0)
-      updated <- .version_file_update_label_version(version_file, "output", FALSE)
+      updated <- .version_file_update_label_version(
+        version_file,
+        "output",
+        FALSE
+      )
       expect_identical(length(updated), 1L)
       expect_identical(updated, paste0("output: ", current_version))
 
       # Test: Add asterisk when requested
-      updated_asterisk <- .version_file_update_label_version(version_file, "output", TRUE)
-      expect_identical(updated_asterisk, paste0("output: ", current_version, "*"))
+      updated_asterisk <- .version_file_update_label_version(
+        version_file,
+        "output",
+        TRUE
+      )
+      expect_identical(
+        updated_asterisk,
+        paste0("output: ", current_version, "*")
+      )
 
       # Test: Update existing label
       version_file <- c("output: 0.0.1", "raw-data: 0.0.2")
-      updated <- .version_file_update_label_version(version_file, "output", FALSE)
+      updated <- .version_file_update_label_version(
+        version_file,
+        "output",
+        FALSE
+      )
       expect_identical(length(updated), 2L)
       expect_identical(updated[1], paste0("output: ", current_version))
       expect_identical(updated[2], "raw-data: 0.0.2")
 
       # Test: Add new label to existing file
       version_file <- c("output: 0.0.1")
-      updated <- .version_file_update_label_version(version_file, "cache", FALSE)
+      updated <- .version_file_update_label_version(
+        version_file,
+        "cache",
+        FALSE
+      )
       expect_identical(length(updated), 2L)
       expect_identical(updated[1], "output: 0.0.1")
       expect_identical(updated[2], paste0("cache: ", current_version))
 
       # Test: Remove duplicate label entries (keeps first)
       version_file <- c("output: 0.0.1", "raw-data: 0.0.2", "output: 0.0.3")
-      updated <- .version_file_update_label_version(version_file, "output", FALSE)
+      updated <- .version_file_update_label_version(
+        version_file,
+        "output",
+        FALSE
+      )
       expect_identical(length(updated), 2L)
       expect_identical(updated[1], paste0("output: ", current_version))
       expect_identical(updated[2], "raw-data: 0.0.2")
@@ -754,13 +805,19 @@ test_that(".manifest_get_version_earliest_match finds earliest matching version"
       .build_manifest_post(TRUE)
 
       # Test: Should now find v0.0.4 as earliest match (files changed)
-      earliest_after_change <- .manifest_get_version_earliest_match("output", NULL)
+      earliest_after_change <- .manifest_get_version_earliest_match(
+        "output",
+        NULL
+      )
       expect_identical(as.character(earliest_after_change), "0.0.4")
 
       # Test: With version_comp parameter
       # Find earliest match but only considering versions >= 0.0.2
       projr_version_set("0.0.3")
-      earliest_with_comp <- .manifest_get_version_earliest_match("output", "0.0.2")
+      earliest_with_comp <- .manifest_get_version_earliest_match(
+        "output",
+        "0.0.2"
+      )
       # Files haven't changed between 0.0.2 and 0.0.3, but function works backwards
       # from current version, so it returns 0.0.3 (current) when checking files match
       expect_true(as.character(earliest_with_comp) %in% c("0.0.2", "0.0.3"))
@@ -794,7 +851,10 @@ test_that(".manifest_get_version_earliest_match handles edge cases", {
       expect_identical(as.character(earliest_single), "0.0.1")
 
       # Test: version_comp higher than any available version
-      earliest_high_comp <- .manifest_get_version_earliest_match("output", "1.0.0")
+      earliest_high_comp <- .manifest_get_version_earliest_match(
+        "output",
+        "1.0.0"
+      )
       # Should return current version (no versions meet criteria)
       expect_identical(as.character(earliest_high_comp), "0.0.1")
     }
@@ -814,7 +874,9 @@ test_that(".manifest_get_version_earliest_match_get_version_comp generates defau
 
       # Test: With NULL, generates from version format
       # Default format is major.minor.patch-dev
-      result_default <- .manifest_get_version_earliest_match_get_version_comp(NULL)
+      result_default <- .manifest_get_version_earliest_match_get_version_comp(
+        NULL
+      )
       # Should generate something like "0.0.1" (all but last component = 0, last = 1)
       expect_true(is.character(result_default))
       expect_true(nchar(result_default) > 0)
@@ -874,7 +936,9 @@ test_that(".build_manifest_reduce handles empty and single manifests", {
       empty_list <- list()
       result_empty <- .build_manifest_reduce(empty_list)
       expect_identical(nrow(result_empty), 0L)
-      expect_true(all(c("label", "fn", "version", "hash") %in% names(result_empty)))
+      expect_true(all(
+        c("label", "fn", "version", "hash") %in% names(result_empty)
+      ))
 
       # Test: List with one empty manifest returns zero-row manifest
       empty_manifest <- .zero_tbl_get_manifest()
@@ -894,7 +958,10 @@ test_that(".build_manifest_reduce handles empty and single manifests", {
       expect_identical(result_one$label, "output")
 
       # Test: List with multiple empty manifests returns zero-row manifest
-      result_multi_empty <- .build_manifest_reduce(list(empty_manifest, empty_manifest))
+      result_multi_empty <- .build_manifest_reduce(list(
+        empty_manifest,
+        empty_manifest
+      ))
       expect_identical(nrow(result_multi_empty), 0L)
 
       # Test: List with multiple items but only one non-empty (tests line 106)
@@ -905,7 +972,11 @@ test_that(".build_manifest_reduce handles empty and single manifests", {
         hash = "hash1",
         stringsAsFactors = FALSE
       )
-      result_one_after_filter <- .build_manifest_reduce(list(empty_manifest, manifest2, empty_manifest))
+      result_one_after_filter <- .build_manifest_reduce(list(
+        empty_manifest,
+        manifest2,
+        empty_manifest
+      ))
       expect_identical(nrow(result_one_after_filter), 1L)
       expect_identical(result_one_after_filter$label, "output")
 
@@ -917,7 +988,11 @@ test_that(".build_manifest_reduce handles empty and single manifests", {
         hash = "hash2",
         stringsAsFactors = FALSE
       )
-      result_mixed <- .build_manifest_reduce(list(empty_manifest, manifest, manifest3))
+      result_mixed <- .build_manifest_reduce(list(
+        empty_manifest,
+        manifest,
+        manifest3
+      ))
       expect_identical(nrow(result_mixed), 2L)
       expect_true(all(result_mixed$label %in% c("output", "raw-data")))
     }

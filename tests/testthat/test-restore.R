@@ -9,7 +9,9 @@
 # =============================================================================
 
 dir_test <- .test_setup_project(
-  git = TRUE, github = FALSE, set_env_var = TRUE
+  git = TRUE,
+  github = FALSE,
+  set_env_var = TRUE
 )
 
 # =============================================================================
@@ -347,7 +349,10 @@ test_that("projr_content_update clear parameter works correctly", {
       projr_build_patch(msg = "test")
 
       # Add an extra file locally
-      extra_file <- file.path(projr_path_get_dir("raw-data", safe = FALSE), "extra.txt")
+      extra_file <- file.path(
+        projr_path_get_dir("raw-data", safe = FALSE),
+        "extra.txt"
+      )
       writeLines("extra content", extra_file)
       expect_true(file.exists(extra_file))
 
@@ -413,7 +418,13 @@ test_that("projr_content_update respects pos parameter for dest only", {
         pos = "dest"
       )
       expect_true(result)
-      expect_true(length(list.files(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)) > 0)
+      expect_true(
+        length(list.files(
+          projr_path_get_dir("raw-data", safe = FALSE),
+          recursive = TRUE
+        )) >
+          0
+      )
 
       # Clear local again
       unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
@@ -470,7 +481,13 @@ test_that("projr_content_update can restore single label successfully", {
 
       # Should be restored
       expect_true(result)
-      expect_true(length(list.files(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)) > 0)
+      expect_true(
+        length(list.files(
+          projr_path_get_dir("raw-data", safe = FALSE),
+          recursive = TRUE
+        )) >
+          0
+      )
     }
   )
 })
@@ -519,7 +536,13 @@ test_that("projr_content_update restores from archive structure", {
       )
 
       expect_true(result)
-      expect_true(length(list.files(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)) > 0)
+      expect_true(
+        length(list.files(
+          projr_path_get_dir("raw-data", safe = FALSE),
+          recursive = TRUE
+        )) >
+          0
+      )
     }
   )
 })
@@ -566,7 +589,13 @@ test_that("projr_content_update handles partial failures gracefully", {
 
       # Should return FALSE due to cache failure, but raw-data should be restored
       expect_false(result)
-      expect_true(length(list.files(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)) > 0)
+      expect_true(
+        length(list.files(
+          projr_path_get_dir("raw-data", safe = FALSE),
+          recursive = TRUE
+        )) >
+          0
+      )
     }
   )
 })
@@ -599,7 +628,10 @@ test_that("projr_content_update handles latest structure overwrites", {
       projr_build_patch(msg = "test v1")
 
       # Modify content
-      writeLines("modified", file.path(projr_path_get_dir("raw-data", safe = FALSE), "abc.txt"))
+      writeLines(
+        "modified",
+        file.path(projr_path_get_dir("raw-data", safe = FALSE), "abc.txt")
+      )
 
       # Build version 2 - should overwrite in latest structure
       projr_build_minor(msg = "test v2")
@@ -615,7 +647,10 @@ test_that("projr_content_update handles latest structure overwrites", {
       )
 
       expect_true(result)
-      content <- readLines(file.path(projr_path_get_dir("raw-data", safe = FALSE), "abc.txt"))
+      content <- readLines(file.path(
+        projr_path_get_dir("raw-data", safe = FALSE),
+        "abc.txt"
+      ))
       expect_identical(content, "modified")
     }
   )

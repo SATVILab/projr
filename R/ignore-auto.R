@@ -47,7 +47,8 @@ projr_ignore_auto <- function() {
   configured <- trimws(configured)
   configured <- configured[nzchar(configured) & !startsWith(configured, "!")]
   .ignore_auto_document_outputs(c(
-    .scripts_get_inc_all_qmd(), .scripts_get_inc_all_rmd(),
+    .scripts_get_inc_all_qmd(),
+    .scripts_get_inc_all_rmd(),
     .scripts_expand_patterns(configured)
   ))
   .ignore_auto_dest_local(archive_local)
@@ -119,17 +120,22 @@ projr_ignore_auto <- function() {
 # Ignore specified classes at root level
 # ===========================================================================
 
-
 # projr config files
 # -------------------------------------------------------------------------
 .ignore_project_state <- function() {
-  .ignore_auto_file_git(c("/.projr/manifests/.versions.lock", "/.projr/logs/**"))
+  .ignore_auto_file_git(c(
+    "/.projr/manifests/.versions.lock",
+    "/.projr/logs/**"
+  ))
   if (file.exists(.path_get("DESCRIPTION"))) .ignore_auto_dir_rbuild(".projr")
 }
 
 .ignore_auto_yml <- function() {
   configs <- .yml_config_files()
-  render_configs <- list.files(.path_get(), pattern = "^_(quarto|bookdown)\\.yml$")
+  render_configs <- list.files(
+    .path_get(),
+    pattern = "^_(quarto|bookdown)\\.yml$"
+  )
   .ignore_auto_file_rbuild(c(configs, render_configs))
   .ignore_auto_file_git(configs[basename(configs) == "_projr-local.yml"])
 }
@@ -266,8 +272,15 @@ projr_ignore_auto <- function() {
   ) |>
     setdiff(
       c(
-        "manifest.csv", "CHANGELOG.md", "BUILDLOG.md", "NEWS.md", "CONTRIBUTING.md",
-        "LICENSE", "LICENSE.md", .ignore_auto_readme_keep(), "codemeta.json",
+        "manifest.csv",
+        "CHANGELOG.md",
+        "BUILDLOG.md",
+        "NEWS.md",
+        "CONTRIBUTING.md",
+        "LICENSE",
+        "LICENSE.md",
+        .ignore_auto_readme_keep(),
+        "codemeta.json",
         "CITATION.cff"
       )
     )
@@ -277,7 +290,9 @@ projr_ignore_auto <- function() {
 .ignore_auto_dest_local <- function(archive_local) {
   yml <- .yml_get(NULL)
   titles <- .dest_send_type_get_title("local", archive_local)
-  if (!length(titles)) return(invisible(FALSE))
+  if (!length(titles)) {
+    return(invisible(FALSE))
+  }
   for (title in titles) {
     .ignore_auto_dest_local_title(.yml_remote_definition("local", title, yml))
   }
@@ -286,13 +301,21 @@ projr_ignore_auto <- function() {
 
 .ignore_auto_dest_local_title <- function(yml) {
   path <- .ignore_project_relative(yml[["path"]] %||% "_archive", .path_get())
-  if (!length(path)) return(invisible(FALSE))
+  if (!length(path)) {
+    return(invisible(FALSE))
+  }
   ignore <- yml[["ignore"]]
   if (is.null(ignore) || identical(ignore, "git")) {
-    .ignore_auto_path_add(.ignore_directory_pattern(path, "git"), .path_get(".gitignore"))
+    .ignore_auto_path_add(
+      .ignore_directory_pattern(path, "git"),
+      .path_get(".gitignore")
+    )
   }
   if (is.null(ignore) || identical(ignore, "rbuild")) {
-    .ignore_auto_path_add(.ignore_directory_pattern(path, "rbuild"), .path_get(".Rbuildignore"))
+    .ignore_auto_path_add(
+      .ignore_directory_pattern(path, "rbuild"),
+      .path_get(".Rbuildignore")
+    )
   }
   invisible(TRUE)
 }
@@ -341,7 +364,8 @@ projr_ignore_auto <- function() {
 
 .ignore_auto_build_tex_rqmd <- function() {
   path_vec <- list.files(
-    path = .path_get(), pattern = "\\.qmd$|\\.Rmd|\\.rmd"
+    path = .path_get(),
+    pattern = "\\.qmd$|\\.Rmd|\\.rmd"
   ) |>
     (\(x) gsub("\\.qmd$|\\.Rmd$|\\.rmd$", ".tex", x))()
   if (.is_len_0(path_vec)) {
@@ -361,9 +385,13 @@ projr_ignore_auto <- function() {
 
 .ignore_auto_document_outputs <- function(scripts) {
   root <- .path_get()
-  scripts <- unique(as.character(fs::path_abs(as.character(scripts), start = root)))
+  scripts <- unique(as.character(fs::path_abs(
+    as.character(scripts),
+    start = root
+  )))
   scripts <- scripts[
-    fs::path_has_parent(scripts, root) & file.exists(scripts) &
+    fs::path_has_parent(scripts, root) &
+      file.exists(scripts) &
       tolower(tools::file_ext(scripts)) %in% c("qmd", "rmd")
   ]
   if (length(scripts) == 0L) {
@@ -372,21 +400,35 @@ projr_ignore_auto <- function() {
 
   readme <- file.path(root, "README.Rmd")
   documents <- setdiff(scripts, readme)
-  outputs <- as.character(unlist(lapply(documents, function(script) {
-    frontmatter <- tryCatch(.build_frontmatter_get(script), error = function(error) list())
-    if (tolower(tools::file_ext(script)) == "qmd") {
-      .build_copy_docs_quarto_paths_get(frontmatter, script)
-    } else {
-      format <- .build_copy_docs_rmd_format_get(frontmatter)
-      prefix <- .build_copy_docs_rmd_fn_prefix_get(script)
-      .build_copy_docs_rmd_path_get(format, prefix)
-    }
-  }), use.names = FALSE))
+  outputs <- as.character(unlist(
+    lapply(documents, function(script) {
+      frontmatter <- tryCatch(
+        .build_frontmatter_get(script),
+        error = function(error) list()
+      )
+      if (tolower(tools::file_ext(script)) == "qmd") {
+        .build_copy_docs_quarto_paths_get(frontmatter, script)
+      } else {
+        format <- .build_copy_docs_rmd_format_get(frontmatter)
+        prefix <- .build_copy_docs_rmd_fn_prefix_get(script)
+        .build_copy_docs_rmd_path_get(format, prefix)
+      }
+    }),
+    use.names = FALSE
+  ))
   files <- outputs[!endsWith(outputs, "_files")]
   stems <- unique(tools::file_path_sans_ext(c(scripts, files)))
-  intermediates <- as.vector(outer(stems, .ignore_auto_document_suffixes(), paste0))
+  intermediates <- as.vector(outer(
+    stems,
+    .ignore_auto_document_suffixes(),
+    paste0
+  ))
   source_stems <- tools::file_path_sans_ext(scripts)
-  directories <- c(outputs[endsWith(outputs, "_files")], paste0(source_stems, "_files"), paste0(source_stems, "_cache"))
+  directories <- c(
+    outputs[endsWith(outputs, "_files")],
+    paste0(source_stems, "_files"),
+    paste0(source_stems, "_cache")
+  )
   if (file.exists(readme)) {
     # Keep the publication and linked figures even if another document shares its stem.
     files <- setdiff(files, file.path(root, "README.md"))
@@ -394,7 +436,10 @@ projr_ignore_auto <- function() {
   }
   quarto <- scripts[tolower(tools::file_ext(scripts)) == "qmd"]
   if (length(quarto) > 0L) {
-    directories <- c(directories, file.path(unique(c(root, dirname(quarto))), ".quarto"))
+    directories <- c(
+      directories,
+      file.path(unique(c(root, dirname(quarto))), ".quarto")
+    )
   }
 
   # Anchor each rule to the project and keep source and final docs paths available.
@@ -408,18 +453,37 @@ projr_ignore_auto <- function() {
 
 .ignore_auto_document_suffixes <- function() {
   c(
-    ".tex", ".knit.md", ".utf8.md", ".rmarkdown", ".log", ".aux", ".out",
-    ".toc", ".fls", ".fdb_latexmk", ".synctex.gz", ".bbl", ".blg",
-    ".nav", ".snm", ".vrb"
+    ".tex",
+    ".knit.md",
+    ".utf8.md",
+    ".rmarkdown",
+    ".log",
+    ".aux",
+    ".out",
+    ".toc",
+    ".fls",
+    ".fdb_latexmk",
+    ".synctex.gz",
+    ".bbl",
+    ".blg",
+    ".nav",
+    ".snm",
+    ".vrb"
   )
 }
 
 .ignore_auto_document_intermediates <- function(directories) {
   root <- .path_get()
   directories <- fs::path_abs(directories, start = root)
-  directories <- directories[fs::path_has_parent(directories, root) | directories == root]
+  directories <- directories[
+    fs::path_has_parent(directories, root) | directories == root
+  ]
   suffixes <- utils::glob2rx(paste0("*", .ignore_auto_document_suffixes()))
-  files <- list.files(directories, paste(suffixes, collapse = "|"), full.names = TRUE)
+  files <- list.files(
+    directories,
+    paste(suffixes, collapse = "|"),
+    full.names = TRUE
+  )
   files[!dir.exists(files)]
 }
 
@@ -435,7 +499,9 @@ projr_ignore_auto <- function() {
       }
     },
     error = function(error) {
-      .cli_debug("Could not ignore failed render intermediates: {conditionMessage(error)}")
+      .cli_debug(
+        "Could not ignore failed render intermediates: {conditionMessage(error)}"
+      )
     }
   )
 }
@@ -469,13 +535,17 @@ projr_ignore_auto <- function() {
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
-  ignore <- vapply(ignore, function(x) {
-    if (grepl("/\\*\\*$", x)) {
-      x
-    } else {
-      paste0(x, "/**")
-    }
-  }, character(1L))
+  ignore <- vapply(
+    ignore,
+    function(x) {
+      if (grepl("/\\*\\*$", x)) {
+        x
+      } else {
+        paste0(x, "/**")
+      }
+    },
+    character(1L)
+  )
   .ignore_auto_path_add(ignore, .path_get(".gitignore"))
 }
 
@@ -536,7 +606,9 @@ projr_ignore_auto <- function() {
 .ignore_auto_path_add_get_updated <- function(path, ignore, override) {
   ignore_list <- .ignore_path_get_list(path, ignore, override)
   updated_content <- .ignore_auto_path_get_updated_content(
-    override, ignore, ignore_list[["content"]]
+    override,
+    ignore,
+    ignore_list[["content"]]
   )
 
   c(
@@ -548,9 +620,7 @@ projr_ignore_auto <- function() {
 
 
 # update the content of the specified file
-.ignore_auto_path_get_updated_content <- function(override,
-                                                  ignore,
-                                                  content) {
+.ignore_auto_path_get_updated_content <- function(override, ignore, content) {
   if (override) {
     ignore |> unique()
   } else {

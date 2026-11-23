@@ -114,15 +114,18 @@ test_that("projr_build_copy_pkg works", {
     path = dir_test,
     code = {
       # Create DESCRIPTION file for projr_use_data
-      writeLines(c(
-        "Package: report",
-        "Title: Test Package",
-        "Version: 0.0.0-1",
-        "Description: Test package for building.",
-        "Authors@R: person('Test', 'Author', email = 'test@example.com', role = c('aut', 'cre'))",
-        "License: MIT + file LICENSE",
-        "Encoding: UTF-8"
-      ), "DESCRIPTION")
+      writeLines(
+        c(
+          "Package: report",
+          "Title: Test Package",
+          "Version: 0.0.0-1",
+          "Description: Test package for building.",
+          "Authors@R: person('Test', 'Author', email = 'test@example.com', role = c('aut', 'cre'))",
+          "License: MIT + file LICENSE",
+          "Encoding: UTF-8"
+        ),
+        "DESCRIPTION"
+      )
 
       # Create minimal LICENSE file
       writeLines("MIT License", "LICENSE")
@@ -136,7 +139,6 @@ test_that("projr_build_copy_pkg works", {
       .yml_set(yml.error)
       expect_false(.build_copy_pkg(TRUE))
       .yml_set(yml_projr_init)
-
 
       # build
       # ----------------------
@@ -228,13 +230,16 @@ test_that("projr_build_copy_dir works when outputting", {
 
       yml_projr <- yml_projr_init
       yml_projr[["directories"]][["raw-data"]] <- list(
-        path = "_raw_data", output = FALSE
+        path = "_raw_data",
+        output = FALSE
       )
       yml_projr[["directories"]][["docs"]] <- list(
-        path = "docs", output = FALSE
+        path = "docs",
+        output = FALSE
       )
       yml_projr[["directories"]][["cache"]] <- list(
-        path = "_tmp", output = FALSE
+        path = "_tmp",
+        output = FALSE
       )
       .yml_set(yml_projr)
       expect_true(.build_copy_dir(output_run = TRUE))
@@ -257,10 +262,12 @@ test_that("projr_build_copy_dir works when outputting", {
 
       yml_projr <- yml_projr_init
       yml_projr[["directories"]][["raw-data"]] <- list(
-        path = "_raw_data", output = TRUE
+        path = "_raw_data",
+        output = TRUE
       )
       yml_projr[["directories"]][["cache"]] <- list(
-        path = "_tmp", output = TRUE
+        path = "_tmp",
+        output = TRUE
       )
       .yml_set(yml_projr)
       expect_true(.build_copy_dir(output_run = TRUE))
@@ -273,14 +280,18 @@ test_that("projr_build_copy_dir works when outputting", {
       # -------------------
       yml_projr <- yml_projr_init
       yml_projr[["directories"]][["raw-data"]] <- list(
-        path = "_raw_data", output = TRUE
+        path = "_raw_data",
+        output = TRUE
       )
       yml_projr[["directories"]][["cache"]] <- list(
-        path = "_tmp", output = "output2"
+        path = "_tmp",
+        output = "output2"
       )
       .yml_set(yml_projr)
       .yml_dir_add_label(
-        path = "_output2", label = "output2", profile = "default"
+        path = "_output2",
+        label = "output2",
+        profile = "default"
       )
       .dir_rm("_output")
       .dir_rm("_output2")
@@ -302,7 +313,8 @@ test_that("projr_build_copy_dir works when outputting", {
       # -------------------
       yml_projr <- yml_projr_init
       yml_projr[["directories"]][["docs"]] <- list(
-        path = "docs", output = TRUE
+        path = "docs",
+        output = TRUE
       )
       .yml_set(yml_projr)
       .dir_rm("_output")
@@ -318,11 +330,14 @@ test_that("projr_build_copy_dir works when outputting", {
       # -------------------
       yml_projr <- yml_projr_init
       yml_projr[["directories"]][["docs"]] <- list(
-        path = "docs", output = "output2"
+        path = "docs",
+        output = "output2"
       )
       .yml_set(yml_projr)
       .yml_dir_add_label(
-        path = "_output2", label = "output2", profile = "default"
+        path = "_output2",
+        label = "output2",
+        profile = "default"
       )
       .dir_rm("_output")
       .dir_rm("_output2")
@@ -342,13 +357,16 @@ test_that("projr_build_copy_dir works when outputting", {
       yml_projr <- yml_projr_init
       # Add a custom directory label "raw2"
       .yml_dir_add_label(
-        path = "_raw2", label = "raw2", profile = "default"
+        path = "_raw2",
+        label = "raw2",
+        profile = "default"
       )
       # Create files in raw2
       file.create(projr_path_get("raw2", "custom.txt", safe = FALSE))
       # Set output for raw2
       yml_projr[["directories"]][["raw2"]] <- list(
-        path = "_raw2", output = TRUE
+        path = "_raw2",
+        output = TRUE
       )
       .yml_set(yml_projr)
       .dir_rm("_output")
@@ -357,17 +375,27 @@ test_that("projr_build_copy_dir works when outputting", {
         projr_path_get("output", "raw2", safe = FALSE, create = FALSE)
       ))
       expect_true(file.exists(
-        projr_path_get("output", "raw2", "custom.txt", safe = FALSE, create = FALSE)
+        projr_path_get(
+          "output",
+          "raw2",
+          "custom.txt",
+          safe = FALSE,
+          create = FALSE
+        )
       ))
 
       # check that multiple custom labels can be copied to different outputs
       # -------------------
       # Add custom labels (use raw-extra and output3 since label patterns are restrictive)
       .yml_dir_add_label(
-        path = "_raw_extra", label = "raw-extra", profile = "default"
+        path = "_raw_extra",
+        label = "raw-extra",
+        profile = "default"
       )
       .yml_dir_add_label(
-        path = "_output3", label = "output3", profile = "default"
+        path = "_output3",
+        label = "output3",
+        profile = "default"
       )
       # Create files
       file.create(projr_path_get("raw-extra", "extra.txt", safe = FALSE))
@@ -382,7 +410,13 @@ test_that("projr_build_copy_dir works when outputting", {
         projr_path_get("output3", "raw-extra", safe = FALSE, create = FALSE)
       ))
       expect_true(file.exists(
-        projr_path_get("output3", "raw-extra", "extra.txt", safe = FALSE, create = FALSE)
+        projr_path_get(
+          "output3",
+          "raw-extra",
+          "extra.txt",
+          safe = FALSE,
+          create = FALSE
+        )
       ))
     },
     quiet = TRUE,
@@ -400,7 +434,9 @@ test_that(".build_copy_dir works with non-standard label names", {
       # Add a label that doesn't match any standard pattern
       # (not raw*, cache*, output*, docs, data, code, project)
       .yml_dir_add_label(
-        path = "_foo", label = "foo", profile = "default"
+        path = "_foo",
+        label = "foo",
+        profile = "default"
       )
 
       # Create files in foo directory
@@ -420,10 +456,22 @@ test_that(".build_copy_dir works with non-standard label names", {
         projr_path_get("output", "foo", safe = FALSE, create = FALSE)
       ))
       expect_true(file.exists(
-        projr_path_get("output", "foo", "test.txt", safe = FALSE, create = FALSE)
+        projr_path_get(
+          "output",
+          "foo",
+          "test.txt",
+          safe = FALSE,
+          create = FALSE
+        )
       ))
       expect_true(file.exists(
-        projr_path_get("output", "foo", "test2.txt", safe = FALSE, create = FALSE)
+        projr_path_get(
+          "output",
+          "foo",
+          "test2.txt",
+          safe = FALSE,
+          create = FALSE
+        )
       ))
     },
     quiet = TRUE,
@@ -458,7 +506,8 @@ test_that("projr_build_frontmatter_get works", {
           "---",
           "title: abc",
           "---",
-          "# Introduction", "abc"
+          "# Introduction",
+          "abc"
         ),
         con = "test.qmd"
       )
@@ -475,7 +524,8 @@ test_that("projr_build_frontmatter_get works", {
           "  pdf: default",
           "  docx: default",
           "---",
-          "# Introduction", "abc"
+          "# Introduction",
+          "abc"
         ),
         con = "test.qmd"
       )
@@ -569,7 +619,8 @@ test_that(".build_copy_docs_quarto_fn_prefix/suffix/path_get works", {
       )
       expect_identical(
         .build_copy_docs_quarto_fn_prefix_get(
-          list(title = "abc"), "test.qmd"
+          list(title = "abc"),
+          "test.qmd"
         ),
         "test"
       )
@@ -589,28 +640,36 @@ test_that(".build_copy_docs_quarto_fn_prefix/suffix/path_get works", {
       )
       # suffix
       expect_identical(
-        .build_copy_docs_quarto_fn_suffix_get("html"), "html"
+        .build_copy_docs_quarto_fn_suffix_get("html"),
+        "html"
       )
       expect_identical(
-        .build_copy_docs_quarto_fn_suffix_get("revealjs"), "html"
+        .build_copy_docs_quarto_fn_suffix_get("revealjs"),
+        "html"
       )
       expect_identical(
-        .build_copy_docs_quarto_fn_suffix_get("beamer"), "pdf"
+        .build_copy_docs_quarto_fn_suffix_get("beamer"),
+        "pdf"
       )
       expect_identical(
-        .build_copy_docs_quarto_fn_suffix_get("typst"), "pdf"
+        .build_copy_docs_quarto_fn_suffix_get("typst"),
+        "pdf"
       )
       expect_identical(
-        .build_copy_docs_quarto_fn_suffix_get("dashboard"), "html"
+        .build_copy_docs_quarto_fn_suffix_get("dashboard"),
+        "html"
       )
       expect_identical(
-        .build_copy_docs_quarto_fn_suffix_get("s5"), "html"
+        .build_copy_docs_quarto_fn_suffix_get("s5"),
+        "html"
       )
       expect_identical(
-        .build_copy_docs_quarto_fn_suffix_get("slidy"), "html"
+        .build_copy_docs_quarto_fn_suffix_get("slidy"),
+        "html"
       )
       expect_identical(
-        .build_copy_docs_quarto_fn_suffix_get("dzslides"), "html"
+        .build_copy_docs_quarto_fn_suffix_get("dzslides"),
+        "html"
       )
       # paths
       expect_identical(
@@ -780,13 +839,16 @@ test_that(".build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
 
       # suffix
       expect_identical(
-        .build_copy_docs_rmd_fn_suffix_get("html"), "html"
+        .build_copy_docs_rmd_fn_suffix_get("html"),
+        "html"
       )
       expect_identical(
-        .build_copy_docs_rmd_fn_suffix_get("html_document"), "html"
+        .build_copy_docs_rmd_fn_suffix_get("html_document"),
+        "html"
       )
       expect_identical(
-        .build_copy_docs_rmd_fn_suffix_get("tufte::tufte_handout"), "pdf"
+        .build_copy_docs_rmd_fn_suffix_get("tufte::tufte_handout"),
+        "pdf"
       )
 
       # paths
@@ -808,7 +870,6 @@ test_that(".build_copy_docs_rmd_format_get works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-
 
   usethis::with_project(
     path = dir_test,
@@ -853,7 +914,9 @@ test_that(".build_engine works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -885,7 +948,9 @@ test_that(".build_engine works", {
         con = "quarto.qmd"
       )
       .build_engine(
-        scripts = NULL, version_run_on_list = version_run_on_list, args_engine = list()
+        scripts = NULL,
+        version_run_on_list = version_run_on_list,
+        args_engine = list()
       )
       expect_true(file.exists("quarto.html"))
       # now test quarto project
@@ -896,7 +961,9 @@ test_that(".build_engine works", {
         con = "quarto.yml"
       )
       .build_engine(
-        scripts = NULL, version_run_on_list = version_run_on_list, args_engine = list()
+        scripts = NULL,
+        version_run_on_list = version_run_on_list,
+        args_engine = list()
       )
       expect_true(dir.exists("docs/reportV0.0.0-1"))
     }
@@ -922,7 +989,10 @@ test_that("CHANGELOG.md is excluded from docs copying", {
 
       # Create some files including CHANGELOG.md
       writeLines("Test content", file.path(source_dir, "test.html"))
-      writeLines("# CHANGELOG\n\n- Test entry", file.path(source_dir, "CHANGELOG.md"))
+      writeLines(
+        "# CHANGELOG\n\n- Test entry",
+        file.path(source_dir, "CHANGELOG.md")
+      )
       writeLines("Other content", file.path(source_dir, "other.txt"))
 
       # Test the dir_move_exact function with CHANGELOG.md exclusion
@@ -978,7 +1048,10 @@ plot(1:10)
 
       # Verify files were actually copied
       files_in_root <- list.files("test_files", recursive = TRUE)
-      files_in_docs <- list.files(file.path(docs_dir, "test_files"), recursive = TRUE)
+      files_in_docs <- list.files(
+        file.path(docs_dir, "test_files"),
+        recursive = TRUE
+      )
       expect_true(length(files_in_docs) > 0)
 
       # Test with output_run = TRUE (safe = FALSE)
@@ -1012,8 +1085,12 @@ test_that(".build_copy_docs_rmd_is_html_format correctly identifies HTML formats
   expect_true(.build_copy_docs_rmd_is_html_format("slidy_presentation"))
 
   # Package-prefixed HTML formats
-  expect_true(.build_copy_docs_rmd_is_html_format("revealjs::revealjs_presentation"))
-  expect_true(.build_copy_docs_rmd_is_html_format("flexdashboard::flex_dashboard"))
+  expect_true(.build_copy_docs_rmd_is_html_format(
+    "revealjs::revealjs_presentation"
+  ))
+  expect_true(.build_copy_docs_rmd_is_html_format(
+    "flexdashboard::flex_dashboard"
+  ))
   expect_true(.build_copy_docs_rmd_is_html_format("tufte::tufte_html"))
 
   # Custom HTML formats (should match on "html" in name)
@@ -1051,7 +1128,10 @@ test_that(".build_copy_docs_paths_file copies individual files correctly", {
       expect_false(file.exists(test_file)) # Original should be moved
 
       # Test with non-existent file
-      result <- .build_copy_docs_paths_file("nonexistent.html", output_run = FALSE)
+      result <- .build_copy_docs_paths_file(
+        "nonexistent.html",
+        output_run = FALSE
+      )
       expect_false(result)
     },
     force = TRUE,
@@ -1085,7 +1165,10 @@ test_that(".build_copy_docs_paths_dir copies directories correctly", {
       expect_true(file.exists(file.path(docs_dir, test_dir, "file2.css")))
 
       # Test with non-existent directory
-      result <- .build_copy_docs_paths_dir("nonexistent_dir", output_run = FALSE)
+      result <- .build_copy_docs_paths_dir(
+        "nonexistent_dir",
+        output_run = FALSE
+      )
       expect_false(result)
     },
     force = TRUE,
@@ -1120,7 +1203,10 @@ test_that(".build_copy_docs_paths_rm_dir removes directories after copying", {
       expect_false(dir.exists(dir2))
 
       # Test with non-existent paths (should not error)
-      expect_silent(.build_copy_docs_paths_rm_dir(c("nonexistent1", "nonexistent2")))
+      expect_silent(.build_copy_docs_paths_rm_dir(c(
+        "nonexistent1",
+        "nonexistent2"
+      )))
 
       # Test with file path (should not remove, only removes directories)
       test_file <- "test.txt"
@@ -1179,13 +1265,16 @@ test_that(".build_copy_docs_rmd_ind processes individual Rmd files", {
     code = {
       # Create an Rmd file with html_document output
       rmd_file <- "report.Rmd"
-      writeLines(c(
-        "---",
-        "title: Report",
-        "output: html_document",
-        "---",
-        "# Content"
-      ), rmd_file)
+      writeLines(
+        c(
+          "---",
+          "title: Report",
+          "output: html_document",
+          "---",
+          "# Content"
+        ),
+        rmd_file
+      )
 
       # Create the expected output
       output_file <- "report.html"
@@ -1214,13 +1303,16 @@ test_that(".build_copy_docs_quarto_ind processes individual Quarto files", {
     code = {
       # Create a Quarto file with html format
       qmd_file <- "analysis.qmd"
-      writeLines(c(
-        "---",
-        "title: Analysis",
-        "format: html",
-        "---",
-        "# Results"
-      ), qmd_file)
+      writeLines(
+        c(
+          "---",
+          "title: Analysis",
+          "format: html",
+          "---",
+          "# Results"
+        ),
+        qmd_file
+      )
 
       # Create the expected output
       output_file <- "analysis.html"

@@ -53,8 +53,18 @@
   authors_text <- paste(authors, collapse = ", ")
 
   # Replace placeholders (use fixed = TRUE to avoid regex issues)
-  template_text <- gsub("{{AUTHORS}}", authors_text, template_text, fixed = TRUE)
-  template_text <- gsub("{{YEAR}}", as.character(year), template_text, fixed = TRUE)
+  template_text <- gsub(
+    "{{AUTHORS}}",
+    authors_text,
+    template_text,
+    fixed = TRUE
+  )
+  template_text <- gsub(
+    "{{YEAR}}",
+    as.character(year),
+    template_text,
+    fixed = TRUE
+  )
 
   template_text
 }
@@ -120,11 +130,15 @@
     desc <- desc::description$new(.path_get("DESCRIPTION"))
     authors <- desc$get_authors()
     if (length(authors) > 0) {
-      author_names <- vapply(authors, function(a) {
-        # Collapse given names (handles multi-part given names like c("Jean", "Luc"))
-        given <- paste(a$given, collapse = " ")
-        paste(given, a$family)
-      }, character(1))
+      author_names <- vapply(
+        authors,
+        function(a) {
+          # Collapse given names (handles multi-part given names like c("Jean", "Luc"))
+          given <- paste(a$given, collapse = " ")
+          paste(given, a$family)
+        },
+        character(1)
+      )
       return(author_names)
     }
   }

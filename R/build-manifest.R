@@ -29,9 +29,13 @@
     labels[startsWith(stripped, type)]
   })
   labels <- as.character(unlist(matches, use.names = FALSE))
-  labels[vapply(labels, function(label) {
-    .yml_dir_complete_hash(directories[[label]][["hash"]], label)
-  }, logical(1))]
+  labels[vapply(
+    labels,
+    function(label) {
+      .yml_dir_complete_hash(directories[[label]][["hash"]], label)
+    },
+    logical(1)
+  )]
 }
 
 # post
@@ -42,7 +46,8 @@
   }
   .cli_debug("Recording output manifests")
   current <- .build_manifest_reduce(list(
-    .build_manifest_pre_read(), .build_manifest_post_get_manifest(output_run)
+    .build_manifest_pre_read(),
+    .build_manifest_post_get_manifest(output_run)
   ))
   .manifest_store_write(current, .build_manifest_post_get_path(output_run))
 }

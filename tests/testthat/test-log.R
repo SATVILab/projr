@@ -217,9 +217,19 @@ test_that(".log_build_init creates log file correctly", {
       expect_true(any(grepl("date:", content)))
       expect_true(any(grepl("format:", content)))
 
-      expect_true(paste0("- **Output Level**: ", .cli_output_level_get()) %in% content)
-      expect_true(paste0("- **Build Version**: ", .template_version()) %in% content)
-      expect_true(paste0("- **Profile**: ", paste(projr_profile_get(), collapse = ", ")) %in% content)
+      expect_true(
+        paste0("- **Output Level**: ", .cli_output_level_get()) %in% content
+      )
+      expect_true(
+        paste0("- **Build Version**: ", .template_version()) %in% content
+      )
+      expect_true(
+        paste0(
+          "- **Profile**: ",
+          paste(projr_profile_get(), collapse = ", ")
+        ) %in%
+          content
+      )
 
       # Should have build information
       expect_true(any(grepl("# Build Information", content)))
@@ -764,7 +774,9 @@ test_that("Log file paths use correct separators", {
       log_dev <- .log_dir_get_type("dev")
 
       # All paths should be valid
-      expect_true(file.exists(log_base) || dir.exists(log_base) || !is.na(log_base))
+      expect_true(
+        file.exists(log_base) || dir.exists(log_base) || !is.na(log_base)
+      )
       expect_true(dir.exists(log_output))
       expect_true(dir.exists(log_dev))
 
@@ -1040,7 +1052,11 @@ test_that(".log_clear_history with both date and version filters", {
       writeLines(history_content, history_file)
 
       # Clear with both filters: before 2024-04-01 AND before version 0.0.8
-      .log_clear_history("dev", before_date = "2024-04-01", before_version = "0.0.8")
+      .log_clear_history(
+        "dev",
+        before_date = "2024-04-01",
+        before_version = "0.0.8"
+      )
 
       # Read result
       result <- readLines(history_file, warn = FALSE)
@@ -1125,7 +1141,10 @@ test_that("projr_log_view handles invalid log file gracefully", {
     path = dir_test,
     code = {
       # Test with non-existent file
-      result <- projr_log_view(log_file = "/nonexistent/path.qmd", show_header = FALSE)
+      result <- projr_log_view(
+        log_file = "/nonexistent/path.qmd",
+        show_header = FALSE
+      )
       expect_null(result)
     }
   )
@@ -1223,37 +1242,52 @@ test_that(".log_clear_output_by_date handles invalid date formats", {
 test_that("each build writes to its own log from any working directory", {
   skip_if(.is_test_select())
   project <- .test_setup_project(git = FALSE, rm_engine = TRUE)
-  usethis::with_project(project, {
-    withr::local_envvar(c(
-      PROJR_LOG_DETAILED = "true", PROJR_OUTPUT_LEVEL = "std", PROJR_BUILD_LOG = NA
-    ))
-    testthat::local_mocked_bindings(.log_file_get_most_recent = function() stop("scanned logs"))
-    outer <- .template_context_start()
-    withr::defer(outer())
-    first <- .log_build_init("dev")$log_file
-    inner <- .template_context_start()
-    second <- .log_build_init("dev")$log_file
-    expect_false(identical(first, second))
-    dir.create("reports")
-    child_path <- withr::with_dir("reports", system2(
-      file.path(R.home("bin"), "Rscript"),
-      c("--vanilla", "-e", shQuote('cat(Sys.getenv("PROJR_BUILD_LOG"))')),
-      stdout = TRUE
-    ))
-    expect_identical(child_path, as.character(fs::path_abs(second)))
-    withr::with_dir("reports", .cli_debug("inner message"))
-    .log_build_finalize(TRUE)
-    inner()
-    .log_build_section("outer section")
-    .cli_debug("outer message")
-    expect_true(any(grepl("inner message", readLines(second))))
-    expect_false(any(grepl("inner message", readLines(first))))
-    expect_true(all(vapply(c("outer section", "outer message"), function(text) {
-      any(grepl(text, readLines(first)))
-    }, logical(1))))
-    Sys.setenv(PROJR_LOG_DETAILED = "false")
-    expect_silent(.cli_debug(stop("evaluated hidden message")))
-    .log_build_append("disabled message")
-    expect_false(any(grepl("disabled message", readLines(first))))
-  }, force = TRUE)
+  usethis::with_project(
+    project,
+    {
+      withr::local_envvar(c(
+        PROJR_LOG_DETAILED = "true",
+        PROJR_OUTPUT_LEVEL = "std",
+        PROJR_BUILD_LOG = NA
+      ))
+      testthat::local_mocked_bindings(.log_file_get_most_recent = function() {
+        stop("scanned logs")
+      })
+      outer <- .template_context_start()
+      withr::defer(outer())
+      first <- .log_build_init("dev")$log_file
+      inner <- .template_context_start()
+      second <- .log_build_init("dev")$log_file
+      expect_false(identical(first, second))
+      dir.create("reports")
+      child_path <- withr::with_dir(
+        "reports",
+        system2(
+          file.path(R.home("bin"), "Rscript"),
+          c("--vanilla", "-e", shQuote('cat(Sys.getenv("PROJR_BUILD_LOG"))')),
+          stdout = TRUE
+        )
+      )
+      expect_identical(child_path, as.character(fs::path_abs(second)))
+      withr::with_dir("reports", .cli_debug("inner message"))
+      .log_build_finalize(TRUE)
+      inner()
+      .log_build_section("outer section")
+      .cli_debug("outer message")
+      expect_true(any(grepl("inner message", readLines(second))))
+      expect_false(any(grepl("inner message", readLines(first))))
+      expect_true(all(vapply(
+        c("outer section", "outer message"),
+        function(text) {
+          any(grepl(text, readLines(first)))
+        },
+        logical(1)
+      )))
+      Sys.setenv(PROJR_LOG_DETAILED = "false")
+      expect_silent(.cli_debug(stop("evaluated hidden message")))
+      .log_build_append("disabled message")
+      expect_false(any(grepl("disabled message", readLines(first))))
+    },
+    force = TRUE
+  )
 })
