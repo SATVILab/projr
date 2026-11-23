@@ -423,7 +423,7 @@ Detailed logs are written to the cache directory:
     ├── output/                    # Production build logs
     │   ├── history/builds.md      # All build records
     │   └── output/YYYY-MMM-DD/
-    │       └── HH-MM-SS.qmd       # Detailed log
+    │       └── HH-MM-SS-UUID.qmd  # Detailed log
     └── dev/                       # Development build logs
         └── ...
 
