@@ -1,9 +1,10 @@
 # Set Project Version
 
-Sets the project version manually in the `DESCRIPTION` file and
-optionally in a `VERSION` file. This is useful in cases where you need
-to increment the version manually, for example, if a collaborator has
-pushed changes and you want to manually set your version before merging.
+Updates the `Version` field of `DESCRIPTION` when present. Otherwise,
+stores the project version in a root `VERSION` file. This is useful in
+cases where you need to increment the version manually, for example, if
+a collaborator has pushed changes and you want to manually set your
+version before merging.
 
 ## Usage
 
