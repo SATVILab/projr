@@ -4,6 +4,29 @@
 # Test .build_engine main dispatcher function
 # ===========================================
 
+test_that("Quarto projects and documents finish in the foreground with their renderer options", {
+  skip_if(.is_test_select())
+  skip_if_not_installed("quarto")
+  calls <- list()
+  testthat::local_mocked_bindings(
+    quarto_render = function(input = NULL, as_job = "auto", execute_dir = NULL) {
+      calls[[length(calls) + 1L]] <<- list(input = input, as_job = as_job, execute_dir = execute_dir)
+      invisible(NULL)
+    },
+    .package = "quarto"
+  )
+  project <- .test_setup_project(git = FALSE)
+  usethis::with_project(project, {
+    .test_setup_project_lit_docs("quarto_project")
+    .build_engine_quarto_project(list(execute_dir = project))
+    .build_engine_qmd("index.qmd", list(as_job = TRUE, execute_dir = project))
+  })
+  expect_identical(vapply(calls, `[[`, logical(1), "as_job"), c(FALSE, FALSE))
+  expect_identical(vapply(calls, `[[`, character(1), "execute_dir"), rep(project, 2))
+  expect_null(calls[[1L]]$input)
+  expect_identical(basename(calls[[2L]]$input), "index.qmd")
+})
+
 test_that(".build_engine works with bookdown projects", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
