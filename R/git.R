@@ -52,7 +52,11 @@
   result <- suppressWarnings(system2("git", args = args, ...))
   status <- if (is.character(result)) attr(result, "status") %||% 0L else result
   if (status != 0L) {
-    detail <- if (is.character(result) && length(result)) paste0("\n", paste(result, collapse = "\n"))
+    detail <- if (is.character(result) && length(result)) {
+      # Captured Git diagnostics may include a credentialed remote URL.
+      result <- gsub("([[:alpha:]][[:alnum:]+.-]*://)[^/@[:space:]]+@", "\\1", result)
+      paste0("\n", paste(result, collapse = "\n"))
+    }
     stop("git ", args[1L], " failed with exit status ", status, ".", detail, call. = FALSE)
   }
   invisible(result)
@@ -71,7 +75,7 @@
   status <- system2("git", c("diff", "--cached", "--quiet", "--", paths))
   if (status == 0L) return(invisible(FALSE))
   if (status != 1L) stop("git diff failed with exit status ", status, ".", call. = FALSE)
-  .git_run_write(c("commit", .git_quiet_flag(), "-m", shQuote(.git_msg_get(msg)), "--", paths), ...)
+  .git_run_write(c("commit", "--quiet", "-m", shQuote(.git_msg_get(msg)), "--", paths), ...)
 }
 
 .git_add_file_git <- function(file, ...) {
