@@ -115,7 +115,7 @@ flowchart TD
     CheckChanges -->|Yes| ProceedSend
     CheckChanges -->|No| SkipSend
     
-    ProceedSend --> BuildMetadata[Build metadata updates<br/>- manifest.csv<br/>- VERSION file<br/>- changelog]
+    ProceedSend --> BuildMetadata[Build metadata updates<br/>- manifest<br/>- VERSION file<br/>- changelog]
     SkipSend --> End
     BuildMetadata --> End([Return plan])
     
@@ -129,7 +129,7 @@ flowchart TD
 - `fn_add` - Files to upload to the remote
 - `fn_rm` - Files to remove from the remote
 - `version` - Updated VERSION file content
-- `manifest` - Updated manifest.csv content
+- `manifest` - Updated directory manifest
 - `purge` - Whether to purge all remote files before upload
 - `ensure_remote_dest_exists` - Whether to create the remote if it
   doesn’t exist
@@ -150,7 +150,7 @@ Different strategies determine how local and remote files are compared:
 The `inspect` parameter controls how projr determines what’s on the
 remote:
 
-- **manifest** - Use remote manifest.csv (fast, requires valid manifest)
+- **manifest** - Use the remote manifest (fast, requires valid manifest)
 - **file** - Download and hash actual files (slower, always accurate)
 - **none** - Treat remote as empty (always upload everything)
 
@@ -192,7 +192,7 @@ flowchart TD
     CheckCreate -->|Yes| CreateEmpty[Create empty remote]
     CheckCreate -->|No| UpdateMetadata
     
-    CreateEmpty --> UpdateMetadata[Upload metadata files<br/>- manifest.csv<br/>- VERSION file<br/>- CHANGELOG.md]
+    CreateEmpty --> UpdateMetadata[Upload metadata files<br/>- manifest<br/>- VERSION file<br/>- CHANGELOG.md]
     
     UpdateMetadata --> End([Complete])
     
@@ -211,8 +211,9 @@ flowchart TD
     - For GitHub: manages `-empty.zip` placeholder files
     - For local: manages empty version directories
     - Ensures only one variant exists (full takes priority)
-5.  **Update metadata** - Upload manifest.csv, VERSION file, and
-    optionally CHANGELOG.md
+5.  **Update metadata** - Write the directory histories, VERSION file,
+    and optional CHANGELOG.md. Local destinations store histories in
+    `manifests/`. GitHub Releases carry one `manifest.zip` asset.
 
 **Remote Variants:**
 
@@ -287,7 +288,7 @@ files, remove deleted files - `sync-purge` - Remove all, then upload
 all - `upload-all` - Upload all files - `upload-missing` - Only upload
 missing files
 
-**send_inspect** (how to check remote): - `manifest` - Use manifest.csv
+**send_inspect** (how to check remote): - `manifest` - Use manifest
 (fast) - `file` - Hash actual files (slower, accurate) - `none` - Treat
 as empty (always upload)
 
@@ -361,11 +362,11 @@ The workflow maintains a trust system to ensure accurate
 synchronization:
 
 **Trusted Versions** (can use manifest for comparison): - Uploaded with
-`sync-diff` or `sync-purge` strategy - Has valid manifest.csv on
+`sync-diff` or `sync-purge` strategy - Has a valid manifest on the
 remote - No local changes since that version
 
 **Untrusted Versions** (must hash actual files): - Uploaded with
-`upload-all` or `upload-missing` strategy - No manifest.csv on remote -
+`upload-all` or `upload-missing` strategy - No manifest on the remote -
 Manifest doesn’t match local manifest for that version
 
 The VERSION file tracks trust status with an asterisk:

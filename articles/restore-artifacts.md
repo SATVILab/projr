@@ -86,7 +86,8 @@ the right place before calling it.
 ## projr_content_update()
 
 Restores artifacts in an existing local project (no cloning). The
-project must have a `manifest.csv` in its root.
+project must have a build history in `_projr/manifests/` or a legacy
+root `manifest.csv`.
 
 ``` r
 
@@ -110,8 +111,8 @@ projr_content_update(label = c("raw-data", "cache"))
 projr_content_update(type = "local", title = "network-backup")
 ```
 
-If `manifest.csv` is missing, the project needs at least one successful
-`projr_build_*()` run first.
+If the project has no manifest, the project needs at least one
+successful `projr_build_*()` run first.
 
 ## Parameters
 

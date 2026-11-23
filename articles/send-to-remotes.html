@@ -309,8 +309,7 @@ version</td>
 <tr class="odd">
 <td align="left">
 <code>"manifest"</code> (default)</td>
-<td align="left">Read <code>manifest.csv</code> on the remote
-(fast)</td>
+<td align="left">Read the remote manifest (fast)</td>
 </tr>
 <tr class="even">
 <td align="left"><code>"file"</code></td>
@@ -323,6 +322,12 @@ accurate)</td>
 </tr>
 </tbody>
 </table>
+<p>Local archives keep their history in <code>manifests/</code>. A
+GitHub Release holds one <code>manifest.zip</code>. While an upload
+updates that ZIP, it claims <code>projr-manifest.lock</code> on the same
+release. If a second upload encounters the lock, retry it after the
+first upload finishes. If the first process was terminated, confirm that
+it has stopped before removing its lock asset.</p>
 </div>
 </div>
 <div class="section level2">

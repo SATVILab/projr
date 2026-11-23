@@ -4,11 +4,11 @@ Query which files changed between two project versions based on the
 manifest. Returns files that were added, modified, or removed between
 the versions.
 
-Query which files changed across a range of versions. For each file,
-shows the version where it last changed.
+List the first and last recorded versions of each file in the range,
+including builds that reused an earlier directory snapshot.
 
-Query when files in each directory last changed. Shows the most recent
-version where any file in the directory was modified.
+Show the most recent version that recorded files in each directory,
+including builds that reused an earlier directory snapshot.
 
 ## Usage
 
@@ -91,11 +91,11 @@ A data.frame with columns:
 
 - version_last_change:
 
-  Last version where file was modified
+  Last version in the range that recorded this file
 
 - hash:
 
-  Current file hash
+  File hash at that last version
 
 A data.frame with columns:
 
@@ -105,7 +105,7 @@ A data.frame with columns:
 
 - version_last_change:
 
-  Most recent version with changes
+  Most recent version that recorded files in this directory
 
 - n_files:
 

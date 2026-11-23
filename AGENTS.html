@@ -59,12 +59,13 @@
 <li>
 <strong>YAML-driven configuration</strong>: Create <code>_projr.yml</code> at the project root by default. Also read default, named and local configuration files in <code>_projr/config/</code>. A root file takes precedence over a nested file of the same name. Update the selected file in place and interpret configured paths relative to the project root.</li>
 <li>
-<strong>Manifest tracking</strong>: Every build records file hashes in <code>manifest.csv</code>, linking outputs to exact input versions.</li>
+<strong>Manifest tracking</strong>: Production builds record each hashed directory independently under <code>_projr/manifests/&lt;label&gt;/</code>. Its <code>versions.csv</code> maps project versions to the earliest matching directory version and the SHA-256 of a file list. Each distinct list of relative paths and MD5 hashes is stored once.</li>
 <li>
 <strong>Remote destinations</strong>: A unified dispatcher pattern (<code>R/remote.R</code>) routes file operations to local, GitHub, or OSF backends.</li>
 <li>
 <strong>Internal vs. exported functions</strong>: Internal helpers use a <code>.</code> prefix (e.g., <code>.hash_file()</code>); exported functions use the <code>projr_</code> prefix (e.g., <code><a href="reference/projr_build.html">projr_build_patch()</a></code>).</li>
-</ul><div class="section level3">
+</ul><p>A project with a legacy root <code>manifest.csv</code> can be queried and restored before migration. The next production build imports its history. Local destinations store directory histories in <code>manifests/</code>. GitHub Releases use one <code>manifest.zip</code> asset.</p>
+<div class="section level3">
 <h3 id="build-script-selection-and-rendering">Build script selection and rendering<a class="anchor" aria-label="anchor" href="#build-script-selection-and-rendering"></a></h3>
 <ul><li>
 <code>projr_build_dev(scripts = ...)</code> takes precedence over <code>dev.scripts</code>, then <code>build.scripts</code>. Production builds use <code>build.scripts</code>. Both use the merged active configuration. An explicit empty selection (<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code> in R or <code>[]</code> in YAML) skips rendering and script execution.</li>
@@ -98,7 +99,7 @@
 <div class="section level3">
 <h3 id="language">Language<a class="anchor" aria-label="anchor" href="#language"></a></h3>
 <ul><li>
-<strong>R</strong> (≥ 4.1.0) — all source code lives in <code>R/</code>
+<strong>R</strong> (≥ 4.1.0) in <code>R/</code>, with native manifest code in <code>src/</code> registered through <code>cpp11</code>
 </li>
 </ul></div>
 <div class="section level3">
@@ -123,6 +124,8 @@
 <td>MD5 hashing for manifests</td>
 </tr><tr><td><code>uuid</code></td>
 <td>Random UUIDv4 identifiers for build templates</td>
+</tr><tr><td><code>filelock</code></td>
+<td>Serialize concurrent updates to project manifests</td>
 </tr><tr><td><code>cli</code></td>
 <td>Console output</td>
 </tr><tr><td><code>glue</code></td>

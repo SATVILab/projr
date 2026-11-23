@@ -151,7 +151,7 @@ restoration fails.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>These functions restore artefact directories from remote sources:</p><ul><li><p><code>projr_content_update()</code> restores artefacts in an existing local project without any cloning required.
-Requires a <code>manifest.csv</code> file in the project root.</p></li>
+Reads directory histories in <code>_projr/manifests/</code> or a legacy root <code>manifest.csv</code>.</p></li>
 <li><p><code>projr_restore_repo()</code> clones a GitHub repository into a subdirectory (or specified path),
 then restores artefacts from that repository's remote sources.</p></li>
 <li><p><code>projr_restore_repo_wd()</code> clones directly into the current working directory, then restores artefacts.</p></li>
@@ -163,7 +163,7 @@ All parameters are validated before execution:</p><ul><li><p><code>label</code>:
 <li><p><code>repo</code>: Must be a single non-empty character string</p></li>
 <li><p><code>path</code>: Must be NULL or a single non-empty character string</p></li>
 </ul><p><strong>Error Handling:</strong>
-The functions handle errors gracefully:</p><ul><li><p>Missing <code>manifest.csv</code> triggers an informative error</p></li>
+The functions handle errors gracefully:</p><ul><li><p>A missing project manifest triggers an informative error</p></li>
 <li><p>Invalid labels or missing remote sources result in warning messages and skipped restoration</p></li>
 <li><p>Git clone failures are caught and reported</p></li>
 <li><p>Errors during restoration are caught per label, allowing partial success</p></li>

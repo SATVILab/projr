@@ -200,7 +200,7 @@ files need to be uploaded, removed, or updated.</p>
     CheckChanges --&gt;|Yes| ProceedSend
     CheckChanges --&gt;|No| SkipSend
     
-    ProceedSend --&gt; BuildMetadata[Build metadata updates&lt;br/&gt;- manifest.csv&lt;br/&gt;- VERSION file&lt;br/&gt;- changelog]
+    ProceedSend --&gt; BuildMetadata[Build metadata updates&lt;br/&gt;- manifest&lt;br/&gt;- VERSION file&lt;br/&gt;- changelog]
     SkipSend --&gt; End
     BuildMetadata --&gt; End([Return plan])
     
@@ -216,7 +216,7 @@ files need to be uploaded, removed, or updated.</p>
 <li>
 <code>version</code> - Updated VERSION file content</li>
 <li>
-<code>manifest</code> - Updated manifest.csv content</li>
+<code>manifest</code> - Updated directory manifest</li>
 <li>
 <code>purge</code> - Whether to purge all remote files before
 upload</li>
@@ -249,7 +249,7 @@ all local files</li>
 what’s on the remote:</p>
 <ul>
 <li>
-<strong>manifest</strong> - Use remote manifest.csv (fast, requires
+<strong>manifest</strong> - Use the remote manifest (fast, requires
 valid manifest)</li>
 <li>
 <strong>file</strong> - Download and hash actual files (slower,
@@ -296,7 +296,7 @@ metadata.</p>
     CheckCreate --&gt;|Yes| CreateEmpty[Create empty remote]
     CheckCreate --&gt;|No| UpdateMetadata
     
-    CreateEmpty --&gt; UpdateMetadata[Upload metadata files&lt;br/&gt;- manifest.csv&lt;br/&gt;- VERSION file&lt;br/&gt;- CHANGELOG.md]
+    CreateEmpty --&gt; UpdateMetadata[Upload metadata files&lt;br/&gt;- manifest&lt;br/&gt;- VERSION file&lt;br/&gt;- CHANGELOG.md]
     
     UpdateMetadata --&gt; End([Complete])
     
@@ -324,8 +324,10 @@ variants:
 </ul>
 </li>
 <li>
-<strong>Update metadata</strong> - Upload manifest.csv, VERSION
-file, and optionally CHANGELOG.md</li>
+<strong>Update metadata</strong> - Write the directory histories,
+VERSION file, and optional CHANGELOG.md. Local destinations store
+histories in <code>manifests/</code>. GitHub Releases carry one
+<code>manifest.zip</code> asset.</li>
 </ol>
 <p><strong>Remote Variants:</strong></p>
 <p>For archive structures, projr manages two variants of each
@@ -410,9 +412,9 @@ changed - <code>never</code> - Skip upload</p>
 <code>upload-all</code> - Upload all files - <code>upload-missing</code>
 - Only upload missing files</p>
 <p><strong>send_inspect</strong> (how to check remote): -
-<code>manifest</code> - Use manifest.csv (fast) - <code>file</code> -
-Hash actual files (slower, accurate) - <code>none</code> - Treat as
-empty (always upload)</p>
+<code>manifest</code> - Use manifest (fast) - <code>file</code> - Hash
+actual files (slower, accurate) - <code>none</code> - Treat as empty
+(always upload)</p>
 </div>
 <div class="section level2">
 <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
@@ -482,11 +484,11 @@ Remove all remote files, upload all local files</p>
 synchronization:</p>
 <p><strong>Trusted Versions</strong> (can use manifest for comparison):
 - Uploaded with <code>sync-diff</code> or <code>sync-purge</code>
-strategy - Has valid manifest.csv on remote - No local changes since
+strategy - Has a valid manifest on the remote - No local changes since
 that version</p>
 <p><strong>Untrusted Versions</strong> (must hash actual files): -
 Uploaded with <code>upload-all</code> or <code>upload-missing</code>
-strategy - No manifest.csv on remote - Manifest doesn’t match local
+strategy - No manifest on the remote - Manifest doesn’t match local
 manifest for that version</p>
 <p>The VERSION file tracks trust status with an asterisk:</p>
 <pre><code>project: 0.0.2

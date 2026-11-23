@@ -101,8 +101,8 @@ are found to restore or if any restoration fails. For
 These functions restore artefact directories from remote sources:
 
 - `projr_content_update()` restores artefacts in an existing local
-  project without any cloning required. Requires a `manifest.csv` file
-  in the project root.
+  project without any cloning required. Reads directory histories in
+  `_projr/manifests/` or a legacy root `manifest.csv`.
 
 - `projr_restore_repo()` clones a GitHub repository into a subdirectory
   (or specified path), then restores artefacts from that repository's
@@ -128,7 +128,7 @@ These functions restore artefact directories from remote sources:
 
 **Error Handling:** The functions handle errors gracefully:
 
-- Missing `manifest.csv` triggers an informative error
+- A missing project manifest triggers an informative error
 
 - Invalid labels or missing remote sources result in warning messages
   and skipped restoration

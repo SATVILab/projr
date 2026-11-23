@@ -398,8 +398,9 @@ also creates a detailed Quarto log file organised by date.</p>
 <div class="section level2">
 <h2 id="query-the-manifest">9. Query the manifest<a class="anchor" aria-label="anchor" href="#query-the-manifest"></a>
 </h2>
-<p>The manifest (<code>manifest.csv</code>) tracks file hashes across
-versions. It is updated only by final builds, not dev builds.</p>
+<p>Each final build records file hashes in the per-directory histories
+under <code>_projr/manifests/</code>. Identical directory contents share
+one file list.</p>
 <p>Compare two versions:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.2"</span><span class="op">)</span></span>

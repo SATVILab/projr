@@ -24,14 +24,22 @@ Key architectural patterns:
   `_projr/config/`. A root file takes precedence over a nested file of
   the same name. Update the selected file in place and interpret
   configured paths relative to the project root.
-- **Manifest tracking**: Every build records file hashes in
-  `manifest.csv`, linking outputs to exact input versions.
+- **Manifest tracking**: Production builds record each hashed directory
+  independently under `_projr/manifests/<label>/`. Its `versions.csv`
+  maps project versions to the earliest matching directory version and
+  the SHA-256 of a file list. Each distinct list of relative paths and
+  MD5 hashes is stored once.
 - **Remote destinations**: A unified dispatcher pattern (`R/remote.R`)
   routes file operations to local, GitHub, or OSF backends.
 - **Internal vs. exported functions**: Internal helpers use a `.` prefix
   (e.g., `.hash_file()`); exported functions use the `projr_` prefix
   (e.g.,
   [`projr_build_patch()`](https://satvilab.github.io/projr/reference/projr_build.md)).
+
+A project with a legacy root `manifest.csv` can be queried and restored
+before migration. The next production build imports its history. Local
+destinations store directory histories in `manifests/`. GitHub Releases
+use one `manifest.zip` asset.
 
 ### Build script selection and rendering
 
@@ -123,22 +131,24 @@ Key architectural patterns:
 
 ### Language
 
-- **R** (≥ 4.1.0) — all source code lives in `R/`
+- **R** (≥ 4.1.0) in `R/`, with native manifest code in `src/`
+  registered through `cpp11`
 
 ### Core R package dependencies (Imports)
 
-| Package     | Purpose                                       |
-|-------------|-----------------------------------------------|
-| `renv`      | Reproducible dependency management            |
-| `yaml`      | Read/write `_projr.yml`                       |
-| `jsonlite`  | JSON serialisation                            |
-| `rprojroot` | Reliable project-root detection               |
-| `desc`      | Read/write `DESCRIPTION`                      |
-| `fs`        | File-system operations                        |
-| `digest`    | MD5 hashing for manifests                     |
-| `uuid`      | Random UUIDv4 identifiers for build templates |
-| `cli`       | Console output                                |
-| `glue`      | String interpolation                          |
+| Package     | Purpose                                           |
+|-------------|---------------------------------------------------|
+| `renv`      | Reproducible dependency management                |
+| `yaml`      | Read/write `_projr.yml`                           |
+| `jsonlite`  | JSON serialisation                                |
+| `rprojroot` | Reliable project-root detection                   |
+| `desc`      | Read/write `DESCRIPTION`                          |
+| `fs`        | File-system operations                            |
+| `digest`    | MD5 hashing for manifests                         |
+| `uuid`      | Random UUIDv4 identifiers for build templates     |
+| `filelock`  | Serialize concurrent updates to project manifests |
+| `cli`       | Console output                                    |
+| `glue`      | String interpolation                              |
 
 ### Suggested / optional dependencies
 

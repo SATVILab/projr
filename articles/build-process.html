@@ -336,8 +336,8 @@ cleared before copying.</p>
 <li>Hashes files in <code>output</code> and <code>docs</code>
 directories</li>
 <li>Merges with the pre-build manifest</li>
-<li>Appends the current version to <code>manifest.csv</code>
-</li>
+<li>Records the build version in each hashed directory’s manifest
+index</li>
 </ol>
 <p>See the Manifest System section below for query functions.</p>
 </div>
@@ -478,22 +478,26 @@ details.</p>
 <div class="section level3">
 <h3 id="manifest-system">Manifest System<a class="anchor" aria-label="anchor" href="#manifest-system"></a>
 </h3>
-<p>The manifest tracks file hashes across versions in
-<code>manifest.csv</code> at the project root.</p>
-<p>Pre-build hashes cover input directories (<code>raw-data</code>,
-<code>cache</code>). Post-build hashes cover output directories
-(<code>output</code>, <code>docs</code>). Both are merged and appended
-to the cumulative manifest.</p>
-<pre class="csv"><code>label,fn,version,hash
-raw-data,dataset.csv,v0.0.1,abc123def456
-output,figure1.png,v0.0.1,jkl678mno901
-docs,index.html,v0.0.1,pqr234stu567</code></pre>
-<p>This enables:</p>
-<ul>
-<li>Knowing exactly what changed between versions</li>
-<li>Uploading only changed files to remotes</li>
-<li>An audit trail linking outputs to specific input versions</li>
-</ul>
+<p>Production builds record input directories before rendering and
+output directories afterward. Each hashed label has its own history
+under <code>_projr/manifests/</code>. For example,
+<code>raw-data/versions.csv</code> might contain the following rows
+(snapshot IDs are abbreviated here).</p>
+<pre class="csv"><code>label,version,directory_version,snapshot
+raw-data,v1.0.0,v1.0.0,abcd…
+raw-data,v1.1.0,v1.0.0,abcd…
+raw-data,v1.2.0,v1.2.0,ef01…
+raw-data,v1.3.0,v1.0.0,abcd…</code></pre>
+<p>Here the data changed in v1.2.0 and returned to its original contents
+in v1.3.0. The four builds share two file lists. Open
+<code>raw-data/files-&lt;snapshot&gt;.csv</code> to see each relative
+filename (<code>fn</code>) and its MD5 (<code>hash</code>). The full
+SHA-256 in the index identifies those exact CSV bytes. A change in
+<code>output/</code> updates that label’s history independently.</p>
+<p>An existing project can continue reading its root
+<code>manifest.csv</code>. Its next production build imports the old
+history and writes subsequent updates under
+<code>_projr/manifests/</code>.</p>
 <p>Query the manifest:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Changes between two versions</span></span>

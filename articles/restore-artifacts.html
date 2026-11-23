@@ -153,7 +153,8 @@ in the right place before calling it.</p>
 <h2 id="projr_content_update">projr_content_update()<a class="anchor" aria-label="anchor" href="#projr_content_update"></a>
 </h2>
 <p>Restores artifacts in an existing local project (no cloning). The
-project must have a <code>manifest.csv</code> in its root.</p>
+project must have a build history in <code>_projr/manifests/</code> or a
+legacy root <code>manifest.csv</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_restore.html">projr_content_update</a></span><span class="op">(</span></span>
 <span>  label <span class="op">=</span> <span class="cn">NULL</span>,  <span class="co"># which artifacts (default: all raw-* labels)</span></span>
@@ -170,8 +171,8 @@ project must have a <code>manifest.csv</code> in its root.</p>
 <span></span>
 <span><span class="co"># Restore from a specific remote</span></span>
 <span><span class="fu"><a href="../reference/projr_restore.html">projr_content_update</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"local"</span>, title <span class="op">=</span> <span class="st">"network-backup"</span><span class="op">)</span></span></code></pre></div>
-<p>If <code>manifest.csv</code> is missing, the project needs at least
-one successful <code>projr_build_*()</code> run first.</p>
+<p>If the project has no manifest, the project needs at least one
+successful <code>projr_build_*()</code> run first.</p>
 </div>
 <div class="section level2">
 <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a>
