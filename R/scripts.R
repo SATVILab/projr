@@ -2,6 +2,11 @@
   scripts_vec_specified <- .scripts_get_specified(
     scripts, bump_component, profile
   )
+  if (is.null(scripts) && any(trimws(scripts_vec_specified) == "")) {
+    stop('Empty YAML script entry. Quote exclusions such as "!skip.R", or use scripts: [] to run nothing.',
+      call. = FALSE
+    )
+  }
   .scripts_get_final(scripts_vec_specified)
 }
 
@@ -28,7 +33,11 @@
     return(character(0))
   }
 
-  scripts_vec_inc <- .scripts_get_inc(scripts)
+  if (all(startsWith(scripts, "!"))) {
+    # Only the engine planner knows which project owns the automatic selection.
+    return(scripts)
+  }
+  scripts_vec_inc <- .scripts_get_inc_specified(scripts)
   scripts_vec_exc <- .scripts_get_exc(scripts)
 
   scripts_vec_inc[!scripts_vec_inc %in% scripts_vec_exc]
@@ -37,16 +46,6 @@
 .scripts_get_exc <- function(scripts) {
   patterns <- substring(scripts[startsWith(scripts, "!")], 2L)
   .scripts_expand_patterns(patterns)
-}
-
-.scripts_get_inc <- function(scripts) {
-  if (all(startsWith(scripts, "!"))) {
-    # if there no explicitly-included scripts,
-    # then include all available scripts that aren't later excluded
-    .scripts_get_inc_all()
-  } else {
-    .scripts_get_inc_specified(scripts)
-  }
 }
 
 .scripts_get_inc_all <- function() {

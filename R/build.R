@@ -189,7 +189,8 @@ projr_build_patch <- function(msg = NULL,
 #' checks `dev.scripts` and then `build.scripts`. If neither is set, a
 #' Quarto or Bookdown project renders before automatically detected R scripts.
 #' Without a project, scripts are detected in the project root and run
-#' alphabetically.
+#' alphabetically. When every entry is an exclusion, use these automatic rules
+#' and skip the matching files. Quote exclusions in YAML, such as `"!scratch.R"`.
 #'
 #' Explicit selections run in order, with each glob expanded alphabetically. Listing an R script or
 #' standalone document twice runs it twice. A repeated project document is an error.
@@ -367,7 +368,7 @@ projr_build_dev <- function(scripts = NULL,
       add = TRUE,
       after = FALSE
     )
-    .build_engines_override_project(engines)
+    engines <- .build_engines_override_project(engines, restore_project, args_engine[["profile"]])
 
     # Build stage
     if (length(engines)) {
