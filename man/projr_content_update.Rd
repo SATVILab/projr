@@ -82,7 +82,7 @@ If the project isn't available locally yet,
 These functions restore artefact directories from remote sources:
 \itemize{
 \item \code{projr_content_update()} restores artefacts in an existing local project without any cloning required.
-Reads directory histories in \verb{_projr/manifests/} or a legacy root \code{manifest.csv}.
+Reads directory histories in \verb{.projr/manifests/} or a legacy root \code{manifest.csv}.
 \item \code{projr_restore_repo()} clones a GitHub repository into a subdirectory (or specified path),
 then restores artefacts from that repository's remote sources.
 \item \code{projr_restore_repo_wd()} clones directly into the current working directory, then restores artefacts.

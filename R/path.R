@@ -254,17 +254,18 @@
 # get
 # ---------------------
 
-# A default config inside _projr/config belongs to the surrounding project.
+# A default config inside .projr/config belongs to the surrounding project.
 .projr_root_criterion <- rprojroot::root_criterion(function(path) {
-  is_config_dir <- basename(path) == "config" && basename(dirname(path)) == "_projr"
+  is_config_dir <- basename(path) == "config" && basename(dirname(path)) %in% c(".projr", "_projr")
   (!is_config_dir && utils::file_test("-f", file.path(path, "_projr.yml"))) ||
+    utils::file_test("-f", file.path(path, ".projr/config/_projr.yml")) ||
     utils::file_test("-f", file.path(path, "_projr/config/_projr.yml"))
 }, "a projr project configuration")
 
 .path_project_root <- function(required = TRUE) {
   root <- tryCatch(rprojroot::find_root(.projr_root_criterion), error = function(e) NULL)
   if (required && is.null(root)) {
-    stop("No projr project found. Expected _projr.yml at the project root or in _projr/config/.", call. = FALSE)
+    stop("No projr project found. Expected _projr.yml at the project root or in .projr/config/.", call. = FALSE)
   }
   root
 }

@@ -93,7 +93,7 @@ test_that(".build_manifest_* works", {
       invisible(.file_rm(.build_manifest_pre_path_get()))
       .dir_rm(projr_path_get_dir("docs", safe = FALSE))
       .dir_rm(projr_path_get_dir("output", safe = FALSE))
-      .dir_rm(.path_get("_projr", "manifests"))
+      .dir_rm(.path_get(".projr", "manifests"))
       path_manifest <- .build_manifest_post(TRUE)
       # Empty docs (1) + empty output (1) = 2
       expect_identical(nrow(.manifest_read(path_manifest)), 2L)
@@ -962,7 +962,7 @@ test_that(".build_manifest_post_get_path returns cache path when output_run is F
     code = {
       # Test: output_run = TRUE returns the project manifest directory
       path_output <- .build_manifest_post_get_path(TRUE)
-      expect_identical(path_output, .path_get("_projr", "manifests"))
+      expect_identical(path_output, .path_get(".projr", "manifests"))
 
       # Test: output_run = FALSE returns versioned cache directory path
       path_cache <- .build_manifest_post_get_path(FALSE)

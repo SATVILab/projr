@@ -2,10 +2,10 @@
 # =====================
 #
 # This module provides persistent logging for build runs.
-# Logs are stored in cache/projr/log/ which is never cleared automatically.
+# Logs are stored in .projr/logs/ which is never cleared automatically.
 #
 # Directory structure:
-# cache/projr/log/
+# .projr/logs/
 #   +-- output/
 #   |   +-- history/
 #   |   |   +-- builds.md (all build records, newest first)
@@ -27,9 +27,7 @@
 #' @return Character. Path to the log directory.
 #' @keywords internal
 .log_dir_get_base <- function() {
-  # Get cache directory and append log subdirectory
-  cache_dir <- .path_get_cache_auto_dir("projr", create = TRUE, profile = NULL)
-  file.path(.path_resolve_root(cache_dir), "log")
+  as.character(.path_get(".projr", "logs"))
 }
 
 #' Get log directory for build type

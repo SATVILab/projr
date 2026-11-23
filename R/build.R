@@ -236,7 +236,8 @@ projr_build_dev <- function(scripts = NULL,
   markers <- rprojroot::criteria$is_vcs_root | rprojroot::has_file("VERSION") |
     rprojroot::has_file("DESCRIPTION") | rprojroot::criteria$is_rstudio_project |
     rprojroot::criteria$is_renv_project | rprojroot::criteria$is_quarto_project |
-    rprojroot::has_file("_bookdown.yml") | rprojroot::has_dir("_projr/config")
+    rprojroot::has_file("_bookdown.yml") | rprojroot::has_dir(".projr/config") |
+    rprojroot::has_dir("_projr/config")
   root <- tryCatch(rprojroot::find_root(markers), error = function(e) getwd())
   starter <- system.file("project_structure", "_projr.yml", package = "projr", mustWork = TRUE)
   config <- yaml::read_yaml(starter)
@@ -285,6 +286,7 @@ projr_build_dev <- function(scripts = NULL,
                    archive_local = FALSE,
                    always_archive = TRUE,
                    clear_output = NULL) {
+  .project_state_upgrade(.path_get())
   old_wd <- setwd(.path_get())
   on.exit(setwd(old_wd), add = TRUE, after = FALSE)
   if (!is.null(profile)) {

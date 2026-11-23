@@ -624,7 +624,7 @@ test_that("directory and file queries preserve history when a snapshot recurs", 
     # A comparison of the two identical snapshots only reads those endpoints.
     index <- .manifest_store_index(label = "output")
     changed_snapshot <- index$snapshot[index$version == versions[2L]]
-    unlink(.path_get("_projr", "manifests", "output", paste0("files-", changed_snapshot, ".csv")))
+    unlink(.path_get(".projr", "manifests", "output", paste0("files-", changed_snapshot, ".csv")))
     expect_identical(projr_manifest_changes(versions[1L], versions[3L], "output"), .zero_tbl_get_manifest_changes())
     expect_identical(projr_manifest_changes(versions[1L], label = "output"), .zero_tbl_get_manifest_changes())
     expect_identical(projr_manifest_range(versions[1L], versions[1L], "output")$version_first, versions[1L])
