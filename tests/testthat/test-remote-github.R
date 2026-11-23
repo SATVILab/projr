@@ -91,6 +91,16 @@ test_that("GitHub manifest and VERSION archives round-trip offline", {
       "FORMAT", "output/versions.csv", "raw-data/versions.csv",
       snapshot("output", "result", "def"), snapshot("raw-data", "sample", "abc")
     ))
+    # A provisional local import cannot serve as a published release history.
+    writeLines("importing", file.path(stage, "FORMAT"))
+    incomplete <- file.path(stage, "partial.zip")
+    withr::with_dir(stage, utils::zip(incomplete, "FORMAT", flags = "-q"))
+    .gh_release_asset_upload_httr(.gh_repo_get(), tags[1], incomplete, asset_name = "manifest.zip")
+    expect_error(.remote_get_manifest("github", remote), "Incomplete manifest.zip")
+    expect_error(.remote_write_manifest("github", remote, output), "Incomplete manifest.zip")
+    retained <- .remote_file_get_all_github_httr(.gh_repo_get(), tags[1], "manifest.zip", stage)
+    expect_identical(digest::digest(file = retained), digest::digest(file = incomplete))
+
     .remote_write_version_file("github", c(tag = tags[2]), "v1.2.3")
     expect_identical(.remote_get_version_file("github", c(tag = tags[2])), "v1.2.3")
   })

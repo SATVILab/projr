@@ -98,6 +98,9 @@
       indexes <- intersect(indexes, file.path(.path_encode_component(label), "versions.csv"))
     }
     extract(c("FORMAT", indexes))
+    if (!.manifest_store_ready(store)) {
+      stop("Incomplete manifest.zip in release '", tag, "'.", call. = FALSE)
+    }
     index <- .manifest_store_index(store, label)
     if (!is.null(version)) index <- index[index$version == version, , drop = FALSE]
     extract(.remote_manifest_snapshots(index))
