@@ -1,12 +1,8 @@
-# Get active `projr` settings and do no check
+# Read project settings without validation
 
-A list of the active `projr` settings, without doing any error checking.
-Gets active `projr` settings, which merges settings and resolves
-conflicts between local (`_projr-local.yml`), profile
-(`_projr-<projr>.yml` or as - keys in `_projr.yml`) and default
-(`_projr.yml`) settings. Where there are conflicts, local settings has
-highest precedence (i.e. are always preferred) and default settings have
-lowest precedence (i.e. are never preferred).
+With `profile = NULL`, local settings in `_projr-local.yml` override the
+active profile settings, which override the defaults in `_projr.yml`.
+Supply a profile name to read its own configuration.
 
 ## Usage
 
@@ -18,15 +14,13 @@ lowest precedence (i.e. are never preferred).
 
 - profile:
 
-  character. If supplied, the specific profile file to read in.
-  "default" loads `_projr.yml`, but another value loads
-  `_projr-<profile>.yml`. If NULL, then the active profile is used. It
-  not supplied, then treated as `NULL`.
+  A profile name, or `NULL` for the merged active settings.
 
 ## Value
 
-A named list.
+A named list of project settings.
 
 ## See also
 
-.yml_get.yml_check
+[`projr_yml_get()`](https://satvilab.github.io/projr/reference/projr_yml_get.md),
+[`projr_yml_check()`](https://satvilab.github.io/projr/reference/projr_yml_check.md)

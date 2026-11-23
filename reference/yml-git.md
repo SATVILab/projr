@@ -1,6 +1,6 @@
 # Set Git options
 
-.yml_git_set\` sets Git options for the project.
+`projr_yml_git_set()` sets Git options for the project.
 
 The options are:
 
@@ -13,10 +13,11 @@ The options are:
 
 The default is to leave all the settings unchanged.
 
-If these settings are not setting in `_projr.yml`, then the default is
-to commit, add untracked files and push.
+If these settings are absent from `_projr.yml`, then the default is to
+commit, add untracked files and push.
 
-.yml_git_set_default` sets all Git options to default (`TRUE\`).
+`projr_yml_git_set_default()` sets all Git options to their default
+(`TRUE`).
 
 ## Usage
 
@@ -75,8 +76,9 @@ projr_yml_git_set_default(
 
 - profile:
 
-  character. Profile to add the script to. If
-  ``` "default"`` (the default), the script is added to the default profile, which is  ```\_projr.yml`. If `NULL`, then the active profile is used (i.e the merge of `\_projr-local.yml`, `\_projr-.yml`and`\_projr.yml`) and written to `\_projr.yml`. If another character vector, then the corresponding profile is used and written to `\_projr-.yml\`.
+  Profile to update. The default, `"default"`, updates `_projr.yml`. A
+  named profile updates `_projr-<profile>.yml`. With `NULL`, read the
+  merged active settings and write to `_projr.yml`.
 
 ## Examples
 

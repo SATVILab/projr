@@ -186,9 +186,7 @@ Functions for querying manifest to track file changes across versions
 Functions for managing \_projr.yml configuration
 
 - [`projr_yml_get()`](https://satvilab.github.io/projr/reference/projr_yml_get.md)
-  :
-
-  Get active `projr` settings and checks for validity
+  : Read project settings
 
 - [`projr_yml_check()`](https://satvilab.github.io/projr/reference/projr_yml_check.md)
   :
@@ -359,9 +357,7 @@ Functions for managing build logs
 Internal helper functions (not exported)
 
 - [`.yml_get()`](https://satvilab.github.io/projr/reference/dot-yml_get.md)
-  :
-
-  Get active `projr` settings and do no check
+  : Read project settings without validation
 
 - [`projr_profile_create_local()`](https://satvilab.github.io/projr/reference/projr_profile_create_local.md)
   :
