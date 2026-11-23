@@ -1,3 +1,5 @@
+withr::local_dir(testthat::test_path("project_structure"))
+
 test_that(".yml_remote_check validates required parameters", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())

@@ -477,18 +477,10 @@ with_dir <- function(new, code) {
 #' @title `projr` drop-in replacement for usethis::use_data
 #'
 #' @description
-#' usethis::use_data always saves data to `data/`, which
-#' conflicts with the temporary directories used by .build_dev`
-#' and makes it difficult to restore after failed output builds.
-#'
-#' .use_data` is a drop-in replacement for `usethis::use_data`,
-#' which saves data to the temporary directory when `safe = TRUE`.
-#' This makes it easier to restore the project after a failed output build.
-#'
-#' The only other difference is that .use_data` invisibly
-#' returns the path to the saved data file, whereas `usethis::use_data`
-#' returns `TRUE`.
-#'
+#' Save package datasets in the staged build cache by default. For datasets
+#' intended for package users, declare the `data` label under `directories`
+#' with the final path (normally `data` in an R package). Internal datasets
+#' use the package's `R/sysdata.rda` convention.
 #' @param ... Unquoted names of existing objects to save.
 #' @param internal If `FALSE`, saves each object in its own `.rda`
 #'   file in the `data/` directory. These data files bypass the usual
@@ -510,7 +502,7 @@ with_dir <- function(new, code) {
 #' @param safe logical.
 #' Whether to save data to a temporary directory
 #' (in `<cache>/"projr"/v<version>/data/`)
-#' or "data/".
+#' or the configured final data directory.
 #' Default is the temporary directory (TRUE).
 #'
 #' @details
@@ -541,47 +533,33 @@ projr_use_data <- function(
   # except that we adjust output directory
   # based on whether it's an output run or not
   objs <- .usethis_get_objs_from_dots(.usethis_dots(...))
-  # not going to add dependency as `projr` will only
-  # work for R > 3.5.0
-  if (!safe) {
-    if (internal) {
-      .dir_create("R")
-      paths <- file.path("R", "sysdata.rda")
-      objs <- list(objs)
+  if (internal) {
+    directory <- if (safe) {
+      .path_resolve_root(.dir_get_cache_auto_version("R", profile = NULL))
     } else {
-      .dir_create("data")
-      paths <- fs::path("data", objs, ext = "rda")
+      .path_get("R")
+    }
+    .dir_create(directory)
+    paths_project <- file.path(directory, "sysdata.rda")
+    objs <- list(objs)
+  } else {
+    directory <- projr_path_get_dir("data", safe = safe, format = "absolute")
+    paths_project <- as.character(fs::path(directory, objs, ext = "rda"))
+    if (!safe) {
       desc <- .usethis_proj_desc()
       if (!desc$has_fields("LazyData")) {
         desc$set(LazyData = "true")
         desc$write()
       }
     }
-  } else {
-    path_tmp_base <- .dir_get_cache_auto_version(profile = NULL)
-    if (internal) {
-      .dir_create(file.path(path_tmp_base, "R"))
-      paths <- file.path(file.path(path_tmp_base, "R"), "sysdata.rda")
-      objs <- list(objs)
-    } else {
-      .dir_create(file.path(path_tmp_base, "data"))
-      paths <- fs::path(file.path(path_tmp_base, "data"), objs, ext = "rda")
-      desc <- .usethis_proj_desc()
-      # don't set the lazy data entry as this is a dev build
-    }
   }
   if (!overwrite) {
-    fn_vec_existing <- .file_filter_exists(.path_get(paths))
-    if (length(fn_vec_existing) > 0L) {
-      stop(
-        "The following files already exist:\n",
-        paste0("  ", fn_vec_existing, collapse = "\n"),
-        call. = FALSE
-      )
+    existing <- .file_filter_exists(paths_project)
+    if (length(existing)) {
+      stop("The following files already exist:\n", paste0("  ", existing, collapse = "\n"), call. = FALSE)
     }
   }
   envir <- parent.frame()
-  paths_project <- vapply(paths, .path_get, character(1))
   mapply(
     save,
     list = objs,
@@ -707,20 +685,13 @@ projr_use_data <- function(
 }
 
 .opt_dir_get_label <- function(profile) {
-  c(
-    .yml_dir_get(profile) |> names(),
-    "docs",
-    "data",
-    "code",
-    "project"
-  )
+  names(.yml_dir_get(profile))
 }
 
 .opt_dir_get_label_send <- function(profile, type = NULL) {
   .opt_dir_get_label(profile) |>
     setdiff("project") |>
-    c(.yml_dir_get_label_docs(profile)) |>
-    c("package") |>
+    c("package", if (identical(type, "github")) "code") |>
     unique()
 }
 

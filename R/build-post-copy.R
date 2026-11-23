@@ -65,7 +65,7 @@
   }
 
   label_vec_output <- .yml_dir_get_label_output(NULL) |>
-    c("data") |>
+    c(intersect("data", names(.yml_dir_get(NULL)))) |>
     unique()
   .cli_debug("  Labels to copy: {paste(label_vec_output, collapse = ', ')}")
 

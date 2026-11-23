@@ -123,22 +123,6 @@ test_that(".yml_dir_complete_hash dispatches correctly", {
   )
 })
 
-test_that(".yml_dir_get_path_default works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  # Test default paths
-  expect_identical(.yml_dir_get_path_default("output"), "_output")
-  expect_identical(.yml_dir_get_path_default("raw"), "_raw_data")
-  expect_identical(.yml_dir_get_path_default("rawdata"), "_raw_data")
-  expect_identical(.yml_dir_get_path_default("cache"), "_tmp")
-
-  # Test non-default labels
-  expect_identical(.yml_dir_get_path_default("docs"), NULL)
-  expect_identical(.yml_dir_get_path_default("project"), NULL)
-  expect_identical(.yml_dir_get_path_default("custom-label"), NULL)
-})
-
 test_that(".yml_dir_get_label_nm functions work", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -206,7 +190,7 @@ test_that(".yml_dir_get_label_in and _out work", {
       out_labels <- .yml_dir_get_label_out("default")
       expect_true("output" %in% out_labels)
       expect_true("docs" %in% out_labels)
-      expect_true("data" %in% out_labels)
+      expect_false("data" %in% out_labels)
       expect_false("raw-data" %in% out_labels)
       expect_false("cache" %in% out_labels)
     }
@@ -227,7 +211,7 @@ test_that(".yml_dir_get_label_artefact works", {
       expect_true("cache" %in% artefact_labels)
       expect_true("output" %in% artefact_labels)
       expect_true("docs" %in% artefact_labels)
-      expect_true("data" %in% artefact_labels)
+      expect_false("data" %in% artefact_labels)
     }
   )
 })
@@ -500,37 +484,6 @@ test_that(".yml_dir_add_label works", {
   )
 })
 
-test_that(".yml_dir_get_complete_label works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  # Test with empty yml_dir
-  empty_yml <- list()
-  result <- .yml_dir_get_complete_label(empty_yml)
-  expect_true("raw-data" %in% names(result))
-  expect_true("cache" %in% names(result))
-  expect_true("output" %in% names(result))
-
-  # Test with partial yml_dir
-  partial_yml <- list(
-    "output" = list(path = "_output")
-  )
-  result <- .yml_dir_get_complete_label(partial_yml)
-  expect_true("raw-data" %in% names(result))
-  expect_true("cache" %in% names(result))
-  expect_true("output" %in% names(result))
-
-  # Test with all required labels present
-  full_yml <- list(
-    "raw-data" = list(path = "_raw"),
-    "cache" = list(path = "_cache"),
-    "output" = list(path = "_out")
-  )
-  result <- .yml_dir_get_complete_label(full_yml)
-  expect_identical(length(result), 3L)
-  expect_identical(result$output$path, "_out")
-})
-
 test_that(".yml_dir_set_label_empty works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -624,44 +577,6 @@ test_that(".yml_dir_get and _set work", {
       yml_dir_new <- .yml_dir_get("default")
       expect_true("output-new" %in% names(yml_dir_new))
       expect_identical(yml_dir_new$`output-new`$path, "_new")
-    }
-  )
-})
-
-test_that(".yml_dir_set_docs works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Set docs path
-      .yml_dir_set_docs("_documentation", "default")
-      docs_path <- .yml_dir_get_path("docs", "default")
-      expect_identical(docs_path, "_documentation")
-    }
-  )
-})
-
-test_that(".yml_dir_get_docs_rel_if_within_cache works", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Test path outside cache
-      external_path <- "_docs"
-      result <- .yml_dir_get_docs_rel_if_within_cache(external_path, "default")
-      expect_identical(result, external_path)
-
-      # Test path inside cache
-      cache_dir <- .dir_get_cache_auto_version(profile = "default")
-      internal_path <- file.path(cache_dir, "docs")
-      result <- .yml_dir_get_docs_rel_if_within_cache(internal_path, "default")
-      expect_identical(as.character(result), "docs")
     }
   )
 })

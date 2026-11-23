@@ -82,12 +82,12 @@
 }
 
 .gh_guess_repo_use_gh <- function(path = ".") {
-  requireNamespace("gh", quietly = TRUE) && !.git_repo_is_worktree()
+  requireNamespace("gh", quietly = TRUE) && !utils::file_test("-f", file.path(path, ".git"))
 }
 
 .gh_guess_repo_gh <- function(path = ".") {
   remote_list <- suppressWarnings(gh::gh_tree_remote(path))
-  paste0(remote_list$username, "/", remote_list$repo)
+  .gh_owner_repo_from_url(paste0(remote_list$username, "/", remote_list$repo))
 }
 
 # Shared flow: origin -> first remote; robustly handle git/gert errors
@@ -212,6 +212,7 @@
 }
 
 .gh_parse_owner_repo <- function(remote_url) {
+  remote_url <- sub("/+$", "", remote_url)
   owner_repo <- NULL
   if (grepl("^[^@]+@[^:]+:[^/]+/.+$", remote_url)) {
     owner_repo <- sub("^.+?:", "", remote_url)
@@ -228,7 +229,6 @@
   }
 
   owner_repo <- gsub("\\.git$", "", owner_repo)
-  owner_repo <- gsub("/+$", "", owner_repo)
   parts <- strsplit(owner_repo, "/")[[1]]
   if (length(parts) < 2 || !nzchar(parts[1]) || !nzchar(parts[2])) {
     stop("Failed to get GitHub repository owner and name from git remote URL: ", remote_url)

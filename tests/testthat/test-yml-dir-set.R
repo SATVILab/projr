@@ -49,7 +49,7 @@ test_that("projr_yml_dir_path_rm works", {
       yml_dir_after <- .yml_dir_get_label("output", "default")
 
       # Should revert to default path
-      expect_identical(yml_dir_after[["path"]], "_output")
+      expect_null(yml_dir_after)
     }
   )
 })

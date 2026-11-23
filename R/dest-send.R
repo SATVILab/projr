@@ -342,6 +342,10 @@
     "Destination '{title}': Send APPROVED - Processing {length(content_vec)} content label(s): {paste(content_vec, collapse = ', ')}"
   )
 
+  # GitHub provides source archives on the release tag itself.
+  if (type == "github" && !"code" %in% names(.yml_dir_get(NULL))) {
+    content_vec <- setdiff(content_vec, "code")
+  }
   for (x in content_vec) {
     .dest_send_label(
       x, title, type, .build_get_output_run(bump_component),
@@ -449,9 +453,7 @@
 #' @noRd
 .dest_send_title_get_content_auto <- function() {
   yml_dir <- .yml_dir_get(NULL)
-  nm_vec <- names(yml_dir) |>
-    c("docs") |>
-    unique()
+  nm_vec <- names(yml_dir)
   nm_vec_output <- nm_vec[.yml_dir_label_class_detect_output(nm_vec)]
   nm_vec_raw <- nm_vec[.yml_dir_label_class_detect_raw(nm_vec)]
   nm_vec_docs <- nm_vec[.yml_dir_label_class_detect_docs(nm_vec)]

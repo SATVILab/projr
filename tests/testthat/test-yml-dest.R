@@ -393,6 +393,7 @@ test_that(".yml_dest_complete_title_id completes ID for different types", {
 test_that(".yml_dest_complete_title applies all completions", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  withr::local_dir(testthat::test_path("project_structure"))
 
   # Local destination
   yml_title <- list(

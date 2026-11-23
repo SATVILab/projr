@@ -184,12 +184,6 @@ test_that(".engine_get_from_scripts works correctly", {
     .engine_get_from_scripts(c("analysis.qmd", "report.Rmd")),
     "quarto_document"
   )
-
-  # Test with NULL
-  expect_identical(
-    .engine_get(NULL),
-    .engine_get_auto()
-  )
 })
 
 test_that("dev.scripts is used exclusively for dev builds", {

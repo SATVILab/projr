@@ -77,7 +77,7 @@ projr_version_set <- function(version, only_if_exists = TRUE) {
   .assert_flag(only_if_exists)
   version <- version |> .version_v_add()
   path_file <- if (is.null(path_dir)) {
-    projr_path_get("project", "VERSION")
+    .path_get("VERSION")
   } else {
     .dir_create(path_dir)
     file.path(path_dir, "VERSION")

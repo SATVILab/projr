@@ -258,10 +258,8 @@
     .assert_chr(path_dir, required = TRUE)
   }
 
-  c(
-    ".", "..", .path_get(),
-    dirname(.path_get()), path_dir
-  ) |>
+  root <- .path_project_root(required = FALSE)
+  c(".", "..", root, dirname(root %||% character()), path_dir) |>
     .file_filter_dir() |>
     .file_filter_exists() |>
     fs::path_real() |>
@@ -277,36 +275,23 @@
 # A default config inside _projr/config belongs to the surrounding project.
 .projr_root_criterion <- rprojroot::root_criterion(function(path) {
   is_config_dir <- basename(path) == "config" && basename(dirname(path)) == "_projr"
-  (!is_config_dir && file.exists(file.path(path, "_projr.yml"))) ||
-    file.exists(file.path(path, "_projr/config/_projr.yml"))
+  (!is_config_dir && utils::file_test("-f", file.path(path, "_projr.yml"))) ||
+    utils::file_test("-f", file.path(path, "_projr/config/_projr.yml"))
 }, "a projr project configuration")
 
-.path_get <- function(..., relative = FALSE) {
-  # Validate relative flag
-  .assert_flag(relative, required = TRUE)
-
-  path_init <- tryCatch(
-    rprojroot::find_root_file(..., criterion = .projr_root_criterion),
-    error = function(e) NULL
-  )
-  path_init <- path_init %||% tryCatch(
-    rprojroot::find_root_file(
-      ...,
-      criterion = rprojroot::criteria$is_vcs_root |
-        rprojroot::has_file("VERSION") |
-        rprojroot::has_file("README.md") |
-        rprojroot::criteria$is_r_package |
-        rprojroot::criteria$is_rstudio_project |
-        rprojroot::criteria$is_renv_project |
-        rprojroot::criteria$is_quarto_project
-    ),
-    error = function(e) file.path(getwd(), ...)
-  )
-  path_init <- fs::path_abs(path_init)
-  if (!relative) {
-    return(path_init)
+.path_project_root <- function(required = TRUE) {
+  root <- tryCatch(rprojroot::find_root(.projr_root_criterion), error = function(e) NULL)
+  if (required && is.null(root)) {
+    stop("No projr project found. Expected _projr.yml at the project root or in _projr/config/.", call. = FALSE)
   }
-  fs::path_rel(path_init, .path_get())
+  root
+}
+
+.path_get <- function(..., relative = FALSE) {
+  .assert_flag(relative, required = TRUE)
+  root <- .path_project_root()
+  path <- if (...length()) fs::path_abs(fs::path(...), start = root) else fs::path_abs(root)
+  if (relative) fs::path_rel(path, root) else path
 }
 
 # ---------------------

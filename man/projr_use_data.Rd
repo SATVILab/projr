@@ -45,18 +45,14 @@ R 3.6.0 and can only be read by R versions 3.5.0 and higher.}
 \item{safe}{logical.
 Whether to save data to a temporary directory
 (in \verb{<cache>/"projr"/v<version>/data/})
-or "data/".
+or the configured final data directory.
 Default is the temporary directory (TRUE).}
 }
 \description{
-usethis::use_data always saves data to \verb{data/}, which
-conflicts with the temporary directories used by .build_dev`
-and makes it difficult to restore after failed output builds.
-
-.use_data\verb{is a drop-in replacement for}usethis::use_data\verb{, which saves data to the temporary directory when }safe = TRUE`.
-This makes it easier to restore the project after a failed output build.
-
-The only other difference is that .use_data\verb{invisibly returns the path to the saved data file, whereas}usethis::use_data\code{returns}TRUE`.
+Save package datasets in the staged build cache by default. For datasets
+intended for package users, declare the \code{data} label under \code{directories}
+with the final path (normally \code{data} in an R package). Internal datasets
+use the package's \code{R/sysdata.rda} convention.
 }
 \details{
 Taken directly from the documentation for the original

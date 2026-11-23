@@ -467,6 +467,7 @@ test_that(".zero_tbl_get_hash returns correct structure", {
 
 test_that("both engines hash named, binary and Unicode paths exactly as earlier builds did", {
   skip_if(.is_test_select())
+  withr::local_dir(testthat::test_path("project_structure"))
   root <- withr::local_tempdir()
   files <- file.path(root, c("empty", "abc", paste0(intToUtf8(233), " large.bin")))
   file.create(files[1])
@@ -530,6 +531,7 @@ test_that("hashing settings apply across profiles and share directory histories"
 
 test_that("directory hashing keeps hidden files, nested paths and file order", {
   skip_if(.is_test_select())
+  withr::local_dir(testthat::test_path("project_structure"))
   root <- withr::local_tempdir()
   fs::dir_create(file.path(root, c("projr", "sub/projr", "sub/excluded")))
   files <- c(".hidden", "sub/projr/keep", "a", "sub/.hidden", "projr/drop", "sub/excluded/drop")
@@ -544,6 +546,7 @@ test_that("directory hashing keeps hidden files, nested paths and file order", {
 
 test_that("directory hashing follows readable links and skips broken ones", {
   skip_if(.is_test_select())
+  withr::local_dir(testthat::test_path("project_structure"))
   skip_on_os("windows")
   root <- withr::local_tempdir()
   fs::dir_create(file.path(root, "nested"))

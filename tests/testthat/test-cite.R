@@ -189,7 +189,8 @@ test_that(".cite_codemeta_set respects create parameter", {
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
   paths <- list()
   local_mocked_bindings(
-    write_codemeta = function(path) {
+    write_codemeta = function(path, file) {
+      expect_identical(as.character(file), file.path(path, "codemeta.json"))
       paths[[length(paths) + 1L]] <<- path
     },
     .package = "codemeta"

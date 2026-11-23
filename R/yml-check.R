@@ -4,7 +4,7 @@
 #' Checks correctness of active `projr` settings.
 
 #' @param profile character().
-#' Profile whose file needs to be checked.
+#' Profile to validate with its inherited and local settings.
 #' If not supplied, then the merged profile is used.
 #' Default is NULL.
 #'
@@ -14,6 +14,13 @@
 #'
 #' @export
 projr_yml_check <- function(profile = NULL) {
+  if (!is.null(profile)) {
+    .assert_string(profile)
+    old_profile <- Sys.getenv("PROJR_PROFILE", unset = NA_character_)
+    Sys.setenv(PROJR_PROFILE = profile)
+    on.exit(if (is.na(old_profile)) Sys.unsetenv("PROJR_PROFILE") else Sys.setenv(PROJR_PROFILE = old_profile))
+    profile <- NULL
+  }
   .yml_settings_hashing(profile)
   .yml_dir_check(profile)
   .yml_build_check(profile)
@@ -60,7 +67,6 @@ projr_yml_check <- function(profile = NULL) {
 .yml_dir_check <- function(profile) {
   yml_dir <- .yml_dir_get(profile)
   nm_vec <- names(yml_dir)
-  nm_vec_strip <- .dir_label_strip(nm_vec)
   .assert_len(nm_vec, unique(nm_vec) |> length())
   .assert_len(nm_vec, nm_vec[nzchar(nm_vec)] |> length())
 
@@ -74,9 +80,7 @@ projr_yml_check <- function(profile = NULL) {
     )
   }
 
-  .assert_nz(nm_vec)
-  .assert_detect_any(nm_vec_strip, "^cache")
-  .assert_detect_any(nm_vec_strip, "^output")
+  if (!length(nm_vec)) return(invisible(TRUE))
   for (x in nm_vec) {
     .yml_dir_check_label(x, profile)
   }
@@ -104,23 +108,18 @@ projr_yml_check <- function(profile = NULL) {
 }
 
 .yml_dir_check_label_path <- function(yml_label, label, profile) {
-  is_docs <- .yml_dir_label_class_detect_docs(label)
-  if (is_docs && !"path" %in% names(yml_label)) {
-    return(yml_label)
-  }
-  .assert_has(names(yml_label), "path")
-  .assert_string(yml_label[["path"]], TRUE)
+  .assert_string(yml_label[["path"]], TRUE, nm = paste0("directories.", label, ".path"))
   .yml_dir_check_label_path_restricted(yml_label, label, profile)
-
 
   yml_label
 }
 
 .yml_dir_check_label_path_restricted <- function(yml_label, label, profile) {
-  label_vec_restricted <- .yml_dir_get_label_in(profile) |>
-    c(.yml_dir_get_label_output(profile))
-  if (label %in% label_vec_restricted) {
-    .assert_path_not_sub(yml_label[["path"]], c("data", "man", "R", "tests"))
+  restricted <- c("man", "R", "tests")
+  # Raw observations may live under data/site-a and data/site-b.
+  if (!label %in% .yml_dir_get_label_raw(profile)) restricted <- c("data", restricted)
+  if (label %in% c(.yml_dir_get_label_in(profile), .yml_dir_get_label_output(profile))) {
+    .assert_path_not_sub(.path_resolve_root(yml_label[["path"]]), .path_get(restricted))
   }
   invisible(TRUE)
 }
@@ -262,7 +261,7 @@ projr_yml_check <- function(profile = NULL) {
     .assert_string(yml_title[["tag"]])
     .assert_string(yml_title[["branch"]])
   }
-  .assert_in(yml_title[["content"]], .opt_dir_get_label_send(NULL), TRUE)
+  .assert_in(yml_title[["content"]], .opt_dir_get_label_send(NULL, type), TRUE)
   .assert_in(yml_title[["structure"]], .opt_remote_get_structure())
   .assert_string(yml_title[["path"]], type == "local")
   .assert_flag(yml_title[["path-append-label"]])

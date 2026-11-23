@@ -26,7 +26,7 @@ If another character vector, modifies \verb{_projr-<profile>.yml}.}
 \code{projr_yml_dir_path_set} sets the path for a directory label in the project.
 
 \code{projr_yml_dir_path_rm} removes the custom path setting for a directory,
-reverting to default behavior.
+allowing an inherited path to take effect. An empty directory entry is removed.
 }
 \examples{
 \dontrun{
@@ -36,7 +36,7 @@ projr_yml_dir_path_set("output", "_my_output")
 # Set path for cache directory
 projr_yml_dir_path_set("cache", "_my_cache")
 
-# Revert to default path
-projr_yml_dir_path_rm("output")
+# Remove a profile-specific path override
+projr_yml_dir_path_rm("output", profile = "analysis")
 }
 }

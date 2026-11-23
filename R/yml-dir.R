@@ -1,49 +1,6 @@
 # detailed functions
 # ---------------------------
 
-# docs
-.yml_dir_set_docs <- function(path, profile) {
-  # Synchronizing a renderer's output directory must preserve the YAML template.
-  template <- .yml_dir_get_path_raw("docs", NULL)
-  if (!is.null(template) && grepl(.template_token_pattern, template, perl = TRUE)) {
-    return(invisible(FALSE))
-  }
-  # this is the profile that we get it from (NULL)
-  path_docs <- .yml_dir_get_docs_rel_if_within_cache(
-    path,
-    profile = NULL
-  )
-  if (missing(profile) || is.null(profile)) {
-    profile_save <- "default"
-    # allowing multiple profiles, should
-    # make priority match up with quartos.
-    # quarto uses the first profile as the dominant one
-    projr_profile_vec <- .profile_get_var() |>
-      rev()
-    for (i in seq_along(projr_profile_vec)) {
-      if (!is.null(.yml_dir_get_path("docs", projr_profile_vec[[i]]))) {
-        profile_save <- projr_profile_vec[[i]]
-      }
-    }
-  } else {
-    .assert_string(profile, TRUE)
-    profile_save <- profile
-  }
-
-  .yml_dir_set_path(path_docs, "docs", profile_save)
-}
-
-.yml_dir_get_docs_rel_if_within_cache <- function(path, profile) {
-  within_cache <- fs::path_has_parent(
-    path, .dir_get_cache_auto_version(profile = profile)
-  )
-  if (!within_cache) {
-    return(path)
-  }
-  fs::path_rel(path, .dir_get_cache_auto_version(profile = profile))
-}
-
-
 # hash
 .yml_dir_nm_set_hash <- function(hash, label, profile) {
   yml_dir <- .yml_dir_get_label(label, profile)
@@ -229,9 +186,8 @@
 }
 
 .yml_dir_get_label_out <- function(profile) {
-  .yml_dir_get_label_output(profile) |>
-    c(.yml_dir_get_label_docs(profile)) |>
-    c("data")
+  c(.yml_dir_get_label_output(profile), .yml_dir_get_label_docs(profile),
+    intersect("data", names(.yml_dir_get(profile))))
 }
 
 .yml_dir_get_label_output <- function(profile) {
@@ -247,8 +203,7 @@
 }
 
 .yml_dir_get_label_docs <- function(profile) {
-  label <- .yml_dir_get_label_nm("docs", profile)
-  if (.is_len_0(label)) "docs" else label
+  .yml_dir_get_label_nm("docs", profile)
 }
 
 .yml_dir_get_label_nm <- function(nm, profile) {
@@ -277,23 +232,11 @@
 }
 
 .yml_dir_get_path <- function(label, profile) {
-  path_raw <- .yml_dir_get_path_raw(label, profile)
-  if (!is.null(path_raw) || grepl("^docs$", label)) {
-    # handled elsewhere for null docs
-    return(.template_expand(path_raw))
-  }
-  # return
-  .yml_dir_get_path_default(label)
-}
-
-.yml_dir_get_path_default <- function(label) {
-  label_strip <- .dir_label_strip(label)
-  label_vec_opt <- c("output", "raw", "rawdata", "cache")
-  if (!label_strip %in% label_vec_opt) {
-    return(NULL)
-  }
-  path_vec <- c("_output", "_raw_data", "_raw_data", "_tmp")
-  path_vec[label_vec_opt == label_strip]
+  directory <- .yml_dir_get_label(label, profile)
+  if (is.null(directory)) stop("label '", label, "' not found in _projr.yml", call. = FALSE)
+  path <- if (is.list(directory)) directory[["path"]]
+  .assert_string(path, TRUE, nm = paste0("directories.", label, ".path"))
+  .template_expand(path)
 }
 
 .yml_dir_get_path_raw <- function(label, profile) {
@@ -333,9 +276,11 @@
 }
 
 .yml_dir_get <- function(profile) {
-  yml_dir_init <- .yml_get(profile)[["directories"]]
-  yml_dir_init |>
-    .yml_dir_get_complete_label()
+  directories <- .yml_get(profile)[["directories"]] %||% list()
+  if (!is.list(directories) || (length(directories) && is.null(names(directories)))) {
+    stop("directories must be a YAML mapping of labels to settings.", call. = FALSE)
+  }
+  directories
 }
 
 .yml_dir_get_profiles <- function() {
@@ -352,39 +297,9 @@
     directories <- if (profile != "default") {
       .yml_get_profile_ind(profile)[["directories"]]
     }
-    .yml_merge(default, directories, local) |> .yml_dir_get_complete_label()
+    .yml_merge(default, directories, local)
   }) |> stats::setNames(profiles)
 }
-
-.yml_dir_get_complete_label <- function(yml_dir) {
-  # ensure that all required labels
-  # are present
-  default_list <- list(
-    "raw-data" = list(path = "_raw_data"),
-    "cache"    = list(path = "_tmp"),
-    "output"   = list(path = "_output")
-  )
-
-  if (length(yml_dir) == 0) {
-    return(default_list)
-  }
-
-  nm_vec_current <- vapply(names(yml_dir), .dir_label_strip, character(1))
-  match_vec_required <- c("^raw", "^cache", "^output")
-
-  nm_vec_missing_lgl <- vapply(
-    match_vec_required,
-    function(x) !any(grepl(x, nm_vec_current)),
-    logical(1)
-  )
-
-  if (all(!nm_vec_missing_lgl)) {
-    return(yml_dir)
-  }
-
-  yml_dir |> append(default_list[nm_vec_missing_lgl])
-}
-
 
 .yml_dir_set <- function(yml_dir, profile) {
   yml_projr <- .yml_get(profile)

@@ -30,7 +30,7 @@ This article explains the design decisions behind projr and why it works the way
 
 - **One function to remember**: `projr_build()` does everything
 - **Sensible defaults**: Most projects work out-of-the-box
-- **Convention over configuration**: Standard directory structure
+- **Starter configuration**: A new project starts with explicit directory paths
 - **Gradual complexity**: Start simple, customise as needed
 
 **Anti-pattern**: Complex build systems requiring extensive configuration, multiple commands, and deep understanding of internals.

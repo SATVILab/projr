@@ -25,8 +25,7 @@
   labels <- names(directories)
   stripped <- .dir_label_strip(labels)
   matches <- lapply(types, function(type) {
-    group <- labels[startsWith(stripped, type)]
-    if (type == "docs" && !length(group)) "docs" else group
+    labels[startsWith(stripped, type)]
   })
   labels <- as.character(unlist(matches, use.names = FALSE))
   labels[vapply(labels, function(label) {

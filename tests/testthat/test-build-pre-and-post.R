@@ -41,6 +41,7 @@ test_that(".build_renv_snapshot_check returns FALSE when renv not detected", {
   skip_if(.is_test_select())
   dir_test <- tempfile("test_no_renv")
   dir.create(dir_test)
+  writeLines("directories: {}", file.path(dir_test, "_projr.yml"))
   withr::defer(unlink(dir_test, recursive = TRUE))
 
   usethis::with_project(
@@ -49,10 +50,7 @@ test_that(".build_renv_snapshot_check returns FALSE when renv not detected", {
       # Create minimal DESCRIPTION without renv
       writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
 
-      # Temporarily unset test environment
-      old_is_test <- Sys.getenv("R_PKG_IS_TEST")
-      Sys.unsetenv("R_PKG_IS_TEST")
-      withr::defer(if (nzchar(old_is_test)) Sys.setenv(R_PKG_IS_TEST = old_is_test))
+      withr::local_envvar(c(R_PKG_TEST_IN_PROGRESS = NA))
 
       result <- .build_renv_snapshot_check(output_run = TRUE)
       expect_false(result)

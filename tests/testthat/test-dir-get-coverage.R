@@ -5,30 +5,6 @@
 # Core directory getting functions
 # ==============================================================================
 
-test_that(".dir_get works for code label", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # Code label should return a temporary directory
-      path_code <- .dir_get("code", safe = TRUE)
-      expect_true(is.character(path_code))
-      expect_true(grepl("projr", path_code))
-      expect_true(grepl(tempdir(), path_code, fixed = TRUE))
-
-      # Directory should not exist initially (cleaned up by .dir_get_code)
-      expect_false(dir.exists(path_code))
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
 test_that(".dir_get works for other labels", {
   skip_if(.is_test_select())
   skip_if(.is_test_cran())
@@ -56,21 +32,6 @@ test_that(".dir_get works for other labels", {
     force = TRUE,
     quiet = TRUE
   )
-})
-
-test_that(".dir_get_code creates temporary directory that gets cleaned", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  # Call .dir_get_code multiple times
-  path1 <- .dir_get_code()
-  expect_true(is.character(path1))
-  expect_true(grepl("code", path1))
-  expect_false(dir.exists(path1))
-
-  # Should generate different paths each time
-  path2 <- .dir_get_code()
-  expect_false(identical(path1, path2))
 })
 
 test_that(".dir_get_tmp_random generates unique paths", {
@@ -244,142 +205,6 @@ test_that(".dir_get_label_safe_path constructs correct paths", {
   )
 })
 
-test_that(".dir_get_label_safe_path_get_label handles docs specially", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  # Docs label should get the unsafe docs path
-  result_docs <- .dir_get_label_safe_path_get_label("docs")
-  expect_true(is.character(result_docs))
-
-  # Other labels should pass through
-  expect_identical(.dir_get_label_safe_path_get_label("output"), "output")
-  expect_identical(.dir_get_label_safe_path_get_label("data"), "data")
-})
-
-test_that(".dir_get_label_unsafe returns correct paths", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # Project and data paths should resolve against the fixture root.
-      expect_identical(as.character(.dir_get_label_unsafe("project")), dir_test)
-      expect_identical(
-        as.character(.dir_get_label_unsafe("data")),
-        file.path(dir_test, "data")
-      )
-
-      # Docs should call .dir_get_docs_unsafe
-      path_docs <- .dir_get_label_unsafe("docs")
-      expect_true(is.character(path_docs))
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
-# ==============================================================================
-# Docs directory functions
-# ==============================================================================
-
-test_that(".dir_get_docs_unsafe returns and sets path", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # Should get and set docs path
-      path_docs <- .dir_get_docs_unsafe()
-      expect_true(is.character(path_docs))
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
-test_that(".dir_get_docs_unsafe_path routes by engine type", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # With no engine, should use default
-      path_default <- .dir_get_docs_unsafe_path()
-      expect_true(is.character(path_default))
-
-      # Create a quarto document
-      writeLines(c("---", "title: Test", "---", "", "# Hello"), "test.qmd")
-
-      # Should detect engine and return appropriate path
-      path_with_engine <- .dir_get_docs_unsafe_path()
-      expect_true(is.character(path_with_engine))
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
-test_that(".dir_set_docs_unsafe_path sets path with engine", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # Create a quarto document to ensure engine exists
-      writeLines(c("---", "title: Test", "---", "", "# Hello"), "test.qmd")
-
-      # Should set path and return it
-      result <- .dir_set_docs_unsafe_path("custom_docs")
-      expect_identical(result, "custom_docs")
-
-      # Verify it was set in the yml
-      path_check <- .yml_dir_get_path("docs", NULL)
-      expect_true(!is.null(path_check))
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
-test_that(".dir_set_docs_unsafe_path routes by engine type", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # Create a quarto document
-      writeLines(c("---", "title: Test", "---", "", "# Hello"), "test.qmd")
-
-      # Should set path based on engine
-      result <- .dir_set_docs_unsafe_path("custom_docs")
-      expect_identical(result, "custom_docs")
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
 test_that(".dir_set_docs_safe works for docs label", {
   skip_if(.is_test_select())
   skip_if(.is_test_cran())
@@ -423,109 +248,6 @@ test_that(".dir_set_docs_safe_check identifies docs label", {
 # Quarto directory functions
 # ==============================================================================
 
-test_that(".dir_get_docs_quarto_project uses yml path if set", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # Create quarto project and set docs path in _projr.yml
-      writeLines("project:\n  type: website", "_quarto.yml")
-      projr_yml_dir_path_set("docs", "custom_docs_path", profile = "default")
-
-      # Should use the path from _projr.yml
-      path <- .dir_get_docs_quarto_project()
-      expect_identical(path, "custom_docs_path")
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
-test_that(".dir_get_docs_quarto_project_unset uses _quarto.yml if set", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # Create _quarto.yml with custom output-dir
-      writeLines("project:\n  type: website\n  output-dir: custom_output", "_quarto.yml")
-
-      # Should use the output-dir from _quarto.yml
-      path <- .dir_get_docs_quarto_project_unset()
-      expect_identical(path, "custom_output")
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
-test_that(".dir_get_docs_quarto_project_unset_default handles different project types", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # Create a quarto book project
-      writeLines("project:\n  type: book", "_quarto.yml")
-      writeLines(c("---", "title: Test", "---", "", "# Hello"), "test.qmd")
-
-      # Should return "_book" for book type
-      result <- .dir_get_docs_quarto_project_unset_default()
-      expect_identical(result, "_book")
-
-      # Create a quarto website project
-      writeLines("project:\n  type: website", "_quarto.yml")
-      result <- .dir_get_docs_quarto_project_unset_default()
-      expect_identical(result, "_site")
-
-      # Create a quarto site project (synonym for website)
-      writeLines("project:\n  type: site", "_quarto.yml")
-      result <- .dir_get_docs_quarto_project_unset_default()
-      expect_identical(result, "_site")
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
-test_that(".dir_get_docs_quarto_project_unset_default errors for unrecognised type", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # Create a quarto project with unrecognised type
-      writeLines("project:\n  type: unknown_type", "_quarto.yml")
-      writeLines(c("---", "title: Test", "---", "", "# Hello"), "test.qmd")
-
-      # Should error for unrecognised project type
-      expect_error(
-        .dir_get_docs_quarto_project_unset_default(),
-        "Quarto project type not recognised"
-      )
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
 test_that(".dir_set_docs_quarto_project sets paths correctly", {
   skip_if(.is_test_select())
   skip_if(.is_test_cran())
@@ -549,7 +271,7 @@ test_that(".dir_set_docs_quarto_project sets paths correctly", {
 
       # Verify it was set in _projr.yml
       projr_yml <- .yml_get(NULL)
-      expect_identical(projr_yml$directories$docs$path, "custom_site")
+      expect_identical(projr_yml$directories$docs$path, "docs")
     },
     force = TRUE,
     quiet = TRUE
@@ -559,43 +281,6 @@ test_that(".dir_set_docs_quarto_project sets paths correctly", {
 # ==============================================================================
 # Bookdown directory functions
 # ==============================================================================
-
-test_that(".dir_get_docs_bookdown uses yml paths in priority order", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # Create bookdown project
-      writeLines("book_filename: 'test'", "_bookdown.yml")
-
-      # 1. If set in _projr.yml, should use that
-      projr_yml_dir_path_set("docs", "custom_book_dir", profile = "default")
-      path1 <- .dir_get_docs_bookdown()
-      expect_identical(path1, "custom_book_dir")
-
-      # 2. If not in _projr.yml but in _bookdown.yml
-      projr_yml <- .yml_get("default")
-      projr_yml$directories$docs <- NULL
-      .yml_set(projr_yml, "default")
-
-      writeLines("output_dir: 'bookdown_output'", "_bookdown.yml")
-      path2 <- .dir_get_docs_bookdown()
-      expect_identical(path2, "bookdown_output")
-
-      # 3. If neither, use default
-      writeLines("book_filename: 'test'", "_bookdown.yml")
-      path3 <- .dir_get_docs_bookdown()
-      expect_identical(path3, "_book")
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
 
 test_that(".dir_set_docs_bookdown sets paths correctly", {
   skip_if(.is_test_select())
@@ -619,7 +304,7 @@ test_that(".dir_set_docs_bookdown sets paths correctly", {
 
       # Verify it was set in _projr.yml
       projr_yml <- .yml_get(NULL)
-      expect_identical(projr_yml$directories$docs$path, "custom_book")
+      expect_identical(projr_yml$directories$docs$path, "docs")
     },
     force = TRUE,
     quiet = TRUE
@@ -628,34 +313,6 @@ test_that(".dir_set_docs_bookdown sets paths correctly", {
 
 # ==============================================================================
 # Markdown directory functions
-# ==============================================================================
-
-test_that(".dir_get_docs_md returns yml path or default", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # Without yml setting, should return "docs"
-      path_default <- .dir_get_docs_md()
-      expect_identical(path_default, "docs")
-
-      # With yml setting, should return that
-      projr_yml_dir_path_set("docs", "custom_md_docs", profile = "default")
-      path_custom <- .dir_get_docs_md()
-      expect_identical(path_custom, "custom_md_docs")
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
-# ==============================================================================
-# Cache auto functions
 # ==============================================================================
 
 test_that(".path_get_cache_auto_dir works correctly", {
@@ -780,74 +437,6 @@ test_that(".dir_get_cache_auto_path returns cache directory path", {
       path <- .dir_get_cache_auto_path(profile = NULL)
       expect_true(is.character(path))
       expect_true(length(path) == 1)
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
-test_that(".dir_get_cache_auto_ind finds cache directory index", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # Should return an index
-      ind <- .dir_get_cache_auto_ind(profile = NULL)
-      expect_true(is.numeric(ind))
-      expect_true(length(ind) == 1)
-      expect_true(ind >= 1)
-
-      # The label at that index should start with "cache"
-      yml <- .yml_get(NULL)
-      label <- names(yml$directories)[ind]
-      expect_true(grepl("^cache", .dir_label_strip(label)))
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
-test_that(".dir_get_cache_auto_version_old creates old subdirectory", {
-  skip_if(.is_test_select())
-  skip_if(.is_test_cran())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # TODO: .dir_get_cache_auto_version_old has a bug - it doesn't pass the
-      # profile parameter to .dir_get_cache_auto_path() on line 316, causing
-      # a missing parameter error when called with profile = NULL
-
-      # Should create path with "old" subdirectory
-      # Using tryCatch because the function has a missing parameter bug
-      result <- tryCatch(
-        {
-          path <- .dir_get_cache_auto_version_old(create = TRUE, profile = NULL)
-          list(success = TRUE, path = path)
-        },
-        error = function(e) {
-          list(success = FALSE, error = e$message)
-        }
-      )
-
-      # The function should either work or fail with the known parameter issue
-      # This test documents the current behavior
-      if (result$success) {
-        expect_true(dir.exists(result$path))
-        expect_true(grepl("old", result$path))
-        expect_true(grepl("projr", result$path))
-      } else {
-        # If it fails, it should be due to missing profile parameter
-        expect_true(grepl("profile.*missing", result$error))
-      }
     },
     force = TRUE,
     quiet = TRUE

@@ -85,6 +85,7 @@ test_that(".init_description works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       nm_list <- list(
         pkg = "testProjr2",
         gh = "MiguelRodo",
@@ -115,6 +116,7 @@ test_that(".init_dep works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       nm_list <- list(
         pkg = "testProjr2",
         gh = "MiguelRodo",
@@ -144,6 +146,7 @@ test_that(".init_ignore works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       nm_list <- list(
         pkg = "testProjr2",
         gh = "MiguelRodo",
@@ -174,6 +177,7 @@ test_that(".init_renv works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       nm_list <- list(
         pkg = "testProjr2",
         gh = "MiguelRodo",
@@ -204,6 +208,7 @@ test_that(".init_license works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       nm_list <- list(
         pkg = "testProjr2",
         gh = "MiguelRodo",
@@ -232,6 +237,7 @@ test_that(".init_readme works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       nm_list <- list(
         pkg = "testProjr2",
         gh = "MiguelRodo",
@@ -263,6 +269,7 @@ test_that("projr_init_bookdown works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       nm_list <- list(
         engine = "bookdown",
         format = NULL,
@@ -299,6 +306,7 @@ test_that("projr_init_quarto_project works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       nm_list <- list(
         engine = "quarto_project",
         format = "book",
@@ -341,6 +349,7 @@ test_that("projr_init_quarto_document works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       nm_list <- list(
         engine = "quarto_document",
         format = "book",
@@ -376,6 +385,7 @@ test_that("projr_init_rmd works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       nm_list <- list(
         engine = "quarto_document",
         format = "book",
@@ -569,6 +579,7 @@ test_that("projr_init_cite works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       # Create DESCRIPTION first (required for cite)
       projr_init(git = FALSE, github = FALSE, desc = TRUE)
 
@@ -610,6 +621,7 @@ test_that("projr_init_git works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       # Test git init with commit
       expect_true(projr_init_git(commit = TRUE))
       expect_true(dir.exists(".git"))
@@ -632,6 +644,7 @@ test_that("projr_init_git works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       expect_true(projr_init_git(commit = FALSE))
       expect_true(dir.exists(".git"))
       expect_true(file.exists(".gitignore"))
@@ -657,6 +670,7 @@ test_that("projr_init_license works with different license types", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       projr_init(git = FALSE, github = FALSE, desc = TRUE)
       projr_init_license("ccby", "John", "Doe")
       expect_true(file.exists("LICENSE.md"))
@@ -676,6 +690,7 @@ test_that("projr_init_license works with different license types", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       projr_init(git = FALSE, github = FALSE, desc = TRUE)
       projr_init_license("apache", "Jane", "Smith")
       expect_true(file.exists("LICENSE.md"))
@@ -693,6 +708,7 @@ test_that("projr_init_license works with different license types", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       projr_init(git = FALSE, github = FALSE, desc = TRUE)
       projr_init_license("cc0", "Bob", "Jones")
       expect_true(file.exists("LICENSE.md"))
@@ -710,6 +726,7 @@ test_that("projr_init_license works with different license types", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       projr_init(git = FALSE, github = FALSE, desc = TRUE)
       projr_init_license("proprietary", "Alice", "Brown")
       expect_true(file.exists("LICENSE") || file.exists("LICENSE.md"))
@@ -737,6 +754,7 @@ test_that("projr_init_renv works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       # Create basic structure first
       projr_init(git = FALSE, github = FALSE, desc = TRUE)
 
@@ -777,6 +795,7 @@ test_that(".init_usethis_std sets project correctly", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       # Call .init_usethis_std
       .init_usethis_std()
 
@@ -803,6 +822,7 @@ test_that(".init_dir_std creates directories when enabled", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       # Create VERSION file first (required for directory creation)
       projr_version_set("0.0.1")
 
@@ -826,6 +846,7 @@ test_that(".init_dir_std creates directories when enabled", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       result <- .init_dir_std(FALSE)
       expect_false(result)
     },
@@ -850,6 +871,7 @@ test_that(".init_readme_std handles various scenarios", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       result <- .init_readme_std(TRUE, TRUE)
       expect_true(result)
       expect_true(file.exists("README.Rmd"))
@@ -867,6 +889,7 @@ test_that(".init_readme_std handles various scenarios", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       result <- .init_readme_std(TRUE, FALSE)
       expect_true(result)
       expect_true(file.exists("README.md"))
@@ -885,6 +908,7 @@ test_that(".init_readme_std handles various scenarios", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       result <- .init_readme_std(FALSE, TRUE)
       expect_false(result)
       expect_false(file.exists("README.md"))
@@ -903,6 +927,7 @@ test_that(".init_readme_std handles various scenarios", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       # Create existing README.Rmd
       writeLines("# Existing README", "README.Rmd")
       result <- .init_readme_std(TRUE, TRUE)
@@ -930,6 +955,7 @@ test_that(".init_desc_std creates DESCRIPTION when enabled", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       # Test with desc = TRUE
       result <- .init_desc_std(TRUE)
       expect_true(result)
@@ -951,6 +977,7 @@ test_that(".init_desc_std creates DESCRIPTION when enabled", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       result <- .init_desc_std(FALSE)
       expect_false(result)
       expect_false(file.exists("DESCRIPTION"))
@@ -968,6 +995,7 @@ test_that(".init_desc_std creates DESCRIPTION when enabled", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       writeLines("Package: ExistingPackage", "DESCRIPTION")
       result <- .init_desc_std(TRUE)
       expect_false(result)
@@ -1056,6 +1084,7 @@ test_that(".init_cite_std creates citation files when DESCRIPTION exists", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       projr_init(git = FALSE, github = FALSE, desc = TRUE)
       result <- .init_cite_std(FALSE)
       expect_false(result)
@@ -1072,6 +1101,7 @@ test_that(".init_cite_std creates citation files when DESCRIPTION exists", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       result <- .init_cite_std(TRUE)
       expect_false(result)
       expect_false(file.exists("CITATION.cff"))
@@ -1089,6 +1119,7 @@ test_that(".init_cite_std creates citation files when DESCRIPTION exists", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       projr_init(git = FALSE, github = FALSE, desc = TRUE)
       cite_result <- tryCatch(
         {
@@ -1112,7 +1143,7 @@ test_that(".init_cite_std creates citation files when DESCRIPTION exists", {
   unlink(dir_test, recursive = TRUE)
 })
 
-test_that(".init_yml_std creates projr.yml when enabled", {
+test_that(".init_yml_std creates _projr.yml when enabled", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
@@ -1152,7 +1183,7 @@ test_that(".init_yml_std creates projr.yml when enabled", {
   )
   unlink(dir_test, recursive = TRUE)
 
-  # Test when projr.yml (not _projr.yml) already exists
+  # Test when _projr.yml already exists
   dir_test <- .dir_get_tmp_random_path()
   if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
   .dir_create(dir_test)
@@ -1160,10 +1191,10 @@ test_that(".init_yml_std creates projr.yml when enabled", {
   usethis::with_project(
     path = dir_test,
     code = {
-      yaml::write_yaml(list(test = "existing"), "projr.yml")
+      yaml::write_yaml(list(test = "existing"), "_projr.yml")
       result <- .init_yml_std(TRUE)
       expect_false(result)
-      yml_content <- yaml::read_yaml("projr.yml")
+      yml_content <- yaml::read_yaml("_projr.yml")
       expect_identical(yml_content$test, "existing")
     },
     force = TRUE,
@@ -1187,6 +1218,7 @@ test_that(".init_engine_std handles different literate documentation engines", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       result <- .init_engine_std(NULL)
       expect_false(result)
       expect_false(file.exists("_bookdown.yml"))
@@ -1206,6 +1238,7 @@ test_that(".init_engine_std handles different literate documentation engines", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       file.create("_dependencies.R")
       result <- .init_engine_std("bookdown")
       expect_true(result)
@@ -1226,6 +1259,7 @@ test_that(".init_engine_std handles different literate documentation engines", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       file.create("_dependencies.R")
       result <- .init_engine_std("quarto")
       expect_true(result)
@@ -1245,6 +1279,7 @@ test_that(".init_engine_std handles different literate documentation engines", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       file.create("_dependencies.R")
       result <- .init_engine_std("rmd")
       expect_true(result)
@@ -1279,6 +1314,7 @@ test_that(".init_std_git initializes git repository correctly", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       result <- .init_git(FALSE, TRUE)
       expect_false(result)
       expect_false(dir.exists(".git"))
@@ -1295,6 +1331,7 @@ test_that(".init_std_git initializes git repository correctly", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       result <- .init_git(TRUE, FALSE)
       expect_true(result)
       expect_true(dir.exists(".git"))
@@ -1313,6 +1350,7 @@ test_that(".init_std_git initializes git repository correctly", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       result <- .init_git(TRUE, TRUE)
       expect_true(result)
       expect_true(dir.exists(".git"))
@@ -1492,6 +1530,7 @@ test_that(".init_git_git initializes git with commit", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       # Create some files first
       writeLines("test", "test.txt")
 
@@ -1528,6 +1567,7 @@ test_that(".init_git_git initializes git without commit", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       # Test with commit = FALSE
       result <- .init_git_git(commit = FALSE)
       expect_true(result)
@@ -1562,6 +1602,7 @@ test_that("projr_init_ignore creates ignore files", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       # Create minimal structure for ignore to work
       projr_version_set("0.0.1")
       .init_yml()
@@ -1606,6 +1647,7 @@ test_that("projr_init_ignore updates existing ignore files", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       # Create minimal structure
       projr_version_set("0.0.1")
       .init_yml()
@@ -1785,6 +1827,7 @@ test_that(".init_readme_std_check returns FALSE when README.md exists and readme
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       # Create existing README.md
       writeLines("# Existing README", "README.md")
 
@@ -1816,6 +1859,7 @@ test_that(".init_engine_std_bookdown handles existing files correctly", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       # Create existing _bookdown.yml with custom content
       yaml::write_yaml(list(custom = "content"), "_bookdown.yml")
       file.create("_dependencies.R")
@@ -1840,6 +1884,7 @@ test_that(".init_engine_std_bookdown handles existing files correctly", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       # Create existing _output.yml with custom content
       yaml::write_yaml(list(custom = "output"), "_output.yml")
 
@@ -1864,6 +1909,7 @@ test_that(".init_engine_std_bookdown handles existing files correctly", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       # Create existing index.Rmd with custom content
       writeLines("# Custom Index", "index.Rmd")
 
@@ -1896,6 +1942,7 @@ test_that(".init_engine_std_quarto_project handles file existence combinations",
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       file.create("_dependencies.R")
       # Create both files
       yaml::write_yaml(list(custom = "quarto"), "_quarto.yml")

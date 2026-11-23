@@ -35,10 +35,10 @@
 }
 
 .init_yml_copy <- function(path) {
-  if (file.exists(.yml_get_path("default"))) {
+  if (!is.null(.path_project_root(required = FALSE))) {
     return(invisible(FALSE))
   }
-  fs::file_copy(path, .yml_get_path("default"), overwrite = TRUE)
+  fs::file_copy(path, file.path(getwd(), "_projr.yml"))
   invisible(TRUE)
 }
 

@@ -17,9 +17,9 @@ test_that("projr_path_get_dir works with different labels", {
       expect_true(is.character(projr_path_get_dir("cache")))
       expect_true(is.character(projr_path_get_dir("output")))
       expect_true(is.character(projr_path_get_dir("docs")))
-      expect_true(is.character(projr_path_get_dir("project")))
-      expect_true(is.character(projr_path_get_dir("code")))
-      expect_true(is.character(projr_path_get_dir("data")))
+      expect_error(projr_path_get_dir("project"), "not found")
+      expect_error(projr_path_get_dir("code"), "not found")
+      expect_error(projr_path_get_dir("data"), "not found")
 
       # Test invalid label
       expect_error(projr_path_get_dir("invalid_label"))
@@ -105,15 +105,15 @@ test_that("projr_path_get_dir relative and absolute parameters work", {
       path_default <- projr_path_get_dir("cache", create = FALSE)
 
       # Test relative
-      path_relative <- projr_path_get_dir("cache", create = FALSE, relative = TRUE)
+      path_relative <- projr_path_get_dir("cache", create = FALSE, format = "relative")
       expect_false(fs::is_absolute_path(path_relative))
 
       # Test absolute
-      path_absolute <- projr_path_get_dir("cache", create = FALSE, absolute = TRUE)
+      path_absolute <- projr_path_get_dir("cache", create = FALSE, format = "absolute")
       expect_true(fs::is_absolute_path(path_absolute))
 
-      # Test that relative and absolute cannot both be TRUE
-      expect_error(projr_path_get_dir("cache", relative = TRUE, absolute = TRUE))
+      expect_identical(path_default, path_relative)
+      expect_error(projr_path_get_dir("cache", format = "unknown"))
     },
     force = TRUE,
     quiet = TRUE
@@ -286,7 +286,7 @@ test_that("directory label validation works", {
       .init()
 
       # Valid labels
-      valid_labels <- c("raw-data", "cache", "output", "docs", "project", "code", "data")
+      valid_labels <- c("raw-data", "cache", "output", "docs")
       for (label in valid_labels) {
         expect_silent(projr_path_get_dir(label, create = FALSE))
       }
@@ -314,9 +314,12 @@ test_that("directory functions handle edge cases", {
     code = {
       .init()
 
-      # Test code label returns temporary directory
+      projr_yml_dir_path_set("code", "source")
+      projr_yml_dir_path_set("project", ".")
+      projr_yml_dir_path_set("data", "data")
+      # Code and project use their declared paths
       path_code <- projr_path_get_dir("code", create = FALSE)
-      expect_true(grepl("projr", path_code))
+      expect_identical(path_code, "source")
 
       # Test project label returns current directory
       path_project <- projr_path_get_dir("project", create = FALSE)
@@ -357,43 +360,6 @@ test_that("directory path normalization works", {
       path_file <- projr_path_get("cache", "dir1", "file.txt", create = FALSE)
       expect_true(file.path("cache", "dir1", "file.txt") != path_file ||
         grepl("cache.*dir1.*file\\.txt", path_file))
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
-})
-
-test_that(".dir_get_docs_quarto_project_unset_default handles NULL project type", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_lite())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create minimal _projr.yml WITHOUT docs path
-      writeLines("build:\n  cache: []", "_projr.yml")
-      writeLines("0.0.0-1", "VERSION")
-
-      # Create a _quarto.yml WITHOUT project type specified
-      # This is an edge case that can happen in real projects
-      writeLines("format:\n  html: default", "_quarto.yml")
-
-      # Create a quarto document
-      writeLines(c("---", "title: Test", "---", "", "# Hello"), "test.qmd")
-
-      # Engine should be detected as quarto_project (because _quarto.yml exists)
-      expect_identical(.engine_get_auto(), "quarto_project")
-
-      # This should not error - should return "_site" as default
-      result <- .dir_get_docs_quarto_project_unset_default()
-      expect_identical(result, "_site")
-
-      # Verify the full path retrieval also works without error
-      docs_path <- projr_path_get_dir("docs", safe = FALSE, create = FALSE)
-      expect_true(is.character(docs_path))
-      expect_identical(docs_path, "_site")
     },
     force = TRUE,
     quiet = TRUE

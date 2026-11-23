@@ -5,9 +5,9 @@
 \alias{projr_path_get_cache_build}
 \title{Get \code{projr} build cache directory}
 \usage{
-projr_path_get_cache_build_dir(..., create = FALSE, profile)
+projr_path_get_cache_build_dir(..., create = FALSE, profile = NULL)
 
-projr_path_get_cache_build(..., create = FALSE, profile)
+projr_path_get_cache_build(..., create = FALSE, profile = NULL)
 }
 \arguments{
 \item{...}{comma-separated strings specified initially the

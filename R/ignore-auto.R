@@ -23,6 +23,8 @@ projr_ignore_auto <- function() {
 }
 
 .ignore_auto <- function(archive_local) {
+  previous <- setwd(.path_get())
+  on.exit(setwd(previous))
   .cli_debug("Updating .gitignore and .Rbuildignore with projr-managed ignores")
   # ignore directories specified in
   # `_projr.yml`

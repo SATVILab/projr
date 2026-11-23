@@ -4,13 +4,8 @@
 #' ignores it if requested by `_projr.yml`.
 #' If the path is relative, then it is calculated with respect to the project directory, but returned relative to the current working directory.
 #' @param label character.
-#' One of \code{"raw"}, \code{"cache"},\code{"output"},
-#' \code{"archive"} and \code{"docs"}.
-#' Class of directory to return.
-#' The \code{"docs"} option returns the path to
-#' the output directory from \code{bookdown::render_book}
-#' (as specified in \code{"_bookdown.yml"}),
-#' whereas the others returns paths as specified in \code{"_projr.yml"}.
+#' A directory label declared under `directories` in the active project configuration.
+#' Each label must have a `path`, which may be inherited from another profile.
 #' @param ... Specifies sub-directory of directory returned.
 #' Passed to `file.path`.
 #' @param create logical.
@@ -27,15 +22,9 @@
 #' If \code{"relative"}, then the path returned is relative to the current working directory.
 #' If \code{"absolute"}, then the path returned is absolute.
 #' @param safe logical.
-#' If \code{TRUE}, then the output directory
-#' is set to be \code{"<path_to_cache>.output"}
-#' instead of \code{<path_to_output>} (as specified in \code{_projr.yml}).
-#' The only time that this should be set to \code{TRUE}
-#' should be when .build_output` is being run, as otherwise
-#' "development" or test runs will add to, delete or overwrite fabciles
-#' from the previous run of .build_output`.
-#' Default is \code{TRUE}.
-#' Do not change this unless you know what you are doing.
+#' When `TRUE` (the default), stage outputs, documentation and package data under
+#' the configured cache for the current build version. When `FALSE`, return
+#' their configured final paths. Inputs and cache directories use their configured paths.
 #' @return Character.
 #' Path to directory requested.
 #' @rdname projr_path_get_dir
@@ -47,6 +36,7 @@ projr_path_get_dir <- function(label, ...,
   dots_vec <- .dots_get_chr_vec(...)
   format <- match.arg(format)
 
+  .assert_flag(create, TRUE)
   .dir_get_check(label, dots_vec, safe)
 
   # Get the raw path (inheriting the format from config)
@@ -79,13 +69,7 @@ projr_path_get_dir <- function(label, ...,
 #' if requested by `_projr.yml`.
 #'
 #' @param label character.
-#' One of \code{"raw_data"}, \code{"cache"},\code{"output"},
-#' \code{"archive"} and \code{"docs"}.
-#' Class of directory to return.
-#' The \code{"docs"} option returns the path to
-#' the output directory from \code{bookdown::render_book}
-#' (as specified in \code{"_bookdown.yml"}),
-#' whereas the others returns paths as specified in \code{"_projr.yml"}.
+#' A directory label declared under `directories` in the active project configuration.
 #' @param ... Specifies sub-path of directory returned.
 #' @param create logical.
 #' If \code{TRUE}, then the parent directory
@@ -123,53 +107,36 @@ projr_path_get <- function(label, ...,
     )
     return(path_dir)
   }
-  if (length(args_dotted) > 1) {
-    path_dir <- do.call(
-      what = "projr_path_get_dir",
-      args = list(
-        label = label,
-        args_dotted[-length(args_dotted)] |> unlist(),
-        create = create,
-        format = format,
-        safe = safe
-      )
-    )
-  } else {
-    path_dir <- projr_path_get_dir(
-      label = label,
-      create = create,
-      format = format,
-      safe = safe
-    )
-  }
+  path_dir <- do.call(
+    projr_path_get_dir,
+    c(list(label = label), args_dotted[-length(args_dotted)],
+      list(create = create, format = format, safe = safe))
+  )
   file.path(path_dir, args_dotted[length(args_dotted)]) |>
     fs::path_norm() |>
     as.character()
 }
 
 .dir_check_label <- function(label, profile) {
-  .assert_string(label)
+  .assert_string(label, TRUE)
   .dir_check_label_found(label, profile)
 }
 
 .dir_check_label_found <- function(label, profile) {
-  opt_vec <- c(
-    names(.yml_dir_get(profile)), "docs", "data", "project", "code"
-  )
-  label_found <- label %in% opt_vec
-  if (!label_found) {
-    stop("label '", label, "' not found in _projr.yml", call. = FALSE)
+  missing <- setdiff(label, names(.yml_dir_get(profile)))
+  if (length(missing)) {
+    stop("label '", paste(missing, collapse = "', '"), "' not found in _projr.yml", call. = FALSE)
   }
   invisible(TRUE)
 }
 
 .dir_check_label_strip <- function(label) {
   label_strip <- .dir_label_strip(label)
-  label_valid <- grepl("^docs|^raw|^cache|^output", label_strip)
+  label_valid <- grepl("^docs|^raw|^cache|^output", label_strip) || label %in% c("project", "data", "code")
   if (!label_valid) {
     stop(
       paste0("label '", label, "' not valid.\n"),
-      "Must begin with 'docs', 'raw', 'cache', 'output' or 'archive'\n",
+      "Use 'project', 'code', 'data' or a label beginning with 'docs', 'raw', 'cache' or 'output'\n",
       "However, it can:\n",
       " - be capitalised any which way, e.g. RAW-DATA or rAw-dAtA)\n",
       " - have any suffix, e.g. 'raw-data-foo' or 'raw-data-foo-bar'\n",
@@ -192,8 +159,9 @@ projr_path_get <- function(label, ...,
       unlist() |>
       .assert_chr()
   }
-  .dir_check_label(label, NULL)
-  .assert_flag(safe)
+  .assert_string(label, TRUE)
+  .assert_flag(safe, TRUE)
+  .yml_dir_get_path(label, NULL)
 }
 
 .dir_get_create <- function(path, create) {

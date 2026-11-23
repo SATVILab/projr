@@ -38,6 +38,7 @@ test_that("projr_use_data works", {
     path = dir_test,
     code = {
       # saving one object
+      projr_yml_dir_path_set("data", "data")
       x <- "1"
       path_tmp <- projr_use_data(x)
       expect_true(fs::path_has_parent(path_tmp, "_tmp"))
@@ -358,7 +359,7 @@ test_that(".opt_dir_get_label works", {
       labels <- .opt_dir_get_label(NULL)
       expect_true(is.character(labels))
       expect_true("docs" %in% labels)
-      expect_true("data" %in% labels)
+      expect_false("data" %in% labels)
     }
   )
 })
