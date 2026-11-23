@@ -32,8 +32,8 @@ Structure of the remote. Default is NULL.}
 \item{overwrite}{logical.
 Whether to rewrite an existing entry. Default is TRUE.}
 
-\item{send_cue}{"always", "if-change" or "never".
-When to send to the remote. Default is NULL.}
+\item{send_cue}{"always" or "if-change".
+When to send to the remote. The default sends changed content.}
 
 \item{send_strategy}{"upload-all", "upload-missing",
 "sync-purge" or "sync-diff".

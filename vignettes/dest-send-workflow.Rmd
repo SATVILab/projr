@@ -18,10 +18,13 @@ knitr::opts_chunk$set(
 
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  for (const code of document.querySelectorAll("pre.mermaid > code")) {
+    code.replaceWith(code.textContent);
+  }
   mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
 </script>
 
-This vignette explains the internal workflow for sending content to remote destinations during builds. It describes the three main stages that occur when projr uploads artifacts to GitHub releases, local directories, or OSF nodes.
+This vignette explains the internal workflow for sending content to remote destinations during builds. It describes the three main stages that occur when projr uploads artifacts to GitHub releases or local directories.
 
 ## Overview
 
@@ -37,7 +40,7 @@ Each stage builds upon the previous one to ensure efficient and accurate synchro
 
 The first stage resolves remote locations and determines what versions exist on the remote destination.
 
-```{mermaid}
+```mermaid
 flowchart TD
     Start([Start: .dsl_get_remotes]) --> GetPre[Get remote_pre<br/>Base remote location]
     GetPre --> GetDestFull[Get remote_dest_full<br/>Full version destination]
@@ -91,7 +94,7 @@ For `archive` structure:
 
 The second stage compares local and remote state to determine which files need to be uploaded, removed, or updated.
 
-```{mermaid}
+```mermaid
 flowchart TD
     Start([Start: .dsl_get_plan]) --> GetFilenames[Get file lists<br/>fn_source & fn_dest]
     
@@ -108,12 +111,11 @@ flowchart TD
     SyncPurge --> BuildActions
     
     BuildActions --> CheckCue{send_cue?}
-    CheckCue -->|never| SkipSend[Skip upload]
     CheckCue -->|always| ProceedSend[Proceed with upload]
     CheckCue -->|if-change| CheckChanges{Any changes?}
     
     CheckChanges -->|Yes| ProceedSend
-    CheckChanges -->|No| SkipSend
+    CheckChanges -->|No| SkipSend[Skip upload]
     
     ProceedSend --> BuildMetadata[Build metadata updates<br/>- manifest<br/>- VERSION file<br/>- changelog]
     SkipSend --> End
@@ -155,7 +157,7 @@ The `inspect` parameter controls how projr determines what's on the remote:
 
 The third stage executes the file operations and updates remote metadata.
 
-```{mermaid}
+```mermaid
 flowchart TD
     Start([Start: .dsl_implement_plan]) --> CheckPurge{purge?}
     
@@ -226,7 +228,7 @@ Only one variant exists at a time. When files are added to an empty remote, the 
 
 Here's how all three stages work together during a build:
 
-```{mermaid}
+```mermaid
 flowchart TD
     Start([Production Build]) --> Loop{For each<br/>destination}
     
@@ -259,7 +261,7 @@ The destination send process is triggered during post-build operations:
 5. **Dev Version Bump** - Increment to next dev version
 
 For each configured destination in `_projr.yml`:
-- Check if `send_cue` condition is met (always, if-change, never)
+- Check if `send_cue` condition is met (always, if-change)
 - Get remotes and determine comparison version
 - Build upload/removal plan based on `send_strategy` and `send_inspect`
 - Execute plan if approved by cue logic
@@ -275,7 +277,6 @@ The workflow behavior is controlled by parameters in `_projr.yml`:
 **send_cue** (when to upload):
 - `always` - Upload every build
 - `if-change` - Only upload if content changed
-- `never` - Skip upload
 
 **send_strategy** (how to upload):
 - `sync-diff` - Upload changed/new files, remove deleted files

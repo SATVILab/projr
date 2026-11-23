@@ -1,43 +1,38 @@
 url: https://satvilab.github.io/projr/
 template:
   bootstrap: 5
+  bslib:
+    primary: "#006b5a"
+    fg: "#172f33"
+    bg: "#fcfcf9"
+    navbar-light-bg: "#f4f7f2"
+    base_font: "Roboto, system-ui, sans-serif"
+    heading_font: "DM Sans, system-ui, sans-serif"
 
 navbar:
   structure:
     left:  [intro, articles, reference, news]
-    right: [github]
+    right: [search, github]
   components:
     intro:
       text: Get started
       href: articles/get-started.html
     articles:
-      text: Articles
+      text: Guides
       menu:
-      - text: How-to guides
-        href: articles/how-to-guides.html
-      - text: Build Process
-        href: articles/build-process.html
-      - text: Sending to Remotes
-        href: articles/send-to-remotes.html
-      - text: Destination Send Workflow
-        href: articles/dest-send-workflow.html
-      - text: Restoring Artifacts
-        href: articles/restore-artifacts.html
-      - text: Environment Variables
-        href: articles/environment.html
-      - text: Scripts and Hooks
+      - text: Project configuration
+        href: articles/configuration.html
+      - text: Scripts and hooks
         href: articles/scripts-and-hooks.html
-      - text: Concepts
-        href: articles/concepts.html
-      - text: Design
-        href: articles/design.html
+      - text: Archive files
+        href: articles/send-to-remotes.html
+      - text: Restore files
+        href: articles/restore-artifacts.html
+      - text: All guides
+        href: articles/index.html
     news:
       text: News
-      menu:
-      - text: Changelog
-        href: news/index.html
-      - text: Build log
-        href: BUILDLOG.html
+      href: news/index.html
     github:
       icon: fab fa-github fa-lg
       href: https://github.com/SATVILab/projr
@@ -206,11 +201,12 @@ footer:
     left: [developed_by, built_with]
     right: license
   components:
-    license: "[License](LICENSE.html) • projr is free and open source software"
+    license: "[MIT license](https://github.com/SATVILab/projr/blob/main/LICENSE.md)"
     built_with: "Built with [pkgdown](https://pkgdown.r-lib.org/) and R"
 
 home:
-  title: projr • Reproducible and archived projects
+  title: Build and restore an R analysis
+  sidebar: false
   description: >
-    A single intuitive build function that automates rendering, versioning,
-    archiving, and restoration for reproducible research projects.
+    Build an R analysis, archive its inputs and outputs to a GitHub Release,
+    and restore the recorded inputs in a fresh clone.

@@ -1,0 +1,294 @@
+---
+title: "Project configuration reference"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Project configuration reference}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Use this reference to look up a YAML setting, understand which files a build
+will touch, or restore a saved result. For a first build, follow the [getting started guide](get-started.html).
+
+## The project root and profiles
+
+Run the first build from the analysis project. If it has no base configuration,
+projr creates `_projr.yml` with explicit paths for `raw-data` (`_raw_data`),
+`output` (`_output`), `cache` (`_tmp`), and `docs` (`docs`). Existing scripts
+using those folders can keep their paths. If your files are already elsewhere,
+point the corresponding label at the existing folder. Once a base file exists,
+its directory declarations determine which labels are available.
+
+| File | When it applies |
+|---|---|
+| `_projr.yml` | Base configuration shared by the project. |
+| `_projr-<profile>.yml` | Overrides for a named analysis or machine. |
+| `_projr-local.yml` | Local overrides with highest precedence. |
+
+Each file can live at the project root or in `_projr/config/`. When both
+locations contain the same filename, the root copy wins. All relative paths in
+either location start at the project root. A nested script can therefore use
+the same directory labels when run in RStudio or during a build.
+
+Select profiles with a build's `profile` argument or `PROJR_PROFILE`. For
+example, `Sys.setenv(PROJR_PROFILE = "site-a,cluster")` applies both named
+profiles, with the earlier name taking precedence when both specify a value.
+Local overrides still win. Use `projr_yml_get()` to inspect the merged settings,
+`projr_yml_get("default")` to inspect the base file, and `projr_yml_check()`
+to validate the active configuration.
+
+## Directory declarations
+
+This example keeps incoming data and generated figures where they already live.
+It also creates a deliverable containing the figures and the rendered documents.
+
+```yaml
+directories:
+  raw-data:
+    path: incoming/site-a
+  cache:
+    path: scratch
+  docs:
+    path: reports/rendered
+  output-figures:
+    path: results/figures
+  output-delivery:
+    path: deliverables
+    include: [output-figures, docs]
+```
+
+After a production build, the included copies are under
+`deliverables/output-figures/` and `deliverables/docs/`. Each copy reflects
+the current source, including file removals. Other files in the receiving
+directory are separate from these copies. An output can include another
+assembled output. Cycles, paths that would copy a directory inside itself,
+and overlapping paths that could erase an input are rejected.
+
+| `directories.<label>` field | Meaning |
+|---|---|
+| `path` | Required for every declared label. An absolute path can point outside the checkout. |
+| `hash` | Include the directory in the version history. Defaults to true for raw data, outputs and docs, and false for cache. |
+| `include` | On an output label, list declared raw, docs or output labels to copy under their label names. An empty list requests no includes. |
+| `output` | Older source-side form. Use an output label or list to copy into those outputs, `true` for all other outputs, or `false` to skip. |
+| `package` | On an output label, `true` also builds the R source package and copies it under `pkg/`. |
+| `source` | Preferred restore configuration by remote type. For example, `source: {local: shared}` selects a named local destination called `shared`. |
+| `license` | A license identifier such as `CC-BY`, or a mapping containing `type`, `authors` and `year`. See `vignette("directory-licenses")`. |
+| `ignore` | Defaults to true for declared directories. Controls both Git and R build rules. Accepts YAML booleans, `ignore`, `no-ignore`, or `manual`. |
+| `ignore-git`, `ignore-rbuild` | Set either type separately. When `ignore` is also supplied, the choices must agree. |
+| `ignore-even-if-inactive` | Defaults to true. Applies that profile’s enabled ignore types while a different profile is active. |
+
+Use a raw, cache or output prefix when a label should participate in the
+corresponding build stage, for example `raw-site-a` and `output-tables`.
+Declare a cache for builds that need staging, and `docs` for collected documents.
+If several cache labels are configured, the first supplies the build cache. Labels used as directory lookups need a
+declared path, including `code` and `data` if your scripts use those names.
+The suffix `-empty` is reserved for archive metadata.
+
+`projr_path_get("output-figures", "plot.png")` returns a filename and creates
+its parent if needed. `projr_path_get_dir("output-figures")` returns a directory.
+Use `create = FALSE` for lookup only. Both accept `format = "absolute"`,
+`"relative"`, or `"auto"` (the default follows the YAML path's format).
+Relative results are usable from the caller's working directory.
+The default `safe = TRUE` allows projr to route output and document writes to
+the build's working area. Use `safe = FALSE` to address the configured final
+location directly. Literal paths in your own code use R's working directory.
+
+When refreshing ignores, projr considers each profile’s configured paths.
+If any eligible profile requests a Git ignore, the project keeps that rule.
+R package build ignores follow the same rule when the root has a `DESCRIPTION`.
+Changing a path removes the old generated rule once its last qualifying
+reference disappears. User-written rules outside the managed section stay in
+place. Only paths inside the checkout generate rules, so a Windows path in an
+inactive profile can coexist with a Linux checkout.
+
+## Documents, R scripts and hooks
+
+| Setting | Selection |
+|---|---|
+| `build.scripts` | Ordered inputs for a production build. Also used by dev builds when `dev.scripts` is absent. |
+| `dev.scripts` | Ordered inputs for a development build. The `scripts` argument to `projr_build_dev()` takes precedence. |
+| `build.hooks`, `dev.hooks` | Each accepts `pre`, `post`, and `both`. Supply R script paths under the stage. Dev and production hooks are configured independently. |
+
+A script selection accepts `.R`, `.Rmd` and `.qmd` paths or glob patterns.
+Quote exclusions such as `"!reports/draft.Rmd"`. Matches within a glob are
+alphabetical. Exclusions apply to the selection as a whole, and repeated
+files keep their first position. An explicit `scripts: []`, or `scripts = character()`
+in R, skips document rendering and script execution.
+
+For example, suppose a Quarto project has the following selection.
+
+```yaml
+build:
+  scripts: [prepare.R, intro.qmd, check-data.R, results.qmd, summarise.R]
+  hooks:
+    post: hooks/record-build.R
+```
+
+Here `prepare.R` and `check-data.R` run first. Quarto builds `intro.qmd` and
+`results.qmd` together when the selection reaches `results.qmd`. Then
+`summarise.R` runs. Projr temporarily sets Quarto's `project.render` (and `book.chapters` for a
+book), or Bookdown's `rmd_files`. It keeps the selected configuration
+through post-build hooks, then restores the original YAML, including on failure.
+An R-only selection runs just those scripts. Documents for a different engine
+render individually in their listed positions. Choose one project configuration
+when both `_quarto.yml` and `_bookdown.yml` are present.
+
+When script selection is omitted, projr builds the Quarto or Bookdown project
+using its own settings and then runs top-level R scripts alphabetically. In a
+directory without a rendering project it runs top-level documents and scripts
+together in alphabetical order. Automatic R discovery skips configured hooks,
+underscore-prefixed scripts and `renv_repos.R`.
+
+Renderers retain their own working-directory conventions, including Quarto's
+`execute-dir` and R Markdown's `knit_root_dir`. Pass native renderer arguments
+through `args_engine` when needed. The collected document and its companion
+assets stay together. Where basenames collide, projr preserves the affected
+documents’ project-relative subdirectories. Renderer intermediates such as
+generated TeX files receive project-relative ignore rules, including for
+nested source documents.
+
+## Builds, dependencies and versions
+
+| Setting | Values and effect |
+|---|---|
+| `build.renv` | `auto` (default) snapshots when the project has `renv.lock` or `renv/activate.R`. `true` requests snapshots even for a first lockfile. `false` disables build snapshots. A production build checks dependencies before rendering and snapshots again without prompting afterward. |
+| `build.git` | A boolean, or a mapping with booleans `commit`, `add-untracked`, and `push`. The first build writes `false` when there is no Git checkout, or disables push when the branch has no upstream. For an existing configuration with these settings omitted the normal production defaults enable all three. |
+| `build.restrictions.branch` | `true` allows any branch (default), a name or list allows those branches, and `false` or `[]` allows none. |
+| `build.restrictions.not_behind` | Defaults to true. Checks whether the local branch is behind its upstream before a versioned build. |
+| `build.cite` | A boolean or a mapping of booleans `cff`, `inst-citation`, and `codemeta`. Selects citation files for production build updates. |
+| `metadata.version-format` | Defaults to `major.minor.patch-dev`. Supported formats also allow `major.minor` or `major` before the development component, a dot separator before it, and a final `1` or `9000` in place of `dev`. |
+| `parameters` | Project-specific values available inside scripts, for example `parameters: {seed: 42}` and `projr_par_get("seed")`. |
+
+Use `projr_build_dev()` to iterate. Its `bump` and `old_dev_remove` arguments
+control the development version and removal of its older working directories.
+Use `projr_build_patch()`, `projr_build_minor()` or `projr_build_major()` to
+choose the component for a versioned build. `msg` records a build description.
+`clear_output` accepts `"pre"`, `"post"` or `"never"`. Production builds default to `"pre"` and development
+builds to `"never"`. Pass `clear_output = NULL` to read `PROJR_CLEAR_OUTPUT`. For console and file logging, profile
+environment files, and authentication, see `vignette("environment")`.
+
+## Hashing and history
+
+```yaml
+settings:
+  hashing:
+    approach: cpp
+    cores: 1
+```
+
+`cpp` streams files through the native implementation. `legacy` uses the
+historical R hashing method. Both produce the same file MD5s and use the same
+directory histories. `cores` is a positive integer. Increase it to distribute
+files across workers during a hashing phase. The default uses a single worker. The earlier `settings.hash-engine` spelling
+is accepted for compatibility.
+
+Each versioned build records the selected raw/cache inputs before rendering
+and outputs/docs afterward. Open `_projr/manifests/<label>/versions.csv` to
+see the project version, earliest matching directory version, and file-list
+identifier. The matching `files-<snapshot>.csv` lists relative filenames and
+MD5 hashes. Identical contents share a single file list per label, including
+when a directory returns to an earlier state. A legacy root `manifest.csv`
+is readable and its history is imported during a production build. For a
+comparison in R, use `projr_manifest_changes()` or
+`projr_manifest_file_history()`.
+
+## Saving artifacts
+
+Give a destination a name under `build.local` or `build.github`. Its
+`content` lists the labels to send. For example, this saves the assembled
+deliverable locally and publishes the figures to a GitHub release.
+
+```yaml
+build:
+  local:
+    shared:
+      path: ../team-archives/study
+      content: [output-delivery]
+      structure: archive
+  github:
+    figures:
+      tag: "figures-@branch"
+      content: [output-figures]
+      structure: latest
+      send:
+        cue: if-change
+        inspect: manifest
+        strategy: sync-diff
+```
+
+| Destination field | Values and effect |
+|---|---|
+| `path` | Local archive path, relative to the project root or absolute. |
+| `content` | Declared labels to archive. GitHub also provides its built-in source archive for `code`. |
+| `structure` | `archive` (default) stores versioned payloads. `latest` keeps the current payload for each label. |
+| `path-append-label` | Defaults to true. On a local destination, false lays out artifacts without the label subdirectory. A dedicated path per label avoids overlapping payloads. |
+| `tag`, `title` | GitHub release tag and displayed title resolve to the same string. The mapping key supplies the name when an explicit name is omitted. A literal `archive` shares one release across versions. |
+| `branch` | Optional GitHub target branch for a new tag. The branch must exist in the destination repository. `@branch` selects the checkout's named branch. Reusing a release preserves its tag target. |
+| `send.cue` | `if-change` (default) or `always`. |
+| `send.inspect` | `manifest` (default) compares recorded hashes, `file` inspects the files themselves, and `none` treats the destination as empty for comparison. |
+| `send.strategy` | `sync-diff` sends changes and removes obsolete files. `sync-purge` replaces the remote contents, `upload-all` sends every local file, and `upload-missing` sends only absent names. Defaults to `sync-diff`, or `upload-all` with `inspect: none`. |
+| `source` | Set true to prefer this destination for restores, false to skip it, or list the labels for which it is preferred. |
+
+For a one-off production archive, pass labels to `archive_local` or
+`archive_github`. `TRUE` chooses the available archive labels. `always_archive`
+controls whether those one-off archives are sent even when unchanged.
+
+### Naming a destination for a branch or build
+
+Directory paths, local destination names and paths, and GitHub release names
+can contain the following placeholders.
+
+| Placeholder | Example |
+|---|---|
+| `@version` | `archive-@version` becomes `archive-v1.2.3` for build 1.2.3. |
+| `@branch` | `archive-@branch` on `feature/foo` becomes `archive-feature_2ffoo`. A detached checkout uses `__detached-` followed by the full commit SHA. |
+| `@uuid` | A fresh UUIDv4 for each build, shared by that build's scripts, renderers, paths and release operations. |
+
+Quote a YAML string that begins with `@`. A placeholder ends at the end of
+the string or before a hyphen, underscore, period, ordinary space or path
+separator. For instance, `"@branch/@version"` expands both tokens, and
+`archive-@branching` stays literal. Ignore rules cover the configured path
+template across runs.
+
+### Archive layout and restore
+
+Local destinations keep per-label histories under `manifests/`. GitHub
+Releases carry those histories in a single `manifest.zip` alongside the
+artifact ZIPs. In an archive structure, a GitHub artifact is named, for
+example, `output-figures-v1.2.3.zip`. An empty directory version can have an
+explicit empty marker. In a flat local latest destination the names
+`manifests`, `manifest.csv`, `VERSION`, and `CHANGELOG.md` at its root belong
+to projr.
+
+To reproduce a checked-out build published to GitHub, run `projr_restore()`
+in the checkout. It uses the release named `archive` by default and restores
+the declared raw directory labels. It reads the checkout's production version,
+or the most recent completed build in its `BUILDLOG.md` when on the follow-up
+development commit. Supply `version = "1.2.3"` for a specific build or
+`destination` for another release tag. It verifies every selected directory's
+paths and MD5s before installing any downloads. Local changes and extra files
+stop the restore unless you explicitly allow replacement with `clear = TRUE`.
+
+In a checkout with manifest history, run `projr_content_update()` to restore
+the raw labels. Supply `label` to restore other directories. Projr first
+considers a directory's configured `source` and then eligible build
+destinations. Use `pos = "source"` or `"dest"` to limit the search, `type` to
+select local or GitHub, and `title` to select the configuration entry.
+Within the selected destination, restore chooses its latest available version
+for the label. `clear = TRUE` can remove existing local files, including when
+the archive records an empty version.
+
+If a destination contained `@uuid`, find its concrete path or release tag in
+the **Resolved archive destinations** section of that build's `BUILDLOG.md`.
+Pass it back as `destination` to restore from the same place later.
+
+```r
+projr::projr_content_update(
+  label = "output-delivery", pos = "dest", type = "local", title = "shared",
+  destination = "../team-archives/study"
+)
+```
+
+`projr_restore_repo("owner/repo")` clones a repository and restores its
+artifacts. Use `projr_restore_repo_wd("owner/repo")` to clone into the current
+directory. Both accept the same label, source and destination selectors.

@@ -9,9 +9,8 @@
 #' to a _projr.yml file.
 #'
 #' @param title character.
-#' The name of the directory.
-#' Has no effect besides helping structure `_projr.yml`.
-#' If not supplied, will be made equal to `content`.
+#' Required name for this local destination in `_projr.yml`.
+#' Supply this name as `title` when selecting the configuration for a restore.
 #' @param content character vector.
 #' Labels of directories to include in the upload.
 #' Options are the labels of directories
@@ -25,15 +24,15 @@
 #' Structure of the remote.
 #' If "latest", then `path` simply contains
 #' the latest versions of the contents.
-#' If "version", then `path` will contain
+#' If "archive", then `path` will contain
 #' a directory for each version.
 #' If not supplied, will be `archive`.
 #' @param overwrite logical.
 #' Whether to rewrite an existing entry of the same
 #' title in the specified `projr` configuration file.
 #' Default is TRUE.
-#' @param send_cue "always", "if-change" or "never".
-#' When to send to the remote. Default is NULL.
+#' @param send_cue "always" or "if-change".
+#' When to send to the remote. The default sends changed content.
 #' @param send_strategy "upload-all", "upload-missing",
 #' "sync-purge" or "sync-diff".
 #' How to synchronise to the remote. Default is NULL.
@@ -107,8 +106,8 @@ projr_yml_dest_add_local <- function(title,
 #' Structure of the remote. Default is NULL.
 #' @param overwrite logical.
 #' Whether to rewrite an existing entry. Default is TRUE.
-#' @param send_cue "always", "if-change" or "never".
-#' When to send to the remote. Default is NULL.
+#' @param send_cue "always" or "if-change".
+#' When to send to the remote. The default sends changed content.
 #' @param send_strategy "upload-all", "upload-missing",
 #' "sync-purge" or "sync-diff".
 #' How to synchronise to the remote. Default is NULL.

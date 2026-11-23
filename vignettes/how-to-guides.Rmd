@@ -41,7 +41,7 @@ function used.
 ```{r eval=FALSE}
 # Set license and citation separately
 projr_init_license(license = "MIT")
-projr_init_cite(title = "My Research Project", authors = "Jane Doe")
+projr_init_cite()
 ```
 
 If GitHub credential prompts fail, run `projr_instr_auth_github()` for
@@ -126,58 +126,40 @@ build:
 
 ## 4. Archive artefacts
 
-projr supports three destination types: GitHub Releases, OSF, and local
-directories. Configure them in `_projr.yml`:
+To archive raw data in a shared folder, add a named local destination.
+For a GitHub release, use a named entry under `github` instead.
 
 ```yaml
 build:
-  github:
-    raw-data:
-      content: [raw-data]
-      description: "Raw data files"
-      cue: "always"
-    output:
-      content: [output]
-      description: "Analysis outputs"
-
   local:
-    path: "~/Dropbox/my-project-archive"
-    raw-data:
+    backup:
+      path: ~/project-archives/study
       content: [raw-data]
-      path: "data"
-    output:
+  github:
+    figures:
       content: [output]
-      path: "outputs"
+      send:
+        cue: if-change
 ```
 
-Or add destinations programmatically:
+The equivalent R calls are:
 
 ```{r eval=FALSE}
-projr_yml_dest_add_github(
-  label = "raw-data",
-  content = "raw-data",
-  description = "Raw data files"
-)
-
-projr_yml_dest_add_local(
-  label = "raw-data",
-  content = "raw-data",
-  path = "~/archive/data"
-)
+projr_yml_dest_add_local("backup", "raw-data", "~/project-archives/study")
+projr_yml_dest_add_github("figures", "output", send_cue = "if-change")
 ```
 
-Key parameters:
-
-- `content`: directory to archive (raw-data, output, docs, cache)
-- `cue`: when to upload — "always", "new" (only if changed), "never"
-- `strategy`: "archive" (versioned) or "latest" (overwrite)
-
-GitHub has a 2 GB limit per release asset. Use local or OSF for larger
-datasets.
+Use `structure: archive` to retain versioned artifacts or `structure: latest`
+to keep the current payload. See `vignette("configuration")` for all the options.
 
 ---
 
 ## 5. Restore artefacts
+
+To reproduce a checked-out production build from its GitHub archive, run
+`projr_restore()` inside that checkout. It fills in missing raw data after
+verifying the recorded file hashes. Use `projr_restore(version = "1.2.3")`
+to select a particular build.
 
 ```{r eval=FALSE}
 # Clone a repo and restore archived content
@@ -185,7 +167,7 @@ projr_restore_repo("owner/repo")
 projr_restore_repo("owner/repo", path = "~/projects/my-project")
 
 # Restore from the current working directory (already cloned)
-projr_restore_repo_wd()
+projr_content_update()
 ```
 
 Restore specific directories:
@@ -193,12 +175,10 @@ Restore specific directories:
 ```{r eval=FALSE}
 projr_content_update(label = "raw-data")
 projr_content_update(label = c("raw-data", "output"))
-projr_content_update(label = "raw-data", version = "v0.1.0")
+projr_content_update(label = "raw-data", type = "local", title = "backup")
 ```
 
-projr checks configured sources in order: GitHub Releases, OSF, then
-local archives. Ensure credentials are set up before restoring from
-remote sources.
+By default, projr looks for each label’s configured source, then a build destination containing that label. To reuse a templated archive from an earlier build, pass the concrete path or tag recorded in `BUILDLOG.md` as `destination`.
 
 ---
 

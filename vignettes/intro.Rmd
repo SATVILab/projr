@@ -78,7 +78,7 @@ After a production build, the version is bumped to a development suffix (e.g. `0
 
 ### Sharing outputs
 
-After each production build, `projr` can upload project components (raw data, outputs, docs) to GitHub releases, OSF or a local folder. This is configured under the `build` key in `_projr.yml` and happens automatically.
+After each production build, `projr` can upload project components (raw data, outputs, docs) to GitHub releases or a local folder. This is configured under the `build` key in `_projr.yml` and happens automatically.
 
 ## `_projr.yml` configuration
 
@@ -106,10 +106,10 @@ directories:
 Use `projr_path_get()` to construct paths:
 
 ```{r, eval=FALSE}
-projr_path_get("output")
+projr_path_get("output", safe = FALSE)
 # "_output"
 
-projr_path_get("output", "figure", "plot.png")
+projr_path_get("output", "figure", "plot.png", safe = FALSE)
 # "_output/figure/plot.png"
 
 # Use in code:
@@ -134,7 +134,7 @@ build:
 
 This uploads the `raw-data` directory to a GitHub release after each build. Uploads are incremental by default (only when content changes). Git commit, push and other settings are also configured here.
 
-Destinations include GitHub releases, OSF nodes and local directories.
+Destinations include GitHub releases and local directories.
 
 ## Setting up GitHub
 
