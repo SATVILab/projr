@@ -201,7 +201,7 @@ footer:
     left: [developed_by, built_with]
     right: license
   components:
-    license: "[License](LICENSE.html) • projr is free and open source software"
+    license: "[MIT license](https://github.com/SATVILab/projr/blob/main/LICENSE.md)"
     built_with: "Built with [pkgdown](https://pkgdown.r-lib.org/) and R"
 
 home:
