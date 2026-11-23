@@ -1,10 +1,5 @@
 .remote_ls <- function() {
-  remote_vec <- c(
-    .remote_ls_source(),
-    .remote_ls_dest(),
-    "github"[.git_push_check()]
-  ) |>
-    unique()
+  remote_vec <- unique(c(.remote_ls_source(), .remote_ls_dest()))
   remote_vec[nzchar(remote_vec)]
 }
 
@@ -22,19 +17,6 @@
   yml_projr_build <- .yml_build_get(NULL)
   remote_vec <- c("github")
   remote_vec[remote_vec %in% names(yml_projr_build)]
-}
-
-.git_push_check <- function() {
-  setting_git <- .yml_build_get(NULL)[["git"]]
-  switch(class(setting_git),
-    "NULL" = TRUE,
-    "logical" = setting_git,
-    "list" = {
-      setting_push <- setting_git[["push"]]
-      if (is.null(setting_push)) TRUE else setting_push
-    },
-    stop(paste0("git setting '", class(setting_git), "' not recognized"))
-  )
 }
 
 .gh_repo_get <- function() {
