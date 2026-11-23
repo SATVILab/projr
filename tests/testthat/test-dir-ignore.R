@@ -70,6 +70,7 @@ test_that("absolute ignore paths may use an alias for the checkout's parent", {
   fs::dir_create(project)
   alias <- file.path(scratch, "linked")
   skip_if_not(suppressWarnings(file.symlink(parent, alias)), "Directory symlink unavailable")
+  withr::defer(fs::link_delete(alias))
   path <- file.path(alias, "study", "future", "output-@uuid")
   expect_identical(.ignore_project_relative(path, normalizePath(project, winslash = "/")), "future/output-@uuid")
   expect_false(dir.exists(path))

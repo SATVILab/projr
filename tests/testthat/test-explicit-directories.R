@@ -32,6 +32,7 @@ test_that("a writable directory cannot point back to the checkout through an ali
   dir.create(project)
   alias <- file.path(scratch, "linked")
   skip_if_not(suppressWarnings(file.symlink(project, alias)), "Directory symlink unavailable")
+  withr::defer(fs::link_delete(alias))
   withr::local_dir(project)
   yaml::write_yaml(list(directories = list(output = list(path = alias))), "_projr.yml")
   expect_error(projr_path_get_dir("output", safe = FALSE), "root directory of the project")
