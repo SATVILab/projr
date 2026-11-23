@@ -381,17 +381,9 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   # Validates parameters for renv functions.
   # Checks that parameters are logical and at least one package source is selected.
 
-  if (!is.logical(github) || length(github) != 1L) {
-    stop("'github' must be a single logical value (TRUE or FALSE).")
-  }
-
-  if (!is.logical(non_github) || length(non_github) != 1L) {
-    stop("'non_github' must be a single logical value (TRUE or FALSE).")
-  }
-
-  if (!is.logical(biocmanager_install) || length(biocmanager_install) != 1L) {
-    stop("'biocmanager_install' must be a single logical value (TRUE or FALSE).")
-  }
+  .assert_flag(github, TRUE)
+  .assert_flag(non_github, TRUE)
+  .assert_flag(biocmanager_install, TRUE)
 
   if (!github && !non_github) {
     stop("At least one of 'github' or 'non_github' must be TRUE.")
