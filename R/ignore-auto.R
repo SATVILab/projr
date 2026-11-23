@@ -275,15 +275,11 @@ projr_ignore_auto <- function() {
 }
 
 .ignore_auto_dest_local <- function(archive_local) {
-  yml <- .yml_dest_get_type("local", NULL)
-  if (archive_local && !"archive" %in% names(yml)) {
-    .ignore_auto_dir("_archive")
-  }
-  if (is.null(yml)) {
-    return(invisible(FALSE))
-  }
-  for (i in seq_along(yml)) {
-    .ignore_auto_dest_local_title(yml[[i]])
+  yml <- .yml_get(NULL)
+  titles <- .dest_send_type_get_title("local", archive_local)
+  if (!length(titles)) return(invisible(FALSE))
+  for (title in titles) {
+    .ignore_auto_dest_local_title(.yml_remote_definition("local", title, yml))
   }
   invisible(TRUE)
 }

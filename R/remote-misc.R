@@ -14,12 +14,18 @@
 }
 
 .remote_ls_dest <- function() {
-  yml_projr_build <- .yml_build_get(NULL)
-  remote_vec <- c("github")
-  remote_vec[remote_vec %in% names(yml_projr_build)]
+  intersect("github", .dest_send_get_type_yml())
+}
+
+.with_github_repo <- function(repo, code, branch = NULL) {
+  previous <- options(projr.github.repo = repo, projr.github.branch = branch)
+  on.exit(options(previous))
+  force(code)
 }
 
 .gh_repo_get <- function() {
+  repo <- getOption("projr.github.repo")
+  if (!is.null(repo)) return(repo)
   if (.git_repo_is_worktree()) {
     git_file <- readLines(.path_get(".git"), warn = FALSE)
     git_file <- gsub("^gitdir: ", "", git_file)

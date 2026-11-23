@@ -237,30 +237,70 @@ projr_yml_check <- function(profile = NULL) {
 # ----------------------
 
 .yml_build_check_dest <- function(profile) {
-  for (x in .opt_remote_get_type()) {
-    if (is.null(.yml_dest_get_type(x, profile))) {
-      next
+  yml <- .yml_get(profile)
+  registry <- yml[["remotes"]]
+  .yml_check_remote_mapping(registry, "remotes", .opt_remote_get_type())
+  for (type in .opt_remote_get_type()) {
+    definitions <- registry[[type]]
+    selectors <- yml[["build"]][[type]]
+    .yml_check_remote_mapping(definitions, paste0("remotes.", type))
+    .yml_check_remote_mapping(selectors, paste0("build.", type))
+    for (title in names(definitions)) {
+      key <- paste("remotes", type, title, sep = ".")
+      settings <- definitions[[title]]
+      fields <- c("structure", "source", "send", "path-append-label",
+        if (type == "local") c("path", "ignore") else c("repo", "tag", "branch"))
+      .yml_check_remote_mapping(settings, key, fields)
+      if (!is.null(settings[["repo"]])) {
+        repo <- settings[["repo"]]
+        .assert_string(repo, TRUE, nm = paste0(key, ".repo"))
+        if (!grepl("^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$", repo) ||
+            any(strsplit(repo, "/", fixed = TRUE)[[1L]] %in% c(".", ".."))) {
+          stop(key, ".repo must be a GitHub owner/repository name.", call. = FALSE)
+        }
+      }
+      .yml_check_remote_mapping(settings[["send"]], paste0(key, ".send"), c("cue", "inspect", "strategy"))
+      .yml_build_check_dest_title(settings, title, type, registered = TRUE)
     }
-    title_vec <- names(.yml_dest_get_type(x, profile))
-    for (i in seq_along(title_vec)) {
-      .yml_build_check_dest_title(
-        .yml_dest_get_title(title_vec[i], x, profile),
-        title = title_vec[i],
-        type = x
-      )
+    for (title in names(selectors)) {
+      selection <- selectors[[title]]
+      key <- paste("build", type, title, sep = ".")
+      if (title %in% names(definitions)) {
+        .yml_check_remote_mapping(selection, paste0(key, " (put remote settings under remotes.", type, ".", title, ")"), "content")
+        if ("content" %in% names(selection)) {
+          content <- selection[["content"]]
+          if (is.null(content)) stop(key, ".content must list the labels to publish.", call. = FALSE)
+          if (length(content)) .assert_in(content, .opt_dir_get_label_send(profile, type), TRUE, nm = paste0(key, ".content"))
+        }
+      } else {
+        .yml_check_remote_mapping(selection, key)
+        if (length(selection)) {
+          .yml_build_check_dest_title(selection, title, type)
+        } else if (type == "local") {
+          stop("Define remotes.local.", title, ".path before selecting ", key, ".", call. = FALSE)
+        }
+      }
     }
   }
 }
 
-.yml_build_check_dest_title <- function(yml_title, title, type) {
+.yml_check_remote_mapping <- function(value, key, fields = NULL) {
+  if (!is.null(value) && (!is.list(value) || (length(value) &&
+      (is.null(names(value)) || any(!nzchar(names(value))))))) {
+    stop(key, " must be a YAML mapping.", call. = FALSE)
+  }
+  if (length(value) && !is.null(fields)) .assert_in(names(value), fields, nm = key)
+}
+
+.yml_build_check_dest_title <- function(yml_title, title, type, registered = FALSE) {
   .assert_string(title, TRUE)
   .assert_string(yml_title[["title"]])
   if (type == "github") {
     .assert_string(yml_title[["tag"]])
     .assert_string(yml_title[["branch"]])
   }
-  .assert_in(yml_title[["content"]], .opt_dir_get_label_send(NULL, type), TRUE)
-  .assert_in(yml_title[["structure"]], .opt_remote_get_structure())
+  if (!registered) .assert_in(yml_title[["content"]], .opt_dir_get_label_send(NULL, type), TRUE)
+  .assert_in_single(yml_title[["structure"]], .opt_remote_get_structure())
   .assert_string(yml_title[["path"]], type == "local")
   .assert_flag(yml_title[["path-append-label"]])
   .assert_nchar(yml_title[["id"]], 5L)
@@ -276,13 +316,13 @@ projr_yml_check <- function(profile = NULL) {
   }
   if ("send" %in% names(yml_title)) {
     send_list <- yml_title[["send"]]
-    .assert_in(names(send_list), .opt_remote_transfer_names_get())
-    .assert_in(send_list[["cue"]], .opt_cue_get())
-    .assert_in(
+    if (length(send_list)) .assert_in(names(send_list), .opt_remote_transfer_names_get())
+    .assert_in_single(send_list[["cue"]], .opt_cue_get())
+    .assert_in_single(
       send_list[["strategy"]], .opt_remote_strategy_get()
     )
     .assert_in(send_list[["conflict"]], .opt_remote_conflict_get())
-    .assert_in(
+    .assert_in_single(
       send_list[["inspect"]], .opt_remote_inspect_get()
     )
   }

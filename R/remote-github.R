@@ -364,7 +364,8 @@
     )
     # use dispatcher
     tag <- remote_empty[["tag"]]
-    branch <- .dest_github_targets(FALSE, FALSE, NULL)[[tag]]
+    key <- .dest_github_target_key(getOption("projr.github.repo"), tag)
+    branch <- getOption("projr.github.branch") %||% .dest_github_targets(FALSE, FALSE, NULL)[[key]][["branch"]]
     .remote_create("github", id = tag, branch = branch, api_url = api_url, token = token)
   }
   path_dir_tmp_save <- .dir_create_tmp_random()
