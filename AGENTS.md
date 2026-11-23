@@ -16,7 +16,7 @@ Key architectural patterns:
 - **Remote destinations**: A unified dispatcher pattern (`R/remote.R`) routes file operations to local, GitHub, or OSF backends.
 - **Internal vs. exported functions**: Internal helpers use a `.` prefix (e.g., `.hash_file()`); exported functions use the `projr_` prefix (e.g., `projr_build_patch()`).
 
-A project with a legacy root `manifest.csv` can be queried and restored before migration. The next production build imports its history. Local destinations store directory histories in `manifests/`. GitHub Releases use one `manifest.zip` asset.
+A project with a legacy root `manifest.csv` can be queried and restored before migration. The next production build imports its history. Local destinations store directory histories in `manifests/`. GitHub Releases use one `manifest.zip` asset. A local latest destination with `path-append-label: false` shares its root with release metadata. Preserve that metadata across payload purges. Confirm an empty build from the destination's `VERSION` and matching directory snapshot before clearing local files on restore.
 
 File hashing uses the top-level `settings.hash-engine` key. Its default, `cpp`, streams files in batches. The `legacy` option uses the historical per-file `digest` implementation. Both produce identical MD5 values and use the same per-directory manifest history.
 
