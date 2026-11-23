@@ -518,18 +518,28 @@ Internal functions (`.` prefix) must **not** have `@export`.
 
 ### Commits / PRs
 
+- For a stable package release, merge its three-part `DESCRIPTION`
+  version into `main`. The release workflow publishes the matching
+  `vX.Y.Z` GitHub Release with the `R CMD build` source tarball. Tag
+  pushes and the manual version/bump workflow also support publication.
+  Keep released version tags fixed.
+
 - Make **minimal, surgical changes** — change as few lines as possible.
+
 - Run
   [`devtools::document()`](https://devtools.r-lib.org/reference/document.html),
   [`devtools::test()`](https://devtools.r-lib.org/reference/test.html)
   (LITE), and
   [`styler::style_pkg()`](https://styler.r-lib.org/reference/style_pkg.html)
   before committing.
+
 - Update `_pkgdown.yml` when adding or removing exported functions, then
   verify with
   [`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html).
+
 - Ensure files end with a **single newline** and have **no trailing
   whitespace**.
+
 - Never leave [`browser()`](https://rdrr.io/r/base/browser.html) or
   unguarded interactive debugging calls in committed code.
 

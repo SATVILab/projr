@@ -28,7 +28,7 @@ Install projr and its GitHub tools once in R.
 ``` r
 
 install.packages(c("remotes", "gh", "httr"))
-remotes::install_github("SATVILab/projr")
+remotes::install_github("SATVILab/projr@*release")
 ```
 
 If this is your first time publishing a release from R, create a
