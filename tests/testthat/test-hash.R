@@ -555,3 +555,30 @@ test_that("directory hashing follows readable links and skips broken ones", {
   expect_identical(.hash_dir(root, "2.0.0")$fn, expected)
   expect_identical(.hash_dir(root, "2.0.0", "nested")$fn, expected[1:2])
 })
+
+test_that("parallel file hashing matches serial hashes and recovers from worker errors", {
+  skip_if(.is_test_select())
+  root <- withr::local_tempdir()
+  withr::local_dir(root)
+  paths <- c(short = "a", unicode = paste0(intToUtf8(233), ".bin"), repeat_a = "a")
+  writeLines("small", paths[1])
+  writeBin(rep(as.raw(0:255), 1000), paths[2])
+  for (engine in c("cpp", "legacy")) {
+    serial <- .hash_file(paths, engine, 1L)
+    expect_identical(.hash_file(paths, engine, 2L), serial)
+    expect_error(.hash_file(c(paths, "missing-file"), engine, 2L), "missing-file")
+    expect_identical(.hash_file(paths[2:1], engine, 4L), serial[2:1])
+    expect_identical(.hash_file(character(), engine, 2L), setNames(character(), character()))
+  }
+})
+
+test_that("hash workers are limited to the number of files", {
+  skip_if(.is_test_select())
+  testthat::local_mocked_bindings(
+    .hash_file_batch = function(fn, ...) rep(as.character(Sys.getpid()), length(fn))
+  )
+  pids <- .hash_file(c("a", "b"), "cpp", 4L)
+  expect_length(unique(pids), 2L)
+  expect_false(as.character(Sys.getpid()) %in% pids)
+  expect_identical(unname(.hash_file("a", "cpp", 4L)), as.character(Sys.getpid()))
+})
