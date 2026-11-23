@@ -214,12 +214,14 @@ projr_build_dev <- function(scripts = NULL,
                             args_engine = list(),
                             profile = NULL,
                             clear_output = "never") {
+  .assert_flag(bump, TRUE)
+  .assert_flag(old_dev_remove, TRUE)
   # NULL if FALSE and "dev" if TRUE
   bump_component <- .build_dev_get_bump_component(bump)
   .build(
     scripts = scripts,
     bump_component = bump_component,
-    old_dev_remove = TRUE,
+    old_dev_remove = old_dev_remove,
     args_engine = args_engine,
     profile = profile,
     clear_output = clear_output
@@ -356,14 +358,8 @@ projr_build_dev <- function(scripts = NULL,
 }
 
 .build_get_clear_output <- function(clear_output) {
-  if (!is.null(clear_output)) {
-    .assert_string(clear_output, TRUE)
-    .assert_in(clear_output, c("pre", "post", "never"))
-    return(clear_output)
-  }
-  clear_output <- Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "pre")
-  .assert_string(clear_output, TRUE)
-  .assert_in(clear_output, c("pre", "post", "never"))
+  clear_output <- clear_output %||% Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "pre")
+  .assert_in_single(clear_output, c("pre", "post", "never"), TRUE)
   clear_output
 }
 

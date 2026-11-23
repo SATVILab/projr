@@ -396,7 +396,7 @@ projr_manifest_last_change <- function(version = NULL) {
 #'
 #' @export
 projr_manifest_file_last_change <- function(fn, label = NULL, version_end = NULL) {
-  .assert_string(fn)
+  .assert_string(fn, TRUE)
   manifest <- .manifest_query_range_rows(NULL, version_end, label, fn)
   .manifest_file_query_last_change(manifest)
 }
@@ -441,7 +441,7 @@ projr_manifest_file_last_change <- function(fn, label = NULL, version_end = NULL
 projr_manifest_file_changed <- function(fn, label = NULL,
                                         version_from = NULL,
                                         version_to = NULL) {
-  .assert_string(fn)
+  .assert_string(fn, TRUE)
   manifest <- .manifest_query_comparison(label, fn, version_from, version_to)
   if (!nrow(manifest)) return(.zero_tbl_get_manifest_file_changed())
 
@@ -482,7 +482,7 @@ projr_manifest_file_changed <- function(fn, label = NULL,
 #'
 #' @export
 projr_manifest_file_history <- function(fn, label = NULL) {
-  .assert_string(fn)
+  .assert_string(fn, TRUE)
   .assert_string(label)
   manifest <- .manifest_read_project(label = label, fn = fn)
   manifest <- manifest[!is.na(manifest$fn) & nzchar(manifest$fn), , drop = FALSE]
@@ -516,7 +516,7 @@ projr_manifest_file_history <- function(fn, label = NULL) {
 #'
 #' @export
 projr_manifest_file_first <- function(fn, label = NULL) {
-  .assert_string(fn)
+  .assert_string(fn, TRUE)
   .assert_string(label)
   manifest <- .manifest_read_project(label = label, fn = fn)
   manifest <- manifest[!is.na(manifest$fn) & nzchar(manifest$fn), , drop = FALSE]

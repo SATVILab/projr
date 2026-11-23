@@ -21,31 +21,31 @@ test_that("projr_restore_repo validates repo parameter correctly", {
   # NULL repo
   expect_error(
     projr_restore_repo(repo = NULL),
-    "'repo' cannot be NULL"
+    "repo must be given"
   )
 
   # Non-character repo
   expect_error(
     projr_restore_repo(repo = 123),
-    "'repo' must be a character string"
+    "repo must be a non-empty string"
   )
 
   # Empty vector
   expect_error(
     projr_restore_repo(repo = character(0)),
-    "'repo' must have at least one element"
+    "repo must be a non-empty string"
   )
 
   # Multiple values
   expect_error(
     projr_restore_repo(repo = c("repo1", "repo2")),
-    "'repo' must be a single character value"
+    "repo must be a non-empty string"
   )
 
   # Empty string
   expect_error(
     projr_restore_repo(repo = ""),
-    "'repo' cannot be an empty string"
+    "repo must be a non-empty string"
   )
 })
 
@@ -56,19 +56,19 @@ test_that("projr_restore_repo validates path parameter correctly", {
   # Non-character path (when not NULL)
   expect_error(
     projr_restore_repo(repo = "test/repo", path = 123),
-    "'path' must be NULL or a character string"
+    "path must be a non-empty string"
   )
 
   # Multiple values
   expect_error(
     projr_restore_repo(repo = "test/repo", path = c("path1", "path2")),
-    "'path' must be a single character value"
+    "path must be a non-empty string"
   )
 
   # Empty string
   expect_error(
     projr_restore_repo(repo = "test/repo", path = ""),
-    "'path' cannot be an empty string"
+    "path must be a non-empty string"
   )
 })
 
@@ -79,13 +79,13 @@ test_that("projr_restore_repo validates label parameter correctly", {
   # Non-character label
   expect_error(
     projr_restore_repo(repo = "test/repo", label = 123),
-    "'label' must be NULL or a character vector"
+    "label must be a non-empty character vector"
   )
 
   # Empty vector
   expect_error(
     projr_restore_repo(repo = "test/repo", label = character(0)),
-    "'label' must have at least one element if not NULL"
+    "label must be a non-empty character vector"
   )
 })
 
@@ -96,25 +96,25 @@ test_that("projr_restore_repo validates pos parameter correctly", {
   # Non-character pos
   expect_error(
     projr_restore_repo(repo = "test/repo", pos = 123),
-    "'pos' must be NULL or a character vector"
+    "pos must be a non-empty character vector"
   )
 
   # Empty vector
   expect_error(
     projr_restore_repo(repo = "test/repo", pos = character(0)),
-    "'pos' must have at least one element if not NULL"
+    "pos must be a non-empty character vector"
   )
 
   # Invalid value
   expect_error(
     projr_restore_repo(repo = "test/repo", pos = "invalid"),
-    "'pos' must be 'source' or 'dest'"
+    "pos must be one of source, dest"
   )
 
   # Multiple invalid values
   expect_error(
     projr_restore_repo(repo = "test/repo", pos = c("source", "invalid")),
-    "'pos' must be 'source' or 'dest'.*invalid"
+    "pos must be one of source, dest.*invalid"
   )
 })
 
@@ -125,25 +125,25 @@ test_that("projr_restore_repo validates type parameter correctly", {
   # Non-character type
   expect_error(
     projr_restore_repo(repo = "test/repo", type = 123),
-    "'type' must be NULL or a character vector"
+    "type must be a non-empty string"
   )
 
   # Empty vector
   expect_error(
     projr_restore_repo(repo = "test/repo", type = character(0)),
-    "'type' must have at least one element if not NULL"
+    "type must be a non-empty string"
   )
 
   # Multiple values
   expect_error(
     projr_restore_repo(repo = "test/repo", type = c("local", "github")),
-    "'type' must be a single character value"
+    "type must be a non-empty string"
   )
 
   # Invalid value
   expect_error(
     projr_restore_repo(repo = "test/repo", type = "invalid"),
-    "'type' must be one of: local, github"
+    "type must be one of local, github"
   )
 })
 
@@ -154,19 +154,19 @@ test_that("projr_restore_repo validates title parameter correctly", {
   # Non-character title
   expect_error(
     projr_restore_repo(repo = "test/repo", title = 123),
-    "'title' must be NULL or a character vector"
+    "title must be a non-empty string"
   )
 
   # Empty vector
   expect_error(
     projr_restore_repo(repo = "test/repo", title = character(0)),
-    "'title' must have at least one element if not NULL"
+    "title must be a non-empty string"
   )
 
   # Multiple values
   expect_error(
     projr_restore_repo(repo = "test/repo", title = c("title1", "title2")),
-    "'title' must be a single character value"
+    "title must be a non-empty string"
   )
 })
 
@@ -175,7 +175,7 @@ test_that("repo restoration clones into the requested path and forwards selectio
   skip_if_not_installed("gert")
   remote <- .test_setup_project()
   parent <- withr::local_tempdir()
-  expect_error(projr_restore_repo_wd(NULL), "cannot be NULL")
+  expect_error(projr_restore_repo_wd(NULL), "repo must be given")
   labels <- c("raw-data", "output")
   positions <- c("source", "dest")
   received <- NULL

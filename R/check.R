@@ -2,14 +2,14 @@
 # ------------
 
 .assert_attr_value <- function(x, attr, value, required = TRUE, nm = NULL) {
-  .assert_given_mid(attr)
+  .assert_string(attr, TRUE)
   .assert_given(value)
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
 
-  if (!identical(value, attr(x, attr))) {
+  if (!identical(value, attr(x, attr, exact = TRUE))) {
     msg <- paste0(
       nm, " must have attribute ", attr, " with value ",
       value |> .string_create()
@@ -39,14 +39,11 @@
 }
 
 .assert_attr <- function(x, attr, required = FALSE, nm = NULL) {
-  if (required) {
-    .assert_given(x = x, nm = nm)
-  } else if (!.is_given_mid(x)) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  .assert_given_mid(attr)
   .assert_string(attr, TRUE)
-  nm <- .assert_nm_get(x, nm)
 
   if (.is_opt(attr, names(attributes(x)))) {
     return(invisible(TRUE))
@@ -55,7 +52,6 @@
   msg <- paste0(nm, " must have attribute ", attr)
   .cli_debug("Validation failed: {msg}")
   stop(msg, call. = FALSE)
-  invisible(TRUE)
 }
 
 .assert_has_not <- function(x, value, required = FALSE, nm = NULL) {
@@ -95,13 +91,13 @@
 }
 
 .assert_detect <- function(x, pattern, required = FALSE, nm = NULL) {
-  .assert_given(pattern)
+  .assert_string(pattern, TRUE)
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
 
-  if (!all(grepl(pattern, x))) {
+  if (anyNA(x) || !length(x) || !all(grepl(pattern, x))) {
     msg <- paste0(nm, " must all match ", pattern)
     .cli_debug("Validation failed: {msg}")
     stop(msg, call. = FALSE)
@@ -110,7 +106,7 @@
 }
 
 .assert_detect_any <- function(x, pattern, required = FALSE, nm = NULL) {
-  .assert_given(pattern)
+  .assert_string(pattern, TRUE)
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
@@ -125,7 +121,7 @@
 }
 
 .assert_detect_single <- function(x, pattern, required = FALSE, nm = NULL) {
-  .assert_given(pattern)
+  .assert_string(pattern, TRUE)
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
@@ -223,7 +219,7 @@
     return(invisible(TRUE))
   }
   .assert_len_1(x = x, nm = nm)
-  if (!dir.exists(x)) {
+  if (!.is_string(x) || !dir.exists(x)) {
     msg <- paste0("The directory ", nm, " must exist")
     .cli_debug("Validation failed: {msg}")
     stop(msg, call. = FALSE)
@@ -236,7 +232,7 @@
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  if (!all(dir.exists(x))) {
+  if (!.is_chr(x) || !all(dir.exists(x))) {
     msg <- paste0("The ", nm, " directories must exist")
     .cli_debug("Validation failed: {msg}")
     stop(msg, call. = FALSE)
@@ -255,14 +251,9 @@
     return(invisible(TRUE))
   }
   .assert_chr(sub, TRUE)
-  if (!requireNamespace("fs", quietly = TRUE)) {
-    msg <- "Package 'fs' is required but not installed.\nPlease install it using: install.packages(\"fs\")"
-    .cli_debug("Validation failed: {msg}")
-    stop(msg, call. = FALSE)
-  }
-
-  if (any(vapply(sub, function(y) fs::path_has_parent(x, y), logical(1)))) {
-    msg <- paste0(nm, " must not be a subdirectory of ", sub)
+  .assert_chr(x, TRUE, nm = nm)
+  if (any(vapply(sub, function(parent) any(fs::path_has_parent(x, parent)), logical(1)))) {
+    msg <- paste0(nm, " must not be a subdirectory of ", paste(sub, collapse = ", "))
     .cli_debug("Validation failed: {msg}")
     stop(msg, call. = FALSE)
   }
@@ -283,7 +274,7 @@
 }
 
 .is_path_not_file <- function(x) {
-  !(file.exists(x) && !dir.exists(x))
+  .is_chr(x) && all(!file.exists(x) | dir.exists(x))
 }
 
 # files: package
@@ -319,10 +310,12 @@
     return(invisible(TRUE))
   }
   .assert_len_1(x = x, nm = nm)
-  if (!all(.is_in_not(x, opt))) {
+  .assert_chr_min(x, TRUE, nm = nm)
+  .assert_chr(opt, TRUE, nm = "opt")
+  if (!.is_in_not(x, opt)) {
     msg <- paste0(
       nm, " must not be one of ", paste0(opt, collapse = ", "),
-      "but is the following:\n",
+      ", but is the following:\n",
       .string_create(x, sep = "\n")
     )
     .cli_debug("Validation failed: {msg}")
@@ -339,10 +332,12 @@
     return(invisible(TRUE))
   }
   .assert_len_pos(x = x, nm = nm)
-  if (!all(.is_in_not(x, opt))) {
+  .assert_chr_min(x, TRUE, nm = nm)
+  .assert_chr(opt, TRUE, nm = "opt")
+  if (!.is_in_not(x, opt)) {
     msg <- paste0(
       nm, " must not be one of ", paste0(opt, collapse = ", "),
-      "but is the following:\n",
+      ", but is the following:\n",
       .string_create(x, sep = "\n")
     )
     .cli_debug("Validation failed: {msg}")
@@ -352,7 +347,7 @@
 }
 
 .is_in_not <- function(x, opt) {
-  !.is_opt(x, opt)
+  length(x) > 0L && !anyNA(x) && !any(x %in% opt)
 }
 
 .assert_in_single <- function(x, opt, required = FALSE, nm = NULL) {
@@ -371,6 +366,7 @@
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
+  .assert_chr_min(x, TRUE, nm = nm)
   .assert_chr(opt, TRUE, nm = "opt")
   .assert_len_pos(x = x, nm = nm)
   if (!all(.is_opt(x, opt))) {
@@ -411,7 +407,7 @@
 }
 
 .is_lgl <- function(x) {
-  is.logical(x) && .is_len_pos(x) && all(!is.na(x))
+  is.logical(x) && is.null(dim(x)) && .is_len_pos(x) && !anyNA(x)
 }
 
 .assert_lgl_min <- function(x, required = FALSE, nm = NULL) {
@@ -419,7 +415,7 @@
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  if (!is.logical(x)) {
+  if (!is.logical(x) || !is.null(dim(x))) {
     msg <- paste0(nm, " must be a logical vector")
     .cli_debug("Validation failed: {msg}")
     stop(msg, call. = FALSE)
@@ -472,7 +468,17 @@
 }
 
 .is_num <- function(x) {
-  is.numeric(x) && .is_len_pos(x) && all(!is.na(x))
+  is.numeric(x) && is.null(dim(x)) && .is_len_pos(x) && !anyNA(x)
+}
+
+.assert_count <- function(x, minimum = 0L, required = FALSE, nm = NULL) {
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) return(invisible(TRUE))
+  if (!.is_number(x) || !is.finite(x) || x < minimum ||
+      x != trunc(x) || x > .Machine$integer.max) {
+    stop(nm, " must be a whole number of at least ", minimum, call. = FALSE)
+  }
+  invisible(TRUE)
 }
 
 .assert_num_min <- function(x, required = FALSE, nm = NULL) {
@@ -480,7 +486,7 @@
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  if (!is.numeric(x)) {
+  if (!is.numeric(x) || !is.null(dim(x))) {
     msg <- paste0(nm, " must be a numeric vector")
     .cli_debug("Validation failed: {msg}")
     stop(msg, call. = FALSE)
@@ -520,7 +526,7 @@
 .assert_chr <- function(x, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
-    return(invisible(FALSE))
+    return(invisible(TRUE))
   }
   if (!.is_chr(x)) {
     msg <- paste0(nm, " must be a non-empty character vector")
@@ -531,7 +537,7 @@
 }
 
 .is_chr <- function(x) {
-  .is_chr_mid(x) & all(nzchar(x))
+  .is_chr_mid(x) && all(nzchar(x))
 }
 
 .assert_chr_mid <- function(x, required = FALSE, nm = NULL) {
@@ -548,7 +554,7 @@
 }
 
 .is_chr_mid <- function(x) {
-  is.character(x) && .is_len_pos(x) && all(!is.na(x))
+  is.character(x) && is.null(dim(x)) && .is_len_pos(x) && !anyNA(x)
 }
 
 .assert_chr_min <- function(x, required = FALSE, nm = NULL) {
@@ -556,7 +562,7 @@
   if (!.assert_check(x, required, nm)) {
     return(invisible(TRUE))
   }
-  if (!is.character(x)) {
+  if (!is.character(x) || !is.null(dim(x))) {
     msg <- paste0(nm, " must be character")
     .cli_debug("Validation failed: {msg}")
     stop(msg, call. = FALSE)
@@ -611,10 +617,10 @@
 .assert_nz <- function(x, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
-    return(invisible(FALSE))
+    return(invisible(TRUE))
   }
 
-  if (!.is_len_pos(x) || !all(nzchar(x))) {
+  if (!.is_chr(x)) {
     msg <- paste0(nm, " must be non-empty")
     .cli_debug("Validation failed: {msg}")
     stop(msg, call. = FALSE)
@@ -625,10 +631,11 @@
 .assert_nchar_single <- function(x, nchar, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
-    return(invisible(FALSE))
+    return(invisible(TRUE))
   }
 
-  if (!.is_len_1(x) || nchar(x) != nchar) {
+  .assert_count(nchar, required = TRUE)
+  if (!.is_string_min(x) || is.na(x) || nchar(x) != nchar) {
     msg <- paste0(nm, " must be ", nchar, " characters long")
     .cli_debug("Validation failed: {msg}")
     stop(msg, call. = FALSE)
@@ -639,11 +646,12 @@
 .assert_nchar <- function(x, nchar, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
   if (!.assert_check(x, required, nm)) {
-    return(invisible(FALSE))
+    return(invisible(TRUE))
   }
 
-  if (!is.character(x) || any(nchar(x) != nchar)) {
-    msg <- paste0(nm, " must be non-empty")
+  .assert_count(nchar, required = TRUE)
+  if (!.is_chr_mid(x) || any(nchar(x) != nchar)) {
+    msg <- paste0(nm, " must have ", nchar, " characters in every element")
     .cli_debug("Validation failed: {msg}")
     stop(msg, call. = FALSE)
   }
@@ -660,11 +668,11 @@
 }
 
 .is_string_min <- function(x) {
-  .is_len_1(x) && is.character(x)
+  .is_len_1(x) && is.character(x) && is.null(dim(x))
 }
 
 .is_number_min <- function(x) {
-  .is_len_1(x) && is.numeric(x)
+  .is_len_1(x) && is.numeric(x) && is.null(dim(x))
 }
 
 .is_number <- function(x) {
@@ -676,7 +684,7 @@
 }
 
 .is_flag_min <- function(x) {
-  is.logical(x) && .is_len_1(x)
+  is.logical(x) && is.null(dim(x)) && .is_len_1(x)
 }
 
 # length
@@ -711,14 +719,9 @@
 
 # assert
 .assert_len <- function(x, len, required = FALSE, nm = NULL) {
-  if (is.null(nm)) {
-    nm <- deparse(substitute(x))
-  }
-  if (required) {
-    .assert_given(x = x, nm = nm)
-  } else if (!.is_given_mid(x)) {
-    return(invisible(TRUE))
-  }
+  nm <- .assert_nm_get(x, nm)
+  if (!.assert_check(x, required, nm)) return(invisible(TRUE))
+  .assert_count(len, required = TRUE)
   if (!.is_len(x = x, len = len)) {
     msg <- paste0(
       nm, " must be length ", len, ",\n",
@@ -776,6 +779,7 @@
 # check that it's given
 .assert_check <- function(x, required, nm) {
   nm <- .assert_nm_get(x, nm)
+  if (!.is_flag(required)) stop("required must be TRUE or FALSE", call. = FALSE)
   if (required) {
     .assert_given_mid(x = x, nm = nm)
   } else if (!.is_given_mid(x)) {
@@ -784,14 +788,7 @@
   invisible(TRUE)
 }
 
-.assert_opt_single <- function(x, opt, required = FALSE, nm = NULL) {
-  nm <- .assert_nm_get(x, nm)
-  if (!.assert_check(x, required, nm)) {
-    return(invisible(TRUE))
-  }
-  .assert_len_1(x = x, nm = nm)
-  .assert_in(x = x, nm = nm, opt = opt)
-}
+.assert_opt_single <- .assert_in_single
 
 .assert_given_full <- function(x, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
@@ -840,12 +837,12 @@
 
 .string_create <- function(x, n_char = 20, sep = ", ") {
   x |>
-    paste0(collapse = ", ") |>
+    paste0(collapse = sep) |>
     substr(start = 1, stop = n_char)
 }
 
 .string_cap <- function(x, n = 20) {
-  x |> substr(start = 1, stop = min(nchar(x), n))
+  x |> substr(start = 1, stop = n)
 }
 
 .chr_cap <- function(x, n = 20) {

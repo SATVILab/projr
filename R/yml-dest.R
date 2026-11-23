@@ -311,7 +311,7 @@
                                         title,
                                         type,
                                         profile) {
-  .assert_in(strategy, .opt_remote_strategy_get())
+  .assert_in_single(strategy, .opt_remote_strategy_get())
   yml_title <- .yml_dest_get_title(
     title = title, type = type, profile = profile
   )
@@ -324,7 +324,7 @@
 
 # cue
 .yml_dest_set_send_cue <- function(cue, title, type, profile) {
-  .assert_in(cue, .opt_cue_get())
+  .assert_in_single(cue, .opt_cue_get())
   yml_title <- .yml_dest_get_title(
     title = title, type = type, profile = profile
   )
@@ -412,12 +412,12 @@
 
 # type
 .yml_dest_set_type <- function(yml_type, type, profile) {
-  .assert_in(type, c("local", "github"), TRUE)
+  .assert_in_single(type, c("local", "github"), TRUE)
   .yml_build_set_nm(yml_type, type, profile)
 }
 
 .yml_dest_get_type <- function(type, profile) {
-  .assert_in(type, c("local", "github"), TRUE)
+  .assert_in_single(type, c("local", "github"), TRUE)
   init_list <- .yml_get(profile)[["build"]][[type]]
   if (length(init_list) == 0L) {
     return(NULL)

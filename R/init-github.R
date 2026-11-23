@@ -13,6 +13,11 @@ projr_init_github <- function(
   create_repo = TRUE,
   git_commit = TRUE
 ) {
+  .assert_string(user)
+  .assert_string(org)
+  .assert_flag(public, TRUE)
+  .assert_flag(create_repo, TRUE)
+  .assert_flag(git_commit, TRUE)
   if (!.git_repo_check_exists()) {
     # offer create repository if it does not exist
     if (create_repo) {

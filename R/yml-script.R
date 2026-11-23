@@ -115,7 +115,7 @@ projr_yml_script_add <- function(path,
 #' @export
 projr_yml_script_rm <- function(title, path = NULL, profile = "default") {
   .assert_string(title, TRUE)
-  .assert_string(path)
+  .assert_chr(path)
   if (.is_given_mid(profile)) {
     .assert_string(profile)
   }
@@ -195,7 +195,7 @@ projr_yml_script_add_pre <- function(path,
                                      cue = NULL,
                                      overwrite = TRUE,
                                      profile = "default") {
-  .yml_script_add(
+  projr_yml_script_add(
     path = path, title = title,
     stage = "pre", cue = cue, profile = profile, overwrite = overwrite
   )
@@ -208,7 +208,7 @@ projr_yml_script_add_post <- function(path,
                                       cue = NULL,
                                       overwrite = TRUE,
                                       profile = "default") {
-  .yml_script_add(
+  projr_yml_script_add(
     path = path, title = title,
     stage = "post", cue = cue, profile = profile, overwrite = overwrite
   )

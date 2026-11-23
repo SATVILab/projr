@@ -43,10 +43,7 @@ projr_yml_check <- function(profile = NULL) {
   .assert_in(approach, c("cpp", "legacy"), nm = "settings.hashing.approach")
 
   cores <- hashing[["cores"]] %||% 1L
-  .assert_number(cores, TRUE, nm = "settings.hashing.cores")
-  if (!is.finite(cores) || cores < 1 || cores != trunc(cores) || cores > .Machine$integer.max) {
-    stop("settings.hashing.cores must be a positive whole number.", call. = FALSE)
-  }
+  .assert_count(cores, minimum = 1L, required = TRUE, nm = "settings.hashing.cores")
   list(approach = approach, cores = as.integer(cores))
 }
 

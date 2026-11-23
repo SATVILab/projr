@@ -122,7 +122,7 @@ test_that("All assertion functions work as expected", {
       # checking number of characters
       # `.assert_nchar()` tests that all elements have a certain length
       expect_error(.assert_nchar(x, 2),
-        regexp = "must be non-empty"
+        regexp = "must have 2 characters"
       )
       expect_true(.assert_nchar(x, 1))
       expect_error(.assert_nchar_single(x[[1]], 2),
@@ -514,8 +514,7 @@ test_that("Partially tested functions have full coverage", {
         regexp = "must be a non-empty character vector"
       )
       x_chr_null <- NULL
-      # .assert_chr returns FALSE when given NULL and required=FALSE
-      expect_false(.assert_chr(x_chr_null, required = FALSE))
+      expect_true(.assert_chr(x_chr_null, required = FALSE))
 
       # .assert_given() - edge cases with missing argument
       expect_error(.assert_given(NULL),
@@ -549,9 +548,8 @@ test_that("Partially tested functions have full coverage", {
       expect_true(.assert_flag(NULL, required = FALSE))
       expect_true(.assert_flag_min(NULL, required = FALSE))
       expect_true(.assert_lgl(NULL, required = FALSE))
-      # These return FALSE when NULL and required=FALSE
-      expect_false(.assert_nchar(NULL, 5, required = FALSE))
-      expect_false(.assert_nchar_single(NULL, 5, required = FALSE))
+      expect_true(.assert_nchar(NULL, 5, required = FALSE))
+      expect_true(.assert_nchar_single(NULL, 5, required = FALSE))
       expect_true(.assert_num(NULL, required = FALSE))
       expect_true(.assert_num_min(NULL, required = FALSE))
       expect_true(.assert_number(NULL, required = FALSE))
@@ -623,7 +621,7 @@ test_that("Edge cases for remaining functions with partial coverage", {
       expect_true(.assert_number_min(NULL, required = FALSE))
 
       # .assert_nz() - test with NULL when not required
-      expect_false(.assert_nz(NULL, required = FALSE))
+      expect_true(.assert_nz(NULL, required = FALSE))
 
       # .assert_path_not_file() - test with NULL when not required
       expect_true(.assert_path_not_file(NULL, required = FALSE))
@@ -682,4 +680,28 @@ test_that("Edge cases for remaining functions with partial coverage", {
       )
     }
   )
+})
+
+test_that("assertions inspect every entry and give argument-specific errors", {
+  skip_if(.is_test_select())
+  expect_error(.assert_in_not(c("keep", "forbidden"), "forbidden"), "must not be")
+  expect_error(.assert_in_not(c("keep", NA), "forbidden"), "must not be")
+  expect_error(.assert_attr_value(structure(1L, longer = "yes"), "long", "yes"), "attribute long")
+  expect_error(.assert_nz(NA_character_), "must be non-empty")
+  expect_error(.assert_nchar_single(NA_character_, 1L), "characters long")
+  expect_error(.assert_nchar(c("a", NA_character_), 1L), "every element")
+  expect_error(.assert_in_single(list("ok"), "ok"), "must be character")
+  expect_error(.assert_flag(matrix(TRUE)), "non-NA flag")
+  expect_error(.assert_len(letters, 1.5), "len must be a whole number")
+  expect_error(.assert_string(NULL, required = NA), "required must be TRUE or FALSE")
+
+  root <- withr::local_tempdir()
+  file <- file.path(root, "file")
+  file.create(file)
+  expect_error(.assert_path_not_file(c(root, file)), "pre-existing file")
+  expect_true(.assert_path_not_file(c(root, file.path(root, "new"))))
+  expect_error(.assert_path_not_sub(c("ok", "parent/child"), c("other", "parent")), "subdirectory")
+  expect_identical(.string_create(c("a", "b"), sep = "|"), "a|b")
+  expect_error(projr_content_update(clear = c(TRUE, FALSE)), "clear must be a non-NA flag")
+  expect_error(projr_log_clear(history = NA), "history must be a non-NA flag")
 })

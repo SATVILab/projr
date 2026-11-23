@@ -209,7 +209,7 @@ pkgdown::check_pkgdown()
 - Indent with **2 spaces**.
 - Use the **native pipe** `|>`, not `%>%`.
 - Keep functions focused and modular.
-- Validate all inputs at the top of functions using `.assert_*()` helpers from `R/check.R`.
+- Validate public inputs before modifying files or contacting a remote. Use the shared `.assert_*()` helpers from `R/check.R`. Use `.assert_flag()` for scalar switches, `.assert_in_single()` for a single choice and `.assert_count()` for whole-number counts. Optional NULL arguments pass validation.
 
 ### Documentation (roxygen2)
 

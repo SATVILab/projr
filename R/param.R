@@ -40,16 +40,8 @@ projr_par_get <- function(..., profile = NULL) {
 }
 
 .par_get_option <- function(par_list, par_vec) {
-  parse_txt <- paste0(
-    "par_list[['",
-    paste0(par_vec, collapse = "']][['"),
-    "']]",
-    collapse = ""
-  )
-  tryCatch(
-    eval(parse(text = parse_txt)),
-    error = function(e) NULL
-  )
+  .assert_chr_min(par_vec, TRUE)
+  tryCatch(par_list[[par_vec]], error = function(e) NULL)
 }
 
 #' @rdname projr_par_get
@@ -67,7 +59,7 @@ projr_param_get <- projr_par_get
 #' @export
 projr_yml_par_add <- function(profile = "default") {
   profile <- if (is.null(profile)) "default" else profile
-  .assert_chr(profile, TRUE)
+  .assert_string(profile, TRUE)
   .yml_par_add_empty(profile)
 }
 

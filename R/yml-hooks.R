@@ -161,11 +161,10 @@ projr_yml_hooks_rm_all <- function(profile = "default") {
 projr_yml_hooks_add_pre <- function(path,
                                     overwrite = TRUE,
                                     profile = "default") {
-  .yml_hooks_add(
+  projr_yml_hooks_add(
     path = path,
     stage = "pre", profile = profile, overwrite = overwrite
-  ) |>
-    .yml_hooks_set(profile = profile)
+  )
 }
 
 #' @rdname yml-hooks
@@ -173,9 +172,8 @@ projr_yml_hooks_add_pre <- function(path,
 projr_yml_hooks_add_post <- function(path,
                                      overwrite = TRUE,
                                      profile = "default") {
-  .yml_hooks_add(
+  projr_yml_hooks_add(
     path = path,
     stage = "post", profile = profile, overwrite = overwrite
-  ) |>
-    .yml_hooks_set(profile = profile)
+  )
 }

@@ -40,7 +40,7 @@
 #' @return Character. Path to the build type log directory.
 #' @keywords internal
 .log_dir_get_type <- function(build_type = "output", create = TRUE) {
-  .assert_in(build_type, c("output", "dev"))
+  .assert_in_single(build_type, c("output", "dev"), TRUE)
   path <- file.path(.log_dir_get_base(), build_type)
   if (create && !dir.exists(path)) {
     dir.create(path, recursive = TRUE)
@@ -316,9 +316,9 @@ projr_log_clear <- function(build_type = "all",
                             before_date = NULL,
                             before_version = NULL) {
   # Validate inputs
-  .assert_in(build_type, c("all", "output", "dev"))
-  .assert_lgl(history)
-  .assert_lgl(output)
+  .assert_in_single(build_type, c("all", "output", "dev"), TRUE)
+  .assert_flag(history, TRUE)
+  .assert_flag(output, TRUE)
 
   # Determine which build types to clear
   types <- if (build_type == "all") c("output", "dev") else build_type
@@ -552,7 +552,7 @@ projr_log_clear <- function(build_type = "all",
 #' @return Character or NULL. Path to the most recent log file, or NULL if none found.
 #' @keywords internal
 .log_file_get_current <- function(build_type = "output", date = NULL) {
-  .assert_in(build_type, c("output", "dev"))
+  .assert_in_single(build_type, c("output", "dev"), TRUE)
 
   type_dir <- .log_dir_get_type(build_type, create = FALSE)
   if (!dir.exists(type_dir)) {
@@ -643,8 +643,10 @@ projr_log_view <- function(log_file = NULL,
                            build_type = "auto",
                            n_lines = 10,
                            show_header = TRUE) {
-  .assert_in(build_type, c("auto", "output", "dev"))
-  .assert_lgl(show_header)
+  .assert_string(log_file)
+  .assert_in_single(build_type, c("auto", "output", "dev"), TRUE)
+  .assert_flag(show_header, TRUE)
+  if (!identical(n_lines, NA)) .assert_number_min(n_lines)
 
   if (is.null(log_file)) {
     if (build_type == "auto") {

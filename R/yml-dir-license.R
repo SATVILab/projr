@@ -51,11 +51,7 @@ projr_yml_dir_license_set <- function(type,
   .assert_string(type, TRUE)
   .assert_string(label, TRUE)
   .assert_chr(authors)
-  if (!is.null(year)) {
-    if (!is.numeric(year) || length(year) != 1) {
-      stop("year must be a single numeric value", call. = FALSE)
-    }
-  }
+  .assert_number(year)
   .assert_string(profile)
 
   # Validate license type
@@ -283,11 +279,7 @@ projr_license_create_manual <- function(type,
   .assert_string(type, TRUE)
   .assert_chr(labels)
   .assert_chr(authors)
-  if (!is.null(year)) {
-    if (!is.numeric(year) || length(year) != 1) {
-      stop("year must be a single numeric value", call. = FALSE)
-    }
-  }
+  .assert_number(year)
   .assert_string(profile)
 
   # Validate license type
